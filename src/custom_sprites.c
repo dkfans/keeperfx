@@ -23,6 +23,7 @@
 #include "engine_render.h"
 #include "bflib_fileio.h"
 #include "gui_draw.h"
+#include "gui_msgs.h"
 #include "frontend.h"
 #include "bflib_dernc.h"
 #include "net_checksums.h"
@@ -337,6 +338,37 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc)
             LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, next_free_sprite, KEEPERSPRITE_ADD_NUM);
         }
     }
+}
+
+void show_ignored_fxdata_zip_messages(void)
+{
+    char *dname = prepare_file_path(FGrp_FxData, NULL);
+    if (dname == NULL || dname[0] == 0) {
+        return;
+    }
+    char full_path[1024] = {0};
+    sprintf(full_path, "%s/%s", dname, "*.zip");
+    struct TbFileEntry fe;
+    struct TbFileFind *ff = LbFileFindFirst(full_path, &fe);
+    if (ff == NULL) {
+        return;
+    }
+    do {
+        int zip_is_required = 0;
+        for (int i = 0; i < REQUIRED_SPRITE_ZIP_COUNT; i++) {
+            if (strcasecmp(fe.Filename, required_sprite_zips[i]) == 0) {
+                zip_is_required = 1;
+                break;
+            }
+        }
+        if (zip_is_required != 0) {
+            continue;
+        }
+        WARNLOG("/fxdata/%s was not loaded. Please install it as a mod inside the /mods/ folder.", fe.Filename);
+        message_add(MsgType_Blank, 0, "Please install it as a mod inside the /mods/ folder.");
+        message_add_fmt(MsgType_Blank, 0, "/fxdata/%.39s was not loaded.", fe.Filename);
+    } while (LbFileFindNext(ff, &fe) >= 0);
+    LbFileFindEnd(ff);
 }
 
 /* @comment
