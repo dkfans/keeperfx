@@ -168,7 +168,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
                 cast_on_tng = false;
             }
         }
-        if ((powerst->can_cast_flags & PwCast_ThingOrMap) != 0)
+        if (flag_is_set(powerst->can_cast_flags,PwCast_ThingOrMap))
         {
             // Fail only if both functions have failed - one is enough
             if (!cast_at_xy && !cast_on_tng) {
@@ -303,12 +303,30 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((powerst->can_cast_flags & PwCast_OwnedObjects) != 0)
         {
             if (thing->owner == plyr_idx) {
+                return true;
+            }
+        }
+        if ((powerst->can_cast_flags & PwCast_NeutrlObjects) != 0)
+        {
+            if (is_neutral_thing(thing)) {
+                return true;
+            }
+        }
+        if ((powerst->can_cast_flags & PwCast_EnemyObjects) != 0)
+        {
+            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
+                return true;
+            }
+        }
+        if ((powerst->can_cast_flags & PwCast_OwnedObjectsPickup) != 0)
+        {
+            if (thing->owner == plyr_idx) {
                 if (object_is_pickable_by_hand_to_hold(thing)) {
                     return true;
                 }
             }
         }
-        if ((powerst->can_cast_flags & PwCast_NeutrlObjects) != 0)
+        if ((powerst->can_cast_flags & PwCast_NeutrlObjectsPickup) != 0)
         {
             if (is_neutral_thing(thing)) {
                 if (object_is_pickable_by_hand_to_hold(thing)) {
@@ -316,10 +334,34 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 }
             }
         }
-        if ((powerst->can_cast_flags & PwCast_EnemyObjects) != 0)
+        if ((powerst->can_cast_flags & PwCast_EnemyObjectsPickup) != 0)
         {
             if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
                 if (object_is_pickable_by_hand_to_hold(thing)) {
+                    return true;
+                }
+            }
+        }
+        if ((powerst->can_cast_flags & PwCast_OwnedObjectsSlap) != 0)
+        {
+            if (thing->owner == plyr_idx) {
+                if (object_is_slappable(thing)) {
+                    return true;
+                }
+            }
+        }
+        if ((powerst->can_cast_flags & PwCast_NeutrlObjectsSlap) != 0)
+        {
+            if (is_neutral_thing(thing)) {
+                if (object_is_slappable(thing)) {
+                    return true;
+                }
+            }
+        }
+        if ((powerst->can_cast_flags & PwCast_EnemyObjectsSlap) != 0)
+        {
+            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
+                if (object_is_slappable(thing)) {
                     return true;
                 }
             }
@@ -338,7 +380,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((powerst->can_cast_flags & PwCast_OwnedBoulders) != 0)
         {
             if (thing->owner == plyr_idx) {
-                if (shot_is_slappable(thing, plyr_idx))  {
+                if (shot_is_slappable_by_player(thing, plyr_idx))  {
                     return true;
                 }
             }
@@ -675,11 +717,6 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoo
             }
         }
     }
-    if ((can_cast & PwCast_Anywhere) != 0)
-    {
-        // If allowed casting anywhere, we're done
-        return true;
-    }
     if ((can_cast & PwCast_NeedsDelay) != 0)
     {
         struct PlayerInfo *player;
@@ -687,6 +724,11 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoo
         if (get_gameturn() <= player->power_of_cooldown_turn) {
             return false;
         }
+    }
+    if ((can_cast & PwCast_Anywhere) != 0)
+    {
+        // If allowed casting anywhere, we're done
+        return true;
     }
     PlayerNumber slb_owner;
     slb_owner = slabmap_owner(slb);

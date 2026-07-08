@@ -223,6 +223,7 @@ static void init_level(void)
     game.armageddon_cast_turn = 0;
     game.armageddon_over_turn = 0;
     clear_messages();
+    show_ignored_fxdata_zip_messages();
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     memset(game.pay_day_progress, 0, sizeof(game.pay_day_progress));
