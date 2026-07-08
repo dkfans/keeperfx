@@ -3366,25 +3366,6 @@ void redetect_screen_refresh_rate_for_draw()
     }
 }
 
-TbBool keeper_wait_for_screen_focus(void)
-{
-    do {
-        if ( !poll_inputs() )
-        {
-          force_application_close();
-          break;
-        }
-        if (LbIsActive())
-          return true;
-        if (network_is_active())
-          return true;
-        if (!freeze_game_on_focus_lost())
-          return true;
-        LbSleepFor(50);
-    } while ((!exit_keeper) && (!quit_game));
-    return false;
-}
-
 static bool use_delta_time()
 {
     // Always enable interpolation in multiplayer games.
@@ -3429,6 +3410,28 @@ static void update_gameplay_delta_time()
         game.process_turn_time = 1;
         process_frame_time = 1;
     }
+}
+
+static bool keeper_wait_for_screen_focus()
+{
+    do {
+        if ( !poll_inputs() )
+        {
+          force_application_close();
+          break;
+        }
+        if (LbIsActive())
+          return true;
+        if (network_is_active())
+          return true;
+        if (!freeze_game_on_focus_lost())
+          return true;
+        LbSleepFor(50);
+        update_gameplay_delta_time();
+        game.process_turn_time = 1.0;
+        time_since_last_draw = 1.0;
+    } while ((!exit_keeper) && (!quit_game));
+    return false;
 }
 
 static void gameplay_loop_draw()
