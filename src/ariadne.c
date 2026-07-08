@@ -85,6 +85,8 @@ static int32_t Border[BORDER_LENGTH];
 static int32_t route_fwd[ROUTE_LENGTH];
 static int32_t route_bak[ROUTE_LENGTH];
 
+static NavColour *IanMap = NULL;
+
 /******************************************************************************/
 static unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -187,6 +189,9 @@ static struct Path fwd_path;
 static struct Path bak_path;
 static struct Path best_path;
 /******************************************************************************/
+
+#define navmap_tile_number(stl_x,stl_y) ((stl_y)*game.navigation_map_size_x+(stl_x))
+
 long thing_nav_block_sizexy(const struct Thing *thing)
 {
     long i;
@@ -238,6 +243,14 @@ static void edgelen_init(void);
 static NavColour get_navigation_colour(long stl_x, long stl_y);
 static TbBool triangulate_area(NavColour *imap, long sx, long sy, long ex, long ey);
 /******************************************************************************/
+static void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, NavColour navcolour)
+{
+  if ((stl_x < 0) || (stl_x > game.map_subtiles_x))
+      return;
+  if ((stl_y < 0) || (stl_y > game.map_subtiles_y))
+      return;
+  game.navigation_map[navmap_tile_number(stl_x,stl_y)] = navcolour;
+}
 
 static unsigned long fits_thro(long tri_idx, long ormask_idx)
 {
@@ -4712,14 +4725,11 @@ static NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
 
 static NavColour get_navigation_colour_for_cube(long stl_x, long stl_y)
 {
-    long tcube;
-    int32_t cube_pos;
     NavColour i;
     i = get_floor_filled_subtiles_at(stl_x, stl_y);
     if (i > NAVMAP_FLOORHEIGHT_MAX)
       i = NAVMAP_FLOORHEIGHT_MAX;
-    tcube = get_top_cube_at(stl_x, stl_y, &cube_pos);
-    if (cube_is_lava(tcube) || (cube_pos<4 && cube_is_sacrificial(tcube)))
+    if (subtile_is_unsafe(stl_x, stl_y))
       i |= NAVMAP_UNSAFE_SURFACE;
     return i;
 }

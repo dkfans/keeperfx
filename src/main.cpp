@@ -3094,7 +3094,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
           colmn = get_column(k);
           if (colmn->solidmask >= 8)
           {
-            if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((mapblk->flags & SlbAtFlg_IsRoom) == 0)) )
+            if ( (!visible) || (((mapblk->flags & SlbAtFlg_IsRoom) == 0)) )
               smask &= 3;
           }
         }

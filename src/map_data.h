@@ -58,7 +58,6 @@ struct Map {
 /******************************************************************************/
 extern struct Map bad_map_block;
 extern MapSubtlCoord map_subtiles_z;
-extern NavColour *IanMap;
 extern long nav_map_initialised;
 /******************************************************************************/
 /** Convert subtile to slab. */
@@ -77,7 +76,6 @@ extern long nav_map_initialised;
 /** Converts slab to coord value. */
 #define slab_coord(slb) ((slb) * (COORD_PER_SLB))
 #define subtile_coord_center(stl) ((stl)*COORD_PER_STL+COORD_PER_STL/2)
-#define navmap_tile_number(stl_x,stl_y) ((stl_y)*game.navigation_map_size_x+(stl_x))
 /******************************************************************************/
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Map *get_map_block_at_pos(SubtlCodedCoords stl_num);
@@ -106,9 +104,6 @@ long get_mapblk_filled_subtiles(const struct Map *mapblk);
 void set_mapblk_filled_subtiles(struct Map *map, long height);
 long get_mapblk_wibble_value(const struct Map *mapblk);
 void set_mapblk_wibble_value(struct Map *mapblk, long wib);
-
-NavColour get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, NavColour navcolour);
 
 TbBool set_coords_with_clip(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z);
 TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

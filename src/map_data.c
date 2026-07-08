@@ -40,7 +40,6 @@ struct Map bad_map_block;
  */
 MapSubtlCoord map_subtiles_z = 8;
 
-NavColour *IanMap = NULL;
 long nav_map_initialised = 0;
 /******************************************************************************/
 /**
@@ -89,24 +88,6 @@ TbBool map_block_invalid(const struct Map *map)
   if (map == INVALID_MAP_BLOCK)
     return true;
   return (map < &game.map[0]);
-}
-
-NavColour get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-  if ((stl_x < 0) || (stl_x > game.map_subtiles_x))
-      return 0;
-  if ((stl_y < 0) || (stl_y > game.map_subtiles_y))
-      return 0;
-  return game.navigation_map[navmap_tile_number(stl_x,stl_y)];
-}
-
-void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, NavColour navcolour)
-{
-  if ((stl_x < 0) || (stl_x > game.map_subtiles_x))
-      return;
-  if ((stl_y < 0) || (stl_y > game.map_subtiles_y))
-      return;
-  game.navigation_map[navmap_tile_number(stl_x,stl_y)] = navcolour;
 }
 
 long get_ceiling_height(const struct Coord3d *pos)
