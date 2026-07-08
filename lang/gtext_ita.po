@@ -7442,3 +7442,13 @@ msgstr "unused"
 msgctxt "Network game message"
 msgid "Network connection to host lost"
 msgstr "Connessione di rete con l'host persa"
+
+#: guitext:1120
+msgctxt "In-game message"
+msgid "/fxdata/%.39s was not loaded."
+msgstr "/fxdata/%.39s non è stato caricato."
+
+#: guitext:1121
+msgctxt "In-game message"
+msgid "Please install it as a mod inside the /mods/ folder."
+msgstr "Installalo come mod nella cartella /mods/."

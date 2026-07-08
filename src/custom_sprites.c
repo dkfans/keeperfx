@@ -24,6 +24,7 @@
 #include "bflib_fileio.h"
 #include "gui_draw.h"
 #include "gui_msgs.h"
+#include "config_strings.h"
 #include "frontend.h"
 #include "bflib_dernc.h"
 #include "net_checksums.h"
@@ -365,8 +366,8 @@ void show_ignored_fxdata_zip_messages(void)
             continue;
         }
         WARNLOG("/fxdata/%s was not loaded. Please install it as a mod inside the /mods/ folder.", fe.Filename);
-        message_add(MsgType_Blank, 0, "Please install it as a mod inside the /mods/ folder.");
-        message_add_fmt(MsgType_Blank, 0, "/fxdata/%.39s was not loaded.", fe.Filename);
+        message_add(MsgType_Blank, 0, get_string(GUIStr_FxdataZipInstallAsMod));
+        message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_FxdataZipNotLoaded), fe.Filename);
     } while (LbFileFindNext(ff, &fe) >= 0);
     LbFileFindEnd(ff);
 }
