@@ -3447,7 +3447,8 @@ static void gameplay_loop_draw()
         frametime_start_measurement(Frametime_Sleep);
         if (process_frame_time < 1.0)
         {
-            SDL_Delay(1);
+            if (game.process_turn_time < 1.0)
+                SDL_Delay(1);
             do_draw = false;
         }
         else
