@@ -221,7 +221,6 @@ TbBool TimerFreeze = false;
 int32_t fps_limit_current = 0;
 int32_t fps_limit_main = 0; // -1 if auto
 int32_t fps_limit_secondary = 0;
-static long double frame_time_target = 0;
 static long double process_frame_time = 0;
 static long double time_since_last_draw = 0;
 static long double average_frame_draw_time = 1;
@@ -3365,11 +3364,6 @@ void redetect_screen_refresh_rate_for_draw()
     } else if (fps_limit_main > 0) {
         fps_limit_current = fps_limit_main;
     }
-
-    if (fps_limit_current > 0)
-        frame_time_target = 1.L / fps_limit_current * turns_per_second;
-    else
-        frame_time_target = 0;
 }
 
 TbBool keeper_wait_for_screen_focus(void)
@@ -3417,6 +3411,7 @@ static void update_gameplay_delta_time()
 
         const long double seconds = max(ns / 1e9L, 0.L);
         const long double turns = min(seconds * turns_per_second, 1.L);
+        const long double frames = seconds * fps_limit_current;
 
         game.process_turn_time += turns * multiplayer_clock_adjust * max(game.frame_skip, 1);
 
@@ -3425,9 +3420,8 @@ static void update_gameplay_delta_time()
         // multiplayer clock adjustment or frameskip.
         time_since_last_draw += turns;
 
-        // Like process_turn_time, but for the video frame rate.  This uses the
-        // same time unit (fractional turns) for convenience.
-        process_frame_time += turns;
+        // Like process_turn_time, but for the video frame rate.
+        process_frame_time += frames;
     } else {
         // Set to 1 so that these variables don't affect anything. (if something is multiplied by 1 it doesn't change)
         time_since_last_draw = 1;
@@ -3448,18 +3442,20 @@ static void gameplay_loop_draw()
         do_draw = false;
 
     // Frame rate limiter
-    frametime_start_measurement(Frametime_Sleep);
-    if (process_frame_time < frame_time_target)
+    if (fps_limit_current > 0)
     {
-        SDL_Delay(1);
-        do_draw = false;
+        frametime_start_measurement(Frametime_Sleep);
+        if (process_frame_time < 1.0)
+        {
+            SDL_Delay(1);
+            do_draw = false;
+        }
+        else
+        {
+            process_frame_time = min(1.L, process_frame_time - 1.L);
+        }
+        frametime_end_measurement(Frametime_Sleep);
     }
-    else
-    {
-        process_frame_time = min(process_frame_time - frame_time_target,
-                                 2 * frame_time_target);
-    }
-    frametime_end_measurement(Frametime_Sleep);
 
     // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
     frametime_start_measurement(Frametime_Draw);

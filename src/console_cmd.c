@@ -493,7 +493,6 @@ TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
     } else {
         turns_per_second = atoi(pr1str);
     }
-    redetect_screen_refresh_rate_for_draw();
     return true;
 }
 
