@@ -3618,7 +3618,6 @@ static long tri_split3(long btri_id, long pt_x, long pt_y)
     memcpy(tri2,btri,sizeof(struct Triangle));
     long pt_id;
     pt_id = point_set_new_or_reuse(pt_x, pt_y);
-    //pt_id = point_new(); // from before point_set_new_or_reuse()
     if (pt_id < 0) {
         tri_dispose(new_triangle1_id);
         tri_dispose(new_triangle2_id);
@@ -3731,7 +3730,6 @@ static long edge_split(long ntri, long ncor, long pt_x, long pt_y)
     NAVIDBG(19,"Starting");
     // Create and fill new point
     pt_idx = point_set_new_or_reuse(pt_x, pt_y);
-    //pt_idx = point_new(); // from before point_set_new_or_reuse()
     if (pt_idx < 0) {
         return -1;
     }

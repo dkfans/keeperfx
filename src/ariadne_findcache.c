@@ -87,7 +87,7 @@ long triangle_brute_find8_near(long pos_x, long pos_y)
     return tri_id;
 }
 
-long triangle_find_cache_get(long pos_x, long pos_y)
+static long triangle_find_cache_get(long pos_x, long pos_y)
 {
     long cache_x = (pos_x >> 14);
     if (cache_x > 3)
@@ -115,7 +115,7 @@ long triangle_find_cache_get(long pos_x, long pos_y)
 
 }
 
-void triangle_find_cache_put(long pos_x, long pos_y, long ntri)
+static void triangle_find_cache_put(long pos_x, long pos_y, long ntri)
 {
     long cache_x = (pos_x >> 14);
     if (cache_x > 3)
