@@ -1223,16 +1223,14 @@ msgstr ""
 
 #. Level Woodly Rhyme information
 #: guitext:106
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your latest discovery is the Word of Power Trap. When activated, the trap "
 "triggers an expanding ring of demonic energy that incinerates anything "
 "caught in its area of effect. What a scream that should be."
 msgstr ""
-"Je laatste ontdekking is de KRACHTTERMVAL. Zodra de val afgaat, breidt een "
-"ring van vuur zich uit en verbrandt alles binnen een bepaald gebied. Dat zal "
-"een hoop gegil geven."
+"Je nieuwste ontdekking is de Krachttermval. Zodra de val afgaat, breidt een "
+"ring van duivelse energie zich uit en verbrandt alles binnen een bepaald gebied. Hilarisch!"
 
 #. Level Moonbrush Wood information
 #: guitext:107
@@ -1242,7 +1240,7 @@ msgid ""
 "all of your creatures back to your Dungeon Heart. Let's hope you never need "
 "it."
 msgstr ""
-"De spreuk 'AUDIËNTIE' is ontdekt. Hiermee worden al je wezens direct naar "
+"De spreuk 'Audiëntie' is ontdekt. Hiermee worden al je wezens direct naar "
 "het Hart van je kerker gestuurd. Hopelijk hoef je deze spreuk nooit te "
 "gebruiken."
 
@@ -1386,13 +1384,13 @@ msgstr ""
 
 #. Level Elf's Dance information
 #: guitext:121
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
 "it, the area around changes into molten lava, which most creatures won't "
 "even try to pass."
-msgstr "Er is een Lava-val gemaakt."
+msgstr "Er is een Lava-val gemaakt. Als een wezen er overheen loopt verandert"
+"de locatie zich in lava, wat voor de meesten onbegaanbaar is."
 
 #. Level Mirthshire objective
 #: guitext:122
@@ -3158,7 +3156,6 @@ msgid "Name"
 msgstr "NAAM"
 
 #: guitext:397
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "Spelmodi"
@@ -3166,91 +3163,88 @@ msgstr "Spelmodi"
 #: guitext:398
 msgctxt "Menu interface item"
 msgid "Messages"
-msgstr "BERICHTEN"
+msgstr "Berichten"
 
 #: guitext:399
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
-msgstr "LOBBY MAKEN"
+msgstr "Lobby maken"
 
 #: guitext:400
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
-msgstr "LOBBY BETREDEN"
+msgstr "Lobby betreden"
 
 #: guitext:401
 msgctxt "Menu interface item"
 msgid "Start Game"
-msgstr "SPEL STARTEN"
+msgstr "Spel starten"
 
 #: guitext:402
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
-msgstr "ONLINE LOBBY'S"
+msgstr "Online lobby's"
 
 #: guitext:403
 msgctxt "Menu interface item"
 msgid "Cancel"
-msgstr "ANNULEREN"
+msgstr "Annuleren"
 
 #: guitext:404
 msgctxt "Menu interface item"
 msgid "No Name"
-msgstr "GEEN NAAM"
+msgstr "Geen Naam"
 
 #: guitext:405
 msgctxt "Menu interface item"
 msgid "Players"
-msgstr "SPELERS"
+msgstr "Spelers"
 
 #. Creature experience level
 #: guitext:406
 msgctxt "Menu interface item"
 msgid "Level"
-msgstr "LEVEL"
+msgstr "Level"
 
 #: guitext:407
 msgctxt "Menu interface item"
 msgid "Levels"
-msgstr "LEVELS"
+msgstr "Levels"
 
 #: guitext:408
 msgctxt "Menu interface item"
 msgid "Games"
-msgstr "SPELLEN"
+msgstr "Spellen"
 
 #: guitext:409
 msgctxt "Menu interface item"
 msgid "Modem Menu"
-msgstr "MODEM"
+msgstr "Modem"
 
 #: guitext:410
 msgctxt "Menu interface item"
 msgid "Serial Menu"
-msgstr "SERIËLE VERBINDING"
+msgstr "Seriële verbinding"
 
 #: guitext:411
 msgctxt "Menu interface item"
 msgid "Init"
-msgstr "INIT"
+msgstr "Init"
 
 #: guitext:412
 msgctxt "Menu interface item"
 msgid "Hangup"
-msgstr "OPHANGEN"
+msgstr "Ophangen"
 
 #: guitext:413
 msgctxt "Menu interface item"
 msgid "Clear"
-msgstr "LEGEN"
+msgstr "Legen"
 
 #: guitext:414
 msgctxt "Menu interface item"
 msgid "Answer"
-msgstr "BEANTWOORDEN"
+msgstr "Beantwoorden"
 
 #: guitext:415
 msgctxt "Menu interface item"
@@ -3260,17 +3254,17 @@ msgstr "START"
 #: guitext:416
 msgctxt "Menu interface item"
 msgid "Ally"
-msgstr "BONDGENOOT"
+msgstr "Bondgenoot"
 
 #: guitext:417
 msgctxt "Menu interface item"
 msgid "Alliance"
-msgstr "BONDGENOOTSCHAP"
+msgstr "Bondgenootschap"
 
 #: guitext:418
 msgctxt "Menu interface item"
 msgid "Credits"
-msgstr "CREDITS"
+msgstr "Credits"
 
 #: guitext:419
 msgctxt "Menu interface item"
@@ -4230,34 +4224,31 @@ msgid "Magic Door"
 msgstr "Magische Deur"
 
 #: guitext:594
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Wooden Door: The simplest means of restricting access. Can be broken down "
 "easily. LMB select. RMB zoom."
 msgstr ""
-"Houten Deur: Eenvoudigste manier om toegang af te sluiten. LMK: selecteren. "
-"RMK: inzoomen.[21.1]"
+"Houten Deur: Eenvoudigste manier om toegang af te sluiten. Gaat makkelijk kapot. "
+"LMK: selecteren. RMK: inzoomen."
 
 #: guitext:595
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
 "RMB zoom."
 msgstr ""
 "Verstevigde Deur: Een houten deur verstevigd met ijzer. LMK: selecteren. "
-"RMK: inzoomen. [21.2]"
+"RMK: inzoomen."
 
 #: guitext:596
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
 "select. RMB zoom."
 msgstr ""
 "IJzeren Deur: Sterke, zware deur die tegen een stootje kan. LMK: selecteren. "
-"RMK: inzoomen. [21.3]"
+"RMK: inzoomen."
 
 #: guitext:597
 msgctxt "Door description"
@@ -4589,21 +4580,15 @@ msgstr ""
 "RMK: inzoomen. [18.3]"
 
 #: guitext:650
-#, fuzzy
-#| msgctxt "Keeper spell description"
-#| msgid ""
-#| "Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
-#| "select, LMB again to reselect, LMB a third time to cancel. RMB zoom. "
-#| "[18.6]"
 msgctxt "Keeper spell description"
 msgid ""
 "Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
 "in range of creatures to gather, cast again for destination. RMB zoom. LMB "
-"Cancel. [18.6]"
+"Cancel."
 msgstr ""
-"Alarmeren: Roept al je wezens naar een gebied in je kerker. LMK: selecteren, "
-"LMK nogmaals: weer selecteren, LMK derde keer: annuleren. RMK: inzoomen. "
-"[18.6]"
+"Alarmeren: Roept alle wezens binnen bereik op om zich naar een gekozen bestemming "
+"te begeven. LMK Selecteren. Werp de spreuk bij de wezens die je wilt verzamelen en "
+"werp hem daarna opnieuw op de gewenste bestemming. RMB Inzoomen. LMB Annuleren."
 
 #: guitext:651
 msgctxt "Keeper spell description"
@@ -4668,27 +4653,20 @@ msgstr ""
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid ""
-"Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
+"Destroy Walls: Breaks down reinforced enemy's walls. LMB select."
 msgstr ""
 "Murenbedwinger: Breekt verstevigde muren van de vijand af. LMK: selecteren. "
-"[18.16]"
 
 #: guitext:661
-#, fuzzy
-#| msgctxt "Keeper spell description"
-#| msgid ""
-#| "Heal: Cast on an area of the dungeon to improve the health of your "
-#| "creatures. LMB select. [18.9]"
 msgctxt "Keeper spell description"
-msgid "Heal: Cast on a creature to improve its health. LMB select. [18.9]"
+msgid "Heal: Cast on a creature to improve its health. LMB select."
 msgstr ""
-"Genezing: Verbetert de gezondheid van je wezens in een gebied van de kerker. "
-"LMK: selecteren. [18.9]"
+"Genezing: Werp de spreak op een wezen om zijn gezondheid  te verbeteren. LMK: selecteren."
 
 #: guitext:662
 msgctxt "Keeper spell description"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "Tijdbom: Verandert je schepsel in een zelfmoordterrorist."
+msgstr "Tijdbom: Verandert je wezen in een zelfmoordterrorist."
 
 #: guitext:663
 msgctxt "Keeper spell description"
@@ -5055,19 +5033,17 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid ""
 "Move Only Computer Assistant: Moves and slaps your creatures. LMB select. "
-"[3.2.4]"
 msgstr ""
 "Alleen Verplaatsen Computerhulp: Verplaatst en slaat je wezens. LMK: "
-"selecteren. [3.2.4]"
+"selecteren."
 
 #: guitext:733
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
 "Zoom. [22.2.1]"
 msgstr ""
-"De meest ervaren wezens oppakken: LMK: oppikken. RMK: inzoomen. [22.2.1]"
+"Wezens oppakken: LMK: Alle wezens. Ctrl+LMk: Ervaren Wezens. RMK: inzoomen. [22.2.1]"
 
 #: guitext:734
 msgctxt "In-game interface description"
@@ -5800,7 +5776,7 @@ msgstr "LOCALISATIE AUDIO MANAGEMENT"
 #: guitext:868
 msgctxt "Network game message"
 msgid "Attempting To Join"
-msgstr "BEZIG VERBINDING TE MAKEN"
+msgstr "Bezig verbinding te maken"
 
 #: guitext:869
 msgctxt "Network game message"
@@ -5828,19 +5804,16 @@ msgid "4 Players"
 msgstr "4 Spelers"
 
 #: guitext:874
-#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "Online"
 
 #: guitext:875
-#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "LAN"
 
 #: guitext:876
-#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "Schermutseling"
@@ -7147,27 +7120,24 @@ msgid "Keeper"
 msgstr "Keeper"
 
 #: guitext:1083
-#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "Schermopname"
 
 #: guitext:1084
-#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "Schermafbeelding"
 
 #: guitext:1085
-#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
-msgstr "Frame-overslaan verhogen"
+msgstr "Meer Frames overslaan"
 
 #: guitext:1086
 msgctxt "Game controls"
 msgid "Frame Skip Decrease"
-msgstr "Frame-overslaan verlagen"
+msgstr "Minder Frames overslaan"
 
 #: guitext:1087
 msgctxt "Game controls"
@@ -7313,7 +7283,7 @@ msgstr "%s heeft het spel verlaten."
 #: guitext:1117
 msgctxt "Network game message"
 msgid "%s has disconnected."
-msgstr "%s is losgekoppeld."
+msgstr "%s is niet meer verbonden."
 
 #: guitext:1118
 msgctxt "Unused"
@@ -7326,13 +7296,11 @@ msgid "Network connection to host lost"
 msgstr "Netwerkverbinding met host verloren"
 
 #: guitext:1120
-#, fuzzy
 msgctxt "In-game message"
 msgid "/fxdata/%.39s was not loaded."
 msgstr "/fxdata/%.39s is niet geladen."
 
 #: guitext:1121
-#, fuzzy
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Installeer dit als mod in de map /mods/."
