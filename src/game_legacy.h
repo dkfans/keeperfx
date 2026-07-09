@@ -411,9 +411,9 @@ struct Game {
 extern struct Game game;
 extern int32_t turns_per_second;
 
-extern int32_t turns_per_second_draw_current;
-extern int32_t turns_per_second_draw_main;
-extern int32_t turns_per_second_draw_secondary;
+extern int32_t fps_limit_current;
+extern int32_t fps_limit_main;
+extern int32_t fps_limit_secondary;
 
 TbBool network_is_active(void);
 
