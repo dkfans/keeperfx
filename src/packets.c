@@ -445,14 +445,17 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
         }
     }
 
-
+    const TbBool use_rotate_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
+                               && (pckt->control_flags & PCtr_ViewRotatePos) != 0;
+    const MapCoord rot_x = use_rotate_pos ? pckt->pos_x : -1;
+    const MapCoord rot_y = use_rotate_pos ? pckt->pos_y : -1;
     if ((pckt->control_flags & PCtr_ViewRotateCCW) != 0)
     {
         switch (cam->view_mode)
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-             view_set_camera_rotation_inertia(cam, 16, 64);
+             view_set_camera_rotation_inertia_around(cam, 16, 64, rot_x, rot_y);
             break;
         case PVM_FrontView:
             cam->rotation_angle_x = (cam->rotation_angle_x + DEGREES_90) & ANGLE_MASK;
@@ -465,7 +468,7 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            view_set_camera_rotation_inertia(cam, -16, -64);
+            view_set_camera_rotation_inertia_around(cam, -16, -64, rot_x, rot_y);
             break;
         case PVM_FrontView:
             cam->rotation_angle_x = (cam->rotation_angle_x - DEGREES_90) & ANGLE_MASK;
@@ -504,10 +507,10 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
     }
     const int32_t zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
     const int32_t zoom_max = CAMERA_ZOOM_MAX;
-    const TbBool with_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
-                         && (pckt->control_flags & PCtr_ViewZoomPos) != 0;
-    const MapCoord zoom_x = with_pos ? pckt->pos_x : -1;
-    const MapCoord zoom_y = with_pos ? pckt->pos_y : -1;
+    const TbBool use_zoom_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
+                             && (pckt->control_flags & PCtr_ViewZoomPos) != 0;
+    const MapCoord zoom_x = use_zoom_pos ? pckt->pos_x : -1;
+    const MapCoord zoom_y = use_zoom_pos ? pckt->pos_y : -1;
     if (pckt->control_flags & PCtr_ViewZoomIn)
     {
         switch (cam->view_mode)
