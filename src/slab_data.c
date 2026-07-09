@@ -611,7 +611,7 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
     mapblk->flags |= nflags;
 }
 
-void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
+void collect_rooms_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, struct Room** room_list)
 {
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
@@ -625,9 +625,43 @@ void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
         if (slabst->category == SlbAtCtg_RoomInterior)
         {
             struct Room* room = slab_room_get(sslb_x, sslb_y);
-            do_room_recalculation(room);
+            int i = 0;
+            while (true)
+            {
+                if (room_list[i] == room) {
+                    break;
+                }
+                else if (room_list[i] == NULL) {
+                    room_list[i] = room;
+                    break;
+                }
+                i++;
+            }
         }
     }
+}
+
+void recalculate_rooms_in_list(struct Room** room_list)
+{
+    while (true)
+    {
+        struct Room* room = *room_list;
+        if (room == NULL) {
+            break;
+        }
+
+        do_room_recalculation(room);
+        room_list++;
+    }
+}
+
+void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Room* room_list[SMALL_AROUND_SLAB_LENGTH + 1];
+    memset(room_list, 0, sizeof(room_list));
+    collect_rooms_around_slab(slb_x, slb_y, room_list);
+
+    recalculate_rooms_in_list(room_list);
 }
 
 SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
