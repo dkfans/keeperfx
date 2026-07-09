@@ -154,7 +154,7 @@ void frontnetmap_unload(void)
     free_spritesheet(&map_flag);
     free_spritesheet(&map_hand);
     fe_network_active = 0;
-    stop_music();
+    stop_music(false);
     set_music_volume(settings.music_volume);
 }
 

@@ -67,6 +67,7 @@ extern "C" {
 #define LANDVIEW_PAN_ACCEL (4 * 3.3f)
 #define LANDVIEW_PAN_DECEL (1 * 3.3f)
 #define LANDVIEW_PAN_MAX_SPEED (24 * 3.3f)
+#define LANDVIEW_SOUND_FADE_PERCENT 90 //90% leaves a silent margin before the hard stop
 struct TbSprite dummy_sprite = {0, 0, 0};
 
 LevelNumber mouse_over_lvnum;
@@ -972,7 +973,9 @@ void frontmap_start_music(void)
 void process_map_zoom_in(void)
 {
     step_frontmap_info_screen_shift_zoom();
-    map_sound_fade = max(0, FULL_LOUDNESS + ((5 * (1 - map_info.fade_pos)) / LANDVIEW_ZOOM_STEP));
+    long fade_len = (FRONTMAP_ZOOM_LENGTH * LANDVIEW_SOUND_FADE_PERCENT) / 100;
+    long remaining = fade_len - (long)map_info.fade_pos;
+    map_sound_fade = max(0, remaining * FULL_LOUDNESS / fade_len);
 }
 
 void process_map_zoom_out(void)
@@ -1315,7 +1318,7 @@ void frontmap_unload(void)
     free_spritesheet(&map_flag);
     StopAllSamples();
     stop_description_speech();
-    stop_music();
+    stop_music(false);
     set_music_volume(settings.music_volume);
 }
 

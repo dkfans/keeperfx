@@ -2581,7 +2581,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         frontstory_unload();
         break;
     case FeSt_CREDITS:
-        stop_music();
+        stop_music(true);
         break;
     case FeSt_LEVEL_STATS:
         stop_streamed_samples();
@@ -2606,7 +2606,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         break;
     case FeSt_FEOPTIONS:
         turn_off_menu(GMnu_FEOPTION);
-        stop_music();
+        stop_music(true);
         break;
     case FeSt_LEVEL_SELECT:
         turn_off_menu(GMnu_FELEVEL_SELECT);
@@ -2659,7 +2659,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           set_pointer_graphic_none();
           break;
       case FeSt_MAIN_MENU:
-          stop_music();
+          stop_music(true);
           continue_game_option_available = continue_game_available();
           if (!continue_game_option_available)
           {
