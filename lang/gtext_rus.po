@@ -2577,7 +2577,6 @@ msgid "Play Intro"
 msgstr "Показать вступление"
 
 #: guitext:350
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
 msgstr "Игра по сети"
@@ -2803,7 +2802,6 @@ msgid "Testers"
 msgstr "Тестировщики"
 
 #: guitext:395
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
 msgstr "Доступные лобби"
@@ -2814,7 +2812,6 @@ msgid "Name"
 msgstr "Имя"
 
 #: guitext:397
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "Режимы"
@@ -2825,13 +2822,11 @@ msgid "Messages"
 msgstr "Сообщения"
 
 #: guitext:399
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
 msgstr "Создать лобби"
 
 #: guitext:400
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
 msgstr "Подключиться к лобби"
@@ -2842,7 +2837,6 @@ msgid "Start Game"
 msgstr "Начать игру"
 
 #: guitext:402
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
 msgstr "Интернет-лобби"
@@ -5333,19 +5327,16 @@ msgid "4 Players"
 msgstr "4 игрока"
 
 #: guitext:874
-#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "Интернет"
 
 #: guitext:875
-#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "Локальная сеть"
 
 #: guitext:876
-#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "Скирмиш"
@@ -6558,19 +6549,16 @@ msgid "Keeper"
 msgstr "Хранитель"
 
 #: guitext:1083
-#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "Запись экрана"
 
 #: guitext:1084
-#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "Снимок экрана"
 
 #: guitext:1085
-#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
 msgstr "Увеличить пропуск кадров"
@@ -6739,10 +6727,10 @@ msgstr "Соединение с хостом разорвано"
 #, fuzzy
 msgctxt "In-game message"
 msgid "/fxdata/%.39s was not loaded."
-msgstr "/fxdata/%.39s не загружен."
+msgstr "Не удалось загрузить файл /fxdata/%.39s."
 
 #: guitext:1121
 #, fuzzy
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
-msgstr "Установите его как мод в папку /mods/."
+msgstr "Распакуйте архив мода в папку /mods/."
