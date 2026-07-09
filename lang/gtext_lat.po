@@ -2945,6 +2945,7 @@ msgid "Play Intro"
 msgstr "Reproduce introductionem"
 
 #: guitext:350
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
 msgstr "Tabula lusorum plurium"
@@ -3170,6 +3171,7 @@ msgid "Testers"
 msgstr "Probatores"
 
 #: guitext:395
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
 msgstr "Vestibula ludorum"
@@ -3180,6 +3182,7 @@ msgid "Name"
 msgstr "Nomen"
 
 #: guitext:397
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "Modi ludi"
@@ -3190,11 +3193,13 @@ msgid "Messages"
 msgstr "Nuntia"
 
 #: guitext:399
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
 msgstr "Crea vestibulum"
 
 #: guitext:400
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
 msgstr "Iunge te ad vestibulum"
@@ -3205,6 +3210,7 @@ msgid "Start Game"
 msgstr "Incipe ludum"
 
 #: guitext:402
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
 msgstr "Vestibula Interretialia"
@@ -5846,16 +5852,19 @@ msgid "4 Players"
 msgstr "4 ludii"
 
 #: guitext:874
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "Interretialis"
 
 #: guitext:875
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "LAN"
 
 #: guitext:876
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "Velitatio"
@@ -7170,16 +7179,19 @@ msgid "Keeper"
 msgstr "Custos"
 
 #: guitext:1083
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "Recordatio Scaenae"
 
 #: guitext:1084
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "Imago Scaenae"
 
 #: guitext:1085
+#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
 msgstr "Augere Saltum Formae"

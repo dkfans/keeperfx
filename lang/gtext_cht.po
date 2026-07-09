@@ -2690,6 +2690,7 @@ msgid "Play Intro"
 msgstr "播放开场动画"
 
 #: guitext:350
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
 msgstr "多人遊戲選單"
@@ -2915,6 +2916,7 @@ msgid "Testers"
 msgstr "测试员"
 
 #: guitext:395
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
 msgstr "遊戲大廳"
@@ -2925,6 +2927,7 @@ msgid "Name"
 msgstr "姓名"
 
 #: guitext:397
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "遊戲模式"
@@ -2935,11 +2938,13 @@ msgid "Messages"
 msgstr "讯息"
 
 #: guitext:399
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
 msgstr "建立大廳"
 
 #: guitext:400
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
 msgstr "加入大廳"
@@ -2950,6 +2955,7 @@ msgid "Start Game"
 msgstr "开始游戏"
 
 #: guitext:402
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
 msgstr "線上大廳"
@@ -5509,16 +5515,19 @@ msgid "4 Players"
 msgstr "四名玩者"
 
 #: guitext:874
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "線上"
 
 #: guitext:875
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "區域網路"
 
 #: guitext:876
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "遭遇戰"
@@ -6763,16 +6772,19 @@ msgid "Keeper"
 msgstr "守护者"
 
 #: guitext:1083
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "螢幕錄製"
 
 #: guitext:1084
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "螢幕截圖"
 
 #: guitext:1085
+#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
 msgstr "增加跳幀"

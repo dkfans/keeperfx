@@ -2882,6 +2882,7 @@ msgid "Play Intro"
 msgstr "ムービープレイ"
 
 #: guitext:350
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
 msgstr "マルチプレイヤーメニュー"
@@ -3107,6 +3108,7 @@ msgid "Testers"
 msgstr "テスター"
 
 #: guitext:395
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
 msgstr "ゲームロビー"
@@ -3117,6 +3119,7 @@ msgid "Name"
 msgstr "名前"
 
 #: guitext:397
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "ゲームモード"
@@ -3127,11 +3130,13 @@ msgid "Messages"
 msgstr "チャットメッセージ"
 
 #: guitext:399
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
 msgstr "ロビーを作成"
 
 #: guitext:400
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
 msgstr "ロビーに参加"
@@ -3142,6 +3147,7 @@ msgid "Start Game"
 msgstr "ゲームを始める"
 
 #: guitext:402
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
 msgstr "オンラインロビー"
@@ -5792,16 +5798,19 @@ msgid "4 Players"
 msgstr "４人プレイ"
 
 #: guitext:874
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "オンライン"
 
 #: guitext:875
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "LAN"
 
 #: guitext:876
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "遭遇戦"
@@ -7104,16 +7113,19 @@ msgid "Keeper"
 msgstr "キーパー"
 
 #: guitext:1083
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "画面録画"
 
 #: guitext:1084
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "スクリーンショット"
 
 #: guitext:1085
+#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
 msgstr "フレームスキップ増加"

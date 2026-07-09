@@ -2960,6 +2960,7 @@ msgid "Play Intro"
 msgstr "Esegui Introduzione"
 
 #: guitext:350
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
 msgstr "Menu multigiocatore"
@@ -3185,6 +3186,7 @@ msgid "Testers"
 msgstr "Collaudatori"
 
 #: guitext:395
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
 msgstr "Lobby di gioco"
@@ -3195,6 +3197,7 @@ msgid "Name"
 msgstr "Nome"
 
 #: guitext:397
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "Modalità di gioco"
@@ -3205,11 +3208,13 @@ msgid "Messages"
 msgstr "Messaggi"
 
 #: guitext:399
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
 msgstr "Crea lobby"
 
 #: guitext:400
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
 msgstr "Entra nella lobby"
@@ -3220,6 +3225,7 @@ msgid "Start Game"
 msgstr "Comincia Partita"
 
 #: guitext:402
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
 msgstr "Lobby online"
@@ -5900,16 +5906,19 @@ msgid "4 Players"
 msgstr "4 Giocatori"
 
 #: guitext:874
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "Online"
 
 #: guitext:875
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "LAN"
 
 #: guitext:876
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "Schermaglia"
@@ -7268,16 +7277,19 @@ msgid "Keeper"
 msgstr "Keeper"
 
 #: guitext:1083
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "Registra Schermo"
 
 #: guitext:1084
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "Cattura Schermo"
 
 #: guitext:1085
+#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
 msgstr "Aumenta Salto Frame"
