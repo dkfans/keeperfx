@@ -81,6 +81,7 @@ void sound_restore_id_redirect_snapshot(void);
 
 void set_music_volume(SoundVolume);
 TbBool play_music(const char * fname);
+TbBool play_music_fgroup(short fgroup, const char * fname);
 TbBool play_music_track(int);
 void pause_music(void);
 void resume_music(void);

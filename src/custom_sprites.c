@@ -23,6 +23,8 @@
 #include "engine_render.h"
 #include "bflib_fileio.h"
 #include "gui_draw.h"
+#include "gui_msgs.h"
+#include "config_strings.h"
 #include "frontend.h"
 #include "bflib_dernc.h"
 #include "net_checksums.h"
@@ -337,6 +339,37 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc)
             LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, next_free_sprite, KEEPERSPRITE_ADD_NUM);
         }
     }
+}
+
+void show_ignored_fxdata_zip_messages(void)
+{
+    char *dname = prepare_file_path(FGrp_FxData, NULL);
+    if (dname == NULL || dname[0] == 0) {
+        return;
+    }
+    char full_path[1024] = {0};
+    sprintf(full_path, "%s/%s", dname, "*.zip");
+    struct TbFileEntry fe;
+    struct TbFileFind *ff = LbFileFindFirst(full_path, &fe);
+    if (ff == NULL) {
+        return;
+    }
+    do {
+        int zip_is_required = 0;
+        for (int i = 0; i < REQUIRED_SPRITE_ZIP_COUNT; i++) {
+            if (strcasecmp(fe.Filename, required_sprite_zips[i]) == 0) {
+                zip_is_required = 1;
+                break;
+            }
+        }
+        if (zip_is_required != 0) {
+            continue;
+        }
+        WARNLOG("/fxdata/%s was not loaded. Please install it as a mod inside the /mods/ folder.", fe.Filename);
+        message_add(MsgType_Blank, 0, get_string(GUIStr_FxdataZipInstallAsMod));
+        message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_FxdataZipNotLoaded), fe.Filename);
+    } while (LbFileFindNext(ff, &fe) >= 0);
+    LbFileFindEnd(ff);
 }
 
 /* @comment
@@ -1562,7 +1595,6 @@ static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *fi
 
 
     // Convert RGBA to palette indices using rgb_to_pal_table
-    int transparent_count = 0, opaque_count = 0;
     for (size_t i = 0; i < indexed_size; i++)
     {
         unsigned char red = rgba_buffer[i * 4 + 0];
@@ -1576,17 +1608,14 @@ static unsigned char* decode_png_to_indexed_internal(unzFile zip, const char *fi
             if (alpha < 128) {
                 // Transparent pixel - use palette index 255 as transparency marker
                 indexed_data[i] = 255;
-                transparent_count++;
             } else if (rgb_to_pal_table != NULL) {
                 // Use lookup table for color conversion
                 indexed_data[i] = rgb_to_pal_table[
                     ((red >> 2) << 12) | ((green >> 2) << 6) | (blue >> 2)
                 ];
-                opaque_count++;
             } else {
                 // Fallback: simple grayscale conversion
                 indexed_data[i] = (red + green + blue) / 3;
-                opaque_count++;
             }
         }
         else
@@ -2116,11 +2145,10 @@ short get_anim_id(const char *name, struct ObjectConfigStats *objst)
     if (0 == strcmp(name, "0"))
         return 0;
 
-    char *P = strrchr(name, ':');
-    if (P != NULL)
+    if (strrchr(name, ':') != NULL)
     {
         char *name2 = strdup(name);
-        P = strchr(name2, ':');
+        char *P = strchr(name2, ':');
         *P = 0; // removing :
         P++;
         key.name = name2;

@@ -139,7 +139,7 @@ int create_directory_for_file(const char * fname)
 {
   const int size = strlen(fname) + 1;
   char * tmp = (char *) malloc(size);
-  char * separator = strchr(fname, '/');
+  const char * separator = strchr(fname, '/');
 
   while (separator != NULL) {
     memcpy(tmp, fname, separator - fname);

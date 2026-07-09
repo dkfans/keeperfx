@@ -1408,15 +1408,21 @@ TbBool load_campaigns_list(struct CampaignsList *clist, short fgroup, const char
     char* fname = prepare_file_path(fgroup, "*.cfg"); // add campaigns
     struct TbFileEntry fe;
     struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
+#if (BFDEBUG_LEVEL > 0)
     long cnum_all = 0;
     long cnum_ok = 0;
+#endif
     if (ff) {
         do {
             if (load_campaign_to_list(fe.Filename, clist, fgroup))
             {
+#if (BFDEBUG_LEVEL > 0)
                 cnum_ok++;
+#endif
             }
+#if (BFDEBUG_LEVEL > 0)
             cnum_all++;
+#endif
         } while (LbFileFindNext(ff, &fe) >= 0);
         LbFileFindEnd(ff);
     }

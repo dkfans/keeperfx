@@ -40,7 +40,7 @@ enum ShadowCacheFlags {
 
 enum LightFlags {
     LgtF_Allocated    = 0x01,
-    LgtF_NeedRemoval  = 0x02,
+    LgtF_CanTurnOff   = 0x02,
     LgtF_Dynamic      = 0x04,
     LgtF_NeedUpdate   = 0x08,
     LgtF_RadiusOscillation = 0x10,
@@ -74,11 +74,12 @@ struct Light {
   unsigned short min_intensity;
   unsigned short next_in_list;
   struct Coord3d mappos;
-  TbBool interp_has_been_initialized;
   struct Coord3d previous_mappos;
-  struct Coord3d interp_mappos;
-  GameTurn last_turn_drawn;
-  GameTurnDelta disable_interp_for_turns;
+  uint16_t intensity_random;
+  uint16_t previous_intensity_random;
+  GameTurn last_turn_moved;
+  GameTurn last_turn_randomized;
+  TbBool reset_interpolation;
 };
 
 struct InitLight { // sizeof=0x14
@@ -122,9 +123,10 @@ void light_set_light_never_cache(long lgt_id);
 TbBool light_is_invalid(const struct Light *lgt);
 long light_is_light_allocated(long lgt_id);
 void light_set_light_position(long lgt_id, struct Coord3d *pos);
+void light_reset_interpolation(long lgt_id);
 void light_stat_refresh();
 void light_set_lights_on(char state);
-void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3);
+void light_init_dungeon_heart(long lgt_id, long radius, long intensity);
 void light_signal_update_in_area(long sx, long sy, long ex, long ey);
 void light_export_system_state(struct LightSystemState *lightst);
 void light_import_system_state(const struct LightSystemState *lightst);

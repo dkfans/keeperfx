@@ -5923,11 +5923,21 @@ msgid "Network connection to host lost"
 msgstr ""
 
 #: guitext:1120
+msgctxt "In-game message"
+msgid "/fxdata/%.39s was not loaded."
+msgstr ""
+
+#: guitext:1121
+msgctxt "In-game message"
+msgid "Please install it as a mod inside the /mods/ folder."
+msgstr ""
+
+#: guitext:1122
 msgctxt "Mouse"
 msgid "Scroll Wheel Left"
 msgstr ""
 
-#: guitext:1121
+#: guitext:1123
 msgctxt "Mouse"
 msgid "Scroll Wheel Right"
 msgstr ""

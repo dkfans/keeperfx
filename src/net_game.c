@@ -289,6 +289,7 @@ void setup_count_players(void)
 TbBool init_players_network_game(void)
 {
     SYNCDBG(4,"Starting");
+    TbBool initialized = true;
     setup_network_player_numbers();
     for (int zip_idx = 0; zip_idx < REQUIRED_SPRITE_ZIP_COUNT; zip_idx++) {
         if (required_sprite_zip_checksums[zip_idx] != 0) {
@@ -297,10 +298,17 @@ TbBool init_players_network_game(void)
         WARNLOG("Required custom sprite zip missing: %s", required_sprite_zips[zip_idx]);
         message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s missing", required_sprite_zips[zip_idx]);
         create_frontend_error_box(5000, get_string(GUIStr_NetVerifyFxdataSame));
-        return false;
+        initialized = false;
+        break;
     }
-    build_local_startup_sync();
-    return net_startup_sync_exchange_and_apply();
+    if (netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
+        matchmaking_close_lobby();
+    }
+    if (initialized) {
+        build_local_startup_sync();
+        initialized = net_startup_sync_exchange_and_apply();
+    }
+    return initialized;
 }
 
 void are_disconnect_victories_allowed(void)

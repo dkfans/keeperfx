@@ -226,7 +226,8 @@ enum TbPacketControl {
         PCtr_ViewTiltReset  = 0x40000,
         PCtr_Ascend         = 0x80000,
         PCtr_Descend        = 0x100000,
-        PCtr_ViewZoomPos    = 0x200000
+        PCtr_ViewZoomPos    = 0x200000,
+        PCtr_ViewRotatePos  = 0x400000
 };
 
 /**
@@ -343,6 +344,7 @@ void process_pause_packet(long a1, long a2);
 void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera);
 void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
 TbBool can_process_creature_input(struct Thing *thing);
+void exchange_packets(void);
 void process_packets(void);
 void set_local_packet_turn(void);
 void clear_packets(void);

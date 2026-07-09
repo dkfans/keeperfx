@@ -335,14 +335,14 @@ typedef uint64_t TbControllerButtons;
  */
 struct Coord2d {
     union { // x position
-      uint32_t val; /**< x.val - coord x position (relative to whole map) */
+      int32_t val; /**< x.val - coord x position (relative to whole map) */
       struct { // subtile
         uint8_t pos; /**< x.stl.pos - coord x position (relative to subtile) */
         uint16_t num; /**< x.stl.num - subtile x position (relative to whole map) */
         } stl;
     } x;
     union { // y position
-      uint32_t val; /**< y.val - coord y position (relative to whole map) */
+      int32_t val; /**< y.val - coord y position (relative to whole map) */
       struct { // subtile
         uint8_t pos; /**< y.stl.pos - coord y position (relative to subtile) */
         uint16_t num; /**< y.stl.num - subtile y position (relative to whole map) */

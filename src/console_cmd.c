@@ -480,7 +480,7 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
 
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", turns_per_second, turns_per_second_draw_current);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", turns_per_second, fps_limit_current);
     return true;
 }
 
@@ -498,7 +498,7 @@ TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_fps_draw(PlayerNumber plyr_idx, char * args)
 {
-    parse_draw_fps_config_val(args, &turns_per_second_draw_main, &turns_per_second_draw_secondary);
+    parse_draw_fps_config_val(args, &fps_limit_main, &fps_limit_secondary);
     redetect_screen_refresh_rate_for_draw();
     return true;
 }

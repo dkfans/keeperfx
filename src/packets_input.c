@@ -519,7 +519,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
                 if (player->primary_cursor_state == CSt_PowerHand && (!player->one_click_lock_cursor)) {
                     thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
-                    magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
+                    if(!thing_is_invalid(thing))
+                        magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
                 }
                 if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
                 {
@@ -664,9 +665,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
         }
         return false;
     }
-    struct TrapConfigStats *trapst = get_trap_model_stats(player->chosen_trap_kind);
-    player->full_slab_cursor = (trapst->place_on_subtile == false);
-    long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->full_slab_cursor, player->chosen_trap_kind);
+    TbBool can_place = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->chosen_trap_kind);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->cursor_button_down != 0))
@@ -676,7 +675,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
         }
         return false;
     }
-    if (i == 0)
+    if (can_place == 0)
     {
         if (is_my_player(player))
             play_non_3d_sample(snd_refusal);

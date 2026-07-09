@@ -33,6 +33,7 @@ void initialize_packet_history(void);
 void store_packet_history(PlayerNumber player, const struct Packet *packet);
 const struct Packet *get_history_packet(PlayerNumber player, GameTurn turn);
 TbBool read_repair_packet_history(NetUserId source, const char *buffer, size_t buffer_size);
+void network_update(void *server_buf, size_t frame_size);
 TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t frame_size);
 void LbNetwork_BroadcastUnpause(void);
 TbError process_network_unpause_message(void);
