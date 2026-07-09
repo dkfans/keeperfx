@@ -5921,3 +5921,13 @@ msgstr ""
 msgctxt "Network game message"
 msgid "Network connection to host lost"
 msgstr ""
+
+#: guitext:1120
+msgctxt "In-game message"
+msgid "/fxdata/%.39s was not loaded."
+msgstr ""
+
+#: guitext:1121
+msgctxt "In-game message"
+msgid "Please install it as a mod inside the /mods/ folder."
+msgstr ""

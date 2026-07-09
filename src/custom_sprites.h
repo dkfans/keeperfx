@@ -44,6 +44,7 @@ static const char * const required_sprite_zips[] = {
 #define REQUIRED_SPRITE_ZIP_COUNT (sizeof(required_sprite_zips) / sizeof(required_sprite_zips[0]))
 
 void init_custom_sprites(LevelNumber level_no);
+void show_ignored_fxdata_zip_messages(void);
 
 extern TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
 

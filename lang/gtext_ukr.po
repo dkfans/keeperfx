@@ -2955,6 +2955,7 @@ msgid "Play Intro"
 msgstr "Відтворити вступ"
 
 #: guitext:350
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
 msgstr "Меню мультиплеєра"
@@ -3181,6 +3182,7 @@ msgid "Testers"
 msgstr "Тестувальники"
 
 #: guitext:395
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
 msgstr "Ігрові лобі"
@@ -3191,6 +3193,7 @@ msgid "Name"
 msgstr "Ім'я"
 
 #: guitext:397
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "Режими гри"
@@ -3201,11 +3204,13 @@ msgid "Messages"
 msgstr "Повідомлення"
 
 #: guitext:399
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
 msgstr "Створити лобі"
 
 #: guitext:400
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
 msgstr "Приєднатися до лобі"
@@ -3216,6 +3221,7 @@ msgid "Start Game"
 msgstr "Почати гру"
 
 #: guitext:402
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
 msgstr "Онлайн-лобі"
@@ -5880,16 +5886,19 @@ msgid "4 Players"
 msgstr "4 Гравців"
 
 #: guitext:874
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "Онлайн"
 
 #: guitext:875
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "Локальна мережа"
 
 #: guitext:876
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "Сутичка"
@@ -7221,16 +7230,19 @@ msgid "Keeper"
 msgstr "Хранитель"
 
 #: guitext:1083
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "Запис екрану"
 
 #: guitext:1084
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "Знімок екрану"
 
 #: guitext:1085
+#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
 msgstr "Збільшити пропуск кадрів"
@@ -7395,3 +7407,15 @@ msgstr "unused"
 msgctxt "Network game message"
 msgid "Network connection to host lost"
 msgstr "Втрачено мережеве з'єднання з хостом"
+
+#: guitext:1120
+#, fuzzy
+msgctxt "In-game message"
+msgid "/fxdata/%.39s was not loaded."
+msgstr "/fxdata/%.39s не завантажено."
+
+#: guitext:1121
+#, fuzzy
+msgctxt "In-game message"
+msgid "Please install it as a mod inside the /mods/ folder."
+msgstr "Установіть його як мод у папку /mods/."

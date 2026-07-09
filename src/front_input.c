@@ -98,10 +98,14 @@ struct GuiLayer gui_layer = {GuiLayer_Default};
 
 TbBool first_person_see_item_desc = false;
 
+static TbBool move_camera_this_turn;
+
 long old_mx;
 long old_my;
 
 enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Always;
+enum RotateAroundMouseOptions rotate_around_mouse_option = RotateAroundMouse_Always;
+TbBool rotate_follow_mouse_option = false;
 
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_LS_UP,               BMV_Visible,        },       // Gkey_MoveUp
@@ -110,8 +114,8 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"MoveRight",             GUIStr_CtrlRight,               KC_D, KMod_NONE,               CBtn_LS_RIGHT,            BMV_Visible,        },       // Gkey_MoveRight
     {"RotateMod",             GUIStr_CtrlRotate,              KC_LCONTROL, KMod_NONE,        CBtn_B,                   BMV_Visible,        },       // Gkey_RotateMod
     {"SpeedMod",              GUIStr_CtrlSpeed,               KC_LSHIFT, KMod_NONE,          CBtn_A,                   BMV_Visible,        },       // Gkey_SpeedMod
-    {"RotateCW",              GUIStr_CtrlRotateLeft,          KC_DELETE, KMod_NONE,          CBtn_A|CBtn_DPAD_LEFT,    BMV_Visible,        },       // Gkey_RotateCW
-    {"RotateCCW",             GUIStr_CtrlRotateRight,         KC_PGDOWN, KMod_NONE,          CBtn_A|CBtn_DPAD_RIGHT,   BMV_Visible,        },       // Gkey_RotateCCW
+    {"RotateCW",              GUIStr_CtrlRotateLeft,          KC_MOUSE5, KMod_NONE,          CBtn_A|CBtn_DPAD_LEFT,    BMV_Visible,        },       // Gkey_RotateCW
+    {"RotateCCW",             GUIStr_CtrlRotateRight,         KC_MOUSE4, KMod_NONE,          CBtn_A|CBtn_DPAD_RIGHT,   BMV_Visible,        },       // Gkey_RotateCCW
     {"ZoomIn",                GUIStr_CtrlZoomIn,              KC_HOME, KMod_NONE,            CBtn_A|CBtn_DPAD_UP,      BMV_Visible,        },       // Gkey_ZoomIn
     {"ZoomOut",               GUIStr_CtrlZoomOut,             KC_END, KMod_NONE,             CBtn_A|CBtn_DPAD_DOWN,    BMV_Visible,        },       // Gkey_ZoomOut
     {"ZoomRoomTreasure",      CpgStr_RoomKind1+0,             KC_T, KMod_NONE,               CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomRoomTreasure
@@ -2048,6 +2052,32 @@ static short get_creature_control_action_inputs(void)
     return false;
 }
 
+static void set_packet_action_for_thing_under_hand(struct PlayerInfo* player, struct Packet* pckt)
+{
+    if ((player->view_type == PVT_DungeonTop) && ((pckt->control_flags & PCtr_Gui) == 0) && left_button_released && (local_thing_under_hand > 0) && (pckt->action == PckA_None)) {
+        int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
+        switch (player->work_state) {
+        case PSt_CtrlDungeon:
+            if ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0) {
+                set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_POSSESS, local_thing_under_hand, 0, 0);
+            } else if (((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) == 0) && (cursor_state == CSt_PowerHand)) {
+                set_packet_action(pckt, PckA_UsePwrHandPick, local_thing_under_hand, 0, 0, 0);
+            }
+            break;
+        case PSt_Slap:
+            set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_SLAP, local_thing_under_hand, 0, 0);
+            break;
+        case PSt_CtrlDirect:
+        case PSt_FreeCtrlDirect:
+            set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_POSSESS, local_thing_under_hand, 0, 0);
+            break;
+        case PST_CastPowerOnTarget:
+            set_packet_action(pckt, PckA_UsePwrOnThing, player->chosen_power_kind, local_thing_under_hand, 0, 0);
+            break;
+        }
+    }
+}
+
 static void get_packet_control_mouse_clicks(void)
 {
     SYNCDBG(8,"Starting");
@@ -2058,6 +2088,8 @@ static void get_packet_control_mouse_clicks(void)
     }
 
     struct PlayerInfo* player = get_my_player();
+    struct Packet* pckt = get_packet(my_player_number);
+    set_packet_action_for_thing_under_hand(player, pckt);
 
     if ( left_button_held )
     {
@@ -2143,10 +2175,6 @@ static short get_map_action_inputs(void)
     }
 }
 
-// TODO: Might want to initiate this in main() and pass a reference to it
-// rather than using this global variable. But this works.
-int global_frameskipTurn = 0;
-
 static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,TbBool mods_used)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
@@ -2185,13 +2213,8 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
         }
     }
     // Only pan the camera as often as normal despite frameskip
-    if (game.frame_skip > 0)
-    {
-        TbBool moveTheCamera = (global_frameskipTurn == 0);
-        global_frameskipTurn++;
-        if (global_frameskipTurn > game.frame_skip) global_frameskipTurn = 0;
-        if (!moveTheCamera) return;
-    }
+    if (! move_camera_this_turn)
+        return;
     // Camera Panning : mouse at window edge scrolling feature
     if (!LbIsMouseActive())
     {
@@ -2255,22 +2278,28 @@ static void get_isometric_view_nonaction_inputs(void)
 
     get_isometric_or_front_view_mouse_inputs(packet, rotate_pressed, no_mods);
     // Only update the camera as often as normal despite frameskip
-    TbBool moveTheCamera = true;
-    if (game.frame_skip > 0)
+    if (move_camera_this_turn)
     {
-        moveTheCamera = (global_frameskipTurn == 0);
-        global_frameskipTurn++;
-        if (global_frameskipTurn > game.frame_skip)
-            global_frameskipTurn = 0;
-    }
-    if (moveTheCamera)
-    {
+        static TbBool rotating = false;
+        TbBool set_rotate_pos = rotate_follow_mouse_option | ! rotating;
+        rotating = false;
+
         if (rotate_pressed)
         {
             if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+            {
+                if (rotate_around_mouse_option == RotateAroundMouse_OnlyCtrl)
+                    set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCW);
+                rotating = true;
+            }
             if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            {
+                if (rotate_around_mouse_option == RotateAroundMouse_OnlyCtrl)
+                    set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCCW);
+                rotating = true;
+            }
             if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewZoomIn);
             if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
@@ -2278,9 +2307,19 @@ static void get_isometric_view_nonaction_inputs(void)
         } else
         {
             if (is_game_key_pressed(Gkey_RotateCW, false, false))
+            {
+                if (rotate_around_mouse_option == RotateAroundMouse_NotCtrl)
+                    set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCW);
+                rotating = true;
+            }
             if (is_game_key_pressed(Gkey_RotateCCW, false, false))
+            {
+                if (rotate_around_mouse_option == RotateAroundMouse_NotCtrl)
+                    set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCCW);
+                rotating = true;
+            }
             if (is_game_key_pressed(Gkey_ZoomIn, false, false))
                 set_packet_control(packet, PCtr_ViewZoomIn);
             if (is_game_key_pressed(Gkey_ZoomOut, false, false))
@@ -2294,6 +2333,8 @@ static void get_isometric_view_nonaction_inputs(void)
 
             get_movement_inputs(&camera_movement_x, &camera_movement_y, no_mods);
         }
+        if (! set_rotate_pos)
+            unset_packet_control(packet, PCtr_ViewRotatePos);
     }
 }
 
@@ -2346,15 +2387,7 @@ static void get_front_view_nonaction_inputs(void)
 
     get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,no_mods);
     // Only update the camera as often as normal despite frameskip
-    TbBool moveTheCamera = true;
-    if (game.frame_skip > 0)
-    {
-        moveTheCamera = (global_frameskipTurn == 0);
-        global_frameskipTurn++;
-        if (global_frameskipTurn > game.frame_skip)
-            global_frameskipTurn = 0;
-    }
-    if (moveTheCamera)
+    if (move_camera_this_turn)
     {
         if (rotate_pressed)
         {
@@ -2553,6 +2586,8 @@ static void get_dungeon_control_nonaction_inputs(void)
   get_options_menu_inputs();
   if (zoom_to_mouse_option == ZoomToMouse_Always)
       set_packet_control(pckt, PCtr_ViewZoomPos);
+  if (rotate_around_mouse_option == RotateAroundMouse_Always)
+      set_packet_control(pckt, PCtr_ViewRotatePos);
   if ((player->allocflags & PlaF_NewMPMessage) == 0)
   {
       switch (player->view_mode)
@@ -2870,6 +2905,8 @@ static TbBool active_menu_functions_while_paused(void)
  */
 static short get_inputs(void)
 {
+    move_camera_this_turn = game.frame_skip == 0 || game.play_gameturn % game.frame_skip == 0;
+
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {
         SYNCDBG(5,"Starting for demo mode");
