@@ -6944,11 +6944,13 @@ msgid "Network connection to host lost"
 msgstr "与主机的网络连接已丢失"
 
 #: guitext:1120
+#, fuzzy
 msgctxt "In-game message"
 msgid "/fxdata/%.39s was not loaded."
 msgstr "/fxdata/%.39s 未加载。"
 
 #: guitext:1121
+#, fuzzy
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "请将其作为模组安装到 /mods/ 文件夹中。"

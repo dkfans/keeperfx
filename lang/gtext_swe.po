@@ -7342,11 +7342,13 @@ msgid "Network connection to host lost"
 msgstr "Nätverksanslutningen till värden förlorades"
 
 #: guitext:1120
+#, fuzzy
 msgctxt "In-game message"
 msgid "/fxdata/%.39s was not loaded."
 msgstr "/fxdata/%.39s lästes inte in."
 
 #: guitext:1121
+#, fuzzy
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Installera den som mod i mappen /mods/."

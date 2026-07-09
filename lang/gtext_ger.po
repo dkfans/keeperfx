@@ -7600,11 +7600,13 @@ msgid "Network connection to host lost"
 msgstr "Netzwerkverbindung zum Host verloren"
 
 #: guitext:1120
+#, fuzzy
 msgctxt "In-game message"
 msgid "/fxdata/%.39s was not loaded."
 msgstr "/fxdata/%.39s wurde nicht geladen."
 
 #: guitext:1121
+#, fuzzy
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Installiere es als Mod im Ordner /mods/."
