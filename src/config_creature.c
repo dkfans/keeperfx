@@ -608,8 +608,6 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         for (int i = 0; i < CREATURE_TYPES_MAX; i++)
         {
           memset(game.conf.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
-        }
-        for (int i = 1; i < CREATURE_TYPES_MAX; i++) {
           creature_desc[i].name = NULL;
           creature_desc[i].num = 0;
         }
@@ -638,13 +636,15 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         switch (cmd_num)
         {
         case 1: // CREATURES
-            if ((flags & CnfLd_AcceptPartial) == 0) {
-                game.conf.crtr_conf.model_count = 1;
+            game.conf.crtr_conf.model_count = 1;
+            if ((flags & CnfLd_AcceptPartial) != 0) {
+                for (int i = 1; i < CREATURE_TYPES_MAX; i++) {
+                    memset(game.conf.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
+                    creature_desc[i - 1].name = NULL;
+                    creature_desc[i - 1].num = 0;
+                }
             }
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
-              if (get_id(creature_desc, word_buf) > 0) {
-                  continue;
-              }
               n = game.conf.crtr_conf.model_count;
               if (n >= CREATURE_TYPES_MAX) {
                   CONFWRNLOG("Too many species defined with \"%s\" in [%s] block of %s file.",
