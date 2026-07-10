@@ -2,7 +2,7 @@
 -- Entry points for engine-triggered events (e.g. OnPowerCast, OnGameTick).
 -- These functions are called by the C engine and dispatch event data to the Lua trigger system.
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"Rebirth"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"|"ShotHitThing"|"Destroyed"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"PickUp"|"Slap"|"Rebirth"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"|"ShotHitThing"|"Destroyed"
 
 --- Called when a spell is cast on a unit
 --- @param pwkind power_kind
@@ -101,7 +101,7 @@ end
 --- Called when a thing is picked up. Can be Creatures, Chickens, Specials, Gold, etc.
 ---@param thing Thing
 ---@param player Player
-function OnPickUp(thing)
+function OnPickUp(thing, player)
     local eventData = {}
     eventData.thing = thing
     eventData.player = player
@@ -111,7 +111,7 @@ end
 --- Called when a thing is slapped. Can be Creatures, Traps, Shots, Objects, etc.
 ---@param thing Thing
 ---@param player Player
-function OnSlap(thing)
+function OnSlap(thing, player)
     local eventData = {}
     eventData.thing = thing
     eventData.player = player
