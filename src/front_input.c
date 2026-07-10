@@ -2290,14 +2290,14 @@ static void get_isometric_view_nonaction_inputs(void)
         {
             if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_OnlyCtrl)
+                if (rotate_around_mouse_option == RotateAroundMouse_Keybinds)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCW);
                 rotating = true;
             }
             if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_OnlyCtrl)
+                if (rotate_around_mouse_option == RotateAroundMouse_Keybinds)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCCW);
                 rotating = true;
@@ -2310,17 +2310,30 @@ static void get_isometric_view_nonaction_inputs(void)
         {
             if (is_game_key_pressed(Gkey_RotateCW, false, false))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_NotCtrl)
+                if (rotate_around_mouse_option == RotateAroundMouse_Keybinds)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCW);
                 rotating = true;
             }
             if (is_game_key_pressed(Gkey_RotateCCW, false, false))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_NotCtrl)
+                if (rotate_around_mouse_option == RotateAroundMouse_Keybinds)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCCW);
                 rotating = true;
+            }
+            if (rotate_around_mouse_option != RotateAroundMouse_Never)
+            {
+                if (is_key_pressed(KC_MOUSE5, KMod_DONTCARE))
+                {
+                    set_packet_control(packet, PCtr_ViewRotateCW | PCtr_ViewRotatePos);
+                    rotating = true;
+                }
+                if (is_key_pressed(KC_MOUSE4, KMod_DONTCARE))
+                {
+                    set_packet_control(packet, PCtr_ViewRotateCCW | PCtr_ViewRotatePos);
+                    rotating = true;
+                }
             }
             if (is_game_key_pressed(Gkey_ZoomIn, false, false))
                 set_packet_control(packet, PCtr_ViewZoomIn);
