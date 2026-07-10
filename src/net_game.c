@@ -308,6 +308,9 @@ TbBool init_players_network_game(void)
         build_local_startup_sync();
         initialized = net_startup_sync_exchange_and_apply();
     }
+    if (!initialized) {
+        LbNetwork_Stop();
+    }
     return initialized;
 }
 
