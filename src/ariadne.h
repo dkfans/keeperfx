@@ -229,15 +229,19 @@ struct HugStart {
 extern const struct HugStart blocked_x_hug_start[][2];
 extern const struct HugStart blocked_y_hug_start[][2];
 extern const struct HugStart blocked_xy_hug_start[][2][2];
+extern TbBool nav_map_initialised;
+
+extern NavColour *LastTriangulatedMap;
+extern long ix_Border;
+extern int32_t Border[BORDER_LENGTH];
 
 /******************************************************************************/
 
 
 #pragma pack()
 /******************************************************************************/
-long init_navigation(void);
-long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
 
+void set_nav_rule_default(void);
 
 AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, AriadneRouteFlags flags, const char *func_name);
 #define ariadne_initialise_creature_route(thing, pos, speed, flags) ariadne_initialise_creature_route_f(thing, pos, speed, flags, __func__)

@@ -94,6 +94,7 @@ obj/ariadne_navitree.o \
 obj/ariadne_points.o \
 obj/ariadne_regions.o \
 obj/ariadne_tringls.o \
+obj/ariadne_update.o \
 obj/ariadne_wallhug.o \
 obj/bflib_basics.o \
 obj/bflib_coroutine.o \
