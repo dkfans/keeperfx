@@ -24,8 +24,6 @@
 #include "config_terrain.h"
 #include "map_blocks.h"
 #include "map_ceiling.h"
-#include "ariadne.h"
-#include "ariadne_wallhug.h"
 #include "map_utils.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"

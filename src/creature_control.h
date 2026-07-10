@@ -24,6 +24,7 @@
 #include "bflib_sound.h"
 
 #include "ariadne.h"
+#include "ariadne_wallhug.h"
 #include "creature_graphics.h"
 #include "creature_groups.h"
 #include "thing_creature.h"

@@ -85,6 +85,8 @@ static int32_t Border[BORDER_LENGTH];
 static int32_t route_fwd[ROUTE_LENGTH];
 static int32_t route_bak[ROUTE_LENGTH];
 
+static NavColour *IanMap = NULL;
+
 /******************************************************************************/
 static unsigned char const actual_sizexy_to_nav_block_sizexy_table[] = {
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -187,6 +189,9 @@ static struct Path fwd_path;
 static struct Path bak_path;
 static struct Path best_path;
 /******************************************************************************/
+
+#define navmap_tile_number(stl_x,stl_y) ((stl_y)*game.navigation_map_size_x+(stl_x))
+
 long thing_nav_block_sizexy(const struct Thing *thing)
 {
     long i;
@@ -225,19 +230,29 @@ long ix_Points = 0;
 long free_Points = -1;
 */
 /******************************************************************************/
-long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, const int32_t *route, long wp_lim, struct Path *path, int32_t *total_len);
-void path_out_a_bit(struct Path *path, const int32_t *route);
-void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char unusedparam);
-void route_through_gates(const struct Pathway *pway, struct Path *path, long subroute);
-long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out);
+static long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, const int32_t *route, long wp_lim, struct Path *path, int32_t *total_len);
+static void path_out_a_bit(struct Path *path, const int32_t *route);
+static void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char unusedparam);
+static void route_through_gates(const struct Pathway *pway, struct Path *path, long subroute);
+static long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out);
 static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle);
-long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos);
+static long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos);
 static long triangle_findSE8(long ptfind_x, long ptfind_y);
-long ma_triangle_route(long ptfind_x, long ptfind_y, int32_t *ptstart_x);
-void edgelen_init(void);
+static long ma_triangle_route(long ptfind_x, long ptfind_y, int32_t *ptstart_x);
+static void edgelen_init(void);
+static NavColour get_navigation_colour(long stl_x, long stl_y);
+static TbBool triangulate_area(NavColour *imap, long sx, long sy, long ex, long ey);
 /******************************************************************************/
+static void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, NavColour navcolour)
+{
+  if ((stl_x < 0) || (stl_x > game.map_subtiles_x))
+      return;
+  if ((stl_y < 0) || (stl_y > game.map_subtiles_y))
+      return;
+  game.navigation_map[navmap_tile_number(stl_x,stl_y)] = navcolour;
+}
 
-unsigned long fits_thro(long tri_idx, long ormask_idx)
+static unsigned long fits_thro(long tri_idx, long ormask_idx)
 {
     static unsigned long const edgelen_ORmask[] = {60, 51, 15, 0};
     unsigned long eidx;
@@ -280,12 +295,12 @@ unsigned long fits_thro(long tri_idx, long ormask_idx)
     return EdgeFit[eidx];
 }
 
-void triangulate_map(NavColour *imap)
+static void triangulate_map(NavColour *imap)
 {
     triangulate_area(imap, 0, 0, game.navigation_map_size_x, game.navigation_map_size_y);
 }
 
-void init_navigation_map(void)
+static void init_navigation_map(void)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -305,7 +320,7 @@ static PlayerBitFlags get_navtree_owner_flags(NavColour treeI)
     return treeI >> NAVMAP_OWNERSELECT_BIT;
 }
 
-long navigation_rule_normal(NavColour treeA, NavColour treeB)
+static long navigation_rule_normal(NavColour treeA, NavColour treeB)
 {
     if ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK) > 1)
       return NavigationRule_Blocked;
@@ -408,7 +423,7 @@ static void edge_points8(long ntri_src, long ntri_dst, int32_t *tipA_x, int32_t 
     }
 }
 
-long fov_region(long point_x, long point_y, const struct FOV *fov)
+static long fov_region(long point_x, long point_y, const struct FOV *fov)
 {
     long diff_ax;
     long diff_ay;
@@ -431,7 +446,7 @@ long fov_region(long point_x, long point_y, const struct FOV *fov)
     return FieldOfViewRegion_WithinBounds;
 }
 
-long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, const int32_t *route, long wp_lim, struct Path *path, int32_t *total_len)
+static long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, const int32_t *route, long wp_lim, struct Path *path, int32_t *total_len)
 {
     NAVIDBG(19,"Starting");
 
@@ -557,7 +572,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
     return wp_num;
 }
 
-void waypoint_normal(long tri1_id, long cor1_id, int32_t *norm_x, int32_t *norm_y)
+static void waypoint_normal(long tri1_id, long cor1_id, int32_t *norm_x, int32_t *norm_y)
 {
     int tri2_id;
     int tri3_id;
@@ -648,7 +663,7 @@ void waypoint_normal(long tri1_id, long cor1_id, int32_t *norm_x, int32_t *norm_
     *norm_y = ny;
 }
 
-void path_out_a_bit(struct Path *path, const int32_t *route)
+static void path_out_a_bit(struct Path *path, const int32_t *route)
 {
     struct PathWayPoint *ppoint;
     int32_t *wpoint;
@@ -690,7 +705,7 @@ void path_out_a_bit(struct Path *path, const int32_t *route)
     }
 }
 
-void cull_gate_to_point(struct Gate *gt, long distance_threshold)
+static void cull_gate_to_point(struct Gate *gt, long distance_threshold)
 {
     int diff_a;
     int diff_b;
@@ -747,7 +762,7 @@ void cull_gate_to_point(struct Gate *gt, long distance_threshold)
     }
 }
 
-TbBool calc_intersection(struct Gate *gt, long line_start_x, long line_start_y, long line_end_x, long line_end_y)
+static TbBool calc_intersection(struct Gate *gt, long line_start_x, long line_start_y, long line_end_x, long line_end_y)
 {
     int gate_start_x_delta;
     int line_y_delta;
@@ -808,7 +823,7 @@ TbBool calc_intersection(struct Gate *gt, long line_start_x, long line_start_y, 
     return true;
 }
 
-void cull_gate_to_best_point(struct Gate *gt, long distance_threshold)
+static void cull_gate_to_best_point(struct Gate *gt, long distance_threshold)
 {
     int start_to_intersection_distance;
     int end_to_intersection_distance;
@@ -955,7 +970,7 @@ void cull_gate_to_best_point(struct Gate *gt, long distance_threshold)
     }
 }
 
-long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, int32_t *route_array, long route_length, struct Pathway *pway, long distance_threshold)
+static long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, int32_t *route_array, long route_length, struct Pathway *pway, long distance_threshold)
 {
     int32_t total_len;
     best_path.waypoints_num = route_to_path(trAx, trAy, trBx, trBy, route_array, route_length, &best_path, &total_len);
@@ -1159,7 +1174,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, int32_t *r
     return pt_num;
 }
 
-void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char unusedparam)
+static void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char unusedparam)
 {
     pway->start_coordinate_x = trAx;
     pway->start_coordinate_y = trAy;
@@ -1184,7 +1199,7 @@ void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx,
     }
 }
 
-void route_through_gates(const struct Pathway *pway, struct Path *path, long subroute)
+static void route_through_gates(const struct Pathway *pway, struct Path *path, long subroute)
 {
     const struct Gate *ppoint;
     struct PathWayPoint *wpoint;
@@ -1276,7 +1291,7 @@ void tag_open_closed_init(void)
 
 */
 
-unsigned long nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy)
+static unsigned long nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy)
 {
     NAVIDBG(19,"F=%u Connect %03ld,%03ld %03ld,%03ld", get_gameturn(), ptAx, ptAy, ptBx, ptBy);
     long tri1_id;
@@ -1297,7 +1312,7 @@ TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2)
   return nav_same_component(pt1->x.val, pt1->y.val, pt2->x.val, pt2->y.val);
 }
 
-TbBool triangulation_border_tag(void)
+static TbBool triangulation_border_tag(void)
 {
     if (border_tags_to_current(Border, ix_Border) != ix_Border)
     {
@@ -1307,7 +1322,7 @@ TbBool triangulation_border_tag(void)
     return true;
 }
 
-void creature_radius_set(long radius)
+static void creature_radius_set(long radius)
 {
     edgelen_init();
     if ((radius < CreatureRadius_Small) || (radius >= EDGEOR_COUNT)) {
@@ -1466,7 +1481,7 @@ void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, i
     set_nearpoint(seltri_id, selcor_id, dstx, dsty, px, py);
 }
 
-long cost_to_start(long tri_idx)
+static long cost_to_start(long tri_idx)
 {
     long long len_x;
     long long len_y;
@@ -1556,7 +1571,7 @@ long pointed_at8(long pos_x, long pos_y, int32_t *ret_tri, int32_t *ret_pt)
     return -1;
 }
 
-TbBool triangle_check_and_add_navitree_fwd(long ttri)
+static TbBool triangle_check_and_add_navitree_fwd(long ttri)
 {
     struct Triangle *tri;
     tri = get_triangle(ttri);
@@ -1606,7 +1621,7 @@ TbBool triangle_check_and_add_navitree_fwd(long ttri)
     return true;
 }
 
-TbBool triangle_check_and_add_navitree_bak(long ttri)
+static TbBool triangle_check_and_add_navitree_bak(long ttri)
 {
     struct Triangle *tri;
     tri = get_triangle(ttri);
@@ -1658,7 +1673,7 @@ TbBool triangle_check_and_add_navitree_bak(long ttri)
  * @param routecost Output integer where the tree route cost is returned.
  * @return Amount of points copied into the route array, or -1 on routing failure.
  */
-long triangle_route_do_fwd(long ttriA, long ttriB, int32_t *route, int32_t *routecost)
+static long triangle_route_do_fwd(long ttriA, long ttriB, int32_t *route, int32_t *routecost)
 {
     NAVIDBG(19,"Starting");
     tags_init();
@@ -1726,7 +1741,7 @@ long triangle_route_do_fwd(long ttriA, long ttriB, int32_t *route, int32_t *rout
  * @return Amount of points copied into the route array, or -1 on routing failure.
  * @note This function should differ from triangle_route_do_bak() in only one line
  */
-long triangle_route_do_bak(long ttriA, long ttriB, int32_t *route, int32_t *routecost)
+static long triangle_route_do_bak(long ttriA, long ttriB, int32_t *route, int32_t *routecost)
 {
     NAVIDBG(19,"Starting");
     tags_init();
@@ -1792,7 +1807,7 @@ long triangle_route_do_bak(long ttriA, long ttriB, int32_t *route, int32_t *rout
  * @param routecost Pointer where the tree route cost is returned.
  * @return
  */
-long ma_triangle_route(long ttriA, long ttriB, int32_t *routecost)
+static long ma_triangle_route(long ttriA, long ttriB, int32_t *routecost)
 {
     long forward_route_length;
     long backward_route_length;
@@ -1857,7 +1872,7 @@ long ma_triangle_route(long ttriA, long ttriB, int32_t *routecost)
     }
 }
 
-void edgelen_init(void)
+static void edgelen_init(void)
 {
     if (edgelen_initialised)
         return;
@@ -1888,7 +1903,7 @@ void edgelen_init(void)
     EdgeFit = RadiusEdgeFit[1];
 }
 
-TbBool ariadne_creature_reached_position(const struct Thing *thing, const struct Coord3d *pos)
+static TbBool ariadne_creature_reached_position(const struct Thing *thing, const struct Coord3d *pos)
 {
     if (thing->mappos.x.val != pos->x.val)
     return false;
@@ -1897,7 +1912,7 @@ TbBool ariadne_creature_reached_position(const struct Thing *thing, const struct
     return true;
 }
 
-long ariadne_creature_blocked_by_wall_at(struct Thing *thing, const struct Coord3d *pos)
+static long ariadne_creature_blocked_by_wall_at(struct Thing *thing, const struct Coord3d *pos)
 {
     struct Coord3d mvpos;
     long zmem;
@@ -1913,7 +1928,7 @@ long ariadne_creature_blocked_by_wall_at(struct Thing *thing, const struct Coord
     return ret;
 }
 
-void ariadne_pull_out_waypoint(const struct Thing *thing, const struct Ariadne *arid, long wpoint_id, struct Coord3d *pos)
+static void ariadne_pull_out_waypoint(const struct Thing *thing, const struct Ariadne *arid, long wpoint_id, struct Coord3d *pos)
 {
     const struct Coord2d *wp;
     long size_radius;
@@ -1961,7 +1976,7 @@ void ariadne_pull_out_waypoint(const struct Thing *thing, const struct Ariadne *
  * @param thing The thing which is moving.
  * @param arid The Ariadne which is being changed.
  */
-void ariadne_init_current_waypoint(const struct Thing *thing, struct Ariadne *arid)
+static void ariadne_init_current_waypoint(const struct Thing *thing, struct Ariadne *arid)
 {
     ariadne_pull_out_waypoint(thing, arid, arid->current_waypoint, &arid->current_waypoint_pos);
     arid->current_waypoint_pos.z.val = get_thing_height_at(thing, &arid->current_waypoint_pos);
@@ -1973,7 +1988,7 @@ long angle_to_quadrant(long angle)
     return ((angle + DEGREES_45) / DEGREES_90) & 3;
 }
 
-TbBool ariadne_wallhug_angle_valid(struct Thing *thing, struct Ariadne *arid, long angle)
+static TbBool ariadne_wallhug_angle_valid(struct Thing *thing, struct Ariadne *arid, long angle)
 {
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, angle);
@@ -1982,7 +1997,7 @@ TbBool ariadne_wallhug_angle_valid(struct Thing *thing, struct Ariadne *arid, lo
     return (ariadne_creature_blocked_by_wall_at(thing, &pos) == 0);
 }
 
-long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
+static long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
 {
     long whangle;
     if (arid->hug_side == WallhugPreference_Right)
@@ -2018,7 +2033,7 @@ long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
     return -1;
 }
 
-void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct Thing *thing, struct Ariadne *arid, long inangle, short *rangle, unsigned char *rflag)
+static void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct Thing *thing, struct Ariadne *arid, long inangle, short *rangle, unsigned char *rflag)
 {
     struct Coord3d bkp_mappos;
     bkp_mappos = thing->mappos;
@@ -2143,7 +2158,7 @@ void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct T
     }
 }
 
-TbBool ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, short *rangle, unsigned char *rflag)
+static TbBool ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, short *rangle, unsigned char *rflag)
 {
     TbBool nxdelta_x_neg;
     TbBool nxdelta_y_neg;
@@ -2212,7 +2227,7 @@ TbBool ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struc
     return false;
 }
 
-AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos)
+static AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos)
 {
     if (arid->move_speed <= 0) {
         ERRORLOG("Ariadne Speed not positive");
@@ -2269,18 +2284,7 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
     return AridRet_OK;
 }
 
-void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend)
-{
-    navi->navstate = NavS_WallhugInProgress;
-    navi->pos_final.x.val = mvend->x.val;
-    navi->pos_final.y.val = mvend->y.val;
-    navi->pos_final.z.val = mvend->z.val;
-    navi->wallhug_state = WallhugCurrentState_None;
-    navi->wallhug_retry_counter = 0;
-    navi->push_counter = 0;
-}
-
-long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)
+static long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)
 {
     struct Coord3d lpos;
     unsigned long blkflags;
@@ -2306,7 +2310,7 @@ long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)
     return blkflags;
 }
 
-TbBool blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long blk_flags)
+static TbBool blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long blk_flags)
 {
     long radius;
     long start_x;
@@ -2352,7 +2356,7 @@ TbBool blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned lon
     return false;
 }
 
-long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out)
+static long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out)
 {
     struct Coord3d lpos;
     long radius;
@@ -2426,7 +2430,7 @@ long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3
     return blk_flags;
 }
 
-long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid)
+static long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid)
 {
     struct Coord3d requested_pos;
     struct Coord3d fixed_pos;
@@ -2474,7 +2478,7 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
     return 1;
 }
 
-long ariadne_creature_can_continue_direct_line_to_waypoint(struct Thing *thing, struct Ariadne *arid, long speed)
+static long ariadne_creature_can_continue_direct_line_to_waypoint(struct Thing *thing, struct Ariadne *arid, long speed)
 {
     long angle;
     angle = get_angle_xy_to(&thing->mappos, &arid->current_waypoint_pos);
@@ -2531,7 +2535,7 @@ long ariadne_creature_can_continue_direct_line_to_waypoint(struct Thing *thing, 
  * @param dstpos
  * @return
  */
-AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *thing, struct Ariadne *arid, const struct Coord3d *srcpos, const struct Coord3d *dstpos)
+static AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *thing, struct Ariadne *arid, const struct Coord3d *srcpos, const struct Coord3d *dstpos)
 {
     arid->startpos.x.val = srcpos->x.val;
     arid->startpos.y.val = srcpos->y.val;
@@ -2565,7 +2569,7 @@ AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *
  * @param func_name
  * @return
  */
-AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
+static AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
     const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, AriadneRouteFlags flags, const char *func_name)
 {
     struct Path path;
@@ -2713,7 +2717,7 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const str
     return AridRet_OK;
 }
 
-AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ariadne *arid)
+static AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ariadne *arid)
 {
     struct Coord3d pos;
     // Make sure we didn't exceeded the stored waypoints count
@@ -2744,12 +2748,12 @@ AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ari
     return ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->route_flags);
 }
 
-TbBool ariadne_creature_reached_waypoint(const struct Thing *thing, const struct Ariadne *arid)
+static TbBool ariadne_creature_reached_waypoint(const struct Thing *thing, const struct Ariadne *arid)
 {
     return ariadne_creature_reached_position(thing, &arid->current_waypoint_pos);
 }
 
-AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, struct Ariadne *arid)
+static AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, struct Ariadne *arid)
 {
     struct Coord3d pos;
     MapCoord dist;
@@ -2797,7 +2801,7 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     return AridRet_OK;
 }
 
-AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid)
+static AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid)
 {
     long angle;
     long distance;
@@ -2963,7 +2967,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
     return false;
 }
 
-TbBool ariadne_creature_on_circular_hug(const struct Thing *thing, const struct Ariadne *arid)
+static TbBool ariadne_creature_on_circular_hug(const struct Thing *thing, const struct Ariadne *arid)
 {
     long src_x;
     long src_y;
@@ -2995,7 +2999,7 @@ TbBool ariadne_creature_on_circular_hug(const struct Thing *thing, const struct 
     return false;
 }
 
-AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid)
+static AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid)
 {
     MapCoordDelta distance;
     NAVIDBG(18,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
@@ -3144,7 +3148,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
 }
 
 //TODO investigate when we get same coords
-AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long speed, struct Coord3d *nextpos, AriadneRouteFlags flags)
+static AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long speed, struct Coord3d *nextpos, AriadneRouteFlags flags)
 {
     struct CreatureControl *cctrl;
     struct Ariadne *arid;
@@ -3342,7 +3346,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
  * @param pt_cor
  * @return Returns resulted level (3 or 4), or non-positive value on error.
  */
-long make_3or4point(int32_t *pt_tri, int32_t *pt_cor)
+static long make_3or4point(int32_t *pt_tri, int32_t *pt_cor)
 {
     long initial_loop_result;
     long final_loop_result;
@@ -3572,7 +3576,7 @@ static long delete_triangle_point(long tri1_id, long cor1_id)
     return true;
 }
 
-TbBool delete_point(long pt_tri, long pt_cor)
+static TbBool delete_point(long pt_tri, long pt_cor)
 {
     long n;
     int32_t ntri;
@@ -3603,7 +3607,7 @@ TbBool delete_point(long pt_tri, long pt_cor)
     return true;
 }
 
-long tri_split3(long btri_id, long pt_x, long pt_y)
+static long tri_split3(long btri_id, long pt_x, long pt_y)
 {
     NAVIDBG(19,"Starting");
     struct Triangle *btri;
@@ -3627,7 +3631,6 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
     memcpy(tri2,btri,sizeof(struct Triangle));
     long pt_id;
     pt_id = point_set_new_or_reuse(pt_x, pt_y);
-    //pt_id = point_new(); // from before point_set_new_or_reuse()
     if (pt_id < 0) {
         tri_dispose(new_triangle1_id);
         tri_dispose(new_triangle2_id);
@@ -3685,7 +3688,7 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
     return pt_id;
 }
 
-long tri_split2(long tri_id1, long cor_id1, long pt_x, long pt_y, long pt_id1)
+static long tri_split2(long tri_id1, long cor_id1, long pt_x, long pt_y, long pt_id1)
 {
     long tri_id2;
     tri_id2 = tri_new();
@@ -3730,7 +3733,7 @@ long tri_split2(long tri_id1, long cor_id1, long pt_x, long pt_y, long pt_id1)
     return tri_id2;
 }
 
-long edge_split(long ntri, long ncor, long pt_x, long pt_y)
+static long edge_split(long ntri, long ncor, long pt_x, long pt_y)
 {
     long pt_idx;
     long ntr2;
@@ -3740,7 +3743,6 @@ long edge_split(long ntri, long ncor, long pt_x, long pt_y)
     NAVIDBG(19,"Starting");
     // Create and fill new point
     pt_idx = point_set_new_or_reuse(pt_x, pt_y);
-    //pt_idx = point_new(); // from before point_set_new_or_reuse()
     if (pt_idx < 0) {
         return -1;
     }
@@ -3769,7 +3771,7 @@ long edge_split(long ntri, long ncor, long pt_x, long pt_y)
  * @param pt_y Coord Y of the dividing point.
  * @return Zero if areas do not differ; -1 or 1 otherwise.
  */
-char triangle_divide_areas_differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y)
+static char triangle_divide_areas_differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y)
 {
     long tipA_x;
     long tipA_y;
@@ -3822,7 +3824,7 @@ static TbBool insert_point(long pt_x, long pt_y)
     return tri_split3(ntri, pt_x, pt_y) >= 0;
 }
 
-long fill_concave(long tri_beg_id, long tag_id, long tri_end_id)
+static long fill_concave(long tri_beg_id, long tag_id, long tri_end_id)
 {
     long tri_id;
     long cor_id;
@@ -3862,7 +3864,7 @@ long fill_concave(long tri_beg_id, long tag_id, long tri_end_id)
     return 1;
 }
 
-void make_edge_sub(long start_tri_id1, long start_cor_id1, long start_tri_id4, long start_cor_id4, long sx, long sy, long ex, long ey)
+static void make_edge_sub(long start_tri_id1, long start_cor_id1, long start_tri_id4, long start_cor_id4, long sx, long sy, long ex, long ey)
 {
     struct Triangle *tri;
     struct Point *pt;
@@ -3998,7 +4000,7 @@ static TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
     return true;
 }
 
-TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, long start_y, long end_y)
+static TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, long start_y, long end_y)
 {
     NavColour map_center;
     NavColour map_up;
@@ -4042,7 +4044,7 @@ TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, l
     return clipping_successful;
 }
 
-TbBool border_clip_vertical(const NavColour *imap, long start_x, long end_x, long start_y, long end_y)
+static TbBool border_clip_vertical(const NavColour *imap, long start_x, long end_x, long start_y, long end_y)
 {
     NavColour map_center;
     NavColour map_left;
@@ -4086,7 +4088,7 @@ TbBool border_clip_vertical(const NavColour *imap, long start_x, long end_x, lon
     return clipping_successful;
 }
 
-TbBool point_redundant(long tri_idx, long cor_idx)
+static TbBool point_redundant(long tri_idx, long cor_idx)
 {
     long tri_first;
     long cor_first;
@@ -4182,7 +4184,8 @@ static long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stle
     return 0;
 }
 
-TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
+#define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
+static TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
 {
     long pt_x;
     long pt_y;
@@ -4220,7 +4223,8 @@ TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, c
     return true;
 }
 
-TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
+#define edge_unlock_record_and_regions(fin_x, fin_y, bgn_x, bgn_y) edge_unlock_record_and_regions_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
+static TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
 {
     long pt_x;
     long pt_y;
@@ -4270,7 +4274,7 @@ TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart
     return true;
 }
 
-TbBool border_lock(long start_x, long start_y, long end_x, long end_y)
+static TbBool border_lock(long start_x, long start_y, long end_x, long end_y)
 {
     TbBool lock_successful;
     NAVIDBG(19,"Starting");
@@ -4282,7 +4286,7 @@ TbBool border_lock(long start_x, long start_y, long end_x, long end_y)
     return lock_successful;
 }
 
-void border_internal_points_delete(long start_x, long start_y, long end_x, long end_y)
+static void border_internal_points_delete(long start_x, long start_y, long end_x, long end_y)
 {
     int32_t edge_tri;
     int32_t edge_cor;
@@ -4357,7 +4361,7 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
     }
 }
 
-long triangle_area1(long tri_idx)
+static long triangle_area1(long tri_idx)
 {
     int ptidx0;
     int ptidx1;
@@ -4426,7 +4430,7 @@ static void brute_fill_rectangle(long start_x, long start_y, long end_x, long en
 }
 
 #define fill_rectangle(start_x, start_y, end_x, end_y, nav_colour) fill_rectangle_f(start_x, start_y, end_x, end_y, nav_colour, __func__)
-void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour, const char *func_name)
+static void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour, const char *func_name)
 {
     int32_t tri_n0;
     int32_t tri_k0;
@@ -4491,7 +4495,7 @@ void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, NavCol
     brute_fill_rectangle(start_x, start_y, end_x, end_y, nav_colour);
 }
 
-TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour)
+static TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour)
 {
     long sx;
     long sy;
@@ -4532,7 +4536,7 @@ TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, Nav
     return rectangle_creation_successful;
 }
 
-long fringe_scan(int32_t *outfri_x, int32_t *outfri_y, int32_t *outlen_x, int32_t *outlen_y)
+static long fringe_scan(int32_t *outfri_x, int32_t *outfri_y, int32_t *outlen_x, int32_t *outlen_y)
 {
     long loc_x;
     long sub_y;
@@ -4568,7 +4572,7 @@ long fringe_scan(int32_t *outfri_x, int32_t *outfri_y, int32_t *outlen_x, int32_
     return 1;
 }
 
-long fringe_get_rectangle(int32_t *outfri_x1, int32_t *outfri_y1, int32_t *outfri_x2, int32_t *outfri_y2, NavColour *oval)
+static long fringe_get_rectangle(int32_t *outfri_x1, int32_t *outfri_y1, int32_t *outfri_x2, int32_t *outfri_y2, NavColour *oval)
 {
     NAVIDBG(19,"Starting");
     int32_t fri_x;
@@ -4610,7 +4614,7 @@ long fringe_get_rectangle(int32_t *outfri_x1, int32_t *outfri_y1, int32_t *outfr
     return 1;
 }
 
-void border_unlock(long start_x, long start_y, long end_x, long end_y)
+static void border_unlock(long start_x, long start_y, long end_x, long end_y)
 {
     struct EdgePoint *ept;
     long ept_id;
@@ -4644,7 +4648,7 @@ void border_unlock(long start_x, long start_y, long end_x, long end_y)
     }
 }
 
-TbBool triangulation_border_start(int32_t *border_a, int32_t *border_b)
+static TbBool triangulation_border_start(int32_t *border_a, int32_t *border_b)
 {
     struct Triangle *tri;
     long tri_idx;
@@ -4695,7 +4699,7 @@ TbBool triangulation_border_start(int32_t *border_a, int32_t *border_b)
     return false;
 }
 
-NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
+static NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
 {
     struct Thing *doortng;
     NavColour colour = (1 << NAVMAP_FLOORHEIGHT_BIT);
@@ -4719,21 +4723,18 @@ NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
 
 }
 
-NavColour get_navigation_colour_for_cube(long stl_x, long stl_y)
+static NavColour get_navigation_colour_for_cube(long stl_x, long stl_y)
 {
-    long tcube;
-    int32_t cube_pos;
     NavColour i;
     i = get_floor_filled_subtiles_at(stl_x, stl_y);
     if (i > NAVMAP_FLOORHEIGHT_MAX)
       i = NAVMAP_FLOORHEIGHT_MAX;
-    tcube = get_top_cube_at(stl_x, stl_y, &cube_pos);
-    if (cube_is_lava(tcube) || (cube_pos<4 && cube_is_sacrificial(tcube)))
+    if (subtile_is_unsafe(stl_x, stl_y))
       i |= NAVMAP_UNSAFE_SURFACE;
     return i;
 }
 
-NavColour get_navigation_colour(long stl_x, long stl_y)
+static NavColour get_navigation_colour(long stl_x, long stl_y)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
@@ -4748,7 +4749,7 @@ NavColour get_navigation_colour(long stl_x, long stl_y)
     return get_navigation_colour_for_cube(stl_x, stl_y);
 }
 
-NavColour uniform_area_colour(const NavColour *imap, long start_x, long start_y, long end_x, long end_y)
+static NavColour uniform_area_colour(const NavColour *imap, long start_x, long start_y, long end_x, long end_y)
 {
     NavColour uniform;
     long x;
@@ -4767,7 +4768,7 @@ NavColour uniform_area_colour(const NavColour *imap, long start_x, long start_y,
     return uniform;
 }
 
-void triangulation_border_init(void)
+static void triangulation_border_init(void)
 {
     int32_t border_a;
     int32_t border_b;
@@ -4805,7 +4806,7 @@ void triangulation_border_init(void)
     NAVIDBG(19,"Finished");
 }
 
-void triangulation_initxy(long startx, long starty, long endx, long endy)
+static void triangulation_initxy(long startx, long starty, long endx, long endy)
 {
     long i;
     for (i=0; i < TRIANLGLES_COUNT; i++)
@@ -4823,7 +4824,7 @@ void triangulation_initxy(long startx, long starty, long endx, long endy)
     triangulation_init_regions();
 }
 
-void triangulation_init(void)
+static void triangulation_init(void)
 {
     if (!tri_initialised)
     {
@@ -4832,7 +4833,7 @@ void triangulation_init(void)
     }
 }
 
-TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x, long end_y)
+static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x, long end_y)
 {
     TbBool one_tile;
     TbBool not_whole_map;

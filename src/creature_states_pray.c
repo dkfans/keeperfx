@@ -805,7 +805,7 @@ TbBool find_random_sacrifice_center(struct Coord3d *pos, const struct Room *room
             pos->z.val = subtile_coord(1,0);
             struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
-                && (get_navigation_map_floor_height(pos->x.stl.num, pos->y.stl.num) < 4)
+                && (get_floor_filled_subtiles_at(pos->x.stl.num, pos->y.stl.num) < 4)
                 )
             {
                 return true;

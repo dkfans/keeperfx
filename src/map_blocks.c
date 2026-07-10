@@ -34,7 +34,6 @@
 #include "config_creature.h"
 #include "creature_senses.h"
 #include "player_utils.h"
-#include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
