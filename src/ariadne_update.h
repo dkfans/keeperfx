@@ -31,7 +31,7 @@ extern "C" {
 
 /******************************************************************************/
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
-void triangulate_map(NavColour *imap);
+long init_navigation(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

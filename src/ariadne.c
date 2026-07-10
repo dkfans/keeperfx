@@ -28,7 +28,6 @@
 #include "ariadne_regions.h"
 #include "ariadne_tringls.h"
 #include "ariadne_points.h"
-#include "ariadne_edge.h"
 #include "ariadne_findcache.h"
 #include "ariadne_naviheap.h"
 #include "thing_stats.h"

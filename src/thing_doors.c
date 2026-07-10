@@ -24,6 +24,7 @@
 
 #include "bflib_math.h"
 #include "bflib_planar.h"
+#include "ariadne_update.h"
 #include "cursor_tag.h"
 #include "thing_objects.h"
 #include "thing_list.h"
