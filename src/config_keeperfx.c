@@ -215,6 +215,12 @@ const struct NamedCommand conf_commands[] = {
   {NULL,            0},
   };
 
+  const struct NamedCommand rotate_follow_mouse_options[] = {
+  {"FOLLOW",        1},
+  {"NO_FOLLOW",     0},
+  {NULL,           -1},
+  };
+
 unsigned int vid_scale_flags = SMK_FullscreenFit;
 
 
@@ -960,20 +966,14 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           {
             rotate_around_mouse_option = i;
           }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          i = recognize_conf_parameter(buf, &pos, len, rotate_follow_mouse_options);
+          if (i <= 0)
           {
-              if (strcasecmp(word_buf, "FOLLOW") == 0)
-              {
-                  rotate_follow_mouse_option = true;
-              }
-              if (strcasecmp(word_buf, "NO_FOLLOW") == 0)
-              {
-                  rotate_follow_mouse_option = false;
-              }
-              else
-              {
-                  CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
-              }
+            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
+          else
+          {
+            rotate_follow_mouse_option = i;
           }
           break;
       case ccr_comment:
