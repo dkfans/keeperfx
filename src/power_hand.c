@@ -608,9 +608,8 @@ void draw_power_hand(void)
     if (player->work_state != PSt_HoldInHand)
     {
       TbBool draw_hand = (local_thing_under_hand > 0);
-      if ((player->work_state == PSt_CtrlDungeon) && !power_hand_is_empty(player))
-      {
-        draw_hand = (player->secondary_cursor_state == CSt_PowerHand) || ((player->secondary_cursor_state == CSt_DefaultArrow) && (player->primary_cursor_state == CSt_PowerHand));
+      if ((player->work_state == PSt_CtrlDungeon) && !power_hand_is_empty(player)) {
+        draw_hand = (player->primary_cursor_state != CSt_DoorKey) && (player->secondary_cursor_state != CSt_DoorKey);
       }
       if ((player->work_state != PSt_CtrlDungeon) || !draw_hand)
       {
