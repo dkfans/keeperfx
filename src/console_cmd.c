@@ -71,6 +71,7 @@
 #include <string.h>
 #include <math.h>
 #include "lua_base.h"
+#include "net_resync.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -2726,6 +2727,17 @@ TbBool cmd_dbc(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_resync(PlayerNumber plyr_idx, char * args)
+{
+    if (game.easter_eggs_enabled == false) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
+        return false;
+    }
+    SYNCMSG("player %d forced a resync", (int)plyr_idx);
+    intentional_desync();
+
+    return true;
+}
 
 struct ConsoleCommand {
     const char * name;
@@ -2843,7 +2855,8 @@ static const struct ConsoleCommand console_commands[] = {
     { "luatypedump", cmd_luatypedump, NULL },
     { "cheat.menu", cmd_cheat_menu, NULL },
     { "creature.chicken", cmd_chicken_creature, NULL },
-    { "dbc", cmd_dbc, NULL }
+    { "dbc", cmd_dbc, NULL },
+    { "resync", cmd_resync, NULL }
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 

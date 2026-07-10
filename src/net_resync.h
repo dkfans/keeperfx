@@ -30,6 +30,8 @@ TbBool LbNetwork_Resync(void *data_buffer, size_t buffer_length);
 void animate_resync_progress_bar(int current_phase, int total_phases);
 void resync_game(void);
 
+void intentional_desync();
+
 #ifdef __cplusplus
 }
 #endif
