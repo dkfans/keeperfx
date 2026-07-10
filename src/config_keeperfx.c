@@ -209,8 +209,8 @@ const struct NamedCommand conf_commands[] = {
 
   const struct NamedCommand rotate_around_mouse_options[] = {
   {"NEVER",         RotateAroundMouse_Never},
-  {"NOT_CTRL",      RotateAroundMouse_NotCtrl},
-  {"ONLY_CTRL",     RotateAroundMouse_OnlyCtrl},
+  {"KEYBINDS",      RotateAroundMouse_Keybinds},
+  {"THUMB_BUTTONS", RotateAroundMouse_ThumbButtons},
   {"ALWAYS",        RotateAroundMouse_Always},
   {NULL,            0},
   };
@@ -951,7 +951,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           break;
       case 43: // ROTATE_AROUND_MOUSE
-          i = recognize_conf_parameter(buf,&pos,len,rotate_around_mouse_options);
+          i = recognize_conf_parameter(buf, &pos, len, rotate_around_mouse_options);
           if (i <= 0)
           {
             CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
