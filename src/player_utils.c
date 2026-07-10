@@ -45,6 +45,7 @@
 #include "config_spritecolors.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
+#include "map_columns.h"
 #include "map_utils.h"
 #include "game_saves.h"
 #include "game_legacy.h"
