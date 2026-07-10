@@ -1220,31 +1220,31 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
 
     if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
-		if ( (player->continue_work_state == PSt_CreatrQuery) || (player->continue_work_state == PSt_QueryAll) )
-		{
-			struct Thing *creatng = thing_get(player->controlled_thing_idx);
-			if (thing_is_creature(creatng))
-			{
-				if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
-				{
-					toggle_creature_cheat_menu();
-				}
-			}
-			else
-			{
-				if (!close_creature_cheat_menu())
-				{
-					toggle_secondary_cheat_menu();
-				}
-			}
-		}
-		else
-		{
-			if (!close_creature_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
-			{
-				toggle_secondary_cheat_menu();
-			}
-		}
+        if ( (player->continue_work_state == PSt_CreatrQuery) || (player->continue_work_state == PSt_QueryAll) )
+        {
+            struct Thing *creatng = thing_get(player->controlled_thing_idx);
+            if (thing_is_creature(creatng))
+            {
+                if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
+                {
+                    toggle_creature_cheat_menu();
+                }
+            }
+            else
+            {
+                if (!close_creature_cheat_menu())
+                {
+                    toggle_secondary_cheat_menu();
+                }
+            }
+        }
+        else
+        {
+            if (!close_creature_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
+            {
+                toggle_secondary_cheat_menu();
+            }
+        }
     }
     if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
     {
@@ -1373,10 +1373,17 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
       }
     }
 
-    if ((player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr)
-        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) ||
-        (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr))
+    switch (player->work_state)
     {
+    case PSt_PlaceTerrain:
+    case PSt_MkDigger:
+    case PSt_MkBadCreatr:
+    case PSt_MkGoodCreatr:
+    case PSt_KillPlayer:
+    case PSt_HeartHealth:
+    case PSt_StealRoom:
+    case PSt_StealSlab:
+    case PSt_ConvertCreatr:
         process_cheat_mode_selection_inputs();
     }
     if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
@@ -1634,9 +1641,9 @@ static short get_creature_control_action_inputs(void)
     if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
         if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
-		{
-			toggle_creature_cheat_menu();
-		}
+        {
+            toggle_creature_cheat_menu();
+        }
     }
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
