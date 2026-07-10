@@ -379,27 +379,33 @@ TbResult LbTimerInit(void)
 
 int get_current_stutter_percentage()
 {
-    static TbClockMSec last_frame_timestamp = 0;
+    static TbClockMSec last_turn_timestamp = 0;
     static int stutter_detection_history[50] = {0};
+    static TbClockMSec stutter_detection_history_timestamp[50] = {0};
     static int history_index = 0;
     TbClockMSec current_timestamp = LbTimerClock();
-    TbClockMSec frame_time_ms = 0;
     int stutter_detection_pct = 0;
-    if (last_frame_timestamp != 0) {
-        frame_time_ms = current_timestamp - last_frame_timestamp;
-        int expected_frame_time = 1000 / turns_per_second;
-        if (frame_time_ms > expected_frame_time) {
-            stutter_detection_pct = ((frame_time_ms - expected_frame_time) * 100) / expected_frame_time;
+    TbClockMSec expected_turn_time = 1000 / turns_per_second;
+    if (last_turn_timestamp != 0) {
+        TbClockMSec turn_time_ms = current_timestamp - last_turn_timestamp;
+        if (turn_time_ms > expected_turn_time) {
+            stutter_detection_pct = ((turn_time_ms - expected_turn_time) * 100) / expected_turn_time;
+            stutter_detection_history[history_index] = stutter_detection_pct;
+            stutter_detection_history_timestamp[history_index] = current_timestamp;
+            history_index = (history_index + 1) % 50;
         }
     }
-    last_frame_timestamp = current_timestamp;
+    last_turn_timestamp = current_timestamp;
     stutter_detection_current = stutter_detection_pct;
-    stutter_detection_history[history_index] = stutter_detection_pct;
-    history_index = (history_index + 1) % 50;
     int sum = 0;
     int max = 0;
     int i;
     for (i = 0; i < 50; i++) {
+        if (stutter_detection_history_timestamp[i] == 0 || current_timestamp - stutter_detection_history_timestamp[i] >= expected_turn_time * 50) {
+            stutter_detection_history[i] = 0;
+            stutter_detection_history_timestamp[i] = 0;
+            continue;
+        }
         sum += stutter_detection_history[i];
         if (stutter_detection_history[i] > max) {
             max = stutter_detection_history[i];
