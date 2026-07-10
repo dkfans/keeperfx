@@ -1605,15 +1605,6 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
     return triangulation_successful;
 }
 
-static void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, NavColour navcolour)
-{
-  if ((stl_x < 0) || (stl_x > game.map_subtiles_x))
-      return;
-  if ((stl_y < 0) || (stl_y > game.map_subtiles_y))
-      return;
-  game.navigation_map[navmap_tile_number(stl_x,stl_y)] = navcolour;
-}
-
 static NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
 {
     struct Thing *doortng;
@@ -1673,7 +1664,7 @@ static void init_navigation_map(void)
     {
         for (stl_x=0; stl_x < game.navigation_map_size_x; stl_x++)
         {
-            set_navigation_map(stl_x, stl_y, get_navigation_colour(stl_x, stl_y));
+            game.navigation_map[navmap_tile_number(stl_x,stl_y)] = get_navigation_colour(stl_x, stl_y);
         }
     }
     nav_map_initialised = 1;
@@ -1724,14 +1715,23 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
     if (ey >= game.map_subtiles_y-2)
       ey = game.map_subtiles_y-2;
     // Fill a rectangle with nav colors (based on columns and blocks)
+    TbBool changed = false;
     for (y = sy; y <= ey; y++)
     {
         for (x = sx; x <= ex; x++)
         {
-            set_navigation_map(x, y, get_navigation_colour(x, y));
+            NavColour color = get_navigation_colour(x, y);
+            if (game.navigation_map[navmap_tile_number(x,y)] != color) {
+                game.navigation_map[navmap_tile_number(x,y)] = color;
+                changed = true;
+            }
         }
     }
-    triangulate_area(game.navigation_map, sx, sy, ex, ey);
+    if (changed) {
+        game.map_changed_for_navigation = 1;
+        triangulate_area(game.navigation_map, sx, sy, ex, ey);
+    }
+    
     return true;
 }
 
