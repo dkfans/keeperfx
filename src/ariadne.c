@@ -2356,7 +2356,7 @@ static TbBool blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsig
     return false;
 }
 
-long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out)
+static long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out)
 {
     struct Coord3d lpos;
     long radius;
@@ -2569,7 +2569,7 @@ static AriadneReturn ariadne_prepare_creature_route_target_reached(const struct 
  * @param func_name
  * @return
  */
-AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
+static AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
     const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, AriadneRouteFlags flags, const char *func_name)
 {
     struct Path path;
