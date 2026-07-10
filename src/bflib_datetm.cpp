@@ -377,26 +377,26 @@ TbResult LbTimerInit(void)
   return Lb_SUCCESS;
 }
 
-int get_current_stutter_percentage()
+int get_current_stutter_milliseconds()
 {
     static TbClockMSec last_turn_timestamp = 0;
     static int stutter_detection_history[50] = {0};
     static TbClockMSec stutter_detection_history_timestamp[50] = {0};
     static int history_index = 0;
     TbClockMSec current_timestamp = LbTimerClock();
-    int stutter_detection_pct = 0;
+    int stutter_detection_ms = 0;
     TbClockMSec expected_turn_time = 1000 / turns_per_second;
     if (last_turn_timestamp != 0) {
         TbClockMSec turn_time_ms = current_timestamp - last_turn_timestamp;
         if (turn_time_ms > expected_turn_time) {
-            stutter_detection_pct = ((turn_time_ms - expected_turn_time) * 100) / expected_turn_time;
-            stutter_detection_history[history_index] = stutter_detection_pct;
+            stutter_detection_ms = turn_time_ms - expected_turn_time;
+            stutter_detection_history[history_index] = stutter_detection_ms;
             stutter_detection_history_timestamp[history_index] = current_timestamp;
             history_index = (history_index + 1) % 50;
         }
     }
     last_turn_timestamp = current_timestamp;
-    stutter_detection_current = stutter_detection_pct;
+    stutter_detection_current = stutter_detection_ms;
     int sum = 0;
     int max = 0;
     int i;
@@ -413,7 +413,7 @@ int get_current_stutter_percentage()
     }
     stutter_detection_average = sum / 50;
     stutter_detection_max = max;
-    return stutter_detection_pct;
+    return stutter_detection_ms;
 }
 
 /******************************************************************************/

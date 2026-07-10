@@ -899,13 +899,15 @@ void draw_network_stats()
     LbTextDrawResized(0, tx_units_per_px * 6, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Lost packets: %u", lost_packet_count);
     LbTextDrawResized(0, tx_units_per_px * 7, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Average stutter: %d%%", stutter_detection_average);
+    snprintf(text, sizeof(text), "Stutter: %dms", stutter_detection_current);
     LbTextDrawResized(0, tx_units_per_px * 8, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Max stutter: %d%%", stutter_detection_max);
+    snprintf(text, sizeof(text), "Average stutter: %dms", stutter_detection_average);
     LbTextDrawResized(0, tx_units_per_px * 9, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Turn length: %" PRId64, turn_length_ns);
+    snprintf(text, sizeof(text), "Max stutter: %dms", stutter_detection_max);
     LbTextDrawResized(0, tx_units_per_px * 10, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
+    snprintf(text, sizeof(text), "Turn length: %" PRId64, turn_length_ns);
     LbTextDrawResized(0, tx_units_per_px * 11, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
+    LbTextDrawResized(0, tx_units_per_px * 12, tx_units_per_px, text);
 }
 /******************************************************************************/
