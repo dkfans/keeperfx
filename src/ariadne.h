@@ -186,39 +186,6 @@ struct Path { // sizeof = 2068
     struct PathWayPoint waypoints[ARID_PATH_WAYPOINTS_COUNT];
 };
 
-struct Gate { // sizeof = 28
-  long start_coordinate_x;
-  long start_coordinate_y;
-  long end_coordinate_x;
-  long end_coordinate_y;
-  long intersection_coordinate_x;
-  long intersection_coordinate_y;
-  long pathfinding_direction;
-};
-
-struct Pathway {
-  long start_coordinate_x;
-  long start_coordinate_y;
-  long finish_coordinate_x;
-  long finish_coordinate_y;
-  struct Gate points[256];
-  long points_num;
-};
-
-struct WayPoints {
-  long edge1_start_index;
-  long edge2_start_index;
-  long edge1_current_index;
-  long edge2_current_index;
-  int32_t waypoint_index_array[ARID_PATH_WAYPOINTS_COUNT];
-};
-
-struct FOV { // sizeof=0x18
-    struct PathWayPoint tipA;
-    struct PathWayPoint tipB;
-    struct PathWayPoint tipC;
-};
-
 struct HugStart {
     short wh_angle;
     unsigned char wh_side;

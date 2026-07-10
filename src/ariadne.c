@@ -49,6 +49,39 @@ struct QuadrantOffset {
     long y;
 };
 
+struct Gate {
+  long start_coordinate_x;
+  long start_coordinate_y;
+  long end_coordinate_x;
+  long end_coordinate_y;
+  long intersection_coordinate_x;
+  long intersection_coordinate_y;
+  long pathfinding_direction;
+};
+
+struct Pathway {
+  long start_coordinate_x;
+  long start_coordinate_y;
+  long finish_coordinate_x;
+  long finish_coordinate_y;
+  struct Gate points[256];
+  long points_num;
+};
+
+struct WayPoints {
+  long edge1_start_index;
+  long edge2_start_index;
+  long edge1_current_index;
+  long edge2_current_index;
+  int32_t waypoint_index_array[ARID_PATH_WAYPOINTS_COUNT];
+};
+
+struct FOV {
+    struct PathWayPoint tipA;
+    struct PathWayPoint tipB;
+    struct PathWayPoint tipC;
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -206,21 +239,7 @@ long thing_nav_sizexy(const struct Thing *thing)
     return actual_sizexy_to_nav_sizexy_table[i];
 }
 
-/*
-unsigned char tag_current;
-unsigned char Tags[9000];
-long tree.val[9001];
-long tree_dad[9000];
-long heap_end;
-long Heap[258];
-unsigned long edgelen_initialised = 0;
-uint32_t *EdgeFit = NULL;
-unsigned long RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
 
-long count_Points = 0;
-long ix_Points = 0;
-long free_Points = -1;
-*/
 /******************************************************************************/
 static long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, const int32_t *route, long wp_lim, struct Path *path, int32_t *total_len);
 static void path_out_a_bit(struct Path *path, const int32_t *route);
