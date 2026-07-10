@@ -102,7 +102,7 @@ extern void framerate_measurement_capture(int framerate_kind);
 
 extern struct FrametimeMeasurements frametime_measurements;
 
-int get_current_stutter_percentage(void);
+int get_current_stutter_milliseconds(void);
 
 extern int stutter_detection_current;
 extern int stutter_detection_average;
