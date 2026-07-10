@@ -2761,25 +2761,6 @@ void update(void)
     SYNCDBG(6,"Finished");
 }
 
-void intentional_desync() {
-    if (get_gameturn() != 50 || !is_my_player_number(0)) {
-        return;
-    }
-    for (struct Room* room = start_rooms; room < end_rooms; room += 1) {
-        if (room_exists(room)) {
-            room->slabs_count += 1;
-            break;
-        }
-    }
-    int i = game.thing_lists[TngList_Creatures].index;
-    if (i != 0) {
-        struct Thing* thing = thing_get(i);
-        if (!thing_is_invalid(thing)) {
-            thing->health += 1;
-        }
-    }
-    get_player(0)->instance_remain_turns += 1;
-}
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
