@@ -1,15 +1,12 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file ariadne.c
+/** @file ariadne_update.c
  *     Dungeon routing and path finding system.
  * @par Purpose:
- *     Defines functions for finding creature routes and navigating
- *     through the dungeon.
+ *     map updates part of the navigation system.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
- * @date     10 Jan 2010 - 20 Feb 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by

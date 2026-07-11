@@ -1,14 +1,12 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file ariadne_tringls.h
- *     Header file for ariadne_tringls.c.
+/** @file ariadne_update.h
+ *     Header file for ariadne_update.c.
  * @par Purpose:
- *     Triangles array for Ariadne system support.
+ *     map updates for Ariadne system support.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
- * @date     11 Mar 2010 - 22 Jul 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
