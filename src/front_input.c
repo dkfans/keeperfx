@@ -2322,8 +2322,10 @@ static void get_isometric_view_nonaction_inputs(void)
                 set_packet_control(packet, PCtr_ViewRotateCCW);
                 rotating = true;
             }
-            if (rotate_around_mouse_option != RotateAroundMouse_Never)
+            switch (rotate_around_mouse_option)
             {
+            case RotateAroundMouse_ThumbButtons:
+            case RotateAroundMouse_Always:
                 if (is_key_pressed(KC_MOUSE5, KMod_DONTCARE))
                 {
                     set_packet_control(packet, PCtr_ViewRotateCW | PCtr_ViewRotatePos);
@@ -2334,6 +2336,7 @@ static void get_isometric_view_nonaction_inputs(void)
                     set_packet_control(packet, PCtr_ViewRotateCCW | PCtr_ViewRotatePos);
                     rotating = true;
                 }
+            default:
             }
             if (is_game_key_pressed(Gkey_ZoomIn, false, false))
                 set_packet_control(packet, PCtr_ViewZoomIn);
