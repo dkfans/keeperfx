@@ -334,7 +334,7 @@ void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
     }
     if (player->hand_busy_until_turn < get_gameturn())
     {
-        if (player->hand_animationId != HandAnimationID)
+        if ((player->hand_animationId != HandAnimationID) || (HandAnimationID == HndA_Pickup))
         {
             player->hand_animationId = HandAnimationID;
             struct Thing *thing = thing_get(player->hand_thing_idx);
