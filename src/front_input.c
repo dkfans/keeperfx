@@ -99,7 +99,7 @@ struct GuiLayer gui_layer = {GuiLayer_Default};
 TbBool first_person_see_item_desc = false;
 
 static TbBool move_camera_this_turn;
-static GameTurn hand_pick_pending_until;
+static GameTurn hand_pick_pending_turn;
 
 long old_mx;
 long old_my;
@@ -2055,7 +2055,7 @@ static short get_creature_control_action_inputs(void)
 
 static void set_packet_action_for_thing_under_hand(struct PlayerInfo* player, struct Packet* pckt)
 {
-    if ((player->view_type == PVT_DungeonTop) && ((pckt->control_flags & PCtr_Gui) == 0) && left_button_released && (local_thing_under_hand > 0) && (pckt->action == PckA_None) && (hand_pick_pending_until <= get_gameturn())) {
+    if ((player->view_type == PVT_DungeonTop) && ((pckt->control_flags & PCtr_Gui) == 0) && left_button_released && (local_thing_under_hand > 0) && (pckt->action == PckA_None) && (get_gameturn() - hand_pick_pending_turn > game.input_lag_turns)) {
         int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
         switch (player->work_state) {
         case PSt_CtrlDungeon:
@@ -2063,7 +2063,7 @@ static void set_packet_action_for_thing_under_hand(struct PlayerInfo* player, st
                 set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_POSSESS, local_thing_under_hand, 0, 0);
             } else if (((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) == 0) && (cursor_state == CSt_PowerHand)) {
                 set_packet_action(pckt, PckA_UsePwrHandPick, local_thing_under_hand, 0, 0, 0);
-                hand_pick_pending_until = get_gameturn() + game.input_lag_turns + 1;
+                hand_pick_pending_turn = get_gameturn();
             }
             break;
         case PSt_Slap:
@@ -2532,7 +2532,7 @@ static void get_dungeon_control_nonaction_inputs(void)
   my_mouse_y = GetMouseY();
   struct PlayerInfo* player = get_my_player();
   struct Packet* pckt = get_packet(my_player_number);
-  if (hand_pick_pending_until <= get_gameturn()) {
+  if (get_gameturn() - hand_pick_pending_turn > game.input_lag_turns) {
     local_thing_under_hand = 0;
   }
   unset_packet_control(pckt, PCtr_MapCoordsValid);
