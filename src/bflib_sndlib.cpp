@@ -25,9 +25,11 @@
 #include <utility>
 #include <array>
 #include <unordered_map>
+#include <unordered_set>
 #include <deque>
 #include <mutex>
 #include <atomic>
+#include <cmath>
 
 #include "post_inc.h"
 
@@ -117,6 +119,7 @@ public:
 	SoundEmitterID emit_id = 0;
 	SoundSmplTblID smptbl_id = 0;
 	int flags = 0;
+	SoundVolume base_gain = 0; // requested (un-ducked) volume; used to recompute duck-scaled gain
 
 	openal_source() {
 		ALuint sources[1];
@@ -155,6 +158,14 @@ public:
 
 	void gain(SoundVolume volume) {
 		alSourcef(id, AL_GAIN, float(volume) / FULL_LOUDNESS);
+		const auto errcode = alGetError();
+		if (errcode != AL_NO_ERROR) {
+			throw openal_error("Cannot set volume", errcode);
+		}
+	}
+
+	void gain_scaled(SoundVolume volume, float scale) {
+		alSourcef(id, AL_GAIN, (float(volume) / FULL_LOUDNESS) * scale);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot set volume", errcode);
@@ -205,13 +216,15 @@ public:
 	: id(std::exchange(other.id, 0))
 	, mss_id(std::exchange(other.mss_id, 0))
 	, emit_id(std::exchange(other.emit_id, 0))
-	, smptbl_id(std::exchange(other.smptbl_id, 0)){}
+	, smptbl_id(std::exchange(other.smptbl_id, 0))
+	, base_gain(std::exchange(other.base_gain, 0)){}
 
 	inline openal_source & operator=(openal_source && other) {
 		id = std::exchange(other.id, 0);
 		mss_id = std::exchange(other.mss_id, 0);
 		emit_id = std::exchange(other.emit_id, 0);
 		smptbl_id = std::exchange(other.smptbl_id, 0);
+		base_gain = std::exchange(other.base_gain, 0);
 		return *this;
 	}
 };
@@ -432,10 +445,48 @@ std::vector<sound_sample> g_custom_bank;  // Third bank for custom sounds loaded
 SoundSmplTblID g_speech_offset = 0;  // Unified ID start of speech bank
 SoundSmplTblID g_custom_offset = 0;  // Unified ID start of custom bank
 
-// Redirect table: maps a raw sound.dat effect ID to a custom bank ID.
-// Populated by sound_register_id_redirect() when sounds.cfg contains a numeric-key entry.
-// Applied in play_sample() before bank dispatch — does not affect speech or already-custom IDs.
 static std::unordered_map<SoundSmplTblID, SoundSmplTblID> g_id_redirects;
+
+struct SoundStackPolicy {
+	unsigned char mode = SStack_Limit;
+	short max_instances = 1;
+};
+static std::unordered_map<SoundSmplTblID, SoundStackPolicy> g_stack_policies;
+
+static std::unordered_set<SoundSmplTblID> g_tick_samples;
+
+static SoundStackPolicy get_stack_policy(SoundSmplTblID smptbl_id) {
+	const auto it = g_stack_policies.find(smptbl_id);
+	if (it != g_stack_policies.end()) {
+		return it->second;
+	}
+	return SoundStackPolicy{}; // default: Limit, max 1
+}
+
+// Recompute duck-scaled gain for every currently active instance of a sample.
+// Called after a new instance starts, and after MonitorStreamedSoundTrack() prunes a
+// finished one, so remaining instances' volume rises back up as concurrency drops.
+static void apply_duck_gain(SoundSmplTblID smptbl_id) {
+	int count = 0;
+	for (const auto & source : g_sources) {
+		if (source.emit_id != 0 && source.smptbl_id == smptbl_id) {
+			++count;
+		}
+	}
+	if (count == 0) {
+		return;
+	}
+	const float scale = 1.0f / std::sqrt(float(count));
+	for (auto & source : g_sources) {
+		if (source.emit_id != 0 && source.smptbl_id == smptbl_id) {
+			try {
+				source.gain_scaled(source.base_gain, scale);
+			} catch (const std::exception & e) {
+				ERRORLOG("%s", e.what());
+			}
+		}
+	}
+}
 
 void load_sound_banks() {
 	char snd_fname[2048];
@@ -535,6 +586,7 @@ extern "C" void FreeAudio() {
 	g_banks[1].clear();
 	g_custom_bank.clear();  // Clear custom sounds when cleaning up audio
 	g_id_redirects.clear(); // Clear raw-ID redirects alongside custom bank
+	g_stack_policies.clear(); // Clear stacking policies alongside custom bank
 	SYNCDBG(7, "Cleared OpenAL sources and sound banks");
 
 	// Now destroy OpenAL context and device (unique_ptr handles proper cleanup)
@@ -546,6 +598,7 @@ extern "C" void FreeAudio() {
 extern "C" void custom_sound_bank_clear() {
 	g_custom_bank.clear();
 	g_id_redirects.clear();
+	g_stack_policies.clear();
 }
 
 extern "C" void sound_register_id_redirect(SoundSmplTblID from_id, SoundSmplTblID to_id) {
@@ -557,24 +610,40 @@ extern "C" void sound_clear_id_redirects(void) {
 	g_id_redirects.clear();
 }
 
+extern "C" void sound_register_stack_policy(SoundSmplTblID smptbl_id, unsigned char mode, short max_instances) {
+	SoundStackPolicy policy;
+	policy.mode = mode;
+	policy.max_instances = (mode == SStack_Limit) ? std::max<short>(max_instances, 1) : std::max<short>(max_instances, 0);
+	g_stack_policies[smptbl_id] = policy;
+	SYNCDBG(7, "Registered stack policy for sample %d: mode %d, max %d", smptbl_id, mode, policy.max_instances);
+}
+
+extern "C" void sound_clear_stack_policies(void) {
+	g_stack_policies.clear();
+}
+
 static std::unordered_map<SoundSmplTblID, SoundSmplTblID> g_id_redirects_snapshot;
+static std::unordered_map<SoundSmplTblID, SoundStackPolicy> g_stack_policies_snapshot;
 static size_t g_custom_bank_watermark = 0;
 
 extern "C" void sound_save_id_redirect_snapshot(void) {
 	g_id_redirects_snapshot = g_id_redirects;
+	g_stack_policies_snapshot = g_stack_policies;
 	g_custom_bank_watermark = g_custom_bank.size();
-	SYNCDBG(7, "Saved sound snapshot: %" PRIuSIZE " redirects, %" PRIuSIZE " custom bank entries",
-		SZCAST(g_id_redirects_snapshot.size()), SZCAST(g_custom_bank_watermark));
+	SYNCDBG(7, "Saved sound snapshot: %" PRIuSIZE " redirects, %" PRIuSIZE " stack policies, %" PRIuSIZE " custom bank entries",
+		SZCAST(g_id_redirects_snapshot.size()), SZCAST(g_stack_policies_snapshot.size()), SZCAST(g_custom_bank_watermark));
 }
 
 extern "C" void sound_restore_id_redirect_snapshot(void) {
 	g_id_redirects = g_id_redirects_snapshot;
+	g_stack_policies = g_stack_policies_snapshot;
 	if (g_custom_bank.size() > g_custom_bank_watermark) {
 		SYNCDBG(7, "Trimming custom bank from %" PRIuSIZE " to %" PRIuSIZE " entries",
 			SZCAST(g_custom_bank.size()), SZCAST(g_custom_bank_watermark));
 		g_custom_bank.erase(g_custom_bank.begin() + (ptrdiff_t)g_custom_bank_watermark, g_custom_bank.end());
 	}
-	SYNCDBG(7, "Restored sound snapshot: %" PRIuSIZE " redirects", SZCAST(g_id_redirects.size()));
+	SYNCDBG(7, "Restored sound snapshot: %" PRIuSIZE " redirects, %" PRIuSIZE " stack policies",
+		SZCAST(g_id_redirects.size()), SZCAST(g_stack_policies.size()));
 }
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
@@ -672,11 +741,18 @@ extern "C" TbBool GetSoundInstalled() {
 
 // This function gets called every tick
 extern "C" void MonitorStreamedSoundTrack() {
+	g_tick_samples.clear();
 	for (auto & source : g_sources) {
 		try {
 			if (source.emit_id > 0 && !source.is_playing()) {
+				const SoundSmplTblID finished_smptbl_id = source.smptbl_id;
 				source.emit_id = 0;
 				source.smptbl_id = 0;
+				// If this sample uses Duck-mode stacking, the remaining active instances
+				// (if any) should return to a louder gain now that one has ended.
+				if (get_stack_policy(finished_smptbl_id).mode == SStack_Duck) {
+					apply_duck_gain(finished_smptbl_id);
+				}
 			}
 		} catch (const std::exception & e) {
 			ERRORLOG("%s", e.what());
@@ -860,8 +936,36 @@ extern "C" SoundMilesID play_sample(
 				}
 			}
 		}
+		// Cross-emitter stacking policy: caps how many different emitters may play the
+		// same sample concurrently (or ducks their combined volume).
+		const auto stack_policy_it = g_stack_policies.find(smptbl_id);
+		const bool has_explicit_stack_policy = (stack_policy_it != g_stack_policies.end());
+		SoundStackPolicy stack_policy{};
+		if (!has_explicit_stack_policy) {
+			// No explicit STACK= policy: reproduce the OG behaviour exactly —
+			// this sample may only start once per game tick, regardless of emitter, and the
+			// gate clears next tick even if the sound from this tick is still playing.
+			if (g_tick_samples.count(smptbl_id) > 0) {
+				return 0; // dropped: already triggered this tick
+			}
+			g_tick_samples.insert(smptbl_id);
+		} else {
+			stack_policy = stack_policy_it->second;
+			if (stack_policy.max_instances > 0) {
+				int active_count = 0;
+				for (const auto & source : g_sources) {
+					if (source.emit_id != 0 && source.smptbl_id == smptbl_id) {
+						++active_count;
+					}
+				}
+				if (active_count >= stack_policy.max_instances) {
+					return 0; // dropped: at this sample's concurrency cap
+				}
+			}
+		}
 		for (auto & source : g_sources) {
 			if (source.emit_id == 0) {
+				source.base_gain = volume;
 				source.gain(volume);
 				source.pan(pan);
 				source.repeat(repeats == -1);
@@ -880,6 +984,9 @@ extern "C" SoundMilesID play_sample(
 				source.play(*buf);
 				source.emit_id = emit_id;
 				source.smptbl_id = smptbl_id;
+				if (has_explicit_stack_policy && stack_policy.mode == SStack_Duck) {
+					apply_duck_gain(smptbl_id);
+				}
 				return source.mss_id;
 			}
 		}

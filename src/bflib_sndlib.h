@@ -86,6 +86,34 @@ void pause_music(void);
 void resume_music(void);
 void stop_music(void);
 
+/**
+ * @brief Concurrency policy applied to a unified sound sample ID when it is
+ * triggered by more than one emitter (Thing/UI source) at the same time.
+ *
+ */
+enum SoundStackMode {
+	SStack_Limit = 0, // at most max_instances concurrent instances; extra triggers are dropped
+	SStack_Duck  = 1, // gain of every active instance is scaled down as concurrency rises
+};
+
+/**
+ * @brief Register the stacking policy for a unified sound sample ID.
+ *
+ * If a sample ID has no registered policy, it defaults to {SStack_Limit, 1},
+ * which reproduces the OG behaviour (at most one instance of a given sample plays at a time, regardless of how many emitters trigger it).
+ *
+ * @param smptbl_id      Unified sample ID (effect, speech, or custom bank).
+ * @param mode           SStack_Limit or SStack_Duck.
+ * @param max_instances  For SStack_Limit: hard cap (clamped to >= 1).
+ *                        For SStack_Duck: 0 means uncapped, >0 also caps concurrency.
+ */
+void sound_register_stack_policy(SoundSmplTblID smptbl_id, unsigned char mode, short max_instances);
+
+/**
+ * @brief Clear all registered stacking policies (back to the {Limit, 1} default).
+ */
+void sound_clear_stack_policies(void);
+
 #ifdef __cplusplus
 }
 #endif
