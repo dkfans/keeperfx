@@ -993,7 +993,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     case PckA_SetRoomspaceHighlight:
     {
         player->roomspace_mode = pckt->actn_par1;
-        if ((pckt->actn_par2 == 1) || (pckt->actn_par1 == roomspace_detection_mode))
+        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == roomspace_detection_mode) )
         {
             // exit out of click and drag mode
             if (player->render_roomspace.drag_mode)
