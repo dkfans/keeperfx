@@ -30,6 +30,33 @@ extern "C" {
 struct lua_State *Lvl_script = NULL;
 
 
+static int lua_disabled_os_function(lua_State *L)
+{
+    const char *func_name = lua_tostring(L, lua_upvalueindex(1));
+    WARNLOG("os.%s is disabled because it is not synchronized in multiplayer", func_name);
+    return luaL_error(L, "os.%s is disabled because it is not synchronized in multiplayer", func_name);
+}
+
+
+static void disable_lua_functions(lua_State *L)
+{
+    if (!network_is_active()) {
+        return;
+    }
+    const char *disabled_os_functions[] = {"time", "date", "clock"};
+
+    lua_getglobal(L, "os");
+    if (lua_istable(L, -1)) {
+        for (int i = 0; i < sizeof(disabled_os_functions) / sizeof(disabled_os_functions[0]); i++) {
+            lua_pushstring(L, disabled_os_functions[i]);
+            lua_pushcclosure(L, lua_disabled_os_function, 1);
+            lua_setfield(L, -2, disabled_os_functions[i]);
+        }
+    }
+    lua_pop(L, 1);
+}
+
+
 TbBool CheckLua(lua_State *L, int result, const char* func)
 {
     if (result != LUA_OK) {
@@ -271,6 +298,8 @@ TbBool open_lua_script(LevelNumber lvnum)
     Lvl_script = luaL_newstate();
 
     luaL_openlibs(Lvl_script);
+    disable_lua_functions(Lvl_script);
+
     lua_set_random_seed(game.action_random_seed);
 
     reg_host_functions(Lvl_script);
@@ -357,25 +386,22 @@ const char* lua_get_serialised_data(size_t *len)
 }
 
 
-void lua_set_serialised_data(const char *data, size_t len)
+TbBool lua_set_serialised_data(const char *data, size_t len)
 {
-	if(Lvl_script == NULL)
-	{
-		ERRORLOG("Lvl_script not initialised");
-		return;
-	}
+    if (Lvl_script == NULL) {
+        ERRORLOG("Lvl_script not initialised");
+        return false;
+    }
 
     lua_getglobal(Lvl_script, "SetSerializedData");
-	if (lua_isfunction(Lvl_script, -1))
-	{
-		lua_pushlstring(Lvl_script, data, len);
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"SetSerializedData");
-	}
-	else
-	{
-		ERRORLOG("failed to find SetSerializedData lua function");
-        lua_pop(Lvl_script, 1);  // Pop nil
-	}
+    if (!lua_isfunction(Lvl_script, -1)) {
+        ERRORLOG("failed to find SetSerializedData lua function");
+        lua_pop(Lvl_script, 1);
+        return false;
+    }
+
+    lua_pushlstring(Lvl_script, data, len);
+    return CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "SetSerializedData");
 }
 
 void cleanup_serialized_data() {

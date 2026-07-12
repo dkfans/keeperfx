@@ -42,6 +42,7 @@ void pack_desync_history_for_resync(void);
 void compare_desync_history_from_host(void);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short checksums_different(void);
+TbBigChecksum calculate_file_checksum(const char *fname);
 void calculate_network_startup_map_checksums(TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT]);
 
 /******************************************************************************/

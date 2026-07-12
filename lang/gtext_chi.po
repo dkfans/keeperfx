@@ -2717,6 +2717,7 @@ msgid "Play Intro"
 msgstr "播放介绍"
 
 #: guitext:350
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
 msgstr "多人游戏菜单"
@@ -2942,6 +2943,7 @@ msgid "Testers"
 msgstr "测试"
 
 #: guitext:395
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
 msgstr "游戏大厅"
@@ -2952,6 +2954,7 @@ msgid "Name"
 msgstr "名称"
 
 #: guitext:397
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "游戏模式"
@@ -2962,11 +2965,13 @@ msgid "Messages"
 msgstr "信息"
 
 #: guitext:399
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
 msgstr "创建大厅"
 
 #: guitext:400
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
 msgstr "加入大厅"
@@ -2977,6 +2982,7 @@ msgid "Start Game"
 msgstr "开始游戏"
 
 #: guitext:402
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
 msgstr "在线大厅"
@@ -5511,16 +5517,19 @@ msgid "4 Players"
 msgstr "４个玩家"
 
 #: guitext:874
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "在线"
 
 #: guitext:875
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "局域网"
 
 #: guitext:876
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "遭遇战"
@@ -6769,16 +6778,19 @@ msgid "Keeper"
 msgstr "守护者"
 
 #: guitext:1083
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "屏幕录制"
 
 #: guitext:1084
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "屏幕截图"
 
 #: guitext:1085
+#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
 msgstr "增加跳帧"
@@ -6942,3 +6954,15 @@ msgstr "unused"
 msgctxt "Network game message"
 msgid "Network connection to host lost"
 msgstr "与主机的网络连接已丢失"
+
+#: guitext:1120
+#, fuzzy
+msgctxt "In-game message"
+msgid "/fxdata/%.39s was not loaded."
+msgstr "/fxdata/%.39s 未加载。"
+
+#: guitext:1121
+#, fuzzy
+msgctxt "In-game message"
+msgid "Please install it as a mod inside the /mods/ folder."
+msgstr "请将其作为模组安装到 /mods/ 文件夹中。"

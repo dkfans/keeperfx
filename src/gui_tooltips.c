@@ -535,7 +535,7 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
             draw_slab64k(x, y, units_per_pixel_ui, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
             lbDisplay.DrawFlags = 0;
             int tx_units_per_px, tx, ty;
-            if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+            if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
             {
                 LbTextSetWindow(x, y, scale_ui_value(viswidth * 2), scale_ui_value(ttheight * 2));
                 tx_units_per_px = scale_value_by_horizontal_resolution(32);

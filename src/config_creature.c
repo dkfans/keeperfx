@@ -608,8 +608,6 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         for (int i = 0; i < CREATURE_TYPES_MAX; i++)
         {
           memset(game.conf.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
-        }
-        for (int i = 1; i < CREATURE_TYPES_MAX; i++) {
           creature_desc[i].name = NULL;
           creature_desc[i].num = 0;
         }
@@ -638,20 +636,26 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         switch (cmd_num)
         {
         case 1: // CREATURES
-            while (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.model[n+1].name,COMMAND_WORD_LEN) > 0)
-            {
-              n++;
-              if (n+1 >= CREATURE_TYPES_MAX)
-              {
-                CONFWRNLOG("Too many species defined with \"%s\" in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_name, config_textname);
-                break;
+            game.conf.crtr_conf.model_count = 1;
+            if ((flags & CnfLd_AcceptPartial) != 0) {
+                for (int i = 1; i < CREATURE_TYPES_MAX; i++) {
+                    memset(game.conf.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
+                    creature_desc[i - 1].name = NULL;
+                    creature_desc[i - 1].num = 0;
+                }
+            }
+            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0) {
+              n = game.conf.crtr_conf.model_count;
+              if (n >= CREATURE_TYPES_MAX) {
+                  CONFWRNLOG("Too many species defined with \"%s\" in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), block_name, config_textname);
+                  break;
               }
-              // model 0 is reserved
+              snprintf(game.conf.crtr_conf.model[n].name, COMMAND_WORD_LEN, "%s", word_buf);
               creature_desc[n - 1].name = game.conf.crtr_conf.model[n].name;
               creature_desc[n - 1].num = n;
+              game.conf.crtr_conf.model_count++;
             }
-            game.conf.crtr_conf.model_count = n+1;
             break;
         case 2: // JOBSCOUNT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1768,7 +1772,6 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
                     cmd_num = 0;
                 }
             }
-            int n = 0;
             switch (cmd_num)
             {
             case 1: // NAME
@@ -1778,7 +1781,6 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
-                n++;
                 break;
             case ccr_comment:
                 break;
@@ -1856,7 +1858,6 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
                     cmd_num = 0;
                 }
             }
-            int n = 0;
             switch (cmd_num)
             {
             case 1: // NAME
@@ -1866,7 +1867,6 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
                         COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
                     break;
                 }
-                n++;
                 break;
             case ccr_comment:
                 break;

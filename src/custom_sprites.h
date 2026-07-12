@@ -28,20 +28,25 @@ extern "C" {
 struct ObjectConfigStats;
 
 #define SPRITE_LAST_LEVEL -1
-#define SPRITE_ZIP_ENTRY_COUNT 48
-#define SPRITE_ZIP_ENTRY_NAME_LEN 64
 
-struct SpriteZipEntry {
-    char filename[SPRITE_ZIP_ENTRY_NAME_LEN];
-    uint32_t checksum;
+static const char * const required_sprite_zips[] = {
+    "colored_sprites.zip",
+    "creatures.zip",
+    "decorative_objects.zip",
+    "druid.zip",
+    "effects.zip",
+    "maiden.zip",
+    "natural_features.zip",
+    "time_mage.zip",
+    "trapsdoors.zip",
 };
 
-void init_custom_sprites(LevelNumber level_no);
+#define REQUIRED_SPRITE_ZIP_COUNT (sizeof(required_sprite_zips) / sizeof(required_sprite_zips[0]))
 
-extern int total_sprite_zip_count;
-extern uint32_t sprite_zip_combined_checksum;
-extern struct SpriteZipEntry sprite_zip_entries[SPRITE_ZIP_ENTRY_COUNT];
-extern uint8_t sprite_zip_entry_count;
+void init_custom_sprites(LevelNumber level_no);
+void show_ignored_fxdata_zip_messages(void);
+
+extern TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
 
 short get_anim_id(const char *name, struct ObjectConfigStats* objst);
 short get_anim_id_(const char* name);

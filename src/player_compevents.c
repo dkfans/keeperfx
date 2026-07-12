@@ -726,8 +726,6 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
         }
     }
 
-    unsigned long moved = 0;
-    unsigned long slapped = 0;
     struct Dungeon* victdungeon;
     for (int j = 0; j < DUNGEONS_COUNT; j++)
     {
@@ -773,7 +771,6 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
                     {
                         if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, creatng->index, 0) > Lb_OK)
                         {
-                            slapped++;
                             continue;
                         }
 
@@ -791,10 +788,7 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
                 if (is_task_in_progress_using_hand(comp)) {
                     return CTaskRet_Unk4;
                 }
-                if (create_task_move_creature_to_subtile(comp, creatng, destroom->central_stl_x, destroom->central_stl_y, CrSt_CreatureInPrison))
-                {
-                    moved++;
-                }
+                create_task_move_creature_to_subtile(comp, creatng, destroom->central_stl_x, destroom->central_stl_y, CrSt_CreatureInPrison);
             }
         }
     }

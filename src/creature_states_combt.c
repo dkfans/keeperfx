@@ -45,7 +45,6 @@
 #include "room_jobs.h"
 #include "map_blocks.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
@@ -2193,10 +2192,9 @@ HitTargetFlags collide_filter_thing_is_in_my_fight(const struct Thing *firstng, 
     return (firsctrl->combat_flags != 0) && (firsctrl->fighting_at_same_position) && (coldctrl->combat_flags == firsctrl->combat_flags) && (firstng->index != coldtng->index);
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subtile(struct Thing *shotng, struct Coord3d *pos,
+struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subtile(struct Thing *creatng, struct Coord3d *pos,
     long square_size, Thing_Collide_Func filter, ThingHitType filter_par1, long filter_par2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Thing* creatng = get_parent_thing(shotng);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
@@ -2211,7 +2209,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subt
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->index != shotng->index) && filter(thing, creatng, filter_par1, filter_par2) && thing_on_thing_at(shotng, pos, thing)) {
+        if ((thing->index != creatng->index) && filter(thing, creatng, filter_par1, filter_par2) && thing_on_thing_at(creatng, pos, thing)) {
             return thing;
         }
         // Per thing code end
@@ -2226,7 +2224,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subt
     return INVALID_THING;
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct Thing *shotng, struct Coord3d *pos, long square_size, Thing_Collide_Func filter, HitTargetFlags filter_par1, long filter_par2)
+struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct Thing *creatng, struct Coord3d *pos, long square_size, Thing_Collide_Func filter, HitTargetFlags filter_par1, long filter_par2)
 {
     MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - square_size / 2);
     if (stl_x_beg <= 0)
@@ -2244,7 +2242,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct T
     {
         for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
         {
-            struct Thing* thing = get_thing_collided_with_at_satisfying_filter_in_square_of_for_subtile(shotng, pos, square_size, filter, filter_par1, filter_par2, stl_x, stl_y);
+            struct Thing* thing = get_thing_collided_with_at_satisfying_filter_in_square_of_for_subtile(creatng, pos, square_size, filter, filter_par1, filter_par2, stl_x, stl_y);
             if (!thing_is_invalid(thing))
                 return thing;
         }

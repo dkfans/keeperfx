@@ -153,6 +153,22 @@ static int lua_kill_creature(lua_State *L)
     return 0;
 }
 
+static int lua_transform_creature(lua_State* L)
+{
+    struct Thing* thing = luaL_checkCreature(L, 1);
+    ThingModel crtr_id = luaL_checkNamedCommand(L, 2, creature_desc);
+    int16_t crtr_level = luaL_checkinteger(L, 3);
+
+    if ((crtr_level < 0) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
+        return 0;
+    }
+
+    grow_up_creature(thing, crtr_id, crtr_level);
+    return 0;
+}
+
 static int lua_stun_creature(lua_State* L)
 {
     struct Thing* thing = luaL_checkThing(L, 1);
@@ -673,6 +689,7 @@ static const struct luaL_Reg thing_methods[] = {
     {"stun"                         ,lua_stun_creature                  },
     {"destroy"                      ,lua_destroy_object                 },
     {"delete"                       ,lua_delete_thing                   },
+    {"transform"                    ,lua_transform_creature             },
     {"isValid"                      ,lua_is_valid                       },
     {"transfer"                     ,lua_Transfer_creature              },
     {"level_up"                     ,lua_Level_up_creature              },

@@ -117,10 +117,10 @@ static void draw_creature_view_icons(struct Thing* creatng)
         }
         if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
         {
-            int tx_units_per_px = (dbc_language > 0) ? scale_ui_value_lofi(16) : (22 * units_per_pixel) / LbTextLineHeight();
+            int tx_units_per_px = (dbc_initialized && dbc_enabled) ? scale_ui_value_lofi(16) : (22 * units_per_pixel) / LbTextLineHeight();
             int h = LbTextLineHeight() * tx_units_per_px / 16;
             int w = scale_ui_value_lofi(spr->SWidth);
-            if (dbc_language > 0)
+            if (dbc_initialized && dbc_enabled)
             {
                 if (MyScreenHeight < 400)
                 {
@@ -785,7 +785,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
           i = player->secondary_cursor_state;
         else
           i = player->primary_cursor_state;
-        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || (local_thing_under_hand > 0)) {
+        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || (local_thing_under_hand > 0) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
             i = CSt_PowerHand;
         } else
         if ((i == CSt_PowerHand) && power_hand_is_empty(player))
@@ -992,7 +992,7 @@ void redraw_display(void)
     //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
@@ -1085,7 +1085,7 @@ void redraw_display(void)
               w *= 2;
               h *= 3;
               text_w = w;
-              if (dbc_language > 0)
+              if (dbc_initialized && dbc_enabled)
               {
                   text_w += 32;
                   text_x -= 12;

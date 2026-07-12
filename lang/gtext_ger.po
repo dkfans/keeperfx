@@ -3051,6 +3051,7 @@ msgid "Play Intro"
 msgstr "Intro"
 
 #: guitext:350
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
 msgstr "Mehrspielermenü"
@@ -3277,6 +3278,7 @@ msgid "Testers"
 msgstr "Tester"
 
 #: guitext:395
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
 msgstr "Spiellobbys"
@@ -3287,6 +3289,7 @@ msgid "Name"
 msgstr "Name"
 
 #: guitext:397
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "Spielmodi"
@@ -3297,11 +3300,13 @@ msgid "Messages"
 msgstr "Mitteilungen"
 
 #: guitext:399
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
 msgstr "Lobby erstellen"
 
 #: guitext:400
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
 msgstr "Lobby beitreten"
@@ -3312,6 +3317,7 @@ msgid "Start Game"
 msgstr "Spiel starten"
 
 #: guitext:402
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
 msgstr "Online-Lobbys"
@@ -6060,16 +6066,19 @@ msgid "4 Players"
 msgstr "4 Spieler"
 
 #: guitext:874
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "Online"
 
 #: guitext:875
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "LAN"
 
 #: guitext:876
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "Scharmützel"
@@ -7425,16 +7434,19 @@ msgid "Keeper"
 msgstr "Keeper"
 
 #: guitext:1083
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "Bildschirmaufnahme"
 
 #: guitext:1084
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "Bildschirmfoto"
 
 #: guitext:1085
+#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
 msgstr "Frame-Skip erhöhen"
@@ -7598,3 +7610,15 @@ msgstr "unused"
 msgctxt "Network game message"
 msgid "Network connection to host lost"
 msgstr "Netzwerkverbindung zum Host verloren"
+
+#: guitext:1120
+#, fuzzy
+msgctxt "In-game message"
+msgid "/fxdata/%.39s was not loaded."
+msgstr "/fxdata/%.39s wurde nicht geladen."
+
+#: guitext:1121
+#, fuzzy
+msgctxt "In-game message"
+msgid "Please install it as a mod inside the /mods/ folder."
+msgstr "Installiere es als Mod im Ordner /mods/."

@@ -55,7 +55,7 @@ extern "C" {
 /******************************************************************************/
 
 const struct NamedCommand creatmodel_attributes_commands[] = {
-  {"NAME",                1},
+  {"NAME",                1}, // Deprecated entry kept to avoid noisy errors from old configs and scripts.
   {"HEALTH",              2},
   {"HEALREQUIREMENT",     3},
   {"HEALTHRESHOLD",       4},
@@ -284,7 +284,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       switch (cmd_num)
       {
       case 1: // NAME
-          // Name is ignored - it was defined in creature.cfg
+          // Name is ignored - it is defined in creature.cfg
           break;
       case 2: // HEALTH
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -2823,7 +2823,7 @@ static TbBool load_creaturemodel_config_for_mod(ThingModel crmodel, unsigned sho
 
     if (mod_state->cmpg_lvls)
     {
-        fname = get_mod_file_path_fmt(mod_dir, FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+        fname = get_mod_file_path_fmt(mod_dir, FGrp_CmpgLvls, "map%05lu.%s.cfg", get_level_number(), conf_fnstr);
         if (fname && strlen(fname) > 0)
         {
             result |= load_creaturemodel_config_file(crmodel, fname, flags);
@@ -2907,7 +2907,7 @@ TbBool load_creaturemodel_config(ThingModel conf_crmodel, ThingModel crmodel, un
         }
     }
 
-    fname = get_game_file_path_fmt(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+    fname = get_game_file_path_fmt(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_level_number(), conf_fnstr);
     if (fname && strlen(fname) > 0)
     {
         result |= load_creaturemodel_config_file(crmodel, fname, flags);

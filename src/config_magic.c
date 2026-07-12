@@ -276,7 +276,7 @@ const struct NamedField magic_shot_named_fields[] = {
   {"EFFECTSPACING",         0, field_t(struct ShotConfigStats, effect_spacing),              0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"EFFECTAMOUNT",          0, field_t(struct ShotConfigStats, effect_amount),               0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"HITHEARTEFFECT",        0, field_t(struct ShotConfigStats, hit_heart.effect_model),      0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
-  {"HITHEARTSOUND",         0, field_t(struct ShotConfigStats, hit_heart.sndsample_idx),     0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
+  {"HITHEARTSOUND",         0, field_t(struct ShotConfigStats, hit_heart.sndsample_idx),     0,  INT32_MIN,  UINT32_MAX, NULL,                         value_sound_id,   assign_default},
   {"HITHEARTSOUND",         1, field_t(struct ShotConfigStats, hit_heart.sndsample_range),   0,  INT32_MIN,  UINT32_MAX, NULL,                         value_default,   assign_default},
   {"BLEEDINGEFFECT",        0, field_t(struct ShotConfigStats, effect_bleeding),             0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
   {"FROZENEFFECT",          0, field_t(struct ShotConfigStats, effect_frozen),               0,  INT32_MIN,  UINT32_MAX, NULL,                         value_effOrEffEl,   assign_default},
@@ -381,6 +381,14 @@ const struct LongNamedCommand powermodel_castability_commands[] = {
   {"OWNED_OBJECTS",    PwCast_OwnedObjects},
   {"NEUTRL_OBJECTS",   PwCast_NeutrlObjects},
   {"ENEMY_OBJECTS",    PwCast_EnemyObjects},
+  {"ALL_OBJECTS_PICKUP",      PwCast_AllObjectsPickup},
+  {"OWNED_OBJECTS_PICKUP",    PwCast_OwnedObjectsPickup},
+  {"NEUTRL_OBJECTS_PICKUP",   PwCast_NeutrlObjectsPickup},
+  {"ENEMY_OBJECTS_PICKUP",    PwCast_EnemyObjectsPickup},
+  {"ALL_OBJECTS_SLAP",      PwCast_AllObjectsSlap},
+  {"OWNED_OBJECTS_SLAP",    PwCast_OwnedObjectsSlap},
+  {"NEUTRL_OBJECTS_SLAP",   PwCast_NeutrlObjectsSlap},
+  {"ENEMY_OBJECTS_SLAP",    PwCast_EnemyObjectsSlap},
   {NULL,                0},
   };
 

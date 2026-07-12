@@ -709,11 +709,64 @@ extern "C" TbBool play_music(const char * fname) {
 	return true;
 }
 
+static const char * find_music_file_for_mod_list(short fgroup, const char * fname, const struct ModConfigItem *mod_items, long mod_cnt)
+{
+    if (fgroup != FGrp_CmpgMedia && fgroup != FGrp_Music)
+        return NULL;
+
+    // Since the path for FGrp_CmpgMedia is configurable/dynamic, the mod's designer cannot obtain it in advance.
+    // it would make more sense to force-unify FGrp_CmpgMedia and FGrp_Music into FGrp_Music.
+    fgroup = FGrp_Music;
+
+    // Note that this is the reverse mods direction
+    for (long i=mod_cnt-1; i>=0; i--)
+    {
+        const struct ModConfigItem *mod_item = mod_items + i;
+        if (mod_item->state.mod_dir == 0)
+            continue;
+
+        if (mod_item->state.music == 0)
+            continue;
+
+        char mod_dir[256] = {0};
+        sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
+
+        const char *fpath = prepare_file_path_mod(mod_dir, fgroup, fname);
+        if (fpath[0] != 0 && LbFileExists(fpath))
+            return fpath;
+    }
+
+    return NULL;
+}
+
+extern "C" TbBool play_music_fgroup(short fgroup, const char * fname) {
+    const char * fpath = NULL;
+
+    // Note that this is the reverse mods direction
+    if (fpath == NULL && mods_conf.after_map_cnt > 0)
+    {
+        fpath = find_music_file_for_mod_list(fgroup, fname, mods_conf.after_map_item, mods_conf.after_map_cnt);
+    }
+    if (fpath == NULL && mods_conf.after_campaign_cnt > 0)
+    {
+        fpath = find_music_file_for_mod_list(fgroup, fname, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
+    }
+    if (fpath == NULL && mods_conf.after_base_cnt > 0)
+    {
+        fpath = find_music_file_for_mod_list(fgroup, fname, mods_conf.after_base_item, mods_conf.after_base_cnt);
+    }
+
+    if (fpath == NULL)
+        fpath = prepare_file_fmtpath(fgroup, "%s", fname);
+
+    return play_music(fpath);
+}
+
 extern "C" TbBool play_music_track(int track) {
 	game.music_track = track;
 	memset(game.music_fname, 0, sizeof(game.music_fname));
 	if (game.music_track == 0) {
-		stop_music();
+		stop_music(true);
 		return true;
 	} else if (features_enabled & Ft_NoCdMusic) {
 		// play_music() itself skips restarting if this exact resolved file is
@@ -751,14 +804,18 @@ extern "C" void resume_music() {
 	}
 }
 
-extern "C" void stop_music() {
+extern "C" void stop_music(TbBool fade_out) {
 	game.music_track = 0;
 	memset(game.music_fname, 0, sizeof(game.music_fname));
 	g_current_music_track = 0;
 	g_current_music_fname.clear();
 	if (features_enabled & Ft_NoCdMusic) {
-		if (Mix_FadingMusic() != MIX_FADING_OUT) {
-			Mix_FadeOutMusic(1000);
+		if (fade_out) {
+			if (Mix_FadingMusic() != MIX_FADING_OUT) {
+				Mix_FadeOutMusic(1000);
+			}
+		} else {
+			Mix_HaltMusic();
 		}
 	} else {
 		StopRedbookTrack();

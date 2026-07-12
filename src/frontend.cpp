@@ -96,8 +96,6 @@
 extern "C" {
 #endif
 
-extern long double last_draw_completed_time;
-long double get_time_tick_ns();
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -1391,7 +1389,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   scrollwnd->window_height = area_height;
   text_height = scrollwnd->text_height;
   int tx_units_per_px;
-  if (dbc_language > 0)
+  if (dbc_initialized && dbc_enabled)
   {
       tx_units_per_px = scale_value_by_horizontal_resolution((MyScreenWidth >= 640) ? 16 : 32);
   }
@@ -2583,7 +2581,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         frontstory_unload();
         break;
     case FeSt_CREDITS:
-        stop_music();
+        stop_music(true);
         break;
     case FeSt_LEVEL_STATS:
         stop_streamed_samples();
@@ -2608,7 +2606,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         break;
     case FeSt_FEOPTIONS:
         turn_off_menu(GMnu_FEOPTION);
-        stop_music();
+        stop_music(true);
         break;
     case FeSt_LEVEL_SELECT:
         turn_off_menu(GMnu_FELEVEL_SELECT);
@@ -2661,7 +2659,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           set_pointer_graphic_none();
           break;
       case FeSt_MAIN_MENU:
-          stop_music();
+          stop_music(true);
           continue_game_option_available = continue_game_available();
           if (!continue_game_option_available)
           {
@@ -3376,7 +3374,6 @@ short frontend_draw(void)
     draw_debug_messages();
     perform_any_screen_capturing();
     LbScreenUnlock();
-    last_draw_completed_time = get_time_tick_ns();
     return result;
 }
 

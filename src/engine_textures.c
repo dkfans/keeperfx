@@ -117,7 +117,7 @@ short update_animating_texture_maps(void)
 
 static char *prepare_letter_one_file_path_for_mod(unsigned long tmapidx, char letter, LevelNumber lvnum, short fgroup, const struct ModConfigItem *mod_item)
 {
-    // Note that this is the reverse direction
+    // Note that this is the reverse mods direction
 
     const struct ModExistState *mod_state = &mod_item->state;
     char* fname = NULL;
@@ -150,7 +150,7 @@ static char *prepare_letter_one_file_path_for_mod(unsigned long tmapidx, char le
 
 static char *prepare_letter_one_file_path_for_mod_list(unsigned long tmapidx, char letter, LevelNumber lvnum, short fgroup, const struct ModConfigItem *mod_items, long mod_cnt)
 {
-    // Note that this is the reverse direction
+    // Note that this is the reverse mods direction
     for (long i=mod_cnt-1; i>=0; i--)
     {
         const struct ModConfigItem *mod_item = mod_items + i;
@@ -167,6 +167,7 @@ static char *prepare_letter_one_file_path_for_mod_list(unsigned long tmapidx, ch
 
 static char *prepare_letter_one_file_path(unsigned long tmapidx, char letter, LevelNumber lvnum, short fgroup)
 {
+    // Note that this is the reverse mods direction
     char* fname = NULL;
     if (mods_conf.after_map_cnt > 0)
     {
