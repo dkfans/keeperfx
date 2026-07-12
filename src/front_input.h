@@ -162,13 +162,12 @@ extern enum ZoomToMouseOptions zoom_to_mouse_option;
 
 enum RotateAroundMouseOptions
 {
-    RotateAroundMouse_Never = 1,
-    RotateAroundMouse_Keybinds = 2,
-    RotateAroundMouse_ThumbButtons = 3,
-    RotateAroundMouse_Always = 4
+    RotateAroundMouse_Off = 1,
+    RotateAroundMouse_ThumbButtons = 2,
+    //RotateAroundMouse_HorizontalScroll = 3,
+    //RotateAroundMouse_Both = 4
 };
 extern enum RotateAroundMouseOptions rotate_around_mouse_option;
-extern TbBool rotate_follow_mouse_option;
 
 extern TbBool viewport_grab_active;
 

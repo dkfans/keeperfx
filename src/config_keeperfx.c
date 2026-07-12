@@ -957,23 +957,19 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           break;
       case 43: // ROTATE_AROUND_MOUSE
-          i = recognize_conf_parameter(buf, &pos, len, rotate_around_mouse_options);
+          i = recognize_conf_parameter(buf, &pos, len, logicval_type);
           if (i <= 0)
           {
             CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
-          else
+          else switch (i)
           {
-            rotate_around_mouse_option = i;
-          }
-          i = recognize_conf_parameter(buf, &pos, len, rotate_follow_mouse_options);
-          if (i <= 0)
-          {
-            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
-          }
-          else
-          {
-            rotate_follow_mouse_option = i;
+          case 1:
+            rotate_around_mouse_option = RotateAroundMouse_Off;
+            break;
+          case 2:
+            rotate_around_mouse_option = RotateAroundMouse_ThumbButtons;
+            break;
           }
           break;
       case ccr_comment:
