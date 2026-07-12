@@ -6,6 +6,7 @@
 #include "config_creature.h"
 #include "config_mods.h"
 #include "game_legacy.h"
+#include "custom_zip.h"
 #include <cstdio>
 #include <fstream>
 #include <cstring>
@@ -702,6 +703,43 @@ static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, s
     return false;
 }
 
+static bool resolve_sounds_cfg_sound_in_zip(const char* path_in, unsigned char** out_data, size_t* out_size)
+{
+    static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
+    const char* dot   = strrchr(path_in, '.');
+    const char* slash = strrchr(path_in, '/');
+    bool has_ext = (dot != NULL) && (slash == NULL || dot > slash);
+
+    for (int ei = 0; exts[ei] != NULL; ei++) {
+        if (has_ext && ei > 0) break;
+        if (!has_ext && ei == 0) continue;
+        char candidate[2048];
+        snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
+        if (read_map_zip_entry(game.last_level, candidate, out_data, out_size)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Load a sound named in sounds.cfg under `name`, trying the filesystem first and then
+// the current level's map zip. Returns the assigned sample ID, or <= 0 on failure.
+static SoundSmplTblID load_named_sound_fs_or_zip(KeeperFX::SoundManager& sm, const char* name, const char* path_in)
+{
+    char full_path[2048];
+    if (resolve_sounds_cfg_sound_path(path_in, full_path, sizeof(full_path))) {
+        return sm.loadCustomSound(name, full_path);
+    }
+    unsigned char* data = nullptr;
+    size_t size = 0;
+    if (resolve_sounds_cfg_sound_in_zip(path_in, &data, &size)) {
+        SoundSmplTblID id = sm.loadCustomSoundFromMemory(name, data, size);
+        free(data);
+        return id;
+    }
+    return 0;
+}
+
 // Config parser bridge: load and register a named custom sound from sounds.cfg.
 // name     - the name to register (e.g. "SPELL_STARS")
 // path_in  - file path as written in the cfg (relative, with or without extension)
@@ -718,19 +756,14 @@ SoundSmplTblID sound_manager_load_named_sound(const char* name, const char* path
     }
 
     if (count <= 1) {
-        char full_path[2048];
-        if (!resolve_sounds_cfg_sound_path(path_in, full_path, sizeof(full_path))) {
-            SYNCDBG(7,"Named sound file not found: '%s' (name '%s')", path_in, name);
-            return 0;
-        }
-        SoundSmplTblID id = sm.loadCustomSound(name, full_path);
+        SoundSmplTblID id = load_named_sound_fs_or_zip(sm, name, path_in);
         if (id <= 0) {
-            SYNCDBG(7,"Failed to load named sound '%s' from '%s'", name, full_path);
+            SYNCDBG(7,"Named sound file not found on disk or in map zip: '%s' (name '%s')", path_in, name);
             return 0;
         }
         // Custom sounds live in custom_sounds_ which takes priority in getSoundId —
         // do NOT also register in sound_registry_ or a later base-config reload will overwrite it.
-        SYNCDBG(5, "Named sound '%s' loaded from '%s' -> ID %d", name, full_path, id);
+        SYNCDBG(5, "Named sound '%s' loaded from '%s' -> ID %d", name, path_in, id);
         return id;
     }
 
@@ -767,16 +800,11 @@ SoundSmplTblID sound_manager_load_named_sound(const char* name, const char* path
 
     SoundSmplTblID first_id = 0;
     for (int i = 0; i < count; i++) {
-        char full_path[2048];
-        if (!resolve_sounds_cfg_sound_path(expanded[i], full_path, sizeof(full_path))) {
-            WARNLOG("Named sound variant %d not found: '%s' (name '%s')", i, expanded[i], name);
-            continue;
-        }
         char variant_name[256];
         snprintf(variant_name, sizeof(variant_name), "%s_%d", name, i);
-        SoundSmplTblID id = sm.loadCustomSound(variant_name, full_path);
+        SoundSmplTblID id = load_named_sound_fs_or_zip(sm, variant_name, expanded[i]);
         if (id <= 0) {
-            WARNLOG("Failed to load named sound variant '%s' from '%s'", variant_name, full_path);
+            WARNLOG("Named sound variant %d not found on disk or in map zip: '%s' (name '%s')", i, expanded[i], name);
             continue;
         }
         if (first_id == 0) first_id = id;
