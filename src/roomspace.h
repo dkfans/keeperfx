@@ -141,10 +141,9 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
 TbBool update_dungeon_build_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool update_dungeon_sell_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void apply_roomspace_packet_action(struct PlayerInfo *player, const struct Packet *pckt);
-void get_roomspace_dig_tag_packet(struct RoomSpace *roomspace, struct PlayerInfo *player, const struct Packet *pckt, PlayerNumber plyr_idx, const unsigned char *predicted_slab_tag_modes);
 
 void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
-int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, unsigned char *predicted_slab_tag_modes, int *predicted_task_count);
+int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, unsigned char *predicted_slab_tag_modes, SlabCodedCoords *predicted_slabs, int *predicted_slab_count, int *predicted_task_count);
 void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 

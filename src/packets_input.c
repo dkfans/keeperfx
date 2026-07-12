@@ -294,15 +294,17 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         if ( (player->primary_cursor_state == CSt_PickAxe) || ( (player->primary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) ) )
         {
             player->thing_under_hand = 0;
+            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, pckt, stl_x, stl_y, NULL);
             if (apply_roomspace_tag) {
-                get_roomspace_dig_tag_packet(&player->render_roomspace, player, pckt, plyr_idx, NULL);
-            } else {
-                get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, pckt, stl_x, stl_y, NULL);
+                player->render_roomspace.untag_mode = pckt->actn_par4;
+                player->render_roomspace = check_roomspace_for_diggable_slabs(player->render_roomspace, plyr_idx, NULL);
             }
             box_colour = tag_cursor_blocks_dig(player, pckt, &player->render_roomspace, stl_x, stl_y, player->full_slab_cursor);
             at_limit = (box_colour == SLC_REDYELLOW) || (box_colour == SLC_REDFLASH);
             if (apply_roomspace_tag) {
-                apply_roomspace_dig_tag_selection(plyr_idx, &player->render_roomspace, player->render_roomspace.drag_start_x, player->render_roomspace.drag_start_y, player->roomspace_highlight_mode, NULL, NULL);
+                MapSlabCoord previous_slb_x = (uint16_t)pckt->actn_par3 & 0xFF;
+                MapSlabCoord previous_slb_y = (uint16_t)pckt->actn_par3 >> 8;
+                apply_roomspace_dig_tag_selection(plyr_idx, &player->render_roomspace, previous_slb_x, previous_slb_y, player->roomspace_highlight_mode, NULL, NULL, NULL, NULL);
             }
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
