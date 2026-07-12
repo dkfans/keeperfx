@@ -207,20 +207,6 @@ const struct NamedCommand conf_commands[] = {
   {NULL,       0},
   };
 
-  const struct NamedCommand rotate_around_mouse_options[] = {
-  {"NEVER",         RotateAroundMouse_Never},
-  {"KEYBINDS",      RotateAroundMouse_Keybinds},
-  {"THUMB_BUTTONS", RotateAroundMouse_ThumbButtons},
-  {"ALWAYS",        RotateAroundMouse_Always},
-  {NULL,            0},
-  };
-
-  const struct NamedCommand rotate_follow_mouse_options[] = {
-  {"FOLLOW",        1},
-  {"NO_FOLLOW",     0},
-  {NULL,           -1},
-  };
-
 unsigned int vid_scale_flags = SMK_FullscreenFit;
 
 
