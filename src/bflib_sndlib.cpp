@@ -5,6 +5,7 @@
 #include "bflib_datetm.h"
 #include "bflib_sound.h"
 #include "bflib_fileio.h"
+#include "platform.h"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
@@ -773,6 +774,10 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 		if (g_openal_device || g_openal_context) {
 			WARNLOG("OpenAL already initialized");
 			return true;
+		}
+		const char * wine_host = get_wine_host();
+		if (wine_host != nullptr && strncmp(wine_host, "Darwin ", 7) == 0) {
+			SDL_setenv("ALSOFT_DRIVERS", "winmm", 0);
 		}
 		print_device_info();
 		ALCdevice_ptr device(alcOpenDevice(nullptr));
