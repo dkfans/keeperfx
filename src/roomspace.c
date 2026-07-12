@@ -1052,6 +1052,20 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
     }
 }
 
+void get_roomspace_dig_tag_packet(struct RoomSpace *roomspace, struct PlayerInfo *player, const struct Packet *pckt, PlayerNumber plyr_idx, const unsigned char *predicted_slab_tag_modes)
+{
+    player->roomspace_highlight_mode = pckt->actn_par1;
+    set_player_roomspace_size(player, pckt->actn_par2);
+    player->render_roomspace.drag_start_x = (uint16_t)pckt->actn_par3 & 0xFF;
+    player->render_roomspace.drag_start_y = (uint16_t)pckt->actn_par3 >> 8;
+    if (player->roomspace_highlight_mode == drag_placement_mode) {
+        player->render_roomspace.drag_mode = true;
+    }
+    get_dungeon_highlight_user_roomspace(roomspace, player, pckt, coord_subtile(pckt->pos_x), coord_subtile(pckt->pos_y), predicted_slab_tag_modes);
+    roomspace->untag_mode = pckt->actn_par4;
+    *roomspace = check_roomspace_for_diggable_slabs(*roomspace, plyr_idx, predicted_slab_tag_modes);
+}
+
 int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, unsigned char *predicted_slab_tag_modes, int *predicted_task_count)
 {
     int dig_change_count = 0;

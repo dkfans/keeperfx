@@ -989,10 +989,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         }
     }
     // fall through
+    case PckA_ApplyRoomspaceDigTag:
     case PckA_SetRoomspaceHighlight:
     {
         player->roomspace_mode = pckt->actn_par1;
-        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == roomspace_detection_mode) )
+        if ((pckt->actn_par2 == 1) || (pckt->actn_par1 == roomspace_detection_mode))
         {
             // exit out of click and drag mode
             if (player->render_roomspace.drag_mode)
@@ -1013,6 +1014,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
             {
                 reset_dungeon_build_room_ui_variables(plyr_idx);
                 player->roomspace_width = player->roomspace_height = pckt->actn_par2;
+                break;
+            }
+            case roomspace_detection_mode:
+            {
+                set_player_roomspace_size(player, pckt->actn_par2);
                 break;
             }
             case drag_placement_mode: // drag
@@ -1556,8 +1562,8 @@ void exchange_packets(void)
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
     set_local_packet_turn();
     update_turn_checksums();
-    store_packet_history(player->packet_num, get_packet_direct(player->packet_num));
     update_local_dig_tag_prediction();
+    store_packet_history(player->packet_num, get_packet_direct(player->packet_num));
     if (game.game_kind != GKind_LocalGame)
     {
         if (!game.packet_load_enable || game.packet_load_initialized)

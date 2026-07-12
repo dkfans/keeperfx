@@ -279,7 +279,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     TbBool at_limit = false;
-    TbBool thing_target_action = (pckt->action == PckA_UsePwrHandPick) || (pckt->action == PckA_UsePwrOnThing);
+    TbBool apply_roomspace_tag = pckt->action == PckA_ApplyRoomspaceDigTag;
+    TbBool thing_target_action = apply_roomspace_tag || (pckt->action == PckA_UsePwrHandPick) || (pckt->action == PckA_UsePwrOnThing);
     unsigned char box_colour;
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
         player->secondary_cursor_state = CSt_DefaultArrow;
@@ -293,9 +294,16 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         if ( (player->primary_cursor_state == CSt_PickAxe) || ( (player->primary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) ) )
         {
             player->thing_under_hand = 0;
-            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, pckt, stl_x, stl_y, NULL);
+            if (apply_roomspace_tag) {
+                get_roomspace_dig_tag_packet(&player->render_roomspace, player, pckt, plyr_idx, NULL);
+            } else {
+                get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, pckt, stl_x, stl_y, NULL);
+            }
             box_colour = tag_cursor_blocks_dig(player, pckt, &player->render_roomspace, stl_x, stl_y, player->full_slab_cursor);
             at_limit = (box_colour == SLC_REDYELLOW) || (box_colour == SLC_REDFLASH);
+            if (apply_roomspace_tag) {
+                apply_roomspace_dig_tag_selection(plyr_idx, &player->render_roomspace, player->render_roomspace.drag_start_x, player->render_roomspace.drag_start_y, player->roomspace_highlight_mode, NULL, NULL);
+            }
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {
@@ -371,7 +379,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
                 if (player->primary_cursor_state == player->secondary_cursor_state)
                 {
-                    if ( (player->secondary_cursor_state == CSt_PickAxe) || ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0)) )
+                    if (!apply_roomspace_tag && ((player->secondary_cursor_state == CSt_PickAxe) || ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))))
                     {
                         keeper_highlight_roomspace(plyr_idx, &player->render_roomspace);
                     }

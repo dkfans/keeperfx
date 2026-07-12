@@ -31,14 +31,11 @@ extern "C" {
 
 static struct {
     unsigned char slab_tag_modes[MAX_TILES_X * MAX_TILES_Y];
-    unsigned char drag_base_slab_tag_modes[MAX_TILES_X * MAX_TILES_Y];
     GameTurn last_packet_turn;
     MapSlabCoord drag_start_slb_x;
     MapSlabCoord drag_start_slb_y;
     MapSlabCoord previous_slb_x;
     MapSlabCoord previous_slb_y;
-    int predicted_task_count;
-    int drag_base_task_count;
     TbBool untag_mode;
 } local_dig_tag_prediction;
 
@@ -46,6 +43,23 @@ static struct Packet local_dig_roomspace_prediction;
 
 static struct RoomSpace local_dig_render_roomspace;
 static TbBool local_dig_render_roomspace_active;
+
+static int rebuild_local_dig_predictions(void)
+{
+    int task_count = get_players_dungeon(get_my_player())->task_count;
+    memset(local_dig_tag_prediction.slab_tag_modes, 0, sizeof(local_dig_tag_prediction.slab_tag_modes));
+    for (GameTurn turn = get_gameturn() - game.input_lag_turns; turn < get_gameturn(); turn++) {
+        const struct Packet *pckt = get_history_packet(get_my_player()->packet_num, turn);
+        if ((pckt == NULL) || (pckt->action != PckA_ApplyRoomspaceDigTag)) {
+            continue;
+        }
+        struct PlayerInfo player = *get_my_player();
+        struct RoomSpace roomspace;
+        get_roomspace_dig_tag_packet(&roomspace, &player, pckt, my_player_number, local_dig_tag_prediction.slab_tag_modes);
+        apply_roomspace_dig_tag_selection(my_player_number, &roomspace, player.render_roomspace.drag_start_x, player.render_roomspace.drag_start_y, player.roomspace_highlight_mode, local_dig_tag_prediction.slab_tag_modes, &task_count);
+    }
+    return task_count;
+}
 
 static TbBool prevent_local_dig_prediction(const struct Packet *pckt)
 {
@@ -150,6 +164,7 @@ void update_local_dig_tag_prediction(void)
         memset(&local_dig_roomspace_prediction, 0, sizeof(local_dig_roomspace_prediction));
         return;
     }
+    int predicted_task_count = rebuild_local_dig_predictions();
     if ((pckt->action == PckA_SetRoomspaceHighlight) || (pckt->action == PckA_RoomspaceHighlightToggle)) {
         local_dig_roomspace_prediction = *pckt;
     }
@@ -161,6 +176,9 @@ void update_local_dig_tag_prediction(void)
         if ((local_dig_tag_prediction.last_packet_turn != 0) && (get_gameturn() - local_dig_tag_prediction.last_packet_turn > game.input_lag_turns + LOCAL_DIG_TAG_EXPIRY)) {
             memset(&local_dig_tag_prediction, 0, sizeof(local_dig_tag_prediction));
         }
+        return;
+    }
+    if ((pckt->action != PckA_None) && (pckt->action != PckA_SetRoomspaceHighlight)) {
         return;
     }
     MapSlabCoord slb_x = subtile_slab(coord_subtile(pckt->pos_x));
@@ -178,31 +196,22 @@ void update_local_dig_tag_prediction(void)
         memset(&local_dig_tag_prediction, 0, sizeof(local_dig_tag_prediction));
         return;
     }
-    if (local_dig_tag_prediction.last_packet_turn == 0) {
-        local_dig_tag_prediction.predicted_task_count = get_players_dungeon(get_my_player())->task_count;
-    }
     local_dig_tag_prediction.untag_mode = roomspace.untag_mode;
     if (start_selection) {
         local_dig_tag_prediction.last_packet_turn = pckt->turn;
     }
-    if ((predicted_player.roomspace_highlight_mode == drag_placement_mode) && start_selection) {
-        memcpy(local_dig_tag_prediction.drag_base_slab_tag_modes, local_dig_tag_prediction.slab_tag_modes, sizeof(local_dig_tag_prediction.slab_tag_modes));
-        local_dig_tag_prediction.drag_base_task_count = local_dig_tag_prediction.predicted_task_count;
-    }
-    if (predicted_player.roomspace_highlight_mode == drag_placement_mode) {
-        memcpy(local_dig_tag_prediction.slab_tag_modes, local_dig_tag_prediction.drag_base_slab_tag_modes, sizeof(local_dig_tag_prediction.slab_tag_modes));
-        local_dig_tag_prediction.predicted_task_count = local_dig_tag_prediction.drag_base_task_count;
-    }
     if ((predicted_player.roomspace_highlight_mode == drag_placement_mode) && ((pckt->control_flags & PCtr_LBtnRelease) == 0)) {
         return;
     }
-    int changed_slab_count = apply_roomspace_dig_tag_selection(my_player_number, &roomspace, local_dig_tag_prediction.previous_slb_x, local_dig_tag_prediction.previous_slb_y, predicted_player.roomspace_highlight_mode, local_dig_tag_prediction.slab_tag_modes, &local_dig_tag_prediction.predicted_task_count);
-    local_dig_tag_prediction.previous_slb_x = slb_x;
-    local_dig_tag_prediction.previous_slb_y = slb_y;
+    int changed_slab_count = apply_roomspace_dig_tag_selection(my_player_number, &roomspace, local_dig_tag_prediction.previous_slb_x, local_dig_tag_prediction.previous_slb_y, predicted_player.roomspace_highlight_mode, local_dig_tag_prediction.slab_tag_modes, &predicted_task_count);
     if (changed_slab_count > 0) {
+        uint16_t previous_slb = (uint16_t)local_dig_tag_prediction.previous_slb_x | ((uint16_t)local_dig_tag_prediction.previous_slb_y << 8);
         local_dig_tag_prediction.last_packet_turn = pckt->turn;
+        set_packet_action(pckt, PckA_ApplyRoomspaceDigTag, predicted_player.roomspace_highlight_mode, predicted_player.roomspace_width, previous_slb, roomspace.untag_mode);
         play_non_3d_sample(snd_tile_dig);
     }
+    local_dig_tag_prediction.previous_slb_x = slb_x;
+    local_dig_tag_prediction.previous_slb_y = slb_y;
 }
 
 unsigned char get_local_dig_prediction_render_flags(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char base_map_flags)
