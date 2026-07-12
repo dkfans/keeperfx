@@ -852,7 +852,8 @@ void init_player(struct PlayerInfo *player, short no_explore)
     if (is_my_player(player)) {
         // new game, play one of the default tracks
         LevelNumber lvnum = get_loaded_level_number();
-        play_music_track(3 + ((lvnum - 1) % 4)); // tracks 3..6
+        long safe_lvnum = (lvnum > 0) ? lvnum : 1; // guard against (lvnum - 1) % 4 going negative
+        play_music_track(3 + (int)((safe_lvnum - 1) % 4)); // tracks 3..6
     }
 }
 

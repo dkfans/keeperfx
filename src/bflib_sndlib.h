@@ -99,8 +99,13 @@ enum SoundStackMode {
 /**
  * @brief Register the stacking policy for a unified sound sample ID.
  *
- * If a sample ID has no registered policy, it defaults to {SStack_Limit, 1},
- * which reproduces the OG behaviour (at most one instance of a given sample plays at a time, regardless of how many emitters trigger it).
+ * If a sample ID has no registered policy, it does NOT use this Limit/Duck struct at all —
+ * it instead falls back to a separate once-per-game-turn gate in play_sample() (see
+ * g_tick_samples_turn in bflib_sndlib.cpp), which reproduces the OG behaviour (at most one
+ * instance of a given sample plays at a time, regardless of how many emitters trigger it).
+ * That legacy gate and this policy table are mutually exclusive per sample ID: registering
+ * an explicit policy here (even {Limit, 1}) opts the sample out of the legacy gate and into
+ * the duration-based concurrency tracking this struct describes instead.
  *
  * @param smptbl_id      Unified sample ID (effect, speech, or custom bank).
  * @param mode           SStack_Limit or SStack_Duck.
@@ -110,7 +115,8 @@ enum SoundStackMode {
 void sound_register_stack_policy(SoundSmplTblID smptbl_id, unsigned char mode, short max_instances);
 
 /**
- * @brief Clear all registered stacking policies (back to the {Limit, 1} default).
+ * @brief Clear all registered stacking policies (samples with no policy revert to the
+ * legacy once-per-turn gate described above).
  */
 void sound_clear_stack_policies(void);
 

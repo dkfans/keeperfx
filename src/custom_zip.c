@@ -43,6 +43,7 @@ int fastUnzLocateFile(unzFile zip, const char *szFileName, int iCaseSensitivity)
     //return unzLocateFile(file, szFileName, iCaseSensitivity);
     char seek_for[PATH_MAX];
     strncpy(seek_for, szFileName, PATH_MAX - 1);
+    seek_for[PATH_MAX - 1] = '\0';
     make_lowercase(seek_for);
     VALUE *rec = value_dict_get(zip_cache, seek_for);
     if (rec == NULL)

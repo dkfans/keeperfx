@@ -25,7 +25,6 @@
 #include <utility>
 #include <array>
 #include <unordered_map>
-#include <unordered_set>
 #include <deque>
 #include <mutex>
 #include <atomic>
@@ -453,7 +452,14 @@ struct SoundStackPolicy {
 };
 static std::unordered_map<SoundSmplTblID, SoundStackPolicy> g_stack_policies;
 
-static std::unordered_set<SoundSmplTblID> g_tick_samples;
+// Tick-scoped gate reproducing the pre-Custom-Sounds behaviour exactly: a sample ID with
+// no explicit STACK= policy may only start once per game turn, regardless of which emitter
+// triggers it. Keyed by the gameturn each sample was last triggered on (compared against
+// get_gameturn()) rather than a set cleared by MonitorStreamedSoundTrack() — that avoids any
+// dependency on exactly when/how often that function runs relative to whatever gameplay code
+// triggers sounds within the same turn (UI/input-driven sounds in particular may not run on
+// the same cadence as the main per-turn simulation update).
+static std::unordered_map<SoundSmplTblID, GameTurn> g_tick_samples_turn;
 
 static SoundStackPolicy get_stack_policy(SoundSmplTblID smptbl_id) {
 	const auto it = g_stack_policies.find(smptbl_id);
@@ -592,6 +598,7 @@ extern "C" void FreeAudio() {
 	g_custom_bank.clear();  // Clear custom sounds when cleaning up audio
 	g_id_redirects.clear(); // Clear raw-ID redirects alongside custom bank
 	g_stack_policies.clear(); // Clear stacking policies alongside custom bank
+	g_tick_samples_turn.clear(); // Clear per-turn stacking gate alongside custom bank
 	SYNCDBG(7, "Cleared OpenAL sources and sound banks");
 
 	// Now destroy OpenAL context and device (unique_ptr handles proper cleanup)
@@ -604,6 +611,7 @@ extern "C" void custom_sound_bank_clear() {
 	g_custom_bank.clear();
 	g_id_redirects.clear();
 	g_stack_policies.clear();
+	g_tick_samples_turn.clear();
 }
 
 extern "C" void sound_register_id_redirect(SoundSmplTblID from_id, SoundSmplTblID to_id) {
@@ -763,7 +771,6 @@ extern "C" TbBool GetSoundInstalled() {
 
 // This function gets called every tick
 extern "C" void MonitorStreamedSoundTrack() {
-	g_tick_samples.clear();
 	for (auto & source : g_sources) {
 		try {
 			if (source.emit_id > 0 && !source.is_playing()) {
@@ -942,6 +949,15 @@ extern "C" SoundMilesID play_sample(
 		buf = &g_banks[0][smptbl_id].buffer;
 	}
 	try {
+		// Look up the stacking policy once — used by both the restart-in-place path below
+		// and the new-voice-allocation path further down.
+		const auto stack_policy_it = g_stack_policies.find(smptbl_id);
+		const bool has_explicit_stack_policy = (stack_policy_it != g_stack_policies.end());
+		SoundStackPolicy stack_policy{};
+		if (has_explicit_stack_policy) {
+			stack_policy = stack_policy_it->second;
+		}
+
 		// ctype 2/3: if this emitter is already playing the same sample, restart it in-place
 		// rather than allocating a new source (mirrors MSS single-voice-per-slot behaviour and
 		// prevents sounds from stacking — e.g. hailstorm projectiles all hitting the same target).
@@ -949,30 +965,35 @@ extern "C" SoundMilesID play_sample(
 			for (auto & source : g_sources) {
 				if (source.emit_id == emit_id && source.smptbl_id == smptbl_id) {
 					source.stop();
+					source.base_gain = volume;
 					source.gain(volume);
 					source.pan(pan);
 					source.repeat(repeats == -1);
 					source.pitch(pitch);
 					source.play(*buf);
+					if (has_explicit_stack_policy && stack_policy.mode == SStack_Duck) {
+						// This source may be part of a Duck-mode group with other concurrently
+						// playing instances (from other emitters) — rescale it (and them) back
+						// down instead of leaving it at the full, un-ducked volume just set above.
+						apply_duck_gain(smptbl_id);
+					}
 					return source.mss_id;
 				}
 			}
 		}
 		// Cross-emitter stacking policy: caps how many different emitters may play the
-		// same sample concurrently (or ducks their combined volume).
-		const auto stack_policy_it = g_stack_policies.find(smptbl_id);
-		const bool has_explicit_stack_policy = (stack_policy_it != g_stack_policies.end());
-		SoundStackPolicy stack_policy{};
+		// same sample concurrently (or ducks their combined volume). Only applies when
+		// allocating a genuinely new voice, not on the same-emitter restart-in-place above.
 		if (!has_explicit_stack_policy) {
-			// No explicit STACK= policy: reproduce the OG behaviour exactly —
-			// this sample may only start once per game tick, regardless of emitter, and the
-			// gate clears next tick even if the sound from this tick is still playing.
-			if (g_tick_samples.count(smptbl_id) > 0) {
-				return 0; // dropped: already triggered this tick
+			// No explicit STACK= policy: reproduce the OG behaviour exactly — this sample may
+			// only start once per game turn, regardless of which emitter triggers it.
+			const GameTurn now = get_gameturn();
+			const auto turn_it = g_tick_samples_turn.find(smptbl_id);
+			if (turn_it != g_tick_samples_turn.end() && turn_it->second == now) {
+				return 0; // dropped: already triggered this turn
 			}
-			g_tick_samples.insert(smptbl_id);
+			g_tick_samples_turn[smptbl_id] = now;
 		} else {
-			stack_policy = stack_policy_it->second;
 			if (stack_policy.max_instances > 0) {
 				int active_count = 0;
 				for (const auto & source : g_sources) {

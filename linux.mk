@@ -87,6 +87,7 @@ src/config_trapdoor.c \
 src/config_spritecolors.c \
 src/console_cmd.c \
 src/custom_sprites.c \
+src/custom_zip.c \
 src/creature_battle.c \
 src/creature_control.c \
 src/creature_graphics.c \

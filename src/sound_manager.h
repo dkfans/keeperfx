@@ -136,7 +136,7 @@ public:
      * @param name Unique identifier for the sound
      * @param data Raw file bytes (WAV/OGG/FLAC/MP3)
      * @param size Size of data in bytes
-     * @return Assigned sample ID, or 0 if failed
+     * @return Assigned sample ID, or -1 if failed (matches loadCustomSound()'s convention)
      */
     SoundSmplTblID loadCustomSoundFromMemory(const std::string& name, const unsigned char* data, size_t size);
 

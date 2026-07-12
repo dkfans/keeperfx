@@ -431,19 +431,28 @@ static TbBool parse_speech_section(char* buf, long len, const char* config_textn
     return true;
 }
 
+enum StackTokenResult
+{
+    StackToken_NotAStackToken = 0, // tok doesn't start with "STACK=" — caller should try other meanings
+    StackToken_Valid          = 1, // tok is a valid STACK=mode[:max] token (out_mode/out_max filled)
+    StackToken_Malformed      = 2, // tok starts with "STACK=" but mode/value is invalid — a warning
+                                    // has already been logged; caller must NOT fall back to treating
+                                    // it as an alias or other value, or the config error goes silent.
+};
+
 /**
  * @brief Parse an optional trailing "STACK=<mode>[:<max>]" token that sets the
  * cross-emitter concurrency policy for the sound(s) being registered on this line.
  *
  * mode is "limit" (drop triggers beyond max, default max 1) or "duck" (scale down
  * the gain of all concurrent instances as more start; max optionally also caps count).
- * Returns false if tok isn't a STACK= token at all (caller should try other meanings).
  */
-static TbBool parse_stack_token(const char* tok, unsigned char* out_mode, short* out_max)
+static enum StackTokenResult parse_stack_token(const char* tok, unsigned char* out_mode, short* out_max,
+    const char* config_textname)
 {
     if (strncasecmp(tok, "STACK=", 6) != 0)
     {
-        return false;
+        return StackToken_NotAStackToken;
     }
     const char* value = tok + 6;
     const char* colon = strchr(value, ':');
@@ -451,7 +460,8 @@ static TbBool parse_stack_token(const char* tok, unsigned char* out_mode, short*
     size_t mode_len = colon ? (size_t)(colon - value) : strlen(value);
     if (mode_len == 0 || mode_len >= sizeof(mode_buf))
     {
-        return false;
+        WARNLOG("Malformed STACK token '%s' in %s; ignoring", tok, config_textname);
+        return StackToken_Malformed;
     }
     memcpy(mode_buf, value, mode_len);
     mode_buf[mode_len] = '\0';
@@ -471,9 +481,10 @@ static TbBool parse_stack_token(const char* tok, unsigned char* out_mode, short*
     }
     else
     {
-        return false;
+        WARNLOG("Unknown STACK mode '%s' in %s; expected 'limit' or 'duck'; ignoring", mode_buf, config_textname);
+        return StackToken_Malformed;
     }
-    return true;
+    return StackToken_Valid;
 }
 
 /**
@@ -578,23 +589,25 @@ static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const ch
         TbBool has_stack = false;
         if (get_conf_parameter_single(buf, pos, len, next_buf, sizeof(next_buf)) > 0)
         {
-            if (parse_stack_token(next_buf, &stack_mode, &stack_max))
+            enum StackTokenResult stack_result = parse_stack_token(next_buf, &stack_mode, &stack_max, config_textname);
+            if (stack_result == StackToken_Valid)
             {
                 has_stack = true;
             }
-            else if (isalpha((unsigned char)next_buf[0]) || next_buf[0] == '_')
+            else if (stack_result == StackToken_NotAStackToken && (isalpha((unsigned char)next_buf[0]) || next_buf[0] == '_'))
             {
                 // Normalize alias to uppercase
                 for (int i = 0; next_buf[i] != '\0'; i++)
                     next_buf[i] = (char)toupper((unsigned char)next_buf[i]);
                 snprintf(alias_buf, sizeof(alias_buf), "%s", next_buf);
             }
-            // If it wasn't an alpha token it was likely a stray comment — ignore it
+            // If it wasn't an alpha token or a STACK= token, it was likely a stray comment — ignore it.
+            // A malformed STACK= token was already warned about above and must not fall through here.
         }
         // A STACK= token may follow the alias too
         if (!has_stack && get_conf_parameter_single(buf, pos, len, next_buf, sizeof(next_buf)) > 0)
         {
-            has_stack = parse_stack_token(next_buf, &stack_mode, &stack_max);
+            has_stack = (parse_stack_token(next_buf, &stack_mode, &stack_max, config_textname) == StackToken_Valid);
         }
 
         // Build the internal name: use alias if given, else synthesise __RAW_<id>
@@ -645,7 +658,7 @@ static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const ch
     TbBool has_stack = false;
     if (get_conf_parameter_single(buf, pos, len, stack_buf, sizeof(stack_buf)) > 0)
     {
-        has_stack = parse_stack_token(stack_buf, &stack_mode, &stack_max);
+        has_stack = (parse_stack_token(stack_buf, &stack_mode, &stack_max, config_textname) == StackToken_Valid);
     }
 
     if (*endptr == '\0' && id_value > 0)

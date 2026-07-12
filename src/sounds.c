@@ -507,7 +507,8 @@ void sound_reinit_after_load(void)
         if (!play_music(game.music_fname)) {
             WARNLOG("Custom music '%s' unavailable, falling back to default track", game.music_fname);
             LevelNumber lvnum = get_loaded_level_number();
-            play_music_track(3 + ((lvnum - 1) % 4)); // tracks 3..6
+            long safe_lvnum = (lvnum > 0) ? lvnum : 1; // guard against (lvnum - 1) % 4 going negative
+            play_music_track(3 + (int)((safe_lvnum - 1) % 4)); // tracks 3..6
         }
     } else if (game.music_track > 0) {
         play_music_track(game.music_track);
