@@ -47,6 +47,7 @@
 #include "thing_objects.h"
 #include "config.h"
 #include "lvl_script_commands.h"
+#include "game_merge.h"
 
 #include "keeperfx.hpp"
 #include "game_heap.h"
@@ -501,10 +502,14 @@ void sound_reinit_after_load(void)
     stop_streamed_samples();
     clear_messages();
     if (game.music_track < 0 && strlen(game.music_fname) > 0) {
-        // play saved custom music
-        play_music(game.music_fname);
+        // Play the saved custom music. play_music() itself will skip restarting it if
+        // this exact file is already playing
+        if (!play_music(game.music_fname)) {
+            WARNLOG("Custom music '%s' unavailable, falling back to default track", game.music_fname);
+            LevelNumber lvnum = get_loaded_level_number();
+            play_music_track(3 + ((lvnum - 1) % 4)); // tracks 3..6
+        }
     } else if (game.music_track > 0) {
-        // play saved track
         play_music_track(game.music_track);
     }
 }

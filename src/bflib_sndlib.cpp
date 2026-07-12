@@ -526,6 +526,9 @@ void print_device_info() {
 __attribute__((unused)) Mix_Chunk * g_streamed_sample = nullptr;
 std::mutex g_mix_mutex;
 
+std::string g_current_music_fname; // empty if a numbered track (or nothing) is playing
+int g_current_music_track = 0;     // 0 if a custom file (or nothing) is playing
+
 struct queued_sample {
 	std::string fname;
 	SoundVolume volume;
@@ -561,6 +564,8 @@ extern "C" void FreeAudio() {
 			Mix_FreeMusic(music);
 			SYNCDBG(8, "Freed SDL_mixer music");
 		}
+		g_current_music_track = 0;
+		g_current_music_fname.clear();
 		if (g_streamed_sample) {
 			Mix_FreeChunk(g_streamed_sample);
 			g_streamed_sample = nullptr;
@@ -669,10 +674,15 @@ extern "C" void set_music_volume(SoundVolume value) {
 
 extern "C" TbBool play_music(const char * fname) {
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
-    if (strcmp(game.music_fname, fname) == 0)
-        return false;
+	if (g_current_music_fname == fname) {
+		return true;
+	}
     game.music_track = -1;
-	snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
+	// Guard against fname aliasing game.music_fname itself — snprintf with overlapping
+	// src/dest is undefined behaviour.
+	if (fname != game.music_fname) {
+		snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
+	}
 	// Mix_PlayMusic will stop anything currently playing and eventually
 	// calls on_music_finished so theres no need to call Mix_FreeMusic first.
 	const auto music = Mix_LoadMUS(game.music_fname);
@@ -686,6 +696,8 @@ extern "C" TbBool play_music(const char * fname) {
 	}
 	// g_mix_music will be null here as Mix_PlayMusic ends up calling on_music_finished
 	g_mix_music = music;
+	g_current_music_fname = fname;
+	g_current_music_track = 0;
 	return true;
 }
 
@@ -696,9 +708,17 @@ extern "C" TbBool play_music_track(int track) {
 		stop_music();
 		return true;
 	} else if (features_enabled & Ft_NoCdMusic) {
+		// play_music() itself skips restarting if this exact resolved file is
+		// already the one actually playing (e.g. reloading a save for the same level).
 		return play_music(prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", track));
 	} else {
+		if (track == g_current_music_track) {
+			// Already playing this exact numbered track — skip restarting it.
+			return true;
+		}
 		if (PlayRedbookTrack(track)) {
+			g_current_music_track = track;
+			g_current_music_fname.clear();
 			return true;
 		} else {
 			WARNLOG("Cannot play track %d", game.music_track);
@@ -726,6 +746,8 @@ extern "C" void resume_music() {
 extern "C" void stop_music() {
 	game.music_track = 0;
 	memset(game.music_fname, 0, sizeof(game.music_fname));
+	g_current_music_track = 0;
+	g_current_music_fname.clear();
 	if (features_enabled & Ft_NoCdMusic) {
 		if (Mix_FadingMusic() != MIX_FADING_OUT) {
 			Mix_FadeOutMusic(1000);
