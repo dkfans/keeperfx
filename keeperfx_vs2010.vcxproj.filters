@@ -105,6 +105,7 @@
     <ClCompile Include="src\creature_states_wrshp.c" />
     <ClCompile Include="src\cursor_tag.c" />
     <ClCompile Include="src\custom_sprites.c" />
+    <ClCompile Include="src\custom_zip.c" />
     <ClCompile Include="src\dungeon_data.c" />
     <ClCompile Include="src\dungeon_stats.c" />
     <ClCompile Include="src\engine_arrays.c" />
@@ -371,6 +372,7 @@
     <ClInclude Include="src\creature_states_wrshp.h" />
     <ClInclude Include="src\cursor_tag.h" />
     <ClInclude Include="src\custom_sprites.h" />
+    <ClInclude Include="src\custom_zip.h" />
     <ClInclude Include="src\dungeon_data.h" />
     <ClInclude Include="src\dungeon_stats.h" />
     <ClInclude Include="src\engine_arrays.h" />
