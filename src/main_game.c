@@ -19,6 +19,7 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 
+#include "ariadne_update.h"
 #include "config_compp.h"
 #include "config_settings.h"
 #include "creature_states_combt.h"

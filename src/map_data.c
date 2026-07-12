@@ -40,7 +40,6 @@ struct Map bad_map_block;
  */
 MapSubtlCoord map_subtiles_z = 8;
 
-long nav_map_initialised = 0;
 /******************************************************************************/
 /**
  * Returns if the subtile coords are in range of subtiles which have slab entry.

@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "ariadne_update.h"
 #include "room_data.h"
 #include "room_garden.h"
 #include "map_utils.h"

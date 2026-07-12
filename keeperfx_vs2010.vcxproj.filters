@@ -11,6 +11,7 @@
     <ClCompile Include="src\ariadne_points.c" />
     <ClCompile Include="src\ariadne_regions.c" />
     <ClCompile Include="src\ariadne_tringls.c" />
+    <ClCompile Include="src\ariadne_update.c" />
     <ClCompile Include="src\ariadne_wallhug.c" />
     <ClCompile Include="src\bflib_basics.c" />
     <ClCompile Include="src\bflib_coroutine.c" />
