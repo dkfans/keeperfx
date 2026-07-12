@@ -113,6 +113,7 @@ struct GameCampaign {
   char *credits_data;
   struct CreditsItem credits[CAMPAIGN_CREDITS_COUNT];
   // Campaign strings
+  unsigned char strings_lang;
   char strings_fname[DISKPATH_SIZE];
   char strings_fname_eng[DISKPATH_SIZE];
   char *strings_data_list[MOD_ITEM_MAX*MOD_ITEM_TYPE_CNT+1];

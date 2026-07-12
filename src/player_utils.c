@@ -45,8 +45,8 @@
 #include "config_spritecolors.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
+#include "map_columns.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
 #include "game_saves.h"
 #include "game_legacy.h"
 #include "frontend.h"
@@ -899,7 +899,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
         if ((player_is_roaming(wandr->plyr_idx)) || map_block_revealed(mapblk, wandr->plyr_idx))
         {
             slb = get_slabmap_for_subtile(stl_x, stl_y);
-            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0)
+            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (!subtile_is_unsafe(stl_x, stl_y))
              && players_creatures_tolerate_each_other(wandr->plyr_idx,slabmap_owner(slb)))
             {
                 heartng = get_player_soul_container(wandr->plyr_idx);
@@ -922,7 +922,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
         // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
         if (!player_is_roaming(wandr->plyr_idx) && !map_block_revealed(mapblk, wandr->plyr_idx))
         {
-            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
+            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (!subtile_is_unsafe(stl_x, stl_y)))
             {
                 heartng = get_player_soul_container(wandr->plyr_idx);
                 if (thing_exists(heartng))

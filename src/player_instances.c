@@ -161,11 +161,6 @@ long pinstfe_hand_grab(struct PlayerInfo *player, int32_t *n)
         WARNLOG("Cannot pick up %s index %d",thing_model_name(dsttng),(int)dsttng->index);
         return 0;
     }
-    struct Thing* handtng = thing_get(player->hand_thing_idx);
-    if (thing_exists(handtng))
-    {
-        set_power_hand_graphic(player->id_number, HndA_Pickup);
-    }
     return 0;
 }
 
@@ -282,7 +277,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, int32_t *n)
       case TCls_Object:
       {
           struct Thing* efftng;
-          if (object_is_slappable(thing, player->id_number))
+          if (object_is_slappable_by_player(thing, player->id_number))
           {
             efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
             if (!thing_is_invalid(efftng))

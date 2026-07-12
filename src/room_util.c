@@ -35,7 +35,6 @@
 #include "thing_objects.h"
 #include "room_list.h"
 #include "room_workshop.h"
-#include "ariadne_wallhug.h"
 #include "config_terrain.h"
 #include "config_creature.h"
 #include "gui_soundmsgs.h"

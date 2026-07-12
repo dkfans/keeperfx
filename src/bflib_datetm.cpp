@@ -58,7 +58,7 @@ void initial_time_point()
   game.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
 }
 
-long double get_time_tick_ns()
+int64_t get_time_tick_ns()
 {
   return TimeTickNs;
 }
@@ -93,22 +93,6 @@ int get_trigger_time_measurement_fps(struct TriggerTimeMeasurement *trigger)
     }
   }
   return cnt;
-}
-
-
-float get_delta_time()
-{
-    // Allow frame skip to work correctly when delta time is enabled
-    if ( (game.frame_skip != 0) && ((get_gameturn() % game.frame_skip) != 0)) {
-        return 1.0;
-    }
-    long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
-    delta_time_previous_timepoint = TimeNow;
-    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * turns_per_second;
-    if (calculated_delta_time > 1.0) { // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
-        calculated_delta_time = 1.0;
-    }
-    return calculated_delta_time;
 }
 
 void frametime_set_all_measurements_to_be_displayed()
@@ -393,29 +377,35 @@ TbResult LbTimerInit(void)
   return Lb_SUCCESS;
 }
 
-int get_current_stutter_percentage()
+int get_current_stutter_milliseconds()
 {
-    static TbClockMSec last_frame_timestamp = 0;
+    static TbClockMSec last_turn_timestamp = 0;
     static int stutter_detection_history[50] = {0};
+    static TbClockMSec stutter_detection_history_timestamp[50] = {0};
     static int history_index = 0;
     TbClockMSec current_timestamp = LbTimerClock();
-    TbClockMSec frame_time_ms = 0;
-    int stutter_detection_pct = 0;
-    if (last_frame_timestamp != 0) {
-        frame_time_ms = current_timestamp - last_frame_timestamp;
-        int expected_frame_time = 1000 / turns_per_second;
-        if (frame_time_ms > expected_frame_time) {
-            stutter_detection_pct = ((frame_time_ms - expected_frame_time) * 100) / expected_frame_time;
+    int stutter_detection_ms = 0;
+    TbClockMSec expected_turn_time = 1000 / turns_per_second;
+    if (last_turn_timestamp != 0) {
+        TbClockMSec turn_time_ms = current_timestamp - last_turn_timestamp;
+        if (turn_time_ms > expected_turn_time) {
+            stutter_detection_ms = turn_time_ms - expected_turn_time;
+            stutter_detection_history[history_index] = stutter_detection_ms;
+            stutter_detection_history_timestamp[history_index] = current_timestamp;
+            history_index = (history_index + 1) % 50;
         }
     }
-    last_frame_timestamp = current_timestamp;
-    stutter_detection_current = stutter_detection_pct;
-    stutter_detection_history[history_index] = stutter_detection_pct;
-    history_index = (history_index + 1) % 50;
+    last_turn_timestamp = current_timestamp;
+    stutter_detection_current = stutter_detection_ms;
     int sum = 0;
     int max = 0;
     int i;
     for (i = 0; i < 50; i++) {
+        if (stutter_detection_history_timestamp[i] == 0 || current_timestamp - stutter_detection_history_timestamp[i] >= expected_turn_time * 50) {
+            stutter_detection_history[i] = 0;
+            stutter_detection_history_timestamp[i] = 0;
+            continue;
+        }
         sum += stutter_detection_history[i];
         if (stutter_detection_history[i] > max) {
             max = stutter_detection_history[i];
@@ -423,7 +413,7 @@ int get_current_stutter_percentage()
     }
     stutter_detection_average = sum / 50;
     stutter_detection_max = max;
-    return stutter_detection_pct;
+    return stutter_detection_ms;
 }
 
 /******************************************************************************/

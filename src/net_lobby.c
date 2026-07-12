@@ -17,6 +17,7 @@
 #include "pre_inc.h"
 #include "net_lobby.h"
 
+#include "game_legacy.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
 #include "net_exchange_common.h"
@@ -219,6 +220,9 @@ TbError LbNetwork_ExchangeLogin(char *player_name)
 
 TbError LbNetwork_ExchangeFrontend(void *send_buf, void *server_buf, size_t frame_size)
 {
+    if ((my_player_number == get_host_player_id()) && frontnet_service_selected(FrontendNetSvc_Online)) {
+        enet_matchmaking_host_update();
+    }
     return exchange_frame_block(NETMSG_FRONTEND, send_buf, server_buf, frame_size);
 }
 
@@ -317,6 +321,7 @@ TbError LbNetwork_Stop(void)
     if (netstate.sp) {
         netstate.sp->exit();
     }
+    clear_flag(game.system_flags, GSF_NetworkActive);
     memset(&netstate, 0, sizeof(netstate));
     netstate.my_id = INVALID_USER_ID;
     return Lb_OK;

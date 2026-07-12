@@ -47,7 +47,6 @@
 #include "room_graveyard.h"
 #include "room_util.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
 #include "tasks_list.h"
 #include "power_hand.h"

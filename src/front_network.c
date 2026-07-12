@@ -47,7 +47,6 @@
 #include "net_matchmaking.h"
 #include "net_lan.h"
 #include "net_input_lag.h"
-#include "bflib_enet.h"
 #include "config_campaigns.h"
 #include "post_inc.h"
 
@@ -643,9 +642,6 @@ void frontnet_start_update(void)
     frontnet_rewite_net_messages();
 
     LbNetwork_UpdateInputLagIfHost();
-    if (frontnet_service_selected(FrontendNetSvc_Online)) {
-        enet_matchmaking_host_update();
-    }
     if (frontnet_service_selected(FrontendNetSvc_LAN)) {
         lan_host_update();
     }

@@ -2907,6 +2907,7 @@ msgid "Play Intro"
 msgstr "오프닝 보기"
 
 #: guitext:350
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
 msgstr "멀티플레이어 메뉴"
@@ -3132,6 +3133,7 @@ msgid "Testers"
 msgstr "Testers"
 
 #: guitext:395
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
 msgstr "게임 로비"
@@ -3142,6 +3144,7 @@ msgid "Name"
 msgstr "이름"
 
 #: guitext:397
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "게임 모드"
@@ -3152,11 +3155,13 @@ msgid "Messages"
 msgstr "메시지"
 
 #: guitext:399
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
 msgstr "로비 만들기"
 
 #: guitext:400
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
 msgstr "로비 참가"
@@ -3167,6 +3172,7 @@ msgid "Start Game"
 msgstr "게임 시작"
 
 #: guitext:402
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
 msgstr "온라인 로비"
@@ -5836,16 +5842,19 @@ msgid "4 Players"
 msgstr "4 플레이어"
 
 #: guitext:874
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "온라인"
 
 #: guitext:875
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "LAN"
 
 #: guitext:876
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "교전"
@@ -7155,16 +7164,19 @@ msgid "Keeper"
 msgstr "키퍼"
 
 #: guitext:1083
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "화면 녹화"
 
 #: guitext:1084
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "스크린샷"
 
 #: guitext:1085
+#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
 msgstr "프레임 건너뛰기 증가"
@@ -7328,3 +7340,15 @@ msgstr "unused"
 msgctxt "Network game message"
 msgid "Network connection to host lost"
 msgstr "호스트와의 네트워크 연결이 끊겼습니다"
+
+#: guitext:1120
+#, fuzzy
+msgctxt "In-game message"
+msgid "/fxdata/%.39s was not loaded."
+msgstr "/fxdata/%.39s 로드되지 않았습니다."
+
+#: guitext:1121
+#, fuzzy
+msgctxt "In-game message"
+msgid "Please install it as a mod inside the /mods/ folder."
+msgstr "MOD로 /mods/에 설치하세요."

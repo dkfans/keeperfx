@@ -3020,6 +3020,7 @@ msgid "Play Intro"
 msgstr "Reproduzir Introdução"
 
 #: guitext:350
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
 msgstr "Menu multijogador"
@@ -3246,6 +3247,7 @@ msgid "Testers"
 msgstr "Testadores"
 
 #: guitext:395
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
 msgstr "Lobbies de jogo"
@@ -3256,6 +3258,7 @@ msgid "Name"
 msgstr "Nome"
 
 #: guitext:397
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "Modos de jogo"
@@ -3266,11 +3269,13 @@ msgid "Messages"
 msgstr "Mensagens"
 
 #: guitext:399
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
 msgstr "Criar lobby"
 
 #: guitext:400
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
 msgstr "Entrar no lobby"
@@ -3281,6 +3286,7 @@ msgid "Start Game"
 msgstr "Iniciar Jogo"
 
 #: guitext:402
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
 msgstr "Lobbies online"
@@ -6024,16 +6030,19 @@ msgid "4 Players"
 msgstr "4 Jogadores"
 
 #: guitext:874
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "Online"
 
 #: guitext:875
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "LAN"
 
 #: guitext:876
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "Escaramuça"
@@ -7372,16 +7381,19 @@ msgid "Keeper"
 msgstr "Guardião"
 
 #: guitext:1083
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "Gravar Tela"
 
 #: guitext:1084
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "Captura de Tela"
 
 #: guitext:1085
+#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
 msgstr "Aumentar Pulo de Quadros"
@@ -7545,3 +7557,15 @@ msgstr "unused"
 msgctxt "Network game message"
 msgid "Network connection to host lost"
 msgstr "Conexão de rede com o host perdida"
+
+#: guitext:1120
+#, fuzzy
+msgctxt "In-game message"
+msgid "/fxdata/%.39s was not loaded."
+msgstr "/fxdata/%.39s não foi carregado."
+
+#: guitext:1121
+#, fuzzy
+msgctxt "In-game message"
+msgid "Please install it as a mod inside the /mods/ folder."
+msgstr "Instale-o como mod na pasta /mods/."

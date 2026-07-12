@@ -244,8 +244,6 @@ static void assign_recalculate_effeciency(const struct NamedField* named_field, 
     }
 }
 
-
-
 const struct NamedCommand room_roles_desc[] = {
   {"ROOM_ROLE_KEEPER_STORAGE", RoRoF_KeeperStorage},
   {"ROOM_ROLE_LAIR_STORAGE",   RoRoF_LairStorage},

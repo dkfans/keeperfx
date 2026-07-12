@@ -42,7 +42,6 @@
 #include "thing_effects.h"
 #include "map_blocks.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
 #include "config_terrain.h"
 #include "config_effects.h"
 #include "creature_states.h"
@@ -1546,7 +1545,7 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
             MapSubtlCoord stl_x = slab_subtile(slb_x, ssub % 3);
             MapSubtlCoord stl_y = slab_subtile(slb_y, ssub / 3);
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (get_navigation_map_floor_height(stl_x,stl_y) < 4))
+            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (get_floor_filled_subtiles_at(stl_x,stl_y) < 4))
             {
                 if (!terrain_toxic_for_creature_at_position(thing, stl_x, stl_y) && !subtile_has_sacrificial_on_top(stl_x, stl_y))
                 {
@@ -1652,7 +1651,7 @@ TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Ro
                 pos->z.val = subtile_coord(1,0);
                 struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
                 if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
-                    && (get_navigation_map_floor_height(pos->x.stl.num, pos->y.stl.num) < 4)) {
+                    && (get_floor_filled_subtiles_at(pos->x.stl.num, pos->y.stl.num) < 4)) {
                     return true;
                 }
             }
@@ -1919,7 +1918,7 @@ TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *
                 MapSubtlCoord stl_y = 3 * slb_y + dy;
                 struct Map* mapblk = get_map_block_at(stl_x, stl_y);
                 // Check if the position isn't filled with solid block
-                if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (get_navigation_map_floor_height(stl_x,stl_y) < 4))
+                if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (get_floor_filled_subtiles_at(stl_x,stl_y) < 4))
                 {
                     if (!terrain_toxic_for_creature_at_position(thing, stl_x, stl_y) && !subtile_has_sacrificial_on_top(stl_x, stl_y))
                     {
