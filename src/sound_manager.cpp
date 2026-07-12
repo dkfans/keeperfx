@@ -15,6 +15,7 @@
 extern "C" {
     int custom_sound_bank_size();
     TbBool custom_sound_load_wav(const char* filepath, int sample_id);
+    TbBool custom_sound_load_wav_mem(const unsigned char* data, size_t size, const char* logical_name, int sample_id);
     SoundSmplTblID get_custom_offset(void);
 }
 
@@ -183,6 +184,35 @@ SoundSmplTblID SoundManager::loadCustomSound(const std::string& name, const std:
     SYNCDBG(7,"Loaded custom sound '%s' as bank index %d (filepath: %s)",
            name.c_str(), bank_index, filepath.c_str());
     
+    return get_custom_offset() + bank_index;
+}
+
+// Load custom sound from an in-memory buffer (e.g. read out of a map zip) and assign sample ID
+SoundSmplTblID SoundManager::loadCustomSoundFromMemory(const std::string& name, const unsigned char* data, size_t size) {
+    auto it = custom_sounds_.find(name);
+    if (it != custom_sounds_.end() && it->second.loaded) {
+        SYNCDBG(7,"Custom sound '%s' already loaded as bank index %d",
+               name.c_str(), it->second.sample_id);
+        return it->second.sample_id;
+    }
+
+    SoundSmplTblID bank_index = custom_sound_bank_size();
+    if (!custom_sound_load_wav_mem(data, size, name.c_str(), bank_index)) {
+        WARNLOG("Failed to load custom sound '%s' from memory buffer", name.c_str());
+        return -1;
+    }
+
+    CustomSoundEntry entry;
+    entry.filepath = name; // no filesystem path — record the logical name instead
+    entry.sample_id = get_custom_offset() + bank_index;
+    entry.loaded = true;
+    custom_sounds_[name] = entry;
+
+    total_custom_sounds_++;
+
+    SYNCDBG(7,"Loaded custom sound '%s' as bank index %d (from memory, %" PRIuSIZE " bytes)",
+           name.c_str(), bank_index, SZCAST(size));
+
     return get_custom_offset() + bank_index;
 }
 

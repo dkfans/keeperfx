@@ -129,7 +129,17 @@ public:
      * @return Assigned sample ID, or 0 if failed
      */
     SoundSmplTblID loadCustomSound(const std::string& name, const std::string& filepath);
-    
+
+    /**
+     * @brief Load a custom sound from an in-memory buffer (e.g. read out of a map's
+     * zip bundle) and assign it a sample ID.
+     * @param name Unique identifier for the sound
+     * @param data Raw file bytes (WAV/OGG/FLAC/MP3)
+     * @param size Size of data in bytes
+     * @return Assigned sample ID, or 0 if failed
+     */
+    SoundSmplTblID loadCustomSoundFromMemory(const std::string& name, const unsigned char* data, size_t size);
+
     /**
      * @brief Get sample ID for loaded custom sound
      * @param name Sound identifier

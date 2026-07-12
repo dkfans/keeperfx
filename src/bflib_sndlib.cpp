@@ -1151,12 +1151,66 @@ static TbBool decode_mp3_and_store(const char* filepath, int sample_id,
 	return true;
 }
 
-// Load a WAV, OGG, FLAC, or MP3 file and append it to g_custom_bank as a signed-16-bit
-// OpenAL buffer.
+// Decode an in-memory WAV/OGG/FLAC/MP3/BMU buffer and append it to g_custom_bank as a
+// signed-16-bit OpenAL buffer. Shared by the disk-file and in-memory (e.g. zip-sourced)
+// loading entry points below.
 //   - WAV / OGG / FLAC : Mix_LoadWAV_RW (SDL_mixer; OGG and FLAC require MIX_INIT_OGG/MIX_INIT_FLAC)
 //   - Plain MP3        : dr_mp3 single-header decoder (compiled in, no external DLLs)
 //   - BMU V1.0         : 8-byte wrapper used by some campaigns; contains a plain MP3
 //                        stream after the header — stripped and decoded via dr_mp3.
+static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample_id,
+	const uint8_t* data, size_t size)
+{
+	// Detect BMU V1.0 wrapper (8-byte ASCII prefix used by some campaigns).
+	// After the prefix the payload is a standard MP3 (often with an ID3 tag).
+	static const uint8_t bmu_magic[8] = { 'B','M','U',' ','V','1','.','0' };
+	if (size > 8 && memcmp(data, bmu_magic, 8) == 0) {
+		return decode_mp3_and_store(logical_name, sample_id, data + 8, size - 8);
+	}
+
+	// Detect MP3 by ID3v2 tag or sync-word (0xFF 0xE? / 0xFF 0xF?).
+	// Also handle plain .mp3 extension as a hint.
+	const bool looks_like_mp3 =
+		(size >= 3 && data[0] == 'I' && data[1] == 'D' && data[2] == '3') ||
+		(size >= 2 && data[0] == 0xFF && (data[1] & 0xE0) == 0xE0);
+	if (looks_like_mp3) {
+		return decode_mp3_and_store(logical_name, sample_id, data, size);
+	}
+
+	// --- WAV / OGG / FLAC path: Mix_LoadWAV_RW (SDL_mixer decodes all three) ---
+	SDL_RWops* rw = SDL_RWFromConstMem(data, (int)size);
+	if (!rw) {
+		ERRORLOG("Cannot create RWops for %s: %s", logical_name, SDL_GetError());
+		return false;
+	}
+
+	// freesrc=1: Mix_LoadWAV_RW closes rw regardless of success/failure.
+	Mix_Chunk* chunk = Mix_LoadWAV_RW(rw, 1);
+	if (chunk == nullptr) {
+		ERRORLOG("Cannot decode audio file %s: %s", logical_name, Mix_GetError());
+		return false;
+	}
+
+	// Mix_LoadWAV_RW converts decoded PCM to the mixer's output format
+	// (44100 Hz / Sint16 / stereo, as set in Mix_OpenAudio).
+	int mix_freq = 0, mix_channels = 0;
+	Uint16 mix_fmt = 0;
+	Mix_QuerySpec(&mix_freq, &mix_fmt, &mix_channels);
+	const ALenum al_fmt = (mix_channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+
+	try {
+		const std::vector<uint8_t> pcm(chunk->abuf, chunk->abuf + chunk->alen);
+		g_custom_bank.emplace_back(logical_name, sample_id, pcm, al_fmt, mix_freq);
+	} catch (...) {
+		Mix_FreeChunk(chunk);
+		ERRORLOG("Out of memory buffering audio %s", logical_name);
+		return false;
+	}
+	Mix_FreeChunk(chunk);
+	return true;
+}
+
+// Load a WAV, OGG, FLAC, or MP3 file from disk and append it to g_custom_bank.
 extern "C" TbBool custom_sound_load_wav(const char* filepath, int sample_id)
 {
 	// Resolve to absolute path so the decoders can find the file regardless of
@@ -1192,54 +1246,17 @@ extern "C" TbBool custom_sound_load_wav(const char* filepath, int sample_id)
 		}
 	}
 
-	const uint8_t* data = file_data.data();
-	const size_t   size = file_data.size();
+	return decode_audio_buffer_and_store(filepath, sample_id, file_data.data(), file_data.size());
+}
 
-	// Detect BMU V1.0 wrapper (8-byte ASCII prefix used by some campaigns).
-	// After the prefix the payload is a standard MP3 (often with an ID3 tag).
-	static const uint8_t bmu_magic[8] = { 'B','M','U',' ','V','1','.','0' };
-	if (size > 8 && memcmp(data, bmu_magic, 8) == 0) {
-		return decode_mp3_and_store(filepath, sample_id, data + 8, size - 8);
-	}
-
-	// Detect MP3 by ID3v2 tag or sync-word (0xFF 0xE? / 0xFF 0xF?).
-	// Also handle plain .mp3 extension as a hint.
-	const bool looks_like_mp3 =
-		(size >= 3 && data[0] == 'I' && data[1] == 'D' && data[2] == '3') ||
-		(size >= 2 && data[0] == 0xFF && (data[1] & 0xE0) == 0xE0);
-	if (looks_like_mp3) {
-		return decode_mp3_and_store(filepath, sample_id, data, size);
-	}
-
-	// --- WAV / OGG / FLAC path: Mix_LoadWAV_RW (SDL_mixer decodes all three) ---
-	SDL_RWops* rw = SDL_RWFromConstMem(data, (int)size);
-	if (!rw) {
-		ERRORLOG("Cannot create RWops for %s: %s", filepath, SDL_GetError());
+// Load a WAV, OGG, FLAC, or MP3 buffer already in memory (e.g. read out of a map's
+// zip bundle) and append it to g_custom_bank. logical_name is only used for logging.
+extern "C" TbBool custom_sound_load_wav_mem(const unsigned char* data, size_t size,
+	const char* logical_name, int sample_id)
+{
+	if (data == nullptr || size == 0) {
+		ERRORLOG("Empty audio buffer for %s", logical_name);
 		return false;
 	}
-
-	// freesrc=1: Mix_LoadWAV_RW closes rw regardless of success/failure.
-	Mix_Chunk* chunk = Mix_LoadWAV_RW(rw, 1);
-	if (chunk == nullptr) {
-		ERRORLOG("Cannot decode audio file %s: %s", filepath, Mix_GetError());
-		return false;
-	}
-
-	// Mix_LoadWAV_RW converts decoded PCM to the mixer's output format
-	// (44100 Hz / Sint16 / stereo, as set in Mix_OpenAudio).
-	int mix_freq = 0, mix_channels = 0;
-	Uint16 mix_fmt = 0;
-	Mix_QuerySpec(&mix_freq, &mix_fmt, &mix_channels);
-	const ALenum al_fmt = (mix_channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-
-	try {
-		const std::vector<uint8_t> pcm(chunk->abuf, chunk->abuf + chunk->alen);
-		g_custom_bank.emplace_back(filepath, sample_id, pcm, al_fmt, mix_freq);
-	} catch (...) {
-		Mix_FreeChunk(chunk);
-		ERRORLOG("Out of memory buffering audio %s", filepath);
-		return false;
-	}
-	Mix_FreeChunk(chunk);
-	return true;
+	return decode_audio_buffer_and_store(logical_name, sample_id, data, size);
 }
