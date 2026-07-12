@@ -950,10 +950,10 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           else switch (i)
           {
-          case 1:
+          case 2:
             rotate_around_mouse_option = RotateAroundMouse_Off;
             break;
-          case 2:
+          case 1:
             rotate_around_mouse_option = RotateAroundMouse_ThumbButtons;
             break;
           }
