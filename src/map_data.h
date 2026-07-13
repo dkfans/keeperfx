@@ -58,7 +58,6 @@ struct Map {
 /******************************************************************************/
 extern struct Map bad_map_block;
 extern MapSubtlCoord map_subtiles_z;
-extern long nav_map_initialised;
 /******************************************************************************/
 /** Convert subtile to slab. */
 #define subtile_slab(stl) ((stl)/STL_PER_SLB)

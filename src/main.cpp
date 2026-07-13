@@ -40,6 +40,7 @@
 #include "net_resync.h"
 #include "bflib_planar.h"
 
+#include "ariadne_update.h"
 #include "api.h"
 #include "custom_sprites.h"
 #include "version.h"

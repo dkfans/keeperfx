@@ -193,7 +193,7 @@ enum TbPacketAction {
         PckA_PlyrQueryCreature,
         PckA_CheatGiveDoorTrap,
         PckA_RoomspaceHighlightToggle,
-        PckA_UnusedSlot157,
+        PckA_ApplyRoomspaceDigTag,
         PckA_CheatWinLevel,
         PckA_CheatLoseLevel,
         PckA_CheatLevelUp,

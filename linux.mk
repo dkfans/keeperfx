@@ -20,6 +20,7 @@ src/ariadne_navitree.c \
 src/ariadne_points.c \
 src/ariadne_regions.c \
 src/ariadne_tringls.c \
+src/ariadne_update.c \
 src/ariadne_wallhug.c \
 src/bflib_basics.c \
 src/bflib_coroutine.c \
