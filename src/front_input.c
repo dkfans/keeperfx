@@ -1375,17 +1375,19 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
 
     static int32_t viewport_grab_x = 0;
     static int32_t viewport_grab_y = 0;
+    static TbBool rotate_pressed_prev = false;
     struct Packet* pckt = get_packet(my_player_number);
     int32_t dx = mouse.dx;
     int32_t dy = mouse.dy;
     const TbBool grab_key_pressed = is_key_pressed(KC_MOUSE3, KMod_DONTCARE); // HACK
     const TbBool rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
-    static TbBool rotate_pressed_prev = false;
+    TbBool init = (! viewport_grab_active) | (rotate_pressed ^ rotate_pressed_prev);
+    rotate_pressed_prev = rotate_pressed;
 
     if (grab_key_pressed)
     {
-        TbBool use_rotate_pos = false;
-        if (! viewport_grab_active)
+        game.small_map_state = 0;
+        if (init)
         {
             dx = dy = 0;
             viewport_grab_x = mouse.x;
@@ -1393,13 +1395,10 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
         }
         if (rotate_pressed)
         {
-            if (!rotate_pressed_prev)
-                use_rotate_pos = true;
             LbMouseSetPosition(viewport_grab_x, viewport_grab_y);
-            game.small_map_state = 2;
+            game.small_map_state = 2; // HACK to make cursor disappear
         }
-        rotate_pressed_prev = rotate_pressed;
-        set_packet_action(pckt, PckA_GrabViewport, dx, dy, units_per_pixel, use_rotate_pos);
+        set_packet_action(pckt, PckA_GrabViewport, dx, dy, units_per_pixel, init);
         viewport_grab_active = true;
         return true;
     }
