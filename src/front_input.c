@@ -1398,13 +1398,13 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
             LbMouseSetPosition(viewport_grab_x, viewport_grab_y);
             game.small_map_state = 2; // HACK to make cursor disappear
         }
-        set_packet_action(pckt, PckA_GrabViewport, dx, dy, units_per_pixel, init);
+        set_packet_action(pckt, PckA_GrabViewport, dx, dy, units_per_pixel_best, init);
         viewport_grab_active = true;
         return true;
     }
     else if (viewport_grab_active)
     {
-        set_packet_action(pckt, PckA_GrabViewport, dx, dy, units_per_pixel, false);
+        set_packet_action(pckt, PckA_GrabViewport, dx, dy, units_per_pixel_best, false);
         viewport_grab_active = false;
         game.small_map_state = 0;
         return true;
