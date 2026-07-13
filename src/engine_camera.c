@@ -647,7 +647,7 @@ void view_grab_rotate_camera(struct Camera *cam, int32_t dx, int32_t dy, int32_t
     }
 
     cam->grab_inertia_rx = +dx * scale / 16;
-    cam->grab_inertia_ry = -dy * scale / 16;
+    cam->grab_inertia_ry = 0; // -dy * scale / 16;
     cam->grab_inertia_x = 0;
     cam->grab_inertia_y = 0;
 
