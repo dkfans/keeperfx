@@ -703,7 +703,7 @@ void view_process_camera_inertia(struct Camera *cam)
     if (! cam->in_active_movement_rotation)
         cam->inertia_rotation /= 2;
 
-    const int grab_friction = 24;
+    const int grab_friction = 32;
     cam->grab_inertia_x  = cam->grab_inertia_x  * (256 - grab_friction) / 256;
     cam->grab_inertia_y  = cam->grab_inertia_y  * (256 - grab_friction) / 256;
     cam->grab_inertia_rx = cam->grab_inertia_rx * (256 - grab_friction) / 256;
