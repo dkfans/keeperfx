@@ -140,7 +140,7 @@ TbError process_login_message(NetUserId source, char *read_pos)
     return Lb_OK;
 }
 
-TbError process_user_update_message(NetUserId source, char *read_pos)
+TbError process_user_update_message(NetUserId source, char *read_pos, const char *end_pos)
 {
     if (source != SERVER_ID) {
         WARNLOG("Unexpected USERUPDATE");
@@ -161,6 +161,9 @@ TbError process_user_update_message(NetUserId source, char *read_pos)
         abort();
     }
     strcpy(user->name, name);
+    if (read_pos + sizeof(user->version) <= end_pos) {
+        memcpy(&user->version, read_pos, sizeof(user->version));
+    }
     UpdateLocalPlayerInfo(user_id);
     return Lb_OK;
 }

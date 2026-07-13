@@ -411,39 +411,35 @@ void frontnet_rewite_net_messages(void)
 static TbBool check_frontend_version_mismatch(void)
 {
   int32_t active_players = 0;
-  struct NetUser* host_user = &netstate.users[SERVER_ID];
+  const struct NetUser *host_user = &netstate.users[SERVER_ID];
   NetUserId remote_id = -1;
+  TbBool start_requested = false;
 
-  if (netstate.my_id != SERVER_ID) {
-    remote_id = my_player_number;
-  }
-  for (int32_t i = 0; i < MAX_NET_USERS; i++) {
+  for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
     if (!network_player_active(i)) {
       continue;
     }
     active_players++;
-    if (remote_id == -1 && i != SERVER_ID
-        && !net_versions_match(&host_user->version, &netstate.users[i].version)) {
+    unsigned char action = screen_packet_action(&net_screen_packet[i]);
+    if (action == NetAct_OpenLandView || action == NetAct_HostStartLevel) {
+      start_requested = true;
+    }
+    if (i != SERVER_ID && !net_versions_match(&host_user->version, &netstate.users[i].version) && (remote_id == -1 || i == my_player_number)) {
       remote_id = i;
     }
   }
-  TbBool player_joined = (active_players > previous_active_players);
+  TbBool player_joined = active_players > previous_active_players;
   previous_active_players = active_players;
-  if (remote_id == -1) {
-    return false;
+  if (remote_id == -1 || (!player_joined && !start_requested)) {
+    return remote_id != -1;
   }
-  struct NetUser* remote_user = &netstate.users[remote_id];
-  if (net_versions_match(&host_user->version, &remote_user->version)) {
-    return false;
-  }
-  if (player_joined) {
-    char text[MESSAGE_TEXT_LEN];
-    snprintf(text, sizeof(text), "%s\n%s: %d.%d.%d.%d\n%s: %d.%d.%d.%d",
-        get_string(GUIStr_VersionMismatch),
-        network_player_name(SERVER_ID), (int)host_user->version.major, (int)host_user->version.minor, (int)host_user->version.release, (int)host_user->version.build,
-        network_player_name(remote_id), (int)remote_user->version.major, (int)remote_user->version.minor, (int)remote_user->version.release, (int)remote_user->version.build);
-    create_frontend_error_box(10000, text);
-  }
+  const struct NetUser *remote_user = &netstate.users[remote_id];
+  char text[MESSAGE_TEXT_LEN];
+  snprintf(text, sizeof(text), "%s\n%s: %d.%d.%d.%d\n%s: %d.%d.%d.%d",
+      get_string(GUIStr_VersionMismatch),
+      network_player_name(SERVER_ID), (int)host_user->version.major, (int)host_user->version.minor, (int)host_user->version.release, (int)host_user->version.build,
+      network_player_name(remote_id), (int)remote_user->version.major, (int)remote_user->version.minor, (int)remote_user->version.release, (int)remote_user->version.build);
+  create_frontend_error_box(10000, text);
   return true;
 }
 
