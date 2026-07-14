@@ -166,6 +166,7 @@ obj/config_spritecolors.o \
 obj/config_sounds.o \
 obj/console_cmd.o \
 obj/custom_sprites.o \
+obj/custom_zip.o \
 obj/creature_battle.o \
 obj/creature_control.o \
 obj/creature_graphics.o \
@@ -672,6 +673,7 @@ deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/op
 src/api.c: deps/centijson/include/json.h
 src/bflib_enet.cpp: deps/enet6/include/enet6/enet.h
 src/custom_sprites.c: deps/zlib/include/zlib.h deps/spng/include/spng.h deps/centijson/include/json.h
+src/custom_zip.c: deps/zlib/include/zlib.h deps/centijson/include/json.h
 src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h

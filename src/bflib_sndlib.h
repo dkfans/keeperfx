@@ -87,6 +87,40 @@ void pause_music(void);
 void resume_music(void);
 void stop_music(TbBool fade_out);
 
+/**
+ * @brief Concurrency policy applied to a unified sound sample ID when it is
+ * triggered by more than one emitter (Thing/UI source) at the same time.
+ *
+ */
+enum SoundStackMode {
+	SStack_Limit = 0, // at most max_instances concurrent instances; extra triggers are dropped
+	SStack_Duck  = 1, // gain of every active instance is scaled down as concurrency rises
+};
+
+/**
+ * @brief Register the stacking policy for a unified sound sample ID.
+ *
+ * If a sample ID has no registered policy, it does NOT use this Limit/Duck struct at all —
+ * it instead falls back to a separate once-per-game-turn gate in play_sample() (see
+ * g_tick_samples_turn in bflib_sndlib.cpp), which reproduces the OG behaviour (at most one
+ * instance of a given sample plays at a time, regardless of how many emitters trigger it).
+ * That legacy gate and this policy table are mutually exclusive per sample ID: registering
+ * an explicit policy here (even {Limit, 1}) opts the sample out of the legacy gate and into
+ * the duration-based concurrency tracking this struct describes instead.
+ *
+ * @param smptbl_id      Unified sample ID (effect, speech, or custom bank).
+ * @param mode           SStack_Limit or SStack_Duck.
+ * @param max_instances  For SStack_Limit: hard cap (clamped to >= 1).
+ *                        For SStack_Duck: 0 means uncapped, >0 also caps concurrency.
+ */
+void sound_register_stack_policy(SoundSmplTblID smptbl_id, unsigned char mode, short max_instances);
+
+/**
+ * @brief Clear all registered stacking policies (samples with no policy revert to the
+ * legacy once-per-turn gate described above).
+ */
+void sound_clear_stack_policies(void);
+
 #ifdef __cplusplus
 }
 #endif
