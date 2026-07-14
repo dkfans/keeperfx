@@ -454,13 +454,10 @@ struct SoundStackPolicy {
 static std::unordered_map<SoundSmplTblID, SoundStackPolicy> g_stack_policies;
 
 // Tick-scoped gate reproducing the pre-Custom-Sounds behaviour exactly: a sample ID with
-// no explicit STACK= policy may only start once per game turn, regardless of which emitter
-// triggers it. Keyed by the gameturn each sample was last triggered on (compared against
-// get_gameturn()) rather than a set cleared by MonitorStreamedSoundTrack() — that avoids any
-// dependency on exactly when/how often that function runs relative to whatever gameplay code
-// triggers sounds within the same turn (UI/input-driven sounds in particular may not run on
-// the same cadence as the main per-turn simulation update).
-static std::unordered_map<SoundSmplTblID, GameTurn> g_tick_samples_turn;
+// no explicit STACK= policy may only start once per "tick", regardless of which emitter
+// triggers it.
+static unsigned long g_audio_tick_counter = 0; // tick != turn; ticks continue while navigating the frontend/main menu
+static std::unordered_map<SoundSmplTblID, unsigned long> g_tick_samples_last_tick;
 
 static SoundStackPolicy get_stack_policy(SoundSmplTblID smptbl_id) {
 	const auto it = g_stack_policies.find(smptbl_id);
@@ -599,7 +596,7 @@ extern "C" void FreeAudio() {
 	g_custom_bank.clear();  // Clear custom sounds when cleaning up audio
 	g_id_redirects.clear(); // Clear raw-ID redirects alongside custom bank
 	g_stack_policies.clear(); // Clear stacking policies alongside custom bank
-	g_tick_samples_turn.clear(); // Clear per-turn stacking gate alongside custom bank
+	g_tick_samples_last_tick.clear(); // Clear per-tick stacking gate alongside custom bank
 	SYNCDBG(7, "Cleared OpenAL sources and sound banks");
 
 	// Now destroy OpenAL context and device (unique_ptr handles proper cleanup)
@@ -612,7 +609,7 @@ extern "C" void custom_sound_bank_clear() {
 	g_custom_bank.clear();
 	g_id_redirects.clear();
 	g_stack_policies.clear();
-	g_tick_samples_turn.clear();
+	g_tick_samples_last_tick.clear();
 }
 
 extern "C" void sound_register_id_redirect(SoundSmplTblID from_id, SoundSmplTblID to_id) {
@@ -827,8 +824,10 @@ extern "C" TbBool GetSoundInstalled() {
 	return g_openal_device && g_openal_context;
 }
 
-// This function gets called every tick
+// This function gets called every tick, both during active gameplay and while navigating
+// the frontend/main menu, this should probably be buffer based and not tick based..
 extern "C" void MonitorStreamedSoundTrack() {
+	++g_audio_tick_counter;
 	for (auto & source : g_sources) {
 		try {
 			if (source.emit_id > 0 && !source.is_playing()) {
@@ -1044,13 +1043,12 @@ extern "C" SoundMilesID play_sample(
 		// allocating a genuinely new voice, not on the same-emitter restart-in-place above.
 		if (!has_explicit_stack_policy) {
 			// No explicit STACK= policy: reproduce the OG behaviour exactly — this sample may
-			// only start once per game turn, regardless of which emitter triggers it.
-			const GameTurn now = get_gameturn();
-			const auto turn_it = g_tick_samples_turn.find(smptbl_id);
-			if (turn_it != g_tick_samples_turn.end() && turn_it->second == now) {
-				return 0; // dropped: already triggered this turn
+			// only start once per tick, regardless of which emitter triggers it.
+			const auto tick_it = g_tick_samples_last_tick.find(smptbl_id);
+			if (tick_it != g_tick_samples_last_tick.end() && tick_it->second == g_audio_tick_counter) {
+				return 0; // dropped: already triggered this tick
 			}
-			g_tick_samples_turn[smptbl_id] = now;
+			g_tick_samples_last_tick[smptbl_id] = g_audio_tick_counter;
 		} else {
 			if (stack_policy.max_instances > 0) {
 				int active_count = 0;

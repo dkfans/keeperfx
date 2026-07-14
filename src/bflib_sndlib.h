@@ -101,9 +101,13 @@ enum SoundStackMode {
  * @brief Register the stacking policy for a unified sound sample ID.
  *
  * If a sample ID has no registered policy, it does NOT use this Limit/Duck struct at all —
- * it instead falls back to a separate once-per-game-turn gate in play_sample() (see
- * g_tick_samples_turn in bflib_sndlib.cpp), which reproduces the OG behaviour (at most one
- * instance of a given sample plays at a time, regardless of how many emitters trigger it).
+ * it instead falls back to a separate once-per-tick gate in play_sample() (see
+ * g_tick_samples_last_tick in bflib_sndlib.cpp), which reproduces the OG behaviour (at most
+ * one instance of a given sample plays at a time, regardless of how many emitters trigger
+ * it). The gate is keyed by an internal tick counter advanced in MonitorStreamedSoundTrack()
+ * rather than the in-game turn counter, so it still works correctly for UI/menu sounds
+ * triggered outside active gameplay (e.g. the frontend/main menu), where the game turn
+ * counter never advances.
  * That legacy gate and this policy table are mutually exclusive per sample ID: registering
  * an explicit policy here (even {Limit, 1}) opts the sample out of the legacy gate and into
  * the duration-based concurrency tracking this struct describes instead.
