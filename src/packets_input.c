@@ -279,7 +279,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     TbBool at_limit = false;
-    TbBool thing_target_action = (pckt->action == PckA_UsePwrHandPick) || (pckt->action == PckA_UsePwrOnThing);
+    TbBool apply_roomspace_tag = pckt->action == PckA_ApplyRoomspaceDigTag;
+    TbBool thing_target_action = apply_roomspace_tag || (pckt->action == PckA_UsePwrHandPick) || (pckt->action == PckA_UsePwrOnThing);
     unsigned char box_colour;
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
         player->secondary_cursor_state = CSt_DefaultArrow;
@@ -294,8 +295,17 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
             player->thing_under_hand = 0;
             get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, pckt, stl_x, stl_y, NULL);
+            if (apply_roomspace_tag) {
+                player->render_roomspace.untag_mode = pckt->actn_par4;
+                player->render_roomspace = check_roomspace_for_diggable_slabs(player->render_roomspace, plyr_idx, NULL);
+            }
             box_colour = tag_cursor_blocks_dig(player, pckt, &player->render_roomspace, stl_x, stl_y, player->full_slab_cursor);
             at_limit = (box_colour == SLC_REDYELLOW) || (box_colour == SLC_REDFLASH);
+            if (apply_roomspace_tag) {
+                MapSlabCoord previous_slb_x = (uint16_t)pckt->actn_par3 & 0xFF;
+                MapSlabCoord previous_slb_y = (uint16_t)pckt->actn_par3 >> 8;
+                apply_roomspace_dig_tag_selection(plyr_idx, &player->render_roomspace, previous_slb_x, previous_slb_y, player->roomspace_highlight_mode, NULL, NULL, NULL, NULL);
+            }
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {
@@ -371,7 +381,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
                 if (player->primary_cursor_state == player->secondary_cursor_state)
                 {
-                    if ( (player->secondary_cursor_state == CSt_PickAxe) || ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0)) )
+                    if (!apply_roomspace_tag && ((player->secondary_cursor_state == CSt_PickAxe) || ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))))
                     {
                         keeper_highlight_roomspace(plyr_idx, &player->render_roomspace);
                     }
@@ -513,7 +523,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 }
             } else
             {
-                if (player->primary_cursor_state == CSt_PowerHand && (!player->one_click_lock_cursor)) {
+                if (!thing_target_action && (player->primary_cursor_state == CSt_PowerHand) && (!player->one_click_lock_cursor)) {
                     thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
                     if(!thing_is_invalid(thing))
                         magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);

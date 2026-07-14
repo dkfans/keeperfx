@@ -279,7 +279,7 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
     case NETMSG_LOGIN:
         return process_login_message(source, read_pos);
     case NETMSG_USERUPDATE:
-        return process_user_update_message(source, read_pos);
+        return process_user_update_message(source, read_pos, netstate.msg_buffer + message_size);
     case NETMSG_FRONTEND:
     case NETMSG_STARTUP_SYNC:
     case NETMSG_GAMEPLAY_UNSEQUENCED:

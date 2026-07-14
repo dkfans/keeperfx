@@ -223,12 +223,6 @@ struct CreatureControl {
         int32_t look_for_enemy_dungeon_turn;
         int32_t wait_time;
       } hero;
-      struct {
-        char unusedparam;
-        unsigned char unused;
-        TbBool navigation_map_changed;
-        TbBool unusedparam2;
-      } regular_creature;
   };
   struct {
       unsigned char objective;

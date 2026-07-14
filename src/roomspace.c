@@ -1052,10 +1052,10 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
     }
 }
 
-int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, unsigned char *predicted_slab_tag_modes, int *predicted_task_count)
+int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, unsigned char *predicted_slab_tag_modes, SlabCodedCoords *predicted_slabs, int *predicted_slab_count, int *predicted_task_count)
 {
     int dig_change_count = 0;
-    if ((predicted_slab_tag_modes == NULL) != (predicted_task_count == NULL)) {
+    if ((predicted_slab_tag_modes == NULL) != (predicted_slabs == NULL) || (predicted_slabs == NULL) != (predicted_slab_count == NULL) || (predicted_slab_count == NULL) != (predicted_task_count == NULL)) {
         ERRORLOG("Prediction slab tag modes and task count must be supplied together");
         return dig_change_count;
     }
@@ -1089,6 +1089,9 @@ int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *r
                             return dig_change_count;
                         }
                         int32_t slb_num = get_slab_number(path_slb_x, path_slb_y);
+                        if (predicted_slab_tag_modes[slb_num] == 0) {
+                            predicted_slabs[(*predicted_slab_count)++] = slb_num;
+                        }
                         predicted_slab_tag_modes[slb_num] = dig_tag_mode;
                         dig_change_count++;
                         if (dig_tag_mode == DigTagMode_Tag) {
@@ -1136,7 +1139,7 @@ int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *r
 void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    int dig_change_count = apply_roomspace_dig_tag_selection(plyr_idx, roomspace, player->previous_cursor_subtile_x / STL_PER_SLB, player->previous_cursor_subtile_y / STL_PER_SLB, player->roomspace_highlight_mode, NULL, NULL);
+    int dig_change_count = apply_roomspace_dig_tag_selection(plyr_idx, roomspace, player->previous_cursor_subtile_x / STL_PER_SLB, player->previous_cursor_subtile_y / STL_PER_SLB, player->roomspace_highlight_mode, NULL, NULL, NULL, NULL);
     if (is_my_player(player))
     {
         if ((dig_change_count > 0) && !local_dig_prediction_is_enabled()) {
