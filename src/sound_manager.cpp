@@ -703,9 +703,14 @@ static bool resolve_sounds_cfg_sound_path(const char* path_in, char* out_path, s
     return false;
 }
 
-static bool resolve_sounds_cfg_sound_in_zip(const char* path_in, unsigned char** out_data, size_t* out_size)
+// Look for the path in the zip, assumes mappers know that the sound/ folder is where they should be putting files
+// Anything after that will work, but sound/ is a mandatory root.
+static bool resolve_sound_path_in_map_zip(const char* path_in, unsigned char** out_data, size_t* out_size)
 {
     static const char* exts[] = { "", ".wav", ".mp3", ".ogg", ".flac", NULL };
+    if (strncasecmp(path_in, "sound/", 6) == 0) {
+        path_in += 6;
+    }
     const char* dot   = strrchr(path_in, '.');
     const char* slash = strrchr(path_in, '/');
     bool has_ext = (dot != NULL) && (slash == NULL || dot > slash);
@@ -714,7 +719,7 @@ static bool resolve_sounds_cfg_sound_in_zip(const char* path_in, unsigned char**
         if (has_ext && ei > 0) break;
         if (!has_ext && ei == 0) continue;
         char candidate[2048];
-        snprintf(candidate, sizeof(candidate), "%s%s", path_in, exts[ei]);
+        snprintf(candidate, sizeof(candidate), "sound/%s%s", path_in, exts[ei]);
         if (read_map_zip_entry(game.last_level, candidate, out_data, out_size)) {
             return true;
         }
@@ -732,8 +737,27 @@ static SoundSmplTblID load_named_sound_fs_or_zip(KeeperFX::SoundManager& sm, con
     }
     unsigned char* data = nullptr;
     size_t size = 0;
-    if (resolve_sounds_cfg_sound_in_zip(path_in, &data, &size)) {
+    if (resolve_sound_path_in_map_zip(path_in, &data, &size)) {
         SoundSmplTblID id = sm.loadCustomSoundFromMemory(name, data, size);
+        free(data);
+        return id;
+    }
+    return 0;
+}
+
+// Load a sound named in a creature cfg's [sounds] block under `sound_name`, trying the
+// filesystem first (via resolve_creature_sound_path()) and then the current level's map
+// zip. Returns the assigned sample ID, or <= 0 on failure.
+static SoundSmplTblID load_creature_sound_fs_or_zip(KeeperFX::SoundManager& sm, const char* sound_name, const char* path_in)
+{
+    char full_path[2048];
+    if (resolve_creature_sound_path(path_in, full_path, sizeof(full_path))) {
+        return sm.loadCustomSound(sound_name, full_path);
+    }
+    unsigned char* data = nullptr;
+    size_t size = 0;
+    if (resolve_sound_path_in_map_zip(path_in, &data, &size)) {
+        SoundSmplTblID id = sm.loadCustomSoundFromMemory(sound_name, data, size);
         free(data);
         return id;
     }
@@ -831,23 +855,17 @@ int load_creature_custom_sound(long crtr_model, const char* sound_type, const ch
     
     // Get creature name
     const char* creature_name = creature_code_name((ThingModel)crtr_model);
-    
-    // Resolve full path - search FGrp_CmpgCrtrs then FGrp_CmpgMedia; probe extensions if none given
-    char full_wav_path[2048];
-    if (!resolve_creature_sound_path(wav_path, full_wav_path, sizeof(full_wav_path))) {
-        WARNLOG("Custom sound not found: %s (for %s.%s)", wav_path, creature_name, sound_type);
-        return 0;
-    }
-    
+
     // Generate unique name for this custom sound
     char sound_name[256];
     snprintf(sound_name, sizeof(sound_name), "%s_%s_custom", creature_name, sound_type);
-    
-    // Load the custom sound with resolved path
-    SoundSmplTblID bank_index = sm.loadCustomSound(sound_name, full_wav_path);
-    
-    if (bank_index < 0) {
-        WARNLOG("Failed to load custom sound from %s", full_wav_path);
+
+    // Resolve and load - filesystem first (FGrp_CmpgCrtrs, FGrp_CmpgMedia, etc.), then the
+    // current level's map zip if not found on disk.
+    SoundSmplTblID bank_index = load_creature_sound_fs_or_zip(sm, sound_name, wav_path);
+
+    if (bank_index <= 0) {
+        WARNLOG("Custom sound not found on disk or in map zip: %s (for %s.%s)", wav_path, creature_name, sound_type);
         return 0;
     }
     
@@ -884,25 +902,19 @@ int load_creature_custom_sounds(long crtr_model, const char* sound_type, const c
     
     // Load each WAV file
     for (int i = 0; i < count; i++) {
-        // Resolve full path - search FGrp_CmpgCrtrs then FGrp_CmpgMedia; probe extensions if none given
-        char full_wav_path[2048];
-        if (!resolve_creature_sound_path(wav_paths[i], full_wav_path, sizeof(full_wav_path))) {
-            SYNCDBG(5, "Custom sound %d not found: %s (for %s.%s)", i, wav_paths[i], creature_name, sound_type);
-            continue;
-        }
-
         // Generate unique name
         char sound_name[256];
         snprintf(sound_name, sizeof(sound_name), "%s_%s_custom_%d", creature_name, sound_type, i);
-        
-        // Load the sound
-        SoundSmplTblID bank_index = sm.loadCustomSound(sound_name, full_wav_path);
-        
-        if (bank_index < 0) {
-            WARNLOG("Failed to load custom sound %d from %s", i, full_wav_path);
+
+        // Resolve and load - filesystem first (FGrp_CmpgCrtrs, FGrp_CmpgMedia, etc.), then the
+        // current level's map zip if not found on disk.
+        SoundSmplTblID bank_index = load_creature_sound_fs_or_zip(sm, sound_name, wav_paths[i]);
+
+        if (bank_index <= 0) {
+            SYNCDBG(5, "Custom sound %d not found on disk or in map zip: %s (for %s.%s)", i, wav_paths[i], creature_name, sound_type);
             continue;
         }
-        SYNCDBG(6, "  Loaded sound[%d] bank_index=%d from '%s'", i, (int)bank_index, full_wav_path);
+        SYNCDBG(6, "  Loaded sound[%d] bank_index=%d from '%s'", i, (int)bank_index, wav_paths[i]);
         
         if (start_index < 0) {
             start_index = bank_index;  // Remember first index

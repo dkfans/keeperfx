@@ -20,6 +20,7 @@
 #include <memory>
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <algorithm>
 #include <utility>
@@ -262,7 +263,7 @@ struct WAVEFORMATEX {
 
 class wave_file {
 public:
-	wave_file(std::ifstream & stream) {
+	wave_file(std::istream & stream) {
 		riff_chunk_t riff_header;
 		stream.read(reinterpret_cast<char *>(&riff_header), sizeof(riff_header));
 		if (riff_header.tag != make_fourcc("RIFF")) {
@@ -1254,10 +1255,15 @@ static TbBool decode_mp3_and_store(const char* filepath, int sample_id,
 // Decode an in-memory WAV/OGG/FLAC/MP3/BMU buffer and append it to g_custom_bank as a
 // signed-16-bit OpenAL buffer. Shared by the disk-file and in-memory (e.g. zip-sourced)
 // loading entry points below.
-//   - WAV / OGG / FLAC : Mix_LoadWAV_RW (SDL_mixer; OGG and FLAC require MIX_INIT_OGG/MIX_INIT_FLAC)
-//   - Plain MP3        : dr_mp3 single-header decoder (compiled in, no external DLLs)
-//   - BMU V1.0         : 8-byte wrapper used by some campaigns; contains a plain MP3
-//                        stream after the header — stripped and decoded via dr_mp3.
+//   - Plain WAV/RIFF : wave_file (same in-process header parser the base sound.dat bank
+//                       uses) — preserves the source's own channel count/format exactly.
+//   - OGG / FLAC     : Mix_LoadWAV_RW (SDL_mixer; require MIX_INIT_OGG/MIX_INIT_FLAC).
+//                       Converts to the mixer device's opened channel count/rate, so a
+//                       mono OGG/FLAC source is force-upmixed to stereo — see the caveat
+//                       comment below.
+//   - Plain MP3      : dr_mp3 single-header decoder (compiled in, no external DLLs)
+//   - BMU V1.0       : 8-byte wrapper used by some campaigns; contains a plain MP3
+//                       stream after the header — stripped and decoded via dr_mp3.
 static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample_id,
 	const uint8_t* data, size_t size)
 {
@@ -1277,7 +1283,24 @@ static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample
 		return decode_mp3_and_store(logical_name, sample_id, data, size);
 	}
 
-	// --- WAV / OGG / FLAC path: Mix_LoadWAV_RW (SDL_mixer decodes all three) ---
+	// --- Plain WAV/RIFF path: parse with wave_file, same as the base sound.dat bank uses.
+	// This preserves the file's own channel count (mono stays mono). Otherwise this'll go to 
+    // SDL's Mix_LoadWAV_RW path below, which converts to the mixer's output format (44100 Hz / Sint16 / stereo)
+    // and blow your ears off if the source is mono. 
+	if (size >= 12 && memcmp(data, "RIFF", 4) == 0 && memcmp(data + 8, "WAVE", 4) == 0) {
+		try {
+			std::string buf(reinterpret_cast<const char*>(data), size);
+			std::istringstream stream(buf, std::ios::binary);
+			g_custom_bank.emplace_back(logical_name, sample_id, wave_file(stream));
+			return true;
+		} catch (const std::exception & e) {
+			ERRORLOG("Cannot parse WAV audio %s: %s", logical_name, e.what());
+			return false;
+		}
+	}
+
+	// --- OGG / FLAC path: Mix_LoadWAV_RW (SDL_mixer decodes both, todo : clean up this so mono sources stay mono accross the board,
+    // this code is becoming sphagetto) ---
 	SDL_RWops* rw = SDL_RWFromConstMem(data, (int)size);
 	if (!rw) {
 		ERRORLOG("Cannot create RWops for %s: %s", logical_name, SDL_GetError());

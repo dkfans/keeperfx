@@ -293,41 +293,38 @@ static std::string resolve_speech_path(const char* path, const char* lang,
 		} catch (...) {}
 	}
 
-	// Step 5: current level's map zip bundle, same lang -> eng -> base only ever looks for the
-	// exact entry name(s) sounds.cfg's [speech] section already asked for.
-	if (lang != nullptr && lang[0] != '\0') {
-		char lang_path[512];
-		if (slash != nullptr) {
-			snprintf(lang_path, sizeof(lang_path), "%.*s/%s/%s",
-				(int)(slash - path), path, lang, slash + 1);
-		} else {
-			snprintf(lang_path, sizeof(lang_path), "%s/%s", lang, path);
-		}
-		std::string extracted = extract_zip_speech_to_temp(game.last_level, lang_path);
-		if (!extracted.empty()) {
-			result = SpeechResolveResult::ZipBundled;
-			return extracted;
-		}
-	}
-	if (lang == nullptr || strcmp(lang, "eng") != 0) {
-		char eng_path[512];
-		if (slash != nullptr) {
-			snprintf(eng_path, sizeof(eng_path), "%.*s/eng/%s",
-				(int)(slash - path), path, slash + 1);
-		} else {
-			snprintf(eng_path, sizeof(eng_path), "eng/%s", path);
-		}
-		std::string extracted = extract_zip_speech_to_temp(game.last_level, eng_path);
-		if (!extracted.empty()) {
-			result = SpeechResolveResult::ZipBundled;
-			return extracted;
-		}
-	}
+	// Step 5: current level's map zip bundle.
+    // speech/<lang>/file.ogg
+    // speech/eng/file.ogg etc. (same fallback order as above)
 	{
-		std::string extracted = extract_zip_speech_to_temp(game.last_level, path);
-		if (!extracted.empty()) {
-			result = SpeechResolveResult::ZipBundled;
-			return extracted;
+		const char* zip_filename = (slash != nullptr) ? (slash + 1) : path;
+
+		if (lang != nullptr && lang[0] != '\0') {
+			char lang_path[512];
+			snprintf(lang_path, sizeof(lang_path), "speech/%s/%s", lang, zip_filename);
+			std::string extracted = extract_zip_speech_to_temp(game.last_level, lang_path);
+			if (!extracted.empty()) {
+				result = SpeechResolveResult::ZipBundled;
+				return extracted;
+			}
+		}
+		if (lang == nullptr || strcmp(lang, "eng") != 0) {
+			char eng_path[512];
+			snprintf(eng_path, sizeof(eng_path), "speech/eng/%s", zip_filename);
+			std::string extracted = extract_zip_speech_to_temp(game.last_level, eng_path);
+			if (!extracted.empty()) {
+				result = SpeechResolveResult::ZipBundled;
+				return extracted;
+			}
+		}
+		{
+			char base_path[512];
+			snprintf(base_path, sizeof(base_path), "speech/%s", zip_filename);
+			std::string extracted = extract_zip_speech_to_temp(game.last_level, base_path);
+			if (!extracted.empty()) {
+				result = SpeechResolveResult::ZipBundled;
+				return extracted;
+			}
 		}
 	}
 

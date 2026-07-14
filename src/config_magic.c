@@ -758,7 +758,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           {
               k = atoi(word_buf);
               if (k == 0 && word_buf[0] != '0')
-                  k = (int)get_sound_id(word_buf);
+                  k = sound_id_from_text(word_buf);
               spconf->caster_affect_sound = k;
               n++;
           }
