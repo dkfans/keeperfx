@@ -30,10 +30,10 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-// 1500 is good enough about 90% of the time, to have stable readings of ping and ping variance
-#define WAIT_FOR_STABLE_PLAYER 1500
+// WAIT_FOR_STABLE_PLAYER waits until we have stable ping readings after any player leaves/joins.
+#define WAIT_FOR_STABLE_PLAYER 3000
 #define AVERAGE_PING_UPDATE_RATE 500
-#define FRONTNET_PING_STABILIZATION_DELAY_MS 3000
+#define FRONTNET_PING_STABILIZATION_DELAY_MS 8000
 #define NET_SERVICE_LEN 64
 
 enum FrontendNetService {

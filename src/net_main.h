@@ -121,6 +121,7 @@ struct NetState {
     char msg_buffer[NET_MSG_BUFFER_SIZE];
     char msg_buffer_null;
     TbBool locked;
+    TbClockMSec frontend_start_pending_end_time;
 };
 
 struct TbNetworkPlayerInfo {
