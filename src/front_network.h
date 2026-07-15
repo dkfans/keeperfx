@@ -33,7 +33,7 @@ extern "C" {
 // WAIT_FOR_STABLE_PLAYER waits until we have stable ping readings after any player leaves/joins.
 #define WAIT_FOR_STABLE_PLAYER 3000
 #define AVERAGE_PING_UPDATE_RATE 500
-#define FRONTNET_PING_STABILIZATION_DELAY_MS 10000
+#define FRONTNET_PING_STABILIZATION_DELAY_MS 8000
 #define NET_SERVICE_LEN 64
 
 enum FrontendNetService {
