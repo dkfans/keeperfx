@@ -75,8 +75,8 @@ struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
 char tmp_net_player_name[24];
-static TbClockMSec frontnet_ping_stabilization_end_time = 0;
-static int previous_player_count_for_ping_wait = -1;
+static TbClockMSec frontnet_ping_stabilization_end_time;
+static int32_t previous_player_count_for_ping_wait = -1;
 static TbBool attempting_to_join_cancelled = false;
 static int32_t previous_active_players = 0;
 /******************************************************************************/
@@ -490,7 +490,7 @@ static void process_frontend_packets(void)
             }
             break;
         case NetAct_OpenLandView:
-            if (version_mismatch_found) {
+            if (i != SERVER_ID || version_mismatch_found) {
                 break;
             }
             fe_network_active = 1;
@@ -527,23 +527,27 @@ static void process_frontend_packets(void)
 
 TbBool frontnet_is_waiting_for_ping_stabilization(void)
 {
-    TbClockMSec now;
-    if (net_number_of_enum_players != previous_player_count_for_ping_wait) {
-        frontnet_ping_stabilization_end_time = LbTimerClock() + FRONTNET_PING_STABILIZATION_DELAY_MS;
-        previous_player_count_for_ping_wait = net_number_of_enum_players;
+    int32_t player_count = 0;
+    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+        if (IsUserActive(id)) {
+            player_count += 1;
+        }
     }
-    if (net_number_of_enum_players < 2) {
+    if (player_count != previous_player_count_for_ping_wait) {
+        frontnet_ping_stabilization_end_time = LbTimerClock() + FRONTNET_PING_STABILIZATION_DELAY_MS;
+        previous_player_count_for_ping_wait = player_count;
+    }
+    if (player_count < 2) {
         return true;
     }
     if (frontnet_ping_stabilization_end_time == 0) {
         return false;
     }
-    now = LbTimerClock();
-    if (now >= frontnet_ping_stabilization_end_time) {
-        frontnet_ping_stabilization_end_time = 0;
-        return false;
+    if (LbTimerClock() < frontnet_ping_stabilization_end_time) {
+        return true;
     }
-    return true;
+    frontnet_ping_stabilization_end_time = 0;
+    return false;
 }
 
 void frontnet_reset_ping_stabilization(void)
@@ -551,7 +555,6 @@ void frontnet_reset_ping_stabilization(void)
     frontnet_ping_stabilization_end_time = 0;
     previous_player_count_for_ping_wait = -1;
 }
-
 
 void frontnet_send_campaign_change_message(const char* campaign_fname)
 {
