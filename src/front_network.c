@@ -113,7 +113,13 @@ static TbBool try_starting_level_from_chat(const char *message, int32_t player_i
     }
     char campaign_filename[80];
     snprintf(campaign_filename, sizeof(campaign_filename), "%.*s", campaign_len, message);
-    return frontnet_start_level(campaign_filename, level_num);
+    if (!frontnet_start_level(campaign_filename, level_num)) {
+        return false;
+    }
+    if (level_num > SINGLEPLAYER_NOTSTARTED) {
+        add_message(player_id, "Waiting before loading...");
+    }
+    return true;
 }
 
 TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
@@ -132,6 +138,7 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
         return false;
     }
     if (lvnum <= 0) {
+        set_selected_level_number(SINGLEPLAYER_NOTSTARTED);
         return true;
     }
     if (get_level_info(lvnum) == NULL) {
@@ -139,8 +146,6 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
         return false;
     }
     set_selected_level_number(lvnum);
-    fe_network_active = 1;
-    frontend_set_state(FeSt_START_MPLEVEL);
     return true;
 }
 
@@ -571,43 +576,40 @@ void frontnet_send_campaign_change_message(const char* campaign_fname)
 
     char msg[64];
     snprintf(msg, sizeof(msg), "%s:_", base_name);
+    set_selected_level_number(SINGLEPLAYER_NOTSTARTED);
     send_network_chat_message(my_player_number, msg);
 }
 
 void handle_autostart_multiplayer_messaging(void)
 {
-    static TbBool send_pending = false;
     static int previous_enum_players = 0;
     TbBool player_joined = (net_number_of_enum_players > previous_enum_players);
     previous_enum_players = net_number_of_enum_players;
 
     if (net_number_of_enum_players < 2) {
-        send_pending = false;
         return;
     }
 
     if (player_joined && my_player_number == get_host_player_id()) {
         frontnet_send_campaign_change_message(campaign.fname);
     }
-
-    if (!send_pending && my_player_number == get_host_player_id() &&
-        (autostart_multiplayer_campaign[0] != '\0' || autostart_multiplayer_level > 0)) {
-        send_pending = true;
+    if (my_player_number != get_host_player_id() || get_selected_level_number() > SINGLEPLAYER_NOTSTARTED) {
+        return;
     }
-    if (send_pending && !frontnet_is_waiting_for_ping_stabilization()) {
-        struct PlayerInfo *player = get_my_player();
-        const char* camp = "keeporig";
-        int level = 1;
-        if (autostart_multiplayer_campaign[0]) {
-            camp = autostart_multiplayer_campaign;
-        }
-        if (autostart_multiplayer_level > 0) {
-            level = autostart_multiplayer_level;
-        }
-        snprintf(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, "%s:%d", camp, level);
-        lbInkey = KC_RETURN;
-        send_pending = false;
+    if (autostart_multiplayer_campaign[0] == '\0' && autostart_multiplayer_level <= 0) {
+        return;
     }
+    struct PlayerInfo *player = get_my_player();
+    const char* camp = "keeporig";
+    int level = 1;
+    if (autostart_multiplayer_campaign[0]) {
+        camp = autostart_multiplayer_campaign;
+    }
+    if (autostart_multiplayer_level > 0) {
+        level = autostart_multiplayer_level;
+    }
+    snprintf(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, "%s:%d", camp, level);
+    lbInkey = KC_RETURN;
 }
 
 void frontnet_start_update(void)
@@ -641,6 +643,10 @@ void frontnet_start_update(void)
     frontnet_rewite_net_messages();
 
     LbNetwork_UpdateInputLagIfHost();
+    if (get_selected_level_number() > SINGLEPLAYER_NOTSTARTED && !frontnet_is_waiting_for_ping_stabilization()) {
+        fe_network_active = 1;
+        frontend_set_state(FeSt_START_MPLEVEL);
+    }
     if (frontnet_service_selected(FrontendNetSvc_LAN)) {
         lan_host_update();
     }
@@ -741,6 +747,7 @@ void frontnet_session_setup(void)
 void frontnet_start_setup(void)
 {
     frontnet_reset_ping_stabilization();
+    set_selected_level_number(SINGLEPLAYER_NOTSTARTED);
     previous_active_players = 0;
     memset(net_screen_packet, 0, sizeof(net_screen_packet));
     frontend_alliances = -1;
