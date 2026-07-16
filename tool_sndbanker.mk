@@ -42,7 +42,7 @@ $(WAVTODAT): tools/sndbanker/pkg/$(SNDBANKER_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	$(MKDIR) "$(@D)"
 	cd "$(@D)"; \
-	tar -zxmUf "../../../$<"
+	tar -zxmf "../../../$<"
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
