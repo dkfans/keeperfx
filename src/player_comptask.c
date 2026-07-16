@@ -1164,7 +1164,8 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         if (ctask->dig.room.spiral.steps_remaining_before_turn > 0)
         {
-            if (slab_has_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))) {
+            if (player_can_sell_trap_on_slab(dungeon->owner,subtile_slab(stl_x), subtile_slab(stl_y)))
+            {
                 try_game_action(comp, dungeon->owner, GA_SellTrap, 0, stl_x, stl_y, 1, 0);
             }
             if (can_build_room_at_slab(dungeon->owner, rkind, subtile_slab(stl_x), subtile_slab(stl_y)))
