@@ -416,17 +416,15 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
 
     if (pckt->action == PckA_GrabViewport)
     {
-        const TbBool use_rotate_pos = pckt->actn_par4 != 0;
-        const MapCoord rot_x = use_rotate_pos ? pckt->pos_x : -1;
-        const MapCoord rot_y = use_rotate_pos ? pckt->pos_y : -1;
         const int32_t dx = pckt->actn_par1;
         const int32_t dy = pckt->actn_par2;
-        const int32_t scale = pckt->actn_par3;
+        const int32_t dr = (int16_t)pckt->actn_par3;
+        const int32_t scale = pckt->actn_par4;
         const TbBool rotate = flag_is_set(pckt->additional_packet_values, PCAdV_RotatePressed);
 
         if (rotate)
         {
-            view_grab_rotate_camera(cam, dx, dy, rot_x, rot_y, scale);
+            view_grab_rotate_camera(cam, dr);
         }
         else
         {

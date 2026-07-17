@@ -124,7 +124,7 @@ void view_set_camera_rotation_inertia(struct Camera *cam, int32_t delta, int32_t
 void view_set_camera_rotation_inertia_around(struct Camera *cam, int32_t delta, int32_t ilimit, MapCoord x, MapCoord y);
 void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
 void view_grab_move_camera(struct Camera *cam, int32_t dx, int32_t dy, int32_t scale);
-void view_grab_rotate_camera(struct Camera *cam, int32_t dx, int32_t dy, int32_t x, int32_t y, int32_t scale);
+void view_grab_rotate_camera(struct Camera *cam, int32_t dr);
 void view_process_camera_inertia(struct Camera *cam);
 
 void update_all_players_cameras(void);

@@ -1373,40 +1373,33 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
       }
     }
 
-    static int32_t viewport_grab_x = 0;
-    static int32_t viewport_grab_y = 0;
     static TbBool rotate_pressed_prev = false;
-    struct Packet* pckt = get_packet(my_player_number);
-    int32_t dx = mouse.dx;
-    int32_t dy = mouse.dy;
     const TbBool grab_key_pressed = is_key_pressed(KC_MOUSE3, KMod_DONTCARE); // HACK
     const TbBool rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
-    TbBool init = (! viewport_grab_active) | (rotate_pressed ^ rotate_pressed_prev);
+    const TbBool init = (! viewport_grab_active) | (rotate_pressed ^ rotate_pressed_prev);
+    const TbBool set_action = grab_key_pressed | viewport_grab_active;
     rotate_pressed_prev = rotate_pressed;
+    viewport_grab_active = grab_key_pressed;
 
-    if (grab_key_pressed)
+    if (set_action)
     {
-        game.small_map_state = 0;
+        struct Packet *pckt = get_packet(my_player_number);
+        const struct Camera *cam = get_local_camera(get_player_active_camera(player));
+        const int32_t sin_y = LbSinL(cam->rotation_angle_y) ?: -1;
+        const int32_t center_x = player->engine_window_x + (player->engine_window_width >> 1);
+        const int32_t center_y = player->engine_window_y + (player->engine_window_height >> 1);
+        const int32_t rx1 = mouse.x - center_x;
+        const int32_t ry1 = mouse.y - center_y;
+        const int32_t rx0 = rx1 - mouse.dx;
+        const int32_t ry0 = ry1 - mouse.dy;
+        const int32_t a0 = LbArcTanAngle(rx0, (ry0 << 16) / -sin_y);
+        const int32_t a1 = LbArcTanAngle(rx1, (ry1 << 16) / -sin_y);
+        int32_t dx = mouse.dx;
+        int32_t dy = mouse.dy;
+        int32_t dr = (a0 - a1) << (32 - 11) >> (32 - 11);
         if (init)
-        {
-            dx = dy = 0;
-            viewport_grab_x = mouse.x;
-            viewport_grab_y = mouse.y;
-        }
-        if (rotate_pressed)
-        {
-            LbMouseSetPosition(viewport_grab_x, viewport_grab_y);
-            game.small_map_state = 2; // HACK to make cursor disappear
-        }
-        set_packet_action(pckt, PckA_GrabViewport, dx, dy, units_per_pixel_best, init);
-        viewport_grab_active = true;
-        return true;
-    }
-    else if (viewport_grab_active)
-    {
-        set_packet_action(pckt, PckA_GrabViewport, dx, dy, units_per_pixel_best, false);
-        viewport_grab_active = false;
-        game.small_map_state = 0;
+            dx = dy = dr = 0;
+        set_packet_action(pckt, PckA_GrabViewport, dx, dy, dr, units_per_pixel_best);
         return true;
     }
 

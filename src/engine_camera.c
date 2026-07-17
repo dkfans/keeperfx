@@ -637,7 +637,7 @@ void view_grab_move_camera(struct Camera *cam, int32_t dx, int32_t dy, int32_t s
     cam->grab_inertia_ry = 0;
 }
 
-void view_grab_rotate_camera(struct Camera *cam, int32_t dx, int32_t dy, int32_t x, int32_t y, int32_t scale)
+void view_grab_rotate_camera(struct Camera *cam, int32_t dr)
 {
     switch (cam->view_mode)
     {
@@ -646,15 +646,10 @@ void view_grab_rotate_camera(struct Camera *cam, int32_t dx, int32_t dy, int32_t
         return;
     }
 
-    cam->grab_inertia_rx = +dx * scale / 16;
-    cam->grab_inertia_ry = 0; // -dy * scale / 16;
+    cam->grab_inertia_rx = dr;
+    cam->grab_inertia_ry = 0;
     cam->grab_inertia_x = 0;
     cam->grab_inertia_y = 0;
-
-    if ((x | y) < 0)
-        return;
-    cam->rotation_pivot.x.val = x;
-    cam->rotation_pivot.y.val = y;
 }
 
 void view_process_camera_inertia(struct Camera *cam)
@@ -670,22 +665,27 @@ void view_process_camera_inertia(struct Camera *cam)
     if (cam->inertia_y)
         view_move_camera_y(cam, cam->inertia_y);
 
-    const int32_t rotate = cam->inertia_rotation + cam->grab_inertia_rx;
-    if (rotate)
+    if (cam->inertia_rotation)
     {
-        cam->rotation_angle_x = (rotate + cam->rotation_angle_x) & ANGLE_MASK;
-        if (cam->use_rotation_pivot | cam->grab_inertia_rx)
+        cam->rotation_angle_x = (cam->inertia_rotation + cam->rotation_angle_x) & ANGLE_MASK;
+        if (cam->use_rotation_pivot)
         {
             const MapCoordDelta x0 = cam->mappos.x.val - cam->rotation_pivot.x.val;
             const MapCoordDelta y0 = cam->mappos.y.val - cam->rotation_pivot.y.val;
-            const int64_t sin = LbSinL(rotate);
-            const int64_t cos = LbCosL(rotate);
+            const int64_t sin = LbSinL(cam->inertia_rotation);
+            const int64_t cos = LbCosL(cam->inertia_rotation);
             const MapCoordDelta x1 = (x0 * cos - y0 * sin) >> 16;
             const MapCoordDelta y1 = (x0 * sin + y0 * cos) >> 16;
             const MapCoord new_x = (MapCoord)cam->rotation_pivot.x.val + x1;
             const MapCoord new_y = (MapCoord)cam->rotation_pivot.y.val + y1;
             view_set_camera_position(cam, new_x, new_y);
         }
+    }
+
+    if (cam->grab_inertia_rx)
+    {
+        const int new_angle = cam->rotation_angle_x + cam->grab_inertia_rx;
+        cam->rotation_angle_x = new_angle & ANGLE_MASK;
     }
 
     if (cam->grab_inertia_ry)
