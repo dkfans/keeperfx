@@ -39,7 +39,6 @@
 #include "game_legacy.h"
 #include "kjm_input.h"
 #include "net_game.h"
-#include "net_input_lag.h"
 #include "keeperfx.hpp"
 #include "room_list.h"
 #include "vidfade.h"
@@ -99,7 +98,6 @@ const int32_t hand_limp_yoffset[] = { -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, 
 long fe_net_level_selected;
 static struct NetLandLocalState net_map_local;
 static struct NetLandRemoteSlap net_map_remote_slap[MAX_NET_USERS];
-static LevelNumber pending_level_number = SINGLEPLAYER_NOTSTARTED;
 struct ScreenPacket net_screen_packet[MAX_NET_USERS];
 /******************************************************************************/
 #ifdef __cplusplus
@@ -287,7 +285,6 @@ static void get_hand_packet(PlayerNumber plyr_idx, struct ScreenPacket *nspck, i
 
 static void draw_netmap_players_hands(void)
 {
-    static const char *dot_frames[] = {"...", "..", ".", "..", "..."};
     struct ScreenPacket nspck;
     const char *plyr_nam;
     const struct TbSprite *spr;
@@ -313,9 +310,6 @@ static void draw_netmap_players_hands(void)
         }
         get_hand_packet(i, &nspck, slap_frame, now);
         plyr_nam = network_player_name(i);
-        if (pending_level_number > SINGLEPLAYER_NOTSTARTED) {
-            plyr_nam = dot_frames[(now / 125) % 5];
-        }
         colr = net_player_colours[i];
         spr = get_hand_sprite_for_packet(&nspck, anim_frame, &x, &y);
         x -= (long)map_info.screen_shift_x;
@@ -356,9 +350,6 @@ void frontnetmap_input(void)
     TbClockMSec now;
     struct LevelInformation* lvinfo;
 
-    if (pending_level_number > SINGLEPLAYER_NOTSTARTED) {
-        return;
-    }
     if (lbKeyOn[KC_ESCAPE]) {
         fe_net_level_selected = LEVELNUMBER_ERROR;
         lbKeyOn[KC_ESCAPE] = 0;
@@ -451,7 +442,6 @@ TbBool frontnetmap_load(void)
     frontmap_zoom_skip_init(SINGLEPLAYER_NOTSTARTED);
     fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
     net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
-    pending_level_number = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     map_sound_fade = FULL_LOUDNESS;
@@ -517,14 +507,14 @@ static LevelNumber frontnetmap_update_players(void)
         return fe_net_level_selected;
     }
     const PlayerNumber host_player_number = get_host_player_id();
-    const TbBool can_select_level = get_selected_level_number() <= SINGLEPLAYER_NOTSTARTED;
-    LbNetwork_UpdateInputLagIfHost();
-    const TbBool input_lag_ready = !frontnet_is_waiting_for_ping_stabilization();
+    const TbBool is_host = my_player_number == host_player_number;
+    const TbBool level_not_selected = get_selected_level_number() <= SINGLEPLAYER_NOTSTARTED;
+    const TbBool can_start_level = is_host && level_not_selected;
     struct ScreenPacket* my_nspck = &net_screen_packet[my_player_number];
     TbBool slap_hit_confirmed = false;
     int32_t leading_votes = 0;
     LevelNumber selected_level_number = SINGLEPLAYER_NOTSTARTED;
-    if (can_select_level) {
+    if (can_start_level) {
         memset(scratch, 0, PALETTE_SIZE);
     }
     for (int32_t i = 0; i < MAX_NET_USERS; i++) {
@@ -555,7 +545,7 @@ static LevelNumber frontnetmap_update_players(void)
         if ((i == host_player_number) && (action == NetAct_HostStartLevel) && (nspck->action_par1 > SINGLEPLAYER_NOTSTARTED)) {
             return nspck->action_par1;
         }
-        if (can_select_level) {
+        if (can_start_level) {
             if ((action == NetAct_Slapping) || (nspck->action_par1 <= 0)) {
                 selected_level_number = SINGLEPLAYER_NOTSTARTED;
                 leading_votes = -1;
@@ -597,12 +587,8 @@ static LevelNumber frontnetmap_update_players(void)
             }
         }
     }
-    if (can_select_level) {
-        if (pending_level_number != selected_level_number) {
-            pending_level_number = selected_level_number;
-        } else if ((selected_level_number > SINGLEPLAYER_NOTSTARTED) && (my_player_number == host_player_number) && input_lag_ready) {
-            set_selected_level_number(selected_level_number);
-        }
+    if (can_start_level && (selected_level_number > SINGLEPLAYER_NOTSTARTED)) {
+        set_selected_level_number(selected_level_number);
     }
     return SINGLEPLAYER_NOTSTARTED;
 }

@@ -46,7 +46,6 @@
 #include "game_legacy.h"
 #include "net_matchmaking.h"
 #include "net_lan.h"
-#include "net_input_lag.h"
 #include "config_campaigns.h"
 #include "post_inc.h"
 
@@ -75,8 +74,6 @@ struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
 char tmp_net_player_name[24];
-static TbClockMSec frontnet_ping_stabilization_end_time;
-static int32_t previous_player_count_for_ping_wait = -1;
 static TbBool attempting_to_join_cancelled = false;
 static int32_t previous_active_players = 0;
 /******************************************************************************/
@@ -113,13 +110,7 @@ static TbBool try_starting_level_from_chat(const char *message, int32_t player_i
     }
     char campaign_filename[80];
     snprintf(campaign_filename, sizeof(campaign_filename), "%.*s", campaign_len, message);
-    if (!frontnet_start_level(campaign_filename, level_num)) {
-        return false;
-    }
-    if (level_num > SINGLEPLAYER_NOTSTARTED) {
-        add_message(player_id, "Waiting before loading...");
-    }
-    return true;
+    return frontnet_start_level(campaign_filename, level_num);
 }
 
 TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
@@ -138,7 +129,6 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
         return false;
     }
     if (lvnum <= 0) {
-        set_selected_level_number(SINGLEPLAYER_NOTSTARTED);
         return true;
     }
     if (get_level_info(lvnum) == NULL) {
@@ -146,6 +136,8 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
         return false;
     }
     set_selected_level_number(lvnum);
+    fe_network_active = 1;
+    frontend_set_state(FeSt_START_MPLEVEL);
     return true;
 }
 
@@ -495,7 +487,7 @@ static void process_frontend_packets(void)
             }
             break;
         case NetAct_OpenLandView:
-            if (i != SERVER_ID || version_mismatch_found) {
+            if (version_mismatch_found) {
                 break;
             }
             fe_network_active = 1;
@@ -530,37 +522,6 @@ static void process_frontend_packets(void)
   }
 }
 
-TbBool frontnet_is_waiting_for_ping_stabilization(void)
-{
-    int32_t player_count = 0;
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
-        if (IsUserActive(id)) {
-            player_count += 1;
-        }
-    }
-    if (player_count != previous_player_count_for_ping_wait) {
-        frontnet_ping_stabilization_end_time = LbTimerClock() + FRONTNET_PING_STABILIZATION_DELAY_MS;
-        previous_player_count_for_ping_wait = player_count;
-    }
-    if (player_count < 2) {
-        return true;
-    }
-    if (frontnet_ping_stabilization_end_time == 0) {
-        return false;
-    }
-    if (LbTimerClock() < frontnet_ping_stabilization_end_time) {
-        return true;
-    }
-    frontnet_ping_stabilization_end_time = 0;
-    return false;
-}
-
-void frontnet_reset_ping_stabilization(void)
-{
-    frontnet_ping_stabilization_end_time = 0;
-    previous_player_count_for_ping_wait = -1;
-}
-
 void frontnet_send_campaign_change_message(const char* campaign_fname)
 {
     char base_name[64];
@@ -576,7 +537,6 @@ void frontnet_send_campaign_change_message(const char* campaign_fname)
 
     char msg[64];
     snprintf(msg, sizeof(msg), "%s:_", base_name);
-    set_selected_level_number(SINGLEPLAYER_NOTSTARTED);
     send_network_chat_message(my_player_number, msg);
 }
 
@@ -628,7 +588,6 @@ void frontnet_start_update(void)
       player_last_time = LbTimerClock();
     }
 
-    frontnet_is_waiting_for_ping_stabilization();
     handle_autostart_multiplayer_messaging();
 
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
@@ -642,11 +601,6 @@ void frontnet_start_update(void)
     process_frontend_packets();
     frontnet_rewite_net_messages();
 
-    LbNetwork_UpdateInputLagIfHost();
-    if (get_selected_level_number() > SINGLEPLAYER_NOTSTARTED && !frontnet_is_waiting_for_ping_stabilization()) {
-        fe_network_active = 1;
-        frontend_set_state(FeSt_START_MPLEVEL);
-    }
     if (frontnet_service_selected(FrontendNetSvc_LAN)) {
         lan_host_update();
     }
@@ -746,7 +700,6 @@ void frontnet_session_setup(void)
 
 void frontnet_start_setup(void)
 {
-    frontnet_reset_ping_stabilization();
     set_selected_level_number(SINGLEPLAYER_NOTSTARTED);
     previous_active_players = 0;
     memset(net_screen_packet, 0, sizeof(net_screen_packet));

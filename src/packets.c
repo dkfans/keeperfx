@@ -36,6 +36,7 @@
 #include "bflib_planar.h"
 #include "bflib_dernc.h"
 #include "net_exchange_gameplay.h"
+#include "net_input_lag.h"
 #include "bflib_sound.h"
 #include "config_sounds.h"
 #include "bflib_sndlib.h"
@@ -145,7 +146,8 @@ TbBool is_packet_empty(const struct Packet *pckt) {
         pckt->control_flags != 0 ||
         pckt->additional_packet_values != 0 ||
         pckt->actn_par3 != 0 ||
-        pckt->actn_par4 != 0) {
+        pckt->actn_par4 != 0 ||
+        pckt->input_lag_turns != 0) {
         return false;
     }
     return true;
@@ -1542,6 +1544,7 @@ static void load_old_packets(void)
             MULTIPLAYER_LOG("load_input_lag_packets: cleared packet[%s] (no stored packet)", player_name);
         }
     }
+    input_lag_observe_host_packet(&game.packets[get_host_player_id()]);
 }
 
 void set_local_packet_turn(void) {
@@ -1560,6 +1563,7 @@ void exchange_packets(void)
     SYNCDBG(5, "Starting");
 
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
+    input_lag_update(get_packet_direct(player->packet_num));
     set_local_packet_turn();
     update_turn_checksums();
     update_local_dig_tag_prediction();
@@ -1582,7 +1586,7 @@ void exchange_packets(void)
             return;
         }
     }
-    if (input_lag_skips_initial_processing()) {
+    if (input_lag_skips_processing()) {
         clear_packets();
         return;
     }
