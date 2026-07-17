@@ -517,6 +517,7 @@ void process_disconnected_network_players(void)
             }
         }
         if ((player->allocflags & PlaF_CompCtrl) == 0) {
+            input_lag_reset_intervals();
             if (!host_disconnected && player->id_number != get_host_player_id() && player->player_name[0] != '\0') {
                 message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), player->player_name);
                 JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);

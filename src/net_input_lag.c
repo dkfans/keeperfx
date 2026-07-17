@@ -36,20 +36,25 @@ static int32_t local_input_lag_request;
 static int32_t input_lag_target;
 static int32_t input_lag_increase_turns;
 
-static void input_lag_reset_history(TbClockMSec now)
+void input_lag_reset_intervals(void)
+{
+    input_lag_reduction_check_interval = INPUT_LAG_DECREASE_INITIAL_INTERVAL_MS;
+    input_lag_increase_check_interval = INPUT_LAG_INCREASE_INITIAL_INTERVAL_MS;
+    input_lag_last_reduction_check = input_lag_last_increase_check = LbTimerClock();
+}
+
+static void input_lag_reset_history(void)
 {
     input_lag_sample_count = 0;
     input_lag_history_position = -1;
     input_lag_missing_turn_count = 0;
     memset(input_lag_missing_turn_history, 0, sizeof(input_lag_missing_turn_history));
-    input_lag_reduction_check_interval = INPUT_LAG_DECREASE_INITIAL_INTERVAL_MS;
-    input_lag_increase_check_interval = INPUT_LAG_INCREASE_INITIAL_INTERVAL_MS;
-    input_lag_last_reduction_check = input_lag_last_increase_check = now;
+    input_lag_reset_intervals();
 }
 
 void input_lag_reset(void)
 {
-    input_lag_reset_history(LbTimerClock());
+    input_lag_reset_history();
     local_input_lag_request = game.input_lag_turns;
     input_lag_target = game.input_lag_turns;
     input_lag_increase_turns = 0;
@@ -158,7 +163,7 @@ void input_lag_update(struct Packet *packet)
         }
     }
     if (remote_player_count <= 0) {
-        input_lag_reset_history(now);
+        input_lag_reset_history();
         local_input_lag_request = 0;
         packet->input_lag_turns = 0;
     }
