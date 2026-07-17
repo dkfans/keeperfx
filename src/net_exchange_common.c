@@ -138,12 +138,6 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
                 (int)message_type, peer_id, (unsigned)payload_size, (unsigned)frame_size);
             return Lb_OK;
         }
-        if (message_type == NETMSG_FRONTEND && frame_size == sizeof(struct ScreenPacket) && netstate.my_id == SERVER_ID && screen_packet_action((struct ScreenPacket *)read_pos) == NetAct_OpenLandView) {
-            if (netstate.frontend_start_pending_end_time == 0) {
-                netstate.frontend_start_pending_end_time = LbTimerClock() + TIMEOUT_JOIN_LOBBY;
-            }
-            screen_packet_set_action((struct ScreenPacket *)read_pos, NetAct_None);
-        }
         memcpy(player_frame, read_pos, frame_size);
     }
     if (frame_peer_id != NULL) {
@@ -240,25 +234,6 @@ TbError exchange_frame_message(void *send_buf, void *server_buf, size_t frame_si
         return Lb_FAIL;
     }
     netstate.sp->update(OnNewUser);
-    if (msg_type == NETMSG_FRONTEND && frame_size == sizeof(struct ScreenPacket) && netstate.my_id == SERVER_ID) {
-        struct ScreenPacket *screen_packet = (struct ScreenPacket *)send_buf;
-        NetUserId user_id;
-        for (user_id = 0; user_id < netstate.max_players; user_id += 1) {
-            if (netstate.users[user_id].progress == USER_CONNECTED) {
-                break;
-            }
-        }
-        if (user_id < netstate.max_players && screen_packet_action(screen_packet) == NetAct_OpenLandView) {
-            if (netstate.frontend_start_pending_end_time == 0) {
-                netstate.frontend_start_pending_end_time = LbTimerClock() + TIMEOUT_JOIN_LOBBY;
-            }
-            screen_packet_set_action(screen_packet, NetAct_None);
-        }
-        if (netstate.frontend_start_pending_end_time != 0 && screen_packet_action(screen_packet) == NetAct_None && (user_id == netstate.max_players || LbTimerClock() >= netstate.frontend_start_pending_end_time)) {
-            screen_packet_set_action(screen_packet, NetAct_OpenLandView);
-            netstate.frontend_start_pending_end_time = 0;
-        }
-    }
     char *my_frame = (char *)server_buf + netstate.my_id * frame_size;
     memcpy(my_frame, send_buf, frame_size);
     char *write_pos = begin_net_message(msg_type);

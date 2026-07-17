@@ -39,6 +39,8 @@
 
 static struct TbNetworkSessionNameEntry sessions[SESSION_COUNT];
 static int32_t server_port = 0;
+static TbClockMSec lobby_ping_last_sample;
+uint32_t network_lobby_ping;
 
 struct MatchmakingCreateTask {
     uint16_t ipv4_port;
@@ -226,7 +228,16 @@ TbError LbNetwork_ExchangeFrontend(void *send_buf, void *server_buf, size_t fram
     if ((my_player_number == get_host_player_id()) && frontnet_service_selected(FrontendNetSvc_Online)) {
         enet_matchmaking_host_update();
     }
-    return exchange_frame_block(NETMSG_FRONTEND, send_buf, server_buf, frame_size);
+    TbError result = exchange_frame_block(NETMSG_FRONTEND, send_buf, server_buf, frame_size);
+    TbClockMSec now = LbTimerClock();
+    if (network_lobby_ping == 0 || now - lobby_ping_last_sample >= 1000) {
+        unsigned long ping = GetPing(my_player_number);
+        if (ping > 0) {
+            network_lobby_ping = ping;
+        }
+        lobby_ping_last_sample = now;
+    }
+    return result;
 }
 
 TbError LbNetwork_Create(char *, char *plyr_name, uint32_t *plyr_num, void *optns)
