@@ -42,7 +42,7 @@ $(PNGTOBSPAL): tools/png2bestpal/pkg/$(PNGTOBSPAL_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	$(MKDIR) "$(@D)"
 	cd "$(@D)"; \
-	tar -zxmUf "../../../$<" --exclude="*color_tbl_*.txt"
+	tar -zxmf "../../../$<" --exclude="*color_tbl_*.txt"
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
@@ -50,7 +50,7 @@ tools/png2bestpal/res/%.txt: tools/png2bestpal/pkg/$(PNGTOBSPAL_PACKAGE)
 	-$(ECHO) 'Extracting encoding table: $@'
 	$(MKDIR) "$(@D)"
 	cd "$(@D)"; \
-	tar -zxmUf "../../../$<" --wildcards "*color_tbl_*.txt"
+	tar -zxmf "../../../$<" --wildcards "*color_tbl_*.txt"
 	-$(ECHO) 'Finished extracting: $@'
 	-$(ECHO) ' '
 
