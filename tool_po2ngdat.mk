@@ -42,7 +42,7 @@ $(POTONGDAT): tools/po2ngdat/pkg/$(POTONGDAT_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	$(MKDIR) "$(@D)"
 	cd "$(@D)"; \
-	tar -zxmUf "../../../$<" --exclude="*char_encoding_*.txt"
+	tar -zxmf "../../../$<" --exclude="*char_encoding_*.txt"
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 

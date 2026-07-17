@@ -507,7 +507,9 @@ static LevelNumber frontnetmap_update_players(void)
         return fe_net_level_selected;
     }
     const PlayerNumber host_player_number = get_host_player_id();
-    const TbBool can_start_level = (my_player_number == host_player_number) && (get_selected_level_number() <= SINGLEPLAYER_NOTSTARTED);
+    const TbBool is_host = my_player_number == host_player_number;
+    const TbBool level_not_selected = get_selected_level_number() <= SINGLEPLAYER_NOTSTARTED;
+    const TbBool can_start_level = is_host && level_not_selected;
     struct ScreenPacket* my_nspck = &net_screen_packet[my_player_number];
     TbBool slap_hit_confirmed = false;
     int32_t leading_votes = 0;

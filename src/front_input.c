@@ -2092,9 +2092,18 @@ static short get_creature_control_action_inputs(void)
 
 static void set_packet_action_for_thing_under_hand(struct PlayerInfo* player, struct Packet* pckt)
 {
-    if ((player->view_type == PVT_DungeonTop) && ((pckt->control_flags & PCtr_Gui) == 0) && left_button_released && (local_thing_under_hand > 0) && (pckt->action == PckA_None) && (get_gameturn() - hand_pick_pending_turn > game.input_lag_turns)) {
-        int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
-        switch (player->work_state) {
+    if ((player->view_type != PVT_DungeonTop) || ((pckt->control_flags & PCtr_Gui) != 0) || (local_thing_under_hand <= 0) || (pckt->action != PckA_None) || (get_gameturn() - hand_pick_pending_turn <= game.input_lag_turns)) {
+        return;
+    }
+    int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
+    if (right_button_released && (player->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && power_hand_is_empty(player) && !player->one_click_lock_cursor && thing_slappable(thing_get(local_thing_under_hand), player->id_number)) {
+        set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_SLAP, local_thing_under_hand, 0, 0);
+        return;
+    }
+    if (!left_button_released) {
+        return;
+    }
+    switch (player->work_state) {
         case PSt_CtrlDungeon:
             if ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0) {
                 set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_POSSESS, local_thing_under_hand, 0, 0);
@@ -2113,7 +2122,6 @@ static void set_packet_action_for_thing_under_hand(struct PlayerInfo* player, st
         case PST_CastPowerOnTarget:
             set_packet_action(pckt, PckA_UsePwrOnThing, player->chosen_power_kind, local_thing_under_hand, 0, 0);
             break;
-        }
     }
 }
 

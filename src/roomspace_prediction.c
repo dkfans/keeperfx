@@ -39,6 +39,7 @@ static struct {
     MapSlabCoord drag_start_slb_y;
     MapSlabCoord previous_slb_x;
     MapSlabCoord previous_slb_y;
+    TbBool cursor_button_down;
     TbBool untag_mode;
 } local_dig_tag_prediction;
 
@@ -109,7 +110,7 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
-    TbBool cursor_is_locked = (local_dig_tag_prediction.last_packet_turn != 0) && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0);
+    TbBool cursor_is_locked = local_dig_tag_prediction.cursor_button_down && ((pckt->control_flags & PCtr_LBtnClick) == 0) && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0);
     if (!cursor_is_locked && (((pckt->control_flags & PCtr_LBtnAnyAction) == 0) || ((pckt->control_flags & PCtr_LBtnClick) != 0))) {
         predicted_player->swap_to_untag_mode = 0;
     }
@@ -177,22 +178,27 @@ void update_local_dig_tag_prediction(void)
         return;
     }
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0) {
+        local_dig_tag_prediction.cursor_button_down = false;
         if ((local_dig_tag_prediction.last_packet_turn != 0) && (get_gameturn() - local_dig_tag_prediction.last_packet_turn > game.input_lag_turns + LOCAL_DIG_TAG_EXPIRY)) {
             memset(&local_dig_tag_prediction, 0, sizeof(local_dig_tag_prediction));
         }
         return;
     }
-    if ((pckt->action != PckA_None) && (pckt->action != PckA_SetRoomspaceHighlight)) {
+    TbBool start_selection = (pckt->control_flags & PCtr_LBtnClick) != 0;
+    if (((pckt->action != PckA_None) && (pckt->action != PckA_SetRoomspaceHighlight)) || (!start_selection && !local_dig_tag_prediction.cursor_button_down)) {
+        if (start_selection || ((pckt->control_flags & PCtr_LBtnRelease) != 0)) {
+            local_dig_tag_prediction.cursor_button_down = false;
+        }
         return;
     }
     MapSlabCoord slb_x = subtile_slab(coord_subtile(pckt->pos_x));
     MapSlabCoord slb_y = subtile_slab(coord_subtile(pckt->pos_y));
-    TbBool start_selection = ((pckt->control_flags & PCtr_LBtnClick) != 0) || (local_dig_tag_prediction.last_packet_turn == 0);
     if (start_selection) {
         local_dig_tag_prediction.previous_slb_x = slb_x;
         local_dig_tag_prediction.previous_slb_y = slb_y;
         local_dig_tag_prediction.drag_start_slb_x = slb_x;
         local_dig_tag_prediction.drag_start_slb_y = slb_y;
+        local_dig_tag_prediction.cursor_button_down = true;
     }
     struct RoomSpace roomspace;
     struct PlayerInfo predicted_player;
@@ -202,10 +208,11 @@ void update_local_dig_tag_prediction(void)
     }
     int predicted_task_count = reconcile_local_dig_predictions();
     local_dig_tag_prediction.untag_mode = roomspace.untag_mode;
-    if (start_selection) {
-        local_dig_tag_prediction.last_packet_turn = pckt->turn;
+    TbBool apply_selection = (pckt->control_flags & PCtr_LBtnHeld) != 0;
+    if (predicted_player.roomspace_highlight_mode == drag_placement_mode) {
+        apply_selection = (pckt->control_flags & PCtr_LBtnRelease) != 0;
     }
-    if ((predicted_player.roomspace_highlight_mode == drag_placement_mode) && ((pckt->control_flags & PCtr_LBtnRelease) == 0)) {
+    if (!apply_selection) {
         return;
     }
     int changed_slab_count = apply_roomspace_dig_tag_selection(my_player_number, &roomspace, local_dig_tag_prediction.previous_slb_x, local_dig_tag_prediction.previous_slb_y, predicted_player.roomspace_highlight_mode, local_dig_tag_prediction.slab_tag_modes, local_dig_tag_prediction.slabs, &local_dig_tag_prediction.slab_count, &predicted_task_count);
@@ -252,7 +259,11 @@ void update_local_dig_prediction_cursor_preview(void)
     }
     struct RoomSpace roomspace;
     struct PlayerInfo predicted_player;
-    if (!get_local_dig_prediction_roomspace(pckt, &predicted_player, &roomspace)) {
+    TbBool has_roomspace = get_local_dig_prediction_roomspace(pckt, &predicted_player, &roomspace);
+    if ((pckt != NULL) && ((pckt->control_flags & PCtr_LBtnRelease) != 0)) {
+        local_dig_tag_prediction.cursor_button_down = false;
+    }
+    if (!has_roomspace) {
         local_dig_render_roomspace_active = false;
         if (!local_dig_prediction_is_enabled()) {
             return;

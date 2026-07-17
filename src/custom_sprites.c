@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "custom_sprites.h"
+#include "custom_zip.h"
 #include "creature_graphics.h"
 #include "front_simple.h"
 #include "engine_render.h"
@@ -41,10 +42,6 @@
 // #define INNER
 #if defined(OUTER) || defined(INNER)
 #include <SDL2/SDL.h>
-#endif
-
-#ifndef PATH_MAX
-#define PATH_MAX 4096
 #endif
 
 // Each part of RGB tuple of palette file is 1-63 actually
@@ -167,74 +164,6 @@ static unsigned char bad_icon_data[] = // 16x16
 
 const struct TbSprite bad_icon = { bad_icon_data, 16, 16 };
 short bad_icon_id = INT16_MAX;
-
-/*
- * Speedup zip stuff
- * We postulate only one zip file loaded at once
- */
-static VALUE zip_cache_v;
-static VALUE *zip_cache = &zip_cache_v;
-
-static int fastUnzLocateFile(unzFile zip, const char *szFileName, int iCaseSensitivity)
-{
-    //return unzLocateFile(file, szFileName, iCaseSensitivity);
-    char seek_for[PATH_MAX];
-    strncpy(seek_for, szFileName, PATH_MAX - 1);
-    make_lowercase(seek_for);
-    VALUE *rec = value_dict_get(zip_cache, seek_for);
-    if (rec == NULL)
-        return UNZ_END_OF_LIST_OF_FILE;
-    unz64_file_pos file_pos = {
-            .pos_in_zip_directory = value_int64(value_array_get(rec, 0)),
-            .num_of_file = value_int64(value_array_get(rec, 1))
-    };
-    return unzGoToFilePos64(zip, &file_pos);
-}
-
-/*
- * Construct a cache for files.
- * Also if there is no indexFile just return instead
- * */
-static int fastUnzConstructCache(unzFile zip)
-{
-    char szCurrentFileName[PATH_MAX];
-    if (value_type(zip_cache) != VALUE_NULL)
-    {
-        ERRORLOG("Zip cache is not clear!");
-    }
-    value_init_dict(zip_cache);
-
-    for (int err = unzGoToFirstFile(zip);
-         err == UNZ_OK;
-         err = unzGoToNextFile(zip))
-    {
-        if (UNZ_OK != unzGetCurrentFileInfo64(zip, NULL,
-                                              szCurrentFileName, sizeof(szCurrentFileName) - 1,
-                                              NULL, 0, NULL, 0)
-                )
-        {
-            continue;
-        }
-        make_lowercase(szCurrentFileName);
-
-        unz64_file_pos file_pos;
-        unzGetFilePos64(zip, &file_pos);
-
-        VALUE *rec = value_dict_add(zip_cache, szCurrentFileName);
-        value_init_array(rec);
-        value_init_int64(value_array_append(rec), file_pos.pos_in_zip_directory);
-        value_init_int64(value_array_append(rec), file_pos.num_of_file);
-    }
-    return UNZ_OK;
-}
-
-static int fastUnzClearCache()
-{
-    value_fini(zip_cache);
-    return 0;
-}
-
-/* end of zip stuff */
 
 static int cmp_named_command(const void *a, const void *b)
 {

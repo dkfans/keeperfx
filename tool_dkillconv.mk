@@ -42,7 +42,7 @@ $(DKILLTOLVL): tools/dkillconv/pkg/$(DKILLCONV_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	$(MKDIR) "$(@D)"
 	cd "$(@D)"; \
-	tar -zxmUf "../../../$<"
+	tar -zxmf "../../../$<"
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
