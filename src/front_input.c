@@ -2304,24 +2304,23 @@ static void get_isometric_view_nonaction_inputs(void)
         rotating = false;
         if (rotate_pressed)
         {
-            if (rotate_around_mouse_option == true)
+            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             {
-                if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+                set_packet_control(packet, PCtr_ViewRotateCW);
+                if (rotate_around_mouse_option == true)
                 {
-                    set_packet_control(packet, PCtr_ViewRotateCW | PCtr_ViewRotatePos);
+                    set_packet_control(packet,PCtr_ViewRotatePos);
                     rotating = true;
                 }
-                if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            }
+            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+            {
+                set_packet_control(packet, PCtr_ViewRotateCCW);
+                if (rotate_around_mouse_option == true)
                 {
-                    set_packet_control(packet, PCtr_ViewRotateCCW | PCtr_ViewRotatePos);
+                    set_packet_control(packet, PCtr_ViewRotatePos);
                     rotating = true;
                 }
-            } else
-            {
-                if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
-                    set_packet_control(packet, PCtr_ViewRotateCW);
-                if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
-                    set_packet_control(packet, PCtr_ViewRotateCCW);
             }
             if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewZoomIn);
@@ -2329,25 +2328,23 @@ static void get_isometric_view_nonaction_inputs(void)
                 set_packet_control(packet, PCtr_ViewZoomOut);
         } else
         {
-            if (rotate_around_mouse_option == true)
+            if (is_game_key_pressed(Gkey_RotateCW, false, false))
             {
-                if (is_game_key_pressed(Gkey_RotateCW, false, false))
+                set_packet_control(packet, PCtr_ViewRotateCW);
+                if (rotate_around_mouse_option == true)
                 {
-                    set_packet_control(packet, PCtr_ViewRotateCW | PCtr_ViewRotatePos);
-                    rotating = true;
-                }
-                if (is_game_key_pressed(Gkey_RotateCCW, false, false))
-                {
-                    set_packet_control(packet, PCtr_ViewRotateCCW | PCtr_ViewRotatePos);
+                    set_packet_control(packet, PCtr_ViewRotatePos);
                     rotating = true;
                 }
             }
-            else
+            if (is_game_key_pressed(Gkey_RotateCCW, false, false))
             {
-                if (is_game_key_pressed(Gkey_RotateCW, false, false))
-                    set_packet_control(packet, PCtr_ViewRotateCW);
-                if (is_game_key_pressed(Gkey_RotateCCW, false, false))
-                    set_packet_control(packet, PCtr_ViewRotateCCW);
+                set_packet_control(packet, PCtr_ViewRotateCCW);
+                if (rotate_around_mouse_option == true)
+                {
+                    set_packet_control(packet, PCtr_ViewRotatePos);
+                    rotating = true;
+                }
             }
             if (is_game_key_pressed(Gkey_ZoomIn, false, false))
                 set_packet_control(packet, PCtr_ViewZoomIn);
@@ -2363,7 +2360,7 @@ static void get_isometric_view_nonaction_inputs(void)
             get_movement_inputs(&camera_movement_x, &camera_movement_y, no_mods);
         }
         if (! set_rotate_pos)
-            unset_packet_control(packet, PCtr_ViewRotatePos);
+            unset_packet_control(packet, PCtr_ViewRotatePos); // Only u
     }
 }
 
