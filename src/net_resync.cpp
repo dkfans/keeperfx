@@ -223,7 +223,11 @@ static TbBool receive_resync_data(char ** data_buffer, size_t * data_length)
 
         received_size = netstate.sp->readmsg(SERVER_ID, message_buffer, received_size);
         if (received_size < sizeof(ResyncHeader)) {
-            ERRORLOG("Received message too small: %u bytes", (uint32_t)received_size);
+            if (received_size > 0 && message_buffer[0] == NETMSG_RESYNC_DATA) {
+                ERRORLOG("Received incomplete resync data: %u bytes", (uint32_t)received_size);
+            } else {
+                ERRORLOG("Ignoring message too small for resync data: %u bytes", (uint32_t)received_size);
+            }
             free(message_buffer);
             continue;
         }
