@@ -212,139 +212,150 @@ void draw_map_parchment(void)
     SYNCDBG(9,"Done");
 }
 
-TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, TbPixel background)
-{
-    TbPixel pixval;
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    long owner = slabmap_owner(slb);
-    if ((((mapblk->flags & SlbAtFlg_Unexplored) != 0) || ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0))
-        && ((get_gameturn() % (8 * gui_blink_rate)) >= 4 * gui_blink_rate))
-    {
-        pixval = pixmap.ghost[background + 0x1A00];
-        if (slb->kind == SlbT_GEMS)
-        {
-            pixval = pixval + 2;
-        }
-    } else
-    if (!map_block_revealed(mapblk,plyr_idx))
-    {
-        pixval = background;
-    } else
-    if ((slb->kind == SlbT_GOLD) || (slb->kind == SlbT_DENSEGOLD))
-    {
-        pixval = pixmap.ghost[background + 0x8C00];
-    } else
-    if (slb->kind == SlbT_GEMS)
-    {
-        pixval = 102 + (pixmap.ghost[background] >> 6);
-    }
-    else if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
-    {
-        struct Room* room = subtile_room_get(stl_x, stl_y);
-        if (((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate) && (room->kind == gui_room_type_highlighted))
-        {
-            pixval = player_highlight_colours[owner];
-      } else
-      {
-        unsigned char color_idx = get_player_color_idx(owner);
-        if (color_idx == PLAYER_NEUTRAL)
-        {
-            pixval = player_room_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
-        } else
-        {
-            pixval = player_room_colours[color_idx];
-        }
-      }
+enum OverheadMapStyle {
+    OMapSt_Unchanged = 256,
+    OMapSt_Tagged,
+    OMapSt_TaggedGems,
+    OMapSt_Gold,
+    OMapSt_Gems,
+    OMapSt_Wall,
+};
 
-    } else
-    {
-      if (slb->kind == SlbT_ROCK)
-      {
-          pixval = 0;
-      } else
-      if (slb->kind == SlbT_ROCK_FLOOR)
-      {
-          pixval = pixmap.ghost[3];
-      }
-      else
-      if ((mapblk->flags & SlbAtFlg_Filled) != 0)
-      {
-          pixval = pixmap.ghost[background + 0x1000];
-      } else
-      if ((mapblk->flags & SlbAtFlg_IsDoor) != 0) // Door slab
-      {
-          struct Thing* thing = get_door_for_position(stl_x, stl_y);
-          if (thing_is_invalid(thing))
-          {
-            pixval = 60;
-          } else
-          if (((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate) && (thing->model == gui_door_type_highlighted))
-          {
-            pixval = player_highlight_colours[owner];
-          } else
-          if(door_is_hidden_to_player(thing,plyr_idx))
-          {
-            pixval = pixmap.ghost[background + 0x1000];
-          }else
-          if (thing->door.is_locked)
-          {
-            pixval = 79;
-          } else
-          {
-            pixval = 60;
-          }
-      } else
-      if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
-      {
-          if (slb->kind == SlbT_LAVA)
-          {
-            pixval = 146;
-          } else
-          if (slb->kind == SlbT_WATER)
-          {
-            pixval = 85;
-          } else
-          if (slb->kind == SlbT_PURPLE)
-          {
-              pixval = 255;
-          }
-          else
-          {
-            pixval = get_player_path_colour(owner);
-          }
-        } else
-        {
-          pixval = background;
+static int get_overhead_mapblock_style(const struct Map* mapblk, const struct SlabMap* slb, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx, int gui_frame, TbPixel neutral_colour)
+{
+    PlayerNumber owner = slb->owner;
+    if ((((mapblk->flags & SlbAtFlg_Unexplored) != 0) || ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)) && (gui_frame >= 4)) {
+        if (slb->kind == SlbT_GEMS) {
+            return OMapSt_TaggedGems;
         }
+        return OMapSt_Tagged;
     }
-    return pixval;
+    if (!map_block_revealed(mapblk, plyr_idx)) {
+        return OMapSt_Unchanged;
+    }
+    if ((slb->kind == SlbT_GOLD) || (slb->kind == SlbT_DENSEGOLD)) {
+        return OMapSt_Gold;
+    }
+    if (slb->kind == SlbT_GEMS) {
+        return OMapSt_Gems;
+    }
+    if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) {
+        struct Room* room = room_get(slb->room_index);
+        if (((gui_frame & 1) != 0) && (room->kind == gui_room_type_highlighted)) {
+            return player_highlight_colours[owner];
+        }
+        unsigned char color_idx = get_player_color_idx(owner);
+        if (color_idx == PLAYER_NEUTRAL) {
+            return neutral_colour;
+        }
+        return player_room_colours[color_idx];
+    }
+    if (slb->kind == SlbT_ROCK) {
+        return 0;
+    }
+    if (slb->kind == SlbT_ROCK_FLOOR) {
+        return pixmap.ghost[3];
+    }
+    if ((mapblk->flags & SlbAtFlg_Filled) != 0) {
+        return OMapSt_Wall;
+    }
+    if ((mapblk->flags & SlbAtFlg_IsDoor) != 0) {
+        struct Thing* thing = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        if (thing_is_invalid(thing)) {
+            return 60;
+        }
+        if (((gui_frame & 1) != 0) && (thing->model == gui_door_type_highlighted)) {
+            return player_highlight_colours[owner];
+        }
+        if (door_is_hidden_to_player(thing, plyr_idx)) {
+            return OMapSt_Wall;
+        }
+        if (thing->door.is_locked) {
+            return 79;
+        }
+        return 60;
+    }
+    if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
+        return OMapSt_Unchanged;
+    }
+    if (slb->kind == SlbT_LAVA) {
+        return 146;
+    }
+    if (slb->kind == SlbT_WATER) {
+        return 85;
+    }
+    if (slb->kind == SlbT_PURPLE) {
+        return 255;
+    }
+    return get_player_path_colour(owner);
 }
 
 void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
 {
-    long line = 0;
-    long stl_y = 1;
-    unsigned char* dstline = &lbDisplay.WScreen[map_area->left + lbDisplay.GraphicsScreenWidth * map_area->top];
-    for (long cntr_h = game.map_tiles_y * block_size; cntr_h > 0; cntr_h--)
-    {
-        if ((line > 0) && ((line % block_size) == 0))
-        {
-          stl_y += STL_PER_SLB;
+    GameTurn turn = get_gameturn();
+    int gui_frame = (turn / gui_blink_rate) & 7;
+    TbPixel neutral_colour = player_room_colours[(turn / neutral_flash_rate) & 3];
+    int32_t screen_width = lbDisplay.GraphicsScreenWidth;
+    int32_t block_stride = screen_width * block_size;
+    int styles[MAX_TILES_X];
+    const struct SlabMap* slb = get_slabmap_block(0, 0);
+    unsigned char* dstrow = &lbDisplay.WScreen[map_area->left + screen_width * map_area->top];
+    for (MapSlabCoord slb_y = 0; slb_y < game.map_tiles_y; slb_y++, dstrow += block_stride) {
+        const struct Map* mapblk = get_map_block_at(slab_subtile_center(0), slab_subtile_center(slb_y));
+        for (MapSlabCoord slb_x = 0; slb_x < game.map_tiles_x; slb_x++, slb++, mapblk += STL_PER_SLB) {
+            styles[slb_x] = get_overhead_mapblock_style(mapblk, slb, slb_x, slb_y, plyr_idx, gui_frame, neutral_colour);
         }
-        unsigned char* dstbuf = dstline;
-        long stl_x = 1;
-        for (long cntr_w = game.map_tiles_x; cntr_w > 0; cntr_w--)
-        {
-            for (long k = block_size; k > 0; k--)
-            {
-                *dstbuf = get_overhead_mapblock_color(stl_x, stl_y, plyr_idx, *dstbuf);
-                dstbuf++;
-          }
-          stl_x += STL_PER_SLB;
+        unsigned char* dstblock = dstrow;
+        for (MapSlabCoord slb_x = 0; slb_x < game.map_tiles_x;) {
+            int style = styles[slb_x];
+            MapSlabCoord run = 1;
+            while ((slb_x + run < game.map_tiles_x) && (styles[slb_x + run] == style)) {
+                run++;
+            }
+            int32_t run_width = run * block_size;
+            if (style == OMapSt_Unchanged) {
+                slb_x += run;
+                dstblock += run_width;
+                continue;
+            }
+            const unsigned char* remap = NULL;
+            int shift = 0;
+            int add = 0;
+            if (style == OMapSt_Tagged || style == OMapSt_TaggedGems) {
+                remap = &pixmap.ghost[0x1A00];
+                if (style == OMapSt_TaggedGems) {
+                    add = 2;
+                }
+            } else if (style == OMapSt_Gold) {
+                remap = &pixmap.ghost[0x8C00];
+            } else if (style == OMapSt_Gems) {
+                remap = pixmap.ghost;
+                shift = 6;
+                add = 102;
+            } else if (style == OMapSt_Wall) {
+                remap = &pixmap.ghost[0x1000];
+            }
+            unsigned char* dstline = dstblock;
+            for (int32_t y = 0; y < block_size; y++) {
+                if (remap == NULL) {
+                    if (run_width >= 16) {
+                        memset(dstline, style, run_width);
+                    } else {
+                        volatile unsigned char* dstpixel = dstline;
+                        for (int32_t x = 0; x < run_width; x++) {
+                            dstpixel[x] = style;
+                        }
+                    }
+                } else {
+                    for (int32_t x = 0; x < run_width; x++) {
+                        dstline[x] = add + (remap[dstline[x]] >> shift);
+                    }
+                }
+                dstline += screen_width;
+            }
+            slb_x += run;
+            dstblock += run_width;
         }
-        dstline += lbDisplay.GraphicsScreenWidth;
-        line++;
     }
     lbDisplay.DrawFlags = 0;
 }
