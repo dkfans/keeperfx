@@ -2300,24 +2300,55 @@ static void get_isometric_view_nonaction_inputs(void)
     if (move_camera_this_turn)
     {
         static TbBool rotating = false;
-        const TbBool set_rotate_pos = !rotating;
+        const TbBool set_rotate_pos = (rotating == false);
         rotating = false;
         if (rotate_pressed)
         {
-            if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
-                set_packet_control(packet, PCtr_ViewRotateCW);
-            if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
-                set_packet_control(packet, PCtr_ViewRotateCCW);
+            if (rotate_around_mouse_option == true)
+            {
+                if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+                {
+                    set_packet_control(packet, PCtr_ViewRotateCW | PCtr_ViewRotatePos);
+                    rotating = true;
+                }
+                if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+                {
+                    set_packet_control(packet, PCtr_ViewRotateCCW | PCtr_ViewRotatePos);
+                    rotating = true;
+                }
+            } else
+            {
+                if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+                    set_packet_control(packet, PCtr_ViewRotateCW);
+                if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+                    set_packet_control(packet, PCtr_ViewRotateCCW);
+            }
             if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewZoomIn);
             if (is_game_key_pressed(Gkey_MoveDown, false, no_mods) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewZoomOut);
         } else
         {
-            if (is_game_key_pressed(Gkey_RotateCW, false, false))
-                set_packet_control(packet, PCtr_ViewRotateCW);
-            if (is_game_key_pressed(Gkey_RotateCCW, false, false))
-                set_packet_control(packet, PCtr_ViewRotateCCW);
+            if (rotate_around_mouse_option == true)
+            {
+                if (is_game_key_pressed(Gkey_RotateCW, false, false))
+                {
+                    set_packet_control(packet, PCtr_ViewRotateCW | PCtr_ViewRotatePos);
+                    rotating = true;
+                }
+                if (is_game_key_pressed(Gkey_RotateCCW, false, false))
+                {
+                    set_packet_control(packet, PCtr_ViewRotateCCW | PCtr_ViewRotatePos);
+                    rotating = true;
+                }
+            }
+            else
+            {
+                if (is_game_key_pressed(Gkey_RotateCW, false, false))
+                    set_packet_control(packet, PCtr_ViewRotateCW);
+                if (is_game_key_pressed(Gkey_RotateCCW, false, false))
+                    set_packet_control(packet, PCtr_ViewRotateCCW);
+            }
             if (is_game_key_pressed(Gkey_ZoomIn, false, false))
                 set_packet_control(packet, PCtr_ViewZoomIn);
             if (is_game_key_pressed(Gkey_ZoomOut, false, false))

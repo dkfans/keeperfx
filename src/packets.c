@@ -447,7 +447,8 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
         }
     }
 
-    const TbBool use_rotate_pos = (flag_is_set(pckt->control_flags, PCtr_MapCoordsValid) && rotate_around_mouse_option);
+    const TbBool use_rotate_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
+        && (pckt->control_flags & PCtr_ViewRotatePos) != 0;
     const MapCoord rot_x = use_rotate_pos ? pckt->pos_x : -1;
     const MapCoord rot_y = use_rotate_pos ? pckt->pos_y : -1;
     if ((pckt->control_flags & PCtr_ViewRotateCCW) != 0)
