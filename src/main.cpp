@@ -186,8 +186,6 @@ int32_t total_lights;
 unsigned char do_lights;
 struct Thing *thing_pointed_at;
 struct Map *me_pointed_at;
-int32_t my_mouse_x;
-int32_t my_mouse_y;
 char *level_names_data;
 char *end_level_names_data;
 unsigned char *frontend_backup_palette;
@@ -2058,12 +2056,16 @@ static void set_mouse_light(struct PlayerInfo *player, TbBool valid, struct Coor
 
     if (valid)
     {
-        pos.z.val = get_floor_height_at(&pos);
         light_turn_light_on(idx);
-        light_set_light_position(idx, &pos);
-
+        pos.z.val = get_floor_height_at(&pos);
         if (is_my_player(player))
+        {
+            if (viewport_grab_active)
+                return;
             game.mouse_light_pos = pos;
+        }
+
+        light_set_light_position(idx, &pos);
     }
     else
     {

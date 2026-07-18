@@ -822,7 +822,7 @@ static void do_map_rotate_stuff_subtile(float relpos_x, float relpos_y, MapSubtl
     *stl_y = lroundf(tmp_y) / COORD_PER_STL;
 }
 
-short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom)
+TbBool do_left_map_drag(int32_t begin_x, int32_t begin_y, struct MousePosition mouse, int32_t zoom)
 {
   SYNCDBG(17,"Starting");
   static float frac_x, frac_y;
@@ -830,16 +830,14 @@ short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_
   if (!clicked_on_small_map)
   {
     grabbed_small_map = 0;
-    return 0;
+    return false;
   }
-  TbGraphicsWindow ewnd;
-  store_engine_window(&ewnd, 1);
-  float x = (curr_x - (ewnd.x + (ewnd.width  >> 1))) / 2.f;
-  float y = (curr_y - (ewnd.y + (ewnd.height >> 1))) / 2.f;
+  float x = mouse.dx / 2.f;
+  float y = mouse.dy / 2.f;
   if (!grabbed_small_map)
   {
-    if ((abs(curr_x - old_mx) < 2) && (abs(curr_y - old_my) < 2))
-      return 0;
+    if ((abs(mouse.dx) < 2) && (abs(mouse.dy) < 2))
+      return false;
     grabbed_small_map = 1;
     x = y = 0;
     frac_x = frac_y = 0;
@@ -861,16 +859,14 @@ short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_
   {
     set_players_packet_action(player, PckA_BookmarkLoad, coord_x, coord_y, 0, 0);
   }
-  return 1;
+  return true;
 }
 
-short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom)
+TbBool do_left_map_click(int32_t begin_x, int32_t begin_y, struct MousePosition mouse, int32_t zoom)
 {
   SYNCDBG(17,"Starting");
-  struct PlayerInfo *player;
-  short result;
-  result = 0;
-  player = get_my_player();
+  struct PlayerInfo *player = get_my_player();
+  TbBool result = false;
   if ((left_button_released) && (clicked_on_small_map))
   {
       if (grabbed_small_map)
@@ -879,15 +875,16 @@ short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr
         LbMouseSetPosition(begin_x + MapDiagonalLength/2, begin_y + MapDiagonalLength/2);
       } else
       {
-        do_map_rotate_stuff_subtile(curr_x - begin_x - MapDiagonalLength/2, curr_y - begin_y - MapDiagonalLength/2, &curr_x, &curr_y, zoom);
-        game.hand_over_subtile_x = curr_x;
-        game.hand_over_subtile_y = curr_y;
-        if (subtile_has_slab(curr_x, curr_y))
+        MapSubtlCoord stl_x, stl_y;
+        do_map_rotate_stuff_subtile(mouse.x - begin_x - MapDiagonalLength/2, mouse.y - begin_y - MapDiagonalLength/2, &stl_x, &stl_y, zoom);
+        game.hand_over_subtile_x = stl_x;
+        game.hand_over_subtile_y = stl_y;
+        if (subtile_has_slab(stl_x, stl_y))
         {
-          const MapCoord x = subtile_coord_center(curr_x);
-          const MapCoord y = subtile_coord_center(curr_y);
+          const MapCoord x = subtile_coord_center(stl_x);
+          const MapCoord y = subtile_coord_center(stl_y);
           set_players_packet_action(player, PckA_BookmarkLoad, x, y, 0, 0);
-          result = 1;
+          result = true;
         }
       }
     grabbed_small_map = 0;
@@ -897,35 +894,33 @@ short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr
   return result;
 }
 
-short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my, long zoom)
+TbBool do_right_map_click(int32_t start_x, int32_t start_y, struct MousePosition mouse, int32_t zoom)
 {
-    int32_t x;
-    int32_t y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
     struct Thing *thing;
-    do_map_rotate_stuff_subtile(curr_mx - start_x - MapDiagonalLength/2, curr_my - start_y - MapDiagonalLength/2, &x, &y, zoom);
-    game.hand_over_subtile_x = x;
-    game.hand_over_subtile_y = y;
+    do_map_rotate_stuff_subtile(mouse.x - start_x - MapDiagonalLength/2, mouse.y - start_y - MapDiagonalLength/2, &stl_x, &stl_y, zoom);
+    game.hand_over_subtile_x = stl_x;
+    game.hand_over_subtile_y = stl_y;
     player = get_my_player();
     thing = get_first_thing_in_power_hand(player);
-    if (!thing_is_invalid(thing))
+    if (!thing_is_invalid(thing) && can_place_thing_here(thing, stl_x, stl_y, player->id_number))
     {
-        if (can_place_thing_here(thing, x, y, player->id_number))
-          game.small_map_state = 1;
+        game.small_map_state = 1;
     }
-    if (right_button_clicked)
-      right_button_clicked = 0;
+    right_button_clicked = 0;
     if (right_button_released)
     {
         right_button_released = 0;
-        if (subtile_has_slab(x, y))
+        if (subtile_has_slab(stl_x, stl_y))
         {
-            set_players_packet_action(player, PckA_UsePwrHandDrop, x, y, 0, 0);
-            return 1;
+            set_players_packet_action(player, PckA_UsePwrHandDrop, stl_x, stl_y, 0, 0);
+            return true;
         }
     }
-    return 0;
+    return false;
 }
 
 void setup_background(long units_per_px)

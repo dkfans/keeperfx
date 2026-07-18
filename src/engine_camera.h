@@ -78,10 +78,14 @@ struct Camera {
     int horizontal_fov; // Horizontal Field of View in degrees
     int zoom;
     int inertia_rotation;
-    TbBool in_active_movement_rotation;
     long inertia_x;
-    TbBool in_active_movement_x;
     long inertia_y;
+    int32_t grab_inertia_x;
+    int32_t grab_inertia_y;
+    int32_t grab_inertia_rx;
+    int32_t grab_inertia_ry;
+    TbBool in_active_movement_rotation;
+    TbBool in_active_movement_x;
     TbBool in_active_movement_y;
     TbBool use_rotation_pivot;
     struct Coord2d rotation_pivot;
@@ -119,6 +123,8 @@ void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit);
 void view_set_camera_rotation_inertia(struct Camera *cam, int32_t delta, int32_t ilimit);
 void view_set_camera_rotation_inertia_around(struct Camera *cam, int32_t delta, int32_t ilimit, MapCoord x, MapCoord y);
 void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
+void view_grab_move_camera(struct Camera *cam, int32_t dx, int32_t dy, int32_t scale);
+void view_grab_rotate_camera(struct Camera *cam, int32_t dr);
 void view_process_camera_inertia(struct Camera *cam);
 
 void update_all_players_cameras(void);

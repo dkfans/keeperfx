@@ -189,8 +189,6 @@ extern int32_t total_lights;
 extern unsigned char do_lights;
 extern struct Thing *thing_pointed_at;
 extern struct Map *me_pointed_at;
-extern int32_t my_mouse_x;
-extern int32_t my_mouse_y;
 extern char *level_names_data;
 extern char *end_level_names_data;
 extern unsigned char *frontend_backup_palette;
