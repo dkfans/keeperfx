@@ -104,9 +104,8 @@ static GameTurn hand_pick_pending_turn;
 long old_mx;
 long old_my;
 
-enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Always;
-enum RotateAroundMouseOptions rotate_around_mouse_option = RotateAroundMouse_Always;
-TbBool rotate_follow_mouse_option = false;
+enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Wheel;
+TbBool rotate_around_mouse_option = false;
 
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_LS_UP,               BMV_Visible,        },       // Gkey_MoveUp
@@ -2301,24 +2300,27 @@ static void get_isometric_view_nonaction_inputs(void)
     if (move_camera_this_turn)
     {
         static TbBool rotating = false;
-        TbBool set_rotate_pos = rotate_follow_mouse_option | ! rotating;
+        const TbBool set_rotate_pos = (rotating == false);
         rotating = false;
-
         if (rotate_pressed)
         {
             if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_OnlyCtrl)
-                    set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCW);
-                rotating = true;
+                if (rotate_around_mouse_option == true)
+                {
+                    set_packet_control(packet,PCtr_ViewRotatePos);
+                    rotating = true;
+                }
             }
             if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_OnlyCtrl)
-                    set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCCW);
-                rotating = true;
+                if (rotate_around_mouse_option == true)
+                {
+                    set_packet_control(packet, PCtr_ViewRotatePos);
+                    rotating = true;
+                }
             }
             if (is_game_key_pressed(Gkey_MoveUp, false, no_mods) || is_key_pressed(KC_UP, KMod_DONTCARE))
                 set_packet_control(packet, PCtr_ViewZoomIn);
@@ -2328,17 +2330,21 @@ static void get_isometric_view_nonaction_inputs(void)
         {
             if (is_game_key_pressed(Gkey_RotateCW, false, false))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_NotCtrl)
-                    set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCW);
-                rotating = true;
+                if (rotate_around_mouse_option == true)
+                {
+                    set_packet_control(packet, PCtr_ViewRotatePos);
+                    rotating = true;
+                }
             }
             if (is_game_key_pressed(Gkey_RotateCCW, false, false))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_NotCtrl)
-                    set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCCW);
-                rotating = true;
+                if (rotate_around_mouse_option == true)
+                {
+                    set_packet_control(packet, PCtr_ViewRotatePos);
+                    rotating = true;
+                }
             }
             if (is_game_key_pressed(Gkey_ZoomIn, false, false))
                 set_packet_control(packet, PCtr_ViewZoomIn);
@@ -2354,7 +2360,7 @@ static void get_isometric_view_nonaction_inputs(void)
             get_movement_inputs(&camera_movement_x, &camera_movement_y, no_mods);
         }
         if (! set_rotate_pos)
-            unset_packet_control(packet, PCtr_ViewRotatePos);
+            unset_packet_control(packet, PCtr_ViewRotatePos); // Only u
     }
 }
 
@@ -2608,8 +2614,6 @@ static void get_dungeon_control_nonaction_inputs(void)
   get_options_menu_inputs();
   if (zoom_to_mouse_option == ZoomToMouse_Always)
       set_packet_control(pckt, PCtr_ViewZoomPos);
-  if (rotate_around_mouse_option == RotateAroundMouse_Always)
-      set_packet_control(pckt, PCtr_ViewRotatePos);
   if ((player->allocflags & PlaF_NewMPMessage) == 0)
   {
       switch (player->view_mode)
