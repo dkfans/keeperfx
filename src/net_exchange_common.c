@@ -44,6 +44,7 @@
 
 extern void network_yield_draw_frontend(void);
 extern void network_yield_draw_gameplay(void);
+extern long double host_packet_received;
 
 void send_to_active_peers(int send_count, enum NetworkPeerSendMode send_mode, const char *buffer, size_t msg_size, NetUserId first_skip_id, NetUserId second_skip_id)
 {
@@ -116,6 +117,12 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
             return Lb_OK;
         }
         const struct Packet *packets = (const struct Packet *)read_pos;
+        if (peer_id == SERVER_ID
+            && packets[0].turn == get_gameturn()
+            && get_history_packet((PlayerNumber)peer_id, packets[0].turn) == NULL)
+        {
+            host_packet_received = game.process_turn_time;
+        }
         for (unsigned char i = 0; i < packet_count; i += 1) {
             if (is_packet_empty(&packets[i])) {
                 MULTIPLAYER_LOG("process_network_message: Skipping empty packet for player %d turn %lu", peer_id, (unsigned long)packets[i].turn);
@@ -279,7 +286,7 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
     case NETMSG_LOGIN:
         return process_login_message(source, read_pos);
     case NETMSG_USERUPDATE:
-        return process_user_update_message(source, read_pos);
+        return process_user_update_message(source, read_pos, netstate.msg_buffer + message_size);
     case NETMSG_FRONTEND:
     case NETMSG_STARTUP_SYNC:
     case NETMSG_GAMEPLAY_UNSEQUENCED:

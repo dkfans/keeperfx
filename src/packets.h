@@ -193,7 +193,7 @@ enum TbPacketAction {
         PckA_PlyrQueryCreature,
         PckA_CheatGiveDoorTrap,
         PckA_RoomspaceHighlightToggle,
-        PckA_UnusedSlot157,
+        PckA_ApplyRoomspaceDigTag,
 		PckA_CheatWinLevel,
 		PckA_CheatLoseLevel,
 		PckA_CheatLevelUp,
@@ -280,15 +280,16 @@ extern float camera_movement_y;
 struct Packet {
     GameTurn turn;
     TbBigChecksum checksum; //! Checksum of the entire game state of the previous turn, used solely for desync detection
-    unsigned char action; //! Action kind performed by the player which owns this packet
+    int8_t input_lag_turns;
+    uint8_t action; //! Action kind performed by the player which owns this packet
     int32_t actn_par1; //! Players action parameter #1
     int32_t actn_par2; //! Players action parameter #2
     int32_t pos_x; //! Mouse Cursor Position X
     int32_t pos_y; //! Mouse Cursor Position Y
     uint32_t control_flags;
-    unsigned char additional_packet_values; // uses the flags and values from TbPacketAddValues
-    int32_t actn_par3; //! Players action parameter #3
-    int32_t actn_par4; //! Players action parameter #4
+    uint8_t additional_packet_values; // uses the flags and values from TbPacketAddValues
+    int16_t actn_par3; //! Players action parameter #3
+    int16_t actn_par4; //! Players action parameter #4
 };
 
 struct PacketSaveHead {

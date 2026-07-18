@@ -38,6 +38,7 @@
 #include "gui_frontbtns.h"
 #include "gui_frontmenu.h"
 #include "packets.h"
+#include "net_input_lag.h"
 #include "frontend.h"
 #include "front_input.h"
 #include "vidfade.h"
@@ -869,8 +870,10 @@ void draw_network_stats()
     unsigned int lost_packet_count = GetClientPacketsLost();
     unsigned int outgoing_rate_kb10 = (GetUploadRateBytesPerSecond() * 10) / 1024;
     unsigned int incoming_rate_kb10 = (GetDownloadRateBytesPerSecond() * 10) / 1024;
-    int input_lag = game.input_lag_turns;
-    int input_lag_ms = input_lag * 50;
+    int32_t packet_misses;
+    TbClockMSec increase_countdown;
+    TbClockMSec decrease_countdown;
+    input_lag_get_stats(&packet_misses, &increase_countdown, &decrease_countdown);
     int64_t turn_length_ns = 0;
     if (turns_per_second > 0) {
         turn_length_ns = 1000000000 / turns_per_second;
@@ -884,30 +887,35 @@ void draw_network_stats()
     LbTextDrawResized(0, 0, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Half ping: %lums", half_ping);
     LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Input lag: %d turns (%dms)",
-        input_lag, input_lag_ms);
+    snprintf(text, sizeof(text), "Input lag: %d", game.input_lag_turns);
     LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Packet waits: %d", packet_misses);
+    LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Increase input lag: %dms", increase_countdown);
+    LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Decrease input lag: %dms", decrease_countdown);
+    LbTextDrawResized(0, tx_units_per_px * 5, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Download: %u.%u KB/s",
         incoming_rate_kb10 / 10, incoming_rate_kb10 % 10);
-    LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 6, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Upload: %u.%u KB/s",
         outgoing_rate_kb10 / 10, outgoing_rate_kb10 % 10);
-    LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Congestion: %u bytes", transit);
-    LbTextDrawResized(0, tx_units_per_px * 5, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Loss rate: %u%%", packet_loss_percent);
-    LbTextDrawResized(0, tx_units_per_px * 6, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Lost packets: %u", lost_packet_count);
     LbTextDrawResized(0, tx_units_per_px * 7, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Stutter: %dms", stutter_detection_current);
+    snprintf(text, sizeof(text), "Congestion: %u bytes", transit);
     LbTextDrawResized(0, tx_units_per_px * 8, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Average stutter: %dms", stutter_detection_average);
+    snprintf(text, sizeof(text), "Loss rate: %u%%", packet_loss_percent);
     LbTextDrawResized(0, tx_units_per_px * 9, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Max stutter: %dms", stutter_detection_max);
+    snprintf(text, sizeof(text), "Lost packets: %u", lost_packet_count);
     LbTextDrawResized(0, tx_units_per_px * 10, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Turn length: %" PRId64, turn_length_ns);
+    snprintf(text, sizeof(text), "Stutter: %dms", stutter_detection_current);
     LbTextDrawResized(0, tx_units_per_px * 11, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
+    snprintf(text, sizeof(text), "Average stutter: %dms", stutter_detection_average);
     LbTextDrawResized(0, tx_units_per_px * 12, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Max stutter: %dms", stutter_detection_max);
+    LbTextDrawResized(0, tx_units_per_px * 13, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Turn length: %" PRId64, turn_length_ns);
+    LbTextDrawResized(0, tx_units_per_px * 14, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
+    LbTextDrawResized(0, tx_units_per_px * 15, tx_units_per_px, text);
 }
 /******************************************************************************/

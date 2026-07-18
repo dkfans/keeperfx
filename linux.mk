@@ -20,6 +20,7 @@ src/ariadne_navitree.c \
 src/ariadne_points.c \
 src/ariadne_regions.c \
 src/ariadne_tringls.c \
+src/ariadne_update.c \
 src/ariadne_wallhug.c \
 src/bflib_basics.c \
 src/bflib_coroutine.c \
@@ -88,6 +89,7 @@ src/config_trapdoor.c \
 src/config_spritecolors.c \
 src/console_cmd.c \
 src/custom_sprites.c \
+src/custom_zip.c \
 src/creature_battle.c \
 src/creature_control.c \
 src/creature_graphics.c \

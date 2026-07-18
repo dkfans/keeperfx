@@ -141,10 +141,20 @@ TbBool subtile_has_trap_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return !thing_is_invalid(traptng);
 }
 
+TbBool player_can_sell_trap_on_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    if (slb->owner != plyr_idx)
+        return false;
+    //This assumes there is just one trap per slab. Could go wrong on multiple traps with only some of them sellable.
+    struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
+    return thing_is_sellable_trap(traptng);
+}
+
 TbBool slab_middle_row_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     int i;
-    for (i = 0; i <= 2; i++)
+    for (i = 0; i < STL_PER_SLB; i++)
     {
         if (subtile_has_trap_on(slab_subtile(slb_x,i), slab_subtile_center(slb_y)))
         {
@@ -157,7 +167,7 @@ TbBool slab_middle_row_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool slab_middle_column_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     int i;
-    for (i = 0; i <= 2; i++)
+    for (i = 0; i < STL_PER_SLB; i++)
     {
         if (subtile_has_trap_on(slab_subtile_center(slb_x), slab_subtile(slb_y,i)))
         {

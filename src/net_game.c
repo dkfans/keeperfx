@@ -60,7 +60,6 @@ extern int32_t multiplayer_speed_adjustment_ns;
 struct StartupSyncPacket {
     uint8_t startup_sync_packet_valid;
     int32_t video_rotate_mode;
-    int32_t input_lag_turns;
     TbBigChecksum map_checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
     TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
     uint16_t initial_tendencies;
@@ -68,6 +67,7 @@ struct StartupSyncPacket {
     uint32_t frontview_zoom_level;
     uint32_t zoom_distance_setting;
     uint32_t frontview_zoom_distance_setting;
+    uint8_t initial_input_lag_turns;
 };
 #pragma pack()
 
@@ -76,6 +76,7 @@ short setup_network_service(enum FrontendNetService service)
   struct ServiceInitData *init_data = NULL;
   SYNCMSG("Initializing 4-players type %d network", service);
   memset(net_player_info, 0, sizeof(net_player_info));
+  network_lobby_ping = 0;
   if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
     process_network_error(-800);
     return 0;
@@ -195,12 +196,35 @@ static struct StartupSyncPacket s_local_startup_sync;
 static struct StartupSyncPacket s_startup_sync_packets[MAX_NET_USERS];
 static TbBool network_disconnect_victory_enabled;
 
+static uint8_t calculate_initial_input_lag(void)
+{
+    int32_t player_count = 0;
+    for (int32_t i = 0; i < MAX_NET_USERS; i++) {
+        if (net_player_info[i].network_user_active) {
+            player_count++;
+        }
+    }
+    uint64_t ping = network_lobby_ping;
+    if (player_count == 2) {
+        ping /= 2;
+    }
+    uint64_t input_lag_turns = 0;
+    if (turns_per_second > 0) {
+        input_lag_turns = (ping * turns_per_second + 999) / 1000;
+    }
+    uint64_t uncapped_input_lag_turns = input_lag_turns;
+    if (input_lag_turns > MAXIMUM_INPUT_LAG_TURNS) {
+        input_lag_turns = MAXIMUM_INPUT_LAG_TURNS;
+    }
+    JUSTLOG("Initial input lag: (%llu ms * %d turns/s + 999) / 1000 = %llu turns, capped to %llu", (unsigned long long)ping, turns_per_second, (unsigned long long)uncapped_input_lag_turns, (unsigned long long)input_lag_turns);
+    return input_lag_turns;
+}
+
 static void build_local_startup_sync(void)
 {
     memset(&s_local_startup_sync, 0, sizeof(s_local_startup_sync));
     s_local_startup_sync.startup_sync_packet_valid = 1;
     s_local_startup_sync.video_rotate_mode = settings.video_rotate_mode;
-    s_local_startup_sync.input_lag_turns = game.input_lag_turns;
     calculate_network_startup_map_checksums(s_local_startup_sync.map_checksums);
     memcpy(s_local_startup_sync.required_sprite_zip_checksums, required_sprite_zip_checksums, sizeof(s_local_startup_sync.required_sprite_zip_checksums));
     uint16_t initial_tendencies = 0;
@@ -211,6 +235,7 @@ static void build_local_startup_sync(void)
     s_local_startup_sync.frontview_zoom_level = settings.frontview_zoom_level;
     s_local_startup_sync.zoom_distance_setting = zoom_distance_setting;
     s_local_startup_sync.frontview_zoom_distance_setting = frontview_zoom_distance_setting;
+    s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
 }
 
 static TbBool net_startup_sync_exchange_and_apply(void)
@@ -237,9 +262,10 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         return false;
     }
     const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[get_host_player_id()];
-    game.input_lag_turns = host_sync->input_lag_turns;
+    game.input_lag_turns = host_sync->initial_input_lag_turns;
+    input_lag_reset();
     game.skip_initial_input_turns = calculate_skip_input();
-    NETLOG("Startup input lag synced: input_lag=%d", game.input_lag_turns);
+    NETLOG("Startup input lag: %d", game.input_lag_turns);
     zoom_distance_setting = host_sync->zoom_distance_setting;
     frontview_zoom_distance_setting = host_sync->frontview_zoom_distance_setting;
     setup_players_from_startup_packets(s_startup_sync_packets);
@@ -412,6 +438,7 @@ static void stop_network_game_state(void)
     game.game_kind = GKind_LocalGame;
     game.input_lag_turns = 0;
     game.skip_initial_input_turns = 0;
+    input_lag_reset();
     multiplayer_speed_adjustment_ns = 0;
     setup_count_players();
 }
@@ -490,6 +517,7 @@ void process_disconnected_network_players(void)
             }
         }
         if ((player->allocflags & PlaF_CompCtrl) == 0) {
+            input_lag_reset_intervals();
             if (!host_disconnected && player->id_number != get_host_player_id() && player->player_name[0] != '\0') {
                 message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), player->player_name);
                 JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
