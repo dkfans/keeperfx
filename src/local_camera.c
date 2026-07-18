@@ -239,7 +239,7 @@ void update_local_cameras_post(void)
 void interpolate_camera_deviations(void)
 {
     struct PlayerInfo* my_player = get_my_player();
-    if (my_player->view_mode == PVM_CreatureView || my_player->view_mode == PVM_FrontView) {
+    if (!player_exists(my_player) || my_player->view_mode == PVM_CreatureView || my_player->view_mode == PVM_FrontView) {
         return;
     }
     const float interpolated_deviation_x = interpolate(previous_deviation_x, destination_deviation_x);
