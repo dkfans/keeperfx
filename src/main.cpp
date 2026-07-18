@@ -1205,7 +1205,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
         return (player->controlled_thing_idx > 0);
 
     case PSt_CtrlDungeon:
-        switch(player->primary_cursor_state)
+        switch (player->primary_cursor_state)
         {
             case CSt_DefaultArrow:
                 return false;

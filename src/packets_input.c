@@ -284,7 +284,6 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     unsigned char box_colour;
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
         player->secondary_cursor_state = CSt_DefaultArrow;
-    player->primary_cursor_state = (unsigned short)(pckt->additional_packet_values & PCAdV_ContextMask) >> 1; // get current cursor state from pckt->additional_packet_values
     player->render_roomspace.highlight_mode = settings.highlight_mode; // reset one-click highlight mode
     player->render_roomspace.drag_mode = player->one_click_lock_cursor;
     player->pickup_all_gold = (pckt->additional_packet_values & PCAdV_RotatePressed);
@@ -706,6 +705,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     TbBool thing_target_action = (pckt->action == PckA_UsePwrHandPick) || (pckt->action == PckA_UsePwrOnThing);
     player->full_slab_cursor = 1;
+    player->primary_cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
     packet_left_button_double_clicked[plyr_idx] = 0;
     player->mouse_on_map = is_mouse_on_map(pckt);
     remember_cursor_subtile(player);
