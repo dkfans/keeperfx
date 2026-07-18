@@ -2066,7 +2066,17 @@ static void set_packet_action_for_thing_under_hand(struct PlayerInfo* player, st
     if (!left_button_released) {
         return;
     }
-    switch (player->work_state) {
+    PowerKind pwkind = player->chosen_power_kind;
+    PlayerState work_state = player->work_state;
+    for (GameTurnDelta i = 1; i <= game.input_lag_turns; i += 1) {
+        const struct Packet* delayed_pckt = get_history_packet(player->packet_num, get_gameturn() - i);
+        if ((delayed_pckt != NULL) && (delayed_pckt->action == PckA_SetPlyrState)) {
+            work_state = delayed_pckt->actn_par1;
+            pwkind = delayed_pckt->actn_par2;
+            break;
+        }
+    }
+    switch (work_state) {
         case PSt_CtrlDungeon:
             if ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0) {
                 set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_POSSESS, local_thing_under_hand, 0, 0);
@@ -2083,7 +2093,7 @@ static void set_packet_action_for_thing_under_hand(struct PlayerInfo* player, st
             set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_POSSESS, local_thing_under_hand, 0, 0);
             break;
         case PST_CastPowerOnTarget:
-            set_packet_action(pckt, PckA_UsePwrOnThing, player->chosen_power_kind, local_thing_under_hand, 0, 0);
+            set_packet_action(pckt, PckA_UsePwrOnThing, pwkind, local_thing_under_hand, 0, 0);
             break;
     }
 }
