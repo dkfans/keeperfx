@@ -159,15 +159,7 @@ enum ZoomToMouseOptions
     ZoomToMouse_Always = 3
 };
 extern enum ZoomToMouseOptions zoom_to_mouse_option;
-
-enum RotateAroundMouseOptions
-{
-    RotateAroundMouse_Off = 1,
-    RotateAroundMouse_ThumbButtons = 2,
-    //RotateAroundMouse_HorizontalScroll = 3,
-    //RotateAroundMouse_Both = 4
-};
-extern enum RotateAroundMouseOptions rotate_around_mouse_option;
+extern TbBool rotate_around_mouse_option;
 
 #pragma pack()
 /******************************************************************************/

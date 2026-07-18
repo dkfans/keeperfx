@@ -948,16 +948,10 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           {
             CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
-          else switch (i)
+          else
           {
-          case 2:
-            rotate_around_mouse_option = RotateAroundMouse_Off;
-            break;
-          case 1:
-            rotate_around_mouse_option = RotateAroundMouse_ThumbButtons;
-            break;
+              rotate_around_mouse_option = (i==1);
           }
-          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
