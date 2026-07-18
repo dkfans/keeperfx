@@ -42,7 +42,7 @@ TbCharCount LbLocTextStringLength(const TbLocChar *s)
     TbSize i = 0;
     while (s[i] != 0)
     {
-      //if ((s[i] & 0xc0) != 0x80) // enable when/if UTF-8 is supported
+      if ((s[i] & 0xc0) != 0x80) // don't count UTF-8 continuation bytes
       {
           j++;
       }
@@ -76,10 +76,15 @@ TbSize LbLocTextPosToLength(const TbLocChar *s, TbCharCount pos)
     TbSize i = 0;
     while ((s[i] != 0) && (j < pos))
     {
-      //if ((s[i] & 0xc0) != 0x80) // enable when/if UTF-8 is supported
+      if ((s[i] & 0xc0) != 0x80) // don't count UTF-8 continuation bytes
       {
           j++;
       }
+      i++;
+    }
+    // Advance past the continuation bytes of the last counted character
+    while ((s[i] & 0xc0) == 0x80)
+    {
       i++;
     }
     return i;

@@ -618,7 +618,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             if (insert_text[0] != '\0')
             {
                 if (LbLocTextStringInsert(str, insert_text, input_field_pos, gbtn->maxval) != NULL) {
-                    input_field_pos += strlen(insert_text);
+                    input_field_pos += LbLocTextStringLength(insert_text);
                 }
             }
         }
