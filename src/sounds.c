@@ -204,7 +204,6 @@ void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
     }
     if (sample_idx != 0)
     {
-        remove_thing_from_mapwho(thing);
         thing->mappos = *pos;
         thing->previous_mappos = *pos;
         i = thing->snd_emitter_id;
