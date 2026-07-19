@@ -27,6 +27,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
 #include "bflib_guibtns.h"
+#include "bflib_datetm.h"
 #include "config_strings.h"
 
 #include "player_data.h"
@@ -437,15 +438,14 @@ int simple_frontend_sprite_width_units_per_px(const struct GuiButton *gbtn, long
  */
 void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text)
 {
-    static unsigned char cursor_type = 0;
     unsigned long flgmem = lbDisplay.DrawFlags;
     long cursor_pos = -1;
     static char dtext[TEXT_BUFFER_LENGTH];
     snprintf(dtext, TEXT_BUFFER_LENGTH, "%s", text);
     if ((gbtn->gbtype == LbBtnT_EditBox) && (gbtn == input_button))
     {
-        cursor_type++;
-        if ((cursor_type & 0x02) == 0)
+        // Time-based blink; original DK toggled every 2 frames at 20 fps, so 100ms on/off
+        if ((LbTimerClock() / 100 & 1) == 0)
           cursor_pos = input_field_pos;
         LbLocTextStringConcat(dtext, " ", TEXT_BUFFER_LENGTH);
         lbDisplay.DrawColour = LbTextGetFontFaceColor();
@@ -486,7 +486,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
     }
     LbTextSetJustifyWindow(x, gbtn->scr_pos_y, width);
     LbTextSetClipWindow(x, gbtn->scr_pos_y, width, gbtn->height);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;// | Lb_TEXT_UNDERLNSHADOW;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER | Lb_TEXT_UNDERLNSHADOW;
     if (cursor_pos >= 0) {
         // Mind the order, 'cause inserting makes positions shift
         LbLocTextStringInsert(dtext, "\x0B", cursor_pos+1, TEXT_BUFFER_LENGTH);
