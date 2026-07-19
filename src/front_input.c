@@ -105,7 +105,7 @@ long old_mx;
 long old_my;
 
 enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Always;
-enum RotateAroundMouseOptions rotate_around_mouse_option = RotateAroundMouse_Always;
+enum RotateAroundMouseOptions rotate_around_mouse_option = RotateAroundMouse_Never;
 TbBool rotate_follow_mouse_option = false;
 
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
