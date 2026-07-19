@@ -1250,7 +1250,7 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSourc
 
     if ( scale_up )
     {
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_REMAP) != 0)
         {
           if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
           {
@@ -1299,7 +1299,7 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSourc
     }
     else
     {
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_REMAP) != 0)
         {
           if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
           {

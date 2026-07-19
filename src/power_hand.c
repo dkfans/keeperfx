@@ -649,12 +649,12 @@ void draw_power_hand(void)
                 if (crconf->transparency_flags == TRF_Transpar_8)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+                    lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
                 }
                 else if (crconf->transparency_flags == TRF_Transpar_4)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+                    lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
                 }
                 else if(crconf->transparency_flags == TRF_Transpar_Alpha)
                 {

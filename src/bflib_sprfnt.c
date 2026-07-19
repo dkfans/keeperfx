@@ -136,26 +136,31 @@ static TbBool is_duospace_char(unsigned long chr)
  * @param draw_colr
  * @param shadow_colr
  */
-static void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height, uchar draw_colr, uchar shadow_colr)
+static void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height, int units_per_px, uchar draw_colr, uchar shadow_colr)
 {
+    if (units_per_px < 1)
+        units_per_px = 1;
+    // The bound checks follow the original code, so use the unscaled height for them
+    long base_height = height * 16 / units_per_px;
+    // Stroke thickness scaled the same way the font sprites are
+    long thickness = ((base_height > DOUBLE_UNDERLINE_BOUND) ? 2 : 1) * units_per_px / 16;
+    if (thickness < 1)
+        thickness = 1;
     long h = height;
     long w = width;
     // Draw shadow
     if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
-        long shadow_x = pos_x + 1;
-        if (height > 2*DOUBLE_UNDERLINE_BOUND)
-            shadow_x++;
-        LbDrawHVLine(shadow_x, pos_y+h, shadow_x+w, pos_y+h, shadow_colr);
-        h--;
-        if (height > DOUBLE_UNDERLINE_BOUND) {
+        long shadow_off = ((base_height > 2*DOUBLE_UNDERLINE_BOUND) ? 2 : 1) * units_per_px / 16;
+        if (shadow_off < 1)
+            shadow_off = 1;
+        long shadow_x = pos_x + shadow_off;
+        for (long i = 0; i < thickness; i++) {
             LbDrawHVLine(shadow_x, pos_y+h, shadow_x+w, pos_y+h, shadow_colr);
             h--;
         }
     }
     // Draw underline
-    LbDrawHVLine(pos_x, pos_y+h, pos_x+w, pos_y+h, draw_colr);
-    h--;
-    if (height > DOUBLE_UNDERLINE_BOUND) {
+    for (long i = 0; i < thickness; i++) {
         LbDrawHVLine(pos_x, pos_y+h, pos_x+w, pos_y+h, draw_colr);
         h--;
     }
@@ -450,7 +455,7 @@ static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *p
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
             int h = adraw.bits_height * units_per_px / 16;
-            LbDrawCharUnderline(*pos_x,pos_y,w,h,colour,lbDisplayEx.ShadowColour);
+            LbDrawCharUnderline(*pos_x,pos_y,w,h,units_per_px,colour,lbDisplayEx.ShadowColour);
         }
         *pos_x += w;
         if (*pos_x >= awind->width)
@@ -476,7 +481,7 @@ static int8_t draw_simpletext_char(uint32_t chr, long *pos_x, long pos_y, int un
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
             int h = LbTextLineHeight() * units_per_px / 16;
-            LbDrawCharUnderline(*pos_x, pos_y, w, h, lbDisplay.DrawColour, lbDisplayEx.ShadowColour);
+            LbDrawCharUnderline(*pos_x, pos_y, w, h, units_per_px, lbDisplay.DrawColour, lbDisplayEx.ShadowColour);
         }
         *pos_x += w;
         return 1;
@@ -532,7 +537,7 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
             h = LbTextLineHeight() * units_per_px / 16;
-            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
+            LbDrawCharUnderline(x,y,w,h,units_per_px,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
         }
         x += w;
     } else
@@ -549,7 +554,7 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
             h = LbTextLineHeight() * units_per_px / 16;
-            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
+            LbDrawCharUnderline(x,y,w,h,units_per_px,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
         }
         x += w;
     } else

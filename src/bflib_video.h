@@ -99,7 +99,8 @@ enum TbDrawFlags {
     Lb_TEXT_HALIGN_CENTER  = 0x0100,
     Lb_TEXT_HALIGN_JUSTIFY = 0x0200,
     Lb_TEXT_UNDERLINE      = 0x0400,
-    Lb_TEXT_UNDERLNSHADOW  = 0x0800,
+    Lb_SPRITE_REMAP        = 0x0800,
+    Lb_TEXT_UNDERLNSHADOW  = 0x1000,
 };
 
 enum TbVideoModeFlags {
