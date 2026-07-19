@@ -47,6 +47,9 @@ float previous_deviation_y;
 float destination_deviation_x;
 float destination_deviation_y;
 TbBool local_camera_ready;
+static MapCoord local_camera_move_target[2];
+static MapCoordDelta local_camera_move_delta[2];
+static TbBool local_camera_move_active;
 /******************************************************************************/
 
 static struct Packet* get_packet_for_local_camera_update(void)
@@ -134,7 +137,23 @@ void init_local_cameras(struct PlayerInfo *player)
     for (int i = 0; i < 4; i++) {
         sync_camera_state(i, &player->cameras[i]);
     }
+    local_camera_move_active = false;
     local_camera_ready = true;
+}
+
+void move_local_camera_to_position(MapCoord x, MapCoord y)
+{
+    if (!local_camera_ready) {
+        return;
+    }
+    struct Camera *cam = &destination_local_cameras[CamIV_Isometric];
+    if (get_my_player()->view_mode == PVM_FrontView) {
+        cam = &destination_local_cameras[CamIV_FrontView];
+    }
+    local_camera_move_target[0] = x;
+    local_camera_move_target[1] = y;
+    view_set_camera_move_to_position(cam, x, y, &local_camera_move_delta[0], &local_camera_move_delta[1]);
+    local_camera_move_active = true;
 }
 
 void process_local_minimap_click(struct Packet* packet) {
@@ -227,8 +246,13 @@ void update_local_cameras_post(void)
         process_local_minimap_click(local_packet);
         // Only process camera controls for the currently active camera view
         int active_cam_idx = (my_player->view_mode == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
-        process_camera_controls(&destination_local_cameras[active_cam_idx], local_packet, my_player, true);
-        view_process_camera_inertia(&destination_local_cameras[active_cam_idx]);
+        struct Camera *cam = &destination_local_cameras[active_cam_idx];
+        if (local_camera_move_active) {
+            local_camera_move_active = !view_move_camera_to_position(cam, local_camera_move_target[0], local_camera_move_target[1], local_camera_move_delta[0], local_camera_move_delta[1]);
+        } else {
+            process_camera_controls(cam, local_packet, my_player, true);
+            view_process_camera_inertia(cam);
+        }
         
         // Send catchup packets if local camera has drifted too far from packet-based camera
         send_camera_catchup_packets(my_player);

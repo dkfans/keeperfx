@@ -644,6 +644,36 @@ void view_process_camera_inertia(struct Camera *cam)
     cam->in_active_movement_rotation = false;
 }
 
+void view_set_camera_move_to_position(struct Camera *cam, MapCoord x, MapCoord y, MapCoordDelta *move_x, MapCoordDelta *move_y)
+{
+    MapCoord positions[] = {cam->mappos.x.val, cam->mappos.y.val};
+    MapCoord targets[] = {x, y};
+    MapCoordDelta *movement[] = {move_x, move_y};
+    for (int i = 0; i < 2; i++) {
+        *movement[i] = max(abs(targets[i] - positions[i]) / 8, 256);
+        if (targets[i] < positions[i]) {
+            *movement[i] = -*movement[i];
+        }
+    }
+}
+
+TbBool view_move_camera_to_position(struct Camera *cam, MapCoord x, MapCoord y, MapCoordDelta move_x, MapCoordDelta move_y)
+{
+    MapCoord *positions[] = {&cam->mappos.x.val, &cam->mappos.y.val};
+    MapCoord targets[] = {x, y};
+    MapCoordDelta movement[] = {move_x, move_y};
+    cam->inertia_x = 0;
+    cam->inertia_y = 0;
+    for (int i = 0; i < 2; i++) {
+        if (abs(*positions[i] - targets[i]) >= abs(movement[i])) {
+            *positions[i] += movement[i];
+        } else {
+            *positions[i] = targets[i];
+        }
+    }
+    return (*positions[0] == targets[0]) && (*positions[1] == targets[1]);
+}
+
 void update_player_camera(struct PlayerInfo *player)
 {
     struct Dungeon *dungeon = get_players_dungeon(player);

@@ -840,49 +840,16 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, int32_t *n)
     player->allocflags |= PlaF_MouseInputDisabled;
     player->allocflags |= PlaF_KeyboardInputDisabled;
     struct Camera* cam = get_player_active_camera(player);
-    int dt_x = (player->zoom_to_pos_x - (int)cam->mappos.x.val) / 8;
-    int dt_y = (player->zoom_to_pos_y - (int)cam->mappos.y.val) / 8;
-    if (dt_x < 0)
-    {
-      if (dt_x > -256)
-        dt_x = -256;
-    } else
-    {
-      if (dt_x < 256)
-        dt_x = 256;
-    }
-    player->zoom_to_movement_x = dt_x;
-    if (dt_y < 0)
-    {
-        if (dt_y > -256)
-          dt_y = -256;
-    } else
-    {
-        if (dt_y < 256)
-          dt_y = 256;
-    }
-    player->zoom_to_movement_y = dt_y;
+    view_set_camera_move_to_position(cam, player->zoom_to_pos_x, player->zoom_to_pos_y, &player->zoom_to_movement_x, &player->zoom_to_movement_y);
     return 0;
 }
 
 long pinstfm_zoom_to_position(struct PlayerInfo *player, int32_t *n)
 {
-    MapCoord x, y;
     struct Camera* cam = get_player_active_camera(player);
-    cam->inertia_x = 0;
-    cam->inertia_y = 0;
-    if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->zoom_to_movement_x))
-      x = player->zoom_to_movement_x + cam->mappos.x.val;
-    else
-      x = player->zoom_to_pos_x;
-    if (abs(cam->mappos.y.val - player->zoom_to_pos_y) >= abs(player->zoom_to_movement_y))
-      y = player->zoom_to_movement_y + cam->mappos.y.val;
-    else
-      y = player->zoom_to_pos_y;
-    if ((player->zoom_to_pos_x == x) && (player->zoom_to_pos_y == y))
+    if (view_move_camera_to_position(cam, player->zoom_to_pos_x, player->zoom_to_pos_y, player->zoom_to_movement_x, player->zoom_to_movement_y)) {
         player->instance_remain_turns = 0;
-    cam->mappos.x.val = x;
-    cam->mappos.y.val = y;
+    }
     set_local_camera_destination(player);
     return 0;
 }

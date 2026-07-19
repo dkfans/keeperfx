@@ -76,6 +76,7 @@
 #include "power_hand.h"
 #include "magic_powers.h"
 #include "player_instances.h"
+#include "local_camera.h"
 #include "player_utils.h"
 #include "config_players.h"
 #include "gui_frontmenu.h"
@@ -1469,10 +1470,9 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
 
 void gui_go_to_event(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
     if (my_visible_event_idx) {
-        set_players_packet_action(player, PckA_ZoomToEvent, my_visible_event_idx, 0, 0, 0);
+        struct Event *event = &game.event[my_visible_event_idx];
+        move_local_camera_to_position(event->mappos_x, event->mappos_y);
     }
 }
 

@@ -44,6 +44,7 @@
 #include "vidfade.h"
 #include "game_legacy.h"
 #include "map_events.h"
+#include "local_camera.h"
 #include "sprites.h"
 
 #include "keeperfx.hpp"
@@ -177,8 +178,7 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
     struct Thing* thing = thing_get(battle_creature_over);
     if (thing_exists(thing))
     {
-        struct Packet* pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_ZoomToPosition, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+        move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
     }
 }
 
