@@ -757,13 +757,9 @@ TbBool add_input_text_to_message(char *message, int max_message_length, struct T
     {
         size_t seq_len = 0;
         uint32_t codepoint = read_utf_8_codepoint(&text_input[ti], &seq_len);
-        TbBool acceptable;
-        if (codepoint < 0x80) {
-            acceptable = (codepoint >= 0x20 && codepoint < 0x7f);
-        } else {
-            // Accept a non-ASCII character only when the current font has a glyph for it.
-            acceptable = (LbFontCharSprite(font, codepoint) != NULL);
-        }
+        // Accept any printable character; rendering falls back on unifont
+        // for glyphs missing from the sprite fonts.
+        TbBool acceptable = (codepoint >= 0x20 && codepoint != 0x7f);
         if (acceptable && (chpos + (int)seq_len < max_message_length)) {
             memcpy(&message[chpos], &text_input[ti], seq_len);
             chpos += seq_len;
