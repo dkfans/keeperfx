@@ -55,21 +55,30 @@ extern int32_t multiplayer_speed_adjustment_ns;
 unsigned long TimerTurns = 0;
 unsigned short battle_creature_over;
 EventIndex my_visible_event_idx;
-unsigned char my_event_button_read[EVENTS_COUNT];
+unsigned char my_event_button_state[EVENTS_COUNT];
 int debug_display_network_stats = 0;
 
 /******************************************************************************/
-void gui_open_event(struct GuiButton *gbtn)
+EventIndex get_my_event_button_index(unsigned int button_idx)
 {
     struct Dungeon* dungeon = get_my_dungeon();
-    EventIndex evidx;
-    SYNCDBG(5,"Starting");
-    unsigned int evbtn_idx = gbtn->content.lval;
-    if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
-        evidx = dungeon->event_button_index[evbtn_idx];
-    } else {
-        evidx = 0;
+    for (int i = 0; i <= EVENT_BUTTONS_COUNT; i++) {
+        EventIndex evidx = dungeon->event_button_index[i];
+        if (!evidx || (my_event_button_state[evidx] & EvBtnS_Hidden)) {
+            continue;
+        }
+        if (!button_idx) {
+            return evidx;
+        }
+        button_idx--;
     }
+    return 0;
+}
+
+void gui_open_event(struct GuiButton *gbtn)
+{
+    SYNCDBG(5,"Starting");
+    EventIndex evidx = get_my_event_button_index(gbtn->content.lval);
     if (evidx == my_visible_event_idx)
     {
         gui_close_objective(gbtn);
@@ -83,11 +92,10 @@ void gui_open_event(struct GuiButton *gbtn)
 void gui_kill_event(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    struct Dungeon* dungeon = get_players_dungeon(player);
-    unsigned long i = gbtn->content.lval;
-    EventIndex evidx = dungeon->event_button_index[i];
+    EventIndex evidx = get_my_event_button_index(gbtn->content.lval);
     turn_off_event_box_if_necessary(player->id_number, evidx);
     if (game.event[evidx].kind != EvKind_Objective) {
+        my_event_button_state[evidx] |= EvBtnS_Hidden;
         set_players_packet_action(player, PckA_EventBoxTurnOff, evidx, 0, 0, 0);
     }
 }

@@ -393,13 +393,11 @@ void gui_area_event_button(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
         int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_message_rpanel_msg_questn_act, 100);
-        struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-        unsigned long i = gbtn->content.lval;
         if ((gbtn->button_state_left_pressed) || (gbtn->button_state_right_pressed))
         {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
         } else
-        if ((i <= EVENT_BUTTONS_COUNT) && (dungeon->event_button_index[i] == my_visible_event_idx))
+        if (get_my_event_button_index(gbtn->content.lval) == my_visible_event_idx)
         {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
         } else
@@ -2181,17 +2179,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
 
 void maintain_event_button(struct GuiButton *gbtn)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    EventIndex evidx;
-    unsigned long evbtn_idx = gbtn->content.lval;
-    if (evbtn_idx <= EVENT_BUTTONS_COUNT)
-    {
-        evidx = dungeon->event_button_index[evbtn_idx];
-    }
-    else
-    {
-        evidx = 0;
-    }
+    EventIndex evidx = get_my_event_button_index(gbtn->content.lval);
     struct Event* event = &game.event[evidx];
     if ((my_visible_event_idx != 0) && (evidx == my_visible_event_idx))
     {
@@ -2212,7 +2200,7 @@ void maintain_event_button(struct GuiButton *gbtn)
             {
                 for (int i = EVENT_BUTTONS_COUNT; i >= 0; i--)
                 {
-                    long k = dungeon->event_button_index[i];
+                    EventIndex k = get_my_event_button_index(i);
                     if (k != 0)
                     {
                         activate_event_box(k);
@@ -2256,7 +2244,7 @@ void maintain_event_button(struct GuiButton *gbtn)
         }
     } else
     if (((event->kind == EvKind_Information) || (event->kind == EvKind_QuickInformation))
-      && !my_event_button_read[evidx] && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
+      && !(my_event_button_state[evidx] & EvBtnS_Read) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
     {
         // Unread information flashes
         gbtn->sprite_idx += 2;

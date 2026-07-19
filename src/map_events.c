@@ -182,7 +182,7 @@ EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y
 void event_initialise_all(void)
 {
     my_visible_event_idx = 0;
-    memset(my_event_button_read, 0, EVENTS_COUNT);
+    memset(my_event_button_state, 0, EVENTS_COUNT);
     for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
         struct Dungeon* dungeon = get_dungeon(i);
@@ -250,7 +250,7 @@ struct Event *event_allocate_free_event_structure(void)
 
 void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target)
 {
-    my_event_button_read[event->index] = 0;
+    my_event_button_state[event->index] = 0;
     event->mappos_x = map_x;
     event->mappos_y = map_y;
     event->kind = evkind;
@@ -389,7 +389,7 @@ void activate_event_box(EventIndex evidx)
     struct Event* event = &game.event[evidx];
     SYNCDBG(6,"Starting for event kind %d",event->kind);
     my_visible_event_idx = evidx;
-    my_event_button_read[evidx] = 1;
+    my_event_button_state[evidx] |= EvBtnS_Read;
     i = event_button_info[event->kind].msg_stridx;
     strcpy(game.evntbox_scroll_window.text, get_string(i));
     if ((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight)) {
@@ -799,7 +799,7 @@ void clear_events(void)
 {
     int i;
     my_visible_event_idx = 0;
-    memset(my_event_button_read, 0, EVENTS_COUNT);
+    memset(my_event_button_state, 0, EVENTS_COUNT);
     for (i=0; i < EVENTS_COUNT; i++)
     {
       memset(&game.event[i], 0, sizeof(struct Event));

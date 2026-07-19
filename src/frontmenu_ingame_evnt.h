@@ -33,9 +33,14 @@ struct GuiMenu;
 struct GuiButton;
 
 /******************************************************************************/
+enum EventButtonState {
+    EvBtnS_Read = 1,
+    EvBtnS_Hidden = 2,
+};
+
 extern unsigned short battle_creature_over;
 extern EventIndex my_visible_event_idx;
-extern unsigned char my_event_button_read[];
+extern unsigned char my_event_button_state[];
 
 #pragma pack()
 /******************************************************************************/
@@ -44,6 +49,7 @@ extern struct GuiMenu battle_menu;
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn);
 void gui_kill_event(struct GuiButton *gbtn);
+EventIndex get_my_event_button_index(unsigned int button_idx);
 void turn_on_event_info_panel_if_necessary(EventIndex evidx);
 void activate_event_box(EventIndex evidx);
 void gui_next_battle(struct GuiButton *gbtn);
