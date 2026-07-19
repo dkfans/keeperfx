@@ -58,6 +58,7 @@
 #include "player_computer.h"
 #include "player_instances.h"
 #include "config_players.h"
+#include "config_settings.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
 #include "frontmenu_ingame_map.h"
@@ -189,7 +190,9 @@ void gui_zoom_in(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     if (player->minimap_zoom > 128) {
-        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
+        player->minimap_zoom >>= 1;
+        settings.minimap_zoom = player->minimap_zoom;
+        save_settings();
     }
 }
 
@@ -197,7 +200,9 @@ void gui_zoom_out(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     if (player->minimap_zoom < 2048) {
-        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom << 1, 0, 0, 0);
+        player->minimap_zoom <<= 1;
+        settings.minimap_zoom = player->minimap_zoom;
+        save_settings();
     }
 }
 

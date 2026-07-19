@@ -682,42 +682,25 @@ static short zoom_shortcuts(void)
   return false;
 }
 
-/**
- * Handles minimap control inputs.
- * @return Returns true if packet was created, false otherwise.
- */
 static short get_minimap_control_inputs(void)
 {
-    struct PlayerInfo* player = get_my_player();
-    short packet_made = false;
-    if (is_game_key_pressed(Gkey_ZoomMinimapOut, true, false))
-    {
-        if (menu_is_active(GMnu_MAIN))
-        {
+    if (is_game_key_pressed(Gkey_ZoomMinimapOut, true, false)) {
+        if (menu_is_active(GMnu_MAIN)) {
             fake_button_click(BID_MAP_ZOOM_OU);
+        } else {
+            gui_zoom_out(NULL);
         }
-        if (player->minimap_zoom < 2048)
-        {
-            set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0, 0, 0);
-            packet_made = true;
+        return true;
+    }
+    if (is_game_key_pressed(Gkey_ZoomMinimapIn, true, false)) {
+        if (menu_is_active(GMnu_MAIN)) {
+            fake_button_click(BID_MAP_ZOOM_IN);
+        } else {
+            gui_zoom_in(NULL);
         }
-        if (packet_made)
-            return true;
-  }
-  if (is_game_key_pressed(Gkey_ZoomMinimapIn, true, false))
-  {
-      if (menu_is_active(GMnu_MAIN))
-      {
-          fake_button_click(BID_MAP_ZOOM_IN);
-      }
-      if ( player->minimap_zoom > 128 )
-      {
-          set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
-          packet_made = true;
-      }
-      if (packet_made) return true;
-  }
-  return false;
+        return true;
+    }
+    return false;
 }
 
 /**
