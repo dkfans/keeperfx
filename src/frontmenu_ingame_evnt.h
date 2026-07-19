@@ -34,6 +34,8 @@ struct GuiButton;
 
 /******************************************************************************/
 extern unsigned short battle_creature_over;
+extern EventIndex my_visible_event_idx;
+extern unsigned char my_event_button_read[];
 
 #pragma pack()
 /******************************************************************************/

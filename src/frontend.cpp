@@ -637,12 +637,10 @@ void maintain_loadsave(struct GuiButton *gbtn)
 
 void maintain_zoom_to_event(struct GuiButton *gbtn)
 {
-    struct Dungeon *dungeon;
     struct Event *event;
-    dungeon = get_players_num_dungeon(my_player_number);
-    if (dungeon->visible_event_idx)
+    if (my_visible_event_idx)
     {
-      event = &(game.event[dungeon->visible_event_idx]);
+      event = &(game.event[my_visible_event_idx]);
       if ((event->mappos_x != 0) || (event->mappos_y != 0))
       {
         gbtn->flags |= LbBtnF_Enabled;
@@ -1472,22 +1470,15 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
 void gui_go_to_event(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
     player = get_my_player();
-    dungeon = get_players_dungeon(player);
-    if (dungeon->visible_event_idx) {
-        set_players_packet_action(player, PckA_ZoomToEvent, dungeon->visible_event_idx, 0, 0, 0);
+    if (my_visible_event_idx) {
+        set_players_packet_action(player, PckA_ZoomToEvent, my_visible_event_idx, 0, 0, 0);
     }
 }
 
 void gui_close_objective(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player = get_my_player();
-    set_players_packet_action(player, PckA_EventBoxClose, 0, 0, 0, 0);
-    // The final effect of this packet should be 3 menus disabled
-    /*turn_off_menu(GMnu_TEXT_INFO);
-    turn_off_menu(GMnu_BATTLE);
-    turn_off_menu(GMnu_DUNGEON_SPECIAL);*/
+    turn_off_event_box_if_necessary(my_player_number, my_visible_event_idx);
 }
 
 void gui_scroll_text_up(struct GuiButton *gbtn)

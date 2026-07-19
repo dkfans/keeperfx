@@ -43,6 +43,7 @@
 #include "front_input.h"
 #include "vidfade.h"
 #include "game_legacy.h"
+#include "map_events.h"
 #include "sprites.h"
 
 #include "keeperfx.hpp"
@@ -52,6 +53,8 @@ extern int32_t multiplayer_speed_adjustment_ns;
 
 unsigned long TimerTurns = 0;
 unsigned short battle_creature_over;
+EventIndex my_visible_event_idx;
+unsigned char my_event_button_read[EVENTS_COUNT];
 int debug_display_network_stats = 0;
 
 /******************************************************************************/
@@ -66,7 +69,7 @@ void gui_open_event(struct GuiButton *gbtn)
     } else {
         evidx = 0;
     }
-    if (evidx == dungeon->visible_event_idx)
+    if (evidx == my_visible_event_idx)
     {
         gui_close_objective(gbtn);
     } else
@@ -81,7 +84,11 @@ void gui_kill_event(struct GuiButton *gbtn)
     struct PlayerInfo* player = get_my_player();
     struct Dungeon* dungeon = get_players_dungeon(player);
     unsigned long i = gbtn->content.lval;
-    set_players_packet_action(player, PckA_EventBoxTurnOff, dungeon->event_button_index[i], 0, 0, 0);
+    EventIndex evidx = dungeon->event_button_index[i];
+    turn_off_event_box_if_necessary(player->id_number, evidx);
+    if (game.event[evidx].kind != EvKind_Objective) {
+        set_players_packet_action(player, PckA_EventBoxTurnOff, evidx, 0, 0, 0);
+    }
 }
 
 void turn_on_event_info_panel_if_necessary(EventIndex evidx)
@@ -96,12 +103,6 @@ void turn_on_event_info_panel_if_necessary(EventIndex evidx)
         if (!menu_is_active(GMnu_TEXT_INFO))
           turn_on_menu(GMnu_TEXT_INFO);
     }
-}
-
-void activate_event_box(EventIndex evidx)
-{
-    struct PlayerInfo* player = get_my_player();
-    set_players_packet_action(player, PckA_EventBoxActivate, evidx, 0,0,0);
 }
 
 void gui_previous_battle(struct GuiButton *gbtn)

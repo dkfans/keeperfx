@@ -866,14 +866,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       dump_first_held_thing_on_map(plyr_idx, pckt->actn_par1, pckt->actn_par2, 1);
       return 0;
   case PckA_EventBoxTurnOff:
-      if (game.event[pckt->actn_par1].kind == 3)
-      {
-        turn_off_event_box_if_necessary(plyr_idx, pckt->actn_par1);
-      } else
-      {
-        event_delete_event(plyr_idx, pckt->actn_par1);
+      if (game.event[pckt->actn_par1].kind != EvKind_Objective) {
+          event_delete_event(plyr_idx, pckt->actn_par1);
       }
       return 0;
+  case PckA_EventBoxActivate:
+  case PckA_EventBoxClose:
+      return false;
   case PckA_GenericLevelPower:
       magic_use_available_power_on_level(plyr_idx, pckt->actn_par2, 0, PwMod_Default);
       return 0;
@@ -932,14 +931,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return false;
   case PckA_PwrSOEDis:
       turn_off_power_sight_of_evil(plyr_idx);
-      return false;
-  case PckA_EventBoxActivate:
-      go_on_then_activate_the_event_box(plyr_idx, pckt->actn_par1);
-      return false;
-  case PckA_EventBoxClose:
-      dungeon = get_players_num_dungeon(plyr_idx);
-      turn_off_event_box_if_necessary(plyr_idx, dungeon->visible_event_idx);
-      dungeon->visible_event_idx = 0;
       return false;
   case PckA_UsePwrOnThing:
       i = get_power_overcharge_level(player);
