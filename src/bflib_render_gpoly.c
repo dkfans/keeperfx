@@ -865,7 +865,6 @@ static void draw_gpoly_span(int32_t pixel_span_len, uint32_t texture_position_lo
     texture_index = __ROL4__(texture_position_high, 8) & 0xFFFF;
     texture_map = LOC_vec_map;
     fade_table = render_fade_tables;
-#pragma GCC unroll 8
     for (i = 0; i < pixel_span_len; i++) {
         pixel_dst[i] = fade_table[texture_map[texture_index] | (texture_position & 0xFF00)];
         texture_index = __ROL4__(texture_position >> 32, 8) & 0xFFFF;
