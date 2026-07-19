@@ -5931,3 +5931,13 @@ msgstr ""
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr ""
+
+#: guitext:1122
+msgctxt "Mouse"
+msgid "Scroll Wheel Left"
+msgstr ""
+
+#: guitext:1123
+msgctxt "Mouse"
+msgid "Scroll Wheel Right"
+msgstr ""

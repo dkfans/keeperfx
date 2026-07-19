@@ -474,6 +474,8 @@ enum GUIStrings {
     GUIStr_NetHostConnectionLost,
     GUIStr_FxdataZipNotLoaded,
     GUIStr_FxdataZipInstallAsMod,
+    GUIStr_MouseScrollWheelLeft,
+    GUIStr_MouseScrollWheelRight,
     GuiStrEnd
 };
 
