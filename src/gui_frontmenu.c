@@ -24,6 +24,7 @@
 #include "bflib_guibtns.h"
 #include "kjm_input.h"
 #include "frontend.h"
+#include "frontmenu_ingame_evnt.h"
 #include "gui_frontbtns.h"
 #include "front_input.h"
 #include "config_settings.h"
@@ -569,17 +570,13 @@ long first_available_menu(void)
 
 void turn_off_event_box_if_necessary(PlayerNumber plyr_idx, unsigned char event_idx)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon->visible_event_idx != event_idx) {
+    if (!is_my_player_number(plyr_idx) || (my_visible_event_idx != event_idx)) {
         return;
     }
-    dungeon->visible_event_idx = 0;
-    if (is_my_player_number(plyr_idx))
-    {
-        turn_off_menu(GMnu_TEXT_INFO);
-        turn_off_menu(GMnu_BATTLE);
-        turn_off_menu(GMnu_DUNGEON_SPECIAL);
-    }
+    my_visible_event_idx = 0;
+    turn_off_menu(GMnu_TEXT_INFO);
+    turn_off_menu(GMnu_BATTLE);
+    turn_off_menu(GMnu_DUNGEON_SPECIAL);
 }
 
 /******************************************************************************/
