@@ -6867,7 +6867,6 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     getpoly = poly_pool;
     memset(buckets, 0, sizeof(buckets));
-    memset(poly_pool, 0, sizeof(poly_pool));
     if (map_volume_box.visible)
     {
         poly_pool_end_reserve(14);
