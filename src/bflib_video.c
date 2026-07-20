@@ -30,7 +30,6 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
-#include <immintrin.h>
 #include <math.h>
 #include "post_inc.h"
 
@@ -91,9 +90,6 @@ static unsigned char fade_started;
 static unsigned char from_pal[PALETTE_SIZE];
 static unsigned char to_pal[PALETTE_SIZE];
 static long fade_count;
-static uint32_t lbPalettePixels[PALETTE_COLORS];
-static Uint32 lbPalettePixelFormat;
-static Uint32 lbPaletteVersion;
 
 /******************************************************************************/
 void *LbExeReferenceNumber(void)
@@ -141,53 +137,9 @@ TbResult LbScreenUnlock(void)
     return Lb_SUCCESS;
 }
 
-static __attribute__((target("avx2"))) TbBool try_blit_8_to_32_avx2(SDL_Surface *source, SDL_Surface *destination)
-{
-    if (source->format->BytesPerPixel != 1 || destination->format->BytesPerPixel != 4)
-        return false;
-    if (source->w != destination->w || source->h != destination->h)
-        return false;
-    if (SDL_MUSTLOCK(source) || SDL_MUSTLOCK(destination))
-        return false;
-
-    SDL_Palette *palette = source->format->palette;
-    if (palette->version != lbPaletteVersion || destination->format->format != lbPalettePixelFormat) {
-        for (int32_t i = 0; i < PALETTE_COLORS; i++) {
-            SDL_Color colour = palette->colors[i];
-            lbPalettePixels[i] = SDL_MapRGB(destination->format, colour.r, colour.g, colour.b);
-        }
-        lbPaletteVersion = palette->version;
-        lbPalettePixelFormat = destination->format->format;
-    }
-
-    const uint8_t *source_row = source->pixels;
-    uint8_t *destination_row = destination->pixels;
-    for (int32_t y = 0; y < source->h; y++) {
-        const uint8_t *source_pixels = source_row;
-        uint32_t *destination_pixels = (uint32_t *)destination_row;
-        int32_t x = 0;
-        while (x < source->w && (uintptr_t)&destination_pixels[x] % sizeof(__m256i) != 0) {
-            destination_pixels[x] = lbPalettePixels[source_pixels[x]];
-            x++;
-        }
-        int32_t vector_end = source->w - (source->w - x) % 8;
-        for (; x < vector_end; x += 8) {
-            __m256i indices = _mm256_cvtepu8_epi32(_mm_loadl_epi64((const __m128i *)&source_pixels[x]));
-            __m256i colours = _mm256_i32gather_epi32((const int *)lbPalettePixels, indices, 4);
-            _mm256_stream_si256((__m256i *)&destination_pixels[x], colours);
-        }
-        for (; x < source->w; x++) {
-            destination_pixels[x] = lbPalettePixels[source_pixels[x]];
-        }
-        source_row += source->pitch;
-        destination_row += destination->pitch;
-    }
-    _mm_sfence();
-    return true;
-}
-
 TbResult LbScreenSwap(void)
 {
+    int blresult;
     SYNCDBG(12,"Starting");
     TbResult ret = LbMouseOnBeginSwap();
     // Put the data from Draw Surface onto Screen Surface
@@ -195,21 +147,17 @@ TbResult LbScreenSwap(void)
         // Update pointer to window surface on every frame
         // to avoid problems with alt tab
         lbScreenSurface = SDL_GetWindowSurface(lbWindow);
-        if (lbScreenSurface == NULL) {
-            ERRORLOG("Failed to get window surface: %s",SDL_GetError());
+        blresult = SDL_BlitSurface(lbDrawSurface, NULL, lbScreenSurface, NULL);
+        if (blresult < 0) {
+            ERRORLOG("Blit failed: %s",SDL_GetError());
             ret = Lb_FAIL;
-        } else {
-            TbBool blitted = SDL_HasAVX2() && try_blit_8_to_32_avx2(lbDrawSurface, lbScreenSurface);
-            if (!blitted && SDL_BlitSurface(lbDrawSurface, NULL, lbScreenSurface, NULL) < 0) {
-                ERRORLOG("Blit failed: %s",SDL_GetError());
-                ret = Lb_FAIL;
-            }
         }
     }
     // Flip the image displayed on Screen Surface
     if (ret == Lb_SUCCESS) {
         // calls SDL_UpdateRect for entire screen if not double buffered
-        if (SDL_UpdateWindowSurface(lbWindow) < 0) {
+        blresult = SDL_UpdateWindowSurface(lbWindow);
+        if (blresult < 0) {
             // In some cases this situation seems to be quite common
             ERRORDBG(11,"Flip failed: %s",SDL_GetError());
             ret = Lb_FAIL;
@@ -662,7 +610,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         }
         lbHasSecondSurface = true;
     }
-    lbPalettePixelFormat = SDL_PIXELFORMAT_UNKNOWN;
 
     lbDisplay.DrawFlags = 0;
     lbDisplay.DrawColour = 0;
