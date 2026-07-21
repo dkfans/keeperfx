@@ -40,6 +40,7 @@
 #include "dungeon_data.h"
 #include "gui_topmsg.h"
 #include "config_magic.h"
+#include "game_merge.h"
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
@@ -230,7 +231,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
     }
     if (model == -1) {
         if (value_type(subtype) == VALUE_STRING)
-            ERRORLOG("Unrecognized Thing Subtype \"%s\"", value_string(subtype));
+            ERRORMSG("map%05u.tngfx: Tried to load unrecognized Thing subtype \"%s\"", (unsigned int)get_selected_level_number(), value_string(subtype));
         else
             ERRORLOG("Thing Subtype is not set");
         return false;
