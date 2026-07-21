@@ -30,6 +30,7 @@
 #include "bflib_planar.h"
 #include "bflib_math.h"
 #include "bflib_sprfnt.h"
+#include "bflib_text.h"
 #include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
 
@@ -751,19 +752,27 @@ TbBool add_input_text_to_message(char *message, int max_message_length, struct T
         return false;
 
     int chpos = strlen(message);
-    for (int ti = 0; ti < text_len && chpos < max_message_length - 1; ++ti) {
-        unsigned char c = (unsigned char)text_input[ti];
-        // Limit it to ASCII characters, to ignore codepage differences and multibyte stuff.
-        if (c >= 0x20 && c < 0x7f) {
-            message[chpos++] = (char)c;
+    int ti = 0;
+    while (ti < text_len)
+    {
+        size_t seq_len = 0;
+        uint32_t codepoint = read_utf_8_codepoint(&text_input[ti], &seq_len);
+        // Accept any printable character; rendering falls back on unifont
+        // for glyphs missing from the sprite fonts.
+        TbBool acceptable = (codepoint >= 0x20 && codepoint != 0x7f);
+        if (acceptable && (chpos + (int)seq_len < max_message_length)) {
+            memcpy(&message[chpos], &text_input[ti], seq_len);
+            chpos += seq_len;
             message[chpos] = '\0';
 
             // Enforce max_width even when multiple characters arrive in one frame.
             if (pixel_size * LbTextStringWidth(message) >= max_width) {
-                message[--chpos] = '\0';
+                chpos -= seq_len;
+                message[chpos] = '\0';
                 break;
             }
         }
+        ti += seq_len;
     }
     return true;
 }
