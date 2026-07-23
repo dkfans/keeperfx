@@ -71,7 +71,7 @@ enum RenderingVectorMode {
 };
 
 struct TrigLocals {
-    unsigned long zero0;// dummy, to make no offset 0
+    uint32_t zero0;// dummy, to make no offset 0
     unsigned char unused_24;// 4+
     unsigned char unused_25; // 5+
     union {
@@ -81,57 +81,57 @@ struct TrigLocals {
         unsigned char flags_high_byte;
     };
     };
-    unsigned long x_step_ac; // 8+
-    unsigned long unusedparam; // unused
+    uint32_t x_step_ac; // 8+
+    uint32_t unusedparam; // unused
     // These are DWORDs
-    unsigned long x_step_bc; // 0x10+
-    unsigned long delta_f; // 0x14
-    long y_start; // -0x18
-    unsigned long delta_g; // 0x1C
-    unsigned long x_start_b; // 0x20
-    unsigned long render_height; // 0x24
-    unsigned long u_step; // 0x28
-    unsigned long delta_e; // 0x2C
+    uint32_t x_step_bc; // 0x10+
+    uint32_t delta_f; // 0x14
+    int32_t y_start; // -0x18
+    uint32_t delta_g; // 0x1C
+    uint32_t x_start_b; // 0x20
+    uint32_t render_height; // 0x24
+    uint32_t u_step; // 0x28
+    uint32_t delta_e; // 0x2C
     union {
-    unsigned long texture_v_step_bc; // 0x30
+    uint32_t texture_v_step_bc; // 0x30
     struct {
         unsigned short value_low_word;
         unsigned short value_high_word;
     };
     };
-    unsigned long v_step; // 0x34
-    unsigned long delta_d; // 0x38
-    unsigned long texture_u_step_bc; // 0x3C
-    unsigned long shade_step; // 0x40
-    unsigned long delta_c; // 0x44
-    unsigned long shade_step_bc; // 0x48
-    unsigned long clip_offset; // 0x4C
-    unsigned long delta_h; // 0x50
-    unsigned long delta_i; // 0x54
-    unsigned long y_top; // 0x58
-    unsigned long delta_j; // 0x5C
-    unsigned long delta_k; // 0x60
-    unsigned long delta_b; // 0x64
-    unsigned long delta_a; // 0x68
+    uint32_t v_step; // 0x34
+    uint32_t delta_d; // 0x38
+    uint32_t texture_u_step_bc; // 0x3C
+    uint32_t shade_step; // 0x40
+    uint32_t delta_c; // 0x44
+    uint32_t shade_step_bc; // 0x48
+    uint32_t clip_offset; // 0x4C
+    uint32_t delta_h; // 0x50
+    uint32_t delta_i; // 0x54
+    uint32_t y_top; // 0x58
+    uint32_t delta_j; // 0x5C
+    uint32_t delta_k; // 0x60
+    uint32_t delta_b; // 0x64
+    uint32_t delta_a; // 0x68
     unsigned char *clipping_below_viewport; // 0x6C
 };
 
 struct TrigLocalPrep {
-    long x_step_ac;
-    long x_step_ab;
-    long x_step_bc;
-    long trig_height_top; // counter to loop over first part of polyscans array
-    long y_start;
-    long trig_height_bottom; // counter to loop over second part of polyscans array
-    long x_start_b;
-    long u_step_ac;
-    long texture_v_step_bc;
-    long v_step_ac;
-    long texture_u_step_bc;
-    long shade_step_ac;
-    long shade_step_bc;
-    long clip_offset;
-    long y_top;
+    int32_t x_step_ac;
+    int32_t x_step_ab;
+    int32_t x_step_bc;
+    int32_t trig_height_top; // counter to loop over first part of polyscans array
+    int32_t y_start;
+    int32_t trig_height_bottom; // counter to loop over second part of polyscans array
+    int32_t x_start_b;
+    int32_t u_step_ac;
+    int32_t texture_v_step_bc;
+    int32_t v_step_ac;
+    int32_t texture_u_step_bc;
+    int32_t shade_step_ac;
+    int32_t shade_step_bc;
+    int32_t clip_offset;
+    int32_t y_top;
     unsigned char clipping_above_viewport;
     TbBool hide_bottom_part; // ?Should we show low part of a triangle
     unsigned char clipping_below_viewport;
@@ -139,19 +139,19 @@ struct TrigLocalPrep {
 
 struct TrigLocalRend {
     unsigned char *screen_buffer_ptr;
-    long render_height;
-    long u_step;
-    long v_step;
-    long shade_step;
+    int32_t render_height;
+    int32_t u_step;
+    int32_t v_step;
+    int32_t shade_step;
 };
 
 #pragma pack()
 /******************************************************************************/
 
 /**
- * whether the subtraction (x-y) of two long ints would overflow
+ * whether the subtraction (x-y) of two int32_t ints would overflow
  */
-static inline unsigned char __OFSUBL__(long x, long y)
+static inline unsigned char __OFSUBL__(int32_t x, int32_t y)
 {
     return ((x < 0) ^ (y < 0)) & ((x < 0) ^ (x-y < 0));
 }
@@ -269,21 +269,21 @@ unsigned char trig_reorder_input_points(struct PolyPoint **opt_a,
 static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x, point_y_a, point_y_b;
+    int32_t point_x, point_y_a, point_y_b;
     struct PolyPoint *polygon_point;
 
     point_x = opt_a->X << 16;
     point_y_a = opt_a->X << 16;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         // whether the addition (tlr->render_height + tlp->y_top) would overflow
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -323,7 +323,7 @@ static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     {
         if (tlp->clipping_below_viewport)
         {
-            long delta_height, extent_height;
+            int32_t delta_height, extent_height;
             TbBool extent_height_overflow;
 
             delta_height = vec_window_height - tlp->y_top;
@@ -367,14 +367,14 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     struct PolyPoint *polygon_point;
-    long point_x, point_y_a, point_y_b;
-    long shade_value;
-    long triangle_height_ratio;
+    int32_t point_x, point_y_a, point_y_b;
+    int32_t shade_value;
+    int32_t triangle_height_ratio;
 
     triangle_height_ratio = (tlp->y_start << 16) / tlp->trig_height_top;
     {
-        long delta_x, weighted_x;
-        long extent_x;
+        int32_t delta_x, weighted_x;
+        int32_t extent_x;
         TbBool eX_overflow;
 
         delta_x = opt_a->X - opt_c->X;
@@ -384,11 +384,11 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(weighted_x, -delta_x);
         extent_x = weighted_x + delta_x;
         if ((extent_x < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)weighted_x, (long)delta_x);
+            NOLOG("skip due to sum %d %d", (int32_t)weighted_x, (int32_t)delta_x);
             return 0;
         }
         if (extent_x != 0) {
-            long long delta_shade, weighted_shade;
+            int64_t delta_shade, weighted_shade;
             delta_shade = opt_a->S - opt_c->S;
             weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
             tlr->shade_step = (opt_b->S + weighted_shade - opt_a->S) / (extent_x + 1);
@@ -400,13 +400,13 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     shade_value = opt_a->S;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -448,7 +448,7 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     {
         if (tlp->clipping_below_viewport)
         {
-            long delta_height, extent_height;
+            int32_t delta_height, extent_height;
             TbBool extent_height_overflow;
 
             delta_height = vec_window_height - tlp->y_top;
@@ -494,15 +494,15 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x, point_y_a, point_y_b;
-    long texture_u, texture_v;
+    int32_t point_x, point_y_a, point_y_b;
+    int32_t texture_u, texture_v;
     struct PolyPoint *polygon_point;
-    long triangle_height_ratio;
+    int32_t triangle_height_ratio;
 
     triangle_height_ratio = (tlp->y_start << 16) / tlp->trig_height_top;
     {
-        long delta_x, weighted_x;
-        long extent_x;
+        int32_t delta_x, weighted_x;
+        int32_t extent_x;
         TbBool eX_overflow;
 
         delta_x = opt_a->X - opt_c->X;
@@ -511,11 +511,11 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(weighted_x, -delta_x);
         extent_x = weighted_x + delta_x;
         if ((extent_x < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)weighted_x, (long)delta_x);
+            NOLOG("skip due to sum %d %d", (int32_t)weighted_x, (int32_t)delta_x);
             return 0;
         }
         if (extent_x != 0) {
-            long long delta_shade, weighted_shade;
+            int64_t delta_shade, weighted_shade;
             delta_shade = opt_a->U - opt_c->U;
             weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
             tlr->u_step = (opt_b->U + weighted_shade - opt_a->U) / (extent_x + 1);
@@ -532,13 +532,13 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     texture_v = opt_a->V;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -582,7 +582,7 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     {
         if (tlp->clipping_below_viewport)
         {
-            long delta_height, extent_height;
+            int32_t delta_height, extent_height;
             TbBool extent_height_overflow;
 
             delta_height = vec_window_height - tlp->y_top;
@@ -632,15 +632,15 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x, point_y_a, point_y_b;
-    long texture_u, texture_v, shade_value;
+    int32_t point_x, point_y_a, point_y_b;
+    int32_t texture_u, texture_v, shade_value;
     struct PolyPoint *polygon_point;
-    long triangle_height_ratio;
+    int32_t triangle_height_ratio;
 
     triangle_height_ratio = (tlp->y_start << 16) / tlp->trig_height_top;
     {
-        long delta_x, weighted_x;
-        long extent_x;
+        int32_t delta_x, weighted_x;
+        int32_t extent_x;
         TbBool eX_overflow;
 
         delta_x = opt_a->X - opt_c->X;
@@ -649,12 +649,12 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(weighted_x, -delta_x);
         extent_x = weighted_x + delta_x;
         if ((extent_x < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)weighted_x, (long)delta_x);
+            NOLOG("skip due to sum %d %d", (int32_t)weighted_x, (int32_t)delta_x);
             return 0;
         }
         if (extent_x != 0)
         {
-            long long delta_shade, weighted_shade;
+            int64_t delta_shade, weighted_shade;
             delta_shade = opt_a->U - opt_c->U;
             weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
             tlr->u_step = (opt_b->U + weighted_shade - opt_a->U) / (extent_x + 1);
@@ -677,13 +677,13 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     shade_value = opt_a->S;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -728,7 +728,7 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     {
         if (tlp->clipping_below_viewport)
         {
-            long delta_height, extent_height;
+            int32_t delta_height, extent_height;
             TbBool extent_height_overflow;
 
             delta_height = vec_window_height - tlp->y_top;
@@ -783,7 +783,7 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
-    long delta_x, delta_y;
+    int32_t delta_x, delta_y;
 
     tlp->y_top = opt_a->Y;
     if (opt_a->Y < 0) {
@@ -793,7 +793,7 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
       tlr->screen_buffer_ptr = poly_screen + vec_screen_width * opt_a->Y;
       tlp->clipping_above_viewport = 0;
     } else {
-        NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
+        NOLOG("height %d exceeded by opt_a Y %d", (int32_t)vec_window_height, (int32_t)opt_a->Y);
         return 0;
     }
 
@@ -809,7 +809,7 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
     tlp->x_step_ac = (delta_x << 16) / tlp->trig_height_top;
     delta_x = opt_b->X - opt_a->X;
     if ((delta_x << 16) / delta_y <= tlp->x_step_ac) {
-        NOLOG("value (%ld << 16) / %ld below min %ld", (long)delta_x, (long)delta_y, (long)tlp->x_step_ac);
+        NOLOG("value (%d << 16) / %d below min %d", (int32_t)delta_x, (int32_t)delta_y, (int32_t)tlp->x_step_ac);
         return 0;
     }
     tlp->x_step_ab = (delta_x << 16) / delta_y;
@@ -869,20 +869,20 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
 static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    ulong point_x_a, point_x_b, point_y;
+    uint32_t point_x_a, point_x_b, point_y;
     struct PolyPoint *polygon_point;
 
     point_x_a = opt_a->X << 16;
     point_y = opt_a->X << 16;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -921,7 +921,7 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     {
         if (tlp->clipping_below_viewport)
         {
-            long delta_height, extent_height;
+            int32_t delta_height, extent_height;
             TbBool extent_height_overflow;
 
             delta_height = vec_window_height - tlp->y_top;
@@ -963,15 +963,15 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x_a, point_x_b, point_y;
-    long shade_value;
+    int32_t point_x_a, point_x_b, point_y;
+    int32_t shade_value;
     struct PolyPoint *polygon_point;
-    long triangle_height_ratio;
+    int32_t triangle_height_ratio;
 
     triangle_height_ratio = (tlp->trig_height_top << 16) / tlp->y_start;
     {
-        long dXa, wXb;
-        long extent_x;
+        int32_t dXa, wXb;
+        int32_t extent_x;
         TbBool eX_overflow;
 
         wXb = triangle_height_ratio * (opt_b->X - opt_a->X) >> 16;
@@ -979,11 +979,11 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(wXb, -dXa);
         extent_x = wXb + dXa;
         if ((extent_x < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
+            NOLOG("skip due to sum %d %d", (int32_t)wXb, (int32_t)dXa);
             return 0;
         }
         if (extent_x != 0) {
-            long long delta_shade, weighted_shade;
+            int64_t delta_shade, weighted_shade;
             delta_shade = opt_b->S - opt_a->S;
             weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
             tlr->shade_step = (opt_a->S + weighted_shade - opt_c->S) / (extent_x + 1);
@@ -996,13 +996,13 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     shade_value = opt_a->S;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -1046,7 +1046,7 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     {
         if (tlp->clipping_below_viewport)
         {
-            long delta_height, extent_height;
+            int32_t delta_height, extent_height;
             TbBool extent_height_overflow;
 
             delta_height = vec_window_height - tlp->y_top;
@@ -1092,15 +1092,15 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x_a, point_x_b, point_y;
-    long texture_u, texture_v;
+    int32_t point_x_a, point_x_b, point_y;
+    int32_t texture_u, texture_v;
     struct PolyPoint *polygon_point;
-    long triangle_height_ratio;
+    int32_t triangle_height_ratio;
 
     triangle_height_ratio = (tlp->trig_height_top << 16) / tlp->y_start; // Fixed point math
     {
-        long dXa, wXb;
-        long extent_x;
+        int32_t dXa, wXb;
+        int32_t extent_x;
         TbBool eX_overflow;
 
         wXb = triangle_height_ratio * (opt_b->X - opt_a->X) >> 16;
@@ -1108,11 +1108,11 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(wXb, -dXa);
         extent_x = wXb + dXa;
         if ((extent_x < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
+            NOLOG("skip due to sum %d %d", (int32_t)wXb, (int32_t)dXa);
             return 0;
         }
         if (extent_x != 0) {
-            long long delta_shade, weighted_shade;
+            int64_t delta_shade, weighted_shade;
 
             delta_shade = opt_b->U - opt_a->U;
             weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
@@ -1132,13 +1132,13 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     texture_v = opt_a->V;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -1181,7 +1181,7 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     {
         if (tlp->clipping_below_viewport)
         {
-            long delta_height, extent_height;
+            int32_t delta_height, extent_height;
             TbBool extent_height_overflow;
 
             delta_height = vec_window_height - tlp->y_top;
@@ -1232,15 +1232,15 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x_a, point_x_b, point_y;
-    long texture_u, texture_v, shade_value;
+    int32_t point_x_a, point_x_b, point_y;
+    int32_t texture_u, texture_v, shade_value;
     struct PolyPoint *polygon_point;
-    long triangle_height_ratio;
+    int32_t triangle_height_ratio;
 
     triangle_height_ratio = (tlp->trig_height_top << 16) / tlp->y_start;
     {
-        long dXa, wXb;
-        long extent_x;
+        int32_t dXa, wXb;
+        int32_t extent_x;
         TbBool eX_overflow;
 
         wXb = triangle_height_ratio * (opt_b->X - opt_a->X) >> 16;
@@ -1248,12 +1248,12 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         eX_overflow = __OFSUBL__(wXb, -dXa);
         extent_x = wXb + dXa;
         if ((extent_x < 0) ^ eX_overflow) {
-            NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
+            NOLOG("skip due to sum %d %d", (int32_t)wXb, (int32_t)dXa);
             return 0;
         }
         tlr->shade_step = wXb;
         if (extent_x != 0) {
-            long long delta_shade, weighted_shade;
+            int64_t delta_shade, weighted_shade;
 
             delta_shade = opt_b->U - opt_a->U;
             weighted_shade = (triangle_height_ratio * delta_shade) >> 16;
@@ -1279,13 +1279,13 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     shade_value = opt_a->S;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -1329,7 +1329,7 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     {
         if (tlp->clipping_below_viewport)
         {
-            long delta_height, extent_height;
+            int32_t delta_height, extent_height;
             TbBool extent_height_overflow;
 
             delta_height = vec_window_height - tlp->y_top;
@@ -1384,7 +1384,7 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
-    long delta_x, delta_y;
+    int32_t delta_x, delta_y;
 
     tlp->y_top = opt_a->Y;
     if (opt_a->Y < 0) {
@@ -1394,7 +1394,7 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
       tlr->screen_buffer_ptr = poly_screen + vec_screen_width * opt_a->Y;
       tlp->clipping_above_viewport = 0;
     } else  {
-        NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
+        NOLOG("height %d exceeded by opt_a Y %d", (int32_t)vec_window_height, (int32_t)opt_a->Y);
         return 0;
     }
 
@@ -1410,7 +1410,7 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
     tlp->x_step_ac = (delta_x << 16) / tlp->trig_height_top;
     delta_x = opt_b->X - opt_a->X;
     if ((delta_x << 16) / delta_y <= tlp->x_step_ac) {
-        NOLOG("value (%ld << 16) / %ld below min %ld", (long)delta_x, (long)delta_y, (long)tlp->x_step_ac);
+        NOLOG("value (%d << 16) / %d below min %d", (int32_t)delta_x, (int32_t)delta_y, (int32_t)tlp->x_step_ac);
         return 0;
     }
     tlp->x_step_ab = (delta_x << 16) / delta_y;
@@ -1467,21 +1467,21 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
 static inline int trig_fb_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x, point_y;
+    int32_t point_x, point_y;
     struct PolyPoint *polygon_point;
 
     point_x = opt_a->X << 16;
     point_y = opt_a->X << 16;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         tlp->trig_height_top += tlp->y_top;
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -1520,7 +1520,7 @@ static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     struct PolyPoint *polygon_point;
 
     {
-        long delta_x;
+        int32_t delta_x;
         delta_x = opt_b->X - opt_c->X;
         tlr->shade_step = (opt_b->S - opt_c->S) / delta_x;
         tlp->shade_step_ac = (opt_c->S - opt_a->S) / tlr->render_height;
@@ -1530,14 +1530,14 @@ static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     shade_value = opt_a->S;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         tlp->trig_height_top += tlp->y_top;
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -1574,12 +1574,12 @@ static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x, point_y;
-    long texture_u, texture_v;
+    int32_t point_x, point_y;
+    int32_t texture_u, texture_v;
     struct PolyPoint *polygon_point;
 
     {
-        long delta_x;
+        int32_t delta_x;
         delta_x = opt_b->X - opt_c->X;
         tlr->u_step = (opt_b->U - opt_c->U) / delta_x;
         tlr->v_step = (opt_b->V - opt_c->V) / delta_x;
@@ -1592,14 +1592,14 @@ static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     texture_v = opt_a->V;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         tlp->trig_height_top += tlp->y_top;
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -1639,12 +1639,12 @@ static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_fb_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x, point_y;
-    long texture_u, texture_v, shade_value;
+    int32_t point_x, point_y;
+    int32_t texture_u, texture_v, shade_value;
     struct PolyPoint *polygon_point;
 
     {
-        long delta_x;
+        int32_t delta_x;
         delta_x = opt_b->X - opt_c->X;
         tlr->u_step = (opt_b->U - opt_c->U) / delta_x;
         tlr->v_step = (opt_b->V - opt_c->V) / delta_x;
@@ -1660,14 +1660,14 @@ static inline int trig_fb_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     shade_value = opt_a->S;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         tlp->trig_height_top += tlp->y_top;
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -1711,7 +1711,7 @@ int trig_fb_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
-    long delta_x, delta_y;
+    int32_t delta_x, delta_y;
 
     tlp->y_top = opt_a->Y;
     if (opt_a->Y < 0) {
@@ -1721,7 +1721,7 @@ int trig_fb_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
         tlr->screen_buffer_ptr = poly_screen + vec_screen_width * opt_a->Y;
         tlp->clipping_above_viewport = 0;
     } else {
-        NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
+        NOLOG("height %d exceeded by opt_a Y %d", (int32_t)vec_window_height, (int32_t)opt_a->Y);
         return 0;
     }
     tlp->hide_bottom_part = opt_c->Y > vec_window_height;
@@ -1779,21 +1779,21 @@ int trig_fb_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
 static inline int trig_ft_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x, point_y;
+    int32_t point_x, point_y;
     struct PolyPoint *polygon_point;
 
     point_x = opt_a->X << 16;
     point_y = opt_b->X << 16;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         tlp->trig_height_top += tlp->y_top;
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -1827,12 +1827,12 @@ static inline int trig_ft_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x, point_y;
-    long shade_value;
+    int32_t point_x, point_y;
+    int32_t shade_value;
     struct PolyPoint *polygon_point;
 
     {
-        long delta_x;
+        int32_t delta_x;
         delta_x = opt_b->X - opt_a->X;
         tlr->shade_step = (opt_b->S - opt_a->S) / delta_x;
         tlp->shade_step_ac = (opt_c->S - opt_a->S) / tlr->render_height;
@@ -1842,14 +1842,14 @@ static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     shade_value = opt_a->S;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         tlp->trig_height_top += tlp->y_top;
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -1886,11 +1886,11 @@ static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x, point_y;
-    long texture_u, texture_v;
+    int32_t point_x, point_y;
+    int32_t texture_u, texture_v;
     struct PolyPoint *polygon_point;
     {
-        long delta_x;
+        int32_t delta_x;
         delta_x = opt_b->X - opt_a->X;
         tlr->u_step = (opt_b->U - opt_a->U) / delta_x;
         tlr->v_step = (opt_b->V - opt_a->V) / delta_x;
@@ -1903,14 +1903,14 @@ static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     texture_v = opt_a->V;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         tlp->trig_height_top += tlp->y_top;
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -1950,12 +1950,12 @@ static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 static inline int trig_ft_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
-    long point_x, point_y;
-    long texture_u, texture_v, shade_value;
+    int32_t point_x, point_y;
+    int32_t texture_u, texture_v, shade_value;
     struct PolyPoint *polygon_point;
 
     {
-        long delta_x;
+        int32_t delta_x;
         delta_x = opt_b->X - opt_a->X;
         tlr->u_step = (opt_b->U - opt_a->U) / delta_x;
         tlr->v_step = (opt_b->V - opt_a->V) / delta_x;
@@ -1971,14 +1971,14 @@ static inline int trig_ft_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     shade_value = opt_a->S;
     if (tlp->clipping_above_viewport)
     {
-        long extent_height;
+        int32_t extent_height;
         TbBool extent_height_overflow;
 
         tlp->trig_height_top += tlp->y_top;
         extent_height_overflow = __OFSUBL__(tlr->render_height, -tlp->y_top);
         extent_height = tlr->render_height + tlp->y_top;
         if (((extent_height < 0) ^ extent_height_overflow) | (extent_height == 0)) {
-            NOLOG("skip due to sum %ld %ld", (long)tlr->render_height, (long)tlp->y_top);
+            NOLOG("skip due to sum %d %d", (int32_t)tlr->render_height, (int32_t)tlp->y_top);
             return 0;
         }
         tlr->render_height = extent_height;
@@ -2022,7 +2022,7 @@ int trig_ft_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
   const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
-    long delta_x, delta_y;
+    int32_t delta_x, delta_y;
 
     tlp->y_top = opt_a->Y;
     if (opt_a->Y < 0) {
@@ -2032,7 +2032,7 @@ int trig_ft_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
       tlr->screen_buffer_ptr = poly_screen + vec_screen_width * opt_a->Y;
       tlp->clipping_above_viewport = 0;
     } else {
-        NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
+        NOLOG("height %d exceeded by opt_a Y %d", (int32_t)vec_window_height, (int32_t)opt_a->Y);
         return 0;
     }
     tlp->hide_bottom_part = opt_c->Y > vec_window_height;
@@ -2104,28 +2104,28 @@ static inline unsigned char __CFADDS__(short x, short y)
 }
 
 /**
- * whether the addition (x+y) of two long ints would use carry
+ * whether the addition (x+y) of two int32_t ints would use carry
  */
-static inline unsigned char __CFADDL__(long x, long y)
+static inline unsigned char __CFADDL__(int32_t x, int32_t y)
 {
-    return (ulong)(x) > (ulong)(x+y);
+    return (uint32_t)(x) > (uint32_t)(x+y);
 }
 
 /**
- * rotate left unsigned long
+ * rotate left uint32_t
  */
-static inline ulong __ROL4__(ulong value, int count)
+static inline uint32_t __ROL4__(uint32_t value, int count)
 {
     const uint nbits = 4 * 8;
 
     if (count > 0) {
         count %= nbits;
-        ulong high = value >> (nbits - count);
+        uint32_t high = value >> (nbits - count);
         value <<= count;
         value |= high;
     } else {
         count = -count % nbits;
-        ulong low = value << (nbits - count);
+        uint32_t low = value << (nbits - count);
         value >>= count;
         value |= low;
     }
@@ -2152,7 +2152,7 @@ void trig_render_md00(struct TrigLocalRend *tlr)
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        long point_x, point_y;
+        int32_t point_x, point_y;
         unsigned char *o;
 
         point_x = polygon_point->X >> 16;
@@ -2209,7 +2209,7 @@ void trig_render_md01(struct TrigLocalRend *tlr)
 
         if (point_x  < 0)
         {
-            long multiplier_x;
+            int32_t multiplier_x;
             short colH;
 
             if (point_y <= 0)
@@ -2265,7 +2265,7 @@ void trig_render_md02(struct TrigLocalRend *tlr)
 {
     struct PolyPoint *polygon_point;
     unsigned char *m;
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     polygon_point = polyscans;
@@ -2278,7 +2278,7 @@ void trig_render_md02(struct TrigLocalRend *tlr)
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
         short point_x, point_y;
-        long texture_u;
+        int32_t texture_u;
         ushort colS;
         unsigned char *o;
 
@@ -2290,8 +2290,8 @@ void trig_render_md02(struct TrigLocalRend *tlr)
         if (point_x < 0)
         {
             ushort colL, colH;
-            ulong factorA;
-            long multiplier_x;
+            uint32_t factorA;
+            int32_t multiplier_x;
 
             if (point_y <= 0)
                 continue;
@@ -2351,7 +2351,7 @@ void trig_render_md03(struct TrigLocalRend *tlr)
 {
     struct PolyPoint *polygon_point;
     unsigned char *m;
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     polygon_point = polyscans;
@@ -2364,8 +2364,8 @@ void trig_render_md03(struct TrigLocalRend *tlr)
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
         short point_x, point_y;
-        long texture_u;
-        ulong factorA;
+        int32_t texture_u;
+        uint32_t factorA;
         ushort colS;
         unsigned char *o;
 
@@ -2377,7 +2377,7 @@ void trig_render_md03(struct TrigLocalRend *tlr)
         if (point_x < 0)
         {
             short colL, colH;
-            long multiplier_x;
+            int32_t multiplier_x;
 
             if (point_y <= 0)
                 continue;
@@ -2465,7 +2465,7 @@ void trig_render_md04(struct TrigLocalRend *tlr)
         {
             ushort colL, colH;
             TbBool texture_u_carry;
-            long multiplier_x;
+            int32_t multiplier_x;
 
             if (point_y <= 0)
                 continue;
@@ -2523,9 +2523,9 @@ void trig_render_md05(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long texture_v_step_fixed;
-    long shade_step_fixed;
-    long texture_v_lower_byte;
+    int32_t texture_v_step_fixed;
+    int32_t shade_step_fixed;
+    int32_t texture_v_lower_byte;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -2536,13 +2536,13 @@ void trig_render_md05(struct TrigLocalRend *tlr)
     }
 
     {
-        ulong factorA, factorB, factorC;
+        uint32_t factorA, factorB, factorC;
         factorC = tlr->u_step;
         // original code used unsigned compare here, making the condition always false
         //if (tlr->shade_step < 0) factorC--;
         factorC = __ROL4__(factorC, 16);
         factorA = __ROL4__(tlr->v_step, 16);
-        factorB = ((ulong)tlr->shade_step) >> 8;
+        factorB = ((uint32_t)tlr->shade_step) >> 8;
         texture_v_step_fixed = (factorC & 0xFFFF0000) | (factorB & 0xFFFF);
         shade_step_fixed = (factorA & 0xFFFFFF00) | (factorC & 0xFF);
         texture_v_lower_byte = (factorA & 0xFF);
@@ -2550,8 +2550,8 @@ void trig_render_md05(struct TrigLocalRend *tlr)
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        long point_x, point_y;
-        long rfactA, rfactB;
+        int32_t point_x, point_y;
+        int32_t rfactA, rfactB;
         ushort colM;
         unsigned char *o;
         unsigned char *o_ln;
@@ -2563,9 +2563,9 @@ void trig_render_md05(struct TrigLocalRend *tlr)
 
         if (point_x < 0)
         {
-            ulong factorA, factorB;
+            uint32_t factorA, factorB;
             ushort colL, colH;
-            long multiplier_x;
+            int32_t multiplier_x;
 
             if (point_y <= 0)
                 continue;
@@ -2585,7 +2585,7 @@ void trig_render_md05(struct TrigLocalRend *tlr)
         }
         else
         {
-            ulong factorA, factorB;
+            uint32_t factorA, factorB;
             ushort colL, colH;
             TbBool pY_overflow;
 
@@ -2644,8 +2644,8 @@ void trig_render_md06(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long texture_v_step_fixed;
-    long shade_step_fixed;
+    int32_t texture_v_step_fixed;
+    int32_t shade_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -2661,9 +2661,9 @@ void trig_render_md06(struct TrigLocalRend *tlr)
     {
         unsigned char *o;
         short point_x_a, point_y_a;
-        long factorA;
-        long point_y;
-        ulong factorB;
+        int32_t factorA;
+        int32_t point_y;
+        uint32_t factorB;
         ushort colM;
 
         point_x_a = (polygon_point->X >> 16);
@@ -2675,8 +2675,8 @@ void trig_render_md06(struct TrigLocalRend *tlr)
         {
             ushort colL, colH;
             ushort pXMa;
-            long pXMb;
-            ulong multiplier_x;
+            int32_t pXMb;
+            uint32_t multiplier_x;
 
             if (point_y_a <= 0)
                 continue;
@@ -2756,7 +2756,7 @@ void trig_render_md07(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -2770,9 +2770,9 @@ void trig_render_md07(struct TrigLocalRend *tlr)
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
         short point_x_a;
-        long point_y_a;
-        long pXm;
-        long factorA;
+        int32_t point_y_a;
+        int32_t pXm;
+        int32_t factorA;
         ushort colM;
         unsigned char *o;
 
@@ -2783,7 +2783,7 @@ void trig_render_md07(struct TrigLocalRend *tlr)
         if ( (point_x_a & 0x8000u) != 0 )
         {
             ushort colL, colH;
-            ulong factorB, factorC;
+            uint32_t factorB, factorC;
 
             if ( (short)point_y_a <= 0 )
                 continue;
@@ -2845,7 +2845,7 @@ void trig_render_md08(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -2859,10 +2859,10 @@ void trig_render_md08(struct TrigLocalRend *tlr)
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
         short point_x_a;
-        long point_y_a;
+        int32_t point_y_a;
         ushort colM;
         unsigned char *o;
-        long factorA;
+        int32_t factorA;
 
         point_x_a = (polygon_point->X >> 16);
         point_y_a = (polygon_point->Y >> 16);
@@ -2871,8 +2871,8 @@ void trig_render_md08(struct TrigLocalRend *tlr)
         if ( (point_x_a & 0x8000u) != 0 )
         {
             ushort colL, colH;
-            ulong factorB, factorC;
-            long pXm;
+            uint32_t factorB, factorC;
+            int32_t pXm;
 
             if ( (short)point_y_a <= 0 )
                 continue;
@@ -2935,7 +2935,7 @@ void trig_render_md09(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -2949,8 +2949,8 @@ void trig_render_md09(struct TrigLocalRend *tlr)
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
         short point_x_a, point_y_a;
-        long pXm;
-        long factorA;
+        int32_t pXm;
+        int32_t factorA;
         ushort colM;
         unsigned char *o;
 
@@ -2961,7 +2961,7 @@ void trig_render_md09(struct TrigLocalRend *tlr)
         if (point_x_a < 0)
         {
             ushort colL, colH;
-            ulong factorB, factorC;
+            uint32_t factorB, factorC;
 
             if (point_y_a <= 0)
                 continue;
@@ -3037,7 +3037,7 @@ void trig_render_md10(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;  // texture map (256x256 sprite in big_scratch)
     unsigned char *f;  // fade/transparency table
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -3057,9 +3057,9 @@ void trig_render_md10(struct TrigLocalRend *tlr)
     {
         short point_x_a;
         short point_y_a;
-        ulong factorB;
-        long factorA;
-        ulong factorC;
+        uint32_t factorB;
+        int32_t factorA;
+        uint32_t factorC;
         ushort colM;
         unsigned char *o;
 
@@ -3070,7 +3070,7 @@ void trig_render_md10(struct TrigLocalRend *tlr)
         if (point_x_a < 0)
         {
             ushort colL, colH;
-            long pXm;
+            int32_t pXm;
 
             if (point_y_a <= 0)
                 continue;
@@ -3165,7 +3165,7 @@ void trig_render_md12(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -3178,10 +3178,10 @@ void trig_render_md12(struct TrigLocalRend *tlr)
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        long point_x_a;
+        int32_t point_x_a;
         short point_y_a;
-        long pXm;
-        long factorA;
+        int32_t pXm;
+        int32_t factorA;
         ushort colM;
         unsigned char *o;
 
@@ -3192,7 +3192,7 @@ void trig_render_md12(struct TrigLocalRend *tlr)
         if ( (point_x_a & 0x8000u) != 0 )
         {
             ushort colL, colH;
-            ulong factorB, factorC;
+            uint32_t factorB, factorC;
 
             if ( (short)point_y_a <= 0 )
                 continue;
@@ -3254,7 +3254,7 @@ void trig_render_md13(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -3268,8 +3268,8 @@ void trig_render_md13(struct TrigLocalRend *tlr)
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
         short point_x_a, point_y_a;
-        long pXm;
-        long factorA;
+        int32_t pXm;
+        int32_t factorA;
         ushort colM;
         unsigned char *o;
 
@@ -3280,7 +3280,7 @@ void trig_render_md13(struct TrigLocalRend *tlr)
         if (point_x_a < 0)
         {
             ushort colL, colH;
-            ulong factorB, factorC;
+            uint32_t factorB, factorC;
 
             if ( (short)point_y_a <= 0 )
                 continue;
@@ -3466,7 +3466,7 @@ void trig_render_md16(struct TrigLocalRend *tlr)
         {
             ushort colL, colH;
             unsigned char factorA_carry;
-            ulong pXMa;
+            uint32_t pXMa;
             short pXMb;
 
             if (point_y_a <= 0)
@@ -3546,7 +3546,7 @@ void trig_render_md17(struct TrigLocalRend *tlr)
         if (point_x_a < 0)
         {
             ushort colL, colH;
-            ulong pXMa;
+            uint32_t pXMa;
             short pXMb;
 
             if (point_y_a <= 0)
@@ -3606,7 +3606,7 @@ void trig_render_md18(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -3616,8 +3616,8 @@ void trig_render_md18(struct TrigLocalRend *tlr)
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
         short point_x_a, point_y_a;
-        long pXm;
-        long factorA;
+        int32_t pXm;
+        int32_t factorA;
         ushort colM;
         unsigned char *o;
 
@@ -3628,7 +3628,7 @@ void trig_render_md18(struct TrigLocalRend *tlr)
         if (point_x_a < 0)
         {
             ushort colL, colH;
-            ulong factorB, factorC;
+            uint32_t factorB, factorC;
 
             if (point_y_a <= 0)
                 continue;
@@ -3692,7 +3692,7 @@ void trig_render_md19(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -3702,7 +3702,7 @@ void trig_render_md19(struct TrigLocalRend *tlr)
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
         short point_x_a, point_y_a;
-        long factorA;
+        int32_t factorA;
         ushort colM;
         unsigned char *o;
 
@@ -3713,8 +3713,8 @@ void trig_render_md19(struct TrigLocalRend *tlr)
         if (point_x_a < 0)
         {
             ushort colL, colH;
-            long pXm;
-            ulong factorB, factorC;
+            int32_t pXm;
+            uint32_t factorB, factorC;
 
             if (point_y_a <= 0)
                 continue;
@@ -3776,8 +3776,8 @@ void trig_render_md20(struct TrigLocalRend *tlr)
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long texture_v_step_fixed;
-    long shade_step_fixed;
+    int32_t texture_v_step_fixed;
+    int32_t shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -3789,10 +3789,10 @@ void trig_render_md20(struct TrigLocalRend *tlr)
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
         short point_x_a, point_y_a;
-        long pXMa;
-        long pXMb;
-        long factorA;
-        long factorC;
+        int32_t pXMa;
+        int32_t pXMb;
+        int32_t factorA;
+        int32_t factorC;
         ushort colM;
         unsigned char *o;
 
@@ -3803,7 +3803,7 @@ void trig_render_md20(struct TrigLocalRend *tlr)
         if (point_x_a < 0)
         {
             ushort colL, colH;
-            ulong factorB;
+            uint32_t factorB;
 
             if (point_y_a <= 0)
                 continue;
@@ -3872,8 +3872,8 @@ void trig_render_md21(struct TrigLocalRend *tlr)
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long texture_v_step_fixed;
-    long shade_step_fixed;
+    int32_t texture_v_step_fixed;
+    int32_t shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -3887,7 +3887,7 @@ void trig_render_md21(struct TrigLocalRend *tlr)
         short point_x_a, point_y_a;
         ushort colM;
         unsigned char *o;
-        long factorA, factorC;
+        int32_t factorA, factorC;
 
         point_x_a = (polygon_point->X >> 16);
         point_y_a = (polygon_point->Y >> 16);
@@ -3896,9 +3896,9 @@ void trig_render_md21(struct TrigLocalRend *tlr)
         if (point_x_a < 0)
         {
             ushort colL, colH;
-            long pXMa;
-            long pXMb;
-            ulong factorB;
+            int32_t pXMa;
+            int32_t pXMb;
+            uint32_t factorB;
 
             if (point_y_a <= 0)
                 continue;
@@ -3967,7 +3967,7 @@ void trig_render_md22(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -3980,8 +3980,8 @@ void trig_render_md22(struct TrigLocalRend *tlr)
         ushort colM;
         short point_y_a;
         unsigned char *o;
-        long pXm;
-        long factorA;
+        int32_t pXm;
+        int32_t factorA;
 
         point_x_a = (polygon_point->X >> 16);
         point_y_a = (polygon_point->Y >> 16);
@@ -3990,7 +3990,7 @@ void trig_render_md22(struct TrigLocalRend *tlr)
         if (point_x_a < 0)
         {
             ushort colL, colH;
-            ulong factorB, factorC;
+            uint32_t factorB, factorC;
 
             if (point_y_a <= 0)
                 continue;
@@ -4054,7 +4054,7 @@ void trig_render_md23(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long texture_v_step_fixed;
+    int32_t texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -4067,8 +4067,8 @@ void trig_render_md23(struct TrigLocalRend *tlr)
         ushort colM;
         short point_y_a;
         unsigned char *o;
-        long pXm;
-        long factorA;
+        int32_t pXm;
+        int32_t factorA;
         unsigned char factorA_carry;
 
         point_x_a = (polygon_point->X >> 16);
@@ -4078,7 +4078,7 @@ void trig_render_md23(struct TrigLocalRend *tlr)
         if ( (point_x_a & 0x8000u) != 0 )
         {
             ushort colL, colH;
-            ulong factorB, factorC;
+            uint32_t factorB, factorC;
 
             if (point_y_a <= 0)
                 continue;
@@ -4142,8 +4142,8 @@ void trig_render_md24(struct TrigLocalRend *tlr)
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long texture_v_step_fixed;
-    long shade_step_fixed;
+    int32_t texture_v_step_fixed;
+    int32_t shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -4158,10 +4158,10 @@ void trig_render_md24(struct TrigLocalRend *tlr)
         ushort colM;
         short point_y_a;
         unsigned char *o;
-        long pXMa;
-        long pXMb;
-        long factorA;
-        long factorC;
+        int32_t pXMa;
+        int32_t pXMb;
+        int32_t factorA;
+        int32_t factorC;
 
         point_x_a = (polygon_point->X >> 16);
         point_y_a = (polygon_point->Y >> 16);
@@ -4170,7 +4170,7 @@ void trig_render_md24(struct TrigLocalRend *tlr)
         if (point_x_a < 0)
         {
             ushort colL, colH;
-            ulong factorB;
+            uint32_t factorB;
 
             if (point_y_a <= 0)
                 continue;
@@ -4243,8 +4243,8 @@ void trig_render_md25(struct TrigLocalRend *tlr)
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long texture_v_step_fixed;
-    long shade_step_fixed;
+    int32_t texture_v_step_fixed;
+    int32_t shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -4259,10 +4259,10 @@ void trig_render_md25(struct TrigLocalRend *tlr)
         ushort colM;
         short point_y_a;
         unsigned char *o;
-        long pXMa;
-        long pXMb;
-        long factorA;
-        long factorC;
+        int32_t pXMa;
+        int32_t pXMb;
+        int32_t factorA;
+        int32_t factorC;
 
         point_x_a = (polygon_point->X >> 16);
         point_y_a = (polygon_point->Y >> 16);
@@ -4271,7 +4271,7 @@ void trig_render_md25(struct TrigLocalRend *tlr)
         if (point_x_a < 0)
         {
             ushort colL, colH;
-            ulong factorB;
+            uint32_t factorB;
 
             if (point_y_a <= 0)
                 continue;
@@ -4344,9 +4344,9 @@ void trig_render_md26(struct TrigLocalRend *tlr)
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long texture_v_step_fixed;
-    long shade_step_fixed;
-    long texture_v_lower_byte;
+    int32_t texture_v_step_fixed;
+    int32_t shade_step_fixed;
+    int32_t texture_v_lower_byte;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -4354,15 +4354,15 @@ void trig_render_md26(struct TrigLocalRend *tlr)
     polygon_point = polyscans;
 
     {
-        ulong texture_u_rotated;
-        ulong texture_v_rotated;
+        uint32_t texture_u_rotated;
+        uint32_t texture_v_rotated;
         unsigned char local_texture_v_lower_byte;
 
         texture_u_rotated = __ROL4__(tlr->u_step, 16);
         texture_v_rotated = __ROL4__(tlr->v_step, 16);
         local_texture_v_lower_byte = texture_v_rotated;
         texture_v_rotated = (texture_v_rotated & 0xFFFFFF00) + (texture_u_rotated & 0xFF);
-        texture_u_rotated = (texture_u_rotated & 0xFFFF0000) + (((ulong)tlr->shade_step >> 8) & 0xFFFF);
+        texture_u_rotated = (texture_u_rotated & 0xFFFF0000) + (((uint32_t)tlr->shade_step >> 8) & 0xFFFF);
         texture_v_rotated = (texture_v_rotated & 0xFFFF0000) + (texture_v_rotated & 0xFF);
         texture_v_step_fixed = texture_u_rotated;
         shade_step_fixed = texture_v_rotated;
@@ -4370,12 +4370,12 @@ void trig_render_md26(struct TrigLocalRend *tlr)
     }
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
-        long point_x_a;
-        long point_y_a;
+        int32_t point_x_a;
+        int32_t point_y_a;
         unsigned char *o;
-        ulong factorB, factorD;
-        long factorA;
-        ulong factorC;
+        uint32_t factorB, factorD;
+        int32_t factorA;
+        uint32_t factorC;
         unsigned char pY_overflow;
         ushort colM;
 
@@ -4391,7 +4391,7 @@ void trig_render_md26(struct TrigLocalRend *tlr)
             point_x_a = -point_x_a;
             factorA = __ROL4__(polygon_point->U + point_x_a * tlr->u_step, 16);
             factorB = __ROL4__(polygon_point->V + point_x_a * tlr->v_step, 16);
-            factorC = (ulong)(polygon_point->S + point_x_a * tlr->shade_step) >> 8;
+            factorC = (uint32_t)(polygon_point->S + point_x_a * tlr->shade_step) >> 8;
             factorB = (factorB & 0xFFFFFF00) | (factorA & 0xFF);
             factorA = (factorA & 0xFFFF0000) | (factorC & 0xFFFF);
             factorD = __ROL4__(polygon_point->V + point_x_a * tlr->v_step, 16);
@@ -4411,7 +4411,7 @@ void trig_render_md26(struct TrigLocalRend *tlr)
             o += point_x_a;
             factorA = __ROL4__(polygon_point->U, 16);
             factorB = __ROL4__(polygon_point->V, 16);
-            factorC = (ulong)polygon_point->S >> 8;
+            factorC = (uint32_t)polygon_point->S >> 8;
             factorB = (factorB & 0xFFFFFF00) | (factorA & 0xFF);
             factorA = (factorA & 0xFFFF0000) | (factorC & 0xFFFF);
             factorD = __ROL4__(polygon_point->V, 16);
@@ -4459,9 +4459,9 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
     struct TrigLocalPrep tlp;
     struct TrigLocalRend tlr;
 
-    NOLOG("Pa(%ld,%ld,%ld)", point_a->X, point_a->Y, point_a->S);
-    NOLOG("Pb(%ld,%ld,%ld)", point_b->X, point_b->Y, point_b->S);
-    NOLOG("Pc(%ld,%ld,%ld)", point_c->X, point_c->Y, point_c->S);
+    NOLOG("Pa(%d,%d,%d)", point_a->X, point_a->Y, point_a->S);
+    NOLOG("Pb(%d,%d,%d)", point_b->X, point_b->Y, point_b->S);
+    NOLOG("Pc(%d,%d,%d)", point_c->X, point_c->Y, point_c->S);
 
     opt_a = point_a;
     opt_b = point_b;
@@ -4469,16 +4469,16 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
 
     // Reject triangles whose coords would overflow 16.16 fixed-point
     {
-        long max_x = max(max(point_a->X, point_b->X), point_c->X);
-        long min_x = min(min(point_a->X, point_b->X), point_c->X);
-        long max_y = max(max(point_a->Y, point_b->Y), point_c->Y);
-        long min_y = min(min(point_a->Y, point_b->Y), point_c->Y);
+        int32_t max_x = max(max(point_a->X, point_b->X), point_c->X);
+        int32_t min_x = min(min(point_a->X, point_b->X), point_c->X);
+        int32_t max_y = max(max(point_a->Y, point_b->Y), point_c->Y);
+        int32_t min_y = min(min(point_a->Y, point_b->Y), point_c->Y);
         if ((max_x - min_x > 32767) || (max_y - min_y > 32767) ||
             (max_x > 32767) || (min_x < -32767) ||
             (max_y > 32767) || (min_y < -32767))
         {
             SYNCDBG(8, "Triangle coords exceed 16.16 fixed-point range: "
-                    "X[%ld..%ld] Y[%ld..%ld], skipping",
+                    "X[%d..%d] Y[%d..%d], skipping",
                     min_x, max_x, min_y, max_y);
             return;
         }

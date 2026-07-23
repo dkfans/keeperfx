@@ -73,15 +73,15 @@ static size_t write_to_buffer(char *data, size_t element_size, size_t element_co
     return incoming_size;
 }
 
-static void resolve_public_address(long address_family, char *output)
+static void resolve_public_address(int32_t address_family, char *output)
 {
     output[0] = '\0';
     CURL *handle = curl_easy_init();
     if (!handle) return;
     curl_easy_setopt(handle, CURLOPT_URL, MATCHMAKING_IP_URL);
     curl_easy_setopt(handle, CURLOPT_IPRESOLVE, address_family);
-    curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT_MS, (long)CONNECT_TIMEOUT_MS);
-    curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, (long)CONNECT_TIMEOUT_MS);
+    curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT_MS, (int32_t)CONNECT_TIMEOUT_MS);
+    curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, (int32_t)CONNECT_TIMEOUT_MS);
     curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_to_buffer);
     curl_easy_setopt(handle, CURLOPT_WRITEDATA, output);
     CURLcode result = curl_easy_perform(handle);
@@ -91,7 +91,7 @@ static void resolve_public_address(long address_family, char *output)
 }
 
 typedef struct {
-    long address_family;
+    int32_t address_family;
     char *output;
 } PublicAddressResolveTask;
 
@@ -354,7 +354,7 @@ int matchmaking_connect(void)
     LbNetLog("Matchmaking: connecting to %s\n", MATCHMAKING_URL);
     curl_easy_setopt(curl_handle, CURLOPT_URL, MATCHMAKING_URL);
     curl_easy_setopt(curl_handle, CURLOPT_CONNECT_ONLY, 2L);
-    curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT_MS, (long)CONNECT_TIMEOUT_MS);
+    curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT_MS, (int32_t)CONNECT_TIMEOUT_MS);
     curl_easy_setopt(curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
     CURLcode curl_result = curl_easy_perform(curl_handle);
     if (curl_result != CURLE_OK) {
@@ -436,7 +436,7 @@ void matchmaking_refresh_sessions(void)
             memset(session, 0, sizeof(*session));
             session->joinable = 1;
             session->in_use = 1;
-            session->id = (unsigned long)count;
+            session->id = (uint32_t)count;
             snprintf(session->text, SESSION_NAME_MAX_LEN, "%s", name);
             snprintf(session->join_address, SESSION_LOBBY_ID_MAX_LEN, "%s", id);
             snprintf(session->lobby_id, SESSION_LOBBY_ID_MAX_LEN, "%s", id);

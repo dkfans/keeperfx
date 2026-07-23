@@ -36,16 +36,16 @@ class MouseStateHandler {
     bool Install(void);
     bool IsInstalled(void);
     bool Release(void);
-    bool SetMousePosition(long x, long y);
-    bool SetMousePointerAndOffset(const struct TbSprite *mouseSprite, long x, long y);
+    bool SetMousePosition(int32_t x, int32_t y);
+    bool SetMousePointerAndOffset(const struct TbSprite *mouseSprite, int32_t x, int32_t y);
     bool SetMousePointer(const struct TbSprite *mouseSprite);
-    bool SetPointerOffset(long x, long y);
+    bool SetPointerOffset(int32_t x, int32_t y);
     struct TbPoint *GetPointerOffset(void);
-    bool SetMouseWindow(long x, long y,long width, long height);
+    bool SetMouseWindow(int32_t x, int32_t y,int32_t width, int32_t height);
     bool PointerBeginSwap(void);
     bool PointerEndSwap(void);
  protected:
-    bool SetPosition(long x, long y);
+    bool SetPosition(int32_t x, int32_t y);
     bool SetPointer(const struct TbSprite *spr, struct TbPoint *pt);
     // Properties
     std::mutex lock;

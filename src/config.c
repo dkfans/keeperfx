@@ -52,7 +52,7 @@ extern "C" {
 /******************************************************************************/
 
 /** Line number, used when loading text files. */
-unsigned long text_line_number;
+uint32_t text_line_number;
 
 
 /******************************************************************************/
@@ -110,7 +110,7 @@ TbBool parameter_is_number(const char* parstr) {
     return true;
 }
 
-int get_conf_line(const char *buf, int32_t *pos, long buflen, char *dst, long dstlen)
+int get_conf_line(const char *buf, int32_t *pos, int32_t buflen, char *dst, int32_t dstlen)
 {
     SYNCDBG(19,"Starting");
     if ((*pos) >= buflen) return ccr_endOfFile;
@@ -146,7 +146,7 @@ int get_conf_line(const char *buf, int32_t *pos, long buflen, char *dst, long ds
 }
 
 
-TbBool skip_conf_to_next_line(const char *buf,int32_t *pos,long buflen)
+TbBool skip_conf_to_next_line(const char *buf,int32_t *pos,int32_t buflen)
 {
   // Skip to end of the line
   while ((*pos) < buflen)
@@ -165,7 +165,7 @@ TbBool skip_conf_to_next_line(const char *buf,int32_t *pos,long buflen)
   return ((*pos) < buflen);
 }
 
-TbBool skip_conf_spaces(const char *buf, int32_t *pos, long buflen)
+TbBool skip_conf_spaces(const char *buf, int32_t *pos, int32_t buflen)
 {
   while ((*pos) < buflen)
   {
@@ -180,7 +180,7 @@ TbBool skip_conf_spaces(const char *buf, int32_t *pos, long buflen)
  * Starts at position given with pos, and sets it to position of block data.
  * @return Returns 1 if the block is found, -1 if buffer exceeded.
  */
-short find_conf_block(const char *buf,int32_t *pos,long buflen,const char *blockname)
+short find_conf_block(const char *buf,int32_t *pos,int32_t buflen,const char *blockname)
 {
   text_line_number = 1;
   int blname_len = strlen(blockname);
@@ -226,9 +226,9 @@ short find_conf_block(const char *buf,int32_t *pos,long buflen,const char *block
  * Sets name and namelen to the block name and name length respectively.
  * Returns true on success, false when the block name is zero.
  */
-TbBool conf_get_block_name(const char * buf, int32_t * pos, long buflen, const char ** name, int * namelen)
+TbBool conf_get_block_name(const char * buf, int32_t * pos, int32_t buflen, const char ** name, int * namelen)
 {
-  const long start = *pos;
+  const int32_t start = *pos;
   *name = NULL;
   *namelen = 0;
   while (true) {
@@ -257,7 +257,7 @@ TbBool conf_get_block_name(const char * buf, int32_t * pos, long buflen, const c
  * Sets name and namelen to the block name and name length respectively.
  * Returns true on success, false when no more blocks are found.
  */
-TbBool iterate_conf_blocks(const char * buf, int32_t * pos, long buflen, const char ** name, int * namelen)
+TbBool iterate_conf_blocks(const char * buf, int32_t * pos, int32_t buflen, const char ** name, int * namelen)
 {
   text_line_number = 1;
   *name = NULL;
@@ -309,7 +309,7 @@ TbBool iterate_conf_blocks(const char * buf, int32_t * pos, long buflen, const c
  * If ccr_unrecognised is returned, that means the command wasn't recognized.
  * If ccr_endOfBlock   is returned, that means we've reached end of the INI block.
  */
-int recognize_conf_command(const char *buf,int32_t *pos,long buflen,const struct NamedCommand commands[])
+int recognize_conf_command(const char *buf,int32_t *pos,int32_t buflen,const struct NamedCommand commands[])
 {
     SYNCDBG(19,"Starting");
     if ((*pos) >= buflen) return ccr_endOfFile;
@@ -376,21 +376,17 @@ static int64_t get_datatype_min(uchar type)
             return SCHAR_MIN;
         case dt_char:
             return CHAR_MIN;
-        case dt_short:
-            return SHRT_MIN;
-        case dt_ushort:
+        case dt_int16:
+            return INT16_MIN;
+        case dt_uint16:
             return 0;
-        case dt_int:
-            return INT_MIN;
-        case dt_uint:
-            return 0;
-        case dt_long:
+        case dt_int32:
             return INT32_MIN;
-        case dt_ulong:
+        case dt_uint32:
             return 0;
-        case dt_longlong:
+        case dt_int64:
             return INT64_MIN;
-        case dt_ulonglong:
+        case dt_uint64:
             return 0;
         default:
             ERRORLOG("unexpected datatype %d", type);
@@ -409,21 +405,17 @@ static int64_t get_datatype_max(uchar type)
             return SCHAR_MAX;
         case dt_char:
             return CHAR_MAX;
-        case dt_short:
-            return SHRT_MAX;
-        case dt_ushort:
-            return USHRT_MAX;
-        case dt_int:
-            return INT_MAX;
-        case dt_uint:
-            return UINT_MAX;
-        case dt_long:
+        case dt_int16:
+            return INT16_MAX;
+        case dt_uint16:
+            return UINT16_MAX;
+        case dt_int32:
             return INT32_MAX;
-        case dt_ulong:
+        case dt_uint32:
             return UINT32_MAX;
-        case dt_longlong:
+        case dt_int64:
             return INT64_MAX;
-        case dt_ulonglong:
+        case dt_uint64:
             return UINT64_MAX;
         default:
             break;
@@ -476,8 +468,8 @@ int64_t value_name(const struct NamedField* named_field, const char* value_text,
     return 0;
 }
 
-//same as value_flagsfield but treats the namedCommand field as a longnamedCommand
-int64_t value_longflagsfield(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+//same as value_flagsfield but treats the namedCommand field as a int32_tnamedCommand
+int64_t value_int32_tflagsfield(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     int64_t value = 0;
     char word_buf[COMMAND_WORD_LEN];
@@ -491,7 +483,7 @@ int64_t value_longflagsfield(const struct NamedField* named_field, const char* v
     }
 
     int32_t pos = 0;
-    long len = strlen(value_text);
+    int32_t len = strlen(value_text);
     int i = 0;
     while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
     {
@@ -532,7 +524,7 @@ int64_t value_flagsfield(const struct NamedField* named_field, const char* value
     }
 
     int32_t pos = 0;
-    long len = strlen(value_text);
+    int32_t len = strlen(value_text);
     int i = 0;
     while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
     {
@@ -682,23 +674,19 @@ int64_t get_named_field_value(const struct NamedField* named_field, const struct
         return *(signed char*)field;
     case dt_char:
         return *(char*)field;
-    case dt_short:
-        return *(signed short*)field;
-    case dt_ushort:
-        return *(unsigned short*)field;
-    case dt_int:
-        return *(signed int*)field;
-    case dt_uint:
-        return *(unsigned int*)field;
-    case dt_long:
+    case dt_int16:
+        return *(int16_t*)field;
+    case dt_uint16:
+        return *(uint16_t*)field;
+    case dt_int32:
         return *(int32_t *)field;
-    case dt_ulong:
+    case dt_uint32:
         return *(uint32_t *)field;
-    case dt_longlong: {
+    case dt_int64: {
         /* Use memcpy to avoid ARM LDRD strict-alignment fault. */
         int64_t v; memcpy(&v, field, sizeof(v)); return v;
     }
-    case dt_ulonglong: {
+    case dt_uint64: {
         uint64_t v; memcpy(&v, field, sizeof(v)); return (int64_t)v;
     }
     case dt_float:
@@ -751,57 +739,45 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
         else
             *(char*)field = (char)value;
         break;
-    case dt_short:
-        if (value < SHRT_MIN || value > SHRT_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed short: %" PRId64, value);
+    case dt_int16:
+        if (value < INT16_MIN || value > INT16_MAX)
+            NAMFIELDWRNLOG("Value out of range for int16_t: %" PRId64, value);
         else
             *(signed short*)field = (signed short)value;
         break;
-    case dt_ushort:
-        if (value < 0 || value > USHRT_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned short: %" PRId64, value);
+    case dt_uint16:
+        if (value < 0 || value > UINT16_MAX)
+            NAMFIELDWRNLOG("Value out of range for uint16_t: %" PRId64, value);
         else
             *(unsigned short*)field = (unsigned short)value;
         break;
-    case dt_int:
-        if (value < INT_MIN || value > INT_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed int: %" PRId64, value);
+    case dt_int32:
+        if (value < INT32_MIN || value > INT32_MAX)
+            NAMFIELDWRNLOG("Value out of range for int32_t: %" PRId64, value);
         else
-            *(signed int*)field = (signed int)value;
+            *(int32_t *)field = (int32_t)value;
         break;
-    case dt_uint:
-        if (value < 0 || value > UINT_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned int: %" PRId64, value);
+    case dt_uint32:
+        if (value < 0 || value > UINT32_MAX)
+            NAMFIELDWRNLOG("Value out of range for uint32_t: %" PRId64, value);
         else
-            *(unsigned int*)field = (unsigned int)value;
+            *(uint32_t *)field = (uint32_t)value;
         break;
-    case dt_long:
-        if (value < LONG_MIN || value > LONG_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed long: %" PRId64, value);
-        else
-            *(signed long *)field = (signed long)value;
-        break;
-    case dt_ulong:
-        if (value < 0 || value > ULONG_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned long: %" PRId64, value);
-        else
-            *(unsigned long *)field = (unsigned long)value;
-        break;
-    case dt_longlong:
+    case dt_int64:
         if (value < INT64_MIN || value > INT64_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed long long: %" PRId64, value);
+            NAMFIELDWRNLOG("Value out of range for int64_t: %" PRId64, value);
         else {
             /* Use memcpy to avoid ARM STRD strict-alignment fault (ARMv7 STRD requires
              * 8-byte aligned address; struct base may only be 4-byte aligned). */
-            signed long long v = (signed long long)value;
+            int64_t v = (int64_t)value;
             memcpy(field, &v, sizeof(v));
         }
         break;
-    case dt_ulonglong:
+    case dt_uint64:
         if (value < 0)
-            NAMFIELDWRNLOG("Value out of range for unsigned long long: %" PRId64, value);
+            NAMFIELDWRNLOG("Value out of range for uint64: %" PRId64, value);
         else {
-            unsigned long long v = (unsigned long long)value;
+            uint64_t v = (uint64_t)value;
             memcpy(field, &v, sizeof(v));
         }
         break;
@@ -854,7 +830,7 @@ void assign_named_field_value(const struct NamedField* named_field, int64_t valu
  * If ccr_error        is returned, that means something went wrong.
  */
 
-int assign_conf_command_field(const char *buf,int32_t *pos,long buflen,const struct NamedField commands[], const struct NamedFieldSet* named_fields_set, int idx, unsigned short flags, const char *config_textname)
+int assign_conf_command_field(const char *buf,int32_t *pos,int32_t buflen,const struct NamedField commands[], const struct NamedFieldSet* named_fields_set, int idx, unsigned short flags, const char *config_textname)
 {
     SYNCDBG(19,"Starting");
     if ((*pos) >= buflen) return -1;
@@ -934,7 +910,7 @@ int assign_conf_command_field(const char *buf,int32_t *pos,long buflen,const str
                     // Prevent buffer overflow
                     if (line_len >= MAX_LINE_LEN - 1)
                     {
-                      ERRORLOG("preventing overflow for long conf line");
+                      ERRORLOG("preventing overflow for int32_t conf line");
                       break;
                     }
                 }
@@ -974,7 +950,7 @@ int assign_conf_command_field(const char *buf,int32_t *pos,long buflen,const str
     return ccr_unrecognised;
 }
 
-TbBool parse_named_field_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
+TbBool parse_named_field_block(const char *buf, int32_t len, const char *config_textname, unsigned short flags,const char* blockname,
                          const struct NamedField named_field[], const struct NamedFieldSet* named_fields_set, int idx)
 {
     int32_t pos = 0;
@@ -1014,11 +990,11 @@ void set_defaults(const struct NamedFieldSet* named_fields_set, const char *conf
 
   const struct NamedField* name_NamedField = NULL;
 
-  for (long i = 0; named_fields_set->named_fields[i].name != NULL; i++)
+  for (int32_t i = 0; named_fields_set->named_fields[i].name != NULL; i++)
   {
       if (named_fields_set->named_fields[i].default_value != 0)
       {
-          for (long j = 0; j < named_fields_set->max_count; j++)
+          for (int32_t j = 0; j < named_fields_set->max_count; j++)
           {
               assign_default(&named_fields_set->named_fields[i], named_fields_set->named_fields[i].default_value, named_fields_set, j, config_textname, ccf_None);
           }
@@ -1043,7 +1019,7 @@ void set_defaults(const struct NamedFieldSet* named_fields_set, const char *conf
 }
 
 
-TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname, unsigned short flags,
+TbBool parse_named_field_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags,
                                const struct NamedFieldSet* named_fields_set)
 {
     int32_t pos = 0;
@@ -1080,7 +1056,7 @@ TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname
     return true;
 }
 
-int get_conf_parameter_whole(const char *buf,int32_t *pos,long buflen,char *dst,long dstlen)
+int get_conf_parameter_whole(const char *buf,int32_t *pos,int32_t buflen,char *dst,int32_t dstlen)
 {
   int i;
   if ((*pos) >= buflen) return 0;
@@ -1102,7 +1078,7 @@ int get_conf_parameter_whole(const char *buf,int32_t *pos,long buflen,char *dst,
   return i;
 }
 
-int get_conf_parameter_single(const char *buf,int32_t *pos,long buflen,char *dst,long dstlen)
+int get_conf_parameter_single(const char *buf,int32_t *pos,int32_t buflen,char *dst,int32_t dstlen)
 {
     int i;
     if ((*pos) >= buflen) return 0;
@@ -1131,7 +1107,7 @@ int get_conf_parameter_single(const char *buf,int32_t *pos,long buflen,char *dst
 /**
  * Returns parameter num from given NamedCommand array, or 0 if not found.
  */
-int recognize_conf_parameter(const char *buf,int32_t *pos,long buflen,const struct NamedCommand commands[])
+int recognize_conf_parameter(const char *buf,int32_t *pos,int32_t buflen,const struct NamedCommand commands[])
 {
   if ((*pos) >= buflen) return 0;
   // Skipping spaces after previous parameter
@@ -1170,7 +1146,7 @@ int recognize_conf_parameter(const char *buf,int32_t *pos,long buflen,const stru
  */
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num)
 {
-    long i = 0;
+    int32_t i = 0;
     while (commands[i].name != NULL)
     {
         //SYNCLOG("\"%s\", %d %d",commands[i].name,commands[i].num,num);
@@ -1185,11 +1161,11 @@ const char *get_conf_parameter_text(const struct NamedCommand commands[],int num
  * Returns ID of given item using NamedField list.
  * If not found, returns -1.
  */
-long get_named_field_id(const struct NamedField *desc, const char *itmname)
+int32_t get_named_field_id(const struct NamedField *desc, const char *itmname)
 {
   if ((desc == NULL) || (itmname == NULL))
     return -1;
-  for (long i = 0; desc[i].name != NULL; i++)
+  for (int32_t i = 0; desc[i].name != NULL; i++)
   {
     if (strcasecmp(desc[i].name, itmname) == 0)
       return i;
@@ -1203,11 +1179,11 @@ long get_named_field_id(const struct NamedField *desc, const char *itmname)
  * one word, ended with "\0".
  * If not found, returns -1.
  */
-long get_id(const struct NamedCommand *desc, const char *itmname)
+int32_t get_id(const struct NamedCommand *desc, const char *itmname)
 {
   if ((desc == NULL) || (itmname == NULL))
     return -1;
-  for (long i = 0; desc[i].name != NULL; i++)
+  for (int32_t i = 0; desc[i].name != NULL; i++)
   {
     if (strcasecmp(desc[i].name, itmname) == 0)
       return desc[i].num;
@@ -1221,11 +1197,11 @@ long get_id(const struct NamedCommand *desc, const char *itmname)
  * one word, ended with "\0".
  * If not found, returns -1.
  */
-long long get_long_id(const struct LongNamedCommand* desc, const char* itmname)
+int64_t get_long_id(const struct LongNamedCommand* desc, const char* itmname)
 {
     if ((desc == NULL) || (itmname == NULL))
         return -1;
-    for (long i = 0; desc[i].name != NULL; i++)
+    for (int32_t i = 0; desc[i].name != NULL; i++)
     {
         if (strcasecmp(desc[i].name, itmname) == 0)
             return desc[i].num;
@@ -1239,9 +1215,9 @@ long long get_long_id(const struct LongNamedCommand* desc, const char* itmname)
  * one word, ended with "\0".
  * If not found, returns -1.
  */
-long get_rid(const struct NamedCommand *desc, const char *itmname)
+int32_t get_rid(const struct NamedCommand *desc, const char *itmname)
 {
-  long i;
+  int32_t i;
   if ((desc == NULL) || (itmname == NULL))
     return -1;
   for (i=0; desc[i].name != NULL; i++)
@@ -1410,8 +1386,8 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size,
       int total_len = len_mdir + len_mod_dir + len_sdir + len_fname + 3; /* +3 for separators */
       
       if (total_len >= (int)dst_size) {
-          ERRORMSG("Path construction would overflow: total_len=%d, buffer_size=%lu. Components: mdir=%d, mod_dir=%d, sdir=%d, fname=%d",
-                   total_len, (unsigned long)dst_size, 
+          ERRORMSG("Path construction would overflow: total_len=%d, buffer_size=%u. Components: mdir=%d, mod_dir=%d, sdir=%d, fname=%d",
+                   total_len, (uint32_t)dst_size, 
                    len_mdir, len_mod_dir, 
                    len_sdir, len_fname);
           dst[0] = '\0';
@@ -1427,10 +1403,10 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size,
       int written = snprintf(dst, dst_size, "%s%s%s%s%s%s%s", 
                              mdir, mod_sep, mod_dir, dir_sep, sdir, file_sep, fname);
       if (written < 0 || (size_t)written >= dst_size) {
-          ERRORMSG("Path construction overflow: len=%d, buffer_size=%lu. Components: mdir=%lu, mod_dir=%lu, sdir=%lu, fname=%lu",
-                   written, (unsigned long)dst_size, 
-                   (unsigned long)len_mdir, (unsigned long)len_mod_dir, 
-                   (unsigned long)len_sdir, (unsigned long)len_fname);
+          ERRORMSG("Path construction overflow: len=%d, buffer_size=%u. Components: mdir=%u, mod_dir=%u, sdir=%u, fname=%u",
+                   written, (uint32_t)dst_size, 
+                   (uint32_t)len_mdir, (uint32_t)len_mod_dir, 
+                   (uint32_t)len_sdir, (uint32_t)len_fname);
           dst[0] = '\0';
           return dst;
       }
@@ -1561,7 +1537,7 @@ unsigned char *load_data_file_to_buffer(int32_t *ldsize, short fgroup, const cha
   prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
   va_end(arg);
   // Load the file
-   long fsize = LbFileLengthRnc(ffullpath);
+   int32_t fsize = LbFileLengthRnc(ffullpath);
    if (fsize < *ldsize)
    {
        WARNMSG("File \"%s\" doesn't exist or is too small.", fname);
@@ -1570,7 +1546,7 @@ unsigned char *load_data_file_to_buffer(int32_t *ldsize, short fgroup, const cha
   unsigned char* buf = KfxCalloc(fsize + 16, 1);
   if (buf == NULL)
   {
-    WARNMSG("Can't allocate %ld bytes to load \"%s\".",fsize,fname);
+    WARNMSG("Can't allocate %d bytes to load \"%s\".",fsize,fname);
     return NULL;
   }
   fsize = LbFileLoadAt(ffullpath,buf);
@@ -1595,7 +1571,7 @@ struct LevelInformation *get_level_info(LevelNumber lvnum)
   return get_campaign_level_info(&campaign, lvnum);
 }
 
-struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, unsigned long lvoptions)
+struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, uint32_t lvoptions)
 {
     struct LevelInformation* lvinfo = get_campaign_level_info(&campaign, lvnum);
     if (lvinfo != NULL)
@@ -1644,7 +1620,7 @@ struct LevelInformation *get_next_level_info(struct LevelInformation *previnfo)
     return NULL;
   if (previnfo == NULL)
     return NULL;
-  unsigned long i = previnfo - &campaign.lvinfos[0];
+  uint32_t i = previnfo - &campaign.lvinfos[0];
   i++;
   if (i >= campaign.lvinfos_count)
     return NULL;
@@ -1670,7 +1646,7 @@ struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo)
   return &campaign.lvinfos[i];
 }
 
-short set_level_info_string_index(LevelNumber lvnum, char *stridx, unsigned long lvoptions)
+short set_level_info_string_index(LevelNumber lvnum, char *stridx, uint32_t lvoptions)
 {
     if (campaign.lvinfos == NULL)
         init_level_info_entries(&campaign, 0);
@@ -1686,7 +1662,7 @@ short set_level_info_string_index(LevelNumber lvnum, char *stridx, unsigned long
   return false;
 }
 
-short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions)
+short set_level_info_text_name(LevelNumber lvnum, char *name, uint32_t lvoptions)
 {
     if (campaign.lvinfos == NULL)
         init_level_info_entries(&campaign, 0);
@@ -1704,7 +1680,7 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
 
 TbBool reset_credits(struct CreditsItem *credits)
 {
-    for (long i = 0; i < CAMPAIGN_CREDITS_COUNT; i++)
+    for (int32_t i = 0; i < CAMPAIGN_CREDITS_COUNT; i++)
     {
         memset(&credits[i], 0, sizeof(struct CreditsItem));
         credits[i].kind = CIK_None;
@@ -1716,7 +1692,7 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buffer_en
 {
   const char * block_name = "credits";
   // Find the block
-  long len = buffer_end_pointer - buf;
+  int32_t len = buffer_end_pointer - buf;
   int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
@@ -1809,7 +1785,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
 {
   SYNCDBG(18,"Starting");
   char* fname = prepare_file_path(FGrp_LandView, campgn->credits_fname);
-  long filelen = LbFileLengthRnc(fname);
+  int32_t filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
     ERRORLOG("Campaign Credits file \"%s\" does not exist or can't be opened",campgn->credits_fname);
@@ -1823,7 +1799,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
   }
   char* credits_data_end = campgn->credits_data + filelen + 255;
   short result = true;
-  long loaded_size = LbFileLoadAt(fname, campgn->credits_data);
+  int32_t loaded_size = LbFileLoadAt(fname, campgn->credits_data);
   if (loaded_size < 4)
   {
     ERRORLOG("Campaign Credits file \"%s\" couldn't be loaded or is too small",campgn->credits_fname);
@@ -1924,7 +1900,7 @@ LevelNumber bonus_level_for_singleplayer_level(LevelNumber sp_lvnum)
  */
 LevelNumber first_singleplayer_level(void)
 {
-    long lvnum = campaign.single_levels[0];
+    int32_t lvnum = campaign.single_levels[0];
     if (lvnum > 0)
         return lvnum;
     return SINGLEPLAYER_NOTSTARTED;
@@ -1948,7 +1924,7 @@ LevelNumber last_singleplayer_level(void)
  */
 LevelNumber first_multiplayer_level(void)
 {
-  long lvnum = campaign.multi_levels[0];
+  int32_t lvnum = campaign.multi_levels[0];
   if (lvnum > 0)
     return lvnum;
   return SINGLEPLAYER_NOTSTARTED;
@@ -1960,9 +1936,9 @@ LevelNumber first_multiplayer_level(void)
  */
 LevelNumber first_extra_level(void)
 {
-    for (unsigned long lvidx = 0; lvidx < campaign.extra_levels_index; lvidx++)
+    for (uint32_t lvidx = 0; lvidx < campaign.extra_levels_index; lvidx++)
     {
-        long lvnum = campaign.extra_levels[lvidx];
+        int32_t lvnum = campaign.extra_levels[lvidx];
         if (lvnum > 0)
             return lvnum;
   }
@@ -2245,9 +2221,9 @@ static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned
     }
 }
 
-static void load_config_for_mod_list(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_items, long mod_cnt)
+static void load_config_for_mod_list(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_items, int32_t mod_cnt)
 {
-    for (long i=0; i<mod_cnt; i++)
+    for (int32_t i=0; i<mod_cnt; i++)
     {
         const struct ModConfigItem *mod_item = mod_items + i;
         if (mod_item->state.mod_dir == 0)

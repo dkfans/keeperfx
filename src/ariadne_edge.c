@@ -29,7 +29,7 @@ extern "C" {
 /******************************************************************************/
 static struct EdgePoint EdgePoints[EDGE_POINTS_COUNT];
 
-long ix_EdgePoints;
+int32_t ix_EdgePoints;
 
 /******************************************************************************/
 void edge_points_clean(void)
@@ -37,9 +37,9 @@ void edge_points_clean(void)
     ix_EdgePoints = 0;
 }
 
-long edge_point_add(long pt_x, long pt_y)
+int32_t edge_point_add(int32_t pt_x, int32_t pt_y)
 {
-    long ept_id = ix_EdgePoints;
+    int32_t ept_id = ix_EdgePoints;
     if (ept_id >= EDGE_POINTS_COUNT)
         return -1;
     EdgePoints[ept_id].pt_x = pt_x;
@@ -48,7 +48,7 @@ long edge_point_add(long pt_x, long pt_y)
     return ept_id;
 }
 
-struct EdgePoint *edge_point_get(long ept_id)
+struct EdgePoint *edge_point_get(int32_t ept_id)
 {
     if ((ept_id < 0) || (ept_id >= EDGE_POINTS_COUNT))
         return &EdgePoints[0];

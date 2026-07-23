@@ -123,10 +123,10 @@ TbBool create_vampire_in_room(struct Room *room)
     pos.x.val = 0;
     pos.y.val = 0;
     pos.z.val = 0;
-    long crmodel = get_room_create_creature_model(room->kind);
+    int32_t crmodel = get_room_create_creature_model(room->kind);
     struct Thing* thing = create_creature(&pos, crmodel, room->owner);
     if (thing_is_invalid(thing)) {
-        ERRORLOG("Could not create creature model %ld",crmodel);
+        ERRORLOG("Could not create creature model %d",crmodel);
         return false;
     }
     if (!find_random_valid_position_for_thing_in_room(thing, room, &pos)) {
@@ -177,7 +177,7 @@ void remove_body_from_graveyard(struct Thing *thing)
     }
 }
 
-long move_dead_creature(struct Thing *thing)
+int32_t move_dead_creature(struct Thing *thing)
 {
     if (!thing_exists(thing))
     {
@@ -186,16 +186,16 @@ long move_dead_creature(struct Thing *thing)
     }
     if ( (thing->velocity.x.val != 0) || (thing->velocity.y.val != 0) || (thing->velocity.z.val != 0) )
     {
-        long i = (long)thing->mappos.x.val + (long)thing->velocity.x.val;
+        int32_t i = (int32_t)thing->mappos.x.val + (int32_t)thing->velocity.x.val;
         if (i >= subtile_coord(game.map_subtiles_x,0)) i = subtile_coord(game.map_subtiles_x,0)-1;
         if (i < 0) i = 0;
         struct Coord3d pos;
         pos.x.val = i;
-        i = (long)thing->mappos.y.val + (long)thing->velocity.y.val;
+        i = (int32_t)thing->mappos.y.val + (int32_t)thing->velocity.y.val;
         if (i >= subtile_coord(game.map_subtiles_y,0)) i = subtile_coord(game.map_subtiles_y,0)-1;
         if (i < 0) i = 0;
         pos.y.val = i;
-        i = (long)thing->mappos.z.val + (long)thing->velocity.z.val;
+        i = (int32_t)thing->mappos.z.val + (int32_t)thing->velocity.z.val;
         if (i < 0) i = 0;
         pos.z.val = i;
         if ( !positions_equivalent(&thing->mappos, &pos) )
@@ -220,7 +220,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    long corpse_age;
+    int32_t corpse_age;
     if ((thing->alloc_flags & TAlF_IsDragged) == 0)
     {
         if (thing->active_state == DCrSt_Dying)
@@ -237,7 +237,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                 thing->health--;
             if (thing->health <= 0) {
                 thing->active_state = DCrSt_Dead;
-                long i = get_creature_anim(thing, CGI_DropDead);
+                int32_t i = get_creature_anim(thing, CGI_DropDead);
                 set_thing_draw(thing, i, 64, -1, 1, 0, ODC_Default);
             }
         } else
@@ -293,11 +293,11 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     return move_dead_creature(thing);;
 }
 
-long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, CrtrExpLevel exp_level)
+int32_t find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, CrtrExpLevel exp_level)
 {
     if (dungeon_invalid(dungeon))
         return -1;
-    long i = dungeon->dead_creatures_count - 1;
+    int32_t i = dungeon->dead_creatures_count - 1;
     while (i >= 0)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
@@ -319,7 +319,7 @@ TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmode
         return false;
     }
     // Check if the creature of same type is in list
-    long i = find_item_in_dead_creature_list(dungeon, crmodel, exp_level);
+    int32_t i = find_item_in_dead_creature_list(dungeon, crmodel, exp_level);
     struct CreatureStorage* cstore;
     if (i >= 0)
     {
@@ -357,7 +357,7 @@ TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel c
         return false;
     }
     struct CreatureStorage* cstore;
-    long rmpos = find_item_in_dead_creature_list(dungeon, crmodel, exp_level);
+    int32_t rmpos = find_item_in_dead_creature_list(dungeon, crmodel, exp_level);
     if (rmpos < 0)
     {
         return false;
@@ -369,7 +369,7 @@ TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel c
     }
     else
     {
-        for (long i = rmpos; i < DEAD_CREATURES_MAX_COUNT - 1; i++)
+        for (int32_t i = rmpos; i < DEAD_CREATURES_MAX_COUNT - 1; i++)
         {
             memcpy(&dungeon->dead_creatures[i], &dungeon->dead_creatures[i + 1], sizeof(struct CreatureStorage));
         }
@@ -462,7 +462,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
-    unsigned long k;
+    uint32_t k;
     switch (crpscondition)
     {
     case DCrSt_Dead:
@@ -481,10 +481,10 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         break;
     case DCrSt_LongDead:
         thing->active_state = DCrSt_Dead;
-        long i = get_creature_anim(thing, CGI_DropDead);
+        int32_t i = get_creature_anim(thing, CGI_DropDead);
         set_thing_draw(thing, i, 64, -1, 1, get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed), ODC_Default);
     }
-    thing->sprite_size = (game.conf.crtr_conf.sprite_size * (long)thing->corpse.exp_level) / 20 + game.conf.crtr_conf.sprite_size;
+    thing->sprite_size = (game.conf.crtr_conf.sprite_size * (int32_t)thing->corpse.exp_level) / 20 + game.conf.crtr_conf.sprite_size;
     return thing;
 }
 
@@ -494,7 +494,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
  * @param a1
  * @return The corpse thing, on invalid thing on error.
  */
-struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpscondition)
+struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, int32_t crpscondition)
 {
     ThingModel crmodel = thing->model;
     TbBool memf1 = ((thing->alloc_flags & TAlF_IsControlled) != 0);
@@ -502,8 +502,8 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val;
-    long owner = thing->owner;
-    long prev_idx = thing->index;
+    int32_t owner = thing->owner;
+    int32_t prev_idx = thing->index;
     short angle = thing->move_angle_xy;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     CrtrExpLevel exp_level = cctrl->exp_level;

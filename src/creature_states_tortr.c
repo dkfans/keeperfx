@@ -129,10 +129,10 @@ short cleanup_torturing(struct Thing *creatng)
     return 1;
 }
 
-long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
+int32_t setup_torture_move_to_device(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
-    unsigned long k;
-    long n = THING_RANDOM(creatng, room->slabs_count);
+    uint32_t k;
+    int32_t n = THING_RANDOM(creatng, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -176,7 +176,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
     return 0;
 }
 
-long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
+int32_t process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
     struct CreatureControl *cctrl;
     struct Thing *sectng;
@@ -340,7 +340,7 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
     }
 }
 
-long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr_idx)
+int32_t reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr_idx)
 {
     SlabCodedCoords slb_num;
     struct SlabMap *slb;
@@ -503,10 +503,10 @@ void set_torture_points_to_value(const struct Thing *thing, int time_turn)
  * @param thing The victim creature.
  * @param room The torture chamber room.
  */
-long compute_torture_convert_time(const struct Thing *thing)
+int32_t compute_torture_convert_time(const struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    long convert_time = (long)cctrl->tortured.accumulated_torture_points / (TORTURE_ACCUM_FAC * ROOM_EFFICIENCY_MAX);
+    int32_t convert_time = (int32_t)cctrl->tortured.accumulated_torture_points / (TORTURE_ACCUM_FAC * ROOM_EFFICIENCY_MAX);
     return convert_time;
 }
 
@@ -529,11 +529,11 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     struct CreatureModelConfig *crconf = creature_stats_get_from_thing(creatng);
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     anger_apply_anger_to_creature(creatng, crconf->annoy_in_torture, AngR_Other, 1);
-    if ((long)get_gameturn() >= cctrl->turns_at_job + game.conf.rules[room->owner].health.turns_per_torture_health_loss)
+    if ((int32_t)get_gameturn() >= cctrl->turns_at_job + game.conf.rules[room->owner].health.turns_per_torture_health_loss)
     {
         HitPoints torture_damage = compute_creature_max_health(game.conf.rules[room->owner].health.torture_health_loss, cctrl->exp_level);
         remove_health_from_thing_and_display_health(creatng, torture_damage);
-        cctrl->turns_at_job = (long)get_gameturn();
+        cctrl->turns_at_job = (int32_t)get_gameturn();
     }
     // Check if we should convert the creature into ghost.
     if ((creatng->health < 0) && (game.conf.rules[room->owner].rooms.ghost_convert_chance > 0))
@@ -552,12 +552,12 @@ CrCheckRet process_torture_function(struct Thing *creatng)
 
     update_torture_points(creatng, room);
     // Torture must take some time before it has any affect.
-    long convert_time = compute_torture_convert_time(creatng);
+    int32_t convert_time = compute_torture_convert_time(creatng);
     if ((convert_time < crconf->torture_break_time) || (cctrl->tortured.assigned_torturer == 0))
     {
         return CrCkRet_Available;
     }
-    long broke_chance = (convert_time - (long)crconf->torture_break_time)/64 + 1;
+    int32_t broke_chance = (convert_time - (int32_t)crconf->torture_break_time)/64 + 1;
     // After that, every time broke chance is hit, do something.
     if (THING_RANDOM(creatng, 100) < broke_chance)
     {

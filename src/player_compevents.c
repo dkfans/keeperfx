@@ -47,18 +47,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
-long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
-long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
-long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_save_tortured(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_rebuild_room(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
-long computer_event_handle_prisoner(struct Computer2 *comp, struct ComputerEvent* cevent, struct Event *event);
-long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
-long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
+int32_t computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
+int32_t computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
+int32_t computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *cevent);
+int32_t computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent);
+int32_t computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent);
+int32_t computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
+int32_t computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
+int32_t computer_event_save_tortured(struct Computer2 *comp, struct ComputerEvent *cevent);
+int32_t computer_event_rebuild_room(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
+int32_t computer_event_handle_prisoner(struct Computer2 *comp, struct ComputerEvent* cevent, struct Event *event);
+int32_t computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
+int32_t computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 
 /******************************************************************************/
 struct ComputerSpells {
@@ -163,7 +163,7 @@ TbBool get_computer_drop_position_next_to_subtile(struct Coord3d* pos, struct Du
         near_coord_filter_battle_drop_point, &param);
 }
 
-long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
+int32_t computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
 {
     SYNCDBG(18,"Starting for %s",cevent->name);
     struct Coord3d pos;
@@ -178,8 +178,8 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         SYNCDBG(8,"No enemies near %s",cevent->name);
         return CTaskRet_Unk0;
     }
-    long creatrs_def = count_creatures_for_defend_pickup(comp);
-    long creatrs_num = creatrs_def * (long)cevent->primary_parameter / 100;
+    int32_t creatrs_def = count_creatures_for_defend_pickup(comp);
+    int32_t creatrs_num = creatrs_def * (int32_t)cevent->primary_parameter / 100;
     if ((creatrs_num < 1) && (creatrs_def > 0)) {
         creatrs_num = 1;
     }
@@ -221,9 +221,9 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
     return CTaskRet_Unk0;
 }
 
-long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
+int32_t computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
 {
-    long cproc_idx = 0;
+    int32_t cproc_idx = 0;
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
@@ -250,7 +250,7 @@ struct Thing *find_creature_in_fight_with_enemy(struct Computer2 *comp)
     struct Thing *creatng;
     struct Dungeon* dungeon = comp->dungeon;
     // Search through special diggers
-    unsigned long k = 0;
+    uint32_t k = 0;
     int i = dungeon->digger_list_start;
     while (i != 0)
     {
@@ -307,7 +307,7 @@ struct Thing *find_creature_in_fight_with_enemy(struct Computer2 *comp)
     return INVALID_THING;
 }
 
-long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *cevent)
+int32_t computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
     if (comp->dungeon->fights_num <= 0) {
         return CTaskRet_Unk4;
@@ -320,8 +320,8 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
-    long creatrs_def = count_creatures_for_defend_pickup(comp);
-    long creatrs_num = creatrs_def * (long)cevent->primary_parameter / 100;
+    int32_t creatrs_def = count_creatures_for_defend_pickup(comp);
+    int32_t creatrs_num = creatrs_def * (int32_t)cevent->primary_parameter / 100;
     if ((creatrs_num < 1) && (creatrs_def > 0)) {
         creatrs_num = 1;
     }
@@ -368,7 +368,7 @@ struct Thing *computer_get_creature_in_fight(struct Computer2 *comp, PowerKind p
     return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon->owner, powerst->spell_idx);
 }
 
-long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
+int32_t computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
     if (comp->dungeon->fights_num <= 0)
     {
@@ -452,7 +452,7 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
     return PwrK_None;
 }
 
-long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent)
+int32_t computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
     struct Dungeon* dungeon = comp->dungeon;
     if (dungeon->fights_num <= 0) {
@@ -495,10 +495,10 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
     return CTaskRet_Unk1;
 }
 
-long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent)
+int32_t computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
     SYNCDBG(18,"Starting");
-    long ret = CTaskRet_Unk4;
+    int32_t ret = CTaskRet_Unk4;
     TbBool emergency_state = computer_player_in_emergency_state(comp);
     for (struct ValidRooms* bldroom = valid_rooms_to_build; bldroom->rkind > 0; bldroom++)
     {
@@ -534,7 +534,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             }
             SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
             // Find the corresponding build process and mark it as needed
-            for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
+            for (int32_t i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
             {
                 struct ComputerProcess* cproc = &comp->processes[i];
                 if (flag_is_set(cproc->flags, ComProc_ListEnd))
@@ -551,7 +551,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
     return ret;
 }
 
-long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
+int32_t computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
     SYNCDBG(18, "Starting for %s", cevent->name);
     struct Thing* thing = thing_get(event->target);
@@ -562,7 +562,7 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
     }
     if (!players_are_enemies(comp->dungeon->owner, thing->owner))
     {
-        SYNCDBG(8, "Door owner is no longer an enemy");
+        SYNCDBG(8, "Door owner is no int32_ter an enemy");
         return CTaskRet_Unk0;
     }
 
@@ -630,7 +630,7 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
     return CTaskRet_Unk0;
 }
 
-long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
+int32_t computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
     SYNCDBG(18, "Starting");
     struct Dungeon* dungeon = comp->dungeon;
@@ -688,7 +688,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
     return CTaskRet_Unk1;
 }
 
-long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
+int32_t computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
     SYNCDBG(18, "Starting");
     if (count_slabs_of_room_type(comp->dungeon->owner, event->target) == 0)
@@ -709,7 +709,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
     return CTaskRet_Unk1;
 }
 
-long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* cevent)
+int32_t computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* cevent)
 {
     struct Dungeon* dungeon = comp->dungeon;
     int health_permil = (cevent->primary_parameter * 10);
@@ -795,16 +795,16 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
     return CTaskRet_Unk1;
 }
 
-long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)
+int32_t computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
     struct Dungeon* dungeon = comp->dungeon;
     if (dungeon->fights_num <= 0) {
         return CTaskRet_Unk4;
     }
     // Do not check for PwrK_HAND here; this would prevent the computer from taking other actions without it!
-    long result = CTaskRet_Unk4;
+    int32_t result = CTaskRet_Unk4;
     // Search through special diggers
-    unsigned long k = 0;
+    uint32_t k = 0;
     int i = dungeon->digger_list_start;
     while (i != 0)
     {
@@ -870,7 +870,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
     return result;
 }
 
-long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
+int32_t computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
 {
     struct Dungeon* dungeon = comp->dungeon;
     if (dungeon->total_money_owned >= dungeon->creatures_total_pay) {

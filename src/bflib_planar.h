@@ -28,15 +28,15 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct TbRect {
-  long left;
-  long top;
-  long right;
-  long bottom;
+  int32_t left;
+  int32_t top;
+  int32_t right;
+  int32_t bottom;
 };
 
 struct TbPoint {
-  long x;
-  long y;
+  int32_t x;
+  int32_t y;
 };
 /******************************************************************************/
 
@@ -61,23 +61,23 @@ struct TbPoint {
  */
 #define grid_distance(x1,y1,x2,y2) (abs(x1 - x2) + abs(y1 - y2))
 /******************************************************************************/
-void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBottom);
+void LbSetRect(struct TbRect *rect, int32_t xLeft, int32_t yTop, int32_t xRight, int32_t yBottom);
 
-long get_angle_difference(long angle_a, long angle_b);
-long get_angle_sign(long angle_a, long angle_b);
+int32_t get_angle_difference(int32_t angle_a, int32_t angle_b);
+int32_t get_angle_sign(int32_t angle_a, int32_t angle_b);
 
-long distance_with_angle_to_coord_x(long distance, long angle);
-long distance_with_angle_to_coord_y(long distance, long angle);
+int32_t distance_with_angle_to_coord_x(int32_t distance, int32_t angle);
+int32_t distance_with_angle_to_coord_y(int32_t distance, int32_t angle);
 
-long get_distance_xy(long x1, long x2, long y1, long y2);
+int32_t get_distance_xy(int32_t x1, int32_t x2, int32_t y1, int32_t y2);
 MapCoordDelta get_chessboard_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 MapCoordDelta get_chessboard_3d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 
-long distance3d_with_angles_to_coord_x(long distance, long angle_a, long angle_b);
-long distance3d_with_angles_to_coord_y(long distance, long angle_a, long angle_b);
+int32_t distance3d_with_angles_to_coord_x(int32_t distance, int32_t angle_a, int32_t angle_b);
+int32_t distance3d_with_angles_to_coord_y(int32_t distance, int32_t angle_a, int32_t angle_b);
 #define distance_with_angle_to_coord_z(distance, angle) distance_with_angle_to_coord_x(distance, angle)
-long move_coord_with_angle_x(long pos_x, long distance, long angle);
-long move_coord_with_angle_y(long pos_y, long distance, long angle);
+int32_t move_coord_with_angle_x(int32_t pos_x, int32_t distance, int32_t angle);
+int32_t move_coord_with_angle_y(int32_t pos_y, int32_t distance, int32_t angle);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -66,9 +66,8 @@ enum TbErrorCode {
 #pragma pack(1)
 
 // These types should be deprecated because we have stdint.h now.
-typedef unsigned long ulong;
 typedef unsigned int uint;
-typedef unsigned short ushort;
+typedef uint16_t ushort;
 typedef unsigned char uchar;
 
 struct TbTime {
@@ -90,18 +89,18 @@ typedef uint32_t TbBigChecksum;
 typedef int32_t Offset;
 typedef FILE * TbFileHandle;
 typedef unsigned char TbBool;
-typedef short TbScreenPos;
+typedef int16_t TbScreenPos;
 
 #define LOG_PREFIX_LEN 32
 
 struct TbLog {
         char filename[DISKPATH_SIZE];
         char prefix[LOG_PREFIX_LEN];
-        ulong flags;
+        uint32_t flags;
         TbBool Initialised;
         TbBool Created;
         TbBool Suspended;
-        long position;
+        int32_t position;
 };
 
 struct TbNetworkCallbackData;
@@ -145,24 +144,24 @@ int LbNaviLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), non
 #ifdef FUNCTESTING
 int LbFTestLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 #endif
-int LbScriptLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
-int LbConfigLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
+int LbScriptLog(uint32_t line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
+int LbConfigLog(uint32_t line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
 
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
 int LbErrorLogClose(void);
 
 int LbLogClose(struct TbLog *log) __attribute__ ((nonnull(1)));
-int LbLogSetup(struct TbLog *log, const char *filename, ulong flags) __attribute__ ((nonnull(1, 2)));
+int LbLogSetup(struct TbLog *log, const char *filename, uint32_t flags) __attribute__ ((nonnull(1, 2)));
 int LbLogSetPrefix(struct TbLog *log, const char *prefix) __attribute__ ((nonnull(1, 2)));
 int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(1, 2)));
 
 /******************************************************************************/
 typedef void (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
 /******************************************************************************/
-unsigned long llong (unsigned char *p) __attribute__ ((nonnull(1)));
-unsigned long lword (unsigned char *p) __attribute__ ((nonnull(1)));
-long saturate_set_signed(long long val,unsigned short nbits);
-unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
+uint32_t llong (unsigned char *p) __attribute__ ((nonnull(1)));
+uint16_t lword (unsigned char *p) __attribute__ ((nonnull(1)));
+int32_t saturate_set_signed(int64_t val,unsigned short nbits);
+uint32_t saturate_set_unsigned(uint64_t val,unsigned short nbits);
 void make_lowercase(char *) __attribute__ ((nonnull(1)));
 void make_uppercase(char *) __attribute__ ((nonnull(1)));
 int natoi(const char * str, int len) __attribute__ ((nonnull(1))); // like atoi but stops after len bytes

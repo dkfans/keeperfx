@@ -94,7 +94,7 @@ void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
-    long key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
+    int32_t key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (key_id < num_definable_keys())) & LbBtnF_Enabled;
 }
 
@@ -119,7 +119,7 @@ void frontend_define_key_scroll(struct GuiButton *gbtn)
 
 void frontend_define_key(struct GuiButton *gbtn)
 {
-    long key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
+    int32_t key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
     defining_a_key = 1;
     defining_a_key_id = key_id;
     lbInkey = 0;
@@ -132,8 +132,8 @@ void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 
 void frontend_draw_define_key(struct GuiButton *gbtn)
 {
-    long content = gbtn->content.lval;
-    long key_id = define_key_scroll_offset - content - 1;
+    int32_t content = gbtn->content.lval;
+    int32_t key_id = define_key_scroll_offset - content - 1;
     if (key_id >= num_definable_keys()) {
         return;
     }
@@ -199,7 +199,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       case KC_MOUSE2:
       case KC_MOUSE1:
       {
-        const char* mouse_gui_string = get_string(key_to_string[(long)code]);
+        const char* mouse_gui_string = get_string(key_to_string[(int32_t)code]);
         int mouse_button_number = (KC_MOUSE1 + 1 - code);
         char mouse_button_number_string[8];
         snprintf(mouse_button_number_string, sizeof(mouse_button_number_string), "%d", mouse_button_number);
@@ -209,7 +209,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       }
       default:
       {
-        long i = key_to_string[code];
+        int32_t i = key_to_string[code];
         if (i >= 0)
             keytext = get_string(i);
         else

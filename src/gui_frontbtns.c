@@ -143,7 +143,7 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
     {
         gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
     }
-    gbtn->content.lval = (gbtn->slide_val) * (((long)gbtn->maxval)+1) >> 8;
+    gbtn->content.lval = (gbtn->slide_val) * (((int32_t)gbtn->maxval)+1) >> 8;
     callback = gbtn->click_event;
     if (callback != NULL)
       callback(gbtn);
@@ -339,7 +339,7 @@ void init_slider_bars(struct GuiMenu *gmnu)
         {
             if (gbtn->gbtype == LbBtnT_HorizSlider)
             {
-                long sldpos = clamp(gbtn->content.lval, 0, gbtn->maxval);
+                int32_t sldpos = clamp(gbtn->content.lval, 0, gbtn->maxval);
                 gbtn->slide_val = (sldpos << 8) / (gbtn->maxval + 1);
             }
         }
@@ -425,8 +425,8 @@ void gui_round_glass_background(struct GuiMenu *gmnu)
                 fade_h = 0;
         }
     }
-    long px;
-    long py;
+    int32_t px;
+    int32_t py;
     switch (gmnu->visual_state)
     {
     case 3:
@@ -476,8 +476,8 @@ void gui_pretty_background(struct GuiMenu *gmnu)
                 fade_h = 0;
         }
     }
-    long px;
-    long py;
+    int32_t px;
+    int32_t py;
     int width;
     int height;
     switch (gmnu->visual_state)
@@ -726,7 +726,7 @@ void frontend_over_button(struct GuiButton *gbtn)
 
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags)
 {
-    static const long large_button_sprite_anims[] = {
+    static const int32_t large_button_sprite_anims[] = {
         GFS_hugebutton_a01l,
         GFS_hugebutton_a02l,
         GFS_hugebutton_a03l,
@@ -739,8 +739,8 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     unsigned int febtn_idx;
     unsigned int spridx;
     int fntidx;
-    long x;
-    long y;
+    int32_t x;
+    int32_t y;
     int h;
     SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
     febtn_idx = gbtn->content.lval;
@@ -821,8 +821,8 @@ void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
 void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
 {
     const struct TbSprite *spr;
-    long pos_x;
-    long pos_y;
+    int32_t pos_x;
+    int32_t pos_y;
     int fs_units_per_px;
     fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugearea_thc_tx1_tc, 100);
     spr = get_frontend_sprite(GFS_hugearea_thc_tx1_tc);
@@ -886,8 +886,8 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
 
 void frontend_draw_slider_button(struct GuiButton *gbtn)
 {
-    long spr_idx;
-    long btn_id;
+    int32_t spr_idx;
+    int32_t btn_id;
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
         btn_id = gbtn->content.lval;
@@ -942,7 +942,7 @@ void reset_scroll_window(struct GuiMenu *gmnu)
 
 void gui_set_menu_mode(struct GuiButton *gbtn)
 {
-    long mnu_idx = gbtn->btype_value & LbBFeF_IntValueMask;
+    int32_t mnu_idx = gbtn->btype_value & LbBFeF_IntValueMask;
     if (mnu_idx == GMnu_SPELL)
     {
         if (menu_is_active(GMnu_SPELL2))
@@ -1029,12 +1029,12 @@ struct GuiButtonInit * get_gui_button_init(struct GuiMenu * menu, int id)
 void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_scrollbar)
 {
     const struct TbSprite *spr;
-    long pos_x;
-    long pos_y = gbtn->scr_pos_y;
-    long spr_idx;
-    long secspr_idx;
-    long i;
-    long delta;
+    int32_t pos_x;
+    int32_t pos_y = gbtn->scr_pos_y;
+    int32_t spr_idx;
+    int32_t secspr_idx;
+    int32_t i;
+    int32_t delta;
     // Detect scaling factor is quite complicated for this item
     int units_per_px;
     {

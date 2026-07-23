@@ -207,7 +207,7 @@ void lan_refresh_sessions(void)
         memset(entry, 0, sizeof(*entry));
         entry->joinable = 1;
         entry->in_use = 1;
-        entry->id = (unsigned long)lan_session_count;
+        entry->id = (uint32_t)lan_session_count;
         snprintf(entry->text, SESSION_NAME_MAX_LEN, "%s", session_cache[i].name);
         snprintf(entry->join_address, SESSION_LOBBY_ID_MAX_LEN, "LAN:%s:%d",
             session_cache[i].ip, session_cache[i].port);

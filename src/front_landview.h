@@ -49,7 +49,7 @@ struct MapLevelInfo { // sizeof = 56
   float fade_pos;
   float hotspot_imgpos_x; /**< Position of the chosen level ensign zoom area, which is either being zoomed in to or zoomed out from. Stored as land view background bitmap coordinate. */
   float hotspot_imgpos_y;
-  long state_trigger;
+  int32_t state_trigger;
   float screen_shift_x; /**< Shift X coordinate for top left corner of the visible land picture area. Acts as the final shift in both zoom and non-zoom modes. */
   float screen_shift_y; /**< Shift Y coordinate for top left corner of the visible land picture area. */
   float precise_scrshift_x; /**< Precise shift X for top left corner of the visible land picture area. Extended precision version, used as source for scrshift_x while zooming. */
@@ -99,21 +99,21 @@ static inline void screen_packet_set_action(struct ScreenPacket *nspck, unsigned
 
 /******************************************************************************/
 extern TbClockMSec play_desc_speech_time;
-extern unsigned long played_bad_descriptive_speech;
-extern unsigned long played_good_descriptive_speech;
+extern uint32_t played_bad_descriptive_speech;
+extern uint32_t played_good_descriptive_speech;
 extern struct TbSpriteSheet *map_flag;
 extern struct TbSpriteSheet *map_font;
 extern struct TbSpriteSheet *map_hand;
-extern long map_sound_fade;
+extern int32_t map_sound_fade;
 extern unsigned char *map_screen;
-extern long fe_net_level_selected;
+extern int32_t fe_net_level_selected;
 extern struct ScreenPacket net_screen_packet[MAX_NET_USERS];
 
 #pragma pack()
 /******************************************************************************/
 extern struct MapLevelInfo map_info;
 
-extern long map_window_len;
+extern int32_t map_window_len;
 /******************************************************************************/
 void frontnetmap_unload(void);
 TbBool frontnetmap_load(void);
@@ -124,8 +124,8 @@ void frontmap_input(void);
 void frontmap_draw(void);
 TbBool frontmap_load(void);
 void frontmap_unload(void);
-long frontmap_update(void);
-void frontzoom_to_point(long a1, long a2, long a3);
+int32_t frontmap_update(void);
+void frontzoom_to_point(int32_t a1, int32_t a2, int32_t a3);
 void compressed_window_draw(void);
 const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame);
 void set_level_name_text(LevelNumber lvnum, const char *lv_name);

@@ -71,7 +71,7 @@ TbBool player_has_lost(PlayerNumber plyr_idx)
 }
 
 /**
- * Returns whether given player has no longer any chance to win.
+ * Returns whether given player has no int32_ter any chance to win.
  * @param plyr_idx
  * @return
  */
@@ -115,7 +115,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
             show_real_time_taken();
         }
         struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, turns_per_second);
-        SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
+        SYNCMSG("Won level %u. Total turns taken: %u (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
             game.loaded_level_number, dungeon->lvstats.hopes_dashed,
             GameT.Hours, GameT.Minutes, GameT.Seconds, turns_per_second,
             Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
@@ -206,9 +206,9 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         toggle_computer_player(player->id_number);
 }
 
-long compute_player_final_score(struct PlayerInfo *player, long gameplay_score)
+int32_t compute_player_final_score(struct PlayerInfo *player, int32_t gameplay_score)
 {
-    long i;
+    int32_t i;
     if (network_is_active()
       || !is_singleplayer_level(game.loaded_level_number)) {
         i = 2 * gameplay_score;
@@ -230,8 +230,8 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
 {
     GoldAmount amount = amount_take;
     // Remove gold from room border slabs
-    unsigned long k = 0;
-    unsigned long slbnum = room->slabs_list;
+    uint32_t k = 0;
+    uint32_t slbnum = room->slabs_list;
     while (slbnum > 0)
     {
         struct SlabMap* slb = get_slabmap_direct(slbnum);
@@ -310,8 +310,8 @@ void recalculate_total_gold(struct Dungeon* dungeon, const char* func_name)
     {
         if (room_role_matches(rkind, RoRoF_GoldStorage))
         {
-            long i = dungeon->room_list_start[rkind];
-            unsigned long k = 0;
+            int32_t i = dungeon->room_list_start[rkind];
+            uint32_t k = 0;
             while (i != 0)
             {
                 struct Room* room = room_get(i);
@@ -342,7 +342,7 @@ void recalculate_total_gold(struct Dungeon* dungeon, const char* func_name)
     }
 }
 
-long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
+int32_t take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
@@ -382,8 +382,8 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
     {
         if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
-            long i = dungeon->room_list_start[rkind];
-            unsigned long k = 0;
+            int32_t i = dungeon->room_list_start[rkind];
+            uint32_t k = 0;
             while (i != 0)
             {
                 struct Room* room = room_get(i);
@@ -424,7 +424,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
     return -1;
 }
 
-long update_dungeon_generation_speeds(void)
+int32_t update_dungeon_generation_speeds(void)
 {
     int plyr_idx;
     // Get value of generation
@@ -852,7 +852,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     if (is_my_player(player)) {
         // new game, play one of the default tracks
         LevelNumber lvnum = get_loaded_level_number();
-        long safe_lvnum = (lvnum > 0) ? lvnum : 1; // guard against (lvnum - 1) % 4 going negative
+        int32_t safe_lvnum = (lvnum > 0) ? lvnum : 1; // guard against (lvnum - 1) % 4 going negative
         play_music_track(3 + (int)((safe_lvnum - 1) % 4)); // tracks 3..6
     }
 }
@@ -944,7 +944,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
 
 TbBool wander_point_add(struct Wander *wandr, SubtlCodedCoords stl_num)
 {
-    unsigned long i = wandr->point_insert_idx;
+    uint32_t i = wandr->point_insert_idx;
     wandr->points[i].stl_x = stl_num_decode_x(stl_num);
     wandr->points[i].stl_y = stl_num_decode_y(stl_num);
     wandr->point_insert_idx = (i + 1) % WANDER_POINTS_COUNT;
@@ -962,9 +962,9 @@ TbBool wander_point_add(struct Wander *wandr, SubtlCodedCoords stl_num)
  * @param max_to_store
  * @return
  */
-TbBool store_wander_points_up_to(struct Wander *wandr, const SubtlCodedCoords stl_num_list[], long stl_num_count, long max_to_store)
+TbBool store_wander_points_up_to(struct Wander *wandr, const SubtlCodedCoords stl_num_list[], int32_t stl_num_count, int32_t max_to_store)
 {
-    long i;
+    int32_t i;
     if (stl_num_count > max_to_store)
     {
         if (wandr->max_found_per_check <= 0)
@@ -988,7 +988,7 @@ TbBool store_wander_points_up_to(struct Wander *wandr, const SubtlCodedCoords st
     return true;
 }
 
-long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsigned char wandr_slot)
+int32_t wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsigned char wandr_slot)
 {
     wandr->wandr_slot = wandr_slot;
     wandr->plyr_idx = plyr_idx;
@@ -999,7 +999,7 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
     wandr->max_found_per_check = 4;
     wandr->search_limiting_enabled = 0;
 
-    long stl_num_list_count = 0;
+    int32_t stl_num_list_count = 0;
     SubtlCodedCoords* stl_num_list = (SubtlCodedCoords*)big_scratch;
     SlabCodedCoords slb_num = 0;
     while (1)
@@ -1028,14 +1028,14 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
 }
 
 #define LOCAL_LIST_SIZE 20
-long wander_point_update(struct Wander *wandr)
+int32_t wander_point_update(struct Wander *wandr)
 {
     SubtlCodedCoords stl_num_list[LOCAL_LIST_SIZE];
     SYNCDBG(6,"Starting");
     // Find up to 20 numbers (starting where we ended last time) and store them in local array
     SlabCodedCoords slb_num = wandr->last_checked_slb_num;
-    long stl_num_list_count = 0;
-    for (long i = 0; i < wandr->num_check_per_run; i++)
+    int32_t stl_num_list_count = 0;
+    for (int32_t i = 0; i < wandr->num_check_per_run; i++)
     {
         MapSlabCoord slb_x = slb_num_decode_x(slb_num);
         MapSlabCoord slb_y = slb_num_decode_y(slb_num);
@@ -1175,7 +1175,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     int32_t sell_value = 0;
-    unsigned long traps_sold;
+    uint32_t traps_sold;
     struct PlayerInfo* player = get_player(plyr_idx);
     if (player->full_slab_cursor == false)
     {
@@ -1298,7 +1298,7 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
             }
             const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
             int k = 0;
-            unsigned long i = slist->index;
+            uint32_t i = slist->index;
             while (i > 0)
             {
                 struct Thing *thing = thing_get(i);
@@ -1343,7 +1343,7 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
     }
 }
 
-void set_player_roomspace_size(struct PlayerInfo *player, long size) {
+void set_player_roomspace_size(struct PlayerInfo *player, int32_t size) {
     player->user_defined_roomspace_width = size;
     player->roomspace_width = size;
     player->roomspace_height = size;

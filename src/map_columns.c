@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct Column *get_column(long idx)
+struct Column *get_column(int32_t idx)
 {
   if ((idx < 1) || (idx >= COLUMNS_COUNT))
     return INVALID_COLUMN;
@@ -65,7 +65,7 @@ TbBool column_invalid(const struct Column *colmn)
  * Returns amount of filled subtiles at bottom of given column.
  * @param col The column which filled height should be returned.
  */
-long get_column_floor_filled_subtiles(const struct Column *col)
+int32_t get_column_floor_filled_subtiles(const struct Column *col)
 {
     return (col->bitfields & 0xF0) >> 4;
 }
@@ -74,7 +74,7 @@ long get_column_floor_filled_subtiles(const struct Column *col)
  * Returns amount of filled subtiles at bottom of column at given map block.
  * @param mapblk The map block for which column height should be returned.
  */
-long get_map_floor_filled_subtiles(const struct Map *mapblk)
+int32_t get_map_floor_filled_subtiles(const struct Map *mapblk)
 {
     const struct Column *col;
     col = get_map_column(mapblk);
@@ -88,7 +88,7 @@ long get_map_floor_filled_subtiles(const struct Map *mapblk)
  * @param stl_x Subtile for which column height should be returned, X coord.
  * @param stl_y Subtile for which column height should be returned, Y coord.
  */
-long get_floor_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+int32_t get_floor_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     const struct Column *col;
     col = get_column_at(stl_x, stl_y);
@@ -112,7 +112,7 @@ void set_column_floor_filled_subtiles(struct Column *col, MapSubtlCoord n)
  * Returns amount of filled subtiles at top of given column.
  * @param col The column which filled height should be returned.
  */
-long get_column_ceiling_filled_subtiles(const struct Column *col)
+int32_t get_column_ceiling_filled_subtiles(const struct Column *col)
 {
     return (col->bitfields & CLF_CEILING_MASK) >> 1;
 }
@@ -121,7 +121,7 @@ long get_column_ceiling_filled_subtiles(const struct Column *col)
  * Returns amount of filled subtiles at top of column at given map block.
  * @param mapblk The map block for which column height should be returned.
  */
-long get_map_ceiling_filled_subtiles(const struct Map *mapblk)
+int32_t get_map_ceiling_filled_subtiles(const struct Map *mapblk)
 {
     const struct Column *col;
     col = get_map_column(mapblk);
@@ -139,12 +139,12 @@ TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return get_map_ceiling_filled_subtiles(mapblk) > 0;
 }
 
-long get_top_cube_at_pos(SubtlCodedCoords stl_num)
+int32_t get_top_cube_at_pos(SubtlCodedCoords stl_num)
 {
     struct Column *col;
     struct Map *mapblk;
-    unsigned long top_pos;
-    long tcube;
+    uint32_t top_pos;
+    int32_t tcube;
     mapblk = get_map_block_at_pos(stl_num);
     col = get_map_column(mapblk);
     top_pos = get_column_floor_filled_subtiles(col);
@@ -155,11 +155,11 @@ long get_top_cube_at_pos(SubtlCodedCoords stl_num)
     return tcube;
 }
 
-long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *cube_pos)
+int32_t get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *cube_pos)
 {
     struct Column *col;
-    unsigned long top_pos;
-    long tcube;
+    uint32_t top_pos;
+    int32_t tcube;
     col = get_column_at(stl_x, stl_y);
     top_pos = get_column_floor_filled_subtiles(col);
     if (top_pos > 0)
@@ -204,8 +204,8 @@ unsigned short find_column_height(struct Column *col)
 MapCoord get_map_floor_height(const struct Map *mapblk)
 {
     const struct Column *colmn;
-    long i;
-    long cubes_height;
+    int32_t i;
+    int32_t cubes_height;
     colmn = get_map_column(mapblk);
     i = get_column_floor_filled_subtiles(colmn);
     if (i > 0) {
@@ -237,8 +237,8 @@ MapCoord get_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 MapCoord get_map_ceiling_height(const struct Map *mapblk)
 {
     const struct Column *colmn;
-    long i;
-    long cubes_height;
+    int32_t i;
+    int32_t cubes_height;
     colmn = get_map_column(mapblk);
     i = get_column_ceiling_filled_subtiles(colmn);
     if (i > 0) {
@@ -272,7 +272,7 @@ static TbBool column_is_equivalent(struct Column * const src, struct Column *dst
     return 0 == memcmp(src->cubes, dst->cubes, sizeof(src->cubes));
 }
 
-long find_column(struct Column *srccol)
+int32_t find_column(struct Column *srccol)
 {
     int i;
     for (i=1; i < COLUMNS_COUNT; i++) {
@@ -285,9 +285,9 @@ long find_column(struct Column *srccol)
     return 0;
 }
 
-long create_column(struct Column *col)
+int32_t create_column(struct Column *col)
 {
-    long result;
+    int32_t result;
     struct Column *dst;
     unsigned char cube_index;
     unsigned char top_of_floor;
@@ -383,7 +383,7 @@ void init_columns(void)
         col = get_column(i);
         if (col->use)
         {
-            unsigned long mskbit;
+            uint32_t mskbit;
             mskbit = 1;
             col->solidmask = 0;
             int n;
@@ -436,7 +436,7 @@ void init_whole_blocks(void)
 {
     struct Column *colmn;
     struct Column lcolmn;
-    long i;
+    int32_t i;
     memset(&lcolmn, 0, sizeof(struct Column));
     // Prepare the local column
     lcolmn.floor_texture = 22;
@@ -477,7 +477,7 @@ void init_top_texture_to_cube_table(void)
 
 TbBool subtile_is_unsafe(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    long tcube;
+    int32_t tcube;
     int32_t cube_pos;
     tcube = get_top_cube_at(stl_x, stl_y, &cube_pos);
 
@@ -487,7 +487,7 @@ TbBool subtile_is_unsafe(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 /* Returns if given cube is lava.
  * @param cube_id
  * @return */
-TbBool cube_is_lava(long cube_id)
+TbBool cube_is_lava(int32_t cube_id)
 {
     struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
     return flag_is_set(cubest->properties_flags, CPF_IsLava);
@@ -496,7 +496,7 @@ TbBool cube_is_lava(long cube_id)
 /* Returns if given cube is water.
  * @param cube_id
  * @return */
-TbBool cube_is_water(long cube_id)
+TbBool cube_is_water(int32_t cube_id)
 {
     struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
     return flag_is_set(cubest->properties_flags, CPF_IsWater);
@@ -505,7 +505,7 @@ TbBool cube_is_water(long cube_id)
 /* Returns if given cube is a sacrificial ground or magic door surface.
  * @param cube_id
  * @return */
-TbBool cube_is_sacrificial(long cube_id)
+TbBool cube_is_sacrificial(int32_t cube_id)
 {
     struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
     return flag_is_set(cubest->properties_flags, CPF_IsSacrificial);
@@ -514,7 +514,7 @@ TbBool cube_is_sacrificial(long cube_id)
 /* Returns if given cube is unclaimed path.
  * @param cube_id
  * @return */
-TbBool cube_is_unclaimed_path(long cube_id)
+TbBool cube_is_unclaimed_path(int32_t cube_id)
 {
     struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
     return flag_is_set(cubest->properties_flags, CPF_IsUnclaimedPath);
@@ -528,7 +528,7 @@ TbBool cube_is_unclaimed_path(long cube_id)
  */
 TbBool subtile_has_lava_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    long i;
+    int32_t i;
     i = get_top_cube_at(stl_x, stl_y, NULL);
     return cube_is_lava(i);
 }
@@ -541,7 +541,7 @@ TbBool subtile_has_lava_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  */
 TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    long i;
+    int32_t i;
     i = get_top_cube_at(stl_x, stl_y, NULL);
     return cube_is_water(i);
 }
@@ -554,7 +554,7 @@ TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  */
 TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    long i;
+    int32_t i;
     int32_t cube_pos;
     i = get_top_cube_at(stl_x, stl_y, &cube_pos);
     // Only low ground cubes are really sacrificial - high ground is most likely magic door.
@@ -573,7 +573,7 @@ TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     {
         return false;
     }
-    long i;
+    int32_t i;
     i = get_top_cube_at(stl_x, stl_y, NULL);
     return cube_is_unclaimed_path(i);
 }

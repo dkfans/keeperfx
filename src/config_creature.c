@@ -338,7 +338,7 @@ TbBool creature_stats_invalid(const struct CreatureModelConfig *crconf)
 void check_and_auto_fix_stats(void)
 {
     SYNCDBG(8,"Starting for %d models",(int)game.conf.crtr_conf.model_count);
-    for (long model = 0; model < game.conf.crtr_conf.model_count; model++)
+    for (int32_t model = 0; model < game.conf.crtr_conf.model_count; model++)
     {
         struct CreatureModelConfig* crconf = creature_stats_get(model);
         if ( (crconf->lair_size <= 0) && (crconf->toking_recovery <= 0) && (crconf->heal_requirement != 0) )
@@ -374,9 +374,9 @@ void check_and_auto_fix_stats(void)
             ERRORLOG("Creature model %d (%s) Rebirth Invalid - Fixing", (int)model, creature_code_name(model));
             crconf->rebirth = 0;
         }
-        for (long i = 0; i < LEARNED_INSTANCES_COUNT; i++)
+        for (int32_t i = 0; i < LEARNED_INSTANCES_COUNT; i++)
         {
-            long n = crconf->learned_instance_level[i];
+            int32_t n = crconf->learned_instance_level[i];
             if (crconf->learned_instance_id[i] != CrInst_NULL)
             {
                 if ((n < 1) || (n > CREATURE_MAX_LEVEL))
@@ -580,7 +580,7 @@ const char *creature_code_name(ThingModel crmodel)
  * @param name
  * @return
  */
-long creature_model_id(const char * name)
+int32_t creature_model_id(const char * name)
 {
     for (int i = 0; i < game.conf.crtr_conf.model_count; ++i)
     {
@@ -592,7 +592,7 @@ long creature_model_id(const char * name)
     return -1;
 }
 
-TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_creaturetypes_common_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags)
 {
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -741,7 +741,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
     return true;
 }
 
-TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_creaturetype_experience_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags)
 {
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -984,7 +984,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
     return true;
 }
 
-TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_creaturetype_instance_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags)
 {
     struct CreatureInstanceConfig * inst_cfg;
     struct InstanceInfo* inst_inf;
@@ -1463,7 +1463,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
     return true;
 }
 
-TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_creaturetype_job_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags)
 {
     struct CreatureJobConfig *jobcfg;
     int k = 0;
@@ -1723,7 +1723,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
     return true;
 }
 
-TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_creaturetype_angerjob_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags)
 {
     struct CreatureAngerJobConfig *agjobcfg;
     // Initialize the array
@@ -1810,7 +1810,7 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
     return true;
 }
 
-TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_creaturetype_attackpref_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags)
 {
     struct CommandWord * attacktype;
     // Initialize the array
@@ -1899,7 +1899,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
 static TbBool load_creaturetypes_config_file(const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -1995,14 +1995,14 @@ static TbBool load_creaturetypes_config_file(const char *fname, unsigned short f
     return result;
 }
 
-unsigned long get_creature_model_flags(const struct Thing *thing)
+uint32_t get_creature_model_flags(const struct Thing *thing)
 {
     if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
       return 0;
   return game.conf.crtr_conf.model[thing->model].model_flags;
 }
 
-ThingModel get_creature_model_with_model_flags(unsigned long needflags)
+ThingModel get_creature_model_with_model_flags(uint32_t needflags)
 {
     for (ThingModel crmodel = 0; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
@@ -2016,7 +2016,7 @@ ThingModel get_creature_model_with_model_flags(unsigned long needflags)
 /**
  * Sets creature availability state.
  */
-TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail)
+TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, int32_t can_be_avail, int32_t force_avail)
 {
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
@@ -2125,15 +2125,15 @@ const char *creature_own_name(const struct Thing *creatng)
         return cctrl->creature_name;
     }
     const char ** starts;
-    long starts_len;
+    int32_t starts_len;
     const char ** vowels;
-    long vowels_len;
+    int32_t vowels_len;
     const char ** consonants;
-    long consonants_len;
+    int32_t consonants_len;
     const char ** end_vowels;
-    long end_vowels_len;
+    int32_t end_vowels_len;
     const char ** end_consonants;
-    long end_consonants_len;
+    int32_t end_consonants_len;
     {
         starts = name_starts;
         starts_len = sizeof(name_starts)/sizeof(name_starts[0]);
@@ -2213,8 +2213,8 @@ const char *creature_instance_code_name(CrInstance inst_id)
 
 struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
 {
-    long i = 0;
-    unsigned long k = job_flags;
+    int32_t i = 0;
+    uint32_t k = job_flags;
     while (k)
     {
         k >>= 1;
@@ -2233,10 +2233,10 @@ struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
  * @param stl_y
  * @return
  */
-CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long drop_kind_flags)
+CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, uint32_t drop_kind_flags)
 {
     // Detect the job which we will do in the area
-    unsigned long required_kind_flags = drop_kind_flags;
+    uint32_t required_kind_flags = drop_kind_flags;
     if (slab_is_area_inner_fill(subtile_slab(stl_x), subtile_slab(stl_y))) {
         required_kind_flags |= JoKF_AssignOnAreaCenter;
     } else {
@@ -2302,11 +2302,11 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
  *     no need to be in primary/secondary list should be qualified, this can be Job_NULL.
  * @return A single job flag.
  */
-CreatureJob get_job_for_room_role(RoomRole rrole, unsigned long required_kind_flags, CreatureJob has_jobs)
+CreatureJob get_job_for_room_role(RoomRole rrole, uint32_t required_kind_flags, CreatureJob has_jobs)
 {
     if (rrole != 0)
     {
-        for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
+        for (int32_t i = 0; i < game.conf.crtr_conf.jobs_count; i++)
         {
             struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
             if ((jobcfg->job_flags & required_kind_flags) == required_kind_flags)
@@ -2334,7 +2334,7 @@ CreatureJob get_job_for_room_role(RoomRole rrole, unsigned long required_kind_fl
  *     no need to be in primary/secondary list should be qualified, this can be Job_NULL.
  * @return A single job flag.
  */
-CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, CreatureJob has_jobs)
+CreatureJob get_job_for_room(RoomKind rkind, uint32_t required_kind_flags, CreatureJob has_jobs)
 {
     return get_job_for_room_role(get_room_roles(rkind), required_kind_flags, has_jobs);
 }
@@ -2346,12 +2346,12 @@ CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, 
  * @param prevent_flags Only jobs which have none of the flags set can be returned.
  * @return A single job flag.
  */
-CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qualify_flags, unsigned long prevent_flags)
+CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, uint32_t qualify_flags, uint32_t prevent_flags)
 {
     if (rrole == RoRoF_None) {
         return Job_NULL;
     }
-    for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
+    for (int32_t i = 0; i < game.conf.crtr_conf.jobs_count; i++)
     {
         struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
         if ((jobcfg->job_flags & qualify_flags) != 0)
@@ -2374,7 +2374,7 @@ CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qu
  * @param prevent_flags Only jobs which have none of the flags set can be returned.
  * @return A single job flag.
  */
-CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify_flags, unsigned long prevent_flags)
+CreatureJob get_job_which_qualify_for_room(RoomKind rkind, uint32_t qualify_flags, uint32_t prevent_flags)
 {
     return get_job_which_qualify_for_room_role(get_room_roles(rkind), qualify_flags, prevent_flags);
 }
@@ -2387,7 +2387,7 @@ CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify
 CreatureJob get_jobs_enemies_may_do_in_room_role(RoomRole rrole)
 {
     CreatureJob jobpref = Job_NULL;
-    for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
+    for (int32_t i = 0; i < game.conf.crtr_conf.jobs_count; i++)
     {
         struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
         // Accept only jobs in given room
@@ -2454,7 +2454,7 @@ CrtrStateId get_initial_state_for_job(CreatureJob jobpref)
     return jobcfg->initial_crstate;
 }
 
-unsigned long get_flags_for_job(CreatureJob jobpref)
+uint32_t get_flags_for_job(CreatureJob jobpref)
 {
     struct CreatureJobConfig* jobcfg = get_config_for_job(jobpref);
     return jobcfg->job_flags;
@@ -2501,7 +2501,7 @@ CreatureJob get_job_for_creature_state(CrtrStateId crstate_id)
     if (crstate_id == CrSt_Unused) {
         return Job_NULL;
     }
-    for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
+    for (int32_t i = 0; i < game.conf.crtr_conf.jobs_count; i++)
     {
         struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
         //TODO CREATURE_JOBS Add other job-related states here

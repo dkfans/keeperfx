@@ -125,7 +125,7 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
         }
         for (unsigned char i = 0; i < packet_count; i += 1) {
             if (is_packet_empty(&packets[i])) {
-                MULTIPLAYER_LOG("process_network_message: Skipping empty packet for player %d turn %lu", peer_id, (unsigned long)packets[i].turn);
+                MULTIPLAYER_LOG("process_network_message: Skipping empty packet for player %d turn %u", peer_id, (uint32_t)packets[i].turn);
                 continue;
             }
             store_packet_history((PlayerNumber)peer_id, &packets[i]);
@@ -155,7 +155,7 @@ static TbError handle_chat_message(NetUserId source, char *read_pos, size_t mess
     read_pos += 1;
     const char *message;
     if (!read_network_message_text(&read_pos, &message, sizeof(netstate.msg_buffer) - 1)) {
-        ERRORLOG("Chat message too long or not null-terminated");
+        ERRORLOG("Chat message too int32_t or not null-terminated");
         return Lb_OK;
     }
     if (expected_frame_type == NETMSG_GAMEPLAY_UNSEQUENCED) {

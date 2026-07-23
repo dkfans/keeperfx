@@ -235,7 +235,7 @@ enum JobStage {
 
 /** Defines return values of creature state functions. */
 enum CreatureStateReturns {
-    CrStRet_Deleted       = -1, /**< Returned if the creature being updated no longer exists. */
+    CrStRet_Deleted       = -1, /**< Returned if the creature being updated no int32_ter exists. */
     CrStRet_Unchanged     =  0, /**< Returned if no change was made to the creature data. */
     CrStRet_Modified      =  1, /**< Returned if the creature was updated and possibly some variables have changed inside, including state. */
     CrStRet_ResetOk       =  2, /**< Returned if the creature state has been reset because task was completed. */
@@ -244,7 +244,7 @@ enum CreatureStateReturns {
 
 /** Defines return values of creature state check functions. */
 enum CreatureCheckReturns {
-    CrCkRet_Deleted       = -1, /**< Returned if the creature being updated no longer exists. */
+    CrCkRet_Deleted       = -1, /**< Returned if the creature being updated no int32_ter exists. */
     CrCkRet_Available     =  0, /**< Returned if the creature is available for additional processing, even reset. */
     CrCkRet_Continue      =  1, /**< Returned if the action being performed on the creature shall continue, creature shouldn't be processed. */
 };
@@ -273,11 +273,11 @@ extern const CreatureStateCheck move_check_func_list[];
 #pragma pack()
 /******************************************************************************/
 
-extern long const state_type_to_gui_state[];
+extern int32_t const state_type_to_gui_state[];
 /******************************************************************************/
 CrtrStateId get_creature_state_besides_move(const struct Thing *thing);
 CrtrStateId get_creature_state_besides_interruptions(const struct Thing *thing);
-long get_creature_state_type_f(const struct Thing *thing, const char *func_name);
+int32_t get_creature_state_type_f(const struct Thing *thing, const char *func_name);
 #define get_creature_state_type(thing) get_creature_state_type_f(thing,__func__)
 
 struct CreatureStateConfig *get_thing_active_state_info(struct Thing *thing);
@@ -287,8 +287,8 @@ struct CreatureStateConfig *get_creature_state_with_task_completion(struct Thing
 
 struct TunnelDistance{
     unsigned int creatid;
-    unsigned long olddist;
-    unsigned long newdist;
+    uint32_t olddist;
+    uint32_t newdist;
 };
 
 TbBool state_info_invalid(struct CreatureStateConfig *stati);
@@ -307,13 +307,13 @@ short set_start_state_f(struct Thing *thing,const char *func_name);
 short patrol_here(struct Thing* creatng);
 short patrolling(struct Thing* creatng);
 /******************************************************************************/
-TbBool creature_model_bleeds(unsigned long crmodel);
-TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist);
-long get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos , unsigned char a3);
-void create_effect_around_thing(struct Thing *thing, long eff_kind);
-long get_creature_gui_job(const struct Thing *thing);
-long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
-long process_creature_needs_to_heal_critical(struct Thing *creatng);
+TbBool creature_model_bleeds(uint32_t crmodel);
+TbBool creature_can_hear_within_distance(const struct Thing *thing, int32_t dist);
+int32_t get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos , unsigned char a3);
+void create_effect_around_thing(struct Thing *thing, int32_t eff_kind);
+int32_t get_creature_gui_job(const struct Thing *thing);
+int32_t setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
+int32_t process_creature_needs_to_heal_critical(struct Thing *creatng);
 short setup_creature_leaves_or_dies(struct Thing *creatng);
 
 void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng);
@@ -328,7 +328,7 @@ void make_creature_conscious_without_changing_state(struct Thing *creatng);
 
 TbBool check_experience_upgrade(struct Thing *thing);
 void set_creature_size_stuff(struct Thing *creatng);
-long process_work_speed_on_work_value(const struct Thing *thing, long base_val);
+int32_t process_work_speed_on_work_value(const struct Thing *thing, int32_t base_val);
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind, struct Thing *thing);
 void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints delta);

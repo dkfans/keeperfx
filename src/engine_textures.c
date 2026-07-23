@@ -36,10 +36,10 @@ extern "C" {
 unsigned char block_mem[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
 unsigned char *block_ptrs[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_COUNT];
 
-long block_dimension = 32;
-long block_count_per_row = 8;
+int32_t block_dimension = 32;
+int32_t block_count_per_row = 8;
 
-static long anim_counter;
+static int32_t anim_counter;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -57,7 +57,7 @@ void setup_texture_block_mem(void)
     {
         for (int i = 0; i < TEXTURE_BLOCKS_STAT_COUNT_A / block_count_per_row; i++)
         {
-            for (unsigned long k = 0; k < block_count_per_row; k++)
+            for (uint32_t k = 0; k < block_count_per_row; k++)
             {
                 *dst = src;
                 src += block_dimension;
@@ -69,7 +69,7 @@ void setup_texture_block_mem(void)
 
         for (int i = 0; i < TEXTURE_BLOCKS_STAT_COUNT_B / block_count_per_row; i++)
         {
-            for (unsigned long k = 0; k < block_count_per_row; k++)
+            for (uint32_t k = 0; k < block_count_per_row; k++)
             {
                 *dst = src;
                 src += block_dimension;
@@ -115,7 +115,7 @@ short update_animating_texture_maps(void)
   return result;
 }
 
-static char *prepare_letter_one_file_path_for_mod(unsigned long tmapidx, char letter, LevelNumber lvnum, short fgroup, const struct ModConfigItem *mod_item)
+static char *prepare_letter_one_file_path_for_mod(uint32_t tmapidx, char letter, LevelNumber lvnum, short fgroup, const struct ModConfigItem *mod_item)
 {
     // Note that this is the reverse mods direction
 
@@ -126,7 +126,7 @@ static char *prepare_letter_one_file_path_for_mod(unsigned long tmapidx, char le
 
     if (mod_state->cmpg_lvls)
     {
-        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.tmap%c%03d.dat", (unsigned long)lvnum, letter, tmapidx);
+        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.tmap%c%03d.dat", (uint32_t)lvnum, letter, tmapidx);
         if (fname[0] != 0 && LbFileExists(fname))
             return fname;
     }
@@ -148,10 +148,10 @@ static char *prepare_letter_one_file_path_for_mod(unsigned long tmapidx, char le
     return NULL;
 }
 
-static char *prepare_letter_one_file_path_for_mod_list(unsigned long tmapidx, char letter, LevelNumber lvnum, short fgroup, const struct ModConfigItem *mod_items, long mod_cnt)
+static char *prepare_letter_one_file_path_for_mod_list(uint32_t tmapidx, char letter, LevelNumber lvnum, short fgroup, const struct ModConfigItem *mod_items, int32_t mod_cnt)
 {
     // Note that this is the reverse mods direction
-    for (long i=mod_cnt-1; i>=0; i--)
+    for (int32_t i=mod_cnt-1; i>=0; i--)
     {
         const struct ModConfigItem *mod_item = mod_items + i;
         if (mod_item->state.mod_dir == 0)
@@ -165,7 +165,7 @@ static char *prepare_letter_one_file_path_for_mod_list(unsigned long tmapidx, ch
     return NULL;
 }
 
-static char *prepare_letter_one_file_path(unsigned long tmapidx, char letter, LevelNumber lvnum, short fgroup)
+static char *prepare_letter_one_file_path(uint32_t tmapidx, char letter, LevelNumber lvnum, short fgroup)
 {
     // Note that this is the reverse mods direction
     char* fname = NULL;
@@ -176,7 +176,7 @@ static char *prepare_letter_one_file_path(unsigned long tmapidx, char letter, Le
             return fname;
     }
 
-    fname = prepare_file_fmtpath(fgroup, "map%05lu.tmap%c%03d.dat",(unsigned long)lvnum, letter, tmapidx);
+    fname = prepare_file_fmtpath(fgroup, "map%05lu.tmap%c%03d.dat",(uint32_t)lvnum, letter, tmapidx);
     if (LbFileExists(fname))
         return fname;
 
@@ -202,7 +202,7 @@ static char *prepare_letter_one_file_path(unsigned long tmapidx, char letter, Le
     return fname;
 }
 
-static TbBool load_letter_one_file(unsigned long tmapidx, char letter, void *dst, LevelNumber lvnum, short fgroup)
+static TbBool load_letter_one_file(uint32_t tmapidx, char letter, void *dst, LevelNumber lvnum, short fgroup)
 {
     SYNCDBG(9,"Starting");
 
@@ -222,7 +222,7 @@ static TbBool load_letter_one_file(unsigned long tmapidx, char letter, void *dst
     return true;
 }
 
-TbBool load_texture_map_file(unsigned long tmapidx, LevelNumber lvnum, short fgroup)
+TbBool load_texture_map_file(uint32_t tmapidx, LevelNumber lvnum, short fgroup)
 {
     SYNCDBG(7,"Starting");
     memset(block_mem, 130, sizeof(block_mem));

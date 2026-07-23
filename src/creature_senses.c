@@ -689,7 +689,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             tgtpos.z.val += thing->clipbox_size_z;
             if (line_of_sight_3d(&eyepos, &tgtpos))
                 return true;
-            long angle = get_angle_xy_to(&tgtpos, &eyepos);
+            int32_t angle = get_angle_xy_to(&tgtpos, &eyepos);
             // Check left side
             // We're checking point at 60 degrees left; could use 90 deg, but making even slim edge visible might not be a good idea
             // Also 60 deg will shorten distance to the check point, which may better describe real visibility
@@ -716,7 +716,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
                 return true;
             // Check both sides at middle of thing height
             tgtpos.z.val -= thing->clipbox_size_z / 2;
-            long angle = get_angle_xy_to(&tgtpos, &eyepos);
+            int32_t angle = get_angle_xy_to(&tgtpos, &eyepos);
             // Check left side
             // We're checking point at 60 degrees left; could use 90 deg, but making even slim edge visible might not be a good idea
             // Also 60 deg will shorten distance to the check point, which may better describe real visibility
@@ -742,10 +742,10 @@ TbBool line_of_sight_2d(const struct Coord3d *frpos, const struct Coord3d *topos
     MapCoordDelta ray_point_delta_x;
     MapCoordDelta ray_point_delta_y;
 
-    long ray_end_point;
-    long ray_current_point;
+    int32_t ray_end_point;
+    int32_t ray_current_point;
     struct Coord3d ray_point_pos;
-    static const long RAY_RESOLUTION = 80;
+    static const int32_t RAY_RESOLUTION = 80;
         
     pos_delta_x = abs(topos->x.val - frpos->x.val);
     pos_delta_y = abs(topos->y.val - frpos->y.val);
@@ -1028,7 +1028,7 @@ TbBool line_of_room_move_2d(const struct Coord3d *frpos, const struct Coord3d *t
     int ray_end_point;
     int ray_current_point;
     struct Coord3d ray_point_pos;
-    static const long RAY_RESOLUTION = 80;
+    static const int32_t RAY_RESOLUTION = 80;
 
     distance_per_step_x = RAY_RESOLUTION;
     delta_x = topos->x.val - frpos->x.val;
@@ -1078,14 +1078,14 @@ TbBool line_of_room_move_2d(const struct Coord3d *frpos, const struct Coord3d *t
     return false;
 }
 
-long get_explore_sight_distance_in_slabs(const struct Thing *thing)
+int32_t get_explore_sight_distance_in_slabs(const struct Thing *thing)
 {
     if (!thing_exists(thing))
     {
-        WARNLOG("The %s index %d exploring dug slabs no longer exists", thing_model_name(thing), (int)thing->index);
+        WARNLOG("The %s index %d exploring dug slabs no int32_ter exists", thing_model_name(thing), (int)thing->index);
         return 0;
     }
-    long dist;
+    int32_t dist;
     if (!is_thing_some_way_controlled(thing)) {
         dist = CREATURE_EXPLORE_DISTANCE;
     } else {

@@ -98,7 +98,7 @@ CctrlIndex i_can_allocate_free_control_structure(void)
 
 struct CreatureControl *allocate_free_control_structure(void)
 {
-    for (long i = 1; i < CREATURES_COUNT; i++)
+    for (int32_t i = 1; i < CREATURES_COUNT; i++)
     {
         struct CreatureControl* cctrl = &game.cctrl_data[i];
         if (!creature_control_invalid(cctrl))
@@ -122,7 +122,7 @@ void delete_control_structure(struct CreatureControl *cctrl)
 
 void delete_all_control_structures(void)
 {
-    for (long i = 1; i < CREATURES_COUNT; i++)
+    for (int32_t i = 1; i < CREATURES_COUNT; i++)
     {
         struct CreatureControl* cctrl = creature_control_get(i);
         if (!creature_control_invalid(cctrl))
@@ -200,7 +200,7 @@ struct Thing *get_group_last_member(struct Thing *thing)
 {
     struct Thing* ctng = thing;
     struct CreatureControl* cctrl = creature_control_get_from_thing(ctng);
-    long k = 0;
+    int32_t k = 0;
     while (cctrl->next_in_group > 0)
     {
         ctng = thing_get(cctrl->next_in_group);
@@ -222,7 +222,7 @@ TbBool disband_creatures_group(struct Thing *thing)
     return perform_action_on_all_creatures_in_group(thing, remove_creature_from_group_without_leader_consideration);
 }
 
-struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
+struct CreatureSound *get_creature_sound(struct Thing *thing, int32_t snd_idx)
 {
     ThingModel cmodel = thing->model;
     if ((cmodel < 1) || (cmodel >= game.conf.crtr_conf.model_count))
@@ -261,10 +261,10 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
     }
 }
 
-TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
+TbBool playing_creature_sound(struct Thing *thing, int32_t snd_idx)
 {
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
-    for (long i = 0; i < crsound->count; i++)
+    for (int32_t i = 0; i < crsound->count; i++)
     {
         if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, creature_sound_unified_id(crsound, i)))
           return true;
@@ -272,11 +272,11 @@ TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
     return false;
 }
 
-void stop_creature_sound(struct Thing *thing, long snd_idx)
+void stop_creature_sound(struct Thing *thing, int32_t snd_idx)
 {
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     if (crsound->index == 0) {
-        SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
+        SYNCDBG(19,"No sample %d for creature %d",snd_idx,thing->model);
         return;
     }
 
@@ -290,7 +290,7 @@ void stop_creature_sound(struct Thing *thing, long snd_idx)
     }
 }
 
-void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long use_flags)
+void play_creature_sound(struct Thing *thing, int32_t snd_idx, int32_t priority, int32_t use_flags)
 {
     SYNCDBG(8,"Starting");
     if (playing_creature_sound(thing, snd_idx)) {
@@ -298,10 +298,10 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long 
     }
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     if (crsound->index == 0) {
-        SYNCDBG(19,"No sample %ld for creature %d",snd_idx,thing->model);
+        SYNCDBG(19,"No sample %d for creature %d",snd_idx,thing->model);
         return;
     }
-    long i = SOUND_RANDOM(crsound->count);
+    int32_t i = SOUND_RANDOM(crsound->count);
     
     // Handle negative indices (custom sounds) differently
     // For custom sounds: -1, -2, -3, etc. represent sequential custom bank samples
@@ -313,7 +313,7 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long 
         sample_idx = crsound->index + i;  // Regular positive indices
     }
     
-    SYNCDBG(18,"Playing sample %d (sound type %ld, index %d) for creature %d",
+    SYNCDBG(18,"Playing sample %d (sound type %d, index %d) for creature %d",
             sample_idx, snd_idx, crsound->index, thing->model);
     
     if ( use_flags ) {
@@ -323,17 +323,17 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long 
     }
 }
 
-void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long sound_priority)
+void play_creature_sound_and_create_sound_thing(struct Thing *thing, int32_t snd_idx, int32_t sound_priority)
 {
     if (playing_creature_sound(thing, snd_idx)) {
         return;
     }
     struct CreatureSound* crsound = get_creature_sound(thing, snd_idx);
     if (crsound->index == 0) {
-        SYNCDBG(14,"No sample %ld for creature %d",snd_idx,thing->model);
+        SYNCDBG(14,"No sample %d for creature %d",snd_idx,thing->model);
         return;
     }
-    long i = SOUND_RANDOM(crsound->count);
+    int32_t i = SOUND_RANDOM(crsound->count);
     struct Thing* efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, (SoundSmplTblID)(crsound->index < 0 ? crsound->index - i : crsound->index + i),

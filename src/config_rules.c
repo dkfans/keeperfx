@@ -316,7 +316,7 @@ static int64_t value_x10(const struct NamedField* named_field, const char* value
  */
 struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void)
 {
-    for (long i = 1; i < MAX_SACRIFICE_RECIPES; i++)
+    for (int32_t i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
         struct SacrificeRecipe* sac = &game.conf.rules[0].sacrifices.sacrifice_recipes[i];
         if (sac->action == SacA_None)
@@ -330,7 +330,7 @@ struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void)
  */
 void clear_sacrifice_recipes(void)
 {
-    for (long i = 0; i < MAX_SACRIFICE_RECIPES; i++)
+    for (int32_t i = 0; i < MAX_SACRIFICE_RECIPES; i++)
     {
         struct SacrificeRecipe* sac = &game.conf.rules[0].sacrifices.sacrifice_recipes[i];
         memset(sac, '\0', sizeof(struct SacrificeRecipe));
@@ -380,16 +380,16 @@ TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, ThingModel crtr_idx)
   return false;
 }
 
-long get_research_id(long item_type, const char *trg_name, const char *func_name)
+int32_t get_research_id(int32_t item_type, const char *trg_name, const char *func_name)
 {
-  long item_id;
+  int32_t item_id;
   switch (item_type)
   {
   case 1:
        item_id = get_id(power_desc, trg_name);
       if (item_id == -1)
       {
-        ERRORMSG("%s(line %lu): " "Unknown magic, '%s'", func_name, text_line_number, trg_name);
+        ERRORMSG("%s(line %u): " "Unknown magic, '%s'", func_name, text_line_number, trg_name);
         return -1;
       }
       break;
@@ -397,7 +397,7 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
       item_id = get_id(room_desc, trg_name);
       if (item_id == -1)
       {
-        ERRORMSG("%s(line %lu): " "Unknown room, '%s'", func_name, text_line_number, trg_name);
+        ERRORMSG("%s(line %u): " "Unknown room, '%s'", func_name, text_line_number, trg_name);
         return -1;
       }
       break;
@@ -405,13 +405,13 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
       item_id = get_id(creature_desc, trg_name);
       if (item_id == -1)
       {
-        ERRORMSG("%s(line %lu): " "Unknown creature, '%s'", func_name, text_line_number, trg_name);
+        ERRORMSG("%s(line %u): " "Unknown creature, '%s'", func_name, text_line_number, trg_name);
         return -1;
       }
       break;
   case -1:
   default:
-      ERRORMSG("%s(line %lu): " "Unhandled research type, %ld", func_name, text_line_number, item_type);
+      ERRORMSG("%s(line %u): " "Unhandled research type, %d", func_name, text_line_number, item_type);
       return -1;
   }
   return item_id;
@@ -428,7 +428,7 @@ const char *player_code_name(PlayerNumber plyr_idx)
     return "INVALID";
 }
 
-TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_rules_research_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags)
 {
   int i;
   const char * block_name = "research";
@@ -523,7 +523,7 @@ static void mark_cheaper_diggers_sacrifice(void)
     SYNCDBG(4,"Marked sacrifice of %s",thing_class_and_model_name(TCls_Creature, game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model));
 }
 
-TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_rules_sacrifices_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags)
 {
     int i;
     const char * block_name = "sacrifices";
@@ -707,7 +707,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
 static TbBool load_rules_config_file(const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)

@@ -89,12 +89,12 @@ struct GuiButton;
 /**
  * Type to store GMnu_* items from GUI_Menus enumeration.
  */
-typedef long MenuID;
+typedef int32_t MenuID;
 
 /**
  * Type to store menu number.
  */
-typedef long MenuNumber;
+typedef int32_t MenuNumber;
 
 /******************************************************************************/
 
@@ -118,7 +118,7 @@ short turn_off_all_window_menus(void);
 short turn_off_all_bottom_menus(void);
 void turn_on_main_panel_menu(void);
 void turn_off_all_panel_menus(void);
-void set_menu_mode(long mnu_idx);
+void set_menu_mode(int32_t mnu_idx);
 void set_menu_visible_on(MenuID menu_id);
 void set_menu_visible_off(MenuID menu_id);
 void turn_off_event_box_if_necessary(PlayerNumber plyr_idx, unsigned char event_idx);
@@ -126,7 +126,7 @@ void turn_off_event_box_if_necessary(PlayerNumber plyr_idx, unsigned char event_
 void kill_menu(struct GuiMenu *gmnu);
 void remove_from_menu_stack(short mnu_id);
 void add_to_menu_stack(unsigned char mnu_idx);
-long first_available_menu(void);
+int32_t first_available_menu(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

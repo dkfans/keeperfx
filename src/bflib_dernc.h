@@ -20,6 +20,8 @@
 #ifndef BFLIB_DERNC_H
 #define BFLIB_DERNC_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,17 +55,17 @@ extern "C" {
 #define RNC_HEADER_LEN 18
 
 /******************************************************************************/
-long LbFileLengthRnc(const char *fname);
-long LbFileLoadAt(const char *fname, void *buffer);
-long LbFileSaveAt(const char *fname, const void *buffer,unsigned long len);
-long UnpackM1(void *buffer, unsigned long bufsize);
+int32_t LbFileLengthRnc(const char *fname);
+int32_t LbFileLoadAt(const char *fname, void *buffer);
+int32_t LbFileSaveAt(const char *fname, const void *buffer,uint32_t len);
+int32_t UnpackM1(void *buffer, uint32_t bufsize);
 /******************************************************************************/
 #ifndef COMPRESSOR
-long rnc_unpack (const void *packed, void *unpacked, unsigned int flags);
+int32_t rnc_unpack (const void *packed, void *unpacked, unsigned int flags);
 #else
-long rnc_unpack (const void *packed, void *unpacked, unsigned int flags, int32_t *leeway);
+int32_t rnc_unpack (const void *packed, void *unpacked, unsigned int flags, int32_t *leeway);
 #endif
-long rnc_crc (void *data, unsigned long len);
+int32_t rnc_crc (void *data, uint32_t len);
 /******************************************************************************/
 
 #ifdef __cplusplus

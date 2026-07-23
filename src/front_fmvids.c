@@ -176,7 +176,7 @@ TbBool ea_video(void)
 
 void demo(void)
 {
-    static long index = 0;
+    static int32_t index = 0;
     char *fname;
     switch (demo_item[index].kind)
     {

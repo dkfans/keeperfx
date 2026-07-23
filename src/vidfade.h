@@ -49,8 +49,8 @@ extern TbRGBColorTable colours;
 void fade_in(void);
 void fade_out(void);
 void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsigned char *dpal);
-void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg);
-void ProperForcedFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
+void ProperFadePalette(unsigned char *pal, int32_t fade_steps, enum TbPaletteFadeFlag flg);
+void ProperForcedFadePalette(unsigned char *pal, int32_t n, enum TbPaletteFadeFlag flg);
 
 void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,unsigned char *dpal);
 void compute_rgb2idx_table(TbRGBColorTable ctab,unsigned char *spal);
@@ -58,8 +58,8 @@ void compute_shifted_palette_table(TbPixel *ocol, const unsigned char *spal,
     const unsigned char *dpal, int shiftR, int shiftG, int shiftB);
 
 
-long PaletteFadePlayer(struct PlayerInfo *player);
-void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense);
+int32_t PaletteFadePlayer(struct PlayerInfo *player);
+void PaletteApplyPainToPlayer(struct PlayerInfo *player, int32_t intense);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -56,8 +56,8 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-long transfer_creature_scroll_offset;
-long resurrect_creature_scroll_offset;
+int32_t transfer_creature_scroll_offset;
+int32_t resurrect_creature_scroll_offset;
 unsigned short dungeon_special_selected;
 /******************************************************************************/
 
@@ -121,9 +121,9 @@ TbBool activate_bonus_level(struct PlayerInfo *player)
   return result;
 }
 
-void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start)
+void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, int32_t list_start)
 {
-    unsigned long k = 0;
+    uint32_t k = 0;
     int i = list_start;
     while (i != 0)
     {
@@ -185,7 +185,7 @@ void increase_level(struct PlayerInfo *player, int count)
     struct Thing *thing;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     // Increase level of normal creatures
-    unsigned long k = 0;
+    uint32_t k = 0;
     int i = dungeon->creatr_list_start;
     while (i != 0)
     {
@@ -260,7 +260,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
         if ((!player_is_roaming(roam_plr_idx)) || (!players_are_enemies(player->id_number, roam_plr_idx)))
             continue;
         struct Dungeon* herodngn = get_players_num_dungeon(roam_plr_idx);
-        unsigned long k = 0;
+        uint32_t k = 0;
         if (herodngn->num_active_creatrs > 0) {
             heronum = PLAYER_RANDOM(roam_plr_idx, herodngn->num_active_creatrs);
             tng_idx = herodngn->creatr_list_start;
@@ -568,7 +568,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             delete_thing_structure(cratetng, 0);
             break;
         case SpcKind_MakeUnsafe:
-            for (long i = 0; i < PLAYERS_COUNT; i++)
+            for (int32_t i = 0; i < PLAYERS_COUNT; i++)
             {
                 if (players_are_enemies(player->id_number, i))
                 {
@@ -598,7 +598,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             destroy_object(cratetng);
             break;
         case SpcKind_MakeAngry:
-            for (long i = 0; i < PLAYERS_COUNT; i++)
+            for (int32_t i = 0; i < PLAYERS_COUNT; i++)
             {
                 if (players_are_enemies(player->id_number, i))
                 {
@@ -748,12 +748,12 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
     }
 }
 
-long create_transferred_creatures_on_level(void)
+int32_t create_transferred_creatures_on_level(void)
 {
     struct Thing* creatng;
     struct Thing* srcetng;
     struct CreatureControl* cctrl;
-    long creature_created = 0;
+    int32_t creature_created = 0;
     PlayerNumber plyr_idx;
     for (int p = 0; p < PLAYERS_COUNT; p++)
     {
@@ -768,7 +768,7 @@ long create_transferred_creatures_on_level(void)
                     plyr_idx = p;
                     if (!thing_exists(srcetng))
                     {
-                        for (long n = 1; n < HERO_GATES_COUNT; n++)
+                        for (int32_t n = 1; n < HERO_GATES_COUNT; n++)
                         {
                             srcetng = find_hero_gate_of_number(n);
                             if (!thing_is_invalid(srcetng))

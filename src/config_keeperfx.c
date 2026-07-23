@@ -59,7 +59,7 @@ struct InstallInfo install_info;
 char keeper_runtime_directory[152];
 short api_enabled = false;
 uint16_t api_port = 5599;
-unsigned long features_enabled = 0;
+uint32_t features_enabled = 0;
 TbBool exit_on_lua_error = false;
 TbBool FLEE_BUTTON_DEFAULT = false;
 TbBool IMPRISON_BUTTON_DEFAULT = false;
@@ -294,7 +294,7 @@ TbBool mute_audio_on_focus_lost(void)
   return ((features_enabled & Ft_MuteAudioOnLoseFocus) != 0);
 }
 
-TbBool is_feature_on(unsigned long feature)
+TbBool is_feature_on(uint32_t feature)
 {
   return ((features_enabled & feature) != 0);
 }
@@ -328,7 +328,7 @@ const char *get_language_lwrstr(int lang_id)
   return lang_str;
 }
 
-TbBool prepare_diskpath(char *buf,long buflen)
+TbBool prepare_diskpath(char *buf,int32_t buflen)
 {
     int i = strlen(buf) - 1;
     if (i >= buflen)
@@ -359,7 +359,7 @@ TbBool prepare_diskpath(char *buf,long buflen)
 
 static void load_file_configuration(const char *fname, const char *sname, const char *config_textname, unsigned short flags)
 {
-  long len = LbFileLengthRnc(fname);
+  int32_t len = LbFileLengthRnc(fname);
   if (len < 2)
   {
     if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -378,7 +378,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
   len = LbFileLoadAt(fname, buf);
   if (len>0)
   {
-    SYNCDBG(7,"Processing %s file, %ld bytes",config_textname,len);
+    SYNCDBG(7,"Processing %s file, %d bytes",config_textname,len);
     buf[len] = '\0';
     // Set text line number - we don't have blocks so we need to initialize it manually
     text_line_number = 1;
@@ -1004,9 +1004,9 @@ static void load_configuration_for_mod(const struct ModConfigItem *mod_item)
     load_file_configuration(fname, keeper_config_file, config_textname, CnfLd_IgnoreErrors);
 }
 
-static void load_configuration_for_mod_list(const struct ModConfigItem *mod_items, long mod_cnt)
+static void load_configuration_for_mod_list(const struct ModConfigItem *mod_items, int32_t mod_cnt)
 {
-    for (long i=0; i<mod_cnt; i++)
+    for (int32_t i=0; i<mod_cnt; i++)
     {
         const struct ModConfigItem *mod_item = mod_items + i;
         if (mod_item->state.mod_dir == 0)
@@ -1105,7 +1105,7 @@ void process_cmdline_overrides(void)
 int parse_draw_fps_config_val(const char *arg, int32_t *fps_draw_main, int32_t *fps_draw_secondary)
 {
   int cnt = 0, val1 = 0, val2 = 0;
-  long len = strlen(arg);
+  int32_t len = strlen(arg);
   int32_t pos = 0;
   char word_buf[32];
   for (int i=0; i<2; i++)

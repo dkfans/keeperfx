@@ -139,7 +139,7 @@ extern struct TbSpriteSheet *pointer_sprites;
 extern struct TbLoadFiles legal_load_files[];
 extern struct TbLoadFilesV2 game_load_files[];
 extern unsigned short units_per_pixel_min;
-extern long base_mouse_sensitivity;
+extern int32_t base_mouse_sensitivity;
 
 extern struct TbColorTables pixmap;
 extern struct TbAlphaTables alpha_sprite_table;
@@ -166,7 +166,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode);
 TbScreenMode setup_screen_mode_zero(TbScreenMode nmode);
 
 short LoadMcgaData(void);
-TbBool update_screen_mode_data(long width, long height);
+TbBool update_screen_mode_data(int32_t width, int32_t height);
 void load_pointer_file(short hi_res);
 TbBool load_testfont_fonts(void);
 void free_testfont_fonts(void);
@@ -177,8 +177,8 @@ void init_colours(void);
 
 TbBool set_pointer_graphic_none(void);
 TbBool set_pointer_graphic_menu(void);
-TbBool set_pointer_graphic_spell(long spridx, long frame);
-TbBool set_pointer_graphic(long ptr_idx);
+TbBool set_pointer_graphic_spell(int32_t spridx, int32_t frame);
+TbBool set_pointer_graphic(int32_t ptr_idx);
 
 /******************************************************************************/
 #ifdef __cplusplus

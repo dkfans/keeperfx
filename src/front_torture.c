@@ -55,11 +55,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static long torture_left_button;
-static long torture_sprite_direction;
-static long torture_end_sprite;
-static long torture_sprite_frame;
-static long torture_door_selected;
+static int32_t torture_left_button;
+static int32_t torture_sprite_direction;
+static int32_t torture_end_sprite;
+static int32_t torture_sprite_frame;
+static int32_t torture_door_selected;
 static struct DoorSoundState door_sound_state[TORTURE_DOORS_COUNT];
 static struct TortureState torture_state;
 static TbClockMSec torture_idle_start;
@@ -68,7 +68,7 @@ static unsigned char *torture_background;
 static unsigned char *torture_palette;
 extern struct DoorDesc doors[TORTURE_DOORS_COUNT];
 extern struct TbSpriteSheet *fronttor_sprites;
-long torture_doors_available = TORTURE_DOORS_COUNT;
+int32_t torture_doors_available = TORTURE_DOORS_COUNT;
 #define TORTURE_MULTIPLAYER_IDLE_TIMEOUT 10000
 #define TORTURE_MULTIPLAYER_MAX_TIME 45000
 /******************************************************************************/
@@ -76,7 +76,7 @@ long torture_doors_available = TORTURE_DOORS_COUNT;
 }
 #endif
 /******************************************************************************/
-void torture_play_sound(long door_id, TbBool state)
+void torture_play_sound(int32_t door_id, TbBool state)
 {
   if ((door_id < 0) || (door_id >= TORTURE_DOORS_COUNT))
     return;
@@ -92,7 +92,7 @@ void torture_play_sound(long door_id, TbBool state)
   }
 }
 
-long torture_door_over_point(long x,long y)
+int32_t torture_door_over_point(int32_t x,int32_t y)
 {
     int units_per_px = min(units_per_pixel, units_per_pixel_min * 16 / 10);
     const int img_width = 640;
@@ -102,7 +102,7 @@ long torture_door_over_point(long x,long y)
     // Starting point coords
     int spx = (LbScreenWidth() - w) >> 1;
     int spy = (LbScreenHeight() - h) >> 1;
-    for (long i = 0; i < torture_doors_available; i++)
+    for (int32_t i = 0; i < torture_doors_available; i++)
     {
         struct DoorDesc* door = &doors[i];
         if ((x >= spx + door->pos_x * units_per_px / 16) && (x < spx + door->pos_x * units_per_px / 16 + door->width * units_per_px / 16))
@@ -139,7 +139,7 @@ void fronttorture_load(void)
     // Load RAW/PAL background
     char* fname = prepare_file_path(FGrp_LoData, "torture.raw");
     torture_background = ptr;
-    long i = LbFileLoadAt(fname, ptr);
+    int32_t i = LbFileLoadAt(fname, ptr);
     ptr += i;
     fname = prepare_file_path(FGrp_LoData,"torture.pal");
     torture_palette = ptr;
@@ -215,8 +215,8 @@ void fronttorture_clear_state(void)
 
 void fronttorture_input(void)
 {
-    long x;
-    long y;
+    int32_t x;
+    int32_t y;
     PlayerNumber plyr_idx;
     clear_packets();
     struct PlayerInfo* player = get_my_player();
@@ -290,7 +290,7 @@ void fronttorture_input(void)
         return;
     }
     // Get active door
-    long door_id = torture_door_over_point(x, y);
+    int32_t door_id = torture_door_over_point(x, y);
     if ((torture_door_selected != -1) && (torture_door_selected != door_id))
         door_id = -1;
     // Make the action

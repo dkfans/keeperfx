@@ -46,16 +46,16 @@ unsigned int redraw_active=0;
 unsigned int mouse_initialised=0;
 short volatile mouse_mickey_x;
 short volatile mouse_mickey_y;
-long volatile mouse_dx;
-long volatile mouse_dy;
-unsigned long mouse_pos_change_saved;
+int32_t volatile mouse_dx;
+int32_t volatile mouse_dy;
+uint32_t mouse_pos_change_saved;
 struct DevInput joy;
 */
 volatile TbBool lbMouseGrab = true;
 volatile TbBool lbMouseGrabbed = true;
 volatile TbDisplayStructEx lbDisplayEx;
 /******************************************************************************/
-TbResult LbMouseChangeSpriteAndHotspot(const struct TbSprite *pointerSprite, long hot_x, long hot_y)
+TbResult LbMouseChangeSpriteAndHotspot(const struct TbSprite *pointerSprite, int32_t hot_x, int32_t hot_y)
 {
 #if (BFDEBUG_LEVEL > 18)
   if (pointerSprite == NULL)
@@ -89,7 +89,7 @@ TbResult LbMouseSetup(struct TbSprite *pointerSprite)
   return ret;
 }
 
-TbResult LbMouseSetPointerHotspot(long hot_x, long hot_y)
+TbResult LbMouseSetPointerHotspot(int32_t hot_x, int32_t hot_y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
@@ -98,7 +98,7 @@ TbResult LbMouseSetPointerHotspot(long hot_x, long hot_y)
   return Lb_SUCCESS;
 }
 
-TbResult LbMouseSetPositionInitial(long x, long y)
+TbResult LbMouseSetPositionInitial(int32_t x, int32_t y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
@@ -107,7 +107,7 @@ TbResult LbMouseSetPositionInitial(long x, long y)
   return Lb_SUCCESS;
 }
 
-TbResult LbMouseSetPosition(long x, long y)
+TbResult LbMouseSetPosition(int32_t x, int32_t y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
@@ -193,7 +193,7 @@ TbResult LbMouseIsInstalled(void)
   return Lb_SUCCESS;
 }
 
-TbResult LbMouseSetWindow(long x, long y, long width, long height)
+TbResult LbMouseSetWindow(int32_t x, int32_t y, int32_t width, int32_t height)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
@@ -332,16 +332,16 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
  * @param ratio_y Movement ratio in Y direction; 256 means unchanged ratio from OS.
  * @return Lb_SUCCESS if the ratio values were of correct range and have been set.
  */
-TbResult LbMouseChangeMoveRatio(long ratio_x, long ratio_y)
+TbResult LbMouseChangeMoveRatio(int32_t ratio_x, int32_t ratio_y)
 {
     if ((ratio_x < -8192) || (ratio_x > 8192) || (ratio_x == 0))
         return Lb_FAIL;
     if ((ratio_y < -8192) || (ratio_y > 8192) || (ratio_y == 0))
         return Lb_FAIL;
-    SYNCLOG("New ratio %ldx%ld",ratio_x, ratio_y);
+    SYNCLOG("New ratio %dx%d",ratio_x, ratio_y);
     // Currently we don't have two ratio factors, so let's store an average
     lbDisplay.MouseMoveRatio = (ratio_x + ratio_y)/2;
-    //TODO INPUT Separate mouse ratios in X and Y direction when lbDisplay from DLL will no longer be used.
+    //TODO INPUT Separate mouse ratios in X and Y direction when lbDisplay from DLL will no int32_ter be used.
     //minfo.XMoveRatio = ratio_x;
     //minfo.YMoveRatio = ratio_y;
     return Lb_SUCCESS;

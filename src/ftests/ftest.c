@@ -113,7 +113,7 @@ void ftest_clear_actions()
     vars->is_restarting_actions_queue = false;
     vars->current_turn_counter = 0;
 
-    for(unsigned long i = 0; i < FTEST_MAX_ACTIONS_PER_TEST; ++i)
+    for(uint32_t i = 0; i < FTEST_MAX_ACTIONS_PER_TEST; ++i)
     {
         vars->actions_func_list[i] = NULL;
         vars->actions_func_turn_list[i] = 0;
@@ -181,7 +181,7 @@ TbBool ftest_fill_teststorun_by_name(char* const name)
 
     struct FTestConfig* test_config = NULL;
     vars->total_tests = 0;
-    for(unsigned long i = 0; i < FTEST_MAX_TESTS; ++i) { vars->tests_to_run[i] = NULL; }
+    for(uint32_t i = 0; i < FTEST_MAX_TESTS; ++i) { vars->tests_to_run[i] = NULL; }
 
     TbBool too_many_tests = false;
     for(unsigned short test_list_id = 0; test_list_id < 2; ++test_list_id)
@@ -200,7 +200,7 @@ TbBool ftest_fill_teststorun_by_name(char* const name)
             {
                 if(flag_is_set(start_params.functest_flags, FTF_IncludeLongTests))
                 {
-                    current_test_list = conf->long_running_tests_list;
+                    current_test_list = conf->int32_t_running_tests_list;
                 }
                 break;
             }
@@ -214,7 +214,7 @@ TbBool ftest_fill_teststorun_by_name(char* const name)
             continue;
         }
 
-        for(unsigned long i = 0; i < FTEST_MAX_TESTS; ++i)
+        for(uint32_t i = 0; i < FTEST_MAX_TESTS; ++i)
         {
             test_config = &current_test_list[i];
             if(test_config == NULL || strnlen(test_config->test_name, FTEST_MAX_NAME_LENGTH) <= 0)
@@ -376,7 +376,7 @@ TbBool ftest_init()
 
     if(!ftest_fill_teststorun_by_name(start_params.functest_name))
     {
-        FTEST_FRAMEWORK_ABORT("Failed to find any tests. (user provided: '%s') make sure init name/function are added to tests_list or long_running_tests_list (see ftest_list.c)", start_params.functest_name)
+        FTEST_FRAMEWORK_ABORT("Failed to find any tests. (user provided: '%s') make sure init name/function are added to tests_list or int32_t_running_tests_list (see ftest_list.c)", start_params.functest_name)
         return false;
     }
 
@@ -471,7 +471,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
             FTEST_FRAMEWORK_ABORT("Missing test config... this shouldn't happen.");
         }
 
-        const unsigned long ftest_actions_length = sizeof(vars->actions_func_list) / sizeof(vars->actions_func_list[0]);
+        const uint32_t ftest_actions_length = sizeof(vars->actions_func_list) / sizeof(vars->actions_func_list[0]);
         if(vars->current_action < ftest_actions_length)
         {
             //get next valid test action
@@ -564,11 +564,11 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
 
 void ftest_restart_actions()
 {
-    const unsigned long ftest_actions_length = sizeof(ftest_donottouch__vars.actions_func_list) / sizeof(ftest_donottouch__vars.actions_func_list[0]);
+    const uint32_t ftest_actions_length = sizeof(ftest_donottouch__vars.actions_func_list) / sizeof(ftest_donottouch__vars.actions_func_list[0]);
 
     ftest_donottouch__vars.is_restarting_actions_queue = true;
 
-    for(unsigned long i = 0; i < ftest_actions_length; ++i)
+    for(uint32_t i = 0; i < ftest_actions_length; ++i)
     {
         if(ftest_donottouch__vars.actions_func_list[i] == NULL)
         {

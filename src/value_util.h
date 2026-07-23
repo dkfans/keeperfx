@@ -188,7 +188,7 @@ int sound_id_from_text(const char* text);
     {\
         if(strlen(name) > COMMAND_WORD_LEN - 1 )\
         {\
-            ERRORLOG("name (%s) to long max %d chars", name,COMMAND_WORD_LEN - 1);\
+            ERRORLOG("name (%s) to int32_t max %d chars", name,COMMAND_WORD_LEN - 1);\
             break;\
         }\
         strncpy(namefield,name,COMMAND_WORD_LEN);\

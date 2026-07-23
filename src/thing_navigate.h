@@ -51,8 +51,8 @@ struct Room;
 void reset_interpolation_of_thing(struct Thing *thing);
 
 /******************************************************************************/
-extern long owner_player_navigating;
-extern long nav_thing_can_travel_over_lava;
+extern int32_t owner_player_navigating;
+extern int32_t nav_thing_can_travel_over_lava;
 
 #pragma pack()
 /******************************************************************************/
@@ -78,16 +78,16 @@ TbBool creature_can_head_for_room(struct Thing *thing, struct Room *room, int fl
 struct Thing *find_best_hero_gate_to_navigate_to(struct Thing *herotng);
 TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos);
 
-long creature_move_to(struct Thing *creatng, struct Coord3d *pos, MoveSpeed speed, NaviRouteFlags flags, TbBool backward);
+int32_t creature_move_to(struct Thing *creatng, struct Coord3d *pos, MoveSpeed speed, NaviRouteFlags flags, TbBool backward);
 void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const char *func_name);
 #define move_thing_in_map(thing, pos) move_thing_in_map_f(thing, pos, __func__)
 short move_to_position(struct Thing *thing);
-long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos);
-long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
-long creature_turn_to_face_angle(struct Thing *thing, long angle);
+int32_t creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos);
+int32_t creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
+int32_t creature_turn_to_face_angle(struct Thing *thing, int32_t angle);
 TbBool move_creature_to_nearest_valid_position(struct Thing *thing);
-long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos);
-long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
+int32_t get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos);
+int32_t get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
 TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 /******************************************************************************/

@@ -37,12 +37,12 @@ extern "C" {
 #define PACKET_TURN_SIZE (PACKETS_COUNT*sizeof(struct Packet) + sizeof(TbBigChecksum))
 #define MULTIPLAYER_PAUSE_COOLDOWN_MS 500
 struct Packet bad_packet;
-unsigned long initial_replay_seed;
-unsigned long last_pause_toggle_time = 0;
+uint32_t initial_replay_seed;
+uint32_t last_pause_toggle_time = 0;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool get_skip_heart_zoom_feature(void);
-extern unsigned long get_host_player_id(void);
+extern uint32_t get_host_player_id(void);
 extern TbBool keeper_screen_redraw(void);
 extern TbResult LbScreenSwap(void);
 /******************************************************************************/
@@ -51,7 +51,7 @@ extern TbResult LbScreenSwap(void);
 #endif
 
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
-        unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4)
+        uint32_t par1, uint32_t par2, unsigned short par3, unsigned short par4)
 {
     struct Packet* pckt = get_packet_direct(player->packet_num);
     pckt->actn_par1 = par1;
@@ -67,29 +67,29 @@ unsigned char get_players_packet_action(struct PlayerInfo *player)
     return pckt->action;
 }
 
-void set_packet_control(struct Packet *pckt, unsigned long flag)
+void set_packet_control(struct Packet *pckt, uint32_t flag)
 {
   pckt->control_flags |= flag;
 }
 
-void set_players_packet_control(struct PlayerInfo *player, unsigned long flag)
+void set_players_packet_control(struct PlayerInfo *player, uint32_t flag)
 {
     struct Packet* pckt = get_packet_direct(player->packet_num);
     pckt->control_flags |= flag;
 }
 
-void unset_packet_control(struct Packet *pckt, unsigned long flag)
+void unset_packet_control(struct Packet *pckt, uint32_t flag)
 {
     pckt->control_flags &= ~flag;
 }
 
-void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
+void unset_players_packet_control(struct PlayerInfo *player, uint32_t flag)
 {
     struct Packet* pckt = get_packet_direct(player->packet_num);
     pckt->control_flags &= ~flag;
 }
 
-void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context)
+void set_players_packet_position(struct Packet *pckt, int32_t x, int32_t y, unsigned char context)
 {
     pckt->pos_x = x;
     pckt->pos_y = y;
@@ -103,7 +103,7 @@ void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned c
  * @param plyr_idx The player index for which we want the packet.
  * @return Returns Packet pointer. On error, returns a dummy structure.
  */
-struct Packet *get_packet(long plyr_idx)
+struct Packet *get_packet(int32_t plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     if (player_invalid(player))
@@ -117,7 +117,7 @@ struct Packet *get_packet(long plyr_idx)
  * @param pckt_idx Packet index in the array. Note that it may differ from player index.
  * @return Returns Packet pointer. On error, returns a dummy structure.
  */
-struct Packet *get_packet_direct(long pckt_idx)
+struct Packet *get_packet_direct(int32_t pckt_idx)
 {
     if ((pckt_idx < 0) || (pckt_idx >= PACKETS_COUNT))
         return INVALID_PACKET;
@@ -191,7 +191,7 @@ void post_init_packets(void)
 TbBigChecksum compute_replay_integrity(void)
 {
     TbBigChecksum sum = 0;
-    for (long tng_idx = 0; tng_idx < THINGS_COUNT; tng_idx++)
+    for (int32_t tng_idx = 0; tng_idx < THINGS_COUNT; tng_idx++)
     {
         struct Thing* tng = thing_get(tng_idx);
         if ((tng->alloc_flags & TAlF_Exists) != 0)
@@ -200,8 +200,8 @@ TbBigChecksum compute_replay_integrity(void)
             // thing indices are used in packets, lack of effect may cause desync too.
             if (!is_non_synchronized_thing_class(tng->class_id))
             {
-                sum += (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
-                     + (ulong)tng->move_angle_xy + (ulong)tng->owner;
+                sum += (uint32_t)tng->mappos.x.val + (uint32_t)tng->mappos.y.val + (uint32_t)tng->mappos.z.val
+                     + (uint32_t)tng->move_angle_xy + (uint32_t)tng->owner;
             }
         }
     }
@@ -289,7 +289,7 @@ TbBool reinit_packets_after_load(void)
 TbBool open_new_packet_file_for_save(void)
 {
     // Filling the header
-    SYNCMSG("Starting packet saving, turn %lu",(unsigned long)get_gameturn());
+    SYNCMSG("Starting packet saving, turn %u",(uint32_t)get_gameturn());
     game.packet_save_head.game_ver_major = VER_MAJOR;
     game.packet_save_head.game_ver_minor = VER_MINOR;
     game.packet_save_head.game_ver_release = VER_RELEASE;
@@ -358,9 +358,9 @@ void load_packets_for_turn(GameTurn nturn)
         return;
     }
     game.packet_file_pos += turn_data_size;
-    for (long i = 0; i < PACKETS_COUNT; i++)
+    for (int32_t i = 0; i < PACKETS_COUNT; i++)
         memcpy(&game.packets[i], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
-    for (long i = 0; i < PACKETS_COUNT; i++) {
+    for (int32_t i = 0; i < PACKETS_COUNT; i++) {
         if (game.packets[i].action == PckA_PlyrMsgEnd) {
             if (LbFileRead(game.packet_save_fp, get_player(i)->mp_pending_message, PLAYER_MP_MESSAGE_LEN) == PLAYER_MP_MESSAGE_LEN) {
                 game.packet_file_pos += PLAYER_MP_MESSAGE_LEN;
@@ -391,7 +391,7 @@ void set_packet_pause_toggle()
     if (player->packet_num >= PACKETS_COUNT)
         return;
     if (game.game_kind != GKind_LocalGame) {
-        unsigned long current_time = LbTimerClock();
+        uint32_t current_time = LbTimerClock();
         if (current_time - last_pause_toggle_time < MULTIPLAYER_PAUSE_COOLDOWN_MS) {
             MULTIPLAYER_LOG("set_packet_pause_toggle: cooldown active, ignoring");
             return;

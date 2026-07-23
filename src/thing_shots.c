@@ -81,7 +81,7 @@ TbBool shot_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_
     return false;
 }
 
-TbBool shot_model_is_navigable(long tngmodel)
+TbBool shot_model_is_navigable(int32_t tngmodel)
 {
     // Normally, only shot model 6 is navigable
     struct ShotConfigStats* shotst = get_shot_model_stats(tngmodel);
@@ -102,7 +102,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     TRACE_THING(castng);
     struct PlayerInfo* myplyr = get_my_player();
     KeepPwrLevel power_level;
-    long damage;
+    int32_t damage;
     // If the shot has area_range, then make area damage
     if (shotst->area_range != 0) {
         unsigned char luck = 0;
@@ -117,7 +117,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
             luck = crconf->luck;
             exp_level = cctrl->exp_level;
         }
-        long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, exp_level);
+        int32_t dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, luck, exp_level);
         if (flag_is_set(shotst->model_flags, ShMF_StrengthBased))
         {
             if (shotst->area_damage == 0)
@@ -174,12 +174,12 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     return true;
 }
 
-TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long damage)
+TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t damage)
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    long gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, slb);
+    int32_t gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, slb);
     creatng->creature.gold_carried += gold;
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.gold_mined += gold;
@@ -204,7 +204,7 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     return true;
 }
 
-SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags, HitPoints *health)
+SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, int32_t blocked_flags, HitPoints *health)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -395,7 +395,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     return result;
 }
 
-struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, EffectOrEffElModel eff_kind, long snd_idx, long snd_range, ThingIndex parent_idx)
+struct Thing *create_shot_hit_effect(struct Coord3d *effpos, int32_t effowner, EffectOrEffElModel eff_kind, int32_t snd_idx, int32_t snd_range, ThingIndex parent_idx)
 {
     struct Thing* efftng = INVALID_THING;
     if (eff_kind != 0) {
@@ -406,7 +406,7 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, Effe
     {
         if (!thing_is_invalid(efftng))
         {
-            long i = snd_idx;
+            int32_t i = snd_idx;
             if (snd_range > 1)
                 i += SOUND_RANDOM(snd_range);
             thing_play_sample(efftng, i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -443,13 +443,13 @@ short lua_process_shot_hit(struct Thing *shotng, struct Thing *target, MapSubtlC
 TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
 {
     struct Thing *doortng;
-    long i;
+    int32_t i;
     SYNCDBG(8,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
 
     struct Thing* efftng = INVALID_THING;
     TbBool destroy_shot = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
+    int32_t blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     TbBool digging = (shotst->model_flags & ShMF_Digging);
     HitPoints old_health = 0;
     EffectOrEffElModel eff_kind;
@@ -557,7 +557,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     // If blocked by a higher wall
     if ((blocked_flags & SlbBloF_WalledZ) != 0)
     {
-        long cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num, NULL);
+        int32_t cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num, NULL);
         if (!thing_is_invalid(doortng))
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range, shotng->index);
@@ -681,13 +681,13 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
  *     If the shot wasn't detonated, then the function returns false.
  * @note This function may delete the thing given in parameter.
  */
-long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
+int32_t shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
 {
     SYNCDBG(18,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
     TbBool shot_explodes = false;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     struct Thing* efftng = INVALID_THING;
-    long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
+    int32_t blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if (blocked_flags != 0)
     {
         struct Thing* doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
@@ -749,14 +749,14 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     return false;
 }
 
-TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, CrtrExpLevel exp_level, long shot_model)
+TbBool apply_shot_experience(struct Thing *shooter, int32_t exp_factor, CrtrExpLevel exp_level, int32_t shot_model)
 {
     if (!creature_can_gain_experience(shooter))
         return false;
     struct CreatureControl* shcctrl = creature_control_get_from_thing(shooter);
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
-    long exp_mag = shotst->experience_given_to_shooter;
-    long exp_gained = (exp_mag * (exp_factor + game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp * exp_factor * (long)exp_level / 100) << 8) / 256;
+    int32_t exp_mag = shotst->experience_given_to_shooter;
+    int32_t exp_gained = (exp_mag * (exp_factor + game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp * exp_factor * (int32_t)exp_level / 100) << 8) / 256;
     shcctrl->prev_exp_points = shcctrl->exp_points;
     shcctrl->exp_points += exp_gained;
     if ( check_experience_upgrade(shooter) ) {
@@ -766,14 +766,14 @@ TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, CrtrExpLeve
 }
 
 // originally was apply_shot_experience()
-TbBool apply_shot_experience_from_hitting_creature(struct Thing *shooter, struct Thing *target, long shot_model)
+TbBool apply_shot_experience_from_hitting_creature(struct Thing *shooter, struct Thing *target, int32_t shot_model)
 {
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
     struct CreatureModelConfig* tgcrconf = creature_stats_get_from_thing(target);
     return apply_shot_experience(shooter, tgcrconf->exp_for_hitting, tgcctrl->exp_level, shot_model);
 }
 
-long shot_kill_object(struct Thing *shotng, struct Thing *target)
+int32_t shot_kill_object(struct Thing *shotng, struct Thing *target)
 {
     if (thing_is_dungeon_heart(target))
     {
@@ -942,12 +942,12 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     return damage_done > 0;
 }
 
-long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, TbBool NeverBlock)
+int32_t get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, TbBool NeverBlock)
 {
     if (NeverBlock)
         return shotng->shot.damage;
-    long crdefense = calculate_correct_creature_defense(target);
-    long hitchance = ((long)shotng->shot.dexterity - crdefense) / 2;
+    int32_t crdefense = calculate_correct_creature_defense(target);
+    int32_t hitchance = ((int32_t)shotng->shot.dexterity - crdefense) / 2;
     if (hitchance < -96)
     {
         hitchance = -96;
@@ -995,7 +995,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
     }
 }
 
-long check_hit_when_attacking_door(struct Thing *thing)
+int32_t check_hit_when_attacking_door(struct Thing *thing)
 {
     if (!thing_is_creature(thing))
     {
@@ -1079,16 +1079,16 @@ int weight_calculated_push_strenght(int weight, int push_strength)
     return adjusted_push_strength;
 }
 
-long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
+int32_t melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    long throw_strength = shotst->push_on_hit;
+    int32_t throw_strength = shotst->push_on_hit;
     int adjusted_throw_strength;
     if (trgtng->health < 0)
         return 0;
     struct Thing* shooter = get_parent_thing(shotng);
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(trgtng);
-    long damage = get_damage_of_melee_shot(shotng, trgtng, flag_is_set(shotst->model_flags, ShMF_NeverBlock));
+    int32_t damage = get_damage_of_melee_shot(shotng, trgtng, flag_is_set(shotst->model_flags, ShMF_NeverBlock));
     if (damage > 0)
     {
         if (shotst->hit_creature.sndsample_idx > 0)
@@ -1157,8 +1157,8 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
                 }
                 adjusted_throw_strength *= 10;
             }
-            trgtng->veloc_push_add.x.val += (adjusted_throw_strength * (long)shotng->velocity.x.val) / 16;
-            trgtng->veloc_push_add.y.val += (adjusted_throw_strength * (long)shotng->velocity.y.val) / 16;
+            trgtng->veloc_push_add.x.val += (adjusted_throw_strength * (int32_t)shotng->velocity.x.val) / 16;
+            trgtng->veloc_push_add.y.val += (adjusted_throw_strength * (int32_t)shotng->velocity.y.val) / 16;
             trgtng->state_flags |= TF1_PushAdd;
         }
         if (trgtng->health >= 0)
@@ -1182,7 +1182,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     return 1;
 }
 
-void set_thing_acceleration_angles(struct Thing *thing, long angle_xy, long angle_yz)
+void set_thing_acceleration_angles(struct Thing *thing, int32_t angle_xy, int32_t angle_yz)
 {
     thing->move_angle_xy = angle_xy;
     thing->move_angle_z = angle_yz;
@@ -1193,19 +1193,19 @@ void set_thing_acceleration_angles(struct Thing *thing, long angle_xy, long angl
     thing->veloc_base.z.val = cvect.z;
 }
 
-TbBool shot_model_makes_flesh_explosion(long shot_model)
+TbBool shot_model_makes_flesh_explosion(int32_t shot_model)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     return ((shotst->model_flags & ShMF_Exploding) != 0);
 }
 
-long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
+int32_t shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
-    long i;
-    long n;
+    int32_t i;
+    int32_t n;
     int adjusted_push_strength;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    long push_strength = shotst->push_on_hit;
+    int32_t push_strength = shotst->push_on_hit;
     struct Thing* shooter = get_parent_thing(shotng);
     
     if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
@@ -1474,7 +1474,7 @@ TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, s
     return false;
 }
 
-HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, long a4)
+HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, const struct Thing *parntng, HitTargetFlags hit_targets, int32_t a4)
 {
     PlayerNumber shot_owner = -1;
     if (thing_exists(parntng))
@@ -1482,12 +1482,12 @@ HitTargetFlags collide_filter_thing_is_shootable(const struct Thing *thing, cons
     return thing_is_shootable(thing, shot_owner, hit_targets);
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags param1, long param2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags param1, int32_t param2, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing* parntng = get_parent_thing(shotng);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -1520,7 +1520,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Th
     return false;
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags hit_targets, long a5)
+struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags hit_targets, int32_t a5)
 {
     MapSubtlCoord stl_x_min;
     MapSubtlCoord stl_y_min;
@@ -1638,7 +1638,7 @@ TngUpdateRet update_shot(struct Thing *thing)
         hit = true;
     } else
     {
-        long i;
+        int32_t i;
         if (shotst->model_flags & ShMF_Navigable) //Navigable shot property combines with other shots.
         {
             target = thing_get(thing->shot.target_idx);
@@ -1658,12 +1658,12 @@ TngUpdateRet update_shot(struct Thing *thing)
                 cvect.x = dtpos.x.val;
                 cvect.y = dtpos.y.val;
                 cvect.z = dtpos.z.val;
-                i = LbSqrL(dtpos.x.val*(long)dtpos.x.val + dtpos.y.val*(long)dtpos.y.val + dtpos.z.val*(long)dtpos.z.val);
+                i = LbSqrL(dtpos.x.val*(int32_t)dtpos.x.val + dtpos.y.val*(int32_t)dtpos.y.val + dtpos.z.val*(int32_t)dtpos.z.val);
                 if (i > 128)
                 {
-                  dtpos.x.val = ((long)cvect.x << 7) / i;
-                  dtpos.y.val = ((long)cvect.y << 7) / i;
-                  dtpos.z.val = ((long)cvect.z << 7) / i;
+                  dtpos.x.val = ((int32_t)cvect.x << 7) / i;
+                  dtpos.y.val = ((int32_t)cvect.y << 7) / i;
+                  dtpos.z.val = ((int32_t)cvect.z << 7) / i;
                   cvect.x = dtpos.x.val;
                   cvect.y = dtpos.y.val;
                   cvect.z = dtpos.z.val;
@@ -1871,7 +1871,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         return TUFRet_Unchanged;
     }
     // param->primary_number = 2048 from affect_nearby_enemy_creatures_with_wind
-    long blow_distance = param->primary_number;
+    int32_t blow_distance = param->primary_number;
     // calculate max distance
     int maxdistance = shotst->health * shotst->speed;
     MapCoordDelta creature_distance = INT32_MAX;
@@ -1891,7 +1891,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 // if weight-affect-push-rule is on
                 if (game.conf.rules[thing->owner].magic.weight_calculate_push > 0)
                 {
-                    long weight = compute_creature_weight(thing);
+                    int32_t weight = compute_creature_weight(thing);
                     //max push distance
                     blow_distance = maxdistance - (maxdistance - weight_calculated_push_strenght(weight, maxdistance));
                     // distance between startposition and actual position of the projectile

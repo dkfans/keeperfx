@@ -29,9 +29,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-static long count_Points;
-static long ix_Points;
-static long free_Points;
+static int32_t count_Points;
+static int32_t ix_Points;
+static int32_t free_Points;
 
 struct Point ari_Points[POINTS_COUNT];
 /******************************************************************************/
@@ -74,7 +74,7 @@ void point_dispose(AridPointId pt_id)
     count_Points--;
 }
 
-TbBool point_set(AridPointId pt_id, long x, long y)
+TbBool point_set(AridPointId pt_id, int32_t x, int32_t y)
 {
     if ((pt_id < 0) || (pt_id >= POINTS_COUNT))
     {
@@ -99,26 +99,26 @@ TbBool point_is_invalid(const struct Point *pt)
     return (pt < &ari_Points[0]) || (pt > &ari_Points[POINTS_COUNT-1]) || (pt == INVALID_POINT) || (pt == NULL);
 }
 
-TbBool point_equals(AridPointId pt_idx, long pt_x, long pt_y)
+TbBool point_equals(AridPointId pt_idx, int32_t pt_x, int32_t pt_y)
 {
     if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
         return false;
-    long tip_x = ari_Points[pt_idx].x;
-    long tip_y = ari_Points[pt_idx].y;
+    int32_t tip_x = ari_Points[pt_idx].x;
+    int32_t tip_y = ari_Points[pt_idx].y;
     if ((tip_x != pt_x) || (tip_y != pt_y))
         return false;
     return true;
 }
 
-AridPointId allocated_point_search(long pt_x, long pt_y)
+AridPointId allocated_point_search(int32_t pt_x, int32_t pt_y)
 {
     if (pt_y == 0x8000) {
         return -1;
     }
     for (AridPointId pt_idx = 0; pt_idx < POINTS_COUNT; pt_idx++)
     {
-        long tip_x = ari_Points[pt_idx].x;
-        long tip_y = ari_Points[pt_idx].y;
+        int32_t tip_x = ari_Points[pt_idx].x;
+        int32_t tip_y = ari_Points[pt_idx].y;
         if ((tip_x == pt_x) && (tip_y == pt_y)) {
             return pt_idx;
         }
@@ -126,7 +126,7 @@ AridPointId allocated_point_search(long pt_x, long pt_y)
     return -1;
 }
 
-AridPointId point_set_new_or_reuse(long pt_x, long pt_y)
+AridPointId point_set_new_or_reuse(int32_t pt_x, int32_t pt_y)
 {
     AridPointId pt_idx = allocated_point_search(pt_x, pt_y);
     if (pt_idx >= 0) {
@@ -140,9 +140,9 @@ AridPointId point_set_new_or_reuse(long pt_x, long pt_y)
     return pt_idx;
 }
 
-void triangulation_initxy_points(long startx, long starty, long endx, long endy)
+void triangulation_initxy_points(int32_t startx, int32_t starty, int32_t endx, int32_t endy)
 {
-    for (long i = 0; i < POINTS_COUNT; i++)
+    for (int32_t i = 0; i < POINTS_COUNT; i++)
     {
         struct Point* pt = &ari_Points[i];
         pt->y = 0x8000;

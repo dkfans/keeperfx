@@ -36,9 +36,9 @@ extern "C" {
  */
 struct LuaBufferInfo {
     unsigned char* data;
-    long width;
-    long height;
-    long pitch;
+    int32_t width;
+    int32_t height;
+    int32_t pitch;
 };
 
 /**
@@ -54,8 +54,8 @@ int LuaLensEffect::LuaGetPixel(lua_State* L)
     }
     
     // Get coordinates
-    long x = (long)luaL_checkinteger(L, 2);
-    long y = (long)luaL_checkinteger(L, 3);
+    int32_t x = (int32_t)luaL_checkinteger(L, 2);
+    int32_t y = (int32_t)luaL_checkinteger(L, 3);
     
     // Bounds check
     if (x < 0 || x >= buf->width || y < 0 || y >= buf->height) {
@@ -82,8 +82,8 @@ int LuaLensEffect::LuaSetPixel(lua_State* L)
     }
     
     // Get coordinates and color
-    long x = (long)luaL_checkinteger(L, 2);
-    long y = (long)luaL_checkinteger(L, 3);
+    int32_t x = (int32_t)luaL_checkinteger(L, 2);
+    int32_t y = (int32_t)luaL_checkinteger(L, 3);
     unsigned char color = (unsigned char)luaL_checkinteger(L, 4);
     
     // Bounds check
@@ -111,8 +111,8 @@ int LuaLensEffect::LuaCopyPixel(lua_State* L)
     }
     
     // Get coordinates
-    long x = (long)luaL_checkinteger(L, 3);
-    long y = (long)luaL_checkinteger(L, 4);
+    int32_t x = (int32_t)luaL_checkinteger(L, 3);
+    int32_t y = (int32_t)luaL_checkinteger(L, 4);
     
     // Bounds check both buffers
     if (x < 0 || x >= src->width || y < 0 || y >= src->height ||
@@ -159,9 +159,9 @@ LuaLensEffect::~LuaLensEffect()
     Cleanup();
 }
 
-TbBool LuaLensEffect::Setup(long lens_idx)
+TbBool LuaLensEffect::Setup(int32_t lens_idx)
 {
-    SYNCDBG(8, "Setting up LUA lens effect '%s' for lens %ld", m_lens_name.c_str(), lens_idx);
+    SYNCDBG(8, "Setting up LUA lens effect '%s' for lens %d", m_lens_name.c_str(), lens_idx);
     
     // Load assets specified in configuration
     if (!m_config.mist_file.empty()) {

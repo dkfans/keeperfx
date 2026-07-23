@@ -155,3 +155,4 @@ extern "C" void StopRedbookTrack() {
 		mci_stop(g_redbook_device);
 	}
 }
+

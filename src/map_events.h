@@ -111,23 +111,23 @@ struct Event *get_event_nearby_of_type_for_player(MapCoord map_x, MapCoord map_y
 TbBool event_is_invalid(const struct Event *event);
 TbBool event_exists(const struct Event* event);
 EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target);
-EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target);
+EventIndex event_create_event_or_update_same_target_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target);
 EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target);
 void event_initialise_all(void);
-long event_move_player_towards_event(struct PlayerInfo *player, long event_idx);
+int32_t event_move_player_towards_event(struct PlayerInfo *player, int32_t event_idx);
 struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t msg_id);
 struct Event *event_allocate_free_event_structure(void);
 void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t msg_id);
 void event_add_to_event_buttons_list_or_replace_button(struct Event *event, struct Dungeon *dungeon);
 void event_update_on_battle_removal(BattleIndex battle_idx);
-void event_delete_event(long plridx, EventIndex evidx);
+void event_delete_event(int32_t plridx, EventIndex evidx);
 void event_update_last_use(struct Event *event);
 void clear_events(void);
 void remove_events_thing_is_attached_to(struct Thing *thing);
 struct Thing *event_is_attached_to_thing(EventIndex evidx);
 void maintain_my_event_list(struct Dungeon *dungeon);
 void kill_oldest_my_event(struct Dungeon *dungeon);
-void event_kill_all_players_events(long plyr_idx);
+void event_kill_all_players_events(int32_t plyr_idx);
 void event_process_events(void);
 void update_all_events(void);
 /******************************************************************************/

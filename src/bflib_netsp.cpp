@@ -26,15 +26,15 @@
 
 /******************************************************************************/
 // Nil callbacks declaration
-void NilAddMsgCallback(unsigned long , char *, void *);
-void NilDeleteMsgCallback(unsigned long, void *);
-void NilHostMsgCallback(unsigned long, void *);
+void NilAddMsgCallback(uint32_t , char *, void *);
+void NilDeleteMsgCallback(uint32_t, void *);
+void NilHostMsgCallback(uint32_t, void *);
 void NilUserSysMsgCallback(void *);
-void *NilUserDataMsgCallback(unsigned long, unsigned long, unsigned long, void *);
-void NilRequestExchangeDataMsgCallback(unsigned long, unsigned long, void *);
-void NilRequestCompositeExchangeDataMsgCallback(unsigned long, unsigned long, void *);
-void *NilUnidirectionalMsgCallback(unsigned long, unsigned long, void *);
-void NilSystemUserMsgCallback(unsigned long, void *, unsigned long, void *);
+void *NilUserDataMsgCallback(uint32_t, uint32_t, uint32_t, void *);
+void NilRequestExchangeDataMsgCallback(uint32_t, uint32_t, void *);
+void NilRequestCompositeExchangeDataMsgCallback(uint32_t, uint32_t, void *);
+void *NilUnidirectionalMsgCallback(uint32_t, uint32_t, void *);
+void NilSystemUserMsgCallback(uint32_t, void *, uint32_t, void *);
 
 struct ReceiveCallbacks nilReceiveAspect = {
   NilAddMsgCallback,
@@ -52,19 +52,19 @@ struct ReceiveCallbacks nilReceiveAspect = {
 class ServiceProvider *spPtr;
 /******************************************************************************/
 // Nil callbacks content
-void NilAddMsgCallback(unsigned long player_id, char *message, void *data)
+void NilAddMsgCallback(uint32_t player_id, char *message, void *data)
 {
-  WARNLOG("hit(%lu, \"%s\", *)",player_id,message);
+  WARNLOG("hit(%u, \"%s\", *)",player_id,message);
 }
 
-void NilDeleteMsgCallback(unsigned long player_id, void *data)
+void NilDeleteMsgCallback(uint32_t player_id, void *data)
 {
-  WARNLOG("hit(%lu, *)",player_id);
+  WARNLOG("hit(%u, *)",player_id);
 }
 
-void NilHostMsgCallback(unsigned long player_id, void *data)
+void NilHostMsgCallback(uint32_t player_id, void *data)
 {
-  WARNLOG("hit(%lu, *)",player_id);
+  WARNLOG("hit(%u, *)",player_id);
 }
 
 void NilUserSysMsgCallback(void *data)
@@ -72,31 +72,31 @@ void NilUserSysMsgCallback(void *data)
   WARNLOG("hit(*)");
 }
 
-void *NilUserDataMsgCallback(unsigned long player_id, unsigned long message_type, unsigned long data_size, void *data)
+void *NilUserDataMsgCallback(uint32_t player_id, uint32_t message_type, uint32_t data_size, void *data)
 {
-  WARNLOG("hit(%lu, %lu, %lu, *)",player_id,message_type,data_size);
+  WARNLOG("hit(%u, %u, %u, *)",player_id,message_type,data_size);
   return NULL;
 }
 
-void NilRequestExchangeDataMsgCallback(unsigned long player_id, unsigned long data_size, void *data)
+void NilRequestExchangeDataMsgCallback(uint32_t player_id, uint32_t data_size, void *data)
 {
-  WARNLOG("hit(%lu, %lu, *)",player_id,data_size);
+  WARNLOG("hit(%u, %u, *)",player_id,data_size);
 }
 
-void NilRequestCompositeExchangeDataMsgCallback(unsigned long player_id, unsigned long data_size, void *data)
+void NilRequestCompositeExchangeDataMsgCallback(uint32_t player_id, uint32_t data_size, void *data)
 {
-  WARNLOG("hit(%lu, %lu, *)",player_id,data_size);
+  WARNLOG("hit(%u, %u, *)",player_id,data_size);
 }
 
-void *NilUnidirectionalMsgCallback(unsigned long player_id, unsigned long message_type, void *data)
+void *NilUnidirectionalMsgCallback(uint32_t player_id, uint32_t message_type, void *data)
 {
-  WARNLOG("hit(%lu, %lu, *)",player_id,message_type);
+  WARNLOG("hit(%u, %u, *)",player_id,message_type);
   return NULL;
 }
 
-void NilSystemUserMsgCallback(unsigned long player_id, void *system_data, unsigned long data_size, void *user_data)
+void NilSystemUserMsgCallback(uint32_t player_id, void *system_data, uint32_t data_size, void *user_data)
 {
-  WARNLOG("hit(%lu, *, %lu, *)",player_id,data_size);
+  WARNLOG("hit(%u, *, %u, *)",player_id,data_size);
 }
 /******************************************************************************/
 // methods of virtual class ServiceProvider
@@ -104,7 +104,7 @@ void NilSystemUserMsgCallback(unsigned long player_id, void *system_data, unsign
 void ServiceProvider::DecodeMessageStub(const void *msgHeader, uint32_t *dataLen,
       unsigned char *messageType, uint32_t *seqNbr)
 {
-  unsigned long k;
+  uint32_t k;
   if (msgHeader == NULL)
   {
       WARNLOG("NULL ptr");
@@ -131,7 +131,7 @@ ServiceProvider::ServiceProvider() :
       nextSessionId(1),
       nextPlayerId(2)
 {
-  long i;
+  int32_t i;
   this->localPlayerId = 0;
   for (i=0; i < SESSION_ENTRIES_COUNT; i++)
   {
@@ -169,15 +169,15 @@ TbError ServiceProvider::Initialise(struct ReceiveCallbacks *nCallbacks, void *a
   return Lb_OK;
 }
 
-TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
+TbError ServiceProvider::Send(uint32_t plr_id, void *buf)
 {
   unsigned char messageType;
   uint32_t dataLen;
   uint32_t seqNbr;
-  unsigned long player_id_from_buffer;
+  uint32_t player_id_from_buffer;
   void *imsg;
   char str[32];
-  long i;
+  int32_t i;
   if (!this->started)
   {
     WARNLOG("not initialized");
@@ -272,13 +272,13 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   return Lb_OK;
 }
 
-TbError ServiceProvider::Receive(unsigned long flags)
+TbError ServiceProvider::Receive(uint32_t flags)
 {
     uint32_t playerId;
     uint32_t dataLen;
     uint32_t seqNbr;
     unsigned char messageType;
-    unsigned long id;
+    uint32_t id;
     TbBool keepExchanging;
     char msgBuffer[1028];
     uint32_t msgLen;
@@ -288,8 +288,8 @@ TbError ServiceProvider::Receive(unsigned long flags)
     char * msgBufferPtr2;
     char * array3Ptr;
     void * somePtr;
-    long tmpInt1;
-    long tmpInt2;
+    int32_t tmpInt1;
+    int32_t tmpInt2;
     //TbError result; // unused
 
     //result = 0;
@@ -523,10 +523,10 @@ TbError ServiceProvider::Release(void)
   return Lb_OK;
 }
 
-long ServiceProvider::PlayerIndex(unsigned long plyr_id)
+int32_t ServiceProvider::PlayerIndex(uint32_t plyr_id)
 {
   struct TbNetworkPlayerEntry *netplyr;
-  long i;
+  int32_t i;
   for (i=0; i < this->players_count; i++)
   {
     netplyr = &this->players[i];
@@ -536,10 +536,10 @@ long ServiceProvider::PlayerIndex(unsigned long plyr_id)
   return -1;
 }
 
-TbError ServiceProvider::AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long a3, unsigned long a4)
+TbError ServiceProvider::AddPlayer(uint32_t plyr_id, const char *namestr, uint32_t a3, uint32_t a4)
 {
   struct TbNetworkPlayerEntry *netplyr;
-  long i;
+  int32_t i;
   SYNCDBG(7, "Starting");
   // Check if we already have the player on list
   if (PlayerIndex(plyr_id) >= 0)
@@ -560,9 +560,9 @@ TbError ServiceProvider::AddPlayer(unsigned long plyr_id, const char *namestr, u
   return Lb_OK;
 }
 
-TbError ServiceProvider::DeletePlayer(unsigned long plyr_id)
+TbError ServiceProvider::DeletePlayer(uint32_t plyr_id)
 {
-  long i;
+  int32_t i;
   SYNCDBG(7, "Starting");
   // Check if we have the player on list
   i = PlayerIndex(plyr_id);
@@ -577,7 +577,7 @@ TbError ServiceProvider::DeletePlayer(unsigned long plyr_id)
   return Lb_OK;
 }
 
-long ServiceProvider::SessionIndex(unsigned long sess_id)
+int32_t ServiceProvider::SessionIndex(uint32_t sess_id)
 {
   struct TbNetworkSessionNameEntry *nsname;
   int i;
@@ -596,11 +596,11 @@ long ServiceProvider::SessionIndex(unsigned long sess_id)
  * @param namestr Text name of the new session, or NULL if session is unnamed.
  * @return Returns session name structure, or NULL if couldn't add.
  */
-struct TbNetworkSessionNameEntry *ServiceProvider::AddSession(unsigned long sess_id, const char *namestr)
+struct TbNetworkSessionNameEntry *ServiceProvider::AddSession(uint32_t sess_id, const char *namestr)
 {
   struct TbNetworkSessionNameEntry *nsname;
   TbBool got;
-  long i;
+  int32_t i;
   // Check if the session i already in list
   i = SessionIndex(sess_id);
   if (i >= 0)
@@ -637,7 +637,7 @@ struct TbNetworkSessionNameEntry *ServiceProvider::AddSession(unsigned long sess
  */
 void ServiceProvider::ClearSessions(void)
 {
-  long i;
+  int32_t i;
   for (i=0; i < SESSION_ENTRIES_COUNT; i++)
   {
     nsnames[i].in_use = false;
@@ -648,7 +648,7 @@ TbError ServiceProvider::EnumeratePlayers(TbNetworkCallbackFunc callback, void *
 {
   struct TbNetworkPlayerEntry *netplyr;
   TbError result;
-  long i;
+  int32_t i;
   result = Lb_OK;
   for (i=0; i < players_count; i++)
   {
@@ -658,7 +658,7 @@ TbError ServiceProvider::EnumeratePlayers(TbNetworkCallbackFunc callback, void *
   return result;
 }
 
-TbBool ServiceProvider::DecodeAddPlayerMsg(const unsigned char *enc_buf, unsigned long &id, char *msg_str)
+TbBool ServiceProvider::DecodeAddPlayerMsg(const unsigned char *enc_buf, uint32_t &id, char *msg_str)
 {
   const unsigned char *inp;
   inp = enc_buf;
@@ -675,7 +675,7 @@ TbError ServiceProvider::SystemAddPlayerHandler(const void *enc_buf)
 {
   char name[NETSP_PLAYER_NAME_MAX_LEN];
   const unsigned char *inp;
-  unsigned long plyr_id;
+  uint32_t plyr_id;
   inp = (const unsigned char *)enc_buf;
   inp += sizeof(uint32_t);
   memcpy(&plyr_id, inp, sizeof(uint32_t));
@@ -689,7 +689,7 @@ TbError ServiceProvider::SystemAddPlayerHandler(const void *enc_buf)
 TbError ServiceProvider::SystemDeletePlayerHandler(const void *enc_buf)
 {
   const unsigned char *inp;
-  unsigned long plyr_id;
+  uint32_t plyr_id;
   CheckForDeletedHost(enc_buf);
   inp = (const unsigned char *)enc_buf;
   inp += sizeof(uint32_t);
@@ -703,10 +703,10 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
 {
   struct TbNetworkPlayerEntry *netplyr;
   const unsigned char *inp;
-  unsigned long plyr_id;
-  //unsigned long idx1;
+  uint32_t plyr_id;
+  //uint32_t idx1;
   TbBool got;
-  long i;
+  int32_t i;
   inp = (const unsigned char *)enc_buf;
   inp += sizeof(uint32_t);
   memcpy(&plyr_id, inp, sizeof(uint32_t));
@@ -771,10 +771,10 @@ TbError ServiceProvider::BroadcastSystemMessage(void *enc_msg)
 {
   struct TbNetworkPlayerEntry *netplyr;
   unsigned char messageType;
-  unsigned long id;
+  uint32_t id;
   TbError result;
   unsigned char *inp;
-  long i;
+  int32_t i;
   inp = (unsigned char *)enc_msg;
   messageType = 0;
   this->DecodeMessageStub(inp, NULL, &messageType, NULL);

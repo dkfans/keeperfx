@@ -229,8 +229,8 @@ void unlock_door(struct Thing *thing)
 void lock_door(struct Thing *doortng)
 {
     struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-    long stl_x = doortng->mappos.x.stl.num;
-    long stl_y = doortng->mappos.y.stl.num;
+    int32_t stl_x = doortng->mappos.x.stl.num;
+    int32_t stl_y = doortng->mappos.y.stl.num;
     doortng->active_state = DorSt_Closed;
     doortng->door.closing_counter = 0;
     doortng->door.is_locked = 1;
@@ -242,7 +242,7 @@ void lock_door(struct Thing *doortng)
     }
 }
 
-long destroy_door(struct Thing *doortng)
+int32_t destroy_door(struct Thing *doortng)
 {
     SYNCDBG(18,"Starting for %s index %d owned by player %d",thing_model_name(doortng),(int)doortng->index,(int)doortng->owner);
     struct Coord3d pos;
@@ -291,7 +291,7 @@ long destroy_door(struct Thing *doortng)
         if (thing == INVALID_THING)
             continue;
         MapCoordDelta dist = get_chessboard_distance(&pos, &thing->mappos);
-        long sight_stl = slab_subtile(get_explore_sight_distance_in_slabs(thing), 0);
+        int32_t sight_stl = slab_subtile(get_explore_sight_distance_in_slabs(thing), 0);
         if (dist <= subtile_coord(sight_stl,0)) {
             check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         }
@@ -382,8 +382,8 @@ TbBool door_can_stand(struct Thing *thing)
     for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
         wall_flags *= 2;
-        long slb_x = subtile_slab(thing->mappos.x.stl.num) + (int)small_around[i].delta_x;
-        long slb_y = subtile_slab(thing->mappos.y.stl.num) + (int)small_around[i].delta_y;
+        int32_t slb_x = subtile_slab(thing->mappos.x.stl.num) + (int)small_around[i].delta_x;
+        int32_t slb_y = subtile_slab(thing->mappos.y.stl.num) + (int)small_around[i].delta_y;
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
         struct SlabConfigStats* slabst = get_slab_stats(slb);
         if ((slabst->category == SlbAtCtg_FortifiedWall) || (slb->kind == SlbT_ROCK) || (slabst->category == SlbAtCtg_FriableDirt) || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_DENSEGOLD) || (slb->kind == SlbT_GEMS))
@@ -431,7 +431,7 @@ static void check_if_enemy_can_see_placement_of_hidden_door(struct Thing *doortn
     doortng->mappos.z.stl.num = 2;
 
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
-    long i = slist->index;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* creatng = thing_get(i);
@@ -483,7 +483,7 @@ void reveal_secret_door_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
 
 }
 
-long process_door_open(struct Thing *thing)
+int32_t process_door_open(struct Thing *thing)
 {
     // If doors are locked, delay to closing = 0
     if (thing->door.is_locked)
@@ -503,7 +503,7 @@ long process_door_open(struct Thing *thing)
     return 1;
 }
 
-long process_door_closed(struct Thing *thing)
+int32_t process_door_closed(struct Thing *thing)
 {
     if ( !check_door_should_open(thing) )
       return 0;
@@ -512,7 +512,7 @@ long process_door_closed(struct Thing *thing)
     return 1;
 }
 
-long process_door_opening(struct Thing *thing)
+int32_t process_door_opening(struct Thing *thing)
 {
     struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
     int old_frame = (thing->door.closing_counter / 256);
@@ -533,7 +533,7 @@ long process_door_opening(struct Thing *thing)
     return 1;
 }
 
-long process_door_closing(struct Thing *thing)
+int32_t process_door_closing(struct Thing *thing)
 {
     int old_frame = (thing->door.closing_counter / 256);
     struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
@@ -606,12 +606,12 @@ TngUpdateRet process_door(struct Thing *thing)
     return TUFRet_Modified;
 }
 
-long count_player_deployed_doors_of_model(PlayerNumber owner, int model)
+int32_t count_player_deployed_doors_of_model(PlayerNumber owner, int model)
 {
-    long n = 0;
-    unsigned long k = 0;
+    int32_t n = 0;
+    uint32_t k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Door);
-    long i = slist->index;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -641,9 +641,9 @@ long count_player_deployed_doors_of_model(PlayerNumber owner, int model)
  */
 TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short locked)
 {
-    unsigned long k = 0;
+    uint32_t k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Door);
-    long i = slist->index;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -673,12 +673,12 @@ TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short lo
  * @param model Trap model to count, or -1 for any.
  * @return the number of things of class trap with matching model and available shots.
  */
-long count_player_deployed_traps_of_model(PlayerNumber owner, ThingModel model)
+int32_t count_player_deployed_traps_of_model(PlayerNumber owner, ThingModel model)
 {
-    long n = 0;
-    unsigned long k = 0;
+    int32_t n = 0;
+    uint32_t k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
-    long i = slist->index;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -708,9 +708,9 @@ long count_player_deployed_traps_of_model(PlayerNumber owner, ThingModel model)
  */
 TbBool player_has_deployed_trap_of_model(PlayerNumber owner, ThingModel model)
 {
-    unsigned long k = 0;
+    uint32_t k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
-    long i = slist->index;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -738,10 +738,10 @@ TbBool player_has_deployed_trap_of_model(PlayerNumber owner, ThingModel model)
  * @param model Door model to count, or -1 for all.
  * @return Amount of doors that the player may place.
  */
-long count_player_available_doors_of_model(PlayerNumber plyr_idx, ThingModel model)
+int32_t count_player_available_doors_of_model(PlayerNumber plyr_idx, ThingModel model)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long count = 0;
+    int32_t count = 0;
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Tried to count doors for Player %d which has no dungeon", (int)plyr_idx);
@@ -764,10 +764,10 @@ long count_player_available_doors_of_model(PlayerNumber plyr_idx, ThingModel mod
  * @param model Trap model to count, or -1 for all.
  * @return Amount of traps that the player may place.
  */
-long count_player_available_traps_of_model(PlayerNumber plyr_idx, ThingModel model)
+int32_t count_player_available_traps_of_model(PlayerNumber plyr_idx, ThingModel model)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long count = 0;
+    int32_t count = 0;
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Tried to count traps for Player %d which has no dungeon", (int)plyr_idx);

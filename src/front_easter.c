@@ -185,12 +185,12 @@ void input_eastegg(void)
  */
 void draw_eastegg(void)
 {
-  static long px[2] = {0, 0};
-  static long py[2] = {0, 0};
-  static long vx[2] = {4, 4};
-  static long vy[2] = {6, 6};
-  long i;
-  long k;
+  static int32_t px[2] = {0, 0};
+  static int32_t py[2] = {0, 0};
+  static int32_t vx[2] = {4, 4};
+  static int32_t vy[2] = {6, 6};
+  int32_t i;
+  int32_t k;
   SYNCDBG(5,"Starting");
   int ee_units_per_px = calculate_relative_upp(22, units_per_pixel_best, LbTextLineHeight());
   int width = 640, height = 400, skeksis_x_offset = 120, skeksis_y_offset = 200;
@@ -217,13 +217,13 @@ void draw_eastegg(void)
       {
         pos = get_gameturn() - i;
         lbDisplay.DrawColour = pos;
-        LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
-          scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
+        LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(int32_t)pos) / 512 + skeksis_x_offset) / pixel_size),
+          scale_fixed_DK_value((LbSinL(32*(int32_t)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
       }
       clear_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
       pos=get_gameturn();
-      LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
-          scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
+      LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(int32_t)pos) / 512 + skeksis_x_offset) / pixel_size),
+          scale_fixed_DK_value((LbSinL(32*(int32_t)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
       if (eastegg_skeksis_cntr >= 255)
         eastegg_skeksis_cntr = 0;
   }

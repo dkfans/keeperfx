@@ -81,7 +81,7 @@ static int is_cgnat_detected() {
         return 0;
     }
     for (IP_ADAPTER_INFO *adapter = adapter_info; adapter; adapter = adapter->Next) {
-        unsigned long local_ip = inet_addr(adapter->IpAddressList.IpAddress.String);
+        uint32_t local_ip = inet_addr(adapter->IpAddressList.IpAddress.String);
         if (local_ip != INADDR_NONE && local_ip != 0) {
             unsigned char first_octet = local_ip & 0xFF;
             unsigned char second_octet = (local_ip >> 8) & 0xFF;
@@ -90,7 +90,7 @@ static int is_cgnat_detected() {
                 return 1;
             }
         }
-        unsigned long gateway_ip = inet_addr(adapter->GatewayList.IpAddress.String);
+        uint32_t gateway_ip = inet_addr(adapter->GatewayList.IpAddress.String);
         if (gateway_ip != INADDR_NONE && gateway_ip != 0) {
             unsigned char first_octet = gateway_ip & 0xFF;
             unsigned char second_octet = (gateway_ip >> 8) & 0xFF;

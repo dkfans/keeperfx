@@ -365,12 +365,12 @@ void create_roomspace_from_current_room(struct RoomSpace *roomspace, int search_
     int right_extent = centre_x;
     int bottom_extent = centre_y;
     // Loop through list of slabs in the room to find extents
-    unsigned long k = 0;
-    long i = current_room->slabs_list;
+    uint32_t k = 0;
+    int32_t i = current_room->slabs_list;
     while (i != 0)
     {
-        long slb_x = slb_num_decode_x(i);
-        long slb_y = slb_num_decode_y(i);
+        int32_t slb_x = slb_num_decode_x(i);
+        int32_t slb_y = slb_num_decode_y(i);
         // Per room tile code
         if (slb_x < left_extent)
         {
@@ -1494,7 +1494,7 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
 {
-    unsigned long par2;
+    uint32_t par2;
     struct PlayerInfo* player = get_player(plyr_idx);
     if ( (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) ) // Use "modern" click and drag method
     {

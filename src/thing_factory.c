@@ -40,6 +40,7 @@
 #include "dungeon_data.h"
 #include "gui_topmsg.h"
 #include "config_magic.h"
+#include "game_merge.h"
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
@@ -84,7 +85,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, ThingModel cimodel, unsigned s
     return thing;
 }
 
-struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, ThingModel tngmodel, unsigned short owner, long parent_idx)
+struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, ThingModel tngmodel, unsigned short owner, int32_t parent_idx)
 {
     struct Thing* thing = INVALID_THING;
     switch (tngclass)
@@ -217,7 +218,8 @@ TbBool thing_create_thing_adv(VALUE *init_data)
 {
     int owner = value_int32(value_dict_get(init_data, "Ownership"));
     int oclass = value_parse_class(value_dict_get(init_data, "ThingType"));
-    ThingModel model = value_parse_model(oclass, value_dict_get(init_data, "Subtype"));
+    VALUE *subtype = value_dict_get(init_data, "Subtype");
+    ThingModel model = value_parse_model(oclass, subtype);
     struct Coord3d mappos;
     mappos.x.val = value_read_stl_coord(value_dict_get(init_data, "SubtileX"));
     mappos.y.val = value_read_stl_coord(value_dict_get(init_data, "SubtileY"));
@@ -227,9 +229,11 @@ TbBool thing_create_thing_adv(VALUE *init_data)
         ERRORLOG("Thing ThingType is not set");
         return false;
     }
-    if (model == -1)
-    {
-        ERRORLOG("Thing Subtype is not set");
+    if (model == -1) {
+        if (value_type(subtype) == VALUE_STRING)
+            ERRORMSG("map%05u.tngfx: Tried to load unrecognized Thing subtype \"%s\"", (unsigned int)get_selected_level_number(), value_string(subtype));
+        else
+            ERRORLOG("Thing Subtype is not set");
         return false;
     }
     if (owner == -1)
@@ -339,7 +343,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 {
                     if(strlen(creatureName) >= CREATURE_NAME_MAX)
                     {
-                        ERRORLOG("init creature name (%s) too long max %d chars", creatureName, CREATURE_NAME_MAX-1);
+                        ERRORLOG("init creature name (%s) too int32_t max %d chars", creatureName, CREATURE_NAME_MAX-1);
                         break;
                     }
                     strcpy(cctrl->creature_name,creatureName);
@@ -431,7 +435,7 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         cctrl->party.target_plyr_idx = -1;
     }
 
-    long light_rand = GAME_RANDOM(8); // this may be unsynced random
+    int32_t light_rand = GAME_RANDOM(8); // this may be unsynced random
     if (light_rand < 2)
     {
         struct InitLight ilght;

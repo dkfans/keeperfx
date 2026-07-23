@@ -70,11 +70,11 @@ TbBool frametime_enabled(void);
 TbBool consolelog_enabled(void);
 TbBool script_timer_enabled(void);
 TbBool gameturn_timer_enabled(void);
-void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real);
+void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, uint32_t limit, TbBool real);
 TbBool display_variable_enabled(void);
-void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype);
+void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, int32_t target, unsigned char targettype);
 
-extern unsigned long TimerTurns;
+extern uint32_t TimerTurns;
 /******************************************************************************/
 #ifdef __cplusplus
 }

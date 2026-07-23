@@ -91,7 +91,7 @@ void frontend_level_select_maintain(struct GuiButton *gbtn)
 {
     if (gbtn == NULL)
         return;
-    long i = gbtn->content.lval - 45;
+    int32_t i = gbtn->content.lval - 45;
     if (select_level_scroll_offset+i < number_of_freeplay_levels)
         gbtn->flags |= LbBtnF_Enabled;
     else
@@ -100,9 +100,9 @@ void frontend_level_select_maintain(struct GuiButton *gbtn)
 
 void frontend_draw_level_select_button(struct GuiButton *gbtn)
 {
-    long btn_idx = gbtn->content.lval;
-    long i = btn_idx + select_level_scroll_offset - 45;
-    long lvnum = 0;
+    int32_t btn_idx = gbtn->content.lval;
+    int32_t i = btn_idx + select_level_scroll_offset - 45;
+    int32_t lvnum = 0;
     if ((i >= 0) && (i < campaign.freeplay_levels_count))
       lvnum = campaign.freeplay_levels[i];
     struct LevelInformation* lvinfo = get_level_info(lvnum);
@@ -139,8 +139,8 @@ void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn)
 void frontend_level_select(struct GuiButton *gbtn)
 {
     // Find the level number
-    long i = gbtn->content.lval + select_level_scroll_offset - 45;
-    long lvnum = 0;
+    int32_t i = gbtn->content.lval + select_level_scroll_offset - 45;
+    int32_t lvnum = 0;
     if (i < campaign.freeplay_levels_count)
       lvnum = campaign.freeplay_levels[i];
     if (lvnum <= 0)
@@ -247,8 +247,8 @@ void frontend_campaign_select_maintain(struct GuiButton *gbtn)
 {
   if (gbtn == NULL)
     return;
-  long btn_idx = gbtn->content.lval;
-  long i = select_campaign_scroll_offset + btn_idx - 45;
+  int32_t btn_idx = gbtn->content.lval;
+  int32_t i = select_campaign_scroll_offset + btn_idx - 45;
   if (i < campaigns_list.items_num)
       gbtn->flags |= LbBtnF_Enabled;
   else
@@ -259,8 +259,8 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
 {
     if (gbtn == NULL)
       return;
-    long btn_idx = gbtn->content.lval;
-    long i = select_campaign_scroll_offset + btn_idx - 45;
+    int32_t btn_idx = gbtn->content.lval;
+    int32_t i = select_campaign_scroll_offset + btn_idx - 45;
     struct GameCampaign* campgn = NULL;
     if ((i >= 0) && (i < campaigns_list.items_num))
       campgn = &campaigns_list.items[i];
@@ -286,8 +286,8 @@ void frontend_campaign_select(struct GuiButton *gbtn)
 {
     if (gbtn == NULL)
         return;
-    long btn_idx = gbtn->content.lval;
-    long i = select_campaign_scroll_offset + btn_idx - 45;
+    int32_t btn_idx = gbtn->content.lval;
+    int32_t i = select_campaign_scroll_offset + btn_idx - 45;
     struct GameCampaign* campgn = NULL;
     if ((i >= 0) && (i < campaigns_list.items_num))
         campgn = &campaigns_list.items[i];
@@ -383,8 +383,8 @@ void frontend_mappack_select_maintain(struct GuiButton *gbtn)
 {
   if (gbtn == NULL)
     return;
-  long btn_idx = gbtn->content.lval;
-  long i = select_mappack_scroll_offset + btn_idx - 45;
+  int32_t btn_idx = gbtn->content.lval;
+  int32_t i = select_mappack_scroll_offset + btn_idx - 45;
   if (i < mappacks_list.items_num)
       gbtn->flags |= LbBtnF_Enabled;
   else
@@ -393,8 +393,8 @@ void frontend_mappack_select_maintain(struct GuiButton *gbtn)
 
 void frontend_mappack_select(struct GuiButton *gbtn)
 {
-    long i;
-    long btn_idx;
+    int32_t i;
+    int32_t btn_idx;
     struct GameCampaign *campgn;
     if (gbtn == NULL)
         return;
@@ -458,8 +458,8 @@ void frontend_mp_mappack_select_maintain(struct GuiButton *gbtn)
 {
   if (gbtn == NULL)
     return;
-  long btn_idx = gbtn->content.lval;
-  long i = select_mp_mappack_scroll_offset + btn_idx - 45;
+  int32_t btn_idx = gbtn->content.lval;
+  int32_t i = select_mp_mappack_scroll_offset + btn_idx - 45;
   if (i < mp_mappacks_list.items_num)
       gbtn->flags |= LbBtnF_Enabled;
   else
@@ -468,8 +468,8 @@ void frontend_mp_mappack_select_maintain(struct GuiButton *gbtn)
 
 void frontend_mp_mappack_select(struct GuiButton *gbtn)
 {
-    long i;
-    long btn_idx;
+    int32_t i;
+    int32_t btn_idx;
     struct GameCampaign *campgn;
     if (gbtn == NULL)
         return;
@@ -510,8 +510,8 @@ void frontend_back_from_mp_mappack_list(struct GuiButton *gbtn)
 void frontend_draw_mp_mappack_select_button(struct GuiButton *gbtn)
 {
     struct GameCampaign *campgn;
-    long btn_idx;
-    long i;
+    int32_t btn_idx;
+    int32_t i;
     if (gbtn == NULL)
       return;
     btn_idx = gbtn->content.lval;
@@ -539,8 +539,8 @@ void frontend_draw_mp_mappack_select_button(struct GuiButton *gbtn)
 void frontend_draw_mappack_select_button(struct GuiButton *gbtn)
 {
     struct GameCampaign *campgn;
-    long btn_idx;
-    long i;
+    int32_t btn_idx;
+    int32_t i;
     if (gbtn == NULL)
       return;
     btn_idx = gbtn->content.lval;
@@ -641,7 +641,7 @@ void frontend_campaign_list_load(void)
 }
 void frontend_draw_variable_mappack_exit_button(struct GuiButton *gbtn)
 {
-    long str_idx = 111; //Return to Free-Play
+    int32_t str_idx = 111; //Return to Free-Play
     unsigned short mnu_idx = 34; //map pack selection screen
     if (mappacks_list.items_num == 1)
     {

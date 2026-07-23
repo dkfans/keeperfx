@@ -59,11 +59,11 @@ void fade_out(void)
 
 void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsigned char *dpal)
 {
-    unsigned long i;
-    unsigned long k;
-    unsigned long r;
-    unsigned long g;
-    unsigned long b;
+    uint32_t i;
+    uint32_t k;
+    uint32_t r;
+    uint32_t g;
+    uint32_t b;
     SYNCMSG("Recomputing fade tables");
     // Intense fade to/from black - slower fade near black
     unsigned char* dst = coltbl->fade_tables;
@@ -95,9 +95,9 @@ void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsign
     for (i=0; i < 256; i++)
     {
       // Reference colors
-      unsigned long rr = spal[3 * i + 0];
-      unsigned long rg = spal[3 * i + 1];
-      unsigned long rb = spal[3 * i + 2];
+      uint32_t rr = spal[3 * i + 0];
+      uint32_t rg = spal[3 * i + 1];
+      uint32_t rb = spal[3 * i + 2];
       // Creating fades
       for (k=0; k < 256; k++)
       {
@@ -218,7 +218,7 @@ void compute_shifted_palette_table(TbPixel *ocol, const unsigned char *spal, con
     }
 }
 
-void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg)
+void ProperFadePalette(unsigned char *pal, int32_t fade_steps, enum TbPaletteFadeFlag flg)
 {
 /*    if (flg != Lb_PALETTE_FADE_CLOSED)
     {
@@ -249,7 +249,7 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
     }
 }
 
-void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg)
+void ProperForcedFadePalette(unsigned char *pal, int32_t fade_steps, enum TbPaletteFadeFlag flg)
 {
     if (flg == Lb_PALETTE_FADE_OPEN)
     {
@@ -278,9 +278,9 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
     }
 }
 
-long PaletteFadePlayer(struct PlayerInfo *player)
+int32_t PaletteFadePlayer(struct PlayerInfo *player)
 {
-    long i;
+    int32_t i;
     unsigned char palette[PALETTE_SIZE];
     // Find the fade step
     if ((player->palette_fade_step_pain != 0) && (player->palette_fade_step_possession != 0))
@@ -300,21 +300,21 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   }
   if (i >= 120)
     i = 120;
-  long step = 120 - i;
+  int32_t step = 120 - i;
   // Create the new palette
   for (i=0; i < PALETTE_COLORS; i++)
   {
       unsigned char* src = &player->main_palette[3 * i];
       unsigned char* dst = &palette[3 * i];
-      unsigned long pix = ((step * (((long)src[0]) - 63)) / 120) + 63;
+      uint32_t pix = ((step * (((int32_t)src[0]) - 63)) / 120) + 63;
       if (pix > 63)
           pix = 63;
       dst[0] = pix;
-      pix = (step * ((long)src[1])) / 120;
+      pix = (step * ((int32_t)src[1])) / 120;
       if (pix > 63)
           pix = 63;
       dst[1] = pix;
-      pix = (step * ((long)src[2])) / 120;
+      pix = (step * ((int32_t)src[2])) / 120;
       if (pix > 63)
           pix = 63;
       dst[2] = pix;
@@ -340,9 +340,9 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   return step;
 }
 
-void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense)
+void PaletteApplyPainToPlayer(struct PlayerInfo *player, int32_t intense)
 {
-    long i = player->palette_fade_step_pain + intense;
+    int32_t i = player->palette_fade_step_pain + intense;
     if (i < 1)
         i = 1;
     else

@@ -34,12 +34,12 @@ extern "C" {
 #endif
 /******************************************************************************/
 // Forward declarations
-static void snap_cursor_to_button(long *snap_to_x, long *snap_to_y);
+static void snap_cursor_to_button(int32_t *snap_to_x, int32_t *snap_to_y);
 extern void gui_get_creature_in_battle(struct GuiButton *gbtn);
 extern void gui_setup_friend_over(struct GuiButton *gbtn);
 /******************************************************************************/
 
-static TbBool try_scroll_select_list_edge(long mouse_x, long mouse_y, float dx, float dy)
+static TbBool try_scroll_select_list_edge(int32_t mouse_x, int32_t mouse_y, float dx, float dy)
 {
     if (fabsf(dy) < fabsf(dx)) {
         return false;
@@ -101,7 +101,7 @@ static TbBool try_scroll_select_list_edge(long mouse_x, long mouse_y, float dx, 
     return false;
 }
 
-static float get_button_score(long mouse_x, long mouse_y, long btn_center_x, long btn_center_y, float dx, float dy, float MIN_DOT)
+static float get_button_score(int32_t mouse_x, int32_t mouse_y, int32_t btn_center_x, int32_t btn_center_y, float dx, float dy, float MIN_DOT)
 {
     // Vector from mouse to button
     float to_btn_x = (float)(btn_center_x - mouse_x);
@@ -123,7 +123,7 @@ static float get_button_score(long mouse_x, long mouse_y, long btn_center_x, lon
     return score;
 }
 
-static float get_battle_buttons_top_score(const struct GuiButton* gbtn, long *btn_center_x, long *btn_center_y, long mouse_x, long mouse_y, float dx, float dy, float MIN_DOT)
+static float get_battle_buttons_top_score(const struct GuiButton* gbtn, int32_t *btn_center_x, int32_t *btn_center_y, int32_t mouse_x, int32_t mouse_y, float dx, float dy, float MIN_DOT)
 {
     int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
@@ -136,7 +136,7 @@ static float get_battle_buttons_top_score(const struct GuiButton* gbtn, long *bt
         return -1.0f;
     }
 
-    long btn_y = gbtn->scr_pos_y + gbtn->height / 2;
+    int32_t btn_y = gbtn->scr_pos_y + gbtn->height / 2;
     float best_score = -1.0f;
 
     TbBool friendly = (gbtn->ptover_event == gui_setup_friend_over);
@@ -170,7 +170,7 @@ static float get_battle_buttons_top_score(const struct GuiButton* gbtn, long *bt
     return best_score;
 }
 
-static TbBool find_nearest_button_in_direction(long mouse_x, long mouse_y, float dx, float dy, long *snap_to_x, long *snap_to_y)
+static TbBool find_nearest_button_in_direction(int32_t mouse_x, int32_t mouse_y, float dx, float dy, int32_t *snap_to_x, int32_t *snap_to_y)
 {
     float best_score = -1.0f;
     const float MIN_DOT = 0.3f; // Minimum alignment required
@@ -196,8 +196,8 @@ static TbBool find_nearest_button_in_direction(long mouse_x, long mouse_y, float
 
         
         // Calculate button center
-        long btn_center_x = gbtn->pos_x + gbtn->width / 2;
-        long btn_center_y = gbtn->pos_y + gbtn->height / 2;
+        int32_t btn_center_x = gbtn->pos_x + gbtn->width / 2;
+        int32_t btn_center_y = gbtn->pos_y + gbtn->height / 2;
 
         float score;
 
@@ -222,7 +222,7 @@ static TbBool find_nearest_button_in_direction(long mouse_x, long mouse_y, float
     return btn_found;
 }
 
-static TbBool find_nearest_landview_flag_in_direction(long mouse_x, long mouse_y, float dx, float dy, long *snap_to_x, long *snap_to_y)
+static TbBool find_nearest_landview_flag_in_direction(int32_t mouse_x, int32_t mouse_y, float dx, float dy, int32_t *snap_to_x, int32_t *snap_to_y)
 {
     const float MIN_DOT = 0.3f;
     float best_score = -1.0f;
@@ -234,8 +234,8 @@ static TbBool find_nearest_landview_flag_in_direction(long mouse_x, long mouse_y
     dx /= mag;
     dy /= mag;
 
-    long screen_max_x = map_info.screen_shift_x + lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview;
-    long screen_max_y = map_info.screen_shift_y + lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview;
+    int32_t screen_max_x = map_info.screen_shift_x + lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview;
+    int32_t screen_max_y = map_info.screen_shift_y + lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview;
 
     TbBool flag_found = false;
     struct LevelInformation* lvinfo = get_first_level_info();
@@ -253,12 +253,12 @@ static TbBool find_nearest_landview_flag_in_direction(long mouse_x, long mouse_y
             if ((lvinfo->ensign_zoom_x >= map_info.screen_shift_x) && (lvinfo->ensign_zoom_x < screen_max_x)
              && (lvinfo->ensign_zoom_y >= map_info.screen_shift_y) && (lvinfo->ensign_zoom_y < screen_max_y))
             {
-                long btn_center_x = scale_value_landview(lvinfo->ensign_x - (long)map_info.screen_shift_x);
-                long btn_center_y = scale_value_landview(lvinfo->ensign_y - (long)map_info.screen_shift_y);
+                int32_t btn_center_x = scale_value_landview(lvinfo->ensign_x - (int32_t)map_info.screen_shift_x);
+                int32_t btn_center_y = scale_value_landview(lvinfo->ensign_y - (int32_t)map_info.screen_shift_y);
                 const struct TbSprite *spr = get_ensign_sprite_for_level(lvinfo, 0);
                 if (spr != NULL)
                 {
-                    btn_center_y = scale_value_landview(lvinfo->ensign_y - (long)map_info.screen_shift_y - (long)((spr->SHeight * 2) / 3));
+                    btn_center_y = scale_value_landview(lvinfo->ensign_y - (int32_t)map_info.screen_shift_y - (int32_t)((spr->SHeight * 2) / 3));
                 }
                 float score = get_button_score(mouse_x, mouse_y, btn_center_x, btn_center_y, dx, dy, MIN_DOT);
                 if (score > best_score)
@@ -277,12 +277,12 @@ static TbBool find_nearest_landview_flag_in_direction(long mouse_x, long mouse_y
 
 }
 
-static void snap_cursor_to_button(long *snap_to_x, long *snap_to_y)
+static void snap_cursor_to_button(int32_t *snap_to_x, int32_t *snap_to_y)
 {
     if (snap_to_x == NULL || snap_to_y == NULL) return;
     
-    long btn_center_x = *snap_to_x;
-    long btn_center_y = *snap_to_y;
+    int32_t btn_center_x = *snap_to_x;
+    int32_t btn_center_y = *snap_to_y;
     
     struct TbPoint delta;
     delta.x = btn_center_x - GetMouseX();
@@ -291,13 +291,13 @@ static void snap_cursor_to_button(long *snap_to_x, long *snap_to_y)
     mouseControl(MActn_MOUSEMOVE, &delta);
 }
 
-void snap_to_direction(long mouse_x, long mouse_y, float dx, float dy)
+void snap_to_direction(int32_t mouse_x, int32_t mouse_y, float dx, float dy)
 {
     if (try_scroll_select_list_edge(mouse_x, mouse_y, dx, dy)) {
         return;
     }
 
-    long snap_to_x, snap_to_y;
+    int32_t snap_to_x, snap_to_y;
     TbBool found;
     if ((frontend_menu_state == FeSt_LAND_VIEW) || (frontend_menu_state == FeSt_NETLAND_VIEW)) {
         found = find_nearest_landview_flag_in_direction(mouse_x, mouse_y, dx, dy, &snap_to_x, &snap_to_y);

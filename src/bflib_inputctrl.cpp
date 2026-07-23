@@ -633,7 +633,7 @@ void LbGrabMouseInit(void)
     LbGrabMouseCheck(MG_InitMouse);
 }
 
-void LbGrabMouseCheck(long grab_event)
+void LbGrabMouseCheck(int32_t grab_event)
 {
     TbBool window_has_focus = lbAppActive;
     TbBool paused = ((game.operation_flags & GOF_Paused) != 0);

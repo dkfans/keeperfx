@@ -65,7 +65,7 @@ extern const struct ConfigFileData keeper_lenses_file_data;
 extern struct LensesConfig lenses_conf;
 extern struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
 /******************************************************************************/
-struct LensConfig *get_lens_config(long lens_idx);
+struct LensConfig *get_lens_config(int32_t lens_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

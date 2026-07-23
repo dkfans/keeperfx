@@ -95,19 +95,19 @@ static unsigned char *MapBackground = NULL;
 static int32_t *MapShapeStart = NULL;
 static int32_t *MapShapeEnd = NULL;
 
-static long PanelMapY;
-static long PanelMapX;
-static long NumBackColours;
-static long PrevPixelSize;
+static int32_t PanelMapY;
+static int32_t PanelMapX;
+static int32_t NumBackColours;
+static int32_t PrevPixelSize;
 static unsigned char MapBackColours[256];
 static unsigned char PanelColours[16*PnC_End];
-static long PrevRoomHighlight;
-static long PrevDoorHighlight;
-static unsigned short PanelMap[MAX_SUBTILES_X*MAX_SUBTILES_Y];
+static int32_t PrevRoomHighlight;
+static int32_t PrevDoorHighlight;
+static uint16_t PanelMap[MAX_SUBTILES_X*MAX_SUBTILES_Y];
 
-long clicked_on_small_map;
+int32_t clicked_on_small_map;
 unsigned char grabbed_small_map;
-long MapDiagonalLength = 0;
+int32_t MapDiagonalLength = 0;
 
 
 
@@ -133,7 +133,7 @@ void panel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
  * @param y2
  * @param zoom
  */
-void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, long y2, long zoom)
+void draw_call_to_arms_circle(unsigned char owner, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t zoom)
 {
     const struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(PwrK_CALL2ARMS);
@@ -145,11 +145,11 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     col = player_room_colours[get_player_color_idx(owner)];
     int i;
     i = 2*(PANEL_MAP_RADIUS*units_per_px/16) / 2;
-    long center_x;
-    long center_y;
+    int32_t center_x;
+    int32_t center_y;
     center_x = i + x2;
     center_y = i + y2;
-    long long cscale;
+    int64_t cscale;
     float circle_time;
     if ((game.operation_flags & GOF_Paused) == 0) {
         circle_time = ((get_gameturn() + owner) & 7) + game.process_turn_time;
@@ -168,7 +168,7 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
 
     int sx;
     int sy;
-    long base_y;
+    int32_t base_y;
     base_y = ((cscale >> 3) << 8) / zoom;
     if ( base_y > 1 )
     {
@@ -252,9 +252,9 @@ static struct Coord2d thing_minimap_position(struct Thing* thing, const struct C
  * @param zoom Zoom level of the minimap.
  * @return Amount of objects drawn.
  */
-int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long zoom)
+int draw_overlay_call_to_arms(struct PlayerInfo *player, int32_t units_per_px, int32_t zoom)
 {
-    unsigned long k;
+    uint32_t k;
     int i;
     int n;
     SYNCDBG(18,"Starting");
@@ -302,9 +302,9 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
  * @param zoom Scale between map coordinates and minimap pixels.
  * @return Amount of traps drawn.
  */
-int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled_zoom, long basic_zoom)
+int draw_overlay_traps(struct PlayerInfo *player, int32_t units_per_px, int32_t scaled_zoom, int32_t basic_zoom)
 {
-    unsigned long k;
+    uint32_t k;
     int i;
     int n;
     SYNCDBG(18,"Starting");
@@ -381,9 +381,9 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
  * @param zoom Zoom level of the minimap.
  * @return Amount of objects drawn.
  */
-int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, long scaled_zoom, long basic_zoom)
+int draw_overlay_spells_and_boxes(struct PlayerInfo *player, int32_t units_per_px, int32_t scaled_zoom, int32_t basic_zoom)
 {
-    unsigned long k;
+    uint32_t k;
     int i;
     int n;
     SYNCDBG(18,"Starting");
@@ -453,7 +453,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
     return n;
 }
 
-void panel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
+void panel_map_draw_creature_dot(int32_t mapos_x, int32_t mapos_y, RealScreenCoord basepos, TbPixel col, int32_t basic_zoom, TbBool isLowRes)
 {
     if (isLowRes)
     {
@@ -468,7 +468,7 @@ void panel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord bas
     }
 }
 
-int draw_overlay_possessed_thing(struct PlayerInfo* player, long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
+int draw_overlay_possessed_thing(struct PlayerInfo* player, int32_t mapos_x, int32_t mapos_y, RealScreenCoord basepos, TbPixel col, int32_t basic_zoom, TbBool isLowRes)
 {
     const struct Camera* cam;
     cam = get_local_camera(get_player_active_camera(player));
@@ -499,7 +499,7 @@ int draw_overlay_possessed_thing(struct PlayerInfo* player, long mapos_x, long m
     return 1;
 }
 
-int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zoom, long basic_zoom)
+int draw_overlay_creatures(struct PlayerInfo *player, int32_t units_per_px, int32_t zoom, int32_t basic_zoom)
 {
     TbBool isLowRes = 0;
     if (units_per_px < 16)
@@ -507,7 +507,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
        isLowRes = 1;
     }
 
-    unsigned long k;
+    uint32_t k;
     int i;
     int n;
     SYNCDBG(18,"Starting");
@@ -586,7 +586,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 int m;
                 for (m=0; m < 5; m++)
                 {
-                    long memberpos;
+                    int32_t memberpos;
                     memberpos = cctrl->party.member_pos_stl[m];
                     if (memberpos == 0)
                         break;
@@ -628,7 +628,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
  * @param zoom Zoom level of the minimap.
  * @return Amount of hearts drawn, either 0 or 1.
  */
-int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
+int draw_line_to_heart(struct PlayerInfo *player, int32_t units_per_px, int32_t zoom)
 {
     struct Camera *active_cam = get_player_active_camera(player);
     if (active_cam == NULL)
@@ -645,15 +645,15 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     RealScreenCoord basepos;
     basepos = MapDiagonalLength/2;
     // Do the drawing
-    long dist;
-    long angle;
+    int32_t dist;
+    int32_t angle;
     dist = get_distance_xy(basepos, basepos, pos.x.val + basepos, pos.y.val + basepos);
     angle = -(LbArcTanAngle(pos.x.val, pos.y.val) & ANGLE_MASK) & ANGLE_MASK_4;
     int delta_x;
     int delta_y;
     delta_x = scale_ui_value(MAP_ARROW_DISTANCE) * LbSinL(angle) >> 16;
     delta_y = scale_ui_value(MAP_ARROW_DISTANCE) * LbCosL(angle) >> 16;
-    long frame;
+    int32_t frame;
     frame = (get_gameturn() & 3) + 1;
     int draw_x;
     int draw_y;
@@ -679,7 +679,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     return 1;
 }
 
-void panel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long basic_zoom)
+void panel_map_draw_overlay_things(int32_t units_per_px, int32_t scaled_zoom, int32_t basic_zoom)
 {
     SYNCDBG(7,"Starting");
     if (scaled_zoom < 1) {
@@ -780,9 +780,9 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     *mapptr = col;
 }
 
-void panel_map_update(long x, long y, long w, long h)
+void panel_map_update(int32_t x, int32_t y, int32_t w, int32_t h)
 {
-    SYNCDBG(17,"Starting for rect (%ld,%ld) at (%ld,%ld)",w,h,x,y);
+    SYNCDBG(17,"Starting for rect (%d,%d) at (%d,%d)",w,h,x,y);
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     for (stl_y = y; stl_y < y + h; stl_y++)
@@ -801,7 +801,7 @@ void panel_map_update(long x, long y, long w, long h)
     }
 }
 
-static void do_map_rotate_stuff(float relpos_x, float relpos_y, float *coord_x, float *coord_y, long zoom)
+static void do_map_rotate_stuff(float relpos_x, float relpos_y, float *coord_x, float *coord_y, int32_t zoom)
 {
     const struct PlayerInfo *player = get_my_player();
     const struct Camera *cam = get_local_camera(get_player_active_camera(player));
@@ -814,7 +814,7 @@ static void do_map_rotate_stuff(float relpos_x, float relpos_y, float *coord_x, 
     *coord_y = zoom * dy + cam->mappos.y.val;
 }
 
-static void do_map_rotate_stuff_subtile(float relpos_x, float relpos_y, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y, long zoom)
+static void do_map_rotate_stuff_subtile(float relpos_x, float relpos_y, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y, int32_t zoom)
 {
     float tmp_x, tmp_y;
     do_map_rotate_stuff(relpos_x, relpos_y, &tmp_x, &tmp_y, zoom);
@@ -822,7 +822,7 @@ static void do_map_rotate_stuff_subtile(float relpos_x, float relpos_y, MapSubtl
     *stl_y = lroundf(tmp_y) / COORD_PER_STL;
 }
 
-short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom)
+short do_left_map_drag(int32_t begin_x, int32_t begin_y, int32_t curr_x, int32_t curr_y, int32_t zoom)
 {
   SYNCDBG(17,"Starting");
   static float frac_x, frac_y;
@@ -864,7 +864,7 @@ short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_
   return 1;
 }
 
-short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom)
+short do_left_map_click(int32_t begin_x, int32_t begin_y, int32_t curr_x, int32_t curr_y, int32_t zoom)
 {
   SYNCDBG(17,"Starting");
   struct PlayerInfo *player;
@@ -897,7 +897,7 @@ short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr
   return result;
 }
 
-short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my, long zoom)
+short do_right_map_click(int32_t start_x, int32_t start_y, int32_t curr_mx, int32_t curr_my, int32_t zoom)
 {
     int32_t x;
     int32_t y;
@@ -928,7 +928,7 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
     return 0;
 }
 
-void setup_background(long units_per_px)
+void setup_background(int32_t units_per_px)
 {
     if (MapDiagonalLength != 2*(PANEL_MAP_RADIUS*units_per_px/16))
     {
@@ -944,14 +944,14 @@ void setup_background(long units_per_px)
         MapDiagonalLength = 0;
         return;
     }
-    long radius;
+    int32_t radius;
     radius = MapDiagonalLength / 2;
-    long quarter_area;
+    int32_t quarter_area;
     quarter_area = radius * radius;
     int i;
     for (i=0; i < MapDiagonalLength; i++)
     {
-        long n;
+        int32_t n;
         n = (radius - i - 1) * (i - radius + 1) + quarter_area;
         MapShapeStart[i] = radius - LbSqrL(n);
         MapShapeEnd[i] = radius + LbSqrL(n);
@@ -959,9 +959,9 @@ void setup_background(long units_per_px)
 
     int num_colours;
     num_colours = 0;
-    long out_scanline;
+    int32_t out_scanline;
     out_scanline = lbDisplay.GraphicsScreenWidth;
-    long bkgnd_pos;
+    int32_t bkgnd_pos;
     bkgnd_pos = 0;
     TbPixel *out;
     out = &lbDisplay.WScreen[PanelMapX + out_scanline * PanelMapY];
@@ -1228,7 +1228,7 @@ void update_panel_colors(void)
     }
 }
 
-void auto_gen_tables(long units_per_px)
+void auto_gen_tables(int32_t units_per_px)
 {
     if (PrevPixelSize != 256 * units_per_px / 16)
     {
@@ -1238,7 +1238,7 @@ void auto_gen_tables(long units_per_px)
     }
 }
 
-void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
+void panel_map_draw_slabs(int32_t x, int32_t y, int32_t units_per_px, int32_t zoom)
 {
     PanelMapX = scale_value_for_resolution_with_upp(x,units_per_px);
     PanelMapY = scale_value_for_resolution_with_upp(y,units_per_px);

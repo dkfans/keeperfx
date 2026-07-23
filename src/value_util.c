@@ -5,7 +5,11 @@
 #include "pre_inc.h"
 #include "value_util.h"
 #include "config.h"
+#include "config_creature.h"
+#include "config_effects.h"
+#include "config_magic.h"
 #include "config_objects.h"
+#include "config_trapdoor.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
@@ -21,7 +25,7 @@
 TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags)
 {
     SYNCDBG(5,"Starting");
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if(!(flags & CnfLd_IgnoreErrors))
@@ -31,7 +35,7 @@ TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags)
     char* buf = (char*)calloc(len + 256, 1);
     if (!buf) return false;
     // Loading file data
-    long fsize = LbFileLoadAt(fname, buf);
+    int32_t fsize = LbFileLoadAt(fname, buf);
 
     if (fsize < len)
     {
@@ -90,7 +94,30 @@ int value_parse_model(int oclass, VALUE *value)
 {
     if (value_type(value) == VALUE_INT32)
         return value_int32(value);
-    // TODO: model names for different classes
+    if (value_type(value) != VALUE_STRING)
+        return -1;
+    const char *name = value_string(value);
+    switch (oclass)
+    {
+    case TCls_Object:
+    case TCls_AmbientSnd:
+        return get_id(object_desc, name);
+    case TCls_Shot:
+        return get_id(shot_desc, name);
+    case TCls_EffectElem:
+        return get_id(effectelem_desc, name);
+    case TCls_DeadCreature:
+    case TCls_Creature:
+        return get_id(creature_desc, name);
+    case TCls_Effect:
+        return get_id(effect_desc, name);
+    case TCls_EffectGen:
+        return get_id(effectgen_desc, name);
+    case TCls_Trap:
+        return get_id(trap_desc, name);
+    case TCls_Door:
+        return get_id(door_desc, name);
+    }
     return -1;
 }
 

@@ -109,7 +109,7 @@ TbBool has_ranged_combat_attackers(const struct Thing *victim)
 
 BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx)
 {
-    for (long i = 1; i < BATTLES_COUNT; i++)
+    for (int32_t i = 1; i < BATTLES_COUNT; i++)
     {
         struct CreatureBattle* battle = creature_battle_get(i);
         if (battle->fighters_num != 0)
@@ -123,7 +123,7 @@ BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx)
 
 BattleIndex find_last_battle_of_mine(PlayerNumber plyr_idx)
 {
-    for (long i = BATTLES_COUNT; i > 0; i--)
+    for (int32_t i = BATTLES_COUNT; i > 0; i--)
     {
         struct CreatureBattle* battle = creature_battle_get(i);
         if (battle->fighters_num != 0)
@@ -141,7 +141,7 @@ TbBool can_add_ranged_combat_attacker(const struct Thing *victim)
     return (vicctrl->opponents_ranged_count < COMBAT_RANGED_OPPONENTS_LIMIT);
 }
 
-long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
+int32_t get_flee_position(struct Thing *creatng, struct Coord3d *pos)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     // Heroes should flee to their gate
@@ -232,7 +232,7 @@ TbBool setup_combat_flee_position(struct Thing *thing)
     return true;
 }
 
-long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType attack_pref)
+int32_t get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType attack_pref)
 {
     if (attack_pref == AttckT_Ranged)
     {
@@ -320,7 +320,7 @@ TbBool step_battles_forward(PlayerNumber plyr_idx)
     return active_battle_exists(plyr_idx);
 }
 
-long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex battle_idx)
+int32_t battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex battle_idx)
 {
     struct CreatureBattle* battle = creature_battle_get(battle_idx);
     struct Thing* thing = thing_get(battle->first_creatr);
@@ -371,7 +371,7 @@ BattleIndex find_previous_battle_of_mine(PlayerNumber plyr_idx, BattleIndex next
 TbBool battle_in_list(PlayerNumber plyr_idx, BattleIndex battle_id)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    for (long i = 0; i < 3; i++)
+    for (int32_t i = 0; i < 3; i++)
     {
         if (battle_id > 0)
         {
@@ -410,7 +410,7 @@ BattleIndex find_previous_battle_of_mine_excluding_current_list(PlayerNumber ply
 
 TbBool clear_battlers(unsigned short *friendly_battlers, unsigned short *enemy_battlers)
 {
-    for (long i = 0; i < MESSAGE_BATTLERS_COUNT; i++)
+    for (int32_t i = 0; i < MESSAGE_BATTLERS_COUNT; i++)
     {
         friendly_battlers[i] = 0;
         enemy_battlers[i] = 0;
@@ -418,12 +418,12 @@ TbBool clear_battlers(unsigned short *friendly_battlers, unsigned short *enemy_b
     return true;
 }
 
-long setup_player_battlers(struct PlayerInfo *player, struct CreatureBattle *battle, unsigned short *friendly_battlers, unsigned short *enemy_battlers)
+int32_t setup_player_battlers(struct PlayerInfo *player, struct CreatureBattle *battle, unsigned short *friendly_battlers, unsigned short *enemy_battlers)
 {
     short friendly_pos = 0;
     short enemy_pos = 0;
-    long i = battle->first_creatr;
-    unsigned long k = 0;
+    int32_t i = battle->first_creatr;
+    uint32_t k = 0;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -439,7 +439,7 @@ long setup_player_battlers(struct PlayerInfo *player, struct CreatureBattle *bat
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->battle_prev_creatr;
         // Per creature code
-        long n;
+        int32_t n;
         if (players_are_mutual_allies(player->id_number, thing->owner))
         {
             n = friendly_pos;
@@ -466,7 +466,7 @@ long setup_player_battlers(struct PlayerInfo *player, struct CreatureBattle *bat
     return friendly_pos+enemy_pos;
 }
 
-long setup_my_battlers(unsigned char battle_idx, unsigned short *friendly_battlers, unsigned short *enemy_battlers)
+int32_t setup_my_battlers(unsigned char battle_idx, unsigned short *friendly_battlers, unsigned short *enemy_battlers)
 {
     // Clear the battlers
     clear_battlers(friendly_battlers, enemy_battlers);
@@ -482,7 +482,7 @@ long setup_my_battlers(unsigned char battle_idx, unsigned short *friendly_battle
 
 void maintain_my_battle_list(void)
 {
-    long i;
+    int32_t i;
     // Find battle index
     struct PlayerInfo* player = get_my_player();
     struct Dungeon* dungeon = get_players_dungeon(player);
@@ -502,7 +502,7 @@ void maintain_my_battle_list(void)
       if (dungeon->visible_battles[i] <= 0)
       {
           // Got empty spot - fill it with first non-empty item
-          for (long n = i + 1; n < 3; n++)
+          for (int32_t n = i + 1; n < 3; n++)
           {
               if (dungeon->visible_battles[n] > 0)
               {
@@ -533,9 +533,9 @@ void maintain_my_battle_list(void)
     }
 }
 
-unsigned long count_active_battles(PlayerNumber plyr_idx)
+uint32_t count_active_battles(PlayerNumber plyr_idx)
 {
-    unsigned long result = 0;
+    uint32_t result = 0;
     for (int i = 1; i < BATTLES_COUNT; i++)
     {
         struct CreatureBattle* battle = creature_battle_get(i);

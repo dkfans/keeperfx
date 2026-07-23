@@ -32,44 +32,44 @@ extern "C" {
 
 struct KeyToStringInit { // sizeof = 5
   unsigned char chr;
-  long str_idx;
+  int32_t str_idx;
 };
 
 struct TbSpriteSheet;
 
 /******************************************************************************/
-extern unsigned long key_modifiers;
+extern uint32_t key_modifiers;
 extern int defining_a_key;
-extern long defining_a_key_id;
+extern int32_t defining_a_key_id;
 
-extern long left_button_held_x;
-extern long left_button_held_y;
-extern long left_button_double_clicked_y;
-extern long left_button_double_clicked_x;
-extern long right_button_double_clicked_y;
-extern long right_button_double_clicked_x;
+extern int32_t left_button_held_x;
+extern int32_t left_button_held_y;
+extern int32_t left_button_double_clicked_y;
+extern int32_t left_button_double_clicked_x;
+extern int32_t right_button_double_clicked_y;
+extern int32_t right_button_double_clicked_x;
 extern char right_button_clicked;
 extern char left_button_clicked;
-extern long right_button_released_x;
-extern long right_button_released_y;
+extern int32_t right_button_released_x;
+extern int32_t right_button_released_y;
 extern char right_button_double_clicked;
-extern long left_button_released_y;
-extern long left_button_released_x;
+extern int32_t left_button_released_y;
+extern int32_t left_button_released_x;
 extern char left_button_double_clicked;
 extern char right_button_released;
 extern char right_button_held;
-extern long right_button_click_space_count;
-extern long right_button_held_y;
-extern long left_button_clicked_y;
-extern long left_button_clicked_x;
-extern long left_button_click_space_count;
-extern long right_button_held_x;
+extern int32_t right_button_click_space_count;
+extern int32_t right_button_held_y;
+extern int32_t left_button_clicked_y;
+extern int32_t left_button_clicked_x;
+extern int32_t left_button_click_space_count;
+extern int32_t right_button_held_x;
 extern char left_button_released;
-extern long right_button_clicked_y;
-extern long right_button_clicked_x;
+extern int32_t right_button_clicked_y;
+extern int32_t right_button_clicked_x;
 extern char left_button_held;
 
-extern long key_to_string[256];
+extern int32_t key_to_string[256];
 
 #pragma pack()
 /******************************************************************************/
@@ -79,15 +79,15 @@ extern TbBool wheel_scrolled_down;
 
 TbBool poll_inputs(void);
 
-long GetMouseX(void);
-long GetMouseY(void);
+int32_t GetMouseX(void);
+int32_t GetMouseY(void);
 short is_mouse_pressed_lrbutton(void);
 void clear_mouse_pressed_lrbutton(void);
 void update_mouse(void);
 void update_wheel_scrolled(void);
 
 short is_key_pressed(TbKeyCode key, TbKeyMods kmodif);
-void clear_key_pressed(long key);
+void clear_key_pressed(int32_t key);
 void update_key_modifiers(void);
 void define_key_input(void);
 void init_key_to_strings(void);

@@ -50,8 +50,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-long owner_player_navigating;
-long nav_thing_can_travel_over_lava;
+int32_t owner_player_navigating;
+int32_t nav_thing_can_travel_over_lava;
 
 /******************************************************************************/
 
@@ -126,7 +126,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
 
 static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, NaviRouteFlags flags)
 {
-    long nav_sizexy;
+    int32_t nav_sizexy;
     int32_t px;
     int32_t py;
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
@@ -426,7 +426,7 @@ TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSu
  */
 TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *dstpos, NaviRouteFlags flags, const char *func_name)
 {
-    long waypoints_num = ariadne_count_waypoints_on_creature_route_to_target_f(thing, &thing->mappos, dstpos, flags, func_name);
+    int32_t waypoints_num = ariadne_count_waypoints_on_creature_route_to_target_f(thing, &thing->mappos, dstpos, flags, func_name);
     return (waypoints_num > 0);
 }
 
@@ -467,34 +467,34 @@ TbBool creature_can_head_for_room(struct Thing *thing, struct Room *room, int fl
         && creature_can_navigate_to_with_storage(thing, &pos, flags);
 }
 
-long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
+int32_t creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
 {
     //TODO enable when issue in pathfinding is solved
     /*if (get_chessboard_distance(&thing->mappos, pos) <= 0)
         return -1;*/
-    long angle = get_angle_xy_to(&thing->mappos, pos);
+    int32_t angle = get_angle_xy_to(&thing->mappos, pos);
 
     return creature_turn_to_face_angle(thing,angle);
 }
 
-long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
+int32_t creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
 {
     //TODO enable when issue in pathfinding is solved
     /*if (get_chessboard_distance(&thing->mappos, pos) <= 0)
         return -1;*/
 
-    long angle = (get_angle_xy_to(&thing->mappos, pos)
+    int32_t angle = (get_angle_xy_to(&thing->mappos, pos)
         + DEGREES_180) & ANGLE_MASK;
 
     return creature_turn_to_face_angle(thing,angle);
 }
 
-long creature_turn_to_face_angle(struct Thing *thing, long angle)
+int32_t creature_turn_to_face_angle(struct Thing *thing, int32_t angle)
 {
 
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-    long angle_diff = get_angle_difference(thing->move_angle_xy, angle);
-    long angle_sign = get_angle_sign(thing->move_angle_xy, angle);
+    int32_t angle_diff = get_angle_difference(thing->move_angle_xy, angle);
+    int32_t angle_sign = get_angle_sign(thing->move_angle_xy, angle);
     int angle_delta = crconf->max_turning_speed;
 
     if (angle_delta > angle_diff) {
@@ -514,9 +514,9 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
     return get_angle_difference(thing->move_angle_xy, angle);
 }
 
-long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, long a4, NaviRouteFlags flags, TbBool backward)
+int32_t creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, int32_t a4, NaviRouteFlags flags, TbBool backward)
 {
-    long i;
+    int32_t i;
     SYNCDBG(18,"Starting to move %s index %d from (%d,%d) to (%d,%d) with speed %d",thing_model_name(thing),
         (int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num,(int)speed);
     TRACE_THING(thing);
@@ -601,13 +601,13 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     return 0;
 }
 
-long creature_move_to(struct Thing *creatng, struct Coord3d *pos, MoveSpeed speed, NaviRouteFlags flags, TbBool backward)
+int32_t creature_move_to(struct Thing *creatng, struct Coord3d *pos, MoveSpeed speed, NaviRouteFlags flags, TbBool backward)
 {
     SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
     return creature_move_to_using_gates(creatng, pos, speed, -2, flags, backward);
 }
 
-TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos, long walk_speed)
+TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos, int32_t walk_speed)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_instance_is_available(thing, CrInst_TELEPORT)
@@ -636,7 +636,7 @@ short move_to_position(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long speed = get_creature_speed(creatng);
+    int32_t speed = get_creature_speed(creatng);
     SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
     // Try teleporting the creature
     if (creature_move_to_using_teleport(creatng, &cctrl->moveto_pos, speed)) {
@@ -644,7 +644,7 @@ short move_to_position(struct Thing *creatng)
             (int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num,creature_state_code_name(creatng->continue_state));
         return 1;
     }
-    long move_result = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
+    int32_t move_result = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
     CrCheckRet state_check = CrCkRet_Available;
     struct CreatureStateConfig* stati = get_thing_continue_state_info(creatng);
     if (!state_info_invalid(stati))
@@ -690,7 +690,7 @@ short move_to_position(struct Thing *creatng)
     }
 }
 
-long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos)
+int32_t get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos)
 {
     MapCoordDelta clipbox_size_xy;
     if (thing_is_creature(thing))
@@ -812,7 +812,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         return lowest_ceiling - 1 - thing->clipbox_size_z;
 }
 
-long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
+int32_t get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
 {
     unsigned short flags = SlbBloF_None;
     struct Coord3d locpos;

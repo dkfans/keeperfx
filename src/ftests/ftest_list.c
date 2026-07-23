@@ -45,8 +45,8 @@ struct ftest_onlyappendtests__config ftest_onlyappendtests__conf = {
          // append your test to tests_list here, eg: { .test_name="your_test_name",    .init_func=ftest_your_test_name_init, .level_file="lostlvls", .level=103 },
     },
 
-    // place long-running tests in this list, to include them use the -includelongtests flag
-    .long_running_tests_list = {
+    // place int32_t-running tests in this list, to include them use the -includeint32_ttests flag
+    .int32_t_running_tests_list = {
         { .test_name="bug_ai_bridge",                      .init_func=ftest_bug_ai_bridge_init,                    .level_file="keeporig", .level=15, .frame_skip=128, .seed=1, .repeat_n_times=100 },
     }
 };

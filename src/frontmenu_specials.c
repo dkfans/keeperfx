@@ -111,7 +111,7 @@ struct GuiMenu armageddon_menu =
 /******************************************************************************/
 int selected_resurrect_creature(const struct Dungeon *dungeon, const struct GuiButton *gbtn)
 {
-    long listitm_idx;
+    int32_t listitm_idx;
     if (dungeon->dead_creatures_count < DEAD_CREATURES_MAX_COUNT)
     {
         listitm_idx = resurrect_creature_scroll_offset + (gbtn->btype_value & LbBFeF_IntValueMask);
@@ -156,7 +156,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
         struct CreatureModelConfig* crconf = creature_stats_get(cstore->model);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        long spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
+        int32_t spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
         const struct TbSprite* spr = get_panel_sprite(spr_idx);
         int x = gbtn->scr_pos_x - scale_ui_value_lofi(1);
         int y = gbtn->scr_pos_y - (19 * tx_units_per_px / 16);
@@ -199,7 +199,7 @@ void select_resurrect_creature_down(struct GuiButton *gbtn)
 
 int selected_transfer_creature(const struct Dungeon *dungeon, const struct GuiButton *gbtn)
 {
-    long listitm_idx = transfer_creature_scroll_offset + (gbtn->btype_value & LbBFeF_IntValueMask);
+    int32_t listitm_idx = transfer_creature_scroll_offset + (gbtn->btype_value & LbBFeF_IntValueMask);
     if (listitm_idx < count_player_creatures_for_transfer(dungeon->owner)) {
         return listitm_idx;
     }
@@ -228,7 +228,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     if (gbtn == NULL)
       return;
     SYNCDBG(7,"Starting");
-    unsigned long flgmem = lbDisplay.DrawFlags;
+    uint32_t flgmem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
     LbTextSetFont(winfont);
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height, 0); // The 0 means black color
@@ -246,7 +246,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
+        int32_t spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
         const struct TbSprite* spr = get_panel_sprite(spr_idx);
         int x = gbtn->scr_pos_x - scale_ui_value_lofi(1);
         int y = gbtn->scr_pos_y - (19 * tx_units_per_px / 16);
@@ -289,7 +289,7 @@ void select_transfer_creature_down(struct GuiButton *gbtn)
 void maintain_resurrect_creature_select(struct GuiButton *gbtn)
 {
     struct Dungeon* dungeon = get_my_dungeon();
-    long listitm_idx = resurrect_creature_scroll_offset + (gbtn->btype_value & LbBFeF_IntValueMask);
+    int32_t listitm_idx = resurrect_creature_scroll_offset + (gbtn->btype_value & LbBFeF_IntValueMask);
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (listitm_idx < dungeon->dead_creatures_count)) & LbBtnF_Enabled;
 }
 
@@ -330,7 +330,7 @@ void maintain_resurrect_creature_scroll(struct GuiButton *gbtn)
 void maintain_transfer_creature_select(struct GuiButton *gbtn)
 {
     struct Dungeon* dungeon = get_my_dungeon();
-    long listitm_idx = transfer_creature_scroll_offset + (gbtn->btype_value & LbBFeF_IntValueMask);
+    int32_t listitm_idx = transfer_creature_scroll_offset + (gbtn->btype_value & LbBFeF_IntValueMask);
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (listitm_idx < dungeon->num_active_creatrs)) & LbBtnF_Enabled;
 }
 

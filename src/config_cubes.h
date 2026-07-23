@@ -58,8 +58,8 @@ struct CubesConfig {
 extern const struct ConfigFileData keeper_cubes_file_data;
 extern struct NamedCommand cubes_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
-struct CubeConfigStats *get_cube_model_stats(long model);
-const char *cube_code_name(long model);
+struct CubeConfigStats *get_cube_model_stats(int32_t model);
+const char *cube_code_name(int32_t model);
 ThingModel cube_model_id(const char *code_name);
 /******************************************************************************/
 #ifdef __cplusplus

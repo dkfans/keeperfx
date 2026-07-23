@@ -68,7 +68,7 @@ struct SpriteContext
 {
     struct TbHugeSprite sprite;
 
-    unsigned long x, y;
+    uint32_t x, y;
     struct KeeperSprite *ksp_first;
 
     short *id_ptr; // First person / Top down
@@ -343,9 +343,9 @@ static void load_sprites_for_mod(LevelNumber lvnum, const struct ModConfigItem *
     }
 }
 
-static void load_sprites_for_mod_list(LevelNumber lvnum, const struct ModConfigItem *mod_items, long mod_cnt)
+static void load_sprites_for_mod_list(LevelNumber lvnum, const struct ModConfigItem *mod_items, int32_t mod_cnt)
 {
-    for (long i=0; i<mod_cnt; i++)
+    for (int32_t i=0; i<mod_cnt; i++)
     {
         const struct ModConfigItem *mod_item = mod_items + i;
         if (mod_item->state.mod_dir == 0)
@@ -573,7 +573,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
 
     uint32_t n_text = 0;
     TbBool found = 0;
-    long frame_no = 0;
+    int32_t frame_no = 0;
 
     if (0 != spng_get_text(ctx, NULL, &n_text))
     {

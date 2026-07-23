@@ -77,7 +77,7 @@ int number_of_saved_games;
 
 #define CONTINUE_GAME_FILE_SIZE (CAMPAIGN_FNAME_LEN + sizeof(LevelNumber) + sizeof(struct IntralevelData))
 /******************************************************************************/
-TbBool is_primitive_save_version(long filesize)
+TbBool is_primitive_save_version(int32_t filesize)
 {
     if (filesize < (char *)&game.loaded_level_number - (char *)&game)
         return false;
@@ -89,7 +89,7 @@ TbBool is_primitive_save_version(long filesize)
 TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 {
     struct FileChunkHeader hdr;
-    long chunks_done = 0;
+    int32_t chunks_done = 0;
     // Currently there is some game data outside of structs - make sure it is updated
     light_export_system_state(&game.lightst);
     { // Info chunk
@@ -139,7 +139,7 @@ TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
 {
     struct FileChunkHeader hdr;
-    long chunks_done = 0;
+    int32_t chunks_done = 0;
     { // Packet file header
         hdr.id = SGC_PacketHeader;
         hdr.ver = 0;
@@ -182,7 +182,7 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
 
 int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 {
-    long chunks_done = 0;
+    int32_t chunks_done = 0;
     while (!LbFileEof(fhandle))
     {
         struct FileChunkHeader hdr;
@@ -285,7 +285,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             }
             break;
         default:
-            WARNLOG("Unrecognized chunk, ID = %08lx", hdr.id);
+            WARNLOG("Unrecognized chunk, ID = %08x", hdr.id);
             if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
                 LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
             break;
@@ -308,7 +308,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
  * @param slot_num
  * @return
  */
-TbBool save_game(long slot_num)
+TbBool save_game(int32_t slot_num)
 {
     if ((slot_num < 0) || (slot_num >= TOTAL_SAVE_SLOTS_COUNT))
     {
@@ -333,7 +333,7 @@ TbBool save_game(long slot_num)
     return true;
 }
 
-TbBool is_save_game_loadable(long slot_num)
+TbBool is_save_game_loadable(int32_t slot_num)
 {
     // Prepare filename and open the file
     char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
@@ -352,7 +352,7 @@ TbBool is_save_game_loadable(long slot_num)
     return false;
 }
 
-TbBool load_game(long slot_num)
+TbBool load_game(int32_t slot_num)
 {
     if ((slot_num < 0) || (slot_num >= TOTAL_SAVE_SLOTS_COUNT))
     {
@@ -375,7 +375,7 @@ TbBool load_game(long slot_num)
           return false;
         }
     }
-    long file_len = LbFileLengthHandle(fh);
+    int32_t file_len = LbFileLengthHandle(fh);
     if (is_primitive_save_version(file_len))
     {
         {
@@ -485,7 +485,7 @@ TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textn
     return true;
 }
 
-TbBool fill_game_catalogue_slot(long slot_num,const char *textname)
+TbBool fill_game_catalogue_slot(int32_t slot_num,const char *textname)
 {
     if ((slot_num < 0) || (slot_num >= TOTAL_SAVE_SLOTS_COUNT))
     {
@@ -530,8 +530,8 @@ TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct C
 
 TbBool load_game_save_catalogue(void)
 {
-    long saves_found = 0;
-    for (long slot_num = 0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
+    int32_t saves_found = 0;
+    for (int32_t slot_num = 0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
         struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
         memset(centry, 0, sizeof(struct CatalogueEntry));

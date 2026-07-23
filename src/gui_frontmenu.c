@@ -76,7 +76,7 @@ MenuNumber menu_id_to_number(MenuID menu_id)
  * @param x,y Screen coordinates to check.
  * @return Returns index of the menu, or -1 if there's no menu on this point.
  */
-int point_is_over_gui_menu(long x, long y)
+int point_is_over_gui_menu(int32_t x, int32_t y)
 {
     int gidx = MENU_INVALID_ID;
     for (int idx = 0; idx < ACTIVE_MENUS_COUNT; idx++)
@@ -99,8 +99,8 @@ int point_is_over_gui_menu(long x, long y)
 
 void update_busy_doing_gui_on_menu(void)
 {
-    long x = GetMouseX();
-    long y = GetMouseY();
+    int32_t x = GetMouseX();
+    int32_t y = GetMouseY();
     if (point_is_over_gui_box(x, y))
     {
         busy_doing_gui = 1;
@@ -120,7 +120,7 @@ void turn_off_menu(MenuID mnu_idx)
     SYNCDBG(8,"Menu ID %d",(int)mnu_idx);
     if ((mnu_idx == GMnu_VIDEO) || (mnu_idx == GMnu_SOUND))
         save_settings();
-    long menu_num = menu_id_to_number(mnu_idx);
+    int32_t menu_num = menu_id_to_number(mnu_idx);
     SYNCDBG(8,"Menu number %d",(int)menu_num);
     if (menu_num >= 0)
     {
@@ -219,7 +219,7 @@ void turn_off_all_panel_menus(void)
   }
 }
 
-void set_menu_mode(long mnu_idx)
+void set_menu_mode(int32_t mnu_idx)
 {
   if (!menu_is_active(mnu_idx))
   {
@@ -472,7 +472,7 @@ void update_query_menu()
 
 void set_menu_visible_on(MenuID menu_id)
 {
-    long menu_num = menu_id_to_number(menu_id);
+    int32_t menu_num = menu_id_to_number(menu_id);
     if (menu_num < 0)
       return;
     get_active_menu(menu_num)->is_turned_on = 1;
@@ -558,7 +558,7 @@ void add_to_menu_stack(unsigned char mnu_idx)
     SYNCDBG(9,"Menu %d put on stack, at position %d.",mnu_idx,no_of_active_menus-1);
 }
 
-long first_available_menu(void)
+int32_t first_available_menu(void)
 {
     for (short i = 0; i < ACTIVE_MENUS_COUNT; i++)
     {

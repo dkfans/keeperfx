@@ -266,7 +266,7 @@ TbBool read_repair_packet_history(NetUserId source, const char *buffer, size_t b
     for (unsigned char i = 0; i < packet_bundle->valid_count; i += 1) {
         const struct Packet *packet = &packet_bundle->packets[i];
         if (is_packet_empty(packet)) {
-            MULTIPLAYER_LOG("read_repair_packet_history: Skipping empty packet for player %d turn %lu", header.player, (unsigned long)packet->turn);
+            MULTIPLAYER_LOG("read_repair_packet_history: Skipping empty packet for player %d turn %u", header.player, (uint32_t)packet->turn);
             continue;
         }
         store_packet_history(header.player, packet);
@@ -312,7 +312,7 @@ static TbBool host_lost(GameTurn turn, const char *state)
     if (netstate.my_id == SERVER_ID || netstate.users[SERVER_ID].progress != USER_UNUSED) {
         return false;
     }
-    MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Host disconnected while %s turn=%lu", state, (unsigned long)turn);
+    MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Host disconnected while %s turn=%u", state, (uint32_t)turn);
     netstate.seq_nbr += 1;
     return true;
 }
@@ -360,8 +360,8 @@ static void send_player_repair_history(PlayerNumber player)
     size_t message_size = (write_pos - netstate.msg_buffer) + compressed_size;
     if (netstate.my_id != SERVER_ID) {
         if (can_send_to_peer(SERVER_ID)) {
-            MULTIPLAYER_LOG("Sending unreliable compressed gameplay repair history for player=%d to host (%lu -> %lu bytes)",
-                (int)player, (unsigned long)packet_history_size, (unsigned long)compressed_size);
+            MULTIPLAYER_LOG("Sending unreliable compressed gameplay repair history for player=%d to host (%u -> %u bytes)",
+                (int)player, (uint32_t)packet_history_size, (uint32_t)compressed_size);
             netstate.sp->sendmsg_single_unsequenced(SERVER_ID, netstate.msg_buffer, message_size);
         }
         return;
@@ -370,8 +370,8 @@ static void send_player_repair_history(PlayerNumber player)
     if ((NetUserId)player != SERVER_ID) {
         skip_peer_id = (NetUserId)player;
     }
-    MULTIPLAYER_LOG("Sending unreliable compressed gameplay repair history for player=%d to clients (skip=%d) (%lu -> %lu bytes)",
-        (int)player, (int)skip_peer_id, (unsigned long)packet_history_size, (unsigned long)compressed_size);
+    MULTIPLAYER_LOG("Sending unreliable compressed gameplay repair history for player=%d to clients (skip=%d) (%u -> %u bytes)",
+        (int)player, (int)skip_peer_id, (uint32_t)packet_history_size, (uint32_t)compressed_size);
     send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, skip_peer_id, INVALID_USER_ID);
 }
 
@@ -398,7 +398,7 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Pla
     TbBool turn_complete = false;
     TbBool wait_timed_out = false;
     input_lag_note_packet_wait();
-    MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Missing packets for turn=%lu, collecting...", (unsigned long)expected_turn);
+    MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Missing packets for turn=%u, collecting...", (uint32_t)expected_turn);
     while (!turn_complete) {
         send_turn_sync_if_due();
         send_repair_history_if_due();
@@ -438,10 +438,10 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Pla
     }
     TbClockMSec wait_time = LbTimerClock() - wait_start_time;
     if (wait_timed_out) {
-        WARNLOG("LbNetwork_ExchangeGameplay: Timed out waiting for turn=%lu after %dms; continuing so resync can recover",
-            (unsigned long)expected_turn, (int32_t)wait_time);
+        WARNLOG("LbNetwork_ExchangeGameplay: Timed out waiting for turn=%u after %dms; continuing so resync can recover",
+            (uint32_t)expected_turn, (int32_t)wait_time);
     } else {
-        MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Completed wait for turn=%lu after %dms", (unsigned long)expected_turn, (int32_t)wait_time);
+        MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Completed wait for turn=%u after %dms", (uint32_t)expected_turn, (int32_t)wait_time);
     }
     netstate.seq_nbr += 1;
     return Lb_OK;

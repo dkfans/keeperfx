@@ -47,15 +47,15 @@ struct Boing {
   unsigned char creatures_tend_flee;
   unsigned short hand_over_subtile_x;
   unsigned short hand_over_subtile_y;
-  unsigned long chosen_room_kind;
-  unsigned long chosen_room_spridx;
-  unsigned long chosen_room_tooltip;
-  unsigned long chosen_spell_type;
-  unsigned long chosen_spell_spridx;
-  unsigned long chosen_spell_tooltip;
-  unsigned long manufactr_element;
-  unsigned long manufactr_spridx;
-  unsigned long manufactr_tooltip;
+  uint32_t chosen_room_kind;
+  uint32_t chosen_room_spridx;
+  uint32_t chosen_room_tooltip;
+  uint32_t chosen_spell_type;
+  uint32_t chosen_spell_spridx;
+  uint32_t chosen_spell_tooltip;
+  uint32_t manufactr_element;
+  uint32_t manufactr_spridx;
+  uint32_t manufactr_tooltip;
 };
 
 static struct Boing boing;
@@ -103,8 +103,8 @@ void animate_resync_progress_bar(int current_phase, int total_phases) {
     if ((game.operation_flags & GOF_Paused) != 0) {
         return;
     }
-    const long max_progress = (long)(32 * units_per_pixel / 16);
-    const long progress_pixels = (long)((double)max_progress * current_phase / total_phases);
+    const int32_t max_progress = (int32_t)(32 * units_per_pixel / 16);
+    const int32_t progress_pixels = (int32_t)((double)max_progress * current_phase / total_phases);
     draw_out_of_sync_box(progress_pixels, max_progress, status_panel_width);
 }
 

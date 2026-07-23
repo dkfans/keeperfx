@@ -85,7 +85,7 @@ enum ThingEffectKind {
     TngEff_DirtRubbleBig, // more dirt
     TngEff_ImpSpangleRed,
     TngEff_Drip4, // ice drip?
-    TngEff_Cloud, // super long cloud?
+    TngEff_Cloud, // super int32_t cloud?
     TngEff_HarmlessGas4, // super wide cloud?
     TngEff_GoldRubble1, // small gold coins
     TngEff_GoldRubble2,
@@ -274,7 +274,7 @@ struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmo
 
 TbBool thing_is_effect(const struct Thing *thing);
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner);
-struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, unsigned short range, unsigned short owner, long parent_idx);
+struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, unsigned short range, unsigned short owner, int32_t parent_idx);
 struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmodel, PlayerNumber owner);
 struct Thing* create_used_effect_or_element(const struct Coord3d* pos, EffectOrEffElModel effect_id, PlayerNumber plyr_idx, ThingIndex parent_idx);
 TngUpdateRet update_effect_element(struct Thing *thing);
@@ -282,17 +282,17 @@ TngUpdateRet update_effect(struct Thing *thing);
 TngUpdateRet process_effect_generator(struct Thing *thing);
 void process_spells_affected_by_effect_elements(struct Thing *thing);
 TbBool destroy_effect_thing(struct Thing *thing);
-struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price);
+struct Thing *create_price_effect(const struct Coord3d *pos, int32_t plyr_idx, int32_t price);
 void process_fx_lines();
-struct Thing *script_create_effect(struct Coord3d *pos, EffectOrEffElModel mdl, long val);
+struct Thing *script_create_effect(struct Coord3d *pos, EffectOrEffElModel mdl, int32_t val);
 void create_effects_line(TbMapLocation from, TbMapLocation to, char curvature, unsigned char spatial_stepping, unsigned char temporal_stepping, EffectOrEffElModel effct_id);
 
 TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hit_targets, PlayerNumber shot_owner);
-long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
-    HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets);
+int32_t explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
+    HitPoints max_damage, int32_t blow_strength, HitTargetFlags hit_targets);
     
 TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, PlayerNumber owner);    
+    MapCoordDelta max_dist, HitPoints max_damage, int32_t blow_strength, PlayerNumber owner);    
 /******************************************************************************/
 #ifdef __cplusplus
 }

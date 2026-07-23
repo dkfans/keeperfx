@@ -42,12 +42,12 @@ extern "C" {
 /******************************************************************************/
 
 struct AsianDraw {
-  unsigned long draw_char;
-  unsigned long bits_width;
-  unsigned long bits_height;
-  unsigned long character_spacing;
-  unsigned long vertical_offset;
-  unsigned long y_spacing;
+  uint32_t draw_char;
+  uint32_t bits_width;
+  uint32_t bits_height;
+  uint32_t character_spacing;
+  uint32_t vertical_offset;
+  uint32_t y_spacing;
   unsigned char *sprite_data;
 };
 
@@ -56,9 +56,9 @@ struct AsianDraw {
  * Values are signed to ease comparison with negative values.
  */
 struct AsianFontWindow {
-  long width;
-  long height;
-  long scanline;
+  int32_t width;
+  int32_t height;
+  int32_t scanline;
   unsigned char *buf_ptr;
 };
 
@@ -67,19 +67,19 @@ struct AsianFont {
   unsigned char *data;
   unsigned short *widths;
   unsigned int *offsets;
-  unsigned long height;
-  unsigned long narrow_spacing;
-  unsigned long wide_spacing;
-  unsigned long baseline_offset;
-  unsigned long line_spacing;
+  uint32_t height;
+  uint32_t narrow_spacing;
+  uint32_t wide_spacing;
+  uint32_t baseline_offset;
+  uint32_t line_spacing;
 };
 
 /******************************************************************************/
 
 #define DOUBLE_UNDERLINE_BOUND 16
 
-long dbc_colour0 = 0;
-long dbc_colour1 = 0;
+int32_t dbc_colour0 = 0;
+int32_t dbc_colour1 = 0;
 TbBool dbc_initialized = false;
 TbBool dbc_enabled = true;
 const struct TbSpriteSheet *lbFontPtr;
@@ -103,14 +103,14 @@ struct AsianFont dbcfonts[] = {
 /******************************************************************************/
 
 
-static long dbc_char_height(unsigned long chr)
+static int32_t dbc_char_height(uint32_t chr)
 {
     if (active_dbcfont == NULL)
         return 0;
     return active_dbcfont->height + active_dbcfont->line_spacing + active_dbcfont->baseline_offset;
 }
 
-static long dbc_char_width(unsigned long chr)
+static int32_t dbc_char_width(uint32_t chr)
 {
     if (chr > 0xFFFF || active_dbcfont == NULL || active_dbcfont->widths == NULL)
         return 0;
@@ -120,7 +120,7 @@ static long dbc_char_width(unsigned long chr)
 /** Returns if the given char starts a wide charcode.
  * @param chr
  */
-static TbBool is_duospace_char(unsigned long chr)
+static TbBool is_duospace_char(uint32_t chr)
 {
     if (chr < 0xFF)
         return false;
@@ -136,37 +136,37 @@ static TbBool is_duospace_char(unsigned long chr)
  * @param draw_colr
  * @param shadow_colr
  */
-static void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height, int units_per_px, uchar draw_colr, uchar shadow_colr)
+static void LbDrawCharUnderline(int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, int units_per_px, uchar draw_colr, uchar shadow_colr)
 {
     if (units_per_px < 1)
         units_per_px = 1;
     // The bound checks follow the original code, so use the unscaled height for them
-    long base_height = height * 16 / units_per_px;
+    int32_t base_height = height * 16 / units_per_px;
     // Stroke thickness scaled the same way the font sprites are
-    long thickness = ((base_height > DOUBLE_UNDERLINE_BOUND) ? 2 : 1) * units_per_px / 16;
+    int32_t thickness = ((base_height > DOUBLE_UNDERLINE_BOUND) ? 2 : 1) * units_per_px / 16;
     if (thickness < 1)
         thickness = 1;
-    long h = height;
-    long w = width;
+    int32_t h = height;
+    int32_t w = width;
     // Draw shadow
     if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
-        long shadow_off = ((base_height > 2*DOUBLE_UNDERLINE_BOUND) ? 2 : 1) * units_per_px / 16;
+        int32_t shadow_off = ((base_height > 2*DOUBLE_UNDERLINE_BOUND) ? 2 : 1) * units_per_px / 16;
         if (shadow_off < 1)
             shadow_off = 1;
-        long shadow_x = pos_x + shadow_off;
-        for (long i = 0; i < thickness; i++) {
+        int32_t shadow_x = pos_x + shadow_off;
+        for (int32_t i = 0; i < thickness; i++) {
             LbDrawHVLine(shadow_x, pos_y+h, shadow_x+w, pos_y+h, shadow_colr);
             h--;
         }
     }
     // Draw underline
-    for (long i = 0; i < thickness; i++) {
+    for (int32_t i = 0; i < thickness; i++) {
         LbDrawHVLine(pos_x, pos_y+h, pos_x+w, pos_y+h, draw_colr);
         h--;
     }
 }
 
-static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
+static int dbc_get_sprite_for_char(struct AsianDraw *adraw, uint32_t chr)
 {
     SYNCDBG(19,"Starting");
     if (adraw == NULL)
@@ -197,7 +197,7 @@ static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
     return 0;
 }
 
-static int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsigned char *src_buf,
+static int dbc_draw_font_sprite(unsigned char *dst_buf, int32_t dst_scanline, unsigned char *src_buf,
       unsigned short src_bitwidth, short start_x, short start_y, short width, short height,
       short colr1, short colr2)
 {
@@ -207,7 +207,7 @@ static int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsig
     if ((src_bitwidth & 7) != 0)
         src_scanline++;
     if (start_y != 0)
-        src_buf += src_scanline * (long)start_y;
+        src_buf += src_scanline * (int32_t)start_y;
     unsigned short src_val = 0;
     for (int y = height; y > 0; y--)
     {
@@ -240,15 +240,15 @@ static int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsig
 }
 
 static int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct AsianDraw *adraw,
-      long pos_x, long pos_y, short colr1, short colr2, short colr3)
+      int32_t pos_x, int32_t pos_y, short colr1, short colr2, short colr3)
 {
-    long scr_x;
-    long scr_y;
+    int32_t scr_x;
+    int32_t scr_y;
     unsigned char *dst_buf;
-    long width;
-    long height;
-    long x;
-    long y;
+    int32_t width;
+    int32_t height;
+    int32_t x;
+    int32_t y;
     SYNCDBG(19,"Starting");
     if ((adraw == NULL) || (awind == NULL))
       return 4;
@@ -272,7 +272,7 @@ static int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const 
         if (width > awind->width)
           width = awind->width;
       } else
-      if ((long) (scr_x + adraw->bits_width) > awind->width)
+      if ((int32_t) (scr_x + adraw->bits_width) > awind->width)
       {
         if (scr_x >= awind->width)
           goto skip_sprite_draw;
@@ -397,11 +397,11 @@ static void set_bit_to_array(unsigned char* arrD, int iX, int iY, int iMax, int 
         *(arrD + iBytePos) &= ~(0x80 >> iModBitPos);
 }
 
-static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *pos_x, long pos_y, long  int units_per_px)
+static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, int32_t *pos_x, int32_t pos_y, int32_t units_per_px)
 {
     SYNCDBG(19,"Got needs_draw");
     struct AsianDraw adraw;
-    unsigned long colour;
+    uint32_t colour;
     if (dbc_get_sprite_for_char(&adraw, chr) == 0)
     {
         if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) == 0)
@@ -466,7 +466,7 @@ static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *p
     return 0;
 }
 
-static int8_t draw_simpletext_char(uint32_t chr, long *pos_x, long pos_y, int units_per_px)
+static int8_t draw_simpletext_char(uint32_t chr, int32_t *pos_x, int32_t pos_y, int units_per_px)
 {
     const struct TbSprite *spr = LbFontCharSprite(lbFontPtr, chr);
     if (spr != NULL)
@@ -489,7 +489,7 @@ static int8_t draw_simpletext_char(uint32_t chr, long *pos_x, long pos_y, int un
     return 0;
 }
 
-static int8_t draw_char(uint32_t chr, struct AsianFontWindow *awind, long *pos_x, long pos_y, int units_per_px)
+static int8_t draw_char(uint32_t chr, struct AsianFontWindow *awind, int32_t *pos_x, int32_t pos_y, int units_per_px)
 {
     if ((dbc_initialized) && (dbc_enabled))
     {
@@ -511,11 +511,11 @@ static int8_t draw_char(uint32_t chr, struct AsianFontWindow *awind, long *pos_x
  * @param y
  * @param len
  */
-static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y, long space_len, int units_per_px)
+static void put_down_sprites(const char *sbuf, const char *ebuf, int32_t x, int32_t y, int32_t space_len, int units_per_px)
 {
   const char *c;
-  long w;
-  long h;
+  int32_t w;
+  int32_t h;
     struct AsianFontWindow awind;
     awind.buf_ptr = lbDisplay.GraphicsWindowPtr;
     awind.width = lbDisplay.GraphicsWindowWidth;
@@ -550,7 +550,7 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
     } else
     if (chr == '\t')
     {
-        w = space_len*(long)lbSpacesPerTab;
+        w = space_len*(int32_t)lbSpacesPerTab;
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
             h = LbTextLineHeight() * units_per_px / 16;
@@ -598,13 +598,13 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
  * @param units_per_px
  * @param text
  */
-long text_string_height(int units_per_px, const char *text)
+int32_t text_string_height(int units_per_px, const char *text)
 {
-    long nlines = 0;
+    int32_t nlines = 0;
     if (lbFontPtr == NULL)
       return 0;
-    long lnwidth_clip = lbTextJustifyWindow.x - lbTextClipWindow.x;
-    long lnwidth = lnwidth_clip;
+    int32_t lnwidth_clip = lbTextJustifyWindow.x - lbTextClipWindow.x;
+    int32_t lnwidth = lnwidth_clip;
     for (const char* pchr = text; *pchr != '\0'; )
     {
 
@@ -612,7 +612,7 @@ long text_string_height(int units_per_px, const char *text)
         uint32_t chr = read_utf_8_codepoint((const char *)pchr, &seq_len);
         pchr += seq_len;
 
-      long w;
+      int32_t w;
       if (chr > 32)
       {
           w = LbTextCharWidthM(chr, units_per_px);
@@ -679,22 +679,22 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
 {
     // Counter for amount of blank characters in a line
     const char *ebuf;
-    long x;
-    long y;
-    long len;
+    int32_t x;
+    int32_t y;
+    int32_t len;
     if ((lbFontPtr == NULL) || (text == NULL))
         return true;
     TbGraphicsWindow grwnd;
     LbScreenStoreGraphicsWindow(&grwnd);
     LbScreenLoadGraphicsWindow(&lbTextClipWindow);
-    long count = 0;
-    long justifyx = lbTextJustifyWindow.x - lbTextClipWindow.x;
-    long justifyy = lbTextJustifyWindow.y - lbTextClipWindow.y;
+    int32_t count = 0;
+    int32_t justifyx = lbTextJustifyWindow.x - lbTextClipWindow.x;
+    int32_t justifyy = lbTextJustifyWindow.y - lbTextClipWindow.y;
     posx += justifyx;
-    long startx = posx;
-    long starty = posy + justifyy;
+    int32_t startx = posx;
+    int32_t starty = posy + justifyy;
 
-    long h = LbTextLineHeight() * units_per_px / 16;
+    int32_t h = LbTextLineHeight() * units_per_px / 16;
     const char *draw_buffer = text;
 
     const char* sbuf = draw_buffer;
@@ -707,7 +707,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         uint32_t chr = read_utf_8_codepoint((const char *)ebuf, &seq_len);
         ebuf += seq_len;
 
-        long w;
+        int32_t w;
         if ((chr > 32))
         {
             // Align when ansi and unicode are mixed on one screen
@@ -896,7 +896,7 @@ int LbTextHeight(const char *text)
     }
 }
 
-static long dbc_char_widthM(unsigned long chr, long units_per_px)
+static int32_t dbc_char_widthM(uint32_t chr, int32_t units_per_px)
 {
     if (chr == 0 || active_dbcfont == NULL || active_dbcfont->widths == NULL)
     {
@@ -912,7 +912,7 @@ static long dbc_char_widthM(unsigned long chr, long units_per_px)
     return 0;
 }
 
-int LbTextCharWidthM(const uint32_t chr, long units_per_px)
+int LbTextCharWidthM(const uint32_t chr, int32_t units_per_px)
 {
     if ((dbc_initialized) && (dbc_enabled))
     {
@@ -1008,7 +1008,7 @@ unsigned char LbTextGetFontBackColor(void)
     }
 }
 
-int LbTextStringPartWidthM(const char *text, int part, long units_per_px)
+int LbTextStringPartWidthM(const char *text, int part, int32_t units_per_px)
 {
     if (lbFontPtr == NULL)
         return 0;
@@ -1076,7 +1076,7 @@ int LbTextStringWidth(const char *text)
     return LbTextStringPartWidth(text, INT_MAX);
 }
 
-int LbTextStringWidthM(const char *text, long units_per_px)
+int LbTextStringWidthM(const char *text, int32_t units_per_px)
 {
     if ((dbc_initialized) && (dbc_enabled))
     {
@@ -1095,7 +1095,7 @@ int LbTextStringWidthM(const char *text, long units_per_px)
  *
  * @param units_per_px Scale in pixels.
  */
-int LbTextWordWidthM(const char *str, long units_per_px)
+int LbTextWordWidthM(const char *str, int32_t units_per_px)
 {
     if (str == NULL || str[0] == 0)
         return 0;
@@ -1145,12 +1145,12 @@ int LbTextStringHeight(const char *str)
     return h*lines;
 }
 
-int LbTextNumberDraw(int pos_x, int pos_y, int units_per_px, long number, unsigned short fdflags)
+int LbTextNumberDraw(int pos_x, int pos_y, int units_per_px, int32_t number, unsigned short fdflags)
 {
     if (lbFontPtr == NULL)
       return 0;
     char text[16] = "";
-    snprintf(text, sizeof(text), "%ld", number);
+    snprintf(text, sizeof(text), "%d", number);
     int h = LbTextLineHeight() * units_per_px / 16;
     int w = LbTextStringWidthM(text, units_per_px);
     switch (fdflags & 0x03)
@@ -1268,9 +1268,9 @@ TbResult LbTextSetClipWindow(int pos_x, int pos_y, int width, int height)
  * Returns X coordinate for a text character on screen.
  * Takes into account the current text window and justification settings.
  */
-long LbGetJustifiedCharPosX(long startx, long all_chars_width, long spr_width, long mul_width, unsigned short fdflags)
+int32_t LbGetJustifiedCharPosX(int32_t startx, int32_t all_chars_width, int32_t spr_width, int32_t mul_width, unsigned short fdflags)
 {
-    long justifyx;
+    int32_t justifyx;
     if ((fdflags & Lb_TEXT_HALIGN_LEFT) != 0)
     {
         return startx;
@@ -1296,7 +1296,7 @@ long LbGetJustifiedCharPosX(long startx, long all_chars_width, long spr_width, l
  * Returns Y coordinate for a text character on screen.
  * Takes into account the current text window and justification settings.
  */
-long LbGetJustifiedCharPosY(long starty, long all_lines_height, long spr_height, unsigned short fdflags)
+int32_t LbGetJustifiedCharPosY(int32_t starty, int32_t all_lines_height, int32_t spr_height, unsigned short fdflags)
 {
     // No vertical justification supported - so the decision is simple
     return starty;
@@ -1306,12 +1306,12 @@ long LbGetJustifiedCharPosY(long starty, long all_lines_height, long spr_height,
  * Returns width for an empty space between words in text on screen.
  * Takes into account the current text window and justification settings.
  */
-long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_count, int units_per_px, unsigned short fdflags)
+int32_t LbGetJustifiedCharWidth(int32_t all_chars_width, int32_t spr_width, int32_t words_count, int units_per_px, unsigned short fdflags)
 {
     if ((fdflags & Lb_TEXT_HALIGN_JUSTIFY) != 0)
     {
-        long space_width = LbTextCharWidth(' ') * units_per_px / 16;
-        long justifyx = lbTextJustifyWindow.x - lbTextClipWindow.x;
+        int32_t space_width = LbTextCharWidth(' ') * units_per_px / 16;
+        int32_t justifyx = lbTextJustifyWindow.x - lbTextClipWindow.x;
         if (words_count > 0)
             return spr_width + (lbTextJustifyWindow.width + justifyx + space_width - all_chars_width) / words_count;
         return spr_width;
@@ -1440,10 +1440,12 @@ static short load_unifont_file(struct AsianFont * dbcfont)
     if ( !LbFileExists(fpath) )
     {
         fpath = prepare_file_fmtpath(FGrp_FxData, "%s.fxfont", dbcfont->fname);
-
+        if(!LbFileExists(fpath))
+	ERRORLOG("Unifont file path \"%s\" doesn't exist", fpath);
+	return 1;
     }
 
-    long filelen = LbFileLength(fpath);
+    int32_t filelen = LbFileLength(fpath);
     if (filelen < UNIFONT_INDEX_COUNT * UNIFONT_INDEX_SIZE)
     {
         ERRORLOG("Unifont file \"%s\" is too small or doesn't exist", fpath);
@@ -1455,7 +1457,7 @@ static short load_unifont_file(struct AsianFont * dbcfont)
         ERRORLOG("Can't open unifont file \"%s\"", fpath);
         return 1;
     }
-    long index_bytes = UNIFONT_INDEX_COUNT * UNIFONT_INDEX_SIZE;
+    int32_t index_bytes = UNIFONT_INDEX_COUNT * UNIFONT_INDEX_SIZE;
     unsigned char *index_buf = (unsigned char *)malloc(index_bytes);
     if (index_buf == NULL)
     {
@@ -1470,7 +1472,7 @@ static short load_unifont_file(struct AsianFont * dbcfont)
         LbFileClose(fhandle);
         return 3;
     }
-    long data_len = filelen - index_bytes;
+    int32_t data_len = filelen - index_bytes;
     unsigned char *data_buf = (unsigned char *)malloc(data_len > 0 ? data_len : 1);
     if (data_buf == NULL)
     {
@@ -1510,8 +1512,8 @@ static short load_unifont_file(struct AsianFont * dbcfont)
         if (widths[i] != 0)
         {
             unsigned int row_bytes = (widths[i] + 7) >> 3;
-            unsigned long max_offset = offsets[i] + row_bytes * dbcfont->height;
-            if ((long)max_offset > data_len)
+            uint32_t max_offset = offsets[i] + row_bytes * dbcfont->height;
+            if ((int32_t)max_offset > data_len)
             {
                 ERRORLOG("Invalid unifont offset for codepoint %u", i);
                 free(index_buf);

@@ -94,7 +94,7 @@ TbBool luaL_isPlayer(lua_State *L, int index)
 /************    Inputs   **************************************************************************/
 /***************************************************************************************************/
 
-long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
+int32_t luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
 {
     if (lua_isnumber(L, index))
     {
@@ -103,7 +103,7 @@ long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * 
     else if(lua_isstring(L, index))
     {
         const char* text = lua_tostring(L, index);
-        long id = get_rid(commanddesc, text);
+        int32_t id = get_rid(commanddesc, text);
 
         luaL_argcheck(L,id != -1,index,"unrecognized command");
 
@@ -113,14 +113,14 @@ long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * 
     return 0;
 }
 
-long luaL_optCheckinteger(lua_State* L, int index)
+int32_t luaL_optCheckinteger(lua_State* L, int index)
 {
     if (lua_isnone(L, index))
         return 0;
     return luaL_checkinteger(L, index);
 }
 
-long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
+int32_t luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
 {
     if (lua_isnone(L,index))
         return 0;
@@ -194,7 +194,7 @@ TbMapLocation luaL_checkLocation(lua_State *L, int index)
     if (luaL_isPlayer(L, index))
     {
         PlayerNumber playerId = luaL_checkPlayerSingle(L,index);
-        return  ((unsigned long)playerId << 4) | MLoc_PLAYERSHEART;
+        return  ((uint32_t)playerId << 4) | MLoc_PLAYERSHEART;
     }
     else if (lua_istable(L, index)) {
         lua_getfield(L, index, "stl_x");
@@ -226,7 +226,7 @@ TbMapLocation luaL_optLocation(lua_State *L, int index)
 TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index)
 {
     const char* locname = lua_tostring(L, index);
-    long target = luaL_checkNamedCommand(L, index + 1,head_for_desc);
+    int32_t target = luaL_checkNamedCommand(L, index + 1,head_for_desc);
 
 
     TbMapLocation location;
@@ -259,7 +259,7 @@ struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
 {
     struct PlayerRange playerRange = {0,0};
 
-    long plr_range_id = luaL_checkPlayerRangeId(L,index);
+    int32_t plr_range_id = luaL_checkPlayerRangeId(L,index);
 
     if (plr_range_id == ALL_PLAYERS)
     {
@@ -298,7 +298,7 @@ PlayerNumber luaL_optPlayerSingle(lua_State *L, int index)
 
 MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
 {
-    MapSubtlCoord stl_x = luaL_checkint(L,index);
+    MapSubtlCoord stl_x = luaL_checkinteger(L,index);
     luaL_argcheck(L, 0 <= stl_x && stl_x <= game.map_subtiles_x, index,
                        "x subtile coord out of range");
     return stl_x;
@@ -306,7 +306,7 @@ MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
 
 MapSubtlCoord luaL_checkstl_y(lua_State *L, int index)
 {
-    MapSubtlCoord stl_y = luaL_checkint(L,index);
+    MapSubtlCoord stl_y = luaL_checkinteger(L,index);
     luaL_argcheck(L, 0 <= stl_y && stl_y <= game.map_subtiles_y, index,
                        "y subtile coord out of range");
     return stl_y;
@@ -314,7 +314,7 @@ MapSubtlCoord luaL_checkstl_y(lua_State *L, int index)
 
 MapSlabCoord luaL_checkslb_x(lua_State *L, int index)
 {
-    MapSlabCoord slb_x = luaL_checkint(L,index);
+    MapSlabCoord slb_x = luaL_checkinteger(L,index);
     luaL_argcheck(L, 0 <= slb_x && slb_x <= game.map_tiles_x, index,
                        "x slab coord out of range");
     return slb_x;
@@ -322,7 +322,7 @@ MapSlabCoord luaL_checkslb_x(lua_State *L, int index)
 
 MapSlabCoord luaL_checkslb_y(lua_State *L, int index)
 {
-    MapSlabCoord slb_y = luaL_checkint(L,index);
+    MapSlabCoord slb_y = luaL_checkinteger(L,index);
     luaL_argcheck(L, 0 <= slb_y && slb_y <= game.map_tiles_y, index,
                        "y slab coord out of range");
     return slb_y;
@@ -330,7 +330,7 @@ MapSlabCoord luaL_checkslb_y(lua_State *L, int index)
 
 ActionPointId luaL_checkActionPoint(lua_State *L, int index)
 {
-    int apt_num = luaL_checkint(L,index);
+    int apt_num = luaL_checkinteger(L,index);
     ActionPointId apt_idx = action_point_number_to_index(apt_num);
     if (!action_point_exists_idx(apt_idx))
     {
@@ -341,7 +341,7 @@ ActionPointId luaL_checkActionPoint(lua_State *L, int index)
 
 unsigned char luaL_checkCrtLevel(lua_State *L, int index)
 {
-    MapSubtlCoord crtr_level = luaL_checkint(L,index);
+    MapSubtlCoord crtr_level = luaL_checkinteger(L,index);
 
     luaL_argcheck(L, (crtr_level > 0) && (crtr_level <= CREATURE_MAX_LEVEL), index,
                        "Invalid CREATURE LEVEL parameter");
@@ -403,7 +403,7 @@ EffectOrEffElModel luaL_checkEffectOrEffElModel(lua_State *L, int index)
     else if(lua_isstring(L, index))
     {
         const char* text = lua_tostring(L, index);
-        long id = effect_or_effect_element_id(text);
+        int32_t id = effect_or_effect_element_id(text);
 
         luaL_argcheck(L,id != 0,index,"invalid effect option");
 
@@ -413,7 +413,7 @@ EffectOrEffElModel luaL_checkEffectOrEffElModel(lua_State *L, int index)
     return 0;
 }
 
-long luaL_checkCreature_or_creature_wildcard(lua_State *L, int index)
+int32_t luaL_checkCreature_or_creature_wildcard(lua_State *L, int index)
 {
     if (lua_isnumber(L, index))
     {
@@ -422,7 +422,7 @@ long luaL_checkCreature_or_creature_wildcard(lua_State *L, int index)
     else if(lua_isstring(L, index))
     {
         const char* text = lua_tostring(L, index);
-        long id = get_rid(creature_desc, text);
+        int32_t id = get_rid(creature_desc, text);
 
         if (0 == strcasecmp(text, "ANY_CREATURE"))
         {
@@ -438,9 +438,9 @@ long luaL_checkCreature_or_creature_wildcard(lua_State *L, int index)
 
 }
     
-long luaL_checkIntMinMax(lua_State *L, int index,long min, long max)
+int32_t luaL_checkIntMinMax(lua_State *L, int index,int32_t min, int32_t max)
 {
-    long val = luaL_checkinteger(L,index);
+    int32_t val = luaL_checkinteger(L,index);
     luaL_argcheck(L, min <= val && val <= max, index, "value out of range");
     return val;
 }
@@ -489,7 +489,7 @@ struct Room* luaL_checkRoom(lua_State *L, int idx)
     struct Room* room = room_get(room_idx);
     if ((room->alloc_flags & RoF_Allocated) == 0)
     {
-        luaL_argerror(L, idx, "Room no longer exists");
+        luaL_argerror(L, idx, "Room no int32_ter exists");
         return INVALID_ROOM;
     }
 
@@ -525,7 +525,7 @@ void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos)
     return;
 }
 
-long luaL_checkAnimationId(lua_State* L, int index)
+int32_t luaL_checkAnimationId(lua_State* L, int index)
 {
     if (lua_isnumber(L, index))
     {
@@ -534,7 +534,7 @@ long luaL_checkAnimationId(lua_State* L, int index)
     else if (lua_isstring(L, index))
     {
         const char* text = lua_tostring(L, index);
-        long id = get_anim_id_(text);
+        int32_t id = get_anim_id_(text);
 
         luaL_argcheck(L, id != -1, index, "unrecognized command");
 
@@ -656,8 +656,8 @@ void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
 //pushes a table of all the creatures in the party onto the stack
 void lua_pushPartyTable(lua_State *L, struct Thing* thing) {
     lua_newtable(L);
-    long i = thing->index;
-    long k = 0;
+    int32_t i = thing->index;
+    int32_t k = 0;
     while (i != 0)
     {
         thing = thing_get(i);

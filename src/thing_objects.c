@@ -63,9 +63,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static long food_moves(struct Thing *objtng);
-static long food_grows(struct Thing *objtng);
-static long object_being_dropped(struct Thing *objtng);
+static int32_t food_moves(struct Thing *objtng);
+static int32_t food_grows(struct Thing *objtng);
+static int32_t object_being_dropped(struct Thing *objtng);
 static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng);
 static TngUpdateRet object_update_call_to_arms(struct Thing *objtng);
 static TngUpdateRet object_update_armour(struct Thing *objtng);
@@ -112,7 +112,7 @@ unsigned short food_grow_objects[] = {ObjMdl_ChickenStb, ObjMdl_ChickenWob, ObjM
 struct CallToArmsGraphics call_to_arms_graphics[10];
 
 /******************************************************************************/
-struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigned short owner, long parent_idx)
+struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigned short owner, int32_t parent_idx)
 {
     char start_frame;
 
@@ -640,7 +640,7 @@ TbBool delete_lair_totem(struct Thing *lairtng)
     return true;
 }
 
-static long food_moves(struct Thing *objtng)
+static int32_t food_moves(struct Thing *objtng)
 {
     struct Coord3d pos;
     pos.x.val = objtng->mappos.x.val;
@@ -770,7 +770,7 @@ static long food_moves(struct Thing *objtng)
         {
             objtng->food.angle = THING_RANDOM(objtng, ANGLE_MASK);
         }
-        long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.angle);
+        int32_t dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.angle);
         int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.angle);
         if (dangle > 62)
             dangle = 62;
@@ -806,7 +806,7 @@ static long food_moves(struct Thing *objtng)
     return TUFRet_Modified;
 }
 
-static long food_grows(struct Thing *objtng)
+static int32_t food_grows(struct Thing *objtng)
 {
     if (objtng->food.life_remaining > 0)
     {
@@ -817,7 +817,7 @@ static long food_grows(struct Thing *objtng)
     pos.x.val = objtng->mappos.x.val;
     pos.y.val = objtng->mappos.y.val;
     pos.z.val = objtng->mappos.z.val;
-    long ret = TUFRet_Unchanged;
+    int32_t ret = TUFRet_Unchanged;
     PlayerNumber tngowner = objtng->owner;
     struct Thing* nobjtng;
     struct Room* room = subtile_room_get(pos.x.stl.num, pos.y.stl.num);
@@ -904,8 +904,8 @@ GoldAmount gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room
         MapSlabCoord slb_y = coord_slab(thing->mappos.y.val);
         gold_store = add_gold_to_treasure_room_slab(slb_x, slb_y, gold_store);
     }
-    unsigned long k;
-    long n = THING_RANDOM(thing, room->slabs_count);
+    uint32_t k;
+    int32_t n = THING_RANDOM(thing, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -970,7 +970,7 @@ TbBool temple_check_for_arachnid_join_dungeon(struct Dungeon *dungeon)
     return false;
 }
 
-long process_temple_special(struct Thing *thing, long sacowner)
+int32_t process_temple_special(struct Thing *thing, int32_t sacowner)
 {
     struct Dungeon* dungeon = get_dungeon(sacowner);
     if (object_is_mature_food(thing))
@@ -985,7 +985,7 @@ long process_temple_special(struct Thing *thing, long sacowner)
     return false;
 }
 
-void process_object_sacrifice(struct Thing *thing, long sacowner)
+void process_object_sacrifice(struct Thing *thing, int32_t sacowner)
 {
     PlayerNumber slbowner;
     {
@@ -1041,8 +1041,8 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
 struct Thing *find_base_thing_on_mapwho_excluding_self(struct Thing *thing)
 {
     struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* result = thing_get(i);
@@ -1070,7 +1070,7 @@ struct Thing *find_base_thing_on_mapwho_excluding_self(struct Thing *thing)
     return INVALID_THING;
 }
 
-static long object_being_dropped(struct Thing *thing)
+static int32_t object_being_dropped(struct Thing *thing)
 {
     if (!thing_touching_floor(thing)) {
         return TUFRet_Modified;
@@ -1124,18 +1124,18 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         ERRORLOG("Trying to beat non-existing heart");
         return;
     }
-    const long base_heart_beat_rate = 2304;
-    static long bounce = 0;
+    const int32_t base_heart_beat_rate = 2304;
+    static int32_t bounce = 0;
     if (heartng->active_state != ObSt_BeingDestroyed)
     {
-        long i = (char)heartng->heart.beat_direction;
+        int32_t i = (char)heartng->heart.beat_direction;
         heartng->anim_speed = 0;
 
         struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
-        long long k = 1;
+        int64_t k = 1;
         if (objst->health != 0)
         {
-            k = 384 * (long)(objst->health - heartng->health) / objst->health;
+            k = 384 * (int32_t)(objst->health - heartng->health) / objst->health;
         }
         if ((k + 128) > 0)
         {
@@ -1169,7 +1169,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
                 bounce = !bounce;
             }
         }
-        k = (((unsigned long long)heartng->anim_time >> 32) & 0xFF) + heartng->anim_time;
+        k = (((uint64_t)heartng->anim_time >> 32) & 0xFF) + heartng->anim_time;
         heartng->current_frame = k >> 8;
         if (LbIsFrozenOrPaused())
         {
@@ -1209,11 +1209,11 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         }
         if (objst->health > 0) //prevent divide by 0 crash
         {
-            long long k = ((heartng->health << 8) / objst->health) << 7;
-            long i = (saturate_set_signed(k, 32) >> 8) + 128;
-            heartng->sprite_size = i * (long)objst->sprite_size_max >> 8;
-            heartng->solid_size_xy = i * (long)objst->size_xy >> 8;
-            heartng->solid_size_z = i * (long)objst->size_z >> 8;
+            int64_t k = ((heartng->health << 8) / objst->health) << 7;
+            int32_t i = (saturate_set_signed(k, 32) >> 8) + 128;
+            heartng->sprite_size = i * (int32_t)objst->sprite_size_max >> 8;
+            heartng->solid_size_xy = i * (int32_t)objst->size_xy >> 8;
+            heartng->solid_size_z = i * (int32_t)objst->size_z >> 8;
             heartng->clipbox_size_z = heartng->solid_size_z;
         }
     }
@@ -1465,7 +1465,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
         objtng->move_angle_xy = get_angle_xy_to(&objtng->mappos, &pos);
         objtng->move_angle_z = get_angle_yz_to(&objtng->mappos, &pos);
         angles_to_vector(objtng->move_angle_xy, objtng->move_angle_z, 32, &cvect);
-        long cvect_len = LbSqrL(cvect.x * cvect.x + cvect.z * cvect.z + cvect.y * cvect.y);
+        int32_t cvect_len = LbSqrL(cvect.x * cvect.x + cvect.z * cvect.z + cvect.y * cvect.y);
         if (cvect_len > 128)
         {
           pos.x.val = (cvect.x << 7) / cvect_len;
@@ -1630,9 +1630,9 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
 static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
 {
     objtng->health = 2;
-    unsigned long exist_turns = get_gameturn() - objtng->creation_turn;
-    long variation = NUM_ANGLES * exist_turns;
-    for (long i = 0; i < NUM_ANGLES; i++)
+    uint32_t exist_turns = get_gameturn() - objtng->creation_turn;
+    int32_t variation = NUM_ANGLES * exist_turns;
+    for (int32_t i = 0; i < NUM_ANGLES; i++)
     {
         int angle = (variation % NUM_ANGLES) * DEGREES_360 / NUM_ANGLES;
         struct Coord3d pos;
@@ -1667,7 +1667,7 @@ static TbBool find_free_position_on_slab(struct Thing* thing, struct Coord3d* po
     MapSubtlCoord start_stl = THING_RANDOM(thing, AROUND_TILES_COUNT);
     int nav_sizexy = subtile_coord(thing_nav_block_sizexy(thing), 0);
 
-    for (long nround = 0; nround < AROUND_TILES_COUNT; nround++)
+    for (int32_t nround = 0; nround < AROUND_TILES_COUNT; nround++)
     {
         MapSubtlCoord x = start_stl % 3 + thing->mappos.x.stl.num;
         MapSubtlCoord y = start_stl / 3 + thing->mappos.y.stl.num;
@@ -1704,7 +1704,7 @@ TngUpdateRet move_object(struct Thing *thing)
     {
         if ((!move_allowed) || thing_in_wall_at(thing, &pos))
         {
-            long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+            int32_t blocked_flags = get_thing_blocked_flags_at(thing, &pos);
             if (blocked_flags & SlbBloF_WalledZ)
             {
                 TbBool is_sight_of_evil = false;
@@ -1720,7 +1720,7 @@ TngUpdateRet move_object(struct Thing *thing)
                 {
                     if (!find_free_position_on_slab(thing, &pos))
                     {
-                        SYNCDBG(7, "Found no free position next to (%d,%d) due to blocked flag %ld. Move to valid position.",
+                        SYNCDBG(7, "Found no free position next to (%d,%d) due to blocked flag %d. Move to valid position.",
                             pos.x.val, pos.y.val, blocked_flags);
                         move_creature_to_nearest_valid_position(thing);
                     }
@@ -1826,7 +1826,7 @@ TngUpdateRet update_object(struct Thing *thing)
  * @param parent_idx Slab number associated with the flag.
  * @return object thing.
  */
-struct Thing *create_coloured_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx, ThingModel base_model)
+struct Thing *create_coloured_object(const struct Coord3d *pos, PlayerNumber plyr_idx, int32_t parent_idx, ThingModel base_model)
 {
     ThingModel model = get_player_colored_object_model(base_model,plyr_idx);
     if (model <= 0)
@@ -1838,7 +1838,7 @@ struct Thing *create_coloured_object(const struct Coord3d *pos, PlayerNumber ply
     return thing;
 }
 
-struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
+struct Thing *create_gold_pot_at(int32_t pos_x, int32_t pos_y, PlayerNumber plyr_idx)
 {
     struct Coord3d pos;
     pos.x.val = pos_x;
@@ -1889,7 +1889,7 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
  */
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
-    long wealth_size_holds = game.conf.rules[0].gameplay.gold_per_hoard / get_wealth_size_types_count();
+    int32_t wealth_size_holds = game.conf.rules[0].gameplay.gold_per_hoard / get_wealth_size_types_count();
     int wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
     if (wealth_size > get_wealth_size_types_count()) {
         WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
@@ -1933,7 +1933,7 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
     struct Thing* thing = INVALID_THING;
     GoldAmount wealth_size_holds = game.conf.rules[room->owner].gameplay.gold_per_hoard / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
-        ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
+        ERRORLOG("Attempt to create a gold hoard with %d gold", (int32_t)value);
         return thing;
     }
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
@@ -1979,8 +1979,8 @@ GoldAmount add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmoun
     // Remove prev wealth size
     int wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     if (wealth_size > room->used_capacity) {
-        ERRORLOG("Room %s index %d has used capacity %d but stores gold hoard index %d of wealth size %d (%ld gold)",
-            room_code_name(room->kind),(int)room->index,(int)room->used_capacity,(int)gldtng->index,(int)wealth_size,(long)gldtng->valuable.gold_stored);
+        ERRORLOG("Room %s index %d has used capacity %d but stores gold hoard index %d of wealth size %d (%d gold)",
+            room_code_name(room->kind),(int)room->index,(int)room->used_capacity,(int)gldtng->index,(int)wealth_size,(int32_t)gldtng->valuable.gold_stored);
         wealth_size = room->used_capacity;
     }
     room->used_capacity -= wealth_size;
@@ -2023,8 +2023,8 @@ GoldAmount remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, Gold
     // Remove prev wealth size
     int wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     if (wealth_size > room->used_capacity) {
-        ERRORLOG("Room %s index %d has used capacity %d but stores gold hoard index %d of wealth size %d (%ld gold)",
-            room_code_name(room->kind),(int)room->index,(int)room->used_capacity,(int)gldtng->index,(int)wealth_size,(long)gldtng->valuable.gold_stored);
+        ERRORLOG("Room %s index %d has used capacity %d but stores gold hoard index %d of wealth size %d (%d gold)",
+            room_code_name(room->kind),(int)room->index,(int)room->used_capacity,(int)gldtng->index,(int)wealth_size,(int32_t)gldtng->valuable.gold_stored);
         wealth_size = room->used_capacity;
     }
     room->used_capacity -= wealth_size;
@@ -2067,9 +2067,9 @@ TbBool thing_is_gold_hoard(const struct Thing *thing)
 
 struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    unsigned long k = 0;
+    uint32_t k = 0;
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    long i = get_mapwho_thing_index(mapblk);
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -2122,9 +2122,9 @@ GoldAmount gold_object_typical_value(struct Thing *thing)
  * @param value
  * @return
  */
-TbBool add_gold_to_pile(struct Thing *thing, long value)
+TbBool add_gold_to_pile(struct Thing *thing, int32_t value)
 {
-    long scaled_val;
+    int32_t scaled_val;
     if (thing_is_invalid(thing)) {
         return false;
     }
@@ -2149,7 +2149,7 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     return true;
 }
 
-struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, long value)
+struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, int32_t value)
 {
     struct Thing* gldtng = create_object(pos, ObjMdl_Goldl, plyr_idx, -1);
     if (thing_is_invalid(gldtng)) {
@@ -2160,7 +2160,7 @@ struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, long 
     return gldtng;
 }
 
-struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
+struct Thing *drop_gold_pile(int32_t value, struct Coord3d *pos)
 {
     struct Thing* thing = smallest_gold_pile_at_xy(pos->x.stl.num, pos->y.stl.num);
     if (thing_is_invalid(thing)) {

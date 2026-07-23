@@ -68,7 +68,7 @@
 extern TbBool force_player_num;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
-extern unsigned long features_enabled;
+extern uint32_t features_enabled;
 
 extern void setup_players_count();
 extern void set_skip_heart_zoom_feature(TbBool enable);
@@ -482,7 +482,7 @@ void init_seeds()
 #endif
     {
         // Unsynced seeds - these values will be different per-player in multiplayer
-        unsigned long calender_time = (unsigned long)LbTimeSec();
+        uint32_t calender_time = (uint32_t)LbTimeSec();
         game.unsync_random_seed = calender_time * 9007 + 9011;  // Use prime multipliers for different seeds
         game.sound_random_seed = calender_time * 7919 + 7927;
 

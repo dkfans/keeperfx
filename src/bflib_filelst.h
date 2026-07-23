@@ -39,7 +39,7 @@ struct TbLoadFiles {
         char FName[DISKPATH_SIZE];
         unsigned char **Start;
         unsigned char **SEnd;
-        unsigned long SLength;
+        uint32_t SLength;
         unsigned short Flags;
         unsigned short Spare;
 };
@@ -47,7 +47,7 @@ struct TbLoadFiles {
 struct TbLoadFilesV2 {
     char FName[DISKPATH_SIZE];
     unsigned char **Start;
-    unsigned long SLength; // Actual size of data in memory
+    uint32_t SLength; // Actual size of data in memory
     LoadFilesGetSizeFunc GetSizeFunc;
     LoadFilesUnpackFunc UnpackFunc;
 };

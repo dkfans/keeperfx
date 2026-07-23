@@ -87,8 +87,8 @@ void frontnet_join_game_maintain(struct GuiButton *gbtn)
 
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
 {
-    long plyr_idx1;
-    long plyr_idx2;
+    int32_t plyr_idx1;
+    int32_t plyr_idx2;
     plyr_idx1 = gbtn->btype_value & LbBFeF_IntValueMask;
     plyr_idx2 = gbtn->content.lval - 74;
     if ( plyr_idx2 >= net_number_of_enum_players || net_number_of_enum_players <= plyr_idx1 || plyr_idx2 == plyr_idx1 )
@@ -154,8 +154,8 @@ void frontnet_draw_text_bar(struct GuiButton *gbtn)
 {
     const struct TbSprite *spr;
     int i;
-    long pos_x;
-    long pos_y;
+    int32_t pos_x;
+    int32_t pos_y;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
     int fs_units_per_px;
@@ -221,7 +221,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
     fs_units_per_px = gbtn->height * 16 / (2*(spr->SHeight*13/8));
     int height;
     height = LbTextLineHeight() * tx_units_per_px / 16;
-    long netplyr_idx;
+    int32_t netplyr_idx;
     int shift_y;
     netplyr_idx = net_player_scroll_offset;
     for (shift_y=0; shift_y < gbtn->height; shift_y += height, netplyr_idx++)
@@ -247,7 +247,7 @@ void frontnet_session_add(struct GuiButton *gbtn)
 
 void frontnet_session_join(struct GuiButton *gbtn)
 {
-    long plyr_num;
+    int32_t plyr_num;
     if (!frontnet_can_join_session())
         return;
     plyr_num = network_session_join();
@@ -341,7 +341,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
     LbTextSetFont(frontend_font[i]);
     int height;
     height = 0;
-    long netplyr_idx;
+    int32_t netplyr_idx;
     int shift_y;
     netplyr_idx = net_player_scroll_offset;
     int tx_units_per_px;
@@ -358,7 +358,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         if (netplyr_idx >= net_number_of_enum_players)
             break;
 
-        long subplyr_idx;
+        int32_t subplyr_idx;
         for (subplyr_idx = 0; subplyr_idx < net_number_of_enum_players; subplyr_idx++)
         {
             if (subplyr_idx >= MAX_NET_USERS)
@@ -374,12 +374,12 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y + shift_y + abs(i)/2, fs_units_per_px, spr);
 
         char player_text[128];
-        unsigned long ping = 0;
+        uint32_t ping = 0;
         if (netplyr_idx != my_player_number) {
             ping = GetPing(netplyr_idx);
         }
         if (ping > 0) {
-            snprintf(player_text, sizeof(player_text), "%s - %lums", text, ping);
+            snprintf(player_text, sizeof(player_text), "%s - %ums", text, ping);
         } else {
             snprintf(player_text, sizeof(player_text), "%s", text);
         }
@@ -490,8 +490,8 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
     int units_per_px;
     units_per_px = (gbtn->width * 16 + 240/2) / 240;
 
-    long pos_x;
-    long pos_y;
+    int32_t pos_x;
+    int32_t pos_y;
     const struct TbSprite *spr;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
@@ -516,7 +516,7 @@ void frontnet_draw_messages_scroll_tab(struct GuiButton *gbtn)
     frontend_draw_scroll_tab(gbtn, net_message_scroll_offset, 0, net_number_of_messages);
 }
 
-void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, long font_idx, const char *text)
+void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, int32_t font_idx, const char *text)
 {
     const struct TbSprite * spr;
     int pos_x;

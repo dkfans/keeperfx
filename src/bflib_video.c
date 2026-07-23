@@ -43,7 +43,7 @@ extern "C" {
 /** List of registered video modes. */
 TbScreenModeInfo lbScreenModeInfo[SCREEN_MODES_COUNT];
 /** Count of used entries in registered video modes list. */
-long lbScreenModeInfoNum = 0;
+int32_t lbScreenModeInfoNum = 0;
 
 /** Informs if Video Screen subsystem initialization was done. */
 volatile TbBool lbScreenInitialised = false;
@@ -65,7 +65,7 @@ SDL_Color lbPaletteColors[PALETTE_COLORS];
 
 char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
-volatile unsigned long lbIconIndex = 0;
+volatile uint32_t lbIconIndex = 0;
 SDL_Window *lbWindow = NULL;
 
 TbDisplayStruct lbDisplay;
@@ -89,7 +89,7 @@ unsigned short display_id = 0;
 static unsigned char fade_started;
 static unsigned char from_pal[PALETTE_SIZE];
 static unsigned char to_pal[PALETTE_SIZE];
-static long fade_count;
+static int32_t fade_count;
 
 /******************************************************************************/
 void *LbExeReferenceNumber(void)
@@ -235,7 +235,7 @@ TbScreenCoord LbScreenHeight(void)
     return lbDisplay.PhysicalScreenHeight;
 }
 
-TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette,long fade_steps)
+TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette,int32_t fade_steps)
 {
     unsigned char palette[PALETTE_SIZE];
     for (int i = 0; i < 3 * PALETTE_COLORS; i += 3)
@@ -263,9 +263,9 @@ TbResult LbPaletteStopOpenFade(void)
     return Lb_SUCCESS;
 }
 
-long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg)
+int32_t LbPaletteFade(unsigned char *pal, int32_t fade_steps, enum TbPaletteFadeFlag flg)
 {
-    long errors_num = 0;
+    int32_t errors_num = 0;
     if (flg == Lb_PALETTE_FADE_CLOSED)
     {
         // Finish the fading fast
@@ -693,7 +693,7 @@ TbResult LbPaletteSet(unsigned char *palette)
     if ((destColors == NULL) || (srcColors == NULL))
       return Lb_FAIL;
     TbResult ret = Lb_SUCCESS;
-    for (unsigned long i = 0; i < PALETTE_COLORS; i++)
+    for (uint32_t i = 0; i < PALETTE_COLORS; i++)
     {
         // note that bufColors and srcColors could be the same pointer
         bufColors[0] = srcColors[0] & 0x3F;
@@ -730,8 +730,8 @@ TbResult LbPaletteGet(unsigned char *palette)
     //
     const SDL_Color * srcColors;
     unsigned char * destColors;
-    unsigned long i;
-    unsigned long colours_num;
+    uint32_t i;
+    uint32_t colours_num;
     colours_num = lbDrawSurface->format->palette->ncolors;
     if (colours_num > PALETTE_COLORS) {
         colours_num = PALETTE_COLORS;
@@ -834,11 +834,11 @@ TbResult LbScreenLoadGraphicsWindow(TbGraphicsWindow *grwnd)
   return Lb_SUCCESS;
 }
 
-TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
+TbResult LbScreenSetGraphicsWindow(int32_t x, int32_t y, int32_t width, int32_t height)
 {
-    long i;
-    long right_edge = x + width;
-    long bottom_edge = y + height;
+    int32_t i;
+    int32_t right_edge = x + width;
+    int32_t bottom_edge = y + height;
     if (right_edge < x)  //Alarm! Voodoo magic detected!
     {
         i = (x ^ right_edge);
@@ -926,7 +926,7 @@ TbScreenMode LbRecogniseVideoModeString(const char *desc)
 }
 
 TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreenCoord height,
-    unsigned short bpp, unsigned long flags)
+    unsigned short bpp, uint32_t flags)
 {
     TbScreenModeInfo *mdinfo;
     TbScreenMode mode = LbRecogniseVideoModeString(desc);
@@ -1003,7 +1003,7 @@ TbScreenMode LbRegisterVideoModeString(const char *desc)
     int width;
     int height;
     int bpp;
-    unsigned long flags;
+    uint32_t flags;
     int ret = 0;
     // check for the special "span all displays" mode
     if (strncasecmp(desc, "ALL", 3) == 0)
@@ -1157,10 +1157,10 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
  *
  * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current resolution
  */
-long scale_value_for_resolution(long base_value)
+int32_t scale_value_for_resolution(int32_t base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel /16)
-    long value = ((((units_per_pixel * base_value) >> 3) + (((units_per_pixel * base_value) >> 3) & 1)) >> 1);
+    int32_t value = ((((units_per_pixel * base_value) >> 3) + (((units_per_pixel * base_value) >> 3) & 1)) >> 1);
     return max(1,value);
 }
 
@@ -1171,9 +1171,9 @@ long scale_value_for_resolution(long base_value)
  * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current resolution
  * @param units_per_px The current units_per_px value for the current resolution
  */
-long scale_value_for_resolution_with_upp(long base_value, long units_per_px)
+int32_t scale_value_for_resolution_with_upp(int32_t base_value, int32_t units_per_px)
 {
-    long value = ((((units_per_px * base_value) >> 3) + (((units_per_px * base_value) >> 3) & 1)) >> 1);
+    int32_t value = ((((units_per_px * base_value) >> 3) + (((units_per_px * base_value) >> 3) & 1)) >> 1);
     // return value is equivalent to: round(base_value * units_per_px /16)
     return max(1,value);
 }
@@ -1184,10 +1184,10 @@ long scale_value_for_resolution_with_upp(long base_value, long units_per_px)
  *
  * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current horizontal resolution
  */
-long scale_value_by_horizontal_resolution(long base_value)
+int32_t scale_value_by_horizontal_resolution(int32_t base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_width /16)
-    long value = ((((units_per_pixel_width * base_value) >> 3) + (((units_per_pixel_width * base_value) >> 3) & 1)) >> 1);
+    int32_t value = ((((units_per_pixel_width * base_value) >> 3) + (((units_per_pixel_width * base_value) >> 3) & 1)) >> 1);
     return value;
 }
 
@@ -1197,10 +1197,10 @@ long scale_value_by_horizontal_resolution(long base_value)
  *
  * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current vertical resolution
  */
-long scale_value_by_vertical_resolution(long base_value)
+int32_t scale_value_by_vertical_resolution(int32_t base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_height /16)
-    long value = ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
+    int32_t value = ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
     return value;
 }
 
@@ -1210,10 +1210,10 @@ long scale_value_by_vertical_resolution(long base_value)
  *
  * @param base_value The fixed value tuned for original DK 640x400 mode
  */
-long scale_ui_value(long base_value)
+int32_t scale_ui_value(int32_t base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_ui /16)
-    long value = ((((units_per_pixel_ui * base_value) >> 3) + (((units_per_pixel_ui * base_value) >> 3) & 1)) >> 1);
+    int32_t value = ((((units_per_pixel_ui * base_value) >> 3) + (((units_per_pixel_ui * base_value) >> 3) & 1)) >> 1);
     return value; // can return zero
 }
 
@@ -1222,10 +1222,10 @@ long scale_ui_value(long base_value)
  *
  * @param base_value The fixed value tuned for original DK 640x400 mode
  */
-long scale_ui_value_lofi(long base_value)
+int32_t scale_ui_value_lofi(int32_t base_value)
 {
     TbBool lofi_mode = ((LbGraphicsScreenHeight() < 400) ? true : false);
-    long value;
+    int32_t value;
     if (lofi_mode)
     {
         value = scale_ui_value(base_value * 2);
@@ -1244,10 +1244,10 @@ long scale_ui_value_lofi(long base_value)
  *
  * @param base_value The fixed value tuned for original DK 640x400 mode
  */
-long scale_fixed_DK_value(long base_value)
+int32_t scale_fixed_DK_value(int32_t base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_best /16)
-    long value = ((((units_per_pixel_best * base_value) >> 3) + (((units_per_pixel_best * base_value) >> 3) & 1)) >> 1);
+    int32_t value = ((((units_per_pixel_best * base_value) >> 3) + (((units_per_pixel_best * base_value) >> 3) & 1)) >> 1);
     return value;
 }
 
@@ -1262,18 +1262,18 @@ long scale_fixed_DK_value(long base_value)
  *
  * @param base_value The fixed value tuned for original DK menu in 640x480 mode
  */
-long scale_value_menu(long base_value)
+int32_t scale_value_menu(int32_t base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_menu /16)
-    long value = ((((units_per_pixel_menu * base_value) >> 3) + (((units_per_pixel_menu * base_value) >> 3) & 1)) >> 1);
+    int32_t value = ((((units_per_pixel_menu * base_value) >> 3) + (((units_per_pixel_menu * base_value) >> 3) & 1)) >> 1);
     return value;
 }
 
 /** Scale the size and position of the landview background and banners. */
-long scale_value_landview(long base_value)
+int32_t scale_value_landview(int32_t base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_landview /16)
-    long value = ((((units_per_pixel_landview * base_value) >> 3) + (((units_per_pixel_landview * base_value) >> 3) & 1)) >> 1);
+    int32_t value = ((((units_per_pixel_landview * base_value) >> 3) + (((units_per_pixel_landview * base_value) >> 3) & 1)) >> 1);
     return value;
 }
 
@@ -1293,11 +1293,11 @@ long scale_value_landview(long base_value)
  * @param landview_width the current landview background image width (passed LANDVIEW_MAP_WIDTH)
  * @param landview_height the current landview background image height (passed LANDVIEW_MAP_HEIGHT)
  */
-void calculate_landview_upp(long width, long height, long landview_width, long landview_height)
+void calculate_landview_upp(int32_t width, int32_t height, int32_t landview_width, int32_t landview_height)
 {
     // horizontal, and vertical, aspect ratios for the current game window
-    long h_ar = 1024 * width / height;
-    long v_ar = 1024 * height / width;
+    int32_t h_ar = 1024 * width / height;
+    int32_t v_ar = 1024 * height / width;
     if (is_menu_ar_wider_than_original(width, height))  // Get FIT upp
     {
         // **HOR+ land view**
@@ -1316,12 +1316,12 @@ void calculate_landview_upp(long width, long height, long landview_width, long l
         units_per_pixel_landview = (((height * 1024 / 30 / 1024) + 1) / 2) * 2;
 
         // setup window frame movement speed (in land view)
-        long temp_width = 480 * h_ar;
+        int32_t temp_width = 480 * h_ar;
         landview_frame_movement_scale_x = (1024 * (1024 * 640 - (temp_width - (1024 * 640))) / 640) / (h_ar / (640 / 480));
         landview_frame_movement_scale_y = 1024;
 
         // calculate the window frame units per pixel value
-        long landview_frame_width_ideal = width + (((((scale_value_landview(landview_width) - width) / 2)) + 1) / 2) * 2;
+        int32_t landview_frame_width_ideal = width + (((((scale_value_landview(landview_width) - width) / 2)) + 1) / 2) * 2;
         units_per_pixel_landview_frame = (((landview_frame_width_ideal * 1024 * 2 / 3 / 40 / 1024) + 1) / 2) * 2;
     }
     else
@@ -1343,12 +1343,12 @@ void calculate_landview_upp(long width, long height, long landview_width, long l
         units_per_pixel_landview = (((width * 1024 / 40 / 1024) + 1) / 2) * 2;
 
         // setup window frame movement speed (in land view)
-        long temp_height = 640 * v_ar;
+        int32_t temp_height = 640 * v_ar;
         landview_frame_movement_scale_x = 1024;
         landview_frame_movement_scale_y = (1024 * (1024 * 480 - (temp_height - (1024 * 480))) / 480) / (1024 * v_ar / (1024 * 480 / 640));
 
         // calculate the window frame units per pixel value
-        long landview_frame_height_ideal = height + (((scale_value_landview(landview_height) - height) / 2 + 1) / 2) * 2;
+        int32_t landview_frame_height_ideal = height + (((scale_value_landview(landview_height) - height) / 2 + 1) / 2) * 2;
         units_per_pixel_landview_frame = (((landview_frame_height_ideal * 1024 * 2 / 3 / 30 / 1024) + 1) / 2) * 2;
     }
 }
@@ -1359,10 +1359,10 @@ void calculate_landview_upp(long width, long height, long landview_width, long l
  * @param width current window width
  * @param height current window height
  */
-TbBool is_ar_wider_than_original(long width, long height)
+TbBool is_ar_wider_than_original(int32_t width, int32_t height)
 {
-    long original_aspect_ratio = (320 << 8) / 200;
-    long current_aspect_ratio = (width << 8) / height;
+    int32_t original_aspect_ratio = (320 << 8) / 200;
+    int32_t current_aspect_ratio = (width << 8) / height;
     return (current_aspect_ratio > original_aspect_ratio);
 }
 /**
@@ -1371,10 +1371,10 @@ TbBool is_ar_wider_than_original(long width, long height)
  * @param width current window width
  * @param height current window height
  */
-TbBool is_menu_ar_wider_than_original(long width, long height)
+TbBool is_menu_ar_wider_than_original(int32_t width, int32_t height)
 {
-    long original_aspect_ratio = (640 << 8) / 480;
-    long current_aspect_ratio = (width << 8) / height;
+    int32_t original_aspect_ratio = (640 << 8) / 480;
+    int32_t current_aspect_ratio = (width << 8) / height;
     return (current_aspect_ratio > original_aspect_ratio);
 }
 
@@ -1386,9 +1386,9 @@ TbBool is_menu_ar_wider_than_original(long width, long height)
  * @param reference_upp a reference units_per_pixel value, that is relative to the current window resolution
  * @param reference_length a reference length/size to put in a ratio relative to the give base_length
  */
-long calculate_relative_upp(long base_length, long reference_upp, long reference_length)
+int32_t calculate_relative_upp(int32_t base_length, int32_t reference_upp, int32_t reference_length)
 {
-    long value = ((((base_length * reference_upp) << 2) / reference_length) >> 2); // bitshifts to round up
+    int32_t value = ((((base_length * reference_upp) << 2) / reference_length) >> 2); // bitshifts to round up
     return max(1,value);
 }
 
@@ -1398,13 +1398,13 @@ long calculate_relative_upp(long base_length, long reference_upp, long reference
  * @param units_per_px the current units_per_pixel value
  * @param ui_scale the relative scale to multiply units_per_px by
  */
-long resize_ui(long units_per_px, long ui_scale)
+int32_t resize_ui(int32_t units_per_px, int32_t ui_scale)
 {
-    long value = (units_per_px * ui_scale / DEFAULT_UI_SCALE);
+    int32_t value = (units_per_px * ui_scale / DEFAULT_UI_SCALE);
     return max(1,value);
 }
 
-void calculate_aspect_ratio_factor(long width, long height)
+void calculate_aspect_ratio_factor(int32_t width, int32_t height)
 {
     aspect_ratio_factor_HOR_PLUS = aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS = 100 * width / height;
     if (!is_ar_wider_than_original(width, height))
@@ -1414,26 +1414,26 @@ void calculate_aspect_ratio_factor(long width, long height)
     }
 }
 
-long scale_fixed_DK_value_by_ar(long base_value, TbBool scale_up, TbBool vert_plus)
+int32_t scale_fixed_DK_value_by_ar(int32_t base_value, TbBool scale_up, TbBool vert_plus)
 {
-    long aspect_ratio_factor = vert_plus ? aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS : aspect_ratio_factor_HOR_PLUS;
-    long multiplier = scale_up ? aspect_ratio_factor : DEFAULT_ASPECT_RATIO_FACTOR;
-    long divisor = scale_up ? DEFAULT_ASPECT_RATIO_FACTOR : aspect_ratio_factor;
+    int32_t aspect_ratio_factor = vert_plus ? aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS : aspect_ratio_factor_HOR_PLUS;
+    int32_t multiplier = scale_up ? aspect_ratio_factor : DEFAULT_ASPECT_RATIO_FACTOR;
+    int32_t divisor = scale_up ? DEFAULT_ASPECT_RATIO_FACTOR : aspect_ratio_factor;
 
-    long value = multiplier * base_value / divisor;
+    int32_t value = multiplier * base_value / divisor;
     return value;
 }
 
-long convert_vertical_FOV_to_horizontal(long vert_fov)
+int32_t convert_vertical_FOV_to_horizontal(int32_t vert_fov)
 {
     double horizontal_fov = (2.0 * atan(tan((vert_fov * M_PI /180.0) / 2.0) * 16.0 / 10.0 )) * 180.0 / M_PI;
-    long value = lround(horizontal_fov);
+    int32_t value = lround(horizontal_fov);
     return value;
 }
 
-long FOV_based_on_aspect_ratio(void)
+int32_t FOV_based_on_aspect_ratio(void)
 {
-    long value = scale_fixed_DK_value_by_ar(convert_vertical_FOV_to_horizontal(first_person_vertical_fov), false, false);
+    int32_t value = scale_fixed_DK_value_by_ar(convert_vertical_FOV_to_horizontal(first_person_vertical_fov), false, false);
     return value;
 }
 /******************************************************************************/

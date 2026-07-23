@@ -193,7 +193,7 @@ void JEvent(const SDL_Event *ev)
     }
 }
 
-void controller_rumble(long ms)
+void controller_rumble(int32_t ms)
 {
     if (controller != NULL && last_used_input_device == ID_Controller) {
         SDL_GameControllerRumble(controller, 0xFFFF, 0xFFFF, ms);

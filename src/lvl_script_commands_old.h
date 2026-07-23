@@ -25,7 +25,7 @@ extern "C" {
 
 #include "lvl_script_commands.h"
 
-void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptLine *scline, long file_version);
+void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptLine *scline, int32_t file_version);
 
 
 #ifdef __cplusplus

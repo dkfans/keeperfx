@@ -259,7 +259,7 @@ TbBool LbFileEof(TbFileHandle handle)
  * @param origin
  * @return Returns new file position, or -1 on error.
  */
-int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin)
+int LbFileSeek(TbFileHandle handle, int32_t offset, unsigned char origin)
 {
   int rc;
   switch (origin)
@@ -288,7 +288,7 @@ int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin)
  * @param len
  * @return Gives amount of bytes read, or -1 on error.
  */
-int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
+int LbFileRead(TbFileHandle handle, void *buffer, uint32_t len)
 {
     return fread(buffer, 1, len, handle);
 }
@@ -300,7 +300,7 @@ int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
  * @return Returns the number of bytes (does not include any extra carriage-return
  * characters transmitted) of data transmitted to the file.
 */
-long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len)
+int32_t LbFileWrite(TbFileHandle handle, const void *buffer, const uint32_t len)
 {
     return fwrite(buffer, 1, len, handle);
 }
@@ -314,17 +314,17 @@ short LbFileFlush(TbFileHandle handle)
   return fflush(handle) == 0;
 }
 
-long LbFileLengthHandle(TbFileHandle handle)
+int32_t LbFileLengthHandle(TbFileHandle handle)
 {
-  long pos = ftell(handle);
+  int32_t pos = ftell(handle);
   fseek(handle, 0, SEEK_END);
-  long result = ftell(handle);
+  int32_t result = ftell(handle);
   fseek(handle, pos, SEEK_SET);
   return result;
 }
 
 //Returns disk size of file
-long LbFileLength(const char *fname)
+int32_t LbFileLength(const char *fname)
 {
   const char *open_fname = fname;
 #if !defined(_WIN32)
@@ -335,7 +335,7 @@ long LbFileLength(const char *fname)
   }
 #endif
   TbFileHandle handle = fopen(open_fname, "rb");
-  long result = -1;
+  int32_t result = -1;
   if (handle)
   {
     fseek(handle, 0, SEEK_END);
@@ -364,7 +364,7 @@ int LbFileDelete(const char *filename)
   return result;
 }
 
-int LbDirectoryCurrent(char *buf, unsigned long buflen)
+int LbDirectoryCurrent(char *buf, uint32_t buflen)
 {
 //  if ( GetCurrentDirectoryA(buflen, buf) )
   if ( getcwd(buf,buflen) != NULL )
@@ -383,11 +383,11 @@ int LbDirectoryCurrent(char *buf, unsigned long buflen)
 }
 
 int LbFileMakeFullPath(const short append_cur_dir,
-  const char *directory, const char *filename, char *buf, const unsigned long len)
+  const char *directory, const char *filename, char *buf, const uint32_t len)
 {
   if (filename==NULL)
     { buf[0]='\0'; return -1; }
-  unsigned long namestart;
+  uint32_t namestart;
   if ( append_cur_dir )
   {
     if ( LbDirectoryCurrent(buf, len-2) == -1 )

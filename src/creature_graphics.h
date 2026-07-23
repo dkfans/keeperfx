@@ -112,15 +112,15 @@ extern struct KeeperSprite creature_table_add[];
 /******************************************************************************/
 struct PickedUpOffset *get_creature_picked_up_offset(struct Thing *thing);
 
-unsigned long keepersprite_index(unsigned short n);
+uint32_t keepersprite_index(unsigned short n);
 struct KeeperSprite * keepersprite_array(unsigned short n);
 unsigned char keepersprite_frames(unsigned short n); // This returns number of frames in animation
 unsigned char keepersprite_rotable(unsigned short n);
-void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h);
-long get_lifespan_of_animation(long ani, long speed);
+void get_keepsprite_unscaled_dimensions(int32_t kspr_anim, int32_t angle, int32_t frame, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h);
+int32_t get_lifespan_of_animation(int32_t ani, int32_t speed);
 short get_creature_anim(struct Thing *thing, unsigned short frame);
-short get_creature_model_graphics(long crmodel, unsigned short frame);
-void set_creature_model_graphics(long crmodel, unsigned short frame, unsigned long val);
+short get_creature_model_graphics(int32_t crmodel, unsigned short frame);
+void set_creature_model_graphics(int32_t crmodel, unsigned short frame, uint32_t val);
 void set_creature_graphic(struct Thing *thing);
 void update_creature_rendering_flags(struct Thing *thing);
 

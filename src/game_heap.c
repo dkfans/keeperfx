@@ -42,7 +42,7 @@ extern "C" {
 TbBool setup_heap_manager(void)
 {
     SYNCDBG(8,"Starting");
-    long i;
+    int32_t i;
 #ifdef SPRITE_FORMAT_V2
     const char* fname = prepare_file_fmtpath(FGrp_StdData,"thingspr-%d.jty",32);
 #else
@@ -62,7 +62,7 @@ TbBool setup_heap_manager(void)
 
 void reset_heap_manager(void)
 {
-    long i;
+    int32_t i;
     SYNCDBG(8,"Starting");
     LbFileClose(jty_file_handle);
     jty_file_handle = NULL;

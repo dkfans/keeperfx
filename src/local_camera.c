@@ -83,14 +83,14 @@ void send_camera_catchup_packets(struct PlayerInfo *player)
     struct Camera* packet_cam = &player->cameras[cam_idx];
     struct Packet* pckt = get_packet(player->id_number);
     
-    long diff_map_x = local_cam->mappos.x.val - packet_cam->mappos.x.val;
-    long diff_map_y = local_cam->mappos.y.val - packet_cam->mappos.y.val;
+    int32_t diff_map_x = local_cam->mappos.x.val - packet_cam->mappos.x.val;
+    int32_t diff_map_y = local_cam->mappos.y.val - packet_cam->mappos.y.val;
     
-    long angle = local_cam->rotation_angle_x;
-    long cos_angle = LbCosL(angle);
-    long sin_angle = LbSinL(angle);
-    long diff_cam_right = (diff_map_x * cos_angle + diff_map_y * sin_angle) >> 16;
-    long diff_cam_forward = (-diff_map_x * sin_angle + diff_map_y * cos_angle) >> 16;
+    int32_t angle = local_cam->rotation_angle_x;
+    int32_t cos_angle = LbCosL(angle);
+    int32_t sin_angle = LbSinL(angle);
+    int32_t diff_cam_right = (diff_map_x * cos_angle + diff_map_y * sin_angle) >> 16;
+    int32_t diff_cam_forward = (-diff_map_x * sin_angle + diff_map_y * cos_angle) >> 16;
 
     // Send catchup packets if position has drifted too far in camera space
     if (diff_cam_right > CAMERA_DESYNC_THRESHOLD) {
@@ -191,11 +191,11 @@ void update_local_first_person_camera(struct Thing *ctrltng)
     if (creature_is_frozen_in_first_person(cam, ctrltng)) {
         return;
     }
-    long current_horizontal = destination_local_cameras[CamIV_FirstPerson].rotation_angle_x;
-    long current_vertical = destination_local_cameras[CamIV_FirstPerson].rotation_angle_y;
+    int32_t current_horizontal = destination_local_cameras[CamIV_FirstPerson].rotation_angle_x;
+    int32_t current_vertical = destination_local_cameras[CamIV_FirstPerson].rotation_angle_y;
     struct Packet* latest_packet = get_packet_for_local_camera_update();
     if (latest_packet != NULL) {
-        long new_horizontal, new_vertical, new_roll;
+        int32_t new_horizontal, new_vertical, new_roll;
         process_first_person_look(ctrltng, latest_packet, current_horizontal, current_vertical, &new_horizontal, &new_vertical, &new_roll);
         current_horizontal = new_horizontal;
         current_vertical = new_vertical;
@@ -211,7 +211,7 @@ void update_camera_deviations(int active_cam_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     if (dungeon->camera_deviate_jump != 0) {
-        long angle = destination_local_cameras[active_cam_idx].rotation_angle_x;
+        int32_t angle = destination_local_cameras[active_cam_idx].rotation_angle_x;
         destination_deviation_x += ( (dungeon->camera_deviate_jump * LbSinL(angle) >> 8) >> 8);
         destination_deviation_y += (-(dungeon->camera_deviate_jump * LbCosL(angle) >> 8) >> 8);
     }
@@ -268,8 +268,8 @@ void interpolate_camera_deviations(void)
     }
     const float interpolated_deviation_x = interpolate(previous_deviation_x, destination_deviation_x);
     const float interpolated_deviation_y = interpolate(previous_deviation_y, destination_deviation_y);
-    long total_deviation_x = (long)interpolated_deviation_x;
-    long total_deviation_y = (long)interpolated_deviation_y;
+    int32_t total_deviation_x = (int32_t)interpolated_deviation_x;
+    int32_t total_deviation_y = (int32_t)interpolated_deviation_y;
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     if (dungeon->camera_deviate_quake != 0) {
         total_deviation_x += UNSYNC_RANDOM(80) - 40;
@@ -279,8 +279,8 @@ void interpolate_camera_deviations(void)
         return;
     }
     struct Camera* cam = &local_cameras[CamIV_Isometric];
-    long x = cam->mappos.x.val + total_deviation_x;
-    long y = cam->mappos.y.val + total_deviation_y;
+    int32_t x = cam->mappos.x.val + total_deviation_x;
+    int32_t y = cam->mappos.y.val + total_deviation_y;
     if (x < 0) {
         x = 0;
     } else if (x > (game.map_subtiles_x + 1) * COORD_PER_STL - 1) {

@@ -75,9 +75,9 @@ struct TunnellerTrigger {
   unsigned char flags;
   unsigned short condit_idx;
   unsigned char plyr_idx;
-  unsigned long location;
-  unsigned long heading; // originally was 'target'
-  long carried_gold;
+  uint32_t location;
+  uint32_t heading; // originally was 'target'
+  int32_t carried_gold;
   CrtrExpLevel exp_level;
   char party_id;
 };
@@ -94,7 +94,7 @@ struct PartyTrigger {
   union
   {
       TbMapLocation location;
-      unsigned long countdown;
+      uint32_t countdown;
   };
   char spawn_type;
   CrtrExpLevel exp_level;
@@ -122,12 +122,12 @@ struct ScriptValue {
     } sac;
     unsigned char bytes[32];
     char chars[32];
-    short shorts[16];
-    unsigned short ushorts[16];
-    long longs[8];
-    long long longlongs[4];
-    unsigned long ulongs[8];
-    unsigned long long ulonglongs[4];
+    int16_t shorts[16];
+    uint16_t ushorts[16];
+    int32_t int32_ts[8];
+    int64_t int32_tint32_ts[4];
+    uint32_t uint32_ts[8];
+    uint64_t uint32_tint32_ts[4];
   };
 };
 
@@ -138,7 +138,7 @@ struct Condition {
   unsigned char variabl_type;
   unsigned short variabl_idx;
   unsigned char operation;
-  unsigned long rvalue;
+  uint32_t rvalue;
   unsigned char plyr_range_right;
   unsigned char variabl_type_right;
   unsigned short variabl_idx_right;
@@ -167,23 +167,23 @@ struct ScriptFxLine
 
 struct LevelScript {
     struct TunnellerTrigger tunneller_triggers[TUNNELLER_TRIGGERS_COUNT];
-    unsigned long tunneller_triggers_num;
+    uint32_t tunneller_triggers_num;
     struct PartyTrigger party_triggers[PARTY_TRIGGERS_COUNT];
-    unsigned long party_triggers_num;
+    uint32_t party_triggers_num;
     struct ScriptValue values[SCRIPT_VALUES_COUNT];
-    unsigned long values_num;
+    uint32_t values_num;
     struct Condition conditions[CONDITIONS_COUNT];
-    unsigned long conditions_num;
+    uint32_t conditions_num;
     struct Party creature_partys[CREATURE_PARTYS_COUNT];
-    unsigned long creature_partys_num;
+    uint32_t creature_partys_num;
     unsigned short win_conditions[WIN_CONDITIONS_COUNT];
-    unsigned long win_conditions_num;
+    uint32_t win_conditions_num;
     unsigned short lose_conditions[WIN_CONDITIONS_COUNT];
-    unsigned long lose_conditions_num;
+    uint32_t lose_conditions_num;
 
     // Store strings used at level here
     char strings[8192];
-    long next_string_offset;
+    int32_t next_string_offset;
 };
 
 /******************************************************************************/
@@ -196,12 +196,12 @@ extern unsigned char next_command_reusable;
 extern const struct NamedCommand player_desc[];
 /******************************************************************************/
 short clear_script(void);
-short load_script(long lvl_num);
-TbBool script_scan_line(char *line,TbBool preloaded, long file_version);
-TbBool preload_script(long lvnum);
+short load_script(int32_t lvl_num);
+TbBool script_scan_line(char *line,TbBool preloaded, int32_t file_version);
+TbBool preload_script(int32_t lvnum);
 /******************************************************************************/
 
-long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
+int32_t get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 void process_level_script(void);
 /******************************************************************************/
 #ifdef __cplusplus

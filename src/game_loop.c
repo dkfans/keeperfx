@@ -85,7 +85,7 @@ void process_dungeon_destroy(struct Thing* heartng)
 {
     if (heartng->owner == game.neutral_player_num)
         return;
-    long plyr_idx = heartng->owner;
+    int32_t plyr_idx = heartng->owner;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct Thing* soultng = thing_get(dungeon->free_soul_idx);
     struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);

@@ -29,7 +29,7 @@
 
 /******************************************************************************/
 /******************************************************************************/
-static const long gpoly_reptable[] = {
+static const int32_t gpoly_reptable[] = {
          0x0,0x7FFFFFFF,0x3FFFFFFF,0x2AAAAAAA,0x1FFFFFFF,0x19999999,0x15555555,0x12492492,
   0x0FFFFFFF,0x0E38E38E,0x0CCCCCCC,0x0BA2E8BA,0x0AAAAAAA, 0x9D89D89, 0x9249249, 0x8888888,
    0x7FFFFFF, 0x7878787, 0x71C71C7, 0x6BCA1AF, 0x6666666, 0x6186186, 0x5D1745D, 0x590B216,
@@ -64,7 +64,7 @@ static const long gpoly_reptable[] = {
    0x0842108, 0x0839930, 0x083126E, 0x0828CBF, 0x0820820, 0x081848D, 0x0810204, 0x0808080,
          0x0,       0x0 };
 
-static const long gpoly_divtable[][64] = {
+static const int32_t gpoly_divtable[][64] = {
    {-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
     -8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
     -8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
@@ -323,18 +323,18 @@ static const long gpoly_divtable[][64] = {
        50737,   52851,   54965,   57079,   59193,   61307,   63421,   65536,},
 };
 
-static long factor_ca,factor_ba,factor_cb,factor_chk;
-static long gploc_point_c;
-static long shadingtop_deltashade;
-static long maptexturetop_deltau,mapxveltop,maptexturetop_deltav,mapyveltop,scanlinescounter;
-static long triangle_point_a_y,triangle_point_a_x,triangle_point_a_shade_x,triangle_point_a_shade,triangle_point_a_texture_u,triangle_point_a_texture_v;
-static long triangle_point_b_y,triangle_point_b_x,triangle_point_b_shade_x,triangle_point_b_shade,triangle_point_b_texture_u,triangle_point_b_texture_v;
-static long triangle_point_c_y,triangle_point_c_x,triangle_point_c_shade_x,triangle_point_c_shade,triangle_point_c_texture_u,triangle_point_c_texture_v;
-static long shadingfactor_primary,shadingfactor_secondary,screenbuffer_linestride,g_shadeAccumulator,g_shadeAccumulatorNext,texture_xaccumulator_backup;
+static int32_t factor_ca,factor_ba,factor_cb,factor_chk;
+static int32_t gploc_point_c;
+static int32_t shadingtop_deltashade;
+static int32_t maptexturetop_deltau,mapxveltop,maptexturetop_deltav,mapyveltop,scanlinescounter;
+static int32_t triangle_point_a_y,triangle_point_a_x,triangle_point_a_shade_x,triangle_point_a_shade,triangle_point_a_texture_u,triangle_point_a_texture_v;
+static int32_t triangle_point_b_y,triangle_point_b_x,triangle_point_b_shade_x,triangle_point_b_shade,triangle_point_b_texture_u,triangle_point_b_texture_v;
+static int32_t triangle_point_c_y,triangle_point_c_x,triangle_point_c_shade_x,triangle_point_c_shade,triangle_point_c_texture_u,triangle_point_c_texture_v;
+static int32_t shadingfactor_primary,shadingfactor_secondary,screenbuffer_linestride,g_shadeAccumulator,g_shadeAccumulatorNext,texture_xaccumulator_backup;
 static uint8_t * screenbuffer_lineptr;
-static long texture_xaccumulator_high_backup,texture_yaccumulator_low,texture_yaccumulator_high_combined,scanline_span_count,shade_interpolation_top_low,shade_interpolation_top_high_combined,mapxhstep,mapyhstep,shadehstep,texture_pointc_interpolation_low,texture_pointc_interpolation_high_combined;
-static long shade_interpolation_bottom_low,shade_interpolation_bottom_high_combined,startpos_top_shade_texture_combined,startpos_top_texturex_texturey_combined,startpos_bottom_shade_texture_combined,startpos_bottom_texturex_texturey_combined,current_scanline_xposition,shade_interpolation_pointc_high,shade_interpolation_pointc_low,texture_xaccumulator_low;
-static long shade_interpolation_bottom_combined,startposshadetop,startposmapxtop,startposmapytop,startposshadebottom,startposmapxbottom,startposmapybottom,texture_xaccumulator_low_backup,shade_interpolation_top_shifted,texture_delta_bottom_high_combined;
+static int32_t texture_xaccumulator_high_backup,texture_yaccumulator_low,texture_yaccumulator_high_combined,scanline_span_count,shade_interpolation_top_low,shade_interpolation_top_high_combined,mapxhstep,mapyhstep,shadehstep,texture_pointc_interpolation_low,texture_pointc_interpolation_high_combined;
+static int32_t shade_interpolation_bottom_low,shade_interpolation_bottom_high_combined,startpos_top_shade_texture_combined,startpos_top_texturex_texturey_combined,startpos_bottom_shade_texture_combined,startpos_bottom_texturex_texturey_combined,current_scanline_xposition,shade_interpolation_pointc_high,shade_interpolation_pointc_low,texture_xaccumulator_low;
+static int32_t shade_interpolation_bottom_combined,startposshadetop,startposmapxtop,startposmapytop,startposshadebottom,startposmapxbottom,startposmapybottom,texture_xaccumulator_low_backup,shade_interpolation_top_shifted,texture_delta_bottom_high_combined;
 /******************************************************************************/
 
 #undef __ROL4__
@@ -389,7 +389,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
         if ((edge_ca_length_x * edge_ba_length_y) - (edge_ba_length_x * edge_ca_length_y) >= 0)
             return;
     }
-    long exceeds_window = ((point_a->X | point_b->X | point_c->X) < 0) || (point_a->X > vec_window_width) || (point_b->X > vec_window_width) || (point_c->X > vec_window_width);
+    int32_t exceeds_window = ((point_a->X | point_b->X | point_c->X) < 0) || (point_a->X > vec_window_width) || (point_b->X > vec_window_width) || (point_c->X > vec_window_width);
     { // Reorder points
         int min_y = point_a->Y;
         struct PolyPoint* point_tmp;
@@ -417,8 +417,8 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     if (point_a->Y == point_c->Y)
         return;
     {
-        long len_y = point_c->Y - point_a->Y;
-        long len_x = point_c->X - point_a->X;
+        int32_t len_y = point_c->Y - point_a->Y;
+        int32_t len_x = point_c->X - point_a->X;
         if (len_y != 0)
         {
             if ((len_y < 0) || (len_y > 31) || (len_x < -32) || (len_x > 31))

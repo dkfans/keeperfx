@@ -43,9 +43,9 @@ public:
     COverlayRenderer(OverlayEffect* parent);
     ~COverlayRenderer();
     
-    TbBool LoadOverlay(long lens_idx);
-    void Render(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, 
-                long width, long height);
+    TbBool LoadOverlay(int32_t lens_idx);
+    void Render(unsigned char *dstbuf, int32_t dstpitch, unsigned char *srcbuf, int32_t srcpitch, 
+                int32_t width, int32_t height);
     
 private:
     OverlayEffect* m_parent;         // Parent effect for asset loading
@@ -78,20 +78,20 @@ COverlayRenderer::~COverlayRenderer()
     m_overlay_data = NULL;
 }
 
-TbBool COverlayRenderer::LoadOverlay(long lens_idx)
+TbBool COverlayRenderer::LoadOverlay(int32_t lens_idx)
 {
     // Get lens configuration
     struct LensConfig* cfg = get_lens_config(lens_idx);
     if (cfg == NULL)
     {
-        WARNLOG("Failed to get lens config for index %ld", lens_idx);
+        WARNLOG("Failed to get lens config for index %d", lens_idx);
         return false;
     }
     
     // Check if this lens has an overlay effect
     if ((cfg->flags & LCF_HasOverlay) == 0)
     {
-        SYNCDBG(8, "Lens %ld does not have overlay effect", lens_idx);
+        SYNCDBG(8, "Lens %d does not have overlay effect", lens_idx);
         return false;
     }
     
@@ -120,7 +120,7 @@ TbBool COverlayRenderer::LoadOverlay(long lens_idx)
         
         if (m_overlay_data == NULL)
         {
-            ERRORLOG("Failed to allocate memory for overlay (lens %ld)", lens_idx);
+            ERRORLOG("Failed to allocate memory for overlay (lens %d)", lens_idx);
             return false;
         }
         
@@ -130,7 +130,7 @@ TbBool COverlayRenderer::LoadOverlay(long lens_idx)
         if (!m_parent->LoadAssetWithFallback(cfg->overlay_file, m_overlay_data, 
                                              default_size * default_size, &loaded_from))
         {
-            WARNLOG("Failed to load overlay '%s' from registry or files for lens %ld", 
+            WARNLOG("Failed to load overlay '%s' from registry or files for lens %d", 
                     cfg->overlay_file, lens_idx);
             free(m_overlay_data);
             m_overlay_data = NULL;
@@ -157,8 +157,8 @@ TbBool COverlayRenderer::LoadOverlay(long lens_idx)
     return true;
 }
 
-void COverlayRenderer::Render(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch,
-                              long width, long height)
+void COverlayRenderer::Render(unsigned char *dstbuf, int32_t dstpitch, unsigned char *srcbuf, int32_t srcpitch,
+                              int32_t width, int32_t height)
 {
     if (!m_loaded || m_overlay_data == NULL)
     {
@@ -237,21 +237,21 @@ OverlayEffect::~OverlayEffect()
     Cleanup();
 }
 
-TbBool OverlayEffect::Setup(long lens_idx)
+TbBool OverlayEffect::Setup(int32_t lens_idx)
 {
-    SYNCDBG(8, "Setting up overlay effect for lens %ld", lens_idx);
+    SYNCDBG(8, "Setting up overlay effect for lens %d", lens_idx);
     
     struct LensConfig* cfg = get_lens_config(lens_idx);
     if (cfg == NULL)
     {
-        WARNLOG("Failed to get lens config for index %ld", lens_idx);
+        WARNLOG("Failed to get lens config for index %d", lens_idx);
         return true;  // Continue without overlay
     }
     
     // Check if this lens has an overlay effect configured
     if ((cfg->flags & LCF_HasOverlay) == 0)
     {
-        SYNCDBG(8, "Lens %ld does not have overlay effect configured", lens_idx);
+        SYNCDBG(8, "Lens %d does not have overlay effect configured", lens_idx);
         return true;  // Not an error - effect just not configured
     }
     
@@ -260,7 +260,7 @@ TbBool OverlayEffect::Setup(long lens_idx)
     
     if (!renderer->LoadOverlay(lens_idx))
     {
-        WARNLOG("Failed to load overlay for lens %ld - effect will be skipped", lens_idx);
+        WARNLOG("Failed to load overlay for lens %d - effect will be skipped", lens_idx);
         delete renderer;
         return true;  // Continue without overlay effect (graceful degradation)
     }

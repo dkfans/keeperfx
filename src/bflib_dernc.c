@@ -42,14 +42,14 @@ extern "C" {
 #endif
 
 typedef struct {
-    unsigned long bitbuf;           /* holds between 16 and 32 bits */
+    uint32_t bitbuf;           /* holds between 16 and 32 bits */
     int bitcount;               /* how many bits does bitbuf hold? */
 } bit_stream;
 
 typedef struct {
     int num;                   /* number of nodes in the tree */
     struct {
-    unsigned long code;
+    uint32_t code;
     int codelen;
     int value;
     } table[32];
@@ -68,18 +68,18 @@ typedef struct {
 
 static void read_huftable (huf_table *h, bit_stream *bs,
                    unsigned char **p, unsigned char *pend);
-static long huf_read (huf_table *h, bit_stream *bs,
+static int32_t huf_read (huf_table *h, bit_stream *bs,
                    unsigned char **p,unsigned char *pend);
 
 static void bitread_init (bit_stream *bs, unsigned char **p, unsigned char *pend);
 static void bitread_fix (bit_stream *bs, unsigned char **p, unsigned char *pend);
-static unsigned long bit_peek (bit_stream *bs, unsigned long mask);
+static uint32_t bit_peek (bit_stream *bs, uint32_t mask);
 static void bit_advance (bit_stream *bs, int n,
                    unsigned char **p, unsigned char *pend);
-static unsigned long bit_read (bit_stream *bs, unsigned long mask,
+static uint32_t bit_read (bit_stream *bs, uint32_t mask,
                    int n, unsigned char **p, unsigned char *pend);
 
-static unsigned long mirror(unsigned long x, int n);
+static uint32_t mirror(uint32_t x, int n);
 
 // Decompress a packed data block. Returns the unpacked length if
 // successful, or negative error codes if not.
@@ -87,7 +87,7 @@ static unsigned long mirror(unsigned long x, int n);
 // If COMPRESSOR is defined, it also returns the leeway number
 // (which gets stored at offset 16 into the compressed-file header)
 // in `*leeway', if `leeway' isn't NULL.
-long rnc_unpack (const void *packed, void *unpacked, unsigned int flags
+int32_t rnc_unpack (const void *packed, void *unpacked, unsigned int flags
 #ifdef COMPRESSOR
          , int32_t *leeway
 #endif
@@ -97,7 +97,7 @@ long rnc_unpack (const void *packed, void *unpacked, unsigned int flags
     unsigned char *input = ((unsigned char *)packed) + RNC_HEADER_LEN;
     unsigned char *output = (unsigned char *)unpacked;
 #ifdef COMPRESSOR
-    long lee = 0;
+    int32_t lee = 0;
 #endif
 
     memcpy(&header, packed, sizeof(header));
@@ -138,9 +138,9 @@ long rnc_unpack (const void *packed, void *unpacked, unsigned int flags
   while (output < outputend)
   {
 #ifdef COMPRESSOR
-      long this_lee;
+      int32_t this_lee;
 #endif
-      unsigned long ch_count;
+      uint32_t ch_count;
       if (inputend - input < 6)
       {
           if (!(flags&RNC_IGNORE_HUF_EXCEEDS_RANGE))
@@ -158,7 +158,7 @@ long rnc_unpack (const void *packed, void *unpacked, unsigned int flags
 
       while (1)
       {
-          long length = huf_read(&raw, &bs, &input, inputend);
+          int32_t length = huf_read(&raw, &bs, &input, inputend);
           if (length == -1)
           {
               if (!(flags & RNC_IGNORE_HUF_DECODE_ERROR))
@@ -188,7 +188,7 @@ long rnc_unpack (const void *packed, void *unpacked, unsigned int flags
         if (--ch_count <= 0)
             break;
 
-        long posn = huf_read(&dist, &bs, &input, inputend);
+        int32_t posn = huf_read(&dist, &bs, &input, inputend);
         if (posn == -1)
         {
             if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR))
@@ -271,7 +271,7 @@ static void read_huftable (huf_table *h, bit_stream *bs,
             leafmax = leaflen[i];
     }
 
-    unsigned long codeb = 0L;
+    uint32_t codeb = 0L;
     int k = 0;
     for (i=1; i<=leafmax; i++)
     {
@@ -291,14 +291,14 @@ static void read_huftable (huf_table *h, bit_stream *bs,
 }
 
 // Read a value out of the bit stream using the given Huffman table.
-static long huf_read (huf_table *h, bit_stream *bs,
+static int32_t huf_read (huf_table *h, bit_stream *bs,
                    unsigned char **p,unsigned char *pend)
 {
     int i;
 
     for (i=0; i<h->num; i++)
     {
-        unsigned long mask = (1 << h->table[i].codelen) - 1;
+        uint32_t mask = (1 << h->table[i].codelen) - 1;
         if (bit_peek(bs, mask) == h->table[i].code)
             break;
     }
@@ -306,7 +306,7 @@ static long huf_read (huf_table *h, bit_stream *bs,
         return -1;
     bit_advance (bs, h->table[i].codelen, p, pend);
 
-    unsigned long val = h->table[i].value;
+    uint32_t val = h->table[i].value;
 
     if (val >= 2)
     {
@@ -341,7 +341,7 @@ static void bitread_fix (bit_stream *bs, unsigned char **p, unsigned char *pend)
 }
 
 // Returns some bits.
-static unsigned long bit_peek (bit_stream *bs, unsigned long mask)
+static uint32_t bit_peek (bit_stream *bs, uint32_t mask)
 {
     return bs->bitbuf & mask;
 }
@@ -362,22 +362,22 @@ static void bit_advance (bit_stream *bs, int n, unsigned char **p, unsigned char
 }
 
 // Reads some bits in one go (ie the above two routines combined).
-static unsigned long bit_read (bit_stream *bs, unsigned long mask,
+static uint32_t bit_read (bit_stream *bs, uint32_t mask,
                    int n, unsigned char **p, unsigned char *pend)
 {
-    unsigned long result = bit_peek (bs, mask);
+    uint32_t result = bit_peek (bs, mask);
     bit_advance (bs, n, p, pend);
     return result;
 }
 
 // Mirror the bottom n bits of x.
-static unsigned long mirror (unsigned long x, int n) {
-    unsigned long top = 1 << (n - 1);
-    unsigned long bottom = 1;
+static uint32_t mirror (uint32_t x, int n) {
+    uint32_t top = 1 << (n - 1);
+    uint32_t bottom = 1;
     while (top > bottom)
     {
-        unsigned long mask = top | bottom;
-        unsigned long masked = x & mask;
+        uint32_t mask = top | bottom;
+        uint32_t masked = x & mask;
         if (masked != 0 && masked != mask)
             x ^= mask;
         top >>= 1;
@@ -390,7 +390,7 @@ unsigned short crctab[256];
 short crctab_ready=false;
 
 // Calculate a CRC, the RNC way
-long rnc_crc(void *data, unsigned long len)
+int32_t rnc_crc(void *data, uint32_t len)
 {
   unsigned short val;
   unsigned char *p = (unsigned char *)data;
@@ -422,9 +422,9 @@ long rnc_crc(void *data, unsigned long len)
   return val;
 }
 
-long LbFileLengthRnc(const char *fname)
+int32_t LbFileLengthRnc(const char *fname)
 {
-    long flength;
+    int32_t flength;
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (!handle) {
         return -1;
@@ -457,9 +457,9 @@ long LbFileLengthRnc(const char *fname)
     return flength;
 }
 
-long UnpackM1(void * buffer, ulong bufsize)
+int32_t UnpackM1(void * buffer, uint32_t bufsize)
 {
-    long retcode;
+    int32_t retcode;
     rnc_header header;
     memcpy(&header, buffer, sizeof(header));
     //If file isn't compressed - return with zero
@@ -483,9 +483,9 @@ long UnpackM1(void * buffer, ulong bufsize)
     return retcode;
 }
 
-long LbFileLoadAt(const char *fname, void *buffer)
+int32_t LbFileLoadAt(const char *fname, void *buffer)
 {
-  long filelength = LbFileLengthRnc(fname);
+  int32_t filelength = LbFileLengthRnc(fname);
   TbFileHandle handle = NULL;
   if (filelength!=-1)
   {
@@ -499,11 +499,11 @@ long LbFileLoadAt(const char *fname, void *buffer)
   }
   if (read_status==-1)
   {
-      ERRORLOG("Couldn't read \"%s\", expected size %ld, errno %d",fname,filelength, (int)errno);
+      ERRORLOG("Couldn't read \"%s\", expected size %d, errno %d",fname,filelength, (int)errno);
       return -1;
   }
-  long unp_length = UnpackM1(buffer, filelength);
-  long result;
+  int32_t unp_length = UnpackM1(buffer, filelength);
+  int32_t result;
   if ( unp_length >= 0 )
   {
       if (unp_length!=0)
@@ -518,7 +518,7 @@ long LbFileLoadAt(const char *fname, void *buffer)
   return result;
 }
 
-long LbFileSaveAt(const char *fname, const void *buffer,unsigned long len)
+int32_t LbFileSaveAt(const char *fname, const void *buffer,uint32_t len)
 {
   TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
   if (!handle) {

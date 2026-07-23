@@ -30,7 +30,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct IntralevelData intralvl;
-unsigned long game_flags2 = 0;
+uint32_t game_flags2 = 0;
 /******************************************************************************/
 /******************************************************************************/
 /**
@@ -160,17 +160,17 @@ TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
 /**
  * Makes a bonus level for specified SP level visible on the land map screen.
  */
-TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible)
+TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, uint32_t sp_lvnum, short visible)
 {
-    long bn_lvnum = bonus_level_for_singleplayer_level(sp_lvnum);
+    int32_t bn_lvnum = bonus_level_for_singleplayer_level(sp_lvnum);
     if (!set_bonus_level_visibility(bn_lvnum, visible))
     {
         if (visible)
-            WARNMSG("Couldn't store bonus award for level %lu", sp_lvnum);
+            WARNMSG("Couldn't store bonus award for level %u", sp_lvnum);
         return false;
     }
     if (visible)
-        SYNCMSG("Bonus award for level %lu enabled",sp_lvnum);
+        SYNCMSG("Bonus award for level %u enabled",sp_lvnum);
     return true;
 }
 

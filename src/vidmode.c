@@ -79,13 +79,13 @@ unsigned short units_per_pixel_menu;
 unsigned short units_per_pixel_landview;
 unsigned short units_per_pixel_landview_frame;
 unsigned short units_per_pixel_ui;
-unsigned long aspect_ratio_factor_HOR_PLUS;
-unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
-unsigned long first_person_horizontal_fov;
-unsigned long first_person_vertical_fov;
-unsigned long landview_frame_movement_scale_x;
-unsigned long landview_frame_movement_scale_y;
-long base_mouse_sensitivity = 256;
+uint32_t aspect_ratio_factor_HOR_PLUS;
+uint32_t aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
+uint32_t first_person_horizontal_fov;
+uint32_t first_person_vertical_fov;
+uint32_t landview_frame_movement_scale_x;
+uint32_t landview_frame_movement_scale_y;
+int32_t base_mouse_sensitivity = 256;
 
 static TbBool force_video_mode_reset = true;
 struct TbSpriteSheet * pointer_sprites = NULL;
@@ -113,7 +113,7 @@ extern struct TbLoadFiles front_load_files_minimal_640[];
  * Loads VGA 256 graphics files, for high resolution modes.
  * @return Returns true if all files were loaded, false otherwise.
  */
-short LoadVRes256Data(long scrbuf_size)
+short LoadVRes256Data(int32_t scrbuf_size)
 {
     // Update size of the parchment buffer, as it is also used as screen buffer
     if (scrbuf_size < 640*480)
@@ -290,11 +290,11 @@ TbBool set_pointer_graphic_menu(void)
   return true;
 }
 
-TbBool set_pointer_graphic_spell(long spridx, long frame)
+TbBool set_pointer_graphic_spell(int32_t spridx, int32_t frame)
 {
-    long i;
-    long x;
-    long y;
+    int32_t i;
+    int32_t x;
+    int32_t y;
     SYNCDBG(8, "Setting to sprite %d", (int)spridx);
     if (pointer_sprites == NULL)
     {
@@ -318,12 +318,12 @@ TbBool set_pointer_graphic_spell(long spridx, long frame)
   if (is_custom_icon(i))
   {
       spr = get_new_icon_sprite(i);
-      SYNCDBG(8,"Activating pointer %ld", i);
+      SYNCDBG(8,"Activating pointer %d", i);
       LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
   }
   else
   {
-      SYNCDBG(8,"Activating pointer %ld", 40+i);
+      SYNCDBG(8,"Activating pointer %d", 40+i);
       if (i >= 0 && i < num_sprites(pointer_sprites))
       {
           spr = get_sprite(pointer_sprites, i);
@@ -337,10 +337,10 @@ TbBool set_pointer_graphic_spell(long spridx, long frame)
   return true;
 }
 
-TbBool set_pointer_graphic(long ptr_idx)
+TbBool set_pointer_graphic(int32_t ptr_idx)
 {
-    long x;
-    long y;
+    int32_t x;
+    int32_t y;
     const struct TbSprite* spr;
     SYNCDBG(8, "Setting to %d", (int)ptr_idx);
     if (pointer_sprites == NULL)
@@ -475,7 +475,7 @@ TbBool set_pointer_graphic(long ptr_idx)
           LbMouseChangeSpriteAndHotspot(spr, spr->SWidth/2, spr->SHeight);
           return true;
       }
-    WARNLOG("Unrecognized Mouse Pointer index, %ld",ptr_idx);
+    WARNLOG("Unrecognized Mouse Pointer index, %d",ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
@@ -507,7 +507,7 @@ TbBool init_fades_table(void)
     lbDisplay.FadeTable = pixmap.fade_tables;
     TbPixel cblack = 144;
     // Update black color
-    for (long i = 0; i < 8192; i++)
+    for (int32_t i = 0; i < 8192; i++)
     {
         if (pixmap.fade_tables[i] == 0) {
             pixmap.fade_tables[i] = cblack;
@@ -628,7 +628,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
   }
   TbBool hi_res = ((LbGraphicsScreenHeight() < 400) ? false : true);
-  long lens_mem = game.applied_lens_type;
+  int32_t lens_mem = game.applied_lens_type;
   unsigned int flg_mem = lbDisplay.DrawFlags;
   TbBool was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
   set_pointer_graphic_none();
@@ -670,7 +670,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     SYNCDBG(6,"Entering %s mode %d, resolution %dx%d.",hi_res?"hi-res":"low-res",(int)nmode,(int)new_mdinfo->Width,(int)new_mdinfo->Height);
     if (hi_res)
     {
-      if (!LoadVRes256Data((long)new_mdinfo->Width*(long)new_mdinfo->Height))
+      if (!LoadVRes256Data((int32_t)new_mdinfo->Width*(int32_t)new_mdinfo->Height))
       {
         ERRORLOG("Unable to load VRes256 data files");
         force_video_mode_reset = true;
@@ -710,7 +710,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
   return nmode;
 }
 
-TbBool update_screen_mode_data(long width, long height)
+TbBool update_screen_mode_data(int32_t width, int32_t height)
 {
   // if ((width >= 640) && (height >= 400))
   // {
@@ -721,7 +721,7 @@ TbBool update_screen_mode_data(long width, long height)
     pixel_size = 2;
   }
   */
-  long psize = pixel_size;
+  int32_t psize = pixel_size;
 
   MyScreenWidth = width * psize;
   MyScreenHeight = height * psize;
@@ -739,7 +739,7 @@ TbBool update_screen_mode_data(long width, long height)
   units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // If the screen is wider than 16:10 the height is used; if the screen is narrower than 16:10 the width is used.
 
   // In-game scaling: UI (for the side bar menu and escape menu)
-  long ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
+  int32_t ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
   units_per_pixel_ui = resize_ui(units_per_pixel_best, ui_scale);
 
   // In-game scaling: Posession Mode (a 3D 1st person perspective camera)

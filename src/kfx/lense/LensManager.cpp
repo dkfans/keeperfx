@@ -132,14 +132,14 @@ void LensManager::Reset()
     SYNCDBG(9, "Lens manager reset complete");
 }
 
-TbBool LensManager::SetLens(long lens_idx)
+TbBool LensManager::SetLens(int32_t lens_idx)
 {
     if (!m_initialized) {
         WARNLOG("Cannot set lens - manager not initialized");
         return false;
     }
     
-    SYNCDBG(7, "Setting lens to %ld", lens_idx);
+    SYNCDBG(7, "Setting lens to %d", lens_idx);
     
     // lens_idx == 0 means "remove lens"
     if (lens_idx == 0) {
@@ -154,7 +154,7 @@ TbBool LensManager::SetLens(long lens_idx)
     
     // Validate lens index
     if (lens_idx < 0 || lens_idx >= LENS_ITEMS_MAX) {
-        ERRORLOG("Invalid lens index %ld", lens_idx);
+        ERRORLOG("Invalid lens index %d", lens_idx);
         return false;
     }
     
@@ -198,7 +198,7 @@ TbBool LensManager::SetLens(long lens_idx)
         
         if (uses_effect) {
             if (!effect->Setup(lens_idx)) {
-                WARNLOG("Effect '%s' setup failed for lens %ld", effect->GetName(), lens_idx);
+                WARNLOG("Effect '%s' setup failed for lens %d", effect->GetName(), lens_idx);
                 success = false;
             }
         }
@@ -216,10 +216,10 @@ TbBool LensManager::SetLens(long lens_idx)
 }
 
 void LensManager::Draw(unsigned char* srcbuf, unsigned char* dstbuf, 
-                      long srcpitch, long dstpitch, 
-                      long width, long height, long viewport_x)
+                      int32_t srcpitch, int32_t dstpitch, 
+                      int32_t width, int32_t height, int32_t viewport_x)
 {
-    SYNCDBG(0, "LensManager::Draw() called: m_initialized=%d, m_applied_lens=%ld, m_active_custom_lens='%s'",
+    SYNCDBG(0, "LensManager::Draw() called: m_initialized=%d, m_applied_lens=%d, m_active_custom_lens='%s'",
            m_initialized, m_applied_lens, m_active_custom_lens.c_str());
     
     // Setup render context
@@ -441,7 +441,7 @@ TbBool LensManager::AllocateBuffers()
     m_buffer_width = lbDisplay.GraphicsScreenWidth;
     m_buffer_height = lbDisplay.GraphicsScreenHeight;
     
-    unsigned long buffer_size = m_buffer_width * m_buffer_height + 2;
+    uint32_t buffer_size = m_buffer_width * m_buffer_height + 2;
     
     // Ensure minimum size for 256x256 mist textures
     if (buffer_size < 256 * 256) {
@@ -452,7 +452,7 @@ TbBool LensManager::AllocateBuffers()
     m_spare_screen_memory = (unsigned char*)calloc(buffer_size, sizeof(unsigned char));
     
     if (m_lens_memory == nullptr || m_spare_screen_memory == nullptr) {
-        ERRORLOG("Failed to allocate lens buffers (%lu bytes)", buffer_size * sizeof(uint32_t));
+        ERRORLOG("Failed to allocate lens buffers (%zu bytes)", buffer_size * sizeof(uint32_t));
         FreeBuffers();
         return false;
     }
@@ -463,7 +463,7 @@ TbBool LensManager::AllocateBuffers()
     eye_lens_width = m_buffer_width;
     eye_lens_height = m_buffer_height;
     
-    SYNCDBG(9, "Allocated lens buffers: %ldx%ld, size=%lu", m_buffer_width, m_buffer_height, buffer_size);
+    SYNCDBG(9, "Allocated lens buffers: %dx%d, size=%u", m_buffer_width, m_buffer_height, buffer_size);
     return true;
 }
 
@@ -513,13 +513,13 @@ void LensManager_Reset(void* mgr)
     }
 }
 
-TbBool LensManager_SetLens(void* mgr, long lens_idx)
+TbBool LensManager_SetLens(void* mgr, int32_t lens_idx)
 {
     if (mgr == nullptr) return false;
     return static_cast<LensManager*>(mgr)->SetLens(lens_idx);
 }
 
-long LensManager_GetActiveLens(void* mgr)
+int32_t LensManager_GetActiveLens(void* mgr)
 {
     if (mgr == nullptr) return 0;
     return static_cast<LensManager*>(mgr)->GetActiveLens();
@@ -536,7 +536,7 @@ TbBool LensManager_IsReady(void* mgr)
 }
 
 void LensManager_Draw(void* mgr, unsigned char* srcbuf, unsigned char* dstbuf,
-                      long srcpitch, long dstpitch, long width, long height, long viewport_x)
+                      int32_t srcpitch, int32_t dstpitch, int32_t width, int32_t height, int32_t viewport_x)
 {
     if (mgr != nullptr) {
         static_cast<LensManager*>(mgr)->Draw(srcbuf, dstbuf, srcpitch, dstpitch,
@@ -544,9 +544,9 @@ void LensManager_Draw(void* mgr, unsigned char* srcbuf, unsigned char* dstbuf,
     }
 }
 
-void LensManager_CopyBuffer(unsigned char* dstbuf, long dstpitch,
-                           unsigned char* srcbuf, long srcpitch,
-                           long width, long height)
+void LensManager_CopyBuffer(unsigned char* dstbuf, int32_t dstpitch,
+                           unsigned char* srcbuf, int32_t srcpitch,
+                           int32_t width, int32_t height)
 {
     LensManager::CopyBuffer(dstbuf, dstpitch, srcbuf, srcpitch, width, height);
 }
@@ -590,13 +590,13 @@ void LuaLensEffect_SetDrawCallback(void* effect, int callback_ref)
 // HELPER FUNCTIONS
 /******************************************************************************/
 
-void LensManager::CopyBuffer(unsigned char* dstbuf, long dstpitch,
-                            unsigned char* srcbuf, long srcpitch,
-                            long width, long height)
+void LensManager::CopyBuffer(unsigned char* dstbuf, int32_t dstpitch,
+                            unsigned char* srcbuf, int32_t srcpitch,
+                            int32_t width, int32_t height)
 {
     unsigned char* dst = dstbuf;
     unsigned char* src = srcbuf;
-    for (long i = 0; i < height; i++)
+    for (int32_t i = 0; i < height; i++)
     {
         memcpy(dst, src, width * sizeof(TbPixel));
         dst += dstpitch;

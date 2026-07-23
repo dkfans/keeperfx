@@ -137,7 +137,7 @@ enum GuiLayers {
 };
 
 struct GuiLayer {
-    long current_gui_layer;
+    int32_t current_gui_layer;
 };
 
 struct GamekeySettings {
@@ -172,19 +172,19 @@ extern TbBool rotate_follow_mouse_option;
 
 #pragma pack()
 /******************************************************************************/
-extern long old_mx;
-extern long old_my;
+extern int32_t old_mx;
+extern int32_t old_my;
 /******************************************************************************/
 void input(void);
 short get_screen_capture_inputs(void);
-int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods);
+int is_game_key_pressed(int32_t key_id, TbBool clear_pressed, TbBool ignore_mods);
 short game_is_busy_doing_gui_string_input(void);
 short get_gui_inputs(short gameplay_on);
 extern unsigned short const zoom_key_room_order[];
-TbBool check_current_gui_layer(long layer_id);
+TbBool check_current_gui_layer(int32_t layer_id);
 TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health);
-TbControllerButtons get_game_key_controller_buttons(long key_id);
-float get_game_key_axis_value(long key_id, TbBool ignore_mods);
+TbControllerButtons get_game_key_controller_buttons(int32_t key_id);
+float get_game_key_axis_value(int32_t key_id, TbBool ignore_mods);
 
 /******************************************************************************/
 #ifdef __cplusplus

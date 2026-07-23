@@ -39,7 +39,7 @@ static unsigned short condition_stack_pos;
 static unsigned short condition_stack[CONDITIONS_COUNT];
 
 
-long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx)
+int32_t get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
     SYNCDBG(10,"Checking condition %d for player %d",(int)valtype,(int)plyr_idx);
     struct Dungeon* dungeon;
@@ -204,13 +204,13 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short val
         return count_player_available_creatures_of_model(plyr_idx, CREATURE_ANY);
     case SVar_SLAB_OWNER: //IF_SLAB_OWNER
     {
-        long varib_id = get_slab_number((unsigned char)plyr_idx, validx);
+        int32_t varib_id = get_slab_number((unsigned char)plyr_idx, validx);
         struct SlabMap* slb = get_slabmap_direct(varib_id);
         return slabmap_owner(slb);
     }
     case SVar_SLAB_TYPE: //IF_SLAB_TYPE
     {
-        long varib_id = get_slab_number((unsigned char)plyr_idx, validx);
+        int32_t varib_id = get_slab_number((unsigned char)plyr_idx, validx);
         struct SlabMap* slb = get_slabmap_direct(varib_id);
         return slb->kind;
     }
@@ -316,19 +316,19 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short val
     return 0;
 }
 
-TbBool condition_inactive(long cond_idx)
+TbBool condition_inactive(int32_t cond_idx)
 {
   if ((cond_idx < 0) || (cond_idx >= CONDITIONS_COUNT))
   {
       return false;
   }
-  unsigned long i = game.script.conditions[cond_idx].status;
+  uint32_t i = game.script.conditions[cond_idx].status;
   if (((i & 0x01) == 0) || ((i & 0x04) != 0))
     return true;
   return false;
 }
 
-TbBool get_condition_status(unsigned char opkind, long left_value, long right_value)
+TbBool get_condition_status(unsigned char opkind, int32_t left_value, int32_t right_value)
 {
   return LbMathOperation(opkind, left_value, right_value) != 0;
 }
@@ -338,7 +338,7 @@ static void process_condition(struct Condition *condt, int idx)
     TbBool new_status;
     int plr_start;
     int plr_end;
-    long i;
+    int32_t i;
     SYNCDBG(18,"Starting for type %d, player %d",(int)condt->variabl_type,(int)condt->plyr_range);
     if (condition_inactive(condt->condit_idx))
     {
@@ -348,7 +348,7 @@ static void process_condition(struct Condition *condt, int idx)
     if ((condt->variabl_type == SVar_SLAB_OWNER) || (condt->variabl_type == SVar_SLAB_TYPE)) //These variable types abuse the plyr_range, since all slabs don't fit in an unsigned short
     {
         new_status = false;
-        long k = get_condition_value(condt->plyr_range, condt->variabl_type, condt->variabl_idx);
+        int32_t k = get_condition_value(condt->plyr_range, condt->variabl_type, condt->variabl_idx);
         new_status = get_condition_status(condt->operation, k, condt->rvalue);
     }
     else
@@ -372,9 +372,9 @@ static void process_condition(struct Condition *condt, int idx)
             new_status = false;
             for (i = plr_start; i < plr_end; i++)
             {
-                long left_value = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
+                int32_t left_value = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
 
-                long right_value;
+                int32_t right_value;
                 if (condt->use_second_variable)
                 {
                     int plr_start_right;
@@ -384,7 +384,7 @@ static void process_condition(struct Condition *condt, int idx)
                         WARNLOG("Invalid player range %d in CONDITION command %d.", (int)condt->plyr_range, (int)condt->variabl_type);
                         return;
                     }
-                    for (long j = plr_start_right; j < plr_end_right; j++)
+                    for (int32_t j = plr_start_right; j < plr_end_right; j++)
                     {
                         right_value = get_condition_value(j, condt->variabl_type_right, condt->variabl_idx_right);
                         new_status = get_condition_status(condt->operation, left_value, right_value);
@@ -425,13 +425,13 @@ void process_conditions(void)
 {
     if (game.script.conditions_num > CONDITIONS_COUNT)
       game.script.conditions_num = CONDITIONS_COUNT;
-    for (long i = 0; i < game.script.conditions_num; i++)
+    for (int32_t i = 0; i < game.script.conditions_num; i++)
     {
       process_condition(&game.script.conditions[i], i);
     }
 }
 
-long pop_condition(void)
+int32_t pop_condition(void)
 {
   if (script_current_condition == CONDITION_ALWAYS)
   {
@@ -459,7 +459,7 @@ void set_script_current_condition(int current_condition)
     script_current_condition = current_condition;
 }
 
-void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
+void command_add_condition(int32_t plr_range_id, int32_t opertr_id, int32_t varib_type, int32_t varib_id, int32_t value)
 {
     // TODO: replace with pointer to functions
     struct Condition* condt = &game.script.conditions[game.script.conditions_num];
@@ -486,7 +486,7 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
     game.script.conditions_num++;
 }
 
-void command_add_condition_2variables(long plr_range_id, long opertr_id, long varib_type, long varib_id,long plr_range_id_right, long varib_type_right, long varib_id_right)
+void command_add_condition_2variables(int32_t plr_range_id, int32_t opertr_id, int32_t varib_type, int32_t varib_id,int32_t plr_range_id_right, int32_t varib_type_right, int32_t varib_id_right)
 {
     // TODO: replace with pointer to functions
     struct Condition* condt = &game.script.conditions[game.script.conditions_num];

@@ -39,9 +39,9 @@ PaletteEffect::~PaletteEffect()
     Cleanup();
 }
 
-TbBool PaletteEffect::Setup(long lens_idx)
+TbBool PaletteEffect::Setup(int32_t lens_idx)
 {
-    SYNCDBG(8, "Setting up palette effect for lens %ld", lens_idx);
+    SYNCDBG(8, "Setting up palette effect for lens %d", lens_idx);
     
     struct LensConfig* cfg = &lenses_conf.lenses[lens_idx];
     struct PlayerInfo* player = get_my_player();

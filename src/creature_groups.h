@@ -71,7 +71,7 @@ struct PartyMember {
   unsigned char flags;
   ThingModel crtr_kind;
   unsigned char objectv;
-  long countdown;
+  int32_t countdown;
   CrtrExpLevel exp_level;
   unsigned short carried_gold;
   unsigned short is_active;
@@ -81,17 +81,17 @@ struct PartyMember {
 struct Party {
   char prtname[100];
   struct PartyMember members[GROUP_MEMBERS_COUNT];
-  unsigned long members_num;
+  uint32_t members_num;
 };
 
 #pragma pack()
 /******************************************************************************/
 struct Thing* get_best_creature_to_lead_group(struct Thing* grptng);
-long get_no_creatures_in_group(const struct Thing *grptng);
+int32_t get_no_creatures_in_group(const struct Thing *grptng);
 TbBool get_free_position_behind_leader(struct Thing *leadtng, struct Coord3d *pos);
 
 TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
-long add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
+int32_t add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
 TbBool remove_creature_from_group(struct Thing *thing);
 TbBool remove_creature_from_group_without_leader_consideration(struct Thing *creatng);
 
@@ -104,13 +104,13 @@ TbBool make_group_member_leader(struct Thing *leadtng);
 
 TbBool create_party(const char *prtname);
 int get_party_index_of_name(const char *prtname);
-TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level, long carried_gold, long objctv_id, long countdown, PlayerNumber target);
-TbBool delete_member_from_party(int party_id, long crtr_model, CrtrExpLevel exp_level);
-long process_obey_leader(struct Thing *thing);
+TbBool add_member_to_party(int party_id, int32_t crtr_model, CrtrExpLevel exp_level, int32_t carried_gold, int32_t objctv_id, int32_t countdown, PlayerNumber target);
+TbBool delete_member_from_party(int party_id, int32_t crtr_model, CrtrExpLevel exp_level);
+int32_t process_obey_leader(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *leadtng);
 
-struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_idx, TbMapLocation location, long copies_num);
-struct Thing *script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, CrtrExpLevel exp_level, unsigned long carried_gold);
+struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_idx, TbMapLocation location, int32_t copies_num);
+struct Thing *script_process_new_tunneller_party(PlayerNumber plyr_idx, int32_t prty_id, TbMapLocation location, TbMapLocation heading, CrtrExpLevel exp_level, uint32_t carried_gold);
 /******************************************************************************/
 #ifdef __cplusplus
 }

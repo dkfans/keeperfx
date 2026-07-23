@@ -59,7 +59,7 @@ TbBool slab_has_sellable_door(MapSlabCoord slb_x, MapSlabCoord slb_y);
 void init_keys();
 void lock_door(struct Thing *thing);
 void unlock_door(struct Thing *thing);
-long destroy_door(struct Thing *thing);
+int32_t destroy_door(struct Thing *thing);
 TngUpdateRet process_door(struct Thing *thing);
 TbBool remove_key_on_door(struct Thing *thing);
 TbBool add_key_on_door(struct Thing *thing);
@@ -72,11 +72,11 @@ char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y);
 char determine_door_angle(MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short locked);
-long count_player_deployed_doors_of_model(PlayerNumber owner, int model);
+int32_t count_player_deployed_doors_of_model(PlayerNumber owner, int model);
 TbBool player_has_deployed_trap_of_model(PlayerNumber owner, ThingModel model);
-long count_player_deployed_traps_of_model(PlayerNumber owner, ThingModel model);
-long count_player_available_doors_of_model(PlayerNumber plyr_idx, ThingModel model);
-long count_player_available_traps_of_model(PlayerNumber plyr_idx, ThingModel model);
+int32_t count_player_deployed_traps_of_model(PlayerNumber owner, ThingModel model);
+int32_t count_player_available_doors_of_model(PlayerNumber plyr_idx, ThingModel model);
+int32_t count_player_available_traps_of_model(PlayerNumber plyr_idx, ThingModel model);
 
 void update_navigation_around_all_doors();
 

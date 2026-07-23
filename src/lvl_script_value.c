@@ -59,7 +59,7 @@ extern const struct CommandDesc dk1_command_desc[];
  * @param criteria Criteria, from CreatureSelectCriteria enumeration.
  * @return True if a creature was found and killed.
  */
-TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
+TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, int32_t crmodel, int32_t criteria)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
@@ -77,7 +77,7 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
  * @param criteria Criteria, from CreatureSelectCriteria enumeration.
  * @return True if a creature was found and changed owner.
  */
-TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, long crmodel, long criteria, PlayerNumber dest_plyr_idx)
+TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, int32_t crmodel, int32_t criteria, PlayerNumber dest_plyr_idx)
 {
     struct Thing *thing = script_get_creature_by_criteria(origin_plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
@@ -93,10 +93,10 @@ TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, 
     return true;
 }
 
-void script_kill_creatures(PlayerNumber plyr_idx, long crmodel, long criteria, long copies_num)
+void script_kill_creatures(PlayerNumber plyr_idx, int32_t crmodel, int32_t criteria, int32_t copies_num)
 {
     SYNCDBG(3,"Killing %d of %s owned by player %d.",(int)copies_num,creature_code_name(crmodel),(int)plyr_idx);
-    for (long i = 0; i < copies_num; i++)
+    for (int32_t i = 0; i < copies_num; i++)
     {
         script_kill_creature_with_criteria(plyr_idx, crmodel, criteria);
     }
@@ -109,7 +109,7 @@ void script_kill_creatures(PlayerNumber plyr_idx, long crmodel, long criteria, l
  * @param criteria Criteria, from CreatureSelectCriteria enumeration.
  * @return True if a creature was found and leveled.
  */
-TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criteria, int count)
+TbBool script_level_up_creature(PlayerNumber plyr_idx, int32_t crmodel, int32_t criteria, int count)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
@@ -125,14 +125,14 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
  * This processes given script command. It is used to process VALUEs at start when they have
  * no conditions, or during the gameplay when conditions are met.
  */
-void script_process_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3, struct ScriptValue *value)
+void script_process_value(uint32_t var_index, uint32_t plr_range_id, int32_t param1, int32_t param2, int32_t param3, struct ScriptValue *value)
 {
   struct CreatureModelConfig *crconf;
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   int plr_start;
   int plr_end;
-  long i;
+  int32_t i;
   if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
   {
       WARNLOG("Invalid player range %d in VALUE command %d.",(int)plr_range_id,(int)var_index);
@@ -145,7 +145,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
   if (desc == NULL)
   {
-      WARNLOG("Unexpected index:%lu", var_index);
+      WARNLOG("Unexpected index:%u", var_index);
       return;
   }
   if (desc->process_fn)
@@ -602,7 +602,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       default:
-          SCRPTERRLOG("Unknown creature property '%ld'", param2);
+          SCRPTERRLOG("Unknown creature property '%d'", param2);
           break;
       }
       break;
@@ -770,7 +770,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_EXPORT_VARIABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-          SYNCDBG(8, "Setting campaign flag[%ld][%ld] to %ld.", i, param3, get_condition_value(i, param1, param2));
+          SYNCDBG(8, "Setting campaign flag[%d][%d] to %d.", i, param3, get_condition_value(i, param1, param2));
           intralvl.campaign_flags[i][param3] = get_condition_value(i, param1, param2);
       }
       break;
@@ -805,7 +805,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       {
           if (param2 == 0)
           {
-              long current_flag_val = get_condition_value(i, param3, param1);
+              int32_t current_flag_val = get_condition_value(i, param3, param1);
               set_variable(i, param3, param1, GAME_RANDOM(current_flag_val) + 1);
           }
           else
@@ -816,8 +816,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
   case Cmd_COMPUTE_FLAG:
       {
-        long src_plr_range = (param1 >> 24) & 255;
-        long operation = (param1 >> 16) & 255;
+        int32_t src_plr_range = (param1 >> 24) & 255;
+        int32_t operation = (param1 >> 16) & 255;
         unsigned char flag_type = (param1 >> 8) & 255;
         unsigned char src_flag_type = param1 & 255;
         int src_plr_start, src_plr_end;
@@ -826,26 +826,26 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
             WARNLOG("Invalid player range %d in VALUE command %d.",(int)src_plr_range,(int)var_index);
             return;
         }
-        long sum = 0;
+        int32_t sum = 0;
         for (i=src_plr_start; i < src_plr_end; i++)
         {
             sum += get_condition_value(i, src_flag_type, param3);
         }
         for (i=plr_start; i < plr_end; i++)
         {
-            long current_flag_val = get_condition_value(i, flag_type, param2);
-            long computed = sum;
+            int32_t current_flag_val = get_condition_value(i, flag_type, param2);
+            int32_t computed = sum;
             if (operation == SOpr_INCREASE) computed = current_flag_val + sum;
             if (operation == SOpr_DECREASE) computed = current_flag_val - sum;
             if (operation == SOpr_MULTIPLY) computed = current_flag_val * sum;
-            SCRIPTDBG(7,"Changing player%ld's %ld flag from %ld to %ld based on flag of type %u.",
+            SCRIPTDBG(7,"Changing player%d's %d flag from %d to %d based on flag of type %u.",
                 i, param2, current_flag_val, computed, src_flag_type);
             set_variable(i, flag_type, param2, computed);
         }
       }
       break;
   default:
-      WARNMSG("Unsupported Game VALUE, command %lu.",var_index);
+      WARNMSG("Unsupported Game VALUE, command %u.",var_index);
       break;
   }
 }

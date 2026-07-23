@@ -36,13 +36,13 @@
 static const int lbSinTable[2048];
 static const int lbCosTable[2048];
 
-unsigned short const lbSqrTable[] = {
+uint16_t const lbSqrTable[] = {
    0x0001, 0x0002, 0x0002, 0x0004, 0x0005, 0x0008, 0x000B, 0x0010,
    0x0016, 0x0020, 0x002D, 0x0040, 0x005A, 0x0080, 0x00B5, 0x0100,
    0x016A, 0x0200, 0x02D4, 0x0400, 0x05A8, 0x0800, 0x0B50, 0x1000,
    0x16A0, 0x2000, 0x2D41, 0x4000, 0x5A82, 0x8000, 0xB504, 0xFFFF,};
 
-unsigned short const lbArcTanFactors[] = {
+uint16_t const lbArcTanFactors[] = {
      0,  1,  2,  3,  5,  6,  7,  8, 10, 11, 12, 13, 15, 16, 17, 19,
     20, 21, 22, 24, 25, 26, 27, 29, 30, 31, 32, 34, 35, 36, 38, 39,
     40, 41, 43, 44, 45, 46, 48, 49, 50, 51, 53, 54, 55, 56, 57, 59,
@@ -582,9 +582,9 @@ const struct Proportion proportions[] = {
  * @param x Angle as integer with reference to DEGREES_180.
  * @return Value ranged -65536 to 65536.
  */
-long LbSinL(long x)
+int32_t LbSinL(int32_t x)
 {
-    return lbSinTable[(unsigned long)x & ANGLE_MASK];
+    return lbSinTable[(uint32_t)x & ANGLE_MASK];
 }
 
 /**
@@ -592,9 +592,9 @@ long LbSinL(long x)
  * @param x Angle as integer with reference to DEGREES_180.
  * @return Value ranged -65536 to 65536.
  */
-long LbCosL(long x)
+int32_t LbCosL(int32_t x)
 {
-    return lbCosTable[(unsigned long)x & ANGLE_MASK];
+    return lbCosTable[(uint32_t)x & ANGLE_MASK];
 }
 
 /** Computes angle between negative Y axis and the line that crosses (0,0) and given (x,y).
@@ -671,9 +671,9 @@ int32_t LbArcTanAngle(int32_t x,int32_t y)
     }
 }
 
-static long bitScanReverse(long s)
+static int32_t bitScanReverse(int32_t s)
 {
-  unsigned long source = (unsigned long)s;
+  uint32_t source = (uint32_t)s;
 #if defined(_MSC_VER)
     DWORD i;
     uint8_t success = _BitScanReverse(&i, source);
@@ -697,19 +697,19 @@ static long bitScanReverse(long s)
 #endif
 }
 
-long LbSqrL(long x)
+int32_t LbSqrL(int32_t x)
 {
   if (x <= 0)
     return 0;
   //
-  long y = bitScanReverse(x);
+  int32_t y = bitScanReverse(x);
   y = lbSqrTable[y];
   while ((x/y) < y)
     y = ((x/y) + y) >> 1;
   return y;
 }
 
-long LbMathOperation(unsigned char opkind, long first_operand, long second_operand)
+int32_t LbMathOperation(unsigned char opkind, int32_t first_operand, int32_t second_operand)
 {
   switch (opkind)
   {
@@ -752,11 +752,11 @@ long LbMathOperation(unsigned char opkind, long first_operand, long second_opera
   }
 }
 
-unsigned long LbRandomSeries(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place)
+uint32_t LbRandomSeries(uint32_t range, uint32_t *seed, const char *func_name, uint32_t place)
 {
   if (range == 0)
     return 0;
-  unsigned long i = 9377 * (*seed) + 9439;
+  uint32_t i = 9377 * (*seed) + 9439;
 #ifndef FUNCTESTING // don't modify seeds when functional testing is enabled
   *seed = (i >> 13) | (i << ((sizeof(int32_t) * 8) - 13));
 #endif // FUNCTESTING
@@ -764,7 +764,7 @@ unsigned long LbRandomSeries(unsigned long range, uint32_t *seed, const char *fu
   return i;
 }
 
-TbBool LbNumberSignsSame(long num_a, long num_b)
+TbBool LbNumberSignsSame(int32_t num_a, int32_t num_b)
 {
     int sign_a;
     int sign_b;
@@ -779,10 +779,10 @@ TbBool LbNumberSignsSame(long num_a, long num_b)
     return (sign_a == sign_b);
 }
 
-char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b)
+char LbCompareMultiplications(int32_t mul1a, int32_t mul1b, int32_t mul2a, int32_t mul2b)
 {
-    long long mul1 = (long long)mul1a * (long long)mul1b;
-    long long mul2 = (long long)mul2a * (long long)mul2b;
+    int64_t mul1 = (int64_t)mul1a * (int64_t)mul1b;
+    int64_t mul2 = (int64_t)mul2a * (int64_t)mul2b;
     if (mul1 > mul2)
         return 1;
     if (mul1 < mul2)
@@ -797,10 +797,10 @@ char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b)
  * @param b Length of second of the sides.
  * @return Root of sum of squares of given lengths, sqrt(a*a + b*b).
  */
-long LbDiagonalLength(long a, long b)
+int32_t LbDiagonalLength(int32_t a, int32_t b)
 {
     int propidx;
-    long long tmpval;
+    int64_t tmpval;
     if (a > b) {
         if (a == 0) {
             return 0; // don't divide by zero
@@ -814,7 +814,7 @@ long LbDiagonalLength(long a, long b)
         propidx = (a << 8)/b;
         tmpval = b;
     }
-    tmpval = tmpval * (long long)proportions[propidx + 256].distance_ratio;
+    tmpval = tmpval * (int64_t)proportions[propidx + 256].distance_ratio;
     return (tmpval >> 13);
 }
 

@@ -46,8 +46,8 @@ namespace {
 struct Message;
 
 std::deque<std::unique_ptr<Message>> g_message_queue;
-std::map<SoundSmplTblID, long> g_recent_samples;
-std::map<std::string, long> g_recent_filenames;
+std::map<SoundSmplTblID, int32_t> g_recent_samples;
+std::map<std::string, int32_t> g_recent_filenames;
 std::unique_ptr<Message> g_current_message;
 
 enum MessageType {
@@ -58,9 +58,9 @@ enum MessageType {
 struct Message {
 
 	MessageType type;
-	long duration;
+	int32_t duration;
 
-	Message(MessageType _type, long _duration)
+	Message(MessageType _type, int32_t _duration)
 	: type(_type), duration(_duration)
 	{}
 
@@ -72,7 +72,7 @@ struct DefaultMessage : Message {
 
 	SoundSmplTblID sample_id;
 
-	DefaultMessage(long _sample_id, long _duration)
+	DefaultMessage(int32_t _sample_id, int32_t _duration)
 	: Message(MT_Default, _duration), sample_id(_sample_id)
 	{}
 
@@ -93,7 +93,7 @@ struct CustomMessage : Message {
 
 	std::string fname;
 
-	CustomMessage(const char * _fname, long _duration)
+	CustomMessage(const char * _fname, int32_t _duration)
 	: Message(MT_Custom, _duration), fname(_fname)
 	{}
 
@@ -338,10 +338,10 @@ static std::string resolve_speech_path(const char* path, const char* lang,
  * @param duration Number of ticks to supress future, identical messages.
  * @return True if the message was either played or queued. Otherwise, false.
  */
-extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
+extern "C" TbBool output_message(SoundSmplTblID sample_id, int32_t duration)
 {
 	try {
-		SYNCDBG(8, "Sample ID %d, duration %ld", sample_id, duration);
+		SYNCDBG(8, "Sample ID %d, duration %d", sample_id, duration);
 		if ((sample_id < 0) || (sample_id >= SMsg_MAX)) {
 			SYNCDBG(8, "Sample ID (%d) invalid, skipping", sample_id);
 			return false;
@@ -392,7 +392,7 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
  * Plays a speech file by searching campaign/level/media/root directories.
  * Applies 5-step fallback: language variant -> eng -> base path -> any language -> nothing.
  */
-extern "C" TbBool output_message_from_path(const char* path, long duration)
+extern "C" TbBool output_message_from_path(const char* path, int32_t duration)
 {
 	const char* lang = get_language_lwrstr(install_info.lang_id);
 	SpeechResolveResult resolve_result;
@@ -418,7 +418,7 @@ extern "C" TbBool output_message_from_path(const char* path, long duration)
 /**
  * Plays a speech message from a SpeechRef, using path-based playback if a path is set.
  */
-extern "C" TbBool play_speech_ref(const SpeechRef* ref, long duration)
+extern "C" TbBool play_speech_ref(const SpeechRef* ref, int32_t duration)
 {
 	if (ref->path[0] != '\0')
 		return output_message_from_path(ref->path, duration);
@@ -434,10 +434,10 @@ extern "C" TbBool play_speech_ref(const SpeechRef* ref, long duration)
  * @param duration Number of ticks to supress future, identical messages.
  * @return True if the message was either played or queued. Otherwise, false.
  */
-extern "C" TbBool output_custom_message(const char * fname, long duration)
+extern "C" TbBool output_custom_message(const char * fname, int32_t duration)
 {
 	try {
-		SYNCDBG(8, "Filename %s, duration %ld", fname, duration);
+		SYNCDBG(8, "Filename %s, duration %d", fname, duration);
 		if (strlen(fname) == 0) {
 			SYNCDBG(8, "Filename invalid, skipping");
 			return false;
@@ -469,10 +469,10 @@ extern "C" TbBool output_custom_message(const char * fname, long duration)
 extern "C" TbBool output_message_far_from_thing(
 	const Thing * thing,
 	SoundSmplTblID sample_id,
-	long duration
+	int32_t duration
 ) {
 	try {
-		SYNCDBG(8, "Sample ID %d, duration %ld", sample_id, duration);
+		SYNCDBG(8, "Sample ID %d, duration %d", sample_id, duration);
 		if ((sample_id < 0) || (sample_id >= SMsg_MAX)) {
 			SYNCDBG(8, "Sample ID (%d) invalid, skipping", sample_id);
 			return false;

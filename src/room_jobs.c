@@ -136,7 +136,7 @@ TbBool remove_creature_from_torture_room(struct Thing *creatng)
 {
     struct Room* room = get_room_creature_works_in(creatng);
     if (!room_exists(room)) {
-        SYNCDBG(6,"The %s worked in a room which no longer exists",thing_model_name(creatng));
+        SYNCDBG(6,"The %s worked in a room which no int32_ter exists",thing_model_name(creatng));
         return false;
     }
     PlayerNumber plyr_idx = room->owner;
@@ -277,9 +277,9 @@ struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing
         WARNLOG("Room with no slabs detected!");
         return rettng;
     }
-    long selected = THING_RANDOM(creatng, room->slabs_count);
-    unsigned long k = 0;
-    long i = room->slabs_list;
+    int32_t selected = THING_RANDOM(creatng, room->slabs_count);
+    uint32_t k = 0;
+    int32_t i = room->slabs_list;
     while (i != 0)
     {
         MapSubtlCoord stl_x = slab_subtile_center(slb_num_decode_x(i));
@@ -324,7 +324,7 @@ TbBool creature_setup_adjacent_move_for_job_within_room_f(struct Thing *creatng,
 {
     struct Coord3d pos;
     TbBool result;
-    unsigned long room_area = get_flags_for_job(jobpref) & (JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter);
+    uint32_t room_area = get_flags_for_job(jobpref) & (JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter);
     switch (room_area)
     {
     case JoKF_WorkOnAreaBorder:
@@ -363,7 +363,7 @@ TbBool creature_setup_random_move_for_job_in_room_f(struct Thing *creatng, struc
 {
     struct Coord3d pos;
     TbBool result;
-    unsigned long room_area = get_flags_for_job(jobpref) & (JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter);
+    uint32_t room_area = get_flags_for_job(jobpref) & (JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter);
     switch (room_area)
     {
     case JoKF_WorkOnAreaBorder:
@@ -457,7 +457,7 @@ int worker_needed_in_dungeons_room_role(const struct Dungeon *dungeon, RoomRole 
     if ((rrole & RoRoF_CratesManufctr) != 0)
     {
         // When we have low gold, allow working on any manufacture - we'll sell the crates
-        long amount = get_doable_manufacture_with_minimal_amount_available(dungeon, NULL, NULL);
+        int32_t amount = get_doable_manufacture_with_minimal_amount_available(dungeon, NULL, NULL);
         GoldAmount net_gold = get_dungeon_money_less_cost(dungeon);
         if (amount >= MANUFACTURED_ITEMS_LIMIT)
             return 0;

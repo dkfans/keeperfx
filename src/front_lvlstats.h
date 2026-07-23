@@ -30,10 +30,10 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-typedef long (*StatGetValueCallback)(void *ptr);
+typedef int32_t (*StatGetValueCallback)(void *ptr);
 
 struct StatsData { // sizeof = 12
-  unsigned long name_stridx;
+  uint32_t name_stridx;
   StatGetValueCallback get_value;
   void *get_arg;
 };

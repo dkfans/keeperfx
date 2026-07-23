@@ -18,7 +18,7 @@ extern "C" {
 #define INPUT_LAG_SAMPLE_WINDOW_TURNS 100
 // Input lag increases when the packet miss percentage exceeds this value within the sample window. [Higher = more choppy FPS but lower input lag, lower = smoother FPS but higher input lag]
 #define TOLERATE_PACKET_MISS_PERCENT 70
-// Starts out low so we can more quickly determine the correct input_lag_turns at the start of the level, but doubles and takes longer to change as the game progresses.
+// Starts out low so we can more quickly determine the correct input_lag_turns at the start of the level, but doubles and takes int32_ter to change as the game progresses.
 #define INPUT_LAG_INCREASE_INITIAL_INTERVAL_MS 600
 #define INPUT_LAG_DECREASE_INITIAL_INTERVAL_MS 500
 // When increasing input_lag_turns, cap the interval so that we can always get out of a laggy spot. Decreasing has no cap so that it will do less decreases as the game progresses.
@@ -96,7 +96,7 @@ TbBool input_lag_skips_processing(void)
         return true;
     }
     if (input_lag_target < game.input_lag_turns) {
-        JUSTLOG("Input lag decreased from %d to %d; discarded_turn=%lu target=%d", game.input_lag_turns, game.input_lag_turns - 1, (unsigned long)(get_gameturn() - game.input_lag_turns), input_lag_target);
+        JUSTLOG("Input lag decreased from %d to %d; discarded_turn=%u target=%d", game.input_lag_turns, game.input_lag_turns - 1, (uint32_t)(get_gameturn() - game.input_lag_turns), input_lag_target);
         game.input_lag_turns -= 1;
     }
     return false;

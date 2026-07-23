@@ -71,14 +71,14 @@ enum GBoxFlags {
 };
 
 union GuiVariant {
-    long lval;
+    int32_t lval;
     int32_t *lptr;
     void *ptr;
     char *str;
 };
 
-typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, int32_t *);
-typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, int32_t *);
+typedef int32_t (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, int32_t *);
+typedef int32_t (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, int32_t *);
 typedef void (*Gf_Btn_Callback)(struct GuiButton *gbtn);
 typedef void (*Gf_Mnu_Callback)(struct GuiMenu *gmnu);
 
@@ -88,11 +88,11 @@ struct GuiBoxOption {
        Gf_OptnBox_3Callback active_cb;
        Gf_OptnBox_4Callback callback;
        int32_t acb_param1;
-       long max_count;
-       long unused_param1;
+       int32_t max_count;
+       int32_t unused_param1;
        int32_t cb_param1;
-       long option_index;
-       long unused_param2;
+       int32_t option_index;
+       int32_t unused_param2;
        TbBool active;
        TbBool enabled;
 };
@@ -100,10 +100,10 @@ struct GuiBoxOption {
 struct GuiBox {
     char flags;
     short box_index;
-    long pos_x;
-    long pos_y;
-    long width;
-    long height;
+    int32_t pos_x;
+    int32_t pos_y;
+    int32_t width;
+    int32_t height;
     struct GuiBoxOption *optn_list;
     struct GuiBox *next_box;
     struct GuiBox *prev_box;
@@ -111,8 +111,8 @@ struct GuiBox {
 
 struct DraggingBox {
   struct GuiBox *gbox;
-  long start_x;
-  long start_y;
+  int32_t start_x;
+  int32_t start_y;
 };
 
 struct GuiButtonInit {
@@ -166,7 +166,7 @@ struct GuiButton {
        struct GuiMenu *parent_menu;
        union GuiVariant content;
        unsigned short slide_val; // slider value, scaled 0..255
-       short has_shown_before; // GUI tooltips take longer to display the next time you show them
+       short has_shown_before; // GUI tooltips take int32_ter to display the next time you show them
 };
 
 struct GuiMenu {

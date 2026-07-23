@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBottom)
+void LbSetRect(struct TbRect *rect, int32_t xLeft, int32_t yTop, int32_t xRight, int32_t yBottom)
 {
     if (rect == NULL)
         return;
@@ -46,17 +46,17 @@ void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBo
  * @param angle_a
  * @param angle_b
  */
-long get_angle_difference(long angle_a, long angle_b)
+int32_t get_angle_difference(int32_t angle_a, int32_t angle_b)
 {
-    long diff = abs((angle_a & ANGLE_MASK) - (angle_b & ANGLE_MASK));
+    int32_t diff = abs((angle_a & ANGLE_MASK) - (angle_b & ANGLE_MASK));
     if (diff > DEGREES_180)
         diff = (DEGREES_360 - diff);
     return diff;
 }
 
-long get_angle_sign(long angle_a, long angle_b)
+int32_t get_angle_sign(int32_t angle_a, int32_t angle_b)
 {
-    long diff = (angle_b & ANGLE_MASK) - (angle_a & ANGLE_MASK);
+    int32_t diff = (angle_b & ANGLE_MASK) - (angle_a & ANGLE_MASK);
     if (diff == 0)
         return 0;
     if (abs(diff) > DEGREES_180)
@@ -76,9 +76,9 @@ long get_angle_sign(long angle_a, long angle_b)
  * @param distance Specifies the distance to move.
  * @param angle Specifies the movement direction.
  */
-long distance_with_angle_to_coord_x(long distance, long angle)
+int32_t distance_with_angle_to_coord_x(int32_t distance, int32_t angle)
 {
-    long long val = (long long)distance * LbSinL(angle);
+    int64_t val = (int64_t)distance * LbSinL(angle);
     return val >> 16;
 }
 
@@ -87,16 +87,16 @@ long distance_with_angle_to_coord_x(long distance, long angle)
  * @param distance Specifies the distance to move.
  * @param angle Specifies the movement direction.
  */
-long distance_with_angle_to_coord_y(long distance, long angle)
+int32_t distance_with_angle_to_coord_y(int32_t distance, int32_t angle)
 {
-    long long val = (long long)distance * LbCosL(angle);
+    int64_t val = (int64_t)distance * LbCosL(angle);
     return (-(val >> 8)) >> 8;
 }
 
-long get_distance_xy(long x1, long y1, long x2, long y2)
+int32_t get_distance_xy(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
-    long dx = abs(x1 - x2);
-    long dy = abs(y1 - y2);
+    int32_t dx = abs(x1 - x2);
+    int32_t dy = abs(y1 - y2);
     return LbDiagonalLength(dx, dy);
 }
 
@@ -126,9 +126,9 @@ MapCoordDelta get_chessboard_3d_distance(const struct Coord3d *pos1, const struc
  * @param angle_a Specifies the movement rotation a.
  * @param angle_b Specifies the movement rotation b.
  */
-long distance3d_with_angles_to_coord_x(long distance, long angle_a, long angle_b)
+int32_t distance3d_with_angles_to_coord_x(int32_t distance, int32_t angle_a, int32_t angle_b)
 {
-    long long val = (LbSinL(angle_a)>> 8)
+    int64_t val = (LbSinL(angle_a)>> 8)
           * (distance * LbCosL(angle_b) >> 8);
     return val >> 16;
 }
@@ -139,9 +139,9 @@ long distance3d_with_angles_to_coord_x(long distance, long angle_a, long angle_b
  * @param angle_a Specifies the movement rotation a.
  * @param angle_b Specifies the movement rotation b.
  */
-long distance3d_with_angles_to_coord_y(long distance, long angle_a, long angle_b)
+int32_t distance3d_with_angles_to_coord_y(int32_t distance, int32_t angle_a, int32_t angle_b)
 {
-    long long val = (LbCosL(angle_a) >> 8)
+    int64_t val = (LbCosL(angle_a) >> 8)
         * (distance * LbCosL(angle_b) >> 8);
     return (-(val >> 8)) >> 8;
 }
@@ -152,9 +152,9 @@ long distance3d_with_angles_to_coord_y(long distance, long angle_a, long angle_b
  * @param distance Specifies the distance to move.
  * @param angle Specifies the movement direction.
  */
-long move_coord_with_angle_x(long pos_x, long distance, long angle)
+int32_t move_coord_with_angle_x(int32_t pos_x, int32_t distance, int32_t angle)
 {
-    long long val = (long long)distance * LbSinL(angle);
+    int64_t val = (int64_t)distance * LbSinL(angle);
     return pos_x + (val >> 16);
 }
 
@@ -164,9 +164,9 @@ long move_coord_with_angle_x(long pos_x, long distance, long angle)
  * @param distance Specifies the distance to move.
  * @param angle Specifies the movement direction.
  */
-long move_coord_with_angle_y(long pos_y, long distance, long angle)
+int32_t move_coord_with_angle_y(int32_t pos_y, int32_t distance, int32_t angle)
 {
-    long long val = (long long)distance * LbCosL(angle);
+    int64_t val = (int64_t)distance * LbCosL(angle);
     return pos_y + ((-(val >> 8)) >> 8);
 }
 /******************************************************************************/

@@ -101,7 +101,7 @@ int get_next_research_item(const struct Dungeon *dungeon)
 {
     if (dungeon->research_num == 0)
         return -1;
-    for (long resnum = 0; resnum < dungeon->research_num; resnum++)
+    for (int32_t resnum = 0; resnum < dungeon->research_num; resnum++)
     {
         const struct ResearchVal* rsrchval = &dungeon->research[resnum];
         switch (rsrchval->rtyp)
@@ -147,7 +147,7 @@ int get_next_research_item(const struct Dungeon *dungeon)
 
 TbBool has_new_rooms_to_research(const struct Dungeon *dungeon)
 {    
-    for (long resnum = 0; resnum < dungeon->research_num; resnum++)
+    for (int32_t resnum = 0; resnum < dungeon->research_num; resnum++)
     {
         const struct ResearchVal* rsrchval = &dungeon->research[resnum];
         if (rsrchval->rtyp == RsCat_Room)
@@ -222,7 +222,7 @@ CrCheckRet process_research_function(struct Thing *creatng)
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    long work_value = compute_creature_work_value_for_room_role(creatng, RoRoF_Research, room->efficiency);
+    int32_t work_value = compute_creature_work_value_for_room_role(creatng, RoRoF_Research, room->efficiency);
     SYNCDBG(19,"The %s index %d produced %d research points",thing_model_name(creatng),(int)creatng->index,(int)work_value);
     dungeon->total_research_points += work_value;
     dungeon->research_progress += work_value;
@@ -288,8 +288,8 @@ short researching(struct Thing *thing)
           // Do some random thinking
           if ((cctrl->turns_at_job % 16) == 0)
           {
-              long i = THING_RANDOM(thing, DEGREES_180) - DEGREES_90;
-              cctrl->research.random_thinking_angle = ((long)thing->move_angle_xy + i) & ANGLE_MASK;
+              int32_t i = THING_RANDOM(thing, DEGREES_180) - DEGREES_90;
+              cctrl->research.random_thinking_angle = ((int32_t)thing->move_angle_xy + i) & ANGLE_MASK;
               cctrl->research.job_stage = JobStage_TurningToFace;
           }
       } else

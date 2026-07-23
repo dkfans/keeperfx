@@ -45,39 +45,39 @@ struct Triangle {
 
 /******************************************************************************/
 extern struct Triangle Triangles[TRIANLGLES_COUNT];
-extern long count_Triangles;
-extern long ix_Triangles;
+extern int32_t count_Triangles;
+extern int32_t ix_Triangles;
 
 #pragma pack()
 /******************************************************************************/
 extern struct Triangle bad_triangle;
 #define INVALID_TRIANGLE &bad_triangle
-extern const long MOD3[];
+extern const int32_t MOD3[];
 /******************************************************************************/
-long tri_new(void);
-void tri_dispose(long tri_idx);
+int32_t tri_new(void);
+void tri_dispose(int32_t tri_idx);
 
 TbBool triangle_is_invalid(const struct Triangle *tri);
-struct Triangle *get_triangle(long tri_id);
-long triangle_find_first_used(void);
+struct Triangle *get_triangle(int32_t tri_id);
+int32_t triangle_find_first_used(void);
 
-long get_triangle_region_id(long tri_id);
-TbBool set_triangle_region_id(long tri_id, long reg_id);
-long get_triangle_edgelen(long tri_id);
-TbBool set_triangle_edgelen(long tri_id, long edgelen);
-NavColour get_triangle_tree_alt(long tri_id);
-struct Point *get_triangle_point(long tri_id, long pt_cor);
-TbBool triangle_tip_equals(long tri_id, long pt_cor, long pt_x, long pt_y);
-long link_find(long ntri, long val);
-TbBool outer_locked(long ntri, long ncor);
+int32_t get_triangle_region_id(int32_t tri_id);
+TbBool set_triangle_region_id(int32_t tri_id, int32_t reg_id);
+int32_t get_triangle_edgelen(int32_t tri_id);
+TbBool set_triangle_edgelen(int32_t tri_id, int32_t edgelen);
+NavColour get_triangle_tree_alt(int32_t tri_id);
+struct Point *get_triangle_point(int32_t tri_id, int32_t pt_cor);
+TbBool triangle_tip_equals(int32_t tri_id, int32_t pt_cor, int32_t pt_x, int32_t pt_y);
+int32_t link_find(int32_t ntri, int32_t val);
+TbBool outer_locked(int32_t ntri, int32_t ncor);
 
-long point_loop(long pt_tri, long pt_cor);
-long reduce_point(int32_t *pt_tri, int32_t *pt_cor);
-void edgelen_set(long tri_id);
-long edge_rotateAC(long tri1_id, long cor1_id);
+int32_t point_loop(int32_t pt_tri, int32_t pt_cor);
+int32_t reduce_point(int32_t *pt_tri, int32_t *pt_cor);
+void edgelen_set(int32_t tri_id);
+int32_t edge_rotateAC(int32_t tri1_id, int32_t cor1_id);
 
-void triangulation_init_triangles(long pt_id1, long pt_id2, long pt_id3, long pt_id4);
-char triangle_divide_areas_s8differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y);
+void triangulation_init_triangles(int32_t pt_id1, int32_t pt_id2, int32_t pt_id3, int32_t pt_id4);
+char triangle_divide_areas_s8differ(int32_t ntri, int32_t ncorA, int32_t ncorB, int32_t pt_x, int32_t pt_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

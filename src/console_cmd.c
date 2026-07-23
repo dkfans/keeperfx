@@ -188,9 +188,9 @@ static char cmd_comp_events_label[COMPUTER_EVENTS_COUNT][COMMAND_WORD_LEN + 8];
 static PlayerNumber get_player_number_for_command(char *msg);
 static char get_door_number_for_command(char* msg);
 static char get_trap_number_for_command(char* msg);
-static long get_creature_model_for_command(char *msg);
+static int32_t get_creature_model_for_command(char *msg);
 
-static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *args)
+static int32_t cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *args)
 {
     struct Computer2 *comp;
     comp = get_computer_player(args[0]);
@@ -205,7 +205,7 @@ static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn
     return 1;
 }
 
-static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *args)
+static int32_t cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *args)
 {
     struct Computer2 *comp = get_computer_player(args[0]);
     int i = 0;
@@ -216,7 +216,7 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
         if (cproc != NULL)
         {
             char *label = (char*)goptn[i].label;
-            sprintf(label, "%02lx", cproc->flags);
+            sprintf(label, "%02x", cproc->flags);
             label[2] = ' ';
         }
     }
@@ -228,7 +228,7 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
 int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
     struct GuiBoxOption *data_list, char label_list[][COMMAND_WORD_LEN + 8],
     const char *(*get_name)(struct Computer2 *, int),
-    unsigned long (*get_flags)(struct Computer2 *, int),
+    uint32_t (*get_flags)(struct Computer2 *, int),
     Gf_OptnBox_4Callback click_fn
     )
 {
@@ -239,12 +239,12 @@ int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
     comp = get_computer_player(plyr_idx);
     for (; i < max_count; i++)
     {
-        unsigned long flags = get_flags(comp, i);
+        uint32_t flags = get_flags(comp, i);
         const char *name = get_name(comp, i);
         if (name == NULL) {
-            snprintf(label_list[i], sizeof(label_list[i]), "%02lx %s", flags, "(null2)");
+            snprintf(label_list[i], sizeof(label_list[i]), "%02x %s", flags, "(null2)");
         } else {
-            snprintf(label_list[i], sizeof(label_list[i]), "%02lx %s", flags, name);
+            snprintf(label_list[i], sizeof(label_list[i]), "%02x %s", flags, name);
         }
         data_list[i].label = label_list[i];
 
@@ -264,7 +264,7 @@ static const char *get_process_name(struct Computer2 *comp, int i)
 {
     return comp->processes[i].name;
 }
-static unsigned long  get_process_flags(struct Computer2 *comp, int i)
+static uint32_t  get_process_flags(struct Computer2 *comp, int i)
 {
     return comp->processes[i].flags;
 }
@@ -273,12 +273,12 @@ static const char *get_event_name(struct Computer2 *comp, int i)
 {
     return comp->events[i].name;
 }
-static unsigned long  get_event_flags(struct Computer2 *comp, int i)
+static uint32_t  get_event_flags(struct Computer2 *comp, int i)
 {
     return 0;
 }
 
-static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *args)
+static int32_t cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *args)
 {
     struct Computer2 *comp;
     comp = get_computer_player(args[0]);
@@ -296,7 +296,7 @@ static const char *get_check_name(struct Computer2 *comp, int i)
 {
     return comp->checks[i].name;
 }
-static unsigned long  get_check_flags(struct Computer2 *comp, int i)
+static uint32_t  get_check_flags(struct Computer2 *comp, int i)
 {
     return comp->checks[i].flags;
 }
@@ -352,7 +352,7 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
     }
     struct CreatureModelConfig* crconf = creature_stats_get(creature);
     crconf->learned_instance_id[slot] = instance;
-    for (long i = 0; i < THINGS_COUNT; i++) {
+    for (int32_t i = 0; i < THINGS_COUNT; i++) {
         struct Thing * thing = thing_get(i);
         if ((thing->alloc_flags & TAlF_Exists) != 0) {
             if (thing->class_id == TCls_Creature) {
@@ -404,7 +404,7 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
     memset(suggested_key_list, 0, sizeof(suggested_key_list));
     int suggested_key_cnt = 0;
 
-    long i = 0;
+    int32_t i = 0;
     for (i=0; creature_desc[i].name != NULL && suggested_key_cnt < suggested_key_max; i++)
     {
         suggested_key_list[suggested_key_cnt++] = creature_desc[i].name;
@@ -546,7 +546,7 @@ TbBool cmd_time(PlayerNumber plyr_idx, char * args)
     char * pr1str = strsep_param_with_space(&args);
     char * pr2str = strsep_param_with_space(&args);
     GameTurn turn = (pr1str != NULL) ? (GameTurn) atoi(pr1str) : get_gameturn();
-    long frames = (pr2str != NULL) ? (long) atoi(pr2str) : turns_per_second;
+    int32_t frames = (pr2str != NULL) ? (int32_t) atoi(pr2str) : turns_per_second;
     show_game_time_taken(frames, turn);
     return true;
 }
@@ -595,7 +595,7 @@ TbBool cmd_step(PlayerNumber plyr_idx, char * args)
 TbBool cmd_game_save(PlayerNumber plyr_idx, char * args)
 {
     char * pr1str = strsep_param_with_space(&args);
-    long slot_num = (pr1str != NULL) ? atoi(pr1str) : 0;
+    int32_t slot_num = (pr1str != NULL) ? atoi(pr1str) : 0;
     if (slot_num < 0 || slot_num >= TOTAL_SAVE_SLOTS_COUNT)
     {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot_num [%d] exceeds [%d,%d)", slot_num, 0, TOTAL_SAVE_SLOTS_COUNT);
@@ -620,7 +620,7 @@ TbBool cmd_game_save(PlayerNumber plyr_idx, char * args)
 TbBool cmd_game_load(PlayerNumber plyr_idx, char * args)
 {
     char * pr1str = strsep_param_with_space(&args);
-    long slot_num = (pr1str != NULL) ? atoi(pr1str) : 0;
+    int32_t slot_num = (pr1str != NULL) ? atoi(pr1str) : 0;
     if (slot_num < 0 || slot_num >= TOTAL_SAVE_SLOTS_COUNT)
     {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot_num [%d] exceeds [%d,%d)", slot_num, 0, TOTAL_SAVE_SLOTS_COUNT);
@@ -959,7 +959,7 @@ TbBool cmd_give_trap(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    long id = get_trap_number_for_command(pr1str);
+    int32_t id = get_trap_number_for_command(pr1str);
     if (id <= 0 || id > game.conf.trapdoor_conf.trap_types_count) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "trap number [%d] exceeds (%d,%d]", id, 0, game.conf.trapdoor_conf.trap_types_count);
         return false;
@@ -985,7 +985,7 @@ TbBool cmd_give_door(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    long id = get_door_number_for_command(pr1str);
+    int32_t id = get_door_number_for_command(pr1str);
     if (id <= 0 || id > game.conf.trapdoor_conf.door_types_count) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "door number [%d] exceeds (%d, %d])", id, 0, game.conf.trapdoor_conf.door_types_count);
         return false;
@@ -1015,7 +1015,7 @@ TbBool cmd_map_pool(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as creature model");
         return true;
     }
-    long kind = get_id(creature_desc, pr1str);
+    int32_t kind = get_id(creature_desc, pr1str);
     if (kind == -1) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Invalid creature: %s", pr1str);
         return false;
@@ -1082,13 +1082,13 @@ TbBool cmd_look(PlayerNumber plyr_idx, char * args)
         return false;
     }
     make_uppercase(pr1str);
-    long room_id = get_id(room_desc, pr1str);
+    int32_t room_id = get_id(room_desc, pr1str);
     if (room_id != -1) {
         go_to_my_next_room_of_type(room_id);
         process_players_global_packet_action(plyr_idx); // Dirty hack
         return true;
     }
-    long crmodel = get_id(creature_desc, pr1str);
+    int32_t crmodel = get_id(creature_desc, pr1str);
     if(crmodel != -1) {
         go_to_next_creature_of_model_and_gui_job(crmodel, CrGUIJob_Any, TPF_OrderedPick);
         process_players_global_packet_action(plyr_idx); // Dirty hack
@@ -1131,7 +1131,7 @@ TbBool cmd_create_object(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "subtile coord is invalid");
         return false;
     }
-    long ObjModel = get_rid(object_desc, pr1str);
+    int32_t ObjModel = get_rid(object_desc, pr1str);
     if (ObjModel == -1) {
         if (parameter_is_number(pr1str)) {
             ObjModel = atoi(pr1str);
@@ -1167,7 +1167,7 @@ TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as creature model");
         return false;
     }
-    long crmodel = get_creature_model_for_command(pr1str);
+    int32_t crmodel = get_creature_model_for_command(pr1str);
     if (crmodel == -1) {
         if (parameter_is_number(pr1str)) {
             crmodel = atoi(pr1str);
@@ -1368,7 +1368,7 @@ void param_completion_for_create_thing(PlayerNumber plyr_idx, char *args_str, si
         {NULL, 0}
     };
 
-    long i = 0;
+    int32_t i = 0;
     for (i=0; thing_command_aliases[i].name != NULL && suggested_key_cnt < suggested_key_max; i++)
     {
         suggested_key_list[suggested_key_cnt++] = thing_command_aliases[i].name;
@@ -1562,7 +1562,7 @@ TbBool cmd_place_slab(PlayerNumber plyr_idx, char * args)
     PlayerNumber id = (pr2str == NULL) ? slabmap_owner(slb) : get_player_number_for_command(pr2str);
     short slbkind = get_rid(slab_desc, pr1str);
     if (slbkind < 0) {
-        long rid = get_rid(room_desc, pr1str);
+        int32_t rid = get_rid(room_desc, pr1str);
         if (rid > 0) {
             struct RoomConfigStats *roomst = get_room_kind_stats(rid);
             slbkind = roomst->assigned_slab;
@@ -1611,7 +1611,7 @@ TbBool cmd_room_available(PlayerNumber plyr_idx, char * args)
     TbBool available = (pr2str == NULL) ? 1 : atoi(pr2str);
     char * pr3str = strsep_param_with_space(&args);
     PlayerNumber id = get_player_number_for_command(pr3str);
-    long roomid;
+    int32_t roomid;
     if (strcasecmp(pr1str, "all") == 0) {
         for (roomid = RoK_TREASURE; roomid <= RoK_GUARDPOST; roomid++) {
             if (roomid != RoK_DUNGHEART) {
@@ -1659,7 +1659,7 @@ TbBool cmd_give_power(PlayerNumber plyr_idx, char * args)
         update_powers_tab_to_config();
         return true;
     }
-    long power = get_rid(power_desc, pr1str);
+    int32_t power = get_rid(power_desc, pr1str);
     if (power < 0) {
         power = atoi(pr1str);
     }
@@ -1719,7 +1719,7 @@ TbBool cmd_creature_available(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    long crmodel = get_creature_model_for_command(pr1str);
+    int32_t crmodel = get_creature_model_for_command(pr1str);
     char * pr2str = strsep_param_with_space(&args);
     TbBool available = (pr2str == NULL) ? 1 : atoi(pr2str);
     char * pr3str = strsep_param_with_space(&args);
@@ -2207,7 +2207,7 @@ TbBool cmd_creature_pool_add(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2 as creature amount");
         return false;
     }
-    long crmodel = get_creature_model_for_command(pr1str);
+    int32_t crmodel = get_creature_model_for_command(pr1str);
     if (crmodel == -1) {
         crmodel = atoi(pr1str);
     }
@@ -2231,7 +2231,7 @@ TbBool cmd_creature_pool_sub(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2 as creature amount");
         return false;
     }
-    long crmodel = get_creature_model_for_command(pr1str);
+    int32_t crmodel = get_creature_model_for_command(pr1str);
     if (crmodel == -1) {
         crmodel = atoi(pr1str);
     }
@@ -2394,7 +2394,7 @@ TbBool cmd_toggle_classic_bug(PlayerNumber plyr_idx, char * args)
     if (bug == -1) {
         bug = atoi(pr1str);
     }
-    unsigned long flg = (bug > 2) ? (1 << (bug - 1)) : bug;
+    uint32_t flg = (bug > 2) ? (1 << (bug - 1)) : bug;
     toggle_flag(game.conf.rules[plyr_idx].gameplay.classic_bugs_flags, flg);
     targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules[plyr_idx].gameplay.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
     return true;
@@ -2411,7 +2411,7 @@ TbBool cmd_get_action_point_pos(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as actionpoint number");
         return false;
     }
-    long num = atoi(pr1str);
+    int32_t num = atoi(pr1str);
     ActionPointId idx = action_point_number_to_index(num);
     if (!action_point_exists_idx(idx)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "actionpoint no exist");
@@ -2433,7 +2433,7 @@ TbBool cmd_zoom_to_action_point(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as actionpoint number");
         return false;
     }
-    long num = atoi(pr1str);
+    int32_t num = atoi(pr1str);
     ActionPointId idx = action_point_number_to_index(num);
     if (!action_point_exists_idx(idx)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "actionpoint no exist");
@@ -2458,7 +2458,7 @@ TbBool cmd_reset_action_point(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as actionpoint number");
         return false;
     }
-    long num = atoi(pr1str);
+    int32_t num = atoi(pr1str);
     ActionPointId idx = action_point_number_to_index(num);
     if (!action_point_exists_idx(idx)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "actionpoint no exist");
@@ -2577,7 +2577,7 @@ TbBool cmd_possession_unlock(PlayerNumber plyr_idx, char * args)
 TbBool cmd_string_show(PlayerNumber plyr_idx, char * args)
 {
     char * pr1str = strsep_param_with_space(&args);
-    long msg_id = (pr1str != NULL) ? atoi(pr1str) : 0;
+    int32_t msg_id = (pr1str != NULL) ? atoi(pr1str) : 0;
     if (msg_id >= 0)
     {
         set_general_information(msg_id, plyr_idx, 0, 0, 0);
@@ -2588,7 +2588,7 @@ TbBool cmd_string_show(PlayerNumber plyr_idx, char * args)
 TbBool cmd_quick_show(PlayerNumber plyr_idx, char * args)
 {
     char * pr1str = strsep_param_with_space(&args);
-    long msg_id = (pr1str != NULL) ? atoi(pr1str) : 0;
+    int32_t msg_id = (pr1str != NULL) ? atoi(pr1str) : 0;
     if (msg_id >= 0)
     {
         set_quick_information(msg_id, plyr_idx, 0, 0, 0);
@@ -3059,7 +3059,7 @@ void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str
     int suggested_key_cnt = 0;
     int primary_cnt  = 0, secondary_cnt = 0;
 
-    long i = 0;
+    int32_t i = 0;
     if (add_random)
         suggested_key_list[suggested_key_cnt++] = "RANDOM";
     if (primary_name_desc != NULL) {
@@ -3110,7 +3110,7 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
     const char *suggested_key_list[suggested_key_max];
     memset(suggested_key_list, 0, sizeof(suggested_key_list));
 
-    long i;
+    int32_t i;
     for (i = 0; i < console_command_count && suggested_key_cnt < suggested_key_max; i++)
     {
         suggested_key_list[suggested_key_cnt++] = console_commands[i].name;
@@ -3169,7 +3169,7 @@ static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const
 {
     if (creature == NULL)
         return false;
-    long kind = get_id(creature_desc, creature);
+    int32_t kind = get_id(creature_desc, creature);
     if (kind == -1)
     {
         if (0 == strcasecmp(creature, "EMPTY"))
@@ -3187,19 +3187,19 @@ static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const
     return true;
 }
 
-static long get_creature_model_for_command(char *msg)
+static int32_t get_creature_model_for_command(char *msg)
 {
     if (msg == NULL || msg[0] == 0)
         return -1;
 
-    long rid = get_rid(creature_desc, msg);
+    int32_t rid = get_rid(creature_desc, msg);
     if (rid >= 1)
     {
         return rid;
     }
     else
     {
-        long i = 0;
+        int32_t i = 0;
         for (i=0; creature_model_command_aliases[i].name != NULL; i++)
         {
             if (strcasecmp(msg, creature_model_command_aliases[i].name) == 0)
@@ -3239,7 +3239,7 @@ static char get_trap_number_for_command(char* msg)
     char id = get_id(trap_desc, msg);
     if (id < 0)
     {
-        long i = 0;
+        int32_t i = 0;
         for (i=0; trap_model_command_aliases[i].name != NULL; i++)
         {
             if (strcasecmp(msg, trap_model_command_aliases[i].name) == 0)
@@ -3259,10 +3259,10 @@ static char get_door_number_for_command(char* msg)
     if (msg == NULL || msg[0] == 0)
         return -1;
 
-    long id = get_id(door_desc, msg);
+    int32_t id = get_id(door_desc, msg);
     if (id < 0)
     {
-        long i = 0;
+        int32_t i = 0;
         for (i=0; door_model_command_aliases[i].name != NULL; i++)
         {
             if (strcasecmp(msg, door_model_command_aliases[i].name) == 0)

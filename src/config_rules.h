@@ -203,7 +203,7 @@ extern const struct ConfigFileData keeper_rules_file_data;
 extern const struct NamedCommand research_desc[];
 extern const struct NamedCommand rules_game_classicbugs_commands[];
 /******************************************************************************/
-long get_research_id(long item_type, const char *trg_name, const char *func_name);
+int32_t get_research_id(int32_t item_type, const char *trg_name, const char *func_name);
 struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void);
 
 const char *player_code_name(PlayerNumber plyr_idx);

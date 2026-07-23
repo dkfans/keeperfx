@@ -40,11 +40,11 @@ extern "C" {
 void count_gold_slabs_wth_effcncy(struct Room *room)
 {
     // Compute max size of gold hoard stored on one slab
-    long subefficiency = (get_wealth_size_types_count() * (long)room->efficiency) / ROOM_EFFICIENCY_MAX;
+    int32_t subefficiency = (get_wealth_size_types_count() * (int32_t)room->efficiency) / ROOM_EFFICIENCY_MAX;
     // Every slab is always capable of storing at least smallest hoard
     if (subefficiency < 1)
         subefficiency = 1;
-    unsigned long count = room->slabs_count * subefficiency;
+    uint32_t count = room->slabs_count * subefficiency;
     if (count < 1)
         count = 1;
     room->total_capacity = count;
@@ -63,8 +63,8 @@ void count_gold_slabs_div2(struct Room* room)
 struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -99,12 +99,12 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
     }
     GoldAmount gold_gathered = 0;
     // Find gold objects around, delete them and gather sum of the gold they had
-    for (long k = 0; k < AROUND_TILES_COUNT; k++)
+    for (int32_t k = 0; k < AROUND_TILES_COUNT; k++)
     {
         MapSubtlCoord stl_x = slab_subtile(slb_x, around[k].delta_x + 1);
         MapSubtlCoord stl_y = slab_subtile(slb_y, around[k].delta_y + 1);
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-        unsigned long j = 0;
+        uint32_t j = 0;
         for (int i = get_mapwho_thing_index(mapblk); i != 0;)
         {
             struct Thing* gldtng = thing_get(i);
@@ -153,13 +153,13 @@ void count_gold_hoardes_in_room(struct Room *room)
 {
     GoldAmount all_gold_amount = 0;
     int all_wealth_size = 0;
-    long wealth_size_holds = game.conf.rules[room->owner].gameplay.gold_per_hoard / get_wealth_size_types_count();
+    int32_t wealth_size_holds = game.conf.rules[room->owner].gameplay.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // First, set the values to something big; this will prevent logging warnings on add/remove_gold_from_hoarde()
     room->used_capacity = room->total_capacity;
     room->capacity_used_for_storage = room->used_capacity * wealth_size_holds;
-    unsigned long k = 0;
-    long i = room->slabs_list;
+    uint32_t k = 0;
+    int32_t i = room->slabs_list;
     while (i > 0)
     {
         MapSlabCoord slb_x = slb_num_decode_x(i);
@@ -172,7 +172,7 @@ void count_gold_hoardes_in_room(struct Room *room)
             pos.x.val = gldtng->mappos.x.val;
             pos.y.val = gldtng->mappos.y.val;
             pos.z.val = gldtng->mappos.z.val;
-            long drop_amount = remove_gold_from_hoarde(gldtng, room, gldtng->valuable.gold_stored - max_hoard_size_in_room);
+            int32_t drop_amount = remove_gold_from_hoarde(gldtng, room, gldtng->valuable.gold_stored - max_hoard_size_in_room);
             drop_gold_pile(drop_amount, &pos);
             gold_amount = gldtng->valuable.gold_stored;
         } else

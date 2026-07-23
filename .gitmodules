@@ -1,0 +1,18 @@
+[submodule "deps/astronomy"]
+	path = deps/astronomy
+	url = https://github.com/cosinekitty/astronomy
+[submodule "deps/enet6"]
+	path = deps/enet6
+	url = https://github.com/SirLynix/enet6
+[submodule "deps/libbcrypt"]
+	path = deps/libbcrypt
+	url = https://github.com/rg3/libbcrypt
+[submodule "deps/libnatpmp"]
+	path = deps/libnatpmp
+	url = https://github.com/miniupnp/libnatpmp
+[submodule "deps/miniupnp"]
+	path = deps/miniupnp
+	url = https://github.com/miniupnp/miniupnp
+[submodule "deps/centijson"]
+	path = deps/centijson
+	url = https://github.com/mity/centijson

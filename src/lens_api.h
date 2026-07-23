@@ -55,15 +55,15 @@ unsigned int lens_get_render_target_height(void);
 void* LensManager_GetInstance(void);
 TbBool LensManager_Init(void* mgr);
 void LensManager_Reset(void* mgr);
-TbBool LensManager_SetLens(void* mgr, long lens_idx);
-long LensManager_GetActiveLens(void* mgr);
+TbBool LensManager_SetLens(void* mgr, int32_t lens_idx);
+int32_t LensManager_GetActiveLens(void* mgr);
 const char* LensManager_GetActiveCustomLensName(void* mgr);
 TbBool LensManager_IsReady(void* mgr);
 void LensManager_Draw(void* mgr, unsigned char* srcbuf, unsigned char* dstbuf,
-                      long srcpitch, long dstpitch, long width, long height, long viewport_x);
-void LensManager_CopyBuffer(unsigned char* dstbuf, long dstpitch,
-                           unsigned char* srcbuf, long srcpitch,
-                           long width, long height);
+                      int32_t srcpitch, int32_t dstpitch, int32_t width, int32_t height, int32_t viewport_x);
+void LensManager_CopyBuffer(unsigned char* dstbuf, int32_t dstpitch,
+                           unsigned char* srcbuf, int32_t srcpitch,
+                           int32_t width, int32_t height);
 
 // Custom lens registration (for LUA integration)
 TbBool LensManager_RegisterCustomLens(void* mgr, const char* name, void* effect);
@@ -75,10 +75,10 @@ void* LuaLensEffect_Create(const char* name, void* lua_state);
 void LuaLensEffect_SetDrawCallback(void* effect, int callback_ref);
 /******************************************************************************/
 void initialise_eye_lenses(void);
-void setup_eye_lens(long nlens);
-void reinitialise_eye_lens(long nlens);
+void setup_eye_lens(int32_t nlens);
+void reinitialise_eye_lens(int32_t nlens);
 void reset_eye_lenses(void);
-void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long viewport_x, long effect);
+void draw_lens_effect(unsigned char *dstbuf, int32_t dstpitch, unsigned char *srcbuf, int32_t srcpitch, int32_t width, int32_t height, int32_t viewport_x, int32_t effect);
 TbBool lens_is_ready(void);
 /******************************************************************************/
 #ifdef __cplusplus

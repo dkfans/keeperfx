@@ -69,12 +69,12 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel)
+struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, int32_t tngmodel)
 {
     TRACE_THING(spdigtng);
-    unsigned long k = 0;
+    uint32_t k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
-    long i = slist->index;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -100,7 +100,7 @@ struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel
     return INVALID_THING;
 }
 
-long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
+int32_t check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, int32_t range)
 {
     if (!player_has_room_of_role(spdigtng->owner, RoRoF_Prison)) {
         return 0;
@@ -109,8 +109,8 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
     struct Room* room = find_nearest_room_of_role_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoRoF_Prison, NavRtF_Default, 1);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
-    unsigned long k = 0;
-    long i = slist->index;
+    uint32_t k = 0;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -158,7 +158,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
  * @param range maximum distance to look for unconscious creatures
  * @return return 1 if special digger is succesfully assigned
  */
-long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
+int32_t check_out_unsaved_unconscious_creature(struct Thing *spdigtng, int32_t range)
 {
     if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage) || !game.conf.rules[spdigtng->owner].workers.drag_to_lair)
     {
@@ -167,8 +167,8 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
-    unsigned long k = 0;
-    long i = slist->index;
+    uint32_t k = 0;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -218,7 +218,7 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
     return 0;
 }
 
-long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
+int32_t check_out_unclaimed_dead_bodies(struct Thing *spdigtng, int32_t range)
 {
     if (!player_has_room_of_role(spdigtng->owner, RoRoF_DeadStorage)) {
         return 0;
@@ -227,8 +227,8 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
     struct Room* room = find_nearest_room_of_role_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoRoF_DeadStorage, NavRtF_Default, 1);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_DeadCreature);
-    unsigned long k = 0;
-    long i = slist->index;
+    uint32_t k = 0;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -269,7 +269,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
     return 0;
 }
 
-long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
+int32_t check_out_unclaimed_spells(struct Thing *spdigtng, int32_t range)
 {
     if (!player_has_room_of_role(spdigtng->owner, RoRoF_PowersStorage)) {
         return 0;
@@ -278,8 +278,8 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
     struct Room* room = find_nearest_room_of_role_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoRoF_PowersStorage, NavRtF_Default);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
-    unsigned long k = 0;
-    long i = slist->index;
+    uint32_t k = 0;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -334,7 +334,7 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
     return 0;
 }
 
-long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
+int32_t check_out_unclaimed_traps(struct Thing *spdigtng, int32_t range)
 {
     if (!player_has_room_of_role(spdigtng->owner, RoRoF_CratesStorage)) {
         return 0;
@@ -343,8 +343,8 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
     struct Room* room = find_nearest_room_of_role_for_thing_with_spare_item_capacity(spdigtng, spdigtng->owner, RoRoF_CratesStorage, NavRtF_Default);
     // We either found a room or not - but we can't generate event based on it yet, because we don't even know if there's any thing to pick
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
-    unsigned long k = 0;
-    long i = slist->index;
+    uint32_t k = 0;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -416,14 +416,14 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
     return 0;
 }
 
-long slab_is_my_door(long plyr_idx, long slb_x, long slb_y)
+int32_t slab_is_my_door(int32_t plyr_idx, int32_t slb_x, int32_t slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     struct SlabConfigStats* slabst = get_slab_stats(slb);
     return (slabmap_owner(slb) == plyr_idx) && ((slabst->block_flags & SlbAtFlg_IsDoor) != 0);
 }
 
-long check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
+int32_t check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     for (int n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
@@ -448,7 +448,7 @@ long check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord s
     return 0;
 }
 
-long check_out_unconverted_drop_place(struct Thing *thing)
+int32_t check_out_unconverted_drop_place(struct Thing *thing)
 {
     MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
@@ -487,7 +487,7 @@ static TbBool check_out_undug_drop_place(struct Thing *spdigtng)
     int task_idx = 0;
     int rand = THING_RANDOM(spdigtng,3);
 
-    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+    for (int32_t n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
         MapSubtlCoord check_stl_x = stl_x + STL_PER_SLB * (int)small_around[rand].delta_x;
         MapSubtlCoord check_stl_y = stl_y + STL_PER_SLB * (int)small_around[rand].delta_y;
@@ -517,7 +517,7 @@ static TbBool check_out_undug_drop_place(struct Thing *spdigtng)
     return true;
 }
 
-long check_out_unclaimed_gold(struct Thing *spdigtng, long range)
+int32_t check_out_unclaimed_gold(struct Thing *spdigtng, int32_t range)
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(spdigtng);
     // If the creature holds more gold than its able
@@ -525,8 +525,8 @@ long check_out_unclaimed_gold(struct Thing *spdigtng, long range)
         return 0;
     }
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
-    unsigned long k = 0;
-    long i = slist->index;
+    uint32_t k = 0;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -609,7 +609,7 @@ TbBool check_out_unprettied_drop_place(struct Thing *thing)
     return check_out_place_for_pretty_behind_door(thing, slb_x, slb_y);
 }
 
-long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
+int32_t check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
     // We're supposed to be in our own workshop; fail if we're not
@@ -620,11 +620,11 @@ long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
     if (!room_role_matches(room->kind, RoRoF_CratesStorage) || (room->owner != spdigtng->owner)) {
         return 0;
     }
-    long find_model = trap_crate_object_model(traptng->model);
-    long find_owner = spdigtng->owner;
+    int32_t find_model = trap_crate_object_model(traptng->model);
+    int32_t find_owner = spdigtng->owner;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
-    unsigned long k = 0;
-    long i = slist->index;
+    uint32_t k = 0;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -661,11 +661,11 @@ long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
     return 0;
 }
 
-long check_out_empty_traps(struct Thing *spdigtng, long range)
+int32_t check_out_empty_traps(struct Thing *spdigtng, int32_t range)
 {
-    unsigned long k = 0;
+    uint32_t k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
-    long i = slist->index;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -695,26 +695,26 @@ long check_out_empty_traps(struct Thing *spdigtng, long range)
     return 0;
 }
 
-long check_out_unreinforced_drop_place(struct Thing *thing)
+int32_t check_out_unreinforced_drop_place(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     MapSubtlCoord digger_stl_x;
     MapSubtlCoord digger_stl_y;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    long stl_num;
+    int32_t stl_num;
     MapSubtlCoord dest_stl_x;
     MapSubtlCoord dest_stl_y;
-    long i;
-    long n;
+    int32_t i;
+    int32_t n;
     digger_stl_x = thing->mappos.x.stl.num;
     digger_stl_y = thing->mappos.y.stl.num;
     cctrl = creature_control_get_from_thing(thing);
     n = reinforce_edges[STL_PER_SLB * (digger_stl_y % STL_PER_SLB) + (digger_stl_x % STL_PER_SLB)];
     for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
-        slb_x = subtile_slab(digger_stl_x) + (long)small_around[n].delta_x;
-        slb_y = subtile_slab(digger_stl_y) + (long)small_around[n].delta_y;
+        slb_x = subtile_slab(digger_stl_x) + (int32_t)small_around[n].delta_x;
+        slb_y = subtile_slab(digger_stl_y) + (int32_t)small_around[n].delta_y;
         if ( check_place_to_reinforce(thing, slb_x, slb_y) > 0 )
         {
             stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
@@ -753,8 +753,8 @@ TbBool check_out_crates_to_arm_trap_in_room(struct Thing *spdigtng)
     }
 
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
-    unsigned long k = 0;
-    long i = slist->index;
+    uint32_t k = 0;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing* thing = thing_get(i);
@@ -797,7 +797,7 @@ TbBool check_out_crates_to_arm_trap_in_room(struct Thing *spdigtng)
  * @param spdigtng
  * @note originally was check_out_available_imp_drop_tasks()
  */
-long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
+int32_t check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(spdigtng),(int)spdigtng->index);
@@ -1000,17 +1000,17 @@ short imp_birth(struct Thing *thing)
         }
         return 1;
     }
-    long i = get_gameturn() - thing->creation_turn;
+    int32_t i = get_gameturn() - thing->creation_turn;
     if ((i % 2) == 0) {
       create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
     }
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     thing->movement_flags &= ~TMvF_Flying;
-    creature_turn_to_face_angle(thing, i * (long)crconf->max_turning_speed);
+    creature_turn_to_face_angle(thing, i * (int32_t)crconf->max_turning_speed);
     return 0;
 }
 
-long digger_work_experience(struct Thing* spdigtng)
+int32_t digger_work_experience(struct Thing* spdigtng)
 {
     if (creature_can_gain_experience(spdigtng))
     {
@@ -1177,7 +1177,7 @@ short imp_doing_nothing(struct Thing *spdigtng)
     TRACE_THING(spdigtng);
     if (!thing_is_creature_digger(spdigtng))
     {
-        ERRORLOG("Non digger thing %ld, %s, owner %ld - reset",(long)spdigtng->index,thing_model_name(spdigtng),(long)spdigtng->owner);
+        ERRORLOG("Non digger thing %d, %s, owner %d - reset",(int32_t)spdigtng->index,thing_model_name(spdigtng),(int32_t)spdigtng->owner);
         set_start_state(spdigtng);
         erstat_inc(ESE_BadCreatrState);
         return 0;
@@ -1218,7 +1218,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     struct Room* room = get_room_thing_is_on(spdigtng);
     if (room_is_invalid(room) || (room->owner != spdigtng->owner) || (!room_role_matches(room->kind,RoRoF_GoldStorage)))
     {
-        WARNLOG("Tried to drop gold in %s of player %d, but room %s owned by played %d is no longer valid to do that",
+        WARNLOG("Tried to drop gold in %s of player %d, but room %s owned by played %d is no int32_ter valid to do that",
             room_role_code_name(RoRoF_GoldStorage),(int)spdigtng->owner,room_code_name(room->kind),(int)room->owner);
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
@@ -1232,7 +1232,7 @@ short imp_drops_gold(struct Thing *spdigtng)
         return 1;
     }
     unsigned char state = ((spdigtng->alloc_flags & TAlF_IsControlled) == 0) ? CrSt_ImpLastDidJob : CrSt_Unused;
-    long gold_added = 0;
+    int32_t gold_added = 0;
     TbBool gold_created = false;
     struct Thing* gldtng = find_gold_hoard_at(center_stl_x, center_stl_y);
     if (!thing_is_invalid(gldtng))
@@ -1304,8 +1304,8 @@ short imp_improves_dungeon(struct Thing *spdigtng)
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 0;
     }
-    long slb_x = subtile_slab(spdigtng->mappos.x.stl.num);
-    long slb_y = subtile_slab(spdigtng->mappos.y.stl.num);
+    int32_t slb_x = subtile_slab(spdigtng->mappos.x.stl.num);
+    int32_t slb_y = subtile_slab(spdigtng->mappos.y.stl.num);
     if (!check_place_to_pretty_excluding(spdigtng, slb_x, slb_y))
     {
         clear_creature_instance(spdigtng);
@@ -1328,12 +1328,12 @@ short imp_last_did_job(struct Thing *creatng)
     return 1;
 }
 
-GoldAmount take_from_gold_pile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long limit)
+GoldAmount take_from_gold_pile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t limit)
 {
     GoldAmount total_taken = 0;
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -1393,7 +1393,7 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
             stl_x = spdigtng->mappos.x.stl.num;
             stl_y = spdigtng->mappos.y.stl.num;
         }
-        long gold_taken = take_from_gold_pile(stl_x, stl_y, crconf->gold_hold - spdigtng->creature.gold_carried);
+        int32_t gold_taken = take_from_gold_pile(stl_x, stl_y, crconf->gold_hold - spdigtng->creature.gold_carried);
         spdigtng->creature.gold_carried += gold_taken;
         if (gold_taken > 0)
         {
@@ -1422,7 +1422,7 @@ short imp_reinforces(struct Thing *thing)
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 0;
     }
-    long check_ret = check_place_to_reinforce(thing, subtile_slab(stl_x), subtile_slab(stl_y));
+    int32_t check_ret = check_place_to_reinforce(thing, subtile_slab(stl_x), subtile_slab(stl_y));
     if (check_ret <= 0)
     {
         if (check_ret < 0)
@@ -1830,7 +1830,7 @@ short creature_picks_up_trap_object(struct Thing *thing)
     TRACE_THING(traptng);
     if (!thing_exists(cratetng) || !thing_exists(traptng))
     {
-        WARNLOG("The %s index %d or %s index %d no longer exists",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(traptng),(int)traptng->index);
+        WARNLOG("The %s index %d or %s index %d no int32_ter exists",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(traptng),(int)traptng->index);
         cctrl->arming_thing_id = 0;
         set_start_state(thing);
         return 0;
@@ -1892,7 +1892,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     struct Room* room = get_room_thing_is_on(creatng);
     if ( room_is_invalid(room) )
     {
-        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(deadtng),(int)deadtng->index,room_role_code_name(RoRoF_DeadStorage));
+        WARNLOG("Tried to drop %s index %d in %s, but room no int32_ter exists",thing_model_name(deadtng),(int)deadtng->index,room_role_code_name(RoRoF_DeadStorage));
         if (creature_drop_thing_to_another_room(creatng, room, RoRoF_DeadStorage)) {
             creatng->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
             return 1;
@@ -1943,7 +1943,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     struct Room* room = get_room_thing_is_on(thing);
     if ( room_is_invalid(room) )
     {
-        SYNCDBG(7,"Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(cratetng),(int)cratetng->index,room_role_code_name(RoRoF_CratesStorage));
+        SYNCDBG(7,"Tried to drop %s index %d in %s, but room no int32_ter exists",thing_model_name(cratetng),(int)cratetng->index,room_role_code_name(RoRoF_CratesStorage));
         if (creature_drop_thing_to_another_room(thing, room, RoRoF_CratesStorage)) {
             thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
             return 1;
@@ -2008,7 +2008,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     struct Room* room = get_room_thing_is_on(creatng);
     if ( room_is_invalid(room) )
     {
-        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(spelltng),(int)spelltng->index,room_role_code_name(RoRoF_PowersStorage));
+        WARNLOG("Tried to drop %s index %d in %s, but room no int32_ter exists",thing_model_name(spelltng),(int)spelltng->index,room_role_code_name(RoRoF_PowersStorage));
         if (creature_drop_thing_to_another_room(creatng, room, RoRoF_PowersStorage)) {
             creatng->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
             return 1;

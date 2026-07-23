@@ -61,7 +61,7 @@ public:
     LuaLensEffect(const char* lens_name, lua_State* L);
     virtual ~LuaLensEffect();
     
-    virtual TbBool Setup(long lens_idx) override;
+    virtual TbBool Setup(int32_t lens_idx) override;
     virtual void Cleanup() override;
     virtual TbBool Draw(LensRenderContext* ctx) override;
     
@@ -89,7 +89,7 @@ private:
     int m_draw_callback_ref;  // LUA registry reference to callback
     
     LuaLensConfig m_config;
-    long m_current_lens;
+    int32_t m_current_lens;
 };
 
 /******************************************************************************/

@@ -149,7 +149,7 @@ TbBool slab_coords_invalid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 /**
  * Returns owner index of given SlabMap.
  */
-long slabmap_owner(const struct SlabMap *slb)
+int32_t slabmap_owner(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
         return PLAYER_NEUTRAL;
@@ -186,7 +186,7 @@ void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
 /**
  * Returns Water-Lava under Bridge flags for given SlabMap.
  */
-unsigned long slabmap_wlb(struct SlabMap *slb)
+uint32_t slabmap_wlb(struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
         return WlbT_None;
@@ -196,7 +196,7 @@ unsigned long slabmap_wlb(struct SlabMap *slb)
 /**
  * Sets Water-Lava under Bridge flags for given SlabMap.
  */
-void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlb_type)
+void slabmap_set_wlb(struct SlabMap *slb, uint32_t wlb_type)
 {
     if (slabmap_block_invalid(slb))
         return;
@@ -428,9 +428,9 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
  */
 void clear_slabs(void)
 {
-    for (unsigned long y = 0; y < game.map_tiles_y; y++)
+    for (uint32_t y = 0; y < game.map_tiles_y; y++)
     {
-        for (unsigned long x = 0; x < game.map_tiles_x; x++)
+        for (uint32_t x = 0; x < game.map_tiles_x; x++)
         {
             struct SlabMap* slb = &game.slabmap[y * game.map_tiles_x + x];
             memset(slb, 0, sizeof(struct SlabMap));
@@ -466,15 +466,15 @@ SlabKind find_core_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return corekind;
 }
 
-long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx, short synergy_slab_num)
+int32_t calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx, short synergy_slab_num)
 {
     TbBool is_room_inside = true;
-    long eff_score = 0;
+    int32_t eff_score = 0;
     struct SlabMap* slb = get_slabmap_direct(slab_num);
-    long n;
+    int32_t n;
     for (n=1; n < AROUND_SLAB_LENGTH; n+=2)
     {
-        long round_slab_num = slab_num + game.around_slab[n];
+        int32_t round_slab_num = slab_num + game.around_slab[n];
         struct SlabMap* round_slb = get_slabmap_direct(round_slab_num);
         if (!slabmap_block_invalid(round_slb))
         {
@@ -527,7 +527,7 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
     // Make sure this is room inside by checking corners
     for (n=0; n < AROUND_SLAB_LENGTH; n+=2)
     {
-        long round_slab_num = slab_num + game.around_slab[n];
+        int32_t round_slab_num = slab_num + game.around_slab[n];
         struct SlabMap* round_slb = get_slabmap_direct(round_slab_num);
         if (!slabmap_block_invalid(round_slb))
         {
@@ -591,7 +591,7 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
     if (column_invalid(colmn)) {
         ERRORLOG("Invalid column at (%d,%d)",(int)stl_x,(int)stl_y);
     }
-    unsigned long smask = colmn->solidmask;
+    uint32_t smask = colmn->solidmask;
     MapSubtlCoord stl_z;
     for (stl_z=0; stl_z < map_subtiles_z; stl_z++)
     {
@@ -600,7 +600,7 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
         smask >>= 1;
     }
     struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
-    unsigned long nflags;
+    uint32_t nflags;
     if (slabst->block_flags_height < stl_z) {
       nflags = slabst->block_flags;
     } else {
@@ -612,7 +612,7 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
 
 void collect_rooms_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, struct Room** room_list, int room_list_len)
 {
-    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    for (int32_t n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         MapSlabCoord sslb_x = slb_x + small_around[n].delta_x;
         MapSlabCoord sslb_y = slb_y + small_around[n].delta_y;
@@ -733,7 +733,7 @@ int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
 
 void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb_x, MapSlabCoord base_slb_y)
 {
-    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+    for (int32_t n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
         MapSlabCoord x = base_slb_x + small_around[n].delta_x;
         MapSlabCoord y = base_slb_y + small_around[n].delta_y;
@@ -779,10 +779,10 @@ void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb
  */
 void do_unprettying(PlayerNumber keep_plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    for (int32_t n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        long sslb_x = slb_x + (long)small_around[n].delta_x;
-        long sslb_y = slb_y + (long)small_around[n].delta_y;
+        int32_t sslb_x = slb_x + (int32_t)small_around[n].delta_x;
+        int32_t sslb_y = slb_y + (int32_t)small_around[n].delta_y;
         struct SlabMap* slb = get_slabmap_block(sslb_x, sslb_y);
         struct SlabConfigStats* slabst = get_slab_stats(slb);
         if ((slabst->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb) != keep_plyr_idx))
@@ -809,7 +809,7 @@ TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     if (slabmap_owner(slb) == plyr_idx)
     {
-        for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+        for (int32_t n = 0; n < SMALL_AROUND_LENGTH; n++)
         {
             MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
             MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
@@ -833,7 +833,7 @@ TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
  */
 TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+    for (int32_t n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
         MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
         MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
@@ -876,7 +876,7 @@ TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabC
     return true;
 }
 
-void set_player_texture(PlayerNumber plyr_idx, long texture_id)
+void set_player_texture(PlayerNumber plyr_idx, int32_t texture_id)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     TbBool reset = (texture_id < 0);

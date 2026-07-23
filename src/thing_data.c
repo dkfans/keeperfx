@@ -296,7 +296,7 @@ struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
     return get_player(thing->owner);
 }
 
-void set_thing_animation(struct Thing *thing, long animation_index, long speed)
+void set_thing_animation(struct Thing *thing, int32_t animation_index, int32_t speed)
 {
     thing->anim_sprite = get_td_animation_sprite(animation_index);
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
@@ -305,7 +305,7 @@ void set_thing_animation(struct Thing *thing, long animation_index, long speed)
     }
 }
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class)
+void set_thing_draw(struct Thing *thing, int32_t anim, int32_t speed, int32_t scale, char animate_once, char start_frame, unsigned char draw_class)
 {
     unsigned char current_frame;
     set_thing_animation(thing, anim, speed);

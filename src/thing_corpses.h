@@ -52,7 +52,7 @@ TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmode
 TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, CrtrExpLevel exp_level);
 TngUpdateRet update_dead_creature(struct Thing *thing);
 struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short crpscondition, unsigned short owner, CrtrExpLevel exp_level);
-struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpscondition);
+struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, int32_t crpscondition);
 void delete_corpse(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus

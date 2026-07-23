@@ -24,19 +24,39 @@ set(GIT_REVISION    "${COMMIT_ID}")
 
 # CMAKE_BINARY_DIR is defined in CMakePresets.json.
 set(KEEPERFX_VER_DEFS_H_IN ${CMAKE_SOURCE_DIR}/ver_defs.h.in)
-set(KEEPERFX_VER_DEFS_H_OUT ${CMAKE_SOURCE_DIR}/ver_defs.h)
+set(KEEPERFX_VER_DEFS_H_OUT ${CMAKE_BINARY_DIR}/ver_defs.h)
 configure_file(${KEEPERFX_VER_DEFS_H_IN} ${KEEPERFX_VER_DEFS_H_OUT})
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)
 find_package(SDL2_mixer CONFIG REQUIRED)
 find_package(SDL2_net CONFIG REQUIRED)
+find_package(Lua REQUIRED)
+find_package(minizip REQUIRED)
+find_package(CURL REQUIRED)
+find_library(SPNG spng REQUIRED)
+find_library(AVCODEC avcodec REQUIRED)
+find_library(AVFORMAT avformat REQUIRED)
+find_package(OpenAL REQUIRED)
 
+include_directories(
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+	$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
+	$<BUILD_INTERFACE:${LUA_INCLUDE_DIR}>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/deps/enet6/include>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/deps/astronomy/source/c>
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/deps/centijson/src>
+)
+add_compile_options(-Wno-format-truncation)
 # Global definitions.
 add_compile_definitions(_CRT_NONSTDC_NO_WARNINGS _CRT_SECURE_NO_WARNINGS)
 
-file(GLOB_RECURSE KEEPERFX_SOURCES_C "src/*.c")
-file(GLOB_RECURSE KEEPERFX_SOURCES_CXX "src/*.cpp")
+file(GLOB_RECURSE KEEPERFX_SOURCES_C RELATIVE ${CMAKE_SOURCE_DIR} "src/*.c")
+file(GLOB_RECURSE KEEPERFX_SOURCES_CXX RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
+
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	list(REMOVE_ITEM KEEPERFX_SOURCES_CXX "src/windows.cpp" "src/steam_api.cpp" "src/cdrom.cpp")
+endif()
 
 # Global definitions for all targets.
 add_compile_definitions("DEBUG=$<IF:$<CONFIG:Debug>,1,0>")
@@ -44,12 +64,10 @@ add_compile_definitions("SPNG_STATIC=1")
 
 # Add two executable targets: keeperfx and keeperfx_hvlog.
 add_executable(keeperfx ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
-
 target_compile_definitions(keeperfx PUBLIC BFDEBUG_LEVEL=0)
 target_sources(keeperfx PRIVATE "res/keeperfx_stdres.rc")
 
 add_executable(keeperfx_hvlog ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
-
 target_compile_definitions(keeperfx_hvlog PUBLIC BFDEBUG_LEVEL=10)
 target_sources(keeperfx_hvlog PRIVATE "res/keeperfx_stdres.rc")
 
@@ -59,20 +77,28 @@ message(STATUS "We are using ${CMAKE_CXX_COMPILER_ID}")
 set_property(TARGET keeperfx PROPERTY LINKER_TYPE LLD)
 set_property(TARGET keeperfx_hvlog PROPERTY LINKER_TYPE LLD)
 
+if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "GNU|AppleClang")
 set(WARNFLAGS -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas -Werror)
-set(GNU_COMPILER_FLAG -march=x86-64 -fno-omit-frame-pointer -fmessage-length=0)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+set(GNU_COMPILER_FLAG -march=x86-64 -g -mfpmath=sse -ftree-vectorize -fopenmp -fno-omit-frame-pointer -fmessage-length=0)
+endif()
+if(SYSTEM_NAME_NAME MATCHES "Windows")
 set(GNU_LINK_FLAG -mwindows -Wl,--enable-auto-import)
+target_link_libraries (keeperfx PUBLIC -static stdc++ winpthread -dynamic)
+target_link_libraries (keeperfx_hvlog PUBLIC -static stdc++ winpthread -dynamic)
+# System libraries.
+target_link_libraries(keeperfx PRIVATE imagehlp dbghelp)
+target_link_libraries(keeperfx_hvlog PRIVATE imagehlp dbghelp)
+endif()
+
+elseif(CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC")
+endif()
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wimplicit")
 target_compile_options(keeperfx PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
 target_compile_options(keeperfx_hvlog PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
 target_link_options(keeperfx PRIVATE ${GNU_LINK_FLAG} -Wl,-Map,keeperfx.map)
 target_link_options(keeperfx_hvlog PRIVATE ${GNU_LINK_FLAG} -Wl,-Map,keeperfx_hvlog.map)
-target_link_libraries (keeperfx PUBLIC -static stdc++ winpthread -dynamic)
-target_link_libraries (keeperfx_hvlog PUBLIC -static stdc++ winpthread -dynamic)
-
-# System libraries.
-target_link_libraries(keeperfx PRIVATE imagehlp dbghelp)
-target_link_libraries(keeperfx_hvlog PRIVATE imagehlp dbghelp)
 
 # Go into submodules.
 add_subdirectory(deps)
@@ -98,3 +124,6 @@ target_link_libraries(keeperfx_hvlog
     PRIVATE $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,SDL2_net::SDL2_net,SDL2_net::SDL2_net-static>)
 target_link_libraries(keeperfx_hvlog
     PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
+
+file(GLOB TESTS_SOURCES "tests/*.cpp")
+file(GLOB_RECURSE FTESTS_SOURCES "src/ftests/*.c")

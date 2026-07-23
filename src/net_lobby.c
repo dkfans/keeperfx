@@ -189,7 +189,7 @@ TbError LbNetwork_ExchangeLogin(char *player_name)
 {
     NETMSG("Logging in as %s", player_name);
     if (1 + strlen(netstate.password) + 1 + strlen(player_name) + 1 + sizeof(net_current_version) >= sizeof(netstate.msg_buffer)) {
-        ERRORLOG("Login credentials too long");
+        ERRORLOG("Login credentials too int32_t");
         return Lb_FAIL;
     }
     char *write_pos = begin_net_message(NETMSG_LOGIN);
@@ -231,7 +231,7 @@ TbError LbNetwork_ExchangeFrontend(void *send_buf, void *server_buf, size_t fram
     TbError result = exchange_frame_block(NETMSG_FRONTEND, send_buf, server_buf, frame_size);
     TbClockMSec now = LbTimerClock();
     if (network_lobby_ping == 0 || now - lobby_ping_last_sample >= 1000) {
-        unsigned long ping = GetPing(my_player_number);
+        uint32_t ping = GetPing(my_player_number);
         if (ping > 0) {
             network_lobby_ping = ping;
         }

@@ -38,7 +38,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len);
+void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, int32_t len);
 // The functions below are from colour remap version of the routine - rhey're used for shadows
 TbResult LbSpriteDrawRemapUsingScalingUpDataSolidRL(uchar *outbuf, int scanline, int outheight, int32_t *xstep, int32_t *ystep, const struct TbSourceBuffer * src_buf, const TbPixel *cmap);
 TbResult LbSpriteDrawRemapUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int outheight, int32_t *xstep, int32_t *ystep, const struct TbSourceBuffer * src_buf, const TbPixel *cmap);
@@ -91,7 +91,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1RL(uchar *outbuf, int scanline, int
                 out_end = outbuf;
                 while ( 1 )
                 {
-                    long pxlen;
+                    int32_t pxlen;
                     pxlen = (signed char)*sprdata;
                     sprdata++;
                     if (pxlen == 0)
@@ -134,7 +134,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1RL(uchar *outbuf, int scanline, int
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -196,7 +196,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1LR(uchar *outbuf, int scanline, int
                 out_end = outbuf;
                 while ( 1 )
                 {
-                    long pxlen;
+                    int32_t pxlen;
                     pxlen = (signed char)*sprdata;
                     sprdata++;
                     if (pxlen == 0)
@@ -239,7 +239,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1LR(uchar *outbuf, int scanline, int
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -300,7 +300,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2RL(uchar *outbuf, int scanline, int
                 out_end = outbuf;
                 while ( 1 )
                 {
-                    long pxlen;
+                    int32_t pxlen;
                     pxlen = (signed char)*sprdata;
                     sprdata++;
                     if (pxlen == 0)
@@ -343,7 +343,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2RL(uchar *outbuf, int scanline, int
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -404,7 +404,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2LR(uchar *outbuf, int scanline, int
                 out_end = outbuf;
                 while ( 1 )
                 {
-                    long pxlen;
+                    int32_t pxlen;
                     pxlen = (signed char)*sprdata;
                     sprdata++;
                     if (pxlen == 0)
@@ -447,7 +447,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2LR(uchar *outbuf, int scanline, int
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -505,7 +505,7 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidRL(uchar *outbuf, int scanline, int 
             out_end = outbuf;
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -567,7 +567,7 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidRL(uchar *outbuf, int scanline, int 
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -626,7 +626,7 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int 
             out_end = outbuf;
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -686,7 +686,7 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int 
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -738,7 +738,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1RL(uchar *outbuf, int scanline, i
             out_end = outbuf;
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -775,7 +775,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1RL(uchar *outbuf, int scanline, i
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -826,7 +826,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1LR(uchar *outbuf, int scanline, i
             out_end = outbuf;
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -863,7 +863,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1LR(uchar *outbuf, int scanline, i
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -914,7 +914,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2RL(uchar *outbuf, int scanline, i
             out_end = outbuf;
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -951,7 +951,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2RL(uchar *outbuf, int scanline, i
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -1002,7 +1002,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2LR(uchar *outbuf, int scanline, i
             out_end = outbuf;
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -1039,7 +1039,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2LR(uchar *outbuf, int scanline, i
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -1089,7 +1089,7 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidRL(uchar *outbuf, int scanline, in
             out_end = outbuf;
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -1125,7 +1125,7 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidRL(uchar *outbuf, int scanline, in
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -1175,7 +1175,7 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidLR(uchar *outbuf, int scanline, in
             out_end = outbuf;
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -1211,7 +1211,7 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidLR(uchar *outbuf, int scanline, in
         {
             while ( 1 )
             {
-                long pxlen;
+                int32_t pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
@@ -1237,9 +1237,9 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidLR(uchar *outbuf, int scanline, in
  * @return Gives 0 on success.
  * @see LbSpriteSetScalingData()
  */
-TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSourceBuffer * src_buf)
+TbResult LbSpriteDrawUsingScalingData(int32_t posx, int32_t posy, const struct TbSourceBuffer * src_buf)
 {
-    SYNCDBG(17,"Drawing at (%ld,%ld)",posx,posy);
+    SYNCDBG(17,"Drawing at (%d,%d)",posx,posy);
     int32_t *xstep;
     int32_t *ystep;
     int scanline;
@@ -1358,9 +1358,9 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSourc
  * @return Gives 0 on success.
  * @see LbSpriteSetScalingData()
  */
-TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, const struct TbSourceBuffer * src_buf)
+TbResult DrawAlphaSpriteUsingScalingData(int32_t posx, int32_t posy, const struct TbSourceBuffer * src_buf)
 {
-    SYNCDBG(17,"Drawing at (%ld,%ld)",posx,posy);
+    SYNCDBG(17,"Drawing at (%d,%d)",posx,posy);
     assert(render_alpha != NULL);
     int32_t *xstep;
     int32_t *ystep;

@@ -242,7 +242,7 @@ static TbBool open_lua_script_for_mod(lua_State* L, LevelNumber lvnum, const str
     if (mod_state->cmpg_lvls)
     {
         short fgroup = get_level_fgroup(lvnum);
-        fname = prepare_file_fmtpath_mod(mod_dir, fgroup, "map%05lu.lua", (unsigned long)lvnum);
+        fname = prepare_file_fmtpath_mod(mod_dir, fgroup, "map%05lu.lua", (uint32_t)lvnum);
         if (LbFileExists(fname))
         {
             if(CheckLua(L, luaL_dofile(L, fname), "mod_level_script_loading"))
@@ -259,9 +259,9 @@ static TbBool open_lua_script_for_mod(lua_State* L, LevelNumber lvnum, const str
     return result;
 }
 
-static void open_lua_script_for_mod_list(lua_State* L, LevelNumber lvnum, const struct ModConfigItem *mod_items, long mod_cnt)
+static void open_lua_script_for_mod_list(lua_State* L, LevelNumber lvnum, const struct ModConfigItem *mod_items, int32_t mod_cnt)
 {
-    for (long i=0; i<mod_cnt; i++)
+    for (int32_t i=0; i<mod_cnt; i++)
     {
         const struct ModConfigItem *mod_item = mod_items + i;
         if (open_lua_script_for_mod(L, lvnum, mod_item))
@@ -331,7 +331,7 @@ TbBool open_lua_script(LevelNumber lvnum)
     }
 
     short fgroup = get_level_fgroup(lvnum);
-    fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
+    fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (uint32_t)lvnum);
     // Load and parse the Lua File
     if (LbFileExists(fname) )
     {

@@ -223,7 +223,7 @@ int64_t value_processes(const struct NamedField* named_field, const char* value_
   computer_type_clear_processes(cpt);
 
   int32_t pos = 0;
-  long len = strlen(value_text);
+  int32_t len = strlen(value_text);
   while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
   {
       int process_idx = get_computer_process_config_list_index_mnem(word_buf);
@@ -247,7 +247,7 @@ int64_t value_checks(const struct NamedField* named_field, const char* value_tex
     computer_type_clear_checks(cpt);
 
     int32_t pos = 0;
-    long len = strlen(value_text);
+    int32_t len = strlen(value_text);
     while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
     {
         int check_idx = get_computer_check_config_list_index_mnem(word_buf);
@@ -271,7 +271,7 @@ int64_t value_events(const struct NamedField* named_field, const char* value_tex
   computer_type_clear_events(cpt);
 
   int32_t pos = 0;
-  long len = strlen(value_text);
+  int32_t len = strlen(value_text);
   while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
   {
     int event_idx = get_computer_event_config_list_index_mnem(word_buf);
@@ -327,7 +327,7 @@ static int get_computer_event_config_list_index_mnem(const char *mnemonic)
   return 0;
 }
 
-struct ComputerType *get_computer_type_template(long cpt_idx)
+struct ComputerType *get_computer_type_template(int32_t cpt_idx)
 {
     if ((cpt_idx < 0) || (cpt_idx >= COMPUTER_MODELS_COUNT))
         cpt_idx = 0;
@@ -396,7 +396,7 @@ static TbBool load_computer_player_config_file(const char *fname, unsigned short
 {
     SYNCDBG(8, "Starting");
     // Load the config file
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < 2)
     {
         if (!flag_is_set(flags,CnfLd_IgnoreErrors))

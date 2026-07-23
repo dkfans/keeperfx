@@ -31,18 +31,18 @@ extern "C" {
 #pragma pack(1)
 
 struct EdgePoint { //sizeof = 8
-    long pt_x;
-    long pt_y;
+    int32_t pt_x;
+    int32_t pt_y;
 };
 
 /******************************************************************************/
-extern long ix_EdgePoints;
+extern int32_t ix_EdgePoints;
 
 #pragma pack()
 /******************************************************************************/
 void edge_points_clean(void);
-long edge_point_add(long pt_x, long pt_y);
-struct EdgePoint *edge_point_get(long ept_id);
+int32_t edge_point_add(int32_t pt_x, int32_t pt_y);
+struct EdgePoint *edge_point_get(int32_t ept_id);
 /******************************************************************************/
 #ifdef __cplusplus
 }

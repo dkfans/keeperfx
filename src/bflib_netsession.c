@@ -24,7 +24,7 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-void net_copy_name_string(char *dst,const char *src,long max_len)
+void net_copy_name_string(char *dst,const char *src,int32_t max_len)
 {
   memset(dst, 0, max_len);
   if (dst != NULL)

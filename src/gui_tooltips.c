@@ -83,7 +83,7 @@ void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
   va_end(val);
   if (bxtype != 0) {
       tool_tip_box.pos_x = GetMouseX();
-      long y_offset = scale_ui_value(86);
+      int32_t y_offset = scale_ui_value(86);
       tool_tip_box.pos_y = GetMouseY() + y_offset;
   }
   tool_tip_box.box_type = bxtype;
@@ -114,7 +114,7 @@ static inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
     {
         tool_tip_box.gbutton = gbtn;
         tool_tip_box.pos_x = GetMouseX();
-        long y_offset = scale_ui_value(86);
+        int32_t y_offset = scale_ui_value(86);
         tool_tip_box.pos_y = GetMouseY() + y_offset;
         tool_tip_box.box_type = 0;
         return true;
@@ -157,7 +157,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
 
 TbBool setup_object_tooltips(struct Coord3d *pos)
 {
-    long i;
+    int32_t i;
     SYNCDBG(18,"Starting");
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = thing_get(player->thing_under_hand);
@@ -269,7 +269,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   if (!settings.tooltips_on)
     return false;
   struct SlabMap* slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
-  long skind = slb->kind;
+  int32_t skind = slb->kind;
   struct SlabConfigStats* slabst = get_slab_kind_stats(skind);
   if (slabst->tooltip_stridx == GUIStr_Empty)
     return false;
@@ -347,13 +347,13 @@ short setup_scrolling_tooltips(struct Coord3d *mappos)
 
 void setup_gui_tooltip(struct GuiButton* gbtn)
 {
-    long k;
+    int32_t k;
     if (gbtn->tooltip_stridx == GUIStr_Empty)
         return;
     if (!settings.tooltips_on)
         return;
     struct Dungeon* dungeon = get_my_dungeon();
-    long i = gbtn->tooltip_stridx;
+    int32_t i = gbtn->tooltip_stridx;
     const char* text = get_string(i);
     if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
     {
@@ -416,7 +416,7 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
 
         struct GuiMenu* gmnu = get_active_menu(gbtn->gmenu_idx);
         if (gmnu) {
-            long menu_id = gmnu->ident;
+            int32_t menu_id = gmnu->ident;
             if (menu_id == GMnu_OPTIONS || menu_id == GMnu_VIDEO || menu_id == GMnu_SOUND ||
                 menu_id == GMnu_AUTOPILOT) {
                 tooltip_delay = 0;
@@ -495,7 +495,7 @@ void toggle_tooltips(void)
   save_settings();
 }
 
-void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, long ttheight, long viswidth)
+void draw_tooltip_slab64k(char *tttext, int32_t pos_x, int32_t pos_y, int32_t ttwidth, int32_t ttheight, int32_t viswidth)
 {
     unsigned int flg_mem = lbDisplay.DrawFlags;
     if (ttwidth > viswidth)
@@ -515,9 +515,9 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
     }
     if (tttext != NULL)
     {
-        long x = pos_x + scale_ui_value(26);
+        int32_t x = pos_x + scale_ui_value(26);
         lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-        long y = pos_y - scale_ui_value(ttheight + 28);
+        int32_t y = pos_y - scale_ui_value(ttheight + 28);
         if (x > MyScreenWidth)
           x = MyScreenWidth;
         if (x < scale_ui_value(6))
@@ -556,9 +556,9 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
     lbDisplay.DrawFlags = flg_mem;
 }
 
-long find_string_length_to_first_character(char *str, char fch)
+int32_t find_string_length_to_first_character(char *str, char fch)
 {
-  long i;
+  int32_t i;
   for (i=0; str[i] != '\0'; i++)
   {
     if (str[i] == fch)
@@ -567,22 +567,22 @@ long find_string_length_to_first_character(char *str, char fch)
   return i;
 }
 
-long find_string_width_to_first_character(char *str, char fch)
+int32_t find_string_width_to_first_character(char *str, char fch)
 {
   char text[TOOLTIP_MAX_LEN];
-  long len = find_string_length_to_first_character(str, fch) + 1;
+  int32_t len = find_string_length_to_first_character(str, fch) + 1;
   if (len >= sizeof(text))
   {
-    WARNLOG("This bloody tooltip is too long");
+    WARNLOG("This bloody tooltip is too int32_t");
     len = sizeof(text)-1;
   }
   snprintf(text, len, "%s", str);
   return pixel_size * LbTextStringWidth(text);
 }
 
-void move_characters_forward_and_fill_empty_space(char *str,long move_pos,long shift,long clear_pos,long dst_pos,char fill_ch)
+void move_characters_forward_and_fill_empty_space(char *str,int32_t move_pos,int32_t shift,int32_t clear_pos,int32_t dst_pos,char fill_ch)
 {
-  long i = dst_pos;
+  int32_t i = dst_pos;
   while (i >= move_pos)
   {
     str[i] = str[i-shift];
@@ -595,10 +595,10 @@ void move_characters_forward_and_fill_empty_space(char *str,long move_pos,long s
   }
 }
 
-long find_and_pad_string_width_to_first_character(char *str, char fch)
+int32_t find_and_pad_string_width_to_first_character(char *str, char fch)
 {
-    long len = find_string_length_to_first_character(str, fch);
-    long fill_len = 10 - len;
+    int32_t len = find_string_length_to_first_character(str, fch);
+    int32_t fill_len = 10 - len;
     if (fill_len > 0)
     {
         // Moving characters after fch beyond the tooltip box size
@@ -608,19 +608,19 @@ long find_and_pad_string_width_to_first_character(char *str, char fch)
   return find_string_width_to_first_character(str, fch);
 }
 
-void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
+void draw_tooltip_at(int32_t ttpos_x,int32_t ttpos_y,char *tttext)
 {
   if (tttext == NULL)
     return;
   unsigned int flg_mem = lbDisplay.DrawFlags;
   lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-  long hdwidth = find_and_pad_string_width_to_first_character(tttext, ':');
-  long ttwidth = LbTextStringWidth(tttext);
-  long ttheight = LbTextStringHeight(tttext);
+  int32_t hdwidth = find_and_pad_string_width_to_first_character(tttext, ':');
+  int32_t ttwidth = LbTextStringWidth(tttext);
+  int32_t ttheight = LbTextStringHeight(tttext);
   lbDisplay.DrawFlags = flg_mem;
   struct PlayerInfo* player = get_my_player();
-  long pos_x = ttpos_x;
-  long pos_y = ttpos_y;
+  int32_t pos_x = ttpos_x;
+  int32_t pos_y = ttpos_y;
   if (player->view_type == PVT_MapScreen)
   {
       pos_y = GetMouseY() + scale_ui_value(24);
@@ -640,7 +640,7 @@ void draw_tooltip(void)
     {
       if (tool_tip_box.box_type != 0) {
           tool_tip_box.pos_x = GetMouseX();
-          long y_offset = scale_ui_value(86);
+          int32_t y_offset = scale_ui_value(86);
           tool_tip_box.pos_y = GetMouseY() + y_offset;
         }
         draw_tooltip_at(tool_tip_box.pos_x,tool_tip_box.pos_y,tool_tip_box.text);

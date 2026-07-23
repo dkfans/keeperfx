@@ -31,7 +31,7 @@
 static TbBool load_high_score_table(void)
 {
     char* fname = prepare_file_path(FGrp_Save, campaign.hiscore_fname);
-    long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
+    int32_t arr_size = campaign.hiscore_count * sizeof(struct HighScore);
     if (arr_size <= 0)
     {
         free(campaign.hiscore_table);
@@ -57,7 +57,7 @@ static TbBool create_empty_high_score_table(void)
   int i;
   int npoints = 100 * VISIBLE_HIGH_SCORES_COUNT;
   int nmap = 1 * VISIBLE_HIGH_SCORES_COUNT;
-  long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
+  int32_t arr_size = campaign.hiscore_count * sizeof(struct HighScore);
   if (campaign.hiscore_table == NULL)
     campaign.hiscore_table = (struct HighScore *)calloc(arr_size, 1);
   if (campaign.hiscore_table == NULL)
@@ -94,7 +94,7 @@ void load_or_create_high_score_table(void)
 TbBool save_high_score_table(void)
 {
     char* fname = prepare_file_path(FGrp_Save, campaign.hiscore_fname);
-    long fsize = campaign.hiscore_count * sizeof(struct HighScore);
+    int32_t fsize = campaign.hiscore_count * sizeof(struct HighScore);
     if (fsize <= 0)
         return true;
     if (campaign.hiscore_table == NULL)
@@ -110,7 +110,7 @@ TbBool save_high_score_table(void)
 /**
  * Adds new entry to high score table. Returns its index.
  */
-int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *name)
+int add_high_score_entry(uint32_t score, LevelNumber lvnum, const char *name)
 {
     int dest_idx;
     // If the table is not initiated - return
@@ -190,7 +190,7 @@ int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *nam
 /**
  * Returns highest score value for given level.
  */
-unsigned long get_level_highest_score(LevelNumber lvnum)
+uint32_t get_level_highest_score(LevelNumber lvnum)
 {
     for (int idx = 0; idx < campaign.hiscore_count; idx++)
     {

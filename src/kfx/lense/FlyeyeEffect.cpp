@@ -119,7 +119,7 @@ static void RasterizeHexRef(int hex_x, int hex_y)
     double ldpar2 = REF_MAXSIZE * 0.0025;
     
     // 6 hex vertices (relative to screen center)
-    long arrA[6], arrB[6];
+    int32_t arrA[6], arrB[6];
     arrA[0] = mwidth - 35;  arrB[0] = mheight + 30;
     arrA[1] = mwidth - 15;  arrB[1] = mheight;
     arrA[2] = mwidth + 15;  arrB[2] = mheight;
@@ -136,8 +136,8 @@ static void RasterizeHexRef(int hex_x, int hex_y)
         double varA = arrA[i];
         double varB = arrB[i];
         double len = sqrt(varA * varA + varB * varB) * 0.0025 + 1.0;
-        arrA[i] = (long)(ref_center_x + (varA / len) * ldpar2);
-        arrB[i] = (long)(ref_center_y + (varB / len) * ldpar2);
+        arrA[i] = (int32_t)(ref_center_x + (varA / len) * ldpar2);
+        arrB[i] = (int32_t)(ref_center_y + (varB / len) * ldpar2);
     }
     
     // Source offset for this hex
@@ -153,7 +153,7 @@ static void RasterizeHexRef(int hex_x, int hex_y)
     }
     
     // Rasterize using original BlitHex algorithm
-    long scan_num = arrB[min_idx];
+    int32_t scan_num = arrB[min_idx];
     int first_idx = (min_idx + 1) % 6;
     int last_idx = (min_idx + 5) % 6;
     int deltaV1 = 0, deltaV2 = 0;
@@ -244,7 +244,7 @@ void FlyeyeEffect::FreeLookupTable()
  * 1. Rasterize hexes in reference 640x480 space
  * 2. Convert reference scanlines to screen-resolution lookup table
  */
-void FlyeyeEffect::BuildLookupTable(long width, long height)
+void FlyeyeEffect::BuildLookupTable(int32_t width, int32_t height)
 {
     FreeLookupTable();
     
@@ -276,7 +276,7 @@ void FlyeyeEffect::BuildLookupTable(long width, long height)
     m_lookup_table = (FlyeyeLookupEntry*)malloc(table_size);
     if (m_lookup_table == nullptr)
     {
-        ERRORLOG("Failed to allocate flyeye lookup table (%" PRIuSIZE " bytes)", SZCAST(table_size));
+        ERRORLOG("Failed to allocate flyeye lookup table (%u" PRIuSIZE " bytes)", SZCAST(table_size));
         free(g_ref_scanlines);
         g_ref_scanlines = nullptr;
         return;
@@ -292,7 +292,7 @@ void FlyeyeEffect::BuildLookupTable(long width, long height)
     // Convert reference scanlines to screen-resolution lookup table
     FlyeyeLookupEntry* entry = m_lookup_table;
     
-    for (long y = 0; y < height; y++)
+    for (int32_t y = 0; y < height; y++)
     {
         // Map screen Y to reference Y
         int ref_y = (int)(y / scale_y);
@@ -300,7 +300,7 @@ void FlyeyeEffect::BuildLookupTable(long width, long height)
         
         FlyeyeScanline* scan = &g_ref_scanlines[ref_y];
         
-        for (long x = 0; x < width; x++)
+        for (int32_t x = 0; x < width; x++)
         {
             // Map screen X to reference X
             int ref_x = (int)(x / scale_x);
@@ -334,8 +334,8 @@ void FlyeyeEffect::BuildLookupTable(long width, long height)
             if (ref_src_y >= REF_HEIGHT) ref_src_y = REF_HEIGHT - 1;
             
             // Scale to actual screen coordinates
-            long src_x = (long)(ref_src_x * scale_x);
-            long src_y = (long)(ref_src_y * scale_y);
+            int32_t src_x = (int32_t)(ref_src_x * scale_x);
+            int32_t src_y = (int32_t)(ref_src_y * scale_y);
             
             if (src_x >= width) src_x = width - 1;
             if (src_y >= height) src_y = height - 1;
@@ -349,12 +349,12 @@ void FlyeyeEffect::BuildLookupTable(long width, long height)
     free(g_ref_scanlines);
     g_ref_scanlines = nullptr;
     
-    SYNCDBG(7, "Built flyeye lookup table %ldx%ld", width, height);
+    SYNCDBG(7, "Built flyeye lookup table %dx%d", width, height);
 }
 
-TbBool FlyeyeEffect::Setup(long lens_idx)
+TbBool FlyeyeEffect::Setup(int32_t lens_idx)
 {
-    SYNCDBG(8, "Setting up flyeye effect for lens %ld", lens_idx);
+    SYNCDBG(8, "Setting up flyeye effect for lens %d", lens_idx);
     
     FreeLookupTable();
     m_current_lens = lens_idx;
@@ -393,9 +393,9 @@ TbBool FlyeyeEffect::Draw(LensRenderContext* ctx)
     unsigned char* dst = ctx->dstbuf;
     FlyeyeLookupEntry* entry = m_lookup_table;
     
-    for (long y = 0; y < ctx->height; y++)
+    for (int32_t y = 0; y < ctx->height; y++)
     {
-        for (long x = 0; x < ctx->width; x++)
+        for (int32_t x = 0; x < ctx->width; x++)
         {
             dst[x] = viewport_src[entry->src_y * ctx->srcpitch + entry->src_x];
             entry++;

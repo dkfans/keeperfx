@@ -28,7 +28,7 @@ extern "C" {
 
 namespace {
 
-void copy_to_screen_pxquad(unsigned char *srcbuf, unsigned char *dstbuf, long width, long dst_shift)
+void copy_to_screen_pxquad(unsigned char *srcbuf, unsigned char *dstbuf, int32_t width, int32_t dst_shift)
 {
 	const auto s = dst_shift >> 2;
 	auto w = ((uint32_t)width) >> 2;
@@ -52,10 +52,10 @@ void copy_to_screen_pxquad(unsigned char *srcbuf, unsigned char *dstbuf, long wi
 	while (w > 0);
 }
 
-void copy_to_screen_pxdblh(unsigned char *srcbuf, unsigned char *dstbuf, long width, long dst_shift)
+void copy_to_screen_pxdblh(unsigned char *srcbuf, unsigned char *dstbuf, int32_t width, int32_t dst_shift)
 {
 	const auto s = dst_shift >> 2;
-	auto w = ((unsigned long)width) >> 2;
+	auto w = ((uint32_t)width) >> 2;
 	auto src = (uint32_t *)srcbuf;
 	auto dst = (uint32_t *)dstbuf;
 	do {
@@ -68,9 +68,9 @@ void copy_to_screen_pxdblh(unsigned char *srcbuf, unsigned char *dstbuf, long wi
 	while (w > 0);
 }
 
-void copy_to_screen_pxdblw(unsigned char *srcbuf, unsigned char *dstbuf, long width)
+void copy_to_screen_pxdblw(unsigned char *srcbuf, unsigned char *dstbuf, int32_t width)
 {
-	auto w = ((unsigned long)width) >> 2;
+	auto w = ((uint32_t)width) >> 2;
 	auto src = (uint32_t *)srcbuf;
 	auto dst = (uint32_t *)dstbuf;
 	do {
@@ -91,7 +91,7 @@ void copy_to_screen(const AVFrame & frame, const int flags)
 {
 	const auto src_pitch = frame.linesize[0];
 	auto srcbuf = frame.data[0];
-	long screen_buffer_center_offset;
+	int32_t screen_buffer_center_offset;
 	if (flags & (SMK_PixelDoubleLine | SMK_InterlaceLine)) {
 		screen_buffer_center_offset = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - 2 * frame.height) >> 1);
 	} else {
@@ -661,38 +661,38 @@ enum {
 
 #pragma pack(1)
 struct AnimFLIHeader { // sizeof=0x80
-	unsigned long dsize;
+	uint32_t dsize;
 	unsigned short magic;
 	unsigned short frames;
 	short width;
 	short height;
 	unsigned short depth;
 	unsigned short flags;
-	unsigned long speed;
+	uint32_t speed;
 	short reserved2;
-	unsigned long created;
-	unsigned long creator;
-	unsigned long updated;
-	unsigned long updater;
+	uint32_t created;
+	uint32_t creator;
+	uint32_t updated;
+	uint32_t updater;
 	short aspectx;
 	short aspecty;
 	char reserved3[38];
-	unsigned long oframe1;
-	unsigned long oframe2;
+	uint32_t oframe1;
+	uint32_t oframe2;
 	char reserved4[40];
 };
 #pragma pack()
 
 #pragma pack(1)
 struct AnimFLIChunk { //sizeof=0x6
-	long csize;
-	unsigned short ctype;
+	int32_t csize;
+	uint16_t ctype;
 };
 #pragma pack()
 
 #pragma pack(1)
 struct AnimFLIPrefix { //sizeof=0x6
-	long csize;
+	int32_t csize;
 	unsigned short ctype;
 	short nchunks;
 	char reserved[8];
@@ -700,7 +700,7 @@ struct AnimFLIPrefix { //sizeof=0x6
 #pragma pack()
 
 struct Animation {
-	long state_flags;
+	int32_t state_flags;
 	unsigned char *videobuf;
 	unsigned char *chunkdata;
 	unsigned char *buffer_write_pointer;
@@ -709,9 +709,9 @@ struct Animation {
 	short compression_level;
 	short unusedparam;
 	unsigned char palette[768];
-	long frame_count;
-	long buffer_size;
-	long unusedfield324;
+	int32_t frame_count;
+	int32_t buffer_size;
+	int32_t unusedfield324;
 	AnimFLIHeader header;
 	AnimFLIChunk chunk;
 	AnimFLIPrefix prefix;
@@ -725,7 +725,7 @@ Animation animation;
  * Writes the data into FLI animation.
  * @return Returns false on error, true on success.
  */
-short anim_write_data(void *buf, long size)
+short anim_write_data(void *buf, int32_t size)
 {
 	return LbFileWrite(animation.outfhndl,buf,size) == size;
 }
@@ -734,7 +734,7 @@ short anim_write_data(void *buf, long size)
  * Stores data into FLI buffer.
  * @return Returns false on error, true on success.
  */
-short anim_store_data(void *buf, long size)
+short anim_store_data(void *buf, int32_t size)
 {
 	memcpy(animation.buffer_write_pointer, buf, size);
 	animation.buffer_write_pointer += size;
@@ -745,7 +745,7 @@ short anim_store_data(void *buf, long size)
  * Reads the data from FLI animation.
  * @return Returns false on error, true on success.
  */
-short anim_read_data(void *buf, long size)
+short anim_read_data(void *buf, int32_t size)
 {
 	if (buf == NULL) {
 		LbFileSeek(animation.inpfhndl,size,Lb_FILE_SEEK_CURRENT);
@@ -756,7 +756,7 @@ short anim_read_data(void *buf, long size)
 	return false;
 }
 
-long anim_make_FLI_COPY(unsigned char *screenbuf)
+int32_t anim_make_FLI_COPY(unsigned char *screenbuf)
 {
 	int scrpoints = animation.header.height * animation.header.width;
 	memcpy(animation.buffer_write_pointer, screenbuf, scrpoints);
@@ -764,7 +764,7 @@ long anim_make_FLI_COPY(unsigned char *screenbuf)
 	return scrpoints;
 }
 
-long anim_make_FLI_COLOUR256(unsigned char *palette)
+int32_t anim_make_FLI_COLOUR256(unsigned char *palette)
 {
 	if (memcmp(animation.palette, palette, 768) == 0) {
 		return 0;
@@ -815,7 +815,7 @@ long anim_make_FLI_COLOUR256(unsigned char *palette)
  * Compress data into FLI's BRUN block (8-bit Run-Length compression).
  * @return Returns unpacked size of the block which was compressed.
  */
-long anim_make_FLI_BRUN(unsigned char *screenbuf) {
+int32_t anim_make_FLI_BRUN(unsigned char *screenbuf) {
 	unsigned char *blk_begin = animation.buffer_write_pointer;
 	short w;
 	short h;
@@ -880,7 +880,7 @@ long anim_make_FLI_BRUN(unsigned char *screenbuf) {
  * Compress data into FLI's SS2 block.
  * @return Returns unpacked size of the block which was compressed.
  */
-long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
+int32_t anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 {
 	unsigned char *blk_begin;
 	blk_begin=animation.buffer_write_pointer;
@@ -914,10 +914,10 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 		}
 		for (w=animation.header.width;w>0;) {
 			for ( k=0; w>0; k++) {
-				if ( *(unsigned short *)(pbf+2*(long)k) != *(unsigned short *)(cbf+2*(long)k) ) break;
+				if ( *(unsigned short *)(pbf+2*(int32_t)k) != *(unsigned short *)(cbf+2*(int32_t)k) ) break;
 				w -= 2;
 			}
-			if (2*(long)k == animation.header.width) {
+			if (2*(int32_t)k == animation.header.width) {
 				wend--;
 				cbf += LbGraphicsScreenWidth();
 				pbf += LbGraphicsScreenWidth();
@@ -985,10 +985,10 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 						animation.buffer_write_pointer++;
 						*(unsigned char *)animation.buffer_write_pointer = ndiff;
 						animation.buffer_write_pointer++;
-						memcpy(animation.buffer_write_pointer, cbf, 2*(long)ndiff);
-						animation.buffer_write_pointer += 2*(long)ndiff;
-						pbf += 2*(long)ndiff;
-						cbf += 2*(long)ndiff;
+						memcpy(animation.buffer_write_pointer, cbf, 2*(int32_t)ndiff);
+						animation.buffer_write_pointer += 2*(int32_t)ndiff;
+						pbf += 2*(int32_t)ndiff;
+						cbf += 2*(int32_t)ndiff;
 						wend = 0;
 						(*pckt_count)++;
 					}
@@ -1019,7 +1019,7 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
  * Compress data into FLI's LC block.
  * @return Returns unpacked size of the block which was compressed.
  */
-long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
+int32_t anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 {
 	unsigned char *blk_begin;
 	blk_begin=animation.buffer_write_pointer;
@@ -1053,7 +1053,7 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 	}
 	if (hend != 0) {
 		hend = animation.header.height - hend;
-		blksize = animation.header.width * (long)(animation.header.height-1);
+		blksize = animation.header.width * (int32_t)(animation.header.height-1);
 		cbuf = curdat+blksize;
 		pbuf = prvdat+blksize;
 		for (h=animation.header.height; h>0; h--) {
@@ -1067,7 +1067,7 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 			pbuf -= LbGraphicsScreenWidth();
 		}
 		hdim = h - hend;
-		blksize = animation.header.width * (long)hend;
+		blksize = animation.header.width * (int32_t)hend;
 		cbuf = curdat+blksize;
 		pbuf = prvdat+blksize;
 		*(unsigned short *)animation.buffer_write_pointer = hend;
@@ -1173,7 +1173,7 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
  * and height of animation. The buffer of returned size is big enough
  * to store one frame of any kind (any compression).
  */
-long anim_buffer_size(int width,int height,int bpp)
+int32_t anim_buffer_size(int width,int height,int bpp)
 {
 	int n = (bpp>>3);
 	if (bpp%8) n++;
@@ -1212,7 +1212,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 			ERRORLOG("Cannot allocate video buffer.");
 			return false;
 		}
-		long max_chunk_size = anim_buffer_size(width,height,bpp);
+		int32_t max_chunk_size = anim_buffer_size(width,height,bpp);
 		animation.chunkdata = static_cast<unsigned char *>(calloc(max_chunk_size, 1));
 		if (animation.chunkdata==NULL) {
 			ERRORLOG("Cannot allocate chunk buffer.");
@@ -1266,7 +1266,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 			return false;
 		}
 		// Now we can allocate chunk buffer
-		long max_chunk_size = anim_buffer_size(animation.header.width,animation.header.height,animation.header.depth);
+		int32_t max_chunk_size = anim_buffer_size(animation.header.width,animation.header.height,animation.header.depth);
 		animation.chunkdata = static_cast<unsigned char *>(calloc(max_chunk_size, 1));
 		if (animation.chunkdata==NULL) {
 			return false;
@@ -1283,7 +1283,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 				return false;
 			}
 		} else {
-			LbFileSeek(animation.inpfhndl, -sizeof(AnimFLIChunk), Lb_FILE_SEEK_CURRENT);
+			LbFileSeek(animation.inpfhndl, -(int32_t)sizeof(AnimFLIChunk), Lb_FILE_SEEK_CURRENT);
 		}
 		animation.frame_count = 0;
 	}
@@ -1293,11 +1293,11 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 {
 	SYNCDBG(7,"Starting");
-	unsigned long max_chunk_size;
+	uint32_t max_chunk_size;
 	unsigned char *dataptr;
-	long brun_size;
-	long lc_size;
-	long ss2_size;
+	int32_t brun_size;
+	int32_t lc_size;
+	int32_t ss2_size;
 	int width = animation.header.width;
 	int height = animation.header.height;
 	animation.buffer_write_pointer = animation.chunkdata;
@@ -1327,7 +1327,7 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 		subchnk = (AnimFLIChunk *)animation.buffer_write_pointer;
 		anim_store_data(&animation.subchunk, sizeof(AnimFLIChunk));
 	}
-	int scrpoints = animation.header.height * (long)animation.header.width;
+	int scrpoints = animation.header.height * (int32_t)animation.header.width;
 	if (animation.frame_count == 0) {
 		if ( anim_make_FLI_BRUN(screenbuf) ) {
 			prefx->nchunks++;

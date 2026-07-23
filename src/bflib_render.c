@@ -33,9 +33,9 @@ unsigned char *render_fade_tables = NULL;
 unsigned char *render_ghost = NULL;
 unsigned char *render_alpha = NULL;
 unsigned char *LOC_vec_screen;
-long LOC_vec_screen_width;
-long LOC_vec_window_width;
-long LOC_vec_window_height;
+int32_t LOC_vec_screen_width;
+int32_t LOC_vec_window_width;
+int32_t LOC_vec_window_height;
 struct PolyPoint *polyscans = NULL;
 /******************************************************************************/
 

@@ -47,10 +47,10 @@ public:
     void Setup(unsigned char *lens_mem, unsigned char *fade, unsigned char *ghost,
                unsigned char pos_x_step, unsigned char pos_y_step,
                unsigned char sec_x_step, unsigned char sec_y_step);
-    void SetAnimation(long counter, long speed);
-    void Render(unsigned char *dstbuf, long dstpitch, 
-               unsigned char *srcbuf, long srcpitch,
-               long width, long height);
+    void SetAnimation(int32_t counter, int32_t speed);
+    void Render(unsigned char *dstbuf, int32_t dstpitch, 
+               unsigned char *srcbuf, int32_t srcpitch,
+               int32_t width, int32_t height);
     void Animate();
     
 private:
@@ -63,8 +63,8 @@ private:
     unsigned char position_offset_y;
     unsigned char secondary_offset_x;
     unsigned char secondary_offset_y;
-    long animation_counter;
-    long animation_speed;
+    int32_t animation_counter;
+    int32_t animation_speed;
     unsigned char position_x_step;
     unsigned char position_y_step;
     unsigned char secondary_x_step;
@@ -100,7 +100,7 @@ void CMistFade::Setup(unsigned char *lens_mem, unsigned char *fade, unsigned cha
     this->secondary_y_step = sec_y_step;
 }
 
-void CMistFade::SetAnimation(long a1, long a2)
+void CMistFade::SetAnimation(int32_t a1, int32_t a2)
 {
     this->animation_counter = a1;
     this->animation_speed = a2;
@@ -115,9 +115,9 @@ void CMistFade::Animate()
     this->secondary_offset_y += this->secondary_y_step;
 }
 
-void CMistFade::Render(unsigned char *dstbuf, long dstpitch,
-                      unsigned char *srcbuf, long srcpitch,
-                      long width, long height)
+void CMistFade::Render(unsigned char *dstbuf, int32_t dstpitch,
+                      unsigned char *srcbuf, int32_t srcpitch,
+                      int32_t width, int32_t height)
 {
     if ((lens_data == NULL) || (fade_data == NULL))
     {
@@ -144,7 +144,7 @@ void CMistFade::Render(unsigned char *dstbuf, long dstpitch,
     unsigned char *src = srcbuf;
     unsigned char *dst = dstbuf;
     
-    for (long y = 0; y < height; y++)
+    for (int32_t y = 0; y < height; y++)
     {
         // Virtual Y coordinate in 640x480 space
         int virtual_y = (y * scale_y) >> 16;
@@ -153,7 +153,7 @@ void CMistFade::Render(unsigned char *dstbuf, long dstpitch,
         int c2_base = (pos_y + virtual_y) & 0xFF;
         int p1_base = (sec_x + 0x10000 - virtual_y) & 0xFF;
         
-        for (long x = 0; x < width; x++)
+        for (int32_t x = 0; x < width; x++)
         {
             // Virtual X coordinate in 640x480 space
             int virtual_x = (x * scale_x) >> 16;
@@ -169,11 +169,11 @@ void CMistFade::Render(unsigned char *dstbuf, long dstpitch,
             int p1 = p1_base;
             
             // Sample both layers from 256x256 texture
-            long k = lens_data[(c2 << 8) + p2];  // primary
-            long i = lens_data[(c1 << 8) + p1];  // secondary
+            int32_t k = lens_data[(c2 << 8) + p2];  // primary
+            int32_t i = lens_data[(c1 << 8) + p1];  // secondary
             
             // Combine layers and clamp
-            long n = (k + i) >> 3;
+            int32_t n = (k + i) >> 3;
             if (n > 32) n = 32;
             else if (n < 0) n = 0;
             
@@ -204,23 +204,23 @@ MistEffect::~MistEffect()
     Cleanup();
 }
 
-TbBool MistEffect::Setup(long lens_idx)
+TbBool MistEffect::Setup(int32_t lens_idx)
 {
-    SYNCDBG(8, "Setting up mist effect for lens %ld", lens_idx);
+    SYNCDBG(8, "Setting up mist effect for lens %d", lens_idx);
     
     struct LensConfig* cfg = &lenses_conf.lenses[lens_idx];
     
     // Check if this lens has a mist effect configured
     if ((cfg->flags & LCF_HasMist) == 0)
     {
-        SYNCDBG(8, "Lens %ld does not have mist effect configured", lens_idx);
+        SYNCDBG(8, "Lens %d does not have mist effect configured", lens_idx);
         return true;  // Not an error - effect just not configured
     }
     
     // Load mist texture using base class fallback loader
     if (!LoadMistTexture(cfg->mist_file))
     {
-        WARNLOG("Failed to load mist texture '%s' for lens %ld - effect will be skipped", 
+        WARNLOG("Failed to load mist texture '%s' for lens %d - effect will be skipped", 
                 cfg->mist_file, lens_idx);
         return true;  // Continue without mist effect (graceful degradation)
     }

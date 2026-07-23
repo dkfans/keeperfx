@@ -73,7 +73,7 @@ TbBool creature_can_do_healing_sleep(const struct Thing *creatng)
 
 TbBool creature_is_sleeping(const struct Thing *thing)
 {
-    long i = thing->active_state;
+    int32_t i = thing->active_state;
     if (i == CrSt_CreatureSleep)
         return true;
     return false;
@@ -102,7 +102,7 @@ TbBool creature_requires_healing(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     HitPoints minhealth = crconf->heal_requirement * cctrl->max_health / 256;
-    if ((long)thing->health <= minhealth)
+    if ((int32_t)thing->health <= minhealth)
         return true;
     return false;
 }
@@ -121,7 +121,7 @@ TbBool creature_move_to_home_lair(struct Thing *creatng)
 
 }
 
-long creature_will_sleep(struct Thing *thing)
+int32_t creature_will_sleep(struct Thing *thing)
 {
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -129,8 +129,8 @@ long creature_will_sleep(struct Thing *thing)
     TRACE_THING(lairtng);
     if (!thing_exists(lairtng))
         return false;
-    long dist_x = (long)thing->mappos.x.stl.num - (long)lairtng->mappos.x.stl.num;
-    long dist_y = (long)thing->mappos.y.stl.num - (long)lairtng->mappos.y.stl.num;
+    int32_t dist_x = (int32_t)thing->mappos.x.stl.num - (int32_t)lairtng->mappos.x.stl.num;
+    int32_t dist_y = (int32_t)thing->mappos.y.stl.num - (int32_t)lairtng->mappos.y.stl.num;
     return (abs(dist_x) < 1) && (abs(dist_y) < 1);
 }
 
@@ -165,7 +165,7 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
             || (dragctrl->lair_room_id == 0
                 // and the lair has no capacity
                 && (room->used_capacity >= room ->total_capacity)))
-        // or there is a lair already but it doesn't belong to the creature
+        // or there is a lair already but it doesn't beint32_t to the creature
         || ((totemtng->index > 0) && (totemtng->index != dragctrl->lairtng_idx)))
     {
         //just drop the creature
@@ -191,7 +191,7 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
 
 }
 
-long process_lair_enemy(struct Thing *thing, struct Room *room)
+int32_t process_lair_enemy(struct Thing *thing, struct Room *room)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // Shouldn't be possible. But just for sure.
@@ -216,7 +216,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     struct Thing* enemytng;
-    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crconf->lair_enemy, &enemytng);
+    int32_t combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crconf->lair_enemy, &enemytng);
     if (combat_factor < 1)
         return 0;
     if (!set_creature_in_combat_to_the_death(thing, enemytng, combat_factor))
@@ -327,8 +327,8 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
 
 TbBool setup_head_for_random_unused_lair_subtile(struct Thing *creatng, struct Room *room)
 {
-    unsigned long k;
-    long n = THING_RANDOM(creatng, room->slabs_count);
+    uint32_t k;
+    int32_t n = THING_RANDOM(creatng, room->slabs_count);
     SlabCodedCoords start_slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -478,16 +478,16 @@ short creature_going_home_to_sleep(struct Thing *thing)
     return 1;
 }
 
-long room_has_slab_adjacent(const struct Room *room, long slbkind)
+int32_t room_has_slab_adjacent(const struct Room *room, int32_t slbkind)
 {
-    unsigned long k = 0;
-    long i = room->slabs_list;
+    uint32_t k = 0;
+    int32_t i = room->slabs_list;
     while (i > 0)
     {
         // Per room tile code
-        for (long n = 0; n < AROUND_SLAB_LENGTH; n++)
+        for (int32_t n = 0; n < AROUND_SLAB_LENGTH; n++)
         {
-            long slab_num = i + game.around_slab[n];
+            int32_t slab_num = i + game.around_slab[n];
             struct SlabMap* slb = get_slabmap_direct(slab_num);
             if (!slabmap_block_invalid(slb))
             {
@@ -550,7 +550,7 @@ short creature_sleep(struct Thing *thing)
             dungeon->lvstats.backs_stabbed++;
         }
     }
-    long XP = 0;
+    int32_t XP = 0;
     for (unsigned int i = 0; i < SLEEP_XP_COUNT; i++)
     {
         if (crconf->sleep_experience[i] > XP)

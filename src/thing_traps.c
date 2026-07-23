@@ -82,8 +82,8 @@ TbBool trap_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_
 struct Thing *get_trap_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -227,8 +227,8 @@ TbBool creature_available_for_trap_trigger(struct Thing* creatng)
 TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -706,8 +706,8 @@ void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
 TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing **found_thing)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -811,11 +811,11 @@ void process_trap_charge(struct Thing* traptng)
     if (trapst->attack_sprite_anim_idx != 0)
     {
         GameTurnDelta trigger_duration;
-        if (trapst->activation_type == TrpAcT_EffectonTrap) // Effect stays on trap, so the attack animation remains visible for as long as the effect is alive.
+        if (trapst->activation_type == TrpAcT_EffectonTrap) // Effect stays on trap, so the attack animation remains visible for as int32_t as the effect is alive.
         {
             trigger_duration = get_effect_model_stats(trapst->created_itm_model)->start_health;
         } else
-        if (trapst->activation_type == TrpAcT_ShotonTrap) // Shot stays on trap, so the attack animation remains visible for as long as the trap is alive.
+        if (trapst->activation_type == TrpAcT_ShotonTrap) // Shot stays on trap, so the attack animation remains visible for as int32_t as the trap is alive.
         {
             trigger_duration = get_shot_model_stats(trapst->created_itm_model)->health;
         }
@@ -1143,16 +1143,16 @@ void init_traps(void)
  * @return Amount of traps removed.
  */
 
-unsigned long remove_trap(struct Thing *traptng, int32_t *sell_value)
+uint32_t remove_trap(struct Thing *traptng, int32_t *sell_value)
 {
-    unsigned long total = 0;
+    uint32_t total = 0;
     if (!thing_is_invalid(traptng))
     {
         if (sell_value != NULL)
         {
             // Do the refund only if we were able to sell armed trap
             struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
-            long i = compute_value_percentage(trapst->selling_value, game.conf.rules[traptng->owner].gameplay.trap_sale_percent);
+            int32_t i = compute_value_percentage(trapst->selling_value, game.conf.rules[traptng->owner].gameplay.trap_sale_percent);
             if (traptng->trap.num_shots == 0)
             {
                 // Trap not armed - try selling crate from workshop
@@ -1175,16 +1175,16 @@ unsigned long remove_trap(struct Thing *traptng, int32_t *sell_value)
     return total;
 }
 
-unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *sell_value)
+uint32_t remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *sell_value)
 {
     struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
     return remove_trap(traptng, sell_value);
 }
 
-unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *sell_value)
+uint32_t remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *sell_value)
 {
-    unsigned long total = 0;
-    for (long k = 0; k < AROUND_TILES_COUNT; k++)
+    uint32_t total = 0;
+    for (int32_t k = 0; k < AROUND_TILES_COUNT; k++)
     {
         struct Thing* traptng = get_trap_for_position(stl_x + around[k].delta_x, stl_y + around[k].delta_y);
         total += remove_trap(traptng, sell_value);
@@ -1308,7 +1308,7 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
         case ShFL_Beam:
         {
             struct Coord3d pos2;
-            long damage;
+            int32_t damage;
             // Prepare source position
             struct Coord3d pos1;
             pos1.x.val = firing->mappos.x.val;

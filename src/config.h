@@ -146,14 +146,12 @@ enum dataTypes
     dt_uchar,
     dt_schar,
     dt_char,
-    dt_short,
-    dt_ushort,
-    dt_int,
-    dt_uint,
-    dt_long,
-    dt_ulong,
-    dt_longlong,
-    dt_ulonglong,
+    dt_int16,
+    dt_uint16,
+    dt_int32,
+    dt_uint32,
+    dt_int64,
+    dt_uint64,
     dt_float,
     dt_double,
     dt_longdouble,
@@ -165,10 +163,9 @@ enum dataTypes
     (_Generic((expr),\
               unsigned char: dt_uchar, \
               signed char: dt_schar, \
-              short: dt_short, unsigned short: dt_ushort, \
-              int: dt_int, unsigned int: dt_uint, \
-              long: dt_long, unsigned long: dt_ulong, \
-              long long: dt_longlong, unsigned long long: dt_ulonglong, \
+              int16_t: dt_int16, uint16_t: dt_uint16, \
+              int32_t: dt_int32, uint32_t: dt_uint32, \
+              int64_t: dt_int64, uint64_t: dt_uint64, \
               float: dt_float, \
               double: dt_double, \
               long double: dt_longdouble, \
@@ -212,7 +209,7 @@ struct NamedCommand {
 
 struct LongNamedCommand {
     const char* name;
-    long long num;
+    int64_t num;
 };
 
 struct NamedFieldSet;
@@ -240,8 +237,8 @@ struct NamedFieldSet {
     void* (*get_struct_base)(void);
 };
 
-#define NAMFIELDWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", src_str , text_line_number, ##__VA_ARGS__)
-#define NAMFIELDERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", src_str , text_line_number, ##__VA_ARGS__)
+#define NAMFIELDWRNLOG(format, ...) LbWarnLog("%s(line %u): " format "\n", src_str , text_line_number, ##__VA_ARGS__)
+#define NAMFIELDERRLOG(format, ...) LbErrorLog("%s(line %u): " format "\n", src_str , text_line_number, ##__VA_ARGS__)
 
 extern TbBool AssignCpuKeepers;
 
@@ -261,7 +258,7 @@ extern char keeper_runtime_directory[152];
 
 #pragma pack()
 /******************************************************************************/
-extern unsigned long text_line_number;
+extern uint32_t text_line_number;
 /******************************************************************************/
 char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname);
 char *prepare_file_path_mod(const char *mod_dir, short fgroup, const char *fname);
@@ -300,13 +297,13 @@ LevelNumber next_extra_level(LevelNumber ex_lvnum);
 LevelNumber get_extra_level(unsigned short elv_kind);
 // Level info support for active campaign
 struct LevelInformation *get_level_info(LevelNumber lvnum);
-struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, unsigned long lvoptions);
+struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, uint32_t lvoptions);
 struct LevelInformation *get_first_level_info(void);
 struct LevelInformation *get_last_level_info(void);
 struct LevelInformation *get_next_level_info(struct LevelInformation *previnfo);
 struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo);
-short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions);
-short set_level_info_string_index(LevelNumber lvnum, char *stridx, unsigned long lvoptions);
+short set_level_info_text_name(LevelNumber lvnum, char *name, uint32_t lvoptions);
+short set_level_info_string_index(LevelNumber lvnum, char *stridx, uint32_t lvoptions);
 short get_level_fgroup(LevelNumber lvnum);
 const char *get_language_lwrstr(int lang_id);
 /******************************************************************************/
@@ -315,30 +312,30 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn);
 /******************************************************************************/
 TbBool parameter_is_number(const char* parstr);
 
-short find_conf_block(const char *buf,int32_t *pos,long buflen,const char *blockname);
-TbBool iterate_conf_blocks(const char * buf, int32_t * pos, long buflen, const char ** name, int * namelen);
-int recognize_conf_command(const char *buf,int32_t *pos,long buflen,const struct NamedCommand *commands);
-int get_conf_line(const char *buf, int32_t *pos, long buflen, char *dst, long dstlen);
-TbBool skip_conf_to_next_line(const char *buf,int32_t *pos,long buflen);
-int get_conf_parameter_single(const char *buf,int32_t *pos,long buflen,char *dst,long dstlen);
-int get_conf_parameter_whole(const char *buf,int32_t *pos,long buflen,char *dst,long dstlen);
+short find_conf_block(const char *buf,int32_t *pos,int32_t buflen,const char *blockname);
+TbBool iterate_conf_blocks(const char * buf, int32_t * pos, int32_t buflen, const char ** name, int * namelen);
+int recognize_conf_command(const char *buf,int32_t *pos,int32_t buflen,const struct NamedCommand *commands);
+int get_conf_line(const char *buf, int32_t *pos, int32_t buflen, char *dst, int32_t dstlen);
+TbBool skip_conf_to_next_line(const char *buf,int32_t *pos,int32_t buflen);
+int get_conf_parameter_single(const char *buf,int32_t *pos,int32_t buflen,char *dst,int32_t dstlen);
+int get_conf_parameter_whole(const char *buf,int32_t *pos,int32_t buflen,char *dst,int32_t dstlen);
 
-TbBool parse_named_field_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
+TbBool parse_named_field_block(const char *buf, int32_t len, const char *config_textname, unsigned short flags,const char* blockname,
     const struct NamedField named_field[], const struct NamedFieldSet* named_fields_set, int idx);
-TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname, unsigned short flags,
+TbBool parse_named_field_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags,
         const struct NamedFieldSet* named_fields_set);
-int recognize_conf_parameter(const char *buf,int32_t *pos,long buflen,const struct NamedCommand *commands);
+int recognize_conf_parameter(const char *buf,int32_t *pos,int32_t buflen,const struct NamedCommand *commands);
 void assign_named_field_value(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
-long get_named_field_id(const struct NamedField *desc, const char *itmname);
-long get_id(const struct NamedCommand *desc, const char *itmname);
-long long get_long_id(const struct LongNamedCommand* desc, const char* itmname);
-long get_rid(const struct NamedCommand *desc, const char *itmname);
+int32_t get_named_field_id(const struct NamedField *desc, const char *itmname);
+int32_t get_id(const struct NamedCommand *desc, const char *itmname);
+int64_t get_long_id(const struct LongNamedCommand* desc, const char* itmname);
+int32_t get_rid(const struct NamedCommand *desc, const char *itmname);
 /******************************************************************************/
 int64_t value_name           (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 int64_t value_default        (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 int64_t value_flagsfield     (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
-int64_t value_longflagsfield (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+int64_t value_int32_tflagsfield (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 int64_t value_icon           (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 int64_t value_effOrEffEl     (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 int64_t value_animid         (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);

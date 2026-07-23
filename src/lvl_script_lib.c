@@ -43,7 +43,7 @@ struct ScriptValue *allocate_script_value(void)
     return value;
 }
 
-void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id)
+void command_init_value(struct ScriptValue* value, uint32_t var_index, uint32_t plr_range_id)
 {
     set_flag_value(value->flags, TrgF_REUSABLE, next_command_reusable);
     clear_flag(value->flags, TrgF_DISABLED);
@@ -53,13 +53,13 @@ void command_init_value(struct ScriptValue* value, unsigned long var_index, unsi
 }
 
 // For dynamic strings
-long script_strdup(const char *src)
+int32_t script_strdup(const char *src)
 {
     // TODO: add string deduplication to save space
 
-    const long offset = game.script.next_string_offset;
-    const long remaining_size = sizeof(game.script.strings) - offset;
-    const long string_size = strlen(src) + 1;
+    const int32_t offset = game.script.next_string_offset;
+    const int32_t remaining_size = sizeof(game.script.strings) - offset;
+    const int32_t string_size = strlen(src) + 1;
     if (string_size >= remaining_size)
     {
         return -1;
@@ -69,7 +69,7 @@ long script_strdup(const char *src)
     return offset;
 }
 
-const char * script_strval(long offset)
+const char * script_strval(int32_t offset)
 {
     if (offset >= sizeof(game.script.strings))
     {
@@ -78,7 +78,7 @@ const char * script_strval(long offset)
     return &game.script.strings[offset];
 }
 
-struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle)
+struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t arg, PlayerNumber plyr_idx, short move_angle)
 {
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_x);
@@ -142,7 +142,7 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
     return thing;
 }
 
-struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation location, long range)
+struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation location, int32_t range)
 {
     struct Coord3d pos;
     const unsigned char tngclass = TCls_EffectGen;
@@ -239,7 +239,7 @@ TbBool script_new_creature_type(const char *name)
     return false;
 }
 
-void set_variable(int player_idx, long var_type, long var_idx, long new_val)
+void set_variable(int player_idx, int32_t var_type, int32_t var_idx, int32_t new_val)
 {
     struct Dungeon *dungeon = get_dungeon(player_idx);
     struct Coord3d pos = {0};
@@ -273,12 +273,12 @@ void set_variable(int player_idx, long var_type, long var_idx, long new_val)
     }
 }
 
-long parse_criteria(const char *criteria)
+int32_t parse_criteria(const char *criteria)
 {
     char c;
     int arg;
 
-    long ret = get_id(creature_select_criteria_desc, criteria);
+    int32_t ret = get_id(creature_select_criteria_desc, criteria);
     if (ret == -1)
     {
         if (2 == sscanf(criteria, "AT_ACTION_POINT[%d%c", &arg, &c) && (c == ']'))
@@ -296,7 +296,7 @@ long parse_criteria(const char *criteria)
 }
 
 #define get_players_range_single(plr_range_id) get_players_range_single_f(plr_range_id, __func__, text_line_number)
-long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num)
+int32_t get_players_range_single_f(int32_t plr_range_id, const char *func_name, int32_t ln_num)
 {
     if (plr_range_id < 0) {
         return -1;
@@ -446,7 +446,7 @@ void get_chat_icon_from_value(const char* txt, char* id, char* type)
 }
 
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
-TbBool get_player_id_f(const char *plrname, int32_t *plr_range_id, const char *func_name, long ln_num)
+TbBool get_player_id_f(const char *plrname, int32_t *plr_range_id, const char *func_name, int32_t ln_num)
 {
     *plr_range_id = get_rid(player_desc, plrname);
     if (*plr_range_id == -1)
@@ -454,7 +454,7 @@ TbBool get_player_id_f(const char *plrname, int32_t *plr_range_id, const char *f
       *plr_range_id = get_rid(cmpgn_human_player_options, plrname);
       if (*plr_range_id == -1)
       {
-        ERRORMSG("%s(line %lu): Invalid player name, '%s'",func_name,ln_num, plrname);
+        ERRORMSG("%s(line %u): Invalid player name, '%s'",func_name,ln_num, plrname);
         return false;
       }
     }

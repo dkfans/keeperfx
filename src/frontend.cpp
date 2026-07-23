@@ -371,7 +371,7 @@ struct EventTypeInfo event_button_info[] = {
   {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
 };
 
-const unsigned long alliance_grid[4][4] = {
+const uint32_t alliance_grid[4][4] = {
   {0x00, 0x01, 0x02, 0x04,},
   {0x01, 0x00, 0x08, 0x10,},
   {0x02, 0x08, 0x00, 0x20,},
@@ -382,7 +382,7 @@ const unsigned long alliance_grid[4][4] = {
 // Declarations for font testing screen (debug version only)
 struct TbSpriteSheet *testfont[TESTFONTS_COUNT];
 unsigned char *testfont_palette[3];
-long num_chars_in_font = 128;
+int32_t num_chars_in_font = 128;
 #endif
 
 int status_panel_width = 140;
@@ -395,21 +395,21 @@ char trap_tag;
 char creature_tag;
 char input_string[8][SAVE_TEXTNAME_LEN + 1];
 char gui_error_text[256];
-long net_service_scroll_offset;
-long net_number_of_services;
-long net_comport_index_active;
-long net_speed_index_active;
-long net_number_of_players;
-long net_number_of_enum_players;
-long net_level_hilighted;
+int32_t net_service_scroll_offset;
+int32_t net_number_of_services;
+int32_t net_comport_index_active;
+int32_t net_speed_index_active;
+int32_t net_number_of_players;
+int32_t net_number_of_enum_players;
+int32_t net_level_hilighted;
 struct NetMessage net_message[NET_MESSAGES_COUNT];
-long net_number_of_messages;
-long net_message_scroll_offset;
-long net_session_index_active_id;
-long net_session_scroll_offset;
-long net_player_scroll_offset;
+int32_t net_number_of_messages;
+int32_t net_message_scroll_offset;
+int32_t net_session_index_active_id;
+int32_t net_session_scroll_offset;
+int32_t net_player_scroll_offset;
 struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];
-long frontend_mouse_over_button_start_time;
+int32_t frontend_mouse_over_button_start_time;
 short old_menu_mouse_x;
 short old_menu_mouse_y;
 unsigned char menu_ids[3];
@@ -424,19 +424,19 @@ struct TbSpriteSheet * font_sprites = NULL;
 struct TbSpriteSheet * frontend_font[FRONTEND_FONTS_COUNT] = {};
 struct TbSpriteSheet * button_sprites = NULL;
 struct TbSpriteSheet * winfont = NULL;
-unsigned long playing_bad_descriptive_speech;
-unsigned long playing_good_descriptive_speech;
-long scrolling_index;
+uint32_t playing_bad_descriptive_speech;
+uint32_t playing_good_descriptive_speech;
+int32_t scrolling_index;
 float scrolling_offset;
-long packet_left_button_double_clicked[6];
-long packet_left_button_click_space_count[6];
+int32_t packet_left_button_double_clicked[6];
+int32_t packet_left_button_click_space_count[6];
 char frontend_alliances;
 char busy_doing_gui;
-long gui_last_left_button_pressed_id;
-long gui_last_right_button_pressed_id;
+int32_t gui_last_left_button_pressed_id;
+int32_t gui_last_right_button_pressed_id;
 int fe_computer_players;
-long old_mouse_over_button;
-long frontend_mouse_over_button;
+int32_t old_mouse_over_button;
+int32_t frontend_mouse_over_button;
 
 /******************************************************************************/
 short menu_is_active(short idx)
@@ -477,11 +477,11 @@ int frontend_font_string_width(int fnt_idx, const char *str)
 
 
 
-void add_message(long plyr_idx, char *msg)
+void add_message(int32_t plyr_idx, char *msg)
 {
     struct NetMessage *nmsg;
-    long i;
-    long k;
+    int32_t i;
+    int32_t k;
     i = net_number_of_messages;
     if (i >= NET_MESSAGES_COUNT)
     {
@@ -714,7 +714,7 @@ void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn)
     gbtn->flags |= LbBtnF_Enabled;
 }
 
-TbBool frontend_is_player_allied(long idx1, long idx2)
+TbBool frontend_is_player_allied(int32_t idx1, int32_t idx2)
 {
     if (idx1 == idx2)
       return true;
@@ -725,7 +725,7 @@ TbBool frontend_is_player_allied(long idx1, long idx2)
     return ((frontend_alliances & alliance_grid[idx1][idx2]) != 0);
 }
 
-void frontend_set_alliance(long idx1, long idx2)
+void frontend_set_alliance(int32_t idx1, int32_t idx2)
 {
     if (frontend_is_player_allied(idx1, idx2))
       frontend_alliances &= ~alliance_grid[idx1][idx2];
@@ -737,7 +737,7 @@ TbResult frontend_load_data(void)
 {
     char *fname;
     TbResult ret;
-    long len;
+    int32_t len;
     // TODO: There is no "frontend_unload_data", find a better spot for this
     free_spritesheet(&frontend_sprite);
     ret = Lb_SUCCESS;
@@ -782,7 +782,7 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     game.chosen_room_tooltip = tooltip_id;
 }
 
-long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool already_in)
+int32_t player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool already_in)
 {
     switch (work_state)
     {
@@ -904,12 +904,12 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
     set_chosen_power(pwkind, tooltip_id);
 }
 
-void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long first_elem, long last_elem)
+void frontend_draw_scroll_tab(struct GuiButton *gbtn, int32_t scroll_offset, int32_t first_elem, int32_t last_elem)
 {
     const struct TbSprite *spr;
-    long i;
-    long k;
-    long n;
+    int32_t i;
+    int32_t k;
+    int32_t n;
     int units_per_px;
     units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, GFS_slider_indicator_std, 100);
     spr = get_frontend_sprite(GFS_slider_indicator_std);
@@ -922,18 +922,18 @@ void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long f
     LbSpriteDrawResized(gbtn->scr_pos_x, n+gbtn->scr_pos_y, units_per_px, spr);
 }
 
-long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long first_elem, long last_elem)
+int32_t frontend_scroll_tab_to_offset(struct GuiButton *gbtn, int32_t scr_pos, int32_t first_elem, int32_t last_elem)
 {
-    long elem_num;
+    int32_t elem_num;
     elem_num = last_elem - first_elem;
     if (elem_num < 1) {
         return 0;
     }
-    long bar_pos;
+    int32_t bar_pos;
     bar_pos = scr_pos - gbtn->scr_pos_y;
     if (bar_pos < 0) bar_pos = 0;
     if (bar_pos >= gbtn->height) bar_pos = gbtn->height-1;
-    long scroll_offset;
+    int32_t scroll_offset;
     scroll_offset = bar_pos * elem_num / gbtn->height;
     return scroll_offset;
 }
@@ -944,7 +944,7 @@ void gui_quit_game(struct GuiButton *gbtn)
     set_players_packet_action(player, PckA_QuitToMainMenu, 0, 0, 0, 0);
 }
 
-void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
+void draw_slider64k(int32_t scr_x, int32_t scr_y, int units_per_px, int32_t width)
 {
     draw_bar64k(scr_x, scr_y, units_per_px, width);
     // Inner size
@@ -1011,12 +1011,12 @@ void gui_area_slider(struct GuiButton *gbtn)
 TbBool fronttestfont_draw(void)
 {
   const struct TbSprite *spr;
-  unsigned long i;
-  unsigned long k;
-  long w;
-  long h;
-  long x;
-  long y;
+  uint32_t i;
+  uint32_t k;
+  int32_t w;
+  int32_t h;
+  int32_t x;
+  int32_t y;
   SYNCDBG(9,"Starting");
   for (y=0; y < lbDisplay.GraphicsScreenHeight; y++)
     for (x=0; x < lbDisplay.GraphicsScreenWidth; x++)
@@ -1030,7 +1030,7 @@ TbBool fronttestfont_draw(void)
   for (i=31; i < num_chars_in_font+31; i++)
   {
     k = (i-31);
-    SYNCDBG(9,"Drawing char %lu",i);
+    SYNCDBG(9,"Drawing char %u",i);
     x = (k%32)*w + 2;
     y = (k/32)*h + 2;
     if (lbFontPtr != NULL)
@@ -1058,7 +1058,7 @@ TbBool fronttestfont_input(void)
     {
       lbKeyOn[keys[i]] = 0;
       num_chars_in_font = num_sprites(testfont[i]);
-      SYNCDBG(9,"Characters in font %d: %ld",i,num_chars_in_font);
+      SYNCDBG(9,"Characters in font %d: %d",i,num_chars_in_font);
       if (i < 4)
         LbPaletteSet(frontend_palette);//testfont_palette[0]
       else
@@ -1209,7 +1209,7 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
     }
 }
 
-void frontend_set_player_number(long plr_num)
+void frontend_set_player_number(int32_t plr_num)
 {
     struct PlayerInfo *player;
     my_player_number = plr_num;
@@ -1220,7 +1220,7 @@ void frontend_set_player_number(long plr_num)
 
 const char *frontend_button_caption_text(const struct GuiButton *gbtn)
 {
-    unsigned long febtn_idx;
+    uint32_t febtn_idx;
     int text_idx;
     febtn_idx = gbtn->content.lval;
     if (febtn_idx < FRONTEND_BUTTON_INFO_COUNT)
@@ -1230,9 +1230,9 @@ const char *frontend_button_caption_text(const struct GuiButton *gbtn)
     return get_string(text_idx);
 }
 
-int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_btn_idx)
+int frontend_button_caption_font(const struct GuiButton *gbtn, int32_t mouse_over_btn_idx)
 {
-    unsigned long febtn_idx;
+    uint32_t febtn_idx;
     int font_idx;
     febtn_idx = gbtn->content.lval;
     if (febtn_idx < FRONTEND_BUTTON_INFO_COUNT)
@@ -1371,8 +1371,8 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
 {
   struct TextScrollWindow *scrollwnd;
   unsigned short flg_mem;
-  long text_height;
-  long area_height;
+  int32_t text_height;
+  int32_t area_height;
   flg_mem = lbDisplay.DrawFlags;
   lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
   lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
@@ -1399,10 +1399,10 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   if (text_height == 0)
   {
       text_height = text_string_height(tx_units_per_px, text);
-      SYNCDBG(18,"Computed message height %ld for \"%s\"",text_height,text);
+      SYNCDBG(18,"Computed message height %d for \"%s\"",text_height,text);
       scrollwnd->text_height = text_height;
   }
-  SYNCDBG(18,"Message h=%ld Area h=%ld",text_height,area_height);
+  SYNCDBG(18,"Message h=%d Area h=%d",text_height,area_height);
   // If the text is smaller that the area we have for it - just place it at center
   if (text_height <= area_height)
   {
@@ -1937,7 +1937,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
 {
     struct GuiButton *gbtn;
     int gidx;
-    long i;
+    int32_t i;
     gidx = guibutton_get_unused_slot();
     if (gidx == -1) {
         // No free buttons
@@ -2013,13 +2013,13 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
 
 }
 
-long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
+int32_t compute_menu_position_x(int32_t desired_pos,int menu_width, int units_per_px)
 {
   struct PlayerInfo *player;
   player = get_my_player();
-  long scaled_width;
+  int32_t scaled_width;
   scaled_width = (menu_width * units_per_px + 8) / 16;
-  long pos;
+  int32_t pos;
   switch (desired_pos)
   {
   case POS_MOUSMID: // Place menu centered over mouse
@@ -2038,9 +2038,9 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
       pos = MyScreenWidth - scaled_width;
       break;
   default: // Desired position have direct coordinates
-      pos = ((desired_pos*(long)units_per_pixel)>>4)*((long)pixel_size);
-      if (pos+scaled_width > lbDisplay.PhysicalScreenWidth*((long)pixel_size))
-        pos = lbDisplay.PhysicalScreenWidth*((long)pixel_size)-scaled_width;
+      pos = ((desired_pos*(int32_t)units_per_pixel)>>4)*((int32_t)pixel_size);
+      if (pos+scaled_width > lbDisplay.PhysicalScreenWidth*((int32_t)pixel_size))
+        pos = lbDisplay.PhysicalScreenWidth*((int32_t)pixel_size)-scaled_width;
 /* Helps not to touch left panel - disabling, as needs additional conditions
       if (pos < status_panel_width)
         pos = status_panel_width;
@@ -2064,12 +2064,12 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
   return pos;
 }
 
-long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
+int32_t compute_menu_position_y(int32_t desired_pos,int menu_height, int units_per_px)
 {
     struct PlayerInfo *player = get_my_player();
-    long scaled_height;
+    int32_t scaled_height;
     scaled_height = (menu_height * units_per_px + 8) / 16;
-    long pos;
+    int32_t pos;
     switch (desired_pos)
     {
     case POS_MOUSMID: // Place menu centered over mouse
@@ -2088,9 +2088,9 @@ long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
         pos = MyScreenHeight - scaled_height;
         break;
     default: // Desired position have direct coordinates
-        pos = ((desired_pos*((long)units_per_pixel))>>4)*((long)pixel_size);
-        if (pos+scaled_height > lbDisplay.PhysicalScreenHeight*((long)pixel_size))
-          pos = lbDisplay.PhysicalScreenHeight*((long)pixel_size)-scaled_height;
+        pos = ((desired_pos*((int32_t)units_per_pixel))>>4)*((int32_t)pixel_size);
+        if (pos+scaled_height > lbDisplay.PhysicalScreenHeight*((int32_t)pixel_size))
+          pos = lbDisplay.PhysicalScreenHeight*((int32_t)pixel_size)-scaled_height;
         break;
     }
     // Clipping position Y
@@ -2190,7 +2190,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
  * @param visible If TRUE show the menu, if FALSE hide the menu
  * @return The visibility of the menu before this function was called (used to store the user's previous setting when the menu is forcibly hidden).
  */
-unsigned long toggle_status_menu(short visible)
+uint32_t toggle_status_menu(short visible)
 {
   static TbBool room_on = false;
   static TbBool room_2_on = false;
@@ -2210,11 +2210,11 @@ unsigned long toggle_status_menu(short visible)
   static TbBool battle_on = false;
   static TbBool special_on = false;
 
-  long k = menu_id_to_number(GMnu_MAIN);
+  int32_t k = menu_id_to_number(GMnu_MAIN);
   if (k < 0) return 0;
   // Update pannel width
   status_panel_width = get_active_menu(k)->width;
-  unsigned long i = get_active_menu(k)->is_turned_on;
+  uint32_t i = get_active_menu(k)->is_turned_on;
   if (visible != i)
   {
     if ( visible )
@@ -2371,7 +2371,7 @@ TbBool toggle_first_person_menu(TbBool visible)
     return true;
   } else
   {
-    long menu_num;
+    int32_t menu_num;
     // CREATURE_QUERY1
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY1);
     if (menu_num >= 0)
@@ -3137,7 +3137,7 @@ void draw_active_menus_buttons(void)
 {
     struct GuiMenu *gmnu;
     int k;
-    long menu_num;
+    int32_t menu_num;
     Gf_Mnu_Callback callback;
     SYNCDBG(8,"Starting with %d active menus",no_of_active_menus);
     for (k=0; k < no_of_active_menus; k++)
@@ -3171,9 +3171,9 @@ void spangle_button(struct GuiButton *gbtn)
     spr = get_button_sprite(GBS_guisymbols_new_function_1);
     int bs_units_per_px;
     bs_units_per_px = 50 * units_per_pixel / spr->SHeight;
-    long x;
-    long y;
-    unsigned long i;
+    int32_t x;
+    int32_t y;
+    uint32_t i;
     x = gbtn->pos_x + (gbtn->width >> 1)  - ((spr->SWidth*bs_units_per_px/16) / 2);
     y = gbtn->pos_y + (gbtn->height >> 1) - ((spr->SHeight*bs_units_per_px/16) / 2);
     i = GBS_guisymbols_new_function_1+((get_gameturn() >> 1) & 7);
@@ -3501,7 +3501,7 @@ void frontend_update(short *finish_menu)
     case FeSt_MAIN_MENU:
         frontend_button_info[8].font_index = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
-        if ( abs(LbTimerClock()-(long)time_last_played_demo) > MNU_DEMO_IDLE_TIME )
+        if ( abs(LbTimerClock()-(int32_t)time_last_played_demo) > MNU_DEMO_IDLE_TIME )
           frontend_set_state(FeSt_DEMO);
         break;
     case FeSt_FELOAD_GAME:
@@ -3798,7 +3798,7 @@ void try_restore_frontend_error_box()
     }
 }
 
-void create_frontend_error_box(long showTime, const char * text)
+void create_frontend_error_box(int32_t showTime, const char * text)
 {
     snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", text);
     gui_message_timeout = LbTimerClock()+showTime;

@@ -51,8 +51,8 @@ struct FTestActionArgs
 {
     GameTurn intended_start_at_game_turn;
     GameTurn actual_started_at_game_turn;
-    unsigned long action_index;
-    unsigned long times_executed;
+    uint32_t action_index;
+    uint32_t times_executed;
     void* data;
 };
 
@@ -134,7 +134,7 @@ struct FTestConfig {
 struct ftest_onlyappendtests__config
 {
     struct FTestConfig tests_list[FTEST_MAX_TESTS];
-    struct FTestConfig long_running_tests_list[FTEST_MAX_TESTS];
+    struct FTestConfig int32_t_running_tests_list[FTEST_MAX_TESTS];
 };
 extern struct ftest_onlyappendtests__config ftest_onlyappendtests__conf;
 
@@ -143,15 +143,15 @@ struct ftest_donottouch__variables
     FTestFrameworkState current_state;
     FTestFrameworkState previous_state;
 
-    unsigned long total_tests;
-    unsigned long current_test;
-    unsigned long previous_test;
+    uint32_t total_tests;
+    uint32_t current_test;
+    uint32_t previous_test;
     struct FTestConfig* tests_to_run[FTEST_MAX_TESTS];
     struct FTestConfig* pending_init;
 
-    unsigned long total_actions;
-    unsigned long current_action;
-    unsigned long previous_action;
+    uint32_t total_actions;
+    uint32_t current_action;
+    uint32_t previous_action;
     TbBool is_restarting_actions_queue;
 
     GameTurn current_turn_counter;

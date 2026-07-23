@@ -166,7 +166,7 @@ const struct ConfigFileData creature_states_file_data = {
 static TbBool load_creaturestates_config_file(const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -187,7 +187,7 @@ static TbBool load_creaturestates_config_file(const char *fname, unsigned short 
     return result;
 }
 
-const char *creature_state_code_name(long crstate)
+const char *creature_state_code_name(int32_t crstate)
 {
     const char* name = get_conf_parameter_text(creatrstate_desc, crstate);
     if (name[0] != '\0')

@@ -69,7 +69,7 @@ int atmos_sound_frequency = 800;
 static char ambience_timer;
 int sdl_flags = 0;
 /******************************************************************************/
-void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char repeats, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
+void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char repeats, unsigned char ctype, unsigned char flags, int32_t priority, SoundVolume loudness)
 {
     if (SoundDisabled)
         return;
@@ -98,7 +98,7 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
     rcpos.z.val = Receiver.pos.val_z;
     if (get_chessboard_3d_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
     {
-        long eidx = thing->snd_emitter_id;
+        int32_t eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
             S3DAddSampleToEmitterPri(eidx, sample_id, pitch, adjusted_loudness, repeats, ctype, flags | 0x01, priority);
@@ -145,7 +145,7 @@ void play_thing_walking(struct Thing *thing)
         // Spectators don't do sounds
         return;
     }
-    long loudness = (myplyr->view_mode == PVM_CreatureView) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
+    int32_t loudness = (myplyr->view_mode == PVM_CreatureView) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
     if (((thing->movement_flags & TMvF_Flying) != 0) && (thing->floor_height < (int)thing->mappos.z.val))
     {
         // Flying diptera has a buzzing noise sound
@@ -166,12 +166,12 @@ void play_thing_walking(struct Thing *thing)
         if ((cctrl->distance_to_destination) && get_foot_creature_has_down(thing))
         {
             int smpl_variant = foot_down_sound_sample_variant[4 * cctrl->footstep_variant + cctrl->footstep_counter];
-            long smpl_idx;
+            int32_t smpl_idx;
             if ((thing->movement_flags & TMvF_IsOnSnow) != 0) {
                 smpl_idx = snd_foot_snow + smpl_variant;
             } else {
                 struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);
-                smpl_idx = (long)creature_sound_unified_id(crsound, smpl_variant);
+                smpl_idx = (int32_t)creature_sound_unified_id(crsound, smpl_variant);
             }
             cctrl->footstep_counter++;
             if (cctrl->footstep_counter >= 4)
@@ -188,9 +188,9 @@ void play_thing_walking(struct Thing *thing)
     }
 }
 
-void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
+void set_room_playing_ambient_sound(struct Coord3d *pos, int32_t sample_idx)
 {
-    long i;
+    int32_t i;
     if (game.ambient_sound_thing_idx == 0)
     {
         ERRORLOG("No room ambient sound object");
@@ -245,9 +245,9 @@ void find_nearest_rooms_for_ambient_sound(void)
         set_room_playing_ambient_sound(NULL, 0);
         return;
     }
-    long slb_x = subtile_slab(cam->mappos.x.stl.num);
-    long slb_y = subtile_slab(cam->mappos.y.stl.num);
-    for (long i = 0; i < 11 * 11; i++)
+    int32_t slb_x = subtile_slab(cam->mappos.x.stl.num);
+    int32_t slb_y = subtile_slab(cam->mappos.y.stl.num);
+    for (int32_t i = 0; i < 11 * 11; i++)
     {
         struct MapOffset* sstep = &spiral_step[i];
         MapSubtlCoord stl_x = slab_subtile_center(slb_x + sstep->h);
@@ -258,7 +258,7 @@ void find_nearest_rooms_for_ambient_sound(void)
             if (room_is_invalid(room))
                 continue;
             struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-            long k = roomst->ambient_snd_smp_id;
+            int32_t k = roomst->ambient_snd_smp_id;
             if (k > 0)
             {
                 SYNCDBG(8,"Playing ambient for %s at (%d,%d)",room_code_name(room->kind),(int)stl_x,(int)stl_y);
@@ -509,7 +509,7 @@ void sound_reinit_after_load(void)
         if (!play_music(game.music_fname)) {
             WARNLOG("Custom music '%s' unavailable, falling back to default track", game.music_fname);
             LevelNumber lvnum = get_loaded_level_number();
-            long safe_lvnum = (lvnum > 0) ? lvnum : 1; // guard against (lvnum - 1) % 4 going negative
+            int32_t safe_lvnum = (lvnum > 0) ? lvnum : 1; // guard against (lvnum - 1) % 4 going negative
             play_music_track(3 + (int)((safe_lvnum - 1) % 4)); // tracks 3..6
         }
     } else if (game.music_track > 0) {
@@ -556,12 +556,12 @@ void update_first_person_object_ambience(struct Thing *thing)
     struct Thing *audtng;
     ThingIndex nearest_sounds[3];
     MapCoordDelta sound_distances[3];
-    long hearing_range;
+    int32_t hearing_range;
     struct ObjectConfigStats* objst;
     if (thing->class_id == TCls_Creature)
     {
         struct CreatureModelConfig* crconf = creature_stats_get(thing->model);
-        hearing_range = (long)subtile_coord(crconf->hearing, 0) / 2;
+        hearing_range = (int32_t)subtile_coord(crconf->hearing, 0) / 2;
     }
     else
     {
@@ -610,7 +610,7 @@ void update_first_person_object_ambience(struct Thing *thing)
                 objst = get_object_model_stats(audtng->model);
                 if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objst->fp_smpl_idx))
                 {
-                    long volume = line_of_sight_2d(&thing->mappos, &audtng->mappos) ? FULL_LOUDNESS : 128;
+                    int32_t volume = line_of_sight_2d(&thing->mappos, &audtng->mappos) ? FULL_LOUDNESS : 128;
                     thing_play_sample(audtng, objst->fp_smpl_idx, NORMAL_PITCH, -1, 3, 1, 2, volume);
                 }
             }

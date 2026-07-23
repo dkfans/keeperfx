@@ -63,7 +63,7 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id);
+unsigned short engine_remap_texture_blocks(int32_t stl_x, int32_t stl_y, unsigned short tex_id);
 /******************************************************************************/
 int parchment_loaded;
 unsigned char *hires_parchment;
@@ -99,7 +99,7 @@ void reload_parchment_file(TbBool hires)
   parchment_loaded = 1;
 }
 
-long get_parchment_background_area_rect(struct TbRect *bkgnd_area)
+int32_t get_parchment_background_area_rect(struct TbRect *bkgnd_area)
 {
     int img_width;
     int img_height;
@@ -133,13 +133,13 @@ long get_parchment_background_area_rect(struct TbRect *bkgnd_area)
     return units_per_px;
 }
 
-long get_parchment_map_area_rect(struct TbRect *map_area)
+int32_t get_parchment_map_area_rect(struct TbRect *map_area)
 {
     struct TbRect bkgnd_area;
     get_parchment_background_area_rect(&bkgnd_area);
-    long bkgnd_width = bkgnd_area.right - bkgnd_area.left;
-    long bkgnd_height = bkgnd_area.bottom - bkgnd_area.top;
-    long block_size = min((bkgnd_width - bkgnd_width / 3) / game.map_tiles_x, (bkgnd_height - bkgnd_height / 8) / game.map_tiles_y);
+    int32_t bkgnd_width = bkgnd_area.right - bkgnd_area.left;
+    int32_t bkgnd_height = bkgnd_area.bottom - bkgnd_area.top;
+    int32_t block_size = min((bkgnd_width - bkgnd_width / 3) / game.map_tiles_x, (bkgnd_height - bkgnd_height / 8) / game.map_tiles_y);
     if (block_size < 1) block_size = 1;
     map_area->left = bkgnd_area.left + (bkgnd_width - block_size*game.map_tiles_x) / 2;
     map_area->top = bkgnd_area.top + 3 * (bkgnd_height - block_size*game.map_tiles_y) / 4;
@@ -148,11 +148,11 @@ long get_parchment_map_area_rect(struct TbRect *map_area)
     return block_size;
 }
 
-TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, const long screen_y, int32_t *map_x, int32_t *map_y)
+TbBool point_to_overhead_map(const struct Camera *camera, const int32_t screen_x, const int32_t screen_y, int32_t *map_x, int32_t *map_y)
 {
     // Sizes of the parchment map on which we are
     struct TbRect map_area;
-    long block_size = get_parchment_map_area_rect(&map_area);
+    int32_t block_size = get_parchment_map_area_rect(&map_area);
     // Check if we're within coordinates with the screen position
     *map_x = 0;
     *map_y = 0;
@@ -290,7 +290,7 @@ static int get_overhead_mapblock_style(const struct Map* mapblk, const struct Sl
     return get_player_path_colour(owner);
 }
 
-void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+void draw_overhead_map(const struct TbRect *map_area, int32_t block_size, PlayerNumber plyr_idx)
 {
     GameTurn turn = get_gameturn();
     int gui_frame = (turn / gui_blink_rate) & 7;
@@ -360,19 +360,19 @@ void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNum
     lbDisplay.DrawFlags = 0;
 }
 
-void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+void draw_overhead_room_icons(const struct TbRect *map_area, int32_t block_size, PlayerNumber plyr_idx)
 {
     int ps_units_per_px;
     {
         const struct TbSprite* spr = get_panel_sprite(GPS_room_treasury_std_s);//only for size, room irrelevant
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
-    long rkind_select = (get_gameturn() >> 1) % game.conf.slab_conf.room_types_count;
+    int32_t rkind_select = (get_gameturn() >> 1) % game.conf.slab_conf.room_types_count;
     for (struct Room* room = start_rooms; room < end_rooms; room++)
     {
       if (room_exists(room))
       {
-          long room_visibility = abs(rkind_select - room->kind);
+          int32_t room_visibility = abs(rkind_select - room->kind);
           if ((room_visibility < 2) || (room_visibility >= 4))
             lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
           else
@@ -384,10 +384,10 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
                 const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
                 if (roomst->medsym_sprite_idx > 0)
                 {
-                    long sprite_idx = get_player_colored_icon_idx(roomst->medsym_sprite_idx,room->owner);
+                    int32_t sprite_idx = get_player_colored_icon_idx(roomst->medsym_sprite_idx,room->owner);
                     const struct TbSprite* spr = get_panel_sprite(sprite_idx);
-                    long pos_x = map_area->left + (block_size * room->central_stl_x / STL_PER_SLB) - (spr->SWidth * ps_units_per_px / 16 / 2);
-                    long pos_y = map_area->top + (block_size * room->central_stl_y / STL_PER_SLB) - (spr->SHeight * ps_units_per_px / 16 / 2);
+                    int32_t pos_x = map_area->left + (block_size * room->central_stl_x / STL_PER_SLB) - (spr->SWidth * ps_units_per_px / 16 / 2);
+                    int32_t pos_y = map_area->top + (block_size * room->central_stl_y / STL_PER_SLB) - (spr->SHeight * ps_units_per_px / 16 / 2);
                     LbSpriteDrawResized(pos_x, pos_y, ps_units_per_px, spr);
                 }
             }
@@ -397,7 +397,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
 }
 
-int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+int draw_overhead_call_to_arms(const struct TbRect *map_area, int32_t block_size, PlayerNumber plyr_idx)
 {
     int n = 0;
     for (int i = 0; i < DUNGEONS_COUNT; i++)
@@ -407,10 +407,10 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
             struct Dungeon* dungeon = get_dungeon(i);
             lbDisplay.DrawFlags = Lb_SPRITE_OUTLINE;
             const struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CALL2ARMS);
-            long m = (4 * ((i + get_gameturn()) & 7) * subtile_slab(powerst->strength[dungeon->cta_power_level]));
-            long pos_x = map_area->left + block_size * (int)dungeon->cta_stl_x / STL_PER_SLB;
-            long pos_y = map_area->top + block_size * (int)dungeon->cta_stl_y / STL_PER_SLB;
-            long radius = (((m & 7) + m) >> 3);
+            int32_t m = (4 * ((i + get_gameturn()) & 7) * subtile_slab(powerst->strength[dungeon->cta_power_level]));
+            int32_t pos_x = map_area->left + block_size * (int)dungeon->cta_stl_x / STL_PER_SLB;
+            int32_t pos_y = map_area->top + block_size * (int)dungeon->cta_stl_y / STL_PER_SLB;
+            int32_t radius = (((m & 7) + m) >> 3);
             LbDrawCircle(pos_x, pos_y, radius/pixel_size, player_room_colours[get_player_color_idx(i)]);
             n++;
         }
@@ -418,7 +418,7 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
     return n;
 }
 
-int draw_overhead_creatures(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+int draw_overhead_creatures(const struct TbRect *map_area, int32_t block_size, PlayerNumber plyr_idx)
 {
     TbPixel col;
     short pixel_end;
@@ -453,8 +453,8 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                     col2 = player_room_colours[color_idx];
                     col1 = player_room_colours[color_idx];
                 }
-                long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB;
-                long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
+                int32_t pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB;
+                int32_t pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
                 if (thing->owner == plyr_idx)
                 {
                     col = col2;
@@ -490,11 +490,11 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                 }
                 for (int m = 0; m < 5; m++)
                 {
-                    long memberpos = cctrl->party.member_pos_stl[m];
+                    int32_t memberpos = cctrl->party.member_pos_stl[m];
                     if (memberpos == 0)
                         break;
-                    long pos_x = map_area->left + block_size * stl_num_decode_x(memberpos) / STL_PER_SLB;
-                    long pos_y = map_area->top + block_size * stl_num_decode_y(memberpos) / STL_PER_SLB;
+                    int32_t pos_x = map_area->left + block_size * stl_num_decode_x(memberpos) / STL_PER_SLB;
+                    int32_t pos_y = map_area->top + block_size * stl_num_decode_y(memberpos) / STL_PER_SLB;
                     pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
                     for (p = 0; p < pixel_end; p++)
                     {
@@ -515,7 +515,7 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
     return n;
 }
 
-int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+int draw_overhead_traps(const struct TbRect *map_area, int32_t block_size, PlayerNumber plyr_idx)
 {
     int n = 0;
     int k = 0;
@@ -537,8 +537,8 @@ int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNu
             {
                 if ( (thing->trap.revealed) || (thing->owner == plyr_idx) )
                 {
-                    long pos_x = map_area->left + (block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
-                    long pos_y = map_area->top + (block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
+                    int32_t pos_x = map_area->left + (block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
+                    int32_t pos_y = map_area->top + (block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
                     short pixels_amount = scale_pixel(ONE_PIXEL);
                     short pixel_end = get_pixels_scaled_and_zoomed(ONE_PIXEL);
                     short colour = 60;
@@ -566,7 +566,7 @@ int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNu
     return n;
 }
 
-int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+int draw_overhead_spells(const struct TbRect *map_area, int32_t block_size, PlayerNumber plyr_idx)
 {
     int n = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
@@ -588,8 +588,8 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
             {
               if ( thing_is_special_box(thing) || thing_is_spellbook(thing) )
               {
-                  long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB  + ((block_size + 1)/5);
-                  long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB + ((block_size + 1)/5);
+                  int32_t pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB  + ((block_size + 1)/5);
+                  int32_t pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB + ((block_size + 1)/5);
                   short pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
                   for (int p = 0; p < pixel_end; p++)
                   {
@@ -598,8 +598,8 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
               }
               else if ( thing_is_workshop_crate(thing) )
               {
-                  long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB  + ((block_size + 1)/5);
-                  long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB + ((block_size + 1)/5);
+                  int32_t pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB  + ((block_size + 1)/5);
+                  int32_t pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB + ((block_size + 1)/5);
                   short pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
                   for (int p = 0; p < pixel_end; p++)
                   {
@@ -619,7 +619,7 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
     return n;
 }
 
-void draw_overhead_things(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+void draw_overhead_things(const struct TbRect *map_area, int32_t block_size, PlayerNumber plyr_idx)
 {
     draw_overhead_creatures(map_area, block_size, plyr_idx);
     draw_overhead_call_to_arms(map_area, block_size, plyr_idx);
@@ -641,7 +641,7 @@ void draw_2d_map(void)
     struct PlayerInfo* player = get_my_player();
     // Size of the parchment map on which we're drawing
     struct TbRect map_area;
-    long block_size = get_parchment_map_area_rect(&map_area);
+    int32_t block_size = get_parchment_map_area_rect(&map_area);
     // Now draw
     draw_overhead_map(&map_area, block_size, player->id_number);
     draw_overhead_things(&map_area, block_size, player->id_number);
@@ -692,9 +692,9 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
         ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
     }
     struct PlayerInfo* player = get_my_player();
-    unsigned long k = 0;
+    uint32_t k = 0;
     struct ObjectConfigStats* objst;
-    long i = get_mapwho_thing_index(mapblk);
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -706,9 +706,9 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
         i = thing->next_on_mapblk;
         if (!thing_is_picked_up(thing))
         {
-            int spos_x = ((subtile_size * ((long)thing->mappos.x.stl.pos)) >> 8);
-            int spos_y = ((subtile_size * ((long)thing->mappos.y.stl.pos)) >> 8);
-            long spridx;
+            int spos_x = ((subtile_size * ((int32_t)thing->mappos.x.stl.pos)) >> 8);
+            int spos_y = ((subtile_size * ((int32_t)thing->mappos.y.stl.pos)) >> 8);
+            int32_t spridx;
             switch (thing->class_id)
             {
             case TCls_Creature:
@@ -768,7 +768,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
     }
 }
 
-void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, long draw_tiles_x, long draw_tiles_y, int subtile_size)
+void draw_zoom_box_terrain(int32_t scrtop_x, int32_t scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, int32_t draw_tiles_x, int32_t draw_tiles_y, int subtile_size)
 {
     lbDisplay.DrawFlags = 0;
     scrtop_x += 4*units_per_pixel/16;
@@ -800,7 +800,7 @@ void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, P
     lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
 }
 
-void draw_zoom_box_things(long scrtop_x, long scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, long draw_tiles_x, long draw_tiles_y, int subtile_size)
+void draw_zoom_box_things(int32_t scrtop_x, int32_t scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, int32_t draw_tiles_x, int32_t draw_tiles_y, int subtile_size)
 {
     scrtop_x += 4 * units_per_pixel / 16;
     scrtop_y -= 4 * units_per_pixel / 16;
@@ -831,8 +831,8 @@ void draw_zoom_box(void)
 {
     struct PlayerInfo* player = get_my_player();
 
-    long draw_tiles = 13;
-    long subtile_unscaled = 8;
+    int32_t draw_tiles = 13;
+    int32_t subtile_unscaled = 8;
     if (player->minimap_zoom == 128)
     {
         draw_tiles = 6;
@@ -858,23 +858,23 @@ void draw_zoom_box(void)
         draw_tiles = 36;
         subtile_unscaled = 3;
     }
-    long draw_tiles_x = draw_tiles;
-    long draw_tiles_y = draw_tiles;
+    int32_t draw_tiles_x = draw_tiles;
+    int32_t draw_tiles_y = draw_tiles;
 
     // Sizes of the parchment map on which we're drawing
     // Needed only to figure out map position pointed by cursor
     struct TbRect map_area;
-    long block_size = get_parchment_map_area_rect(&map_area);
+    int32_t block_size = get_parchment_map_area_rect(&map_area);
     // Mouse coordinates
-    long mouse_x = GetMouseX();
-    long mouse_y = GetMouseY();
+    int32_t mouse_x = GetMouseX();
+    int32_t mouse_y = GetMouseY();
 
     // zoom box block size
     const int subtile_size = scale_value_for_resolution(subtile_unscaled);
 
     // Drawing coordinates
-    long scrtop_x = mouse_x + scale_value_for_resolution(24);
-    long scrtop_y = mouse_y + scale_value_for_resolution(24);
+    int32_t scrtop_x = mouse_x + scale_value_for_resolution(24);
+    int32_t scrtop_y = mouse_y + scale_value_for_resolution(24);
     if (scrtop_x > MyScreenWidth-draw_tiles_x*subtile_size)
       scrtop_x = MyScreenWidth-draw_tiles_x*subtile_size;
     if (scrtop_x < 0)

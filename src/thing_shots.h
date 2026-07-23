@@ -102,17 +102,17 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
 TngUpdateRet update_shot(struct Thing *thing);
 TbBool thing_is_shot(const struct Thing *thing);
 
-long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, TbBool NeverBlock);
+int32_t get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, TbBool NeverBlock);
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
 int weight_calculated_push_strenght(int weight, int push_strength);
 
 TbBool shot_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
-TbBool shot_model_is_navigable(long tngmodel);
-TbBool shot_model_makes_flesh_explosion(long shot_model);
+TbBool shot_model_is_navigable(int32_t tngmodel);
+TbBool shot_model_makes_flesh_explosion(int32_t shot_model);
 TbBool detonate_shot(struct Thing *shotng, TbBool destroy);
 TbBool shot_is_boulder(const struct Thing *shotng);
 
-struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags a4, long a5);
+struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags a4, int32_t a5);
 
 void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 

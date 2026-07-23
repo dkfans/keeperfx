@@ -42,7 +42,7 @@
 /******************************************************************************/
 int frontend_load_game_button_to_index(struct GuiButton *gbtn)
 {
-    long gbidx = gbtn->content.lval;
+    int32_t gbidx = gbtn->content.lval;
     int k = -1;
     for (int i = gbidx + load_game_scroll_offset - 45; i >= 0; i--)
     {
@@ -60,7 +60,7 @@ int frontend_load_game_button_to_index(struct GuiButton *gbtn)
 
 void gui_load_game_maintain(struct GuiButton *gbtn)
 {
-    long slot_num;
+    int32_t slot_num;
     if (gbtn != NULL)
         slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
     else
@@ -75,7 +75,7 @@ void gui_load_game_maintain(struct GuiButton *gbtn)
 void gui_load_game(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    long slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
+    int32_t slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
     if (!load_game(slot_num))
     {
         ERRORLOG("Loading game %d failed; quitting.", (int)slot_num);
@@ -121,7 +121,7 @@ void gui_save_game(struct GuiButton *gbtn)
     struct PlayerInfo* player = get_my_player();
     if (strcasecmp(gbtn->content.str, get_string(GUIStr_SlotUnused)) != 0)
     {
-        long slot_num = (gbtn->btype_value & LbBFeF_IntValueMask) % TOTAL_SAVE_SLOTS_COUNT;
+        int32_t slot_num = (gbtn->btype_value & LbBFeF_IntValueMask) % TOTAL_SAVE_SLOTS_COUNT;
         fill_game_catalogue_slot(slot_num, gbtn->content.str);
         if (save_game(slot_num))
         {
@@ -138,7 +138,7 @@ void gui_save_game(struct GuiButton *gbtn)
 void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
 {
     SYNCDBG(6,"Starting");
-    for (long slot_num = 0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
+    for (int32_t slot_num = 0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
         struct CatalogueEntry* centry = &game_catalg[slot_num];
         const char* text;

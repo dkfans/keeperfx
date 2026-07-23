@@ -54,8 +54,8 @@ struct TbNetworkPlayerName {
 extern int fe_network_active;
 extern int net_service_index_selected;
 extern struct TbNetworkSessionNameEntry *net_session[SESSION_ENTRIES_COUNT];
-extern long net_number_of_sessions;
-extern long net_session_index_active;
+extern int32_t net_number_of_sessions;
+extern int32_t net_session_index_active;
 extern struct TbNetworkPlayerName net_player[MAX_NET_USERS];
 extern struct ConfigInfo net_config_info;
 extern char net_service[16][NET_SERVICE_LEN];
@@ -64,8 +64,8 @@ extern char tmp_net_player_name[24];
 
 #pragma pack()
 /******************************************************************************/
-void process_network_error(long errcode);
-void draw_out_of_sync_box(long a1, long a2, long box_width);
+void process_network_error(int32_t errcode);
+void draw_out_of_sync_box(int32_t a1, int32_t a2, int32_t box_width);
 void display_attempting_to_join_message(int remaining_s);
 void reset_attempting_to_join_cancel(void);
 TbBool attempting_to_join_cancel_requested(void);

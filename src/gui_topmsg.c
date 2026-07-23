@@ -60,7 +60,7 @@ void erstats_clear(void)
     last_checked_stat_num = 0;
 }
 
-long erstat_inc(int stat_num)
+int32_t erstat_inc(int stat_num)
 {
     const int num_stats = sizeof(erstat) / sizeof(erstat[0]);
     if ((stat_num < 0) || (stat_num >= num_stats)) {
@@ -104,7 +104,7 @@ TbBool erstat_check(void)
     if (sdiff != 0)
     {
 #if (BFDEBUG_LEVEL > 0)
-        show_onscreen_msg(turns_per_second,"%s, %ld occurrences",erstat[stat_num].msg,sdiff);
+        show_onscreen_msg(turns_per_second,"%s, %d occurrences",erstat[stat_num].msg,sdiff);
 #else
         WARNLOG("%s, %d occurrences",erstat[stat_num].msg,sdiff);
 #endif

@@ -115,8 +115,8 @@ void setup_training_move_near(struct Thing *creatng, SubtlCodedCoords stl_num)
 struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Room *room, struct Thing *partnertng)
 {
     TRACE_THING(partnertng);
-    long i = room->creatures_list;
-    unsigned long k = 0;
+    int32_t i = room->creatures_list;
+    uint32_t k = 0;
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -151,7 +151,7 @@ struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Ro
     return INVALID_THING;
 }
 
-void setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long restart)
+void setup_move_to_new_training_position(struct Thing *thing, struct Room *room, uint32_t restart)
 {
     struct Coord3d pos;
     SYNCDBG(8,"Starting for %s",thing_model_name(thing));
@@ -183,7 +183,7 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
         SYNCDBG(8,"Going to train at (%d,%d)",(int)pos.x.stl.num,(int)pos.y.stl.num);
-        long i = get_subtile_number(pos.x.stl.num, pos.y.stl.num);
+        int32_t i = get_subtile_number(pos.x.stl.num, pos.y.stl.num);
         setup_training_move(thing, i);
     } else {
         SYNCDBG(8,"No new position found, staying at (%d,%d)",(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.x.stl.num);
@@ -196,7 +196,7 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
 
 /**
  *  Finds a random training post near to the current position of given creature.
- *  Used when finding a training post seems to be taking too long; in that case, creature should start training with a nearest post.
+ *  Used when finding a training post seems to be taking too int32_t; in that case, creature should start training with a nearest post.
  *  Note that this routine does not always select the nearest post - it is enough if it's 3 subtiles away.
  *
  * @param creatng The creature who wish to train with training post.
@@ -205,13 +205,13 @@ void setup_training_search_for_post(struct Thing *creatng)
 {
     struct Room* room = get_room_thing_is_on(creatng);
     // Let's start from a random slab
-    long slb_x = -1;
-    long slb_y = -1;
-    long min_distance = INT32_MAX;
+    int32_t slb_x = -1;
+    int32_t slb_y = -1;
+    int32_t min_distance = INT32_MAX;
     struct Thing* traintng = INVALID_THING;
-    long start_slab = THING_RANDOM(creatng, room->slabs_count);
-    long k = start_slab;
-    long i = room->slabs_list;
+    int32_t start_slab = THING_RANDOM(creatng, room->slabs_count);
+    int32_t k = start_slab;
+    int32_t i = room->slabs_list;
     while (i != 0)
     {
         slb_x = slb_num_decode_x(i);
@@ -236,7 +236,7 @@ void setup_training_search_for_post(struct Thing *creatng)
         thing = get_object_at_subtile_of_model_and_owned_by(slab_subtile_center(slb_x), slab_subtile_center(slb_y), 31, creatng->owner);
         if (!thing_is_invalid(thing))
         {
-            long dist = get_2d_distance(&creatng->mappos, &thing->mappos);
+            int32_t dist = get_2d_distance(&creatng->mappos, &thing->mappos);
             if (dist < min_distance) {
                 traintng = thing;
                 min_distance = dist;
@@ -250,7 +250,7 @@ void setup_training_search_for_post(struct Thing *creatng)
     // Got trainer (or not...), now do the correct action
     if (thing_is_invalid(traintng))
     {
-        SYNCDBG(6,"Room no longer have training post, moving somewhere else.");
+        SYNCDBG(6,"Room no int32_ter have training post, moving somewhere else.");
         setup_move_to_new_training_position(creatng, room, true);
     } else
     {
@@ -262,10 +262,10 @@ void setup_training_search_for_post(struct Thing *creatng)
 struct Thing *find_training_post_just_next_to_creature(struct Thing *creatng)
 {
     struct Thing* traintng = INVALID_THING;
-    for (long i = 0; i < 4; i++)
+    for (int32_t i = 0; i < 4; i++)
     {
-        long stl_x = creatng->mappos.x.stl.num + (long)small_around[i].delta_x;
-        long stl_y = creatng->mappos.y.stl.num + (long)small_around[i].delta_y;
+        int32_t stl_x = creatng->mappos.x.stl.num + (int32_t)small_around[i].delta_x;
+        int32_t stl_y = creatng->mappos.y.stl.num + (int32_t)small_around[i].delta_y;
         traintng = get_object_at_subtile_of_model_and_owned_by(stl_x, stl_y, 31, creatng->owner);
         if (!thing_is_invalid(traintng))
             break;
@@ -287,9 +287,9 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     struct Thing *crtng;
     struct CreatureControl *cctrl2;
     struct Coord3d pos;
-    long speed;
-    long dist;
-    long i;
+    int32_t speed;
+    int32_t dist;
+    int32_t i;
     cctrl = creature_control_get_from_thing(thing);
     SYNCDBG(8,"Starting %s mode %d",thing_model_name(thing),(int)cctrl->training.mode);
     cctrl->annoy_untrained_turn = 0;
@@ -334,13 +334,13 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     case CrTrMd_SelectPositionNearTrainPost:
         for (i=0; i < 4; i++)
         {
-            long slb_x;
-            long slb_y;
-            long stl_x;
-            long stl_y;
+            int32_t slb_x;
+            int32_t slb_y;
+            int32_t stl_x;
+            int32_t stl_y;
             struct SlabMap *slb;
-            slb_x = subtile_slab(thing->mappos.x.stl.num) + (long)small_around[i].delta_x;
-            slb_y = subtile_slab(thing->mappos.y.stl.num) + (long)small_around[i].delta_y;
+            slb_x = subtile_slab(thing->mappos.x.stl.num) + (int32_t)small_around[i].delta_x;
+            slb_y = subtile_slab(thing->mappos.y.stl.num) + (int32_t)small_around[i].delta_y;
             slb = get_slabmap_block(slb_x,slb_y);
             if ((slb->kind != SlbT_TRAINING) || (slabmap_owner(slb) != thing->owner))
                 continue;
@@ -585,7 +585,7 @@ CrStateRet training(struct Thing *thing)
     }
     if ((cctrl->instance_id != CrInst_NULL) || !check_experience_upgrade(thing))
     {
-        long work_value = compute_creature_work_value_for_room_role(thing, RoRoF_CrTrainExp, room->efficiency);
+        int32_t work_value = compute_creature_work_value_for_room_role(thing, RoRoF_CrTrainExp, room->efficiency);
         SYNCDBG(19,"The %s index %d produced %d training points",thing_model_name(thing),(int)thing->index,(int)work_value);
         cctrl->exp_points += work_value;
         dungeon->total_experience_creatures_gained += work_value;

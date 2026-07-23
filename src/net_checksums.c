@@ -38,7 +38,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define CHECKSUM_ADD(checksum, value) checksum = ((checksum << 5) | (checksum >> 27)) ^ (ulong)(value)
+#define CHECKSUM_ADD(checksum, value) checksum = ((checksum << 5) | (checksum >> 27)) ^ (uint32_t)(value)
 #define SNAPSHOT_BUFFER_SIZE 15
 
 struct ChecksumSnapshot {
@@ -139,7 +139,7 @@ static TbBigChecksum get_room_checksum(const struct Room* room) {
 
 static TbBigChecksum compute_things_list_checksum(struct StructureList *list) {
     TbBigChecksum sum = 0;
-    unsigned long k = 0;
+    uint32_t k = 0;
     int i = list->index;
     while (i != 0) {
         struct Thing* thing = thing_get(i);
@@ -371,7 +371,7 @@ void update_turn_checksums(void) {
     packet->checksum += checksums->player_seed;
     packet->checksum += checksums->ai_seed;
 
-    MULTIPLAYER_LOG("update_turn_checksums: turn=%lu checksum=%08lx things=%08lx rooms=%08lx players=%08lx", (unsigned long)get_gameturn(), (unsigned long)packet->checksum, (unsigned long)things_sum, (unsigned long)checksums->rooms, (unsigned long)checksums->players);
+    MULTIPLAYER_LOG("update_turn_checksums: turn=%u checksum=%08x things=%08x rooms=%08x players=%08x", (uint32_t)get_gameturn(), (uint32_t)packet->checksum, (uint32_t)things_sum, (uint32_t)checksums->rooms, (uint32_t)checksums->players);
 }
 
 void pack_desync_history_for_resync(void) {
@@ -388,7 +388,7 @@ void pack_desync_history_for_resync(void) {
 }
 
 static void log_thing_differences(struct LogDetailedSnapshot* client, const char* name, TbBigChecksum client_sum, TbBigChecksum host_sum, ThingClass filter_class) {
-    ERRORLOG("  %s %s - Host: %08lx, Client: %08lx", name, (client_sum == host_sum) ? "match" : "MISMATCH", (unsigned long)host_sum, (unsigned long)client_sum);
+    ERRORLOG("  %s %s - Host: %08x, Client: %08x", name, (client_sum == host_sum) ? "match" : "MISMATCH", (uint32_t)host_sum, (uint32_t)client_sum);
     if (client_sum == host_sum) {
         return;
     }
@@ -408,52 +408,52 @@ static void log_thing_differences(struct LogDetailedSnapshot* client, const char
         }
         if (host_thing == NULL || client_thing->checksum != host_thing->checksum) {
             if (host_thing != NULL) {
-                ERRORLOG("    [Host] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x anim_sprite=%u anim_speed=%d anim_time=%ld current_frame=%u max_frames=%u active_state=%u continue_state=%u movement_flags=%04x move_angle_xy=%d move_angle_z=%d holding_player=%d parent_idx=%d fall_acceleration=%u veloc_base=(%ld,%ld,%ld) veloc_push_once=(%ld,%ld,%ld) veloc_push_add=(%ld,%ld,%ld)",
+                ERRORLOG("    [Host] Thing[%d] class_id=%d model=%d owner=%d mappos=(%d,%d,%d) health=%d creation_turn=%u random_seed=%08x anim_sprite=%u anim_speed=%d anim_time=%d current_frame=%u max_frames=%u active_state=%u continue_state=%u movement_flags=%04x move_angle_xy=%d move_angle_z=%d holding_player=%d parent_idx=%d fall_acceleration=%u veloc_base=(%d,%d,%d) veloc_push_once=(%d,%d,%d) veloc_push_add=(%d,%d,%d)",
                     host_thing->index, host_thing->class_id, host_thing->model, host_thing->owner,
-                    (long)host_thing->mappos.x.val, (long)host_thing->mappos.y.val, (long)host_thing->mappos.z.val,
-                    (long)host_thing->health, (unsigned long)host_thing->creation_turn, host_thing->random_seed,
-                    (unsigned)host_thing->anim_sprite, (int)host_thing->anim_speed, (long)host_thing->anim_time,
+                    (int32_t)host_thing->mappos.x.val, (int32_t)host_thing->mappos.y.val, (int32_t)host_thing->mappos.z.val,
+                    (int32_t)host_thing->health, (uint32_t)host_thing->creation_turn, host_thing->random_seed,
+                    (unsigned)host_thing->anim_sprite, (int)host_thing->anim_speed, (int32_t)host_thing->anim_time,
                     (unsigned)host_thing->current_frame, (unsigned)host_thing->max_frames,
                     (unsigned)host_thing->active_state, (unsigned)host_thing->continue_state,
                     (unsigned)host_thing->movement_flags,
                     (int)host_thing->move_angle_xy, (int)host_thing->move_angle_z,
                     (int)host_thing->holding_player, (int)host_thing->parent_idx, (unsigned)host_thing->fall_acceleration,
-                    (long)host_thing->veloc_base.x.val, (long)host_thing->veloc_base.y.val, (long)host_thing->veloc_base.z.val,
-                    (long)host_thing->veloc_push_once.x.val, (long)host_thing->veloc_push_once.y.val, (long)host_thing->veloc_push_once.z.val,
-                    (long)host_thing->veloc_push_add.x.val, (long)host_thing->veloc_push_add.y.val, (long)host_thing->veloc_push_add.z.val);
+                    (int32_t)host_thing->veloc_base.x.val, (int32_t)host_thing->veloc_base.y.val, (int32_t)host_thing->veloc_base.z.val,
+                    (int32_t)host_thing->veloc_push_once.x.val, (int32_t)host_thing->veloc_push_once.y.val, (int32_t)host_thing->veloc_push_once.z.val,
+                    (int32_t)host_thing->veloc_push_add.x.val, (int32_t)host_thing->veloc_push_add.y.val, (int32_t)host_thing->veloc_push_add.z.val);
             } else {
                 ERRORLOG("    [Host] Thing[%d] missing", client_thing->index);
             }
-            ERRORLOG("    [Client] Thing[%d] class_id=%d model=%d owner=%d mappos=(%ld,%ld,%ld) health=%ld creation_turn=%lu random_seed=%08x anim_sprite=%u anim_speed=%d anim_time=%ld current_frame=%u max_frames=%u active_state=%u continue_state=%u movement_flags=%04x move_angle_xy=%d move_angle_z=%d holding_player=%d parent_idx=%d fall_acceleration=%u veloc_base=(%ld,%ld,%ld) veloc_push_once=(%ld,%ld,%ld) veloc_push_add=(%ld,%ld,%ld)",
+            ERRORLOG("    [Client] Thing[%d] class_id=%d model=%d owner=%d mappos=(%d,%d,%d) health=%d creation_turn=%u random_seed=%08x anim_sprite=%u anim_speed=%d anim_time=%d current_frame=%u max_frames=%u active_state=%u continue_state=%u movement_flags=%04x move_angle_xy=%d move_angle_z=%d holding_player=%d parent_idx=%d fall_acceleration=%u veloc_base=(%d,%d,%d) veloc_push_once=(%d,%d,%d) veloc_push_add=(%d,%d,%d)",
                 client_thing->index, client_thing->class_id, client_thing->model, client_thing->owner,
-                (long)client_thing->mappos.x.val, (long)client_thing->mappos.y.val, (long)client_thing->mappos.z.val,
-                (long)client_thing->health, (unsigned long)client_thing->creation_turn, client_thing->random_seed,
-                (unsigned)client_thing->anim_sprite, (int)client_thing->anim_speed, (long)client_thing->anim_time,
+                (int32_t)client_thing->mappos.x.val, (int32_t)client_thing->mappos.y.val, (int32_t)client_thing->mappos.z.val,
+                (int32_t)client_thing->health, (uint32_t)client_thing->creation_turn, client_thing->random_seed,
+                (unsigned)client_thing->anim_sprite, (int)client_thing->anim_speed, (int32_t)client_thing->anim_time,
                 (unsigned)client_thing->current_frame, (unsigned)client_thing->max_frames,
                 (unsigned)client_thing->active_state, (unsigned)client_thing->continue_state,
                 (unsigned)client_thing->movement_flags,
                 (int)client_thing->move_angle_xy, (int)client_thing->move_angle_z,
                 (int)client_thing->holding_player, (int)client_thing->parent_idx, (unsigned)client_thing->fall_acceleration,
-                (long)client_thing->veloc_base.x.val, (long)client_thing->veloc_base.y.val, (long)client_thing->veloc_base.z.val,
-                (long)client_thing->veloc_push_once.x.val, (long)client_thing->veloc_push_once.y.val, (long)client_thing->veloc_push_once.z.val,
-                (long)client_thing->veloc_push_add.x.val, (long)client_thing->veloc_push_add.y.val, (long)client_thing->veloc_push_add.z.val);
+                (int32_t)client_thing->veloc_base.x.val, (int32_t)client_thing->veloc_base.y.val, (int32_t)client_thing->veloc_base.z.val,
+                (int32_t)client_thing->veloc_push_once.x.val, (int32_t)client_thing->veloc_push_once.y.val, (int32_t)client_thing->veloc_push_once.z.val,
+                (int32_t)client_thing->veloc_push_add.x.val, (int32_t)client_thing->veloc_push_add.y.val, (int32_t)client_thing->veloc_push_add.z.val);
             if (client_thing->is_special_digger) {
                 if (host_thing != NULL) {
-                    ERRORLOG("    [Host]   digger moveto=(%ld,%ld,%ld) dragtng=%d arming=%d pickup_obj=%d pickup_cr=%d move_flags=%u stack_update_turn=%ld working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
-                        (long)host_thing->digger_moveto_pos.x.val, (long)host_thing->digger_moveto_pos.y.val, (long)host_thing->digger_moveto_pos.z.val,
+                    ERRORLOG("    [Host]   digger moveto=(%d,%d,%d) dragtng=%d arming=%d pickup_obj=%d pickup_cr=%d move_flags=%u stack_update_turn=%d working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
+                        (int32_t)host_thing->digger_moveto_pos.x.val, (int32_t)host_thing->digger_moveto_pos.y.val, (int32_t)host_thing->digger_moveto_pos.z.val,
                         (int)host_thing->digger_dragtng_idx, (int)host_thing->digger_arming_thing_id,
                         (int)host_thing->digger_pickup_object_id, (int)host_thing->digger_pickup_creature_id,
-                        (unsigned)host_thing->digger_move_flags, (long)host_thing->digger_stack_update_turn,
+                        (unsigned)host_thing->digger_move_flags, (int32_t)host_thing->digger_stack_update_turn,
                         (unsigned)host_thing->digger_working_stl, (unsigned)host_thing->digger_task_stl,
                         (unsigned)host_thing->digger_task_idx, (unsigned)host_thing->digger_consecutive_reinforcements,
                         (unsigned)host_thing->digger_last_did_job,
                         (unsigned)host_thing->digger_task_stack_pos, (unsigned)host_thing->digger_task_repeats);
                 }
-                ERRORLOG("    [Client] digger moveto=(%ld,%ld,%ld) dragtng=%d arming=%d pickup_obj=%d pickup_cr=%d move_flags=%u stack_update_turn=%ld working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
-                    (long)client_thing->digger_moveto_pos.x.val, (long)client_thing->digger_moveto_pos.y.val, (long)client_thing->digger_moveto_pos.z.val,
+                ERRORLOG("    [Client] digger moveto=(%d,%d,%d) dragtng=%d arming=%d pickup_obj=%d pickup_cr=%d move_flags=%u stack_update_turn=%d working_stl=%u task_stl=%u task_idx=%u consecutive_reinforcements=%u last_did_job=%u task_stack_pos=%u task_repeats=%u",
+                    (int32_t)client_thing->digger_moveto_pos.x.val, (int32_t)client_thing->digger_moveto_pos.y.val, (int32_t)client_thing->digger_moveto_pos.z.val,
                     (int)client_thing->digger_dragtng_idx, (int)client_thing->digger_arming_thing_id,
                     (int)client_thing->digger_pickup_object_id, (int)client_thing->digger_pickup_creature_id,
-                    (unsigned)client_thing->digger_move_flags, (long)client_thing->digger_stack_update_turn,
+                    (unsigned)client_thing->digger_move_flags, (int32_t)client_thing->digger_stack_update_turn,
                     (unsigned)client_thing->digger_working_stl, (unsigned)client_thing->digger_task_stl,
                     (unsigned)client_thing->digger_task_idx, (unsigned)client_thing->digger_consecutive_reinforcements,
                     (unsigned)client_thing->digger_last_did_job,
@@ -475,11 +475,11 @@ void compare_desync_history_from_host(void) {
     struct LogDetailedSnapshot* host_snapshot = &game.log_snapshot;
     struct LogDetailedSnapshot* client_snapshot = &snapshot->log_details;
 
-    ERRORLOG("=== DESYNC ANALYSIS: Host (turn %lu) vs Client (turn %lu) ===", (unsigned long)host->game_turn, (unsigned long)client->game_turn);
-    ERRORLOG("  ACTION_SEED %s - Host: %08lx, Client: %08lx", (client->action_seed == host->action_seed) ? "match" : "MISMATCH", (unsigned long)host->action_seed, (unsigned long)client->action_seed);
-    ERRORLOG("  AI_SEED %s - Host: %08lx, Client: %08lx", (client->ai_seed == host->ai_seed) ? "match" : "MISMATCH", (unsigned long)host->ai_seed, (unsigned long)client->ai_seed);
-    ERRORLOG("  PLAYER_SEED %s - Host: %08lx, Client: %08lx", (client->player_seed == host->player_seed) ? "match" : "MISMATCH", (unsigned long)host->player_seed, (unsigned long)client->player_seed);
-    ERRORLOG("  Players %s - Host: %08lx, Client: %08lx", (client->players == host->players) ? "match" : "MISMATCH", (unsigned long)host->players, (unsigned long)client->players);
+    ERRORLOG("=== DESYNC ANALYSIS: Host (turn %u) vs Client (turn %u) ===", (uint32_t)host->game_turn, (uint32_t)client->game_turn);
+    ERRORLOG("  ACTION_SEED %s - Host: %08x, Client: %08x", (client->action_seed == host->action_seed) ? "match" : "MISMATCH", (uint32_t)host->action_seed, (uint32_t)client->action_seed);
+    ERRORLOG("  AI_SEED %s - Host: %08x, Client: %08x", (client->ai_seed == host->ai_seed) ? "match" : "MISMATCH", (uint32_t)host->ai_seed, (uint32_t)client->ai_seed);
+    ERRORLOG("  PLAYER_SEED %s - Host: %08x, Client: %08x", (client->player_seed == host->player_seed) ? "match" : "MISMATCH", (uint32_t)host->player_seed, (uint32_t)client->player_seed);
+    ERRORLOG("  Players %s - Host: %08x, Client: %08x", (client->players == host->players) ? "match" : "MISMATCH", (uint32_t)host->players, (uint32_t)client->players);
     if (client->players != host->players) {
         for (int i = 0; i < client_snapshot->player_count; i++) {
             struct LogPlayerDesyncInfo* client_player = &client_snapshot->players[i];
@@ -493,15 +493,15 @@ void compare_desync_history_from_host(void) {
             if (host_player == NULL) {
                 ERRORLOG("    Player[%d] missing from host", client_player->id);
             } else if (client_player->checksum != host_player->checksum) {
-                ERRORLOG("    Player[%d] instance_num: Host=%u Client=%u, instance_remain_turns: Host=%lu Client=%lu, mappos: Host=(%ld,%ld,%ld) Client=(%ld,%ld,%ld)", client_player->id,
+                ERRORLOG("    Player[%d] instance_num: Host=%u Client=%u, instance_remain_turns: Host=%u Client=%u, mappos: Host=(%d,%d,%d) Client=(%d,%d,%d)", client_player->id,
                     (unsigned)host_player->instance_num, (unsigned)client_player->instance_num,
-                    (unsigned long)host_player->instance_remain_turns, (unsigned long)client_player->instance_remain_turns,
-                    (long)host_player->mappos.x.val, (long)host_player->mappos.y.val, (long)host_player->mappos.z.val,
-                    (long)client_player->mappos.x.val, (long)client_player->mappos.y.val, (long)client_player->mappos.z.val);
+                    (uint32_t)host_player->instance_remain_turns, (uint32_t)client_player->instance_remain_turns,
+                    (int32_t)host_player->mappos.x.val, (int32_t)host_player->mappos.y.val, (int32_t)host_player->mappos.z.val,
+                    (int32_t)client_player->mappos.x.val, (int32_t)client_player->mappos.y.val, (int32_t)client_player->mappos.z.val);
             }
         }
     }
-    ERRORLOG("  Rooms %s - Host: %08lx, Client: %08lx", (client->rooms == host->rooms) ? "match" : "MISMATCH", (unsigned long)host->rooms, (unsigned long)client->rooms);
+    ERRORLOG("  Rooms %s - Host: %08x, Client: %08x", (client->rooms == host->rooms) ? "match" : "MISMATCH", (uint32_t)host->rooms, (uint32_t)client->rooms);
     if (client->rooms != host->rooms) {
         int shown = 0;
         for (int i = 0; i < client_snapshot->room_count && shown < 10; i++) {

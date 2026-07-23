@@ -501,7 +501,7 @@ static const struct NamedField magic_powers_named_fields[] = {
     {"COST",           7, field_a(struct PowerConfigStats, cost, 7),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
     {"COST",           7, field_a(struct PowerConfigStats, cost, 8),                0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
     {"DURATION",       0, field_t(struct PowerConfigStats, duration),               0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"CASTABILITY",   -1, field_t(struct PowerConfigStats, can_cast_flags),         0,         0,UINT64_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
+    {"CASTABILITY",   -1, field_t(struct PowerConfigStats, can_cast_flags),         0,         0,UINT64_MAX, (struct NamedCommand*)powermodel_castability_commands, value_int32_tflagsfield,   assign_default},
     {"ARTIFACT",       0, field_t(struct PowerConfigStats, artifact_model),         0, INT32_MIN,UINT32_MAX, object_desc,                         value_default,   assign_artifact},
     {"NAMETEXTID",     0, field_t(struct PowerConfigStats, name_stridx),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
     {"TOOLTIPTEXTID",  0, field_t(struct PowerConfigStats, tooltip_stridx),         0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
@@ -644,7 +644,7 @@ short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
   return true;
 }
 
-TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_magic_spell_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags)
 {
   struct SpellConfigStats *spellst;
   struct SpellConfig *spconf;
@@ -1119,7 +1119,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
   return true;
 }
 
-TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_magic_special_blocks(char *buf, int32_t len, const char *config_textname, unsigned short flags)
 {
   struct SpecialConfigStats *specst;
   int k = 0;
@@ -1265,7 +1265,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
 static TbBool load_magic_config_file(const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -1390,7 +1390,7 @@ TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
         ERRORLOG("Can't add %s to player %d which has no dungeon",power_code_name(pwkind), (int)plyr_idx);
         return false;
     }
-    long i = dungeon->magic_level[pwkind];
+    int32_t i = dungeon->magic_level[pwkind];
     if (i >= 255)
     {
         ERRORLOG("Power %s has bad magic_level=%d for player %d, reset", power_code_name(pwkind), (int)i, (int)plyr_idx);
@@ -1410,7 +1410,7 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
         ERRORLOG("Cannot remove spell %s from invalid dungeon %d!",power_code_name(pwkind),(int)plyr_idx);
         return;
     }
-    long i = dungeon->magic_level[pwkind];
+    int32_t i = dungeon->magic_level[pwkind];
     if (i < 1)
     {
         ERRORLOG("Cannot remove spell %s (%d) from player %d as he doesn't have it!",power_code_name(pwkind),(int)pwkind,(int)plyr_idx);
@@ -1452,10 +1452,10 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
  */
 TbBool make_all_powers_cost_free(void)
 {
-    for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
+    for (int32_t i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
         struct PowerConfigStats * powerst = get_power_model_stats(i);
-        for (long n = 0; n < MAGIC_OVERCHARGE_LEVELS; n++)
+        for (int32_t n = 0; n < MAGIC_OVERCHARGE_LEVELS; n++)
             powerst->cost[n] = 0;
   }
   return true;
@@ -1467,7 +1467,7 @@ TbBool make_all_powers_cost_free(void)
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
+    for (int32_t i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
         dungeon->magic_resrchable[i] = 1;
     }
@@ -1477,9 +1477,9 @@ TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
 /**
  * Sets power availability state.
  */
-TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch, long avail)
+TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, int32_t resrch, int32_t avail)
 {
-    SYNCDBG(8,"Starting for power %d, player %d, state %ld,%ld",(int)pwkind,(int)plyr_idx,resrch,avail);
+    SYNCDBG(8,"Starting for power %d, player %d, state %d,%d",(int)pwkind,(int)plyr_idx,resrch,avail);
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
@@ -1575,7 +1575,7 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
       ERRORDBG(11,"Cannot make research available; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
-  for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
+  for (int32_t i = 0; i < game.conf.magic_conf.power_types_count; i++)
   {
     if (dungeon->magic_resrchable[i])
     {

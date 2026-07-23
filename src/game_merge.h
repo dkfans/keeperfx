@@ -118,10 +118,10 @@ enum GameFlags2 {
  */
 struct TextScrollWindow {
     char text[MESSAGE_TEXT_LEN];
-    long start_y;
+    int32_t start_y;
     char action;
-    long text_height;
-    long window_height;
+    int32_t text_height;
+    int32_t window_height;
 };
 
 /**
@@ -131,12 +131,12 @@ struct TextScrollWindow {
 struct IntralevelData {
     unsigned char bonuses_found[BONUS_LEVEL_STORAGE_COUNT];
     struct CreatureStorage transferred_creatures[PLAYERS_COUNT][TRANSFER_CREATURE_STORAGE_COUNT];
-    long campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
+    int32_t campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
     char next_level;
 };
 
 
-extern unsigned long game_flags2; // Should be reset to zero on new level
+extern uint32_t game_flags2; // Should be reset to zero on new level
 
 #pragma pack()
 
@@ -155,7 +155,7 @@ TbBool is_bonus_level_visible(struct PlayerInfo *player, LevelNumber bn_lvnum);
 void hide_all_bonus_levels(struct PlayerInfo *player);
 unsigned short get_extra_level_kind_visibility(unsigned short elv_kind);
 void update_extra_levels_visibility(void);
-TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
+TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, uint32_t sp_lvnum, short visible);
 TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible);
 TbBool emulate_integer_overflow(unsigned short nbits);
 /******************************************************************************/

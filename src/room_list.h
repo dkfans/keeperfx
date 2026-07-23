@@ -38,23 +38,23 @@ typedef struct CompoundRoomFilterParam * MaxRoomFilterParam;
 /** Definition of a simple callback type which can only return true/false and has no memory of previous checks. */
 typedef TbBool (*Room_Bool_Filter)(const struct Room *);
 /** Definition of a callback type used for selecting best match through all the rooms by maximizing a value. */
-typedef long (*Room_Maximizer_Filter)(const struct Room *, MaxRoomFilterParam, long);
+typedef int32_t (*Room_Maximizer_Filter)(const struct Room *, MaxRoomFilterParam, int32_t);
 /** Definition of a simple callback type which can only return true/false and can modify the room. */
 typedef TbBool (*Room_Bool_Modifier)(struct Room *);
 
 struct CompoundRoomFilterParam {
-     long plyr_idx;
-     long kind_id;
+     int32_t plyr_idx;
+     int32_t kind_id;
      union {
-     long primary_number;
+     int32_t primary_number;
      void *primary_pointer;
      };
      union {
-     long secondary_number;
+     int32_t secondary_number;
      void *secondary_pointer;
      };
      union {
-     long tertiary_number;
+     int32_t tertiary_number;
      void *tertiary_pointer;
      };
 };
@@ -68,20 +68,20 @@ extern struct Room *end_rooms;
 /******************************************************************************/
 void clear_rooms(void);
 
-long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind);
+int32_t count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind);
 
-long count_player_rooms_entrances(PlayerNumber plyr_idx);
-long calculate_player_num_rooms_built(PlayerNumber plyr_idx);
+int32_t count_player_rooms_entrances(PlayerNumber plyr_idx);
+int32_t calculate_player_num_rooms_built(PlayerNumber plyr_idx);
 
 struct Room *get_player_room_of_kind_nearest_to(PlayerNumber plyr_idx, RoomKind rkind,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *retdist);
 struct Room *get_player_room_any_kind_nearest_to(PlayerNumber plyr_idx,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *retdist);
 
-struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags, long max_distance);
+struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags, int32_t max_distance);
 
 struct Room *find_nearest_room_of_role_for_thing(struct Thing *thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags);
-struct Room *find_nearest_room_of_role_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags, long used);
+struct Room *find_nearest_room_of_role_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags, int32_t used);
 struct Room *find_nearest_room_to_vandalise(struct Thing *thing, PlayerNumber owner, unsigned char nav_flags);
 
 /******************************************************************************/

@@ -55,7 +55,7 @@ unsigned int eye_lens_height = 0;
 uint32_t *eye_lens_memory = NULL;
 TbPixel *eye_lens_spare_screen_memory = NULL;
 
-long lens;
+int32_t lens;
 Perspect_Func perspective;
 RotPers_Func rotpers;
 unsigned char lens_mode;
@@ -68,7 +68,7 @@ void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt)
 {
   if (cor->z >= 32)
   {
-      long i = (lens << 16) / (cor->z);
+      int32_t i = (lens << 16) / (cor->z);
       ppt->X = view_width_over_2 + (i * cor->x >> 16);
       ppt->Y = view_height_over_2 - (i * cor->y >> 16);
   } else
@@ -83,13 +83,13 @@ void perspective_fisheye(struct XYZ *cor, struct PolyPoint *ppt)
 
 void pers_set_transform_matrix(struct EngineCoord *epos, const struct M33 *matx)
 {
-    long px = epos->x;
-    long py = epos->y;
-    long pz = epos->z;
-    long long pxpy = px * py;
-    long long pyr0 = py + matx->r[0].v[0];
-    long long pxr1 = px + matx->r[0].v[1];
-    long long pzr2 = pz * matx->r[0].v[2];
+    int32_t px = epos->x;
+    int32_t py = epos->y;
+    int32_t pz = epos->z;
+    int64_t pxpy = px * py;
+    int64_t pyr0 = py + matx->r[0].v[0];
+    int64_t pxr1 = px + matx->r[0].v[1];
+    int64_t pzr2 = pz * matx->r[0].v[2];
     epos->x = object_origin.x + ((pzr2 + pyr0 * pxr1 - matx->r[0].v[3] - pxpy) >> 14);
     pyr0 = py + matx->r[1].v[0];
     pxr1 = px + matx->r[1].v[1];
@@ -112,7 +112,7 @@ void flicker_fix(struct EngineCoord *epos) {
     }
 }
 
-void pers_set_view_width(struct EngineCoord *epos, long len)
+void pers_set_view_width(struct EngineCoord *epos, int32_t len)
 {
     epos->view_width = len;
     if (epos->view_width < 0) {
@@ -123,7 +123,7 @@ void pers_set_view_width(struct EngineCoord *epos, long len)
     }
 }
 
-void pers_set_view_height(struct EngineCoord *epos, long len)
+void pers_set_view_height(struct EngineCoord *epos, int32_t len)
 {
     epos->view_height = len;
     if (epos->view_height < 0) {
@@ -137,10 +137,10 @@ void pers_set_view_height(struct EngineCoord *epos, long len)
 void rotpers_parallel(struct EngineCoord *epos, const struct M33 *matx)
 {
     pers_set_transform_matrix(epos, matx);
-    long zoom = camera_zoom / pixel_size;
-    long tx = view_width_over_2 + ((epos->x * zoom) >> 16);
-    long ty = view_height_over_2 - ((epos->y * zoom) >> 16);
-    long tz = (epos->z + (cells_away << 8)) / 2;
+    int32_t zoom = camera_zoom / pixel_size;
+    int32_t tx = view_width_over_2 + ((epos->x * zoom) >> 16);
+    int32_t ty = view_height_over_2 - ((epos->y * zoom) >> 16);
+    int32_t tz = (epos->z + (cells_away << 8)) / 2;
     epos->render_distance = COORD_PER_STL * 10;
     if (tz < 32) {
         tz = 0;
@@ -168,15 +168,15 @@ void rotpers_parallel(struct EngineCoord *epos, const struct M33 *matx)
 void rotpers_standard(struct EngineCoord *epos, const struct M33 *matx)
 {
     pers_set_transform_matrix(epos, matx);
-    long tx = epos->x;
-    long ty = epos->y;
-    long tz = epos->z;
+    int32_t tx = epos->x;
+    int32_t ty = epos->y;
+    int32_t tz = epos->z;
     epos->render_distance = tz;
     if (tz > fade_max) {
       epos->clip_flags |= 0x0080;
     }
-    long long wx;
-    long long wy;
+    int64_t wx;
+    int64_t wy;
     if (tz < 32)
     {
         epos->clip_flags |= 0x0100;
@@ -205,15 +205,15 @@ void rotpers_standard(struct EngineCoord *epos, const struct M33 *matx)
 void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
 {
     pers_set_transform_matrix(epos, matx);
-    long tx = epos->x;
-    long ty = epos->y;
-    long tz = epos->z;
+    int32_t tx = epos->x;
+    int32_t ty = epos->y;
+    int32_t tz = epos->z;
     epos->render_distance = abs(tx) + abs(ty) + tz;
     if (tz > fade_max) {
       epos->clip_flags |= 0x0080;
     }
-    long long wx;
-    long long wy;
+    int64_t wx;
+    int64_t wy;
     if (tz < 32)
     {
         epos->clip_flags |= 0x0100;
@@ -223,7 +223,7 @@ void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
         epos->clip_flags |= 0x0002;
     } else
     {
-        long adheight = (lens << 16) / tz;
+        int32_t adheight = (lens << 16) / tz;
         if (tz < z_threshold_near)
         {
             epos->clip_flags |= 0x0001;
@@ -243,16 +243,16 @@ void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
 void rotpers_fisheye(struct EngineCoord *epos, const struct M33 *matx)
 {
     pers_set_transform_matrix(epos, matx);
-    long tx = epos->x;
-    long ty = epos->y;
-    long tz = epos->z;
-    long txz = LbDiagonalLength(abs(tx), abs(tz));
+    int32_t tx = epos->x;
+    int32_t ty = epos->y;
+    int32_t tz = epos->z;
+    int32_t txz = LbDiagonalLength(abs(tx), abs(tz));
     epos->render_distance = abs(LbDiagonalLength(abs(txz), abs(ty)));
     if (epos->render_distance > fade_max) {
         epos->clip_flags |= 0x0080;
     }
-    long long wx;
-    long long wy;
+    int64_t wx;
+    int64_t wy;
     if ((tz < 32) || (epos->render_distance < 32))
     {
         epos->clip_flags |= 0x0100;

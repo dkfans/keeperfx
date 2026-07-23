@@ -37,17 +37,17 @@ extern "C" {
 /** Sound SFXID parameter from bank table. */
 typedef unsigned char SoundSFXID;
 /** Sound emitter ID. */
-typedef long SoundEmitterID;
+typedef int32_t SoundEmitterID;
 /** Sound sample ID in bank table. */
 typedef short SoundSmplTblID;
 /** Volume level indicator, normal is 256. */
-typedef long SoundVolume;
+typedef int32_t SoundVolume;
 /** Pitch level indicator, normal is 100. */
-typedef long SoundPitch;
+typedef int32_t SoundPitch;
 /** Pan level indicator. */
-typedef long SoundPan;
+typedef int32_t SoundPan;
 /** Miles Sound ID. */
-typedef long SoundMilesID;
+typedef int32_t SoundMilesID;
 
 enum SoundEmitterFlags {
     Emi_IsAllocated  = 0x01,
@@ -61,12 +61,12 @@ enum SoundSampleFlags {
 };
 
 typedef void *SndData;
-typedef long (*S3D_LineOfSight_Func)(long, long, long, long, long, long);
+typedef int32_t (*S3D_LineOfSight_Func)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 
 struct SoundCoord3d {
-    unsigned long val_x;
-    unsigned long val_y;
-    unsigned long val_z;
+    uint32_t val_x;
+    uint32_t val_y;
+    uint32_t val_z;
 };
 
 struct SoundEmitter {
@@ -75,7 +75,7 @@ struct SoundEmitter {
     short index;
     struct SoundCoord3d pos;
     unsigned char reserved[6];
-    long pitch_doppler;
+    int32_t pitch_doppler;
     unsigned char curr_pitch;
     unsigned char target_pitch;
 };
@@ -85,49 +85,49 @@ struct SoundReceiver { // sizeof = 17
     unsigned short rotation_angle_x;
     unsigned short rotation_angle_y;
     unsigned short rotation_angle_z;
-    unsigned long flags;
+    uint32_t flags;
     unsigned char sensivity;
 };
 
 struct S3DSample { // sizeof = 37
-  unsigned long priority;
-  unsigned long time_turn;
+  uint32_t priority;
+  uint32_t time_turn;
   unsigned short smptbl_id;
   unsigned short base_pitch;
   unsigned short pan;
   unsigned short volume;
   SoundMilesID mss_id;
   struct SoundEmitter *emit_ptr;
-  long emit_idx;
+  int32_t emit_idx;
   char repeat_count; // signed
   unsigned char flags;
   unsigned char is_playing;
   unsigned char sfxid;
-  unsigned long base_volume;
+  uint32_t base_volume;
 };
 
 /******************************************************************************/
 // Exported variables
 extern int atmos_sound_volume;
 extern TbBool SoundDisabled;
-extern long MaxSoundDistance;
+extern int32_t MaxSoundDistance;
 extern struct SoundReceiver Receiver;
-extern long Non3DEmitter;
-extern long SpeechEmitter;
+extern int32_t Non3DEmitter;
+extern int32_t SpeechEmitter;
 #pragma pack()
 /******************************************************************************/
 // Exported functions
-long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
-long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
+int32_t S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
+int32_t S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
 void S3DSetSoundReceiverSensitivity(unsigned short nsensivity);
-long S3DDestroySoundEmitter(SoundEmitterID);
+int32_t S3DDestroySoundEmitter(SoundEmitterID);
 TbBool S3DEmitterHasFinishedPlaying(SoundEmitterID);
-TbBool S3DMoveSoundEmitterTo(SoundEmitterID, long x, long y, long z);
-long S3DInit(void);
-long S3DSetNumberOfSounds(long nMaxSounds);
-long S3DSetMaximumSoundDistance(long nDistance);
-TbBool S3DAddSampleToEmitterPri(SoundEmitterID, SoundSmplTblID, SoundPitch, SoundVolume, long repeats, char ctype, long flags, long priority);
-long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID, SoundPitch, SoundVolume, long repeats, long flags, long priority);
+TbBool S3DMoveSoundEmitterTo(SoundEmitterID, int32_t x, int32_t y, int32_t z);
+int32_t S3DInit(void);
+int32_t S3DSetNumberOfSounds(int32_t nMaxSounds);
+int32_t S3DSetMaximumSoundDistance(int32_t nDistance);
+TbBool S3DAddSampleToEmitterPri(SoundEmitterID, SoundSmplTblID, SoundPitch, SoundVolume, int32_t repeats, char ctype, int32_t flags, int32_t priority);
+int32_t S3DCreateSoundEmitterPri(int32_t x, int32_t y, int32_t z, SoundSmplTblID, SoundPitch, SoundVolume, int32_t repeats, int32_t flags, int32_t priority);
 TbBool S3DEmitterIsAllocated(SoundEmitterID);
 TbBool S3DEmitterIsPlayingAnySample(SoundEmitterID);
 TbBool S3DEmitterIsPlayingSample(SoundEmitterID, SoundSmplTblID);
@@ -135,7 +135,7 @@ TbBool S3DDeleteSampleFromEmitter(SoundEmitterID, SoundSmplTblID);
 TbBool S3DDeleteAllSamplesFromEmitter(SoundEmitterID);
 TbBool S3DDestroySoundEmitterAndSamples(SoundEmitterID);
 void S3DSetLineOfSightFunction(S3D_LineOfSight_Func);
-void S3DSetDeadzoneRadius(long dzradius);
+void S3DSetDeadzoneRadius(int32_t dzradius);
 
 void play_non_3d_sample(SoundSmplTblID);
 void play_non_3d_sample_no_overlap(SoundSmplTblID);
@@ -143,9 +143,9 @@ void play_atmos_sound(SoundSmplTblID);
 short sound_emitter_in_use(SoundEmitterID);
 SoundMilesID play_sample(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, char repeats, unsigned char ctype);
 void stop_sample(SoundEmitterID, SoundSmplTblID);
-long speech_sample_playing(void);
-long play_speech_sample(SoundSmplTblID);
-long stop_emitter_samples(struct SoundEmitter *emit);
+int32_t speech_sample_playing(void);
+int32_t play_speech_sample(SoundSmplTblID);
+int32_t stop_emitter_samples(struct SoundEmitter *emit);
 TbBool process_sound_emitters(void);
 void increment_sample_times(void);
 TbBool process_sound_samples(void);

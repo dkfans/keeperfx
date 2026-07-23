@@ -232,7 +232,7 @@ struct CreatureInstanceConfig {
 
 typedef TbBool (*Creature_Job_Player_Check_Func)(const struct Thing *, PlayerNumber, CreatureJob);
 typedef TbBool (*Creature_Job_Player_Assign_Func)(struct Thing *, PlayerNumber, CreatureJob);
-typedef TbBool (*Creature_Job_Coords_Check_Func)(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref, unsigned long flags);
+typedef TbBool (*Creature_Job_Coords_Check_Func)(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref, uint32_t flags);
 typedef TbBool (*Creature_Job_Coords_Assign_Func)(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob jobpref);
 
 struct CreatureJobConfig {
@@ -247,7 +247,7 @@ struct CreatureJobConfig {
     CrtrStateId initial_crstate;
     /** The state creature should back to after job is interrupted. */
     CrtrStateId continue_crstate;
-    unsigned long job_flags;
+    uint32_t job_flags;
 };
 
 struct CreatureAngerJobConfig {
@@ -256,8 +256,8 @@ struct CreatureAngerJobConfig {
 
 struct CreatureModelConfig {
     char name[COMMAND_WORD_LEN];
-    long namestr_idx;
-    unsigned long model_flags;
+    int32_t namestr_idx;
+    uint32_t model_flags;
     unsigned short job_primary;
     unsigned short job_secondary;
     unsigned short jobs_not_do;
@@ -285,7 +285,7 @@ struct CreatureModelConfig {
     short scavenger_cost;
     short scavenge_require;
     unsigned char scavenge_value;
-    unsigned long to_level[CREATURE_MAX_LEVEL];
+    uint32_t to_level[CREATURE_MAX_LEVEL];
     unsigned char base_speed;
     ThingModel grow_up;
     CrtrExpLevel grow_up_level;
@@ -450,15 +450,15 @@ void init_creature_model_stats(ThingModel crmodel);
 void init_all_creature_model_stats(void);
 void init_creature_model_graphics(void);
 const char *creature_code_name(ThingModel crmodel);
-long creature_model_id(const char * name);
+int32_t creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);
 TbBool is_creature_model_wildcard(ThingModel crmodel);
 /******************************************************************************/
-unsigned long get_creature_model_flags(const struct Thing *thing);
-TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail);
+uint32_t get_creature_model_flags(const struct Thing *thing);
+TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, int32_t can_be_avail, int32_t force_avail);
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_model(PlayerNumber plyr_idx);
-ThingModel get_creature_model_with_model_flags(unsigned long needflags);
+ThingModel get_creature_model_with_model_flags(uint32_t needflags);
 void update_players_special_digger_model(PlayerNumber plyr_idx, ThingModel new_dig_model);
 /******************************************************************************/
 struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id);
@@ -474,15 +474,15 @@ CrtrStateId get_continue_state_for_job(CreatureJob jobpref);
 CreatureJob get_job_for_creature_state(CrtrStateId crstate_id);
 CreatureJob get_jobs_enemies_may_do_in_room(RoomKind rkind);
 CreatureJob get_jobs_enemies_may_do_in_room_role(RoomRole rrole);
-unsigned long get_flags_for_job(CreatureJob jobpref);
+uint32_t get_flags_for_job(CreatureJob jobpref);
 int get_required_room_capacity_for_job(CreatureJob jobpref, ThingModel crmodel);
 CreatureJob get_creature_job_causing_going_postal(CreatureJob job_flags, RoomKind rkind);
 CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);
-CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long drop_kind_flags);
-CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, CreatureJob has_jobs);
-CreatureJob get_job_for_room_role(RoomRole rrole, unsigned long required_kind_flags, CreatureJob has_jobs);
-CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify_flags, unsigned long prevent_flags);
-CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qualify_flags, unsigned long prevent_flags);
+CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, uint32_t drop_kind_flags);
+CreatureJob get_job_for_room(RoomKind rkind, uint32_t required_kind_flags, CreatureJob has_jobs);
+CreatureJob get_job_for_room_role(RoomRole rrole, uint32_t required_kind_flags, CreatureJob has_jobs);
+CreatureJob get_job_which_qualify_for_room(RoomKind rkind, uint32_t qualify_flags, uint32_t prevent_flags);
+CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, uint32_t qualify_flags, uint32_t prevent_flags);
 const char *creature_job_code_name(CreatureJob job_flag);
 struct Thing* thing_death_flesh_explosion(struct Thing* thing);
 /******************************************************************************/
