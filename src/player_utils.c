@@ -1338,6 +1338,9 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
                         gbtn->sprite_idx = get_player_colored_icon_idx(gbinit->sprite_idx, my_player_number);
                     }
                 }
+                char active_menu = game.active_panel_mnu_idx;
+                turn_off_all_panel_menus();
+                turn_on_menu(active_menu);
             }
         }
     }
