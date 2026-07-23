@@ -7,6 +7,11 @@
 function SetGameRule(rulename,val1) end
 
 ---Creates a new creature type by loading in a creature config file with this name present in the creatures folder and adds it to the creature list. Creature name will not be recognized in DKscript.
+---@param crmodel creature_type Creature model to be copied.
+---@param creaturename string the name of the new creature type
+function NewCreatureType(name) end
+
+---Creates a new creature type by copying an existing creature type and adds it to the creature list. Creature name will not be recognized in DKscript.
 ---@param creaturename string the name of the creature config file you want to load
 function NewCreatureType(name) end
 

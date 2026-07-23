@@ -202,6 +202,7 @@ TbBool script_is_preloaded_command(long cmnd_index)
         case Cmd_NEW_OBJECT_TYPE:
         case Cmd_NEW_ROOM_TYPE:
         case Cmd_NEW_CREATURE_TYPE:
+        case Cmd_COPY_CREATURE_TYPE:
             return true;
         default:
             return false;

@@ -1209,6 +1209,12 @@ static int lua_New_creature_type(lua_State* L)
     return 0;
 }
 
+static int lua_Copy_creature_type(lua_State* L)
+{
+    script_copy_creature_type(luaL_checkNamedCommand(L, 2, creature_desc),luaL_checkstring(L, 2));
+    return 0;
+}
+
 static int lua_Set_door_configuration(lua_State *L)
 {
     set_configuration(L, &trapdoor_door_named_fields_set, "SET_DOOR_CONFIGURATION");
@@ -2474,6 +2480,7 @@ static const luaL_Reg global_methods[] = {
 
 //Manipulating Configs
     {"NewCreatureType"                      ,lua_New_creature_type               },
+    {"CopyCreatureType"                     ,lua_Copy_creature_type              },
     //{"NewObjectType"                      ,lua_New_object_type                 },
     //{"NewTrapType"                        ,lua_New_trap_type                   },
     //{"NewRoomType"                        ,lua_New_room_type                   },
