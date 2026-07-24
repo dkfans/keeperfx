@@ -108,11 +108,12 @@ static TbBool load_spritecolors_config_file(const char *fname, unsigned short fl
     load_array(&file_root,"objects",objects_eq,flags,get_anim_id_);
 
     extern struct CallToArmsGraphics call_to_arms_graphics[];
-    for (size_t plr_idx = 0; plr_idx < PLAYER_COLORS_COUNT; plr_idx++)
+    for (size_t plr_idx = 0; plr_idx < PLAYER_COLORS_COUNT-1; plr_idx++)
     {
         call_to_arms_graphics[plr_idx].birth_anim_idx = get_player_colored_idx(867,plr_idx + 1,animationIds_eq);
         call_to_arms_graphics[plr_idx].alive_anim_idx = get_player_colored_idx(868,plr_idx + 1,animationIds_eq);
         call_to_arms_graphics[plr_idx].leave_anim_idx = get_player_colored_idx(869,plr_idx + 1,animationIds_eq);
+        call_to_arms_graphics[plr_idx].big_flame_anim_idx = get_player_colored_idx(798, plr_idx + 1, animationIds_eq);
     }
 
 
