@@ -105,7 +105,7 @@ static const struct NamedField objects_named_fields[] = {
     {"HANDICON",                 0, field_t(struct ObjectConfigStats, hand_icon),                     0, INT32_MIN,UINT32_MAX, NULL,                        value_icon,      assign_icon},
     {"PICKUPOFFSET",             0, field_t(struct ObjectConfigStats, object_picked_up_offset.delta_x), 0,SHRT_MIN,SHRT_MAX, NULL,                        value_default,   assign_default},
     {"PICKUPOFFSET",             1, field_t(struct ObjectConfigStats, object_picked_up_offset.delta_y), 0,SHRT_MIN,SHRT_MAX, NULL,                        value_default,   assign_default},
-    {"TOOLTIPTEXTID",            0, field_t(struct ObjectConfigStats, tooltip_stridx),     GUIStr_Empty, SHRT_MIN, SHRT_MAX, NULL,                        value_default,   assign_default},
+    {"TOOLTIPTEXTID",            0, field_t(struct ObjectConfigStats, tooltip_stridx),     GUIStr_Empty, SHRT_MIN, SHRT_MAX, NULL,                        value_stringId,   assign_default},
     {"TOOLTIPTEXTID",            1, field_t(struct ObjectConfigStats, tooltip_optional),              0,        0,        1, NULL,                        value_default,   assign_default},
     {"AMBIENCESOUND",            0, field_t(struct ObjectConfigStats, fp_smpl_idx),                   0,        0,UINT32_MAX, NULL,                        value_sound_id,   assign_default},
     {"UPDATEFUNCTION",           0, field_t(struct ObjectConfigStats, updatefn_idx),                  0, INT32_MIN,UINT32_MAX, object_update_functions_desc,value_function,  assign_default},
