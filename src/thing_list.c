@@ -3685,7 +3685,7 @@ struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, 
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
-/** Finds creature on revealed subtiles around given position, who beint32_ts to given player.
+/** Finds creature on revealed subtiles around given position, who belongs to given player.
  *
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.
@@ -3726,7 +3726,7 @@ struct Thing *get_creature_near(MapCoord pos_x, MapCoord pos_y)
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
-/** Finds creature on all subtiles around given position, who beint32_ts to given player or allied one.
+/** Finds creature on all subtiles around given position, who belongs to given player or allied one.
  *
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.
@@ -3747,7 +3747,7 @@ struct Thing *get_creature_in_range_and_owned_by_or_allied_with(MapCoord pos_x, 
     return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, distance_stl*distance_stl, filter, &param);
 }
 
-/** Counts creatures on all subtiles around given position, who beint32_ts to given player or allied one.
+/** Counts creatures on all subtiles around given position, who belongs to given player or allied one.
  *
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.
@@ -3841,7 +3841,7 @@ struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, Map
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
-/** Finds trap on all subtiles around given one, which beint32_ts to given player and is of given model.
+/** Finds trap on all subtiles around given one, which belongs to given player and is of given model.
  *
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.

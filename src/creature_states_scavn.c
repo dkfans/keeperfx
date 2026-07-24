@@ -216,7 +216,7 @@ short creature_scavenged_reappear(struct Thing *thing)
 }
 
 /**
- * Returns if a player to whom the creature beint32_ts can afford the creature to go scavenging.
+ * Returns if a player to whom the creature belongs can afford the creature to go scavenging.
  * @param creatng
  * @return
  */

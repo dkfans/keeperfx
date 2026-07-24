@@ -1018,7 +1018,7 @@ static TbBool make_edge(int32_t start_x, int32_t start_y, int32_t end_x, int32_t
     ey = end_y;
     while ((ex != sx) || (ey != sy))
     {
-        // Find triangles to which start point and end point beint32_ts
+        // Find triangles to which start point and end point belongs
         if (!point_find(ex, ey, &tri_id1, &cor_id1))
             break;
         if (!point_find(sx, sy, &tri_id2, &cor_id2))

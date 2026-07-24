@@ -46,7 +46,7 @@ struct ftest_onlyappendtests__config ftest_onlyappendtests__conf = {
     },
 
     // place int32_t-running tests in this list, to include them use the -includeint32_ttests flag
-    .int32_t_running_tests_list = {
+    .long_running_tests_list = {
         { .test_name="bug_ai_bridge",                      .init_func=ftest_bug_ai_bridge_init,                    .level_file="keeporig", .level=15, .frame_skip=128, .seed=1, .repeat_n_times=100 },
     }
 };
