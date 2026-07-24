@@ -1344,7 +1344,7 @@ void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swid
     long factor = (dwidth<<16)/swidth;
     long tmp = (factor >> 1) + (x << 16);
     pxpos = tmp >> 16;
-    { long dstart = (x < 0) ? 0 : x; if (pxpos > dstart) pxpos = dstart; }
+    pxpos = min(pxpos, max(0, x))
     long w = swidth;
     do {
         tmp += factor;
@@ -1425,7 +1425,7 @@ void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, long y, long she
     long factor = (dheight<<16)/sheight;
     long tmp = (factor >> 1) + (y << 16);
     lnpos = tmp >> 16;
-    { long dstart = (y < 0) ? 0 : y; if (lnpos > dstart) lnpos = dstart; }
+    lnpos = min(lnpos, max(0, y));
     if (lnpos < 0)
         lnpos = 0;
     if (lnpos >= gheight)
