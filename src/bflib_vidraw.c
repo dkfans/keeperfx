@@ -1344,7 +1344,7 @@ void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swid
     long factor = (dwidth<<16)/swidth;
     long tmp = (factor >> 1) + (x << 16);
     pxpos = tmp >> 16;
-    pxpos = min(pxpos, max(0, x))
+    pxpos = min(pxpos, max(0, x));
     long w = swidth;
     do {
         tmp += factor;
