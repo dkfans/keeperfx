@@ -374,7 +374,7 @@ struct SpecialConfigStats {
  /**
  * Spell information structure.
  * Stores configuration of spells; to be replaced with SpellConfigStats when all fields are in CFG.
- * It no longer matches the similar struct from DK - fields were added at end.
+ * It no int32_ter matches the similar struct from DK - fields were added at end.
  */
 struct SpellConfig {
     /** Informs if the spell can be targeted on a thing. */
@@ -458,7 +458,7 @@ int power_model_id(const char * code_name);
 /******************************************************************************/
 TbBool make_all_powers_cost_free(void);
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx);
-TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch, long avail);
+TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, int32_t resrch, int32_t avail);
 TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx);
 TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind);
 TbBool add_power_to_player(PowerKind spl_idx, PlayerNumber plyr_idx);

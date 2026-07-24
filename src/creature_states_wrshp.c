@@ -76,8 +76,8 @@ TbBool setup_workshop_move(struct Thing *thing, SubtlCodedCoords stl_num)
 struct Thing *get_workshop_equipment_to_work_with_on_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -118,8 +118,8 @@ struct Thing *get_workshop_equipment_to_work_with_on_subtile(PlayerNumber plyr_i
 struct Thing *get_other_creature_manufacturing_on_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *othertng)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -158,13 +158,13 @@ struct Thing *get_other_creature_manufacturing_on_subtile(PlayerNumber plyr_idx,
  * @return Coded subtiles of the new position, or 0 on failure.
  * @see person_get_somewhere_adjacent_in_room()
  */
-SubtlCodedCoords find_unused_adjacent_position_in_workshop(const struct Coord3d *pos, long owner)
+SubtlCodedCoords find_unused_adjacent_position_in_workshop(const struct Coord3d *pos, int32_t owner)
 {
     static const struct Around corners[] = { {1,2}, {0,1}, {1,0}, {2,1} };
-    for (long i = 0; i < SMALL_AROUND_LENGTH; i++)
+    for (int32_t i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
-        MapSlabCoord slb_x = subtile_slab(pos->x.stl.num) + (long)small_around[i].delta_x;
-        MapSlabCoord slb_y = subtile_slab(pos->y.stl.num) + (long)small_around[i].delta_y;
+        MapSlabCoord slb_x = subtile_slab(pos->x.stl.num) + (int32_t)small_around[i].delta_x;
+        MapSlabCoord slb_y = subtile_slab(pos->y.stl.num) + (int32_t)small_around[i].delta_y;
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
         if ((slb->kind == SlbT_WORKSHOP) && (slabmap_owner(slb) == owner))
         {
@@ -187,7 +187,7 @@ SubtlCodedCoords find_unused_adjacent_position_in_workshop(const struct Coord3d 
     return 0;
 }
 
-TbBool setup_move_to_new_workshop_position(struct Thing *thing, struct Room *room, unsigned long set_work_timer)
+TbBool setup_move_to_new_workshop_position(struct Thing *thing, struct Room *room, uint32_t set_work_timer)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ( set_work_timer )
@@ -233,8 +233,8 @@ void setup_workshop_search_for_post(struct Thing *creatng)
     struct Thing* postng = INVALID_THING;
     struct Room* room = get_room_thing_is_on(creatng);
     // Find a random slab in the room to be used as our starting point
-    long i = THING_RANDOM(creatng, room->slabs_count);
-    unsigned long n = room->slabs_list;
+    int32_t i = THING_RANDOM(creatng, room->slabs_count);
+    uint32_t n = room->slabs_list;
     while (i > 0)
     {
         n = get_next_slab_number_in_room(n);
@@ -267,7 +267,7 @@ void setup_workshop_search_for_post(struct Thing *creatng)
     }
 }
 
-long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
+int32_t process_creature_in_workshop(struct Thing *creatng, struct Room *room)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
@@ -283,7 +283,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
     if (cctrl->instance_id != CrInst_NULL) {
         return 1;
     }
-    long mvret;
+    int32_t mvret;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     SYNCDBG(19,"Work in %s, the %s in state %d",room_code_name(room->kind),thing_model_name(creatng),(int)cctrl->workshop.job_stage);
@@ -408,7 +408,7 @@ short manufacturing(struct Thing *creatng)
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     if (dungeon->manufacture_class != TCls_Empty)
     {
-        long work_value = compute_creature_work_value_for_room_role(creatng, RoRoF_CratesManufctr, room->efficiency);
+        int32_t work_value = compute_creature_work_value_for_room_role(creatng, RoRoF_CratesManufctr, room->efficiency);
         SYNCDBG(9,"The %s index %d owner %d produced %d manufacture points",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)work_value);
         dungeon->manufacture_progress += work_value;
         dungeon->total_manufacture_points += work_value;

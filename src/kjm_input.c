@@ -50,38 +50,38 @@ extern "C" {
 TbBool wheel_scrolled_up;
 TbBool wheel_scrolled_down;
 
-unsigned long key_modifiers;
+uint32_t key_modifiers;
 int defining_a_key;
-long defining_a_key_id;
+int32_t defining_a_key_id;
 
-long left_button_held_x;
-long left_button_held_y;
-long left_button_double_clicked_y;
-long left_button_double_clicked_x;
-long right_button_double_clicked_y;
-long right_button_double_clicked_x;
+int32_t left_button_held_x;
+int32_t left_button_held_y;
+int32_t left_button_double_clicked_y;
+int32_t left_button_double_clicked_x;
+int32_t right_button_double_clicked_y;
+int32_t right_button_double_clicked_x;
 char right_button_clicked;
 char left_button_clicked;
-long right_button_released_x;
-long right_button_released_y;
+int32_t right_button_released_x;
+int32_t right_button_released_y;
 char right_button_double_clicked;
-long left_button_released_y;
-long left_button_released_x;
+int32_t left_button_released_y;
+int32_t left_button_released_x;
 char left_button_double_clicked;
 char right_button_released;
 char right_button_held;
-long right_button_click_space_count;
-long right_button_held_y;
-long left_button_clicked_y;
-long left_button_clicked_x;
-long left_button_click_space_count;
-long right_button_held_x;
+int32_t right_button_click_space_count;
+int32_t right_button_held_y;
+int32_t left_button_clicked_y;
+int32_t left_button_clicked_x;
+int32_t left_button_click_space_count;
+int32_t right_button_held_x;
 char left_button_released;
-long right_button_clicked_y;
-long right_button_clicked_x;
+int32_t right_button_clicked_y;
+int32_t right_button_clicked_x;
 char left_button_held;
 
-long key_to_string[256];
+int32_t key_to_string[256];
 
 /** Initialization array, used to create array which stores index of text name of keyboard keys. */
 struct KeyToStringInit key_to_string_init[] = {
@@ -316,18 +316,18 @@ TbBool poll_inputs(void)
 /**
  * Returns X position of mouse cursor on screen.
  */
-long GetMouseX(void)
+int32_t GetMouseX(void)
 {
-    long result = lbDisplay.MMouseX * (long)pixel_size;
+    int32_t result = lbDisplay.MMouseX * (int32_t)pixel_size;
     return result;
 }
 
 /**
  * Returns Y position of mouse cursor on screen.
  */
-long GetMouseY(void)
+int32_t GetMouseY(void)
 {
-    long result = lbDisplay.MMouseY * (long)pixel_size;
+    int32_t result = lbDisplay.MMouseY * (int32_t)pixel_size;
     return result;
 }
 
@@ -411,15 +411,15 @@ void update_right_button_released(void)
 void update_left_button_clicked(void)
 {
   left_button_clicked = lbDisplay.LeftButton;
-  left_button_clicked_x = lbDisplay.MouseX * (long)pixel_size;
-  left_button_clicked_y = lbDisplay.MouseY * (long)pixel_size;
+  left_button_clicked_x = lbDisplay.MouseX * (int32_t)pixel_size;
+  left_button_clicked_y = lbDisplay.MouseY * (int32_t)pixel_size;
 }
 
 void update_right_button_clicked(void)
 {
   right_button_clicked = lbDisplay.RightButton;
-  right_button_clicked_x = lbDisplay.MouseX * (long)pixel_size;
-  right_button_clicked_y = lbDisplay.MouseY * (long)pixel_size;
+  right_button_clicked_x = lbDisplay.MouseX * (int32_t)pixel_size;
+  right_button_clicked_y = lbDisplay.MouseY * (int32_t)pixel_size;
 }
 
 void update_wheel_scrolled(void)
@@ -465,7 +465,7 @@ short is_key_pressed(TbKeyCode key, TbKeyMods kmodif)
 /**
  * Clears the marking that a specific key is pressed.
  */
-void clear_key_pressed(long key)
+void clear_key_pressed(int32_t key)
 {
     if (key >= sizeof(lbKeyOn))
     {
@@ -500,7 +500,7 @@ void update_key_modifiers(void)
   key_modifiers = key_mods;
 }
 
-void swap_assigned_keys(long current_key_id, struct GameKey* current_kbk, long new_key_id, unsigned char new_key, unsigned int new_mods)
+void swap_assigned_keys(int32_t current_key_id, struct GameKey* current_kbk, int32_t new_key_id, unsigned char new_key, unsigned int new_mods)
 {
     struct GameKey* kbk_swap = current_kbk;
     current_kbk = &settings.kbkeys[new_key_id];
@@ -515,7 +515,7 @@ void swap_assigned_keys(long current_key_id, struct GameKey* current_kbk, long n
     }
 }
 
-void assign_key(long key_id, unsigned char key, unsigned int mods)
+void assign_key(int32_t key_id, unsigned char key, unsigned int mods)
 {
     struct GameKey* kbk = &settings.kbkeys[key_id];
     kbk->code = key;
@@ -548,12 +548,12 @@ int mod_key_to_normal_key(unsigned int mods)
     }
     return ncode;
 }
-void check_and_assign_mod_keys_group(long key_id, unsigned int mods, long reference_key_ids[], long reference_key_count)
+void check_and_assign_mod_keys_group(int32_t key_id, unsigned int mods, int32_t reference_key_ids[], int32_t reference_key_count)
 {
     int ncode = mod_key_to_normal_key(mods);
     // Do not allow the key if it is used as other mod key by any in reference_key_ids[]
     struct GameKey *kbk;
-    for (long i = 0; i < reference_key_count; i++)
+    for (int32_t i = 0; i < reference_key_count; i++)
     {
         kbk = &settings.kbkeys[reference_key_ids[i]];
         if ((reference_key_ids[i] != key_id) && (kbk->code == ncode))
@@ -565,12 +565,12 @@ void check_and_assign_mod_keys_group(long key_id, unsigned int mods, long refere
     assign_key(key_id, ncode, 0);
 }
 
-void check_and_assign_mod_keys(long key_id, unsigned int mods, long reference_key_id)
+void check_and_assign_mod_keys(int32_t key_id, unsigned int mods, int32_t reference_key_id)
 {
     // This only works for a pair of adjacent "linked" keys (i.e Speed/Rotate and Query/Possess)
     int ncode = mod_key_to_normal_key(mods);
     // Do not allow the key if it is used as other mod key
-    long other_key_id = ((unsigned int)(key_id - reference_key_id) < 1) + reference_key_id;
+    int32_t other_key_id = ((unsigned int)(key_id - reference_key_id) < 1) + reference_key_id;
     struct GameKey* kbk = &settings.kbkeys[other_key_id];
     if (kbk->code != ncode)
     {
@@ -582,10 +582,10 @@ void check_and_assign_mod_keys(long key_id, unsigned int mods, long reference_ke
     }
 }
 
-void check_and_assign_normal_keys(long key_id, unsigned char key, unsigned int mods, unsigned int set_mod)
+void check_and_assign_normal_keys(int32_t key_id, unsigned char key, unsigned int mods, unsigned int set_mod)
 {
     struct GameKey  *kbk;
-    for (long i = 0; i < GAME_KEYS_COUNT; i++)
+    for (int32_t i = 0; i < GAME_KEYS_COUNT; i++)
     {
         kbk = &settings.kbkeys[i];
         if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods))
@@ -597,7 +597,7 @@ void check_and_assign_normal_keys(long key_id, unsigned char key, unsigned int m
     assign_key(key_id, key, (set_mod ? mods & (KMod_SHIFT|KMod_CONTROL|KMod_ALT) : 0));
 }
 
-long set_game_key(long key_id, unsigned char key, unsigned int mods)
+int32_t set_game_key(int32_t key_id, unsigned char key, unsigned int mods)
 {
     if (!key_to_string[key])
     {
@@ -619,7 +619,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
     {
         if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL) || (mods & KMod_ALT))
         {
-            long reference_key_ids[3] = {Gkey_SellTrapOnSubtile, Gkey_SquareRoomSpace, Gkey_BestRoomSpace};
+            int32_t reference_key_ids[3] = {Gkey_SellTrapOnSubtile, Gkey_SquareRoomSpace, Gkey_BestRoomSpace};
             check_and_assign_mod_keys_group(key_id, mods, reference_key_ids, 3);
             return 1;
         }
@@ -705,7 +705,7 @@ void init_key_to_strings(void)
     memset(key_to_string, 0, sizeof(key_to_string));
     for (struct KeyToStringInit* ktsi = &key_to_string_init[0]; ktsi->chr != 0; ktsi++)
     {
-        long k = ktsi->chr;
+        int32_t k = ktsi->chr;
         key_to_string[k] = ktsi->str_idx;
     }
 }
@@ -718,11 +718,11 @@ void init_key_to_strings(void)
  */
 TbBool mouse_is_over_panel_map(ScreenCoord x, ScreenCoord y)
 {
-    long cmx = GetMouseX();
-    long cmy = GetMouseY();
+    int32_t cmx = GetMouseX();
+    int32_t cmy = GetMouseY();
     int units_per_px = (16 * status_panel_width + 140 / 2) / 140;
-    long px = (cmx - (x + PANEL_MAP_RADIUS * units_per_px / 16));
-    long py = (cmy - (y + PANEL_MAP_RADIUS * units_per_px / 16));
+    int32_t px = (cmx - (x + PANEL_MAP_RADIUS * units_per_px / 16));
+    int32_t py = (cmy - (y + PANEL_MAP_RADIUS * units_per_px / 16));
     return (LbSqrL(px*px + py*py) < PANEL_MAP_RADIUS*units_per_px/16);
 }
 

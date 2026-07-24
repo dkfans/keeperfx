@@ -103,7 +103,7 @@ uint64_t LbSystemClockMilliseconds(void);
 // Portable size_t formatting for printf-style macros
 // Usage: ERRORLOG("size is %" PRIuSIZE " bytes", SZCAST(my_size))
 #define PRIuSIZE "lu"
-#define SZCAST(x) ((unsigned long)(x))
+#define SZCAST(x) ((uint32_t)(x))
 
 // Debug fuction-like macros - for free messages
 #define ERRORMSG(format, ...) LbErrorLog(format "\n", ##__VA_ARGS__)
@@ -122,11 +122,11 @@ uint64_t LbSystemClockMilliseconds(void);
 extern TbBool detailed_multiplayer_logging;
 #define MULTIPLAYER_LOG(format, ...) do { if (detailed_multiplayer_logging && game.game_kind == GKind_MultiGame) { LbJustLog("[%" PRIu32 "][%" PRIu64 " ms] %s: " format "\n", get_gameturn(), LbSystemClockMilliseconds(), __func__ , ##__VA_ARGS__); } } while(0)
 #define SCRPTLOG(format, ...) LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
-#define SCRPTERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define SCRPTWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
+#define SCRPTERRLOG(format, ...) LbErrorLog("%s(line %u): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
+#define SCRPTWRNLOG(format, ...) LbWarnLog("%s(line %u): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
 #define CONFLOG(format, ...) LbConfigLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
-#define CONFERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define CONFWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
+#define CONFERRLOG(format, ...) LbErrorLog("%s(line %u): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
+#define CONFWRNLOG(format, ...) LbWarnLog("%s(line %u): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
 #define NETLOG(format, ...) LbNetLog("[%" PRIu32 "] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define NOLOG(format, ...)
 

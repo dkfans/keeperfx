@@ -43,20 +43,20 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long slab_flags, long speed, PlayerBitFlags crt_owner_flags);
-static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flags, long speed, PlayerBitFlags crt_owner_flags);
+static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, int32_t angle, int32_t side, int32_t slab_flags, int32_t speed, PlayerBitFlags crt_owner_flags);
+static int32_t get_angle_of_wall_hug(struct Thing *creatng, int32_t slab_flags, int32_t speed, PlayerBitFlags crt_owner_flags);
 static void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *creatng, unsigned short block_flags, int nav_radius);
 static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, PlayerBitFlags crt_owner_flags);
 static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MoveSpeed spacing, struct Coord3d *aproachpos);
-static long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, long slab_flags, PlayerBitFlags crt_owner_flags);
-static unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *pos, long slab_flags, PlayerBitFlags crt_owner_flags);
+static int32_t creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, int32_t slab_flags, PlayerBitFlags crt_owner_flags);
+static unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *pos, int32_t slab_flags, PlayerBitFlags crt_owner_flags);
 
 const uint8_t wallhug_x_blocked_priorities[] = { 1,0,4,2,0,0,2,0,4,1,0,0,0,0 };
 const uint8_t wallhug_y_blocked_priorities[] = { 2,0,2,1,0,6,1,0,2,2,0,0,0,0 };
 const uint8_t wallhug_xy_blocked_priorities[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
 
 /******************************************************************************/
-static TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long slab_flags, long speed, long angle, PlayerBitFlags crt_owner_flags)
+static TbBool wallhug_angle_with_collide_valid(struct Thing *thing, int32_t slab_flags, int32_t speed, int32_t angle, PlayerBitFlags crt_owner_flags)
 {
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(speed, angle);
@@ -65,15 +65,15 @@ static TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long slab_fl
     return (creature_cannot_move_directly_to_with_collide(thing, &pos, slab_flags, crt_owner_flags) != 4);
 }
 
-static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flags, long speed, PlayerBitFlags crt_owner_flags)
+static int32_t get_angle_of_wall_hug(struct Thing *creatng, int32_t slab_flags, int32_t speed, PlayerBitFlags crt_owner_flags)
 {
     struct Navigation *navi;
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         navi = &cctrl->navi;
     }
-    long quadr;
-    long whangle;
+    int32_t quadr;
+    int32_t whangle;
     switch (navi->side)
     {
     case 1:
@@ -228,7 +228,7 @@ static int hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d
 }
 
 // Used only at `creature_states_combt
-long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
+int32_t slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, int32_t max_val)
 {
     struct Coord3d curr_pos;
     curr_pos.x.val = thing->mappos.x.val;
@@ -280,7 +280,7 @@ long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
     return 0;
 }
 
-unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *pos, long slab_flags, PlayerBitFlags crt_owner_flags)
+unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *pos, int32_t slab_flags, PlayerBitFlags crt_owner_flags)
 {
     struct Coord3d tmpos;
     unsigned short blkflags = 0;
@@ -387,7 +387,7 @@ void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *c
  * @param slab_flags Contains slab attribute flags (SlabAttrFlags) passed to this function; flagging the attributes that we want the creature to collide with.
  * @param crt_owner_flags Contains player bitflags (type PlayerBitFlags) passed to this function; this variable is used to check a dungeon wall's owner (if crt_owner_flags is 0, the ownership check is nullified).
 */
-static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, long slab_flags, PlayerBitFlags crt_owner_flags)
+static int32_t get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng, struct Coord3d *pos, int32_t slab_flags, PlayerBitFlags crt_owner_flags)
 {
 
     MapCoordDelta nav_radius = thing_nav_sizexy(creatng) / 2;
@@ -453,7 +453,7 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
     return -1;
 }
 
-static long creature_cannot_move_directly_to_with_collide_sub(struct Thing *creatng, struct Coord3d pos, long slab_flags, PlayerBitFlags crt_owner_flags)
+static int32_t creature_cannot_move_directly_to_with_collide_sub(struct Thing *creatng, struct Coord3d pos, int32_t slab_flags, PlayerBitFlags crt_owner_flags)
 {
     if (thing_in_wall_at(creatng, &pos))
     {
@@ -471,7 +471,7 @@ static long creature_cannot_move_directly_to_with_collide_sub(struct Thing *crea
     return 0;
 }
 
-long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, long slab_flags, PlayerBitFlags crt_owner_flags)
+int32_t creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, int32_t slab_flags, PlayerBitFlags crt_owner_flags)
 {
     MapCoord clpcor;
 
@@ -640,9 +640,9 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
     return cannot_mv;
 }
 
-static TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, long slab_flags, long speed, PlayerBitFlags crt_owner_flags)
+static TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, int32_t slab_flags, int32_t speed, PlayerBitFlags crt_owner_flags)
 {
-    long angle = get_angle_xy_to(pos1, pos2);
+    int32_t angle = get_angle_xy_to(pos1, pos2);
     struct Coord3d direct_line_position;
     direct_line_position.x.val = pos1->x.val;
     direct_line_position.y.val = pos1->y.val;
@@ -683,7 +683,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
     struct Thing *creatng,
     struct Navigation *navi,
     struct Coord3d *arg_pos,
-    long slab_flags,
+    int32_t slab_flags,
     int arg_move_angle_xy,
     char side,
     int max_speed,
@@ -795,12 +795,12 @@ static int get_starting_angle_and_side_of_hug_sub2(
     short saved_move_angle;
     short adjusted_move_angle_plus;
     short adjusted_move_angle_minus;
-    long wall_hug_angle;
-    long temporary_blocked_flags;
+    int32_t wall_hug_angle;
+    int32_t temporary_blocked_flags;
     char blocking_flags;
     short position_changed;
-    long current_distance_to_final_position;
-    long _2d_distance_squared;
+    int32_t current_distance_to_final_position;
+    int32_t _2d_distance_squared;
     int calculated_movement_cost;
     char position_adjustment_applied;
     int angle_of_wall_hug;
@@ -968,7 +968,7 @@ finalize_movement_cost:
 static int get_starting_angle_and_side_of_hug_sub1(
     struct Thing *creatng,
     struct Coord3d *pos,
-    long slab_flags,
+    int32_t slab_flags,
     PlayerBitFlags crt_owner_flags)
 {
 
@@ -1047,7 +1047,7 @@ static signed char get_starting_angle_and_side_of_hug(
     struct Coord3d *pos,
     int32_t *angle,
     unsigned char *side,
-    long slab_flags,
+    int32_t slab_flags,
     PlayerBitFlags crt_owner_flags)
 {
     int y_distance_to_final;
@@ -1303,7 +1303,7 @@ finalize_pathfinding_cost:
     return result;
 }
 
-static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long slab_flags, long speed, PlayerBitFlags crt_owner_flags)
+static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, int32_t angle, int32_t side, int32_t slab_flags, int32_t speed, PlayerBitFlags crt_owner_flags)
 {
     int quadrant_angle;
     struct Coord3d pos;
@@ -1420,11 +1420,11 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
     targetpos.x.val = subtile_coord_center(stl_x);
     targetpos.y.val = subtile_coord_center(stl_y);
     targetpos.z.val = 0;
-    long min_dist = INT32_MAX;
+    int32_t min_dist = INT32_MAX;
     for (SmallAroundIndex n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        long dx = spacing * (long)small_around[n].delta_x;
-        long dy = spacing * (long)small_around[n].delta_y;
+        int32_t dx = spacing * (int32_t)small_around[n].delta_x;
+        int32_t dy = spacing * (int32_t)small_around[n].delta_y;
         struct Coord3d tmpos;
         tmpos.x.val = targetpos.x.val + dx;
         tmpos.y.val = targetpos.y.val + dy;
@@ -1445,7 +1445,7 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
     return (min_dist < INT32_MAX);
 }
 
-static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long slab_flags, PlayerBitFlags crt_owner_flags)
+static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, int32_t slab_flags, PlayerBitFlags crt_owner_flags)
 {
     SubtlCodedCoords stl_num;
     struct Coord3d pos;
@@ -1626,7 +1626,7 @@ static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thi
     return true;
 }
 
-long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *creatng, struct Coord3d *pos, PlayerBitFlags crt_owner_flags)
+int32_t get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *creatng, struct Coord3d *pos, PlayerBitFlags crt_owner_flags)
 {
     struct Navigation *navi;
     int speed;
@@ -1644,7 +1644,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
     MapCoordDelta dist_to_next;
     struct Coord3d tmpos;
     int nav_radius;
-    long angle;
+    int32_t angle;
     int block_flags;
     int cannot_move;
     struct Map *mapblk;
@@ -1726,7 +1726,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         {
             navi->push_counter++;
             if (navi->push_counter > 32) {
-                ERRORLOG("I've been pushing for a very long time now...");
+                ERRORLOG("I've been pushing for a very int32_t time now...");
             }
             if (get_chessboard_distance(&creatng->mappos, &navi->pos_next) <= 16)
             {
@@ -1949,7 +1949,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
           return 2;
         }
         nav_radius = thing_nav_sizexy(creatng) / 2;
-        long i;
+        int32_t i;
         if (navi->side == 1)
         {
             i = (creatng->move_angle_xy + DEGREES_45) / DEGREES_90 - 1;
@@ -1999,7 +1999,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
 
 SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, SmallAroundIndex direction_around, TbBool revside)
 {
-    long round_change;
+    int32_t round_change;
     SYNCDBG(14,"Starting for subtile (%d,%d)",(int)basestl_x,(int)basestl_y);
     if (revside) {
       round_change = 1;
@@ -2007,7 +2007,7 @@ SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x,
       round_change = 3;
     }
     SmallAroundIndex round_idx = (direction_around + SMALL_AROUND_LENGTH - round_change) % SMALL_AROUND_LENGTH;
-    for (long i = 0; i < SMALL_AROUND_LENGTH; i++)
+    for (int32_t i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
         MapSubtlCoord stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;

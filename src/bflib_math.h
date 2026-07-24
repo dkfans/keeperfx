@@ -57,8 +57,8 @@ enum MathOperator {
 };
 
 struct Proportion { // sizeof = 8
-    long base_value;
-    long distance_ratio;
+    int32_t base_value;
+    int32_t distance_ratio;
 };
 
 //extern struct Proportion proportions[513];
@@ -67,15 +67,15 @@ struct Proportion { // sizeof = 8
 
 /******************************************************************************/
 
-long LbSinL(long x);
-long LbCosL(long x);
-long LbSqrL(long x);
+int32_t LbSinL(int32_t x);
+int32_t LbCosL(int32_t x);
+int32_t LbSqrL(int32_t x);
 int32_t LbArcTanAngle(int32_t x,int32_t y);
-long LbMathOperation(unsigned char opkind, long first_operand, long second_operand);
-unsigned long LbRandomSeries(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place);
-TbBool LbNumberSignsSame(long num_a, long num_b);
-char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b);
-long LbDiagonalLength(long a, long b);
+int32_t LbMathOperation(unsigned char opkind, int32_t first_operand, int32_t second_operand);
+uint32_t LbRandomSeries(uint32_t range, uint32_t *seed, const char *func_name, uint32_t place);
+TbBool LbNumberSignsSame(int32_t num_a, int32_t num_b);
+char LbCompareMultiplications(int32_t mul1a, int32_t mul1b, int32_t mul2a, int32_t mul2b);
+int32_t LbDiagonalLength(int32_t a, int32_t b);
 float LbLerp(float low, float high, float interval);
 float LbFmodf(float x, float y);
 float lerp_angle(float from, float to, float weight);

@@ -38,7 +38,7 @@ struct Coord3d;
 struct MapOffset {
   char v;
   char h;
-  unsigned short both;
+  uint16_t both;
 };
 
 #pragma pack()
@@ -46,23 +46,23 @@ struct MapOffset {
 typedef struct CompoundCoordFilterParam * MaxCoordFilterParam;
 
 /** Definition of a callback type used for selecting best position by maximizing a value. */
-typedef long (*Coord_Maximizer_Filter)(const struct Coord3d *, MaxCoordFilterParam, long);
+typedef int32_t (*Coord_Maximizer_Filter)(const struct Coord3d *, MaxCoordFilterParam, int32_t);
 
 typedef TbBool (*SlabsFillIterAction)(MapSlabCoord, MapSlabCoord, MaxCoordFilterParam);
 
 struct CompoundCoordFilterParam {
-     long plyr_idx;
-     long slab_kind;
+     int32_t plyr_idx;
+     int32_t slab_kind;
      union {
-     long primary_number;
+     int32_t primary_number;
      void *primary_pointer;
      };
      union {
-     long secondary_number;
+     int32_t secondary_number;
      void *secondary_pointer;
      };
      union {
-     long tertiary_number;
+     int32_t tertiary_number;
      void *tertiary_pointer;
      };
 };
@@ -98,21 +98,21 @@ void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubt
 
 void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, MaxCoordFilterParam param);
 
-SmallAroundIndex small_around_index_towards_destination(long curr_x, long curr_y, long dest_x, long dest_y);
-SmallAroundIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
+SmallAroundIndex small_around_index_towards_destination(int32_t curr_x, int32_t curr_y, int32_t dest_x, int32_t dest_y);
+SmallAroundIndex small_around_index_in_direction(int32_t srcpos_x, int32_t srcpos_y, int32_t dstpos_x, int32_t dstpos_y);
 
-long pos_move_in_direction_to_last_allowing_drop(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
-long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
-long pos_move_in_direction_to_blocking_wall_or_lava(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
-long pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
+int32_t pos_move_in_direction_to_last_allowing_drop(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, uint16_t slabs_dist);
+int32_t pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, uint16_t slabs_dist);
+int32_t pos_move_in_direction_to_blocking_wall_or_lava(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, uint16_t slabs_dist);
+int32_t pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, uint16_t slabs_dist);
 
-long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilterParam param, long maximizer);
+int32_t near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilterParam param, int32_t maximizer);
 
 TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, MapCoord x, MapCoord y,
-    long spiral_len, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
+    int32_t spiral_len, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
 TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoord x, MapCoord y, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
 
-long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbkind);
+int32_t slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, int32_t rad, SlabKind slbkind);
 
 TbBool subtile_is_blocking_wall_or_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 

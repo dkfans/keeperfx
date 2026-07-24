@@ -258,7 +258,7 @@ void strtolower(char * str) {
     }
 }
 
-TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
+TbBool parse_creaturemodel_attributes_blocks(int32_t crtr_model,char *buf,int32_t len,const char *config_textname,unsigned short flags)
 {
   // Block name and parameter word store variables
   struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
@@ -987,7 +987,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   return true;
 }
 
-TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
+TbBool parse_creaturemodel_attraction_blocks(int32_t crtr_model,char *buf,int32_t len,const char *config_textname,unsigned short flags)
 {
   int n;
   struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
@@ -1100,7 +1100,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
   return true;
 }
 
-TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
+TbBool parse_creaturemodel_annoyance_blocks(int32_t crtr_model,char *buf,int32_t len,const char *config_textname,unsigned short flags)
 {
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
@@ -1477,7 +1477,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
     return true;
 }
 
-TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
+TbBool parse_creaturemodel_senses_blocks(int32_t crtr_model,char *buf,int32_t len,const char *config_textname,unsigned short flags)
 {
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
@@ -1587,7 +1587,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
     return true;
 }
 
-TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
+TbBool parse_creaturemodel_appearance_blocks(int32_t crtr_model,char *buf,int32_t len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
@@ -1790,7 +1790,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     return true;
 }
 
-TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
+TbBool parse_creaturemodel_experience_blocks(int32_t crtr_model,char *buf,int32_t len,const char *config_textname,unsigned short flags)
 {
     int n;
     // Block name and parameter word store variables
@@ -1983,7 +1983,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
     return true;
 }
 
-TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
+TbBool parse_creaturemodel_jobs_blocks(int32_t crtr_model,char *buf,int32_t len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
@@ -2178,7 +2178,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
     return true;
 }
 
-TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
+TbBool parse_creaturemodel_sprites_blocks(int32_t crtr_model,char *buf,int32_t len,const char *config_textname,unsigned short flags)
 {
   int n;
   // Find the block
@@ -2253,7 +2253,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern int load_creature_custom_sounds(long crtr_model, const char* sound_type, const char* wav_paths, int count, const char* config_textname);
+extern int load_creature_custom_sounds(int32_t crtr_model, const char* sound_type, const char* wav_paths, int count, const char* config_textname);
 #ifdef __cplusplus
 }
 #endif
@@ -2326,7 +2326,7 @@ static int expand_numbered_sound_paths(const char *base, int count, char out[32]
 
 /** Expands a base path + count into numbered variants then loads them as a custom creature sound.
  *  Logs the parsed paths at debug level 5, warnings on any failure. */
-static void load_creature_sound_from_path(long crtr_model, const char* sound_key,
+static void load_creature_sound_from_path(int32_t crtr_model, const char* sound_key,
     const char* base_path, int file_count, const char* config_textname)
 {
     char expanded[32][512];
@@ -2355,7 +2355,7 @@ static void load_creature_sound_from_path(long crtr_model, const char* sound_key
     }
 }
 
-TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
+TbBool parse_creaturemodel_sounds_blocks(int32_t crtr_model,char *buf,int32_t len,const char *config_textname,unsigned short flags)
 {
     // Find the block
     const char * block_name = "sounds";
@@ -2758,10 +2758,10 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
     return true;
 }
 
-static TbBool load_creaturemodel_config_file(long crtr_model, const char *fname, unsigned short flags)
+static TbBool load_creaturemodel_config_file(int32_t crtr_model, const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s model %ld from file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",crtr_model,fname);
-    long len = LbFileLengthRnc(fname);
+    SYNCDBG(0,"%s model %d from file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",crtr_model,fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         return false;
@@ -2833,11 +2833,11 @@ static TbBool load_creaturemodel_config_for_mod(ThingModel crmodel, unsigned sho
     return result;
 }
 
-static TbBool load_creaturemodel_config_for_mod_list(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_items, long mod_cnt)
+static TbBool load_creaturemodel_config_for_mod_list(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_items, int32_t mod_cnt)
 {
     TbBool result = false;
 
-    for (long i=0; i<mod_cnt; i++)
+    for (int32_t i=0; i<mod_cnt; i++)
     {
         const struct ModConfigItem *mod_item = mod_items + i;
         if (mod_item->state.mod_dir == 0)
@@ -2992,7 +2992,7 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
  */
 TbBool make_all_creatures_free(void)
 {
-    for (long i = 0; i < game.conf.crtr_conf.model_count; i++)
+    for (int32_t i = 0; i < game.conf.crtr_conf.model_count; i++)
     {
         struct CreatureModelConfig* crconf = creature_stats_get(i);
         crconf->training_cost = 0;

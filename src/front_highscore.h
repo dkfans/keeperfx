@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-extern long high_score_entry_input_active;
+extern int32_t high_score_entry_input_active;
 extern char high_score_entry[64];
 extern int fe_high_score_table_from_main_menu;
 /******************************************************************************/
@@ -48,7 +48,7 @@ void frontend_draw_highscores_scroll_tab(struct GuiButton *gbtn);
 void frontend_high_scores_update();
 void frontend_draw_highscores_scroll_box_tab(struct GuiButton *gbtn);
 void frontend_draw_high_scores_mappack(struct GuiButton *gbtn);
-unsigned long count_high_scores();
+uint32_t count_high_scores();
 /******************************************************************************/
 #ifdef __cplusplus
 }

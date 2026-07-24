@@ -88,7 +88,7 @@ TbBool ftest_util_replace_slab_columns(MapSlabCoord slb_x, MapSlabCoord slb_y, P
  * @param plyr_idx 
  * @return bool
  */
-TbBool ftest_util_move_camera(long x, long y, PlayerNumber plyr_idx);
+TbBool ftest_util_move_camera(int32_t x, int32_t y, PlayerNumber plyr_idx);
 
 /**
  * @brief 

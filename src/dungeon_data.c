@@ -53,7 +53,7 @@ struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char
     PlayerNumber plyr_num = player->id_number;
     if (player_invalid(player) || (plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
-        ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
+        ERRORLOG("%s: Tried to get non-existing dungeon %d!",func_name,(int32_t)plyr_num);
         return INVALID_DUNGEON;
     }
     return &(game.dungeon[(int)plyr_num]);
@@ -214,7 +214,7 @@ void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on
     if (thing_exists(heartng))
     {
         struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
-        long old_health = heartng->health;
+        int32_t old_health = heartng->health;
         int64_t new_health = heartng->health + healthdelta;
         if (new_health > objst->health)
         {

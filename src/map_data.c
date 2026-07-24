@@ -89,9 +89,9 @@ TbBool map_block_invalid(const struct Map *map)
   return (map < &game.map[0]);
 }
 
-long get_ceiling_height(const struct Coord3d *pos)
+int32_t get_ceiling_height(const struct Coord3d *pos)
 {
-    long i = get_subtile_number(pos->x.stl.num, pos->y.stl.num);
+    int32_t i = get_subtile_number(pos->x.stl.num, pos->y.stl.num);
     return game.map[i].filled_subtiles * COORD_PER_STL;
 }
 
@@ -105,12 +105,12 @@ void set_mapwho_thing_index(struct Map *mapblk, ThingIndex thing_idx)
   mapblk->mapwho = thing_idx;
 }
 
-long get_mapblk_column_index(const struct Map *mapblk)
+int32_t get_mapblk_column_index(const struct Map *mapblk)
 {
   return (mapblk->col_idx);
 }
 
-void set_mapblk_column_index(struct Map *mapblk, long column_idx)
+void set_mapblk_column_index(struct Map *mapblk, int32_t column_idx)
 {
     mapblk->col_idx = column_idx;
 }
@@ -120,7 +120,7 @@ void set_mapblk_column_index(struct Map *mapblk, long column_idx)
  * @param map Map block to be checked.
  * @return Amount of filled subtiles.
  */
-long get_mapblk_filled_subtiles(const struct Map *mapblk)
+int32_t get_mapblk_filled_subtiles(const struct Map *mapblk)
 {
     return mapblk->filled_subtiles;
 }
@@ -130,7 +130,7 @@ long get_mapblk_filled_subtiles(const struct Map *mapblk)
  * @param map Map block to be checked.
  * @return Wibble value, used for rendering.
  */
-long get_mapblk_wibble_value(const struct Map *mapblk)
+int32_t get_mapblk_wibble_value(const struct Map *mapblk)
 {
     return mapblk->wibble_value;
 }
@@ -140,7 +140,7 @@ long get_mapblk_wibble_value(const struct Map *mapblk)
  * @param map Map block to be modified.
  * @param wib Wibble value, used for rendering.
  */
-void set_mapblk_wibble_value(struct Map *mapblk, long wib)
+void set_mapblk_wibble_value(struct Map *mapblk, int32_t wib)
 {
     mapblk->wibble_value = wib;
 }
@@ -150,7 +150,7 @@ void set_mapblk_wibble_value(struct Map *mapblk, long wib)
  * @param map Map block to be updated.
  * @param height The new height.
  */
-void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
+void set_mapblk_filled_subtiles(struct Map *mapblk, int32_t height)
 {
     if (height <  0) height = 0;
     if (height > 15) height = 15;
@@ -191,10 +191,10 @@ void conceal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
 TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param)
 {
     PlayerNumber plyr_idx = param->plyr_idx;
-    long max_slb_dim_x = (game.map_subtiles_x / STL_PER_SLB);
-    long max_slb_dim_y = (game.map_subtiles_y / STL_PER_SLB);
+    int32_t max_slb_dim_x = (game.map_subtiles_x / STL_PER_SLB);
+    int32_t max_slb_dim_y = (game.map_subtiles_y / STL_PER_SLB);
     MapSubtlCoord stl_cx = slab_subtile_center(slab_x), stl_cy = slab_subtile_center(slab_y);
-    long s = STL_PER_SLB;
+    int32_t s = STL_PER_SLB;
     reveal_map_area(plyr_idx, stl_cx, stl_cx, stl_cy, stl_cy);
     if (slab_is_wall(slab_x, slab_y))
         return false;
@@ -233,7 +233,7 @@ TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, M
     return true;
 }
 
-TbBool slabs_iter_will_change(SlabKind orig_slab_kind, SlabKind current, long fill_type)
+TbBool slabs_iter_will_change(SlabKind orig_slab_kind, SlabKind current, int32_t fill_type)
 {
     TbBool check_for_any_earth = orig_slab_kind == SlbT_EARTH;
     TbBool check_for_any_wall = orig_slab_kind >= SlbT_WALLDRAPE && orig_slab_kind <= SlbT_WALLPAIRSHR;
@@ -250,8 +250,8 @@ TbBool slabs_iter_will_change(SlabKind orig_slab_kind, SlabKind current, long fi
 
 TbBool slabs_change_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
 {
-    unsigned long plr_range_id = param->plyr_idx;
-    long fill_type = param->primary_number;
+    uint32_t plr_range_id = param->plyr_idx;
+    int32_t fill_type = param->primary_number;
     SlabKind orig_slab_kind = param->secondary_number;
     SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind;
     if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
@@ -265,7 +265,7 @@ TbBool slabs_change_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilter
 TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
 {
     SlabKind target_slab_kind = param->primary_number;
-    long fill_type = param->secondary_number;
+    int32_t fill_type = param->secondary_number;
     SlabKind orig_slab_kind = param->tertiary_number;
     SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
     if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
@@ -280,7 +280,7 @@ TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterP
 TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
 {
     unsigned char target_slab_texture = param->primary_number;
-    long fill_type = param->secondary_number;
+    int32_t fill_type = param->secondary_number;
     SlabKind orig_slab_kind = param->tertiary_number;
     SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
     if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
@@ -327,7 +327,7 @@ TbBool map_block_revealed_directly(const struct Map* mapblk, PlayerNumber plyr_i
 }
 
 
-TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y)
+TbBool valid_dig_position(PlayerNumber plyr_idx, int32_t stl_x, int32_t stl_y)
 {
     const struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
@@ -428,11 +428,11 @@ TbBool set_coords_to_slab_center(struct Coord3d *pos, MapSubtlCoord slb_x, MapSu
  * @param angle
  * @return Gives true if values were in map coords range, false if they were corrected.
  */
-TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *source, long radius, long angle, long z)
+TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *source, int32_t radius, int32_t angle, int32_t z)
 {
-    long px = source->x.val + ((radius * LbSinL(angle)) >> 16);
-    long py = source->y.val + ((-(radius * LbCosL(angle)) >> 8) >> 8);
-    long pz = source->z.val + z;
+    int32_t px = source->x.val + ((radius * LbSinL(angle)) >> 16);
+    int32_t py = source->y.val + ((-(radius * LbCosL(angle)) >> 8) >> 8);
+    int32_t pz = source->z.val + z;
     return set_coords_with_range_check(pos, px, py, pz, MapCoord_ClipX|MapCoord_ClipY|MapCoord_ClipZ);
 }
 
@@ -499,7 +499,7 @@ MapSubtlCoord stl_num_decode_y(SubtlCodedCoords stl_num)
 /**
  * Returns subtile number for center subtile on given slab.
  */
-SubtlCodedCoords get_subtile_number_at_slab_center(long slb_x, long slb_y)
+SubtlCodedCoords get_subtile_number_at_slab_center(int32_t slb_x, int32_t slb_y)
 {
   return get_subtile_number(slb_x*STL_PER_SLB+1,slb_y*STL_PER_SLB+1);
 }
@@ -544,9 +544,9 @@ void clear_mapwho(void)
 
 void clear_mapmap(void)
 {
-    for (unsigned long y = 0; y < (game.map_subtiles_y + 1); y++)
+    for (uint32_t y = 0; y < (game.map_subtiles_y + 1); y++)
     {
-        for (unsigned long x = 0; x < (game.map_subtiles_x + 1); x++)
+        for (uint32_t x = 0; x < (game.map_subtiles_x + 1); x++)
         {
             struct Map* mapblk = get_map_block_at(x, y);
             NavColour* flg = &game.navigation_map[get_subtile_number(x, y)];
@@ -607,7 +607,7 @@ void clear_slab_dig(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_id
  * @param start_y Slabs range Y starting coord.
  * @param end_y Slabs range Y ending coord.
  */
-void clear_dig_for_map_rect(long plyr_idx, MapSubtlCoord start_x, MapSubtlCoord end_x, MapSubtlCoord start_y, MapSubtlCoord end_y)
+void clear_dig_for_map_rect(int32_t plyr_idx, MapSubtlCoord start_x, MapSubtlCoord end_x, MapSubtlCoord start_y, MapSubtlCoord end_y)
 {
     int32_t x;
     int32_t y;
@@ -722,11 +722,11 @@ TbBool subtile_is_room(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 }
 
 /**
- * Returns if given subtile contains room belonging to given player.
- * @param plyr_idx The player the tile shall belong to.
+ * Returns if given subtile contains room beint32_ting to given player.
+ * @param plyr_idx The player the tile shall beint32_t to.
  * @param stl_x The subtile X coordinate.
  * @param stl_y The subtile Y coordinate.
- * @return Gives true if the tile contains any room belonging to given player, false otherwise.
+ * @return Gives true if the tile contains any room beint32_ting to given player, false otherwise.
  */
 TbBool subtile_is_player_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {

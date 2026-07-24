@@ -241,7 +241,7 @@ void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, Map
     }
 }
 
-static long get_ceiling_filled_subtiles_from_cubes(const struct Column *col)
+static int32_t get_ceiling_filled_subtiles_from_cubes(const struct Column *col)
 {
     if (col->solidmask == 0) {
         return 0;
@@ -348,10 +348,10 @@ void ceiling_init()
     }
 }
 
-short ceiling_set_info(long height_max, long height_min, long step)
+short ceiling_set_info(int32_t height_max, int32_t height_min, int32_t step)
 {
     SYNCDBG(6,"Starting");
-    long dist;
+    int32_t dist;
     if (step <= 0)
     {
       ERRORLOG("Illegal ceiling step value");

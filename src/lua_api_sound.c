@@ -125,7 +125,7 @@ int lua_IsCustomSoundLoaded(lua_State* L) {
  */
 int lua_PlaySound(lua_State* L) {
     SoundSmplTblID sample_id = luaL_checkinteger(L, 1);
-    long priority = luaL_optinteger(L, 2, 3);  // Default priority: 3
+    int32_t priority = luaL_optinteger(L, 2, 3);  // Default priority: 3
     SoundVolume volume = luaL_optinteger(L, 3, FULL_LOUDNESS);  // Default volume: 256
     
     SoundEmitterID emitter_id = sound_manager_play_effect(sample_id, priority, volume);

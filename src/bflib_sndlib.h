@@ -61,7 +61,7 @@ void sound_register_id_redirect(SoundSmplTblID from_id, SoundSmplTblID to_id);
 /**
  * @brief Clear all registered raw-ID redirects.
  *
- * Called during audio teardown and alongside custom_sound_bank_clear() on level reload.
+ * Called during audio teardown and aint32_tside custom_sound_bank_clear() on level reload.
  */
 void sound_clear_id_redirects(void);
 

@@ -52,7 +52,7 @@ void message_draw(void)
     TbBool low_res = (MyScreenHeight < 400);
     int tx_units_per_px = ( (low_res) && (dbc_initialized && dbc_enabled) ) ? ps_units_per_px : (22 * units_per_pixel) / LbTextLineHeight();
     int h = LbTextLineHeight();
-    long y = 28 * units_per_pixel / 16;
+    int32_t y = 28 * units_per_pixel / 16;
     if (game.armageddon_cast_turn != 0)
     {
         if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
@@ -64,11 +64,11 @@ void message_draw(void)
     {
         if ( (game.messages[i].target_idx == my_player_number) || (game.messages[i].target_idx == -1) )
         {
-            long x = 148 * units_per_pixel / 16;
+            int32_t x = 148 * units_per_pixel / 16;
             LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
             clear_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
             LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, game.messages[i].text);
-            unsigned long spr_idx = 0;
+            uint32_t spr_idx = 0;
             PlayerNumber plyr_idx = game.messages[i].plyr_idx;
             switch (game.messages[i].type)
             {
@@ -276,7 +276,7 @@ void message_add_fmt(char type, PlayerNumber plyr_idx, const char *fmt_str, ...)
     va_end(val);
 }
 
-void targeted_message_add(char type, PlayerNumber plyr_idx, PlayerNumber target_idx, unsigned long timeout, const char *fmt_str, ...)
+void targeted_message_add(char type, PlayerNumber plyr_idx, PlayerNumber target_idx, uint32_t timeout, const char *fmt_str, ...)
 {
     va_list val;
     va_start(val, fmt_str);
@@ -298,7 +298,7 @@ void targeted_message_add(char type, PlayerNumber plyr_idx, PlayerNumber target_
     va_end(val);
 }
 
-void show_game_time_taken(unsigned long fps, unsigned long turns)
+void show_game_time_taken(uint32_t fps, uint32_t turns)
 {
     struct GameTime gt = get_game_time(turns, fps);
     struct PlayerInfo* player = get_my_player();

@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-long stat_return_c_slong(void *ptr);
+int32_t stat_return_c_slong(void *ptr);
 
 struct LevelStats frontstats_data;
 /******************************************************************************/
@@ -101,7 +101,7 @@ struct StatsData scrolling_stats_data[] = {
     {0, NULL, NULL}
 };
 /******************************************************************************/
-long stat_return_c_slong(void *ptr)
+int32_t stat_return_c_slong(void *ptr)
 {
     if (ptr == NULL) return 0;
     return *(int32_t *)ptr;

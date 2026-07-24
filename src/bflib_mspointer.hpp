@@ -38,7 +38,7 @@ class LbI_PointerHandler {
  public:
     LbI_PointerHandler(void);
     ~LbI_PointerHandler(void);
-    void SetHotspot(long x, long y);
+    void SetHotspot(int32_t x, int32_t y);
     void Initialise(const struct TbSprite *spr, struct TbPoint *, struct TbPoint *);
     void Release(void);
     void NewMousePos(void);
@@ -57,8 +57,8 @@ class LbI_PointerHandler {
     struct TbPoint *position;
     struct TbPoint *spr_offset;
     struct TbRect rect_1038;
-    long draw_pos_x;
-    long draw_pos_y;
+    int32_t draw_pos_x;
+    int32_t draw_pos_y;
     bool is_active;
     bool needs_redraw;
     const struct TbSprite *sprite;

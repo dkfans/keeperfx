@@ -47,7 +47,7 @@ TbBool line_of_room_move_2d(const struct Coord3d *frpos, const struct Coord3d *t
 TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing);
 TbBool creature_can_see_thing_ignoring_specific_door(struct Thing *creatng, struct Thing *thing,struct Thing *doortng);
 
-long get_explore_sight_distance_in_slabs(const struct Thing *thing);
+int32_t get_explore_sight_distance_in_slabs(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

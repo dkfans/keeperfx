@@ -94,18 +94,18 @@ int LbTextStringPartWidth(const char *text, int part);
 int LbTextStringHeight(const char *str);
 int LbTextWordWidth(const char *str);
 int LbTextCharWidth(const uint32_t chr);
-int LbTextCharWidthM(const uint32_t chr, long units_per_px);
-int LbTextStringWidthM(const char *str, long units_per_px);
-int LbTextWordWidthM(const char *str, long units_per_px);
+int LbTextCharWidthM(const uint32_t chr, int32_t units_per_px);
+int LbTextStringWidthM(const char *str, int32_t units_per_px);
+int LbTextWordWidthM(const char *str, int32_t units_per_px);
 
-int LbTextNumberDraw(int pos_x, int pos_y, int units_per_px, long number, unsigned short fdflags);
+int LbTextNumberDraw(int pos_x, int pos_y, int units_per_px, int32_t number, unsigned short fdflags);
 int LbTextStringDraw(int pos_x, int pos_y, int units_per_px, const char *text, unsigned short fdflags);
 
 // Sub-routines, used for drawing text strings. For use in custom drawing methods.
 TbBool LbAlignMethodSet(unsigned short fdflags);
-long LbGetJustifiedCharPosX(long startx, long all_chars_width, long spr_width, long mul_width, unsigned short fdflags);
-long LbGetJustifiedCharPosY(long starty, long all_lines_height, long spr_height, unsigned short fdflags);
-long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_count, int units_per_px, unsigned short fdflags);
+int32_t LbGetJustifiedCharPosX(int32_t startx, int32_t all_chars_width, int32_t spr_width, int32_t mul_width, unsigned short fdflags);
+int32_t LbGetJustifiedCharPosY(int32_t starty, int32_t all_lines_height, int32_t spr_height, unsigned short fdflags);
+int32_t LbGetJustifiedCharWidth(int32_t all_chars_width, int32_t spr_width, int32_t words_count, int units_per_px, unsigned short fdflags);
 
 // Function which require font sprites as parameter
 int LbSprFontCharWidth(const struct TbSpriteSheet * font, const uint32_t chr);
@@ -113,7 +113,7 @@ int LbSprFontCharHeight(const struct TbSpriteSheet * font,const uint32_t chr);
 const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, const uint32_t chr);
 
 void LbTextUseByteCoding(TbBool is_enabled);
-long text_string_height(int units_per_px, const char *text);
+int32_t text_string_height(int units_per_px, const char *text);
 short load_unifont_files();
 TbBool is_dbc_language(short language);
 

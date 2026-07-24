@@ -24,7 +24,6 @@
 #ifdef _WIN32
 #include <windows.h>
 static HMODULE steam_lib;
-#endif
 
 #include "keeperfx.hpp"
 #include "bflib_fileio.h"
@@ -54,6 +53,8 @@ union SteamApiInitUnion
 // Variables
 SteamApiInitFunc SteamAPI_Init = nullptr;
 SteamApiShutdownFunc SteamAPI_Shutdown = nullptr;
+
+#endif
 
 /**
  * @brief Initializes the Steam API in KeeperFX.

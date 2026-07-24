@@ -255,19 +255,19 @@ extern char trap_tag;
 extern char creature_tag;
 extern char input_string[8][SAVE_TEXTNAME_LEN + 1];
 extern char gui_error_text[256];
-extern long net_service_scroll_offset;
-extern long net_number_of_services;
-extern long net_number_of_players;
-extern long net_number_of_enum_players;
-extern long net_level_hilighted;
+extern int32_t net_service_scroll_offset;
+extern int32_t net_number_of_services;
+extern int32_t net_number_of_players;
+extern int32_t net_number_of_enum_players;
+extern int32_t net_level_hilighted;
 extern struct NetMessage net_message[NET_MESSAGES_COUNT];
-extern long net_number_of_messages;
-extern long net_message_scroll_offset;
-extern long net_session_index_active_id;
-extern long net_session_scroll_offset;
-extern long net_player_scroll_offset;
+extern int32_t net_number_of_messages;
+extern int32_t net_message_scroll_offset;
+extern int32_t net_session_index_active_id;
+extern int32_t net_session_scroll_offset;
+extern int32_t net_player_scroll_offset;
 extern struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];
-extern long frontend_mouse_over_button_start_time;
+extern int32_t frontend_mouse_over_button_start_time;
 extern short old_menu_mouse_x;
 extern short old_menu_mouse_y;
 extern unsigned char menu_ids[3];
@@ -285,23 +285,23 @@ extern struct TbSpriteSheet *font_sprites;
 extern struct TbSpriteSheet *frontend_font[FRONTEND_FONTS_COUNT];
 extern struct TbSpriteSheet *button_sprites;
 extern struct TbSpriteSheet *winfont;
-extern unsigned long playing_bad_descriptive_speech;
-extern unsigned long playing_good_descriptive_speech;
-extern long scrolling_index;
+extern uint32_t playing_bad_descriptive_speech;
+extern uint32_t playing_good_descriptive_speech;
+extern int32_t scrolling_index;
 extern float scrolling_offset;
-extern long packet_left_button_double_clicked[6];
-extern long packet_left_button_click_space_count[6];
+extern int32_t packet_left_button_double_clicked[6];
+extern int32_t packet_left_button_click_space_count[6];
 extern char frontend_alliances;
 extern char busy_doing_gui;
-extern long gui_last_left_button_pressed_id;
-extern long gui_last_right_button_pressed_id;
+extern int32_t gui_last_left_button_pressed_id;
+extern int32_t gui_last_right_button_pressed_id;
 extern int fe_computer_players;
-extern long old_mouse_over_button;
-extern long frontend_mouse_over_button;
+extern int32_t old_mouse_over_button;
+extern int32_t frontend_mouse_over_button;
 
 #pragma pack()
 /******************************************************************************/
-// Variables - no longer imported
+// Variables - no int32_ter imported
 extern struct GuiMenu frontend_main_menu;
 extern struct GuiMenu frontend_statistics_menu;
 extern struct GuiMenu frontend_high_score_table_menu;
@@ -312,7 +312,7 @@ extern TbClockMSec gui_message_timeout;
 extern struct GuiMenu *menu_list[MENU_LIST_ITEMS_COUNT];
 
 extern int status_panel_width;
-extern const unsigned long alliance_grid[4][4];
+extern const uint32_t alliance_grid[4][4];
 
 #if (BFDEBUG_LEVEL > 0)
 #define TESTFONTS_COUNT 12
@@ -330,7 +330,7 @@ void create_message_box(const char *title, const char *line1, const char *line2,
 void gui_area_text(struct GuiButton *gbtn);
 TbBool get_button_area_input(struct GuiButton *gbtn, int a2);
 const char *frontend_button_caption_text(const struct GuiButton *gbtn);
-int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_btn_idx);
+int frontend_button_caption_font(const struct GuiButton *gbtn, int32_t mouse_over_btn_idx);
 void maintain_loadsave(struct GuiButton *gbtn);
 void gui_video_cluedo_maintain(struct GuiButton *gbtn);
 void maintain_zoom_to_event(struct GuiButton *gbtn);
@@ -355,8 +355,8 @@ void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id);
 void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id);
 
 int frontend_load_data(void);
-void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long first_elem, long last_elem);
-long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long first_elem, long last_elem);
+void frontend_draw_scroll_tab(struct GuiButton *gbtn, int32_t scroll_offset, int32_t first_elem, int32_t last_elem);
+int32_t frontend_scroll_tab_to_offset(struct GuiButton *gbtn, int32_t scr_pos, int32_t first_elem, int32_t last_elem);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
 void frontend_draw_text(struct GuiButton *gbtn);
 void frontend_change_state(struct GuiButton *gbtn);
@@ -394,8 +394,8 @@ void init_save_menu(struct GuiMenu *gmnu);
 void init_video_menu(struct GuiMenu *gmnu);
 void init_audio_menu(struct GuiMenu *gmnu);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
-TbBool frontend_is_player_allied(long idx1, long idx2);
-void frontend_set_alliance(long idx1, long idx2);
+TbBool frontend_is_player_allied(int32_t idx1, int32_t idx2);
+void frontend_set_alliance(int32_t idx1, int32_t idx2);
 char update_menu_fade_level(struct GuiMenu *gmnu);
 void draw_menu_buttons(struct GuiMenu *gmnu);
 MenuNumber create_menu(struct GuiMenu *mnu);
@@ -412,7 +412,7 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
 void frontend_input(void);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);
-void create_frontend_error_box(long showTime, const char * text);
+void create_frontend_error_box(int32_t showTime, const char * text);
 void try_restore_frontend_error_box(); // Restore error box if frontend state was switched
 
 short menu_is_active(short idx);
@@ -420,8 +420,8 @@ TbBool a_menu_window_is_active(void);
 short game_is_busy_doing_gui(void);
 void set_gui_visible(TbBool visible);
 void toggle_gui(void);
-void add_message(long plyr_idx, char *msg);
-unsigned long toggle_status_menu(short visib);
+void add_message(int32_t plyr_idx, char *msg);
+uint32_t toggle_status_menu(short visib);
 TbBool toggle_first_person_menu(TbBool visible);
 void toggle_gui_overlay_map(void);
 
@@ -443,7 +443,7 @@ void initialise_tab_tags(MenuID menu_id);
 void initialise_tab_tags_and_menu(MenuID menu_id);
 void turn_off_roaming_menus(void);
 
-void frontend_set_player_number(long plr_num);
+void frontend_set_player_number(int32_t plr_num);
 TbBool frontend_start_new_campaign(const char *cmpgn_fname);
 void frontend_draw_product_version(struct GuiButton *gbtn);
 /******************************************************************************/

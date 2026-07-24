@@ -149,13 +149,13 @@ struct SlabMap *get_slabmap_direct(SlabCodedCoords slab_num);
 struct SlabMap *get_slabmap_thing_is_on(const struct Thing *thing);
 TbBool slabmap_block_invalid(const struct SlabMap *slb);
 TbBool slab_coords_invalid(MapSlabCoord slb_x, MapSlabCoord slb_y);
-long slabmap_owner(const struct SlabMap *slb);
+int32_t slabmap_owner(const struct SlabMap *slb);
 void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner);
 PlayerNumber get_slab_owner_thing_is_on(const struct Thing *thing);
-unsigned long slabmap_wlb(struct SlabMap *slb);
-void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlb_type);
+uint32_t slabmap_wlb(struct SlabMap *slb);
+void slabmap_set_wlb(struct SlabMap *slb, uint32_t wlb_type);
 SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num);
-long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx, short synergy_slab_num);
+int32_t calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx, short synergy_slab_num);
 
 TbBool slab_is_safe_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_door(MapSlabCoord slb_x, MapSlabCoord slb_y);
@@ -193,7 +193,7 @@ TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
 TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
-void set_player_texture(PlayerNumber plyr_idx, long texture_id);
+void set_player_texture(PlayerNumber plyr_idx, int32_t texture_id);
 
 /******************************************************************************/
 #include "roomspace.h"

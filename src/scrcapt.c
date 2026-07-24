@@ -101,10 +101,10 @@ TbBool cumulative_screen_shot(void)
         ERRORLOG("Screenshot format incorrectly set.");
         return false;
     }
-    unsigned long i;
+    uint32_t i;
     for (i = 0; i < 10000; i++)
     {
-        snprintf(fname, sizeof(fname), "scrshots/scr%05lu.%s", i, fext);
+        snprintf(fname, sizeof(fname), "scrshots/scr%05u.%s", i, fext);
         if (!LbFileExists(fname)) break;
     }
     if (i >= 10000)

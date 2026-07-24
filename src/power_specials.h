@@ -50,8 +50,8 @@ enum SpecialKinds {
 };
 
 /******************************************************************************/
-extern long transfer_creature_scroll_offset;
-extern long resurrect_creature_scroll_offset;
+extern int32_t transfer_creature_scroll_offset;
+extern int32_t resurrect_creature_scroll_offset;
 extern unsigned short dungeon_special_selected;
 
 #pragma pack()
@@ -67,7 +67,7 @@ void resurrect_creature(struct Thing *thing, PlayerNumber owner, ThingModel mode
 void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char plyr_idx);
 void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing);
 void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing);
-long create_transferred_creatures_on_level(void);
+int32_t create_transferred_creatures_on_level(void);
 
 void script_use_special_increase_level(PlayerNumber plyr_idx, int count);
 void script_use_special_multiply_creatures(PlayerNumber plyr_idx);

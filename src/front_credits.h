@@ -32,7 +32,7 @@ extern "C" {
 #pragma pack(1)
 
 extern struct TbSpriteSheet * frontstory_font;
-extern long credits_offset;
+extern int32_t credits_offset;
 extern int credits_end;
 
 #pragma pack()

@@ -101,7 +101,7 @@ static void assign_owner(const struct NamedField* named_field, int64_t value, co
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
 }
 
-struct CubeConfigStats *get_cube_model_stats(long cumodel)
+struct CubeConfigStats *get_cube_model_stats(int32_t cumodel)
 {
     if ((cumodel < 0) || (cumodel >= CUBE_ITEMS_MAX))
     {
@@ -113,7 +113,7 @@ struct CubeConfigStats *get_cube_model_stats(long cumodel)
 static TbBool load_cubes_config_file(const char *fname, unsigned short flags)
 {
     SYNCDBG(0, "%s file \"%s\".", ((flags & CnfLd_ListOnly) == 0) ? "Reading" : "Parsing", fname);
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -138,7 +138,7 @@ static TbBool load_cubes_config_file(const char *fname, unsigned short flags)
 }
 
 /* Returns Code Name (name to use in script file) of given cube model. */
-const char *cube_code_name(long model)
+const char *cube_code_name(int32_t model)
 {
     const char *name = get_conf_parameter_text(cube_desc, model);
     if (name[0] != '\0')

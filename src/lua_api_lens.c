@@ -36,9 +36,9 @@
 // Buffer metadata structure - mirrors LuaBufferInfo in LuaLensEffect.cpp
 typedef struct {
     unsigned char* data;
-    long width;
-    long height;
-    long pitch;
+    int32_t width;
+    int32_t height;
+    int32_t pitch;
 } LuaBufferInfo;
 
 // LUA state (stored for callbacks)
@@ -188,7 +188,7 @@ static int lua_Set_active_lens(lua_State *L)
     
     if (lua_isnumber(L, 1)) {
         // Built-in lens by index
-        long lens_idx = luaL_checkinteger(L, 1);
+        int32_t lens_idx = luaL_checkinteger(L, 1);
         success = LensManager_SetLens(mgr, lens_idx);
     } else if (lua_isstring(L, 1)) {
         // Custom lens by name
@@ -223,7 +223,7 @@ static int lua_Get_active_lens(lua_State *L)
         return 1;
     }
     
-    long active_lens = LensManager_GetActiveLens(mgr);
+    int32_t active_lens = LensManager_GetActiveLens(mgr);
     
     // If it's a custom lens (-1), return the name instead of index
     if (active_lens == -1) {
@@ -381,21 +381,21 @@ static int lua_Copy_buffer(lua_State *L)
     
     // Buffers should have same dimensions
     if (src_info->width != dst_info->width || src_info->height != dst_info->height) {
-        WARNLOG("LUA: CopyBuffer dimension mismatch: src=%ldx%ld dst=%ldx%ld",
+        WARNLOG("LUA: CopyBuffer dimension mismatch: src=%dx%d dst=%dx%d",
                src_info->width, src_info->height, dst_info->width, dst_info->height);
         lua_pushboolean(L, 0);
         return 1;
     }
     
     // Copy row by row in case pitches differ
-    long width = src_info->width;
-    long height = src_info->height;
+    int32_t width = src_info->width;
+    int32_t height = src_info->height;
     unsigned char* src = src_info->data;
     unsigned char* dst = dst_info->data;
-    long src_pitch = src_info->pitch;
-    long dst_pitch = dst_info->pitch;
+    int32_t src_pitch = src_info->pitch;
+    int32_t dst_pitch = dst_info->pitch;
     
-    for (long y = 0; y < height; y++) {
+    for (int32_t y = 0; y < height; y++) {
         memcpy(dst + y * dst_pitch, src + y * src_pitch, width);
     }
     

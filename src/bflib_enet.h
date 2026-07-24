@@ -30,7 +30,7 @@ enum {
 
 struct NetSP;
 struct NetSP* InitEnetSP();
-unsigned long GetPing(int id);
+uint32_t GetPing(int id);
 unsigned int GetPacketLoss(int id);
 unsigned int GetClientDataInTransit();
 unsigned int GetClientPacketsLost();

@@ -443,7 +443,7 @@ TbBool load_settings(void)
         val = value_dict_get(vsec, "music_volume");
         if (val && value_type(val) == VALUE_INT32) settings.music_volume = (unsigned char)value_int32(val);
         val = value_dict_get(vsec, "mentor_volume");
-        if (val && value_type(val) == VALUE_INT32) settings.mentor_volume = (long)value_int32(val);
+        if (val && value_type(val) == VALUE_INT32) settings.mentor_volume = (int32_t)value_int32(val);
     }
 
     /* [display] */
@@ -453,9 +453,9 @@ TbBool load_settings(void)
         val = value_dict_get(vsec, "minimap_zoom");
         if (val && value_type(val) == VALUE_INT32) settings.minimap_zoom = (unsigned int)value_int32(val);
         val = value_dict_get(vsec, "isometric_view_zoom_level");
-        if (val && value_type(val) == VALUE_INT32) settings.isometric_view_zoom_level = (unsigned long)value_int32(val);
+        if (val && value_type(val) == VALUE_INT32) settings.isometric_view_zoom_level = (uint32_t)value_int32(val);
         val = value_dict_get(vsec, "frontview_zoom_level");
-        if (val && value_type(val) == VALUE_INT32) settings.frontview_zoom_level = (unsigned long)value_int32(val);
+        if (val && value_type(val) == VALUE_INT32) settings.frontview_zoom_level = (uint32_t)value_int32(val);
         val = value_dict_get(vsec, "isometric_tilt");
         if (val && value_type(val) == VALUE_INT32) settings.isometric_tilt = value_int32(val);
         val = value_dict_get(vsec, "tooltips_on");
@@ -552,11 +552,11 @@ short save_settings(void)
     TOSAVE("\n[audio]\n");
     TOSAVE("sound_volume = %d\n", (int)settings.sound_volume);
     TOSAVE("music_volume = %d\n", (int)settings.music_volume);
-    TOSAVE("mentor_volume = %ld\n", settings.mentor_volume);
+    TOSAVE("mentor_volume = %d\n", settings.mentor_volume);
     TOSAVE("\n[display]\n");
     TOSAVE("minimap_zoom = %u\n", settings.minimap_zoom);
-    TOSAVE("isometric_view_zoom_level = %lu\n", settings.isometric_view_zoom_level);
-    TOSAVE("frontview_zoom_level = %lu\n", settings.frontview_zoom_level);
+    TOSAVE("isometric_view_zoom_level = %u\n", settings.isometric_view_zoom_level);
+    TOSAVE("frontview_zoom_level = %u\n", settings.frontview_zoom_level);
     TOSAVE("isometric_tilt = %d\n", settings.isometric_tilt);
     TOSAVE("tooltips_on = %s\n", settings.tooltips_on ? "true" : "false");
     TOSAVE("highlight_mode = %s\n", settings.highlight_mode ? "true" : "false");

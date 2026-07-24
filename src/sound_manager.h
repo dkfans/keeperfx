@@ -71,7 +71,7 @@ public:
      * @return Sound emitter ID, or 0 if failed
      */
     SoundEmitterID playEffect(SoundSmplTblID sample_id, 
-                              long priority = 3, 
+                              int32_t priority = 3, 
                               SoundVolume volume = 256);
     
     /**
@@ -82,7 +82,7 @@ public:
      * @return Sound emitter ID, or 0 if failed/not found
      */
     SoundEmitterID playEffectNamed(const char* name,
-                                   long priority = 3,
+                                   int32_t priority = 3,
                                    SoundVolume volume = 256);
     
     /**
@@ -91,7 +91,7 @@ public:
      * @param sound_type Sound type (CrSnd_Hit, CrSnd_Slap, etc.)
      * @param priority Priority (default 3)
      */
-    void playCreatureSound(struct Thing* thing, long sound_type, long priority = 3);
+    void playCreatureSound(struct Thing* thing, int32_t sound_type, int32_t priority = 3);
     
     /**
      * @brief Stop a playing sound
@@ -270,8 +270,8 @@ extern "C" {
 
 // C API for testing
 TbBool sound_manager_init(void);
-SoundEmitterID sound_manager_play_effect(SoundSmplTblID sample_id, long priority, SoundVolume volume);
-void sound_manager_play_creature_sound(struct Thing* thing, long sound_type, long priority);
+SoundEmitterID sound_manager_play_effect(SoundSmplTblID sample_id, int32_t priority, SoundVolume volume);
+void sound_manager_play_creature_sound(struct Thing* thing, int32_t sound_type, int32_t priority);
 void sound_manager_stop_effect(SoundEmitterID emitter_id);
 TbBool sound_manager_play_music(int track_number);
 void sound_manager_stop_music(void);
@@ -290,10 +290,10 @@ SoundSmplTblID sound_manager_get_id(const char* name);
 TbBool sound_manager_register(const char* name, SoundSmplTblID id, int count);
 TbBool sound_manager_is_registered(const char* name);
 int sound_manager_get_count(const char* name);
-SoundEmitterID sound_manager_play_effect_named(const char* name, long priority, SoundVolume volume);
+SoundEmitterID sound_manager_play_effect_named(const char* name, int32_t priority, SoundVolume volume);
 
 // Config parser bridge for loading custom sounds from creature cfg files
-int load_creature_custom_sound(long crtr_model, const char* sound_type, const char* wav_path, const char* config_textname);
+int load_creature_custom_sound(int32_t crtr_model, const char* sound_type, const char* wav_path, const char* config_textname);
 
 /**
  * @brief Load and register a named custom sound from sounds.cfg or any config file.

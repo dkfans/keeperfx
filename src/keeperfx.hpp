@@ -103,7 +103,7 @@ enum FunctestFlags {
     FTF_Abort               = 0x04, // Something went wrong, aborting
     FTF_LevelLoaded         = 0x08, // For tracking if map is ready
     FTF_ExitOnTestFailure   = 0x10, // If users want to exit on any test failure
-    FTF_IncludeLongTests    = 0x20, // If users want to run the long running test list
+    FTF_IncludeLongTests    = 0x20, // If users want to run the int32_t running test list
 };
 #endif
 
@@ -113,7 +113,7 @@ struct TbLoadFiles;
 
 // Windows-standard structure
 /*struct _GUID {
-     unsigned long Data1;
+     uint32_t Data1;
      unsigned short Data2;
      unsigned short Data3;
      unsigned char Data4[8];
@@ -130,7 +130,7 @@ struct StartupParameters {
     unsigned char mode_flags;
     unsigned char debug_flags;
     unsigned short computer_chat_flags;
-    long num_fps;
+    int32_t num_fps;
     int32_t num_fps_draw_main; // -1 if auto
     int32_t num_fps_draw_secondary;
     TbBool packet_save_enable;
@@ -217,12 +217,12 @@ void update(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, TbBool allowed);
+int32_t packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, TbBool allowed);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx);
-void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, short ef_or_efel_model);
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, int32_t delta_step, int32_t num_per_step, short ef_or_efel_model, ThingIndex parent_idx);
+void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, int32_t eeinterspace, short ef_or_efel_model);
 void toggle_hero_health_flowers(void);
 void check_players_won(void);
 void check_players_lost(void);
@@ -254,19 +254,19 @@ void clear_complete_game(void);
 void clear_things_and_persons_data(void);
 void clear_computer(void);
 void engine(struct PlayerInfo *player, struct Camera *cam);
-void draw_gold_total(PlayerNumber plyr_idx, int32_t scr_x, int32_t scr_y, int32_t units_per_px, long long value);
-void draw_mini_things_in_hand(long x, long y);
+void draw_gold_total(PlayerNumber plyr_idx, int32_t scr_x, int32_t scr_y, int32_t units_per_px, int64_t value);
+void draw_mini_things_in_hand(int32_t x, int32_t y);
 TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, struct Coord3d *mappos);
 void update_creatr_model_activities_list(TbBool forced);
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
-long apply_wallhug_force_to_boulder(struct Thing *thing);
-long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y);
+int32_t apply_wallhug_force_to_boulder(struct Thing *thing);
+int32_t process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y);
 void lightning_modify_palette(struct Thing *thing);
-unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
+uint32_t lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 
-unsigned long seed_check_random(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place);
+uint32_t seed_check_random(uint32_t range, uint32_t *seed, const char *func_name, uint32_t place);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
 void turn_off_query(PlayerNumber plyr_idx);
 TbBool set_gamma(char corrlvl, TbBool do_set);
@@ -288,15 +288,15 @@ void dump_thing_held_by_any_player(struct Thing *thing);
 
 void instant_instance_selected(CrInstance check_inst_id);
 void centre_engine_window(void);
-void change_engine_window_relative_size(long w_delta, long h_delta);
+void change_engine_window_relative_size(int32_t w_delta, int32_t h_delta);
 void update_thing_animation(struct Thing *thing);
-long update_cave_in(struct Thing *thing);
+int32_t update_cave_in(struct Thing *thing);
 void initialise_map_collides(void);
 void initialise_map_health(void);
 void setup_mesh_randomizers(void);
 void setup_stuff(void);
 void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta);
-long get_foot_creature_has_down(struct Thing *thing);
+int32_t get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_aura(struct Thing *thing);
 void init_seeds();
 
@@ -325,7 +325,7 @@ struct GameTime {
     unsigned char Hours;
 };
 
-struct GameTime get_game_time(unsigned long turns, unsigned long fps);
+struct GameTime get_game_time(uint32_t turns, uint32_t fps);
 
 #ifdef __cplusplus
 }

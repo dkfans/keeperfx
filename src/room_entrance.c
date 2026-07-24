@@ -122,24 +122,24 @@ TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
         return false;
     if (((game.conf.rules[game.armageddon_caster_idx].magic.armageddon_count_down + game.armageddon_cast_turn) > get_gameturn()) && (game.armageddon_cast_turn > 0)) //No new creatures during armageddon
         return false;
-    return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures_attracted);
+    return ((int32_t)dungeon->num_active_creatrs < (int32_t)dungeon->max_creatures_attracted);
 }
 
-long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_idx, int crmodel)
+int32_t calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_idx, int crmodel)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long slabs_count = get_room_slabs_count(plyr_idx, room_kind);
-    long used_fraction;
+    int32_t slabs_count = get_room_slabs_count(plyr_idx, room_kind);
+    int32_t used_fraction;
     switch (room_kind)
     {
     case RoK_LAIR:
         // Add one attractiveness per 2 unused slabs in the room
         used_fraction = get_room_kind_used_capacity_fraction(plyr_idx, room_kind);
-        return (slabs_count * (256-used_fraction)) / 256 / 2 - (long)dungeon->owned_creatures_of_model[crmodel];
+        return (slabs_count * (256-used_fraction)) / 256 / 2 - (int32_t)dungeon->owned_creatures_of_model[crmodel];
     case RoK_DUNGHEART:
     case RoK_BRIDGE:
         // Add one attractiveness per 9 slabs of such room
-        return slabs_count / 9 - (long)dungeon->owned_creatures_of_model[crmodel];
+        return slabs_count / 9 - (int32_t)dungeon->owned_creatures_of_model[crmodel];
     case RoK_ENTRANCE:
     case RoK_LIBRARY:
     case RoK_PRISON:
@@ -151,11 +151,11 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
     case RoK_BARRACKS:
     case RoK_GUARDPOST:
         // Add one attractiveness per 3 slabs of such room
-        return slabs_count / 3 - (long)dungeon->owned_creatures_of_model[crmodel];
+        return slabs_count / 3 - (int32_t)dungeon->owned_creatures_of_model[crmodel];
     case RoK_WORKSHOP:
     case RoK_GARDEN:
         // Add one attractiveness per 4 slabs of such room
-        return slabs_count / 4 - (long)dungeon->owned_creatures_of_model[crmodel];
+        return slabs_count / 4 - (int32_t)dungeon->owned_creatures_of_model[crmodel];
     case RoK_TREASURE:
         // Add one attractiveness per 3 used slabs in the room
         used_fraction = get_room_kind_used_capacity_fraction(plyr_idx, room_kind);
@@ -166,12 +166,12 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
     }
 }
 
-static long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerNumber plyr_idx)
+static int32_t calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerNumber plyr_idx)
 {
     SYNCDBG(11, "Starting");
 
     struct CreatureModelConfig* stats = creature_stats_get(crmodel);
-    long excess_attraction = 0;
+    int32_t excess_attraction = 0;
     for (int i = 0; i < ENTRANCE_ROOMS_COUNT; i++)
     {
         RoomKind room_kind = stats->entrance_rooms[i];
@@ -183,10 +183,10 @@ static long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerN
     return excess_attraction;
 }
 
-long count_player_available_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
+int32_t count_player_available_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     struct Dungeon *dungeon = get_dungeon(plyr_idx);
-    long count = 0;
+    int32_t count = 0;
     for (ThingModel i = 0; i < CREATURE_TYPES_MAX; i++)
     {
         if (!creature_model_matches_model(i, plyr_idx, crmodel))
@@ -197,7 +197,7 @@ long count_player_available_creatures_of_model(PlayerNumber plyr_idx, ThingModel
             count+= game.pool.crtr_kind[i];
         }
     }
-    return min(count, dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
+    return min(count, dungeon->max_creatures_attracted - (int32_t)dungeon->num_active_creatrs);
 }
 
 TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crmodel)
@@ -256,13 +256,13 @@ TbBool remove_creature_from_generate_pool(ThingModel crmodel)
 static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
 {
     //cumulative frequency
-    long crmodel;
+    int32_t crmodel;
 
     SYNCDBG(9,"Starting");
 
-    long cum_freq = 0;
-    long gen_count = 0;
-    long crtr_freq[CREATURE_TYPES_MAX];
+    int32_t cum_freq = 0;
+    int32_t gen_count = 0;
+    int32_t crtr_freq[CREATURE_TYPES_MAX];
     crtr_freq[0] = 0;
     for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
@@ -272,7 +272,7 @@ static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dun
 
             gen_count += 1;
 
-            long score = (long)crconf->entrance_score + calculate_excess_attraction_for_creature(crmodel, dungeon->owner);
+            int32_t score = (int32_t)crconf->entrance_score + calculate_excess_attraction_for_creature(crmodel, dungeon->owner);
             if (score < 1) {
                 score = 1;
             }
@@ -291,7 +291,7 @@ static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dun
     {
         if (cum_freq > 0)
         {
-            long rnd = PLAYER_RANDOM(dungeon->owner, cum_freq);
+            int32_t rnd = PLAYER_RANDOM(dungeon->owner, cum_freq);
 
             crmodel = 1;
             while (rnd >= crtr_freq[crmodel])
@@ -339,10 +339,10 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
     if (crmodel > 0)
     {
         struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
-        long lair_space = calculate_free_lair_space(dungeon);
+        int32_t lair_space = calculate_free_lair_space(dungeon);
 
         // Creature cannot enter dungeon unless player has enough gold
-        if ((long)crconf->pay > dungeon->total_money_owned)
+        if ((int32_t)crconf->pay > dungeon->total_money_owned)
         {
             SYNCDBG(8,"The %s will not come as player %d has less than %d gold",creature_code_name(crmodel),(int)dungeon->owner,(int)crconf->pay);
             if (is_my_player_number(dungeon->owner)) {
@@ -389,7 +389,7 @@ void process_entrance_generation(void)
 {
     SYNCDBG(8,"Starting");
     TbBool due = false;
-    for (long i = 0; i < PLAYERS_COUNT; i++)
+    for (int32_t i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* plyr = get_player(i);
         if (!player_exists(plyr)) {

@@ -81,7 +81,7 @@ namespace
             return tracker->bytes_per_second;
         }
 
-        tracker->bytes_per_second = static_cast<unsigned int>((static_cast<unsigned long long>(*total) * 1000ULL) / elapsed);
+        tracker->bytes_per_second = static_cast<unsigned int>((static_cast<uint64_t>(*total) * 1000ULL) / elapsed);
         tracker->sample_time = now;
         *total = 0;
         return tracker->bytes_per_second;
@@ -793,7 +793,7 @@ static bool IsLocalPeer(NetUserId id) {
     return id == SERVER_ID || id == my_player_number;
 }
 
-unsigned long GetPing(NetUserId id) {
+uint32_t GetPing(NetUserId id) {
     const bool requesting_local_peer = IsLocalPeer(id);
 
     if (IsPeerConnected(client_peer)) {
@@ -804,14 +804,14 @@ unsigned long GetPing(NetUserId id) {
         if (value == 0) {
             value = client_peer->lastRoundTripTime;
         }
-        return static_cast<unsigned long>(value);
+        return static_cast<uint32_t>(value);
     }
 
     if (!host) {
         return 0;
     }
 
-    unsigned long best_value = 0;
+    uint32_t best_value = 0;
 
     for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
         ENetPeer *peer = &host->peers[peer_index];
@@ -823,7 +823,7 @@ unsigned long GetPing(NetUserId id) {
         if (peer_round_trip == 0) {
             peer_round_trip = peer->lastRoundTripTime;
         }
-        unsigned long value = static_cast<unsigned long>(peer_round_trip);
+        uint32_t value = static_cast<uint32_t>(peer_round_trip);
         if (!requesting_local_peer) {
             NetUserId peer_id = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
             if (peer_id == id) {
@@ -851,7 +851,7 @@ unsigned int GetPacketLoss(NetUserId id) {
             return 0;
         }
         enet_uint32 value = client_peer->packetLoss;
-        unsigned int percent = static_cast<unsigned int>((static_cast<unsigned long long>(value) * 100ULL) / ENET_PEER_PACKET_LOSS_SCALE);
+        unsigned int percent = static_cast<unsigned int>((static_cast<uint64_t>(value) * 100ULL) / ENET_PEER_PACKET_LOSS_SCALE);
         return percent;
     }
 
@@ -868,7 +868,7 @@ unsigned int GetPacketLoss(NetUserId id) {
         }
 
         enet_uint32 peer_packet_loss = peer->packetLoss;
-        unsigned int value = static_cast<unsigned int>((static_cast<unsigned long long>(peer_packet_loss) * 100ULL) / ENET_PEER_PACKET_LOSS_SCALE);
+        unsigned int value = static_cast<unsigned int>((static_cast<uint64_t>(peer_packet_loss) * 100ULL) / ENET_PEER_PACKET_LOSS_SCALE);
         if (!requesting_local_peer) {
             NetUserId peer_id = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
             if (peer_id == id) {
@@ -917,13 +917,13 @@ unsigned int GetClientPacketsLost() {
     if (!host) {
         return 0;
     }
-    unsigned long long total = 0;
+    uint64_t total = 0;
     for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
         ENetPeer *peer = &host->peers[peer_index];
         if (!IsPeerConnected(peer)) {
             continue;
         }
-        total += static_cast<unsigned long long>(peer->packetsLost);
+        total += static_cast<uint64_t>(peer->packetsLost);
         if (total > UINT_MAX) {
             return UINT_MAX;
         }

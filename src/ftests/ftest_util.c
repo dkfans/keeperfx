@@ -32,8 +32,8 @@ TbBool ftest_util_replace_slabs(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from
     }
 
     TbBool result = true;
-    unsigned long x;
-    unsigned long y;
+    uint32_t x;
+    uint32_t y;
     for (y = slb_y_from; y <= slb_y_to; y++)
     {
         for (x = slb_x_from; x <= slb_x_to; x++)
@@ -63,8 +63,8 @@ TbBool ftest_util_does_player_own_any_slabs(MapSlabCoord slb_x_from, MapSlabCoor
     }
 
     struct SlabMap *slb;
-    unsigned long x;
-    unsigned long y;
+    uint32_t x;
+    uint32_t y;
     for (y = slb_y_from; y <= slb_y_to; y++)
     {
         for (x = slb_x_from; x <= slb_x_to; x++)
@@ -88,8 +88,8 @@ TbBool ftest_util_does_player_own_any_slabs(MapSlabCoord slb_x_from, MapSlabCoor
 TbBool ftest_util_do_any_slabs_match(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from, MapSlabCoord slb_x_to, MapSlabCoord slb_y_to, SlabKind slab)
 {
     struct SlabMap *slb;
-    unsigned long x;
-    unsigned long y;
+    uint32_t x;
+    uint32_t y;
     for (y = slb_y_from; y <= slb_y_to; y++)
     {
         for (x = slb_x_from; x <= slb_x_to; x++)
@@ -185,7 +185,7 @@ TbBool ftest_util_replace_slab_columns(MapSlabCoord slb_x, MapSlabCoord slb_y, P
     return true;
 }
 
-TbBool ftest_util_move_camera(long x, long y, PlayerNumber plyr_idx)
+TbBool ftest_util_move_camera(int32_t x, int32_t y, PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     if(player_invalid(player))
@@ -350,11 +350,11 @@ TbBool ftest_util_replace_slabs_with_dungeon_hearts(MapSlabCoord slb_x_from, Map
 
 TbBool ftest_util_mark_slab_for_highlight(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
 {
-    long stl_x = slab_subtile(slb_x,0);
-    long stl_y = slab_subtile(slb_y,0);
+    int32_t stl_x = slab_subtile(slb_x,0);
+    int32_t stl_y = slab_subtile(slb_y,0);
 
-    long dx;
-    long dy;
+    int32_t dx;
+    int32_t dy;
     struct Map* mapblk = INVALID_MAP_BLOCK;
     for (dy=0; dy < STL_PER_SLB; dy++)
     {

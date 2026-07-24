@@ -73,15 +73,15 @@ struct TbSprite dummy_sprite = {0, 0, 0};
 LevelNumber mouse_over_lvnum;
 LevelNumber playing_speech_lvnum;
 struct TbHugeSprite map_window;
-long map_window_len = 0;
+int32_t map_window_len = 0;
 
 TbClockMSec play_desc_speech_time;
-unsigned long played_bad_descriptive_speech;
-unsigned long played_good_descriptive_speech;
+uint32_t played_bad_descriptive_speech;
+uint32_t played_good_descriptive_speech;
 struct TbSpriteSheet * map_flag = NULL;
 struct TbSpriteSheet * map_font = NULL;
 struct TbSpriteSheet * map_hand = NULL;
-long map_sound_fade;
+int32_t map_sound_fade;
 unsigned char *map_screen;
 /******************************************************************************/
 #ifdef __cplusplus
@@ -102,7 +102,7 @@ void draw_map_screen(void)
         map_screen,LANDVIEW_MAP_WIDTH,LANDVIEW_MAP_HEIGHT);
 }
 
-const struct TbSprite * get_map_ensign(long idx)
+const struct TbSprite * get_map_ensign(int32_t idx)
 {
     if (idx >= 0 && idx < num_sprites(map_flag)) {
         return get_sprite(map_flag, idx);
@@ -117,13 +117,13 @@ const struct TbSprite * get_map_ensign(long idx)
  * @param scr_y The screen point being checked, Y coordinate.
  * @return True if the coords are over given ensign, false otherwise.
  */
-short is_over_ensign(const struct LevelInformation *lvinfo, long scr_x, long scr_y)
+short is_over_ensign(const struct LevelInformation *lvinfo, int32_t scr_x, int32_t scr_y)
 {
-    long map_x = map_info.screen_shift_x + scr_x * 16 / units_per_pixel_landview;
-    long map_y = map_info.screen_shift_y + scr_y * 16 / units_per_pixel_landview;
+    int32_t map_x = map_info.screen_shift_x + scr_x * 16 / units_per_pixel_landview;
+    int32_t map_y = map_info.screen_shift_y + scr_y * 16 / units_per_pixel_landview;
     const struct TbSprite* spr = get_map_ensign(EnsFullFlag);
-    long spr_w = spr->SWidth;
-    long spr_h = spr->SHeight;
+    int32_t spr_w = spr->SWidth;
+    int32_t spr_h = spr->SHeight;
     if ((map_x >= lvinfo->ensign_x-(spr_w>>1)) && (map_x < lvinfo->ensign_x+(spr_w>>1))
      && (map_y > lvinfo->ensign_y-spr_h) && (map_y < lvinfo->ensign_y-(spr_h/3)))
         return true;
@@ -166,7 +166,7 @@ void update_ensigns_visibility(void)
   set_all_ensigns_state(LvSt_Hidden);
   struct PlayerInfo* player = get_my_player();
   short show_all_sp = false;
-  long lvnum = get_continue_level_number();
+  int32_t lvnum = get_continue_level_number();
   if (lvnum > 0)
   {
     lvinfo = get_level_info(lvnum);
@@ -186,7 +186,7 @@ void update_ensigns_visibility(void)
       if (lvinfo != NULL)
         lvinfo->state = LvSt_Visible;
     }
-    long bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
+    int32_t bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
     if (is_bonus_level_visible(player, bn_lvnum))
     {
         lvinfo = get_level_info(bn_lvnum);
@@ -244,21 +244,21 @@ void update_frontmap_ambient_sound(void)
     SoundEmitterID emit_id = get_emitter_id(S3DGetSoundEmitter(Non3DEmitter));
     if (map_sound_fade > 0)
     {
-        long lvidx = array_index_for_singleplayer_level(get_continue_level_number());
+        int32_t lvidx = array_index_for_singleplayer_level(get_continue_level_number());
         if ((features_enabled & Ft_AdvAmbSound) != 0)
         {
-            long factor = compute_sound_good_to_bad_factor();
-            SetSampleVolume(emit_id, campaign.ambient_good, (map_sound_fade * (((long)settings.sound_volume * factor) / FULL_LOUDNESS)) / FULL_LOUDNESS);
-            SetSampleVolume(emit_id, campaign.ambient_bad, (map_sound_fade * (((long)settings.sound_volume * (FULL_LOUDNESS - factor)) / FULL_LOUDNESS)) / FULL_LOUDNESS);
+            int32_t factor = compute_sound_good_to_bad_factor();
+            SetSampleVolume(emit_id, campaign.ambient_good, (map_sound_fade * (((int32_t)settings.sound_volume * factor) / FULL_LOUDNESS)) / FULL_LOUDNESS);
+            SetSampleVolume(emit_id, campaign.ambient_bad, (map_sound_fade * (((int32_t)settings.sound_volume * (FULL_LOUDNESS - factor)) / FULL_LOUDNESS)) / FULL_LOUDNESS);
         } else
         if (lvidx > 13)
         {
-            SetSampleVolume(emit_id, campaign.ambient_bad, ((long)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+            SetSampleVolume(emit_id, campaign.ambient_bad, ((int32_t)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
         } else
         {
-        SetSampleVolume(emit_id, campaign.ambient_good, ((long)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+        SetSampleVolume(emit_id, campaign.ambient_good, ((int32_t)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
         }
-        set_streamed_sample_volume(((long)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+        set_streamed_sample_volume(((int32_t)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
         set_music_volume((map_sound_fade * settings.music_volume) / FULL_LOUDNESS);
     } else
     {
@@ -443,8 +443,8 @@ void draw_map_level_ensigns(void)
       const struct TbSprite* spr = get_ensign_sprite_for_level(lvinfo, k);
       if (spr != NULL)
       {
-          long x = lvinfo->ensign_x - (long)map_info.screen_shift_x - (int)(spr->SWidth >> 1);
-          long y = lvinfo->ensign_y - (long)map_info.screen_shift_y - (int)(spr->SHeight);
+          int32_t x = lvinfo->ensign_x - (int32_t)map_info.screen_shift_x - (int)(spr->SWidth >> 1);
+          int32_t y = lvinfo->ensign_y - (int32_t)map_info.screen_shift_y - (int)(spr->SHeight);
           LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
       }
       lvinfo = get_prev_level_info(lvinfo);
@@ -457,13 +457,13 @@ void draw_map_level_ensigns(void)
  * @param map_y Shift Y coordinate for top left of the visible land picture area.
  * @note To be used only in low-level screen shift processing; use set_map_info_screen_shift() instead.
  */
-void set_map_info_screen_shift_raw(long map_x, long map_y)
+void set_map_info_screen_shift_raw(int32_t map_x, int32_t map_y)
 {
     map_info.screen_shift_x = map_x;
     map_info.screen_shift_y = map_y;
     // Make sure the hotspot will not be too close to border to not be drawn correctly at full zoom
-    long delta_x;
-    long delta_y;
+    int32_t delta_x;
+    int32_t delta_y;
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0) {
         delta_x = (lbDisplay.PhysicalScreenWidth*(256 - map_info.fade_pos)*16/units_per_pixel_landview) / 256;
         delta_y = (lbDisplay.PhysicalScreenHeight*(256 - map_info.fade_pos)*16/units_per_pixel_landview) / 256;
@@ -486,10 +486,10 @@ void set_map_info_screen_shift_raw(long map_x, long map_y)
  * @param map_x Shift X coordinate for center of the visible land picture area.
  * @param map_y Shift Y coordinate for center of the visible land picture area.
  */
-void set_map_info_screen_shift(long map_x, long map_y)
+void set_map_info_screen_shift(int32_t map_x, int32_t map_y)
 {
-    long delta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview) / 2;
-    long delta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview) / 2;
+    int32_t delta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview) / 2;
+    int32_t delta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview) / 2;
     set_map_info_screen_shift_raw(map_x - delta_x, map_y - delta_y);
     // Reset precise shifts, which are often used for screen shift update
     // The reset is here so that new values have correct clipping applied
@@ -500,18 +500,18 @@ void set_map_info_screen_shift(long map_x, long map_y)
 void step_frontmap_info_screen_shift_zoom(void)
 {
     // Count the remaining shift
-    long scr_x = map_info.hotspot_shift_x - map_info.screen_shift_aimed_x;
-    long scr_y = map_info.hotspot_shift_y - map_info.screen_shift_aimed_y;
+    int32_t scr_x = map_info.hotspot_shift_x - map_info.screen_shift_aimed_x;
+    int32_t scr_y = map_info.hotspot_shift_y - map_info.screen_shift_aimed_y;
     if ((scr_x != 0) || (scr_y != 0))
     {
-        long step = LbSinL(DEGREES_90 * (long)map_info.fade_pos / FRONTMAP_ZOOM_LENGTH);
+        int32_t step = LbSinL(DEGREES_90 * (int32_t)map_info.fade_pos / FRONTMAP_ZOOM_LENGTH);
         map_info.precise_scrshift_x = (map_info.screen_shift_aimed_x * 256) + (scr_x * step) / 256;
         map_info.precise_scrshift_y = (map_info.screen_shift_aimed_y * 256) + (scr_y * step) / 256;
         set_map_info_screen_shift_raw(map_info.precise_scrshift_x / 256, map_info.precise_scrshift_y / 256);
     }
 }
 
-void set_map_info_visible_hotspot_raw(long map_x,long map_y)
+void set_map_info_visible_hotspot_raw(int32_t map_x,int32_t map_y)
 {
     map_info.hotspot_shift_x = map_x;
     map_info.hotspot_shift_y = map_y;
@@ -525,10 +525,10 @@ void set_map_info_visible_hotspot_raw(long map_x,long map_y)
         map_info.hotspot_shift_y = 0;
 }
 
-void set_map_info_visible_hotspot(long map_x,long map_y)
+void set_map_info_visible_hotspot(int32_t map_x,int32_t map_y)
 {
-    long delta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview) / 2;
-    long delta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview) / 2;
+    int32_t delta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview) / 2;
+    int32_t delta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview) / 2;
     set_map_info_visible_hotspot_raw(map_x - delta_x, map_y - delta_y);
 }
 
@@ -580,14 +580,14 @@ void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
     {
         // Shift towards next flag, but not too much - old flag pos must be on screen all the time
         // otherwise draw function will clip its coordinates
-        long maxdelta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview) / 2;
-        long maxdelta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview) / 2;
-        long dt_x = (next_lvinfo->ensign_zoom_x - map_info.hotspot_imgpos_x) / 2;
+        int32_t maxdelta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel_landview) / 2;
+        int32_t maxdelta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel_landview) / 2;
+        int32_t dt_x = (next_lvinfo->ensign_zoom_x - map_info.hotspot_imgpos_x) / 2;
         if (dt_x > maxdelta_x)
             dt_x = maxdelta_x;
         if (dt_x < -maxdelta_x)
             dt_x = -maxdelta_x;
-        long dt_y = (next_lvinfo->ensign_zoom_y - map_info.hotspot_imgpos_y) / 2;
+        int32_t dt_y = (next_lvinfo->ensign_zoom_y - map_info.hotspot_imgpos_y) / 2;
         if (dt_y > maxdelta_y)
             dt_y = maxdelta_y;
         if (dt_y < -maxdelta_y)
@@ -626,7 +626,7 @@ void frontmap_zoom_in_init(LevelNumber lvnum)
     // Set aimed screen shift, used as reference position we started with
     map_info.screen_shift_aimed_x = map_info.screen_shift_x;
     map_info.screen_shift_aimed_y = map_info.screen_shift_y;
-    SYNCDBG(8,"Level %ld hotspot (%d,%d) zoom (%d,%d)",(long)lvnum,(int)map_info.hotspot_shift_x,(int)map_info.hotspot_shift_y,(int)map_info.hotspot_imgpos_x,(int)map_info.hotspot_imgpos_y);
+    SYNCDBG(8,"Level %d hotspot (%d,%d) zoom (%d,%d)",(int32_t)lvnum,(int)map_info.hotspot_shift_x,(int)map_info.hotspot_shift_y,(int)map_info.hotspot_imgpos_x,(int)map_info.hotspot_imgpos_y);
     // Set working parameters for zooming
     map_info.fade_step = LANDVIEW_ZOOM_STEP;
     map_info.fade_pos = 0;
@@ -634,7 +634,7 @@ void frontmap_zoom_in_init(LevelNumber lvnum)
     map_info.fadeflags |= MLInfoFlg_Zooming;
 }
 
-TbBool frontmap_input_active_ensign(long curr_mx, long curr_my)
+TbBool frontmap_input_active_ensign(int32_t curr_mx, int32_t curr_my)
 {
     struct LevelInformation* lvinfo = get_first_level_info();
     while (lvinfo != NULL && lvinfo->lvnum != 0)
@@ -713,7 +713,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       {
           WARNLOG("No extension specified for good speech file; defaulting to '.wav'.");
           char path[DISKPATH_SIZE];
-          snprintf(path, sizeof(path), "%s.wav", lvinfo->speech_before);
+          snprintf(path, strlen(lvinfo->speech_before), "%s.wav", lvinfo->speech_before);
           fname = prepare_file_fmtpath(FGrp_AtlSound, "%s", path);
       }
       else
@@ -730,7 +730,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       {
           WARNLOG("No extension specified for evil speech file; defaulting to '.wav'.");
           char path[DISKPATH_SIZE];
-          snprintf(path, sizeof(path), "%s.wav", lvinfo->speech_after);
+          snprintf(path, strlen(lvinfo->speech_after), "%s.wav", lvinfo->speech_after);
           fname = prepare_file_fmtpath(FGrp_AtlSound, "%s", path);
       }
       else
@@ -745,7 +745,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
     return play_streamed_sample(fname, settings.sound_volume);
 }
 
-TbBool set_pointer_graphic_spland(long frame)
+TbBool set_pointer_graphic_spland(int32_t frame)
 {
     const struct TbSprite* spr = get_map_ensign(1);
     if (spr == &dummy_sprite)
@@ -754,32 +754,32 @@ TbBool set_pointer_graphic_spland(long frame)
     return (spr != &dummy_sprite);
 }
 
-void frontzoom_to_point(long map_x, long map_y, long zoom)
+void frontzoom_to_point(int32_t map_x, int32_t map_y, int32_t zoom)
 {
     unsigned char *src;
-    long bpos_x;
-    long x;
-    long y;
-    long src_delta = (256 - zoom) * 16 / units_per_pixel_landview;
-    long smap_x = scale_value_landview(map_x);
-    long smap_y = scale_value_landview(map_y);
+    int32_t bpos_x;
+    int32_t x;
+    int32_t y;
+    int32_t src_delta = (256 - zoom) * 16 / units_per_pixel_landview;
+    int32_t smap_x = scale_value_landview(map_x);
+    int32_t smap_y = scale_value_landview(map_y);
     // Initializing variables used for all quadres of screen
     // First find a quadres division place - coords bounding the quadres
     // Make sure each quadre is at least one pixel wide and high
-    long scr_x = smap_x - scale_value_landview(map_info.screen_shift_x);
+    int32_t scr_x = smap_x - scale_value_landview(map_info.screen_shift_x);
     if (scr_x > lbDisplay.PhysicalScreenWidth-1) scr_x = lbDisplay.PhysicalScreenWidth-1;
     if (scr_x < 1) scr_x = 1;
-    long scr_y = smap_y - scale_value_landview(map_info.screen_shift_y);
+    int32_t scr_y = smap_y - scale_value_landview(map_info.screen_shift_y);
     if (scr_y > lbDisplay.PhysicalScreenHeight-1) scr_y = lbDisplay.PhysicalScreenHeight-1;
     if (scr_y < 1) scr_y = 1;
     unsigned char* src_buf = &map_screen[LANDVIEW_MAP_WIDTH * map_y + map_x];
-    long dst_scanln = lbDisplay.GraphicsScreenWidth;
+    int32_t dst_scanln = lbDisplay.GraphicsScreenWidth;
     unsigned char* dst_buf = &lbDisplay.WScreen[dst_scanln * scr_y + scr_x];
     // Drawing first quadre
-    long bpos_y = 0;
+    int32_t bpos_y = 0;
     unsigned char* dst = dst_buf;
-    long dst_width = scr_x;
-    long dst_height = scr_y;
+    int32_t dst_width = scr_x;
+    int32_t dst_height = scr_y;
     // FIXME: I'm sure there's a less convoluted way of doing this, code below is setting off lots of cppcheck alarms
     for (y=0; y <= dst_height; y++)
     {
@@ -849,9 +849,9 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
 void compressed_window_draw(void)
 {
     SYNCDBG(18,"Starting");
-    long default_movement_scale = 1024;
-    long xshift = map_info.screen_shift_x * landview_frame_movement_scale_x / default_movement_scale / 2; // X speed is slower on aspect ratios wider than 4:3
-    long yshift = map_info.screen_shift_y *landview_frame_movement_scale_y / default_movement_scale / 2; // Y speed is slower on aspect ratios taller than 4:3
+    int32_t default_movement_scale = 1024;
+    int32_t xshift = map_info.screen_shift_x * landview_frame_movement_scale_x / default_movement_scale / 2; // X speed is slower on aspect ratios wider than 4:3
+    int32_t yshift = map_info.screen_shift_y *landview_frame_movement_scale_y / default_movement_scale / 2; // Y speed is slower on aspect ratios taller than 4:3
     LbHugeSpriteDraw(&map_window, map_window_len,
         lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, lbDisplay.PhysicalScreenHeight,
         xshift, yshift, units_per_pixel_landview_frame);
@@ -905,7 +905,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
     }
     // Prepare full file name and load the image
     char* fname = prepare_file_fmtpath(FGrp_LandView, "%s.raw", land_view);
-    long flen = LbFileLengthRnc(fname);
+    int32_t flen = LbFileLengthRnc(fname);
     if (flen < 1024)
     {
         ERRORLOG("Land Map background \"%s.raw\" doesn't exist or is too small",land_view);
@@ -973,8 +973,8 @@ void frontmap_start_music(void)
 void process_map_zoom_in(void)
 {
     step_frontmap_info_screen_shift_zoom();
-    long fade_len = (FRONTMAP_ZOOM_LENGTH * LANDVIEW_SOUND_FADE_PERCENT) / 100;
-    long remaining = fade_len - (long)map_info.fade_pos;
+    int32_t fade_len = (FRONTMAP_ZOOM_LENGTH * LANDVIEW_SOUND_FADE_PERCENT) / 100;
+    int32_t remaining = fade_len - (int32_t)map_info.fade_pos;
     map_sound_fade = max(0, remaining * FULL_LOUDNESS / fade_len);
 }
 
@@ -1117,7 +1117,7 @@ void frontmap_draw(void)
 
 void check_mouse_scroll(void)
 {
-    long mx = GetMouseX();
+    int32_t mx = GetMouseX();
     if ( (mx < 8) || ( (is_game_key_pressed(Gkey_MoveLeft, false, false)) || (is_key_pressed(KC_LEFT,KMod_DONTCARE)) ) )
     {
         map_info.velocity_x -= LANDVIEW_PAN_ACCEL * game.delta_time;
@@ -1134,7 +1134,7 @@ void check_mouse_scroll(void)
     if (map_info.velocity_x > LANDVIEW_PAN_MAX_SPEED)
       map_info.velocity_x = LANDVIEW_PAN_MAX_SPEED;
   }
-  long my = GetMouseY();
+  int32_t my = GetMouseY();
   if ( (my < 8) || ( (is_game_key_pressed(Gkey_MoveUp, false, false)) || (is_key_pressed(KC_UP,KMod_DONTCARE)) ) )
   {
     map_info.velocity_y -= LANDVIEW_PAN_ACCEL * game.delta_time;
@@ -1230,10 +1230,10 @@ void draw_map_level_descriptions(void)
     else
       lv_name = lvinfo->name;
     set_level_name_text(lvnum, lv_name);
-    long w = LbTextStringWidth(level_name);
-    long x = lvinfo->ensign_x - (long)map_info.screen_shift_x;
-    long y = lvinfo->ensign_y - (long)map_info.screen_shift_y - 8;
-    long h = LbTextHeight(level_name);
+    int32_t w = LbTextStringWidth(level_name);
+    int32_t x = lvinfo->ensign_x - (int32_t)map_info.screen_shift_x;
+    int32_t y = lvinfo->ensign_y - (int32_t)map_info.screen_shift_y - 8;
+    int32_t h = LbTextHeight(level_name);
     LbDrawBox(scale_value_landview(x-4), scale_value_landview(y), scale_value_landview(w+8), scale_value_landview(h), 0);
     LbTextDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, level_name);
   }
@@ -1303,8 +1303,8 @@ void frontmap_input(void)
         if (clicked_map_level_ensign())
           return;
       }
-      long mouse_x = GetMouseX();
-      long mouse_y = GetMouseY();
+      int32_t mouse_x = GetMouseX();
+      int32_t mouse_y = GetMouseY();
       frontmap_input_active_ensign(mouse_x, mouse_y);
     }
     update_velocity();
@@ -1322,7 +1322,7 @@ void frontmap_unload(void)
     set_music_volume(settings.music_volume);
 }
 
-long frontmap_update(void)
+int32_t frontmap_update(void)
 {
   SYNCDBG(8,"Starting");
   if ((mouse_over_lvnum > 0) && (playing_speech_lvnum != mouse_over_lvnum))

@@ -51,7 +51,7 @@ enum WorkshopCratesManageFlags {
 
 /******************************************************************************/
 #define manufacture_points_required(mfcr_type, mfcr_kind) manufacture_points_required_f(mfcr_type, mfcr_kind, __func__)
-long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, const char *func_name);
+int32_t manufacture_points_required_f(int32_t mfcr_type, uint32_t mfcr_kind, const char *func_name);
 
 #define add_workshop_item_to_amounts(plyr_idx, tngclass, tngmodel) add_workshop_item_to_amounts_f(plyr_idx, tngclass, tngmodel, __func__)
 TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name);
@@ -66,19 +66,19 @@ TbBool check_workshop_item_limit_reached(PlayerNumber owner, ThingClass tngclass
 
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng);
 TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *cratetng);
-long calculate_manufacture_level(struct Dungeon* dungeon);
+int32_t calculate_manufacture_level(struct Dungeon* dungeon);
 void set_manufacture_level(struct Dungeon *dungeon);
 TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass tng_class, ThingModel tng_kind);
 struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmodel);
-long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind);
+int32_t get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind);
 TbBool get_next_manufacture(struct Dungeon *dungeon);
 short process_player_manufacturing(PlayerNumber plyr_idx);
 EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng);
 
-TbBool is_trap_buildable(PlayerNumber plyr_idx, long tngmodel);
-TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx);
+TbBool is_trap_buildable(PlayerNumber plyr_idx, int32_t tngmodel);
+TbBool is_door_buildable(PlayerNumber plyr_idx, int32_t door_idx);
 
 TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos);
 int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y);

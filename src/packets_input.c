@@ -49,9 +49,9 @@
 #include "config_settings.h"
 #include "post_inc.h"
 
-extern TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx);
+extern TbBool process_dungeon_control_packet_spell_overcharge(int32_t plyr_idx);
 
-extern void update_double_click_detection(long plyr_idx);
+extern void update_double_click_detection(int32_t plyr_idx);
 
 // Returns false if mouse is on map edges or on GUI
 TbBool is_mouse_on_map(struct Packet* pckt)
@@ -113,7 +113,7 @@ struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoo
     return INVALID_THING;
 }
 
-TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
+TbBool process_dungeon_control_packet_dungeon_build_room(int32_t plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
@@ -195,7 +195,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     return true;
 }
 
-TbBool process_dungeon_power_hand_state(long plyr_idx)
+TbBool process_dungeon_power_hand_state(int32_t plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
@@ -226,7 +226,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         if (player->hand_thing_idx == 0) {
             create_power_hand(player->id_number);
         }
-        long allow_unclaimed_path = is_creature_droppable_on_path(thing);
+        int32_t allow_unclaimed_path = is_creature_droppable_on_path(thing);
         if ((can_drop_thing_here(stl_x, stl_y, player->id_number, allow_unclaimed_path)
              || !can_dig_here(stl_x, stl_y, player->id_number, true))
             && (!player->one_click_lock_cursor))
@@ -268,7 +268,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     return true;
 }
 
-TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
+TbBool process_dungeon_control_packet_dungeon_control(int32_t plyr_idx)
 {
     struct Thing *thing;
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -548,7 +548,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     return true;
 }
 
-TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
+TbBool process_dungeon_control_packet_sell_operation(int32_t plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
@@ -652,7 +652,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     return true;
 }
 
-TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
+TbBool process_dungeon_control_packet_dungeon_place_trap(int32_t plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
@@ -696,7 +696,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
     return true;
 }
 
-TbBool process_dungeon_control_packet_clicks(long plyr_idx)
+TbBool process_dungeon_control_packet_clicks(int32_t plyr_idx)
 {
     struct Thing *thing;
     PowerKind pwkind;
@@ -732,7 +732,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
 
-    long i;
+    int32_t i;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     pwkind = player->chosen_power_kind;

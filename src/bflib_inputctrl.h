@@ -58,7 +58,7 @@ TbBool LbIsTextInputActive(void);
 void LbStartTextInput(void);
 void LbStopTextInput(void);
 int LbGetTextInput(char *dst, int maxChars);
-void LbGrabMouseCheck(long grab_event);
+void LbGrabMouseCheck(int32_t grab_event);
 void LbGrabMouseInit(void);
 void LbSetMouseGrab(TbBool grab_mouse);
 /******************************************************************************/

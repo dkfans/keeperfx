@@ -29,17 +29,17 @@ extern "C" {
 /******************************************************************************/
 #define PANEL_MAP_RADIUS       58
 /******************************************************************************/
-extern long MapDiagonalLength;
+extern int32_t MapDiagonalLength;
 extern unsigned char grabbed_small_map;
-extern long clicked_on_small_map;
+extern int32_t clicked_on_small_map;
 /******************************************************************************/
-void panel_map_update(long x, long y, long w, long h);
-void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom);
-void panel_map_draw_overlay_things(long units_per_px, long zoom, long basic_zoom);
+void panel_map_update(int32_t x, int32_t y, int32_t w, int32_t h);
+void panel_map_draw_slabs(int32_t x, int32_t y, int32_t units_per_px, int32_t zoom);
+void panel_map_draw_overlay_things(int32_t units_per_px, int32_t zoom, int32_t basic_zoom);
 
-short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom);
-short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom);
-short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
+short do_left_map_drag(int32_t begin_x, int32_t begin_y, int32_t curr_x, int32_t curr_y, int32_t zoom);
+short do_left_map_click(int32_t begin_x, int32_t begin_y, int32_t curr_x, int32_t curr_y, int32_t zoom);
+short do_right_map_click(int32_t start_x, int32_t start_y, int32_t curr_x, int32_t curr_y, int32_t zoom);
 
 void update_panel_colors(void);
 void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_idx);

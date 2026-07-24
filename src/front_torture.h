@@ -31,23 +31,23 @@ extern "C" {
 #pragma pack(1)
 
 struct DoorSoundState { // sizeof = 8
-  long current_volume;
-  long volume_step; // how much to add / subtract
+  int32_t current_volume;
+  int32_t volume_step; // how much to add / subtract
 };
 
 struct DoorDesc {
-  long pos_spr_x;
-  long pos_spr_y;
-  long pos_x;
-  long pos_y;
-  long width;
-  long height;
+  int32_t pos_spr_x;
+  int32_t pos_spr_y;
+  int32_t pos_x;
+  int32_t pos_y;
+  int32_t width;
+  int32_t height;
   struct TbSpriteSheet * sprites;
-  long smptbl_id;
+  int32_t smptbl_id;
 };
 
 struct TortureState { // sizeof = 4
-  long action;
+  int32_t action;
 };
 
 #pragma pack()

@@ -45,10 +45,10 @@ extern TbBool emulate_integer_overflow(unsigned short nbits);
 // Functions which were previously defined as Inline,
 // but redefined for compatibility with both Ansi-C and C++.
 
-/** Return the little-endian longword at p. */
-unsigned long llong (unsigned char *p)
+/** Return the little-endian int32_tword at p. */
+uint32_t llong (unsigned char *p)
 {
-    unsigned long n = p[3];
+    uint32_t n = p[3];
     n = (n << 8) + p[2];
     n = (n << 8) + p[1];
     n = (n << 8) + p[0];
@@ -56,9 +56,9 @@ unsigned long llong (unsigned char *p)
 }
 
 /* Return the little-endian word at p. */
-unsigned long lword (unsigned char *p)
+uint16_t lword (unsigned char *p)
 {
-    unsigned long n = p[1];
+    uint16_t n = p[1];
     n = (n << 8) + p[0];
     return n;
 }
@@ -69,9 +69,9 @@ unsigned long lword (unsigned char *p)
  * @param val the value to be saturated.
  * @param nbits Max bits size, including sign bit.
  */
-long saturate_set_signed(long long val,unsigned short nbits)
+int32_t saturate_set_signed(int64_t val,unsigned short nbits)
 {
-  long long maximum_value = (1 << (nbits-1)) - 1;
+  int64_t maximum_value = (1 << (nbits-1)) - 1;
   if (val >= maximum_value)
     return maximum_value;
   if (val <= -maximum_value)
@@ -85,9 +85,9 @@ long saturate_set_signed(long long val,unsigned short nbits)
  * @param val the value to be saturated.
  * @param nbits Max bits size, including sign bit.
  */
-unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits)
+uint32_t saturate_set_unsigned(uint64_t val,unsigned short nbits)
 {
-    unsigned long long maximum_value = (1 << (nbits)) - 1;
+    uint64_t maximum_value = (1 << (nbits)) - 1;
     if (emulate_integer_overflow(nbits))
         return (val & maximum_value);
     if (val >= maximum_value)
@@ -262,11 +262,11 @@ int LbFTestLog(const char *format, ...)
 /*
  * Logs script-related message.
  */
-int LbScriptLog(unsigned long line,const char *format, ...)
+int LbScriptLog(uint32_t line,const char *format, ...)
 {
     if (!error_log_initialised)
         return -1;
-    LbLogSetPrefixFmt(&error_log, "Script(line %lu): ",line);
+    LbLogSetPrefixFmt(&error_log, "Script(line %u): ",line);
     va_list val;
     va_start(val, format);
     int result=LbLog(&error_log, format, val);
@@ -277,11 +277,11 @@ int LbScriptLog(unsigned long line,const char *format, ...)
 /*
  * Logs config file related message.
  */
-int LbConfigLog(unsigned long line,const char *format, ...)
+int LbConfigLog(uint32_t line,const char *format, ...)
 {
     if (!error_log_initialised)
         return -1;
-    LbLogSetPrefixFmt(&error_log, "Config(line %lu): ",line);
+    LbLogSetPrefixFmt(&error_log, "Config(line %u): ",line);
     va_list val;
     va_start(val, format);
     int result=LbLog(&error_log, format, val);
@@ -312,7 +312,7 @@ int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
   if ( LbFileMakeFullPath(true, directory, filename, log_filename, DISKPATH_SIZE) != 1 ) {
     return -1;
   }
-  ulong flags = (flag == 0) + 1;
+  uint32_t flags = (flag == 0) + 1;
   flags |= LbLog_TimeInHeader | LbLog_DateInHeader | 0x04;
   if ( LbLogSetup(&error_log, log_filename, flags) == 1 )
   {
@@ -492,7 +492,7 @@ int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
     return 1;
 }
 
-int LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
+int LbLogSetup(struct TbLog *log, const char *filename, uint32_t flags)
 {
   log->Initialised = false;
   memset(log->filename, 0, DISKPATH_SIZE);

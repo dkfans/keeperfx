@@ -25,7 +25,7 @@
 TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags)
 {
     SYNCDBG(5,"Starting");
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if(!(flags & CnfLd_IgnoreErrors))
@@ -35,7 +35,7 @@ TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags)
     char* buf = (char*)calloc(len + 256, 1);
     if (!buf) return false;
     // Loading file data
-    long fsize = LbFileLoadAt(fname, buf);
+    int32_t fsize = LbFileLoadAt(fname, buf);
 
     if (fsize < len)
     {

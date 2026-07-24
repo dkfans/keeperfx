@@ -101,7 +101,7 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         return INVALID_THING;
     }
     int n = THING_RANDOM(creatng, dungeon->num_active_creatrs - 1);
-    unsigned long k = 0;
+    uint32_t k = 0;
     int i = dungeon->creatr_list_start;
     while (i != 0)
     {
@@ -283,10 +283,10 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
 struct Thing *select_scavenger_target(const struct Thing *calltng)
 {
     struct Thing* weaktng = INVALID_THING;
-    long weakpts = INT32_MAX;
+    int32_t weakpts = INT32_MAX;
     SYNCDBG(18,"Starting");
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
-    unsigned long k = 0;
+    uint32_t k = 0;
     int i = slist->index;
     while (i != 0)
     {
@@ -306,7 +306,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             if (get_gameturn() - cctrl->temple_cure_gameturn > game.conf.rules[calltng->owner].rooms.temple_scavenge_protection_turns)
             {
-                long thingpts = calculate_correct_creature_scavenge_required(thing, calltng->owner);
+                int32_t thingpts = calculate_correct_creature_scavenge_required(thing, calltng->owner);
                 if (weakpts > thingpts)
                 {
                     weakpts = thingpts;
@@ -347,7 +347,7 @@ struct Thing *get_scavenger_target(const struct Thing *calltng)
     return select_scavenger_target(calltng);
 }
 
-long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
+int32_t turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
 {
     struct Room* room = get_room_thing_is_on(calltng);
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CrScavenge) || (room->owner != calltng->owner))
@@ -382,9 +382,9 @@ long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
     return 1;
 }
 
-TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing *calltng, long work_value)
+TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing *calltng, int32_t work_value)
 {
-    long num_prayers;
+    int32_t num_prayers;
     struct Dungeon* calldngn = get_dungeon(calltng->owner);
     if (dungeon_invalid(calldngn)) {
         ERRORLOG("The %s index %d owner %d can't do scavenging - has no dungeon",thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
@@ -438,7 +438,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
             external_set_thing_state(scavtng, CrSt_CreatureBeingScavenged);
         }
     }
-    long scavpts = calculate_correct_creature_scavenge_required(scavtng, calltng->owner);
+    int32_t scavpts = calculate_correct_creature_scavenge_required(scavtng, calltng->owner);
     if ((scavpts << 8) < calldngn->scavenge_turn_points[calltng->model])
     {
         SYNCDBG(8,"The %s index %d owner %d accumulated enough points to turn to scavenger",thing_model_name(scavtng),(int)scavtng->index,(int)scavtng->owner);
@@ -490,11 +490,11 @@ TbBool creature_scavenge_from_creature_pool(struct Thing *calltng)
     return true;
 }
 
-TbBool process_scavenge_creature_from_pool(struct Thing *calltng, long work_value)
+TbBool process_scavenge_creature_from_pool(struct Thing *calltng, int32_t work_value)
 {
     struct Dungeon* calldngn = get_dungeon(calltng->owner);
     calldngn->scavenge_turn_points[calltng->model] += work_value;
-    long scavpts = calculate_correct_creature_scavenge_required(calltng, calltng->owner);
+    int32_t scavpts = calculate_correct_creature_scavenge_required(calltng, calltng->owner);
     if ((scavpts << 8) < calldngn->scavenge_turn_points[calltng->model])
     {
         if (creature_scavenge_from_creature_pool(calltng))
@@ -530,7 +530,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     {
         reset_scavenge_counts(calldngn);
     }
-    long work_value = compute_creature_work_value_for_room_role(calltng, RoRoF_CrScavenge, room->efficiency);
+    int32_t work_value = compute_creature_work_value_for_room_role(calltng, RoRoF_CrScavenge, room->efficiency);
     SYNCDBG(9,"The %s index %d owner %d produced %d scavenge points",thing_model_name(calltng),(int)calltng->index,(int)calltng->owner,(int)work_value);
     struct Thing* scavtng = get_scavenger_target(calltng);
     if (!thing_is_invalid(scavtng))

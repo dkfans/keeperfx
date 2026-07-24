@@ -137,7 +137,7 @@ struct CampaignsList mappacks_list;
 struct CampaignsList mp_mappacks_list;
 
 
-static TbBool check_lif_files_in_mappack(struct GameCampaign *campgn,unsigned long * out_count);
+static TbBool check_lif_files_in_mappack(struct GameCampaign *campgn,uint32_t * out_count);
 /******************************************************************************/
 /*
  * Frees campaign sub-entries memory without NULLing invalid pointers.
@@ -244,10 +244,10 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   return true;
 }
 
-long add_single_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
+int32_t add_single_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
 {
   if (lvnum <= 0) return LEVELNUMBER_ERROR;
-  long i = campgn->single_levels_count;
+  int32_t i = campgn->single_levels_count;
   if (i < CAMPAIGN_LEVELS_COUNT)
   {
     campgn->single_levels[i] = lvnum;
@@ -257,10 +257,10 @@ long add_single_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
   return LEVELNUMBER_ERROR;
 }
 
-long add_multi_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
+int32_t add_multi_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
 {
   if (lvnum <= 0) return LEVELNUMBER_ERROR;
-  long i = campgn->multi_levels_count;
+  int32_t i = campgn->multi_levels_count;
   if (i < MULTI_LEVELS_COUNT)
   {
     campgn->multi_levels[i] = lvnum;
@@ -270,11 +270,11 @@ long add_multi_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
   return LEVELNUMBER_ERROR;
 }
 
-long add_bonus_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
+int32_t add_bonus_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
 {
   if (lvnum < 0) lvnum = 0;
   // adding bonus level
-  long i = campgn->bonus_levels_index;
+  int32_t i = campgn->bonus_levels_index;
   if (i < CAMPAIGN_LEVELS_COUNT)
   {
     campgn->bonus_levels[i] = lvnum;
@@ -286,11 +286,11 @@ long add_bonus_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
   return LEVELNUMBER_ERROR;
 }
 
-long add_extra_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
+int32_t add_extra_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
 {
   if (lvnum < 0) lvnum = 0;
   // adding extra level
-  long i = campgn->extra_levels_index;
+  int32_t i = campgn->extra_levels_index;
   if (i < EXTRA_LEVELS_COUNT)
   {
     campgn->extra_levels[i] = lvnum;
@@ -302,11 +302,11 @@ long add_extra_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
   return LEVELNUMBER_ERROR;
 }
 
-long add_freeplay_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
+int32_t add_freeplay_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnum)
 {
   if (lvnum <= 0) return LEVELNUMBER_ERROR;
   // check if already in list
-  unsigned long i = 0;
+  uint32_t i = 0;
   while (i < campgn->freeplay_levels_count)
   {
     if (campgn->freeplay_levels[i] == lvnum)
@@ -331,7 +331,7 @@ struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, Le
   {
     init_level_info_entries(campgn,0);
   }
-  for (unsigned long i = 0; i < campgn->lvinfos_count; i++)
+  for (uint32_t i = 0; i < campgn->lvinfos_count; i++)
   {
       if (campgn->lvinfos[i].lvnum == lvnum)
       {
@@ -343,7 +343,7 @@ struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, Le
 
 struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, LevelNumber lvnum)
 {
-  unsigned long i;
+  uint32_t i;
   if (lvnum <= 0)
     return NULL;
   if (campgn->lvinfos == NULL)
@@ -365,7 +365,7 @@ struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, Level
   return &campgn->lvinfos[i];
 }
 
-TbBool init_level_info_entries(struct GameCampaign *campgn, long num_entries)
+TbBool init_level_info_entries(struct GameCampaign *campgn, int32_t num_entries)
 {
     if (campgn->lvinfos != NULL)
       KfxFree(campgn->lvinfos);
@@ -377,17 +377,17 @@ TbBool init_level_info_entries(struct GameCampaign *campgn, long num_entries)
       return false;
     }
     campgn->lvinfos_count = num_entries;
-    for (long i = 0; i < num_entries; i++)
+    for (int32_t i = 0; i < num_entries; i++)
     {
         clear_level_info(&campgn->lvinfos[i]);
     }
     return true;
 }
 
-TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries)
+TbBool grow_level_info_entries(struct GameCampaign *campgn, int32_t add_entries)
 {
-    long i = campgn->lvinfos_count;
-    long num_entries = campgn->lvinfos_count + add_entries;
+    int32_t i = campgn->lvinfos_count;
+    int32_t num_entries = campgn->lvinfos_count + add_entries;
     campgn->lvinfos = (struct LevelInformation*)KfxRealloc(campgn->lvinfos, num_entries * sizeof(struct LevelInformation));
     if (campgn->lvinfos == NULL)
     {
@@ -404,7 +404,7 @@ TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries)
   return true;
 }
 
-short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long len, const char* config_textname)
+short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,int32_t len, const char* config_textname)
 {
   // Initialize block data in campaign
   KfxFree(campgn->hiscore_table);
@@ -698,13 +698,13 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
 #undef COMMAND_TEXT
   if (campgn->single_levels_count != campgn->bonus_levels_index)
   {
-    WARNMSG("Amount of SP levels (%lu) and bonuses (%lu) do not match in [%s] block of %s %s file.",
+    WARNMSG("Amount of SP levels (%u) and bonuses (%u) do not match in [%s] block of %s %s file.",
       campgn->single_levels_count, campgn->bonus_levels_count, block_name, campgn->name, config_textname);
   }
   return 1;
 }
 
-short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long len, const char* config_textname)
+short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,int32_t len, const char* config_textname)
 {
   // Find the block
   const char * block_name = "strings";
@@ -766,7 +766,7 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
   return 1;
 }
 
-short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long len, const char *config_textname)
+short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,int32_t len, const char *config_textname)
 {
   const char * block_name = "speech";
   // Find the block
@@ -816,20 +816,20 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
  * Parses campaign block for specific level number.
  * Stores data in lvinfo structure.
  */
-short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, long len, const char* config_textname)
+short parse_campaign_map_block(int32_t lvnum, uint32_t lvoptions, char *buf, int32_t len, const char* config_textname)
 {
     // Block name and parameter word store variables
-    SYNCDBG(18,"Starting for level %ld",lvnum);
+    SYNCDBG(18,"Starting for level %d",lvnum);
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
     {
-      WARNMSG("Can't get LevelInformation item to store level %ld data from %s file.",
+      WARNMSG("Can't get LevelInformation item to store level %d data from %s file.",
           lvnum,config_textname);
       return 0;
     }
     lvinfo->location = LvLc_Campaign;
     char block_buf[32];
-    snprintf(block_buf, sizeof(block_buf), "map%05lu", lvnum);
+    snprintf(block_buf, sizeof(block_buf), "map%05u", lvnum);
     int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
@@ -1023,15 +1023,15 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
         }
         skip_conf_to_next_line(buf,&pos,len);
     }
-    SYNCDBG(18,"Level %ld ensign (%d,%d) zoom (%d,%d)",lvnum,(int)lvinfo->ensign_x,(int)lvinfo->ensign_y,(int)lvinfo->ensign_zoom_x,(int)lvinfo->ensign_zoom_y);
+    SYNCDBG(18,"Level %d ensign (%d,%d) zoom (%d,%d)",lvnum,(int)lvinfo->ensign_x,(int)lvinfo->ensign_y,(int)lvinfo->ensign_zoom_x,(int)lvinfo->ensign_zoom_y);
 #undef COMMAND_TEXT
     return 1;
 }
 
-short parse_campaign_map_blocks(struct GameCampaign *campgn, char *buf, long len, const char* config_textname)
+short parse_campaign_map_blocks(struct GameCampaign *campgn, char *buf, int32_t len, const char* config_textname)
 {
     SYNCDBG(8,"Starting");
-    long i = campgn->single_levels_count + campgn->multi_levels_count + campgn->bonus_levels_count + campgn->extra_levels_count + campgn->freeplay_levels_count;
+    int32_t i = campgn->single_levels_count + campgn->multi_levels_count + campgn->bonus_levels_count + campgn->extra_levels_count + campgn->freeplay_levels_count;
     if (i <= 0)
     {
         WARNMSG("There's zero used levels - no [mapX] blocks to parse in '%s' file.",config_textname);
@@ -1044,11 +1044,11 @@ short parse_campaign_map_blocks(struct GameCampaign *campgn, char *buf, long len
         WARNMSG("Can't allocate memory for LevelInformation list in '%s' file.",config_textname);
         return 0;
     }
-    long lvnum = first_singleplayer_level();
+    int32_t lvnum = first_singleplayer_level();
     while (lvnum > 0)
     {
         parse_campaign_map_block(lvnum, LvKind_IsSingle, buf, len, config_textname);
-        long bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
+        int32_t bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
         if (bn_lvnum > 0)
         {
           parse_campaign_map_block(bn_lvnum, LvKind_IsBonus, buf, len, config_textname);
@@ -1078,7 +1078,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
     snprintf(campgn->name, DISKPATH_SIZE, "%s", cmpgn_fname);
     SYNCDBG(0,"%s campaign file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
     char* fname = prepare_file_path(fgroup, cmpgn_fname);
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < 2)
     {
         WARNMSG("Campaign file \"%s\" doesn't exist or is too small.",cmpgn_fname);
@@ -1222,7 +1222,7 @@ TbBool is_campaign_loaded(void)
 /**
  * Initializes list of campaigns, creating given number of empty list entries.
  */
-TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries)
+TbBool init_campaigns_list_entries(struct CampaignsList *clist, int32_t num_entries)
 {
     if (clist->items != NULL)
         KfxFree(clist->items);
@@ -1236,7 +1236,7 @@ TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries
     }
     clist->items_count = num_entries;
     clist->items_num = 0;
-    for (long i = 0; i < num_entries; i++)
+    for (int32_t i = 0; i < num_entries; i++)
         clear_campaign(&clist->items[i]);
     return true;
 }
@@ -1244,10 +1244,10 @@ TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries
 /**
  * Allocates more items in list of campaigns, adding given number of empty list entries.
  */
-TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries)
+TbBool grow_campaigns_list_entries(struct CampaignsList *clist, int32_t add_entries)
 {
-    long i = clist->items_count;
-    long num_entries = clist->items_count + add_entries;
+    int32_t i = clist->items_count;
+    int32_t num_entries = clist->items_count + add_entries;
     clist->items = (struct GameCampaign *)KfxRealloc(clist->items, num_entries*sizeof(struct GameCampaign));
     if (clist->items == NULL)
     {
@@ -1344,7 +1344,7 @@ void sort_campaigns_quicksort(struct CampaignsList *clist, int beg, int end)
 void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
 {
 
-    long fsize = LbFileLength(sort_fname);
+    int32_t fsize = LbFileLength(sort_fname);
     if (fsize <= 0)
     {
         ERRORLOG("failed to read %s",sort_fname);
@@ -1358,11 +1358,11 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
     }
     char *fbuf = (char *)KfxAlloc((size_t)fsize + 1);
     if (!fbuf) { LbFileClose(fp); return; }
-    long rlen = (long)LbFileRead(fp, fbuf, (unsigned long)fsize);
+    int32_t rlen = (int32_t)LbFileRead(fp, fbuf, (uint32_t)fsize);
     LbFileClose(fp);
     if (rlen <= 0) { KfxFree(fbuf); return; }
     fbuf[rlen] = '\0';
-    unsigned long beg = 0;
+    uint32_t beg = 0;
     char *pos = fbuf;
     char *end = fbuf + rlen;
     while (pos < end)
@@ -1379,7 +1379,7 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
             memcpy(line, pos, linelen);
             line[linelen] = '\0';
 
-            for (unsigned long i = 0; i < clist->items_num; i++)
+            for (uint32_t i = 0; i < clist->items_num; i++)
             {
                 if (strcasecmp(clist->items[i].fname,line) == 0)
                 {
@@ -1409,8 +1409,8 @@ TbBool load_campaigns_list(struct CampaignsList *clist, short fgroup, const char
     struct TbFileEntry fe;
     struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
 #if (BFDEBUG_LEVEL > 0)
-    long cnum_all = 0;
-    long cnum_ok = 0;
+    int32_t cnum_all = 0;
+    int32_t cnum_ok = 0;
 #endif
     if (ff) {
         do {
@@ -1426,7 +1426,7 @@ TbBool load_campaigns_list(struct CampaignsList *clist, short fgroup, const char
         } while (LbFileFindNext(ff, &fe) >= 0);
         LbFileFindEnd(ff);
     }
-    SYNCDBG(0,"Found %ld %s files, properly loaded %ld.",cnum_all,list_name,cnum_ok);
+    SYNCDBG(0,"Found %d %s files, properly loaded %d.",cnum_all,list_name,cnum_ok);
     const char* ordfname = prepare_file_path(fgroup, order_fname);
     sort_campaigns(clist,ordfname);
     return (clist->items_num > 0);
@@ -1449,7 +1449,7 @@ TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
     {
         return false;
     }
-    for (unsigned long i = 0; i < clist->items_num; i++)
+    for (uint32_t i = 0; i < clist->items_num; i++)
     {
         if (strcasecmp(clist->items[i].fname,cmpgn_fname) == 0)
         {
@@ -1459,7 +1459,7 @@ TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
     return false;
 }
 
-static TbBool check_lif_files_in_mappack(struct GameCampaign *campgn,unsigned long * out_count)
+static TbBool check_lif_files_in_mappack(struct GameCampaign *campgn,uint32_t * out_count)
 {
     struct GameCampaign campbuf;
     memcpy(&campbuf, &campaign, sizeof(struct GameCampaign));

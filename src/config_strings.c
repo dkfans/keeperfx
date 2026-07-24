@@ -89,7 +89,7 @@ static TbBool load_gui_strings_data_from_file(const char *fname, unsigned short 
   if (gui_strings_data_count >= sizeof(gui_strings_data_list)/sizeof(gui_strings_data_list[0]))
     return false;
 
-  long filelen = LbFileLengthRnc(fname);
+  int32_t filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
     if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -109,7 +109,7 @@ static TbBool load_gui_strings_data_from_file(const char *fname, unsigned short 
     }
     return false;
   }
-  long loaded_size = LbFileLoadAt(fname, raw_data);
+  int32_t loaded_size = LbFileLoadAt(fname, raw_data);
   if (loaded_size < 16)
   {
     KfxFree(raw_data);
@@ -178,9 +178,9 @@ static void load_gui_strings_data_for_mod(const struct ModConfigItem *mod_item)
   }
 }
 
-static void load_gui_strings_data_for_mod_list(const struct ModConfigItem *mod_items, long mod_cnt)
+static void load_gui_strings_data_for_mod_list(const struct ModConfigItem *mod_items, int32_t mod_cnt)
 {
-  for (long i=0; i<mod_cnt; i++)
+  for (int32_t i=0; i<mod_cnt; i++)
   {
     const struct ModConfigItem *mod_item = mod_items + i;
     if (mod_item->state.mod_dir == 0)
@@ -246,7 +246,7 @@ TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short fl
   if (campgn->strings_data_count >= sizeof(campgn->strings_data_list)/sizeof(campgn->strings_data_list[0]))
     return false;
 
-  long filelen = LbFileLengthRnc(fname);
+  int32_t filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
     if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -264,7 +264,7 @@ TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short fl
     }
     return false;
   }
-  long loaded_size = LbFileLoadAt(fname, raw_data);
+  int32_t loaded_size = LbFileLoadAt(fname, raw_data);
   if (loaded_size < 16)
   {
     KfxFree(raw_data);
@@ -327,9 +327,9 @@ static void load_campaign_strings_data_for_mod(struct GameCampaign *campgn, cons
   }
 }
 
-static void load_campaign_strings_data_for_mod_list(struct GameCampaign *campgn, const struct ModConfigItem *mod_items, long mod_cnt)
+static void load_campaign_strings_data_for_mod_list(struct GameCampaign *campgn, const struct ModConfigItem *mod_items, int32_t mod_cnt)
 {
-  for (long i=0; i<mod_cnt; i++)
+  for (int32_t i=0; i<mod_cnt; i++)
   {
     const struct ModConfigItem *mod_item = mod_items + i;
     if (mod_item->state.mod_dir == 0)
@@ -431,9 +431,9 @@ const char * get_string(TextStringId stridx)
         return gui_string(stridx - GUI_STRINGS_START);
 }
 
-unsigned long count_strings(char *strings, int size)
+uint32_t count_strings(char *strings, int size)
 {
-    unsigned long result = 0;
+    uint32_t result = 0;
     char *s = strings;
     char *end = strings + size;
     while (s <= end)

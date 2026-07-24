@@ -58,14 +58,14 @@ extern const struct NamedCommand head_for_desc[];
 
 /******************************************************************************/
 unsigned short get_map_location_type(TbMapLocation location);
-unsigned long get_map_location_longval(TbMapLocation location);
-unsigned long get_map_location_plyrval(TbMapLocation location);
+uint32_t get_map_location_longval(TbMapLocation location);
+uint32_t get_map_location_plyrval(TbMapLocation location);
 TbBool get_map_location_code_name(TbMapLocation location, char *name);
 
 TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBool random_factor);
-TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i);
-TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned char random_factor);
-TbBool get_coords_at_hero_door(struct Coord3d *pos, long gate_num, unsigned char random_factor);
+TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, int32_t i);
+TbBool get_coords_at_action_point(struct Coord3d *pos, int32_t apt_idx, unsigned char random_factor);
+TbBool get_coords_at_hero_door(struct Coord3d *pos, int32_t gate_num, unsigned char random_factor);
 TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx);
 
 TbMapLocation get_coord_encoded_location(MapSubtlCoord stl_x,MapSubtlCoord stl_y);
@@ -75,10 +75,10 @@ void find_map_location_coords(TbMapLocation location, MapSubtlCoord *x, MapSubtl
 void find_location_pos(TbMapLocation location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
 #define get_map_location_id(locname, location) get_map_location_id_f(locname, location, __func__, text_line_number)
-TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const char *func_name, long ln_num);
+TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const char *func_name, int32_t ln_num);
 
 #define get_map_heading_id(headname, target, location) get_map_heading_id_f(headname, target, location, __func__, text_line_number)
-TbBool get_map_heading_id_f(const char *headname, long target, TbMapLocation *location, const char *func_name, long ln_num);
+TbBool get_map_heading_id_f(const char *headname, int32_t target, TbMapLocation *location, const char *func_name, int32_t ln_num);
 
 /******************************************************************************/
 #ifdef __cplusplus

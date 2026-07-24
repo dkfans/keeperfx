@@ -66,11 +66,11 @@ enum PlayerInstanceNum {
 struct Thing;
 struct PlayerInfo;
 
-typedef long (*InstncInfo_Func)(struct PlayerInfo *player, int32_t *n);
+typedef int32_t (*InstncInfo_Func)(struct PlayerInfo *player, int32_t *n);
 
 struct PlayerInstanceInfo { // sizeof = 44
-  long length_turns;
-  long instance_state;
+  int32_t length_turns;
+  int32_t instance_state;
   InstncInfo_Func start_cb;
   InstncInfo_Func maintain_cb;
   InstncInfo_Func end_cb;
@@ -89,7 +89,7 @@ struct PlayerInstanceInfo { // sizeof = 44
 /******************************************************************************/
 extern struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT];
 /******************************************************************************/
-void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force);
+void set_player_instance(struct PlayerInfo *player, int32_t ninum, TbBool force);
 void process_player_instance(struct PlayerInfo *player);
 void process_player_instances(void);
 

@@ -67,14 +67,14 @@ TbBool attempt_job_in_state_on_room_content_for_player(struct Thing *creatng, Pl
 TbBool attempt_job_move_to_event_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
 TbBool attempt_job_in_state_internal_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
 
-TbBool creature_can_do_job_always_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
-TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
-TbBool creature_can_do_training_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
-TbBool creature_can_do_manufacturing_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
-TbBool creature_can_do_scavenging_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
-TbBool creature_can_place_in_vault_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
-TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
-TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags);
+TbBool creature_can_do_job_always_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags);
+TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags);
+TbBool creature_can_do_training_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags);
+TbBool creature_can_do_manufacturing_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags);
+TbBool creature_can_do_scavenging_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags);
+TbBool creature_can_place_in_vault_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags);
+TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags);
+TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags);
 
 TbBool attempt_job_work_in_room_near_pos(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
 TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job);
@@ -386,7 +386,7 @@ TbBool attempt_anger_job_join_enemy(struct Thing *creatng)
     return false;
 }
 
-long attempt_anger_job(struct Thing *creatng, long ajob_kind)
+int32_t attempt_anger_job(struct Thing *creatng, int32_t ajob_kind)
 {
     switch (ajob_kind)
     {
@@ -614,7 +614,7 @@ TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const str
         return false;
     }
     TbBool result;
-    unsigned long room_area = get_flags_for_job(jobpref) & (JoKF_AssignOnAreaBorder|JoKF_AssignOnAreaCenter);
+    uint32_t room_area = get_flags_for_job(jobpref) & (JoKF_AssignOnAreaBorder|JoKF_AssignOnAreaCenter);
     switch (room_area)
     {
     case JoKF_AssignOnAreaBorder:
@@ -645,7 +645,7 @@ TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const str
  * @param drop_kind_flags Flags to select whether we want to set to init or drop the creature.
  * @return
  */
-TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const struct Dungeon *dungeon, struct Thing *creatng, CreatureJob new_job, unsigned long drop_kind_flags)
+TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const struct Dungeon *dungeon, struct Thing *creatng, CreatureJob new_job, uint32_t drop_kind_flags)
 {
     struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
@@ -688,7 +688,7 @@ TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const 
  * @note this function will never change state of the input thing, even if appropriate flags are set
  * @see creature_can_do_job_near_position() similar function for use when target position is known
  */
-TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job, unsigned long flags)
+TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job, uint32_t flags)
 {
     SYNCDBG(16,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
     if (creature_will_reject_job(creatng, new_job))
@@ -780,12 +780,12 @@ TbBool send_creature_to_job_for_player(struct Thing *creatng, PlayerNumber plyr_
     return false;
 }
 
-TbBool creature_can_do_job_always_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
+TbBool creature_can_do_job_always_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags)
 {
     return true;
 }
 
-TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
+TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags)
 {
     if (!creature_can_do_research(creatng))
     {
@@ -802,7 +802,7 @@ TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCo
     return true;
 }
 
-TbBool creature_can_do_training_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
+TbBool creature_can_do_training_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags)
 {
     if (!creature_can_be_trained(creatng)) {
         return false;
@@ -810,7 +810,7 @@ TbBool creature_can_do_training_near_pos(const struct Thing *creatng, MapSubtlCo
     return true;
 }
 
-TbBool creature_can_do_manufacturing_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
+TbBool creature_can_do_manufacturing_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags)
 {
     if (!creature_can_do_manufacturing(creatng)) {
         return false;
@@ -818,7 +818,7 @@ TbBool creature_can_do_manufacturing_near_pos(const struct Thing *creatng, MapSu
     return true;
 }
 
-TbBool creature_can_do_scavenging_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
+TbBool creature_can_do_scavenging_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags)
 {
     if (!creature_can_do_scavenging(creatng)) {
         return false;
@@ -826,7 +826,7 @@ TbBool creature_can_do_scavenging_near_pos(const struct Thing *creatng, MapSubtl
     return true;
 }
 
-TbBool creature_can_place_in_vault_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
+TbBool creature_can_place_in_vault_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags)
 {
     if (creatng->creature.gold_carried < 1) {
         return false;
@@ -834,7 +834,7 @@ TbBool creature_can_place_in_vault_near_pos(const struct Thing *creatng, MapSubt
     return true;
 }
 
-TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
+TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags)
 {
     struct Room* room = subtile_room_get(stl_x, stl_y);
     // If there is any gold in the room - give it a shot
@@ -849,7 +849,7 @@ TbBool creature_can_take_salary_near_pos(const struct Thing *creatng, MapSubtlCo
     return true;
 }
 
-TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
+TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags)
 {
     if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
         return false;
@@ -866,7 +866,7 @@ TbBool creature_can_take_sleep_near_pos(const struct Thing *creatng, MapSubtlCoo
  * @return True if the creature can do the job specified, false otherwise.
  * @see creature_can_do_job_for_player() similar function for use when only target player is known
  */
-TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, unsigned long flags)
+TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CreatureJob new_job, uint32_t flags)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(6,"Starting for %s index %d owner %d and job %s",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,creature_job_code_name(new_job));
@@ -1130,14 +1130,14 @@ TbBool attempt_job_in_state_internal_near_pos(struct Thing *creatng, MapSubtlCoo
  * @param creatng The creature to assign a job to.
  * @param jobpref Job preference flags.
  */
-TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
+TbBool attempt_job_preference(struct Thing *creatng, int32_t jobpref)
 {
     // Start checking at random job
     if (game.conf.crtr_conf.jobs_count < 1) {
         return false;
     }
-    long n = THING_RANDOM(creatng, game.conf.crtr_conf.jobs_count);
-    for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++, n = (n + 1) % game.conf.crtr_conf.jobs_count)
+    int32_t n = THING_RANDOM(creatng, game.conf.crtr_conf.jobs_count);
+    for (int32_t i = 0; i < game.conf.crtr_conf.jobs_count; i++, n = (n + 1) % game.conf.crtr_conf.jobs_count)
     {
         if (n == 0)
             continue;
@@ -1156,11 +1156,11 @@ TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
     return false;
 }
 
-TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
+TbBool attempt_job_secondary_preference(struct Thing *creatng, int32_t jobpref)
 {
     // Count the amount of jobs set
-    long i = 0;
-    unsigned long k = jobpref;
+    int32_t i = 0;
+    uint32_t k = jobpref;
     while (k)
     {
         k >>= 1;
@@ -1169,9 +1169,9 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     if (i <= 0) {
         return false;
     }
-    unsigned long select_val = THING_RANDOM(creatng, 512);
-    unsigned long select_delta = 512 / i;
-    unsigned long select_curr = select_delta;
+    uint32_t select_val = THING_RANDOM(creatng, 512);
+    uint32_t select_delta = 512 / i;
+    uint32_t select_curr = select_delta;
     // For some reason, this is a bit different than attempt_job_preference().
     // Probably needs unification
     for (i=1; i < game.conf.crtr_conf.jobs_count; i++)

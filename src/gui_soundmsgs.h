@@ -196,16 +196,16 @@ typedef struct SpeechRef {
     char path[512];
 } SpeechRef;
 
-TbBool output_message(SoundSmplTblID, long duration);
-TbBool output_message_from_path(const char* path, long duration);
+TbBool output_message(SoundSmplTblID, int32_t duration);
+TbBool output_message_from_path(const char* path, int32_t duration);
 
 /**
  * Plays a speech message from a SpeechRef.
  * Uses path-based playback if the ref contains a file path, otherwise plays by numeric ID.
  */
-TbBool play_speech_ref(const SpeechRef* ref, long duration);
-TbBool output_custom_message(const char * fname, long duration);
-TbBool output_message_far_from_thing(const struct Thing*, SoundSmplTblID, long duration);
+TbBool play_speech_ref(const SpeechRef* ref, int32_t duration);
+TbBool output_custom_message(const char * fname, int32_t duration);
+TbBool output_message_far_from_thing(const struct Thing*, SoundSmplTblID, int32_t duration);
 void clear_messages(void);
 void process_messages(void);
 TbBool output_room_message(PlayerNumber, RoomKind, OutputMessageKind);

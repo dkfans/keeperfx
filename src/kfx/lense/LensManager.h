@@ -66,14 +66,14 @@ public:
     void Reset();
     
     // Lens control
-    TbBool SetLens(long lens_idx);
-    long GetActiveLens() const { return m_active_lens; }
-    long GetAppliedLens() const { return m_applied_lens; }
+    TbBool SetLens(int32_t lens_idx);
+    int32_t GetActiveLens() const { return m_active_lens; }
+    int32_t GetAppliedLens() const { return m_applied_lens; }
     
     // Rendering (always succeeds - handles fallback internally)
     void Draw(unsigned char* srcbuf, unsigned char* dstbuf, 
-             long srcpitch, long dstpitch, 
-             long width, long height, long viewport_x);
+             int32_t srcpitch, int32_t dstpitch, 
+             int32_t width, int32_t height, int32_t viewport_x);
     
     // Configuration
     void LoadAccessibilityConfig();
@@ -90,9 +90,9 @@ public:
     TbBool IsReady() const { return m_initialized; }
     
     // Helper: Copy buffer with pitch
-    static void CopyBuffer(unsigned char *dst, long dstpitch,
-                          unsigned char *src, long srcpitch,
-                          long width, long height);
+    static void CopyBuffer(unsigned char *dst, int32_t dstpitch,
+                          unsigned char *src, int32_t srcpitch,
+                          int32_t width, int32_t height);
     
 private:
     LensManager();
@@ -115,8 +115,8 @@ private:
     
     // State
     TbBool m_initialized;
-    long m_active_lens;   // Requested lens
-    long m_applied_lens;  // Currently applied lens
+    int32_t m_active_lens;   // Requested lens
+    int32_t m_applied_lens;  // Currently applied lens
     
     // Effects registry
     std::vector<LensEffect*> m_effects;
@@ -128,8 +128,8 @@ private:
     // Buffers (managed internally)
     uint32_t* m_lens_memory;
     unsigned char* m_spare_screen_memory;
-    long m_buffer_width;
-    long m_buffer_height;
+    int32_t m_buffer_width;
+    int32_t m_buffer_height;
     
     // Configuration
     LensAccessibilityConfig m_config;

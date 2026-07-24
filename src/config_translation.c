@@ -157,7 +157,7 @@ static TbBool load_translation_config_file(const char* filepath, unsigned short 
         clear_translation_table();
     }
 
-    long len = LbFileLengthRnc(filepath);
+    int32_t len = LbFileLengthRnc(filepath);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         SYNCDBG(17,"Translation file \"%s\" does not exist or is too small.", filepath);
@@ -171,7 +171,7 @@ static TbBool load_translation_config_file(const char* filepath, unsigned short 
         return false;
     }
 
-    long fsize = LbFileLoadAt(filepath, buf);
+    int32_t fsize = LbFileLoadAt(filepath, buf);
     if (fsize < len)
     {
         WARNMSG("Failed to read translation file \"%s\".", filepath);

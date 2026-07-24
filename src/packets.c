@@ -126,7 +126,7 @@ float camera_movement_y = 0.0f;
 #define RESYNC_LIMIT_BEFORE_COOLDOWN 5
 #define RESYNC_COOLDOWN_MS (5 * 60 * 1000)
 
-void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
+void set_packet_action(struct Packet *pckt, unsigned char pcktype, int32_t par1, int32_t par2, uint16_t par3, uint16_t par4)
 {
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
@@ -153,7 +153,7 @@ TbBool is_packet_empty(const struct Packet *pckt) {
     return true;
 }
 
-void update_double_click_detection(long plyr_idx)
+void update_double_click_detection(int32_t plyr_idx)
 {
     struct Packet* pckt = get_packet(plyr_idx);
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
@@ -169,7 +169,7 @@ void update_double_click_detection(long plyr_idx)
   }
 }
 
-struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
+struct Room *keeper_build_room(int32_t stl_x,int32_t stl_y,int32_t plyr_idx,int32_t rkind)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
@@ -195,7 +195,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
     return room;
 }
 
-TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
+TbBool process_dungeon_control_packet_spell_overcharge(int32_t plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
@@ -287,7 +287,7 @@ static TbBool resync_game_allowed(void)
     return true;
 }
 
-TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
+TbBool player_sell_room_at_subtile(int32_t plyr_idx, int32_t stl_x, int32_t stl_y)
 {
     struct Room* room = subtile_room_get(stl_x, stl_y);
     if (room_is_invalid(room))
@@ -296,7 +296,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         return false;
     }
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long revenue = compute_value_percentage(roomst->cost, game.conf.rules[plyr_idx].gameplay.room_sale_percent);
+    int32_t revenue = compute_value_percentage(roomst->cost, game.conf.rules[plyr_idx].gameplay.room_sale_percent);
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
@@ -317,11 +317,11 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
 }
 
 
-void process_pause_packet(long curr_pause, long new_pause)
+void process_pause_packet(int32_t curr_pause, int32_t new_pause)
 {
   struct PlayerInfo *player;
   TbBool can = true;
-  for (long i = 0; i < PLAYERS_COUNT; i++)
+  for (int32_t i = 0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
     if (player_exists(player) && (player->is_active == 1))
@@ -380,7 +380,7 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
     if (cam == NULL) {
         return;
     }
-    long inter_val;
+    int32_t inter_val;
     int scroll_speed = cam->zoom;
     if (scroll_speed <= 0)
         scroll_speed = 1;
@@ -418,13 +418,13 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
     {        
         // Apply same scaling as packet-based movement for consistency
         if (camera_movement_y != 0.0f) {
-            long delta = (long)(camera_movement_y * inter_val / 4.0f);
-            long limit = (long)(camera_movement_y * inter_val);
+            int32_t delta = (int32_t)(camera_movement_y * inter_val / 4.0f);
+            int32_t limit = (int32_t)(camera_movement_y * inter_val);
             view_set_camera_y_inertia(cam, delta, limit);
         }
         if (camera_movement_x != 0.0f) {
-            long delta = (long)(camera_movement_x * inter_val / 4.0f);
-            long limit = (long)(camera_movement_x * inter_val);
+            int32_t delta = (int32_t)(camera_movement_x * inter_val / 4.0f);
+            int32_t limit = (int32_t)(camera_movement_x * inter_val);
             view_set_camera_x_inertia(cam, delta, limit);
         }
         camera_movement_x = 0.0f;
@@ -558,7 +558,7 @@ void update_box_lag_compensation(struct PlayerInfo* player) {
     }
 }
 
-void process_players_dungeon_control_packet_control(long plyr_idx)
+void process_players_dungeon_control_packet_control(int32_t plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
@@ -1037,7 +1037,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   }
 }
 
-void process_players_map_packet_control(long plyr_idx)
+void process_players_map_packet_control(int32_t plyr_idx)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -1050,7 +1050,7 @@ void process_players_map_packet_control(long plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void process_map_packet_clicks(long plyr_idx)
+void process_map_packet_clicks(int32_t plyr_idx)
 {
     SYNCDBG(7,"Starting");
     packet_left_button_double_clicked[plyr_idx] = 0;
@@ -1066,16 +1066,16 @@ void process_map_packet_clicks(long plyr_idx)
  * Process packet with input commands for given player.
  * @param plyr_idx Player to process packet for.
  */
-void process_players_packet(long plyr_idx)
+void process_players_packet(int32_t plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     if (is_packet_empty(pckt))
     {
-        MULTIPLAYER_LOG("process_players_packet: Skipping empty packet for player %ld", plyr_idx);
+        MULTIPLAYER_LOG("process_players_packet: Skipping empty packet for player %d", plyr_idx);
         return;
     }
-    SYNCDBG(6, "Processing player %ld packet of type %d.", plyr_idx, (int)pckt->action);
+    SYNCDBG(6, "Processing player %d packet of type %d.", plyr_idx, (int)pckt->action);
     player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
 
@@ -1109,7 +1109,7 @@ void process_players_packet(long plyr_idx)
   SYNCDBG(8,"Finished");
 }
 
-void process_players_creature_passenger_packet_action(long plyr_idx)
+void process_players_creature_passenger_packet_action(int32_t plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
@@ -1123,7 +1123,7 @@ void process_players_creature_passenger_packet_action(long plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-TbBool process_players_dungeon_control_packet_action(long plyr_idx)
+TbBool process_players_dungeon_control_packet_action(int32_t plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
@@ -1152,28 +1152,28 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     return true;
 }
 
-void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll)
+void process_first_person_look(struct Thing *thing, struct Packet *pckt, int32_t current_horizontal, int32_t current_vertical, int32_t *out_horizontal, int32_t *out_vertical, int32_t *out_roll)
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-    long maxTurnSpeed = crconf->max_turning_speed;
+    int32_t maxTurnSpeed = crconf->max_turning_speed;
     if (maxTurnSpeed < 1) {
         maxTurnSpeed = 1;
     }
-    long horizontalTurnSpeed = pckt->pos_x;
+    int32_t horizontalTurnSpeed = pckt->pos_x;
     if (horizontalTurnSpeed < -maxTurnSpeed) {
         horizontalTurnSpeed = -maxTurnSpeed;
     } else if (horizontalTurnSpeed > maxTurnSpeed) {
         horizontalTurnSpeed = maxTurnSpeed;
     }
-    long verticalTurnSpeed = pckt->pos_y;
+    int32_t verticalTurnSpeed = pckt->pos_y;
     if (verticalTurnSpeed < -maxTurnSpeed) {
         verticalTurnSpeed = -maxTurnSpeed;
     } else if (verticalTurnSpeed > maxTurnSpeed) {
         verticalTurnSpeed = maxTurnSpeed;
     }
-    long verticalPos = (current_vertical + verticalTurnSpeed) & ANGLE_MASK;
-    long lowerLimit = ANGLE_MASK - 227;
-    long upperLimit = 227;
+    int32_t verticalPos = (current_vertical + verticalTurnSpeed) & ANGLE_MASK;
+    int32_t lowerLimit = ANGLE_MASK - 227;
+    int32_t upperLimit = 227;
     if (verticalPos > upperLimit && verticalPos < lowerLimit) {
         if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
             verticalPos = upperLimit;
@@ -1201,11 +1201,11 @@ TbBool can_process_creature_input(struct Thing *thing)
     return true;
 }
 
-void process_players_creature_control_packet_control(long idx)
+void process_players_creature_control_packet_control(int32_t idx)
 {
     SYNCDBG(6,"Starting");
     struct InstanceInfo *inst_inf;
-    long i;
+    int32_t i;
     struct PlayerInfo* player = get_player(idx);
     struct Thing* cctng = thing_get(player->controlled_thing_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
@@ -1213,7 +1213,7 @@ void process_players_creature_control_packet_control(long idx)
     ThingIndex target_idx;
     if (can_process_creature_input(cctng))
     {
-        long speed_limit = get_creature_speed(cctng);
+        int32_t speed_limit = get_creature_speed(cctng);
         if ((pckt->control_flags & PCtr_MoveUp) != 0)
         {
             if (!creature_control_invalid(ccctrl))
@@ -1309,7 +1309,7 @@ void process_players_creature_control_packet_control(long idx)
                 }
             }
         }
-        long new_horizontal, new_vertical, new_roll;
+        int32_t new_horizontal, new_vertical, new_roll;
         process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
         cctng->move_angle_xy = new_horizontal;
         cctng->move_angle_z = new_vertical;
@@ -1398,14 +1398,14 @@ void process_players_creature_control_packet_control(long idx)
     }
 }
 
-void process_players_creature_control_packet_action(long plyr_idx)
+void process_players_creature_control_packet_action(int32_t plyr_idx)
 {
   struct CreatureControl *cctrl;
   struct InstanceInfo *inst_inf;
   struct PlayerInfo *player;
   struct Thing *thing;
   struct Packet *pckt;
-  long i;
+  int32_t i;
   player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
@@ -1514,7 +1514,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
 static void load_old_packets(void)
 {
     GameTurn historical_turn = get_gameturn() - game.input_lag_turns;
-    MULTIPLAYER_LOG("load_input_lag_packets: current_turn=%lu historical_turn=%lu", (unsigned long)get_gameturn(), (unsigned long)historical_turn);
+    MULTIPLAYER_LOG("load_input_lag_packets: current_turn=%u historical_turn=%u", (uint32_t)get_gameturn(), (uint32_t)historical_turn);
 
     for (int i = 0; i < PACKETS_COUNT; i++) {
         const char* player_name = (i == 0) ? "Host" : "Client";
@@ -1525,7 +1525,7 @@ static void load_old_packets(void)
                 if (is_packet_empty(&game.packets[i])) {
                     MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] is EMPTY", player_name);
                 } else {
-                    MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)game.packets[i].turn, (unsigned long)game.packets[i].checksum);
+                    MULTIPLAYER_LOG("load_input_lag_packets: loaded packet[%s] turn=%u checksum=%08x", player_name, (uint32_t)game.packets[i].turn, (uint32_t)game.packets[i].checksum);
                 }
             }
             continue;
@@ -1541,7 +1541,7 @@ static void load_old_packets(void)
 void set_local_packet_turn(void) {
     struct Packet* pckt = get_packet(my_player_number);
     pckt->turn = get_gameturn();
-    MULTIPLAYER_LOG("set_local_packet_turn: turn=%lu checksum=%08lx", (unsigned long)get_gameturn(), (unsigned long)pckt->checksum);
+    MULTIPLAYER_LOG("set_local_packet_turn: turn=%u checksum=%08x", (uint32_t)get_gameturn(), (uint32_t)pckt->checksum);
 }
 
 
@@ -1553,7 +1553,7 @@ void exchange_packets(void)
     struct PlayerInfo* player = get_my_player();
     SYNCDBG(5, "Starting");
 
-    MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
+    MULTIPLAYER_LOG("process_packets: === BEGIN turn=%u ===", (uint32_t)get_gameturn());
     input_lag_update(get_packet_direct(player->packet_num));
     set_local_packet_turn();
     update_turn_checksums();
@@ -1566,7 +1566,7 @@ void exchange_packets(void)
             struct Packet* my_packet = get_packet_direct(player->packet_num);
             const char* player_name;
             if (player->packet_num == 0) {player_name = "Host";} else {player_name = "Client";}
-            MULTIPLAYER_LOG("process_packets: SENDING packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)my_packet->turn, (unsigned long)my_packet->checksum);
+            MULTIPLAYER_LOG("process_packets: SENDING packet[%s] turn=%u checksum=%08x", player_name, (uint32_t)my_packet->turn, (uint32_t)my_packet->checksum);
             if (LbNetwork_ExchangeGameplay(my_packet, game.packets, sizeof(struct Packet)) != Lb_OK) {
                 ERRORLOG("LbNetwork_ExchangeGameplay failed");
             }
@@ -1632,7 +1632,7 @@ void process_packets(void)
         }
     }
     get_current_stutter_milliseconds();
-    MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)get_gameturn());
+    MULTIPLAYER_LOG("process_packets: === END turn=%u ===", (uint32_t)get_gameturn());
     SYNCDBG(7,"Finished");
 }
 

@@ -26,12 +26,12 @@ public:
     OverlayEffect();
     virtual ~OverlayEffect();
     
-    virtual TbBool Setup(long lens_idx) override;
+    virtual TbBool Setup(int32_t lens_idx) override;
     virtual void Cleanup() override;
     virtual TbBool Draw(LensRenderContext* ctx) override;
     
 private:
-    long m_current_lens;
+    int32_t m_current_lens;
 };
 
 /******************************************************************************/

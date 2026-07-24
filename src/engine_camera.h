@@ -47,8 +47,8 @@ struct Thing;
 #define CAMERA_TILT_MIN -350
 #define CAMERA_TILT_MAX -200
 
-extern long zoom_distance_setting; // CFG setting
-extern long frontview_zoom_distance_setting; // CFG setting
+extern int32_t zoom_distance_setting; // CFG setting
+extern int32_t frontview_zoom_distance_setting; // CFG setting
 
 enum CameraIndexValues {
     CamIV_Isometric = 0,
@@ -59,8 +59,8 @@ enum CameraIndexValues {
 };
 
 struct MinMax { // sizeof = 8
-    long min;
-    long max;
+    int32_t min;
+    int32_t max;
 };
 
 struct ComponentVector {
@@ -79,9 +79,9 @@ struct Camera {
     int zoom;
     int inertia_rotation;
     TbBool in_active_movement_rotation;
-    long inertia_x;
+    int32_t inertia_x;
     TbBool in_active_movement_x;
-    long inertia_y;
+    int32_t inertia_y;
     TbBool in_active_movement_y;
     TbBool use_rotation_pivot;
     struct Coord2d rotation_pivot;
@@ -94,28 +94,28 @@ extern struct EngineCoord object_origin;
 
 #pragma pack()
 /******************************************************************************/
-extern long camera_zoom;
+extern int32_t camera_zoom;
 /******************************************************************************/
-void angles_to_vector(short theta, short phi, long dist, struct ComponentVector *cvect);
-long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
-long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
+void angles_to_vector(short theta, short phi, int32_t dist, struct ComponentVector *cvect);
+int32_t get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
+int32_t get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
 MapCoordDelta get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 MapCoordDelta get_2d_distance_squared(const struct Coord3d *pos1, const struct Coord3d *pos2);
-long get_angle_xy_to_vec(const struct CoordDelta3d *vec);
-long get_angle_yz_to_vec(const struct CoordDelta3d *vec);
-void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, long angle_xy, long angle_z, long distance, long num_steps);
+int32_t get_angle_xy_to_vec(const struct CoordDelta3d *vec);
+int32_t get_angle_yz_to_vec(const struct CoordDelta3d *vec);
+void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, int32_t angle_xy, int32_t angle_z, int32_t distance, int32_t num_steps);
 
-void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min);
+void view_zoom_camera_in(struct Camera *cam, int32_t limit_max, int32_t limit_min);
 void view_zoom_camera_in_to(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y);
-void set_camera_zoom(struct Camera *cam, long val);
-void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min);
+void set_camera_zoom(struct Camera *cam, int32_t val);
+void view_zoom_camera_out(struct Camera *cam, int32_t limit_max, int32_t limit_min);
 void view_zoom_camera_out_from(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y);
-long get_camera_zoom(struct Camera *cam);
-unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
-void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
+int32_t get_camera_zoom(struct Camera *cam);
+uint32_t scale_camera_zoom_to_screen(uint32_t zoom_lvl);
+void update_camera_zoom_bounds(struct Camera *cam,uint32_t zoom_max,uint32_t zoom_min);
 
-void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit);
-void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit);
+void view_set_camera_y_inertia(struct Camera *cam, int32_t delta, int32_t ilimit);
+void view_set_camera_x_inertia(struct Camera *cam, int32_t delta, int32_t ilimit);
 void view_set_camera_rotation_inertia(struct Camera *cam, int32_t delta, int32_t ilimit);
 void view_set_camera_rotation_inertia_around(struct Camera *cam, int32_t delta, int32_t ilimit, MapCoord x, MapCoord y);
 void view_set_camera_tilt(struct Camera *cam, unsigned char mode);

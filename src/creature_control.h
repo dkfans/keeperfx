@@ -201,7 +201,7 @@ struct CreatureControl {
     int32_t turns_at_job;
     short blocking_door_id;
     unsigned char move_flags;
-    unsigned long cleanse_flags;
+    uint32_t cleanse_flags;
 
   union // Union on diggers, heroes and normal creatures
   {
@@ -461,10 +461,10 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
 TbBool disband_creatures_group(struct Thing *thing);
 struct Thing *get_group_last_member(struct Thing *thing);
 
-void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4);
-void stop_creature_sound(struct Thing *thing, long snd_idx);
-void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long a2);
-struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx);
+void play_creature_sound(struct Thing *thing, int32_t snd_idx, int32_t a3, int32_t a4);
+void stop_creature_sound(struct Thing *thing, int32_t snd_idx);
+void play_creature_sound_and_create_sound_thing(struct Thing *thing, int32_t snd_idx, int32_t a2);
+struct CreatureSound *get_creature_sound(struct Thing *thing, int32_t snd_idx);
 TbBool creature_can_gain_experience(const struct Thing *thing);
 
 /** Convert a CreatureSound slot + variant index to the unified sample ID.
@@ -472,7 +472,7 @@ TbBool creature_can_gain_experience(const struct Thing *thing);
  *  Custom sounds:   index is negative -(bank+1); thing_play_sample converts
  *                   these to get_custom_offset()+(-index-1)+i. We produce
  *                   the same unified ID so S3DEmitterIsPlayingSample can match. */
-static inline SoundSmplTblID creature_sound_unified_id(const struct CreatureSound *crsound, long i)
+static inline SoundSmplTblID creature_sound_unified_id(const struct CreatureSound *crsound, int32_t i)
 {
     if (crsound->index < 0)
         return (SoundSmplTblID)(get_custom_offset() + (-crsound->index - 1) + i);

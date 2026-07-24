@@ -42,7 +42,7 @@ int32_t cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
 int32_t cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
 /******************************************************************************/
 
-void LbCursorSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
+void LbCursorSpriteSetScalingWidthClipped(int32_t x, int32_t swidth, int32_t dwidth, int32_t gwidth)
 {
     SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
     if (swidth > CURSOR_SCALING_XSTEPS)
@@ -50,7 +50,7 @@ void LbCursorSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long
     LbSpriteSetScalingWidthClippedArray(cursor_xsteps_array, x, swidth, dwidth, gwidth);
 }
 
-void LbCursorSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
+void LbCursorSpriteSetScalingWidthSimple(int32_t x, int32_t swidth, int32_t dwidth)
 {
     SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
     if (swidth > CURSOR_SCALING_XSTEPS)
@@ -58,7 +58,7 @@ void LbCursorSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
     LbSpriteSetScalingWidthSimpleArray(cursor_xsteps_array, x, swidth, dwidth);
 }
 
-void LbCursorSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gheight)
+void LbCursorSpriteSetScalingHeightClipped(int32_t y, int32_t sheight, int32_t dheight, int32_t gheight)
 {
     SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
     if (sheight > CURSOR_SCALING_YSTEPS)
@@ -66,7 +66,7 @@ void LbCursorSpriteSetScalingHeightClipped(long y, long sheight, long dheight, l
     LbSpriteSetScalingHeightClippedArray(cursor_ysteps_array, y, sheight, dheight, gheight);
 }
 
-void LbCursorSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
+void LbCursorSpriteSetScalingHeightSimple(int32_t y, int32_t sheight, int32_t dheight)
 {
     SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
     if (sheight > CURSOR_SCALING_YSTEPS)
@@ -77,7 +77,7 @@ void LbCursorSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
 /**
  * Draws the mouse pointer sprite on a display buffer.
  */
-static long PointerDraw(long x, long y, const struct TbSprite *spr, TbPixel *outbuf, unsigned long scanline)
+static int32_t PointerDraw(int32_t x, int32_t y, const struct TbSprite *spr, TbPixel *outbuf, uint32_t scanline)
 {
     unsigned int dwidth;
     unsigned int dheight;
@@ -138,10 +138,10 @@ LbI_PointerHandler::~LbI_PointerHandler(void)
     Release();
 }
 
-void LbI_PointerHandler::SetHotspot(long x, long y)
+void LbI_PointerHandler::SetHotspot(int32_t x, int32_t y)
 {
-    long prev_x;
-    long prev_y;
+    int32_t prev_x;
+    int32_t prev_y;
     std::lock_guard<std::mutex> guard(lock);
     if (this->is_active)
     {
@@ -191,7 +191,7 @@ void LbI_PointerHandler::Initialise(const struct TbSprite *spr, struct TbPoint *
 {
     void *surfbuf;
     TbPixel *buf;
-    long i;
+    int32_t i;
     int dstwidth;
     int dstheight;
     Release();
@@ -228,7 +228,7 @@ void LbI_PointerHandler::Initialise(const struct TbSprite *spr, struct TbPoint *
 
 void LbI_PointerHandler::Draw(bool a1)
 {
-    unsigned long flags;
+    uint32_t flags;
     flags = 0x10 | 0x08 | 0x04;
     if ( a1 )
       flags |= 0x02;
@@ -237,7 +237,7 @@ void LbI_PointerHandler::Draw(bool a1)
 
 void LbI_PointerHandler::Backup(bool a1)
 {
-    unsigned long flags;
+    uint32_t flags;
     flags = 0x10;
     if ( a1 )
       flags |= 0x02;
@@ -247,7 +247,7 @@ void LbI_PointerHandler::Backup(bool a1)
 
 void LbI_PointerHandler::Undraw(bool a1)
 {
-    unsigned long flags;
+    uint32_t flags;
     flags = 0x10 | 0x08;
     if ( a1 )
       flags |= 0x02;

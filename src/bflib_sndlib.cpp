@@ -456,8 +456,8 @@ static std::unordered_map<SoundSmplTblID, SoundStackPolicy> g_stack_policies;
 // Tick-scoped gate reproducing the pre-Custom-Sounds behaviour exactly: a sample ID with
 // no explicit STACK= policy may only start once per "tick", regardless of which emitter
 // triggers it.
-static unsigned long g_audio_tick_counter = 0; // tick != turn; ticks continue while navigating the frontend/main menu
-static std::unordered_map<SoundSmplTblID, unsigned long> g_tick_samples_last_tick;
+static uint32_t g_audio_tick_counter = 0; // tick != turn; ticks continue while navigating the frontend/main menu
+static std::unordered_map<SoundSmplTblID, uint32_t> g_tick_samples_last_tick;
 
 static SoundStackPolicy get_stack_policy(SoundSmplTblID smptbl_id) {
 	const auto it = g_stack_policies.find(smptbl_id);
@@ -594,9 +594,9 @@ extern "C" void FreeAudio() {
 	g_banks[0].clear();
 	g_banks[1].clear();
 	g_custom_bank.clear();  // Clear custom sounds when cleaning up audio
-	g_id_redirects.clear(); // Clear raw-ID redirects alongside custom bank
-	g_stack_policies.clear(); // Clear stacking policies alongside custom bank
-	g_tick_samples_last_tick.clear(); // Clear per-tick stacking gate alongside custom bank
+	g_id_redirects.clear(); // Clear raw-ID redirects aint32_tside custom bank
+	g_stack_policies.clear(); // Clear stacking policies aint32_tside custom bank
+	g_tick_samples_last_tick.clear(); // Clear per-tick stacking gate aint32_tside custom bank
 	SYNCDBG(7, "Cleared OpenAL sources and sound banks");
 
 	// Now destroy OpenAL context and device (unique_ptr handles proper cleanup)
@@ -641,7 +641,7 @@ extern "C" void sound_save_id_redirect_snapshot(void) {
 	g_id_redirects_snapshot = g_id_redirects;
 	g_stack_policies_snapshot = g_stack_policies;
 	g_custom_bank_watermark = g_custom_bank.size();
-	SYNCDBG(7, "Saved sound snapshot: %" PRIuSIZE " redirects, %" PRIuSIZE " stack policies, %" PRIuSIZE " custom bank entries",
+	SYNCDBG(7, "Saved sound snapshot: %u" PRIuSIZE " redirects, %u" PRIuSIZE " stack policies, %u" PRIuSIZE " custom bank entries",
 		SZCAST(g_id_redirects_snapshot.size()), SZCAST(g_stack_policies_snapshot.size()), SZCAST(g_custom_bank_watermark));
 }
 
@@ -649,11 +649,11 @@ extern "C" void sound_restore_id_redirect_snapshot(void) {
 	g_id_redirects = g_id_redirects_snapshot;
 	g_stack_policies = g_stack_policies_snapshot;
 	if (g_custom_bank.size() > g_custom_bank_watermark) {
-		SYNCDBG(7, "Trimming custom bank from %" PRIuSIZE " to %" PRIuSIZE " entries",
+		SYNCDBG(7, "Trimming custom bank from %u" PRIuSIZE " to %u" PRIuSIZE " entries",
 			SZCAST(g_custom_bank.size()), SZCAST(g_custom_bank_watermark));
 		g_custom_bank.erase(g_custom_bank.begin() + (ptrdiff_t)g_custom_bank_watermark, g_custom_bank.end());
 	}
-	SYNCDBG(7, "Restored sound snapshot: %" PRIuSIZE " redirects, %" PRIuSIZE " stack policies",
+	SYNCDBG(7, "Restored sound snapshot: %u" PRIuSIZE " redirects, %u" PRIuSIZE " stack policies",
 		SZCAST(g_id_redirects.size()), SZCAST(g_stack_policies.size()));
 }
 
@@ -707,7 +707,7 @@ extern "C" TbBool play_music(const char * fname) {
 	return true;
 }
 
-static const char * find_music_file_for_mod_list(short fgroup, const char * fname, const struct ModConfigItem *mod_items, long mod_cnt)
+static const char * find_music_file_for_mod_list(short fgroup, const char * fname, const struct ModConfigItem *mod_items, int32_t mod_cnt)
 {
     if (fgroup != FGrp_CmpgMedia && fgroup != FGrp_Music)
         return NULL;
@@ -717,7 +717,7 @@ static const char * find_music_file_for_mod_list(short fgroup, const char * fnam
     fgroup = FGrp_Music;
 
     // Note that this is the reverse mods direction
-    for (long i=mod_cnt-1; i>=0; i--)
+    for (int32_t i=mod_cnt-1; i>=0; i--)
     {
         const struct ModConfigItem *mod_item = mod_items + i;
         if (mod_item->state.mod_dir == 0)

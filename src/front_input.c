@@ -101,8 +101,8 @@ TbBool first_person_see_item_desc = false;
 static TbBool move_camera_this_turn;
 static GameTurn hand_pick_pending_turn;
 
-long old_mx;
-long old_my;
+int32_t old_mx;
+int32_t old_my;
 
 enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Always;
 enum RotateAroundMouseOptions rotate_around_mouse_option = RotateAroundMouse_Never;
@@ -227,18 +227,18 @@ static void get_movement_inputs(float* out_movement_x, float* out_movement_y, Tb
     *out_movement_y = clamp(*out_movement_y, -1.0f, 1.0f);
 }
 
-static long get_current_gui_layer()
+static int32_t get_current_gui_layer()
 {
     return gui_layer.current_gui_layer;
 }
 
-static TbBool set_current_gui_layer(long layer_id)
+static TbBool set_current_gui_layer(int32_t layer_id)
 {
     gui_layer.current_gui_layer = layer_id;
     return true;
 }
 
-TbBool check_current_gui_layer(long layer_id)
+TbBool check_current_gui_layer(int32_t layer_id)
 {
     // Check the current gui layer against the one passed as a parameter
     // Also checks if the passed layer_id is the parent of the current gui layer
@@ -307,7 +307,7 @@ short game_is_busy_doing_gui_string_input(void)
   return (input_button != NULL);
 }
 
-int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods)
+int is_game_key_pressed(int32_t key_id, TbBool clear_pressed, TbBool ignore_mods)
 {
   int result;
   int i;
@@ -399,14 +399,14 @@ int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods)
   return result;
 }
 
-TbControllerButtons get_game_key_controller_buttons(long key_id)
+TbControllerButtons get_game_key_controller_buttons(int32_t key_id)
 {
     if ((key_id < 0) || (key_id >= GAME_KEYS_COUNT))
         return 0;
     return settings.kbkeys[key_id].controller_buttons;
 }
 
-float get_game_key_axis_value(long key_id, TbBool ignore_mods)
+float get_game_key_axis_value(int32_t key_id, TbBool ignore_mods)
 {
     if ((key_id == Gkey_MoveRight && is_key_pressed(KC_RIGHT, KMod_DONTCARE)) ||
         (key_id == Gkey_MoveLeft  && is_key_pressed(KC_LEFT, KMod_DONTCARE)) ||
@@ -525,7 +525,7 @@ static void clip_frame_skip(void)
 
 static void increaseFrameskip(void)
 {
-    // Default no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
+    // Default no int32_ter using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
     int level = 16;
     for (int i=0; i<10; i++) {
         if (game.frame_skip < level)
@@ -543,7 +543,7 @@ static void increaseFrameskip(void)
 
 static void decreaseFrameskip(void)
 {
-    // Defaul no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
+    // Defaul no int32_ter using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
     int level = 16;
     for (int i=0; i<10; i++) {
         if (game.frame_skip <= level)
@@ -597,12 +597,12 @@ static short get_packet_load_game_control_inputs(void)
   return false;
 }
 
-static long get_small_map_inputs(long x, long y, long zoom)
+static int32_t get_small_map_inputs(int32_t x, int32_t y, int32_t zoom)
 {
   SYNCDBG(7,"Starting");
   short result = 0;
-  long curr_mx = GetMouseX();
-  long curr_my = GetMouseY();
+  int32_t curr_mx = GetMouseX();
+  int32_t curr_my = GetMouseY();
   if (!grabbed_small_map)
     game.small_map_state = 0;
   if (((game.operation_flags & GOF_ShowGui) != 0) && (mouse_is_over_panel_map(x,y) || grabbed_small_map))
@@ -794,7 +794,7 @@ static short get_global_inputs(void)
 
       if ( toggle_pause )
       {
-        long grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave);// the paused flag is currently set to the current pause state, not the state we are about to enter
+        int32_t grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave);// the paused flag is currently set to the current pause state, not the state we are about to enter
         LbGrabMouseCheck(grab_check_flags);
         if (pause_music_when_game_paused())
         {
@@ -895,8 +895,8 @@ static TbBool get_level_lost_inputs(void)
     if (player->view_type == PVT_MapScreen)
     {
         struct Camera* camera = get_player_active_camera(player);
-        long mouse_x = GetMouseX();
-        long mouse_y = GetMouseY();
+        int32_t mouse_x = GetMouseX();
+        int32_t mouse_y = GetMouseY();
         // Position on the parchment map on which we're doing action
         int32_t map_x;
         int32_t map_y;
@@ -989,7 +989,7 @@ static TbBool get_level_lost_inputs(void)
                   if (mm_units_per_px < 1)
                       mm_units_per_px = 1;
               }
-              long mmzoom;
+              int32_t mmzoom;
               if (16/mm_units_per_px < 3)
                   mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
               else
@@ -1407,7 +1407,7 @@ static TbBool get_dungeon_control_action_inputs(void)
             mm_units_per_px = 1;
         }
     }
-    long mmzoom;
+    int32_t mmzoom;
     if (16 / mm_units_per_px < 3)
     {
         mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
@@ -2132,8 +2132,8 @@ static short get_map_action_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     struct Camera* camera = get_player_active_camera(player);
-    long mouse_x = GetMouseX();
-    long mouse_y = GetMouseY();
+    int32_t mouse_x = GetMouseX();
+    int32_t mouse_y = GetMouseY();
     // Get map coordinates from mouse position on parchment screen
     int32_t map_x;
     int32_t map_y;
@@ -2228,9 +2228,9 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
     }
     if (is_feature_on(Ft_DisableCursorCameraPanning) == false)
     {
-        long mx = my_mouse_x;
-        long my = my_mouse_y;
-        long edge_scrolling_border = max(4, scale_fixed_DK_value(4));
+        int32_t mx = my_mouse_x;
+        int32_t my = my_mouse_y;
+        int32_t edge_scrolling_border = max(4, scale_fixed_DK_value(4));
         if (mx <= edge_scrolling_border)
         {
             if ( is_game_key_pressed(Gkey_MoveLeft, false, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
@@ -2349,8 +2349,8 @@ static void get_overhead_view_nonaction_inputs(void)
     SYNCDBG(19,"Starting");
     struct PlayerInfo* player = get_my_player();
     struct Packet* pckt = get_packet(my_player_number);
-    long my = my_mouse_y;
-    long mx = my_mouse_x;
+    int32_t my = my_mouse_y;
+    int32_t mx = my_mouse_x;
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, false, true);
     if ((player->allocflags & PlaF_KeyboardInputDisabled) == 0)
@@ -2452,8 +2452,8 @@ static void get_front_view_nonaction_inputs(void)
  */
 static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context)
 {
-  unsigned long x;
-  unsigned long y;
+  uint32_t x;
+  uint32_t y;
   struct PlayerInfo* player = get_my_player();
   TbBool hand_is_empty = power_hand_is_empty(player);
   if ((pointer_x < 0) || (pointer_y < 0)
@@ -2680,8 +2680,8 @@ static void get_creature_control_nonaction_inputs(void)
         return;
     }
     struct Packet* pckt = get_packet(my_player_number);
-    long x = GetMouseX();
-    long y = GetMouseY();
+    int32_t x = GetMouseX();
+    int32_t y = GetMouseY();
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     TRACE_THING(thing);
     TbBool cheat_menu_active = cheat_menu_is_active();
@@ -2694,11 +2694,11 @@ static void get_creature_control_nonaction_inputs(void)
     }
     if (!cheat_menu_active && !a_menu_window_is_active())
     {
-        long centerX = MyScreenWidth / 2;
-        long centerY = MyScreenHeight / 2;
-        long deltaX = x - centerX;
-        long deltaY = y - centerY;
-        long k;
+        int32_t centerX = MyScreenWidth / 2;
+        int32_t centerY = MyScreenHeight / 2;
+        int32_t deltaX = x - centerX;
+        int32_t deltaY = y - centerY;
+        int32_t k;
 
         // Map to the range -255 to 255
         pckt->pos_x = 255 * deltaX / centerX;
@@ -2708,7 +2708,7 @@ static void get_creature_control_nonaction_inputs(void)
             pckt->pos_y = -255 * deltaY / centerY;
         }
 
-        long i = settings.first_person_move_sensitivity + 1;
+        int32_t i = settings.first_person_move_sensitivity + 1;
         x = pckt->pos_x;
         y = pckt->pos_y;
 
@@ -2832,7 +2832,7 @@ static void get_player_gui_clicks(void)
                           {
                               if (!left_button_held)
                               {
-                                  long mode = settings.highlight_mode;
+                                  int32_t mode = settings.highlight_mode;
                                   mode ^= 1;
                                   set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
                               }
@@ -2854,7 +2854,7 @@ static void get_player_gui_clicks(void)
                                 {
                                     if (!left_button_held)
                                     {
-                                        long mode = settings.highlight_mode;
+                                        int32_t mode = settings.highlight_mode;
                                         mode ^= 1;
                                         set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
                                     }

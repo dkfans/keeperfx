@@ -48,7 +48,7 @@ enum TbFeature {
     Ft_PauseMusicOnGamePause        = 0x2000,
     Ft_MuteAudioOnLoseFocus         = 0x4000,
     Ft_SkipHeartZoom                = 0x8000,
-    Ft_SkipSplashScreens            = 0x10000, // no longer used
+    Ft_SkipSplashScreens            = 0x10000, // no int32_ter used
     Ft_DisableCursorCameraPanning   = 0x20000,
     Ft_DeltaTime                    = 0x40000,
     Ft_NoCdMusic                    = 0x80000,
@@ -113,7 +113,7 @@ extern char keeper_runtime_directory[152];
 
 #pragma pack()
 /******************************************************************************/
-extern unsigned long features_enabled;
+extern uint32_t features_enabled;
 extern const struct NamedCommand lang_type[];
 extern const struct NamedCommand scrshot_type[];
 extern char cmd_char;
@@ -128,7 +128,7 @@ short load_configuration(void);
 void process_cmdline_overrides(void);
 int parse_draw_fps_config_val(const char *arg, int32_t *fps_draw_main, int32_t *fps_draw_secondary);
 /******************************************************************************/
-TbBool is_feature_on(unsigned long feature);
+TbBool is_feature_on(uint32_t feature);
 void set_skip_heart_zoom_feature(TbBool enable);
 TbBool get_skip_heart_zoom_feature(void);
 TbBool censorship_enabled(void);

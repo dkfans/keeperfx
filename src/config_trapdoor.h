@@ -37,12 +37,12 @@ struct DoorConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
     TextStringId tooltip_stridx;
-    long bigsym_sprite_idx;
-    long medsym_sprite_idx;
-    long pointer_sprite_idx;
-    long panel_tab_idx;
+    int32_t bigsym_sprite_idx;
+    int32_t medsym_sprite_idx;
+    int32_t pointer_sprite_idx;
+    int32_t panel_tab_idx;
     unsigned char manufct_level;
-    unsigned long manufct_required;
+    uint32_t manufct_required;
     HitPoints health;
     unsigned short slbkind[2];
     unsigned short open_speed;
@@ -65,12 +65,12 @@ struct TrapConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId name_stridx;
     TextStringId tooltip_stridx;
-    long bigsym_sprite_idx;
-    long medsym_sprite_idx;
-    long pointer_sprite_idx;
-    long panel_tab_idx;
+    int32_t bigsym_sprite_idx;
+    int32_t medsym_sprite_idx;
+    int32_t pointer_sprite_idx;
+    int32_t panel_tab_idx;
     unsigned char manufct_level;
-    unsigned long manufct_required;
+    uint32_t manufct_required;
     int shots;
     GameTurnDelta shots_delay;
     unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
@@ -94,13 +94,13 @@ struct TrapConfigStats {
     EffectOrEffElModel destroyed_effect;
     short size_xy;
     short size_z;
-    unsigned long sprite_anim_idx;
-    unsigned long attack_sprite_anim_idx;
-    unsigned long recharge_sprite_anim_idx;
-    unsigned long sprite_size_max;
-    unsigned long anim_speed;
-    unsigned long attack_anim_speed;
-    unsigned long recharge_anim_speed;
+    uint32_t sprite_anim_idx;
+    uint32_t attack_sprite_anim_idx;
+    uint32_t recharge_sprite_anim_idx;
+    uint32_t sprite_size_max;
+    uint32_t anim_speed;
+    uint32_t attack_anim_speed;
+    uint32_t recharge_anim_speed;
     unsigned char unanimated;
     unsigned char unshaded;
     unsigned char random_start_frame;
@@ -121,7 +121,7 @@ struct TrapConfigStats {
     FuncIdx updatefn_idx;
 };
 
-/* Manufacture types data. Originally was named TrapData, but stores both traps and doors, now no longer matches original. */
+/* Manufacture types data. Originally was named TrapData, but stores both traps and doors, now no int32_ter matches original. */
 struct ManufactureData {
     ThingClass tngclass; // Thing class created when manufactured design is placed.
     ThingModel tngmodel; // Thing model created when manufactured design is placed.
@@ -162,12 +162,12 @@ const char *trap_code_name(int tngmodel);
 int door_model_id(const char * code_name);
 int trap_model_id(const char * code_name);
 
-TbBool is_trap_placeable(PlayerNumber plyr_idx, long trap_idx);
-TbBool is_trap_buildable(PlayerNumber plyr_idx, long trap_idx);
-TbBool is_trap_built(PlayerNumber plyr_idx, long tngmodel);
-TbBool is_door_placeable(PlayerNumber plyr_idx, long door_idx);
-TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx);
-TbBool is_door_built(PlayerNumber plyr_idx, long door_idx);
+TbBool is_trap_placeable(PlayerNumber plyr_idx, int32_t trap_idx);
+TbBool is_trap_buildable(PlayerNumber plyr_idx, int32_t trap_idx);
+TbBool is_trap_built(PlayerNumber plyr_idx, int32_t tngmodel);
+TbBool is_door_placeable(PlayerNumber plyr_idx, int32_t door_idx);
+TbBool is_door_buildable(PlayerNumber plyr_idx, int32_t door_idx);
+TbBool is_door_built(PlayerNumber plyr_idx, int32_t door_idx);
 TbBool create_manufacture_array_from_trapdoor_data(void);
 TbBool make_available_all_doors(PlayerNumber plyr_idx);
 TbBool make_available_all_traps(PlayerNumber plyr_idx);

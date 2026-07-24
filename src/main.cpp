@@ -268,8 +268,8 @@ TbBool should_use_delta_time_on_menu()
 
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
 {
-    long win_plyr_idx;
-    long i;
+    int32_t win_plyr_idx;
+    int32_t i;
     win_plyr_idx = win_player->id_number;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
@@ -278,7 +278,7 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
       if (!player_is_friendly_or_defeated(i,win_plyr_idx))
         return false;
     }
-    SYNCDBG(1,"Returning true for player %ld",win_plyr_idx);
+    SYNCDBG(1,"Returning true for player %d",win_plyr_idx);
     return true;
 }
 
@@ -305,11 +305,11 @@ void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta)
     }
 }
 
-long get_foot_creature_has_down(struct Thing *thing)
+int32_t get_foot_creature_has_down(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     unsigned short val;
-    long i;
+    int32_t i;
     int n;
     cctrl = creature_control_get_from_thing(thing);
     val = thing->current_frame;
@@ -339,10 +339,10 @@ void process_keeper_spell_aura(struct Thing *thing)
         return;
     }
     struct Coord3d pos;
-    long amp;
-    long direction;
-    long delta_x;
-    long delta_y;
+    int32_t amp;
+    int32_t direction;
+    int32_t delta_x;
+    int32_t delta_y;
     amp = 5 * thing->clipbox_size_xy / 8;
     direction = THING_RANDOM(thing, DEGREES_360);
     delta_x = (amp * LbSinL(direction) >> 8);
@@ -354,7 +354,7 @@ void process_keeper_spell_aura(struct Thing *thing)
     create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner, thing->index);
 }
 
-unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
+uint32_t lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
 {
     struct Camera *camera = get_player_active_camera(player);
     if (camera == NULL)
@@ -375,7 +375,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
         return;
     }
     struct Dungeon *dungeon;
-    unsigned long k;
+    uint32_t k;
     int i;
     dungeon = get_players_num_dungeon(traptng->owner);
     k = 0;
@@ -425,10 +425,10 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
     }
 }
 
-long apply_wallhug_force_to_boulder(struct Thing *thing)
+int32_t apply_wallhug_force_to_boulder(struct Thing *thing)
 {
   unsigned short angle;
-  long collide;
+  int32_t collide;
   unsigned short new_angle;
   struct Coord3d pos2;
   struct Coord3d pos;
@@ -441,7 +441,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   {
     if ( thing_touching_floor(thing) )
     {
-      long top_cube = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num, NULL);
+      int32_t top_cube = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num, NULL);
       if ( ((top_cube & 0xFFFFFFFE) != 0x28) && (top_cube != 39) )
       {
         thing->veloc_push_add.z.val += 48;
@@ -451,7 +451,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   }
   if ( thing_in_wall_at(thing, &pos) )
   {
-    long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+    int32_t blocked_flags = get_thing_blocked_flags_at(thing, &pos);
     if ( blocked_flags & SlbBloF_WalledX )
     {
       angle = thing->move_angle_xy;
@@ -535,7 +535,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   return 0;
 }
 
-long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y)
+int32_t process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y)
 {
     unsigned short boulder_radius = (boulder->clipbox_size_xy >> 1);
     MapSubtlCoord pos_x = (pos->x.val + boulder_radius * direction_x) >> 8;
@@ -582,7 +582,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
     return 0; // Default: No collision OR boulder destroyed on door
 }
 
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx)
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, int32_t delta_step, int32_t num_per_step, short ef_or_efel_model, ThingIndex parent_idx)
 {
   MapCoordDelta dist_x;
   MapCoordDelta dist_y;
@@ -693,7 +693,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
     }
 }
 
-void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, EffectOrEffElModel ef_or_efel_model)
+void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, int32_t eeinterspace, EffectOrEffElModel ef_or_efel_model)
 {
     MapCoordDelta dist_x = pos2->x.val - pos1->x.val;
     MapCoordDelta dist_y = pos2->y.val - pos1->y.val;
@@ -952,7 +952,7 @@ TbBool initial_setup(void)
     // setting this will force video mode change, even if previous one is same
     MinimalResolutionSetup = true;
     // Set size of static textures buffer
-    game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
+    game_load_files[1].SLength = max((uint32_t)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(uint32_t)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
     if (LbDataLoadAllV2(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
@@ -980,7 +980,7 @@ short setup_game(void)
   short result;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
-  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08lx",cpu_info.vendor,
+  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
       (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
       (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
   if (cpu_info.BrandString)
@@ -1222,7 +1222,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
     return false;
 }
 
-TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, int32_t *map_x, int32_t *map_y)
+TbBool engine_point_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, int32_t *map_x, int32_t *map_y)
 {
     struct PlayerInfo *player = get_my_player();
     *map_x = 0;
@@ -1493,8 +1493,8 @@ void instant_instance_selected(CrInstance check_inst_id)
     ctrltng = thing_get(player->controlled_thing_idx);
     struct CreatureModelConfig *crconf;
     crconf = creature_stats_get_from_thing(ctrltng);
-    long i;
-    long k;
+    int32_t i;
+    int32_t k;
     int avail_pos;
     int match_avail_pos;
     avail_pos = 0;
@@ -1621,7 +1621,7 @@ void clear_map(void)
 void clear_things_and_persons_data(void)
 {
     struct Thing *thing;
-    long i;
+    int32_t i;
     for (i=0; i < THINGS_COUNT; i++)
     {
         thing = &game.things_data[i];
@@ -1650,7 +1650,7 @@ void clear_things_and_persons_data(void)
 
 void clear_computer(void)
 {
-    long i;
+    int32_t i;
     SYNCDBG(8,"Starting");
     for (i=0; i < COMPUTER_TASKS_COUNT; i++)
     {
@@ -1711,7 +1711,7 @@ void clear_players_for_save(void)
 
 void delete_all_thing_structures(void)
 {
-    long i;
+    int32_t i;
     struct Thing *thing;
     for (i=1; i < THINGS_COUNT; i++)
     {
@@ -1809,7 +1809,7 @@ void reset_creature_max_levels(void)
     }
 }
 
-void change_engine_window_relative_size(long w_delta, long h_delta)
+void change_engine_window_relative_size(int32_t w_delta, int32_t h_delta)
 {
     struct PlayerInfo *myplyr;
     myplyr=get_my_player();
@@ -1874,8 +1874,8 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
 
 void centre_engine_window(void)
 {
-    long window_center_x;
-    long window_center_y;
+    int32_t window_center_x;
+    int32_t window_center_y;
     struct PlayerInfo *player=get_my_player();
     if ((game.operation_flags & GOF_ShowGui) != 0)
       window_center_x = (MyScreenWidth-player->engine_window_width-status_panel_width) / 2 + status_panel_width;
@@ -1892,7 +1892,7 @@ void turn_off_query(PlayerNumber plyr_idx)
     set_player_instance(player, PI_UnqueryCrtr, 0);
 }
 
-long filter_creatures_owned_by_keepers(const struct Thing *thing, MaxTngFilterParam, long)
+int32_t filter_creatures_owned_by_keepers(const struct Thing *thing, MaxTngFilterParam, int32_t)
 {
     if (player_is_keeper(thing->owner)) {
         return INT32_MAX;
@@ -2150,7 +2150,7 @@ void check_players_won(void)
 
 void check_players_lost(void)
 {
-  long i;
+  int32_t i;
   SYNCDBG(8,"Starting");
   struct PlayerInfo* player;
   struct Dungeon* dungeon;
@@ -2256,8 +2256,8 @@ static void process_dungeon_devastation_effects(void)
  */
 int set_players_creatures_to_get_paid(PlayerNumber plyr_idx)
 {
-    unsigned long k;
-    long i;
+    uint32_t k;
+    int32_t i;
     int count = 0;
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Creature);
@@ -2360,7 +2360,7 @@ void process_dungeons(void)
 
 void update_near_creatures_for_footsteps(int32_t *near_creatures, const struct Coord3d *srcpos)
 {
-    long near_distance[3];
+    int32_t near_distance[3];
     // Don't allow creatures which are far by over 20 subtiles
     near_distance[0] = subtile_coord(20,0);
     near_distance[1] = subtile_coord(20,0);
@@ -2370,8 +2370,8 @@ void update_near_creatures_for_footsteps(int32_t *near_creatures, const struct C
     near_creatures[2] = 0;
     // Find the closest thing for footsteps
     struct Thing *thing;
-    unsigned long k;
-    long i;
+    uint32_t k;
+    int32_t i;
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Creature);
     i = slist->index;
@@ -2395,7 +2395,7 @@ void update_near_creatures_for_footsteps(int32_t *near_creatures, const struct C
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
-                long ndist;
+                int32_t ndist;
                 ndist = get_chessboard_distance(srcpos, &thing->mappos);
                 if (ndist < near_distance[0])
                 {
@@ -2425,12 +2425,12 @@ void update_near_creatures_for_footsteps(int32_t *near_creatures, const struct C
     }
 }
 
-long stop_playing_flight_sample_in_all_flying_creatures(void)
+int32_t stop_playing_flight_sample_in_all_flying_creatures(void)
 {
     struct Thing *thing;
-    unsigned long k;
-    long i;
-    long naffected;
+    uint32_t k;
+    int32_t i;
+    int32_t naffected;
     naffected = 0;
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Creature);
@@ -2465,7 +2465,7 @@ long stop_playing_flight_sample_in_all_flying_creatures(void)
 
 void update_footsteps_nearest_camera(struct Camera *cam)
 {
-    static long timeslice = 0;
+    static int32_t timeslice = 0;
     static int32_t near_creatures[3];
     struct Coord3d srcpos;
     SYNCDBG(6,"Starting");
@@ -2477,7 +2477,7 @@ void update_footsteps_nearest_camera(struct Camera *cam)
     if (timeslice == 0) {
         update_near_creatures_for_footsteps(near_creatures, &srcpos);
     }
-    long i;
+    int32_t i;
     for (i=0; i < 3; i++)
     {
         struct Thing *thing;
@@ -2558,7 +2558,7 @@ TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     return (plyr_idx == game.neutral_player_num) || (slabmap_owner(slb) == game.neutral_player_num) || (slabmap_owner(slb) == plyr_idx);
 }
 
-long update_cave_in(struct Thing *thing)
+int32_t update_cave_in(struct Thing *thing)
 {
     thing->health--;
     thing->rendering_flags |= TRF_Invisible;
@@ -2632,7 +2632,7 @@ long update_cave_in(struct Thing *thing)
                 ncavitng = get_cavein_at_subtile_owned_by(coord_subtile(pos.x.val), coord_subtile(pos.y.val), -1);
                 if (thing_is_invalid(ncavitng))
                 {
-                    long dist;
+                    int32_t dist;
                     struct Coord3d pos2;
                     pos2.x.val = subtile_coord(thing->cave_in.x,0);
                     pos2.y.val = subtile_coord(thing->cave_in.y,0);
@@ -2694,7 +2694,7 @@ void update_global_lighting()
 void update(void)
 {
     struct PlayerInfo *player;
-    SYNCDBG(4,"Starting for turn %ld",(long)get_gameturn());
+    SYNCDBG(4,"Starting for turn %d",(int32_t)get_gameturn());
 
     update_local_cameras_pre();
     process_packets();
@@ -2763,10 +2763,10 @@ void update(void)
 }
 
 
-long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
 /* Currently this only makes Dungeon Heart blinking; maybe I'll find a purpose for it later
-    long dist_x,dist_y;
+    int32_t dist_x,dist_y;
     if ((thing->class_id == TCls_Object) && (thing->model == 5))
     {
       if (thing->owner == param->plyr_idx)
@@ -2805,15 +2805,15 @@ void set_player_cameras_position(struct PlayerInfo *player, int32_t pos_x, int32
     player->cameras[CamIV_Isometric].mappos.y.val = pos_y;
 }
 
-void scale_tmap2(long texture_block_index, long flags, long fade_level, long screen_x, long screen_y, long scaled_width, long scaled_height)
+void scale_tmap2(int32_t texture_block_index, int32_t flags, int32_t fade_level, int32_t screen_x, int32_t screen_y, int32_t scaled_width, int32_t scaled_height)
 {
     if ((scaled_width == 0) || (scaled_height == 0)) {
         return;
     }
-    long xstart;
-    long ystart;
-    long xend;
-    long yend;
+    int32_t xstart;
+    int32_t ystart;
+    int32_t xend;
+    int32_t yend;
     char orient;
     switch (flags)
     {
@@ -2876,8 +2876,8 @@ void scale_tmap2(long texture_block_index, long flags, long fade_level, long scr
     default:
           return;
     }
-    long local_screen_x;
-    long local_screen_y;
+    int32_t local_screen_x;
+    int32_t local_screen_y;
     local_screen_x = screen_x;
     if (local_screen_x < 0)
     {
@@ -2938,8 +2938,8 @@ void scale_tmap2(long texture_block_index, long flags, long fade_level, long scr
         dbuf = &vec_screen[local_screen_x + local_screen_y * vec_screen_width];
         block = block_ptrs[texture_block_index];
         ylim = hlimits;
-        long px;
-        long py;
+        int32_t px;
+        int32_t py;
         int srcx;
         int srcy;
         unsigned char *d;
@@ -2997,8 +2997,8 @@ void scale_tmap2(long texture_block_index, long flags, long fade_level, long scr
         dbuf = &vec_screen[local_screen_x + local_screen_y * vec_screen_width];
         block = block_ptrs[texture_block_index];
         ylim = wlimits;
-        long px;
-        long py;
+        int32_t px;
+        int32_t py;
         int srcx;
         int srcy;
         unsigned char *d;
@@ -3045,13 +3045,13 @@ void draw_texture(int32_t texture_x, int32_t texture_y, int32_t texture_width, i
     scale_tmap2(texture_block_index, flags, fade_level, texture_x / pixel_size, texture_y / pixel_size, texture_width / pixel_size, texture_height / pixel_size);
 }
 
-void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
+void update_block_pointed(int i,int32_t x, int32_t x_frac, int32_t y, int32_t y_frac)
 {
     struct Map *mapblk;
     struct Column *colmn;
     short visible;
     unsigned int smask;
-    long k;
+    int32_t k;
 
     if (i > 0)
     {
@@ -3134,8 +3134,8 @@ void update_blocks_pointed(void)
     {
         hori_ptr_y = (int64_t)hori_offset[0] * (pointer_y - y_init_off);
         vert_ptr_y = (int64_t)vert_offset[0] * (pointer_y - y_init_off);
-        hori_hdelta_y = (int64_t)hori_offset[0] * ((long)high_offset[1] >> 8);
-        vert_hdelta_y = (int64_t)vert_offset[0] * ((long)high_offset[1] >> 8);
+        hori_hdelta_y = (int64_t)hori_offset[0] * ((int32_t)high_offset[1] >> 8);
+        vert_hdelta_y = (int64_t)vert_offset[0] * ((int32_t)high_offset[1] >> 8);
         vert_ptr_x = ((int64_t)vert_offset[1] * (pointer_x - x_init_off)) >> 1;
         hori_ptr_x = ((int64_t)hori_offset[1] * (pointer_x - x_init_off)) >> 1;
         lltmp = hori_offset[0] * (int64_t)vert_offset[1] - vert_offset[0] * (int64_t)hori_offset[1];
@@ -3200,19 +3200,19 @@ void find_frame_rate(void)
 {
     static TbClockMSec prev_time2=0;
     static TbClockMSec cntr_time2=0;
-    unsigned long curr_time;
+    uint32_t curr_time;
     curr_time = LbTimerClock();
     cntr_time2++;
     if (curr_time-prev_time2 >= 1000)
     {
         double time_fdelta = 1000.0*((double)(cntr_time2))/(curr_time-prev_time2);
         prev_time2 = curr_time;
-        game.time_delta = (unsigned long)(time_fdelta*256.0);
+        game.time_delta = (uint32_t)(time_fdelta*256.0);
         cntr_time2 = 0;
     }
 }
 
-void packet_load_find_frame_rate(unsigned long incr)
+void packet_load_find_frame_rate(uint32_t incr)
 {
     static TbClockMSec start_time=0;
     static TbClockMSec extra_frames=0;
@@ -3225,7 +3225,7 @@ void packet_load_find_frame_rate(unsigned long incr)
     {
         double time_fdelta = 1000.0*((double)(extra_frames+incr))/(curr_time-start_time);
         start_time = curr_time;
-        game.time_delta = (unsigned long)(time_fdelta*256.0);
+        game.time_delta = (uint32_t)(time_fdelta*256.0);
         extra_frames = 0;
     }
 }
@@ -3558,7 +3558,7 @@ static void gameplay_loop_logic()
             // Adjust the clock rate so that the host packet is received at
             // process_turn_time == 1.0 (on average).  If it is received later,
             // reduce the scaling factor (< 1.0) so that the next turn takes a
-            // little longer in real time.  Vice-versa if it is early.
+            // little int32_ter in real time.  Vice-versa if it is early.
 
             multiplayer_clock_adjust = 1 + (1 - host_packet_received) / 20;
         }
@@ -3676,7 +3676,7 @@ void keeper_gameplay_loop(void)
 
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
-    SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)get_gameturn());
+    SYNCDBG(0,"Gameplay loop finished after %u turns",(uint32_t)get_gameturn());
 
     // Reset the game kind because we are not in a game anymore at this point
     game.game_kind = GKind_Unset;
@@ -3701,7 +3701,7 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
     }
 }
 
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool allowed)
+int32_t packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool allowed)
 {
     if (!allowed) {
         if (is_my_player_number(plyr_idx))
@@ -3899,7 +3899,7 @@ static TbBool wait_at_frontend(void)
     clear_flag(game.mode_flags, MFlg_DemoMode);
     // TODO move to separate function
     // Begin the frontend loop
-    long fe_last_loop_time = LbTimerClock();
+    int32_t fe_last_loop_time = LbTimerClock();
     do
     {
       if (!poll_inputs())
@@ -4027,7 +4027,7 @@ static TbBool wait_at_frontend(void)
 void game_loop(void)
 {
 #if (BFDEBUG_LEVEL > 0)
-    unsigned long playtime = 0;
+    uint32_t playtime = 0;
 #endif
     SYNCDBG(0,"Entering gameplay loop.");
 
@@ -4080,9 +4080,9 @@ void game_loop(void)
       // 2. PI_HeartZoom: the mouse will be moved to the center of the screen.
       LbMouseSetPosition(mspos_x_bak, mspos_y_bak);
 
-      unsigned long starttime;
+      uint32_t starttime;
 #if (BFDEBUG_LEVEL > 0)
-      unsigned long endtime;
+      uint32_t endtime;
 #endif
       struct Dungeon *dungeon;
       // get_my_dungeon() can't be used here because players are not initialized yet
@@ -4128,7 +4128,7 @@ void game_loop(void)
 #if (BFDEBUG_LEVEL > 0)
       playtime += endtime-starttime;
 #endif
-      SYNCDBG(0,"Play time is %lu seconds",playtime>>10);
+      SYNCDBG(0,"Play time is %u seconds",playtime>>10);
       reset_eye_lenses();
       close_packet_file();
       game.packet_load_enable = false;
@@ -4214,11 +4214,11 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
-          WARNLOG("The -nocd commandline parameter is no longer functional. Game music from CD is a setting in keeperfx.cfg instead.");
+          WARNLOG("The -nocd commandline parameter is no int32_ter functional. Game music from CD is a setting in keeperfx.cfg instead.");
       } else
-      if (strcasecmp(parstr, "columnconvert") == 0) //todo remove once it's no longer in the launcher
+      if (strcasecmp(parstr, "columnconvert") == 0) //todo remove once it's no int32_ter in the launcher
       {
-          WARNLOG("The -%s commandline parameter is no longer functional.", parstr);
+          WARNLOG("The -%s commandline parameter is no int32_ter functional.", parstr);
       }
       else
       if (strcasecmp(parstr, "cd") == 0)
@@ -4305,7 +4305,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
-         WARNLOG("The -%s commandline parameter is no longer functional.", parstr); //todo remove once it's no longer in the launcher
+         WARNLOG("The -%s commandline parameter is no int32_ter functional.", parstr); //todo remove once it's no int32_ter in the launcher
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {
@@ -4432,7 +4432,7 @@ short process_command_line(unsigned short argc, char *argv[])
        WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
       }
-      else if(strcasecmp(parstr, "includelongtests") == 0)
+      else if(strcasecmp(parstr, "includeint32_ttests") == 0)
       {
 #ifdef FUNCTESTING
         set_flag(start_params.functest_flags, FTF_IncludeLongTests);
@@ -4597,7 +4597,7 @@ int kfxmain(int argc, char *argv[])
 
 void update_time(void)
 {
-    unsigned long time = ((unsigned long)LbTimerClock()) - timerstarttime;
+    uint32_t time = ((uint32_t)LbTimerClock()) - timerstarttime;
     Timer.MSeconds = time % 1000;
     time /= 1000;
     Timer.Seconds = time % 60;
@@ -4606,10 +4606,10 @@ void update_time(void)
     Timer.Hours = time / 60;
 }
 
-struct GameTime get_game_time(unsigned long turns, unsigned long fps)
+struct GameTime get_game_time(uint32_t turns, uint32_t fps)
 {
     struct GameTime GameT;
-    unsigned long time = turns / fps;
+    uint32_t time = turns / fps;
     GameT.Seconds = time % 60;
     time /= 60;
     GameT.Minutes = time % 60;

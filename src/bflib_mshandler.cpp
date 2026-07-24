@@ -83,10 +83,10 @@ bool MouseStateHandler::Release(void)
     return true;
 }
 
-bool MouseStateHandler::SetMousePosition(long x, long y)
+bool MouseStateHandler::SetMousePosition(int32_t x, int32_t y)
 {
-    long mx;
-    long my;
+    int32_t mx;
+    int32_t my;
     std::lock_guard<std::mutex> guard(lock);
     if (!this->SetPosition(x, y))
       return false;
@@ -104,12 +104,12 @@ bool MouseStateHandler::SetMousePosition(long x, long y)
     return true;
 }
 
-bool MouseStateHandler::SetPosition(long x, long y)
+bool MouseStateHandler::SetPosition(int32_t x, int32_t y)
 {
-    long prev_x;
-    long prev_y;
-    long mx;
-    long my;
+    int32_t prev_x;
+    int32_t prev_y;
+    int32_t mx;
+    int32_t my;
     if (!this->installed)
       return false;
     // Clip coordinates to our mouse window
@@ -152,7 +152,7 @@ bool MouseStateHandler::SetPosition(long x, long y)
     return true;
 }
 
-bool MouseStateHandler::SetMouseWindow(long x, long y,long width, long height)
+bool MouseStateHandler::SetMouseWindow(int32_t x, int32_t y,int32_t width, int32_t height)
 {
     std::lock_guard<std::mutex> guard(lock);
     lbDisplay.MouseWindowX = x;
@@ -191,7 +191,7 @@ bool MouseStateHandler::SetPointer(const struct TbSprite *spr, struct TbPoint *p
     return true;
 }
 
-bool MouseStateHandler::SetMousePointerAndOffset(const struct TbSprite *mouseSprite, long x, long y)
+bool MouseStateHandler::SetMousePointerAndOffset(const struct TbSprite *mouseSprite, int32_t x, int32_t y)
 {
     struct TbPoint point;
     std::lock_guard<std::mutex> guard(lock);
@@ -227,7 +227,7 @@ bool MouseStateHandler::SetMousePointer(const struct TbSprite *mouseSprite)
     return true;
 }
 
-bool MouseStateHandler::SetPointerOffset(long x, long y)
+bool MouseStateHandler::SetPointerOffset(int32_t x, int32_t y)
 {
     std::lock_guard<std::mutex> guard(lock);
     if (this->installed)

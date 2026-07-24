@@ -543,7 +543,7 @@ const CreatureStateCheck move_check_func_list[] = {
  * - 1: Working.
  * - 2: Fighting.
  */
-long const state_type_to_gui_state[STATE_TYPES_COUNT] = {
+int32_t const state_type_to_gui_state[STATE_TYPES_COUNT] = {
     CrGUIJob_Wandering, CrGUIJob_Working, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Fighting, CrGUIJob_Wandering, CrGUIJob_Wandering,
     CrGUIJob_Working, CrGUIJob_Wandering, CrGUIJob_Wandering, CrGUIJob_Fighting, CrGUIJob_Fighting, CrGUIJob_Working, CrGUIJob_Working, CrGUIJob_Working
 };
@@ -587,7 +587,7 @@ CrtrStateId get_creature_state_besides_interruptions(const struct Thing *thing)
 
 CrtrStateId get_creature_state_besides_move(const struct Thing *thing)
 {
-    long i = thing->active_state;
+    int32_t i = thing->active_state;
     if (i == CrSt_MoveToPosition)
         i = thing->continue_state;
     return i;
@@ -608,7 +608,7 @@ TbBool state_info_invalid(struct CreatureStateConfig *stati)
   return false;
 }
 
-TbBool creature_model_bleeds(unsigned long crmodel)
+TbBool creature_model_bleeds(uint32_t crmodel)
 {
     struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
     if (censorship_enabled())
@@ -626,17 +626,17 @@ TbBool creature_model_bleeds(unsigned long crmodel)
  * @param thing The source thing.
  * @return Type of the creature state.
  */
-long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
+int32_t get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
-  long state_type;
-  unsigned long state = thing->active_state;
+  int32_t state_type;
+  uint32_t state = thing->active_state;
   if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
   {
       state_type = game.conf.crtr_conf.states[state].state_type;
   } else
   {
       state_type = game.conf.crtr_conf.states[0].state_type;
-      WARNLOG("%s: The %s index %d active state %lu (%s) is out of range",
+      WARNLOG("%s: The %s index %d active state %u (%s) is out of range",
         func_name,thing_model_name(thing),(int)thing->index,state,creature_state_code_name(state));
   }
   if (state_type == CrStTyp_Move)
@@ -649,7 +649,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
       {
           state_type = game.conf.crtr_conf.states[0].state_type;
           // Show message with text name of active state - it's good as the state was checked before
-          WARNLOG("%s: The %s index %d owner %d continue state %lu (%s) is out of range; active state %u (%s)",func_name,
+          WARNLOG("%s: The %s index %d owner %d continue state %u (%s) is out of range; active state %u (%s)",func_name,
               thing_model_name(thing),(int)thing->index,(int)thing->owner,state,creature_state_code_name(state),thing->active_state,creature_state_code_name(thing->active_state));
       }
   }
@@ -663,9 +663,9 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
  * @param thing The source thing.
  * @return GUI state, in range 0..2.
  */
-long get_creature_gui_job(const struct Thing *thing)
+int32_t get_creature_gui_job(const struct Thing *thing)
 {
-    long state_type = get_creature_state_type(thing);
+    int32_t state_type = get_creature_state_type(thing);
     if ( (state_type >= 0) && (state_type < sizeof(state_type_to_gui_state)/sizeof(state_type_to_gui_state[0])) )
     {
         return state_type_to_gui_state[state_type];
@@ -1049,7 +1049,7 @@ short arrive_at_alarm(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->alarm_over_turn < (unsigned long)get_gameturn())
+    if (cctrl->alarm_over_turn < (uint32_t)get_gameturn())
     {
         set_start_state(creatng);
         return 1;
@@ -1070,7 +1070,7 @@ short arrive_at_alarm(struct Thing *creatng)
     return 1;
 }
 
-long setup_head_for_room(struct Thing *creatng, struct Room *room, unsigned char flags)
+int32_t setup_head_for_room(struct Thing *creatng, struct Room *room, unsigned char flags)
 {
     TRACE_THING(creatng);
     struct Coord3d pos;
@@ -1168,8 +1168,8 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
     MapSubtlCoord stl_y = thing->mappos.y.stl.num;
     MapSubtlCoord base_x = slab_subtile(slb_x, 0);
     MapSubtlCoord base_y = slab_subtile(slb_y, 0);
-    long m = start_stl;
-    for (long i = 0; i < STL_PER_SLB * STL_PER_SLB; i++)
+    int32_t m = start_stl;
+    for (int32_t i = 0; i < STL_PER_SLB * STL_PER_SLB; i++)
     {
         MapSubtlCoord x = base_x + (m % STL_PER_SLB);
         MapSubtlCoord y = base_y + (m / STL_PER_SLB);
@@ -1212,8 +1212,8 @@ TbBool creature_find_any_position_to_move_within_slab(struct Coord3d *pos, const
     MapSubtlCoord stl_y = thing->mappos.y.stl.num;
     MapSubtlCoord base_x = slab_subtile(slb_x, 0);
     MapSubtlCoord base_y = slab_subtile(slb_y, 0);
-    long m = start_stl;
-    for (long i = 0; i < STL_PER_SLB * STL_PER_SLB; i++)
+    int32_t m = start_stl;
+    for (int32_t i = 0; i < STL_PER_SLB * STL_PER_SLB; i++)
     {
         MapSubtlCoord x = base_x + (m % STL_PER_SLB);
         MapSubtlCoord y = base_y + (m / STL_PER_SLB);
@@ -1247,11 +1247,11 @@ struct Room *get_room_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  */
 TbBool fill_moveable_small_around_slabs_array_in_room(TbBool *avail, const struct Thing *thing, const struct Room *room)
 {
-    long slab_base = get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num));
+    int32_t slab_base = get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num));
     // Fill the avail[] array
-    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    for (int32_t n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        long slab_num = slab_base + game.small_around_slab[n];
+        int32_t slab_num = slab_base + game.small_around_slab[n];
         MapSlabCoord slb_x = slb_num_decode_x(slab_num);
         MapSlabCoord slb_y = slb_num_decode_y(slab_num);
         MapSubtlCoord stl_x = slab_subtile_center(slb_x);
@@ -1264,7 +1264,7 @@ TbBool fill_moveable_small_around_slabs_array_in_room(TbBool *avail, const struc
     return true;
 }
 
-TbBool set_position_at_slab_for_thing(struct Coord3d *pos, const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, long start_stl)
+TbBool set_position_at_slab_for_thing(struct Coord3d *pos, const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, int32_t start_stl)
 {
     struct Coord3d locpos;
     if (creature_find_safe_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
@@ -1291,13 +1291,13 @@ TbBool person_get_somewhere_adjacent_in_room_f(struct Thing *thing, const struct
     SYNCDBG(17,"%s: Starting for %s index %d",func_name,thing_model_name(thing),(int)thing->index);
     MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
-    long slab_base = get_slab_number(slb_x, slb_y);
+    int32_t slab_base = get_slab_number(slb_x, slb_y);
 
     int start_stl = THING_RANDOM(thing, AROUND_MAP_LENGTH);
-    long m = THING_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
-    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    int32_t m = THING_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
+    for (int32_t n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        long slab_num = slab_base + game.small_around_slab[m];
+        int32_t slab_num = slab_base + game.small_around_slab[m];
         slb_x = slb_num_decode_x(slab_num);
         slb_y = slb_num_decode_y(slab_num);
         struct Room* aroom = get_room_xy(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
@@ -1351,8 +1351,8 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
         pos->z.val = subtile_coord(1,0);
         return false;
     }
-    long slab_base = get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num));
-    long start_stl = THING_RANDOM(thing, STL_PER_SLB * STL_PER_SLB);
+    int32_t slab_base = get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num));
+    int32_t start_stl = THING_RANDOM(thing, STL_PER_SLB * STL_PER_SLB);
     // If the room is too small - don't try selecting adjacent slab
     if (room->slabs_count > 1)
     {
@@ -1364,7 +1364,7 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
         if (avail[0]) // can go to sibling slab (0,-1)
         {
             if (avail[2]) { // can go to sibling slab (0,1)
-                long long tmp = thing->move_angle_xy + DEGREES_90;
+                int64_t tmp = thing->move_angle_xy + DEGREES_90;
                 tmp = ((((tmp>>32) ^ (((tmp>>32) ^ tmp) - (tmp>>32))) & ANGLE_MASK) - (tmp>>32));
                 arnd = 2 * ((((tmp>>16) & 0x3FF) + tmp) / DEGREES_180);
             } else {
@@ -1382,11 +1382,11 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
         {
             arnd = 2;
         }
-        for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+        for (int32_t n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
         {
             if (avail[arnd])
             {
-                long slab_num = slab_base + game.small_around_slab[arnd];
+                int32_t slab_num = slab_base + game.small_around_slab[arnd];
                 MapSlabCoord slb_x = slb_num_decode_x(slab_num);
                 MapSlabCoord slb_y = slb_num_decode_y(slab_num);
                 if (set_position_at_slab_for_thing(pos, thing, slb_x, slb_y, start_stl))
@@ -1430,8 +1430,8 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerN
     struct SlabMap* slb;// = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
     struct Room* room;
     SubtlCodedCoords stl_num;
-    long m = THING_RANDOM(thing, AROUND_MAP_LENGTH);
-    for (long n = 0; n < AROUND_MAP_LENGTH; n++)
+    int32_t m = THING_RANDOM(thing, AROUND_MAP_LENGTH);
+    for (int32_t n = 0; n < AROUND_MAP_LENGTH; n++)
     {
         SubtlCodedCoords accepted_stl_num = 0;
         stl_num = get_subtile_number(pos->x.stl.num,pos->y.stl.num);
@@ -1443,7 +1443,7 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerN
         }
         // Move radially from of the current position; stop if a room tile
         // of incorrect kind or owner is encoured
-        for (long dist = 0; dist < 8; dist++)
+        for (int32_t dist = 0; dist < 8; dist++)
         {
             stl_num += game.around_map[m];
             struct Map* mapblk = get_map_block_at_pos(stl_num);
@@ -1509,7 +1509,7 @@ short cleanup_timebomb(struct Thing *creatng)
 short creature_being_dropped(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    SYNCDBG(17,"Starting for %s index %ld",thing_model_name(creatng),(long)creatng->index);
+    SYNCDBG(17,"Starting for %s index %d",thing_model_name(creatng),(int32_t)creatng->index);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->creature_control_flags |= CCFlg_NoCompControl;
     // Cannot teleport for a few turns after being dropped
@@ -1749,8 +1749,8 @@ short creature_change_from_chicken(struct Thing *creatng)
         struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            long n = (10 - cctrl->countdown) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100) / 10;
-            unsigned long k = get_creature_anim(creatng, 0);
+            int32_t n = (10 - cctrl->countdown) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100) / 10;
+            uint32_t k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, ODC_Default);
             clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
             set_flag(efftng->rendering_flags, TRF_Transpar_8);
@@ -1907,8 +1907,8 @@ short creature_doing_nothing(struct Thing *creatng)
         }
         cctrl->job_primary_check_turn = get_gameturn();
     }
-    long n = THING_RANDOM(creatng, 3);
-    for (long i = 0; i < 3; i++)
+    int32_t n = THING_RANDOM(creatng, 3);
+    for (int32_t i = 0; i < 3; i++)
     {
         switch (n)
         {
@@ -1980,16 +1980,16 @@ TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlab
 
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing)
 {
-    SYNCDBG(17,"Starting for %s index %ld",thing_model_name(thing),(long)thing->index);
+    SYNCDBG(17,"Starting for %s index %d",thing_model_name(thing),(int32_t)thing->index);
     MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
-    long slab_base = get_slab_number(slb_x, slb_y);
+    int32_t slab_base = get_slab_number(slb_x, slb_y);
 
     MapSubtlCoord start_stl = THING_RANDOM(thing, 9);
-    long m = THING_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
-    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    int32_t m = THING_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
+    for (int32_t n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        long slab_num = slab_base + game.small_around_slab[m];
+        int32_t slab_num = slab_base + game.small_around_slab[m];
         slb_x = slb_num_decode_x(slab_num);
         slb_y = slb_num_decode_y(slab_num);
         if (slab_is_valid_for_creature_choose_move(thing, slb_x, slb_y))
@@ -2047,7 +2047,7 @@ short creature_escaping_death(struct Thing *creatng)
     return 0;
 }
 
-static long get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room)
+static int32_t get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room)
 {
     const struct SlabMap * const current_slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     const int current_slb_kind = current_slb->kind;
@@ -2111,7 +2111,7 @@ short creature_evacuate_room(struct Thing *creatng)
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    long ret = get_best_position_outside_room(creatng, &pos, room);
+    int32_t ret = get_best_position_outside_room(creatng, &pos, room);
     set_creature_assigned_job(creatng, Job_NULL);
     if (ret != 1)
     {
@@ -2206,7 +2206,7 @@ short creature_follow_leader(struct Thing *creatng)
     struct Thing* leadtng = get_group_leader(creatng);
     if (!thing_is_creature(leadtng))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid",
+        SYNCLOG("The %s index %d owned by player %d can no int32_ter follow leader - it's invalid",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
         return 1;
@@ -2221,7 +2221,7 @@ short creature_follow_leader(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (creature_under_spell_effect(creatng, CSAfF_MadKilling))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad",
+        SYNCLOG("The %s index %d owned by player %d can no int32_ter be in group - became mad",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         remove_creature_from_group(creatng);
         set_start_state(creatng);
@@ -2237,14 +2237,14 @@ short creature_follow_leader(struct Thing *creatng)
     {
         if (thing_is_picked_up(leadtng))
         {
-            SYNCDBG(3,"The %s index %d owned by player %d can no longer follow %s - leader is picked up",
+            SYNCDBG(3,"The %s index %d owned by player %d can no int32_ter follow %s - leader is picked up",
                 thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
             remove_creature_from_group(creatng);
             return 0;
         }
         else
         {
-            SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
+            SYNCLOG("The %s index %d owned by player %d can no int32_ter follow %s - no place amongst followers",
                 thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
             set_start_state(creatng);
             return 1;
@@ -2361,7 +2361,7 @@ short creature_in_hold_audience(struct Thing *creatng)
         cctrl->turns_at_job = 0;
         return 1;
     }
-    long ret = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
+    int32_t ret = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
     if (ret != 1)
     {
         if (ret == -1)
@@ -2393,7 +2393,7 @@ short creature_kill_creatures(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    long crtr_idx = THING_RANDOM(creatng, dungeon->num_active_creatrs);
+    int32_t crtr_idx = THING_RANDOM(creatng, dungeon->num_active_creatrs);
     struct Thing* thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, CREATURE_ANY, crtr_idx);
     if (thing_is_invalid(thing)) {
         set_start_state(creatng);
@@ -2413,7 +2413,7 @@ short creature_kill_diggers(struct Thing* creatng)
         set_start_state(creatng);
         return 0;
     }
-    long crtr_idx = THING_RANDOM(creatng, dungeon->num_active_diggers);
+    int32_t crtr_idx = THING_RANDOM(creatng, dungeon->num_active_diggers);
     struct Thing* thing = get_player_list_nth_creature_of_model(dungeon->digger_list_start, CREATURE_ANY, crtr_idx);
     if (thing_is_invalid(thing)) {
         set_start_state(creatng);
@@ -2514,7 +2514,7 @@ struct Thing *find_random_creature_for_persuade(PlayerNumber plyr_idx, struct Co
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     int n = PLAYER_RANDOM(plyr_idx, dungeon->num_active_creatrs);
-    unsigned long k = 0;
+    uint32_t k = 0;
     int i = dungeon->creatr_list_start;
     while (i != 0)
     {
@@ -2570,7 +2570,7 @@ TbBool make_creature_leave_dungeon(struct Thing *creatng)
     return true;
 }
 
-long make_all_creature_in_group_leave_dungeon(struct Thing *leadtng)
+int32_t make_all_creature_in_group_leave_dungeon(struct Thing *leadtng)
 {
     if (!creature_is_group_member(leadtng)) {
         set_start_state(leadtng);
@@ -2683,9 +2683,9 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         return false;
     }
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long selected = THING_RANDOM(thing, room->slabs_count);
-    unsigned long n = 0;
-    long i = room->slabs_list;
+    int32_t selected = THING_RANDOM(thing, room->slabs_count);
+    uint32_t n = 0;
+    int32_t i = room->slabs_list;
     // Get the selected index
     while (i != 0)
     {
@@ -2694,7 +2694,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         {
             MapSlabCoord slb_x = slb_num_decode_x(i);
             MapSlabCoord slb_y = slb_num_decode_y(i);
-            for (long j = 0; j < SMALL_AROUND_LENGTH; j++)
+            for (int32_t j = 0; j < SMALL_AROUND_LENGTH; j++)
             {
                 MapSlabCoord aslb_x = slb_x + small_around[j].delta_x;
                 MapSlabCoord aslb_y = slb_y + small_around[j].delta_y;
@@ -2725,14 +2725,14 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
     {
         if (n < room->slabs_count)
         {
-            WARNLOG("Number of slabs in %s (%lu) is smaller than count (%u)",room_code_name(room->kind), n, room->slabs_count);
+            WARNLOG("Number of slabs in %s (%u) is smaller than count (%u)",room_code_name(room->kind), n, room->slabs_count);
         }
         n = 0;
         i = room->slabs_list;
     }
     // Sweep rooms starting on that index
-    unsigned long k = 0;
-    long nround;
+    uint32_t k = 0;
+    int32_t nround;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     while (i != 0)
@@ -2833,8 +2833,8 @@ short creature_pretend_chicken_move(struct Thing *creatng)
     {
         return 1;
     }
-    long speed = get_creature_speed(creatng);
-    long move_ret = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
+    int32_t speed = get_creature_speed(creatng);
+    int32_t move_ret = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
     if (move_ret == 1)
     {
         internal_set_thing_state(creatng, CrSt_CreaturePretendChickenSetupMove);
@@ -2858,7 +2858,7 @@ short creature_pretend_chicken_setup_move(struct Thing *creatng)
         return 1;
     }
 
-    long offsetted_gameturn = get_gameturn() + creatng->index;
+    int32_t offsetted_gameturn = get_gameturn() + creatng->index;
 
     if ( (offsetted_gameturn % 16) == 0 )
     {
@@ -2978,9 +2978,9 @@ short creature_set_work_room_based_on_position(struct Thing *creatng)
 TbBool init_creature_state(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    SYNCDBG(17,"Starting for %s index %ld",thing_model_name(creatng),(long)creatng->index);
-    long stl_x = creatng->mappos.x.stl.num;
-    long stl_y = creatng->mappos.y.stl.num;
+    SYNCDBG(17,"Starting for %s index %d",thing_model_name(creatng),(int32_t)creatng->index);
+    int32_t stl_x = creatng->mappos.x.stl.num;
+    int32_t stl_y = creatng->mappos.y.stl.num;
     // Set creature to default state, in case giving it job will fail
     set_start_state(creatng);
     // Check job which we can do after dropping at these coordinates
@@ -2988,30 +2988,30 @@ TbBool init_creature_state(struct Thing *creatng)
     {
         if ((game.conf.rules[creatng->owner].gameplay.classic_bugs_flags & ClscBug_PassiveNeutrals))
         {
-            SYNCDBG(3,"Trying to assign initial job at (%ld,%ld) for neutral %s index %d owner %d",stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
+            SYNCDBG(3,"Trying to assign initial job at (%d,%d) for neutral %s index %d owner %d",stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
             return false;
         }
-        SYNCDBG(3,"Assigning initial job at (%ld,%ld) for neutral %s index %d owner %d",stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
+        SYNCDBG(3,"Assigning initial job at (%d,%d) for neutral %s index %d owner %d",stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
     }
     CreatureJob new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignCeatureInit);
     if (new_job == Job_NULL)
     {
-        SYNCDBG(3,"No job found at (%ld,%ld) for %s index %d owner %d",stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
+        SYNCDBG(3,"No job found at (%d,%d) for %s index %d owner %d",stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
         return false;
     }
     // Check if specific conditions are met for this job to be assigned
     if (!creature_can_do_job_near_position(creatng, stl_x, stl_y, new_job, JobChk_None))
     {
-        SYNCDBG(3,"Cannot assign %s at (%ld,%ld) to %s index %d owner %d; checked and got refusal",creature_job_code_name(new_job),stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
+        SYNCDBG(3,"Cannot assign %s at (%d,%d) to %s index %d owner %d; checked and got refusal",creature_job_code_name(new_job),stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
         return false;
     }
     // Now try sending the creature to do job it should do at this position
     if (!send_creature_to_job_near_position(creatng, stl_x, stl_y, new_job))
     {
-        WARNDBG(3,"Cannot assign %s at (%ld,%ld) to %s index %d owner %d; could not send to job",creature_job_code_name(new_job),stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
+        WARNDBG(3,"Cannot assign %s at (%d,%d) to %s index %d owner %d; could not send to job",creature_job_code_name(new_job),stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
         return false;
     }
-    SYNCDBG(3,"Job %s at (%ld,%ld) assigned to %s index %d owner %d",creature_job_code_name(new_job),stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
+    SYNCDBG(3,"Job %s at (%d,%d) assigned to %s index %d owner %d",creature_job_code_name(new_job),stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
     // If applicable, set the job as assigned job for the creature
     if ((get_flags_for_job(new_job) & JoKF_AssignOneTime) == 0) {
         set_creature_assigned_job(creatng, new_job);
@@ -3079,14 +3079,14 @@ short creature_steal_gold(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    long max_amount = crconf->gold_hold - creatng->creature.gold_carried;
+    int32_t max_amount = crconf->gold_hold - creatng->creature.gold_carried;
     if (max_amount <= 0)
     {
         set_start_state(creatng);
         return 0;
     }
     // Success! we are able to steal some gold!
-    long amount = remove_gold_from_hoarde(hrdtng, room, max_amount);
+    int32_t amount = remove_gold_from_hoarde(hrdtng, room, max_amount);
     creatng->creature.gold_carried += amount;
     create_price_effect(&creatng->mappos, creatng->owner, amount);
     SYNCDBG(6,"Stolen %d gold from hoard at (%d,%d)",(int)amount, (int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num);
@@ -3278,8 +3278,8 @@ short creature_vandalise_rooms(struct Thing *creatng)
 TbBool is_creature_other_than_given_waiting_at_closed_door_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *besidetng)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -3437,7 +3437,7 @@ struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *nav
     if (room_is_invalid(room))
     {
         struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
-        long salary = calculate_correct_creature_pay(creatng);
+        int32_t salary = calculate_correct_creature_pay(creatng);
         if (dungeon->offmap_money_owned >= salary)
         {
 
@@ -3505,13 +3505,13 @@ short creature_wants_salary(struct Thing *creatng)
     return 1;
 }
 
-long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
+int32_t setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
 {
     SlabCodedCoords start_slbnum = room->slabs_list;
 
     // Find a random slab to start out with
-    long n = THING_RANDOM(thing, room->slabs_count);
-    for (unsigned long k = n; k > 0; k--)
+    int32_t n = THING_RANDOM(thing, room->slabs_count);
+    for (uint32_t k = n; k > 0; k--)
     {
         if (start_slbnum == 0)
         {
@@ -3520,7 +3520,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
         start_slbnum = get_next_slab_number_in_room(start_slbnum);
     }
     if (start_slbnum == 0) {
-        ERRORLOG("Taking random slab (%ld/%u) in %s index %u failed - internal inconsistency.", n, room->slabs_count, room_code_name(room->kind), room->index);
+        ERRORLOG("Taking random slab (%d/%u) in %s index %u failed - internal inconsistency.", n, room->slabs_count, room_code_name(room->kind), room->index);
         start_slbnum = room->slabs_list;
     }
 
@@ -3530,7 +3530,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     struct Thing* gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
 
     // If the random slab has enough space to drop all gold, go there to drop it
-    long wealth_size_holds = game.conf.rules[room->owner].gameplay.gold_per_hoard / get_wealth_size_types_count();
+    int32_t wealth_size_holds = game.conf.rules[room->owner].gameplay.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     if ((max_hoard_size_in_room - gldtng->valuable.gold_stored) >= thing->creature.gold_carried)
     {
@@ -3543,7 +3543,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     // If not, find a slab with the lowest amount of gold
     GoldAmount min_gold_amount = max_hoard_size_in_room;
     SlabCodedCoords slbmin = start_slbnum;
-    for (long i = room->slabs_count; i > 0; i--)
+    for (int32_t i = room->slabs_count; i > 0; i--)
     {
         slb_x = slb_num_decode_x(slbnum);
         slb_y = slb_num_decode_y(slbnum);
@@ -3595,9 +3595,9 @@ short move_backwards_to_position(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long speed = get_creature_speed(creatng);
+    int32_t speed = get_creature_speed(creatng);
     SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
-    long move_result = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 1);
+    int32_t move_result = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 1);
     if (move_result == 1)
     {
         internal_set_thing_state(creatng, creatng->continue_state);
@@ -3723,8 +3723,8 @@ CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatn
         for (MapSubtlCoord stl_x = slab_subtile(slb_x, 0); stl_x < endstl_x; stl_x++)
         {
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            unsigned long k = 0;
-            long i = get_mapwho_thing_index(mapblk);
+            uint32_t k = 0;
+            int32_t i = get_mapwho_thing_index(mapblk);
             while (i != 0)
             {
                 struct Thing* thing = thing_get(i);
@@ -3740,7 +3740,7 @@ CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatn
                 {
                     if (!exclude_diggers || !flag_is_set(get_creature_model_flags(thing), CMF_IsSpecDigger))
                     {
-                        long dist = get_combat_distance(creatng, thing);
+                        int32_t dist = get_combat_distance(creatng, thing);
                         CrAttackType attack_type = creature_can_have_combat_with_creature(creatng, thing, dist, 0, 0);
                         if (attack_type > AttckT_Unset) {
                             (*enemytng) = thing;
@@ -4040,7 +4040,7 @@ short patrolling(struct Thing *creatng)
         creatng->continue_state = CrSt_Patrolling;
         return 1;
     }
-    // Cannot patrol any longer - reset
+    // Cannot patrol any int32_ter - reset
     set_start_state(creatng);
     return 0;
 }
@@ -4188,7 +4188,7 @@ TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomRole rrol
 }
 
 /**
- * Returns if it's no longer possible for a creature to work in given room.
+ * Returns if it's no int32_ter possible for a creature to work in given room.
  * Used to check if creatures are able to continue working in the rooms they're working.
  * @param room The work room to be checked, usually the one creature stands on.
  * @param rkind Room kind required for work.
@@ -4205,7 +4205,7 @@ TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, Creatu
         room = get_room_at_pos(&cctrl->moveto_pos);
         if (room_is_invalid(room))
         {
-            SYNCLOG("%s: The %s(%d) owned by player %d can no longer work in %s because former work room doesn't exist",
+            SYNCLOG("%s: The %s(%d) owned by player %d can no int32_ter work in %s because former work room doesn't exist",
                 func_name, thing_model_name(thing), thing->index, (int)thing->owner, room_role_code_name(rrole));
             // Note that if given room doesn't exist, it do not mean this
             return true;
@@ -4229,7 +4229,7 @@ TbBool creature_job_in_room_no_longer_possible_f(const struct Room *room, Creatu
     return false;
 }
 
-void create_effect_around_thing(struct Thing *thing, long eff_kind)
+void create_effect_around_thing(struct Thing *thing, int32_t eff_kind)
 {
     int tng_radius = (thing->clipbox_size_xy >> 1);
     MapCoord coord_x_beg = (MapCoord)thing->mappos.x.val - tng_radius;
@@ -4557,9 +4557,9 @@ static TbBool wander_point_get_random_pos(const struct Wander *wandr, const stru
   if (wandr->points_count > 0)
   {
       // Select a position based on 3 tries
-      for (long i = 0; i < 3; i++)
+      for (int32_t i = 0; i < 3; i++)
       {
-          long irnd = THING_RANDOM(thing, wandr->points_count);
+          int32_t irnd = THING_RANDOM(thing, wandr->points_count);
           MapSubtlCoord stl_x = wandr->points[irnd].stl_x;
           MapSubtlCoord stl_y = wandr->points[irnd].stl_y;
           MapSubtlCoord dist = chessboard_distance(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
@@ -4607,7 +4607,7 @@ TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsign
     return true;
 }
 
-TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist)
+TbBool creature_can_hear_within_distance(const struct Thing *thing, int32_t dist)
 {
     if (thing_is_creature(thing))
     {
@@ -4624,7 +4624,7 @@ TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist)
     }
 }
 
-long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, unsigned char resetOwnerPlayerNavigating)
+int32_t get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, unsigned char resetOwnerPlayerNavigating)
 {
     if (pos->x.val == creatng->mappos.x.val && pos->y.val == creatng->mappos.y.val)
         return 0;
@@ -4634,7 +4634,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         owner_player_navigating = -1;
     else
         owner_player_navigating = creatng->owner;
-    long nav_sizexy = thing_nav_block_sizexy(creatng);
+    int32_t nav_sizexy = thing_nav_block_sizexy(creatng);
     if (nav_sizexy > 0)
         --nav_sizexy;
     struct Path path = {0};
@@ -4688,7 +4688,7 @@ short seek_the_enemy(struct Thing *creatng)
                 if ((dist < 2304) && (get_gameturn()-cctrl->countdown < 20))
                 {
                     crsound = get_creature_sound(creatng, CrSnd_Fight);
-                    long fight_i = SOUND_RANDOM(crsound->count);
+                    int32_t fight_i = SOUND_RANDOM(crsound->count);
                     thing_play_sample(creatng, creature_sound_unified_id(crsound, fight_i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                     set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
                     return 1;
@@ -4804,9 +4804,9 @@ short state_cleanup_unconscious(struct Thing *creatng)
     return 1;
 }
 
-long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
+int32_t process_work_speed_on_work_value(const struct Thing *thing, int32_t base_val)
 {
-    long val = base_val;
+    int32_t val = base_val;
     if (creature_under_spell_effect(thing, CSAfF_Speed))
         val = 2 * val;
     if (creature_affected_by_slap(thing))
@@ -4827,7 +4827,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct CreatureModelConfig *crconf = creature_stats_get_from_thing(thing);
-    long i = crconf->to_level[cctrl->exp_level] << 8;
+    int32_t i = crconf->to_level[cctrl->exp_level] << 8;
     if (cctrl->exp_points < i)
     {
         return false;
@@ -4989,7 +4989,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
 
 short set_start_state_f(struct Thing *thing,const char *func_name)
 {
-    long i;
+    int32_t i;
     struct CreatureModelConfig* crconf;
     SYNCDBG(8,"%s: Starting for %s index %d, owner %d, last state %s, stacked %s",func_name,thing_model_name(thing),
         (int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state),creature_state_code_name(thing->continue_state));
@@ -5070,7 +5070,7 @@ TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state)
     return can_change_from_state_to(thing, thing->active_state, state);
 }
 
-long creature_free_for_toking(struct Thing* creatng)
+int32_t creature_free_for_toking(struct Thing* creatng)
 {
     struct SlabMap* slb = get_slabmap_thing_is_on(creatng);
     if (slabmap_owner(slb) != creatng->owner) {
@@ -5090,7 +5090,7 @@ long creature_free_for_toking(struct Thing* creatng)
  * @param thing
  * @param crconf
  */
-long process_creature_needs_to_heal_critical(struct Thing *creatng)
+int32_t process_creature_needs_to_heal_critical(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (get_creature_health_permil(creatng) >= game.conf.rules[creatng->owner].creature.critical_health_permil) {
@@ -5142,7 +5142,7 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
     return 0;
 }
 
-long creature_setup_head_for_treasure_room_door(struct Thing *creatng, struct Room *room)
+int32_t creature_setup_head_for_treasure_room_door(struct Thing *creatng, struct Room *room)
 {
     struct Coord3d pos;
     if (find_random_valid_position_for_thing_in_room(creatng, room, &pos))
@@ -5158,7 +5158,7 @@ long creature_setup_head_for_treasure_room_door(struct Thing *creatng, struct Ro
     return 0;
 }
 
-long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureModelConfig *crconf)
+int32_t process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((crconf->pay == 0) || (cctrl->paydays_owed == 0)) {
@@ -5228,11 +5228,11 @@ char creature_free_for_lunchtime(struct Thing *creatng)
     && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
 }
 
-long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureModelConfig *crconf)
+int32_t process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     RoomKind rkind;
-    if ((crconf->hunger_rate == 0) || (cctrl->hunger_level <= (long)crconf->hunger_rate)) {
+    if ((crconf->hunger_rate == 0) || (cctrl->hunger_level <= (int32_t)crconf->hunger_rate)) {
         return 0;
     }
     if (creature_is_doing_garden_activity(creatng)) {
@@ -5305,7 +5305,7 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureM
     return 1;
 }
 
-long anger_process_creature_anger(struct Thing *creatng, const struct CreatureModelConfig *crconf)
+int32_t anger_process_creature_anger(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     // Creatures with no annoyance level will never get angry
@@ -5422,7 +5422,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureMo
     return 0;
 }
 
-long process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureModelConfig *crconf)
+int32_t process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (get_gameturn() >= cctrl->healing_sleep_check_turn)
@@ -5470,7 +5470,7 @@ long process_creature_needs_to_heal(struct Thing *creatng, const struct Creature
     return 0;
 }
 
-long process_training_need(struct Thing *thing, const struct CreatureModelConfig *crconf)
+int32_t process_training_need(struct Thing *thing, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ((crconf->annoy_untrained == 0) || !creature_can_be_trained(thing)) {
@@ -5488,7 +5488,7 @@ long process_training_need(struct Thing *thing, const struct CreatureModelConfig
     return 0;
 }
 
-long process_piss_need(struct Thing *thing, const struct CreatureModelConfig *crconf)
+int32_t process_piss_need(struct Thing *thing, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (cctrl->corpse_to_piss_on == 0) {
@@ -5528,22 +5528,22 @@ void process_person_moods_and_needs(struct Thing *thing)
     // Now process the needs
     process_creature_hunger(thing);
     if (process_creature_needs_to_heal_critical(thing)) {
-        SYNCDBG(17,"The %s index %ld has a critical need to heal",thing_model_name(thing),(long)thing->index);
+        SYNCDBG(17,"The %s index %d has a critical need to heal",thing_model_name(thing),(int32_t)thing->index);
     } else
     if (creature_affected_by_call_to_arms(thing)) {
-        SYNCDBG(17,"The %s index %ld is called to arms, most needs suspended",thing_model_name(thing),(long)thing->index);
+        SYNCDBG(17,"The %s index %d is called to arms, most needs suspended",thing_model_name(thing),(int32_t)thing->index);
     } else
     if (process_creature_needs_a_wage(thing, crconf)) {
-        SYNCDBG(17,"The %s index %ld has a need to get its wage",thing_model_name(thing),(long)thing->index);
+        SYNCDBG(17,"The %s index %d has a need to get its wage",thing_model_name(thing),(int32_t)thing->index);
     } else
     if (process_creature_needs_to_eat(thing, crconf)) {
-        SYNCDBG(17,"The %s index %ld has a need to eat",thing_model_name(thing),(long)thing->index);
+        SYNCDBG(17,"The %s index %d has a need to eat",thing_model_name(thing),(int32_t)thing->index);
     } else
     if (anger_process_creature_anger(thing, crconf)) {
-        SYNCDBG(17,"The %s index %ld has a need to cool its anger",thing_model_name(thing),(long)thing->index);
+        SYNCDBG(17,"The %s index %d has a need to cool its anger",thing_model_name(thing),(int32_t)thing->index);
     } else
     if (process_creature_needs_to_heal(thing, crconf)) {
-        SYNCDBG(17,"The %s index %ld has a need to heal",thing_model_name(thing),(long)thing->index);
+        SYNCDBG(17,"The %s index %d has a need to heal",thing_model_name(thing),(int32_t)thing->index);
     }
     process_training_need(thing, crconf);
     process_piss_need(thing, crconf);
@@ -5555,7 +5555,7 @@ TbBool setup_move_off_lava(struct Thing* thing)
     MapSlabCoord slb_y;
     slb_x = subtile_slab(thing->mappos.x.stl.num);
     slb_y = subtile_slab(thing->mappos.y.stl.num);
-    long i;
+    int32_t i;
     for (i = 0; i < 32; i++)
     {
         struct MapOffset* sstep;
@@ -5573,14 +5573,14 @@ TbBool setup_move_off_lava(struct Thing* thing)
         if (!slabst->is_safe_land)
             continue;
         // Check all subtiles of the slab in random order
-        long k;
-        long n;
+        int32_t k;
+        int32_t n;
         n = THING_RANDOM(thing, AROUND_TILES_COUNT);
         for (k = 0; k < AROUND_TILES_COUNT; k++, n = (n + 1) % AROUND_TILES_COUNT)
         {
             struct Map* mapblk;
-            long stl_x;
-            long stl_y;
+            int32_t stl_x;
+            int32_t stl_y;
             stl_x = cx + around[k].delta_x;
             stl_y = cy + around[k].delta_y;
             mapblk = get_map_block_at(stl_x, stl_y);
@@ -5678,7 +5678,7 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
             continue;
         }
         blk = get_map_block_at(slab_subtile(bx, 0), slab_subtile(by, 0));
-        long n = get_mapwho_thing_index(blk);
+        int32_t n = get_mapwho_thing_index(blk);
         while (n != 0)
         {
             tng = thing_get(n);
@@ -5697,8 +5697,8 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
         bx = sstep->h + slb_x;
         cx = slab_subtile_center(bx);
         cy = slab_subtile_center(by);
-        long j = THING_RANDOM(thing, AROUND_TILES_COUNT);
-        for (long k = 0; k < AROUND_TILES_COUNT; k++, j = (j + 1) % AROUND_TILES_COUNT)
+        int32_t j = THING_RANDOM(thing, AROUND_TILES_COUNT);
+        for (int32_t k = 0; k < AROUND_TILES_COUNT; k++, j = (j + 1) % AROUND_TILES_COUNT)
         {
             MapSubtlCoord stl_x = cx + around[j].delta_x;
             MapSubtlCoord stl_y = cy + around[j].delta_y;

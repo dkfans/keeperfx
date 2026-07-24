@@ -55,15 +55,15 @@ struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coor
         eething->mappos.z.val = get_thing_height_at(eething, &eething->mappos);
         eething->mappos.z.val += 10;
         // Size of the flame depends on room efficiency
-        eething->sprite_size = ((eething->sprite_size - 80) * ((long)room->efficiency) / 256) + 80;
+        eething->sprite_size = ((eething->sprite_size - 80) * ((int32_t)room->efficiency) / 256) + 80;
   }
   return eething;
 }
 
 void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos)
 {
-    long k;
-    long i = room->flames_around_idx;
+    int32_t k;
+    int32_t i = room->flames_around_idx;
     MapSubtlCoord x = pos->x.stl.num + (MapSubtlCoord)small_around[i].delta_x;
     MapSubtlCoord y = pos->y.stl.num + (MapSubtlCoord)small_around[i].delta_y;
     struct Room* curoom = subtile_room_get(x, y);
@@ -95,7 +95,7 @@ void process_room_surrounding_flames(struct Room *room)
     }
     MapSlabCoord x = slb_num_decode_x(room->flame_slb);
     MapSlabCoord y = slb_num_decode_y(room->flame_slb);
-    long i = 3 * room->flames_around_idx + room->flame_stl;
+    int32_t i = 3 * room->flames_around_idx + room->flame_stl;
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(slab_subtile_center(x)) + room_spark_offset[i].delta_x;
     pos.y.val = subtile_coord_center(slab_subtile_center(y)) + room_spark_offset[i].delta_y;
@@ -120,7 +120,7 @@ void process_room_surrounding_flames(struct Room *room)
 void recompute_rooms_count_in_dungeons(void)
 {
     SYNCDBG(17,"Starting");
-    for (long i = 0; i < DUNGEONS_COUNT; i++)
+    for (int32_t i = 0; i < DUNGEONS_COUNT; i++)
     {
         struct Dungeon* dungeon = get_dungeon(i);
         dungeon->total_rooms = 0;
@@ -154,12 +154,12 @@ void process_rooms(void)
 
 void kill_all_room_slabs_and_contents(struct Room *room)
 {
-    unsigned long k = 0;
-    long i = room->slabs_list;
+    uint32_t k = 0;
+    int32_t i = room->slabs_list;
     while (i != 0)
     {
-        long slb_x = slb_num_decode_x(i);
-        long slb_y = slb_num_decode_y(i);
+        int32_t slb_x = slb_num_decode_x(i);
+        int32_t slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
         // Per room tile code
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
@@ -178,11 +178,11 @@ void kill_all_room_slabs_and_contents(struct Room *room)
     room->slabs_count = 0;
 }
 
-void sell_room_slab_when_no_free_room_structures(struct Room *room, long slb_x, long slb_y, unsigned char gnd_slab)
+void sell_room_slab_when_no_free_room_structures(struct Room *room, int32_t slb_x, int32_t slb_y, unsigned char gnd_slab)
 {
     delete_room_slab_when_no_free_room_structures(slb_x, slb_y, gnd_slab);
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long revenue = compute_value_percentage(roomst->cost, game.conf.rules[room->owner].gameplay.room_sale_percent);
+    int32_t revenue = compute_value_percentage(roomst->cost, game.conf.rules[room->owner].gameplay.room_sale_percent);
     if (revenue != 0)
     {
         struct Coord3d pos;
@@ -198,8 +198,8 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
     // Clear room index in all slabs
     // This will make sure that the old room won't be returned by subtile_room_get()
     // and used as one of new rooms.
-    unsigned long k = 0;
-    long i = room->slabs_list;
+    uint32_t k = 0;
+    int32_t i = room->slabs_list;
     while (i > 0)
     {
         struct SlabMap* slb = get_slabmap_direct(i);
@@ -225,8 +225,8 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
     i = room->slabs_list;
     while (i != 0)
     {
-        long slb_x = slb_num_decode_x(i);
-        long slb_y = slb_num_decode_y(i);
+        int32_t slb_x = slb_num_decode_x(i);
+        int32_t slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
         // Per room tile code
         struct Room* nroom = create_room(room->owner, room->kind, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
@@ -254,7 +254,7 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
     if (room_exists(proom)) {
         do_room_integration(proom);
     }
-    // The old room no longer has any slabs
+    // The old room no int32_ter has any slabs
     room->slabs_list = 0;
     room->slabs_count = 0;
 }

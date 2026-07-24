@@ -166,7 +166,7 @@ TbBool remove_workshop_object_from_workshop(struct Room *room, struct Thing *cra
     return remove_item_from_room_capacity(room);
 }
 
-long calculate_manufacture_level(struct Dungeon* dungeon)
+int32_t calculate_manufacture_level(struct Dungeon* dungeon)
 {
     int mnfctr_slabs = get_room_of_role_slabs_count(dungeon->owner, RoRoF_CratesManufctr);
     int level = 0;
@@ -335,7 +335,7 @@ int remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass 
         ERRORLOG("%s: Can't remove item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return WrkCrtS_None;
     }
-    long amount = 0;
+    int32_t amount = 0;
     switch (tngclass)
     {
     case TCls_Trap:
@@ -398,7 +398,7 @@ TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, Thing
         ERRORLOG("%s: Can't remove item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
     }
-    long amount;
+    int32_t amount;
     switch (tngclass)
     {
     case TCls_Trap:
@@ -502,12 +502,12 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
  * @param mnfctr_kind Kind of the manufacture with minimal items available.
  * @return Gives minimal amount of items available, or INT32_MAX if no doable manufacture was found.
  */
-long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind)
+int32_t get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind)
 {
     struct DoorConfigStats *doorst;
     struct TrapConfigStats *trapst;
     int tngmodel;
-    long amount;
+    int32_t amount;
     int chosen_class = TCls_Empty;
     int chosen_kind = 0;
     int chosen_amount = INT_MAX;
@@ -583,7 +583,7 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
     return false;
 }
 
-long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
+int32_t manufacture_points_required_f(int32_t mfcr_type, uint32_t mfcr_kind, const char *func_name)
 {
     const struct DoorConfigStats *doorst;
     const struct TrapConfigStats *trapst;
@@ -756,8 +756,8 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -809,8 +809,8 @@ void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord s
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
         return;
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -888,21 +888,21 @@ void count_crates_in_room(struct Room *room)
     struct RoomReposition rrepos;
     init_reposition_struct(&rrepos);
     // Making two loops guarantees that no rrepos things will be lost
-    for (long n = 0; n < 2; n++)
+    for (int32_t n = 0; n < 2; n++)
     {
         // The correct count should be taken from last sweep
         room->used_capacity = 0;
         room->capacity_used_for_storage = 0;
-        unsigned long k = 0;
-        unsigned long i = room->slabs_list;
+        uint32_t k = 0;
+        uint32_t i = room->slabs_list;
         while (i > 0)
         {
             MapSubtlCoord slb_x = slb_num_decode_x(i);
             MapSubtlCoord slb_y = slb_num_decode_y(i);
             // Per-slab code
-            for (long dy = 0; dy < STL_PER_SLB; dy++)
+            for (int32_t dy = 0; dy < STL_PER_SLB; dy++)
             {
-                for (long dx = 0; dx < STL_PER_SLB; dx++)
+                for (int32_t dx = 0; dx < STL_PER_SLB; dx++)
                 {
                     count_and_reposition_crates_in_room_on_subtile(room, STL_PER_SLB*slb_x+dx, STL_PER_SLB*slb_y+dy, &rrepos);
                 }
@@ -918,7 +918,7 @@ void count_crates_in_room(struct Room *room)
         }
     }
     if (rrepos.used > 0) {
-        ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
+        ERRORLOG("The %s index %d capacity %d wasn't enough; %d items beint32_ting to player %d dropped",
           room_code_name(room->kind),(int)room->index,(int)room->total_capacity,(int)rrepos.used,(int)room->owner);
     }
     room->capacity_used_for_storage = room->used_capacity;

@@ -166,10 +166,10 @@ TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr
     return flag_is_set(apt->activated, to_flag(plyr_idx));
 }
 
-TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, long first_thing_idx)
+TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, int32_t first_thing_idx)
 {
     SYNCDBG(8,"Starting");
-    unsigned long k = 0;
+    uint32_t k = 0;
     int i = first_thing_idx;
     while (i != 0)
     {
@@ -200,7 +200,7 @@ TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, 
             }
         } else
         {
-            long dist = get_distance_xy(thing->mappos.x.val, thing->mappos.y.val, apt->mappos.x.val, apt->mappos.y.val);
+            int32_t dist = get_distance_xy(thing->mappos.x.val, thing->mappos.y.val, apt->mappos.x.val, apt->mappos.y.val);
             if (apt->range > dist) {
                 return true;
             }
@@ -216,7 +216,7 @@ TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, 
     return false;
 }
 
-PlayerBitFlags action_point_get_players_within(long apt_idx)
+PlayerBitFlags action_point_get_players_within(int32_t apt_idx)
 {
     struct ActionPoint* apt = action_point_get(apt_idx);
     PlayerBitFlags activated = apt->activated;
@@ -249,7 +249,7 @@ PlayerBitFlags action_point_get_players_within(long apt_idx)
 TbBool process_action_points(void)
 {
     SYNCDBG(6,"Starting");
-    for (long i = 1; i < ACTN_POINTS_COUNT; i++)
+    for (int32_t i = 1; i < ACTN_POINTS_COUNT; i++)
     {
         struct ActionPoint* apt = &game.action_points[i];
         if (apt->exists == true)
@@ -266,7 +266,7 @@ TbBool process_action_points(void)
 
 void clear_action_points(void)
 {
-    for (long i = 0; i < ACTN_POINTS_COUNT; i++)
+    for (int32_t i = 0; i < ACTN_POINTS_COUNT; i++)
     {
         memset(&game.action_points[i], 0, sizeof(struct ActionPoint));
     }
@@ -282,7 +282,7 @@ void delete_action_point_structure(struct ActionPoint *apt)
 
 void delete_all_action_point_structures(void)
 {
-    for (long i = 1; i < ACTN_POINTS_COUNT; i++)
+    for (int32_t i = 1; i < ACTN_POINTS_COUNT; i++)
     {
         struct ActionPoint* apt = &game.action_points[i];
         if (apt != NULL)

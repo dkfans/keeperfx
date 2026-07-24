@@ -51,7 +51,7 @@ TbBool setup_head_for_random_unused_lair_subtile(struct Thing *creatng, struct R
 TbBool creature_move_to_home_lair(struct Thing *creatng);
 short creature_going_home_to_sleep(struct Thing *thing);
 short creature_sleep(struct Thing *thing);
-long process_lair_enemy(struct Thing *thing, struct Room *room);
+int32_t process_lair_enemy(struct Thing *thing, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }

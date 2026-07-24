@@ -51,7 +51,7 @@ extern char gui_room_type_highlighted;
 extern char gui_door_type_highlighted;
 extern char gui_trap_type_highlighted;
 extern char gui_creature_type_highlighted;
-extern unsigned long first_person_instance_top_half_selected;
+extern uint32_t first_person_instance_top_half_selected;
 
 #pragma pack()
 /******************************************************************************/
@@ -87,15 +87,15 @@ extern struct GuiMenu trap_menu2;
 extern const short pixels_needed[];
 
 /******************************************************************************/
-short get_pixels_scaled_and_zoomed(long basic_zoom);
-short scale_pixel(long basic_zoom);
+short get_pixels_scaled_and_zoomed(int32_t basic_zoom);
+short scale_pixel(int32_t basic_zoom);
 void gui_zoom_in(struct GuiButton *gbtn);
 void gui_zoom_out(struct GuiButton *gbtn);
 void draw_whole_status_panel(void);
-void gui_set_button_flashing(long btn_idx, long gameturns);
+void gui_set_button_flashing(int32_t btn_idx, int32_t gameturns);
 short button_designation_to_tab_designation(short btn_designt_id);
 short get_button_designation(short btn_group, short btn_item);
-void draw_placefiller(long scr_x, long scr_y, long units_per_px);
+void draw_placefiller(int32_t scr_x, int32_t scr_y, int32_t units_per_px);
 
 void gui_over_creature_button(struct GuiButton* gbtn);
 

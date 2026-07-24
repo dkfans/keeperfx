@@ -43,10 +43,10 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-static long frontstory_text_no;
-static long credits_scroll_speed;
+static int32_t frontstory_text_no;
+static int32_t credits_scroll_speed;
 struct TbSpriteSheet * frontstory_font = NULL;
-long credits_offset;
+int32_t credits_offset;
 int credits_end;
 /******************************************************************************/
 void frontstory_load(void)
@@ -101,9 +101,9 @@ void frontcredits_draw(void)
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     int fontid = 1;
     LbTextSetFont(frontend_font[fontid]);
-    long h = credits_offset;
+    int32_t h = credits_offset;
     TbBool did_draw = h > 0;
-    for (long i = 0; campaign.credits[i].kind != CIK_None; i++)
+    for (int32_t i = 0; campaign.credits[i].kind != CIK_None; i++)
     {
         if (h >= lbDisplay.PhysicalScreenHeight)
           break;

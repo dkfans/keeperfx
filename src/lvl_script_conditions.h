@@ -35,15 +35,15 @@ extern const struct NamedCommand is_free_desc[];
 extern const struct NamedCommand orientation_desc[];
 
 
-long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
+int32_t get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, int16_t validx);
 void process_conditions(void);
-long pop_condition(void);
+int32_t pop_condition(void);
 
 int get_script_current_condition();
 void set_script_current_condition(int current_condition);
 
-void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value);
-void command_add_condition_2variables(long plr_range_id, long opertr_id, long varib_type, long varib_id,long plr_range_id_right, long varib_type_right, long varib_id_right);
+void command_add_condition(int32_t plr_range_id, int32_t opertr_id, int32_t varib_type, int32_t varib_id, int32_t value);
+void command_add_condition_2variables(int32_t plr_range_id, int32_t opertr_id, int32_t varib_type, int32_t varib_id,int32_t plr_range_id_right, int32_t varib_type_right, int32_t varib_id_right);
 
 #ifdef __cplusplus
 }

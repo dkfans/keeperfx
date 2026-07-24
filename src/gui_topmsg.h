@@ -43,15 +43,15 @@ enum ErrorStatisticEntries {
 };
 
 struct ErrorStatistics {
-    unsigned long n;
-    unsigned long nprv;
+    uint32_t n;
+    uint32_t nprv;
     const char *msg;
 };
 
 #pragma pack()
 /******************************************************************************/
 void erstats_clear(void);
-long erstat_inc(int stat_num);
+int32_t erstat_inc(int stat_num);
 
 TbBool is_onscreen_msg_visible(void);
 TbBool show_onscreen_msg(int nturns, const char *fmt_str, ...);

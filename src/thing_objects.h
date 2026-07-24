@@ -157,7 +157,7 @@ struct CallToArmsGraphics {
 extern const struct NamedCommand object_update_functions_desc[];
 
 /******************************************************************************/
-struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigned short owner, long parent_idx);
+struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigned short owner, int32_t parent_idx);
 void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
 TbBool thing_is_object(const struct Thing *thing);
@@ -200,7 +200,7 @@ TbBool object_is_ignored_by_imps(const struct Thing* thing);
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room);
 TbBool delete_lair_totem(struct Thing *lairtng);
 
-struct Thing *create_coloured_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx, ThingModel base_model);
+struct Thing *create_coloured_object(const struct Coord3d *pos, PlayerNumber plyr_idx, int32_t parent_idx, ThingModel base_model);
 
 int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng);
 int get_wealth_size_of_gold_hoard_model(ThingModel objmodel);
@@ -213,10 +213,10 @@ GoldAmount add_gold_to_hoarde(struct Thing *thing, struct Room *room, GoldAmount
 GoldAmount remove_gold_from_hoarde(struct Thing *thing, struct Room *room, GoldAmount amount);
 GoldAmount gold_being_dropped_at_treasury(struct Thing* thing, struct Room* room);
 
-struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
-struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx);
-TbBool add_gold_to_pile(struct Thing *thing, long value);
-struct Thing* create_gold_pile(struct Coord3d* pos, PlayerNumber plyr_idx, long value);
+struct Thing *drop_gold_pile(int32_t value, struct Coord3d *pos);
+struct Thing *create_gold_pot_at(int32_t pos_x, int32_t pos_y, PlayerNumber plyr_idx);
+TbBool add_gold_to_pile(struct Thing *thing, int32_t value);
+struct Thing* create_gold_pile(struct Coord3d* pos, PlayerNumber plyr_idx, int32_t value);
 GoldAmount gold_object_typical_value(struct Thing *thing);
 
 void set_call_to_arms_as_birthing(struct Thing *objtng);

@@ -67,10 +67,10 @@ struct LightsShadows {
 
 #pragma pack()
 /******************************************************************************/
-long get_subtile_lightness(const struct LightsShadows * lish, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+int32_t get_subtile_lightness(const struct LightsShadows * lish, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void clear_subtiles_lightness(struct LightsShadows * lish);
 
-void create_shadow_limits(struct LightsShadows * lish, long start, long end);
+void create_shadow_limits(struct LightsShadows * lish, int32_t start, int32_t end);
 void clear_shadow_limits(struct LightsShadows * lish);
 
 void clear_light_system(struct LightsShadows * lish);

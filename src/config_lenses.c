@@ -87,7 +87,7 @@ const struct NamedFieldSet lenses_data_named_fields_set = {
 
 /******************************************************************************/
 
-struct LensConfig *get_lens_config(long lens_idx)
+struct LensConfig *get_lens_config(int32_t lens_idx)
 {
     if ((lens_idx < 1) || (lens_idx > lenses_conf.lenses_count))
         return &lenses_conf.lenses[0];
@@ -169,7 +169,7 @@ static int64_t value_overlay(const struct NamedField* named_field, const char* v
 static TbBool load_lenses_config_file(const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)

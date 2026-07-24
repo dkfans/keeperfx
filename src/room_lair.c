@@ -47,13 +47,13 @@ extern "C" {
 struct Room *start_rooms;
 struct Room *end_rooms;
 /******************************************************************************/
-long calculate_free_lair_space(struct Dungeon * dungeon)
+int32_t calculate_free_lair_space(struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
-    long cap_used = 0;
-    long cap_total = 0;
-    unsigned long k = 0;
-    long i;
+    int32_t cap_used = 0;
+    int32_t cap_total = 0;
+    uint32_t k = 0;
+    int32_t i;
 
     for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
@@ -82,7 +82,7 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
             }
         }
     }
-    long cap_required = 0;
+    int32_t cap_required = 0;
     k = 0;
     i = dungeon->creatr_list_start;
     while (i != 0)
@@ -305,8 +305,8 @@ void count_lair_occupants(struct Room *room)
 {
     room->used_capacity = 0;
     memset(room->content_per_model, 0, sizeof(room->content_per_model));
-    unsigned long k = 0;
-    unsigned long i = room->slabs_list;
+    uint32_t k = 0;
+    uint32_t i = room->slabs_list;
     while (i > 0)
     {
         MapSubtlCoord slb_x = slb_num_decode_x(i);
@@ -333,8 +333,8 @@ void count_lair_occupants(struct Room *room)
 struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);

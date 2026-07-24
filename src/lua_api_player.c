@@ -42,12 +42,12 @@ static int lua_Set_texture(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     
-    long texture_id;
+    int32_t texture_id;
     if (lua_isnumber(L, 2)) {
         // Integer input is 0-based: ID 0 = tmapa000.dat
         // set_player_texture uses slab_ext_data where slot 0 is the base map texture
         // and slot N+1 holds tmapaN.dat, so we add 1 to convert. -1 means reset.
-        long n = lua_tointeger(L, 2);
+        int32_t n = lua_tointeger(L, 2);
         if (n < 0) 
             texture_id = -1;
         else 
@@ -106,7 +106,7 @@ static int player_get_available(lua_State *L) {
 
         //creature_type|room_type|power_kind|trap_type|door_type
         const char* text = lua_tostring(L, 2);
-        long id = get_rid(creature_desc, text);
+        int32_t id = get_rid(creature_desc, text);
         if (strcmp(text, "TOTAL_CREATURES") == 0)
         {
             svartype = SVar_AVAILABLE_TOTAL_CREATURES;
@@ -170,7 +170,7 @@ static int player_set_field(lua_State *L) {
         }
         return 0;
     } else if (strcmp(key, "colour") == 0) {
-        long colour_idx;
+        int32_t colour_idx;
         if (lua_type(L, 3) == LUA_TSTRING) {
             const char* name = lua_tostring(L, 3);
             colour_idx = get_rid(cmpgn_human_player_options, name);

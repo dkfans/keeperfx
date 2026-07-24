@@ -53,7 +53,7 @@ static char *get_function_name(FuncIdx func_idx) {
 }
 
 TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags) {
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, uint32_t allow_flags) {
 
     const char *func_name = get_function_name(func_idx);
     if (!func_name) {

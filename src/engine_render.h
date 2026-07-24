@@ -39,19 +39,21 @@ extern "C" {
 #define KEEPERSPRITE_ADD_OFFSET 16384
 #define KEEPERSPRITE_ADD_NUM 16383
 
+#pragma pack(push,1)
 struct EngineCoord { // sizeof = 28
-  long view_width; // X screen position, probably not a width
-  long view_height; // Y screen position, probably not a height
-  unsigned short clip_flags; // Clipping and culling flags for frustum culling
-  unsigned short shade_intensity; // Shading intensity for vertex lighting
-  long render_distance; // Distance used for rendering calculations
-  long x;
-  long y;
-  long z;
+  int32_t view_width; // X screen position, probably not a width
+  int32_t view_height; // Y screen position, probably not a height
+  uint16_t clip_flags; // Clipping and culling flags for frustum culling
+  uint16_t shade_intensity; // Shading intensity for vertex lighting
+  int32_t render_distance; // Distance used for rendering calculations
+  int32_t x;
+  int32_t y;
+  int32_t z;
 };
+#pragma pack(pop)
 
 struct M31 {
-    long v[4];
+    int32_t v[4];
 };
 
 struct M33 { // sizeof = 48
@@ -61,11 +63,11 @@ struct M33 { // sizeof = 48
 struct MapVolumeBox { // sizeof = 24
   unsigned char visible;
   unsigned char color;
-  long beg_x;
-  long beg_y;
-  long end_x;
-  long end_y;
-  long floor_height_z;
+  int32_t beg_x;
+  int32_t beg_y;
+  int32_t end_x;
+  int32_t end_y;
+  int32_t floor_height_z;
 };
 
 struct ThingInterpolateResult
@@ -104,26 +106,26 @@ struct stripey_line {
 extern struct stripey_line colored_stripey_lines[];
 extern unsigned char poly_pool[POLY_POOL_SIZE];
 extern unsigned char *poly_pool_end;
-extern long cells_away;
+extern int32_t cells_away;
 extern float hud_scale;
 extern int creature_status_size;
 extern int line_box_size;
 
 extern struct MapVolumeBox map_volume_box;
-extern long view_height_over_2;
-extern long view_width_over_2;
-extern long z_threshold_near;
-extern long split_2;
-extern long fade_max;
+extern int32_t view_height_over_2;
+extern int32_t view_width_over_2;
+extern int32_t z_threshold_near;
+extern int32_t split_2;
+extern int32_t fade_max;
 
-extern short mx;
-extern short my;
-extern short mz;
+extern int16_t mx;
+extern int16_t my;
+extern int16_t mz;
 
-extern long floor_pointed_at_x;
-extern long floor_pointed_at_y;
-extern long box_lag_compensation_x;
-extern long box_lag_compensation_y;
+extern int32_t floor_pointed_at_x;
+extern int32_t floor_pointed_at_y;
+extern int32_t box_lag_compensation_x;
+extern int32_t box_lag_compensation_y;
 extern Offset vert_offset[3];
 extern Offset hori_offset[3];
 extern Offset high_offset[3];
@@ -133,8 +135,8 @@ extern TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];
 extern struct HeapMgrHeader *graphics_heap;
 extern TbFileHandle jty_file_handle;
 
-extern long x_init_off;
-extern long y_init_off;
+extern int32_t x_init_off;
+extern int32_t y_init_off;
 extern struct Thing *thing_being_displayed;
 
 extern unsigned char temp_cluedo_mode;
@@ -149,11 +151,11 @@ struct ThingInterpolateResult interpolate_thing(struct Thing *thing);
 
 int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void frame_wibble_generate(void);
-void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
+void setup_rotate_stuff(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7, int32_t a8);
 
-void process_keeper_sprite(short x, short y, unsigned short a3, short kspr_angle, unsigned char a5, long a6);
-void draw_status_sprites(long a1, long a2, struct Thing *thing);
-void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color);
+void process_keeper_sprite(int16_t x, int16_t y, uint16_t a3, int16_t kspr_angle, unsigned char a5, int32_t a6);
+void draw_status_sprites(int32_t a1, int32_t a2, struct Thing *thing);
+void draw_map_volume_box(int32_t cor1_x, int32_t cor1_y, int32_t cor2_x, int32_t cor2_y, int32_t floor_height_z, unsigned char color);
 
 void update_engine_settings(struct PlayerInfo *player);
 void draw_view(struct Camera *cam, unsigned char a2);

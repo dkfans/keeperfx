@@ -269,7 +269,7 @@ enum ChecksumKind {
 struct PlayerInfo;
 struct CatalogueEntry;
 
-extern unsigned long initial_replay_seed;
+extern uint32_t initial_replay_seed;
 extern TbBool unpausing_in_progress;
 
 extern float camera_movement_x;
@@ -293,10 +293,10 @@ struct Packet {
 };
 
 struct PacketSaveHead {
-    unsigned short game_ver_major;
-    unsigned short game_ver_minor;
-    unsigned short game_ver_release;
-    unsigned short game_ver_build;
+    uint16_t game_ver_major;
+    uint16_t game_ver_minor;
+    uint16_t game_ver_release;
+    uint16_t game_ver_build;
     uint32_t level_num;
     PlayerBitFlags players_exist;
     PlayerBitFlags players_comp;
@@ -321,29 +321,29 @@ struct PacketEx
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
-struct Packet *get_packet_direct(long pckt_idx);
-struct Packet *get_packet(long plyr_idx);
-void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4);
+struct Packet *get_packet_direct(int32_t pckt_idx);
+struct Packet *get_packet(int32_t plyr_idx);
+void set_packet_action(struct Packet *pckt, unsigned char pcktype, int32_t par1, int32_t par2, uint16_t par3, uint16_t par4);
 TbBool is_packet_empty(const struct Packet *pckt);
-void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4);
-void set_packet_control(struct Packet *pckt, unsigned long flag);
-void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);
+void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, uint32_t par1, uint32_t par2, uint16_t par3, uint16_t par4);
+void set_packet_control(struct Packet *pckt, uint32_t flag);
+void set_players_packet_control(struct PlayerInfo *player, uint32_t flag);
 unsigned char get_players_packet_action(struct PlayerInfo *player);
-void unset_packet_control(struct Packet *pckt, unsigned long flag);
-void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
-void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context);
+void unset_packet_control(struct Packet *pckt, uint32_t flag);
+void unset_players_packet_control(struct PlayerInfo *player, uint32_t flag);
+void set_players_packet_position(struct Packet *pckt, int32_t x, int32_t y, unsigned char context);
 void set_packet_pause_toggle(void);
 void force_application_close(void);
 struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoord y);
-TbBool process_dungeon_control_packet_clicks(long idx);
-TbBool process_players_dungeon_control_packet_action(long idx);
-void process_players_creature_control_packet_control(long idx);
-void process_players_creature_passenger_packet_action(long idx);
-void process_players_creature_control_packet_action(long idx);
-void process_map_packet_clicks(long idx);
-void process_pause_packet(long a1, long a2);
+TbBool process_dungeon_control_packet_clicks(int32_t idx);
+TbBool process_players_dungeon_control_packet_action(int32_t idx);
+void process_players_creature_control_packet_control(int32_t idx);
+void process_players_creature_passenger_packet_action(int32_t idx);
+void process_players_creature_control_packet_action(int32_t idx);
+void process_map_packet_clicks(int32_t idx);
+void process_pause_packet(int32_t a1, int32_t a2);
 void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera);
-void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
+void process_first_person_look(struct Thing *thing, struct Packet *pckt, int32_t current_horizontal, int32_t current_vertical, int32_t *out_horizontal, int32_t *out_vertical, int32_t *out_roll);
 TbBool can_process_creature_input(struct Thing *thing);
 void exchange_packets(void);
 void process_packets(void);
@@ -358,8 +358,8 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
 void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
-struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
-TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
+struct Room *keeper_build_room(int32_t stl_x,int32_t stl_y,int32_t plyr_idx,int32_t rkind);
+TbBool player_sell_room_at_subtile(int32_t plyr_idx, int32_t stl_x, int32_t stl_y);
 TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void disable_packet_mode(void);

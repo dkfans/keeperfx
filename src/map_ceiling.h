@@ -28,7 +28,7 @@ extern "C" {
 
 void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, MapSubtlCoord ex, MapSubtlCoord ey);
 void ceiling_init();
-short ceiling_set_info(long height_max, long height_min, long step);
+short ceiling_set_info(int32_t height_max, int32_t height_min, int32_t step);
 
 /******************************************************************************/
 #ifdef __cplusplus

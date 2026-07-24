@@ -81,21 +81,21 @@ struct NetLandLocalState {
 extern LevelNumber mouse_over_lvnum;
 void draw_map_screen(void);
 void draw_map_level_ensigns(void);
-const struct TbSprite * get_map_ensign(long idx);
+const struct TbSprite * get_map_ensign(int32_t idx);
 void set_all_ensigns_state(unsigned short nstate);
 void unload_map_and_window(void);
 TbBool load_map_and_window(LevelNumber lvnum);
 void frontmap_start_music(void);
 void frontmap_zoom_skip_init(LevelNumber lvnum);
 void frontmap_zoom_in_init(LevelNumber lvnum);
-TbBool frontmap_input_active_ensign(long curr_mx, long curr_my);
+TbBool frontmap_input_active_ensign(int32_t curr_mx, int32_t curr_my);
 TbBool frontmap_update_zoom(void);
 
 TbPixel net_player_colours[] = { 251, 58, 182, 11 };
 const int32_t hand_limp_xoffset[] = { 32, 31, 30, 29, 28, 27, 26, 24, 22, 19, 15, 9 };
 const int32_t hand_limp_yoffset[] = { -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0 };
 
-long fe_net_level_selected;
+int32_t fe_net_level_selected;
 static struct NetLandLocalState net_map_local;
 static struct NetLandRemoteSlap net_map_remote_slap[MAX_NET_USERS];
 struct ScreenPacket net_screen_packet[MAX_NET_USERS];
@@ -312,8 +312,8 @@ static void draw_netmap_players_hands(void)
         plyr_nam = network_player_name(i);
         colr = net_player_colours[i];
         spr = get_hand_sprite_for_packet(&nspck, anim_frame, &x, &y);
-        x -= (long)map_info.screen_shift_x;
-        y -= (long)map_info.screen_shift_y;
+        x -= (int32_t)map_info.screen_shift_x;
+        y -= (int32_t)map_info.screen_shift_y;
         LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
         w = LbTextStringWidth(plyr_nam);
         if (w > 0) {
@@ -450,7 +450,7 @@ TbBool frontnetmap_load(void)
     frontmap_start_music();
     if (fe_network_active) {
         net_number_of_players = 0;
-        for (long i = 0; i < MAX_NET_USERS; i++) {
+        for (int32_t i = 0; i < MAX_NET_USERS; i++) {
             struct ScreenPacket* nspck = &net_screen_packet[i];
             if (is_connected_screen_packet(nspck)) {
                 net_number_of_players++;

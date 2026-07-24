@@ -43,13 +43,13 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-static unsigned long high_score_entry_index;
+static uint32_t high_score_entry_index;
 
 char high_score_entry[HISCORE_NAME_LENGTH];
 int fe_high_score_table_from_main_menu;
-long high_score_entry_input_active = -1;
+int32_t high_score_entry_input_active = -1;
 int highscore_scroll_offset = 0;
-unsigned long scores_count;
+uint32_t scores_count;
 /******************************************************************************/
 
 static void finalize_high_score_entry(TbBool restore_default_name)
@@ -73,14 +73,14 @@ static void finalize_high_score_entry(TbBool restore_default_name)
     save_high_score_table();
 }
 
-void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)
+void draw_high_score_entry(int idx, int32_t pos_x, int32_t pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)
 {
     if ((idx >= scores_count) || (campaign.hiscore_table == NULL))
     {
         return;
     }
     struct HighScore* hscore = &campaign.hiscore_table[idx];
-    // TODO: These were originally right-aligned, but there's a glitch that causes longer numbers to be aligned weirdly at some resolutions in dbc mode.
+    // TODO: These were originally right-aligned, but there's a glitch that causes int32_ter numbers to be aligned weirdly at some resolutions in dbc mode.
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     int i = pos_x + col1_width;
     LbTextNumberDraw(i, pos_y, units_per_px, idx+1, Fnt_CenterPos);
@@ -134,10 +134,10 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     int pos_y = gbtn->scr_pos_y + (spr->SHeight + 3) * fs_units_per_px / 16;
     int tx_units_per_px = scale_value_menu(16);
     // The GUI item height should be 11 lines of text
-    long col1_width = LbTextStringWidthM("99", tx_units_per_px);
-    long col2_width = LbTextStringWidthM("  999", tx_units_per_px);
-    long col3_width = LbTextStringWidthM("   9999", tx_units_per_px);
-    long col4_width = LbTextStringWidthM(" 99999", tx_units_per_px);
+    int32_t col1_width = LbTextStringWidthM("99", tx_units_per_px);
+    int32_t col2_width = LbTextStringWidthM("  999", tx_units_per_px);
+    int32_t col3_width = LbTextStringWidthM("   9999", tx_units_per_px);
+    int32_t col4_width = LbTextStringWidthM(" 99999", tx_units_per_px);
     int k;
     if (high_score_entry_input_active >= 0)
     {
@@ -185,7 +185,7 @@ void frontend_quit_high_score_table(struct GuiButton *gbtn)
  */
 TbBool frontend_high_score_table_input(void)
 {
-    unsigned long i;
+    uint32_t i;
     if (high_score_entry_input_active >= campaign.hiscore_count)
         high_score_entry_input_active = -1;
     if (high_score_entry_input_active < 0)
@@ -202,12 +202,12 @@ TbBool frontend_high_score_table_input(void)
         if (high_score_entry_index > 0)
         {
             // Step back over UTF-8 continuation bytes to the start of the previous character
-            unsigned long start = high_score_entry_index - 1;
+            uint32_t start = high_score_entry_index - 1;
             while ((start > 0) && ((high_score_entry[start] & 0xc0) == 0x80)) {
                 start--;
             }
-            unsigned long clen = high_score_entry_index - start;
-            unsigned long slen = strlen(high_score_entry);
+            uint32_t clen = high_score_entry_index - start;
+            uint32_t slen = strlen(high_score_entry);
             memmove(&high_score_entry[start], &high_score_entry[start+clen], slen - (start+clen) + 1);
             high_score_entry_index = start;
         }
@@ -220,11 +220,11 @@ TbBool frontend_high_score_table_input(void)
         i = high_score_entry_index;
         if (high_score_entry[i] != '\0')
         {
-            unsigned long clen = 1;
+            uint32_t clen = 1;
             while ((high_score_entry[i+clen] & 0xc0) == 0x80) {
                 clen++;
             }
-            unsigned long slen = strlen(high_score_entry);
+            uint32_t slen = strlen(high_score_entry);
             memmove(&high_score_entry[i], &high_score_entry[i+clen], slen - (i+clen) + 1);
         }
         clear_key_pressed(KC_DELETE);
@@ -478,9 +478,9 @@ void frontend_draw_high_scores_mappack(struct GuiButton *gbtn)
     LbTextDrawResized((dbc_initialized && dbc_enabled) ? -30 : 0, 0, tx_units_per_px, text);
 }
 
-unsigned long count_high_scores()
+uint32_t count_high_scores()
 {
-    unsigned long i;
+    uint32_t i;
     for (i = 0; i < campaign.hiscore_count; i++)
     {
         struct HighScore* hscore = &campaign.hiscore_table[i];

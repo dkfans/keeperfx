@@ -33,10 +33,10 @@ extern "C" {
 #pragma pack()
 /******************************************************************************/
 
-void triangulation_init_cache(long tri_idx);
+void triangulation_init_cache(int32_t tri_idx);
 
-long triangle_find8(long pt_x, long pt_y);
-TbBool point_find(long pt_x, long pt_y, int32_t *out_tri_idx, int32_t *out_cor_idx);
+int32_t triangle_find8(int32_t pt_x, int32_t pt_y);
+TbBool point_find(int32_t pt_x, int32_t pt_y, int32_t *out_tri_idx, int32_t *out_cor_idx);
 
 /******************************************************************************/
 #ifdef __cplusplus

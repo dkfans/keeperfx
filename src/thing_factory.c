@@ -85,7 +85,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, ThingModel cimodel, unsigned s
     return thing;
 }
 
-struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, ThingModel tngmodel, unsigned short owner, long parent_idx)
+struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, ThingModel tngmodel, unsigned short owner, int32_t parent_idx)
 {
     struct Thing* thing = INVALID_THING;
     switch (tngclass)
@@ -343,7 +343,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 {
                     if(strlen(creatureName) >= CREATURE_NAME_MAX)
                     {
-                        ERRORLOG("init creature name (%s) too long max %d chars", creatureName, CREATURE_NAME_MAX-1);
+                        ERRORLOG("init creature name (%s) too int32_t max %d chars", creatureName, CREATURE_NAME_MAX-1);
                         break;
                     }
                     strcpy(cctrl->creature_name,creatureName);
@@ -435,7 +435,7 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         cctrl->party.target_plyr_idx = -1;
     }
 
-    long light_rand = GAME_RANDOM(8); // this may be unsynced random
+    int32_t light_rand = GAME_RANDOM(8); // this may be unsynced random
     if (light_rand < 2)
     {
         struct InitLight ilght;

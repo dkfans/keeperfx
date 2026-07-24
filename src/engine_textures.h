@@ -49,12 +49,12 @@ extern "C" {
 
 extern unsigned char block_mem[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
 extern unsigned char *block_ptrs[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_COUNT];
-extern long block_dimension;
+extern int32_t block_dimension;
 /******************************************************************************/
 void setup_texture_block_mem(void);
 short init_animating_texture_maps(void);
 short update_animating_texture_maps(void);
-TbBool load_texture_map_file(unsigned long tmapidx, LevelNumber lvnum, short fgroup);
+TbBool load_texture_map_file(uint32_t tmapidx, LevelNumber lvnum, short fgroup);
 
 /******************************************************************************/
 #ifdef __cplusplus

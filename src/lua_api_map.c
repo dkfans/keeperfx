@@ -45,7 +45,7 @@ static int map_get_field(lua_State *L){
     struct LevelInformation *lv_inf = get_level_info(lv_number);
 
     const char *map_name = "";
-    unsigned long ltype  = 0;
+    uint32_t ltype  = 0;
     if (lv_inf) {
         map_name = lv_inf->name;
         ltype    = lv_inf->level_type;
@@ -101,7 +101,7 @@ static int map_set_field(lua_State *L) {
             // Store as 1-based internally (texture_id + 1) to match string input convention.
             // Negative values mean no-op — leave game.texture_id unchanged.
             // TODO: align with PLAYER:set_texture() where negative values trigger a reset.
-            long texture_id = lua_tointeger(L, 3);
+            int32_t texture_id = lua_tointeger(L, 3);
             if (texture_id >= 0)
             {
                 game.texture_id = texture_id + 1;
@@ -111,7 +111,7 @@ static int map_set_field(lua_State *L) {
             // String input is 1-based and uses texture_pack_desc values ("STANDARD"=1, "ANCIENT"=2, ...).
             // Subtract 1 to get the 0-based filename index.
             // "NONE"=0 has no file, so skip the load.
-            long texture_id = luaL_checkNamedCommand(L, 3, texture_pack_desc);
+            int32_t texture_id = luaL_checkNamedCommand(L, 3, texture_pack_desc);
             game.texture_id = texture_id;
             if (texture_id > 0)
                 load_texture_map_file(texture_id - 1, lvnumb, get_level_fgroup(lvnumb));

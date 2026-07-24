@@ -236,7 +236,7 @@ static int lua_Change_creature_owner(lua_State *L)
 static int lua_get_creature_annoyance(lua_State *L)
 {
     struct Thing *thing = luaL_checkCreature(L, 1);
-    long reason = luaL_checkNamedCommand(L, 2, anger_reason_desc);
+    int32_t reason = luaL_checkNamedCommand(L, 2, anger_reason_desc);
     if (reason < AngR_NotPaid || reason >= AngR_ListEnd)
         return luaL_argerror(L, 2, "invalid anger reason");
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -248,10 +248,10 @@ static int lua_get_creature_annoyance(lua_State *L)
 static int lua_set_creature_annoyance(lua_State *L)
 {
     struct Thing *thing = luaL_checkCreature(L, 1);
-    long reason = luaL_checkNamedCommand(L, 2, anger_reason_desc);
+    int32_t reason = luaL_checkNamedCommand(L, 2, anger_reason_desc);
     if (reason < AngR_NotPaid || reason >= AngR_ListEnd)
         return luaL_argerror(L, 2, "invalid anger reason");
-    long value = luaL_checkinteger(L, 3);
+    int32_t value = luaL_checkinteger(L, 3);
     anger_set_creature_anger(thing, value, reason);
     return 0;
 }
@@ -360,7 +360,7 @@ static int thing_set_field(lua_State *L) {
             const char* name = luaL_checkstring(L, 3);
             if (strlen(name) > CREATURE_NAME_MAX)
             {
-                return luaL_error(L, "Creature name too long (max %d)", CREATURE_NAME_MAX);
+                return luaL_error(L, "Creature name too int32_t (max %d)", CREATURE_NAME_MAX);
             }
             strncpy(cctrl->creature_name, name, CREATURE_NAME_MAX);
         } else if (strcmp(key, "gold_held") == 0)

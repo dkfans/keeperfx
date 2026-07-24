@@ -63,7 +63,7 @@
 extern "C" {
 #endif
 
-extern long level_file_version;
+extern int32_t level_file_version;
 
 #define MAX_CONFIG_VALUES 4
 
@@ -523,7 +523,7 @@ TbBool parse_set_varib(const char *varib_name, int32_t *varib_id, int32_t *varib
     return true;
 }
 
-TbBool parse_get_varib(const char *varib_name, int32_t *varib_id, int32_t *varib_type, long lvl_file_version)
+TbBool parse_get_varib(const char *varib_name, int32_t *varib_id, int32_t *varib_type, int32_t lvl_file_version)
 {
     char c;
     int len = 0;
@@ -631,7 +631,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
         return;
     }
 
-    long property_id = get_named_field_id(named_fields_set->named_fields, property);
+    int32_t property_id = get_named_field_id(named_fields_set->named_fields, property);
     if (property_id == -1)
     {
         SCRPTERRLOG("Unknown property, '%s'", property);
@@ -652,7 +652,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
     if (field->argnum == -1)
     {
         snprintf(concatenated_values, sizeof(concatenated_values), "%s %s %s %s", scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]);
-        value->longs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
+        value->int32_ts[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
     }
     else
     {
@@ -673,7 +673,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
             {
                 break;
             }
-            value->longs[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
+            value->int32_ts[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
         }
     }
 
@@ -696,7 +696,7 @@ static void set_config_process(const struct NamedFieldSet* named_fields_set, str
         }
         else
         {
-            assign_named_field_value(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
+            assign_named_field_value(&named_fields_set->named_fields[property_id + i],context->value->int32_ts[i+1],named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
         }
     }
 }
@@ -711,17 +711,17 @@ static void add_to_party_check(const struct ScriptLine *scline)
     }
     if ((scline->np[2] < 1) || (scline->np[2] > CREATURE_MAX_LEVEL))
     {
-      SCRPTERRLOG("Invalid Creature Level parameter; %ld not in range (%d,%d)",scline->np[2],1,CREATURE_MAX_LEVEL);
+      SCRPTERRLOG("Invalid Creature Level parameter; %d not in range (%d,%d)",scline->np[2],1,CREATURE_MAX_LEVEL);
       return;
     }
-    long crtr_id = get_rid(creature_desc, scline->tp[1]);
+    int32_t crtr_id = get_rid(creature_desc, scline->tp[1]);
     if (crtr_id == -1)
     {
       SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
       return;
     }
     PlayerNumber target = -1;
-    long objective_id = get_objective_id_with_potential_target(scline->tp[4], &target);
+    int32_t objective_id = get_objective_id_with_potential_target(scline->tp[4], &target);
     if (objective_id == -1)
     {
       SCRPTERRLOG("Unknown party member objective, '%s'", scline->tp[4]);
@@ -764,7 +764,7 @@ static void delete_from_party_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Invalid Party:%s",scline->tp[0]);
         return;
     }
-    long creature_id = get_rid(creature_desc, scline->tp[1]);
+    int32_t creature_id = get_rid(creature_desc, scline->tp[1]);
     if (creature_id == -1)
     {
       SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
@@ -828,7 +828,7 @@ static void display_objective_check(const struct ScriptLine *scline)
         y = scline->np[2];
     }
     value->shorts[0] = msg_num;
-    value->ulongs[1] = location;
+    value->uint32_ts[1] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -838,7 +838,7 @@ static void display_objective_process(struct ScriptContext *context)
 {
     set_general_objective(context->value->shorts[0],
     context->player_idx,
-    context->value->ulongs[1],
+    context->value->uint32_ts[1],
     context->value->shorts[3],
     context->value->shorts[4]);
 }
@@ -870,7 +870,7 @@ static void display_player_objective_check(const struct ScriptLine* scline)
         y = scline->np[3];
     }
     value->shorts[0] = msg_num;
-    value->ulongs[1] = location;
+    value->uint32_ts[1] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -890,7 +890,7 @@ static void quick_objective_check(const struct ScriptLine* scline)
 
     if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
     {
-        SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
+        SCRPTWRNLOG("Objective TEXT too int32_t; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
     }
     if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx], msgtext) != 0))
     {
@@ -921,7 +921,7 @@ static void quick_objective_check(const struct ScriptLine* scline)
     }
 
     value->shorts[0] = idx;
-    value->ulongs[1] = location;
+    value->uint32_ts[1] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -929,7 +929,7 @@ static void quick_objective_check(const struct ScriptLine* scline)
 
 static void quick_objective_process(struct ScriptContext* context)
 {
-    process_objective(game.quick_messages[context->value->shorts[0] % QUICK_MESSAGES_COUNT],context->player_idx, context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
+    process_objective(game.quick_messages[context->value->shorts[0] % QUICK_MESSAGES_COUNT],context->player_idx, context->value->uint32_ts[1], context->value->shorts[3], context->value->shorts[4]);
 }
 
 static void quick_player_objective_check(const struct ScriptLine* scline)
@@ -946,7 +946,7 @@ static void quick_player_objective_check(const struct ScriptLine* scline)
 
     if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
     {
-        SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
+        SCRPTWRNLOG("Objective TEXT too int32_t; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
     }
     if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx], msgtext) != 0))
     {
@@ -977,7 +977,7 @@ static void quick_player_objective_check(const struct ScriptLine* scline)
     }
 
     value->shorts[0] = idx;
-    value->ulongs[1] = location;
+    value->uint32_ts[1] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -997,7 +997,7 @@ static void quick_information_check(const struct ScriptLine* scline)
 
     if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
     {
-        SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
+        SCRPTWRNLOG("Information TEXT too int32_t; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
     }
     if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx], msgtext) != 0))
     {
@@ -1028,7 +1028,7 @@ static void quick_information_check(const struct ScriptLine* scline)
     }
 
     value->shorts[0] = idx;
-    value->ulongs[1] = location;
+    value->uint32_ts[1] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -1036,7 +1036,7 @@ static void quick_information_check(const struct ScriptLine* scline)
 
 static void quick_information_process(struct ScriptContext* context)
 {
-    set_quick_information(context->value->shorts[0], context->player_idx, context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
+    set_quick_information(context->value->shorts[0], context->player_idx, context->value->uint32_ts[1], context->value->shorts[3], context->value->shorts[4]);
 }
 
 static void quick_player_information_check(const struct ScriptLine* scline)
@@ -1053,7 +1053,7 @@ static void quick_player_information_check(const struct ScriptLine* scline)
 
     if (strlen(msgtext) >= MESSAGE_TEXT_LEN)
     {
-        SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
+        SCRPTWRNLOG("Information TEXT too int32_t; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
     }
     if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx], msgtext) != 0))
     {
@@ -1084,7 +1084,7 @@ static void quick_player_information_check(const struct ScriptLine* scline)
     }
 
     value->shorts[0] = idx;
-    value->ulongs[1] = location;
+    value->uint32_ts[1] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -1126,7 +1126,7 @@ static void display_information_check(const struct ScriptLine* scline)
     }
 
     value->shorts[0] = msg_num;
-    value->ulongs[1] = location;
+    value->uint32_ts[1] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -1135,7 +1135,7 @@ static void display_information_check(const struct ScriptLine* scline)
 static void display_information_process(struct ScriptContext* context)
 {
     set_general_information(context->value->shorts[0], context->player_idx,
-        context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
+        context->value->uint32_ts[1], context->value->shorts[3], context->value->shorts[4]);
 }
 
 static void display_player_information_check(const struct ScriptLine* scline)
@@ -1174,7 +1174,7 @@ static void display_player_information_check(const struct ScriptLine* scline)
     }
 
     value->shorts[0] = msg_num;
-    value->ulongs[1] = location;
+    value->uint32_ts[1] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -1411,7 +1411,7 @@ static void conceal_map_rect_process(struct ScriptContext *context)
  * @param criteria the creature selection criterion
  * @param count the amount of units to transfer
  */
-static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, int count)
+static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, int32_t criteria, int count)
 {
     short transferred = 0;
     struct Thing* thing;
@@ -1458,14 +1458,14 @@ static void special_transfer_creature_check(const struct ScriptLine* scline)
 
 static void script_transfer_creature_check(const struct ScriptLine* scline)
 {
-    long crtr_id = parse_creature_name(scline->tp[1]);
-    long count = scline->np[3];
+    int32_t crtr_id = parse_creature_name(scline->tp[1]);
+    int32_t count = scline->np[3];
     if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
         return;
     }
-    long select_id = parse_criteria(scline->tp[2]);
+    int32_t select_id = parse_criteria(scline->tp[2]);
     if (select_id == -1) {
         SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
         return;
@@ -1480,7 +1480,7 @@ static void script_transfer_creature_check(const struct ScriptLine* scline)
     }
     if (count > 255)
     {
-        SCRPTWRNLOG("Trying to transfer %ld creatures out of a possible 255",count);
+        SCRPTWRNLOG("Trying to transfer %d creatures out of a possible 255",count);
         count = 255;
     }
     command_add_value(Cmd_TRANSFER_CREATURE, scline->np[0], crtr_id, select_id, count);
@@ -1488,18 +1488,18 @@ static void script_transfer_creature_check(const struct ScriptLine* scline)
 
 static void script_transfer_creature_process(struct ScriptContext* context)
 {
-    script_transfer_creature(context->player_idx, context->value->longs[0], context->value->longs[1], context->value->longs[2]);
+    script_transfer_creature(context->player_idx, context->value->int32_ts[0], context->value->int32_ts[1], context->value->int32_ts[2]);
 }
 
 static void change_creatures_annoyance_check(const struct ScriptLine* scline)
 {
-    long crtr_id = parse_creature_name(scline->tp[1]);
+    int32_t crtr_id = parse_creature_name(scline->tp[1]);
     if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
         return;
     }
-    long op_id = get_rid(script_operator_desc, scline->tp[2]);
+    int32_t op_id = get_rid(script_operator_desc, scline->tp[2]);
     if (op_id == -1)
     {
         SCRPTERRLOG("Invalid operation for changing creatures' annoyance: '%s'", scline->tp[2]);
@@ -1510,7 +1510,7 @@ static void change_creatures_annoyance_check(const struct ScriptLine* scline)
 
 static void change_creatures_annoyance_process(struct ScriptContext* context)
 {
-    script_change_creatures_annoyance(context->player_idx, context->value->longs[0], context->value->longs[1], context->value->longs[2]);
+    script_change_creatures_annoyance(context->player_idx, context->value->int32_ts[0], context->value->int32_ts[1], context->value->int32_ts[2]);
 }
 
 static void set_trap_configuration_check(const struct ScriptLine* scline)
@@ -1528,7 +1528,7 @@ static void set_hand_rule_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
 
     const char *param_name = scline->tp[5];
-    long crtr_id = parse_creature_name(scline->tp[1]);
+    int32_t crtr_id = parse_creature_name(scline->tp[1]);
     short hr_action, hr_slot, hr_type, param;
 
     if (crtr_id == CREATURE_NONE)
@@ -1561,7 +1561,7 @@ static void set_hand_rule_check(const struct ScriptLine* scline)
         }
         if (hr_type == HandRule_AffectedBy)
         {
-            long mag_id = get_id(spell_desc, param_name);
+            int32_t mag_id = get_id(spell_desc, param_name);
             if (mag_id == -1)
             {
                 SCRPTERRLOG("Unknown magic, '%s'", param_name);
@@ -1587,22 +1587,22 @@ static void move_creature_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
 
-    long crmodel = parse_creature_name(scline->tp[1]);
+    int32_t crmodel = parse_creature_name(scline->tp[1]);
     if (crmodel == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
         return;
     }
-    long select_id = parse_criteria(scline->tp[2]);
+    int32_t select_id = parse_criteria(scline->tp[2]);
     if (select_id == -1) {
         SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
         return;
     }
 
-    long count = scline->np[3];
+    int32_t count = scline->np[3];
     if (count <= 0)
     {
-        SCRPTERRLOG("Bad creatures count, %ld", count);
+        SCRPTERRLOG("Bad creatures count, %d", count);
         return;
     }
 
@@ -1614,7 +1614,7 @@ static void move_creature_check(const struct ScriptLine* scline)
     }
 
     const char *effect_name = scline->tp[5];
-    long effct_id = 0;
+    int32_t effct_id = 0;
     if (scline->tp[5][0] != '\0')
     {
         effct_id = get_rid(effect_desc, effect_name);
@@ -1635,8 +1635,8 @@ static void move_creature_check(const struct ScriptLine* scline)
     {
         effct_id = -1;
     }
-    value->ulongs[0] = location;
-    value->longs[1] = select_id;
+    value->uint32_ts[0] = location;
+    value->int32_ts[1] = select_id;
     value->shorts[4] = effct_id;
     value->bytes[10] = count;
     value->bytes[11] = crmodel;
@@ -1649,7 +1649,7 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
     PlayerNumber player_id = scline->np[1];
-    long crmodel = parse_creature_name(scline->tp[2]);
+    int32_t crmodel = parse_creature_name(scline->tp[2]);
     if (crmodel == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[2]);
@@ -1671,7 +1671,7 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     value->chars[3] = flag_player_id;
     value->shorts[2] = flag_id;
     value->chars[6] = flag_type;
-    value->longs[3] = player_id;
+    value->int32_ts[3] = player_id;
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1822,22 +1822,22 @@ static void set_room_configuration_process(struct ScriptContext *context)
 static void set_hand_rule_process(struct ScriptContext* context)
 {
     PlayerNumber plyr_idx = context->player_idx;
-    long crtr_id = context->value->shorts[0];
-    long hand_rule_action = context->value->shorts[1];
-    long hand_rule_slot = context->value->shorts[2];
-    long hand_rule_type = context->value->shorts[3];
-    long param = context->value->shorts[4];
+    int32_t crtr_id = context->value->shorts[0];
+    int32_t hand_rule_action = context->value->shorts[1];
+    int32_t hand_rule_slot = context->value->shorts[2];
+    int32_t hand_rule_type = context->value->shorts[3];
+    int32_t param = context->value->shorts[4];
 
     script_set_hand_rule(plyr_idx, crtr_id, hand_rule_action, hand_rule_slot, hand_rule_type, param);
 }
 
 static void move_creature_process(struct ScriptContext* context)
 {
-    TbMapLocation location = context->value->ulongs[0];
-    long select_id = context->value->longs[1];
-    long effect_id = context->value->shorts[4];
-    long count = context->value->bytes[10];
-    long crmodel = context->value->bytes[11];
+    TbMapLocation location = context->value->uint32_ts[0];
+    int32_t select_id = context->value->int32_ts[1];
+    int32_t effect_id = context->value->shorts[4];
+    int32_t count = context->value->bytes[10];
+    int32_t crmodel = context->value->bytes[11];
     PlayerNumber plyr_idx = context->player_idx;
 
     script_move_creature_with_criteria(plyr_idx, crmodel, select_id, location, effect_id, count);
@@ -1845,14 +1845,14 @@ static void move_creature_process(struct ScriptContext* context)
 
 static void count_creatures_at_action_point_process(struct ScriptContext* context)
 {
-    long ap_num = context->value->shorts[0];
-    long crmodel = context->value->bytes[2];
-    long flag_player_id = context->value->chars[3];
-    long flag_id = context->value->shorts[2];
-    long flag_type = context->value->chars[6];
-    PlayerNumber player_id = context->value->longs[3];
+    int32_t ap_num = context->value->shorts[0];
+    int32_t crmodel = context->value->bytes[2];
+    int32_t flag_player_id = context->value->chars[3];
+    int32_t flag_id = context->value->shorts[2];
+    int32_t flag_type = context->value->chars[6];
+    PlayerNumber player_id = context->value->int32_ts[3];
 
-    long sum = 0;
+    int32_t sum = 0;
 
     if (player_id == ALL_PLAYERS)
     {
@@ -1884,35 +1884,35 @@ static void create_effect_at_pos_process(struct ScriptContext* context)
     struct Coord3d pos;
     set_coords_to_subtile_center(&pos, context->value->shorts[1], context->value->shorts[2], 0);
     pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    script_create_effect(&pos,context->value->shorts[0],context->value->longs[2]);
+    script_create_effect(&pos,context->value->shorts[0],context->value->int32_ts[2]);
 
 }
 
 static void create_effect_process(struct ScriptContext *context)
 {
     struct Coord3d pos;
-    if (!get_coords_at_location(&pos, context->value->ulongs[1],true))
+    if (!get_coords_at_location(&pos, context->value->uint32_ts[1],true))
     {
-        SCRPTWRNLOG("Could not find location %lu to create effect", context->value->ulongs[1]);
+        SCRPTWRNLOG("Could not find location %u to create effect", context->value->uint32_ts[1]);
         return;
     }
-    script_create_effect(&pos,context->value->shorts[0],context->value->longs[2]);
+    script_create_effect(&pos,context->value->shorts[0],context->value->int32_ts[2]);
 
 }
 
 static void set_heart_health_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    struct Thing* heartng = get_player_soul_container(value->longs[0]);
+    struct Thing* heartng = get_player_soul_container(value->int32_ts[0]);
     struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
     if (scline->np[1] > objst->health)
     {
-        SCRPTWRNLOG("Value %ld is greater than maximum: %d", scline->np[1], objst->health);
-        value->longs[1] = objst->health;
+        SCRPTWRNLOG("Value %d is greater than maximum: %d", scline->np[1], objst->health);
+        value->int32_ts[1] = objst->health;
     }
     else
     {
-        value->longs[1] = scline->np[1];
+        value->int32_ts[1] = scline->np[1];
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1922,23 +1922,23 @@ static void set_heart_health_process(struct ScriptContext *context)
     struct Thing* heartng = get_player_soul_container(context->player_idx);
     if (thing_exists(heartng))
     {
-        heartng->health = (short)context->value->longs[1];
+        heartng->health = (short)context->value->int32_ts[1];
     }
 }
 
 static void add_heart_health_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    value->longs[1] = scline->np[1];
-    value->longs[2] = scline->np[2];
+    value->int32_ts[1] = scline->np[1];
+    value->int32_ts[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_heart_health_process(struct ScriptContext *context)
 {
     PlayerNumber plyr_idx = context->player_idx;
-    HitPoints healthdelta = context->value->longs[1];
-    TbBool warn_on_damage = context->value->longs[2];
+    HitPoints healthdelta = context->value->int32_ts[1];
+    TbBool warn_on_damage = context->value->int32_ts[2];
 
     add_heart_health(plyr_idx,healthdelta,warn_on_damage);
 }
@@ -1976,16 +1976,16 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
     {
-        SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%ld)", scline->np[0]);
+        SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%d)", scline->np[0]);
         return;
     }
     if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
     {
-        SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+        SCRPTWRNLOG("Objective TEXT too int32_t; truncating to %d characters", MESSAGE_TEXT_LEN-1);
     }
     if ((game.quick_messages[scline->np[0]][0] != '\0') && (strcmp(game.quick_messages[scline->np[0]],scline->tp[1]) != 0))
     {
-        SCRPTWRNLOG("Quick Objective no %ld overwritten by different text", scline->np[0]);
+        SCRPTWRNLOG("Quick Objective no %d overwritten by different text", scline->np[0]);
     }
     snprintf(game.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
 
@@ -1995,8 +1995,8 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
         get_map_location_id(scline->tp[2], &location);
     }
 
-    value->longs[0] = scline->np[0];
-    value->ulongs[2] = location;
+    value->int32_ts[0] = scline->np[0];
+    value->uint32_ts[2] = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2004,20 +2004,20 @@ static void heart_lost_quick_objective_process(struct ScriptContext *context)
 {
     game.heart_lost_display_message = true;
     game.heart_lost_quick_message = true;
-    game.heart_lost_message_id = context->value->longs[0];
-    game.heart_lost_message_target = context->value->longs[2];
+    game.heart_lost_message_id = context->value->int32_ts[0];
+    game.heart_lost_message_target = context->value->int32_ts[2];
 }
 
 static void heart_lost_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->longs[0] = scline->np[0];
+    value->int32_ts[0] = scline->np[0];
     TbMapLocation location = 0;
     if (scline->tp[1][0] != '\0')
     {
         get_map_location_id(scline->tp[1], &location);
     }
-    value->ulongs[1] = location;
+    value->uint32_ts[1] = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2025,14 +2025,14 @@ static void heart_lost_objective_process(struct ScriptContext *context)
 {
     game.heart_lost_display_message = true;
     game.heart_lost_quick_message = false;
-    game.heart_lost_message_id = context->value->longs[0];
-    game.heart_lost_message_target = context->value->longs[1];
+    game.heart_lost_message_id = context->value->int32_ts[0];
+    game.heart_lost_message_target = context->value->int32_ts[1];
 }
 
 static void set_door_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long doorAction = get_id(locked_desc, scline->tp[0]);
+    int32_t doorAction = get_id(locked_desc, scline->tp[0]);
     if (doorAction == -1)
     {
         SCRPTERRLOG("Set Door state %s not recognized", scline->tp[0]);
@@ -2041,7 +2041,7 @@ static void set_door_check(const struct ScriptLine* scline)
 
     if (slab_coords_invalid(scline->np[1], scline->np[2]))
     {
-        SCRPTERRLOG("Invalid slab coordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        SCRPTERRLOG("Invalid slab coordinates: %d, %d", scline->np[1], scline->np[2]);
         return;
     }
 
@@ -2083,7 +2083,7 @@ static void place_door_check(const struct ScriptLine* scline)
 
     if (slab_coords_invalid(scline->np[2], scline->np[3]))
     {
-        SCRPTERRLOG("Invalid slab coordinates: %ld, %ld", scline->np[2], scline->np[3]);
+        SCRPTERRLOG("Invalid slab coordinates: %d, %d", scline->np[2], scline->np[3]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -2147,7 +2147,7 @@ static void place_trap_check(const struct ScriptLine* scline)
 
     if (subtile_coords_invalid(scline->np[2], scline->np[3]))
     {
-        SCRPTERRLOG("Invalid subtile coordinates: %ld, %ld", scline->np[2], scline->np[3]);
+        SCRPTERRLOG("Invalid subtile coordinates: %d, %d", scline->np[2], scline->np[3]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -2186,8 +2186,8 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    value->longs[0] = scline->np[0]; // AP `from`
-    value->longs[1] = scline->np[1]; // AP `to`
+    value->int32_ts[0] = scline->np[0]; // AP `from`
+    value->int32_ts[1] = scline->np[1]; // AP `to`
     value->chars[8] = scline->np[2]; // curvature
     value->bytes[9] = scline->np[3]; // spatial stepping
     value->bytes[10] = scline->np[4]; // temporal stepping
@@ -2207,8 +2207,8 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 
 static void create_effects_line_process(struct ScriptContext *context)
 {
-    TbMapLocation from = context->value->longs[0];
-    TbMapLocation to   = context->value->longs[1];
+    TbMapLocation from = context->value->int32_ts[0];
+    TbMapLocation to   = context->value->int32_ts[1];
     char curvature = context->value->chars[8];
     unsigned char spatial_stepping = context->value->bytes[9];
     unsigned char temporal_stepping = context->value->bytes[10];
@@ -2289,7 +2289,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
     }
 
-    long config_value_primary = 0, config_value_secondary = 0, config_value_tertiary = 0, config_value_quaternary = 0, config_value_quinary = 0, config_value_senary = 0;
+    int32_t config_value_primary = 0, config_value_secondary = 0, config_value_tertiary = 0, config_value_quaternary = 0, config_value_quinary = 0, config_value_senary = 0;
     if (block == CrtConf_ATTRIBUTES)
     {
         if (creatvar == 20) // ATTACKPREFERENCE
@@ -2383,7 +2383,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 config_value_primary = atoi(scline->tp[2]);
                 if ((config_value_primary < 0) || (config_value_primary > SHRT_MAX))
                 {
-                    SCRPTERRLOG("Job value %ld out of range `0~%d`.", config_value_primary, SHRT_MAX);
+                    SCRPTERRLOG("Job value %d out of range `0~%d`.", config_value_primary, SHRT_MAX);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
@@ -2525,7 +2525,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 config_value_primary = atoi(scline->tp[2]);
                 if ((config_value_primary < 0) || (config_value_primary > SHRT_MAX))
                 {
-                    SCRPTERRLOG("Job value %ld out of range `0~%d`.", config_value_primary, SHRT_MAX);
+                    SCRPTERRLOG("Job value %d out of range `0~%d`.", config_value_primary, SHRT_MAX);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
@@ -2567,7 +2567,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     {
         if (creatvar == 1) // POWERS
         {
-            long instance = 0;
+            int32_t instance = 0;
             if (!parameter_is_number(scline->tp[2]))
             {
                 instance = get_id(instance_desc, scline->tp[2]);
@@ -2676,7 +2676,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         } else
         if (creatvar == 5) // SLEEPEXPERIENCE
         {
-            long slabtype = get_id(slab_desc, scline->tp[2]);
+            int32_t slabtype = get_id(slab_desc, scline->tp[2]);
             if (slabtype < 0)
             {
                 SCRPTERRLOG("Unknown slab type %s.", scline->tp[2]);
@@ -2690,7 +2690,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             config_value_secondary = atoi(scline->tp[3]);
             if (config_value_secondary < 0)
             {
-                SCRPTERRLOG("Slab sleep experience value (%s %ld) must be 0 or greater.", scline->tp[2], config_value_secondary);
+                SCRPTERRLOG("Slab sleep experience value (%s %d) must be 0 or greater.", scline->tp[2], config_value_secondary);
                 config_value_secondary = 0;
             }
             slabtype = (scline->tp[4][0] != '\0') ? get_id(slab_desc, scline->tp[4]) : 0;
@@ -2710,7 +2710,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             config_value_quaternary = atoi(scline->tp[5]);
             if (config_value_quaternary < 0)
             {
-                SCRPTERRLOG("Slab sleep experience value (%s %ld) must be 0 or greater.", scline->tp[5], config_value_quaternary);
+                SCRPTERRLOG("Slab sleep experience value (%s %d) must be 0 or greater.", scline->tp[5], config_value_quaternary);
                 config_value_quaternary = 0;
             }
             slabtype = (scline->tp[6][0] != '\0') ? get_id(slab_desc, scline->tp[6]) : 0;
@@ -2730,7 +2730,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             config_value_senary = atoi(scline->tp[7]);
             if (config_value_senary < 0)
             {
-                SCRPTERRLOG("Slab sleep experience value (%s %ld) must be 0 or greater.", scline->tp[7], config_value_senary);
+                SCRPTERRLOG("Slab sleep experience value (%s %d) must be 0 or greater.", scline->tp[7], config_value_senary);
                 config_value_senary = 0;
             }
         }
@@ -2787,12 +2787,12 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
     value->shorts[2] = block;
-    value->longs[2] = config_value_primary;
-    value->longs[3] = config_value_secondary;
-    value->longs[4] = config_value_tertiary;
-    value->longs[5] = config_value_quaternary;
-    value->longs[6] = config_value_quinary;
-    value->longs[7] = config_value_senary;
+    value->int32_ts[2] = config_value_primary;
+    value->int32_ts[3] = config_value_secondary;
+    value->int32_ts[4] = config_value_tertiary;
+    value->int32_ts[5] = config_value_quaternary;
+    value->int32_ts[6] = config_value_quinary;
+    value->int32_ts[7] = config_value_senary;
 
     SCRIPTDBG(7,"Setting creature %s configuration value %d:%d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[4], value->shorts[1], value->shorts[2], value->shorts[3]);
 
@@ -2806,12 +2806,12 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
     short creature_variable = context->value->shorts[1];
     short block  = context->value->shorts[2];
-    long value  = context->value->longs[2];
-    long config_value_secondary = context->value->longs[3];
-    long config_value_tertiary = context->value->longs[4];
-    long config_value_quaternary = context->value->longs[5];
-    long config_value_quinary = context->value->longs[6];
-    long config_value_senary = context->value->longs[7];
+    int32_t value  = context->value->int32_ts[2];
+    int32_t config_value_secondary = context->value->int32_ts[3];
+    int32_t config_value_tertiary = context->value->int32_ts[4];
+    int32_t config_value_quaternary = context->value->int32_ts[5];
+    int32_t config_value_quinary = context->value->int32_ts[6];
+    int32_t config_value_senary = context->value->int32_ts[7];
 
     if (block == CrtConf_ATTRIBUTES)
     {
@@ -3491,7 +3491,7 @@ static void display_timer_check(const struct ScriptLine *scline)
     }
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     value->bytes[1] = timr_id;
-    value->longs[1] = 0;
+    value->int32_ts[1] = 0;
     value->bytes[2] = (TbBool)scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -3500,7 +3500,7 @@ static void display_timer_process(struct ScriptContext *context)
 {
     game.script_timer_player = context->player_idx;
     game.script_timer_id = context->value->bytes[1];
-    game.script_timer_limit = context->value->longs[1];
+    game.script_timer_limit = context->value->int32_ts[1];
     game.timer_real = context->value->bytes[2];
     game.flags_gui |= GGUI_ScriptTimer;
 }
@@ -3508,33 +3508,33 @@ static void display_timer_process(struct ScriptContext *context)
 static void add_to_timer_check(const struct ScriptLine *scline)
 {
     const char *timrname = scline->tp[1];
-    long timr_id = get_rid(timer_desc, timrname);
+    int32_t timr_id = get_rid(timer_desc, timrname);
     if (timr_id == -1)
     {
         SCRPTERRLOG("Unknown timer, '%s'", timrname);
         return;
     }
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    value->longs[1] = timr_id;
-    value->longs[2] = scline->np[2];
+    value->int32_ts[1] = timr_id;
+    value->int32_ts[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_to_timer_process(struct ScriptContext *context)
 {
-   add_to_script_timer(context->player_idx, context->value->longs[1], context->value->longs[2]);
+   add_to_script_timer(context->player_idx, context->value->int32_ts[1], context->value->int32_ts[2]);
 }
 
 static void add_bonus_time_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->longs[0] = scline->np[0];
+    value->int32_ts[0] = scline->np[0];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void add_bonus_time_process(struct ScriptContext *context)
 {
-   game.bonus_time += context->value->longs[0];
+   game.bonus_time += context->value->int32_ts[0];
 }
 
 static void display_variable_check(const struct ScriptLine *scline)
@@ -3548,8 +3548,8 @@ static void display_variable_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     value->bytes[1] = scline->np[3];
     value->bytes[2] = varib_type;
-    value->longs[1] = varib_id;
-    value->longs[2] = scline->np[2];
+    value->int32_ts[1] = varib_id;
+    value->int32_ts[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3557,8 +3557,8 @@ static void display_variable_process(struct ScriptContext *context)
 {
    game.script_variable_player = context->player_idx;
    game.script_value_type = context->value->bytes[2];
-   game.script_value_id = context->value->longs[1];
-   game.script_variable_target = context->value->longs[2];
+   game.script_value_id = context->value->int32_ts[1];
+   game.script_variable_target = context->value->int32_ts[2];
    game.script_variable_target_type = context->value->bytes[1];
    game.flags_gui |= GGUI_Variable;
 }
@@ -3567,7 +3567,7 @@ static void display_countdown_check(const struct ScriptLine *scline)
 {
     if (scline->np[2] <= 0)
     {
-        SCRPTERRLOG("Can't have a countdown to %ld turns.", scline->np[2]);
+        SCRPTERRLOG("Can't have a countdown to %d turns.", scline->np[2]);
         return;
     }
     const char *timrname = scline->tp[1];
@@ -3579,7 +3579,7 @@ static void display_countdown_check(const struct ScriptLine *scline)
     }
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     value->bytes[1] = timr_id;
-    value->longs[1] = scline->np[2];
+    value->int32_ts[1] = scline->np[2];
     value->bytes[2] = (TbBool)scline->np[3];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -3605,7 +3605,7 @@ static void create_effect_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     TbMapLocation location;
     const char *effect_name = scline->tp[0];
-    long effct_id = effect_or_effect_element_id(effect_name);
+    int32_t effct_id = effect_or_effect_element_id(effect_name);
     if (effct_id == 0)
     {
         SCRPTERRLOG("Unrecognised effect: %s", effect_name);
@@ -3617,8 +3617,8 @@ static void create_effect_check(const struct ScriptLine *scline)
     {
         return;
     }
-    value->ulongs[1] = location;
-    value->longs[2] = scline->np[2];
+    value->uint32_ts[1] = location;
+    value->int32_ts[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3626,7 +3626,7 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char *effect_name = scline->tp[0];
-    long effct_id = effect_or_effect_element_id(effect_name);
+    int32_t effct_id = effect_or_effect_element_id(effect_name);
     if (effct_id == 0)
     {
         SCRPTERRLOG("Unrecognised effect: %s", effect_name);
@@ -3635,12 +3635,12 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
     value->shorts[0] = effct_id;
     if (subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
-        SCRPTERRLOG("Invalid coordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        SCRPTERRLOG("Invalid coordinates: %d, %d", scline->np[1], scline->np[2]);
         return;
     }
     value->shorts[1] = scline->np[1];
     value->shorts[2] = scline->np[2];
-    value->longs[2] = scline->np[3];
+    value->int32_ts[2] = scline->np[3];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3660,7 +3660,7 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unexpected action:%s", scline->tp[0]);
         return;
     }
-    long param;
+    int32_t param;
     if ((value->sac.action == SacA_CustomPunish) || (value->sac.action == SacA_CustomReward))
     {
         param = get_id(flag_desc, scline->tp[1]) + 1;
@@ -3692,7 +3692,7 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
 
     for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
-       long vi = get_rid(creature_desc, scline->tp[i + 2]);
+       int32_t vi = get_rid(creature_desc, scline->tp[i + 2]);
        if (vi < 0)
          vi = 0;
        value->sac.victims[i] = vi;
@@ -3710,7 +3710,7 @@ static void remove_sacrifice_recipe_check(const struct ScriptLine *scline)
 
     for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
-       long vi = get_rid(creature_desc, scline->tp[i]);
+       int32_t vi = get_rid(creature_desc, scline->tp[i]);
        if (vi < 0)
          vi = 0;
        value->sac.victims[i] = vi;
@@ -3738,7 +3738,7 @@ static void set_box_tooltip_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
     {
-        SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
+        SCRPTERRLOG("Invalid CUSTOM_BOX number (%d)", scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
@@ -3746,10 +3746,10 @@ static void set_box_tooltip_check(const struct ScriptLine* scline)
 
     if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
     {
-        SCRPTWRNLOG("Tooltip TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
+        SCRPTWRNLOG("Tooltip TEXT too int32_t; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
     }
-    value->longs[2] = script_strdup(scline->tp[1]);
-    if (value->longs[2] < 0)
+    value->int32_ts[2] = script_strdup(scline->tp[1]);
+    if (value->int32_ts[2] < 0)
     {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
@@ -3763,7 +3763,7 @@ static void set_box_tooltip_check(const struct ScriptLine* scline)
 static void set_box_tooltip_process(struct ScriptContext* context)
 {
     int idx = context->value->shorts[0];
-    snprintf(game.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", script_strval(context->value->longs[2]));
+    snprintf(game.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", script_strval(context->value->int32_ts[2]));
 }
 
 static void set_box_tooltip_id_check(const struct ScriptLine *scline)
@@ -3771,7 +3771,7 @@ static void set_box_tooltip_id_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
     {
-        SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
+        SCRPTERRLOG("Invalid CUSTOM_BOX number (%d)", scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
@@ -3799,15 +3799,15 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
 
     if (scline->np[0] < 0 || scline->np[0] > game.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_x);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_x);
         return;
     }
     if (scline->np[1] < 0 || scline->np[1] > game.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[1],game.map_tiles_y);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[1],game.map_tiles_y);
         return;
     }
-    long filltype = get_id(fill_desc, scline->tp[3]);
+    int32_t filltype = get_id(fill_desc, scline->tp[3]);
     if ((scline->tp[3][0] != '\0') && (filltype == -1))
     {
         SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
@@ -3818,9 +3818,9 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
 
 static void change_slab_owner_process(struct ScriptContext *context)
 {
-    MapSlabCoord x = context->value->longs[0];
-    MapSlabCoord y = context->value->longs[1];
-    long fill_type = context->value->longs[2];
+    MapSlabCoord x = context->value->int32_ts[0];
+    MapSlabCoord y = context->value->int32_ts[1];
+    int32_t fill_type = context->value->int32_ts[2];
     if (fill_type > 0)
     {
         struct CompoundCoordFilterParam iter_param;
@@ -3839,7 +3839,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 
     if (scline->np[0] < 0 || scline->np[0] > game.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_x);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_x);
         return;
     }
     else
@@ -3849,7 +3849,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 
     if (scline->np[1] < 0 || scline->np[1] > game.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_y);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_y);
         return;
     }
     else
@@ -3859,7 +3859,7 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 
     if (scline->np[2] < 0 || scline->np[2] >= game.conf.slab_conf.slab_types_count) //slab kind
     {
-        SCRPTERRLOG("Unsupported slab '%ld'. Slabs range 0-%d allowed.", scline->np[2],game.conf.slab_conf.slab_types_count-1);
+        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-%d allowed.", scline->np[2],game.conf.slab_conf.slab_types_count-1);
         return;
     }
     else
@@ -3877,10 +3877,10 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 
 static void change_slab_type_process(struct ScriptContext *context)
 {
-    long x = context->value->shorts[0];
-    long y = context->value->shorts[1];
-    long slab_kind = context->value->shorts[2];
-    long fill_type = context->value->shorts[3];
+    int32_t x = context->value->shorts[0];
+    int32_t y = context->value->shorts[1];
+    int32_t slab_kind = context->value->shorts[2];
+    int32_t fill_type = context->value->shorts[3];
 
     if (fill_type > 0)
     {
@@ -3907,11 +3907,11 @@ static void reveal_map_location_check(const struct ScriptLine *scline)
 
 static void reveal_map_location_process(struct ScriptContext *context)
 {
-    TbMapLocation target = context->value->longs[0];
+    TbMapLocation target = context->value->int32_ts[0];
     SYNCDBG(0, "Revealing location type %u", target);
     MapSubtlCoord x = 0;
     MapSubtlCoord y = 0;
-    long r = context->value->longs[1];
+    int32_t r = context->value->int32_ts[1];
     find_map_location_coords(target, &x, &y, context->player_idx, __func__);
     if ((x == 0) && (y == 0))
     {
@@ -3937,13 +3937,13 @@ static void player_zoom_to_check(const struct ScriptLine *scline)
     }
 
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    value->longs[0] = location;
+    value->int32_ts[0] = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void player_zoom_to_process(struct ScriptContext *context)
 {
-    TbMapLocation target = context->value->longs[0];
+    TbMapLocation target = context->value->int32_ts[0];
     struct Coord3d pos;
 
     find_location_pos(target, context->player_idx, &pos, __func__);
@@ -3953,7 +3953,7 @@ static void player_zoom_to_process(struct ScriptContext *context)
 static void level_up_players_creatures_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    long crmodel = parse_creature_name(scline->tp[1]);
+    int32_t crmodel = parse_creature_name(scline->tp[1]);
     char count = scline->np[2];
 
     if (crmodel == CREATURE_NONE)
@@ -3968,7 +3968,7 @@ static void level_up_players_creatures_check(const struct ScriptLine* scline)
     }
     if (count == 0)
     {
-        SCRPTERRLOG("Trying to level up %ld times", scline->np[2]);
+        SCRPTERRLOG("Trying to level up %d times", scline->np[2]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -3980,11 +3980,11 @@ static void level_up_players_creatures_check(const struct ScriptLine* scline)
 
 static void level_up_players_creatures_process(struct ScriptContext* context)
 {
-    long crmodel = context->value->shorts[1];
-    long count = context->value->shorts[2];
+    int32_t crmodel = context->value->shorts[1];
+    int32_t count = context->value->shorts[2];
     PlayerNumber plyridx = context->player_idx;
     struct Dungeon* dungeon = get_players_num_dungeon(plyridx);
-    unsigned long k = 0;
+    uint32_t k = 0;
 
     TbBool need_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(dungeon->owner, crmodel);
     struct Thing* thing = INVALID_THING;
@@ -4028,13 +4028,13 @@ static void level_up_players_creatures_process(struct ScriptContext* context)
 static void use_spell_on_creature_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    long crtr_id = parse_creature_name(scline->tp[1]);
+    int32_t crtr_id = parse_creature_name(scline->tp[1]);
     if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
         return;
     }
-    long select_id = parse_criteria(scline->tp[2]);
+    int32_t select_id = parse_criteria(scline->tp[2]);
     if (select_id == -1) {
         SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
         return;
@@ -4080,7 +4080,7 @@ static void use_spell_on_creature_process(struct ScriptContext* context)
 static void use_spell_on_players_creatures_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    long crtr_id = parse_creature_name(scline->tp[1]);
+    int32_t crtr_id = parse_creature_name(scline->tp[1]);
     if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
@@ -4117,8 +4117,8 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine *scline
 
 static void use_spell_on_players_creatures_process(struct ScriptContext *context)
 {
-    long crmodel = context->value->shorts[1];
-    long spell_idx = context->value->shorts[2];
+    int32_t crmodel = context->value->shorts[1];
+    int32_t spell_idx = context->value->shorts[2];
     CrtrExpLevel overchrg = context->value->shorts[3];
     apply_spell_effect_to_players_creatures(context->player_idx, crmodel, spell_idx, overchrg);
 }
@@ -4126,7 +4126,7 @@ static void use_spell_on_players_creatures_process(struct ScriptContext *context
 static void use_power_on_players_creatures_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    long crtr_id = parse_creature_name(scline->tp[1]);
+    int32_t crtr_id = parse_creature_name(scline->tp[1]);
     PlayerNumber caster_player = scline->np[2];
     const char* pwr_name = scline->tp[3];
     short pwr_id = get_rid(power_desc, pwr_name);
@@ -4205,7 +4205,7 @@ void cast_power_on_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, 
 {
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    unsigned long k = 0;
+    uint32_t k = 0;
 
     TbBool need_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     struct Thing* thing = INVALID_THING;
@@ -4301,7 +4301,7 @@ static void hide_hero_gate_check(const struct ScriptLine* scline)
     struct Thing* thing = find_hero_gate_of_number(n);
     if (thing_is_invalid(thing))
     {
-        SCRPTERRLOG("Invalid hero gate: %ld", scline->np[0]);
+        SCRPTERRLOG("Invalid hero gate: %d", scline->np[0]);
         return;
     }
     value->bytes[0] = n;
@@ -4330,14 +4330,14 @@ static void hide_hero_gate_process(struct ScriptContext* context)
 static void if_check(const struct ScriptLine *scline)
 {
 
-    long plr_range_id = scline->np[0];
+    int32_t plr_range_id = scline->np[0];
     const char *varib_name = scline->tp[1];
     const char *operatr = scline->tp[2];
 
     int32_t plr_range_id_right = -1;
     const char *varib_name_right = scline->tp[4];
 
-    long value = 0;
+    int32_t value = 0;
 
     TbBool double_var_mode = false;
     int32_t varib_type;
@@ -4362,7 +4362,7 @@ static void if_check(const struct ScriptLine *scline)
         char* text;
         value = strtol(scline->tp[3], &text, 0);
         if (text != &scline->tp[3][strlen(scline->tp[3])]) {
-            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[3], value);
+            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %d", scline->tp[3], value);
         }
     }
 
@@ -4407,7 +4407,7 @@ static void if_check(const struct ScriptLine *scline)
         }
     }
     // Recognize comparison
-    long opertr_id = get_id(comparison_desc, operatr);
+    int32_t opertr_id = get_id(comparison_desc, operatr);
     if (opertr_id == -1)
     {
       SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
@@ -4426,14 +4426,14 @@ static void if_check(const struct ScriptLine *scline)
 static void if_available_check(const struct ScriptLine *scline)
 {
 
-    long plr_range_id = scline->np[0];
+    int32_t plr_range_id = scline->np[0];
     const char *varib_name = scline->tp[1];
     const char *operatr = scline->tp[2];
 
     int32_t plr_range_id_right;
     const char *varib_name_right = scline->tp[4];
 
-    long value;
+    int32_t value;
 
     TbBool double_var_mode = false;
     int32_t varib_type_right;
@@ -4456,7 +4456,7 @@ static void if_available_check(const struct ScriptLine *scline)
         char* text;
         value = strtol(scline->tp[3], &text, 0);
         if (text != &scline->tp[3][strlen(scline->tp[3])]) {
-            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[3], value);
+            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %d", scline->tp[3], value);
         }
     }
 
@@ -4466,8 +4466,8 @@ static void if_available_check(const struct ScriptLine *scline)
       return;
     }
     // Recognize variable
-    long varib_id;
-    long varib_type = get_id(available_variable_desc, varib_name);
+    int32_t varib_id;
+    int32_t varib_type = get_id(available_variable_desc, varib_name);
     if (varib_type == -1)
         varib_id = -1;
     else
@@ -4503,7 +4503,7 @@ static void if_available_check(const struct ScriptLine *scline)
       return;
     }
     // Recognize comparison
-    long opertr_id = get_id(comparison_desc, operatr);
+    int32_t opertr_id = get_id(comparison_desc, operatr);
     if (opertr_id == -1)
     {
       SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
@@ -4536,14 +4536,14 @@ static void if_available_check(const struct ScriptLine *scline)
 static void if_controls_check(const struct ScriptLine *scline)
 {
 
-    long plr_range_id = scline->np[0];
+    int32_t plr_range_id = scline->np[0];
     const char *varib_name = scline->tp[1];
     const char *operatr = scline->tp[2];
 
     int32_t plr_range_id_right;
     const char *varib_name_right = scline->tp[4];
 
-    long value;
+    int32_t value;
 
     TbBool double_var_mode = false;
     int32_t varib_type_right = 0;
@@ -4566,18 +4566,18 @@ static void if_controls_check(const struct ScriptLine *scline)
         char* text;
         value = strtol(scline->tp[3], &text, 0);
         if (text != &scline->tp[3][strlen(scline->tp[3])]) {
-            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[3], value);
+            SCRPTWRNLOG("Numerical value \"%s\" interpreted as %d", scline->tp[3], value);
         }
     }
 
-    long varib_id;
+    int32_t varib_id;
     if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
     }
     // Recognize variable
-    long varib_type = get_id(controls_variable_desc, varib_name);
+    int32_t varib_type = get_id(controls_variable_desc, varib_name);
     if (varib_type == -1)
       varib_id = -1;
     else
@@ -4593,7 +4593,7 @@ static void if_controls_check(const struct ScriptLine *scline)
       return;
     }
     // Recognize comparison
-    long opertr_id = get_id(comparison_desc, operatr);
+    int32_t opertr_id = get_id(comparison_desc, operatr);
     if (opertr_id == -1)
     {
       SCRPTERRLOG("Unknown comparison name, '%s'", operatr);
@@ -4637,10 +4637,10 @@ static void if_controls_check(const struct ScriptLine *scline)
 
 static void if_allied_check(const struct ScriptLine *scline)
 {
-    long pA = scline->np[0];
-    long pB = scline->np[1];
-    long op = scline->np[2];
-    long val = scline->np[3];
+    int32_t pA = scline->np[0];
+    int32_t pB = scline->np[1];
+    int32_t op = scline->np[2];
+    int32_t val = scline->np[3];
 
     if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
@@ -4655,7 +4655,7 @@ static void set_texture_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
 
-    long texture_id = get_rid(texture_pack_desc, scline->tp[1]);
+    int32_t texture_id = get_rid(texture_pack_desc, scline->tp[1]);
     if (texture_id == -1)
     {
         if (parameter_is_number(scline->tp[1]))
@@ -4675,7 +4675,7 @@ static void set_texture_check(const struct ScriptLine *scline)
 static void set_texture_process(struct ScriptContext *context)
 {
     PlayerNumber plyr_idx = context->player_idx;
-    long texture_id = context->value->shorts[0];
+    int32_t texture_id = context->value->shorts[0];
 
     set_player_texture(plyr_idx, texture_id);
 }
@@ -4687,8 +4687,8 @@ static void set_music_check(const struct ScriptLine *scline)
         value->chars[0] = atoi(scline->tp[0]);
     } else {
         value->chars[0] = -1;
-        value->longs[1] = script_strdup(scline->tp[0]);
-        if (value->longs[1] < 0) {
+        value->int32_ts[1] = script_strdup(scline->tp[0]);
+        if (value->int32_ts[1] < 0) {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
@@ -4708,7 +4708,7 @@ static void set_music_process(struct ScriptContext *context)
         SCRPTLOG("Stopping music");
         stop_music(true);
     } else if (track < 0) {
-        const char * fname = script_strval(context->value->longs[1]);
+        const char * fname = script_strval(context->value->int32_ts[1]);
         play_music_fgroup(FGrp_CmpgMedia, fname);
     } else {
         play_music_track(track);
@@ -4718,7 +4718,7 @@ static void set_music_process(struct ScriptContext *context)
 static void play_message_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    long msgtype_id = get_id(msgtype_desc, scline->tp[1]);
+    int32_t msgtype_id = get_id(msgtype_desc, scline->tp[1]);
     if (msgtype_id == -1)
     {
         SCRPTERRLOG("Unrecognized message type: '%s'", scline->tp[1]);
@@ -4733,8 +4733,8 @@ static void play_message_check(const struct ScriptLine *scline)
     else
     {
         value->bytes[4] = 1;
-        value->longs[2] = script_strdup(scline->tp[2]);
-        if (value->longs[2] < 0) {
+        value->int32_ts[2] = script_strdup(scline->tp[2]);
+        if (value->int32_ts[2] < 0) {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
@@ -4748,7 +4748,7 @@ static void play_message_process(struct ScriptContext *context)
     const TbBool param_is_string = context->value->bytes[4];
     const char msgtype_id = context->value->chars[1];
     const short msg_id = context->value->shorts[1];
-    const char * filename = script_strval(context->value->longs[2]);
+    const char * filename = script_strval(context->value->int32_ts[2]);
 
 
     if (context->player_idx == my_player_number)
@@ -4761,7 +4761,7 @@ static void set_power_hand_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
 
-    long hand_idx = get_rid(powerhand_desc, scline->tp[1]);
+    int32_t hand_idx = get_rid(powerhand_desc, scline->tp[1]);
     if (hand_idx == -1)
     {
         if (parameter_is_number(scline->tp[1]))
@@ -4780,7 +4780,7 @@ static void set_power_hand_check(const struct ScriptLine *scline)
 
 static void set_power_hand_process(struct ScriptContext *context)
 {
-    long hand_idx = context->value->shorts[0];
+    int32_t hand_idx = context->value->shorts[0];
     struct PlayerInfo * player;
     player = get_player(context->player_idx);
     player->hand_idx = hand_idx;
@@ -4792,7 +4792,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
 
     const char* generator_name = scline->tp[0];
     const char* locname = scline->tp[1];
-    long range = scline->np[2];
+    int32_t range = scline->np[2];
 
     TbMapLocation location;
     ThingModel gen_id;
@@ -4824,7 +4824,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
         return;
     }
     value->shorts[0] = (short)gen_id;
-    value->ulongs[1] = location;
+    value->uint32_ts[1] = location;
     value->shorts[3] = range * COORD_PER_STL;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -4832,7 +4832,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
 static void add_effectgen_to_level_process(struct ScriptContext* context)
 {
     ThingModel gen_id = context->value->shorts[0];
-    TbMapLocation location = context->value->ulongs[1];
+    TbMapLocation location = context->value->uint32_ts[1];
     short range = context->value->shorts[3];
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
@@ -4878,7 +4878,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
     const char *property = scline->tp[1];
     char *new_value = (char*)scline->tp[2];
 
-    long power_id = get_id(power_desc, powername);
+    int32_t power_id = get_id(power_desc, powername);
     if (power_id == -1)
     {
         SCRPTERRLOG("Unknown power, '%s'", powername);
@@ -4886,7 +4886,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         return;
     }
 
-    long powervar = get_id(magic_power_commands, property);
+    int32_t powervar = get_id(magic_power_commands, property);
     if (powervar == -1)
     {
         SCRPTERRLOG("Unknown power variable: %s", new_value);
@@ -4894,19 +4894,19 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         return;
     }
     int64_t number_value = 0;
-    long k;
+    int32_t k;
     switch (powervar)
     {
         case 2: // Power
         case 3: // Cost
         {
             value->bytes[3] = atoi(scline->tp[3]) - 1; //-1 because we want slot 1 to 9, not 0 to 8
-            value->longs[2] = atoi(new_value);
+            value->int32_ts[2] = atoi(new_value);
             break;
         }
         case 5: // Castability
         {
-            long long j;
+            int64_t j;
             if (scline->tp[3][0] != '\0')
             {
                 j = get_long_id(powermodel_castability_commands, new_value);
@@ -4949,7 +4949,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 }
                 value->chars[3] = -1;
             }
-            value->ulonglongs[1] = number_value;
+            value->uint32_tint32_ts[1] = number_value;
             break;
         }
         case 6: // Artifact
@@ -4959,13 +4959,13 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             {
                   number_value = k;
             }
-            value->longs[2] = number_value;
+            value->int32_ts[2] = number_value;
             break;
         }
         case 10: // SymbolSprites
         {
-            value->longs[1] = atoi(new_value);
-            value->longs[2] = atoi(scline->tp[3]);
+            value->int32_ts[1] = atoi(new_value);
+            value->int32_ts[2] = atoi(scline->tp[3]);
             break;
         }
         case 14: // Properties
@@ -5012,7 +5012,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 }
                 value->chars[3] = -1;
             }
-            value->longs[2] = number_value;
+            value->int32_ts[2] = number_value;
             break;
         }
         case 15: // OverchargeCheck
@@ -5024,7 +5024,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->longs[2] = number_value;
+            value->int32_ts[2] = number_value;
             break;
         }
         case 16: // PlayerState
@@ -5034,7 +5034,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             {
                 number_value = k;
             }
-            value->longs[2] = number_value;
+            value->int32_ts[2] = number_value;
             break;
         }
         case 17: // ParentPower
@@ -5044,7 +5044,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             {
                 number_value = k;
             }
-            value->longs[2] = number_value;
+            value->int32_ts[2] = number_value;
             break;
         }
         case 20: // Spell
@@ -5123,7 +5123,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             break;
         }
         default:
-            value->longs[2] = atoi(new_value);
+            value->int32_ts[2] = atoi(new_value);
     }
     #if (BFDEBUG_LEVEL >= 7)
     {
@@ -5153,17 +5153,17 @@ static void set_power_configuration_process(struct ScriptContext *context)
     switch (context->value->bytes[2])
     {
         case 2: // Power
-            powerst->strength[context->value->bytes[3]] = context->value->longs[2];
+            powerst->strength[context->value->bytes[3]] = context->value->int32_ts[2];
             break;
         case 3: // Cost
-            powerst->cost[context->value->bytes[3]] = context->value->longs[2];
+            powerst->cost[context->value->bytes[3]] = context->value->int32_ts[2];
             break;
         case 4: // Duration
-            powerst->duration = context->value->longs[2];
+            powerst->duration = context->value->int32_ts[2];
             break;
         case 5: // Castability
         {
-            unsigned long long flag = context->value->ulonglongs[1];
+            uint64_t flag = context->value->uint32_tint32_ts[1];
             if (context->value->chars[3] == 1)
             {
                 set_flag(powerst->can_cast_flags, flag);
@@ -5179,71 +5179,71 @@ static void set_power_configuration_process(struct ScriptContext *context)
             break;
         }
         case 6: // Artifact
-            powerst->artifact_model = context->value->longs[2];
+            powerst->artifact_model = context->value->int32_ts[2];
             game.conf.object_conf.object_to_power_artifact[powerst->artifact_model] = context->value->shorts[0];
             break;
         case 7: // NameTextID
-            powerst->name_stridx = context->value->longs[2];
+            powerst->name_stridx = context->value->int32_ts[2];
             break;
         case 8: // TooltipTextID
-            powerst->tooltip_stridx = context->value->longs[2];
+            powerst->tooltip_stridx = context->value->int32_ts[2];
             break;
         case 10: // SymbolSprites
-            powerst->bigsym_sprite_idx = context->value->longs[1];
-            powerst->medsym_sprite_idx = context->value->longs[2];
+            powerst->bigsym_sprite_idx = context->value->int32_ts[1];
+            powerst->medsym_sprite_idx = context->value->int32_ts[2];
             break;
         case 11: // PointerSprites
-            powerst->pointer_sprite_idx = context->value->longs[2];
+            powerst->pointer_sprite_idx = context->value->int32_ts[2];
             break;
         case 12: // PanelTabIndex
-            powerst->panel_tab_idx = context->value->longs[2];
+            powerst->panel_tab_idx = context->value->int32_ts[2];
             break;
         case 13: // SoundSamples
-            powerst->select_sample_idx = context->value->longs[2];
+            powerst->select_sample_idx = context->value->int32_ts[2];
             break;
         case 14: // Properties
             if (context->value->chars[3] == 1)
             {
-                set_flag(powerst->config_flags, context->value->longs[2]);
+                set_flag(powerst->config_flags, context->value->int32_ts[2]);
             }
             else if (context->value->chars[3] == 0)
             {
-                clear_flag(powerst->config_flags, context->value->longs[2]);
+                clear_flag(powerst->config_flags, context->value->int32_ts[2]);
             }
             else
             {
-                powerst->config_flags = context->value->longs[2];
+                powerst->config_flags = context->value->int32_ts[2];
             }
             break;
         case 15: // OverchargeCheck
-            powerst->overcharge_check_idx = context->value->longs[2];
+            powerst->overcharge_check_idx = context->value->int32_ts[2];
             break;
         case 16: // PlayerState
-            powerst->work_state = context->value->longs[2];
+            powerst->work_state = context->value->int32_ts[2];
             break;
         case 17: // ParentPower
-            powerst->parent_power = context->value->longs[2];
+            powerst->parent_power = context->value->int32_ts[2];
             break;
         case 18: // SoundPlayed
-            powerst->select_sound_idx = context->value->longs[2];
+            powerst->select_sound_idx = context->value->int32_ts[2];
             break;
         case 19: // Cooldown
-            powerst->cast_cooldown = context->value->longs[2];
+            powerst->cast_cooldown = context->value->int32_ts[2];
             break;
         case 20: // Spell
-            powerst->cast_cooldown = context->value->longs[2];
+            powerst->cast_cooldown = context->value->int32_ts[2];
             break;
         case 21: // Effect
-            powerst->effect_id = context->value->longs[2];
+            powerst->effect_id = context->value->int32_ts[2];
             break;
         case 22: // UseFunction
-            powerst->magic_use_func_idx = context->value->longs[2];
+            powerst->magic_use_func_idx = context->value->int32_ts[2];
             break;
         case 23: // CreatureType
-            powerst->creature_model = context->value->longs[2];
+            powerst->creature_model = context->value->int32_ts[2];
             break;
         case 24: // CostFormula
-            powerst->cost_formula = context->value->longs[2];
+            powerst->cost_formula = context->value->int32_ts[2];
             break;
         default:
             WARNMSG("Unsupported power configuration, variable %d.", context->value->bytes[2]);
@@ -5269,7 +5269,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
 static void set_player_colour_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
-    long color_idx = get_rid(cmpgn_human_player_options, scline->tp[1]);
+    int32_t color_idx = get_rid(cmpgn_human_player_options, scline->tp[1]);
     if (scline->np[0] == game.neutral_player_num)
     {
         SCRPTERRLOG("Can't change color of Neutral player.");
@@ -5332,9 +5332,9 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     const char* rulename = scline->tp[0];
 
 
-    long rulegroup = 0;
-    long ruleval = 0;
-    long ruledesc = 0;
+    int32_t rulegroup = 0;
+    int32_t ruleval = 0;
+    int32_t ruledesc = 0;
 
     for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
     {
@@ -5356,7 +5356,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
 
     value->shorts[0] = rulegroup;
     value->shorts[1] = ruledesc;
-    value->longs[1] = ruleval;
+    value->int32_ts[1] = ruleval;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5364,10 +5364,10 @@ static void set_game_rule_process(struct ScriptContext* context)
 {
     short rulegroup = context->value->shorts[0];
     short ruledesc  = context->value->shorts[1];
-    long rulevalue  = context->value->longs[1];
+    int32_t rulevalue  = context->value->int32_ts[1];
 
 
-    SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
+    SCRIPTDBG(7,"Changing Game Rule '%s' to %d", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
 
     assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,context->player_idx,"SET_GAME_RULE",ccf_SplitExecution|ccf_DuringLevel);
 }
@@ -5375,7 +5375,7 @@ static void set_game_rule_process(struct ScriptContext* context)
 static void set_increase_on_experience_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long onexpdesc = get_id(on_experience_desc, scline->tp[0]);
+    int32_t onexpdesc = get_id(on_experience_desc, scline->tp[0]);
     if (onexpdesc == -1)
     {
         SCRPTERRLOG("Unknown variable '%s'.", scline->tp[0]);
@@ -5384,7 +5384,7 @@ static void set_increase_on_experience_check(const struct ScriptLine* scline)
     }
     if (scline->np[1] < 0)
     {
-        SCRPTERRLOG("Value %ld out of range for variable '%s'.", scline->np[1], scline->tp[0]);
+        SCRPTERRLOG("Value %d out of range for variable '%s'.", scline->np[1], scline->tp[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5479,7 +5479,7 @@ static void set_player_modifier_check(const struct ScriptLine* scline)
     }
     if (scline->np[0] == game.neutral_player_num)
     {
-        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %ld has no dungeon.", mdfrname, scline->np[0]);
+        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %d has no dungeon.", mdfrname, scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5558,7 +5558,7 @@ static void add_to_player_modifier_check(const struct ScriptLine* scline)
     }
     if (scline->np[0] == game.neutral_player_num)
     {
-        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %ld has no dungeon.", mdfrname, scline->np[0]);
+        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %d has no dungeon.", mdfrname, scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5738,14 +5738,14 @@ static void set_creature_max_level_process(struct ScriptContext* context)
 static void reset_action_point_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long apt_idx = action_point_number_to_index(scline->np[0]);
+    int32_t apt_idx = action_point_number_to_index(scline->np[0]);
     if (!action_point_exists_idx(apt_idx))
     {
-        SCRPTERRLOG("Non-existing Action Point, no %ld", scline->np[0]);
+        SCRPTERRLOG("Non-existing Action Point, no %d", scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->longs[0] = apt_idx;
+    value->int32_ts[0] = apt_idx;
     PlayerNumber plyr_idx = (scline->tp[1][0] == '\0') ? ALL_PLAYERS : get_id(player_desc, scline->tp[1]);
     if (plyr_idx == -1)
     {
@@ -5759,7 +5759,7 @@ static void reset_action_point_check(const struct ScriptLine* scline)
 
 static void reset_action_point_process(struct ScriptContext* context)
 {
-    action_point_reset_idx(context->value->longs[0], context->value->chars[4]);
+    action_point_reset_idx(context->value->int32_ts[0], context->value->chars[4]);
 }
 
 static void quick_message_check(const struct ScriptLine* scline)
@@ -5767,27 +5767,27 @@ static void quick_message_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
     {
-        SCRPTERRLOG("Invalid information ID number (%ld)", scline->np[0]);
+        SCRPTERRLOG("Invalid information ID number (%d)", scline->np[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
     if (strlen(scline->tp[1]) > MESSAGE_TEXT_LEN)
     {
-        SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+        SCRPTWRNLOG("Information TEXT too int32_t; truncating to %d characters", MESSAGE_TEXT_LEN-1);
     }
     if ((game.quick_messages[scline->np[0]][0] != '\0') && (strcmp(game.quick_messages[scline->np[0]],scline->tp[1]) != 0))
     {
-        SCRPTWRNLOG("Quick Message no %ld overwritten by different text", scline->np[0]);
+        SCRPTWRNLOG("Quick Message no %d overwritten by different text", scline->np[0]);
     }
     snprintf(game.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
-    value->longs[0]= scline->np[0];
+    value->int32_ts[0]= scline->np[0];
     get_chat_icon_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void quick_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", game.quick_messages[context->value->ulongs[0]]);
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", game.quick_messages[context->value->uint32_ts[0]]);
 }
 
 static void display_message_check(const struct ScriptLine* scline)
@@ -5801,14 +5801,14 @@ static void display_message_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
-    value->ulongs[0] = msg_num;
+    value->uint32_ts[0] = msg_num;
     get_chat_icon_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void display_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->ulongs[0]));
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->uint32_ts[0]));
 }
 
 static void clear_message_check(const struct ScriptLine* scline)
@@ -5839,11 +5839,11 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ( (scline->np[0] < 0) || (scline->np[0] >= game.map_tiles_x) || (scline->np[1] < 0) || (scline->np[1] >= game.map_tiles_y) )
     {
-        SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[0], scline->np[1]);
+        SCRPTERRLOG("Invalid co-ordinates: %d, %d", scline->np[0], scline->np[1]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    long texture_id = get_id(texture_pack_desc, scline->tp[2]);
+    int32_t texture_id = get_id(texture_pack_desc, scline->tp[2]);
     if (texture_id == -1)
     {
         if (parameter_is_number(scline->tp[2]))
@@ -5859,7 +5859,7 @@ static void change_slab_texture_check(const struct ScriptLine* scline)
     }
     if ( (scline->np[2] < 0) || (scline->np[2] >= TEXTURE_VARIATIONS_COUNT) )
     {
-        SCRPTERRLOG("Invalid texture ID: %ld", scline->np[2]);
+        SCRPTERRLOG("Invalid texture ID: %d", scline->np[2]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5897,7 +5897,7 @@ static void change_slab_texture_process(struct ScriptContext* context)
 static void computer_player_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long plr_range_id = scline->np[0];
+    int32_t plr_range_id = scline->np[0];
     const char* comp_model = scline->tp[1];
     int plr_start;
     int plr_end;
@@ -5917,7 +5917,7 @@ static void computer_player_check(const struct ScriptLine* scline)
         SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
         DEALLOCATE_SCRIPT_VALUE
     }
-    for (long i = plr_start; i < plr_end; i++)
+    for (int32_t i = plr_start; i < plr_end; i++)
     {
         set_flag(value->shorts[2], to_flag(i));
     }
@@ -6014,11 +6014,11 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
     }
     else
     {
-        SCRPTERRLOG("Invalid subtile co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        SCRPTERRLOG("Invalid subtile co-ordinates: %d, %d", scline->np[1], scline->np[2]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->longs[2] = scline->np[3];
+    value->int32_ts[2] = scline->np[3];
     PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[4]); // Optional variable
     if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS))
     {
@@ -6065,8 +6065,8 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->ulongs[1] = location;
-    value->longs[2] = scline->np[2];
+    value->uint32_ts[1] = location;
+    value->int32_ts[2] = scline->np[2];
     PlayerNumber plyr_idx = get_rid(player_desc, scline->tp[3]);
     if ((plyr_idx == -1) || (plyr_idx == ALL_PLAYERS)) //Optional variable
     {
@@ -6100,21 +6100,21 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
 static void add_object_to_level_process(struct ScriptContext* context)
 {
     struct Coord3d pos;
-    if (get_coords_at_location(&pos,context->value->ulongs[1],true))
+    if (get_coords_at_location(&pos,context->value->uint32_ts[1],true))
     {
-        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->longs[2], context->value->chars[2], context->value->shorts[8]);
+        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->int32_ts[2], context->value->chars[2], context->value->shorts[8]);
     }
 }
 
 static void add_object_to_level_at_pos_process(struct ScriptContext* context)
 {
-    script_process_new_object(context->value->shorts[0], context->value->shorts[2], context->value->shorts[3], context->value->longs[2], context->value->chars[2],context->value->shorts[6]);
+    script_process_new_object(context->value->shorts[0], context->value->shorts[2], context->value->shorts[3], context->value->int32_ts[2], context->value->chars[2],context->value->shorts[6]);
 }
 
 static void set_computer_globals_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long plr_range_id = scline->np[0];
+    int32_t plr_range_id = scline->np[0];
 
     int plr_start;
     int plr_end;
@@ -6125,16 +6125,16 @@ static void set_computer_globals_check(const struct ScriptLine* scline)
 
     value->shorts[0] = plr_start;
     value->shorts[1] = plr_end;
-    value->longs[1] = scline->np[1];
-    value->longs[2] = scline->np[2];
-    value->longs[3] = scline->np[3];
-    value->longs[4] = scline->np[4];
-    value->longs[5] = scline->np[5];
-    value->longs[6] = scline->np[6];
-    value->longs[7] = -1;
+    value->int32_ts[1] = scline->np[1];
+    value->int32_ts[2] = scline->np[2];
+    value->int32_ts[3] = scline->np[3];
+    value->int32_ts[4] = scline->np[4];
+    value->int32_ts[5] = scline->np[5];
+    value->int32_ts[6] = scline->np[6];
+    value->int32_ts[7] = -1;
     if (scline->np[7] != '\0')
     {
-        value->longs[7] = scline->np[7];
+        value->int32_ts[7] = scline->np[7];
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -6143,15 +6143,15 @@ static void set_computer_globals_process(struct ScriptContext* context)
 {
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
-    long dig_stack_size = context->value->longs[1];
-    long processes_time = context->value->longs[2];
-    long click_rate = context->value->longs[3];
-    long max_room_build_tasks = context->value->longs[4];
-    long turn_begin = context->value->longs[5];
-    long sim_before_dig = context->value->longs[6];
-    long task_delay = context->value->longs[7];
+    int32_t dig_stack_size = context->value->int32_ts[1];
+    int32_t processes_time = context->value->int32_ts[2];
+    int32_t click_rate = context->value->int32_ts[3];
+    int32_t max_room_build_tasks = context->value->int32_ts[4];
+    int32_t turn_begin = context->value->int32_ts[5];
+    int32_t sim_before_dig = context->value->int32_ts[6];
+    int32_t task_delay = context->value->int32_ts[7];
 
-    for (long i = plr_start; i < plr_end; i++)
+    for (int32_t i = plr_start; i < plr_end; i++)
     {
         struct Computer2* comp = get_computer_player(i);
         if (computer_player_invalid(comp))
@@ -6174,7 +6174,7 @@ static void set_computer_globals_process(struct ScriptContext* context)
 static void set_computer_process_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long plr_range_id = scline->np[0];
+    int32_t plr_range_id = scline->np[0];
 
     int plr_start;
     int plr_end;
@@ -6185,13 +6185,13 @@ static void set_computer_process_check(const struct ScriptLine* scline)
 
     value->shorts[0] = plr_start;
     value->shorts[1] = plr_end;
-    value->longs[1] = scline->np[2];
-    value->longs[2] = scline->np[3];
-    value->longs[3] = scline->np[4];
-    value->longs[4] = scline->np[5];
-    value->longs[5] = scline->np[6];
-    value->longs[6] = script_strdup(scline->tp[1]);
-    if (value->longs[6] < 0) {
+    value->int32_ts[1] = scline->np[2];
+    value->int32_ts[2] = scline->np[3];
+    value->int32_ts[3] = scline->np[4];
+    value->int32_ts[4] = scline->np[5];
+    value->int32_ts[5] = scline->np[6];
+    value->int32_ts[6] = script_strdup(scline->tp[1]);
+    if (value->int32_ts[6] < 0) {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
         return;
@@ -6203,20 +6203,20 @@ static void set_computer_process_process(struct ScriptContext* context)
 {
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
-    const char* procname = script_strval(context->value->longs[6]);
-    long priority = context->value->longs[1];
-    long config_value_2 = context->value->longs[2];
-    long config_value_3 = context->value->longs[3];
-    long config_value_4 = context->value->longs[4];
-    long config_value_5 = context->value->longs[5];
-    long n = 0;
-    for (long i = plr_start; i < plr_end; i++)
+    const char* procname = script_strval(context->value->int32_ts[6]);
+    int32_t priority = context->value->int32_ts[1];
+    int32_t config_value_2 = context->value->int32_ts[2];
+    int32_t config_value_3 = context->value->int32_ts[3];
+    int32_t config_value_4 = context->value->int32_ts[4];
+    int32_t config_value_5 = context->value->int32_ts[5];
+    int32_t n = 0;
+    for (int32_t i = plr_start; i < plr_end; i++)
     {
         struct Computer2* comp = get_computer_player(i);
         if (computer_player_invalid(comp)) {
             continue;
         }
-        for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
+        for (int32_t k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
         {
             struct ComputerProcess* cproc = &comp->processes[k];
             if (flag_is_set(cproc->flags, ComProc_ListEnd))
@@ -6240,14 +6240,14 @@ static void set_computer_process_process(struct ScriptContext* context)
         SCRIPTDBG(6, "No computer process found named '%s' in players %d to %d", procname, (int)plr_start, (int)plr_end - 1);
         return;
     }
-    SCRIPTDBG(6, "Altered %ld processes named '%s'", n, procname);
+    SCRIPTDBG(6, "Altered %d processes named '%s'", n, procname);
 }
 
 static void set_computer_checks_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    long plr_range_id = scline->np[0];
+    int32_t plr_range_id = scline->np[0];
     int plr_start;
     int plr_end;
     if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
@@ -6257,13 +6257,13 @@ static void set_computer_checks_check(const struct ScriptLine* scline)
 
     value->shorts[0] = plr_start;
     value->shorts[1] = plr_end;
-    value->longs[1] = scline->np[2];
-    value->longs[2] = scline->np[3];
-    value->longs[3] = scline->np[4];
-    value->longs[4] = scline->np[5];
-    value->longs[5] = scline->np[6];
-    value->longs[6] = script_strdup(scline->tp[1]);
-    if (value->longs[6] < 0) {
+    value->int32_ts[1] = scline->np[2];
+    value->int32_ts[2] = scline->np[3];
+    value->int32_ts[3] = scline->np[4];
+    value->int32_ts[4] = scline->np[5];
+    value->int32_ts[5] = scline->np[6];
+    value->int32_ts[6] = script_strdup(scline->tp[1]);
+    if (value->int32_ts[6] < 0) {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
         return;
@@ -6275,21 +6275,21 @@ static void set_computer_checks_process(struct ScriptContext* context)
 {
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
-    const char* chkname = script_strval(context->value->longs[6]);
-    long turns_interval = context->value->longs[1];
-    long primary_parameter = context->value->longs[2];
-    long secondary_parameter = context->value->longs[3];
-    long tertiary_parameter = context->value->longs[4];
-    long last_run_turn = context->value->longs[5];
+    const char* chkname = script_strval(context->value->int32_ts[6]);
+    int32_t turns_interval = context->value->int32_ts[1];
+    int32_t primary_parameter = context->value->int32_ts[2];
+    int32_t secondary_parameter = context->value->int32_ts[3];
+    int32_t tertiary_parameter = context->value->int32_ts[4];
+    int32_t last_run_turn = context->value->int32_ts[5];
 
-    long n = 0;
-    for (long i = plr_start; i < plr_end; i++)
+    int32_t n = 0;
+    for (int32_t i = plr_start; i < plr_end; i++)
     {
         struct Computer2* comp = get_computer_player(i);
         if (computer_player_invalid(comp)) {
             continue;
         }
-        for (long k = 0; k < COMPUTER_CHECKS_COUNT; k++)
+        for (int32_t k = 0; k < COMPUTER_CHECKS_COUNT; k++)
         {
             struct ComputerCheck* ccheck = &comp->checks[k];
             if ((ccheck->flags & ComChk_Unkn0002) != 0)
@@ -6315,14 +6315,14 @@ static void set_computer_checks_process(struct ScriptContext* context)
         SCRPTERRLOG("No computer check found named '%s' in players %d to %d", chkname, (int)plr_start, (int)plr_end - 1);
         return;
     }
-    SCRIPTDBG(6, "Altered %ld checks named '%s'", n, chkname);
+    SCRIPTDBG(6, "Altered %d checks named '%s'", n, chkname);
 }
 
 static void set_computer_event_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    long plr_range_id = scline->np[0];
+    int32_t plr_range_id = scline->np[0];
     int plr_start;
     int plr_end;
     if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
@@ -6336,13 +6336,13 @@ static void set_computer_event_check(const struct ScriptLine* scline)
     }
     value->shorts[0] = plr_start;
     value->shorts[1] = plr_end;
-    value->longs[1] = scline->np[2];
-    value->longs[2] = scline->np[3];
-    value->longs[3] = scline->np[4];
-    value->longs[4] = scline->np[5];
-    value->longs[5] = scline->np[6];
-    value->longs[6] = script_strdup(scline->tp[1]);
-    if (value->longs[6] < 0) {
+    value->int32_ts[1] = scline->np[2];
+    value->int32_ts[2] = scline->np[3];
+    value->int32_ts[3] = scline->np[4];
+    value->int32_ts[4] = scline->np[5];
+    value->int32_ts[5] = scline->np[6];
+    value->int32_ts[6] = script_strdup(scline->tp[1]);
+    if (value->int32_ts[6] < 0) {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
         return;
@@ -6354,21 +6354,21 @@ static void set_computer_event_process(struct ScriptContext* context)
 {
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
-    const char* evntname = script_strval(context->value->longs[6]);
-    long test_interval = context->value->longs[1];
-    long primary_parameter = context->value->longs[2];
-    long secondary_parameter = context->value->longs[3];
-    long tertiary_parameter = context->value->longs[4];
-    long last_test_gameturn = context->value->longs[5];
+    const char* evntname = script_strval(context->value->int32_ts[6]);
+    int32_t test_interval = context->value->int32_ts[1];
+    int32_t primary_parameter = context->value->int32_ts[2];
+    int32_t secondary_parameter = context->value->int32_ts[3];
+    int32_t tertiary_parameter = context->value->int32_ts[4];
+    int32_t last_test_gameturn = context->value->int32_ts[5];
 
-    long n = 0;
-    for (long i = plr_start; i < plr_end; i++)
+    int32_t n = 0;
+    for (int32_t i = plr_start; i < plr_end; i++)
     {
         struct Computer2* comp = get_computer_player(i);
         if (computer_player_invalid(comp)) {
             continue;
         }
-        for (long k = 0; k < COMPUTER_EVENTS_COUNT; k++)
+        for (int32_t k = 0; k < COMPUTER_EVENTS_COUNT; k++)
         {
             struct ComputerEvent* event = &comp->events[k];
             if (event->name[0] == '\0')
@@ -6404,7 +6404,7 @@ static void set_computer_event_process(struct ScriptContext* context)
         SCRPTERRLOG("No computer event found named '%s' in players %d to %d", evntname, (int)plr_start, (int)plr_end - 1);
         return;
     }
-    SCRIPTDBG(6, "Altered %ld events named '%s'", n, evntname);
+    SCRIPTDBG(6, "Altered %d events named '%s'", n, evntname);
 }
 
 static void swap_creature_check(const struct ScriptLine* scline)
@@ -6525,8 +6525,8 @@ static void run_lua_code_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char* code = scline->tp[0];
 
-    value->longs[0] = script_strdup(code);
-    if (value->longs[0] < 0) {
+    value->int32_ts[0] = script_strdup(code);
+    if (value->int32_ts[0] < 0) {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
         return;
@@ -6537,7 +6537,7 @@ static void run_lua_code_check(const struct ScriptLine* scline)
 
 static void run_lua_code_process(struct ScriptContext* context)
 {
-    const char* code = script_strval(context->value->longs[0]);
+    const char* code = script_strval(context->value->int32_ts[0]);
     execute_lua_code_from_script(code);
 }
 
@@ -6607,7 +6607,7 @@ static void set_generate_speed_process(struct ScriptContext* context)
 static void tutorial_flash_button_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long id;
+    int32_t id;
     if (level_file_version > 0)
     {
         if (parameter_is_number(scline->tp[0]))
@@ -6647,7 +6647,7 @@ static void tutorial_flash_button_check(const struct ScriptLine* scline)
         return;
     }
     value->shorts[1] = saturate_set_signed(id, 16);
-    value->longs[1] = scline->np[1];
+    value->int32_ts[1] = scline->np[1];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -6660,17 +6660,17 @@ static void tutorial_flash_button_process(struct ScriptContext* context)
             short button_id = get_button_designation(context->value->shorts[0], context->value->shorts[1]);
             if (button_id >= 0)
             {
-                gui_set_button_flashing(button_id, context->value->longs[1]);
+                gui_set_button_flashing(button_id, context->value->int32_ts[1]);
             }
         }
         else
         {
-            gui_set_button_flashing(context->value->shorts[1], context->value->longs[1]);
+            gui_set_button_flashing(context->value->shorts[1], context->value->int32_ts[1]);
         }
     }
     else
     {
-        gui_set_button_flashing(context->value->shorts[1], context->value->longs[1]);
+        gui_set_button_flashing(context->value->shorts[1], context->value->int32_ts[1]);
     }
 }
 

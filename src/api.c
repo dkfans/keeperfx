@@ -52,7 +52,7 @@ struct SubscribedVariable
     char name[COMMAND_WORD_LEN];
     unsigned char type;
     unsigned char id;
-    long val;
+    int32_t val;
 };
 
 /**
@@ -335,7 +335,7 @@ static void api_ok(VALUE *ack_id)
  * Return data to the API client.
  *
  * This function takes ownership of the provided value and constructs a JSON response
- * indicating the success status along with the provided value.
+ * indicating the success status aint32_t with the provided value.
  *
  * @param success The success status of the operation, true for success, false for failure.
  * @param value The value to be returned to the API client.
@@ -415,7 +415,7 @@ static void api_return_data(TbBool success, VALUE value, VALUE *ack_id)
 //     api_return_data(true, dataValue);
 // }
 
-void api_return_var_update(PlayerNumber plyr_idx, const char *var_name, long value)
+void api_return_var_update(PlayerNumber plyr_idx, const char *var_name, int32_t value)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -470,16 +470,16 @@ void api_return_var_update(PlayerNumber plyr_idx, const char *var_name, long val
 }
 
 /**
- * Send a long integer data response to the API client.
+ * Send a int32_t integer data response to the API client.
  *
  * This is useful for sending numeric values.
  *
- * This function sends a long integer data response to the API client over the active socket.
+ * This function sends a int32_t integer data response to the API client over the active socket.
  * If the API server is not active, this function does nothing.
  *
- * @param data The long integer data to be sent to the API client.
+ * @param data The int32_t integer data to be sent to the API client.
  */
-static void api_return_data_number(long data, VALUE *ack_id)
+static void api_return_data_number(int32_t data, VALUE *ack_id)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -492,7 +492,7 @@ static void api_return_data_number(long data, VALUE *ack_id)
     {
         // Send back the JSON as a string. A number should never be able to break the syntax.
         char buf[256];
-        int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":%ld}\n", data);
+        int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":%d}\n", data);
         SDLNet_TCP_Send(api.activeSocket, buf, len);
         return;
     }
@@ -815,7 +815,7 @@ void api_check_var_update()
         }
 
         // Get the variable value
-        long variable_value = get_condition_value(
+        int32_t variable_value = get_condition_value(
             api_subscriptions[i].var.player_id,
             api_subscriptions[i].var.type,
             api_subscriptions[i].var.id);
@@ -1047,7 +1047,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
             return;
         }
 
-        // Make sure event name is not too long
+        // Make sure event name is not too int32_t
         if (strlen(event_name) > COMMAND_WORD_LEN)
         {
             api_err("STRING_TOO_LONG", ack_id);
@@ -1215,7 +1215,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
             for (size_t flag_index = 0; flag_index < get_max_flags(); flag_index++)
             {
                 // Get flag value
-                long flag_value = get_condition_value(player_id, SVar_FLAG, flag_index);
+                int32_t flag_value = get_condition_value(player_id, SVar_FLAG, flag_index);
 
                 // Add flag to player flag
                 const char *flag_string = get_conf_parameter_text(flag_desc, flag_index);
@@ -1253,7 +1253,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         }
 
         // Get the variable
-        long variable_value = get_condition_value(player_id, variable_type, variable_id);
+        int32_t variable_value = get_condition_value(player_id, variable_type, variable_id);
 
         // Return the variable to the user
         api_return_data_number(variable_value, ack_id);

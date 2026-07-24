@@ -31,7 +31,7 @@ extern "C" {
 extern const struct ConfigFileData creature_states_file_data;
 extern struct NamedCommand creatrstate_desc[];
 /******************************************************************************/
-const char *creature_state_code_name(long crstate);
+const char *creature_state_code_name(int32_t crstate);
 /******************************************************************************/
 #ifdef __cplusplus
 }

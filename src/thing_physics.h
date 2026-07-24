@@ -46,22 +46,22 @@ TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const st
 TbBool cross_x_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2);
 TbBool cross_y_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2);
 
-void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags);
-void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags);
+void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, int32_t blocked_flags);
+void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, int32_t blocked_flags);
 TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing);
-void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long a3);
+void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, int32_t a3);
 void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVector *veloc);
 TbBool positions_equivalent(const struct Coord3d *pos_a, const struct Coord3d *pos_b);
 TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
-void creature_set_speed(struct Thing *thing, long speed);
+void creature_set_speed(struct Thing *thing, int32_t speed);
 
-long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos);
-long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius);
-long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos);
-long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius);
+int32_t get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos);
+int32_t get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, uint32_t radius);
+int32_t thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos);
+int32_t thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, uint32_t radius);
 TbBool creature_can_pass_through_wall_at(const struct Thing *thing, const struct Coord3d *pos);
-long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos);
-long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos);
+int32_t get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos);
+int32_t get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos);
 void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor);
 TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing);

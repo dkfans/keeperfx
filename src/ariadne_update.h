@@ -28,8 +28,8 @@ extern "C" {
 /******************************************************************************/
 
 /******************************************************************************/
-long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
-long init_navigation(void);
+int32_t update_navigation_triangulation(int32_t start_x, int32_t start_y, int32_t end_x, int32_t end_y);
+int32_t init_navigation(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

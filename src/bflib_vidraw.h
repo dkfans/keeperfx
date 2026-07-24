@@ -47,20 +47,20 @@ struct StartScreenPoint {
 
 //Note: this name is incorrect! (not from game)
 struct LongPoint {
-        long X;
-        long Y;
+        int32_t X;
+        int32_t Y;
 };
 
 struct EnginePoint {
-        long X;
-        long Y;
-        long TMapX;
-        long TMapY;
-        long Shade;
-        long coordinate_x_3d;
-        long coordinate_y_3d;
-        long coordinate_z_3d;
-        long DistSqr;
+        int32_t X;
+        int32_t Y;
+        int32_t TMapX;
+        int32_t TMapY;
+        int32_t Shade;
+        int32_t coordinate_x_3d;
+        int32_t coordinate_y_3d;
+        int32_t coordinate_z_3d;
+        int32_t DistSqr;
         unsigned short padw;
         unsigned char Flags;
         unsigned char padb;
@@ -152,61 +152,61 @@ struct PurpleDrawItem {
 
 struct TbSourceBuffer {
         const void * data;
-        unsigned long width;
-        unsigned long height;
-        unsigned long pitch;
+        uint32_t width;
+        uint32_t height;
+        uint32_t pitch;
 };
 
 /******************************************************************************/
 extern unsigned char *poly_screen;
 extern unsigned char *vec_screen;
 extern unsigned char *vec_map;
-extern unsigned long vec_screen_width;
-extern long vec_window_width;
-extern long vec_window_height;
+extern uint32_t vec_screen_width;
+extern int32_t vec_window_width;
+extern int32_t vec_window_height;
 extern unsigned char *dither_map;
 extern unsigned char *dither_end;
 extern unsigned char *lbSpriteReMapPtr;
-extern long scale_up;
+extern int32_t scale_up;
 extern int32_t xsteps_array[2*SPRITE_SCALING_XSTEPS];
 extern int32_t ysteps_array[2*SPRITE_SCALING_YSTEPS];
 
 #pragma pack()
 
 /******************************************************************************/
-TbResult LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel colour);
-void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
+TbResult LbDrawBox(int32_t x, int32_t y, uint32_t width, uint32_t height, TbPixel colour);
+void LbDrawHVLine(int32_t xpos1, int32_t ypos1, int32_t xpos2, int32_t ypos2, TbPixel colour);
 
-void LbDrawPixel(long x, long y, TbPixel colour);
-void LbDrawCircle(long x, long y, long radius, TbPixel colour);
+void LbDrawPixel(int32_t x, int32_t y, TbPixel colour);
+void LbDrawCircle(int32_t x, int32_t y, int32_t radius, TbPixel colour);
 
 void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
         unsigned int line_len, unsigned int width, unsigned int height);
-void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, int32_t **xstep, int32_t **ystep, int *scanline);
+void setup_steps(int32_t posx, int32_t posy, const struct TbSourceBuffer * src_buf, int32_t **xstep, int32_t **ystep, int *scanline);
 void setup_outbuf(const int32_t *xstep, const int32_t *ystep, uchar **outbuf, int *outheight);
-TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSourceBuffer *);
-TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct TbSourceBuffer *, const TbPixel *cmap);
-TbResult LbSpriteDrawOneColourUsingScalingData(long posx, long posy, const struct TbSprite *sprite, TbPixel colour);
-void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight);
-TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, const struct TbSourceBuffer *);
-void LbSpriteSetScalingWidthSimpleArray(int32_t * xsteps_arr, long x, long swidth, long dwidth);
-void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swidth, long dwidth, long gwidth);
-void LbSpriteSetScalingHeightSimpleArray(int32_t * ysteps_arr, long y, long sheight, long dheight);
-void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, long y, long sheight, long dheight, long gheight);
+TbResult LbSpriteDrawUsingScalingData(int32_t posx, int32_t posy, const struct TbSourceBuffer *);
+TbResult LbSpriteDrawRemapUsingScalingData(int32_t posx, int32_t posy, const struct TbSourceBuffer *, const TbPixel *cmap);
+TbResult LbSpriteDrawOneColourUsingScalingData(int32_t posx, int32_t posy, const struct TbSprite *sprite, TbPixel colour);
+void LbSpriteSetScalingData(int32_t x, int32_t y, int32_t swidth, int32_t sheight, int32_t dwidth, int32_t dheight);
+TbResult DrawAlphaSpriteUsingScalingData(int32_t posx, int32_t posy, const struct TbSourceBuffer *);
+void LbSpriteSetScalingWidthSimpleArray(int32_t * xsteps_arr, int32_t x, int32_t swidth, int32_t dwidth);
+void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, int32_t x, int32_t swidth, int32_t dwidth, int32_t gwidth);
+void LbSpriteSetScalingHeightSimpleArray(int32_t * ysteps_arr, int32_t y, int32_t sheight, int32_t dheight);
+void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, int32_t y, int32_t sheight, int32_t dheight, int32_t gheight);
 
-TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr);
-TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
+TbResult LbSpriteDraw(int32_t x, int32_t y, const struct TbSprite *spr);
+TbResult LbSpriteDrawOneColour(int32_t x, int32_t y, const struct TbSprite *spr, const TbPixel colour);
 
-TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height);
-TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour);
-int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const unsigned char *cmap);
+TbResult LbSpriteDrawScaled(int32_t xpos, int32_t ypos, const struct TbSprite *sprite, int32_t dest_width, int32_t dest_height);
+TbResult LbSpriteDrawScaledOneColour(int32_t xpos, int32_t ypos, const struct TbSprite *sprite, int32_t dest_width, int32_t dest_height, const TbPixel colour);
+int LbSpriteDrawScaledRemap(int32_t xpos, int32_t ypos, const struct TbSprite *sprite, int32_t dest_width, int32_t dest_height, const unsigned char *cmap);
 #define LbSpriteDrawResized(xpos, ypos, un_per_px, sprite) LbSpriteDrawScaled(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16)
 #define LbSpriteDrawResizedOneColour(xpos, ypos, un_per_px, sprite, colour) LbSpriteDrawScaledOneColour(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16, colour)
 #define LbSpriteDrawResizedRemap(xpos, ypos, un_per_px, sprite, cmap) LbSpriteDrawScaledRemap(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16, cmap)
 
-TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
+TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, int32_t sp_len,
     unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px);
-void LbTiledSpriteDraw(long x, long y, long units_per_px, struct TiledSprite *bigspr);
+void LbTiledSpriteDraw(int32_t x, int32_t y, int32_t units_per_px, struct TiledSprite *bigspr);
 int LbTiledSpriteHeight(struct TiledSprite *bigspr);
 
 // mspointer needs this for some reason

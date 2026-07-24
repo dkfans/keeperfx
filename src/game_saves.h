@@ -82,9 +82,9 @@ struct CatalogueEntry {
 };
 
 struct FileChunkHeader {
-    unsigned long len;
-    unsigned long id;
-    unsigned long ver;
+    uint32_t len;
+    uint32_t id;
+    uint32_t ver;
 };
 
 /******************************************************************************/
@@ -104,15 +104,15 @@ TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textn
 TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry);
 TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry);
 /******************************************************************************/
-TbBool load_game(long slot_idx);
-TbBool save_game(long slot_idx);
+TbBool load_game(int32_t slot_idx);
+TbBool save_game(int32_t slot_idx);
 TbBool initialise_load_game_slots(void);
 int count_valid_saved_games(void);
-TbBool is_save_game_loadable(long slot_num);
+TbBool is_save_game_loadable(int32_t slot_num);
 /******************************************************************************/
 TbBool save_catalogue_slot_disable(unsigned int slot_idx);
 TbBool load_game_save_catalogue(void);
-TbBool fill_game_catalogue_slot(long slot_num,const char *textname);
+TbBool fill_game_catalogue_slot(int32_t slot_num,const char *textname);
 /******************************************************************************/
 TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, CrtrExpLevel exp_level, char *name);
 void clear_transfered_creatures(void);

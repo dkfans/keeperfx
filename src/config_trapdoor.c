@@ -178,7 +178,7 @@ int64_t value_activationeffect(const struct NamedField* named_field, const char*
     }
     else
     {
-        long k;
+        int32_t k;
         struct TrapConfigStats* trapst = get_trap_model_stats(idx);
         switch (trapst->activation_type)
         {
@@ -427,7 +427,7 @@ int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmode
 static TbBool load_trapdoor_config_file(const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -591,7 +591,7 @@ int trap_model_id(const char * code_name)
  * Checks only if it's available and if the player is 'alive'.
  * Doesn't check if map position is on correct spot.
  */
-TbBool is_trap_placeable(PlayerNumber plyr_idx, long tngmodel)
+TbBool is_trap_placeable(PlayerNumber plyr_idx, int32_t tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
@@ -617,7 +617,7 @@ TbBool is_trap_placeable(PlayerNumber plyr_idx, long tngmodel)
  * Checks only if it's set as buildable in level script.
  * Doesn't check if player has workshop or workforce for the task.
  */
-TbBool is_trap_buildable(PlayerNumber plyr_idx, long tngmodel)
+TbBool is_trap_buildable(PlayerNumber plyr_idx, int32_t tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
@@ -641,7 +641,7 @@ TbBool is_trap_buildable(PlayerNumber plyr_idx, long tngmodel)
 /**
  * Returns if the trap was at least once built by a player.
  */
-TbBool is_trap_built(PlayerNumber plyr_idx, long tngmodel)
+TbBool is_trap_built(PlayerNumber plyr_idx, int32_t tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
@@ -663,7 +663,7 @@ TbBool is_trap_built(PlayerNumber plyr_idx, long tngmodel)
  * Checks only if it's available and if the player is 'alive'.
  * Doesn't check if map position is on correct spot.
  */
-TbBool is_door_placeable(PlayerNumber plyr_idx, long tngmodel)
+TbBool is_door_placeable(PlayerNumber plyr_idx, int32_t tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
@@ -689,7 +689,7 @@ TbBool is_door_placeable(PlayerNumber plyr_idx, long tngmodel)
  * Checks only if it's set as buildable in level script.
  * Doesn't check if player has workshop or workforce for the task.
  */
-TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx)
+TbBool is_door_buildable(PlayerNumber plyr_idx, int32_t door_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
@@ -713,7 +713,7 @@ TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx)
 /**
  * Returns if the door was at least one built by a player.
  */
-TbBool is_door_built(PlayerNumber plyr_idx, long door_idx)
+TbBool is_door_built(PlayerNumber plyr_idx, int32_t door_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
@@ -745,7 +745,7 @@ TbBool make_available_all_doors(PlayerNumber plyr_idx)
       ERRORDBG(11,"Cannot make doors available; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
-  for (long i = 1; i < game.conf.trapdoor_conf.door_types_count; i++)
+  for (int32_t i = 1; i < game.conf.trapdoor_conf.door_types_count; i++)
   {
     if (!set_door_buildable_and_add_to_amount(plyr_idx, i, 1, 0))
     {
@@ -767,7 +767,7 @@ TbBool make_available_all_traps(PlayerNumber plyr_idx)
       ERRORDBG(11,"Cannot make traps available; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
-  for (long i = 1; i < game.conf.trapdoor_conf.trap_types_count; i++)
+  for (int32_t i = 1; i < game.conf.trapdoor_conf.trap_types_count; i++)
   {
     if (!set_trap_buildable_and_add_to_amount(plyr_idx, i, 1, 0))
     {

@@ -46,7 +46,7 @@ typedef struct VALUE VALUE;
 TbBool thing_create_thing(struct InitThing *itng);
 TbBool thing_create_thing_adv(VALUE *init_data);
 
-struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, ThingModel model, unsigned short owner, long parent_idx);
+struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, ThingModel model, unsigned short owner, int32_t parent_idx);
 struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, ThingModel tngmodel, unsigned char tngowner);
 
 /******************************************************************************/

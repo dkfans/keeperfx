@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-void script_process_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3, struct ScriptValue *value);
+void script_process_value(uint32_t var_index, uint32_t plr_range_id, int32_t param1, int32_t param2, int32_t param3, struct ScriptValue *value);
 
 /******************************************************************************/
 #ifdef __cplusplus

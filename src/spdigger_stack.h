@@ -79,7 +79,7 @@ struct SlabCoord {
 };
 
 struct ExtraSquares {
-    unsigned long index;
+    uint32_t index;
     unsigned char flgmask;
 };
 
@@ -88,7 +88,7 @@ struct ExtraSquares {
 TbBool creature_task_needs_check_out_after_digger_stack_change(const struct Thing *creatng);
 void remove_task_from_all_other_players_digger_stacks(PlayerNumber skip_plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-long find_in_dungeon_imp_stack_starting_at(SpDiggerTaskType task_type, long start_pos, const struct Dungeon *dungeon);
+int32_t find_in_dungeon_imp_stack_starting_at(SpDiggerTaskType task_type, int32_t start_pos, const struct Dungeon *dungeon);
 
 TbBool add_to_dungeon_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, struct Dungeon *dungeon);
 TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
@@ -112,25 +112,25 @@ TbBool is_digging_indestructible_place(const struct Thing *creatng);
 TbBool imp_already_reinforcing_at_excluding(struct Thing *spdigtng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned short flags);
-long get_random_mining_undug_area_position_for_digger_drop(PlayerNumber plyr_idx, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
+int32_t get_random_mining_undug_area_position_for_digger_drop(PlayerNumber plyr_idx, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
 TbBool creature_can_pickup_library_object_at_subtile(struct Thing* spdigtng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool imp_stack_update(struct Thing *creatng);
 TbBool check_out_imp_stack(struct Thing *creatng);
-long check_out_imp_last_did(struct Thing *creatng);
-long check_place_to_convert_excluding(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y);
-long check_place_to_pretty_excluding(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y);
-long check_out_imp_has_money_for_treasure_room(struct Thing *thing);
-long check_out_available_imp_tasks(struct Thing *thing);
-long check_out_imp_tokes(struct Thing *thing);
-long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
-long check_place_to_dig_and_get_drop_position(PlayerNumber plyr_idx, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
-long check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y);
-long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
-long check_out_unconverted_spiral(struct Thing *thing, long nslabs);
+int32_t check_out_imp_last_did(struct Thing *creatng);
+int32_t check_place_to_convert_excluding(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y);
+int32_t check_place_to_pretty_excluding(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y);
+int32_t check_out_imp_has_money_for_treasure_room(struct Thing *thing);
+int32_t check_out_available_imp_tasks(struct Thing *thing);
+int32_t check_out_imp_tokes(struct Thing *thing);
+int32_t check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
+int32_t check_place_to_dig_and_get_drop_position(PlayerNumber plyr_idx, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
+int32_t check_place_to_reinforce(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y);
+int32_t check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y);
+int32_t check_out_unconverted_spiral(struct Thing *thing, int32_t nslabs);
 void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng);
 void force_any_creature_dragging_thing_to_drop_it(struct Thing *dragtng);
-long check_out_unprettied_spiral(struct Thing *thing, long nslabs);
+int32_t check_out_unprettied_spiral(struct Thing *thing, int32_t nslabs);
 /******************************************************************************/
 #ifdef __cplusplus
 }

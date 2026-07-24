@@ -60,28 +60,28 @@ enum ColumnFlags {
 /******************************************************************************/
 struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Column *get_map_column(const struct Map *map);
-struct Column *get_column(long idx);
+struct Column *get_column(int32_t idx);
 TbBool column_invalid(const struct Column *col);
 
 void make_solidmask(struct Column *col);
 void clear_columns(void);
 void init_columns(void);
-long find_column(struct Column *col);
-long create_column(struct Column *col);
+int32_t find_column(struct Column *col);
+int32_t create_column(struct Column *col);
 unsigned short find_column_height(struct Column *col);
 void init_whole_blocks(void);
 void init_top_texture_to_cube_table(void);
 
-long get_column_floor_filled_subtiles(const struct Column *col);
-long get_map_floor_filled_subtiles(const struct Map *mapblk);
-long get_floor_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+int32_t get_column_floor_filled_subtiles(const struct Column *col);
+int32_t get_map_floor_filled_subtiles(const struct Map *mapblk);
+int32_t get_floor_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void set_column_floor_filled_subtiles(struct Column *col, MapSubtlCoord n);
-long get_column_ceiling_filled_subtiles(const struct Column *col);
-long get_map_ceiling_filled_subtiles(const struct Map *mapblk);
+int32_t get_column_ceiling_filled_subtiles(const struct Column *col);
+int32_t get_map_ceiling_filled_subtiles(const struct Map *mapblk);
 TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-long get_top_cube_at_pos(SubtlCodedCoords mpos);
-long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *cube_pos);
+int32_t get_top_cube_at_pos(SubtlCodedCoords mpos);
+int32_t get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *cube_pos);
 MapCoord get_map_floor_height(const struct Map *mapblk);
 MapCoord get_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 MapCoord get_floor_height_at(const struct Coord3d *pos);
@@ -89,10 +89,10 @@ MapCoord get_map_ceiling_height(const struct Map *mapblk);
 MapCoord get_ceiling_height_at(const struct Coord3d *pos);
 MapCoord get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-TbBool cube_is_lava(long cube_id);
-TbBool cube_is_water(long cube_id);
-TbBool cube_is_sacrificial(long cube_id);
-TbBool cube_is_unclaimed_path(long cube_id);
+TbBool cube_is_lava(int32_t cube_id);
+TbBool cube_is_water(int32_t cube_id);
+TbBool cube_is_sacrificial(int32_t cube_id);
+TbBool cube_is_unclaimed_path(int32_t cube_id);
 
 TbBool subtile_is_unsafe(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 

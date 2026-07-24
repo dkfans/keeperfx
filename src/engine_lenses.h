@@ -41,14 +41,14 @@ typedef void (*RotPers_Func)(struct EngineCoord *epos, const struct M33 *matx);
 typedef void (*Perspect_Func)(struct XYZ *cor, struct PolyPoint *ppt);
 
 struct XYZ { // sizeof = 12
-    long x;
-    long y;
-    long z;
+    int32_t x;
+    int32_t y;
+    int32_t z;
 };
 
 /******************************************************************************/
 extern unsigned char lens_mode;
-extern long lens;
+extern int32_t lens;
 extern Perspect_Func perspective;
 extern RotPers_Func rotpers;
 #pragma pack()

@@ -66,15 +66,15 @@ static TbClockMSec frontstats_timer;
  * @param plyr_idx Player for whom statistic is to be calculated.
  * @return Statistic value, scaled 0..100.
  */
-long calculate_efficiency(PlayerNumber plyr_idx)
+int32_t calculate_efficiency(PlayerNumber plyr_idx)
 {
-    long count = 0;
-    long efficiency = 0;
+    int32_t count = 0;
+    int32_t efficiency = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    for (long rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
+    for (int32_t rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-        long i = dungeon->room_list_start[rkind];
-        unsigned long k = 0;
+        int32_t i = dungeon->room_list_start[rkind];
+        uint32_t k = 0;
         while (i != 0)
         {
             struct Room* room = room_get(i);
@@ -101,14 +101,14 @@ long calculate_efficiency(PlayerNumber plyr_idx)
     return 100 * efficiency / (count * ROOM_EFFICIENCY_MAX);
 }
 
-long calculate_style(long plyr_idx)
+int32_t calculate_style(int32_t plyr_idx)
 {
-    long area = 0;
+    int32_t area = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    for (long rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
+    for (int32_t rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-        long i = dungeon->room_list_start[rkind];
-        unsigned long k = 0;
+        int32_t i = dungeon->room_list_start[rkind];
+        uint32_t k = 0;
         while (i != 0)
         {
             struct Room* room = room_get(i);
@@ -129,7 +129,7 @@ long calculate_style(long plyr_idx)
             }
         }
     }
-    long half_area = (dungeon->total_area >> 1);
+    int32_t half_area = (dungeon->total_area >> 1);
     if ((area < half_area) && (half_area > 0))
         return 100 * area / half_area;
     else
@@ -141,15 +141,15 @@ long calculate_style(long plyr_idx)
  * @param plyr_idx Player for whom statistic is to be calculated.
  * @return Statistic value.
  */
-long calculate_rating(PlayerNumber plyr_idx)
+int32_t calculate_rating(PlayerNumber plyr_idx)
 {
-    long rating = calculate_style(plyr_idx) * calculate_efficiency(plyr_idx) / 100;
+    int32_t rating = calculate_style(plyr_idx) * calculate_efficiency(plyr_idx) / 100;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     rating += 100 * dungeon->lvstats.player_score / 800;
-    long btlost = dungeon->lvstats.battles_lost;
-    long btwon = dungeon->lvstats.battles_won;
+    int32_t btlost = dungeon->lvstats.battles_lost;
+    int32_t btwon = dungeon->lvstats.battles_won;
     // Find scoring ratio
-    long ratio = 100;
+    int32_t ratio = 100;
     if ( (btlost < btwon) && (btlost > 0) )
     {
         ratio = btwon / btlost;
@@ -164,22 +164,22 @@ long calculate_rating(PlayerNumber plyr_idx)
     return 75 * rating;
 }
 
-long calculate_doors_unused(PlayerNumber plyr_idx)
+int32_t calculate_doors_unused(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long count = 0;
-    for (long i = 1; i < game.conf.trapdoor_conf.door_types_count; i++)
+    int32_t count = 0;
+    for (int32_t i = 1; i < game.conf.trapdoor_conf.door_types_count; i++)
     {
       count += dungeon->mnfct_info.door_amount_stored[i];
     }
     return count;
 }
 
-long calculate_traps_unused(PlayerNumber plyr_idx)
+int32_t calculate_traps_unused(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long count = 0;
-    for (long i = 1; i < game.conf.trapdoor_conf.trap_types_count; i++)
+    int32_t count = 0;
+    for (int32_t i = 1; i < game.conf.trapdoor_conf.trap_types_count; i++)
     {
       count += dungeon->mnfct_info.trap_amount_stored[i];
     }

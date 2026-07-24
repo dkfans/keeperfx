@@ -113,7 +113,7 @@ extern "C" void free_spritesheet(TbSpriteSheet ** sheet)
     }
 }
 
-extern "C" const TbSprite * get_sprite(const TbSpriteSheet * sheet, const long index)
+extern "C" const TbSprite * get_sprite(const TbSpriteSheet * sheet, const int32_t index)
 {
     if (!sheet) {
         return NULL;
@@ -144,7 +144,7 @@ extern "C" TbBool add_sprite(TbSpriteSheet * sheet, unsigned char width, unsigne
     return false;
 }
 
-extern "C" long num_sprites(const TbSpriteSheet * sheet)
+extern "C" int32_t num_sprites(const TbSpriteSheet * sheet)
 {
     if (!sheet) {
         return 0;

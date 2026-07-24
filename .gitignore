@@ -3,8 +3,6 @@
 /obj
 /sdl
 /pkg
-/gfx
-/sfx
 /tools/peresec
 /tools/png2bestpal
 /tools/png2ico
@@ -27,18 +25,6 @@ docs/latex
 *.Tpo
 res/keeperfx_icon.ico
 .header_checksum
-/deps/enet
-/deps/enet6
-/deps/libcurl
-/deps/zlib
-/deps/spng
-/deps/astronomy
-/deps/centijson
-/deps/ffmpeg
-/deps/openal
-/deps/luajit
-/deps/miniupnpc
-/deps/libnatpmp
 /deps/*.tar.gz
 /cppcheck.cache
 /src/ver_defs.h

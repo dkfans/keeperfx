@@ -68,13 +68,13 @@ TbBool LensEffect::LoadAssetWithFallback(const char* filename, unsigned char* bu
             // Check if file exists first
             if (LbFileExists(fname_mod))
             {
-                long file_size = LbFileLengthRnc(fname_mod);
+                int32_t file_size = LbFileLengthRnc(fname_mod);
                 
                 // Only load if file size matches expected size
-                if (file_size == (long)buffer_size)
+                if (file_size == (int32_t)buffer_size)
                 {
-                    long loaded = LbFileLoadAt(fname_mod, buffer);
-                    if (loaded == (long)buffer_size)
+                    int32_t loaded = LbFileLoadAt(fname_mod, buffer);
+                    if (loaded == (int32_t)buffer_size)
                     {
                         if (loaded_from != NULL) {
                             *loaded_from = mod_item->name;
@@ -91,12 +91,12 @@ TbBool LensEffect::LoadAssetWithFallback(const char* filename, unsigned char* bu
     char* fname_base_path = prepare_file_path(FGrp_StdData, filename);
     if (LbFileExists(fname_base_path))
     {
-        long file_size = LbFileLengthRnc(fname_base_path);
+        int32_t file_size = LbFileLengthRnc(fname_base_path);
         
-        if (file_size == (long)buffer_size)
+        if (file_size == (int32_t)buffer_size)
         {
-            long loaded = LbFileLoadAt(fname_base_path, buffer);
-            if (loaded == (long)buffer_size)
+            int32_t loaded = LbFileLoadAt(fname_base_path, buffer);
+            if (loaded == (int32_t)buffer_size)
             {
                 if (loaded_from != NULL) {
                     *loaded_from = NULL;

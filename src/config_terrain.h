@@ -194,7 +194,7 @@ TbBool slab_kind_has_torches(SlabKind slbkind);
 /******************************************************************************/
 struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind);
 TbBool make_all_rooms_free(void);
-TbBool set_room_available(PlayerNumber plyr_idx, RoomKind roomkind, long resrch, long avail);
+TbBool set_room_available(PlayerNumber plyr_idx, RoomKind roomkind, int32_t resrch, int32_t avail);
 TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx);
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx);
 TbBool is_room_available(PlayerNumber plyr_idx, RoomKind roomkind);

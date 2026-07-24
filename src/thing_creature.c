@@ -177,7 +177,7 @@ TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingMod
  * @param grthing
  * @return Amount of creatures in the party, including the leader.
  */
-long check_for_first_person_barrack_party(struct Thing *grthing)
+int32_t check_for_first_person_barrack_party(struct Thing *grthing)
 {
     if (!thing_is_creature(grthing))
     {
@@ -190,9 +190,9 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
         SYNCDBG(2,"Room %s owned by player %d does not allow the %s index %d owner %d to lead a party",room_code_name(room->kind),(int)room->owner,thing_model_name(grthing),(int)grthing->index,(int)grthing->owner);
         return 0;
     }
-    long n = 0;
-    long i = room->creatures_list;
-    unsigned long k = 0;
+    int32_t n = 0;
+    int32_t i = room->creatures_list;
+    uint32_t k = 0;
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -384,9 +384,9 @@ void draw_swipe_graphic(void)
         if (instance_draws_possession_swipe(cctrl->instance_id))
         {
             lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
-            long n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
-            long allwidth = 0;
-            long i = max(((abs(n) >> 8) -1),0);
+            int32_t n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
+            int32_t allwidth = 0;
+            int32_t i = max(((abs(n) >> 8) -1),0);
             if (i >= SWIPE_SPRITE_FRAMES)
                 i = SWIPE_SPRITE_FRAMES-1;
             const struct TbSprite* sprlist = get_sprite(swipe_sprites, SWIPE_SPRITES_X * SWIPE_SPRITES_Y * i);
@@ -446,7 +446,7 @@ void draw_swipe_graphic(void)
     randomise_swipe_graphic_direction();
 }
 
-long creature_available_for_combat_this_turn(struct Thing *creatng)
+int32_t creature_available_for_combat_this_turn(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -616,7 +616,7 @@ TbBool set_creature_door_combat(struct Thing *creatng, struct Thing *obthing)
 void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long old_hunger_level = cctrl->hunger_level;
+    int32_t old_hunger_level = cctrl->hunger_level;
     if (cctrl->instance_id == CrInst_NULL)
     {
         set_creature_instance(creatng, CrInst_EAT, 0, 0);
@@ -636,7 +636,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
 
     anger_set_creature_anger(creatng, 0, AngR_Hungry);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-    if (crconf->annoy_eat_food > 0 || old_hunger_level > (long)crconf->hunger_rate) {
+    if (crconf->annoy_eat_food > 0 || old_hunger_level > (int32_t)crconf->hunger_rate) {
         // As food(It means <0), happiness can only be obtained when a creature is hungry. But for those who dislike it(It means >0), every time is torture.
         anger_apply_anger_to_creature(creatng, crconf->annoy_eat_food, AngR_Other, 1);
     }
@@ -654,7 +654,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
     }
 }
 
-void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMotive reason, long a3, const char *func_name)
+void anger_apply_anger_to_creature_f(struct Thing *creatng, int32_t anger, AnnoyMotive reason, int32_t a3, const char *func_name)
 {
     SYNCDBG(17,"The %s index %d owner %d will be applied with %d anger",
         thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)anger);
@@ -668,7 +668,7 @@ void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMot
         {
             if (anger_free_for_anger_increase(creatng))
             {
-                long angrpart = 32 * anger / 256;
+                int32_t angrpart = 32 * anger / 256;
                 anger_increase_creature_anger_f(creatng, angrpart, AngR_Other, func_name);
             }
         }
@@ -678,7 +678,7 @@ void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMot
         anger_reduce_creature_anger_f(creatng, anger, reason, func_name);
         if (reason == AngR_Other)
         {
-            long angrpart = 32 * anger / 256;
+            int32_t angrpart = 32 * anger / 256;
             for (AnnoyMotive reaspart = 1; reaspart < AngR_Other; reaspart++)
             {
                 anger_reduce_creature_anger_f(creatng, angrpart, reaspart, func_name);
@@ -696,7 +696,7 @@ TbBool creature_affected_by_slap(const struct Thing *thing)
 /* Returns if spell effect is currently set on a thing.
  * @param thing The thing which can have spell effect on.
  * @param spell_flags The spell flags to be checked. */
-TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
+TbBool creature_under_spell_effect_f(const struct Thing *thing, uint32_t spell_flags, const char *func_name)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -715,7 +715,7 @@ TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long sp
 /* Returns if the creature kind is immune to spell effect.
  * @param thing The thing to be checked.
  * @param spell_flags The spell flags to be checked. */
-TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
+TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, uint32_t spell_flags, const char *func_name)
 {
     struct CreatureModelConfig *crconf = creature_stats_get(thing->model);
     if (creature_stats_invalid(crconf))
@@ -745,7 +745,7 @@ TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned 
 /* Returns an available instance associated to a spell kind that can set spell effect.
  * @param thing The thing that can use the instance.
  * @param spell_flags The spell flags to be checked. */
-CrInstance get_available_instance_with_spell_effect(const struct Thing *thing, unsigned long spell_flags)
+CrInstance get_available_instance_with_spell_effect(const struct Thing *thing, uint32_t spell_flags)
 {
     struct InstanceInfo *inst_inf;
     struct ShotConfigStats* shotst;
@@ -821,14 +821,14 @@ GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, Spel
     return 0;
 }
 
-long get_free_spell_slot(struct Thing *creatng)
+int32_t get_free_spell_slot(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CastedSpellData *cspell;
-    long i;
+    int32_t i;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long cval = INT32_MAX;
-    long ci = -1;
+    int32_t cval = INT32_MAX;
+    int32_t ci = -1;
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         cspell = &cctrl->casted_spells[i];
@@ -838,7 +838,7 @@ long get_free_spell_slot(struct Thing *creatng)
             return i;
         }
         // Otherwise, select the one making minimum damage
-        long k = abs(cspell->duration);
+        int32_t k = abs(cspell->duration);
         if (k < cval)
         {
             cval = k;
@@ -856,14 +856,14 @@ long get_free_spell_slot(struct Thing *creatng)
             return i;
         }
     }
-    ERRORLOG("Spell effect has been terminated, but still its slot (%ld) isn't empty!",ci);
+    ERRORLOG("Spell effect has been terminated, but still its slot (%d) isn't empty!",ci);
     return ci;
 }
 
-long get_spell_slot(const struct Thing *thing, SpellKind spkind)
+int32_t get_spell_slot(const struct Thing *thing, SpellKind spkind)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    for (int32_t i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         struct CastedSpellData* cspell = &cctrl->casted_spells[i];
         // If there is a slot with required spell
@@ -946,7 +946,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         if (!creature_under_spell_effect(thing, CSAfF_Armour))
         {
             set_flag(cctrl->spell_flags, CSAfF_Armour);
-            long num_protect = 0;
+            int32_t num_protect = 0;
             for (int k = 0; k < 2; k++)
             {
                 set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, num_protect, k * (thing->clipbox_size_z >> 1));
@@ -1037,7 +1037,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
             {
                 cctrl->disease_caster_plyridx = game.neutral_player_num;
             }
-            long num_disease = 0;
+            int32_t num_disease = 0;
             cctrl->disease_start_turn = get_gameturn();
             for (int j = 0; j < 3; j++)
             {
@@ -1046,7 +1046,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 pos.z.val = thing->mappos.z.val;
                 pos.x.val += distance_with_angle_to_coord_x(32, num_disease);
                 pos.y.val += distance_with_angle_to_coord_y(32, num_disease);
-                pos.z.val += j * (long)(thing->clipbox_size_z >> 1);
+                pos.z.val += j * (int32_t)(thing->clipbox_size_z >> 1);
                 ntng = create_object(&pos, ObjMdl_Disease, thing->owner, -1); // TODO: Make this configurable.
                 if (!thing_is_invalid(ntng))
                 {
@@ -1214,7 +1214,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     return affected;
 }
 
-TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name)
+TbBool clear_thing_spell_flags_f(struct Thing *thing, uint32_t spell_flags, const char *func_name)
 {
     struct CreatureModelConfig *crconf = creature_stats_get(thing->model);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -1457,7 +1457,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         spell_level = SPELL_MAX_LEVEL;
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_level);
-    long i = get_free_spell_slot(thing);
+    int32_t i = get_free_spell_slot(thing);
     if (i != -1)
     {
         // Fill the spell slot if the spell has a continuous effect.
@@ -1603,7 +1603,7 @@ void terminate_all_actives_damage_over_time_spell_effects(struct Thing *thing)
  * This is used to stop a spell effect before its duration ends, like Temple cures.
  * @param thing The thing which can have spell effect on.
  * @param spell_flags The spell flags to be cleaned. */
-void clean_spell_effect_f(struct Thing *thing, unsigned long spell_flags, const char *func_name)
+void clean_spell_effect_f(struct Thing *thing, uint32_t spell_flags, const char *func_name)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -1642,7 +1642,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     int32_t distance = INT32_MAX;
     struct Dungeon *dungeon = get_players_num_dungeon(thing->owner);
     RoomKind rkind = 0;
-    long i;
+    int32_t i;
     TbBool allowed = true;
     clear_messages_from_player(MsgType_CreatureInstance, CrInst_TELEPORT);
     if (cspell->duration == spconf->duration / 2)
@@ -1680,7 +1680,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                 {
                     if (active_battle_exists(thing->owner))
                     {
-                        long count = 0;
+                        int32_t count = 0;
                         if (player->battleid > BATTLES_COUNT)
                         {
                             player->battleid = 1;
@@ -1758,7 +1758,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             }
             if (rkind > 0)
             {
-                long count = 0;
+                int32_t count = 0;
                 if (player->nearest_teleport)
                 {
                     room = find_room_nearest_to_position(thing->owner, rkind, &thing->mappos, &distance);
@@ -2044,7 +2044,7 @@ void teleport_familiar_to_summoner(struct Thing *famlrtng, struct Thing* creatng
  * @param count How many creatures are created.
  * @param duration How many gameturns the creatures will live. Set to 0 for infinite.
  */
-void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx)
+void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, int32_t spl_idx)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* famlrtng;
@@ -2252,7 +2252,7 @@ TbBool remove_creature_from_summoner(const struct Thing* famlrtng)
  */
 void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel shot_level, MapSubtlCoord trg_x, MapSubtlCoord trg_y)
 {
-    long i;
+    int32_t i;
     struct SpellConfig* spconf = get_spell_config(spl_idx);
     struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
     if (creature_control_invalid(cctrl))
@@ -2361,8 +2361,8 @@ void update_creature_count(struct Thing *creatng)
 
 struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
 {
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -2398,10 +2398,10 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
 
 struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
 {
-    for (long k = 0; k < AROUND_TILES_COUNT; k++)
+    for (int32_t k = 0; k < AROUND_TILES_COUNT; k++)
     {
-        long stl_x = creatng->mappos.x.stl.num + around[k].delta_x;
-        long stl_y = creatng->mappos.y.stl.num + around[k].delta_y;
+        int32_t stl_x = creatng->mappos.x.stl.num + around[k].delta_x;
+        int32_t stl_y = creatng->mappos.y.stl.num + around[k].delta_y;
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
         if (!map_block_invalid(mapblk))
         {
@@ -2445,7 +2445,7 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
             {
                 if (crconf->gold_hold < tgthing->valuable.gold_stored + creatng->creature.gold_carried)
                 {
-                    long k = crconf->gold_hold - creatng->creature.gold_carried;
+                    int32_t k = crconf->gold_hold - creatng->creature.gold_carried;
                     creatng->creature.gold_carried += k;
                     tgthing->valuable.gold_stored -= k;
                 } else
@@ -2474,7 +2474,7 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
 void creature_look_for_hidden_doors(struct Thing *creatng)
 {
     const struct StructureList *slist = get_list_for_thing_class(TCls_Door);
-    long i = slist->index;
+    int32_t i = slist->index;
     while (i > 0)
     {
         struct Thing *doortng = thing_get(i);
@@ -2509,7 +2509,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     SYNCDBG(19,"Starting for %s index %d owned by player %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    unsigned long model_flags = get_creature_model_flags(thing);
+    uint32_t model_flags = get_creature_model_flags(thing);
 
     process_person_moods_and_needs(thing);
     if (creature_available_for_combat_this_turn(thing))
@@ -2529,8 +2529,8 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         {
             if ( can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat) )
             {
-                long x = stl_num_decode_x(cctrl->collided_door_subtile);
-                long y = stl_num_decode_y(cctrl->collided_door_subtile);
+                int32_t x = stl_num_decode_x(cctrl->collided_door_subtile);
+                int32_t y = stl_num_decode_y(cctrl->collided_door_subtile);
                 struct Thing* doortng = get_door_for_position(x, y);
                 if ((!thing_is_invalid(doortng)) && (thing->owner != PLAYER_NEUTRAL))
                 {
@@ -2597,7 +2597,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
 /**
  * Increases proper kills counter for given player's dungeon.
  */
-TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
+TbBool inc_player_kills_counter(int32_t killer_idx, struct Thing *victim)
 {
     struct Dungeon* killer_dungeon = get_players_num_dungeon(killer_idx);
     if (victim->owner == killer_idx)
@@ -2633,7 +2633,7 @@ TbBool update_kills_counters(struct Thing *victim, struct Thing *killer,
     return false;
 }
 
-long creature_is_ambulating(struct Thing *thing)
+int32_t creature_is_ambulating(struct Thing *thing)
 {
     int n = get_creature_model_graphics(thing->model, CGI_Ambulate);
     int i = get_td_animation_sprite(n);
@@ -2642,7 +2642,7 @@ long creature_is_ambulating(struct Thing *thing)
     return 1;
 }
 
-TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, unsigned long blocked_flags)
+TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uint32_t blocked_flags)
 {
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
     int nav_sizexy = thing_nav_sizexy(thing) / 2;
@@ -2761,7 +2761,7 @@ void update_tunneller_trail(struct Thing *thing)
     cctrl->party.member_pos_stl[0] = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
 }
 
-long move_creature(struct Thing *thing)
+int32_t move_creature(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Coord3d* tngpos = &thing->mappos;
@@ -2821,7 +2821,7 @@ long move_creature(struct Thing *thing)
             {
                 if (creature_cannot_move_directly_to(thing, &nxpos))
                 {
-                    long blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
+                    int32_t blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
                     if (cctrl->collided_door_subtile == 0) {
                         check_for_door_collision_at(thing, &nxpos, blocked_flags);
                     }
@@ -2839,7 +2839,7 @@ long move_creature(struct Thing *thing)
             {
                 if (creature_cannot_move_directly_to(thing, &nxpos))
                 {
-                    long blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
+                    int32_t blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
                     if (cctrl->collided_door_subtile == 0) {
                         check_for_door_collision_at(thing, &nxpos, blocked_flags);
                     }
@@ -2886,8 +2886,8 @@ long move_creature(struct Thing *thing)
         move_thing_in_map(thing, &nxpos);
     }
     {
-        long angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
-        long dist;
+        int32_t angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
+        int32_t dist;
         if (get_angle_difference(angle, thing->move_angle_xy) <= DEGREES_90)
         {
             dist = get_2d_distance(&pvpos, tngpos);
@@ -2938,7 +2938,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
     create_effect(&lairtng->mappos, TngEff_HarmlessGas2, thing->owner);
 }
 
-void throw_out_gold(struct Thing* thing, long amount)
+void throw_out_gold(struct Thing* thing, int32_t amount)
 {
     int num_pots_to_drop;
     // Compute if we want bags or pots
@@ -2967,10 +2967,10 @@ void throw_out_gold(struct Thing* thing, long amount)
         if (thing_is_invalid(gldtng))
             break;
         // Update its position and acceleration
-        long angle = THING_RANDOM(thing, DEGREES_360);
-        long radius = THING_RANDOM(thing, 128);
-        long x = (radius * LbSinL(angle)) / 256;
-        long y = (radius * LbCosL(angle)) / 256;
+        int32_t angle = THING_RANDOM(thing, DEGREES_360);
+        int32_t radius = THING_RANDOM(thing, 128);
+        int32_t x = (radius * LbSinL(angle)) / 256;
+        int32_t y = (radius * LbCosL(angle)) / 256;
         gldtng->veloc_push_add.x.val += x/256;
         gldtng->veloc_push_add.y.val -= y/256;
         gldtng->veloc_push_add.z.val += THING_RANDOM(thing, 64) + 96;
@@ -2995,7 +2995,7 @@ void creature_throw_out_gold(struct Thing* creatng)
 
 struct Thing* thing_death_normal(struct Thing *thing)
 {
-    long memp1 = thing->move_angle_xy;
+    int32_t memp1 = thing->move_angle_xy;
     struct Coord3d memaccl;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
@@ -3027,12 +3027,12 @@ struct Thing* thing_death_normal(struct Thing *thing)
  */
 struct Thing* thing_death_flesh_explosion(struct Thing *thing)
 {
-    long memp1 = thing->move_angle_xy;
+    int32_t memp1 = thing->move_angle_xy;
     struct Coord3d memaccl;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    for (long i = 0; i <= thing->clipbox_size_z; i += 64)
+    for (int32_t i = 0; i <= thing->clipbox_size_z; i += 64)
     {
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
@@ -3057,8 +3057,8 @@ struct Thing* thing_death_flesh_explosion(struct Thing *thing)
 struct Thing* thing_death_gas_and_flesh_explosion(struct Thing *thing)
 {
     struct Coord3d pos;
-    long i;
-    long memp1 = thing->move_angle_xy;
+    int32_t i;
+    int32_t memp1 = thing->move_angle_xy;
     struct Coord3d memaccl;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
@@ -3091,12 +3091,12 @@ struct Thing* thing_death_gas_and_flesh_explosion(struct Thing *thing)
 
 struct Thing* thing_death_smoke_explosion(struct Thing *thing)
 {
-    long memp1 = thing->move_angle_xy;
+    int32_t memp1 = thing->move_angle_xy;
     struct Coord3d memaccl;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    long i = (thing->clipbox_size_z >> 1);
+    int32_t i = (thing->clipbox_size_z >> 1);
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
@@ -3123,12 +3123,12 @@ struct Thing* thing_death_smoke_explosion(struct Thing *thing)
  */
 struct Thing* thing_death_ice_explosion(struct Thing *thing)
 {
-    long memp1 = thing->move_angle_xy;
+    int32_t memp1 = thing->move_angle_xy;
     struct Coord3d memaccl;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    for (long i = 0; i <= thing->clipbox_size_z; i += 64)
+    for (int32_t i = 0; i <= thing->clipbox_size_z; i += 64)
     {
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
@@ -3177,11 +3177,11 @@ struct Thing* creature_death_as_nature_intended(struct Thing *thing)
  * @return Gives amount of items updated.
  * TODO figure out what this index is, then rename and move this function.
  */
-unsigned long remove_parent_thing_from_things_in_list(struct StructureList *list,long remove_idx)
+uint32_t remove_parent_thing_from_things_in_list(struct StructureList *list,int32_t remove_idx)
 {
     SYNCDBG(18,"Starting");
-    unsigned long n = 0;
-    unsigned long k = 0;
+    uint32_t n = 0;
+    uint32_t k = 0;
     int i = list->index;
     while (i != 0)
     {
@@ -3486,8 +3486,8 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
     SYNCDBG(18,"Starting for %s at %d,%d",thing_model_name(creatng),(int)pos->x.stl.num,(int)pos->y.stl.num);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -3538,12 +3538,12 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
  * Calculates damage made by a creature by hand (using strength).
  * @param thing The creature which will be inflicting the damage.
  */
-long calculate_melee_damage(struct Thing *creatng, short damage_percent)
+int32_t calculate_melee_damage(struct Thing *creatng, short damage_percent)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-    long strength = calculate_correct_creature_strength(creatng);
-    long damage = compute_creature_attack_melee_damage(strength, crconf->luck, cctrl->exp_level, creatng);
+    int32_t strength = calculate_correct_creature_strength(creatng);
+    int32_t damage = compute_creature_attack_melee_damage(strength, crconf->luck, cctrl->exp_level, creatng);
     if (damage_percent != 0)
     {
         damage = (damage * damage_percent) / 100;
@@ -3556,11 +3556,11 @@ long calculate_melee_damage(struct Thing *creatng, short damage_percent)
  * Gives a best estimate of the damage, but shouldn't be used to actually inflict it.
  * @param thing The creature which will be inflicting the damage.
  */
-long project_melee_damage(const struct Thing *creatng)
+int32_t project_melee_damage(const struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-    long strength = calculate_correct_creature_strength(creatng);
+    int32_t strength = calculate_correct_creature_strength(creatng);
     return project_creature_attack_melee_damage(strength, 0, crconf->luck, cctrl->exp_level, creatng);
 }
 
@@ -3569,7 +3569,7 @@ long project_melee_damage(const struct Thing *creatng)
  * @param thing The creature which will be shooting.
  * @param shot_model Shot kind which will be created.
  */
-long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
+int32_t calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
 {
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -3581,13 +3581,13 @@ static void shot_init_lizard(const struct Thing *target, short angle_xy, unsigne
 {
     if (!thing_is_invalid(target))
     {
-        long range = 2200 - (dexterity * 19);
+        int32_t range = 2200 - (dexterity * 19);
         range = range < 1 ? 1 : range;
-        long rnd = (THING_RANDOM(shotng, 2 * range) - range);
+        int32_t rnd = (THING_RANDOM(shotng, 2 * range) - range);
         rnd = rnd < (range / 3) && rnd > 0 ? (THING_RANDOM(shotng, range / 2) + (range / 2)) + 200 : rnd + 200;
         rnd = rnd > -(range / 3) && rnd < 0 ? -(THING_RANDOM(shotng, range / 3) + (range / 3)) : rnd;
-        long x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
-        long y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
+        int32_t x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
+        int32_t y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
         int posint = y / game.conf.crtr_conf.sprite_size;
         shotng->shot_lizard.x = x;
         shotng->shot_lizard.posint = posint;
@@ -3611,7 +3611,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     short angle_xy;
     short angle_yz;
     short speed;
-    long damage;
+    int32_t damage;
     unsigned char dexterity, max_dexterity;
 
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
@@ -3718,7 +3718,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         hit_type = THit_TrapsAll;
     }
     struct Thing* shotng = NULL;
-    long target_idx = 0;
+    int32_t target_idx = 0;
     // Set target index for navigating shots
     if (!thing_is_invalid(target))
     {
@@ -3755,7 +3755,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         break;
     case ShFL_Hail:
     {
-        long i;
+        int32_t i;
         shot_set_start_pos(firing, shotst, &pos1);
         for (i = 0; i < shotst->effect_amount; i++)
         {
@@ -3893,12 +3893,12 @@ void init_creature_level(struct Thing *thing, CrtrExpLevel exp_level)
  * @param thing
  * @return
  */
-long get_creature_speed(const struct Thing *thing)
+int32_t get_creature_speed(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
         return 0;
-    long speed = cctrl->max_speed;
+    int32_t speed = cctrl->max_speed;
     if (speed < 0)
         speed = 0;
     if (speed > MAX_VELOCITY)
@@ -3958,8 +3958,8 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
     }
 
     struct Thing *i;
-    long angle_xy_to;
-    long angle_difference;
+    int32_t angle_xy_to;
+    int32_t angle_difference;
     int smallest_angle_diff = INT_MAX;
     static const int range = 20;
     static const int max_hit_angle = 39;
@@ -4093,12 +4093,12 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
     return target_idx;
 }
 
-long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
+int32_t creature_instance_has_reset(const struct Thing *thing, int32_t inst_idx)
 {
-    long ritime;
+    int32_t ritime;
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    long delta = (long)get_gameturn() - (long)cctrl->instance_use_turn[inst_idx];
+    int32_t delta = (int32_t)get_gameturn() - (int32_t)cctrl->instance_use_turn[inst_idx];
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         ritime = inst_inf->fp_reset_time + cctrl->inst_total_turns - cctrl->inst_action_turns;
@@ -4116,10 +4116,10 @@ long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
  * @param ritime Returns instance duration turns.
  * @param raitime Returns instance turn on which action function is executed.
  */
-void get_creature_instance_times(const struct Thing *thing, long inst_idx, int32_t *ritime, int32_t *raitime)
+void get_creature_instance_times(const struct Thing *thing, int32_t inst_idx, int32_t *ritime, int32_t *raitime)
 {
-    long itime;
-    long aitime;
+    int32_t itime;
+    int32_t aitime;
     struct InstanceInfo *inst_inf = creature_instance_info_get(inst_idx);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
@@ -4166,9 +4166,9 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, int32
     *raitime = aitime;
 }
 
-void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtng_idx, const struct Coord3d *pos)
+void set_creature_instance(struct Thing *thing, CrInstance inst_idx, int32_t targtng_idx, const struct Coord3d *pos)
 {
-    long i;
+    int32_t i;
     short no_loop = 0;
     if (inst_idx == 0)
         return;
@@ -4345,10 +4345,10 @@ void draw_creature_view(struct Thing *thing)
   // Draw swipe into buffer BEFORE lens effects (so overlay renders on top of swipe)
   draw_swipe_graphic();
   // Get the actual viewport dimensions (accounts for sidebar)
-  long view_width = player->engine_window_width / pixel_size;
-  long view_height = player->engine_window_height / pixel_size;
-  long view_x = player->engine_window_x / pixel_size;
-  long view_y = player->engine_window_y / pixel_size;
+  int32_t view_width = player->engine_window_width / pixel_size;
+  int32_t view_height = player->engine_window_height / pixel_size;
+  int32_t view_x = player->engine_window_x / pixel_size;
+  int32_t view_y = player->engine_window_y / pixel_size;
   // Restore original graphics settings
   lbDisplay.WScreen = wscr_cp;
   LbScreenLoadGraphicsWindow(&grwnd);
@@ -4357,7 +4357,7 @@ void draw_creature_view(struct Thing *thing)
   // Apply lens effect to the viewport area only (not including sidebar)
   // Pass full srcbuf so displacement map lookups work correctly
   // Calculate 2D viewport offset for destination buffer
-  long dst_offset = view_y * lbDisplay.GraphicsScreenWidth + view_x;
+  int32_t dst_offset = view_y * lbDisplay.GraphicsScreenWidth + view_x;
   draw_lens_effect(lbDisplay.WScreen + dst_offset, lbDisplay.GraphicsScreenWidth, 
       scrmem, render_width, view_width, view_height, view_x, game.applied_lens_type);
 }
@@ -4367,13 +4367,13 @@ struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord 
     MapCoordDelta nearest_distance = INT32_MAX;
     struct Thing *nearest_thing = INVALID_THING;
 
-    for (long k = 0; k < AROUND_TILES_COUNT; k++)
+    for (int32_t k = 0; k < AROUND_TILES_COUNT; k++)
     {
 
         MapSubtlCoord stl_x = coord_subtile(x) + around[k].delta_x;
         MapSubtlCoord stl_y = coord_subtile(y) + around[k].delta_y;
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-        unsigned long j = 0;
+        uint32_t j = 0;
         for (int i = get_mapwho_thing_index(mapblk); i != 0;)
         {
             struct Thing* thing = thing_get(i);
@@ -4498,7 +4498,7 @@ void recalculate_all_creature_digger_lists()
         recalculate_player_creature_digger_lists(plyr_idx);
     }
 
-    for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
+    for (int32_t crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
         struct CreatureModelConfig *crconf = creature_stats_get(crtr_model);
         if ((crconf->model_flags & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0)
@@ -4526,8 +4526,8 @@ void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
 
 
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
-    long i = slist->index;
-    long k = 0;
+    int32_t i = slist->index;
+    int32_t k = 0;
     while (i > 0)
     {
         struct Thing* creatng = thing_get(i);
@@ -4732,7 +4732,7 @@ TbBool thing_is_creature_spectator(const struct Thing* thing)
 }
 
 
-void anger_set_creature_anger_all_types(struct Thing *thing, long new_value)
+void anger_set_creature_anger_all_types(struct Thing *thing, int32_t new_value)
 {
     if (creature_can_get_angry(thing))
     {
@@ -4882,7 +4882,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->shot_shift_x = crconf->shot_shift_x;
     cctrl->shot_shift_y = crconf->shot_shift_y;
     cctrl->shot_shift_z = crconf->shot_shift_z;
-    long i = get_creature_anim(crtng, CGI_Stand);
+    int32_t i = get_creature_anim(crtng, CGI_Stand);
     set_thing_draw(crtng, i, crconf->walking_anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->exp_level = 1;
     cctrl->max_health = calculate_correct_creature_max_health(crtng);
@@ -5037,7 +5037,7 @@ struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber o
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct SpellConfig *spconf = get_spell_config(param->primary_number);
@@ -5078,7 +5078,7 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_dragging_specific_thing(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_dragging_specific_thing(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (param->primary_number > 0)
@@ -5100,7 +5100,7 @@ long player_list_creature_filter_dragging_specific_thing(const struct Thing *thi
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_most_experienced(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_most_experienced(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
@@ -5125,7 +5125,7 @@ long player_list_creature_filter_most_experienced(const struct Thing *thing, Max
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_most_experienced_and_pickable1(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_most_experienced_and_pickable1(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
@@ -5154,7 +5154,7 @@ long player_list_creature_filter_most_experienced_and_pickable1(const struct Thi
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_most_experienced_and_pickable2(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_most_experienced_and_pickable2(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
@@ -5183,7 +5183,7 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_least_experienced(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_least_experienced(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
@@ -5208,7 +5208,7 @@ long player_list_creature_filter_least_experienced(const struct Thing *thing, Ma
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_least_experienced_and_pickable1(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_least_experienced_and_pickable1(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
@@ -5237,7 +5237,7 @@ long player_list_creature_filter_least_experienced_and_pickable1(const struct Th
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_least_experienced_and_pickable2(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_least_experienced_and_pickable2(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
@@ -5266,7 +5266,7 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_of_gui_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_of_gui_job(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
@@ -5289,7 +5289,7 @@ long player_list_creature_filter_of_gui_job(const struct Thing *thing, MaxTngFil
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
@@ -5317,7 +5317,7 @@ long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *th
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
@@ -5382,7 +5382,7 @@ struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
+struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(int32_t crmodel, int32_t job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -5425,7 +5425,7 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
+struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(int32_t crmodel, int32_t job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -5476,7 +5476,7 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
+struct Thing *find_players_first_creature_of_breed_and_gui_job(int32_t crmodel, int32_t job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
     SYNCDBG(5,"Searching for model %d, GUI job %d",(int)crmodel,(int)job_idx);
@@ -5523,7 +5523,7 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
+struct Thing *find_players_next_creature_of_breed_and_gui_job(int32_t crmodel, int32_t job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
 {
     SYNCDBG(5,"Searching for model %d, GUI job %d",(int)crmodel,(int)job_idx);
     struct Thing* thing = INVALID_THING;
@@ -5531,7 +5531,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
     /* Check if we should start the search with a creature after last one, not from start of the list */
     if ((pick_flags & TPF_OrderedPick) == 0)
     {
-        long i;
+        int32_t i;
         if (crmodel != CREATURE_ANY)
         {
             i = dungeon->selected_creatures_of_model[crmodel];
@@ -5625,7 +5625,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
     return thing;
 }
 
-struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
+struct Thing *pick_up_creature_of_model_and_gui_job(int32_t crmodel, int32_t job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
 {
     struct Thing* thing = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, pick_flags);
     if (thing_is_invalid(thing))
@@ -5658,7 +5658,7 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, 
   * @param pick_flags
  * @note originally was go_to_next_creature_of_breed_and_job()
  */
-void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx, unsigned char pick_flags)
+void go_to_next_creature_of_model_and_gui_job(int32_t crmodel, int32_t job_idx, unsigned char pick_flags)
 {
     struct Thing* creatng = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, my_player_number, pick_flags);
     if (!thing_is_invalid(creatng))
@@ -5688,7 +5688,7 @@ TbBool creature_is_doing_job_in_room_role(const struct Thing *creatng, RoomRole 
     return false;
 }
 
-long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+int32_t player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, int32_t maximizer)
 {
     SYNCDBG(19,"Starting for %s index %d owner %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     struct Computer2* comp = (struct Computer2*)(param->primary_pointer);
@@ -6205,7 +6205,7 @@ TbBool add_creature_score_to_owner(struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     if (dungeon_invalid(dungeon))
         return false;
-    long score = get_creature_thing_score(thing);
+    int32_t score = get_creature_thing_score(thing);
     if (dungeon->score < INT32_MAX-score)
         dungeon->score += score;
     else
@@ -6220,7 +6220,7 @@ TbBool remove_creature_score_from_owner(struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     if (dungeon_invalid(dungeon))
         return false;
-    long score = get_creature_thing_score(thing);
+    int32_t score = get_creature_thing_score(thing);
     if (dungeon->score >= score)
         dungeon->score -= score;
     else
@@ -6231,10 +6231,10 @@ TbBool remove_creature_score_from_owner(struct Thing *thing)
 void init_creature_scores(void)
 {
     SYNCDBG(8, "Starting");
-    long i;
-    long score;
+    int32_t i;
+    int32_t score;
     // compute maximum score
-    long max_score = 0;
+    int32_t max_score = 0;
     for (i=0; i < game.conf.crtr_conf.model_count; i++)
     {
         score = compute_creature_kind_score(i,CREATURE_MAX_LEVEL-1);
@@ -6270,7 +6270,7 @@ void init_creature_scores(void)
     }
 }
 
-long get_creature_thing_score(const struct Thing *thing)
+int32_t get_creature_thing_score(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     ThingModel crmodel = thing->model;
@@ -6311,7 +6311,7 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     return;
 }
 
-long update_creature_levels(struct Thing *thing)
+int32_t update_creature_levels(struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (!cctrl->exp_level_up)
@@ -6509,7 +6509,7 @@ TngUpdateRet update_creature(struct Thing *thing)
             pvpos.z.val = tngpos->z.val;
 
             move_thing_in_map(tngp, &pvpos);
-            tngp->move_angle_xy = thing->move_angle_xy; //corpse gets rotated along with creature
+            tngp->move_angle_xy = thing->move_angle_xy; //corpse gets rotated aint32_t with creature
         }
     }
     if (update_creature_levels(thing) == -1)
@@ -6574,9 +6574,9 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, int can_see_slabs)
 {
     MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
-    long n = 0;
-    long i = game.nodungeon_creatr_list_start;
-    unsigned long k = 0;
+    int32_t n = 0;
+    int32_t i = game.nodungeon_creatr_list_start;
+    uint32_t k = 0;
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -6644,7 +6644,7 @@ TbBool change_creature_owner_if_near_dungeon_heart(struct Thing *creatng)
 TbBool creature_stats_debug_dump(void)
 {
     TbBool result = false;
-    unsigned long k = 0;
+    uint32_t k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
     int i = slist->index;
     while (i != 0)
@@ -6657,7 +6657,7 @@ TbBool creature_stats_debug_dump(void)
         }
         i = thing->next_of_class;
         // Per-creature block starts
-        long crstate = get_creature_state_besides_move(thing);
+        int32_t crstate = get_creature_state_besides_move(thing);
         if (!is_hero_thing(thing)) {
             switch (crstate)
             {
@@ -6808,7 +6808,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     return thing;
 }
 
-struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, CrtrExpLevel exp_level, char spawn_type)
+struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, int32_t carried_gold, CrtrExpLevel exp_level, char spawn_type)
 {
     struct Thing* creatng = script_create_creature_at_location(plyr_idx, crmodel, location, spawn_type);
     if (thing_is_invalid(creatng))
@@ -6818,9 +6818,9 @@ struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmod
     return creatng;
 }
 
-void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long copies_num, long carried_gold, CrtrExpLevel exp_level, char spawn_type)
+void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, int32_t copies_num, int32_t carried_gold, CrtrExpLevel exp_level, char spawn_type)
 {
-    for (long i = 0; i < copies_num; i++)
+    for (int32_t i = 0; i < copies_num; i++)
     {
         script_create_new_creature(plyr_idx, crmodel, location, carried_gold, exp_level, spawn_type);
     }
@@ -6869,7 +6869,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
  */
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng, PlayerNumber plyr_idx)
 {
-    long volume = FULL_LOUDNESS;
+    int32_t volume = FULL_LOUDNESS;
     if (droptng->class_id == TCls_Creature)
     {
         stop_creature_being_dragged_by(droptng, creatng);
@@ -6917,7 +6917,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
             }
             case TCls_Creature:
             {
-                long weight = compute_creature_weight(droptng);
+                int32_t weight = compute_creature_weight(droptng);
                 if (weight >= 0 && weight <= 99)
                 {
                     pitch = 240;
@@ -7174,7 +7174,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
     }
 }
 
-void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout, PlayerNumber plyr_idx)
+void display_controlled_pick_up_thing_name(struct Thing *picktng, uint32_t timeout, PlayerNumber plyr_idx)
 {
     char id;
     char str[255] = "";
@@ -7237,11 +7237,11 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         if (thing_is_creature(creatng))
         {
             struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-            long gold_remaining = (crconf->gold_hold - creatng->creature.gold_carried);
-            long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
+            int32_t gold_remaining = (crconf->gold_hold - creatng->creature.gold_carried);
+            int32_t value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
             if (value < picktng->creature.gold_carried)
             {
-                snprintf(str, sizeof(str), "%d (%ld)", picktng->creature.gold_carried, value);
+                snprintf(str, sizeof(str), "%d (%d)", picktng->creature.gold_carried, value);
             }
             else
             {
@@ -7283,8 +7283,8 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
     struct Thing *result = NULL;
     MapCoordDelta old_distance = INT32_MAX;
     MapCoordDelta new_distance;
-    long dx = distance_with_angle_to_coord_x(shotst->speed, creatng->move_angle_xy);
-    long dy = distance_with_angle_to_coord_y(shotst->speed, creatng->move_angle_xy);
+    int32_t dx = distance_with_angle_to_coord_x(shotst->speed, creatng->move_angle_xy);
+    int32_t dy = distance_with_angle_to_coord_y(shotst->speed, creatng->move_angle_xy);
     do
     {
         struct Map *blk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
@@ -7385,8 +7385,8 @@ struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng)
     struct Coord3d pos;
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
-    long dx = distance_with_angle_to_coord_x(shotst->speed, creatng->move_angle_xy);
-    long dy = distance_with_angle_to_coord_y(shotst->speed, creatng->move_angle_xy);
+    int32_t dx = distance_with_angle_to_coord_x(shotst->speed, creatng->move_angle_xy);
+    int32_t dy = distance_with_angle_to_coord_y(shotst->speed, creatng->move_angle_xy);
     do
     {
         struct Thing* traptng = get_trap_for_position(pos.x.stl.num, pos.y.stl.num);
@@ -7452,12 +7452,12 @@ PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng)
     return creatng->owner;
 }
 
-static int filter_criteria_type(long desc_type)
+static int filter_criteria_type(int32_t desc_type)
 {
     return desc_type & 0x0F;
 }
 
-static long filter_criteria_loc(long desc_type)
+static int32_t filter_criteria_loc(int32_t desc_type)
 {
     return desc_type >> 4;
 }
@@ -7626,7 +7626,7 @@ TbBool creature_can_be_transferred(const struct Thing* thing)
 }
 
 /* Returns a random creature kind with model flags as argument. */
-ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags)
+ThingModel get_random_creature_kind_with_model_flags(uint32_t model_flags)
 {
     // Array to store the IDs of creatures kinds with model flags.
     ThingModel creature_kind_with_model_flags_array[CREATURE_TYPES_MAX];
@@ -7839,7 +7839,7 @@ void script_move_creature(struct Thing* thing, TbMapLocation location, ThingMode
     check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
-void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long select_id, TbMapLocation location, ThingModel effect_id, long count)
+void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, int32_t select_id, TbMapLocation location, ThingModel effect_id, int32_t count)
 {
     for (int i = 0; i < count; i++)
     {
@@ -7854,13 +7854,13 @@ void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmode
 /**
  * Modifies player's creatures' anger.
  * @param plyr_idx target player
- * @param anger anger value. Use double AnnoyLevel (from creature's config file) to fully piss creature. More for longer calm time
+ * @param anger anger value. Use double AnnoyLevel (from creature's config file) to fully piss creature. More for int32_ter calm time
  */
-TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmodel, long operation, long anger)
+TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmodel, int32_t operation, int32_t anger)
 {
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    unsigned long k = 0;
+    uint32_t k = 0;
     int i = dungeon->creatr_list_start;
     if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,crmodel))
     {

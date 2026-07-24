@@ -52,9 +52,9 @@ struct GameSettings {
     unsigned char first_person_move_invert;
     unsigned char first_person_move_sensitivity;
     unsigned int minimap_zoom;
-    unsigned long isometric_view_zoom_level;
-    unsigned long frontview_zoom_level;
-    long mentor_volume;
+    uint32_t isometric_view_zoom_level;
+    uint32_t frontview_zoom_level;
+    int32_t mentor_volume;
     int isometric_tilt;
     TbBool highlight_mode;
     };

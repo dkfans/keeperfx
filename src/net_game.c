@@ -98,7 +98,7 @@ short setup_network_service(enum FrontendNetService service)
   return 1;
 }
 
-unsigned long get_host_player_id(void) {
+uint32_t get_host_player_id(void) {
     return 0;
 }
 
@@ -216,7 +216,7 @@ static uint8_t calculate_initial_input_lag(void)
     if (input_lag_turns > MAXIMUM_INPUT_LAG_TURNS) {
         input_lag_turns = MAXIMUM_INPUT_LAG_TURNS;
     }
-    JUSTLOG("Initial input lag: (%llu ms * %d turns/s + 999) / 1000 = %llu turns, capped to %llu", (unsigned long long)ping, turns_per_second, (unsigned long long)uncapped_input_lag_turns, (unsigned long long)input_lag_turns);
+    JUSTLOG("Initial input lag: (%lu ms * %d turns/s + 999) / 1000 = %lu turns, capped to %lu", (uint64_t)ping, turns_per_second, (uint64_t)uncapped_input_lag_turns, (uint64_t)input_lag_turns);
     return input_lag_turns;
 }
 
@@ -571,7 +571,7 @@ void process_disconnected_network_players(void)
     }
 }
 
-long network_session_join(void)
+int32_t network_session_join(void)
 {
     int32_t plyr_num;
     reset_attempting_to_join_cancel();

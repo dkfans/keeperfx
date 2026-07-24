@@ -42,19 +42,19 @@ static void light_stat_light_map_clear_area(MapSubtlCoord x1, MapSubtlCoord y1, 
 
 /******************************************************************************/
 
-static unsigned long light_bitmask[32];
-static long stat_light_needs_updating;
-static long light_total_dynamic_lights;
-static long light_total_stat_lights;
-static long light_rendered_dynamic_lights;
-static long light_rendered_optimised_dynamic_lights;
-static long light_updated_stat_lights;
-static long light_out_of_date_stat_lights;
+static uint32_t light_bitmask[32];
+static int32_t stat_light_needs_updating;
+static int32_t light_total_dynamic_lights;
+static int32_t light_total_stat_lights;
+static int32_t light_rendered_dynamic_lights;
+static int32_t light_rendered_optimised_dynamic_lights;
+static int32_t light_updated_stat_lights;
+static int32_t light_out_of_date_stat_lights;
 /******************************************************************************/
 
 struct Light *light_allocate_light(void)
 {
-    for (long i = 1; i < LIGHTS_COUNT; i++)
+    for (int32_t i = 1; i < LIGHTS_COUNT; i++)
     {
         struct Light* lgt = &game.lish.lights[i];
         if ((lgt->flags & LgtF_Allocated) == 0)
@@ -97,7 +97,7 @@ TbBool light_is_invalid(const struct Light *lgt)
 
 struct ShadowCache *light_allocate_shadow_cache(void)
 {
-    for (long i = 1; i < SHADOW_CACHE_COUNT; i++)
+    for (int32_t i = 1; i < SHADOW_CACHE_COUNT; i++)
     {
         struct ShadowCache* shdc = &game.lish.shadow_cache[i];
         if ((shdc->flags & ShCF_Allocated) == 0)
@@ -118,11 +118,11 @@ TbBool light_shadow_cache_invalid(struct ShadowCache *shdc)
     return false;
 }
 
-long light_shadow_cache_index(struct ShadowCache *shdc)
+int32_t light_shadow_cache_index(struct ShadowCache *shdc)
 {
     if (light_shadow_cache_invalid(shdc))
         return 0;
-    long i = ((char*)shdc - (char*)&game.lish.shadow_cache[0]);
+    int32_t i = ((char*)shdc - (char*)&game.lish.shadow_cache[0]);
     return i / sizeof(struct ShadowCache);
 }
 
@@ -145,7 +145,7 @@ TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
   return true;
 }
 
-long light_create_light(struct InitLight *ilght)
+int32_t light_create_light(struct InitLight *ilght)
 {
     struct Light* lgt = light_allocate_light();
     if (light_is_invalid(lgt)) {
@@ -225,7 +225,7 @@ TbBool light_create_light_adv(VALUE *init_data)
 
     /*
      * TODO: not implemented yet
-    unsigned long k = 2 * ilght->flags;
+    uint32_t k = 2 * ilght->flags;
     lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
 
     lgt->attached_slb = ilght->attached_slb;
@@ -260,10 +260,10 @@ void light_import_system_state(const struct LightSystemState *lightst)
 
 TbBool lights_stats_debug_dump(void)
 {
-    long lights[LIGHTS_COUNT];
-    long lgh_things[THING_CLASSES_COUNT];
-    long shadowcs[SHADOW_CACHE_COUNT];
-    long i;
+    int32_t lights[LIGHTS_COUNT];
+    int32_t lgh_things[THING_CLASSES_COUNT];
+    int32_t shadowcs[SHADOW_CACHE_COUNT];
+    int32_t i;
     for (i=0; i < SHADOW_CACHE_COUNT; i++)
     {
         struct ShadowCache* shdc = &game.lish.shadow_cache[i];
@@ -272,8 +272,8 @@ TbBool lights_stats_debug_dump(void)
         else
             shadowcs[i] = 0;
     }
-    long lgh_sttc = 0;
-    long lgh_dynm = 0;
+    int32_t lgh_sttc = 0;
+    int32_t lgh_dynm = 0;
     for (i=0; i < LIGHTS_COUNT; i++)
     {
         struct Light* lgt = &game.lish.lights[i];
@@ -310,7 +310,7 @@ TbBool lights_stats_debug_dump(void)
         {
             if ((thing->light_id > 0) && (thing->light_id < LIGHTS_COUNT))
             {
-                long n = 1000 + (long)thing->class_id;
+                int32_t n = 1000 + (int32_t)thing->class_id;
                 if (lights[thing->light_id] == -1) {
                     lights[thing->light_id] = n;
                 } else
@@ -323,8 +323,8 @@ TbBool lights_stats_debug_dump(void)
 
         }
     }
-    long lgh_used = 0;
-    long lgh_free = 0;
+    int32_t lgh_used = 0;
+    int32_t lgh_free = 0;
     for (i=0; i < THING_CLASSES_COUNT; i++)
         lgh_things[i] = 0;
     for (i=0; i < LIGHTS_COUNT; i++)
@@ -339,9 +339,9 @@ TbBool lights_stats_debug_dump(void)
             lgh_free++;
         }
     }
-    long shdc_free = 0;
-    long shdc_used = 0;
-    long shdc_linked = 0;
+    int32_t shdc_free = 0;
+    int32_t shdc_used = 0;
+    int32_t shdc_linked = 0;
     for (i=0; i < SHADOW_CACHE_COUNT; i++)
     {
         if (shadowcs[i] != 0)
@@ -353,24 +353,24 @@ TbBool lights_stats_debug_dump(void)
             shdc_free++;
         }
     }
-    SYNCLOG("Lights: %ld free, %ld used; %ld static, %ld dynamic; for things:%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld",lgh_free,lgh_used,lgh_sttc,lgh_dynm,lgh_things[1],lgh_things[2],lgh_things[3],lgh_things[4],lgh_things[5],lgh_things[6],lgh_things[7],lgh_things[8],lgh_things[9],lgh_things[10],lgh_things[11],lgh_things[12],lgh_things[13]);
+    SYNCLOG("Lights: %d free, %d used; %d static, %d dynamic; for things:%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",lgh_free,lgh_used,lgh_sttc,lgh_dynm,lgh_things[1],lgh_things[2],lgh_things[3],lgh_things[4],lgh_things[5],lgh_things[6],lgh_things[7],lgh_things[8],lgh_things[9],lgh_things[10],lgh_things[11],lgh_things[12],lgh_things[13]);
     if ((shdc_used != shdc_linked) || (shdc_used != lgh_dynm))
     {
-        WARNLOG("Amount of shadow cache mismatches: %ld free, %ld used, %ld linked to lights, %ld dyn. lights.",
+        WARNLOG("Amount of shadow cache mismatches: %d free, %d used, %d linked to lights, %d dyn. lights.",
           shdc_free,shdc_used,shdc_linked,light_total_dynamic_lights);
     }
     if (lgh_sttc != light_total_stat_lights)
     {
-        WARNLOG("Wrong global lights counter: %ld static lights and counter says %ld.",lgh_sttc,light_total_stat_lights);
+        WARNLOG("Wrong global lights counter: %d static lights and counter says %d.",lgh_sttc,light_total_stat_lights);
     }
     if (lgh_dynm != light_total_dynamic_lights)
     {
-        WARNLOG("Wrong global lights counter: %ld dynamic lights and counter says %ld.",lgh_dynm,light_total_dynamic_lights);
+        WARNLOG("Wrong global lights counter: %d dynamic lights and counter says %d.",lgh_dynm,light_total_dynamic_lights);
     }
     return false;
 }
 
-void light_set_light_never_cache(long lgt_id)
+void light_set_light_never_cache(int32_t lgt_id)
 {
     if (lgt_id <= 0 || lgt_id >= LIGHTS_COUNT)
     {
@@ -386,7 +386,7 @@ void light_set_light_never_cache(long lgt_id)
     lgt->flags |= LgtF_NeverCached;
 }
 
-long light_is_light_allocated(long lgt_id)
+int32_t light_is_light_allocated(int32_t lgt_id)
 {
     if (lgt_id <= 0 || lgt_id >= LIGHTS_COUNT)
         return false;
@@ -396,13 +396,13 @@ long light_is_light_allocated(long lgt_id)
     return true;
 }
 
-void light_reset_interpolation(long lgt_id)
+void light_reset_interpolation(int32_t lgt_id)
 {
     struct Light *lgt = &game.lish.lights[lgt_id];
     lgt->reset_interpolation = true;
 }
 
-void light_set_light_position(long lgt_id, struct Coord3d *pos)
+void light_set_light_position(int32_t lgt_id, struct Coord3d *pos)
 {
   struct Light *lgt = &game.lish.lights[lgt_id];
 
@@ -418,8 +418,8 @@ void light_set_light_position(long lgt_id, struct Coord3d *pos)
     {
       stat_light_needs_updating = 1;
       unsigned char range = lgt->range;
-      long end_y = lgt->mappos.y.stl.num + range;
-      long end_x = lgt->mappos.x.stl.num + range;
+      int32_t end_y = lgt->mappos.y.stl.num + range;
+      int32_t end_x = lgt->mappos.x.stl.num + range;
       if ( end_y > game.map_subtiles_y )
       {
         end_y = game.map_subtiles_y;
@@ -428,12 +428,12 @@ void light_set_light_position(long lgt_id, struct Coord3d *pos)
       {
         end_x = game.map_subtiles_x;
       }
-      long beg_y = lgt->mappos.y.stl.num - range;
+      int32_t beg_y = lgt->mappos.y.stl.num - range;
       if ( beg_y < 0 )
       {
         beg_y = 0;
       }
-      long beg_x = lgt->mappos.x.stl.num - range;
+      int32_t beg_x = lgt->mappos.x.stl.num - range;
       if ( beg_x < 0 )
       {
         beg_x = 0;
@@ -451,7 +451,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
 {
   if ( list->count == 0 )
   {
-      ERRORLOG("List %lu has no structures", list->index);
+      ERRORLOG("List %u has no structures", list->index);
       return;
   }
   TbBool Removed = false;
@@ -497,7 +497,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
   }
 }
 
-void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
+void light_signal_stat_light_update_in_area(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
   int i = 0;
   struct Light *lgt = &game.lish.lights[1];
@@ -526,7 +526,7 @@ void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
     light_stat_light_map_clear_area(x1, y1, x2, y2);
 }
 
-void light_signal_update_in_area(long sx, long sy, long ex, long ey)
+void light_signal_update_in_area(int32_t sx, int32_t sy, int32_t ex, int32_t ey)
 {
   struct Light *lgt = &game.lish.lights[1];
   do
@@ -550,17 +550,17 @@ void light_signal_update_in_area(long sx, long sy, long ex, long ey)
 
 void light_signal_stat_light_update_in_own_radius(struct Light *lgt)
 {
-    long radius = lgt->range;
-    long end_y = (long)lgt->mappos.y.stl.num + radius;
+    int32_t radius = lgt->range;
+    int32_t end_y = (int32_t)lgt->mappos.y.stl.num + radius;
     if (end_y >= game.map_subtiles_y)
         end_y = game.map_subtiles_y;
-    long end_x = (long)lgt->mappos.x.stl.num + radius;
+    int32_t end_x = (int32_t)lgt->mappos.x.stl.num + radius;
     if (end_x >= game.map_subtiles_x)
         end_x = game.map_subtiles_x;
-    long start_y = (long)lgt->mappos.y.stl.num - radius;
+    int32_t start_y = (int32_t)lgt->mappos.y.stl.num - radius;
     if (start_y <= 0)
         start_y = 0;
-    long start_x = (long)lgt->mappos.x.stl.num - radius;
+    int32_t start_x = (int32_t)lgt->mappos.x.stl.num - radius;
     if (start_x <= 0)
       start_x = 0;
     if ((end_x <= start_x) || (end_y <= start_y))
@@ -568,7 +568,7 @@ void light_signal_stat_light_update_in_own_radius(struct Light *lgt)
     light_signal_stat_light_update_in_area(start_x, start_y, end_x, end_y);
 }
 
-void light_turn_light_off(long idx)
+void light_turn_light_off(int32_t idx)
 {
     if ((idx <= 0) || (idx >= LIGHTS_COUNT)) {
         ERRORLOG("Attempt to turn off light %d",(int)idx);
@@ -592,7 +592,7 @@ void light_turn_light_off(long idx)
     }
 }
 
-void light_turn_light_on(long idx)
+void light_turn_light_on(int32_t idx)
 {
     if ((idx <= 0) || (idx >= LIGHTS_COUNT)) {
         ERRORLOG("Attempt to turn on light %d",(int)idx);
@@ -620,7 +620,7 @@ void light_turn_light_on(long idx)
     }
 }
 
-unsigned char light_get_light_intensity(long idx)
+unsigned char light_get_light_intensity(int32_t idx)
 {
   if ( idx )
   {
@@ -641,10 +641,10 @@ unsigned char light_get_light_intensity(long idx)
   }
 }
 
-void light_set_light_intensity(long idx, unsigned char intensity)
+void light_set_light_intensity(int32_t idx, unsigned char intensity)
 {
   struct Light *lgt = &game.lish.lights[idx];
-  long x1,x2,y1,y2;
+  int32_t x1,x2,y1,y2;
   if ( !light_is_invalid(lgt) )
   {
     if ((lgt->flags & LgtF_Allocated) != 0)
@@ -688,17 +688,17 @@ void clear_stat_light_map(void)
 {
     game.lish.global_ambient_light = 32;
     game.lish.light_enabled = 0;
-    for (unsigned long y = 0; y < (game.map_subtiles_y + 1); y++)
+    for (uint32_t y = 0; y < (game.map_subtiles_y + 1); y++)
     {
-        for (unsigned long x = 0; x < (game.map_subtiles_x + 1); x++)
+        for (uint32_t x = 0; x < (game.map_subtiles_x + 1); x++)
         {
-            unsigned long i = get_subtile_number(x, y);
+            uint32_t i = get_subtile_number(x, y);
             game.lish.stat_light_map[i] = 0;
         }
     }
 }
 
-void light_delete_light(long idx)
+void light_delete_light(int32_t idx)
 {
     if ((idx <= 0) || (idx >= LIGHTS_COUNT)) {
         ERRORLOG("Attempt to delete light %d",(int)idx);
@@ -1529,7 +1529,7 @@ void light_set_lights_on(char state)
     light_stat_refresh();
 }
 
-static long calculate_shadow_angle(
+static int32_t calculate_shadow_angle(
         unsigned int pos_x,
         unsigned int pos_y,
         int quadrant,
@@ -1540,9 +1540,9 @@ static long calculate_shadow_angle(
 {
     MapSubtlCoord x = coord_subtile(pos_x);
     MapSubtlCoord y = coord_subtile(pos_y);
-    long shadow_end;
-    long result;
-    long shadow_start = 0;
+    int32_t shadow_end;
+    int32_t result;
+    int32_t shadow_start = 0;
 
   if ( x == stl_x )
   {
@@ -1640,7 +1640,7 @@ static char light_render_light_dynamic_uncached(struct Light *lgt, int radius, i
                 if (!subtile_coords_invalid(stl_x, stl_y))
                 {
                     int quadrant;
-                    long shadow_angle_limit_primary_index = LbArcTanAngle((stl_x << 8) - lgt->mappos.x.val, (stl_y << 8) - lgt->mappos.y.val) & ANGLE_MASK;
+                    int32_t shadow_angle_limit_primary_index = LbArcTanAngle((stl_x << 8) - lgt->mappos.x.val, (stl_y << 8) - lgt->mappos.y.val) & ANGLE_MASK;
                     if ( stl_x < lgt->mappos.x.stl.num )
                     {
                         if (stl_y < lgt->mappos.y.stl.num)
@@ -1908,7 +1908,7 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
                 }
                 MapCoord coord_x = subtile_coord(stl_x, 0);
                 MapCoord coord_y = subtile_coord(stl_y, 0);
-                long angle = LbArcTanAngle(coord_x - lgt->mappos.x.val, coord_y - lgt->mappos.y.val) & ANGLE_MASK;
+                int32_t angle = LbArcTanAngle(coord_x - lgt->mappos.x.val, coord_y - lgt->mappos.y.val) & ANGLE_MASK;
                 unsigned char shadow_limit = lish->shadow_limits[angle];
                 int32_t shadow_start, shadow_end;
                 col = get_column_at(stl_x, stl_y);
@@ -2319,7 +2319,7 @@ void update_light_render_area(void)
     light_render_area(startx, starty, endx, endy);
 }
 
-void light_init_dungeon_heart(long lgt_id, long min_radius, long min_intensity)
+void light_init_dungeon_heart(int32_t lgt_id, int32_t min_radius, int32_t min_intensity)
 {
   struct Light *lgt;
   if ( lgt_id )

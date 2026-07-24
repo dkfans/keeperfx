@@ -63,8 +63,8 @@ TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
     {
         return false;
     }
-    unsigned long k = 0;
-    unsigned long i = room->slabs_list;
+    uint32_t k = 0;
+    uint32_t i = room->slabs_list;
     while (i > 0)
     {
         slb = get_slabmap_direct(i);
@@ -171,7 +171,7 @@ short creature_drop_body_in_prison(struct Thing *thing)
 
 struct Thing *find_prisoner_to_freeze(struct Thing *creatng, SpellKind spell_idx)
 {
-    long i;
+    int32_t i;
     TRACE_THING(creatng);
     struct Room* room = INVALID_ROOM;
     if (!is_neutral_thing(creatng)) {
@@ -183,8 +183,8 @@ struct Thing *find_prisoner_to_freeze(struct Thing *creatng, SpellKind spell_idx
         i = 0;
     }
     struct Thing* out_creatng = INVALID_THING;
-    long out_delay = INT32_MAX;
-    unsigned long k = 0;
+    int32_t out_delay = INT32_MAX;
+    uint32_t k = 0;
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -192,12 +192,12 @@ struct Thing *find_prisoner_to_freeze(struct Thing *creatng, SpellKind spell_idx
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (!creature_control_exists(cctrl))
         {
-            ERRORLOG("Jump to invalid creature %ld detected",i);
+            ERRORLOG("Jump to invalid creature %d detected",i);
             break;
         }
         i = cctrl->next_in_room;
         // Per creature code
-        long dist = get_chessboard_distance(&creatng->mappos, &thing->mappos);
+        int32_t dist = get_chessboard_distance(&creatng->mappos, &thing->mappos);
         if (out_delay < 0)
         {
             // If we have a victim which isn't frozen, accept only other unfrozen creatures
@@ -209,14 +209,14 @@ struct Thing *find_prisoner_to_freeze(struct Thing *creatng, SpellKind spell_idx
         if (creature_under_spell_effect(thing, CSAfF_Freeze))
         {
             // If the victim is frozen, select one which will unfreeze sooner
-            long durt = get_spell_duration_left_on_thing(thing, spell_idx);
+            int32_t durt = get_spell_duration_left_on_thing(thing, spell_idx);
             if ((durt > 0) && (out_delay > durt)) {
                 out_creatng = thing;
                 out_delay = durt;
             }
         } else
         {
-            // Found first unfrozen victim - change out_delay to mark thet we no longer want frozen ones
+            // Found first unfrozen victim - change out_delay to mark thet we no int32_ter want frozen ones
             out_creatng = thing;
             out_delay = -1;
         }
@@ -257,7 +257,7 @@ short creature_freeze_prisoners(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    long dist = get_combat_distance(creatng, victng);
+    int32_t dist = get_combat_distance(creatng, victng);
     if (dist < 156) {
         creature_retreat_from_combat(creatng, victng, CrSt_CreatureFreezePrisoners, 0);
     } else
@@ -412,7 +412,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
 
     if ( thing_is_invalid(foodtng) )
     {
-        long offsetted_gameturn = get_gameturn() + creatng->index;
+        int32_t offsetted_gameturn = get_gameturn() + creatng->index;
        if ((offsetted_gameturn % 64 == 0)
         && thing_is_invalid(get_food_at_subtile_available_to_eat_and_owned_by(cctrl->moveto_pos.x.stl.num,cctrl->moveto_pos.y.stl.num, -1)))
         {
@@ -485,7 +485,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room))
         return CrCkRet_Continue;
-    // Breaking from jail is only possible once per some amount of turns, and only if creature sits in jail for long enough.
+    // Breaking from jail is only possible once per some amount of turns, and only if creature sits in jail for int32_t enough.
     if (((get_gameturn() % game.conf.rules[room->owner].rooms.time_between_prison_break) == 0) &&
         (get_gameturn() > cctrl->imprison.start_gameturn + game.conf.rules[room->owner].rooms.time_in_prison_without_break))
     {

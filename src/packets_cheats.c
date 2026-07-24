@@ -850,7 +850,7 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
         }
         case PckA_CheatGiveDoorTrap:
         {
-            long model;
+            int32_t model;
             for (model = 1; model < game.conf.trapdoor_conf.door_types_count; model++)
             {
                 if (is_door_buildable(plyr_idx, model))
@@ -1020,7 +1020,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                     {
                         play_non_3d_sample(snd_spell_wall);
                     }
-                    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+                    for (int32_t n = 0; n < SMALL_AROUND_LENGTH; n++)
                     {
                         pos.x.stl.pos = 128;
                         pos.y.stl.pos = 128;

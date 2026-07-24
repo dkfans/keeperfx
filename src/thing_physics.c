@@ -95,7 +95,7 @@ TbBool thing_above_flight_altitude(const struct Thing* thing)
     return (thing->mappos.z.val > floor_height + 19 * NORMAL_FLYING_ALTITUDE / 17);
 }
 
-void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
+void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, int32_t blocked_flags)
 {
   MapCoord x_thing;
   MapCoord sizexy;
@@ -217,7 +217,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
   }
 }
 
-void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
+void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, int32_t blocked_flags)
 {
   MapCoordDelta x = thing->veloc_base.x.val;
   MapCoordDelta y = thing->veloc_base.y.val;
@@ -285,7 +285,7 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
   }
 }
 
-void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
+void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, int32_t blocked_flags)
 {
     switch (blocked_flags)
     {
@@ -329,7 +329,7 @@ TbBool positions_equivalent(const struct Coord3d *pos_a, const struct Coord3d *p
     return true;
 }
 
-void creature_set_speed(struct Thing *thing, long speed)
+void creature_set_speed(struct Thing *thing, int32_t speed)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (speed < -MAX_VELOCITY)
@@ -394,8 +394,8 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
     modpos.z.val = pos->z.val;
     if (thing_in_wall_at(thing, &modpos))
     {
-        long curr_height = thing->mappos.z.val;
-        long norm_height = get_floor_height_under_thing_at(thing, &modpos);
+        int32_t curr_height = thing->mappos.z.val;
+        int32_t norm_height = get_floor_height_under_thing_at(thing, &modpos);
         if (norm_height < curr_height)
         {
             return true;
@@ -416,8 +416,8 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
     realpos.x.val = thing->mappos.x.val;
     realpos.y.val = thing->mappos.y.val;
     realpos.z.val = thing->mappos.z.val;
-    int delta_x = pos->x.val - (long)realpos.x.val;
-    int delta_y = pos->y.val - (long)realpos.y.val;
+    int delta_x = pos->x.val - (int32_t)realpos.x.val;
+    int delta_y = pos->y.val - (int32_t)realpos.y.val;
     // Backup original position - we will have to restore it before each return
     struct Coord3d origpos = thing->mappos;
 
@@ -563,7 +563,7 @@ TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
     return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, flags);
 }
 
-long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
+int32_t get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
 {
     SYNCDBG(18,"Starting");
     int i;
@@ -578,7 +578,7 @@ long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
 
 }
 
-long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
+int32_t get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, uint32_t radius)
 {
     MapCoord pos_x_beg = max((MapCoord)pos->x.val - radius, 0);
     MapCoord pos_y_beg = max((MapCoord)pos->y.val - radius, 0);
@@ -619,7 +619,7 @@ TbBool creature_can_pass_through_wall_at(const struct Thing *creatng, const stru
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     if (crconf->can_go_locked_doors)
     {
-        long i;
+        int32_t i;
         if (thing_is_creature(creatng)) {
             i = thing_nav_sizexy(creatng);
         } else {
@@ -651,9 +651,9 @@ TbBool creature_can_pass_through_wall_at(const struct Thing *creatng, const stru
     return false;
 }
 
-long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
+int32_t thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-    long i;
+    int32_t i;
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
@@ -679,7 +679,7 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
     return 0;
 }
 
-long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
+int32_t thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, uint32_t radius)
 {
     MapCoord z_beg = pos->z.val;
     MapCoord z_end = z_beg + thing->clipbox_size_z;
@@ -711,9 +711,9 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
     return false;
 }
 
-long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos)
+int32_t get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-    long i;
+    int32_t i;
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
@@ -741,9 +741,9 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
     return subtile_coord(floor_height,0);
 }
 
-long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos)
+int32_t get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-    long i;
+    int32_t i;
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
@@ -776,7 +776,7 @@ long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct C
 void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor)
 {
-    long i;
+    int32_t i;
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
@@ -902,7 +902,7 @@ TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing)
 unsigned short push_thingz_against_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
   unsigned short clipbox_size = thing->clipbox_size_z;
-  long height = get_ceiling_height_above_thing_at(thing, pos);
+  int32_t height = get_ceiling_height_above_thing_at(thing, pos);
   short z_thing = (short)thing->mappos.z.val;
   short z_pos = (short)pos->z.val;
   if ( (height - 1) <= (z_pos + clipbox_size) )

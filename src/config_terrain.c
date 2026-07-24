@@ -413,7 +413,7 @@ static int64_t value_synergy(const struct NamedField* named_field,const char* va
     }
 }
 
-TbBool parse_block_health_block(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_block_health_block(char *buf, int32_t len, const char *config_textname, unsigned short flags)
 {
     int32_t pos = 0;
     int k = 0;
@@ -480,7 +480,7 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
 static TbBool load_terrain_config_file(const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -511,7 +511,7 @@ static TbBool load_terrain_config_file(const char *fname, unsigned short flags)
  */
 TbBool make_all_rooms_free(void)
 {
-    for (long rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
+    for (int32_t rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
         roomst->cost = 0;
@@ -529,7 +529,7 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    for (long rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
+    for (int32_t rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         dungeon->room_resrchable[rkind] = 1;
     }
@@ -539,7 +539,7 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
 /**
  * Sets room availability state.
  */
-TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, long avail)
+TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, int32_t resrch, int32_t avail)
 {
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
@@ -677,7 +677,7 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    for (long i = 0; i < game.conf.slab_conf.room_types_count; i++)
+    for (int32_t i = 0; i < game.conf.slab_conf.room_types_count; i++)
     {
         if (dungeon->room_resrchable[i])
         {

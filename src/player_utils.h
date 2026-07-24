@@ -42,11 +42,11 @@ TbBool player_cannot_win(PlayerNumber plyr_idx);
 void set_player_as_won_level(struct PlayerInfo *player);
 void set_player_as_lost_level(struct PlayerInfo *player);
 
-long compute_player_final_score(struct PlayerInfo *player, long gameplay_score);
+int32_t compute_player_final_score(struct PlayerInfo *player, int32_t gameplay_score);
 
 #define take_money_from_dungeon(plyr_idx, amount_take, only_whole_sum) take_money_from_dungeon_f(plyr_idx, amount_take, only_whole_sum, __func__)
-long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name);
-long update_dungeon_generation_speeds(void);
+int32_t take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name);
+int32_t update_dungeon_generation_speeds(void);
 void compute_and_update_player_payday_total(PlayerNumber plyr_idx);
 void compute_and_update_player_backpay_total(PlayerNumber plyr_idx);
 void calculate_dungeon_area_scores(void);
@@ -65,7 +65,7 @@ void process_players(void);
 
 void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx);
 
-void set_player_roomspace_size(struct PlayerInfo *player, long size);
+void set_player_roomspace_size(struct PlayerInfo *player, int32_t size);
 /******************************************************************************/
 #ifdef __cplusplus
 }

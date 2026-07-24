@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <stddef.h>
 
 /* Forward declaration -- avoids dragging in PlatformManager.h and its
  * C++-only type dependencies (TbFileHandle, TbBool, etc.) into C code. */
@@ -13,8 +15,8 @@
 /* ===== OOM handler ===== */
 static void kfx_oom(size_t size, const char* file, int line)
 {
-    fprintf(stderr, "KfxAlloc: OUT OF MEMORY: %lu bytes at %s:%d\n",
-            (unsigned long)size, file ? file : "?", line);
+    fprintf(stderr, "KfxAlloc: OUT OF MEMORY: %u bytes at %s:%d\n",
+            (uint32_t)size, file ? file : "?", line);
     fflush(stderr);
     abort();
 }
@@ -179,8 +181,8 @@ static int guard_check(void* user_ptr, size_t user_size, const char* context)
         if (base[i] != KFX_GUARD_BYTE) { ok = 0; break; }
     }
     if (!ok) {
-        fprintf(stderr, "KFX GUARD CORRUPTION [%s]: PREFIX overwrite detected at %p (size=%lu)\n",
-                context, user_ptr, (unsigned long)user_size);
+        fprintf(stderr, "KFX GUARD CORRUPTION [%s]: PREFIX overwrite detected at %p (size=%u)\n",
+                context, user_ptr, (uint32_t)user_size);
         fflush(stderr);
         abort();
     }
@@ -193,8 +195,8 @@ static int guard_check(void* user_ptr, size_t user_size, const char* context)
         }
     }
     if (!ok) {
-        fprintf(stderr, "KFX GUARD CORRUPTION [%s]: SUFFIX overwrite detected at %p (size=%lu)\n",
-                context, user_ptr, (unsigned long)user_size);
+        fprintf(stderr, "KFX GUARD CORRUPTION [%s]: SUFFIX overwrite detected at %p (size=%u)\n",
+                context, user_ptr, (uint32_t)user_size);
         fflush(stderr);
         abort();
     }
@@ -296,16 +298,16 @@ char* KfxStrDup_impl(const char* s, const char* file, int line)
 void KfxMemDump(void)
 {
     int i;
-    fprintf(stderr, "=== KfxMemDump: %lu bytes live (%d tracked allocs) ===\n",
-            (unsigned long)s_total_live, s_nallocs);
+    fprintf(stderr, "=== KfxMemDump: %u bytes live (%d tracked allocs) ===\n",
+            (uint32_t)s_total_live, s_nallocs);
     for (i = 0; i < s_nsites; i++) {
         const char* f = s_sites[i].file;
         const char* sl = strrchr(f, '/');
         if (!sl) sl = strrchr(f, '\\');
-        fprintf(stderr, "  %-45s  live=%9lu  allocs=%lu\n",
+        fprintf(stderr, "  %-45s  live=%9lu  allocs=%u\n",
                 sl ? sl + 1 : f,
-                (unsigned long)s_sites[i].live_bytes,
-                (unsigned long)s_sites[i].alloc_count);
+                (uint32_t)s_sites[i].live_bytes,
+                (uint32_t)s_sites[i].alloc_count);
     }
 }
 
@@ -329,8 +331,8 @@ void KfxMemValidate(void)
             }
         }
         if (!prefix_ok || !suffix_ok) {
-            fprintf(stderr, "KFX GUARD CORRUPTION [validate]: alloc %p size=%lu from %s:%d (%s%s)\n",
-                    s_allocs[i].ptr, (unsigned long)user_size,
+            fprintf(stderr, "KFX GUARD CORRUPTION [validate]: alloc %p size=%u from %s:%d (%s%s)\n",
+                    s_allocs[i].ptr, (uint32_t)user_size,
                     s_allocs[i].file ? s_allocs[i].file : "?",
                     s_allocs[i].line,
                     prefix_ok ? "" : "PREFIX ",
@@ -343,8 +345,8 @@ void KfxMemValidate(void)
         fflush(stderr);
         abort();
     }
-    fprintf(stderr, "KfxMemValidate: %d allocations OK (%lu bytes live)\n",
-            s_nallocs, (unsigned long)s_total_live);
+    fprintf(stderr, "KfxMemValidate: %d allocations OK (%u bytes live)\n",
+            s_nallocs, (uint32_t)s_total_live);
 }
 
 #endif /* KFX_DEBUG_MEMORY */
@@ -387,8 +389,8 @@ void* KfxScratch(size_t size)
     /* Overflow: fall back to malloc as emergency allocation.
      * WARNING: caller must NOT call KfxFree on overflow allocations;
      * they are tracked separately and freed only at shutdown. */
-    fprintf(stderr, "WARNING: KfxScratch overflow (used=%lu cap=%lu req=%lu); using heap\n",
-            (unsigned long)s_scratch_used, (unsigned long)s_scratch_cap, (unsigned long)size);
+    fprintf(stderr, "WARNING: KfxScratch overflow (used=%u cap=%u req=%u); using heap\n",
+            (uint32_t)s_scratch_used, (uint32_t)s_scratch_cap, (uint32_t)size);
     return malloc(size);
 }
 

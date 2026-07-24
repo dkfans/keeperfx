@@ -84,7 +84,7 @@ unsigned char smooth_on;
 static unsigned char * map_fade_ghost_table;
 static unsigned char * map_fade_dest;
 static unsigned char * map_fade_src;
-static long draw_spell_cost;
+static int32_t draw_spell_cost;
 /******************************************************************************/
 static void draw_creature_view_icons(struct Thing* creatng)
 {
@@ -107,7 +107,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
             continue;
         }
         struct SpellConfig *spconf = get_spell_config(cspell->spkind);
-        long spridx = spconf->medsym_sprite_idx;
+        int32_t spridx = spconf->medsym_sprite_idx;
         if (flag_is_set(spconf->spell_flags, CSAfF_Invisibility))
         {
             if (cctrl->force_visible & 2)
@@ -141,7 +141,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
     if ( (cctrl->dragtng_idx != 0) && ((creatng->alloc_flags & TAlF_IsDragged) == 0) )
     {
         struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-        unsigned long spr_idx;
+        uint32_t spr_idx;
         x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
         switch(dragtng->class_id)
         {
@@ -195,9 +195,9 @@ static void draw_creature_view_icons(struct Thing* creatng)
     }
 }
 
-void setup_engine_window(long x, long y, long width, long height)
+void setup_engine_window(int32_t x, int32_t y, int32_t width, int32_t height)
 {
-    SYNCDBG(6,"Starting for size (%ld,%ld) at (%ld,%ld)",width,height,x,y);
+    SYNCDBG(6,"Starting for size (%d,%d) at (%d,%d)",width,height,x,y);
     struct PlayerInfo* player = get_my_player();
     if ((game.operation_flags & GOF_ShowGui) != 0)
     {
@@ -258,19 +258,19 @@ void load_engine_window(TbGraphicsWindow *ewnd)
     player->engine_window_height = ewnd->height;
 }
 
-void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, long a6, long const xmax, long const ymax, long a9)
+void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, int32_t a6, int32_t const xmax, int32_t const ymax, int32_t a9)
 {
-    long ix;
-    long iy;
-    long x1base = 4 * a6;
-    long x0base = 4 * (32 - a6);
+    int32_t ix;
+    int32_t iy;
+    int32_t x1base = 4 * a6;
+    int32_t x0base = 4 * (32 - a6);
     int32_t * xt = xtab[0];
     int vx0 = 0;
     int vx1 = 0;
     for (ix = xmax; ix > 0; ix--)
     {
-        long val = x1base + vx1 / xmax;
-        long m;
+        int32_t val = x1base + vx1 / xmax;
+        int32_t m;
         if (val >= 0)
         {
             m = min(xmax,val);
@@ -292,15 +292,15 @@ void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcb
         vx1 += xmax - 8 * a6;
     }
 
-    long y1base = 8 * ymax / xmax * x1base / 8;
-    long y0base = 8 * ymax / xmax * x0base / 8;
+    int32_t y1base = 8 * ymax / xmax * x1base / 8;
+    int32_t y0base = 8 * ymax / xmax * x0base / 8;
     int32_t * yt = ytab[0];
     int vy1 = 0;
     int vy0 = 0;
     for (iy = ymax; iy > 0; iy--)
     {
-        long val = y1base + vy1 / ymax;
-        long m;
+        int32_t val = y1base + vy1 / ymax;
+        int32_t m;
         if (val >= 0)
         {
             m = min(ymax,val);
@@ -407,7 +407,7 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
     }
 }
 
-long map_fade_in(long palette_fade_step)
+int32_t map_fade_in(int32_t palette_fade_step)
 {
     SYNCDBG(6,"Starting");
     if (palette_fade_step == 0)
@@ -423,7 +423,7 @@ long map_fade_in(long palette_fade_step)
     return (8 - get_my_player()->instance_remain_turns) * 4;
 }
 
-long map_fade_out(long palette_fade_step)
+int32_t map_fade_out(int32_t palette_fade_step)
 {
     SYNCDBG(6,"Starting");
     if (palette_fade_step == 32)
@@ -439,12 +439,12 @@ long map_fade_out(long palette_fade_step)
     return get_my_player()->instance_remain_turns * 4;
 }
 
-long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long a6)
+int32_t dummy_sound_line_of_sight(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6)
 {
     return 1;
 }
 
-void set_engine_view(struct PlayerInfo *player, long val)
+void set_engine_view(struct PlayerInfo *player, int32_t val)
 {
     switch ( val )
     {
@@ -510,12 +510,12 @@ void set_engine_view(struct PlayerInfo *player, long val)
     player->view_mode = val;
 }
 
-void draw_overlay_compass(long base_x, long base_y)
+void draw_overlay_compass(int32_t base_x, int32_t base_y)
 {
     struct PlayerInfo* player = get_my_player();
     struct Camera* camera = get_player_active_camera(player);
     struct Camera* cam = get_local_camera(camera);
-    unsigned short flg_mem = lbDisplay.DrawFlags;
+    uint16_t flg_mem = lbDisplay.DrawFlags;
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
@@ -591,14 +591,14 @@ void redraw_creature_view(void)
     }
 }
 
-void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, long scanln)
+void smooth_screen_area(unsigned char *scrbuf, int32_t x, int32_t y, int32_t w, int32_t h, int32_t scanln)
 {
     SYNCDBG(7,"Starting");
     unsigned char* lnbuf = scrbuf + scanln * y + x;
-    for (long i = h - y - 1; i > 0; i--)
+    for (int32_t i = h - y - 1; i > 0; i--)
     {
         unsigned char* buf = lnbuf;
-        for (long k = w - x - 1; k > 0; k--)
+        for (int32_t k = w - x - 1; k > 0; k--)
         {
             unsigned int ghpos = (buf[0] << 8) + buf[1];
             ghpos = (buf[scanln] << 8) + pixmap.ghost[ghpos];
@@ -688,8 +688,8 @@ int get_place_door_pointer_graphics(ThingModel drmodel)
  */
 TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    long i;
-    long pwkind = -1;
+    int32_t i;
+    int32_t pwkind = -1;
     struct PlayerInfo* player = get_my_player();
     pwkind = player->chosen_power_kind;
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
@@ -776,8 +776,8 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         set_pointer_graphic(MousePG_Arrow);
         return;
     }
-    long i;
-    short thing_under_hand;
+    int32_t i;
+    int16_t thing_under_hand;
     switch (plrst_cfg_stat->pointer_group)
     {
     case PsPg_CtrlDungeon:
@@ -998,8 +998,8 @@ void redraw_display(void)
     {
         char text[sizeof(player->mp_message_text) + 4];
         snprintf(text, sizeof(text), ">%s_", player->mp_message_text);
-        long pos_x = 148*units_per_pixel/16;
-        long pos_y = 8*units_per_pixel/16;
+        int32_t pos_x = 148*units_per_pixel/16;
+        int32_t pos_y = 8*units_per_pixel/16;
         if (game.armageddon_cast_turn != 0)
         {
             if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
@@ -1011,17 +1011,17 @@ void redraw_display(void)
     }
     if ( draw_spell_cost )
     {
-        unsigned short drwflags_mem = lbDisplay.DrawFlags;
+        uint16_t drwflags_mem = lbDisplay.DrawFlags;
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         lbDisplay.DrawFlags = 0;
         LbTextSetFont(winfont);
         char text[16];
         if (draw_spell_cost > 0)
-            snprintf(text, sizeof(text), "%ld", draw_spell_cost);
+            snprintf(text, sizeof(text), "%d", draw_spell_cost);
 	else
-            snprintf(text, sizeof(text), "lv%ld", (-draw_spell_cost));
-        long pos_y = GetMouseY() - (LbTextStringHeight(text) * units_per_pixel / 16) / 2 - 2 * units_per_pixel / 16;
-        long pos_x = GetMouseX() - (LbTextStringWidth(text) * units_per_pixel / 16) / 2;
+            snprintf(text, sizeof(text), "lv%d", (-draw_spell_cost));
+        int32_t pos_y = GetMouseY() - (LbTextStringHeight(text) * units_per_pixel / 16) / 2 - 2 * units_per_pixel / 16;
+        int32_t pos_x = GetMouseX() - (LbTextStringWidth(text) * units_per_pixel / 16) / 2;
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
         lbDisplay.DrawFlags = drwflags_mem;
         draw_spell_cost = 0;
@@ -1063,8 +1063,8 @@ void redraw_display(void)
     {
           LbTextSetFont(winfont);
           const char * text = get_string(GUIStr_PausedMsg);
-          long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16));
-          long pos_x;
+          int32_t w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16));
+          int32_t pos_x;
           if (
               player->view_mode == PVM_IsoWibbleView ||
               player->view_mode == PVM_FrontView ||
@@ -1075,9 +1075,9 @@ void redraw_display(void)
           } else {
               pos_x = (MyScreenWidth-w)/2;
           }
-          long pos_y = 16 * units_per_pixel / 16;
+          int32_t pos_y = 16 * units_per_pixel / 16;
           lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-          long h = LbTextLineHeight() * units_per_pixel / 16;
+          int32_t h = LbTextLineHeight() * units_per_pixel / 16;
           int text_w = w;
           int text_x = pos_x;
           if (MyScreenHeight < 400)
@@ -1111,17 +1111,17 @@ void redraw_display(void)
         char text[64];
         snprintf(text, sizeof(text), " %s %03d", get_string(get_power_name_strindex(PwrK_ARMAGEDDON)), i/2); // Armageddon message
         i = LbTextCharWidth(' ')*units_per_pixel/16;
-        long w = LbTextStringWidth(text) * units_per_pixel / 16 + 6 * i;
+        int32_t w = LbTextStringWidth(text) * units_per_pixel / 16 + 6 * i;
         i = LbTextLineHeight()*units_per_pixel/16;
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-        long h = pixel_size * i + pixel_size * i / 2;
+        int32_t h = pixel_size * i + pixel_size * i / 2;
         if (MyScreenHeight < 400)
         {
             w *= 2;
             h *= 2;
         }
-        long pos_x = MyScreenWidth - w - 16 * units_per_pixel / 16;
-        long pos_y = 16 * units_per_pixel / 16;
+        int32_t pos_x = MyScreenWidth - w - 16 * units_per_pixel / 16;
+        int32_t pos_y = 16 * units_per_pixel / 16;
         LbTextSetWindow(pos_x, pos_y, w, h);
         draw_slab64k(pos_x, pos_y, units_per_pixel, w, h);
         LbTextDrawResized(0/pixel_size, 0/pixel_size, tx_units_per_px, text);

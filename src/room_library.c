@@ -235,13 +235,13 @@ TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon 
     return false;
 }
 
-TbBool add_research_to_player(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)
+TbBool add_research_to_player(PlayerNumber plyr_idx, int32_t rtyp, int32_t rkind, int32_t amount)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long i = dungeon->research_num;
+    int32_t i = dungeon->research_num;
     if (i >= DUNGEON_RESEARCH_COUNT)
     {
-      ERRORLOG("Too much research (%ld items) for player %d", i, plyr_idx);
+      ERRORLOG("Too much research (%d items) for player %d", i, plyr_idx);
       return false;
     }
     struct ResearchVal* resrch = &dungeon->research[i];
@@ -252,22 +252,22 @@ TbBool add_research_to_player(PlayerNumber plyr_idx, long rtyp, long rkind, long
     return true;
 }
 
-TbBool add_research_to_all_players(long rtyp, long rkind, long amount)
+TbBool add_research_to_all_players(int32_t rtyp, int32_t rkind, int32_t amount)
 {
     TbBool result = true;
-    SYNCDBG(17, "Adding type %ld, kind %ld, amount %ld", rtyp, rkind, amount);
-    for (long i = 0; i < PLAYERS_COUNT; i++)
+    SYNCDBG(17, "Adding type %d, kind %d, amount %d", rtyp, rkind, amount);
+    for (int32_t i = 0; i < PLAYERS_COUNT; i++)
     {
         result &= add_research_to_player(i, rtyp, rkind, amount);
   }
   return result;
 }
 
-TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)
+TbBool update_players_research_amount(PlayerNumber plyr_idx, int32_t rtyp, int32_t rkind, int32_t amount)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     short n = 0;
-    for (long i = 0; i < dungeon->research_num; i++)
+    for (int32_t i = 0; i < dungeon->research_num; i++)
     {
         struct ResearchVal* resrch = &dungeon->research[i];
         if ((resrch->rtyp == rtyp) && (resrch->rkind == rkind))
@@ -281,7 +281,7 @@ TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rki
     return false;
 }
 
-TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)
+TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, int32_t rtyp, int32_t rkind, int32_t amount)
 {
   if (update_players_research_amount(plyr_idx, rtyp, rkind, amount))
     return true;
@@ -449,8 +449,8 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
         return;
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -533,7 +533,7 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
 {
     struct Room* room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
     struct Coord3d pos;
-    unsigned long k = 0;
+    uint32_t k = 0;
     int i = room->index;
     int count = 0;
     while (i != 0)
@@ -615,8 +615,8 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
+    uint32_t k = 0;
+    int32_t i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -728,21 +728,21 @@ void count_books_in_room(struct Room *room)
     struct RoomReposition rrepos;
     init_reposition_struct(&rrepos);
     // Making two loops guarantees that no rrepos things will be lost
-    for (long n = 0; n < 2; n++)
+    for (int32_t n = 0; n < 2; n++)
     {
         // The correct count should be taken from last sweep
         room->used_capacity = 0;
         room->capacity_used_for_storage = 0;
-        unsigned long k = 0;
-        unsigned long i = room->slabs_list;
+        uint32_t k = 0;
+        uint32_t i = room->slabs_list;
         while (i > 0)
         {
             MapSubtlCoord slb_x = slb_num_decode_x(i);
             MapSubtlCoord slb_y = slb_num_decode_y(i);
             // Per-slab code
-            for (long dy = 0; dy < STL_PER_SLB; dy++)
+            for (int32_t dy = 0; dy < STL_PER_SLB; dy++)
             {
-                for (long dx = 0; dx < STL_PER_SLB; dx++)
+                for (int32_t dx = 0; dx < STL_PER_SLB; dx++)
                 {
                     count_and_reposition_books_in_room_on_subtile(room, slab_subtile(slb_x,dx), slab_subtile(slb_y,dy), &rrepos);
                 }
@@ -764,18 +764,18 @@ void count_books_in_room(struct Room *room)
         {
             if (rrepos.used > 0)
             {
-                SYNCLOG("The %s capacity wasn't enough, %d moved, but %d items belonging to player %d dropped",
+                SYNCLOG("The %s capacity wasn't enough, %d moved, but %d items beint32_ting to player %d dropped",
                     room_code_name(room->kind), move_count, (int)rrepos.used, (int)room->owner);
             }
             else
             {
-                SYNCDBG(7,"Moved %d items belonging to player %d to different %s",
+                SYNCDBG(7,"Moved %d items beint32_ting to player %d to different %s",
                     move_count, (int)room->owner, room_code_name(room->kind));
             }
         }
         else
         {
-            SYNCLOG("No %s capacity available to move, %d items belonging to player %d dropped",
+            SYNCLOG("No %s capacity available to move, %d items beint32_ting to player %d dropped",
                 room_code_name(room->kind), (int)rrepos.used, (int)room->owner);
         }      
     }

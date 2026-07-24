@@ -35,9 +35,9 @@ struct ftest_bug_ai_bridge__variables
     MapSlabCoord slb_y_min_bridge_check_area;
     MapSlabCoord slb_y_max_bridge_check_area;
 
-    unsigned long test_runs;
-    unsigned long test_runs_with_bridges;
-    unsigned long test_runs_without_bridges;
+    uint32_t test_runs;
+    uint32_t test_runs_with_bridges;
+    uint32_t test_runs_without_bridges;
 
     TbBool take_screenshot;
 };

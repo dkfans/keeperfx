@@ -40,9 +40,9 @@ struct WibbleTable blank_wibble_table[128];
 
 int32_t randomisors[512];
 struct WibbleTable wibble_table[128];
-long floor_height_table[256];
-long lintel_top_height[256];
-long lintel_bottom_height[256];
+int32_t floor_height_table[256];
+int32_t lintel_top_height[256];
+int32_t lintel_bottom_height[256];
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -83,7 +83,7 @@ unsigned short get_render_animation_sprite(unsigned short animation_sprite)
 
 void init_fp_td_animation_conversion_tables(void)
 {
-  long i;
+  int32_t i;
   for (i=0; i < FP_TD_ANIMATION_COUNT; i++)
   {
     fp_to_td_animation[i] = -1;
@@ -988,8 +988,8 @@ void init_fp_td_animation_conversion_tables(void)
 void setup_mesh_randomizers(void)
 {
     uint32_t seed;
-    long i;
-    long k;
+    int32_t i;
+    int32_t k;
     SYNCDBG(6,"Starting");
     seed = 0x0f0f0f0f;
     for (i=0; i < RANDOMISORS_LEN; i++)
@@ -1002,12 +1002,12 @@ void setup_mesh_randomizers(void)
 
 void fill_floor_heights_table(void)
 {
-    long top_height;
-    long btm_height;
-    long shade_back;
-    unsigned long flag_bit;
-    long i;
-    long n;
+    int32_t top_height;
+    int32_t btm_height;
+    int32_t shade_back;
+    uint32_t flag_bit;
+    int32_t i;
+    int32_t n;
     for (n=0; n < 256; n++)
     {
         i = 0;
@@ -1107,8 +1107,8 @@ TbBool load_ceiling_table(void)
     char nchr;
     char numstr[8];
     TbBool do_next;
-    long i;
-    long n;
+    int32_t i;
+    int32_t n;
     fname = prepare_file_path(FGrp_StdData,"ceiling.txt");
     fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (!fh) {

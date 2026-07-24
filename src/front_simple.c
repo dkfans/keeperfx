@@ -473,7 +473,7 @@ TbBool wait_for_installation_files(void)
       return false;
   }
   draw_bitmap_screen(&nocd_bmp);
-  unsigned long counter = 0;
+  uint32_t counter = 0;
   while ( !exit_keeper )
   {
       if ( LbFileExists(ffullpath) )
@@ -503,11 +503,11 @@ TbBool wait_for_installation_files(void)
       counter++;
       if (counter > 5)
       {
-          ERRORLOG("Wait time too long, giving up");
+          ERRORLOG("Wait time too int32_t, giving up");
           exit_keeper = 1;
       }
   }
-  SYNCMSG("Finished waiting for installation after %lu seconds",counter);
+  SYNCMSG("Finished waiting for installation after %u seconds",counter);
   free_bitmap_screen(&nocd_bmp);
   if ( was_locked )
     LbScreenLock();

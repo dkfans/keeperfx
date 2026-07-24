@@ -36,11 +36,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 unsigned char Tags[TREEITEMS_COUNT];
-long tree_dad[TREEITEMS_COUNT];
+int32_t tree_dad[TREEITEMS_COUNT];
 unsigned char tag_current = 0;
-long ix_delaunay = 0;
-long delaunay_stack[DELAUNAY_COUNT];
-long tree_val[TREEVALS_COUNT];
+int32_t ix_delaunay = 0;
+int32_t delaunay_stack[DELAUNAY_COUNT];
+int32_t tree_val[TREEVALS_COUNT];
 
 /******************************************************************************/
 
@@ -53,10 +53,10 @@ long tree_val[TREEVALS_COUNT];
  * @return Returns index of the last point filled.
  *     If route_len is too small, points up to route_len are filled and -1 is returned.
  */
-long copy_tree_to_route(long tag_start_id, long tag_end_id, int32_t *route_pts, long route_len)
+int32_t copy_tree_to_route(int32_t tag_start_id, int32_t tag_end_id, int32_t *route_pts, int32_t route_len)
 {
-    long itag = tag_start_id;
-    long ipt = 0;
+    int32_t itag = tag_start_id;
+    int32_t ipt = 0;
     while (itag != tag_end_id)
     {
         route_pts[ipt] = itag;
@@ -89,12 +89,12 @@ void tags_init(void)
  * @param border_len
  * @return
  */
-long update_border_tags(long tag_id, int32_t *border_pt, long border_len)
+int32_t update_border_tags(int32_t tag_id, int32_t *border_pt, int32_t border_len)
 {
-    long iset = 0;
-    for (long ipt = 0; ipt < border_len; ipt++)
+    int32_t iset = 0;
+    for (int32_t ipt = 0; ipt < border_len; ipt++)
     {
-        long n = border_pt[ipt];
+        int32_t n = border_pt[ipt];
         if ((n < 0) || (n >= TREEITEMS_COUNT))
         {
             erstat_inc(ESE_BadRouteTree);
@@ -107,24 +107,24 @@ long update_border_tags(long tag_id, int32_t *border_pt, long border_len)
     return iset;
 }
 
-long border_tags_to_current(int32_t *border_pt, long border_len)
+int32_t border_tags_to_current(int32_t *border_pt, int32_t border_len)
 {
     return update_border_tags(tag_current, border_pt, border_len);
 }
 
-TbBool is_current_tag(long tag_id)
+TbBool is_current_tag(int32_t tag_id)
 {
     return (tag_current == Tags[tag_id]);
 }
 
-void store_current_tag(long tag_id)
+void store_current_tag(int32_t tag_id)
 {
     Tags[tag_id] = tag_current;
 }
 
-TbBool navitree_add(long itm_pos, long itm_dat, long mvcost)
+TbBool navitree_add(int32_t itm_pos, int32_t itm_dat, int32_t mvcost)
 {
-    long tag_pos = tag_current;
+    int32_t tag_pos = tag_current;
     if (itm_pos >= TRIANLGLES_COUNT) {
         WARNLOG("Inserting outranged pos %d",(int)itm_pos);
     }
@@ -142,7 +142,7 @@ void delaunay_init(void)
     ix_delaunay = 0;
 }
 
-TbBool delaunay_add(long itm_pos)
+TbBool delaunay_add(int32_t itm_pos)
 {
     if (ix_delaunay >= DELAUNAY_COUNT) {
         return false;
@@ -153,7 +153,7 @@ TbBool delaunay_add(long itm_pos)
     return true;
 }
 
-TbBool delaunay_add_triangle(long tri_idx)
+TbBool delaunay_add_triangle(int32_t tri_idx)
 {
     NavColour i = get_triangle_tree_alt(tri_idx);
     if (i != NAV_COL_UNSET)
@@ -169,15 +169,15 @@ TbBool delaunay_add_triangle(long tri_idx)
     return false;
 }
 
-static void delaunay_stack_point(long pt_x, long pt_y)
+static void delaunay_stack_point(int32_t pt_x, int32_t pt_y)
 {
-    long cor_idx;
+    int32_t cor_idx;
     int32_t dst_tri_idx;
     int32_t dst_cor_idx;
-    long adjacent_triangle_index;
+    int32_t adjacent_triangle_index;
     NAVIDBG(19,"Starting");
 
-    long found_triangle_index = triangle_find8(pt_x << 8, pt_y << 8);
+    int32_t found_triangle_index = triangle_find8(pt_x << 8, pt_y << 8);
     if (found_triangle_index == -1) {
         NAVIDBG(19,"Tri not found");
         return;
@@ -194,7 +194,7 @@ static void delaunay_stack_point(long pt_x, long pt_y)
     {
       found_triangle_index = dst_tri_idx;
       cor_idx = dst_cor_idx;
-      unsigned long k = 0;
+      uint32_t k = 0;
       do
       {
           adjacent_triangle_index = Triangles[found_triangle_index].tags[cor_idx];
@@ -202,7 +202,7 @@ static void delaunay_stack_point(long pt_x, long pt_y)
               NAVIDBG(19,"Tag not found");
               break;
           }
-          long i = link_find(adjacent_triangle_index, found_triangle_index);
+          int32_t i = link_find(adjacent_triangle_index, found_triangle_index);
           if (i == -1) {
               NAVIDBG(19,"Link not found");
               break;
@@ -221,10 +221,10 @@ static void delaunay_stack_point(long pt_x, long pt_y)
     NAVIDBG(19,"Done");
 }
 
-long optimise_heuristic(long tri_id1, long cor_id1)
+int32_t optimise_heuristic(int32_t tri_id1, int32_t cor_id1)
 {
     struct Triangle* tri1 = get_triangle(tri_id1);
-    long tri_id3 = tri1->tags[cor_id1];
+    int32_t tri_id3 = tri1->tags[cor_id1];
     if (tri_id3 == -1)
         return 0;
     struct Triangle* tri3 = get_triangle(tri_id3);
@@ -232,24 +232,24 @@ long optimise_heuristic(long tri_id1, long cor_id1)
     {
         return 0;
     }
-    long tri_lnk = link_find(tri_id3, tri_id1);
+    int32_t tri_lnk = link_find(tri_id3, tri_id1);
     if (( (tri1->navigation_flags & (1 << cor_id1)) == 0)
      || ( (tri3->navigation_flags & (1 << tri_lnk)) == 0))
     {
         return 0;
     }
     struct Point* pt = get_triangle_point(tri_id3, MOD3[tri_lnk + 2]);
-    long Ax = pt->x;
-    long Ay = pt->y;
+    int32_t Ax = pt->x;
+    int32_t Ay = pt->y;
     pt = get_triangle_point(tri_id1, MOD3[cor_id1+2]);
-    long Bx = pt->x;
-    long By = pt->y;
+    int32_t Bx = pt->x;
+    int32_t By = pt->y;
     pt = get_triangle_point(tri_id1, MOD3[cor_id1+1]);
-    long Cx = pt->x;
-    long Cy = pt->y;
+    int32_t Cx = pt->x;
+    int32_t Cy = pt->y;
     pt = get_triangle_point(tri_id1, MOD3[cor_id1]);
-    long Dx = pt->x;
-    long Dy = pt->y;
+    int32_t Dx = pt->x;
+    int32_t Dy = pt->y;
     if (LbCompareMultiplications(Ay-By, Dx-Bx, Ax-Bx, Dy-By) >= 0)
         return 0;
     if (LbCompareMultiplications(Ay-By, Cx-Bx, Ax-Bx, Cy-By) <= 0)
@@ -259,7 +259,7 @@ long optimise_heuristic(long tri_id1, long cor_id1)
            ((Dy-Cy) * (Dy-Cy)) + ((Dx-Cx) * (Dx-Cx));
 }
 
-long delaunay_seeded(long start_x, long start_y, long end_x, long end_y, TbBool keep_edge)
+int32_t delaunay_seeded(int32_t start_x, int32_t start_y, int32_t end_x, int32_t end_y, TbBool keep_edge)
 {
     NAVIDBG(19,"Starting");
     tags_init();
@@ -268,12 +268,12 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y, TbBool 
     delaunay_stack_point(start_x, end_y);
     delaunay_stack_point(end_x, start_y);
     delaunay_stack_point(end_x, end_y);
-    long count = 0;
+    int32_t count = 0;
     while (ix_delaunay > 0)
     {
         ix_delaunay--;
-        long tri_idx = delaunay_stack[ix_delaunay];
-        for (long cor_idx = 0; cor_idx < 3; cor_idx++)
+        int32_t tri_idx = delaunay_stack[ix_delaunay];
+        for (int32_t cor_idx = 0; cor_idx < 3; cor_idx++)
         {
             if (!optimise_heuristic(tri_idx, cor_idx))
                 continue;
@@ -303,9 +303,9 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y, TbBool 
               ERRORLOG("stack full");
               return count;
             }
-            for (long cor_id2 = 0; cor_id2 < 3; cor_id2++)
+            for (int32_t cor_id2 = 0; cor_id2 < 3; cor_id2++)
             {
-                long local_adjacent_triangle = Triangles[tri_idx].tags[cor_id2];
+                int32_t local_adjacent_triangle = Triangles[tri_idx].tags[cor_id2];
                 if (local_adjacent_triangle == -1)
                     continue;
                 delaunay_add_triangle(local_adjacent_triangle);

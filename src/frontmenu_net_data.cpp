@@ -159,8 +159,8 @@ struct GuiMenu frontend_add_session_box =
 void frontnet_draw_session_selected(struct GuiButton *gbtn)
 {
     const struct TbSprite *spr;
-    long pos_x;
-    long pos_y;
+    int32_t pos_x;
+    int32_t pos_y;
     int i;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
@@ -195,7 +195,7 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
 
 void frontnet_session_select(struct GuiButton *gbtn)
 {
-    long i;
+    int32_t i;
     i = gbtn->content.lval + net_session_scroll_offset - 45;
     if (net_number_of_sessions > i)
     {
@@ -206,9 +206,9 @@ void frontnet_session_select(struct GuiButton *gbtn)
 
 void frontnet_draw_session_button(struct GuiButton *gbtn)
 {
-    long sessionIndex;
-    long febtn_idx;
-    long height;
+    int32_t sessionIndex;
+    int32_t febtn_idx;
+    int32_t height;
 
     febtn_idx = gbtn->content.lval;
     sessionIndex = net_session_scroll_offset + febtn_idx - 45;
@@ -229,7 +229,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
 {
     // Create a new session using the player name as the session name.
     // Append a number to the session name if it already exists.
-    long idx = 0;
+    int32_t idx = 0;
     for (int i = 0; i < net_number_of_sessions; i++)
     {
         const auto nsname = net_session[i];
@@ -247,7 +247,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
     }
     char text[sizeof(net_session[0]->text) + 16];
     if (idx > 0) {
-        snprintf(text, sizeof(text), "%s (%ld)", net_player_name, idx + 1);
+        snprintf(text, sizeof(text), "%s (%d)", net_player_name, idx + 1);
     } else {
         snprintf(text, sizeof(text), "%s", net_player_name);
     }

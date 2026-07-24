@@ -52,7 +52,7 @@
 
 extern int32_t multiplayer_speed_adjustment_ns;
 
-unsigned long TimerTurns = 0;
+uint32_t TimerTurns = 0;
 unsigned short battle_creature_over;
 EventIndex my_visible_event_idx;
 unsigned char my_event_button_state[EVENTS_COUNT];
@@ -211,7 +211,7 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
     }
 }
 
-void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per_px)
+void draw_battle_head(struct Thing *thing, int32_t scr_x, int32_t scr_y, int units_per_px)
 {
     if (thing_is_invalid(thing)) {
         return;
@@ -377,9 +377,9 @@ void draw_bonus_timer(void)
     char text[32];
     if (game.timer_real)
     {
-        unsigned long total_seconds = ((nturns) / turns_per_second) + 1;
+        uint32_t total_seconds = ((nturns) / turns_per_second) + 1;
         unsigned char seconds = total_seconds % 60;
-        unsigned long total_minutes = total_seconds / 60;
+        uint32_t total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;
         unsigned char hours = total_minutes / 60;
         if (nturns >= 0) {
@@ -401,8 +401,8 @@ void draw_bonus_timer(void)
         snprintf(text, sizeof(text), "%05d", nturns / 2);
     }
     LbTextSetFont(winfont);
-    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
-    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    int32_t width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    int32_t height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     if (MyScreenHeight < 400)
     {
         height *= 2;
@@ -413,8 +413,8 @@ void draw_bonus_timer(void)
         }
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
-    long scr_y = 16 * units_per_pixel / 16;
+    int32_t scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    int32_t scr_y = 16 * units_per_pixel / 16;
     if (game.armageddon_cast_turn != 0)
     {
         struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
@@ -460,7 +460,7 @@ void draw_timer(void)
         {
             TimerTurns = get_gameturn();
         }
-        snprintf(text, sizeof(text), "%08ld", TimerTurns);
+        snprintf(text, sizeof(text), "%08d", TimerTurns);
     }
     else
     {
@@ -471,8 +471,8 @@ void draw_timer(void)
         snprintf(text, sizeof(text), "%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
     }
     LbTextSetFont(winfont);
-    long width = 10 * (LbTextCharWidth('0') * units_per_pixel >> 4);
-    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    int32_t width = 10 * (LbTextCharWidth('0') * units_per_pixel >> 4);
+    int32_t height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     if (MyScreenHeight < 400)
     {
         height *= 2;
@@ -490,8 +490,8 @@ void draw_timer(void)
         }
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
-    long scr_y = 16 * units_per_pixel / 16;
+    int32_t scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    int32_t scr_y = 16 * units_per_pixel / 16;
     if ( (bonus_timer_enabled()) || (script_timer_enabled()) || (display_variable_enabled()) || (game.armageddon_cast_turn != 0) )
     {
         scr_y <<= 2;
@@ -538,8 +538,8 @@ void draw_gameturn_timer(void)
         textCharWidth += LbTextCharWidth(text[i]);
     };
 
-    long width = textCharWidth * units_per_pixel / 16;
-    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    int32_t width = textCharWidth * units_per_pixel / 16;
+    int32_t height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     if (MyScreenHeight < 400)
     {
         height *= 2;
@@ -550,8 +550,8 @@ void draw_gameturn_timer(void)
         }
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
-    long scr_y = MyScreenHeight - height - 16 * units_per_pixel / 16;
+    int32_t scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    int32_t scr_y = MyScreenHeight - height - 16 * units_per_pixel / 16;
 
     LbTextSetWindow(scr_x, scr_y, width, height);
     //draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
@@ -601,7 +601,7 @@ TbBool gameturn_timer_enabled(void)
     return flag_is_set(start_params.debug_flags, DFlg_ShowGameTurns);
 }
 
-void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real)
+void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, uint32_t limit, TbBool real)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     int nturns = (limit > 0) ? limit - (get_gameturn() - dungeon->turn_timers[timer_id].count) : get_gameturn() - dungeon->turn_timers[timer_id].count;
@@ -613,9 +613,9 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     char text[32];
     if (real)
     {
-        unsigned long total_seconds = ((nturns) / turns_per_second) + 1;
+        uint32_t total_seconds = ((nturns) / turns_per_second) + 1;
         unsigned char seconds = total_seconds % 60;
-        unsigned long total_minutes = total_seconds / 60;
+        uint32_t total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;
         unsigned char hours = total_minutes / 60;
         if (nturns >= 0) {
@@ -631,16 +631,16 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
 
     LbTextUseByteCoding(false);
     LbTextSetFont(winfont);
-    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
-    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    int32_t width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    int32_t height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     if (MyScreenHeight < 400)
     {
         height *= 2;
         width *= 2;
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
-    long scr_y = 16 * units_per_pixel / 16;
+    int32_t scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    int32_t scr_y = 16 * units_per_pixel / 16;
     if (game.armageddon_cast_turn != 0)
     {
         struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
@@ -662,9 +662,9 @@ TbBool display_variable_enabled(void)
   return ((game.flags_gui & GGUI_Variable) != 0);
 }
 
-void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype)
+void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, int32_t target, unsigned char targettype)
 {
-    long value = get_condition_value(plyr_idx, valtype, validx);
+    int32_t value = get_condition_value(plyr_idx, valtype, validx);
     if (target != 0)
     {
         if ( (targettype == 0) || (targettype == 2) )
@@ -684,10 +684,10 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
         }
     }
     char text[16];
-    snprintf(text, sizeof(text), "%ld", value);
+    snprintf(text, sizeof(text), "%d", value);
     LbTextSetFont(winfont);
-    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
-    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    int32_t width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    int32_t height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     if (MyScreenHeight < 400)
     {
         height *= 2;
@@ -698,8 +698,8 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
         }
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
-    long scr_y = 16 * units_per_pixel / 16;
+    int32_t scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    int32_t scr_y = 16 * units_per_pixel / 16;
     if (game.armageddon_cast_turn != 0)
     {
         struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
@@ -872,8 +872,8 @@ void draw_network_stats()
     if (tx_units_per_px < 16)
         tx_units_per_px = 16;
 
-    unsigned long ping = GetPing(my_player_number);
-    unsigned long half_ping = ping / 2;
+    uint32_t ping = GetPing(my_player_number);
+    uint32_t half_ping = ping / 2;
     unsigned int packet_loss_percent = GetPacketLoss(my_player_number);
     unsigned int transit = GetClientDataInTransit();
     unsigned int lost_packet_count = GetClientPacketsLost();
@@ -892,9 +892,9 @@ void draw_network_stats()
         }
     }
 
-    snprintf(text, sizeof(text), "Full ping: %lums", ping);
+    snprintf(text, sizeof(text), "Full ping: %ums", ping);
     LbTextDrawResized(0, 0, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Half ping: %lums", half_ping);
+    snprintf(text, sizeof(text), "Half ping: %ums", half_ping);
     LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Input lag: %d", game.input_lag_turns);
     LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);

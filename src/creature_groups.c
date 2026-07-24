@@ -40,15 +40,15 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-long get_no_creatures_in_group(const struct Thing *grptng)
+int32_t get_no_creatures_in_group(const struct Thing *grptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
-    long i = cctrl->group_leader_idx;
+    int32_t i = cctrl->group_leader_idx;
     if (i == 0) {
         // No group - just one creature
         return 1;
     }
-    unsigned long k = 0;
+    uint32_t k = 0;
     while (i > 0)
     {
         struct Thing* ctng = thing_get(i);
@@ -71,12 +71,12 @@ struct Thing *get_last_follower_creature_in_group(const struct Thing *grptng)
 {
     struct Thing* ctng = NULL;
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
-    long i = cctrl->group_leader_idx;
+    int32_t i = cctrl->group_leader_idx;
     if (i == 0) {
         // No group - just one creature
         return INVALID_THING;
     }
-    unsigned long k = 0;
+    uint32_t k = 0;
     while (i > 0)
     {
         ctng = thing_get(i);
@@ -98,7 +98,7 @@ struct Thing *get_last_follower_creature_in_group(const struct Thing *grptng)
 struct Thing *get_first_follower_creature_in_group(const struct Thing *grptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
-    long i = cctrl->group_leader_idx;
+    int32_t i = cctrl->group_leader_idx;
     if (i == 0) {
         // No group - just one creature
         return INVALID_THING;
@@ -134,8 +134,8 @@ TbBool creature_is_group_leader(const struct Thing *thing)
 
 void internal_update_leader_index_in_group(struct Thing *leadtng)
 {
-    long i = leadtng->index;
-    unsigned long k = 0;
+    int32_t i = leadtng->index;
+    uint32_t k = 0;
     while (i > 0)
     {
         struct Thing* ctng = thing_get(i);
@@ -316,8 +316,8 @@ static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
     {
         return potential_leader;
     }
-    long i = cctrl->group_leader_idx;
-    unsigned long k = 0;
+    int32_t i = cctrl->group_leader_idx;
+    uint32_t k = 0;
     if (i == 0)
     {
         i = grptng->index;
@@ -357,17 +357,17 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
     CrtrExpLevel best_exp_level = 0;
-    long best_score = 0;
+    int32_t best_score = 0;
     short has_digger = 0;
     TbBool is_digger = 0;
     struct Thing* best_creatng = INVALID_THING;
-    long i = cctrl->group_leader_idx;
+    int32_t i = cctrl->group_leader_idx;
     if (i == 0) {
         // One creature is not a group, but we may still get its experience
         i = grptng->index;
     }
     has_digger = creatures_group_has_special_digger_to_lead(grptng);
-    unsigned long k = 0;
+    uint32_t k = 0;
     while (i > 0)
     {
         struct Thing* ctng = thing_get(i);
@@ -383,7 +383,7 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
             break;
         }
         // Per-thing code
-        long score = get_creature_thing_score(ctng);
+        int32_t score = get_creature_thing_score(ctng);
         // Units who are supposed to defend the party, are considered for party leadership last.
         if (cctrl->party.objective != CHeroTsk_DefendParty)
         {
@@ -497,7 +497,7 @@ TbBool add_creature_to_group(struct Thing *creatng, struct Thing *grptng)
     return true;
 }
 
-long add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng)
+int32_t add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng)
 {
     SYNCDBG(5,"Adding %s index %d",thing_model_name(creatng),(int)creatng->index);
     if ((grptng->index == creatng->index) || (grptng->owner != creatng->owner)) {
@@ -542,7 +542,7 @@ TbBool create_party(const char *prtname)
     return true;
 }
 
-TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level, long carried_gold, long objctv_id, long countdown, PlayerNumber target)
+TbBool add_member_to_party(int party_id, int32_t crtr_model, CrtrExpLevel exp_level, int32_t carried_gold, int32_t objctv_id, int32_t countdown, PlayerNumber target)
 {
     if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
     {
@@ -569,7 +569,7 @@ TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level
     return true;
 }
 
-TbBool delete_member_from_party(int party_id, long crtr_model, CrtrExpLevel exp_level)
+TbBool delete_member_from_party(int party_id, int32_t crtr_model, CrtrExpLevel exp_level)
 {
     if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
     {
@@ -628,7 +628,7 @@ TbBool get_free_position_behind_leader(struct Thing *leadtng, struct Coord3d *po
     return false;
 }
 
-long process_obey_leader(struct Thing *thing)
+int32_t process_obey_leader(struct Thing *thing)
 {
     struct Thing* leadtng = get_group_leader(thing);
     if (!thing_is_creature(leadtng)) {
@@ -852,13 +852,13 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
  * @param copies_num Amount of copies to be spawned.
  * @return Gives leader of last party spawned.
  */
-struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_idx, TbMapLocation location, long copies_num)
+struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_idx, TbMapLocation location, int32_t copies_num)
 {
     struct Thing* leadtng = INVALID_THING;
-    for (long i = 0; i < copies_num; i++)
+    for (int32_t i = 0; i < copies_num; i++)
     {
         struct Thing* grptng = INVALID_THING;
-        for (long k = 0; k < party->members_num; k++)
+        for (int32_t k = 0; k < party->members_num; k++)
         {
           if (k >= GROUP_MEMBERS_COUNT)
           {
@@ -918,7 +918,7 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
     return leadtng;
 }
 
-struct Thing* script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, CrtrExpLevel exp_level, unsigned long carried_gold)
+struct Thing* script_process_new_tunneller_party(PlayerNumber plyr_idx, int32_t prty_id, TbMapLocation location, TbMapLocation heading, CrtrExpLevel exp_level, uint32_t carried_gold)
 {
     struct Thing* ldthing = script_process_new_tunneler(plyr_idx, location, heading, exp_level, carried_gold);
     if (thing_is_invalid(ldthing))

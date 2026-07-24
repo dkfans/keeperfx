@@ -28,7 +28,7 @@ const struct ModsConfig *get_loaded_mods_conf(void)
     return &stored_mods_conf;
 }
 
-static TbBool parse_block_mods(char *buf, long len, const char *block_name, struct ModConfigItem* mod_items, int32_t *mod_cnt, long mod_max)
+static TbBool parse_block_mods(char *buf, int32_t len, const char *block_name, struct ModConfigItem* mod_items, int32_t *mod_cnt, int32_t mod_max)
 {
     int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
@@ -60,9 +60,9 @@ static TbBool parse_block_mods(char *buf, long len, const char *block_name, stru
     return true;
 }
 
-static void recheck_block_mod_list_exist(struct ModConfigItem *mod_items, long mod_cnt, const char *block_name)
+static void recheck_block_mod_list_exist(struct ModConfigItem *mod_items, int32_t mod_cnt, const char *block_name)
 {
-    for (long i=0; i<mod_cnt; i++)
+    for (int32_t i=0; i<mod_cnt; i++)
     {
         struct ModConfigItem *mod_item = mod_items + i;
         struct ModExistState *mod_state = &mod_item->state;
@@ -144,7 +144,7 @@ TbBool load_mods_order_config_file()
     const char *sname = MODS_DIR_NAME "/" MODS_LOAD_ORDER_FILE_NAME;
     const char *fname = prepare_file_path(FGrp_Main, sname);
 
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < 2)
     {
         WARNMSG("Mods order file \"%s\" doesn't exist or is too small.", sname);

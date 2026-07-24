@@ -79,9 +79,9 @@ static void lua_on_start_for_mod(lua_State* L, const struct ModConfigItem *mod_i
 }
 
 // If lua_on_start_for_mod_list has performance issues, state can be pre-recorded in open_lua_script_for_mod_list.
-static void lua_on_start_for_mod_list(lua_State* L, const struct ModConfigItem *mod_items, long mod_cnt)
+static void lua_on_start_for_mod_list(lua_State* L, const struct ModConfigItem *mod_items, int32_t mod_cnt)
 {
-    for (long i=0; i<mod_cnt; i++)
+    for (int32_t i=0; i<mod_cnt; i++)
     {
         const struct ModConfigItem *mod_item = mod_items + i;
         lua_on_start_for_mod(L, mod_item);

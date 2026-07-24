@@ -43,16 +43,16 @@ struct MapTask {
 extern struct MapTask bad_map_task;
 #define INVALID_MAP_TASK (&bad_map_task)
 /******************************************************************************/
-struct MapTask *get_task_list_entry(long plyr_idx, long task_idx);
-struct MapTask *get_dungeon_task_list_entry(struct Dungeon *dungeon, long task_idx);
+struct MapTask *get_task_list_entry(int32_t plyr_idx, int32_t task_idx);
+struct MapTask *get_dungeon_task_list_entry(struct Dungeon *dungeon, int32_t task_idx);
 void add_task_list_entry(PlayerNumber plyr_idx, unsigned char kind, SubtlCodedCoords stl_num);
 
-long find_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk);
-long find_from_task_list_by_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
-long find_from_task_list_by_subtile(PlayerNumber plyr_idx, MapSlabCoord stl_x, MapSlabCoord stl_y);
-long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk);
-long remove_from_task_list(long a1, long a2);
-long find_next_dig_in_dungeon_task_list(struct Dungeon *dungeon, long last_dig);
+int32_t find_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk);
+int32_t find_from_task_list_by_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+int32_t find_from_task_list_by_subtile(PlayerNumber plyr_idx, MapSlabCoord stl_x, MapSlabCoord stl_y);
+int32_t find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk);
+int32_t remove_from_task_list(int32_t a1, int32_t a2);
+int32_t find_next_dig_in_dungeon_task_list(struct Dungeon *dungeon, int32_t last_dig);
 
 /******************************************************************************/
 #ifdef __cplusplus

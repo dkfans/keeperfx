@@ -51,18 +51,18 @@ int LbFilePosition(TbFileHandle handle);
 TbFileHandle LbFileOpen(const char *fname, unsigned char accmode);
 TbBool LbFileEof(TbFileHandle handle);
 int LbFileClose(TbFileHandle handle);
-int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin);
-int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
-long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len);
-long LbFileLength(const char *fname);
-long LbFileLengthHandle(TbFileHandle handle);
+int LbFileSeek(TbFileHandle handle, int32_t offset, unsigned char origin);
+int LbFileRead(TbFileHandle handle, void *buffer, uint32_t len);
+int32_t LbFileWrite(TbFileHandle handle, const void *buffer, const uint32_t len);
+int32_t LbFileLength(const char *fname);
+int32_t LbFileLengthHandle(TbFileHandle handle);
 struct TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntry * fentry);
 int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fentry);
 void LbFileFindEnd(struct TbFileFind * ffind);
 int LbFileDelete(const char *filename);
 short LbFileFlush(TbFileHandle handle);
 int LbFileMakeFullPath(const short append_cur_dir,
-  const char *directory, const char *filename, char *buf, const unsigned long len);
+  const char *directory, const char *filename, char *buf, const uint32_t len);
 
 /******************************************************************************/
 #ifdef __cplusplus

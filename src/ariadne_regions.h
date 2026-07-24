@@ -31,15 +31,15 @@ extern "C" {
 
 
 /******************************************************************************/
-TbBool regions_connected(long first_tree_region, long second_tree_region);
+TbBool regions_connected(int32_t first_tree_region, int32_t second_tree_region);
 void region_store_init(void);
-long region_get(void);
-void region_put(long nreg);
+int32_t region_get(void);
+void region_put(int32_t nreg);
 #define region_set(ntri, nreg) region_set_f(ntri, nreg, __func__)
-void region_set_f(long ntri, unsigned long nreg, const char *func_name);
+void region_set_f(int32_t ntri, uint32_t nreg, const char *func_name);
 #define region_unset(ntri, nreg) region_unset_f(ntri, nreg, __func__)
-void region_unset_f(long ntri, unsigned long nreg, const char *func_name);
-void region_unlock(long ntri);
+void region_unset_f(int32_t ntri, uint32_t nreg, const char *func_name);
+void region_unlock(int32_t ntri);
 void triangulation_init_regions(void);
 
 /******************************************************************************/

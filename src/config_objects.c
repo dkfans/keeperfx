@@ -192,7 +192,7 @@ ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
 static TbBool load_objects_config_file(const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
-    long len = LbFileLengthRnc(fname);
+    int32_t len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)

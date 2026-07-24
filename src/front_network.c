@@ -67,8 +67,8 @@ const struct ConfigInfo default_net_config_info = {
 int fe_network_active;
 int net_service_index_selected;
 struct TbNetworkSessionNameEntry *net_session[SESSION_ENTRIES_COUNT];
-long net_number_of_sessions;
-long net_session_index_active;
+int32_t net_number_of_sessions;
+int32_t net_session_index_active;
 struct TbNetworkPlayerName net_player[MAX_NET_USERS];
 struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
@@ -155,7 +155,7 @@ TbBool frontnet_service_selected(enum FrontendNetService service)
     return (net_service_index_selected == service);
 }
 
-void process_network_error(long errcode)
+void process_network_error(int32_t errcode)
 {
   const char *text;
   switch (errcode)
@@ -188,16 +188,16 @@ void process_network_error(long errcode)
       text = get_string(GUIStr_NetUnableToJoin);
       break;
   default:
-      ERRORLOG("Unknown modem error code %ld",errcode);
+      ERRORLOG("Unknown modem error code %d",errcode);
       return;
   }
   create_frontend_error_box(3000, text);
 }
 
-void draw_out_of_sync_box(long a1, long a2, long box_width)
+void draw_out_of_sync_box(int32_t a1, int32_t a2, int32_t box_width)
 {
-    long min_width = 2 * a1;
-    long max_width = 2 * a2;
+    int32_t min_width = 2 * a1;
+    int32_t max_width = 2 * a2;
     if (min_width > max_width)
     {
         min_width = max_width;
@@ -209,18 +209,18 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
     int units_per_px = units_per_pixel;
     if (LbScreenLock() == Lb_SUCCESS)
     {
-        long ornate_width = 200 * units_per_px / 16;
-        long ornate_height = 100 * units_per_px / 16;
-        long x = box_width + (MyScreenWidth - box_width - ornate_width) / 2;
-        long y = (MyScreenHeight - ornate_height) / 2;
+        int32_t ornate_width = 200 * units_per_px / 16;
+        int32_t ornate_height = 100 * units_per_px / 16;
+        int32_t x = box_width + (MyScreenWidth - box_width - ornate_width) / 2;
+        int32_t y = (MyScreenHeight - ornate_height) / 2;
         draw_ornate_slab64k(x, y, units_per_px, ornate_width, ornate_height);
         LbTextSetFont(winfont);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
         LbTextSetWindow(x, y, ornate_width, ornate_height);
         int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
-        long text_h = LbTextLineHeight() * tx_units_per_px / 16;
-        long text_x = x + 100 * units_per_px / 16 - max_width;
-        long text_y = y + 58 * units_per_px / 16;
+        int32_t text_h = LbTextLineHeight() * tx_units_per_px / 16;
+        int32_t text_x = x + 100 * units_per_px / 16 - max_width;
+        int32_t text_y = y + 58 * units_per_px / 16;
         LbTextDrawResized(0, 50*units_per_px/16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
         LbDrawBox(text_x, text_y, 2*max_width, 16*units_per_px/16, 0);
         LbDrawBox(text_x, text_y, 2*min_width, 16*units_per_px/16, 133);
@@ -296,8 +296,8 @@ void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
 
 void frontnet_session_update(void)
 {
-    static long last_enum_players = 0;
-    static long last_enum_sessions = 0;
+    static int32_t last_enum_players = 0;
+    static int32_t last_enum_sessions = 0;
 
     if (LbTimerClock() >= last_enum_sessions)
     {
@@ -330,7 +330,7 @@ void frontnet_session_update(void)
             || (!net_session[net_session_index_active]->joinable))
           {
             net_session_index_active = -1;
-            for (long i = 0; i < net_number_of_sessions; i++)
+            for (int32_t i = 0; i < net_number_of_sessions; i++)
             {
               if (net_session[i]->joinable)
               {
@@ -387,8 +387,8 @@ void frontnet_session_update(void)
 void frontnet_rewite_net_messages(void)
 {
     struct NetMessage lmsg[NET_MESSAGES_COUNT];
-    long k = 0;
-    long i = net_number_of_messages;
+    int32_t k = 0;
+    int32_t i = net_number_of_messages;
     for (i=0; i < NET_MESSAGES_COUNT; i++)
       memset(&lmsg[i], 0, sizeof(struct NetMessage));
     for (i=0; i < net_number_of_messages; i++)
@@ -536,7 +536,8 @@ void frontnet_send_campaign_change_message(const char* campaign_fname)
     }
 
     char msg[64];
-    snprintf(msg, sizeof(msg), "%s:_", base_name);
+    strncpy(msg,base_name,64);
+    strcat(msg,":_");
     send_network_chat_message(my_player_number, msg);
 }
 
@@ -568,7 +569,7 @@ void handle_autostart_multiplayer_messaging(void)
     if (autostart_multiplayer_level > 0) {
         level = autostart_multiplayer_level;
     }
-    snprintf(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, "%s:%d", camp, level);
+    snprintf(player->mp_message_text, strlen(camp) + 13 + 2, "%s:%d", camp, level);
     lbInkey = KC_RETURN;
 }
 

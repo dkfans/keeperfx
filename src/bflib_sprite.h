@@ -56,8 +56,8 @@ struct TbSetupSprite {
 struct TbHugeSprite {
     TbSpriteData Data;  //**< Raw sprite data, with RLE coded transparency.
     int32_t * Lines;  //**< Index of line starts in the sprite data.
-    unsigned long SWidth;
-    unsigned long SHeight;
+    uint32_t SWidth;
+    uint32_t SHeight;
 };
 
 struct TiledSprite {
@@ -70,13 +70,13 @@ struct TiledSprite {
 struct TbSpriteSheet * create_spritesheet(void);
 struct TbSpriteSheet * load_spritesheet(const char * data_fname, const char * index_fname);
 void free_spritesheet(struct TbSpriteSheet **);
-const struct TbSprite * get_sprite(const struct TbSpriteSheet *, long index);
+const struct TbSprite * get_sprite(const struct TbSpriteSheet *, int32_t index);
 #ifdef SPRITE_FORMAT_V2
 TbBool add_sprite(struct TbSpriteSheet * sheet, unsigned short width, unsigned short height, int size, const void * data);
 #else
 TbBool add_sprite(struct TbSpriteSheet * sheet, unsigned char width, unsigned char height, int size, const void * data);
 #endif
-long num_sprites(const struct TbSpriteSheet *);
+int32_t num_sprites(const struct TbSpriteSheet *);
 
 #define load_font(data_fname, index_fname) load_spritesheet(data_fname, index_fname)
 #define free_font(font) free_spritesheet(font)

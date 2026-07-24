@@ -20,6 +20,7 @@
 #ifndef BFLIB_NETSESSION_H
 #define BFLIB_NETSESSION_H
 
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,8 +47,8 @@ enum NetMsgType
 
 struct TbNetworkSessionNameEntry {
     unsigned char joinable;
-    unsigned long id;
-    unsigned long in_use;
+    uint32_t id;
+    uint32_t in_use;
     char text[SESSION_NAME_MAX_LEN];
     char join_address[SESSION_LOBBY_ID_MAX_LEN];
     char lobby_id[SESSION_LOBBY_ID_MAX_LEN];
@@ -55,9 +56,9 @@ struct TbNetworkSessionNameEntry {
 
 struct TbNetworkPlayerEntry {
   unsigned char reserved_flags;
-  unsigned long id;
-  unsigned long reserved_data;
-  unsigned long is_active;
+  uint32_t id;
+  uint32_t reserved_data;
+  uint32_t is_active;
   char name[32];
 };
 
@@ -68,19 +69,19 @@ struct TbNetworkCallbackData {
 };
 
 struct ReceiveCallbacks {
-  void (*addMsg)(unsigned long, char *, void *);
-  void (*deleteMsg)(unsigned long, void *);
-  void (*hostMsg)(unsigned long, void *);
+  void (*addMsg)(uint32_t, char *, void *);
+  void (*deleteMsg)(uint32_t, void *);
+  void (*hostMsg)(uint32_t, void *);
   void (*sysMsg)(void *);
-  void *(*multiPlayer)(unsigned long, unsigned long, unsigned long, void *);
-  void (*mpReqExDataMsg)(unsigned long, unsigned long, void *);
-  void (*mpReqCompsExDataMsg)(unsigned long, unsigned long, void *);
-  void *(*unidirectionalMsg)(unsigned long, unsigned long, void *);
-  void (*systemUserMsg)(unsigned long, void *, unsigned long, void *);
-  void *(*unhandledMessageTypeCallback)(unsigned long, void *);
+  void *(*multiPlayer)(uint32_t, uint32_t, uint32_t, void *);
+  void (*mpReqExDataMsg)(uint32_t, uint32_t, void *);
+  void (*mpReqCompsExDataMsg)(uint32_t, uint32_t, void *);
+  void *(*unidirectionalMsg)(uint32_t, uint32_t, void *);
+  void (*systemUserMsg)(uint32_t, void *, uint32_t, void *);
+  void *(*unhandledMessageTypeCallback)(uint32_t, void *);
 };
 /******************************************************************************/
-void net_copy_name_string(char *dst,const char *src,long max_len);
+void net_copy_name_string(char *dst,const char *src,int32_t max_len);
 /******************************************************************************/
 #ifdef __cplusplus
 };
