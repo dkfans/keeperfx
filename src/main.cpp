@@ -229,10 +229,6 @@ long double host_packet_received = 1;
 float interpolate_time = 0;
 /******************************************************************************/
 
-TbPixel get_player_path_colour(unsigned short owner)
-{
-  return player_path_colours[get_player_color_idx(owner % PLAYERS_COUNT)];
-}
 
 void setup_stuff(void)
 {

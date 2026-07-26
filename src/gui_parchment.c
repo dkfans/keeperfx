@@ -221,6 +221,11 @@ enum OverheadMapStyle {
     OMapSt_Wall,
 };
 
+static TbPixel get_player_path_colour(unsigned short owner)
+{
+  return player_path_colours[get_player_color_idx(owner % PLAYERS_COUNT)];
+}
+
 static int get_overhead_mapblock_style(const struct Map* mapblk, const struct SlabMap* slb, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx, int gui_frame, TbPixel neutral_colour)
 {
     PlayerNumber owner = slb->owner;
