@@ -212,7 +212,6 @@ extern struct StartupParameters start_params;
 //Functions - reworked
 short setup_game(void);
 void game_loop(void);
-short reset_game(void);
 void update(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
@@ -224,10 +223,7 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx);
 void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, short ef_or_efel_model);
 void toggle_hero_health_flowers(void);
-void check_players_won(void);
-void check_players_lost(void);
-void process_things_in_dungeon_hand(void);
-void process_payday(void);
+
 
 TbBool toggle_computer_player(PlayerNumber plyr_idx);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
@@ -290,7 +286,6 @@ void instant_instance_selected(CrInstance check_inst_id);
 void centre_engine_window(void);
 void change_engine_window_relative_size(long w_delta, long h_delta);
 void update_thing_animation(struct Thing *thing);
-long update_cave_in(struct Thing *thing);
 void initialise_map_collides(void);
 void initialise_map_health(void);
 void setup_mesh_randomizers(void);

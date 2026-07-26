@@ -34,6 +34,7 @@
 #include "thing_physics.h"
 #include "thing_creature.h"
 #include "thing_navigate.h"
+#include "thing_factory.h"
 #include "creature_senses.h"
 #include "spdigger_stack.h"
 #include "power_hand.h"
@@ -1020,11 +1021,159 @@ void update_things_in_list(struct StructureList *list)
     SYNCDBG(19,"Finished, %d items",(int)k);
 }
 
+static TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param)
+{
+    SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    if (thing_is_picked_up(thing) || thing_is_dragged_or_pulled(thing))
+    {
+        return TUFRet_Unchanged;
+    }
+    if (thing_is_creature(thing))
+    {
+        apply_damage_to_thing_and_display_health(thing, param->secondary_number, param->primary_number);
+        if ((thing->health >= 0) && !creature_is_leaving_and_cannot_be_stopped(thing))
+        {
+            if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
+            {
+                if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureEscapingDeath)
+                {
+                    if (cleanup_current_thing_state(thing) && setup_move_out_of_cave_in(thing))
+                        thing->continue_state = CrSt_CreatureEscapingDeath;
+                }
+            }
+            return TUFRet_Modified;
+        } else
+        {
+            kill_creature(thing, INVALID_THING, param->primary_number, CrDed_NoEffects|CrDed_DiedInBattle);
+            return TUFRet_Deleted;
+        }
+    }
+    else if (thing_is_destructible_trap(thing) > 0)
+    {
+        apply_damage_to_thing(thing, param->secondary_number, param->primary_number);
+        return TUFRet_Modified;
+    }
+    return TUFRet_Unchanged;
+}
+
+static TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+        return false;
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(stl_x,stl_y);
+    return (plyr_idx == game.neutral_player_num) || (slabmap_owner(slb) == game.neutral_player_num) || (slabmap_owner(slb) == plyr_idx);
+}
+
+
+
+static long update_cave_in(struct Thing *thing)
+{
+    thing->health--;
+    thing->rendering_flags |= TRF_Invisible;
+    if (thing->health < 1)
+    {
+        delete_thing_structure(thing, 0);
+        return 1;
+    }
+
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_CAVEIN);
+    struct Thing *efftng;
+    struct Coord3d pos;
+    PlayerNumber owner;
+    owner = thing->owner;
+    if ((get_gameturn() % 3) == 0)
+    {
+        int n;
+        n = GAME_RANDOM(AROUND_TILES_COUNT);
+        pos.x.val = thing->mappos.x.val + GAME_RANDOM(704) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + GAME_RANDOM(704) * around[n].delta_y;
+        if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
+        {
+            pos.z.val = get_ceiling_height(&pos) - 128;
+            efftng = create_effect_element(&pos, TngEff_Flash, owner);
+            if (!thing_is_invalid(efftng)) {
+                efftng->health = powerst->duration;
+            }
+        }
+    }
+
+    GameTurnDelta turns_between;
+    GameTurnDelta turns_alive;
+    turns_between = powerst->duration / 5;
+    turns_alive = get_gameturn() - thing->creation_turn;
+    if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
+    {
+        pos.x.val = thing->mappos.x.val + THING_RANDOM(thing, 128);
+        pos.y.val = thing->mappos.y.val + THING_RANDOM(thing, 128);
+        pos.z.val = get_floor_height_at(&pos) + 384;
+        create_effect(&pos, TngEff_HarmlessGas4, owner);
+    }
+
+    if ((turns_alive % game.conf.rules[owner].magic.turns_per_collapse_dngn_dmg) == 0)
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = subtile_coord(1,0);
+        Thing_Modifier_Func do_cb;
+        struct CompoundTngFilterParam param;
+        param.plyr_idx = -1;
+        param.class_id = 0;
+        param.model_id = 0;
+        param.primary_number = thing->owner;
+        param.secondary_number = game.conf.rules[thing->owner].magic.collapse_dungeon_damage;
+        param.tertiary_pointer = 0;
+        do_cb = damage_creatures_with_physical_force;
+        do_to_things_with_param_around_map_block(&pos, do_cb, &param);
+    }
+
+    if ((8 * powerst->duration / 10 >= thing->health) && (2 * powerst->duration / 10 <= thing->health))
+    {
+        if ((powerst->duration < 10) || ((thing->health % (powerst->duration / 10)) == 0))
+        {
+            int round_idx;
+            round_idx = THING_RANDOM(thing, AROUND_TILES_COUNT);
+            set_coords_to_slab_center(&pos, subtile_slab(thing->mappos.x.val + 3 * around[round_idx].delta_x), subtile_slab(thing->mappos.y.val + 3 * around[round_idx].delta_y));
+            if (subtile_has_slab(coord_subtile(pos.x.val), coord_subtile(pos.y.val)) && valid_cave_in_position(thing->owner, coord_subtile(pos.x.val), coord_subtile(pos.y.val)))
+            {
+                struct Thing *ncavitng;
+                ncavitng = get_cavein_at_subtile_owned_by(coord_subtile(pos.x.val), coord_subtile(pos.y.val), -1);
+                if (thing_is_invalid(ncavitng))
+                {
+                    long dist;
+                    struct Coord3d pos2;
+                    pos2.x.val = subtile_coord(thing->cave_in.x,0);
+                    pos2.y.val = subtile_coord(thing->cave_in.y,0);
+                    pos2.z.val = subtile_coord(1,0);
+                    dist = get_chessboard_distance(&pos, &pos2);
+                    if (powerst->strength[thing->cave_in.model] >= coord_subtile(dist))
+                    {
+                        ncavitng = create_thing(&pos, TCls_CaveIn, thing->cave_in.model, owner, -1);
+                        if (!thing_is_invalid(ncavitng))
+                        {
+                            thing->health += 5;
+                            if (thing->health > 0)
+                            {
+                                ncavitng->cave_in.x = thing->cave_in.x;
+                                ncavitng->cave_in.y = thing->cave_in.y;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return 1;
+}
+
 /**
  * Makes per game turn update of cave in things, using proper StructureList.
  * @return Returns amount of cave in things in list.
  */
-unsigned long update_cave_in_things(void)
+static unsigned long update_cave_in_things(void)
 {
     unsigned long k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_CaveIn);

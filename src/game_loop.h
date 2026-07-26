@@ -31,7 +31,6 @@ extern "C" {
 void process_dungeon_destroy(struct Thing* heartng);
 void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx);
 void update_manufacturing(void);
-void update_research(void);
 /******************************************************************************/
 /******************************************************************************/
 #ifdef __cplusplus

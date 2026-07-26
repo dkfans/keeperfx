@@ -1636,28 +1636,7 @@ void process_packets(void)
     SYNCDBG(7,"Finished");
 }
 
-// Using Alt-F4, or similar operating system close requests
-void force_application_close()
-{
-    extern int frontend_menu_state;
 
-    if (frontend_menu_state == 0)
-    {
-        struct PlayerInfo* player = get_my_player();
-        if (player != INVALID_PLAYER)
-        {
-            set_players_packet_action(player, PckA_ForceApplicationClose, 0, 0, 0, 0);
-        }
-        else
-        {
-            exit_keeper = 1;
-        }
-    }
-    else
-    {
-        exit_keeper = 1;
-    }
-}
 
 
 /******************************************************************************/

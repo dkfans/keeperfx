@@ -161,6 +161,7 @@ src/game_loop.c \
 src/game_lghtshdw.c \
 src/game_merge.c \
 src/game_saves.c \
+src/game_update.cpp \
 src/gui_boxmenu.c \
 src/gui_draw.c \
 src/gui_frontbtns.c \

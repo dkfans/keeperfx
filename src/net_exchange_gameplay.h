@@ -27,6 +27,8 @@
 extern "C" {
 #endif
 
+extern int32_t multiplayer_speed_adjustment_ns;
+
 struct Packet;
 
 void initialize_packet_history(void);
