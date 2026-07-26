@@ -438,6 +438,10 @@ int fe_computer_players;
 long old_mouse_over_button;
 long frontend_mouse_over_button;
 
+
+static int32_t last_mouse_x;
+static int32_t last_mouse_y;
+
 /******************************************************************************/
 short menu_is_active(short idx)
 {

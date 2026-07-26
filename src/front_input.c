@@ -96,10 +96,13 @@ unsigned short const zoom_key_room_order[] =
 // define the current GUI layer as the default
 struct GuiLayer gui_layer = {GuiLayer_Default};
 
-TbBool first_person_see_item_desc = false;
+static TbBool first_person_see_item_desc = false;
 
 static TbBool move_camera_this_turn;
 static GameTurn hand_pick_pending_turn;
+
+static int32_t my_mouse_x;
+static int32_t my_mouse_y;
 
 long old_mx;
 long old_my;

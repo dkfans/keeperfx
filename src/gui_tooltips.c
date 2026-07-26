@@ -66,6 +66,9 @@ struct ToolTipBox tool_tip_box;
 
 struct TooltipDebugInfo tool_tip_dbg = {0};
 
+static unsigned short tool_tip_time;
+static unsigned short help_tip_time;
+
 /******************************************************************************/
 static inline void reset_scrolling_tooltip(void)
 {
