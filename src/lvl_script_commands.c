@@ -1676,6 +1676,12 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void copy_creature_type_check(const struct ScriptLine* scline)
+{
+    script_copy_creature_type(scline->np[0],scline->tp[1]);
+    return;
+}
+
 static void new_creature_type_check(const struct ScriptLine* scline)
 {
     script_new_creature_type(scline->tp[0]);
@@ -6836,6 +6842,7 @@ const struct CommandDesc command_desc[] = {
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
   {"NEW_CREATURE_TYPE",                 "A       ", Cmd_NEW_CREATURE_TYPE, &new_creature_type_check, &null_process},
+  {"COPY_CREATURE_TYPE",                "CA      ", Cmd_COPY_CREATURE_TYPE, &copy_creature_type_check, &null_process },
   {"SET_HAND_GRAPHIC",                  "PA      ", Cmd_SET_HAND_GRAPHIC, &set_power_hand_check, &set_power_hand_process},
   {"ADD_EFFECT_GENERATOR_TO_LEVEL",     "AAN     ", Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL, &add_effectgen_to_level_check, &add_effectgen_to_level_process},
   {"SET_EFFECT_GENERATOR_CONFIGURATION","AAAnn   ", Cmd_SET_EFFECT_GENERATOR_CONFIGURATION, &set_effectgen_configuration_check, &set_effectgen_configuration_process},
