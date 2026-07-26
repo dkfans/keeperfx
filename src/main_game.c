@@ -423,19 +423,6 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
     return CLS_CONTINUE;
 }
 
-void faststartup_saved_packet_game(void)
-{
-    reenter_video_mode();
-    startup_saved_packet_game();
-    {
-        struct PlayerInfo *player;
-        player = get_my_player();
-        player->display_flags &= ~PlaF6_PlyrHasQuit;
-    }
-    set_gui_visible(false);
-    clear_flag(game.operation_flags, GOF_ShowPanel);
-}
-
 /******************************************************************************/
 
 /**

@@ -739,6 +739,19 @@ static TbBool should_use_delta_time_on_menu()
     }
 }
 
+static void faststartup_saved_packet_game(void)
+{
+    reenter_video_mode();
+    startup_saved_packet_game();
+    {
+        struct PlayerInfo *player;
+        player = get_my_player();
+        player->display_flags &= ~PlaF6_PlyrHasQuit;
+    }
+    set_gui_visible(false);
+    clear_flag(game.operation_flags, GOF_ShowPanel);
+}
+
 static TbBool wait_at_frontend(void)
 {
     struct PlayerInfo *player;
