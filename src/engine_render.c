@@ -8896,7 +8896,17 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
-            add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
+            // Bias the depth bucket by half the thing's on-screen sprite height.
+            // Things were bucketed at their anchor depth plus a flat 64px margin
+            // (project_point_helper's +64), which no sprite exceeded at 320x200 -
+            // but resolution-scaled zooms draw big sprites (lair totems) past it,
+            // and nearer rows' floor quads, drawn later (display_fast_drawlist
+            // iterates buckets high to low), paint over the sprite's lower part:
+            // e.g. the bile demon lair cut off by a horizontal line. Scaling the
+            // margin with the sprite keeps the bucket where the art actually ends.
+            int spr_px = thing->sprite_size
+                * (int)((((int64_t)camera_zoom << 13) / 0x10000) / pixel_size) / 0x10000;
+            add_thing_sprite_to_polypool(thing, cx, cy, cy, cz - 3 - (spr_px >> 1));
             if ((thing->class_id == TCls_Creature) && is_free_space_in_poly_pool(1))
             {
                 create_status_box_element(thing, cx, cy, cy, 1);
