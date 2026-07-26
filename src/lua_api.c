@@ -1211,7 +1211,7 @@ static int lua_New_creature_type(lua_State* L)
 
 static int lua_Copy_creature_type(lua_State* L)
 {
-    script_copy_creature_type(luaL_checkNamedCommand(L, 2, creature_desc),luaL_checkstring(L, 2));
+    script_copy_creature_type(luaL_checkNamedCommand(L, 1, creature_desc),luaL_checkstring(L, 2));
     return 0;
 }
 
