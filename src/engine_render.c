@@ -8896,7 +8896,8 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
-            add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
+            int size_on_screen = thing->sprite_size * ((camera_zoom << 13) / 0x10000 / pixel_size) / 0x10000;
+            add_thing_sprite_to_polypool(thing, cx, cy, cy, cz - 3 - (size_on_screen >> 1));
             if ((thing->class_id == TCls_Creature) && is_free_space_in_poly_pool(1))
             {
                 create_status_box_element(thing, cx, cy, cy, 1);
