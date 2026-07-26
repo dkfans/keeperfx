@@ -142,6 +142,12 @@ extern "C" TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntr
         return nullptr;
     }
     do {
+        // Only return regular files. Skipping directories also drops "." and
+        // ".."; this matches the Linux implementation (which keeps S_ISREG
+        // entries only) so a plain "*" enumerates files on both platforms alike.
+        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            continue;
+        }
         std::string key = fd.cFileName;
         for (size_t i = 0; i < key.size(); i++) {
             key[i] = (char)tolower((unsigned char)key[i]);
