@@ -201,10 +201,6 @@ TbBool force_player_num = false;
 
 /******************************************************************************/
 
-
-
-/******************************************************************************/
-
 TbClockMSec timerstarttime = 0;
 struct TimerTime Timer;
 TbBool TimerGame = false;
@@ -222,14 +218,12 @@ long double host_packet_received = 1;
 
 /******************************************************************************/
 
-
 void setup_stuff(void)
 {
     setup_texture_block_mem();
     init_fades_table();
     init_alpha_table();
 }
-
 
 
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
@@ -768,8 +762,6 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
         }
     }
 }
-
-
 
 void init_censorship(void)
 {
@@ -1983,38 +1975,6 @@ void update_mouse_light(struct PlayerInfo *player)
     set_mouse_light(player, valid, pos);
 }
 
-long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
-{
-/* Currently this only makes Dungeon Heart blinking; maybe I'll find a purpose for it later
-    long dist_x,dist_y;
-    if ((thing->class_id == TCls_Object) && (thing->model == 5))
-    {
-      if (thing->owner == param->plyr_idx)
-      {
-          // note that abs() is not required because we're computing square of the values
-          dist_x = param->primary_number-(MapCoord)thing->mappos.x.val;
-          dist_y = param->secondary_number-(MapCoord)thing->mappos.y.val;
-          // This function should return max value when the distance is minimal, so:
-          return INT32_MAX-(dist_x*dist_x + dist_y*dist_y);
-      }
-    }
-*/
-    // If conditions are not met, return -1 to be sure thing will not be returned.
-    return -1;
-}
-
-struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
-{
-    Thing_Maximizer_Filter filter;
-    struct CompoundTngFilterParam param;
-    SYNCDBG(19,"Starting");
-    filter = near_map_block_thing_filter_queryable_object;
-    param.plyr_idx = plyr_idx;
-    param.primary_number = pos_x;
-    param.secondary_number = pos_y;
-    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
-}
-
 void set_player_cameras_position(struct PlayerInfo *player, int32_t pos_x, int32_t pos_y)
 {
     player->cameras[CamIV_Parchment].mappos.x.val = pos_x;
@@ -2416,11 +2376,6 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     LbScreenLoadGraphicsWindow(&grwnd);
 }
 
-
-
-
-
-
 void redetect_screen_refresh_rate_for_draw()
 {
     fps_limit_current = 0;
@@ -2529,8 +2484,6 @@ extern "C" void network_yield_draw_frontend()
     LbScreenSwap();
 }
 
-
-
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
 {
     if ( (!thing_is_creature(thing)) || !( (thing->owner == plyr_idx) || (creature_is_kept_in_custody_by_player(thing, plyr_idx)) ) || (thing->alloc_flags & TAlF_IsInLimbo) || (thing->state_flags & TF1_InCtrldLimbo) || (thing->active_state == CrSt_CreatureUnconscious) )
@@ -2547,8 +2500,6 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
         return true;
     }
 }
-
-
 
 void initialise_map_collides(void)
 {
@@ -2598,7 +2549,6 @@ void initialise_map_health(void)
         }
     }
 }
-
 
 short process_command_line(unsigned short argc, char *argv[])
 {
