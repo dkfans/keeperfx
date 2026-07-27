@@ -2696,7 +2696,7 @@ void update(void)
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)get_gameturn());
 
-    update_local_cameras_pre();
+    update_local_cameras();
     process_packets();
     api_update_server();
 
@@ -2757,7 +2757,6 @@ void update(void)
 
     message_update();
     update_all_players_cameras();
-    update_local_cameras_post();
     update_player_sounds();
     SYNCDBG(6,"Finished");
 }
