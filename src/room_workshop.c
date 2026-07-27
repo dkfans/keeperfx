@@ -601,7 +601,7 @@ long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, cons
     }
 }
 
-short process_player_manufacturing(PlayerNumber plyr_idx)
+static short process_player_manufacturing(PlayerNumber plyr_idx)
 {
     SYNCDBG(7,"Starting for player %d",(int)plyr_idx);
 
@@ -670,6 +670,21 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     }
     dungeon->manufacture_class = TCls_Empty;
     return false;
+}
+
+void update_manufacturing(void)
+{
+    int i;
+    struct PlayerInfo *player;
+    SYNCDBG(16,"Starting");
+    for (i=0; i<PLAYERS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player) && (player->is_active == 1))
+        {
+            process_player_manufacturing(i);
+        }
+    }
 }
 
 EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng)

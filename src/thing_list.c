@@ -982,6 +982,63 @@ TngUpdateRet switch_object_on_destoyed_slab_to_new_owner(struct Thing *thing, Mo
     return TUFRet_Unchanged;
 }
 
+static void update_thing_animation(struct Thing *thing)
+{
+    SYNCDBG(18,"Starting for %s",thing_model_name(thing));
+    int i;
+    struct CreatureControl *cctrl;
+    if (thing->class_id == TCls_Creature)
+    {
+      cctrl = creature_control_get_from_thing(thing);
+      if (!creature_control_invalid(cctrl))
+        cctrl->anim_time = thing->anim_time;
+    }
+    if ((thing->anim_speed != 0) && (thing->max_frames != 0))
+    {
+        thing->anim_time += thing->anim_speed;
+        i = (thing->max_frames << 8);
+        if (i <= 0) i = 256;
+        while (thing->anim_time  < 0)
+        {
+          thing->anim_time += i;
+        }
+        if (thing->anim_time > i-1)
+        {
+          if (thing->rendering_flags & TRF_AnimateOnce)
+          {
+            thing->anim_speed = 0;
+            thing->anim_time = i-1;
+          } else
+          {
+            thing->anim_time %= i;
+          }
+        }
+        thing->current_frame = thing->anim_time >> 8;
+    }
+    if (thing->transformation_speed != 0)
+    {
+      thing->sprite_size += thing->transformation_speed;
+      if (thing->sprite_size > thing->sprite_size_min)
+      {
+        if (thing->sprite_size >= thing->sprite_size_max)
+        {
+          thing->sprite_size = thing->sprite_size_max;
+          if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
+            thing->transformation_speed = -thing->transformation_speed;
+          else
+            thing->transformation_speed = 0;
+        }
+      } else
+      {
+        thing->sprite_size = thing->sprite_size_min;
+        if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
+          thing->transformation_speed = -thing->transformation_speed;
+        else
+          thing->transformation_speed = 0;
+      }
+    }
+}
+
 /**
  * Makes per game turn update of all things in given StructureList.
  * @param list List of things to process.

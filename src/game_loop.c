@@ -314,23 +314,7 @@ void process_dungeon_destroy(struct Thing* heartng)
 
 
 
-void update_manufacturing(void)
-{
-    int i;
-    struct PlayerInfo *player;
-    SYNCDBG(16,"Starting");
-    for (i=0; i<PLAYERS_COUNT; i++)
-    {
-        player = get_player(i);
-        if (player_exists(player) && (player->is_active == 1))
-        {
-            process_player_manufacturing(i);
-        }
-    }
-}
 
-
-/******************************************************************************/
 
 // Using Alt-F4, or similar operating system close requests
 static void force_application_close()

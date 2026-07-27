@@ -77,6 +77,42 @@ struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmo
     return &game.conf.effects_conf.effectelement_cfgstats[tngmodel];
 }
 
+static TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
+{
+    struct PlayerInfo *player;
+    int i;
+    short limit = 24 * COORD_PER_STL;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        player = get_player(i);
+        if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        {
+            struct Camera *camera = get_player_active_camera(player);
+            if (camera == NULL)
+                continue;
+            if (camera->view_mode != PVM_FrontView)
+            {
+                if (camera->zoom >= CAMERA_ZOOM_MIN)
+                {
+                    limit = SHRT_MAX - (2 * camera->zoom);
+                }
+            }
+            else
+            {
+                if (camera->zoom >= FRONTVIEW_CAMERA_ZOOM_MIN)
+                {
+                    limit = SHRT_MAX - (camera->zoom / 3);
+                }
+            }
+            if (get_chessboard_distance(&camera->mappos, pos) <= limit)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmodel, PlayerNumber owner)
 {
     long i;

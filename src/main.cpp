@@ -769,98 +769,7 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
     }
 }
 
-TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
-{
-    struct PlayerInfo *player;
-    int i;
-    short limit = 24 * COORD_PER_STL;
-    for (i=0; i < PLAYERS_COUNT; i++)
-    {
-        player = get_player(i);
-        if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
-        {
-            struct Camera *camera = get_player_active_camera(player);
-            if (camera == NULL)
-                continue;
-            if (camera->view_mode != PVM_FrontView)
-            {
-                if (camera->zoom >= CAMERA_ZOOM_MIN)
-                {
-                    limit = SHRT_MAX - (2 * camera->zoom);
-                }
-            }
-            else
-            {
-                if (camera->zoom >= FRONTVIEW_CAMERA_ZOOM_MIN)
-                {
-                    limit = SHRT_MAX - (camera->zoom / 3);
-                }
-            }
-            if (get_chessboard_distance(&camera->mappos, pos) <= limit)
-            {
-                return true;
-            }
-        }
-    }
-    return false;
-}
 
-void update_thing_animation(struct Thing *thing)
-{
-    SYNCDBG(18,"Starting for %s",thing_model_name(thing));
-    int i;
-    struct CreatureControl *cctrl;
-    if (thing->class_id == TCls_Creature)
-    {
-      cctrl = creature_control_get_from_thing(thing);
-      if (!creature_control_invalid(cctrl))
-        cctrl->anim_time = thing->anim_time;
-    }
-    if ((thing->anim_speed != 0) && (thing->max_frames != 0))
-    {
-        thing->anim_time += thing->anim_speed;
-        i = (thing->max_frames << 8);
-        if (i <= 0) i = 256;
-        while (thing->anim_time  < 0)
-        {
-          thing->anim_time += i;
-        }
-        if (thing->anim_time > i-1)
-        {
-          if (thing->rendering_flags & TRF_AnimateOnce)
-          {
-            thing->anim_speed = 0;
-            thing->anim_time = i-1;
-          } else
-          {
-            thing->anim_time %= i;
-          }
-        }
-        thing->current_frame = thing->anim_time >> 8;
-    }
-    if (thing->transformation_speed != 0)
-    {
-      thing->sprite_size += thing->transformation_speed;
-      if (thing->sprite_size > thing->sprite_size_min)
-      {
-        if (thing->sprite_size >= thing->sprite_size_max)
-        {
-          thing->sprite_size = thing->sprite_size_max;
-          if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
-            thing->transformation_speed = -thing->transformation_speed;
-          else
-            thing->transformation_speed = 0;
-        }
-      } else
-      {
-        thing->sprite_size = thing->sprite_size_min;
-        if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
-          thing->transformation_speed = -thing->transformation_speed;
-        else
-          thing->transformation_speed = 0;
-      }
-    }
-}
 
 void init_censorship(void)
 {
@@ -2639,22 +2548,7 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
     }
 }
 
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool allowed)
-{
-    if (!allowed) {
-        if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(snd_refusal);
-        return 0;
-    }
-    if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
-        return 0;
-    }
-    MapSlabCoord slb_x = subtile_slab(stl_x);
-    MapSlabCoord slb_y = subtile_slab(stl_y);
-    delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
-    remove_dead_creatures_from_slab(slb_x, slb_y);
-    return 1;
-}
+
 
 void initialise_map_collides(void)
 {

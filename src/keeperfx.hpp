@@ -210,7 +210,6 @@ void update(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, TbBool allowed);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
@@ -248,7 +247,6 @@ void draw_gold_total(PlayerNumber plyr_idx, int32_t scr_x, int32_t scr_y, int32_
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, struct Coord3d *mappos);
 void update_creatr_model_activities_list(TbBool forced);
-TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
 long apply_wallhug_force_to_boulder(struct Thing *thing);
@@ -279,7 +277,6 @@ void dump_thing_held_by_any_player(struct Thing *thing);
 void instant_instance_selected(CrInstance check_inst_id);
 void centre_engine_window(void);
 void change_engine_window_relative_size(long w_delta, long h_delta);
-void update_thing_animation(struct Thing *thing);
 void initialise_map_collides(void);
 void initialise_map_health(void);
 void setup_mesh_randomizers(void);
