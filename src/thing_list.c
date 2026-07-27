@@ -3812,38 +3812,6 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return false;
 }
 
-long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
-{
-/* Currently this only makes Dungeon Heart blinking; maybe I'll find a purpose for it later
-    long dist_x,dist_y;
-    if ((thing->class_id == TCls_Object) && (thing->model == 5))
-    {
-      if (thing->owner == param->plyr_idx)
-      {
-          // note that abs() is not required because we're computing square of the values
-          dist_x = param->primary_number-(MapCoord)thing->mappos.x.val;
-          dist_y = param->secondary_number-(MapCoord)thing->mappos.y.val;
-          // This function should return max value when the distance is minimal, so:
-          return INT32_MAX-(dist_x*dist_x + dist_y*dist_y);
-      }
-    }
-*/
-    // If conditions are not met, return -1 to be sure thing will not be returned.
-    return -1;
-}
-
-struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
-{
-    Thing_Maximizer_Filter filter;
-    struct CompoundTngFilterParam param;
-    SYNCDBG(19,"Starting");
-    filter = near_map_block_thing_filter_queryable_object;
-    param.plyr_idx = plyr_idx;
-    param.primary_number = pos_x;
-    param.secondary_number = pos_y;
-    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
-}
-
 /** Finds thing on revealed subtiles around given position, which matches given bool filter.
  *
  * @param pos_x Position to search around X coord.

@@ -909,16 +909,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     y = (pckt->pos_y);
     stl_x = coord_subtile(x);
     stl_y = coord_subtile(y);
-    if (player->thing_under_hand == 0)
-    {
-        if ((x != 0) && (y != 0))  //originally was (y == 0), but it was probably a mistake
-        {
-            thing = get_queryable_object_near(x, y, plyr_idx);
-            if (!thing_is_invalid(thing)) {
-                player->thing_under_hand = thing->index;
-            }
-        }
-    }
     struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
     if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (plrst_cfg_stat->stop_own_units))
     {

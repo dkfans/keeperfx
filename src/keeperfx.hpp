@@ -212,16 +212,12 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx);
-void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, short ef_or_efel_model);
 void toggle_hero_health_flowers(void);
 
 
 TbBool toggle_computer_player(PlayerNumber plyr_idx);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
 void set_player_cameras_position(struct PlayerInfo *player, int32_t pos_x, int32_t pos_y);
-void init_player_types();
-void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
@@ -248,8 +244,6 @@ TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, 
 void update_creatr_model_activities_list(TbBool forced);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
-long apply_wallhug_force_to_boulder(struct Thing *thing);
-long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y);
 void lightning_modify_palette(struct Thing *thing);
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 

@@ -107,7 +107,7 @@ void reset_script_timers_and_flags(void)
     }
 }
 
-void init_player_types()
+static void init_player_types()
 {
     for (size_t plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
     {
@@ -128,6 +128,24 @@ void init_player_types()
             player->player_type = PT_Keeper;
             break;
         }
+    }
+}
+
+static void init_keepers_map_exploration(void)
+{
+    struct PlayerInfo *player;
+    int i;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+      player = get_player(i);
+      if ((player_exists(player) && (player->is_active == 1)) || player_is_roaming(i))
+      {
+          // Additional init - the main one is in init_player()
+          if ((player->allocflags & PlaF_CompCtrl) != 0) {
+              init_keeper_map_exploration_by_terrain(player);
+              init_keeper_map_exploration_by_creatures(player);
+          }
+      }
     }
 }
 

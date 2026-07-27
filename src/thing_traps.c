@@ -47,6 +47,7 @@
 #include "creature_senses.h"
 #include "cursor_tag.h"
 #include "player_instances.h"
+#include "room_workshop.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

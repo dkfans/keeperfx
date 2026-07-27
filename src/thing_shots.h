@@ -21,7 +21,6 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
-#include "room_workshop.h"
 #include "thing_list.h"
 
 #ifdef __cplusplus
@@ -118,6 +117,9 @@ void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 
 struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation location, PlayerNumber owner, ThingIndex target, int hittype);
 void shot_kill_creature(struct Thing *shotng, struct Thing *creatng);
+
+long apply_wallhug_force_to_boulder(struct Thing *thing);
+long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

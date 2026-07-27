@@ -96,6 +96,7 @@
 #include "thing_traps.h"
 #include "lua_triggers.h"
 #include "lua_cfg_funcs.h"
+#include "room_workshop.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
