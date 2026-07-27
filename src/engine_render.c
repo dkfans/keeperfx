@@ -7071,6 +7071,7 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
  */
 
 #define PPH_EVEN_ALIGN_MASK 0xFFFE
+#define FRONTVIEW_BUCKET_MARGIN 1024
 static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, int32_t *x_out, int32_t *y_out, int32_t *z_out)
 {
     int vertical_shift;
@@ -7080,7 +7081,7 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
 
     *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width / 2);
     vertical_shift = zoom * vertical_delta >> 8;
-    *z_out = window_height - ((vertical_shift + ((uint16_t)(window_height & PPH_EVEN_ALIGN_MASK) << 7)) >> 8) + 64;
+    *z_out = window_height - ((vertical_shift + ((uint16_t)(window_height & PPH_EVEN_ALIGN_MASK) << 7)) >> 8) + FRONTVIEW_BUCKET_MARGIN;
     // prevent 32bit int overflow for the big sprites.
     new_zoom = ((int64_t)zoom * (int16_t)pos_z) << 7;
     *y_out = (int32_t)((vertical_shift + ((uint16_t)(window_height & PPH_EVEN_ALIGN_MASK) << 7)
@@ -7365,7 +7366,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     myplyr = get_my_player();
     cube_itm = (qdrant + 2) & 3;
     delta_y = (zoom << 7) / 256;
-    bckt_idx = myplyr->engine_window_height - (pos_y >> 8) + 64;
+    bckt_idx = myplyr->engine_window_height - (pos_y >> 8) + FRONTVIEW_BUCKET_MARGIN;
     // Check if there's enough place to draw
     if (!is_free_space_in_poly_pool(8))
       return;
@@ -7430,6 +7431,23 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
 
     // Draw the columns cubes
 
+    long bckt_face = bckt_idx;
+    long bckt_top = bckt_idx;
+    if (((mapblk->flags & SlbAtFlg_Blocking) != 0)
+     && (get_column_floor_filled_subtiles(col) >= 3))
+    {
+        bckt_face = bckt_idx - (zoom >> 8);
+        bckt_top = bckt_face;
+        MapSubtlCoord sstl_x = stl_x + (qdrant == 3) - (qdrant == 1);
+        MapSubtlCoord sstl_y = stl_y + (qdrant == 0) - (qdrant == 2);
+        struct Map *smapblk = get_map_block_at(sstl_x, sstl_y);
+        if (((smapblk->flags & SlbAtFlg_Blocking) != 0)
+         && (!map_block_revealed(smapblk, my_player_number)
+          || (get_floor_filled_subtiles_at(sstl_x, sstl_y) >= 3))) {
+            bckt_top = bckt_face - 2 * (zoom >> 8);
+        }
+    }
+
     y = zoom + pos_y;
     cube_config_stats = NULL;
     for (tc=0; tc < COLUMN_STACK_HEIGHT; tc++)
@@ -7443,7 +7461,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
         *ymax = y;
         textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[cube_itm]);
         add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, zoom, delta_y, 0,
-            lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+            lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_face);
       }
     }
 
@@ -7456,15 +7474,15 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
         textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[4]);
         if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, 2097152, 1, bckt_idx);
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, 2097152, 1, bckt_top);
         } else
         if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, 2097152, 0, bckt_idx);
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, 2097152, 0, bckt_top);
         } else
         {
           add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, zoom, zoom, qdrant,
-              lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+              lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_top);
         }
       }
     }
@@ -7490,7 +7508,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
             {
               textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[cube_itm]);
               add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, zoom, delta_y, 0,
-                  lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+                  lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_face);
             }
         }
         if (cube_config_stats != NULL)
@@ -7500,7 +7518,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
           {
               textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[4]);
             add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, zoom, zoom, qdrant,
-                lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+                lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_top);
           }
         }
     }
@@ -8449,7 +8467,7 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
         coord_x -= box_width;
         break;
     }
-    coord_z -= (stl_width >> 1);
+    coord_z -= (stl_width >> 1) + 3 * (long)stl_width;
     // Draw 4 horizonal line elements
     create_line_element(coord_x,             coord_y,                      coord_x + box_width, coord_y,                      coord_z,                          line_color);
     create_line_element(coord_x,             coord_y + box_height,         coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
@@ -8542,7 +8560,7 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
         }
         break;
     }
-    coord_z -= (stl_width >> 1);
+    coord_z -= (stl_width >> 1) + 3 * (long)stl_width;
     for (int roomspace_y = 0; roomspace_y < room_slab_height; roomspace_y += 1)
     {
         int y_start = (box_height * roomspace_y       / room_slab_height) + ((((box_height * roomspace_y)       % room_slab_height) >= room_slab_height) ? 1 : 0);
