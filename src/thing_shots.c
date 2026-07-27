@@ -806,6 +806,23 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
     return 0;
 }
 
+void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta)
+{
+    struct CreatureControl *cctrl;
+    HitPoints max_health;
+    HitPoints health;
+    if ( !thing_exists(shooter) )
+        return;
+    cctrl = creature_control_get_from_thing(shooter);
+    max_health = cctrl->max_health;
+    health = shooter->health + health_delta;
+    if (health < max_health) {
+        shooter->health = health;
+    } else {
+        shooter->health = max_health;
+    }
+}
+
 static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struct Coord3d* pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
@@ -1614,6 +1631,14 @@ TngUpdateRet move_shot(struct Thing *shotng)
     return TUFRet_Modified;
 }
 
+static TbBool lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
+{
+    struct Camera *camera = get_player_active_camera(player);
+    if (camera == NULL)
+        return false;
+    return get_chessboard_distance(&camera->mappos, pos) < subtile_coord(45,0);
+}
+
 TngUpdateRet update_shot(struct Thing *thing)
 {
     struct Thing *target;
@@ -1737,11 +1762,6 @@ TngUpdateRet update_shot(struct Thing *thing)
                 draw_god_lightning(thing);
                 lightning_modify_palette(thing);
                 break;
-            /**case ShUL_Vortex:
-                //Not implemented, due to limited amount of shots, replaced by Lizard
-                affect_nearby_stuff_with_vortex(thing);
-                break;
-                **/
             case ShUL_Lizard:
                 thing->move_angle_xy = (thing->move_angle_xy + DEGREES_20) & ANGLE_MASK;
                 int skill = thing->shot_lizard.range;

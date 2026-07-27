@@ -217,12 +217,10 @@ void toggle_hero_health_flowers(void);
 
 TbBool toggle_computer_player(PlayerNumber plyr_idx);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
-void set_player_cameras_position(struct PlayerInfo *player, int32_t pos_x, int32_t pos_y);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
 void add_creature_to_pool(ThingModel kind, int32_t amount);
-void draw_texture(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7);
 
 short zoom_to_next_annoyed_creature(void);
 
@@ -242,10 +240,8 @@ void draw_gold_total(PlayerNumber plyr_idx, int32_t scr_x, int32_t scr_y, int32_
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, struct Coord3d *mappos);
 void update_creatr_model_activities_list(TbBool forced);
-void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
 void lightning_modify_palette(struct Thing *thing);
-unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 
 unsigned long seed_check_random(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
@@ -276,7 +272,6 @@ void setup_mesh_randomizers(void);
 void setup_stuff(void);
 void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
-void process_keeper_spell_aura(struct Thing *thing);
 void init_seeds();
 
 
