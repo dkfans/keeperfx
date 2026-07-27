@@ -54,17 +54,11 @@ static TbBool local_camera_move_active;
 
 static struct Packet* get_packet_for_local_camera_update(void)
 {
-    GameTurn turn;
     struct PlayerInfo *player = get_my_player();
     if (player_invalid(player)) {
         return NULL;
     }
-    if (flag_is_set(game.operation_flags, GOF_Paused) && game.game_kind == GKind_LocalGame) {
-        turn = get_gameturn();
-    } else {
-        turn = get_gameturn() - 1;
-    }
-    return (struct Packet *)get_history_packet(player->packet_num, turn);
+    return get_packet_direct(player->packet_num);
 }
 
 void send_camera_catchup_packets(struct PlayerInfo *player)
@@ -217,17 +211,14 @@ void update_camera_deviations(int active_cam_idx)
     }
 }
 
-void update_local_cameras_pre(void)
+void update_local_cameras(void)
 {
     for (int i = 0; i < 4; i++) {
         previous_local_cameras[i] = destination_local_cameras[i];
     }
     previous_deviation_x = destination_deviation_x;
     previous_deviation_y = destination_deviation_y;
-}
 
-void update_local_cameras_post(void)
-{
     if (!local_camera_ready) {
         return;
     }
