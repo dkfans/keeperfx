@@ -33,7 +33,7 @@
 #include "lua_api_lens.h"
 #include "lua_api_sound.h"
 
-
+#include "ap_bridge.h"
 #include "post_inc.h"
 
 /**********************************************/
@@ -197,6 +197,30 @@ static int lua_Room_available(lua_State *L)
     {
         set_room_available(i,rkind,can_be_available,is_available);
     }
+    return 0;
+}
+
+// temp function for ap as we send/recieve items by id not name
+static int lua_Room_available_id(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long rkind                      = lua_tointeger(L, 2);
+    TbBool can_be_available         = lua_tointeger(L, 3);
+    TbBool is_available             = lua_toboolean(L, 4);
+
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        set_room_available(i,rkind,can_be_available,is_available);
+    }
+    return 0;
+}
+
+// passes location id to archipelago
+static int lua_send_location(lua_State *L)
+{
+    int location_id          = lua_tointeger(L, 1);
+
+    ap_bridge_location_check(location_id);
     return 0;
 }
 
@@ -1206,12 +1230,6 @@ static int lua_New_creature_type(lua_State* L)
             continue;
         dungeon->creature_max_level[game.conf.crtr_conf.model_count-1] = CREATURE_MAX_LEVEL + 1;
     }
-    return 0;
-}
-
-static int lua_Copy_creature_type(lua_State* L)
-{
-    script_copy_creature_type(luaL_checkNamedCommand(L, 1, creature_desc),luaL_checkstring(L, 2));
     return 0;
 }
 
@@ -2480,7 +2498,6 @@ static const luaL_Reg global_methods[] = {
 
 //Manipulating Configs
     {"NewCreatureType"                      ,lua_New_creature_type               },
-    {"CopyCreatureType"                     ,lua_Copy_creature_type              },
     //{"NewObjectType"                      ,lua_New_object_type                 },
     //{"NewTrapType"                        ,lua_New_trap_type                   },
     //{"NewRoomType"                        ,lua_New_room_type                   },
@@ -2568,6 +2585,10 @@ static const luaL_Reg global_methods[] = {
 //usecase specific functions
     {"PayForPower",                     lua_Pay_for_power},
 
+//Archipelago Commands
+    {"SendLocation",                     lua_send_location                   },  
+    {"RoomAvailableById",                lua_Room_available_id          }, 
+      
 };
 /*
 static const luaL_Reg game_meta[] = {

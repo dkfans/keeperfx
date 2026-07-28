@@ -7075,16 +7075,16 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
 {
     int vertical_shift;
     int64_t new_zoom;
+    uint8_t offset;
     short window_width = player->engine_window_width;
     short window_height = player->engine_window_height;
 
     *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width / 2);
     vertical_shift = zoom * vertical_delta >> 8;
     *z_out = window_height - ((vertical_shift + ((uint16_t)(window_height & PPH_EVEN_ALIGN_MASK) << 7)) >> 8) + 64;
-    // prevent 32bit int overflow for the big sprites.
-    new_zoom = ((int64_t)zoom * (int16_t)pos_z) << 7;
-    *y_out = (int32_t)((vertical_shift + ((uint16_t)(window_height & PPH_EVEN_ALIGN_MASK) << 7)
-                        - (int32_t)(new_zoom >> 16)) >> 8);
+    new_zoom = (zoom * ((int16_t) pos_z)) << 7;
+    offset = *((uint8_t *)&new_zoom + 4);
+    *y_out = (vertical_shift + ((uint16_t)(window_height & PPH_EVEN_ALIGN_MASK) << 7) - ((offset + (signed int)new_zoom) >> 16)) >> 8;
 
     return (*x_out >= 0 && *x_out < window_width && *y_out >= 0 && *y_out < window_height);
 }
@@ -8896,8 +8896,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
-            int size_on_screen = thing->sprite_size * ((camera_zoom << 13) / 0x10000 / pixel_size) / 0x10000;
-            add_thing_sprite_to_polypool(thing, cx, cy, cy, cz - 3 - (size_on_screen >> 1));
+            add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
             if ((thing->class_id == TCls_Creature) && is_free_space_in_poly_pool(1))
             {
                 create_status_box_element(thing, cx, cy, cy, 1);

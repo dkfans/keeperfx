@@ -454,6 +454,7 @@ TbBool load_game(long slot_num)
     JUSTMSG("Loaded level %d from %s", game.continue_level_number, campaign.name);
 
     api_event("GAME_LOADED");
+    lua_on_game_load();
 
     return true;
 }

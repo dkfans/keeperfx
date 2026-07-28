@@ -86,6 +86,7 @@ OBJS = \
 $(DEPS) \
 obj/actionpt.o \
 obj/api.o \
+obj/ap_bridge.o \
 obj/ariadne.o \
 obj/ariadne_edge.o \
 obj/ariadne_findcache.o \
@@ -391,6 +392,7 @@ LINKLIB = -mwindows \
 	-L"deps/libcurl/lib" -lcurl -lwldap32 -lcrypt32 -lsecur32 -liphlpapi \
 	-L"deps/spng" -lspng \
 	-L"deps/centijson" -ljson \
+	-L"deps/ap" \
 	-L"deps/zlib" -lminizip -lz \
 	deps/luajit/lib/libluajit.a \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
@@ -408,7 +410,8 @@ INCS = \
 	-I"deps/luajit/include" \
 	-I"deps/miniupnpc/include" \
 	-I"deps/libnatpmp/include" \
-	-I"deps/libcurl/include"
+	-I"deps/libcurl/include" \
+	-I"deps/ap"
 CXXINCS =  $(INCS)
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -450,6 +453,9 @@ WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-maybe
 CXXFLAGS = $(CXXINCS) -c -std=gnu++20 -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS) -DCURL_STATICLIB
 LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
+
+CXXFLAGS += -I"deps/ap" -I"deps/ap/ixwebsocket" -I"deps/ap/json" 
+LDFLAGS += deps/ap/libAPCpp.a -lws2_32
 
 ifeq ($(USE_PRE_FILE), 1)
 CXXFLAGS += -DUSE_PRE_FILE=1

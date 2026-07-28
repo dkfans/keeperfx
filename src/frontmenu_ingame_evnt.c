@@ -61,14 +61,18 @@ int debug_display_network_stats = 0;
 /******************************************************************************/
 EventIndex get_my_event_button_index(unsigned int button_idx)
 {
-    if (button_idx > EVENT_BUTTONS_COUNT) {
-        return 0;
+    struct Dungeon* dungeon = get_my_dungeon();
+    for (int i = 0; i <= EVENT_BUTTONS_COUNT; i++) {
+        EventIndex evidx = dungeon->event_button_index[i];
+        if (!evidx || (my_event_button_state[evidx] & EvBtnS_Hidden)) {
+            continue;
+        }
+        if (!button_idx) {
+            return evidx;
+        }
+        button_idx--;
     }
-    EventIndex evidx = get_my_dungeon()->event_button_index[button_idx];
-    if (my_event_button_state[evidx] & EvBtnS_Hidden) {
-        return 0;
-    }
-    return evidx;
+    return 0;
 }
 
 void gui_open_event(struct GuiButton *gbtn)

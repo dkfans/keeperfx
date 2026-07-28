@@ -1344,7 +1344,6 @@ void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swid
     long factor = (dwidth<<16)/swidth;
     long tmp = (factor >> 1) + (x << 16);
     pxpos = tmp >> 16;
-    pxpos = min(pxpos, max(0, x));
     long w = swidth;
     do {
         tmp += factor;
@@ -1354,12 +1353,21 @@ void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swid
         pxend = tmp>>16;
         // Remember unclipped difference
         long wdiff = pxend - pxstart;
-       // Clip both endpoints independently to [0, gwidth]
-        if (pxstart < 0) pxstart = 0;
-        else if (pxstart > gwidth) pxstart = gwidth;
-        if (pxend < 0) pxend = 0;
-        else if (pxend > gwidth) pxend = gwidth;
-        if (pxend < pxstart) pxend = pxstart;
+        // Now clip to graphics line bounds
+        if (pxstart < 0) {
+            pxstart = 0;
+            pxend = pxstart;
+        } else
+        if (pxstart >= gwidth) {
+            pxstart = gwidth-1;
+            pxend = pxstart;
+        } else
+        if (pxend < 0) {
+            pxend = 0;
+        } else
+        if (pxend > gwidth) {
+            pxend = gwidth;
+        }
         // Set clipped difference to be drawn
         pwidth[0] = pxstart;
         pwidth[1] = pxend - pxstart;
@@ -1425,7 +1433,6 @@ void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, long y, long she
     long factor = (dheight<<16)/sheight;
     long tmp = (factor >> 1) + (y << 16);
     lnpos = tmp >> 16;
-    lnpos = min(lnpos, max(0, y));
     if (lnpos < 0)
         lnpos = 0;
     if (lnpos >= gheight)
@@ -1439,12 +1446,21 @@ void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, long y, long she
         lnend = tmp>>16;
         // Remember unclipped difference
         long hdiff = lnend - lnstart;
-        // Clip both endpoints independently to [0, gheight]
-        if (lnstart < 0) lnstart = 0;
-        else if (lnstart > gheight) lnstart = gheight;
-        if (lnend < 0) lnend = 0;
-        else if (lnend > gheight) lnend = gheight;
-        if (lnend < lnstart) lnend = lnstart;
+        // Now clip to graphics line bounds
+        if (lnstart < 0) {
+            lnstart = 0;
+            lnend = lnstart;
+        } else
+        if (lnstart >= gheight) {
+            lnstart = gheight-1;
+            lnend = lnstart;
+        } else
+        if (lnend < 0) {
+            lnend = 0;
+        } else
+        if (lnend > gheight) {
+            lnend = gheight;
+        }
         // Set clipped difference to be drawn
         pheight[0] = lnstart;
         pheight[1] = lnend - lnstart;
