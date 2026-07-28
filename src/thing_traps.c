@@ -43,7 +43,6 @@
 #include "engine_render.h"
 #include "gui_topmsg.h"
 
-#include "keeperfx.hpp"
 #include "creature_senses.h"
 #include "cursor_tag.h"
 #include "player_instances.h"

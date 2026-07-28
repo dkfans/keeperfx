@@ -40,6 +40,7 @@
 #include "sounds.h"
 #include "vidmode.h"
 #include "moonphase.h"
+#include "keeperfx.hpp"
 #include "post_inc.h"
 
 #ifdef __cplusplus
