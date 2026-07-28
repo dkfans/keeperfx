@@ -351,6 +351,7 @@ obj/thing_physics.o \
 obj/thing_shots.o \
 obj/thing_stats.o \
 obj/thing_traps.o \
+obj/timer.o \
 obj/value_util.o \
 obj/vidfade.o \
 obj/vidmode_data.o \

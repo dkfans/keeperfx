@@ -240,7 +240,6 @@ void draw_gold_total(PlayerNumber plyr_idx, int32_t scr_x, int32_t scr_y, int32_
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, struct Coord3d *mappos);
 void update_creatr_model_activities_list(TbBool forced);
-void affect_nearby_friends_with_alarm(struct Thing *thing);
 void lightning_modify_palette(struct Thing *thing);
 
 unsigned long seed_check_random(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place);
@@ -278,25 +277,7 @@ void init_seeds();
 void startup_saved_packet_game(void);
 void reinit_level_after_load(void);
 void redetect_screen_refresh_rate_for_draw();
-void update_time(void);
-extern TbClockMSec timerstarttime;
-struct TimerTime {
-        unsigned char Hours;
-        unsigned char Minutes;
-        unsigned char Seconds;
-        unsigned short MSeconds;
-};
-extern struct TimerTime Timer;
-extern TbBool TimerGame;
-extern TbBool TimerNoReset;
-extern TbBool TimerFreeze;
-struct GameTime {
-    unsigned char Seconds;
-    unsigned char Minutes;
-    unsigned char Hours;
-};
 
-struct GameTime get_game_time(unsigned long turns, unsigned long fps);
 
 #ifdef __cplusplus
 }

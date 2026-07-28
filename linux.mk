@@ -278,6 +278,7 @@ src/thing_physics.c \
 src/thing_shots.c \
 src/thing_stats.c \
 src/thing_traps.c \
+src/timer.c \
 src/value_util.c \
 src/vidfade.c \
 src/vidmode_data.cpp \

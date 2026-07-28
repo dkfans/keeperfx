@@ -73,6 +73,7 @@
 #include "lua_base.h"
 #include "net_resync.h"
 #include "kjm_input.h"
+#include "timer.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

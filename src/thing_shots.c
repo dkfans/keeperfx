@@ -30,6 +30,7 @@
 #include "bflib_joyst.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
+#include "creature_states_mood.h"
 #include "thing_data.h"
 #include "thing_factory.h"
 #include "thing_effects.h"
@@ -53,6 +54,7 @@
 #include "game_legacy.h"
 #include "engine_lenses.h"
 #include "room_util.h"
+#include "player_instances.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1637,6 +1639,63 @@ static TbBool lightning_is_close_to_player(struct PlayerInfo *player, struct Coo
     if (camera == NULL)
         return false;
     return get_chessboard_distance(&camera->mappos, pos) < subtile_coord(45,0);
+}
+
+static void affect_nearby_friends_with_alarm(struct Thing *traptng)
+{
+    SYNCDBG(8,"Starting");
+    if (is_neutral_thing(traptng)) {
+        return;
+    }
+    struct Dungeon *dungeon;
+    unsigned long k;
+    int i;
+    dungeon = get_players_num_dungeon(traptng->owner);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing) && !is_thing_directly_controlled(thing) &&
+            !creature_is_being_unconscious(thing) && !creature_is_kept_in_custody(thing) &&
+            (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
+        {
+            struct CreatureStateConfig *stati;
+            stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
+            if (stati->react_to_cta && (get_chessboard_distance(&traptng->mappos, &thing->mappos) < 4096))
+            {
+                creature_mark_if_woken_up(thing);
+                if (external_set_thing_state(thing, CrSt_ArriveAtAlarm))
+                {
+                    if (setup_person_move_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0))
+                    {
+                        thing->continue_state = CrSt_ArriveAtAlarm;
+                        cctrl->alarm_over_turn = get_gameturn() + 800;
+                        cctrl->alarm_stl_x = traptng->mappos.x.stl.num;
+                        cctrl->alarm_stl_y = traptng->mappos.y.stl.num;
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
 }
 
 TngUpdateRet update_shot(struct Thing *thing)

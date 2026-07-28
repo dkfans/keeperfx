@@ -76,6 +76,7 @@
 #include "packets.h"
 #include "console_cmd.h"
 #include "engine_redraw.h"
+#include "timer.h"
 
 #include "keeperfx.hpp"
 

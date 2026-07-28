@@ -1,10 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file game_legacy.h
+/** @file game_loop.h
  *     Header file for game_loop.c.
- * @author   Loobinex
- * @date     14 Jul 2021
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -30,8 +28,6 @@ extern "C" {
 /******************************************************************************/
 void process_dungeon_destroy(struct Thing* heartng);
 void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx);
-void update_manufacturing(void);
-/******************************************************************************/
 /******************************************************************************/
 #ifdef __cplusplus
 }

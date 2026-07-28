@@ -63,6 +63,7 @@
 #include "map_blocks.h"
 #include "lua_triggers.h"
 #include "lens_api.h"
+#include "timer.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"

@@ -57,6 +57,7 @@
 #include "front_easter.h"
 #include "front_input.h"
 #include "net_exchange_gameplay.h"
+#include "timer.h"
 
 #include "post_inc.h"
 

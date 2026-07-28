@@ -134,6 +134,7 @@
 #include "frontmenu_ingame_map.h"
 #include "room_library.h"
 #include <cstdint>
+#include "timer.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -201,11 +202,7 @@ TbBool force_player_num = false;
 
 /******************************************************************************/
 
-TbClockMSec timerstarttime = 0;
-struct TimerTime Timer;
-TbBool TimerGame = false;
-TbBool TimerNoReset = false;
-TbBool TimerFreeze = false;
+
 /******************************************************************************/
 
 int32_t fps_limit_current = 0;
@@ -225,7 +222,6 @@ void setup_stuff(void)
     init_alpha_table();
 }
 
-
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
 {
     long win_plyr_idx;
@@ -240,63 +236,6 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
     }
     SYNCDBG(1,"Returning true for player %ld",win_plyr_idx);
     return true;
-}
-
-void affect_nearby_friends_with_alarm(struct Thing *traptng)
-{
-    SYNCDBG(8,"Starting");
-    if (is_neutral_thing(traptng)) {
-        return;
-    }
-    struct Dungeon *dungeon;
-    unsigned long k;
-    int i;
-    dungeon = get_players_num_dungeon(traptng->owner);
-    k = 0;
-    i = dungeon->creatr_list_start;
-    while (i != 0)
-    {
-        struct CreatureControl *cctrl;
-        struct Thing *thing;
-        thing = thing_get(i);
-        TRACE_THING(thing);
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-        {
-            ERRORLOG("Jump to invalid creature detected");
-            break;
-        }
-        i = cctrl->players_next_creature_idx;
-        // Thing list loop body
-        if (!thing_is_picked_up(thing) && !is_thing_directly_controlled(thing) &&
-            !creature_is_being_unconscious(thing) && !creature_is_kept_in_custody(thing) &&
-            (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
-        {
-            struct CreatureStateConfig *stati;
-            stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
-            if (stati->react_to_cta && (get_chessboard_distance(&traptng->mappos, &thing->mappos) < 4096))
-            {
-                creature_mark_if_woken_up(thing);
-                if (external_set_thing_state(thing, CrSt_ArriveAtAlarm))
-                {
-                    if (setup_person_move_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0))
-                    {
-                        thing->continue_state = CrSt_ArriveAtAlarm;
-                        cctrl->alarm_over_turn = get_gameturn() + 800;
-                        cctrl->alarm_stl_x = traptng->mappos.x.stl.num;
-                        cctrl->alarm_stl_y = traptng->mappos.y.stl.num;
-                    }
-                }
-            }
-        }
-        // Thing list loop body ends
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            break;
-        }
-    }
 }
 
 void init_censorship(void)
@@ -1764,56 +1703,7 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
     }
 }
 
-void initialise_map_collides(void)
-{
-    SYNCDBG(7,"Starting");
-    MapSlabCoord slb_x;
-    MapSlabCoord slb_y;
-    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
-    {
-        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
-        {
-            struct SlabMap *slb;
-            slb = get_slabmap_block(slb_x, slb_y);
-            int ssub_x;
-            int ssub_y;
-            for (ssub_y=0; ssub_y < STL_PER_SLB; ssub_y++)
-            {
-                for (ssub_x=0; ssub_x < STL_PER_SLB; ssub_x++)
-                {
-                    MapSubtlCoord stl_x;
-                    MapSubtlCoord stl_y;
-                    stl_x = slab_subtile(slb_x,ssub_x);
-                    stl_y = slab_subtile(slb_y,ssub_y);
-                    struct Map *mapblk;
-                    mapblk = get_map_block_at(stl_x, stl_y);
-                    mapblk->flags = 0;
-                    update_map_collide(slb->kind, stl_x, stl_y);
-                }
-            }
-        }
-    }
-}
-
-void initialise_map_health(void)
-{
-    SYNCDBG(7,"Starting");
-    MapSlabCoord slb_x;
-    MapSlabCoord slb_y;
-    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
-    {
-        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
-        {
-            struct SlabMap *slb;
-            slb = get_slabmap_block(slb_x, slb_y);
-            struct SlabConfigStats *slabst;
-            slabst = get_slab_stats(slb);
-            slb->health = game.block_health[slabst->block_health_index];
-        }
-    }
-}
-
-short process_command_line(unsigned short argc, char *argv[])
+static short process_command_line(unsigned short argc, char *argv[])
 {
   char fullpath[CMDLN_MAXLEN+1];
   snprintf(fullpath, CMDLN_MAXLEN, "%s", argv[0]);
@@ -2140,7 +2030,7 @@ short process_command_line(unsigned short argc, char *argv[])
   return (bad_param==0);
 }
 
-const char* determine_log_filename(unsigned short argument_count, char *argument_values[])
+static const char* determine_log_filename(unsigned short argument_count, char *argument_values[])
 {
     for (int argument_index = 1; argument_index < argument_count; argument_index++) {
         if (argument_values[argument_index] && (argument_values[argument_index][0] == '-' || argument_values[argument_index][0] == '/')) {
@@ -2263,28 +2153,6 @@ int kfxmain(int argc, char *argv[])
 #endif
 
   return 0;
-}
-
-void update_time(void)
-{
-    unsigned long time = ((unsigned long)LbTimerClock()) - timerstarttime;
-    Timer.MSeconds = time % 1000;
-    time /= 1000;
-    Timer.Seconds = time % 60;
-    time /= 60;
-    Timer.Minutes = time % 60;
-    Timer.Hours = time / 60;
-}
-
-struct GameTime get_game_time(unsigned long turns, unsigned long fps)
-{
-    struct GameTime GameT;
-    unsigned long time = turns / fps;
-    GameT.Seconds = time % 60;
-    time /= 60;
-    GameT.Minutes = time % 60;
-    GameT.Hours = time / 60;
-    return GameT;
 }
 
 #ifdef __cplusplus

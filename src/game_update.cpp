@@ -131,6 +131,7 @@
 #include "moonphase.h"
 #include "frontmenu_ingame_map.h"
 #include "room_library.h"
+#include "room_workshop.h"
 #include <cstdint>
 
 #include "post_inc.h"
