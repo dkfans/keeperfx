@@ -1124,8 +1124,6 @@ static TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
     return (plyr_idx == game.neutral_player_num) || (slabmap_owner(slb) == game.neutral_player_num) || (slabmap_owner(slb) == plyr_idx);
 }
 
-
-
 static long update_cave_in(struct Thing *thing)
 {
     thing->health--;

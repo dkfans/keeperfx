@@ -362,7 +362,6 @@ static bool keeper_wait_for_screen_focus()
     return false;
 }
 
-
 static void find_frame_rate(void)
 {
     static TbClockMSec prev_time2=0;
@@ -397,8 +396,6 @@ static void packet_load_find_frame_rate(unsigned long incr)
     }
 }
 
-
-
 /**
  * Checks if the game screen needs redrawing.
  */
@@ -420,7 +417,6 @@ static short display_should_be_updated_this_turn(void)
     }
     return false;
 }
-
 
 // this one isn't static for now, because it's used in the network code
 // if networking had its own thread, it wouldn't need the yield that calls this function, but for now it does
@@ -648,7 +644,6 @@ static TbBool keeper_wait_for_next_turn(void)
 
     return false;
 }
-
 
 static void gameplay_loop_timestep()
 {
@@ -993,7 +988,6 @@ static TbBool wait_at_frontend(void)
     }
     return true;
 }
-
 
 void game_loop(void)
 {
