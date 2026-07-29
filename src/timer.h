@@ -8,8 +8,6 @@
  *     Timer functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
- * @date     05 Jan 2009 - 12 Jan 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
