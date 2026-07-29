@@ -8467,7 +8467,7 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
         coord_x -= box_width;
         break;
     }
-    coord_z -= (stl_width >> 1) + 3 * (long)stl_width;
+    coord_z -= (11 * (long)stl_width) >> 2;
     // Draw 4 horizonal line elements
     create_line_element(coord_x,             coord_y,                      coord_x + box_width, coord_y,                      coord_z,                          line_color);
     create_line_element(coord_x,             coord_y + box_height,         coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
@@ -8560,7 +8560,7 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
         }
         break;
     }
-    coord_z -= (stl_width >> 1) + 3 * (long)stl_width;
+    coord_z -= (11 * (long)stl_width) >> 2;
     for (int roomspace_y = 0; roomspace_y < room_slab_height; roomspace_y += 1)
     {
         int y_start = (box_height * roomspace_y       / room_slab_height) + ((((box_height * roomspace_y)       % room_slab_height) >= room_slab_height) ? 1 : 0);
