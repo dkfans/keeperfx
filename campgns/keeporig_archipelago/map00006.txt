@@ -1,0 +1,129 @@
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Level Snuggledell
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM            KeeperFX CCP Team
+REM  Date:     17 Dec 1996 - 07 Sep 2014
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
+LEVEL_VERSION(1)
+
+REM New rooms for the player:
+REM   TORTURE - When found on map
+REM New creatures for the player:
+REM   DARK_MISTRESS - As soon as TORTURE claimed
+REM   GHOST - From torturing only
+REM New powers for the player:
+REM   LIGHTNING - Researchable
+REM New manufacture for the player:
+REM   TRAP_LIGHTNING - As soon as got WORKSHOR
+REM   DOOR_BRACED - As soon as got WORKSHOR
+
+SET_GENERATE_SPEED(400)
+
+REM Computer Player stuff
+COMPUTER_PLAYER(PLAYER1,5)
+
+START_MONEY(PLAYER0,2000)
+START_MONEY(PLAYER1,14500)
+
+MAX_CREATURES(PLAYER0,30)
+MAX_CREATURES(PLAYER1,25)
+
+REM	Creature availability
+CREATURE_AVAILABLE(ALL_PLAYERS,TROLL,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DEMONSPAWN,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,0)
+CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,0,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BUG,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SPIDER,1,0)
+CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,0)
+
+SET_CREATURE_MAX_LEVEL(PLAYER0,DEMONSPAWN,10)
+	
+ADD_CREATURE_TO_POOL(BUG,30)
+ADD_CREATURE_TO_POOL(FLY,30)
+ADD_CREATURE_TO_POOL(DEMONSPAWN,30)
+ADD_CREATURE_TO_POOL(DARK_MISTRESS,20)
+ADD_CREATURE_TO_POOL(SORCEROR,40)
+ADD_CREATURE_TO_POOL(TROLL,30)
+ADD_CREATURE_TO_POOL(SPIDER,30)
+ADD_CREATURE_TO_POOL(BILE_DEMON,10)
+
+REM	Room availability
+ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,WORKSHOP,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,GUARD_POST,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,PRISON,1,0)
+
+REM	Spells availability
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_LIGHTNING,1,0)
+
+REM	Doors and traps availability
+DOOR_AVAILABLE(ALL_PLAYERS,WOOD,1,0)
+TRAP_AVAILABLE(ALL_PLAYERS,POISON_GAS,1,0)
+TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+DOOR_AVAILABLE(ALL_PLAYERS,BRACED,1,0)
+
+REM ****************************************************************************
+
+REM "This land hangs in the balance of power. All that decides its fate is you and a rival dungeon keeper..."
+DISPLAY_OBJECTIVE(64,PLAYER0)
+
+IF(PLAYER0,TORTURE > 0)
+	REM "You have claimed an old torture room. Place imprisoned creatures inside to convert them to our evil ways or place your own creatures within to discipline them."
+	DISPLAY_INFORMATION(66,ALL_PLAYERS)
+	ROOM_AVAILABLE(PLAYER0,TORTURE,1,1)
+ENDIF
+
+IF(PLAYER0,DARK_MISTRESS > 0)
+	CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,0)
+	REM "A dark mistress has joined you. These are wicked creatures who frequently need a good disciplining."
+	DISPLAY_INFORMATION(67,ALL_PLAYERS)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,BRACED >= 1)
+	REM "Your engineers have manufactured a braced door. These are stronger than wooden doors."
+	DISPLAY_INFORMATION(68,ALL_PLAYERS)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POWER_LIGHTNING >= 1)
+	REM "Your researchers have given you the power of lightning. Cast it on a creature to unleash a deadly bolt of electricity which will fry him crispy."
+	DISPLAY_INFORMATION(69,ALL_PLAYERS)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,LIGHTNING >= 1)
+	REM "You have manufactured a powerful trap, a lightning trap."
+	DISPLAY_INFORMATION(70,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER1,PRISON >= 9)
+	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
+ENDIF
+
+IF(PLAYER1,DUNGEON_DESTROYED == 1)
+	REM "Congratulations, the enemy keepers' dungeon crumbles, and his power is lost."
+	DISPLAY_OBJECTIVE(65,PLAYER0)
+	WIN_GAME
+ENDIF
+
+REM ****************************************************************************
