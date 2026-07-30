@@ -8968,7 +8968,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&interp.mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
-            add_spinning_key_to_polypool(thing, cx, cy, cy, cz-3);
+            add_spinning_key_to_polypool(thing, cx, cy, cy, cz - 3 - 4 * (camera_zoom >> 11));
         }
         break;
     default:
