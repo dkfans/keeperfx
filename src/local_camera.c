@@ -87,14 +87,14 @@ void send_camera_catchup_packets(void)
     default:
         return;
     }
-    
+
     struct Camera* local_cam = &destination_local_cameras[cam_idx];
     struct Camera* packet_cam = &player->cameras[cam_idx];
     struct Packet* pckt = get_packet(player->id_number);
-    
+
     long diff_map_x = local_cam->mappos.x.val - packet_cam->mappos.x.val;
     long diff_map_y = local_cam->mappos.y.val - packet_cam->mappos.y.val;
-    
+
     long angle = local_cam->rotation_angle_x;
     long cos_angle = LbCosL(angle);
     long sin_angle = LbSinL(angle);
