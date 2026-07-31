@@ -13,6 +13,20 @@ REM the Free Software Foundation; either version 2 of the License, or
 REM (at your option) any later version.
 REM ****************************************************************************
 
+
+REM --For testing with randomizer
+
+ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+
 START_MONEY(PLAYER0,0)
 
 REM "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to make this place safe is to kill every hero in the realm."
@@ -33,10 +47,10 @@ IF(PLAYER0,TOTAL_IMPS == 0)
 	LOSE_GAME
 ENDIF
 
-IF_ACTION_POINT(1,PLAYER0)
-	TUTORIAL_FLASH_BUTTON(18,-1)
-	ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
-ENDIF
+REM IF_ACTION_POINT(1,PLAYER0)
+REM	TUTORIAL_FLASH_BUTTON(18,-1)
+REM	ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
+REM ENDIF
 
 IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
 	BONUS_LEVEL_TIME(0)
