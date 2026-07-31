@@ -61,15 +61,16 @@ static struct Packet* get_packet_for_local_camera_update(void)
     return get_packet_direct(player->packet_num);
 }
 
-void send_camera_catchup_packets(struct PlayerInfo *player)
+void send_camera_catchup_packets(void)
 {
     // Threshold distance before sending catchup packets (in map coordinates)
     #define CAMERA_DESYNC_THRESHOLD 512
 
-    if (!is_my_player(player) || !local_camera_ready) {
+    if (!local_camera_ready) {
         return;
     }
-    
+    struct PlayerInfo* player = get_my_player();
+
     // Determine which camera to compare based on view mode
     int cam_idx = (player->view_mode == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
     
@@ -244,9 +245,7 @@ void update_local_cameras(void)
             process_camera_controls(cam, local_packet, my_player, true);
             view_process_camera_inertia(cam);
         }
-        
-        // Send catchup packets if local camera has drifted too far from packet-based camera
-        send_camera_catchup_packets(my_player);
+
         update_camera_deviations(active_cam_idx);
     }
 }

@@ -725,5 +725,8 @@ void update_all_players_cameras(void)
           update_player_camera(player);
     }
   }
+
+  // Send catchup packets if local camera has drifted too far from packet-based camera
+  send_camera_catchup_packets();
 }
 /******************************************************************************/
