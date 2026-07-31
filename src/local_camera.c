@@ -72,7 +72,21 @@ void send_camera_catchup_packets(void)
     struct PlayerInfo* player = get_my_player();
 
     // Determine which camera to compare based on view mode
-    int cam_idx = (player->view_mode == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
+    int cam_idx;
+    switch (player->view_mode)
+    {
+    case PVM_FrontView:
+        cam_idx = CamIV_FrontView;
+        break;
+
+    case PVM_IsoStraightView:
+    case PVM_IsoWibbleView:
+        cam_idx = CamIV_Isometric;
+        break;
+
+    default:
+        return;
+    }
     
     struct Camera* local_cam = &destination_local_cameras[cam_idx];
     struct Camera* packet_cam = &player->cameras[cam_idx];
