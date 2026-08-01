@@ -161,6 +161,7 @@ src/game_loop.c \
 src/game_lghtshdw.c \
 src/game_merge.c \
 src/game_saves.c \
+src/game_update.cpp \
 src/gui_boxmenu.c \
 src/gui_draw.c \
 src/gui_frontbtns.c \
@@ -277,6 +278,7 @@ src/thing_physics.c \
 src/thing_shots.c \
 src/thing_stats.c \
 src/thing_traps.c \
+src/timer.c \
 src/value_util.c \
 src/vidfade.c \
 src/vidmode_data.cpp \

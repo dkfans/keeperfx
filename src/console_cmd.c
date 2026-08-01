@@ -72,6 +72,8 @@
 #include <math.h>
 #include "lua_base.h"
 #include "net_resync.h"
+#include "kjm_input.h"
+#include "timer.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -757,7 +759,7 @@ TbBool cmd_comp_procs(PlayerNumber plyr_idx, char * args)
     i++;
     cmd_comp_procs_data[i].label = "!";
     cmd_comp_procs_data[i].is_enabled = 0;
-    gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_procs_data);
+    gui_cheat_box_2 = gui_create_box(GetMouseX(), 20, cmd_comp_procs_data);
     return true;
 }
 
@@ -781,7 +783,7 @@ TbBool cmd_comp_events(PlayerNumber plyr_idx, char * args)
         cmd_comp_events_data, cmd_comp_events_label,
         &get_event_name, &get_event_flags, NULL);
     cmd_comp_events_data[0].active_cb = NULL;
-    gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_events_data);
+    gui_cheat_box_2 = gui_create_box(GetMouseX(), 20, cmd_comp_events_data);
     return true;
 }
 
@@ -805,7 +807,7 @@ TbBool cmd_comp_checks(PlayerNumber plyr_idx, char * args)
         cmd_comp_checks_data, cmd_comp_checks_label,
         &get_check_name, &get_check_flags, &cmd_comp_checks_click);
     cmd_comp_checks_data[0].active_cb = NULL;
-    gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_checks_data);
+    gui_cheat_box_2 = gui_create_box(GetMouseX(), 20, cmd_comp_checks_data);
     return true;
 }
 

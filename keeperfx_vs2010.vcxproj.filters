@@ -271,6 +271,8 @@
     <ClCompile Include="src\vidmode.c" />
     <ClCompile Include="src\vidmode_data.cpp" />
     <ClCompile Include="src\sound_manager.cpp" />
+    <ClCompile Include="src\timer.c" />
+    <ClCompile Include="src\game_update.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h" />
@@ -512,6 +514,7 @@
     <ClInclude Include="src\vidfade.h" />
     <ClInclude Include="src\vidmode.h" />
     <ClInclude Include="src\sound_manager.h" />
+    <ClInclude Include="src\timer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\keeper95_gold.map" />

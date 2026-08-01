@@ -36,7 +36,10 @@
 #include "post_inc.h"
 
 extern void network_yield_waiting_gameplay_packets(void);
-extern int32_t multiplayer_speed_adjustment_ns;
+
+/******************************************************************************/
+
+int32_t multiplayer_speed_adjustment_ns;
 
 /******************************************************************************/
 

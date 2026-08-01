@@ -729,4 +729,14 @@ void update_all_players_cameras(void)
   // Send catchup packets if local camera has drifted too far from packet-based camera
   send_camera_catchup_packets();
 }
+
+void set_player_cameras_position(struct PlayerInfo *player, int32_t pos_x, int32_t pos_y)
+{
+    player->cameras[CamIV_Parchment].mappos.x.val = pos_x;
+    player->cameras[CamIV_FrontView].mappos.x.val = pos_x;
+    player->cameras[CamIV_Isometric].mappos.x.val = pos_x;
+    player->cameras[CamIV_Parchment].mappos.y.val = pos_y;
+    player->cameras[CamIV_FrontView].mappos.y.val = pos_y;
+    player->cameras[CamIV_Isometric].mappos.y.val = pos_y;
+}
 /******************************************************************************/

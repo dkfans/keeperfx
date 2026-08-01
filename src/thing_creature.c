@@ -96,6 +96,7 @@
 #include "thing_traps.h"
 #include "lua_triggers.h"
 #include "lua_cfg_funcs.h"
+#include "room_workshop.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -5880,6 +5881,28 @@ struct Thing *create_footprint_sine(struct Coord3d *crtr_pos, unsigned short pha
   return INVALID_THING;
 }
 
+long get_foot_creature_has_down(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    unsigned short val;
+    long i;
+    int n;
+    cctrl = creature_control_get_from_thing(thing);
+    val = thing->current_frame;
+    if (val == (cctrl->anim_time >> 8))
+        return 0;
+    unsigned short frame = (creature_is_dragging_something(thing)) ? CGI_Drag : CGI_Ambulate;
+    n = get_creature_model_graphics(thing->model, frame);
+    i = get_td_animation_sprite(n);
+    if (i != thing->anim_sprite)
+        return 0;
+    if (val == 1)
+        return 1;
+    if (val == 4)
+        return 2;
+    return 0;
+}
+
 void place_bloody_footprint(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -6340,6 +6363,33 @@ long update_creature_levels(struct Thing *thing)
         return 0;
     }
     return -1;
+}
+
+static void process_keeper_spell_aura(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    TRACE_THING(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->spell_aura_duration--;
+    if (cctrl->spell_aura_duration <= 0)
+    {
+        cctrl->spell_aura = 0;
+        return;
+    }
+    struct Coord3d pos;
+    long amp;
+    long direction;
+    long delta_x;
+    long delta_y;
+    amp = 5 * thing->clipbox_size_xy / 8;
+    direction = THING_RANDOM(thing, DEGREES_360);
+    delta_x = (amp * LbSinL(direction) >> 8);
+    delta_y = (amp * LbCosL(direction) >> 8);
+    pos.x.val = thing->mappos.x.val + (delta_x >> 8);
+    pos.y.val = thing->mappos.y.val - (delta_y >> 8);
+    pos.z.val = thing->mappos.z.val;
+
+    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner, thing->index);
 }
 
 TngUpdateRet update_creature(struct Thing *thing)

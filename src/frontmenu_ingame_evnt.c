@@ -46,6 +46,7 @@
 #include "map_events.h"
 #include "local_camera.h"
 #include "sprites.h"
+#include "timer.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"

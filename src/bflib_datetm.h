@@ -22,7 +22,6 @@
 
 #include <time.h>
 #include "bflib_basics.h"
-#include "keeperfx.hpp"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
