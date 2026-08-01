@@ -1,7 +1,7 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file game_update.c
+/** @file game_update.cpp
  *     Module which contains functions for updating the game state.
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
