@@ -32,82 +32,79 @@ set(KEEPERFX_VER_DEFS_H_IN ${CMAKE_SOURCE_DIR}/ver_defs.h.in)
 set(KEEPERFX_VER_DEFS_H_OUT ${CMAKE_SOURCE_DIR}/src/ver_defs.h)
 configure_file(${KEEPERFX_VER_DEFS_H_IN} ${KEEPERFX_VER_DEFS_H_OUT})
 
-# SDL2 and all other dependencies are prebuilt MinGW-w64 (i686) libraries
-# provided by deps/ (add_subdirectory below), mirroring the hand Makefile.
-
-# Global definitions.
-add_compile_definitions(_CRT_NONSTDC_NO_WARNINGS _CRT_SECURE_NO_WARNINGS)
-
+# --- Source list ------------------------------------------------------------
+# The Makefiles build a curated object list, not a glob; match them.
 file(GLOB_RECURSE KEEPERFX_SOURCES_C "src/*.c")
 file(GLOB_RECURSE KEEPERFX_SOURCES_CXX "src/*.cpp")
 
-# The Makefile builds a curated object list, not a glob. Match it:
-#  - the functional test harness is off by default (FTEST_DEBUG defaults to 0);
-#  - src/linux.cpp is the Linux entry point (POSIX headers, its own main()) and
-#    is only built by linux.mk, never the Windows/MinGW build.
+# The functional-test harness is off by default (FTEST_DEBUG defaults to 0).
 list(FILTER KEEPERFX_SOURCES_C   EXCLUDE REGEX "/src/ftests/")
 list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/ftests/")
-list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/linux\\.cpp$")
+if(WIN32)
+    # linux.cpp is the Linux entry point (POSIX headers, own main()); never
+    # built on Windows (matches ../Makefile).
+    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/linux\\.cpp$")
+else()
+    # cdrom/steam_api/windows are Windows-only TUs (matches ../linux.mk).
+    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/(cdrom|steam_api|windows)\\.cpp$")
+endif()
 
-# Global definitions for all targets.
+# --- Targets ----------------------------------------------------------------
 add_compile_definitions("DEBUG=$<IF:$<CONFIG:Debug>,1,0>")
-# Match the Makefile's dependency-related defines (DEPFLAGS + CFLAGS).
-add_compile_definitions("SPNG_STATIC=1")
-add_compile_definitions("AL_LIBTYPE_STATIC")
 
-# Add two executable targets: keeperfx and keeperfx_hvlog.
-add_executable(keeperfx ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
-
-target_compile_definitions(keeperfx PUBLIC BFDEBUG_LEVEL=0)
-target_sources(keeperfx PRIVATE "res/keeperfx_stdres.rc")
-
+add_executable(keeperfx       ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
 add_executable(keeperfx_hvlog ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
-
+target_compile_definitions(keeperfx       PUBLIC BFDEBUG_LEVEL=0)
 target_compile_definitions(keeperfx_hvlog PUBLIC BFDEBUG_LEVEL=10)
-target_sources(keeperfx_hvlog PRIVATE "res/keeperfx_stdres.rc")
 
-message(STATUS "We are using ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "Building keeperfx with ${CMAKE_CXX_COMPILER_ID} for ${CMAKE_SYSTEM_NAME}")
 
-# The default bfd linker in MinGW is extremely slow. LLVM linker (LLD) is much much faster.
-set_property(TARGET keeperfx PROPERTY LINKER_TYPE LLD)
-set_property(TARGET keeperfx_hvlog PROPERTY LINKER_TYPE LLD)
+# --- Platform compile/link setup --------------------------------------------
+if(WIN32)
+    # Windows / MinGW-w64 (i686) — mirrors ../Makefile.
+    add_compile_definitions(_CRT_NONSTDC_NO_WARNINGS _CRT_SECURE_NO_WARNINGS)
+    add_compile_definitions("SPNG_STATIC=1")     # spng linked statically
+    add_compile_definitions("AL_LIBTYPE_STATIC") # OpenAL linked statically
 
-set(WARNFLAGS -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-strict-aliasing -Wno-unknown-pragmas -Werror -Wno-format-truncation)
-# -O3 matches the Makefile's release OPTFLAGS (CMake's RelWithDebInfo defaults to
-# -O2); appended last so it wins over the build-type default.
-set(GNU_COMPILER_FLAG -march=x86-64 -fno-omit-frame-pointer -fmessage-length=0 -O3)
-set(GNU_LINK_FLAG -mwindows -Wl,--enable-auto-import)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wimplicit")
-target_compile_options(keeperfx PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
-target_compile_options(keeperfx_hvlog PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
-target_link_options(keeperfx PRIVATE ${GNU_LINK_FLAG} -Wl,-Map,keeperfx.map)
-target_link_options(keeperfx_hvlog PRIVATE ${GNU_LINK_FLAG} -Wl,-Map,keeperfx_hvlog.map)
-target_link_libraries (keeperfx PUBLIC -static stdc++ winpthread -dynamic)
-target_link_libraries (keeperfx_hvlog PUBLIC -static stdc++ winpthread -dynamic)
+    # Version/icon resource (needs windres + a generated .ico from tools/).
+    target_sources(keeperfx       PRIVATE "res/keeperfx_stdres.rc")
+    target_sources(keeperfx_hvlog PRIVATE "res/keeperfx_stdres.rc")
 
-# Go into submodules. deps/ defines the prebuilt dependency targets used below.
+    # bfd is slow; prefer LLD when available (LINKER_TYPE needs CMake >= 3.29,
+    # harmlessly ignored on older CMake, which then uses the default linker).
+    set_property(TARGET keeperfx       PROPERTY LINKER_TYPE LLD)
+    set_property(TARGET keeperfx_hvlog PROPERTY LINKER_TYPE LLD)
+
+    set(WARNFLAGS -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter
+        -Wno-maybe-uninitialized -Wno-strict-aliasing -Wno-unknown-pragmas
+        -Werror -Wno-format-truncation)
+    # -O3 matches the Makefile's release OPTFLAGS (RelWithDebInfo defaults to -O2).
+    set(GNU_COMPILER_FLAG -march=x86-64 -fno-omit-frame-pointer -fmessage-length=0 -O3)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wimplicit")
+    foreach(_t keeperfx keeperfx_hvlog)
+        target_compile_options(${_t} PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
+        target_link_options(${_t} PRIVATE -mwindows -Wl,--enable-auto-import -Wl,-Map,${_t}.map)
+        target_link_libraries(${_t} PUBLIC -static stdc++ winpthread -dynamic)
+    endforeach()
+else()
+    # Linux (x86_64) — mirrors ../linux.mk (native gcc, no -mwindows).
+    set(WARNFLAGS -Wall -Wextra -Werror -Wno-unused-parameter
+        -Wno-unknown-pragmas -Wno-format-truncation -Wno-sign-compare)
+    set(GNU_COMPILER_FLAG -g -O3 -march=x86-64)
+    foreach(_t keeperfx keeperfx_hvlog)
+        target_compile_options(${_t} PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
+        target_compile_options(${_t} PRIVATE $<$<COMPILE_LANGUAGE:C>:-Wno-absolute-value>)
+        target_link_options(${_t} PRIVATE -g -rdynamic)
+    endforeach()
+endif()
+
+# deps/ links all third-party libraries onto the two targets (per platform).
 add_subdirectory(deps)
-add_subdirectory(tools)
 
-# All external dependencies (mirroring the Makefile's LINKLIB). The static
-# archives have circular references (e.g. curl<->zlib, ffmpeg internals), so
-# they are wrapped in a linker group (RESCAN == --start-group/--end-group)
-# and ordering between them is irrelevant. SDL2, centitoml, and the trailing
-# Windows system libraries are linked normally.
-set(KFX_STATIC_DEPS
-    libavformat_static libavcodec_static libswresample_static libavutil_static
-    openal_static astronomy_static enet6_static miniupnpc_static natpmp_static
-    curl_static spng_static centijson_static minizip_static zlib_static
-    luajit_static)
-
-foreach(_tgt keeperfx keeperfx_hvlog)
-    target_link_libraries(${_tgt} PRIVATE
-        kfx_sdl2
-        "$<LINK_GROUP:RESCAN,${KFX_STATIC_DEPS}>"
-        centitoml
-        # Windows system libs (matches the Makefile LINKLIB trailer).
-        winmm mingw32 imagehlp ws2_32 dbghelp bcrypt ole32 uuid)
-endforeach()
+# The Windows icon resource is generated by png2ico in tools/ (Windows only).
+if(WIN32)
+    add_subdirectory(tools)
+endif()
 
 # Distribution packaging (CPack). Combines the CMake-built keeperfx binary with
 # the game data staged by "make pkg-assemble". See the module for the flow.
