@@ -22,15 +22,15 @@ set(VER_STRING      "${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}.${VER_BUILD} ${PAC
 set(PACKAGE_SUFFIX  "")
 set(GIT_REVISION    "${COMMIT_ID}")
 
-# CMAKE_BINARY_DIR is defined in CMakePresets.json.
+# Generate the version header. src/version.h does #include "ver_defs.h", which
+# resolves relative to src/, so the generated header must land in src/ (this is
+# exactly where the Makefile puts it: GENSRC = src/ver_defs.h).
 set(KEEPERFX_VER_DEFS_H_IN ${CMAKE_SOURCE_DIR}/ver_defs.h.in)
-set(KEEPERFX_VER_DEFS_H_OUT ${CMAKE_SOURCE_DIR}/ver_defs.h)
+set(KEEPERFX_VER_DEFS_H_OUT ${CMAKE_SOURCE_DIR}/src/ver_defs.h)
 configure_file(${KEEPERFX_VER_DEFS_H_IN} ${KEEPERFX_VER_DEFS_H_OUT})
 
-find_package(SDL2 CONFIG REQUIRED)
-find_package(SDL2_image CONFIG REQUIRED)
-find_package(SDL2_mixer CONFIG REQUIRED)
-find_package(SDL2_net CONFIG REQUIRED)
+# SDL2 and all other dependencies are prebuilt MinGW-w64 (i686) libraries
+# provided by deps/ (add_subdirectory below), mirroring the hand Makefile.
 
 # Global definitions.
 add_compile_definitions(_CRT_NONSTDC_NO_WARNINGS _CRT_SECURE_NO_WARNINGS)
@@ -38,9 +38,19 @@ add_compile_definitions(_CRT_NONSTDC_NO_WARNINGS _CRT_SECURE_NO_WARNINGS)
 file(GLOB_RECURSE KEEPERFX_SOURCES_C "src/*.c")
 file(GLOB_RECURSE KEEPERFX_SOURCES_CXX "src/*.cpp")
 
+# The Makefile builds a curated object list, not a glob. Match it:
+#  - the functional test harness is off by default (FTEST_DEBUG defaults to 0);
+#  - src/linux.cpp is the Linux entry point (POSIX headers, its own main()) and
+#    is only built by linux.mk, never the Windows/MinGW build.
+list(FILTER KEEPERFX_SOURCES_C   EXCLUDE REGEX "/src/ftests/")
+list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/ftests/")
+list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/linux\\.cpp$")
+
 # Global definitions for all targets.
 add_compile_definitions("DEBUG=$<IF:$<CONFIG:Debug>,1,0>")
+# Match the Makefile's dependency-related defines (DEPFLAGS + CFLAGS).
 add_compile_definitions("SPNG_STATIC=1")
+add_compile_definitions("AL_LIBTYPE_STATIC")
 
 # Add two executable targets: keeperfx and keeperfx_hvlog.
 add_executable(keeperfx ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
@@ -59,8 +69,10 @@ message(STATUS "We are using ${CMAKE_CXX_COMPILER_ID}")
 set_property(TARGET keeperfx PROPERTY LINKER_TYPE LLD)
 set_property(TARGET keeperfx_hvlog PROPERTY LINKER_TYPE LLD)
 
-set(WARNFLAGS -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas -Werror)
-set(GNU_COMPILER_FLAG -march=x86-64 -fno-omit-frame-pointer -fmessage-length=0)
+set(WARNFLAGS -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-strict-aliasing -Wno-unknown-pragmas -Werror -Wno-format-truncation)
+# -O3 matches the Makefile's release OPTFLAGS (CMake's RelWithDebInfo defaults to
+# -O2); appended last so it wins over the build-type default.
+set(GNU_COMPILER_FLAG -march=x86-64 -fno-omit-frame-pointer -fmessage-length=0 -O3)
 set(GNU_LINK_FLAG -mwindows -Wl,--enable-auto-import)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wimplicit")
 target_compile_options(keeperfx PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
@@ -70,31 +82,26 @@ target_link_options(keeperfx_hvlog PRIVATE ${GNU_LINK_FLAG} -Wl,-Map,keeperfx_hv
 target_link_libraries (keeperfx PUBLIC -static stdc++ winpthread -dynamic)
 target_link_libraries (keeperfx_hvlog PUBLIC -static stdc++ winpthread -dynamic)
 
-# System libraries.
-target_link_libraries(keeperfx PRIVATE imagehlp dbghelp)
-target_link_libraries(keeperfx_hvlog PRIVATE imagehlp dbghelp)
-
-# Go into submodules.
+# Go into submodules. deps/ defines the prebuilt dependency targets used below.
 add_subdirectory(deps)
 add_subdirectory(tools)
 
-# External libraries.
-target_link_libraries(keeperfx
-    PRIVATE
-    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
-target_link_libraries(keeperfx
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
-target_link_libraries(keeperfx
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,SDL2_net::SDL2_net,SDL2_net::SDL2_net-static>)
-target_link_libraries(keeperfx
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
+# All external dependencies (mirroring the Makefile's LINKLIB). The static
+# archives have circular references (e.g. curl<->zlib, ffmpeg internals), so
+# they are wrapped in a linker group (RESCAN == --start-group/--end-group)
+# and ordering between them is irrelevant. SDL2, centitoml, and the trailing
+# Windows system libraries are linked normally.
+set(KFX_STATIC_DEPS
+    libavformat_static libavcodec_static libswresample_static libavutil_static
+    openal_static astronomy_static enet6_static miniupnpc_static natpmp_static
+    curl_static spng_static centijson_static minizip_static zlib_static
+    luajit_static)
 
-target_link_libraries(keeperfx_hvlog
-    PRIVATE
-    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
-target_link_libraries(keeperfx_hvlog
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
-target_link_libraries(keeperfx_hvlog
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,SDL2_net::SDL2_net,SDL2_net::SDL2_net-static>)
-target_link_libraries(keeperfx_hvlog
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
+foreach(_tgt keeperfx keeperfx_hvlog)
+    target_link_libraries(${_tgt} PRIVATE
+        kfx_sdl2
+        "$<LINK_GROUP:RESCAN,${KFX_STATIC_DEPS}>"
+        centitoml
+        # Windows system libs (matches the Makefile LINKLIB trailer).
+        winmm mingw32 imagehlp ws2_32 dbghelp bcrypt ole32 uuid)
+endforeach()
