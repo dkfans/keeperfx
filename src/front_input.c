@@ -277,13 +277,6 @@ static void update_gui_layer(void)
 {
     // Determine the current/correct GUI Layer to use at this moment
 
-    if (network_is_active()) // no one click on multiplayer.
-    {
-        //todo Make multiplayer work with 1-click
-        set_current_gui_layer(GuiLayer_Default);
-        return;
-    }
-
     struct PlayerInfo* player = get_my_player();
     if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (player->render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, false, true) || is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) )
