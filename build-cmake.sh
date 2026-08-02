@@ -18,8 +18,9 @@
 #
 set -euo pipefail
 
+# Output goes to out/ (git-ignored); build/ holds tracked CMake modules.
 TARGET="${1:-keeperfx}"
-BUILD_DIR="${BUILD_DIR:-build}"
+BUILD_DIR="${BUILD_DIR:-out}"
 
 # Run the whole thing inside a container that mirrors upstream CI (Ubuntu 24.04
 # + g++-mingw-w64-i686 == GCC 13 MinGW). Handy for testers without a toolchain.

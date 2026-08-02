@@ -80,7 +80,16 @@ PKG_FILES = \
 	$(PKG_DOCS) \
 	$(PKG_DLL)
 
-.PHONY: package
+# Everything except the binaries and their linker maps. When packaging with
+# CMake/CPack the keeperfx binary comes from the CMake build output, so the
+# "pkg-assemble" target below stages only the data (configs, campaigns, levels,
+# language/sound .dat files, SDL runtime DLLs, docs) into pkg/ for CPack to
+# archive. See build/cmake/modules/Packaging.cmake.
+PKG_DATA_FILES = $(filter-out \
+	$(PKG_BIN) $(PKG_BIN_MAP) $(PKG_HVLOGBIN) $(PKG_HVLOGBIN_MAP), \
+	$(PKG_FILES))
+
+.PHONY: package pkg-assemble
 
 pkg pkg/creatrs pkg/fxdata pkg/campgns pkg/fxdata/lua $(PKG_MAPPACK_DIRS) $(PKG_MP_MAPPACK_DIRS)  $(PKG_CAMPAIGN_DIRS) $(PKG_FXDATA_DIRS) $(PKG_MOD_DIRS):
 	$(MKDIR) $@
@@ -166,6 +175,12 @@ $(PKG_NAME): $(PKG_FILES) | pkg
 	$(RM) $@ && cd $(dir $(PKG_NAME)) && 7z a $(notdir $(PKG_NAME)) $(patsubst pkg/%,%,$^) >/dev/null
 
 package: $(PKG_NAME)
+
+# Stage the game data into pkg/ without building the .7z. Used by the CMake
+# packaging flow: run this, then "cmake --build --target package" (CPack) adds
+# the CMake-built keeperfx.exe and creates the archive.
+pkg-assemble: $(PKG_DATA_FILES)
+	@echo "Game data assembled into pkg/ - run 'cmake --build --target package' to create the archive"
 
 clean-package:
 	$(RM) -r pkg

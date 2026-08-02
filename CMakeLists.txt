@@ -18,8 +18,11 @@ set(VER_MAJOR       1)
 set(VER_MINOR       2)
 set(VER_RELEASE     0)
 set(VER_BUILD       0)
-set(VER_STRING      "${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}.${VER_BUILD} ${PACKAGE_SUFFIX}")
-set(PACKAGE_SUFFIX  "")
+# Packaging parameters (override via -DBUILD_NUMBER=<n> -DPACKAGE_SUFFIX=<s>).
+# Used for the CPack archive name so it matches the Makefile's convention.
+set(BUILD_NUMBER    "${VER_BUILD}" CACHE STRING "Monotonic build number")
+set(PACKAGE_SUFFIX  ""             CACHE STRING "Distribution suffix (e.g. Alpha, Release)")
+set(VER_STRING      "${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}.${BUILD_NUMBER} ${PACKAGE_SUFFIX}")
 set(GIT_REVISION    "${COMMIT_ID}")
 
 # Generate the version header. src/version.h does #include "ver_defs.h", which
@@ -105,3 +108,8 @@ foreach(_tgt keeperfx keeperfx_hvlog)
         # Windows system libs (matches the Makefile LINKLIB trailer).
         winmm mingw32 imagehlp ws2_32 dbghelp bcrypt ole32 uuid)
 endforeach()
+
+# Distribution packaging (CPack). Combines the CMake-built keeperfx binary with
+# the game data staged by "make pkg-assemble". See the module for the flow.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/build/cmake/modules)
+include(Packaging)
