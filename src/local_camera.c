@@ -58,7 +58,7 @@ static struct Packet* get_packet_for_local_camera_update(void)
     if (player_invalid(player)) {
         return NULL;
     }
-    return get_packet_direct(player->packet_num);
+    return (struct Packet *)get_history_packet(player->packet_num, get_gameturn());
 }
 
 void send_camera_catchup_packets(void)
