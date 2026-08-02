@@ -200,20 +200,20 @@ void update_local_first_person_camera(struct Thing *ctrltng)
     if (creature_is_frozen_in_first_person(cam, ctrltng)) {
         return;
     }
-    long current_horizontal = destination_local_cameras[CamIV_FirstPerson].rotation_angle_x;
-    long current_vertical = destination_local_cameras[CamIV_FirstPerson].rotation_angle_y;
     const struct Packet* latest_packet = get_packet_for_local_camera_update();
-    if (latest_packet != NULL) {
-        long new_horizontal, new_vertical, new_roll;
-        process_first_person_look(ctrltng, latest_packet, current_horizontal, current_vertical, &new_horizontal, &new_vertical, &new_roll);
-        current_horizontal = new_horizontal;
-        current_vertical = new_vertical;
-        if ((ctrltng->movement_flags & TMvF_Flying) != 0) {
-            cam->rotation_angle_z = new_roll;
-        }
+    if (latest_packet == NULL) {
+        return;
     }
-    cam->rotation_angle_x = current_horizontal;
-    cam->rotation_angle_y = current_vertical;
+
+    const long current_horizontal = cam->rotation_angle_x;
+    const long current_vertical = cam->rotation_angle_y;
+    long new_horizontal, new_vertical, new_roll;
+    process_first_person_look(ctrltng, latest_packet, current_horizontal, current_vertical, &new_horizontal, &new_vertical, &new_roll);
+    cam->rotation_angle_x = new_horizontal;
+    cam->rotation_angle_y = new_vertical;
+    if ((ctrltng->movement_flags & TMvF_Flying) != 0) {
+        cam->rotation_angle_z = new_roll;
+    }
 }
 
 void update_camera_deviations(int active_cam_idx)
