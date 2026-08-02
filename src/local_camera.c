@@ -52,13 +52,13 @@ static MapCoordDelta local_camera_move_delta[2];
 static TbBool local_camera_move_active;
 /******************************************************************************/
 
-static struct Packet* get_packet_for_local_camera_update(void)
+static const struct Packet* get_packet_for_local_camera_update(void)
 {
     struct PlayerInfo *player = get_my_player();
     if (player_invalid(player)) {
         return NULL;
     }
-    return (struct Packet *)get_history_packet(player->packet_num, get_gameturn());
+    return get_history_packet(player->packet_num, get_gameturn());
 }
 
 void send_camera_catchup_packets(void)
@@ -165,7 +165,7 @@ void move_local_camera_to_position(MapCoord x, MapCoord y)
     local_camera_move_active = true;
 }
 
-void process_local_minimap_click(struct Packet* packet) {
+void process_local_minimap_click(const struct Packet* packet) {
     if (packet != NULL && packet->action == PckA_BookmarkLoad) {
         const MapCoord pos_x = packet->actn_par1;
         const MapCoord pos_y = packet->actn_par2;
@@ -202,7 +202,7 @@ void update_local_first_person_camera(struct Thing *ctrltng)
     }
     long current_horizontal = destination_local_cameras[CamIV_FirstPerson].rotation_angle_x;
     long current_vertical = destination_local_cameras[CamIV_FirstPerson].rotation_angle_y;
-    struct Packet* latest_packet = get_packet_for_local_camera_update();
+    const struct Packet* latest_packet = get_packet_for_local_camera_update();
     if (latest_packet != NULL) {
         long new_horizontal, new_vertical, new_roll;
         process_first_person_look(ctrltng, latest_packet, current_horizontal, current_vertical, &new_horizontal, &new_vertical, &new_roll);
@@ -245,7 +245,7 @@ void update_local_cameras(void)
     if (in_first_person) {
         update_local_first_person_camera(ctrltng);
     } else {
-        struct Packet* local_packet = get_packet_for_local_camera_update();
+        const struct Packet* local_packet = get_packet_for_local_camera_update();
         if (local_packet == NULL) {
             return;
         }
