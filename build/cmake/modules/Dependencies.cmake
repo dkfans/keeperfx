@@ -1,27 +1,19 @@
-cmake_minimum_required(VERSION 3.20)
-
-# ---------------------------------------------------------------------------
-# Third-party dependencies, per platform. This links everything the two game
-# targets (keeperfx, keeperfx_hvlog) need, mirroring the hand Makefiles:
-#   - Windows / MinGW-w64 (i686): prebuilt kfx-deps mingw32 static libs + SDL2
-#     dev tarballs (mirrors ../Makefile).
-#   - Linux (x86_64): system/pkg-config libraries + a few prebuilt kfx-deps
-#     lin64 static libs (mirrors ../linux.mk).
-# Dep URLs/tags are kept in lockstep with those Makefiles.
-# ---------------------------------------------------------------------------
+# Dependencies.cmake - third-party libraries, per platform. Mirrors the hand
+# Makefiles: Windows/MinGW uses prebuilt kfx-deps mingw32 static libs + SDL2 dev
+# tarballs (../Makefile); Linux uses system/pkg-config libs + a few prebuilt
+# lin64 static libs (../linux.mk). Dep URLs/tags track those Makefiles.
+#
+# Targets are defined here; kfx_link_dependencies(<target>) links them onto the
+# game executables (called from BuildTargets, once they exist).
 
 set(KFX_DEPS_BASE "https://github.com/dkfans/kfx-deps/releases/download")
 
-# Downloaded dependencies live under the BUILD directory, not the source tree.
-# This keeps the source tree clean and isolates architectures: a Windows build
-# (out-win/) and a Linux build (out-linux/) in the same checkout each get their
-# own deps and never collide. (The hand Makefiles still use source-tree deps/;
-# the two are now independent.)
+# Downloaded deps live under the BUILD dir, not the source tree, so Windows and
+# Linux builds in one checkout get their own deps and never collide.
 set(D "${CMAKE_BINARY_DIR}/deps")
+set(KFX_CENTITOML_SRC "${CMAKE_SOURCE_DIR}/deps/centitoml")
 
-# kfx_fetch(<dir> <url>): download <url> to <builddir>/deps/<dir>.tar.gz (once)
-# and extract it into <builddir>/deps/<dir>/ (once), matching the on-disk layout
-# the Makefiles use.
+# kfx_fetch(<dir> <url>): download + extract into <builddir>/deps/<dir>/ once.
 function(kfx_fetch dir url)
     set(_tgz "${D}/${dir}.tar.gz")
     set(_dest "${D}/${dir}")
@@ -45,13 +37,15 @@ function(kfx_fetch dir url)
     endif()
 endfunction()
 
-if(WIN32)
-    # =======================================================================
-    # Windows / MinGW-w64 (i686) — prebuilt kfx-deps mingw32 libs (../Makefile)
-    # =======================================================================
+macro(kfx_imported name lib incdir)
+    add_library(${name} STATIC IMPORTED GLOBAL)
+    set_target_properties(${name} PROPERTIES
+        IMPORTED_LOCATION "${lib}"
+        INTERFACE_INCLUDE_DIRECTORIES "${incdir}")
+endmacro()
 
-    # --- SDL2 (prebuilt MinGW dev tarballs, same versions as prebuilds.mk) ---
-    # Each dev tarball wraps its content in <name>-<ver>/i686-w64-mingw32/*.
+if(WIN32)
+    # --- SDL2 (prebuilt MinGW dev tarballs; each wraps <name>-<ver>/i686-w64-mingw32/*)
     set(SDL2_VER      2.30.7)
     set(SDL2_NET_VER  2.2.0)
     set(SDL2_MIX_VER  2.8.0)
@@ -68,8 +62,7 @@ if(WIN32)
     set(SDL2_IMG_PREFIX  "${D}/sdl2_image/SDL2_image-${SDL2_IMG_VER}/i686-w64-mingw32")
 
     add_library(kfx_sdl2 INTERFACE)
-    # The code includes both <SDL.h> (via include/SDL2) and <SDL2/SDL_mixer.h>
-    # etc. (via the parent include/), so expose both levels.
+    # Code uses both <SDL.h> (include/SDL2) and <SDL2/SDL_mixer.h> (parent include/).
     target_include_directories(kfx_sdl2 INTERFACE
         "${SDL2_PREFIX}/include" "${SDL2_PREFIX}/include/SDL2"
         "${SDL2_NET_PREFIX}/include"
@@ -81,9 +74,7 @@ if(WIN32)
         "${SDL2_NET_PREFIX}/lib/libSDL2_net.dll.a"
         "${SDL2_IMG_PREFIX}/lib/libSDL2_image.dll.a")
 
-    # SDL2 is linked dynamically, so its runtime DLLs must ship in the package.
-    # Install them from the prebuilt dev tarballs (same DLLs the Makefile bundles),
-    # so CPack picks them up and the make data pipeline need not stage them.
+    # SDL2 links dynamically, so ship its runtime DLLs (CPack picks these up).
     install(FILES
         "${SDL2_PREFIX}/bin/SDL2.dll"
         "${SDL2_MIX_PREFIX}/bin/SDL2_mixer.dll"
@@ -91,7 +82,7 @@ if(WIN32)
         "${SDL2_IMG_PREFIX}/bin/SDL2_image.dll"
         DESTINATION .)
 
-    # --- Static libs from kfx-deps (mirror ../Makefile URLs/tags exactly) ---
+    # --- Static libs from kfx-deps (mirror ../Makefile URLs/tags)
     kfx_fetch(enet6      "${KFX_DEPS_BASE}/20260212/enet6-mingw32.tar.gz")
     kfx_fetch(zlib       "${KFX_DEPS_BASE}/initial/zlib-mingw32.tar.gz")
     kfx_fetch(spng       "${KFX_DEPS_BASE}/initial/spng-mingw32.tar.gz")
@@ -103,13 +94,6 @@ if(WIN32)
     kfx_fetch(miniupnpc  "${KFX_DEPS_BASE}/20260102/miniupnpc-mingw32.tar.gz")
     kfx_fetch(libnatpmp  "${KFX_DEPS_BASE}/20260102/libnatpmp-mingw32.tar.gz")
     kfx_fetch(libcurl    "${KFX_DEPS_BASE}/20260310/libcurl-mingw32.tar.gz")
-
-    macro(kfx_imported name lib incdir)
-        add_library(${name} STATIC IMPORTED GLOBAL)
-        set_target_properties(${name} PROPERTIES
-            IMPORTED_LOCATION "${lib}"
-            INTERFACE_INCLUDE_DIRECTORIES "${incdir}")
-    endmacro()
 
     kfx_imported(enet6_static      "${D}/enet6/lib/libenet6.a"       "${D}/enet6/include")
     target_link_libraries(enet6_static INTERFACE ws2_32 winmm)
@@ -135,31 +119,11 @@ if(WIN32)
     kfx_imported(libavutil_static      "${D}/ffmpeg/libavutil/libavutil.a"           "${D}/ffmpeg")
     kfx_imported(libswresample_static  "${D}/ffmpeg/libswresample/libswresample.a"   "${D}/ffmpeg")
 
-    add_library(centitoml OBJECT "centitoml/toml_api.c")
+    add_library(centitoml OBJECT "${KFX_CENTITOML_SRC}/toml_api.c")
     target_link_libraries(centitoml PUBLIC centijson_static)
-    target_include_directories(centitoml INTERFACE "centitoml")
-
-    # The static archives have circular references (curl<->zlib, ffmpeg
-    # internals), so link them inside a group (RESCAN == --start-group/--end).
-    set(KFX_STATIC_DEPS
-        libavformat_static libavcodec_static libswresample_static libavutil_static
-        openal_static astronomy_static enet6_static miniupnpc_static natpmp_static
-        curl_static spng_static centijson_static minizip_static zlib_static
-        luajit_static)
-
-    foreach(_t keeperfx keeperfx_hvlog)
-        target_link_libraries(${_t} PRIVATE
-            kfx_sdl2
-            "$<LINK_GROUP:RESCAN,${KFX_STATIC_DEPS}>"
-            centitoml
-            # Windows system libs (matches the Makefile LINKLIB trailer).
-            winmm mingw32 imagehlp ws2_32 dbghelp bcrypt ole32 uuid)
-    endforeach()
+    target_include_directories(centitoml INTERFACE "${KFX_CENTITOML_SRC}")
 
 else()
-    # =======================================================================
-    # Linux (x86_64) — system / pkg-config deps + lin64 static libs (linux.mk)
-    # =======================================================================
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(SDL2       REQUIRED IMPORTED_TARGET sdl2)
     pkg_check_modules(SDL2_mixer REQUIRED IMPORTED_TARGET SDL2_mixer)
@@ -172,39 +136,42 @@ else()
     pkg_check_modules(MINIZIP    REQUIRED IMPORTED_TARGET minizip)
     pkg_check_modules(ZLIB       REQUIRED IMPORTED_TARGET zlib)
 
-    # A few libs are not reliably packaged, so use the prebuilt lin64 static
-    # archives (same tarballs linux.mk downloads).
+    # Not reliably packaged; use the prebuilt lin64 static libs (as linux.mk does).
     kfx_fetch(astronomy "${KFX_DEPS_BASE}/20250418/astronomy-lin64.tar.gz")
     kfx_fetch(centijson "${KFX_DEPS_BASE}/20250418/centijson-lin64.tar.gz")
     kfx_fetch(enet6     "${KFX_DEPS_BASE}/20260213/enet6-lin64.tar.gz")
     kfx_fetch(libcurl   "${KFX_DEPS_BASE}/20260310/libcurl-lin64.tar.gz")
 
-    macro(kfx_imported name lib incdir)
-        add_library(${name} STATIC IMPORTED GLOBAL)
-        set_target_properties(${name} PROPERTIES
-            IMPORTED_LOCATION "${lib}"
-            INTERFACE_INCLUDE_DIRECTORIES "${incdir}")
-    endmacro()
-
     kfx_imported(astronomy_static "${D}/astronomy/libastronomy.a" "${D}/astronomy/include")
     kfx_imported(centijson_static "${D}/centijson/libjson.a"      "${D}/centijson/include")
     kfx_imported(enet6_static     "${D}/enet6/libenet6.a"         "${D}/enet6/include")
     kfx_imported(curl_static      "${D}/libcurl/lib/libcurl.a"    "${D}/libcurl/include")
-    # Static libcurl.a needs these (linux.mk: -lcurl -lssl -lcrypto -lzstd).
     target_link_libraries(curl_static INTERFACE ssl crypto zstd)
 
-    add_library(centitoml OBJECT "centitoml/toml_api.c")
+    add_library(centitoml OBJECT "${KFX_CENTITOML_SRC}/toml_api.c")
     target_link_libraries(centitoml PUBLIC centijson_static)
-    target_include_directories(centitoml INTERFACE "centitoml")
+    target_include_directories(centitoml INTERFACE "${KFX_CENTITOML_SRC}")
+endif()
 
-    foreach(_t keeperfx keeperfx_hvlog)
-        target_link_libraries(${_t} PRIVATE
+# Link every dependency onto TARGET.
+function(kfx_link_dependencies TARGET)
+    if(WIN32)
+        # Static archives have circular refs (curl<->zlib, ffmpeg internals), so
+        # link them in a group (RESCAN == --start-group/--end-group).
+        set(_static
+            libavformat_static libavcodec_static libswresample_static libavutil_static
+            openal_static astronomy_static enet6_static miniupnpc_static natpmp_static
+            curl_static spng_static centijson_static minizip_static zlib_static
+            luajit_static)
+        target_link_libraries(${TARGET} PRIVATE
+            kfx_sdl2 "$<LINK_GROUP:RESCAN,${_static}>" centitoml)
+    else()
+        target_link_libraries(${TARGET} PRIVATE
             PkgConfig::SDL2 PkgConfig::SDL2_mixer PkgConfig::SDL2_net PkgConfig::SDL2_image
             PkgConfig::FFMPEG PkgConfig::OPENAL PkgConfig::LUAJIT
             PkgConfig::SPNG PkgConfig::MINIZIP PkgConfig::ZLIB
             astronomy_static centijson_static enet6_static curl_static
             centitoml
-            # System libs (linux.mk trailer).
             miniupnpc natpmp dl)
-    endforeach()
-endif()
+    endif()
+endfunction()

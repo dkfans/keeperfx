@@ -4,7 +4,7 @@
 #
 #   KFX_OS=windows (default)  32-bit MinGW-w64 (i686) Windows binary, using the
 #                             same compiler/flags/prebuilt deps as `make`.
-#   KFX_OS=linux              native x86_64 Linux ELF, mirroring `make -f linux.mk`
+#   KFX_OS=linux              native x86_64 Linux ELF (pkg-config deps + prebuilt lin64 static libs)
 #                             (system/pkg-config deps + prebuilt lin64 static libs).
 #
 # Third-party deps are downloaded automatically on first run (into deps/); the

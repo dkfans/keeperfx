@@ -94,7 +94,7 @@ jobs:
         PACKAGE_SUFFIX=Prototype_$(git rev-parse --short=7 "$GITHUB_SHA")
         LINUX_ARTIFACT_NAME=keeperfx-linux_x86_64-${VER_MAJOR}_${VER_MINOR}_${VER_RELEASE}_${BUILD_NUMBER}_${PACKAGE_SUFFIX}-patch
         echo "LINUX_ARTIFACT_NAME=$LINUX_ARTIFACT_NAME" >> $GITHUB_ENV
-        # Native Linux build with CMake (mirrors linux.mk deps via pkg-config).
+        # Native Linux build with CMake (pkg-config deps + prebuilt lin64 static libs).
         cmake -S . -B out -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
           -DBUILD_NUMBER=$BUILD_NUMBER -DPACKAGE_SUFFIX=$PACKAGE_SUFFIX
         cmake --build out --target keeperfx -j"$(nproc)"
