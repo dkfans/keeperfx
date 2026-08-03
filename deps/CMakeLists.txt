@@ -11,10 +11,17 @@ cmake_minimum_required(VERSION 3.20)
 # ---------------------------------------------------------------------------
 
 set(KFX_DEPS_BASE "https://github.com/dkfans/kfx-deps/releases/download")
-set(D "${CMAKE_CURRENT_SOURCE_DIR}")
 
-# kfx_fetch(<dir> <url>): download <url> to deps/<dir>.tar.gz (once) and extract
-# it into deps/<dir>/ (once), matching the on-disk layout the Makefiles use.
+# Downloaded dependencies live under the BUILD directory, not the source tree.
+# This keeps the source tree clean and isolates architectures: a Windows build
+# (out-win/) and a Linux build (out-linux/) in the same checkout each get their
+# own deps and never collide. (The hand Makefiles still use source-tree deps/;
+# the two are now independent.)
+set(D "${CMAKE_BINARY_DIR}/deps")
+
+# kfx_fetch(<dir> <url>): download <url> to <builddir>/deps/<dir>.tar.gz (once)
+# and extract it into <builddir>/deps/<dir>/ (once), matching the on-disk layout
+# the Makefiles use.
 function(kfx_fetch dir url)
     set(_tgz "${D}/${dir}.tar.gz")
     set(_dest "${D}/${dir}")
