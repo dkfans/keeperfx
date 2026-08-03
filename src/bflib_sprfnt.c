@@ -1503,8 +1503,8 @@ static short load_unifont_file(struct AsianFont * dbcfont)
     for (unsigned int i = 0; i < UNIFONT_INDEX_COUNT; ++i)
     {
         unsigned int pos = i * UNIFONT_INDEX_SIZE;
-        widths[i] = lword(&index_buf[pos]);
-        offsets[i] = llong(&index_buf[pos + 2]);
+        widths[i] = (unsigned short)lword(&index_buf[pos]);
+        offsets[i] = (unsigned int)llong(&index_buf[pos + 2]);
         if (widths[i] != 0)
         {
             unsigned int row_bytes = (widths[i] + 7) >> 3;
@@ -1529,7 +1529,7 @@ static short load_unifont_file(struct AsianFont * dbcfont)
 
 short load_unifont_files()
 {
-	SYNCDBG(7,"Starting");
+    SYNCDBG(7,"Starting");
     for (int i = 0; i < sizeof(dbcfonts) / sizeof(dbcfonts[0]); ++i)
     {
         load_unifont_file(&dbcfonts[i]);
