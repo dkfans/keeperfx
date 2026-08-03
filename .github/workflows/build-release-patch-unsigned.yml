@@ -43,7 +43,7 @@ jobs:
         BUILD_NUMBER=$(git rev-list --count HEAD)
         PACKAGE_SUFFIX=
         # Compile both binaries with CMake (MinGW-w64 i686 cross-compile).
-        cmake -S . -B out -G Ninja -DCMAKE_TOOLCHAIN_FILE=mingw32.cmake \
+        cmake -S . -B out -G Ninja -DCMAKE_TOOLCHAIN_FILE=build/cmake/toolchains/mingw32.cmake \
           -DCMAKE_BUILD_TYPE=RelWithDebInfo \
           -DBUILD_NUMBER=$BUILD_NUMBER -DPACKAGE_SUFFIX=$PACKAGE_SUFFIX
         cmake --build out --target keeperfx keeperfx_hvlog -j"$(nproc)"

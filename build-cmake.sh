@@ -60,7 +60,7 @@ else
         exit 1
     fi
     cmake -S . -B "$BUILD_DIR" -G Ninja \
-        -DCMAKE_TOOLCHAIN_FILE=mingw32.cmake \
+        -DCMAKE_TOOLCHAIN_FILE=build/cmake/toolchains/mingw32.cmake \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo
 fi
 

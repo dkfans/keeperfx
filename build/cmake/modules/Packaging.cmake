@@ -7,7 +7,7 @@
 # pipeline. Usage:
 #
 #   1. Configure (pass the build number / suffix used for the filename):
-#        cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=mingw32.cmake \
+#        cmake -S . -B out -G Ninja -DCMAKE_TOOLCHAIN_FILE=build/cmake/toolchains/mingw32.cmake \
 #              -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 #              -DBUILD_NUMBER=1234 -DPACKAGE_SUFFIX=Alpha
 #   2. Build the binary:
