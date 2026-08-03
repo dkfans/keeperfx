@@ -17,10 +17,6 @@
 #   4. Create the archive:
 #        cmake --build build --target package
 #
-# Step 3 needs GNU Make and the KeeperFX tool suite (pngpal2raw, po2ngdat,
-# sndbanker, …) plus the SDL2 runtime DLLs — the same tools the Makefile build
-# already downloads. keeperfx_hvlog is bundled too when it has been built
-# (OPTIONAL install), matching `make package`.
 #
 # Output: pkg/keeperfx-<maj>_<min>_<rel>_<build>[-<suffix>]-patch.7z
 # ---------------------------------------------------------------------------
@@ -33,8 +29,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR "${VER_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${VER_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${VER_RELEASE}")
 
-# Archive filename — matches the Makefile convention:
-#   keeperfx-<maj>_<min>_<rel>_<build>[-<suffix>]-patch
+# Archive filename keeperfx-<maj>_<min>_<rel>_<build>[-<suffix>]-patch
 if(PACKAGE_SUFFIX AND NOT "${PACKAGE_SUFFIX}" STREQUAL "")
     set(CPACK_PACKAGE_FILE_NAME
         "keeperfx-${VER_MAJOR}_${VER_MINOR}_${VER_RELEASE}_${BUILD_NUMBER}-${PACKAGE_SUFFIX}-patch")
@@ -43,7 +38,7 @@ else()
         "keeperfx-${VER_MAJOR}_${VER_MINOR}_${VER_RELEASE}_${BUILD_NUMBER}-patch")
 endif()
 
-# Place generated archives in the source-tree pkg/ directory (as the Makefile does)
+# Place generated archives in the source-tree pkg/ directory
 set(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_SOURCE_DIR}/pkg")
 
 # Flat archive layout (no top-level directory prefix)
@@ -59,8 +54,6 @@ endif()
 
 # --- Install rules ---------------------------------------------------------
 
-# The game binaries, straight from the CMake build. keeperfx_hvlog is OPTIONAL
-# so packaging works whether or not the heavy-log target was built.
 install(TARGETS keeperfx RUNTIME DESTINATION .)
 install(TARGETS keeperfx_hvlog RUNTIME DESTINATION . OPTIONAL)
 
