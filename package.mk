@@ -80,13 +80,13 @@ PKG_FILES = \
 	$(PKG_DOCS) \
 	$(PKG_DLL)
 
-# Everything except the binaries and their linker maps. When packaging with
-# CMake/CPack the keeperfx binary comes from the CMake build output, so the
-# "pkg-assemble" target below stages only the data (configs, campaigns, levels,
-# language/sound .dat files, SDL runtime DLLs, docs) into pkg/ for CPack to
-# archive. See build/cmake/modules/Packaging.cmake.
+# Everything except the binaries, their linker maps, and the SDL runtime DLLs.
+# When packaging with CMake/CPack the binaries and the SDL DLLs come from the
+# CMake build (see build/cmake/modules/Packaging.cmake and deps/CMakeLists.txt),
+# so "pkg-assemble" stages only the game data (configs, campaigns, levels,
+# language/sound .dat files, docs) into pkg/ for CPack to archive.
 PKG_DATA_FILES = $(filter-out \
-	$(PKG_BIN) $(PKG_BIN_MAP) $(PKG_HVLOGBIN) $(PKG_HVLOGBIN_MAP), \
+	$(PKG_BIN) $(PKG_BIN_MAP) $(PKG_HVLOGBIN) $(PKG_HVLOGBIN_MAP) $(PKG_DLL), \
 	$(PKG_FILES))
 
 .PHONY: package pkg-assemble

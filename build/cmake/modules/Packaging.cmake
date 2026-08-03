@@ -19,8 +19,8 @@
 #
 # Step 3 needs GNU Make and the KeeperFX tool suite (pngpal2raw, po2ngdat,
 # sndbanker, …) plus the SDL2 runtime DLLs — the same tools the Makefile build
-# already downloads. The keeperfx_hvlog binary is intentionally not packaged
-# here (it is a debug artifact); `make package` still bundles it if needed.
+# already downloads. keeperfx_hvlog is bundled too when it has been built
+# (OPTIONAL install), matching `make package`.
 #
 # Output: pkg/keeperfx-<maj>_<min>_<rel>_<build>[-<suffix>]-patch.7z
 # ---------------------------------------------------------------------------
@@ -59,8 +59,10 @@ endif()
 
 # --- Install rules ---------------------------------------------------------
 
-# The game binary, straight from the CMake build.
+# The game binaries, straight from the CMake build. keeperfx_hvlog is OPTIONAL
+# so packaging works whether or not the heavy-log target was built.
 install(TARGETS keeperfx RUNTIME DESTINATION .)
+install(TARGETS keeperfx_hvlog RUNTIME DESTINATION . OPTIONAL)
 
 # The game data assembled by "make pkg-assemble" (configs, campaigns, levels,
 # language/sound .dat files, SDL2 runtime DLLs, docs). Evaluated at pack time so

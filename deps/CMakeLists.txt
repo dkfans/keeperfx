@@ -81,6 +81,16 @@ if(WIN32)
         "${SDL2_NET_PREFIX}/lib/libSDL2_net.dll.a"
         "${SDL2_IMG_PREFIX}/lib/libSDL2_image.dll.a")
 
+    # SDL2 is linked dynamically, so its runtime DLLs must ship in the package.
+    # Install them from the prebuilt dev tarballs (same DLLs the Makefile bundles),
+    # so CPack picks them up and the make data pipeline need not stage them.
+    install(FILES
+        "${SDL2_PREFIX}/bin/SDL2.dll"
+        "${SDL2_MIX_PREFIX}/bin/SDL2_mixer.dll"
+        "${SDL2_NET_PREFIX}/bin/SDL2_net.dll"
+        "${SDL2_IMG_PREFIX}/bin/SDL2_image.dll"
+        DESTINATION .)
+
     # --- Static libs from kfx-deps (mirror ../Makefile URLs/tags exactly) ---
     kfx_fetch(enet6      "${KFX_DEPS_BASE}/20260212/enet6-mingw32.tar.gz")
     kfx_fetch(zlib       "${KFX_DEPS_BASE}/initial/zlib-mingw32.tar.gz")
