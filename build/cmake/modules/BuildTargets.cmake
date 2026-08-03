@@ -1,7 +1,7 @@
 # BuildTargets.cmake - source collection, executables, per-target flags + linking.
 
-file(GLOB_RECURSE KEEPERFX_SOURCES_C   "${CMAKE_SOURCE_DIR}/src/*.c")
-file(GLOB_RECURSE KEEPERFX_SOURCES_CXX "${CMAKE_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE KEEPERFX_SOURCES_C   CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.c")
+file(GLOB_RECURSE KEEPERFX_SOURCES_CXX CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
 # Functional-test harness is off by default (FTEST_DEBUG defaults to 0).
 list(FILTER KEEPERFX_SOURCES_C   EXCLUDE REGEX "/src/ftests/")
