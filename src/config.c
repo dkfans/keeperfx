@@ -1282,10 +1282,6 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size,
       mdir=keeper_runtime_directory;
       sdir="data";
       break;
-  case FGrp_LrgData:
-      mdir=keeper_runtime_directory;
-      sdir="data";
-      break;
   case FGrp_FxData:
       mdir=keeper_runtime_directory;
       sdir="fxdata";
@@ -1293,10 +1289,6 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size,
   case FGrp_LoData:
       mdir=install_info.inst_path[0] ? install_info.inst_path : keeper_runtime_directory;
       sdir="ldata";
-      break;
-  case FGrp_HiData:
-      mdir=keeper_runtime_directory;
-      sdir="hdata";
       break;
   case FGrp_Music:
       mdir=keeper_runtime_directory;
@@ -1313,10 +1305,6 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size,
   case FGrp_SShots:
       mdir=keeper_runtime_directory;
       sdir="scrshots";
-      break;
-  case FGrp_StdSound:
-      mdir=keeper_runtime_directory;
-      sdir="sound";
       break;
   case FGrp_LrgSound:
       mdir=keeper_runtime_directory;
