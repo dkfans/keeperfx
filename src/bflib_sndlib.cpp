@@ -760,6 +760,80 @@ extern "C" TbBool play_music_fgroup(short fgroup, const char * fname) {
     return play_music(fpath);
 }
 
+// Music container extensions, in order of preference. Files of other extensions
+// (and non-audio files like MusicReadme.txt) are ignored, so they can't shift
+// the track-to-file mapping.
+// The preferred option is to preserve 100% of the original audio quality while
+// using as little storage space as possible, that's why FLAC is first candidate.
+static const char *const music_file_extensions[] = {
+	".flac", ".wav", ".ogg", ".mp3"
+};
+
+static int music_extension_priority(const char *filename) {
+	const char *ext = strrchr(filename, '.');
+	if (ext == NULL) {
+		return -1;
+	}
+	for (size_t i = 0; i < sizeof(music_file_extensions) / sizeof(music_file_extensions[0]); i++) {
+		if (strcasecmp(ext, music_file_extensions[i]) == 0) {
+			return (int)i;
+		}
+	}
+	return -1;
+}
+
+// Resolve which music file plays for a given redbook track number
+static TbBool resolve_track_music_path(int track, char *dst, int dst_size) {
+	if (track < 2) {
+		return false;
+	}
+	const int wanted = track - 2; // 0-based position within the chosen format's files
+
+	char filespec[2048];
+	prepare_file_path_buf(filespec, sizeof(filespec), FGrp_Music, "*");
+	if (filespec[0] == '\0') {
+		return false;
+	}
+
+	struct TbFileEntry fe;
+	struct TbFileFind *ff = LbFileFindFirst(filespec, &fe);
+	if (ff == NULL) {
+		return false;
+	}
+
+	std::vector<std::pair<int, std::string>> files; // (priority rank, filename)
+	int best_priority = -1;
+	do {
+		const int prio = music_extension_priority(fe.Filename);
+		if (prio < 0) {
+			continue; // not a recognized music file
+		}
+		files.emplace_back(prio, fe.Filename);
+		if (best_priority < 0 || prio < best_priority) {
+			best_priority = prio;
+		}
+	} while (LbFileFindNext(ff, &fe) >= 0);
+	LbFileFindEnd(ff);
+
+	if (best_priority < 0) {
+		return false;
+	}
+
+	// Map the track within the winning format's files only, keeping sorted order
+	int index = 0;
+	for (const auto & f : files) {
+		if (f.first != best_priority) {
+			continue;
+		}
+		if (index == wanted) {
+			prepare_file_path_buf(dst, dst_size, FGrp_Music, f.second.c_str());
+			return (dst[0] != '\0');
+		}
+		index++;
+	}
+	return false;
+}
+
 extern "C" TbBool play_music_track(int track) {
 	game.music_track = track;
 	memset(game.music_fname, 0, sizeof(game.music_fname));
@@ -769,7 +843,13 @@ extern "C" TbBool play_music_track(int track) {
 	} else if (features_enabled & Ft_NoCdMusic) {
 		// play_music() itself skips restarting if this exact resolved file is
 		// already the one actually playing (e.g. reloading a save for the same level).
-		return play_music(prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", track));
+		char fpath[2048];
+		if (!resolve_track_music_path(track, fpath, sizeof(fpath))) {
+			WARNLOG("No music file found for track %d in the music folder", track);
+			return false;
+		}
+		LbJustLog("Playing track %d: %s\n", track, fpath);
+		return play_music(fpath);
 	} else {
 		if (track == g_current_music_track) {
 			// Already playing this exact numbered track — skip restarting it.
