@@ -1488,7 +1488,6 @@ static short load_unifont_file(struct AsianFont * dbcfont)
         return 3;
     }
     LbFileClose(fhandle);
-    free(fpath);
 
     unsigned short *widths = (unsigned short *)malloc(UNIFONT_INDEX_COUNT * sizeof(*widths));
     unsigned int *offsets = (unsigned int *)malloc(UNIFONT_INDEX_COUNT * sizeof(*offsets));
@@ -1504,9 +1503,8 @@ static short load_unifont_file(struct AsianFont * dbcfont)
     for (unsigned int i = 0; i < UNIFONT_INDEX_COUNT; ++i)
     {
         unsigned int pos = i * UNIFONT_INDEX_SIZE;
-        widths[i] = (unsigned short)index_buf[pos] | ((unsigned short)index_buf[pos + 1] << 8);
-        offsets[i] = (unsigned int)index_buf[pos + 2] | ((unsigned int)index_buf[pos + 3] << 8)
-                     | ((unsigned int)index_buf[pos + 4] << 16) | ((unsigned int)index_buf[pos + 5] << 24);
+        widths[i] = (unsigned short)lword(&index_buf[pos]);
+        offsets[i] = (unsigned int)llong(&index_buf[pos + 2]);
         if (widths[i] != 0)
         {
             unsigned int row_bytes = (widths[i] + 7) >> 3;
@@ -1531,6 +1529,7 @@ static short load_unifont_file(struct AsianFont * dbcfont)
 
 short load_unifont_files()
 {
+    SYNCDBG(7,"Starting");
     for (int i = 0; i < sizeof(dbcfonts) / sizeof(dbcfonts[0]); ++i)
     {
         load_unifont_file(&dbcfonts[i]);
