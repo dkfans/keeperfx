@@ -61,6 +61,7 @@ TbBool take_screenshot(char *fname)
         case 1:
         {
             success = IMG_SavePNG(lbDrawSurface, fname);
+            break;
         }
         case 2:
         {

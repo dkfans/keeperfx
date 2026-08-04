@@ -15,6 +15,7 @@
 #  include <unistd.h>
 #  include <fcntl.h>
 #  include <errno.h>
+#  include <sys/select.h>
    typedef int kfx_socket_t;
 #  define KFX_INVALID_SOCKET (-1)
 #  define kfx_closesocket(s) close(s)
@@ -172,9 +173,27 @@ static void api_send(const char *data, int len)
     while (sent < len)
     {
         int r = (int)send(api.activeSocket, data + sent, len - sent, 0);
-        if (r <= 0)
-            break;
-        sent += r;
+        if (r > 0)
+        {
+            sent += r;
+            continue;
+        }
+        if (r < 0)
+        {
+#ifdef _WIN32
+            if (WSAGetLastError() == WSAEWOULDBLOCK)
+#else
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+#endif
+            {
+                fd_set wfds;
+                FD_ZERO(&wfds);
+                FD_SET(api.activeSocket, &wfds);
+                if (select((int)(api.activeSocket + 1), NULL, &wfds, NULL, NULL) > 0)
+                    continue;
+            }
+        }
+        break;
     }
 }
 
