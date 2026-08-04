@@ -13,10 +13,13 @@ set(CMAKE_CXX_STANDARD 20)
 find_package(Git REQUIRED)
 execute_process(COMMAND "${GIT_EXECUTABLE}" describe --always OUTPUT_VARIABLE COMMIT_ID OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+set(_kfx_package_suffix "")
 file(STRINGS "${CMAKE_SOURCE_DIR}/version.mk" _kfx_version_lines)
 foreach(_line IN LISTS _kfx_version_lines)
     if(_line MATCHES "^(VER_MAJOR|VER_MINOR|VER_RELEASE|VER_BUILD)=([0-9]+)")
         set(${CMAKE_MATCH_1} "${CMAKE_MATCH_2}")
+    elseif(_line MATCHES "^PACKAGE_SUFFIX=(.*)$")
+        set(_kfx_package_suffix "${CMAKE_MATCH_1}")
     endif()
 endforeach()
 foreach(_v VER_MAJOR VER_MINOR VER_RELEASE VER_BUILD)
@@ -25,8 +28,10 @@ foreach(_v VER_MAJOR VER_MINOR VER_RELEASE VER_BUILD)
     endif()
 endforeach()
 # Override via -DBUILD_NUMBER=<n> -DPACKAGE_SUFFIX=<s>; used for the CPack name.
-set(BUILD_NUMBER   "${VER_BUILD}" CACHE STRING "Monotonic build number")
-set(PACKAGE_SUFFIX ""             CACHE STRING "Distribution suffix (e.g. Alpha, Release)")
+# The suffix defaults to the one in version.mk, the same way the Makefile takes
+# it, so both build systems call an unattended build the same thing.
+set(BUILD_NUMBER   "${VER_BUILD}"           CACHE STRING "Monotonic build number")
+set(PACKAGE_SUFFIX "${_kfx_package_suffix}" CACHE STRING "Distribution suffix (e.g. Alpha, Release)")
 set(VER_STRING     "${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}.${BUILD_NUMBER} ${PACKAGE_SUFFIX}")
 set(GIT_REVISION   "${COMMIT_ID}")
 
