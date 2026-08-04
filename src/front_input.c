@@ -523,14 +523,12 @@ static void clip_frame_skip(void)
 static void increaseFrameskip(void)
 {
     // Default no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
-    int level = 16;
-    for (int i=0; i<10; i++) {
-        if (game.frame_skip < level)
-            break;
-        level <<= 1;
-    }
-    int adj = level/8;
-    game.frame_skip += adj;
+
+    if (game.frame_skip <= 1)
+        game.frame_skip = 2;
+    else
+        game.frame_skip <<= 1;
+
     clip_frame_skip();
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
@@ -541,14 +539,12 @@ static void increaseFrameskip(void)
 static void decreaseFrameskip(void)
 {
     // Defaul no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
-    int level = 16;
-    for (int i=0; i<10; i++) {
-        if (game.frame_skip <= level)
-            break;
-        level <<= 1;
-    }
-    int adj = level/8;
-    game.frame_skip -= adj;
+    if (game.frame_skip <= 2)
+        game.frame_skip = 0;
+    else
+        game.frame_skip >>= 1;
+
+
     clip_frame_skip();
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)

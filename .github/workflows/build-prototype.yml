@@ -38,13 +38,18 @@ jobs:
         make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-assemble
         cmake --build out --target package
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
+        # CPack stages the binaries (keeperfx.exe, keeperfx_hvlog.exe) and the SDL3
+        # runtime DLLs only inside the .7z archive, not into the loose pkg/ tree, so
+        # uploading pkg/** would drop them. Install the full package layout into
+        # dist/ so the uploaded artifact holds the binaries + DLLs + game data.
+        cmake --install out --prefix dist
         rm pkg/keeperfx*.7z
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.ZIP_NAME }}
-        path: pkg/**
+        path: dist/**
 
   build-prototype-linux:
     name: "Build Prototype Linux x86_64"

@@ -1389,9 +1389,8 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, CrtrExpLe
 
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    long i;
-    player = get_player(plyr_idx);
+    struct PlayerInfo *player = get_player(plyr_idx);
+    short i;
     if (!thing_is_pickable_by_hand(player, thing)) {
         ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return false;
@@ -1708,7 +1707,7 @@ TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing
 
 TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx) {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if (thing_is_creature(thing_to_pick) && thing_to_pick->owner == plyr_idx)
+    if (thing_is_creature(thing_to_pick))
     {
         struct HandRule hand_rule;
         TbBool overwrite_default_block = false;
