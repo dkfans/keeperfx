@@ -848,7 +848,7 @@ extern "C" TbBool play_music_track(int track) {
 			WARNLOG("No music file found for track %d in the music folder", track);
 			return false;
 		}
-		LbJustLog("Playing track %d from: %s\n", track, fpath);
+		LbJustLog("Playing track %d: %s\n", track, fpath);
 		return play_music(fpath);
 	} else {
 		if (track == g_current_music_track) {
