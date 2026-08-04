@@ -28,7 +28,7 @@ jobs:
       run: |
         set -eux
         sudo apt update
-        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16t64 7zip
+        sudo apt install -y build-essential g++-mingw-w64-i686 cmake ninja-build libpng16-16t64 7zip
 
     - name: Build gfx
       run: |
@@ -42,9 +42,15 @@ jobs:
         set -eux
         BUILD_NUMBER=$(git rev-list --count HEAD)
         PACKAGE_SUFFIX=Alpha
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
+        # Compile both binaries with CMake (MinGW-w64 i686 cross-compile).
+        cmake -S . -B out -G Ninja -DCMAKE_TOOLCHAIN_FILE=build/cmake/toolchains/mingw32.cmake \
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          -DBUILD_NUMBER=$BUILD_NUMBER -DPACKAGE_SUFFIX=$PACKAGE_SUFFIX
+        cmake --build out --target keeperfx keeperfx_hvlog -j"$(nproc)"
+        # Assemble game data with the make pipeline (.dat data); the CMake build
+        # already provides the binaries and SDL runtime DLLs. Then archive with CPack.
+        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-assemble
+        cmake --build out --target package
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
         rm pkg/keeperfx*.7z
 
