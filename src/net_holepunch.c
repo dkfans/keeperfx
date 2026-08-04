@@ -27,7 +27,7 @@
 #include "net_holepunch.h"
 #include "bflib_basics.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <enet6/enet.h>
 #include <stdint.h>
 #include <string.h>
@@ -98,10 +98,10 @@ uint16_t holepunch_stun_query(ENetHost *host, char *output_ip, size_t output_ip_
         send_socket = fallback_socket;
     }
 
-    Uint32 timeout_deadline = SDL_GetTicks() + STUN_TIMEOUT_MS;
+    Uint32 timeout_deadline = (Uint32)SDL_GetTicks() + STUN_TIMEOUT_MS;
     uint16_t external_port_result = 0;
     for (;;) {
-        Uint32 now = SDL_GetTicks();
+        Uint32 now = (Uint32)SDL_GetTicks();
         if (now >= timeout_deadline)
             break;
         enet_uint32 socket_wait_flags = ENET_SOCKET_WAIT_RECEIVE;
@@ -183,8 +183,8 @@ void holepunch_punch_to(ENetHost *host, const ENetAddress *target)
         if (send_and_burst(host->socket, &mapped_target, &send_buffer))
             return;
     }
-    Uint32 current_time = SDL_GetTicks();
-    if (last_failure_log_time == 0 || SDL_TICKS_PASSED(current_time, last_failure_log_time + HOLE_PUNCH_LOG_INTERVAL_MS)) {
+    Uint32 current_time = (Uint32)SDL_GetTicks();
+    if (last_failure_log_time == 0 || (Sint32)((last_failure_log_time + HOLE_PUNCH_LOG_INTERVAL_MS) - current_time) <= 0) {
         last_failure_log_time = current_time;
         LbNetLog("Holepunch: send failed\n");
     }

@@ -24,7 +24,7 @@
 
 #include "globals.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #ifdef __cplusplus
 extern "C" {

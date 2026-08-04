@@ -58,7 +58,7 @@ install(TARGETS keeperfx RUNTIME DESTINATION .)
 install(TARGETS keeperfx_hvlog RUNTIME DESTINATION . OPTIONAL)
 
 # The game data assembled by "make pkg-assemble" (configs, campaigns, levels,
-# language/sound .dat files, SDL2 runtime DLLs, docs). Evaluated at pack time so
+# language/sound .dat files, SDL3 runtime DLLs, docs). Evaluated at pack time so
 # pkg/ is read then, not at configure time. Skips any archive left in pkg/.
 install(CODE "
     set(_pkg_src \"${CMAKE_SOURCE_DIR}/pkg\")

@@ -380,7 +380,7 @@ CU_OBJS = \
 
 # include and library directories
 LINKLIB = -mwindows \
-	-L"sdl/lib" -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
+	-L"sdl/lib" -lSDL3 -lSDL3_mixer -lSDL3_image \
 	-L"deps/ffmpeg/libavformat" -lavformat \
 	-L"deps/ffmpeg/libavcodec" -lavcodec \
 	-L"deps/ffmpeg/libswresample" -lswresample \
@@ -400,7 +400,6 @@ INCS = \
 	-I"deps/zlib/include" \
 	-I"deps/spng/include" \
 	-I"sdl/include" \
-	-I"sdl/include/SDL2" \
 	-I"deps/enet6/include" \
 	-I"deps/centijson/include" \
 	-I"deps/centitoml" \
@@ -779,7 +778,6 @@ cppcheck:
 		-I deps/zlib/include \
 		-I deps/spng/include \
 		-I sdl/include \
-		-I sdl/include/SDL2 \
 		-I deps/enet6/include \
 		-I deps/centijson/include \
 		-I deps/centitoml \

@@ -116,7 +116,7 @@ TbResult LbMouseSetPosition(long x, long y)
     return Lb_FAIL;
   }
   SDL_Window *window = lbWindow;
-  SDL_WarpMouseInWindow(window, x, y);
+  SDL_WarpMouseInWindow(window, (float)x, (float)y);
   return Lb_SUCCESS;
 }
 
@@ -124,8 +124,10 @@ void LbMoveHostCursorToGameCursor(void)
 {
     int game_cursor_x = lbDisplay.MMouseX;
     int game_cursor_y = lbDisplay.MMouseY;
-    int host_cursor_x, host_cursor_y;
-    SDL_GetMouseState(&host_cursor_x, &host_cursor_y);
+    float host_fx = 0.0f, host_fy = 0.0f;
+    SDL_GetMouseState(&host_fx, &host_fy);
+    int host_cursor_x = (int)host_fx;
+    int host_cursor_y = (int)host_fy;
     if ((host_cursor_x != game_cursor_x) || (host_cursor_y != game_cursor_y))
     {
         LbMouseSetPosition(game_cursor_x, game_cursor_y);
@@ -136,8 +138,10 @@ TbResult LbMoveGameCursorToHostCursor(void)
 {
     int game_cursor_x = lbDisplay.MMouseX;
     int game_cursor_y = lbDisplay.MMouseY;
-    int host_cursor_x, host_cursor_y;
-    SDL_GetMouseState(&host_cursor_x, &host_cursor_y);
+    float host_fx = 0.0f, host_fy = 0.0f;
+    SDL_GetMouseState(&host_fx, &host_fy);
+    int host_cursor_x = (int)host_fx;
+    int host_cursor_y = (int)host_fy;
     if (((host_cursor_x != game_cursor_x) || (host_cursor_y != game_cursor_y)) && LbIsActive())
     {
         if (!pointerHandler.SetMousePosition(host_cursor_x, host_cursor_y))

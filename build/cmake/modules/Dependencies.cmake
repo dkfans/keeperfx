@@ -1,5 +1,5 @@
 # Dependencies.cmake - third-party libraries, per platform. Mirrors the hand
-# Makefiles: Windows/MinGW uses prebuilt kfx-deps mingw32 static libs + SDL2 dev
+# Makefiles: Windows/MinGW uses prebuilt kfx-deps mingw32 static libs + SDL3 dev
 # tarballs (../Makefile); Linux uses system/pkg-config libs + a few prebuilt
 # lin64 static libs (../linux.mk). Dep URLs/tags track those Makefiles.
 #
@@ -45,41 +45,38 @@ macro(kfx_imported name lib incdir)
 endmacro()
 
 if(WIN32)
-    # --- SDL2 (prebuilt MinGW dev tarballs; each wraps <name>-<ver>/i686-w64-mingw32/*)
-    set(SDL2_VER      2.30.7)
-    set(SDL2_NET_VER  2.2.0)
-    set(SDL2_MIX_VER  2.8.0)
-    set(SDL2_IMG_VER  2.8.2)
+    # --- SDL3 (prebuilt MinGW dev tarballs; each wraps <name>-<ver>/i686-w64-mingw32/*)
+    # SDL_net is intentionally absent: api.c now uses a native Winsock socket
+    # layer (SDL3_net is not reliably packaged). See docs SDL3-MIGRATION notes.
+    set(SDL3_VER      3.4.12)
+    set(SDL3_MIX_VER  3.2.4)
+    set(SDL3_IMG_VER  3.4.4)
 
-    kfx_fetch(sdl2       "${KFX_DEPS_BASE}/20260608/SDL2-devel-${SDL2_VER}-mingw.tar.gz")
-    kfx_fetch(sdl2_net   "https://github.com/libsdl-org/SDL_net/releases/download/release-${SDL2_NET_VER}/SDL2_net-devel-${SDL2_NET_VER}-mingw.tar.gz")
-    kfx_fetch(sdl2_mixer "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${SDL2_MIX_VER}/SDL2_mixer-devel-${SDL2_MIX_VER}-mingw.tar.gz")
-    kfx_fetch(sdl2_image "https://github.com/libsdl-org/SDL_image/releases/download/release-${SDL2_IMG_VER}/SDL2_image-devel-${SDL2_IMG_VER}-mingw.tar.gz")
+    kfx_fetch(sdl3       "https://github.com/libsdl-org/SDL/releases/download/release-${SDL3_VER}/SDL3-devel-${SDL3_VER}-mingw.tar.gz")
+    kfx_fetch(sdl3_mixer "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${SDL3_MIX_VER}/SDL3_mixer-devel-${SDL3_MIX_VER}-mingw.tar.gz")
+    kfx_fetch(sdl3_image "https://github.com/libsdl-org/SDL_image/releases/download/release-${SDL3_IMG_VER}/SDL3_image-devel-${SDL3_IMG_VER}-mingw.tar.gz")
 
-    set(SDL2_PREFIX      "${D}/sdl2/SDL2-${SDL2_VER}/i686-w64-mingw32")
-    set(SDL2_NET_PREFIX  "${D}/sdl2_net/SDL2_net-${SDL2_NET_VER}/i686-w64-mingw32")
-    set(SDL2_MIX_PREFIX  "${D}/sdl2_mixer/SDL2_mixer-${SDL2_MIX_VER}/i686-w64-mingw32")
-    set(SDL2_IMG_PREFIX  "${D}/sdl2_image/SDL2_image-${SDL2_IMG_VER}/i686-w64-mingw32")
+    set(SDL3_PREFIX      "${D}/sdl3/SDL3-${SDL3_VER}/i686-w64-mingw32")
+    set(SDL3_MIX_PREFIX  "${D}/sdl3_mixer/SDL3_mixer-${SDL3_MIX_VER}/i686-w64-mingw32")
+    set(SDL3_IMG_PREFIX  "${D}/sdl3_image/SDL3_image-${SDL3_IMG_VER}/i686-w64-mingw32")
 
-    add_library(kfx_sdl2 INTERFACE)
-    # Code uses both <SDL.h> (include/SDL2) and <SDL2/SDL_mixer.h> (parent include/).
-    target_include_directories(kfx_sdl2 INTERFACE
-        "${SDL2_PREFIX}/include" "${SDL2_PREFIX}/include/SDL2"
-        "${SDL2_NET_PREFIX}/include"
-        "${SDL2_MIX_PREFIX}/include"
-        "${SDL2_IMG_PREFIX}/include")
-    target_link_libraries(kfx_sdl2 INTERFACE
-        "${SDL2_PREFIX}/lib/libSDL2.dll.a"
-        "${SDL2_MIX_PREFIX}/lib/libSDL2_mixer.dll.a"
-        "${SDL2_NET_PREFIX}/lib/libSDL2_net.dll.a"
-        "${SDL2_IMG_PREFIX}/lib/libSDL2_image.dll.a")
+    add_library(kfx_sdl3 INTERFACE)
+    # SDL3 headers live under include/SDL3/*.h; code uses <SDL3/SDL.h>,
+    # <SDL3_mixer/SDL_mixer.h>, <SDL3_image/SDL_image.h>.
+    target_include_directories(kfx_sdl3 INTERFACE
+        "${SDL3_PREFIX}/include"
+        "${SDL3_MIX_PREFIX}/include"
+        "${SDL3_IMG_PREFIX}/include")
+    target_link_libraries(kfx_sdl3 INTERFACE
+        "${SDL3_PREFIX}/lib/libSDL3.dll.a"
+        "${SDL3_MIX_PREFIX}/lib/libSDL3_mixer.dll.a"
+        "${SDL3_IMG_PREFIX}/lib/libSDL3_image.dll.a")
 
-    # SDL2 links dynamically, so ship its runtime DLLs (CPack picks these up).
+    # SDL3 links dynamically, so ship its runtime DLLs (CPack picks these up).
     install(FILES
-        "${SDL2_PREFIX}/bin/SDL2.dll"
-        "${SDL2_MIX_PREFIX}/bin/SDL2_mixer.dll"
-        "${SDL2_NET_PREFIX}/bin/SDL2_net.dll"
-        "${SDL2_IMG_PREFIX}/bin/SDL2_image.dll"
+        "${SDL3_PREFIX}/bin/SDL3.dll"
+        "${SDL3_MIX_PREFIX}/bin/SDL3_mixer.dll"
+        "${SDL3_IMG_PREFIX}/bin/SDL3_image.dll"
         DESTINATION .)
 
     # --- Static libs from kfx-deps (mirror ../Makefile URLs/tags)
@@ -125,10 +122,42 @@ if(WIN32)
 
 else()
     find_package(PkgConfig REQUIRED)
-    pkg_check_modules(SDL2       REQUIRED IMPORTED_TARGET sdl2)
-    pkg_check_modules(SDL2_mixer REQUIRED IMPORTED_TARGET SDL2_mixer)
-    pkg_check_modules(SDL2_net   REQUIRED IMPORTED_TARGET SDL2_net)
-    pkg_check_modules(SDL2_image REQUIRED IMPORTED_TARGET SDL2_image)
+
+    add_library(kfx_sdl3 INTERFACE)
+    pkg_check_modules(SDL3       IMPORTED_TARGET sdl3)
+    pkg_check_modules(SDL3_image IMPORTED_TARGET SDL3_image)
+    pkg_check_modules(SDL3_mixer IMPORTED_TARGET SDL3_mixer)
+    if(SDL3_FOUND AND SDL3_image_FOUND AND SDL3_mixer_FOUND)
+        message(STATUS "SDL3: using system libraries (pkg-config)")
+        target_link_libraries(kfx_sdl3 INTERFACE
+            PkgConfig::SDL3 PkgConfig::SDL3_image PkgConfig::SDL3_mixer)
+    else()
+        message(STATUS "SDL3: system libraries not found; building from source (FetchContent)")
+        include(FetchContent)
+        set(SDL3_VER      3.4.12)
+        set(SDL3_MIX_VER  3.2.4)
+        set(SDL3_IMG_VER  3.4.4)
+        # Shared libs, no tests/examples. Use system decoder libraries rather than
+        # vendored ones: the release source tarballs do not bundle the external/
+        # decoder submodules, so VENDORED would fail. Distros that hit this path
+        # need libpng + the ogg/vorbis/flac/mpg123 -dev packages (see CI).
+        set(SDL_TEST_LIBRARY   OFF CACHE BOOL "" FORCE)
+        set(SDL_EXAMPLES       OFF CACHE BOOL "" FORCE)
+        set(SDLIMAGE_SAMPLES   OFF CACHE BOOL "" FORCE)
+        set(SDLIMAGE_VENDORED  OFF CACHE BOOL "" FORCE)
+        set(SDLMIXER_SAMPLES   OFF CACHE BOOL "" FORCE)
+        set(SDLMIXER_VENDORED  OFF CACHE BOOL "" FORCE)
+        FetchContent_Declare(SDL3
+            URL "https://github.com/libsdl-org/SDL/releases/download/release-${SDL3_VER}/SDL3-${SDL3_VER}.tar.gz")
+        FetchContent_Declare(SDL3_image
+            URL "https://github.com/libsdl-org/SDL_image/releases/download/release-${SDL3_IMG_VER}/SDL3_image-${SDL3_IMG_VER}.tar.gz")
+        FetchContent_Declare(SDL3_mixer
+            URL "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${SDL3_MIX_VER}/SDL3_mixer-${SDL3_MIX_VER}.tar.gz")
+        FetchContent_MakeAvailable(SDL3 SDL3_image SDL3_mixer)
+        target_link_libraries(kfx_sdl3 INTERFACE
+            SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer)
+    endif()
+
     pkg_check_modules(FFMPEG     REQUIRED IMPORTED_TARGET libavformat libavcodec libswresample libavutil)
     pkg_check_modules(OPENAL     REQUIRED IMPORTED_TARGET openal)
     pkg_check_modules(LUAJIT     REQUIRED IMPORTED_TARGET luajit)
@@ -164,10 +193,10 @@ function(kfx_link_dependencies TARGET)
             curl_static spng_static centijson_static minizip_static zlib_static
             luajit_static)
         target_link_libraries(${TARGET} PRIVATE
-            kfx_sdl2 "$<LINK_GROUP:RESCAN,${_static}>" centitoml)
+            kfx_sdl3 "$<LINK_GROUP:RESCAN,${_static}>" centitoml)
     else()
         target_link_libraries(${TARGET} PRIVATE
-            PkgConfig::SDL2 PkgConfig::SDL2_mixer PkgConfig::SDL2_net PkgConfig::SDL2_image
+            kfx_sdl3
             PkgConfig::FFMPEG PkgConfig::OPENAL PkgConfig::LUAJIT
             PkgConfig::SPNG PkgConfig::MINIZIP PkgConfig::ZLIB
             astronomy_static centijson_static enet6_static curl_static

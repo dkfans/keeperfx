@@ -1587,11 +1587,11 @@ void redetect_screen_refresh_rate_for_draw()
             fps_limit_current = fps_limit_secondary;
 
         if (lbWindow != NULL) {
-            int display_index = SDL_GetWindowDisplayIndex(lbWindow);
-            if (display_index >= 0) {
-                SDL_DisplayMode mode;
-                if (SDL_GetCurrentDisplayMode(display_index, &mode) == 0 && mode.refresh_rate > 0) {
-                    fps_limit_current = mode.refresh_rate;
+            SDL_DisplayID display_id_sdl = SDL_GetDisplayForWindow(lbWindow);
+            if (display_id_sdl != 0) {
+                const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(display_id_sdl);
+                if (mode != NULL && mode->refresh_rate > 0) {
+                    fps_limit_current = (int)(mode->refresh_rate + 0.5f);
                 }
             }
         }
