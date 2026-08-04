@@ -2792,7 +2792,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
         break;
   #endif
       default:
-        ERRORLOG("Unhandled FRONTEND new state");
+        ERRORLOG("Unhandled FRONTEND new state %d", nstate);
         break;
     }
     return nstate;
