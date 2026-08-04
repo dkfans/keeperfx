@@ -1556,6 +1556,7 @@ fxdata/lanternpost.zip
 fxdata/mushrooms.zip
 fxdata/torches.zip
 fxdata/trapcolors.zip
+fxdata/trapdoors.zip
 fxdata/waterplants.zip
 fxdata/whiteflag.zip
 fxdata/windbanner.zip

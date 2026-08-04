@@ -107,7 +107,7 @@ void reset_script_timers_and_flags(void)
     }
 }
 
-void init_player_types()
+static void init_player_types()
 {
     for (size_t plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
     {
@@ -128,6 +128,24 @@ void init_player_types()
             player->player_type = PT_Keeper;
             break;
         }
+    }
+}
+
+static void init_keepers_map_exploration(void)
+{
+    struct PlayerInfo *player;
+    int i;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+      player = get_player(i);
+      if ((player_exists(player) && (player->is_active == 1)) || player_is_roaming(i))
+      {
+          // Additional init - the main one is in init_player()
+          if ((player->allocflags & PlaF_CompCtrl) != 0) {
+              init_keeper_map_exploration_by_terrain(player);
+              init_keeper_map_exploration_by_creatures(player);
+          }
+      }
     }
 }
 
@@ -421,19 +439,6 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 {
     get_my_player()->display_flags &= ~PlaF6_PlyrHasQuit;
     return CLS_CONTINUE;
-}
-
-void faststartup_saved_packet_game(void)
-{
-    reenter_video_mode();
-    startup_saved_packet_game();
-    {
-        struct PlayerInfo *player;
-        player = get_my_player();
-        player->display_flags &= ~PlaF6_PlyrHasQuit;
-    }
-    set_gui_visible(false);
-    clear_flag(game.operation_flags, GOF_ShowPanel);
 }
 
 /******************************************************************************/

@@ -63,6 +63,7 @@
 #include "map_blocks.h"
 #include "lua_triggers.h"
 #include "lens_api.h"
+#include "timer.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1318,6 +1319,23 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         return false;
     }
     return player_place_door_without_check_at(stl_x, stl_y, plyr_idx, tngmodel,0);
+}
+
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool allowed)
+{
+    if (!allowed) {
+        if (is_my_player_number(plyr_idx))
+            play_non_3d_sample(snd_refusal);
+        return 0;
+    }
+    if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
+        return 0;
+    }
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
+    remove_dead_creatures_from_slab(slb_x, slb_y);
+    return 1;
 }
 
 TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)

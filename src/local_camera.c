@@ -54,38 +54,47 @@ static TbBool local_camera_move_active;
 
 static struct Packet* get_packet_for_local_camera_update(void)
 {
-    GameTurn turn;
     struct PlayerInfo *player = get_my_player();
     if (player_invalid(player)) {
         return NULL;
     }
-    if (flag_is_set(game.operation_flags, GOF_Paused) && game.game_kind == GKind_LocalGame) {
-        turn = get_gameturn();
-    } else {
-        turn = get_gameturn() - 1;
-    }
-    return (struct Packet *)get_history_packet(player->packet_num, turn);
+    return get_packet_direct(player->packet_num);
 }
 
-void send_camera_catchup_packets(struct PlayerInfo *player)
+void send_camera_catchup_packets(void)
 {
     // Threshold distance before sending catchup packets (in map coordinates)
     #define CAMERA_DESYNC_THRESHOLD 512
 
-    if (!is_my_player(player) || !local_camera_ready) {
+    if (!local_camera_ready) {
         return;
     }
-    
+    struct PlayerInfo* player = get_my_player();
+
     // Determine which camera to compare based on view mode
-    int cam_idx = (player->view_mode == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
-    
+    int cam_idx;
+    switch (player->view_mode)
+    {
+    case PVM_FrontView:
+        cam_idx = CamIV_FrontView;
+        break;
+
+    case PVM_IsoStraightView:
+    case PVM_IsoWibbleView:
+        cam_idx = CamIV_Isometric;
+        break;
+
+    default:
+        return;
+    }
+
     struct Camera* local_cam = &destination_local_cameras[cam_idx];
     struct Camera* packet_cam = &player->cameras[cam_idx];
     struct Packet* pckt = get_packet(player->id_number);
-    
+
     long diff_map_x = local_cam->mappos.x.val - packet_cam->mappos.x.val;
     long diff_map_y = local_cam->mappos.y.val - packet_cam->mappos.y.val;
-    
+
     long angle = local_cam->rotation_angle_x;
     long cos_angle = LbCosL(angle);
     long sin_angle = LbSinL(angle);
@@ -217,17 +226,14 @@ void update_camera_deviations(int active_cam_idx)
     }
 }
 
-void update_local_cameras_pre(void)
+void update_local_cameras(void)
 {
     for (int i = 0; i < 4; i++) {
         previous_local_cameras[i] = destination_local_cameras[i];
     }
     previous_deviation_x = destination_deviation_x;
     previous_deviation_y = destination_deviation_y;
-}
 
-void update_local_cameras_post(void)
-{
     if (!local_camera_ready) {
         return;
     }
@@ -253,9 +259,7 @@ void update_local_cameras_post(void)
             process_camera_controls(cam, local_packet, my_player, true);
             view_process_camera_inertia(cam);
         }
-        
-        // Send catchup packets if local camera has drifted too far from packet-based camera
-        send_camera_catchup_packets(my_player);
+
         update_camera_deviations(active_cam_idx);
     }
 }

@@ -6,8 +6,6 @@
  *     Rendering function draw_gpoly() for drawing 3D view elements.
  * @par Purpose:
  *     Function for rendering 3D elements.
- * @par Comment:
- *     Go away from here, you bad optimizer! Do not compile this with optimizations.
  * @author   Tomasz Lis
  * @date     20 Mar 2009 - 14 Feb 2010
  * @par  Copying and copyrights:
@@ -27,44 +25,50 @@
 #include "bflib_vidraw.h"
 #include "post_inc.h"
 
-/******************************************************************************/
-/******************************************************************************/
-static const long gpoly_reptable[] = {
-         0x0,0x7FFFFFFF,0x3FFFFFFF,0x2AAAAAAA,0x1FFFFFFF,0x19999999,0x15555555,0x12492492,
-  0x0FFFFFFF,0x0E38E38E,0x0CCCCCCC,0x0BA2E8BA,0x0AAAAAAA, 0x9D89D89, 0x9249249, 0x8888888,
-   0x7FFFFFF, 0x7878787, 0x71C71C7, 0x6BCA1AF, 0x6666666, 0x6186186, 0x5D1745D, 0x590B216,
-   0x5555555, 0x51EB851, 0x4EC4EC4, 0x4BDA12F, 0x4924924, 0x469EE58, 0x4444444, 0x4210842,
-   0x3FFFFFF, 0x3E0F83E, 0x3C3C3C3, 0x3A83A83, 0x38E38E3, 0x3759F22, 0x35E50D7, 0x3483483,
-   0x3333333, 0x31F3831, 0x30C30C3, 0x2FA0BE8, 0x2E8BA2E, 0x2D82D82, 0x2C8590B, 0x2B93105,
-   0x2AAAAAA, 0x29CBC14, 0x28F5C28, 0x2828282, 0x2762762, 0x26A439F, 0x25ED097, 0x253C825,
-   0x2492492, 0x23EE08F, 0x234F72C, 0x22B63CB, 0x2222222, 0x2192E29, 0x2108421, 0x2082082,
-   0x1FFFFFF, 0x1F81F81, 0x1F07C1F, 0x1E9131A, 0x1E1E1E1, 0x1DAE607, 0x1D41D41, 0x1CD8568,
-   0x1C71C71, 0x1C0E070, 0x1BACF91, 0x1B4E81B, 0x1AF286B, 0x1A98EF6, 0x1A41A41, 0x19EC8E9,
-   0x1999999, 0x1948B0F, 0x18F9C18, 0x18ACB90, 0x1861861, 0x1818181, 0x17D05F4, 0x178A4C8,
-   0x1745D17, 0x1702E05, 0x16C16C1, 0x1681681, 0x1642C85, 0x1605816, 0x15C9882, 0x158ED23,
-   0x1555555, 0x151D07E, 0x14E5E0A, 0x14AFD6A, 0x147AE14, 0x1446F86, 0x1414141, 0x13E22CB,
-   0x13B13B1, 0x1381381, 0x13521CF, 0x1323E34, 0x12F684B, 0x12C9FB4, 0x129E412, 0x127350B,
-   0x1249249, 0x121FB78, 0x11F7047, 0x11CF06A, 0x11A7B96, 0x1181181, 0x115B1E5, 0x1135C81,
-   0x1111111, 0x10ECF56, 0x10C9714, 0x10A6810, 0x1084210, 0x10624DD, 0x1041041, 0x1020408,
-   0x0FFFFFF, 0x0FE03F8, 0x0FC0FC0, 0x0FA232C, 0x0F83E0F, 0x0F6603D, 0x0F4898D, 0x0F2B9D6,
-   0x0F0F0F0, 0x0EF2EB7, 0x0ED7303, 0x0EBBDB2, 0x0EA0EA0, 0x0E865AC, 0x0E6C2B4, 0x0E52598,
-   0x0E38E38, 0x0E1FC78, 0x0E07038, 0x0DEE95C, 0x0DD67C8, 0x0DBEB61, 0x0DA740D, 0x0D901B2,
-   0x0D79435, 0x0D62B80, 0x0D4C77B, 0x0D3680D, 0x0D20D20, 0x0D0B69F, 0x0CF6474, 0x0CE168A,
-   0x0CCCCCC, 0x0CB8727, 0x0CA4587, 0x0C907DA, 0x0C7CE0C, 0x0C6980C, 0x0C565C8, 0x0C4372F,
-   0x0C30C30, 0x0C1E4BB, 0x0C0C0C0, 0x0BFA02F, 0x0BE82FA, 0x0BD6910, 0x0BC5264, 0x0BB3EE7,
-   0x0BA2E8B, 0x0B92143, 0x0B81702, 0x0B70FBB, 0x0B60B60, 0x0B509E6, 0x0B40B40, 0x0B30F63,
-   0x0B21642, 0x0B11FD3, 0x0B02C0B, 0x0AF3ADD, 0x0AE4C41, 0x0AD602B, 0x0AC7691, 0x0AB8F69,
-   0x0AAAAAA, 0x0A9C84A, 0x0A8E83F, 0x0A80A80, 0x0A72F05, 0x0A655C4, 0x0A57EB5, 0x0A4A9CF,
-   0x0A3D70A, 0x0A3065E, 0x0A237C3, 0x0A16B31, 0x0A0A0A0, 0x09FD809, 0x09F1165, 0x09E4CAD,
-   0x09D89D8, 0x09CC8E1, 0x09C09C0, 0x09B4C6F, 0x09A90E7, 0x099D722, 0x0991F1A, 0x09868C8,
-   0x097B425, 0x097012E, 0x0964FDA, 0x095A025, 0x094F209, 0x0944580, 0x0939A85, 0x092F113,
-   0x0924924, 0x091A2B3, 0x090FDBC, 0x0905A38, 0x08FB823, 0x08F1779, 0x08E7835, 0x08DDA52,
-   0x08D3DCB, 0x08CA29C, 0x08C08C0, 0x08B7034, 0x08AD8F2, 0x08A42F8, 0x089AE40, 0x0891AC7,
-   0x0888888, 0x087F780, 0x08767AB, 0x086D905, 0x0864B8A, 0x085BF37, 0x0853408, 0x084A9F9,
-   0x0842108, 0x0839930, 0x083126E, 0x0828CBF, 0x0820820, 0x081848D, 0x0810204, 0x0808080,
-         0x0,       0x0 };
+#ifdef __GNUC__
+ #pragma GCC optimize "Ofast", "omit-frame-pointer"
+ #define ALWAYS_INLINE __attribute__((always_inline)) inline
+#else
+ #define ALWAYS_INLINE inline
+#endif
 
-static const long gpoly_divtable[][64] = {
+/******************************************************************************/
+static const int32_t gpoly_reptable[] = {
+  0x00000000, 0x7FFFFFFF, 0x3FFFFFFF, 0x2AAAAAAA, 0x1FFFFFFF, 0x19999999, 0x15555555, 0x12492492,
+  0x0FFFFFFF, 0x0E38E38E, 0x0CCCCCCC, 0x0BA2E8BA, 0x0AAAAAAA, 0x09D89D89, 0x09249249, 0x08888888,
+  0x07FFFFFF, 0x07878787, 0x071C71C7, 0x06BCA1AF, 0x06666666, 0x06186186, 0x05D1745D, 0x0590B216,
+  0x05555555, 0x051EB851, 0x04EC4EC4, 0x04BDA12F, 0x04924924, 0x0469EE58, 0x04444444, 0x04210842,
+  0x03FFFFFF, 0x03E0F83E, 0x03C3C3C3, 0x03A83A83, 0x038E38E3, 0x03759F22, 0x035E50D7, 0x03483483,
+  0x03333333, 0x031F3831, 0x030C30C3, 0x02FA0BE8, 0x02E8BA2E, 0x02D82D82, 0x02C8590B, 0x02B93105,
+  0x02AAAAAA, 0x029CBC14, 0x028F5C28, 0x02828282, 0x02762762, 0x026A439F, 0x025ED097, 0x0253C825,
+  0x02492492, 0x023EE08F, 0x0234F72C, 0x022B63CB, 0x02222222, 0x02192E29, 0x02108421, 0x02082082,
+  0x01FFFFFF, 0x01F81F81, 0x01F07C1F, 0x01E9131A, 0x01E1E1E1, 0x01DAE607, 0x01D41D41, 0x01CD8568,
+  0x01C71C71, 0x01C0E070, 0x01BACF91, 0x01B4E81B, 0x01AF286B, 0x01A98EF6, 0x01A41A41, 0x019EC8E9,
+  0x01999999, 0x01948B0F, 0x018F9C18, 0x018ACB90, 0x01861861, 0x01818181, 0x017D05F4, 0x0178A4C8,
+  0x01745D17, 0x01702E05, 0x016C16C1, 0x01681681, 0x01642C85, 0x01605816, 0x015C9882, 0x0158ED23,
+  0x01555555, 0x0151D07E, 0x014E5E0A, 0x014AFD6A, 0x0147AE14, 0x01446F86, 0x01414141, 0x013E22CB,
+  0x013B13B1, 0x01381381, 0x013521CF, 0x01323E34, 0x012F684B, 0x012C9FB4, 0x0129E412, 0x0127350B,
+  0x01249249, 0x0121FB78, 0x011F7047, 0x011CF06A, 0x011A7B96, 0x01181181, 0x0115B1E5, 0x01135C81,
+  0x01111111, 0x010ECF56, 0x010C9714, 0x010A6810, 0x01084210, 0x010624DD, 0x01041041, 0x01020408,
+  0x00FFFFFF, 0x00FE03F8, 0x00FC0FC0, 0x00FA232C, 0x00F83E0F, 0x00F6603D, 0x00F4898D, 0x00F2B9D6,
+  0x00F0F0F0, 0x00EF2EB7, 0x00ED7303, 0x00EBBDB2, 0x00EA0EA0, 0x00E865AC, 0x00E6C2B4, 0x00E52598,
+  0x00E38E38, 0x00E1FC78, 0x00E07038, 0x00DEE95C, 0x00DD67C8, 0x00DBEB61, 0x00DA740D, 0x00D901B2,
+  0x00D79435, 0x00D62B80, 0x00D4C77B, 0x00D3680D, 0x00D20D20, 0x00D0B69F, 0x00CF6474, 0x00CE168A,
+  0x00CCCCCC, 0x00CB8727, 0x00CA4587, 0x00C907DA, 0x00C7CE0C, 0x00C6980C, 0x00C565C8, 0x00C4372F,
+  0x00C30C30, 0x00C1E4BB, 0x00C0C0C0, 0x00BFA02F, 0x00BE82FA, 0x00BD6910, 0x00BC5264, 0x00BB3EE7,
+  0x00BA2E8B, 0x00B92143, 0x00B81702, 0x00B70FBB, 0x00B60B60, 0x00B509E6, 0x00B40B40, 0x00B30F63,
+  0x00B21642, 0x00B11FD3, 0x00B02C0B, 0x00AF3ADD, 0x00AE4C41, 0x00AD602B, 0x00AC7691, 0x00AB8F69,
+  0x00AAAAAA, 0x00A9C84A, 0x00A8E83F, 0x00A80A80, 0x00A72F05, 0x00A655C4, 0x00A57EB5, 0x00A4A9CF,
+  0x00A3D70A, 0x00A3065E, 0x00A237C3, 0x00A16B31, 0x00A0A0A0, 0x009FD809, 0x009F1165, 0x009E4CAD,
+  0x009D89D8, 0x009CC8E1, 0x009C09C0, 0x009B4C6F, 0x009A90E7, 0x0099D722, 0x00991F1A, 0x009868C8,
+  0x0097B425, 0x0097012E, 0x00964FDA, 0x0095A025, 0x0094F209, 0x00944580, 0x00939A85, 0x0092F113,
+  0x00924924, 0x0091A2B3, 0x0090FDBC, 0x00905A38, 0x008FB823, 0x008F1779, 0x008E7835, 0x008DDA52,
+  0x008D3DCB, 0x008CA29C, 0x008C08C0, 0x008B7034, 0x008AD8F2, 0x008A42F8, 0x0089AE40, 0x00891AC7,
+  0x00888888, 0x0087F780, 0x008767AB, 0x0086D905, 0x00864B8A, 0x0085BF37, 0x00853408, 0x0084A9F9,
+  0x00842108, 0x00839930, 0x0083126E, 0x00828CBF, 0x00820820, 0x0081848D, 0x00810204, 0x00808080
+};
+
+static const int32_t gpoly_divtable[][64] = {
    {-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
     -8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
     -8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
@@ -323,899 +327,552 @@ static const long gpoly_divtable[][64] = {
        50737,   52851,   54965,   57079,   59193,   61307,   63421,   65536,},
 };
 
-static long factor_ca,factor_ba,factor_cb,factor_chk;
-static long gploc_point_c;
-static long shadingtop_deltashade;
-static long maptexturetop_deltau,mapxveltop,maptexturetop_deltav,mapyveltop,scanlinescounter;
-static long triangle_point_a_y,triangle_point_a_x,triangle_point_a_shade_x,triangle_point_a_shade,triangle_point_a_texture_u,triangle_point_a_texture_v;
-static long triangle_point_b_y,triangle_point_b_x,triangle_point_b_shade_x,triangle_point_b_shade,triangle_point_b_texture_u,triangle_point_b_texture_v;
-static long triangle_point_c_y,triangle_point_c_x,triangle_point_c_shade_x,triangle_point_c_shade,triangle_point_c_texture_u,triangle_point_c_texture_v;
-static long shadingfactor_primary,shadingfactor_secondary,screenbuffer_linestride,g_shadeAccumulator,g_shadeAccumulatorNext,texture_xaccumulator_backup;
-static uint8_t * screenbuffer_lineptr;
-static long texture_xaccumulator_high_backup,texture_yaccumulator_low,texture_yaccumulator_high_combined,scanline_span_count,shade_interpolation_top_low,shade_interpolation_top_high_combined,mapxhstep,mapyhstep,shadehstep,texture_pointc_interpolation_low,texture_pointc_interpolation_high_combined;
-static long shade_interpolation_bottom_low,shade_interpolation_bottom_high_combined,startpos_top_shade_texture_combined,startpos_top_texturex_texturey_combined,startpos_bottom_shade_texture_combined,startpos_bottom_texturex_texturey_combined,current_scanline_xposition,shade_interpolation_pointc_high,shade_interpolation_pointc_low,texture_xaccumulator_low;
-static long shade_interpolation_bottom_combined,startposshadetop,startposmapxtop,startposmapytop,startposshadebottom,startposmapxbottom,startposmapybottom,texture_xaccumulator_low_backup,shade_interpolation_top_shifted,texture_delta_bottom_high_combined;
 /******************************************************************************/
 
-#undef __ROL4__
-#define __ROL4__(val, shift) \
-    (uint32_t)( ((uint32_t)(val) << (shift)) | ((uint32_t)(val) >> (32 - (shift))) )
+// Triangle vertex info.  These are sorted in Y direction, A is on top.
+static int32_t vertex_a_y, vertex_a_x, vertex_a_shade, vertex_a_texture_u, vertex_a_texture_v;
+static int32_t vertex_b_y, vertex_b_x, vertex_b_shade, vertex_b_texture_u, vertex_b_texture_v;
+static int32_t vertex_c_y, vertex_c_x, vertex_c_shade, vertex_c_texture_u, vertex_c_texture_v;
+static bool vertex_b_on_left_side;
 
-static inline uint64_t CFADD64(uint64_t a_low, uint64_t b_low)
+// Slope between vertices in 16.16 (horizontal pixels per scanline).
+static int32_t slope_ac, slope_ab, slope_bc, slope_left, slope_right;
+
+// Texture mapping deltas in 16.16 for Shade, texture U, texture V.
+static int32_t delta_s_x,        delta_u_x,        delta_v_x;
+static int32_t delta_s_y_top,    delta_u_y_top,    delta_v_y_top;    // Along edge AB or AC
+static int32_t delta_s_y_bottom, delta_u_y_bottom, delta_v_y_bottom; // Along edge BC
+
+// Bit layout for packed texture coordinates (fractional part in lowercase):
+//            msb                    lsb
+// Shade    : 00000000 0000FFff ff000000
+// Texture V: 000000FF ffff0000 00000000
+// Texture U: FFffff00 00000000 00000000
+//
+// This layout was apparently chosen to minimize shifting in the inner loop:
+// Texture U and V can be combined to an array index by a single rotate, and the
+// shade index is already in the right position to combine with the texture
+// color, which goes in the lower byte.
+typedef struct { uint32_t word[3]; } TexCoord;
+
+// Same as above, but the least significant word is omitted.
+typedef struct { uint32_t word[2]; } TexCoordShort;
+
+// Start position for vertex A
+static TexCoordShort texcoord_start_a;
+// Start position for vertex B
+static TexCoordShort texcoord_start_b;
+// X delta used in the inner loop, shorter to save one ADC instruction
+static TexCoordShort texcoord_delta_x;
+// X delta used for X-clipping
+static TexCoord texcoord_delta_x_exact;
+// Currently used Y delta (set to one of the values below)
+static TexCoord texcoord_delta_y;
+// Y delta along the top left edge: either AB or AC
+static TexCoord texcoord_delta_y_top;
+// Y delta along edge BC
+static TexCoord texcoord_delta_y_bottom;
+
+struct GPolyDrawState
 {
-    // Return 1 if (a_low + b_low) overflows 32 bits
-    uint64_t sum = a_low + b_low;
-    return (sum < a_low) ? 1u : 0u;
+    TexCoord texcoord;
+    int32_t x_left;  // 16.16
+    int32_t x_right; // 16.16
+    int x;
+    int y;
+    int y_end;
+    uint8_t *dst_line;
+};
+
+/******************************************************************************/
+
+// Rotate left
+static uint32_t rol32(uint32_t val, uint8_t shift)
+{
+    return (val << shift) | (val >> (32 - shift));
 }
 
-static inline uint64_t PAIR64(uint32_t high32, uint32_t low32) {
-    return ((uint64_t)high32 << 32) | (uint64_t)low32;
+// Add with carry
+static uint32_t adc32(uint32_t lhs, uint32_t rhs, bool *carry)
+{
+#ifdef __GNUC__
+    uint32_t r;
+    const bool c = __builtin_add_overflow(lhs, rhs, &r);
+    *carry =   c | __builtin_add_overflow(r, *carry, &r);
+    return r;
+#else
+ #warning "missing optimized adc32 implementation for this compiler"
+    const uint32_t r1 = lhs + rhs;
+    const bool c = r1 < lhs;
+    const uint32_t r2 = r1 + *carry;
+    *carry =  c | (r2 < r1);
+    return r2;
+#endif
 }
 
-void draw_gpoly_sub7a();
-void draw_gpoly_sub7b();
-void draw_gpoly_sub13();
-void draw_gpoly_sub14();
+// Subtract with carry
+static uint32_t sbc32(uint32_t lhs, uint32_t rhs, bool *carry)
+{
+#ifdef __GNUC__
+    uint32_t r;
+    const bool c = __builtin_sub_overflow(lhs, rhs, &r);
+    *carry =   c | __builtin_sub_overflow(r, *carry, &r);
+    return r;
+#else
+ #warning "missing optimized sbc32 implementation for this compiler"
+    const uint32_t r1 = lhs - rhs;
+    const bool c = r1 > lhs;
+    const uint32_t r2 = r1 - *carry;
+    *carry =  c | (r2 > r1);
+    return r2;
+#endif
+}
+
+static TexCoord texcoord_extend(TexCoordShort src)
+{
+    TexCoord result;
+    result.word[0] = 0;
+    result.word[1] = src.word[0];
+    result.word[2] = src.word[1];
+    return result;
+}
+
+static TexCoordShort texcoord_truncate(TexCoord src)
+{
+    TexCoordShort result;
+    result.word[0] = src.word[1];
+    result.word[1] = src.word[2];
+    return result;
+}
+
+static TexCoord texcoord_pack(uint32_t u, uint32_t v, uint32_t s)
+{
+    TexCoord result;
+    result.word[0] = (s << 24);
+    result.word[1] = (v << 16) | (uint16_t)(s >>  8);
+    result.word[2] = (u <<  8) | (uint8_t )(v >> 16);
+    return result;
+}
+
+static TexCoord texcoord_pack_signed(int32_t u, int32_t v, int32_t s)
+{
+    // Sign-extend lower fields into higher fields.
+    v += s >> 31;
+    u += v >> 31;
+    return texcoord_pack(u, v, s);
+}
+
+static TexCoord texcoord_add(TexCoord lhs, TexCoord rhs)
+{
+    bool cf = 0;
+    TexCoord result;
+    result.word[0] = adc32(lhs.word[0], rhs.word[0], &cf);
+    result.word[1] = adc32(lhs.word[1], rhs.word[1], &cf);
+    result.word[2] = adc32(lhs.word[2], rhs.word[2], &cf);
+    return result;
+}
+
+static TexCoord texcoord_subtract(TexCoord lhs, TexCoord rhs)
+{
+    bool cf = 0;
+    TexCoord result;
+    result.word[0] = sbc32(lhs.word[0], rhs.word[0], &cf);
+    result.word[1] = sbc32(lhs.word[1], rhs.word[1], &cf);
+    result.word[2] = sbc32(lhs.word[2], rhs.word[2], &cf);
+    return result;
+}
+
+static uint64_t texcoord_as_uint64(TexCoordShort src)
+{
+    return (((uint64_t)src.word[1]) << 32) | src.word[0];
+}
+
+static bool validate_triangle(void)
+{
+    const int ab_x = vertex_b_x - vertex_a_x;
+    const int ab_y = vertex_b_y - vertex_a_y;
+    const int ac_x = vertex_c_x - vertex_a_x;
+    const int ac_y = vertex_c_y - vertex_a_y;
+    const int bc_x = vertex_c_x - vertex_b_x;
+    const int bc_y = vertex_c_y - vertex_b_y;
+
+    // Zero height, skip it.
+    if (ac_y == 0)
+        return false;
+
+    // Range check [-16384, 16383] to prevent arithmetic overflow.
+    if ((  (1u + (unsigned)(ab_x >> 14))
+         | (1u + (unsigned)(ab_y >> 14))
+         | (1u + (unsigned)(ac_x >> 14))
+         | (1u + (unsigned)(ac_y >> 14))
+         | (1u + (unsigned)(bc_x >> 14))
+         | (1u + (unsigned)(bc_y >> 14))) > 1u)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+static int32_t slope_div(int dx, int dy)
+{
+    assert(dy >= 0);
+
+    const int idx_x = clamp(dx + 32, 0, 63);
+
+    if ((dy != 0) && ((dy > 31) || (dx + 32 != idx_x)))
+    {
+        return (dx << 16) / dy;
+    }
+    else
+    {
+        return gpoly_divtable[dy][idx_x];
+    }
+}
+
+static void calculate_slopes(void)
+{
+    const int ab_x = vertex_b_x - vertex_a_x;
+    const int ab_y = vertex_b_y - vertex_a_y;
+    const int ac_x = vertex_c_x - vertex_a_x;
+    const int ac_y = vertex_c_y - vertex_a_y;
+    const int bc_x = vertex_c_x - vertex_b_x;
+    const int bc_y = vertex_c_y - vertex_b_y;
+
+    slope_ab = slope_div(ab_x, ab_y);
+    slope_ac = slope_div(ac_x, ac_y);
+    slope_bc = slope_div(bc_x, bc_y);
+
+    // Check if vertex B is to the left or right of line AC.
+    vertex_b_on_left_side = (ab_y * slope_ac) > (ab_x << 16);
+
+    slope_left  = vertex_b_on_left_side ? slope_ab : slope_ac;
+    slope_right = vertex_b_on_left_side ? slope_ac : slope_ab;
+}
+
+// Return 1.0/val (actually 0.999...) in signed 1.31, argument must be positive.
+static int32_t reciprocal(uint32_t val)
+{
+    if (val < 256)
+        return gpoly_reptable[val];
+    else
+        return 0x7FFFFFFFul / val;
+}
+
+// Multiply signed integer (32.0) by signed reciprocal (1.31), shift to 16.16.
+static int32_t mul_shift(int32_t val, int32_t rcp)
+{
+    const int64_t result = (int64_t)val * rcp;
+    const int32_t shifted = result >> 15;
+    const int32_t sign = result >> 63;
+    return shifted - sign;
+}
+
+static void calculate_texture_mapping(void)
+{
+    const int ab_x = vertex_b_x         - vertex_a_x;
+    const int ab_y = vertex_b_y         - vertex_a_y;
+    const int ac_x = vertex_c_x         - vertex_a_x;
+    const int ac_y = vertex_c_y         - vertex_a_y;
+    const int bc_y = vertex_c_y         - vertex_b_y;
+
+    const int ab_u = vertex_b_texture_u - vertex_a_texture_u;
+    const int ac_u = vertex_c_texture_u - vertex_a_texture_u;
+    const int bc_u = vertex_c_texture_u - vertex_b_texture_u;
+    const int ab_v = vertex_b_texture_v - vertex_a_texture_v;
+    const int ac_v = vertex_c_texture_v - vertex_a_texture_v;
+    const int bc_v = vertex_c_texture_v - vertex_b_texture_v;
+    const int ab_s = vertex_b_shade     - vertex_a_shade;
+    const int ac_s = vertex_c_shade     - vertex_a_shade;
+    const int bc_s = vertex_c_shade     - vertex_b_shade;
+
+    // Calculate texture deltas for X step.
+
+    const int ab_x_biased = ab_x + (vertex_b_on_left_side ? -1 : +1);
+    const int cross_product = ab_y * ac_x - ac_y * ab_x_biased;
+
+    if (cross_product != 0)
+    {
+        const int32_t factor = 0x7FFFFFFF / cross_product;
+
+        delta_u_x = mul_shift(ab_y * ac_u - ac_y * ab_u, factor);
+        delta_v_x = mul_shift(ab_y * ac_v - ac_y * ab_v, factor);
+        delta_s_x = mul_shift(ab_y * ac_s - ac_y * ab_s, factor);
+    }
+    else
+    {
+        delta_u_x = 0;
+        delta_v_x = 0;
+        delta_s_x = 0;
+    }
+
+    // Calculate texture deltas for Y step.
+
+    if (vertex_b_on_left_side)
+    {
+        const int32_t factor1 = reciprocal(ab_y);
+        delta_u_y_top = mul_shift(ab_u, factor1);
+        delta_v_y_top = mul_shift(ab_v, factor1);
+        delta_s_y_top = mul_shift(ab_s, factor1);
+
+        const int32_t factor2 = reciprocal(bc_y);
+        delta_u_y_bottom = mul_shift(bc_u, factor2);
+        delta_v_y_bottom = mul_shift(bc_v, factor2);
+        delta_s_y_bottom = mul_shift(bc_s, factor2);
+    }
+    else
+    {
+        const int32_t factor = reciprocal(ac_y);
+        delta_u_y_top = mul_shift(ac_u, factor);
+        delta_v_y_top = mul_shift(ac_v, factor);
+        delta_s_y_top = mul_shift(ac_s, factor);
+    }
+}
+
+static void pack_texcoords(void)
+{
+    {
+        const int32_t u = delta_u_x;
+        const int32_t v = delta_v_x;
+        const int32_t s = delta_s_x;
+        texcoord_delta_x_exact = texcoord_pack_signed(u, v, s);
+    }
+    {
+        // Shade field is truncated by 8 bits, round towards 0.
+        const int32_t u = delta_u_x;
+        const int32_t v = delta_v_x;
+        const int32_t s = delta_s_x - (delta_s_x >> 31 << 8);
+        texcoord_delta_x = texcoord_truncate(texcoord_pack_signed(u, v, s));
+    }
+    {
+        const int32_t u = delta_u_y_top;
+        const int32_t v = delta_v_y_top;
+        const int32_t s = delta_s_y_top;
+        texcoord_delta_y_top = texcoord_pack_signed(u, v, s);
+    }
+    {
+        const int32_t u = vertex_a_texture_u << 16;
+        const int32_t v = vertex_a_texture_v << 16;
+        const int32_t s = vertex_a_shade     << 16;
+        texcoord_start_a = texcoord_truncate(texcoord_pack(u, v, s));
+    }
+
+    if (vertex_b_on_left_side)
+    {
+        {
+            const int32_t u = delta_u_y_bottom;
+            const int32_t v = delta_v_y_bottom;
+            const int32_t s = delta_s_y_bottom;
+            texcoord_delta_y_bottom = texcoord_pack_signed(u, v, s);
+        }
+        {
+            const int32_t u = vertex_b_texture_u << 16;
+            const int32_t v = vertex_b_texture_v << 16;
+            const int32_t s = vertex_b_shade     << 16;
+            texcoord_start_b = texcoord_truncate(texcoord_pack(u, v, s));
+        }
+    }
+
+    texcoord_delta_y = texcoord_delta_y_top;
+}
+
+static void draw_gpoly_line(uint8_t *restrict pixel_dst, int32_t length, TexCoord texcoord)
+{
+    const uint8_t *const restrict texture = vec_map;
+    const uint8_t *const restrict fade_table = render_fade_tables;
+    const uint64_t texture_step = texcoord_as_uint64(texcoord_delta_x);
+    uint64_t texture_position = texcoord_as_uint64(texcoord_truncate(texcoord));
+
+    for (int i = 0; i < length; i++)
+    {
+        const uint16_t uv = rol32(texture_position >> 32, 8);
+        const uint16_t shade = texture_position & 0xFF00;
+        const uint8_t texel = texture[uv];
+        pixel_dst[i] = fade_table[texel | shade];
+        texture_position += texture_step;
+    }
+}
+
+ALWAYS_INLINE
+static void next_line(struct GPolyDrawState *state)
+{
+    state->texcoord  = texcoord_add(state->texcoord, texcoord_delta_y);
+    state->x        -= state->x_left >> 16;
+    state->x_left   += slope_left;
+    state->x_right  += slope_right;
+    state->x        += state->x_left >> 16;
+    state->dst_line += vec_screen_width;
+    state->y        += 1;
+}
+
+ALWAYS_INLINE
+static void draw_gpoly_clipped_half(struct GPolyDrawState *state)
+{
+    for (; state->y < state->y_end; next_line(state))
+    {
+        if (state->y < 0)
+            continue;
+
+        const int x_left_int  = max(state->x_left  >> 16, 0);
+        const int x_right_int = min(state->x_right >> 16, vec_window_width);
+        const int length = x_right_int - x_left_int;
+        uint8_t *const dst = state->dst_line + x_left_int;
+
+        for (; x_left_int > state->x; ++state->x)
+            state->texcoord = texcoord_add(state->texcoord, texcoord_delta_x_exact);
+
+        for (; x_left_int < state->x; --state->x)
+            state->texcoord = texcoord_subtract(state->texcoord, texcoord_delta_x_exact);
+
+        draw_gpoly_line(dst, length, state->texcoord);
+    }
+}
+
+ALWAYS_INLINE
+static void draw_gpoly_whole_half(struct GPolyDrawState *state)
+{
+    for (; state->y < state->y_end; next_line(state))
+    {
+        if (state->y < 0)
+            continue;
+
+        const int x_left_int  = state->x_left  >> 16;
+        const int x_right_int = state->x_right >> 16;
+        const int length = x_right_int - x_left_int;
+        uint8_t *const dst = state->dst_line + x_left_int;
+
+        draw_gpoly_line(dst, length, state->texcoord);
+    }
+}
+
+static void draw_gpoly_clipped(void)
+{
+    struct GPolyDrawState state;
+
+    state.texcoord = texcoord_extend(texcoord_start_a);
+    state.x_left   = vertex_a_x << 16;
+    state.x_right  = vertex_a_x << 16;
+    state.x        = vertex_a_x;
+    state.y        = vertex_a_y;
+    state.y_end    = min(vertex_b_y, vec_window_height);
+    state.dst_line = &vec_screen[vec_screen_width * state.y];
+
+    draw_gpoly_clipped_half(&state);
+
+    if (vertex_b_on_left_side)
+    {
+        slope_left       = slope_bc;
+        state.x_left     = vertex_b_x << 16;
+        state.x          = vertex_b_x;
+        texcoord_delta_y = texcoord_delta_y_bottom;
+        state.texcoord   = texcoord_extend(texcoord_start_b);
+    }
+    else
+    {
+        slope_right   = slope_bc;
+        state.x_right = vertex_b_x << 16;
+    }
+
+    state.y     = vertex_b_y;
+    state.y_end = min(vertex_c_y, vec_window_height);
+
+    draw_gpoly_clipped_half(&state);
+}
+
+static void draw_gpoly_whole(void)
+{
+    // state.x is not used here.
+    struct GPolyDrawState state;
+
+    state.texcoord = texcoord_extend(texcoord_start_a);
+    state.x_left   = vertex_a_x << 16;
+    state.x_right  = vertex_a_x << 16;
+    state.y        = vertex_a_y;
+    state.y_end    = min(vertex_b_y, vec_window_height);
+    state.dst_line = &vec_screen[vec_screen_width * state.y];
+
+    draw_gpoly_whole_half(&state);
+
+    if (vertex_b_on_left_side)
+    {
+        slope_left       = slope_bc;
+        state.x_left     = vertex_b_x << 16;
+        texcoord_delta_y = texcoord_delta_y_bottom;
+        state.texcoord   = texcoord_extend(texcoord_start_b);
+    }
+    else
+    {
+        slope_right   = slope_bc;
+        state.x_right = vertex_b_x << 16;
+    }
+
+    state.y     = vertex_b_y;
+    state.y_end = min(vertex_c_y, vec_window_height);
+
+    draw_gpoly_whole_half(&state);
+}
 
 void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
 {
-    LOC_poly_screen = poly_screen;
-    LOC_vec_map = vec_map;
-    LOC_vec_screen = vec_screen;
-    LOC_vec_screen_width = vec_screen_width;
-    LOC_vec_window_width = vec_window_width;
-    LOC_vec_window_height = vec_window_height;
-    { // Check for outranged poly size
-        // test lengths
-        int edge_bc_length_x = point_b->X - point_c->X;
-        if ((edge_bc_length_x < -16383) || (edge_bc_length_x > 16383))
-            return;
-        int edge_bc_length_y = point_b->Y - point_c->Y;
-        if ((edge_bc_length_y < -16383) || (edge_bc_length_y > 16383))
-            return;
-        int edge_ba_length_x = point_b->X - point_a->X;
-        if ((edge_ba_length_x < -16383) || (edge_ba_length_x > 16383))
-            return;
-        int edge_ca_length_y = point_c->Y - point_a->Y;
-        if ((edge_ca_length_y < -16383) || (edge_ca_length_y > 16383))
-            return;
-        int edge_ca_length_x = point_c->X - point_a->X;
-        if ((edge_ca_length_x < -16383) || (edge_ca_length_x > 16383))
-            return;
-        int edge_ba_length_y = point_b->Y - point_a->Y;
-        if ((edge_ba_length_y < -16383) || (edge_ba_length_y > 16383))
-            return;
-        // test area
-        if ((edge_ca_length_x * edge_ba_length_y) - (edge_ba_length_x * edge_ca_length_y) >= 0)
-            return;
-    }
-    long exceeds_window = ((point_a->X | point_b->X | point_c->X) < 0) || (point_a->X > vec_window_width) || (point_b->X > vec_window_width) || (point_c->X > vec_window_width);
-    { // Reorder points
-        int min_y = point_a->Y;
-        struct PolyPoint* point_tmp;
-        if (min_y > point_b->Y)
-        {
-            min_y = point_b->Y;
-            point_tmp = point_a;
-            point_a = point_b;
-            point_b = point_tmp;
-        }
-        if (min_y > point_c->Y)
-        {
-            point_tmp = point_a;
-            point_a = point_c;
-            point_c = point_tmp;
-        }
-        if (point_b->Y > point_c->Y)
-        {
-            point_tmp = point_b;
-            point_b = point_c;
-            point_c = point_tmp;
-        }
-    }
-    // Check if y coord is same for all of them
-    if (point_a->Y == point_c->Y)
-        return;
-    {
-        long len_y = point_c->Y - point_a->Y;
-        long len_x = point_c->X - point_a->X;
-        if (len_y != 0)
-        {
-            if ((len_y < 0) || (len_y > 31) || (len_x < -32) || (len_x > 31))
-                factor_ca = (len_x << 16) / len_y;
-            else
-                factor_ca = gpoly_divtable[len_y][len_x+32];
-        } else
-        {
-            if (len_x < -32)
-                factor_ca = gpoly_divtable[len_y][-32+32];
-            else
-            if (len_x > 31)
-                factor_ca = gpoly_divtable[len_y][31+32];
-            else
-                factor_ca = gpoly_divtable[len_y][len_x+32];
-        }
-        len_y = point_b->Y - point_a->Y;
-        len_x = point_b->X - point_a->X;
-        if (len_y != 0)
-        {
-            if ((len_y < 0) || (len_y > 31) || (len_x < -32) || (len_x > 31))
-                factor_ba = (len_x << 16) / len_y;
-            else
-                factor_ba = gpoly_divtable[len_y][len_x+32];
-        } else
-        {
-            if (len_x < -32)
-                factor_ba = gpoly_divtable[len_y][-32+32];
-            else
-            if (len_x > 31)
-                factor_ba = gpoly_divtable[len_y][31+32];
-            else
-                factor_ba = gpoly_divtable[len_y][len_x+32];
-        }
-        len_y = point_c->Y - point_b->Y;
-        len_x = point_c->X - point_b->X;
-        if (len_y != 0)
-        {
-            if ((len_y < 0) || (len_y > 31) || (len_x < -32) || (len_x > 31))
-                factor_cb = (len_x << 16) / len_y;
-            else
-                factor_cb = gpoly_divtable[len_y][len_x+32];
-        } else
-        {
-            if (len_x < -32)
-                factor_cb = gpoly_divtable[len_y][-32+32];
-            else
-            if (len_x > 31)
-                factor_cb = gpoly_divtable[len_y][31+32];
-            else
-                factor_cb = gpoly_divtable[len_y][len_x+32];
-        }
-        len_x = (point_a->X << 16) - (point_b->X << 16);
-        len_y = (point_b->Y - point_a->Y);
-        factor_chk = len_y * factor_ca + len_x;
-    }
-
-    triangle_point_a_x = point_a->X;
-    triangle_point_a_y = point_a->Y;
-    triangle_point_a_shade_x = point_a->X << 16;
-    triangle_point_b_x = point_b->X;
-    triangle_point_b_y = point_b->Y;
-    triangle_point_b_shade_x = point_b->X << 16;
-    triangle_point_c_x = point_c->X;
-    triangle_point_c_y = point_c->Y;
-    triangle_point_c_shade_x = point_c->X << 16;
-    triangle_point_a_shade   = point_a->S >> 16;
-    triangle_point_b_shade   = point_b->S >> 16;
-    triangle_point_c_shade   = point_c->S >> 16;
-    triangle_point_a_texture_u   = point_a->U >> 16;
-    triangle_point_a_texture_v   = point_a->V >> 16;
-    triangle_point_b_texture_u   = point_b->U >> 16;
-    triangle_point_b_texture_v   = point_b->V >> 16;
-    triangle_point_c_texture_u   = point_c->U >> 16;
-    triangle_point_c_texture_v   = point_c->V >> 16;
-
-    if(vec_mode != 5)
+    if (vec_mode != VM_QuadTextured)
     {
         ERRORLOG("unexpected vec_mode %d in draw_gpoly", vec_mode);
         return;
     }
 
-    draw_gpoly_sub7a();
-    draw_gpoly_sub7b();
-
-    screenbuffer_linestride = LOC_vec_screen_width;
-    scanlinescounter = 2;
-    texture_xaccumulator_low = shade_interpolation_pointc_high;
-    texture_yaccumulator_low = texture_pointc_interpolation_low;
-    texture_yaccumulator_high_combined = texture_pointc_interpolation_high_combined;
-    if (factor_chk < 0)
+    // Sort points: a.Y < b.Y < c.Y
+    struct PolyPoint *point_tmp;
+    if (point_a->Y > point_b->Y)
     {
-        shadingfactor_primary = factor_ca;
-        shadingfactor_secondary = factor_ba;
-    } else
+        point_tmp = point_a;
+        point_a = point_b;
+        point_b = point_tmp;
+    }
+    if (point_a->Y > point_c->Y)
     {
-        shadingfactor_primary = factor_ba;
-        shadingfactor_secondary = factor_ca;
+        point_tmp = point_a;
+        point_a = point_c;
+        point_c = point_tmp;
+    }
+    if (point_b->Y > point_c->Y)
+    {
+        point_tmp = point_b;
+        point_b = point_c;
+        point_c = point_tmp;
     }
 
-    if (exceeds_window)
-    {
-        draw_gpoly_sub13();
-    } else // not exceeds_window
-    {
-        draw_gpoly_sub14();
-    }
-}
+    vertex_a_x = point_a->X;
+    vertex_a_y = point_a->Y;
+    vertex_b_x = point_b->X;
+    vertex_b_y = point_b->Y;
+    vertex_c_x = point_c->X;
+    vertex_c_y = point_c->Y;
 
-void draw_gpoly_sub7a()
-{
-    int triangle_height_ac = triangle_point_c_y - triangle_point_a_y;
-    int cross_product_adjustment = (triangle_point_b_x - triangle_point_a_x) * (triangle_point_c_y - triangle_point_a_y);
-    if (factor_chk >= 0)
-        cross_product_adjustment -= 2 * triangle_height_ac;
+    if (! validate_triangle())
+        return;
 
-    int triangle_area_determinant = (triangle_point_c_x - triangle_point_a_x) * (triangle_point_b_y - triangle_point_a_y) - (triangle_height_ac + cross_product_adjustment);
+    vertex_a_shade     = point_a->S >> 16;
+    vertex_b_shade     = point_b->S >> 16;
+    vertex_c_shade     = point_c->S >> 16;
+    vertex_a_texture_u = point_a->U >> 16;
+    vertex_a_texture_v = point_a->V >> 16;
+    vertex_b_texture_u = point_b->U >> 16;
+    vertex_b_texture_v = point_b->V >> 16;
+    vertex_c_texture_u = point_c->U >> 16;
+    vertex_c_texture_v = point_c->V >> 16;
 
-    if (triangle_area_determinant != 0)
-    {
-        int division_factor = 0x7FFFFFFF / triangle_area_determinant;
-        int triangle_height_ac_copy = triangle_point_c_y - triangle_point_a_y;
-        int triangle_height_ab = triangle_point_b_y - triangle_point_a_y;
+    const bool clip_x = (  (vertex_a_x) | (vec_window_width - vertex_a_x)
+                         | (vertex_b_x) | (vec_window_width - vertex_b_x)
+                         | (vertex_c_x) | (vec_window_width - vertex_c_x) ) < 0;
 
-        // First component: shadehstep
-        {
-            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_shade - triangle_point_a_shade) - (int64_t)triangle_height_ac_copy * (triangle_point_b_shade - triangle_point_a_shade);
-            int64_t result = 2 * num * division_factor;
-            shadehstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
-        }
+    calculate_slopes();
+    calculate_texture_mapping();
+    pack_texcoords();
 
-        // Second component: mapxhstep
-        {
-            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_texture_u - triangle_point_a_texture_u) - (int64_t)triangle_height_ac_copy * (triangle_point_b_texture_u - triangle_point_a_texture_u);
-            int64_t result = 2 * num * division_factor;
-            mapxhstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
-        }
-
-        // Third component: mapyhstep
-        {
-            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_texture_v - triangle_point_a_texture_v) - (int64_t)triangle_height_ac_copy * (triangle_point_b_texture_v - triangle_point_a_texture_v);
-            int64_t result = 2 * num * division_factor;
-            mapyhstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
-        }
-    }
+    if (clip_x)
+        draw_gpoly_clipped();
     else
-    {
-        shadehstep = 0;
-        mapxhstep = 0;
-        mapyhstep = 0;
-    }
-}
-
-void draw_gpoly_sub7b_block1(void);
-void draw_gpoly_sub7b_block2(void);
-void draw_gpoly_sub7b_block3(void);
-
-void draw_gpoly_sub7b()
-{
-
-    if (factor_chk < 0)
-    {
-        draw_gpoly_sub7b_block2();
-    }
-    else
-    {
-        draw_gpoly_sub7b_block1();
-    }
-
-    draw_gpoly_sub7b_block3();
-
-}
-
-static inline int32_t shift_mul(int32_t delta, int32_t scale)
-{
-    // 64-bit result of signed multiplication
-    int64_t result = (int64_t)delta * scale;
-
-    // Split into low and high 32-bit words
-    uint32_t lo = (uint32_t)(result & 0xFFFFFFFF);
-    uint32_t hi = (uint32_t)((uint64_t)result >> 32);
-
-    // Overwrite low 16 bits of lo with low 16 bits of hi
-    lo = (lo & 0xFFFF0000) | (hi & 0x0000FFFF);
-
-    // Rotate left by 16 bits
-    uint32_t rotated = (lo << 16) | (lo >> 16);
-
-    // If result is negative, increment
-    if ((int32_t)rotated < 0)
-        rotated++;
-
-    return (int32_t)rotated;
-}
-
-void draw_gpoly_sub7b_block1(void)
-{
-    int32_t dy_ab = triangle_point_b_y - triangle_point_a_y;
-    int32_t scale1 = (dy_ab > 255) ? (0x7FFFFFFF / dy_ab) : gpoly_reptable[dy_ab];
-
-    gploc_point_c = shift_mul(2 * (triangle_point_b_shade - triangle_point_a_shade), scale1);
-    mapxveltop    = shift_mul(2 * (triangle_point_b_texture_u - triangle_point_a_texture_u), scale1);
-    mapyveltop    = shift_mul(2 * (triangle_point_b_texture_v - triangle_point_a_texture_v), scale1);
-
-    int32_t dy_bc = triangle_point_c_y - triangle_point_b_y;
-    int32_t scale2 = (dy_bc > 255) ? (0x7FFFFFFF / dy_bc) : gpoly_reptable[dy_bc];
-
-    shadingtop_deltashade = shift_mul(2 * (triangle_point_c_shade - triangle_point_b_shade), scale2);
-    maptexturetop_deltau = shift_mul(2 * (triangle_point_c_texture_u - triangle_point_b_texture_u), scale2);
-    maptexturetop_deltav = shift_mul(2 * (triangle_point_c_texture_v - triangle_point_b_texture_v), scale2);
-}
-
-static inline int rol16_from_product(int64_t product)
-{
-    uint32_t eax = (uint32_t)(product & 0xFFFFFFFF);
-    uint16_t dx = (uint16_t)(product >> 32);
-    eax = (dx << 16) | (eax >> 16); // this mimics: movw dx, ax; rol eax, 16
-    if ((int32_t)eax < 0)
-        ++eax;
-    return eax;
-}
-
-void draw_gpoly_sub7b_block2(void)
-{
-    int dy = triangle_point_c_y - triangle_point_a_y;
-    int factor = (dy > 255) ? (0x7FFFFFFF / dy) : gpoly_reptable[dy];
-
-    int delta = triangle_point_c_shade - triangle_point_a_shade;
-    int64_t product = (int64_t)factor * (delta * 2);
-    gploc_point_c = rol16_from_product(product);
-
-    delta = triangle_point_c_texture_u - triangle_point_a_texture_u;
-    product = (int64_t)factor * (delta * 2);
-    mapxveltop = rol16_from_product(product);
-
-    delta = triangle_point_c_texture_v - triangle_point_a_texture_v;
-    product = (int64_t)factor * (delta * 2);
-    mapyveltop = rol16_from_product(product);
-}
-
-void draw_gpoly_sub7b_block3(void)
-{
-    //----------------------------------------------------------------
-    // 1) Write the six “startpos…” values exactly as in the ASM:
-    //----------------------------------------------------------------
-    startposshadetop    = (uint32_t)( (int32_t)triangle_point_a_shade   << 16 );
-    startposmapxtop     = (uint32_t)( (int32_t)triangle_point_a_texture_u   << 16 );
-    startposmapytop     = (uint32_t)( (int32_t)triangle_point_a_texture_v   << 16 );
-    startposshadebottom = (uint32_t)( (int32_t)triangle_point_b_shade   << 16 );
-    startposmapxbottom  = (uint32_t)( (int32_t)triangle_point_b_texture_u   << 16 );
-    startposmapybottom  = (uint32_t)( (int32_t)triangle_point_b_texture_v   << 16 );
-
-    //----------------------------------------------------------------
-    // 2) TOP‐SHADING INTERPOLATION → shade_interpolation_top_shifted, shade_interpolation_top_low, shade_interpolation_top_high_combined
-    //----------------------------------------------------------------
-    {
-
-        int32_t m_y       = (int32_t)mapyhstep;
-        int32_t s         = (int32_t)(shadehstep >> 8);
-
-        // Build the 48-bit fixed‐point value in a 64‐bit container:
-        int64_t val       = ((int64_t)m_y << 16);
-
-        // If (shadehstep>>8) is negative, emulate the “andl $0x0FFFF; subl $0x10000; sbbl $0,EDX” exactly:
-        if (s < 0) {
-            // EBX = (uint16_t)s
-            uint32_t unsigned_lower_bits = (uint32_t)( (uint16_t)s );
-            // EAX -= 0x10000  →  val -= 0x10000
-            val -= ((int64_t)0x10000);
-            // Add back (uint16_t)s
-            val += (int64_t)unsigned_lower_bits;
-        }
-        else {
-            // s ≥ 0  →  just add s
-            val += (int64_t)s;
-        }
-
-        // Now split val into “low32bits” = EAX and “high32bits” = EDX (signed):
-        uint32_t low32 = (uint32_t)val;
-        int32_t  high32 = (int32_t)( val >> 32 );  // arithmetic shift
-
-        // shade_interpolation_top_shifted ← (shadehstep << 24):
-        shade_interpolation_top_shifted = (uint32_t)( (int32_t)shadehstep << 24 );
-        // shade_interpolation_top_low ← low‐word (EAX):
-        shade_interpolation_top_low = low32;
-
-        // Next: shade_interpolation_top_high_combined = ( (mapxhstep + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
-        int32_t mx = (int32_t)mapxhstep;
-        if (high32 < 0) {
-            mx -= 1;
-        }
-        shade_interpolation_top_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
-    }
-
-    //----------------------------------------------------------------
-    // 3) BOTTOM‐SHADING INTERPOLATION → shade_interpolation_bottom_combined, shade_interpolation_bottom_high_combined
-    //----------------------------------------------------------------
-    {
-
-        int32_t m_y   = (int32_t)mapyhstep;
-        int32_t s     = (int32_t)(shadehstep >> 8);
-
-        int64_t val   = ((int64_t)m_y << 16);
-
-        if (s < 0) {
-            // EBX = (uint16_t)s
-            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)s);
-            // EAX -= 0x0FFFF
-            val -= ((int64_t)0x0FFFF);
-            // add EBX
-            val += (int64_t)unsigned_lower_bits;
-        }
-        else {
-            val += (int64_t)s;
-        }
-
-        uint32_t low32  = (uint32_t)val;
-        int32_t  high32 = (int32_t)(val >> 32);
-
-        // Store EAX→shade_interpolation_bottom_combined
-        shade_interpolation_bottom_combined = low32;
-
-        // shade_interpolation_bottom_high_combined = ( (mapxhstep + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
-        int32_t mx      = (int32_t)mapxhstep;
-        if (high32 < 0) {
-            mx -= 1;
-        }
-        shade_interpolation_bottom_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
-    }
-
-    //----------------------------------------------------------------
-    // 4) TOP “POINT‐C” INTERPOLATION → shade_interpolation_pointc_high, texture_pointc_interpolation_low, texture_pointc_interpolation_high_combined
-    //----------------------------------------------------------------
-    {
-        int32_t m_y   = (int32_t)mapyveltop;
-        int64_t val   = ((int64_t)m_y << 16);
-
-        // Build shade_interpolation_pointc_high = (gploc_point_c << 24)
-        int32_t ptc     = (int32_t)gploc_point_c;
-        shade_interpolation_pointc_high        = (uint32_t)(ptc << 24);
-
-        int32_t s       = (int32_t)(ptc >> 8);
-        if (s < 0) {
-            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)s);
-            val -= ((int64_t)0x10000);
-            val += (int64_t)unsigned_lower_bits;
-        }
-        else {
-            val += (int64_t)s;
-        }
-
-        uint32_t low32  = (uint32_t)val;
-        int32_t  high32 = (int32_t)(val >> 32);
-        texture_pointc_interpolation_low        = low32;
-
-        // texture_pointc_interpolation_high_combined = ( (mapxveltop + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
-        int32_t mx      = (int32_t)mapxveltop;
-        if (high32 < 0) {
-            mx -= 1;
-        }
-        texture_pointc_interpolation_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
-    }
-
-    //----------------------------------------------------------------
-    // 5) COMBINE STARTPOS FOR TOP: → startpos_top_shade_texture_combined, startpos_top_texturex_texturey_combined
-    //----------------------------------------------------------------
-    {
-        uint32_t sp_y = startposmapytop;
-        uint32_t sp_s = startposshadetop;
-        uint32_t sp_x = startposmapxtop;
-
-        // startpos_top_shade_texture_combined = (sp_s >> 8) | (sp_y << 16)
-        startpos_top_shade_texture_combined = ( (uint32_t)sp_s >> 8 ) | ( (uint32_t)sp_y << 16 );
-
-        // startpos_top_texturex_texturey_combined = (sp_x << 8) | ((sp_y >> 16) & 0xFF)
-        startpos_top_texturex_texturey_combined = ( (uint32_t)sp_x << 8 ) | ( ((uint32_t)sp_y >> 16) & 0xFF );
-    }
-
-    //----------------------------------------------------------------
-    // 6) “IF (factor_chk >= 0) THEN…” → BOTTOM “POINT‐C” BLOCK
-    //----------------------------------------------------------------
-    if ( (int32_t)factor_chk >= 0 )
-    {
-        int32_t m_y   = (int32_t)maptexturetop_deltav;
-        int64_t val   = ((int64_t)m_y << 16);
-
-        // shade_interpolation_pointc_low = (shadingtop_deltashade << 24)
-        int32_t signed_shade_delta    = (int32_t)shadingtop_deltashade;
-        shade_interpolation_pointc_low      = (uint32_t)(signed_shade_delta << 24);
-
-        int32_t shifted_shade_delta    = (int32_t)(signed_shade_delta >> 8);
-        if (shifted_shade_delta < 0) {
-            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)shifted_shade_delta);
-            val -= ((int64_t)0x10000);
-            val += (int64_t)unsigned_lower_bits;
-        }
-        else {
-            val += (int64_t)shifted_shade_delta;
-        }
-
-        uint32_t low32  = (uint32_t)val;
-        int32_t  high32 = (int32_t)(val >> 32);
-        shade_interpolation_bottom_low        = low32;
-
-        // texture_delta_bottom_high_combined = ( (maptexturetop_deltau + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
-        int32_t mx      = (int32_t)maptexturetop_deltau;
-        if (high32 < 0) {
-            mx -= 1;
-        }
-        texture_delta_bottom_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
-
-        //----------------------------------------------------------------
-        // Finally, combine “bottom” startpos → startpos_bottom_shade_texture_combined, startpos_bottom_texturex_texturey_combined
-        //----------------------------------------------------------------
-        {
-            uint32_t sp_yb = startposmapybottom;
-            uint32_t sp_sb = startposshadebottom;
-            uint32_t sp_xb = startposmapxbottom;
-
-            // startpos_bottom_shade_texture_combined = (sp_sb >> 8) | (sp_yb << 16)
-            startpos_bottom_shade_texture_combined = ( (uint32_t)sp_sb >> 8 ) | ( (uint32_t)sp_yb << 16 );
-
-            // startpos_bottom_texturex_texturey_combined = (sp_xb << 8) | ((sp_yb >> 16) & 0xFF)
-            startpos_bottom_texturex_texturey_combined = ( (uint32_t)sp_xb << 8 ) | ( ((uint32_t)sp_yb >> 16) & 0xFF );
-        }
-    }
-}
-
-static void draw_gpoly_span(int32_t pixel_span_len, uint32_t texture_position_low, uint32_t texture_position_high, uint8_t *restrict pixel_dst)
-{
-    uint64_t texture_position;
-    uint64_t texture_step;
-    uint32_t texture_index;
-    const uint8_t *restrict texture_map;
-    const uint8_t *restrict fade_table;
-    int32_t i;
-
-    if (pixel_dst < LOC_vec_screen) {
-        return;
-    }
-
-    texture_position = PAIR64(texture_position_high, texture_position_low);
-    texture_step = PAIR64(shade_interpolation_bottom_high_combined, shade_interpolation_bottom_combined);
-    texture_index = __ROL4__(texture_position_high, 8) & 0xFFFF;
-    texture_map = LOC_vec_map;
-    fade_table = render_fade_tables;
-    for (i = 0; i < pixel_span_len; i++) {
-        pixel_dst[i] = fade_table[texture_map[texture_index] | (texture_position & 0xFF00)];
-        texture_index = __ROL4__(texture_position >> 32, 8) & 0xFFFF;
-        texture_position += texture_step;
-    }
-}
-
-void draw_gpoly_sub13()
-{
-  int tex_x_accum_low; // ecx
-  int tex_x_accum_high; // edx
-  int tex_x_accum_combined; // ebx
-  uchar *screen_line_ptr; // edi
-  int clamped_by; // eax
-  bool skip_render; // zf
-  int spanCount; // eax
-  int xStart; // esi
-  int shadeAccumulator; // eax
-  int shadeAccumulatorNext; // ebp
-  int scanline_y_esi; // esi
-  bool range_check_passed; // cc
-  int shade_position_adjustment; // esi
-  int shade_pixel_position; // eax
-  int next_shade_pixel_position; // ebp
-  int pixel_span_len; // ebp
-  bool carry_flag; // cf
-  int clipped_end_y; // eax
-  int clipped_triangle_end_y; // eax
-
-  tex_x_accum_low = 0;
-  tex_x_accum_high = startpos_top_shade_texture_combined;
-  tex_x_accum_combined = startpos_top_texturex_texturey_combined;
-  screen_line_ptr = (uchar *)(LOC_vec_screen + triangle_point_a_y * LOC_vec_screen_width);
-  if ( triangle_point_a_y <= LOC_vec_window_height )
-  {
-    clamped_by = triangle_point_b_y;
-    if ( triangle_point_b_y > LOC_vec_window_height )
-      clamped_by = LOC_vec_window_height;
-    spanCount = clamped_by - triangle_point_a_y;
-    skip_render = spanCount == 0;
-    scanline_span_count = spanCount;
-    xStart = triangle_point_a_x;
-    current_scanline_xposition = triangle_point_a_x;
-    shadeAccumulator = triangle_point_a_shade_x;
-    shadeAccumulatorNext = triangle_point_a_shade_x;
-    if ( !skip_render )
-    {
-      scanline_y_esi = triangle_point_a_y;
-      if ( triangle_point_a_y < 0 )
-        goto SKEWED_SCAN_ADJUST;
-      xStart = current_scanline_xposition;
-      goto REMAINDER_SCANLINE_STEP;
-    }
-    while ( 1 )
-    {
-      if ( !--scanlinescounter )
-        return;
-      g_shadeAccumulator = shadeAccumulator;
-      if ( factor_chk >= 0 )
-        break;
-      shadingfactor_secondary = factor_cb;
-      shadeAccumulatorNext = triangle_point_b_shade_x;
-      clipped_triangle_end_y = triangle_point_c_y;
-      if ( triangle_point_c_y > LOC_vec_window_height )
-        clipped_triangle_end_y = LOC_vec_window_height;
-      range_check_passed = clipped_triangle_end_y <= triangle_point_b_y;
-      scanline_span_count = clipped_triangle_end_y - triangle_point_b_y;
-      shadeAccumulator = g_shadeAccumulator;
-      if ( range_check_passed )
-        return;
-      current_scanline_xposition = xStart;
-      scanline_y_esi = triangle_point_b_y;
-      if ( triangle_point_b_y >= 0 )
-      {
-        xStart = current_scanline_xposition;
-        do
-        {
-REMAINDER_SCANLINE_STEP:
-          g_shadeAccumulator = shadeAccumulator;
-          g_shadeAccumulatorNext = shadeAccumulatorNext;
-          screenbuffer_lineptr = screen_line_ptr;
-          shade_pixel_position = shadeAccumulator >> 16;
-          if ( shade_pixel_position < 0 )
-          {
-            if ( xStart )
-            {
-              if ( xStart >= 0 )
-              {
-                do
-                {
-                  carry_flag = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted);
-                  tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted)) >> 32;
-                  tex_x_accum_low -= shade_interpolation_top_shifted;
-                  tex_x_accum_combined -= carry_flag + shade_interpolation_top_high_combined;
-                  --xStart;
-                }
-                while ( xStart );
-              }
-              else
-              {
-                do
-                {
-                  carry_flag = CFADD64(PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted), PAIR64(tex_x_accum_high, tex_x_accum_low));
-                  tex_x_accum_high = (PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
-                  tex_x_accum_low += shade_interpolation_top_shifted;
-                  tex_x_accum_combined += shade_interpolation_top_high_combined + carry_flag;
-                  ++xStart;
-                }
-                while ( xStart );
-              }
-            }
-          }
-          else if ( shade_pixel_position > xStart )
-          {
-            do
-            {
-              carry_flag = CFADD64(PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted), PAIR64(tex_x_accum_high, tex_x_accum_low));
-              tex_x_accum_high = (PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
-              tex_x_accum_low += shade_interpolation_top_shifted;
-              tex_x_accum_combined += shade_interpolation_top_high_combined + carry_flag;
-              ++xStart;
-            }
-            while ( shade_pixel_position > xStart );
-          }
-          else
-          {
-            for ( ; shade_pixel_position < xStart; --xStart )
-            {
-              carry_flag = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted);
-              tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted)) >> 32;
-              tex_x_accum_low -= shade_interpolation_top_shifted;
-              tex_x_accum_combined -= carry_flag + shade_interpolation_top_high_combined;
-            }
-          }
-          current_scanline_xposition = xStart;
-          texture_xaccumulator_low_backup = tex_x_accum_low;
-          texture_xaccumulator_high_backup = tex_x_accum_high;
-          texture_xaccumulator_backup = tex_x_accum_combined;
-          next_shade_pixel_position = shadeAccumulatorNext >> 16;
-          if ( next_shade_pixel_position > LOC_vec_window_width )
-            next_shade_pixel_position = LOC_vec_window_width;
-          range_check_passed = next_shade_pixel_position <= xStart;
-          pixel_span_len = next_shade_pixel_position - xStart;
-          if ( !range_check_passed )
-          {
-            draw_gpoly_span(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,screenbuffer_lineptr + xStart);
-          }
-          shade_position_adjustment = current_scanline_xposition - (g_shadeAccumulator >> 16);
-          shadeAccumulatorNext = shadingfactor_secondary + g_shadeAccumulatorNext;
-          g_shadeAccumulator += shadingfactor_primary;
-          xStart = (g_shadeAccumulator >> 16) + shade_position_adjustment;
-          shadeAccumulator = g_shadeAccumulator;
-          tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup)) >> 32;
-          tex_x_accum_low = texture_xaccumulator_low + texture_xaccumulator_low_backup;
-          tex_x_accum_combined = texture_yaccumulator_high_combined
-                               + CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup))
-                               + texture_xaccumulator_backup;
-          screen_line_ptr = &screenbuffer_lineptr[screenbuffer_linestride];
-          --scanline_span_count;
-        }
-        while ( scanline_span_count );
-        continue;
-      }
-SKEWED_SCAN_ADJUST:
-      while ( 1 )
-      {
-        carry_flag = CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(tex_x_accum_high, tex_x_accum_low));
-        tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
-        tex_x_accum_low += texture_xaccumulator_low;
-        tex_x_accum_combined += texture_yaccumulator_high_combined + carry_flag;
-        current_scanline_xposition -= shadeAccumulator >> 16;
-        shadeAccumulatorNext += shadingfactor_secondary;
-        g_shadeAccumulator = shadingfactor_primary + shadeAccumulator;
-        current_scanline_xposition += (shadingfactor_primary + shadeAccumulator) >> 16;
-        shadeAccumulator += shadingfactor_primary;
-        screen_line_ptr += screenbuffer_linestride;
-        if ( !--scanline_span_count )
-          break;
-        if ( ++scanline_y_esi >= 0 )
-        {
-          xStart = current_scanline_xposition;
-          goto REMAINDER_SCANLINE_STEP;
-        }
-      }
-      xStart = current_scanline_xposition;
-    }
-    shadingfactor_primary = factor_cb;
-    texture_xaccumulator_low = shade_interpolation_pointc_low;
-    texture_yaccumulator_low = shade_interpolation_bottom_low;
-    texture_yaccumulator_high_combined = texture_delta_bottom_high_combined;
-    tex_x_accum_low = 0;
-    tex_x_accum_high = startpos_bottom_shade_texture_combined;
-    tex_x_accum_combined = startpos_bottom_texturex_texturey_combined;
-    clipped_end_y = triangle_point_c_y;
-    if ( triangle_point_c_y > LOC_vec_window_height )
-      clipped_end_y = LOC_vec_window_height;
-    range_check_passed = clipped_end_y <= triangle_point_b_y;
-    scanline_span_count = clipped_end_y - triangle_point_b_y;
-    current_scanline_xposition = triangle_point_b_x;
-    shadeAccumulator = triangle_point_b_shade_x;
-    if ( !range_check_passed )
-    {
-      scanline_y_esi = triangle_point_b_y;
-      if ( triangle_point_b_y < 0 )
-        goto SKEWED_SCAN_ADJUST;
-      xStart = triangle_point_b_x;
-      goto REMAINDER_SCANLINE_STEP;
-    }
-  }
-}
-
-// this function draws all polygons except the ones cut off by the screen edges
-void draw_gpoly_sub14()
-{
-
-    if ( triangle_point_a_y > LOC_vec_window_height )
-        return;
-
-    int scanline_y; // esi
-
-    int tex_x_accum_low = 0;
-    int tex_x_accum_high = startpos_top_shade_texture_combined;
-    int tex_x_accum_combined = startpos_top_texturex_texturey_combined;
-    uchar *screen_line_ptr = &LOC_vec_screen[triangle_point_a_y * LOC_vec_screen_width];
-
-    int clamped_by = triangle_point_b_y;
-    if ( triangle_point_b_y > LOC_vec_window_height )
-      clamped_by = LOC_vec_window_height;
-    int spanCount = clamped_by - triangle_point_a_y;
-    bool skip_render = spanCount == 0;
-    scanline_span_count = spanCount;
-    int xStart = triangle_point_a_x;
-    current_scanline_xposition = triangle_point_a_x;
-    int shadeAccumulator = triangle_point_a_shade_x;
-    int shadeAccumulatorNext = triangle_point_a_shade_x;
-    if ( !skip_render )
-    {
-      scanline_y = triangle_point_a_y;
-      if ( triangle_point_a_y < 0 )
-      {
-        goto SKEWED_SCAN_ADJUST;
-
-      }
-      do
-      {
-REMAINDER_SCANLINE_STEP:
-        g_shadeAccumulator = shadeAccumulator;
-        g_shadeAccumulatorNext = shadeAccumulatorNext;
-        screenbuffer_lineptr = screen_line_ptr;
-        int x_start_int = shadeAccumulator >> 16;
-        texture_xaccumulator_low_backup = tex_x_accum_low;
-        texture_xaccumulator_high_backup = tex_x_accum_high;
-        texture_xaccumulator_backup = tex_x_accum_combined;
-        int x_end_int = shadeAccumulatorNext >> 16;
-        int clipped_x_start = x_start_int;
-        int clipped_x_end = x_end_int;
-        if (clipped_x_start < 0) clipped_x_start = 0;
-        if (clipped_x_end > LOC_vec_screen_width) clipped_x_end = LOC_vec_screen_width;
-        bool span_too_small_or_complete = clipped_x_end <= clipped_x_start;
-        int pixel_span_len = clipped_x_end - clipped_x_start;
-        if ( !span_too_small_or_complete )
-        {
-          int skip_left = clipped_x_start - x_start_int;
-          if (skip_left > 0) {
-            for (int i = 0; i < skip_left; i++) {
-              tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, shade_interpolation_bottom_combined) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-              tex_x_accum_high += shade_interpolation_bottom_combined;
-            }
-          }
-          uint8_t *screen_line_offset = &screen_line_ptr[clipped_x_start];
-          draw_gpoly_span(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,screen_line_offset);
-        }
-        xStart = current_scanline_xposition;
-        shadeAccumulator = shadingfactor_primary + g_shadeAccumulator;
-        shadeAccumulatorNext = shadingfactor_secondary + g_shadeAccumulatorNext;
-        tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup)) >> 32;
-        tex_x_accum_low = texture_xaccumulator_low + texture_xaccumulator_low_backup;
-        tex_x_accum_combined = texture_yaccumulator_high_combined + CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup)) + texture_xaccumulator_backup;
-        screen_line_ptr = (uchar *)(screenbuffer_linestride + screenbuffer_lineptr);
-        --scanline_span_count;
-      }
-      while ( scanline_span_count );
-      goto EDGE_ADVANCE_CHECK;
-    }
-    while ( 1 )
-    {
-EDGE_ADVANCE_CHECK:
-      if ( !--scanlinescounter )
-        return;
-      g_shadeAccumulator = shadeAccumulator;
-      if ( factor_chk >= 0 )
-        break;
-      shadingfactor_secondary = factor_cb;
-      shadeAccumulatorNext = triangle_point_b_shade_x;
-      int clamped_cy2 = triangle_point_c_y;
-      if ( triangle_point_c_y > LOC_vec_window_height )
-        clamped_cy2 = LOC_vec_window_height;
-      bool span_too_small_or_complete = clamped_cy2 <= triangle_point_b_y;
-      scanline_span_count = clamped_cy2 - triangle_point_b_y;
-      shadeAccumulator = g_shadeAccumulator;
-      if ( span_too_small_or_complete )
-        return;
-      current_scanline_xposition = xStart;
-      scanline_y = triangle_point_b_y;
-      if ( triangle_point_b_y >= 0 )
-        goto REMAINDER_SCANLINE_STEP;
-
-SKEWED_SCAN_ADJUST:
-      while ( 1 )
-      {
-        bool carryLow32 = CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(tex_x_accum_high, tex_x_accum_low));
-        tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
-        tex_x_accum_low += texture_xaccumulator_low;
-        tex_x_accum_combined += texture_yaccumulator_high_combined + carryLow32;
-        current_scanline_xposition -= shadeAccumulator >> 16;
-        shadeAccumulatorNext += shadingfactor_secondary;
-        g_shadeAccumulator = shadingfactor_primary + shadeAccumulator;
-        current_scanline_xposition += (shadingfactor_primary + shadeAccumulator) >> 16;
-        shadeAccumulator += shadingfactor_primary;
-        screen_line_ptr += screenbuffer_linestride;
-        if ( !--scanline_span_count )
-          break;
-        if ( ++scanline_y >= 0 )
-        {
-          goto REMAINDER_SCANLINE_STEP;
-        }
-      }
-      xStart = current_scanline_xposition;
-    }
-    shadingfactor_primary = factor_cb;
-    texture_xaccumulator_low = shade_interpolation_pointc_low;
-    texture_yaccumulator_low = shade_interpolation_bottom_low;
-    texture_yaccumulator_high_combined = texture_delta_bottom_high_combined;
-    tex_x_accum_low = 0;
-    tex_x_accum_high = startpos_bottom_shade_texture_combined;
-    tex_x_accum_combined = startpos_bottom_texturex_texturey_combined;
-    int clamped_cy = triangle_point_c_y;
-    if ( triangle_point_c_y > LOC_vec_window_height )
-      clamped_cy = LOC_vec_window_height;
-    bool span_too_small_or_complete = clamped_cy <= triangle_point_b_y;
-    scanline_span_count = clamped_cy - triangle_point_b_y;
-    current_scanline_xposition = triangle_point_b_x;
-    shadeAccumulator = triangle_point_b_shade_x;
-    if ( !span_too_small_or_complete )
-    {
-      scanline_y = triangle_point_b_y;
-      if ( triangle_point_b_y < 0 )
-        goto SKEWED_SCAN_ADJUST;
-      goto REMAINDER_SCANLINE_STEP;
-    }
-
+        draw_gpoly_whole();
 }
 
 /******************************************************************************/

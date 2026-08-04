@@ -201,12 +201,15 @@ TbBool frontend_high_score_table_input(void)
         // Delete previous character
         if (high_score_entry_index > 0)
         {
-            i = high_score_entry_index-1;
-            while (high_score_entry[i] != '\0') {
-                high_score_entry[i] = high_score_entry[i+1];
-                i++;
+            // Step back over UTF-8 continuation bytes to the start of the previous character
+            unsigned long start = high_score_entry_index - 1;
+            while ((start > 0) && ((high_score_entry[start] & 0xc0) == 0x80)) {
+                start--;
             }
-            high_score_entry_index--;
+            unsigned long clen = high_score_entry_index - start;
+            unsigned long slen = strlen(high_score_entry);
+            memmove(&high_score_entry[start], &high_score_entry[start+clen], slen - (start+clen) + 1);
+            high_score_entry_index = start;
         }
         clear_key_pressed(KC_BACK);
         return true;
@@ -215,9 +218,14 @@ TbBool frontend_high_score_table_input(void)
     {
         // Delete next character
         i = high_score_entry_index;
-        while (high_score_entry[i] != '\0') {
-            high_score_entry[i] = high_score_entry[i+1];
-            i++;
+        if (high_score_entry[i] != '\0')
+        {
+            unsigned long clen = 1;
+            while ((high_score_entry[i+clen] & 0xc0) == 0x80) {
+                clen++;
+            }
+            unsigned long slen = strlen(high_score_entry);
+            memmove(&high_score_entry[i], &high_score_entry[i+clen], slen - (i+clen) + 1);
         }
         clear_key_pressed(KC_DELETE);
         return true;
@@ -227,6 +235,9 @@ TbBool frontend_high_score_table_input(void)
         // Move cursor left
         if (high_score_entry_index > 0) {
             high_score_entry_index--;
+            while ((high_score_entry_index > 0) && ((high_score_entry[high_score_entry_index] & 0xc0) == 0x80)) {
+                high_score_entry_index--;
+            }
         }
         clear_key_pressed(KC_LEFT);
         return true;
@@ -237,6 +248,9 @@ TbBool frontend_high_score_table_input(void)
         i = high_score_entry_index;
         if (high_score_entry[i] != '\0') {
             high_score_entry_index++;
+            while ((high_score_entry[high_score_entry_index] & 0xc0) == 0x80) {
+                high_score_entry_index++;
+            }
         }
         clear_key_pressed(KC_RIGHT);
         return true;

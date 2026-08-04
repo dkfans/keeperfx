@@ -238,6 +238,7 @@ obj/game_loop.o \
 obj/game_lghtshdw.o \
 obj/game_merge.o \
 obj/game_saves.o \
+obj/game_update.o \
 obj/gui_boxmenu.o \
 obj/gui_draw.o \
 obj/gui_frontbtns.o \
@@ -350,6 +351,7 @@ obj/thing_physics.o \
 obj/thing_shots.o \
 obj/thing_stats.o \
 obj/thing_traps.o \
+obj/timer.o \
 obj/value_util.o \
 obj/vidfade.o \
 obj/vidmode_data.o \

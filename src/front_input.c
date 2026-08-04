@@ -76,6 +76,7 @@
 #include "packets.h"
 #include "console_cmd.h"
 #include "engine_redraw.h"
+#include "timer.h"
 
 #include "keeperfx.hpp"
 
@@ -96,10 +97,13 @@ unsigned short const zoom_key_room_order[] =
 // define the current GUI layer as the default
 struct GuiLayer gui_layer = {GuiLayer_Default};
 
-TbBool first_person_see_item_desc = false;
+static TbBool first_person_see_item_desc = false;
 
 static TbBool move_camera_this_turn;
 static GameTurn hand_pick_pending_turn;
+
+static int32_t my_mouse_x;
+static int32_t my_mouse_y;
 
 long old_mx;
 long old_my;
@@ -273,13 +277,6 @@ static void update_gui_layer(void)
 {
     // Determine the current/correct GUI Layer to use at this moment
 
-    if (network_is_active()) // no one click on multiplayer.
-    {
-        //todo Make multiplayer work with 1-click
-        set_current_gui_layer(GuiLayer_Default);
-        return;
-    }
-
     struct PlayerInfo* player = get_my_player();
     if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (player->render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, false, true) || is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) )
@@ -451,6 +448,9 @@ static short get_players_message_inputs(void)
         clear_key_pressed(KC_UP);
     } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
         int chpos = strlen(player->mp_message_text);
+        // Skip UTF-8 continuation bytes so the whole last character is removed
+        while ((chpos > 0) && ((player->mp_message_text[chpos-1] & 0xc0) == 0x80))
+            chpos--;
         if (chpos > 0)
             player->mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);
@@ -523,14 +523,12 @@ static void clip_frame_skip(void)
 static void increaseFrameskip(void)
 {
     // Default no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
-    int level = 16;
-    for (int i=0; i<10; i++) {
-        if (game.frame_skip < level)
-            break;
-        level <<= 1;
-    }
-    int adj = level/8;
-    game.frame_skip += adj;
+
+    if (game.frame_skip <= 1)
+        game.frame_skip = 2;
+    else
+        game.frame_skip <<= 1;
+
     clip_frame_skip();
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
@@ -541,14 +539,12 @@ static void increaseFrameskip(void)
 static void decreaseFrameskip(void)
 {
     // Defaul no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
-    int level = 16;
-    for (int i=0; i<10; i++) {
-        if (game.frame_skip <= level)
-            break;
-        level <<= 1;
-    }
-    int adj = level/8;
-    game.frame_skip -= adj;
+    if (game.frame_skip <= 2)
+        game.frame_skip = 0;
+    else
+        game.frame_skip >>= 1;
+
+
     clip_frame_skip();
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)

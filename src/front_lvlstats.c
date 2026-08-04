@@ -44,6 +44,7 @@
 #include "game_legacy.h"
 #include "sprites.h"
 #include "custom_sprites.h"
+#include "timer.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"

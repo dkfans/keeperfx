@@ -39,14 +39,13 @@ extern struct Camera destination_local_cameras[4];
 extern TbBool local_camera_ready;
 /******************************************************************************/
 void init_local_cameras(struct PlayerInfo *player);
-void update_local_cameras_pre(void);
-void update_local_cameras_post(void);
+void update_local_cameras(void);
 void interpolate_local_cameras(void);
 void sync_local_camera(struct PlayerInfo *player);
 void set_local_camera_destination(struct PlayerInfo *player);
 void move_local_camera_to_position(MapCoord x, MapCoord y);
 struct Camera* get_local_camera(struct Camera* cam);
-void send_camera_catchup_packets(struct PlayerInfo *player);
+void send_camera_catchup_packets(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

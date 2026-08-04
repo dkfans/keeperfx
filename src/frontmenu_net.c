@@ -125,6 +125,9 @@ TbBool frontnet_start_input(void)
         player->mp_message_text[0] = '\0';
     } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
         int chpos = strlen(player->mp_message_text);
+        // Skip UTF-8 continuation bytes so the whole last character is removed
+        while ((chpos > 0) && ((player->mp_message_text[chpos-1] & 0xc0) == 0x80))
+            chpos--;
         if (chpos > 0)
             player->mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);

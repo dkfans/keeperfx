@@ -126,6 +126,7 @@ TbBool view_move_camera_to_position(struct Camera *cam, MapCoord x, MapCoord y, 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
 void update_first_person_position(struct Camera *cam, struct Thing *thing, int eye_height);
+void set_player_cameras_position(struct PlayerInfo *player, int32_t pos_x, int32_t pos_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

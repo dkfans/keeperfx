@@ -161,15 +161,11 @@ extern unsigned char exit_keeper;
 extern unsigned char quit_game;
 extern unsigned char is_running_under_wine;
 extern int continue_game_option_available;
-extern int32_t last_mouse_x;
-extern int32_t last_mouse_y;
 extern int FatalError;
 extern int32_t define_key_scroll_offset;
 extern uint32_t time_last_played_demo;
 extern short drag_menu_x;
 extern short drag_menu_y;
-extern unsigned short tool_tip_time;
-extern unsigned short help_tip_time;
 extern int32_t pointer_x;
 extern int32_t pointer_y;
 extern int32_t block_pointed_at_x;
@@ -189,8 +185,6 @@ extern int32_t total_lights;
 extern unsigned char do_lights;
 extern struct Thing *thing_pointed_at;
 extern struct Map *me_pointed_at;
-extern int32_t my_mouse_x;
-extern int32_t my_mouse_y;
 extern char *level_names_data;
 extern char *end_level_names_data;
 extern unsigned char *frontend_backup_palette;
@@ -212,33 +206,21 @@ extern struct StartupParameters start_params;
 //Functions - reworked
 short setup_game(void);
 void game_loop(void);
-short reset_game(void);
 void update(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
-struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, TbBool allowed);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx);
-void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, short ef_or_efel_model);
 void toggle_hero_health_flowers(void);
-void check_players_won(void);
-void check_players_lost(void);
-void process_things_in_dungeon_hand(void);
-void process_payday(void);
+
 
 TbBool toggle_computer_player(PlayerNumber plyr_idx);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
-void set_player_cameras_position(struct PlayerInfo *player, int32_t pos_x, int32_t pos_y);
-void init_player_types();
-void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
 void add_creature_to_pool(ThingModel kind, int32_t amount);
-void draw_texture(int32_t a1, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6, int32_t a7);
 
 short zoom_to_next_annoyed_creature(void);
 
@@ -258,13 +240,7 @@ void draw_gold_total(PlayerNumber plyr_idx, int32_t scr_x, int32_t scr_y, int32_
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, struct Coord3d *mappos);
 void update_creatr_model_activities_list(TbBool forced);
-TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
-void affect_nearby_stuff_with_vortex(struct Thing *thing);
-void affect_nearby_friends_with_alarm(struct Thing *thing);
-long apply_wallhug_force_to_boulder(struct Thing *thing);
-long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y);
 void lightning_modify_palette(struct Thing *thing);
-unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 
 unsigned long seed_check_random(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
@@ -289,43 +265,19 @@ void dump_thing_held_by_any_player(struct Thing *thing);
 void instant_instance_selected(CrInstance check_inst_id);
 void centre_engine_window(void);
 void change_engine_window_relative_size(long w_delta, long h_delta);
-void update_thing_animation(struct Thing *thing);
-long update_cave_in(struct Thing *thing);
 void initialise_map_collides(void);
 void initialise_map_health(void);
 void setup_mesh_randomizers(void);
 void setup_stuff(void);
 void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
-void process_keeper_spell_aura(struct Thing *thing);
 void init_seeds();
 
 
-TbPixel get_player_path_colour(unsigned short owner);
-
 void startup_saved_packet_game(void);
-void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
 void redetect_screen_refresh_rate_for_draw();
-void update_time(void);
-extern TbClockMSec timerstarttime;
-struct TimerTime {
-        unsigned char Hours;
-        unsigned char Minutes;
-        unsigned char Seconds;
-        unsigned short MSeconds;
-};
-extern struct TimerTime Timer;
-extern TbBool TimerGame;
-extern TbBool TimerNoReset;
-extern TbBool TimerFreeze;
-struct GameTime {
-    unsigned char Seconds;
-    unsigned char Minutes;
-    unsigned char Hours;
-};
 
-struct GameTime get_game_time(unsigned long turns, unsigned long fps);
 
 #ifdef __cplusplus
 }

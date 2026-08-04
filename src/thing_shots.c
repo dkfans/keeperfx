@@ -30,6 +30,7 @@
 #include "bflib_joyst.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
+#include "creature_states_mood.h"
 #include "thing_data.h"
 #include "thing_factory.h"
 #include "thing_effects.h"
@@ -52,6 +53,8 @@
 #include "creature_groups.h"
 #include "game_legacy.h"
 #include "engine_lenses.h"
+#include "room_util.h"
+#include "player_instances.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -803,6 +806,23 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
         WARNLOG("Killing %s by %s is not supported",thing_model_name(target),thing_model_name(shotng));
     }
     return 0;
+}
+
+void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta)
+{
+    struct CreatureControl *cctrl;
+    HitPoints max_health;
+    HitPoints health;
+    if ( !thing_exists(shooter) )
+        return;
+    cctrl = creature_control_get_from_thing(shooter);
+    max_health = cctrl->max_health;
+    health = shooter->health + health_delta;
+    if (health < max_health) {
+        shooter->health = health;
+    } else {
+        shooter->health = max_health;
+    }
 }
 
 static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struct Coord3d* pos)
@@ -1613,6 +1633,71 @@ TngUpdateRet move_shot(struct Thing *shotng)
     return TUFRet_Modified;
 }
 
+static TbBool lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
+{
+    struct Camera *camera = get_player_active_camera(player);
+    if (camera == NULL)
+        return false;
+    return get_chessboard_distance(&camera->mappos, pos) < subtile_coord(45,0);
+}
+
+static void affect_nearby_friends_with_alarm(struct Thing *traptng)
+{
+    SYNCDBG(8,"Starting");
+    if (is_neutral_thing(traptng)) {
+        return;
+    }
+    struct Dungeon *dungeon;
+    unsigned long k;
+    int i;
+    dungeon = get_players_num_dungeon(traptng->owner);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing) && !is_thing_directly_controlled(thing) &&
+            !creature_is_being_unconscious(thing) && !creature_is_kept_in_custody(thing) &&
+            (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
+        {
+            struct CreatureStateConfig *stati;
+            stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
+            if (stati->react_to_cta && (get_chessboard_distance(&traptng->mappos, &thing->mappos) < 4096))
+            {
+                creature_mark_if_woken_up(thing);
+                if (external_set_thing_state(thing, CrSt_ArriveAtAlarm))
+                {
+                    if (setup_person_move_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, 0))
+                    {
+                        thing->continue_state = CrSt_ArriveAtAlarm;
+                        cctrl->alarm_over_turn = get_gameturn() + 800;
+                        cctrl->alarm_stl_x = traptng->mappos.x.stl.num;
+                        cctrl->alarm_stl_y = traptng->mappos.y.stl.num;
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+}
+
 TngUpdateRet update_shot(struct Thing *thing)
 {
     struct Thing *target;
@@ -1736,11 +1821,6 @@ TngUpdateRet update_shot(struct Thing *thing)
                 draw_god_lightning(thing);
                 lightning_modify_palette(thing);
                 break;
-            /**case ShUL_Vortex:
-                //Not implemented, due to limited amount of shots, replaced by Lizard
-                affect_nearby_stuff_with_vortex(thing);
-                break;
-                **/
             case ShUL_Lizard:
                 thing->move_angle_xy = (thing->move_angle_xy + DEGREES_20) & ANGLE_MASK;
                 int skill = thing->shot_lizard.range;
@@ -2018,6 +2098,163 @@ struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation locatio
         }
     }
     return thing;
+}
+
+long apply_wallhug_force_to_boulder(struct Thing *thing)
+{
+  unsigned short angle;
+  long collide;
+  unsigned short new_angle;
+  struct Coord3d pos2;
+  struct Coord3d pos;
+  struct ShotConfigStats *shotst = get_shot_model_stats(thing->model);
+  short speed = shotst->speed;
+  pos.x.val = move_coord_with_angle_x(thing->mappos.x.val,speed,thing->move_angle_xy);
+  pos.y.val = move_coord_with_angle_y(thing->mappos.y.val,speed,thing->move_angle_xy);
+  pos.z.val = thing->mappos.z.val;
+  if ( (GAME_RANDOM(8) == 0) && (!thing->velocity.z.val ) )
+  {
+    if ( thing_touching_floor(thing) )
+    {
+      long top_cube = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num, NULL);
+      if ( ((top_cube & 0xFFFFFFFE) != 0x28) && (top_cube != 39) )
+      {
+        thing->veloc_push_add.z.val += 48;
+        thing->state_flags |= TF1_PushAdd;
+      }
+    }
+  }
+  if ( thing_in_wall_at(thing, &pos) )
+  {
+    long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+    if ( blocked_flags & SlbBloF_WalledX )
+    {
+      angle = thing->move_angle_xy;
+      if ( (angle) && (angle <= ANGLE_SOUTH) )
+        collide = process_boulder_collision(thing, &pos, 1, 0);
+      else
+        collide = process_boulder_collision(thing, &pos, -1, 0);
+    }
+    else if ( blocked_flags & SlbBloF_WalledY )
+    {
+      angle = thing->move_angle_xy;
+      if ( (angle <= ANGLE_EAST) || (angle > ANGLE_WEST) )
+        collide = process_boulder_collision(thing, &pos, 0, -1);
+      else
+        collide = process_boulder_collision(thing, &pos, 0, 1);
+    }
+    else
+    {
+      collide = 0;
+    }
+    if ( collide != 1 )
+    {
+      if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
+      {
+        thing->health -= game.conf.rules[thing->owner].gameplay.boulder_reduce_health_wall;
+      }
+      slide_thing_against_wall_at(thing, &pos, blocked_flags);
+      if ( blocked_flags & SlbBloF_WalledX )
+      {
+        angle = thing->move_angle_xy;
+        if ( (angle) && ( (angle <= ANGLE_EAST) || (angle > ANGLE_WEST) ) )
+        {
+          MapCoord y = thing->mappos.y.val;
+          pos2.x.val = thing->mappos.x.val;
+          pos2.z.val = 0;
+          pos2.y.val = y - STL_PER_SLB * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_NORTH : ANGLE_SOUTH;
+        }
+        else
+        {
+          pos2.x.val = thing->mappos.x.val;
+          pos2.z.val = 0;
+          pos2.y.val = thing->mappos.y.val + STL_PER_SLB * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_SOUTH : ANGLE_NORTH;
+        }
+      }
+      else if ( blocked_flags & SlbBloF_WalledY )
+      {
+        angle = thing->move_angle_xy;
+        if ( (angle) && (angle <= ANGLE_SOUTH) )
+        {
+          pos2.z.val = 0;
+          pos2.y.val = thing->mappos.y.val;
+          pos2.x.val = thing->mappos.x.val + STL_PER_SLB * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_EAST : ANGLE_WEST;
+        }
+        else
+        {
+          MapCoord x = thing->mappos.x.val;
+          pos2.z.val = 0;
+          pos2.y.val = thing->mappos.y.val;
+          pos2.x.val = x - STL_PER_SLB * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_WEST : ANGLE_EAST;
+        }
+      }
+      else
+      {
+        ERRORLOG("Cannot find boulder wall hug angle!");
+        new_angle = 0;
+      }
+      thing->move_angle_xy = new_angle;
+    }
+  }
+  angle = thing->move_angle_xy;
+  thing->velocity.x.val = distance_with_angle_to_coord_x(shotst->speed,angle);
+  thing->velocity.y.val = distance_with_angle_to_coord_y(shotst->speed,angle);
+  return 0;
+}
+
+long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y)
+{
+    unsigned short boulder_radius = (boulder->clipbox_size_xy >> 1);
+    MapSubtlCoord pos_x = (pos->x.val + boulder_radius * direction_x) >> 8;
+    MapSubtlCoord pos_y = (pos->y.val + boulder_radius * direction_y) >> 8;
+    MapSubtlCoord stl_x = stl_slab_center_subtile(pos_x);
+    MapSubtlCoord stl_y = stl_slab_center_subtile(pos_y);
+
+    struct Room *room = subtile_room_get(stl_x, stl_y);
+    if (room_exists(room))
+    {
+        if (room->kind == RoK_GUARDPOST)  // Collide with Guardposts
+        {
+            if (room->owner != game.neutral_player_num)
+            {
+                struct Dungeon *dungeon = get_dungeon(room->owner);
+                if (!dungeon_invalid(dungeon))
+                {
+                    dungeon->rooms_destroyed++; // add to player stats
+                }
+            }
+            delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0); // destroy guardpost
+            for (int16_t k = 0; k < AROUND_TILES_COUNT; k++)
+            {
+                create_dirt_rubble_for_dug_block(stl_x + around[k].delta_x, stl_y + around[k].delta_y, 4, room->owner);
+            }
+            if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
+            {
+                boulder->health -= game.conf.rules[boulder->owner].gameplay.boulder_reduce_health_room; // decrease boulder health
+            }
+            return 1; // guardpost destroyed
+        }
+    }
+    else
+    {
+        if (subtile_has_door_thing_on(stl_x, stl_y)) // Collide with Doors
+        {
+            struct Thing *doortng = get_door_for_position(stl_x, stl_y);
+            if (collide_door_and_boulder(doortng, boulder) <= 0)
+            {
+                return 2; // door destroyed
+            }
+        }
+    }
+    return 0; // Default: No collision OR boulder destroyed on door
 }
 /******************************************************************************/
 #ifdef __cplusplus

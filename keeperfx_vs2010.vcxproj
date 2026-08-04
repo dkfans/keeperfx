@@ -49,6 +49,7 @@
     <ClCompile Include="src\bflib_netsp.cpp" />
     <ClCompile Include="src\bflib_netsp_tcp.cpp" />
     <ClCompile Include="src\config_sounds.c" />
+    <ClCompile Include="src\game_update.cpp" />
     <ClCompile Include="src\lua_api_lens.c" />
     <ClCompile Include="src\lua_api_room.c" />
     <ClCompile Include="src\bflib_planar.c" />
@@ -278,6 +279,7 @@
     <ClCompile Include="src\thing_shots.c" />
     <ClCompile Include="src\thing_stats.c" />
     <ClCompile Include="src\thing_traps.c" />
+    <ClCompile Include="src\timer.c" />
     <ClCompile Include="src\vidfade.c" />
     <ClCompile Include="src\vidmode.c" />
     <ClCompile Include="src\vidmode_data.cpp" />
@@ -519,6 +521,7 @@
     <ClInclude Include="src\thing_shots.h" />
     <ClInclude Include="src\thing_stats.h" />
     <ClInclude Include="src\thing_traps.h" />
+    <ClInclude Include="src\timer.h" />
     <ClInclude Include="src\version.h" />
     <ClInclude Include="src\vidfade.h" />
     <ClInclude Include="src\vidmode.h" />
