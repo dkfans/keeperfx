@@ -25,6 +25,11 @@
 #include "globals.h"
 
 #include <SDL3/SDL.h>
+// back-compat
+#ifdef SDL_WINDOW_FULLSCREEN_DESKTOP
+#  undef SDL_WINDOW_FULLSCREEN_DESKTOP
+#endif
+#define SDL_WINDOW_FULLSCREEN_DESKTOP  0x00001001u
 
 #ifdef __cplusplus
 extern "C" {

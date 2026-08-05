@@ -302,6 +302,8 @@ obj/packets.o \
 obj/packets_cheats.o \
 obj/packets_input.o \
 obj/packets_misc.o \
+obj/platform/PlatformManager.o \
+obj/platform/WindowSystemSDL.o \
 obj/player_compchecks.o \
 obj/player_compevents.o \
 obj/player_complookup.o \
@@ -397,6 +399,7 @@ LINKLIB = -mwindows \
 	deps/luajit/lib/libluajit.a \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
 INCS = \
+	-I"src" \
 	-I"deps/zlib/include" \
 	-I"deps/spng/include" \
 	-I"sdl/include" \
@@ -518,6 +521,7 @@ obj/std/ftests \
 obj/std/ftests/tests \
 obj/tests obj/cu \
 obj/std/centitoml obj/hvlog/centitoml \
+obj/std/platform obj/hvlog/platform \
 sdl/for_final_package
 
 $(shell $(MKDIR) $(FOLDERS))
