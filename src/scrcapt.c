@@ -60,12 +60,12 @@ TbBool take_screenshot(char *fname)
     {
         case 1:
         {
-            success = IMG_SavePNG(lbDrawSurface, fname);
+            success = IMG_SavePNG(lbScreenSurface, fname);
             break;
         }
         case 2:
         {
-            success = SDL_SaveBMP(lbDrawSurface, fname);
+            success = SDL_SaveBMP(lbScreenSurface, fname);
             break;
         }
         default:
