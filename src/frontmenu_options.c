@@ -43,7 +43,7 @@
 #include "sounds.h"
 #include "post_inc.h"
 
-#include <SDL2/SDL_mixer.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #ifdef __cplusplus
 extern "C" {

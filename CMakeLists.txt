@@ -24,6 +24,7 @@ foreach(_v VER_MAJOR VER_MINOR VER_RELEASE VER_BUILD)
         message(FATAL_ERROR "version.mk is missing ${_v}")
     endif()
 endforeach()
+
 # Override via -DBUILD_NUMBER=<n> -DPACKAGE_SUFFIX=<s>; used for the CPack name.
 set(BUILD_NUMBER   "${VER_BUILD}" CACHE STRING "Monotonic build number")
 set(PACKAGE_SUFFIX ""             CACHE STRING "Distribution suffix (e.g. Alpha, Release)")

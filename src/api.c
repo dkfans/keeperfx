@@ -1,6 +1,30 @@
 #include "pre_inc.h"
-#define WIN32_LEAN_AND_MEAN 1
-#include <SDL2/SDL_net.h>
+
+#ifdef _WIN32
+#  define WIN32_LEAN_AND_MEAN 1
+#  include <winsock2.h>
+#  include <ws2tcpip.h>
+   typedef SOCKET kfx_socket_t;
+#  define KFX_INVALID_SOCKET INVALID_SOCKET
+#  define kfx_closesocket(s) closesocket(s)
+#  define kfx_socket_error() WSAGetLastError()
+#else
+#  include <sys/types.h>
+#  include <sys/socket.h>
+#  include <netinet/in.h>
+#  include <unistd.h>
+#  include <fcntl.h>
+#  include <errno.h>
+#  include <sys/select.h>
+   typedef int kfx_socket_t;
+#  define KFX_INVALID_SOCKET (-1)
+#  define kfx_closesocket(s) close(s)
+#  define kfx_socket_error() errno
+#  ifndef SOCKET_ERROR
+#    define SOCKET_ERROR (-1)
+#  endif
+#endif
+
 #include "api.h"
 #include <json.h>
 #include <json-dom.h>
@@ -35,10 +59,9 @@
  */
 struct ApiGlobals
 {
-    TCPsocket serverSocket;     // Server socket for API communication
-    TCPsocket activeSocket;     // Active client socket (only one client at a time)
-    SDLNet_SocketSet socketSet; // Socket set for managing sockets
-} api = {0};                    // Global instance of the API global variables initialized with zeros
+    kfx_socket_t serverSocket;  // Server socket for API communication
+    kfx_socket_t activeSocket;  // Active client socket (only one client at a time)
+} api = { KFX_INVALID_SOCKET, KFX_INVALID_SOCKET }; // sockets start invalid, not 0 (0 is a valid fd)
 
 /**
  * Structure representing a subscribed variable.
@@ -139,6 +162,42 @@ size_t get_max_flags()
 }
 
 /**
+ * Send raw bytes over the active client socket (blocking until all sent or error).
+ * Replaces SDLNet_TCP_Send().
+ */
+static void api_send(const char *data, int len)
+{
+    if (api.activeSocket == KFX_INVALID_SOCKET || len <= 0)
+        return;
+    int sent = 0;
+    while (sent < len)
+    {
+        int r = (int)send(api.activeSocket, data + sent, len - sent, 0);
+        if (r > 0)
+        {
+            sent += r;
+            continue;
+        }
+        if (r < 0)
+        {
+#ifdef _WIN32
+            if (WSAGetLastError() == WSAEWOULDBLOCK)
+#else
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+#endif
+            {
+                fd_set wfds;
+                FD_ZERO(&wfds);
+                FD_SET(api.activeSocket, &wfds);
+                if (select((int)(api.activeSocket + 1), NULL, &wfds, NULL, NULL) > 0)
+                    continue;
+            }
+        }
+        break;
+    }
+}
+
+/**
  * Initialize the TCP API server.
  *
  * This function initializes the TCP API server by opening a socket on the specified port.
@@ -150,7 +209,7 @@ size_t get_max_flags()
 int api_init_server()
 {
     // Ignore if server is already active
-    if (api.serverSocket)
+    if (api.serverSocket != KFX_INVALID_SOCKET)
     {
         return 0;
     }
@@ -165,44 +224,63 @@ int api_init_server()
         JUSTLOG("API server starting on port: %u", api_port);
     }
 
-    if (SDLNet_Init() < 0)
+#ifdef _WIN32
+    WSADATA wsa_data;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0)
     {
-        JUSTLOG("SDLNet could not initialize! SDLNet_Error: %s", SDLNet_GetError());
+        JUSTLOG("WSAStartup failed: %d", kfx_socket_error());
         return 1;
     }
+#endif
 
-    memset(&api, 0, sizeof(api));
+    api.activeSocket = KFX_INVALID_SOCKET;
 
-    api.socketSet = SDLNet_AllocSocketSet(2);
-    if (!api.socketSet)
+    kfx_socket_t srv = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (srv == KFX_INVALID_SOCKET)
     {
-        JUSTLOG("SDLNet_AllocSocketSet failed! SDLNet_Error: %s", SDLNet_GetError());
+        JUSTLOG("socket() failed: %d", kfx_socket_error());
         api_close_server();
         return 1;
     }
 
-    IPaddress ip;
-    if (SDLNet_ResolveHost(&ip, NULL, api_port) < 0)
+    // Allow quick restart after close
+    int reuse = 1;
+    setsockopt(srv, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse));
+
+    // Non-blocking server socket so accept() doesn't stall the game loop
+#ifdef _WIN32
+    u_long nb = 1;
+    ioctlsocket(srv, FIONBIO, &nb);
+#else
     {
-        JUSTLOG("SDLNet_ResolveHost failed! SDLNet_Error: %s", SDLNet_GetError());
+        int flags = fcntl(srv, F_GETFL, 0);
+        fcntl(srv, F_SETFL, flags | O_NONBLOCK);
+    }
+#endif
+
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // localhost only, as SDL_net bound NULL host
+    addr.sin_port = htons((unsigned short)api_port);
+
+    if (bind(srv, (struct sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR)
+    {
+        JUSTLOG("bind() failed: %d", kfx_socket_error());
+        kfx_closesocket(srv);
         api_close_server();
         return 1;
     }
 
-    api.serverSocket = SDLNet_TCP_Open(&ip);
-    if (!api.serverSocket)
+    if (listen(srv, 1) == SOCKET_ERROR)
     {
-        JUSTLOG("SDLNet_TCP_Open failed! SDLNet_Error: %s", SDLNet_GetError());
+        JUSTLOG("listen() failed: %d", kfx_socket_error());
+        kfx_closesocket(srv);
         api_close_server();
         return 1;
     }
 
-    if (SDLNet_TCP_AddSocket(api.socketSet, api.serverSocket) == -1)
-    {
-        JUSTLOG("SDLNet_TCP_AddSocket failed! SDLNet_Error: %s", SDLNet_GetError());
-        api_close_server();
-        return 1;
-    }
+    api.serverSocket = srv;
 
     JUSTLOG("API server active");
 
@@ -270,7 +348,7 @@ static void api_err(const char *err, VALUE *ack_id)
     dump_state.out++;
 
     // Send data to client
-    SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
+    api_send(json_string, dump_state.out - json_string);
     value_fini(json_root);
 }
 
@@ -293,7 +371,7 @@ static void api_ok(VALUE *ack_id)
     {
         // We can send it directly without using JSON functions here
         const char msg[] = "{\"success\":true}\n";
-        SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
+        api_send(msg, strlen(msg));
         return;
     }
 
@@ -327,7 +405,7 @@ static void api_ok(VALUE *ack_id)
     dump_state.out++;
 
     // Send data to client
-    SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
+    api_send(json_string, dump_state.out - json_string);
     value_fini(json_root);
 }
 
@@ -387,7 +465,7 @@ static void api_return_data(TbBool success, VALUE value, VALUE *ack_id)
     dump_state.out++;
 
     // Send data to client
-    SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
+    api_send(json_string, dump_state.out - json_string);
     value_fini(json_root);
 }
 
@@ -465,7 +543,7 @@ void api_return_var_update(PlayerNumber plyr_idx, const char *var_name, long val
     dump_state.out++;
 
     // Send data to client
-    SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
+    api_send(json_string, dump_state.out - json_string);
     value_fini(json_root);
 }
 
@@ -493,7 +571,7 @@ static void api_return_data_number(long data, VALUE *ack_id)
         // Send back the JSON as a string. A number should never be able to break the syntax.
         char buf[256];
         int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":%ld}\n", data);
-        SDLNet_TCP_Send(api.activeSocket, buf, len);
+        api_send(buf, len);
         return;
     }
 
@@ -531,7 +609,7 @@ static void api_return_data_number(long data, VALUE *ack_id)
     dump_state.out++;
 
     // Send data to client
-    SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
+    api_send(json_string, dump_state.out - json_string);
     value_fini(json_root);
 }
 
@@ -861,7 +939,7 @@ void api_event(const char *event_name)
     // Create the JSON response and send it to the client
     char buf[512];
     int len = snprintf(buf, sizeof(buf) - 1, "{\"event\":\"%s\"}\n", event_name);
-    SDLNet_TCP_Send(api.activeSocket, buf, len);
+    api_send(buf, len);
 }
 
 /**
@@ -1457,86 +1535,91 @@ void api_process_multipart_json(const char *buffer, int buf_size)
 void api_update_server()
 {
     // Return if the TCP server is not listening
-    if (api.serverSocket == 0)
+    if (api.serverSocket == KFX_INVALID_SOCKET)
     {
         return;
     }
 
-    // Create a buffer to read from the socket
-    char buffer[API_SERVER_BUFFER];
-    memset(buffer, 0, API_SERVER_BUFFER);
-
-    int numReady;
-    do
+    // Accept a pending connection (non-blocking; no select()/socket-set needed).
     {
-        numReady = SDLNet_CheckSockets(api.socketSet, 0);
-        if (numReady < 0)
+        struct sockaddr_in client_addr;
+#ifdef _WIN32
+        int addr_len = sizeof(client_addr);
+#else
+        socklen_t addr_len = sizeof(client_addr);
+#endif
+        kfx_socket_t client = accept(api.serverSocket, (struct sockaddr*)&client_addr, &addr_len);
+        if (client != KFX_INVALID_SOCKET)
         {
-            JUSTLOG("SDLNet_CheckSockets failed! SDLNet_Error: %s", SDLNet_GetError());
-            break;
+            if (api.activeSocket != KFX_INVALID_SOCKET)
+            {
+                // Already have a client — reject the second one
+                kfx_closesocket(client);
+                WARNLOG("Got another connection while API connection is still active");
+            }
+            else
+            {
+                // Make the new client socket non-blocking too
+#ifdef _WIN32
+                u_long nb = 1;
+                ioctlsocket(client, FIONBIO, &nb);
+#else
+                int flags = fcntl(client, F_GETFL, 0);
+                fcntl(client, F_SETFL, flags | O_NONBLOCK);
+#endif
+                api.activeSocket = client;
+                JUSTLOG("Client connected");
+            }
         }
+    }
 
-        if (numReady > 0)
+    // Read from the active client, if any (non-blocking).
+    if (api.activeSocket != KFX_INVALID_SOCKET)
+    {
+        char buffer[API_SERVER_BUFFER];
+        memset(buffer, 0, API_SERVER_BUFFER);
+
+        int received = (int)recv(api.activeSocket, buffer, API_SERVER_BUFFER - 1, 0);
+        if (received > 0)
         {
-            if (SDLNet_SocketReady(api.serverSocket))
+            // TODO: non nullbyte terminated buffers can crash
+            // For example: when pressing Ctrl C when conneted over telnet
+
+            // Remove any possible trailing newline from the data
+            // This makes it work with a Telnet connection as well
+            if (strlen(buffer) > 0 && buffer[strlen(buffer) - 1] == '\n')
             {
-                if (api.activeSocket != 0)
-                {
-                    TCPsocket tmp = SDLNet_TCP_Accept(api.serverSocket);
-                    SDLNet_TCP_Close(tmp);
-                    WARNLOG("Got another connection while API connection is still active");
-                }
-                else
-                {
-                    api.activeSocket = SDLNet_TCP_Accept(api.serverSocket);
-                    if (!api.activeSocket)
-                    {
-                        continue;
-                    }
-                    JUSTLOG("Client connected");
-                    if (SDLNet_TCP_AddSocket(api.socketSet, api.activeSocket) == -1)
-                    {
-                        JUSTLOG("SDLNet_TCP_AddSocket failed! SDLNet_Error: %s", SDLNet_GetError());
-                        SDLNet_TCP_Close(api.activeSocket);
-                        api.activeSocket = 0;
-                        continue;
-                    }
-                }
-            } // \serverSocket
+                buffer[strlen(buffer) - 1] = '\0';
+            }
 
-            if (SDLNet_SocketReady(api.activeSocket))
-            {
-                int received = SDLNet_TCP_Recv(api.activeSocket, buffer, API_SERVER_BUFFER);
-                if (received > 0)
-                {
-                    // TODO: non nullbyte terminated buffers can crash
-                    // For example: when pressing Ctrl C when conneted over telnet
-
-                    // Remove any possible trailing newline from the data
-                    // This makes it work with a Telnet connection as well
-                    if (strlen(buffer) > 0 && buffer[strlen(buffer) - 1] == '\n')
-                    {
-                        buffer[strlen(buffer) - 1] = '\0';
-                    }
-
-                    // Process all JSON objects in the buffer
-                    api_process_multipart_json(buffer, strlen(buffer));
-                }
-                else
-                {
-                    api_clear_all_subscriptions();
-                    SDLNet_TCP_DelSocket(api.socketSet, api.activeSocket);
-                    SDLNet_TCP_Close(api.activeSocket);
-                    api.activeSocket = 0;
-                    JUSTLOG("API connection closed");
-                }
-
-                // Clear buffer
-                memset(buffer, 0, API_SERVER_BUFFER);
-
-            } // \activeSocket
+            // Process all JSON objects in the buffer
+            api_process_multipart_json(buffer, strlen(buffer));
         }
-    } while (numReady > 0); // To have break instead of goto
+        else if (received == 0)
+        {
+            // Graceful disconnect
+            api_clear_all_subscriptions();
+            kfx_closesocket(api.activeSocket);
+            api.activeSocket = KFX_INVALID_SOCKET;
+            JUSTLOG("API connection closed");
+        }
+        else
+        {
+            // received < 0: EWOULDBLOCK/EAGAIN just means "no data yet"; any
+            // other error means the connection is gone.
+#ifdef _WIN32
+            if (WSAGetLastError() != WSAEWOULDBLOCK)
+#else
+            if (errno != EAGAIN && errno != EWOULDBLOCK)
+#endif
+            {
+                api_clear_all_subscriptions();
+                kfx_closesocket(api.activeSocket);
+                api.activeSocket = KFX_INVALID_SOCKET;
+                JUSTLOG("API connection closed");
+            }
+        }
+    }
 
     // Handle variable subscriptions
     api_check_var_update();
@@ -1554,23 +1637,19 @@ void api_close_server()
 
     JUSTLOG("API server closing");
 
-    if (api.socketSet)
+    if (api.activeSocket != KFX_INVALID_SOCKET)
     {
-        SDLNet_FreeSocketSet(api.socketSet);
-        api.socketSet = 0;
+        kfx_closesocket(api.activeSocket);
+        api.activeSocket = KFX_INVALID_SOCKET;
     }
 
-    if (api.activeSocket)
+    if (api.serverSocket != KFX_INVALID_SOCKET)
     {
-        SDLNet_TCP_Close(api.activeSocket);
-        api.activeSocket = 0;
+        kfx_closesocket(api.serverSocket);
+        api.serverSocket = KFX_INVALID_SOCKET;
     }
 
-    if (api.serverSocket)
-    {
-        SDLNet_TCP_Close(api.serverSocket);
-        api.serverSocket = 0;
-    }
-
-    SDLNet_Quit();
+#ifdef _WIN32
+    WSACleanup();
+#endif
 }

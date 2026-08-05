@@ -810,7 +810,7 @@ static short get_global_inputs(void)
       }
       else if( flag_is_set(game.operation_flags, GOF_Paused) && flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
       {
-        if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+        if( is_key_pressed(KC_PERIOD, SDL_KMOD_NONE) )
         {
             game.frame_step = true;
             set_packet_pause_toggle();
@@ -2934,7 +2934,7 @@ static short get_inputs(void)
             }
             else if( flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
             {
-                if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+                if( is_key_pressed(KC_PERIOD, SDL_KMOD_NONE) )
                 {
                     game.frame_step = true;
                     set_packet_pause_toggle();

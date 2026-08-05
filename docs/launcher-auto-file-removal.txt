@@ -2,6 +2,15 @@
 # The launcher will ask if the user wants to remove these files.
 # These files should not be present anymore starting from a specific version.
 
+[1.4.0.5273]
+SDL2.dll
+SDL2_image.dll
+SDL2_mixer.dll
+SDL2_net.dll
+libogg-0.dll
+libvorbis-0.dll
+libvorbisfile-3.dll
+
 [1.4.0.5197]
 /multiplayer/classic/map00123.apt
 /multiplayer/classic/map00123.tng

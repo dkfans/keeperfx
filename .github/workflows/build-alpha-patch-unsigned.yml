@@ -52,7 +52,7 @@ jobs:
         make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-assemble
         cmake --build out --target package
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
-        # CPack stages the binaries (keeperfx.exe, keeperfx_hvlog.exe) and the SDL2
+        # CPack stages the binaries (keeperfx.exe, keeperfx_hvlog.exe) and the SDL3
         # runtime DLLs only inside the .7z archive, not into the loose pkg/ tree, so
         # uploading pkg/** would drop them and leave SignPath with nothing to sign.
         # Install the full package layout into dist/ so the uploaded artifact holds

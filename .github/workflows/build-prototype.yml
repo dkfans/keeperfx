@@ -38,7 +38,7 @@ jobs:
         make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-assemble
         cmake --build out --target package
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
-        # CPack stages the binaries (keeperfx.exe, keeperfx_hvlog.exe) and the SDL2
+        # CPack stages the binaries (keeperfx.exe, keeperfx_hvlog.exe) and the SDL3
         # runtime DLLs only inside the .7z archive, not into the loose pkg/ tree, so
         # uploading pkg/** would drop them. Install the full package layout into
         # dist/ so the uploaded artifact holds the binaries + DLLs + game data.
@@ -64,6 +64,9 @@ jobs:
       run: |
         set -eux
         sudo apt update
+        # SDL3 is not in Ubuntu 24.04 apt, so Dependencies.cmake builds it from
+        # source (FetchContent). The libx11/gl/audio and image/mixer decoder
+        # packages below are SDL3's build deps. SDL_net is gone (native sockets).
         sudo apt install -y \
           build-essential \
           cmake \
@@ -78,11 +81,31 @@ jobs:
           libminizip-dev \
           libnatpmp-dev \
           libspng-dev \
-          libsdl2-dev \
-          libsdl2-image-dev \
-          libsdl2-mixer-dev \
-          libsdl2-net-dev \
           libswresample-dev \
+          libx11-dev \
+          libxext-dev \
+          libxrandr-dev \
+          libxcursor-dev \
+          libxi-dev \
+          libxfixes-dev \
+          libxss-dev \
+          libxtst-dev \
+          libxkbcommon-dev \
+          libgl1-mesa-dev \
+          libegl1-mesa-dev \
+          libdrm-dev \
+          libgbm-dev \
+          libasound2-dev \
+          libpulse-dev \
+          libdbus-1-dev \
+          libudev-dev \
+          libpng-dev \
+          libjpeg-dev \
+          libogg-dev \
+          libvorbis-dev \
+          libflac-dev \
+          libmpg123-dev \
+          libopusfile-dev \
           libminiupnpc-dev \
           libssl-dev \
           libzstd-dev \

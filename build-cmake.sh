@@ -19,8 +19,10 @@
 #
 # Requirements (native):
 #   windows: a MinGW-w64 i686 toolchain (Ubuntu: g++-mingw-w64-i686), cmake, ninja
-#   linux:   gcc/g++, cmake, ninja, pkg-config + the SDL2/ffmpeg/openal/luajit/
-#            spng/minizip/zlib/miniupnpc/natpmp/openssl/zstd -dev packages
+#   linux:   gcc/g++, cmake, ninja, pkg-config + the ffmpeg/openal/luajit/
+#            spng/minizip/zlib/miniupnpc/natpmp/openssl/zstd -dev packages, plus
+#            SDL3's build deps (X11/GL/audio + png/ogg/vorbis/flac/mpg123/opus)
+#            since SDL3 is built from source on distros without libsdl3-dev.
 #
 set -euo pipefail
 
@@ -33,10 +35,15 @@ BUILD_DIR="${BUILD_DIR:-out}"
 if [ "${USE_DOCKER:-0}" = "1" ]; then
     if [ "$KFX_OS" = "linux" ]; then
         PKGS="build-essential pkg-config cmake ninja-build git curl ca-certificates \
-              libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-net-dev \
               libavcodec-dev libavformat-dev libavutil-dev libswresample-dev \
               libopenal-dev libluajit-5.1-dev libspng-dev libminizip-dev zlib1g-dev \
-              libminiupnpc-dev libnatpmp-dev libssl-dev libzstd-dev"
+              libminiupnpc-dev libnatpmp-dev libssl-dev libzstd-dev \
+              libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
+              libxfixes-dev libxss-dev libxtst-dev libxkbcommon-dev libdrm-dev \
+              libgbm-dev libgl1-mesa-dev libegl1-mesa-dev libasound2-dev \
+              libpulse-dev libdbus-1-dev libudev-dev \
+              libpng-dev libjpeg-dev libogg-dev libvorbis-dev libflac-dev \
+              libmpg123-dev libopusfile-dev"
     else
         PKGS="g++-mingw-w64-i686 cmake ninja-build git curl ca-certificates"
     fi

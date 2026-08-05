@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_planar.h"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -47,14 +47,14 @@ void LbScreenSurfaceInit(struct SSurface *surf)
 
 TbResult LbScreenSurfaceCreate(struct SSurface *surf,unsigned long w,unsigned long h)
 {
-    const SDL_PixelFormat * format = NULL;
+    // SDL3: surface->format is an SDL_PixelFormat enum which fully describes the
+    // layout, so SDL_CreateSurface() takes it directly (no explicit masks).
+    SDL_PixelFormat format = SDL_PIXELFORMAT_UNKNOWN;
 
     if (lbDrawSurface != NULL) {
         format = lbDrawSurface->format;
     }
-    //SDL_HWSURFACE
-    surf->surf_data = SDL_CreateRGBSurface(0 , w, h, format->BitsPerPixel,
-        format->Rmask, format->Gmask, format->Bmask, format->Amask);
+    surf->surf_data = SDL_CreateSurface(w, h, format);
 
     if (surf->surf_data == NULL) {
         ERRORLOG("Failed to create surface.");
@@ -74,7 +74,7 @@ TbResult LbScreenSurfaceRelease(struct SSurface *surf)
       return Lb_FAIL;
   }
 
-  SDL_FreeSurface(surf->surf_data);
+  SDL_DestroySurface(surf->surf_data);
   surf->surf_data = NULL;
 
   return Lb_SUCCESS;
@@ -108,11 +108,11 @@ TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned lo
 
     if ((blflags & 0x04) != 0) {
         //enable color key
-        SDL_SetColorKey(surf->surf_data, SDL_TRUE, 255);
+        SDL_SetSurfaceColorKey(surf->surf_data, true, 255);
     }
     else {
         //disable color key
-        SDL_SetColorKey(surf->surf_data, 0, 255);
+        SDL_SetSurfaceColorKey(surf->surf_data, false, 255);
     }
 
     if ((blflags & 0x10) != 0) {
@@ -121,16 +121,14 @@ TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned lo
         //dwTrans |= DDBLTFAST_WAIT;
     }
 
-    // SDL has a per-surface palette for 8 bit surfaces. But the engine assumes palette
-    // to be required only for screen surface. To make off-screen surface working,
-    // we must manually set the palette for it. So temporarily change palette.
+    const TbBool is_indexed = (SDL_BITSPERPIXEL(surf->surf_data->format) == 8);
     SDL_Palette * paletteBackup = NULL;
-    if (surf->surf_data->format->BitsPerPixel == 8) {
-        paletteBackup = surf->surf_data->format->palette;
-        surf->surf_data->format->palette = lbDrawSurface->format->palette;
+    if (is_indexed) {
+        paletteBackup = SDL_GetSurfacePalette(surf->surf_data);
+        SDL_SetSurfacePalette(surf->surf_data, SDL_GetSurfacePalette(lbDrawSurface));
     }
 
-    int blresult;
+    bool blresult;
     //the blit
     if ((blflags & 0x08) != 0) {
         //surface to screen
@@ -142,11 +140,11 @@ TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned lo
     }
 
     //restore palette
-    if (surf->surf_data->format->BitsPerPixel == 8) {
-        surf->surf_data->format->palette = paletteBackup;
+    if (is_indexed) {
+        SDL_SetSurfacePalette(surf->surf_data, paletteBackup);
     }
 
-    if (blresult == -1) {
+    if (!blresult) {
         //Blitting mouse cursor will occasionally fail, so there's no point in logging this
         ERRORDBG(11,"Blit failed: %s",SDL_GetError());
         return Lb_FAIL;
@@ -160,7 +158,7 @@ void *LbScreenSurfaceLock(struct SSurface *surf)
         return NULL;
     }
 
-    if (SDL_LockSurface(surf->surf_data) < 0) {
+    if (!SDL_LockSurface(surf->surf_data)) {
         ERRORLOG("Failed to lock surface");
         return NULL;
     }
