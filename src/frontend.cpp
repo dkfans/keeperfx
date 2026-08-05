@@ -2621,6 +2621,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_QUIT_GAME:
     case FeSt_LOAD_GAME:
     case FeSt_INTRO:
+    case FeSt_DRAG:
     case FeSt_CAMPAIGN_INTRO:
     case FeSt_DEMO: //demo state (intro/credits)
     case FeSt_OUTRO:
@@ -2709,6 +2710,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_QUIT_GAME:
       case FeSt_LOAD_GAME:
       case FeSt_INTRO:
+      case FeSt_DRAG:
       case FeSt_CAMPAIGN_INTRO:
       case FeSt_DEMO:
       case FeSt_OUTRO:
