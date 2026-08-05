@@ -338,8 +338,8 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
     char dat_fname[2048];
     char tab_fname[2048];
 #ifdef SPRITE_FORMAT_V2
-    strcpy(dat_fname, prepare_file_fmtpath_m(FGrp_StdData, FGrp_CmpgConfig, false, "swipe%02d-32.dat", swpe_idx));
-    strcpy(tab_fname, prepare_file_fmtpath_m(FGrp_StdData, FGrp_CmpgConfig, false, "swipe%02d-32.tab", swpe_idx));
+    strcpy(dat_fname, prepare_file_fmtpath_prio(FGrp_StdData, FGrp_CmpgConfig, false, "swipe%02d-32.dat", swpe_idx));
+    strcpy(tab_fname, prepare_file_fmtpath_prio(FGrp_StdData, FGrp_CmpgConfig, false, "swipe%02d-32.tab", swpe_idx));
 #else
     strcpy(dat_fname, prepare_file_fmtpath_prio(FGrp_StdData, FGrp_CmpgConfig, false, "swipe%02d.dat", swpe_idx));
     strcpy(tab_fname, prepare_file_fmtpath_prio(FGrp_StdData, FGrp_CmpgConfig, false, "swipe%02d.tab", swpe_idx));
