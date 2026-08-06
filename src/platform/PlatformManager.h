@@ -12,6 +12,7 @@ extern "C" {
  *  responsibilities are added by later PRs. Function names/signatures match the
  *  fork's develop branch so call sites stay merge-compatible. */
 
+int          PlatformManager_InitVideo(void);
 int          PlatformManager_HasWindow(void);
 int          PlatformManager_GetIsAppActive(void);
 int          PlatformManager_OwnsDisplay(void);

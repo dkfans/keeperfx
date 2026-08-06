@@ -50,8 +50,6 @@ volatile TbBool lbScreenInitialised = false;
 /** Bytes per pixel expected by the engine.
  * On any try of entering different video BPP, this mode will be emulated. */
 volatile unsigned short lbEngineBPP = 8;
-/** Informs if the application window is active (focused on screen). */
-extern volatile TbBool lbAppActive;
 /** True if we have two surfaces. */
 volatile TbBool lbHasSecondSurface;
 /** True if we request the double buffering to be on in next mode switch. */
@@ -535,20 +533,17 @@ TbResult LbScreenInitialize(void)
     lbDrawSurface = NULL;
     lbHasSecondSurface = false;
     lbDoubleBufferingRequested = false;
-    lbAppActive = true;
     LbMouseChangeMoveRatio(256, 256);
     // Register default video modes
     if (lbScreenModeInfoNum == 0) {
         LbRegisterStandardVideoModes();
         LbRegisterModernVideoModes(); // register modern and flexible custom modes
     }
-    // Initialize SDL library
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
+    // Initialize SDL library (SDL_Init + atexit owned by the window system)
+    if (!PlatformManager_InitVideo()) {
         ERRORLOG("SDL init: %s",SDL_GetError());
         return Lb_FAIL;
     }
-    // Setup the atexit() call to un-initialize
-    atexit(SDL_Quit);
     return Lb_SUCCESS;
 }
 
@@ -681,7 +676,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         }
         if (!IsMouseInsideWindow())
         {
-            SDL_WarpMouseInWindow(lbWindow, (float)(mdinfo->Width / 2), (float)(mdinfo->Height / 2));
+            PlatformManager_WarpCursor(mdinfo->Width / 2, mdinfo->Height / 2);
         }
     }
 

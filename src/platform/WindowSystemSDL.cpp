@@ -35,6 +35,14 @@ static SDL_DisplayID display_index_to_id(int index)
     return id;
 }
 
+bool WindowSystemSDL::InitVideo()
+{
+    if (!SDL_Init(SDL_INIT_VIDEO))
+        return false;
+    atexit(SDL_Quit);
+    return true;
+}
+
 bool WindowSystemSDL::IsAppActive() const { return m_appActive; }
 void WindowSystemSDL::OnFocusGained()     { m_appActive = true; }
 void WindowSystemSDL::OnFocusLost()       { m_appActive = false; }
@@ -268,6 +276,6 @@ int WindowSystemSDL::GetDisplayRefreshRate() const
         return 0;
     const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(disp_id);
     if (mode && mode->refresh_rate > 0)
-        return (int)mode->refresh_rate;
+        return (int)(mode->refresh_rate + 0.5f);
     return 0;
 }

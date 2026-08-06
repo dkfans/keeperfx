@@ -13,6 +13,12 @@
 
 /******************************************************************************/
 
+extern "C" int PlatformManager_InitVideo(void)
+{
+    IWindowSystem* ws = GetSDLWindowSystem();
+    return (ws && ws->InitVideo()) ? 1 : 0;
+}
+
 extern "C" int PlatformManager_HasWindow(void)
 {
     IWindowSystem* ws = GetSDLWindowSystem();

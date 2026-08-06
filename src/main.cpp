@@ -14,6 +14,7 @@
 #include "pre_inc.h"
 
 #include "platform.h"
+#include "platform/PlatformManager.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -1586,14 +1587,9 @@ void redetect_screen_refresh_rate_for_draw()
         if (fps_limit_secondary > 0)
             fps_limit_current = fps_limit_secondary;
 
-        if (lbWindow != NULL) {
-            SDL_DisplayID display_id_sdl = SDL_GetDisplayForWindow(lbWindow);
-            if (display_id_sdl != 0) {
-                const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(display_id_sdl);
-                if (mode != NULL && mode->refresh_rate > 0) {
-                    fps_limit_current = (int)(mode->refresh_rate + 0.5f);
-                }
-            }
+        int refresh_rate = PlatformManager_GetDisplayRefreshRate();
+        if (refresh_rate > 0) {
+            fps_limit_current = refresh_rate;
         }
 
     } else if (fps_limit_main > 0) {

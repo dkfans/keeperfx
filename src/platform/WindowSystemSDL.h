@@ -10,6 +10,8 @@ struct SDL_Window;  // forward declaration; full type in WindowSystemSDL.cpp
  */
 class WindowSystemSDL : public IWindowSystem {
 public:
+    bool InitVideo() override;
+
     bool IsAppActive() const override;
     void OnFocusGained() override;
     void OnFocusLost() override;
