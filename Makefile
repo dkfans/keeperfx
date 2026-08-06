@@ -202,6 +202,7 @@ obj/engine_redraw.o \
 obj/engine_render.o \
 obj/engine_render_data.o \
 obj/engine_textures.o \
+obj/filepaths.o \
 obj/front_credits.o \
 obj/front_easter.o \
 obj/front_fmvids.o \
