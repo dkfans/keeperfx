@@ -13,6 +13,8 @@
 #ifndef DK_FILEPATHS_H
 #define DK_FILEPATHS_H
 
+#include "bflib_basics.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
