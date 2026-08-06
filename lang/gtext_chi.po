@@ -6205,37 +6205,7 @@ msgctxt "Menu interface item"
 msgid "Map Packs"
 msgstr "地图包"
 
-#: guitext:970
-msgctxt "Menu interface item"
-msgid "The Deeper Dungeons"
-msgstr "原版扩展关卡"
-
-#: guitext:971
-msgctxt "Menu interface item"
-msgid "Standard Levels"
-msgstr "标准关卡"
-
-#: guitext:972
-msgctxt "Menu interface item"
-msgid "Classic Levels"
-msgstr "经典关卡"
-
-#: guitext:973
-msgctxt "Menu interface item"
-msgid "Legacy Levels"
-msgstr "复古关卡"
-
-#: guitext:974
-msgctxt "Menu interface item"
-msgid "Personal Levels"
-msgstr "个人关卡"
-
-#: guitext:975
-msgctxt "Menu interface item"
-msgid "Lost Levels"
-msgstr "失落关卡"
-
-#: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
+#: guitext:970 guitext:971 guitext:972 guitext:973 guitext:974 guitext:975: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
 msgstr "Moo3"
@@ -6388,129 +6358,10 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr "环境音效"
 
-#: guitext:1010
-msgctxt "Unused"
-msgid "Moo4"
-msgstr ""
-
-#: guitext:1011
-msgctxt "Menu interface item"
-msgid "Dungeon Keeper - Original Campaign"
-msgstr "地下城守护者原版战役"
-
-#: guitext:1012
-msgctxt "Menu interface item"
-msgid "Assmist Isle"
-msgstr "亚米斯特岛战役"
-
-#: guitext:1013
-msgctxt "Menu interface item"
-msgid "Ancient Keeper"
-msgstr "远古守护者战役"
-
-#: guitext:1014
-msgctxt "Menu interface item"
-msgid "Burdened Imps"
-msgstr "不堪重负的小鬼战役"
-
-#: guitext:1015
-msgctxt "Menu interface item"
-msgid "Conquest of the Arctic"
-msgstr "征服北极战役"
-
-#: guitext:1016
-msgctxt "Menu interface item"
-msgid "The Destiny of Ninja"
-msgstr "忍者的命运战役"
-
-#: guitext:1017
-msgctxt "Menu interface item"
-msgid "DzjeeAr's 6-level campaign"
-msgstr "德吉尔的6关战役"
-
-#: guitext:1018
-msgctxt "Menu interface item"
-msgid "DzjeeAr's 10-level campaign"
-msgstr "德吉尔的10关战役"
-
-#: guitext:1019
-msgctxt "Menu interface item"
-msgid "DzjeeAr's 25-level campaign"
-msgstr "德吉尔的25关战役"
-
-#: guitext:1020
-msgctxt "Menu interface item"
-msgid "Evil Keeper"
-msgstr "邪恶守护者战役"
-
-#: guitext:1021
-msgctxt "Menu interface item"
-msgid "Grinics' KReign campaign"
-msgstr "格林尼斯的统治战役"
-
-#: guitext:1022
-msgctxt "Menu interface item"
-msgid "Japanese DKMaps8 pack"
-msgstr "日本人的地下城战役"
-
-#: guitext:1023
-msgctxt "Menu interface item"
-msgid "KDK Levels"
-msgstr "KDK战役"
-
-#: guitext:1024
-msgctxt "Menu interface item"
-msgid "Good Campaign"
-msgstr "人类英雄战役"
-
-#: guitext:1025
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Lord Vexer"
-msgctxt "Menu interface item"
-msgid "Lord Vexer"
-msgstr "瓦瑟之主战役"
-
-#: guitext:1026
-msgctxt "Menu interface item"
-msgid "Nikolai's Castles"
-msgstr "尼古莱的城堡战役"
-
-#: guitext:1027
-msgctxt "Menu interface item"
-msgid "Dungeon Keeper - NG+"
-msgstr "原版增强战役"
-
-#: guitext:1028
-msgctxt "Menu interface item"
-msgid "Post Ancient Keeper"
-msgstr "后远古守护者战役"
-
-#: guitext:1029
-msgctxt "Menu interface item"
-msgid "Post Undead Keeper"
-msgstr "后亡灵守护者战役"
-
-#: guitext:1030
-msgctxt "Menu interface item"
-msgid "Quest for the Hero"
-msgstr "追寻英雄战役"
-
-#: guitext:1031
-msgctxt "Menu interface item"
-msgid "Revenge of the Lord"
-msgstr "领主的复仇战役"
-
-#: guitext:1032
-msgctxt "Menu interface item"
-msgid "Twin Keepers"
-msgstr "双子守护者战役"
-
-#: guitext:1033
-msgctxt "Menu interface item"
-msgid "Undead Keeper"
-msgstr "亡灵守护者战役"
-
+#: guitext:1010 guitext:1011 guitext:1012 guitext:1013 guitext:1014 guitext:1015
+#: guitext:1016 guitext:1017 guitext:1018 guitext:1019 guitext:1020 guitext:1021
+#: guitext:1022 guitext:1023 guitext:1024 guitext:1025 guitext:1026 guitext:1027
+#: guitext:1028 guitext:1029 guitext:1030 guitext:1031 guitext:1032 guitext:1033
 #: guitext:1034 guitext:1035
 msgctxt "Unused"
 msgid "Moo5"

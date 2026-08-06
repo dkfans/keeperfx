@@ -1,0 +1,228 @@
+[MAPPACK_DEEPER_DUNGEONS]
+ENG = "The Deeper Dungeons"
+CHI = "原版扩展关卡"
+#CHT = 
+CZE = "Hlouběji v kobkách"
+DUT = "Deeper Dungeons"
+FRE = "Deeper Dungeons"
+GER = "The Deeper Dungeons"
+#ITA = 
+JPN = "ディーパーダンジョン"
+KOR = "The Deeper Dungeons"
+LAT = "Robora Profundiora"
+#POL = 
+POR = "Masmorras Mais Profundas"
+RUS = "Глубокие подземелья"
+SPA = "Deeper Dungeons"
+SWE = "Den djupare underjorden"
+UKR = "Глибокі підземелля"
+
+[MAPPACK_CLASSIC_LEVELS]
+ENG = "Classic Levels"
+CHI = "经典关卡"
+#CHT = 
+CZE = "Klasické úrovně"
+DUT = "Traditionele Levels"
+FRE = "Niveaux Classiques"
+GER = "Klassische Levels"
+#ITA = 
+JPN = "旧典なレベル"
+KOR = "Classic Levels"
+LAT = "Libellae classicae"
+#POL = 
+POR = "Níveis Clássicos"
+RUS = "Классические карты"
+SPA = "Niveles Clasicos"
+SWE = "Klassiska världar"
+UKR = "Класичні рівні"
+
+[MAPPACK_LOST_LEVELS]
+ENG = "Lost Levels"
+CHI = "失落关卡"
+#CHT = 
+CZE = "Ztracené úrovně"
+DUT = "Verloren Levels"
+FRE = "Niveaux Perdus"
+GER = "Verlorene Levels"
+#ITA = 
+JPN = "失われたレベル"
+KOR = "Lost Levels"
+LAT = "Libellae perditae"
+#POL = 
+POR = "Níveis Perdidos"
+RUS = "Вырезанные карты"
+SPA = "Niveles Perdidos"
+SWE = "Försvunna världar"
+UKR = "Втрачені рівні"
+
+[MP_MAPPACK_ORIGINAL_LEVELS]
+ENG = "Original Bullfrog Maps"
+#CHI = 
+#CHT = 
+#CZE = 
+#DUT = 
+#FRE = 
+#GER = 
+#ITA = 
+#JPN = 
+#KOR = 
+#LAT = 
+#POL = 
+#POR = 
+#RUS = 
+#SPA = 
+#SWE = 
+#UKR = 
+
+
+[CAMPAIGN_ORIGINAL]
+ENG = "Dungeon Keeper - Original Campaign"
+CHI = "地下城守护者原版战役"
+#CHT = 
+#CZE = 
+DUT = "Dungeon Keeper - Originele Campagne"
+FRE = "Dungeon Keeper - Campagne Originale"
+GER = "Dungeon Keeper - Original-Kampagne"
+ITA = "Dungeon Keeper - Campagna Originale"
+JPN = "ダンジョンキーパーの原キャンペーン"
+KOR = "던전 키퍼 오리지널 캠패인"
+LAT = "Dungeon Keeper - Expeditio Originalis"
+#POL = 
+POR = "Dungeon Keeper - Campanha Original"
+RUS = "Dungeon Keeper - Оригинальная кампания"
+SPA = "Dungeon Keeper - Campaña Original"
+#SWE = 
+UKR = "Dungeon Keeper - оригінальна кампанія"
+
+[CAMPAIGN_GOOD]
+ENG = "Good Campaign"
+CHI = "人类英雄战役"
+#CHT = 
+#CZE = 
+DUT = "Helden Campagne"
+#FRE = 
+GER = "Gute Kampagne"
+#ITA = 
+JPN = "勇者キャンペーン"
+KOR = "선한 캠패인"
+LAT = "Custos bonus"
+#POL = 
+POR = "Campanha do Bem"
+RUS = "Кампания героев"
+SPA = "Buenos"
+SWE = "Kampanjer"
+UKR = "Хороша кампанія"
+
+[CAMPAIGN_UNDEAD_KEEPER]
+ENG = "Undead Keeper"
+CHI = "亡灵守护者战役"
+#CHT = 
+#CZE = 
+#DUT = 
+#FRE = 
+GER = "Undead Keeper"
+ITA = "Campagna Keeper non morto"
+JPN = "アンデッド・キーパー・キャンペーン"
+KOR = "언데드 키퍼 캠패인"
+LAT = "Custos Mortuus Vivens"
+#POL = 
+POR = "Guardião Morto-Vivo"
+RUS = "Неупокоенный Хранитель"
+SPA = "El Guardián Muerto Viviente"
+#SWE = 
+UKR = "Кампанія Андеда-Хранителя"
+
+[CAMPAIGN_POST_UNDEAD_KEEPER]
+ENG = "Post Undead Keeper"
+CHI = "后亡灵守护者战役"
+#CHT = 
+#CZE = 
+#DUT = 
+#FRE = 
+GER = "Post Undead Keeper"
+#ITA = 
+JPN = "アンデッド・キーパー後キャンペーン"
+KOR = "언데드 키퍼 공표 캠패인"
+LAT = "Post Custodem Mortuum Viventem"
+#POL = 
+POR = "Pós-Guardião Morto-Vivo"
+RUS = "Неупокоенный Хранитель - Продолжение"
+SPA = "El Muerto Viviente"
+#SWE = 
+UKR = "Кампанія Пост-Мертвого Хранителя"
+
+[CAMPAIGN_TWIN_KEEPERS]
+ENG = "Twin Keepers"
+CHI = "双子守护者战役"
+#CHT = 
+#CZE = 
+#DUT = 
+#FRE = 
+GER = "Twin Keepers"
+#ITA = 
+JPN = "ツイン・キーパーズ・キャンペーン"
+KOR = "쌍둥이 키퍼 캠패인"
+LAT = "Custodes gemini"
+#POL = 
+POR = "Guardiões Gêmeos"
+RUS = "Близнецы Хранители"
+SPA = "Los Guardianes Gemelos"
+#SWE = 
+UKR = "Хранителі Близнюки"
+
+[CAMPAIGN_REVENGE_OF_THE_LORD]
+ENG = "Revenge of the Lord"
+CHI = "领主的复仇战役"
+#CHT = 
+#CZE = 
+#DUT = 
+#FRE = 
+GER = "Rache des Ritters"
+#ITA = 
+JPN = "主君の復讐"
+KOR = "군주의 복수"
+LAT = "Vindicta Domini"
+#POL = 
+POR = "A Vingança do Senhor"
+RUS = "Месть лорда"
+SPA = "La Venganza del Caballero"
+#SWE = 
+UKR = "Помста Лорда"
+
+[CAMPAIGN_JAPANESE_DKMAPS8_PACK]
+ENG = "Japanese DKMaps8 pack"
+CHI = "日本人的地下城战役"
+#CHT = 
+#CZE = 
+#DUT = 
+#FRE = 
+GER = "Japanisches 8-Karten-Paket"
+#ITA = 
+JPN = "日本製DKMap8パック"
+KOR = "일본 DKMaps8 팩"
+LAT = "Grupus iaponicus 8 libellarum"
+#POL = 
+POR = "Pacote Japonês DKMaps8"
+RUS = "Японский набор карт DKMaps8"
+SPA = "Paquete Japonés de 8 Mapas"
+#SWE = 
+UKR = "Пак Японських DKКарт8"
+
+[CAMPAIGN_DZJEEAR_6_LEVEL]
+ENG = "DzjeeAr's 6-level campaign"
+CHI = "德吉尔的6关战役"
+#CHT = 
+#CZE = 
+DUT = "DzjeeAr's campagne met  6 levels"
+#FRE = 
+GER = "DzjeeArs 6 Level Kampagne"
+#ITA = 
+JPN = "DzjeeArの６面レベルキャンペーン"
+KOR = "DzjeeAr의 6레벨 캠패인"
+LAT = "DzjeeAr's: 6 libellae"
+#POL = 
+POR = "Campanha de 6 níveis de DzjeeAr"
+RUS = "6-уровневая кампания DzjeeAr'а"
+SPA = "DzjeeAr's : Nivel 6"
+#SWE = 
+UKR = "6-рівнева кампанія DzjeeAr"

@@ -6602,37 +6602,7 @@ msgctxt "Menu interface item"
 msgid "Map Packs"
 msgstr "Grupus chartarum"
 
-#: guitext:970
-msgctxt "Menu interface item"
-msgid "The Deeper Dungeons"
-msgstr "Robora Profundiora"
-
-#: guitext:971
-msgctxt "Menu interface item"
-msgid "Standard Levels"
-msgstr "Libellae normales"
-
-#: guitext:972
-msgctxt "Menu interface item"
-msgid "Classic Levels"
-msgstr "Libellae classicae"
-
-#: guitext:973
-msgctxt "Menu interface item"
-msgid "Legacy Levels"
-msgstr "Libellae antiquae"
-
-#: guitext:974
-msgctxt "Menu interface item"
-msgid "Personal Levels"
-msgstr "Libellae personales"
-
-#: guitext:975
-msgctxt "Menu interface item"
-msgid "Lost Levels"
-msgstr "Libellae perditae"
-
-#: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
+#: guitext:970 guitext:971 guitext:972 guitext:973 guitext:974 guitext:975: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
 msgstr ""
@@ -6788,126 +6758,10 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr "Ambiens"
 
-#: guitext:1010
-msgctxt "Unused"
-msgid "Moo4"
-msgstr ""
-
-#: guitext:1011
-msgctxt "Menu interface item"
-msgid "Dungeon Keeper - Original Campaign"
-msgstr "Dungeon Keeper - Expeditio Originalis"
-
-#: guitext:1012
-msgctxt "Menu interface item"
-msgid "Assmist Isle"
-msgstr "Insula Auxiliata"
-
-#: guitext:1013
-msgctxt "Menu interface item"
-msgid "Ancient Keeper"
-msgstr "Custos Antiquus"
-
-#: guitext:1014
-msgctxt "Menu interface item"
-msgid "Burdened Imps"
-msgstr "Diabolulli Gravati, grupus libellarum"
-
-#: guitext:1015
-msgctxt "Menu interface item"
-msgid "Conquest of the Arctic"
-msgstr "Conquaestus Arcticae"
-
-#: guitext:1016
-msgctxt "Menu interface item"
-msgid "The Destiny of Ninja"
-msgstr "Fatum Ninjae"
-
-#: guitext:1017
-msgctxt "Menu interface item"
-msgid "DzjeeAr's 6-level campaign"
-msgstr "DzjeeAr's: 6 libellae"
-
-#: guitext:1018
-msgctxt "Menu interface item"
-msgid "DzjeeAr's 10-level campaign"
-msgstr "DzjeeAr's: 10 libellae"
-
-#: guitext:1019
-msgctxt "Menu interface item"
-msgid "DzjeeAr's 25-level campaign"
-msgstr "DzjeeAr's: 25 libellae"
-
-#: guitext:1020
-msgctxt "Menu interface item"
-msgid "Evil Keeper"
-msgstr "Custos malignus"
-
-#: guitext:1021
-msgctxt "Menu interface item"
-msgid "Grinics' KReign campaign"
-msgstr "Chronica Grinics Kreign"
-
-#: guitext:1022
-msgctxt "Menu interface item"
-msgid "Japanese DKMaps8 pack"
-msgstr "Grupus iaponicus 8 libellarum"
-
-#: guitext:1023
-msgctxt "Menu interface item"
-msgid "KDK Levels"
-msgstr "Libellae KDK"
-
-#: guitext:1024
-msgctxt "Menu interface item"
-msgid "Good Campaign"
-msgstr "Custos bonus"
-
-#: guitext:1025
-msgctxt "Menu interface item"
-msgid "Lord Vexer"
-msgstr "Lord Vexer"
-
-#: guitext:1026
-msgctxt "Menu interface item"
-msgid "Nikolai's Castles"
-msgstr "Castellum Nikolai"
-
-#: guitext:1027
-msgctxt "Menu interface item"
-msgid "Dungeon Keeper - NG+"
-msgstr "Dungeon Keeper - Novus Ludus+"
-
-#: guitext:1028
-msgctxt "Menu interface item"
-msgid "Post Ancient Keeper"
-msgstr "Post Custodem Antiquum"
-
-#: guitext:1029
-msgctxt "Menu interface item"
-msgid "Post Undead Keeper"
-msgstr "Post Custodem Mortuum Viventem"
-
-#: guitext:1030
-msgctxt "Menu interface item"
-msgid "Quest for the Hero"
-msgstr "Indagatio ob Heroem"
-
-#: guitext:1031
-msgctxt "Menu interface item"
-msgid "Revenge of the Lord"
-msgstr "Vindicta Domini"
-
-#: guitext:1032
-msgctxt "Menu interface item"
-msgid "Twin Keepers"
-msgstr "Custodes gemini"
-
-#: guitext:1033
-msgctxt "Menu interface item"
-msgid "Undead Keeper"
-msgstr "Custos Mortuus Vivens"
-
+#: guitext:1010 guitext:1011 guitext:1012 guitext:1013 guitext:1014 guitext:1015
+#: guitext:1016 guitext:1017 guitext:1018 guitext:1019 guitext:1020 guitext:1021
+#: guitext:1022 guitext:1023 guitext:1024 guitext:1025 guitext:1026 guitext:1027
+#: guitext:1028 guitext:1029 guitext:1030 guitext:1031 guitext:1032 guitext:1033
 #: guitext:1034 guitext:1035
 msgctxt "Unused"
 msgid "Moo5"

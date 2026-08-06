@@ -1,0 +1,56 @@
+[MAPPACK_LEGACY_LEVELS]
+ENG = "Legacy Levels"
+CHI = "复古关卡"
+#CHT = 
+CZE = "Legacy úrovně"
+DUT = "Levels met oude bugs"
+FRE = "Niveaux Hérités"
+GER = "Geerbte Levels"
+#ITA = 
+JPN = "レガシーのレベル"
+KOR = "Legacy Levels"
+LAT = "Libellae antiquae"
+#POL = 
+POR = "Níveis Legado"
+RUS = "Устаревшие карты"
+SPA = "Niveles Legados"
+SWE = "Ursprungliga världar"
+UKR = "Застарілі рівні"
+
+[CAMPAIGN_ANCIENT_KEEPER]
+ENG = "Ancient Keeper"
+CHI = "远古守护者战役"
+#CHT = 
+#CZE = 
+#DUT = 
+#FRE = 
+GER = "Ancient Keeper"
+#ITA = 
+JPN = "エンシェント・キーパー・キャンペーン"
+KOR = "고대 키퍼 캠패인"
+LAT = "Custos Antiquus"
+#POL = 
+POR = "Guardião Ancestral"
+RUS = "Древний Хранитель"
+SPA = "El Guardián Antiguo"
+#SWE = 
+UKR = "Кампанія Стародавнього Хранителя"
+
+[CAMPAIGN_POST_ANCIENT_KEEPER]
+ENG = "Post Ancient Keeper"
+CHI = "后远古守护者战役"
+#CHT = 
+#CZE = 
+#DUT = 
+#FRE = 
+GER = "Post Ancient Keeper"
+#ITA = 
+JPN = "エンシェント・キーパー後キャンペーン"
+KOR = "고대 키퍼 공표 캠패인"
+LAT = "Post Custodem Antiquum"
+#POL = 
+POR = "Pós-Guardião Ancestral"
+RUS = "Древний Хранитель - Послесловие"
+SPA = "El Guardián Antiguo - Posdata"
+#SWE = 
+UKR = "Кампанія Пост-Стародавнього Хранителя"

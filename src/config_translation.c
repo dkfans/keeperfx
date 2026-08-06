@@ -378,13 +378,8 @@ void clear_translation_table(void)
     translation_count = 0;
 }
 
-static TbBool load_translation_config_file(const char* filepath, unsigned short flags)
+static TbBool read_file(const char* filepath, int (*visit_func)(const VALUE*, VALUE*, void*), void *ctx)
 {
-    if (!flag_is_set(flags, CnfLd_AcceptPartial))
-    {
-        clear_translation_table();
-    }
-
     long len = LbFileLengthRnc(filepath);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
@@ -417,9 +412,21 @@ static TbBool load_translation_config_file(const char* filepath, unsigned short 
     }
     free(buf);
 
-    value_dict_walk_sorted(&root, translation_section_visitor, NULL);
+    value_dict_walk_sorted(&root, visit_func, ctx);
 
     value_fini(&root);
+    return true;
+}
+
+static TbBool load_translation_config_file(const char* filepath, unsigned short flags)
+{
+    if (!flag_is_set(flags, CnfLd_AcceptPartial))
+    {
+        clear_translation_table();
+    }
+    read_file(filepath, translation_section_visitor, NULL);
+
+
     return true;
 }
 
@@ -450,6 +457,12 @@ const char* get_translation_file_string(TextStringId string_id)
         return "oh_crap_invalid_string_id";
     const char *text = translation_table[string_id - TRANSLATION_STRINGS_START].text;
     return text ? text : "oh_crap_null_string";
+}
+
+const char* get_single_string_from_file(const char* filepath, const char* alias)
+{
+    read_file(filepath, translation_section_visitor, NULL);
+    return "";
 }
 
 

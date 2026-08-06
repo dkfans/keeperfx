@@ -6834,37 +6834,7 @@ msgctxt "Menu interface item"
 msgid "Map Packs"
 msgstr "Paquetes de mapas"
 
-#: guitext:970
-msgctxt "Menu interface item"
-msgid "The Deeper Dungeons"
-msgstr "Deeper Dungeons"
-
-#: guitext:971
-msgctxt "Menu interface item"
-msgid "Standard Levels"
-msgstr "Niveles Normales"
-
-#: guitext:972
-msgctxt "Menu interface item"
-msgid "Classic Levels"
-msgstr "Niveles Clasicos"
-
-#: guitext:973
-msgctxt "Menu interface item"
-msgid "Legacy Levels"
-msgstr "Niveles Legados"
-
-#: guitext:974
-msgctxt "Menu interface item"
-msgid "Personal Levels"
-msgstr "Niveles Personalizados"
-
-#: guitext:975
-msgctxt "Menu interface item"
-msgid "Lost Levels"
-msgstr "Niveles Perdidos"
-
-#: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
+#: guitext:970 guitext:971 guitext:972 guitext:973 guitext:974 guitext:975: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
 msgstr "Moo3"
@@ -7020,126 +6990,10 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr "Ambiente"
 
-#: guitext:1010
-msgctxt "Unused"
-msgid "Moo4"
-msgstr "Moo4"
-
-#: guitext:1011
-msgctxt "Menu interface item"
-msgid "Dungeon Keeper - Original Campaign"
-msgstr "Dungeon Keeper - Campaña Original"
-
-#: guitext:1012
-msgctxt "Menu interface item"
-msgid "Assmist Isle"
-msgstr "La Isla Asistida"
-
-#: guitext:1013
-msgctxt "Menu interface item"
-msgid "Ancient Keeper"
-msgstr "El Guardián Antiguo"
-
-#: guitext:1014
-msgctxt "Menu interface item"
-msgid "Burdened Imps"
-msgstr "Los Diablillos agobiados, paquete de niveles"
-
-#: guitext:1015
-msgctxt "Menu interface item"
-msgid "Conquest of the Arctic"
-msgstr "La Conquista del Ártico"
-
-#: guitext:1016
-msgctxt "Menu interface item"
-msgid "The Destiny of Ninja"
-msgstr "El Destino del Ninja"
-
-#: guitext:1017
-msgctxt "Menu interface item"
-msgid "DzjeeAr's 6-level campaign"
-msgstr "DzjeeAr's : Nivel 6"
-
-#: guitext:1018
-msgctxt "Menu interface item"
-msgid "DzjeeAr's 10-level campaign"
-msgstr "DzjeeAr's : Nivel 10"
-
-#: guitext:1019
-msgctxt "Menu interface item"
-msgid "DzjeeAr's 25-level campaign"
-msgstr "DzjeeAr's : Nivel 25"
-
-#: guitext:1020
-msgctxt "Menu interface item"
-msgid "Evil Keeper"
-msgstr "El Guardián Malvado"
-
-#: guitext:1021
-msgctxt "Menu interface item"
-msgid "Grinics' KReign campaign"
-msgstr "Las Crónicas de Grinics Kreign"
-
-#: guitext:1022
-msgctxt "Menu interface item"
-msgid "Japanese DKMaps8 pack"
-msgstr "Paquete Japonés de 8 Mapas"
-
-#: guitext:1023
-msgctxt "Menu interface item"
-msgid "KDK Levels"
-msgstr "Niveles KDK"
-
-#: guitext:1024
-msgctxt "Menu interface item"
-msgid "Good Campaign"
-msgstr "Buenos"
-
-#: guitext:1025
-msgctxt "Menu interface item"
-msgid "Lord Vexer"
-msgstr "Lord Vexer"
-
-#: guitext:1026
-msgctxt "Menu interface item"
-msgid "Nikolai's Castles"
-msgstr "El Castillo de Nikolai"
-
-#: guitext:1027
-msgctxt "Menu interface item"
-msgid "Dungeon Keeper - NG+"
-msgstr "Dungeon Keeper - Nuevo Juego+"
-
-#: guitext:1028
-msgctxt "Menu interface item"
-msgid "Post Ancient Keeper"
-msgstr "El Guardián Antiguo"
-
-#: guitext:1029
-msgctxt "Menu interface item"
-msgid "Post Undead Keeper"
-msgstr "El Muerto Viviente"
-
-#: guitext:1030
-msgctxt "Menu interface item"
-msgid "Quest for the Hero"
-msgstr "La Búsqueda del Héroe"
-
-#: guitext:1031
-msgctxt "Menu interface item"
-msgid "Revenge of the Lord"
-msgstr "La Venganza del Caballero"
-
-#: guitext:1032
-msgctxt "Menu interface item"
-msgid "Twin Keepers"
-msgstr "Los Guardianes Gemelos"
-
-#: guitext:1033
-msgctxt "Menu interface item"
-msgid "Undead Keeper"
-msgstr "El Guardián Muerto Viviente"
-
+#: guitext:1010 guitext:1011 guitext:1012 guitext:1013 guitext:1014 guitext:1015
+#: guitext:1016 guitext:1017 guitext:1018 guitext:1019 guitext:1020 guitext:1021
+#: guitext:1022 guitext:1023 guitext:1024 guitext:1025 guitext:1026 guitext:1027
+#: guitext:1028 guitext:1029 guitext:1030 guitext:1031 guitext:1032 guitext:1033
 #: guitext:1034 guitext:1035
 msgctxt "Unused"
 msgid "Moo5"

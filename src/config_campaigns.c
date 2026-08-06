@@ -410,6 +410,8 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = VISIBLE_HIGH_SCORES_COUNT;
   campgn->human_player = 0;
+
+  //char alias_buf[32];
   // Find the block
   const char * block_name = "common";
   int32_t pos = 0;
@@ -648,7 +650,8 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
                 COMMAND_TEXT(cmd_num),campgn->name,config_textname);
           }
           else {
-              k = atoi(word_buf);
+                if (parameter_is_number(word_buf))
+              k = get_string_id_by_alias(word_buf);
                 if (k > 0) {
                     const char* newname = get_string(GUI_STRINGS_START+k);
                     if (strcasecmp(newname,"") != 0) {

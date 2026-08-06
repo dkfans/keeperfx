@@ -116,3 +116,101 @@ _SWE = """En Beholder har anslutit sig till dig. Dessa stora, klotformade varels
 De känner ett intensivt hat mot allt de kan se, särskilt mot dem som hånar deras avsaknad av öron."""
 _UKR = """Спостерігач приєднався до вас. Ці великі кулясті істоти мають кілька очних відростків і одне центральне око, кожне з яких містить потужну магію.  
 Вони відчувають сильну ненавист до всього, що можуть бачити, особливо до тих, хто насміхається з їх відсутності вух."""
+
+
+# mappacks can look in their cfg folder for translation files,
+# standard and personal are here since they don't use custom cfgs, and serve as and example
+[MAPPACK_STANDARD_LEVELS]
+ENG = "Standard Levels"
+CHI = "标准关卡"
+#CHT = 
+CZE = "Standardní úrovně"
+DUT = "Standaard Levels"
+FRE = "Niveaux Standard"
+GER = "Standard-Levels"
+#ITA = 
+JPN = "規格なレベル"
+KOR = "Standard Levels"
+LAT = "Libellae normales"
+#POL = 
+POR = "Níveis Padrão"
+RUS = "Обычные карты"
+SPA = "Niveles Normales"
+SWE = "Vanliga Världar"
+UKR = "Стандартні рівні"
+
+[MAPPACK_PERSONAL_LEVELS]
+ENG = "Personal Levels"
+CHI = "个人关卡"
+#CHT = 
+CZE = "Osobní úrovně"
+DUT = "Persoonlijke Levels"
+FRE = "Niveaux Perso"
+GER = "Persönliche Levels"
+#ITA = 
+JPN = "個人的なレベル"
+KOR = "Personal Levels"
+LAT = "Libellae personales"
+#POL = 
+POR = "Níveis Pessoais"
+RUS = "Карты игрока"
+SPA = "Niveles Personalizados"
+SWE = "Personliga världar"
+UKR = "Персональні рівні"
+
+[MP_MAPPACK_STANDARD_LEVELS]
+ENG = "KeeperFX Multiplayer Maps"
+#CHI = 
+#CHT = 
+#CZE = 
+#DUT = 
+#FRE = 
+#GER = 
+#ITA = 
+#JPN = 
+#KOR = 
+#LAT = 
+#POL = 
+#POR = 
+#RUS = 
+#SPA = 
+#SWE = 
+#UKR = 
+
+[CAMPAIGN_BURDENED_IMPS]
+ENG = "Burdened Imps"
+CHI = "不堪重负的小鬼战役"
+#CHT = 
+#CZE = 
+#DUT = 
+#FRE = 
+GER = "Burdened Imps"
+#ITA = 
+JPN = "Burdened Impのレベルパック"
+KOR = "피해욧 임프의 레벨 팩"
+LAT = "Diabolulli Gravati, grupus libellarum"
+#POL = 
+POR = "Diabretes Atarefados"
+RUS = "Навьюченные бесы"
+SPA = "Los Diablillos agobiados, paquete de niveles"
+SWE = "Skapa smådjävul"
+UKR = "Загружені Імпи"
+
+[CAMPAIGN_DUNGEON_KEEPER_NG_PLUS]
+ENG = "Dungeon Keeper - NG+"
+CHI = "原版增强战役"
+#CHT = 
+#CZE = 
+#DUT = 
+#FRE = 
+GER = "Dungeon Keeper - NG+"
+#ITA = 
+JPN = "増強された原キャンペーン"
+KOR = "던전 키퍼 - 새 게임+"
+LAT = "Dungeon Keeper - Novus Ludus+"
+#POL = 
+POR = "Dungeon Keeper - NG+"
+RUS = "Dungeon Keeper - Новая игра+"
+SPA = "Dungeon Keeper - Nuevo Juego+"
+#SWE = 
+#UKR = 
