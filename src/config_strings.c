@@ -27,7 +27,6 @@
 #include "bflib_guibtns.h"
 #include "bflib_text.h"
 
-#include "config_mods.h"
 #include "config_keeperfx.h"
 #include "config_campaigns.h"
 #include "config_translation.h"
@@ -81,24 +80,6 @@ TbBool fill_strings_list(char **strings,char *strings_data,char *strings_data_en
      text_idx--;
   }
   return (text_idx < max);
-}
-
-/**
- * Loads the language-specific strings data for game interface.
- */
-TbBool setup_gui_strings_data(void)
-{
-  SYNCDBG(8,"Starting");
-
-  // Resetting all values to empty strings
-  reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
-
-  char* fname = get_game_file_path_fmt(FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
-  if (!fname || !load_gui_strings_data_from_file(fname, 0))
-    return false;
-
-  SYNCDBG(19,"Finished");
-  return true;
 }
 
 TbBool free_gui_strings_data(void)

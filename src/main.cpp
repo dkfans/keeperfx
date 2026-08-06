@@ -496,8 +496,6 @@ short setup_game(void)
   if (result == 1)
   {
     load_settings();
-    if ( !setup_gui_strings_data() )
-      result = 0;
   }
 
   if (result == 1)
