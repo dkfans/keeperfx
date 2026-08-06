@@ -756,6 +756,7 @@ TbResult LbPaletteSet(unsigned char *palette)
         destColors[i].r = (bufColors[0] << 2);
         destColors[i].g = (bufColors[1] << 2);
         destColors[i].b = (bufColors[2] << 2);
+        destColors[i].a = SDL_ALPHA_OPAQUE;
         srcColors += 3;
         bufColors += 3;
     }

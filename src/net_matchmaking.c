@@ -414,7 +414,7 @@ void matchmaking_close_lobby(void)
 
 void matchmaking_refresh_sessions(void)
 {
-    if (!curl_handle || !mutex || SDL_TryLockMutex(mutex) != 0)
+    if (!curl_handle || !mutex || !SDL_TryLockMutex(mutex))
         return;
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
     int bytes_received = websocket_receive(response_buffer, sizeof(response_buffer), 0);
@@ -554,7 +554,7 @@ int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port
 
 int matchmaking_poll_punch(PunchAddresses *output)
 {
-    if (!curl_handle || !mutex || SDL_TryLockMutex(mutex) != 0)
+    if (!curl_handle || !mutex || !SDL_TryLockMutex(mutex))
         return 0;
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
     int bytes_received = websocket_receive(response_buffer, sizeof(response_buffer), 0);

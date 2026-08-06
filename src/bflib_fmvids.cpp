@@ -525,6 +525,7 @@ struct movie_t {
 			palette[i].b = m_frame->data[1][(i * 4) + 0]; // blue
 			palette[i].g = m_frame->data[1][(i * 4) + 1]; // green
 			palette[i].r = m_frame->data[1][(i * 4) + 2]; // red
+			palette[i].a = SDL_ALPHA_OPAQUE;
 		}
 		LbScreenWaitVbi(); // this is a no-op today
 		// LbPaletteSet expects values in range 0-63 for reasons, nuking 75% of the color range
