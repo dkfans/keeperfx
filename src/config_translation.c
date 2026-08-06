@@ -123,9 +123,21 @@ static void add_entry_to_translation_table(const char *alias, const char *text)
     strncpy(entry->text, text, len + 1);
 }
 
-static void add_entry_to_gui_translation_table(StringIndex idx, const char *text)
+static void add_entry_to_gui_translation_table(const char *alias, const char *text)
 {
 
+    if(!parameter_is_number(alias))
+    {
+        ERRORLOG("GUI translation entry alias \"%s\" is not a valid number.", alias);
+        return;
+    }
+    int idx = atoi(alias);
+    if (idx < 0 || idx >= GUI_STRINGS_COUNT)
+    {
+        ERRORLOG("GUI translation entry alias \"%s\" is out of valid range.", alias);
+        return;
+    }
+        
     if (gui_strings[idx])
         free(gui_strings[idx]);
     gui_strings[idx] = NULL;
@@ -154,8 +166,6 @@ static int translation_section_visitor(const VALUE *key, VALUE *section, void *c
     if (!alias)
         return 0;
 
-
-
     const char *text = get_language_value(section, current_language_id);
 
     if (!text && current_language_id == Lang_ChineseTra)
@@ -167,22 +177,9 @@ static int translation_section_visitor(const VALUE *key, VALUE *section, void *c
     if (!text) text = alias;
 
 
-    
     if (*(uint8_t *)ctx == TranslationType_GUI)
     {
-        if(!parameter_is_number(alias))
-        {
-            ERRORLOG("GUI translation entry alias \"%s\" is not a valid number.", alias);
-            return 0;
-        }
-        int gui_string_index = atoi(alias);
-        if (gui_string_index < 0 || gui_string_index >= GUI_STRINGS_COUNT)
-        {
-            ERRORLOG("GUI translation entry alias \"%s\" is out of valid range.", alias);
-            return 0;
-        }
-
-        add_entry_to_gui_translation_table(gui_string_index, text);
+        add_entry_to_gui_translation_table(alias, text);
     }
     else
     {
