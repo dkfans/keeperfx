@@ -7,16 +7,32 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "platform/PlatformManager.h"
-#include "platform/WindowSystemSDL.h"
+#include "kfx/platform/PlatformManager.h"
+#include "kfx/platform/WindowSystemSDL.h"
+#include "kfx/platform/IPlatform.h"
+#include "kfx/platform/PlatformWindows.h"
+#include "kfx/platform/PlatformLinux.h"
 #include "post_inc.h"
+
+/******************************************************************************/
+
+IWindowSystem* IPlatform::GetWindowSystem() { return GetSDLWindowSystem(); }
+
+IPlatform* GetPlatform()
+{
+#if defined(_WIN32)
+    static PlatformWindows s_platform;
+#else
+    static PlatformLinux s_platform;
+#endif
+    return &s_platform;
+}
 
 /******************************************************************************/
 
 extern "C" int PlatformManager_InitVideo(void)
 {
-    IWindowSystem* ws = GetSDLWindowSystem();
-    return (ws && ws->InitVideo()) ? 1 : 0;
+    return GetPlatform()->VideoInit() ? 1 : 0;
 }
 
 extern "C" int PlatformManager_HasWindow(void)
@@ -31,10 +47,8 @@ extern "C" int PlatformManager_GetIsAppActive(void)
     return (ws && ws->IsAppActive()) ? 1 : 0;
 }
 
-// Desktop does not own the display exclusively (that is a console concept),
-// and validates video modes normally rather than forcing them all available.
-extern "C" int PlatformManager_OwnsDisplay(void)             { return 0; }
-extern "C" int PlatformManager_ForcesAllModesAvailable(void) { return 0; }
+extern "C" int PlatformManager_OwnsDisplay(void)             { return GetPlatform()->OwnsDisplay() ? 1 : 0; }
+extern "C" int PlatformManager_ForcesAllModesAvailable(void) { return GetPlatform()->ForcesAllModesAvailable() ? 1 : 0; }
 
 extern "C" unsigned int PlatformManager_GetWindowFlags(void)
 {

@@ -14,7 +14,7 @@
 #include "pre_inc.h"
 
 #include "platform.h"
-#include "platform/PlatformManager.h"
+#include "kfx/platform/PlatformManager.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"

@@ -25,7 +25,7 @@
 #include "bflib_render.h"
 #include "bflib_sprfnt.h"
 #include "bflib_vidsurface.h"
-#include "platform/PlatformManager.h"
+#include "kfx/platform/PlatformManager.h"
 
 #include "keeperfx.hpp"
 
@@ -461,9 +461,9 @@ static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode, unsigned short display
         {
             return false; // all available fullscreen modes are too small for the desired mode to fit
         }
-        if (((int)mdinfo->Width != closest_w) && ((int)mdinfo->Height != closest_h))
+        if (((int)mdinfo->Width != closest_w) || ((int)mdinfo->Height != closest_h))
         {
-            return false; // desired fullscreen mode is not available (but a "close" match is)
+            return false; // reject if either dimension differs from the closest available mode
         }
     }
     // desired screen mode must be valid if we get here
@@ -576,10 +576,11 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
 
     if (PlatformManager_HasWindow())
     {
-        unsigned int current_fullscreen_flags = PlatformManager_GetWindowFlags() & SDL_WINDOW_FULLSCREEN_DESKTOP;
-        unsigned int new_fullscreen_flags = mdinfo->sdlFlags & SDL_WINDOW_FULLSCREEN_DESKTOP;
-        // Exclusive fullscreen (FULLSCREEN set without the desktop bit): apply the video mode.
-        if (new_fullscreen_flags == SDL_WINDOW_FULLSCREEN)
+        const unsigned int fs_mask = KFX_WF_FULLSCREEN_EXCLUSIVE | KFX_WF_FULLSCREEN_DESKTOP;
+        unsigned int current_fullscreen_flags = PlatformManager_GetWindowFlags() & fs_mask;
+        unsigned int new_fullscreen_flags = mdinfo->windowFlags & fs_mask;
+        // Exclusive fullscreen: apply the specific video mode.
+        if (new_fullscreen_flags == KFX_WF_FULLSCREEN_EXCLUSIVE)
         {
             if (PlatformManager_SetWindowDisplayMode((int)mdinfo->Width, (int)mdinfo->Height) != 0)
             {
@@ -597,7 +598,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
                 return Lb_FAIL;
             }
         }
-        PlatformManager_SetWindowBordered((mdinfo->sdlFlags & SDL_WINDOW_BORDERLESS) ? 0 : 1);
+        PlatformManager_SetWindowBordered((mdinfo->windowFlags & KFX_WF_BORDERLESS) ? 0 : 1);
         // Windowed mode (including the special FILL ALL borderless window).
         if (new_fullscreen_flags == 0)
         {
@@ -608,14 +609,14 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     // If the game window doesn't yet exist, create it.
     if (!PlatformManager_HasWindow())
     {
-        if (PlatformManager_CreateWindow(lbDrawAreaTitle, mdinfo->window_pos_x, mdinfo->window_pos_y, mdinfo->Width, mdinfo->Height, mdinfo->sdlFlags) == 0)
+        if (PlatformManager_CreateWindow(lbDrawAreaTitle, mdinfo->window_pos_x, mdinfo->window_pos_y, mdinfo->Width, mdinfo->Height, mdinfo->windowFlags) == 0)
         {
             ERRORLOG("PlatformManager_CreateWindow failed for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
             return Lb_FAIL;
         }
         // A freshly-created exclusive-fullscreen window starts as desktop fullscreen;
         // switch it to the requested video mode.
-        if ((mdinfo->sdlFlags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN)
+        if (mdinfo->windowFlags & KFX_WF_FULLSCREEN_EXCLUSIVE)
         {
             PlatformManager_SetWindowDisplayMode((int)mdinfo->Width, (int)mdinfo->Height);
         }
@@ -997,35 +998,27 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
     mdinfo->Available = false;
     mdinfo->VideoFlags = flags;
     // SDL flags
-    mdinfo->sdlFlags = 0; // default to an normal window
+    mdinfo->windowFlags = 0; // default to a normal window
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED))
     {
         if (mdinfo->VideoFlags & Lb_VF_BORDERLESS)
         {
-            mdinfo->sdlFlags |= SDL_WINDOW_BORDERLESS; // borderless window
+            mdinfo->windowFlags |= KFX_WF_BORDERLESS; // borderless window
         }
-        /* else
-        {
-            sdlFlags |= SDL_WINDOW_RESIZABLE; // todo (allow window to be freely scaled) - needs window resize function triggered by SDL_WINDOWEVENT_SIZE_CHANGED
-        } */
     }
     else
     {
         if (mdinfo->VideoFlags & Lb_VF_FILLALL)
         {
-            mdinfo->sdlFlags |= SDL_WINDOW_BORDERLESS; // fill all displays with a borderless window
+            mdinfo->windowFlags |= KFX_WF_BORDERLESS; // fill all displays with a borderless window
         }
         else if (mdinfo->VideoFlags & Lb_VF_DESKTOP)
         {
-            // Desktop (borderless) fullscreen at native resolution. The SDL2-compat
-            // FULLSCREEN_DESKTOP bit is the currency the window system translates to
-            // SDL_SetWindowFullscreenMode(NULL); it also contains the FULLSCREEN bit.
-            mdinfo->sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+            mdinfo->windowFlags |= KFX_WF_FULLSCREEN_DESKTOP; // borderless fullscreen at native resolution
         }
         else
         {
-            // Exclusive fullscreen at a specific video mode.
-            mdinfo->sdlFlags |= SDL_WINDOW_FULLSCREEN;
+            mdinfo->windowFlags |= KFX_WF_FULLSCREEN_EXCLUSIVE; // fullscreen at a specific video mode
         }
     }
     snprintf(mdinfo->Desc, sizeof(mdinfo->Desc), "%s", desc);

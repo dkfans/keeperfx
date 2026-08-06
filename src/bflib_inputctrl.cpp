@@ -27,7 +27,7 @@
 #include "bflib_mouse.h"
 #include "bflib_joyst.h"
 #include "bflib_video.h"
-#include "platform/WindowSystemSDL.h"
+#include "kfx/platform/WindowSystemSDL.h"
 #include "bflib_planar.h"
 #include "bflib_sndlib.h"
 #include "bflib_mshandler.hpp"

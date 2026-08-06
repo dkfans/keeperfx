@@ -27,7 +27,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_video.h"
-#include "platform/PlatformManager.h"
+#include "kfx/platform/PlatformManager.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_mshandler.hpp"

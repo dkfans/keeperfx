@@ -20,6 +20,7 @@ int          PlatformManager_ForcesAllModesAvailable(void);
 
 unsigned int PlatformManager_GetWindowFlags(void);
 void         PlatformManager_GetWindowSize(int* out_w, int* out_h);
+// Returns the window's SDL display ID (opaque), not a 0-based index.
 int          PlatformManager_GetWindowDisplayIndex(void);
 int          PlatformManager_GetNumVideoDisplays(void);
 int          PlatformManager_GetDesktopDisplayMode(int display, int* out_w, int* out_h);

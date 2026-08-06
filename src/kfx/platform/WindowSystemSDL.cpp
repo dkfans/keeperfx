@@ -7,7 +7,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "platform/WindowSystemSDL.h"
+#include "kfx/platform/WindowSystemSDL.h"
 #include "bflib_basics.h"
 #include "bflib_video.h"
 #include <SDL3/SDL.h>
@@ -35,20 +35,14 @@ static SDL_DisplayID display_index_to_id(int index)
     return id;
 }
 
-bool WindowSystemSDL::InitVideo()
-{
-    if (!SDL_Init(SDL_INIT_VIDEO))
-        return false;
-    atexit(SDL_Quit);
-    return true;
-}
-
 bool WindowSystemSDL::IsAppActive() const { return m_appActive; }
 void WindowSystemSDL::OnFocusGained()     { m_appActive = true; }
 void WindowSystemSDL::OnFocusLost()       { m_appActive = false; }
 
 void WindowSystemSDL::SetCursorGrab(bool grab)
 {
+    if (!lbWindow)
+        return;
     if (SDL_getenv("NO_RELATIVE_MOUSE") == nullptr)
         SDL_SetWindowRelativeMouseMode(lbWindow, grab);
 }
@@ -63,6 +57,8 @@ void WindowSystemSDL::SetCursorVisible(bool visible)
 
 void WindowSystemSDL::WarpCursor(int x, int y)
 {
+    if (!lbWindow)
+        return;
     SDL_WarpMouseInWindow(lbWindow, (float)x, (float)y);
 }
 
@@ -82,12 +78,12 @@ unsigned int WindowSystemSDL::GetWindowFlags() const
         // SDL3: a NULL fullscreen mode means desktop (borderless) fullscreen;
         // a non-NULL mode means an exclusive video mode.
         if (SDL_GetWindowFullscreenMode(lbWindow) == nullptr)
-            kfx_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+            kfx_flags |= KFX_WF_FULLSCREEN_DESKTOP;
         else
-            kfx_flags |= (unsigned int)SDL_WINDOW_FULLSCREEN;
+            kfx_flags |= KFX_WF_FULLSCREEN_EXCLUSIVE;
     }
-    if (sdl_flags & SDL_WINDOW_BORDERLESS) kfx_flags |= SDL_WINDOW_BORDERLESS;
-    if (sdl_flags & SDL_WINDOW_HIDDEN)     kfx_flags |= SDL_WINDOW_HIDDEN;
+    if (sdl_flags & SDL_WINDOW_BORDERLESS) kfx_flags |= KFX_WF_BORDERLESS;
+    if (sdl_flags & SDL_WINDOW_HIDDEN)     kfx_flags |= KFX_WF_HIDDEN;
     return kfx_flags;
 }
 
@@ -185,7 +181,7 @@ int WindowSystemSDL::SetWindowFullscreen(unsigned int flags)
         return -1;
     if (flags == 0)
         return SDL_SetWindowFullscreen(lbWindow, false) ? 0 : -1; // windowed
-    if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP)
+    if (flags & KFX_WF_FULLSCREEN_DESKTOP)
     {
         // Desktop (borderless) fullscreen at the native resolution.
         SDL_SetWindowFullscreenMode(lbWindow, nullptr);
@@ -210,13 +206,12 @@ void WindowSystemSDL::SetWindowPosition(int x, int y)
 
 bool WindowSystemSDL::CreateWindow(const char* title, int x, int y, int w, int h, unsigned int flags)
 {
-    // Translate KFX/SDL2-compat flags to SDL3 window creation flags.
+    // Translate KfxWindowFlags to SDL3 window creation flags.
     SDL_WindowFlags sdl3_flags = 0;
-    const bool is_desktop_fs = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP;
-    const bool is_fullscreen  = is_desktop_fs || (flags & (unsigned int)SDL_WINDOW_FULLSCREEN);
-    if (is_fullscreen)                  sdl3_flags |= SDL_WINDOW_FULLSCREEN;
-    if (flags & SDL_WINDOW_BORDERLESS)  sdl3_flags |= SDL_WINDOW_BORDERLESS;
-    if (flags & SDL_WINDOW_HIDDEN)      sdl3_flags |= SDL_WINDOW_HIDDEN;
+    if (flags & (KFX_WF_FULLSCREEN_EXCLUSIVE | KFX_WF_FULLSCREEN_DESKTOP))
+        sdl3_flags |= SDL_WINDOW_FULLSCREEN;
+    if (flags & KFX_WF_BORDERLESS) sdl3_flags |= SDL_WINDOW_BORDERLESS;
+    if (flags & KFX_WF_HIDDEN)     sdl3_flags |= SDL_WINDOW_HIDDEN;
 
     lbWindow = SDL_CreateWindow(title, w, h, sdl3_flags);
     if (!lbWindow)

@@ -1,7 +1,7 @@
 #ifndef WINDOW_SYSTEM_SDL_H
 #define WINDOW_SYSTEM_SDL_H
 
-#include "platform/IWindowSystem.h"
+#include "kfx/platform/IWindowSystem.h"
 
 struct SDL_Window;  // forward declaration; full type in WindowSystemSDL.cpp
 
@@ -10,8 +10,6 @@ struct SDL_Window;  // forward declaration; full type in WindowSystemSDL.cpp
  */
 class WindowSystemSDL : public IWindowSystem {
 public:
-    bool InitVideo() override;
-
     bool IsAppActive() const override;
     void OnFocusGained() override;
     void OnFocusLost() override;

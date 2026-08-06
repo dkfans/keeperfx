@@ -8,13 +8,6 @@ class IWindowSystem {
 public:
     virtual ~IWindowSystem() = default;
 
-    // ----- Lifecycle -----
-
-    /** Initialise the display subsystem (SDL: SDL_Init(VIDEO) + atexit(SDL_Quit)).
-     *  Returns false on failure.  No-op returning true where the platform owns the
-     *  display outside SDL. */
-    virtual bool InitVideo() { return true; }
-
     // ----- Focus / activity -----
 
     /** Returns true if the application window currently has OS focus.
