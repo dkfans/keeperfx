@@ -43,11 +43,12 @@ typedef struct {
 static TranslationEntry translation_table[MAX_TOML_TRANSLATION_ENTRIES];
 static int32_t          translation_count = 0;
 
-static TbBool load_translation_config_file(const char *fname, unsigned short flags);
+static TbBool load_campaign_translation_config_file(const char *fname, unsigned short flags);
+static TbBool load_gui_translation_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_translation_file_data = {
     .filename = "translation.toml",
-    .load_func = load_translation_config_file,
+    .load_func = load_campaign_translation_config_file,
     .pre_load_func = NULL,
     .post_load_func = NULL,
 };

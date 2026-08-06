@@ -531,6 +531,8 @@ enum CampaignStrings {
 };
 
 /******************************************************************************/
+
+extern char *gui_strings[GUI_STRINGS_COUNT];
 /******************************************************************************/
 TbBool free_gui_strings_data(void);
 TbBool reset_strings(char **strings, int max);
