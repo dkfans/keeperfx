@@ -188,7 +188,7 @@ const char * gui_string(unsigned int index)
 {
     static char string_invalid[64];
 
-    if (index >= GUI_STRINGS_COUNT)
+    if (index >= GUI_STRINGS_COUNT || gui_strings[index] == NULL)
     {
         snprintf(string_invalid, sizeof(string_invalid), "untranslated <%d>", index);
         return string_invalid;
