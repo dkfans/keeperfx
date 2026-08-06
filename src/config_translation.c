@@ -52,6 +52,18 @@ const struct ConfigFileData keeper_translation_file_data = {
     .post_load_func = NULL,
 };
 
+const struct ConfigFileData keeper_gui_translation_file_data = {
+    .filename = "guistrings.toml",
+    .load_func = load_gui_translation_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
+
+enum file_translation_type {
+    TranslationType_Campaign = 0,
+    TranslationType_GUI = 1,
+};
+
 static const char *get_language_value(VALUE *section, uint8_t lang_id)
 {
     const char *language_code = get_conf_parameter_text(lang_type, lang_id);
@@ -111,10 +123,28 @@ static void add_entry_to_translation_table(const char *alias, const char *text)
     strncpy(entry->text, text, len + 1);
 }
 
+static void add_entry_to_gui_translation_table(StringIndex idx, const char *text)
+{
+
+    if (gui_strings[idx])
+        free(gui_strings[idx]);
+    gui_strings[idx] = NULL;
+
+    size_t len = strlen(text);
+
+    gui_strings[idx] = (char *)calloc(len + 1, 1);
+    if (!gui_strings[idx])
+    {
+        ERRORLOG("Out of memory allocating translation text for GUI string index %d.", idx);
+        return;
+    }
+    strncpy(gui_strings[idx], text, len + 1);
+}
+
 static int translation_section_visitor(const VALUE *key, VALUE *section, void *ctx)
 {
     int current_language_id = install_info.lang_id;
-    if (translation_count >= MAX_TOML_TRANSLATION_ENTRIES)
+    if (*(uint8_t *)ctx == TranslationType_Campaign && translation_count >= MAX_TOML_TRANSLATION_ENTRIES)
         return 1; // stop walking — table is full
 
     if (value_type(section) != VALUE_DICT)
@@ -123,6 +153,8 @@ static int translation_section_visitor(const VALUE *key, VALUE *section, void *c
     const char *alias = value_string(key);
     if (!alias)
         return 0;
+
+
 
     const char *text = get_language_value(section, current_language_id);
 
@@ -134,7 +166,28 @@ static int translation_section_visitor(const VALUE *key, VALUE *section, void *c
     
     if (!text) text = alias;
 
-    add_entry_to_translation_table(alias, text);
+
+    
+    if (*(uint8_t *)ctx == TranslationType_GUI)
+    {
+        if(!parameter_is_number(alias))
+        {
+            ERRORLOG("GUI translation entry alias \"%s\" is not a valid number.", alias);
+            return 0;
+        }
+        int gui_string_index = atoi(alias);
+        if (gui_string_index < 0 || gui_string_index >= GUI_STRINGS_COUNT)
+        {
+            ERRORLOG("GUI translation entry alias \"%s\" is out of valid range.", alias);
+            return 0;
+        }
+
+        add_entry_to_gui_translation_table(gui_string_index, text);
+    }
+    else
+    {
+        add_entry_to_translation_table(alias, text);
+    }
 
     return 0;
 }
@@ -150,7 +203,7 @@ void clear_translation_table(void)
     translation_count = 0;
 }
 
-static TbBool load_translation_config_file(const char* filepath, unsigned short flags)
+static TbBool load_translation_config_file(const char* filepath, unsigned short flags, uint8_t type)
 {
     if (!flag_is_set(flags, CnfLd_AcceptPartial))
     {
@@ -189,10 +242,20 @@ static TbBool load_translation_config_file(const char* filepath, unsigned short 
     }
     free(buf);
 
-    value_dict_walk_sorted(&root, translation_section_visitor, NULL);
+    value_dict_walk_sorted(&root, translation_section_visitor, &type);
 
     value_fini(&root);
     return true;
+}
+
+static TbBool load_campaign_translation_config_file(const char* filepath, unsigned short flags)
+{
+    return load_translation_config_file(filepath, flags, TranslationType_Campaign);
+}
+
+static TbBool load_gui_translation_config_file(const char* filepath, unsigned short flags)
+{
+    return load_translation_config_file(filepath, flags, TranslationType_GUI);
 }
 
 TextStringId get_string_id_by_alias(const char* alias)
