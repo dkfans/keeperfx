@@ -16,6 +16,7 @@ end
 --will get called when the game is loaded from the Save/Load menu
 function OnGameLoad()
       RoomAvailable("ALL_PLAYERS", "WORKSHOP", 2, true)
+      --we want something to handle retroactive box removal if you've activated the box and sent the check, and then reloaded to before that.
 end
 
 function OnItemReceived(itemid)
@@ -112,6 +113,10 @@ function Setup()
       --RegisterOnConditionEvent(function() AddObjectToLevel("SPECBOX_CUSTOM",101,101,"PLAYER_NEUTRAL",0) end, function() return (PLAYER0.BOX101_ACTIVATED == 0) end)
       --RegisterOnConditionEvent(function() AddObjectToLevel("TEMPLE_STATUE",101,101,"PLAYER_NEUTRAL",0) end, function() return (PLAYER0.BOX101_ACTIVATED >= 1) end)
       --RegisterOnConditionEvent(function() QuickMessage("Sent ") end, function() return (PLAYER0.BOX101_ACTIVATED >= 1) end)
+
+      --will want to replace the below with something that reads the list of locations from locations.py or something and
+      --for every check from (level no.*100+1) to the next 100 that exists, do them!
+
       for id, tooltip in pairs(BoxTooltips) do
             AddObjectToLevel("SPECBOX_CUSTOM",id,id,"PLAYER_NEUTRAL",0)
             SetBoxTooltip(id, tooltip)
