@@ -160,6 +160,7 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"Descend",               GUIStr_CtrlDescend,             KC_Z, KMod_NONE,               CBtn_NONE,                BMV_Visible,        },       // Gkey_Descend
     {"ScreenRecord",          GUIStr_ScreenRecord,            KC_M, KMod_SHIFT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ScreenRecord,
     {"ScreenShot",            GUIStr_ScreenShot,              KC_C, KMod_SHIFT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ScreenShot,
+    {"ScreenShotAlt",         GUIStr_ScreenShotAlt,           KC_C, KMod_ALT,                CBtn_NONE,                BMV_Visible,        },       // Gkey_ScreenShot2,
     {"FrameSkipIncrease",     GUIStr_FrameSkipIncrease,       KC_ADD, KMod_CONTROL,          CBtn_NONE,                BMV_Visible,        },       // Gkey_FrameSkipIncrease,
     {"FrameSkipDecrease",     GUIStr_FrameSkipDecrease,       KC_SUBTRACT, KMod_CONTROL,     CBtn_NONE,                BMV_Visible,        },       // Gkey_FrameSkipDecrease,
     {"ZoomMinimapIn",         GUIStr_ZoomMinimapIn,           KC_ADD, KMod_NONE,             CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomMinimapIn,
@@ -496,6 +497,10 @@ short get_screen_capture_inputs(void)
   if (is_game_key_pressed(Gkey_ScreenShot, true, false))
   {
       set_flag(game.system_flags, GSF_CaptureSShot);
+  }
+  else if (is_game_key_pressed(Gkey_ScreenShot2, true, false))
+  {
+      set_flag(game.system_flags, GSF_CaptureSShot2);
   }
   return false;
 }

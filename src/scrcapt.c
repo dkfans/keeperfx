@@ -44,7 +44,7 @@ unsigned char screenshot_format = 1;
 unsigned char cap_palette[768];
 
 /******************************************************************************/
-TbBool take_screenshot(char *fname)
+TbBool take_screenshot(char *fname, TbBool screen)
 {
     TbBool lock_mem = LbScreenIsLocked();
     if (!lock_mem)
@@ -60,12 +60,12 @@ TbBool take_screenshot(char *fname)
     {
         case 1:
         {
-            success = IMG_SavePNG(lbDrawSurface, fname);
+            success = IMG_SavePNG(screen ? lbScreenSurface : lbDrawSurface, fname);
             break;
         }
         case 2:
         {
-            success = SDL_SaveBMP(lbDrawSurface, fname);
+            success = SDL_SaveBMP(screen ? lbScreenSurface : lbDrawSurface, fname);
             break;
         }
         default:
@@ -85,7 +85,7 @@ TbBool take_screenshot(char *fname)
     return success;
 }
 
-TbBool cumulative_screen_shot(void)
+TbBool cumulative_screen_shot(TbBool screen)
 {
     char fname[255] = "";
     const char *fext;
@@ -112,7 +112,7 @@ TbBool cumulative_screen_shot(void)
         show_onscreen_msg(turns_per_second, "No free filename for screenshot.");
         return false;
     }
-    TbBool ret = take_screenshot(fname);
+    TbBool ret = take_screenshot(fname, screen);
     if (ret)
     {
         show_onscreen_msg(turns_per_second, "File \"%s\" saved.", fname);
@@ -162,11 +162,16 @@ TbBool movie_record_frame(void)
  */
 TbBool perform_any_screen_capturing(void)
 {
-    TbBool captured=0;
+    TbBool captured = false;
     if ((game.system_flags & GSF_CaptureSShot) != 0)
     {
-      captured |= cumulative_screen_shot();
+      captured |= cumulative_screen_shot(false);
       clear_flag(game.system_flags, GSF_CaptureSShot);
+    }
+    else if ((game.system_flags & GSF_CaptureSShot2) != 0)
+    {
+      captured |= cumulative_screen_shot(true);
+      clear_flag(game.system_flags, GSF_CaptureSShot2);
     }
     if ((game.system_flags & GSF_CaptureMovie) != 0)
     {

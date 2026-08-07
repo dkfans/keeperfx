@@ -7593,3 +7593,9 @@ msgstr "/fxdata/%.39s n'a pas été chargé."
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Installez-le comme mod dans le dossier /mods/."
+
+#: guitext:1122
+#, fuzzy
+msgctxt "Game controls"
+msgid "Screenshot (with cursor)"
+msgstr "Capture d'écran (avec curseur)"

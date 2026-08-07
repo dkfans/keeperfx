@@ -7301,3 +7301,8 @@ msgstr "/fxdata/%.39s は読み込まれませんでした。"
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "MODとして /mods/ に入れてください。"
+
+#: guitext:1122
+msgctxt "Game controls"
+msgid "Screenshot (with cursor)"
+msgstr "スクリーンショット（カーソル付き）"
