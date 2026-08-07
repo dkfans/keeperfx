@@ -216,7 +216,7 @@ struct LogDetailedSnapshot {
 
 struct Game {
     LevelNumber continue_level_number;
-    unsigned char system_flags;
+    unsigned short system_flags;
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
     unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
