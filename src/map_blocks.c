@@ -334,7 +334,7 @@ void set_slab_explored_flags(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabC
     }
 }
 
-void neutralise_enemy_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber domn_plyr_idx)
+void neutralise_enemy_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct SlabMap *slb;
     MapSlabCoord slb_x;
@@ -346,13 +346,13 @@ void neutralise_enemy_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     switch (slabmap_wlb(slb))
     {
     case 1:
-        place_slab_type_on_map(SlbT_LAVA,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
+        place_slab_type_on_map(SlbT_LAVA,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, false);
         break;
     case 2:
-        place_slab_type_on_map(SlbT_WATER, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
+        place_slab_type_on_map(SlbT_WATER, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, false);
         break;
     default:
-        place_slab_type_on_map(SlbT_PATH,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 1);
+        place_slab_type_on_map(SlbT_PATH,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, true);
         break;
     }
     do_slab_efficiency_alteration(slb_x, slb_y);
@@ -1959,10 +1959,35 @@ void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_
     all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
     replace_map_slab_when_destroyed(slb_x, slb_y);
     do_slab_efficiency_alteration(slb_x, slb_y);
-    // Gold slabs are normally visible to all players,
-    // so sine we're destroying it - make it invisible
-    // TODO MAP Maybe it should be cleared only if sibling non-gold and non-rock slabs are invisible
-    set_slab_explored_flags(plyr_idx, slb_x, slb_y);
+
+    // Gold slabs are normally visible to all players, so when we're destroying it, make it invisible again.
+    // Unless a neighbour slab was already revelead to the player
+    SlabCodedCoords slab_base = get_slab_number(slb_x, slb_y);
+    for (PlayerNumber other_plyr_idx = 0; other_plyr_idx < PLAYERS_COUNT; other_plyr_idx++)
+    {
+        if ((other_plyr_idx == game.neutral_player_num) || (other_plyr_idx == plyr_idx))
+            continue;
+
+        TbBool hidden = true;
+        for (SmallAroundIndex n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+        {
+            short slab_num = slab_base + game.small_around_slab[n];
+            MapSlabCoord around_slb_x = slb_num_decode_x(slab_num);
+            MapSlabCoord around_slb_y = slb_num_decode_y(slab_num);
+            struct SlabMap* slb = get_slabmap_block(around_slb_x, around_slb_y);
+            struct Map* mapblk = get_map_block_at(slab_subtile_center(around_slb_x), slab_subtile_center(around_slb_y));
+            // Rock, Gems and Gold are revealed at map start, so do not count.
+            if ((map_block_revealed(mapblk, other_plyr_idx) && !slab_kind_is_indestructible(slb->kind) && !flag_is_set(mapblk->flags, SlbAtFlg_Valuable)))
+            {
+                hidden = false;
+                break;
+            }
+        }
+        if (hidden)
+        {
+            player_conceal_map_area(other_plyr_idx, stl_x, stl_y, STL_PER_SLB, STL_PER_SLB, true);
+        }
+    }
 }
 
 TbBool dig_has_revealed_area(MapSubtlCoord rev_stl_x, MapSubtlCoord rev_stl_y, PlayerNumber plyr_idx)
