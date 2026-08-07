@@ -9,9 +9,9 @@ list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/ftests/")
 
 # Desktop platform filtering (matches the hand Makefiles).
 if(WIN32)
-    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/linux\\.cpp$")
+    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/linux\\.cpp$|/PlatformLinux\\.cpp$")
 elseif(UNIX AND NOT APPLE)
-    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/(cdrom|steam_api|windows)\\.cpp$")
+    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/(cdrom|steam_api|windows)\\.cpp$|/PlatformWindows\\.cpp$")
 endif()
 
 add_executable(keeperfx       ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
@@ -31,6 +31,9 @@ if(WIN32)
 endif()
 
 foreach(_t IN LISTS KFX_TARGETS)
+    # Put src/ on the include path so sources in subdirectories (src/kfx/platform/, ...)
+    # can use "pre_inc.h" and "kfx/platform/Foo.h" style includes.
+    target_include_directories(${_t} PRIVATE "${CMAKE_SOURCE_DIR}/src")
     apply_keeperfx_warnings(${_t})
     apply_keeperfx_link_flags(${_t})
     kfx_link_dependencies(${_t})

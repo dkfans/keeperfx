@@ -27,6 +27,7 @@
 #include "bflib_mouse.h"
 #include "bflib_joyst.h"
 #include "bflib_video.h"
+#include "kfx/platform/WindowSystemSDL.h"
 #include "bflib_planar.h"
 #include "bflib_sndlib.h"
 #include "bflib_mshandler.hpp"
@@ -45,7 +46,6 @@ using namespace std;
 extern "C" {
 #endif
 /******************************************************************************/
-volatile TbBool lbAppActive;
 volatile int lbUserQuit = 0;
 
 unsigned char last_used_input_device = 0;
@@ -404,7 +404,7 @@ static void process_event(const SDL_Event *ev)
     // top-level event type (SDL_EVENT_WINDOW_*).
     case SDL_EVENT_WINDOW_FOCUS_GAINED:
     {
-        lbAppActive = true;
+        GetSDLWindowSystem()->OnFocusGained();
         isMouseActive = true;
         isMouseActivated = true;
         LbGrabMouseCheck(MG_OnFocusGained);
@@ -421,7 +421,7 @@ static void process_event(const SDL_Event *ev)
     }
     case SDL_EVENT_WINDOW_FOCUS_LOST:
     {
-        lbAppActive = false;
+        GetSDLWindowSystem()->OnFocusLost();
         isMouseActive = false;
         isMouseActivated = false;
         LbGrabMouseCheck(MG_OnFocusLost);
@@ -437,7 +437,7 @@ static void process_event(const SDL_Event *ev)
     }
     case SDL_EVENT_WINDOW_MOUSE_ENTER:
     {
-        if (lbAppActive)
+        if (GetSDLWindowSystem()->IsAppActive())
         {
             isMouseActive = true;
             isMouseActivated = true;
@@ -498,7 +498,7 @@ TbBool LbIsActive(void)
     if (!lbScreenInitialised)
         return true;
 
-    return lbAppActive;
+    return GetSDLWindowSystem()->IsAppActive();
 }
 
 TbBool LbIsMouseActive(void)
@@ -508,7 +508,7 @@ TbBool LbIsMouseActive(void)
 
 void LbMouseCheckPosition(TbBool grab_state_changed)
 {
-    if (!lbAppActive)
+    if (!GetSDLWindowSystem()->IsAppActive())
     {
         if (IsMouseInsideWindow())
         {
@@ -537,14 +537,14 @@ void LbMouseCheckPosition(TbBool grab_state_changed)
             if (firstTimeMouseInit) // if start no-grab, move cursor appropriately
             {
                 firstTimeMouseInit = false;
-                if (IsMouseInsideWindow() && lbAppActive)
+                if (IsMouseInsideWindow() && GetSDLWindowSystem()->IsAppActive())
                 {
                     LbMoveGameCursorToHostCursor();
                 }
             }
             else if (grab_state_changed) // if release grab, move cursor appropriately
             {
-                if (IsMouseInsideWindow() && lbAppActive)
+                if (IsMouseInsideWindow() && GetSDLWindowSystem()->IsAppActive())
                 {
                     LbMoveHostCursorToGameCursor();
                 }
@@ -555,33 +555,20 @@ void LbMouseCheckPosition(TbBool grab_state_changed)
 
 void LbSetMouseGrab(TbBool grab_mouse)
 {
+    IWindowSystem* ws = GetSDLWindowSystem();
     TbBool previousGrabState = lbMouseGrabbed;
     lbMouseGrabbed = grab_mouse;
     if (lbMouseGrabbed)
     {
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
-        if (SDL_getenv("NO_RELATIVE_MOUSE"))
-        {
-            JUSTLOG("NO_RELATIVE_MOUSE is set");
-        }
-        else
-        {
-            SDL_SetWindowRelativeMouseMode(lbWindow, true);
-        }
+        ws->SetCursorGrab(true);
     }
     else
     {
-        if (SDL_getenv("NO_RELATIVE_MOUSE"))
-        {
-            JUSTLOG("NO_RELATIVE_MOUSE is set");
-        }
-        else
-        {
-            SDL_SetWindowRelativeMouseMode(lbWindow, false);
-        }
+        ws->SetCursorGrab(false);
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
     }
-    if (lbAppActive) SDL_HideCursor(); else SDL_ShowCursor(); // show host OS cursor when window has lost focus
+    ws->SetCursorVisible(!ws->IsAppActive());
 }
 
 static void LbClearTextInput(void)
@@ -629,7 +616,7 @@ void LbGrabMouseInit(void)
 
 void LbGrabMouseCheck(long grab_event)
 {
-    TbBool window_has_focus = lbAppActive;
+    TbBool window_has_focus = GetSDLWindowSystem()->IsAppActive();
     TbBool paused = ((game.operation_flags & GOF_Paused) != 0);
     TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl) && ((game.view_mode_flags & GNFldD_CreaturePasngr) == 0);
     TbBool grab_cursor = lbMouseGrabbed;

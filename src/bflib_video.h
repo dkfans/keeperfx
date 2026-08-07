@@ -26,6 +26,14 @@
 
 #include <SDL3/SDL.h>
 
+/** Window-mode flags: the currency passed across the window-system seam. */
+enum KfxWindowFlags {
+    KFX_WF_FULLSCREEN_EXCLUSIVE = 0x1, // fullscreen at a specific video mode
+    KFX_WF_FULLSCREEN_DESKTOP   = 0x2, // borderless fullscreen at native resolution
+    KFX_WF_BORDERLESS           = 0x4, // borderless window (also FILL ALL)
+    KFX_WF_HIDDEN               = 0x8, // created hidden
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -138,8 +146,8 @@ struct ScreenModeInfo {
     int window_pos_x;
      /** Window position Y. */
     int window_pos_y;
-    /** SDL window flags. */
-    Uint32 sdlFlags;
+    /** Window-mode flags (KfxWindowFlags). */
+    Uint32 windowFlags;
     /** Text description of the mode. */
     char Desc[23];
 };
