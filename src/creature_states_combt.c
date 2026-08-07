@@ -2260,7 +2260,7 @@ TbBool creature_fighting_is_occupying_my_position(struct Thing *thing, struct Co
 long creature_move_to_a_space_around_enemy(struct Thing *creatng, struct Thing *enmtng, long enm_distance, CrtrStateId ncrstate)
 {
     long req_distance = enm_distance + (creatng->clipbox_size_xy + enmtng->clipbox_size_xy) / 2;
-    // This will be out new position
+    // This will be our new position
     struct Coord3d pos;
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
@@ -2301,7 +2301,7 @@ long creature_move_to_a_space_around_enemy(struct Thing *creatng, struct Thing *
         // Update Z coord
         pos.z.val = get_thing_height_at(creatng, &pos);
         // Check if we can accept that position
-        if (!thing_in_wall_at(creatng, &pos) && !terrain_toxic_for_creature_at_position(creatng, pos.x.stl.num, pos.y.stl.num))
+        if (!thing_in_wall_at(creatng, &pos) && !terrain_toxic_for_creature_at_position(creatng, pos.x.stl.num, pos.y.stl.num) && (creature_fighting_is_occupying_my_position(creatng, &pos)))
           break;
     }
     if (i == POSITION_FIND_TRIES)
@@ -2359,9 +2359,9 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
         cctrl->fighting_at_same_position = 0;
         return thing_in_field_of_view(thing, enmtng);
     }
-    if (enmdist <= 284)
+    if (enmdist <= 258)
     {
-        if (old_combat_move(thing, enmtng, 284, nstat)) {
+        if (old_combat_move(thing, enmtng, 258, nstat)) {
             return false;
         }
         return thing_in_field_of_view(thing, enmtng);
