@@ -761,7 +761,7 @@ long instf_destroy(struct Thing *creatng, int32_t *param)
     }
     thing_play_sample(creatng, 128 + SOUND_RANDOM(3), 200, 0, 3, 0, 2, volume);
     decrease_dungeon_area(prev_owner, 1);
-    neutralise_enemy_block(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner);
+    neutralise_enemy_block(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     switch_owned_objects_on_destoyed_slab_to_neutral(slb_x, slb_y, prev_owner);
     dungeon->lvstats.territory_destroyed++;
