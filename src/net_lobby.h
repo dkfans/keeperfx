@@ -26,10 +26,12 @@
 extern "C" {
 #endif
 
+extern uint32_t network_lobby_ping;
+
 TbError LbNetwork_ExchangeLogin(char *player_name);
 TbError LbNetwork_ExchangeFrontend(void *send_buf, void *server_buf, size_t frame_size);
 TbError process_login_message(NetUserId source, char *read_pos);
-TbError process_user_update_message(NetUserId source, char *read_pos);
+TbError process_user_update_message(NetUserId source, char *read_pos, const char *end_pos);
 
 void LbNetwork_SetServerPort(int port);
 void LbNetwork_InitSessionsFromCmdLine(const char *str);

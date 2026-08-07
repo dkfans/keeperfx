@@ -22,7 +22,6 @@
 
 #include <limits.h>
 
-#include "ariadne_wallhug.h"
 #include "bflib_basics.h"
 #include "bflib_dernc.h"
 #include "bflib_fileio.h"

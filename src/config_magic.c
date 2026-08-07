@@ -381,6 +381,14 @@ const struct LongNamedCommand powermodel_castability_commands[] = {
   {"OWNED_OBJECTS",    PwCast_OwnedObjects},
   {"NEUTRL_OBJECTS",   PwCast_NeutrlObjects},
   {"ENEMY_OBJECTS",    PwCast_EnemyObjects},
+  {"ALL_OBJECTS_PICKUP",      PwCast_AllObjectsPickup},
+  {"OWNED_OBJECTS_PICKUP",    PwCast_OwnedObjectsPickup},
+  {"NEUTRL_OBJECTS_PICKUP",   PwCast_NeutrlObjectsPickup},
+  {"ENEMY_OBJECTS_PICKUP",    PwCast_EnemyObjectsPickup},
+  {"ALL_OBJECTS_SLAP",      PwCast_AllObjectsSlap},
+  {"OWNED_OBJECTS_SLAP",    PwCast_OwnedObjectsSlap},
+  {"NEUTRL_OBJECTS_SLAP",   PwCast_NeutrlObjectsSlap},
+  {"ENEMY_OBJECTS_SLAP",    PwCast_EnemyObjectsSlap},
   {NULL,                0},
   };
 
@@ -495,8 +503,8 @@ static const struct NamedField magic_powers_named_fields[] = {
     {"DURATION",       0, field_t(struct PowerConfigStats, duration),               0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
     {"CASTABILITY",   -1, field_t(struct PowerConfigStats, can_cast_flags),         0,         0,UINT64_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
     {"ARTIFACT",       0, field_t(struct PowerConfigStats, artifact_model),         0, INT32_MIN,UINT32_MAX, object_desc,                         value_default,   assign_artifact},
-    {"NAMETEXTID",     0, field_t(struct PowerConfigStats, name_stridx),            0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
-    {"TOOLTIPTEXTID",  0, field_t(struct PowerConfigStats, tooltip_stridx),         0, INT32_MIN,UINT32_MAX, NULL,                                value_default,   assign_default},
+    {"NAMETEXTID",     0, field_t(struct PowerConfigStats, name_stridx),            0, INT32_MIN,UINT32_MAX, NULL,                                value_stringId,   assign_default},
+    {"TOOLTIPTEXTID",  0, field_t(struct PowerConfigStats, tooltip_stridx),         0, INT32_MIN,UINT32_MAX, NULL,                                value_stringId,   assign_default},
     {"SYMBOLSPRITES",  0, field_t(struct PowerConfigStats, bigsym_sprite_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
     {"SYMBOLSPRITES",  1, field_t(struct PowerConfigStats, medsym_sprite_idx),      0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
     {"POINTERSPRITES", 0, field_t(struct PowerConfigStats, pointer_sprite_idx),     0, INT32_MIN,UINT32_MAX, NULL,                                value_icon,      assign_icon},
@@ -750,7 +758,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           {
               k = atoi(word_buf);
               if (k == 0 && word_buf[0] != '0')
-                  k = (int)get_sound_id(word_buf);
+                  k = sound_id_from_text(word_buf);
               spconf->caster_affect_sound = k;
               n++;
           }

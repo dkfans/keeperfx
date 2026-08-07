@@ -47,42 +47,54 @@ float previous_deviation_y;
 float destination_deviation_x;
 float destination_deviation_y;
 TbBool local_camera_ready;
+static MapCoord local_camera_move_target[2];
+static MapCoordDelta local_camera_move_delta[2];
+static TbBool local_camera_move_active;
 /******************************************************************************/
 
 static struct Packet* get_packet_for_local_camera_update(void)
 {
-    GameTurn turn;
     struct PlayerInfo *player = get_my_player();
     if (player_invalid(player)) {
         return NULL;
     }
-    if (flag_is_set(game.operation_flags, GOF_Paused) && game.game_kind == GKind_LocalGame) {
-        turn = get_gameturn();
-    } else {
-        turn = get_gameturn() - 1;
-    }
-    return (struct Packet *)get_history_packet(player->packet_num, turn);
+    return get_packet_direct(player->packet_num);
 }
 
-void send_camera_catchup_packets(struct PlayerInfo *player)
+void send_camera_catchup_packets(void)
 {
     // Threshold distance before sending catchup packets (in map coordinates)
     #define CAMERA_DESYNC_THRESHOLD 512
 
-    if (!is_my_player(player) || !local_camera_ready) {
+    if (!local_camera_ready) {
         return;
     }
-    
+    struct PlayerInfo* player = get_my_player();
+
     // Determine which camera to compare based on view mode
-    int cam_idx = (player->view_mode == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
-    
+    int cam_idx;
+    switch (player->view_mode)
+    {
+    case PVM_FrontView:
+        cam_idx = CamIV_FrontView;
+        break;
+
+    case PVM_IsoStraightView:
+    case PVM_IsoWibbleView:
+        cam_idx = CamIV_Isometric;
+        break;
+
+    default:
+        return;
+    }
+
     struct Camera* local_cam = &destination_local_cameras[cam_idx];
     struct Camera* packet_cam = &player->cameras[cam_idx];
     struct Packet* pckt = get_packet(player->id_number);
-    
+
     long diff_map_x = local_cam->mappos.x.val - packet_cam->mappos.x.val;
     long diff_map_y = local_cam->mappos.y.val - packet_cam->mappos.y.val;
-    
+
     long angle = local_cam->rotation_angle_x;
     long cos_angle = LbCosL(angle);
     long sin_angle = LbSinL(angle);
@@ -134,7 +146,23 @@ void init_local_cameras(struct PlayerInfo *player)
     for (int i = 0; i < 4; i++) {
         sync_camera_state(i, &player->cameras[i]);
     }
+    local_camera_move_active = false;
     local_camera_ready = true;
+}
+
+void move_local_camera_to_position(MapCoord x, MapCoord y)
+{
+    if (!local_camera_ready) {
+        return;
+    }
+    struct Camera *cam = &destination_local_cameras[CamIV_Isometric];
+    if (get_my_player()->view_mode == PVM_FrontView) {
+        cam = &destination_local_cameras[CamIV_FrontView];
+    }
+    local_camera_move_target[0] = x;
+    local_camera_move_target[1] = y;
+    view_set_camera_move_to_position(cam, x, y, &local_camera_move_delta[0], &local_camera_move_delta[1]);
+    local_camera_move_active = true;
 }
 
 void process_local_minimap_click(struct Packet* packet) {
@@ -198,17 +226,14 @@ void update_camera_deviations(int active_cam_idx)
     }
 }
 
-void update_local_cameras_pre(void)
+void update_local_cameras(void)
 {
     for (int i = 0; i < 4; i++) {
         previous_local_cameras[i] = destination_local_cameras[i];
     }
     previous_deviation_x = destination_deviation_x;
     previous_deviation_y = destination_deviation_y;
-}
 
-void update_local_cameras_post(void)
-{
     if (!local_camera_ready) {
         return;
     }
@@ -227,11 +252,14 @@ void update_local_cameras_post(void)
         process_local_minimap_click(local_packet);
         // Only process camera controls for the currently active camera view
         int active_cam_idx = (my_player->view_mode == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
-        process_camera_controls(&destination_local_cameras[active_cam_idx], local_packet, my_player, true);
-        view_process_camera_inertia(&destination_local_cameras[active_cam_idx]);
-        
-        // Send catchup packets if local camera has drifted too far from packet-based camera
-        send_camera_catchup_packets(my_player);
+        struct Camera *cam = &destination_local_cameras[active_cam_idx];
+        if (local_camera_move_active) {
+            local_camera_move_active = !view_move_camera_to_position(cam, local_camera_move_target[0], local_camera_move_target[1], local_camera_move_delta[0], local_camera_move_delta[1]);
+        } else {
+            process_camera_controls(cam, local_packet, my_player, true);
+            view_process_camera_inertia(cam);
+        }
+
         update_camera_deviations(active_cam_idx);
     }
 }
@@ -239,7 +267,7 @@ void update_local_cameras_post(void)
 void interpolate_camera_deviations(void)
 {
     struct PlayerInfo* my_player = get_my_player();
-    if (my_player->view_mode == PVM_CreatureView || my_player->view_mode == PVM_FrontView) {
+    if (!player_exists(my_player) || my_player->view_mode == PVM_CreatureView || my_player->view_mode == PVM_FrontView) {
         return;
     }
     const float interpolated_deviation_x = interpolate(previous_deviation_x, destination_deviation_x);

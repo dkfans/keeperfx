@@ -40,7 +40,7 @@ void tag_cursor_blocks_place_terrain(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
 TbBool tag_cursor_blocks_place_thing(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool tag_cursor_blocks_order_creature(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing* creatng);
 TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab, ThingModel trapmodel);
+TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trapmodel);
 /******************************************************************************/
 #ifdef __cplusplus
 }

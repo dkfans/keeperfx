@@ -123,7 +123,6 @@ LevelNumber move_campaign_to_prev_level(void);
 TbBool continue_game_available(void);
 short load_continue_game(void);
 short save_continue_game(LevelNumber lv_num);
-short read_continue_game_part(unsigned char *buf,long pos,long buf_len);
 /******************************************************************************/
 #ifdef __cplusplus
 }

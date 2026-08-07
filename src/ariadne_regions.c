@@ -29,6 +29,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
+struct RegionT {
+  unsigned short num_triangles;
+  unsigned char is_connected;
+};
+
 /******************************************************************************/
 /** Array of regions.
  * Note that region[0] is used for storing unused triangles and shouldn't be

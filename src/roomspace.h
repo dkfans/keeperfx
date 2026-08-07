@@ -143,7 +143,7 @@ TbBool update_dungeon_sell_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoor
 void apply_roomspace_packet_action(struct PlayerInfo *player, const struct Packet *pckt);
 
 void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
-int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, unsigned char *predicted_slab_tag_modes, int *predicted_task_count);
+int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, unsigned char *predicted_slab_tag_modes, SlabCodedCoords *predicted_slabs, int *predicted_slab_count, int *predicted_task_count);
 void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 

@@ -395,7 +395,7 @@ static int lua_Set_next_level(lua_State *L)
 static int lua_Add_creature_to_level(lua_State *L)
 {
     PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 1);
-    long crtr_id           = luaL_checkNamedCommand(L,2,creature_desc);
+    ThingModel crtr_id     = luaL_checkNamedCommand(L,2,creature_desc);
     TbMapLocation location = luaL_checkLocation(L,  3);
     long crtr_level        = luaL_checkinteger(L, 4);
     long carried_gold      = luaL_checkinteger(L, 5);
@@ -1209,6 +1209,12 @@ static int lua_New_creature_type(lua_State* L)
     return 0;
 }
 
+static int lua_Copy_creature_type(lua_State* L)
+{
+    script_copy_creature_type(luaL_checkNamedCommand(L, 1, creature_desc),luaL_checkstring(L, 2));
+    return 0;
+}
+
 static int lua_Set_door_configuration(lua_State *L)
 {
     set_configuration(L, &trapdoor_door_named_fields_set, "SET_DOOR_CONFIGURATION");
@@ -1751,7 +1757,7 @@ static int lua_Set_music(lua_State *L)
 
         long track_number = luaL_checkinteger(L, 1);
         if (track_number == 0) {
-            stop_music();
+            stop_music(true);
         }
         else {
             play_music_track(track_number);
@@ -2474,6 +2480,7 @@ static const luaL_Reg global_methods[] = {
 
 //Manipulating Configs
     {"NewCreatureType"                      ,lua_New_creature_type               },
+    {"CopyCreatureType"                     ,lua_Copy_creature_type              },
     //{"NewObjectType"                      ,lua_New_object_type                 },
     //{"NewTrapType"                        ,lua_New_trap_type                   },
     //{"NewRoomType"                        ,lua_New_room_type                   },

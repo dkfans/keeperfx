@@ -48,6 +48,7 @@ long copy_tree_to_route(long tag_start_id, long tag_end_id, int32_t *route_pts, 
 
 void delaunay_init(void);
 TbBool delaunay_add(long itm_pos);
+long delaunay_seeded(long start_x, long start_y, long end_x, long end_y, TbBool keep_edge);
 /******************************************************************************/
 #ifdef __cplusplus
 }

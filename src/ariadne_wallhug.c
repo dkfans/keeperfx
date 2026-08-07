@@ -17,7 +17,6 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "ariadne_wallhug.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -2128,6 +2127,18 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
     *ostlb_y = stl_b_y;
     return 2;
 }
+
+void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend)
+{
+    navi->navstate = NavS_WallhugInProgress;
+    navi->pos_final.x.val = mvend->x.val;
+    navi->pos_final.y.val = mvend->y.val;
+    navi->pos_final.z.val = mvend->z.val;
+    navi->wallhug_state = WallhugCurrentState_None;
+    navi->wallhug_retry_counter = 0;
+    navi->push_counter = 0;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

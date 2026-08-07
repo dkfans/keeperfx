@@ -71,6 +71,9 @@
 #include <string.h>
 #include <math.h>
 #include "lua_base.h"
+#include "net_resync.h"
+#include "kjm_input.h"
+#include "timer.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -480,7 +483,7 @@ void param_completion_for_magic_instance(PlayerNumber plyr_idx, char *args_str, 
 
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", turns_per_second, turns_per_second_draw_current);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %d, draw fps is %d", turns_per_second, fps_limit_current);
     return true;
 }
 
@@ -498,7 +501,7 @@ TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_fps_draw(PlayerNumber plyr_idx, char * args)
 {
-    parse_draw_fps_config_val(args, &turns_per_second_draw_main, &turns_per_second_draw_secondary);
+    parse_draw_fps_config_val(args, &fps_limit_main, &fps_limit_secondary);
     redetect_screen_refresh_rate_for_draw();
     return true;
 }
@@ -756,7 +759,7 @@ TbBool cmd_comp_procs(PlayerNumber plyr_idx, char * args)
     i++;
     cmd_comp_procs_data[i].label = "!";
     cmd_comp_procs_data[i].is_enabled = 0;
-    gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_procs_data);
+    gui_cheat_box_2 = gui_create_box(GetMouseX(), 20, cmd_comp_procs_data);
     return true;
 }
 
@@ -780,7 +783,7 @@ TbBool cmd_comp_events(PlayerNumber plyr_idx, char * args)
         cmd_comp_events_data, cmd_comp_events_label,
         &get_event_name, &get_event_flags, NULL);
     cmd_comp_events_data[0].active_cb = NULL;
-    gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_events_data);
+    gui_cheat_box_2 = gui_create_box(GetMouseX(), 20, cmd_comp_events_data);
     return true;
 }
 
@@ -804,7 +807,7 @@ TbBool cmd_comp_checks(PlayerNumber plyr_idx, char * args)
         cmd_comp_checks_data, cmd_comp_checks_label,
         &get_check_name, &get_check_flags, &cmd_comp_checks_click);
     cmd_comp_checks_data[0].active_cb = NULL;
-    gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_checks_data);
+    gui_cheat_box_2 = gui_create_box(GetMouseX(), 20, cmd_comp_checks_data);
     return true;
 }
 
@@ -2726,6 +2729,17 @@ TbBool cmd_dbc(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_resync(PlayerNumber plyr_idx, char * args)
+{
+    if (game.easter_eggs_enabled == false) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
+        return false;
+    }
+    SYNCMSG("player %d forced a resync", (int)plyr_idx);
+    intentional_desync();
+
+    return true;
+}
 
 struct ConsoleCommand {
     const char * name;
@@ -2843,7 +2857,8 @@ static const struct ConsoleCommand console_commands[] = {
     { "luatypedump", cmd_luatypedump, NULL },
     { "cheat.menu", cmd_cheat_menu, NULL },
     { "creature.chicken", cmd_chicken_creature, NULL },
-    { "dbc", cmd_dbc, NULL }
+    { "dbc", cmd_dbc, NULL },
+    { "resync", cmd_resync, NULL }
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 

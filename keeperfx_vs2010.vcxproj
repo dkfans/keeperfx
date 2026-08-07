@@ -21,6 +21,7 @@
     <ClCompile Include="src\ariadne_points.c" />
     <ClCompile Include="src\ariadne_regions.c" />
     <ClCompile Include="src\ariadne_tringls.c" />
+    <ClCompile Include="src\ariadne_update.c" />
     <ClCompile Include="src\ariadne_wallhug.c" />
     <ClCompile Include="src\bflib_basics.c" />
     <ClCompile Include="src\bflib_coroutine.c" />
@@ -48,6 +49,7 @@
     <ClCompile Include="src\bflib_netsp.cpp" />
     <ClCompile Include="src\bflib_netsp_tcp.cpp" />
     <ClCompile Include="src\config_sounds.c" />
+    <ClCompile Include="src\game_update.cpp" />
     <ClCompile Include="src\lua_api_lens.c" />
     <ClCompile Include="src\lua_api_room.c" />
     <ClCompile Include="src\bflib_planar.c" />
@@ -115,6 +117,7 @@
     <ClCompile Include="src\creature_states_wrshp.c" />
     <ClCompile Include="src\cursor_tag.c" />
     <ClCompile Include="src\custom_sprites.c" />
+    <ClCompile Include="src\custom_zip.c" />
     <ClCompile Include="src\dungeon_data.c" />
     <ClCompile Include="src\dungeon_stats.c" />
     <ClCompile Include="src\engine_arrays.c" />
@@ -276,6 +279,7 @@
     <ClCompile Include="src\thing_shots.c" />
     <ClCompile Include="src\thing_stats.c" />
     <ClCompile Include="src\thing_traps.c" />
+    <ClCompile Include="src\timer.c" />
     <ClCompile Include="src\vidfade.c" />
     <ClCompile Include="src\vidmode.c" />
     <ClCompile Include="src\vidmode_data.cpp" />
@@ -381,6 +385,7 @@
     <ClInclude Include="src\creature_states_wrshp.h" />
     <ClInclude Include="src\cursor_tag.h" />
     <ClInclude Include="src\custom_sprites.h" />
+    <ClInclude Include="src\custom_zip.h" />
     <ClInclude Include="src\dungeon_data.h" />
     <ClInclude Include="src\dungeon_stats.h" />
     <ClInclude Include="src\engine_arrays.h" />
@@ -516,6 +521,7 @@
     <ClInclude Include="src\thing_shots.h" />
     <ClInclude Include="src\thing_stats.h" />
     <ClInclude Include="src\thing_traps.h" />
+    <ClInclude Include="src\timer.h" />
     <ClInclude Include="src\version.h" />
     <ClInclude Include="src\vidfade.h" />
     <ClInclude Include="src\vidmode.h" />

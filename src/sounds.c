@@ -35,6 +35,7 @@
 #include "front_landview.h"
 #include "frontmenu_ingame_evnt.h"
 #include "thing_data.h"
+#include "thing_list.h"
 #include "thing_navigate.h"
 #include "config_creature.h"
 #include "config_terrain.h"
@@ -47,6 +48,7 @@
 #include "thing_objects.h"
 #include "config.h"
 #include "lvl_script_commands.h"
+#include "game_merge.h"
 
 #include "keeperfx.hpp"
 #include "game_heap.h"
@@ -202,7 +204,8 @@ void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
     }
     if (sample_idx != 0)
     {
-        move_thing_in_map(thing, pos);
+        thing->mappos = *pos;
+        thing->previous_mappos = *pos;
         i = thing->snd_emitter_id;
         if (i != 0)
         {
@@ -501,10 +504,15 @@ void sound_reinit_after_load(void)
     stop_streamed_samples();
     clear_messages();
     if (game.music_track < 0 && strlen(game.music_fname) > 0) {
-        // play saved custom music
-        play_music(game.music_fname);
+        // Play the saved custom music. play_music() itself will skip restarting it if
+        // this exact file is already playing
+        if (!play_music(game.music_fname)) {
+            WARNLOG("Custom music '%s' unavailable, falling back to default track", game.music_fname);
+            LevelNumber lvnum = get_loaded_level_number();
+            long safe_lvnum = (lvnum > 0) ? lvnum : 1; // guard against (lvnum - 1) % 4 going negative
+            play_music_track(3 + (int)((safe_lvnum - 1) % 4)); // tracks 3..6
+        }
     } else if (game.music_track > 0) {
-        // play saved track
         play_music_track(game.music_track);
     }
 }

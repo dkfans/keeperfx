@@ -475,6 +475,15 @@ void init_top_texture_to_cube_table(void)
     }
 }
 
+TbBool subtile_is_unsafe(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    long tcube;
+    int32_t cube_pos;
+    tcube = get_top_cube_at(stl_x, stl_y, &cube_pos);
+
+    return cube_is_lava(tcube) || (cube_pos<4 && cube_is_sacrificial(tcube));
+}
+
 /* Returns if given cube is lava.
  * @param cube_id
  * @return */

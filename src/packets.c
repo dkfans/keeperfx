@@ -36,6 +36,7 @@
 #include "bflib_planar.h"
 #include "bflib_dernc.h"
 #include "net_exchange_gameplay.h"
+#include "net_input_lag.h"
 #include "bflib_sound.h"
 #include "config_sounds.h"
 #include "bflib_sndlib.h"
@@ -145,7 +146,8 @@ TbBool is_packet_empty(const struct Packet *pckt) {
         pckt->control_flags != 0 ||
         pckt->additional_packet_values != 0 ||
         pckt->actn_par3 != 0 ||
-        pckt->actn_par4 != 0) {
+        pckt->actn_par4 != 0 ||
+        pckt->input_lag_turns != 0) {
         return false;
     }
     return true;
@@ -200,7 +202,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     struct Packet* pckt = get_packet_direct(player->packet_num);
 
-    while (game.conf.rules[plyr_idx].magic.allow_instant_charge_up && is_game_key_pressed(Gkey_SpeedMod, false, true))
+    while (game.conf.rules[plyr_idx].magic.allow_instant_charge_up && (pckt->additional_packet_values & PCAdV_SpeedupPressed))
     {
         struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
 
@@ -445,14 +447,17 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
         }
     }
 
-
+    const TbBool use_rotate_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
+                               && (pckt->control_flags & PCtr_ViewRotatePos) != 0;
+    const MapCoord rot_x = use_rotate_pos ? pckt->pos_x : -1;
+    const MapCoord rot_y = use_rotate_pos ? pckt->pos_y : -1;
     if ((pckt->control_flags & PCtr_ViewRotateCCW) != 0)
     {
         switch (cam->view_mode)
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-             view_set_camera_rotation_inertia(cam, 16, 64);
+             view_set_camera_rotation_inertia_around(cam, 16, 64, rot_x, rot_y);
             break;
         case PVM_FrontView:
             cam->rotation_angle_x = (cam->rotation_angle_x + DEGREES_90) & ANGLE_MASK;
@@ -465,7 +470,7 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            view_set_camera_rotation_inertia(cam, -16, -64);
+            view_set_camera_rotation_inertia_around(cam, -16, -64, rot_x, rot_y);
             break;
         case PVM_FrontView:
             cam->rotation_angle_x = (cam->rotation_angle_x - DEGREES_90) & ANGLE_MASK;
@@ -504,10 +509,10 @@ void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct Pla
     }
     const int32_t zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
     const int32_t zoom_max = CAMERA_ZOOM_MAX;
-    const TbBool with_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
-                         && (pckt->control_flags & PCtr_ViewZoomPos) != 0;
-    const MapCoord zoom_x = with_pos ? pckt->pos_x : -1;
-    const MapCoord zoom_y = with_pos ? pckt->pos_y : -1;
+    const TbBool use_zoom_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
+                             && (pckt->control_flags & PCtr_ViewZoomPos) != 0;
+    const MapCoord zoom_x = use_zoom_pos ? pckt->pos_x : -1;
+    const MapCoord zoom_y = use_zoom_pos ? pckt->pos_y : -1;
     if (pckt->control_flags & PCtr_ViewZoomIn)
     {
         switch (cam->view_mode)
@@ -851,20 +856,23 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_UsePwrHandPick:
       thing = thing_get(pckt->actn_par1);
-      magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
+      if ((pckt->control_flags & PCtr_Gui) != 0) {
+          magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
+      } else {
+          use_power_hand(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, pckt->actn_par1);
+      }
       return 0;
   case PckA_UsePwrHandDrop:
       dump_first_held_thing_on_map(plyr_idx, pckt->actn_par1, pckt->actn_par2, 1);
       return 0;
   case PckA_EventBoxTurnOff:
-      if (game.event[pckt->actn_par1].kind == 3)
-      {
-        turn_off_event_box_if_necessary(plyr_idx, pckt->actn_par1);
-      } else
-      {
-        event_delete_event(plyr_idx, pckt->actn_par1);
+      if (game.event[pckt->actn_par1].kind != EvKind_Objective) {
+          event_delete_event(plyr_idx, pckt->actn_par1);
       }
       return 0;
+  case PckA_EventBoxActivate:
+  case PckA_EventBoxClose:
+      return false;
   case PckA_GenericLevelPower:
       magic_use_available_power_on_level(plyr_idx, pckt->actn_par2, 0, PwMod_Default);
       return 0;
@@ -924,14 +932,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_PwrSOEDis:
       turn_off_power_sight_of_evil(plyr_idx);
       return false;
-  case PckA_EventBoxActivate:
-      go_on_then_activate_the_event_box(plyr_idx, pckt->actn_par1);
-      return false;
-  case PckA_EventBoxClose:
-      dungeon = get_players_num_dungeon(plyr_idx);
-      turn_off_event_box_if_necessary(plyr_idx, dungeon->visible_event_idx);
-      dungeon->visible_event_idx = 0;
-      return false;
   case PckA_UsePwrOnThing:
       i = get_power_overcharge_level(player);
       directly_cast_spell_on_thing(plyr_idx, pckt->actn_par1, pckt->actn_par2, i);
@@ -982,6 +982,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         }
     }
     // fall through
+    case PckA_ApplyRoomspaceDigTag:
     case PckA_SetRoomspaceHighlight:
     {
         player->roomspace_mode = pckt->actn_par1;
@@ -1006,6 +1007,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
             {
                 reset_dungeon_build_room_ui_variables(plyr_idx);
                 player->roomspace_width = player->roomspace_height = pckt->actn_par2;
+                break;
+            }
+            case roomspace_detection_mode:
+            {
+                set_player_roomspace_size(player, pckt->actn_par2);
                 break;
             }
             case drag_placement_mode: // drag
@@ -1358,7 +1364,6 @@ void process_players_creature_control_packet_control(long idx)
             // Button is held down - check whether the instance has auto-repeat
             i = ccctrl->active_instance_id;
             inst_inf = creature_instance_info_get(i);
-            target_idx = get_human_controlled_creature_target(cctng, i, pckt);
             if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
             {
                 if (ccctrl->instance_id == CrInst_NULL)
@@ -1530,6 +1535,7 @@ static void load_old_packets(void)
             MULTIPLAYER_LOG("load_input_lag_packets: cleared packet[%s] (no stored packet)", player_name);
         }
     }
+    input_lag_observe_host_packet(&game.packets[get_host_player_id()]);
 }
 
 void set_local_packet_turn(void) {
@@ -1548,10 +1554,11 @@ void exchange_packets(void)
     SYNCDBG(5, "Starting");
 
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
+    input_lag_update(get_packet_direct(player->packet_num));
     set_local_packet_turn();
     update_turn_checksums();
-    store_packet_history(player->packet_num, get_packet_direct(player->packet_num));
     update_local_dig_tag_prediction();
+    store_packet_history(player->packet_num, get_packet_direct(player->packet_num));
     if (game.game_kind != GKind_LocalGame)
     {
         if (!game.packet_load_enable || game.packet_load_initialized)
@@ -1570,7 +1577,7 @@ void exchange_packets(void)
             return;
         }
     }
-    if (input_lag_skips_initial_processing()) {
+    if (input_lag_skips_processing()) {
         clear_packets();
         return;
     }
@@ -1624,33 +1631,12 @@ void process_packets(void)
             resync_game();
         }
     }
-    get_current_stutter_percentage();
+    get_current_stutter_milliseconds();
     MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)get_gameturn());
     SYNCDBG(7,"Finished");
 }
 
-// Using Alt-F4, or similar operating system close requests
-void force_application_close()
-{
-    extern int frontend_menu_state;
 
-    if (frontend_menu_state == 0)
-    {
-        struct PlayerInfo* player = get_my_player();
-        if (player != INVALID_PLAYER)
-        {
-            set_players_packet_action(player, PckA_ForceApplicationClose, 0, 0, 0, 0);
-        }
-        else
-        {
-            exit_keeper = 1;
-        }
-    }
-    else
-    {
-        exit_keeper = 1;
-    }
-}
 
 
 /******************************************************************************/

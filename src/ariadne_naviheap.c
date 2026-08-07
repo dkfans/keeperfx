@@ -32,6 +32,8 @@ extern "C" {
 /******************************************************************************/
 static long heap_end;
 static long Heap[PATH_HEAP_LEN];
+
+static long naviheap_item_tree_val(long heapid);
 /******************************************************************************/
 /** Initializes navigation heap for new use.
  */
@@ -65,7 +67,7 @@ long naviheap_top(void)
  * @param heapid
  * @return
  */
-long naviheap_get(long heapid)
+static long naviheap_get(long heapid)
 {
     if ((heapid < 0) || (heapid > heap_end+1))
         return -1;
@@ -163,7 +165,7 @@ TbBool naviheap_add(long heapid)
  * @param heapid
  * @return
  */
-long naviheap_item_tree_val(long heapid)
+static long naviheap_item_tree_val(long heapid)
 {
     long tree_id = naviheap_get(heapid);
     if ((tree_id < 0) || (tree_id >= TREEVALS_COUNT))

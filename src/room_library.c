@@ -288,7 +288,7 @@ TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, l
   return add_research_to_player(plyr_idx, rtyp, rkind, amount);
 }
 
-void process_player_research(PlayerNumber plyr_idx)
+static void process_player_research(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (!player_has_room_of_role(plyr_idx, RoRoF_Research)) {
@@ -424,6 +424,21 @@ void process_player_research(PlayerNumber plyr_idx)
     dungeon->current_research_idx = get_next_research_item(dungeon);
     dungeon->lvstats.things_researched++;
     return;
+}
+
+void update_research(void)
+{
+    int i;
+    struct PlayerInfo *player;
+    SYNCDBG(6,"Starting");
+    for (i = 0; i < PLAYERS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player) && (player->is_active == 1))
+        {
+            process_player_research(i);
+        }
+    }
 }
 
 void research_found_room(PlayerNumber plyr_idx, RoomKind rkind)

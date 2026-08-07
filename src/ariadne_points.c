@@ -36,7 +36,7 @@ static long free_Points;
 struct Point ari_Points[POINTS_COUNT];
 /******************************************************************************/
 
-AridPointId point_new(void)
+static AridPointId point_new(void)
 {
     AridPointId i;
     if (free_Points == -1)

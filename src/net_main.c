@@ -77,6 +77,8 @@ void SendUserUpdate(NetUserId dest, NetUserId updated_user)
     write_pos += 1;
     strcpy(write_pos, netstate.users[updated_user].name);
     write_pos += strlen(netstate.users[updated_user].name) + 1;
+    memcpy(write_pos, &netstate.users[updated_user].version, sizeof(netstate.users[updated_user].version));
+    write_pos += sizeof(netstate.users[updated_user].version);
     send_message_buffer(dest, write_pos);
 }
 

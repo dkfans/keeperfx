@@ -19,6 +19,7 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 
+#include "ariadne_update.h"
 #include "config_compp.h"
 #include "config_settings.h"
 #include "creature_states_combt.h"
@@ -106,7 +107,7 @@ void reset_script_timers_and_flags(void)
     }
 }
 
-void init_player_types()
+static void init_player_types()
 {
     for (size_t plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
     {
@@ -127,6 +128,24 @@ void init_player_types()
             player->player_type = PT_Keeper;
             break;
         }
+    }
+}
+
+static void init_keepers_map_exploration(void)
+{
+    struct PlayerInfo *player;
+    int i;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+      player = get_player(i);
+      if ((player_exists(player) && (player->is_active == 1)) || player_is_roaming(i))
+      {
+          // Additional init - the main one is in init_player()
+          if ((player->allocflags & PlaF_CompCtrl) != 0) {
+              init_keeper_map_exploration_by_terrain(player);
+              init_keeper_map_exploration_by_creatures(player);
+          }
+      }
     }
 }
 
@@ -223,6 +242,7 @@ static void init_level(void)
     game.armageddon_cast_turn = 0;
     game.armageddon_over_turn = 0;
     clear_messages();
+    show_ignored_fxdata_zip_messages();
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     memset(game.pay_day_progress, 0, sizeof(game.pay_day_progress));
@@ -421,19 +441,6 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
     return CLS_CONTINUE;
 }
 
-void faststartup_saved_packet_game(void)
-{
-    reenter_video_mode();
-    startup_saved_packet_game();
-    {
-        struct PlayerInfo *player;
-        player = get_my_player();
-        player->display_flags &= ~PlaF6_PlyrHasQuit;
-    }
-    set_gui_visible(false);
-    clear_flag(game.operation_flags, GOF_ShowPanel);
-}
-
 /******************************************************************************/
 
 /**
@@ -455,9 +462,9 @@ void clear_complete_game(void)
     else
         set_selected_level_number(first_singleplayer_level());
     turns_per_second = start_params.num_fps;
-    turns_per_second_draw_current = 0;
-    turns_per_second_draw_main = start_params.num_fps_draw_main;
-    turns_per_second_draw_secondary = start_params.num_fps_draw_secondary;
+    fps_limit_current = 0;
+    fps_limit_main = start_params.num_fps_draw_main;
+    fps_limit_secondary = start_params.num_fps_draw_secondary;
     game.mode_flags = start_params.mode_flags;
     game.easter_eggs_enabled = start_params.easter_egg;
     set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);

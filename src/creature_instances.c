@@ -43,7 +43,6 @@
 #include "room_util.h"
 #include "map_blocks.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
 #include "tasks_list.h"
 #include "config_magic.h"

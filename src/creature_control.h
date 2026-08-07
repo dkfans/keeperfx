@@ -24,6 +24,7 @@
 #include "bflib_sound.h"
 
 #include "ariadne.h"
+#include "ariadne_wallhug.h"
 #include "creature_graphics.h"
 #include "creature_groups.h"
 #include "thing_creature.h"
@@ -222,12 +223,6 @@ struct CreatureControl {
         int32_t look_for_enemy_dungeon_turn;
         int32_t wait_time;
       } hero;
-      struct {
-        char unusedparam;
-        unsigned char unused;
-        TbBool navigation_map_changed;
-        TbBool unusedparam2;
-      } regular_creature;
   };
   struct {
       unsigned char objective;

@@ -39,7 +39,6 @@
 #include "map_utils.h"
 #include "dungeon_data.h"
 #include "room_data.h"
-#include "ariadne_wallhug.h"
 #include "power_hand.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"

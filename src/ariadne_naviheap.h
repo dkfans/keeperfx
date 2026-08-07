@@ -32,11 +32,9 @@ TbBool naviheap_empty(void);
 void naviheap_init(void);
 
 long naviheap_top(void);
-long naviheap_get(long heapid);
 long naviheap_remove(void);
 TbBool naviheap_add(long heapid);
 
-long naviheap_item_tree_val(long heapid);
 /******************************************************************************/
 #ifdef __cplusplus
 }

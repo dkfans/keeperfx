@@ -21,7 +21,6 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
-#include "room_workshop.h"
 #include "thing_list.h"
 
 #ifdef __cplusplus
@@ -106,7 +105,7 @@ long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, 
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
 int weight_calculated_push_strenght(int weight, int push_strength);
 
-TbBool shot_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
+TbBool shot_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool shot_model_is_navigable(long tngmodel);
 TbBool shot_model_makes_flesh_explosion(long shot_model);
 TbBool detonate_shot(struct Thing *shotng, TbBool destroy);
@@ -118,6 +117,9 @@ void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 
 struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation location, PlayerNumber owner, ThingIndex target, int hittype);
 void shot_kill_creature(struct Thing *shotng, struct Thing *creatng);
+
+long apply_wallhug_force_to_boulder(struct Thing *thing);
+long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -37,7 +37,7 @@ TbBool execute_lua_code_from_console(const char* code);
 TbBool execute_lua_code_from_script(const char* code);
 
 const char* lua_get_serialised_data(size_t *len);
-void lua_set_serialised_data(const char *data, size_t len);
+TbBool lua_set_serialised_data(const char *data, size_t len);
 void cleanup_serialized_data();
 
 void lua_set_random_seed(unsigned int seed);

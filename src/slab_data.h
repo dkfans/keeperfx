@@ -182,6 +182,8 @@ void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y);
 void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y);
+void collect_rooms_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, struct Room** room_list, int room_list_len);
+void recalculate_rooms_in_list(struct Room** room_list, int room_list_len);
 void do_unprettying(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 TbBool slab_kind_has_no_ownership(SlabKind slbkind);

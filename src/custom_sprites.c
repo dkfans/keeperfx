@@ -18,11 +18,14 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "custom_sprites.h"
+#include "custom_zip.h"
 #include "creature_graphics.h"
 #include "front_simple.h"
 #include "engine_render.h"
 #include "bflib_fileio.h"
 #include "gui_draw.h"
+#include "gui_msgs.h"
+#include "config_strings.h"
 #include "frontend.h"
 #include "bflib_dernc.h"
 #include "net_checksums.h"
@@ -38,11 +41,7 @@
 // #define OUTER
 // #define INNER
 #if defined(OUTER) || defined(INNER)
-#include <SDL2/SDL.h>
-#endif
-
-#ifndef PATH_MAX
-#define PATH_MAX 4096
+#include <SDL3/SDL.h>
 #endif
 
 // Each part of RGB tuple of palette file is 1-63 actually
@@ -166,74 +165,6 @@ static unsigned char bad_icon_data[] = // 16x16
 const struct TbSprite bad_icon = { bad_icon_data, 16, 16 };
 short bad_icon_id = INT16_MAX;
 
-/*
- * Speedup zip stuff
- * We postulate only one zip file loaded at once
- */
-static VALUE zip_cache_v;
-static VALUE *zip_cache = &zip_cache_v;
-
-static int fastUnzLocateFile(unzFile zip, const char *szFileName, int iCaseSensitivity)
-{
-    //return unzLocateFile(file, szFileName, iCaseSensitivity);
-    char seek_for[PATH_MAX];
-    strncpy(seek_for, szFileName, PATH_MAX - 1);
-    make_lowercase(seek_for);
-    VALUE *rec = value_dict_get(zip_cache, seek_for);
-    if (rec == NULL)
-        return UNZ_END_OF_LIST_OF_FILE;
-    unz64_file_pos file_pos = {
-            .pos_in_zip_directory = value_int64(value_array_get(rec, 0)),
-            .num_of_file = value_int64(value_array_get(rec, 1))
-    };
-    return unzGoToFilePos64(zip, &file_pos);
-}
-
-/*
- * Construct a cache for files.
- * Also if there is no indexFile just return instead
- * */
-static int fastUnzConstructCache(unzFile zip)
-{
-    char szCurrentFileName[PATH_MAX];
-    if (value_type(zip_cache) != VALUE_NULL)
-    {
-        ERRORLOG("Zip cache is not clear!");
-    }
-    value_init_dict(zip_cache);
-
-    for (int err = unzGoToFirstFile(zip);
-         err == UNZ_OK;
-         err = unzGoToNextFile(zip))
-    {
-        if (UNZ_OK != unzGetCurrentFileInfo64(zip, NULL,
-                                              szCurrentFileName, sizeof(szCurrentFileName) - 1,
-                                              NULL, 0, NULL, 0)
-                )
-        {
-            continue;
-        }
-        make_lowercase(szCurrentFileName);
-
-        unz64_file_pos file_pos;
-        unzGetFilePos64(zip, &file_pos);
-
-        VALUE *rec = value_dict_add(zip_cache, szCurrentFileName);
-        value_init_array(rec);
-        value_init_int64(value_array_append(rec), file_pos.pos_in_zip_directory);
-        value_init_int64(value_array_append(rec), file_pos.num_of_file);
-    }
-    return UNZ_OK;
-}
-
-static int fastUnzClearCache()
-{
-    value_fini(zip_cache);
-    return 0;
-}
-
-/* end of zip stuff */
-
 static int cmp_named_command(const void *a, const void *b)
 {
 
@@ -337,6 +268,37 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc)
             LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, next_free_sprite, KEEPERSPRITE_ADD_NUM);
         }
     }
+}
+
+void show_ignored_fxdata_zip_messages(void)
+{
+    char *dname = prepare_file_path(FGrp_FxData, NULL);
+    if (dname == NULL || dname[0] == 0) {
+        return;
+    }
+    char full_path[1024] = {0};
+    sprintf(full_path, "%s/%s", dname, "*.zip");
+    struct TbFileEntry fe;
+    struct TbFileFind *ff = LbFileFindFirst(full_path, &fe);
+    if (ff == NULL) {
+        return;
+    }
+    do {
+        int zip_is_required = 0;
+        for (int i = 0; i < REQUIRED_SPRITE_ZIP_COUNT; i++) {
+            if (strcasecmp(fe.Filename, required_sprite_zips[i]) == 0) {
+                zip_is_required = 1;
+                break;
+            }
+        }
+        if (zip_is_required != 0) {
+            continue;
+        }
+        WARNLOG("/fxdata/%s was not loaded. Please install it as a mod inside the /mods/ folder.", fe.Filename);
+        message_add(MsgType_Blank, 0, get_string(GUIStr_FxdataZipInstallAsMod));
+        message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_FxdataZipNotLoaded), fe.Filename);
+    } while (LbFileFindNext(ff, &fe) >= 0);
+    LbFileFindEnd(ff);
 }
 
 /* @comment
@@ -1241,7 +1203,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                     store_ksp_fc = context->ksp_first->FramesCount;
 #ifdef INNER
                 fprintf(stderr, "F:%s/%s\n", path, name);
-                fprintf(stderr, "A:%d\n", SDL_GetTicks());
+                fprintf(stderr, "A:%u\n", (unsigned)SDL_GetTicks());
 #endif
                 if (!read_png_data(zip, path, context, name, is_fp, node, itm))
                 {
@@ -1257,7 +1219,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                     return 1;
                 }
 #ifdef INNER
-                fprintf(stderr, "B:%d\n", SDL_GetTicks());
+                fprintf(stderr, "B:%u\n", (unsigned)SDL_GetTicks());
 #endif
                 if (UNZ_OK != unzCloseCurrentFile(zip))
                 {

@@ -314,7 +314,7 @@ struct Game {
     unsigned short entrances_count;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
     enum GameKinds game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
-    TbBool map_changed_for_navigation; // something with navigation
+    TbBool map_changed_for_navigation;
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
@@ -411,9 +411,9 @@ struct Game {
 extern struct Game game;
 extern int32_t turns_per_second;
 
-extern int32_t turns_per_second_draw_current;
-extern int32_t turns_per_second_draw_main;
-extern int32_t turns_per_second_draw_secondary;
+extern int32_t fps_limit_current;
+extern int32_t fps_limit_main;
+extern int32_t fps_limit_secondary;
 
 TbBool network_is_active(void);
 

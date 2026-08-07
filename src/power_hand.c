@@ -279,7 +279,7 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
     }
 }
 
-struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
+struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct Thing *picktng = INVALID_THING;
     struct Coord3d pos;
@@ -313,7 +313,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
     {
         picktng = create_gold_for_hand_grab(thing, plyr_idx);
     }
-    else if (object_is_pickable_by_hand_to_hold_by_player(thing, plyr_idx))
+    else if (object_is_pickable_by_hand_to_hold(thing))
     {
             picktng = thing;
     }
@@ -334,7 +334,7 @@ void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
     }
     if (player->hand_busy_until_turn < get_gameturn())
     {
-        if (player->hand_animationId != HandAnimationID)
+        if ((player->hand_animationId != HandAnimationID) || (HandAnimationID == HndA_Pickup))
         {
             player->hand_animationId = HandAnimationID;
             struct Thing *thing = thing_get(player->hand_thing_idx);
@@ -608,9 +608,8 @@ void draw_power_hand(void)
     if (player->work_state != PSt_HoldInHand)
     {
       TbBool draw_hand = (local_thing_under_hand > 0);
-      if ((player->work_state == PSt_CtrlDungeon) && !power_hand_is_empty(player))
-      {
-        draw_hand = (player->secondary_cursor_state == CSt_PowerHand) || ((player->secondary_cursor_state == CSt_DefaultArrow) && (player->primary_cursor_state == CSt_PowerHand));
+      if ((player->work_state == PSt_CtrlDungeon) && !power_hand_is_empty(player)) {
+        draw_hand = (player->primary_cursor_state != CSt_DoorKey) && (player->secondary_cursor_state != CSt_DoorKey);
       }
       if ((player->work_state != PSt_CtrlDungeon) || !draw_hand)
       {
@@ -650,12 +649,12 @@ void draw_power_hand(void)
                 if (crconf->transparency_flags == TRF_Transpar_8)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+                    lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
                 }
                 else if (crconf->transparency_flags == TRF_Transpar_4)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+                    lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
                 }
                 else if(crconf->transparency_flags == TRF_Transpar_Alpha)
                 {
@@ -721,10 +720,17 @@ void draw_power_hand(void)
     }
 }
 
-TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
+TbBool object_is_slappable(const struct Thing* thing)
 {
-    if (thing->owner == plyr_idx) {
-        return (object_is_mature_food(thing));
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return ((objst->model_flags & OMF_Slappable) != 0);
+}
+
+TbBool object_is_slappable_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (thing->owner == plyr_idx) 
+    {
+        return object_is_slappable(thing);
     }
     return false;
 }
@@ -788,18 +794,18 @@ long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thin
     return -1;
 }
 
-TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
+TbBool thing_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     switch (thing->class_id)
     {
     case TCls_Object:
-        return object_is_slappable(thing, plyr_idx);
+        return object_is_slappable_by_player(thing, plyr_idx);
     case TCls_Shot:
-        return shot_is_slappable(thing, plyr_idx);
+        return shot_is_slappable_by_player(thing, plyr_idx);
     case TCls_Creature:
         return creature_is_slappable(thing, plyr_idx);
     case TCls_Trap:
-        return trap_is_slappable(thing, plyr_idx);
+        return trap_is_slappable_by_player(thing, plyr_idx);
     default:
         return false;
     }
@@ -1383,9 +1389,8 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, CrtrExpLe
 
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    long i;
-    player = get_player(plyr_idx);
+    struct PlayerInfo *player = get_player(plyr_idx);
+    short i;
     if (!thing_is_pickable_by_hand(player, thing)) {
         ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return false;
@@ -1471,8 +1476,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     }
     if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
     {
-        ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
-        return Lb_OK;
+        return Lb_FAIL;
     }
     if (thing_is_special_box(thing))
     {
@@ -1525,10 +1529,12 @@ void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  Map
     }
 }
 
+#define HAND_TO_OBJECT_SLAP_DAMAGE 10
 TbBool slap_object(struct Thing *thing)
 {
-  if (object_is_mature_food(thing)) {
-      destroy_object(thing);
+  if (object_is_slappable(thing))
+  {
+      apply_damage_to_thing(thing, HAND_TO_OBJECT_SLAP_DAMAGE, thing->owner);
       return true;
   }
   return false;
@@ -1701,7 +1707,7 @@ TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing
 
 TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx) {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if (thing_is_creature(thing_to_pick) && thing_to_pick->owner == plyr_idx)
+    if (thing_is_creature(thing_to_pick))
     {
         struct HandRule hand_rule;
         TbBool overwrite_default_block = false;

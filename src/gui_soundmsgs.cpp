@@ -26,12 +26,14 @@
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
 #include "bflib_planar.h"
+#include "custom_zip.h"
 #include <deque>
 #include <algorithm>
 #include <string>
 #include <utility>
 #include <memory>
 #include <filesystem>
+#include <fstream>
 #include <map>
 #include "config.h"
 #include "post_inc.h"
@@ -166,7 +168,48 @@ bool played_recently(const char * fname)
 //   3. English variant           (e.g. speech/eng/file.ogg)
 //   4. First available language subdirectory
 //   5. Empty string (not found)
-enum class SpeechResolveResult { LanguageMatch, FallbackBase, FallbackEng, FallbackAnyLang, NotFound };
+enum class SpeechResolveResult { LanguageMatch, FallbackBase, FallbackEng, FallbackAnyLang, ZipBundled, NotFound };
+
+// Extract a speech entry named in [speech] from the current level's mapNNNNN.zip bundle
+// into a cached temp file, and return that file's path.
+static std::string extract_zip_speech_to_temp(LevelNumber lvnum, const char* entry_path)
+{
+	unsigned char* data = nullptr;
+	size_t size = 0;
+	if (!read_map_zip_entry(lvnum, entry_path, &data, &size)) {
+		return "";
+	}
+	std::string safe_name = entry_path;
+	for (auto& c : safe_name) {
+		if (c == '/' || c == '\\' || c == ':') c = '_';
+	}
+	std::error_code ec;
+	std::filesystem::path temp_dir = std::filesystem::temp_directory_path(ec);
+	if (ec) {
+		free(data);
+		return "";
+	}
+	char subdir[64];
+	snprintf(subdir, sizeof(subdir), "keeperfx_map%05d_speech", lvnum);
+	temp_dir /= subdir;
+	std::filesystem::create_directories(temp_dir, ec);
+	std::filesystem::path temp_file = temp_dir / safe_name;
+
+	bool already_extracted = false;
+	if (std::filesystem::exists(temp_file, ec)) {
+		const auto existing_size = std::filesystem::file_size(temp_file, ec);
+		already_extracted = !ec && (existing_size == size);
+	}
+	if (!already_extracted) {
+		std::ofstream out(temp_file, std::ios::binary | std::ios::trunc);
+		if (!out || !out.write(reinterpret_cast<const char*>(data), (std::streamsize)size)) {
+			free(data);
+			return "";
+		}
+	}
+	free(data);
+	return temp_file.string();
+}
 
 static std::string resolve_speech_path(const char* path, const char* lang,
                                        SpeechResolveResult& result,
@@ -250,6 +293,41 @@ static std::string resolve_speech_path(const char* path, const char* lang,
 		} catch (...) {}
 	}
 
+	// Step 5: current level's map zip bundle.
+    // speech/<lang>/file.ogg
+    // speech/eng/file.ogg etc. (same fallback order as above)
+	{
+		const char* zip_filename = (slash != nullptr) ? (slash + 1) : path;
+
+		if (lang != nullptr && lang[0] != '\0') {
+			char lang_path[512];
+			snprintf(lang_path, sizeof(lang_path), "speech/%s/%s", lang, zip_filename);
+			std::string extracted = extract_zip_speech_to_temp(game.last_level, lang_path);
+			if (!extracted.empty()) {
+				result = SpeechResolveResult::ZipBundled;
+				return extracted;
+			}
+		}
+		if (lang == nullptr || strcmp(lang, "eng") != 0) {
+			char eng_path[512];
+			snprintf(eng_path, sizeof(eng_path), "speech/eng/%s", zip_filename);
+			std::string extracted = extract_zip_speech_to_temp(game.last_level, eng_path);
+			if (!extracted.empty()) {
+				result = SpeechResolveResult::ZipBundled;
+				return extracted;
+			}
+		}
+		{
+			char base_path[512];
+			snprintf(base_path, sizeof(base_path), "speech/%s", zip_filename);
+			std::string extracted = extract_zip_speech_to_temp(game.last_level, base_path);
+			if (!extracted.empty()) {
+				result = SpeechResolveResult::ZipBundled;
+				return extracted;
+			}
+		}
+	}
+
 	return "";
 }
 
@@ -288,6 +366,8 @@ extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 			} else if (resolve_result == SpeechResolveResult::FallbackAnyLang) {
                 SYNCDBG(8, "No speech for language '%s', English, or base fallback, using first available language '%s': %s",
 					lang, found_lang.c_str(), spath);
+			} else if (resolve_result == SpeechResolveResult::ZipBundled) {
+                SYNCDBG(8, "Speech '%s' not found on disk, using map zip bundle", spath);
 			} else if (resolve_result == SpeechResolveResult::NotFound) {
 				WARNLOG("Speech '%s' not found for language '%s' and no fallback or alternative language exists",
 					spath, lang);
@@ -325,6 +405,8 @@ extern "C" TbBool output_message_from_path(const char* path, long duration)
 	} else if (resolve_result == SpeechResolveResult::FallbackAnyLang) {
         SYNCDBG(8, "No speech for language '%s', English, or base fallback, using first available language '%s': %s",
 			lang, found_lang.c_str(), path);
+	} else if (resolve_result == SpeechResolveResult::ZipBundled) {
+        SYNCDBG(8, "Speech '%s' not found on disk, using map zip bundle", path);
 	} else if (resolve_result == SpeechResolveResult::NotFound) {
 		WARNLOG("Speech '%s' not found for language '%s' and no fallback or alternative language exists",
 			path, lang);

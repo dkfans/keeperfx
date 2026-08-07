@@ -43,7 +43,6 @@
 #include "room_jobs.h"
 #include "room_list.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
 #include "player_utils.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"

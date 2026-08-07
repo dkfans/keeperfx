@@ -33,7 +33,6 @@
 #include "config_terrain.h"
 #include "config_creature.h"
 #include "creature_states.h"
-#include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
 #include "magic_powers.h"
 #include "thing_traps.h"

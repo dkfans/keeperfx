@@ -22,7 +22,7 @@
 #include "net_lan.h"
 #include "ver_defs.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #ifndef _WIN32
 #include <sys/select.h>
 #endif
@@ -46,10 +46,10 @@
 static CURL *curl_handle = NULL;
 static char hosted_lobby_id[MATCHMAKING_ID_MAX] = {0};
 char join_lobby_id[MATCHMAKING_ID_MAX] = {0};
-static SDL_mutex *mutex = NULL;
-static SDL_atomic_t connect_thread_active = {0};
-static SDL_atomic_t ips_resolved = {0};
-static SDL_atomic_t ips_resolving = {0};
+static SDL_Mutex *mutex = NULL;
+static SDL_AtomicInt connect_thread_active = {0};
+static SDL_AtomicInt ips_resolved = {0};
+static SDL_AtomicInt ips_resolving = {0};
 static int connect_gave_up = 0;
 static char local_ipv4[MATCHMAKING_IP_MAX] = {0};
 static char local_ipv6[MATCHMAKING_IP_MAX] = {0};
@@ -104,7 +104,7 @@ static int resolve_public_address_thread(void *userdata)
 
 static void wait_for_public_ip_resolution(void)
 {
-    while (SDL_AtomicGet(&ips_resolving)) {
+    while (SDL_GetAtomicInt(&ips_resolving)) {
         SDL_Delay(10);
     }
 }
@@ -128,23 +128,23 @@ static int resolve_public_ips_thread(void *userdata)
     if (resolved_ipv6[0] != '\0')
         snprintf(local_ipv6, sizeof(local_ipv6), "%s", resolved_ipv6);
     LbNetLog("Matchmaking: public IPs: ipv4=%s ipv6=%s\n", local_ipv4, local_ipv6);
-    SDL_AtomicSet(&ips_resolved, 1);
+    SDL_SetAtomicInt(&ips_resolved, 1);
     SDL_UnlockMutex(mutex);
-    SDL_AtomicSet(&ips_resolving, 0);
+    SDL_SetAtomicInt(&ips_resolving, 0);
     return 0;
 }
 
 static void resolve_public_ips_async(void)
 {
-    if (SDL_AtomicGet(&ips_resolved))
+    if (SDL_GetAtomicInt(&ips_resolved))
         return;
-    if (SDL_AtomicCAS(&ips_resolving, 0, 1) == SDL_FALSE)
+    if (SDL_CompareAndSwapAtomicInt(&ips_resolving, 0, 1) == false)
         return;
     SDL_Thread *thread = SDL_CreateThread(resolve_public_ips_thread, "resolve_ips", NULL);
     if (thread) {
         SDL_DetachThread(thread);
     } else {
-        SDL_AtomicSet(&ips_resolving, 0);
+        SDL_SetAtomicInt(&ips_resolving, 0);
     }
 }
 
@@ -191,10 +191,10 @@ static int websocket_receive(char *response_buffer, size_t buffer_size, int time
         LbNetLog("Matchmaking: websocket_receive failed to get active socket\n");
         return -1;
     }
-    Uint32 timeout_deadline = SDL_GetTicks() + timeout_ms;
+    Uint32 timeout_deadline = (Uint32)SDL_GetTicks() + timeout_ms;
     while (1) {
         if (timeout_ms > 0) {
-            int time_remaining = (int)(timeout_deadline - SDL_GetTicks());
+            int time_remaining = (int)(timeout_deadline - (Uint32)SDL_GetTicks());
             if (time_remaining <= 0)
                 return 0;
             fd_set readable_sockets;
@@ -317,14 +317,14 @@ static int matchmaking_connect_thread(void *)
 {
     if (matchmaking_connect() == 0)
         matchmaking_request_list();
-    SDL_AtomicSet(&connect_thread_active, 0);
+    SDL_SetAtomicInt(&connect_thread_active, 0);
     return 0;
 }
 
 void matchmaking_connect_async(void)
 {
     matchmaking_init();
-    if (SDL_AtomicCAS(&connect_thread_active, 0, 1) == SDL_FALSE)
+    if (SDL_CompareAndSwapAtomicInt(&connect_thread_active, 0, 1) == false)
         return;
     SDL_LockMutex(mutex);
     connect_gave_up = 0;
@@ -334,7 +334,7 @@ void matchmaking_connect_async(void)
     if (thread) {
         SDL_DetachThread(thread);
     } else {
-        SDL_AtomicSet(&connect_thread_active, 0);
+        SDL_SetAtomicInt(&connect_thread_active, 0);
     }
 }
 
@@ -374,15 +374,15 @@ void matchmaking_disconnect(void)
     if (mutex == NULL) {
         return;
     }
-    Uint32 wait_deadline = SDL_GetTicks() + CONNECT_TIMEOUT_MS * 3;
-    while (SDL_AtomicGet(&connect_thread_active) && SDL_GetTicks() < wait_deadline) {
+    Uint32 wait_deadline = (Uint32)SDL_GetTicks() + CONNECT_TIMEOUT_MS * 3;
+    while (SDL_GetAtomicInt(&connect_thread_active) && (Uint32)SDL_GetTicks() < wait_deadline) {
         SDL_Delay(10);
     }
     wait_for_public_ip_resolution();
     matchmaking_close_lobby();
     SDL_LockMutex(mutex);
     connect_gave_up = 0;
-    SDL_AtomicSet(&ips_resolved, 0);
+    SDL_SetAtomicInt(&ips_resolved, 0);
     if (curl_handle) {
         websocket_cleanup();
         LbNetLog("Matchmaking: disconnected\n");
@@ -414,7 +414,7 @@ void matchmaking_close_lobby(void)
 
 void matchmaking_refresh_sessions(void)
 {
-    if (!curl_handle || !mutex || SDL_TryLockMutex(mutex) != 0)
+    if (!curl_handle || !mutex || !SDL_TryLockMutex(mutex))
         return;
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
     int bytes_received = websocket_receive(response_buffer, sizeof(response_buffer), 0);
@@ -518,9 +518,9 @@ int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port
         return -1;
     }
     int bytes_received;
-    Uint32 timeout_deadline = SDL_GetTicks() + WEBSOCKET_RECEIVE_TIMEOUT_MS;
+    Uint32 timeout_deadline = (Uint32)SDL_GetTicks() + WEBSOCKET_RECEIVE_TIMEOUT_MS;
     while (1) {
-        int time_remaining = (int)(timeout_deadline - SDL_GetTicks());
+        int time_remaining = (int)(timeout_deadline - (Uint32)SDL_GetTicks());
         if (time_remaining <= 0) {
             LbNetLog("Matchmaking: punch failed - timeout\n");
             SDL_UnlockMutex(mutex);
@@ -554,7 +554,7 @@ int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port
 
 int matchmaking_poll_punch(PunchAddresses *output)
 {
-    if (!curl_handle || !mutex || SDL_TryLockMutex(mutex) != 0)
+    if (!curl_handle || !mutex || !SDL_TryLockMutex(mutex))
         return 0;
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
     int bytes_received = websocket_receive(response_buffer, sizeof(response_buffer), 0);

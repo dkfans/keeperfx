@@ -109,8 +109,7 @@ void frontnet_messages_down_maintain(struct GuiButton *gbtn)
 
 void frontnet_start_game_maintain(struct GuiButton *gbtn)
 {
-    TbBool enabled;
-    enabled = (net_number_of_enum_players > 1) && !frontnet_is_waiting_for_ping_stabilization();
+    TbBool enabled = net_number_of_enum_players > 1;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * enabled) & LbBtnF_Enabled;
 }
 
@@ -126,6 +125,9 @@ TbBool frontnet_start_input(void)
         player->mp_message_text[0] = '\0';
     } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
         int chpos = strlen(player->mp_message_text);
+        // Skip UTF-8 continuation bytes so the whole last character is removed
+        while ((chpos > 0) && ((player->mp_message_text[chpos-1] & 0xc0) == 0x80))
+            chpos--;
         if (chpos > 0)
             player->mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);
@@ -711,26 +713,6 @@ void frontnet_service_select(struct GuiButton *gbtn)
   {
       setup_network_service(srvidx);
   }
-}
-
-void frontnet_draw_start_game_button(struct GuiButton *gbtn)
-{
-    static TbClockMSec last_anim_time = 0;
-    static int anim_frame = 0;
-    static const char *dot_frames[] = {"...", "..", ".", "..", "..."};
-    const char *text;
-
-    if (net_number_of_enum_players >= 2 && frontnet_is_waiting_for_ping_stabilization()) {
-        if (LbTimerClock() >= last_anim_time + 125) {
-            anim_frame = (anim_frame + 1) % 5;
-            last_anim_time = LbTimerClock();
-        }
-        text = dot_frames[anim_frame];
-    } else {
-        text = frontend_button_caption_text(gbtn);
-    }
-
-    frontend_draw_button(gbtn, 0, text, Lb_TEXT_HALIGN_CENTER);
 }
 
 /******************************************************************************/

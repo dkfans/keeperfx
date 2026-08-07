@@ -115,13 +115,14 @@ static TbBigChecksum compute_player_checksum(struct PlayerInfo *player) {
     if ((player->allocflags & PlaF_CompCtrl) != 0 || camera == NULL) {
         return 0;
     }
-    struct Coord3d* mappos = &(camera->mappos);
     TbBigChecksum checksum = 0;
     CHECKSUM_ADD(checksum, player->instance_remain_turns);
     CHECKSUM_ADD(checksum, player->instance_num);
-    CHECKSUM_ADD(checksum, mappos->x.val);
-    CHECKSUM_ADD(checksum, mappos->y.val);
-    CHECKSUM_ADD(checksum, mappos->z.val);
+    if (player->victory_state == VicS_Undecided) {
+        CHECKSUM_ADD(checksum, camera->mappos.x.val);
+        CHECKSUM_ADD(checksum, camera->mappos.y.val);
+        CHECKSUM_ADD(checksum, camera->mappos.z.val);
+    }
     return checksum;
 }
 
@@ -327,7 +328,11 @@ void update_turn_checksums(void) {
             player_snapshot->id = i;
             player_snapshot->instance_num = player->instance_num;
             player_snapshot->instance_remain_turns = player->instance_remain_turns;
-            player_snapshot->mappos = camera->mappos;
+            if (player->victory_state == VicS_Undecided) {
+                player_snapshot->mappos = camera->mappos;
+            } else {
+                memset(&player_snapshot->mappos, 0, sizeof(player_snapshot->mappos));
+            }
             player_snapshot->checksum = compute_player_checksum(player);
         }
         for (struct Room* room = start_rooms; room < end_rooms; room++) {

@@ -30,10 +30,6 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-// 1500 is good enough about 90% of the time, to have stable readings of ping and ping variance
-#define WAIT_FOR_STABLE_PLAYER 1500
-#define AVERAGE_PING_UPDATE_RATE 500
-#define FRONTNET_PING_STABILIZATION_DELAY_MS 3000
 #define NET_SERVICE_LEN 64
 
 enum FrontendNetService {
@@ -82,8 +78,6 @@ void frontnet_session_update(void);
 void frontnet_start_update(void);
 TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum);
 void process_frontend_chat_message(int player_id, const char *message);
-TbBool frontnet_is_waiting_for_ping_stabilization(void);
-void frontnet_reset_ping_stabilization(void);
 TbBool frontnet_service_selected(enum FrontendNetService service);
 void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 

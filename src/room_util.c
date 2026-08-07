@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "ariadne_update.h"
 #include "room_data.h"
 #include "room_garden.h"
 #include "map_utils.h"
@@ -35,7 +36,6 @@
 #include "thing_objects.h"
 #include "room_list.h"
 #include "room_workshop.h"
-#include "ariadne_wallhug.h"
 #include "config_terrain.h"
 #include "config_creature.h"
 #include "gui_soundmsgs.h"

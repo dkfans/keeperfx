@@ -20,12 +20,11 @@
 #include "slab_data.h"
 #include "globals.h"
 
+#include "ariadne_update.h"
 #include "player_instances.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
 #include "map_ceiling.h"
-#include "ariadne.h"
-#include "ariadne_wallhug.h"
 #include "map_utils.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
@@ -611,7 +610,7 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
     mapblk->flags |= nflags;
 }
 
-void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
+void collect_rooms_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, struct Room** room_list, int room_list_len)
 {
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
@@ -625,9 +624,39 @@ void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
         if (slabst->category == SlbAtCtg_RoomInterior)
         {
             struct Room* room = slab_room_get(sslb_x, sslb_y);
-            do_room_recalculation(room);
+            for (int i = 0; i < room_list_len; i++)
+            {
+                if (room_list[i] == room) {
+                    break;
+                }
+                else if (room_list[i] == NULL) {
+                    room_list[i] = room;
+                    break;
+                }
+            }
         }
     }
+}
+
+void recalculate_rooms_in_list(struct Room** room_list, int room_list_len)
+{
+    for (int i = 0; i < room_list_len; i++)
+    {
+        struct Room* room = room_list[i];
+        if (room == NULL) {
+            break;
+        }
+        do_room_recalculation(room);
+    }
+}
+
+void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Room* room_list[SMALL_AROUND_SLAB_LENGTH + 1];
+    memset(room_list, 0, sizeof(room_list));
+    collect_rooms_around_slab(slb_x, slb_y, room_list, sizeof(room_list)/sizeof(room_list[0]));
+
+    recalculate_rooms_in_list(room_list, sizeof(room_list)/sizeof(room_list[0]));
 }
 
 SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -872,6 +901,55 @@ void set_player_texture(PlayerNumber plyr_idx, long texture_id)
                     game.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
                 }
             }
+        }
+    }
+}
+
+void initialise_map_collides(void)
+{
+    SYNCDBG(7,"Starting");
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_block(slb_x, slb_y);
+            int ssub_x;
+            int ssub_y;
+            for (ssub_y=0; ssub_y < STL_PER_SLB; ssub_y++)
+            {
+                for (ssub_x=0; ssub_x < STL_PER_SLB; ssub_x++)
+                {
+                    MapSubtlCoord stl_x;
+                    MapSubtlCoord stl_y;
+                    stl_x = slab_subtile(slb_x,ssub_x);
+                    stl_y = slab_subtile(slb_y,ssub_y);
+                    struct Map *mapblk;
+                    mapblk = get_map_block_at(stl_x, stl_y);
+                    mapblk->flags = 0;
+                    update_map_collide(slb->kind, stl_x, stl_y);
+                }
+            }
+        }
+    }
+}
+
+void initialise_map_health(void)
+{
+    SYNCDBG(7,"Starting");
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_block(slb_x, slb_y);
+            struct SlabConfigStats *slabst;
+            slabst = get_slab_stats(slb);
+            slb->health = game.block_health[slabst->block_health_index];
         }
     }
 }

@@ -34,8 +34,8 @@
 #include "config.h"
 
 #include <string.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include <ctype.h>
 #include "post_inc.h"
 /******************************************************************************/
@@ -60,12 +60,12 @@ TbBool take_screenshot(char *fname)
     {
         case 1:
         {
-            success = (IMG_SavePNG(lbDrawSurface, fname) == 0);
+            success = IMG_SavePNG(lbDrawSurface, fname);
             break;
         }
         case 2:
         {
-            success = (SDL_SaveBMP(lbDrawSurface, fname) == 0);
+            success = SDL_SaveBMP(lbDrawSurface, fname);
             break;
         }
         default:

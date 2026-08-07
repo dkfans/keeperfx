@@ -76,6 +76,7 @@
 #include "power_hand.h"
 #include "magic_powers.h"
 #include "player_instances.h"
+#include "local_camera.h"
 #include "player_utils.h"
 #include "config_players.h"
 #include "gui_frontmenu.h"
@@ -96,8 +97,6 @@
 extern "C" {
 #endif
 
-extern long double last_draw_completed_time;
-long double get_time_tick_ns();
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -439,6 +438,10 @@ int fe_computer_players;
 long old_mouse_over_button;
 long frontend_mouse_over_button;
 
+
+static int32_t last_mouse_x;
+static int32_t last_mouse_y;
+
 /******************************************************************************/
 short menu_is_active(short idx)
 {
@@ -620,7 +623,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             if (insert_text[0] != '\0')
             {
                 if (LbLocTextStringInsert(str, insert_text, input_field_pos, gbtn->maxval) != NULL) {
-                    input_field_pos += strlen(insert_text);
+                    input_field_pos += LbLocTextStringLength(insert_text);
                 }
             }
         }
@@ -639,12 +642,10 @@ void maintain_loadsave(struct GuiButton *gbtn)
 
 void maintain_zoom_to_event(struct GuiButton *gbtn)
 {
-    struct Dungeon *dungeon;
     struct Event *event;
-    dungeon = get_players_num_dungeon(my_player_number);
-    if (dungeon->visible_event_idx)
+    if (my_visible_event_idx)
     {
-      event = &(game.event[dungeon->visible_event_idx]);
+      event = &(game.event[my_visible_event_idx]);
       if ((event->mappos_x != 0) || (event->mappos_y != 0))
       {
         gbtn->flags |= LbBtnF_Enabled;
@@ -1473,23 +1474,15 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
 
 void gui_go_to_event(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    player = get_my_player();
-    dungeon = get_players_dungeon(player);
-    if (dungeon->visible_event_idx) {
-        set_players_packet_action(player, PckA_ZoomToEvent, dungeon->visible_event_idx, 0, 0, 0);
+    if (my_visible_event_idx) {
+        struct Event *event = &game.event[my_visible_event_idx];
+        move_local_camera_to_position(event->mappos_x, event->mappos_y);
     }
 }
 
 void gui_close_objective(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player = get_my_player();
-    set_players_packet_action(player, PckA_EventBoxClose, 0, 0, 0, 0);
-    // The final effect of this packet should be 3 menus disabled
-    /*turn_off_menu(GMnu_TEXT_INFO);
-    turn_off_menu(GMnu_BATTLE);
-    turn_off_menu(GMnu_DUNGEON_SPECIAL);*/
+    turn_off_event_box_if_necessary(my_player_number, my_visible_event_idx);
 }
 
 void gui_scroll_text_up(struct GuiButton *gbtn)
@@ -2583,7 +2576,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         frontstory_unload();
         break;
     case FeSt_CREDITS:
-        stop_music();
+        stop_music(true);
         break;
     case FeSt_LEVEL_STATS:
         stop_streamed_samples();
@@ -2608,7 +2601,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         break;
     case FeSt_FEOPTIONS:
         turn_off_menu(GMnu_FEOPTION);
-        stop_music();
+        stop_music(true);
         break;
     case FeSt_LEVEL_SELECT:
         turn_off_menu(GMnu_FELEVEL_SELECT);
@@ -2628,6 +2621,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_QUIT_GAME:
     case FeSt_LOAD_GAME:
     case FeSt_INTRO:
+    case FeSt_DRAG:
     case FeSt_CAMPAIGN_INTRO:
     case FeSt_DEMO: //demo state (intro/credits)
     case FeSt_OUTRO:
@@ -2661,12 +2655,15 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           set_pointer_graphic_none();
           break;
       case FeSt_MAIN_MENU:
-          stop_music();
+          stop_music(true);
           continue_game_option_available = continue_game_available();
           if (!continue_game_option_available)
           {
               char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
               LbFileDelete(fname);
+          }
+          if (!is_campaign_loaded()) {
+              change_campaign(CampgnT_Default,"");
           }
           turn_on_menu(GMnu_FEMAIN);
           last_mouse_x = GetMouseX();
@@ -2705,6 +2702,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           turn_on_menu(GMnu_FENET_START);
           if (frontend_menu_state != FeSt_MP_MAPPACK_SELECT)
             frontnet_start_setup();
+          LbStartTextInput();
           set_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
@@ -2712,6 +2710,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_QUIT_GAME:
       case FeSt_LOAD_GAME:
       case FeSt_INTRO:
+      case FeSt_DRAG:
       case FeSt_CAMPAIGN_INTRO:
       case FeSt_DEMO:
       case FeSt_OUTRO:
@@ -3376,7 +3375,6 @@ short frontend_draw(void)
     draw_debug_messages();
     perform_any_screen_capturing();
     LbScreenUnlock();
-    last_draw_completed_time = get_time_tick_ns();
     return result;
 }
 

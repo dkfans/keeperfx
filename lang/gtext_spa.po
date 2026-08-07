@@ -3044,6 +3044,7 @@ msgid "Play Intro"
 msgstr "Reproducir video de introducción"
 
 #: guitext:350
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Multiplayer Menu"
 msgstr "Menú multijugador"
@@ -3271,6 +3272,7 @@ msgid "Testers"
 msgstr "Probadores"
 
 #: guitext:395
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Lobbies"
 msgstr "Salas de juego"
@@ -3281,6 +3283,7 @@ msgid "Name"
 msgstr "Nombre"
 
 #: guitext:397
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Game Modes"
 msgstr "Modos de juego"
@@ -3291,11 +3294,13 @@ msgid "Messages"
 msgstr "Mensajes"
 
 #: guitext:399
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Create Lobby"
 msgstr "Crear sala"
 
 #: guitext:400
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Join Lobby"
 msgstr "Unirse a la sala"
@@ -3306,6 +3311,7 @@ msgid "Start Game"
 msgstr "Iniciar la partida"
 
 #: guitext:402
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Online Lobbies"
 msgstr "Salas en línea"
@@ -6063,16 +6069,19 @@ msgid "4 Players"
 msgstr "4 jugadores"
 
 #: guitext:874
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Online"
 msgstr "En línea"
 
 #: guitext:875
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "LAN"
 msgstr "LAN"
 
 #: guitext:876
+#, fuzzy
 msgctxt "Menu interface, Network service item"
 msgid "Skirmish"
 msgstr "Escaramuza"
@@ -7402,16 +7411,19 @@ msgid "Keeper"
 msgstr "Guardián"
 
 #: guitext:1083
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screen Capture"
 msgstr "Grabar Pantalla"
 
 #: guitext:1084
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot"
 msgstr "Captura de Pantalla"
 
 #: guitext:1085
+#, fuzzy
 msgctxt "Game controls"
 msgid "Frame Skip Increase"
 msgstr "Aumentar Salto de Fotogramas"
@@ -7576,3 +7588,15 @@ msgstr "unused"
 msgctxt "Network game message"
 msgid "Network connection to host lost"
 msgstr "Conexión de red con el anfitrión perdida"
+
+#: guitext:1120
+#, fuzzy
+msgctxt "In-game message"
+msgid "/fxdata/%.39s was not loaded."
+msgstr "/fxdata/%.39s no se cargó."
+
+#: guitext:1121
+#, fuzzy
+msgctxt "In-game message"
+msgid "Please install it as a mod inside the /mods/ folder."
+msgstr "Instálalo como mod en la carpeta /mods/."

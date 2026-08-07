@@ -19,6 +19,7 @@
 #include "pre_inc.h"
 #include "globals.h"
 #include "bflib_basics.h"
+#include "config_trapdoor.h"
 #include "map_data.h"
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -366,35 +367,27 @@ TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     return (colour != SLC_RED);
 }
 
-TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab, ThingModel trpkind)
+TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
 {
     SYNCDBG(7,"Starting");
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     TbBool can_place = can_place_trap_on(plyr_idx, stl_x, stl_y, trpkind);
     int floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    if (is_my_player_number(plyr_idx))
-    {
-        if (!game_is_busy_doing_gui() && (game.small_map_state != 2))
-        {
-            struct PlayerInfo* player = get_player(plyr_idx);
-            player->render_roomspace.is_roomspace_a_box = true;
-            player->render_roomspace.render_roomspace_as_box = true;
-            if (full_slab)
-            {
-                // Move to first subtile on a slab
-                stl_x = slab_subtile(slb_x,0);
-                stl_y = slab_subtile(slb_y,0);
-                player->render_roomspace.is_roomspace_a_single_subtile = false;
-                draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0),
-                subtile_coord(stl_x+STL_PER_SLB,0), subtile_coord(stl_y+STL_PER_SLB,0), floor_height, can_place);
-            }
-            else
-            {
-                player->render_roomspace.is_roomspace_a_single_subtile = true;
-                draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0), subtile_coord(stl_x+1,0), subtile_coord(stl_y+1,0), floor_height, can_place);
-            }
+    struct PlayerInfo* player = get_player(plyr_idx);
+    TbBool full_slab = !get_trap_model_stats(trpkind)->place_on_subtile;
+    player->full_slab_cursor = full_slab;
+    if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2)) {
+        MapSubtlCoord box_size = 1;
+        if (full_slab) {
+            stl_x = slab_subtile(slb_x, 0);
+            stl_y = slab_subtile(slb_y, 0);
+            box_size = STL_PER_SLB;
         }
+        player->render_roomspace.is_roomspace_a_box = true;
+        player->render_roomspace.render_roomspace_as_box = true;
+        player->render_roomspace.is_roomspace_a_single_subtile = !full_slab;
+        draw_map_volume_box(subtile_coord(stl_x, 0), subtile_coord(stl_y, 0), subtile_coord(stl_x + box_size, 0), subtile_coord(stl_y + box_size, 0), floor_height, can_place);
     }
     return can_place;
 }

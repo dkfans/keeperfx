@@ -51,7 +51,6 @@
 #include "map_events.h"
 #include "map_blocks.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
 #include "power_hand.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"

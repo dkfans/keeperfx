@@ -38,11 +38,15 @@
 #include "gui_frontbtns.h"
 #include "gui_frontmenu.h"
 #include "packets.h"
+#include "net_input_lag.h"
 #include "frontend.h"
 #include "front_input.h"
 #include "vidfade.h"
 #include "game_legacy.h"
+#include "map_events.h"
+#include "local_camera.h"
 #include "sprites.h"
+#include "timer.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -51,21 +55,28 @@ extern int32_t multiplayer_speed_adjustment_ns;
 
 unsigned long TimerTurns = 0;
 unsigned short battle_creature_over;
+EventIndex my_visible_event_idx;
+unsigned char my_event_button_state[EVENTS_COUNT];
 int debug_display_network_stats = 0;
 
 /******************************************************************************/
+EventIndex get_my_event_button_index(unsigned int button_idx)
+{
+    if (button_idx > EVENT_BUTTONS_COUNT) {
+        return 0;
+    }
+    EventIndex evidx = get_my_dungeon()->event_button_index[button_idx];
+    if (my_event_button_state[evidx] & EvBtnS_Hidden) {
+        return 0;
+    }
+    return evidx;
+}
+
 void gui_open_event(struct GuiButton *gbtn)
 {
-    struct Dungeon* dungeon = get_my_dungeon();
-    EventIndex evidx;
     SYNCDBG(5,"Starting");
-    unsigned int evbtn_idx = gbtn->content.lval;
-    if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
-        evidx = dungeon->event_button_index[evbtn_idx];
-    } else {
-        evidx = 0;
-    }
-    if (evidx == dungeon->visible_event_idx)
+    EventIndex evidx = get_my_event_button_index(gbtn->content.lval);
+    if (evidx == my_visible_event_idx)
     {
         gui_close_objective(gbtn);
     } else
@@ -78,9 +89,12 @@ void gui_open_event(struct GuiButton *gbtn)
 void gui_kill_event(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    struct Dungeon* dungeon = get_players_dungeon(player);
-    unsigned long i = gbtn->content.lval;
-    set_players_packet_action(player, PckA_EventBoxTurnOff, dungeon->event_button_index[i], 0, 0, 0);
+    EventIndex evidx = get_my_event_button_index(gbtn->content.lval);
+    turn_off_event_box_if_necessary(player->id_number, evidx);
+    if (game.event[evidx].kind != EvKind_Objective) {
+        my_event_button_state[evidx] |= EvBtnS_Hidden;
+        set_players_packet_action(player, PckA_EventBoxTurnOff, evidx, 0, 0, 0);
+    }
 }
 
 void turn_on_event_info_panel_if_necessary(EventIndex evidx)
@@ -95,12 +109,6 @@ void turn_on_event_info_panel_if_necessary(EventIndex evidx)
         if (!menu_is_active(GMnu_TEXT_INFO))
           turn_on_menu(GMnu_TEXT_INFO);
     }
-}
-
-void activate_event_box(EventIndex evidx)
-{
-    struct PlayerInfo* player = get_my_player();
-    set_players_packet_action(player, PckA_EventBoxActivate, evidx, 0,0,0);
 }
 
 void gui_previous_battle(struct GuiButton *gbtn)
@@ -175,8 +183,7 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
     struct Thing* thing = thing_get(battle_creature_over);
     if (thing_exists(thing))
     {
-        struct Packet* pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_ZoomToPosition, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+        move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
     }
 }
 
@@ -869,8 +876,10 @@ void draw_network_stats()
     unsigned int lost_packet_count = GetClientPacketsLost();
     unsigned int outgoing_rate_kb10 = (GetUploadRateBytesPerSecond() * 10) / 1024;
     unsigned int incoming_rate_kb10 = (GetDownloadRateBytesPerSecond() * 10) / 1024;
-    int input_lag = game.input_lag_turns;
-    int input_lag_ms = input_lag * 50;
+    int32_t packet_misses;
+    TbClockMSec increase_countdown;
+    TbClockMSec decrease_countdown;
+    input_lag_get_stats(&packet_misses, &increase_countdown, &decrease_countdown);
     int64_t turn_length_ns = 0;
     if (turns_per_second > 0) {
         turn_length_ns = 1000000000 / turns_per_second;
@@ -884,26 +893,35 @@ void draw_network_stats()
     LbTextDrawResized(0, 0, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Half ping: %lums", half_ping);
     LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Input lag: %d turns (%dms)",
-        input_lag, input_lag_ms);
+    snprintf(text, sizeof(text), "Input lag: %d", game.input_lag_turns);
     LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Packet waits: %d", packet_misses);
+    LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Increase input lag: %dms", increase_countdown);
+    LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Decrease input lag: %dms", decrease_countdown);
+    LbTextDrawResized(0, tx_units_per_px * 5, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Download: %u.%u KB/s",
         incoming_rate_kb10 / 10, incoming_rate_kb10 % 10);
-    LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 6, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Upload: %u.%u KB/s",
         outgoing_rate_kb10 / 10, outgoing_rate_kb10 % 10);
-    LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Congestion: %u bytes", transit);
-    LbTextDrawResized(0, tx_units_per_px * 5, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Loss rate: %u%%", packet_loss_percent);
-    LbTextDrawResized(0, tx_units_per_px * 6, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Lost packets: %u", lost_packet_count);
     LbTextDrawResized(0, tx_units_per_px * 7, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Micro stutters: %d%%", stutter_detection_average);
+    snprintf(text, sizeof(text), "Congestion: %u bytes", transit);
     LbTextDrawResized(0, tx_units_per_px * 8, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Turn length: %" PRId64, turn_length_ns);
+    snprintf(text, sizeof(text), "Loss rate: %u%%", packet_loss_percent);
     LbTextDrawResized(0, tx_units_per_px * 9, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
+    snprintf(text, sizeof(text), "Lost packets: %u", lost_packet_count);
     LbTextDrawResized(0, tx_units_per_px * 10, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Stutter: %dms", stutter_detection_current);
+    LbTextDrawResized(0, tx_units_per_px * 11, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Average stutter: %dms", stutter_detection_average);
+    LbTextDrawResized(0, tx_units_per_px * 12, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Max stutter: %dms", stutter_detection_max);
+    LbTextDrawResized(0, tx_units_per_px * 13, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Turn length: %" PRId64, turn_length_ns);
+    LbTextDrawResized(0, tx_units_per_px * 14, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
+    LbTextDrawResized(0, tx_units_per_px * 15, tx_units_per_px, text);
 }
 /******************************************************************************/

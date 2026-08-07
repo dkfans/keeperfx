@@ -34,6 +34,7 @@
 #include "sprites.h"
 #include "custom_sprites.h"
 #include "keeperfx.hpp"
+#include "timer.h"
 #include "post_inc.h"
 
 /******************************************************************************/

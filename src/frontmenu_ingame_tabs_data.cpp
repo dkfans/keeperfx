@@ -44,8 +44,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-void gui_zoom_in(struct GuiButton *gbtn);
-void gui_zoom_out(struct GuiButton *gbtn);
 void gui_go_to_map(struct GuiButton *gbtn);
 void gui_turn_on_autopilot(struct GuiButton *gbtn);
 void menu_tab_maintain(struct GuiButton *gbtn);

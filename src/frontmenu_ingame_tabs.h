@@ -89,6 +89,8 @@ extern const short pixels_needed[];
 /******************************************************************************/
 short get_pixels_scaled_and_zoomed(long basic_zoom);
 short scale_pixel(long basic_zoom);
+void gui_zoom_in(struct GuiButton *gbtn);
+void gui_zoom_out(struct GuiButton *gbtn);
 void draw_whole_status_panel(void);
 void gui_set_button_flashing(long btn_idx, long gameturns);
 short button_designation_to_tab_designation(short btn_designt_id);

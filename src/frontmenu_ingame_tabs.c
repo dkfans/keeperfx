@@ -58,6 +58,7 @@
 #include "player_computer.h"
 #include "player_instances.h"
 #include "config_players.h"
+#include "config_settings.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
 #include "frontmenu_ingame_map.h"
@@ -189,7 +190,9 @@ void gui_zoom_in(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     if (player->minimap_zoom > 128) {
-        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
+        player->minimap_zoom >>= 1;
+        settings.minimap_zoom = player->minimap_zoom;
+        save_settings();
     }
 }
 
@@ -197,7 +200,9 @@ void gui_zoom_out(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     if (player->minimap_zoom < 2048) {
-        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom << 1, 0, 0, 0);
+        player->minimap_zoom <<= 1;
+        settings.minimap_zoom = player->minimap_zoom;
+        save_settings();
     }
 }
 
@@ -393,13 +398,11 @@ void gui_area_event_button(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
         int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_message_rpanel_msg_questn_act, 100);
-        struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-        unsigned long i = gbtn->content.lval;
         if ((gbtn->button_state_left_pressed) || (gbtn->button_state_right_pressed))
         {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
         } else
-        if ((i <= EVENT_BUTTONS_COUNT) && (dungeon->event_button_index[i] == dungeon->visible_event_idx))
+        if (get_my_event_button_index(gbtn->content.lval) == my_visible_event_idx)
         {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
         } else
@@ -2181,21 +2184,11 @@ void gui_area_stat_button(struct GuiButton *gbtn)
 
 void maintain_event_button(struct GuiButton *gbtn)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    EventIndex evidx;
-    unsigned long evbtn_idx = gbtn->content.lval;
-    if (evbtn_idx <= EVENT_BUTTONS_COUNT)
-    {
-        evidx = dungeon->event_button_index[evbtn_idx];
-    }
-    else
-    {
-        evidx = 0;
-    }
+    EventIndex evidx = get_my_event_button_index(gbtn->content.lval);
     struct Event* event = &game.event[evidx];
-    if ((dungeon->visible_event_idx != 0) && (evidx == dungeon->visible_event_idx))
+    if ((my_visible_event_idx != 0) && (evidx == my_visible_event_idx))
     {
-        turn_on_event_info_panel_if_necessary(dungeon->visible_event_idx);
+        turn_on_event_info_panel_if_necessary(my_visible_event_idx);
         //TODO: that should be not here, Keys should be processed at one place
         if (((get_player(my_player_number)->allocflags & PlaF_NewMPMessage) == 0) &&
                 is_game_key_pressed(Gkey_ToggleMessage, true, false))
@@ -2205,14 +2198,14 @@ void maintain_event_button(struct GuiButton *gbtn)
     }
     else
     {
-        if (dungeon->visible_event_idx == 0)
+        if (my_visible_event_idx == 0)
         {
             if (((get_player(my_player_number)->allocflags & PlaF_NewMPMessage) == 0) &&
                 is_game_key_pressed(Gkey_ToggleMessage, true, false))
             {
                 for (int i = EVENT_BUTTONS_COUNT; i >= 0; i--)
                 {
-                    long k = dungeon->event_button_index[i];
+                    EventIndex k = get_my_event_button_index(i);
                     if (k != 0)
                     {
                         activate_event_box(k);
@@ -2245,7 +2238,7 @@ void maintain_event_button(struct GuiButton *gbtn)
         gbtn->sprite_idx += 2;
         if(is_game_key_pressed(Gkey_SpeedMod, false, true) && is_game_key_pressed(Gkey_ZoomToFight, true, true))
         {
-            if (evidx == dungeon->visible_event_idx)
+            if (evidx == my_visible_event_idx)
             {
             gui_close_objective(gbtn);
             }
@@ -2256,7 +2249,7 @@ void maintain_event_button(struct GuiButton *gbtn)
         }
     } else
     if (((event->kind == EvKind_Information) || (event->kind == EvKind_QuickInformation))
-      && (event->target < 0) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
+      && !(my_event_button_state[evidx] & EvBtnS_Read) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
     {
         // Unread information flashes
         gbtn->sprite_idx += 2;

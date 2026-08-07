@@ -431,14 +431,83 @@ static TbBool parse_speech_section(char* buf, long len, const char* config_textn
     return true;
 }
 
+enum StackTokenResult
+{
+    StackToken_NotAStackToken = 0, // tok doesn't start with "STACK=" — caller should try other meanings
+    StackToken_Valid          = 1, // tok is a valid STACK=mode[:max] token (out_mode/out_max filled)
+    StackToken_Malformed      = 2, // tok starts with "STACK=" but mode/value is invalid — a warning
+                                    // has already been logged; caller must NOT fall back to treating
+                                    // it as an alias or other value, or the config error goes silent.
+};
+
+/**
+ * @brief Parse an optional trailing "STACK=<mode>[:<max>]" token that sets the
+ * cross-emitter concurrency policy for the sound(s) being registered on this line.
+ *
+ * mode is "limit" (drop triggers beyond max, default max 1) or "duck" (scale down
+ * the gain of all concurrent instances as more start; max optionally also caps count).
+ */
+static enum StackTokenResult parse_stack_token(const char* tok, unsigned char* out_mode, short* out_max,
+    const char* config_textname)
+{
+    if (strncasecmp(tok, "STACK=", 6) != 0)
+    {
+        return StackToken_NotAStackToken;
+    }
+    const char* value = tok + 6;
+    const char* colon = strchr(value, ':');
+    char mode_buf[16];
+    size_t mode_len = colon ? (size_t)(colon - value) : strlen(value);
+    if (mode_len == 0 || mode_len >= sizeof(mode_buf))
+    {
+        WARNLOG("Malformed STACK token '%s' in %s; ignoring", tok, config_textname);
+        return StackToken_Malformed;
+    }
+    memcpy(mode_buf, value, mode_len);
+    mode_buf[mode_len] = '\0';
+    for (size_t i = 0; mode_buf[i] != '\0'; i++)
+        mode_buf[i] = (char)tolower((unsigned char)mode_buf[i]);
+
+    int max_val = colon ? atoi(colon + 1) : 0;
+    if (strcmp(mode_buf, "limit") == 0)
+    {
+        *out_mode = SStack_Limit;
+        *out_max = (short)(max_val > 0 ? max_val : 1);
+    }
+    else if (strcmp(mode_buf, "duck") == 0)
+    {
+        *out_mode = SStack_Duck;
+        *out_max = (short)(max_val > 0 ? max_val : 0);
+    }
+    else
+    {
+        WARNLOG("Unknown STACK mode '%s' in %s; expected 'limit' or 'duck'; ignoring", mode_buf, config_textname);
+        return StackToken_Malformed;
+    }
+    return StackToken_Valid;
+}
+
+/**
+ * @brief Register a stacking policy across a contiguous range of unified sample IDs
+ * (used for "count" > 1, e.g. several sequential variant files registered under one name).
+ */
+static void register_stack_policy_range(SoundSmplTblID first_id, int count, unsigned char mode, short max_instances)
+{
+    for (int i = 0; i < count; i++)
+        sound_register_stack_policy((SoundSmplTblID)(first_id + i), mode, max_instances);
+}
+
 /**
  * @brief Parse a single line.
  *
  * Handles three formats:
- *   NAME = id [count]            — register a named alias for a sound.dat ID
- *   NAME = filepath [count]      — load a custom file and register it under NAME
- *   id   = filepath [count] [ALIAS] — redirect a raw sound.dat ID to a custom file;
+ *   NAME = id [count] [STACK=mode[:max]]            — register a named alias for a sound.dat ID
+ *   NAME = filepath [count] [STACK=mode[:max]]      — load a custom file and register it under NAME
+ *   id   = filepath [count] [ALIAS] [STACK=mode[:max]] — redirect a raw sound.dat ID to a custom file;
  *                                     optionally also register ALIAS in the name registry
+ *
+ * STACK is optional; if omitted, the sound defaults to {Limit, 1} (at most one
+ * concurrent instance across all emitters), matching pre-Custom-Sounds behaviour.
  */
 static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const char* config_textname)
 {
@@ -515,16 +584,30 @@ static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const ch
         // Optional alias token — must start with a letter or underscore
         char alias_buf[COMMAND_WORD_LEN] = {0};
         char next_buf[COMMAND_WORD_LEN];
+        unsigned char stack_mode = SStack_Limit;
+        short stack_max = 1;
+        TbBool has_stack = false;
         if (get_conf_parameter_single(buf, pos, len, next_buf, sizeof(next_buf)) > 0)
         {
-            if (isalpha((unsigned char)next_buf[0]) || next_buf[0] == '_')
+            enum StackTokenResult stack_result = parse_stack_token(next_buf, &stack_mode, &stack_max, config_textname);
+            if (stack_result == StackToken_Valid)
+            {
+                has_stack = true;
+            }
+            else if (stack_result == StackToken_NotAStackToken && (isalpha((unsigned char)next_buf[0]) || next_buf[0] == '_'))
             {
                 // Normalize alias to uppercase
                 for (int i = 0; next_buf[i] != '\0'; i++)
                     next_buf[i] = (char)toupper((unsigned char)next_buf[i]);
                 snprintf(alias_buf, sizeof(alias_buf), "%s", next_buf);
             }
-            // If it wasn't an alpha token it was likely a stray comment — ignore it
+            // If it wasn't an alpha token or a STACK= token, it was likely a stray comment — ignore it.
+            // A malformed STACK= token was already warned about above and must not fall through here.
+        }
+        // A STACK= token may follow the alias too
+        if (!has_stack && get_conf_parameter_single(buf, pos, len, next_buf, sizeof(next_buf)) > 0)
+        {
+            has_stack = (parse_stack_token(next_buf, &stack_mode, &stack_max, config_textname) == StackToken_Valid);
         }
 
         // Build the internal name: use alias if given, else synthesise __RAW_<id>
@@ -546,6 +629,11 @@ static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const ch
         for (int i = 0; i < count; i++)
             sound_register_id_redirect((SoundSmplTblID)(raw_id + i), (SoundSmplTblID)(first_custom_id + i));
 
+        // Stacking policy is keyed by the resolved custom ID, since that's what
+        // play_sample() looks up after applying the redirect.
+        if (has_stack)
+            register_stack_policy_range(first_custom_id, count, stack_mode, stack_max);
+
         if (alias_buf[0] != '\0') {
             SYNCDBG(5, "Raw-ID redirect: %ld..%ld -> custom IDs %d..%d (alias '%s')",
                     raw_id, raw_id + count - 1, first_custom_id, first_custom_id + count - 1, alias_buf);
@@ -558,10 +646,20 @@ static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const ch
     }
 
     // -----------------------------------------------------------------------
-    // Named-key path: NAME = id [count]  OR  NAME = filepath [count]
+    // Named-key path: NAME = id [count] [STACK=...]  OR  NAME = filepath [count] [STACK=...]
     // -----------------------------------------------------------------------
     char* endptr;
     long id_value = strtol(value_buf, &endptr, 10);
+
+    // Optional trailing STACK=mode[:max] token
+    char stack_buf[COMMAND_WORD_LEN];
+    unsigned char stack_mode = SStack_Limit;
+    short stack_max = 1;
+    TbBool has_stack = false;
+    if (get_conf_parameter_single(buf, pos, len, stack_buf, sizeof(stack_buf)) > 0)
+    {
+        has_stack = (parse_stack_token(stack_buf, &stack_mode, &stack_max, config_textname) == StackToken_Valid);
+    }
 
     if (*endptr == '\0' && id_value > 0)
     {
@@ -573,6 +671,8 @@ static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const ch
                     name_buf, sample_id, config_textname);
             return false;
         }
+        if (has_stack)
+            register_stack_policy_range(sample_id, count, stack_mode, stack_max);
         SYNCDBG(8, "Registered sound '%s' -> ID %d (count %d)", name_buf, sample_id, count);
     }
     else
@@ -585,6 +685,8 @@ static TbBool parse_sound_line(const char* buf, int32_t* pos, long len, const ch
                     name_buf, value_buf, config_textname);
             return false;
         }
+        if (has_stack)
+            register_stack_policy_range(id, count, stack_mode, stack_max);
         SYNCDBG(8, "Registered custom sound '%s' -> ID %d (file '%s', count %d)",
                 name_buf, id, value_buf, count);
     }

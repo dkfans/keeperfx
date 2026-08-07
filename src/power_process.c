@@ -36,7 +36,6 @@
 #include "creature_instances.h"
 #include "creature_states.h"
 #include "creature_senses.h"
-#include "ariadne_wallhug.h"
 #include "config_terrain.h"
 #include "config_creature.h"
 #include "config_effects.h"

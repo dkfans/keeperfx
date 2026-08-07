@@ -32,7 +32,6 @@
 #include "creature_states_hero.h"
 #include "config_creature.h"
 #include "room_jobs.h"
-#include "ariadne_wallhug.h"
 #include "game_legacy.h"
 #include "post_inc.h"
 

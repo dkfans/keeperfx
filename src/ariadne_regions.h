@@ -29,18 +29,7 @@
 extern "C" {
 #endif
 
-/******************************************************************************/
-#pragma pack(1)
 
-struct RegionT { // sizeof = 3
-  unsigned short num_triangles;
-  unsigned char is_connected;
-};
-
-#pragma pack()
-/******************************************************************************/
-extern struct RegionT bad_region;
-#define INVALID_REGION &bad_region;
 /******************************************************************************/
 TbBool regions_connected(long first_tree_region, long second_tree_region);
 void region_store_init(void);

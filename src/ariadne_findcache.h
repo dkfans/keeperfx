@@ -32,8 +32,6 @@ extern "C" {
 
 #pragma pack()
 /******************************************************************************/
-long triangle_find_cache_get(long pos_x, long pos_y);
-void triangle_find_cache_put(long pos_x, long pos_y, long ntri);
 
 void triangulation_init_cache(long tri_idx);
 

@@ -271,7 +271,6 @@ TbBool creature_model_matches_model(ThingModel creatng_model, PlayerNumber plyr_
 TbBool thing_matches_model(const struct Thing* thing, long crmodel);
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);
-unsigned long update_cave_in_things(void);
 unsigned long update_creatures_not_in_list(void);
 void update_things_in_list(struct StructureList *list);
 void init_player_start(struct PlayerInfo *player, TbBool keep_prev);

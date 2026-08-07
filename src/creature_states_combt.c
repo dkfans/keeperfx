@@ -45,7 +45,6 @@
 #include "room_jobs.h"
 #include "map_blocks.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"

@@ -451,3 +451,9 @@ void add_creature_to_pool(ThingModel kind, int32_t amount)
         game.pool.crtr_kind[kind] += amount;
     }
 }
+
+void clear_creature_pool(void)
+{
+    memset(&game.pool,0,sizeof(struct CreaturePool));
+    game.pool.is_empty = true;
+}

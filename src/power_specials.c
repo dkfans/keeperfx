@@ -361,6 +361,9 @@ void make_safe(struct PlayerInfo *player)
     SlabCodedCoords* slblist = (SlabCodedCoords*)(big_scratch + game.map_tiles_x * game.map_tiles_y);
     unsigned int list_len = 0;
     unsigned int list_cur = 0;
+    struct Room* room_list[ROOMS_COUNT + 1];
+    memset(room_list, 0, sizeof(room_list));
+
     while (list_cur <= list_len)
     {
         SlabCodedCoords slb_num;
@@ -377,7 +380,7 @@ void make_safe(struct PlayerInfo *player)
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x - 1, slb_y);
                     place_slab_type_on_map(pretty_type, slab_subtile(slb_x-1,0), slab_subtile(slb_y,0), plyr_idx, 0);
-                    do_slab_efficiency_alteration(slb_x-1, slb_y);
+                    collect_rooms_around_slab(slb_x-1, slb_y, room_list, sizeof(room_list)/sizeof(room_list[0]));
                     fill_in_reinforced_corners(plyr_idx, slb_x-1, slb_y);
                 }
             } else
@@ -400,7 +403,7 @@ void make_safe(struct PlayerInfo *player)
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x + 1, slb_y);
                     place_slab_type_on_map(pretty_type, slab_subtile(slb_x+1,0), slab_subtile(slb_y,0), plyr_idx, 0);
-                    do_slab_efficiency_alteration(slb_x+1, slb_y);
+                    collect_rooms_around_slab(slb_x+1, slb_y, room_list, sizeof(room_list)/sizeof(room_list[0]));
                     fill_in_reinforced_corners(plyr_idx, slb_x+1, slb_y);
                 }
             } else
@@ -423,7 +426,7 @@ void make_safe(struct PlayerInfo *player)
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y - 1);
                     place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 0);
-                    do_slab_efficiency_alteration(slb_x, slb_y-1);
+                    collect_rooms_around_slab(slb_x, slb_y-1, room_list, sizeof(room_list)/sizeof(room_list[0]));
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y-1);
                 }
             } else
@@ -446,7 +449,7 @@ void make_safe(struct PlayerInfo *player)
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y + 1);
                     place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 0);
-                    do_slab_efficiency_alteration(slb_x, slb_y+1);
+                    collect_rooms_around_slab(slb_x, slb_y+1, room_list, sizeof(room_list)/sizeof(room_list[0]));
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y+1);
                 }
             } else
@@ -462,6 +465,7 @@ void make_safe(struct PlayerInfo *player)
         slb_y = slb_num_decode_y(slblist[list_cur]);
         list_cur++;
     }
+    recalculate_rooms_in_list(room_list, sizeof(room_list)/sizeof(room_list[0]));
     panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
 }
 
@@ -475,6 +479,9 @@ void make_unsafe(PlayerNumber plyr_idx)
     struct PowerConfigStats* powerst;
     struct Dungeon* dungeon;
     struct Coord3d pos;
+    struct Room* room_list[ROOMS_COUNT + 1];
+    memset(room_list, 0, sizeof(room_list));
+
     for (slb_y = 0; slb_y < game.map_tiles_y; slb_y++)
     {
         for (slb_x = 0; slb_x < game.map_tiles_x; slb_x++)
@@ -495,11 +502,12 @@ void make_unsafe(PlayerNumber plyr_idx)
                     powerst = get_power_model_stats(PwrK_DESTRWALLS);
                     play_sound_if_close_to_receiver(&pos, powerst->select_sound_idx);
                     place_slab_type_on_map(newslab, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 0);
-                    do_slab_efficiency_alteration(slb_x, slb_y);
+                    collect_rooms_around_slab(slb_x, slb_y, room_list, sizeof(room_list)/sizeof(room_list[0]));
                 }
             }
         }
     }
+    recalculate_rooms_in_list(room_list, sizeof(room_list)/sizeof(room_list[0]));
     panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
 }
 
