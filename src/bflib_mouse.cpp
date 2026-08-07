@@ -27,6 +27,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_video.h"
+#include "kfx/platform/PlatformManager.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_mshandler.hpp"
@@ -115,8 +116,7 @@ TbResult LbMouseSetPosition(long x, long y)
   {
     return Lb_FAIL;
   }
-  SDL_Window *window = lbWindow;
-  SDL_WarpMouseInWindow(window, (float)x, (float)y);
+  PlatformManager_WarpCursor((int)x, (int)y);
   return Lb_SUCCESS;
 }
 

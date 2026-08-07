@@ -46,5 +46,6 @@ res/keeperfx_icon.ico
 /src/ver_defs.h
 keeperfx.log
 crash_log.txt
+debug.log
 .local/
 .vscode/compile_and_copy_files.ps1
