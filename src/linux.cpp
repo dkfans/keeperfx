@@ -15,25 +15,6 @@
 #include <unistd.h>
 #include <fnmatch.h>
 
-extern "C" const char * get_os_version() {
-    return "Linux";
-}
-
-extern "C" const void * get_image_base()
-{
-    return nullptr;
-}
-
-extern "C" const char * get_wine_version()
-{
-    return nullptr; // we're running native
-}
-
-extern "C" const char * get_wine_host()
-{
-    return nullptr; // we're running native
-}
-
 extern "C" void install_exception_handler()
 {
 	LbErrorParachuteInstall();
