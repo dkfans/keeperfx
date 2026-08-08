@@ -375,7 +375,7 @@ void process_pause_packet(long curr_pause, long new_pause)
   }
 }
 
-void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera)
+void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera)
 {
     if (cam == NULL) {
         return;
@@ -1152,7 +1152,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     return true;
 }
 
-void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll)
+void process_first_person_look(struct Thing *thing, const struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll)
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     long maxTurnSpeed = crconf->max_turning_speed;
