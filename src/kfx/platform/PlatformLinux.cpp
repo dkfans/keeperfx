@@ -4,6 +4,11 @@
 #include <cstdlib>
 #include "post_inc.h"
 
+const char* PlatformLinux::GetOSVersion() const { return "Linux"; }
+const void* PlatformLinux::GetImageBase() const { return nullptr; }
+const char* PlatformLinux::GetWineVersion() const { return nullptr; } // running native
+const char* PlatformLinux::GetWineHost() const { return nullptr; }    // running native
+
 bool PlatformLinux::VideoInit()
 {
     if (!SDL_Init(SDL_INIT_VIDEO))

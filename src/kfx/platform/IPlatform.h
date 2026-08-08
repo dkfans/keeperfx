@@ -10,6 +10,12 @@ class IPlatform {
 public:
     virtual ~IPlatform() = default;
 
+    // ----- OS information -----
+    virtual const char* GetOSVersion() const = 0;
+    virtual const void* GetImageBase() const = 0;
+    virtual const char* GetWineVersion() const = 0; // nullptr when not running under Wine
+    virtual const char* GetWineHost() const = 0;    // nullptr when not running under Wine
+
     /** Initialise the display subsystem. Per-OS: Windows adjusts SDL hints
      *  before SDL_Init, Linux initialises plainly. Returns false on failure. */
     virtual bool VideoInit() = 0;
