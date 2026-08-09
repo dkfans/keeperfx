@@ -5177,7 +5177,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureM
         cctrl->paydays_owed -= pay_days;
         cctrl->paydays_advanced -= pay_days;
     }
-    if ((crconf->pay == 0) || (cctrl->paydays_owed == 0)) {
+    if (cctrl->paydays_owed == 0) {
       return 0;
     }
 
