@@ -30,7 +30,7 @@ const char* PlatformWindows::GetWineVersion() const
 {
     const auto module = GetModuleHandle("ntdll.dll");
     if (module) {
-        const auto wine_get_version = reinterpret_cast<const char* (WINAPI*)()>(GetProcAddress(module, "wine_get_version"));
+        const auto wine_get_version = (const char* (WINAPI*)()) (void*) GetProcAddress(module, "wine_get_version");
         if (wine_get_version) {
             return wine_get_version();
         }
