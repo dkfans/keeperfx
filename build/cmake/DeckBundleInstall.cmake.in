@@ -1,0 +1,70 @@
+# Auto-generated from DeckBundleInstall.cmake.in (KFX_DECK_BUNDLE). Runs at
+# `cmake --install` time: resolves keeperfx's runtime shared libraries, copies
+# the non-system ones into <prefix>/lib, and gives everything an $ORIGIN rpath
+# so the bundle is relocatable. Do not edit the generated copy in the build dir.
+
+set(_bin "${CMAKE_INSTALL_PREFIX}/keeperfx")
+if(NOT EXISTS "${_bin}")
+    message(FATAL_ERROR "Deck bundle: ${_bin} not found — install the keeperfx target first")
+endif()
+
+# Names we never bundle: the loader + glibc, the C++/GCC runtime (the Deck's is
+# newer and forward-compatible), and the GPU/display/audio/system libraries that
+# must match the Deck's own drivers and compositor.
+set(_pre_exclude
+    "^ld-linux.*" "^libc\\.so" "^libm\\.so" "^libdl\\.so" "^libpthread\\.so"
+    "^librt\\.so" "^libresolv\\.so" "^libstdc\\+\\+\\.so" "^libgcc_s\\.so"
+    "^libGL" "^libEGL" "^libGLX" "^libGLdispatch" "^libOpenGL" "^libdrm" "^libgbm"
+    "^libX11" "^libX11-xcb" "^libxcb" "^libXext" "^libXrandr" "^libXcursor"
+    "^libXi\\.so" "^libXfixes" "^libXrender" "^libXau" "^libXdmcp"
+    "^libwayland" "^libxkbcommon" "^libdbus-1" "^libudev" "^libsystemd"
+    "^libasound" "^libpulse")
+
+# Safety net by resolved path: never copy the GPU/display/audio system libs even
+# if a soname slips past the name filter above.
+set(_post_exclude
+    "/(libGL|libEGL|libGLX|libGLdispatch|libOpenGL|libX11|libX11-xcb|libxcb|libXext|libXrandr|libXcursor|libXfixes|libXrender|libXau|libXdmcp|libwayland|libxkbcommon|libdrm|libgbm|libdbus-1|libudev|libsystemd|libasound|libpulse)[^/]*\\.so")
+
+# Libraries built from source (FetchContent SDL3, etc.) live in the build tree,
+# not on the system linker path, so feed their directories in as search hints.
+file(GLOB_RECURSE _built_sos "@CMAKE_BINARY_DIR@/*.so*")
+set(_search_dirs)
+foreach(_so IN LISTS _built_sos)
+    get_filename_component(_d "${_so}" DIRECTORY)
+    list(APPEND _search_dirs "${_d}")
+endforeach()
+if(_search_dirs)
+    list(REMOVE_DUPLICATES _search_dirs)
+endif()
+
+file(GET_RUNTIME_DEPENDENCIES
+    EXECUTABLES "${_bin}"
+    RESOLVED_DEPENDENCIES_VAR _resolved
+    UNRESOLVED_DEPENDENCIES_VAR _unresolved
+    DIRECTORIES ${_search_dirs}
+    PRE_EXCLUDE_REGEXES ${_pre_exclude}
+    POST_EXCLUDE_REGEXES ${_post_exclude})
+
+file(MAKE_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib")
+foreach(_dep IN LISTS _resolved)
+    file(INSTALL "${_dep}"
+        DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
+        FOLLOW_SYMLINK_CHAIN)
+endforeach()
+
+# RUNPATH is not transitive, so each bundled library needs its own $ORIGIN rpath
+# to find its siblings in the same dir (e.g. libavcodec -> libavutil).
+file(GLOB _bundled "${CMAKE_INSTALL_PREFIX}/lib/*.so*")
+foreach(_lib IN LISTS _bundled)
+    if(NOT IS_SYMLINK "${_lib}")
+        execute_process(
+            COMMAND "@KFX_PATCHELF@" --set-rpath "$ORIGIN" "${_lib}"
+            RESULT_VARIABLE _rc OUTPUT_QUIET ERROR_QUIET)
+    endif()
+endforeach()
+
+list(LENGTH _resolved _count)
+message(STATUS "Deck bundle: ${_count} libraries -> ${CMAKE_INSTALL_PREFIX}/lib (system libs left to the host)")
+if(_unresolved)
+    message(STATUS "Deck bundle: unresolved (host-provided): ${_unresolved}")
+endif()

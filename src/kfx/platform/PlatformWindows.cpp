@@ -1,10 +1,15 @@
 #include "pre_inc.h"
 #include "kfx/platform/PlatformWindows.h"
+#include "kfx/platform/FileFind.h"
+#include "bflib_fileio.h"
 #include <SDL3/SDL.h>
 #include <cstdlib>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
+#include <algorithm>
+#include <cctype>
+#include <memory>
 #include "post_inc.h"
 
 const char* PlatformWindows::GetOSVersion() const
@@ -53,6 +58,35 @@ const char* PlatformWindows::GetWineHost() const
         }
     }
     return nullptr;
+}
+
+TbFileFind* PlatformWindows::FileFindFirst(const char* filespec, TbFileEntry* entry)
+{
+    auto ffind = std::make_unique<TbFileFind>();
+    WIN32_FIND_DATA fd;
+    HANDLE handle = FindFirstFile(filespec, &fd);
+    if (handle == INVALID_HANDLE_VALUE) {
+        return nullptr;
+    }
+    do {
+        // Regular files only. Skipping directories also drops "." and ".." so a
+        // plain "*" enumerates the same set as the Linux implementation.
+        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            continue;
+        }
+        std::string key = fd.cFileName;
+        for (size_t i = 0; i < key.size(); i++) {
+            key[i] = (char)tolower((unsigned char)key[i]);
+        }
+        ffind->names.emplace_back(key, fd.cFileName);
+    } while (FindNextFile(handle, &fd));
+    FindClose(handle);
+    if (ffind->names.empty()) {
+        return nullptr;
+    }
+    std::sort(ffind->names.begin(), ffind->names.end());
+    entry->Filename = ffind->names[0].second.c_str();
+    return ffind.release();
 }
 
 bool PlatformWindows::VideoInit()

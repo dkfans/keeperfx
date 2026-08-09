@@ -150,5 +150,24 @@
 			"group": "build",
 			"dependsOn": "Compile",
 		},
+		{
+			"label": "Deploy + Debug on Steam Deck",
+			"type": "shell",
+			"windows": {
+				"command": "wsl bash ./scripts/deploy-to-deck.sh --gdb --binary out/keeperfx"
+			},
+			"linux": {
+				"command": "bash ./scripts/deploy-to-deck.sh --gdb --binary out/keeperfx"
+			},
+			"problemMatcher": [],
+			"group": "build",
+			"presentation": {
+				"clear": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "dedicated",
+				"showReuseMessage": false
+			}
+		},
 	],
 }
