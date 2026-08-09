@@ -5162,7 +5162,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureM
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((crconf->pay == 0) || (cctrl->paydays_owed == 0)) {
-      return 0;
+        return 0;
     }
     if (creature_is_taking_salary_activity(creatng)) {
         return 1;
@@ -5178,7 +5178,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureM
         cctrl->paydays_advanced -= pay_days;
     }
     if (cctrl->paydays_owed == 0) {
-      return 0;
+        return 0;
     }
 
     cctrl->collided_door_subtile = 0;
