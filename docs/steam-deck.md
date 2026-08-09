@@ -1,11 +1,5 @@
 # KeeperFX on a Steam Deck — remote dev-kit workflow
 
-```
-edit (PC) ─ build-deck-bundle.sh (pinned container) ─ deploy-to-deck.sh ─▶ Steam Deck ─ run
-                                                                              │
-                    IDE breakpoints / stepping ◀── gdbserver :2345 ◀──────────┘
-```
-
 Two commands once it's set up:
 
 ```bash
