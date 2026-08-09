@@ -11,6 +11,8 @@ public:
     const char* GetWineVersion() const override;
     const char* GetWineHost() const override;
 
+    TbFileFind* FileFindFirst(const char* filespec, TbFileEntry* entry) override;
+
     bool VideoInit() override;
 };
 

@@ -120,6 +120,19 @@
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
             }
+        },
+
+        {
+            "name": "linux-deck",
+            "displayName": "Linux (Steam Deck bundle)",
+            "description": "Native x86-64 Linux build that installs as a self-contained bundle for the Steam Deck. Build in the pinned container (build/docker/deck.Dockerfile) so glibc matches the Deck; see docs/steam-deck.md.",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/deck",
+            "installDir": "${sourceDir}/out/keeperfx-deck",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "KFX_DECK_BUNDLE": "ON"
+            }
         }
     ],
     "buildPresets": [
