@@ -2176,8 +2176,10 @@ static short get_map_action_inputs(void)
 
 static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,TbBool mods_used)
 {
-    // Reserve the scroll wheel for the resurrect and transfer creature specials
-    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || rotate_pressed || mods_used) == 0)
+    // Reserve the scroll wheel for the resurrect and transfer creature specials, and
+    // for the in-game Load/Save menus (there the wheel scrolls the savegame list).
+    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE)
+        || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE) || rotate_pressed || mods_used) == 0)
     {
         // mouse scroll zoom unaffected by frameskip
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
