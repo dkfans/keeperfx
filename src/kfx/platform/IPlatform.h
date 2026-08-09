@@ -2,6 +2,8 @@
 #define IPLATFORM_H
 
 class IWindowSystem;
+struct TbFileFind;
+struct TbFileEntry;
 
 /** Per-OS platform services. PlatformManager selects the concrete
  *  implementation (PlatformWindows / PlatformLinux) for the build target;
@@ -9,6 +11,14 @@ class IWindowSystem;
 class IPlatform {
 public:
     virtual ~IPlatform() = default;
+
+    // ----- OS information -----
+    virtual const char* GetOSVersion() const = 0;
+    virtual const void* GetImageBase() const = 0;
+    virtual const char* GetWineVersion() const = 0; // nullptr when not running under Wine
+    virtual const char* GetWineHost() const = 0;    // nullptr when not running under Wine
+
+    virtual TbFileFind* FileFindFirst(const char* filespec, TbFileEntry* entry) = 0;
 
     /** Initialise the display subsystem. Per-OS: Windows adjusts SDL hints
      *  before SDL_Init, Linux initialises plainly. Returns false on failure. */

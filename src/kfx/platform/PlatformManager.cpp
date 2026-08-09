@@ -12,6 +12,9 @@
 #include "kfx/platform/IPlatform.h"
 #include "kfx/platform/PlatformWindows.h"
 #include "kfx/platform/PlatformLinux.h"
+#include "kfx/platform/FileFind.h"
+#include "platform.h"
+#include "bflib_fileio.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -26,6 +29,39 @@ IPlatform* GetPlatform()
     static PlatformLinux s_platform;
 #endif
     return &s_platform;
+}
+
+/******************************************************************************/
+
+extern "C" const char * get_os_version(void)   { return GetPlatform()->GetOSVersion(); }
+extern "C" const void * get_image_base(void)    { return GetPlatform()->GetImageBase(); }
+extern "C" const char * get_wine_version(void)  { return GetPlatform()->GetWineVersion(); }
+extern "C" const char * get_wine_host(void)     { return GetPlatform()->GetWineHost(); }
+
+/******************************************************************************/
+
+// The directory walk is per-OS; iterating and freeing the result is not.
+extern "C" struct TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntry * fentry)
+{
+    return GetPlatform()->FileFindFirst(filespec, fentry);
+}
+
+extern "C" int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fentry)
+{
+    if (!ffind) {
+        return -1;
+    }
+    ffind->index++;
+    if (ffind->index >= ffind->names.size()) {
+        return -1;
+    }
+    fentry->Filename = ffind->names[ffind->index].second.c_str();
+    return 1;
+}
+
+extern "C" void LbFileFindEnd(struct TbFileFind * ffind)
+{
+    delete ffind;
 }
 
 /******************************************************************************/

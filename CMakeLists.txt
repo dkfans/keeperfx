@@ -46,3 +46,6 @@ if(WIN32)
 endif()
 
 include(Packaging)
+
+# Optional self-contained Linux/Steam Deck bundle (-DKFX_DECK_BUNDLE=ON).
+include(DeckBundle)

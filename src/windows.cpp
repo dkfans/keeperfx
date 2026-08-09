@@ -16,56 +16,6 @@
 #include <vector>
 #include "post_inc.h"
 
-extern "C" const char * get_os_version()
-{
-    static char buffer[256];
-    OSVERSIONINFO v;
-    v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    if (GetVersionEx(&v)) {
-        snprintf(buffer, sizeof(buffer), "%s %ld.%ld.%ld",
-            (v.dwPlatformId == VER_PLATFORM_WIN32_NT) ? "Windows NT" : "Windows",
-            v.dwMajorVersion, v.dwMinorVersion, v.dwBuildNumber);
-        return buffer;
-    } else {
-        return "unknown";
-    }
-}
-
-extern "C" const void * get_image_base()
-{
-    return GetModuleHandle(NULL);
-}
-
-
-extern "C" const char * get_wine_version()
-{
-    const auto module = GetModuleHandle("ntdll.dll");
-    if (module) {
-        const auto wine_get_version = (const char * (WINAPI *)()) (void *) GetProcAddress(module, "wine_get_version");
-        if (wine_get_version) {
-            return wine_get_version();
-        }
-    }
-    return nullptr;
-}
-
-extern "C" const char * get_wine_host()
-{
-    const auto module = GetModuleHandle("ntdll.dll");
-    static char buffer[256];
-    if (module) {
-        const auto wine_get_host_version = (void (WINAPI *)(const char **, const char **)) (void *) GetProcAddress(module, "wine_get_host_version");
-        if (wine_get_host_version) {
-            const char * sys_name = nullptr;
-            const char * release_name = nullptr;
-            wine_get_host_version(&sys_name, &release_name);
-            snprintf(buffer, sizeof(buffer), "%s %s", sys_name ? sys_name : "unknown", release_name ? release_name : "unknown");
-            return buffer;
-        }
-    }
-    return nullptr;
-}
-
 const char * exception_name(DWORD exception_code)
 {
     switch (exception_code) {
@@ -126,57 +76,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     }
     LocalFree(szArglist);
     return kfxmain(argc, argv.data());
-}
-
-struct TbFileFind {
-    std::vector<std::pair<std::string, std::string>> names;
-    size_t index = 0;
-};
-
-extern "C" TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntry * fentry)
-{
-    auto ffind = std::make_unique<TbFileFind>();
-    WIN32_FIND_DATA fd;
-    HANDLE handle = FindFirstFile(filespec, &fd);
-    if (handle == INVALID_HANDLE_VALUE) {
-        return nullptr;
-    }
-    do {
-        // Only return regular files. Skipping directories also drops "." and
-        // ".."; this matches the Linux implementation (which keeps S_ISREG
-        // entries only) so a plain "*" enumerates files on both platforms alike.
-        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-            continue;
-        }
-        std::string key = fd.cFileName;
-        for (size_t i = 0; i < key.size(); i++) {
-            key[i] = (char)tolower((unsigned char)key[i]);
-        }
-        ffind->names.emplace_back(key, fd.cFileName);
-    } while (FindNextFile(handle, &fd));
-    FindClose(handle);
-    if (ffind->names.empty()) {
-        return nullptr;
-    }
-    std::sort(ffind->names.begin(), ffind->names.end());
-    fentry->Filename = ffind->names[0].second.c_str();
-    return ffind.release();
-}
-
-extern "C" int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fentry)
-{
-    if (!ffind) {
-        return -1;
-    }
-    ffind->index++;
-    if (ffind->index >= ffind->names.size()) {
-        return -1;
-    }
-    fentry->Filename = ffind->names[ffind->index].second.c_str();
-    return 1;
-}
-
-extern "C" void LbFileFindEnd(struct TbFileFind * ffind)
-{
-    delete ffind;
 }
