@@ -12,6 +12,7 @@
 #include "kfx/platform/IPlatform.h"
 #include "kfx/platform/PlatformWindows.h"
 #include "kfx/platform/PlatformLinux.h"
+#include "platform.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -27,6 +28,13 @@ IPlatform* GetPlatform()
 #endif
     return &s_platform;
 }
+
+/******************************************************************************/
+
+extern "C" const char * get_os_version(void)   { return GetPlatform()->GetOSVersion(); }
+extern "C" const void * get_image_base(void)    { return GetPlatform()->GetImageBase(); }
+extern "C" const char * get_wine_version(void)  { return GetPlatform()->GetWineVersion(); }
+extern "C" const char * get_wine_host(void)     { return GetPlatform()->GetWineHost(); }
 
 /******************************************************************************/
 
