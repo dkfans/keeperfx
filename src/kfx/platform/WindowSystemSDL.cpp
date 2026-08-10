@@ -36,8 +36,19 @@ static SDL_DisplayID display_index_to_id(int index)
 }
 
 bool WindowSystemSDL::IsAppActive() const { return m_appActive; }
-void WindowSystemSDL::OnFocusGained()     { m_appActive = true; }
-void WindowSystemSDL::OnFocusLost()       { m_appActive = false; }
+void WindowSystemSDL::OnFocusGained()     { m_appActive = true;  ApplyOsCursorPolicy(); }
+void WindowSystemSDL::OnFocusLost()       { m_appActive = false; ApplyOsCursorPolicy(); }
+
+void WindowSystemSDL::ApplyOsCursorPolicy()
+{
+    if (!lbWindow)
+        return;
+    const bool focused = (SDL_GetWindowFlags(lbWindow) & SDL_WINDOW_INPUT_FOCUS) != 0;
+    if (focused)
+        SDL_HideCursor();
+    else
+        SDL_ShowCursor();
+}
 
 void WindowSystemSDL::SetCursorGrab(bool grab)
 {
@@ -45,6 +56,7 @@ void WindowSystemSDL::SetCursorGrab(bool grab)
         return;
     if (SDL_getenv("NO_RELATIVE_MOUSE") == nullptr)
         SDL_SetWindowRelativeMouseMode(lbWindow, grab);
+    ApplyOsCursorPolicy();
 }
 
 void WindowSystemSDL::SetCursorVisible(bool visible)

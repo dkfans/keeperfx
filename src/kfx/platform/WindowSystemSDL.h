@@ -43,6 +43,8 @@ public:
     // PollInput is a no-op: SDL delivers mouse input via events.
 
 private:
+    void ApplyOsCursorPolicy();
+
     bool m_appActive = true;
 };
 

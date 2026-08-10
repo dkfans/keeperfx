@@ -556,6 +556,8 @@ void LbMouseCheckPosition(TbBool grab_state_changed)
 void LbSetMouseGrab(TbBool grab_mouse)
 {
     IWindowSystem* ws = GetSDLWindowSystem();
+    if (!ws->HasOSCursor()) // consoles (Vita/3DS) have no OS cursor to grab or hide
+        return;
     TbBool previousGrabState = lbMouseGrabbed;
     lbMouseGrabbed = grab_mouse;
     if (lbMouseGrabbed)
@@ -568,7 +570,6 @@ void LbSetMouseGrab(TbBool grab_mouse)
         ws->SetCursorGrab(false);
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
     }
-    ws->SetCursorVisible(!ws->IsAppActive());
 }
 
 static void LbClearTextInput(void)
