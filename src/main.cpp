@@ -1399,7 +1399,7 @@ void update_local_mouse_light(void)
     // Avoid glitching during level intro or possess animation
     if (player->instance_num != PI_Unset)
         return;
-        // ... or when watching a replay
+    // ... or when watching a replay
     if (game.packet_load_enable)
         return;
     // ... or during text input (save menu)
