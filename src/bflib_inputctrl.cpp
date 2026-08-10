@@ -460,6 +460,11 @@ static void process_event(const SDL_Event *ev)
     case SDL_EVENT_WINDOW_RESIZED:
         break;
 
+    case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
+        // SDL3 drops relative-mouse grab on the fullscreen transition; re-sync it.
+        LbSetMouseGrab(lbMouseGrabbed);
+        break;
+
     case SDL_EVENT_GAMEPAD_AXIS_MOTION:
     case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
     case SDL_EVENT_GAMEPAD_BUTTON_UP:
