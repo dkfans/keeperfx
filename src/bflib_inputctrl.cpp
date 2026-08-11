@@ -55,9 +55,10 @@ static TbBool isMouseActivated = false;
 static TbBool firstTimeMouseInit = true;
 
 // TEMP diagnostic for the SDL3 fullscreen cursor bug (#5093). Remove before merge.
-#define CURSORDBG(where) JUSTLOG("CURSORDBG %-14s grabbed=%d rel=%d focus=%d active=%d", (where), \
+#define CURSORDBG(where) JUSTLOG("CURSORDBG %-14s grabbed=%d confine=%d vis=%d focus=%d active=%d", (where), \
     (int)lbMouseGrabbed, \
-    lbWindow ? (int)SDL_GetWindowRelativeMouseMode(lbWindow) : -1, \
+    lbWindow ? (int)SDL_GetWindowMouseGrab(lbWindow) : -1, \
+    (int)SDL_CursorVisible(), \
     lbWindow ? (int)((SDL_GetWindowFlags(lbWindow) & SDL_WINDOW_INPUT_FOCUS) != 0) : -1, \
     (int)isMouseActive)
 
@@ -327,8 +328,15 @@ static void process_event(const SDL_Event *ev)
           return;
         }
         static int frac_x = 0, frac_y = 0;
+        static bool s_recenter_pending = false;
         if (lbMouseGrabbed && lbDisplay.MouseMoveRatio > 0)
         {
+            // Warp-based relative motion (Wine-safe).
+            if (s_recenter_pending)
+            {
+                s_recenter_pending = false;
+                break;
+            }
             int dx = ev->motion.xrel * lbDisplay.MouseMoveRatio + frac_x;
             int dy = ev->motion.yrel * lbDisplay.MouseMoveRatio + frac_y;
 
@@ -337,6 +345,18 @@ static void process_event(const SDL_Event *ev)
 
             frac_x = dx - (mouseDelta.x * 256);
             frac_y = dy - (mouseDelta.y * 256);
+
+            IWindowSystem* ws = GetSDLWindowSystem();
+            int win_w = 0, win_h = 0;
+            ws->GetWindowSize(&win_w, &win_h);
+            const int margin = 48;
+            if (win_w > 2 * margin && win_h > 2 * margin &&
+                (ev->motion.x <= margin || ev->motion.x >= win_w - margin ||
+                 ev->motion.y <= margin || ev->motion.y >= win_h - margin))
+            {
+                ws->WarpCursor(win_w / 2, win_h / 2);
+                s_recenter_pending = true;
+            }
         }
         else
         {
@@ -577,11 +597,12 @@ void LbMouseCheckPosition(TbBool grab_state_changed)
 void LbSetMouseGrab(TbBool grab_mouse)
 {
     IWindowSystem* ws = GetSDLWindowSystem();
-    if (!ws->HasOSCursor()) // consoles (Vita/3DS) have no OS cursor to grab or hide
+    if (!ws->HasOSCursor()) // consoles will have no OS cursor to grab or hide
         return;
-    JUSTLOG("CURSORDBG SetGrab req=%d (before) grabbed=%d rel=%d focus=%d active=%d",
+    JUSTLOG("CURSORDBG SetGrab req=%d (before) grabbed=%d confine=%d vis=%d focus=%d active=%d",
         (int)grab_mouse, (int)lbMouseGrabbed,
-        lbWindow ? (int)SDL_GetWindowRelativeMouseMode(lbWindow) : -1,
+        lbWindow ? (int)SDL_GetWindowMouseGrab(lbWindow) : -1,
+        (int)SDL_CursorVisible(),
         lbWindow ? (int)((SDL_GetWindowFlags(lbWindow) & SDL_WINDOW_INPUT_FOCUS) != 0) : -1,
         (int)isMouseActive);
     TbBool previousGrabState = lbMouseGrabbed;

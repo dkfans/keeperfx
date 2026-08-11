@@ -55,7 +55,15 @@ void WindowSystemSDL::SetCursorGrab(bool grab)
     if (!lbWindow)
         return;
     if (SDL_getenv("NO_RELATIVE_MOUSE") == nullptr)
-        SDL_SetWindowRelativeMouseMode(lbWindow, grab);
+    {
+        SDL_SetWindowMouseGrab(lbWindow, grab);
+        if (grab)
+        {
+            int w = 0, h = 0;
+            SDL_GetWindowSize(lbWindow, &w, &h);
+            SDL_WarpMouseInWindow(lbWindow, w / 2.0f, h / 2.0f);
+        }
+    }
     ApplyOsCursorPolicy();
 }
 
