@@ -50,10 +50,10 @@ extern "C" {
 /* Every piece of the scrollbar is one dedicated sprite in the gui1 sheet, so all the
  * geometry below is derived from those sprites rather than hardcoded: the widget adapts
  * to whichever sheet the current video mode loaded, exactly like the rest of the GUI. */
-#define SCRL_SPR_CAP_TOP      GBS_vscroll_cap_top
+#define SCRL_SPR_CAP_TOP      GBS_vscroll_cap_top_std
 #define SCRL_SPR_CAP_TOP_ACT  GBS_vscroll_cap_top_act
 #define SCRL_SPR_TRACK        GBS_vscroll_track
-#define SCRL_SPR_CAP_BOT      GBS_vscroll_cap_bottom
+#define SCRL_SPR_CAP_BOT      GBS_vscroll_cap_bottom_std
 #define SCRL_SPR_CAP_BOT_ACT  GBS_vscroll_cap_bottom_act
 #define SCRL_SPR_THUMB        GBS_vscroll_thumb
 
