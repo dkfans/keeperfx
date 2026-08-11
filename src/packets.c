@@ -1321,6 +1321,10 @@ void process_players_creature_control_packet_control(long idx)
     }
     else
     {
+        // The local_camera is delayed by input_lag_turns, and will remain
+        // frozen for this duration after the creature is allowed to move again.
+        // Apply this same delay to the creature's move_angle_{xy,z}, to keep it
+        // synchronized.
         player->first_person_unfreeze_delay = game.input_lag_turns;
     }
 
