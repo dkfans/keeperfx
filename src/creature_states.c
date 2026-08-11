@@ -5162,7 +5162,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureM
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((crconf->pay == 0) || (cctrl->paydays_owed == 0)) {
-      return 0;
+        return 0;
     }
     if (creature_is_taking_salary_activity(creatng)) {
         return 1;
@@ -5170,6 +5170,17 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureM
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureWantsSalary)) {
         return 0;
     }
+
+    // Fixed an issue where advances taken during non-salary states (e.g., sleeping) after payday would not take effect immediately.
+    if (cctrl->paydays_owed > 0 && cctrl->paydays_advanced > 0) {
+        int pay_days = min(cctrl->paydays_owed, cctrl->paydays_advanced);
+        cctrl->paydays_owed -= pay_days;
+        cctrl->paydays_advanced -= pay_days;
+    }
+    if (cctrl->paydays_owed == 0) {
+        return 0;
+    }
+
     cctrl->collided_door_subtile = 0;
     struct Room* room = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default, 1);
     if (!room_is_invalid(room))
