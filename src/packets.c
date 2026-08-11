@@ -1309,12 +1309,21 @@ void process_players_creature_control_packet_control(long idx)
                 }
             }
         }
-        long new_horizontal, new_vertical, new_roll;
-        process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
-        cctng->move_angle_xy = new_horizontal;
-        cctng->move_angle_z = new_vertical;
-        ccctrl->roll = new_roll;
+        if (player->first_person_unfreeze_delay <= 0)
+        {
+            long new_horizontal, new_vertical, new_roll;
+            process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
+            cctng->move_angle_xy = new_horizontal;
+            cctng->move_angle_z = new_vertical;
+            ccctrl->roll = new_roll;
+        }
+        else --player->first_person_unfreeze_delay;
     }
+    else
+    {
+        player->first_person_unfreeze_delay = game.input_lag_turns;
+    }
+
     if ((thing_is_creature(cctng) && !creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
     {
         TbBool allowed;
