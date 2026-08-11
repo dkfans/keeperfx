@@ -511,8 +511,8 @@ void update(void)
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)get_gameturn());
 
-    update_local_cameras();
     process_packets();
+    update_local_cameras();
     api_update_server();
 
     if (quit_game || exit_keeper) {
