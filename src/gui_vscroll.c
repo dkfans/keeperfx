@@ -9,12 +9,12 @@
  *     GMnu_LOAD / GMnu_SAVE screens, so more than 8 save slots can be reached with
  *     the mouse and mouse wheel.
  * @par Comment:
- *     Every piece of the scrollbar is a rectangular cut-out (mask) of the 
- *     std_l / std_r slot-bar sprites (button_sprites, gui1-64, in-game palette), 
- *     no new sprites are added. A cut-out is drawn by clipping the graphics window
- *     to the wanted rectangle and drawing the whole sprite shifted so that rectangle
- *     lands under the window. All offsets are in native (640x480 / units_per_px==16)
- *     pixels and scaled up by units_per_px.
+ *     The vertical scrollbar is built from cut-outs/masks of two existing gui1 sprites -
+ *     GBS_frontend_button_std_l (idx 1) and GBS_frontend_button_std_r (idx 3) - plus the
+ *     slab0-0 panel tile for the thumb's interior fill. The design is inspired by the
+ *     front-end vertical scrollbar drawn in the main-menu Load Game screen, but rebuilt
+ *     for the in-game GUI's own style and palette (gui1/button_sprites, engine_palette
+ *     from data/palette.dat) instead of the front-end's (frontbit, front.pal).
  * @author   KeeperFX Team
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "gui_vscroll.h"
-#include <math.h>
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -47,298 +46,76 @@
 extern "C" {
 #endif
 /******************************************************************************/
-/* Source sprites every scroll piece is cut from (gui1-64 button_sprites). */
-#define SCRL_SPR_L      GBS_frontend_button_std_l   /* 32 x 30 */
-#define SCRL_SPR_R      GBS_frontend_button_std_r   /* 30 x 30 */
 
-/* --- frame: a rounded-rectangle border, native px, relative to the
- * scrollbar button's top-left (== the frame's top-left). --- */
-#define SCRL_FRAME_W        33
-#define SCRL_FRAME_H        254
-#define SCRL_EDGE           4       /* border-line thickness */
-/* four rounded corners: cut rectangle (x,y,w,h) in the source sprite, placed at (px,py) */
-#define SCRL_TL_CX  0
-#define SCRL_TL_CY  0
-#define SCRL_TL_W   14
-#define SCRL_TL_H   14
-#define SCRL_TR_CX  12          /* std_r is 30 wide -> 30-18 */
-#define SCRL_TR_CY  0
-#define SCRL_TR_W   18
-#define SCRL_TR_H   11
-#define SCRL_BL_CX  0
-#define SCRL_BL_CY  17          /* std_l is 30 tall -> 30-13 */
-#define SCRL_BL_W   11
-#define SCRL_BL_H   13
-#define SCRL_BR_CX  19          /* 30-11 */
-#define SCRL_BR_CY  19          /* 30-11 */
-#define SCRL_BR_W   11
-#define SCRL_BR_H   11
-/* the four 1px edge lines (tiled between the corners). left/right double as the rails. */
-#define SCRL_TOPLINE_CX 31      /* std_l rightmost column, top 4px */
-#define SCRL_TOPLINE_CY 0
-#define SCRL_BOTLINE_CX 31      /* std_l rightmost column, bottom 4px */
-#define SCRL_BOTLINE_CY 26
-#define SCRL_LEFTLINE_CX 0      /* std_l row 14, 4px wide (light bevel) */
-#define SCRL_LEFTLINE_CY 14
-#define SCRL_RIGHTLINE_CX 26    /* std_r row 11, 4px wide (dark bevel) */
-#define SCRL_RIGHTLINE_CY 11
-
-/* --- track (rails + fill), native px relative to the frame --- */
-#define SCRL_TRACK_X    10
-#define SCRL_TRACK_Y    21
-#define SCRL_TRACK_W    13
-#define SCRL_TRACK_H    211
-#define SCRL_LRAIL_X    6
-#define SCRL_RRAIL_X    23
-#define SCRL_RAIL_W     4
-#define SCRL_FILL_COLOUR 0      /* in-game palette index of black (0,0,0) */
-
-/* --- thumb: the same frame construction at a small fixed size, filled with slab --- */
-#define SCRL_THUMB_W    32
-#define SCRL_THUMB_H    27
-#define SCRL_THUMB_TOP  21      /* frame-relative y at scroll offset 0 (== track top) */
-#define SCRL_THUMB_BOT  205     /* frame-relative y at max scroll offset (track_h - thumb_h) */
-
-/* --- arrows: two halves each, cut from the std_l/std_r corners --- */
-/* up arrow (points up, sits above the track): std_l top-left + std_r top-right */
-/* arrow_ew = -1 (each half 1px narrower) and the two halves are cut to equal height (the
- * taller right half is trimmed at its outer end), so the arrow's outer edge is even. */
-#define SCRL_UP_X       6       /* frame-relative x of the arrow */
-#define SCRL_UP_Y       6
-#define SCRL_UPL_CX 0
-#define SCRL_UPL_CY 0
-#define SCRL_UPL_W  10
-#define SCRL_UPL_H  11
-#define SCRL_UPR_CX 19          /* 30-11 */
-#define SCRL_UPR_CY 0
-#define SCRL_UPR_W  11
-#define SCRL_UPR_H  11          /* trimmed from 12 to match the left half */
-/* down arrow (points down, sits below the track): std_l bottom-left + std_r bottom-right */
-#define SCRL_DN_X       6
-#define SCRL_DN_Y       236
-#define SCRL_DNL_CX 0
-#define SCRL_DNL_CY 18          /* 30-12 */
-#define SCRL_DNL_W  10
-#define SCRL_DNL_H  12
-#define SCRL_DNR_CX 19          /* 30-11 */
-#define SCRL_DNR_CY 18          /* 30-12 (trimmed from 13 to match the left half) */
-#define SCRL_DNR_W  11
-#define SCRL_DNR_H  12
-#define SCRL_ARROW_W    21      /* 10 + 11 */
-
-/* --- bases: gradient line (2 lines x 2px = 4px) as wide as the arrow (21px),
- * glued to the arrow. Each is a horizontal gradient sampled from the arrow's edge colours
- * (bottom edge for the up base, top edge for the down one), with a darker 2nd line. */
-#define SCRL_BASE_H     4
-#define SCRL_BASE_Y_UP  17      /* frame-relative y of the up base (just under up arrow) */
-#define SCRL_BASE_Y_DN  232     /* frame-relative y of the down base (just over down arrow) */
-/* up base: top 2px = main gradient (glued to arrow's bottom), bottom 2px = darker */
-static const unsigned char scrl_base_up_top[SCRL_ARROW_W] =
-    { 12, 11, 11, 10, 10,  9,  9,  8,  8,  7,  7,241, 83, 51,  5, 82, 82, 81, 81, 49,  2 };
-static const unsigned char scrl_base_up_bot[SCRL_ARROW_W] =
-    { 84, 83, 83, 83, 83, 83, 83, 82, 82, 82, 82, 82, 81, 81, 81,  2,  2, 48,145,  1,253 };
-/* down base: bottom 2px = main gradient (glued to arrow's top), top 2px = darker */
-static const unsigned char scrl_base_dn_top[SCRL_ARROW_W] =
-    {  5,  5, 82, 82, 82, 82, 82, 82, 81, 81, 81, 81, 81, 49,  2,  2, 48,145,  1,  1,253 };
-static const unsigned char scrl_base_dn_bot[SCRL_ARROW_W] =
-    {  9,  9,  8,  8,  8,  7,  7,241,  6,  6, 51,  5,  5, 82, 82,  4, 81, 81, 49,  2,  2 };
+/* Every piece of the scrollbar is one dedicated sprite in the gui1 sheet, so all the
+ * geometry below is derived from those sprites rather than hardcoded: the widget adapts
+ * to whichever sheet the current video mode loaded, exactly like the rest of the GUI. */
+#define SCRL_SPR_CAP_TOP      GBS_vscroll_cap_top
+#define SCRL_SPR_CAP_TOP_ACT  GBS_vscroll_cap_top_act
+#define SCRL_SPR_TRACK        GBS_vscroll_track
+#define SCRL_SPR_CAP_BOT      GBS_vscroll_cap_bottom
+#define SCRL_SPR_CAP_BOT_ACT  GBS_vscroll_cap_bottom_act
+#define SCRL_SPR_THUMB        GBS_vscroll_thumb
 
 /******************************************************************************/
 long gui_vscroll_offset = 0;
 
+/** Scale a sprite-space length by units-per-px. */
 static inline long scrl_sc(long v, int upp)
 {
     return v * upp / 16;
 }
 
-/* All pieces are placed by native-pixel boundaries relative to a base origin
- * (ox,oy): a piece occupying native columns [nx, nx+cw) lands on screen columns
- * [ox+scrl_sc(nx), ox+scrl_sc(nx+cw)). Because the right edge of one piece is the
- * left edge of the next (both == ox+scrl_sc(shared_boundary)), adjacent pieces
- * never leave a rounding gap nor overlap, at any units_per_px. Cropped-sprite
- * pieces are drawn by clipping the graphics window to that screen rectangle and
- * drawing the whole sprite shifted so the wanted crop lands under the window. */
-
-static void scrl_blit(long ox, long oy, int upp, long spr_idx, int nx, int ny, int cx, int cy, int cw, int ch)
-{
-    const struct TbSprite *spr = get_button_sprite(spr_idx);
-    if (spr == NULL)
-        return;
-    long x0 = ox + scrl_sc(nx, upp);
-    long x1 = ox + scrl_sc(nx + cw, upp);
-    long y0 = oy + scrl_sc(ny, upp);
-    long y1 = oy + scrl_sc(ny + ch, upp);
-    if ((x1 <= x0) || (y1 <= y0))
-        return;
-    TbGraphicsWindow grwnd;
-    LbScreenStoreGraphicsWindow(&grwnd);
-    LbScreenSetGraphicsWindow(x0, y0, x1 - x0, y1 - y0);
-    LbSpriteDrawResized(-scrl_sc(cx, upp), -scrl_sc(cy, upp), upp, spr);
-    LbScreenLoadGraphicsWindow(&grwnd);
-}
-
-
-static void scrl_vline(long ox, long oy, int upp, long spr_idx, int nx, int ny0, int ny1, int cw, int cx, int cy)
-{
-    const struct TbSprite *spr = get_button_sprite(spr_idx);
-    if (spr == NULL)
-        return;
-    long x0 = ox + scrl_sc(nx, upp);
-    long w = scrl_sc(cw, upp);
-    long yA = oy + scrl_sc(ny0, upp);
-    long yB = oy + scrl_sc(ny1, upp);
-    if ((w < 1) || (yB <= yA))
-        return;
-    TbGraphicsWindow grwnd;
-    LbScreenStoreGraphicsWindow(&grwnd);
-    for (long y = yA; y < yB; y++)
-    {
-        LbScreenSetGraphicsWindow(x0, y, w, 1);
-        LbSpriteDrawResized(-scrl_sc(cx, upp), -scrl_sc(cy, upp), upp, spr);
-    }
-    LbScreenLoadGraphicsWindow(&grwnd);
-}
-
-static void scrl_hline(long ox, long oy, int upp, long spr_idx, int nx0, int nx1, int ny, int ch, int cx, int cy)
-{
-    const struct TbSprite *spr = get_button_sprite(spr_idx);
-    if (spr == NULL)
-        return;
-    long y0 = oy + scrl_sc(ny, upp);
-    long h = scrl_sc(ch, upp);
-    long xA = ox + scrl_sc(nx0, upp);
-    long xB = ox + scrl_sc(nx1, upp);
-    if ((h < 1) || (xB <= xA))
-        return;
-    TbGraphicsWindow grwnd;
-    LbScreenStoreGraphicsWindow(&grwnd);
-    for (long x = xA; x < xB; x++)
-    {
-        LbScreenSetGraphicsWindow(x, y0, 1, h);
-        LbSpriteDrawResized(-scrl_sc(cx, upp), -scrl_sc(cy, upp), upp, spr);
-    }
-    LbScreenLoadGraphicsWindow(&grwnd);
-}
-
-static void scrl_draw_frame(long ox, long oy, int upp, int fw, int fh)
-{
-    /* edges tiled only between the corners (so the corners keep their rounded shape) */
-    scrl_hline(ox, oy, upp, SCRL_SPR_L, SCRL_TL_W, fw - SCRL_TR_W, 0, SCRL_EDGE, SCRL_TOPLINE_CX, SCRL_TOPLINE_CY);
-    scrl_hline(ox, oy, upp, SCRL_SPR_L, SCRL_BL_W, fw - SCRL_BR_W, fh - SCRL_EDGE, SCRL_EDGE, SCRL_BOTLINE_CX, SCRL_BOTLINE_CY);
-    scrl_vline(ox, oy, upp, SCRL_SPR_L, 0, SCRL_TL_H, fh - SCRL_BL_H, SCRL_EDGE, SCRL_LEFTLINE_CX, SCRL_LEFTLINE_CY);
-    scrl_vline(ox, oy, upp, SCRL_SPR_R, fw - SCRL_EDGE, SCRL_TR_H, fh - SCRL_BR_H, SCRL_EDGE, SCRL_RIGHTLINE_CX, SCRL_RIGHTLINE_CY);
-    /* corners on top */
-    scrl_blit(ox, oy, upp, SCRL_SPR_L, 0, 0, SCRL_TL_CX, SCRL_TL_CY, SCRL_TL_W, SCRL_TL_H);
-    scrl_blit(ox, oy, upp, SCRL_SPR_R, fw - SCRL_TR_W, 0, SCRL_TR_CX, SCRL_TR_CY, SCRL_TR_W, SCRL_TR_H);
-    scrl_blit(ox, oy, upp, SCRL_SPR_L, 0, fh - SCRL_BL_H, SCRL_BL_CX, SCRL_BL_CY, SCRL_BL_W, SCRL_BL_H);
-    scrl_blit(ox, oy, upp, SCRL_SPR_R, fw - SCRL_BR_W, fh - SCRL_BR_H, SCRL_BR_CX, SCRL_BR_CY, SCRL_BR_W, SCRL_BR_H);
-}
-
-static void scrl_draw_base_gradient(long ox, long oy, int upp, int by,
-    const unsigned char *top, const unsigned char *bot)
-{
-    long y0 = oy + scrl_sc(by, upp);
-    long ym = oy + scrl_sc(by + 2, upp);
-    long y1 = oy + scrl_sc(by + 4, upp);
-    for (int c = 0; c < SCRL_ARROW_W; c++)
-    {
-        long x0 = ox + scrl_sc(SCRL_UP_X + c, upp);
-        long x1 = ox + scrl_sc(SCRL_UP_X + c + 1, upp);
-        LbDrawBox(x0, y0, x1 - x0, ym - y0, top[c]);
-        LbDrawBox(x0, ym, x1 - x0, y1 - ym, bot[c]);
-    }
-}
-
-static void scrl_draw_arrow(long ox, long oy, int upp, int nx, int ny, int kind)
-{
-    if (kind == 0)
-    {   /* up: two top corners, top-aligned */
-        scrl_blit(ox, oy, upp, SCRL_SPR_L, nx, ny, SCRL_UPL_CX, SCRL_UPL_CY, SCRL_UPL_W, SCRL_UPL_H);
-        scrl_blit(ox, oy, upp, SCRL_SPR_R, nx + SCRL_UPL_W, ny, SCRL_UPR_CX, SCRL_UPR_CY, SCRL_UPR_W, SCRL_UPR_H);
-    } else
-    {   /* down: two bottom corners, bottom-aligned (left half is 1px shorter) */
-        scrl_blit(ox, oy, upp, SCRL_SPR_L, nx, ny + (SCRL_DNR_H - SCRL_DNL_H), SCRL_DNL_CX, SCRL_DNL_CY, SCRL_DNL_W, SCRL_DNL_H);
-        scrl_blit(ox, oy, upp, SCRL_SPR_R, nx + SCRL_DNL_W, ny, SCRL_DNR_CX, SCRL_DNR_CY, SCRL_DNR_W, SCRL_DNR_H);
-    }
-}
-
-/* Draw the thumb (the frame construction at thumb size, slab-filled) at native y=ty. Enclosed 
- * interior of the 32x27 framed thumb, as [xl,xr) per native row (0..26). The thumb is a hexagon:
- * rows 0-3 and 23-26 are the solid pointed top/bottom (no interior), rows 4-22 are its body.
-   The tile is clipped to it so it can never show in the rounded-away corners. */
-static const unsigned char scrl_thumb_span[SCRL_THUMB_H][2] = {
-    { 0, 0},{ 0, 0},{ 0, 0},{ 0, 0},
-    {10,21},{ 9,22},{ 8,23},{ 7,24},{ 6,25},{ 5,26},{ 4,27},
-    { 4,28},{ 4,28},{ 4,28},{ 4,28},{ 4,28},
-    { 5,27},{ 6,26},{ 7,25},{ 8,24},{ 9,23},{10,22},{11,21},
-    { 0, 0},{ 0, 0},{ 0, 0},{ 0, 0},
-};
-
-static void scrl_fill_thumb_interior(long tox, long toy, int upp)
-{
-    long ax = tox / pixel_size;      /* tile-pattern origin, in WScreen pixels */
-    long ay = toy / pixel_size;
-    long maxw = lbDisplay.GraphicsScreenWidth;
-    long maxh = MyScreenHeight;
-    for (int ny = 0; ny < SCRL_THUMB_H; ny++)
-    {
-        /* Dilate the interior span by 1 native px (a 3x3 dilation: widen by the vertical
-         * neighbours' spans, then 1px each side) so the fill always runs a hair under the
-         * frame border. The border (drawn on top, SCRL_EDGE px thick) hides that overfill,
-         * and it guarantees no 1px gap can open between fill and border when the two are
-         * scaled with different rounding (scrl_sc truncates; the sprite scaler rounds).
-         * 1 native px == upp/16 screen px, so it scales with the resolution. */
-        int xl = SCRL_THUMB_W, xr = 0;
-        for (int k = ny - 1; k <= ny + 1; k++)
-        {
-            if ((k < 0) || (k >= SCRL_THUMB_H))
-                continue;
-            if (scrl_thumb_span[k][1] <= scrl_thumb_span[k][0])
-                continue;
-            if (scrl_thumb_span[k][0] < xl) xl = scrl_thumb_span[k][0];
-            if (scrl_thumb_span[k][1] > xr) xr = scrl_thumb_span[k][1];
-        }
-        if (xr <= xl)
-            continue;
-        xl -= 1;
-        xr += 1;
-        if (xl < 0) xl = 0;
-        if (xr > SCRL_THUMB_W) xr = SCRL_THUMB_W;
-        long sy0 = (toy + scrl_sc(ny, upp)) / pixel_size;
-        long sy1 = (toy + scrl_sc(ny + 1, upp)) / pixel_size;
-        long sx0 = (tox + scrl_sc(xl, upp)) / pixel_size;
-        long sx1 = (tox + scrl_sc(xr, upp)) / pixel_size;
-        if (sy0 < 0) sy0 = 0;
-        if (sx0 < 0) sx0 = 0;
-        if (sy1 > maxh) sy1 = maxh;
-        if (sx1 > maxw) sx1 = maxw;
-        for (long sy = sy0; sy < sy1; sy++)
-        {
-            const TbPixel* trow = &gui_slab[GUI_SLAB_DIMENSION * ((sy - ay) & (GUI_SLAB_DIMENSION - 1))];
-            TbPixel* out = &lbDisplay.WScreen[sy * lbDisplay.GraphicsScreenWidth];
-            for (long sx = sx0; sx < sx1; sx++)
-                out[sx] = trow[(sx - ax) & (GUI_SLAB_DIMENSION - 1)];
-        }
-    }
-}
-
-static void scrl_draw_thumb(long ox, long oy, int upp, long dy)
-{
-    int tnx = (SCRL_FRAME_W - SCRL_THUMB_W) / 2;    /* == 0: thumb is as wide as the frame */
-    long tox = ox + scrl_sc(tnx, upp);
-    long toy = oy + dy;
-    scrl_fill_thumb_interior(tox, toy, upp);        /* tile, clipped to the hexagon interior */
-    scrl_draw_frame(tox, toy, upp, SCRL_THUMB_W, SCRL_THUMB_H);
-}
-
+/** Units-per-px for the scrollbar, taken from the cap sprite's width against the button's.
+ *  Deriving it from the sprite (as simple_button_sprite_*_units_per_px does elsewhere) is
+ *  what makes the same code work with the low-res sheet, where the art is smaller. */
 static int scrl_units_per_px(const struct GuiButton *gbtn)
 {
-    int upp = (gbtn->height * 16 + SCRL_FRAME_H / 2) / SCRL_FRAME_H;
+    const struct TbSprite *spr = get_button_sprite(SCRL_SPR_CAP_TOP);
+    if ((spr == NULL) || (spr->SWidth < 1))
+        return 16;
+    int upp = (gbtn->width * 16 + spr->SWidth / 2) / spr->SWidth;
     if (upp < 1)
         upp = 1;
     return upp;
 }
 
+/** Scaled height of a sprite, 0 if it is missing. */
+static long scrl_spr_h(long spr_idx, int upp)
+{
+    const struct TbSprite *spr = get_button_sprite(spr_idx);
+    return (spr != NULL) ? scrl_sc(spr->SHeight, upp) : 0;
+}
+
+/** Draw one sprite at a screen position. */
+static void scrl_draw(long x, long y, int upp, long spr_idx)
+{
+    const struct TbSprite *spr = get_button_sprite(spr_idx);
+    if (spr != NULL)
+        LbSpriteDrawResized(x, y, upp, spr);
+}
+
+/** Tile the track sprite down [y0,y1). The track art is vertically uniform, so the last
+ *  tile is simply clipped to what is left and no seam can show. */
+static void scrl_draw_track(long ox, long y0, long y1, int upp)
+{
+    const struct TbSprite *spr = get_button_sprite(SCRL_SPR_TRACK);
+    if ((spr == NULL) || (spr->SHeight < 1))
+        return;
+    long seg = scrl_sc(spr->SHeight, upp);
+    if (seg < 1)
+        seg = 1;
+    long w = scrl_sc(spr->SWidth, upp);
+    TbGraphicsWindow grwnd;
+    LbScreenStoreGraphicsWindow(&grwnd);
+    for (long y = y0; y < y1; y += seg)
+    {
+        long h = (y + seg <= y1) ? seg : (y1 - y);
+        LbScreenSetGraphicsWindow(ox, y, w, h);
+        LbSpriteDrawResized(0, 0, upp, spr);
+    }
+    LbScreenLoadGraphicsWindow(&grwnd);
+}
 long gui_vscroll_total(void)
 {
     int last_used = -1;
@@ -374,130 +151,31 @@ static TbBool scrl_dragging = false;
 static long scrl_drag_dy = 0;       /* thumb top, screen px from the frame top */
 static long scrl_drag_grab = 0;     /* where inside the thumb it was grabbed, screen px */
 
-static long scrl_thumb_dy_for(long off, int upp)
+static long scrl_thumb_dy_for(long off, int upp, long widget_h)
 {
-    long top = scrl_sc(SCRL_THUMB_TOP, upp);
+    long top = scrl_spr_h(SCRL_SPR_CAP_TOP, upp);
     long max_off = gui_vscroll_max_offset();
     if (max_off <= 0)
         return top;
-    long travel = scrl_sc(SCRL_THUMB_BOT, upp) - top;
+    /* The thumb runs from just under the top cap to where its bottom meets the bottom cap. */
+    long bot = widget_h - scrl_spr_h(SCRL_SPR_CAP_BOT, upp) - scrl_spr_h(SCRL_SPR_THUMB, upp);
+    long travel = bot - top;
+    if (travel < 0)
+        travel = 0;
     return top + off * travel / max_off;
 }
 
-static long scrl_thumb_dy(int upp)
+static long scrl_thumb_dy(int upp, long widget_h)
 {
-    return scrl_dragging ? scrl_drag_dy : scrl_thumb_dy_for(gui_vscroll_offset, upp);
+    return scrl_dragging ? scrl_drag_dy : scrl_thumb_dy_for(gui_vscroll_offset, upp, widget_h);
 }
 
-/* --- arrow "active" red glow (arrow + base union), shown while the mouse is over a
- * clickable arrow. The arrow's triangle plus its base
- * rectangle form one shape, banded by distance to the silhouette (edge -> centre) with the
- * 5 red tones below (in-game palette indices). Built once per direction and cached. --- */
-#define SCRL_GLOW_BANDS 5
-#define SCRL_GLOW_MAXW  24
-#define SCRL_GLOW_MAXH  20
-static const unsigned char scrl_glow_ramp[SCRL_GLOW_BANDS] = { 132, 72, 76, 79, 233 };
-
-static int scrl_in_arrow_tri(int kind, int aw, int ah, int lx, int ly)
-{
-    float ax, ay, bx, by, cx, cy;
-    if (kind == 0) { ax = aw / 2.0f; ay = 0.5f;      bx = 0.5f; by = ah - 0.5f; cx = aw - 0.5f; cy = ah - 0.5f; }
-    else           { ax = aw / 2.0f; ay = ah - 0.5f; bx = 0.5f; by = 0.5f;      cx = aw - 0.5f; cy = 0.5f;      }
-    float px = lx + 0.5f, py = ly + 0.5f;
-    float s1 = (px - bx) * (ay - by) - (ax - bx) * (py - by);
-    float s2 = (px - cx) * (by - cy) - (bx - cx) * (py - cy);
-    float s3 = (px - ax) * (cy - ay) - (cx - ax) * (py - ay);
-    return ((s1 <= 0.0f && s2 <= 0.0f && s3 <= 0.0f) || (s1 >= 0.0f && s2 >= 0.0f && s3 >= 0.0f));
-}
-
-struct ScrlGlow {
-    unsigned char bands[SCRL_GLOW_MAXW * SCRL_GLOW_MAXH];   /* per-cell band 0..4, or SCRL_GLOW_BANDS = empty */
-    int w, h;
-};
-
-static void scrl_build_glow(int kind, int ah, struct ScrlGlow *g)
-{
-    int aw = SCRL_ARROW_W;
-    int W = aw, H = ah + SCRL_BASE_H;
-    int arrow_y = (kind == 0) ? 0 : SCRL_BASE_H;
-    int base_y  = (kind == 0) ? ah : 0;
-    unsigned char inside[SCRL_GLOW_MAXH][SCRL_GLOW_MAXW];
-    for (int y = 0; y < H; y++)
-        for (int x = 0; x < W; x++)
-        {
-            int in = scrl_in_arrow_tri(kind, aw, ah, x, y - arrow_y);
-            if (!in && (y >= base_y) && (y < base_y + SCRL_BASE_H))
-                in = 1;
-            inside[y][x] = (unsigned char)in;
-        }
-    float dist[SCRL_GLOW_MAXH][SCRL_GLOW_MAXW];
-    float maxd = 0.0f;
-    for (int y = 0; y < H; y++)
-        for (int x = 0; x < W; x++)
-        {
-            if (!inside[y][x]) { dist[y][x] = -1.0f; continue; }
-            float best = 1.0e9f;
-            for (int ny = -1; ny <= H; ny++)
-                for (int nx = -1; nx <= W; nx++)
-                {
-                    int out = (nx < 0 || nx >= W || ny < 0 || ny >= H) ? 1 : !inside[ny][nx];
-                    if (!out)
-                        continue;
-                    float dx = (float)(x - nx), dy = (float)(y - ny);
-                    float d = sqrtf(dx * dx + dy * dy);
-                    if (d < best) best = d;
-                }
-            dist[y][x] = best;
-            if (best > maxd) maxd = best;
-        }
-    float bandsz = maxd / SCRL_GLOW_BANDS;
-    if (bandsz < 1.0f) bandsz = 1.0f;
-    for (int y = 0; y < H; y++)
-        for (int x = 0; x < W; x++)
-        {
-            if (dist[y][x] < 0.0f) { g->bands[y * W + x] = SCRL_GLOW_BANDS; continue; }
-            int b = (int)(dist[y][x] / bandsz);
-            if (b >= SCRL_GLOW_BANDS) b = SCRL_GLOW_BANDS - 1;
-            g->bands[y * W + x] = (unsigned char)b;
-        }
-    g->w = W;
-    g->h = H;
-}
-
-static struct ScrlGlow scrl_glow_up, scrl_glow_dn;
-static TbBool scrl_glow_ready = false;
-
-static void scrl_ensure_glow(void)
-{
-    if (scrl_glow_ready)
-        return;
-    scrl_build_glow(0, SCRL_UPL_H, &scrl_glow_up);
-    scrl_build_glow(1, SCRL_DNL_H, &scrl_glow_dn);
-    scrl_glow_ready = true;
-}
-
-static TbBool scrl_mouse_over(long ox, long oy, int upp, int nx, int ny, int w, int h)
+/** Is the mouse inside the screen rect (x,y,w,h)? */
+static TbBool scrl_mouse_over(long x, long y, long w, long h)
 {
     long mx = GetMouseX();
     long my = GetMouseY();
-    return (mx >= ox + scrl_sc(nx, upp)) && (mx < ox + scrl_sc(nx + w, upp))
-        && (my >= oy + scrl_sc(ny, upp)) && (my < oy + scrl_sc(ny + h, upp));
-}
-
-static void scrl_draw_glow(long ox, long oy, int upp, int nx, int ny, const struct ScrlGlow *g)
-{
-    for (int r = 0; r < g->h; r++)
-        for (int c = 0; c < g->w; c++)
-        {
-            unsigned char b = g->bands[r * g->w + c];
-            if (b >= SCRL_GLOW_BANDS)
-                continue;
-            long x0 = ox + scrl_sc(nx + c, upp);
-            long x1 = ox + scrl_sc(nx + c + 1, upp);
-            long y0 = oy + scrl_sc(ny + r, upp);
-            long y1 = oy + scrl_sc(ny + r + 1, upp);
-            LbDrawBox(x0, y0, x1 - x0, y1 - y0, scrl_glow_ramp[b]);
-        }
+    return (mx >= x) && (mx < x + w) && (my >= y) && (my < y + h);
 }
 
 void gui_vscroll_draw(struct GuiButton *gbtn)
@@ -507,44 +185,42 @@ void gui_vscroll_draw(struct GuiButton *gbtn)
     int upp = scrl_units_per_px(gbtn);
     long ox = gbtn->scr_pos_x;
     long oy = gbtn->scr_pos_y;
+    long w = gbtn->width;
     unsigned short flg = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = 0;
 
-    /* 1) frame border */
-    scrl_draw_frame(ox, oy, upp, SCRL_FRAME_W, SCRL_FRAME_H);
-    /* 2) track: black fill between the rails (boundary coords), then the two rails */
-    {
-        long fx0 = ox + scrl_sc(SCRL_TRACK_X, upp);
-        long fx1 = ox + scrl_sc(SCRL_TRACK_X + SCRL_TRACK_W, upp);
-        long fy0 = oy + scrl_sc(SCRL_TRACK_Y, upp);
-        long fy1 = oy + scrl_sc(SCRL_TRACK_Y + SCRL_TRACK_H, upp);
-        LbDrawBox(fx0, fy0, fx1 - fx0, fy1 - fy0, SCRL_FILL_COLOUR);
-    }
-    scrl_vline(ox, oy, upp, SCRL_SPR_L, SCRL_LRAIL_X, SCRL_TRACK_Y, SCRL_TRACK_Y + SCRL_TRACK_H, SCRL_RAIL_W, SCRL_LEFTLINE_CX, SCRL_LEFTLINE_CY);
-    scrl_vline(ox, oy, upp, SCRL_SPR_R, SCRL_RRAIL_X, SCRL_TRACK_Y, SCRL_TRACK_Y + SCRL_TRACK_H, SCRL_RAIL_W, SCRL_RIGHTLINE_CX, SCRL_RIGHTLINE_CY);
-    /* 3) arrows */
-    scrl_draw_arrow(ox, oy, upp, SCRL_UP_X, SCRL_UP_Y, 0);
-    scrl_draw_arrow(ox, oy, upp, SCRL_DN_X, SCRL_DN_Y, 1);
-    /* 4) bases (between each arrow and the track) */
-    scrl_draw_base_gradient(ox, oy, upp, SCRL_BASE_Y_UP, scrl_base_up_top, scrl_base_up_bot);
-    scrl_draw_base_gradient(ox, oy, upp, SCRL_BASE_Y_DN, scrl_base_dn_top, scrl_base_dn_bot);
-    /* 5) thumb */
-    scrl_draw_thumb(ox, oy, upp, scrl_thumb_dy(upp));
+    long top_h = scrl_spr_h(SCRL_SPR_CAP_TOP, upp);
+    long bot_h = scrl_spr_h(SCRL_SPR_CAP_BOT, upp);
+    long track_y0 = oy + top_h;
+    long track_y1 = oy + gbtn->height - bot_h;
+    long max_off = gui_vscroll_max_offset();
 
-    /* 6) hover glow: light the arrow+base red while the mouse is over a clickable arrow.
-     * The hover box is the glow bitmap's own rect, which spans the arrow together with its
-     * base - so the whole shape that lights up also reacts to the mouse (hovering just the
-     * base used to miss, since the test only covered the arrow's height), and the two stay
-     * in step automatically if the art changes an arrow or base height. */
-    scrl_ensure_glow();
+    /* Caps light up while the mouse is over them, but only when that arrow can actually
+     * scroll - the lit art is the hover area, so the two can never drift apart. */
+    TbBool up_lit = (gui_vscroll_offset > 0) && scrl_mouse_over(ox, oy, w, top_h);
+    TbBool dn_lit = (gui_vscroll_offset < max_off) && scrl_mouse_over(ox, track_y1, w, bot_h);
+
+    /* WORKAROUND, not a clean fix. The engine's sprite scaler starts its row grid half a
+     * source pixel in (LbSpriteSetScalingHeight*Array uses `factor >> 1`), so a scaled
+     * sprite gets its first row one destination pixel too tall and everything below slides
+     * down by the same amount. On the caps that surfaces as a hairline of the base's colour
+     * sitting where the track should still be - visible from 2x upwards, not at 640x480
+     * where the grid is 1:1. We cover it with the track: its art is uniform and it tiles to
+     * any length, so running it that half-step into the bottom cap hides the stray pixels
+     * and costs nothing, and it is the one piece here that can absorb the slack. Only the
+     * BOTTOM cap needs it: the same downward slide leaves no gap under the top cap, and
+     * running the track up into it would eat the last row of that base instead. The real
+     * fix belongs in the scaler, but that changes how every sprite in the game is drawn,
+     * which is far beyond this widget. Drawn after the caps so it paints over them. */
+    long bias = upp / 32;               /* the scaler's half-step, in screen pixels */
+    scrl_draw(ox, oy, upp, up_lit ? SCRL_SPR_CAP_TOP_ACT : SCRL_SPR_CAP_TOP);
+    scrl_draw(ox, track_y1, upp, dn_lit ? SCRL_SPR_CAP_BOT_ACT : SCRL_SPR_CAP_BOT);
+    scrl_draw_track(ox, track_y0, track_y1 + bias, upp);
+
     {
-        long max_off = gui_vscroll_max_offset();
-        if ((gui_vscroll_offset > 0)
-         && scrl_mouse_over(ox, oy, upp, SCRL_UP_X, SCRL_UP_Y, scrl_glow_up.w, scrl_glow_up.h))
-            scrl_draw_glow(ox, oy, upp, SCRL_UP_X, SCRL_UP_Y, &scrl_glow_up);
-        else if ((gui_vscroll_offset < max_off)
-         && scrl_mouse_over(ox, oy, upp, SCRL_UP_X, SCRL_BASE_Y_DN, scrl_glow_dn.w, scrl_glow_dn.h))
-            scrl_draw_glow(ox, oy, upp, SCRL_UP_X, SCRL_BASE_Y_DN, &scrl_glow_dn);
+        const struct TbSprite *th = get_button_sprite(SCRL_SPR_THUMB);
+        long tw = (th != NULL) ? scrl_sc(th->SWidth, upp) : 0;
+        scrl_draw(ox + (w - tw) / 2, oy + scrl_thumb_dy(upp, gbtn->height), upp, SCRL_SPR_THUMB);
     }
 
     lbDisplay.DrawFlags = flg;
@@ -639,12 +315,12 @@ void gui_vscroll_maintain(struct GuiButton *gbtn)
         long rel_x = GetMouseX() - gbtn->scr_pos_x;
         long rel_y = GetMouseY() - gbtn->scr_pos_y;
         long max_off = gui_vscroll_max_offset();
-        TbBool over = (rel_x >= 0) && (rel_x < scrl_sc(SCRL_FRAME_W, upp))
-                   && (rel_y >= 0) && (rel_y < scrl_sc(SCRL_FRAME_H, upp));
+        TbBool over = (rel_x >= 0) && (rel_x < gbtn->width)
+                   && (rel_y >= 0) && (rel_y < gbtn->height);
         TbBool click_edge = (lbDisplay.MLeftButton != 0) && !prev_mleft;
-        long top = scrl_sc(SCRL_THUMB_TOP, upp);
-        long bot = scrl_sc(SCRL_THUMB_BOT, upp);
-        long th = scrl_sc(SCRL_THUMB_H, upp);
+        long th = scrl_spr_h(SCRL_SPR_THUMB, upp);
+        long top = scrl_spr_h(SCRL_SPR_CAP_TOP, upp);
+        long bot = gbtn->height - scrl_spr_h(SCRL_SPR_CAP_BOT, upp) - th;
         if (over && click_edge)
         {
             if (rel_y < top)
@@ -655,7 +331,7 @@ void gui_vscroll_maintain(struct GuiButton *gbtn)
             {
                 /* Grab the thumb: pressing on it keeps the grabbed point under the cursor
                  * (so it does not jump), pressing the bare track drops it centred there. */
-                long tdy = scrl_thumb_dy(upp);
+                long tdy = scrl_thumb_dy(upp, gbtn->height);
                 scrl_drag_grab = ((rel_y >= tdy) && (rel_y < tdy + th)) ? (rel_y - tdy) : (th / 2);
                 scrl_dragging = true;
             }
@@ -683,7 +359,7 @@ void gui_vscroll_maintain(struct GuiButton *gbtn)
     /* If the offset was refused (an edited Save slot must stay visible), pull the thumb
      * back onto the offset that actually applied, so thumb and list never disagree. */
     if (scrl_dragging && (gbtn != NULL) && (gui_vscroll_offset != off))
-        scrl_drag_dy = scrl_thumb_dy_for(gui_vscroll_offset, scrl_units_per_px(gbtn));
+        scrl_drag_dy = scrl_thumb_dy_for(gui_vscroll_offset, scrl_units_per_px(gbtn), gbtn->height);
 }
 
 void gui_vscroll_input(struct GuiButton *gbtn)

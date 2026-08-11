@@ -266,9 +266,7 @@ void init_save_menu(struct GuiMenu *gmnu)
   player->paused_state_restore = flag_is_set(game.operation_flags, GOF_Paused);
   set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
   load_game_save_catalogue();
-  /* Scroll so a free slot to save into is visible at the bottom: if the first 8
-   * slots are all used, the screen opens showing slots 2..9 with 9 free. */
-  gui_vscroll_offset = gui_vscroll_max_offset();
+  gui_vscroll_offset = 0;
   update_loadsave_input_strings(save_game_catalogue);
 }
 /******************************************************************************/
