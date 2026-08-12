@@ -935,10 +935,6 @@ static TbBool get_level_lost_inputs(void)
           if (network_is_active()
             || (lbDisplay.PhysicalScreenWidth > 320))
           {
-                if (toggle_status_menu(0))
-                  set_flag(game.operation_flags, GOF_ShowPanel);
-                else
-                  clear_flag(game.operation_flags, GOF_ShowPanel);
                 set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
           } else
           {
