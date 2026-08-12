@@ -490,6 +490,9 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       break;
   case PVT_MapScreen:
+      if (is_my_player(player)) {
+        toggle_status_menu(0);
+      }
       player->continue_work_state = player->work_state;
       set_engine_view(player, PVM_ParchmentView);
       break;
