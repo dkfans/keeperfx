@@ -54,14 +54,6 @@ static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
 static TbBool firstTimeMouseInit = true;
 
-// TEMP diagnostic for the SDL3 fullscreen cursor bug (#5093). Remove before merge.
-#define CURSORDBG(where) JUSTLOG("CURSORDBG %-14s grabbed=%d confine=%d vis=%d focus=%d active=%d", (where), \
-    (int)lbMouseGrabbed, \
-    lbWindow ? (int)SDL_GetWindowMouseGrab(lbWindow) : -1, \
-    (int)SDL_CursorVisible(), \
-    lbWindow ? (int)((SDL_GetWindowFlags(lbWindow) & SDL_WINDOW_INPUT_FOCUS) != 0) : -1, \
-    (int)isMouseActive)
-
 static char lbTextInputBuffer[256];
 static int lbTextInputLength = 0;
 
@@ -327,6 +319,10 @@ static void process_event(const SDL_Event *ev)
         {
           return;
         }
+        if (!lbMouseGrabbed && !GetSDLWindowSystem()->IsCursorInWindow())
+        {
+          break;
+        }
         static int frac_x = 0, frac_y = 0;
         static bool s_recenter_pending = false;
         if (lbMouseGrabbed && lbDisplay.MouseMoveRatio > 0)
@@ -431,7 +427,6 @@ static void process_event(const SDL_Event *ev)
     // top-level event type (SDL_EVENT_WINDOW_*).
     case SDL_EVENT_WINDOW_FOCUS_GAINED:
     {
-        CURSORDBG("FOCUS_GAINED");
         GetSDLWindowSystem()->OnFocusGained();
         isMouseActive = true;
         isMouseActivated = true;
@@ -449,7 +444,6 @@ static void process_event(const SDL_Event *ev)
     }
     case SDL_EVENT_WINDOW_FOCUS_LOST:
     {
-        CURSORDBG("FOCUS_LOST");
         GetSDLWindowSystem()->OnFocusLost();
         isMouseActive = false;
         isMouseActivated = false;
@@ -466,7 +460,6 @@ static void process_event(const SDL_Event *ev)
     }
     case SDL_EVENT_WINDOW_MOUSE_ENTER:
     {
-        CURSORDBG("MOUSE_ENTER");
         if (GetSDLWindowSystem()->IsAppActive())
         {
             isMouseActive = true;
@@ -476,7 +469,6 @@ static void process_event(const SDL_Event *ev)
     }
     case SDL_EVENT_WINDOW_MOUSE_LEAVE:
     {
-        CURSORDBG("MOUSE_LEAVE");
         isMouseActive = false;
         break;
     }
@@ -492,13 +484,11 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
-        CURSORDBG("ENTER_FS");
-        // SDL3 drops relative-mouse grab on the fullscreen transition; re-sync it.
         LbSetMouseGrab(lbMouseGrabbed);
         break;
 
     case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
-        CURSORDBG("LEAVE_FS");
+        LbSetMouseGrab(lbMouseGrabbed);
         break;
 
     case SDL_EVENT_GAMEPAD_AXIS_MOTION:
@@ -599,12 +589,6 @@ void LbSetMouseGrab(TbBool grab_mouse)
     IWindowSystem* ws = GetSDLWindowSystem();
     if (!ws->HasOSCursor()) // consoles will have no OS cursor to grab or hide
         return;
-    JUSTLOG("CURSORDBG SetGrab req=%d (before) grabbed=%d confine=%d vis=%d focus=%d active=%d",
-        (int)grab_mouse, (int)lbMouseGrabbed,
-        lbWindow ? (int)SDL_GetWindowMouseGrab(lbWindow) : -1,
-        (int)SDL_CursorVisible(),
-        lbWindow ? (int)((SDL_GetWindowFlags(lbWindow) & SDL_WINDOW_INPUT_FOCUS) != 0) : -1,
-        (int)isMouseActive);
     TbBool previousGrabState = lbMouseGrabbed;
     lbMouseGrabbed = grab_mouse;
     if (lbMouseGrabbed)
@@ -617,7 +601,6 @@ void LbSetMouseGrab(TbBool grab_mouse)
         ws->SetCursorGrab(false);
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
     }
-    CURSORDBG("SetGrab.after");
 }
 
 static void LbClearTextInput(void)
@@ -722,7 +705,6 @@ void LbGrabMouseCheck(long grab_event)
             grab_cursor = lbMouseGrab; // keep the default grab state if the player is viewing a saved packet
         }
     }
-    CURSORDBG("GrabCheck");
     LbSetMouseGrab(grab_cursor);
 }
 

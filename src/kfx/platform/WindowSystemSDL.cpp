@@ -82,6 +82,18 @@ void WindowSystemSDL::WarpCursor(int x, int y)
     SDL_WarpMouseInWindow(lbWindow, (float)x, (float)y);
 }
 
+bool WindowSystemSDL::IsCursorInWindow() const
+{
+    if (!lbWindow)
+        return false;
+    float gx = 0.0f, gy = 0.0f;
+    SDL_GetGlobalMouseState(&gx, &gy);
+    int wx = 0, wy = 0, ww = 0, wh = 0;
+    SDL_GetWindowPosition(lbWindow, &wx, &wy);
+    SDL_GetWindowSize(lbWindow, &ww, &wh);
+    return gx >= wx && gx < wx + ww && gy >= wy && gy < wy + wh;
+}
+
 // ----- Window management -----
 
 bool WindowSystemSDL::HasWindow() const          { return lbWindow != nullptr; }

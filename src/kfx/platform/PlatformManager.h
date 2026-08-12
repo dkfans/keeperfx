@@ -33,6 +33,7 @@ void         PlatformManager_SetWindowBordered(int bordered);
 void         PlatformManager_SetWindowPosition(int x, int y);
 int          PlatformManager_CreateWindow(const char* title, int x, int y, int w, int h, unsigned int flags);
 void         PlatformManager_WarpCursor(int x, int y);
+int          PlatformManager_IsCursorInWindow(void);
 int          PlatformManager_RecreateWindowForSoftwareRenderer(void);
 int          PlatformManager_GetDisplayRefreshRate(void);
 

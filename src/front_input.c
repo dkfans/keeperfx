@@ -2215,7 +2215,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
     if (! move_camera_this_turn)
         return;
     // Camera Panning : mouse at window edge scrolling feature
-    if (!LbIsMouseActive())
+    if (!IsMouseInsideWindow())
     {
         return; // don't pan the camera if the mouse has left the window
     }

@@ -37,6 +37,11 @@ public:
     /** Warp the cursor to (x, y) in game-surface coordinates. */
     virtual void WarpCursor(int /*x*/, int /*y*/) {}
 
+    /** True if the OS cursor is within the window bounds. 
+     * On platforms that own the display exclusively the cursor can never leave
+     * so the default is true. */
+    virtual bool IsCursorInWindow() const { return true; }
+
     // ----- Window management -----
 
     virtual bool HasWindow() const { return false; }

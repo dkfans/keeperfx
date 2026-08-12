@@ -18,6 +18,7 @@ public:
     void SetCursorGrab(bool grab) override;
     void SetCursorVisible(bool visible) override;
     void WarpCursor(int x, int y) override;
+    bool IsCursorInWindow() const override;
 
     bool HasWindow() const override;
     SDL_Window* GetSDLWindow() const;
