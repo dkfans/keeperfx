@@ -18,6 +18,7 @@ public:
     void SetCursorGrab(bool grab) override;
     void SetCursorVisible(bool visible) override;
     void WarpCursor(int x, int y) override;
+    bool IsCursorInWindow() const override;
 
     bool HasWindow() const override;
     SDL_Window* GetSDLWindow() const;
@@ -43,6 +44,8 @@ public:
     // PollInput is a no-op: SDL delivers mouse input via events.
 
 private:
+    void ApplyOsCursorPolicy();
+
     bool m_appActive = true;
 };
 

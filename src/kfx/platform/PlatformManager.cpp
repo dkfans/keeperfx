@@ -180,6 +180,12 @@ extern "C" void PlatformManager_WarpCursor(int x, int y)
     if (ws) ws->WarpCursor(x, y);
 }
 
+extern "C" int PlatformManager_IsCursorInWindow(void)
+{
+    IWindowSystem* ws = GetSDLWindowSystem();
+    return (ws && ws->IsCursorInWindow()) ? 1 : 0;
+}
+
 extern "C" int PlatformManager_RecreateWindowForSoftwareRenderer(void)
 {
     IWindowSystem* ws = GetSDLWindowSystem();
