@@ -36,15 +36,35 @@ static SDL_DisplayID display_index_to_id(int index)
 }
 
 bool WindowSystemSDL::IsAppActive() const { return m_appActive; }
-void WindowSystemSDL::OnFocusGained()     { m_appActive = true; }
-void WindowSystemSDL::OnFocusLost()       { m_appActive = false; }
+void WindowSystemSDL::OnFocusGained()     { m_appActive = true;  ApplyOsCursorPolicy(); }
+void WindowSystemSDL::OnFocusLost()       { m_appActive = false; ApplyOsCursorPolicy(); }
+
+void WindowSystemSDL::ApplyOsCursorPolicy()
+{
+    if (!lbWindow)
+        return;
+    const bool focused = (SDL_GetWindowFlags(lbWindow) & SDL_WINDOW_INPUT_FOCUS) != 0;
+    if (focused)
+        SDL_HideCursor();
+    else
+        SDL_ShowCursor();
+}
 
 void WindowSystemSDL::SetCursorGrab(bool grab)
 {
     if (!lbWindow)
         return;
     if (SDL_getenv("NO_RELATIVE_MOUSE") == nullptr)
-        SDL_SetWindowRelativeMouseMode(lbWindow, grab);
+    {
+        SDL_SetWindowMouseGrab(lbWindow, grab);
+        if (grab)
+        {
+            int w = 0, h = 0;
+            SDL_GetWindowSize(lbWindow, &w, &h);
+            SDL_WarpMouseInWindow(lbWindow, w / 2.0f, h / 2.0f);
+        }
+    }
+    ApplyOsCursorPolicy();
 }
 
 void WindowSystemSDL::SetCursorVisible(bool visible)
@@ -60,6 +80,18 @@ void WindowSystemSDL::WarpCursor(int x, int y)
     if (!lbWindow)
         return;
     SDL_WarpMouseInWindow(lbWindow, (float)x, (float)y);
+}
+
+bool WindowSystemSDL::IsCursorInWindow() const
+{
+    if (!lbWindow)
+        return false;
+    float gx = 0.0f, gy = 0.0f;
+    SDL_GetGlobalMouseState(&gx, &gy);
+    int wx = 0, wy = 0, ww = 0, wh = 0;
+    SDL_GetWindowPosition(lbWindow, &wx, &wy);
+    SDL_GetWindowSize(lbWindow, &ww, &wh);
+    return gx >= wx && gx < wx + ww && gy >= wy && gy < wy + wh;
 }
 
 // ----- Window management -----

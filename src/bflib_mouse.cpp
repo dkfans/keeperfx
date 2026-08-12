@@ -154,13 +154,7 @@ TbResult LbMoveGameCursorToHostCursor(void)
 
 TbBool IsMouseInsideWindow(void)
 {
-    SDL_Window *window = SDL_GetMouseFocus();
-    TbBool isMouseInsideWindow = ((window != NULL) ? true : false); // if window == NULL then the mouse must be outside the kfx window
-    if (!LbIsMouseActive() && !lbMouseGrabbed)
-    {
-        isMouseInsideWindow = false; // LbIsMouseActive() == false when mouse cursor outside window
-    }
-    return isMouseInsideWindow;
+    return PlatformManager_IsCursorInWindow() ? true : false;
 }
 
 TbResult LbMouseChangeSprite(const struct TbSprite *pointerSprite)
