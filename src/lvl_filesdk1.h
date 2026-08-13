@@ -39,6 +39,7 @@ enum LoadMapFileFlags {
 /******************************************************************************/
 extern long level_file_version;
 extern char *level_strings[];
+extern char level_load_error[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
 unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,int32_t *ldsize,unsigned short flags);
 TbBool find_and_load_lif_files(void);

@@ -719,10 +719,11 @@ static TbBool should_use_delta_time_on_menu()
     }
 }
 
-static void faststartup_saved_packet_game(void)
+static TbBool faststartup_saved_packet_game(void)
 {
     reenter_video_mode();
-    startup_saved_packet_game();
+    if (!startup_saved_packet_game())
+        return false;
     {
         struct PlayerInfo *player;
         player = get_my_player();
@@ -730,6 +731,7 @@ static void faststartup_saved_packet_game(void)
     }
     set_gui_visible(false);
     clear_flag(game.operation_flags, GOF_ShowPanel);
+    return true;
 }
 
 static TbBool wait_at_frontend(void)
@@ -815,6 +817,8 @@ static TbBool wait_at_frontend(void)
         }
         faststartup_network_game(&loop);
         coroutine_process(&loop);
+        if (loop.error)
+            exit_keeper = true;
         return true;
     }
     #endif
@@ -822,7 +826,8 @@ static TbBool wait_at_frontend(void)
     // Prepare to enter PacketLoad game
     if ((game.packet_load_enable) && (!game.packet_load_initialized))
     {
-      faststartup_saved_packet_game();
+      if (!faststartup_saved_packet_game())
+          exit_keeper = true;
       return true;
     }
     // Load single-player level directly from command line arguments (-server and -connect bypass this, autoloading a multiplayer map is handled elsewhere)
@@ -830,6 +835,8 @@ static TbBool wait_at_frontend(void)
     {
       faststartup_network_game(&loop);
       coroutine_process(&loop);
+      if (loop.error)
+          exit_keeper = true;
       return true;
     }
 
@@ -973,13 +980,17 @@ static TbBool wait_at_frontend(void)
           break;
     case FeSt_PACKET_DEMO:
           game.mode_flags |= MFlg_IsDemoMode;
-          startup_saved_packet_game();
-          set_gui_visible(false);
-          clear_flag(game.operation_flags, GOF_ShowPanel);
+          if (!startup_saved_packet_game())
+              coroutine_clear(&loop, true);
+          else {
+              set_gui_visible(false);
+              clear_flag(game.operation_flags, GOF_ShowPanel);
+          }
           break;
     }
 
-    coroutine_add(&loop, &set_not_has_quit);
+    if (!loop.error)
+        coroutine_add(&loop, &set_not_has_quit);
     coroutine_process(&loop);
     if (loop.error)
     {

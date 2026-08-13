@@ -59,6 +59,7 @@ extern "C" {
 long level_file_version = 0;
 char *level_strings[STRINGS_MAX+1];
 char *level_strings_data;
+char level_load_error[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
 #pragma pack(1)
 
@@ -769,7 +770,7 @@ static TbBool load_thing_file(LevelNumber lv_num)
     return true;
 }
 
-static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char *msg_name,
+static int load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char *msg_name,
                                  const char *sections, const char *count_field, const char *section_fmt,
                                  int max_count, TbBool (*section_loader)(VALUE *arg))
 {
@@ -777,7 +778,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
     int32_t fsize = 0;
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, ext, &fsize, LMFF_None);
     if (buf == NULL)
-        return false;
+        return -1;
     VALUE file_root, *root_ptr = &file_root;
     char err[255] = "";
     char key[64] = "";
@@ -786,7 +787,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
     {
         WARNMSG("Unable to load %s file\n %s", msg_name, err);
         free(buf);
-        return false;
+        return -1;
     }
     VALUE *common_section = value_dict_get(root_ptr, "common");
     if (!common_section)
@@ -794,7 +795,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
         WARNMSG("No [common] in %s for level %d", msg_name, lv_num);
         value_fini(root_ptr);
         free(buf);
-        return false;
+        return -1;
     }
     int32_t total;
 
@@ -814,13 +815,14 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
         WARNMSG("Bad amount of secions in %s file", msg_name);
         value_fini(root_ptr);
         free(buf);
-        return false;
+        return -1;
     }
     if (total >= max_count)
     {
         WARNMSG("Only %d things supported, file has %d.", max_count,total);
 
     }
+    int status = 0;
     // Create sections
     for (int k = 0; k < total; k++)
     {
@@ -835,28 +837,28 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
             snprintf(key, sizeof(key), section_fmt, k);
             section = value_dict_get(root_ptr, key);
         }
-        if (value_type(section) != VALUE_DICT)
-        {
+        if (value_type(section) != VALUE_DICT) {
             WARNMSG("Invalid %s section %d", msg_name, k);
+            status = 1;
         }
-        else
-        {
-            if (!section_loader(section))
-            {
-                WARNMSG("Failed to load section %d from %s", k, msg_name);
-            }
+        else if (!section_loader(section)) {
+            WARNMSG("Failed to load section %d from %s", k, msg_name);
+            status = 1;
         }
     }
     value_fini(root_ptr);
     free(buf);
-    return true;
+    return status;
 }
 
 static TbBool load_tngfx_file(LevelNumber lv_num)
 {
-    return load_kfx_toml_file(lv_num, "tngfx", "TNGFX",
-                              "thing", "ThingsCount", "thing%d", THINGS_COUNT - 2,
-                              &thing_create_thing_adv);
+    int errors = load_kfx_toml_file(lv_num, "tngfx", "TNGFX", "thing", "ThingsCount", "thing%d", THINGS_COUNT - 2, &thing_create_thing_adv);
+    if (errors < 0)
+        snprintf(level_load_error, sizeof(level_load_error), "Level %d cannot be loaded: TNGFX could not be read. See keeperfx.log.", lv_num);
+    else if (errors > 0 && !level_load_error[0])
+        snprintf(level_load_error, sizeof(level_load_error), "Level %d cannot be loaded: TNGFX contains invalid things. See keeperfx.log.", lv_num);
+    return errors == 0;
 }
 
 TbBool load_action_point_file(LevelNumber lv_num)
@@ -902,7 +904,7 @@ TbBool load_aptfx_file(LevelNumber lv_num)
 {
     return load_kfx_toml_file(lv_num, "aptfx", "APTFX",
                               "actionpoint", "ActionPointsCount", "actionpoint%d", ACTN_POINTS_COUNT - 1,
-                              &actnpoint_create_actnpoint_adv);
+                              &actnpoint_create_actnpoint_adv) >= 0;
 }
 
 /**
@@ -1282,7 +1284,7 @@ static TbBool load_lgtfx_file(unsigned long lv_num)
 {
     TbBool ret = load_kfx_toml_file(lv_num, "lgtfx", "LGTFX",
                              "light", "LightsCount", "light%d", LIGHTS_COUNT - 1,
-                             &light_create_light_adv);
+                             &light_create_light_adv) >= 0;
     if (light_count_lights() > LIGHTS_COUNT / 2)
     {
         WARNMSG("More than %d%% of light slots used by static lights.", 100*light_count_lights()/LIGHTS_COUNT);
@@ -1474,6 +1476,7 @@ static TbBool load_level_file(LevelNumber lvnum)
 
 TbBool load_map_file(LevelNumber lvnum)
 {
+    level_load_error[0] = '\0';
     TbBool result = load_level_file(lvnum);
     if (result)
         set_loaded_level_number(lvnum);
