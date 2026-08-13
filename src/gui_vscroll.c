@@ -141,17 +141,14 @@ long gui_vscroll_max_offset(void)
     return (m > 0) ? m : 0;
 }
 
-/* --- thumb dragging.  The thumb normally sits at the stepped position of the current
- * scroll offset (one stop per slot), which is what the wheel and the arrows produce.  While
- * it is being dragged it instead follows the cursor pixel for pixel, so it never jumps
- * under the finger; the list still snaps to whole slots, and on release the thumb returns
- * to the stepped position of wherever it ended up.  The drag position is kept in screen
- * pixels (not native ones) so it stays exact at any units_per_px. --- */
+/* --- thumb dragging.  The thumb always sits at the stepped position of the current scroll
+ * offset (one stop per slot), whether it got there from the wheel, the arrows or a drag: it
+ * only ever appears on a valid stop, never between two of them.  This matches the existing
+ * front-end scrollbars (campaign / mappack selection), which snap the same way. --- */
 static TbBool scrl_dragging = false;
-static long scrl_drag_dy = 0;       /* thumb top, screen px from the frame top */
 static long scrl_drag_grab = 0;     /* where inside the thumb it was grabbed, screen px */
 
-static long scrl_thumb_dy_for(long off, int upp, long widget_h)
+static long scrl_thumb_dy(long off, int upp, long widget_h)
 {
     long top = scrl_spr_h(SCRL_SPR_CAP_TOP, upp);
     long max_off = gui_vscroll_max_offset();
@@ -163,11 +160,6 @@ static long scrl_thumb_dy_for(long off, int upp, long widget_h)
     if (travel < 0)
         travel = 0;
     return top + off * travel / max_off;
-}
-
-static long scrl_thumb_dy(int upp, long widget_h)
-{
-    return scrl_dragging ? scrl_drag_dy : scrl_thumb_dy_for(gui_vscroll_offset, upp, widget_h);
 }
 
 /** Is the mouse inside the screen rect (x,y,w,h)? */
@@ -220,7 +212,8 @@ void gui_vscroll_draw(struct GuiButton *gbtn)
     {
         const struct TbSprite *th = get_button_sprite(SCRL_SPR_THUMB);
         long tw = (th != NULL) ? scrl_sc(th->SWidth, upp) : 0;
-        scrl_draw(ox + (w - tw) / 2, oy + scrl_thumb_dy(upp, gbtn->height), upp, SCRL_SPR_THUMB);
+        scrl_draw(ox + (w - tw) / 2, oy + scrl_thumb_dy(gui_vscroll_offset, upp, gbtn->height),
+                  upp, SCRL_SPR_THUMB);
     }
 
     lbDisplay.DrawFlags = flg;
@@ -331,7 +324,7 @@ void gui_vscroll_maintain(struct GuiButton *gbtn)
             {
                 /* Grab the thumb: pressing on it keeps the grabbed point under the cursor
                  * (so it does not jump), pressing the bare track drops it centred there. */
-                long tdy = scrl_thumb_dy(upp, gbtn->height);
+                long tdy = scrl_thumb_dy(gui_vscroll_offset, upp, gbtn->height);
                 scrl_drag_grab = ((rel_y >= tdy) && (rel_y < tdy + th)) ? (rel_y - tdy) : (th / 2);
                 scrl_dragging = true;
             }
@@ -340,8 +333,9 @@ void gui_vscroll_maintain(struct GuiButton *gbtn)
             scrl_dragging = false;
         if (scrl_dragging && (max_off > 0))
         {
-            /* Follow the cursor pixel for pixel (no snapping), then derive the slot the
-             * list scrolls to - rounded, so it flips at the midpoint between two stops.
+            /* Turn the cursor position straight into a slot offset - rounded, so it flips at
+             * the midpoint between two stops. The thumb is then drawn from that offset, so it
+             * snaps to valid stops as you drag rather than following the cursor freely.
              * Deliberately not gated on over: once grabbed, the drag keeps working even
              * if the cursor wanders off the bar sideways. */
             long dy = rel_y - scrl_drag_grab;
@@ -349,17 +343,12 @@ void gui_vscroll_maintain(struct GuiButton *gbtn)
                 dy = top;
             if (dy > bot)
                 dy = bot;
-            scrl_drag_dy = dy;
             long travel = bot - top;
             off = (travel > 0) ? (((dy - top) * max_off + travel / 2) / travel) : 0;
         }
     }
     prev_mleft = (lbDisplay.MLeftButton != 0);
     vscroll_apply_offset(off);
-    /* If the offset was refused (an edited Save slot must stay visible), pull the thumb
-     * back onto the offset that actually applied, so thumb and list never disagree. */
-    if (scrl_dragging && (gbtn != NULL) && (gui_vscroll_offset != off))
-        scrl_drag_dy = scrl_thumb_dy_for(gui_vscroll_offset, scrl_units_per_px(gbtn), gbtn->height);
 }
 
 void gui_vscroll_input(struct GuiButton *gbtn)
