@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_credits.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -63,7 +64,7 @@ void frontstory_load(void)
     } else
     {
         LbDataLoadSetModifyFilenameFunction(defaultModifyDataLoadFilename);
-        LbPaletteSet(frontend_palette);
+        RendererPaletteSet(frontend_palette);
         srand(LbTimerClock());
 #if FUNCTESTING
         ftest_srand();

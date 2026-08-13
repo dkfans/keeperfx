@@ -61,3 +61,13 @@ const unsigned char* RendererGetActivePalette(void)
 {
     return LbPaletteGetReadonly();
 }
+
+TbResult RendererPaletteSet(unsigned char *palette)
+{
+    return LbPaletteSet(palette);
+}
+
+TbResult RendererPaletteGet(unsigned char *palette)
+{
+    return LbPaletteGet(palette);
+}

@@ -1157,7 +1157,7 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
         if (is_my_player(player))
         {
             LbScreenWaitVbi();
-            LbPaletteSet(pal);
+            RendererPaletteSet(pal);
         }
     }
 }

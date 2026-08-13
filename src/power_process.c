@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "power_process.h"
 
 #include "globals.h"
@@ -144,7 +145,7 @@ void process_armageddon(void)
                     event_kill_all_players_events(i);
                     set_player_as_lost_level(player);
                     if (is_my_player_number(i))
-                        LbPaletteSet(engine_palette);
+                        RendererPaletteSet(engine_palette);
                     struct Thing* heartng = get_player_soul_container(player->id_number);
                     if (thing_exists(heartng)) {
                         heartng->health = -1;

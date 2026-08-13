@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "scrcapt.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
@@ -149,7 +150,7 @@ TbBool movie_record_frame(void)
         if (LbScreenLock() != Lb_SUCCESS)
             return false;
   }
-  LbPaletteGet(cap_palette);
+  RendererPaletteGet(cap_palette);
   short result = anim_record_frame(lbDisplay.WScreen, cap_palette);
   if (!lock_mem)
     LbScreenUnlock();

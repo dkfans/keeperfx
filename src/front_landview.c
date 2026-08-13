@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_landview.h"
 
 #include "globals.h"
@@ -993,7 +994,7 @@ void process_zoom_palette(void)
     for (int i = 0; i < PALETTE_SIZE; i++) {
         palette[i] = frontend_palette[i] * remaining / half_length;
     }
-    LbPaletteSet(palette);
+    RendererPaletteSet(palette);
 }
 
 TbBool frontmap_update_zoom(void)
@@ -1030,7 +1031,7 @@ TbBool frontmap_load(void)
 {
     SYNCDBG(4,"Starting");
     memset(scratch, 0, PALETTE_SIZE);
-    LbPaletteSet(scratch);
+    RendererPaletteSet(scratch);
     initialize_description_speech();
     mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
     frontend_load_data_from_cd();

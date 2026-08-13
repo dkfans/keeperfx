@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_fmvids.h"
 #include "globals.h"
 
@@ -107,7 +108,7 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
   }
   LbScreenClear(0);
   LbScreenSwap();
-  LbPaletteSet(frontend_palette);
+  RendererPaletteSet(frontend_palette);
   if (nstate >= 0)
     frontend_set_state(nstate);
   lbDisplay.LeftButton = 0;

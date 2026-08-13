@@ -1,6 +1,8 @@
 #ifndef RENDERER_RENDERERMANAGER_H
 #define RENDERER_RENDERERMANAGER_H
 
+#include "bflib_basics.h"  // TbResult
+
 // RendererType is a C++ enum; C translation units see it as an opaque int.
 #ifdef __cplusplus
 #  include "kfx/renderer/IRenderer.h"
@@ -22,6 +24,10 @@ RendererType RendererGetActiveType(void);
 
 // The currently-active 6-bit VGA palette (768 bytes) that indexed drawing samples.
 const unsigned char* RendererGetActivePalette(void);
+
+// Set / read back the active palette (the seam entry points engine code uses).
+TbResult RendererPaletteSet(unsigned char *palette);
+TbResult RendererPaletteGet(unsigned char *palette);
 
 #ifdef __cplusplus
 }
