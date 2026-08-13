@@ -1194,8 +1194,6 @@ void zoom_to_parchment_map(void)
     if (network_is_active()
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
-      if (!toggle_status_menu(0))
-        clear_flag(game.operation_flags, GOF_ShowPanel);
       set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
       turn_off_roaming_menus();
     } else

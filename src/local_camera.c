@@ -52,13 +52,13 @@ static MapCoordDelta local_camera_move_delta[2];
 static TbBool local_camera_move_active;
 /******************************************************************************/
 
-static struct Packet* get_packet_for_local_camera_update(void)
+static const struct Packet* get_packet_for_local_camera_update(void)
 {
     struct PlayerInfo *player = get_my_player();
     if (player_invalid(player)) {
         return NULL;
     }
-    return get_packet_direct(player->packet_num);
+    return get_history_packet(player->packet_num, get_gameturn());
 }
 
 void send_camera_catchup_packets(void)
@@ -165,7 +165,7 @@ void move_local_camera_to_position(MapCoord x, MapCoord y)
     local_camera_move_active = true;
 }
 
-void process_local_minimap_click(struct Packet* packet) {
+void process_local_minimap_click(const struct Packet* packet) {
     if (packet != NULL && packet->action == PckA_BookmarkLoad) {
         const MapCoord pos_x = packet->actn_par1;
         const MapCoord pos_y = packet->actn_par2;
@@ -178,42 +178,34 @@ void process_local_minimap_click(struct Packet* packet) {
     }
 }
 
-static TbBool creature_is_frozen_in_first_person(struct Camera* cam, struct Thing *ctrltng)
-{
-    static TbBool frozen_last_turn = false;
-    TbBool frozen = !can_process_creature_input(ctrltng);
-    if (frozen || frozen_last_turn) {
-        cam->rotation_angle_x = ctrltng->move_angle_xy;
-        cam->rotation_angle_y = ctrltng->move_angle_z;
-        frozen_last_turn = frozen;
-        return true;
-    }
-    return false;
-}
-
 void update_local_first_person_camera(struct Thing *ctrltng)
 {
     struct Camera* cam = &destination_local_cameras[CamIV_FirstPerson];
     int eye_height = get_creature_eye_height(ctrltng);
     update_first_person_position(cam, ctrltng, eye_height);
 
-    if (creature_is_frozen_in_first_person(cam, ctrltng)) {
+    if ((flag_is_set(game.operation_flags, GOF_Paused) && game.game_kind != GKind_LocalGame)
+        || ! can_process_creature_input(ctrltng))
+    {
+        cam->rotation_angle_x = ctrltng->move_angle_xy;
+        cam->rotation_angle_y = ctrltng->move_angle_z;
         return;
     }
-    long current_horizontal = destination_local_cameras[CamIV_FirstPerson].rotation_angle_x;
-    long current_vertical = destination_local_cameras[CamIV_FirstPerson].rotation_angle_y;
-    struct Packet* latest_packet = get_packet_for_local_camera_update();
-    if (latest_packet != NULL) {
-        long new_horizontal, new_vertical, new_roll;
-        process_first_person_look(ctrltng, latest_packet, current_horizontal, current_vertical, &new_horizontal, &new_vertical, &new_roll);
-        current_horizontal = new_horizontal;
-        current_vertical = new_vertical;
-        if ((ctrltng->movement_flags & TMvF_Flying) != 0) {
-            cam->rotation_angle_z = new_roll;
-        }
+
+    const struct Packet* latest_packet = get_packet_for_local_camera_update();
+    if (latest_packet == NULL) {
+        return;
     }
-    cam->rotation_angle_x = current_horizontal;
-    cam->rotation_angle_y = current_vertical;
+
+    const long current_horizontal = cam->rotation_angle_x;
+    const long current_vertical = cam->rotation_angle_y;
+    long new_horizontal, new_vertical, new_roll;
+    process_first_person_look(ctrltng, latest_packet, current_horizontal, current_vertical, &new_horizontal, &new_vertical, &new_roll);
+    cam->rotation_angle_x = new_horizontal;
+    cam->rotation_angle_y = new_vertical;
+    if ((ctrltng->movement_flags & TMvF_Flying) != 0) {
+        cam->rotation_angle_z = new_roll;
+    }
 }
 
 void update_camera_deviations(int active_cam_idx)
@@ -245,7 +237,7 @@ void update_local_cameras(void)
     if (in_first_person) {
         update_local_first_person_camera(ctrltng);
     } else {
-        struct Packet* local_packet = get_packet_for_local_camera_update();
+        const struct Packet* local_packet = get_packet_for_local_camera_update();
         if (local_packet == NULL) {
             return;
         }

@@ -8,8 +8,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -55,7 +55,12 @@ SoundVolume g_master_volume = 0;
 SoundVolume g_music_volume = 0;
 ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
-std::atomic<Mix_Music *> g_mix_music;
+// SDL3_mixer replaces the SDL2 Mix_Music/Mix_Chunk + channel model with a
+// mixer + per-purpose tracks. Music and speech each get their own track.
+MIX_Mixer* g_mixer = nullptr;
+MIX_Track* g_music_track = nullptr;
+MIX_Audio* g_music_audio = nullptr;
+MIX_Track* g_speech_track = nullptr;
 
 bool g_bb_king_mode = false;
 
@@ -527,7 +532,8 @@ void print_device_info() {
 	}
 }
 
-__attribute__((unused)) Mix_Chunk * g_streamed_sample = nullptr;
+// The currently-playing streamed speech sample (played on g_speech_track).
+__attribute__((unused)) MIX_Audio * g_streamed_sample = nullptr;
 std::mutex g_mix_mutex;
 
 std::string g_current_music_fname; // empty if a numbered track (or nothing) is playing
@@ -538,56 +544,36 @@ struct queued_sample {
 	SoundVolume volume;
 };
 
-__attribute__((unused)) static void SDLCALL on_music_finished() {
-	// don't grab mutex or we'll deadlock, just free memory
-	Mix_FreeMusic(g_mix_music.exchange(nullptr));
-}
-
 } // local
 
 extern "C" void FreeAudio() {
 	SYNCDBG(6, "Starting audio cleanup");
 
-	// Check if SDL_mixer audio device is open before attempting to halt playback
-	int frequency = 0;
-	int channels = 0;
-	unsigned short format = 0;
-	int audio_opened = Mix_QuerySpec(&frequency, &format, &channels);
-
-	if (audio_opened > 0) {
-		// Stop playback before freeing chunks, so the audio thread isn't reading them
-		SYNCDBG(7, "SDL_mixer audio device is open, halting playback");
-		Mix_HaltMusic();
-		Mix_HaltChannel(-1);
+	// Stop playback before freeing audio, so the mixer isn't reading it
+	if (g_mixer != nullptr) {
+		SYNCDBG(7, "SDL_mixer is open, halting playback");
+		MIX_StopAllTracks(g_mixer, 0);
 	}
 
-	// Free SDL_mixer resources
+	// Free SDL3_mixer resources
 	{
 		std::lock_guard<std::mutex> guard(g_mix_mutex);
-		if (auto music = g_mix_music.exchange(nullptr)) {
-			Mix_FreeMusic(music);
+		if (auto music = std::exchange(g_music_audio, (MIX_Audio*)nullptr)) {
+			MIX_DestroyAudio(music);
 			SYNCDBG(8, "Freed SDL_mixer music");
 		}
 		g_current_music_track = 0;
 		g_current_music_fname.clear();
 		if (g_streamed_sample) {
-			Mix_FreeChunk(g_streamed_sample);
+			MIX_DestroyAudio(g_streamed_sample);
 			g_streamed_sample = nullptr;
 			SYNCDBG(8, "Freed SDL_mixer streamed sample");
 		}
 	}
 
-    // Sanity check again to see if the audio device is still open. If it is, then shut it down. If not, then it was already closed by SDL's inner workings or elsewhere and we can skip the shutdown to avoid double-freeing resources.
-    audio_opened = Mix_QuerySpec(&frequency, &format, &channels);
-	if (audio_opened > 0) {
-		ShutDownSDLAudio();
-		SYNCDBG(7, "SDL_mixer shutdown complete");
-	} else {
-		while (Mix_Init(0) != 0) {
-			Mix_Quit();
-		}
-		SYNCDBG(7, "SDL_mixer audio device already closed, skipped duplicate shutdown");
-	}
+	// Destroy the mixer + tracks and quit SDL3_mixer (safe if never opened).
+	ShutDownSDLAudio();
+	SYNCDBG(7, "SDL_mixer shutdown complete");
 
 	// Clear OpenAL sources and buffers while context is still current
 	g_sources.clear();
@@ -674,8 +660,10 @@ extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 extern "C" void set_music_volume(SoundVolume value) {
 	g_music_volume = value;
 	SetRedbookVolume(value);
-	// convert 0..256 to 0..128
-	Mix_VolumeMusic(LbLerp(0, MIX_MAX_VOLUME, float(value) / FULL_LOUDNESS));
+	// SDL3_mixer uses a per-track linear gain (0.0..1.0) rather than 0..128.
+	if (g_music_track != nullptr) {
+		MIX_SetTrackGain(g_music_track, float(value) / FULL_LOUDNESS);
+	}
 }
 
 extern "C" TbBool play_music(const char * fname) {
@@ -689,19 +677,27 @@ extern "C" TbBool play_music(const char * fname) {
 	if (fname != game.music_fname) {
 		snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
 	}
-	// Mix_PlayMusic will stop anything currently playing and eventually
-	// calls on_music_finished so theres no need to call Mix_FreeMusic first.
-	const auto music = Mix_LoadMUS(game.music_fname);
-	if (!music) {
-		WARNLOG("Cannot load music from %s: %s", game.music_fname, Mix_GetError());
-		return false;
-	} else if (Mix_PlayMusic(music, -1) != 0) {
-		Mix_FreeMusic(music);
-		WARNLOG("Cannot play music from %s: %s", game.music_fname, Mix_GetError());
+	if (!g_mixer || !g_music_track) {
 		return false;
 	}
-	// g_mix_music will be null here as Mix_PlayMusic ends up calling on_music_finished
-	g_mix_music = music;
+	// SDL3_mixer: load into a MIX_Audio and bind it to the persistent music track.
+	MIX_Audio* new_audio = MIX_LoadAudio(g_mixer, game.music_fname, false);
+	if (!new_audio) {
+		WARNLOG("Cannot load music from %s: %s", game.music_fname, SDL_GetError());
+		return false;
+	}
+	// MIX_SetTrackAudio replaces any currently-bound audio; the old audio is no
+	// longer referenced by the track afterwards, so it is safe to destroy.
+	MIX_SetTrackAudio(g_music_track, new_audio);
+	MIX_Audio* old_audio = std::exchange(g_music_audio, new_audio);
+	if (old_audio) {
+		MIX_DestroyAudio(old_audio);
+	}
+	if (!MIX_PlayTrack(g_music_track, 0)) {
+		WARNLOG("Cannot play music from %s: %s", game.music_fname, SDL_GetError());
+		return false;
+	}
+	MIX_SetTrackLoops(g_music_track, -1); // loop forever (was Mix_PlayMusic(music, -1))
 	g_current_music_fname = fname;
 	g_current_music_track = 0;
 	return true;
@@ -760,6 +756,80 @@ extern "C" TbBool play_music_fgroup(short fgroup, const char * fname) {
     return play_music(fpath);
 }
 
+// Music container extensions, in order of preference. Files of other extensions
+// (and non-audio files like MusicReadme.txt) are ignored, so they can't shift
+// the track-to-file mapping.
+// The preferred option is to preserve 100% of the original audio quality while
+// using as little storage space as possible, that's why FLAC is first candidate.
+static const char *const music_file_extensions[] = {
+	".flac", ".wav", ".ogg", ".mp3"
+};
+
+static int music_extension_priority(const char *filename) {
+	const char *ext = strrchr(filename, '.');
+	if (ext == NULL) {
+		return -1;
+	}
+	for (size_t i = 0; i < sizeof(music_file_extensions) / sizeof(music_file_extensions[0]); i++) {
+		if (strcasecmp(ext, music_file_extensions[i]) == 0) {
+			return (int)i;
+		}
+	}
+	return -1;
+}
+
+// Resolve which music file plays for a given redbook track number
+static TbBool resolve_track_music_path(int track, char *dst, int dst_size) {
+	if (track < 2) {
+		return false;
+	}
+	const int wanted = track - 2; // 0-based position within the chosen format's files
+
+	char filespec[2048];
+	prepare_file_path_buf(filespec, sizeof(filespec), FGrp_Music, "*");
+	if (filespec[0] == '\0') {
+		return false;
+	}
+
+	struct TbFileEntry fe;
+	struct TbFileFind *ff = LbFileFindFirst(filespec, &fe);
+	if (ff == NULL) {
+		return false;
+	}
+
+	std::vector<std::pair<int, std::string>> files; // (priority rank, filename)
+	int best_priority = -1;
+	do {
+		const int prio = music_extension_priority(fe.Filename);
+		if (prio < 0) {
+			continue; // not a recognized music file
+		}
+		files.emplace_back(prio, fe.Filename);
+		if (best_priority < 0 || prio < best_priority) {
+			best_priority = prio;
+		}
+	} while (LbFileFindNext(ff, &fe) >= 0);
+	LbFileFindEnd(ff);
+
+	if (best_priority < 0) {
+		return false;
+	}
+
+	// Map the track within the winning format's files only, keeping sorted order
+	int index = 0;
+	for (const auto & f : files) {
+		if (f.first != best_priority) {
+			continue;
+		}
+		if (index == wanted) {
+			prepare_file_path_buf(dst, dst_size, FGrp_Music, f.second.c_str());
+			return (dst[0] != '\0');
+		}
+		index++;
+	}
+	return false;
+}
+
 extern "C" TbBool play_music_track(int track) {
 	game.music_track = track;
 	memset(game.music_fname, 0, sizeof(game.music_fname));
@@ -769,7 +839,13 @@ extern "C" TbBool play_music_track(int track) {
 	} else if (features_enabled & Ft_NoCdMusic) {
 		// play_music() itself skips restarting if this exact resolved file is
 		// already the one actually playing (e.g. reloading a save for the same level).
-		return play_music(prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", track));
+		char fpath[2048];
+		if (!resolve_track_music_path(track, fpath, sizeof(fpath))) {
+			WARNLOG("No music file found for track %d in the music folder", track);
+			return false;
+		}
+		LbJustLog("Playing track %d: %s\n", track, fpath);
+		return play_music(fpath);
 	} else {
 		if (track == g_current_music_track) {
 			// Already playing this exact numbered track — skip restarting it.
@@ -788,7 +864,7 @@ extern "C" TbBool play_music_track(int track) {
 
 extern "C" void pause_music() {
 	if (features_enabled & Ft_NoCdMusic) {
-		Mix_PauseMusic();
+		if (g_music_track) MIX_PauseTrack(g_music_track);
 	} else {
 		PauseRedbookTrack();
 	}
@@ -796,7 +872,7 @@ extern "C" void pause_music() {
 
 extern "C" void resume_music() {
 	if (features_enabled & Ft_NoCdMusic) {
-		Mix_ResumeMusic();
+		if (g_music_track) MIX_ResumeTrack(g_music_track);
 	} else {
 		ResumeRedbookTrack();
 	}
@@ -808,12 +884,14 @@ extern "C" void stop_music(TbBool fade_out) {
 	g_current_music_track = 0;
 	g_current_music_fname.clear();
 	if (features_enabled & Ft_NoCdMusic) {
-		if (fade_out) {
-			if (Mix_FadingMusic() != MIX_FADING_OUT) {
-				Mix_FadeOutMusic(1000);
+		if (g_music_track) {
+			if (fade_out) {
+				// SDL3_mixer expresses fades in sample frames, not milliseconds.
+				Sint64 fade_frames = MIX_TrackMSToFrames(g_music_track, 1000);
+				MIX_StopTrack(g_music_track, fade_frames);
+			} else {
+				MIX_StopTrack(g_music_track, 0);
 			}
-		} else {
-			Mix_HaltMusic();
 		}
 	} else {
 		StopRedbookTrack();
@@ -1131,40 +1209,51 @@ extern "C" SoundSmplTblID get_custom_offset(void) { return g_custom_offset; }
 
 extern "C" int InitialiseSDLAudio()
 {
-	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+	if (!SDL_Init(SDL_INIT_AUDIO)) {
 		ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
 		return 0;
 	}
-	int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3|MIX_INIT_FLAC);
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
-	{
-		ERRORLOG("Could not open audio device for SDL mixer: %s", Mix_GetError());
-		Mix_Quit();
+	// SDL3_mixer: MIX_Init() is reference-counted and takes no format flags
+	// (decoders are discovered automatically).
+	if (!MIX_Init()) {
+		ERRORLOG("Could not initialise SDL3_mixer: %s", SDL_GetError());
 		return 0;
 	}
-	Mix_ReserveChannels(1); // reserve for external speech samples
-	Mix_HookMusicFinished(on_music_finished); // register callback so we can do things
-	return flags;
+	SDL_AudioSpec spec;
+	spec.format   = SDL_AUDIO_S16;
+	spec.channels = 2;
+	spec.freq     = 44100;
+	g_mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
+	if (!g_mixer) {
+		ERRORLOG("Could not open audio device for SDL mixer: %s", SDL_GetError());
+		MIX_Quit();
+		return 0;
+	}
+	// One persistent track each for music and streamed speech (replaces the
+	// SDL2 reserved-channel model).
+	g_music_track = MIX_CreateTrack(g_mixer);
+	g_speech_track = MIX_CreateTrack(g_mixer);
+	if (!g_music_track || !g_speech_track) {
+		ERRORLOG("Could not create SDL mixer tracks: %s", SDL_GetError());
+		MIX_DestroyMixer(g_mixer);
+		g_mixer = nullptr;
+		g_music_track = nullptr;
+		g_speech_track = nullptr;
+		MIX_Quit();
+		return 0;
+	}
+	return 1;
 }
 
 extern "C" void ShutDownSDLAudio()
 {
-	int frequency, channels;
-	unsigned short format;
-	int i = Mix_QuerySpec(&frequency, &format, &channels);
-	if (i == 0)
-	{
-		ERRORLOG("Could not query SDL mixer: %s", Mix_GetError());
+	g_music_track = nullptr;
+	g_speech_track = nullptr;
+	if (g_mixer) {
+		MIX_DestroyMixer(g_mixer); // also destroys all tracks created for this mixer
+		g_mixer = nullptr;
 	}
-	while (i > 0)
-	{
-		Mix_CloseAudio();
-		i--;
-	}
-	while (Mix_Init(0))
-	{
-		Mix_Quit();
-	}
+	MIX_Quit();
 }
 
 extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)
@@ -1172,39 +1261,50 @@ extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)
 	if (SoundDisabled || fname == nullptr || strlen(fname) == 0) {
 		return false;
 	}
-	const auto sample = Mix_LoadWAV(fname);
-	if (sample == nullptr) {
-		ERRORLOG("Cannot load \"%s\": %s", fname, Mix_GetError());
+	if (!g_mixer || !g_speech_track) {
 		return false;
 	}
-	// SoundVolume ranges 0..255 but MIX_MAX_VOLUME ranges 0..128
-	Mix_VolumeChunk(sample, volume / 2);
-	if (Mix_PlayChannel(MIX_SPEECH_CHANNEL, sample, 0) != 0) {
-		Mix_FreeChunk(sample);
-		ERRORLOG("Cannot play \"%s\": %s", fname, Mix_GetError());
+	// Predecode speech so short samples start with no I/O latency.
+	MIX_Audio* sample = MIX_LoadAudio(g_mixer, fname, true);
+	if (sample == nullptr) {
+		ERRORLOG("Cannot load \"%s\": %s", fname, SDL_GetError());
+		return false;
+	}
+	MIX_SetTrackAudio(g_speech_track, sample);
+	// SDL3_mixer gain is linear 0.0..1.0 (SoundVolume ranges 0..FULL_LOUDNESS).
+	MIX_SetTrackGain(g_speech_track, float(volume) / FULL_LOUDNESS);
+	if (!MIX_PlayTrack(g_speech_track, 0)) {
+		MIX_DestroyAudio(sample);
+		ERRORLOG("Cannot play \"%s\": %s", fname, SDL_GetError());
 		return false;
 	}
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
 	const auto old_sample = std::exchange(g_streamed_sample, sample);
 	if (old_sample) {
-		Mix_FreeChunk(old_sample);
+		MIX_DestroyAudio(old_sample);
 	}
 	return true;
 }
 
 extern "C" void stop_streamed_samples()
 {
-	Mix_HaltChannel(MIX_SPEECH_CHANNEL);
+	if (g_speech_track) MIX_StopTrack(g_speech_track, 0);
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
-	const auto old_sample = std::exchange(g_streamed_sample, nullptr);
+	const auto old_sample = std::exchange(g_streamed_sample, (MIX_Audio*)nullptr);
 	if (old_sample) {
-		Mix_FreeChunk(old_sample);
+		MIX_DestroyAudio(old_sample);
 	}
 }
 
 extern "C" void set_streamed_sample_volume(SoundVolume volume) {
-	// SoundVolume ranges 0..255 but MIX_MAX_VOLUME ranges 0..128
-	Mix_VolumeChunk(g_streamed_sample, volume / 2);
+	// SDL3_mixer gain is linear 0.0..1.0 (SoundVolume ranges 0..FULL_LOUDNESS).
+	if (g_speech_track) MIX_SetTrackGain(g_speech_track, float(volume) / FULL_LOUDNESS);
+}
+
+// Replaces the SDL2 Mix_Playing(MIX_SPEECH_CHANNEL) query; keeps the MIX_ API
+// contained to this translation unit.
+extern "C" TbBool is_streamed_sample_playing(void) {
+	return (g_speech_track != nullptr) && MIX_TrackPlaying(g_speech_track);
 }
 
 extern "C" void toggle_bbking_mode() {
@@ -1297,37 +1397,42 @@ static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample
 		}
 	}
 
-	// --- OGG / FLAC path: Mix_LoadWAV_RW (SDL_mixer decodes both, todo : clean up this so mono sources stay mono accross the board,
-    // this code is becoming sphagetto) ---
-	SDL_RWops* rw = SDL_RWFromConstMem(data, (int)size);
-	if (!rw) {
-		ERRORLOG("Cannot create RWops for %s: %s", logical_name, SDL_GetError());
+	// --- OGG / FLAC (and anything else the mixer decodes) path ---
+	// SDL3_mixer no longer exposes raw PCM from a loaded MIX_Audio (as SDL2's
+	// Mix_Chunk::abuf did), so use a MIX_AudioDecoder to decode the buffer to
+	// the same output format the old mixer produced (44100 Hz / S16 / stereo)
+	// and hand that PCM to OpenAL. This keeps OGG/FLAC custom-sound support.
+	SDL_IOStream* io = SDL_IOFromConstMem(data, size);
+	if (!io) {
+		ERRORLOG("Cannot create IOStream for %s: %s", logical_name, SDL_GetError());
 		return false;
 	}
 
-	// freesrc=1: Mix_LoadWAV_RW closes rw regardless of success/failure.
-	Mix_Chunk* chunk = Mix_LoadWAV_RW(rw, 1);
-	if (chunk == nullptr) {
-		ERRORLOG("Cannot decode audio file %s: %s", logical_name, Mix_GetError());
+	// closeio=true: the decoder takes ownership of the stream.
+	MIX_AudioDecoder* decoder = MIX_CreateAudioDecoder_IO(io, true, 0);
+	if (!decoder) {
+		ERRORLOG("Cannot decode audio file %s: %s", logical_name, SDL_GetError());
 		return false;
 	}
 
-	// Mix_LoadWAV_RW converts decoded PCM to the mixer's output format
-	// (44100 Hz / Sint16 / stereo, as set in Mix_OpenAudio).
-	int mix_freq = 0, mix_channels = 0;
-	Uint16 mix_fmt = 0;
-	Mix_QuerySpec(&mix_freq, &mix_fmt, &mix_channels);
-	const ALenum al_fmt = (mix_channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+	const SDL_AudioSpec out_spec = { SDL_AUDIO_S16, 2, 44100 };
+	const ALenum al_fmt = AL_FORMAT_STEREO16;
 
 	try {
-		const std::vector<uint8_t> pcm(chunk->abuf, chunk->abuf + chunk->alen);
-		g_custom_bank.emplace_back(logical_name, sample_id, pcm, al_fmt, mix_freq);
+		std::vector<uint8_t> pcm;
+		uint8_t buffer[16384];
+		for (;;) {
+			int got = MIX_DecodeAudio(decoder, buffer, sizeof(buffer), &out_spec);
+			if (got <= 0) break; // 0 == end of stream, <0 == error
+			pcm.insert(pcm.end(), buffer, buffer + got);
+		}
+		MIX_DestroyAudioDecoder(decoder);
+		g_custom_bank.emplace_back(logical_name, sample_id, pcm, al_fmt, out_spec.freq);
 	} catch (...) {
-		Mix_FreeChunk(chunk);
+		MIX_DestroyAudioDecoder(decoder);
 		ERRORLOG("Out of memory buffering audio %s", logical_name);
 		return false;
 	}
-	Mix_FreeChunk(chunk);
 	return true;
 }
 

@@ -65,6 +65,31 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "//": "Remote debug on a Steam Deck over gdbserver. First deploy + start the server (scripts/deploy-to-deck.sh --gdb), then pick this profile. See docs/steam-deck.md. 'program' is the LOCAL symbol copy of the deployed binary; 'miDebuggerServerAddress' points at the Deck.",
+            "type": "cppdbg",
+            "name": "keeperfx on Steam Deck (gdbserver)",
+            "project": "CMakeLists.txt",
+            "projectTarget": "keeperfx",
+            "program": "${debugInfo.target}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:\\msys64\\mingw32\\bin\\gdb.exe",
+            "miDebuggerServerAddress": "steamdeck:2345",
+            "cwd": "${debugInfo.defaultWorkingDirectory}",
+            "externalConsole": false,
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }

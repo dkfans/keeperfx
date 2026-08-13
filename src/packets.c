@@ -375,7 +375,7 @@ void process_pause_packet(long curr_pause, long new_pause)
   }
 }
 
-void process_camera_controls(struct Camera* cam, struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera)
+void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera)
 {
     if (cam == NULL) {
         return;
@@ -1152,7 +1152,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     return true;
 }
 
-void process_first_person_look(struct Thing *thing, struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll)
+void process_first_person_look(struct Thing *thing, const struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll)
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     long maxTurnSpeed = crconf->max_turning_speed;
@@ -1309,12 +1309,25 @@ void process_players_creature_control_packet_control(long idx)
                 }
             }
         }
-        long new_horizontal, new_vertical, new_roll;
-        process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
-        cctng->move_angle_xy = new_horizontal;
-        cctng->move_angle_z = new_vertical;
-        ccctrl->roll = new_roll;
+        if (player->first_person_unfreeze_delay <= 0)
+        {
+            long new_horizontal, new_vertical, new_roll;
+            process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
+            cctng->move_angle_xy = new_horizontal;
+            cctng->move_angle_z = new_vertical;
+            ccctrl->roll = new_roll;
+        }
+        else --player->first_person_unfreeze_delay;
     }
+    else
+    {
+        // The local_camera is delayed by input_lag_turns, and will remain
+        // frozen for this duration after the creature is allowed to move again.
+        // Apply this same delay to the creature's move_angle_{xy,z}, to keep it
+        // synchronized.
+        player->first_person_unfreeze_delay = game.input_lag_turns;
+    }
+
     if ((thing_is_creature(cctng) && !creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
     {
         TbBool allowed;

@@ -14,6 +14,7 @@
 #include "pre_inc.h"
 
 #include "platform.h"
+#include "kfx/platform/PlatformManager.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -1395,9 +1396,14 @@ void update_local_mouse_light(void)
     SYNCDBG(6,"Starting");
     struct PlayerInfo *player = get_my_player();
 
-    // Avoid glitching during level intro or possess animation, or when
-    // watching a replay.
-    if (player->instance_num != PI_Unset || game.packet_load_enable)
+    // Avoid glitching during level intro or possess animation
+    if (player->instance_num != PI_Unset)
+        return;
+    // ... or when watching a replay
+    if (game.packet_load_enable)
+        return;
+    // ... or during text input (save menu)
+    if (game_is_busy_doing_gui_string_input())
         return;
 
     struct Camera *cam = get_local_camera(get_player_active_camera(player));
@@ -1586,14 +1592,9 @@ void redetect_screen_refresh_rate_for_draw()
         if (fps_limit_secondary > 0)
             fps_limit_current = fps_limit_secondary;
 
-        if (lbWindow != NULL) {
-            int display_index = SDL_GetWindowDisplayIndex(lbWindow);
-            if (display_index >= 0) {
-                SDL_DisplayMode mode;
-                if (SDL_GetCurrentDisplayMode(display_index, &mode) == 0 && mode.refresh_rate > 0) {
-                    fps_limit_current = mode.refresh_rate;
-                }
-            }
+        int refresh_rate = PlatformManager_GetDisplayRefreshRate();
+        if (refresh_rate > 0) {
+            fps_limit_current = refresh_rate;
         }
 
     } else if (fps_limit_main > 0) {
