@@ -178,6 +178,22 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
     }
 }
 
+TbBool players_disease_can_infect_target_players_creatures(PlayerNumber source_player, PlayerNumber target_player)
+{
+    if (source_player == target_player)
+        return false;
+    if (source_player == game.neutral_player_num)
+        return false;
+    if (players_are_enemies(source_player, target_player))
+        return true;
+
+    struct PlayerInfo* player = get_player(source_player);
+    if (game.conf.rules[source_player].gameplay.allies_share_disease)
+        return (player_allied_with(player, target_player) == false);
+
+    return source_player != target_player;
+}
+
 void process_disease(struct Thing *creatng)
 {
     SYNCDBG(18, "Starting");
@@ -208,10 +224,9 @@ void process_disease(struct Thing *creatng)
                 tngcctrl = creature_control_get_from_thing(thing);
                 if (thing_is_creature(thing)
                 && !creature_is_for_dungeon_diggers_list(thing)
-                && (thing->owner != cctrl->disease_caster_plyridx)
+                && players_disease_can_infect_target_players_creatures(cctrl->disease_caster_plyridx,thing->owner)
                 && !creature_under_spell_effect(thing, CSAfF_Disease)
-                && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease)
-                && (cctrl->disease_caster_plyridx != game.neutral_player_num))
+                && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease))
                 { // Apply the spell kind stored in 'active_disease_spell'.
                     apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->exp_level, creatng->owner);
                     tngcctrl->disease_caster_plyridx = cctrl->disease_caster_plyridx;
