@@ -231,6 +231,7 @@ obj/frontmenu_net.o \
 obj/frontmenu_net_data.o \
 obj/frontmenu_options.o \
 obj/frontmenu_saves.o \
+obj/gui_vscroll.o \
 obj/frontmenu_specials.o \
 obj/game_heap.o \
 obj/game_legacy.o \
