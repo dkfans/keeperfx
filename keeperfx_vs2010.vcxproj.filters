@@ -55,7 +55,6 @@
     <ClCompile Include="src\bflib_vidraw_spr_onec.c" />
     <ClCompile Include="src\bflib_vidraw_spr_remp.c" />
     <ClCompile Include="src\bflib_vidsurface.c" />
-    <ClCompile Include="src\cdrom.cpp" />
     <ClCompile Include="src\config.c" />
     <ClCompile Include="src\config_campaigns.c" />
     <ClCompile Include="src\config_compp.c" />
@@ -252,7 +251,6 @@
     <ClCompile Include="src\sounds.c" />
     <ClCompile Include="src\spdigger_stack.c" />
     <ClCompile Include="src\spritesheet.cpp" />
-    <ClCompile Include="src\steam_api.cpp" />
     <ClCompile Include="src\tasks_list.c" />
     <ClCompile Include="src\thing_corpses.c" />
     <ClCompile Include="src\thing_creature.c" />
@@ -517,7 +515,6 @@
     <ClInclude Include="src\timer.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="lib\keeper95_gold.map" />
     <None Include="Makefile" />
   </ItemGroup>
 </Project>

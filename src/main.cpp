@@ -323,14 +323,14 @@ short setup_game(void)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
   }
-  SYNCMSG("Build image base: %p", get_image_base());
-  SYNCMSG("Operating System: %s", get_os_version());
+  SYNCMSG("Build image base: %p", PlatformManager_GetImageBase());
+  SYNCMSG("Operating System: %s", PlatformManager_GetOSVersion());
 
-  const auto wine_version = get_wine_version();
+  const auto wine_version = PlatformManager_GetWineVersion();
   if (wine_version) {
         SYNCMSG("Running on Wine v%s", wine_version);
         is_running_under_wine = true;
-        const auto wine_host = get_wine_host();
+        const auto wine_host = PlatformManager_GetWineHost();
         SYNCMSG("Wine Host: %s", wine_host);
   }
 
