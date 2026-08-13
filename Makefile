@@ -140,7 +140,6 @@ obj/bflib_vidraw_spr_onec.o \
 obj/bflib_vidraw_spr_remp.o \
 obj/bflib_vidsurface.o \
 obj/button_snapping.o \
-obj/cdrom.o \
 obj/config.o \
 obj/config_campaigns.o \
 obj/config_creature.o \
@@ -339,7 +338,6 @@ obj/slab_data.o \
 obj/sounds.o \
 obj/sound_manager.o \
 obj/spdigger_stack.o \
-obj/steam_api.o \
 obj/tasks_list.o \
 obj/thing_corpses.o \
 obj/thing_creature.o \
@@ -360,7 +358,6 @@ obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
 obj/spritesheet.o \
-obj/windows.o \
 $(FTEST_OBJS) \
 $(RES)
 
