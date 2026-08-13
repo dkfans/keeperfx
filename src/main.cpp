@@ -15,6 +15,7 @@
 
 #include "platform.h"
 #include "kfx/platform/PlatformManager.h"
+#include "kfx/renderer/RendererManager.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -2078,6 +2079,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval = true;
     retval &= (LbTimerInit() != Lb_FAIL);
     retval &= (LbScreenInitialize() != Lb_FAIL);
+    retval &= (RendererInit(RENDERER_SOFTWARE) != 0);
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
@@ -2115,6 +2117,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
     reset_game();
     LbScreenReset(true);
+    RendererShutdown();
     if ( retval == 0 )
     {
         static const char *msg_text="Setting up game failed.\n";

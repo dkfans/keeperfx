@@ -255,7 +255,6 @@ extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbUseSdk;
 extern volatile TbBool lbInteruptMouse;
 extern volatile TbDisplayStructEx lbDisplayEx;
-extern unsigned char lbPalette[PALETTE_SIZE];
 
 #define DEFAULT_UI_SCALE                       128 // is equivilent to size 1 or 100%
 #define DEFAULT_ASPECT_RATIO_FACTOR            160 // is equivilent to 16/10 * 100
@@ -327,6 +326,7 @@ long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 TbResult LbPaletteStopOpenFade(void);
 TbResult LbPaletteSet(unsigned char *palette);
 TbResult LbPaletteGet(unsigned char *palette);
+const unsigned char *LbPaletteGetReadonly(void);
 TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
 TbResult LbPaletteDataFillBlack(unsigned char *palette);
 TbResult LbPaletteDataFillWhite(unsigned char *palette);
