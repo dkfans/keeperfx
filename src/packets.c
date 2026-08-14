@@ -742,7 +742,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_Parchment].rotation_angle_x = pckt->actn_par1;
       player->cameras[CamIV_FrontView].rotation_angle_x = pckt->actn_par1;
       player->cameras[CamIV_Isometric].rotation_angle_x = pckt->actn_par1;
-      set_local_camera_destination(player);
       return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);
