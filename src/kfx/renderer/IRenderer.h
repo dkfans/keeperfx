@@ -28,6 +28,9 @@ public:
     // Lock the CPU framebuffer for drawing; return its pixels + pitch, or nullptr.
     virtual unsigned char* LockFramebuffer(int* out_pitch) { (void)out_pitch; return nullptr; }
     virtual void UnlockFramebuffer() {}
+
+    // Save the current frame to a file (fmt: 1=PNG, 2=BMP). Default: unsupported.
+    virtual bool ScheduleScreenshot(const char* path, int fmt) { (void)path; (void)fmt; return false; }
 };
 
 #endif // RENDERER_IRENDERER_H

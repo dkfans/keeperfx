@@ -3,6 +3,7 @@
 #include "bflib_video.h"       // PALETTE_COLORS, lbWindow, SDL, vsync_enabled
 #include "bflib_vidsurface.h"  // lbDrawSurface (goes away when the framebuffer migrates)
 #include "bflib_mouse.h"       // LbMouseOnBeginSwap/EndSwap (software cursor around present)
+#include <SDL3_image/SDL_image.h> // IMG_SavePNG (screenshots)
 #include "post_inc.h"
 
 bool RendererSoftware::Init()
@@ -108,6 +109,22 @@ void RendererSoftware::UnlockFramebuffer()
 {
     if (lbDrawSurface != NULL)
         SDL_UnlockSurface(lbDrawSurface);
+}
+
+bool RendererSoftware::ScheduleScreenshot(const char* path, int fmt)
+{
+    if (lbDrawSurface == NULL)
+        return false;
+    bool ok;
+    switch (fmt)
+    {
+        case 1:  ok = IMG_SavePNG(lbDrawSurface, path); break;
+        case 2:  ok = SDL_SaveBMP(lbDrawSurface, path); break;
+        default: return false;
+    }
+    if (!ok)
+        ERRORLOG("Screenshot save failed (%s): %s", path, SDL_GetError());
+    return ok;
 }
 
 void RendererSoftware::PresentFrame()

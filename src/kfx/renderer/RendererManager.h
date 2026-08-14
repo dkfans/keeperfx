@@ -42,6 +42,9 @@ void RendererPresentFrame(void);
 TbResult RendererLockFramebuffer(void);
 TbResult RendererUnlockFramebuffer(void);
 
+// Save the current frame to a file via the active backend (fmt: 1=PNG, 2=BMP).
+TbBool RendererScheduleScreenshot(const char* path, int fmt);
+
 #ifdef __cplusplus
 }
 #endif

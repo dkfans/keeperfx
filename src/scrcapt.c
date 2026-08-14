@@ -35,8 +35,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include <ctype.h>
 #include "post_inc.h"
 /******************************************************************************/
@@ -56,29 +54,7 @@ TbBool take_screenshot(char *fname)
             return false;
         }
     }
-    TbBool success;
-    switch (screenshot_format)
-    {
-        case 1:
-        {
-            success = IMG_SavePNG(lbDrawSurface, fname);
-            break;
-        }
-        case 2:
-        {
-            success = SDL_SaveBMP(lbDrawSurface, fname);
-            break;
-        }
-        default:
-        {
-            success = false;
-            break;
-        }
-    }
-    if (!success)
-    {
-        ERRORLOG("Unable to save to file %s: %s", fname, SDL_GetError());
-    }
+    TbBool success = RendererScheduleScreenshot(fname, screenshot_format);
     if (!lock_mem)
     {
         RendererUnlockFramebuffer();

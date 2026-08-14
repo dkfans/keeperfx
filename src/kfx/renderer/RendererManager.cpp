@@ -130,6 +130,11 @@ TbResult RendererUnlockFramebuffer(void)
     return Lb_SUCCESS;
 }
 
+TbBool RendererScheduleScreenshot(const char* path, int fmt)
+{
+    return (s_active_renderer != nullptr) ? s_active_renderer->ScheduleScreenshot(path, fmt) : 0;
+}
+
 TbResult RendererPaletteGet(unsigned char *palette)
 {
     return LbPaletteGet(palette);

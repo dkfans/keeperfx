@@ -18,6 +18,7 @@ public:
     void PresentFrame() override;
     unsigned char* LockFramebuffer(int* out_pitch) override;
     void UnlockFramebuffer() override;
+    bool ScheduleScreenshot(const char* path, int fmt) override;
 
 private:
     bool ensure_present_target();
