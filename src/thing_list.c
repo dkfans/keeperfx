@@ -100,9 +100,6 @@ static void update_thing_interpolation(struct Thing *thing)
     thing->previous_mappos = thing->mappos;
     thing->previous_floor_height = thing->floor_height;
 
-    // Originally cleared by the renderer after drawing one frame.
-    clear_flag(thing->rendering_flags, TRF_BeingHit);
-
     // Signal to reset interpolation on attached armour/disease particle effect.
     clear_flag(thing->state_flags, TF1_Teleported);
 }
