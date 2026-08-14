@@ -77,7 +77,7 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
     if ( setup_screen_mode_minimal(get_movies_vidmode()) )
     {
       LbMouseChangeSprite(NULL);
-      LbScreenClear(0);
+      RendererClearScreen(0);
       LbScreenSwap();
     } else
     {
@@ -106,7 +106,7 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
   {
     memset(frontend_palette, 0, PALETTE_SIZE);
   }
-  LbScreenClear(0);
+  RendererClearScreen(0);
   LbScreenSwap();
   RendererPaletteSet(frontend_palette);
   if (nstate >= 0)

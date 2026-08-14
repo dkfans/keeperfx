@@ -55,7 +55,7 @@ void fade_in(void)
 void fade_out(void)
 {
     ProperFadePalette(NULL, 8, Lb_PALETTE_FADE_CLOSED);
-    LbScreenClear(0);
+    RendererClearScreen(0);
 }
 
 void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsigned char *dpal)

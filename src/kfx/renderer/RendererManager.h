@@ -32,6 +32,9 @@ TbResult RendererPaletteGet(unsigned char *palette);
 // Apply an 8-bit RGB palette (256*3 bytes) directly to the display
 void RendererSetDisplayPalette(const unsigned char *rgb8);
 
+// Clear the whole display to a palette index.
+void RendererClearScreen(unsigned char colour);
+
 #ifdef __cplusplus
 }
 #endif

@@ -405,7 +405,7 @@ TbBool draw_clear_screen(void)
 {
     LbPaletteDataFillBlack(palette_buf);
     RendererPaletteSet(palette_buf);
-    LbScreenClear(0);
+    RendererClearScreen(0);
     LbScreenSwap();
     return true;
 }

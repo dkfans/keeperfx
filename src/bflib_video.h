@@ -318,7 +318,6 @@ TbResult LbScreenUnlock(void);
 TbBool LbScreenIsLocked(void);
 
 TbResult LbScreenSwap(void);
-TbResult LbScreenClear(TbPixel colour);
 TbResult LbScreenWaitVbi(void);
 unsigned short LbGetCurrentDisplayIndex();
 

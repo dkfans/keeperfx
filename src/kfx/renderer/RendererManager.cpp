@@ -90,6 +90,12 @@ void RendererSetDisplayPalette(const unsigned char *rgb8)
         s_active_renderer->SetDisplayPalette(rgb8);
 }
 
+void RendererClearScreen(unsigned char colour)
+{
+    if (s_active_renderer != nullptr)
+        s_active_renderer->ClearScreen(colour);
+}
+
 TbResult RendererPaletteGet(unsigned char *palette)
 {
     return LbPaletteGet(palette);

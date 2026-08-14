@@ -29,3 +29,11 @@ void RendererSoftware::SetDisplayPalette(const unsigned char* rgb8)
     if (surfpal != NULL)
         SDL_SetPaletteColors(surfpal, colors, 0, PALETTE_COLORS);
 }
+
+void RendererSoftware::ClearScreen(unsigned char colour)
+{
+    if (lbDrawSurface == NULL)
+        return;
+    if (!SDL_FillSurfaceRect(lbDrawSurface, NULL, colour))
+        ERRORLOG("Error while clearing screen: %s", SDL_GetError());
+}

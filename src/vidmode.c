@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "vidmode.h"
 
 #include "globals.h"
@@ -697,7 +698,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
     load_pointer_file(hi_res);
   }
-  LbScreenClear(0);
+  RendererClearScreen(0);
   LbScreenSwap();
   update_screen_mode_data(new_mdinfo->Width, new_mdinfo->Height);
   if (parchment_loaded)
@@ -861,7 +862,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
         }
     }
   }
-  LbScreenClear(0);
+  RendererClearScreen(0);
   LbScreenSwap();
   update_screen_mode_data(new_mdinfo->Width, new_mdinfo->Height);
   lbDisplay.DrawFlags = flg_mem;

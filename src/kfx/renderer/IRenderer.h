@@ -18,6 +18,9 @@ public:
     virtual const char* GetName() const = 0;
     
     virtual void SetDisplayPalette(const unsigned char* rgb8) { (void)rgb8; }
+
+    // Clear the whole display to a palette index. Default no-op.
+    virtual void ClearScreen(unsigned char colour) { (void)colour; }
 };
 
 #endif // RENDERER_IRENDERER_H

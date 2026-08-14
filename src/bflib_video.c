@@ -164,18 +164,6 @@ TbResult LbScreenSwap(void)
     return ret;
 }
 
-TbResult LbScreenClear(TbPixel colour)
-{
-    SYNCDBG(12,"Starting");
-    if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
-      return Lb_FAIL;
-    if (!SDL_FillSurfaceRect(lbDrawSurface, NULL, colour)) {
-        ERRORLOG("Error while clearing screen.");
-        return Lb_FAIL;
-    }
-  return Lb_SUCCESS;
-}
-
 /** Returns the currently active screen mode.
  *
  * @return Screen mode index.

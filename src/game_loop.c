@@ -847,7 +847,7 @@ static TbBool wait_at_frontend(void)
       exit_keeper = 1;
       return true;
     }
-    LbScreenClear(0);
+    RendererClearScreen(0);
     LbScreenSwap();
     if (frontend_load_data() != Lb_SUCCESS)
     {
@@ -933,7 +933,7 @@ static TbBool wait_at_frontend(void)
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
-    LbScreenClear(0);
+    RendererClearScreen(0);
     LbScreenSwap();
     FrontendMenuState prev_state;
     prev_state = frontend_menu_state;
@@ -970,7 +970,7 @@ static TbBool wait_at_frontend(void)
     case FeSt_LOAD_GAME:
           flgmem = game.save_game_slot;
           clear_flag(game.system_flags, GSF_NetworkActive);
-          LbScreenClear(0);
+          RendererClearScreen(0);
           LbScreenSwap();
           if (!load_game(game.save_game_slot))
           {
@@ -1079,12 +1079,12 @@ void game_loop(void)
           }
           memset(&Timer, 0, sizeof(Timer));
       }
-      LbScreenClear(0);
+      RendererClearScreen(0);
       LbScreenSwap();
       game.frame_skip = 0;
       keeper_gameplay_loop();
       set_pointer_graphic_none();
-      LbScreenClear(0);
+      RendererClearScreen(0);
       LbScreenSwap();
       stop_atmos_sounds();
       stop_music(true);
