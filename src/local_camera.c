@@ -221,8 +221,9 @@ void update_local_cameras(void)
     destination_deviation_x = 0;
     destination_deviation_y = 0;
 
-    process_camera_action(destination_local_cameras, pckt);
-
+    if (pckt != NULL) {
+        process_camera_action(destination_local_cameras, pckt);
+    }
     if (player->view_mode == PVM_CreatureView && thing_exists(ctrltng)) {
         update_local_first_person_camera(ctrltng, pckt);
         return;
