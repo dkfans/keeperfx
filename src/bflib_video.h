@@ -290,6 +290,8 @@ extern unsigned short units_per_pixel;
 
 extern unsigned short display_id;
 
+extern TbBool vsync_enabled;
+
 extern TbDisplayStruct lbDisplay;
 extern SDL_Window *lbWindow;
 /******************************************************************************/

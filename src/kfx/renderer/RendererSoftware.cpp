@@ -1,6 +1,6 @@
 #include "pre_inc.h"
 #include "kfx/renderer/RendererSoftware.h"
-#include "bflib_video.h"       // PALETTE_COLORS, lbWindow, SDL
+#include "bflib_video.h"       // PALETTE_COLORS, lbWindow, SDL, vsync_enabled
 #include "bflib_vidsurface.h"  // lbDrawSurface (goes away when the framebuffer migrates)
 #include "bflib_mouse.h"       // LbMouseOnBeginSwap/EndSwap (software cursor around present)
 #include "post_inc.h"
@@ -52,7 +52,13 @@ bool RendererSoftware::ensure_present_target()
             ERRORLOG("SDL_CreateRenderer failed: %s", SDL_GetError());
             return false;
         }
-        SDL_SetRenderVSync(m_renderer, 1);
+    }
+
+    const int want_vsync = vsync_enabled ? 1 : 0;
+    if (m_vsync != want_vsync)
+    {
+        SDL_SetRenderVSync(m_renderer, want_vsync);
+        m_vsync = want_vsync;
     }
 
     if (m_texture == nullptr || m_tex_w != lbDrawSurface->w || m_tex_h != lbDrawSurface->h)
@@ -86,6 +92,7 @@ void RendererSoftware::destroy_present_target()
     if (m_renderer != nullptr) { SDL_DestroyRenderer(m_renderer); m_renderer = nullptr; }
     m_tex_w = 0;
     m_tex_h = 0;
+    m_vsync = -1;
 }
 
 void RendererSoftware::PresentFrame()

@@ -78,6 +78,9 @@ unsigned short units_per_pixel;
   */
 unsigned short display_id = 0;
 
+/** Vertical sync for the software present; set from keeperfx.cfg (VSYNC), on by default. */
+TbBool vsync_enabled = 1;
+
 static unsigned char fade_started;
 static unsigned char from_pal[PALETTE_SIZE];
 static unsigned char to_pal[PALETTE_SIZE];
