@@ -598,9 +598,9 @@ TbBool cmd_game_save(PlayerNumber plyr_idx, char * args)
 {
     char * pr1str = strsep_param_with_space(&args);
     long slot_num = (pr1str != NULL) ? atoi(pr1str) : 0;
-    if (slot_num < 0 || slot_num >= TOTAL_SAVE_SLOTS_COUNT)
+    if (slot_num < 0 || slot_num >= SAVE_SLOTS_LIMIT)
     {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot_num [%d] exceeds [%d,%d)", slot_num, 0, TOTAL_SAVE_SLOTS_COUNT);
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot_num [%d] exceeds [%d,%d)", slot_num, 0, SAVE_SLOTS_LIMIT);
         return false;
     }
     char * pr2str = strsep_param_with_space(&args);
@@ -623,9 +623,9 @@ TbBool cmd_game_load(PlayerNumber plyr_idx, char * args)
 {
     char * pr1str = strsep_param_with_space(&args);
     long slot_num = (pr1str != NULL) ? atoi(pr1str) : 0;
-    if (slot_num < 0 || slot_num >= TOTAL_SAVE_SLOTS_COUNT)
+    if (slot_num < 0 || slot_num >= SAVE_SLOTS_LIMIT)
     {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot_num [%d] exceeds [%d,%d)", slot_num, 0, TOTAL_SAVE_SLOTS_COUNT);
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot_num [%d] exceeds [%d,%d)", slot_num, 0, SAVE_SLOTS_LIMIT);
         return false;
     }
     char * pr2str = strsep_param_with_space(&args);

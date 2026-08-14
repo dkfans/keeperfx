@@ -200,7 +200,17 @@ enum GUIButtonSprite {
     GBS_borders_frame_thck_mr = 213,
     GBS_creature_portrait_avatr = 214,
 
-    GUI_BUTTON_SPRITES_COUNT = 239,
+    // In-game Load/Save vertical scrollbar. The two caps carry their arrow and its base;
+    // the _act ones are the lit (moused-over) variants. The track is one tileable segment:
+    // it is vertically uniform, so it fits any track length with the last tile clipped.
+    GBS_vscroll_cap_top_std = 239,
+    GBS_vscroll_cap_top_act = 240,
+    GBS_vscroll_track = 241,
+    GBS_vscroll_cap_bottom_std = 242,
+    GBS_vscroll_cap_bottom_act = 243,
+    GBS_vscroll_thumb = 244,
+
+    GUI_BUTTON_SPRITES_COUNT = 245,
 };
 
 // Based on gui2-64/filelist_gui2.txt

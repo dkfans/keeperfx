@@ -4992,7 +4992,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
             lbSpriteReMapPtr = white_pal;
         } else {
-            if ((thing->rendering_flags & TRF_BeingHit) != 0)
+            if (thing->last_turn_damaged == game.play_gameturn)
             {
                 lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
                 lbSpriteReMapPtr = red_pal;
@@ -8045,7 +8045,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
               }
           }
         } else {
-            if ((thing->rendering_flags & TRF_BeingHit) != 0)
+            if (thing->last_turn_damaged == game.play_gameturn)
             {
                 lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
                 lbSpriteReMapPtr = red_pal;

@@ -83,7 +83,6 @@ enum ThingRenderingFlags {
     TRF_Transpar_Flags = 0x30,
 
     TRF_AnimateOnce    = 0x40,
-    TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
 };
 
  /**
@@ -301,7 +300,8 @@ struct Thing {
     short next_of_class;
     short prev_of_class;
     uint32_t flags; //ThingAddFlags
-    int32_t last_turn_drawn;
+    GameTurn last_turn_drawn;
+    GameTurn last_turn_damaged;
     unsigned short previous_floor_height;
     struct Coord3d previous_mappos;
     uint32_t random_seed;

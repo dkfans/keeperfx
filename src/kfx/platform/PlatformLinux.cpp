@@ -1,6 +1,7 @@
 #include "pre_inc.h"
 #include "kfx/platform/PlatformLinux.h"
 #include "kfx/platform/FileFind.h"
+#include "platform.h" // kfxmain
 #include "bflib_fileio.h"
 #include <SDL3/SDL.h>
 #include <cstdlib>
@@ -76,4 +77,21 @@ bool PlatformLinux::VideoInit()
         return false;
     atexit(SDL_Quit);
     return true;
+}
+
+void   PlatformLinux::SetRedbookVolume(SoundVolume) {}
+TbBool PlatformLinux::PlayRedbookTrack(int) { return false; }
+void   PlatformLinux::PauseRedbookTrack() {}
+void   PlatformLinux::ResumeRedbookTrack() {}
+void   PlatformLinux::StopRedbookTrack() {}
+
+int  PlatformLinux::InitSteam() { return -1; }
+void PlatformLinux::ShutdownSteam() {}
+
+/******************************************************************************/
+// Process entry point.
+
+extern "C" int main(int argc, char *argv[])
+{
+    return kfxmain(argc, argv);
 }
