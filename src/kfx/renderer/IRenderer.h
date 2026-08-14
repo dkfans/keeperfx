@@ -21,6 +21,9 @@ public:
 
     // Clear the whole display to a palette index. Default no-op.
     virtual void ClearScreen(unsigned char colour) { (void)colour; }
+
+    // Present the drawn frame to the window (blit + flip). Default no-op.
+    virtual void PresentFrame() {}
 };
 
 #endif // RENDERER_IRENDERER_H

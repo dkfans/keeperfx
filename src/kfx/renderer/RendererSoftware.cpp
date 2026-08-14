@@ -1,7 +1,8 @@
 #include "pre_inc.h"
 #include "kfx/renderer/RendererSoftware.h"
-#include "bflib_video.h"       // PALETTE_COLORS, SDL
-#include "bflib_vidsurface.h"  // lbDrawSurface (will go away when FB is removed)
+#include "bflib_video.h"       // PALETTE_COLORS, lbWindow, lbHasSecondSurface, SDL
+#include "bflib_vidsurface.h"  // lbDrawSurface / lbScreenSurface (go away when FB is removed)
+#include "bflib_mouse.h"       // LbMouseOnBeginSwap/EndSwap (software cursor around present)
 #include "post_inc.h"
 
 bool RendererSoftware::Init()
@@ -36,4 +37,28 @@ void RendererSoftware::ClearScreen(unsigned char colour)
         return;
     if (!SDL_FillSurfaceRect(lbDrawSurface, NULL, colour))
         ERRORLOG("Error while clearing screen: %s", SDL_GetError());
+}
+
+void RendererSoftware::PresentFrame()
+{
+    TbResult ret = LbMouseOnBeginSwap();
+    // Put the Draw Surface onto the window Surface (refetch each frame to survive alt-tab).
+    if ((ret == Lb_SUCCESS) && lbHasSecondSurface)
+    {
+        lbScreenSurface = SDL_GetWindowSurface(lbWindow);
+        if (!SDL_BlitSurface(lbDrawSurface, NULL, lbScreenSurface, NULL))
+        {
+            ERRORLOG("Blit failed: %s", SDL_GetError());
+            ret = Lb_FAIL;
+        }
+    }
+    // Flip the window surface to screen.
+    if (ret == Lb_SUCCESS)
+    {
+        if (!SDL_UpdateWindowSurface(lbWindow))
+        {
+            ERRORDBG(11, "Flip failed: %s", SDL_GetError());
+        }
+    }
+    LbMouseOnEndSwap();
 }

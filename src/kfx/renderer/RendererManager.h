@@ -35,6 +35,9 @@ void RendererSetDisplayPalette(const unsigned char *rgb8);
 // Clear the whole display to a palette index.
 void RendererClearScreen(unsigned char colour);
 
+// Present the drawn frame to the window (blit draw surface + flip).
+void RendererPresentFrame(void);
+
 #ifdef __cplusplus
 }
 #endif

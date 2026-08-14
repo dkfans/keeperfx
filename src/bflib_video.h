@@ -292,6 +292,7 @@ extern unsigned short display_id;
 
 extern TbDisplayStruct lbDisplay;
 extern SDL_Window *lbWindow;
+extern volatile TbBool lbHasSecondSurface;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
@@ -317,7 +318,6 @@ TbResult LbScreenLock(void);
 TbResult LbScreenUnlock(void);
 TbBool LbScreenIsLocked(void);
 
-TbResult LbScreenSwap(void);
 TbResult LbScreenWaitVbi(void);
 unsigned short LbGetCurrentDisplayIndex();
 

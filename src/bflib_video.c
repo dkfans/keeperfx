@@ -134,36 +134,6 @@ TbResult LbScreenUnlock(void)
     return Lb_SUCCESS;
 }
 
-TbResult LbScreenSwap(void)
-{
-    int blresult;
-    SYNCDBG(12,"Starting");
-    TbResult ret = LbMouseOnBeginSwap();
-    // Put the data from Draw Surface onto Screen Surface
-    if ((ret == Lb_SUCCESS) && (lbHasSecondSurface)) {
-        // Update pointer to window surface on every frame
-        // to avoid problems with alt tab
-        lbScreenSurface = SDL_GetWindowSurface(lbWindow);
-        blresult = SDL_BlitSurface(lbDrawSurface, NULL, lbScreenSurface, NULL);
-        if (!blresult) {
-            ERRORLOG("Blit failed: %s",SDL_GetError());
-            ret = Lb_FAIL;
-        }
-    }
-    // Flip the image displayed on Screen Surface
-    if (ret == Lb_SUCCESS) {
-        // calls SDL_UpdateRect for entire screen if not double buffered
-        blresult = SDL_UpdateWindowSurface(lbWindow);
-        if (!blresult) {
-            // In some cases this situation seems to be quite common
-            ERRORDBG(11,"Flip failed: %s",SDL_GetError());
-            ret = Lb_FAIL;
-        }
-    }
-    LbMouseOnEndSwap();
-    return ret;
-}
-
 /** Returns the currently active screen mode.
  *
  * @return Screen mode index.
@@ -238,7 +208,7 @@ TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette
     LbScreenWaitVbi();
     TbResult ret = RendererPaletteSet(palette);
     if (lbHasSecondSurface)
-        LbScreenSwap();
+        RendererPresentFrame();
     return ret;
 }
 

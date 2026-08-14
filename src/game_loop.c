@@ -476,7 +476,7 @@ void gameplay_loop_draw()
     }
     // Move the graphics window to center of screen buffer and swap screen
     if ( do_draw ) {
-        LbScreenSwap();
+        RendererPresentFrame();
     }
     frametime_end_measurement(Frametime_Draw);
 
@@ -848,7 +848,7 @@ static TbBool wait_at_frontend(void)
       return true;
     }
     RendererClearScreen(0);
-    LbScreenSwap();
+    RendererPresentFrame();
     if (frontend_load_data() != Lb_SUCCESS)
     {
       ERRORLOG("Unable to load frontend data");
@@ -903,7 +903,7 @@ static TbBool wait_at_frontend(void)
       if ((!finish_menu) && (LbIsActive()))
       {
         frontend_draw();
-        LbScreenSwap();
+        RendererPresentFrame();
       }
 
       if (!SoundDisabled)
@@ -934,7 +934,7 @@ static TbBool wait_at_frontend(void)
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
     RendererClearScreen(0);
-    LbScreenSwap();
+    RendererPresentFrame();
     FrontendMenuState prev_state;
     prev_state = frontend_menu_state;
     frontend_set_state(FeSt_INITIAL);
@@ -971,7 +971,7 @@ static TbBool wait_at_frontend(void)
           flgmem = game.save_game_slot;
           clear_flag(game.system_flags, GSF_NetworkActive);
           RendererClearScreen(0);
-          LbScreenSwap();
+          RendererPresentFrame();
           if (!load_game(game.save_game_slot))
           {
               ERRORLOG("Loading game %d failed; quitting.",(int)game.save_game_slot);
@@ -1080,12 +1080,12 @@ void game_loop(void)
           memset(&Timer, 0, sizeof(Timer));
       }
       RendererClearScreen(0);
-      LbScreenSwap();
+      RendererPresentFrame();
       game.frame_skip = 0;
       keeper_gameplay_loop();
       set_pointer_graphic_none();
       RendererClearScreen(0);
-      LbScreenSwap();
+      RendererPresentFrame();
       stop_atmos_sounds();
       stop_music(true);
       stop_streamed_samples();

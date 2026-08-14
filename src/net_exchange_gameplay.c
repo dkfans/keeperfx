@@ -15,6 +15,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "net_exchange_gameplay.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
@@ -141,7 +142,7 @@ TbError process_network_unpause_message(void)
     MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE: applying unpause");
     unpausing_in_progress = 1;
     keeper_screen_redraw();
-    LbScreenSwap();
+    RendererPresentFrame();
     if (my_player_number == get_host_player_id()) {
         LbNetwork_BroadcastUnpause();
     }

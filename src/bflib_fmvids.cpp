@@ -537,7 +537,7 @@ struct movie_t {
 			copy_to_screen(*m_frame, m_flags);
 		}
 		LbScreenUnlock();
-		LbScreenSwap();
+		RendererPresentFrame();
 	}
 
 	bool output_audio_frames() {

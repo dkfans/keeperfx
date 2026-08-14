@@ -1685,7 +1685,7 @@ extern "C" void network_yield_draw_frontend()
         frontnet_start_input();
     }
     frontend_draw();
-    LbScreenSwap();
+    RendererPresentFrame();
 }
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)

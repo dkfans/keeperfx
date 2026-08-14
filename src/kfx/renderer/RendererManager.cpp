@@ -96,6 +96,12 @@ void RendererClearScreen(unsigned char colour)
         s_active_renderer->ClearScreen(colour);
 }
 
+void RendererPresentFrame(void)
+{
+    if (s_active_renderer != nullptr)
+        s_active_renderer->PresentFrame();
+}
+
 TbResult RendererPaletteGet(unsigned char *palette)
 {
     return LbPaletteGet(palette);

@@ -11,6 +11,7 @@ public:
     const char* GetName() const override { return "software"; }
     void SetDisplayPalette(const unsigned char* pal6) override;
     void ClearScreen(unsigned char colour) override;
+    void PresentFrame() override;
 };
 
 #endif // RENDERER_RENDERERSOFTWARE_H
