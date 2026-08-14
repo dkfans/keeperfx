@@ -1,7 +1,7 @@
 #include "pre_inc.h"
 #include "kfx/renderer/RendererSoftware.h"
-#include "bflib_video.h"       // PALETTE_COLORS, lbWindow, lbHasSecondSurface, SDL
-#include "bflib_vidsurface.h"  // lbDrawSurface / lbScreenSurface (go away when FB is removed)
+#include "bflib_video.h"       // PALETTE_COLORS, lbWindow, SDL
+#include "bflib_vidsurface.h"  // lbDrawSurface (goes away when the framebuffer migrates)
 #include "bflib_mouse.h"       // LbMouseOnBeginSwap/EndSwap (software cursor around present)
 #include "post_inc.h"
 
@@ -12,6 +12,7 @@ bool RendererSoftware::Init()
 
 void RendererSoftware::Shutdown()
 {
+    destroy_present_target();
 }
 
 void RendererSoftware::SetDisplayPalette(const unsigned char* rgb8)
@@ -39,26 +40,65 @@ void RendererSoftware::ClearScreen(unsigned char colour)
         ERRORLOG("Error while clearing screen: %s", SDL_GetError());
 }
 
+bool RendererSoftware::ensure_present_target()
+{
+    if (m_renderer != nullptr && SDL_GetRenderWindow(m_renderer) != lbWindow)
+        destroy_present_target();
+    if (m_renderer == nullptr)
+    {
+        m_renderer = SDL_CreateRenderer(lbWindow, NULL);
+        if (m_renderer == nullptr)
+        {
+            ERRORLOG("SDL_CreateRenderer failed: %s", SDL_GetError());
+            return false;
+        }
+        SDL_SetRenderVSync(m_renderer, 1);
+    }
+
+    if (m_texture == nullptr || m_tex_w != lbDrawSurface->w || m_tex_h != lbDrawSurface->h)
+    {
+        if (m_texture != nullptr) { SDL_DestroyTexture(m_texture); m_texture = nullptr; }
+        if (m_rgba != nullptr) { SDL_DestroySurface(m_rgba); m_rgba = nullptr; }
+        m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA32,
+                                      SDL_TEXTUREACCESS_STREAMING, lbDrawSurface->w, lbDrawSurface->h);
+        if (m_texture == nullptr)
+        {
+            ERRORLOG("SDL_CreateTexture failed: %s", SDL_GetError());
+            return false;
+        }
+        SDL_SetTextureScaleMode(m_texture, SDL_SCALEMODE_NEAREST); // crisp pixels
+        m_rgba = SDL_CreateSurface(lbDrawSurface->w, lbDrawSurface->h, SDL_PIXELFORMAT_RGBA32);
+        if (m_rgba == nullptr)
+        {
+            ERRORLOG("SDL_CreateSurface(RGBA staging) failed: %s", SDL_GetError());
+            return false;
+        }
+        m_tex_w = lbDrawSurface->w;
+        m_tex_h = lbDrawSurface->h;
+    }
+    return true;
+}
+
+void RendererSoftware::destroy_present_target()
+{
+    if (m_texture != nullptr) { SDL_DestroyTexture(m_texture); m_texture = nullptr; }
+    if (m_rgba != nullptr) { SDL_DestroySurface(m_rgba); m_rgba = nullptr; }
+    if (m_renderer != nullptr) { SDL_DestroyRenderer(m_renderer); m_renderer = nullptr; }
+    m_tex_w = 0;
+    m_tex_h = 0;
+}
+
 void RendererSoftware::PresentFrame()
 {
-    TbResult ret = LbMouseOnBeginSwap();
-    // Put the Draw Surface onto the window Surface (refetch each frame to survive alt-tab).
-    if ((ret == Lb_SUCCESS) && lbHasSecondSurface)
-    {
-        lbScreenSurface = SDL_GetWindowSurface(lbWindow);
-        if (!SDL_BlitSurface(lbDrawSurface, NULL, lbScreenSurface, NULL))
-        {
-            ERRORLOG("Blit failed: %s", SDL_GetError());
-            ret = Lb_FAIL;
-        }
-    }
-    // Flip the window surface to screen.
-    if (ret == Lb_SUCCESS)
-    {
-        if (!SDL_UpdateWindowSurface(lbWindow))
-        {
-            ERRORDBG(11, "Flip failed: %s", SDL_GetError());
-        }
-    }
+    if (lbDrawSurface == NULL || !ensure_present_target())
+        return;
+    LbMouseOnBeginSwap();
+    // INDEX8 (palette) -> RGBA and present
+    if (!SDL_BlitSurface(lbDrawSurface, NULL, m_rgba, NULL))
+        ERRORLOG("Present blit failed: %s", SDL_GetError());
+    SDL_UpdateTexture(m_texture, NULL, m_rgba->pixels, m_rgba->pitch);
+    SDL_RenderClear(m_renderer);
+    SDL_RenderTexture(m_renderer, m_texture, NULL, NULL);
+    SDL_RenderPresent(m_renderer);
     LbMouseOnEndSwap();
 }

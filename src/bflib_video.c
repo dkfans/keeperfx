@@ -48,11 +48,6 @@ long lbScreenModeInfoNum = 0;
 
 /** Informs if Video Screen subsystem initialization was done. */
 volatile TbBool lbScreenInitialised = false;
-/** Bytes per pixel expected by the engine.
- * On any try of entering different video BPP, this mode will be emulated. */
-volatile unsigned short lbEngineBPP = 8;
-/** True if we have two surfaces. */
-volatile TbBool lbHasSecondSurface;
 /** True if we request the double buffering to be on in next mode switch. */
 TbBool lbDoubleBufferingRequested;
 /** Name of the video driver to be used. Must be set before LbScreenInitialize().
@@ -207,8 +202,7 @@ TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette
     }
     LbScreenWaitVbi();
     TbResult ret = RendererPaletteSet(palette);
-    if (lbHasSecondSurface)
-        RendererPresentFrame();
+    RendererPresentFrame();
     return ret;
 }
 
@@ -486,9 +480,7 @@ TbResult LbScreenInitialize(void)
 {
     // Clear global variables
     lbScreenInitialised = false;
-    lbScreenSurface = NULL;
     lbDrawSurface = NULL;
-    lbHasSecondSurface = false;
     lbDoubleBufferingRequested = false;
     LbMouseChangeMoveRatio(256, 256);
     // Register default video modes
@@ -517,17 +509,13 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         msspr = lbDisplay.MouseSprite;
         GetPointerHotspot(&hot_x,&hot_y);
     }
-    SDL_Surface* prevScreenSurf = lbScreenSurface;
     LbMouseChangeSprite(NULL);
 
-    if (lbHasSecondSurface) {
+    if (lbDrawSurface != NULL) {
         SDL_DestroySurface(lbDrawSurface);
     }
     lbDrawSurface = NULL;
     lbScreenInitialised = false;
-
-    if (prevScreenSurf != NULL) {
-    }
 
     TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode); // The desired mode has already been checked
 
@@ -578,30 +566,20 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
             PlatformManager_SetWindowDisplayMode((int)mdinfo->Width, (int)mdinfo->Height);
         }
     }
-    lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
-    if (lbScreenSurface == NULL) {
-        ERRORLOG("Failed to initialize mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
+    // The engine renders 8-bit indexed into a standalone draw surface; the software
+    // backend presents it through an SDL_Renderer + texture (which is incompatible with
+    // a window surface, so we no longer call SDL_GetWindowSurface here). SDL3 does not
+    // allocate a palette for indexed surfaces, so create one.
+    lbDrawSurface = SDL_CreateSurface(mdinfo->Width, mdinfo->Height, SDL_PIXELFORMAT_INDEX8);
+    if (lbDrawSurface == NULL) {
+        ERRORLOG("Can't create draw surface for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
+        LbScreenReset(false);
         return Lb_FAIL;
     }
-
-    // Create secondary surface if necessary, that is if BPP != lbEngineBPP.
-    if (mdinfo->BitsPerPixel != lbEngineBPP)
-    {
-        // SDL3: SDL_CreateRGBSurface -> SDL_CreateSurface(w, h, SDL_PixelFormat).
-        // The engine renders 8-bit indexed, so create an INDEX8 surface and give
-        // it a palette (SDL3 does not allocate one for indexed surfaces).
-        lbDrawSurface = SDL_CreateSurface(mdinfo->Width, mdinfo->Height, SDL_PIXELFORMAT_INDEX8);
-        if (lbDrawSurface == NULL) {
-            ERRORLOG("Can't create secondary surface for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
-            LbScreenReset(false);
-            return Lb_FAIL;
-        }
-        if (!SDL_CreateSurfacePalette(lbDrawSurface)) {
-            ERRORLOG("Can't create palette for secondary surface (mode %d, %s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
-            LbScreenReset(false);
-            return Lb_FAIL;
-        }
-        lbHasSecondSurface = true;
+    if (!SDL_CreateSurfacePalette(lbDrawSurface)) {
+        ERRORLOG("Can't create palette for draw surface (mode %d, %s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
+        LbScreenReset(false);
+        return Lb_FAIL;
     }
 
     lbDisplay.DrawFlags = 0;
@@ -617,7 +595,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     lbDisplay.WScreen = NULL;
     lbDisplay.GraphicsWindowPtr = NULL;
     lbScreenInitialised = true;
-    SYNCLOG("Mode %dx%dx%d setup succeeded",(int)lbScreenSurface->w,(int)lbScreenSurface->h,(int)SDL_BITSPERPIXEL(lbScreenSurface->format));
+    SYNCLOG("Mode %dx%dx8 setup succeeded (indexed draw surface)",(int)lbDrawSurface->w,(int)lbDrawSurface->h);
     if (palette != NULL)
     {
         RendererPaletteSet(palette);
@@ -766,13 +744,10 @@ TbResult LbScreenReset(TbBool exiting_application)
     if (!lbScreenInitialised)
       return Lb_FAIL;
     LbMouseChangeSprite(NULL);
-    if (lbHasSecondSurface) {
+    if (lbDrawSurface != NULL) {
         SDL_DestroySurface(lbDrawSurface);
     }
-    //do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
-    lbHasSecondSurface = false;
     lbDrawSurface = NULL;
-    lbScreenSurface = NULL;
     // Mark as not initialized
     lbScreenInitialised = false;
     if (exiting_application)

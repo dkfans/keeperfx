@@ -3,6 +3,10 @@
 
 #include "kfx/renderer/IRenderer.h"
 
+struct SDL_Renderer;
+struct SDL_Texture;
+struct SDL_Surface;
+
 // Software backend. it's small for now, it's gonna grow the more I bring things into it.
 class RendererSoftware : public IRenderer {
 public:
@@ -12,6 +16,16 @@ public:
     void SetDisplayPalette(const unsigned char* pal6) override;
     void ClearScreen(unsigned char colour) override;
     void PresentFrame() override;
+
+private:
+    bool ensure_present_target();
+    void destroy_present_target();
+
+    SDL_Renderer* m_renderer = nullptr;
+    SDL_Texture*  m_texture  = nullptr;
+    SDL_Surface*  m_rgba     = nullptr;
+    int           m_tex_w    = 0;
+    int           m_tex_h    = 0;
 };
 
 #endif // RENDERER_RENDERERSOFTWARE_H
