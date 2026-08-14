@@ -39,7 +39,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define CAMERA_180_SPEED 0.4f
+#define CAMERA_SNAPPING_SPEED 0.4f
 
 struct Camera local_cameras[4];
 struct Camera previous_local_cameras[4];
@@ -52,7 +52,7 @@ TbBool local_camera_ready;
 static MapCoord local_camera_move_target[2];
 static MapCoordDelta local_camera_move_delta[2];
 static TbBool local_camera_move_active;
-static int32_t local_camera_180_target = -1;
+int32_t local_camera_snap_target = -1;
 /******************************************************************************/
 
 static const struct Packet* get_packet_for_local_camera_update(void)
@@ -150,7 +150,7 @@ void init_local_cameras(struct PlayerInfo *player)
         sync_camera_state(i, &player->cameras[i]);
     }
     local_camera_move_active = false;
-    local_camera_180_target = -1;
+    local_camera_snap_target = -1;
     local_camera_ready = true;
 }
 
@@ -223,22 +223,22 @@ void update_camera_deviations(int active_cam_idx)
     }
 }
 
-static void update_local_camera_180(struct Camera *cam, const struct Packet *packet)
+static void update_local_camera_snap(struct Camera *cam, const struct Packet *packet)
 {
     if (packet->action == PckA_SetMapRotation) {
-        local_camera_180_target = packet->actn_par1 & ANGLE_MASK;
+        local_camera_snap_target = packet->actn_par1 & ANGLE_MASK;
         cam->inertia_rotation = 0;
     } else if (packet->control_flags & (PCtr_ViewRotateCW | PCtr_ViewRotateCCW)) {
-        local_camera_180_target = -1;
+        local_camera_snap_target = -1;
     }
-    if (local_camera_180_target >= 0) {
-        int angle = lroundf(lerp_angle(cam->rotation_angle_x, local_camera_180_target, CAMERA_180_SPEED)) & ANGLE_MASK;
+    if (local_camera_snap_target >= 0) {
+        int angle = lroundf(lerp_angle(cam->rotation_angle_x, local_camera_snap_target, CAMERA_SNAPPING_SPEED)) & ANGLE_MASK;
         if (angle == cam->rotation_angle_x) {
-            angle = local_camera_180_target;
+            angle = local_camera_snap_target;
         }
         cam->rotation_angle_x = angle;
-        if (cam->rotation_angle_x == local_camera_180_target) {
-            local_camera_180_target = -1;
+        if (cam->rotation_angle_x == local_camera_snap_target) {
+            local_camera_snap_target = -1;
         }
     }
 }
@@ -270,7 +270,7 @@ void update_local_cameras(void)
         // Only process camera controls for the currently active camera view
         int active_cam_idx = (my_player->view_mode == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
         struct Camera *cam = &destination_local_cameras[active_cam_idx];
-        update_local_camera_180(cam, local_packet);
+        update_local_camera_snap(cam, local_packet);
         if (local_camera_move_active) {
             local_camera_move_active = !view_move_camera_to_position(cam, local_camera_move_target[0], local_camera_move_target[1], local_camera_move_delta[0], local_camera_move_delta[1]);
         } else {

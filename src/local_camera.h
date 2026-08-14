@@ -36,6 +36,7 @@ struct PlayerInfo;
 extern struct Camera local_cameras[4];
 extern struct Camera previous_local_cameras[4];
 extern struct Camera destination_local_cameras[4];
+extern int32_t local_camera_snap_target;
 extern TbBool local_camera_ready;
 /******************************************************************************/
 void init_local_cameras(struct PlayerInfo *player);

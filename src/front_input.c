@@ -1242,9 +1242,11 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
       // Middle mouse camera actions for IsometricView
       if (is_game_key_pressed(Gkey_SnapCamera, true, true))
       {
-          struct Camera* cam = get_local_camera(&player->cameras[CamIV_Isometric]);
           struct Packet* pckt = get_packet(my_player_number);
-          int angle = cam->rotation_angle_x;
+          int angle = destination_local_cameras[CamIV_Isometric].rotation_angle_x;
+          if (local_camera_snap_target >= 0) {
+              angle = local_camera_snap_target;
+          }
           if (key_modifiers & KMod_CONTROL)
           {
               if ((angle >= ANGLE_NORTH && angle < ANGLE_NORTHEAST) || angle == DEGREES_360)
@@ -1328,9 +1330,11 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
       // Middle mouse camera actions for FrontView
       if (is_game_key_pressed(Gkey_SnapCamera, true, true))
       {
-          struct Camera* cam = get_local_camera(&player->cameras[CamIV_FrontView]);
           struct Packet* pckt = get_packet(my_player_number);
-          int angle = cam->rotation_angle_x;
+          int angle = destination_local_cameras[CamIV_FrontView].rotation_angle_x;
+          if (local_camera_snap_target >= 0) {
+              angle = local_camera_snap_target;
+          }
           if (key_modifiers & KMod_CONTROL)
           {
               set_packet_control(pckt, PCtr_ViewRotateCW);
