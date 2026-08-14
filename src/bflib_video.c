@@ -26,6 +26,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_vidsurface.h"
 #include "kfx/platform/PlatformManager.h"
+#include "kfx/renderer/RendererManager.h"
 
 #include "keeperfx.hpp"
 
@@ -58,8 +59,6 @@ TbBool lbDoubleBufferingRequested;
  * Under Win32 and with SDL, choises are windib or directx. */
 /** Colour palette buffer, to be used inside lbDisplay. */
 static unsigned char lbPalette[PALETTE_SIZE];
-/** Driver-specific colour palette buffer. */
-SDL_Color lbPaletteColors[PALETTE_COLORS];
 
 char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
@@ -249,7 +248,7 @@ TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette
         palette[i+2] = fade_count * (target_color_component - source_color_component) / fade_steps + source_color_component;
     }
     LbScreenWaitVbi();
-    TbResult ret = LbPaletteSet(palette);
+    TbResult ret = RendererPaletteSet(palette);
     if (lbHasSecondSurface)
         LbScreenSwap();
     return ret;
@@ -663,7 +662,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     SYNCLOG("Mode %dx%dx%d setup succeeded",(int)lbScreenSurface->w,(int)lbScreenSurface->h,(int)SDL_BITSPERPIXEL(lbScreenSurface->format));
     if (palette != NULL)
     {
-        LbPaletteSet(palette);
+        RendererPaletteSet(palette);
     }
     LbScreenSetGraphicsWindow(0, 0, mdinfo->Width, mdinfo->Height);
     LbTextSetWindow(0, 0, mdinfo->Width, mdinfo->Height);
@@ -717,36 +716,24 @@ TbResult LbPaletteDataFillWhite(unsigned char *palette)
  * @param palette Pointer to the palette colors data.
  * @return Lb_SUCCESS, or error code.
  */
-TbResult LbPaletteSet(unsigned char *palette)
+TbResult LbPaletteStore(const unsigned char *palette)
 {
     SYNCDBG(12,"Starting");
-    if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
-      return Lb_FAIL;
-    //destColors = (SDL_Color *) malloc(sizeof(SDL_Color) * PALETTE_COLORS);
-    SDL_Color* destColors = lbPaletteColors;
-    const unsigned char* srcColors = palette;
+    if (palette == NULL)
+        return Lb_FAIL;
     unsigned char* bufColors = lbPalette;
-    if ((destColors == NULL) || (srcColors == NULL))
-      return Lb_FAIL;
-    TbResult ret = Lb_SUCCESS;
+    const unsigned char* srcColors = palette;
     for (unsigned long i = 0; i < PALETTE_COLORS; i++)
     {
         // note that bufColors and srcColors could be the same pointer
         bufColors[0] = srcColors[0] & 0x3F;
         bufColors[1] = srcColors[1] & 0x3F;
         bufColors[2] = srcColors[2] & 0x3F;
-        destColors[i].r = (bufColors[0] << 2);
-        destColors[i].g = (bufColors[1] << 2);
-        destColors[i].b = (bufColors[2] << 2);
-        destColors[i].a = SDL_ALPHA_OPAQUE;
         srcColors += 3;
         bufColors += 3;
     }
-    SDL_Palette* surfpal = SDL_GetSurfacePalette(lbDrawSurface);
-    if (surfpal != NULL)
-        SDL_SetPaletteColors(surfpal, lbPaletteColors, 0, PALETTE_COLORS);
     lbDisplay.Palette = lbPalette;
-    return ret;
+    return Lb_SUCCESS;
 }
 
 /** Retrieves the 8-bit video palette.

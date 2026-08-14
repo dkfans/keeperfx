@@ -324,7 +324,7 @@ unsigned short LbGetCurrentDisplayIndex();
 
 long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 TbResult LbPaletteStopOpenFade(void);
-TbResult LbPaletteSet(unsigned char *palette);
+TbResult LbPaletteStore(const unsigned char *palette);
 TbResult LbPaletteGet(unsigned char *palette);
 const unsigned char *LbPaletteGetReadonly(void);
 TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);

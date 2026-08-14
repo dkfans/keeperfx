@@ -62,9 +62,32 @@ const unsigned char* RendererGetActivePalette(void)
     return LbPaletteGetReadonly();
 }
 
+// Palette channels are stored 6-bit (0..63) - because of VGA constraint, convert to 8-bit (0..255) for display.
+static inline unsigned char chan6_to_8(unsigned char v)
+{
+    return (unsigned char)((v * 255) / 63);
+}
+
 TbResult RendererPaletteSet(unsigned char *palette)
 {
-    return LbPaletteSet(palette);
+    if (!lbScreenInitialised)
+        return Lb_FAIL;
+    TbResult ret = LbPaletteStore(palette);
+    if (ret == Lb_SUCCESS)
+    {
+        const unsigned char* pal6 = LbPaletteGetReadonly();
+        unsigned char rgb8[PALETTE_SIZE];
+        for (int i = 0; i < PALETTE_SIZE; i++)
+            rgb8[i] = chan6_to_8(pal6[i]);
+        RendererSetDisplayPalette(rgb8);
+    }
+    return ret;
+}
+
+void RendererSetDisplayPalette(const unsigned char *rgb8)
+{
+    if (s_active_renderer != nullptr)
+        s_active_renderer->SetDisplayPalette(rgb8);
 }
 
 TbResult RendererPaletteGet(unsigned char *palette)

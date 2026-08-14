@@ -25,9 +25,12 @@ RendererType RendererGetActiveType(void);
 // The currently-active 6-bit VGA palette (768 bytes) that indexed drawing samples.
 const unsigned char* RendererGetActivePalette(void);
 
-// Set / read back the active palette (the seam entry points engine code uses).
+// Set / read back the active game palette (the seam entry points engine code uses).
 TbResult RendererPaletteSet(unsigned char *palette);
 TbResult RendererPaletteGet(unsigned char *palette);
+
+// Apply an 8-bit RGB palette (256*3 bytes) directly to the display
+void RendererSetDisplayPalette(const unsigned char *rgb8);
 
 #ifdef __cplusplus
 }

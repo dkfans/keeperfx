@@ -3,14 +3,13 @@
 
 #include "kfx/renderer/IRenderer.h"
 
-// Software backend. A thin shell for now: the legacy bflib_video / bflib_vidraw
-// path still performs the actual rasterisation. Drawing migrates behind this
-// seam over subsequent increments.
+// Software backend. it's small for now, it's gonna grow the more I bring things into it.
 class RendererSoftware : public IRenderer {
 public:
     bool Init() override;
     void Shutdown() override;
     const char* GetName() const override { return "software"; }
+    void SetDisplayPalette(const unsigned char* pal6) override;
 };
 
 #endif // RENDERER_RENDERERSOFTWARE_H
