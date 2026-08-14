@@ -594,6 +594,42 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     update_mouse_light(player);
 }
 
+static void set_all_cameras_position(struct Camera cams[], int32_t pos_x, int32_t pos_y)
+{
+    cams[CamIV_Parchment].mappos.x.val = pos_x;
+    cams[CamIV_FrontView].mappos.x.val = pos_x;
+    cams[CamIV_Isometric].mappos.x.val = pos_x;
+    cams[CamIV_Parchment].mappos.y.val = pos_y;
+    cams[CamIV_FrontView].mappos.y.val = pos_y;
+    cams[CamIV_Isometric].mappos.y.val = pos_y;
+}
+
+static void set_all_cameras_rotation(struct Camera cams[], int32_t angle)
+{
+    cams[CamIV_Parchment].rotation_angle_x = angle;
+    cams[CamIV_FrontView].rotation_angle_x = angle;
+    cams[CamIV_Isometric].rotation_angle_x = angle;
+}
+
+void process_camera_action(struct Camera cams[], const struct Packet *pckt)
+{
+    switch (pckt->action)
+    {
+    case PckA_BookmarkLoad:
+        set_all_cameras_position(cams, pckt->actn_par1, pckt->actn_par2);
+        break;
+
+    case PckA_SetMapRotation:
+        set_all_cameras_rotation(cams, pckt->actn_par1);
+        break;
+
+    case PckA_ZoomFromMap:
+        set_all_cameras_position(cams, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
+        set_all_cameras_rotation(cams, 0);
+        break;
+    }
+}
+
 TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
 {
   //TODO PACKET add commands from beta
@@ -603,6 +639,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   struct Dungeon *dungeon;
   struct Thing *thing;
   int i;
+
+  process_camera_action(player->cameras, pckt);
+
   switch (pckt->action)
   {
   case PckA_QuitToMainMenu:
@@ -720,9 +759,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         centre_engine_window();
       }
       return 0;
-  case PckA_BookmarkLoad:
-      set_player_cameras_position(player, pckt->actn_par1, pckt->actn_par2);
-      return 0;
   case PckA_SetGammaLevel:
       if (is_my_player(player))
       {
@@ -737,12 +773,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         settings.minimap_zoom = player->minimap_zoom;
         save_settings();
       }
-      return 0;
-  case PckA_SetMapRotation:
-      player->cameras[CamIV_Parchment].rotation_angle_x = pckt->actn_par1;
-      player->cameras[CamIV_FrontView].rotation_angle_x = pckt->actn_par1;
-      player->cameras[CamIV_Isometric].rotation_angle_x = pckt->actn_par1;
-      set_local_camera_destination(player);
       return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);
@@ -771,10 +801,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_mode(player, pckt->actn_par1);
       return 0;
   case PckA_ZoomFromMap:
-      set_player_cameras_position(player, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
-      player->cameras[CamIV_Parchment].rotation_angle_x = 0;
-      player->cameras[CamIV_FrontView].rotation_angle_x = 0;
-      player->cameras[CamIV_Isometric].rotation_angle_x = 0;
       if (network_is_active()
           || (lbDisplay.PhysicalScreenWidth > 320))
       {
