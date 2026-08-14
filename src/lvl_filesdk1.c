@@ -59,7 +59,6 @@ extern "C" {
 long level_file_version = 0;
 char *level_strings[STRINGS_MAX+1];
 char *level_strings_data;
-char level_load_error[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
 #pragma pack(1)
 
@@ -853,12 +852,7 @@ static int load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char *m
 
 static TbBool load_tngfx_file(LevelNumber lv_num)
 {
-    int errors = load_kfx_toml_file(lv_num, "tngfx", "TNGFX", "thing", "ThingsCount", "thing%d", THINGS_COUNT - 2, &thing_create_thing_adv);
-    if (errors < 0)
-        snprintf(level_load_error, sizeof(level_load_error), "Level %d cannot be loaded: TNGFX could not be read. See keeperfx.log.", lv_num);
-    else if (errors > 0 && !level_load_error[0])
-        snprintf(level_load_error, sizeof(level_load_error), "Level %d cannot be loaded: TNGFX contains invalid things. See keeperfx.log.", lv_num);
-    return errors == 0;
+    return load_kfx_toml_file(lv_num, "tngfx", "TNGFX", "thing", "ThingsCount", "thing%d", THINGS_COUNT - 2, &thing_create_thing_adv) == 0;
 }
 
 TbBool load_action_point_file(LevelNumber lv_num)
@@ -1476,7 +1470,6 @@ static TbBool load_level_file(LevelNumber lvnum)
 
 TbBool load_map_file(LevelNumber lvnum)
 {
-    level_load_error[0] = '\0';
     TbBool result = load_level_file(lvnum);
     if (result)
         set_loaded_level_number(lvnum);

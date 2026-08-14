@@ -206,9 +206,7 @@ static TbBool init_level(void)
     int level = get_selected_level_number();
     TbBool script_preloaded = preload_script(level);
     if (!load_map_file(level)) {
-        if (!level_load_error[0])
-            snprintf(level_load_error, sizeof(level_load_error), "Level %d cannot be loaded. See keeperfx.log.", level);
-        create_frontend_error_box(15000, level_load_error);
+        create_frontend_error_box(15000, "Map content is missing or incompatible.");
         JUSTMSG("Unable to load level %d from %s", level, campaign.name);
         return false;
     }

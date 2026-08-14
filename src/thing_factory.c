@@ -42,7 +42,6 @@
 #include "config_magic.h"
 #include "game_merge.h"
 #include "game_legacy.h"
-#include "lvl_filesdk1.h"
 
 #include "keeperfx.hpp"
 #include "value_util.h"
@@ -228,14 +227,12 @@ TbBool thing_create_thing_adv(VALUE *init_data)
     if (subtype != NULL) {
         int level = get_selected_level_number();
         if (value_type(subtype) != VALUE_STRING) {
-            snprintf(level_load_error, sizeof(level_load_error), "Level %d cannot be loaded:\nThing SubtypeStringID is not a string.", level);
             ERRORMSG("map%05d.tngfx: Thing SubtypeStringID is not a string", level);
             return false;
         }
         model = value_parse_model(oclass, subtype);
         if (model == -1) {
             const char *name = value_string(subtype);
-            snprintf(level_load_error, sizeof(level_load_error), "Level %d cannot be loaded:\nThing SubtypeStringID \"%s\" was not found.", level, name);
             ERRORMSG("map%05d.tngfx: Unrecognized Thing SubtypeStringID \"%s\"", level, name);
             return false;
         }
