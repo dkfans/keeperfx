@@ -315,8 +315,6 @@ unsigned short LbGraphicsScreenBPP(void);
 TbScreenCoord LbGraphicsScreenWidth(void);
 TbScreenCoord LbGraphicsScreenHeight(void);
 
-TbResult LbScreenLock(void);
-TbResult LbScreenUnlock(void);
 TbBool LbScreenIsLocked(void);
 
 TbResult LbScreenWaitVbi(void);

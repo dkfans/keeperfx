@@ -238,7 +238,7 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
         (int)coord_x,  (int)coord_y);
 
     // Lock the screen
-    if (LbScreenLock() != Lb_SUCCESS)
+    if (RendererLockFramebuffer() != Lb_SUCCESS)
         return false;
 
     // Copy image buffer to screen buffer
@@ -249,7 +249,7 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
     perform_any_screen_capturing();
 
     // Unlock the screen
-    LbScreenUnlock();
+    RendererUnlockFramebuffer();
 
     // Swap video buffers to make the image visible
     RendererPresentFrame();
@@ -466,7 +466,7 @@ TbBool wait_for_installation_files(void)
   if ( LbFileExists(ffullpath) )
     return true;
   if ( was_locked )
-    LbScreenUnlock();
+    RendererUnlockFramebuffer();
   SYNCMSG("Installation file not found, waiting");
   if (!init_bitmap_screen(&nocd_bmp,RBmp_WaitNoCD))
   {
@@ -511,7 +511,7 @@ TbBool wait_for_installation_files(void)
   SYNCMSG("Finished waiting for installation after %lu seconds",counter);
   free_bitmap_screen(&nocd_bmp);
   if ( was_locked )
-    LbScreenLock();
+    RendererLockFramebuffer();
   return (!exit_keeper);
 }
 

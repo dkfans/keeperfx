@@ -16,6 +16,8 @@ public:
     void SetDisplayPalette(const unsigned char* pal6) override;
     void ClearScreen(unsigned char colour) override;
     void PresentFrame() override;
+    unsigned char* LockFramebuffer(int* out_pitch) override;
+    void UnlockFramebuffer() override;
 
 private:
     bool ensure_present_target();

@@ -3319,7 +3319,7 @@ short frontend_draw(void)
         return 0;
     }
 
-    if (LbScreenLock() != Lb_SUCCESS)
+    if (RendererLockFramebuffer() != Lb_SUCCESS)
         return 2;
 
     result = 1;
@@ -3375,7 +3375,7 @@ short frontend_draw(void)
     }
     draw_debug_messages();
     perform_any_screen_capturing();
-    LbScreenUnlock();
+    RendererUnlockFramebuffer();
     return result;
 }
 

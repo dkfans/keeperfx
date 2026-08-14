@@ -102,6 +102,34 @@ void RendererPresentFrame(void)
         s_active_renderer->PresentFrame();
 }
 
+TbResult RendererLockFramebuffer(void)
+{
+    if (!lbScreenInitialised || s_active_renderer == nullptr)
+        return Lb_FAIL;
+    int pitch = 0;
+    unsigned char* px = s_active_renderer->LockFramebuffer(&pitch);
+    if (px == nullptr)
+    {
+        lbDisplay.GraphicsWindowPtr = NULL;
+        lbDisplay.WScreen = NULL;
+        return Lb_FAIL;
+    }
+    lbDisplay.WScreen = px;
+    lbDisplay.GraphicsScreenWidth = pitch;
+    lbDisplay.GraphicsWindowPtr = &lbDisplay.WScreen[lbDisplay.GraphicsWindowX +
+        lbDisplay.GraphicsScreenWidth * lbDisplay.GraphicsWindowY];
+    return Lb_SUCCESS;
+}
+
+TbResult RendererUnlockFramebuffer(void)
+{
+    lbDisplay.WScreen = NULL;
+    lbDisplay.GraphicsWindowPtr = NULL;
+    if (s_active_renderer != nullptr)
+        s_active_renderer->UnlockFramebuffer();
+    return Lb_SUCCESS;
+}
+
 TbResult RendererPaletteGet(unsigned char *palette)
 {
     return LbPaletteGet(palette);

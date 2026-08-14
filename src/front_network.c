@@ -206,7 +206,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
         min_width = 0;
     }
     int units_per_px = units_per_pixel;
-    if (LbScreenLock() == Lb_SUCCESS)
+    if (RendererLockFramebuffer() == Lb_SUCCESS)
     {
         long ornate_width = 200 * units_per_px / 16;
         long ornate_height = 100 * units_per_px / 16;
@@ -223,7 +223,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
         LbTextDrawResized(0, 50*units_per_px/16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
         LbDrawBox(text_x, text_y, 2*max_width, 16*units_per_px/16, 0);
         LbDrawBox(text_x, text_y, 2*min_width, 16*units_per_px/16, 133);
-        LbScreenUnlock();
+        RendererUnlockFramebuffer();
         RendererPresentFrame();
     }
 }
@@ -617,9 +617,9 @@ void display_attempting_to_join_message(int remaining_s)
         clear_key_pressed(KC_ESCAPE);
         attempting_to_join_cancelled = true;
     }
-    if (LbScreenLock() == Lb_SUCCESS) {
+    if (RendererLockFramebuffer() == Lb_SUCCESS) {
         draw_text_box(msg);
-        LbScreenUnlock();
+        RendererUnlockFramebuffer();
     }
     RendererPresentFrame();
 }

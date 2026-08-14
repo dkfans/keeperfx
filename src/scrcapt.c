@@ -50,7 +50,7 @@ TbBool take_screenshot(char *fname)
     TbBool lock_mem = LbScreenIsLocked();
     if (!lock_mem)
     {
-        if (LbScreenLock() != Lb_SUCCESS)
+        if (RendererLockFramebuffer() != Lb_SUCCESS)
         {
             ERRORLOG("Can't lock canvas");
             return false;
@@ -81,7 +81,7 @@ TbBool take_screenshot(char *fname)
     }
     if (!lock_mem)
     {
-        LbScreenUnlock();
+        RendererUnlockFramebuffer();
     }
     return success;
 }
@@ -147,13 +147,13 @@ TbBool movie_record_frame(void)
     short lock_mem = LbScreenIsLocked();
     if (!lock_mem)
     {
-        if (LbScreenLock() != Lb_SUCCESS)
+        if (RendererLockFramebuffer() != Lb_SUCCESS)
             return false;
   }
   RendererPaletteGet(cap_palette);
   short result = anim_record_frame(lbDisplay.WScreen, cap_palette);
   if (!lock_mem)
-    LbScreenUnlock();
+    RendererUnlockFramebuffer();
   return result;
 }
 

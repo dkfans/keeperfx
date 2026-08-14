@@ -92,46 +92,6 @@ void *LbExeReferenceNumber(void)
   return NULL;
 }
 
-/** Locks the graphics screen.
- *  This function gives access to the WScreen pointer, which contains buffer
- *  of size GraphicsScreenWidth x GraphicsScreenHeight.
- *  It also allows accessing GraphicsWindowPtr buffer, of size
- *  GraphicsWindowWidth x GraphicsWindowHeight, but with pitch (scanline length)
- *   same as graphics screen (which is GraphicsScreenWidth).
- *
- * @return Lb_SUCCESS if the lock was successful.
- * @see LbScreenUnlock()
- */
-TbResult LbScreenLock(void)
-{
-    SYNCDBG(12,"Starting");
-    if (!lbScreenInitialised)
-        return Lb_FAIL;
-
-    if (!SDL_LockSurface(lbDrawSurface)) {
-        lbDisplay.GraphicsWindowPtr = NULL;
-        lbDisplay.WScreen = NULL;
-        return Lb_FAIL;
-    }
-
-    lbDisplay.WScreen = (unsigned char *) lbDrawSurface->pixels;
-    lbDisplay.GraphicsScreenWidth = lbDrawSurface->pitch;
-    lbDisplay.GraphicsWindowPtr = &lbDisplay.WScreen[lbDisplay.GraphicsWindowX +
-        lbDisplay.GraphicsScreenWidth * lbDisplay.GraphicsWindowY];
-    return Lb_SUCCESS;
-}
-
-TbResult LbScreenUnlock(void)
-{
-    SYNCDBG(12,"Starting");
-    if (!lbScreenInitialised)
-        return Lb_FAIL;
-    lbDisplay.WScreen = NULL;
-    lbDisplay.GraphicsWindowPtr = NULL;
-    SDL_UnlockSurface(lbDrawSurface);
-    return Lb_SUCCESS;
-}
-
 /** Returns the currently active screen mode.
  *
  * @return Screen mode index.

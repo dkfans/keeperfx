@@ -529,14 +529,14 @@ struct movie_t {
 		}
 		LbScreenWaitVbi(); // this is a no-op today
 		RendererSetDisplayPalette(rgb8);
-		if (LbScreenLock() != Lb_SUCCESS) {
+		if (RendererLockFramebuffer() != Lb_SUCCESS) {
 			return;
 		} else if (m_flags & (SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop)) { // new scaling mode
 			copy_to_screen_scaled(*m_frame, m_flags);
 		} else {
 			copy_to_screen(*m_frame, m_flags);
 		}
-		LbScreenUnlock();
+		RendererUnlockFramebuffer();
 		RendererPresentFrame();
 	}
 

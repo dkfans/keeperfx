@@ -95,6 +95,21 @@ void RendererSoftware::destroy_present_target()
     m_vsync = -1;
 }
 
+unsigned char* RendererSoftware::LockFramebuffer(int* out_pitch)
+{
+    if (lbDrawSurface == NULL || !SDL_LockSurface(lbDrawSurface))
+        return nullptr;
+    if (out_pitch != nullptr)
+        *out_pitch = lbDrawSurface->pitch;
+    return static_cast<unsigned char*>(lbDrawSurface->pixels);
+}
+
+void RendererSoftware::UnlockFramebuffer()
+{
+    if (lbDrawSurface != NULL)
+        SDL_UnlockSurface(lbDrawSurface);
+}
+
 void RendererSoftware::PresentFrame()
 {
     if (lbDrawSurface == NULL || !ensure_present_target())

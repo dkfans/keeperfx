@@ -1145,12 +1145,12 @@ TbBool keeper_screen_redraw(void)
     } else {
         RendererClearScreen(0);
     }
-    if (LbScreenLock() == Lb_SUCCESS)
+    if (RendererLockFramebuffer() == Lb_SUCCESS)
     {
         setup_engine_window(player->engine_window_x, player->engine_window_y,
             player->engine_window_width, player->engine_window_height);
         redraw_display();
-        LbScreenUnlock();
+        RendererUnlockFramebuffer();
         return true;
     }
     return false;

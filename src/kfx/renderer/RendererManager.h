@@ -38,6 +38,10 @@ void RendererClearScreen(unsigned char colour);
 // Present the drawn frame to the window (blit draw surface + flip).
 void RendererPresentFrame(void);
 
+// Lock / unlock the CPU framebuffer, pointing lbDisplay.WScreen at the backend pixels.
+TbResult RendererLockFramebuffer(void);
+TbResult RendererUnlockFramebuffer(void);
+
 #ifdef __cplusplus
 }
 #endif

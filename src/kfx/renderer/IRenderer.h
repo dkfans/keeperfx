@@ -24,6 +24,10 @@ public:
 
     // Present the drawn frame to the window (blit + flip). Default no-op.
     virtual void PresentFrame() {}
+
+    // Lock the CPU framebuffer for drawing; return its pixels + pitch, or nullptr.
+    virtual unsigned char* LockFramebuffer(int* out_pitch) { (void)out_pitch; return nullptr; }
+    virtual void UnlockFramebuffer() {}
 };
 
 #endif // RENDERER_IRENDERER_H
