@@ -37,7 +37,7 @@ Currently the whole codebase of Dungeon Keeper is remade and all code has been r
 
 ## How to play
 
-Installation instructions and a FAQ can be found on the [Github Wiki](https://github.com/dkfans/keeperfx/wiki).
+Installation instructions and a FAQ can be found on the [GitHub Wiki](https://github.com/dkfans/keeperfx/wiki).
 
 You will need the original Dungeon Keeper files, either from an old CD or from the digital edition available on
 [EA](https://www.ea.com/games/dungeon-keeper/dungeon-keeper),
