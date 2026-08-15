@@ -53,6 +53,7 @@
 #include "gui_frontmenu.h"
 #include "gui_parchment.h"
 #include "gui_draw.h"
+#include "custom_sprites.h"
 #include "packets.h"
 #include "magic_powers.h"
 #include "player_computer.h"
@@ -2230,7 +2231,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         activate_event_box(evidx);
     }
-    gbtn->sprite_idx = event_button_info[event->kind].bttn_sprite;
+    gbtn->sprite_idx = (event->icon_idx >= 0) ? event->icon_idx : event_button_info[event->kind].bttn_sprite;
     if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
         && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
     {

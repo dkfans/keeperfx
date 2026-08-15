@@ -92,6 +92,7 @@ struct Event {
     int32_t target;
     /** Button lifespan, decreased over time. When reaches 0, the button disappears. */
     uint32_t lifespan_turns;
+    short icon_idx;
 };
 
 struct Bookmark {

@@ -983,6 +983,19 @@ static void quick_player_objective_check(const struct ScriptLine* scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static TbBool get_custom_icon_from_value(const char* txt, short* icon_idx)
+{
+    if (txt[0] == '\0')
+        return false;
+
+    short idx = get_icon_id(txt);
+    if (!is_custom_icon(idx))
+        return false;
+
+    *icon_idx = idx;
+    return true;
+}
+
 static void quick_information_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, ALL_PLAYERS);
@@ -1031,12 +1044,19 @@ static void quick_information_check(const struct ScriptLine* scline)
     value->ulongs[1] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
+    value->shorts[5] = -1;
+    if (scline->tp[3][0] != '\0' && !get_custom_icon_from_value(scline->tp[3], &value->shorts[5]))
+    {
+        SCRPTERRLOG("Invalid custom icon (%s)", scline->tp[3]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void quick_information_process(struct ScriptContext* context)
 {
-    set_quick_information(context->value->shorts[0], context->player_idx, context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
+    set_quick_information_with_icon(context->value->shorts[0], context->player_idx, context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4], context->value->shorts[5]);
 }
 
 static void quick_player_information_check(const struct ScriptLine* scline)
@@ -1129,13 +1149,20 @@ static void display_information_check(const struct ScriptLine* scline)
     value->ulongs[1] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
+    value->shorts[5] = -1;
+    if (scline->tp[2][0] != '\0' && !get_custom_icon_from_value(scline->tp[2], &value->shorts[5]))
+    {
+        SCRPTERRLOG("Invalid custom icon (%s)", scline->tp[2]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void display_information_process(struct ScriptContext* context)
 {
-    set_general_information(context->value->shorts[0], context->player_idx,
-        context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4]);
+    set_general_information_with_icon(context->value->shorts[0], context->player_idx,
+        context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4], context->value->shorts[5]);
 }
 
 static void display_player_information_check(const struct ScriptLine* scline)
@@ -5787,13 +5814,27 @@ static void quick_message_check(const struct ScriptLine* scline)
     }
     snprintf(game.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
     value->longs[0]= scline->np[0];
-    get_chat_icon_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
+    if (get_custom_icon_from_value(scline->tp[2], &value->shorts[5]))
+    {
+        value->chars[5] = MsgType_CustomIcon;
+    }
+    else
+    {
+        get_chat_icon_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void quick_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", game.quick_messages[context->value->ulongs[0]]);
+    if (context->value->chars[5] == MsgType_CustomIcon)
+    {
+        message_add_custom_icon(context->value->shorts[5], game.quick_messages[context->value->ulongs[0]]);
+    }
+    else
+    {
+        message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", game.quick_messages[context->value->ulongs[0]]);
+    }
 }
 
 static void display_message_check(const struct ScriptLine* scline)
@@ -5808,13 +5849,27 @@ static void display_message_check(const struct ScriptLine* scline)
         return;
     }
     value->ulongs[0] = msg_num;
-    get_chat_icon_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
+    if (get_custom_icon_from_value(scline->tp[1], &value->shorts[5]))
+    {
+        value->chars[5] = MsgType_CustomIcon;
+    }
+    else
+    {
+        get_chat_icon_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void display_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->ulongs[0]));
+    if (context->value->chars[5] == MsgType_CustomIcon)
+    {
+        message_add_custom_icon(context->value->shorts[5], get_string(context->value->ulongs[0]));
+    }
+    else
+    {
+        message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->ulongs[0]));
+    }
 }
 
 static void clear_message_check(const struct ScriptLine* scline)
@@ -6715,7 +6770,7 @@ const struct CommandDesc command_desc[] = {
   {"DOOR_AVAILABLE",                    "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
   {"DISPLAY_OBJECTIVE",                 "Al      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
   {"DISPLAY_OBJECTIVE_WITH_POS",        "ANN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
-  {"DISPLAY_INFORMATION",               "Al      ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
+  {"DISPLAY_INFORMATION",               "Ala     ", Cmd_DISPLAY_INFORMATION, &display_information_check, &display_information_process},
   {"DISPLAY_INFORMATION_WITH_POS",      "ANN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, &display_information_check, &display_information_process},
   {"DISPLAY_PLAYER_OBJECTIVE",          "APl     ", Cmd_DISPLAY_PLAYER_OBJECTIVE, &display_player_objective_check, &display_objective_process},
   {"DISPLAY_PLAYER_OBJECTIVE_WITH_POS", "APNN    ", Cmd_DISPLAY_PLAYER_OBJECTIVE_WITH_POS, &display_player_objective_check, &display_objective_process},
@@ -6723,7 +6778,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_PLAYER_INFORMATION_WITH_POS", "APNN    ", Cmd_DISPLAY_PLAYER_INFORMATION_WITH_POS, &display_player_information_check, &display_information_process},
   {"QUICK_OBJECTIVE",                   "NAl     ", Cmd_QUICK_OBJECTIVE, &quick_objective_check, &quick_objective_process},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, &quick_objective_check, &quick_objective_process},
-  {"QUICK_INFORMATION",                 "NAl     ", Cmd_QUICK_INFORMATION, &quick_information_check, &quick_information_process},
+  {"QUICK_INFORMATION",                 "NAla    ", Cmd_QUICK_INFORMATION, &quick_information_check, &quick_information_process},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS, &quick_information_check, &quick_information_process},
   {"QUICK_PLAYER_OBJECTIVE",            "NPAl    ", Cmd_QUICK_PLAYER_OBJECTIVE, &quick_player_objective_check, &quick_objective_process},
   {"QUICK_PLAYER_OBJECTIVE_WITH_POS",   "NPANN   ", Cmd_QUICK_PLAYER_OBJECTIVE_WITH_POS, &quick_player_objective_check, &quick_objective_process},

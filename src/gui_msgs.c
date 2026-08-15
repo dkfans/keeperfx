@@ -140,6 +140,13 @@ void message_draw(void)
                     y -= (10 * units_per_pixel / 16);
                     break;
                 }
+                case MsgType_CustomIcon:
+                {
+                    spr_idx = game.messages[i].icon_idx;
+                    x -= (10 * units_per_pixel / 16);
+                    y -= (10 * units_per_pixel / 16);
+                    break;
+                }
                 default:
                 {
                     ERRORLOG("Unrecognised message type: %u", game.messages[i].type);
@@ -169,6 +176,12 @@ void message_draw(void)
                     LbSpriteDrawResized(x, y, ps_units_per_px, spr);
                     break;
                 }
+                case MsgType_CustomIcon:
+                {
+                    spr = get_new_icon_sprite((short)spr_idx);
+                    LbSpriteDrawResized(x, y, ps_units_per_px, spr);
+                    break;
+                }
             }
             y += (h*units_per_pixel/16) << (unsigned char)low_res;
             switch (game.messages[i].type)
@@ -187,6 +200,7 @@ void message_draw(void)
                 case MsgType_KeeperSpell:
                 case MsgType_Query:
                 case MsgType_CreatureInstance:
+                case MsgType_CustomIcon:
                 {
                     y += (10 * units_per_pixel / 16) << (unsigned char)low_res;
                     break;
@@ -262,6 +276,25 @@ void message_add(char type, PlayerNumber plyr_idx, const char *text)
     game.messages[0].expiration_turn = get_gameturn() + GUI_MESSAGES_DELAY;
     game.messages[0].target_idx = -1;
     game.messages[0].type = type;
+    game.messages[0].icon_idx = 0;
+    if (game.active_messages_count < GUI_MESSAGES_COUNT) {
+        game.active_messages_count++;
+    }
+}
+
+void message_add_custom_icon(short icon_idx, const char *text)
+{
+    SYNCDBG(2,"Custom icon %d: %s",(int)icon_idx,text);
+    for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
+    {
+        memcpy(&game.messages[i], &game.messages[i-1], sizeof(struct GuiMessage));
+    }
+    snprintf(game.messages[0].text, sizeof(game.messages[0].text), "%s", text);
+    game.messages[0].plyr_idx = 0;
+    game.messages[0].expiration_turn = get_gameturn() + GUI_MESSAGES_DELAY;
+    game.messages[0].target_idx = -1;
+    game.messages[0].type = MsgType_CustomIcon;
+    game.messages[0].icon_idx = icon_idx;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }
@@ -293,6 +326,7 @@ void targeted_message_add(char type, PlayerNumber plyr_idx, PlayerNumber target_
     game.messages[0].expiration_turn = get_gameturn() + timeout;
     game.messages[0].target_idx = target_idx;
     game.messages[0].type = type;
+    game.messages[0].icon_idx = 0;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }
