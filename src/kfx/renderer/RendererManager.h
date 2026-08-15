@@ -2,6 +2,7 @@
 #define RENDERER_RENDERERMANAGER_H
 
 #include "bflib_basics.h"  // TbResult
+#include "bflib_video.h"   // TbScreenMode, TbScreenCoord
 
 // RendererType is a C++ enum; C translation units see it as an opaque int.
 #ifdef __cplusplus
@@ -44,6 +45,13 @@ TbResult RendererUnlockFramebuffer(void);
 
 // Save the current frame to a file via the active backend (fmt: 1=PNG, 2=BMP).
 TbBool RendererScheduleScreenshot(const char* path, int fmt);
+
+// Screen lifecycle (window + draw surface).
+TbResult RendererSetupScreen(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
+    unsigned char *palette, short buffers_count, TbBool wscreen_vid);
+TbResult RendererResetScreen(TbBool exiting_application);
+TbResult RendererScreenInitialize(void);
+TbResult RendererSetDoubleBuffering(TbBool state);
 
 #ifdef __cplusplus
 }

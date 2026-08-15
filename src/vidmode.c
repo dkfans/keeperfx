@@ -645,7 +645,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
       unload_pointer_file(hi_res);
     }
     if (nmode != old_mode)
-        LbScreenReset(false);
+        RendererResetScreen(false);
     if (MinimalResolutionSetup) {
       if (hi_res) {
         FreeVResMinimal();
@@ -689,7 +689,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
     if ((nmode != old_mode) || (was_minimal_res))
     {
-        if (LbScreenSetup(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, (hi_res ? 1 : 2), 0) < Lb_SUCCESS)
+        if (RendererSetupScreen(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, (hi_res ? 1 : 2), 0) < Lb_SUCCESS)
         {
           ERRORLOG("Unable to setup screen resolution %s (mode %d)", new_mdinfo->Desc,(int)nmode);
           force_video_mode_reset = true;
@@ -815,7 +815,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
     if ((!MinimalResolutionSetup && !hi_res) || (MinimalResolutionSetup && hi_res))
       unload_pointer_file(hi_res);
     if ((nmode != old_mode) || (force_video_mode_reset))
-      LbScreenReset(false);
+      RendererResetScreen(false);
     if (hi_res)
     {
       if (MinimalResolutionSetup) {
@@ -854,7 +854,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
 
     if ((nmode != old_mode) || (force_video_mode_reset))
     {
-        if (LbScreenSetup(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, (hi_res ? 1 : 2), 0) < Lb_SUCCESS)
+        if (RendererSetupScreen(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, (hi_res ? 1 : 2), 0) < Lb_SUCCESS)
         {
           ERRORLOG("Unable to setup screen resolution %s (mode %d)", new_mdinfo->Desc,(int)nmode);
           force_video_mode_reset = true;
@@ -899,7 +899,7 @@ TbScreenMode setup_screen_mode_zero(TbScreenMode nmode)
       new_mdinfo = LbScreenGetModeInfo(nmode);
   }
   LbPaletteDataFillBlack(engine_palette);
-  if (LbScreenSetup(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, 2, 0) < Lb_SUCCESS)
+  if (RendererSetupScreen(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, 2, 0) < Lb_SUCCESS)
   {
       ERRORLOG("Unable to setup screen resolution %s (mode %d)", new_mdinfo->Desc,(int)nmode);
       return Lb_SCREEN_MODE_INVALID;

@@ -2052,7 +2052,7 @@ static short reset_game(void)
 
     LbMouseSuspend();
     LbIKeyboardClose();
-    LbScreenReset(false);
+    RendererResetScreen(false);
     LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
     free_level_strings_data();
@@ -2078,11 +2078,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 
     retval = true;
     retval &= (LbTimerInit() != Lb_FAIL);
-    retval &= (LbScreenInitialize() != Lb_FAIL);
+    retval &= (RendererScreenInitialize() != Lb_FAIL);
     retval &= (RendererInit(RENDERER_SOFTWARE) != 0);
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
-    LbScreenSetDoubleBuffering(true);
+    RendererSetDoubleBuffering(true);
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING
@@ -2116,7 +2116,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         game_loop();
     }
     reset_game();
-    LbScreenReset(true);
+    RendererResetScreen(true);
     RendererShutdown();
     if ( retval == 0 )
     {

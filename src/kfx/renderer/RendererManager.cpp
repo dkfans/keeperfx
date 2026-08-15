@@ -135,6 +135,27 @@ TbBool RendererScheduleScreenshot(const char* path, int fmt)
     return (s_active_renderer != nullptr) ? s_active_renderer->ScheduleScreenshot(path, fmt) : 0;
 }
 
+TbResult RendererSetupScreen(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
+    unsigned char *palette, short buffers_count, TbBool wscreen_vid)
+{
+    return LbScreenSetup(mode, width, height, palette, buffers_count, wscreen_vid);
+}
+
+TbResult RendererResetScreen(TbBool exiting_application)
+{
+    return LbScreenReset(exiting_application);
+}
+
+TbResult RendererScreenInitialize(void)
+{
+    return LbScreenInitialize();
+}
+
+TbResult RendererSetDoubleBuffering(TbBool state)
+{
+    return LbScreenSetDoubleBuffering(state);
+}
+
 TbResult RendererPaletteGet(unsigned char *palette)
 {
     return LbPaletteGet(palette);
