@@ -474,6 +474,7 @@ enum GUIStrings {
     GUIStr_NetHostConnectionLost,
     GUIStr_FxdataZipNotLoaded,
     GUIStr_FxdataZipInstallAsMod,
+    GUIStr_ScreenShotAlt = GUI_STRINGS_START + 1122,
     GuiStrEnd
 };
 

@@ -7419,3 +7419,9 @@ msgstr "/fxdata/%.39s не завантажено."
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Установіть його як мод у папку /mods/."
+
+#: guitext:1122
+#, fuzzy
+msgctxt "Game controls"
+msgid "Screenshot (with cursor)"
+msgstr "Знімок екрану (з курсором)"

@@ -31,8 +31,8 @@ extern unsigned char screenshot_format;
 
 /******************************************************************************/
 TbBool perform_any_screen_capturing(void);
-TbBool take_screenshot(char *fname);
-TbBool cumulative_screen_shot(void);
+TbBool take_screenshot(char *fname, TbBool screen);
+TbBool cumulative_screen_shot(TbBool screen);
 
 TbBool movie_record_start(void);
 TbBool movie_record_stop(void);

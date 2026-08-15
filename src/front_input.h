@@ -77,6 +77,7 @@ enum GameKeys {
     Gkey_Descend,
     Gkey_ScreenRecord,
     Gkey_ScreenShot,
+    Gkey_ScreenShot2,
     Gkey_FrameSkipIncrease,
     Gkey_FrameSkipDecrease,
     Gkey_ZoomMinimapIn,
