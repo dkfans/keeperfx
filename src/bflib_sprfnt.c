@@ -18,6 +18,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "bflib_sprfnt.h"
 
 #include <stdarg.h>
@@ -407,7 +408,7 @@ static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *p
         if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) == 0)
           colour = dbc_colour0;
         else
-          colour = lbDisplay.DrawColour;
+          colour = RendererGetDrawColour();
 
         #define MAX_DBC_SPRITE_SIZE 8192
         unsigned char dest_pixel[MAX_DBC_SPRITE_SIZE] = { 0 };
@@ -472,7 +473,7 @@ static int8_t draw_simpletext_char(uint32_t chr, long *pos_x, long pos_y, int un
     if (spr != NULL)
     {
         if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) != 0) {
-            LbSpriteDrawResizedOneColour(*pos_x, pos_y, units_per_px, spr, lbDisplay.DrawColour);
+            LbSpriteDrawResizedOneColour(*pos_x, pos_y, units_per_px, spr, RendererGetDrawColour());
         }
         else {
             LbSpriteDrawResized(*pos_x, pos_y, units_per_px, spr);
@@ -481,7 +482,7 @@ static int8_t draw_simpletext_char(uint32_t chr, long *pos_x, long pos_y, int un
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
             int h = LbTextLineHeight() * units_per_px / 16;
-            LbDrawCharUnderline(*pos_x, pos_y, w, h, units_per_px, lbDisplay.DrawColour, lbDisplayEx.ShadowColour);
+            LbDrawCharUnderline(*pos_x, pos_y, w, h, units_per_px, RendererGetDrawColour(), lbDisplayEx.ShadowColour);
         }
         *pos_x += w;
         return 1;
@@ -529,7 +530,7 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
 
     if (chr > colour_modifiers_begin && chr < colour_modifiers_end)
     {
-        lbDisplay.DrawColour = (unsigned char)(chr - colour_modifiers_begin);
+        RendererSetDrawColour((unsigned char)(chr - colour_modifiers_begin));
     } else
     if (chr == 0xA0 || chr == ' ') //NO-BREAK SPACE or SPACE
     {
@@ -537,7 +538,7 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
             h = LbTextLineHeight() * units_per_px / 16;
-            LbDrawCharUnderline(x,y,w,h,units_per_px,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
+            LbDrawCharUnderline(x,y,w,h,units_per_px,RendererGetDrawColour(),lbDisplayEx.ShadowColour);
         }
         x += w;
     } else
@@ -554,7 +555,7 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
             h = LbTextLineHeight() * units_per_px / 16;
-            LbDrawCharUnderline(x,y,w,h,units_per_px,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
+            LbDrawCharUnderline(x,y,w,h,units_per_px,RendererGetDrawColour(),lbDisplayEx.ShadowColour);
         }
         x += w;
     } else

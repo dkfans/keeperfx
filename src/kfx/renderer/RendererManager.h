@@ -53,6 +53,10 @@ TbResult RendererResetScreen(TbBool exiting_application);
 TbResult RendererScreenInitialize(void);
 TbResult RendererSetDoubleBuffering(TbBool state);
 
+// Current draw colour — ambient draw-call state, held off lbDisplay.  will be removing in the future, just for now it keeps the pr small
+unsigned char RendererGetDrawColour(void);
+void RendererSetDrawColour(unsigned char colour);
+
 #ifdef __cplusplus
 }
 #endif

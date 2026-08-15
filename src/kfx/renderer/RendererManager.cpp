@@ -7,6 +7,7 @@
 
 static IRenderer*   s_active_renderer = nullptr;
 static RendererType s_active_type     = RENDERER_INVALID;
+static unsigned char s_draw_colour = 0;
 
 // Allocate a backend for the requested type, or nullptr if unknown.
 static IRenderer* create_renderer(RendererType type)
@@ -155,6 +156,9 @@ TbResult RendererSetDoubleBuffering(TbBool state)
 {
     return LbScreenSetDoubleBuffering(state);
 }
+
+unsigned char RendererGetDrawColour(void) { return s_draw_colour; }
+void RendererSetDrawColour(unsigned char colour) { s_draw_colour = colour; }
 
 TbResult RendererPaletteGet(unsigned char *palette)
 {

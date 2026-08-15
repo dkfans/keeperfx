@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_ingame_tabs.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -2637,7 +2638,7 @@ void draw_whole_status_panel(void)
             mm_units_per_px = 1;
         fs_units_per_px = (gmnu->height * 16 + 8) / LbTiledSpriteHeight(&status_panel);
     }
-    lbDisplay.DrawColour = colours[15][15][15];
+    RendererSetDrawColour(colours[15][15][15]);
     lbDisplay.DrawFlags = 0;
     LbTiledSpriteDraw(0, 0, fs_units_per_px, &status_panel);
     // Draws gold amount; note that button_sprite[] is used instead of full font

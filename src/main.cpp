@@ -267,7 +267,7 @@ void init_keeper(void)
     game.neutral_player_num = PLAYER_NEUTRAL;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
-    lbDisplay.DrawColour = colours[15][15][15];
+    RendererSetDrawColour(colours[15][15][15]);
     game.comp_player_aggressive  = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[0]);
     game.comp_player_defensive   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[1]);
     game.comp_player_construct   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[2]);

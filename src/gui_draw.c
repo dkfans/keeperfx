@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "gui_draw.h"
 
 #include "globals.h"
@@ -448,7 +449,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         if ((LbTimerClock() / 100 & 1) == 0)
           cursor_pos = input_field_pos;
         LbLocTextStringConcat(dtext, " ", TEXT_BUFFER_LENGTH);
-        lbDisplay.DrawColour = LbTextGetFontFaceColor();
+        RendererSetDrawColour(LbTextGetFontFaceColor());
         lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
     }
     TbBool low_res = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) );
