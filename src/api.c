@@ -26,6 +26,7 @@
 #endif
 
 #include "api.h"
+#include "campaign_api.h"
 #include <json.h>
 #include <json-dom.h>
 #include "config_keeperfx.h"
@@ -1189,262 +1190,57 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     }
 
     // ==================================================================================================================================
-    // Campaign level API commands
+    // Campaign commands and queries
     // ==================================================================================================================================
 
-    if (strcasecmp("set_campaign_level_available", action) == 0)
+    if (strcasecmp("campaign_command", action) == 0)
     {
-        VALUE *level_value = value_dict_get(value, "level");
-        if (value_type(level_value) != VALUE_INT32)
+        char *campaign_command = (char *)value_string(value_dict_get(value, "command"));
+        const char *error_code = NULL;
+
+        if (campaign_command == NULL || strlen(campaign_command) < 1)
         {
-            api_err("MISSING_LEVEL", ack_id);
+            api_err("MISSING_COMMAND", ack_id);
             value_fini(&json_data);
             return;
         }
 
-        LevelNumber lvnum = (LevelNumber)value_int32(level_value);
-        if (!campaign_level_api_set_available(lvnum))
+        if (campaign_api_execute_command(campaign_command, &error_code))
         {
-            api_err("INVALID_CAMPAIGN_LEVEL", ack_id);
-            value_fini(&json_data);
-            return;
+            api_ok(ack_id);
+        }
+        else
+        {
+            api_err(error_code != NULL ? error_code : "FAILED_TO_EXECUTE_CAMPAIGN_COMMAND", ack_id);
         }
 
-        campaign_level_api_refresh();
-        api_ok(ack_id);
         value_fini(&json_data);
         return;
     }
 
-    if (strcasecmp("set_campaign_level_unavailable", action) == 0)
+    if (strcasecmp("campaign_query", action) == 0)
     {
-        VALUE *level_value = value_dict_get(value, "level");
-        if (value_type(level_value) != VALUE_INT32)
+        char *campaign_query = (char *)value_string(value_dict_get(value, "query"));
+        const char *error_code = NULL;
+
+        if (campaign_query == NULL || strlen(campaign_query) < 1)
         {
-            api_err("MISSING_LEVEL", ack_id);
+            api_err("MISSING_QUERY", ack_id);
             value_fini(&json_data);
             return;
         }
 
-        LevelNumber lvnum = (LevelNumber)value_int32(level_value);
-        if (!campaign_level_api_set_unavailable(lvnum))
-        {
-            api_err("INVALID_CAMPAIGN_LEVEL", ack_id);
-            value_fini(&json_data);
-            return;
-        }
-
-        campaign_level_api_refresh();
-        api_ok(ack_id);
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("is_campaign_level_available", action) == 0)
-    {
-        VALUE *level_value = value_dict_get(value, "level");
-        if (value_type(level_value) != VALUE_INT32)
-        {
-            api_err("MISSING_LEVEL", ack_id);
-            value_fini(&json_data);
-            return;
-        }
-
-        LevelNumber lvnum = (LevelNumber)value_int32(level_value);
         VALUE data_real;
-        VALUE *data = &data_real;
-        value_init_dict(data);
-        value_init_int32(value_dict_add(data, "level"), lvnum);
-        value_init_bool(value_dict_add(data, "available"), campaign_level_api_is_available(lvnum));
-
-        api_return_data(true, data_real, ack_id);
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("get_available_campaign_levels", action) == 0)
-    {
-        VALUE data_real;
-        VALUE *data = &data_real;
-        value_init_dict(data);
-        VALUE *levels = value_dict_add(data, "levels");
-        value_init_array(levels);
-
-        LevelNumber lvnum = first_singleplayer_level();
-        while (lvnum > 0)
+        if (campaign_api_execute_query(campaign_query, &data_real, &error_code))
         {
-            if (campaign_level_api_is_available(lvnum))
-                value_init_int32(value_array_append(levels), lvnum);
-
-            lvnum = next_singleplayer_level(lvnum, true);
+            api_return_data(true, data_real, ack_id);
+            value_fini(&data_real);
+        }
+        else
+        {
+            api_err(error_code != NULL ? error_code : "FAILED_TO_EXECUTE_CAMPAIGN_QUERY", ack_id);
         }
 
-        api_return_data(true, data_real, ack_id);
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("get_campaign_levels", action) == 0)
-    {
-        VALUE data_real;
-        VALUE *data = &data_real;
-        value_init_dict(data);
-        VALUE *levels = value_dict_add(data, "levels");
-        value_init_array(levels);
-
-        /* Return every single-player level in the current campaign,
-         * regardless of whether it is currently available on the Land screen. */
-        LevelNumber lvnum = first_singleplayer_level();
-        while (lvnum > 0)
-        {
-            value_init_int32(value_array_append(levels), lvnum);
-            lvnum = next_singleplayer_level(lvnum, true);
-        }
-
-        api_return_data(true, data_real, ack_id);
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("set_campaign_bonus_level_available", action) == 0)
-    {
-        VALUE *level_value = value_dict_get(value, "level");
-        if (value_type(level_value) != VALUE_INT32)
-        {
-            api_err("MISSING_LEVEL", ack_id);
-            value_fini(&json_data);
-            return;
-        }
-
-        LevelNumber bn_lvnum = (LevelNumber)value_int32(level_value);
-        if (!campaign_bonus_level_api_set_available(bn_lvnum))
-        {
-            api_err("INVALID_CAMPAIGN_BONUS_LEVEL", ack_id);
-            value_fini(&json_data);
-            return;
-        }
-
-        campaign_level_api_refresh();
-        api_ok(ack_id);
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("set_campaign_bonus_level_unavailable", action) == 0)
-    {
-        VALUE *level_value = value_dict_get(value, "level");
-        if (value_type(level_value) != VALUE_INT32)
-        {
-            api_err("MISSING_LEVEL", ack_id);
-            value_fini(&json_data);
-            return;
-        }
-
-        LevelNumber bn_lvnum = (LevelNumber)value_int32(level_value);
-        if (!campaign_bonus_level_api_set_unavailable(bn_lvnum))
-        {
-            api_err("INVALID_CAMPAIGN_BONUS_LEVEL", ack_id);
-            value_fini(&json_data);
-            return;
-        }
-
-        campaign_level_api_refresh();
-        api_ok(ack_id);
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("is_campaign_bonus_level_available", action) == 0)
-    {
-        VALUE *level_value = value_dict_get(value, "level");
-        if (value_type(level_value) != VALUE_INT32)
-        {
-            api_err("MISSING_LEVEL", ack_id);
-            value_fini(&json_data);
-            return;
-        }
-
-        LevelNumber bn_lvnum = (LevelNumber)value_int32(level_value);
-        VALUE data_real;
-        VALUE *data = &data_real;
-        value_init_dict(data);
-        value_init_int32(value_dict_add(data, "level"), bn_lvnum);
-        value_init_bool(value_dict_add(data, "available"), campaign_bonus_level_api_is_available(bn_lvnum));
-
-        api_return_data(true, data_real, ack_id);
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("get_campaign_bonus_levels", action) == 0)
-    {
-        VALUE data_real;
-        VALUE *data = &data_real;
-        value_init_dict(data);
-        VALUE *levels = value_dict_add(data, "levels");
-        value_init_array(levels);
-
-        LevelNumber sp_lvnum = first_singleplayer_level();
-        while (sp_lvnum > 0)
-        {
-            LevelNumber bn_lvnum = bonus_level_for_singleplayer_level(sp_lvnum);
-            if (bn_lvnum > 0)
-            {
-                VALUE *entry = value_array_append(levels);
-                value_init_dict(entry);
-                value_init_int32(value_dict_add(entry, "campaign_level"), sp_lvnum);
-                value_init_int32(value_dict_add(entry, "bonus_level"), bn_lvnum);
-                value_init_bool(value_dict_add(entry, "available"), campaign_bonus_level_api_is_available(bn_lvnum));
-            }
-            sp_lvnum = next_singleplayer_level(sp_lvnum, true);
-        }
-
-        api_return_data(true, data_real, ack_id);
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("reset_campaign_level_overrides", action) == 0)
-    {
-        campaign_level_api_reset();
-        campaign_level_api_refresh();
-        api_ok(ack_id);
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("refresh_land_screen", action) == 0)
-    {
-        campaign_level_api_refresh();
-        api_ok(ack_id);
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("set_campaign_auto_advance", action) == 0)
-    {
-        VALUE *enabled_value = value_dict_get(value, "enabled");
-        if (value_type(enabled_value) != VALUE_BOOL)
-        {
-            api_err("MISSING_ENABLED", ack_id);
-            value_fini(&json_data);
-            return;
-        }
-
-        campaign_level_api_set_auto_advance(value_bool(enabled_value));
-        api_ok(ack_id);
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("is_campaign_auto_advance_enabled", action) == 0)
-    {
-        VALUE data_real;
-        VALUE *data = &data_real;
-        value_init_dict(data);
-        value_init_bool(value_dict_add(data, "enabled"), get_campaign_auto_advance_enabled());
-
-        api_return_data(true, data_real, ack_id);
         value_fini(&json_data);
         return;
     }

@@ -262,6 +262,7 @@ obj/OverlayEffect.o \
 obj/PaletteEffect.o \
 obj/LuaLensEffect.o \
 obj/light_data.o \
+obj/campaign_api.o \
 obj/lua_api.o \
 obj/lua_api_camera.o \
 obj/lua_api_lens.o \
