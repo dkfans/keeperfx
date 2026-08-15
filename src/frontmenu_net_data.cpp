@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_net.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -180,7 +181,7 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
         i = frontend_button_caption_font(gbtn, 0);
         if (text != NULL)
         {
-            lbDisplay.DrawFlags = 0;
+            RendererSetDrawFlags(0);
             LbTextSetFont(frontend_font[i]);
             // Set drawing window and draw the text
             int tx_units_per_px;
@@ -217,7 +218,7 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
     LbTextSetFont(frontend_font[font_idx]);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     height = LbTextLineHeight() * tx_units_per_px / 16;

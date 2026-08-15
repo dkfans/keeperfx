@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_net.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -211,7 +212,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
 {
     int i;
     i = frontend_button_caption_font(gbtn, 0);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     LbTextSetFont(frontend_font[i]);
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / (2*LbTextLineHeight());
@@ -337,7 +338,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 {
     int i;
     i = frontend_button_caption_font(gbtn, 0);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     LbTextSetFont(frontend_font[i]);
     int height;
     height = 0;
@@ -495,7 +496,7 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
     const struct TbSprite *spr;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
-    lbDisplay.DrawFlags = Lb_SPRITE_FLIP_VERTIC;
+    RendererSetDrawFlags(Lb_SPRITE_FLIP_VERTIC);
     spr = get_frontend_sprite(GFS_hugearea_thc_cor_tl);
     int fs_units_per_px;
     fs_units_per_px = spr->SHeight * units_per_px / 26;
@@ -508,7 +509,7 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
     pos_x += spr->SWidth*fs_units_per_px/16;
     spr = get_frontend_sprite(GFS_hugearea_thc_cor_tr);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
 }
 
 void frontnet_draw_messages_scroll_tab(struct GuiButton *gbtn)
@@ -536,7 +537,7 @@ void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, long font_idx, c
     if (text != NULL)
     {
         LbTextSetFont(frontend_font[font_idx]);
-        lbDisplay.DrawFlags = 0;
+        RendererSetDrawFlags(0);
         int tx_units_per_px;
         tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
         height = LbTextLineHeight() * tx_units_per_px / 16;
@@ -578,7 +579,7 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn, 0);
     LbTextSetFont(frontend_font[font_idx]);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     // While setting scale, aim for 4 lines of text
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / (4*LbTextLineHeight());
@@ -684,7 +685,7 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
   int font_idx;
   font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
   LbTextSetFont(frontend_font[font_idx]);
-  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+  RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
   // Set drawing window and draw the text
   int tx_units_per_px;
   tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();

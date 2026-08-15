@@ -83,7 +83,7 @@ void frontstory_draw(void)
     frontend_copy_background();
     LbTextSetWindow(70*units_per_pixel/16, 70*units_per_pixel/16, (640-2*70)*units_per_pixel/16, (480-2*70)*units_per_pixel/16);
     LbTextSetFont(frontstory_font);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     int tx_units_per_px = (26 * units_per_pixel) / LbTextLineHeight();
     LbTextDrawResized(0, 0, tx_units_per_px, get_string(frontstory_text_no));
 }
@@ -98,7 +98,7 @@ void frontcredits_draw(void)
     credits_offset -= credits_scroll_speed;
     frontend_copy_background();
 
-    lbDisplay.DrawFlags = Lb_SPRITE_OUTLINE | Lb_TEXT_HALIGN_CENTER;
+    RendererSetDrawFlags(Lb_SPRITE_OUTLINE | Lb_TEXT_HALIGN_CENTER);
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     int fontid = 1;
     LbTextSetFont(frontend_font[fontid]);

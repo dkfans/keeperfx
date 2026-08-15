@@ -210,7 +210,6 @@ struct DisplayStruct {
         int32_t RMouseX;
         /** Mouse position during button release, Y coordinate. */
         int32_t RMouseY;
-        ushort DrawFlags;
         short MouseMoveRatio; // was ushort OldVideoMode; but wasn't needed
         ushort ScreenMode;
         /** VESA set-up flag, used only with VBE video modes. */

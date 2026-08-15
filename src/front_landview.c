@@ -1218,7 +1218,7 @@ void draw_map_level_descriptions(void)
 {
   if ((fe_net_level_selected > 0) || (net_level_hilighted > 0))
   {
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     LevelNumber lvnum = fe_net_level_selected;
     if (lvnum <= 0)
       lvnum = net_level_hilighted;

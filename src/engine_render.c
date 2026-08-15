@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include <stddef.h>
 
 #include "engine_render.h"
@@ -4876,12 +4877,12 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     }
 
     //Object/Trap itself
-    clear_flag(lbDisplay.DrawFlags, TRF_Transpar_Flags);
+    RendererClearDrawFlags(TRF_Transpar_Flags);
     EngineSpriteDrawUsingAlpha = 0;
     if (flag_is_set(thing->rendering_flags,TRF_Transpar_8))
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR8);
     if (flag_is_set(thing->rendering_flags, TRF_Transpar_4))
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
     if (flag_is_set(thing->rendering_flags, TRF_Transpar_Alpha))
         EngineSpriteDrawUsingAlpha = 1;
     animation_sprite = get_render_animation_sprite(thing->anim_sprite);
@@ -4889,15 +4890,15 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, animation_sprite, angle, current_frame, base_sprite_size);
 
     //Flame
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     EngineSpriteDrawUsingAlpha = 0;
     if (flame.transparency_flags == TRF_Transpar_8)
     {
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR8);
     }
     else if (flame.transparency_flags == TRF_Transpar_4)
     {
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
     }
     else if (flame.transparency_flags == TRF_Transpar_Alpha)
     {
@@ -4922,7 +4923,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     unsigned short animation_sprite;
     unsigned char current_frame;
     short angle;
-    flg_mem = lbDisplay.DrawFlags;
+    flg_mem = RendererGetDrawFlags();
     alpha_mem = EngineSpriteDrawUsingAlpha;
     animation_sprite = get_render_animation_sprite(thing->anim_sprite);
     current_frame = thing->current_frame;
@@ -4938,10 +4939,10 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     switch(thing->rendering_flags & TRF_Transpar_Alpha)
     {
         case TRF_Transpar_8:
-            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+            RendererAddDrawFlags(Lb_SPRITE_TRANSPAR8);
             break;
         case TRF_Transpar_4:
-            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+            RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
             break;
         default:
             break;
@@ -4954,16 +4955,16 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     int size_on_screen = thing->sprite_size * (int)((((int64_t)camera_zoom << 13) / 0x10000) / pixel_size) / 0x10000;
     if ( thing->rendering_flags & TRF_Tint_Flags )
     {
-        lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
+        RendererAddDrawFlags(Lb_SPRITE_REMAP);
         lbSpriteReMapPtr = &pixmap.ghost[256 * thing->tint_colour];
     }
     else if ( shade_intensity == 0x2000 )
     {
-        lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
+        RendererClearDrawFlags(Lb_SPRITE_REMAP);
     }
     else
     {
-        lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
+        RendererAddDrawFlags(Lb_SPRITE_REMAP);
         lbSpriteReMapPtr = &pixmap.fade_tables[shade_intensity << 8];
     }
 
@@ -4971,12 +4972,12 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     switch (thing->rendering_flags & (TRF_Transpar_Flags))
     {
         case TRF_Transpar_8:
-            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-            lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
+            RendererAddDrawFlags(Lb_SPRITE_TRANSPAR8);
+            RendererClearDrawFlags(Lb_SPRITE_REMAP);
             break;
         case TRF_Transpar_4:
-            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-            lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
+            RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
+            RendererClearDrawFlags(Lb_SPRITE_REMAP);
             break;
         case TRF_Transpar_Alpha:
             EngineSpriteDrawUsingAlpha = 1;
@@ -4989,12 +4990,12 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         || (player->work_state == PSt_QueryAll))
     {
         if ((local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
-            lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
+            RendererAddDrawFlags(Lb_SPRITE_REMAP);
             lbSpriteReMapPtr = white_pal;
         } else {
             if (thing->last_turn_damaged == game.play_gameturn)
             {
-                lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
+                RendererAddDrawFlags(Lb_SPRITE_REMAP);
                 lbSpriteReMapPtr = red_pal;
             }
         }
@@ -5009,7 +5010,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     if (animation_sprite_id_invalid(animation_sprite))
     {
         ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)animation_sprite, (int)thing->model, (int)thing->class_id);
-        lbDisplay.DrawFlags = flg_mem;
+        RendererSetDrawFlags(flg_mem);
         EngineSpriteDrawUsingAlpha = alpha_mem;
         return;
     }
@@ -5051,7 +5052,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, animation_sprite, angle, current_frame, size_on_screen);
         }
     }
-    lbDisplay.DrawFlags = flg_mem;
+    RendererSetDrawFlags(flg_mem);
     EngineSpriteDrawUsingAlpha = alpha_mem;
 }
 
@@ -5069,9 +5070,9 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
     // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
     float scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
 
-    flg_mem = lbDisplay.DrawFlags;
+    flg_mem = RendererGetDrawFlags();
     player = get_my_player();
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
+    RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
     spr = get_button_sprite(GBS_fontchars_number_dig0);
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
@@ -5099,12 +5100,12 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
             }
         }
     }
-    lbDisplay.DrawFlags = flg_mem;
+    RendererSetDrawFlags(flg_mem);
 }
 
 static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
 {
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
+    RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
 
     struct Room *room = room_get(rflg->lvl);
     if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
@@ -5180,7 +5181,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
     (*health_spridx) = choose_health_sprite(thing);
     if (is_my_player_number(thing->owner))
     {
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
         if (get_gameturn() - cctrl->thought_bubble_last_turn_drawn == 1)
         {
             if (cctrl->thought_bubble_display_timer < 40) {
@@ -5297,13 +5298,13 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     unsigned short flg_mem;
 
-    flg_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags = 0;
+    flg_mem = RendererGetDrawFlags();
+    RendererSetDrawFlags(0);
 
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->force_health_flower_hidden == true) || flag_is_set(get_creature_model_flags(thing), CMF_NoHealthFlower)) {
-        lbDisplay.DrawFlags = flg_mem;
+        RendererSetDrawFlags(flg_mem);
         return;
     }
     if (flag_is_set(game.mode_flags,MFlg_NoHeroHealthFlower))
@@ -5355,8 +5356,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
     }
 
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+    RendererClearDrawFlags(Lb_SPRITE_TRANSPAR8);
+    RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
     if (((get_gameturn() % (8 * gui_blink_rate)) < 4 * gui_blink_rate) && (anger_spridx > 0))
     {
         spr = get_button_sprite(anger_spridx);
@@ -5442,7 +5443,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
             LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
         }
     }
-    lbDisplay.DrawFlags = flg_mem;
+    RendererSetDrawFlags(flg_mem);
 }
 
 static void draw_iso_only_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *spr)
@@ -5455,7 +5456,7 @@ static void draw_iso_only_fastview_mapwho(struct Camera *cam, struct BucketKindJ
 static void draw_room_flag_top(long x, long y, int units_per_px, const struct Room *room)
 {
     unsigned long flg_mem;
-    flg_mem = lbDisplay.DrawFlags;
+    flg_mem = RendererGetDrawFlags();
     int bar_fill;
     int bar_empty;
     const struct TbSprite *spr;
@@ -5497,13 +5498,13 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     }
     bar_width = (2 * bar_empty * units_per_px + 8) / 16;
     LbDrawBox(barpos_x - bar_width, y + (24 * units_per_px + 8) / 16, bar_width, bar_height, colours[0][0][0]);
-    lbDisplay.DrawFlags = flg_mem;
+    RendererSetDrawFlags(flg_mem);
 }
 #undef ROOM_FLAG_PROGRESS_BAR_WIDTH
 
 static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
 {
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
+    RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
 
     struct Room *room = room_get(rflg->lvl);
     if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
@@ -7791,9 +7792,9 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         needs_xflip = 1;
 
     if ( needs_xflip )
-      lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
+      RendererAddDrawFlags(Lb_SPRITE_FLIP_HORIZ);
     else
-      lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
+      RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
     sprite_group = sprgroup;
     lltemp = 4 - ((((long)kspr_angle + DEGREES_22_5) & ANGLE_MASK) >> 8);
     sprite_rot = llabs(lltemp);
@@ -7921,16 +7922,16 @@ static void prepare_jonty_remap_and_scale(int32_t *scale, const struct BucketKin
     *scale = (thelens * (long)thing->sprite_size) / fade;
     if ((thing->rendering_flags & (TRF_Tint_1|TRF_Tint_2)) != 0)
     {
-        lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
+        RendererAddDrawFlags(Lb_SPRITE_REMAP);
         shade_factor = thing->tint_colour;
         lbSpriteReMapPtr = &pixmap.ghost[256 * shade_factor];
     } else
     if (shade_factor == 32)
     {
-        lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
+        RendererClearDrawFlags(Lb_SPRITE_REMAP);
     } else
     {
-        lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
+        RendererAddDrawFlags(Lb_SPRITE_REMAP);
         lbSpriteReMapPtr = &pixmap.fade_tables[256 * shade_factor];
     }
 }
@@ -7981,7 +7982,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     long angle;
     int32_t scaled_size;
     struct ObjectConfigStats* objst;
-    flg_mem = lbDisplay.DrawFlags;
+    flg_mem = RendererGetDrawFlags();
     alpha_mem = EngineSpriteDrawUsingAlpha;
     animation_sprite = get_render_animation_sprite(thing->anim_sprite);
     current_frame = thing->current_frame;
@@ -7997,12 +7998,12 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     switch (thing->rendering_flags & (TRF_Transpar_Flags))
     {
     case TRF_Transpar_8:
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-        lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
+        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR8);
+        RendererClearDrawFlags(Lb_SPRITE_REMAP);
         break;
     case TRF_Transpar_4:
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-        lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
+        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
+        RendererClearDrawFlags(Lb_SPRITE_REMAP);
         break;
     case TRF_Transpar_Alpha:
         EngineSpriteDrawUsingAlpha = 1;
@@ -8015,7 +8016,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
           struct Camera *active_cam = get_player_active_camera(player);
           if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
           {
-              lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
+              RendererAddDrawFlags(Lb_SPRITE_REMAP);
               lbSpriteReMapPtr = white_pal;
           }
           else if ((active_cam != NULL) && (active_cam->view_mode == PVM_CreatureView))
@@ -8027,7 +8028,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   struct Thing *dragtng = thing_get(cctrl->dragtng_idx);
                   if (!thing_exists(dragtng))
                   {
-                    lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
+                    RendererAddDrawFlags(Lb_SPRITE_REMAP);
                     lbSpriteReMapPtr = white_pal;
                   }
                   else if (thing_is_trap_crate(dragtng))
@@ -8037,7 +8038,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                       {
                           if (handthing->class_id == TCls_Trap)
                           {
-                              lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
+                              RendererAddDrawFlags(Lb_SPRITE_REMAP);
                               lbSpriteReMapPtr = white_pal;
                           }
                       }
@@ -8047,7 +8048,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
         } else {
             if (thing->last_turn_damaged == game.play_gameturn)
             {
-                lbDisplay.DrawFlags |= Lb_SPRITE_REMAP;
+                RendererAddDrawFlags(Lb_SPRITE_REMAP);
                 lbSpriteReMapPtr = red_pal;
             }
         }
@@ -8098,7 +8099,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             break;
         }
     }
-    lbDisplay.DrawFlags = flg_mem;
+    RendererSetDrawFlags(flg_mem);
     EngineSpriteDrawUsingAlpha = alpha_mem;
 }
 
@@ -9157,8 +9158,8 @@ static void render_sprite_debug_id(struct Thing* thing, long scr_x, long scr_y)
         if (thing->class_id != TCls_Creature)
             return;
     }
-    ushort flg_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
+    ushort flg_mem = RendererGetDrawFlags();
+    RendererSetDrawFlags(Lb_TEXT_ONE_COLOR);
     const struct TbSprite *spr = get_button_sprite(GBS_fontchars_number_dig0);
     long w = scale_ui_value(spr->SWidth);
     long h = scale_ui_value(spr->SHeight);
@@ -9179,7 +9180,7 @@ static void render_sprite_debug_id(struct Thing* thing, long scr_x, long scr_y)
 
         pos_x -= w;
     }
-    lbDisplay.DrawFlags = flg_mem;
+    RendererSetDrawFlags(flg_mem);
 }
 
 void render_set_sprite_debug(int level)

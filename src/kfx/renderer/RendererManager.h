@@ -57,6 +57,13 @@ TbResult RendererSetDoubleBuffering(TbBool state);
 unsigned char RendererGetDrawColour(void);
 void RendererSetDrawColour(unsigned char colour);
 
+// Current draw flags (TbDrawFlags bitmask) — ambient draw-call state, held off lbDisplay.
+unsigned short RendererGetDrawFlags(void);
+void RendererSetDrawFlags(unsigned short flags);   // = flags
+void RendererAddDrawFlags(unsigned short flags);    // |= flags
+void RendererClearDrawFlags(unsigned short flags);  // &= ~flags
+void RendererToggleDrawFlags(unsigned short flags); // ^= flags
+
 #ifdef __cplusplus
 }
 #endif

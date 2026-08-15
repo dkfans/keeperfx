@@ -368,7 +368,7 @@ long gfa_is_creature(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *t
 void gui_draw_all_boxes(void)
 {
   SYNCDBG(5,"Starting");
-  lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
+  RendererSetDrawFlags(Lb_TEXT_ONE_COLOR);
   LbTextSetFont(font_sprites);
   struct GuiBox* gbox = gui_get_lowest_priority_box();
   while (gbox != NULL)
@@ -787,18 +787,18 @@ void gui_draw_box(struct GuiBox *gbox)
     long pos_x = gbox->pos_x + 8;
     if (gbox != gui_get_highest_priority_box())
     {
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
         LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[6][0][0]);
-        if (lbDisplay.DrawFlags & Lb_SPRITE_OUTLINE)
+        if (RendererGetDrawFlags() & Lb_SPRITE_OUTLINE)
         {
           LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[0][0][0]);
         } else
         {
-          lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
+          RendererToggleDrawFlags(Lb_SPRITE_OUTLINE);
           LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[0][0][0]);
-          lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
+          RendererToggleDrawFlags(Lb_SPRITE_OUTLINE);
         }
-        lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
+        RendererToggleDrawFlags(Lb_SPRITE_TRANSPAR4);
         RendererSetDrawColour(colours[3][3][3]);
         goptn = gbox->optn_list;
         while (goptn->label[0] != '!')
@@ -820,18 +820,18 @@ void gui_draw_box(struct GuiBox *gbox)
         }
     } else
     {
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
         LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[12][0][0]);
-        if (lbDisplay.DrawFlags & Lb_SPRITE_OUTLINE)
+        if (RendererGetDrawFlags() & Lb_SPRITE_OUTLINE)
         {
             LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[2][0][0]);
         } else
         {
-            lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
+            RendererToggleDrawFlags(Lb_SPRITE_OUTLINE);
             LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[2][0][0]);
-            lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
+            RendererToggleDrawFlags(Lb_SPRITE_OUTLINE);
         }
-        lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
+        RendererToggleDrawFlags(Lb_SPRITE_TRANSPAR4);
         goptn = gbox->optn_list;
         while (goptn->label[0] != '!')
         {

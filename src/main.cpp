@@ -298,7 +298,7 @@ TbBool initial_setup(void)
     load_pointer_file(0);
     update_screen_mode_data(320, 200);
     clear_game();
-    lbDisplay.DrawFlags |= 0x4000u;
+    RendererAddDrawFlags(0x4000u);
     return true;
 }
 
@@ -1560,7 +1560,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
 
     SYNCDBG(9,"Starting");
 
-    flg_mem = lbDisplay.DrawFlags;
+    flg_mem = RendererGetDrawFlags();
     update_engine_settings(player);
     mx = cam->mappos.x.val;
     my = cam->mappos.y.val;
@@ -1580,7 +1580,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
         ewnd.width, ewnd.height);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     draw_view(cam, 0);
-    lbDisplay.DrawFlags = flg_mem;
+    RendererSetDrawFlags(flg_mem);
     thing_being_displayed = 0;
     LbScreenLoadGraphicsWindow(&grwnd);
 }

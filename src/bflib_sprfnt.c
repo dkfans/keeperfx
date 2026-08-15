@@ -150,7 +150,7 @@ static void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height,
     long h = height;
     long w = width;
     // Draw shadow
-    if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
+    if ((RendererGetDrawFlags() & Lb_TEXT_UNDERLNSHADOW) != 0) {
         long shadow_off = ((base_height > 2*DOUBLE_UNDERLINE_BOUND) ? 2 : 1) * units_per_px / 16;
         if (shadow_off < 1)
             shadow_off = 1;
@@ -405,7 +405,7 @@ static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *p
     unsigned long colour;
     if (dbc_get_sprite_for_char(&adraw, chr) == 0)
     {
-        if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) == 0)
+        if ((RendererGetDrawFlags() & Lb_TEXT_ONE_COLOR) == 0)
           colour = dbc_colour0;
         else
           colour = RendererGetDrawColour();
@@ -453,7 +453,7 @@ static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *p
         {
             w = (adraw.character_spacing + adraw.bits_width);
         }
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        if ((RendererGetDrawFlags() & Lb_TEXT_UNDERLINE) != 0)
         {
             int h = adraw.bits_height * units_per_px / 16;
             LbDrawCharUnderline(*pos_x,pos_y,w,h,units_per_px,colour,lbDisplayEx.ShadowColour);
@@ -472,14 +472,14 @@ static int8_t draw_simpletext_char(uint32_t chr, long *pos_x, long pos_y, int un
     const struct TbSprite *spr = LbFontCharSprite(lbFontPtr, chr);
     if (spr != NULL)
     {
-        if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) != 0) {
+        if ((RendererGetDrawFlags() & Lb_TEXT_ONE_COLOR) != 0) {
             LbSpriteDrawResizedOneColour(*pos_x, pos_y, units_per_px, spr, RendererGetDrawColour());
         }
         else {
             LbSpriteDrawResized(*pos_x, pos_y, units_per_px, spr);
         }
         int w = spr->SWidth * units_per_px / 16;
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        if ((RendererGetDrawFlags() & Lb_TEXT_UNDERLINE) != 0)
         {
             int h = LbTextLineHeight() * units_per_px / 16;
             LbDrawCharUnderline(*pos_x, pos_y, w, h, units_per_px, RendererGetDrawColour(), lbDisplayEx.ShadowColour);
@@ -535,7 +535,7 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
     if (chr == 0xA0 || chr == ' ') //NO-BREAK SPACE or SPACE
     {
         w = space_len;
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        if ((RendererGetDrawFlags() & Lb_TEXT_UNDERLINE) != 0)
         {
             h = LbTextLineHeight() * units_per_px / 16;
             LbDrawCharUnderline(x,y,w,h,units_per_px,RendererGetDrawColour(),lbDisplayEx.ShadowColour);
@@ -552,7 +552,7 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
     if (chr == '\t')
     {
         w = space_len*(long)lbSpacesPerTab;
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        if ((RendererGetDrawFlags() & Lb_TEXT_UNDERLINE) != 0)
         {
             h = LbTextLineHeight() * units_per_px / 16;
             LbDrawCharUnderline(x,y,w,h,units_per_px,RendererGetDrawColour(),lbDisplayEx.ShadowColour);
@@ -563,25 +563,25 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
       switch (chr)
       {
         case DKChr_Modifier_Transparent4:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
+          RendererToggleDrawFlags(Lb_SPRITE_TRANSPAR4);
           break;
         case DKChr_Modifier_Transparent8:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR8;
+          RendererToggleDrawFlags(Lb_SPRITE_TRANSPAR8);
           break;
         case DKChr_Modifier_Outline:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_OUTLINE;
+          RendererToggleDrawFlags(Lb_SPRITE_OUTLINE);
           break;
         case DKChr_Modifier_FlipHoriz:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_HORIZ;
+          RendererToggleDrawFlags(Lb_SPRITE_FLIP_HORIZ);
           break;
         case DKChr_Modifier_FlipVertic:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_FLIP_VERTIC;
+          RendererToggleDrawFlags(Lb_SPRITE_FLIP_VERTIC);
           break;
         case DKChr_Modifier_Underline:
-          lbDisplay.DrawFlags ^= Lb_TEXT_UNDERLINE;
+          RendererToggleDrawFlags(Lb_TEXT_UNDERLINE);
           break;
         case DKChr_Modifier_OneColor:
-          lbDisplay.DrawFlags ^= Lb_TEXT_ONE_COLOR;
+          RendererToggleDrawFlags(Lb_TEXT_ONE_COLOR);
           break;
         case DKChr_NewLine:
             break;
@@ -718,7 +718,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             {
                 count = 0;
             }
-            if ((posx+w-justifyx <= lbTextJustifyWindow.width) || (count > 0) || !LbAlignMethodSet(lbDisplay.DrawFlags))
+            if ((posx+w-justifyx <= lbTextJustifyWindow.width) || (count > 0) || !LbAlignMethodSet(RendererGetDrawFlags()))
             {
                 posx += w;
                 continue;
@@ -726,9 +726,9 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             // If the char exceeds screen, and there were no spaces in that line, and alignment is set - divide the line here
             w = LbTextCharWidthM(' ', units_per_px);
             posx += w;
-            x = LbGetJustifiedCharPosX(startx, posx, w, 1, lbDisplay.DrawFlags);
-            y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
-            len = LbGetJustifiedCharWidth(posx, w, count, units_per_px, lbDisplay.DrawFlags);
+            x = LbGetJustifiedCharPosX(startx, posx, w, 1, RendererGetDrawFlags());
+            y = LbGetJustifiedCharPosY(starty, h, h, RendererGetDrawFlags());
+            len = LbGetJustifiedCharWidth(posx, w, count, units_per_px, RendererGetDrawFlags());
             put_down_sprites(sbuf, text_backup_pointer, x, y, len, units_per_px);
             // We already know that alignment is set - don't re-check
             {
@@ -750,12 +750,12 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
                 continue;
             }
             posx += w;
-            x = LbGetJustifiedCharPosX(startx, posx, w, 1, lbDisplay.DrawFlags);
-            y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
-            len = LbGetJustifiedCharWidth(posx, w, count, units_per_px, lbDisplay.DrawFlags);
+            x = LbGetJustifiedCharPosX(startx, posx, w, 1, RendererGetDrawFlags());
+            y = LbGetJustifiedCharPosY(starty, h, h, RendererGetDrawFlags());
+            len = LbGetJustifiedCharWidth(posx, w, count, units_per_px, RendererGetDrawFlags());
             put_down_sprites(sbuf, ebuf, x, y, len, units_per_px);
             // End the line only if align method is set
-            if (LbAlignMethodSet(lbDisplay.DrawFlags))
+            if (LbAlignMethodSet(RendererGetDrawFlags()))
             {
               posx = startx;
               sbuf = ebuf; // sbuf should start at the next character, not skip it
@@ -766,8 +766,8 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         if (chr == '\n')
         {
             w = 0;
-            x = LbGetJustifiedCharPosX(startx, posx, w, 1, lbDisplay.DrawFlags);
-            y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
+            x = LbGetJustifiedCharPosX(startx, posx, w, 1, RendererGetDrawFlags());
+            y = LbGetJustifiedCharPosY(starty, h, h, RendererGetDrawFlags());
             len = LbTextCharWidthM(' ', units_per_px);
             y = starty;
             put_down_sprites(sbuf, ebuf, x, y, len, units_per_px);
@@ -787,11 +787,11 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
               count += lbSpacesPerTab;
               continue;
             }
-            x = LbGetJustifiedCharPosX(startx, posx, w, lbSpacesPerTab, lbDisplay.DrawFlags);
-            y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
-            len = LbGetJustifiedCharWidth(posx, w, count, units_per_px, lbDisplay.DrawFlags);
+            x = LbGetJustifiedCharPosX(startx, posx, w, lbSpacesPerTab, RendererGetDrawFlags());
+            y = LbGetJustifiedCharPosY(starty, h, h, RendererGetDrawFlags());
+            len = LbGetJustifiedCharWidth(posx, w, count, units_per_px, RendererGetDrawFlags());
             put_down_sprites(sbuf, ebuf, x, y, len, units_per_px);
-            if (LbAlignMethodSet(lbDisplay.DrawFlags))
+            if (LbAlignMethodSet(RendererGetDrawFlags()))
             {
               posx = startx;
               sbuf = ebuf;
@@ -816,23 +816,23 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             switch (*ebuf)
             {
             case DKChr_AlignLeft:
-              lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_LEFT;
+              RendererToggleDrawFlags(Lb_TEXT_HALIGN_LEFT);
               break;
             case DKChr_AlignRight:
                 JUSTLOG("Right align");
-              lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_RIGHT;
+              RendererToggleDrawFlags(Lb_TEXT_HALIGN_RIGHT);
               break;
             case DKChr_AlignCenter:
-              lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_CENTER;
+              RendererToggleDrawFlags(Lb_TEXT_HALIGN_CENTER);
               break;
             case DKChr_AlignJustify:
-              lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_JUSTIFY;
+              RendererToggleDrawFlags(Lb_TEXT_HALIGN_JUSTIFY);
               break;
             }
         }
     }
-    x = LbGetJustifiedCharPosX(startx, posx, 0, 1, lbDisplay.DrawFlags);
-    y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
+    x = LbGetJustifiedCharPosX(startx, posx, 0, 1, RendererGetDrawFlags());
+    y = LbGetJustifiedCharPosY(starty, h, h, RendererGetDrawFlags());
     len = LbTextCharWidthM(' ', units_per_px);
     put_down_sprites(sbuf, ebuf, x, y, len, units_per_px);
     LbScreenLoadGraphicsWindow(&grwnd);
