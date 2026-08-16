@@ -305,6 +305,8 @@ obj/packets_misc.o \
 obj/kfx/platform/PlatformManager.o \
 obj/kfx/platform/PlatformWindows.o \
 obj/kfx/platform/WindowSystemSDL.o \
+obj/kfx/renderer/RendererManager.o \
+obj/kfx/renderer/RendererSoftware.o \
 obj/player_compchecks.o \
 obj/player_compevents.o \
 obj/player_complookup.o \
@@ -521,6 +523,7 @@ obj/std/ftests/tests \
 obj/tests obj/cu \
 obj/std/centitoml obj/hvlog/centitoml \
 obj/std/kfx/platform obj/hvlog/kfx/platform \
+obj/std/kfx/renderer obj/hvlog/kfx/renderer \
 sdl/for_final_package
 
 $(shell $(MKDIR) $(FOLDERS))

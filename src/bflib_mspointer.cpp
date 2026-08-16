@@ -18,6 +18,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "bflib_mspointer.hpp"
 
 #include <string.h>
@@ -324,11 +325,11 @@ void LbI_PointerHandler::OnBeginSwap(void)
         Backup(false);
         Draw(false);
     } else
-    if (LbScreenLock() == Lb_SUCCESS)
+    if (RendererLockFramebuffer() == Lb_SUCCESS)
     {
       PointerDraw(position->x - scale_ui_value_lofi(spr_offset->x), position->y - scale_ui_value_lofi(spr_offset->y),
           sprite, lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth);
-      LbScreenUnlock();
+      RendererUnlockFramebuffer();
     }
 }
 

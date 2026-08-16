@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "scrcapt.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
@@ -34,8 +35,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include <ctype.h>
 #include "post_inc.h"
 /******************************************************************************/
@@ -49,38 +48,16 @@ TbBool take_screenshot(char *fname)
     TbBool lock_mem = LbScreenIsLocked();
     if (!lock_mem)
     {
-        if (LbScreenLock() != Lb_SUCCESS)
+        if (RendererLockFramebuffer() != Lb_SUCCESS)
         {
             ERRORLOG("Can't lock canvas");
             return false;
         }
     }
-    TbBool success;
-    switch (screenshot_format)
-    {
-        case 1:
-        {
-            success = IMG_SavePNG(lbDrawSurface, fname);
-            break;
-        }
-        case 2:
-        {
-            success = SDL_SaveBMP(lbDrawSurface, fname);
-            break;
-        }
-        default:
-        {
-            success = false;
-            break;
-        }
-    }
-    if (!success)
-    {
-        ERRORLOG("Unable to save to file %s: %s", fname, SDL_GetError());
-    }
+    TbBool success = RendererScheduleScreenshot(fname, screenshot_format);
     if (!lock_mem)
     {
-        LbScreenUnlock();
+        RendererUnlockFramebuffer();
     }
     return success;
 }
@@ -146,13 +123,13 @@ TbBool movie_record_frame(void)
     short lock_mem = LbScreenIsLocked();
     if (!lock_mem)
     {
-        if (LbScreenLock() != Lb_SUCCESS)
+        if (RendererLockFramebuffer() != Lb_SUCCESS)
             return false;
   }
-  LbPaletteGet(cap_palette);
+  RendererPaletteGet(cap_palette);
   short result = anim_record_frame(lbDisplay.WScreen, cap_palette);
   if (!lock_mem)
-    LbScreenUnlock();
+    RendererUnlockFramebuffer();
   return result;
 }
 

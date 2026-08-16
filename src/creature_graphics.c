@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "creature_graphics.h"
 
 #include "globals.h"
@@ -293,9 +294,9 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
     else
         val_in_range = 1;
     if ( val_in_range )
-      lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
+      RendererAddDrawFlags(Lb_SPRITE_FLIP_HORIZ);
     else
-      lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
+      RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
     if (kspr->Rotable == 0)
     {
         kspr += frame;

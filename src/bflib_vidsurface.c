@@ -32,7 +32,6 @@ extern "C" {
 /******************************************************************************/
 
 /** Internal screen surface structure. */
-SDL_Surface * lbScreenSurface;
 /** Internal drawing surface structure.
  *  Sometimes may be same as screen surface. */
 SDL_Surface * lbDrawSurface;

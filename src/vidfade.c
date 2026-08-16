@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "vidfade.h"
 
 #include "globals.h"
@@ -54,7 +55,7 @@ void fade_in(void)
 void fade_out(void)
 {
     ProperFadePalette(NULL, 8, Lb_PALETTE_FADE_CLOSED);
-    LbScreenClear(0);
+    RendererClearScreen(0);
 }
 
 void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsigned char *dpal)
@@ -241,11 +242,11 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
     } else
     if (pal != NULL)
     {
-        LbPaletteSet(pal);
+        RendererPaletteSet(pal);
     } else
     {
         LbPaletteDataFillBlack(palette_buf);
-        LbPaletteSet(palette_buf);
+        RendererPaletteSet(palette_buf);
     }
 }
 
@@ -270,11 +271,11 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
     } else
     if (pal != NULL)
     {
-        LbPaletteSet(pal);
+        RendererPaletteSet(pal);
     } else
     {
         memset(palette_buf, 0, sizeof(palette_buf));
-        LbPaletteSet(palette_buf);
+        RendererPaletteSet(palette_buf);
     }
 }
 
@@ -336,7 +337,7 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   }
   // Set the palette to screen
   LbScreenWaitVbi();
-  LbPaletteSet(palette);
+  RendererPaletteSet(palette);
   return step;
 }
 

@@ -15,6 +15,7 @@
 
 #include "platform.h"
 #include "kfx/platform/PlatformManager.h"
+#include "kfx/renderer/RendererManager.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -266,7 +267,7 @@ void init_keeper(void)
     game.neutral_player_num = PLAYER_NEUTRAL;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
-    lbDisplay.DrawColour = colours[15][15][15];
+    RendererSetDrawColour(colours[15][15][15]);
     game.comp_player_aggressive  = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[0]);
     game.comp_player_defensive   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[1]);
     game.comp_player_construct   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[2]);
@@ -297,7 +298,7 @@ TbBool initial_setup(void)
     load_pointer_file(0);
     update_screen_mode_data(320, 200);
     clear_game();
-    lbDisplay.DrawFlags |= 0x4000u;
+    RendererAddDrawFlags(0x4000u);
     return true;
 }
 
@@ -1156,7 +1157,7 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
         if (is_my_player(player))
         {
             LbScreenWaitVbi();
-            LbPaletteSet(pal);
+            RendererPaletteSet(pal);
         }
     }
 }
@@ -1559,7 +1560,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
 
     SYNCDBG(9,"Starting");
 
-    flg_mem = lbDisplay.DrawFlags;
+    flg_mem = RendererGetDrawFlags();
     update_engine_settings(player);
     mx = cam->mappos.x.val;
     my = cam->mappos.y.val;
@@ -1579,7 +1580,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
         ewnd.width, ewnd.height);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     draw_view(cam, 0);
-    lbDisplay.DrawFlags = flg_mem;
+    RendererSetDrawFlags(flg_mem);
     thing_being_displayed = 0;
     LbScreenLoadGraphicsWindow(&grwnd);
 }
@@ -1684,7 +1685,7 @@ extern "C" void network_yield_draw_frontend()
         frontnet_start_input();
     }
     frontend_draw();
-    LbScreenSwap();
+    RendererPresentFrame();
 }
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
@@ -2051,7 +2052,7 @@ static short reset_game(void)
 
     LbMouseSuspend();
     LbIKeyboardClose();
-    LbScreenReset(false);
+    RendererResetScreen(false);
     LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
     free_level_strings_data();
@@ -2077,10 +2078,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 
     retval = true;
     retval &= (LbTimerInit() != Lb_FAIL);
-    retval &= (LbScreenInitialize() != Lb_FAIL);
+    retval &= (RendererScreenInitialize() != Lb_FAIL);
+    retval &= (RendererInit(RENDERER_SOFTWARE) != 0);
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
-    LbScreenSetDoubleBuffering(true);
+    RendererSetDoubleBuffering(true);
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING
@@ -2114,7 +2116,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         game_loop();
     }
     reset_game();
-    LbScreenReset(true);
+    RendererResetScreen(true);
+    RendererShutdown();
     if ( retval == 0 )
     {
         static const char *msg_text="Setting up game failed.\n";
