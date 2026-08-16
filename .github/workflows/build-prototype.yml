@@ -8,6 +8,9 @@ jobs:
   build-prototype:
     name: "Build Prototype Windows x86"
     runs-on: ubuntu-24.04
+    environment:
+      name: Windows Prototype
+      url: ${{ steps.upload.outputs.artifact-url }}
 
     steps:
     - uses: actions/checkout@v4
@@ -46,6 +49,7 @@ jobs:
         rm pkg/keeperfx*.7z
 
     - name: Upload artifact
+      id: upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.ZIP_NAME }}
@@ -54,6 +58,9 @@ jobs:
   build-prototype-linux:
     name: "Build Prototype Linux x86_64"
     runs-on: ubuntu-24.04
+    environment:
+      name: Linux Prototype
+      url: ${{ steps.upload.outputs.artifact-url }}
 
     steps:
     - uses: actions/checkout@v4
@@ -128,6 +135,7 @@ jobs:
         cmake --build out --target keeperfx -j"$(nproc)"
 
     - name: Upload artifact
+      id: upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.LINUX_ARTIFACT_NAME }}
