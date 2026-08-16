@@ -66,15 +66,16 @@ enum SlabFillStyle {
 };
 
 enum RoomCfgFlags {
-    RoCFlg_None            = 0x00,
-    RoCFlg_NoEnsign        = 0x01,
-    RoCFlg_CantVandalize   = 0x02,
-    RoCFlg_BuildTillBroke  = 0x04,
-    RoCFlg_CannotBeSold    = 0x08,
-    RoCFlg_CannotBeClaimed = 0x10,
-    RoCFlg_NotCounted      = 0x20,
-    RoCFlg_NoFlames        = 0x40,
-    RoCFlg_ListEnd         = 0x80,
+    RoCFlg_None            = 0x000,
+    RoCFlg_NoEnsign        = 0x001,
+    RoCFlg_CantVandalize   = 0x002,
+    RoCFlg_BuildTillBroke  = 0x004,
+    RoCFlg_CannotBeSold    = 0x008,
+    RoCFlg_CannotBeClaimed = 0x010,
+    RoCFlg_NotCounted      = 0x020,
+    RoCFlg_NoFlames        = 0x040,
+    RoCFlg_BoulderDestroys = 0x080,
+    RoCFlg_ListEnd         = 0x100,
 };
 
 /**
