@@ -161,6 +161,7 @@ const struct NamedCommand conf_commands[] = {
   {"DEFAULT_TAG_MODE"              , 41},
   {"ZOOM_TO_MOUSE"                 , 42},
   {"ROTATE_AROUND_MOUSE"           , 43},
+  {"VSYNC"                         , 44},
   {NULL,                   0},
   };
 
@@ -976,6 +977,16 @@ static void load_file_configuration(const char *fname, const char *sname, const 
                   CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
               }
           }
+          break;
+      case 44: // VSYNC
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          vsync_enabled = (i == 1);
           break;
       case ccr_comment:
           break;

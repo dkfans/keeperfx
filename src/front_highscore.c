@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_highscore.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -81,7 +82,7 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     }
     struct HighScore* hscore = &campaign.hiscore_table[idx];
     // TODO: These were originally right-aligned, but there's a glitch that causes longer numbers to be aligned weirdly at some resolutions in dbc mode.
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     int i = pos_x + col1_width;
     LbTextNumberDraw(i, pos_y, units_per_px, idx+1, Fnt_CenterPos);
     i += col2_width;
@@ -127,7 +128,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
         fs_units_per_px = (gbtn->width * 16 + orig_size/2) / orig_size;
     }
     LbTextSetFont(frontend_font[1]);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     spr = get_frontend_sprite(GFS_hugearea_thn_cor_ml);
     int pos_x = gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16;
     spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
@@ -471,7 +472,7 @@ void frontend_draw_high_scores_mappack(struct GuiButton *gbtn)
         text = campaign.display_name;
     else
         text = frontend_button_caption_text(gbtn);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     LbTextSetFont(frontend_font[2]);
     int tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);

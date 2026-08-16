@@ -11,6 +11,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "keeperfx.hpp"
 
 #include "bflib_math.h"
@@ -466,16 +467,16 @@ void gameplay_loop_draw()
     }
     keeper_wait_for_screen_focus();
     // Direct information/error messages
-    if (LbScreenLock() == Lb_SUCCESS) {
+    if (RendererLockFramebuffer() == Lb_SUCCESS) {
         if ( do_draw ) {
             perform_any_screen_capturing();
         }
         draw_onscreen_direct_messages();
-        LbScreenUnlock();
+        RendererUnlockFramebuffer();
     }
     // Move the graphics window to center of screen buffer and swap screen
     if ( do_draw ) {
-        LbScreenSwap();
+        RendererPresentFrame();
     }
     frametime_end_measurement(Frametime_Draw);
 
@@ -846,8 +847,8 @@ static TbBool wait_at_frontend(void)
       exit_keeper = 1;
       return true;
     }
-    LbScreenClear(0);
-    LbScreenSwap();
+    RendererClearScreen(0);
+    RendererPresentFrame();
     if (frontend_load_data() != Lb_SUCCESS)
     {
       ERRORLOG("Unable to load frontend data");
@@ -855,7 +856,7 @@ static TbBool wait_at_frontend(void)
       return true;
     }
     memset(scratch, 0, PALETTE_SIZE);
-    LbPaletteSet(scratch);
+    RendererPaletteSet(scratch);
     frontend_set_state(get_startup_menu_state());
 
     // Once the Mouse Sprite initialization is complete, the sprite's position needs to be reset because it defaults to (0, 0).
@@ -902,7 +903,7 @@ static TbBool wait_at_frontend(void)
       if ((!finish_menu) && (LbIsActive()))
       {
         frontend_draw();
-        LbScreenSwap();
+        RendererPresentFrame();
       }
 
       if (!SoundDisabled)
@@ -932,8 +933,8 @@ static TbBool wait_at_frontend(void)
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
-    LbScreenClear(0);
-    LbScreenSwap();
+    RendererClearScreen(0);
+    RendererPresentFrame();
     FrontendMenuState prev_state;
     prev_state = frontend_menu_state;
     frontend_set_state(FeSt_INITIAL);
@@ -969,8 +970,8 @@ static TbBool wait_at_frontend(void)
     case FeSt_LOAD_GAME:
           flgmem = game.save_game_slot;
           clear_flag(game.system_flags, GSF_NetworkActive);
-          LbScreenClear(0);
-          LbScreenSwap();
+          RendererClearScreen(0);
+          RendererPresentFrame();
           if (!load_game(game.save_game_slot))
           {
               ERRORLOG("Loading game %d failed; quitting.",(int)game.save_game_slot);
@@ -1078,13 +1079,13 @@ void game_loop(void)
           }
           memset(&Timer, 0, sizeof(Timer));
       }
-      LbScreenClear(0);
-      LbScreenSwap();
+      RendererClearScreen(0);
+      RendererPresentFrame();
       game.frame_skip = 0;
       keeper_gameplay_loop();
       set_pointer_graphic_none();
-      LbScreenClear(0);
-      LbScreenSwap();
+      RendererClearScreen(0);
+      RendererPresentFrame();
       stop_atmos_sounds();
       stop_music(true);
       stop_streamed_samples();

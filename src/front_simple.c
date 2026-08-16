@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_simple.h"
 
 #include <math.h>
@@ -237,7 +238,7 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
         (int)coord_x,  (int)coord_y);
 
     // Lock the screen
-    if (LbScreenLock() != Lb_SUCCESS)
+    if (RendererLockFramebuffer() != Lb_SUCCESS)
         return false;
 
     // Copy image buffer to screen buffer
@@ -248,17 +249,17 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
     perform_any_screen_capturing();
 
     // Unlock the screen
-    LbScreenUnlock();
+    RendererUnlockFramebuffer();
 
     // Swap video buffers to make the image visible
-    LbScreenSwap();
+    RendererPresentFrame();
 
     return true;
 }
 
 TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay)
 {
-    LbPaletteSet(pal);
+    RendererPaletteSet(pal);
     TbClockMSec end_time = LbTimerClock() + tmdelay;
     TbClockMSec tmdelta = tmdelay / 100;
     if (tmdelta > 100)
@@ -362,7 +363,7 @@ TbBool draw_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
     if (actv_bmp->pal_data == NULL)
       return false;
-    LbPaletteSet(actv_bmp->pal_data);
+    RendererPaletteSet(actv_bmp->pal_data);
     if (actv_bmp->raw_data == NULL)
       return false;
     copy_raw8_image_to_screen_center(actv_bmp->raw_data,actv_bmp->width,actv_bmp->height);
@@ -403,9 +404,9 @@ short show_bitmap_screen(struct ActiveBitmap *actv_bmp,TbClockMSec tmdelay)
 TbBool draw_clear_screen(void)
 {
     LbPaletteDataFillBlack(palette_buf);
-    LbPaletteSet(palette_buf);
-    LbScreenClear(0);
-    LbScreenSwap();
+    RendererPaletteSet(palette_buf);
+    RendererClearScreen(0);
+    RendererPresentFrame();
     return true;
 }
 
@@ -465,7 +466,7 @@ TbBool wait_for_installation_files(void)
   if ( LbFileExists(ffullpath) )
     return true;
   if ( was_locked )
-    LbScreenUnlock();
+    RendererUnlockFramebuffer();
   SYNCMSG("Installation file not found, waiting");
   if (!init_bitmap_screen(&nocd_bmp,RBmp_WaitNoCD))
   {
@@ -510,7 +511,7 @@ TbBool wait_for_installation_files(void)
   SYNCMSG("Finished waiting for installation after %lu seconds",counter);
   free_bitmap_screen(&nocd_bmp);
   if ( was_locked )
-    LbScreenLock();
+    RendererLockFramebuffer();
   return (!exit_keeper);
 }
 

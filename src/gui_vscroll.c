@@ -24,6 +24,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "gui_vscroll.h"
 
 #include "globals.h"
@@ -178,8 +179,8 @@ void gui_vscroll_draw(struct GuiButton *gbtn)
     long ox = gbtn->scr_pos_x;
     long oy = gbtn->scr_pos_y;
     long w = gbtn->width;
-    unsigned short flg = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags = 0;
+    unsigned short flg = RendererGetDrawFlags();
+    RendererSetDrawFlags(0);
 
     long top_h = scrl_spr_h(SCRL_SPR_CAP_TOP, upp);
     long bot_h = scrl_spr_h(SCRL_SPR_CAP_BOT, upp);
@@ -216,7 +217,7 @@ void gui_vscroll_draw(struct GuiButton *gbtn)
                   upp, SCRL_SPR_THUMB);
     }
 
-    lbDisplay.DrawFlags = flg;
+    RendererSetDrawFlags(flg);
 }
 
 static int vscroll_selected_row(void)
