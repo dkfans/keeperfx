@@ -2103,7 +2103,7 @@ struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation locatio
 long apply_wallhug_force_to_boulder(struct Thing *thing)
 {
   unsigned short angle;
-  long collide;
+  int collide;
   unsigned short new_angle;
   struct Coord3d pos2;
   struct Coord3d pos;
@@ -2210,7 +2210,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   return 0;
 }
 
-long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y)
+int process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y)
 {
     unsigned short boulder_radius = (boulder->clipbox_size_xy >> 1);
     MapSubtlCoord pos_x = (pos->x.val + boulder_radius * direction_x) >> 8;
@@ -2221,7 +2221,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
     struct Room *room = subtile_room_get(stl_x, stl_y);
     if (room_exists(room))
     {
-        if (room->kind == RoK_GUARDPOST)  // Collide with Guardposts
+        if (flag_is_set(get_room_kind_stats(room->kind)->flags, RoCFlg_BoulderDestroys)) // Collide with Guardposts
         {
             if (room->owner != game.neutral_player_num)
             {
