@@ -314,9 +314,9 @@ struct GuiButtonInit trap_menu2_buttons[] = {
 };
 
 struct GuiButtonInit creature_menu_buttons[] = {
-  {LbBtnT_NormalBtn,BID_CRTR_NXWNDR, 0, 0, pick_up_next_wanderer,gui_go_to_next_wanderer    ,NULL,  0,  26, 192,  26, 192, 38, 24, gui_area_new_normal_button, GPS_rpanel_tab_crtr_wandr_act, GUIStr_CreatureIdleDesc,       0,       {0},            0, NULL },
-  {LbBtnT_NormalBtn,BID_CRTR_NXWRKR, 0, 0, pick_up_next_worker,gui_go_to_next_worker        ,NULL,  0,  62, 192,  62, 192, 38, 24, gui_area_new_normal_button, GPS_rpanel_tab_crtr_work_act, GUIStr_CreatureWorkingDesc,    0,       {0},            0, NULL },
-  {LbBtnT_NormalBtn,BID_CRTR_NXFIGT, 0, 0, pick_up_next_fighter,gui_go_to_next_fighter      ,NULL,  0,  98, 192,  98, 192, 38, 24, gui_area_new_normal_button, GPS_rpanel_tab_crtr_fight_act, GUIStr_CreatureFightingDesc,   0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,BID_CRTR_NXWNDR, 0, 0, pick_up_next_wanderer,gui_go_to_next_wanderer    ,NULL,  0,  26, 192,  26, 192, 36, 24, gui_area_new_normal_button, GPS_rpanel_tab_crtr_wandr_act, GUIStr_CreatureIdleDesc,       0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,BID_CRTR_NXWRKR, 0, 0, pick_up_next_worker,gui_go_to_next_worker        ,NULL,  0,  62, 192,  62, 192, 36, 24, gui_area_new_normal_button, GPS_rpanel_tab_crtr_work_act, GUIStr_CreatureWorkingDesc,    0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,BID_CRTR_NXFIGT, 0, 0, pick_up_next_fighter,gui_go_to_next_fighter      ,NULL,  0,  98, 192,  98, 192, 36, 24, gui_area_new_normal_button, GPS_rpanel_tab_crtr_fight_act, GUIStr_CreatureFightingDesc,   0,       {0},            0, NULL },
   {LbBtnT_HoldableBtn,  BID_DEFAULT, 0, 0, gui_scroll_activity_up,gui_scroll_activity_up    ,NULL,  0,   4, 192,   4, 192, 22, 24, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_up_act, GUIStr_Empty,                  0,       {0},            0, maintain_activity_up },
   {LbBtnT_HoldableBtn,  BID_DEFAULT, 0, 0, gui_scroll_activity_down,gui_scroll_activity_down,NULL,  0,   4, 364,   4, 364, 22, 24, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_down_act, GUIStr_Empty,                  0,       {0},            0, maintain_activity_down },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, pick_up_next_creature,gui_go_to_next_creature,gui_over_creature_button,  0,   0, 196,   0, 218, 22, 22, gui_area_creatrmodel_button,            0, GUIStr_PickCreatrMostExpDesc,  0,       {0},            0, maintain_activity_pic },
