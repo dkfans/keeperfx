@@ -61,7 +61,7 @@ end
 ---@return Trigger
 function RegisterSpellUseEvent(action,spellKind)
     local trigData = {SpellKind = spellKind}
-    local trigger = CreateTrigger("SpellUse",action,trigData)
+    local trigger = CreateTrigger("SpellApply",action,trigData)
     if spellKind then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.SpellKind == triggerData.SpellKind end)
     end
