@@ -1520,6 +1520,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
     {
         spell_level = SPELL_MAX_LEVEL;
     }
+    lua_on_spell_apply(spell_idx, thing, spell_level, plyr_idx);
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_level);
     // Check for cleansing one-time effect.
     if ((spconf->cleanse_flags > 0)
