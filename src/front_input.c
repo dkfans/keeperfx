@@ -1458,14 +1458,14 @@ static short get_creature_passenger_action_inputs(void)
           {
             turn_off_menu(GMnu_CREATURE_QUERY1);
             turn_on_menu(GMnu_CREATURE_QUERY2);
-            fake_button_click(0);
+            fake_button_click(BID_CRTR_NXPAGE);
             update_wheel_scrolled();
           }
           else if (wheel_scrolled_up)
           {
             turn_off_menu(GMnu_CREATURE_QUERY1);
             turn_on_menu(GMnu_CREATURE_QUERY4);
-            fake_button_click(0);
+            fake_button_click(BID_CRTR_PVPAGE);
             update_wheel_scrolled();
           }
         }
@@ -1475,14 +1475,14 @@ static short get_creature_passenger_action_inputs(void)
           {
             turn_off_menu(GMnu_CREATURE_QUERY2);
             turn_on_menu(GMnu_CREATURE_QUERY3);
-            fake_button_click(0);
+            fake_button_click(BID_CRTR_NXPAGE);
             update_wheel_scrolled();
           }
           else if (wheel_scrolled_up)
           {
             turn_off_menu(GMnu_CREATURE_QUERY2);
             turn_on_menu(GMnu_CREATURE_QUERY1);
-            fake_button_click(0);
+            fake_button_click(BID_CRTR_PVPAGE);
             update_wheel_scrolled();
           }
         }
@@ -1492,14 +1492,14 @@ static short get_creature_passenger_action_inputs(void)
           {
             turn_off_menu(GMnu_CREATURE_QUERY3);
             turn_on_menu(GMnu_CREATURE_QUERY4);
-            fake_button_click(0);
+            fake_button_click(BID_CRTR_NXPAGE);
             update_wheel_scrolled();
           }
           else if (wheel_scrolled_up)
           {
             turn_off_menu(GMnu_CREATURE_QUERY3);
             turn_on_menu(GMnu_CREATURE_QUERY2);
-            fake_button_click(0);
+            fake_button_click(BID_CRTR_PVPAGE);
             update_wheel_scrolled();
           }
         }
@@ -1509,14 +1509,14 @@ static short get_creature_passenger_action_inputs(void)
           {
             turn_off_menu(GMnu_CREATURE_QUERY4);
             turn_on_menu(GMnu_CREATURE_QUERY1);
-            fake_button_click(0);
+            fake_button_click(BID_CRTR_NXPAGE);
             update_wheel_scrolled();
           }
           else if (wheel_scrolled_up)
           {
             turn_off_menu(GMnu_CREATURE_QUERY4);
             turn_on_menu(GMnu_CREATURE_QUERY3);
-            fake_button_click(0);
+            fake_button_click(BID_CRTR_PVPAGE);
             update_wheel_scrolled();
           }
         }
@@ -1688,14 +1688,14 @@ static short get_creature_control_action_inputs(void)
         {
             turn_on_menu(GMnu_CREATURE_QUERY3);
         }
-        fake_button_click(0);
+        fake_button_click(BID_CRTR_NXPAGE);
         update_wheel_scrolled();
       }
       if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
       {
         turn_off_menu(GMnu_CREATURE_QUERY1);
         turn_on_menu(GMnu_CREATURE_QUERY4);
-        fake_button_click(0);
+        fake_button_click(BID_CRTR_PVPAGE);
         update_wheel_scrolled();
       }
     }
@@ -1713,14 +1713,14 @@ static short get_creature_control_action_inputs(void)
       {
         turn_off_menu(GMnu_CREATURE_QUERY2);
         turn_on_menu(GMnu_CREATURE_QUERY3);
-        fake_button_click(0);
+        fake_button_click(BID_CRTR_NXPAGE);
         update_wheel_scrolled();
       }
       if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
       {
         turn_off_menu(GMnu_CREATURE_QUERY2);
         turn_on_menu(GMnu_CREATURE_QUERY1);
-        fake_button_click(0);
+        fake_button_click(BID_CRTR_PVPAGE);
         update_wheel_scrolled();
       }
     }
@@ -1746,7 +1746,7 @@ static short get_creature_control_action_inputs(void)
       {
         turn_off_menu(GMnu_CREATURE_QUERY3);
         turn_on_menu(GMnu_CREATURE_QUERY4);
-        fake_button_click(0);
+        fake_button_click(BID_CRTR_NXPAGE);
         update_wheel_scrolled();
       }
       if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
@@ -1759,7 +1759,7 @@ static short get_creature_control_action_inputs(void)
         {
             turn_on_menu(GMnu_CREATURE_QUERY1);
         }
-        fake_button_click(0);
+        fake_button_click(BID_CRTR_PVPAGE);
         update_wheel_scrolled();
       }
     }
@@ -1785,14 +1785,14 @@ static short get_creature_control_action_inputs(void)
       {
         turn_off_menu(GMnu_CREATURE_QUERY4);
         turn_on_menu(GMnu_CREATURE_QUERY1);
-        fake_button_click(0);
+        fake_button_click(BID_CRTR_NXPAGE);
         update_wheel_scrolled();
       }
       if (is_game_key_pressed(Gkey_CrtrQueryMod, true, false) || wheel_scrolled_up)
       {
         turn_off_menu(GMnu_CREATURE_QUERY4);
         turn_on_menu(GMnu_CREATURE_QUERY3);
-        fake_button_click(0);
+        fake_button_click(BID_CRTR_PVPAGE);
         update_wheel_scrolled();
       }
     }
