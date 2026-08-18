@@ -23,7 +23,7 @@ function OnPowerCast(pwkind, caster, target_thing, stl_x, stl_y, splevel)
 end
 
 --- Called when a spell is cast on a unit
---- @param spkind spell_kind
+--- @param spkind spell_type
 --- @param target_thing Creature
 --- @param splevel integer
 --- @param caster Player
