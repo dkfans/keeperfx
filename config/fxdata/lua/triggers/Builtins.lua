@@ -27,14 +27,12 @@ end
 --- @param target_thing Creature
 --- @param splevel integer
 --- @param caster Player
---- @param first_apply boolean
-function OnSpellApply(spkind, target_thing, splevel, caster, first_apply)
+function OnSpellApply(spkind, target_thing, splevel, caster)
     local eventData = {}
     eventData.SpellKind = spkind
     eventData.Thing = target_thing
     eventData.splevel = splevel
     eventData.caster = caster
-    eventData.first_apply = first_apply
     ProcessEvent("SpellApply",eventData)
 end
 
