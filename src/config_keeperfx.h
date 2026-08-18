@@ -52,6 +52,7 @@ enum TbFeature {
     Ft_DisableCursorCameraPanning   = 0x20000,
     Ft_DeltaTime                    = 0x40000,
     Ft_NoCdMusic                    = 0x80000,
+    Ft_RelativeMouseMode            = 0x100000,
 };
 
 enum TbLanguage {
@@ -137,6 +138,7 @@ TbBool resize_movies_enabled(void);
 TbBool freeze_game_on_focus_lost(void);
 TbBool unlock_cursor_when_game_paused(void);
 TbBool lock_cursor_in_possession(void);
+TbBool use_relative_mouse_mode(void);
 TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
 /******************************************************************************/
