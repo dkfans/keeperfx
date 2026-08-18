@@ -16,6 +16,7 @@ public:
 
     bool HasOSCursor() const override { return true; }
     void SetCursorGrab(bool grab) override;
+    void SetUseRelativeMouse(bool relative) override;
     void SetCursorVisible(bool visible) override;
     void WarpCursor(int x, int y) override;
     bool IsCursorInWindow() const override;
@@ -47,6 +48,7 @@ private:
     void ApplyOsCursorPolicy();
 
     bool m_appActive = true;
+    bool m_useRelativeMouse = true;
 };
 
 /** Shared singleton desktop window system. */
