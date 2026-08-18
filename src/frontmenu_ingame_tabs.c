@@ -1876,7 +1876,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     int units_per_px = (gbtn->width * 16 + 60 / 2) / 60;
-    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_bar_with_pic_full_blue_down, 100);
+    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_bar_with_pic_full_blue_down, 100);
     struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
     TRACE_THING(ctrltng);
     if (!thing_is_creature(ctrltng))

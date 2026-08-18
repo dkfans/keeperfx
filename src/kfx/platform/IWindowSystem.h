@@ -28,8 +28,11 @@ public:
      *  returns false. */
     virtual bool HasOSCursor() const { return false; }
 
-    /** Grab or release the OS cursor (relative mouse mode on SDL). */
+    /** Grab or release the OS cursor. */
     virtual void SetCursorGrab(bool /*grab*/) {}
+
+    /** Select how a subsequent SetCursorGrab(true) locks the cursor */
+    virtual void SetUseRelativeMouse(bool /*relative*/) {}
 
     /** Show or hide the OS cursor. */
     virtual void SetCursorVisible(bool /*visible*/) {}

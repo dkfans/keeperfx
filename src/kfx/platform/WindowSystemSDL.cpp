@@ -54,8 +54,12 @@ void WindowSystemSDL::SetCursorGrab(bool grab)
 {
     if (!lbWindow)
         return;
-    if (SDL_getenv("NO_RELATIVE_MOUSE") == nullptr)
-    {
+    if (m_useRelativeMouse) {
+        // deltas straight from the OS.
+        SDL_SetWindowRelativeMouseMode(lbWindow, grab);
+    }
+    else{
+        // confine the cursor to the window and re-center it.
         SDL_SetWindowMouseGrab(lbWindow, grab);
         if (grab)
         {
@@ -65,6 +69,21 @@ void WindowSystemSDL::SetCursorGrab(bool grab)
         }
     }
     ApplyOsCursorPolicy();
+}
+
+void WindowSystemSDL::SetUseRelativeMouse(bool relative)
+{
+    if (relative == m_useRelativeMouse)
+        return;
+
+    if (lbWindow)
+    {
+        if (m_useRelativeMouse)
+            SDL_SetWindowRelativeMouseMode(lbWindow, false);
+        else
+            SDL_SetWindowMouseGrab(lbWindow, false);
+    }
+    m_useRelativeMouse = relative;
 }
 
 void WindowSystemSDL::SetCursorVisible(bool visible)
