@@ -95,6 +95,47 @@ TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerK
     }
 }
 
+TbResult luafunc_magic_use_spell(FuncIdx func_idx, SpellKind spkind, struct Thing* thing, unsigned short splevel, PlayerNumber plyr_idx)
+{
+    const char* func_name = get_function_name(func_idx);
+    if (!func_name) {
+        ERRORLOG("Invalid function index: %d", func_idx);
+        return Lb_FAIL; // Indicate an error
+    }
+
+    lua_getglobal(Lvl_script, func_name);
+    if (lua_isfunction(Lvl_script, -1)) {
+        lua_pushThing(Lvl_script, thing);
+        lua_pushinteger(Lvl_script, spkind);
+        lua_pushinteger(Lvl_script, splevel + 1); // Lua is 1-based, so we add 1 to the level
+        lua_pushPlayer(Lvl_script, plyr_idx);
+
+
+        if (lua_pcall(Lvl_script, 6, 1, 0) != LUA_OK) {
+            const char* error_msg = lua_tostring(Lvl_script, -1);
+            ERRORLOG("Error calling Lua function '%s': %s", func_name, error_msg);
+            lua_pop(Lvl_script, 1); // Remove error message from stack
+            return Lb_FAIL; // Indicate an error
+        }
+
+        // Retrieve the result returned by the Lua function
+        if (!lua_isnumber(Lvl_script, -1)) {
+            ERRORLOG("Lua function '%s' did not return an integer result", func_name);
+            lua_pop(Lvl_script, 1); // Remove invalid result from stack
+            return Lb_FAIL; // Indicate an error
+        }
+
+        TbResult result = (TbResult)lua_tointeger(Lvl_script, -1);
+        lua_pop(Lvl_script, 1); // Remove result from stack
+        return result; // Return the result obtained from Lua
+    }
+    else {
+        ERRORLOG("Lua function '%s' not found or not a function", func_name);
+        lua_pop(Lvl_script, 1); // Remove non-function value from stack
+        return Lb_FAIL; // Indicate an error
+    }
+}
+
 
 short luafunc_crstate_func(FuncIdx func_idx,struct Thing *thing)
 {
