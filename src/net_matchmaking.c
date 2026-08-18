@@ -47,11 +47,13 @@ static char hosted_lobby_id[MATCHMAKING_ID_MAX] = {0};
 char join_lobby_id[MATCHMAKING_ID_MAX] = {0};
 static SDL_Mutex *mutex = NULL;
 static SDL_AtomicInt connect_thread_active = {0};
+static SDL_AtomicInt finish_thread_active = {0};
 static SDL_AtomicInt ips_resolved = {0};
 static SDL_AtomicInt ips_resolving = {0};
 static int connect_gave_up = 0;
 static char local_ipv4[MATCHMAKING_IP_MAX] = {0};
 static char local_ipv6[MATCHMAKING_IP_MAX] = {0};
+static char finish_message[SEND_BUFFER_SIZE];
 
 struct TbNetworkSessionNameEntry matchmaking_sessions[MATCHMAKING_SESSIONS_MAX];
 int matchmaking_session_count = 0;
@@ -256,9 +258,16 @@ static int websocket_receive(char *response_buffer, size_t buffer_size, int time
 
 static int websocket_exchange(const char *request, char *response_buffer, size_t buffer_size)
 {
-    if (!curl_handle) return -1;
     if (websocket_send(request) != 0) return -1;
-    return websocket_receive(response_buffer, buffer_size, WEBSOCKET_RECEIVE_TIMEOUT_MS);
+    Uint32 timeout_deadline = (Uint32)SDL_GetTicks() + WEBSOCKET_RECEIVE_TIMEOUT_MS;
+    int bytes_received;
+    do {
+        int time_remaining = (int)(timeout_deadline - (Uint32)SDL_GetTicks());
+        if (time_remaining <= 0)
+            return 0;
+        bytes_received = websocket_receive(response_buffer, buffer_size, time_remaining);
+    } while (bytes_received > 0 && (strstr(response_buffer, "\"type\":\"lobbies\"") || strstr(response_buffer, "\"type\":\"punch\"")));
+    return bytes_received;
 }
 
 int matchmaking_request_list(void)
@@ -345,6 +354,17 @@ static int matchmaking_connect_thread(void *)
     return 0;
 }
 
+static int matchmaking_finish_lobby_thread(void *)
+{
+    SDL_LockMutex(mutex);
+    websocket_exchange(finish_message, finish_message, sizeof(finish_message));
+    websocket_cleanup();
+    lan_set_lobby_id("");
+    SDL_UnlockMutex(mutex);
+    SDL_SetAtomicInt(&finish_thread_active, 0);
+    return 0;
+}
+
 void matchmaking_connect_async(void)
 {
     matchmaking_init();
@@ -399,7 +419,7 @@ void matchmaking_disconnect(void)
         return;
     }
     Uint32 wait_deadline = (Uint32)SDL_GetTicks() + CONNECT_TIMEOUT_MS * 3;
-    while (SDL_GetAtomicInt(&connect_thread_active) && (Uint32)SDL_GetTicks() < wait_deadline) {
+    while ((SDL_GetAtomicInt(&connect_thread_active) || SDL_GetAtomicInt(&finish_thread_active)) && (Uint32)SDL_GetTicks() < wait_deadline) {
         SDL_Delay(10);
     }
     wait_for_public_ip_resolution();
@@ -407,10 +427,6 @@ void matchmaking_disconnect(void)
     SDL_LockMutex(mutex);
     connect_gave_up = 0;
     SDL_SetAtomicInt(&ips_resolved, 0);
-    if (curl_handle) {
-        websocket_cleanup();
-        LbNetLog("Matchmaking: disconnected\n");
-    }
     SDL_UnlockMutex(mutex);
 }
 
@@ -419,37 +435,39 @@ void matchmaking_finish_lobby(enum MatchmakingLobbyResult result, int map_number
     if (mutex == NULL) {
         return;
     }
+    if (SDL_CompareAndSwapAtomicInt(&finish_thread_active, 0, 1) == false)
+        return;
     SDL_LockMutex(mutex);
     connect_gave_up = 1;
-    if (curl_handle) {
-        if (hosted_lobby_id[0] != '\0') {
-            char message[SEND_BUFFER_SIZE];
-            int write_position = snprintf(message, sizeof(message), "{\"action\":\"cancel\",\"id\":\"%s\"}", hosted_lobby_id);
-            if (result == MMLobbyResult_Started) {
-                char escaped_map_name[LINEMSG_SIZE * 2 + 1];
-                json_escape(escaped_map_name, sizeof(escaped_map_name), map_name);
-                write_position = snprintf(message, sizeof(message), "{\"action\":\"game_started\",\"id\":\"%s\",\"mapNumber\":%d,\"mapName\":\"%s\",\"players\":[", hosted_lobby_id, map_number, escaped_map_name);
-                const char *separator = "";
-                for (int i = 0; i < MAX_NET_USERS; i++) {
-                    if (!network_player_active(i)) {
-                        continue;
-                    }
-                    char escaped_name[NETSP_PLAYER_NAME_MAX_LEN * 2 + 1];
-                    json_escape(escaped_name, sizeof(escaped_name), network_player_name(i));
-                    write_position += snprintf(message + write_position, sizeof(message) - write_position, "%s\"%s\"", separator, escaped_name);
-                    separator = ",";
+    if (curl_handle && hosted_lobby_id[0] != '\0') {
+        snprintf(finish_message, sizeof(finish_message), "{\"action\":\"cancel\",\"id\":\"%s\"}", hosted_lobby_id);
+        if (result == MMLobbyResult_Started) {
+            char escaped_map_name[LINEMSG_SIZE * 2 + 1];
+            json_escape(escaped_map_name, sizeof(escaped_map_name), map_name);
+            int write_position = snprintf(finish_message, sizeof(finish_message), "{\"action\":\"game_started\",\"id\":\"%s\",\"mapNumber\":%d,\"mapName\":\"%s\",\"players\":[", hosted_lobby_id, map_number, escaped_map_name);
+            const char *separator = "";
+            for (int i = 0; i < MAX_NET_USERS; i++) {
+                if (!network_player_active(i)) {
+                    continue;
                 }
-                snprintf(message + write_position, sizeof(message) - write_position, "]}");
+                char escaped_name[NETSP_PLAYER_NAME_MAX_LEN * 2 + 1];
+                json_escape(escaped_name, sizeof(escaped_name), network_player_name(i));
+                write_position += snprintf(finish_message + write_position, sizeof(finish_message) - write_position, "%s\"%s\"", separator, escaped_name);
+                separator = ",";
             }
-            websocket_send(message);
+            snprintf(finish_message + write_position, sizeof(finish_message) - write_position, "]}");
         }
-        if (curl_handle) {
-            websocket_cleanup();
+        SDL_Thread *thread = SDL_CreateThread(matchmaking_finish_lobby_thread, "matchmaking_finish", NULL);
+        if (thread) {
+            SDL_DetachThread(thread);
+            SDL_UnlockMutex(mutex);
+            return;
         }
     }
-    hosted_lobby_id[0] = '\0';
+    websocket_cleanup();
     lan_set_lobby_id("");
     SDL_UnlockMutex(mutex);
+    SDL_SetAtomicInt(&finish_thread_active, 0);
 }
 
 void matchmaking_refresh_sessions(void)
@@ -510,10 +528,6 @@ int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
         escaped_lobby_name, udp_ipv4_port, udp_ipv6_port, MATCHMAKING_VERSION,
         published_addresses.ipv4, published_addresses.ipv6);
     int bytes_received = websocket_exchange(request_message, response_buffer, sizeof(response_buffer));
-    // Skip stale lobby responses
-    while (bytes_received > 0 && strstr(response_buffer, "\"lobbies\"")) {
-        bytes_received = websocket_receive(response_buffer, sizeof(response_buffer), WEBSOCKET_RECEIVE_TIMEOUT_MS);
-    }
     if (bytes_received > 0) {
         LbNetLog("Matchmaking: create response (%d bytes): %s\n", bytes_received, response_buffer);
     }
