@@ -344,9 +344,9 @@ long get_players_range_single_f(long plr_range_id, const char *func_name, long l
     return -2;
 }
 
-void get_chat_icon_from_value(const char* txt, char* id, char* type)
+void get_chat_icon_from_value(const char* txt, short* id, char* type)
 {
-    char idx;
+    short idx;
     if (strcasecmp(txt, "None") == 0)
     {
         *id = 0;

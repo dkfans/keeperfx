@@ -5787,13 +5787,13 @@ static void quick_message_check(const struct ScriptLine* scline)
     }
     snprintf(game.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
     value->longs[0]= scline->np[0];
-    get_chat_icon_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
+    get_chat_icon_from_value(scline->tp[2], &value->shorts[4], &value->chars[6]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void quick_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", game.quick_messages[context->value->ulongs[0]]);
+    message_add_fmt(context->value->chars[6], context->value->shorts[4], "%s", game.quick_messages[context->value->ulongs[0]]);
 }
 
 static void display_message_check(const struct ScriptLine* scline)
@@ -5808,13 +5808,13 @@ static void display_message_check(const struct ScriptLine* scline)
         return;
     }
     value->ulongs[0] = msg_num;
-    get_chat_icon_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
+    get_chat_icon_from_value(scline->tp[1], &value->shorts[4], &value->chars[7]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void display_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->ulongs[0]));
+    message_add_fmt(context->value->chars[7], context->value->shorts[4], "%s", get_string(context->value->ulongs[0]));
 }
 
 static void clear_message_check(const struct ScriptLine* scline)

@@ -726,7 +726,7 @@ static int lua_Display_message(lua_State *L)
 {
     int32_t msg_id = luaL_checkinteger(L, 1);
     const char *msg =  get_string(msg_id);
-    char id;
+    short id;
     char type;
     luaL_checkMessageIcon(L, 2, &type, &id);
 
@@ -738,7 +738,7 @@ static int lua_Display_message(lua_State *L)
 static int lua_Quick_message(lua_State *L)
 {
     const char *msg = lua_tostring(L, 1);
-    char id;
+    short id;
     char type;
     luaL_checkMessageIcon(L, 2, &type, &id);
 
