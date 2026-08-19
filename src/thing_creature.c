@@ -3699,6 +3699,10 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
           flag1 = true;
           pos1.z.val = pos2.z.val;
         }
+        else if (target->class_id == TCls_Door)
+        {
+            pos2.z.val = pos1.z.val;
+        }
         angle_xy = get_angle_xy_to(&pos1, &pos2);
         angle_yz = get_angle_yz_to(&pos1, &pos2);
     }
