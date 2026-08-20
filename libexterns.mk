@@ -19,22 +19,18 @@
 #******************************************************************************
 
 ARCH = i686-w64-mingw32
-SDL_MAIN_LIBRARY = sdl/lib/libSDL2main.a
+SDL_MAIN_LIBRARY = sdl/lib/libSDL3.dll.a
 SDL_EXTENSION_LIBRARIES = \
-	sdl/lib/libSDL2_net.dll.a \
-	sdl/lib/SDL2_net.lib \
-	sdl/lib/libSDL2_mixer.dll.a \
-	sdl/lib/SDL2_mixer.lib \
-	sdl/lib/libSDL2_image.dll.a \
-	sdl/lib/SDL2_image.lib
+	sdl/lib/libSDL3_mixer.dll.a \
+	sdl/lib/libSDL3_image.dll.a
 
 include prebuilds.mk
 
 .PHONY: clean-libsdl deep-clean-libsdl
 
-.INTERMEDIATE: libsdl libsdlnet libsdlmixer libsdlimage
+.INTERMEDIATE: libsdl libsdlmixer libsdlimage
 
-libexterns: libsdl libsdlnet libsdlmixer libsdlimage
+libexterns: libsdl libsdlmixer libsdlimage
 	touch libexterns
 
 clean-libexterns: clean-libsdl
@@ -51,9 +47,9 @@ $(SDL_MAIN_LIBRARY): sdl/$(SDL_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	# Grep is used to remove bogus error messages, return state of tar is also ignored
 	-cd "$(<D)"; \
-	tar --strip-components=2 -zxmUf "$(<F)" SDL2-2.30.7/i686-w64-mingw32/bin SDL2-2.30.7/i686-w64-mingw32/include SDL2-2.30.7/i686-w64-mingw32/lib SDL2-2.30.7/i686-w64-mingw32/share 2>&1 | \
+	tar --strip-components=2 -zxmUf "$(<F)" SDL3-3.4.12/i686-w64-mingw32/bin SDL3-3.4.12/i686-w64-mingw32/include SDL3-3.4.12/i686-w64-mingw32/lib SDL3-3.4.12/i686-w64-mingw32/share 2>&1 | \
 	grep -v '^.*: Archive value .* is out of .* range.*$$'
-	$(CP) sdl/bin/SDL2.dll sdl/for_final_package/
+	$(CP) sdl/bin/SDL3.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
@@ -76,69 +72,18 @@ endif
 
 $(SDL_EXTENSION_LIBRARIES): | $(SDL_MAIN_LIBRARY)
 
-ifneq (,$(findstring .tar.gz,$(SDL_NET_PACKAGE)))
-
-libsdlnet: sdl/lib/libSDL2_net.dll.a
-
-sdl/lib/libSDL2_net.dll.a: sdl/$(SDL_NET_PACKAGE)
-	-$(ECHO) 'Extracting package: $<'
-	$(MKDIR) sdl/lib sdl/include/SDL2
-	cd "$(<D)"; \
-	tar -xzf "$(<F)"
-	$(CP) sdl/SDL2_net-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
-	$(CP) -r sdl/SDL2_net-*/$(ARCH)/lib/* sdl/lib/
-	$(CP) sdl/SDL2_net-*/$(ARCH)/bin/SDL2_net.dll sdl/for_final_package/
-	-$(ECHO) 'Finished extracting: $<'
-	-$(ECHO) ' '
-
-sdl/$(SDL_NET_PACKAGE):
-	-$(ECHO) 'Downloading package: $@'
-	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(SDL_NET_DOWNLOAD)"
-	tar -tzf "$@.dl"
-	$(MV) "$@.dl" "$@"
-	-$(ECHO) 'Finished downloading: $@'
-	-$(ECHO) ' '
-
-else
-
-libsdlnet: sdl/lib/SDL2_net.lib
-
-sdl/lib/SDL2_net.lib: sdl/$(SDL_NET_PACKAGE)
-	-$(ECHO) 'Extracting package: $<'
-	$(MKDIR) sdl/lib sdl/include/SDL2
-	cd "$(<D)"; \
-	unzip -DD -qo "$(<F)"
-	$(MV) sdl/SDL2_net-*/include/* sdl/include/SDL2/
-	$(MV) sdl/SDL2_net-*/lib/x86/* sdl/lib/
-	-$(ECHO) 'Finished extracting: $<'
-	-$(ECHO) ' '
-
-sdl/$(SDL_NET_PACKAGE):
-	-$(ECHO) 'Downloading package: $@'
-	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(SDL_NET_DOWNLOAD)"
-	unzip -qt "$@.dl"
-	$(MV) "$@.dl" "$@"
-	-$(ECHO) 'Finished downloading: $@'
-	-$(ECHO) ' '
-
-endif
-
-##################
-
 ifneq (,$(findstring .tar.gz,$(SDL_MIXER_PACKAGE)))
 
-libsdlmixer: sdl/lib/libSDL2_mixer.dll.a
+libsdlmixer: sdl/lib/libSDL3_mixer.dll.a
 
-sdl/lib/libSDL2_mixer.dll.a: sdl/$(SDL_MIXER_PACKAGE)
+sdl/lib/libSDL3_mixer.dll.a: sdl/$(SDL_MIXER_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
-	$(MKDIR) sdl/lib sdl/include/SDL2
+	$(MKDIR) sdl/lib sdl/include
 	cd "$(<D)"; \
 	tar -xzf "$(<F)"
-	$(CP) sdl/SDL2_mixer-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
-	$(CP) -r sdl/SDL2_mixer-*/$(ARCH)/lib/* sdl/lib/
-	$(CP) sdl/SDL2_mixer-*/$(ARCH)/bin/SDL2_mixer.dll sdl/for_final_package/
+	$(CP) -r sdl/SDL3_mixer-*/$(ARCH)/include/* sdl/include/
+	$(CP) -r sdl/SDL3_mixer-*/$(ARCH)/lib/* sdl/lib/
+	$(CP) sdl/SDL3_mixer-*/$(ARCH)/bin/SDL3_mixer.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
@@ -153,26 +98,7 @@ sdl/$(SDL_MIXER_PACKAGE):
 
 else
 
-libsdlmixer: sdl/lib/SDL2_mixer.lib
-
-sdl/lib/SDL2_mixer.lib: sdl/$(SDL_MIXER_PACKAGE)
-	-$(ECHO) 'Extracting package: $<'
-	$(MKDIR) sdl/lib sdl/include/SDL2
-	cd "$(<D)"; \
-	unzip -DD -qo "$(<F)"
-	$(MV) sdl/SDL2_mixer-*/include/* sdl/include/SDL2/
-	$(MV) sdl/SDL2_mixer-*/lib/x86/* sdl/lib/
-	-$(ECHO) 'Finished extracting: $<'
-	-$(ECHO) ' '
-
-sdl/$(SDL_MIXER_PACKAGE):
-	-$(ECHO) 'Downloading package: $@'
-	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(SDL_MIXER_DOWNLOAD)"
-	unzip -qt "$@.dl"
-	$(MV) "$@.dl" "$@"
-	-$(ECHO) 'Finished downloading: $@'
-	-$(ECHO) ' '
+$(error Cannot handle SDL_mixer library prebuild. You need to prepare the library manually.)
 
 endif
 
@@ -180,16 +106,16 @@ endif
 
 ifneq (,$(findstring .tar.gz,$(SDL_IMAGE_PACKAGE)))
 
-libsdlimage: sdl/lib/libSDL2_image.dll.a
+libsdlimage: sdl/lib/libSDL3_image.dll.a
 
-sdl/lib/libSDL2_image.dll.a: sdl/$(SDL_IMAGE_PACKAGE)
+sdl/lib/libSDL3_image.dll.a: sdl/$(SDL_IMAGE_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
-	$(MKDIR) sdl/lib sdl/include/SDL2
+	$(MKDIR) sdl/lib sdl/include
 	cd "$(<D)"; \
 	tar -xzf "$(<F)"
-	$(CP) sdl/SDL2_image-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
-	$(CP) -r sdl/SDL2_image-*/$(ARCH)/lib/* sdl/lib/
-	$(CP) sdl/SDL2_image-*/$(ARCH)/bin/SDL2_image.dll sdl/for_final_package/
+	$(CP) -r sdl/SDL3_image-*/$(ARCH)/include/* sdl/include/
+	$(CP) -r sdl/SDL3_image-*/$(ARCH)/lib/* sdl/lib/
+	$(CP) sdl/SDL3_image-*/$(ARCH)/bin/SDL3_image.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
@@ -204,26 +130,7 @@ sdl/$(SDL_IMAGE_PACKAGE):
 
 else
 
-libsdlimage: sdl/lib/SDL2_image.lib
-
-sdl/lib/SDL2_image.lib: sdl/$(SDL_IMAGE_PACKAGE)
-	-$(ECHO) 'Extracting package: $<'
-	$(MKDIR) sdl/lib sdl/include/SDL2
-	cd "$(<D)"; \
-	unzip -DD -qo "$(<F)"
-	$(MV) sdl/SDL2_image-*/include/* sdl/include/SDL2/
-	$(MV) sdl/SDL2_image-*/lib/x86/* sdl/lib/
-	-$(ECHO) 'Finished extracting: $<'
-	-$(ECHO) ' '
-
-sdl/$(SDL_IMAGE_PACKAGE):
-	-$(ECHO) 'Downloading package: $@'
-	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(SDL_IMAGE_DOWNLOAD)"
-	unzip -qt "$@.dl"
-	$(MV) "$@.dl" "$@"
-	-$(ECHO) 'Finished downloading: $@'
-	-$(ECHO) ' '
+$(error Cannot handle SDL_image library prebuild. You need to prepare the library manually.)
 
 endif
 

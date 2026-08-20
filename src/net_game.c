@@ -327,12 +327,21 @@ TbBool init_players_network_game(void)
         initialized = false;
         break;
     }
-    if (netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
-        matchmaking_close_lobby();
-    }
     if (initialized) {
         build_local_startup_sync();
         initialized = net_startup_sync_exchange_and_apply();
+    }
+    if (initialized && netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
+        LevelNumber map_number = get_level_number();
+        struct LevelInformation *level_info = get_level_info(map_number);
+        const char *map_name = "";
+        if (level_info) {
+            map_name = level_info->name;
+            if (level_info->name_stridx > 0) {
+                map_name = get_string(level_info->name_stridx);
+            }
+        }
+        matchmaking_finish_lobby(MMLobbyResult_Started, (int)map_number, map_name);
     }
     if (!initialized) {
         LbNetwork_Stop();

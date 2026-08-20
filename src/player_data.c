@@ -456,6 +456,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
     return;
   player->view_type = nview;
   player->allocflags &= ~PlaF_CreaturePassengerMode;
+  player->first_person_unfreeze_delay = 0;
   if (is_my_player(player))
   {
     game.view_mode_flags &= ~GNFldD_CreaturePasngr;
@@ -490,6 +491,9 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       break;
   case PVT_MapScreen:
+      if (is_my_player(player)) {
+        toggle_status_menu(0);
+      }
       player->continue_work_state = player->work_state;
       set_engine_view(player, PVM_ParchmentView);
       break;
@@ -505,6 +509,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
 void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
 {
   player->view_type = nview;
+  player->first_person_unfreeze_delay = 0;
   switch (nview)
   {
     case PVT_DungeonTop:

@@ -23,7 +23,7 @@
 #include "bflib_sound.h"
 #include "globals.h"
 
-#include <SDL2/SDL_mixer.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +31,6 @@ extern "C" {
 
 #define FULL_LOUDNESS 256
 #define NORMAL_PITCH 100
-#define MIX_SPEECH_CHANNEL 0
 
 /******************************************************************************/
 #pragma pack(1)
@@ -92,6 +91,7 @@ void ShutDownSDLAudio();
 TbBool play_streamed_sample(const char * fname, SoundVolume);
 void set_streamed_sample_volume(SoundVolume);
 void stop_streamed_samples();
+TbBool is_streamed_sample_playing(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

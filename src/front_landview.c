@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_landview.h"
 
 #include "globals.h"
@@ -993,7 +994,7 @@ void process_zoom_palette(void)
     for (int i = 0; i < PALETTE_SIZE; i++) {
         palette[i] = frontend_palette[i] * remaining / half_length;
     }
-    LbPaletteSet(palette);
+    RendererPaletteSet(palette);
 }
 
 TbBool frontmap_update_zoom(void)
@@ -1016,8 +1017,8 @@ TbBool frontmap_update_zoom(void)
         if (map_info.state_trigger != FeSt_INITIAL)
         {
             frontend_set_state(map_info.state_trigger);
-            LbScreenClear(0);
-            LbScreenSwap();
+            RendererClearScreen(0);
+            RendererPresentFrame();
             map_info.state_trigger = FeSt_INITIAL;
             return true;
         }
@@ -1030,7 +1031,7 @@ TbBool frontmap_load(void)
 {
     SYNCDBG(4,"Starting");
     memset(scratch, 0, PALETTE_SIZE);
-    LbPaletteSet(scratch);
+    RendererPaletteSet(scratch);
     initialize_description_speech();
     mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
     frontend_load_data_from_cd();
@@ -1217,7 +1218,7 @@ void draw_map_level_descriptions(void)
 {
   if ((fe_net_level_selected > 0) || (net_level_hilighted > 0))
   {
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     LevelNumber lvnum = fe_net_level_selected;
     if (lvnum <= 0)
       lvnum = net_level_hilighted;

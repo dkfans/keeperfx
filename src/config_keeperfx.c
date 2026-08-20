@@ -40,6 +40,7 @@
 #include "sounds.h"
 #include "vidmode.h"
 #include "moonphase.h"
+#include "keeperfx.hpp"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -160,6 +161,8 @@ const struct NamedCommand conf_commands[] = {
   {"DEFAULT_TAG_MODE"              , 41},
   {"ZOOM_TO_MOUSE"                 , 42},
   {"ROTATE_AROUND_MOUSE"           , 43},
+  {"VSYNC"                         , 44},
+  {"RELATIVE_MOUSE_MODE"           , 45},
   {NULL,                   0},
   };
 
@@ -268,6 +271,14 @@ TbBool unlock_cursor_when_game_paused(void)
 TbBool lock_cursor_in_possession(void)
 {
   return ((features_enabled & Ft_LockCursorInPossession) != 0);
+}
+
+/**
+ * Returns if the mouse should use SDL relative ("raw") mode instead of the grab-and-warp scheme.
+ */
+TbBool use_relative_mouse_mode(void)
+{
+  return ((features_enabled & Ft_RelativeMouseMode) != 0);
 }
 
 /**
@@ -952,6 +963,30 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           {
               rotate_around_mouse_option = (i==1);
           }
+          break;
+      case 44: // VSYNC
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          vsync_enabled = (i == 1);
+          break;
+      case 45: // RELATIVE_MOUSE_MODE
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_RelativeMouseMode;
+          else
+              features_enabled &= ~Ft_RelativeMouseMode;
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:

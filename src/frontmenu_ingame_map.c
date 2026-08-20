@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_ingame_map.h"
 
 #include "globals.h"
@@ -639,7 +640,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     if (!thing_exists(thing)) {
         return 0;
     }
-    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+    RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
 
     const struct Coord2d pos = thing_minimap_position(thing, cam, zoom);
     RealScreenCoord basepos;
@@ -675,7 +676,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
             panel_map_draw_pixel((draw_x >> 8) + draw_square[p].delta_x, (draw_y >> 8) + draw_square[p].delta_y, col);
         }
     }
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+    RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
     return 1;
 }
 

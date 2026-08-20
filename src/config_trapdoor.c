@@ -257,8 +257,8 @@ static void assign_refresh_trap_anim_anim_id(const struct NamedField* named_fiel
 const struct NamedField trapdoor_door_named_fields[] = {
     //name           //pos    //field                                                                //default //min     //max    //NamedCommand
     {"NAME",                 0, field_t(struct DoorConfigStats, code_name),                0,   INT32_MIN,         UINT32_MAX, door_desc,                value_name,       assign_null},
-    {"NAMETEXTID",           0, field_t(struct DoorConfigStats, name_stridx),   GUIStr_Empty,   INT32_MIN,         UINT32_MAX, NULL,                     value_default,    assign_default},
-    {"TOOLTIPTEXTID",        0, field_t(struct DoorConfigStats, tooltip_stridx),GUIStr_Empty,   INT32_MIN,         UINT32_MAX, NULL,                     value_default,    assign_tooltip_idx_door},
+    {"NAMETEXTID",           0, field_t(struct DoorConfigStats, name_stridx),   GUIStr_Empty,   INT32_MIN,         UINT32_MAX, NULL,                     value_stringId,    assign_default},
+    {"TOOLTIPTEXTID",        0, field_t(struct DoorConfigStats, tooltip_stridx),GUIStr_Empty,   INT32_MIN,         UINT32_MAX, NULL,                     value_stringId,    assign_tooltip_idx_door},
     {"SYMBOLSPRITES",        0, field_t(struct DoorConfigStats, bigsym_sprite_idx),        0,   INT32_MIN,         UINT32_MAX, NULL,                     value_icon,       assign_icon},
     {"SYMBOLSPRITES",        1, field_t(struct DoorConfigStats, medsym_sprite_idx),        0,   INT32_MIN,         UINT32_MAX, NULL,                     value_icon,       assign_icon_update_trap_tab},
     {"POINTERSPRITES",       0, field_t(struct DoorConfigStats, pointer_sprite_idx),       0,   INT32_MIN,         UINT32_MAX, NULL,                     value_icon,       assign_icon_update_trap_tab},
@@ -299,8 +299,8 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"SHOTS",                  0, field_t(struct TrapConfigStats, shots),                            0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
     {"TIMEBETWEENSHOTS",       0, field_t(struct TrapConfigStats, shots_delay),                      0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
     {"SELLINGVALUE",           0, field_t(struct TrapConfigStats, selling_value),                    0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
-    {"NAMETEXTID",             0, field_t(struct TrapConfigStats, name_stridx),                      0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_default},
-    {"TOOLTIPTEXTID",          0, field_t(struct TrapConfigStats, tooltip_stridx),                   0,   INT32_MIN,         UINT32_MAX, NULL,                     value_default, assign_tooltip_idx_trap},
+    {"NAMETEXTID",             0, field_t(struct TrapConfigStats, name_stridx),                      0,   INT32_MIN,         UINT32_MAX, NULL,                     value_stringId, assign_default},
+    {"TOOLTIPTEXTID",          0, field_t(struct TrapConfigStats, tooltip_stridx),                   0,   INT32_MIN,         UINT32_MAX, NULL,                     value_stringId, assign_tooltip_idx_trap},
     {"CRATE",                  0, NULL,0,                                                                           0,   INT32_MIN,         UINT32_MAX, object_desc,              value_default, assign_crate_trap},
     {"SYMBOLSPRITES",          0, field_t(struct TrapConfigStats, bigsym_sprite_idx),                0,   INT32_MIN,         UINT32_MAX, NULL,                        value_icon, assign_icon},
     {"SYMBOLSPRITES",          1, field_t(struct TrapConfigStats, medsym_sprite_idx),                0,   INT32_MIN,         UINT32_MAX, NULL,                        value_icon, assign_icon_update_trap_tab},

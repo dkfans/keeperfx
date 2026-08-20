@@ -35,6 +35,7 @@
 #include "front_landview.h"
 #include "frontmenu_ingame_evnt.h"
 #include "thing_data.h"
+#include "thing_list.h"
 #include "thing_navigate.h"
 #include "config_creature.h"
 #include "config_terrain.h"
@@ -203,7 +204,8 @@ void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
     }
     if (sample_idx != 0)
     {
-        move_thing_in_map(thing, pos);
+        thing->mappos = *pos;
+        thing->previous_mappos = *pos;
         i = thing->snd_emitter_id;
         if (i != 0)
         {

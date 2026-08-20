@@ -96,7 +96,7 @@ TbBool input_lag_skips_processing(void)
         return true;
     }
     if (input_lag_target < game.input_lag_turns) {
-        MULTIPLAYER_LOG("Input lag decrease forced: discarded_turn=%lu current=%d target=%d", (unsigned long)(get_gameturn() - game.input_lag_turns), game.input_lag_turns - 1, input_lag_target);
+        JUSTLOG("Input lag decreased from %d to %d; discarded_turn=%lu target=%d", game.input_lag_turns, game.input_lag_turns - 1, (unsigned long)(get_gameturn() - game.input_lag_turns), input_lag_target);
         game.input_lag_turns -= 1;
     }
     return false;
@@ -115,8 +115,8 @@ void input_lag_update(struct Packet *packet)
     packet->input_lag_turns = 0;
     if (!network_is_active()) { return; }
     if ((game.operation_flags & GOF_Paused) == 0 && input_lag_increase_turns == 0 && input_lag_target > game.input_lag_turns) {
+        JUSTLOG("Input lag increased from %d to %d", game.input_lag_turns, input_lag_target);
         game.input_lag_turns = input_lag_target;
-        MULTIPLAYER_LOG("Input lag increase committed: current=%d", game.input_lag_turns);
     }
     TbClockMSec now = LbTimerClock();
     if ((game.operation_flags & GOF_Paused) != 0 || game.skip_initial_input_turns > 0) {

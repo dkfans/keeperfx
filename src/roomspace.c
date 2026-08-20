@@ -33,7 +33,6 @@
 #include "tasks_list.h"
 #include "cursor_tag.h"
 #include "frontmenu_ingame_tabs.h"
-#include "roomspace_prediction.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1142,7 +1141,7 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
     int dig_change_count = apply_roomspace_dig_tag_selection(plyr_idx, roomspace, player->previous_cursor_subtile_x / STL_PER_SLB, player->previous_cursor_subtile_y / STL_PER_SLB, player->roomspace_highlight_mode, NULL, NULL, NULL, NULL);
     if (is_my_player(player))
     {
-        if ((dig_change_count > 0) && !local_dig_prediction_is_enabled()) {
+        if (dig_change_count > 0) {
                 play_non_3d_sample(snd_tile_dig);
         }
     }

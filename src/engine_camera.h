@@ -120,6 +120,8 @@ void view_set_camera_rotation_inertia(struct Camera *cam, int32_t delta, int32_t
 void view_set_camera_rotation_inertia_around(struct Camera *cam, int32_t delta, int32_t ilimit, MapCoord x, MapCoord y);
 void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
 void view_process_camera_inertia(struct Camera *cam);
+void view_set_camera_move_to_position(struct Camera *cam, MapCoord x, MapCoord y, MapCoordDelta *move_x, MapCoordDelta *move_y);
+TbBool view_move_camera_to_position(struct Camera *cam, MapCoord x, MapCoord y, MapCoordDelta move_x, MapCoordDelta move_y);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);

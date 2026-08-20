@@ -1,6 +1,7 @@
 #include "pre_inc.h"
 #include "bflib_fmvids.h"
 #include "bflib_video.h"
+#include "kfx/renderer/RendererManager.h"
 #include "bflib_inputctrl.h"
 #include "bflib_keybrd.h"
 #include "bflib_vidsurface.h"
@@ -23,7 +24,7 @@ extern "C" {
 #include <chrono>
 #include "thread.hpp"
 #include <vector>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include "post_inc.h"
 
 namespace {
@@ -277,6 +278,8 @@ struct movie_t {
 	time_point m_video_start;
 	AVRational m_time_base;
 	SDL_AudioDeviceID m_audio_device = 0;
+	// SDL3 pushes audio through an SDL_AudioStream rather than SDL_QueueAudio().
+	SDL_AudioStream* m_sdl_audio_stream = nullptr;
 
 	int m_audio_index;
 	int m_video_index;
@@ -323,8 +326,9 @@ struct movie_t {
 			swr_free(&m_resampler);
 		}
 		if (m_audio_device > 0) {
-			SDL_CloseAudioDevice(m_audio_device);
+			SDL_CloseAudioDevice(m_audio_device); // also destroys bound streams
 			m_audio_device = 0;
+			m_sdl_audio_stream = nullptr;
 		}
 	}
 
@@ -336,10 +340,10 @@ struct movie_t {
 
 	AVSampleFormat sdl_to_ffmpeg_format(SDL_AudioFormat format) {
 		switch (format) {
-			case AUDIO_S8: return AV_SAMPLE_FMT_U8;
-			case AUDIO_S16SYS: return AV_SAMPLE_FMT_S16;
-			case AUDIO_S32SYS: return AV_SAMPLE_FMT_S32;
-			case AUDIO_F32SYS: return AV_SAMPLE_FMT_FLT;
+			case SDL_AUDIO_S8:  return AV_SAMPLE_FMT_U8;
+			case SDL_AUDIO_S16: return AV_SAMPLE_FMT_S16;
+			case SDL_AUDIO_S32: return AV_SAMPLE_FMT_S32;
+			case SDL_AUDIO_F32: return AV_SAMPLE_FMT_FLT;
 			default: return AV_SAMPLE_FMT_NONE;
 		}
 	}
@@ -361,24 +365,20 @@ struct movie_t {
 	void open_audio_device() {
         if (!flag_is_set(m_flags, SMK_NoSound))
         {
-            SDL_AudioSpec desired, obtained;
+            SDL_AudioSpec desired;
             desired.freq = 44100;
-            desired.format = AUDIO_F32SYS;
+            desired.format = SDL_AUDIO_F32;
             desired.channels = 2;
-            desired.silence = 0;
-            desired.samples = 0;
-            desired.padding = 0;
-            desired.size = 0;
-            desired.callback = nullptr;
-            desired.userdata = nullptr;
-            m_audio_device = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, SDL_AUDIO_ALLOW_ANY_CHANGE);
-            if (m_audio_device <= 0) {
+            m_sdl_audio_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, nullptr, nullptr);
+            if (!m_sdl_audio_stream) {
                 throw std::runtime_error("Cannot open audio device");
             }
-            m_output_audio_channels = obtained.channels;
-            m_output_audio_frequency = obtained.freq;
-            m_output_audio_format = sdl_to_ffmpeg_format(obtained.format);
-            m_output_audio_layout = channels_to_ffmpeg_layout(obtained.channels);
+            m_audio_device = SDL_GetAudioStreamDevice(m_sdl_audio_stream);
+            // We push data in the desired format, so configure FFmpeg to match it.
+            m_output_audio_channels = desired.channels;
+            m_output_audio_frequency = desired.freq;
+            m_output_audio_format = sdl_to_ffmpeg_format(desired.format);
+            m_output_audio_layout = channels_to_ffmpeg_layout(desired.channels);
         }
 	}
 
@@ -512,32 +512,32 @@ struct movie_t {
 #endif
 			m_frame->nb_samples
 		);
-		SDL_QueueAudio(m_audio_device, buffer, num_samples * sample_size);
-		SDL_PauseAudioDevice(m_audio_device, 0);
+		// SDL3: SDL_QueueAudio -> SDL_PutAudioStreamData; devices start paused.
+		SDL_PutAudioStreamData(m_sdl_audio_stream, buffer, num_samples * sample_size);
+		SDL_ResumeAudioDevice(m_audio_device);
 		av_freep(&buffer);
 	}
 
 	void output_video_frame() {
 		// FFMpeg used to provide m_frame->palette_has_changed but it has been deprecated
 		// Assume the palette has changed every frame as there is no way for us to know anymore
-		SDL_Color palette[PALETTE_COLORS];
+		unsigned char rgb8[PALETTE_SIZE];
 		for (size_t i = 0; i < PALETTE_COLORS; ++i) {
-			palette[i].b = m_frame->data[1][(i * 4) + 0]; // blue
-			palette[i].g = m_frame->data[1][(i * 4) + 1]; // green
-			palette[i].r = m_frame->data[1][(i * 4) + 2]; // red
+			rgb8[(i * 3) + 0] = m_frame->data[1][(i * 4) + 2]; // red
+			rgb8[(i * 3) + 1] = m_frame->data[1][(i * 4) + 1]; // green
+			rgb8[(i * 3) + 2] = m_frame->data[1][(i * 4) + 0]; // blue
 		}
 		LbScreenWaitVbi(); // this is a no-op today
-		// LbPaletteSet expects values in range 0-63 for reasons, nuking 75% of the color range
-		SDL_SetPaletteColors(lbDrawSurface->format->palette, palette, 0, PALETTE_COLORS);
-		if (LbScreenLock() != Lb_SUCCESS) {
+		RendererSetDisplayPalette(rgb8);
+		if (RendererLockFramebuffer() != Lb_SUCCESS) {
 			return;
 		} else if (m_flags & (SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop)) { // new scaling mode
 			copy_to_screen_scaled(*m_frame, m_flags);
 		} else {
 			copy_to_screen(*m_frame, m_flags);
 		}
-		LbScreenUnlock();
-		LbScreenSwap();
+		RendererUnlockFramebuffer();
+		RendererPresentFrame();
 	}
 
 	bool output_audio_frames() {

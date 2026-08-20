@@ -8,19 +8,22 @@ jobs:
   build-prototype:
     name: "Build Prototype Windows x86"
     runs-on: ubuntu-24.04
+    environment:
+      name: Windows Prototype
+      url: ${{ steps.upload.outputs.artifact-url }}
 
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        
+
     - uses: dkfans/setup-cpp@master
 
     - name: Update system
       run: |
         set -eux
         sudo apt update
-        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16t64 7zip
+        sudo apt install -y build-essential g++-mingw-w64-i686 cmake ninja-build libpng16-16t64 7zip
 
     - name: Build
       run: |
@@ -28,21 +31,36 @@ jobs:
         BUILD_NUMBER=$(git rev-list --count origin/master)
         GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
         PACKAGE_SUFFIX=Prototype_$(git rev-parse --short=7 "$GITHUB_SHA")
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
+        # Compile both binaries with CMake (MinGW-w64 i686 cross-compile).
+        cmake -S . -B out -G Ninja -DCMAKE_TOOLCHAIN_FILE=build/cmake/toolchains/mingw32.cmake \
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          -DBUILD_NUMBER=$BUILD_NUMBER -DPACKAGE_SUFFIX=$PACKAGE_SUFFIX
+        cmake --build out --target keeperfx keeperfx_hvlog -j"$(nproc)"
+        # Assemble game data with the make pipeline (.dat data); the CMake build
+        # already provides the binaries and SDL runtime DLLs. Then archive with CPack.
+        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-assemble
+        cmake --build out --target package
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
+        # CPack stages the binaries (keeperfx.exe, keeperfx_hvlog.exe) and the SDL3
+        # runtime DLLs only inside the .7z archive, not into the loose pkg/ tree, so
+        # uploading pkg/** would drop them. Install the full package layout into
+        # dist/ so the uploaded artifact holds the binaries + DLLs + game data.
+        cmake --install out --prefix dist
         rm pkg/keeperfx*.7z
 
     - name: Upload artifact
+      id: upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.ZIP_NAME }}
-        path: pkg/**
+        path: dist/**
 
   build-prototype-linux:
     name: "Build Prototype Linux x86_64"
     runs-on: ubuntu-24.04
+    environment:
+      name: Linux Prototype
+      url: ${{ steps.upload.outputs.artifact-url }}
 
     steps:
     - uses: actions/checkout@v4
@@ -53,8 +71,13 @@ jobs:
       run: |
         set -eux
         sudo apt update
+        # SDL3 is not in Ubuntu 24.04 apt, so Dependencies.cmake builds it from
+        # source (FetchContent). The libx11/gl/audio and image/mixer decoder
+        # packages below are SDL3's build deps. SDL_net is gone (native sockets).
         sudo apt install -y \
           build-essential \
+          cmake \
+          ninja-build \
           pkg-config \
           curl \
           libavcodec-dev \
@@ -65,12 +88,34 @@ jobs:
           libminizip-dev \
           libnatpmp-dev \
           libspng-dev \
-          libsdl2-dev \
-          libsdl2-image-dev \
-          libsdl2-mixer-dev \
-          libsdl2-net-dev \
           libswresample-dev \
+          libx11-dev \
+          libxext-dev \
+          libxrandr-dev \
+          libxcursor-dev \
+          libxi-dev \
+          libxfixes-dev \
+          libxss-dev \
+          libxtst-dev \
+          libxkbcommon-dev \
+          libgl1-mesa-dev \
+          libegl1-mesa-dev \
+          libdrm-dev \
+          libgbm-dev \
+          libasound2-dev \
+          libpulse-dev \
+          libdbus-1-dev \
+          libudev-dev \
+          libpng-dev \
+          libjpeg-dev \
+          libogg-dev \
+          libvorbis-dev \
+          libflac-dev \
+          libmpg123-dev \
+          libopusfile-dev \
           libminiupnpc-dev \
+          libssl-dev \
+          libzstd-dev \
           zlib1g-dev
 
     - name: Build
@@ -84,10 +129,14 @@ jobs:
         PACKAGE_SUFFIX=Prototype_$(git rev-parse --short=7 "$GITHUB_SHA")
         LINUX_ARTIFACT_NAME=keeperfx-linux_x86_64-${VER_MAJOR}_${VER_MINOR}_${VER_RELEASE}_${BUILD_NUMBER}_${PACKAGE_SUFFIX}-patch
         echo "LINUX_ARTIFACT_NAME=$LINUX_ARTIFACT_NAME" >> $GITHUB_ENV
-        make BUILD_NUMBER=$BUILD_NUMBER VER_SUFFIX=$PACKAGE_SUFFIX -f linux.mk
+        # Native Linux build with CMake (pkg-config deps + prebuilt lin64 static libs).
+        cmake -S . -B out -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          -DBUILD_NUMBER=$BUILD_NUMBER -DPACKAGE_SUFFIX=$PACKAGE_SUFFIX
+        cmake --build out --target keeperfx -j"$(nproc)"
 
     - name: Upload artifact
+      id: upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.LINUX_ARTIFACT_NAME }}
-        path: bin/keeperfx
+        path: out/keeperfx

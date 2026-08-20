@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_ingame_evnt.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -43,7 +44,10 @@
 #include "front_input.h"
 #include "vidfade.h"
 #include "game_legacy.h"
+#include "map_events.h"
+#include "local_camera.h"
 #include "sprites.h"
+#include "timer.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -52,21 +56,28 @@ extern int32_t multiplayer_speed_adjustment_ns;
 
 unsigned long TimerTurns = 0;
 unsigned short battle_creature_over;
+EventIndex my_visible_event_idx;
+unsigned char my_event_button_state[EVENTS_COUNT];
 int debug_display_network_stats = 0;
 
 /******************************************************************************/
+EventIndex get_my_event_button_index(unsigned int button_idx)
+{
+    if (button_idx > EVENT_BUTTONS_COUNT) {
+        return 0;
+    }
+    EventIndex evidx = get_my_dungeon()->event_button_index[button_idx];
+    if (my_event_button_state[evidx] & EvBtnS_Hidden) {
+        return 0;
+    }
+    return evidx;
+}
+
 void gui_open_event(struct GuiButton *gbtn)
 {
-    struct Dungeon* dungeon = get_my_dungeon();
-    EventIndex evidx;
     SYNCDBG(5,"Starting");
-    unsigned int evbtn_idx = gbtn->content.lval;
-    if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
-        evidx = dungeon->event_button_index[evbtn_idx];
-    } else {
-        evidx = 0;
-    }
-    if (evidx == dungeon->visible_event_idx)
+    EventIndex evidx = get_my_event_button_index(gbtn->content.lval);
+    if (evidx == my_visible_event_idx)
     {
         gui_close_objective(gbtn);
     } else
@@ -79,9 +90,12 @@ void gui_open_event(struct GuiButton *gbtn)
 void gui_kill_event(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    struct Dungeon* dungeon = get_players_dungeon(player);
-    unsigned long i = gbtn->content.lval;
-    set_players_packet_action(player, PckA_EventBoxTurnOff, dungeon->event_button_index[i], 0, 0, 0);
+    EventIndex evidx = get_my_event_button_index(gbtn->content.lval);
+    turn_off_event_box_if_necessary(player->id_number, evidx);
+    if (game.event[evidx].kind != EvKind_Objective) {
+        my_event_button_state[evidx] |= EvBtnS_Hidden;
+        set_players_packet_action(player, PckA_EventBoxTurnOff, evidx, 0, 0, 0);
+    }
 }
 
 void turn_on_event_info_panel_if_necessary(EventIndex evidx)
@@ -96,12 +110,6 @@ void turn_on_event_info_panel_if_necessary(EventIndex evidx)
         if (!menu_is_active(GMnu_TEXT_INFO))
           turn_on_menu(GMnu_TEXT_INFO);
     }
-}
-
-void activate_event_box(EventIndex evidx)
-{
-    struct PlayerInfo* player = get_my_player();
-    set_players_packet_action(player, PckA_EventBoxActivate, evidx, 0,0,0);
 }
 
 void gui_previous_battle(struct GuiButton *gbtn)
@@ -176,8 +184,7 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
     struct Thing* thing = thing_get(battle_creature_over);
     if (thing_exists(thing))
     {
-        struct Packet* pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_ZoomToPosition, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+        move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
     }
 }
 
@@ -259,10 +266,10 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
     int units_per_px = (gbtn->width * 16 + 160 / 2) / 160;
     int wdelta = gbtn->width / 7;
     int scr_pos_x = gbtn->scr_pos_x - wdelta + gbtn->width;
-    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+    RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
         gbtn->width, gbtn->height, colours[0][0][0]);
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+    RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
     for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT-1; battlr_id++)
     {
         int i = friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
@@ -275,10 +282,10 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
               if ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)
               {
                   TbPixel col = player_flash_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
-                  lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
+                  RendererAddDrawFlags((Lb_SPRITE_OUTLINE|0x0004));
                   LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
                     wdelta, gbtn->height, col);
-                  lbDisplay.DrawFlags &= ~(Lb_SPRITE_OUTLINE|0x0004);
+                  RendererClearDrawFlags((Lb_SPRITE_OUTLINE|0x0004));
               }
             }
             scr_pos_x -= wdelta;
@@ -322,10 +329,10 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     int units_per_px = (gbtn->width * 16 + 160 / 2) / 160;
     int wdelta = gbtn->width / 7;
     int scr_pos_x = gbtn->scr_pos_x;
-    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+    RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
         gbtn->width, gbtn->height, colours[0][0][0]);
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+    RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
     for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT-1; battlr_id++)
     {
         int i = enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
@@ -338,10 +345,10 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
               if ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)
               {
                   TbPixel col = player_flash_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
-                  lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
+                  RendererAddDrawFlags((Lb_SPRITE_OUTLINE|0x0004));
                   LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
                     wdelta, gbtn->height, col);
-                  lbDisplay.DrawFlags &= ~(Lb_SPRITE_OUTLINE|0x0004);
+                  RendererClearDrawFlags((Lb_SPRITE_OUTLINE|0x0004));
               }
             }
             scr_pos_x += wdelta;
@@ -403,7 +410,7 @@ void draw_bonus_timer(void)
             width += (width / 8);
         }
     }
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
     if (game.armageddon_cast_turn != 0)
@@ -480,7 +487,7 @@ void draw_timer(void)
             }
         }
     }
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
     if ( (bonus_timer_enabled()) || (script_timer_enabled()) || (display_variable_enabled()) || (game.armageddon_cast_turn != 0) )
@@ -540,7 +547,7 @@ void draw_gameturn_timer(void)
             width += (width / 8);
         }
     }
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = MyScreenHeight - height - 16 * units_per_pixel / 16;
 
@@ -629,7 +636,7 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
         height *= 2;
         width *= 2;
     }
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
     if (game.armageddon_cast_turn != 0)
@@ -688,7 +695,7 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
             width += (width / 3);
         }
     }
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
     if (game.armageddon_cast_turn != 0)
@@ -729,7 +736,7 @@ void draw_consolelog()
 {
     draw_round_slab64k(0, 0, units_per_pixel, lbDisplay.GraphicsScreenWidth, (lbDisplay.GraphicsScreenHeight/2), ROUNDSLAB64K_DARK);
     LbTextSetFont(winfont);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
 
     int text_height = (consolelog_font_size * units_per_pixel) / LbTextLineHeight();
     int draw_ypos = text_height / 2; // Starting ypos
@@ -772,14 +779,14 @@ void draw_consolelog()
             totalLinesDrawn++;
         }
     }
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
 }
 
 void draw_frametime()
 {
     char text[64];
     LbTextSetFont(winfont);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
     int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
     if (tx_units_per_px < 16)
         tx_units_per_px = 16;
@@ -851,14 +858,14 @@ void draw_frametime()
             LbTextDrawResized(0, (iStartLine+i)*tx_units_per_px, tx_units_per_px, text);
     }
 
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
 }
 
 void draw_network_stats()
 {
     char text[128];
     LbTextSetFont(winfont);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
     int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
     if (tx_units_per_px < 16)
         tx_units_per_px = 16;

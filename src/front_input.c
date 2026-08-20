@@ -76,6 +76,7 @@
 #include "packets.h"
 #include "console_cmd.h"
 #include "engine_redraw.h"
+#include "timer.h"
 
 #include "keeperfx.hpp"
 
@@ -96,10 +97,13 @@ unsigned short const zoom_key_room_order[] =
 // define the current GUI layer as the default
 struct GuiLayer gui_layer = {GuiLayer_Default};
 
-TbBool first_person_see_item_desc = false;
+static TbBool first_person_see_item_desc = false;
 
 static TbBool move_camera_this_turn;
 static GameTurn hand_pick_pending_turn;
+
+static int32_t my_mouse_x;
+static int32_t my_mouse_y;
 
 long old_mx;
 long old_my;
@@ -272,13 +276,6 @@ static void update_gui_layer(void)
 {
     // Determine the current/correct GUI Layer to use at this moment
 
-    if (network_is_active()) // no one click on multiplayer.
-    {
-        //todo Make multiplayer work with 1-click
-        set_current_gui_layer(GuiLayer_Default);
-        return;
-    }
-
     struct PlayerInfo* player = get_my_player();
     if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (player->render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, false, true) || is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) )
@@ -450,6 +447,9 @@ static short get_players_message_inputs(void)
         clear_key_pressed(KC_UP);
     } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
         int chpos = strlen(player->mp_message_text);
+        // Skip UTF-8 continuation bytes so the whole last character is removed
+        while ((chpos > 0) && ((player->mp_message_text[chpos-1] & 0xc0) == 0x80))
+            chpos--;
         if (chpos > 0)
             player->mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);
@@ -522,14 +522,12 @@ static void clip_frame_skip(void)
 static void increaseFrameskip(void)
 {
     // Default no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
-    int level = 16;
-    for (int i=0; i<10; i++) {
-        if (game.frame_skip < level)
-            break;
-        level <<= 1;
-    }
-    int adj = level/8;
-    game.frame_skip += adj;
+
+    if (game.frame_skip <= 1)
+        game.frame_skip = 2;
+    else
+        game.frame_skip <<= 1;
+
     clip_frame_skip();
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
@@ -540,14 +538,12 @@ static void increaseFrameskip(void)
 static void decreaseFrameskip(void)
 {
     // Defaul no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
-    int level = 16;
-    for (int i=0; i<10; i++) {
-        if (game.frame_skip <= level)
-            break;
-        level <<= 1;
-    }
-    int adj = level/8;
-    game.frame_skip -= adj;
+    if (game.frame_skip <= 2)
+        game.frame_skip = 0;
+    else
+        game.frame_skip >>= 1;
+
+
     clip_frame_skip();
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
@@ -681,42 +677,23 @@ static short zoom_shortcuts(void)
   return false;
 }
 
-/**
- * Handles minimap control inputs.
- * @return Returns true if packet was created, false otherwise.
- */
 static short get_minimap_control_inputs(void)
 {
-    struct PlayerInfo* player = get_my_player();
-    short packet_made = false;
-    if (is_game_key_pressed(Gkey_ZoomMinimapOut, true, false))
-    {
-        if (menu_is_active(GMnu_MAIN))
-        {
+    if (is_game_key_pressed(Gkey_ZoomMinimapOut, true, false)) {
+        if (menu_is_active(GMnu_MAIN)) {
             fake_button_click(BID_MAP_ZOOM_OU);
         }
-        if (player->minimap_zoom < 2048)
-        {
-            set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0, 0, 0);
-            packet_made = true;
+        gui_zoom_out(NULL);
+        return true;
+    }
+    if (is_game_key_pressed(Gkey_ZoomMinimapIn, true, false)) {
+        if (menu_is_active(GMnu_MAIN)) {
+            fake_button_click(BID_MAP_ZOOM_IN);
         }
-        if (packet_made)
-            return true;
-  }
-  if (is_game_key_pressed(Gkey_ZoomMinimapIn, true, false))
-  {
-      if (menu_is_active(GMnu_MAIN))
-      {
-          fake_button_click(BID_MAP_ZOOM_IN);
-      }
-      if ( player->minimap_zoom > 128 )
-      {
-          set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
-          packet_made = true;
-      }
-      if (packet_made) return true;
-  }
-  return false;
+        gui_zoom_in(NULL);
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -830,7 +807,7 @@ static short get_global_inputs(void)
       }
       else if( flag_is_set(game.operation_flags, GOF_Paused) && flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
       {
-        if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+        if( is_key_pressed(KC_PERIOD, SDL_KMOD_NONE) )
         {
             game.frame_step = true;
             set_packet_pause_toggle();
@@ -955,10 +932,6 @@ static TbBool get_level_lost_inputs(void)
           if (network_is_active()
             || (lbDisplay.PhysicalScreenWidth > 320))
           {
-                if (toggle_status_menu(0))
-                  set_flag(game.operation_flags, GOF_ShowPanel);
-                else
-                  clear_flag(game.operation_flags, GOF_ShowPanel);
                 set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
           } else
           {
@@ -2196,8 +2169,10 @@ static short get_map_action_inputs(void)
 
 static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,TbBool mods_used)
 {
-    // Reserve the scroll wheel for the resurrect and transfer creature specials
-    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || rotate_pressed || mods_used) == 0)
+    // Reserve the scroll wheel for the resurrect and transfer creature specials, and
+    // for the in-game Load/Save menus (there the wheel scrolls the savegame list).
+    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE)
+        || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE) || rotate_pressed || mods_used) == 0)
     {
         // mouse scroll zoom unaffected by frameskip
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
@@ -2235,7 +2210,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
     if (! move_camera_this_turn)
         return;
     // Camera Panning : mouse at window edge scrolling feature
-    if (!LbIsMouseActive())
+    if (!IsMouseInsideWindow())
     {
         return; // don't pan the camera if the mouse has left the window
     }
@@ -2959,7 +2934,7 @@ static short get_inputs(void)
             }
             else if( flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
             {
-                if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+                if( is_key_pressed(KC_PERIOD, SDL_KMOD_NONE) )
                 {
                     game.frame_step = true;
                     set_packet_pause_toggle();

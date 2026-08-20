@@ -904,6 +904,55 @@ void set_player_texture(PlayerNumber plyr_idx, long texture_id)
         }
     }
 }
+
+void initialise_map_collides(void)
+{
+    SYNCDBG(7,"Starting");
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_block(slb_x, slb_y);
+            int ssub_x;
+            int ssub_y;
+            for (ssub_y=0; ssub_y < STL_PER_SLB; ssub_y++)
+            {
+                for (ssub_x=0; ssub_x < STL_PER_SLB; ssub_x++)
+                {
+                    MapSubtlCoord stl_x;
+                    MapSubtlCoord stl_y;
+                    stl_x = slab_subtile(slb_x,ssub_x);
+                    stl_y = slab_subtile(slb_y,ssub_y);
+                    struct Map *mapblk;
+                    mapblk = get_map_block_at(stl_x, stl_y);
+                    mapblk->flags = 0;
+                    update_map_collide(slb->kind, stl_x, stl_y);
+                }
+            }
+        }
+    }
+}
+
+void initialise_map_health(void)
+{
+    SYNCDBG(7,"Starting");
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_block(slb_x, slb_y);
+            struct SlabConfigStats *slabst;
+            slabst = get_slab_stats(slb);
+            slb->health = game.block_health[slabst->block_health_index];
+        }
+    }
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
