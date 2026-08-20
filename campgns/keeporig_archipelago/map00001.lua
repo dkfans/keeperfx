@@ -8,7 +8,7 @@
 MapID = require("map_ids")
 BoxLocations = require("box_locations")
 --SentLocations = require("sent_locations")
-ReceivedLocations = require("received_locations")
+--ReceivedLocations = require("received_locations")
 local map = {level_id = MapID.MAP_001}
 
 --will get called when the game starts
@@ -21,12 +21,16 @@ end
 function OnGameLoad()
       QuickMessage("Game loaded.", "ARCHIPELAGO_ICON")
       RoomAvailable("ALL_PLAYERS", "WORKSHOP", 2, true)
-      BoxLocations.DeleteBoxes(map.level_id) -- doesn't seem to work, don't think it saves the names associated with the items placed if you load.
+      --BoxLocations.DeleteBoxes(map.level_id) -- doesn't seem to work, don't think it saves the names associated with the items placed if you load.
       --BoxLocations.SpawnBoxes(map.level_id)
       BoxLocations.ActivateBoxes(map.level_id)
       --we want something to handle retroactive box removal if you've activated the box and sent the check, and then reloaded to before that.
       --BoxLocations.SpawnBoxes(map.level_id)
 end
+
+--function OnGameSave() -- not a thing, but if it was, could be a way to delete stuff and then respawn it. Same with On ArchipelagoConnect or something.
+--      BoxLocations.DeleteBoxes(map.level_id)
+--end
 
 function OnItemReceived(itemid)
       print("Received item " .. itemid)
@@ -63,8 +67,8 @@ end
 
 function SetupTriggers()
     RegisterSpecialActivatedEvent(function (eventData)
-    local activated_box = eventData.SpecialBoxId
-    print(activated_box)
-    SendLocation(activated_box)
-end)
+      local activated_box = eventData.SpecialBoxId
+      print(activated_box)
+      SendLocation(activated_box)
+      end)
 end
