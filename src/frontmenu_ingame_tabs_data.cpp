@@ -374,8 +374,7 @@ struct GuiButtonInit event_menu_buttons[] = {
 };
 
 struct GuiButtonInit creature_query_buttons1[] = {
-  {LbBtnT_NormalBtn, BID_CRTR_PVPAGE, 0, 1, NULL,                                NULL,                                               NULL,               0,  14, 374,  14, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_pvpage_act, GUIStr_MoreInformation,&creature_query_menu4,{0},    0, NULL },
-  {LbBtnT_NormalBtn,    BID_CRTR_NXPAGE, 0, 1, NULL,                                NULL,                                               NULL,               0,  72, 374,  72, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_MoreInformation,&creature_query_menu2,{0},    0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 1, NULL,                                NULL,                                               NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_MoreInformation,&creature_query_menu2,{0},    0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                                NULL,                                               NULL,               0,  80, 200,  80, 200, 56, 24, gui_area_smiley_anger_button, GPS_rpanel_bar_rounded_empty, GUIStr_CreatureAngerDesc,0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                                NULL,                                               NULL,               0,  80, 230,  80, 230, 56, 24, gui_area_experience_button, GPS_rpanel_bar_rounded_full, GUIStr_ExperienceDesc,   0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, gui_query_next_creature_of_owner,    gui_query_next_creature_of_owner_and_model,         NULL,               0,   4, 266,   4, 266,126, 14, NULL,                              0, GUIStr_NameAndHealthDesc,0,       {0},               0, NULL },
@@ -389,8 +388,7 @@ struct GuiButtonInit creature_query_buttons1[] = {
 };
 
 struct GuiButtonInit creature_query_buttons2[] = {
-  {LbBtnT_NormalBtn, BID_CRTR_PVPAGE, 0, 1, NULL,                                NULL,                                               NULL,               0,  14, 374,  14, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_pvpage_act, GUIStr_MoreInformation,&creature_query_menu1,{0},    0, NULL },
-  {LbBtnT_NormalBtn,    BID_CRTR_NXPAGE, 0, 1, NULL,                                NULL,                                               NULL,               0,  72, 374,  72, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_MoreInformation,&creature_query_menu3,{0},    0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 1, NULL,                                NULL,                                               NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_MoreInformation,&creature_query_menu3,{0},    0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                                NULL,                                               NULL,               0,  80, 200,  80, 200, 56, 24, gui_area_smiley_anger_button, GPS_rpanel_bar_rounded_empty, GUIStr_CreatureAngerDesc,0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                                NULL,                                               NULL,               0,  80, 230,  80, 230, 56, 24, gui_area_experience_button, GPS_rpanel_bar_rounded_full, GUIStr_ExperienceDesc,   0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, gui_query_next_creature_of_owner,    gui_query_next_creature_of_owner_and_model,         NULL,               0,   4, 266,   4, 266,126, 14, NULL,                              0, GUIStr_NameAndHealthDesc,0,       {0},               0, NULL },
@@ -404,8 +402,7 @@ struct GuiButtonInit creature_query_buttons2[] = {
 };
 
 struct GuiButtonInit creature_query_buttons3[] = {
-  {LbBtnT_NormalBtn, BID_CRTR_PVPAGE, 0, 1, NULL,                                NULL,                                               NULL,               0,  14, 374,  14, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_pvpage_act, GUIStr_MoreInformation,&creature_query_menu2,{0},    0, NULL },
-  {LbBtnT_NormalBtn,    BID_CRTR_NXPAGE,    0, 1, NULL,                                NULL,                                               NULL,               0,  72, 374,  72, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_MoreInformation,&creature_query_menu4,          {0}, 0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT,    0, 1, NULL,                                NULL,                                               NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_MoreInformation,&creature_query_menu4,          {0}, 0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT,    0, 0, gui_query_next_creature_of_owner,    gui_query_next_creature_of_owner_and_model,         NULL,               0,   4, 204,   4, 204,126, 14, NULL,                              0, GUIStr_NameAndHealthDesc,0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_QUERY_INFO, 0, 0, NULL,                                NULL,                                               NULL,               0,   4, 226,   4, 226, 60, 24, gui_area_stat_button, GPS_crspell_heal_std_s, GUIStr_CreatureHealthDesc,     0,         {CrLStat_Health}, 0, NULL },
   {LbBtnT_NormalBtn,    BID_QUERY_INFO, 0, 0, NULL,                                NULL,                                               NULL,               0,  72, 226,  72, 226, 60, 24, gui_area_stat_button, GPS_symbols_creatr_stat_strength_std, GUIStr_CreatureStrengthDesc,   0,       {CrLStat_Strength}, 0, NULL },
@@ -421,8 +418,7 @@ struct GuiButtonInit creature_query_buttons3[] = {
 };
 
 struct GuiButtonInit creature_query_buttons4[] = {
-  {LbBtnT_NormalBtn, BID_CRTR_PVPAGE, 0, 1, NULL,                                NULL,                                               NULL,               0,  14, 374,  14, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_pvpage_act, GUIStr_MoreInformation,&creature_query_menu3,{0},    0, NULL },
-  {LbBtnT_NormalBtn,    BID_CRTR_NXPAGE,    0, 1, NULL,                                NULL,                                               NULL,               0,  72, 374,  72, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_MoreInformation,&creature_query_menu1,           {0}, 0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT,    0, 1, NULL,                                NULL,                                               NULL,               0,  44, 374,  44, 374, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_MoreInformation,&creature_query_menu1,           {0}, 0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT,    0, 0, gui_query_next_creature_of_owner,    gui_query_next_creature_of_owner_and_model,         NULL,               0,   4, 204,   4, 204,126, 14, NULL,                              0, GUIStr_NameAndHealthDesc,0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_QUERY_INFO, 0, 0, NULL,                                NULL,                                               NULL,               0,   4, 226,   4, 226, 60, 24, gui_area_stat_button, GPS_crspell_speedup_dis_s, GUIStr_CreatureSpeedDesc,       0,          {CrLStat_Speed}, 0, NULL },
   {LbBtnT_NormalBtn,    BID_QUERY_INFO, 0, 0, NULL,                                NULL,                                               NULL,               0,  72, 226,  72, 226, 60, 24, gui_area_stat_button, GPS_crspell_whip_std_s, GUIStr_CreatureLoyaltyDesc,     0,        {CrLStat_Loyalty}, 0, NULL },
