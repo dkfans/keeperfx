@@ -30,6 +30,8 @@ local BoxLocations = {
     [MapID.MAP_105] = {2601, 2602, 2603, 2604, 2605, 2606, 2607, 2608, 2609},
 }
 
+local APBox = {}
+
 function BoxLocations.SpawnBoxes(level_id)
     local mapBoxIDs = BoxLocations[level_id]
     if not mapBoxIDs then
@@ -39,7 +41,9 @@ function BoxLocations.SpawnBoxes(level_id)
     local first = true
     for _, id in ipairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
         if not SentLocations.Has(id) then -- If it ISN'T in sent_locations , we've not sent it.
-            AddObjectToLevel("SPECBOX_CUSTOM", id, id, "PLAYER_NEUTRAL", 0) -- not perfect, I think this currently would just make extra copies on load.
+            APBox[id] = AddObjectToLevel("SPECBOX_CUSTOM", (id % 100)+100, id, "PLAYER_NEUTRAL", 0) -- not perfect, I think this currently would just make extra copies on load.
+            -- also tell me if doing (id % 100)+100 is stupid - currently set up so all of the Action Points in each level which spawn the Archipelago item are labelled 101+ (i.e. 101 spawns the first in the list e.g. 701 in level 7)
+            -- but if Action Points can be labelled this high we can just do that instead.
             -- we probably want some sort of way to remove these objects if first and then re-add them.
             --QuickMessage("Box " .. id .. " Added.", "ARCHIPELAGO_ICON")
             if not first then message = message .. ", " end
@@ -83,6 +87,10 @@ function BoxLocations.ActivateBoxes(level_id)
                 if not first2 then message2 = message2 .. "." end
                 QuickMessage(message2, "ARCHIPELAGO_ICON")
             end, id)
+        else
+            RegisterSpecialActivatedEvent(function()
+                QuickMessage("Check already sent!", "ARCHIPELAGO_ICON") -- just in case we can't get removal on game load working.
+            end, id)
         end
     end
     if not first then
@@ -90,6 +98,27 @@ function BoxLocations.ActivateBoxes(level_id)
     else
         QuickMessage("No new boxes prepped.", "ARCHIPELAGO_ICON")
     end
+end
+
+function BoxLocations.DeleteBoxes(level_id)
+    local mapBoxIDs = BoxLocations[level_id]
+    if not mapBoxIDs then
+        return
+    end
+    local message = "Boxes Deleted: "
+    local first = true
+    for _, id in ipairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
+        if APBox[id] then
+            APBox[id]: delete()
+            APBox[id] = nil
+            --QuickMessage("Box " .. id .. " Deleted.", "ARCHIPELAGO_ICON")
+            if not first then message = message .. ", " end
+            message = message .. id
+            first = false
+        end
+    end
+    if not first then message = message .. "." end
+    QuickMessage(message, "ARCHIPELAGO_ICON")
 end
 
 return BoxLocations
