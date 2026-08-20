@@ -427,12 +427,33 @@ static void process_player_research(PlayerNumber plyr_idx)
 
     if (research_completed)
     {
+        const char *kind_description;
+
+        switch (rsrchval->rtyp)
+        {
+            case RsCat_Power:
+                kind_description = power_code_name((PowerKind)rsrchval->rkind);
+                break;
+
+            case RsCat_Room:
+                kind_description = room_code_name((RoomKind)rsrchval->rkind);
+                break;
+
+            case RsCat_Creature:
+                kind_description = creature_code_name((ThingModel)rsrchval->rkind);
+                break;
+
+            default:
+                kind_description = "INVALID";
+                break;
+        }
+
         struct ApiEventData event_data[] = {
             {
                 "player",
-               API_EVENT_DATA_INT32,
-               { .int32_value = (int32_t)plyr_idx }
-           },
+                API_EVENT_DATA_INT32,
+                { .int32_value = (int32_t)plyr_idx }
+            },
             {
                 "category",
                 API_EVENT_DATA_INT32,
@@ -442,7 +463,17 @@ static void process_player_research(PlayerNumber plyr_idx)
                 "kind",
                 API_EVENT_DATA_INT32,
                 { .int32_value = (int32_t)rsrchval->rkind }
+            },  
+            {
+                "kind_description",
+                API_EVENT_DATA_STRING,
+                { .string_value = kind_description }
             },
+            {
+                "level_number",
+                API_EVENT_DATA_INT32,
+                { .int32_value = get_loaded_level_number() }
+            }
         };
 
         api_event_with_data(
