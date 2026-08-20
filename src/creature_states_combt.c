@@ -195,6 +195,10 @@ TbBool creature_will_do_combat(const struct Thing *thing)
 long get_combat_distance(const struct Thing *thing, const struct Thing *enmtng)
 {
     long dist = get_2d_distance(&thing->mappos, &enmtng->mappos);
+    if (!((enmtng->class_id == TCls_Door) || (thing->class_id == TCls_Door))) // Doors are positioned at the ceiling, with special code to hit them lower.
+    {
+        dist += (max(thing->mappos.z.val, enmtng->mappos.z.val) - min(thing->mappos.z.val, enmtng->mappos.z.val)) / 2;
+    }
     long avgc = ((long)enmtng->clipbox_size_xy + (long)thing->clipbox_size_xy) / 2;
     if (dist < avgc)
         return 0;
