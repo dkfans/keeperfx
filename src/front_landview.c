@@ -57,6 +57,7 @@
 #include "net_game.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
+#include "api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1250,6 +1251,7 @@ TbBool frontmap_load(void)
     fe_computer_players = 0;
     update_ensigns_visibility();
     SYNCDBG(7,"Finished");
+    api_event("CAMPAIGN_LOADED");
     return true;
 }
 
