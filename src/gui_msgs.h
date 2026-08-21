@@ -40,6 +40,7 @@ enum MessageTypes {
     MsgType_Blank,
     MsgType_CreatureInstance,
     MsgType_Custom,
+    MsgType_CustomIcon,
 };
 /******************************************************************************/
 #pragma pack(1)
@@ -56,7 +57,7 @@ struct GuiMessage {
     unsigned long expiration_turn;
     short target_idx;
     char type;
-short icon_idx;
+    short icon_idx;
 };
 
 #pragma pack()
