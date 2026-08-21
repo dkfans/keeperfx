@@ -960,6 +960,9 @@ void clear_things_and_persons_data(void)
 {
     struct Thing *thing;
     long i;
+    memset(game.thing_lists, 0, sizeof(game.thing_lists));
+    game.ambient_sound_thing_idx = 0;
+    game.nodungeon_creatr_list_start = 0;
     for (i=0; i < THINGS_COUNT; i++)
     {
         thing = &game.things_data[i];
