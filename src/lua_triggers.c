@@ -164,6 +164,25 @@ void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
 	}
 }
 
+void lua_on_spell_apply(SpellKind spell_idx, struct Thing* crtng, unsigned short splevel, PlayerNumber plyr_idx)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnSpellApply");
+    if (lua_isfunction(Lvl_script, -1))
+    {
+        lua_pushstring(Lvl_script, get_conf_parameter_text(spell_desc, spell_idx));
+        lua_pushThing(Lvl_script, crtng);
+        lua_pushinteger(Lvl_script, splevel + 1); // Lua is 1-based, so we add 1 to the level
+        lua_pushPlayer(Lvl_script, plyr_idx);
+
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 5, 0, 0), "OnSpellApply");
+    }
+    else
+    {
+        lua_pop(Lvl_script, 1);
+    }
+}
+
 void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng)
 {
 	SYNCDBG(6,"Starting");

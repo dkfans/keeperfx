@@ -31,6 +31,7 @@ void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg);
 void lua_on_game_start();
 void lua_on_game_tick();
 void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing);
+void lua_on_spell_apply(SpellKind spell_idx, struct Thing* crtng, unsigned short splevel, PlayerNumber plyr_idx);
 void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng);
 void lua_on_dungeon_destroyed(PlayerNumber plyr_idx);
 void lua_on_creature_death(struct Thing *crtng);

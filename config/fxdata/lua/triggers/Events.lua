@@ -45,13 +45,25 @@ function RegisterOnConditionEvent(action, condition)
 end
 
 ---@param action function|string the function to call when the event happens
----@param powerKind? power_kind the spell type that triggers the event
+---@param powerKind? power_kind the power type that triggers the event
 ---@return Trigger
 function RegisterPowerCastEvent(action,powerKind)
     local trigData = {PowerKind = powerKind}
     local trigger = CreateTrigger("PowerCast",action,trigData)
     if powerKind then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.PowerKind == triggerData.PowerKind end)
+    end
+    return trigger
+end
+
+---@param action function|string the function to call when the event happens
+---@param spellKind? spell_kind the spell type that triggers the event
+---@return Trigger
+function RegisterSpellUseEvent(action,spellKind)
+    local trigData = {SpellKind = spellKind}
+    local trigger = CreateTrigger("SpellApply",action,trigData)
+    if spellKind then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.SpellKind == triggerData.SpellKind end)
     end
     return trigger
 end
