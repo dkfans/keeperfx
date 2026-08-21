@@ -7,30 +7,49 @@
 
 MapID = require("map_ids")
 BoxLocations = require("box_locations")
---SentLocations = require("sent_locations")
+SentLocations = require("sent_locations")
 --ReceivedLocations = require("received_locations")
-local map = {level_id = MapID.MAP_001}
+local map = {level_id = MapID.MAP_001.level}
 
+
+--quick debug testing - happens on slap
+function ThingToDoWhenSlapIsCast()
+      local message = "Sent Locations: "
+      for id, value in pairs(SentLocations) do
+            if type(id) == "number" then
+                  message = message .. id .. ", "
+            end
+      end
+      QuickMessage(message, "ARCHIPELAGO_ICON")
+end
 --will get called when the game starts
 function OnGameStart()
 	Setup()
 	SetupTriggers()
+      RunDKScriptCommand("SET_NEXT_LEVEL(1000)")
+      --Some way to load the list of sent checks so far?
+      RegisterPowerCastEvent(ThingToDoWhenSlapIsCast, "POWER_SLAP")
 end
 
 --will get called when the game is loaded from the Save/Load menu
 function OnGameLoad()
       QuickMessage("Game loaded.", "ARCHIPELAGO_ICON")
       RoomAvailable("ALL_PLAYERS", "WORKSHOP", 2, true)
-      --BoxLocations.DeleteBoxes(map.level_id) -- doesn't seem to work, don't think it saves the names associated with the items placed if you load.
-      --BoxLocations.SpawnBoxes(map.level_id)
+      BoxLocations.DeleteBoxes(map.level_id)
+      BoxLocations.SpawnBoxes(map.level_id)
       BoxLocations.ActivateBoxes(map.level_id)
+      RunDKScriptCommand("SET_NEXT_LEVEL(1000)")
       --we want something to handle retroactive box removal if you've activated the box and sent the check, and then reloaded to before that.
       --BoxLocations.SpawnBoxes(map.level_id)
 end
 
---function OnGameSave() -- not a thing, but if it was, could be a way to delete stuff and then respawn it. Same with On ArchipelagoConnect or something.
---      BoxLocations.DeleteBoxes(map.level_id)
---end
+
+
+
+
+
+
+
 
 function OnItemReceived(itemid)
       print("Received item " .. itemid)
@@ -51,8 +70,10 @@ function Setup()
       QuickMessage("Map: " .. map.level_id .. " (" .. MapID.GetName(map.level_id) .. ").", "ARCHIPELAGO_ICON")
       QuickMessage("MapID: " .. tostring(MapID), "ARCHIPELAGO_ICON")
       QuickMessage("BoxLocations: " .. tostring(BoxLocations), "ARCHIPELAGO_ICON")
+      --BoxLocations.DeleteBoxes(map.level_id)
       BoxLocations.SpawnBoxes(map.level_id)
       BoxLocations.ActivateBoxes(map.level_id)
+      --WriteBoxes(map.level_id)
 
       --I assume this isn't good enough. We want it to check if the box has ever been activated/the check has been sent out.
 
@@ -64,6 +85,7 @@ function Setup()
             SetBoxTooltip(id, tooltip)
       end
 end
+
 
 function SetupTriggers()
     RegisterSpecialActivatedEvent(function (eventData)
