@@ -402,7 +402,9 @@ void gui_area_event_button(struct GuiButton *gbtn)
         return;
     }
     struct Event* event = &game.event[evidx];
-    int spr_idx = event_button_info[event->kind].bttn_sprite;
+    int spr_idx = (event->icon_idx >= 0)
+    ? event->icon_idx
+    : event_button_info[event->kind].bttn_sprite;
     if (get_gameturn() % (2 * gui_blink_rate) >= gui_blink_rate) {
         switch (event->kind) {
         case EvKind_Information:
