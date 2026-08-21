@@ -609,6 +609,7 @@ static void set_all_cameras_rotation(struct Camera cams[], int32_t angle)
     cams[CamIV_Parchment].rotation_angle_x = angle;
     cams[CamIV_FrontView].rotation_angle_x = angle;
     cams[CamIV_Isometric].rotation_angle_x = angle;
+    cams[CamIV_Isometric].inertia_rotation = 0;
 }
 
 void process_camera_action(struct Camera cams[], const struct Packet *pckt)
