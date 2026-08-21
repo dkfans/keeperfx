@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_saves.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -181,7 +182,7 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
     // Select font to draw
     int font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
     LbTextSetFont(frontend_font[font_idx]);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     // Set drawing window and draw the text
     int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
     int height = LbTextLineHeight() * tx_units_per_px / 16;

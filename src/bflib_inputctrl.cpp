@@ -591,6 +591,7 @@ void LbSetMouseGrab(TbBool grab_mouse)
         return;
     TbBool previousGrabState = lbMouseGrabbed;
     lbMouseGrabbed = grab_mouse;
+    ws->SetUseRelativeMouse(use_relative_mouse_mode());
     if (lbMouseGrabbed)
     {
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));

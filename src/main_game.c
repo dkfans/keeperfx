@@ -12,6 +12,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -151,7 +152,7 @@ static void init_keepers_map_exploration(void)
 
 /******************************************************************************/
 
-static void init_level(void)
+static TbBool init_level(void)
 {
     SYNCDBG(6,"Starting");
     struct IntralevelData transfer_mem;
@@ -203,20 +204,16 @@ static void init_level(void)
     clear_messages();
     
     // Load the actual level files
-    TbBool script_preloaded = preload_script(get_selected_level_number());
-    if (!load_map_file(get_selected_level_number()))
-    {
-        // TODO: whine about missing file to screen
-        JUSTMSG("Unable to load level %u from %s", get_selected_level_number(), campaign.name);
-        return;
+    int level = get_selected_level_number();
+    TbBool script_preloaded = preload_script(level);
+    if (!load_map_file(level)) {
+        create_frontend_error_box(15000, "Map content is missing or incompatible.");
+        JUSTMSG("Unable to load level %d from %s", level, campaign.name);
+        return false;
     }
-    else
-    {
-        if (script_preloaded == false && luascript_loaded == false)
-        {
-            show_onscreen_msg(200,"%s: No Script %lu", get_string(GUIStr_Error), get_selected_level_number());
-            JUSTMSG("Unable to load script level %u from %s", get_selected_level_number(), campaign.name);
-        }
+    if (!script_preloaded && !luascript_loaded) {
+        show_onscreen_msg(200,"%s: No Script %d", get_string(GUIStr_Error), level);
+        JUSTMSG("Unable to load script level %d from %s", level, campaign.name);
     }
     init_navigation();
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
@@ -257,6 +254,7 @@ static void init_level(void)
     JUSTMSG("Started level %u from %s", get_selected_level_number(), campaign.name);
 
     api_event("GAME_STARTED");
+    return true;
 }
 
 static void post_init_level(void)
@@ -287,7 +285,7 @@ static void post_init_level(void)
 
 /******************************************************************************/
 
-void startup_saved_packet_game(void)
+TbBool startup_saved_packet_game(void)
 {
     struct CatalogueEntry centry;
     clear_packets();
@@ -297,7 +295,7 @@ void startup_saved_packet_game(void)
         ERRORLOG("Unable to load campaign associated with packet file");
     }
     set_selected_level_number(game.packet_save_head.level_num);
-    lbDisplay.DrawColour = colours[15][15][15];
+    RendererSetDrawColour(colours[15][15][15]);
     game.pckt_gameturn = 0;
 #if (BFDEBUG_LEVEL > 0)
     SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
@@ -331,7 +329,8 @@ void startup_saved_packet_game(void)
     IMPRISON_BUTTON_DEFAULT = game.packet_save_head.default_imprison_tendency;
     FLEE_BUTTON_DEFAULT = game.packet_save_head.default_flee_tendency;
     set_skip_heart_zoom_feature(game.packet_save_head.skip_heart_zoom);
-    init_level();
+    if (!init_level())
+        return false;
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
     if (game.active_players_count == 1)
@@ -343,6 +342,7 @@ void startup_saved_packet_game(void)
     set_selected_level_number(0);
     struct PlayerInfo* player = get_my_player();
     set_engine_view(player, rotate_mode_to_view_mode(game.packet_save_head.video_rotate_mode));
+    return true;
 }
 
 static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
@@ -362,7 +362,10 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
         game.local_plyr_idx = default_loc_player;
         my_player_number = default_loc_player;
     }
-    init_level();
+    if (!init_level()) {
+        coroutine_clear(context, true);
+        return;
+    }
     player = get_my_player();
     player->is_active = flgmem;
     //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
@@ -432,7 +435,8 @@ void faststartup_network_game(CoroutineLoop *context)
     player = get_my_player();
     player->is_active = 1;
     startup_network_game(context, true);
-    coroutine_add(context, &set_not_has_quit);
+    if (!context->error)
+        coroutine_add(context, &set_not_has_quit);
 }
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context)

@@ -11,6 +11,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "keeperfx.hpp"
 
 #include "bflib_math.h"
@@ -466,16 +467,16 @@ void gameplay_loop_draw()
     }
     keeper_wait_for_screen_focus();
     // Direct information/error messages
-    if (LbScreenLock() == Lb_SUCCESS) {
+    if (RendererLockFramebuffer() == Lb_SUCCESS) {
         if ( do_draw ) {
             perform_any_screen_capturing();
         }
         draw_onscreen_direct_messages();
-        LbScreenUnlock();
+        RendererUnlockFramebuffer();
     }
     // Move the graphics window to center of screen buffer and swap screen
     if ( do_draw ) {
-        LbScreenSwap();
+        RendererPresentFrame();
     }
     frametime_end_measurement(Frametime_Draw);
 
@@ -719,10 +720,11 @@ static TbBool should_use_delta_time_on_menu()
     }
 }
 
-static void faststartup_saved_packet_game(void)
+static TbBool faststartup_saved_packet_game(void)
 {
     reenter_video_mode();
-    startup_saved_packet_game();
+    if (!startup_saved_packet_game())
+        return false;
     {
         struct PlayerInfo *player;
         player = get_my_player();
@@ -730,6 +732,7 @@ static void faststartup_saved_packet_game(void)
     }
     set_gui_visible(false);
     clear_flag(game.operation_flags, GOF_ShowPanel);
+    return true;
 }
 
 static TbBool wait_at_frontend(void)
@@ -815,6 +818,8 @@ static TbBool wait_at_frontend(void)
         }
         faststartup_network_game(&loop);
         coroutine_process(&loop);
+        if (loop.error)
+            exit_keeper = true;
         return true;
     }
     #endif
@@ -822,7 +827,8 @@ static TbBool wait_at_frontend(void)
     // Prepare to enter PacketLoad game
     if ((game.packet_load_enable) && (!game.packet_load_initialized))
     {
-      faststartup_saved_packet_game();
+      if (!faststartup_saved_packet_game())
+          exit_keeper = true;
       return true;
     }
     // Load single-player level directly from command line arguments (-server and -connect bypass this, autoloading a multiplayer map is handled elsewhere)
@@ -830,6 +836,8 @@ static TbBool wait_at_frontend(void)
     {
       faststartup_network_game(&loop);
       coroutine_process(&loop);
+      if (loop.error)
+          exit_keeper = true;
       return true;
     }
 
@@ -839,8 +847,8 @@ static TbBool wait_at_frontend(void)
       exit_keeper = 1;
       return true;
     }
-    LbScreenClear(0);
-    LbScreenSwap();
+    RendererClearScreen(0);
+    RendererPresentFrame();
     if (frontend_load_data() != Lb_SUCCESS)
     {
       ERRORLOG("Unable to load frontend data");
@@ -848,7 +856,7 @@ static TbBool wait_at_frontend(void)
       return true;
     }
     memset(scratch, 0, PALETTE_SIZE);
-    LbPaletteSet(scratch);
+    RendererPaletteSet(scratch);
     frontend_set_state(get_startup_menu_state());
 
     // Once the Mouse Sprite initialization is complete, the sprite's position needs to be reset because it defaults to (0, 0).
@@ -895,7 +903,7 @@ static TbBool wait_at_frontend(void)
       if ((!finish_menu) && (LbIsActive()))
       {
         frontend_draw();
-        LbScreenSwap();
+        RendererPresentFrame();
       }
 
       if (!SoundDisabled)
@@ -925,8 +933,8 @@ static TbBool wait_at_frontend(void)
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
-    LbScreenClear(0);
-    LbScreenSwap();
+    RendererClearScreen(0);
+    RendererPresentFrame();
     FrontendMenuState prev_state;
     prev_state = frontend_menu_state;
     frontend_set_state(FeSt_INITIAL);
@@ -962,8 +970,8 @@ static TbBool wait_at_frontend(void)
     case FeSt_LOAD_GAME:
           flgmem = game.save_game_slot;
           clear_flag(game.system_flags, GSF_NetworkActive);
-          LbScreenClear(0);
-          LbScreenSwap();
+          RendererClearScreen(0);
+          RendererPresentFrame();
           if (!load_game(game.save_game_slot))
           {
               ERRORLOG("Loading game %d failed; quitting.",(int)game.save_game_slot);
@@ -973,13 +981,17 @@ static TbBool wait_at_frontend(void)
           break;
     case FeSt_PACKET_DEMO:
           game.mode_flags |= MFlg_IsDemoMode;
-          startup_saved_packet_game();
-          set_gui_visible(false);
-          clear_flag(game.operation_flags, GOF_ShowPanel);
+          if (!startup_saved_packet_game())
+              coroutine_clear(&loop, true);
+          else {
+              set_gui_visible(false);
+              clear_flag(game.operation_flags, GOF_ShowPanel);
+          }
           break;
     }
 
-    coroutine_add(&loop, &set_not_has_quit);
+    if (!loop.error)
+        coroutine_add(&loop, &set_not_has_quit);
     coroutine_process(&loop);
     if (loop.error)
     {
@@ -1067,13 +1079,13 @@ void game_loop(void)
           }
           memset(&Timer, 0, sizeof(Timer));
       }
-      LbScreenClear(0);
-      LbScreenSwap();
+      RendererClearScreen(0);
+      RendererPresentFrame();
       game.frame_skip = 0;
       keeper_gameplay_loop();
       set_pointer_graphic_none();
-      LbScreenClear(0);
-      LbScreenSwap();
+      RendererClearScreen(0);
+      RendererPresentFrame();
       stop_atmos_sounds();
       stop_music(true);
       stop_streamed_samples();

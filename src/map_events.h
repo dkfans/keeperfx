@@ -73,6 +73,7 @@ enum EventKinds {
 enum EventFlags {
     EvF_Exists       = 0x0001,
     EvF_BtnFirstFall = 0x0002, /*< Informs whether the button is falling for a first time. */
+    EvF_BtnFalling   = 0x0004,
 };
 
 /******************************************************************************/

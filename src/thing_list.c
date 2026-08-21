@@ -288,7 +288,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
                 struct Thing* traptng = thing_get(param->primary_number);
-                if (players_are_enemies(traptng->owner, thing->owner) || is_neutral_thing(traptng))
+                if (players_are_enemies(traptng->owner, thing->owner) || (is_neutral_thing(traptng) && !is_neutral_thing(thing)))
                 {
                     if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing) && !thing_is_picked_up(thing)
                         && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing)

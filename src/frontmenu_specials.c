@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_specials.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -143,8 +144,8 @@ void select_resurrect_creature(struct GuiButton *gbtn)
 
 void draw_resurrect_creature(struct GuiButton *gbtn)
 {
-    unsigned short flg_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
+    unsigned short flg_mem = RendererGetDrawFlags();
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR4);
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height, 0);
     LbTextSetFont(winfont);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
@@ -155,7 +156,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
         struct CreatureModelConfig* crconf = creature_stats_get(cstore->model);
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+        RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
         long spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
         const struct TbSprite* spr = get_panel_sprite(spr_idx);
         int x = gbtn->scr_pos_x - scale_ui_value_lofi(1);
@@ -169,7 +170,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         int h = scale_ui_value_lofi(gbtn->height) / 16;
         int w = scale_ui_value_lofi(spr->SWidth + 2);
         LbTextDrawResizedFmt(w, h, tx_units_per_px, "%s", get_string(crconf->namestr_idx));
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+        RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
         if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
         {
             LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cstore->exp_level+1));
@@ -179,7 +180,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
             LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cstore->exp_level+1));
         }
     }
-    lbDisplay.DrawFlags = flg_mem;
+    RendererSetDrawFlags(flg_mem);
 }
 
 void select_resurrect_creature_up(struct GuiButton *gbtn)
@@ -228,8 +229,8 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     if (gbtn == NULL)
       return;
     SYNCDBG(7,"Starting");
-    unsigned long flgmem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
+    unsigned long flgmem = RendererGetDrawFlags();
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR4);
     LbTextSetFont(winfont);
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height, 0); // The 0 means black color
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
@@ -245,7 +246,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     {
         const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+        RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
         long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
         const struct TbSprite* spr = get_panel_sprite(spr_idx);
         int x = gbtn->scr_pos_x - scale_ui_value_lofi(1);
@@ -258,7 +259,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         int h = scale_ui_value_lofi(gbtn->height)/16;
         int w = scale_ui_value_lofi(spr->SWidth + 2);
         LbTextDrawResizedFmt(w, h, tx_units_per_px, "%s", get_string(crconf->namestr_idx));
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+        RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
         if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
         {
             LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cctrl->exp_level+1));
@@ -268,7 +269,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
             LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cctrl->exp_level+1));
         }
     }
-    lbDisplay.DrawFlags = flgmem;
+    RendererSetDrawFlags(flgmem);
 }
 
 void select_transfer_creature_up(struct GuiButton *gbtn)

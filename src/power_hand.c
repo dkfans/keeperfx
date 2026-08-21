@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "power_hand.h"
 
 #include "globals.h"
@@ -541,7 +542,7 @@ void draw_power_hand(void)
         return;
     if (game.small_map_state == 2)
         return;
-    lbDisplay.DrawFlags = 0x00;
+    RendererSetDrawFlags(0x00);
     if (player->view_type != PVT_DungeonTop)
         return;
     // Color rendering array pointers used by draw_keepersprite()
@@ -648,13 +649,13 @@ void draw_power_hand(void)
                 struct CreatureModelConfig* crconf = creature_stats_get(picktng->model);
                 if (crconf->transparency_flags == TRF_Transpar_8)
                 {
-                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-                    lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
+                    RendererAddDrawFlags(Lb_SPRITE_TRANSPAR8);
+                    RendererClearDrawFlags(Lb_SPRITE_REMAP);
                 }
                 else if (crconf->transparency_flags == TRF_Transpar_4)
                 {
-                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-                    lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
+                    RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
+                    RendererClearDrawFlags(Lb_SPRITE_REMAP);
                 }
                 else if(crconf->transparency_flags == TRF_Transpar_Alpha)
                 {
@@ -663,7 +664,7 @@ void draw_power_hand(void)
 
                 process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
                     picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
-                lbDisplay.DrawFlags = 0;
+                RendererSetDrawFlags(0);
                 EngineSpriteDrawUsingAlpha = 0;
             } else
             {

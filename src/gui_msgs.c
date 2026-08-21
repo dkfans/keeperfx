@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "gui_msgs.h"
 #include <stdarg.h>
 
@@ -67,7 +68,7 @@ void message_draw(void)
         {
             long x = 148 * units_per_pixel / 16;
             LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-            clear_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
+            RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
             LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, game.messages[i].text);
             unsigned long spr_idx = 0;
             PlayerNumber plyr_idx = game.messages[i].plyr_idx;
@@ -128,6 +129,11 @@ void message_draw(void)
                     y -= (10 * units_per_pixel / 16);
                     break;
                 }
+                case MsgType_Custom:
+                {
+                    spr_idx = game.messages[i].plyr_idx;
+                    break;
+                }
                 case MsgType_Blank:
                 {
                     break;
@@ -171,6 +177,7 @@ void message_draw(void)
                 case MsgType_KeeperSpell:
                 case MsgType_Query:
                 case MsgType_CreatureInstance:
+                case MsgType_Custom:
                 {
                     spr = get_panel_sprite(spr_idx);
                     LbSpriteDrawResized(x, y, ps_units_per_px, spr);
@@ -264,15 +271,15 @@ void delete_message(unsigned char msg_idx)
     game.active_messages_count--;
 }
 
-void message_add(char type, PlayerNumber plyr_idx, const char *text)
+void message_add(char type, short idx, const char *text)
 {
-    SYNCDBG(2,"Player %d: %s",(int)plyr_idx,text);
+    SYNCDBG(2,"Player %d: %s",idx,text);
     for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
     {
         memcpy(&game.messages[i], &game.messages[i-1], sizeof(struct GuiMessage));
     }
     snprintf(game.messages[0].text, sizeof(game.messages[0].text), "%s", text);
-    game.messages[0].plyr_idx = plyr_idx;
+    game.messages[0].plyr_idx = idx;
     game.messages[0].expiration_turn = get_gameturn() + GUI_MESSAGES_DELAY;
     game.messages[0].target_idx = -1;
     game.messages[0].type = type;
@@ -300,13 +307,13 @@ void message_add_custom_icon(short icon_idx, const char *text)
     }
 }
 
-void message_add_fmt(char type, PlayerNumber plyr_idx, const char *fmt_str, ...)
+void message_add_fmt(char type, short idx, const char *fmt_str, ...)
 {
     static char full_msg_text[2048];
     va_list val;
     va_start(val, fmt_str);
     vsnprintf(full_msg_text, sizeof(full_msg_text), fmt_str, val);
-    message_add(type, plyr_idx, full_msg_text);
+    message_add(type, idx, full_msg_text);
     va_end(val);
 }
 

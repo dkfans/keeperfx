@@ -1270,9 +1270,9 @@ static void tag_map_rect_check(const struct ScriptLine* scline)
         SCRPTWRNLOG("Ending Y slab '%d' (from %d+%d/2) is out of range, fixing it to '%d'.", end_y, y, height, game.map_tiles_y);
         end_y = game.map_tiles_y;
     }
-    if ((x < 0) || (x > game.map_tiles_y) || (y < 0) || (y > game.map_tiles_y))
+    if ((x < 0) || (x > game.map_tiles_x) || (y < 0) || (y > game.map_tiles_y))
     {
-        SCRPTERRLOG("Conceal slabs out of range, trying to set conceal center point to (%d,%d) on map that's %dx%d slabs", x, y, game.map_tiles_x, game.map_tiles_y);
+        SCRPTERRLOG("Tag slabs out of range, trying to set tag center point to (%d,%d) on map that's %dx%d slabs", x, y, game.map_tiles_x, game.map_tiles_y);
         DEALLOCATE_SCRIPT_VALUE
             return;
     }
@@ -5820,7 +5820,7 @@ static void quick_message_check(const struct ScriptLine* scline)
     }
     else
     {
-        get_chat_icon_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
+	get_chat_icon_from_value(scline->tp[2], &value->shorts[4], &value->chars[6]);
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -5833,7 +5833,7 @@ static void quick_message_process(struct ScriptContext* context)
     }
     else
     {
-        message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", game.quick_messages[context->value->ulongs[0]]);
+	message_add_fmt(context->value->chars[6], context->value->shorts[4], "%s", game.quick_messages[context->value->ulongs[0]]);
     }
 }
 
@@ -5855,7 +5855,7 @@ static void display_message_check(const struct ScriptLine* scline)
     }
     else
     {
-        get_chat_icon_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
+    	get_chat_icon_from_value(scline->tp[1], &value->shorts[4], &value->chars[7]);
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -5868,7 +5868,7 @@ static void display_message_process(struct ScriptContext* context)
     }
     else
     {
-        message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", get_string(context->value->ulongs[0]));
+    	message_add_fmt(context->value->chars[7], context->value->shorts[4], "%s", get_string(context->value->ulongs[0]));
     }
 }
 

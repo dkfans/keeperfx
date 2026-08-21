@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include <assert.h>
 
 #include "thing_creature.h"
@@ -384,7 +385,7 @@ void draw_swipe_graphic(void)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (instance_draws_possession_swipe(cctrl->instance_id))
         {
-            lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
+            RendererSetDrawFlags(Lb_SPRITE_TRANSPAR4);
             long n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
             long allwidth = 0;
             long i = max(((abs(n) >> 8) -1),0);
@@ -424,7 +425,7 @@ void draw_swipe_graphic(void)
                 }
             } else
             {
-                lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_FLIP_HORIZ;
+                RendererSetDrawFlags(Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_FLIP_HORIZ);
                 for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
                 {
                     spr = &sprlist[SWIPE_SPRITES_X+i];
@@ -439,7 +440,7 @@ void draw_swipe_graphic(void)
                     scrpos_y += delta_y;
                 }
             }
-            lbDisplay.DrawFlags = 0;
+            RendererSetDrawFlags(0);
             return;
         }
     }
@@ -3697,6 +3698,10 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         {
           flag1 = true;
           pos1.z.val = pos2.z.val;
+        }
+        else if (target->class_id == TCls_Door)
+        {
+            pos2.z.val = pos1.z.val;
         }
         angle_xy = get_angle_xy_to(&pos1, &pos2);
         angle_yz = get_angle_yz_to(&pos1, &pos2);

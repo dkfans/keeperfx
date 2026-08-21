@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 
 #include "thing_effects.h"
 
@@ -801,7 +802,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         if (thing->health == i)
         {
           LbPaletteStopOpenFade();
-          LbPaletteSet(temp_pal);
+          RendererPaletteSet(temp_pal);
         } else
         if (thing->health > 0)
         {

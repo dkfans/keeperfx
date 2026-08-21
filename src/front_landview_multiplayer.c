@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_landview.h"
 
 #include "globals.h"
@@ -317,7 +318,7 @@ static void draw_netmap_players_hands(void)
         LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
         w = LbTextStringWidth(plyr_nam);
         if (w > 0) {
-            lbDisplay.DrawFlags = 0;
+            RendererSetDrawFlags(0);
             h = LbTextHeight(level_name);
             y += 32;
             x += 32;
@@ -445,7 +446,7 @@ TbBool frontnetmap_load(void)
     set_pointer_graphic_none();
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     map_sound_fade = FULL_LOUDNESS;
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     set_music_volume(settings.music_volume);
     frontmap_start_music();
     if (fe_network_active) {

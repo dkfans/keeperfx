@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "engine_redraw.h"
 
 #include "globals.h"
@@ -128,8 +129,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
                 }
             }
             LbTextSetWindow(x + scale_ui_value_lofi(spr->SWidth / 2), y - scale_ui_value_lofi(spr->SHeight), w, h);
-            lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-            lbDisplay.DrawColour = LbTextGetFontFaceColor();
+            RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
+            RendererSetDrawColour(LbTextGetFontFaceColor());
             lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
             char text[16];
             snprintf(text, sizeof(text), "%u", (cctrl->timebomb_countdown / turns_per_second));
@@ -515,9 +516,9 @@ void draw_overlay_compass(long base_x, long base_y)
     struct PlayerInfo* player = get_my_player();
     struct Camera* camera = get_player_active_camera(player);
     struct Camera* cam = get_local_camera(camera);
-    unsigned short flg_mem = lbDisplay.DrawFlags;
+    unsigned short flg_mem = RendererGetDrawFlags();
     LbTextSetFont(winfont);
-    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+    RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     int units_per_px = (16 * status_panel_width + 140 / 2) / 140;
     int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
@@ -545,7 +546,7 @@ void draw_overlay_compass(long base_x, long base_y)
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapW));
     }
-    lbDisplay.DrawFlags = flg_mem;
+    RendererSetDrawFlags(flg_mem);
 }
 
 void redraw_creature_view(void)
@@ -991,7 +992,7 @@ void redraw_display(void)
     }
     //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     LbTextSetFont(winfont);
-    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
+    RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
     int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
@@ -1011,9 +1012,9 @@ void redraw_display(void)
     }
     if ( draw_spell_cost )
     {
-        unsigned short drwflags_mem = lbDisplay.DrawFlags;
+        unsigned short drwflags_mem = RendererGetDrawFlags();
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-        lbDisplay.DrawFlags = 0;
+        RendererSetDrawFlags(0);
         LbTextSetFont(winfont);
         char text[16];
         if (draw_spell_cost > 0)
@@ -1023,7 +1024,7 @@ void redraw_display(void)
         long pos_y = GetMouseY() - (LbTextStringHeight(text) * units_per_pixel / 16) / 2 - 2 * units_per_pixel / 16;
         long pos_x = GetMouseX() - (LbTextStringWidth(text) * units_per_pixel / 16) / 2;
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
-        lbDisplay.DrawFlags = drwflags_mem;
+        RendererSetDrawFlags(drwflags_mem);
         draw_spell_cost = 0;
     }
     if (bonus_timer_enabled())
@@ -1076,7 +1077,7 @@ void redraw_display(void)
               pos_x = (MyScreenWidth-w)/2;
           }
           long pos_y = 16 * units_per_pixel / 16;
-          lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+          RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
           long h = LbTextLineHeight() * units_per_pixel / 16;
           int text_w = w;
           int text_x = pos_x;
@@ -1113,7 +1114,7 @@ void redraw_display(void)
         i = LbTextCharWidth(' ')*units_per_pixel/16;
         long w = LbTextStringWidth(text) * units_per_pixel / 16 + 6 * i;
         i = LbTextLineHeight()*units_per_pixel/16;
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+        RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
         long h = pixel_size * i + pixel_size * i / 2;
         if (MyScreenHeight < 400)
         {
@@ -1140,16 +1141,16 @@ TbBool keeper_screen_redraw(void)
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
     if (lens_mode != 0) {
-        LbScreenClear(144); // Very dark green
+        RendererClearScreen(144); // Very dark green
     } else {
-        LbScreenClear(0);
+        RendererClearScreen(0);
     }
-    if (LbScreenLock() == Lb_SUCCESS)
+    if (RendererLockFramebuffer() == Lb_SUCCESS)
     {
         setup_engine_window(player->engine_window_x, player->engine_window_y,
             player->engine_window_width, player->engine_window_height);
         redraw_display();
-        LbScreenUnlock();
+        RendererUnlockFramebuffer();
         return true;
     }
     return false;

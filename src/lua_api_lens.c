@@ -29,6 +29,7 @@
 #include "lens_api.h"
 
 #include "keeperfx.hpp"
+#include "kfx/renderer/RendererManager.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -642,9 +643,8 @@ static int lua_Blend_color_batch(lua_State *L)
     int buf_height = (int)buf_info->height;
     int buf_pitch = (int)buf_info->pitch;
     
-    // Get active palette from display system (already declared in bflib_video.h)
-    unsigned char* palette = lbDisplay.Palette;
-    
+    const unsigned char* palette = RendererGetActivePalette();
+
     // Get number of operations
 #if LUA_VERSION_NUM >= 502
     int num_ops = (int)lua_rawlen(L, 2);
@@ -873,7 +873,7 @@ static int lua_Build_darkening_lut(lua_State *L)
     if (strength > 1.0) strength = 1.0;
     
     // Get active palette
-    unsigned char* palette = lbDisplay.Palette;
+    const unsigned char* palette = RendererGetActivePalette();
     if (palette == NULL) {
         ERRORLOG("LUA: BuildDarkeningLUT - palette not available");
         lua_pushnil(L);
