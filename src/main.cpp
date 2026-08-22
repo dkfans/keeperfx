@@ -1316,15 +1316,25 @@ void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation 
 
 void set_general_objective(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    process_objective(get_string(msg_id), plyr_idx, target, x, y);
+    set_general_objective_with_icon(msg_id, plyr_idx, target, x, y, -1);
+}
+
+void set_general_objective_with_icon(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx)
+{
+    process_objective_with_icon(get_string(msg_id), plyr_idx, target, x, y, icon_idx);
 }
 
 void process_objective(const char *msg_text, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
+    process_objective_with_icon(msg_text, plyr_idx, target, x, y, -1);
+}
+
+void process_objective_with_icon(const char *msg_text, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx)
+{
     struct PlayerInfo *player = get_player(plyr_idx);
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     set_level_objective(player->id_number, msg_text);
-    display_objectives(player->id_number, x, y);
+    display_objectives_with_icon(player->id_number, x, y, icon_idx);
 }
 
 short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count)

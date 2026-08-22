@@ -402,13 +402,15 @@ void gui_area_event_button(struct GuiButton *gbtn)
         return;
     }
     struct Event* event = &game.event[evidx];
+    
     int spr_idx = (event->icon_idx >= 0)
     ? event->icon_idx
     : event_button_info[event->kind].bttn_sprite;
 
-    if (event->kind == EvKind_QuickInformation &&
-    is_custom_icon(event->icon_idx) &&
-    evidx == my_visible_event_idx) {
+    if ((event->kind == EvKind_Objective || event->kind == EvKind_Information ||
+         event->kind == EvKind_QuickInformation) &&
+        is_custom_icon(event->icon_idx) &&
+        evidx == my_visible_event_idx) {
         spr_idx++;
     }
 

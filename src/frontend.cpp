@@ -3465,6 +3465,11 @@ void update_player_objectives(PlayerNumber plyr_idx)
 
 void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
 {
+    display_objectives_with_icon(plyr_idx, x, y, -1);
+}
+
+void display_objectives_with_icon(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, short icon_idx)
+{
     MapCoord cor_x;
     MapCoord cor_y;
     cor_y = 0;
@@ -3485,7 +3490,8 @@ void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
         event = &game.event[evidx];
         if (event->kind == EvKind_Objective)
         {
-            event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);
+            event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);         
+            game.event[evidx].icon_idx = icon_idx;
             return;
         }
     }
@@ -3498,9 +3504,25 @@ void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
             cor_y = creatng->mappos.y.val;
         }
         event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index);
+       
+        struct Event *event = get_event_of_type_for_player(
+            EvKind_Objective, plyr_idx);
+
+        if (!event_is_invalid(event))
+        {
+            event->icon_idx = icon_idx;
+        }
     } else
     {
         event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);
+       
+        struct Event *event = get_event_of_type_for_player(
+            EvKind_Objective, plyr_idx);
+
+        if (!event_is_invalid(event))
+        {
+            event->icon_idx = icon_idx;
+        }
     }
 }
 
