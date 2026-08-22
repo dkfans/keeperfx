@@ -410,7 +410,9 @@ void gui_area_event_button(struct GuiButton *gbtn)
         case EvKind_Information:
         case EvKind_QuickInformation:
             if (!(my_event_button_state[evidx] & EvBtnS_Read)) {
-                spr_idx += 2;
+                if (!is_custom_icon(event->icon_idx) || get_custom_icon_frame_count(event->icon_idx) >= 3) {
+                    spr_idx += 2;
+                }
             }
             break;
         case EvKind_FriendlyFight:
