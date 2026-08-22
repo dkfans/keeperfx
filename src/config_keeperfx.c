@@ -209,8 +209,8 @@ const struct NamedCommand conf_commands[] = {
   };
 
   const struct NamedCommand rotate_around_mouse_options[] = {
-  {"ROTATION_KEYS", RotateAroundMouse_NotCtrl},
-  {"MOVEMENT_KEYS", RotateAroundMouse_OnlyCtrl},
+  {"ROTATION_KEYS", RotateAroundMouse_RotationKeys},
+  {"MOVEMENT_KEYS", RotateAroundMouse_MovementKeys},
   {NULL,            0},
   };
 
