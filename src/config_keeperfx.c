@@ -204,10 +204,14 @@ const struct NamedCommand conf_commands[] = {
   };
 
   const struct NamedCommand zoom_to_mouse_options[] = {
-  {"NEVER",    ZoomToMouse_Never},
   {"WHEEL",    ZoomToMouse_Wheel},
-  {"ALWAYS",   ZoomToMouse_Always},
   {NULL,       0},
+  };
+
+  const struct NamedCommand rotate_around_mouse_options[] = {
+  {"ROTATION_KEYS", RotateAroundMouse_NotCtrl},
+  {"MOVEMENT_KEYS", RotateAroundMouse_OnlyCtrl},
+  {NULL,            0},
   };
 
 unsigned int vid_scale_flags = SMK_FullscreenFit;
@@ -943,26 +947,52 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           break;
       case 42: // ZOOM_TO_MOUSE
-          i = recognize_conf_parameter(buf,&pos,len,zoom_to_mouse_options);
-          if (i <= 0)
+          i = recognize_conf_parameter(buf, &pos, len, logicval_type);
+          if (i == 1)
           {
-            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+              zoom_to_mouse_option = ZoomToMouse_Always;
+              break;
           }
-          else
+          else if (i == 2)
           {
-            zoom_to_mouse_option = i;
+              zoom_to_mouse_option = ZoomToMouse_Never;
+              break;
           }
+          else if (i <= 0)
+          {
+              i = recognize_conf_parameter(buf, &pos, len, zoom_to_mouse_options);
+              if (i > 0)
+              {
+                  zoom_to_mouse_option = i;
+                  break;
+              }
+          }
+          CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                     COMMAND_TEXT(cmd_num), config_textname);
           break;
       case 43: // ROTATE_AROUND_MOUSE
           i = recognize_conf_parameter(buf, &pos, len, logicval_type);
-          if (i <= 0)
+          if (i == 1)
           {
-            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+              rotate_around_mouse_option = RotateAroundMouse_Always;
+              break;
           }
-          else
+          else if (i == 2)
           {
-              rotate_around_mouse_option = (i==1);
+              rotate_around_mouse_option = RotateAroundMouse_Never;
+              break;
           }
+          else if (i <= 0)
+          {
+              i = recognize_conf_parameter(buf, &pos, len, rotate_around_mouse_options);
+              if (i > 0)
+              {
+                rotate_around_mouse_option = i;
+                break;
+              }
+          }
+          CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                     COMMAND_TEXT(cmd_num), config_textname);
           break;
       case 44: // VSYNC
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
