@@ -93,6 +93,7 @@ struct Event {
     int32_t target;
     /** Button lifespan, decreased over time. When reaches 0, the button disappears. */
     uint32_t lifespan_turns;
+    /** Custom button icon sprite index; -1 uses the default event icon. */
     short icon_idx;
 };
 

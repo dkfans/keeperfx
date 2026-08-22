@@ -44,6 +44,7 @@ struct ScriptValue *allocate_script_value(void)
 
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id)
 {
+    memset(value->bytes, 0, sizeof(value->bytes));
     set_flag_value(value->flags, TrgF_REUSABLE, next_command_reusable);
     clear_flag(value->flags, TrgF_DISABLED);
     value->valtype = var_index;
