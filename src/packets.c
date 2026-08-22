@@ -977,7 +977,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_SaveViewType:
     {
             struct Camera* camera = get_player_active_camera(player);
-            if (camera != NULL)
+            if (camera != NULL && player->view_type != pckt->actn_par1)
                 player->view_mode_restore = camera->view_mode;
       set_player_mode(player, pckt->actn_par1);
       return false;
