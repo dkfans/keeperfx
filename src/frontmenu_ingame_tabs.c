@@ -405,13 +405,20 @@ void gui_area_event_button(struct GuiButton *gbtn)
     int spr_idx = (event->icon_idx >= 0)
     ? event->icon_idx
     : event_button_info[event->kind].bttn_sprite;
+
+    if (event->kind == EvKind_QuickInformation &&
+    is_custom_icon(event->icon_idx) &&
+    evidx == my_visible_event_idx) {
+        spr_idx++;
+    }
+
     if (get_gameturn() % (2 * gui_blink_rate) >= gui_blink_rate) {
         switch (event->kind) {
         case EvKind_Information:
         case EvKind_QuickInformation:
             if (!(my_event_button_state[evidx] & EvBtnS_Read)) {
                 if (!is_custom_icon(event->icon_idx) || get_custom_icon_frame_count(event->icon_idx) >= 3) {
-                    spr_idx += 2;
+                    spr_idx += 2;                              
                 }
             }
             break;
@@ -429,7 +436,9 @@ void gui_area_event_button(struct GuiButton *gbtn)
         draw_y = interpolate_synced(gbtn->scr_pos_y - gbtn->height, gbtn->scr_pos_y);
     }
     if (!gbtn->button_state_left_pressed && !gbtn->button_state_right_pressed && evidx != my_visible_event_idx) {
-        spr_idx++;
+        if (!is_custom_icon(event->icon_idx)) {
+            spr_idx++;
+        }
     }
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_message_rpanel_msg_questn_act, 100);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, draw_y, ps_units_per_px, spr_idx);
