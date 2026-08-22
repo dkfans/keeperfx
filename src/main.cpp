@@ -61,6 +61,7 @@
 #include "config_slabsets.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
+#include "front_landview.h"
 #include "config_terrain.h"
 #include "config_objects.h"
 #include "config_magic.h"
@@ -1261,19 +1262,16 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
 
 void set_general_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct PlayerInfo *player = get_player(plyr_idx);
-    MapCoord pos_x = 0;
-    MapCoord pos_y = 0;
-    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
-    if ((x != 0) || (y != 0))
-    {
-        pos_y = subtile_coord_center(y);
-        pos_x = subtile_coord_center(x);
-    }
-    event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
+    set_general_information_with_icon(
+        msg_id,
+        plyr_idx,
+        target,
+        x,
+        y,
+        -1);
 }
 
-void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+void set_general_information_with_icon(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
     MapCoord pos_x = 0;
@@ -1284,7 +1282,36 @@ void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation 
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
-    event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
+    struct Event* event = event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
+    if (!event_is_invalid(event))
+        event->icon_idx = icon_idx;
+}
+
+void set_quick_information_with_icon(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx)
+{
+    struct PlayerInfo *player = get_player(plyr_idx);
+    MapCoord pos_x = 0;
+    MapCoord pos_y = 0;
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
+    struct Event* event = event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
+    if (!event_is_invalid(event))
+        event->icon_idx = icon_idx;
+}
+
+void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
+{
+    set_quick_information_with_icon(
+        msg_id,
+        plyr_idx,
+        target,
+        x,
+        y,
+        -1);
 }
 
 void set_general_objective(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
