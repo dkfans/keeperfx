@@ -408,6 +408,7 @@ struct SpellConfig {
     uint32_t spell_flags;
     uint32_t cleanse_flags;
     unsigned char properties_flags;
+    FuncIdx magic_use_func_idx;
 };
 
 struct MagicConfig {
