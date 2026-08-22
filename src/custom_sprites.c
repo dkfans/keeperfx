@@ -2058,16 +2058,6 @@ short get_icon_id(const char *name)
     return bad_icon_id; // -1 is used by SPELLBOOK_POSS etc
 }
 
-static short get_custom_icon_id(const char *name)
-{
-    short icon_id = get_icon_id(name);
-
-    if (icon_id == bad_icon_id)
-        return -1;
-
-    return icon_id;
-}
-
 short get_anim_id(const char *name, struct ObjectConfigStats *objst)
 {
     short ret = atoi(name);
