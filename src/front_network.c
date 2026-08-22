@@ -429,11 +429,14 @@ static TbBool check_frontend_version_mismatch(void)
   if (remote_id == -1 || (!player_joined && !start_requested)) {
     return remote_id != -1;
   }
+  if (my_player_number != SERVER_ID) {
+    remote_id = SERVER_ID;
+  }
   const struct NetUser *remote_user = &netstate.users[remote_id];
   char text[MESSAGE_TEXT_LEN];
-  snprintf(text, sizeof(text), "%s\n%s: %d.%d.%d.%d\n%s: %d.%d.%d.%d",
+  snprintf(text, sizeof(text), "%s\n%s: %s\n%s: %d.%d.%d.%d",
       get_string(GUIStr_VersionMismatch),
-      network_player_name(SERVER_ID), (int)host_user->version.major, (int)host_user->version.minor, (int)host_user->version.release, (int)host_user->version.build,
+      network_player_name(my_player_number), VER_STRING,
       network_player_name(remote_id), (int)remote_user->version.major, (int)remote_user->version.minor, (int)remote_user->version.release, (int)remote_user->version.build);
   create_frontend_error_box(10000, text);
   return true;
