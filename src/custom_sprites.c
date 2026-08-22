@@ -2058,7 +2058,7 @@ short get_icon_id(const char *name)
     return bad_icon_id; // -1 is used by SPELLBOOK_POSS etc
 }
 
-short get_custom_icon_id(const char *name)
+static short get_custom_icon_id(const char *name)
 {
     short icon_id = get_icon_id(name);
 
