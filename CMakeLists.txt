@@ -24,10 +24,12 @@ foreach(_v VER_MAJOR VER_MINOR VER_RELEASE VER_BUILD)
         message(FATAL_ERROR "version.mk is missing ${_v}")
     endif()
 endforeach()
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/version.mk")
 
-# Override via -DBUILD_NUMBER=<n> -DPACKAGE_SUFFIX=<s>; used for the CPack name.
-set(BUILD_NUMBER   "${VER_BUILD}" CACHE STRING "Monotonic build number")
-set(PACKAGE_SUFFIX ""             CACHE STRING "Distribution suffix (e.g. Alpha, Release)")
+if(NOT DEFINED BUILD_NUMBER)
+    set(BUILD_NUMBER "${VER_BUILD}")
+endif()
+set(PACKAGE_SUFFIX ""  CACHE STRING "Distribution suffix (e.g. Alpha, Release)")
 set(VER_STRING     "${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}.${BUILD_NUMBER} ${PACKAGE_SUFFIX}")
 set(GIT_REVISION   "${COMMIT_ID}")
 
