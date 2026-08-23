@@ -1042,9 +1042,6 @@ static TbBool get_custom_icon_from_value(const char* txt, short* icon_idx)
         return false;
 
     short idx = get_icon_id(txt);
-    if (!is_custom_icon(idx))
-        return false;
-
     *icon_idx = idx;
     return true;
 }
