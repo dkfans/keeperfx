@@ -1844,7 +1844,6 @@ int get_custom_icon_frame_count(short icon_idx)
 {
     int frame_idx = icon_idx - GUI_PANEL_SPRITES_COUNT;
     if (frame_idx >= 0 && frame_idx < GUI_PANEL_SPRITES_NEW) {
-         JUSTLOG("added_icon_frame_count at %u : %u", frame_idx, added_icon_frame_count[frame_idx]);
         return added_icon_frame_count[frame_idx];
     }
     return 0;
