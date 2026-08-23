@@ -41,12 +41,16 @@
 #define SEND_BUFFER_SIZE              1024
 #define CONNECT_TIMEOUT_MS            5000
 #define JSON_KEY_PATTERN_SIZE         128
+#define HEARTBEAT_INTERVAL_MS          30000
+#define HEARTBEAT_TIMEOUT_MS           5000
+#define HEARTBEAT_FAILURE_LIMIT        3
 
 static CURL *curl_handle = NULL;
 static char hosted_lobby_id[MATCHMAKING_ID_MAX] = {0};
 char join_lobby_id[MATCHMAKING_ID_MAX] = {0};
 static SDL_Mutex *mutex = NULL;
 static SDL_AtomicInt connect_thread_active = {0};
+static SDL_AtomicInt create_thread_active = {0};
 static SDL_AtomicInt finish_thread_active = {0};
 static SDL_AtomicInt ips_resolved = {0};
 static SDL_AtomicInt ips_resolving = {0};
@@ -54,11 +58,26 @@ static int connect_gave_up = 0;
 static char local_ipv4[MATCHMAKING_IP_MAX] = {0};
 static char local_ipv6[MATCHMAKING_IP_MAX] = {0};
 static char finish_message[SEND_BUFFER_SIZE];
+static int create_ipv4_port;
+static int create_ipv6_port;
+static char create_host_name[MATCHMAKING_NAME_MAX];
+static Uint32 heartbeat_time;
+static int heartbeat_attempts;
 
 struct TbNetworkSessionNameEntry matchmaking_sessions[MATCHMAKING_SESSIONS_MAX];
 int matchmaking_session_count = 0;
 
 static void matchmaking_init(void);
+static int matchmaking_create_lobby(const char *name, int udp_ipv4_port, int udp_ipv6_port);
+
+static int matchmaking_create_thread(void *)
+{
+    if (matchmaking_connect() == 0) {
+        matchmaking_create_lobby(create_host_name, create_ipv4_port, create_ipv6_port);
+    }
+    SDL_SetAtomicInt(&create_thread_active, 0);
+    return 0;
+}
 
 static void json_escape(char *output, size_t output_size, const char *input)
 {
@@ -245,14 +264,14 @@ static int websocket_receive(char *response_buffer, size_t buffer_size, int time
         if (!strstr(response_buffer, "\"type\":\"ping\""))
             return (int)bytes_received;
         if (hosted_lobby_id[0] == '\0') {
-            LbNetLog("Matchmaking: ignoring ping while not hosting\n");
+            LbNetLog("Matchmaking: ignoring heartbeat while not hosting\n");
             continue;
         }
         if (websocket_send("{\"action\":\"pong\"}") != 0) {
-            LbNetLog("Matchmaking: ping response failed\n");
+            LbNetLog("Matchmaking: heartbeat acknowledgement failed\n");
             return -1;
         }
-        LbNetLog("Matchmaking: ping replied\n");
+        LbNetLog("Matchmaking: heartbeat acknowledged\n");
     }
 }
 
@@ -419,7 +438,7 @@ void matchmaking_disconnect(void)
         return;
     }
     Uint32 wait_deadline = (Uint32)SDL_GetTicks() + CONNECT_TIMEOUT_MS * 3;
-    while ((SDL_GetAtomicInt(&connect_thread_active) || SDL_GetAtomicInt(&finish_thread_active)) && (Uint32)SDL_GetTicks() < wait_deadline) {
+    while ((SDL_GetAtomicInt(&connect_thread_active) || SDL_GetAtomicInt(&create_thread_active) || SDL_GetAtomicInt(&finish_thread_active)) && (Uint32)SDL_GetTicks() < wait_deadline) {
         SDL_Delay(10);
     }
     wait_for_public_ip_resolution();
@@ -505,7 +524,7 @@ void matchmaking_refresh_sessions(void)
     SDL_UnlockMutex(mutex);
 }
 
-int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
+static int matchmaking_create_lobby(const char *name, int udp_ipv4_port, int udp_ipv6_port)
 {
     char escaped_lobby_name[MATCHMAKING_NAME_MAX * 2];
     char request_message[SEND_BUFFER_SIZE];
@@ -542,7 +561,26 @@ int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
     }
     LbNetLog("Matchmaking: created lobby id=%s\n", hosted_lobby_id);
     lan_set_lobby_id(hosted_lobby_id);
+    heartbeat_time = (Uint32)SDL_GetTicks();
+    heartbeat_attempts = 0;
     SDL_UnlockMutex(mutex);
+    return 0;
+}
+
+int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
+{
+    if (!SDL_CompareAndSwapAtomicInt(&create_thread_active, 0, 1)) {
+        return -1;
+    }
+    create_ipv4_port = udp_ipv4_port;
+    create_ipv6_port = udp_ipv6_port;
+    snprintf(create_host_name, sizeof(create_host_name), "%s", name);
+    SDL_Thread *thread = SDL_CreateThread(matchmaking_create_thread, "matchmaking_host", NULL);
+    if (thread == NULL) {
+        SDL_SetAtomicInt(&create_thread_active, 0);
+        return -1;
+    }
+    SDL_DetachThread(thread);
     return 0;
 }
 
@@ -602,19 +640,47 @@ int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port
 
 int matchmaking_poll_punch(PunchAddresses *output)
 {
-    if (!curl_handle || !mutex || !SDL_TryLockMutex(mutex))
+    if (SDL_GetAtomicInt(&create_thread_active) || !mutex || !SDL_TryLockMutex(mutex)) {
         return 0;
-    char response_buffer[WEBSOCKET_BUFFER_SIZE];
+    }
+    if (!curl_handle || hosted_lobby_id[0] == '\0') {
+        SDL_UnlockMutex(mutex);
+        return -1;
+    }
+    char response_buffer[WEBSOCKET_BUFFER_SIZE] = "";
     int bytes_received = websocket_receive(response_buffer, sizeof(response_buffer), 0);
-    int punch_was_received = 0;
-    if (bytes_received > 0 && strstr(response_buffer, "\"punch\"")) {
+    int result = 0;
+    Uint32 now = (Uint32)SDL_GetTicks();
+    if (bytes_received < 0) {
+        result = -1;
+    } else if (strstr(response_buffer, "\"type\":\"error\"") || strstr(response_buffer, "\"type\":\"timed_out\"")) {
+        result = -1;
+    } else if (strstr(response_buffer, "\"type\":\"pong\"")) {
+        heartbeat_time = now + HEARTBEAT_INTERVAL_MS;
+        heartbeat_attempts = 0;
+        LbNetLog("Matchmaking: heartbeat replied\n");
+    } else if (strstr(response_buffer, "\"punch\"")) {
         parse_punch_addresses(response_buffer, output);
-        punch_was_received = punch_addresses_valid(output);
-        if (punch_was_received)
+        if (punch_addresses_valid(output)) {
+            result = 1;
             LbNetLog("Matchmaking: poll_punch -> ipv4=%s ipv6=%s ipv4_port=%d ipv6_port=%d\n", output->ipv4, output->ipv6, output->ipv4_port, output->ipv6_port);
-        else
+        } else {
             LbNetLog("Matchmaking: poll_punch parse failed\n");
+        }
+    }
+    if (result >= 0 && (int)(heartbeat_time - now) <= 0) {
+        if (heartbeat_attempts >= HEARTBEAT_FAILURE_LIMIT || websocket_send("{\"action\":\"ping\"}") != 0) {
+            result = -1;
+        } else {
+            heartbeat_attempts++;
+            heartbeat_time = now + HEARTBEAT_TIMEOUT_MS;
+            LbNetLog("Matchmaking: heartbeat sent\n");
+        }
+    }
+    if (result < 0) {
+        LbNetLog("Matchmaking: hosted lobby connection lost\n");
+        hosted_lobby_id[0] = '\0';
     }
     SDL_UnlockMutex(mutex);
-    return punch_was_received;
+    return result;
 }

@@ -3803,8 +3803,7 @@ FrontendMenuState get_startup_menu_state(void)
 
 void try_restore_frontend_error_box()
 {
-    if (LbTimerClock() < gui_message_timeout)
-    {
+    if (gui_message_timeout < 0 || LbTimerClock() < gui_message_timeout) {
         turn_on_menu(GMnu_FEERROR_BOX);
     }
 }
@@ -3812,7 +3811,10 @@ void try_restore_frontend_error_box()
 void create_frontend_error_box(long showTime, const char * text)
 {
     snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", text);
-    gui_message_timeout = LbTimerClock()+showTime;
+    gui_message_timeout = -1;
+    if (showTime > 0) {
+        gui_message_timeout = LbTimerClock() + showTime;
+    }
     turn_on_menu(GMnu_FEERROR_BOX);
 }
 
@@ -3829,7 +3831,7 @@ void frontend_maintain_error_text_box(struct GuiButton *gbtn)
         turn_off_menu(GMnu_FEERROR_BOX);
         return;
     }
-    if (LbTimerClock() > gui_message_timeout) {
+    if (gui_message_timeout > 0 && LbTimerClock() > gui_message_timeout) {
         turn_off_menu(GMnu_FEERROR_BOX);
     }
 }

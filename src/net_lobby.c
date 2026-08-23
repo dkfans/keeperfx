@@ -26,7 +26,6 @@
 #include "config_sounds.h"
 #include "front_landview.h"
 #include "front_network.h"
-#include "frontend.h"
 #include "net_lan.h"
 #include "net_matchmaking.h"
 #include "packets.h"
@@ -41,22 +40,6 @@ static struct TbNetworkSessionNameEntry sessions[SESSION_COUNT];
 static int32_t server_port = 0;
 static TbClockMSec lobby_ping_last_sample;
 uint32_t network_lobby_ping;
-
-struct MatchmakingCreateTask {
-    uint16_t ipv4_port;
-    uint16_t ipv6_port;
-    char host_name[32];
-};
-
-static int matchmaking_create_thread(void *userdata)
-{
-    struct MatchmakingCreateTask *task = (struct MatchmakingCreateTask *)userdata;
-    if (matchmaking_connect() == 0) {
-        matchmaking_create(task->host_name, (int)task->ipv4_port, (int)task->ipv6_port);
-    }
-    free(task);
-    return 0;
-}
 
 static void AddSessionSegment(const char *start, const char *end)
 {
@@ -225,9 +208,6 @@ TbError LbNetwork_ExchangeLogin(char *player_name)
 
 TbError LbNetwork_ExchangeFrontend(void *send_buf, void *server_buf, size_t frame_size)
 {
-    if ((my_player_number == get_host_player_id()) && frontnet_service_selected(FrontendNetSvc_Online)) {
-        enet_matchmaking_host_update();
-    }
     TbError result = exchange_frame_block(NETMSG_FRONTEND, send_buf, server_buf, frame_size);
     TbClockMSec now = LbTimerClock();
     if (network_lobby_ping == 0 || now - lobby_ping_last_sample >= 1000) {
@@ -269,19 +249,9 @@ TbError LbNetwork_Create(char *, char *plyr_name, uint32_t *plyr_num, void *optn
     if (frontnet_service_selected(FrontendNetSvc_LAN)) {
         lan_host_start(plyr_name, local_port);
     }
-    if (frontnet_service_selected(FrontendNetSvc_Online)) {
-        struct MatchmakingCreateTask *task = malloc(sizeof(struct MatchmakingCreateTask));
-        if (task != NULL) {
-            task->ipv4_port = ipv4_port;
-            task->ipv6_port = ipv6_port;
-            snprintf(task->host_name, sizeof(task->host_name), "%s", plyr_name);
-            SDL_Thread *thread = SDL_CreateThread(matchmaking_create_thread, "matchmaking_host", task);
-            if (thread != NULL) {
-                SDL_DetachThread(thread);
-            } else {
-                free(task);
-            }
-        }
+    if (frontnet_service_selected(FrontendNetSvc_Online) && matchmaking_create(plyr_name, ipv4_port, ipv6_port) != 0) {
+        netstate.sp->exit();
+        return Lb_FAIL;
     }
     netstate.my_id = SERVER_ID;
     snprintf(netstate.users[netstate.my_id].name, sizeof(netstate.users[netstate.my_id].name), "%s", plyr_name);
