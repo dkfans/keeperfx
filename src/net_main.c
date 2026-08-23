@@ -28,6 +28,17 @@ TbBool IsUserActive(NetUserId id)
     return (netstate.users[id].progress == USER_LOGGEDIN);
 }
 
+int32_t GetRemoteUserCount(void)
+{
+    int32_t count = 0;
+    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+        if (id != netstate.my_id && IsUserActive(id)) {
+            count += 1;
+        }
+    }
+    return count;
+}
+
 void UpdateLocalPlayerInfo(NetUserId id)
 {
     local_player_info[id].network_user_active = (netstate.users[id].progress != USER_UNUSED);
