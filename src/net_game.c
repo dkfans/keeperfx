@@ -214,9 +214,6 @@ static uint8_t calculate_initial_input_lag(void)
         input_lag_turns = (ping * turns_per_second + 999) / 1000;
     }
     uint64_t uncapped_input_lag_turns = input_lag_turns;
-    if (input_lag_turns > 0) {
-        input_lag_turns -= 1;
-    }
     if (input_lag_turns > MAXIMUM_INPUT_LAG_TURNS) {
         input_lag_turns = MAXIMUM_INPUT_LAG_TURNS;
     }
