@@ -1245,57 +1245,11 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
           int angle = cam->rotation_angle_x;
           if (key_modifiers & KMod_CONTROL)
           {
-              if ((angle >= ANGLE_NORTH && angle < ANGLE_NORTHEAST) || angle == DEGREES_360)
-              {
-                  angle = ANGLE_NORTHEAST;
-              }
-              else if (angle >= ANGLE_NORTHEAST && angle < ANGLE_EAST)
-              {
-                  angle = ANGLE_EAST;
-              }
-              else if (angle >= ANGLE_EAST && angle < ANGLE_SOUTHEAST)
-              {
-                  angle = ANGLE_SOUTHEAST;
-              }
-              else if (angle >= ANGLE_SOUTHEAST && angle < ANGLE_SOUTH)
-              {
-                  angle = ANGLE_SOUTH;
-              }
-              else if (angle >= ANGLE_SOUTH && angle < ANGLE_SOUTHWEST)
-              {
-                  angle = ANGLE_SOUTHWEST;
-              }
-              else if (angle >= ANGLE_SOUTHWEST && angle < ANGLE_WEST)
-              {
-                  angle = ANGLE_WEST;
-              }
-              else if (angle >= ANGLE_WEST && angle < ANGLE_NORTHWEST)
-              {
-                  angle = ANGLE_NORTHWEST;
-              }
-              else if (angle >= ANGLE_NORTHWEST && angle < DEGREES_360)
-              {
-                  angle = ANGLE_NORTH;
-              }
+            angle = (angle + DEGREES_45) & -DEGREES_45 & ANGLE_MASK;
         }
         else if (key_modifiers & KMod_SHIFT)
         {
-            if (angle > ANGLE_NORTH && angle <= ANGLE_NORTHEAST)
-            {angle = DEGREES_360;}
-            else if (angle > ANGLE_NORTHEAST && angle <= ANGLE_EAST)
-            {angle = ANGLE_NORTHEAST;}
-            else if (angle > ANGLE_EAST && angle <= ANGLE_SOUTHEAST)
-            {angle = ANGLE_EAST;}
-            else if (angle > ANGLE_SOUTHEAST && angle <= ANGLE_SOUTH)
-            {angle = ANGLE_SOUTHEAST;}
-            else if (angle > ANGLE_SOUTH && angle <= ANGLE_SOUTHWEST)
-            {angle = ANGLE_SOUTH;}
-            else if (angle > ANGLE_SOUTHWEST && angle <= ANGLE_WEST)
-            {angle = ANGLE_SOUTHWEST;}
-            else if (angle > ANGLE_WEST && angle <= ANGLE_NORTHWEST)
-            {angle = ANGLE_WEST;}
-            else if ((angle > ANGLE_NORTHWEST && angle <= DEGREES_360) || angle == ANGLE_NORTH)
-            {angle = ANGLE_NORTHWEST;}
+            angle = (angle - 1) & -DEGREES_45 & ANGLE_MASK;
         }
         else if (angle == ANGLE_NORTH || angle == DEGREES_360)
         {
