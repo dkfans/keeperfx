@@ -72,6 +72,7 @@ void message_draw(void)
             LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, game.messages[i].text);
             unsigned long spr_idx = 0;
             PlayerNumber plyr_idx = game.messages[i].plyr_idx;
+            int current_sprite_scale = 0; 
             switch (game.messages[i].type)
             {
                 case MsgType_Player:
@@ -149,8 +150,6 @@ void message_draw(void)
                 case MsgType_CustomIcon:
                 {
                     spr_idx = game.messages[i].icon_idx;
-                    x -= (10 * units_per_pixel / 16);
-                    y -= (10 * units_per_pixel / 16);
                     break;
                 }
                 default:
@@ -179,14 +178,16 @@ void message_draw(void)
                 case MsgType_CreatureInstance:
                 case MsgType_Custom:
                 {
-                    spr = get_panel_sprite(spr_idx);
-                    LbSpriteDrawResized(x, y, ps_units_per_px, spr);
+                    spr = get_panel_sprite(spr_idx);                    
+                    current_sprite_scale = (LbTextLineHeight() * units_per_pixel) / spr->SHeight;
+                    LbSpriteDrawResized(x, y, current_sprite_scale, spr);
                     break;
                 }
                 case MsgType_CustomIcon:
                 {
                     spr = get_new_icon_sprite((short)spr_idx);
-                    LbSpriteDrawResized(x, y, ps_units_per_px, spr);
+                    current_sprite_scale = (LbTextLineHeight() * units_per_pixel) / spr->SHeight;
+                    LbSpriteDrawResized(x, y, current_sprite_scale, spr);
                     break;
                 }
             }
@@ -207,7 +208,6 @@ void message_draw(void)
                 case MsgType_KeeperSpell:
                 case MsgType_Query:
                 case MsgType_CreatureInstance:
-                case MsgType_CustomIcon:
                 {
                     y += (10 * units_per_pixel / 16) << (unsigned char)low_res;
                     break;

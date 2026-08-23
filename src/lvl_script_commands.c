@@ -5864,13 +5864,13 @@ static void quick_message_check(const struct ScriptLine* scline)
     }
     snprintf(game.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
     value->longs[0]= scline->np[0];
-    if (get_custom_icon_from_value(scline->tp[2], &value->shorts[5]))
+    if (get_custom_icon_from_value(scline->tp[2], &value->shorts[5]) && is_custom_icon(value->shorts[5]))
     {
         value->chars[5] = MsgType_CustomIcon;
     }
     else
     {
-	get_chat_icon_from_value(scline->tp[2], &value->shorts[4], &value->chars[6]);
+	    get_chat_icon_from_value(scline->tp[2], &value->shorts[4], &value->chars[6]);
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -5883,7 +5883,7 @@ static void quick_message_process(struct ScriptContext* context)
     }
     else
     {
-	message_add_fmt(context->value->chars[6], context->value->shorts[4], "%s", game.quick_messages[context->value->ulongs[0]]);
+	    message_add_fmt(context->value->chars[6], context->value->shorts[4], "%s", game.quick_messages[context->value->ulongs[0]]);
     }
 }
 
