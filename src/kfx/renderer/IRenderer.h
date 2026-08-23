@@ -31,6 +31,11 @@ public:
 
     // Save the current frame to a file (fmt: 1=PNG, 2=BMP). Default: unsupported.
     virtual bool ScheduleScreenshot(const char* path, int fmt) { (void)path; (void)fmt; return false; }
+
+    // Sub-renderers. Null when a backend has none, so callers fall back to
+    // drawing directly.
+    virtual class ITextRenderer* GetTextRenderer() { return nullptr; }
+    virtual class IUIRenderer*   GetUIRenderer()   { return nullptr; }
 };
 
 #endif // RENDERER_IRENDERER_H

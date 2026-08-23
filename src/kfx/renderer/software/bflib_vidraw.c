@@ -310,6 +310,11 @@ void LbDrawBoxClip(long x, long y, unsigned long width, unsigned long height, Tb
  */
 TbResult LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel colour)
 {
+    return RendererDrawBox(x, y, width, height, colour);
+}
+
+TbResult LbDrawBoxImmediate(long x, long y, unsigned long width, unsigned long height, TbPixel colour)
+{
     if (RendererGetDrawFlags() & Lb_SPRITE_OUTLINE)
     {
         if ((width < 1) || (height < 1))
@@ -993,7 +998,34 @@ static inline TbResult LbSpriteDrawFastCpy(const char *sp,short sprWd,short sprH
     return Lb_SUCCESS;
 }
 
+/* Each entry point below routes to the renderer, which records the draw for this
+ * frame or draws it now. The matching ...Immediate function is the draw itself. */
 TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr)
+{
+    return RendererSpriteDraw(x, y, spr);
+}
+
+TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour)
+{
+    return RendererSpriteDrawOneColour(x, y, spr, colour);
+}
+
+TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height)
+{
+    return RendererSpriteDrawScaled(xpos, ypos, sprite, dest_width, dest_height);
+}
+
+TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour)
+{
+    return RendererSpriteDrawScaledOneColour(xpos, ypos, sprite, dest_width, dest_height, colour);
+}
+
+int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const unsigned char *cmap)
+{
+    return RendererSpriteDrawScaledRemap(xpos, ypos, sprite, dest_width, dest_height, cmap);
+}
+
+TbResult LbSpriteDrawImmediate(long x, long y, const struct TbSprite *spr)
 {
     struct TbSpriteDrawData spd;
     TbResult ret;
@@ -1281,7 +1313,7 @@ static inline TbResult LbSpriteDrawFCOneColour(const char *sp,short sprWd,short 
     return Lb_SUCCESS;
 }
 
-TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour)
+TbResult LbSpriteDrawOneColourImmediate(long x, long y, const struct TbSprite *spr, const TbPixel colour)
 {
     struct TbSpriteDrawData spd;
     TbResult ret;
@@ -1533,7 +1565,7 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
     }
 }
 
-TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height)
+TbResult LbSpriteDrawScaledImmediate(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height)
 {
     SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
     if ((dest_width <= 0) || (dest_height <= 0))
@@ -1550,7 +1582,7 @@ TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite,
     return LbSpriteDrawUsingScalingData(0, 0, &buffer);
 }
 
-TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour)
+TbResult LbSpriteDrawScaledOneColourImmediate(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour)
 {
     SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
     if ((dest_width <= 0) || (dest_height <= 0))
@@ -1561,7 +1593,7 @@ TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite
     return LbSpriteDrawOneColourUsingScalingData(0, 0, sprite, colour);
 }
 
-int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const unsigned char *cmap)
+int LbSpriteDrawScaledRemapImmediate(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const unsigned char *cmap)
 {
     SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
     if ((dest_width <= 0) || (dest_height <= 0))

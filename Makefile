@@ -305,6 +305,8 @@ obj/packets_misc.o \
 obj/kfx/platform/PlatformManager.o \
 obj/kfx/platform/PlatformWindows.o \
 obj/kfx/platform/WindowSystemSDL.o \
+obj/kfx/renderer/IUIRenderer.o \
+obj/kfx/renderer/ITextRenderer.o \
 obj/kfx/renderer/RendererManager.o \
 obj/kfx/renderer/RendererSoftware.o \
 obj/player_compchecks.o \
