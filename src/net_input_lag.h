@@ -6,7 +6,7 @@
 
 #define MAXIMUM_INPUT_LAG_TURNS 12
 #define MISS_PERCENT_INC_THRESHOLD 65
-#define MISS_PERCENT_DEC_THRESHOLD 4
+#define MISS_PERCENT_DEC_THRESHOLD 1
 
 #ifdef __cplusplus
 extern "C" {

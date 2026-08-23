@@ -887,7 +887,7 @@ void draw_network_stats()
     if (increase_miss_percent > MISS_PERCENT_INC_THRESHOLD) {
         increase_miss_alert = " (!)";
     }
-    if (decrease_miss_percent < MISS_PERCENT_DEC_THRESHOLD) {
+    if (decrease_miss_percent <= MISS_PERCENT_DEC_THRESHOLD) {
         decrease_miss_alert = " (!)";
     }
     int64_t turn_length_ns = 0;
