@@ -18,6 +18,7 @@ extern "C" {
 // Increase quickly to prevent stutter, but decrease slowly to avoid oscillation.
 #define INPUT_LAG_INCREASE_SAMPLE_WINDOW_TURNS 30
 #define INPUT_LAG_DECREASE_MAX_SAMPLE_WINDOW_TURNS 6000
+#define INPUT_LAG_INCREASE_START_TURN 100
 
 static int32_t input_lag_increase_sample_count;
 static int32_t input_lag_decrease_sample_count;
@@ -142,7 +143,7 @@ void input_lag_update(struct Packet *packet)
         TbClockMSec increase_window = INPUT_LAG_INCREASE_SAMPLE_WINDOW_TURNS * 1000 / turns_per_second;
         if (now - input_lag_last_increase_check >= increase_window) {
             input_lag_last_increase_check = now;
-            if (input_lag_increase_missing_turn_count * 100 > MISS_PERCENT_INC_THRESHOLD * input_lag_increase_sample_count && local_input_lag_request < MAXIMUM_INPUT_LAG_TURNS) {
+            if (get_gameturn() >= INPUT_LAG_INCREASE_START_TURN && input_lag_increase_missing_turn_count * 100 > MISS_PERCENT_INC_THRESHOLD * input_lag_increase_sample_count && local_input_lag_request < MAXIMUM_INPUT_LAG_TURNS) {
                 local_input_lag_request += 1;
                 MULTIPLAYER_LOG("Input lag request increased after %d waits in %d turns: request=%d next_check=%dms", input_lag_increase_missing_turn_count, input_lag_increase_sample_count, local_input_lag_request, increase_window);
             }
