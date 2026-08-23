@@ -1228,83 +1228,83 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     }
     if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
     {
-      if (is_key_pressed(KC_TAB, !KMod_CONTROL))
-      {
-          clear_key_pressed(KC_TAB);
-      }
-      if (is_key_pressed(KC_TAB, KMod_CONTROL))
-      {
-          clear_key_pressed(KC_TAB);
-          toggle_gui();
-      }
-      // Middle mouse camera actions for IsometricView
-      if (is_game_key_pressed(Gkey_SnapCamera, true, true))
-      {
-          struct Camera* cam = &player->cameras[CamIV_Isometric];
-          struct Packet* pckt = get_packet(my_player_number);
-          int angle = cam->rotation_angle_x;
-          if (key_modifiers & KMod_CONTROL)
-          {
-            angle = (angle + DEGREES_45) & -DEGREES_45 & ANGLE_MASK;
-        }
-        else if (key_modifiers & KMod_SHIFT)
+        if (is_key_pressed(KC_TAB, !KMod_CONTROL))
         {
-            angle = (angle - 1) & -DEGREES_45 & ANGLE_MASK;
+            clear_key_pressed(KC_TAB);
         }
-        else if (angle == ANGLE_NORTH || angle == DEGREES_360)
+        if (is_key_pressed(KC_TAB, KMod_CONTROL))
         {
-            (angle = ANGLE_SOUTH);
+            clear_key_pressed(KC_TAB);
+            toggle_gui();
         }
-        else if (angle == ANGLE_EAST)
+        // Middle mouse camera actions for IsometricView
+        if (is_game_key_pressed(Gkey_SnapCamera, true, true))
         {
-            (angle = ANGLE_WEST);
-        }
-        else if (angle == ANGLE_WEST)
-        {
-            (angle = ANGLE_EAST);
-        }
-        else
-        {
-            (angle = ANGLE_NORTH);
-        }
-        set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
-        return true;
-      }
-    }
-    if (player->view_mode == PVM_FrontView)
-    {
-      if (is_game_key_pressed(Gkey_ToggleGui, true, false))
-      {
-          toggle_gui();
-      }
-      // Middle mouse camera actions for FrontView
-      if (is_game_key_pressed(Gkey_SnapCamera, true, true))
-      {
-          struct Camera* cam = &player->cameras[CamIV_FrontView];
-          struct Packet* pckt = get_packet(my_player_number);
-          int angle = cam->rotation_angle_x;
-          if (key_modifiers & KMod_CONTROL)
-          {
-              set_packet_control(pckt, PCtr_ViewRotateCW);
-        }
-        else if (key_modifiers & KMod_SHIFT)
-        {
-            set_packet_control(pckt, PCtr_ViewRotateCCW);
-        }
-        else
-        {
-            if (angle == ANGLE_NORTH || angle == DEGREES_360)
+            struct Camera* cam = &player->cameras[CamIV_Isometric];
+            struct Packet* pckt = get_packet(my_player_number);
+            int angle = cam->rotation_angle_x;
+            if (key_modifiers & KMod_CONTROL)
             {
-                (angle = ANGLE_SOUTH);
+                angle = (angle + DEGREES_45) & -DEGREES_45 & ANGLE_MASK;
+            }
+            else if (key_modifiers & KMod_SHIFT)
+            {
+                angle = (angle - 1) & -DEGREES_45 & ANGLE_MASK;
+            }
+            else if (angle == ANGLE_NORTH || angle == DEGREES_360)
+            {
+                angle = ANGLE_SOUTH;
+            }
+            else if (angle == ANGLE_EAST)
+            {
+                angle = ANGLE_WEST;
+            }
+            else if (angle == ANGLE_WEST)
+            {
+                angle = ANGLE_EAST;
             }
             else
             {
-                (angle = ANGLE_NORTH);
+                angle = ANGLE_NORTH;
             }
-        set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
+            set_packet_action(pckt, PckA_SetMapRotation, angle, 0, 0, 0);
+            return true;
         }
-        return true;
-      }
+    }
+    if (player->view_mode == PVM_FrontView)
+    {
+        if (is_game_key_pressed(Gkey_ToggleGui, true, false))
+        {
+            toggle_gui();
+        }
+        // Middle mouse camera actions for FrontView
+        if (is_game_key_pressed(Gkey_SnapCamera, true, true))
+        {
+            struct Camera* cam = &player->cameras[CamIV_FrontView];
+            struct Packet* pckt = get_packet(my_player_number);
+            int angle = cam->rotation_angle_x;
+            if (key_modifiers & KMod_CONTROL)
+            {
+                set_packet_control(pckt, PCtr_ViewRotateCW);
+            }
+            else if (key_modifiers & KMod_SHIFT)
+            {
+                set_packet_control(pckt, PCtr_ViewRotateCCW);
+            }
+            else
+            {
+                if (angle == ANGLE_NORTH || angle == DEGREES_360)
+                {
+                    angle = ANGLE_SOUTH;
+                }
+                else
+                {
+                    angle = ANGLE_NORTH;
+                }
+                set_packet_action(pckt, PckA_SetMapRotation, angle, 0, 0, 0);
+            }
+            return true;
+        }
     }
 
     switch (player->work_state)
