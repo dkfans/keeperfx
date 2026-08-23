@@ -28,6 +28,7 @@
 #include "game_legacy.h"
 #include "value_util.h"
 #include "post_inc.h"
+#include "api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -267,7 +268,7 @@ TbBool process_action_points(void)
                         struct ApiEventData event_data[] = {
                             {"player",API_EVENT_DATA_INT32,{ .int32_value = (int32_t)plyr_idx }},
                             {"action_point",API_EVENT_DATA_INT32,{ .int32_value = (int32_t)apt->num }},
-                        }
+                        };
 
                         api_event_with_data(
                             "ACTION_POINT",
