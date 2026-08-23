@@ -8,79 +8,52 @@
 #include "net_exchange_gameplay.h"
 #include "game_legacy.h"
 #include "net_main.h"
-#include "bflib_datetm.h"
-#include "kfx_memory.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-// Increase quickly to prevent stutter, but decrease slowly to avoid oscillation.
-#define INPUT_LAG_INCREASE_SAMPLE_WINDOW_TURNS 30
-#define INPUT_LAG_DECREASE_MAX_SAMPLE_WINDOW_TURNS 6000
 #define INPUT_LAG_SAMPLE_START_TURN 100
 
 static int32_t input_lag_increase_sample_count;
 static int32_t input_lag_decrease_sample_count;
-static int32_t input_lag_history_position;
-static int32_t input_lag_increase_missing_turn_count;
-static int32_t input_lag_decrease_missing_turn_count;
-static TbBool *input_lag_missing_turn_history;
-static TbClockMSec input_lag_last_decrease_check;
-static TbClockMSec input_lag_last_increase_check;
+static int32_t input_lag_decrease_missed_turn_count;
+static uint8_t input_lag_missed_turn_history;
 static int32_t local_input_lag_request;
 static int32_t input_lag_target;
 static int32_t input_lag_increase_turns;
+static GameTurn input_lag_next_increase_turn;
 
-static void input_lag_reset_history(void)
+static void input_lag_reset_samples(void)
 {
-    input_lag_missing_turn_history = KfxRealloc(input_lag_missing_turn_history, INPUT_LAG_DECREASE_MAX_SAMPLE_WINDOW_TURNS * sizeof(*input_lag_missing_turn_history));
     input_lag_increase_sample_count = 0;
     input_lag_decrease_sample_count = 0;
-    input_lag_history_position = -1;
-    input_lag_increase_missing_turn_count = 0;
-    input_lag_decrease_missing_turn_count = 0;
-    memset(input_lag_missing_turn_history, 0, INPUT_LAG_DECREASE_MAX_SAMPLE_WINDOW_TURNS * sizeof(*input_lag_missing_turn_history));
-    input_lag_last_decrease_check = input_lag_last_increase_check = LbTimerClock();
+    input_lag_decrease_missed_turn_count = 0;
+    input_lag_missed_turn_history = 0;
 }
 
 void input_lag_reset_request(int32_t input_lag_turns)
 {
-    input_lag_reset_history();
+    input_lag_reset_samples();
     local_input_lag_request = input_lag_turns;
+    input_lag_next_increase_turn = 0;
 }
 
 void input_lag_reset(void)
 {
-    input_lag_reset_history();
+    input_lag_reset_samples();
     local_input_lag_request = game.input_lag_turns;
     input_lag_target = game.input_lag_turns;
     input_lag_increase_turns = 0;
+    input_lag_next_increase_turn = 0;
 }
 
-void input_lag_get_stats(int32_t *increase_miss_percent, int32_t *decrease_miss_percent, TbClockMSec *increase_countdown, TbClockMSec *decrease_countdown)
+void input_lag_get_stats(int32_t *increase_missed_turns, int32_t *increase_sampled_turns, int32_t *decrease_missed_turns, int32_t *decrease_sampled_turns)
 {
-    TbClockMSec now = LbTimerClock();
-    TbClockMSec increase_window = INPUT_LAG_INCREASE_SAMPLE_WINDOW_TURNS * 1000 / turns_per_second;
-    TbClockMSec decrease_window = INPUT_LAG_DECREASE_MAX_SAMPLE_WINDOW_TURNS * 1000 / turns_per_second / max(GetRemoteUserCount(), 1);
-    TbClockMSec elapsed = now - input_lag_last_increase_check;
-    *increase_miss_percent = 0;
-    if (input_lag_increase_sample_count > 0) {
-        *increase_miss_percent = (input_lag_increase_missing_turn_count * 100 + input_lag_increase_sample_count - 1) / input_lag_increase_sample_count;
-    }
-    *decrease_miss_percent = 0;
-    if (input_lag_decrease_sample_count > 0) {
-        *decrease_miss_percent = input_lag_decrease_missing_turn_count * 100 / input_lag_decrease_sample_count;
-    }
-    *increase_countdown = 0;
-    if (elapsed < increase_window) {
-        *increase_countdown = increase_window - elapsed;
-    }
-    elapsed = now - input_lag_last_decrease_check;
-    *decrease_countdown = 0;
-    if (elapsed < decrease_window) {
-        *decrease_countdown = decrease_window - elapsed;
-    }
+    *increase_missed_turns = __builtin_popcount(input_lag_missed_turn_history);
+    *increase_sampled_turns = input_lag_increase_sample_count;
+    *decrease_missed_turns = input_lag_decrease_missed_turn_count;
+    *decrease_sampled_turns = input_lag_decrease_sample_count;
 }
 
 TbBool input_lag_skips_processing(void)
@@ -126,39 +99,32 @@ void input_lag_update(struct Packet *packet)
         JUSTLOG("Input lag increased from %d to %d", game.input_lag_turns, input_lag_target);
         game.input_lag_turns = input_lag_target;
     }
-    TbClockMSec now = LbTimerClock();
-    if ((game.operation_flags & GOF_Paused) != 0 || game.skip_initial_input_turns > 0) {
-        input_lag_last_decrease_check = input_lag_last_increase_check = now;
-    } else {
-        int32_t decrease_sample_window_turns = INPUT_LAG_DECREASE_MAX_SAMPLE_WINDOW_TURNS / max(remote_player_count, 1);
-        TbClockMSec decrease_window = decrease_sample_window_turns * 1000 / turns_per_second;
-        if (now - input_lag_last_decrease_check >= decrease_window) {
-            input_lag_last_decrease_check = now;
-            if (input_lag_decrease_sample_count > 0 && input_lag_decrease_missing_turn_count * 100 <= MISS_PERCENT_DEC_THRESHOLD * input_lag_decrease_sample_count && local_input_lag_request > 0) {
-                local_input_lag_request -= 1;
-                MULTIPLAYER_LOG("Input lag request decreased after %d waits in %d turns: request=%d next_check=%dms", input_lag_decrease_missing_turn_count, input_lag_decrease_sample_count, local_input_lag_request, decrease_window);
-                input_lag_reset_history();
-            }
-        }
-        TbClockMSec increase_window = INPUT_LAG_INCREASE_SAMPLE_WINDOW_TURNS * 1000 / turns_per_second;
-        if (now - input_lag_last_increase_check >= increase_window) {
-            input_lag_last_increase_check = now;
-            if (get_gameturn() >= INPUT_LAG_SAMPLE_START_TURN && input_lag_increase_missing_turn_count * 100 > MISS_PERCENT_INC_THRESHOLD * input_lag_increase_sample_count && local_input_lag_request < MAXIMUM_INPUT_LAG_TURNS) {
-                local_input_lag_request += 1;
-                MULTIPLAYER_LOG("Input lag request increased after %d waits in %d turns: request=%d next_check=%dms", input_lag_increase_missing_turn_count, input_lag_increase_sample_count, local_input_lag_request, increase_window);
-                input_lag_reset_history();
-            }
-        }
-        input_lag_history_position = (input_lag_history_position + 1) % decrease_sample_window_turns;
-        input_lag_decrease_missing_turn_count -= input_lag_missing_turn_history[input_lag_history_position];
-        int32_t increase_history_position = (input_lag_history_position + decrease_sample_window_turns - INPUT_LAG_INCREASE_SAMPLE_WINDOW_TURNS) % decrease_sample_window_turns;
-        input_lag_increase_missing_turn_count -= input_lag_missing_turn_history[increase_history_position];
-        input_lag_missing_turn_history[input_lag_history_position] = false;
-        if (input_lag_increase_sample_count < INPUT_LAG_INCREASE_SAMPLE_WINDOW_TURNS) {
-            input_lag_increase_sample_count += 1;
-        }
-        if (input_lag_decrease_sample_count < decrease_sample_window_turns) {
+    if ((game.operation_flags & GOF_Paused) == 0 && game.skip_initial_input_turns == 0 && get_gameturn() >= INPUT_LAG_SAMPLE_START_TURN) {
+        if (input_lag_increase_sample_count > 0) {
             input_lag_decrease_sample_count += 1;
+            if ((input_lag_missed_turn_history & 1) != 0) {
+                input_lag_decrease_missed_turn_count += 1;
+            }
+        }
+        int32_t missed_turns = __builtin_popcount(input_lag_missed_turn_history);
+        if (input_lag_increase_sample_count == INPUT_LAG_INCREASE_TURNS && missed_turns >= INPUT_LAG_INCREASE_MISSES && local_input_lag_request < MAXIMUM_INPUT_LAG_TURNS && get_gameturn() >= input_lag_next_increase_turn) {
+            local_input_lag_request += 1;
+            input_lag_next_increase_turn = get_gameturn() + INPUT_LAG_INCREASE_COOLDOWN_TURNS;
+            MULTIPLAYER_LOG("Input lag request increased after %d waits in %d turns: request=%d", missed_turns, input_lag_increase_sample_count, local_input_lag_request);
+            input_lag_reset_samples();
+        } else if (input_lag_decrease_sample_count >= INPUT_LAG_DECREASE_SAMPLE_TURNS) {
+            if (input_lag_decrease_missed_turn_count * 100 <= INPUT_LAG_DECREASE_MISS_PERCENT * input_lag_decrease_sample_count && local_input_lag_request > 0) {
+                local_input_lag_request -= 1;
+                MULTIPLAYER_LOG("Input lag request decreased after %d waits in %d turns: request=%d", input_lag_decrease_missed_turn_count, input_lag_decrease_sample_count, local_input_lag_request);
+                input_lag_reset_samples();
+            } else {
+                input_lag_decrease_sample_count = 0;
+                input_lag_decrease_missed_turn_count = 0;
+            }
+        }
+        input_lag_missed_turn_history = (input_lag_missed_turn_history << 1) & ((1 << INPUT_LAG_INCREASE_TURNS) - 1);
+        if (input_lag_increase_sample_count < INPUT_LAG_INCREASE_TURNS) {
+            input_lag_increase_sample_count += 1;
         }
     }
     packet->input_lag_turns = local_input_lag_request;
@@ -171,7 +137,7 @@ void input_lag_update(struct Packet *packet)
         }
     }
     if (remote_player_count <= 0) {
-        input_lag_reset_history();
+        input_lag_reset_samples();
         local_input_lag_request = 0;
         packet->input_lag_turns = 0;
     }
@@ -179,12 +145,8 @@ void input_lag_update(struct Packet *packet)
 
 void input_lag_note_packet_wait(void)
 {
-    if (!network_is_active() || (game.operation_flags & GOF_Paused) != 0 || get_gameturn() < INPUT_LAG_SAMPLE_START_TURN || input_lag_history_position < 0) { return; }
-    if (!input_lag_missing_turn_history[input_lag_history_position]) {
-        input_lag_missing_turn_history[input_lag_history_position] = true;
-        input_lag_increase_missing_turn_count += 1;
-        input_lag_decrease_missing_turn_count += 1;
-    }
+    if (!network_is_active() || (game.operation_flags & GOF_Paused) != 0 || get_gameturn() < INPUT_LAG_SAMPLE_START_TURN || input_lag_increase_sample_count <= 0) { return; }
+    input_lag_missed_turn_history |= 1;
 }
 
 void input_lag_observe_host_packet(const struct Packet *packet)
