@@ -19,6 +19,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/software/SwDrawTarget.h"
 #include "kfx/renderer/RendererManager.h"
 #include "bflib_vidraw.h"
 
@@ -1277,13 +1278,13 @@ TbResult LbSpriteDrawOneColourUsingScalingData(long posx, long posy, const struc
         long sposy;
         sposx = posx;
         sposy = posy;
-        scanline = lbDisplay.GraphicsScreenWidth;
+        scanline = SwTargetScanline();
         if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_HORIZ) != 0) {
             sposx = sprite->SWidth + posx - 1;
         }
         if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_VERTIC) != 0) {
             sposy = sprite->SHeight + posy - 1;
-            scanline = -lbDisplay.GraphicsScreenWidth;
+            scanline = -SwTargetScanline();
         }
         xstep = &xsteps_array[2 * sposx];
         ystep = &ysteps_array[2 * sposy];
@@ -1299,8 +1300,8 @@ TbResult LbSpriteDrawOneColourUsingScalingData(long posx, long posy, const struc
         gspos_x = xstep[0];
         if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_HORIZ) != 0)
             gspos_x += xstep[1] - 1;
-        outbuf = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
-        outheight = lbDisplay.GraphicsScreenHeight;
+        outbuf = &SwTargetGraphicsWindowPtr()[gspos_x + SwTargetScanline() * gspos_y];
+        outheight = SwTargetScreenHeight();
     }
     if ( scale_up )
     {

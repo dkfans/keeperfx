@@ -126,6 +126,7 @@ obj/net_lobby.o \
 obj/net_resync.o \
 obj/bflib_planar.o \
 obj/kfx/renderer/software/bflib_render.o \
+obj/kfx/renderer/software/SwDrawTarget.o \
 obj/kfx/renderer/software/bflib_render_gpoly.o \
 obj/kfx/renderer/software/bflib_render_trig.o \
 obj/bflib_sndlib.o \
