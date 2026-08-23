@@ -347,6 +347,7 @@ short setup_game(void)
   features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
   features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
   features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
+  features_enabled |= Ft_RelativeMouseMode; // use SDL relative ("raw") mouse mode; set RELATIVE_MOUSE_MODE=OFF for the grab-and-warp scheme
   features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
   features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
@@ -959,6 +960,9 @@ void clear_things_and_persons_data(void)
 {
     struct Thing *thing;
     long i;
+    memset(game.thing_lists, 0, sizeof(game.thing_lists));
+    game.ambient_sound_thing_idx = 0;
+    game.nodungeon_creatr_list_start = 0;
     for (i=0; i < THINGS_COUNT; i++)
     {
         thing = &game.things_data[i];

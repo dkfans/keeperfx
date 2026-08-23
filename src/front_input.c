@@ -683,17 +683,15 @@ static short get_minimap_control_inputs(void)
     if (is_game_key_pressed(Gkey_ZoomMinimapOut, true, false)) {
         if (menu_is_active(GMnu_MAIN)) {
             fake_button_click(BID_MAP_ZOOM_OU);
-        } else {
-            gui_zoom_out(NULL);
         }
+        gui_zoom_out(NULL);
         return true;
     }
     if (is_game_key_pressed(Gkey_ZoomMinimapIn, true, false)) {
         if (menu_is_active(GMnu_MAIN)) {
             fake_button_click(BID_MAP_ZOOM_IN);
-        } else {
-            gui_zoom_in(NULL);
         }
+        gui_zoom_in(NULL);
         return true;
     }
     return false;
