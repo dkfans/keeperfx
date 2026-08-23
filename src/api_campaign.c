@@ -11,6 +11,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define API_CAMPAIGN_LEVEL_BITMAP_SIZE ((FREE_LEVELS_COUNT + 7) / 8)
+
+/* API-controlled campaign availability state. */
+static unsigned char api_campaign_enabled_levels[API_CAMPAIGN_LEVEL_BITMAP_SIZE];
+static TbBool campaign_auto_advance = true;
+
 static const char *skip_space(const char *p)
 {
     while (p != NULL && isspace((unsigned char)*p))
@@ -384,4 +390,147 @@ TbBool api_campaign_execute_query(const char *query, VALUE *data, const char **e
     }
 
     return false;
+}
+
+static TbBool campaign_level_api_is_in_current_campaign(LevelNumber lvnum)
+{
+    LevelNumber current = first_singleplayer_level();
+
+    while (current > 0)
+    {
+        if (current == lvnum)
+            return true;
+
+        current = next_singleplayer_level(current, true);
+    }
+
+    return false;
+}
+
+TbBool campaign_level_api_set_available(LevelNumber lvnum)
+{
+    int byte_idx;
+    int bit_idx;
+
+    if (lvnum < 0 || lvnum >= FREE_LEVELS_COUNT)
+        return false;
+    if (!campaign_level_api_is_in_current_campaign(lvnum))
+        return false;
+
+    byte_idx = lvnum / 8;
+    bit_idx = lvnum % 8;
+    api_campaign_enabled_levels[byte_idx] |= (1 << bit_idx);
+    return true;
+}
+
+TbBool campaign_level_api_set_unavailable(LevelNumber lvnum)
+{
+    int byte_idx;
+    int bit_idx;
+
+    if (lvnum < 0 || lvnum >= FREE_LEVELS_COUNT)
+        return false;
+    if (!campaign_level_api_is_in_current_campaign(lvnum))
+        return false;
+
+    byte_idx = lvnum / 8;
+    bit_idx = lvnum % 8;
+    api_campaign_enabled_levels[byte_idx] &= ~(1 << bit_idx);
+    return true;
+}
+
+TbBool campaign_level_api_is_enabled(LevelNumber lvnum)
+{
+    int byte_idx;
+    int bit_idx;
+
+    if (lvnum < 0 || lvnum >= FREE_LEVELS_COUNT)
+        return false;
+
+    byte_idx = lvnum / 8;
+    bit_idx = lvnum % 8;
+    return (api_campaign_enabled_levels[byte_idx] & (1 << bit_idx)) != 0;
+}
+
+void campaign_level_api_reset(void)
+{
+    memset(api_campaign_enabled_levels, 0, sizeof(api_campaign_enabled_levels));
+}
+
+TbBool campaign_level_api_is_available(LevelNumber lvnum)
+{
+    LevelNumber continue_lvnum;
+
+    if (get_level_info(lvnum) == NULL)
+        return false;
+
+    continue_lvnum = get_continue_level_number();
+
+    if (continue_lvnum > 0 && lvnum == continue_lvnum)
+        return true;
+
+    if (continue_lvnum == SINGLEPLAYER_FINISHED)
+        return true;
+
+    return campaign_level_api_is_enabled(lvnum);
+}
+
+void campaign_level_api_refresh(void)
+{
+    update_ensigns_visibility();
+}
+
+TbBool campaign_bonus_level_api_is_in_campaign(LevelNumber bn_lvnum)
+{
+    LevelNumber sp_lvnum = first_singleplayer_level();
+
+    while (sp_lvnum > 0)
+    {
+        if (bonus_level_for_singleplayer_level(sp_lvnum) == bn_lvnum)
+            return true;
+
+        sp_lvnum = next_singleplayer_level(sp_lvnum, true);
+    }
+
+    return false;
+}
+
+TbBool campaign_bonus_level_api_set_available(LevelNumber bn_lvnum)
+{
+    if (bn_lvnum < 1 || bn_lvnum >= FREE_LEVELS_COUNT)
+        return false;
+
+    if (!campaign_bonus_level_api_is_in_campaign(bn_lvnum))
+        return false;
+
+    return set_bonus_level_visibility(bn_lvnum, true);
+}
+
+TbBool campaign_bonus_level_api_set_unavailable(LevelNumber bn_lvnum)
+{
+    if (bn_lvnum < 1 || bn_lvnum >= FREE_LEVELS_COUNT)
+        return false;
+
+    if (!campaign_bonus_level_api_is_in_campaign(bn_lvnum))
+        return false;
+
+    return set_bonus_level_visibility(bn_lvnum, false);
+}
+
+TbBool campaign_bonus_level_api_is_available(LevelNumber bn_lvnum)
+{
+    if (!campaign_bonus_level_api_is_in_campaign(bn_lvnum))
+        return false;
+
+    return is_bonus_level_visible(get_my_player(), bn_lvnum);
+}
+
+TbBool get_campaign_auto_advance_enabled(void)
+{
+    return campaign_auto_advance;
+}
+
+void campaign_level_api_set_auto_advance(TbBool enabled)
+{
+    campaign_auto_advance = enabled;
 }

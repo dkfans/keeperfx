@@ -93,6 +93,7 @@
 #include "moonphase.h"
 #include "config_keeperfx.h"
 #include "post_inc.h"
+#include "api_campaign.h"
 
 #ifdef __cplusplus
 extern "C" {

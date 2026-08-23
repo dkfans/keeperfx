@@ -138,6 +138,7 @@
 #include "room_library.h"
 #include <cstdint>
 #include "timer.h"
+#include "api_campaign.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
