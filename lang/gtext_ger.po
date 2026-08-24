@@ -7624,7 +7624,6 @@ msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Installiere es als Mod im Ordner /mods/."
 
 #: guitext:1122
-#, fuzzy
 msgctxt "Network game message"
 msgid "Lost connection to server"
-msgstr "Verbindung zum Server verloren."
+msgstr "Netzwerkverbindung zum Server verloren."
