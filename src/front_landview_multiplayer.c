@@ -597,6 +597,9 @@ static LevelNumber frontnetmap_update_players(void)
 TbBool frontnetmap_update(void)
 {
     SYNCDBG(8,"Starting");
+    if (!frontnet_matchmaking_update()) {
+        return false;
+    }
     set_music_volume((map_sound_fade * settings.music_volume) / FULL_LOUDNESS);
 
     LevelNumber selected_level_number = SINGLEPLAYER_NOTSTARTED;
@@ -606,7 +609,9 @@ TbBool frontnetmap_update(void)
             return true;
         }
     } else {
-        frontmap_exchange_screen_packet();
+        if (!frontmap_exchange_screen_packet()) {
+            return false;
+        }
         selected_level_number = frontnetmap_update_players();
     }
     if (selected_level_number > 0) {

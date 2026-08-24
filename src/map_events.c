@@ -257,6 +257,7 @@ void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y,
     event->owner = dngn_id;
     event->lifespan_turns = event_button_info[evkind].lifespan_turns;
     event->target = target;
+    event->icon_idx = -1;
     event->flags |= EvF_BtnFirstFall;
 }
 

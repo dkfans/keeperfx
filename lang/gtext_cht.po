@@ -6960,3 +6960,9 @@ msgstr "/fxdata/%.39s 未載入。"
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "請將其作為模組安裝到 /mods/ 資料夾中。"
+
+#: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "與伺服器的連線已中斷。"

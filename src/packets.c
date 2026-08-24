@@ -876,7 +876,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_instance(player, PI_ZoomToPos, 0);
       return 0;
   case PckA_ToggleComputerProcessing:
-      game.view_mode_flags ^= (game.view_mode_flags ^ (GNFldD_ComputerPlayerProcessing * ((game.view_mode_flags & GNFldD_ComputerPlayerProcessing) == 0))) & GNFldD_ComputerPlayerProcessing;
+      game.view_mode_flags ^= GNFldD_ComputerPlayerProcessing;
       return 0;
   case PckA_PwrCTADis:
       turn_off_power_call_to_arms(plyr_idx);
