@@ -7341,5 +7341,5 @@ msgstr "Nainstalujte jej jako mod do složky /mods/."
 #: guitext:1122
 #, fuzzy
 msgctxt "Network game message"
-msgid "Your lobby lost connection."
-msgstr "Připojení k vaší herní lobby bylo ztraceno."
+msgid "Lost connection to server"
+msgstr "Připojení k serveru bylo ztraceno."

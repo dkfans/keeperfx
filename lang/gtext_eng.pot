@@ -5934,5 +5934,5 @@ msgstr ""
 
 #: guitext:1122
 msgctxt "Network game message"
-msgid "Your lobby lost connection."
+msgid "Lost connection to server"
 msgstr ""

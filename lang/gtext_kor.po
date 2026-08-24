@@ -7356,5 +7356,5 @@ msgstr "MOD로 /mods/에 설치하세요."
 #: guitext:1122
 #, fuzzy
 msgctxt "Network game message"
-msgid "Your lobby lost connection."
-msgstr "로비 연결이 끊어졌습니다."
+msgid "Lost connection to server"
+msgstr "서버 연결이 끊어졌습니다."

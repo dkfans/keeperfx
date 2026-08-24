@@ -7368,5 +7368,5 @@ msgstr "Installera den som mod i mappen /mods/."
 #: guitext:1122
 #, fuzzy
 msgctxt "Network game message"
-msgid "Your lobby lost connection."
-msgstr "Anslutningen till din lobby bröts."
+msgid "Lost connection to server"
+msgstr "Anslutningen till servern förlorades."

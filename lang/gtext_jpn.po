@@ -7305,5 +7305,5 @@ msgstr "MODとして /mods/ に入れてください。"
 #: guitext:1122
 #, fuzzy
 msgctxt "Network game message"
-msgid "Your lobby lost connection."
-msgstr "ロビーへの接続が失われました。"
+msgid "Lost connection to server"
+msgstr "サーバーへの接続が失われました。"

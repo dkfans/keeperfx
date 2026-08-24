@@ -6738,5 +6738,5 @@ msgstr "Распакуйте архив мода в папку /mods/."
 #: guitext:1122
 #, fuzzy
 msgctxt "Network game message"
-msgid "Your lobby lost connection."
-msgstr "Соединение с вашим лобби потеряно."
+msgid "Lost connection to server"
+msgstr "Соединение с сервером потеряно."

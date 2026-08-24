@@ -7423,5 +7423,5 @@ msgstr "Установіть його як мод у папку /mods/."
 #: guitext:1122
 #, fuzzy
 msgctxt "Network game message"
-msgid "Your lobby lost connection."
-msgstr "З’єднання з вашим лобі втрачено."
+msgid "Lost connection to server"
+msgstr "З’єднання із сервером втрачено."

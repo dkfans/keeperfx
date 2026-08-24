@@ -6964,5 +6964,5 @@ msgstr "請將其作為模組安裝到 /mods/ 資料夾中。"
 #: guitext:1122
 #, fuzzy
 msgctxt "Network game message"
-msgid "Your lobby lost connection."
-msgstr "你的遊戲大廳連線已中斷。"
+msgid "Lost connection to server"
+msgstr "與伺服器的連線已中斷。"

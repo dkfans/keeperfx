@@ -7308,5 +7308,5 @@ msgstr "Installeer dit als mod in de map /mods/."
 #: guitext:1122
 #, fuzzy
 msgctxt "Network game message"
-msgid "Your lobby lost connection."
-msgstr "De verbinding met je lobby is verbroken."
+msgid "Lost connection to server"
+msgstr "De verbinding met de server is verbroken."
