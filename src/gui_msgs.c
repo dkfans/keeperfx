@@ -172,7 +172,7 @@ void message_draw(void)
                 case MsgType_CreatureInstance:
                 case MsgType_Custom:
                 {
-                    spr = get_panel_sprite(spr_idx);
+                    spr = get_panel_sprite(spr_idx);                    
                     LbSpriteDrawResized(x, y, ps_units_per_px, spr);
                     break;
                 }
@@ -269,6 +269,7 @@ void message_add(char type, short idx, const char *text)
     game.messages[0].expiration_turn = get_gameturn() + GUI_MESSAGES_DELAY;
     game.messages[0].target_idx = -1;
     game.messages[0].type = type;
+    game.messages[0].icon_idx = 0;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }
@@ -300,6 +301,7 @@ void targeted_message_add(char type, PlayerNumber plyr_idx, PlayerNumber target_
     game.messages[0].expiration_turn = get_gameturn() + timeout;
     game.messages[0].target_idx = target_idx;
     game.messages[0].type = type;
+    game.messages[0].icon_idx = 0;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }
