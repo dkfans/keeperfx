@@ -1027,44 +1027,114 @@ struct GuiButtonInit * get_gui_button_init(struct GuiMenu * menu, int id)
     }
 }
 
-void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_scrollbar)
+static void draw_scroll_box_sprite(long pos_x, long pos_y, int units_per_px, const struct TbSprite *spr, const unsigned char *cmap)
+{
+    if (cmap == NULL) {
+        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
+    } else {
+        LbSpriteDrawResizedRemap(pos_x, pos_y, units_per_px, spr, cmap);
+    }
+}
+
+int scroll_box_units_per_px_at(long width)
+{
+    // Detecting the scaling factor is quite complicated for this item
+    const struct TbSprite* spr = get_frontend_sprite(GFS_hugearea_thn_cor_ml);
+    int orig_size = 0;
+    for (int i = 0; i < 6; i++)
+    {
+        orig_size += spr->SWidth;
+        spr++;
+    }
+    if (orig_size < 1)
+        return 16;
+    return (width * 16 + orig_size/2) / orig_size;
+}
+
+void scroll_box_geometry_at(long pos_x, long pos_y, long width, int height_lines, TbBool with_scrollbar, struct ScrollBoxGeom *geo)
+{
+    int units_per_px = scroll_box_units_per_px_at(width);
+    const struct TbSprite* row_spr = get_frontend_sprite(GFS_hugearea_thn_cor_ml);
+    long top_height = get_frontend_sprite(GFS_hugearea_thn_cor_tl)->SHeight * units_per_px / 16;
+    long btm_height = get_frontend_sprite(GFS_hugearea_thn_cor_bl)->SHeight * units_per_px / 16;
+    long inner_height = 0;
+    for (int lines = height_lines; lines > 0; )
+    {
+        if (lines < 3) {
+            inner_height += get_frontend_sprite(GFS_hugearea_thn_cor_ml)->SHeight * units_per_px / 16;
+            lines -= 1;
+        } else {
+            inner_height += get_frontend_sprite(GFS_hugearea_thc_cor_ml)->SHeight * units_per_px / 16;
+            lines -= 3;
+        }
+    }
+    geo->pos_x = pos_x;
+    geo->pos_y = pos_y;
+    geo->width = width;
+    geo->height = top_height + inner_height + btm_height;
+    geo->units_per_px = units_per_px;
+    geo->area.left = pos_x + row_spr[0].SWidth * units_per_px / 16;
+    geo->area.right = pos_x + width - row_spr[5].SWidth * units_per_px / 16;
+    geo->area.top = pos_y + top_height;
+    geo->area.bottom = geo->area.top + inner_height;
+    memset(&geo->up_arrow, 0, sizeof(geo->up_arrow));
+    memset(&geo->down_arrow, 0, sizeof(geo->down_arrow));
+    if (with_scrollbar)
+    {
+        const struct TbSprite* up_spr = get_frontend_sprite(GFS_scrollbar_toparrow_std);
+        const struct TbSprite* dn_spr = get_frontend_sprite(GFS_scrollbar_btmarrow_std);
+        geo->up_arrow.left = pos_x + width;
+        geo->up_arrow.top = pos_y - units_per_px/16;
+        geo->up_arrow.right = geo->up_arrow.left + up_spr->SWidth * units_per_px / 16;
+        geo->up_arrow.bottom = geo->up_arrow.top + up_spr->SHeight * units_per_px / 16;
+        geo->down_arrow.left = pos_x + width;
+        geo->down_arrow.top = geo->area.bottom;
+        geo->down_arrow.right = geo->down_arrow.left + dn_spr->SWidth * units_per_px / 16;
+        geo->down_arrow.bottom = geo->down_arrow.top + dn_spr->SHeight * units_per_px / 16;
+    }
+}
+
+long scroll_box_height_at(long width, int height_lines)
+{
+    struct ScrollBoxGeom geo;
+    scroll_box_geometry_at(0, 0, width, height_lines, false, &geo);
+    return geo.height;
+}
+
+/**
+ * Draws the front-end scroll box frame at given screen position.
+ * @param cmap Colour remap table for the frontend sprites, or NULL to draw them
+ *     with the palette they were made for (front.pal).
+ * @param draw_interior Set to false to skip the opaque texture inside the frame, leaving
+ *     the interior for the caller to fill - ie. with a translucent box.
+ */
+void draw_scroll_box_at(long pos_x, long pos_y, long width, int height_lines, TbBool draw_scrollbar, const unsigned char *cmap, TbBool draw_interior)
 {
     const struct TbSprite *spr;
-    long pos_x;
-    long pos_y = gbtn->scr_pos_y;
-    long spr_idx;
-    long secspr_idx;
     long i;
     long delta;
-    // Detect scaling factor is quite complicated for this item
-    int units_per_px;
-    {
-        int orig_size = 0;
-        spr = get_frontend_sprite(GFS_hugearea_thn_cor_ml);
-        for (i=0; i < 6; i++)
-        {
-            orig_size += spr->SWidth;
-            spr++;
-        }
-        units_per_px = (gbtn->width * 16 + orig_size/2) / orig_size;
-    }
+    long spr_idx;
+    long secspr_idx;
+    long cur_x;
+    long cur_y = pos_y;
+    int units_per_px = scroll_box_units_per_px_at(width);
     // Draw top border
     spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
-    pos_x = gbtn->scr_pos_x;
+    cur_x = pos_x;
     for (i=0; i < 6; i++)
     {
-        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
-        pos_x += spr->SWidth * units_per_px / 16;
+        draw_scroll_box_sprite(cur_x, cur_y, units_per_px, spr, cmap);
+        cur_x += spr->SWidth * units_per_px / 16;
         spr++;
     }
     if ( draw_scrollbar )
     {
-        pos_x = gbtn->scr_pos_x + gbtn->width;
-        draw_frontend_sprite_left(pos_x, pos_y - units_per_px/16, units_per_px, GFS_scrollbar_toparrow_std);
+        draw_scroll_box_sprite(pos_x + width, cur_y - units_per_px/16, units_per_px,
+            get_frontend_sprite(GFS_scrollbar_toparrow_std), cmap);
     }
     // Draw inside
     spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
-    pos_y += spr->SHeight * units_per_px / 16;
+    cur_y += spr->SHeight * units_per_px / 16;
     for (; height_lines > 0; height_lines -= delta )
     {
       if (height_lines < 3)
@@ -1072,11 +1142,13 @@ void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_s
       else
           spr_idx = GFS_hugearea_thc_cor_ml;
       spr = get_frontend_sprite(spr_idx);
-      pos_x = gbtn->scr_pos_x;
+      cur_x = pos_x;
       for (i=0; i < 6; i++)
       {
-          LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
-          pos_x += spr->SWidth * units_per_px / 16;
+          // Sprites 1..4 of each row are the interior texture, 0 and 5 are the side borders
+          if (draw_interior || (i == 0) || (i == 5))
+              draw_scroll_box_sprite(cur_x, cur_y, units_per_px, spr, cmap);
+          cur_x += spr->SWidth * units_per_px / 16;
           spr++;
       }
       if ( draw_scrollbar )
@@ -1085,11 +1157,10 @@ void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_s
             secspr_idx = GFS_scrollbar_vert_ct_short;
         else
             secspr_idx = GFS_scrollbar_vert_ct_long;
-        pos_x = gbtn->scr_pos_x + gbtn->width;
-        draw_frontend_sprite_left(pos_x, pos_y, units_per_px, secspr_idx);
+        draw_scroll_box_sprite(pos_x + width, cur_y, units_per_px, get_frontend_sprite(secspr_idx), cmap);
       }
       spr = get_frontend_sprite(spr_idx);
-      pos_y += spr->SHeight * units_per_px / 16;
+      cur_y += spr->SHeight * units_per_px / 16;
       if (height_lines < 3)
           delta = 1;
       else
@@ -1097,18 +1168,23 @@ void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_s
     }
     // Draw bottom border
     spr = get_frontend_sprite(GFS_hugearea_thn_cor_bl);
-    pos_x = gbtn->scr_pos_x;
+    cur_x = pos_x;
     for (i=0; i < 6; i++)
     {
-        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
-        pos_x += spr->SWidth * units_per_px / 16;
+        draw_scroll_box_sprite(cur_x, cur_y, units_per_px, spr, cmap);
+        cur_x += spr->SWidth * units_per_px / 16;
         spr++;
     }
     if ( draw_scrollbar )
     {
-        pos_x = gbtn->scr_pos_x + gbtn->width;
-        draw_frontend_sprite_left(pos_x, pos_y, units_per_px, GFS_scrollbar_btmarrow_std);
+        draw_scroll_box_sprite(pos_x + width, cur_y, units_per_px,
+            get_frontend_sprite(GFS_scrollbar_btmarrow_std), cmap);
     }
+}
+
+void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_scrollbar)
+{
+    draw_scroll_box_at(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height_lines, draw_scrollbar, NULL, true);
 }
 
 /******************************************************************************/

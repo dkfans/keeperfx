@@ -87,6 +87,7 @@ int LbTextSetWindow(int posx, int posy, int width, int height);
 TbResult LbTextSetJustifyWindow(int pos_x, int pos_y, int width);
 TbResult LbTextSetClipWindow(int x1, int y1, int x2, int y2);
 TbBool LbTextSetFont(const struct TbSpriteSheet *font);
+void LbTextSetRemap(const unsigned char *cmap);
 unsigned char LbTextGetFontFaceColor(void);
 unsigned char LbTextGetFontBackColor(void);
 int LbTextStringWidth(const char *str);

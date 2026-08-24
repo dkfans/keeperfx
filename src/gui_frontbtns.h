@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_guibtns.h"
+#include "bflib_planar.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +32,19 @@ extern "C" {
 
 
 #pragma pack()
+
+/** Geometry of a front-end scroll box, as computed from the frontend sprites. */
+struct ScrollBoxGeom {
+    long pos_x;
+    long pos_y;
+    long width;
+    long height;
+    int units_per_px;
+    struct TbRect area; /**< Interior area, to be used for the text. */
+    struct TbRect up_arrow; /**< Scrollbar arrows; empty rects if drawn without scrollbar. */
+    struct TbRect down_arrow;
+};
+
 /******************************************************************************/
 int guibutton_get_unused_slot(void);
 
@@ -59,6 +73,10 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn);
 
 void gui_draw_tab(struct GuiButton *gbtn);
 void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_scrollbar);
+void draw_scroll_box_at(long pos_x, long pos_y, long width, int height_lines, TbBool draw_scrollbar, const unsigned char *cmap, TbBool draw_interior);
+void scroll_box_geometry_at(long pos_x, long pos_y, long width, int height_lines, TbBool with_scrollbar, struct ScrollBoxGeom *geo);
+int scroll_box_units_per_px_at(long width);
+long scroll_box_height_at(long width, int height_lines);
 void frontend_over_button(struct GuiButton *gbtn);
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags);
 void frontend_draw_large_menu_button(struct GuiButton *gbtn);
