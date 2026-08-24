@@ -498,6 +498,7 @@ void add_message(long plyr_idx, char *msg)
     }
     nmsg = &net_message[i];
     nmsg->plyr_idx = plyr_idx;
+    nmsg->connection_id = net_player_info[plyr_idx].connection_id;
     snprintf(nmsg->text, NET_MESSAGE_LEN, "%s", msg);
     i++;
     net_number_of_messages = i;

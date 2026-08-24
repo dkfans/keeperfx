@@ -242,8 +242,9 @@ struct DemoItem { //sizeof = 5
     };
 };
 
-struct NetMessage { // sizeof = 0x41
+struct NetMessage { // sizeof = 0x45
   unsigned char plyr_idx;
+  uint32_t connection_id;
   char text[NET_MESSAGE_LEN];
 };
 

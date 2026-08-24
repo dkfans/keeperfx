@@ -403,12 +403,17 @@ static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *p
     SYNCDBG(19,"Got needs_draw");
     struct AsianDraw adraw;
     unsigned long colour;
+    unsigned long shadow_colour = dbc_colour1;
     if (dbc_get_sprite_for_char(&adraw, chr) == 0)
     {
         if ((RendererGetDrawFlags() & Lb_TEXT_ONE_COLOR) == 0)
           colour = dbc_colour0;
         else
           colour = RendererGetDrawColour();
+        if ((RendererGetDrawFlags() & Lb_TEXT_REMAP) != 0) {
+            colour = lbSpriteReMapPtr[colour];
+            shadow_colour = lbSpriteReMapPtr[shadow_colour];
+        }
 
         #define MAX_DBC_SPRITE_SIZE 8192
         unsigned char dest_pixel[MAX_DBC_SPRITE_SIZE] = { 0 };
@@ -442,7 +447,7 @@ static int8_t draw_dbc_char(uint32_t chr, struct AsianFontWindow *awind, long *p
             adraw.y_spacing = adraw.y_spacing * units_per_px / 16;
         }
 
-        dbc_draw_font_sprite_text(awind, &adraw, *pos_x, pos_y, colour, -1, dbc_colour1);
+        dbc_draw_font_sprite_text(awind, &adraw, *pos_x, pos_y, colour, -1, shadow_colour);
 
         int w;
         if (adraw.bits_height == 16)
@@ -474,6 +479,9 @@ static int8_t draw_simpletext_char(uint32_t chr, long *pos_x, long pos_y, int un
     {
         if ((RendererGetDrawFlags() & Lb_TEXT_ONE_COLOR) != 0) {
             LbSpriteDrawResizedOneColour(*pos_x, pos_y, units_per_px, spr, RendererGetDrawColour());
+        }
+        else if ((RendererGetDrawFlags() & Lb_TEXT_REMAP) != 0) {
+            LbSpriteDrawResizedRemap(*pos_x, pos_y, units_per_px, spr, lbSpriteReMapPtr);
         }
         else {
             LbSpriteDrawResized(*pos_x, pos_y, units_per_px, spr);
