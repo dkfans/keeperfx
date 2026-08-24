@@ -242,8 +242,9 @@ struct DemoItem { //sizeof = 5
     };
 };
 
-struct NetMessage { // sizeof = 0x41
+struct NetMessage { // sizeof = 0x45
   unsigned char plyr_idx;
+  uint32_t connection_id;
   char text[NET_MESSAGE_LEN];
 };
 
@@ -428,6 +429,7 @@ void toggle_gui_overlay_map(void);
 void update_player_objectives(PlayerNumber plyr_idx);
 void set_level_objective(PlayerNumber plyr_idx, const char *msg_text);
 void display_objectives(PlayerNumber plyr_idx,MapSubtlCoord x,MapSubtlCoord y);
+void display_objectives_with_icon(PlayerNumber plyr_idx,MapSubtlCoord x,MapSubtlCoord y, short icon_idx);
 
 short toggle_main_cheat_menu(void);
 TbBool close_main_cheat_menu(void);

@@ -82,6 +82,7 @@ struct SpriteContext
 
 static struct NamedCommand added_sprites[KEEPERSPRITE_ADD_NUM];
 static struct NamedCommand added_icons[GUI_PANEL_SPRITES_NEW];
+static unsigned char added_icon_frame_count[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
 static int num_added_icons = 0;
 
@@ -1813,6 +1814,10 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
     if (spr)
     {
         spr->num = first_icon;
+        int frame_idx = first_icon - GUI_PANEL_SPRITES_COUNT;
+        if (frame_idx >= 0 && frame_idx < GUI_PANEL_SPRITES_NEW) {
+            added_icon_frame_count[frame_idx] = icons_count;
+        }
         JUSTLOG("Overriding icon '%s/%s'", path,name);
     }
     else
@@ -1822,12 +1827,26 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
             ERRORLOG("Too many custom icons");
             return 0;
         }
-        spr = &added_icons[num_added_icons++];
+        spr = &added_icons[num_added_icons];
         spr->name = strdup(name);
         spr->num = first_icon;
+        int frame_idx = first_icon - GUI_PANEL_SPRITES_COUNT;
+        if (frame_idx >= 0 && frame_idx < GUI_PANEL_SPRITES_NEW) {
+            added_icon_frame_count[frame_idx] = icons_count;
+        }
+        num_added_icons++;
     }
 
     return 1;
+}
+
+int get_custom_icon_frame_count(short icon_idx)
+{
+    int frame_idx = icon_idx - GUI_PANEL_SPRITES_COUNT;
+    if (frame_idx >= 0 && frame_idx < GUI_PANEL_SPRITES_NEW) {
+        return added_icon_frame_count[frame_idx];
+    }
+    return 0;
 }
 
 static TbBool process_lens_overlay(const char *path, unzFile zip, VALUE *root)

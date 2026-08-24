@@ -19,7 +19,9 @@
 #include "net_exchange_gameplay.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
+#include "bflib_sound.h"
 #include "bflib_video.h"
+#include "config_sounds.h"
 #include "config_keeperfx.h"
 #include "console_cmd.h"
 #include "engine_redraw.h"
@@ -158,6 +160,7 @@ void process_gameplay_chat_message(int player_id, const char *message)
         lua_on_chatmsg(player_id, player->mp_message_text);
         if (player->mp_message_text[0] != cmd_char || !cmd_exec(player_id, player->mp_message_text + 1) || network_is_active()) {
             message_add(MsgType_Player, player_id, player->mp_message_text);
+            play_non_3d_sample(snd_chat_message[player_id == my_player_number]);
         }
     }
     memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);

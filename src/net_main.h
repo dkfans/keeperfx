@@ -126,6 +126,7 @@ struct NetState {
 struct TbNetworkPlayerInfo {
     char name[32];
     int32_t network_user_active;
+    uint32_t connection_id;
 };
 
 struct ServiceInitData {
