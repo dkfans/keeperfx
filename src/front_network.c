@@ -22,6 +22,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_enet.h"
 
 #include "net_exchange_common.h"
 #include "net_lobby.h"
@@ -37,6 +38,7 @@
 #include "gui_draw.h"
 #include "front_simple.h"
 #include "front_landview.h"
+#include "frontmenu_net.h"
 #include "frontend.h"
 #include "player_data.h"
 #include "net_game.h"
@@ -426,6 +428,9 @@ static TbBool check_frontend_version_mismatch(void)
 
 static void process_frontend_packets(void)
 {
+  if (!frontnet_matchmaking_update()) {
+    return;
+  }
   int32_t i;
   for (i = 0; i < MAX_NET_USERS; i++) {
     net_screen_packet[i].networkstatus_flags &= ~NetStat_PlayerConnected;
@@ -504,6 +509,16 @@ static void process_frontend_packets(void)
       frontend_alliances = frontend_alliances & ~alliances_to_clear;
     }
   }
+}
+
+TbBool frontnet_matchmaking_update(void)
+{
+    if (my_player_number == get_host_player_id() && frontnet_service_selected(FrontendNetSvc_Online) && enet_matchmaking_host_update() < 0) {
+        frontnet_return_to_session_menu(NULL);
+        create_frontend_error_box(0, get_string(GUIStr_NetLobbyConnectionLost));
+        return false;
+    }
+    return true;
 }
 
 void frontnet_send_campaign_change_message(const char* campaign_fname)

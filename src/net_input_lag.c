@@ -115,6 +115,7 @@ void input_lag_update(struct Packet *packet)
         } else if (input_lag_decrease_sample_count >= INPUT_LAG_DECREASE_SAMPLE_TURNS) {
             if (input_lag_decrease_missed_turn_count * 100 <= INPUT_LAG_DECREASE_MISS_PERCENT * input_lag_decrease_sample_count && local_input_lag_request > 0) {
                 local_input_lag_request -= 1;
+                input_lag_next_increase_turn = 0;
                 MULTIPLAYER_LOG("Input lag request decreased after %d waits in %d turns: request=%d", input_lag_decrease_missed_turn_count, input_lag_decrease_sample_count, local_input_lag_request);
                 input_lag_reset_samples();
             } else {

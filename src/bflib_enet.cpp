@@ -58,6 +58,9 @@ namespace
     int host_is_dual_stack = 0;
     TransferRateTracker download_rate_tracker = {0, 0};
     TransferRateTracker upload_rate_tracker = {0, 0};
+    ENetAddress pending_punch_ipv4 = {};
+    ENetAddress pending_punch_ipv6 = {};
+    TbClockMSec next_punch_time = 0;
 
     // List
     ENetPacket *oldest_packet[MAX_NET_USERS] = {nullptr};
@@ -161,6 +164,8 @@ namespace
         }
         external_ipv4_port = 0;
         host_is_dual_stack = 0;
+        pending_punch_ipv4.port = 0;
+        pending_punch_ipv6.port = 0;
     }
 
     void bf_enet_exit()
@@ -955,45 +960,52 @@ uint16_t enet_get_bound_ipv6_port(void)
     return host->address.port;
 }
 
-void enet_matchmaking_host_update(void)
+int enet_matchmaking_host_update(void)
 {
-    if (!host)
-        return;
-    static ENetAddress pending_ipv4;
-    static ENetAddress pending_ipv6;
-    static int has_pending_ipv4 = 0;
-    static int has_pending_ipv6 = 0;
-    static TbClockMSec next_punch_time = 0;
+    if (!host) {
+        return 0;
+    }
     PunchAddresses punch_addresses;
-    int new_punch = 0;
-    if (matchmaking_poll_punch(&punch_addresses)) {
-        new_punch = 1;
-        has_pending_ipv4 = resolve_punch_address(punch_addresses.ipv4, ENET_ADDRESS_TYPE_IPV4, punch_addresses.ipv4_port, &pending_ipv4);
-        has_pending_ipv6 = host_is_dual_stack && resolve_punch_address(punch_addresses.ipv6, ENET_ADDRESS_TYPE_IPV6, punch_addresses.ipv6_port, &pending_ipv6);
-        next_punch_time = 0;
-        if (has_pending_ipv4 || has_pending_ipv6)
+    int poll_result = matchmaking_poll_punch(&punch_addresses);
+    if (poll_result < 0) {
+        return -1;
+    }
+    if (poll_result > 0) {
+        pending_punch_ipv4 = {};
+        pending_punch_ipv6 = {};
+        resolve_punch_address(punch_addresses.ipv4, ENET_ADDRESS_TYPE_IPV4, punch_addresses.ipv4_port, &pending_punch_ipv4);
+        if (host_is_dual_stack) {
+            resolve_punch_address(punch_addresses.ipv6, ENET_ADDRESS_TYPE_IPV6, punch_addresses.ipv6_port, &pending_punch_ipv6);
+        }
+        if (pending_punch_ipv4.port || pending_punch_ipv6.port) {
             LbNetLog("Host: received punch ipv4=%s ipv6=%s ipv4_port=%d ipv6_port=%d\n", punch_addresses.ipv4, punch_addresses.ipv6, punch_addresses.ipv4_port, punch_addresses.ipv6_port);
-        if (!has_pending_ipv6 && punch_addresses.ipv6[0] != '\0')
+        }
+        if (!pending_punch_ipv6.port && punch_addresses.ipv6[0] != '\0') {
             LbNetLog("Host: IPv6 punch skipped (host is not dual-stack)\n");
+        }
     }
-    if (!has_pending_ipv4 && !has_pending_ipv6) {
-        next_punch_time = 0;
-        return;
+    if (!pending_punch_ipv4.port && !pending_punch_ipv6.port) {
+        return 0;
     }
-    if (!new_punch) {
+    if (!poll_result) {
         for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
-            if (peer->state == ENET_PEER_STATE_CONNECTED)
-                return;
+            if (peer->state == ENET_PEER_STATE_CONNECTED) {
+                return 0;
+            }
         }
     }
     TbClockMSec now = LbTimerClock();
-    if (!new_punch && now < next_punch_time)
-        return;
-    if (has_pending_ipv6)
-        holepunch_punch_to(host, &pending_ipv6);
-    if (has_pending_ipv4)
-        holepunch_punch_to(host, &pending_ipv4);
+    if (!poll_result && now < next_punch_time) {
+        return 0;
+    }
+    if (pending_punch_ipv6.port) {
+        holepunch_punch_to(host, &pending_punch_ipv6);
+    }
+    if (pending_punch_ipv4.port) {
+        holepunch_punch_to(host, &pending_punch_ipv4);
+    }
     next_punch_time = now + HOLEPUNCH_CONNECT_DELAY_MS;
+    return 0;
 }
 
 struct NetSP *InitEnetSP()
