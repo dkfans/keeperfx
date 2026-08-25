@@ -425,69 +425,45 @@ static void process_player_research(PlayerNumber plyr_idx)
         break;
     }
 
-    if (research_completed)
-    {
-        const char *kind_description;
-
-        switch (rsrchval->rtyp)
-        {
-            case RsCat_Power:
-                kind_description = power_code_name((PowerKind)rsrchval->rkind);
-                break;
-
-            case RsCat_Room:
-                kind_description = room_code_name((RoomKind)rsrchval->rkind);
-                break;
-
-            case RsCat_Creature:
-                kind_description = creature_code_name((ThingModel)rsrchval->rkind);
-                break;
-
-            default:
-                kind_description = "INVALID";
-                break;
-        }
-
-        struct ApiEventData event_data[] = {
-            {
-                "player",
-                API_EVENT_DATA_INT32,
-                { .int32_value = (int32_t)plyr_idx }
-            },
-            {
-                "category",
-                API_EVENT_DATA_INT32,
-                { .int32_value = (int32_t)rsrchval->rtyp }
-            },
-            {
-                "kind",
-                API_EVENT_DATA_INT32,
-                { .int32_value = (int32_t)rsrchval->rkind }
-            },  
-            {
-                "kind_description",
-                API_EVENT_DATA_STRING,
-                { .string_value = kind_description }
-            },
-            {
-                "level_number",
-                API_EVENT_DATA_INT32,
-                { .int32_value = get_loaded_level_number() }
-            }
-        };
-
-        api_event_with_data(
-            "RESEARCH_COMPLETED",
-            event_data,
-            sizeof(event_data) / sizeof(event_data[0])
-        );
-    }
+    if(research_completed)
+        send_research_complete_event(rsrchval, plyr_idx);
     dungeon->research_progress -= (rsrchval->req_amount << 8);
     dungeon->last_research_complete_gameturn = get_gameturn();
 
     dungeon->current_research_idx = get_next_research_item(dungeon);
     dungeon->lvstats.things_researched++;
     return;
+}
+
+void send_research_complete_event(struct ResearchVal *rsrchval, PlayerNumber plyr_idx)
+{
+    const char *kind_description;
+
+    switch (rsrchval->rtyp)
+    {
+        case RsCat_Power:
+            kind_description = power_code_name((PowerKind)rsrchval->rkind);
+            break;
+        case RsCat_Room:
+            kind_description = room_code_name((RoomKind)rsrchval->rkind);
+            break;
+        case RsCat_Creature:
+            kind_description = creature_code_name((ThingModel)rsrchval->rkind);
+            break;
+        default:
+            kind_description = "INVALID";
+            break;
+    }
+
+    struct ApiEventData event_data[] = {
+        {"player", API_EVENT_DATA_INT32, {.int32_value = (int32_t)plyr_idx}},
+        {"category", API_EVENT_DATA_INT32, {.int32_value = (int32_t)rsrchval->rtyp}},
+        {"kind", API_EVENT_DATA_INT32, {.int32_value = (int32_t)rsrchval->rkind}},
+        {"kind_description", API_EVENT_DATA_STRING, {.string_value = kind_description}},
+        {"level_number", API_EVENT_DATA_INT32, {.int32_value = get_loaded_level_number()}}
+    };
+
+    api_event_with_data("RESEARCH_COMPLETED",event_data,sizeof(event_data) / sizeof(event_data[0]));
 }
 
 void update_research(void)
