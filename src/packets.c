@@ -447,8 +447,7 @@ void process_camera_controls(struct Camera* cam, const struct Packet* pckt, stru
         }
     }
 
-    const TbBool use_rotate_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
-                               && (pckt->control_flags & PCtr_ViewRotatePos) != 0;
+    const TbBool use_rotate_pos = flag_is_set(pckt->control_flags, PCtr_ViewRotatePos | PCtr_MapCoordsValid);
     const MapCoord rot_x = use_rotate_pos ? pckt->pos_x : -1;
     const MapCoord rot_y = use_rotate_pos ? pckt->pos_y : -1;
     if ((pckt->control_flags & PCtr_ViewRotateCCW) != 0)
@@ -509,8 +508,7 @@ void process_camera_controls(struct Camera* cam, const struct Packet* pckt, stru
     }
     const int32_t zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
     const int32_t zoom_max = CAMERA_ZOOM_MAX;
-    const TbBool use_zoom_pos = (pckt->control_flags & PCtr_MapCoordsValid) != 0
-                             && (pckt->control_flags & PCtr_ViewZoomPos) != 0;
+    const TbBool use_zoom_pos = flag_is_set(pckt->control_flags, PCtr_ViewZoomPos | PCtr_MapCoordsValid);
     const MapCoord zoom_x = use_zoom_pos ? pckt->pos_x : -1;
     const MapCoord zoom_y = use_zoom_pos ? pckt->pos_y : -1;
     if (pckt->control_flags & PCtr_ViewZoomIn)
