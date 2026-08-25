@@ -37,8 +37,8 @@
 #include "player_instances.h"
 #include "creature_states.h"
 #include "keeperfx.hpp"
-#include "post_inc.h"
 #include "api.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng)

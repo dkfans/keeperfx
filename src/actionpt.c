@@ -27,8 +27,8 @@
 
 #include "game_legacy.h"
 #include "value_util.h"
-#include "post_inc.h"
 #include "api.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

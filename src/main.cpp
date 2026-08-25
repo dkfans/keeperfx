@@ -61,7 +61,6 @@
 #include "config_slabsets.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
-#include "front_landview.h"
 #include "config_terrain.h"
 #include "config_objects.h"
 #include "config_magic.h"
@@ -1287,7 +1286,6 @@ void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation 
     }
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
-
 
 void set_general_objective(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {

@@ -36,8 +36,8 @@
 #include "magic_powers.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
-#include "post_inc.h"
 #include "api.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

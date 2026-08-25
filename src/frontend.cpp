@@ -1659,6 +1659,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
         return false;
     // Select the continue level (move the campaign forward)
     if ((allow_lvnum_grow) && (player->victory_state == VicS_WonLevel)) {
+        // If level number growth makes sense, do it
         SYNCDBG(7,"Progressing the campaign");
         lvnum = move_campaign_to_next_level();
     } else {
