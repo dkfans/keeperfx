@@ -36,6 +36,7 @@
 #include <json-dom.h>
 #include <minizip/unzip.h>
 #include "post_inc.h"
+#include "bflib_sprite.h"
 
 // Performance tests
 // #define OUTER
@@ -117,9 +118,10 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, in
 
 static TbBool add_custom_sprite(const char *path);
 
-static TbBool
-add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root));
-
+static TbBool add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root));
+static TbBool add_custom_json_with_data(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root, void *data), void *data);
+static size_t decode_png_to_sprite(unzFile zip, const char *path, const char *subpath, struct TbHugeSprite *sprite);
+static TbBool process_sheet(const char *path, unzFile zip, VALUE *root, void *data);
 static TbBool process_lens_overlay(const char *path, unzFile zip, VALUE *root);
 static TbBool process_lens_mist(const char *path, unzFile zip, VALUE *root);
 
@@ -172,6 +174,26 @@ static int cmp_named_command(const void *a, const void *b)
     const struct NamedCommand *val_a = a;
     const struct NamedCommand *val_b = b;
     return strcasecmp(val_a->name, val_b->name);
+}
+
+struct TbSpriteSheet *load_custom_sheet_from_zip(const char *path) {
+     if (path == NULL || path[0] == '\0') return NULL;
+    struct TbSpriteSheet *sheet = create_spritesheet();
+
+    if (sheet == NULL)
+        return NULL;
+
+    if (!add_custom_json_with_data(path,
+                                   "ensigns.json",
+                                   process_sheet,
+                                   sheet))
+    {
+        JUSTLOG("add_custom_json_with_data failed");
+        free_spritesheet(&sheet);
+        return NULL;
+    }
+
+    return sheet;
 }
 
 
@@ -731,63 +753,10 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
 static int read_png_icon(unzFile zip, const char *path, const char *subpath, int *icon_ptr)
 {
     struct TbHugeSprite sprite = {0};
-    size_t out_size;
+    size_t sz = decode_png_to_sprite(zip, path, subpath, &sprite);
 
-    spng_ctx *ctx = NULL;
-    ctx = spng_ctx_new(0);
-    spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
-
-    size_t limit = 1024 * 1024 * 2;
-    spng_set_chunk_limits(ctx, limit, limit);
-
-    spng_set_png_stream(ctx, zip_read_fn, (void *) zip);
-    struct spng_ihdr ihdr;
-    int r = spng_get_ihdr(ctx, &ihdr);
-
-    if (r)
-    {
-        ERRORLOG("spng_get_ihdr() error: %s", spng_strerror(r));
-        spng_ctx_free(ctx);
+    if (sz == 0)
         return 0;
-    }
-
-    if (ihdr.bit_depth != 8)
-    {
-        ERRORLOG("Wrong spec: %s/%s should be 8bit truecolor or indexed .png", path, subpath);
-        spng_ctx_free(ctx);
-        return 0;
-    }
-    struct spng_plte plte = {0};
-    r = spng_get_plte(ctx, &plte);
-
-    sprite.SWidth = ihdr.width;
-    sprite.SHeight = ihdr.height;
-
-    int fmt = SPNG_FMT_RGBA8; // for indexed should be SPNG_FMT_PNG
-
-    spng_decoded_image_size(ctx, fmt, &out_size);
-    if (limit < out_size) // Image is too big
-    {
-        ERRORLOG("Unable to decode %s error: %s", path, spng_strerror(r));
-        spng_ctx_free(ctx);
-        return 0;
-    }
-
-    unsigned char *dst_buf = big_scratch;
-    spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS);
-
-    if (sprite.SWidth >= 255 || sprite.SHeight >= 255)
-    {
-        ERRORLOG("Sprites more than 255x255 are not supported");
-        return 0;
-    }
-
-    size_t sz = (sprite.SWidth + 2) * (sprite.SHeight + 3);
-    sprite.Data = malloc(sz);
-
-    compress_raw(&sprite, dst_buf, 0, 0, sprite.SWidth, sprite.SHeight);
-
-    spng_ctx_free(ctx);
 
     if (next_free_icon >= GUI_PANEL_SPRITES_NEW)
     {
@@ -799,6 +768,139 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
     free(sprite.Data);
     *icon_ptr = next_free_icon + GUI_PANEL_SPRITES_COUNT;
     next_free_icon++;
+
+    return 1;
+}
+
+static size_t decode_png_to_sprite(unzFile zip, const char *path,
+                                   const char *subpath,
+                                   struct TbHugeSprite *sprite)
+{
+    size_t out_size;
+
+    if (sprite == NULL)
+        return 0;
+
+    memset(sprite, 0, sizeof(*sprite));
+
+    spng_ctx *ctx = spng_ctx_new(0);
+    if (ctx == NULL)
+    {
+        ERRORLOG("Unable to create PNG context for %s/%s", path, subpath);
+        return 0;
+    }
+
+    spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
+
+    size_t limit = 1024 * 1024 * 2;
+    spng_set_chunk_limits(ctx, limit, limit);
+
+    spng_set_png_stream(ctx, zip_read_fn, (void *)zip);
+
+    struct spng_ihdr ihdr;
+
+    int r = spng_get_ihdr(ctx, &ihdr);
+    if (r)
+    {
+        ERRORLOG("spng_get_ihdr() error for %s/%s: %s",
+                 path, subpath, spng_strerror(r));
+        spng_ctx_free(ctx);
+        return 0;
+    }
+
+    if (ihdr.bit_depth != 8)
+    {
+        ERRORLOG("Wrong spec: %s/%s should be 8bit truecolor or indexed .png",
+                 path, subpath);
+        spng_ctx_free(ctx);
+        return 0;
+    }
+
+    sprite->SWidth = ihdr.width;
+    sprite->SHeight = ihdr.height;
+
+    if (sprite->SWidth >= 255 || sprite->SHeight >= 255)
+    {
+        ERRORLOG("Sprites more than 255x255 are not supported: %s/%s",
+                 path, subpath);
+        spng_ctx_free(ctx);
+        return 0;
+    }
+
+    int fmt = SPNG_FMT_RGBA8;
+
+    r = spng_decoded_image_size(ctx, fmt, &out_size);
+    if (r)
+    {
+        ERRORLOG("Unable to determine decoded size for %s/%s: %s",
+                 path, subpath, spng_strerror(r));
+        spng_ctx_free(ctx);
+        return 0;
+    }
+
+    if (out_size > limit)
+    {
+        ERRORLOG("Decoded PNG is too large: %s/%s",
+                 path, subpath);
+        spng_ctx_free(ctx);
+        return 0;
+    }
+
+    unsigned char *dst_buf = big_scratch;
+
+    r = spng_decode_image(ctx, dst_buf, out_size,
+                          fmt, SPNG_DECODE_TRNS);
+    if (r)
+    {
+        ERRORLOG("Unable to decode %s/%s: %s",
+                 path, subpath, spng_strerror(r));
+        spng_ctx_free(ctx);
+        return 0;
+    }
+
+    size_t sz = (sprite->SWidth + 2) * (sprite->SHeight + 3);
+
+    sprite->Data = malloc(sz);
+    if (sprite->Data == NULL)
+    {
+        ERRORLOG("Unable to allocate sprite data for %s/%s",
+                 path, subpath);
+        spng_ctx_free(ctx);
+        return 0;
+    }
+
+    compress_raw(sprite, dst_buf,
+                 0, 0,
+                 sprite->SWidth,
+                 sprite->SHeight);
+
+    spng_ctx_free(ctx);
+
+    return sz;
+}
+
+static int read_png_to_sheet(unzFile zip, const char *path,
+                             const char *subpath, struct TbSpriteSheet *sheet)
+{
+    struct TbHugeSprite sprite = {0};
+    size_t sz = decode_png_to_sprite(zip, path, subpath, &sprite);
+
+    
+    JUSTLOG("decode_png_to_sprite result - %u",sz);
+    if (sz == 0)
+        return 0;
+
+    if (!add_sprite(sheet,
+                    sprite.SWidth,
+                    sprite.SHeight,
+                    sz,
+                    sprite.Data))
+    {
+        free(sprite.Data);
+        return 0;
+    }
+
+    free(sprite.Data);
 
     return 1;
 }
@@ -1311,6 +1413,98 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     return 1;
 }
 
+static TbBool add_custom_json_with_data(
+    const char *path,
+    const char *name,
+    TbBool (*process)(const char *path, unzFile zip, VALUE *root, void *data),
+    void *data)
+    {
+        SYNCDBG(8, "Starting");
+        unz_file_info64 zip_info = {0};
+        VALUE root;
+        JSON_INPUT_POS json_input_pos;
+        unzFile zip = unzOpen(path);
+
+        if (zip == NULL)
+        {
+            JUSTLOG("add_custom_json_with_data zip == NULL");
+            return 0;
+        }
+
+        if (UNZ_OK != fastUnzConstructCache(zip))
+        {
+            JUSTLOG("add_custom_json_with_data UNZ_OK != fastUnzConstructCache(zip)");
+            goto end;
+        }
+
+        JUSTLOG("add_custom_json_with_data name - %s",name);
+        if (UNZ_OK != fastUnzLocateFile(zip, name, 0))
+        {
+            JUSTLOG("add_custom_json_with_data UNZ_OK != fastUnzLocateFile(zip, name, 0)");
+            goto end;
+        }
+
+        if (UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0))
+        {
+            JUSTLOG("add_custom_json_with_data UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0)");
+            goto end;
+        }
+
+        if (zip_info.uncompressed_size >= 1024 * 1024)
+        {
+            JUSTLOG("add_custom_json_with_data zip_info.uncompressed_size >= 1024 * 1024");
+            WARNLOG("File too big %s/%s", path, name);
+            goto end;
+        }
+
+        if (UNZ_OK != unzOpenCurrentFile(zip))
+        {
+            JUSTLOG("add_custom_json_with_data UNZ_OK != unzOpenCurrentFile(zip)");
+            goto end;
+        }
+
+        if (unzReadCurrentFile(zip, big_scratch, zip_info.uncompressed_size) != zip_info.uncompressed_size)
+        {
+            JUSTLOG("add_custom_json_with_data unzReadCurrentFile(zip, big_scratch, zip_info.uncompressed_size) != zip_info.uncompressed_size");
+            WARNLOG("Unable to read %s/%s", path, name);
+            goto end;
+        }
+        big_scratch[zip_info.uncompressed_size] = 0;
+
+        if (UNZ_OK != unzCloseCurrentFile(zip))
+        {
+            JUSTLOG("add_custom_json_with_data UNZ_OK != unzCloseCurrentFile(zip)");
+            goto end;
+        }
+
+        int ret = json_dom_parse((char *) big_scratch, zip_info.uncompressed_size, NULL, 0, &root, &json_input_pos);
+        if (ret)
+        {
+            JUSTLOG("add_custom_json_with_data ret");
+            WARNLOG("Incorrect %s/%s line:%d col:%d", path, name, json_input_pos.line_number,
+                    json_input_pos.column_number);
+            goto end;
+        }
+
+        if (VALUE_ARRAY != value_type(&root))
+        {
+            WARNLOG("%s/%s should be array of dictionaries", path, name);
+            goto end;
+        }
+        TbBool ret_ok = process(path, zip, &root, data);
+        JUSTLOG("add_custom_json_with_data ret_ok - %i",ret_ok);    
+        value_fini(&root);
+
+        fastUnzClearCache();
+        unzClose(zip);
+
+        return ret_ok;
+    end:
+        fastUnzClearCache();
+        unzClose(zip);
+        return 0;
+}
+
 static TbBool
 add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root))
 {
@@ -1327,7 +1521,7 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
     {
         goto end;
     }
-
+    JUSTLOG("add_custom_json name - %s",name);
     if (UNZ_OK != fastUnzLocateFile(zip, name, 0))
     {
         goto end;
@@ -1840,6 +2034,66 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
     return 1;
 }
 
+static int process_sheet_from_list(const char *path, unzFile zip, int idx,
+                                   VALUE *root, struct TbSpriteSheet *sheet)
+{
+    
+    JUSTLOG("inside process_sheet_from_list");
+    const char *file_key = "file";
+    VALUE *file_value = value_dict_get(root, file_key);
+
+    if (file_value == NULL)
+    {
+        WARNLOG("Invalid sprite %s/icons.json[%d]: no \"%s\" key",
+                path, idx, file_key);
+        return 0;
+    }
+
+    if (value_type(file_value) == VALUE_STRING)
+    {
+        char *tmp = strdup(value_string(file_value));
+        value_init_array(file_value);
+        value_init_string(value_array_append(file_value), tmp);
+        free(tmp);
+    }
+    else if (value_type(file_value) != VALUE_ARRAY)
+    {
+        WARNLOG("Invalid sprite %s/icons.json[%d]: invalid value for %s",
+                path, idx, file_key);
+        return 0;
+    }
+
+    int files_count = value_array_size(file_value);
+
+    JUSTLOG("process_sheet_from_list files_count - %i",files_count);
+    for (int i = 0; i < files_count; i++)
+    {
+        const char *file =
+            value_string(value_array_get(file_value, i));
+
+        if (fastUnzLocateFile(zip, file, 0))
+        {
+            WARNLOG("Png '%s' not found in '%s'", file, path);
+            return 0;
+        }
+
+        if (UNZ_OK != unzOpenCurrentFile(zip))
+            return 0;
+
+        if (!read_png_to_sheet(zip, path, file, sheet))
+        {            
+            JUSTLOG("read_png_to_sheet failed");
+            unzCloseCurrentFile(zip);
+            return 0;
+        }
+
+        if (UNZ_OK != unzCloseCurrentFile(zip))
+            return 0;
+    }
+
+    return 1;
+}
+
 int get_custom_icon_frame_count(short icon_idx)
 {
     int frame_idx = icon_idx - GUI_PANEL_SPRITES_COUNT;
@@ -2050,6 +2304,28 @@ static TbBool process_sprite(const char *path, unzFile zip, VALUE *root)
     }
 
     qsort(added_sprites, num_added_sprite, sizeof(added_sprites[0]), &cmp_named_command);
+    return ret_ok;
+}
+
+static TbBool process_sheet(const char *path, unzFile zip, VALUE *root, void *data)
+{
+
+    JUSTLOG("inside process_sheet");
+    struct TbSpriteSheet* sheet = data;
+    TbBool ret_ok = true;
+
+    for (int i = 0; i < value_array_size(root); i++)
+    {
+        VALUE *val = value_array_get(root, i);
+
+        if (!process_sheet_from_list(path, zip, i, val, sheet))
+        {            
+            JUSTLOG("process_sheet_from_list failed");
+            ret_ok = false;
+            continue;
+        }
+    }
+
     return ret_ok;
 }
 

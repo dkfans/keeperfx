@@ -52,6 +52,7 @@ enum CreditsItemKind {
 enum LandMarkings {
     LndMk_ENSIGNS,
     LndMk_PINPOINTS,
+    LndMk_CUSTOM,
 };
 
 enum CampaignTypes {

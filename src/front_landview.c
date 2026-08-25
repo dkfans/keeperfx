@@ -57,6 +57,7 @@
 #include "net_game.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1041,16 +1042,22 @@ TbBool frontmap_load(void)
         frontend_load_data_reset();
         return false;
     }
+
+    JUSTLOG("campaign.land_markers - %i",campaign.land_markers);
     switch (campaign.land_markers) {
-    case LndMk_PINPOINTS:
-        map_flag = load_spritesheet("ldata/lndflag_pin.dat", "ldata/lndflag_pin.tab");
-        break;
-    default:
-        ERRORLOG("Unsupported land markers type %d",(int)campaign.land_markers);
-        // Fall through
-    case LndMk_ENSIGNS:
-        map_flag = load_spritesheet("ldata/lndflag_ens.dat", "ldata/lndflag_ens.tab");
-        break;
+        case LndMk_PINPOINTS:
+            map_flag = load_spritesheet("ldata/lndflag_pin.dat", "ldata/lndflag_pin.tab");
+            break;
+        default:
+            ERRORLOG("Unsupported land markers type %d",(int)campaign.land_markers);
+            // Fall through
+        case LndMk_ENSIGNS:
+            map_flag = load_spritesheet("ldata/lndflag_ens.dat", "ldata/lndflag_ens.tab");
+            break;
+        case LndMk_CUSTOM:
+            char* ensign_zip_path = prepare_file_fmtpath(FGrp_LandView, "ensigns.zip");            
+            JUSTLOG("ensign_zip_path - %s",ensign_zip_path);
+            map_flag = load_custom_sheet_from_zip(ensign_zip_path);
     }
     if (!map_flag)
     {

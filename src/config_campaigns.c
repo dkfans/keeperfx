@@ -105,6 +105,7 @@ const struct NamedCommand cmpgn_map_ensign_flag_options[] = {
 const struct NamedCommand cmpgn_level_markers_options[] = {
   {"ENSIGNS",        LndMk_ENSIGNS},
   {"PINPOINTS",      LndMk_PINPOINTS},
+  {"CUSTOM",         LndMk_CUSTOM},
   {NULL,              0},
   };
 
