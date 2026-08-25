@@ -114,13 +114,18 @@ enum CustomLoadFlags {
 static unsigned char big_scratch_data[1024*1024*16] = {0};
 unsigned char *big_scratch = big_scratch_data;
 
-static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h);
-
+static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h, const uint8_t *conversion_table);
+static uint8_t *create_rgb_to_pal_table(const uint8_t *palette);
+struct SheetLoadContext
+{
+    struct TbSpriteSheet *sheet;
+    const uint8_t *conversion_table;
+};
 static TbBool add_custom_sprite(const char *path);
 
 static TbBool add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root));
 static TbBool add_custom_json_with_data(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root, void *data), void *data);
-static size_t decode_png_to_sprite(unzFile zip, const char *path, const char *subpath, struct TbHugeSprite *sprite);
+static size_t decode_png_to_sprite(unzFile zip, const char *path, const char *subpath, struct TbHugeSprite *sprite, const uint8_t *conversion_table);
 static TbBool process_sheet(const char *path, unzFile zip, VALUE *root, void *data);
 static TbBool process_lens_overlay(const char *path, unzFile zip, VALUE *root);
 static TbBool process_lens_mist(const char *path, unzFile zip, VALUE *root);
@@ -176,23 +181,32 @@ static int cmp_named_command(const void *a, const void *b)
     return strcasecmp(val_a->name, val_b->name);
 }
 
-struct TbSpriteSheet *load_custom_sheet_from_zip(const char *path) {
-     if (path == NULL || path[0] == '\0') return NULL;
+struct TbSpriteSheet *load_custom_sheet_from_zip(const char *path, const unsigned char *palette) {
+    if (path == NULL || path[0] == '\0' || palette == NULL) return NULL;
     struct TbSpriteSheet *sheet = create_spritesheet();
 
     if (sheet == NULL)
         return NULL;
+    const uint8_t *conversion_table = create_rgb_to_pal_table(palette);
+        if (conversion_table == NULL)
+        {
+            free_spritesheet(&sheet);
+            return NULL;
+        }
 
-    if (!add_custom_json_with_data(path,
-                                   "ensigns.json",
-                                   process_sheet,
-                                   sheet))
+    struct SheetLoadContext context = {
+        .sheet = sheet,
+        .conversion_table = conversion_table,
+        };
+
+    if (!add_custom_json_with_data(path, "ensigns.json", process_sheet, &context))
     {
         JUSTLOG("add_custom_json_with_data failed");
+        free((void *)conversion_table);
         free_spritesheet(&sheet);
         return NULL;
     }
-
+    free((void *)conversion_table);
     return sheet;
 }
 
@@ -753,7 +767,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
 static int read_png_icon(unzFile zip, const char *path, const char *subpath, int *icon_ptr)
 {
     struct TbHugeSprite sprite = {0};
-    size_t sz = decode_png_to_sprite(zip, path, subpath, &sprite);
+    size_t sz = decode_png_to_sprite(zip, path, subpath, &sprite, NULL);
 
     if (sz == 0)
         return 0;
@@ -772,9 +786,7 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
     return 1;
 }
 
-static size_t decode_png_to_sprite(unzFile zip, const char *path,
-                                   const char *subpath,
-                                   struct TbHugeSprite *sprite)
+static size_t decode_png_to_sprite(unzFile zip, const char *path, const char *subpath, struct TbHugeSprite *sprite, const uint8_t *conversion_table)
 {
     size_t out_size;
 
@@ -872,19 +884,18 @@ static size_t decode_png_to_sprite(unzFile zip, const char *path,
     compress_raw(sprite, dst_buf,
                  0, 0,
                  sprite->SWidth,
-                 sprite->SHeight);
+                 sprite->SHeight,
+                 conversion_table);
 
     spng_ctx_free(ctx);
 
     return sz;
 }
 
-static int read_png_to_sheet(unzFile zip, const char *path,
-                             const char *subpath, struct TbSpriteSheet *sheet)
+static int read_png_to_sheet(unzFile zip, const char *path, const char *subpath, struct TbSpriteSheet *sheet, const uint8_t *conversion_table)
 {
     struct TbHugeSprite sprite = {0};
-    size_t sz = decode_png_to_sprite(zip, path, subpath, &sprite);
-
+    size_t sz = decode_png_to_sprite(zip, path, subpath, &sprite, conversion_table);
     
     JUSTLOG("decode_png_to_sprite result - %u",sz);
     if (sz == 0)
@@ -988,7 +999,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     size_t sz = (dst_w + 2) * (dst_h + 3);
     keepersprite_add[sprite_idx] = malloc(sz);
     context->sprite.Data = keepersprite_add[sprite_idx];
-    compress_raw(&context->sprite, dst_buf, context->x, context->y, dst_w, dst_h);
+    compress_raw(&context->sprite, dst_buf, context->x, context->y, dst_w, dst_h, NULL);
     struct KeeperSprite *ksprite = &creature_table_add[sprite_idx];
 
     if (context->ksp_first == NULL)
@@ -1044,7 +1055,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
 }
 #pragma clang diagnostic pop
 
-static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
+static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len, const uint8_t *conversion_table)
 {
     for (int i = 0; i < len; i++)
     {
@@ -1053,7 +1064,7 @@ static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
             (((color >> 2) & (MAX_COLOR_VALUE - 1)) << 0) +
             (((color >> 10) & (MAX_COLOR_VALUE - 1)) << 6) +
             (((color >> 18) & (MAX_COLOR_VALUE - 1)) << 12);
-        *dst_buf++ = rgb_to_pal_table[key];
+        *dst_buf++ = conversion_table[key];
     }
 }
 
@@ -1080,6 +1091,20 @@ static uint8_t nearest_color(uint32_t value, const uint8_t * palette)
     }
     return nearest;
 }
+static uint8_t *create_rgb_to_pal_table(const uint8_t *palette)
+{
+    const uint32_t table_size = MAX_COLOR_VALUE * MAX_COLOR_VALUE * MAX_COLOR_VALUE;
+    uint8_t *table = calloc(table_size, 1);
+    if (!table) {
+        ERRORLOG("Cannot allocate rgb conversion table");    
+        return NULL;
+    }
+
+    for (uint32_t i = 0; i < table_size; ++i) {
+        table[i] = nearest_color(i, palette);
+    }
+    return table;
+}
 
 static void load_rgb_to_pal_table()
 {
@@ -1105,15 +1130,21 @@ static void load_rgb_to_pal_table()
         return;
     }
     // populate table
-    for (uint32_t i = 0; i < table_size; ++i) {
-        rgb_to_pal_table[i] = nearest_color(i, palette);
-    }
+    rgb_to_pal_table = create_rgb_to_pal_table(palette);
 }
 
-static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, int x, int y, int w, int h)
+static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, int x, int y, int w, int h, const uint8_t *conversion_table)
 {
     #define TEST_TRANSP(x) ((x & 0xFF000000u) < 0x40000000u)
-    load_rgb_to_pal_table();
+    if (conversion_table == NULL)
+    {
+        load_rgb_to_pal_table();
+        conversion_table = rgb_to_pal_table;
+    }
+    if (conversion_table == NULL)
+    {
+        return;
+    }
     unsigned char *buf = sprite->Data;
     uint32_t *src_buf = (uint32_t *) inp_buf;
     TbBool is_transp;
@@ -1149,7 +1180,7 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, in
                     {
                         *buf = len;
                         buf++;
-                        convert_row(buf, src_buf - len, len);
+                        convert_row(buf, src_buf - len, len, conversion_table);
                         buf += len;
                     }
 
@@ -1166,7 +1197,7 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, in
         {
             *buf = len;
             buf++;
-            convert_row(buf, src_buf - len, len);
+            convert_row(buf, src_buf - len, len, conversion_table);
             buf += len;
         }
         *buf = 0;
@@ -2034,8 +2065,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
     return 1;
 }
 
-static int process_sheet_from_list(const char *path, unzFile zip, int idx,
-                                   VALUE *root, struct TbSpriteSheet *sheet)
+static int process_sheet_from_list(const char *path, unzFile zip, int idx, VALUE *root, struct TbSpriteSheet *sheet, const uint8_t *conversion_table)
 {
     
     JUSTLOG("inside process_sheet_from_list");
@@ -2080,7 +2110,7 @@ static int process_sheet_from_list(const char *path, unzFile zip, int idx,
         if (UNZ_OK != unzOpenCurrentFile(zip))
             return 0;
 
-        if (!read_png_to_sheet(zip, path, file, sheet))
+        if (!read_png_to_sheet(zip, path, file, sheet, conversion_table))
         {            
             JUSTLOG("read_png_to_sheet failed");
             unzCloseCurrentFile(zip);
@@ -2311,14 +2341,15 @@ static TbBool process_sheet(const char *path, unzFile zip, VALUE *root, void *da
 {
 
     JUSTLOG("inside process_sheet");
-    struct TbSpriteSheet* sheet = data;
+    struct SheetLoadContext *context = data;
+    struct TbSpriteSheet* sheet = context->sheet;
     TbBool ret_ok = true;
 
     for (int i = 0; i < value_array_size(root); i++)
     {
         VALUE *val = value_array_get(root, i);
 
-        if (!process_sheet_from_list(path, zip, i, val, sheet))
+        if (!process_sheet_from_list(path, zip, i, val, sheet, context->conversion_table))
         {            
             JUSTLOG("process_sheet_from_list failed");
             ret_ok = false;

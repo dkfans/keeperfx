@@ -56,7 +56,7 @@ const struct TbSprite *get_button_sprite(short sprite_idx);
 const struct TbSprite *get_frontend_sprite(short sprite_idx);
 const struct TbSprite *get_new_icon_sprite(short sprite_idx);
 const struct TbSprite *get_panel_sprite(short sprite_idx);
-struct TbSpriteSheet *load_custom_sheet_from_zip(const char *path);
+struct TbSpriteSheet *load_custom_sheet_from_zip(const char *path, const unsigned char *palette);
 int is_custom_icon(short icon_idx);
 int get_custom_icon_frame_count(short icon_idx);
 // Lens overlay data structure

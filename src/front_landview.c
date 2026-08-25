@@ -1057,7 +1057,7 @@ TbBool frontmap_load(void)
         case LndMk_CUSTOM:
             char* ensign_zip_path = prepare_file_fmtpath(FGrp_LandView, "ensigns.zip");            
             JUSTLOG("ensign_zip_path - %s",ensign_zip_path);
-            map_flag = load_custom_sheet_from_zip(ensign_zip_path);
+            map_flag = load_custom_sheet_from_zip(ensign_zip_path, frontend_palette);
     }
     if (!map_flag)
     {
