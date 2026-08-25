@@ -54,6 +54,7 @@
 #include "gui_frontmenu.h"
 #include "gui_parchment.h"
 #include "gui_draw.h"
+#include "custom_sprites.h"
 #include "packets.h"
 #include "magic_powers.h"
 #include "player_computer.h"
@@ -396,21 +397,53 @@ void gui_choose_room(struct GuiButton *gbtn)
 
 void gui_area_event_button(struct GuiButton *gbtn)
 {
-    if ((gbtn->flags & LbBtnF_Enabled) != 0)
-    {
-        int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_message_rpanel_msg_questn_act, 100);
-        if ((gbtn->button_state_left_pressed) || (gbtn->button_state_right_pressed))
-        {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
-        } else
-        if (get_my_event_button_index(gbtn->content.lval) == my_visible_event_idx)
-        {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
-        } else
-        {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx+1);
+    EventIndex evidx = get_my_event_button_index(gbtn->content.lval);
+    if (evidx == 0) {
+        return;
+    }
+    struct Event* event = &game.event[evidx];
+    
+    int spr_idx = (event->icon_idx >= 0)
+    ? event->icon_idx
+    : event_button_info[event->kind].bttn_sprite;
+
+    if ((event->kind == EvKind_Objective || event->kind == EvKind_Information ||
+         event->kind == EvKind_QuickInformation) &&
+        is_custom_icon(event->icon_idx) &&
+        evidx == my_visible_event_idx) {
+        spr_idx++;
+    }
+
+    if (get_gameturn() % (2 * gui_blink_rate) >= gui_blink_rate) {
+        switch (event->kind) {
+        case EvKind_Information:
+        case EvKind_QuickInformation:
+            if (!(my_event_button_state[evidx] & EvBtnS_Read)) {
+                if (!is_custom_icon(event->icon_idx) || get_custom_icon_frame_count(event->icon_idx) >= 3) {
+                    spr_idx += 2;
+                }
+            }
+            break;
+        case EvKind_FriendlyFight:
+        case EvKind_EnemyFight:
+        case EvKind_HeartAttacked:
+            if (event->mappos_x != 0 || event->mappos_y != 0) {
+                spr_idx += 2;
+            }
+            break;
         }
     }
+    int32_t draw_y = gbtn->scr_pos_y;
+    if (flag_is_set(event->flags, EvF_BtnFalling)) {
+        draw_y = interpolate_synced(gbtn->scr_pos_y - gbtn->height, gbtn->scr_pos_y);
+    }
+    if (!gbtn->button_state_left_pressed && !gbtn->button_state_right_pressed && evidx != my_visible_event_idx) {
+        if (!is_custom_icon(event->icon_idx)) {
+            spr_idx++;
+        }
+    }
+    int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_message_rpanel_msg_questn_act, 100);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, draw_y, ps_units_per_px, spr_idx);
 }
 
 #define BAR_FULL_WIDTH 32
@@ -2220,7 +2253,6 @@ void maintain_event_button(struct GuiButton *gbtn)
     if (evidx == 0)
     {
       gbtn->btype_value |= LbBFeF_NoMouseOver;
-      gbtn->sprite_idx = 0;
       gbtn->flags &= ~LbBtnF_Enabled;
       gbtn->button_state_left_pressed = 0;
       gbtn->button_state_right_pressed = 0;
@@ -2231,12 +2263,8 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         activate_event_box(evidx);
     }
-    gbtn->sprite_idx = event_button_info[event->kind].bttn_sprite;
-    if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
-        && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
+    if ((event->kind == EvKind_FriendlyFight || event->kind == EvKind_EnemyFight) && (event->mappos_x != 0 || event->mappos_y != 0) && get_gameturn() % (2 * gui_blink_rate) >= gui_blink_rate)
     {
-        // Fight icon flashes when there are fights to show
-        gbtn->sprite_idx += 2;
         if(is_game_key_pressed(Gkey_SpeedMod, false, true) && is_game_key_pressed(Gkey_ZoomToFight, true, true))
         {
             if (evidx == my_visible_event_idx)
@@ -2248,18 +2276,6 @@ void maintain_event_button(struct GuiButton *gbtn)
             activate_event_box(evidx);
             }
         }
-    } else
-    if (((event->kind == EvKind_Information) || (event->kind == EvKind_QuickInformation))
-      && !(my_event_button_state[evidx] & EvBtnS_Read) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
-    {
-        // Unread information flashes
-        gbtn->sprite_idx += 2;
-    } else
-    if ((event->kind == EvKind_HeartAttacked)
-        && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
-    {
-        // Heart alert icon flashes when heart is being attacked
-        gbtn->sprite_idx += 2;
     }
     gbtn->tooltip_stridx = event_button_info[event->kind].tooltip_stridx;
     gbtn->flags |= LbBtnF_Enabled;

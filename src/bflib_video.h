@@ -109,6 +109,7 @@ enum TbDrawFlags {
     Lb_TEXT_UNDERLINE      = 0x0400,
     Lb_SPRITE_REMAP        = 0x0800,
     Lb_TEXT_UNDERLNSHADOW  = 0x1000,
+    Lb_TEXT_REMAP          = 0x2000,
 };
 
 enum TbVideoModeFlags {

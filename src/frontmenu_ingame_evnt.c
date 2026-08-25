@@ -877,10 +877,11 @@ void draw_network_stats()
     unsigned int lost_packet_count = GetClientPacketsLost();
     unsigned int outgoing_rate_kb10 = (GetUploadRateBytesPerSecond() * 10) / 1024;
     unsigned int incoming_rate_kb10 = (GetDownloadRateBytesPerSecond() * 10) / 1024;
-    int32_t packet_misses;
-    TbClockMSec increase_countdown;
-    TbClockMSec decrease_countdown;
-    input_lag_get_stats(&packet_misses, &increase_countdown, &decrease_countdown);
+    int32_t increase_missed_turns;
+    int32_t increase_sampled_turns;
+    int32_t decrease_missed_turns;
+    int32_t decrease_sampled_turns;
+    input_lag_get_stats(&increase_missed_turns, &increase_sampled_turns, &decrease_missed_turns, &decrease_sampled_turns);
     int64_t turn_length_ns = 0;
     if (turns_per_second > 0) {
         turn_length_ns = 1000000000 / turns_per_second;
@@ -896,33 +897,31 @@ void draw_network_stats()
     LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Input lag: %d", game.input_lag_turns);
     LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Packet waits: %d", packet_misses);
+    snprintf(text, sizeof(text), "Recent packet misses: %d/%d", increase_missed_turns, increase_sampled_turns);
     LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Increase input lag: %dms", increase_countdown);
+    snprintf(text, sizeof(text), "Decrease packet misses: %d/%d", decrease_missed_turns, decrease_sampled_turns);
     LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Decrease input lag: %dms", decrease_countdown);
-    LbTextDrawResized(0, tx_units_per_px * 5, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Download: %u.%u KB/s",
         incoming_rate_kb10 / 10, incoming_rate_kb10 % 10);
-    LbTextDrawResized(0, tx_units_per_px * 6, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 5, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Upload: %u.%u KB/s",
         outgoing_rate_kb10 / 10, outgoing_rate_kb10 % 10);
-    LbTextDrawResized(0, tx_units_per_px * 7, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 6, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Congestion: %u bytes", transit);
-    LbTextDrawResized(0, tx_units_per_px * 8, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 7, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Loss rate: %u%%", packet_loss_percent);
-    LbTextDrawResized(0, tx_units_per_px * 9, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 8, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Lost packets: %u", lost_packet_count);
-    LbTextDrawResized(0, tx_units_per_px * 10, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 9, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Stutter: %dms", stutter_detection_current);
-    LbTextDrawResized(0, tx_units_per_px * 11, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 10, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Average stutter: %dms", stutter_detection_average);
-    LbTextDrawResized(0, tx_units_per_px * 12, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 11, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Max stutter: %dms", stutter_detection_max);
-    LbTextDrawResized(0, tx_units_per_px * 13, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 12, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Turn length: %" PRId64, turn_length_ns);
-    LbTextDrawResized(0, tx_units_per_px * 14, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 13, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
-    LbTextDrawResized(0, tx_units_per_px * 15, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * 14, tx_units_per_px, text);
 }
 /******************************************************************************/

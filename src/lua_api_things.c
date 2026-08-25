@@ -461,6 +461,14 @@ static int thing_set_field(lua_State *L) {
         {
             return luaL_error(L, "Field '%s' is not writable on Trap thing", key);
         }
+    } else if (thing_is_special_box(thing))
+    {
+        if (strcmp(key, "box_kind") == 0) {
+            thing->custom_box.box_kind = luaL_checkinteger(L, 3);
+        } else
+        {
+            return luaL_error(L, "Field '%s' is not writable on Trap thing", key);
+        }
     } else
     {
         return luaL_error(L, "Field '%s' is not writable on Thing", key);
@@ -610,6 +618,13 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, thing->trap.shooting_finished_turn);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Trap thing", key);
+        }
+    } else if (thing_is_special_box(thing))
+    {
+        if (strcmp(key, "box_kind") == 0) {
+            lua_pushinteger(L, thing->custom_box.box_kind);
+        } else {
+            return luaL_error(L, "Unknown field or method '%s' for Special box thing", key);
         }
     } else {
         return luaL_error(L, "Unknown or unavailable field or method '%s' for Thing", key);

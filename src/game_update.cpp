@@ -528,6 +528,9 @@ void update(void)
 
     if (!flag_is_set(game.operation_flags,GOF_Paused))
     {
+        for (int i = 1; i < EVENTS_COUNT; i++) {
+            game.event[i].flags &= ~EvF_BtnFalling;
+        }
         if (flag_is_set(player->additional_flags,PlaAF_LightningPaletteIsActive))
         {
             PaletteSetPlayerPalette(player, engine_palette);

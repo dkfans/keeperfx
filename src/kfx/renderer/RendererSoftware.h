@@ -26,7 +26,6 @@ private:
 
     SDL_Renderer* m_renderer = nullptr;
     SDL_Texture*  m_texture  = nullptr;
-    SDL_Surface*  m_rgba     = nullptr;
     int           m_tex_w    = 0;
     int           m_tex_h    = 0;
     int           m_vsync    = -1; // SDL_SetRenderVSync value; -1 = unset

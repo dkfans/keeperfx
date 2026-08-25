@@ -61,6 +61,7 @@
 #include "config_slabsets.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
+#include "front_landview.h"
 #include "config_terrain.h"
 #include "config_objects.h"
 #include "config_magic.h"
@@ -960,6 +961,9 @@ void clear_things_and_persons_data(void)
 {
     struct Thing *thing;
     long i;
+    memset(game.thing_lists, 0, sizeof(game.thing_lists));
+    game.ambient_sound_thing_idx = 0;
+    game.nodungeon_creatr_list_start = 0;
     for (i=0; i < THINGS_COUNT; i++)
     {
         thing = &game.things_data[i];
@@ -1258,6 +1262,17 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
 
 void set_general_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
+    set_general_information_with_icon(
+        msg_id,
+        plyr_idx,
+        target,
+        x,
+        y,
+        -1);
+}
+
+void set_general_information_with_icon(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx)
+{
     struct PlayerInfo *player = get_player(plyr_idx);
     MapCoord pos_x = 0;
     MapCoord pos_y = 0;
@@ -1267,34 +1282,59 @@ void set_general_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocatio
         pos_y = subtile_coord_center(y);
         pos_x = subtile_coord_center(x);
     }
-    event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
+    struct Event* event = event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
+    if (!event_is_invalid(event))
+        event->icon_idx = icon_idx;
+}
+
+void set_quick_information_with_icon(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx)
+{
+    struct PlayerInfo *player = get_player(plyr_idx);
+    MapCoord pos_x = 0;
+    MapCoord pos_y = 0;
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
+    if ((x != 0) || (y != 0))
+    {
+        pos_y = subtile_coord_center(y);
+        pos_x = subtile_coord_center(x);
+    }
+    struct Event* event = event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
+    if (!event_is_invalid(event))
+        event->icon_idx = icon_idx;
 }
 
 void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    struct PlayerInfo *player = get_player(plyr_idx);
-    MapCoord pos_x = 0;
-    MapCoord pos_y = 0;
-    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
-    if ((x != 0) || (y != 0))
-    {
-        pos_y = subtile_coord_center(y);
-        pos_x = subtile_coord_center(x);
-    }
-    event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
+    set_quick_information_with_icon(
+        msg_id,
+        plyr_idx,
+        target,
+        x,
+        y,
+        -1);
 }
 
 void set_general_objective(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
-    process_objective(get_string(msg_id), plyr_idx, target, x, y);
+    set_general_objective_with_icon(msg_id, plyr_idx, target, x, y, -1);
+}
+
+void set_general_objective_with_icon(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx)
+{
+    process_objective_with_icon(get_string(msg_id), plyr_idx, target, x, y, icon_idx);
 }
 
 void process_objective(const char *msg_text, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y)
 {
+    process_objective_with_icon(msg_text, plyr_idx, target, x, y, -1);
+}
+
+void process_objective_with_icon(const char *msg_text, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx)
+{
     struct PlayerInfo *player = get_player(plyr_idx);
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     set_level_objective(player->id_number, msg_text);
-    display_objectives(player->id_number, x, y);
+    display_objectives_with_icon(player->id_number, x, y, icon_idx);
 }
 
 short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count)

@@ -7337,3 +7337,9 @@ msgstr "/fxdata/%.39s nebyl načten."
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Nainstalujte jej jako mod do složky /mods/."
+
+#: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "Připojení k serveru bylo ztraceno."

@@ -7368,3 +7368,9 @@ msgstr "/fxdata/%.39s non oneratum."
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Instrue ut modulum in /mods/."
+
+#: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "Conexio ad servitorem amissa est."

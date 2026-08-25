@@ -65,7 +65,6 @@ bool RendererSoftware::ensure_present_target()
     if (m_texture == nullptr || m_tex_w != lbDrawSurface->w || m_tex_h != lbDrawSurface->h)
     {
         if (m_texture != nullptr) { SDL_DestroyTexture(m_texture); m_texture = nullptr; }
-        if (m_rgba != nullptr) { SDL_DestroySurface(m_rgba); m_rgba = nullptr; }
         m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_RGBA32,
                                       SDL_TEXTUREACCESS_STREAMING, lbDrawSurface->w, lbDrawSurface->h);
         if (m_texture == nullptr)
@@ -74,12 +73,6 @@ bool RendererSoftware::ensure_present_target()
             return false;
         }
         SDL_SetTextureScaleMode(m_texture, SDL_SCALEMODE_NEAREST); // crisp pixels
-        m_rgba = SDL_CreateSurface(lbDrawSurface->w, lbDrawSurface->h, SDL_PIXELFORMAT_RGBA32);
-        if (m_rgba == nullptr)
-        {
-            ERRORLOG("SDL_CreateSurface(RGBA staging) failed: %s", SDL_GetError());
-            return false;
-        }
         m_tex_w = lbDrawSurface->w;
         m_tex_h = lbDrawSurface->h;
     }
@@ -89,7 +82,6 @@ bool RendererSoftware::ensure_present_target()
 void RendererSoftware::destroy_present_target()
 {
     if (m_texture != nullptr) { SDL_DestroyTexture(m_texture); m_texture = nullptr; }
-    if (m_rgba != nullptr) { SDL_DestroySurface(m_rgba); m_rgba = nullptr; }
     if (m_renderer != nullptr) { SDL_DestroyRenderer(m_renderer); m_renderer = nullptr; }
     m_tex_w = 0;
     m_tex_h = 0;
@@ -131,11 +123,22 @@ void RendererSoftware::PresentFrame()
 {
     if (lbDrawSurface == NULL || !ensure_present_target())
         return;
+    SDL_Surface* texture_surface;
+    if (!SDL_LockTextureToSurface(m_texture, NULL, &texture_surface))
+    {
+        ERRORLOG("Present texture lock failed: %s", SDL_GetError());
+        return;
+    }
     LbMouseOnBeginSwap();
     // INDEX8 (palette) -> RGBA and present
-    if (!SDL_BlitSurface(lbDrawSurface, NULL, m_rgba, NULL))
+    if (!SDL_BlitSurface(lbDrawSurface, NULL, texture_surface, NULL))
+    {
         ERRORLOG("Present blit failed: %s", SDL_GetError());
-    SDL_UpdateTexture(m_texture, NULL, m_rgba->pixels, m_rgba->pitch);
+        SDL_UnlockTexture(m_texture);
+        LbMouseOnEndSwap();
+        return;
+    }
+    SDL_UnlockTexture(m_texture);
     SDL_RenderClear(m_renderer);
     SDL_RenderTexture(m_renderer, m_texture, NULL, NULL);
     SDL_RenderPresent(m_renderer);

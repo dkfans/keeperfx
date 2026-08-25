@@ -257,6 +257,7 @@ void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y,
     event->owner = dngn_id;
     event->lifespan_turns = event_button_info[evkind].lifespan_turns;
     event->target = target;
+    event->icon_idx = -1;
     event->flags |= EvF_BtnFirstFall;
 }
 
@@ -610,6 +611,7 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                 dungeon->event_button_index[i-1] = curr_ev_idx;
                 dungeon->event_button_index[i] = 0;
                 struct Event* event = &game.event[curr_ev_idx];
+                event->flags |= EvF_BtnFalling;
                 if (flag_is_set(event->flags,EvF_BtnFirstFall))
                 {
                     if ((i == 1) || ((i >= 2) && dungeon->event_button_index[i-2] != 0))
@@ -733,7 +735,7 @@ void event_process_events(void)
 
 void update_all_events(void)
 {
-    for (long i = EVENTS_COUNT; i > 0; i--)
+    for (int32_t i = EVENTS_COUNT - 1; i > 0; i--)
     {
         struct Thing* thing = event_is_attached_to_thing(i);
         if (thing_exists(thing))

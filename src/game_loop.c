@@ -419,6 +419,42 @@ static short display_should_be_updated_this_turn(void)
     return false;
 }
 
+static long double get_turn_start()
+{
+    if (game.input_lag_turns > 0 || ! network_is_active())
+        return 1.0;
+
+    // Aim to exchange network packets before the turn ends.  If drawing
+    // another frame could miss this deadline, skip it.
+    // In a 3-4 player game, clients must be 2 frames early.
+    const int frames = 1 + (netstate.my_id != SERVER_ID && game.active_players_count > 2);
+    return 1.0 - frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.frame_skip, 1);
+}
+
+static void update_multiplayer_clock_adjust()
+{
+    multiplayer_clock_adjust = 1.0;
+    if (netstate.my_id == SERVER_ID || ! network_is_active())
+        return;
+
+    if (game.input_lag_turns == 0)
+    {
+        // Adjust the clock rate so that the host packet is received at
+        // process_turn_time == 1.0 (on average).  If it is received later,
+        // reduce the scaling factor (< 1.0) so that the next turn takes a
+        // little longer in real time.  Vice-versa if it is early.
+        multiplayer_clock_adjust = 1 + (1 - host_packet_received) / 20;
+        host_packet_received = 1.0;
+    }
+    else
+    {
+        const long double tick_ns_one_turn = 1e9L / turns_per_second;
+        const long double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
+        assert (tick_ns_adjusted_turn > 0);
+        multiplayer_clock_adjust = tick_ns_one_turn / tick_ns_adjusted_turn;
+    }
+}
+
 // this one isn't static for now, because it's used in the network code
 // if networking had its own thread, it wouldn't need the yield that calls this function, but for now it does
 void gameplay_loop_draw()
@@ -512,21 +548,9 @@ static void gameplay_loop_logic()
     if (use_delta_time())
     {
         update_gameplay_delta_time();
-        if (game.input_lag_turns == 0 && network_is_active())
-        {
-            // Aim to exchange network packets before the turn ends.  If drawing
-            // another frame could miss this deadline, skip it.
-            // In a 3-4 player game, clients must be 2 frames early.
-            const int frames = 1 + (netstate.my_id != SERVER_ID && game.active_players_count > 2);
-            const long double offset = frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.frame_skip, 1);
-            if (game.process_turn_time + offset < 1.0)
-                return;
-        }
-        else
-        {
-            if (game.process_turn_time < 1.0)
-                return;
-        }
+        const long double turn_start = get_turn_start();
+        if (game.process_turn_time < turn_start)
+            return;
     }
 
     frametime_start_measurement(Frametime_Logic);
@@ -550,34 +574,10 @@ static void gameplay_loop_logic()
     input_eastegg();
     input();
     exchange_packets();
-
+    update_multiplayer_clock_adjust();
     update_gameplay_delta_time();
     if (game.process_turn_time > turns_per_second + 1)
         game.process_turn_time = turns_per_second + 1;
-
-    // Adjust client time scaling
-    if (netstate.my_id != SERVER_ID && network_is_active())
-    {
-        if (game.input_lag_turns == 0)
-        {
-            // Adjust the clock rate so that the host packet is received at
-            // process_turn_time == 1.0 (on average).  If it is received later,
-            // reduce the scaling factor (< 1.0) so that the next turn takes a
-            // little longer in real time.  Vice-versa if it is early.
-
-            multiplayer_clock_adjust = 1 + (1 - host_packet_received) / 20;
-        }
-        else
-        {
-            const long double tick_ns_one_turn = 1e9L / turns_per_second;
-            const long double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
-            assert (tick_ns_adjusted_turn > 0);
-            multiplayer_clock_adjust = tick_ns_one_turn / tick_ns_adjusted_turn;
-        }
-    }
-    else multiplayer_clock_adjust = 1.0;
-    host_packet_received = 1.0;
-
     while (game.process_turn_time < 1.0)
     {
         gameplay_loop_draw();

@@ -728,7 +728,7 @@ Subtype = 2
 EffectRange = 0
 
 [slab5.SW]
-Columns = [8, 2, 2, 77, 817, 2, 5, 77, 8]
+Columns = [8, 2, 2, 13, 817, 2, 5, 77, 8]
 
 [[slab5.SW_objects]]
 IsLight = 0
@@ -766,7 +766,7 @@ Subtype = 2
 EffectRange = 0
 
 [slab5.NE]
-Columns = [8, 77, 5, 2, 817, 77, 2, 2, 8]
+Columns = [8, 13, 5, 2, 817, 77, 2, 2, 8]
 
 [[slab5.NE_objects]]
 IsLight = 0
@@ -804,7 +804,7 @@ Subtype = 2
 EffectRange = 0
 
 [slab5.ALL]
-Columns = [5, 77, 5, 77, 817, 77, 5, 77, 5]
+Columns = [5, 74, 5, 74, 817, 74, 5, 74, 5]
 
 [[slab5.ALL_objects]]
 IsLight = 0
@@ -883,7 +883,7 @@ Subtype = 2
 EffectRange = 0
 
 [slab5.SW_LAVA]
-Columns = [31, 2, 2, 78, 817, 2, 38, 78, 31]
+Columns = [31, 2, 2, 369, 817, 2, 38, 370, 31]
 
 [[slab5.SW_LAVA_objects]]
 IsLight = 0
@@ -902,7 +902,7 @@ Subtype = 2
 EffectRange = 0
 
 [slab5.NW_LAVA]
-Columns = [38, 78, 31, 78, 817, 2, 31, 2, 2]
+Columns = [38, 370, 31, 370, 817, 2, 31, 2, 2]
 
 [[slab5.NW_LAVA_objects]]
 IsLight = 0
@@ -921,7 +921,7 @@ Subtype = 2
 EffectRange = 0
 
 [slab5.NE_LAVA]
-Columns = [31, 78, 38, 2, 817, 78, 2, 2, 31]
+Columns = [31, 369, 38, 2, 817, 370, 2, 2, 31]
 
 [[slab5.NE_LAVA_objects]]
 IsLight = 0
@@ -940,7 +940,7 @@ Subtype = 2
 EffectRange = 0
 
 [slab5.SE_LAVA]
-Columns = [2, 2, 31, 2, 817, 78, 31, 78, 38]
+Columns = [2, 2, 31, 2, 817, 369, 31, 369, 38]
 
 [[slab5.SE_LAVA_objects]]
 IsLight = 0
@@ -1038,7 +1038,7 @@ Subtype = 2
 EffectRange = 0
 
 [slab5.SW_WATER]
-Columns = [25, 2, 2, 79, 817, 2, 29, 79, 25]
+Columns = [25, 2, 2, 371, 817, 2, 29, 372, 25]
 
 [[slab5.SW_WATER_objects]]
 IsLight = 0
@@ -1057,7 +1057,7 @@ Subtype = 2
 EffectRange = 0
 
 [slab5.NW_WATER]
-Columns = [29, 79, 25, 79, 817, 2, 25, 2, 2]
+Columns = [29, 372, 25, 372, 817, 2, 25, 2, 2]
 
 [[slab5.NW_WATER_objects]]
 IsLight = 0
@@ -1076,7 +1076,7 @@ Subtype = 2
 EffectRange = 0
 
 [slab5.NE_WATER]
-Columns = [25, 79, 29, 2, 817, 79, 2, 2, 25]
+Columns = [25, 371, 29, 2, 817, 372, 2, 2, 25]
 
 [[slab5.NE_WATER_objects]]
 IsLight = 0
@@ -1095,7 +1095,7 @@ Subtype = 2
 EffectRange = 0
 
 [slab5.SE_WATER]
-Columns = [2, 2, 25, 2, 817, 79, 25, 79, 29]
+Columns = [2, 2, 25, 2, 817, 371, 25, 371, 29]
 
 [[slab5.SE_WATER_objects]]
 IsLight = 0
