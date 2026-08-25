@@ -93,7 +93,6 @@
 #include "moonphase.h"
 #include "config_keeperfx.h"
 #include "post_inc.h"
-#include "api_campaign.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1660,14 +1659,8 @@ short frontend_save_continue_game(short allow_lvnum_grow)
         return false;
     // Select the continue level (move the campaign forward)
     if ((allow_lvnum_grow) && (player->victory_state == VicS_WonLevel)) {
-        if (get_campaign_auto_advance_enabled()) {
-            // If level number growth makes sense, do it
-            SYNCDBG(7,"Progressing the campaign (auto-advance enabled)");
-            lvnum = move_campaign_to_next_level();
-        } else {
-            SYNCDBG(7,"No campaign auto-advance; API will control progression");
-            lvnum = get_continue_level_number();
-        }
+        SYNCDBG(7,"Progressing the campaign");
+        lvnum = move_campaign_to_next_level();
     } else {
         SYNCDBG(7,"No change in campaign position, victory state %d",(int)player->victory_state);
         lvnum = get_continue_level_number();

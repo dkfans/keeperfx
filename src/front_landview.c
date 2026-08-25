@@ -59,7 +59,6 @@
 #include "keeperfx.hpp"
 #include "post_inc.h"
 #include "api.h"
-#include "api_campaign.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -189,13 +188,7 @@ void update_ensigns_visibility(void)
       lvinfo = get_level_info(lvnum);
       if (lvinfo != NULL)
         lvinfo->state = LvSt_Visible;
-    }
-    else if (campaign_level_api_is_enabled(lvnum))
-    {
-      lvinfo = get_level_info(lvnum);
-      if (lvinfo != NULL)
-        lvinfo->state = LvSt_Visible;
-    }
+    }   
     long bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
     if (is_bonus_level_visible(player, bn_lvnum))
     {

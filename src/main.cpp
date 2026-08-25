@@ -138,7 +138,6 @@
 #include "room_library.h"
 #include <cstdint>
 #include "timer.h"
-#include "api_campaign.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -1371,15 +1370,8 @@ short complete_level(struct PlayerInfo *player)
     lvnum = get_continue_level_number();
     if (get_loaded_level_number() == lvnum)
     {
-        if (get_campaign_auto_advance_enabled())
-        {
-            SYNCDBG(7,"Progressing the campaign (auto-advance enabled)");
-            move_campaign_to_next_level();
-        }
-        else
-        {
-            SYNCDBG(7,"Level completed but campaign auto-advance is disabled (API control)");
-        }
+        SYNCDBG(7,"Progressing the campaign");
+        move_campaign_to_next_level();
     }
     quit_game = 1;
     return true;

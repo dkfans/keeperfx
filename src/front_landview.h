@@ -137,9 +137,6 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good);
 void check_mouse_scroll(void);
 void update_velocity(void);
 /******************************************************************************/
-void update_ensigns_visibility(void);
-
-
 #ifdef __cplusplus
 }
 #endif

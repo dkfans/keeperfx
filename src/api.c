@@ -26,7 +26,6 @@
 #endif
 
 #include "api.h"
-#include "api_campaign.h"
 #include <json.h>
 #include <json-dom.h>
 #include "config_keeperfx.h"
@@ -1259,62 +1258,6 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         api_ok(ack_id);
 
         // End
-        value_fini(&json_data);
-        return;
-    }
-
-    // ==================================================================================================================================
-    // Campaign commands and queries
-    // ==================================================================================================================================
-
-    if (strcasecmp("campaign_command", action) == 0)
-    {
-        char *campaign_command = (char *)value_string(value_dict_get(value, "command"));
-        const char *error_code = NULL;
-
-        if (campaign_command == NULL || strlen(campaign_command) < 1)
-        {
-            api_err("MISSING_COMMAND", ack_id);
-            value_fini(&json_data);
-            return;
-        }
-
-        if (api_campaign_execute_command(campaign_command, &error_code))
-        {
-            api_ok(ack_id);
-        }
-        else
-        {
-            api_err(error_code != NULL ? error_code : "FAILED_TO_EXECUTE_CAMPAIGN_COMMAND", ack_id);
-        }
-
-        value_fini(&json_data);
-        return;
-    }
-
-    if (strcasecmp("campaign_query", action) == 0)
-    {
-        char *campaign_query = (char *)value_string(value_dict_get(value, "query"));
-        const char *error_code = NULL;
-
-        if (campaign_query == NULL || strlen(campaign_query) < 1)
-        {
-            api_err("MISSING_QUERY", ack_id);
-            value_fini(&json_data);
-            return;
-        }
-
-        VALUE data_real;
-        if (api_campaign_execute_query(campaign_query, &data_real, &error_code))
-        {
-            api_return_data(true, data_real, ack_id);
-            value_fini(&data_real);
-        }
-        else
-        {
-            api_err(error_code != NULL ? error_code : "FAILED_TO_EXECUTE_CAMPAIGN_QUERY", ack_id);
-        }
-
         value_fini(&json_data);
         return;
     }
