@@ -56,7 +56,7 @@
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
-
+#include "api_campaign.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -6526,6 +6526,86 @@ static void hide_bonus_level_process(struct ScriptContext* context)
     set_bonus_level_visibility(context->value->shorts[1], 0);
 }
 
+static void set_campaign_level_available_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    if (!is_campaign_level(game.loaded_level_number))
+    {
+        SCRPTERRLOG("Script command %s only functions in campaigns.", scline->tcmnd);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[0] = scline->np[0];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_campaign_level_available_process(struct ScriptContext *context)
+{
+    LevelNumber level = context->value->shorts[0];
+
+    if (!campaign_level_api_set_available(level))
+    {
+        SCRPTERRLOG("Unable to make campaign level %d available.", level);
+        return;
+    }
+
+    campaign_level_api_refresh();
+}
+
+static void set_campaign_level_unavailable_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    if (!is_campaign_level(game.loaded_level_number))
+    {
+        SCRPTERRLOG("Script command %s only functions in campaigns.", scline->tcmnd);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[0] = scline->np[0];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_campaign_level_unavailable_process(struct ScriptContext *context)
+{
+    LevelNumber level = context->value->shorts[0];
+
+    if (!campaign_level_api_set_unavailable(level))
+    {
+        SCRPTERRLOG("Unable to make campaign level %d available.", level);
+        return;
+    }
+
+    campaign_level_api_refresh();
+}
+
+static void set_campaign_auto_advance_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    if (!is_campaign_level(game.loaded_level_number))
+    {
+        SCRPTERRLOG("Script command %s only functions in campaigns.", scline->tcmnd);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[0] = scline->np[0];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_campaign_auto_advance_process(struct ScriptContext *context)
+{
+    LevelNumber level = context->value->shorts[0];
+
+    campaign_level_api_set_auto_advance(level);
+}
+
+
+
 static void run_lua_code_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -6792,6 +6872,9 @@ const struct CommandDesc command_desc[] = {
   {"SET_NEXT_LEVEL",                    "N       ", Cmd_SET_NEXT_LEVEL, &set_next_level_check, &set_next_level_process},
   {"SHOW_BONUS_LEVEL",                  "N       ", Cmd_SHOW_BONUS_LEVEL, &show_bonus_level_check, &show_bonus_level_process},
   {"HIDE_BONUS_LEVEL",                  "N       ", Cmd_HIDE_BONUS_LEVEL, &show_bonus_level_check, &hide_bonus_level_process},
+  {"SET_CAMPAIGN_LEVEL_AVAILABLE",      "N       ", Cmd_SET_CAMPAIGN_LEVEL_AVAILABLE, &set_campaign_level_available_check, &set_campaign_level_available_process},
+  {"SET_CAMPAIGN_LEVEL_UNAVAILABLE",    "N       ", Cmd_SET_CAMPAIGN_LEVEL_UNAVAILABLE, &set_campaign_level_unavailable_check, &set_campaign_level_unavailable_process},
+  {"SET_CAMPAIGN_AUTO_ADVANCE",         "B       ", Cmd_SET_CAMPAIGN_AUTO_ADVANCE, &set_campaign_auto_advance_check, &set_campaign_auto_advance_process},
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},

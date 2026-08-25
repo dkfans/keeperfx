@@ -206,6 +206,9 @@ enum TbScriptCommands {
     Cmd_QUICK_PLAYER_OBJECTIVE_WITH_POS    = 194,
     Cmd_QUICK_PLAYER_INFORMATION_WITH_POS  = 195,
     Cmd_COPY_CREATURE_TYPE                 = 196,
+    Cmd_SET_CAMPAIGN_LEVEL_AVAILABLE       = 197,
+    Cmd_SET_CAMPAIGN_LEVEL_UNAVAILABLE     = 198,
+    Cmd_SET_CAMPAIGN_AUTO_ADVANCE          = 199,
 };
 
 struct ScriptLine {
