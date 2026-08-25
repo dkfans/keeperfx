@@ -1275,7 +1275,7 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        for (short j = 0; j < LAIR_ENEMY_MAX; j++)
+        for (short j = 0; j < CREATURE_TYPES_MAX; j++)
         {
             if (crmodel[j] == 0)
                 break;
