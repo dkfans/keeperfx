@@ -27,6 +27,7 @@
 
 #include "game_legacy.h"
 #include "value_util.h"
+#include "api.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -255,9 +256,27 @@ TbBool process_action_points(void)
         if (apt->exists == true)
         {
             if (((apt->num + get_gameturn()) & 7) == 0)
-            {
+            { 
+                PlayerBitFlags old_activated = apt->activated;
                 apt->activated = action_point_get_players_within(i);
-                //if (i==1) show_onscreen_msg(2*game.num_fps, "APT PLYRS %d", (int)apt->activated);
+                for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+                {
+                    // If it's set now, but wasn't set in the previous check
+                    if (flag_is_set(apt->activated, to_flag(plyr_idx)) && 
+                        !flag_is_set(old_activated, to_flag(plyr_idx)))
+                    {
+                        struct ApiEventData event_data[] = {
+                            {"player",API_EVENT_DATA_INT32,{ .int32_value = (int32_t)plyr_idx }},
+                            {"action_point",API_EVENT_DATA_INT32,{ .int32_value = (int32_t)apt->num }},
+                        };
+
+                        api_event_with_data(
+                            "ACTION_POINT",
+                            event_data,
+                            sizeof(event_data) / sizeof(event_data[0])
+                        );
+                    }
+                }
             }
       }
     }
