@@ -75,8 +75,9 @@ struct PacketHistoryHeader {
 static struct PacketHistory packet_history[MAX_NET_USERS];
 static TbClockMSec server_turn_received_at = 0;
 static int64_t server_turn_position_ns = 0;
-static TbClockMSec last_repair_history_send = 0;
+static TbClockMSec last_repair_history_send[MAX_NET_USERS];
 static TbClockMSec last_turn_sync_send = 0;
+static PlayerNumber next_repair_history_player = 0;
 
 static int64_t get_current_turn_position_ns(void)
 {
@@ -287,8 +288,9 @@ void initialize_packet_history(void)
     server_turn_received_at = 0;
     server_turn_position_ns = 0;
     multiplayer_speed_adjustment_ns = 0;
-    last_repair_history_send = 0;
+    memset(last_repair_history_send, 0, sizeof(last_repair_history_send));
     last_turn_sync_send = 0;
+    next_repair_history_player = 0;
     input_lag_reset();
 }
 
@@ -385,17 +387,24 @@ static void send_player_repair_history(PlayerNumber player)
 static void send_repair_history_if_due(void)
 {
     TbClockMSec current_time = LbTimerClock();
-    if (last_repair_history_send != 0 && current_time - last_repair_history_send < REPAIR_HISTORY_RESEND_INTERVAL) {
+    PlayerNumber player = (PlayerNumber)netstate.my_id;
+    if (player == SERVER_ID) {
+        PlayerNumber offset;
+        for (offset = 0; offset < netstate.max_players; offset += 1) {
+            player = (next_repair_history_player + offset) % netstate.max_players;
+            if (network_player_active(player) && (last_repair_history_send[player] == 0 || current_time - last_repair_history_send[player] >= REPAIR_HISTORY_RESEND_INTERVAL)) {
+                break;
+            }
+        }
+        if (offset == netstate.max_players) {
+            return;
+        }
+        next_repair_history_player = (player + 1) % netstate.max_players;
+    } else if (last_repair_history_send[player] != 0 && current_time - last_repair_history_send[player] < REPAIR_HISTORY_RESEND_INTERVAL) {
         return;
     }
-    last_repair_history_send = current_time;
-    if (netstate.my_id != SERVER_ID) {
-        send_player_repair_history((PlayerNumber)netstate.my_id);
-        return;
-    }
-    for (PlayerNumber player = 0; player < netstate.max_players; player += 1) {
-        send_player_repair_history(player);
-    }
+    last_repair_history_send[player] = current_time;
+    send_player_repair_history(player);
 }
 
 static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, PlayerNumber local_packet_player)
