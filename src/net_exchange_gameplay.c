@@ -413,7 +413,6 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Pla
     TbClockMSec wait_start_time = LbTimerClock();
     TbBool turn_complete = false;
     TbBool wait_timed_out = false;
-    input_lag_note_packet_wait();
     MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Missing packets for turn=%lu, collecting...", (unsigned long)expected_turn);
     while (!turn_complete) {
         send_turn_sync_if_due();
@@ -453,6 +452,7 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Pla
         }
     }
     TbClockMSec wait_time = LbTimerClock() - wait_start_time;
+    input_lag_note_packet_wait((int32_t)wait_time);
     if (wait_timed_out) {
         WARNLOG("LbNetwork_ExchangeGameplay: Timed out waiting for turn=%lu after %dms; continuing so resync can recover",
             (unsigned long)expected_turn, (int32_t)wait_time);
