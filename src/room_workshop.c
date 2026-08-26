@@ -943,9 +943,9 @@ void count_crates_in_room(struct Room *room)
 }
 
 void send_manufacture_complete_event(struct Dungeon *dungeon, PlayerNumber plyr_idx)
-{
-    const char *kind_description;
-    const char *class_description;
+{   
+    const char *kind_description = NULL;
+    const char *class_description = NULL;
 
     switch (dungeon->manufacture_class)
     {

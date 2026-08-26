@@ -89,7 +89,7 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"DATE",               12},
   {"MAPSIZE",            13},
   {"MAP_FORMAT_VERSION", 14},
-  {"ENSIGN_ID",       15},
+  {"ENSIGN_ID",          15},
   {NULL,                  0},
   };
 
