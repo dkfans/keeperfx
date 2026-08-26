@@ -3229,7 +3229,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
         return;
     }
     NAVIDBG(19,"%s: prepared triangles %ld -> %ld", func_name,tree_triA,tree_triB);
-    if (!regions_connected(tree_triA, tree_triB))
+    if (!navigation_regions_connected(tree_triA, tree_triB, owner_player_navigating))
     {
         NAVIDBG(9,"%s: Regions not connected, cannot trace a path.", func_name);
         return;
