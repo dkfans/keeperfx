@@ -910,8 +910,7 @@ static size_t decode_png_to_sprite(unzFile zip, const char *path, const char *su
 
     unsigned char *dst_buf = big_scratch;
 
-    r = spng_decode_image(ctx, dst_buf, out_size,
-                          fmt, SPNG_DECODE_TRNS);
+    r = spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS);
     if (r)
     {
         ERRORLOG("Unable to decode %s/%s: %s",
@@ -947,15 +946,10 @@ static int read_png_to_sheet(unzFile zip, const char *path, const char *subpath,
     struct TbHugeSprite sprite = {0};
     size_t sz = decode_png_to_sprite(zip, path, subpath, &sprite, conversion_table);
     
-    JUSTLOG("decode_png_to_sprite result - %u",sz);
     if (sz == 0)
         return 0;
 
-    if (!add_sprite(sheet,
-                    sprite.SWidth,
-                    sprite.SHeight,
-                    sz,
-                    sprite.Data))
+    if (!add_sprite(sheet, sprite.SWidth, sprite.SHeight, sz, sprite.Data))
     {
         free(sprite.Data);
         return 0;

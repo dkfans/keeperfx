@@ -2206,7 +2206,7 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
 }
 
 /**
-  * sets a custom ensign sprite sheet index for the level, use standard indeices for enum Ensigns unless you have added custom ensigns!
+  * sets a custom ensign sprite sheet index for the level
  */
 TbBool set_level_ensign(LevelNumber lvnum, unsigned short ensign_id)
 {
