@@ -70,6 +70,8 @@ const struct NamedCommand logicval_type[] = {
   {"FALSE",    2},
   {"YES",      1},
   {"NO",       2},
+  {"ALWAYS",   1},
+  {"NEVER",    2},
   {"1",        1},
   {"0",        2},
   {NULL,       0},

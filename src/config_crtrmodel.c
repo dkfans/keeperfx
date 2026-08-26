@@ -1391,7 +1391,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             break;
         case 21: // LAIRENEMY
-            for (int i = 0; i < LAIR_ENEMY_MAX; i++)
+            for (int i = 0; i < CREATURE_TYPES_MAX; i++)
             {
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {

@@ -41,6 +41,7 @@
 #include "config_keeperfx.h"
 #include "config_settings.h"
 #include "game_lghtshdw.h"
+#include "game_merge.h"
 #include "light_data.h"
 #include "lvl_filesdk1.h"
 #include "room_list.h"
@@ -57,6 +58,7 @@
 #include "net_game.h"
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
+#include "api.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1050,8 +1052,6 @@ TbBool frontmap_load(void)
         frontend_load_data_reset();
         return false;
     }
-
-    JUSTLOG("campaign.land_markers - %i",campaign.land_markers);
     switch (campaign.land_markers) {
         case LndMk_PINPOINTS:
             map_flag = load_spritesheet("ldata/lndflag_pin.dat", "ldata/lndflag_pin.tab");
@@ -1110,6 +1110,7 @@ TbBool frontmap_load(void)
     fe_computer_players = 0;
     update_ensigns_visibility();
     SYNCDBG(7,"Finished");
+    api_event("CAMPAIGN_LOADED");
     return true;
 }
 
