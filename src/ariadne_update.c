@@ -1598,6 +1598,7 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
     if ( not_whole_map )
         border_unlock(start_x, start_y, end_x, end_y);
     triangulation_border_init();
+    invalidate_navigation_regions();
     NAVIDBG(9,"Done");
     return triangulation_successful;
 }

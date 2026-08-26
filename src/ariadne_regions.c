@@ -22,7 +22,9 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "ariadne_navitree.h"
 #include "ariadne_tringls.h"
+#include "player_data.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -46,9 +48,53 @@ static long ix_RegionQput;
 static long ix_RegionQget;
 static long count_RegionQ;
 static long RegionQueue[REGION_QUEUE_LEN];
+static uint32_t navigation_components[PLAYERS_COUNT][TRIANLGLES_COUNT];
+static PlayerBitFlags navigation_components_valid;
 /******************************************************************************/
 struct RegionT bad_region;
 /******************************************************************************/
+static void rebuild_navigation_regions(PlayerNumber owner)
+{
+    uint32_t *components = navigation_components[owner];
+    NavColour blocked_mask = NAVMAP_FLOORHEIGHT_MASK | 1 << (NAVMAP_OWNERSELECT_BIT + owner);
+    memset(components, 0, sizeof(navigation_components[owner]));
+    for (int32_t triangle = 0; triangle < ix_Triangles; triangle++) {
+        if (components[triangle] || (get_triangle_tree_alt(triangle) & blocked_mask) >= NAVMAP_FLOORHEIGHT_MAX) {
+            continue;
+        }
+        components[triangle] = triangle + 1;
+        tree_val[0] = triangle;
+        for (uint32_t head = 0, tail = 1; head < tail; head++) {
+            for (int32_t edge = 0; edge < 3; edge++) {
+                int32_t next = Triangles[tree_val[head]].tags[edge];
+                if (next >= 0 && !components[next] && (get_triangle_tree_alt(next) & blocked_mask) < NAVMAP_FLOORHEIGHT_MAX) {
+                    components[next] = components[triangle];
+                    tree_val[tail++] = next;
+                }
+            }
+        }
+    }
+    navigation_components_valid |= to_flag(owner);
+}
+
+TbBool navigation_regions_connected(int32_t first_triangle, int32_t second_triangle, PlayerNumber owner)
+{
+    TbBool connected = regions_connected(first_triangle, second_triangle);
+    if (!connected || owner < 0 || owner >= PLAYERS_COUNT) {
+        return connected;
+    }
+    if (!(navigation_components_valid & to_flag(owner))) {
+        rebuild_navigation_regions(owner);
+    }
+    uint32_t *components = navigation_components[owner];
+    return !components[first_triangle] || !components[second_triangle] || components[first_triangle] == components[second_triangle];
+}
+
+void invalidate_navigation_regions(void)
+{
+    navigation_components_valid = 0;
+}
+
 /**
  * Allocates region ID.
  * @return The region ID, or 0 on failure.
