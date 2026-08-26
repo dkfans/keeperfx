@@ -8,7 +8,7 @@
 // The minimum amount of time needed to achieve a stable reading
 #define INPUT_LAG_INCREASE_SAMPLE_MS 150
 #define INPUT_LAG_INCREASE_WAIT_MS 75
-// Host relay and 1v1 times are treated differently because the value in 4-player takes much longer to shift (since it requires every player to have the same value).
+// Host relay and 1v1 times are treated differently because the value in 4-player takes much longer to shift (requires all players to have the same value for a decrease).
 #define INPUT_LAG_ADJUSTMENT_TIME_1V1_MS 60000
 #define INPUT_LAG_ADJUSTMENT_TIME_HOST_RELAY_MS 15000
 // Percentage of misses allowed before a decrease, to take noise into consideration
