@@ -87,6 +87,20 @@ static unsigned char added_icon_frame_count[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
 static int num_added_icons = 0;
 
+#define MAX_CUSTOM_ENSIGNS 64
+
+struct CustomEnsignData
+{
+    char *zip_path;
+    char **files;
+    int file_count;
+    int sheet_index;
+};
+
+static struct NamedCommand added_ensigns[MAX_CUSTOM_ENSIGNS];
+static struct CustomEnsignData custom_ensign_data[MAX_CUSTOM_ENSIGNS];
+static int num_added_ensigns = 0;
+
 #define MAX_LENS_OVERLAYS 64
 static struct LensOverlayData added_lens_overlays[MAX_LENS_OVERLAYS];
 static int num_added_lens_overlays = 0;
@@ -108,7 +122,8 @@ enum CustomLoadFlags {
     /// @brief Lens overlays
     CLF_LensOverlays = 0x4,
     /// @brief Lens mists
-    CLF_LensMists = 0x8
+    CLF_LensMists = 0x8,
+    CLF_Ensigns = 0x10
 };
 
 static unsigned char big_scratch_data[1024*1024*16] = {0};
@@ -129,6 +144,7 @@ static size_t decode_png_to_sprite(unzFile zip, const char *path, const char *su
 static TbBool process_sheet(const char *path, unzFile zip, VALUE *root, void *data);
 static TbBool process_lens_overlay(const char *path, unzFile zip, VALUE *root);
 static TbBool process_lens_mist(const char *path, unzFile zip, VALUE *root);
+static TbBool process_ensign(const char *path, unzFile zip, VALUE *root);
 
 static TbBool process_icon(const char *path, unzFile zip, VALUE *root);
 
@@ -225,6 +241,11 @@ static int load_file_sprites(const char *path, const char *file_desc)
         add_flag |= CLF_Icons;
     }
 
+    if (add_custom_json(path, "ensigns.json", &process_ensign))
+    {
+        add_flag |= CLF_Ensigns;
+    }
+
     if (add_custom_json(path, "lenses.json", &process_lens_overlay))
     {
         add_flag |= CLF_LensOverlays;
@@ -253,6 +274,14 @@ static int load_file_sprites(const char *path, const char *file_desc)
         else
         {
             SYNCDBG(0, "Unable to load per-map icons from %s", file_desc);
+        }
+        if (add_flag & CLF_Ensigns)
+        {
+            JUSTLOG("Loaded custom ensign definitions from %s", file_desc);
+        }
+        else
+        {
+            SYNCDBG(0, "Unable to load custom ensign definitions from %s", file_desc);
         }
 
         if (add_flag & CLF_LensOverlays)
@@ -395,6 +424,21 @@ static void load_sprites_for_mod_list(LevelNumber lvnum, const struct ModConfigI
 /* @comment
  *     The loading items of init_custom_sprites and load_sprites_for_mod need to be consistent.
  */
+static void clear_custom_ensigns(void)
+{
+    for (int i = 0; i < num_added_ensigns; i++)
+    {
+        free(added_ensigns[i].name);
+        free(custom_ensign_data[i].zip_path);
+        for (int j = 0; j < custom_ensign_data[i].file_count; j++)
+            free(custom_ensign_data[i].files[j]);
+        free(custom_ensign_data[i].files);
+    }
+    num_added_ensigns = 0;
+    memset(added_ensigns, 0, sizeof(added_ensigns));
+    memset(custom_ensign_data, 0, sizeof(custom_ensign_data));
+}
+
 void init_custom_sprites(LevelNumber lvnum)
 {
     SYNCDBG(8, "Starting");
@@ -446,6 +490,8 @@ void init_custom_sprites(LevelNumber lvnum)
     num_added_icons = 0;
     memset(added_icons, 0, sizeof(added_icons));
     next_free_icon = 0;
+
+    clear_custom_ensigns();
 
     clear_lens_assets();
 
@@ -2122,6 +2168,472 @@ static int process_sheet_from_list(const char *path, unzFile zip, int idx, VALUE
     }
 
     return 1;
+}
+
+static int process_ensign_from_list(
+    const char *path,
+    unzFile zip,
+    int idx,
+    VALUE *root)
+{
+    VALUE *val = value_dict_get(root, "name");
+
+    if (val == NULL)
+    {
+        WARNLOG(
+            "Invalid ensign %s/ensigns.json[%d]: no \"name\" key",
+            path,
+            idx);
+        return 0;
+    }
+
+    const char *name = value_string(val);
+
+    VALUE *file_value = value_dict_get(root, "file");
+
+    if (file_value == NULL)
+    {
+        WARNLOG(
+            "Invalid ensign %s/ensigns.json[%d]: no \"file\" key",
+            path,
+            idx);
+        return 0;
+    }
+
+    if (value_type(file_value) == VALUE_STRING)
+    {
+        char *tmp = strdup(value_string(file_value));
+
+        if (tmp == NULL)
+        {
+            ERRORLOG(
+                "Unable to allocate filename for custom ensign '%s'",
+                name);
+            return 0;
+        }
+
+        value_init_array(file_value);
+        value_init_string(value_array_append(file_value), tmp);
+        free(tmp);
+    }
+    else if (value_type(file_value) != VALUE_ARRAY)
+    {
+        WARNLOG(
+            "Invalid ensign %s/ensigns.json[%d]: invalid \"file\" value",
+            path,
+            idx);
+        return 0;
+    }
+
+    int file_count = value_array_size(file_value);
+
+    if (file_count <= 0)
+    {
+        WARNLOG(
+            "Invalid ensign %s/ensigns.json[%d]: no files",
+            path,
+            idx);
+        return 0;
+    }
+
+    /*
+     * Locate an existing named ensign without assuming that the
+     * NamedCommand array is currently sorted. It is sorted after the
+     * complete JSON file has been processed.
+     */
+    int ensign_id = -1;
+
+    for (int i = 0; i < num_added_ensigns; i++)
+    {
+        if (strcasecmp(
+                added_ensigns[i].name,
+                name) == 0)
+        {
+            ensign_id = added_ensigns[i].num;
+            break;
+        }
+    }
+
+    if (ensign_id < 0)
+    {
+        if (num_added_ensigns >= MAX_CUSTOM_ENSIGNS)
+        {
+            ERRORLOG(
+                "Too many custom ensigns (max %d)",
+                MAX_CUSTOM_ENSIGNS);
+            return 0;
+        }
+
+        ensign_id = num_added_ensigns;
+
+        added_ensigns[ensign_id].name =
+            strdup(name);
+
+        added_ensigns[ensign_id].num =
+            ensign_id;
+
+        if (added_ensigns[ensign_id].name == NULL)
+        {
+            ERRORLOG(
+                "Unable to allocate custom ensign name '%s'",
+                name);
+            return 0;
+        }
+
+        num_added_ensigns++;
+    }
+
+    /*
+     * Allocate the replacement definition before destroying the
+     * previous one. This preserves the old definition if allocation
+     * fails.
+     */
+    char *zip_path = strdup(path);
+    char **files = calloc(
+        (size_t)file_count,
+        sizeof(char *));
+
+    if (zip_path == NULL || files == NULL)
+    {
+        free(zip_path);
+        free(files);
+
+        ERRORLOG(
+            "Unable to allocate data for custom ensign '%s'",
+            name);
+        return 0;
+    }
+
+    for (int i = 0; i < file_count; i++)
+    {
+        const char *file =
+            value_string(
+                value_array_get(
+                    file_value,
+                    i));
+
+        files[i] = strdup(file);
+
+        if (files[i] == NULL)
+        {
+            for (int j = 0; j < i; j++)
+            {
+                free(files[j]);
+            }
+
+            free(files);
+            free(zip_path);
+
+            ERRORLOG(
+                "Unable to allocate filename for custom ensign '%s'",
+                name);
+            return 0;
+        }
+    }
+
+    struct CustomEnsignData *data =
+        &custom_ensign_data[ensign_id];
+
+    free(data->zip_path);
+
+    for (int i = 0; i < data->file_count; i++)
+    {
+        free(data->files[i]);
+    }
+
+    free(data->files);
+
+    data->zip_path = zip_path;
+    data->files = files;
+    data->file_count = file_count;
+    data->sheet_index = -1;
+
+    /*
+     * Check the files while the ZIP used by add_custom_json() is
+     * already open. We deliberately do not decode them here because
+     * the campaign palette is not necessarily available yet.
+     */
+    for (int i = 0; i < file_count; i++)
+    {
+        if (fastUnzLocateFile(zip, files[i], 0))
+        {
+            WARNLOG(
+                "Png '%s' not found in '%s'",
+                files[i],
+                path);
+            return 0;
+        }
+    }
+
+    JUSTLOG(
+        "Registered custom ensign '%s' from %s",
+        name,
+        path);
+
+    return 1;
+}
+
+static TbBool process_ensign(
+    const char *path,
+    unzFile zip,
+    VALUE *root)
+{
+    TbBool ret_ok = true;
+
+    for (int i = 0;
+         i < value_array_size(root);
+         i++)
+    {
+        VALUE *val =
+            value_array_get(root, i);
+
+        if (!process_ensign_from_list(
+                path,
+                zip,
+                i,
+                val))
+        {
+            ret_ok = false;
+        }
+    }
+
+    /*
+     * added_ensigns is the NamedCommand lookup table. Its .num values
+     * remain stable definition IDs even after sorting.
+     */
+    qsort(
+        added_ensigns,
+        num_added_ensigns,
+        sizeof(added_ensigns[0]),
+        &cmp_named_command);
+
+    return ret_ok;
+}
+
+static TbBool load_custom_ensign_data(
+    struct TbSpriteSheet *sheet,
+    struct CustomEnsignData *data,
+    const uint8_t *conversion_table)
+{
+    if (sheet == NULL ||
+        data == NULL ||
+        data->zip_path == NULL ||
+        data->files == NULL ||
+        data->file_count <= 0)
+    {
+        return false;
+    }
+
+    unzFile zip =
+        unzOpen(data->zip_path);
+
+    if (zip == NULL)
+    {
+        ERRORLOG(
+            "Unable to open custom ensign ZIP '%s'",
+            data->zip_path);
+        return false;
+    }
+
+    if (UNZ_OK != fastUnzConstructCache(zip))
+    {
+        unzClose(zip);
+        return false;
+    }
+
+    data->sheet_index =
+        num_sprites(sheet);
+
+    for (int i = 0;
+         i < data->file_count;
+         i++)
+    {
+        const char *file =
+            data->files[i];
+
+        if (fastUnzLocateFile(zip, file, 0))
+        {
+            WARNLOG(
+                "Png '%s' not found in '%s'",
+                file,
+                data->zip_path);
+
+            fastUnzClearCache();
+            unzClose(zip);
+            return false;
+        }
+
+        if (UNZ_OK !=
+            unzOpenCurrentFile(zip))
+        {
+            fastUnzClearCache();
+            unzClose(zip);
+            return false;
+        }
+
+        if (!read_png_to_sheet(
+                zip,
+                data->zip_path,
+                file,
+                sheet,
+                conversion_table))
+        {
+            unzCloseCurrentFile(zip);
+            fastUnzClearCache();
+            unzClose(zip);
+            return false;
+        }
+
+        if (UNZ_OK !=
+            unzCloseCurrentFile(zip))
+        {
+            fastUnzClearCache();
+            unzClose(zip);
+            return false;
+        }
+    }
+
+    fastUnzClearCache();
+    unzClose(zip);
+
+    return true;
+}
+
+struct TbSpriteSheet *load_custom_ensigns(
+    const unsigned char *palette)
+{
+    if (palette == NULL)
+    {
+        return NULL;
+    }
+
+    struct TbSpriteSheet *sheet =
+        create_spritesheet();
+
+    if (sheet == NULL)
+    {
+        return NULL;
+    }
+
+    const uint8_t *conversion_table =
+        create_rgb_to_pal_table(palette);
+
+    if (conversion_table == NULL)
+    {
+        free_spritesheet(&sheet);
+        return NULL;
+    }
+
+    for (int i = 0;
+         i < num_added_ensigns;
+         i++)
+    {
+        int ensign_id =
+            added_ensigns[i].num;
+
+        if (ensign_id < 0 ||
+            ensign_id >= MAX_CUSTOM_ENSIGNS)
+        {
+            continue;
+        }
+
+        if (!load_custom_ensign_data(
+                sheet,
+                &custom_ensign_data[ensign_id],
+                conversion_table))
+        {
+            ERRORLOG(
+                "Unable to load custom ensign '%s'",
+                added_ensigns[i].name);
+
+            free((void *)conversion_table);
+            free_spritesheet(&sheet);
+            return NULL;
+        }
+    }
+
+    free((void *)conversion_table);
+
+    return sheet;
+}
+
+short get_ensign_id(const char *name)
+{
+    if (name == NULL ||
+        name[0] == '\0')
+    {
+        return -1;
+    }
+
+    char *end;
+    long value =
+        strtol(name, &end, 10);
+
+    if (end != name &&
+        *end == '\0')
+    {
+        if (value >= 0 &&
+            value < MAX_CUSTOM_ENSIGNS)
+        {
+            return (short)value;
+        }
+
+        return -1;
+    }
+
+    struct NamedCommand key = {
+        name,
+        0
+    };
+
+    struct NamedCommand *val =
+        bsearch(
+            &key,
+            added_ensigns,
+            num_added_ensigns,
+            sizeof(added_ensigns[0]),
+            &cmp_named_command);
+
+    if (val != NULL)
+    {
+        return (short)val->num;
+    }
+
+    return -1;
+}
+
+const struct TbSprite *get_custom_ensign_sprite(
+    struct TbSpriteSheet *sheet,
+    short ensign_id,
+    int frame)
+{
+    if (sheet == NULL ||
+        ensign_id < 0 ||
+        ensign_id >= MAX_CUSTOM_ENSIGNS)
+    {
+        return &bad_icon;
+    }
+
+    int sheet_index =
+        custom_ensign_data[ensign_id].sheet_index;
+
+    if (sheet_index < 0)
+    {
+        return &bad_icon;
+    }
+
+    int sprite_index =
+        sheet_index + frame;
+
+    if (sprite_index < 0 ||
+        sprite_index >= num_sprites(sheet))
+    {
+        return &bad_icon;
+    }
+
+    return get_sprite(
+        sheet,
+        sprite_index);
 }
 
 int get_custom_icon_frame_count(short icon_idx)

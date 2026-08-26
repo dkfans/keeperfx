@@ -287,7 +287,7 @@ short is_multiplayer_level(LevelNumber lvnum);
 short is_campaign_level(LevelNumber lvnum);
 short is_freeplay_level(LevelNumber lvnum);
 TbBool is_level_in_current_campaign(LevelNumber lvnum);
-TbBool set_level_ensign(LevelNumber lvnum, unsigned short ensign_sprite_index);
+TbBool set_level_ensign(LevelNumber lvnum, unsigned short ensign_id);
 TbBool set_level_ensign_type(LevelNumber lvnum, unsigned short ensign_type);
 int array_index_for_singleplayer_level(LevelNumber sp_lvnum);
 int storage_index_for_bonus_level(LevelNumber bn_lvnum);

@@ -309,12 +309,15 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
     if (lvinfo->state == LvSt_Hidden)
         return NULL;
 
-    if(lvinfo->ensign_type == EnsCustom && lvinfo->ensign_sprite_index < num_sprites(map_flag))
+    if (lvinfo->ensign_type == EnsCustom)
     {
-        int ensign_sprite_index = lvinfo->ensign_type;
+        int frame = anim_frame & 3;
         if (lvinfo->lvnum == mouse_over_lvnum)
-            ensign_sprite_index += 4;
-        spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
+            frame += 4;
+        spr = get_custom_ensign_sprite(
+            map_flag,
+            lvinfo->ensign_id,
+            frame);
     } else {
         int ensign_sprite_index = lvinfo->ensign_type;
         if (lvinfo->level_type & LvKind_IsSingle)
@@ -1063,9 +1066,8 @@ TbBool frontmap_load(void)
             map_flag = load_spritesheet("ldata/lndflag_ens.dat", "ldata/lndflag_ens.tab");
             break;
         case LndMk_CUSTOM:
-            char* ensign_zip_path = prepare_file_fmtpath(FGrp_LandView, "ensigns.zip");            
-            JUSTLOG("ensign_zip_path - %s",ensign_zip_path);
-            map_flag = load_custom_sheet_from_zip(ensign_zip_path, frontend_palette);
+            map_flag = load_custom_ensigns(frontend_palette);
+            break;
     }
     if (!map_flag)
     {
