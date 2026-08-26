@@ -217,7 +217,7 @@ struct TbSpriteSheet *load_custom_sheet_from_zip(const char *path, const unsigne
 
     if (!add_custom_json_with_data(path, "ensigns.json", process_sheet, &context))
     {
-        JUSTLOG("add_custom_json_with_data failed");
+        ERRORLOG("add_custom_json_with_data failed");
         free((void *)conversion_table);
         free_spritesheet(&sheet);
         return NULL;
