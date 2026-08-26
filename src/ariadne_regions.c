@@ -56,10 +56,15 @@ struct RegionT bad_region;
 static void rebuild_navigation_regions(PlayerNumber owner)
 {
     uint32_t *components = navigation_components[owner];
-    NavColour blocked_mask = NAVMAP_FLOORHEIGHT_MASK | 1 << (NAVMAP_OWNERSELECT_BIT + owner);
+    NavColour owner_mask = 1 << (NAVMAP_OWNERSELECT_BIT + owner);
+    NavColour blocked_mask = NAVMAP_FLOORHEIGHT_MASK | owner_mask;
     memset(components, 0, sizeof(navigation_components[owner]));
     for (int32_t triangle = 0; triangle < ix_Triangles; triangle++) {
-        if (components[triangle] || (get_triangle_tree_alt(triangle) & blocked_mask) >= NAVMAP_FLOORHEIGHT_MAX) {
+        if (components[triangle]) {
+            continue;
+        }
+        NavColour triangle_alt = get_triangle_tree_alt(triangle);
+        if ((triangle_alt & blocked_mask) >= NAVMAP_FLOORHEIGHT_MAX) {
             continue;
         }
         components[triangle] = triangle + 1;
@@ -67,10 +72,18 @@ static void rebuild_navigation_regions(PlayerNumber owner)
         for (uint32_t head = 0, tail = 1; head < tail; head++) {
             for (int32_t edge = 0; edge < 3; edge++) {
                 int32_t next = Triangles[tree_val[head]].tags[edge];
-                if (next >= 0 && !components[next] && (get_triangle_tree_alt(next) & blocked_mask) < NAVMAP_FLOORHEIGHT_MAX) {
-                    components[next] = components[triangle];
-                    tree_val[tail++] = next;
+                if (next < 0) {
+                    continue;
                 }
+                if (components[next]) {
+                    continue;
+                }
+                NavColour next_alt = get_triangle_tree_alt(next);
+                if ((next_alt & blocked_mask) >= NAVMAP_FLOORHEIGHT_MAX) {
+                    continue;
+                }
+                components[next] = components[triangle];
+                tree_val[tail++] = next;
             }
         }
     }
@@ -79,15 +92,22 @@ static void rebuild_navigation_regions(PlayerNumber owner)
 
 TbBool navigation_regions_connected(int32_t first_triangle, int32_t second_triangle, PlayerNumber owner)
 {
-    TbBool connected = regions_connected(first_triangle, second_triangle);
-    if (!connected || owner < 0 || owner >= PLAYERS_COUNT) {
-        return connected;
+    if (!regions_connected(first_triangle, second_triangle)) {
+        return false;
+    }
+    if (owner < 0 || owner >= PLAYERS_COUNT) {
+        return true;
     }
     if (!(navigation_components_valid & to_flag(owner))) {
         rebuild_navigation_regions(owner);
     }
     uint32_t *components = navigation_components[owner];
-    return !components[first_triangle] || !components[second_triangle] || components[first_triangle] == components[second_triangle];
+    uint32_t first_component = components[first_triangle];
+    uint32_t second_component = components[second_triangle];
+    if (!first_component || !second_component) {
+        return true;
+    }
+    return first_component == second_component;
 }
 
 void invalidate_navigation_regions(void)
