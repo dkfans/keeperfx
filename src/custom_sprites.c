@@ -428,7 +428,11 @@ static void clear_custom_ensigns(void)
 {
     for (int i = 0; i < num_added_ensigns; i++)
     {
-        free(added_ensigns[i].name);
+        if (added_ensigns[i].name != NULL)
+        {
+            free((char *) added_ensigns[i].name);
+            added_ensigns[i].name = NULL;
+        }
         free(custom_ensign_data[i].zip_path);
         for (int j = 0; j < custom_ensign_data[i].file_count; j++)
             free(custom_ensign_data[i].files[j]);
@@ -2170,20 +2174,13 @@ static int process_sheet_from_list(const char *path, unzFile zip, int idx, VALUE
     return 1;
 }
 
-static int process_ensign_from_list(
-    const char *path,
-    unzFile zip,
-    int idx,
-    VALUE *root)
+static int process_ensign_from_list(const char *path, unzFile zip, int idx, VALUE *root)
 {
     VALUE *val = value_dict_get(root, "name");
 
     if (val == NULL)
     {
-        WARNLOG(
-            "Invalid ensign %s/ensigns.json[%d]: no \"name\" key",
-            path,
-            idx);
+        WARNLOG("Invalid ensign %s/ensigns.json[%d]: no \"name\" key", path, idx);
         return 0;
     }
 
@@ -2193,10 +2190,7 @@ static int process_ensign_from_list(
 
     if (file_value == NULL)
     {
-        WARNLOG(
-            "Invalid ensign %s/ensigns.json[%d]: no \"file\" key",
-            path,
-            idx);
+        WARNLOG("Invalid ensign %s/ensigns.json[%d]: no \"file\" key", path, idx);
         return 0;
     }
 
@@ -2206,9 +2200,7 @@ static int process_ensign_from_list(
 
         if (tmp == NULL)
         {
-            ERRORLOG(
-                "Unable to allocate filename for custom ensign '%s'",
-                name);
+            ERRORLOG("Unable to allocate filename for custom ensign '%s'", name);
             return 0;
         }
 
@@ -2218,10 +2210,7 @@ static int process_ensign_from_list(
     }
     else if (value_type(file_value) != VALUE_ARRAY)
     {
-        WARNLOG(
-            "Invalid ensign %s/ensigns.json[%d]: invalid \"file\" value",
-            path,
-            idx);
+        WARNLOG("Invalid ensign %s/ensigns.json[%d]: invalid \"file\" value", path, idx);
         return 0;
     }
 
@@ -2229,10 +2218,7 @@ static int process_ensign_from_list(
 
     if (file_count <= 0)
     {
-        WARNLOG(
-            "Invalid ensign %s/ensigns.json[%d]: no files",
-            path,
-            idx);
+        WARNLOG("Invalid ensign %s/ensigns.json[%d]: no files", path, idx);
         return 0;
     }
 
@@ -2245,9 +2231,7 @@ static int process_ensign_from_list(
 
     for (int i = 0; i < num_added_ensigns; i++)
     {
-        if (strcasecmp(
-                added_ensigns[i].name,
-                name) == 0)
+        if (strcasecmp(added_ensigns[i].name, name) == 0)
         {
             ensign_id = added_ensigns[i].num;
             break;
@@ -2258,25 +2242,19 @@ static int process_ensign_from_list(
     {
         if (num_added_ensigns >= MAX_CUSTOM_ENSIGNS)
         {
-            ERRORLOG(
-                "Too many custom ensigns (max %d)",
-                MAX_CUSTOM_ENSIGNS);
+            ERRORLOG("Too many custom ensigns (max %d)", MAX_CUSTOM_ENSIGNS);
             return 0;
         }
 
         ensign_id = num_added_ensigns;
 
-        added_ensigns[ensign_id].name =
-            strdup(name);
+        added_ensigns[ensign_id].name = strdup(name);
 
-        added_ensigns[ensign_id].num =
-            ensign_id;
+        added_ensigns[ensign_id].num = ensign_id;
 
         if (added_ensigns[ensign_id].name == NULL)
         {
-            ERRORLOG(
-                "Unable to allocate custom ensign name '%s'",
-                name);
+            ERRORLOG("Unable to allocate custom ensign name '%s'", name);
             return 0;
         }
 
@@ -2289,28 +2267,20 @@ static int process_ensign_from_list(
      * fails.
      */
     char *zip_path = strdup(path);
-    char **files = calloc(
-        (size_t)file_count,
-        sizeof(char *));
+    char **files = calloc((size_t)file_count, sizeof(char *));
 
     if (zip_path == NULL || files == NULL)
     {
         free(zip_path);
         free(files);
 
-        ERRORLOG(
-            "Unable to allocate data for custom ensign '%s'",
-            name);
+        ERRORLOG("Unable to allocate data for custom ensign '%s'", name);
         return 0;
     }
 
     for (int i = 0; i < file_count; i++)
     {
-        const char *file =
-            value_string(
-                value_array_get(
-                    file_value,
-                    i));
+        const char *file = value_string(value_array_get(file_value, i));
 
         files[i] = strdup(file);
 
@@ -2324,15 +2294,12 @@ static int process_ensign_from_list(
             free(files);
             free(zip_path);
 
-            ERRORLOG(
-                "Unable to allocate filename for custom ensign '%s'",
-                name);
+            ERRORLOG("Unable to allocate filename for custom ensign '%s'", name);
             return 0;
         }
     }
 
-    struct CustomEnsignData *data =
-        &custom_ensign_data[ensign_id];
+    struct CustomEnsignData *data = &custom_ensign_data[ensign_id];
 
     free(data->zip_path);
 
@@ -2357,41 +2324,25 @@ static int process_ensign_from_list(
     {
         if (fastUnzLocateFile(zip, files[i], 0))
         {
-            WARNLOG(
-                "Png '%s' not found in '%s'",
-                files[i],
-                path);
+            WARNLOG("Png '%s' not found in '%s'", files[i], path);
             return 0;
         }
     }
 
-    JUSTLOG(
-        "Registered custom ensign '%s' from %s",
-        name,
-        path);
+    JUSTLOG("Registered custom ensign '%s' from %s", name, path);
 
     return 1;
 }
 
-static TbBool process_ensign(
-    const char *path,
-    unzFile zip,
-    VALUE *root)
+static TbBool process_ensign(const char *path, unzFile zip, VALUE *root)
 {
     TbBool ret_ok = true;
 
-    for (int i = 0;
-         i < value_array_size(root);
-         i++)
+    for (int i = 0; i < value_array_size(root); i++)
     {
-        VALUE *val =
-            value_array_get(root, i);
+        VALUE *val =value_array_get(root, i);
 
-        if (!process_ensign_from_list(
-                path,
-                zip,
-                i,
-                val))
+        if (!process_ensign_from_list(path, zip, i, val))
         {
             ret_ok = false;
         }
@@ -2401,19 +2352,12 @@ static TbBool process_ensign(
      * added_ensigns is the NamedCommand lookup table. Its .num values
      * remain stable definition IDs even after sorting.
      */
-    qsort(
-        added_ensigns,
-        num_added_ensigns,
-        sizeof(added_ensigns[0]),
-        &cmp_named_command);
+    qsort(added_ensigns, num_added_ensigns, sizeof(added_ensigns[0]), &cmp_named_command);
 
     return ret_ok;
 }
 
-static TbBool load_custom_ensign_data(
-    struct TbSpriteSheet *sheet,
-    struct CustomEnsignData *data,
-    const uint8_t *conversion_table)
+static TbBool load_custom_ensign_data(struct TbSpriteSheet *sheet, struct CustomEnsignData *data, const uint8_t *conversion_table)
 {
     if (sheet == NULL ||
         data == NULL ||
@@ -2424,14 +2368,11 @@ static TbBool load_custom_ensign_data(
         return false;
     }
 
-    unzFile zip =
-        unzOpen(data->zip_path);
+    unzFile zip = unzOpen(data->zip_path);
 
     if (zip == NULL)
     {
-        ERRORLOG(
-            "Unable to open custom ensign ZIP '%s'",
-            data->zip_path);
+        ERRORLOG("Unable to open custom ensign ZIP '%s'",data->zip_path);
         return false;
     }
 
@@ -2441,22 +2382,15 @@ static TbBool load_custom_ensign_data(
         return false;
     }
 
-    data->sheet_index =
-        num_sprites(sheet);
+    data->sheet_index = num_sprites(sheet);
 
-    for (int i = 0;
-         i < data->file_count;
-         i++)
+    for (int i = 0; i < data->file_count; i++)
     {
-        const char *file =
-            data->files[i];
+        const char *file = data->files[i];
 
         if (fastUnzLocateFile(zip, file, 0))
         {
-            WARNLOG(
-                "Png '%s' not found in '%s'",
-                file,
-                data->zip_path);
+            WARNLOG("Png '%s' not found in '%s'", file, data->zip_path);
 
             fastUnzClearCache();
             unzClose(zip);
@@ -2471,12 +2405,7 @@ static TbBool load_custom_ensign_data(
             return false;
         }
 
-        if (!read_png_to_sheet(
-                zip,
-                data->zip_path,
-                file,
-                sheet,
-                conversion_table))
+        if (!read_png_to_sheet(zip, data->zip_path, file, sheet, conversion_table))
         {
             unzCloseCurrentFile(zip);
             fastUnzClearCache();
@@ -2499,16 +2428,12 @@ static TbBool load_custom_ensign_data(
     return true;
 }
 
-struct TbSpriteSheet *load_custom_ensigns(
-    const unsigned char *palette)
+struct TbSpriteSheet *load_custom_ensigns_into_sheet(struct TbSpriteSheet *sheet, const unsigned char *palette)
 {
     if (palette == NULL)
     {
         return NULL;
     }
-
-    struct TbSpriteSheet *sheet =
-        create_spritesheet();
 
     if (sheet == NULL)
     {
@@ -2520,34 +2445,26 @@ struct TbSpriteSheet *load_custom_ensigns(
 
     if (conversion_table == NULL)
     {
-        free_spritesheet(&sheet);
-        return NULL;
+        ERRORLOG("Unable to load custom ensign , failed to process palette");
+        return sheet;
     }
 
-    for (int i = 0;
-         i < num_added_ensigns;
-         i++)
+    for (int i = 0; i < num_added_ensigns; i++)
     {
-        int ensign_id =
-            added_ensigns[i].num;
+        int ensign_id = added_ensigns[i].num;
 
-        if (ensign_id < 0 ||
-            ensign_id >= MAX_CUSTOM_ENSIGNS)
+        if (ensign_id < 0 || ensign_id >= MAX_CUSTOM_ENSIGNS)
         {
             continue;
         }
 
-        if (!load_custom_ensign_data(
-                sheet,
-                &custom_ensign_data[ensign_id],
-                conversion_table))
+        if (!load_custom_ensign_data(sheet, &custom_ensign_data[ensign_id], conversion_table))
         {
-            ERRORLOG(
-                "Unable to load custom ensign '%s'",
-                added_ensigns[i].name);
+            ERRORLOG("Unable to load custom ensign '%s'", added_ensigns[i].name);
 
             free((void *)conversion_table);
-            free_spritesheet(&sheet);
+            
+            ERRORLOG("Unable to load custom ensign , failed to process palette");
             return NULL;
         }
     }
@@ -2607,33 +2524,15 @@ const struct TbSprite *get_custom_ensign_sprite(
     short ensign_id,
     int frame)
 {
-    if (sheet == NULL ||
-        ensign_id < 0 ||
-        ensign_id >= MAX_CUSTOM_ENSIGNS)
-    {
+    if (ensign_id < 0 || ensign_id >= num_added_ensigns)
         return &bad_icon;
-    }
 
-    int sheet_index =
-        custom_ensign_data[ensign_id].sheet_index;
+    struct CustomEnsignData *data = &custom_ensign_data[ensign_id];
 
-    if (sheet_index < 0)
-    {
+    if (frame < 0 || frame >= data->file_count)
         return &bad_icon;
-    }
 
-    int sprite_index =
-        sheet_index + frame;
-
-    if (sprite_index < 0 ||
-        sprite_index >= num_sprites(sheet))
-    {
-        return &bad_icon;
-    }
-
-    return get_sprite(
-        sheet,
-        sprite_index);
+    return get_sprite(sheet, data->sheet_index + frame);
 }
 
 int get_custom_icon_frame_count(short icon_idx)

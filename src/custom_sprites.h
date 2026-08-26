@@ -52,12 +52,8 @@ short get_anim_id(const char *name, struct ObjectConfigStats* objst);
 short get_anim_id_(const char* name);
 short get_icon_id(const char *name);
 short get_ensign_id(const char *name);
-struct TbSpriteSheet *load_custom_ensigns(
-    const unsigned char *palette);
-const struct TbSprite *get_custom_ensign_sprite(
-    struct TbSpriteSheet *sheet,
-    short ensign_id,
-    int frame);
+struct TbSpriteSheet *load_custom_ensigns_into_sheet(struct TbSpriteSheet *sheet, const unsigned char *palette);
+const struct TbSprite *get_custom_ensign_sprite(struct TbSpriteSheet *sheet, short ensign_id, int frame);
 const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumber plyr_idx);
 const struct TbSprite *get_button_sprite(short sprite_idx);
 const struct TbSprite *get_frontend_sprite(short sprite_idx);

@@ -1065,10 +1065,9 @@ TbBool frontmap_load(void)
         case LndMk_ENSIGNS:
             map_flag = load_spritesheet("ldata/lndflag_ens.dat", "ldata/lndflag_ens.tab");
             break;
-        case LndMk_CUSTOM:
-            map_flag = load_custom_ensigns(frontend_palette);
-            break;
     }
+    // append any custom ensigns to the sheet
+    map_flag = load_custom_ensigns_into_sheet(map_flag, frontend_palette);    
     if (!map_flag)
     {
         ERRORLOG("Unable to load Land View Screen sprites");
