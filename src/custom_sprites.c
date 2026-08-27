@@ -189,6 +189,9 @@ static unsigned char bad_icon_data[] = // 16x16
 const struct TbSprite bad_icon = { bad_icon_data, 16, 16 };
 short bad_icon_id = INT16_MAX;
 
+const unsigned int normal_load_flags = CLF_Sprites | CLF_Icons | CLF_LensOverlays | CLF_LensMists;
+const unsigned int campaign_load_flags = CLF_Ensigns;
+
 static int cmp_named_command(const void *a, const void *b)
 {
 
@@ -227,31 +230,31 @@ struct TbSpriteSheet *load_custom_sheet_from_zip(const char *path, const unsigne
 }
 
 
-static int load_file_sprites(const char *path, const char *file_desc)
+static int load_file_sprites(const char *path, const char *file_desc, unsigned int load_flags)
 {
     SYNCDBG(8, "Starting");
     int add_flag = 0;
-    if (add_custom_sprite(path))
+    if (load_flags & CLF_Sprites && add_custom_sprite(path))
     {
         add_flag |= CLF_Sprites;
     }
 
-    if (add_custom_json(path, "icons.json", &process_icon))
+    if (load_flags & CLF_Icons && add_custom_json(path, "icons.json", &process_icon))
     {
         add_flag |= CLF_Icons;
     }
 
-    if (add_custom_json(path, "ensigns.json", &process_ensign))
+    if (load_flags & CLF_Ensigns && add_custom_json(path, "ensigns.json", &process_ensign))
     {
         add_flag |= CLF_Ensigns;
     }
 
-    if (add_custom_json(path, "lenses.json", &process_lens_overlay))
+    if (load_flags & CLF_LensOverlays && add_custom_json(path, "lenses.json", &process_lens_overlay))
     {
         add_flag |= CLF_LensOverlays;
     }
 
-    if (add_custom_json(path, "mists.json", &process_lens_mist))
+    if (load_flags & CLF_LensMists && add_custom_json(path, "mists.json", &process_lens_mist))
     {
         add_flag |= CLF_LensMists;
     }
@@ -305,7 +308,7 @@ static int load_file_sprites(const char *path, const char *file_desc)
     return add_flag;
 }
 
-static void load_dir_sprites(const char *dir_path, const char *dir_desc)
+static void load_dir_sprites(const char *dir_path, const char *dir_desc, unsigned int load_flags)
 {
     SYNCDBG(8, "Starting");
     if (dir_path == NULL || dir_path[0] == 0) {
@@ -319,7 +322,7 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc)
     if (ff) {
         do {
             sprintf(full_path, "%s/%s", dir_path, fe.Filename);
-            int add_flag = load_file_sprites(full_path, NULL);
+            int add_flag = load_file_sprites(full_path, NULL, load_flags);
             if (add_flag & CLF_Sprites) {
                 cnt_sprite++;
             }
@@ -370,7 +373,7 @@ void show_ignored_fxdata_zip_messages(void)
 /* @comment
  *     The loading items of init_custom_sprites and load_sprites_for_mod need to be consistent.
  */
-static void load_sprites_for_mod(LevelNumber lvnum, const struct ModConfigItem *mod_item)
+static void load_sprites_for_mod(LevelNumber lvnum, const struct ModConfigItem *mod_item, unsigned int load_flags)
 {
 
     const struct ModExistState *mod_state = &mod_item->state;
@@ -384,7 +387,7 @@ static void load_sprites_for_mod(LevelNumber lvnum, const struct ModConfigItem *
         if (strlen(dname) > 0)
         {
             sprintf(desc, "Mod[%s] FxData dir", mod_item->name);
-            load_dir_sprites(dname, desc);
+            load_dir_sprites(dname, desc, load_flags);
         }
     }
 
@@ -394,7 +397,7 @@ static void load_sprites_for_mod(LevelNumber lvnum, const struct ModConfigItem *
         if (strlen(dname) > 0)
         {
             sprintf(desc, "Mod[%s] CmpgConfig dir", mod_item->name);
-            load_dir_sprites(dname, desc);
+            load_dir_sprites(dname, desc, load_flags);
         }
     }
 
@@ -404,12 +407,12 @@ static void load_sprites_for_mod(LevelNumber lvnum, const struct ModConfigItem *
         if (strlen(fname) > 0 && LbFileExists(fname))
         {
             sprintf(desc, "Mod[%s] CmpgLvls file", mod_item->name);
-            load_file_sprites(fname, desc);
+            load_file_sprites(fname, desc, load_flags);
         }
     }
 }
 
-static void load_sprites_for_mod_list(LevelNumber lvnum, const struct ModConfigItem *mod_items, long mod_cnt)
+static void load_sprites_for_mod_list(LevelNumber lvnum, const struct ModConfigItem *mod_items, long mod_cnt, unsigned int load_flags)
 {
     for (long i=0; i<mod_cnt; i++)
     {
@@ -417,7 +420,7 @@ static void load_sprites_for_mod_list(LevelNumber lvnum, const struct ModConfigI
         if (mod_item->state.mod_dir == 0)
             continue;
 
-        load_sprites_for_mod(lvnum, mod_item);
+        load_sprites_for_mod(lvnum, mod_item, load_flags);
     }
 }
 
@@ -441,6 +444,14 @@ static void clear_custom_ensigns(void)
     num_added_ensigns = 0;
     memset(added_ensigns, 0, sizeof(added_ensigns));
     memset(custom_ensign_data, 0, sizeof(custom_ensign_data));
+}
+
+void init_custom_campaign_sprites(const char *dir_path, const char *dir_desc){
+    load_dir_sprites(dir_path, dir_desc, campaign_load_flags);
+    if (mods_conf.after_campaign_cnt > 0)
+    {
+        load_sprites_for_mod_list(-1, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt, campaign_load_flags);
+    }
 }
 
 void init_custom_sprites(LevelNumber lvnum)
@@ -522,7 +533,7 @@ void init_custom_sprites(LevelNumber lvnum)
                 continue;
             }
             required_sprite_zip_checksums[i] = calculate_file_checksum(full_path);
-            int add_flag = load_file_sprites(full_path, NULL);
+            int add_flag = load_file_sprites(full_path, NULL, normal_load_flags);
             if (add_flag & CLF_Sprites) {
                 cnt_sprite++;
             }
@@ -539,24 +550,24 @@ void init_custom_sprites(LevelNumber lvnum)
 
     if (mods_conf.after_base_cnt > 0)
     {
-        load_sprites_for_mod_list(lvnum, mods_conf.after_base_item, mods_conf.after_base_cnt);
+        load_sprites_for_mod_list(lvnum, mods_conf.after_base_item, mods_conf.after_base_cnt, normal_load_flags);
     }
 
     dname = prepare_file_path(FGrp_CmpgConfig, NULL);
-    load_dir_sprites(dname, "Main CmpgConfig dir");
+    load_dir_sprites(dname, "Main CmpgConfig dir", normal_load_flags);
 
     if (mods_conf.after_campaign_cnt > 0)
     {
-        load_sprites_for_mod_list(lvnum, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
+        load_sprites_for_mod_list(lvnum, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt, normal_load_flags);
     }
 
     char *fname = prepare_file_fmtpath(get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
     if (LbFileExists(fname))
-        load_file_sprites(fname, "Main CmpgLvls file");
+        load_file_sprites(fname, "Main CmpgLvls file", normal_load_flags);
 
     if (mods_conf.after_map_cnt > 0)
     {
-        load_sprites_for_mod_list(lvnum, mods_conf.after_map_item, mods_conf.after_map_cnt);
+        load_sprites_for_mod_list(lvnum, mods_conf.after_map_item, mods_conf.after_map_cnt, normal_load_flags);
     }
 
 }
