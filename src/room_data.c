@@ -3241,19 +3241,12 @@ void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y
     if (room_role_matches(room->kind,RoRoF_PassWater|RoRoF_PassLava))
     {
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-        switch (slabmap_wlb(slb))
-        {
-        case 1:
-            place_slab_type_on_map(SlbT_LAVA,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
-            break;
-        case 2:
-            place_slab_type_on_map(SlbT_WATER, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
-            break;
-        default:
+        int slbkind = slab_kind_from_wlb_type(slabmap_wlb(slb));
+        if (slbkind < 0) {
             ERRORLOG("WLB flags seem damaged for slab (%ld,%ld).",(long)slb_x,(long)slb_y);
-            place_slab_type_on_map(SlbT_PATH,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
-            break;
+            slbkind = SlbT_PATH;
         }
+        place_slab_type_on_map(slbkind, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
     } else
     {
         if ( is_destroyed )

@@ -820,9 +820,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         TbBool can_drag;
         if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
         {
-            can_drag = ((can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) ||
-                        (room_role_matches(rkind,RoRoF_PassWater) && (players_land_by_slab_kind(plyr_idx, drag_start_x, drag_start_y,SlbT_WATER))) ||
-                        (room_role_matches(rkind,RoRoF_PassLava)  && (players_land_by_slab_kind(plyr_idx, drag_start_x, drag_start_y,SlbT_LAVA))) );
+            can_drag = can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y) || players_land_by_bridgeable_slab(plyr_idx, drag_start_x, drag_start_y);
             player->one_click_mode_exclusive = false;
         }
         else
@@ -1681,17 +1679,8 @@ TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, M
         {
             return false;
         }
-        if (!slab_is_liquid(slb_x, slb_y))
-        {
-            return false;
-        }
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-        if(slb->kind == SlbT_WATER && !room_role_matches( rkind,RoRoF_PassWater))
-        {
-            return false;
-        }
-        if(slb->kind == SlbT_LAVA && !room_role_matches( rkind,RoRoF_PassLava))
-        {
+        if (!room_can_build_on_bridge_slab(rkind, slb->kind)) {
             return false;
         }
         if (player->roomspace_horizontal_first)
@@ -1860,9 +1849,9 @@ TbBool roomspace_slab_blocks_bridge(PlayerNumber plyr_idx, MapSlabCoord slb_x, M
     {
         return true;
     }
-    if (!slab_is_liquid(slb_x, slb_y))
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    if (!slab_kind_is_bridgeable(slb->kind))
     {
-        struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
         if ((slabmap_owner(slb)) != plyr_idx)
         {
             return true;

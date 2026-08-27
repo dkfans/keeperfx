@@ -190,6 +190,8 @@ TbBool slab_kind_is_room_wall(RoomKind slbkind);
 TbBool slab_kind_is_friable_dirt(RoomKind slbkind);
 TbBool slab_kind_is_door(SlabKind slbkind);
 TbBool slab_kind_is_liquid(SlabKind slbkind);
+TbBool slab_kind_is_bridgeable(SlabKind slbkind);
+int slab_kind_from_wlb_type(unsigned char wlb_type);
 TbBool slab_kind_is_room(SlabKind slbkind);
 TbBool slab_kind_has_torches(SlabKind slbkind);
 /******************************************************************************/

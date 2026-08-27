@@ -1837,20 +1837,11 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
 
 void replace_map_slab_when_destroyed(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    SlabKind nslab;
     struct SlabMap *slb;
     slb = get_slabmap_block(slb_x, slb_y);
-    switch (slabmap_wlb(slb))
-    {
-    case 1:
-        nslab = SlbT_LAVA;
-        break;
-    case 2:
-        nslab = SlbT_WATER;
-        break;
-    default:
+    int nslab = slab_kind_from_wlb_type(slabmap_wlb(slb));
+    if (nslab < 0) {
         nslab = SlbT_PATH;
-        break;
     }
     place_slab_type_on_map(nslab, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
 }

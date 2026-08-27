@@ -752,6 +752,23 @@ TbBool slab_kind_is_liquid(SlabKind slbkind)
     return false;
 }
 
+TbBool slab_kind_is_bridgeable(SlabKind slbkind)
+{
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
+    return (slabst->wlb_type != WlbT_None) && (slabst->wlb_type != WlbT_Bridge);
+}
+
+int slab_kind_from_wlb_type(unsigned char wlb_type)
+{
+    if ((wlb_type == WlbT_None) || (wlb_type == WlbT_Bridge))
+        return -1;
+    for (int slbkind = 0; slbkind < game.conf.slab_conf.slab_types_count; slbkind++) {
+        if (get_slab_kind_stats(slbkind)->wlb_type == wlb_type)
+            return slbkind;
+    }
+    return -1;
+}
+
 /**
  * Returns if given slab type represents room slab.
  * @param slbkind The slab kind to be checked.

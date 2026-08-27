@@ -271,7 +271,7 @@ TbBool slab_kind_is_animated(SlabKind slbkind)
 TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 {
     const struct SlabConfigStats* slabst = get_slab_stats(slb);
-    if ( any_flag_is_set(slabst->block_flags, (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) || (slb->kind == SlbT_LAVA) )
+    if (any_flag_is_set(slabst->block_flags, SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) || slab_kind_is_bridgeable(slb->kind))
         return true;
     return false;
 }
@@ -312,8 +312,7 @@ TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
         return false;
     }
     if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava)) {
-        return ((room_role_matches(rkind,RoRoF_PassWater) && (slb->kind == SlbT_WATER && slab_by_players_land(plyr_idx, slb_x, slb_y))) ||
-                (room_role_matches(rkind,RoRoF_PassLava)  && (slb->kind == SlbT_LAVA  && slab_by_players_land(plyr_idx, slb_x, slb_y))));
+        return room_can_build_on_bridge_slab(rkind, slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y);
     }
     if (slabmap_owner(slb) != plyr_idx) {
         return false;
@@ -326,8 +325,7 @@ TbBool can_build_room_at_slab_fast(PlayerNumber plyr_idx, RoomKind rkind, MapSla
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
     {
-        return ((room_role_matches(rkind,RoRoF_PassWater) && (slb->kind == SlbT_WATER && slab_by_players_land(plyr_idx, slb_x, slb_y))) ||
-                (room_role_matches(rkind,RoRoF_PassLava)  && (slb->kind == SlbT_LAVA  && slab_by_players_land(plyr_idx, slb_x, slb_y))));
+        return room_can_build_on_bridge_slab(rkind, slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y);
     }
     else
     {
@@ -357,8 +355,7 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
     int result = 0;
     if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
     {
-        result = ((room_role_matches(rkind,RoRoF_PassWater) && (slb->kind == SlbT_WATER && slab_by_players_land(plyr_idx, slb_x, slb_y))) ||
-                  (room_role_matches(rkind,RoRoF_PassLava)  && (slb->kind == SlbT_LAVA  && slab_by_players_land(plyr_idx, slb_x, slb_y)))); // 0 or 1
+        result = room_can_build_on_bridge_slab(rkind, slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y);
     }
     else
     {
@@ -421,6 +418,16 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
         result = 0;
     }
     return result;
+}
+
+TbBool room_can_build_on_bridge_slab(RoomKind rkind, SlabKind slbkind)
+{
+    unsigned char wlb_type = get_slab_kind_stats(slbkind)->wlb_type;
+    if (wlb_type == WlbT_Water)
+        return room_role_matches(rkind, RoRoF_PassWater);
+    if (wlb_type == WlbT_Lava)
+        return room_role_matches(rkind, RoRoF_PassLava);
+    return slab_kind_is_bridgeable(slbkind) && room_role_matches(rkind, RoRoF_PassWater | RoRoF_PassLava);
 }
 
 /**
@@ -804,7 +811,7 @@ TbBool slab_kind_has_no_ownership(SlabKind slbkind)
     return (slabst->is_ownable == 0);
 }
 
-TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind)
+TbBool players_land_by_bridgeable_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     if (slabmap_owner(slb) == plyr_idx)
@@ -814,7 +821,7 @@ TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
             MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
             MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
             struct SlabMap* aslb = get_slabmap_block(aslb_x, aslb_y);
-            if (aslb->kind == slbkind)
+            if (slab_kind_is_bridgeable(aslb->kind))
             {
                 return true;
             }
