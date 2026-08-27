@@ -2334,8 +2334,6 @@ static int process_ensign_from_list(const char *path, unzFile zip, int idx, VALU
         }
     }
 
-    JUSTLOG("Registered custom ensign '%s' from %s", name, path);
-
     return 1;
 }
 
