@@ -1596,7 +1596,7 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
     {
         goto end;
     }
-    JUSTLOG("add_custom_json name - %s",name);
+    
     if (UNZ_OK != fastUnzLocateFile(zip, name, 0))
     {
         goto end;
