@@ -262,6 +262,9 @@ static int get_overhead_mapblock_style(const struct Map* mapblk, const struct Sl
     if (slb->kind == SlbT_ROCK_FLOOR) {
         return pixmap.ghost[3];
     }
+    if (subtile_has_abyss_on_top(slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
+        return 2;
+    }
     if ((mapblk->flags & SlbAtFlg_Filled) != 0) {
         return OMapSt_Wall;
     }
