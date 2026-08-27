@@ -877,11 +877,11 @@ void draw_network_stats()
     unsigned int lost_packet_count = GetClientPacketsLost();
     unsigned int outgoing_rate_kb10 = (GetUploadRateBytesPerSecond() * 10) / 1024;
     unsigned int incoming_rate_kb10 = (GetDownloadRateBytesPerSecond() * 10) / 1024;
-    int32_t increase_missed_turns;
-    int32_t increase_sampled_turns;
-    int32_t decrease_missed_turns;
-    int32_t decrease_sampled_turns;
-    input_lag_get_stats(&increase_missed_turns, &increase_sampled_turns, &decrease_missed_turns, &decrease_sampled_turns);
+    int32_t increase_wait_time;
+    int32_t increase_turn_time;
+    int32_t decrease_wait_time;
+    int32_t decrease_sample_time;
+    input_lag_get_stats(&increase_wait_time, &increase_turn_time, &decrease_wait_time, &decrease_sample_time);
     int64_t turn_length_ns = 0;
     if (turns_per_second > 0) {
         turn_length_ns = 1000000000 / turns_per_second;
@@ -897,9 +897,10 @@ void draw_network_stats()
     LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Input lag: %d", game.input_lag_turns);
     LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Recent packet misses: %d/%d", increase_missed_turns, increase_sampled_turns);
+    snprintf(text, sizeof(text), "Packet wait increase: %d/%dms in %dms", increase_wait_time,
+        increase_turn_time, INPUT_LAG_INCREASE_SAMPLE_MS);
     LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Decrease packet misses: %d/%d", decrease_missed_turns, decrease_sampled_turns);
+    snprintf(text, sizeof(text), "Packet wait decrease: %d/%dms", decrease_wait_time, decrease_sample_time);
     LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Download: %u.%u KB/s",
         incoming_rate_kb10 / 10, incoming_rate_kb10 % 10);

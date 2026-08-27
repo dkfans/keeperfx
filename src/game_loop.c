@@ -523,6 +523,16 @@ void gameplay_loop_draw()
     }
 }
 
+void network_yield_waiting_gameplay_packets()
+{
+    poll_inputs();
+    gameplay_loop_draw();
+    update_gameplay_delta_time();
+    // Reduce game speed during lag spikes.
+    if (game.process_turn_time > 2.0)
+        game.process_turn_time = 2.0;
+}
+
 static void gameplay_loop_logic()
 {
     if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
