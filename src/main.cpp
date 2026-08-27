@@ -1697,16 +1697,6 @@ extern "C" void network_yield_draw_gameplay()
     gameplay_loop_draw();
 }
 
-extern "C" void network_yield_waiting_gameplay_packets()
-{
-    poll_inputs();
-    gameplay_loop_draw();
-    update_gameplay_delta_time();
-    // Reduce game speed during lag spikes.
-    if (game.process_turn_time > 2.0)
-        game.process_turn_time = 2.0;
-}
-
 extern "C" void update_velocity(void);
 extern "C" void check_mouse_scroll(void);
 extern "C" void fronttorture_update(void);
