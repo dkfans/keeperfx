@@ -39,6 +39,7 @@
 #include "spdigger_stack.h"
 #include "power_hand.h"
 #include "magic_powers.h"
+#include "map_data.h"
 #include "map_utils.h"
 #include "config_creature.h"
 #include "config_magic.h"
@@ -46,6 +47,7 @@
 #include "creature_states_combt.h"
 #include "player_instances.h"
 #include "engine_camera.h"
+#include "map_columns.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "bflib_planar.h"
@@ -56,6 +58,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+#define ABYSS_FALL_SOUND_DELAY 2
+
 Thing_Class_Func class_functions[] = {
   NULL,//TCls_Empty
   update_object,
@@ -3326,8 +3330,20 @@ TbBool update_thing(struct Thing *thing)
     if (thing_is_invalid(thing))
         return false;
 
-    if ((thing->movement_flags & TMvF_Immobile) == 0)
-    {
+    TbBool falling = flag_is_set(thing->state_flags, TF1_FallingIntoAbyss);
+    if (falling) {
+        clear_thing_acceleration(thing);
+        clear_flag(thing->state_flags, TF1_PushOnce);
+        if (thing->abyss_fall_sound_delay > 0) {
+            thing->abyss_fall_sound_delay--;
+            if ((thing->abyss_fall_sound_delay == 0) && thing_is_creature(thing) && is_my_player_number(thing->owner)) {
+                play_creature_sound(thing, CrSnd_Drop, 3, 0);
+            }
+        }
+        thing->veloc_push_add.z.val -= thing->fall_acceleration;
+        set_flag(thing->state_flags, TF1_PushAdd);
+    }
+    if (falling || ((thing->movement_flags & TMvF_Immobile) == 0)) {
         if ((thing->state_flags & TF1_PushAdd) != 0)
         {
             thing->veloc_base.x.val += thing->veloc_push_add.x.val;
@@ -3358,20 +3374,47 @@ TbBool update_thing(struct Thing *thing)
         classfunc = NULL;
     if (classfunc == NULL)
         return false;
-    if (classfunc(thing) == TUFRet_Deleted) {
+    if (falling) {
+        thing->velocity.z.val = clamp(thing->velocity.z.val, -CREATURE_TERMINAL_VELOCITY, CREATURE_TERMINAL_VELOCITY);
+        struct Coord3d pos;
+        set_coords_add_velocity(&pos, &thing->mappos, &thing->velocity, MapCoord_ClipX | MapCoord_ClipY);
+        if (thing_is_creature(thing) && ((thing->velocity.x.val != 0) || (thing->velocity.y.val != 0))) {
+            int32_t blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+            blocked_flags &= (SlbBloF_WalledX | SlbBloF_WalledY);
+            slide_thing_against_wall_at(thing, &pos, blocked_flags);
+            remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
+        }
+        move_thing_in_map(thing, &pos);
+        thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
+        thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
+    }
+    else {
+        if (classfunc(thing) == TUFRet_Deleted) {
+            return false;
+        }
+        if (!flag_is_set(thing->movement_flags, TMvF_Immobile) && !flag_is_set(thing->movement_flags, TMvF_Flying) && (thing->mappos.z.val <= 0) && subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+            set_flag(thing->state_flags, TF1_FallingIntoAbyss);
+            falling = true;
+            thing->fall_acceleration = CREATURE_FALL_ACCELERATION;
+            thing->abyss_fall_sound_delay = ABYSS_FALL_SOUND_DELAY;
+        }
+    }
+    if (falling && (thing->mappos.z.val <= -subtile_coord(ABYSS_DEPTH, 0))) {
+        if (thing_is_creature(thing)) {
+            kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NoUnconscious);
+        } else {
+            destroy_thing(thing);
+        }
         return false;
     }
     SYNCDBG(18,"Class function end ok");
-    if ((thing->movement_flags & TMvF_Immobile) == 0)
-    {
-        if (thing->mappos.z.val > thing->floor_height)
-        {
+    if (!falling && ((thing->movement_flags & TMvF_Immobile) == 0)) {
+        if (thing->mappos.z.val > thing->floor_height) {
             if (thing->veloc_base.x.val != 0)
                 thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
             if (thing->veloc_base.y.val != 0)
                 thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
-            if ((thing->movement_flags & TMvF_Flying) == 0)
-            {
+            if ((thing->movement_flags & TMvF_Flying) == 0) {
                 thing->veloc_push_add.z.val -= thing->fall_acceleration;
                 thing->state_flags |= TF1_PushAdd;
             } else

@@ -671,9 +671,7 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
     {
         for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
         {
-            if (thing_is_creature(thing) && !flag_is_set(thing->movement_flags, TMvF_Flying) && subtile_has_abyss_on_top(stl_x, stl_y))
-                return 1;
-            if (map_is_solid_at_height(stl_x, stl_y, height_beg, height_end)) {
+            if (((height_beg >= 0) || !subtile_has_abyss_on_top(stl_x, stl_y)) && map_is_solid_at_height(stl_x, stl_y, height_beg, height_end)) {
                 return 1;
             }
         }
@@ -693,21 +691,7 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
     {
         for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
         {
-            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            if (thing_is_creature(thing) && !flag_is_set(thing->movement_flags, TMvF_Flying) && subtile_has_abyss_on_top(stl_x, stl_y))
-                return true;
-            if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
-                return true;
-            }
-            int floor_stl = get_map_floor_filled_subtiles(mapblk);
-            if (subtile_coord(floor_stl,0) > z_beg) {
-                return true;
-            }
-            int ceiln_stl = get_map_ceiling_filled_subtiles(mapblk);
-            if (ceiln_stl == 0) {
-                ceiln_stl = get_mapblk_filled_subtiles(mapblk);
-            }
-            if (subtile_coord(ceiln_stl,0) < z_end) {
+            if (((z_beg >= 0) || !subtile_has_abyss_on_top(stl_x, stl_y)) && map_is_solid_at_height(stl_x, stl_y, z_beg, z_end)) {
                 return true;
             }
         }

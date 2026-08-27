@@ -4876,7 +4876,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->clipbox_size_z = crconf->size_z;
     crtng->solid_size_xy = crconf->thing_size_xy;
     crtng->solid_size_z = crconf->thing_size_z;
-    crtng->fall_acceleration = 32;
+    crtng->fall_acceleration = CREATURE_FALL_ACCELERATION;
     crtng->bounce_angle = 0;
     crtng->inertia_floor = 32;
     crtng->inertia_air = 8;
