@@ -1828,6 +1828,17 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
             return Lb_FAIL;
         }
     }
+
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the power, fail
+        if (!pay_for_spell(plyr_idx, power_kind, 0)) {
+            if (is_my_player_number(plyr_idx))
+                output_message(SMsg_GoldNotEnough, 0);
+            return Lb_OK;
+        }
+    }
+
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
