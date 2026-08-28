@@ -151,6 +151,8 @@ struct LevelInformation {
   long ensign_zoom_y;
   unsigned long level_type;
   unsigned short ensign_type;
+  TbBool ensign_override;
+  unsigned short ensign_type_override;
   unsigned short state;
   unsigned short location;
   int mapsize_x;

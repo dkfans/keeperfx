@@ -308,18 +308,18 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         return NULL;
     if (lvinfo->state == LvSt_Hidden)
         return NULL;
-
-    if (lvinfo->ensign_type >= CUSTOM_ENSIGN_BASE)
+    unsigned short ensign_type = lvinfo->ensign_override > 0 ? lvinfo->ensign_type_override : lvinfo->ensign_type;
+    if (ensign_type >= CUSTOM_ENSIGN_BASE)
     {
         int frame = anim_frame & 3;
         if (lvinfo->lvnum == mouse_over_lvnum)
             frame += 4;
         spr = get_custom_ensign_sprite(
             map_flag,
-            lvinfo->ensign_type - CUSTOM_ENSIGN_BASE,
+            ensign_type - CUSTOM_ENSIGN_BASE,
             frame);
     } else {
-        int ensign_sprite_index = lvinfo->ensign_type;
+        int ensign_sprite_index = ensign_type;
         if (lvinfo->level_type & LvKind_IsSingle)
         {
             switch (lvinfo->state)
@@ -332,7 +332,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
                 spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
                 break;
             default:
-                ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsFullFlag);
+                ensign_sprite_index = get_disabled_flag_option(ensign_type, EnsFullFlag);
                 spr = get_map_ensign(ensign_sprite_index);
                 break;
             }
@@ -349,7 +349,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
                 spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
                 break;
             default:
-                ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsTutorial);
+                ensign_sprite_index = get_disabled_flag_option(ensign_type, EnsTutorial);
                 spr = get_map_ensign(ensign_sprite_index);
                 break;
             }
@@ -377,11 +377,11 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
                 default:
                     if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
                     {
-                        ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsNewMoon);
+                        ensign_sprite_index = get_disabled_flag_option(ensign_type, EnsNewMoon);
                     }
                     else
                     {
-                        ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsFullMoon);
+                        ensign_sprite_index = get_disabled_flag_option(ensign_type, EnsFullMoon);
                     }
                     spr = get_map_ensign(ensign_sprite_index);
                     break;
@@ -408,7 +408,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
                 }
                 if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
                     ensign_sprite_index++;
-                if (lvinfo->ensign_type == EnsCoop)
+                if (ensign_type == EnsCoop)
                 {
                     ensign_sprite_index = ensign_sprite_index + 6;
                 }

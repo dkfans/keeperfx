@@ -2213,10 +2213,26 @@ TbBool set_level_ensign(LevelNumber lvnum, unsigned short ensign_id)
     if(!is_level_in_current_campaign(lvnum))
         return false;
     struct LevelInformation* lvinfo = get_level_info(lvnum);
-    lvinfo->ensign_type = ensign_id;
+    
+    lvinfo->ensign_override = true;
+    lvinfo->ensign_type_override = ensign_id;
     return true;
 }
 
+void reset_level_ensign_overrides(void)
+{
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        LevelNumber lvnum = campaign.single_levels[i];
+
+        if (lvnum == 0)
+            continue;
+
+        struct LevelInformation *lvinfo = get_level_info(lvnum);
+        if (lvinfo != NULL)
+            lvinfo->ensign_override = false;
+    }
+}
 /* @comment
  *     The loading items of load_config and load_config_for_mod need to be consistent.
  */
