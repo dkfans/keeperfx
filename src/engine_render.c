@@ -989,7 +989,7 @@ static const struct Column *get_abyss_wall_column(const struct Column *colmn, co
         return colmn;
     }
     struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (slb->kind != SlbT_BRIDGE) {
+    if (get_slab_stats(slb)->wlb_type != WlbT_Bridge) {
         return colmn;
     }
     int32_t slbkind = slab_kind_from_wlb_type(slabmap_wlb(slb));
@@ -1024,7 +1024,7 @@ static void fill_in_abyss_points_parallel(struct WibbleTable *wibl, struct Engin
         struct WibbleTable *abyss_wibl = &wibl[2 * ((depth - 1) % COLUMN_STACK_HEIGHT)];
         ecord->view_width = (eview_w + abyss_wibl->view_width_offset) >> 8;
         ecord->view_height = (hview_y - dview_h * depth + abyss_wibl->view_height_offset) >> 8;
-        ecord->z = hview_z - dview_z * depth;
+        ecord->z = clamp(hview_z - dview_z * depth, 0, Z_DRAW_DISTANCE_MAX);
         ecord->clip_flags = 0;
         ecord->shade_intensity = ABYSS_SHADE(lightness, depth);
     }
@@ -7575,7 +7575,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
             bckt_top = bckt_face - 2 * (zoom >> 8);
         }
     }
-    if (!abyss && smap_revealed && map_block_has_rendered_abyss(smapblk, sstl_x, sstl_y) && !cube_is_abyss(cube_id) && is_free_space_in_poly_pool(ABYSS_WALL_RENDER_HEIGHT + 1)) {
+    const size_t abyss_pool_size = (ABYSS_WALL_RENDER_HEIGHT + 1) * sizeof(struct BucketKindTexturedQuad) + 8 * sizeof(struct BucketKindSlabSelector);
+    if (!abyss && smap_revealed && map_block_has_rendered_abyss(smapblk, sstl_x, sstl_y) && !cube_is_abyss(cube_id) && (getpoly + abyss_pool_size <= poly_pool_end)) {
         cube_config_stats = get_cube_model_stats(cube_id);
         textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[cube_itm]);
         for (i = 0; i < ABYSS_WALL_RENDER_HEIGHT; i++) {
