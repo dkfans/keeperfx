@@ -73,6 +73,7 @@ extern "C" {
 
 #define TO_FIXED(x)    ((x) << 16)
 #define FROM_FIXED(x)    ((x) >> 16)
+#define ABYSS_WALL_RENDER_HEIGHT 6
 
 enum QKinds {
     QK_PolygonStandard = 0,
@@ -317,7 +318,7 @@ struct BucketKindRoomFlag { // BasicQ type 17,19
 
 
 struct EngineCol {
-    struct EngineCoord cors[16];
+    struct EngineCoord cors[COLUMN_STACK_HEIGHT + ABYSS_WALL_RENDER_HEIGHT + 2];
 };
 
 struct SideOri {
@@ -974,6 +975,61 @@ static struct BasicQ *get_bucket_item(int min_cor_z, enum QKinds kind, size_t si
     return kspr;
 }
 
+static int32_t ABYSS_SHADE(int32_t lightness, int32_t depth)
+{
+    if (depth >= ABYSS_WALL_RENDER_HEIGHT) {
+        return 0;
+    }
+    return lightness * (ABYSS_WALL_RENDER_HEIGHT - depth) / ABYSS_WALL_RENDER_HEIGHT;
+}
+
+static const struct Column *get_abyss_wall_column(const struct Column *colmn, const struct Map *mapblk, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    if ((mapblk->flags & SlbAtFlg_IsRoom) == 0) {
+        return colmn;
+    }
+    struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slb->kind != SlbT_BRIDGE) {
+        return colmn;
+    }
+    int32_t slbkind = slab_kind_from_wlb_type(slabmap_wlb(slb));
+    if (slbkind < 0) {
+        return colmn;
+    }
+    return get_column(-game.slabset[SLABSETS_PER_SLAB * slbkind].col_idx[(stl_y % STL_PER_SLB) * STL_PER_SLB + stl_x % STL_PER_SLB]);
+}
+
+static int32_t get_column_top_cube(const struct Column *colmn)
+{
+    if (colmn->cubes[0] != 0) {
+        return colmn->cubes[0];
+    }
+    return game.top_cube[colmn->floor_texture];
+}
+
+static TbBool map_block_has_rendered_abyss(const struct Map *mapblk, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    return cube_is_abyss(game.top_cube[get_abyss_wall_column(get_map_column(mapblk), mapblk, stl_x, stl_y)->floor_texture]);
+}
+
+static void fill_in_abyss_points_parallel(struct WibbleTable *wibl, struct EngineCol *ecol, int32_t eview_w, int32_t hview_y, int32_t hview_z, int32_t dview_h, int32_t dview_z, int32_t lightness)
+{
+    int32_t idxh;
+    for (idxh = 1; idxh <= ABYSS_WALL_RENDER_HEIGHT + 1; idxh++) {
+        int32_t depth = idxh;
+        if (depth > ABYSS_WALL_RENDER_HEIGHT) {
+            depth = ABYSS_DEPTH;
+        }
+        struct EngineCoord *ecord = &ecol->cors[COLUMN_STACK_HEIGHT + idxh];
+        struct WibbleTable *abyss_wibl = &wibl[2 * ((depth - 1) % COLUMN_STACK_HEIGHT)];
+        ecord->view_width = (eview_w + abyss_wibl->view_width_offset) >> 8;
+        ecord->view_height = (hview_y - dview_h * depth + abyss_wibl->view_height_offset) >> 8;
+        ecord->z = hview_z - dview_z * depth;
+        ecord->clip_flags = 0;
+        ecord->shade_intensity = ABYSS_SHADE(lightness, depth);
+    }
+}
+
 static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
     if ((bstl_y < 0) || (bstl_y > game.map_subtiles_y-1)) {
@@ -1004,6 +1060,7 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
     struct Column *col;
     unsigned long pfulmask_or;
     unsigned long pfulmask_and;
+    int32_t abyss_mask = 0;
     {
         unsigned long mask_cur;
         unsigned long mask_yp;
@@ -1013,11 +1070,13 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x - 1, stl_y + 1) << 1;
         }
         mapblk = get_map_block_at(stl_x-1, stl_y);
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x - 1, stl_y);
         }
         pfulmask_or = mask_cur | mask_yp;
         pfulmask_and = mask_cur & mask_yp;
@@ -1039,11 +1098,13 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x, stl_y + 1) << 3;
         }
         mapblk = get_map_block_at(stl_x, stl_y);
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x, stl_y) << 2;
         }
         unsigned long nfulmask_or;
         unsigned long nfulmask_and;
@@ -1063,6 +1124,9 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
         hmin = floor_height_table[fulmask_and & 0xff];
+        if ((hmin > 0) && (abyss_mask != 0)) {
+            hmin = 0;
+        }
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         long hpos;
@@ -1107,6 +1171,24 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
             ecord->shade_intensity = lightness;
             rotpers(ecord, &camera_matrix);
         }
+        if (abyss_mask != 0) {
+            wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
+            for (idxh = 1; idxh <= ABYSS_WALL_RENDER_HEIGHT + 1; idxh++) {
+                int32_t depth = idxh;
+                if (depth > ABYSS_WALL_RENDER_HEIGHT) {
+                    depth = ABYSS_DEPTH;
+                }
+                ecord = &ecol->cors[COLUMN_STACK_HEIGHT + idxh];
+                struct WibbleTable *abyss_wibl = &wibl[2 * ((depth - 1) % COLUMN_STACK_HEIGHT)];
+                ecord->x = apos + abyss_wibl->offset_x;
+                ecord->y = -depth * COORD_PER_STL - view_alt + abyss_wibl->offset_y;
+                ecord->z = bpos + abyss_wibl->offset_z;
+                ecord->clip_flags = 0;
+                ecord->shade_intensity = ABYSS_SHADE(lightness, depth);
+                rotpers(ecord, &camera_matrix);
+            }
+        }
+        abyss_mask >>= 2;
         stl_x++;
         ecol++;
         apos += COORD_PER_STL;
@@ -1148,6 +1230,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
     struct Column *col;
     unsigned long pfulmask_or;
     unsigned long pfulmask_and;
+    int32_t abyss_mask = 0;
     {
         unsigned long mask_cur;
         unsigned long mask_yp;
@@ -1157,6 +1240,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x - 1, stl_y + 1) << 1;
             if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
                 mask_cur &= 3;
             }
@@ -1165,6 +1249,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x - 1, stl_y);
             if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
                 mask_yp &= 3;
             }
@@ -1231,6 +1316,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x, stl_y + 1) << 3;
             if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
                 mask_cur &= 3;
             }
@@ -1239,6 +1325,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x, stl_y) << 2;
             if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
                 mask_yp &= 3;
             }
@@ -1262,6 +1349,9 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
         hmin = floor_height_table[fulmask_and & 0xff];
+        if ((hmin > 0) && (abyss_mask != 0)) {
+            hmin = 0;
+        }
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
@@ -1309,6 +1399,10 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
             eview_h += dview_h;
             eview_z += dview_z;
         }
+        if (abyss_mask != 0) {
+            fill_in_abyss_points_parallel(wibl - 2 * (hmax - hmin + 1), ecol, eview_w, hview_y, hview_z, dview_h, dview_z, lightness);
+        }
+        abyss_mask >>= 2;
         stl_x++;
         ecol++;
         apos += 256;
@@ -1365,6 +1459,7 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
     struct Column *col;
     unsigned long pfulmask_or;
     unsigned long pfulmask_and;
+    int32_t abyss_mask = 0;
     {
         unsigned long mask_cur;
         unsigned long mask_yp;
@@ -1374,11 +1469,13 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x - 1, stl_y + 1) << 1;
         }
         mapblk = get_map_block_at(stl_x-1, stl_y);
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x - 1, stl_y);
         }
         if (clip)
         {
@@ -1455,11 +1552,13 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x, stl_y + 1) << 3;
         }
         mapblk = get_map_block_at(stl_x, stl_y);
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
+            abyss_mask |= map_block_has_rendered_abyss(mapblk, stl_x, stl_y) << 2;
         }
         if (clip)
         {
@@ -1490,6 +1589,9 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
         hmin = floor_height_table[fulmask_and & 0xff];
+        if ((hmin > 0) && (abyss_mask != 0)) {
+            hmin = 0;
+        }
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
@@ -1535,6 +1637,10 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
             eview_h += dview_h;
             eview_z += dview_z;
         }
+        if (abyss_mask != 0) {
+            fill_in_abyss_points_parallel(wibl - 2 * (hmax - hmin + 1), ecol, eview_w, hview_y, hview_z, dview_h, dview_z, lightness);
+        }
+        abyss_mask >>= 2;
         stl_x++;
         ecol++;
         apos += 256;
@@ -4042,6 +4148,8 @@ unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned shor
     return tex_id + (game.slab_ext_data[get_slab_number(slb_x,slb_y)] & 0x1F) * TEXTURE_BLOCKS_COUNT;
 }
 
+static void draw_abyss(const struct Column *colmn, const struct Map *mapblk, struct EngineCol *bec, struct EngineCol *fec, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+
 static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
 {
     struct Column *blank_colmn;
@@ -4156,6 +4264,8 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
             cubenum_ptr++;
             height_bit = height_bit << 1;
         }
+        TbBool abyss = cube_is_abyss(game.top_cube[colmn->floor_texture]);
+        draw_abyss(colmn, mapblk, bec, fec, stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx));
 
         ecpos = floor_height_table[solidmsk_center];
         if (ecpos > 0)
@@ -4165,9 +4275,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
             textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
-        } else
-        {
-            ecpos = 0;
+        } else if (!abyss) {
             textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), colmn->floor_texture);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
@@ -4189,11 +4297,10 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         }
         // Draw the universal ceiling on top of the columns
         ecpos = 8;
-        {
-            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), floor_to_ceiling_map[colmn->floor_texture]);
-            do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
-            do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
-        }
+        textr_idx = floor_to_ceiling_map[colmn->floor_texture * !abyss];
+        textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), textr_idx);
+        do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
+        do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
         bec++;
         fec++;
         center_block_idx++;
@@ -4426,6 +4533,39 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
     }
 }
 
+static void draw_abyss(const struct Column *colmn, const struct Map *mapblk, struct EngineCol *bec, struct EngineCol *fec, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    colmn = get_abyss_wall_column(colmn, mapblk, stl_x, stl_y);
+    if (cube_is_abyss(game.top_cube[colmn->floor_texture])) {
+        return;
+    }
+    int32_t side;
+    int32_t depth;
+    int32_t top;
+    unsigned short textr_idx;
+    struct CubeConfigStats *texturing = get_cube_model_stats(get_column_top_cube(colmn));
+    struct EngineCol *edges[] = {&fec[1], &fec[0], &bec[0], &bec[1], &fec[1]};
+    const int32_t shades[] = {normal_shade_front, normal_shade_left, normal_shade_back, normal_shade_right};
+    for (side = 0; side < 4; side++) {
+        MapSubtlCoord adjacent_x = stl_x + x_step1[side];
+        MapSubtlCoord adjacent_y = stl_y + y_step1[side];
+        struct Map *adjacent_map = get_map_block_at(adjacent_x, adjacent_y);
+        if (!map_block_revealed(adjacent_map, my_player_number) || !map_block_has_rendered_abyss(adjacent_map, adjacent_x, adjacent_y)) {
+            continue;
+        }
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, texturing->texture_id[(side + 2) & 3]);
+        for (depth = COLUMN_STACK_HEIGHT + 1, top = 0; depth <= COLUMN_STACK_HEIGHT + ABYSS_WALL_RENDER_HEIGHT + 1; top = depth++) {
+            if (lens_mode != 0) {
+                do_a_trig_gourad_tr(&edges[side + 1]->cors[top], &edges[side]->cors[top], &edges[side]->cors[depth], textr_idx, shades[side]);
+                do_a_trig_gourad_bl(&edges[side]->cors[depth], &edges[side + 1]->cors[depth], &edges[side + 1]->cors[top], textr_idx, shades[side]);
+            } else {
+                do_a_gpoly_gourad_tr(&edges[side + 1]->cors[top], &edges[side]->cors[top], &edges[side]->cors[depth], textr_idx, shades[side]);
+                do_a_gpoly_gourad_bl(&edges[side]->cors[depth], &edges[side + 1]->cors[depth], &edges[side + 1]->cors[top], textr_idx, shades[side]);
+            }
+        }
+    }
+}
+
 static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_start, long plane_end)
 {
     if ((stl_y < 1) || (stl_y > (game.map_subtiles_y - 1))) {
@@ -4574,6 +4714,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
                 do_a_gpoly_gourad_bl(&bec[1].cors[ncor],   &fec[1].cors[ncor],   &fec[1].cors[ncor+1], textr_id, normal_shade_right);
             }
         }
+        draw_abyss(cur_colmn, cur_mapblk, bec, fec, stl_x + xaval + xidx, stl_y);
 
         ncor = floor_height_table[solidmsk_cur];
         if ((ncor > 0) && (ncor <= COLUMN_STACK_HEIGHT))
@@ -4602,15 +4743,12 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
                     do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
                 }
             }
-        } else
-        {
-            if ((render_map_flags & SlbAtFlg_Unexplored) == 0)
-            {
+        } else if (!cube_is_abyss(game.top_cube[cur_colmn->floor_texture])) {
+            if ((render_map_flags & SlbAtFlg_Unexplored) == 0) {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->floor_texture);
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
-            } else
-            {
+            } else {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
                 do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id);
                 do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id);
@@ -4764,6 +4902,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
                 do_a_gpoly_gourad_bl(&bec[1].cors[ncor],   &fec[1].cors[ncor],   &fec[1].cors[ncor+1], textr_id, normal_shade_right);
             }
         }
+        draw_abyss(cur_colmn, cur_mapblk, bec, fec, stl_x + xaval + xidx, stl_y);
 
         ncor = floor_height_table[solidmsk_cur];
         if (ncor > 0)
@@ -4789,15 +4928,12 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
                 do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             }
-        } else
-        {
-            if ((render_map_flags & SlbAtFlg_Unexplored) == 0)
-            {
+        } else if (!cube_is_abyss(game.top_cube[cur_colmn->floor_texture])) {
+            if ((render_map_flags & SlbAtFlg_Unexplored) == 0) {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->floor_texture);
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
-            } else
-            {
+            } else {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
                 do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id);
                 do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id);
@@ -7355,7 +7491,6 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     struct PlayerInfo *myplyr;
     TbBool sibrevealed[3][3];
     struct CubeConfigStats *cube_config_stats;
-    struct Map *mapblk;
     int32_t lightness_arr[4][9];
     long bckt_idx;
     long cube_itm;
@@ -7380,25 +7515,18 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
             sibrevealed[y][x] = subtile_revealed(stl_x+x-1, stl_y+y-1, myplyr->id_number);
         }
 
-    i = 0;
-    if (sibrevealed[0][1] && sibrevealed[1][0] && sibrevealed[1][1] && sibrevealed[0][0])
-        i = lightness;
-    prepare_lightness_intensity_array(stl_x,stl_y,lightness_arr[(-qdrant) & 3],i);
-
-    i = 0;
-    if (sibrevealed[0][1] && sibrevealed[0][2] && sibrevealed[1][2] && sibrevealed[1][1])
-        i = get_subtile_lightness(&game.lish,stl_x+1,stl_y);
-    prepare_lightness_intensity_array(stl_x+1,stl_y,lightness_arr[(1-qdrant) & 3],i);
-
-    i = 0;
-    if (sibrevealed[1][0] && sibrevealed[1][1] && sibrevealed[2][0] && sibrevealed[2][1])
-        i = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
-    prepare_lightness_intensity_array(stl_x,stl_y+1,lightness_arr[(-1-qdrant) & 3],i);
-
-    i = 0;
-    if (sibrevealed[2][2] && sibrevealed[1][2] && sibrevealed[1][1] && sibrevealed[2][1])
-        i = get_subtile_lightness(&game.lish,stl_x+1,stl_y+1);
-    prepare_lightness_intensity_array(stl_x+1,stl_y+1,lightness_arr[(-2-qdrant) & 3],i);
+    for (y = 0; y < 2; y++)
+        for (x = 0; x < 2; x++) {
+            i = 0;
+            if (sibrevealed[y][x + 1] && sibrevealed[y + 1][x] && sibrevealed[y + 1][x + 1] && sibrevealed[y][x]) {
+                if ((x == 0) && (y == 0)) {
+                    i = lightness;
+                } else {
+                    i = get_subtile_lightness(&game.lish, stl_x + x, stl_y + y);
+                }
+            }
+            prepare_lightness_intensity_array(stl_x + x, stl_y + y, lightness_arr[(-qdrant + x - y - 2 * x * y) & 3], i);
+        }
 
     // Get column to be drawn on the current subtile
 
@@ -7408,45 +7536,54 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     else
       i = game.unrevealed_column_idx;
     col = get_column(i);
-    mapblk = get_map_block_at(stl_x, stl_y);
+    const struct Column *wall_col = get_abyss_wall_column(col, map, stl_x, stl_y);
+    const TbBool abyss = cube_is_abyss(game.top_cube[wall_col->floor_texture]);
+    if (abyss)
+        lightness_arr[0][0] = lightness_arr[1][0] = lightness_arr[2][0] = lightness_arr[3][0] = TO_FIXED(game.lish.global_ambient_light);
     unsigned short textr_idx;
     // Draw the columns base block
 
-    if (*ymax > pos_y)
-    {
-      if ((col->floor_texture != 0) && (col->cubes[0] == 0))
-      {
-          *ymax = pos_y;
-          textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->floor_texture);
-          if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
-          {
-              add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, zoom, 0,
-                  2097152, 0, bckt_idx);
-          } else
-          {
-              add_lgttextrdquad_to_polypool(pos_x, pos_y, textr_idx, zoom, zoom, 0,
-                  lightness_arr[0][0], lightness_arr[1][0], lightness_arr[2][0], lightness_arr[3][0], bckt_idx);
-          }
-      }
+    if (!abyss && (*ymax > pos_y) && (col->floor_texture != 0) && (col->cubes[0] == 0)) {
+        *ymax = pos_y;
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->floor_texture);
+        if ((map->flags & SlbAtFlg_Unexplored) != 0) {
+            add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, zoom, 0,
+                TO_FIXED(32), 0, bckt_idx);
+        } else {
+            add_lgttextrdquad_to_polypool(pos_x, pos_y, textr_idx, zoom, zoom, 0,
+                lightness_arr[0][0], lightness_arr[1][0], lightness_arr[2][0], lightness_arr[3][0], bckt_idx);
+        }
     }
 
     // Draw the columns cubes
 
     long bckt_face = bckt_idx;
     long bckt_top = bckt_idx;
-    if (((mapblk->flags & SlbAtFlg_Blocking) != 0)
+    MapSubtlCoord sstl_x = stl_x + x_step1[qdrant];
+    MapSubtlCoord sstl_y = stl_y + y_step1[qdrant];
+    struct Map *smapblk = get_map_block_at(sstl_x, sstl_y);
+    int32_t cube_id = get_column_top_cube(wall_col);
+    TbBool smap_revealed = map_block_revealed(smapblk, my_player_number);
+    if (((map->flags & SlbAtFlg_Blocking) != 0)
      && (get_column_floor_filled_subtiles(col) >= 3))
     {
         bckt_face = bckt_idx - (zoom >> 8);
         bckt_top = bckt_face;
-        MapSubtlCoord sstl_x = stl_x + (qdrant == 3) - (qdrant == 1);
-        MapSubtlCoord sstl_y = stl_y + (qdrant == 0) - (qdrant == 2);
-        struct Map *smapblk = get_map_block_at(sstl_x, sstl_y);
         if (((smapblk->flags & SlbAtFlg_Blocking) != 0)
-         && (!map_block_revealed(smapblk, my_player_number)
+         && (!smap_revealed
           || (get_floor_filled_subtiles_at(sstl_x, sstl_y) >= 3))) {
             bckt_top = bckt_face - 2 * (zoom >> 8);
         }
+    }
+    if (!abyss && smap_revealed && map_block_has_rendered_abyss(smapblk, sstl_x, sstl_y) && !cube_is_abyss(cube_id) && is_free_space_in_poly_pool(ABYSS_WALL_RENDER_HEIGHT + 1)) {
+        cube_config_stats = get_cube_model_stats(cube_id);
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[cube_itm]);
+        for (i = 0; i < ABYSS_WALL_RENDER_HEIGHT; i++) {
+            add_lgttextrdquad_to_polypool(pos_x, pos_y + zoom + i * delta_y, textr_idx, zoom, delta_y, 0,
+                ABYSS_SHADE(lightness_arr[3][0], i), ABYSS_SHADE(lightness_arr[2][0], i),
+                ABYSS_SHADE(lightness_arr[2][0], i + 1), ABYSS_SHADE(lightness_arr[3][0], i + 1), bckt_face);
+        }
+        add_lgttextrdquad_to_polypool(pos_x, pos_y + zoom + i * delta_y, textr_idx, zoom, (ABYSS_DEPTH - i) * delta_y, 0, 0, 0, 0, 0, bckt_face);
     }
 
     y = zoom + pos_y;
@@ -7473,13 +7610,13 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       {
         *ymax = i;
         textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[4]);
-        if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+        if ((map->flags & SlbAtFlg_TaggedValuable) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, 2097152, 1, bckt_top);
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, TO_FIXED(32), 1, bckt_top);
         } else
-        if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
+        if ((map->flags & SlbAtFlg_Unexplored) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, 2097152, 0, bckt_top);
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, TO_FIXED(32), 0, bckt_top);
         } else
         {
           add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, zoom, zoom, qdrant,
@@ -7557,6 +7694,9 @@ static unsigned short get_thing_shade(struct Thing* thing)
         // Max lightness value - make sure it won't exceed our limits
         if (shval > 64*256+255)
             shval = 64*256+255;
+    }
+    if (thing_is_creature(thing) && flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+        shval = shval * max(subtile_coord(ABYSS_DEPTH, 0) + thing->mappos.z.val, 0) / subtile_coord(ABYSS_DEPTH, 0);
     }
     return shval;
 }
@@ -9113,7 +9253,7 @@ void draw_frontview_engine(struct Camera *cam)
     stl_y = y_step1[qdrant] * h + py;
     py += y_step1[qdrant] * h;
     lim_x = ewnd.width << 8;
-    lim_y = -zoom;
+    lim_y = -zoom - ABYSS_WALL_RENDER_HEIGHT * (zoom >> 1);
     SYNCDBG(19,"Range (%ld,%ld) to (%ld,%ld), quadrant %d",px,py,qx,qy,(int)qdrant);
     for (pos_x=qx; pos_x < lim_x; pos_x += zoom)
     {

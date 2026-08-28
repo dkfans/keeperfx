@@ -1140,11 +1140,7 @@ TbBool keeper_screen_redraw(void)
 {
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
-    if (lens_mode != 0) {
-        RendererClearScreen(144); // Very dark green
-    } else {
-        RendererClearScreen(0);
-    }
+    RendererClearScreen(144);
     if (RendererLockFramebuffer() == Lb_SUCCESS)
     {
         setup_engine_window(player->engine_window_x, player->engine_window_y,

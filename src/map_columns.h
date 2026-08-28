@@ -29,6 +29,7 @@ extern "C" {
 #define COLUMNS_COUNT          16384
 #define COLUMN_STACK_HEIGHT        8
 #define COLUMN_WALL_HEIGHT         5
+#define ABYSS_DEPTH                24
 /******************************************************************************/
 #pragma pack(1)
 
