@@ -309,14 +309,14 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
     if (lvinfo->state == LvSt_Hidden)
         return NULL;
 
-    if (lvinfo->ensign_type == EnsCustom)
+    if (lvinfo->ensign_type >= CUSTOM_ENSIGN_BASE)
     {
         int frame = anim_frame & 3;
         if (lvinfo->lvnum == mouse_over_lvnum)
             frame += 4;
         spr = get_custom_ensign_sprite(
             map_flag,
-            lvinfo->ensign_id,
+            lvinfo->ensign_type - CUSTOM_ENSIGN_BASE,
             frame);
     } else {
         int ensign_sprite_index = lvinfo->ensign_type;

@@ -155,7 +155,6 @@ struct LevelInformation {
   unsigned short location;
   int mapsize_x;
   int mapsize_y;  
-  unsigned short ensign_id;
 };
 
 struct CampaignsList {

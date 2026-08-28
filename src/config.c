@@ -2213,22 +2213,9 @@ TbBool set_level_ensign(LevelNumber lvnum, unsigned short ensign_id)
     if(!is_level_in_current_campaign(lvnum))
         return false;
     struct LevelInformation* lvinfo = get_level_info(lvnum);
-    lvinfo->ensign_id = ensign_id;
+    lvinfo->ensign_type = ensign_id;
     return true;
 }
-
-/**
-  * sets the ensign type of the level, see enum Ensigns
- */
-TbBool set_level_ensign_type(LevelNumber lvnum, unsigned short ensign_type)
-{
-    if(!is_level_in_current_campaign(lvnum))
-        return false;
-    struct LevelInformation* lvinfo = get_level_info(lvnum);
-    lvinfo->ensign_type = ensign_type;
-    return true;
-}
-
 
 /* @comment
  *     The loading items of load_config and load_config_for_mod need to be consistent.

@@ -28,6 +28,7 @@ extern "C" {
 struct ObjectConfigStats;
 
 #define SPRITE_LAST_LEVEL -1
+#define CUSTOM_ENSIGN_BASE 50
 
 static const char * const required_sprite_zips[] = {
     "colored_sprites.zip",

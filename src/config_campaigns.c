@@ -89,7 +89,6 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"DATE",               12},
   {"MAPSIZE",            13},
   {"MAP_FORMAT_VERSION", 14},
-  {"ENSIGN_ID",          15},
   {NULL,                  0},
   };
 
@@ -101,7 +100,6 @@ const struct NamedCommand cmpgn_map_ensign_flag_options[] = {
   {"FULL_MOON",       EnsFullMoon},
   {"NEW_MOON",        EnsNewMoon},
   {"COOP",            EnsCoop},
-  {"CUSTOM",          EnsCustom},
   {NULL,              0},
   };
 
@@ -949,9 +947,16 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
                     lvinfo->ensign_type = k;
                 }
                 else
-                {
-                    CONFWRNLOG("Invalid value '%s' for \"%s\" in [%s] block of '%s' file.", word_buf,
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                {   
+                    k = get_ensign_id(word_buf);
+
+                    if (k >= 0)
+                    {
+                        lvinfo->ensign_type = CUSTOM_ENSIGN_BASE + k;
+                    } else {
+                        CONFWRNLOG("Invalid value '%s' for \"%s\" in [%s] block of '%s' file.", word_buf,
+                            COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    }
                 }
             }
             break;
@@ -1014,22 +1019,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
               CONFWRNLOG("Couldn't recognize \"%s\" mapsize in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
-            break;
-        case 15:
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = get_ensign_id(word_buf);
-                if (k >= 0)
-                {
-                    lvinfo->ensign_id = k;
-                }
-                else
-                {
-                    CONFWRNLOG("Invalid value '%s' for \"%s\" in [%s] block of '%s' file.", word_buf,
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
-                }
-            }
-            break;
+            break;       
         case ccr_comment:
             break;
         case ccr_endOfFile:
