@@ -318,7 +318,7 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc, unsigne
     sprintf(full_path, "%s/%s", dir_path, "*.zip");
     struct TbFileEntry fe;
     struct TbFileFind *ff = LbFileFindFirst(full_path, &fe);
-    int cnt_zip = 0, cnt_sprite = 0, cnt_icon = 0;
+    int cnt_zip = 0, cnt_sprite = 0, cnt_icon = 0, cnt_ensign = 0;
     if (ff) {
         do {
             sprintf(full_path, "%s/%s", dir_path, fe.Filename);
@@ -329,12 +329,15 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc, unsigne
             if (add_flag & CLF_Icons) {
                 cnt_icon++;
             }
+            if (add_flag & CLF_Ensigns) {
+                cnt_ensign++;
+            }
             cnt_zip++;
         } while (LbFileFindNext(ff, &fe) >= 0);
         LbFileFindEnd(ff);
 
         if (dir_desc != NULL) {
-            LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, next_free_sprite, KEEPERSPRITE_ADD_NUM);
+            LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations, %d with icons and %d with ensigns. Used %d/%d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, cnt_ensign, next_free_sprite, KEEPERSPRITE_ADD_NUM);
         }
     }
 }
@@ -446,7 +449,9 @@ static void clear_custom_ensigns(void)
     memset(custom_ensign_data, 0, sizeof(custom_ensign_data));
 }
 
-void init_custom_campaign_sprites(const char *dir_path, const char *dir_desc){
+void init_custom_campaign_sprites(const char *dir_path, const char *dir_desc)
+{    
+    clear_custom_ensigns();
     load_dir_sprites(dir_path, dir_desc, campaign_load_flags);
     if (mods_conf.after_campaign_cnt > 0)
     {
@@ -505,8 +510,6 @@ void init_custom_sprites(LevelNumber lvnum)
     num_added_icons = 0;
     memset(added_icons, 0, sizeof(added_icons));
     next_free_icon = 0;
-
-    clear_custom_ensigns();
 
     clear_lens_assets();
 

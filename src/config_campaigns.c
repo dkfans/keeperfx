@@ -1119,13 +1119,11 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
         if (!result)
           WARNMSG("Parsing campaign file \"%s\" common blocks failed.",cmpgn_fname);
     }
-    
-    // Loading campaign sprites, we know config location after parse_campaign_common_blocks, need to be loaded before parse_campaign_map_blocks
-    char *dname = prepare_file_path(FGrp_CmpgConfig, NULL);
-    init_custom_campaign_sprites(dname, "Main CmpgConfig dir");  
-
     if ((result) && ((flags & CnfLd_ListOnly) == 0)) // This block doesn't have anything we'd like to parse in list mode
-    {
+    {            
+        // Loading campaign sprites, we know config location after parse_campaign_common_blocks, need to be loaded before parse_campaign_map_blocks
+        char *dname = prepare_file_path(FGrp_CmpgConfig, NULL);
+        init_custom_campaign_sprites(dname, "Main CmpgConfig dir");  
         result = parse_campaign_strings_blocks(campgn, buf, len, fname);
         if (!result)
           WARNMSG("Parsing campaign file \"%s\" strings block failed.",cmpgn_fname);
