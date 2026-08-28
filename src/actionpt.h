@@ -62,6 +62,7 @@ ActionPointId action_point_number_to_index(ActionPointNumber apt_num);
 TbBool action_point_is_invalid(const struct ActionPoint *apt);
 
 TbBool action_point_reset_idx(ActionPointId apt_idx, PlayerNumber plyr_idx);
+TbBool action_point_trigger_idx(ActionPointId apt_idx, PlayerNumber plyr_idx);
 TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx);
 
 void clear_action_points(void);
