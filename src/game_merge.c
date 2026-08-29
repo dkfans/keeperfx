@@ -210,6 +210,60 @@ void update_extra_levels_visibility(void)
 {
 }
 
+struct LevelEnsignOverride *get_level_ensign_override(LevelNumber lvnum)
+{
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        struct LevelEnsignOverride *override = &intralvl.ensign_overrides[i];
+
+        if (override->active && override->lvnum == lvnum)
+        {
+            return override;
+        }
+    }
+
+    return NULL;
+}
+
+void reset_level_ensign_override(LevelNumber lvnum)
+{
+    struct LevelEnsignOverride *override =
+        get_level_ensign_override(lvnum);
+
+    if (override != NULL)
+    {
+        memset(override, 0, sizeof(*override));
+    }
+}
+
+TbBool update_or_create_level_ensign_override(LevelNumber lvnum, unsigned short ensign_type)
+{
+    struct LevelEnsignOverride *override = get_level_ensign_override(lvnum);
+
+    if (override != NULL){
+        override->ensign_type = ensign_type;
+        return true;
+    }
+
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        override = &intralvl.ensign_overrides[i];
+
+        if (!override->active)
+        {
+            struct LevelInformation *lvinfo = get_level_info(lvnum);
+
+            if (lvinfo == NULL)
+                return false;
+
+            override->lvnum = lvnum;
+            override->ensign_type = ensign_type;
+            override->active = true;
+        }
+    }
+
+    return true;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

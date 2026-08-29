@@ -6608,6 +6608,25 @@ static void set_level_ensign_process(struct ScriptContext* context)
     set_level_ensign(context->value->shorts[1], context->value->shorts[2]);
 }
 
+static void reset_level_ensign_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short lvlnum = scline->np[0];
+    if (!is_level_in_current_campaign(lvlnum))
+    {
+        SCRPTERRLOG("Script command %s only functions in campaigns.", scline->tcmnd);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[1] = lvlnum;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void reset_level_ensign_process(struct ScriptContext* context)
+{
+    reset_level_ensign(context->value->shorts[1]);
+}
+
 static void show_bonus_level_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -6907,6 +6926,7 @@ const struct CommandDesc command_desc[] = {
   {"SHOW_BONUS_LEVEL",                  "N       ", Cmd_SHOW_BONUS_LEVEL, &show_bonus_level_check, &show_bonus_level_process},
   {"HIDE_BONUS_LEVEL",                  "N       ", Cmd_HIDE_BONUS_LEVEL, &show_bonus_level_check, &hide_bonus_level_process},
   {"SET_LEVEL_ENSIGN",                  "NA      ", Cmd_SET_LEVEL_ENSIGN, &set_level_ensign_check, &set_level_ensign_process},
+  {"RESET_LEVEL_ENSIGN",                "N       ", Cmd_RESET_LEVEL_ENSIGN, &reset_level_ensign_check, &reset_level_ensign_process},
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
