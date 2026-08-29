@@ -390,6 +390,15 @@ static int lua_Set_next_level(lua_State *L)
     return 0;
 }
 
+static int lua_Trigger_action_point(lua_State *L)
+{
+    ActionPointId apt_idx = luaL_checkActionPoint(L, 1);
+    PlayerNumber player_range = luaL_checkPlayerRangeId(L, 2);
+
+    action_point_trigger_idx(apt_idx, player_range);
+    return 0;
+}
+
 //Adding New Creatures and Parties to the Level
 
 static int lua_Add_creature_to_level(lua_State *L)
@@ -2422,6 +2431,7 @@ static const luaL_Reg global_methods[] = {
    {"AddBonusTime",                     lua_Add_bonus_time                  },
    {"ResetActionPoint",                 lua_Reset_action_point              },
    {"SetNextLevel",                     lua_Set_next_level                  },
+   {"TriggerActionPoint",               lua_Trigger_action_point            },
 
 //Adding New Creatures and Parties to the Level
    {"AddCreatureToLevel",               lua_Add_creature_to_level           },

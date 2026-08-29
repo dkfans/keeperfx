@@ -478,13 +478,13 @@ static int8_t draw_simpletext_char(uint32_t chr, long *pos_x, long pos_y, int un
     if (spr != NULL)
     {
         if ((RendererGetDrawFlags() & Lb_TEXT_ONE_COLOR) != 0) {
-            LbSpriteDrawResizedOneColour(*pos_x, pos_y, units_per_px, spr, RendererGetDrawColour());
+            LbSpriteDrawResizedOneColourImmediate(*pos_x, pos_y, units_per_px, spr, RendererGetDrawColour());
         }
         else if ((RendererGetDrawFlags() & Lb_TEXT_REMAP) != 0) {
             LbSpriteDrawResizedRemap(*pos_x, pos_y, units_per_px, spr, lbSpriteReMapPtr);
         }
         else {
-            LbSpriteDrawResized(*pos_x, pos_y, units_per_px, spr);
+            LbSpriteDrawResizedImmediate(*pos_x, pos_y, units_per_px, spr);
         }
         int w = spr->SWidth * units_per_px / 16;
         if ((RendererGetDrawFlags() & Lb_TEXT_UNDERLINE) != 0)
@@ -684,7 +684,7 @@ long text_string_height(int units_per_px, const char *text)
  * @param text The text to be drawn.
  * @return
  */
-TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
+TbBool LbTextDrawResizedImmediate(int posx, int posy, int units_per_px, const char *text)
 {
     // Counter for amount of blank characters in a line
     const char *ebuf;
@@ -845,6 +845,14 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
     put_down_sprites(sbuf, ebuf, x, y, len, units_per_px);
     LbScreenLoadGraphicsWindow(&grwnd);
     return true;
+}
+
+/** Route a text draw through the renderer, which either records it for this
+ *  frame or draws it now. LbTextDrawResizedImmediate is the draw itself.
+ */
+TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
+{
+    return RendererTextDrawResized(posx, posy, units_per_px, text);
 }
 
 /**

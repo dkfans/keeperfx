@@ -125,19 +125,20 @@ obj/net_main.o \
 obj/net_lobby.o \
 obj/net_resync.o \
 obj/bflib_planar.o \
-obj/bflib_render.o \
-obj/bflib_render_gpoly.o \
-obj/bflib_render_trig.o \
+obj/kfx/renderer/software/bflib_render.o \
+obj/kfx/renderer/software/SwDrawTarget.o \
+obj/kfx/renderer/software/bflib_render_gpoly.o \
+obj/kfx/renderer/software/bflib_render_trig.o \
 obj/bflib_sndlib.o \
 obj/bflib_sound.o \
 obj/bflib_sprfnt.o \
 obj/bflib_string.o \
 obj/bflib_text.o \
 obj/bflib_video.o \
-obj/bflib_vidraw.o \
-obj/bflib_vidraw_spr_norm.o \
-obj/bflib_vidraw_spr_onec.o \
-obj/bflib_vidraw_spr_remp.o \
+obj/kfx/renderer/software/bflib_vidraw.o \
+obj/kfx/renderer/software/bflib_vidraw_spr_norm.o \
+obj/kfx/renderer/software/bflib_vidraw_spr_onec.o \
+obj/kfx/renderer/software/bflib_vidraw_spr_remp.o \
 obj/bflib_vidsurface.o \
 obj/button_snapping.o \
 obj/config.o \
@@ -305,6 +306,8 @@ obj/packets_misc.o \
 obj/kfx/platform/PlatformManager.o \
 obj/kfx/platform/PlatformWindows.o \
 obj/kfx/platform/WindowSystemSDL.o \
+obj/kfx/renderer/IUIRenderer.o \
+obj/kfx/renderer/ITextRenderer.o \
 obj/kfx/renderer/RendererManager.o \
 obj/kfx/renderer/RendererSoftware.o \
 obj/player_compchecks.o \
@@ -523,6 +526,7 @@ obj/std/ftests/tests \
 obj/tests obj/cu \
 obj/std/centitoml obj/hvlog/centitoml \
 obj/std/kfx/platform obj/hvlog/kfx/platform \
+obj/std/kfx/renderer/software obj/hvlog/kfx/renderer/software \
 obj/std/kfx/renderer obj/hvlog/kfx/renderer \
 sdl/for_final_package
 

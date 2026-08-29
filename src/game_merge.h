@@ -44,6 +44,7 @@ extern "C" {
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
 #define TRANSFER_CREATURE_STORAGE_COUNT     255
+#define ENSIGN_OVERRIDES_COUNT       64
 
 #define AROUND_MAP_LENGTH 9
 #define AROUND_SLAB_LENGTH 9
@@ -124,6 +125,11 @@ struct TextScrollWindow {
     long window_height;
 };
 
+struct LevelEnsignOverride {
+    LevelNumber lvnum;
+    TbBool active;
+    unsigned short ensign_type;
+};
 /**
  * Structure which stores data copied between levels.
  * This data is not lost between levels of a campaign.
@@ -133,6 +139,7 @@ struct IntralevelData {
     struct CreatureStorage transferred_creatures[PLAYERS_COUNT][TRANSFER_CREATURE_STORAGE_COUNT];
     long campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
     char next_level;
+    struct LevelEnsignOverride ensign_overrides[ENSIGN_OVERRIDES_COUNT];
 };
 
 
@@ -158,6 +165,8 @@ void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible);
 TbBool emulate_integer_overflow(unsigned short nbits);
+TbBool update_or_create_level_ensign_override(LevelNumber lvnum, short ensign_type);
+struct LevelEnsignOverride *get_level_ensign_override(LevelNumber lvnum);
 /******************************************************************************/
 
 #ifdef __cplusplus
