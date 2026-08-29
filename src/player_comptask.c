@@ -3654,7 +3654,7 @@ long task_sacrifice_imps(struct Computer2 *comp, struct ComputerTask *ctask)
         return CTaskRet_Unk4;
     }
     /*
-     should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment and no SET_GAME_RULE handling for them!
+     should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment!
     */
     thing = find_creature_for_sacrifice(comp, game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model, ctask->sacrifice_imp.max_level);
     if (!thing_is_invalid(thing))
@@ -3734,7 +3734,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
             break;
         case CrSt_CreatureSacrifice:
             /*
-            should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment and no SET_GAME_RULE handling for them!
+            should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment!
             */
             if (thing->model == game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model) {
                 struct PowerConfigStats *powerst;

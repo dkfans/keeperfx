@@ -371,7 +371,7 @@ long computer_check_sacrifice_imps(struct Computer2 *comp, struct ComputerCheck 
         return CTaskRet_Unk4;
     }
     /*
-     should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment and no SET_GAME_RULE handling for them!
+     should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment!
     */
     if (game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model == 0) {
         return CTaskRet_Unk0;
