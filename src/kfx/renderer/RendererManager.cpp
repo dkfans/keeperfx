@@ -3,6 +3,11 @@
 #include "kfx/renderer/RendererSoftware.h"
 #include "bflib_basics.h"
 #include "bflib_video.h"
+#include "bflib_sprfnt.h"   // LbTextDrawResizedImmediate
+#include "kfx/renderer/ITextRenderer.h"
+#include "kfx/renderer/IUIRenderer.h"
+#include "bflib_vidraw.h"   // LbSpriteDraw*Immediate
+#include "gui_draw.h"       // draw_slab64k_background_immediate
 #include "post_inc.h"
 
 static IRenderer*   s_active_renderer = nullptr;
@@ -156,6 +161,76 @@ TbResult RendererScreenInitialize(void)
 TbResult RendererSetDoubleBuffering(TbBool state)
 {
     return LbScreenSetDoubleBuffering(state);
+}
+
+TbBool RendererTextDrawResized(int posx, int posy, int units_per_px, const char *text)
+{
+    ITextRenderer* tr = (s_active_renderer != nullptr) ? s_active_renderer->GetTextRenderer() : nullptr;
+    if (tr == nullptr)
+        return LbTextDrawResizedImmediate(posx, posy, units_per_px, text);
+    return tr->DrawTextResized(posx, posy, units_per_px, text);
+}
+
+static IUIRenderer* active_ui_renderer(void)
+{
+    return (s_active_renderer != nullptr) ? s_active_renderer->GetUIRenderer() : nullptr;
+}
+
+/* The ambient draw state is what the caller set before the call, so it travels with
+ * the submission and is reapplied if the draw is replayed later. */
+static KfxDrawState ambient_draw_state(void)
+{
+    return draw_state_make(RendererGetDrawFlags(), RendererGetDrawColour());
+}
+
+void RendererDrawSlabBackground(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+    IUIRenderer* ui = active_ui_renderer();
+    if (ui == nullptr) { draw_slab64k_background_immediate(x, y, width, height); return; }
+    ui->SubmitSlabBackground((int32_t)x, (int32_t)y, (int32_t)width, (int32_t)height);
+}
+
+TbResult RendererDrawBox(int32_t x, int32_t y, uint32_t width, uint32_t height, unsigned char colour)
+{
+    IUIRenderer* ui = active_ui_renderer();
+    if (ui == nullptr) return LbDrawBoxImmediate(x, y, width, height, colour);
+    ui->SubmitSolidBox(x, y, (int32_t)width, (int32_t)height, colour, ambient_draw_state());
+    return Lb_SUCCESS;
+}
+
+TbResult RendererSpriteDraw(int32_t x, int32_t y, const struct TbSprite *spr)
+{
+    IUIRenderer* ui = active_ui_renderer();
+    if (ui == nullptr) return LbSpriteDrawImmediate(x, y, spr);
+    return ui->SubmitRawSprite(x, y, spr, ambient_draw_state());
+}
+
+TbResult RendererSpriteDrawOneColour(int32_t x, int32_t y, const struct TbSprite *spr, unsigned char colour)
+{
+    IUIRenderer* ui = active_ui_renderer();
+    if (ui == nullptr) return LbSpriteDrawOneColourImmediate(x, y, spr, colour);
+    return ui->SubmitRawSpriteOneColour(x, y, spr, colour, ambient_draw_state());
+}
+
+TbResult RendererSpriteDrawScaled(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h)
+{
+    IUIRenderer* ui = active_ui_renderer();
+    if (ui == nullptr) return LbSpriteDrawScaledImmediate(x, y, spr, w, h);
+    return ui->SubmitRawSpriteScaled(x, y, spr, w, h, ambient_draw_state());
+}
+
+TbResult RendererSpriteDrawScaledOneColour(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h, unsigned char colour)
+{
+    IUIRenderer* ui = active_ui_renderer();
+    if (ui == nullptr) return LbSpriteDrawScaledOneColourImmediate(x, y, spr, w, h, colour);
+    return ui->SubmitRawSpriteScaledOneColour(x, y, spr, w, h, colour, ambient_draw_state());
+}
+
+int RendererSpriteDrawScaledRemap(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h, const unsigned char *cmap)
+{
+    IUIRenderer* ui = active_ui_renderer();
+    if (ui == nullptr) return LbSpriteDrawScaledRemapImmediate(x, y, spr, w, h, cmap);
+    return ui->SubmitRawSpriteScaledRemap(x, y, spr, w, h, cmap, ambient_draw_state());
 }
 
 unsigned char RendererGetDrawColour(void) { return s_draw_colour; }

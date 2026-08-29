@@ -158,6 +158,22 @@ TbBool action_point_reset_idx(ActionPointId apt_idx, PlayerNumber plyr_idx)
     return apt->exists;
 }
 
+TbBool action_point_trigger_idx(ActionPointId apt_idx, PlayerNumber plyr_idx)
+{
+    struct ActionPoint* apt = action_point_get(apt_idx);
+    if (action_point_is_invalid(apt))
+        return false;
+    if (plyr_idx == ALL_PLAYERS)
+    {
+        set_flag(apt->activated, 0x1FF);
+    }
+    else
+    {
+        set_flag(apt->activated, to_flag(plyr_idx));
+    }
+    return apt->exists;
+}
+
 /**
  * Returns if the action point of given index was triggered by given player.
  */

@@ -80,6 +80,9 @@ extern const struct TbSpriteSheet *lbFontPtr;
 TbBool LbTextDraw(int posx, int posy, const char *text);
 #define LbTextDrawFmt(posx, posy, fmt, ...) LbTextDrawResizedFmt(posx, posy, 16, fmt, ##__VA_ARGS__)
 TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text);
+/** The text draw itself. LbTextDrawResized routes through the renderer first;
+ *  the renderer calls this when it is time to actually put pixels down. */
+TbBool LbTextDrawResizedImmediate(int posx, int posy, int units_per_px, const char *text);
 TbBool LbTextDrawResizedFmt(int posx, int posy, int units_per_px, const char *fmt, ...);
 int LbTextHeight(const char *text);
 int LbTextLineHeight(void);
