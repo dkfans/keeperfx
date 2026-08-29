@@ -54,6 +54,21 @@ TbResult RendererScreenInitialize(void);
 TbResult RendererSetDoubleBuffering(TbBool state);
 
 // Current draw colour — ambient draw-call state, held off lbDisplay.  will be removing in the future, just for now it keeps the pr small
+// Text. LbTextDrawResized routes here so the active backend can record the
+// draw for this frame or draw it now.
+TbBool RendererTextDrawResized(int posx, int posy, int units_per_px, const char *text);
+
+// Sprites. The Lb* entry points route here so the active backend can record the
+// draw for this frame or draw it now.
+struct TbSprite;
+TbResult RendererDrawBox(int32_t x, int32_t y, uint32_t width, uint32_t height, unsigned char colour);
+void RendererDrawSlabBackground(int32_t x, int32_t y, int32_t width, int32_t height);
+TbResult RendererSpriteDraw(int32_t x, int32_t y, const struct TbSprite *spr);
+TbResult RendererSpriteDrawOneColour(int32_t x, int32_t y, const struct TbSprite *spr, unsigned char colour);
+TbResult RendererSpriteDrawScaled(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h);
+TbResult RendererSpriteDrawScaledOneColour(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h, unsigned char colour);
+int      RendererSpriteDrawScaledRemap(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h, const unsigned char *cmap);
+
 unsigned char RendererGetDrawColour(void);
 void RendererSetDrawColour(unsigned char colour);
 

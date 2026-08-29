@@ -19,6 +19,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/software/SwDrawTarget.h"
 #include "kfx/renderer/RendererManager.h"
 #include "bflib_vidraw.h"
 
@@ -76,8 +77,8 @@ long scale_up;
  */
 void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour)
 {
-  long width_max = lbDisplay.GraphicsWindowWidth - 1;
-  long height_max = lbDisplay.GraphicsWindowHeight - 1;
+  long width_max = SwTargetWindowWidth() - 1;
+  long height_max = SwTargetWindowHeight() - 1;
   if ( xpos1 > xpos2 )
   { //Switching & clipping x coordinates
     if (xpos1 < 0) return;
@@ -87,7 +88,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
     if ( xpos2 < 0 )
       nxpos1 = 0;
     if ( xpos1 > width_max )
-      nxpos2 = lbDisplay.GraphicsWindowWidth - 1;
+      nxpos2 = SwTargetWindowWidth() - 1;
     xpos1 = nxpos1;
     xpos2 = nxpos2;
   } else
@@ -97,7 +98,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
     if ( xpos1 < 0 )
       xpos1 = 0;
     if ( xpos2 > width_max )
-      xpos2 = lbDisplay.GraphicsWindowWidth - 1;
+      xpos2 = SwTargetWindowWidth() - 1;
   }
   if ( ypos1 > ypos2 )
   { //Switching & clipping y coordinates
@@ -108,7 +109,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
     if ( ypos2 < 0 )
       nxpos1 = 0;
     if ( ypos1 > height_max )
-      nxpos2 = lbDisplay.GraphicsWindowHeight - 1;
+      nxpos2 = SwTargetWindowHeight() - 1;
     ypos1 = nxpos1;
     ypos2 = nxpos2;
   } else
@@ -118,11 +119,11 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
     if (ypos1 < 0)
       ypos1 = 0;
     if ( ypos2 > height_max )
-      ypos2 = lbDisplay.GraphicsWindowHeight - 1;
+      ypos2 = SwTargetWindowHeight() - 1;
   }
   //And now to drawing
-  unsigned char *screen_ptr = lbDisplay.GraphicsWindowPtr + xpos1 +
-          lbDisplay.GraphicsScreenWidth * ypos1;
+  unsigned char *screen_ptr = SwTargetGraphicsWindowPtr() + xpos1 +
+          SwTargetScanline() * ypos1;
   if ( xpos2 == xpos1 )
   {//Vertical line
     long idx = ypos2 - ypos1 + 1;
@@ -133,7 +134,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
         glass_idx&=0xff00;
         glass_idx |= *screen_ptr;
         *screen_ptr = lbDisplay.GlassMap[glass_idx];
-        screen_ptr += lbDisplay.GraphicsScreenWidth;
+        screen_ptr += SwTargetScanline();
         idx--;
       } while ( idx>0 );
     } else
@@ -146,7 +147,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
           glass_idx&=0x00ff;
           glass_idx |= ((*screen_ptr)<<8);
           *screen_ptr = lbDisplay.GlassMap[glass_idx];
-          screen_ptr += lbDisplay.GraphicsScreenWidth;
+          screen_ptr += SwTargetScanline();
           idx--;
         }
         while ( idx>0 );
@@ -156,7 +157,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
         do
         {
           *screen_ptr = col_idx;
-          screen_ptr += lbDisplay.GraphicsScreenWidth;
+          screen_ptr += SwTargetScanline();
           idx--;
         }
         while ( idx>0 );
@@ -221,36 +222,36 @@ void LbDrawBoxClip(long x, long y, unsigned long width, unsigned long height, Tb
 {
   long ypos = y;
   //Checking and clipping coordinates
-  if ( y >= lbDisplay.GraphicsWindowHeight )
+  if ( y >= SwTargetWindowHeight() )
       return;
   if ( y < 0 )
   {
       height += y;
       ypos = 0;
   }
-  if ( (long)(height + ypos) > lbDisplay.GraphicsWindowHeight )
-      height -= height + ypos - lbDisplay.GraphicsWindowHeight;
+  if ( (long)(height + ypos) > SwTargetWindowHeight() )
+      height -= height + ypos - SwTargetWindowHeight();
   if ( (long)height <= 0 )
       return;
 
-  ypos = lbDisplay.GraphicsScreenWidth * (lbDisplay.GraphicsWindowY + ypos);
+  ypos = SwTargetScanline() * (SwTargetWindowY() + ypos);
   long xpos = x;
-  if ( x >= lbDisplay.GraphicsWindowWidth )
+  if ( x >= SwTargetWindowWidth() )
       return;
   if ( x < 0 )
   {
       width += x;
       xpos = 0;
   }
-  if ( (long)(width + xpos) > lbDisplay.GraphicsWindowWidth )
-      width -= width + xpos - lbDisplay.GraphicsWindowWidth;
+  if ( (long)(width + xpos) > SwTargetWindowWidth() )
+      width -= width + xpos - SwTargetWindowWidth();
   if ( (long)width <= 0 )
       return;
   //And now let's start drawing
-  unsigned char *screen_ptr = &lbDisplay.WScreen[lbDisplay.GraphicsWindowX] + xpos + ypos;
+  unsigned char *screen_ptr = &SwTargetWScreen()[SwTargetWindowX()] + xpos + ypos;
   unsigned long idxh = height;
   //Space between lines in video buffer
-  unsigned long screen_delta = lbDisplay.GraphicsScreenWidth - width;
+  unsigned long screen_delta = SwTargetScanline() - width;
   if ( RendererGetDrawFlags() & Lb_SPRITE_TRANSPAR4 )
   {
       unsigned short glass_idx = (unsigned char)colour << 8;
@@ -310,6 +311,11 @@ void LbDrawBoxClip(long x, long y, unsigned long width, unsigned long height, Tb
  */
 TbResult LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel colour)
 {
+    return RendererDrawBox(x, y, width, height, colour);
+}
+
+TbResult LbDrawBoxImmediate(long x, long y, unsigned long width, unsigned long height, TbPixel colour)
+{
     if (RendererGetDrawFlags() & Lb_SPRITE_OUTLINE)
     {
         if ((width < 1) || (height < 1))
@@ -349,13 +355,13 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
         SYNCDBG(19,"Zero size sprite (%d,%d)",spr->SWidth,spr->SHeight);
         return Lb_OK;
     }
-    if ((lbDisplay.GraphicsWindowWidth == 0) || (lbDisplay.GraphicsWindowHeight == 0))
+    if ((SwTargetWindowWidth() == 0) || (SwTargetWindowHeight() == 0))
     {
         SYNCDBG(19,"Invalid graphics window dimensions");
         return Lb_FAIL;
     }
-    x += lbDisplay.GraphicsWindowX;
-    y += lbDisplay.GraphicsWindowY;
+    x += SwTargetWindowX();
+    y += SwTargetWindowY();
     short left;
     short right;
     short top;
@@ -364,7 +370,7 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
     short sprHt = spr->SHeight;
     //Coordinates range checking - x coords
     int delta;
-    delta = lbDisplay.GraphicsWindowX - x;
+    delta = SwTargetWindowX() - x;
     if (delta <= 0)
     {
         left = 0;
@@ -374,7 +380,7 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
             return Lb_OK;
         left = delta;
     }
-    delta = x + sprWd - (lbDisplay.GraphicsWindowWidth+lbDisplay.GraphicsWindowX);
+    delta = x + sprWd - (SwTargetWindowWidth()+SwTargetWindowX());
     if ( delta <= 0 )
     {
         right = sprWd;
@@ -385,7 +391,7 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
         right = sprWd - delta;
     }
     //Coordinates range checking - y coords
-    delta = lbDisplay.GraphicsWindowY - y;
+    delta = SwTargetWindowY() - y;
     if (delta <= 0)
     {
       top = 0;
@@ -395,8 +401,8 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
         return Lb_OK;
       top = delta;
     }
-    delta = y + sprHt - (lbDisplay.GraphicsWindowHeight + lbDisplay.GraphicsWindowY);
-    if (y + sprHt - (lbDisplay.GraphicsWindowHeight + lbDisplay.GraphicsWindowY) <= 0)
+    delta = y + sprHt - (SwTargetWindowHeight() + SwTargetWindowY());
+    if (y + sprHt - (SwTargetWindowHeight() + SwTargetWindowY()) <= 0)
     {
       btm = sprHt;
     } else
@@ -407,15 +413,15 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
     }
     if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_VERTIC) != 0)
     {
-        spd->r = &lbDisplay.WScreen[x + (y+btm-1)*lbDisplay.GraphicsScreenWidth + left];
-        spd->nextRowDelta = -lbDisplay.GraphicsScreenWidth;
+        spd->r = &SwTargetWScreen()[x + (y+btm-1)*SwTargetScanline() + left];
+        spd->nextRowDelta = -SwTargetScanline();
         short tmp_btm = btm;
         btm = sprHt - top;
         top = sprHt - tmp_btm;
     } else
     {
-        spd->r = &lbDisplay.WScreen[x + (y+top)*lbDisplay.GraphicsScreenWidth + left];
-        spd->nextRowDelta = lbDisplay.GraphicsScreenWidth;
+        spd->r = &SwTargetWScreen()[x + (y+top)*SwTargetScanline() + left];
+        spd->nextRowDelta = SwTargetScanline();
     }
     spd->Ht = btm - top;
     spd->Wd = right - left;
@@ -993,7 +999,34 @@ static inline TbResult LbSpriteDrawFastCpy(const char *sp,short sprWd,short sprH
     return Lb_SUCCESS;
 }
 
+/* Each entry point below routes to the renderer, which records the draw for this
+ * frame or draws it now. The matching ...Immediate function is the draw itself. */
 TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr)
+{
+    return RendererSpriteDraw(x, y, spr);
+}
+
+TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour)
+{
+    return RendererSpriteDrawOneColour(x, y, spr, colour);
+}
+
+TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height)
+{
+    return RendererSpriteDrawScaled(xpos, ypos, sprite, dest_width, dest_height);
+}
+
+TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour)
+{
+    return RendererSpriteDrawScaledOneColour(xpos, ypos, sprite, dest_width, dest_height, colour);
+}
+
+int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const unsigned char *cmap)
+{
+    return RendererSpriteDrawScaledRemap(xpos, ypos, sprite, dest_width, dest_height, cmap);
+}
+
+TbResult LbSpriteDrawImmediate(long x, long y, const struct TbSprite *spr)
 {
     struct TbSpriteDrawData spd;
     TbResult ret;
@@ -1281,7 +1314,7 @@ static inline TbResult LbSpriteDrawFCOneColour(const char *sp,short sprWd,short 
     return Lb_SUCCESS;
 }
 
-TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour)
+TbResult LbSpriteDrawOneColourImmediate(long x, long y, const struct TbSprite *spr, const TbPixel colour)
 {
     struct TbSpriteDrawData spd;
     TbResult ret;
@@ -1505,8 +1538,8 @@ void LbSpriteClearScalingHeightArray(int32_t * ysteps_arr, long sheight)
  */
 void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
 {
-    long gwidth = lbDisplay.GraphicsWindowWidth;
-    long gheight = lbDisplay.GraphicsWindowHeight;
+    long gwidth = SwTargetWindowWidth();
+    long gheight = SwTargetWindowHeight();
     scale_up = true;
     if ((dwidth <= swidth) && (dheight <= sheight))
         scale_up = false;
@@ -1533,7 +1566,7 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
     }
 }
 
-TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height)
+TbResult LbSpriteDrawScaledImmediate(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height)
 {
     SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
     if ((dest_width <= 0) || (dest_height <= 0))
@@ -1550,7 +1583,7 @@ TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite,
     return LbSpriteDrawUsingScalingData(0, 0, &buffer);
 }
 
-TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour)
+TbResult LbSpriteDrawScaledOneColourImmediate(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour)
 {
     SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
     if ((dest_width <= 0) || (dest_height <= 0))
@@ -1561,7 +1594,7 @@ TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite
     return LbSpriteDrawOneColourUsingScalingData(0, 0, sprite, colour);
 }
 
-int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const unsigned char *cmap)
+int LbSpriteDrawScaledRemapImmediate(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const unsigned char *cmap)
 {
     SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
     if ((dest_width <= 0) || (dest_height <= 0))
@@ -1785,18 +1818,18 @@ int LbTiledSpriteHeight(struct TiledSprite *bigspr)
 
 void LbDrawPixel(long x, long y, TbPixel colour)
 {
-    lbDisplay.GraphicsWindowPtr[x + lbDisplay.GraphicsScreenWidth * y] = colour;
+    SwTargetGraphicsWindowPtr()[x + SwTargetScanline() * y] = colour;
 }
 
 void LbDrawPixelClip(long x, long y, TbPixel colour)
 {
-    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+    if ( (x < 0) || (x >= SwTargetWindowWidth()) )
         return;
-    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+    if ( (y < 0) || (y >= SwTargetWindowHeight()) )
         return;
     TbPixel *buf;
     int val;
-    buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
+    buf = SwTargetGraphicsWindowPtr() + SwTargetScanline() * y + x;
     val = 0;
     if ((RendererGetDrawFlags() & Lb_SPRITE_TRANSPAR4) != 0)
     {
@@ -1876,38 +1909,38 @@ void LbDrawCircleFilled(long x, long y, long radius, TbPixel colour)
 
 static inline void LbDrawPixelClipOpaq1(long x, long y, TbPixel colour)
 {
-    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+    if ( (x < 0) || (x >= SwTargetWindowWidth()) )
         return;
-    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+    if ( (y < 0) || (y >= SwTargetWindowHeight()) )
         return;
     TbPixel *buf;
     int val;
-    buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
+    buf = SwTargetGraphicsWindowPtr() + SwTargetScanline() * y + x;
     val = (colour << 8) + (*buf);
     *buf = lbDisplay.GlassMap[val];
 }
 
 static inline void LbDrawPixelClipOpaq2(long x, long y, TbPixel colour)
 {
-    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+    if ( (x < 0) || (x >= SwTargetWindowWidth()) )
         return;
-    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+    if ( (y < 0) || (y >= SwTargetWindowHeight()) )
         return;
     TbPixel *buf;
     int val;
-    buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
+    buf = SwTargetGraphicsWindowPtr() + SwTargetScanline() * y + x;
     val = ((*buf) << 8) + colour;
     *buf = lbDisplay.GlassMap[val];
 }
 
 static inline void LbDrawPixelClipSolid(long x, long y, TbPixel colour)
 {
-    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+    if ( (x < 0) || (x >= SwTargetWindowWidth()) )
         return;
-    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+    if ( (y < 0) || (y >= SwTargetWindowHeight()) )
         return;
     TbPixel *buf;
-    buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
+    buf = SwTargetGraphicsWindowPtr() + SwTargetScanline() * y + x;
     *buf = colour;
 }
 
@@ -2053,13 +2086,13 @@ void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, in
     long sposy;
     sposx = posx;
     sposy = posy;
-    (*scanline) = lbDisplay.GraphicsScreenWidth;
+    (*scanline) = SwTargetScanline();
     if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_HORIZ) != 0) {
         sposx = src_buf->width + posx - 1;
     }
     if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_VERTIC) != 0) {
         sposy = src_buf->height + posy - 1;
-        (*scanline) = -lbDisplay.GraphicsScreenWidth;
+        (*scanline) = -SwTargetScanline();
     }
     (*xstep) = &xsteps_array[2 * sposx];
     (*ystep) = &ysteps_array[2 * sposy];
@@ -2075,8 +2108,8 @@ void setup_outbuf(const int32_t *xstep, const int32_t *ystep, uchar **outbuf, in
     gspos_x = xstep[0];
     if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_HORIZ) != 0)
         gspos_x += xstep[1] - 1;
-    (*outbuf) = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
-    (*outheight) = lbDisplay.GraphicsScreenHeight;
+    (*outbuf) = &SwTargetGraphicsWindowPtr()[gspos_x + SwTargetScanline() * gspos_y];
+    (*outheight) = SwTargetScreenHeight();
 }
 
 /******************************************************************************/

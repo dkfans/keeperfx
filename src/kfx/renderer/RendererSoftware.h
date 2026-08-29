@@ -2,6 +2,8 @@
 #define RENDERER_RENDERERSOFTWARE_H
 
 #include "kfx/renderer/IRenderer.h"
+#include "kfx/renderer/backends/SoftwareUIRenderer.h"
+#include "kfx/renderer/backends/SoftwareTextRenderer.h"
 
 struct SDL_Renderer;
 struct SDL_Texture;
@@ -20,6 +22,10 @@ public:
     void UnlockFramebuffer() override;
     bool ScheduleScreenshot(const char* path, int fmt) override;
 
+
+    IUIRenderer*   GetUIRenderer()   override { return &m_ui_renderer; }
+    ITextRenderer* GetTextRenderer() override { return &m_text_renderer; }
+
 private:
     bool ensure_present_target();
     void destroy_present_target();
@@ -29,6 +35,9 @@ private:
     int           m_tex_w    = 0;
     int           m_tex_h    = 0;
     int           m_vsync    = -1; // SDL_SetRenderVSync value; -1 = unset
+
+    SoftwareUIRenderer   m_ui_renderer;
+    SoftwareTextRenderer m_text_renderer;
 };
 
 #endif // RENDERER_RENDERERSOFTWARE_H
