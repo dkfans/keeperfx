@@ -680,7 +680,6 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
     return -1;
 }
 
-
 static struct Thing *find_creature_for_sacrifice(struct Computer2 *comp, ThingModel crmodel, int max_level)
 {
     struct Dungeon* dungeon = comp->dungeon;
@@ -3636,8 +3635,10 @@ long task_sacrifice_imps(struct Computer2 *comp, struct ComputerTask *ctask)
         {
             if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, thing, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
             {
-                if (computer_dump_held_things_on_map(comp, thing, &pos, CrSt_CreatureSacrifice)) 
+                if (computer_dump_held_things_on_map(comp, thing, &pos, CrSt_CreatureSacrifice))
+                {
                     return CTaskRet_Unk2;            
+                }
             }     
             ERRORLOG("Could not dump player %d %s into (%d,%d)",(int)dungeon->owner,
                 thing_model_name(thing),(int)pos.x.stl.num,(int)pos.y.stl.num);
@@ -3648,21 +3649,14 @@ long task_sacrifice_imps(struct Computer2 *comp, struct ComputerTask *ctask)
         computer_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
-    }
+    }   
     if (get_gameturn() - ctask->lastrun_turn < ctask->delay) {
         return CTaskRet_Unk4;
-    }
-    ctask->lastrun_turn = get_gameturn();
-    ctask->sacrifice_imp.repeat_num--;
-    if (ctask->sacrifice_imp.repeat_num <= 0)
-    {
-        remove_task(comp, ctask);
-        return CTaskRet_Unk1;
     }
     /*
      should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment and no SET_GAME_RULE handling for them!
     */
-    thing = find_creature_for_sacrifice(comp, game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model, (int)&ctask->sacrifice_imp.max_level);
+    thing = find_creature_for_sacrifice(comp, game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model, ctask->sacrifice_imp.max_level);
     if (!thing_is_invalid(thing))
     {
         // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
@@ -3678,7 +3672,8 @@ long task_sacrifice_imps(struct Computer2 *comp, struct ComputerTask *ctask)
             return CTaskRet_Unk2;
         }        
     }
-    return CTaskRet_Unk2;
+    remove_task(comp, ctask);
+    return CTaskRet_Unk1;
 }
 
 
@@ -4122,7 +4117,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     return true;
 }
 
-TbBool create_task_sacrifice_imps(struct Computer2 *comp, long repeat_num, long max_level)
+TbBool create_task_sacrifice_imps(struct Computer2 *comp, int max_level)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -4134,7 +4129,6 @@ TbBool create_task_sacrifice_imps(struct Computer2 *comp, long repeat_num, long 
         message_add_fmt(MsgType_Player, comp->dungeon->owner, "Imps cost too much, time to die!");
     }
     ctask->ttype = CTT_SacrificeImps;
-    ctask->sacrifice_imp.repeat_num = repeat_num;
     ctask->sacrifice_imp.max_level = max_level;
     ctask->created_turn = get_gameturn();
     ctask->lastrun_turn = get_gameturn();

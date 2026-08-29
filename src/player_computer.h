@@ -401,8 +401,7 @@ struct ComputerTask {
         long area;
     } create_room;
     struct {
-        int32_t max_level;      
-        int32_t repeat_num;
+        int max_level;
         CrtrStateId target_state;
     } sacrifice_imp;
     struct {
@@ -541,7 +540,7 @@ TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d star
 TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long entroom_idx);
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, KeepPwrLevel power_level);
 TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, KeepPwrLevel power_level, int gaction);
-TbBool create_task_sacrifice_imps(struct Computer2 *comp, long repeat_num, long max_level);
+TbBool create_task_sacrifice_imps(struct Computer2 *comp, int max_level);
 TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination);
 
 TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, KeepPwrLevel power_level, long amount);

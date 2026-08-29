@@ -364,15 +364,12 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
  */
 long computer_check_sacrifice_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    JUSTLOG(">>> in computer_check_sacrifice_imps ");
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    
-    JUSTLOG(">>> computer_check_sacrifice_imps cheaper_diggers_sacrifice_model - %i ",(int)game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model);
     /*
      should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment and no SET_GAME_RULE handling for them!
     */
@@ -384,22 +381,16 @@ long computer_check_sacrifice_imps(struct Computer2 *comp, struct ComputerCheck 
     GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
     SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
 
-    JUSTLOG(">>> computer_check_sacrifice_imps power_price - %i ",(int)power_price);
-    JUSTLOG(">>> computer_check_sacrifice_imps lowest_price - %i ",(int)lowest_price);
-    JUSTLOG(">>> computer_check_sacrifice_imps check->primary_parameter - %i ",(int)check->primary_parameter);
-    JUSTLOG(">>> computer_check_sacrifice_imps check->primary_parameter - %i ",(int)check->secondary_parameter);
     if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
         && computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, check->primary_parameter)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
     {
-        
-        JUSTLOG(">>> computer_check_sacrifice_imps about to call create_task_sacrifice_imps");
-        if(!create_task_sacrifice_imps(comp, check->primary_parameter, check->secondary_parameter))
+        int max_level = check->secondary_parameter;
+        if(!create_task_sacrifice_imps(comp, max_level))
         {
-            JUSTLOG(">>> computer_check_sacrifice_imps lowest_price Cannot sacrifice imps ");
             SYNCDBG(18,"Cannot sacrifice imps %s",cevent->name);
             return CTaskRet_Unk0;
         }
-        return CTaskRet_Unk1;        
+        return CTaskRet_Unk1;
     }
     return CTaskRet_Unk4;
 }
@@ -412,8 +403,6 @@ long computer_check_sacrifice_imps(struct Computer2 *comp, struct ComputerCheck 
  */
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    
-    JUSTLOG(">>> in computer_check_no_imps ");
     struct Dungeon* dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
