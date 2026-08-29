@@ -1051,7 +1051,7 @@ static TbBool get_custom_ensign_from_value(const char* txt, short* ensign_id)
 {
     if (txt[0] == '\0')
         return false;   
-    if(strncmp(txt,"NULL",4) == 0 || strncmp(txt,"-1",2) == 0){
+    if(strncmp(txt,"RESET",5) == 0 || strncmp(txt,"-1",2) == 0){
         *ensign_id = -1;
         return true;
     }
