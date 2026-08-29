@@ -3401,7 +3401,7 @@ TbBool update_thing(struct Thing *thing)
     }
     if (falling && (thing->mappos.z.val <= -subtile_coord(ABYSS_DEPTH, 0))) {
         if (thing_is_creature(thing)) {
-            kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NoUnconscious);
+            kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         } else {
             destroy_thing(thing);
         }

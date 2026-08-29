@@ -2913,6 +2913,10 @@ void creature_rebirth_at_lair(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
+    if (flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+        clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
+        clear_thing_velocity(thing);
+    }
     if (!thing_exists(lairtng))
     {
         // If creature has no lair - treat dungeon heart as lair
@@ -3221,12 +3225,16 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         set_flag(flags,CrDed_NoEffects);
     }
 
-    if ((!flag_is_set(flags,CrDed_NoEffects)) && (crconf->rebirth != 0)
-     && (cctrl->lairtng_idx > 0) && (crconf->rebirth-1 <= cctrl->exp_level)
-        && (!flag_is_set(flags,CrDed_NoRebirth)) )
-    {
+    if (!flag_is_set(flags, CrDed_NoEffects) && !flag_is_set(flags, CrDed_NoRebirth) && (crconf->rebirth != 0) && (cctrl->lairtng_idx > 0) && (crconf->rebirth - 1 <= cctrl->exp_level)) {
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
+    }
+
+    if (flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+        set_flag(flags, CrDed_NoEffects);
+    }
+    if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(thing->alloc_flags, TAlF_IsControlled)) {
+        prepare_to_controlled_creature_death(thing);
     }
 
     if (!flag_is_set(flags,CrDed_NotReallyDying))
@@ -3249,8 +3257,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
             memcpy(&dungeon->last_eventful_death_location, &thing->mappos, sizeof(struct Coord3d));
         }
     }
-    if (flag_is_set(flags, CrDed_NoEffects))
-    {
+    if (flag_is_set(flags, CrDed_NoEffects)) {
         if (flag_is_set(game.mode_flags, MFlg_DeadBackToPool))
         {
             add_creature_to_pool(crmodel, 1);
@@ -3402,10 +3409,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     {
         create_effect_around_thing(creatng, ball_puff_effects[get_player_color_idx(creatng->owner)]);
         set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
-        if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
-        {
-            prepare_to_controlled_creature_death(creatng);
-        }
         return cause_creature_death(creatng, flags);
     }
     struct Dungeon *dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
@@ -3437,10 +3440,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
 
     if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
     {
-        if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
-        {
-            prepare_to_controlled_creature_death(creatng);
-        }
         return cause_creature_death(creatng, flags);
     }
     // Now we are sure that killertng and dungeon pointers are correct.
@@ -3472,10 +3471,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     }
     if (flag_is_set(flags, CrDed_NoEffects))
     {
-        if (flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
-        {
-            prepare_to_controlled_creature_death(creatng);
-        }
         return cause_creature_death(creatng, flags);
     }
     make_creature_unconscious(creatng);
