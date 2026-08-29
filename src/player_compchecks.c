@@ -67,7 +67,7 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck* check);
-long computer_check_sacrifice_imps(struct Computer2 *comp, struct ComputerCheck * check);
+long computer_check_sacrifice_diggers(struct Computer2 *comp, struct ComputerCheck * check);
 
 /******************************************************************************/
 const struct NamedCommand computer_check_func_type[] = {
@@ -88,7 +88,7 @@ const struct NamedCommand computer_check_func_type[] = {
   {"check_prison_tendency",  15,},
   {"check_for_flight",       16,},
   {"check_for_vision",       17,},
-  {"check_sacrifice_imps",   18,},
+  {"check_sacrifice_diggers",   18,},
   {"none",                   19,},
   {NULL,                      0,},
 };
@@ -112,7 +112,7 @@ Comp_Check_Func computer_check_func_list[] = {
   computer_check_prison_tendency,
   computer_check_for_flight,
   computer_check_for_vision,
-  computer_check_sacrifice_imps,
+  computer_check_sacrifice_diggers,
   NULL,
   NULL,
 };
@@ -362,7 +362,7 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
  * @param comp
  * @param check
  */
-long computer_check_sacrifice_imps(struct Computer2 *comp, struct ComputerCheck * check)
+long computer_check_sacrifice_diggers(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
@@ -370,22 +370,12 @@ long computer_check_sacrifice_imps(struct Computer2 *comp, struct ComputerCheck 
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    /*
-     should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment!
-    */
-    if (game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model == 0) {
-        return CTaskRet_Unk0;
-    }
-
-    GoldAmount power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
-
-    if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
-        && computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, check->primary_parameter))
+    
+    if ((get_computer_money_less_cost(comp) > check->secondary_parameter) && !is_task_in_progress_using_hand(comp))
     {
-        int max_level = check->secondary_parameter;
-        if(!create_task_sacrifice_imps(comp, max_level))
+        int digger_model_id = check->primary_parameter;
+        int max_level = check->tertiary_parameter;
+        if(!create_task_sacrifice_diggers(comp, max_level, digger_model_id))
         {
             SYNCDBG(18,"Cannot sacrifice imps %s",cevent->name);
             return CTaskRet_Unk0;

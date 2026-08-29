@@ -105,7 +105,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
 long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *ctask);
 TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask);
 long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_idx);
-long task_sacrifice_imps(struct Computer2 *comp, struct ComputerTask *ctask);
+long task_sacrifice_diggers(struct Computer2 *comp, struct ComputerTask *ctask);
 /******************************************************************************/
 /**
  * Computer tasks definition array.
@@ -132,7 +132,7 @@ const struct TaskFunctions task_function[] = {
     {"COMPUTER_ATTACK_MAGIC",     task_attack_magic},
     {"COMPUTER_SELL_TRAPS_AND_DOORS", task_sell_traps_and_doors},
     {"COMPUTER_MOVE_GOLD_TO_TREASURY", task_move_gold_to_treasury},
-    {"COMPUTER_SACRIFICE_IMPS", task_sacrifice_imps},
+    {"COMPUTER_SACRIFICE_DIGGERS", task_sacrifice_diggers},
 };
 
 const struct TrapDoorSelling trapdoor_sell[] = {
@@ -3610,7 +3610,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     return CTaskRet_Unk0;
 }
 
-long task_sacrifice_imps(struct Computer2 *comp, struct ComputerTask *ctask)
+long task_sacrifice_diggers(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(19,"Starting");
     struct Dungeon *dungeon;
@@ -3656,7 +3656,7 @@ long task_sacrifice_imps(struct Computer2 *comp, struct ComputerTask *ctask)
     /*
      should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment!
     */
-    thing = find_creature_for_sacrifice(comp, game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model, ctask->sacrifice_imp.max_level);
+    thing = find_creature_for_sacrifice(comp, ctask->sacrifice_imp.digger_model_id, ctask->sacrifice_imp.max_level);
     if (!thing_is_invalid(thing))
     {
         // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
@@ -4117,7 +4117,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     return true;
 }
 
-TbBool create_task_sacrifice_imps(struct Computer2 *comp, int max_level)
+TbBool create_task_sacrifice_diggers(struct Computer2 *comp, int max_level, int digger_model_id)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -4128,8 +4128,9 @@ TbBool create_task_sacrifice_imps(struct Computer2 *comp, int max_level)
     if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(MsgType_Player, comp->dungeon->owner, "Imps cost too much, time to die!");
     }
-    ctask->ttype = CTT_SacrificeImps;
+    ctask->ttype = CTT_SacrificeDiggers;
     ctask->sacrifice_imp.max_level = max_level;
+    ctask->sacrifice_imp.digger_model_id = digger_model_id;
     ctask->created_turn = get_gameturn();
     ctask->lastrun_turn = get_gameturn();
     ctask->delay = comp->task_delay;
