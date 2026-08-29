@@ -74,6 +74,8 @@ extern "C" {
 #define TO_FIXED(x)    ((x) << 16)
 #define FROM_FIXED(x)    ((x) >> 16)
 #define ABYSS_WALL_RENDER_HEIGHT 6
+#define ABYSS_WALL_TOP_BRIGHTNESS 70
+#define ABYSS_WALL_BOTTOM_BRIGHTNESS 0
 
 enum QKinds {
     QK_PolygonStandard = 0,
@@ -318,7 +320,7 @@ struct BucketKindRoomFlag { // BasicQ type 17,19
 
 
 struct EngineCol {
-    struct EngineCoord cors[COLUMN_STACK_HEIGHT + ABYSS_WALL_RENDER_HEIGHT + 2];
+    struct EngineCoord cors[COLUMN_STACK_HEIGHT + ABYSS_WALL_RENDER_HEIGHT + 3];
 };
 
 struct SideOri {
@@ -977,10 +979,10 @@ static struct BasicQ *get_bucket_item(int min_cor_z, enum QKinds kind, size_t si
 
 static int32_t ABYSS_SHADE(int32_t lightness, int32_t depth)
 {
-    if (depth >= ABYSS_WALL_RENDER_HEIGHT) {
+    if (depth > ABYSS_WALL_RENDER_HEIGHT) {
         return 0;
     }
-    return lightness * (ABYSS_WALL_RENDER_HEIGHT - depth) / ABYSS_WALL_RENDER_HEIGHT;
+    return lightness * (ABYSS_WALL_TOP_BRIGHTNESS + (ABYSS_WALL_BOTTOM_BRIGHTNESS - ABYSS_WALL_TOP_BRIGHTNESS) * depth / ABYSS_WALL_RENDER_HEIGHT) / 100;
 }
 
 static const struct Column *get_abyss_wall_column(const struct Column *colmn, const struct Map *mapblk, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -1014,13 +1016,15 @@ static TbBool map_block_has_rendered_abyss(const struct Map *mapblk, MapSubtlCoo
 
 static void fill_in_abyss_points_parallel(struct WibbleTable *wibl, struct EngineCol *ecol, int32_t eview_w, int32_t hview_y, int32_t hview_z, int32_t dview_h, int32_t dview_z, int32_t lightness)
 {
+    ecol->cors[COLUMN_STACK_HEIGHT + 1] = ecol->cors[0];
+    ecol->cors[COLUMN_STACK_HEIGHT + 1].shade_intensity = ABYSS_SHADE(ecol->cors[0].shade_intensity, 0);
     int32_t idxh;
     for (idxh = 1; idxh <= ABYSS_WALL_RENDER_HEIGHT + 1; idxh++) {
         int32_t depth = idxh;
         if (depth > ABYSS_WALL_RENDER_HEIGHT) {
             depth = ABYSS_DEPTH;
         }
-        struct EngineCoord *ecord = &ecol->cors[COLUMN_STACK_HEIGHT + idxh];
+        struct EngineCoord *ecord = &ecol->cors[COLUMN_STACK_HEIGHT + idxh + 1];
         struct WibbleTable *abyss_wibl = &wibl[2 * ((depth - 1) % COLUMN_STACK_HEIGHT)];
         ecord->view_width = (eview_w + abyss_wibl->view_width_offset) >> 8;
         ecord->view_height = (hview_y - dview_h * depth + abyss_wibl->view_height_offset) >> 8;
@@ -1173,12 +1177,14 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         }
         if (abyss_mask != 0) {
             wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
+            ecol->cors[COLUMN_STACK_HEIGHT + 1] = ecol->cors[0];
+            ecol->cors[COLUMN_STACK_HEIGHT + 1].shade_intensity = ABYSS_SHADE(ecol->cors[0].shade_intensity, 0);
             for (idxh = 1; idxh <= ABYSS_WALL_RENDER_HEIGHT + 1; idxh++) {
                 int32_t depth = idxh;
                 if (depth > ABYSS_WALL_RENDER_HEIGHT) {
                     depth = ABYSS_DEPTH;
                 }
-                ecord = &ecol->cors[COLUMN_STACK_HEIGHT + idxh];
+                ecord = &ecol->cors[COLUMN_STACK_HEIGHT + idxh + 1];
                 struct WibbleTable *abyss_wibl = &wibl[2 * ((depth - 1) % COLUMN_STACK_HEIGHT)];
                 ecord->x = apos + abyss_wibl->offset_x;
                 ecord->y = -depth * COORD_PER_STL - view_alt + abyss_wibl->offset_y;
@@ -4542,8 +4548,7 @@ static void draw_abyss(const struct Column *colmn, const struct Map *mapblk, str
     int32_t side;
     int32_t depth;
     int32_t top;
-    unsigned short textr_idx;
-    struct CubeConfigStats *texturing = get_cube_model_stats(get_column_top_cube(colmn));
+    unsigned short textr_idx = engine_remap_texture_blocks(stl_x, stl_y, floor_to_ceiling_map[0]);
     struct EngineCol *edges[] = {&fec[1], &fec[0], &bec[0], &bec[1], &fec[1]};
     const int32_t shades[] = {normal_shade_front, normal_shade_left, normal_shade_back, normal_shade_right};
     for (side = 0; side < 4; side++) {
@@ -4553,8 +4558,7 @@ static void draw_abyss(const struct Column *colmn, const struct Map *mapblk, str
         if (!map_block_revealed(adjacent_map, my_player_number) || !map_block_has_rendered_abyss(adjacent_map, adjacent_x, adjacent_y)) {
             continue;
         }
-        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, texturing->texture_id[(side + 2) & 3]);
-        for (depth = COLUMN_STACK_HEIGHT + 1, top = 0; depth <= COLUMN_STACK_HEIGHT + ABYSS_WALL_RENDER_HEIGHT + 1; top = depth++) {
+        for (depth = COLUMN_STACK_HEIGHT + 2, top = COLUMN_STACK_HEIGHT + 1; depth <= COLUMN_STACK_HEIGHT + ABYSS_WALL_RENDER_HEIGHT + 2; top = depth++) {
             if (lens_mode != 0) {
                 do_a_trig_gourad_tr(&edges[side + 1]->cors[top], &edges[side]->cors[top], &edges[side]->cors[depth], textr_idx, shades[side]);
                 do_a_trig_gourad_bl(&edges[side]->cors[depth], &edges[side + 1]->cors[depth], &edges[side + 1]->cors[top], textr_idx, shades[side]);
@@ -7577,8 +7581,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     }
     const size_t abyss_pool_size = (ABYSS_WALL_RENDER_HEIGHT + 1) * sizeof(struct BucketKindTexturedQuad) + 8 * sizeof(struct BucketKindSlabSelector);
     if (!abyss && smap_revealed && map_block_has_rendered_abyss(smapblk, sstl_x, sstl_y) && !cube_is_abyss(cube_id) && (getpoly + abyss_pool_size <= poly_pool_end)) {
-        cube_config_stats = get_cube_model_stats(cube_id);
-        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[cube_itm]);
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, floor_to_ceiling_map[0]);
         for (i = 0; i < ABYSS_WALL_RENDER_HEIGHT; i++) {
             add_lgttextrdquad_to_polypool(pos_x, pos_y + zoom + i * delta_y, textr_idx, zoom, delta_y, 0,
                 ABYSS_SHADE(lightness_arr[3][0], i), ABYSS_SHADE(lightness_arr[2][0], i),
