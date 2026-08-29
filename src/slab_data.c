@@ -311,7 +311,7 @@ TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
         SYNCDBG(7,"Cannot place %s owner %d as slab (%d,%d) has blocking thing on it",room_code_name(rkind),(int)plyr_idx,(int)slb_x,(int)slb_y);
         return false;
     }
-    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava)) {
+    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava|RoRoF_PassAbyss)) {
         return room_can_build_on_bridge_slab(rkind, slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y);
     }
     if (slabmap_owner(slb) != plyr_idx) {
@@ -323,7 +323,7 @@ TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
 TbBool can_build_room_at_slab_fast(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
+    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava|RoRoF_PassAbyss))
     {
         return room_can_build_on_bridge_slab(rkind, slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y);
     }
@@ -353,7 +353,7 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
 
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     int result = 0;
-    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
+    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava|RoRoF_PassAbyss))
     {
         result = room_can_build_on_bridge_slab(rkind, slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y);
     }
@@ -427,7 +427,9 @@ TbBool room_can_build_on_bridge_slab(RoomKind rkind, SlabKind slbkind)
         return room_role_matches(rkind, RoRoF_PassWater);
     if (wlb_type == WlbT_Lava)
         return room_role_matches(rkind, RoRoF_PassLava);
-    return slab_kind_is_bridgeable(slbkind) && room_role_matches(rkind, RoRoF_PassWater | RoRoF_PassLava);
+    if (wlb_type == WlbT_Abyss)
+        return room_role_matches(rkind, RoRoF_PassAbyss);
+    return false;
 }
 
 /**

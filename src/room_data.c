@@ -3238,7 +3238,7 @@ void reset_creatures_rooms(struct Room *room)
 
 void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char is_destroyed)
 {
-    if (room_role_matches(room->kind,RoRoF_PassWater|RoRoF_PassLava))
+    if (room_role_matches(room->kind,RoRoF_PassWater|RoRoF_PassLava|RoRoF_PassAbyss))
     {
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
         int slbkind = slab_kind_from_wlb_type(slabmap_wlb(slb));
