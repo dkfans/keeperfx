@@ -382,7 +382,7 @@ long computer_check_sacrifice_imps(struct Computer2 *comp, struct ComputerCheck 
     SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
 
     if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
-        && computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, check->primary_parameter)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
+        && computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, check->primary_parameter))
     {
         int max_level = check->secondary_parameter;
         if(!create_task_sacrifice_imps(comp, max_level))
