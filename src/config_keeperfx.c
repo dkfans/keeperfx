@@ -163,6 +163,7 @@ const struct NamedCommand conf_commands[] = {
   {"ROTATE_AROUND_MOUSE"           , 43},
   {"VSYNC"                         , 44},
   {"RELATIVE_MOUSE_MODE"           , 45},
+  {"CAPTURE_CURSOR"                , 46},
   {NULL,                   0},
   };
 
@@ -1016,6 +1017,16 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               features_enabled |= Ft_RelativeMouseMode;
           else
               features_enabled &= ~Ft_RelativeMouseMode;
+          break;
+      case 46: // CAPTURE_CURSOR
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i!=1) lbMouseGrab = false;
           break;
       case ccr_comment:
           break;
