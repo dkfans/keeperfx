@@ -52,7 +52,7 @@ enum TbFeature {
     Ft_DisableCursorCameraPanning   = 0x20000,
     Ft_DeltaTime                    = 0x40000,
     Ft_NoCdMusic                    = 0x80000,
-    Ft_RelativeMouseMode            = 0x100000
+    Ft_RelativeMouseMode            = 0x100000,
 };
 
 enum TbLanguage {
