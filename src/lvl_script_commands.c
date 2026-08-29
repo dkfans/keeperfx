@@ -6590,7 +6590,7 @@ static void set_level_ensign_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     short lvlnum = scline->np[0];
-    if (!is_level_in_current_campaign(lvlnum))
+    if (!is_campaign_level(lvlnum))
     {
         SCRPTERRLOG("Script command %s only functions in campaigns.", scline->tcmnd);
         DEALLOCATE_SCRIPT_VALUE

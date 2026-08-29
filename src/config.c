@@ -2210,7 +2210,7 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
  */
 TbBool set_level_ensign(LevelNumber lvnum, short ensign_id)
 {    
-    if(!is_level_in_current_campaign(lvnum))
+    if(!is_campaign_level(lvnum))
         return false;
     return update_or_create_level_ensign_override(lvnum, ensign_id);
 }
