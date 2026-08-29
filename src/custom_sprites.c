@@ -2482,21 +2482,15 @@ struct TbSpriteSheet *load_custom_ensigns_into_sheet(struct TbSpriteSheet *sheet
 
 short get_ensign_id(const char *name)
 {
-    if (name == NULL ||
-        name[0] == '\0')
-    {
+    if (name == NULL || name[0] == '\0')    
         return -1;
-    }
-
+    
     char *end;
-    long value =
-        strtol(name, &end, 10);
+    long value = strtol(name, &end, 10);
 
-    if (end != name &&
-        *end == '\0')
+    if (end != name && *end == '\0')
     {
-        if (value >= 0 &&
-            value < MAX_CUSTOM_ENSIGNS)
+        if (value >= 0 && value < MAX_CUSTOM_ENSIGNS)
         {
             return (short)value;
         }

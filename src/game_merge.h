@@ -165,9 +165,8 @@ void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible);
 TbBool emulate_integer_overflow(unsigned short nbits);
-TbBool update_or_create_level_ensign_override(LevelNumber lvnum, unsigned short ensign_type);
+TbBool update_or_create_level_ensign_override(LevelNumber lvnum, short ensign_type);
 struct LevelEnsignOverride *get_level_ensign_override(LevelNumber lvnum);
-void reset_level_ensign_override(LevelNumber lvnum);
 /******************************************************************************/
 
 #ifdef __cplusplus

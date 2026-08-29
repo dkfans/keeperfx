@@ -215,8 +215,7 @@ struct LevelEnsignOverride *get_level_ensign_override(LevelNumber lvnum)
     for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
     {
         struct LevelEnsignOverride *override = &intralvl.ensign_overrides[i];
-
-        if (override->active && override->lvnum == lvnum)
+        if (override->lvnum == lvnum)
         {
             return override;
         }
@@ -225,23 +224,16 @@ struct LevelEnsignOverride *get_level_ensign_override(LevelNumber lvnum)
     return NULL;
 }
 
-void reset_level_ensign_override(LevelNumber lvnum)
-{
-    struct LevelEnsignOverride *override =
-        get_level_ensign_override(lvnum);
-
-    if (override != NULL)
-    {
-        memset(override, 0, sizeof(*override));
-    }
-}
-
-TbBool update_or_create_level_ensign_override(LevelNumber lvnum, unsigned short ensign_type)
+TbBool update_or_create_level_ensign_override(LevelNumber lvnum, short ensign_type)
 {
     struct LevelEnsignOverride *override = get_level_ensign_override(lvnum);
-
-    if (override != NULL){
-        override->ensign_type = ensign_type;
+    if (override != NULL)
+    {        
+        if(ensign_type == -1){
+            memset(override, 0, sizeof(*override));
+        } else {
+            override->ensign_type = ensign_type;
+        }
         return true;
     }
 
@@ -259,9 +251,10 @@ TbBool update_or_create_level_ensign_override(LevelNumber lvnum, unsigned short 
             override->lvnum = lvnum;
             override->ensign_type = ensign_type;
             override->active = true;
+            
+            return true;
         }
     }
-
     return true;
 }
 /******************************************************************************/

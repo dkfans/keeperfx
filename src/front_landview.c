@@ -309,7 +309,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
     if (lvinfo->state == LvSt_Hidden)
         return NULL;
     struct LevelEnsignOverride *override = get_level_ensign_override(lvinfo->lvnum);   
-    unsigned short ensign_type = override != NULL ? override->ensign_type : lvinfo->ensign_type;
+    unsigned short ensign_type = override != NULL && override->active ? override->ensign_type : lvinfo->ensign_type;
     if (ensign_type >= CUSTOM_ENSIGN_BASE)
     {
         int frame = anim_frame & 3;

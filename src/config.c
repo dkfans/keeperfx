@@ -2208,16 +2208,11 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
 /**
   * sets a custom ensign sprite sheet index for the level
  */
-TbBool set_level_ensign(LevelNumber lvnum, unsigned short ensign_id)
-{
+TbBool set_level_ensign(LevelNumber lvnum, short ensign_id)
+{    
     if(!is_level_in_current_campaign(lvnum))
         return false;
     return update_or_create_level_ensign_override(lvnum, ensign_id);
-}
-
-void reset_level_ensign(LevelNumber lvnum)
-{
-    reset_level_ensign_override(lvnum);
 }
 
 /* @comment
