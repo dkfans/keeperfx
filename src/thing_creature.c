@@ -6319,6 +6319,13 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     struct CreatureModelConfig* ncrconf = creature_stats_get_from_thing(newtng);
 
     strcpy(newcctrl->creature_name, oldcctrl->creature_name);
+    HitPoints health_permil = get_creature_health_permil(oldtng);
+    HitPoints new_health = (HitPoints)(((int64_t)newcctrl->max_health * health_permil) / 1000);
+    if (new_health < 1)
+    {
+        new_health = 1;
+    }
+    newtng->health = new_health;
     newcctrl->blood_type = oldcctrl->blood_type;
     newcctrl->kills_num = oldcctrl->kills_num;
     newcctrl->kills_num_allied = oldcctrl->kills_num_allied;
@@ -7747,7 +7754,7 @@ ThingModel get_random_appropriate_creature_kind(ThingModel original_model)
     return random_model;
 }
 
-TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level)
+struct Thing *grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level)
 {
     if (grow_up_model == CREATURE_NOT_A_DIGGER)
     {
@@ -7756,13 +7763,13 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
     if (!creature_count_below_map_limit(1))
     {
         WARNLOG("Could not create creature to transform %s to due to creature limit", thing_model_name(thing));
-        return false;
+        return INVALID_THING;
     }
     struct Thing *newtng = create_creature(&thing->mappos, grow_up_model, thing->owner);
     if (thing_is_invalid(newtng))
     {
         ERRORLOG("Could not create creature to transform %s to", thing_model_name(thing));
-        return false;
+        return INVALID_THING;
     }
     // Randomise new level if 'grow_up_level' was set to 0 on the creature config.
     if (grow_up_level == 0)
@@ -7773,8 +7780,20 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
     {
         set_creature_level(newtng, grow_up_level - 1);
     }
-    transfer_creature_data_and_gold(thing, newtng); // Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
-    update_creature_health_to_max(newtng);
+    transfer_creature_data_and_gold(thing, newtng); // Transfer health, the blood type, creature name, kill count, joined age and carried gold to the new creature.
+    // Remember the old lair
+    struct CreatureControl *oldcctrl = creature_control_get_from_thing(thing);
+    RoomIndex lair_room_idx = 0;
+    struct Coord3d lairpos = {0};
+    if ((oldcctrl->lairtng_idx > 0) && (oldcctrl->lair_room_id > 0))
+    {
+        struct Thing *oldlairtng = thing_get(oldcctrl->lairtng_idx);
+        if (!thing_is_invalid(oldlairtng))
+        {
+            lair_room_idx = oldcctrl->lair_room_id;
+            lairpos = oldlairtng->mappos;
+        }
+    }
     struct CreatureControl *cctrl = creature_control_get_from_thing(newtng);
     cctrl->countdown = 50;
     external_set_thing_state(newtng, CrSt_CreatureBeHappy);
@@ -7812,7 +7831,20 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
         }
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NoUnconscious | CrDed_NotReallyDying);
-    return true;
+    // place new lair
+    if (lair_room_idx > 0)
+    {
+        struct Room *lairroom = room_get(lair_room_idx);
+        if (!room_is_invalid(lairroom)
+         && (lairroom->owner == newtng->owner)
+         && room_role_matches(lairroom->kind, get_room_role_for_job(Job_TAKE_SLEEP))
+         && room_has_enough_free_capacity_for_creature_job(lairroom, newtng, Job_TAKE_SLEEP)
+         && thing_is_invalid(find_creature_lair_totem_at_subtile(lairpos.x.stl.num, lairpos.y.stl.num, 0)))
+        {
+            creature_place_lair_totem(newtng, lairroom, &lairpos);
+        }
+    }
+    return newtng;
 }
 
 TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, SpellKind spkind, CrtrExpLevel spell_level)

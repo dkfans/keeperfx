@@ -224,15 +224,14 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
     return 1;
 }
 
-CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
+TbBool creature_place_lair_totem(struct Thing *creatng, struct Room *room, const struct Coord3d *pos)
 {
-    if (!room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP))
-        return CrStRet_ResetFail;
-    // Make sure we don't already have a lair on that position
-    struct Thing* lairtng = find_creature_lair_totem_at_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0);
-    if (!thing_is_invalid(lairtng))
-        return CrStRet_Unchanged;
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureModelConfig *crconf = creature_stats_get(creatng->model);
+    if (crconf->lair_object == 0)
+    {
+        return false;
+    }
     room->content_per_model[creatng->model]++;
     room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
     if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
@@ -241,34 +240,44 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
         creature_remove_lair_totem_from_room(creatng, origroom);
     }
     cctrl->lair_room_id = room->index;
-    // Create the lair thing
-    struct Coord3d pos;
-    pos.x.val = creatng->mappos.x.val;
-    pos.y.val = creatng->mappos.y.val;
-    pos.z.val = creatng->mappos.z.val;
-    struct CreatureModelConfig* crconf = creature_stats_get(creatng->model);
-    lairtng = create_object(&pos, crconf->lair_object, creatng->owner, -1);
+    struct Thing *lairtng = create_object(pos, crconf->lair_object, creatng->owner, -1);
     if (thing_is_invalid(lairtng))
     {
         ERRORLOG("Could not create lair totem");
-        remove_thing_from_mapwho(creatng);
-        place_thing_in_mapwho(creatng);
-        return CrStRet_Modified; // Return that so we won't try to redo the action over and over
+        return false;
     }
-    lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
     lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
+    lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
     // Associate creature with the lair
     cctrl->lairtng_idx = lairtng->index;
     lairtng->lair.belongs_to = creatng->index;
     lairtng->lair.cssize = 1;
     // Lair size depends on creature level
     lairtng->lair.spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
-    lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
     struct ObjectConfigStats* objst = get_object_model_stats(lairtng->model);
     set_thing_draw(lairtng, objst->sprite_anim_idx, objst->anim_speed, lairtng->lair.cssize, 0, -1, objst->draw_class);
-    thing_play_sample(creatng, 158, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
-    create_effect(&pos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     anger_set_creature_anger(creatng, 0, AngR_NoLair);
+    return true;
+}
+
+CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
+{
+    if (!room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP))
+        return CrStRet_ResetFail;
+    // Make sure we don't already have a lair on that position
+    struct Thing* lairtng = find_creature_lair_totem_at_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0);
+    if (!thing_is_invalid(lairtng))
+        return CrStRet_Unchanged;
+
+    if (!creature_place_lair_totem(creatng, room, &creatng->mappos))
+    {
+        remove_thing_from_mapwho(creatng);
+        place_thing_in_mapwho(creatng);
+        return CrStRet_Modified; // Return that so we won't try to redo the action over and over
+    }
+
+    thing_play_sample(creatng, 158, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
+    create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     remove_thing_from_mapwho(creatng);
     place_thing_in_mapwho(creatng);
     return CrStRet_ResetOk;
