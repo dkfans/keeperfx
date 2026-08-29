@@ -126,6 +126,7 @@ struct NetState {
 struct TbNetworkPlayerInfo {
     char name[32];
     int32_t network_user_active;
+    uint32_t connection_id;
 };
 
 struct ServiceInitData {
@@ -155,6 +156,7 @@ TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkP
 TbBool OnNewUser(NetUserId *assigned_id);
 void OnDroppedUser(NetUserId id, enum NetDropReason reason);
 TbBool IsUserActive(NetUserId id);
+int32_t GetRemoteUserCount(void);
 void UpdateLocalPlayerInfo(NetUserId id);
 char *begin_net_message(enum NetMessageType msg_type);
 void send_message_buffer(NetUserId dest, const char *end_ptr);

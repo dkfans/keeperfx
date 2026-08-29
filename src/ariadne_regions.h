@@ -32,6 +32,7 @@ extern "C" {
 
 /******************************************************************************/
 TbBool regions_connected(long first_tree_region, long second_tree_region);
+TbBool navigation_regions_connected(int32_t first_triangle, int32_t second_triangle, PlayerNumber owner);
 void region_store_init(void);
 long region_get(void);
 void region_put(long nreg);

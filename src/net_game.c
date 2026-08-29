@@ -24,6 +24,7 @@
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
 #include "bflib_datetm.h"
+#include "bflib_enet.h"
 #include "net_exchange_common.h"
 #include "net_lobby.h"
 #include "net_main.h"
@@ -213,10 +214,13 @@ static uint8_t calculate_initial_input_lag(void)
         input_lag_turns = (ping * turns_per_second + 999) / 1000;
     }
     uint64_t uncapped_input_lag_turns = input_lag_turns;
+    if (input_lag_turns > 0) {
+        input_lag_turns -= 1;
+    }
     if (input_lag_turns > MAXIMUM_INPUT_LAG_TURNS) {
         input_lag_turns = MAXIMUM_INPUT_LAG_TURNS;
     }
-    JUSTLOG("Initial input lag: (%llu ms * %d turns/s + 999) / 1000 = %llu turns, capped to %llu", (unsigned long long)ping, turns_per_second, (unsigned long long)uncapped_input_lag_turns, (unsigned long long)input_lag_turns);
+    JUSTLOG("Initial input lag: (%llu ms * %d turns/s + 999) / 1000 = %llu turns, adjusted to %llu", (unsigned long long)ping, turns_per_second, (unsigned long long)uncapped_input_lag_turns, (unsigned long long)input_lag_turns);
     return input_lag_turns;
 }
 
@@ -526,7 +530,8 @@ void process_disconnected_network_players(void)
             }
         }
         if ((player->allocflags & PlaF_CompCtrl) == 0) {
-            input_lag_reset_intervals();
+            network_lobby_ping = GetPing(my_player_number);
+            input_lag_reset_request(calculate_initial_input_lag());
             if (!host_disconnected && player->id_number != get_host_player_id() && player->player_name[0] != '\0') {
                 message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), player->player_name);
                 JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);

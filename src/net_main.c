@@ -28,9 +28,24 @@ TbBool IsUserActive(NetUserId id)
     return (netstate.users[id].progress == USER_LOGGEDIN);
 }
 
+int32_t GetRemoteUserCount(void)
+{
+    int32_t count = 0;
+    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+        if (id != netstate.my_id && IsUserActive(id)) {
+            count += 1;
+        }
+    }
+    return count;
+}
+
 void UpdateLocalPlayerInfo(NetUserId id)
 {
-    local_player_info[id].network_user_active = (netstate.users[id].progress != USER_UNUSED);
+    TbBool active = netstate.users[id].progress != USER_UNUSED;
+    if (local_player_info[id].network_user_active && !active) {
+        local_player_info[id].connection_id++;
+    }
+    local_player_info[id].network_user_active = active;
     if (!local_player_info[id].network_user_active) {
         memset(local_player_info[id].name, 0, sizeof(local_player_info[id].name));
         return;

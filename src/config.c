@@ -70,6 +70,8 @@ const struct NamedCommand logicval_type[] = {
   {"FALSE",    2},
   {"YES",      1},
   {"NO",       2},
+  {"ALWAYS",   1},
+  {"NEVER",    2},
   {"1",        1},
   {"0",        2},
   {NULL,       0},
@@ -2203,6 +2205,15 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
     return false;
 }
 
+/**
+  * sets a custom ensign sprite sheet index for the level
+ */
+TbBool set_level_ensign(LevelNumber lvnum, short ensign_id)
+{    
+    if(!is_campaign_level(lvnum))
+        return false;
+    return update_or_create_level_ensign_override(lvnum, ensign_id);
+}
 
 /* @comment
  *     The loading items of load_config and load_config_for_mod need to be consistent.

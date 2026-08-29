@@ -108,9 +108,8 @@ static int32_t my_mouse_y;
 long old_mx;
 long old_my;
 
-enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Always;
+enum ZoomToMouseOptions zoom_to_mouse_option = ZoomToMouse_Never;
 enum RotateAroundMouseOptions rotate_around_mouse_option = RotateAroundMouse_Never;
-TbBool rotate_follow_mouse_option = false;
 
 const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"MoveUp",                GUIStr_CtrlUp,                  KC_W, KMod_NONE,               CBtn_LS_UP,               BMV_Visible,        },       // Gkey_MoveUp
@@ -1200,163 +1199,124 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
 
     if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
-		if ( (player->continue_work_state == PSt_CreatrQuery) || (player->continue_work_state == PSt_QueryAll) )
-		{
-			struct Thing *creatng = thing_get(player->controlled_thing_idx);
-			if (thing_is_creature(creatng))
-			{
-				if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
-				{
-					toggle_creature_cheat_menu();
-				}
-			}
-			else
-			{
-				if (!close_creature_cheat_menu())
-				{
-					toggle_secondary_cheat_menu();
-				}
-			}
-		}
-		else
-		{
-			if (!close_creature_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
-			{
-				toggle_secondary_cheat_menu();
-			}
-		}
-    }
-    if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
-    {
-      if (is_key_pressed(KC_TAB, !KMod_CONTROL))
-      {
-          clear_key_pressed(KC_TAB);
-      }
-      if (is_key_pressed(KC_TAB, KMod_CONTROL))
-      {
-          clear_key_pressed(KC_TAB);
-          toggle_gui();
-      }
-      // Middle mouse camera actions for IsometricView
-      if (is_game_key_pressed(Gkey_SnapCamera, true, true))
-      {
-          struct Camera* cam = &player->cameras[CamIV_Isometric];
-          struct Packet* pckt = get_packet(my_player_number);
-          int angle = cam->rotation_angle_x;
-          if (key_modifiers & KMod_CONTROL)
-          {
-              if ((angle >= ANGLE_NORTH && angle < ANGLE_NORTHEAST) || angle == DEGREES_360)
-              {
-                  angle = ANGLE_NORTHEAST;
-              }
-              else if (angle >= ANGLE_NORTHEAST && angle < ANGLE_EAST)
-              {
-                  angle = ANGLE_EAST;
-              }
-              else if (angle >= ANGLE_EAST && angle < ANGLE_SOUTHEAST)
-              {
-                  angle = ANGLE_SOUTHEAST;
-              }
-              else if (angle >= ANGLE_SOUTHEAST && angle < ANGLE_SOUTH)
-              {
-                  angle = ANGLE_SOUTH;
-              }
-              else if (angle >= ANGLE_SOUTH && angle < ANGLE_SOUTHWEST)
-              {
-                  angle = ANGLE_SOUTHWEST;
-              }
-              else if (angle >= ANGLE_SOUTHWEST && angle < ANGLE_WEST)
-              {
-                  angle = ANGLE_WEST;
-              }
-              else if (angle >= ANGLE_WEST && angle < ANGLE_NORTHWEST)
-              {
-                  angle = ANGLE_NORTHWEST;
-              }
-              else if (angle >= ANGLE_NORTHWEST && angle < DEGREES_360)
-              {
-                  angle = ANGLE_NORTH;
-              }
-        }
-        else if (key_modifiers & KMod_SHIFT)
+        if ( (player->continue_work_state == PSt_CreatrQuery) || (player->continue_work_state == PSt_QueryAll) )
         {
-            if (angle > ANGLE_NORTH && angle <= ANGLE_NORTHEAST)
-            {angle = DEGREES_360;}
-            else if (angle > ANGLE_NORTHEAST && angle <= ANGLE_EAST)
-            {angle = ANGLE_NORTHEAST;}
-            else if (angle > ANGLE_EAST && angle <= ANGLE_SOUTHEAST)
-            {angle = ANGLE_EAST;}
-            else if (angle > ANGLE_SOUTHEAST && angle <= ANGLE_SOUTH)
-            {angle = ANGLE_SOUTHEAST;}
-            else if (angle > ANGLE_SOUTH && angle <= ANGLE_SOUTHWEST)
-            {angle = ANGLE_SOUTH;}
-            else if (angle > ANGLE_SOUTHWEST && angle <= ANGLE_WEST)
-            {angle = ANGLE_SOUTHWEST;}
-            else if (angle > ANGLE_WEST && angle <= ANGLE_NORTHWEST)
-            {angle = ANGLE_WEST;}
-            else if ((angle > ANGLE_NORTHWEST && angle <= DEGREES_360) || angle == ANGLE_NORTH)
-            {angle = ANGLE_NORTHWEST;}
-        }
-        else if (angle == ANGLE_NORTH || angle == DEGREES_360)
-        {
-            (angle = ANGLE_SOUTH);
-        }
-        else if (angle == ANGLE_EAST)
-        {
-            (angle = ANGLE_WEST);
-        }
-        else if (angle == ANGLE_WEST)
-        {
-            (angle = ANGLE_EAST);
-        }
-        else
-        {
-            (angle = ANGLE_NORTH);
-        }
-        set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
-        return true;
-      }
-    }
-    if (player->view_mode == PVM_FrontView)
-    {
-      if (is_game_key_pressed(Gkey_ToggleGui, true, false))
-      {
-          toggle_gui();
-      }
-      // Middle mouse camera actions for FrontView
-      if (is_game_key_pressed(Gkey_SnapCamera, true, true))
-      {
-          struct Camera* cam = &player->cameras[CamIV_FrontView];
-          struct Packet* pckt = get_packet(my_player_number);
-          int angle = cam->rotation_angle_x;
-          if (key_modifiers & KMod_CONTROL)
-          {
-              set_packet_control(pckt, PCtr_ViewRotateCW);
-        }
-        else if (key_modifiers & KMod_SHIFT)
-        {
-            set_packet_control(pckt, PCtr_ViewRotateCCW);
-        }
-        else
-        {
-            if (angle == ANGLE_NORTH || angle == DEGREES_360)
+            struct Thing *creatng = thing_get(player->controlled_thing_idx);
+            if (thing_is_creature(creatng))
             {
-                (angle = ANGLE_SOUTH);
+                if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
+                {
+                    toggle_creature_cheat_menu();
+                }
             }
             else
             {
-                (angle = ANGLE_NORTH);
+                if (!close_creature_cheat_menu())
+                {
+                    toggle_secondary_cheat_menu();
+                }
             }
-        set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         }
-        return true;
-      }
+        else
+        {
+            if (!close_creature_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
+            {
+                toggle_secondary_cheat_menu();
+            }
+        }
+    }
+    if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
+    {
+        if (is_key_pressed(KC_TAB, !KMod_CONTROL))
+        {
+            clear_key_pressed(KC_TAB);
+        }
+        if (is_key_pressed(KC_TAB, KMod_CONTROL))
+        {
+            clear_key_pressed(KC_TAB);
+            toggle_gui();
+        }
+        // Middle mouse camera actions for IsometricView
+        if (is_game_key_pressed(Gkey_SnapCamera, true, true))
+        {
+            struct Camera* cam = &player->cameras[CamIV_Isometric];
+            struct Packet* pckt = get_packet(my_player_number);
+            int angle = cam->rotation_angle_x;
+            if (key_modifiers & KMod_CONTROL)
+            {
+                angle = (angle + DEGREES_45) & -DEGREES_45 & ANGLE_MASK;
+            }
+            else if (key_modifiers & KMod_SHIFT)
+            {
+                angle = (angle - 1) & -DEGREES_45 & ANGLE_MASK;
+            }
+            else if (angle == ANGLE_NORTH || angle == DEGREES_360)
+            {
+                angle = ANGLE_SOUTH;
+            }
+            else if (angle == ANGLE_EAST)
+            {
+                angle = ANGLE_WEST;
+            }
+            else if (angle == ANGLE_WEST)
+            {
+                angle = ANGLE_EAST;
+            }
+            else
+            {
+                angle = ANGLE_NORTH;
+            }
+            set_packet_action(pckt, PckA_SetMapRotation, angle, 0, 0, 0);
+            return true;
+        }
+    }
+    if (player->view_mode == PVM_FrontView)
+    {
+        if (is_game_key_pressed(Gkey_ToggleGui, true, false))
+        {
+            toggle_gui();
+        }
+        // Middle mouse camera actions for FrontView
+        if (is_game_key_pressed(Gkey_SnapCamera, true, true))
+        {
+            struct Camera* cam = &player->cameras[CamIV_FrontView];
+            struct Packet* pckt = get_packet(my_player_number);
+            int angle = cam->rotation_angle_x;
+            if (key_modifiers & KMod_CONTROL)
+            {
+                set_packet_control(pckt, PCtr_ViewRotateCW);
+            }
+            else if (key_modifiers & KMod_SHIFT)
+            {
+                set_packet_control(pckt, PCtr_ViewRotateCCW);
+            }
+            else
+            {
+                if (angle == ANGLE_NORTH || angle == DEGREES_360)
+                {
+                    angle = ANGLE_SOUTH;
+                }
+                else
+                {
+                    angle = ANGLE_NORTH;
+                }
+                set_packet_action(pckt, PckA_SetMapRotation, angle, 0, 0, 0);
+            }
+            return true;
+        }
     }
 
-    if ((player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr)
-        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) ||
-        (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr))
+    switch (player->work_state)
     {
+    case PSt_PlaceTerrain:
+    case PSt_MkDigger:
+    case PSt_MkBadCreatr:
+    case PSt_MkGoodCreatr:
+    case PSt_KillPlayer:
+    case PSt_HeartHealth:
+    case PSt_StealRoom:
+    case PSt_StealSlab:
+    case PSt_ConvertCreatr:
         process_cheat_mode_selection_inputs();
     }
     if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
@@ -1614,9 +1574,9 @@ static short get_creature_control_action_inputs(void)
     if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
         if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
-		{
-			toggle_creature_cheat_menu();
-		}
+        {
+            toggle_creature_cheat_menu();
+        }
     }
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
@@ -2276,21 +2236,21 @@ static void get_isometric_view_nonaction_inputs(void)
     if (move_camera_this_turn)
     {
         static TbBool rotating = false;
-        TbBool set_rotate_pos = rotate_follow_mouse_option | ! rotating;
+        const TbBool set_rotate_pos = ! rotating;
         rotating = false;
 
         if (rotate_pressed)
         {
             if (is_game_key_pressed(Gkey_MoveLeft, false, no_mods) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_OnlyCtrl)
+                if (rotate_around_mouse_option == RotateAroundMouse_MovementKeys)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCW);
                 rotating = true;
             }
             if (is_game_key_pressed(Gkey_MoveRight, false, no_mods) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_OnlyCtrl)
+                if (rotate_around_mouse_option == RotateAroundMouse_MovementKeys)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCCW);
                 rotating = true;
@@ -2303,14 +2263,14 @@ static void get_isometric_view_nonaction_inputs(void)
         {
             if (is_game_key_pressed(Gkey_RotateCW, false, false))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_NotCtrl)
+                if (rotate_around_mouse_option == RotateAroundMouse_RotationKeys)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCW);
                 rotating = true;
             }
             if (is_game_key_pressed(Gkey_RotateCCW, false, false))
             {
-                if (rotate_around_mouse_option == RotateAroundMouse_NotCtrl)
+                if (rotate_around_mouse_option == RotateAroundMouse_RotationKeys)
                     set_packet_control(packet, PCtr_ViewRotatePos);
                 set_packet_control(packet, PCtr_ViewRotateCCW);
                 rotating = true;

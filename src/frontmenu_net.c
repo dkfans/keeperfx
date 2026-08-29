@@ -40,6 +40,7 @@
 #include "game_merge.h"
 #include "game_legacy.h"
 #include "sprites.h"
+#include "vidfade.h"
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "bflib_enet.h"
@@ -576,6 +577,15 @@ void frontnet_draw_current_message(struct GuiButton *gbtn)
 
 void frontnet_draw_messages(struct GuiButton *gbtn)
 {
+    static unsigned char player_left_remap[PALETTE_COLORS];
+    static int player_left_remap_initialized;
+    if (!player_left_remap_initialized) {
+        for (int i = 0; i < PALETTE_COLORS; i++) {
+            int intensity = max(frontend_palette[3*i], max(frontend_palette[3*i+1], frontend_palette[3*i+2]));
+            player_left_remap[i] = LbPaletteFindColour(frontend_palette, intensity*5/8, intensity*3/8, intensity/4);
+        }
+        player_left_remap_initialized = 1;
+    }
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn, 0);
     LbTextSetFont(frontend_font[font_idx]);
@@ -598,22 +608,31 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
             break;
         struct NetMessage *nmsg;
         nmsg = &net_message[netmsg_id];
+        TbBool sender_active = nmsg->connection_id == net_player_info[nmsg->plyr_idx].connection_id;
         int num_active;
         num_active = 0;
-        int i;
-        for (i = nmsg->plyr_idx; i > 0; i--)
-        {
-          if ( net_player_info[i].network_user_active)
-            num_active++;
+        if (sender_active) {
+            for (int i = nmsg->plyr_idx; i > 0; i--) {
+                if (net_player_info[i].network_user_active) {
+                    num_active++;
+                }
+            }
         }
 
         spr = get_frontend_sprite(GFS_bullfrog_red_med+num_active);
 
-        i = font_height - spr->SHeight * fs_units_per_px / 16;
-        LbSpriteDrawResized(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (i >> 1), fs_units_per_px, spr);
+        int icon_y = font_height - spr->SHeight * fs_units_per_px / 16;
+        if (sender_active) {
+            LbSpriteDrawResized(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (icon_y >> 1), fs_units_per_px, spr);
+        } else {
+            lbSpriteReMapPtr = player_left_remap;
+            RendererSetDrawFlags(Lb_TEXT_REMAP);
+            LbSpriteDrawResizedRemap(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (icon_y >> 1), fs_units_per_px, spr, player_left_remap);
+        }
 
         LbTextSetWindow(gbtn->scr_pos_x, y + gbtn->scr_pos_y, gbtn->width, min(font_height, gbtn->height-y));
         LbTextDrawResized(spr->SWidth * fs_units_per_px / 16, 0, tx_units_per_px, nmsg->text);
+        RendererSetDrawFlags(0);
 
         y += font_height;
     }

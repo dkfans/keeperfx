@@ -763,7 +763,7 @@ enum GUIPanelSprite {
     GPS_rpanel_manufacture_cant = 839,
     GPS_portrt_qmark = 840,
 
-    GUI_PANEL_SPRITES_COUNT = 900,
+    GUI_PANEL_SPRITES_COUNT = 950,
     GUI_PANEL_SPRITES_NEW = 512,
 };
 
