@@ -36,6 +36,7 @@ extern "C" {
 #define PEER_TIMEOUT_MIN_MS 5000
 #define PEER_TIMEOUT_MAX_MS 30000
 
+#define MIN_NET_USERS 2
 #define MAX_NET_USERS 4
 #define MAX_NET_PEERS (MAX_NET_USERS - 1)
 #define SERVER_ID 0
