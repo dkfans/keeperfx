@@ -42,6 +42,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "player_instances.h"
+#include "custom_sprites.h"
 
 #include <toml.h>
 #include "post_inc.h"
@@ -364,6 +365,8 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
         return 0;
     }
     lvinfo->location = LvLc_Custom;
+
+    load_sprites_for_multi_front(lvinfo->lvnum);
     pos = 0;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cmpgn_map_commands,cmd_num)
     while (pos<len)
@@ -475,8 +478,15 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
                 }
                 else
                 {
-                    WARNMSG("Invalid value '%s' for \"%s\" in '%s' file.", word_buf,
-                        COMMAND_TEXT(cmd_num), fname);
+                    k = get_ensign_id(word_buf);
+
+                    if (k >= 0)
+                    {
+                        lvinfo->ensign_type = CUSTOM_ENSIGN_BASE + k;
+                    } else {
+                        WARNMSG("Invalid value '%s' for \"%s\" in '%s' file.", word_buf,
+                            COMMAND_TEXT(cmd_num), fname);
+                    }
                 }
             }
             break;

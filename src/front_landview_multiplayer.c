@@ -44,6 +44,7 @@
 #include "room_list.h"
 #include "vidfade.h"
 #include "vidmode.h"
+#include "custom_sprites.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -426,6 +427,8 @@ TbBool frontnetmap_load(void)
         map_flag = load_spritesheet("ldata/netflag_ens.dat", "ldata/netflag_ens.tab");
         break;
     }
+    
+    map_flag = load_custom_ensigns_into_sheet(map_flag, frontend_palette); 
     map_font = load_spritesheet("ldata/netfont.dat", "ldata/netfont.tab");
     prepare_file_path_buf(hand_data_path, sizeof(hand_data_path), FGrp_LandView, "maphand.dat");
     prepare_file_path_buf(hand_index_path, sizeof(hand_index_path), FGrp_LandView, "maphand.tab");

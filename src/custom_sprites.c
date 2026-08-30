@@ -373,6 +373,13 @@ void show_ignored_fxdata_zip_messages(void)
     LbFileFindEnd(ff);
 }
 
+void load_sprites_for_multi_front(LevelNumber lvnum)
+{
+    char *fname = prepare_file_fmtpath(get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
+    if (LbFileExists(fname))
+        load_file_sprites(fname, "lof map file", campaign_load_flags);
+}
+
 /* @comment
  *     The loading items of init_custom_sprites and load_sprites_for_mod need to be consistent.
  */
