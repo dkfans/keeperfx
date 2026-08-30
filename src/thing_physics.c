@@ -667,6 +667,8 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
     MapSubtlCoord stl_y_end = coord_subtile(pos->y.val + radius);
+    if ((stl_x_beg <= 0) || (stl_x_end >= game.map_subtiles_x) || (stl_y_beg <= 0) || (stl_y_end >= game.map_subtiles_y))
+        return 1;
     for (MapSubtlCoord stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
         for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
