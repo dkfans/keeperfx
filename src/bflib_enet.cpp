@@ -43,6 +43,7 @@
 #define INCOMING_QUEUE_WARNING_INTERVAL 100
 
 uint16_t external_ipv4_port = 0;
+uint16_t enet_port = ENET_DEFAULT_PORT;
 int skip_holepunch = 0;
 
 namespace
@@ -190,7 +191,7 @@ namespace
         const char *port_string = session;
         if (*port_string == ':') port_string++;
         int port = atoi(port_string);
-        enet_uint16 actual_port = ENET_DEFAULT_PORT;
+        enet_uint16 actual_port = enet_port;
         if (port > 0)
             actual_port = (enet_uint16)port;
         ENetAddress address;
@@ -221,7 +222,7 @@ namespace
 
     enet_uint16 parse_session_address(const char *session, char *output_hostname, size_t hostname_buffer_size)
     {
-        enet_uint16 port = ENET_DEFAULT_PORT;
+        enet_uint16 port = enet_port;
         if (session[0] == '[') {
             const char *bracket_end = strchr(session, ']');
             if (!bracket_end) {
@@ -394,13 +395,13 @@ namespace
         LbNetLog("Join: hole-punch phase timed out, retrying via direct connect\n");
         char session[ENET_ADDRESS_BUFFER_SIZE];
         if (has_ipv6) {
-            snprintf(session, sizeof(session), "[%s]:%d", punch_addresses->ipv6, ENET_DEFAULT_PORT);
+            snprintf(session, sizeof(session), "[%s]:%d", punch_addresses->ipv6, enet_port);
             if (join_direct_session(session, display_deadline, TIMEOUT_CONNECT_DIRECT_IPV6, "direct connect fallback") == Lb_OK)
                 return Lb_OK;
         }
         if (!has_ipv4)
             return Lb_FAIL;
-        snprintf(session, sizeof(session), "%s:%d", punch_addresses->ipv4, ENET_DEFAULT_PORT);
+        snprintf(session, sizeof(session), "%s:%d", punch_addresses->ipv4, enet_port);
         return join_direct_session(session, display_deadline, TIMEOUT_CONNECT_DIRECT_IPV4, "direct connect fallback");
     }
 

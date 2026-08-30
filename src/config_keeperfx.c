@@ -23,6 +23,7 @@
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "bflib_enet.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
@@ -164,6 +165,7 @@ const struct NamedCommand conf_commands[] = {
   {"VSYNC"                         , 44},
   {"RELATIVE_MOUSE_MODE"           , 45},
   {"CAPTURE_CURSOR"                , 46},
+  {"MP_PORT"                       , 48},
   {NULL,                   0},
   };
 
@@ -1027,6 +1029,17 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             break;
           }
           if (i!=1) lbMouseGrab = false;
+          break;
+      case 48: // MP_PORT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if (i > 0 && i <= UINT16_MAX) {
+            enet_port = i;
+          } else {
+            CONFWRNLOG("Invalid MP_PORT '%s' in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
           break;
       case ccr_comment:
           break;
