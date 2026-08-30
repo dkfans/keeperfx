@@ -60,6 +60,7 @@
 #include "kjm_input.h"
 #include "player_instances.h"
 #include "roomspace_prediction.h"
+#include "slab_data.h"
 #include "sprites.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
@@ -4196,8 +4197,13 @@ static unsigned short engine_remap_top_texture_blocks(MapSubtlCoord stl_x, MapSu
     int32_t nearest = STL_PER_SLB + 1;
     for (int32_t side = 0; side < AROUND_EIGHT_LENGTH && (side < 4 || nearest > STL_PER_SLB); side++) {
         const struct Around *direction = &my_around_eight[(2 * side + side / 4) & 7];
-        MapSubtlCoord adjacent_x = slab_subtile_center(slb_x + direction->delta_x);
-        MapSubtlCoord adjacent_y = slab_subtile_center(slb_y + direction->delta_y);
+        MapSlabCoord adjacent_slb_x = slb_x + direction->delta_x;
+        MapSlabCoord adjacent_slb_y = slb_y + direction->delta_y;
+        if (side >= 4 && (!slab_is_liquid(adjacent_slb_x, slb_y) || !slab_is_liquid(slb_x, adjacent_slb_y))) {
+            continue;
+        }
+        MapSubtlCoord adjacent_x = slab_subtile_center(adjacent_slb_x);
+        MapSubtlCoord adjacent_y = slab_subtile_center(adjacent_slb_y);
         struct Map *adjacent_map = get_map_block_at(adjacent_x, adjacent_y);
         if (!map_block_revealed(adjacent_map, my_player_number) || !map_block_has_rendered_abyss(adjacent_map, adjacent_x, adjacent_y)) {
             continue;
