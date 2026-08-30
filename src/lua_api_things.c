@@ -165,8 +165,9 @@ static int lua_transform_creature(lua_State* L)
         return 0;
     }
 
-    grow_up_creature(thing, crtr_id, crtr_level);
-    return 0;
+    struct Thing* newtng = grow_up_creature(thing, crtr_id, crtr_level);
+    lua_pushThing(L, newtng);
+    return 1;
 }
 
 static int lua_stun_creature(lua_State* L)
@@ -563,6 +564,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, cctrl->hunger_level);
         } else if (strcmp(key, "hunger_loss") == 0) {
             lua_pushinteger(L, cctrl->hunger_loss);
+        } else if (strcmp(key, "lair") == 0) {
+            lua_pushThing(L, thing_get(cctrl->lairtng_idx));
         } else if (strcmp(key, "opponents_melee_count") == 0) {
             lua_pushinteger(L, cctrl->opponents_melee_count);
         } else if (strcmp(key, "opponents_ranged_count") == 0) {
