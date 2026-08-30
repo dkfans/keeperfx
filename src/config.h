@@ -42,14 +42,11 @@ struct GameCampaign;
 enum TbFileGroups {
         FGrp_None,
         FGrp_StdData,
-        FGrp_LrgData,
         FGrp_FxData,
         FGrp_LoData,
-        FGrp_HiData,
         FGrp_VarLevels,
         FGrp_Save,
         FGrp_SShots,
-        FGrp_StdSound,
         FGrp_LrgSound,
         FGrp_AtlSound,
         FGrp_Main,
@@ -62,6 +59,7 @@ enum TbFileGroups {
         FGrp_CmpgMedia,
         FGrp_Music,
         FGrp_MpLevels,
+        FGrp_Mods,
 };
 
 enum TbExtraLevels {

@@ -142,7 +142,7 @@ TbBool load_mods_order_config_file()
     memset(&stored_mods_conf, 0, sizeof(stored_mods_conf));
 
     const char *sname = MODS_DIR_NAME "/" MODS_LOAD_ORDER_FILE_NAME;
-    const char *fname = prepare_file_path(FGrp_Main, sname);
+    const char *fname = prepare_file_path(FGrp_Mods, sname);
 
     long len = LbFileLengthRnc(fname);
     if (len < 2)
