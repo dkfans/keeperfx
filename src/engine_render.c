@@ -1440,11 +1440,11 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
     mmax = max(mm[0].max,mm[1].max);
     clip_min = false;
     clip_max = false;
-    if (mmin + bstl_x < 1) {
+    if (mmin + bstl_x <= 1) {
         clip_min = true;
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > game.map_subtiles_x) {
+    if (mmax + bstl_x >= game.map_subtiles_x) {
         clip_max = true;
         mmax = game.map_subtiles_x - bstl_x;
     }
@@ -1494,9 +1494,9 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         }
         if (clip)
         {
-            if (clip_min || lim_min)
-                mask_cur = 0;
             if (clip_min || lim_max)
+                mask_cur = 0;
+            if (clip_min || lim_min)
                 mask_yp = 0;
         }
         pfulmask_or = mask_cur | mask_yp;
@@ -1581,9 +1581,9 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
                 mask_cur = 0;
                 mask_yp = 0;
             }
-            if (lim_min)
-                mask_cur = 0;
             if (lim_max)
+                mask_cur = 0;
+            if (lim_min)
                 mask_yp = 0;
         }
         unsigned long nfulmask_or;
@@ -4877,12 +4877,12 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
     xaval = plane_start;
     xaclip = 0;
     xbclip = 0;
-    if (stl_x + plane_start < 1) {
+    if (stl_x + plane_start <= 1) {
         xaclip = 1;
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > game.map_subtiles_x) {
+    if (stl_x + plane_end >= game.map_subtiles_x) {
         xbclip = 1;
         xbval = game.map_subtiles_x - stl_x;
     }
