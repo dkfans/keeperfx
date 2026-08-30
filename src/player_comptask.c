@@ -3656,8 +3656,11 @@ long task_sacrifice_diggers(struct Computer2 *comp, struct ComputerTask *ctask)
     /*
      should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment!
     */
+   
+    GoldAmount power_price = compute_power_price(comp->dungeon->owner, PwrK_MKDIGGER, 0);
+    GoldAmount lowest_price = compute_lowest_power_price(comp->dungeon->owner, PwrK_MKDIGGER, 0);
     thing = find_creature_for_sacrifice(comp, ctask->sacrifice_imp.digger_model_id, ctask->sacrifice_imp.max_level);
-    if (!thing_is_invalid(thing))
+    if (!thing_is_invalid(thing) && power_price > lowest_price)
     {
         // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
         if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, thing, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
