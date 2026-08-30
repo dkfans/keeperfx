@@ -78,11 +78,6 @@ short setup_network_service(enum FrontendNetService service)
   SYNCMSG("Initializing 4-players type %d network", service);
   memset(net_player_info, 0, sizeof(net_player_info));
   network_lobby_ping = 0;
-  if (service == FrontendNetSvc_Online && !matchmaking_enabled)
-  {
-    SYNCLOG("Matchmaking disabled; using LAN service instead");
-    service = FrontendNetSvc_LAN;
-  }
   if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
     process_network_error(-800);
     return 0;

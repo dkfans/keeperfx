@@ -337,6 +337,9 @@ static int websocket_exchange(const char *request, char *response_buffer, size_t
 
 int matchmaking_request_list(void)
 {
+    if (!matchmaking_enabled) {
+        return 0;
+    }
     SDL_LockMutex(mutex);
     if (!curl_handle) {
         SDL_UnlockMutex(mutex);
@@ -432,6 +435,9 @@ static int matchmaking_finish_lobby_thread(void *)
 
 void matchmaking_connect_async(void)
 {
+    if (!matchmaking_enabled) {
+        return;
+    }
     matchmaking_init();
     if (SDL_CompareAndSwapAtomicInt(&connect_thread_active, 0, 1) == false)
         return;
@@ -449,6 +455,9 @@ void matchmaking_connect_async(void)
 
 int matchmaking_connect(void)
 {
+    if (!matchmaking_enabled) {
+        return -1;
+    }
     SDL_LockMutex(mutex);
     if (curl_handle || connect_gave_up) {
         SDL_UnlockMutex(mutex);
@@ -480,7 +489,7 @@ int matchmaking_connect(void)
 
 void matchmaking_disconnect(void)
 {
-    if (mutex == NULL) {
+    if (!matchmaking_enabled || mutex == NULL) {
         return;
     }
     Uint32 wait_deadline = (Uint32)SDL_GetTicks() + CONNECT_TIMEOUT_MS * 3;
@@ -572,6 +581,9 @@ void matchmaking_refresh_sessions(void)
 
 static int matchmaking_create_lobby(const char *name, int udp_ipv4_port, int udp_ipv6_port)
 {
+    if (!matchmaking_enabled) {
+        return -1;
+    }
     char escaped_lobby_name[MATCHMAKING_NAME_MAX * 2];
     char request_message[SEND_BUFFER_SIZE];
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
@@ -632,6 +644,9 @@ int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
 
 int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output)
 {
+    if (!matchmaking_enabled) {
+        return -1;
+    }
     char request_message[SEND_BUFFER_SIZE];
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
     PunchAddresses published_addresses;
@@ -686,7 +701,7 @@ int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port
 
 int matchmaking_poll_punch(PunchAddresses *output)
 {
-    if (SDL_GetAtomicInt(&create_thread_active) || !mutex || !SDL_TryLockMutex(mutex)) {
+    if (!matchmaking_enabled || SDL_GetAtomicInt(&create_thread_active) || !mutex || !SDL_TryLockMutex(mutex)) {
         return 0;
     }
     if (!curl_handle || hosted_lobby_id[0] == '\0') {
