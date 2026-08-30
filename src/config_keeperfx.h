@@ -53,6 +53,8 @@ enum TbFeature {
     Ft_DeltaTime                    = 0x40000,
     Ft_NoCdMusic                    = 0x80000,
     Ft_RelativeMouseMode            = 0x100000,
+    Ft_TextureFall                  = 0x200000,
+    Ft_TextureFlow                  = 0x400000,
 };
 
 enum TbLanguage {
