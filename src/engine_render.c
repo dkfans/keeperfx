@@ -4195,6 +4195,8 @@ static unsigned short engine_remap_top_texture_blocks(MapSubtlCoord stl_x, MapSu
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     int32_t nearest = STL_PER_SLB + 1;
+    int32_t flow_x = 0;
+    int32_t flow_y = 0;
     for (int32_t side = 0; side < AROUND_EIGHT_LENGTH && (side < 4 || nearest > STL_PER_SLB); side++) {
         const struct Around *direction = &my_around_eight[(2 * side + side / 4) & 7];
         MapSlabCoord adjacent_slb_x = slb_x + direction->delta_x;
@@ -4211,13 +4213,20 @@ static unsigned short engine_remap_top_texture_blocks(MapSubtlCoord stl_x, MapSu
         int32_t distance = max(
             abs(direction->delta_x) * (STL_PER_SLB + 1) / 2 + direction->delta_x * (slab_subtile_center(slb_x) - stl_x),
             abs(direction->delta_y) * (STL_PER_SLB + 1) / 2 + direction->delta_y * (slab_subtile_center(slb_y) - stl_y));
+        if (distance > nearest) {
+            continue;
+        }
         if (distance < nearest) {
             nearest = distance;
-            int32_t scroll = offset * (STL_PER_SLB + 1 - nearest) / (STL_PER_SLB + 1);
-            texture_scroll.x.val = -direction->delta_x * scroll;
-            texture_scroll.y.val = -direction->delta_y * scroll;
+            flow_x = 0;
+            flow_y = 0;
         }
+        flow_x += direction->delta_x;
+        flow_y += direction->delta_y;
     }
+    int32_t scroll = offset * (STL_PER_SLB + 1 - nearest) / (STL_PER_SLB + 1);
+    texture_scroll.x.val = -max(-1, min(1, flow_x)) * scroll;
+    texture_scroll.y.val = -max(-1, min(1, flow_y)) * scroll;
     return texture;
 }
 
