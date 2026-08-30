@@ -3395,6 +3395,8 @@ TbBool update_thing(struct Thing *thing)
         if (!flag_is_set(thing->movement_flags, TMvF_Immobile) && !flag_is_set(thing->movement_flags, TMvF_Flying) && (thing->mappos.z.val <= 0) && subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
             set_flag(thing->state_flags, TF1_FallingIntoAbyss);
             falling = true;
+            thing->veloc_base.x.val = thing->velocity.x.val;
+            thing->veloc_base.y.val = thing->velocity.y.val;
             thing->fall_acceleration = CREATURE_FALL_ACCELERATION;
             thing->abyss_fall_sound_delay = ABYSS_FALL_SOUND_DELAY;
         }
