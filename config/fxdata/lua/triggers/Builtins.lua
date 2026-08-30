@@ -2,9 +2,9 @@
 -- Entry points for engine-triggered events (e.g. OnPowerCast, OnGameTick).
 -- These functions are called by the C engine and dispatch event data to the Lua trigger system.
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"PickUp"|"Slap"|"Rebirth"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"|"ShotHitThing"|"Destroyed"
+---@alias event_type "PowerCast"|"SpellApply"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"PickUp"|"Slap"|"Rebirth"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"|"ShotHitThing"|"Destroyed"
 
---- Called when a spell is cast on a unit
+--- Called when a power is cast on a unit
 --- @param pwkind power_kind
 --- @param caster Player
 --- @param target_thing Creature
@@ -20,6 +20,20 @@ function OnPowerCast(pwkind, caster, target_thing, stl_x, stl_y, splevel)
     eventData.stl_y = stl_y
     eventData.splevel = splevel
     ProcessEvent("PowerCast",eventData)
+end
+
+--- Called when a spell is cast on a unit
+--- @param spkind spell_type
+--- @param target_thing Creature
+--- @param splevel integer
+--- @param caster Player
+function OnSpellApply(spkind, target_thing, splevel, caster)
+    local eventData = {}
+    eventData.SpellKind = spkind
+    eventData.Thing = target_thing
+    eventData.splevel = splevel
+    eventData.caster = caster
+    ProcessEvent("SpellApply",eventData)
 end
 
 --- Called when a unit dies
