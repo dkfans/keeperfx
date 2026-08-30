@@ -355,7 +355,6 @@ short setup_game(void)
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   features_enabled |= Ft_DeltaTime; // enable delta time
   features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
-  features_enabled |= Ft_TextureFall | Ft_TextureFlow;
 
   // Configuration file
   if ( !load_configuration() )

@@ -4188,9 +4188,6 @@ static unsigned short engine_remap_top_texture_blocks(MapSubtlCoord stl_x, MapSu
 {
     const struct CubeConfigStats *texturing = get_cube_model_stats(game.top_cube[texture]);
     texture = engine_remap_texture_blocks(stl_x, stl_y, texture);
-    if (!is_feature_on(Ft_TextureFlow)) {
-        return texture;
-    }
     int32_t offset = get_abyss_liquid_scroll(texturing);
     if (offset == 0) {
         return texture;
@@ -4237,13 +4234,11 @@ static unsigned short engine_remap_abyss_wall_texture_blocks(MapSubtlCoord stl_x
 {
     const struct CubeConfigStats *texturing = get_cube_model_stats(cube);
     unsigned short texture = floor_to_ceiling_map[0];
-    if (is_feature_on(Ft_TextureFall) && any_flag_is_set(texturing->properties_flags, CPF_IsLava | CPF_IsWater)) {
+    if (any_flag_is_set(texturing->properties_flags, CPF_IsLava | CPF_IsWater)) {
         texture = texturing->texture_id[side];
     }
     texture = engine_remap_texture_blocks(stl_x, stl_y, texture);
-    if (is_feature_on(Ft_TextureFall)) {
-        texture_scroll.y.val = -get_abyss_liquid_scroll(texturing);
-    }
+    texture_scroll.y.val = -get_abyss_liquid_scroll(texturing);
     return texture;
 }
 

@@ -164,7 +164,6 @@ const struct NamedCommand conf_commands[] = {
   {"VSYNC"                         , 44},
   {"RELATIVE_MOUSE_MODE"           , 45},
   {"CAPTURE_CURSOR"                , 46},
-  {"LIQUID_SCROLLING"              , 47},
   {NULL,                   0},
   };
 
@@ -214,12 +213,6 @@ const struct NamedCommand conf_commands[] = {
   {"ROTATION_KEYS", RotateAroundMouse_RotationKeys},
   {"MOVEMENT_KEYS", RotateAroundMouse_MovementKeys},
   {NULL,            0},
-  };
-
-  const struct NamedCommand texture_scrolling_options[] = {
-  {"FALL", Ft_TextureFall},
-  {"FLOW", Ft_TextureFlow},
-  {NULL,   0},
   };
 
 unsigned int vid_scale_flags = SMK_FullscreenFit;
@@ -1034,18 +1027,6 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             break;
           }
           if (i!=1) lbMouseGrab = false;
-          break;
-      case 47: // LIQUID_SCROLLING
-          features_enabled &= ~(Ft_TextureFall | Ft_TextureFlow);
-          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0) {
-              k = get_id(texture_scrolling_options, word_buf);
-              if (k > 0) {
-                  features_enabled |= k;
-              } else {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in %s file.",
-                      COMMAND_TEXT(cmd_num), word_buf, config_textname);
-              }
-          }
           break;
       case ccr_comment:
           break;
