@@ -6370,7 +6370,7 @@ long update_creature_levels(struct Thing *thing)
     {
         return 0;
     }
-    if (!grow_up_creature(thing, crconf->grow_up, crconf->grow_up_level))
+    if (thing_is_invalid(grow_up_creature(thing, crconf->grow_up, crconf->grow_up_level)))
     {
         return 0;
     }

@@ -224,6 +224,18 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
     return 1;
 }
 
+/**
+ * Creates the lair totem for a creature at given position and books the room capacity for it.
+ * The lair the creature had before, if any, is removed.
+ * @param creatng The creature the lair will belong to.
+ * @param room The room to book the lair capacity in.
+ * @param pos Where the totem is placed. Does not have to be the creature's own position.
+ * @return True if the totem was created, false if the creature model has no lair object
+ *     or the object could not be created.
+ * @note The caller has to check that the room has enough free capacity
+ *     (room_has_enough_free_capacity_for_creature_job()) and that no lair totem is
+ *     standing at 'pos' yet (find_creature_lair_totem_at_subtile()).
+ */
 TbBool creature_place_lair_totem(struct Thing *creatng, struct Room *room, const struct Coord3d *pos)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
@@ -232,20 +244,20 @@ TbBool creature_place_lair_totem(struct Thing *creatng, struct Room *room, const
     {
         return false;
     }
-    room->content_per_model[creatng->model]++;
-    room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
-    if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
-    {
-        struct Room* origroom = room_get(cctrl->lair_room_id);
-        creature_remove_lair_totem_from_room(creatng, origroom);
-    }
-    cctrl->lair_room_id = room->index;
     struct Thing *lairtng = create_object(pos, crconf->lair_object, creatng->owner, -1);
     if (thing_is_invalid(lairtng))
     {
         ERRORLOG("Could not create lair totem");
         return false;
     }
+    room->content_per_model[creatng->model]++;
+    room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
+    if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
+    {
+        struct Room *origroom = room_get(cctrl->lair_room_id);
+        creature_remove_lair_totem_from_room(creatng, origroom);
+    }
+    cctrl->lair_room_id = room->index;
     lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
     lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
     // Associate creature with the lair
