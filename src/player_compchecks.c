@@ -377,7 +377,7 @@ long computer_check_sacrifice_diggers(struct Computer2 *comp, struct ComputerChe
         int max_level = check->tertiary_parameter;
         if(!create_task_sacrifice_diggers(comp, max_level, digger_model_id))
         {
-            SYNCDBG(18,"Cannot sacrifice imps %s",cevent->name);
+            SYNCDBG(18,"Cannot sacrifice imps %s",check->name);
             return CTaskRet_Unk0;
         }
         return CTaskRet_Unk1;
