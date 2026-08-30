@@ -4181,7 +4181,7 @@ static int32_t get_abyss_liquid_scroll(const struct CubeConfigStats *texturing)
     if (flag_is_set(texturing->properties_flags, CPF_IsWater)) {
         scroll += render_abyss_water_scroll;
     }
-    return scroll * TO_FIXED(1);
+    return TO_FIXED((int32_t)scroll);
 }
 
 static unsigned short engine_remap_top_texture_blocks(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short texture)
@@ -4224,7 +4224,7 @@ static unsigned short engine_remap_top_texture_blocks(MapSubtlCoord stl_x, MapSu
         flow_x += direction->delta_x;
         flow_y += direction->delta_y;
     }
-    int32_t scroll = offset * (STL_PER_SLB + 1 - nearest) / (STL_PER_SLB + 1);
+    int32_t scroll = TO_FIXED(FROM_FIXED(offset * (STL_PER_SLB + 1 - nearest) / (STL_PER_SLB + 1)));
     texture_scroll.x.val = -max(-1, min(1, flow_x)) * scroll;
     texture_scroll.y.val = -max(-1, min(1, flow_y)) * scroll;
     return texture;
