@@ -953,7 +953,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     long i = (cam != NULL) ? cam->rotation_angle_x : 0;
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long k = thing->mappos.z.val + get_creature_eye_height(thing);
+    int32_t k = max(thing->mappos.z.val + get_creature_eye_height(thing), 0);
     player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
     player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
     player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
