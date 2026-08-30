@@ -3411,7 +3411,7 @@ TbBool update_thing(struct Thing *thing)
     }
     SYNCDBG(18,"Class function end ok");
     if (!falling && ((thing->movement_flags & TMvF_Immobile) == 0)) {
-        if ((thing->mappos.z.val > thing->floor_height) || subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+        if ((thing->mappos.z.val > thing->floor_height) || (!flag_is_set(thing->movement_flags, TMvF_Flying) && subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))) {
             if (thing->veloc_base.x.val != 0)
                 thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
             if (thing->veloc_base.y.val != 0)
