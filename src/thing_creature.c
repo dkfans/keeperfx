@@ -6202,8 +6202,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
     cctrl->corpse_to_piss_on = 0;
 
     int stl_idx = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-MapCoord floor_height = get_floor_height_at(&thing->mappos);
-if (floor_height == thing->mappos.z.val)
+    if (thing_touching_floor(thing))
     {
         int i = get_top_cube_at_pos(stl_idx);
         if (cube_is_lava(i))

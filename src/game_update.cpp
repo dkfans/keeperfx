@@ -28,6 +28,7 @@
 #include "lua_triggers.h"
 #include "lvl_script.h"
 #include "thing_list.h"
+#include "thing_physics.h"
 #include "player_utils.h"
 #include "player_computer.h"
 #include "engine_camera.h"
@@ -357,8 +358,7 @@ static void update_near_creatures_for_footsteps(int32_t *near_creatures, const s
                 ndist = get_chessboard_distance(srcpos, &thing->mappos);
                 if (ndist < near_distance[0])
                 {
-                    if (((cctrl->distance_to_destination != 0) && ((int)thing->floor_height >= (int)thing->mappos.z.val))
-                      || ((thing->movement_flags & TMvF_Flying) != 0))
+                    if (((cctrl->distance_to_destination != 0) && thing_touching_floor(thing)) || ((thing->movement_flags & TMvF_Flying) != 0))
                     {
                         // Insert the new item to our list
                         int n;

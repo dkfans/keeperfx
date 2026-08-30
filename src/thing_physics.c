@@ -76,7 +76,7 @@ void destroy_thing(struct Thing* thing)
 
 TbBool thing_touching_floor(const struct Thing *thing)
 {
-    return (thing->floor_height == thing->mappos.z.val);
+    return (thing->floor_height == thing->mappos.z.val) && !subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
 TbBool thing_touching_flight_altitude(const struct Thing *thing)
