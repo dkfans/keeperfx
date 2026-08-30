@@ -3298,12 +3298,14 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     player->influenced_thing_idx = 0;
     player->influenced_thing_creation = 0;
     set_camera_zoom(get_player_active_camera(player), player->dungeon_camera_zoom);
+    sync_local_camera(player);
     if (is_my_player(player)) {
         turn_off_all_window_menus();
         turn_off_query_menus();
         turn_on_main_panel_menu();
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
         PaletteSetPlayerPalette(player, engine_palette);
+        player->palette_fade_step_possession = 11;
     }
     light_turn_light_on(player->cursor_light_idx);
 }
