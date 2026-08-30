@@ -312,9 +312,15 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
     unsigned short ensign_type = override != NULL && override->active ? override->ensign_type : lvinfo->ensign_type;
     if (ensign_type >= CUSTOM_ENSIGN_BASE)
     {
-        int frame = anim_frame & 3;
-        if (lvinfo->lvnum == mouse_over_lvnum)
-            frame += 4;
+        int frame = 0;
+        if (lvinfo->level_type & LvKind_IsMulti){
+            if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
+                frame = 1;
+        } else {
+            frame = anim_frame & 3;
+            if (lvinfo->lvnum == mouse_over_lvnum)
+                frame += 4;
+        }
         spr = get_custom_ensign_sprite(
             map_flag,
             ensign_type - CUSTOM_ENSIGN_BASE,
