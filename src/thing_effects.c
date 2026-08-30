@@ -990,10 +990,10 @@ TbBool destroy_effect_thing(struct Thing *efftng)
             {
                 delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
             }
-            neutralise_enemy_block(efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, efftng->owner);
+            neutralise_enemy_block(efftng->mappos.x.stl.num, efftng->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH) //Do not turn water into lava
             {
-                place_slab_type_on_map(SlbT_LAVA, efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, game.neutral_player_num, 0);
+                place_slab_type_on_map(SlbT_LAVA, efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, game.neutral_player_num, false);
             }
         }
     }
