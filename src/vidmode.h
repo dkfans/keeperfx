@@ -117,7 +117,7 @@ struct TbColorTables {
   unsigned char flat_colours_tr[2*256];
   unsigned char flat_colours_br[2*256];
   unsigned char flat_colours_bl[2*256];
-  unsigned char robs_bollocks[256];
+  unsigned char map_abyss[256];
 };
 
 struct TbAlphaTables {

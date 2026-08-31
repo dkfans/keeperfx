@@ -1037,7 +1037,7 @@ void setup_panel_colors(void)
         PanelColours[n + PnC_purplePath]    = 255;
         PanelColours[n + PnC_Gems]      = 102 + (pixmap.ghost[bkcol] >> 6);
         PanelColours[n + PnC_RockFloor] = 145;
-        PanelColours[n + PnC_Abyss]     = 2;
+        PanelColours[n + PnC_Abyss]     = pixmap.map_abyss[bkcol];
 
         n = pncol_idx + PnC_RoomsStart;
         int i;
