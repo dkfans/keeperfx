@@ -61,6 +61,7 @@ enum ThingFlags1 {
     TF1_PushOnce       = 0x08,
     TF1_DoFootsteps    = 0x10,
     TF1_Teleported     = 0x20,
+    TF1_FallingIntoAbyss = 0x40,
 };
 
 enum ThingFlags2 {
@@ -265,6 +266,7 @@ struct Thing {
     unsigned char class_id;
     unsigned char fall_acceleration;
     unsigned char bounce_angle;
+    unsigned char abyss_fall_sound_delay;
     short inertia_floor;
     short inertia_air;
     unsigned short movement_flags;

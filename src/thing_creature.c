@@ -2913,6 +2913,10 @@ void creature_rebirth_at_lair(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
+    if (flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+        clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
+        clear_thing_velocity(thing);
+    }
     if (!thing_exists(lairtng))
     {
         // If creature has no lair - treat dungeon heart as lair
@@ -3221,12 +3225,16 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         set_flag(flags,CrDed_NoEffects);
     }
 
-    if ((!flag_is_set(flags,CrDed_NoEffects)) && (crconf->rebirth != 0)
-     && (cctrl->lairtng_idx > 0) && (crconf->rebirth-1 <= cctrl->exp_level)
-        && (!flag_is_set(flags,CrDed_NoRebirth)) )
-    {
+    if (!flag_is_set(flags, CrDed_NoEffects) && !flag_is_set(flags, CrDed_NoRebirth) && (crconf->rebirth != 0) && (cctrl->lairtng_idx > 0) && (crconf->rebirth - 1 <= cctrl->exp_level)) {
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
+    }
+
+    if (flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+        set_flag(flags, CrDed_NoEffects);
+    }
+    if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(thing->alloc_flags, TAlF_IsControlled)) {
+        prepare_to_controlled_creature_death(thing);
     }
 
     if (!flag_is_set(flags,CrDed_NotReallyDying))
@@ -3249,8 +3257,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
             memcpy(&dungeon->last_eventful_death_location, &thing->mappos, sizeof(struct Coord3d));
         }
     }
-    if (flag_is_set(flags, CrDed_NoEffects))
-    {
+    if (flag_is_set(flags, CrDed_NoEffects)) {
         if (flag_is_set(game.mode_flags, MFlg_DeadBackToPool))
         {
             add_creature_to_pool(crmodel, 1);
@@ -3291,12 +3298,14 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     player->influenced_thing_idx = 0;
     player->influenced_thing_creation = 0;
     set_camera_zoom(get_player_active_camera(player), player->dungeon_camera_zoom);
+    sync_local_camera(player);
     if (is_my_player(player)) {
         turn_off_all_window_menus();
         turn_off_query_menus();
         turn_on_main_panel_menu();
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
         PaletteSetPlayerPalette(player, engine_palette);
+        player->palette_fade_step_possession = 11;
     }
     light_turn_light_on(player->cursor_light_idx);
 }
@@ -3402,10 +3411,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     {
         create_effect_around_thing(creatng, ball_puff_effects[get_player_color_idx(creatng->owner)]);
         set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
-        if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
-        {
-            prepare_to_controlled_creature_death(creatng);
-        }
         return cause_creature_death(creatng, flags);
     }
     struct Dungeon *dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
@@ -3437,10 +3442,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
 
     if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
     {
-        if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
-        {
-            prepare_to_controlled_creature_death(creatng);
-        }
         return cause_creature_death(creatng, flags);
     }
     // Now we are sure that killertng and dungeon pointers are correct.
@@ -3472,10 +3473,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     }
     if (flag_is_set(flags, CrDed_NoEffects))
     {
-        if (flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
-        {
-            prepare_to_controlled_creature_death(creatng);
-        }
         return cause_creature_death(creatng, flags);
     }
     make_creature_unconscious(creatng);
@@ -4876,7 +4873,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->clipbox_size_z = crconf->size_z;
     crtng->solid_size_xy = crconf->thing_size_xy;
     crtng->solid_size_z = crconf->thing_size_z;
-    crtng->fall_acceleration = 32;
+    crtng->fall_acceleration = CREATURE_FALL_ACCELERATION;
     crtng->bounce_angle = 0;
     crtng->inertia_floor = 32;
     crtng->inertia_air = 8;
@@ -6205,8 +6202,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
     cctrl->corpse_to_piss_on = 0;
 
     int stl_idx = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-MapCoord floor_height = get_floor_height_at(&thing->mappos);
-if (floor_height == thing->mappos.z.val)
+    if (thing_touching_floor(thing))
     {
         int i = get_top_cube_at_pos(stl_idx);
         if (cube_is_lava(i))

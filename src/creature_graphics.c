@@ -25,6 +25,7 @@
 
 #include "player_data.h"
 #include "thing_creature.h"
+#include "thing_physics.h"
 #include "config_creature.h"
 #include "creature_instances.h"
 #include "creature_states.h"
@@ -533,7 +534,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim(thing, crconf->walking_anim_speed, CGI_Stand);
         } else
-        if (thing->floor_height < thing->mappos.z.val)
+        if (!thing_touching_floor(thing))
         {
             i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed + 1);
             update_creature_anim(thing, i, CGI_Stand);
@@ -561,7 +562,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_animation_by_sprite(thing, 256, 820);
         } else
-        if (thing->floor_height < thing->mappos.z.val)
+        if (!thing_touching_floor(thing))
         {
             update_creature_animation_by_sprite(thing, 256, 820);
         } else
