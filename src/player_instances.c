@@ -953,7 +953,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     long i = (cam != NULL) ? cam->rotation_angle_x : 0;
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long k = thing->mappos.z.val + get_creature_eye_height(thing);
+    int32_t k = max(thing->mappos.z.val + get_creature_eye_height(thing), 0);
     player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
     player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
     player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
@@ -1180,7 +1180,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);
     if (!room_is_invalid(room))
     {
-        if (room_role_matches(rkind, RoRoF_PassWater | RoRoF_PassLava))
+        if (room_role_matches(rkind, RoRoF_PassWater | RoRoF_PassLava | RoRoF_PassAbyss))
         {
             if ((player->allocflags & PlaF_CompCtrl) != 0)
             {

@@ -37,6 +37,7 @@
 #include "thing_data.h"
 #include "thing_list.h"
 #include "thing_navigate.h"
+#include "thing_physics.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_keeperfx.h"
@@ -146,7 +147,7 @@ void play_thing_walking(struct Thing *thing)
         return;
     }
     long loudness = (myplyr->view_mode == PVM_CreatureView) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
-    if (((thing->movement_flags & TMvF_Flying) != 0) && (thing->floor_height < (int)thing->mappos.z.val))
+    if (((thing->movement_flags & TMvF_Flying) != 0) && !thing_touching_floor(thing))
     {
         // Flying diptera has a buzzing noise sound
         if (get_creature_model_flags(thing) & CMF_IsDiptera)
@@ -163,7 +164,7 @@ void play_thing_walking(struct Thing *thing)
             S3DDeleteSampleFromEmitter(thing->snd_emitter_id, snd_insect_fly);
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->distance_to_destination) && get_foot_creature_has_down(thing))
+        if (thing_touching_floor(thing) && cctrl->distance_to_destination && get_foot_creature_has_down(thing))
         {
             int smpl_variant = foot_down_sound_sample_variant[4 * cctrl->footstep_variant + cctrl->footstep_counter];
             long smpl_idx;

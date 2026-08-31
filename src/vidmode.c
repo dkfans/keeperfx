@@ -498,6 +498,7 @@ void unload_pointer_file(short hi_res)
 
 TbBool init_fades_table(void)
 {
+    static const TbPixel abyss_colours[] = {160, 1, 253};
     char* fname = prepare_file_path(FGrp_StdData, "tables.dat");
     SYNCDBG(0,"Reading fade table file \"%s\".",fname);
     if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
@@ -513,6 +514,9 @@ TbBool init_fades_table(void)
         if (pixmap.fade_tables[i] == 0) {
             pixmap.fade_tables[i] = cblack;
         }
+    }
+    for (int i = 0; i < 256; i++) {
+        pixmap.map_abyss[i] = abyss_colours[pixmap.ghost[i] * 3 >> 8];
     }
     return true;
 }

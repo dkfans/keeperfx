@@ -1185,7 +1185,7 @@ void count_slabs_where_room_cannot_be_built(PlayerNumber plyr_idx, MapSubtlCoord
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (!slabmap_block_invalid(slb))
             {
-                if (slab_kind_is_liquid(slb->kind) || slab_kind_is_indestructible(slb->kind)) {
+                if (slab_kind_is_bridgeable(slb->kind) || slab_kind_is_indestructible(slb->kind)) {
                     nwrong++;
                 } else
                 if ((slb->kind != room_slbkind) && slab_kind_is_room(slb->kind)) {
@@ -1413,12 +1413,12 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
  * @param rkind Room kind.
  * @return Gives IAvail_Never if the room isn't available, IAvail_Now if it's available and IAvail_Later if it's researchable.
  */
-ItemAvailability computer_check_room_of_role_available(const struct Computer2 * comp, RoomRole rrole)
+static ItemAvailability computer_check_bridge_for_slab_available(const struct Computer2 *comp, SlabKind slbkind)
 {
     ItemAvailability result = IAvail_Never;
     for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,rrole))
+        if (room_can_build_on_bridge_slab(rkind, slbkind))
         {
             ItemAvailability current = computer_check_room_available(comp,rkind);
             if (current == IAvail_Now)
@@ -1475,7 +1475,7 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
     if (flag_is_set(slabst->block_flags, SlbAtFlg_Valuable)) {
         return -1;
     }
-    if (slab_kind_is_liquid(slb->kind)) {
+    if (slab_kind_is_bridgeable(slb->kind)) {
         return 1;
     }
     if ( (slabst->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
@@ -1502,7 +1502,7 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
     if (slb->kind == SlbT_GEMS) {
         return 1;
     }
-    if (slab_kind_is_liquid(slb->kind)) {
+    if (slab_kind_is_bridgeable(slb->kind)) {
         return 1;
     }
     if (!slab_good_for_computer_dig_path(slb) || (slb->kind == SlbT_WATER)) {
@@ -1744,16 +1744,13 @@ ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct
                 break;
             }
         }
-        if (slab_kind_is_liquid(slb->kind))
+        if (slab_kind_is_bridgeable(slb->kind))
         {
             // We've reached liquid slab - act accordingly
             if ((digflags & ToolDig_AllowLiquidWBridge) != 0) {
                 break;
             }
-            if ( slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) != IAvail_Now) {
-                break;
-            }
-            if ( slb->kind == SlbT_LAVA &&  computer_check_room_of_role_available(comp, RoRoF_PassLava) != IAvail_Now) {
+            if (computer_check_bridge_for_slab_available(comp, slb->kind) != IAvail_Now) {
                 break;
             }
         }
@@ -1919,8 +1916,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
         }
         // Being here means we didn't reached the destination - we must do some kind of action
         struct SlabMap* action_slb = get_slabmap_block(subtile_slab(gldstl_x), subtile_slab(gldstl_y));
-        if ( (action_slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) == IAvail_Now)||
-             (action_slb->kind == SlbT_LAVA  &&  computer_check_room_of_role_available(comp, RoRoF_PassLava)  == IAvail_Now))
+        if (computer_check_bridge_for_slab_available(comp, action_slb->kind) == IAvail_Now)
         {
             cdig->pos_next.x.stl.num = gldstl_x;
             cdig->pos_next.y.stl.num = gldstl_y;
@@ -1986,8 +1982,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
         digslb_x = subtile_slab(digstl_x);
         digslb_y = subtile_slab(digstl_y);
         action_slb = get_slabmap_block(digslb_x, digslb_y);
-        if (((action_slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) == IAvail_Now)||
-             (action_slb->kind == SlbT_LAVA  &&  computer_check_room_of_role_available(comp, RoRoF_PassLava)  == IAvail_Now)))
+        if (computer_check_bridge_for_slab_available(comp, action_slb->kind) == IAvail_Now)
         {
             cdig->pos_next.y.stl.num = digstl_y;
             cdig->pos_next.x.stl.num = digstl_x;

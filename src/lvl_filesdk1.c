@@ -1099,7 +1099,7 @@ TbBool initialise_map_wlb_auto(void)
     struct SlabConfigStats *slabst;
     unsigned long x;
     unsigned long y;
-    unsigned long n;
+    int n;
     unsigned long nbridge;
     nbridge = 0;
     for (y = 0; y < game.map_tiles_y; y++)
@@ -1107,12 +1107,21 @@ TbBool initialise_map_wlb_auto(void)
         for (x = 0; x < game.map_tiles_x; x++)
         {
             slb = get_slabmap_block(x, y);
-            if (slb->kind == SlbT_BRIDGE)
+            slabst = get_slab_stats(slb);
+            if (slabst->wlb_type == WlbT_Bridge)
             {
-                if (slabs_count_near(x, y, 1, SlbT_LAVA) > slabs_count_near(x, y, 1, SlbT_WATER))
-                    n = SlbT_LAVA;
-                else
-                    n = SlbT_WATER;
+                n = slab_kind_from_wlb_type(WlbT_Water);
+                long best = 0;
+                if (n >= 0)
+                    best = slabs_count_near(x, y, 1, n);
+                for (int slbkind = 0; slbkind < game.conf.slab_conf.slab_types_count; slbkind++) {
+                    if (slab_kind_is_bridgeable(slbkind) && (slabs_count_near(x, y, 1, slbkind) > best)) {
+                        n = slbkind;
+                        best = slabs_count_near(x, y, 1, slbkind);
+                    }
+                }
+                if (n < 0)
+                    n = SlbT_PATH;
                 nbridge++;
             }
             else
@@ -1150,13 +1159,12 @@ TbBool load_map_wlb_file(unsigned long lv_num)
         slb = get_slabmap_block(x,y);
         n = buf[i];
         slb->wlb_type = buf[i];
-        if ((n != WlbT_Water) || (slb->kind != SlbT_WATER))
-          if ((n != WlbT_Lava) || (slb->kind != SlbT_LAVA))
-            if (((n == WlbT_Water) || (n == WlbT_Lava)) && (slb->kind != SlbT_BRIDGE))
-            {
-                nfixes++;
-                slb->wlb_type = WlbT_None;
-            }
+        int slbkind = slab_kind_from_wlb_type(n);
+        struct SlabConfigStats* slabst = get_slab_stats(slb);
+        if ((n != WlbT_None) && ((slbkind < 0) || ((slabst->wlb_type != WlbT_Bridge) && (slb->kind != slbkind)))) {
+            nfixes++;
+            slb->wlb_type = WlbT_None;
+        }
         i++;
       }
     free(buf);

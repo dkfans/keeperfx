@@ -27,6 +27,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define MAX_VELOCITY 256
+#define CREATURE_FALL_ACCELERATION 32
+#define CREATURE_TERMINAL_VELOCITY (MAX_VELOCITY - CREATURE_FALL_ACCELERATION)
 /******************************************************************************/
 #pragma pack(1)
 
