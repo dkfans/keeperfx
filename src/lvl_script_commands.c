@@ -3656,21 +3656,18 @@ static void display_variable_process(struct ScriptContext *context)
     {
         memcpy(&game.script_variables[i], &game.script_variables[i-1], sizeof(struct ScriptVariable));
     }    
-    game.script_variables[0].script_variable_player = context->player_idx;
-    game.script_variables[0].script_value_type = context->value->bytes[2];
-    game.script_variables[0].script_value_id = context->value->longs[1];
-    game.script_variables[0].script_variable_target = context->value->longs[2];
-    game.script_variables[0].script_variable_target_type = context->value->bytes[1];
+    game.script_variables[0].variable_player = context->player_idx;
+    game.script_variables[0].value_type = context->value->bytes[2];
+    game.script_variables[0].value_id = context->value->longs[1];
+    game.script_variables[0].variable_target = context->value->longs[2];
+    game.script_variables[0].variable_target_type = context->value->bytes[1];
+    // temp hardcoding
+    game.script_variables[0].include_label = true;
     if (game.active_script_var_count < SCRIPT_VARIABLES_COUNT) {
         game.active_script_var_count++;
     }	
 	
-   game.script_variable_player = context->player_idx;
-   game.script_value_type = context->value->bytes[2];
-   game.script_value_id = context->value->longs[1];
-   game.script_variable_target = context->value->longs[2];
-   game.script_variable_target_type = context->value->bytes[1];
-   game.flags_gui |= GGUI_Variable;
+    game.flags_gui |= GGUI_Variable;
 }
 
 static void display_countdown_check(const struct ScriptLine *scline)

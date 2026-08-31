@@ -188,11 +188,12 @@ struct LevelScript {
 };
 
 struct ScriptVariable{
-    unsigned char script_value_type;
-    unsigned char script_value_id;
-    PlayerNumber script_variable_player;
-    int32_t script_variable_target;
-    unsigned char script_variable_target_type;
+    unsigned char value_type;
+    unsigned char value_id;
+    PlayerNumber variable_player;
+    int32_t variable_target;
+    unsigned char variable_target_type;
+    TbBool include_label;
 };
 
 /******************************************************************************/

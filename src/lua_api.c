@@ -874,11 +874,21 @@ static int lua_Display_variable(lua_State *L)
     int target = luaL_optinteger(L,3,0);
     unsigned char target_type = luaL_optinteger(L,4,0);
 
-    game.script_variable_player = player;
-    game.script_value_type = varib_type;
-    game.script_value_id = varib_id;
-    game.script_variable_target = target;
-    game.script_variable_target_type = target_type;
+    for (int i = SCRIPT_VARIABLES_COUNT - 1; i > 0; i--)
+    {
+        memcpy(&game.script_variables[i], &game.script_variables[i-1], sizeof(struct ScriptVariable));
+    }    
+    game.script_variables[0].variable_player = player;
+    game.script_variables[0].value_type = varib_type;
+    game.script_variables[0].value_id = varib_id;
+    game.script_variables[0].variable_target = target;
+    game.script_variables[0].variable_target_type = target_type;
+    // temp hardcoding
+    game.script_variables[0].include_label = true;
+    if (game.active_script_var_count < SCRIPT_VARIABLES_COUNT) {
+        game.active_script_var_count++;
+    }	
+    
     game.flags_gui |= GGUI_Variable;
 
     return 0;

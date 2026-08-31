@@ -660,7 +660,6 @@ TbBool display_variable_enabled(void)
   return ((game.flags_gui & GGUI_Variable) != 0);
 }
 
-
 void draw_script_variable_list(void)
 {
     LbTextSetFont(winfont);    
@@ -697,7 +696,7 @@ void draw_script_variable_list(void)
     int valid_vars = 0;
     for (int i = 0; i < game.active_script_var_count; i++)
     {        
-        if ((game.script_variables[i].script_variable_player == my_player_number))
+        if ((game.script_variables[i].variable_player == my_player_number))
         {
             valid_vars++;
         }
@@ -721,25 +720,25 @@ void draw_script_variable_list(void)
     for (int i = 0; i < game.active_script_var_count; i++)
     {        
         struct ScriptVariable scval = game.script_variables[i];
-        if ((scval.script_variable_player == my_player_number))
+        if ((scval.variable_player == my_player_number))
         {
             int sprite_x = scr_x;
             int sprite_y = scr_y;
 
-            long value = get_condition_value(scval.script_variable_player, scval.script_value_type, scval.script_value_id);
-            short icon_idx = get_condition_icon(scval.script_variable_player, scval.script_value_type, scval.script_value_id, &sprite_x, &sprite_y);
-            if (scval.script_variable_target != 0)
+            long value = get_condition_value(scval.variable_player, scval.value_type, scval.value_id);
+            short icon_idx = get_condition_icon(scval.variable_player, scval.value_type, scval.value_id, &sprite_x, &sprite_y);
+            if (scval.variable_target != 0)
             {
-                if ((scval.script_variable_target_type == 0) || (scval.script_variable_target_type == 2) )
+                if ((scval.variable_target_type == 0) || (scval.variable_target_type == 2) )
                 {
-                    value = scval.script_variable_target - value;
+                    value = scval.variable_target - value;
                 }
-                else if (scval.script_variable_target_type == 1)
+                else if (scval.variable_target_type == 1)
                 {
-                    value = ((~scval.script_variable_target)+1) + value;
+                    value = ((~scval.variable_target)+1) + value;
                 }
             }
-            if (scval.script_variable_target_type != 2)
+            if (scval.variable_target_type != 2)
             {
                 if (value < 0)
                 {
@@ -750,7 +749,7 @@ void draw_script_variable_list(void)
             snprintf(text, sizeof(text), "%ld", value);
 
             LbTextDrawResized(0, y, tx_units_per_px, text);
-            if(icon_idx > -1){
+            if(icon_idx > -1 && scval.include_label){
                 const struct TbSprite* spr;
                 spr = get_panel_sprite(icon_idx);
                 int ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
@@ -763,7 +762,6 @@ void draw_script_variable_list(void)
 
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
-
 
 void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype)
 {
