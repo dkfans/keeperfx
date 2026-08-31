@@ -7777,6 +7777,7 @@ struct Thing *grow_up_creature(struct Thing *thing, ThingModel grow_up_model, Cr
         set_creature_level(newtng, grow_up_level - 1);
     }
     transfer_creature_data_and_gold(thing, newtng); // Transfer health, the blood type, creature name, kill count, joined age and carried gold to the new creature.
+    reset_interpolation_of_thing(newtng);
     // Remember the old lair
     struct CreatureControl *oldcctrl = creature_control_get_from_thing(thing);
     RoomIndex lair_room_idx = 0;
