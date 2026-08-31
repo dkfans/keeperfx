@@ -38,7 +38,7 @@ static int script_current_condition = 0;
 static unsigned short condition_stack_pos;
 static unsigned short condition_stack[CONDITIONS_COUNT];
 
-short get_condition_icon(PlayerNumber plyr_idx, unsigned char valtype, short validx)
+short get_condition_icon(PlayerNumber plyr_idx, unsigned char valtype, short validx, int *pos_x, int *pos_y)
 {
     short icon_idx = -1;
     
@@ -48,21 +48,29 @@ short get_condition_icon(PlayerNumber plyr_idx, unsigned char valtype, short val
         case SVar_CONTROLS_CREATURE:
         case SVar_CREATURE_NUM:
             icon_idx = get_creature_model_graphics(validx, CGI_HandSymbol);
+            *pos_x += 20;
+            // *pos_y += 10;
             break;
         case SVar_AVAILABLE_ROOM:
         case SVar_ROOM_SLABS:
             const struct RoomConfigStats* roomst = get_room_kind_stats(validx);
-            icon_idx = roomst->medsym_sprite_idx;
+            icon_idx = roomst->medsym_sprite_idx;            
+            *pos_x += 10;
+            *pos_y += 14;
             break;
         case SVar_TRAP_NUM:
         case SVar_AVAILABLE_TRAP:
             struct TrapConfigStats* trapst = get_trap_model_stats(validx);
             icon_idx = trapst->medsym_sprite_idx;
+            *pos_x += 10;
+            *pos_y += 14;
             break;
         case SVar_DOOR_NUM:
         case SVar_AVAILABLE_DOOR:
             struct DoorConfigStats* doorst = get_door_model_stats(validx);
             icon_idx = doorst->medsym_sprite_idx;
+            *pos_x += 10;
+            *pos_y += 14;
             break;
         case SVar_MONEY:
             break;
