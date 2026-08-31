@@ -663,6 +663,8 @@ TbBool display_variable_enabled(void)
 void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype)
 {
     long value = get_condition_value(plyr_idx, valtype, validx);
+    short icon_idx = get_condition_icon(plyr_idx, valtype, validx);
+    JUSTLOG(">>> draw_script_variable icon_idx - %i",(int)icon_idx);
     if (target != 0)
     {
         if ( (targettype == 0) || (targettype == 2) )

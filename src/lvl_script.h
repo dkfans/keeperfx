@@ -202,6 +202,7 @@ TbBool preload_script(long lvnum);
 /******************************************************************************/
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
+short get_condition_icon(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 void process_level_script(void);
 /******************************************************************************/
 #ifdef __cplusplus
