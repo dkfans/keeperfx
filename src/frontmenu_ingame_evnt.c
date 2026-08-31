@@ -660,6 +660,115 @@ TbBool display_variable_enabled(void)
   return ((game.flags_gui & GGUI_Variable) != 0);
 }
 
+
+void draw_script_variable_list(void)
+{
+    LbTextSetFont(winfont);
+    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    if (MyScreenHeight < 400)
+    {
+        height *= 2;
+        width *= 2;
+        if (dbc_initialized && dbc_enabled)
+        {
+            width += (width / 3);
+        }
+    }
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
+    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    long scr_y = 16 * units_per_pixel / 16;
+    if (game.armageddon_cast_turn != 0)
+    {
+        struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
+        scr_x = (gmnu->width + (width >> 1) - 16 * units_per_pixel / 16);
+        if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
+        {
+            scr_x += ((width + (width >> 1)) - 16 * units_per_pixel / 16);
+        }
+    }
+    else if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
+    {
+        scr_x -= ((width + (width >> 1)) - 16 * units_per_pixel / 16);
+    }
+
+    int valid_vars = 0;
+    for (int i = 0; i < game.active_script_var_count; i++)
+    {        
+        if ((game.script_variables[i].script_variable_player == my_player_number))
+        {
+            valid_vars++;
+        }
+    }
+    height *= valid_vars;
+    LbTextSetWindow(scr_x, scr_y, width, height);    
+    draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
+    int y;
+    int tx_units_per_px;
+            
+    if ( (dbc_initialized && dbc_enabled) && (MyScreenWidth > 1280) )
+    {
+        tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
+        y = height / 4;
+    }
+    else
+    {
+        tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
+        y = 0;
+    }
+    int h = LbTextLineHeight();
+    int row_height = h * units_per_pixel / 16;
+    for (int i = 0; i < game.active_script_var_count; i++)
+    {        
+        if ((game.script_variables[i].script_variable_player == my_player_number))
+        {
+            long value = get_condition_value(game.script_variables[i].script_variable_player, game.script_variables[i].script_value_type, game.script_variables[i].script_value_id);
+            short icon_idx = get_condition_icon(game.script_variables[i].script_variable_player, game.script_variables[i].script_value_type, game.script_variables[i].script_value_id);
+            JUSTLOG(">>> draw_script_variable icon_idx - %i",(int)icon_idx);
+            if (game.script_variables[i].script_variable_target != 0)
+            {
+                if ((game.script_variables[i].script_variable_target_type == 0) || (game.script_variables[i].script_variable_target_type == 2) )
+                {
+                    value = game.script_variables[i].script_variable_target - value;
+                }
+                else if (game.script_variables[i].script_variable_target_type == 1)
+                {
+                    value = ((~game.script_variables[i].script_variable_target)+1) + value;
+                }
+            }
+            if (game.script_variables[i].script_variable_target_type != 2)
+            {
+                if (value < 0)
+                {
+                    value = 0;
+                }
+            }
+            char text[16];
+            snprintf(text, sizeof(text), "%ld", value);
+
+            LbTextDrawResized(0, y, tx_units_per_px, text);
+            if(icon_idx > -1){
+                const struct TbSprite* spr;
+                spr = get_panel_sprite(icon_idx);
+                int ps_units_per_px = (h * units_per_pixel) / spr->SHeight;
+
+                JUSTLOG(">>> h=%d units_per_pixel=%d row_height=%d spr_height=%d ps_units_per_px=%d",
+    h,
+    units_per_pixel,
+    row_height,
+    spr->SHeight,
+    ps_units_per_px);
+                LbSpriteDrawResized(scr_x, scr_y, ps_units_per_px, spr);
+            }            
+            y += row_height;
+            scr_y += row_height;
+        }
+    }
+
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+
 void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype)
 {
     long value = get_condition_value(plyr_idx, valtype, validx);
@@ -728,6 +837,12 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
         y = 0;
     }
     LbTextDrawResized(0, y, tx_units_per_px, text);
+    if(icon_idx > -1){
+        const struct TbSprite* spr;
+        spr = get_panel_sprite(icon_idx);
+        int ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+        LbSpriteDrawResized(scr_x, scr_y, ps_units_per_px, spr);
+    }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 

@@ -37,6 +37,7 @@ extern "C" {
 #define TUNNELLER_TRIGGERS_COUNT 256
 #define SCRIPT_VALUES_COUNT      2048
 #define WIN_CONDITIONS_COUNT      12
+#define SCRIPT_VARIABLES_COUNT   7
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
@@ -184,6 +185,14 @@ struct LevelScript {
     // Store strings used at level here
     char strings[8192];
     long next_string_offset;
+};
+
+struct ScriptVariable{
+    unsigned char script_value_type;
+    unsigned char script_value_id;
+    PlayerNumber script_variable_player;
+    int32_t script_variable_target;
+    unsigned char script_variable_target_type;
 };
 
 /******************************************************************************/

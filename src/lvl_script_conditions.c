@@ -49,24 +49,23 @@ short get_condition_icon(PlayerNumber plyr_idx, unsigned char valtype, short val
         case SVar_CREATURE_NUM:
             icon_idx = get_creature_model_graphics(validx, CGI_HandSymbol);
             break;
-        case SVar_AVAILABLE_MAGIC:
-            struct SpellConfig* spconf = get_spell_config(plyr_idx);
-            icon_idx = spconf->medsym_sprite_idx;
-            break;
         case SVar_AVAILABLE_ROOM:
-            const struct RoomConfigStats* roomst = get_room_kind_stats(plyr_idx);
+        case SVar_ROOM_SLABS:
+            const struct RoomConfigStats* roomst = get_room_kind_stats(validx);
             icon_idx = roomst->medsym_sprite_idx;
             break;
+        case SVar_TRAP_NUM:
         case SVar_AVAILABLE_TRAP:
             struct TrapConfigStats* trapst = get_trap_model_stats(validx);
             icon_idx = trapst->medsym_sprite_idx;
             break;
+        case SVar_DOOR_NUM:
         case SVar_AVAILABLE_DOOR:
             struct DoorConfigStats* doorst = get_door_model_stats(validx);
             icon_idx = doorst->medsym_sprite_idx;
             break;
         case SVar_MONEY:
-
+            break;
     }
     return icon_idx;
 }

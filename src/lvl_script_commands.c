@@ -3651,7 +3651,20 @@ static void display_variable_check(const struct ScriptLine *scline)
 }
 
 static void display_variable_process(struct ScriptContext *context)
-{
+{    	
+    for (int i = SCRIPT_VARIABLES_COUNT - 1; i > 0; i--)
+    {
+        memcpy(&game.script_variables[i], &game.script_variables[i-1], sizeof(struct ScriptVariable));
+    }    
+    game.script_variables[0].script_variable_player = context->player_idx;
+    game.script_variables[0].script_value_type = context->value->bytes[2];
+    game.script_variables[0].script_value_id = context->value->longs[1];
+    game.script_variables[0].script_variable_target = context->value->longs[2];
+    game.script_variables[0].script_variable_target_type = context->value->bytes[1];
+    if (game.active_script_var_count < SCRIPT_VARIABLES_COUNT) {
+        game.active_script_var_count++;
+    }	
+	
    game.script_variable_player = context->player_idx;
    game.script_value_type = context->value->bytes[2];
    game.script_value_id = context->value->longs[1];
