@@ -729,57 +729,31 @@ void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoo
     }
 }
 
-void set_alt_bit_based_on_slab(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+void set_subtile_wibble(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct SlabConfigStats *slabst;
-    slabst = get_slab_kind_stats(slbkind);
-
-    unsigned short sibling_flags;
-    unsigned short edge_flags;
-    unsigned long wibble;
-
-    sibling_flags = 0;
-    edge_flags = 0;
-    wibble = slabst->wibble;
+    unsigned char wibble = get_slab_kind_stats(slbkind)->wibble;
     if (slab_kind_is_liquid(slbkind))
     {
-        if ((stl_x % 3) == 0)
-            edge_flags = 0x01;
-        if ((stl_y % 3) == 0)
-            edge_flags |= 0x02;
-        MapSlabCoord slb_x;
-        MapSlabCoord slb_y;
-        slb_x = subtile_slab(stl_x);
-        slb_y = subtile_slab(stl_y);
-        struct SlabMap *slb;
-        slb = get_slabmap_block(slb_x-1, slb_y);
-        if (slab_kind_is_liquid(slb->kind))
-            sibling_flags |= 0x01;
-        slb = get_slabmap_block(slb_x, slb_y-1);
-        if (slab_kind_is_liquid(slb->kind))
-            sibling_flags |= 0x02;
-        slb = get_slabmap_block(slb_x-1, slb_y-1);
-        if (slab_kind_is_liquid(slb->kind))
-            sibling_flags |= 0x04;
+        MapSlabCoord slb_x = subtile_slab(stl_x);
+        MapSlabCoord slb_y = subtile_slab(stl_y);
+        MapSlabCoord start_slb_x = slb_x;
+        MapSlabCoord start_slb_y = slb_y;
 
-        if (edge_flags == 3)
-        {
-          if (sibling_flags == (0x01|0x02|0x04))
-              wibble = 2;
-        } else
-        if (edge_flags == 1)
-        {
-          if (sibling_flags & 0x01)
-              wibble = 2;
-        } else
-        if ((edge_flags != 2) || (sibling_flags & 0x02))
-        {
-            wibble = 2;
+        if ((stl_x % STL_PER_SLB) == 0) {
+            start_slb_x--;
+        }
+        if ((stl_y % STL_PER_SLB) == 0) {
+            start_slb_y--;
+        }
+        for (MapSlabCoord y = start_slb_y; y <= slb_y; y++) {
+            for (MapSlabCoord x = start_slb_x; x <= slb_x; x++) {
+                if (((x != slb_x) || (y != slb_y)) && !slab_kind_is_liquid(get_slabmap_block(x, y)->kind)) {
+                    wibble = 1;
+                }
+            }
         }
     }
-    struct Map *mapblk;
-    mapblk = get_map_block_at(stl_x, stl_y);
-    set_mapblk_wibble_value(mapblk, wibble);
+    set_mapblk_wibble_value(get_map_block_at(stl_x, stl_y), wibble);
 }
 
 void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const ColumnIndex *col_idx)
@@ -807,7 +781,7 @@ void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
             if ( column_index_check < 0 )
               ERRORLOG("BBlocks instead of columns");
             update_map_collide(slbkind, stl_x+dx, stl_y+dy);
-            set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
+            set_subtile_wibble(slbkind, stl_x+dx, stl_y+dy);
             colid++;
         }
     }
@@ -1459,7 +1433,7 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
     }
 }
 
-void set_alt_bit_on_slabs_around(MapSlabCoord slb_x, MapSlabCoord slb_y)
+void update_wibble_on_surrounding_slabs(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     for (int i = 0; i < AROUND_EIGHT_LENGTH; i++)
     {
@@ -1482,7 +1456,7 @@ void set_alt_bit_on_slabs_around(MapSlabCoord slb_x, MapSlabCoord slb_y)
                 MapSubtlCoord sstl_y;
                 sstl_x = slab_subtile(sslb_x, ssub_x);
                 sstl_y = slab_subtile(sslb_y, ssub_y);
-                set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
+                set_subtile_wibble(slb->kind, sstl_x, sstl_y);
             }
         }
     }
@@ -1611,7 +1585,7 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
     delete_attached_things_on_slab(slb_x, slb_y);
     dump_slab_on_map(slbkind, SLABSETS_PER_SLAB * slbkind + ani_frame, stl_x, stl_y, owner);
     shuffle_unattached_things_on_slab(slb_x, slb_y);
-    set_alt_bit_on_slabs_around(slb_x, slb_y);
+    update_wibble_on_surrounding_slabs(slb_x, slb_y);
     if (slbkind == SlbT_GEMS)
     {
         remove_unwanted_things_from_wall_slab(slb_x, slb_y);
