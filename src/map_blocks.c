@@ -731,22 +731,14 @@ void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoo
 
 void set_alt_bit_based_on_slab(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct SlabConfigStats *slabst;
-    slabst = get_slab_kind_stats(slbkind);
-
-    unsigned long wibble;
-
-    wibble = slabst->wibble;
+    unsigned char wibble = get_slab_kind_stats(slbkind)->wibble;
     if (slab_kind_is_liquid(slbkind))
     {
-        MapSlabCoord slb_x;
-        MapSlabCoord slb_y;
-        slb_x = subtile_slab(stl_x);
-        slb_y = subtile_slab(stl_y);
-        MapSlabCoord start_slb_x;
-        MapSlabCoord start_slb_y;
-        start_slb_x = slb_x;
-        start_slb_y = slb_y;
+        MapSlabCoord slb_x = subtile_slab(stl_x);
+        MapSlabCoord slb_y = subtile_slab(stl_y);
+        MapSlabCoord start_slb_x = slb_x;
+        MapSlabCoord start_slb_y = slb_y;
+
         if ((stl_x % STL_PER_SLB) == 0) {
             start_slb_x--;
         }
@@ -755,18 +747,13 @@ void set_alt_bit_based_on_slab(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCo
         }
         for (MapSlabCoord y = start_slb_y; y <= slb_y; y++) {
             for (MapSlabCoord x = start_slb_x; x <= slb_x; x++) {
-                if ((x == slb_x) && (y == slb_y)) {
-                    continue;
-                }
-                if (!slab_kind_is_liquid(get_slabmap_block(x, y)->kind)) {
+                if (((x != slb_x) || (y != slb_y)) && !slab_kind_is_liquid(get_slabmap_block(x, y)->kind)) {
                     wibble = 1;
                 }
             }
         }
     }
-    struct Map *mapblk;
-    mapblk = get_map_block_at(stl_x, stl_y);
-    set_mapblk_wibble_value(mapblk, wibble);
+    set_mapblk_wibble_value(get_map_block_at(stl_x, stl_y), wibble);
 }
 
 void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const ColumnIndex *col_idx)
