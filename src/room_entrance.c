@@ -51,8 +51,8 @@ extern "C" {
 struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
 {
     struct Coord3d pos;
-    pos.x.stl.num = room->central_stl_x;
-    pos.y.stl.num = room->central_stl_y;
+    pos.x.val = subtile_coord_center(room->central_stl_x);
+    pos.y.val = subtile_coord_center(room->central_stl_y);
     pos.z.val = get_floor_height_at(&pos);
     struct Thing* creatng = create_creature(&pos, crkind, room->owner);
     if (thing_is_invalid(creatng)) {
