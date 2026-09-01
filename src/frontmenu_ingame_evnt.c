@@ -663,19 +663,24 @@ TbBool display_variable_enabled(void)
 void draw_script_variable_list(void)
 {
     LbTextSetFont(winfont);    
-    
     int valid_vars = 0;
     TbBool contains_labels = false;
+
     for (int i = 0; i < game.active_script_var_count; i++)
-    {        
-        if ((game.script_variables[i].variable_player == my_player_number))        
+    {
+        if (game.script_variables[i].variable_player == my_player_number)
             valid_vars++;
-        if(game.script_variables[i].include_label)
+
+        if (game.script_variables[i].include_label)
             contains_labels = true;
     }
+
     int h = LbTextLineHeight();
     int row_height = h * units_per_pixel / 16;
-    long width = (contains_labels? 16 : 10) * (LbTextCharWidth('0') * units_per_pixel / 16);
+    
+    int label_height = (12 * units_per_pixel) / 16;
+    int label_offset = (row_height - label_height) / 2;
+    long width = (contains_labels ? 16 : 10) * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = row_height + (row_height) / 2;
     if (MyScreenHeight < 400)
     {
@@ -742,19 +747,21 @@ void draw_script_variable_list(void)
             }
             if (scval.variable_target_type != 2)
             {
-                if (value < 0)                
-                    value = 0;                
+                if (value < 0)
+                {
+                    value = 0;
+                }
             }
             char text[64]; // Increased size slightly to accommodate "Label: Value"
 
             if(scval.include_label) {
                 const char* label = get_condition_label(scval.variable_player, scval.value_type, scval.value_id);
                 snprintf(text, sizeof(text), "%s: %ld", label, value);
+                LbTextDrawResized(0, y + label_offset, (12 * units_per_pixel) / LbTextLineHeight(), text);
             } else {
-                snprintf(text, sizeof(text), "%ld", value);
+                snprintf(text, sizeof(text), "%ld", value);                
+                LbTextDrawResized(0, y, tx_units_per_px, text);
             }
-            LbTextDrawResized(0, y, tx_units_per_px, text);
-
             if(icon_idx > -1 && scval.include_icon){
                 const struct TbSprite* spr;
                 spr = get_panel_sprite(icon_idx);
