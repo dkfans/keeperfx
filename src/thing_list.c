@@ -42,9 +42,11 @@
 #include "map_data.h"
 #include "map_utils.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "config_magic.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
+#include "room_data.h"
 #include "player_instances.h"
 #include "engine_camera.h"
 #include "map_columns.h"
@@ -3322,6 +3324,29 @@ void stop_all_things_playing_samples(void)
   }
 }
 
+static TbBool return_creature_from_abyss(struct Thing *thing)
+{
+    if (!game.conf.rules[thing->owner].creature.return_from_abyss) {
+        return false;
+    }
+    struct Room *room = pick_random_room_of_role(thing->owner, RoRoF_CrPoolSpawn);
+    if (room_is_invalid(room)) {
+        return false;
+    }
+    struct Coord3d pos;
+    if (!find_random_valid_position_for_thing_in_room(thing, room, &pos)) {
+        return false;
+    }
+    set_start_state(thing);
+    clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
+    clear_flag(thing->state_flags, TF1_PushAdd);
+    clear_thing_acceleration(thing);
+    clear_thing_velocity(thing);
+    move_thing_in_map(thing, &pos);
+    reset_interpolation_of_thing(thing);
+    return true;
+}
+
 TbBool update_thing(struct Thing *thing)
 {
     Thing_Class_Func classfunc;
@@ -3403,6 +3428,9 @@ TbBool update_thing(struct Thing *thing)
     }
     if (falling && (thing->mappos.z.val <= -subtile_coord(ABYSS_DEPTH, 0))) {
         if (thing_is_creature(thing)) {
+            if (return_creature_from_abyss(thing)) {
+                return true;
+            }
             kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         } else {
             destroy_thing(thing);

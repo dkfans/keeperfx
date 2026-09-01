@@ -134,6 +134,7 @@ static const struct NamedField rules_creatures_named_fields[] = {
   {"STUNEVILENEMYCHANCE",        0, field_t(struct RulesConfig, creature.stun_enemy_chance_evil)    , 100,        0,       100,NULL,value_default, assign_default},
   {"STUNGOODENEMYCHANCE",        0, field_t(struct RulesConfig, creature.stun_enemy_chance_good)    , 100,        0,       100,NULL,value_default, assign_default},
   {"STUNWITHOUTPRISONCHANCE",    0, field_t(struct RulesConfig, creature.stun_without_prison_chance),   0,        0,       100,NULL,value_default, assign_default},
+  {"RETURNFROMABYSS",            0, field_t(struct RulesConfig, creature.return_from_abyss)         ,   0,        0,         1,NULL,value_default, assign_default},
   {NULL},
 };
 
