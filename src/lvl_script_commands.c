@@ -3661,9 +3661,9 @@ static void display_variable_process(struct ScriptContext *context)
     game.script_variables[0].value_id = context->value->longs[1];
     game.script_variables[0].variable_target = context->value->longs[2];
     game.script_variables[0].variable_target_type = context->value->bytes[1];
-    // temp hardcoding
-    game.script_variables[0].include_label = true;
-    game.script_variables[0].include_icon = true;
+    
+    game.script_variables[0].include_icon = false;
+    game.script_variables[0].include_label = false;
     game.script_variables[0].icon_idx = -1;
     if (game.active_script_var_count < SCRIPT_VARIABLES_COUNT) {
         game.active_script_var_count++;
@@ -3693,14 +3693,17 @@ static void display_variable_label_check(const struct ScriptLine *scline)
     
     value->bytes[0] = label_type;
     value->bytes[2] = varib_type;
-    value->longs[1] = varib_id;
+    value->longs[1] = varib_id;    
+    value->shorts[4] = -1;
     const char *icon = scline->tp[3];
+
     if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[4]))
     {
         SCRPTERRLOG("Invalid custom icon (%s)", icon);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
+
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 

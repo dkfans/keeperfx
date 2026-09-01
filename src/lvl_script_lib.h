@@ -31,6 +31,7 @@ extern "C" {
 #endif
 
 #define COMMANDDESC_ARGS_COUNT    8
+#define SCRIPT_VAR_ENUM_COUNT    92
 
 enum TbScriptCommands {
     Cmd_NONE                               =  0,
@@ -315,6 +316,8 @@ enum ScriptVariables {
   SVar_CONTROLLED_THING                = 91,
  };
 
+
+extern const char *script_variable_labels[SCRIPT_VAR_ENUM_COUNT];
 
 
 extern const struct NamedCommand player_desc[];
