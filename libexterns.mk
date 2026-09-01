@@ -45,10 +45,9 @@ libsdl: $(SDL_MAIN_LIBRARY)
 # If we have tar gzip prebuild, download and extract it
 $(SDL_MAIN_LIBRARY): sdl/$(SDL_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
-	# Grep is used to remove bogus error messages, return state of tar is also ignored
-	-cd "$(<D)"; \
+	cd "$(<D)"; \
 	tar --strip-components=2 -zxmUf "$(<F)" SDL3-3.4.12/i686-w64-mingw32/bin SDL3-3.4.12/i686-w64-mingw32/include SDL3-3.4.12/i686-w64-mingw32/lib SDL3-3.4.12/i686-w64-mingw32/share 2>&1 | \
-	grep -v '^.*: Archive value .* is out of .* range.*$$'
+	sed '/^.*: Archive value .* is out of .* range.*$$/d'
 	$(CP) sdl/bin/SDL3.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
