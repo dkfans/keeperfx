@@ -734,47 +734,34 @@ void set_alt_bit_based_on_slab(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCo
     struct SlabConfigStats *slabst;
     slabst = get_slab_kind_stats(slbkind);
 
-    unsigned short sibling_flags;
-    unsigned short edge_flags;
     unsigned long wibble;
 
-    sibling_flags = 0;
-    edge_flags = 0;
     wibble = slabst->wibble;
     if (slab_kind_is_liquid(slbkind))
     {
-        if ((stl_x % 3) == 0)
-            edge_flags = 0x01;
-        if ((stl_y % 3) == 0)
-            edge_flags |= 0x02;
         MapSlabCoord slb_x;
         MapSlabCoord slb_y;
         slb_x = subtile_slab(stl_x);
         slb_y = subtile_slab(stl_y);
-        struct SlabMap *slb;
-        slb = get_slabmap_block(slb_x-1, slb_y);
-        if (slab_kind_is_liquid(slb->kind))
-            sibling_flags |= 0x01;
-        slb = get_slabmap_block(slb_x, slb_y-1);
-        if (slab_kind_is_liquid(slb->kind))
-            sibling_flags |= 0x02;
-        slb = get_slabmap_block(slb_x-1, slb_y-1);
-        if (slab_kind_is_liquid(slb->kind))
-            sibling_flags |= 0x04;
-
-        if (edge_flags == 3)
-        {
-          if (sibling_flags == (0x01|0x02|0x04))
-              wibble = 2;
-        } else
-        if (edge_flags == 1)
-        {
-          if (sibling_flags & 0x01)
-              wibble = 2;
-        } else
-        if ((edge_flags != 2) || (sibling_flags & 0x02))
-        {
-            wibble = 2;
+        MapSlabCoord start_slb_x;
+        MapSlabCoord start_slb_y;
+        start_slb_x = slb_x;
+        start_slb_y = slb_y;
+        if ((stl_x % STL_PER_SLB) == 0) {
+            start_slb_x--;
+        }
+        if ((stl_y % STL_PER_SLB) == 0) {
+            start_slb_y--;
+        }
+        for (MapSlabCoord y = start_slb_y; y <= slb_y; y++) {
+            for (MapSlabCoord x = start_slb_x; x <= slb_x; x++) {
+                if ((x == slb_x) && (y == slb_y)) {
+                    continue;
+                }
+                if (!slab_kind_is_liquid(get_slabmap_block(x, y)->kind)) {
+                    wibble = 1;
+                }
+            }
         }
     }
     struct Map *mapblk;
