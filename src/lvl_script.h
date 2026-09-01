@@ -195,6 +195,7 @@ struct ScriptVariable{
     unsigned char variable_target_type;
     TbBool include_label;
     TbBool include_icon;
+    short icon_idx;
 };
 
 /******************************************************************************/

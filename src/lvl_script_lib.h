@@ -208,6 +208,7 @@ enum TbScriptCommands {
     Cmd_COPY_CREATURE_TYPE                 = 196,
     Cmd_TRIGGER_ACTION_POINT               = 197,
     Cmd_SET_LEVEL_ENSIGN                   = 198,
+    Cmd_DISPLAY_VARIABLE_LABEL             = 199,
 };
 
 struct ScriptLine {

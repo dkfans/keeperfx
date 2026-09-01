@@ -886,6 +886,7 @@ static int lua_Display_variable(lua_State *L)
     // temp hardcoding
     game.script_variables[0].include_label = true;
     game.script_variables[0].include_icon = true;
+    game.script_variables[0].icon_idx = -1;
     if (game.active_script_var_count < SCRIPT_VARIABLES_COUNT) {
         game.active_script_var_count++;
     }	
