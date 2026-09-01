@@ -74,6 +74,7 @@ enum PanelColourIds
     PnC_Tagged_Gems   = 10,
     PnC_Gems          = 11,
     //12-255 left free for future use
+    PnC_Abyss         = 12,
     PnC_RoomsStart    = 256,  //rooms 256-2559  (9*256 entries) TERRAIN_ITEMS_MAX
     PnC_DoorsStart    = 2560, //doors 2560-38559 (9*2000*2 entries) TRAPDOOR_TYPES_MAX
     PnC_DoorsStartLocked  = 2569,
@@ -741,6 +742,10 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
             col = PnC_RockFloor;
         }
         else
+        if (subtile_has_abyss_on_top(stl_x, stl_y)) {
+            col = PnC_Abyss;
+        }
+        else
         if ((mapblk->flags & SlbAtFlg_Filled) != 0)
         {
             col = PnC_Wall;
@@ -1032,6 +1037,7 @@ void setup_panel_colors(void)
         PanelColours[n + PnC_purplePath]    = 255;
         PanelColours[n + PnC_Gems]      = 102 + (pixmap.ghost[bkcol] >> 6);
         PanelColours[n + PnC_RockFloor] = 145;
+        PanelColours[n + PnC_Abyss]     = pixmap.map_abyss[bkcol];
 
         n = pncol_idx + PnC_RoomsStart;
         int i;

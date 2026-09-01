@@ -108,6 +108,7 @@ enum RoomRoleFlags {
     RoRoF_CrPoolLeave    = 0x00400000, /**< The room is a gate which allows a creature to leave the players dungeon back to pool. */
     RoRoF_PassWater      = 0x00800000, /**< The room is a bridge for use over water. */
     RoRoF_PassLava       = 0x01000000, /**< The room is a bridge for use over lava. */
+    RoRoF_PassAbyss      = 0x02000000,
 };
 
 struct SlabMap;
@@ -190,6 +191,8 @@ TbBool slab_kind_is_room_wall(RoomKind slbkind);
 TbBool slab_kind_is_friable_dirt(RoomKind slbkind);
 TbBool slab_kind_is_door(SlabKind slbkind);
 TbBool slab_kind_is_liquid(SlabKind slbkind);
+TbBool slab_kind_is_bridgeable(SlabKind slbkind);
+int slab_kind_from_wlb_type(unsigned char wlb_type);
 TbBool slab_kind_is_room(SlabKind slbkind);
 TbBool slab_kind_has_torches(SlabKind slbkind);
 /******************************************************************************/

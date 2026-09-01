@@ -58,6 +58,7 @@ extern "C" {
 
 extern char autostart_multiplayer_campaign[80];
 extern int autostart_multiplayer_level;
+extern int autostart_multiplayer_users_expected;
 
 /******************************************************************************/
 const char *keeper_netconf_file = "fxconfig.net";
@@ -545,7 +546,7 @@ void handle_autostart_multiplayer_messaging(void)
     TbBool player_joined = (net_number_of_enum_players > previous_enum_players);
     previous_enum_players = net_number_of_enum_players;
 
-    if (net_number_of_enum_players < 2) {
+    if (net_number_of_enum_players < autostart_multiplayer_users_expected) {
         return;
     }
 
