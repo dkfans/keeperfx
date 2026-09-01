@@ -9276,6 +9276,7 @@ void draw_frontview_engine(struct Camera *cam)
         cam->zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
     calculate_hud_scale(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
+    frame_wibble_generate();
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam_x = cam->mappos.x.val;
