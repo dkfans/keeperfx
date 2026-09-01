@@ -1077,8 +1077,10 @@ static void fix_bad_wibble_values(void)
             MapSlabCoord slb_y = subtile_slab(stl_y);
             TbBool surrounded = true;
             for (MapSlabCoord y = slb_y - !(stl_y % STL_PER_SLB); y <= slb_y; y++) {
-                for (MapSlabCoord x = slb_x - !(stl_x % STL_PER_SLB); x <= slb_x; x++)
-                    surrounded &= slab_kind_is_liquid(get_slabmap_block(x, y)->kind);
+                for (MapSlabCoord x = slb_x - !(stl_x % STL_PER_SLB); x <= slb_x; x++) {
+                    SlabKind slbkind = get_slabmap_block(x, y)->kind;
+                    surrounded &= (slbkind == SlbT_LAVA) || (slbkind == SlbT_WATER);
+                }
             }
             if (surrounded)
                 set_mapblk_wibble_value(mapblk, 2);
