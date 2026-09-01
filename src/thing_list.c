@@ -3334,9 +3334,9 @@ static TbBool return_creature_from_abyss(struct Thing *thing)
         return false;
     }
     struct Coord3d pos;
-    if (!find_random_valid_position_for_thing_in_room(thing, room, &pos)) {
-        return false;
-    }
+    pos.x.val = subtile_coord_center(room->central_stl_x);
+    pos.y.val = subtile_coord_center(room->central_stl_y);
+    pos.z.val = get_floor_height_at(&pos);
     set_start_state(thing);
     clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
     clear_flag(thing->state_flags, TF1_PushAdd);
