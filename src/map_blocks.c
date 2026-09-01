@@ -729,7 +729,7 @@ void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoo
     }
 }
 
-void set_alt_bit_based_on_slab(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+void set_subtile_wibble(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     unsigned char wibble = get_slab_kind_stats(slbkind)->wibble;
     if (slab_kind_is_liquid(slbkind))
@@ -781,7 +781,7 @@ void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
             if ( column_index_check < 0 )
               ERRORLOG("BBlocks instead of columns");
             update_map_collide(slbkind, stl_x+dx, stl_y+dy);
-            set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
+            set_subtile_wibble(slbkind, stl_x+dx, stl_y+dy);
             colid++;
         }
     }
@@ -1433,7 +1433,7 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
     }
 }
 
-void set_alt_bit_on_slabs_around(MapSlabCoord slb_x, MapSlabCoord slb_y)
+void update_wibble_on_surrounding_slabs(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     for (int i = 0; i < AROUND_EIGHT_LENGTH; i++)
     {
@@ -1456,7 +1456,7 @@ void set_alt_bit_on_slabs_around(MapSlabCoord slb_x, MapSlabCoord slb_y)
                 MapSubtlCoord sstl_y;
                 sstl_x = slab_subtile(sslb_x, ssub_x);
                 sstl_y = slab_subtile(sslb_y, ssub_y);
-                set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
+                set_subtile_wibble(slb->kind, sstl_x, sstl_y);
             }
         }
     }
@@ -1585,7 +1585,7 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
     delete_attached_things_on_slab(slb_x, slb_y);
     dump_slab_on_map(slbkind, SLABSETS_PER_SLAB * slbkind + ani_frame, stl_x, stl_y, owner);
     shuffle_unattached_things_on_slab(slb_x, slb_y);
-    set_alt_bit_on_slabs_around(slb_x, slb_y);
+    update_wibble_on_surrounding_slabs(slb_x, slb_y);
     if (slbkind == SlbT_GEMS)
     {
         remove_unwanted_things_from_wall_slab(slb_x, slb_y);
