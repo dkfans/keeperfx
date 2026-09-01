@@ -896,6 +896,36 @@ static int lua_Display_variable(lua_State *L)
     return 0;
 }
 
+
+static int lua_Display_variable_label(lua_State *L)
+{
+    PlayerNumber player   = luaL_checkPlayerSingle(L, 1);
+    int32_t varib_id, varib_type;
+    luaL_checkVariable(L, 2, &varib_id, &varib_type);
+    for (int i = SCRIPT_VARIABLES_COUNT - 1; i > 0; i--)
+    {
+        memcpy(&game.script_variables[i], &game.script_variables[i-1], sizeof(struct ScriptVariable));
+    }    
+    
+    long lbltype = luaL_checkNamedCommand(L, 3, lbltype_desc);
+    short id;
+    char type;
+    luaL_checkMessageIcon(L, 4, &type, &id);
+    game.script_variables[0].variable_player = player;
+    game.script_variables[0].value_type = varib_type;
+    game.script_variables[0].value_id = varib_id;
+    game.script_variables[0].include_icon = lbltype == 1;
+    game.script_variables[0].include_label = lbltype == 2;
+    game.script_variables[0].icon_idx = id;
+    if (game.active_script_var_count < SCRIPT_VARIABLES_COUNT) {
+        game.active_script_var_count++;
+    }	
+    
+    game.flags_gui |= GGUI_Variable;
+
+    return 0;
+}
+
 static int lua_Hide_variable(lua_State *L)
 {
     game.flags_gui &= ~GGUI_Variable;
@@ -2480,6 +2510,7 @@ static const luaL_Reg global_methods[] = {
    {"TutorialFlashButton"                   ,lua_Tutorial_flash_button           },
    {"DisplayCountdown"                      ,lua_Display_countdown               },
    {"DisplayVariable"                       ,lua_Display_variable                },
+   {"DisplayVariableLabel"                  ,lua_Display_variable_label          },
    {"HideVariable"                          ,lua_Hide_variable                   },
 
 //Manipulating Map

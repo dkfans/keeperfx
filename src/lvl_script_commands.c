@@ -199,6 +199,12 @@ const struct NamedCommand msgtype_desc[] = {
   {NULL,               0},
 };
 
+const struct NamedCommand lbltype_desc[] = {
+  {"ICON",             1},
+  {"LABEL",            2},
+  {NULL,               0},
+};
+
 const struct NamedCommand tendency_desc[] = {
   {"IMPRISON",         1},
   {"FLEE",             2},
@@ -3681,12 +3687,8 @@ static void display_variable_label_check(const struct ScriptLine *scline)
     }
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
 
-    short label_type = 0;
-    if (strcmp(scline->tp[2], "ICON") == 0) {
-        label_type = 1;
-    } else if (strcmp(scline->tp[2], "LABEL") == 0){
-        label_type = 2;
-    } else {
+    short label_type = get_id(lbltype_desc, scline->tp[2]);
+    if (label_type == -1) {
         SCRPTERRLOG("Unknown variable, '%s'", scline->tp[2]);
         return;
     }

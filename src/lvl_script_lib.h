@@ -329,6 +329,7 @@ extern const struct NamedCommand rule_slot_desc[];
 extern const struct NamedCommand rule_action_desc[];
 extern const struct NamedCommand hero_objective_desc[];
 extern const struct NamedCommand msgtype_desc[];
+extern const struct NamedCommand lbltype_desc[];
 extern const struct NamedCommand tendency_desc[];
 extern const struct NamedCommand creature_select_criteria_desc[];
 extern const struct NamedCommand gui_button_group_desc[];
