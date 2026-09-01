@@ -1066,6 +1066,26 @@ long load_map_wibble_file(unsigned long lv_num)
     return true;
 }
 
+static void fix_bad_wibble_values(void)
+{
+    for (MapSubtlCoord stl_y = 0; stl_y <= game.map_subtiles_y; stl_y++) {
+        for (MapSubtlCoord stl_x = 0; stl_x <= game.map_subtiles_x; stl_x++) {
+            struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+            if (get_mapblk_wibble_value(mapblk) != 1)
+                continue;
+            MapSlabCoord slb_x = subtile_slab(stl_x);
+            MapSlabCoord slb_y = subtile_slab(stl_y);
+            TbBool surrounded = true;
+            for (MapSlabCoord y = slb_y - !(stl_y % STL_PER_SLB); y <= slb_y; y++) {
+                for (MapSlabCoord x = slb_x - !(stl_x % STL_PER_SLB); x <= slb_x; x++)
+                    surrounded &= slab_kind_is_liquid(get_slabmap_block(x, y)->kind);
+            }
+            if (surrounded)
+                set_mapblk_wibble_value(mapblk, 2);
+        }
+    }
+}
+
 short load_map_ownership_file(LevelNumber lv_num)
 {
     unsigned long x;
@@ -1454,6 +1474,7 @@ static TbBool load_level_file(LevelNumber lvnum)
         }
         if (!load_map_slab_file(lvnum))
           result = false;
+        fix_bad_wibble_values();
         if (new_format)
         {
             result = load_tngfx_file(lvnum);
