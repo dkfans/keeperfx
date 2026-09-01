@@ -77,6 +77,7 @@ short get_condition_icon(PlayerNumber plyr_idx, unsigned char valtype, short val
     }
     return icon_idx;
 }
+
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
     SYNCDBG(10,"Checking condition %d for player %d",(int)valtype,(int)plyr_idx);
@@ -352,6 +353,225 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short val
         break;
     };
     return 0;
+}
+
+char* get_condition_label(PlayerNumber plyr_idx, unsigned char valtype, short validx)
+{
+    SYNCDBG(10,"Checking condition %d for player %d",(int)valtype,(int)plyr_idx);
+    static char text[64]; 
+    switch (valtype)
+    {
+        case SVar_MONEY:
+            return "Money";
+        case SVar_GAME_TURN:
+            return "Turn";
+        case SVar_CREATURE_NUM:
+        {
+            const char* creature_name = creature_code_name(validx);
+            snprintf(text, sizeof(text), "%s Count", creature_name);
+            return text;
+        }
+        case SVar_TOTAL_DIGGERS:
+            return "Tot Diggers";
+        case SVar_TOTAL_CREATURES:
+            return "Tot Crt";
+        case SVar_TOTAL_RESEARCH:
+            return "Tot Research";
+        case SVar_TOTAL_DOORS:
+            return "Tot Doors";
+        case SVar_TOTAL_TRAPS:
+            return "Tot Traps";
+        case SVar_TOTAL_AREA:
+            return "Tot Area";
+        case SVar_TOTAL_CREATURES_LEFT:
+            return "Crt Left";
+        case SVar_CREATURES_ANNOYED:
+            return "Crt Annoyed";
+        case SVar_BATTLES_LOST:
+            return "Battles Lost";
+        case SVar_BATTLES_WON:
+            return "Battles Won";
+        case SVar_ROOMS_DESTROYED:
+            return "Rooms Dest";
+        case SVar_SPELLS_STOLEN:
+            return "Spells Stolen";
+        case SVar_TIMES_BROKEN_INTO:
+            return "Intrusions";
+        case SVar_GHOSTS_RAISED:
+            return "Ghosts Raised";
+        case SVar_SKELETONS_RAISED:
+            return "Skel Raised";
+        case SVar_VAMPIRES_RAISED:
+            return "Vamp Raised";
+        case SVar_CREATURES_CONVERTED:
+            return "Crt Conv";
+        case SVar_TIMES_ANNOYED_CREATURE:
+            return "Times Annoyed";
+        case SVar_TOTAL_DOORS_MANUFACTURED:
+            return "Doors Manu";
+        case SVar_TOTAL_TRAPS_MANUFACTURED:
+            return "Traps Manu";
+        case SVar_TOTAL_MANUFACTURED:
+            return "Tot Manu";
+        case SVar_TOTAL_TRAPS_USED:
+            return "Traps Used";
+        case SVar_TOTAL_DOORS_USED:
+            return "Doors Used";
+        case SVar_KEEPERS_DESTROYED:
+            return "Keepers Dest";
+        case SVar_DESTROYED_KEEPER:
+            return "Keeper Dest";
+        case SVar_TIMES_LEVELUP_CREATURE:
+            return "Lvlup Count";
+        case SVar_TIMES_TORTURED_CREATURE:
+            return "Tortured Count";
+        case SVar_CREATURES_SACRIFICED:
+            return "Sacr";
+        case SVar_CREATURES_FROM_SACRIFICE:
+            return "From Sacr";
+        case SVar_TOTAL_SALARY:
+            return "Tot Salary";
+        case SVar_CURRENT_SALARY:
+            return "Curr Salary";
+        case SVar_GOLD_POTS_STOLEN:
+            return "Gold Stolen";
+        case SVar_HEART_HEALTH:
+            return "Heart Health";
+        case SVar_TIMER:
+            return "Timer";
+        case SVar_DUNGEON_DESTROYED:
+            return "Dungeon Dest";
+        case SVar_TOTAL_GOLD_MINED:
+            return "Gold Mined";
+        case SVar_FLAG:
+            return "Flag";
+        case SVar_ROOM_SLABS:
+        {
+            const char* room_name = room_code_name(validx);
+            snprintf(text, sizeof(text), "%s Count", room_name);
+            return text;
+        }
+        case SVar_DOORS_DESTROYED:
+            return "Doors Dest";
+        case SVar_CREATURES_SCAVENGED_LOST:
+            return "Scav Lost";
+        case SVar_CREATURES_SCAVENGED_GAINED:
+            return "Scav Gain";
+        case SVar_AVAILABLE_MAGIC:
+            return "Magic Avail";
+        case SVar_AVAILABLE_TRAP:
+        {
+            const char* trap_name = trap_code_name(validx);
+            snprintf(text, sizeof(text), "%s Avail", trap_name);
+            return text;
+        }
+        case SVar_AVAILABLE_DOOR:
+        {
+            const char* door_name = door_code_name(validx);
+            snprintf(text, sizeof(text), "%s Avail", door_name);
+            return text;
+        }
+        case SVar_AVAILABLE_ROOM:
+        {
+            const char* room_name = room_code_name(validx);
+            snprintf(text, sizeof(text), "%s Avail", room_name);
+            return text;
+        }
+        case SVar_AVAILABLE_CREATURE:
+        {
+            const char* creature_name = creature_code_name(validx);
+            snprintf(text, sizeof(text), "%s Avail", creature_name);
+            return text;
+        }
+        case SVar_AVAILABLE_TOTAL_TRAPS:
+            return "Traps Avail";
+        case SVar_AVAILABLE_TOTAL_DOORS:
+            return "Doors Avail";
+        case SVar_AVAILABLE_TOTAL_CREATURES:
+            return "Crt Avail";
+        case SVar_SLAB_OWNER:
+            return "Slab Owner";
+        case SVar_SLAB_TYPE:
+            return "Slab Type";
+        case SVar_CONTROLS_CREATURE:
+        {
+            const char* creature_name = creature_code_name(validx);
+            snprintf(text, sizeof(text), "Ctrl %s", creature_name);
+            return text;
+        }
+        case SVar_CONTROLS_TOTAL_CREATURES:
+            return "Ctrl Crt Tot";
+        case SVar_CONTROLS_TOTAL_DIGGERS:
+            return "Ctrl Diggers Tot";
+        case SVar_ALL_DUNGEONS_DESTROYED:
+            return "All Dungeons Dest";
+        case SVar_DOOR_NUM:
+        {
+            const char* door_name = door_code_name(validx);
+            snprintf(text, sizeof(text), "%s Count", door_name);
+            return text;
+        }
+        case SVar_TRAP_NUM:
+        {
+            const char* trap_name = trap_code_name(validx);
+            snprintf(text, sizeof(text), "%s Count", trap_name);
+            return text;
+        }
+        case SVar_GOOD_CREATURES:
+            return "Good Crt";
+        case SVar_EVIL_CREATURES:
+            return "Evil Crt";
+        case SVar_CONTROLS_GOOD_CREATURES:
+            return "Ctrl Good";
+        case SVar_CONTROLS_EVIL_CREATURES:
+            return "Ctrl Evil";
+        case SVar_CAMPAIGN_FLAG:
+            return "Cmpgn Flag";
+        case SVar_BOX_ACTIVATED:
+            return "Box Actived";
+        case SVar_TRAP_ACTIVATED:
+            return "Trap Actived";
+        case SVar_SACRIFICED:
+            return "Sacr";
+        case SVar_REWARDED:
+            return "Rewarded";
+        case SVar_EVIL_CREATURES_CONVERTED:
+            return "Evil Conv";
+        case SVar_GOOD_CREATURES_CONVERTED:
+            return "Good Conv";
+        case SVar_TRAPS_SOLD:
+            return "Traps Sold";
+        case SVar_DOORS_SOLD:
+            return "Doors Sold";
+        case SVar_MANUFACTURED_SOLD:
+            return "Manu Sold";
+        case SVar_MANUFACTURE_GOLD:
+            return "Manu Gold";
+        case SVar_TOTAL_SCORE:
+            return "Total Score";
+        case SVar_BONUS_TIME:
+            return "Bonus Time";
+        case SVar_CREATURES_TRANSFERRED:
+            return "Transferred";
+        case SVar_ALLIED_PLAYER:
+            return "Allied Player";
+        case SVar_ACTIVE_BATTLES:
+            return "Active Battles";
+        case SVar_VIEW_TYPE:
+            return "View Type";
+        case SVar_CONTROLLED_THING:
+            return "Cntrled";
+        case SVar_TOTAL_SLAPS:
+            return "Tot Slaps";
+        case SVar_SCORE:
+            return "Score";
+        case SVar_PLAYER_SCORE:
+            return "Plyr Score";
+        case SVar_MANAGE_SCORE:
+            return "Manage Score";
+        default:
+            return "Unknown";
+    };
 }
 
 TbBool condition_inactive(long cond_idx)

@@ -194,6 +194,7 @@ struct ScriptVariable{
     int32_t variable_target;
     unsigned char variable_target_type;
     TbBool include_label;
+    TbBool include_icon;
 };
 
 /******************************************************************************/
@@ -212,6 +213,7 @@ TbBool preload_script(long lvnum);
 /******************************************************************************/
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
+char* get_condition_label(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 short get_condition_icon(PlayerNumber plyr_idx, unsigned char valtype, short validx, int *pos_x, int *pos_y);
 void process_level_script(void);
 /******************************************************************************/
