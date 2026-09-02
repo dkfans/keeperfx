@@ -51,6 +51,7 @@
 #include "engine_camera.h"
 #include "map_columns.h"
 #include "game_legacy.h"
+#include "lua_triggers.h"
 #include "keeperfx.hpp"
 #include "bflib_planar.h"
 #include "post_inc.h"
@@ -3344,6 +3345,7 @@ static TbBool return_creature_from_abyss(struct Thing *thing)
     clear_thing_velocity(thing);
     move_thing_in_map(thing, &pos);
     reset_interpolation_of_thing(thing);
+    lua_on_creature_return_from_abyss(thing);
     return true;
 }
 
