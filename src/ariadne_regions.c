@@ -22,9 +22,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "ariadne_navitree.h"
 #include "ariadne_tringls.h"
-#include "player_data.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -51,43 +49,6 @@ static long RegionQueue[REGION_QUEUE_LEN];
 /******************************************************************************/
 struct RegionT bad_region;
 /******************************************************************************/
-TbBool navigation_regions_connected(int32_t first_triangle, int32_t second_triangle, PlayerNumber owner)
-{
-    if (!regions_connected(first_triangle, second_triangle)) {
-        return false;
-    }
-    if (owner < 0 || owner >= PLAYERS_COUNT) {
-        return true;
-    }
-    NavColour blocked_mask = NAVMAP_FLOORHEIGHT_MASK | 1 << (NAVMAP_OWNERSELECT_BIT + owner);
-    if ((get_triangle_tree_alt(first_triangle) & blocked_mask) >= NAVMAP_FLOORHEIGHT_MAX || (get_triangle_tree_alt(second_triangle) & blocked_mask) >= NAVMAP_FLOORHEIGHT_MAX) {
-        return true;
-    }
-    if (first_triangle == second_triangle) {
-        return true;
-    }
-    tags_init();
-    store_current_tag(first_triangle);
-    tree_val[0] = first_triangle;
-    for (uint32_t head = 0, tail = 1; head < tail; head++) {
-        for (int32_t edge = 0; edge < 3; edge++) {
-            int32_t next = Triangles[tree_val[head]].tags[edge];
-            if (next < 0 || is_current_tag(next)) {
-                continue;
-            }
-            if ((get_triangle_tree_alt(next) & blocked_mask) >= NAVMAP_FLOORHEIGHT_MAX) {
-                continue;
-            }
-            if (next == second_triangle) {
-                return true;
-            }
-            store_current_tag(next);
-            tree_val[tail++] = next;
-        }
-    }
-    return false;
-}
-
 /**
  * Allocates region ID.
  * @return The region ID, or 0 on failure.

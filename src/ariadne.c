@@ -323,6 +323,41 @@ static long navigation_rule_normal(NavColour treeA, NavColour treeB)
     return nav_thing_can_travel_over_lava;
 }
 
+static TbBool navigation_triangle_reachable(int32_t first_triangle, int32_t second_triangle)
+{
+    if (!regions_connected(first_triangle, second_triangle)) {
+        return false;
+    }
+    if (first_triangle == second_triangle) {
+        return true;
+    }
+    tags_init();
+    store_current_tag(first_triangle);
+    tree_val[0] = first_triangle;
+    for (uint32_t head = 0, tail = 1; head < tail; head++) {
+        int32_t triangle = tree_val[head];
+        for (int32_t edge = 0; edge < 3; edge++) {
+            int32_t next = Triangles[triangle].tags[edge];
+            if (next < 0 || is_current_tag(next)) {
+                continue;
+            }
+            NavColour next_alt = get_triangle_tree_alt(next);
+            if ((next_alt & NAVMAP_FLOORHEIGHT_MASK) == NAVMAP_FLOORHEIGHT_MAX) {
+                continue;
+            }
+            if (!navigation_rule_normal(get_triangle_tree_alt(triangle), next_alt)) {
+                continue;
+            }
+            if (next == second_triangle) {
+                return true;
+            }
+            store_current_tag(next);
+            tree_val[tail++] = next;
+        }
+    }
+    return false;
+}
+
 void set_nav_rule_default(void)
 {
     nav_rulesA2B = navigation_rule_normal;
@@ -3235,7 +3270,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
         return;
     }
     NAVIDBG(19,"%s: prepared triangles %ld -> %ld", func_name,tree_triA,tree_triB);
-    if (!navigation_regions_connected(tree_triA, tree_triB, owner_player_navigating))
+    if (!navigation_triangle_reachable(tree_triA, tree_triB))
     {
         NAVIDBG(9,"%s: Regions not connected, cannot trace a path.", func_name);
         return;
