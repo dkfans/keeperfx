@@ -11638,3 +11638,11 @@ FloorTexture = 27
 Orientation = 0
 Cubes = [535, 0, 0, 0, 0, 0, 0, 0]
 
+[column1455]
+Lintel = 0
+Height = 0
+SolidMask = 0
+FloorTexture = 1000
+Orientation = 0
+Cubes = [0, 0, 0, 0, 0, 0, 0, 0]
+

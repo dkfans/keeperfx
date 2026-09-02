@@ -220,6 +220,7 @@ enum OverheadMapStyle {
     OMapSt_Gold,
     OMapSt_Gems,
     OMapSt_Wall,
+    OMapSt_Abyss,
 };
 
 static TbPixel get_player_path_colour(unsigned short owner)
@@ -261,6 +262,9 @@ static int get_overhead_mapblock_style(const struct Map* mapblk, const struct Sl
     }
     if (slb->kind == SlbT_ROCK_FLOOR) {
         return pixmap.ghost[3];
+    }
+    if (subtile_has_abyss_on_top(slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
+        return OMapSt_Abyss;
     }
     if ((mapblk->flags & SlbAtFlg_Filled) != 0) {
         return OMapSt_Wall;
@@ -340,6 +344,8 @@ void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNum
                 add = 102;
             } else if (style == OMapSt_Wall) {
                 remap = &pixmap.ghost[0x1000];
+            } else if (style == OMapSt_Abyss) {
+                remap = pixmap.map_abyss;
             }
             unsigned char* dstline = dstblock;
             for (int32_t y = 0; y < block_size; y++) {

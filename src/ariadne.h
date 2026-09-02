@@ -142,6 +142,7 @@ enum NavigationStateValues {
 #define NAVMAP_UNSAFE_SURFACE   0x10
 #define NAVMAP_OWNERSELECT_BIT  5
 #define NAVMAP_OWNERSELECT_MASK 0x3FE0
+#define NAVMAP_ABYSS            0x4000
 
 struct Ariadne { // sizeof = 102
     /** Position where the journey stated. */

@@ -53,6 +53,7 @@ void reset_interpolation_of_thing(struct Thing *thing);
 /******************************************************************************/
 extern long owner_player_navigating;
 extern long nav_thing_can_travel_over_lava;
+extern int32_t nav_thing_is_flying;
 
 #pragma pack()
 /******************************************************************************/
