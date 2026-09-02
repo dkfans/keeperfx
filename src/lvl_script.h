@@ -198,6 +198,14 @@ struct ScriptVariable{
     short icon_idx;
 };
 
+struct ScriptVariableDetails{
+    long value;
+    const char* label;
+    short icon_idx;
+    int x_offset;
+    int y_offset;
+};
+
 /******************************************************************************/
 extern unsigned char next_command_reusable;
 
@@ -213,9 +221,9 @@ TbBool script_scan_line(char *line,TbBool preloaded, long file_version);
 TbBool preload_script(long lvnum);
 /******************************************************************************/
 
+struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 const char* get_condition_label(PlayerNumber plyr_idx, unsigned char valtype, short validx);
-short get_condition_icon(PlayerNumber plyr_idx, unsigned char valtype, short validx, int *pos_x, int *pos_y);
 void process_level_script(void);
 /******************************************************************************/
 #ifdef __cplusplus

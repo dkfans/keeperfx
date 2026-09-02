@@ -732,36 +732,36 @@ void draw_script_variable_list(void)
             int sprite_x = scr_x;
             int sprite_y = scr_y;
 
-            long value = get_condition_value(scval.variable_player, scval.value_type, scval.value_id);
+            struct ScriptVariableDetails details = get_condition_details(scval.variable_player, scval.value_type, scval.value_id);
+            sprite_x += details.x_offset;
+            sprite_y += details.y_offset;
             short icon_idx = scval.icon_idx;
             if(scval.include_icon && icon_idx < 0)
-                icon_idx = get_condition_icon(scval.variable_player, scval.value_type, scval.value_id, &sprite_x, &sprite_y);
+                icon_idx = details.icon_idx;
             if (scval.variable_target != 0)
             {
                 if ((scval.variable_target_type == 0) || (scval.variable_target_type == 2) )
                 {
-                    value = scval.variable_target - value;
+                    details.value = scval.variable_target - details.value;
                 }
                 else if (scval.variable_target_type == 1)
                 {
-                    value = ((~scval.variable_target)+1) + value;
+                    details.value = ((~scval.variable_target)+1) + details.value;
                 }
             }
             if (scval.variable_target_type != 2)
             {
-                if (value < 0)
+                if (details.value < 0)
                 {
-                    value = 0;
+                    details.value = 0;
                 }
             }
             char value_text[32];
-            snprintf(value_text, sizeof(value_text), "%ld", value);
+            snprintf(value_text, sizeof(value_text), "%ld", details.value);
 
             if(scval.include_label) {
-                const char* label = get_condition_label(scval.variable_player, scval.value_type, scval.value_id);
-                
                 RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
-                LbTextDrawResized(20, y + label_offset, (12 * units_per_pixel) / LbTextLineHeight(),label);
+                LbTextDrawResized(20, y + label_offset, (12 * units_per_pixel) / LbTextLineHeight(),details.label);
             }
             if ((icon_idx > -1 && scval.include_icon) || contains_labels) {
                 RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);          

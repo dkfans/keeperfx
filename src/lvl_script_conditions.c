@@ -38,50 +38,67 @@ extern "C" {
 static int script_current_condition = 0;
 static unsigned short condition_stack_pos;
 static unsigned short condition_stack[CONDITIONS_COUNT];
-
-short get_condition_icon(PlayerNumber plyr_idx, unsigned char valtype, short validx, int *pos_x, int *pos_y)
+struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
-    short icon_idx = -1;
-    double y_offset = 2.5;
-    double x_offset = 3.5;
+    struct ScriptVariableDetails details = {
+        .value = get_condition_value(plyr_idx, valtype, validx),
+        .label = get_condition_label(plyr_idx, valtype, validx),
+        .icon_idx = -1,
+        .x_offset = 3.5 * units_per_pixel / 16,
+        .y_offset = 2.5 * units_per_pixel / 16,
+    };
+
     switch (valtype)
     {
         case SVar_AVAILABLE_CREATURE:
         case SVar_CONTROLS_CREATURE:
         case SVar_CREATURE_NUM:
-            icon_idx = get_creature_model_graphics(validx, CGI_HandSymbol);
-            x_offset = 5;
-            y_offset = -2;
+            details.icon_idx = get_creature_model_graphics(validx, CGI_HandSymbol);
+            details.x_offset = 5 * units_per_pixel / 16;
+            details.y_offset = -2 * units_per_pixel / 16;
             break;
+
         case SVar_AVAILABLE_ROOM:
         case SVar_ROOM_SLABS:
-            const struct RoomConfigStats* roomst = get_room_kind_stats(validx);
-            icon_idx = roomst->medsym_sprite_idx;
+        {
+            const struct RoomConfigStats *roomst = get_room_kind_stats(validx);
+            details.icon_idx = roomst->medsym_sprite_idx;
             break;
+        }
+
         case SVar_TRAP_NUM:
         case SVar_AVAILABLE_TRAP:
-            struct TrapConfigStats* trapst = get_trap_model_stats(validx);
-            icon_idx = trapst->medsym_sprite_idx;
+        {
+            struct TrapConfigStats *trapst = get_trap_model_stats(validx);
+            details.icon_idx = trapst->medsym_sprite_idx;
             break;
+        }
+
         case SVar_DOOR_NUM:
         case SVar_AVAILABLE_DOOR:
-            struct DoorConfigStats* doorst = get_door_model_stats(validx);
-            icon_idx = doorst->medsym_sprite_idx;
+        {
+            struct DoorConfigStats *doorst = get_door_model_stats(validx);
+            details.icon_idx = doorst->medsym_sprite_idx;
             break;
+        }
+
         case SVar_MONEY:
         case SVar_TOTAL_GOLD_MINED:
         case SVar_GOLD_POTS_STOLEN:
         case SVar_MANUFACTURE_GOLD:
-            icon_idx = GPS_symbols_goldpot_sml;
+            details.icon_idx = GPS_symbols_goldpot_sml;
             break;
+
         case SVar_TOTAL_SALARY:
         case SVar_CURRENT_SALARY:
-            icon_idx = GPS_symbols_creatr_stat_wage_std;
+            details.icon_idx = GPS_symbols_creatr_stat_wage_std;
             break;
+
         case SVar_TOTAL_DIGGERS:
         case SVar_CONTROLS_TOTAL_DIGGERS:
-            icon_idx = GPS_crspell_dig_std_s;
+            details.icon_idx = GPS_crspell_dig_std_s;
             break;
+
         case SVar_TOTAL_CREATURES:
         case SVar_TOTAL_CREATURES_LEFT:
         case SVar_CONTROLS_TOTAL_CREATURES:
@@ -93,81 +110,80 @@ short get_condition_icon(PlayerNumber plyr_idx, unsigned char valtype, short val
         case SVar_CREATURES_SACRIFICED:
         case SVar_CREATURES_FROM_SACRIFICE:
         case SVar_CREATURES_TRANSFERRED:
-            icon_idx = GPS_message_rpanel_msg_creatr_std;
-            x_offset = 0;
+            details.icon_idx = GPS_message_rpanel_msg_creatr_std;
+            details.x_offset = 0;
             break;
 
         case SVar_TOTAL_RESEARCH:
-            icon_idx = GPS_room_research_std_s;
+            details.icon_idx = GPS_room_research_std_s;
             break;
 
         case SVar_CREATURES_ANNOYED:
-            icon_idx = GPS_symbols_creatr_mood_angry_std;
+            details.icon_idx = GPS_symbols_creatr_mood_angry_std;
             break;
 
         case SVar_BATTLES_LOST:
         case SVar_BATTLES_WON:
         case SVar_ACTIVE_BATTLES:
-            icon_idx = GPS_message_rpanel_msg_battle_std;            
-            x_offset = 0;
+            details.icon_idx = GPS_message_rpanel_msg_battle_std;
+            details.x_offset = 0;
             break;
 
         case SVar_ROOMS_DESTROYED:
-            icon_idx = GPS_message_rpanel_msg_room_std;            
-            x_offset = 0;
+            details.icon_idx = GPS_message_rpanel_msg_room_std;
+            details.x_offset = 0;
             break;
 
         case SVar_SPELLS_STOLEN:
-            icon_idx = GPS_message_rpanel_msg_spell_std;
-            x_offset = 0;
+            details.icon_idx = GPS_message_rpanel_msg_spell_std;
+            details.x_offset = 0;
             break;
 
         case SVar_KEEPERS_DESTROYED:
         case SVar_DESTROYED_KEEPER:
-            icon_idx = GPS_symbols_creatr_stat_kills_std;        
+            details.icon_idx = GPS_symbols_creatr_stat_kills_std;
             break;
+
         case SVar_DUNGEON_DESTROYED:
-            //heart_dis.png
-            icon_idx = 830;
+            details.icon_idx = 830;
             break;
+
         case SVar_HEART_HEALTH:
-            //heart_std.png
-            icon_idx = 829;
+            details.icon_idx = 829;
             break;
 
         case SVar_GHOSTS_RAISED:
-            icon_idx = GPS_creatr_icon_ghost_std;
-            x_offset = 5;
-            y_offset = -2;
+            details.icon_idx = GPS_creatr_icon_ghost_std;
+            details.x_offset = 5 * units_per_pixel / 16;
+            details.y_offset = -2 * units_per_pixel / 16;
             break;
 
         case SVar_SKELETONS_RAISED:
-            icon_idx = GPS_creatr_icon_skelt_std;
-            x_offset = 5;
-            y_offset = -2;
+            details.icon_idx = GPS_creatr_icon_skelt_std;
+            details.x_offset = 5 * units_per_pixel / 16;
+            details.y_offset = -2 * units_per_pixel / 16;
             break;
 
         case SVar_VAMPIRES_RAISED:
-            icon_idx = GPS_creatr_icon_vampr_std;
-            x_offset = 5;
-            y_offset = -2;
+            details.icon_idx = GPS_creatr_icon_vampr_std;
+            details.x_offset = 5 * units_per_pixel / 16;
+            details.y_offset = -2 * units_per_pixel / 16;
             break;
 
         case SVar_TOTAL_MANUFACTURED:
         case SVar_MANUFACTURED_SOLD:
-            icon_idx = GPS_message_rpanel_msg_manufct_std;
-            x_offset = 0;
+            details.icon_idx = GPS_message_rpanel_msg_manufct_std;
+            details.x_offset = 0;
             break;
 
         case SVar_GAME_TURN:
         case SVar_TIMER:
         case SVar_BONUS_TIME:
-            icon_idx = GPS_symbols_creatr_stat_age_std;
+            details.icon_idx = GPS_symbols_creatr_stat_age_std;
             break;
     }
-    *pos_y += y_offset * units_per_pixel / 16;
-    *pos_x += x_offset * units_per_pixel / 16;
-    return icon_idx;
+
+    return details;
 }
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx)
