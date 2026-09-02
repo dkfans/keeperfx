@@ -27,6 +27,7 @@
 #include "keeperfx.hpp"
 #include "bflib_math.h"
 #include "lvl_script_lib.h"
+#include "sprites.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -48,31 +49,101 @@ short get_condition_icon(PlayerNumber plyr_idx, unsigned char valtype, short val
         case SVar_CONTROLS_CREATURE:
         case SVar_CREATURE_NUM:
             icon_idx = get_creature_model_graphics(validx, CGI_HandSymbol);
-            *pos_x += 20;
-            // *pos_y += 10;
+            *pos_x += 5 * units_per_pixel / 16;
             break;
         case SVar_AVAILABLE_ROOM:
         case SVar_ROOM_SLABS:
             const struct RoomConfigStats* roomst = get_room_kind_stats(validx);
-            icon_idx = roomst->medsym_sprite_idx;            
-            *pos_x += 10;
-            *pos_y += 14;
+            icon_idx = roomst->medsym_sprite_idx;
+            *pos_x += 2.5 * units_per_pixel / 16;
+            *pos_y += 3.5 * units_per_pixel / 16;
             break;
         case SVar_TRAP_NUM:
         case SVar_AVAILABLE_TRAP:
             struct TrapConfigStats* trapst = get_trap_model_stats(validx);
-            icon_idx = trapst->medsym_sprite_idx;
-            *pos_x += 10;
-            *pos_y += 14;
+            icon_idx = trapst->medsym_sprite_idx;           
+            *pos_x += 2.5 * units_per_pixel / 16;
+            *pos_y += 3.5 * units_per_pixel / 16;
             break;
         case SVar_DOOR_NUM:
         case SVar_AVAILABLE_DOOR:
             struct DoorConfigStats* doorst = get_door_model_stats(validx);
-            icon_idx = doorst->medsym_sprite_idx;
-            *pos_x += 10;
-            *pos_y += 14;
+            icon_idx = doorst->medsym_sprite_idx;           
+            *pos_x += 2.5 * units_per_pixel / 16;
+            *pos_y += 3.5 * units_per_pixel / 16;
             break;
         case SVar_MONEY:
+        case SVar_TOTAL_GOLD_MINED:
+        case SVar_GOLD_POTS_STOLEN:
+        case SVar_TOTAL_SALARY:
+        case SVar_CURRENT_SALARY:
+        case SVar_MANUFACTURE_GOLD:
+            icon_idx = GPS_symbols_goldpot_sml;
+            break;
+
+        case SVar_TOTAL_DIGGERS:
+        case SVar_CONTROLS_TOTAL_DIGGERS:
+            icon_idx = GPS_creatr_icon_imp_std;
+            break;
+
+        case SVar_TOTAL_CREATURES:
+        case SVar_TOTAL_CREATURES_LEFT:
+        case SVar_CONTROLS_TOTAL_CREATURES:
+        case SVar_GOOD_CREATURES:
+        case SVar_EVIL_CREATURES:
+        case SVar_CONTROLS_GOOD_CREATURES:
+        case SVar_CONTROLS_EVIL_CREATURES:
+        case SVar_CREATURES_CONVERTED:
+        case SVar_CREATURES_SACRIFICED:
+        case SVar_CREATURES_FROM_SACRIFICE:
+        case SVar_CREATURES_TRANSFERRED:
+            icon_idx = GPS_message_rpanel_msg_creatr_std;
+            break;
+
+        case SVar_TOTAL_RESEARCH:
+            icon_idx = GPS_room_research_std_s;
+            break;
+
+        case SVar_CREATURES_ANNOYED:
+            icon_idx = GPS_symbols_creatr_mood_angry_std;
+            break;
+
+        case SVar_BATTLES_LOST:
+        case SVar_BATTLES_WON:
+        case SVar_ACTIVE_BATTLES:
+            icon_idx = GPS_message_rpanel_msg_battle_std;
+            break;
+
+        case SVar_ROOMS_DESTROYED:
+            icon_idx = GPS_message_rpanel_msg_room_std;
+            break;
+
+        case SVar_SPELLS_STOLEN:
+            icon_idx = GPS_message_rpanel_msg_spell_std;
+            break;
+
+        case SVar_DUNGEON_DESTROYED:
+        case SVar_KEEPERS_DESTROYED:
+        case SVar_DESTROYED_KEEPER:
+        case SVar_HEART_HEALTH:
+            icon_idx = GPS_symbols_heartcircle;
+            break;
+
+        case SVar_GHOSTS_RAISED:
+            icon_idx = GPS_creatr_icon_ghost_std;
+            break;
+
+        case SVar_SKELETONS_RAISED:
+            icon_idx = GPS_creatr_icon_skelt_std;
+            break;
+
+        case SVar_VAMPIRES_RAISED:
+            icon_idx = GPS_creatr_icon_vampr_std;
+            break;
+
+        case SVar_TOTAL_MANUFACTURED:
+        case SVar_MANUFACTURED_SOLD:
+            icon_idx = GPS_rpanel_manufacture_std;
             break;
     }
     return icon_idx;
