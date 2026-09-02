@@ -1268,6 +1268,7 @@ static void display_player_information_check(const struct ScriptLine* scline)
     value->ulongs[1] = location;
     value->shorts[3] = x;
     value->shorts[4] = y;
+    value->shorts[5] = -1;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
