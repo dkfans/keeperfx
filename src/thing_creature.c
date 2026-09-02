@@ -6422,6 +6422,16 @@ TngUpdateRet update_creature(struct Thing *thing)
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
+    if (thing->active_state == CrSt_CreatureOutOfPlay) {
+        if ((GameTurnDelta)(cctrl->wait_to_turn - get_gameturn()) > 0) {
+            return TUFRet_Modified;
+        }
+        remove_thing_from_creature_controlled_limbo(thing);
+        if (thing->light_id != 0) {
+            light_turn_light_on(thing->light_id);
+        }
+        set_start_state(thing);
+    }
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn < get_gameturn()))
     {
         create_effect_around_thing(thing, ball_puff_effects[get_player_color_idx(thing->owner)]);
