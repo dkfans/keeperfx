@@ -664,21 +664,17 @@ void draw_script_variable_list(void)
 {
     LbTextSetFont(winfont);    
     int valid_vars = 0;
-    TbBool contains_labels = false;
 
     for (int i = 0; i < game.active_script_var_count; i++)
     {
         if (game.script_variables[i].variable_player == my_player_number)
             valid_vars++;
-
-        if (game.script_variables[i].include_icon)
-            contains_labels = true;
     }
 
     int h = LbTextLineHeight();
     int row_height = h * units_per_pixel / 16;
     
-    long width = (contains_labels ? 12 : 10) * (LbTextCharWidth('0') * units_per_pixel / 16);
+    long width = 8 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = row_height + (row_height) / 2;
     if (MyScreenHeight < 400)
     {
