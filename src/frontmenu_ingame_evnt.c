@@ -674,7 +674,7 @@ void draw_script_variable_list(void)
     int h = LbTextLineHeight();
     int row_height = h * units_per_pixel / 16;
     
-    long width = 8 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = row_height + (row_height) / 2;
     if (MyScreenHeight < 400)
     {
@@ -701,10 +701,14 @@ void draw_script_variable_list(void)
     {
         scr_x -= ((width + (width >> 1)) - 16 * units_per_pixel / 16);
     }
-
+    long padding = 8 * units_per_pixel / 16;
     height += row_height*(valid_vars-1);
-    LbTextSetWindow(scr_x, scr_y, width, height);    
-    draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
+    draw_round_slab64k(scr_x, scr_y, units_per_pixel, width, height + padding, ROUNDSLAB64K_DARK);
+   
+    scr_y += padding;
+    width -= 4 * units_per_pixel / 16;    
+    LbTextSetWindow(scr_x, scr_y, width, height);  
+    // draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int y;
     int tx_units_per_px;
             
@@ -723,7 +727,7 @@ void draw_script_variable_list(void)
         struct ScriptVariable scval = game.script_variables[i];
         if ((scval.variable_player == my_player_number))
         {
-            int sprite_x = scr_x;
+            int sprite_x = scr_x + 4 * units_per_pixel / 16;
             int sprite_y = scr_y;
 
             struct ScriptVariableDetails details = get_condition_details(scval.variable_player, scval.value_type, scval.value_id);
