@@ -197,12 +197,20 @@ struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsign
             details.icon_idx = 843;
             break;
 
+        case SVar_AVAILABLE_TOTAL_TRAPS:    
+        case SVar_TOTAL_TRAPS:
+        case SVar_TOTAL_TRAPS_MANUFACTURED:
+        case SVar_TOTAL_TRAPS_USED:
+        case SVar_TRAP_ACTIVATED:
+        case SVar_TRAPS_SOLD:
+            details.icon_idx = GPS_trapdoor_trap_boulder_std_l;
+            break;
+
         case SVar_ACTION_POINT_TRIGGERED:
         case SVar_ALL_DUNGEONS_DESTROYED:
         case SVar_ALLIED_PLAYER:
         case SVar_AVAILABLE_MAGIC:
-        case SVar_AVAILABLE_TOTAL_CREATURES:
-        case SVar_AVAILABLE_TOTAL_TRAPS:      
+        case SVar_AVAILABLE_TOTAL_CREATURES:  
         case SVar_CAMPAIGN_FLAG:
         case SVar_CONTROLLED_THING:
         case SVar_EVIL_CREATURES_CONVERTED:
@@ -219,12 +227,7 @@ struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsign
         case SVar_TIMES_LEVELUP_CREATURE:
         case SVar_TIMES_TORTURED_CREATURE:
         case SVar_TOTAL_AREA:      
-        case SVar_TOTAL_SCORE:
-        case SVar_TOTAL_TRAPS:
-        case SVar_TOTAL_TRAPS_MANUFACTURED:
-        case SVar_TOTAL_TRAPS_USED:
-        case SVar_TRAP_ACTIVATED:
-        case SVar_TRAPS_SOLD:
+        case SVar_TOTAL_SCORE:        
         case SVar_VIEW_TYPE:
         case SVar_CREATURES_SCAVENGED_GAINED:
         case SVar_CREATURES_SCAVENGED_LOST:
