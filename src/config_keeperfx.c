@@ -165,7 +165,7 @@ const struct NamedCommand conf_commands[] = {
   {"VSYNC"                         , 44},
   {"RELATIVE_MOUSE_MODE"           , 45},
   {"CAPTURE_CURSOR"                , 46},
-  {"MP_PORT"                       , 48},
+  {"MULTIPLAYER_PORT"              , 48},
   {NULL,                   0},
   };
 
@@ -1030,7 +1030,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           if (i!=1) lbMouseGrab = false;
           break;
-      case 48: // MP_PORT
+      case 48: // MULTIPLAYER_PORT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
@@ -1038,7 +1038,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           if (i > 0 && i <= UINT16_MAX) {
             enet_port = i;
           } else {
-            CONFWRNLOG("Invalid MP_PORT '%s' in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+            CONFWRNLOG("Invalid MULTIPLAYER_PORT '%s' in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
       case ccr_comment:
