@@ -68,6 +68,7 @@ enum ThingFlags2 {
     TF2_CreatureIsMoving              = 0x01,
     TF2_Spectator           = 0x02,
     TF2_SummonedCreature    = 0x04,
+    TF2_CreatureOutOfPlay   = 0x08,
 };
 
 enum ThingRenderingFlags {

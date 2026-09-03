@@ -2,7 +2,7 @@
 -- Entry points for engine-triggered events (e.g. OnPowerCast, OnGameTick).
 -- These functions are called by the C engine and dispatch event data to the Lua trigger system.
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"PickUp"|"Slap"|"Rebirth"|"ReturnFromAbyss"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"|"ShotHitThing"|"Destroyed"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"|"PickUp"|"Slap"|"Rebirth"|"CreatureFellIntoAbyss"|"SlabKindChange"|"SlabOwnerChange"|"RoomOwnerChange"|"ShotHitThing"|"Destroyed"
 
 --- Called when a spell is cast on a unit
 --- @param pwkind power_kind
@@ -126,10 +126,10 @@ function OnCreatureRebirth(unit)
     ProcessEvent("Rebirth",eventData)
 end
 
-function OnCreatureReturnFromAbyss(unit)
+function OnCreatureFellIntoAbyss(unit)
     local eventData = {}
     eventData.unit = unit
-    ProcessEvent("ReturnFromAbyss",eventData)
+    ProcessEvent("CreatureFellIntoAbyss",eventData)
 end
 
 --- Called when a slab changed

@@ -808,6 +808,7 @@ void clear_thing_acceleration(struct Thing* thing)
     thing->veloc_push_add.x.val = 0;
     thing->veloc_push_add.y.val = 0;
     thing->veloc_push_add.z.val = 0;
+    clear_flag(thing->state_flags, TF1_PushAdd);
 }
 
 void clear_thing_velocity(struct Thing* thing)
@@ -815,6 +816,10 @@ void clear_thing_velocity(struct Thing* thing)
     thing->veloc_base.x.val = 0;
     thing->veloc_base.y.val = 0;
     thing->veloc_base.z.val = 0;
+    thing->veloc_push_once.x.val = 0;
+    thing->veloc_push_once.y.val = 0;
+    thing->veloc_push_once.z.val = 0;
+    clear_flag(thing->state_flags, TF1_PushOnce);
 }
 
 /**

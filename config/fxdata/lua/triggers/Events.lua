@@ -114,10 +114,10 @@ function RegisterCreatureRebirthEvent(action, unit)
     return trigger
 end
 
-function RegisterCreatureReturnFromAbyssEvent(action, unit)
+function RegisterCreatureFellIntoAbyssEvent(action, unit)
     local trigData = {unit = unit}
 
-    local trigger = CreateTrigger("ReturnFromAbyss",action,trigData)
+    local trigger = CreateTrigger("CreatureFellIntoAbyss",action,trigData)
     if unit then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.unit == triggerData.unit end)
     end

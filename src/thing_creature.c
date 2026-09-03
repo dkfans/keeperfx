@@ -6422,10 +6422,11 @@ TngUpdateRet update_creature(struct Thing *thing)
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
-    if (thing->active_state == CrSt_CreatureOutOfPlay) {
+    if (flag_is_set(cctrl->creature_state_flags, TF2_CreatureOutOfPlay)) {
         if ((GameTurnDelta)(cctrl->wait_to_turn - get_gameturn()) > 0) {
             return TUFRet_Modified;
         }
+        clear_flag(cctrl->creature_state_flags, TF2_CreatureOutOfPlay);
         remove_thing_from_creature_controlled_limbo(thing);
         if (thing->light_id != 0) {
             light_turn_light_on(thing->light_id);
@@ -7924,6 +7925,11 @@ void script_move_creature(struct Thing* thing, TbMapLocation location, ThingMode
         create_effect(&pos, effect_id, game.neutral_player_num);
     }
     move_thing_in_map(thing, &pos);
+    if (flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+        clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
+        clear_thing_acceleration(thing);
+        clear_thing_velocity(thing);
+    }
     reset_interpolation_of_thing(thing);
     if (!is_thing_some_way_controlled(thing))
     {

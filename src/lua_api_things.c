@@ -197,6 +197,8 @@ static int lua_remove_creature_from_play(lua_State *L)
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     initialise_thing_state(thing, CrSt_CreatureOutOfPlay);
+    clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
+    set_flag(cctrl->creature_state_flags, TF2_CreatureOutOfPlay);
     clear_thing_acceleration(thing);
     clear_thing_velocity(thing);
     cctrl->wait_to_turn = get_gameturn() + (GameTurn)turns;
