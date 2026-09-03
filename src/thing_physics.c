@@ -808,6 +808,7 @@ void clear_thing_acceleration(struct Thing* thing)
     thing->veloc_push_add.x.val = 0;
     thing->veloc_push_add.y.val = 0;
     thing->veloc_push_add.z.val = 0;
+    clear_flag(thing->state_flags, TF1_PushAdd);
 }
 
 void clear_thing_velocity(struct Thing* thing)
@@ -815,6 +816,10 @@ void clear_thing_velocity(struct Thing* thing)
     thing->veloc_base.x.val = 0;
     thing->veloc_base.y.val = 0;
     thing->veloc_base.z.val = 0;
+    thing->veloc_push_once.x.val = 0;
+    thing->veloc_push_once.y.val = 0;
+    thing->veloc_push_once.z.val = 0;
+    clear_flag(thing->state_flags, TF1_PushOnce);
 }
 
 /**
@@ -889,12 +894,12 @@ TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing)
     return false;
 }
 
-unsigned short push_thingz_against_wall_at(const struct Thing *thing, const struct Coord3d *pos)
+MapCoord push_thingz_against_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
   unsigned short clipbox_size = thing->clipbox_size_z;
   long height = get_ceiling_height_above_thing_at(thing, pos);
-  short z_thing = (short)thing->mappos.z.val;
-  short z_pos = (short)pos->z.val;
+  MapCoord z_thing = thing->mappos.z.val;
+  MapCoord z_pos = pos->z.val;
   if ( (height - 1) <= (z_pos + clipbox_size) )
   {
     return (height - clipbox_size) - 1;
@@ -905,7 +910,7 @@ unsigned short push_thingz_against_wall_at(const struct Thing *thing, const stru
   }
   if ( z_pos < z_thing )
   {
-    return (z_pos & 0xFF00) + COORD_PER_STL;
+    return (z_pos & 0xFFFFFF00) + COORD_PER_STL;
   }
   return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) + 255);
 }

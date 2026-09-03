@@ -1951,6 +1951,19 @@ static short process_command_line(unsigned short argc, char *argv[])
               narg++;
           }
       }
+      else if (strcasecmp(parstr, "nick") == 0)
+      {
+          if (pr2str[0])
+          {
+              snprintf(net_player_name, sizeof(net_player_name), "%s", pr2str);
+              snprintf(tmp_net_player_name, sizeof(net_player_name), "%s", pr2str);
+              narg++;
+          }
+          else
+          {
+              WARNMSG("No player name given after -nick");
+          }
+      }
       else if (strcasecmp(parstr,"frameskip") == 0)
       {
          start_params.frame_skip = atoi(pr2str);

@@ -42,13 +42,16 @@
 #include "map_data.h"
 #include "map_utils.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "config_magic.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
+#include "room_data.h"
 #include "player_instances.h"
 #include "engine_camera.h"
 #include "map_columns.h"
 #include "game_legacy.h"
+#include "lua_triggers.h"
 #include "keeperfx.hpp"
 #include "bflib_planar.h"
 #include "post_inc.h"
@@ -3333,6 +3336,9 @@ TbBool update_thing(struct Thing *thing)
     TbBool falling = flag_is_set(thing->state_flags, TF1_FallingIntoAbyss);
     if (falling) {
         clear_thing_acceleration(thing);
+        thing->veloc_push_once.x.val = 0;
+        thing->veloc_push_once.y.val = 0;
+        thing->veloc_push_once.z.val = 0;
         clear_flag(thing->state_flags, TF1_PushOnce);
         if (thing->abyss_fall_sound_delay > 0) {
             thing->abyss_fall_sound_delay--;
@@ -3374,6 +3380,13 @@ TbBool update_thing(struct Thing *thing)
         classfunc = NULL;
     if (classfunc == NULL)
         return false;
+    if ((!falling || thing_is_creature(thing)) && (classfunc(thing) == TUFRet_Deleted)) {
+        return false;
+    }
+    if (flag_is_set(thing->state_flags, TF1_InCtrldLimbo)) {
+        return true;
+    }
+    falling = flag_is_set(thing->state_flags, TF1_FallingIntoAbyss);
     if (falling) {
         thing->velocity.z.val = clamp(thing->velocity.z.val, -CREATURE_TERMINAL_VELOCITY, CREATURE_TERMINAL_VELOCITY);
         struct Coord3d pos;
@@ -3389,9 +3402,6 @@ TbBool update_thing(struct Thing *thing)
         thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
     }
     else {
-        if (classfunc(thing) == TUFRet_Deleted) {
-            return false;
-        }
         if ((thing->class_id != TCls_EffectElem) && !flag_is_set(thing->movement_flags, TMvF_Immobile) && !flag_is_set(thing->movement_flags, TMvF_Flying) && (thing->fall_acceleration != 0) && (thing->mappos.z.val <= 0) && subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
             set_flag(thing->state_flags, TF1_FallingIntoAbyss);
             falling = true;
@@ -3403,6 +3413,10 @@ TbBool update_thing(struct Thing *thing)
     }
     if (falling && (thing->mappos.z.val <= -subtile_coord(ABYSS_DEPTH, 0))) {
         if (thing_is_creature(thing)) {
+            lua_on_creature_fell_into_abyss(thing);
+            if (!flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+                return true;
+            }
             kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         } else {
             destroy_thing(thing);
