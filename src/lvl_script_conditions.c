@@ -43,7 +43,7 @@ struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsign
     struct ScriptVariableDetails details = {
         .value = get_condition_value(plyr_idx, valtype, validx),
         .icon_idx = -1,
-        .x_offset = 3.5 * units_per_pixel / 16,
+        .x_offset = 0,
         .y_offset = 2.5 * units_per_pixel / 16,
     };
 
@@ -53,7 +53,7 @@ struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsign
         case SVar_CONTROLS_CREATURE:
         case SVar_CREATURE_NUM:
             details.icon_idx = get_creature_model_graphics(validx, CGI_HandSymbol);
-            details.x_offset = 5 * units_per_pixel / 16;
+            details.x_offset = 1 * units_per_pixel / 16;
             details.y_offset = -2 * units_per_pixel / 16;
             break;
 
@@ -110,13 +110,13 @@ struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsign
         case SVar_CREATURES_FROM_SACRIFICE:
         case SVar_CREATURES_TRANSFERRED:
             details.icon_idx = GPS_message_rpanel_msg_creatr_std;
-            details.x_offset = 0;
             break;
 
         case SVar_TOTAL_RESEARCH:
             details.icon_idx = GPS_room_research_std_s;
             break;
 
+        case SVar_TIMES_ANNOYED_CREATURE:
         case SVar_CREATURES_ANNOYED:
             details.icon_idx = GPS_symbols_creatr_mood_angry_std;
             break;
@@ -125,17 +125,14 @@ struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsign
         case SVar_BATTLES_WON:
         case SVar_ACTIVE_BATTLES:
             details.icon_idx = GPS_message_rpanel_msg_battle_std;
-            details.x_offset = 0;
             break;
 
         case SVar_ROOMS_DESTROYED:
             details.icon_idx = GPS_message_rpanel_msg_room_std;
-            details.x_offset = 0;
             break;
 
         case SVar_SPELLS_STOLEN:
             details.icon_idx = GPS_message_rpanel_msg_spell_std;
-            details.x_offset = 0;
             break;
 
         case SVar_KEEPERS_DESTROYED:
@@ -153,32 +150,88 @@ struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsign
 
         case SVar_GHOSTS_RAISED:
             details.icon_idx = GPS_creatr_icon_ghost_std;
-            details.x_offset = 5 * units_per_pixel / 16;
+            details.x_offset = 1 * units_per_pixel / 16;
             details.y_offset = -2 * units_per_pixel / 16;
             break;
 
         case SVar_SKELETONS_RAISED:
             details.icon_idx = GPS_creatr_icon_skelt_std;
-            details.x_offset = 5 * units_per_pixel / 16;
+            details.x_offset = 1 * units_per_pixel / 16;
             details.y_offset = -2 * units_per_pixel / 16;
             break;
 
         case SVar_VAMPIRES_RAISED:
             details.icon_idx = GPS_creatr_icon_vampr_std;
-            details.x_offset = 5 * units_per_pixel / 16;
+            details.x_offset = 1 * units_per_pixel / 16;
             details.y_offset = -2 * units_per_pixel / 16;
             break;
 
         case SVar_TOTAL_MANUFACTURED:
         case SVar_MANUFACTURED_SOLD:
             details.icon_idx = GPS_message_rpanel_msg_manufct_std;
-            details.x_offset = 0;
             break;
 
         case SVar_GAME_TURN:
         case SVar_TIMER:
         case SVar_BONUS_TIME:
             details.icon_idx = GPS_symbols_creatr_stat_age_std;
+            break;
+
+        case SVar_BOX_ACTIVATED:
+            details.icon_idx = GPS_trapdoor_bonus_box_std_l;
+            break;
+
+        case SVar_DOORS_DESTROYED:
+            details.icon_idx = GPS_trapdoor_door_wood_dis_s;
+            break;
+
+        case SVar_DOORS_SOLD:
+        case SVar_AVAILABLE_TOTAL_DOORS:
+        case SVar_TOTAL_DOORS:
+        case SVar_TOTAL_DOORS_MANUFACTURED:
+        case SVar_TOTAL_DOORS_USED:        
+            details.icon_idx = GPS_trapdoor_door_wood_std_s;
+            break;
+
+        case SVar_TOTAL_SLAPS:
+            details.icon_idx = 843;
+            break;
+
+        case SVar_ACTION_POINT_TRIGGERED:
+        case SVar_ALL_DUNGEONS_DESTROYED:
+        case SVar_ALLIED_PLAYER:
+        case SVar_AVAILABLE_MAGIC:
+        case SVar_AVAILABLE_TOTAL_CREATURES:
+        case SVar_AVAILABLE_TOTAL_TRAPS:      
+        case SVar_CAMPAIGN_FLAG:
+        case SVar_CONTROLLED_THING:
+        case SVar_EVIL_CREATURES_CONVERTED:
+        case SVar_GOOD_CREATURES_CONVERTED:
+        case SVar_FLAG:
+        case SVar_MANAGE_SCORE:
+        case SVar_PLAYER_SCORE:
+        case SVar_REWARDED:
+        case SVar_SACRIFICED:
+        case SVar_SCORE:
+        case SVar_SLAB_OWNER:
+        case SVar_SLAB_TYPE:
+        case SVar_TIMES_BROKEN_INTO:
+        case SVar_TIMES_LEVELUP_CREATURE:
+        case SVar_TIMES_TORTURED_CREATURE:
+        case SVar_TOTAL_AREA:      
+        case SVar_TOTAL_SCORE:
+        case SVar_TOTAL_TRAPS:
+        case SVar_TOTAL_TRAPS_MANUFACTURED:
+        case SVar_TOTAL_TRAPS_USED:
+        case SVar_TRAP_ACTIVATED:
+        case SVar_TRAPS_SOLD:
+        case SVar_VIEW_TYPE:
+        case SVar_CREATURES_SCAVENGED_GAINED:
+        case SVar_CREATURES_SCAVENGED_LOST:
+            details.icon_idx = GPS_message_rpanel_msg_questn_std;
+            break;
+        default:
+            details.icon_idx = GPS_message_rpanel_msg_questn_std;
             break;
     }
 
