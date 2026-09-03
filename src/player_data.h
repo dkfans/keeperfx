@@ -24,6 +24,7 @@
 #include "engine_camera.h"
 #include "bflib_video.h"
 #include "roomspace.h"
+#include "net_main.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -156,8 +157,7 @@ struct PlayerInfo {
     unsigned char input_crtr_query;
     unsigned char display_flags;
     unsigned char *lens_palette;
-    /** Index of packet slot associated with this player. */
-    unsigned char packet_num;
+    unsigned char /*NetUserId*/ user_id;
     int32_t hand_animationId;
     unsigned int hand_busy_until_turn;
     char player_name[20];

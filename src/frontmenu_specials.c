@@ -136,7 +136,7 @@ void select_resurrect_creature(struct GuiButton *gbtn)
     if (i != -1)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
-        struct Packet* pckt = get_packet(my_player_number);
+        struct Packet* pckt = get_local_packet();
         set_packet_action(pckt, PckA_ResurrectCrtr, dungeon_special_selected, dungeon->owner | (cstore->model << 4) | (cstore->exp_level << 12), 0, 0);
         turn_off_menu(GMnu_RESURRECT_CREATURE);
     }
@@ -218,7 +218,7 @@ void select_transfer_creature(struct GuiButton *gbtn)
     }
     if (thing_exists(thing))
     {
-        struct Packet* pckt = get_packet(my_player_number);
+        struct Packet* pckt = get_local_packet();
         set_packet_action(pckt, PckA_TransferCreatr, dungeon_special_selected, thing->index, 0, 0);
         turn_off_menu(GMnu_TRANSFER_CREATURE);
     }

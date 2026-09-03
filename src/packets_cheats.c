@@ -766,7 +766,7 @@ TbBool packets_process_cheats(
     return true;
 }
 
-TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt)
+TbBool process_player_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt)
 {
   struct PlayerInfo* player;
   switch (pckt->action)
