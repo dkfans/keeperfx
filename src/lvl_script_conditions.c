@@ -34,7 +34,97 @@
 extern "C" {
 #endif
 
+typedef int (*IconResolver)(short validx);
 
+typedef struct {
+    unsigned char valtype;
+    int icon_idx;
+    double x_offset;
+    double y_offset;
+    IconResolver resolver;
+} VariableIconMapping;
+
+static int resolve_room_icon(short validx) {
+    const struct RoomConfigStats *roomst = get_room_kind_stats(validx);
+    return roomst->medsym_sprite_idx;
+}
+
+static int resolve_trap_icon(short validx) {
+    struct TrapConfigStats *trapst = get_trap_model_stats(validx);
+    return trapst->medsym_sprite_idx;
+}
+
+static int resolve_door_icon(short validx) {
+    struct DoorConfigStats *doorst = get_door_model_stats(validx);
+    return doorst->medsym_sprite_idx;
+}
+static int resolve_creature_icon(short validx) {
+    return get_creature_model_graphics(validx, CGI_HandSymbol);
+}
+static const VariableIconMapping variable_icon_mapping[] = {
+    {SVar_AVAILABLE_CREATURE, 0, 1, -2, resolve_creature_icon},
+    {SVar_CONTROLS_CREATURE,  0, 1, -2, resolve_creature_icon},
+    {SVar_CREATURE_NUM,       0, 1, -2, resolve_creature_icon},
+    {SVar_AVAILABLE_ROOM,      0, 0, 2.5, resolve_room_icon},
+    {SVar_ROOM_SLABS,          0, 0, 2.5, resolve_room_icon},
+    {SVar_TRAP_NUM,            0, 0, 2.5, resolve_trap_icon},
+    {SVar_AVAILABLE_TRAP,     0, 0, 2.5, resolve_trap_icon},
+    {SVar_DOOR_NUM,            0, 0, 2.5, resolve_door_icon},
+    {SVar_AVAILABLE_DOOR,     0, 0, 2.5, resolve_door_icon},
+    {SVar_MONEY,               GPS_symbols_goldpot_sml, 0, 2.5, NULL},
+    {SVar_TOTAL_GOLD_MINED,    GPS_symbols_goldpot_sml, 0, 2.5, NULL},
+    {SVar_GOLD_POTS_STOLEN,    GPS_symbols_goldpot_sml, 0, 2.5, NULL},
+    {SVar_MANUFACTURE_GOLD,    GPS_symbols_goldpot_sml, 0, 2.5, NULL},
+    {SVar_TOTAL_SALARY,        GPS_symbols_creatr_stat_wage_std, 0, 2.5, NULL},
+    {SVar_CURRENT_SALARY,      GPS_symbols_creatr_stat_wage_std, 0, 2.5, NULL},
+    {SVar_TOTAL_DIGGERS,       GPS_crspell_dig_std_s, 0, 2.5, NULL},
+    {SVar_CONTROLS_TOTAL_DIGGERS, GPS_crspell_dig_std_s, 0, 2.5, NULL},
+    {SVar_TOTAL_CREATURES,     GPS_message_rpanel_msg_creatr_std, 0, 2.5, NULL},
+    {SVar_TOTAL_CREATURES_LEFT, GPS_message_rpanel_msg_creatr_std, 0, 2.5, NULL},
+    {SVar_CONTROLS_TOTAL_CREATURES, GPS_message_rpanel_msg_creatr_std, 0, 2.5, NULL},
+    {SVar_GOOD_CREATURES,      GPS_message_rpanel_msg_creatr_std, 0, 2.5, NULL},
+    {SVar_EVIL_CREATURES,      GPS_message_rpanel_msg_creatr_std, 0, 2.5, NULL},
+    {SVar_CONTROLS_GOOD_CREATURES, GPS_message_rpanel_msg_creatr_std, 0, 2.5, NULL},
+    {SVar_CONTROLS_EVIL_CREATURES, GPS_message_rpanel_msg_creatr_std, 0, 2.5, NULL},
+    {SVar_CREATURES_CONVERTED, GPS_message_rpanel_msg_creatr_std, 0, 2.5, NULL},
+    {SVar_CREATURES_SACRIFICED, GPS_message_rpanel_msg_creatr_std, 0, 2.5, NULL},
+    {SVar_CREATURES_FROM_SACRIFICE, GPS_message_rpanel_msg_creatr_std, 0, 2.5, NULL},
+    {SVar_CREATURES_TRANSFERRED, GPS_message_rpanel_msg_creatr_std, 0, 2.5, NULL},
+    {SVar_TOTAL_RESEARCH,     GPS_room_research_std_s, 0, 2.5, NULL},
+    {SVar_TIMES_ANNOYED_CREATURE, GPS_symbols_creatr_mood_angry_std, 0, 2.5, NULL},
+    {SVar_CREATURES_ANNOYED,   GPS_symbols_creatr_mood_angry_std, 0, 2.5, NULL},
+    {SVar_BATTLES_LOST,        GPS_message_rpanel_msg_battle_std, 0, 2.5, NULL},
+    {SVar_BATTLES_WON,         GPS_message_rpanel_msg_battle_std, 0, 2.5, NULL},
+    {SVar_ACTIVE_BATTLES,      GPS_message_rpanel_msg_battle_std, 0, 2.5, NULL},
+    {SVar_ROOMS_DESTROYED,     GPS_message_rpanel_msg_room_std, 0, 2.5, NULL},
+    {SVar_SPELLS_STOLEN,       GPS_message_rpanel_msg_spell_std, 0, 2.5, NULL},
+    {SVar_KEEPERS_DESTROYED,   GPS_symbols_creatr_stat_kills_std, 0, 2.5, NULL},
+    {SVar_DESTROYED_KEEPER,    GPS_symbols_creatr_stat_kills_std, 0, 2.5, NULL},
+    {SVar_DUNGEON_DESTROYED,   830, 0, 2.5, NULL},
+    {SVar_HEART_HEALTH,        829, 0, 2.5, NULL},
+    {SVar_GHOSTS_RAISED,       GPS_creatr_icon_ghost_std, 1, -2, NULL},
+    {SVar_SKELETONS_RAISED,     GPS_creatr_icon_skelt_std, 1, -2, NULL},
+    {SVar_VAMPIRES_RAISED,     GPS_creatr_icon_vampr_std, 1, -2, NULL},
+    {SVar_TOTAL_MANUFACTURED,  GPS_message_rpanel_msg_manufct_std, 0, 2.5, NULL},
+    {SVar_MANUFACTURED_SOLD,   GPS_message_rpanel_msg_manufct_std, 0, 2.5, NULL},
+    {SVar_GAME_TURN,           GPS_symbols_creatr_stat_age_std, 0, 2.5, NULL},
+    {SVar_TIMER,               GPS_symbols_creatr_stat_age_std, 0, 2.5, NULL},
+    {SVar_BONUS_TIME,          GPS_symbols_creatr_stat_age_std, 0, 2.5, NULL},
+    {SVar_BOX_ACTIVATED,       GPS_trapdoor_bonus_box_std_l, 0, 2.5, NULL},
+    {SVar_DOORS_DESTROYED,     GPS_trapdoor_door_wood_dis_s, 0, 2.5, NULL},
+    {SVar_DOORS_SOLD,          GPS_trapdoor_door_wood_std_s, 0, 2.5, NULL},
+    {SVar_AVAILABLE_TOTAL_DOORS, GPS_trapdoor_door_wood_std_s, 0, 2.5, NULL},
+    {SVar_TOTAL_DOORS,         GPS_trapdoor_door_wood_std_s, 0, 2.5, NULL},
+    {SVar_TOTAL_DOORS_MANUFACTURED, GPS_trapdoor_door_wood_std_s, 0, 2.5, NULL},
+    {SVar_TOTAL_DOORS_USED,    GPS_trapdoor_door_wood_std_s, 0, 2.5, NULL},
+    {SVar_TOTAL_SLAPS,         843, 0, 2.5, NULL},
+    {SVar_AVAILABLE_TOTAL_TRAPS, GPS_trapdoor_trap_boulder_std_l, 0, 2.5, NULL},
+    {SVar_TOTAL_TRAPS,         GPS_trapdoor_trap_boulder_std_l, 0, 2.5, NULL},
+    {SVar_TOTAL_TRAPS_MANUFACTURED, GPS_trapdoor_trap_boulder_std_l, 0, 2.5, NULL},
+    {SVar_TOTAL_TRAPS_USED,    GPS_trapdoor_trap_boulder_std_l, 0, 2.5, NULL},
+    {SVar_TRAP_ACTIVATED,      GPS_trapdoor_trap_boulder_std_l, 0, 2.5, NULL},
+    {SVar_TRAPS_SOLD,          GPS_trapdoor_trap_boulder_std_l, 0, 2.5, NULL},
+};
 static int script_current_condition = 0;
 static unsigned short condition_stack_pos;
 static unsigned short condition_stack[CONDITIONS_COUNT];
@@ -47,195 +137,21 @@ struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsign
         .y_offset = 2.5 * units_per_pixel / 16,
     };
 
-    switch (valtype)
-    {
-        case SVar_AVAILABLE_CREATURE:
-        case SVar_CONTROLS_CREATURE:
-        case SVar_CREATURE_NUM:
-            details.icon_idx = get_creature_model_graphics(validx, CGI_HandSymbol);
-            details.x_offset = 1 * units_per_pixel / 16;
-            details.y_offset = -2 * units_per_pixel / 16;
-            break;
-
-        case SVar_AVAILABLE_ROOM:
-        case SVar_ROOM_SLABS:
-        {
-            const struct RoomConfigStats *roomst = get_room_kind_stats(validx);
-            details.icon_idx = roomst->medsym_sprite_idx;
+    for (int i = 0; i < sizeof(variable_icon_mapping) / sizeof(variable_icon_mapping[0]); i++) {
+        if (variable_icon_mapping[i].valtype == valtype) {
+            details.icon_idx = variable_icon_mapping[i].icon_idx;
+            details.x_offset = variable_icon_mapping[i].x_offset * units_per_pixel / 16;
+            details.y_offset = variable_icon_mapping[i].y_offset * units_per_pixel / 16;
+            
+            // If a specialized resolver is needed, call it
+            if (variable_icon_mapping[i].resolver != NULL) {
+                details.icon_idx = variable_icon_mapping[i].resolver(validx);
+            }
             break;
         }
-
-        case SVar_TRAP_NUM:
-        case SVar_AVAILABLE_TRAP:
-        {
-            struct TrapConfigStats *trapst = get_trap_model_stats(validx);
-            details.icon_idx = trapst->medsym_sprite_idx;
-            break;
-        }
-
-        case SVar_DOOR_NUM:
-        case SVar_AVAILABLE_DOOR:
-        {
-            struct DoorConfigStats *doorst = get_door_model_stats(validx);
-            details.icon_idx = doorst->medsym_sprite_idx;
-            break;
-        }
-
-        case SVar_MONEY:
-        case SVar_TOTAL_GOLD_MINED:
-        case SVar_GOLD_POTS_STOLEN:
-        case SVar_MANUFACTURE_GOLD:
-            details.icon_idx = GPS_symbols_goldpot_sml;
-            break;
-
-        case SVar_TOTAL_SALARY:
-        case SVar_CURRENT_SALARY:
-            details.icon_idx = GPS_symbols_creatr_stat_wage_std;
-            break;
-
-        case SVar_TOTAL_DIGGERS:
-        case SVar_CONTROLS_TOTAL_DIGGERS:
-            details.icon_idx = GPS_crspell_dig_std_s;
-            break;
-
-        case SVar_TOTAL_CREATURES:
-        case SVar_TOTAL_CREATURES_LEFT:
-        case SVar_CONTROLS_TOTAL_CREATURES:
-        case SVar_GOOD_CREATURES:
-        case SVar_EVIL_CREATURES:
-        case SVar_CONTROLS_GOOD_CREATURES:
-        case SVar_CONTROLS_EVIL_CREATURES:
-        case SVar_CREATURES_CONVERTED:
-        case SVar_CREATURES_SACRIFICED:
-        case SVar_CREATURES_FROM_SACRIFICE:
-        case SVar_CREATURES_TRANSFERRED:
-            details.icon_idx = GPS_message_rpanel_msg_creatr_std;
-            break;
-
-        case SVar_TOTAL_RESEARCH:
-            details.icon_idx = GPS_room_research_std_s;
-            break;
-
-        case SVar_TIMES_ANNOYED_CREATURE:
-        case SVar_CREATURES_ANNOYED:
-            details.icon_idx = GPS_symbols_creatr_mood_angry_std;
-            break;
-
-        case SVar_BATTLES_LOST:
-        case SVar_BATTLES_WON:
-        case SVar_ACTIVE_BATTLES:
-            details.icon_idx = GPS_message_rpanel_msg_battle_std;
-            break;
-
-        case SVar_ROOMS_DESTROYED:
-            details.icon_idx = GPS_message_rpanel_msg_room_std;
-            break;
-
-        case SVar_SPELLS_STOLEN:
-            details.icon_idx = GPS_message_rpanel_msg_spell_std;
-            break;
-
-        case SVar_KEEPERS_DESTROYED:
-        case SVar_DESTROYED_KEEPER:
-            details.icon_idx = GPS_symbols_creatr_stat_kills_std;
-            break;
-
-        case SVar_DUNGEON_DESTROYED:
-            details.icon_idx = 830;
-            break;
-
-        case SVar_HEART_HEALTH:
-            details.icon_idx = 829;
-            break;
-
-        case SVar_GHOSTS_RAISED:
-            details.icon_idx = GPS_creatr_icon_ghost_std;
-            details.x_offset = 1 * units_per_pixel / 16;
-            details.y_offset = -2 * units_per_pixel / 16;
-            break;
-
-        case SVar_SKELETONS_RAISED:
-            details.icon_idx = GPS_creatr_icon_skelt_std;
-            details.x_offset = 1 * units_per_pixel / 16;
-            details.y_offset = -2 * units_per_pixel / 16;
-            break;
-
-        case SVar_VAMPIRES_RAISED:
-            details.icon_idx = GPS_creatr_icon_vampr_std;
-            details.x_offset = 1 * units_per_pixel / 16;
-            details.y_offset = -2 * units_per_pixel / 16;
-            break;
-
-        case SVar_TOTAL_MANUFACTURED:
-        case SVar_MANUFACTURED_SOLD:
-            details.icon_idx = GPS_message_rpanel_msg_manufct_std;
-            break;
-
-        case SVar_GAME_TURN:
-        case SVar_TIMER:
-        case SVar_BONUS_TIME:
-            details.icon_idx = GPS_symbols_creatr_stat_age_std;
-            break;
-
-        case SVar_BOX_ACTIVATED:
-            details.icon_idx = GPS_trapdoor_bonus_box_std_l;
-            break;
-
-        case SVar_DOORS_DESTROYED:
-            details.icon_idx = GPS_trapdoor_door_wood_dis_s;
-            break;
-
-        case SVar_DOORS_SOLD:
-        case SVar_AVAILABLE_TOTAL_DOORS:
-        case SVar_TOTAL_DOORS:
-        case SVar_TOTAL_DOORS_MANUFACTURED:
-        case SVar_TOTAL_DOORS_USED:        
-            details.icon_idx = GPS_trapdoor_door_wood_std_s;
-            break;
-
-        case SVar_TOTAL_SLAPS:
-            details.icon_idx = 843;
-            break;
-
-        case SVar_AVAILABLE_TOTAL_TRAPS:    
-        case SVar_TOTAL_TRAPS:
-        case SVar_TOTAL_TRAPS_MANUFACTURED:
-        case SVar_TOTAL_TRAPS_USED:
-        case SVar_TRAP_ACTIVATED:
-        case SVar_TRAPS_SOLD:
-            details.icon_idx = GPS_trapdoor_trap_boulder_std_l;
-            break;
-
-        case SVar_ACTION_POINT_TRIGGERED:
-        case SVar_ALL_DUNGEONS_DESTROYED:
-        case SVar_ALLIED_PLAYER:
-        case SVar_AVAILABLE_MAGIC:
-        case SVar_AVAILABLE_TOTAL_CREATURES:  
-        case SVar_CAMPAIGN_FLAG:
-        case SVar_CONTROLLED_THING:
-        case SVar_EVIL_CREATURES_CONVERTED:
-        case SVar_GOOD_CREATURES_CONVERTED:
-        case SVar_FLAG:
-        case SVar_MANAGE_SCORE:
-        case SVar_PLAYER_SCORE:
-        case SVar_REWARDED:
-        case SVar_SACRIFICED:
-        case SVar_SCORE:
-        case SVar_SLAB_OWNER:
-        case SVar_SLAB_TYPE:
-        case SVar_TIMES_BROKEN_INTO:
-        case SVar_TIMES_LEVELUP_CREATURE:
-        case SVar_TIMES_TORTURED_CREATURE:
-        case SVar_TOTAL_AREA:      
-        case SVar_TOTAL_SCORE:        
-        case SVar_VIEW_TYPE:
-        case SVar_CREATURES_SCAVENGED_GAINED:
-        case SVar_CREATURES_SCAVENGED_LOST:
-            details.icon_idx = GPS_message_rpanel_msg_questn_std;
-            break;
-        default:
-            details.icon_idx = GPS_message_rpanel_msg_questn_std;
-            break;
+    }
+    if (details.icon_idx == -1) {
+        details.icon_idx = GPS_message_rpanel_msg_questn_std;
     }
 
     return details;
