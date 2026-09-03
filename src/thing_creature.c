@@ -1838,6 +1838,11 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
 
         }
         pos.z.val += subtile_coord(2,0);
+        if (flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+            clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
+            clear_thing_acceleration(thing);
+            clear_thing_velocity(thing);
+        }
         move_thing_in_map(thing, &pos);
         remove_all_traces_of_combat(thing);
         reset_interpolation_of_thing(thing);
@@ -6422,6 +6427,17 @@ TngUpdateRet update_creature(struct Thing *thing)
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
+    if (flag_is_set(cctrl->creature_state_flags, TF2_CreatureOutOfPlay)) {
+        if ((GameTurnDelta)(cctrl->wait_to_turn - get_gameturn()) > 0) {
+            return TUFRet_Modified;
+        }
+        clear_flag(cctrl->creature_state_flags, TF2_CreatureOutOfPlay);
+        remove_thing_from_creature_controlled_limbo(thing);
+        if (thing->light_id != 0) {
+            light_turn_light_on(thing->light_id);
+        }
+        set_start_state(thing);
+    }
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn < get_gameturn()))
     {
         create_effect_around_thing(thing, ball_puff_effects[get_player_color_idx(thing->owner)]);
@@ -6439,6 +6455,10 @@ TngUpdateRet update_creature(struct Thing *thing)
     if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT))
     {
         process_creature_instance(thing);
+    }
+    if (flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+        process_thing_spell_effects(thing);
+        return TUFRet_Modified;
     }
     update_creature_count(thing);
     if (flag_is_set(thing->alloc_flags,TAlF_IsControlled))
@@ -7914,6 +7934,11 @@ void script_move_creature(struct Thing* thing, TbMapLocation location, ThingMode
         create_effect(&pos, effect_id, game.neutral_player_num);
     }
     move_thing_in_map(thing, &pos);
+    if (flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+        clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
+        clear_thing_acceleration(thing);
+        clear_thing_velocity(thing);
+    }
     reset_interpolation_of_thing(thing);
     if (!is_thing_some_way_controlled(thing))
     {

@@ -58,6 +58,10 @@ function Creature:kill(killer) end
 ---@param turns? integer Sets conscious_back_turns; the duration of the stun.
 function Creature:stun(turns) end
 
+---Temporarily removes the creature from play.
+---@param turns integer
+function Creature:remove_from_play(turns) end
+
 ---increases creatures level by a given amount
 ---@param levels integer
 function Creature:level_up(levels) end

@@ -28,6 +28,7 @@
 #include "creature_states_mood.h"
 #include "thing_stats.h"
 #include "local_camera.h"
+#include "light_data.h"
 
 #include "lua_base.h"
 #include "lua_params.h"
@@ -180,6 +181,35 @@ static int lua_stun_creature(lua_State* L)
         cctrl->conscious_back_turns = luaL_checkinteger(L, 2);
     }
 
+    return 0;
+}
+
+static int lua_remove_creature_from_play(lua_State *L)
+{
+    struct Thing *thing = luaL_checkCreature(L, 1);
+    lua_Integer turns = luaL_checkinteger(L, 2);
+    luaL_argcheck(L, (turns > 0) && (turns <= INT32_MAX), 2, "turns must be between 1 and 2147483647");
+    if (thing_is_picked_up(thing)) {
+        return luaL_error(L, "creature is already out of play");
+    }
+    if (is_thing_some_way_controlled(thing)) {
+        prepare_to_controlled_creature_death(thing);
+    }
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    initialise_thing_state(thing, CrSt_CreatureOutOfPlay);
+    clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
+    set_flag(cctrl->creature_state_flags, TF2_CreatureOutOfPlay);
+    clear_thing_acceleration(thing);
+    clear_thing_velocity(thing);
+    cctrl->wait_to_turn = get_gameturn() + (GameTurn)turns;
+    if (thing->light_id != 0) {
+        light_turn_light_off(thing->light_id);
+    }
+    if (thing->snd_emitter_id != 0) {
+        S3DDestroySoundEmitterAndSamples(thing->snd_emitter_id);
+        thing->snd_emitter_id = 0;
+    }
+    place_thing_in_creature_controlled_limbo(thing);
     return 0;
 }
 
@@ -705,6 +735,7 @@ static const struct luaL_Reg thing_methods[] = {
     {"walk_to"                      ,lua_creature_walk_to               },
     {"kill"                         ,lua_kill_creature                  },
     {"stun"                         ,lua_stun_creature                  },
+    {"remove_from_play"             ,lua_remove_creature_from_play     },
     {"destroy"                      ,lua_destroy_object                 },
     {"delete"                       ,lua_delete_thing                   },
     {"transform"                    ,lua_transform_creature             },

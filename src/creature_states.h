@@ -118,7 +118,7 @@ enum CreatureStates {
     CrSt_ImpBirth,
     CrSt_AtTemple,
     CrSt_PrayingInTemple,
-    CrSt_Null84,
+    CrSt_CreatureOutOfPlay,
     CrSt_CreatureFollowLeader,
     CrSt_CreatureDoorCombat,
     CrSt_CreatureCombatFlee,

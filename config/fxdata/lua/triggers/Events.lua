@@ -114,6 +114,16 @@ function RegisterCreatureRebirthEvent(action, unit)
     return trigger
 end
 
+function RegisterCreatureFellIntoAbyssEvent(action, unit)
+    local trigData = {unit = unit}
+
+    local trigger = CreateTrigger("CreatureFellIntoAbyss",action,trigData)
+    if unit then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.unit == triggerData.unit end)
+    end
+    return trigger
+end
+
 ---Triggers when an object is destroyed
 ---@param action function|string the function to call when the event happens
 ---@param object? Object the object that triggers the event
