@@ -1109,11 +1109,14 @@ static void quick_information_check(const struct ScriptLine* scline)
     value->shorts[3] = x;
     value->shorts[4] = y;
     value->shorts[5] = -1;
-    if (scline->tp[3][0] != '\0' && !get_custom_icon_from_value(scline->tp[3], &value->shorts[5]))
+    if (scline->command == Cmd_QUICK_INFORMATION)
     {
-        SCRPTERRLOG("Invalid custom icon (%s)", scline->tp[3]);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
+        if (scline->tp[3][0] != '\0' && !get_custom_icon_from_value(scline->tp[3], &value->shorts[5]))
+        {
+            SCRPTERRLOG("Invalid custom icon (%s)", scline->tp[3]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
