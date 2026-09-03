@@ -765,9 +765,12 @@ void draw_script_variable_list(void)
             }
             if(icon_idx > -1 && scval.include_icon){
                 const struct TbSprite* spr;
-                spr = get_panel_sprite(GPS_message_rpanel_msg_blank_std);                
-                int ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
-                LbSpriteDrawResized(sprite_x, sprite_y + (2.5 * units_per_pixel / 16), ps_units_per_px, spr);
+                int ps_units_per_px = 0;
+                if(scval.icon_idx == -1){
+                    spr = get_panel_sprite(GPS_message_rpanel_msg_blank_std);                
+                    ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+                    LbSpriteDrawResized(sprite_x, sprite_y + (2.5 * units_per_pixel / 16), ps_units_per_px, spr);
+                }
                 sprite_x += details.x_offset;                
                 sprite_y += details.y_offset;
                 spr = get_panel_sprite(icon_idx);
