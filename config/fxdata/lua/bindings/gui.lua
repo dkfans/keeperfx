@@ -118,9 +118,8 @@ function DisplayVariable(player, variable, target, target_type) end
 ---Displays a script variable on screen with label or icon.
 ---@param player Player The player’s name, e.g. PLAYER1.
 ---@param variable string  The variable that is to be exported, e.g. SKELETONS_RAISED. See variable of the og dk script for more info
----@param type "ICON"|"LABEL" wheter to show the associated icon or label
 ---@param icon icon? string|Player|Creature The name of the player, creature, creature spell, Keeper spell, creature instance, room, or query icon that is shown as the sender of the message.  Optional, leaving it out will use the default associated icon if type is icon.
-function DisplayVariableLabel(player, variable, target, target_type) end
+function DisplayVariableWithLabel(player, variable, icon) end
 
 ---Hides the variable that has been made visible with Display_variable
 function HideVariable() end

@@ -376,7 +376,7 @@ struct Game {
     unsigned char script_timer_id;
     uint32_t script_timer_limit;
     TbBool timer_real;
-    struct ScriptVariable script_variables[SCRIPT_VARIABLES_COUNT];   
+    struct ScriptVariable script_variables[DISPLAY_VARIABLES_LIMIT];   
     TbBool heart_lost_display_message;
     TbBool heart_lost_quick_message;
     uint32_t heart_lost_message_id;

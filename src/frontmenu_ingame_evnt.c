@@ -671,15 +671,13 @@ void draw_script_variable_list(void)
         if (game.script_variables[i].variable_player == my_player_number)
             valid_vars++;
 
-        if (game.script_variables[i].include_label)
+        if (game.script_variables[i].include_icon)
             contains_labels = true;
     }
 
     int h = LbTextLineHeight();
     int row_height = h * units_per_pixel / 16;
     
-    int label_height = (12 * units_per_pixel) / 16;
-    int label_offset = (row_height - label_height) / 2;
     long width = (contains_labels ? 12 : 10) * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = row_height + (row_height) / 2;
     if (MyScreenHeight < 400)
@@ -759,11 +757,7 @@ void draw_script_variable_list(void)
             char value_text[32];
             snprintf(value_text, sizeof(value_text), "%ld", details.value);
 
-            if(scval.include_label) {
-                RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
-                LbTextDrawResized(20, y + label_offset, (12 * units_per_pixel) / LbTextLineHeight(),details.label);
-            }
-            if ((icon_idx > -1 && scval.include_icon) || contains_labels) {
+            if ((icon_idx > -1 && scval.include_icon)) {
                 RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);          
                 LbTextDrawResized(4, y, tx_units_per_px, value_text);
             } else {                

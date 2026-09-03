@@ -37,7 +37,7 @@ extern "C" {
 #define TUNNELLER_TRIGGERS_COUNT 256
 #define SCRIPT_VALUES_COUNT      2048
 #define WIN_CONDITIONS_COUNT      12
-#define SCRIPT_VARIABLES_COUNT   7
+#define DISPLAY_VARIABLES_LIMIT   7
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
@@ -193,7 +193,6 @@ struct ScriptVariable{
     PlayerNumber variable_player;
     int32_t variable_target;
     unsigned char variable_target_type;
-    TbBool include_label;
     TbBool include_icon;
     short icon_idx;
 };

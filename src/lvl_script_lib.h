@@ -209,7 +209,7 @@ enum TbScriptCommands {
     Cmd_COPY_CREATURE_TYPE                 = 196,
     Cmd_TRIGGER_ACTION_POINT               = 197,
     Cmd_SET_LEVEL_ENSIGN                   = 198,
-    Cmd_DISPLAY_VARIABLE_LABEL             = 199,
+    Cmd_DISPLAY_VARIABLE_WITH_LABEL        = 199,
 };
 
 struct ScriptLine {
@@ -316,10 +316,6 @@ enum ScriptVariables {
   SVar_CONTROLLED_THING                = 91,
  };
 
-
-extern const char *script_variable_labels[SCRIPT_VAR_ENUM_COUNT];
-
-
 extern const struct NamedCommand player_desc[];
 extern const struct NamedCommand controls_variable_desc[];
 extern const struct NamedCommand timer_desc[];
@@ -329,7 +325,6 @@ extern const struct NamedCommand rule_slot_desc[];
 extern const struct NamedCommand rule_action_desc[];
 extern const struct NamedCommand hero_objective_desc[];
 extern const struct NamedCommand msgtype_desc[];
-extern const struct NamedCommand lbltype_desc[];
 extern const struct NamedCommand tendency_desc[];
 extern const struct NamedCommand creature_select_criteria_desc[];
 extern const struct NamedCommand gui_button_group_desc[];

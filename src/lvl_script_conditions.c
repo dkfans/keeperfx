@@ -42,7 +42,6 @@ struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsign
 {
     struct ScriptVariableDetails details = {
         .value = get_condition_value(plyr_idx, valtype, validx),
-        .label = get_condition_label(plyr_idx, valtype, validx),
         .icon_idx = -1,
         .x_offset = 3.5 * units_per_pixel / 16,
         .y_offset = 2.5 * units_per_pixel / 16,
@@ -461,90 +460,6 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short val
         break;
     };
     return 0;
-}
-
-const char *get_condition_label(PlayerNumber plyr_idx, unsigned char valtype, short validx)
-{
-    SYNCDBG(10, "Checking condition %d for player %d",
-        (int)valtype, (int)plyr_idx);
-
-    static char text[64];
-
-    switch (valtype)
-    {
-        case SVar_CREATURE_NUM:
-        {
-            const char *creature_name = creature_code_name(validx);
-            snprintf(text, sizeof(text), "%s Count", creature_name);
-            return text;
-        }
-
-        case SVar_ROOM_SLABS:
-        {
-            const char *room_name = room_code_name(validx);
-            snprintf(text, sizeof(text), "%s Count", room_name);
-            return text;
-        }
-
-        case SVar_AVAILABLE_TRAP:
-        {
-            const char *trap_name = trap_code_name(validx);
-            snprintf(text, sizeof(text), "%s Avail", trap_name);
-            return text;
-        }
-
-        case SVar_AVAILABLE_DOOR:
-        {
-            const char *door_name = door_code_name(validx);
-            snprintf(text, sizeof(text), "%s Avail", door_name);
-            return text;
-        }
-
-        case SVar_AVAILABLE_ROOM:
-        {
-            const char *room_name = room_code_name(validx);
-            snprintf(text, sizeof(text), "%s Avail", room_name);
-            return text;
-        }
-
-        case SVar_AVAILABLE_CREATURE:
-        {
-            const char *creature_name = creature_code_name(validx);
-            snprintf(text, sizeof(text), "%s Avail", creature_name);
-            return text;
-        }
-
-        case SVar_CONTROLS_CREATURE:
-        {
-            const char *creature_name = creature_code_name(validx);
-            snprintf(text, sizeof(text), "Ctrl %s", creature_name);
-            return text;
-        }
-
-        case SVar_DOOR_NUM:
-        {
-            const char *door_name = door_code_name(validx);
-            snprintf(text, sizeof(text), "%s Count", door_name);
-            return text;
-        }
-
-        case SVar_TRAP_NUM:
-        {
-            const char *trap_name = trap_code_name(validx);
-            snprintf(text, sizeof(text), "%s Count", trap_name);
-            return text;
-        }
-
-        default:
-            break;
-    }
-
-    if (valtype < SCRIPT_VAR_ENUM_COUNT && script_variable_labels[valtype] != NULL)
-    {
-        return script_variable_labels[valtype];
-    }
-
-    return "Unknown";
 }
 
 TbBool condition_inactive(long cond_idx)

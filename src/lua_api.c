@@ -874,7 +874,7 @@ static int lua_Display_variable(lua_State *L)
     int target = luaL_optinteger(L,3,0);
     unsigned char target_type = luaL_optinteger(L,4,0);
 
-    for (int i = SCRIPT_VARIABLES_COUNT - 1; i > 0; i--)
+    for (int i = DISPLAY_VARIABLES_LIMIT - 1; i > 0; i--)
     {
         memcpy(&game.script_variables[i], &game.script_variables[i-1], sizeof(struct ScriptVariable));
     }    
@@ -885,9 +885,8 @@ static int lua_Display_variable(lua_State *L)
     game.script_variables[0].variable_target_type = target_type;
 
     game.script_variables[0].include_icon = false;
-    game.script_variables[0].include_label = false;
     game.script_variables[0].icon_idx = -1;
-    if (game.active_script_var_count < SCRIPT_VARIABLES_COUNT) {
+    if (game.active_script_var_count < DISPLAY_VARIABLES_LIMIT) {
         game.active_script_var_count++;
     }	
     
@@ -897,27 +896,25 @@ static int lua_Display_variable(lua_State *L)
 }
 
 
-static int lua_Display_variable_label(lua_State *L)
+static int lua_DISPLAY_VARIABLE_WITH_LABEL(lua_State *L)
 {
     PlayerNumber player   = luaL_checkPlayerSingle(L, 1);
     int32_t varib_id, varib_type;
     luaL_checkVariable(L, 2, &varib_id, &varib_type);
-    for (int i = SCRIPT_VARIABLES_COUNT - 1; i > 0; i--)
+    for (int i = DISPLAY_VARIABLES_LIMIT - 1; i > 0; i--)
     {
         memcpy(&game.script_variables[i], &game.script_variables[i-1], sizeof(struct ScriptVariable));
     }    
     
-    long lbltype = luaL_checkNamedCommand(L, 3, lbltype_desc);
     short id;
     char type;
-    luaL_checkMessageIcon(L, 4, &type, &id);
+    luaL_checkMessageIcon(L, 3, &type, &id);
     game.script_variables[0].variable_player = player;
     game.script_variables[0].value_type = varib_type;
     game.script_variables[0].value_id = varib_id;
-    game.script_variables[0].include_icon = lbltype == 1;
-    game.script_variables[0].include_label = lbltype == 2;
+    game.script_variables[0].include_icon = true;
     game.script_variables[0].icon_idx = id;
-    if (game.active_script_var_count < SCRIPT_VARIABLES_COUNT) {
+    if (game.active_script_var_count < DISPLAY_VARIABLES_LIMIT) {
         game.active_script_var_count++;
     }	
     
@@ -2510,7 +2507,7 @@ static const luaL_Reg global_methods[] = {
    {"TutorialFlashButton"                   ,lua_Tutorial_flash_button           },
    {"DisplayCountdown"                      ,lua_Display_countdown               },
    {"DisplayVariable"                       ,lua_Display_variable                },
-   {"DisplayVariableLabel"                  ,lua_Display_variable_label          },
+   {"DisplayVariableWithLabel"              ,lua_DISPLAY_VARIABLE_WITH_LABEL     },
    {"HideVariable"                          ,lua_Hide_variable                   },
 
 //Manipulating Map

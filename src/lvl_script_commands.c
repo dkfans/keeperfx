@@ -199,12 +199,6 @@ const struct NamedCommand msgtype_desc[] = {
   {NULL,               0},
 };
 
-const struct NamedCommand lbltype_desc[] = {
-  {"ICON",             1},
-  {"LABEL",            2},
-  {NULL,               0},
-};
-
 const struct NamedCommand tendency_desc[] = {
   {"IMPRISON",         1},
   {"FLEE",             2},
@@ -3659,7 +3653,7 @@ static void display_variable_check(const struct ScriptLine *scline)
 
 static void display_variable_process(struct ScriptContext *context)
 {    	
-    for (int i = SCRIPT_VARIABLES_COUNT - 1; i > 0; i--)
+    for (int i = DISPLAY_VARIABLES_LIMIT - 1; i > 0; i--)
     {
         memcpy(&game.script_variables[i], &game.script_variables[i-1], sizeof(struct ScriptVariable));
     }    
@@ -3670,15 +3664,14 @@ static void display_variable_process(struct ScriptContext *context)
     game.script_variables[0].variable_target_type = context->value->bytes[1];
     
     game.script_variables[0].include_icon = false;
-    game.script_variables[0].include_label = false;
     game.script_variables[0].icon_idx = -1;
-    if (game.active_script_var_count < SCRIPT_VARIABLES_COUNT) {
+    if (game.active_script_var_count < DISPLAY_VARIABLES_LIMIT) {
         game.active_script_var_count++;
     }	
 	
     game.flags_gui |= GGUI_Variable;
 }
-static void display_variable_label_check(const struct ScriptLine *scline)
+static void display_variable_with_label_check(const struct ScriptLine *scline)
 {
     int32_t varib_id, varib_type;
     if (!parse_get_varib(scline->tp[1], &varib_id, &varib_type, level_file_version))
@@ -3688,17 +3681,10 @@ static void display_variable_label_check(const struct ScriptLine *scline)
     }
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
 
-    short label_type = get_id(lbltype_desc, scline->tp[2]);
-    if (label_type == -1) {
-        SCRPTERRLOG("Unknown variable, '%s'", scline->tp[2]);
-        return;
-    }
-    
-    value->bytes[0] = label_type;
     value->bytes[2] = varib_type;
     value->longs[1] = varib_id;    
     value->shorts[4] = -1;
-    const char *icon = scline->tp[3];
+    const char *icon = scline->tp[2];
 
     if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[4]))
     {
@@ -3710,9 +3696,9 @@ static void display_variable_label_check(const struct ScriptLine *scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void display_variable_label_process(struct ScriptContext *context)
+static void display_variable_with_label_process(struct ScriptContext *context)
 {    	
-    for (int i = SCRIPT_VARIABLES_COUNT - 1; i > 0; i--)
+    for (int i = DISPLAY_VARIABLES_LIMIT - 1; i > 0; i--)
     {
         memcpy(&game.script_variables[i], &game.script_variables[i-1], sizeof(struct ScriptVariable));
     }    
@@ -3720,10 +3706,9 @@ static void display_variable_label_process(struct ScriptContext *context)
     game.script_variables[0].variable_player = context->player_idx;
     game.script_variables[0].value_type = context->value->bytes[2];
     game.script_variables[0].value_id = context->value->longs[1];
-    game.script_variables[0].include_label = context->value->bytes[0] == 2;
-    game.script_variables[0].include_icon = context->value->bytes[0] == 1;
+    game.script_variables[0].include_icon = true;
     game.script_variables[0].icon_idx = context->value->shorts[4];
-    if (game.active_script_var_count < SCRIPT_VARIABLES_COUNT) {
+    if (game.active_script_var_count < DISPLAY_VARIABLES_LIMIT) {
         game.active_script_var_count++;
     }	
 	
@@ -7014,7 +6999,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_TIMER",                      "PAN     ", Cmd_ADD_TO_TIMER, &add_to_timer_check, &add_to_timer_process},
   {"ADD_BONUS_TIME",                    "N       ", Cmd_ADD_BONUS_TIME, &add_bonus_time_check, &add_bonus_time_process},
   {"DISPLAY_VARIABLE",                  "PAnn    ", Cmd_DISPLAY_VARIABLE, &display_variable_check, &display_variable_process},
-  {"DISPLAY_VARIABLE_LABEL",            "PAAa    ", Cmd_DISPLAY_VARIABLE_LABEL, &display_variable_label_check, &display_variable_label_process},
+  {"DISPLAY_VARIABLE_WITH_LABEL",       "PAa    ", Cmd_DISPLAY_VARIABLE_WITH_LABEL, &display_variable_with_label_check, &display_variable_with_label_process},
   {"DISPLAY_COUNTDOWN",                 "PANb    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
   {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
