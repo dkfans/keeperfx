@@ -4630,6 +4630,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         return 0;
 
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(creatng);
+    nav_thing_is_flying = flag_is_set(creatng->movement_flags, TMvF_Flying);
     if (resetOwnerPlayerNavigating)
         owner_player_navigating = -1;
     else
@@ -4646,6 +4647,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         pos->y.val,
         -2, nav_sizexy, __func__);
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_is_flying = 0;
 
     int distance = 0;
     if (!path.waypoints_num)

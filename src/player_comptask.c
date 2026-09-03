@@ -48,6 +48,7 @@
 #include "player_utils.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
+#include "spdigger_stack.h"
 
 #include "dungeon_data.h"
 #include "map_blocks.h"
@@ -104,6 +105,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
 long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *ctask);
 TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask);
 long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_idx);
+long task_sacrifice_diggers(struct Computer2 *comp, struct ComputerTask *ctask);
 /******************************************************************************/
 /**
  * Computer tasks definition array.
@@ -130,6 +132,7 @@ const struct TaskFunctions task_function[] = {
     {"COMPUTER_ATTACK_MAGIC",     task_attack_magic},
     {"COMPUTER_SELL_TRAPS_AND_DOORS", task_sell_traps_and_doors},
     {"COMPUTER_MOVE_GOLD_TO_TREASURY", task_move_gold_to_treasury},
+    {"COMPUTER_SACRIFICE_DIGGERS", task_sacrifice_diggers},
 };
 
 const struct TrapDoorSelling trapdoor_sell[] = {
@@ -586,6 +589,129 @@ static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool use_com
     task_result->created_turn = get_gameturn();
     return task_result;
 }
+
+/**
+ * Returns whether special diggers in given dungeon are actually digging indestructible valuables.
+ * In standard configuration, indestructible valuables are simply slabs with gems.
+ * @param dungeon
+ * @return
+ */
+static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dungeon)
+{
+    unsigned long k = 0;
+    long i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (cctrl->combat_flags == 0)
+        {
+            long state_type = get_creature_state_type(thing);
+
+            if (((state_type == CrStTyp_Work) || (state_type == CrStTyp_DeepWork))
+                && (cctrl->digger.last_did_job == SDLstJob_DigOrMine)
+                && is_digging_indestructible_place(thing))
+            {
+                SYNCDBG(18, "Indestructible valuables being dug by player %d", (int)dungeon->owner);
+                return true;
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            return false;
+        }
+    }
+    SYNCDBG(18, "Indestructible valuables NOT being dug by player %d", (int)dungeon->owner);
+    return false;
+}
+
+/**
+ * Filter function for selecting creature which is best candidate for being sacrificed.
+ * A specific thing can be selected either by class, model and owner.
+ *
+ * @param thing Creature thing to be filtered.
+ * @param param Struct with specific thing which is dragged.
+ * @param maximizer Previous max value.
+ * @return If returned value is greater than maximizer, then the filtering result should be updated.
+ */
+long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+
+    if ((cctrl->combat_flags == 0) && (param->secondary_number || thing->creature.gold_carried == 0)) //no gold carried if no gem access
+    {
+        if (creature_is_being_unconscious(thing) || creature_under_spell_effect(thing, CSAfF_Chicken))
+            return -1;
+        if (creature_is_being_dropped(thing) || !can_thing_be_picked_up_by_player(thing, param->plyr_idx))
+            return -1;
+        if ((param->plyr_idx >= 0) && (thing->owner != param->plyr_idx))
+            return -1;
+        if (!thing_matches_model(thing, param->model_id))
+            return -1;
+        if ((param->class_id > 0) && (thing->class_id != param->class_id))
+            return -1;
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+        // Let us estimate value of the creature in gold
+        long priority = thing->creature.gold_carried;             // base value
+        priority += param->primary_number * thing->health / crconf->health; // full health valued at this many gold
+        priority += 10000 * cctrl->exp_level; // experience earned by the creature has a big value
+        if (get_creature_state_type(thing) == CrStTyp_Work)
+            priority += 500; // aborted work valued at this many gold
+        else if (get_creature_state_type(thing) == CrStTyp_DeepWork)
+            priority += 2000; // aborted important work valued at this many gold
+        if (anger_is_creature_angry(thing))
+            priority /= 2; // angry creatures have lower value
+        if (anger_is_creature_livid(thing))
+            priority /= 3; // livid creatures have minimal value
+         // Return maximizer based on our evaluated gold value
+        return INT32_MAX - priority;
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+static struct Thing *find_creature_for_sacrifice(struct Computer2 *comp, ThingModel crmodel, int max_level)
+{
+    struct Dungeon* dungeon = comp->dungeon;
+
+    struct CompoundTngFilterParam param;
+    param.plyr_idx = dungeon->owner;
+    param.class_id = TCls_Creature;
+    param.model_id = crmodel;
+    param.primary_number = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+    param.secondary_number = any_digger_is_digging_indestructible_valuables(dungeon);
+    Thing_Maximizer_Filter filter = player_list_creature_filter_best_for_sacrifice;
+    TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(dungeon->owner, crmodel);
+    struct Thing* thing = INVALID_THING;
+    if (is_spec_digger)
+    {
+        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
+    }
+    if ((!is_spec_digger) && thing_is_invalid(thing))
+    {
+        thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+    }    
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (!thing_is_invalid(thing) && (cctrl->exp_level < max_level))
+    {
+        if (creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_SACRIFICE, JobChk_None))
+        {
+            return thing;
+        }
+    }
+    return INVALID_THING;
+}
+
 
 TbBool is_task_in_progress_using_hand(struct Computer2 *comp)
 {
@@ -1059,7 +1185,7 @@ void count_slabs_where_room_cannot_be_built(PlayerNumber plyr_idx, MapSubtlCoord
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (!slabmap_block_invalid(slb))
             {
-                if (slab_kind_is_liquid(slb->kind) || slab_kind_is_indestructible(slb->kind)) {
+                if (slab_kind_is_bridgeable(slb->kind) || slab_kind_is_indestructible(slb->kind)) {
                     nwrong++;
                 } else
                 if ((slb->kind != room_slbkind) && slab_kind_is_room(slb->kind)) {
@@ -1287,12 +1413,12 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
  * @param rkind Room kind.
  * @return Gives IAvail_Never if the room isn't available, IAvail_Now if it's available and IAvail_Later if it's researchable.
  */
-ItemAvailability computer_check_room_of_role_available(const struct Computer2 * comp, RoomRole rrole)
+static ItemAvailability computer_check_bridge_for_slab_available(const struct Computer2 *comp, SlabKind slbkind)
 {
     ItemAvailability result = IAvail_Never;
     for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,rrole))
+        if (room_can_build_on_bridge_slab(rkind, slbkind))
         {
             ItemAvailability current = computer_check_room_available(comp,rkind);
             if (current == IAvail_Now)
@@ -1349,7 +1475,7 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
     if (flag_is_set(slabst->block_flags, SlbAtFlg_Valuable)) {
         return -1;
     }
-    if (slab_kind_is_liquid(slb->kind)) {
+    if (slab_kind_is_bridgeable(slb->kind)) {
         return 1;
     }
     if ( (slabst->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
@@ -1376,7 +1502,7 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
     if (slb->kind == SlbT_GEMS) {
         return 1;
     }
-    if (slab_kind_is_liquid(slb->kind)) {
+    if (slab_kind_is_bridgeable(slb->kind)) {
         return 1;
     }
     if (!slab_good_for_computer_dig_path(slb) || (slb->kind == SlbT_WATER)) {
@@ -1618,16 +1744,13 @@ ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct
                 break;
             }
         }
-        if (slab_kind_is_liquid(slb->kind))
+        if (slab_kind_is_bridgeable(slb->kind))
         {
             // We've reached liquid slab - act accordingly
             if ((digflags & ToolDig_AllowLiquidWBridge) != 0) {
                 break;
             }
-            if ( slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) != IAvail_Now) {
-                break;
-            }
-            if ( slb->kind == SlbT_LAVA &&  computer_check_room_of_role_available(comp, RoRoF_PassLava) != IAvail_Now) {
+            if (computer_check_bridge_for_slab_available(comp, slb->kind) != IAvail_Now) {
                 break;
             }
         }
@@ -1793,8 +1916,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
         }
         // Being here means we didn't reached the destination - we must do some kind of action
         struct SlabMap* action_slb = get_slabmap_block(subtile_slab(gldstl_x), subtile_slab(gldstl_y));
-        if ( (action_slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) == IAvail_Now)||
-             (action_slb->kind == SlbT_LAVA  &&  computer_check_room_of_role_available(comp, RoRoF_PassLava)  == IAvail_Now))
+        if (computer_check_bridge_for_slab_available(comp, action_slb->kind) == IAvail_Now)
         {
             cdig->pos_next.x.stl.num = gldstl_x;
             cdig->pos_next.y.stl.num = gldstl_y;
@@ -1860,8 +1982,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
         digslb_x = subtile_slab(digstl_x);
         digslb_y = subtile_slab(digstl_y);
         action_slb = get_slabmap_block(digslb_x, digslb_y);
-        if (((action_slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) == IAvail_Now)||
-             (action_slb->kind == SlbT_LAVA  &&  computer_check_room_of_role_available(comp, RoRoF_PassLava)  == IAvail_Now)))
+        if (computer_check_bridge_for_slab_available(comp, action_slb->kind) == IAvail_Now)
         {
             cdig->pos_next.y.stl.num = digstl_y;
             cdig->pos_next.x.stl.num = digstl_x;
@@ -3484,6 +3605,76 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     return CTaskRet_Unk0;
 }
 
+long task_sacrifice_diggers(struct Computer2 *comp, struct ComputerTask *ctask)
+{
+    SYNCDBG(19,"Starting");
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    struct Thing *thing;
+    struct Coord3d pos;
+    thing = thing_get(comp->held_thing_idx);
+    // If the heart is just being destroyed - dump held thing and finish task
+    if (player_cannot_win(dungeon->owner))
+    {
+        if (!thing_is_invalid(thing)) {
+            computer_force_dump_held_things_on_map(comp, &ctask->move_to_defend.target_pos);
+        }
+        SYNCDBG(8,"No reason to bother, player %d can no longer win",(int)dungeon->owner);
+        remove_task(comp, ctask);
+        return CTaskRet_Unk0;
+    }
+    // If everything is fine and we're keeping the thing to move in "fake hand"
+    if (thing_exists(thing))
+    {       
+        if (thing_is_creature(thing))
+        {
+            if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, thing, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
+            {
+                if (computer_dump_held_things_on_map(comp, thing, &pos, CrSt_CreatureSacrifice))
+                {
+                    return CTaskRet_Unk2;            
+                }
+            }     
+            ERRORLOG("Could not dump player %d %s into (%d,%d)",(int)dungeon->owner,
+                thing_model_name(thing),(int)pos.x.stl.num,(int)pos.y.stl.num);
+        } else
+        {
+            WARNLOG("%s computer hand holds %s instead of creature",player_code_name(dungeon->owner), thing_model_name(thing));
+        }
+        computer_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
+        remove_task(comp, ctask);
+        return CTaskRet_Unk0;
+    }   
+    if (get_gameturn() - ctask->lastrun_turn < ctask->delay) {
+        return CTaskRet_Unk4;
+    }
+    /*
+     should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment!
+    */
+   
+    GoldAmount power_price = compute_power_price(comp->dungeon->owner, PwrK_MKDIGGER, 0);
+    GoldAmount lowest_price = compute_lowest_power_price(comp->dungeon->owner, PwrK_MKDIGGER, 0);
+    thing = find_creature_for_sacrifice(comp, ctask->sacrifice_imp.digger_model_id, ctask->sacrifice_imp.max_level);
+    if (!thing_is_invalid(thing) && power_price > lowest_price)
+    {
+        // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
+        if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, thing, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
+        {
+            if (!computer_place_thing_in_power_hand(comp, thing, &pos))
+            {
+                remove_task(comp, ctask);
+                return CTaskRet_Unk0;
+            }
+            SYNCDBG(9,"Player %d picked %s index %d to sacrifice (%d,%d)",(int)dungeon->owner,thing_model_name(thing),(int)thing->index,
+                (int)pos.x.stl.num, (int)pos.y.stl.num);
+            return CTaskRet_Unk2;
+        }        
+    }
+    remove_task(comp, ctask);
+    return CTaskRet_Unk1;
+}
+
+
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos)
 {
     memset(cdig,0,sizeof(struct ComputerDig));
@@ -3540,7 +3731,10 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
             message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should stop doing that.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureSacrifice:
-            if (thing->model == game.conf.rules[comp->dungeon->owner].sacrifices.cheaper_diggers_sacrifice_model) {
+            /*
+            should probably be game.conf.rules[dungeon->owner] but sacrifice recipes seem to be global at the moment!
+            */
+            if (thing->model == game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model) {
                 struct PowerConfigStats *powerst;
                 powerst = get_power_model_stats(PwrK_MKDIGGER);
                 message_add_fmt(MsgType_Player, comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crconf->namestr_idx),get_string(powerst->name_stridx));
@@ -3920,6 +4114,27 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     ctask->created_turn = get_gameturn();
     return true;
 }
+
+TbBool create_task_sacrifice_diggers(struct Computer2 *comp, int max_level, int digger_model_id)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    if (flag_is_set(game.computer_chat_flags, CChat_TasksScarce)) {
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Imps cost too much, time to die!");
+    }
+    ctask->ttype = CTT_SacrificeDiggers;
+    ctask->sacrifice_imp.max_level = max_level;
+    ctask->sacrifice_imp.digger_model_id = digger_model_id;
+    ctask->created_turn = get_gameturn();
+    ctask->lastrun_turn = get_gameturn();
+    ctask->delay = comp->task_delay;
+    return true;
+}
+
 
 long process_tasks(struct Computer2 *comp)
 {

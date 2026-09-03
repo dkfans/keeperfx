@@ -941,7 +941,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
 
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, KeepPwrLevel power_level)
 {
-    long price;
+    GoldAmount price;
     if (pwkind >= game.conf.magic_conf.power_types_count)
         return false;
     if (power_level >= MAGIC_OVERCHARGE_LEVELS)

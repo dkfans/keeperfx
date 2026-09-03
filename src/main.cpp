@@ -154,6 +154,7 @@ short default_loc_player = 0;
 struct StartupParameters start_params;
 char autostart_multiplayer_campaign[80] = "";
 int autostart_multiplayer_level = 0;
+int autostart_multiplayer_users_expected = 2;
 int32_t turns_per_second;
 unsigned char *blue_palette;
 unsigned char *red_palette;
@@ -1935,6 +1936,11 @@ static short process_command_line(unsigned short argc, char *argv[])
           LbNetwork_InitSessionsFromCmdLine(pr2str);
           game_flags2 |= GF2_Connect;
       }
+      else if (strcasecmp(parstr,"waitusers") == 0)
+      {
+          autostart_multiplayer_users_expected = clamp(atoi(pr2str), MIN_NET_USERS, MAX_NET_USERS);
+          narg++;
+      }
       else if (strcasecmp(parstr,"server") == 0)
       {
           game_flags2 |= GF2_Server;
@@ -1943,6 +1949,19 @@ static short process_command_line(unsigned short argc, char *argv[])
           {
               LbNetwork_SetServerPort(port);
               narg++;
+          }
+      }
+      else if (strcasecmp(parstr, "nick") == 0)
+      {
+          if (pr2str[0])
+          {
+              snprintf(net_player_name, sizeof(net_player_name), "%s", pr2str);
+              snprintf(tmp_net_player_name, sizeof(net_player_name), "%s", pr2str);
+              narg++;
+          }
+          else
+          {
+              WARNMSG("No player name given after -nick");
           }
       }
       else if (strcasecmp(parstr,"frameskip") == 0)

@@ -42,6 +42,7 @@
 #include "vidmode.h"
 #include "moonphase.h"
 #include "keeperfx.hpp"
+#include "net_matchmaking.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -165,6 +166,7 @@ const struct NamedCommand conf_commands[] = {
   {"VSYNC"                         , 44},
   {"RELATIVE_MOUSE_MODE"           , 45},
   {"CAPTURE_CURSOR"                , 46},
+  {"MATCHMAKING_SERVER"            , 47},
   {"MULTIPLAYER_PORT"              , 48},
   {NULL,                   0},
   };
@@ -401,7 +403,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
       int cmd_num = recognize_conf_command(buf, &pos, len, conf_commands);
       // Now store the config item in correct place
       int k;
-      char word_buf[32];
+      char word_buf[128];
       switch (cmd_num)
       {
       case 1: // INSTALL_PATH
@@ -1030,6 +1032,21 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           if (i!=1) lbMouseGrab = false;
           break;
+      case 47: // MATCHMAKING_SERVER
+          get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf));
+          if (get_id(logicval_type, word_buf) == 2)
+          {
+              matchmaking_enabled = false;
+              matchmaking_set_server(NULL);
+              SYNCLOG("Matchmaking disabled (server set to OFF)");
+          }
+          else
+          {
+              matchmaking_enabled = true;
+              matchmaking_set_server(word_buf);
+              SYNCLOG("Matchmaking server: %s", matchmaking_ws_url);
+          }
+          break;
       case 48: // MULTIPLAYER_PORT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
@@ -1039,8 +1056,6 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             enet_port = i;
           } else {
             CONFWRNLOG("Invalid MULTIPLAYER_PORT '%s' in %s file.", COMMAND_TEXT(cmd_num), config_textname);
-          }
-          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:

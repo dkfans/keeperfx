@@ -343,6 +343,8 @@ static int32_t delta_s_x,        delta_u_x,        delta_v_x;
 static int32_t delta_s_y_top,    delta_u_y_top,    delta_v_y_top;    // Along edge AB or AC
 static int32_t delta_s_y_bottom, delta_u_y_bottom, delta_v_y_bottom; // Along edge BC
 
+#define TEXTURE_UV_WRAP_MASK 0x1F1F
+
 // Bit layout for packed texture coordinates (fractional part in lowercase):
 //            msb                    lsb
 // Shade    : 00000000 0000FFff ff000000
@@ -685,7 +687,7 @@ static void draw_gpoly_line(uint8_t *restrict pixel_dst, int32_t length, TexCoor
 
     for (int i = 0; i < length; i++)
     {
-        const uint16_t uv = rol32(texture_position >> 32, 8);
+        const uint16_t uv = rol32(texture_position >> 32, 8) & TEXTURE_UV_WRAP_MASK;
         const uint16_t shade = texture_position & 0xFF00;
         const uint8_t texel = texture[uv];
         pixel_dst[i] = fade_table[texel | shade];

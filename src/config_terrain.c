@@ -271,6 +271,7 @@ const struct NamedCommand room_roles_desc[] = {
   {"ROOM_ROLE_POOL_LEAVE",     RoRoF_CrPoolLeave},
   {"ROOM_ROLE_PASS_WATER",     RoRoF_PassWater},
   {"ROOM_ROLE_PASS_LAVA",      RoRoF_PassLava},
+  {"ROOM_ROLE_PASS_ABYSS",     RoRoF_PassAbyss},
   {"ROOM_ROLE_NONE",           RoRoF_None},
   {NULL,                       0},
 };
@@ -750,6 +751,23 @@ TbBool slab_kind_is_liquid(SlabKind slbkind)
     if ((slbkind == SlbT_WATER) || (slbkind == SlbT_LAVA))
         return true;
     return false;
+}
+
+TbBool slab_kind_is_bridgeable(SlabKind slbkind)
+{
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
+    return (slabst->wlb_type != WlbT_None) && (slabst->wlb_type != WlbT_Bridge);
+}
+
+int slab_kind_from_wlb_type(unsigned char wlb_type)
+{
+    if ((wlb_type == WlbT_None) || (wlb_type == WlbT_Bridge))
+        return -1;
+    for (int slbkind = 0; slbkind < game.conf.slab_conf.slab_types_count; slbkind++) {
+        if (get_slab_kind_stats(slbkind)->wlb_type == wlb_type)
+            return slbkind;
+    }
+    return -1;
 }
 
 /**
