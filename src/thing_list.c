@@ -3380,6 +3380,13 @@ TbBool update_thing(struct Thing *thing)
         classfunc = NULL;
     if (classfunc == NULL)
         return false;
+    if ((!falling || thing_is_creature(thing)) && (classfunc(thing) == TUFRet_Deleted)) {
+        return false;
+    }
+    if (flag_is_set(thing->state_flags, TF1_InCtrldLimbo)) {
+        return true;
+    }
+    falling = flag_is_set(thing->state_flags, TF1_FallingIntoAbyss);
     if (falling) {
         thing->velocity.z.val = clamp(thing->velocity.z.val, -CREATURE_TERMINAL_VELOCITY, CREATURE_TERMINAL_VELOCITY);
         struct Coord3d pos;
@@ -3395,12 +3402,6 @@ TbBool update_thing(struct Thing *thing)
         thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
     }
     else {
-        if (classfunc(thing) == TUFRet_Deleted) {
-            return false;
-        }
-        if (flag_is_set(thing->state_flags, TF1_InCtrldLimbo)) {
-            return true;
-        }
         if ((thing->class_id != TCls_EffectElem) && !flag_is_set(thing->movement_flags, TMvF_Immobile) && !flag_is_set(thing->movement_flags, TMvF_Flying) && (thing->fall_acceleration != 0) && (thing->mappos.z.val <= 0) && subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
             set_flag(thing->state_flags, TF1_FallingIntoAbyss);
             falling = true;

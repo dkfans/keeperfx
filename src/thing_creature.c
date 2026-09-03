@@ -1838,6 +1838,11 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
 
         }
         pos.z.val += subtile_coord(2,0);
+        if (flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+            clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
+            clear_thing_acceleration(thing);
+            clear_thing_velocity(thing);
+        }
         move_thing_in_map(thing, &pos);
         remove_all_traces_of_combat(thing);
         reset_interpolation_of_thing(thing);
@@ -6450,6 +6455,10 @@ TngUpdateRet update_creature(struct Thing *thing)
     if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT))
     {
         process_creature_instance(thing);
+    }
+    if (flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+        process_thing_spell_effects(thing);
+        return TUFRet_Modified;
     }
     update_creature_count(thing);
     if (flag_is_set(thing->alloc_flags,TAlF_IsControlled))
