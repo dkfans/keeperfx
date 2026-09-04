@@ -45,4 +45,8 @@ function MapID.GetLevelFromID(id)
     return nil
 end
 
+--Use GetString(id) to get the string in current language.
+--Consider Aqua's GetTranslatedString using REPLACEMENTID and such. Might be able to translate all AP messages that way too.
+
+
 return MapID

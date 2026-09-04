@@ -10,7 +10,7 @@ BoxLocations = require("box_locations")
 SentLocations = require("sent_locations")
 --ReceivedLocations = require("received_locations")
 local map = {level_id = MapID.MAP_001.level}
-
+--can use Map.map_number instead
 
 --quick debug testing - happens on slap
 function ThingToDoWhenSlapIsCast()
@@ -67,7 +67,7 @@ local BoxTooltips = {
 
 --here we setup things 
 function Setup()
-      QuickMessage("Map: " .. map.level_id .. " (" .. MapID.GetName(map.level_id) .. ").", "ARCHIPELAGO_ICON")
+      QuickMessage("Map: " .. map.level_id .. " (" .. MapID.GetNameFromID(map.level_id) .. ").", "ARCHIPELAGO_ICON")
       QuickMessage("MapID: " .. tostring(MapID), "ARCHIPELAGO_ICON")
       QuickMessage("BoxLocations: " .. tostring(BoxLocations), "ARCHIPELAGO_ICON")
       --BoxLocations.DeleteBoxes(map.level_id)
