@@ -22,6 +22,7 @@ extern "C" {
 #endif
 
 #define ENET_DEFAULT_PORT 5556
+extern uint16_t enet_port;
 
 enum {
     ENET_CHANNEL_RELIABLE = 0,

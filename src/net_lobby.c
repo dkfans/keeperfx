@@ -227,7 +227,7 @@ TbError LbNetwork_Create(char *, char *plyr_name, uint32_t *plyr_num, void *optn
         return Lb_FAIL;
     }
     char default_port_buf[16];
-    snprintf(default_port_buf, sizeof(default_port_buf), ":%u", (unsigned)ENET_DEFAULT_PORT);
+    snprintf(default_port_buf, sizeof(default_port_buf), ":%u", (unsigned)enet_port);
     const char *port = default_port_buf;
     char port_string[16] = "";
     if (server_port != 0) {
@@ -237,7 +237,7 @@ TbError LbNetwork_Create(char *, char *plyr_name, uint32_t *plyr_num, void *optn
     if (netstate.sp->host(port, optns) == Lb_FAIL) {
         return Lb_FAIL;
     }
-    uint16_t local_port = ENET_DEFAULT_PORT;
+    uint16_t local_port = enet_port;
     if (server_port > 0) {
         local_port = (uint16_t)server_port;
     }
