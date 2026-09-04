@@ -532,8 +532,9 @@ enum CampaignStrings {
 };
 
 /******************************************************************************/
+
+extern char *gui_strings[GUI_STRINGS_COUNT];
 /******************************************************************************/
-TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);
 TbBool reset_strings(char **strings, int max);
 const char * get_string(TextStringId stridx);
