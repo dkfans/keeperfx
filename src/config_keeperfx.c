@@ -1056,6 +1056,8 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             enet_port = i;
           } else {
             CONFWRNLOG("Invalid MULTIPLAYER_PORT '%s' in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
