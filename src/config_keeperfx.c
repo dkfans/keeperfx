@@ -23,6 +23,7 @@
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "bflib_enet.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
@@ -166,6 +167,7 @@ const struct NamedCommand conf_commands[] = {
   {"RELATIVE_MOUSE_MODE"           , 45},
   {"CAPTURE_CURSOR"                , 46},
   {"MATCHMAKING_SERVER"            , 47},
+  {"MULTIPLAYER_PORT"              , 48},
   {NULL,                   0},
   };
 
@@ -1043,6 +1045,17 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               matchmaking_enabled = true;
               matchmaking_set_server(word_buf);
               SYNCLOG("Matchmaking server: %s", matchmaking_ws_url);
+          }
+          break;
+      case 48: // MULTIPLAYER_PORT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if (i > 0 && i <= UINT16_MAX) {
+            enet_port = i;
+          } else {
+            CONFWRNLOG("Invalid MULTIPLAYER_PORT '%s' in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
       case ccr_comment:
