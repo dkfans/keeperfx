@@ -123,6 +123,7 @@ TbBool frontnet_start_input(void)
             send_network_chat_message(netstate.my_id, player->mp_message_text);
         }
         process_frontend_chat_message(netstate.my_id, player->mp_message_text);
+        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
     } else if (lbInkey == KC_ESCAPE) {
         player->mp_message_text[0] = '\0';
     } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){

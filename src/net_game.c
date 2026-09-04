@@ -463,6 +463,7 @@ static void stop_network_game_state(void)
 {
     memset(net_user_info, 0, sizeof(net_user_info));
     clear_flag(game.system_flags, GSF_NetworkActive);
+    get_my_player()->user_id = SOLO_HUMAN_ID;
     clear_flag(game.system_flags, GSF_NetGameNoSync);
     clear_flag(game.system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;

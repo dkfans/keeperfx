@@ -147,12 +147,15 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
 
 void process_frontend_chat_message(NetUserId user, const char *message)
 {
-    struct PlayerInfo *player = prepare_network_chat_message(user, message);
-    if (message[0] != '\0' && !try_starting_level_from_chat(player->mp_message_text, user)) {
-        add_message(user, player->mp_message_text);
+    if (message[0] == '\0') {
+        return;
+    }
+    char text[PLAYER_MP_MESSAGE_LEN];
+    snprintf(text, sizeof(text), "%s", message);
+    if (!try_starting_level_from_chat(text, user)) {
+        add_message(user, text);
         play_non_3d_sample(snd_chat_message[user == netstate.my_id]);
     }
-    memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
 }
 
 TbBool frontnet_service_selected(enum FrontendNetService service)
