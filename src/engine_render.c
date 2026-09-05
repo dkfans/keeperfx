@@ -8891,12 +8891,12 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
                     }
                     if (top_edge)
                     {
-                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx - stl_width, line_color);
+                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx, line_color);
                         create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             line_color);
                     }
                     if (bottom_edge)
                     {
-                        create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx - stl_width, line_color);
+                        create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx, line_color);
                         create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
                     }
                     line_color = map_volume_box.color; // switch back to default color (red/green) for the inner line
