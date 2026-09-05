@@ -1544,6 +1544,12 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
             return; // Exit the function, no continuous effect to apply.
         }
     }
+
+    if(spconf->magic_use_func_idx < 0)
+    {
+        luafunc_magic_use_spell(spconf->magic_use_func_idx, spell_idx, thing, spell_level, plyr_idx);
+    }
+
     // Check for immunities against each spell flags set on spell_idx.
     if (((spconf->spell_flags > 0) && creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
     && !spell_is_continuous(spell_idx, duration))
