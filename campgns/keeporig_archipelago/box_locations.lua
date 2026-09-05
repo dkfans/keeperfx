@@ -81,8 +81,7 @@ function BoxLocations.ActivateBoxes(level_id)
             if not first then message = message .. ", " end
             message = message .. id
             first = false
-            RegisterSpecialActivatedEvent(function()
-                SentLocations.Add(id)
+            RegisterSpecialActivatedEvent(function()               
                 found = found + 1
                 -- get info for specific location so we can check name and player
                 local info = GetAPLocationInfo(id)
@@ -99,7 +98,6 @@ function BoxLocations.ActivateBoxes(level_id)
                 end
                 if not first2 then message2 = message2 .. "." end
                 QuickMessage(message2, "ARCHIPELAGO_ICON")
-                SentLocations.Save() --writes to AP_sent_locations_save.lua
                 Game.APBox[id] = nil
             end, id)
         else

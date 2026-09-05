@@ -15,7 +15,8 @@ if (!ap) return;
     ap->items_count = 0;
     ap->locations_count = 0;
     for (int i = 0; i < AP_LOCATION_NO; i++) {
-        ap->checked_locations[i] = 0; 
+        ap->checked_locations[i] = 0;
+        ap->missing_locations[i] = 0; 
         ap->items_recieved[i] = 0;
     }
 }
