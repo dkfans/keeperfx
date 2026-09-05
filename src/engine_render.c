@@ -8717,15 +8717,16 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     coord_z -= (11 * (long)stl_width) >> 2;
     // Draw 4 horizonal line elements
     create_line_element(coord_x,             coord_y,                      coord_x + box_width, coord_y,                      coord_z,                          line_color);
-    create_line_element(coord_x,             coord_y + box_height,         coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
-    create_line_element(coord_x,             coord_y + depth,              coord_x + box_width, coord_y + depth,              coord_z,                          line_color);
-    create_line_element(coord_x,             coord_y + box_height + depth, coord_x + box_width, coord_y + box_height + depth, coord_z - box_height,             line_color);
+    create_line_element(coord_x,             coord_y + box_height,         coord_x + box_width, coord_y + box_height,         coord_z - box_height - stl_width, line_color);
+    create_line_element(coord_x,             coord_y + depth,              coord_x + box_width, coord_y + depth,              coord_z - box_height,             line_color);
+    create_line_element(coord_x,             coord_y + box_height + depth, coord_x + box_width, coord_y + box_height + depth, coord_z - box_height - stl_width, line_color);
     // Now the lines at left and right
     create_line_element(coord_x,             coord_y,                      coord_x,             coord_y + box_height,         coord_z - box_height,             line_color);
     create_line_element(coord_x + box_width, coord_y,                      coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
     create_line_element(coord_x,             coord_y + breadth,            coord_x,             coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
     create_line_element(coord_x + box_width, coord_y + breadth,            coord_x + box_width, coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
 }
+
 void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width, long color, TbBool show_outer_box)
 {
     long line_color = color;
@@ -8896,12 +8897,12 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
                     }
                     if (top_edge)
                     {
-                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             line_color);
+                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx, line_color);
                         create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             line_color);
                     }
                     if (bottom_edge)
                     {
-                        create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                        create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx, line_color);
                         create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
                     }
                     line_color = map_volume_box.color; // switch back to default color (red/green) for the inner line

@@ -281,7 +281,7 @@ struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace, short rkin
     roomspace.total_roomspace_cost = roomspace.slab_count * rkind_cost;
     if (roomspace.slab_count != (roomspace.width * roomspace.height))
     {
-        roomspace.is_roomspace_a_box = false;
+        roomspace.is_roomspace_a_box = (roomspace.slab_count == 0);
         roomspace.render_roomspace_as_box = false;
     }
     struct PlayerInfo* player = get_player(roomspace.plyr_idx);
