@@ -120,19 +120,19 @@ LINKLIB = -mwindows \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
 INCS = \
 	-I"src" \
-	-idirafter"deps/zlib/include" \
-	-idirafter"deps/spng/include" \
-	-idirafter"sdl/include" \
-	-idirafter"deps/enet6/include" \
-	-idirafter"deps/centijson/include" \
-	-idirafter"deps/centitoml" \
-	-idirafter"deps/astronomy/include" \
-	-idirafter"deps/ffmpeg" \
-	-idirafter"deps/openal/include" \
-	-idirafter"deps/luajit/include" \
-	-idirafter"deps/miniupnpc/include" \
-	-idirafter"deps/libnatpmp/include" \
-	-idirafter"deps/libcurl/include"
+	-isystem"deps/zlib/include" \
+	-isystem"deps/spng/include" \
+	-isystem"sdl/include" \
+	-isystem"deps/enet6/include" \
+	-isystem"deps/centijson/include" \
+	-isystem"deps/centitoml" \
+	-isystem"deps/astronomy/include" \
+	-isystem"deps/ffmpeg" \
+	-isystem"deps/openal/include" \
+	-isystem"deps/luajit/include" \
+	-isystem"deps/miniupnpc/include" \
+	-isystem"deps/libnatpmp/include" \
+	-isystem"deps/libcurl/include"
 STDOBJS   := $(subst obj/,$(OBJDIR)/std/,$(OBJS))
 HVLOGOBJS := $(subst obj/,$(OBJDIR)/hvlog/,$(OBJS))
 STD_MAIN_OBJ := $(subst obj/,$(OBJDIR)/std/,$(MAIN_OBJ))
@@ -164,14 +164,14 @@ std_LOGFLAGS = -DBFDEBUG_LEVEL=0
 hvlog_LOGFLAGS = -DBFDEBUG_LEVEL=10
 WARNFLAGS = \
 	-Wall \
+	-Wshadow \
 	-Werror \
 	-Wno-sign-compare \
 	-Wno-unused-parameter \
 	-Wno-maybe-uninitialized \
 	-Wno-strict-aliasing \
 	-Wno-unknown-pragmas \
-	-Wno-format-truncation \
-	-Wno-stringop-truncation
+	-Wno-format-truncation
 COMMONFLAGS := \
 	$(INCS) \
 	-c \
