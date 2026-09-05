@@ -115,8 +115,12 @@ long MapDiagonalLength = 0;
 
 /******************************************************************************/
 
+// todo : replace with renderer owned buffer.
 void panel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
 {
+    // No CPU framebuffer under GL -- see setup_background()'s comment.
+    if (lbDisplay.WScreen == NULL)
+        return;
     if ((y >= 0) && (y < MapDiagonalLength))
     {
         if ((x >= MapShapeStart[y]) && (x < MapShapeEnd[y]))
@@ -958,43 +962,48 @@ void setup_background(long units_per_px)
         MapShapeEnd[i] = radius + LbSqrL(n);
     }
 
-    int num_colours;
-    num_colours = 0;
-    long out_scanline;
-    out_scanline = lbDisplay.GraphicsScreenWidth;
-    long bkgnd_pos;
-    bkgnd_pos = 0;
-    TbPixel *out;
-    out = &lbDisplay.WScreen[PanelMapX + out_scanline * PanelMapY];
-    int w;
-    int h;
-    for (h=0; h < MapDiagonalLength; h++)
+    // ToDo : replace with UIRenderer_SetupMinimapBackground()
+    
+    if (lbDisplay.WScreen != NULL)
     {
-        for (w = MapShapeStart[h]; w < MapShapeEnd[h]; w++)
+        int num_colours;
+        num_colours = 0;
+        long out_scanline;
+        out_scanline = lbDisplay.GraphicsScreenWidth;
+        long bkgnd_pos;
+        bkgnd_pos = 0;
+        TbPixel *out;
+        out = &lbDisplay.WScreen[PanelMapX + out_scanline * PanelMapY];
+        int w;
+        int h;
+        for (h=0; h < MapDiagonalLength; h++)
         {
-            if (w < 0) continue;
+            for (w = MapShapeStart[h]; w < MapShapeEnd[h]; w++)
+            {
+                if (w < 0) continue;
 
-            TbPixel orig;
-            orig = out[w];
-            out[w] = 255;
-            int colour;
-            for (colour=0; colour < num_colours; colour++)
-            {
-                if (MapBackColours[colour] == orig) {
-                    break;
+                TbPixel orig;
+                orig = out[w];
+                out[w] = 255;
+                int colour;
+                for (colour=0; colour < num_colours; colour++)
+                {
+                    if (MapBackColours[colour] == orig) {
+                        break;
+                    }
                 }
+                if (num_colours == colour)
+                {
+                    MapBackColours[num_colours] = orig;
+                    num_colours++;
+                }
+                MapBackground[bkgnd_pos+w] = colour;
             }
-            if (num_colours == colour)
-            {
-                MapBackColours[num_colours] = orig;
-                num_colours++;
-            }
-            MapBackground[bkgnd_pos+w] = colour;
+            bkgnd_pos += MapDiagonalLength;
+            out += out_scanline;
         }
-        bkgnd_pos += MapDiagonalLength;
-        out += out_scanline;
+        NumBackColours = num_colours;
     }
-    NumBackColours = num_colours;
 }
 
 void setup_panel_colors(void)
@@ -1249,7 +1258,8 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     struct PlayerInfo *player = get_my_player();
     struct Camera *cam = get_local_active_camera(player);
 
-    if ((cam == NULL) || (MapDiagonalLength < 1))
+    // No CPU framebuffer under GL -- see setup_background()'s comment.
+    if ((cam == NULL) || (MapDiagonalLength < 1) || (lbDisplay.WScreen == NULL))
         return;
 
     const int32_t shift_x = -LbSinL(cam->rotation_angle_x) * zoom / 256;

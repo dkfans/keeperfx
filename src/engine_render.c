@@ -18,9 +18,11 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kfx/renderer/RendererManager.h"
+#include "kfx/renderer/RendererSettings.h" // g_renderer_settings.creature_outline_class_mask (Beat 4)
 #include <stddef.h>
 
 #include "engine_render.h"
+#include "engine_buckets.h"
 #include "globals.h"
 
 #include "bflib_basics.h"
@@ -82,248 +84,14 @@ extern "C" {
 #define ABYSS_WATER_SCROLL_SPEED 2.25f
 #define ABYSS_LIQUID_SCROLL_CYCLE 128.0f
 
-enum QKinds {
-    QK_PolygonStandard = 0,
-    QK_PolygonSimple,
-    QK_PolyMode0,
-    QK_PolyMode4,
-    QK_TrigMode2,
-    QK_PolyMode5,
-    QK_TrigMode3,
-    QK_TrigMode6,
-    QK_RotableSprite, // 8
-    QK_PolygonNearFP,
-    QK_BasicPolygon,
-    QK_JontySprite,
-    QK_CreatureShadow,
-    QK_SlabSelector,
-    QK_CreatureStatus,
-    QK_TextureQuad,
-    QK_FloatingGoldText, // 16
-    QK_RoomFlagBottomPole,
-    QK_JontyISOSprite,
-    QK_RoomFlagStatusBox,
-    QK_ListEnd,
-};
+// QKinds enum, BasicQ, and all BucketKind* item structs moved to
+// engine_buckets.h (P5.7.2a) so GLWorldViewRenderer can walk the same
+// buckets[] list (included above). buckets[] itself stays defined here
+// (below), only extern-declared there.
 
 struct MinMax;
 struct Camera;
 struct PlayerInfo;
-
-typedef unsigned char QKind;
-
-struct BasicQ { // sizeof = 5
-  struct BasicQ *next;
-  QKind kind;
-};
-
-struct BucketKindPolygonStandard {
-    struct BasicQ b;
-    unsigned short block;
-    struct PolyPoint vertex_first;
-    struct PolyPoint vertex_second;
-    struct PolyPoint vertex_third;
-};
-
-struct BucketKindPolygonSimple {
-    struct BasicQ b;
-    unsigned short block;
-    struct PolyPoint vertex_first;
-    struct PolyPoint vertex_second;
-    struct PolyPoint vertex_third;
-};
-
-struct BucketKindPolyMode0 {
-    struct BasicQ b;
-    unsigned char colour;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-};
-
-struct BucketKindPolyMode4 {
-    struct BasicQ b;
-    unsigned char colour;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-    unsigned char texture_vertex_first;
-    unsigned char texture_vertex_second;
-    unsigned char texture_vertex_third;
-};
-
-struct BucketKindTrigMode2 {
-    struct BasicQ b;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-    unsigned char texture_u_first;
-    unsigned char texture_v_first;
-    unsigned char texture_u_second;
-    unsigned char texture_v_second;
-    unsigned char texture_u_third;
-    unsigned char texture_v_third;
-};
-
-struct BucketKindPolyMode5 {
-    struct BasicQ b;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-    unsigned char texture_u_first;
-    unsigned char texture_v_first;
-    unsigned char texture_u_second;
-    unsigned char texture_v_second;
-    unsigned char texture_u_third;
-    unsigned char texture_v_third;
-    unsigned char texture_w_first;
-    unsigned char texture_w_second;
-    unsigned char texture_w_third;
-};
-
-struct BucketKindTrigMode3 {
-    struct BasicQ b;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-    unsigned char texture_u_first;
-    unsigned char texture_v_first;
-    unsigned char texture_u_second;
-    unsigned char texture_v_second;
-    unsigned char texture_u_third;
-    unsigned char texture_v_third;
-};
-
-struct BucketKindTrigMode6 {
-    struct BasicQ b;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-    unsigned char texture_u_first;
-    unsigned char texture_v_first;
-    unsigned char texture_u_second;
-    unsigned char texture_v_second;
-    unsigned char texture_u_third;
-    unsigned char texture_v_third;
-    unsigned char texture_w_first;
-    unsigned char texture_w_second;
-    unsigned char texture_w_third;
-};
-
-struct BucketKindRotableSprite {
-    struct BasicQ b;
-    long clip_flags;
-    long depth_fade;
-};
-
-struct BucketKindPolygonNearFP {
-    struct BasicQ b;
-    unsigned char subtype;
-    unsigned short block;
-    struct PolyPoint vertex_first;
-    struct PolyPoint vertex_second;
-    struct PolyPoint vertex_third;
-    struct XYZ coordinate_first;
-    struct XYZ coordinate_second;
-    struct XYZ coordinate_third;
-};
-
-struct BucketKindBasicUnk10 {
-    struct BasicQ b;
-    unsigned char color_value;
-    struct PolyPoint vertex_first;
-    struct PolyPoint vertex_second;
-    struct PolyPoint vertex_third;
-};
-
-struct BucketKindJontySprite {  // BasicQ type 11,18
-    struct BasicQ b;
-    struct Thing *thing;
-    long scr_x;
-    long scr_y;
-    long depth_fade;
-};
-
-struct BucketKindCreatureShadow {
-    struct BasicQ b;
-    unsigned short color_value;
-    struct PolyPoint vertex_first;
-    struct PolyPoint vertex_second;
-    struct PolyPoint vertex_third;
-    struct PolyPoint vertex_fourth;
-    long angle;
-    unsigned short anim_sprite;
-    unsigned char current_frame;
-};
-
-struct BucketKindSlabSelector {
-    struct BasicQ b;
-    unsigned short color_value;
-    struct PolyPoint p;
-};
-
-struct BucketKindCreatureStatus { // sizeof = 24
-    struct BasicQ b;
-    unsigned char padding[3];
-    struct Thing *thing;
-    long x;
-    long y;
-    long z;
-};
-
-#define SHADOW_SOURCES_MAX_COUNT 4
-struct NearestLights {
-    struct Coord3d coord[SHADOW_SOURCES_MAX_COUNT];
-};
-struct BucketKindTexturedQuad { // sizeof = 54
-    struct BasicQ b;
-    unsigned char orient;
-    long texture_idx;
-    long texture_x;
-    long texture_y;
-    struct Coord2d texture_scroll;
-    long zoom_x;
-    long zoom_y;
-    long shade_intensity0;
-    long shade_intensity1;
-    long shade_intensity2;
-    long shade_intensity3;
-    long marked_mode;
-};
-
-struct BucketKindFloatingGoldText { // BasicQ type 16
-    struct BasicQ b;
-    long x;
-    long y;
-    long lvl;
-};
-
-struct BucketKindRoomFlag { // BasicQ type 17,19
-    struct BasicQ b;
-    unsigned short lvl;
-    long x;
-    long y;
-};
-
-
 
 /* Corner slot holding the ceiling vertex. Slots 0..COLUMN_STACK_HEIGHT belong to the
    cubes of a column and the abyss walls own the slots above them, so the ceiling needs
@@ -512,7 +280,7 @@ static void do_map_who(short tnglist_idx);
 static void (*render_sprite_debug_fn) (struct Thing*, long scrpos_x, long scrpos_y) = NULL;
 static int render_sprite_debug_level = 0;
 static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf);
-static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
+void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
 
 static TbBool animation_sprite_id_invalid(unsigned short animation_sprite)
 {
@@ -965,7 +733,7 @@ struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, 
     return &blank_wibble_table[table_index];
 }
 
-static struct BasicQ *get_bucket_item(int min_cor_z, enum QKinds kind, size_t size)
+static struct BasicQ *get_bucket_item(int min_cor_z, enum QKinds kind, size_t size, int *out_bckt_idx)
 {
     if (getpoly >= poly_pool_end)
     {
@@ -981,6 +749,8 @@ static struct BasicQ *get_bucket_item(int min_cor_z, enum QKinds kind, size_t si
     {
         bckt_idx = BUCKETS_COUNT-2;
     }
+    if (out_bckt_idx != NULL)
+        *out_bckt_idx = bckt_idx;
     struct BasicQ * kspr;
     kspr = (struct BasicQ *)getpoly;
     getpoly += size;
@@ -1825,7 +1595,7 @@ static void find_gamut(void)
     int scr_w2;
     int scr_h2;
     long screen_dist;
-    screen_dist = (lbDisplay.PhysicalScreenWidth << 7) / lens;
+    screen_dist = (RendererPhysicalWidth() << 7) / lens;
     scr_w1 = cells_w + ((screen_dist * angle_cos - (angle_sin << 8)) >> 16);
     scr_h1 = cells_h + (((angle_cos << 8) + screen_dist * angle_sin) >> 16);
     scr_w2 = cells_w + ((-screen_dist * angle_cos - (angle_sin << 8)) >> 16);
@@ -4104,9 +3874,11 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     rotpers(&ecor4, &camera_matrix);
 
     int min_cor_z = min(min(ecor1.z,ecor2.z),min(ecor3.z,ecor4.z));
-    struct BucketKindCreatureShadow *kspr = (struct BucketKindCreatureShadow *)get_bucket_item(min_cor_z, QK_CreatureShadow, sizeof(struct BucketKindCreatureShadow));
+    int shadow_bckt_idx;
+    struct BucketKindCreatureShadow *kspr = (struct BucketKindCreatureShadow *)get_bucket_item(min_cor_z, QK_CreatureShadow, sizeof(struct BucketKindCreatureShadow), &shadow_bckt_idx);
     if (kspr == NULL)
         return;
+    kspr->bucket_idx = shadow_bckt_idx;
 
     // P1
     kspr->vertex_first.X = ecor1.view_width;
@@ -4158,7 +3930,7 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
     if (!lens_mode)
         z_val = BUCKETS_STEP; // should get into bucket 1
 
-    struct BucketKindCreatureStatus* poly = (struct BucketKindCreatureStatus*)get_bucket_item(z_val, QK_CreatureStatus, sizeof(struct BucketKindCreatureStatus));
+    struct BucketKindCreatureStatus* poly = (struct BucketKindCreatureStatus*)get_bucket_item(z_val, QK_CreatureStatus, sizeof(struct BucketKindCreatureStatus), NULL);
     if (poly == NULL)
         return;
 
@@ -5121,8 +4893,10 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         RendererAddDrawFlags(Lb_SPRITE_TRANSPAR8);
     if (flag_is_set(thing->rendering_flags, TRF_Transpar_4))
         RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
-    if (flag_is_set(thing->rendering_flags, TRF_Transpar_Alpha))
+    if (flag_is_set(thing->rendering_flags, TRF_Transpar_Alpha)) {
         EngineSpriteDrawUsingAlpha = 1;
+        RendererAddDrawFlags(Lb_SPRITE_ALPHA_ADDITIVE);
+    }
     animation_sprite = get_render_animation_sprite(thing->anim_sprite);
     current_frame = thing->current_frame;
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, animation_sprite, angle, current_frame, base_sprite_size);
@@ -5141,6 +4915,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     else if (flame.transparency_flags == TRF_Transpar_Alpha)
     {
         EngineSpriteDrawUsingAlpha = 1;
+        RendererAddDrawFlags(Lb_SPRITE_ALPHA_ADDITIVE);
     }
     unsigned short flame_sprite = get_render_animation_sprite(flame.animation_id);
     unsigned char flame_frames = keepersprite_frames(flame_sprite);
@@ -5151,7 +4926,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
 }
 
 static unsigned short get_thing_shade(struct Thing* thing);
-static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr)
+void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
@@ -5161,6 +4936,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     unsigned short animation_sprite;
     unsigned char current_frame;
     short angle;
+    RendererBeginWorldSpriteCapture((int32_t)jspr->bucket_idx);
     flg_mem = RendererGetDrawFlags();
     alpha_mem = EngineSpriteDrawUsingAlpha;
     animation_sprite = get_render_animation_sprite(thing->anim_sprite);
@@ -5219,6 +4995,8 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             break;
         case TRF_Transpar_Alpha:
             EngineSpriteDrawUsingAlpha = 1;
+            RendererAddDrawFlags(Lb_SPRITE_ALPHA_ADDITIVE);  // Beat 4, see power_hand.c's identical precedent
+            RendererClearDrawFlags(Lb_SPRITE_REMAP);
             break;
     }
 
@@ -5243,6 +5021,12 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     {
         thing_being_displayed_is_creature = 0;
         thing_being_displayed = NULL;
+    }
+    {
+        int wants_outline = (g_renderer_settings.creature_outline_class_mask >> thing->class_id) & 1u;
+        if (player->view_mode == PVM_CreatureView)
+            wants_outline = 0;
+        RendererSetCurrentSpriteContext((int)thing->owner, wants_outline);
     }
 
     if (animation_sprite_id_invalid(animation_sprite))
@@ -5292,9 +5076,11 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     }
     RendererSetDrawFlags(flg_mem);
     EngineSpriteDrawUsingAlpha = alpha_mem;
+    // Reset so next doesn't inhherit the outline setting
+    RendererSetCurrentSpriteContext(-1, 0);
 }
 
-static void draw_engine_number(struct BucketKindFloatingGoldText *num)
+void draw_engine_number(struct BucketKindFloatingGoldText *num)
 {
     struct PlayerInfo *player;
     unsigned short flg_mem;
@@ -5336,7 +5122,7 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
     RendererSetDrawFlags(flg_mem);
 }
 
-static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
+void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
 {
     RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
 
@@ -5679,7 +5465,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     RendererSetDrawFlags(flg_mem);
 }
 
-static void draw_iso_only_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *spr)
+void draw_iso_only_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *spr)
 {
     if (cam->view_mode == PVM_FrontView)
       draw_fastview_mapwho(cam, spr);
@@ -5735,7 +5521,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
 }
 #undef ROOM_FLAG_PROGRESS_BAR_WIDTH
 
-static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
+void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
 {
     RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
 
@@ -6772,7 +6558,7 @@ static void draw_subdivided_near_polygon(struct BucketKindPolygonNearFP *polygon
     }
 
 }
-static void display_drawlist(void) // Draws isometric and 1st person view. Not frontview.
+void display_drawlist(void) // Draws isometric and 1st person view. Not frontview.
 {
     struct PlayerInfo *player;
     const struct Camera *cam;
@@ -6987,6 +6773,25 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
       WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
 }
 
+/** Rasterize the world pass recorded by WorldViewRenderer_BeginWorldPass().
+ *  Called synchronously by SoftwareWorldViewRenderer from inside
+ *  DrawIsometricView()/DrawFrontView() -- both draw_view()'s and
+ *  draw_frontview_engine()'s callers restore the wide GraphicsWindow
+ *  immediately after those calls return, so the narrow viewport must be
+ *  re-established here, right before the actual rasterize. */
+void software_execute_world_from_ir(int win_x, int win_y, int win_w, int win_h,
+                                    int is_frontview, struct Camera *cam)
+{
+    LbScreenSetGraphicsWindow(win_x, win_y, win_w, win_h);
+    setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, lbDisplay.GraphicsScreenWidth,
+               (unsigned int)win_w, (unsigned int)win_h);
+    render_fade_tables = pixmap.fade_tables;
+    if (is_frontview)
+        display_fast_drawlist(cam);
+    else
+        display_drawlist();
+}
+
 static void prepare_draw_plane_of_engine_columns(struct Camera *cam, long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
 {
     apos = aposc;
@@ -7156,7 +6961,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
         process_isometric_map_volume_box(x, y, z, my_player_number);
     }
 
-    display_drawlist();
+    WorldViewRenderer_DrawIsometricView();
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     SYNCDBG(9,"Finished");
 }
@@ -7211,7 +7016,7 @@ static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
     draw_gpoly(&point_a, &point_b, &point_c);
 }
 
-static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. Not isometric or 1st person view.
+void display_fast_drawlist(struct Camera *cam) // Draws frontview only. Not isometric or 1st person view.
 {
     int bucket_num;
     union {
@@ -7392,6 +7197,7 @@ static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long s
         poly->scr_y = scr_y / pixel_size;
     }
     poly->depth_fade = a4;
+    poly->bucket_idx = bckt_idx;
 }
 
 static void add_spinning_key_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
@@ -7414,6 +7220,7 @@ static void add_spinning_key_to_polypool(struct Thing *thing, long scr_x, long s
       poly->scr_y = scr_y / pixel_size;
     }
     poly->depth_fade = a4;
+    poly->bucket_idx = bckt_idx;
 }
 
 // Creature status flower above head in FrontView
@@ -7844,7 +7651,113 @@ static long heap_manage_keepersprite(unsigned short kspr_idx)
     return result;
 }
 
-static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, long kspr_idx)
+TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
+    unsigned char current_frame, int32_t *out_draw_idx,
+    const unsigned char **out_data, int *out_src_w, int *out_src_h,
+    const struct KeeperSprite **out_kspr)
+{
+    struct KeeperSprite *creature_sprites = keepersprite_array(anim_sprite);
+    if (creature_sprites == NULL || creature_sprites->FramesCount == 0) {
+        return false;
+    }
+    if (current_frame >= creature_sprites->FramesCount) {
+        current_frame = creature_sprites->FramesCount - 1;
+    }
+    long kspr_idx = keepersprite_index(anim_sprite);
+    if (!heap_manage_keepersprite(kspr_idx)) {
+        return false;
+    }
+
+    struct KeeperSprite *kspr;
+    long draw_idx;
+    if (creature_sprites->Rotable == 0)
+    {
+        kspr = &creature_sprites[current_frame];
+        draw_idx = current_frame + kspr_idx;
+    }
+    else if (creature_sprites->Rotable == 2)
+    {
+        int i = ((angle + DEGREES_22_5) & ANGLE_MASK);
+        long quarter = llabs(4 - (i >> 8));
+        kspr = &creature_sprites[current_frame + quarter * creature_sprites->FramesCount];
+        draw_idx = current_frame + quarter * (long)kspr->FramesCount + kspr_idx;
+    }
+    else
+    {
+        return false;
+    }
+
+    const TbSpriteData *sprite_data_ptr = NULL;
+    if (draw_idx >= 0) {
+        if (draw_idx >= KEEPERSPRITE_ADD_OFFSET) {
+            if (draw_idx - KEEPERSPRITE_ADD_OFFSET < KEEPERSPRITE_ADD_NUM) {
+                sprite_data_ptr = &keepersprite_add[draw_idx - KEEPERSPRITE_ADD_OFFSET];
+            }
+        } else if (draw_idx < KEEPSPRITE_LENGTH) {
+            sprite_data_ptr = keepsprite[draw_idx];
+        }
+    }
+    if (sprite_data_ptr == NULL || *sprite_data_ptr == NULL) {
+        return false;
+    }
+
+    *out_draw_idx = (int32_t)draw_idx;
+    *out_data = *sprite_data_ptr;
+    *out_src_w = kspr->SWidth;
+    *out_src_h = kspr->SHeight;
+    if (out_kspr != NULL)
+        *out_kspr = kspr;
+    return true;
+}
+
+TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short kspr_base,
+    short kspr_angle, unsigned char sprgroup, long scale,
+    int32_t *out_dst_x, int32_t *out_dst_y, int32_t *out_dst_w, int32_t *out_dst_h,
+    int32_t *out_draw_idx, const unsigned char **out_data, int *out_src_w, int *out_src_h)
+{
+    struct KeeperSprite *creature_sprites = keepersprite_array(kspr_base);
+    if (creature_sprites == NULL || creature_sprites->FramesCount == 0) {
+        return false;
+    }
+
+    const struct KeeperSprite *kspr = NULL;
+    if (!resolve_keepersprite_draw_data(kspr_base, kspr_angle, sprgroup,
+            out_draw_idx, out_data, out_src_w, out_src_h, &kspr))
+    {
+        return false;
+    }
+
+    const TbBool needs_xflip = (((kspr_angle & ANGLE_MASK) <= 1151)
+        || ((kspr_angle & ANGLE_MASK) >= 1919)
+        || (creature_sprites->Rotable != 2)) ? 0 : 1;
+
+    long scaled_x, scaled_y;
+    if (needs_xflip)
+    {
+        scaled_x = (long)x - ((scale * (long)(creature_sprites->FrameWidth + creature_sprites->offset_x)) >> 5);
+    }
+    else
+    {
+        scaled_x = ((scale * (long)creature_sprites->offset_x) >> 5) + (long)x;
+    }
+    scaled_y = ((scale * (long)creature_sprites->offset_y) >> 5) + (long)y;
+
+    long x_off, y_off;
+    if (needs_xflip)
+        x_off = (long)creature_sprites->FrameWidth - (long)kspr->FrameOffsW - (long)kspr->SWidth;
+    else
+        x_off = kspr->FrameOffsW;
+    y_off = kspr->FrameOffsH;
+
+    *out_dst_x = (int32_t)(scaled_x + ((x_off * scale) >> 5));
+    *out_dst_y = (int32_t)(scaled_y + ((y_off * scale) >> 5));
+    *out_dst_w = (int32_t)(((long)kspr->SWidth * scale) >> 5);
+    *out_dst_h = (int32_t)(((long)kspr->SHeight * scale) >> 5);
+    return true;
+}
+
+static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, long kspr_idx,
+    long dst_x, long dst_y, long dst_w, long dst_h)
 {
     if ((kspr_idx < 0)
         || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET))
@@ -7872,6 +7785,14 @@ static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, 
     if (sprite_data_ptr == NULL || *sprite_data_ptr == NULL) {
         WARNDBG(9,"Unallocated KeeperSprite %ld can't be drawn at (%ld,%ld)",kspr_idx,x,y);
         return;
+        
+    if (RendererSubmitKeeperSprite((int32_t)dst_x, (int32_t)dst_y, (int32_t)dst_w, (int32_t)dst_h,
+            *sprite_data_ptr, kspr->SWidth, kspr->SHeight, (int32_t)clipped_height,
+            (unsigned int)RendererGetDrawFlags(),
+            (RendererGetDrawFlags() & Lb_SPRITE_REMAP) ? lbSpriteReMapPtr : NULL,
+            (int32_t)kspr_idx))
+    {
+        return; // GPU handled it
     }
     const struct TbSourceBuffer buffer = {
         *sprite_data_ptr,
@@ -7913,7 +7834,10 @@ static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, stru
           }
       }
     }
-    draw_keepersprite(x, y, kspr, kspr_idx);
+    // Content sub-rect within the already-scaled frame
+    draw_keepersprite(x, y, kspr, kspr_idx,
+        kspos_x + ((x * scale) >> 5), kspos_y + ((y * scale) >> 5),
+        ((long)kspr->SWidth * scale) >> 5, ((long)kspr->SHeight * scale) >> 5);
 }
 
 static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
@@ -7935,7 +7859,9 @@ static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct Kee
           }
       }
     }
-    draw_keepersprite(x, y, kspr, kspr_idx);
+    draw_keepersprite(x, y, kspr, kspr_idx,
+        kspos_x + ((x * scale) >> 5), kspos_y + ((y * scale) >> 5),
+        ((long)kspr->SWidth * scale) >> 5, ((long)kspr->SHeight * scale) >> 5);
 }
 
 static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
@@ -7960,7 +7886,9 @@ static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct Ke
           }
       }
     }
-    draw_keepersprite(0, 0, kspr, kspr_idx);
+    // sp_x/sp_y/sp_dx/sp_dy are already the final content dst rect here
+    // (src_dx/src_dy above are SWidth/SHeight, not FrameWidth/FrameHeight).
+    draw_keepersprite(0, 0, kspr, kspr_idx, sp_x, sp_y, sp_dx, sp_dy);
     SYNCDBG(18,"Finished");
 }
 
@@ -7986,7 +7914,8 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
             }
         }
     }
-    draw_keepersprite(0, 0, kspr, kspr_idx);
+    // sp_x/sp_y/sp_dx/sp_dy are already the final content dst rect here.
+    draw_keepersprite(0, 0, kspr, kspr_idx, sp_x, sp_y, sp_dx, sp_dy);
     SYNCDBG(18,"Finished");
 }
 
@@ -8207,7 +8136,7 @@ static void draw_mapwho_ariadne_path(struct Thing *thing)
     }
 }
 
-static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
+void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
@@ -8218,6 +8147,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     long angle;
     int32_t scaled_size;
     struct ObjectConfigStats* objst;
+    RendererBeginWorldSpriteCapture((int32_t)jspr->bucket_idx);
     flg_mem = RendererGetDrawFlags();
     alpha_mem = EngineSpriteDrawUsingAlpha;
     animation_sprite = get_render_animation_sprite(thing->anim_sprite);
@@ -8243,6 +8173,8 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
         break;
     case TRF_Transpar_Alpha:
         EngineSpriteDrawUsingAlpha = 1;
+        RendererAddDrawFlags(Lb_SPRITE_ALPHA_ADDITIVE);
+        RendererClearDrawFlags(Lb_SPRITE_REMAP);
         break;
     }
 
@@ -8295,6 +8227,12 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
         thing_being_displayed_is_creature = 0;
         thing_being_displayed = NULL;
     }
+    {
+        int wants_outline = (g_renderer_settings.creature_outline_class_mask >> thing->class_id) & 1u;
+        if (player->view_mode == PVM_CreatureView)
+            wants_outline = 0;
+        RendererSetCurrentSpriteContext((int)thing->owner, wants_outline);
+    }
     if (render_sprite_debug_fn)
     {
         render_sprite_debug_fn(thing, jspr->scr_x, jspr->scr_y);
@@ -8337,6 +8275,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     }
     RendererSetDrawFlags(flg_mem);
     EngineSpriteDrawUsingAlpha = alpha_mem;
+    RendererSetCurrentSpriteContext(-1, 0);
 }
 
 /** Fills solid area of the sprite in target buffer with color 255.
@@ -9284,7 +9223,7 @@ void draw_frontview_engine(struct Camera *cam)
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, lbDisplay.GraphicsScreenWidth, ewnd.width, ewnd.height);
+    WorldViewRenderer_BeginWorldPass(ewnd.width, ewnd.height, ewnd.x, ewnd.y);
     clear_fast_bucket_list();
     store_engine_window(&ewnd,1);
     setup_engine_window(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
@@ -9384,7 +9323,7 @@ void draw_frontview_engine(struct Camera *cam)
         stl_y += y_step2[qdrant];
     }
 
-    display_fast_drawlist(cam);
+    WorldViewRenderer_DrawFrontView(cam);
     LbScreenLoadGraphicsWindow(&grwnd);
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     SYNCDBG(9,"Finished");

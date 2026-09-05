@@ -81,17 +81,15 @@ public:
     virtual int SetWindowFullscreen(unsigned int /*flags*/) { return -1; }
     virtual void SetWindowBordered(int /*bordered*/) {}
     virtual void SetWindowPosition(int /*x*/, int /*y*/) {}
+    /** Create the game window. The renderer backend is already resolved by
+     *  this point (see RendererManager.h's RendererResolveType()), so `flags`
+     *  already carries whatever backend-required capability flags (e.g.
+     *  KFX_WF_OPENGL) the active renderer needs -- CreateWindow() is the only
+     *  place the window is ever constructed, and it is born with the correct
+     *  flags. There is deliberately no "recreate window to add/remove a
+     *  renderer capability flag" API: that need only existed because window
+     *  creation used to be decided before the renderer type was known. */
     virtual bool CreateWindow(const char* /*title*/, int /*x*/, int /*y*/, int /*w*/, int /*h*/, unsigned int /*flags*/) { return false; }
-
-    /** Recreate the window without SDL_WINDOW_OPENGL so that SDL_GetWindowSurface()
-     *  can be used for software rendering.  No-op (returns true) on platforms where
-     *  the window is not OpenGL-flagged or where this is not applicable. */
-    virtual bool RecreateForSoftwareRenderer() { return true; }
-
-    /** Recreate the window without SDL_WINDOW_VULKAN so that the Vulkan surface is
-     *  released before switching away from the Vulkan backend.  No-op (returns
-     *  true) on platforms where the window is not Vulkan-flagged. */
-    virtual bool RecreateForVulkanRenderer() { return true; }
 
     // ----- Display info -----
 

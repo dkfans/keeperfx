@@ -25,6 +25,10 @@
 #include <map>
 #include <string>
 
+// Forward declaration only -- see LensEffect.h's own note. Full definition
+// (kfx/renderer/ir/WorldCommands.h) is only needed by LensManager.cpp.
+struct IRWorldLensCmd;
+
 /*****************************************************************************/
 
 /**
@@ -71,10 +75,20 @@ public:
     long GetAppliedLens() const { return m_applied_lens; }
     
     // Rendering (always succeeds - handles fallback internally)
-    void Draw(unsigned char* srcbuf, unsigned char* dstbuf, 
-             long srcpitch, long dstpitch, 
+    void Draw(unsigned char* srcbuf, unsigned char* dstbuf,
+             long srcpitch, long dstpitch,
              long width, long height, long viewport_x);
-    
+
+    // GPU path (P5.8a): build the single winning pixel effect's GPU params
+    // (same precedence SetLens()'s per-effect loop applies -- see .cpp) plus
+    // any active palette override, for the currently applied lens.
+    // viewport_w/h is the real on-screen viewport size (not the full-screen
+    // capture resolution). Returns false (and leaves @p out untouched) when
+    // no lens is applied or the manager isn't ready -- caller should treat
+    // that as "nothing to submit this frame", not an error.
+    TbBool BuildActiveGPULensCmd(long viewport_w, long viewport_h, struct IRWorldLensCmd& out) const;
+
+
     // Configuration
     void LoadAccessibilityConfig();
     void SetEffectEnabled(LensEffectType type, TbBool enabled);

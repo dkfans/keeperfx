@@ -27,6 +27,7 @@
 #include "../../custom_sprites.h"
 #include "../../globals.h"
 #include "../../vidmode.h"
+#include "../renderer/ir/WorldCommands.h"
 
 #include "../../keeperfx.hpp"
 #include "../../post_inc.h"
@@ -52,7 +53,18 @@ public:
                unsigned char *srcbuf, long srcpitch,
                long width, long height);
     void Animate();
-    
+
+    /** P5.8a: advance one tick (same step Animate() applies) and return the
+     *  resulting offsets, for the GL path where Draw() is never called. */
+    void AdvanceAndGetOffsets(float& pos_x, float& pos_y, float& sec_x, float& sec_y)
+    {
+        Animate();
+        pos_x = (float)position_offset_x;
+        pos_y = (float)position_offset_y;
+        sec_x = (float)secondary_offset_x;
+        sec_y = (float)secondary_offset_y;
+    }
+
 private:
     /** Mist data width and height are the same and equal to this dimension */
     unsigned int lens_dim;
@@ -196,6 +208,7 @@ void CMistFade::Render(unsigned char *dstbuf, long dstpitch,
 MistEffect::MistEffect()
     : LensEffect(LensEffectType::Mist, "Mist")
     , m_current_lens(-1)
+    , m_gpu_version(0)
 {
 }
 
@@ -239,7 +252,8 @@ TbBool MistEffect::Setup(long lens_idx)
     // Store renderer in user data (we'll manage it through the base class)
     m_user_data = renderer;
     m_current_lens = lens_idx;
-    
+    m_gpu_version++;   // mist texture just (re)loaded -- GL upload must not skip it
+
     SYNCDBG(7, "Mist effect ready");
     return true;
 }
@@ -280,6 +294,27 @@ TbBool MistEffect::Draw(LensRenderContext* ctx)
     renderer->Animate();
     
     ctx->buffer_copied = true;  // Mist writes to dstbuf
+    return true;
+}
+
+TbBool MistEffect::BuildGPUParams(IRWorldLensCmd& out, long viewport_w, long viewport_h)
+{
+    (void)viewport_w; (void)viewport_h;   // mist has no resolution-dependent table
+    if (m_current_lens < 0 || m_user_data == NULL)
+    {
+        return false;
+    }
+
+    struct LensConfig* cfg = &lenses_conf.lenses[m_current_lens];
+
+    CMistFade* renderer = static_cast<CMistFade*>(m_user_data);
+    renderer->AdvanceAndGetOffsets(out.mist_pos_x, out.mist_pos_y, out.mist_sec_x, out.mist_sec_y);
+    out.mist_lightness = cfg->mist_lightness;
+
+    out.mist_version = m_gpu_version;
+    out.mist_pixels.assign((const uint8_t*)eye_lens_memory, (const uint8_t*)eye_lens_memory + 256 * 256);
+
+    out.type = LensPixelEffectType::Mist;
     return true;
 }
 

@@ -232,6 +232,13 @@ TbResult LbMouseOnEndSwap(void)
     return Lb_SUCCESS;
 }
 
+TbBool LbMouseGetActivePointerSprite(const struct TbSprite **out_spr, int32_t *out_x, int32_t *out_y, int *out_units_per_px)
+{
+    if ((!lbMouseInstalled) || (lbMouseOffline))
+        return false;
+    return pointerHandler.GetActivePointerSprite(out_spr, out_x, out_y, out_units_per_px);
+}
+
 void mouseControl(unsigned int action, struct TbPoint *pos)
 {
     struct TbPoint dstPos;

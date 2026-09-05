@@ -39,6 +39,7 @@ extern "C" const char * PlatformManager_GetOSVersion(void)   { return GetPlatfor
 extern "C" const void * PlatformManager_GetImageBase(void)   { return GetPlatform()->GetImageBase(); }
 extern "C" const char * PlatformManager_GetWineVersion(void) { return GetPlatform()->GetWineVersion(); }
 extern "C" const char * PlatformManager_GetWineHost(void)    { return GetPlatform()->GetWineHost(); }
+extern "C" const char * PlatformManager_GetUserPrefDir(void) { return GetPlatform()->GetUserPrefDir(); }
 
 /******************************************************************************/
 
@@ -197,12 +198,6 @@ extern "C" int PlatformManager_IsCursorInWindow(void)
 {
     IWindowSystem* ws = GetSDLWindowSystem();
     return (ws && ws->IsCursorInWindow()) ? 1 : 0;
-}
-
-extern "C" int PlatformManager_RecreateWindowForSoftwareRenderer(void)
-{
-    IWindowSystem* ws = GetSDLWindowSystem();
-    return (ws && ws->RecreateForSoftwareRenderer()) ? 1 : 0;
 }
 
 extern "C" int PlatformManager_GetDisplayRefreshRate(void)

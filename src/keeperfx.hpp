@@ -67,7 +67,7 @@ extern "C" {
 #define SPELL_POINTER_GROUPS   14
 #define ZOOM_KEY_ROOMS_COUNT   15
 
-#define CMDLINE_OVERRIDES      4
+#define CMDLINE_OVERRIDES      5
 
 /** Command Line overrides for config settings. Checked after the config file is loaded. */
 enum CmdLineOverrides {
@@ -75,6 +75,7 @@ enum CmdLineOverrides {
     Clo_CDMusic,
     Clo_GameTurns,
     Clo_FramesPerSecond,
+    Clo_Renderer, /**< Special: handled before the renderer is initialised (P5.9). */
 };
 
 enum ModeFlags {
@@ -141,6 +142,7 @@ struct StartupParameters {
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
+    int renderer_type; /**< RendererType value from -opengl (P5.9); only meaningful when overrides[Clo_Renderer] is set. */
     GameTurn pause_at_gameturn;
     unsigned char startup_flags;
     TbBool skip_heart_zoom;

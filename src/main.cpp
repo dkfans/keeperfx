@@ -16,6 +16,7 @@
 #include "platform.h"
 #include "kfx/platform/PlatformManager.h"
 #include "kfx/renderer/RendererManager.h"
+#include "kfx/renderer/RendererSettings.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -363,40 +364,27 @@ short setup_game(void)
   features_enabled |= Ft_DeltaTime; // enable delta time
   features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
 
-  // Configuration file
-  if ( !load_configuration() )
-  {
-      ERRORLOG("Configuration load error.");
-      return 0;
-  }
+  // Configuration file + CmdLine overrides: moved to resolve_startup_config(),
+  // called early in LbBullfrogMain() before RendererInit() (P5.9) -- the
+  // renderer type itself is one of the settings resolved there, so it must
+  // be known before RendererInit() runs. Not duplicated here.
 
-  #ifdef FUNCTESTING
-    start_params.startup_flags &= ~SFlg_Legal;
-    start_params.startup_flags &= ~SFlg_FX;
-    features_enabled |= Ft_SkipHeartZoom;
-  #endif
-
-  // Process CmdLine overrides
-  process_cmdline_overrides();
-
-  LbIKeyboardOpen();
-
-  if (LbDataLoadAll(legal_load_files) != 0)
-  {
-      ERRORLOG("Error on allocation/loading of legal_load_files.");
-      return 0;
-  }
-
-  // Setup polyscans
-  setup_bflib_render();
+  // LbIKeyboardOpen()/LbDataLoadAll(legal_load_files)/setup_bflib_render()/
+  // setup_screen_mode_zero() also moved out of this function, into
+  // LbBullfrogMain() right before RendererInit() -- matches develop's own
+  // ordering. Without this, the real (config-resolved) window size/mode
+  // wasn't established until setup_game() ran here, *after* RendererInit()
+  // had already created and shown a small placeholder GL window (P5.9) --
+  // visible on screen as a small window flashing before the real one
+  // replaced it. Establishing the real window before RendererInit() creates
+  // its GL context removes the placeholder path entirely: the window is now
+  // created exactly once, already carrying the correct SDL3 capability flags
+  // for the resolved renderer type (see RendererGetRequiredWindowFlags() and
+  // WindowSystemSDL::CreateWindow()) -- RendererOpenGL::Init() only ever
+  // consumes that already-correct window and hard-fails if it doesn't exist
+  // or isn't OpenGL-flagged, rather than creating or recreating one itself.
 
   // View the legal screen
-  if (!setup_screen_mode_zero(get_frontend_vidmode()))
-  {
-      ERRORLOG("Unable to set display mode for legal screen");
-      return 0;
-  }
-
   if (flag_is_set(start_params.startup_flags, SFlg_Legal))
   {
       if (is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
@@ -1625,8 +1613,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     view_height_over_2 = ewnd.height/2;
     view_width_over_2 = ewnd.width/2;
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    setup_vecs(lbDisplay.GraphicsWindowPtr, 0, lbDisplay.GraphicsScreenWidth,
-        ewnd.width, ewnd.height);
+    WorldViewRenderer_BeginWorldPass(ewnd.width, ewnd.height, ewnd.x, ewnd.y);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     draw_view(cam, 0);
     RendererSetDrawFlags(flg_mem);
@@ -1802,6 +1789,11 @@ static short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "skipheartzoom") == 0)
       {
         start_params.skip_heart_zoom = true;
+      } else
+      if (strcasecmp(parstr, "opengl") == 0)
+      {
+        start_params.overrides[Clo_Renderer] = true;
+        start_params.renderer_type = RENDERER_OPENGL;
       } else
       if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
@@ -2107,6 +2099,47 @@ static const char* determine_log_filename(unsigned short argument_count, char *a
     return log_file_name;
 }
 
+// Load keeperfx.cfg and apply command-line overrides on top of it (P5.9).
+// Moved here, out of setup_game(), and called before RendererInit() --
+// requested_renderer_type (bflib_video.h) is one of the settings this
+// resolves, and the renderer must be known before it's created.
+//
+// MUST run after RendererScreenInitialize() (LbBullfrogMain(), a few lines
+// above this function's call site) -- load_configuration()'s FRONTEND_RES/
+// INGAME_RES parsing (config_keeperfx.c cases 6/7) resolves mode names like
+// "DESKTOP"/"640x480w32" via LbRegisterVideoModeString(), which looks them
+// up in the video-mode table RendererScreenInitialize() -> LbScreenInitialize()
+// registers. Originally invisible because load_configuration() lived inside
+// setup_game(), always called well after RendererScreenInitialize(); this
+// function's first version (P5.9) claimed "no rendering/window dependency"
+// and moved config loading to run *before* RendererScreenInitialize(),
+// which broke exactly this -- every video mode in keeperfx.cfg silently
+// failed to parse (CONFWRNLOG per mode) and fell back to 640x480. Fixed by
+// reordering the LbBullfrogMain() call sites, not by touching this function.
+static short resolve_startup_config(void)
+{
+    if (!load_configuration())
+    {
+        ERRORLOG("Configuration load error.");
+        return 0;
+    }
+
+#ifdef FUNCTESTING
+    start_params.startup_flags &= ~SFlg_Legal;
+    start_params.startup_flags &= ~SFlg_FX;
+    features_enabled |= Ft_SkipHeartZoom;
+#endif
+
+    process_cmdline_overrides();
+
+    // Resolve RENDERER_AUTO to a concrete backend now, before the window is
+    // created (setup_screen_mode_zero(), just below this function's call
+    // site) -- LbScreenSetup() needs the concrete type to pick the right
+    // SDL3 window-creation flags (see RendererGetRequiredWindowFlags()).
+    requested_renderer_type = (int)RendererResolveType((RendererType)requested_renderer_type);
+    return 1;
+}
+
 static short reset_game(void)
 {
     SYNCDBG(6,"Starting");
@@ -2137,10 +2170,64 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         return 0;
     }
 
+    // RendererScreenInitialize() must run before resolve_startup_config():
+    // it calls LbScreenInitialize(), which registers the standard/modern
+    // video-mode table (LbRegisterStandardVideoModes()/
+    // LbRegisterModernVideoModes()) that FRONTEND_RES/INGAME_RES parsing
+    // resolves names like "DESKTOP"/"640x480w32" against
+    // (LbRegisterVideoModeString(), config_keeperfx.c cases 6/7). Originally
+    // this ordering held because load_configuration() ran inside
+    // setup_game(), well after this same RendererScreenInitialize() call --
+    // P5.9 moved config loading earlier without re-checking this dependency
+    // and broke it (every video mode in keeperfx.cfg silently failed to
+    // parse, falling back to 640x480). RendererScreenInitialize() itself
+    // needs nothing from config (just registers the fixed mode table +
+    // SDL_INIT_VIDEO), so it's safe to run first.
     retval = true;
     retval &= (LbTimerInit() != Lb_FAIL);
     retval &= (RendererScreenInitialize() != Lb_FAIL);
-    retval &= (RendererInit(RENDERER_SOFTWARE) != 0);
+
+    // P5.9: resolve keeperfx.cfg + cmdline overrides (incl. requested_renderer_type)
+    // before the renderer backend is created -- see resolve_startup_config()'s
+    // own comment for why this is safe to run before RendererInit().
+    if (!resolve_startup_config())
+    {
+        LbErrorLogClose();
+        return 0;
+    }
+
+    // Moved here from setup_game() (which used to run these after
+    // RendererInit()) to match develop's ordering: establish the real,
+    // config-resolved window size/mode BEFORE the renderer backend creates
+    // its GL context, so RendererOpenGL::Init() never needs to create (and
+    // then, once setup_game() called setup_screen_mode_zero(), immediately
+    // replace) a small placeholder window -- that placeholder-then-replace
+    // sequence was visible on screen as a window flash at startup. The
+    // window is now created exactly once, by LbScreenSetup() below, already
+    // carrying the correct SDL3 capability flags for requested_renderer_type
+    // (resolved just above, in resolve_startup_config()) -- see
+    // RendererGetRequiredWindowFlags() and WindowSystemSDL::CreateWindow().
+    LbIKeyboardOpen();
+    if (LbDataLoadAll(legal_load_files) != 0)
+    {
+        ERRORLOG("Error on allocation/loading of legal_load_files.");
+        LbErrorLogClose();
+        return 0;
+    }
+    // Setup polyscans
+    setup_bflib_render();
+    // View the legal screen
+    if (!setup_screen_mode_zero(get_frontend_vidmode()))
+    {
+        ERRORLOG("Unable to set display mode for legal screen");
+        LbErrorLogClose();
+        return 0;
+    }
+
+    retval &= (RendererInit((RendererType)requested_renderer_type) != 0);
+    // Beat 4, ported from develop's own main.cpp call site: load saved
+    // renderer_prefs.ini on top of RendererInit()'s defaults (RendererSettings_Reset()).
+    RendererSettings_Load();
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     RendererSetDoubleBuffering(true);

@@ -26,6 +26,7 @@
 #include "../../globals.h"
 #include "../../config_lenses.h"
 #include "../../custom_sprites.h"
+#include "../renderer/ir/WorldCommands.h"
 
 #include "../../keeperfx.hpp"
 #include "../../post_inc.h"
@@ -44,9 +45,16 @@ public:
     ~COverlayRenderer();
     
     TbBool LoadOverlay(long lens_idx);
-    void Render(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, 
+    void Render(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch,
                 long width, long height);
-    
+
+    /** P5.8a: raw accessors for the GL path, which composites via a shader
+     *  instead of Render()'s CPU alpha blend. */
+    const unsigned char* GetData() const { return m_loaded ? m_overlay_data : nullptr; }
+    int GetWidth() const { return m_width; }
+    int GetHeight() const { return m_height; }
+    short GetAlpha() const { return m_alpha; }
+
 private:
     OverlayEffect* m_parent;         // Parent effect for asset loading
     unsigned char* m_overlay_data;   // Overlay image data (from registry)
@@ -229,6 +237,7 @@ void COverlayRenderer::Render(unsigned char *dstbuf, long dstpitch, unsigned cha
 OverlayEffect::OverlayEffect()
     : LensEffect(LensEffectType::Overlay, "Overlay")
     , m_current_lens(-1)
+    , m_gpu_version(0)
 {
 }
 
@@ -267,7 +276,8 @@ TbBool OverlayEffect::Setup(long lens_idx)
     
     m_user_data = renderer;
     m_current_lens = lens_idx;
-    
+    m_gpu_version++;   // overlay texture just (re)loaded -- GL upload must not skip it
+
     SYNCDBG(7, "Overlay effect ready");
     return true;
 }
@@ -303,6 +313,35 @@ TbBool OverlayEffect::Draw(LensRenderContext* ctx)
                     ctx->width, ctx->height);
     
     ctx->buffer_copied = true;  // We wrote the full frame to dstbuf
+    return true;
+}
+
+TbBool OverlayEffect::BuildGPUParams(IRWorldLensCmd& out, long viewport_w, long viewport_h)
+{
+    (void)viewport_w; (void)viewport_h;   // overlay stretches to the viewport in the shader, no CPU table needed
+    if (m_current_lens < 0 || m_user_data == NULL)
+    {
+        return false;
+    }
+
+    COverlayRenderer* renderer = static_cast<COverlayRenderer*>(m_user_data);
+    const unsigned char* data = renderer->GetData();
+    if (data == nullptr)
+    {
+        return false;
+    }
+
+    out.overlay_w = renderer->GetWidth();
+    out.overlay_h = renderer->GetHeight();
+    out.overlay_pixels.assign(data, data + (size_t)out.overlay_w * (size_t)out.overlay_h);
+    // Alpha is stored 0..256 (256 = opaque) -- see COverlayRenderer::Render()'s
+    // own clamping; normalise to 0..1 for the GL shader uniform.
+    short alpha = renderer->GetAlpha();
+    int alpha_clamped = (alpha < 0) ? 0 : ((alpha > 256) ? 256 : alpha);
+    out.overlay_alpha = (float)alpha_clamped / 256.0f;
+    out.overlay_version = m_gpu_version;
+
+    out.type = LensPixelEffectType::Overlay;
     return true;
 }
 

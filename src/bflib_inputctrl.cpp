@@ -409,7 +409,7 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_EVENT_TEXT_INPUT:
-        if (SDL_TextInputActive(lbWindow))
+        if (SDL_TextInputActive(GetSDLWindowSystem()->GetSDLWindow()))
         {
             int len = strlen(ev->text.text);
             int freeSpace = sizeof(lbTextInputBuffer) - lbTextInputLength - 1;
@@ -559,7 +559,7 @@ void LbMouseCheckPosition(TbBool grab_state_changed)
                 }
                 else
                 {
-                    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+                    LbMouseSetPosition(RendererPhysicalWidth()/2, lbDisplay.PhysicalScreenHeight/2);
                 }
             }
         }
@@ -625,20 +625,22 @@ int LbGetTextInput(char *dst, int maxChars)
 
 TbBool LbIsTextInputActive(void)
 {
-    return SDL_TextInputActive(lbWindow);
+    return SDL_TextInputActive(GetSDLWindowSystem()->GetSDLWindow());
 }
 
 void LbStartTextInput(void)
 {
     LbClearTextInput();
-    if (!SDL_TextInputActive(lbWindow))
-        SDL_StartTextInput(lbWindow);
+    SDL_Window* window = GetSDLWindowSystem()->GetSDLWindow();
+    if (!SDL_TextInputActive(window))
+        SDL_StartTextInput(window);
 }
 
 void LbStopTextInput(void)
 {
-    if (SDL_TextInputActive(lbWindow))
-        SDL_StopTextInput(lbWindow);
+    SDL_Window* window = GetSDLWindowSystem()->GetSDLWindow();
+    if (SDL_TextInputActive(window))
+        SDL_StopTextInput(window);
     LbClearTextInput();
 }
 

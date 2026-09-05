@@ -385,6 +385,13 @@ void draw_swipe_graphic(void)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (instance_draws_possession_swipe(cctrl->instance_id))
         {
+            // Redirect this call's sprite submissions into the dedicated
+            // swipe-overlay buffer instead of the general UI one -- see
+            // RendererBeginSwipeOverlay()'s own comment for why (lets GL
+            // composite the swipe sprite inside the lens-distortion bracket,
+            // matching develop, instead of flat on top of the finished
+            // frame). No-op on software, which draws immediately either way.
+            RendererBeginSwipeOverlay();
             RendererSetDrawFlags(Lb_SPRITE_TRANSPAR4);
             long n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
             long allwidth = 0;
@@ -395,6 +402,8 @@ void draw_swipe_graphic(void)
             if (sprlist == NULL)
             {
                 ERRORLOG("Failed to draw swipe sprite for thing %d", (int)thing->index);
+                RendererSetDrawFlags(0);
+                RendererEndSwipeOverlay(); // must restore -- BeginSwipeOverlay() already ran above
                 return;
             }
             const struct TbSprite* startspr = &sprlist[1];
@@ -441,6 +450,7 @@ void draw_swipe_graphic(void)
                 }
             }
             RendererSetDrawFlags(0);
+            RendererEndSwipeOverlay();
             return;
         }
     }
@@ -4371,6 +4381,10 @@ void draw_creature_view(struct Thing *thing)
   long view_height = local_state.engine_window_height / pixel_size;
   long view_x = local_state.engine_window_x / pixel_size;
   long view_y = local_state.engine_window_y / pixel_size;
+  // GPU lens capture/composite. No-op for software (its CPU lens
+  // path below is unaffected); for GL this is the actual lens trigger --
+  // the WScreen swap above is otherwise inert for GL, which never reads it.
+  RendererSubmitPossessionLens(view_x, view_y, view_width, view_height);
   // Restore original graphics settings
   lbDisplay.WScreen = wscr_cp;
   LbScreenLoadGraphicsWindow(&grwnd);
@@ -4379,9 +4393,15 @@ void draw_creature_view(struct Thing *thing)
   // Apply lens effect to the viewport area only (not including sidebar)
   // Pass full srcbuf so displacement map lookups work correctly
   // Calculate 2D viewport offset for destination buffer
-  long dst_offset = view_y * lbDisplay.GraphicsScreenWidth + view_x;
-  draw_lens_effect(lbDisplay.WScreen + dst_offset, lbDisplay.GraphicsScreenWidth, 
-      scrmem, render_width, view_width, view_height, view_x, game.applied_lens_type);
+  // Software-only CPU composite -- GL already got its own lens trigger above
+  // (RendererSubmitPossessionLens()); there's no CPU framebuffer here under
+  // GL (RendererBeginFrame() doesn't lock one for it) for this to write into.
+  if (lbDisplay.WScreen != NULL)
+  {
+      long dst_offset = view_y * lbDisplay.GraphicsScreenWidth + view_x;
+      draw_lens_effect(lbDisplay.WScreen + dst_offset, lbDisplay.GraphicsScreenWidth,
+          scrmem, render_width, view_width, view_height, view_x, game.applied_lens_type);
+  }
 }
 
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)

@@ -23,6 +23,14 @@ public:
 
     virtual TbFileFind* FileFindFirst(const char* filespec, TbFileEntry* entry) = 0;
 
+    /** Per-user preferences directory (SDL_GetPrefPath("keeperfx","keeperfx"),
+     *  falling back to the platform's own data path if SDL can't provide
+     *  one) -- where renderer_prefs.ini (RendererSettings) is read/written.
+     *  Lazily resolved and cached; not const since the first call populates
+     *  the cache. Returned pointer is valid for the lifetime of the
+     *  platform object. */
+    virtual const char* GetUserPrefDir() = 0;
+
     // ----- Redbook (CD) audio -----
     virtual void   SetRedbookVolume(SoundVolume vol) = 0;
     virtual TbBool PlayRedbookTrack(int track) = 0;

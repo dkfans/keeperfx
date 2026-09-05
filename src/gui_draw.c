@@ -134,7 +134,7 @@ void draw_slab64k_background_immediate(long pos_x, long pos_y, long width, long 
         scr_y = 0;
         scr_h = i;
     }
-    i = lbDisplay.PhysicalScreenWidth * pixel_size;
+    i = RendererPhysicalWidth() * pixel_size;
     if (scr_x + scr_w > i)
         scr_w = i - scr_x;
     i = MyScreenHeight;
@@ -642,7 +642,7 @@ TbBool draw_text_box(const char *text)
     }
     long box_width = (108 * spritesx + 18) * units_per_pixel / 16;
     long box_height = 92 * units_per_pixel / 16;
-    long startx = (lbDisplay.PhysicalScreenWidth - box_width) / 2;
+    long startx = (RendererPhysicalWidth() - box_width) / 2;
     long starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
     draw_message_box_at(startx, starty, box_width, box_height, spritesx, spritesy);
     // Draw the text inside box
@@ -685,7 +685,7 @@ TbBool draw_text_box_top(const char* text, ushort drawflags)
         }
     long box_width = (108 * spritesx + 18) * units_per_pixel / 16;
     long box_height = 92 * units_per_pixel / 16;
-    long startx = (lbDisplay.PhysicalScreenWidth - box_width) / 2;
+    long startx = (RendererPhysicalWidth() - box_width) / 2;
     long starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
     draw_message_box_at(startx, starty, box_width, box_height, spritesx, spritesy);
     // Draw the text inside box

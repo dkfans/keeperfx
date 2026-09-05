@@ -123,6 +123,8 @@ LINKLIB = -mwindows \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
+# OpenGL renderer backend -- always built.
+LINKLIB += -lopengl32
 INCS = \
 	-I"src" \
 	-isystem"deps/zlib/include" \

@@ -36,8 +36,6 @@ public:
     void SetWindowBordered(int bordered) override;
     void SetWindowPosition(int x, int y) override;
     bool CreateWindow(const char* title, int x, int y, int w, int h, unsigned int flags) override;
-    bool RecreateForSoftwareRenderer() override;
-    bool RecreateForVulkanRenderer() override;
 
     // ----- Display info -----
     int GetDisplayRefreshRate() const override;
@@ -47,6 +45,7 @@ public:
 private:
     void ApplyOsCursorPolicy();
 
+    SDL_Window* m_window = nullptr;
     bool m_appActive = true;
     bool m_useRelativeMouse = true;
 };

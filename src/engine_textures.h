@@ -50,6 +50,7 @@ extern "C" {
 extern unsigned char block_mem[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
 extern unsigned char *block_ptrs[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_COUNT];
 extern long block_dimension;
+extern long block_count_per_row;
 /******************************************************************************/
 void setup_texture_block_mem(void);
 short init_animating_texture_maps(void);

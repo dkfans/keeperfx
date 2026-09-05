@@ -29,102 +29,15 @@
 #include "bflib_planar.h"
 #include "bflib_mouse.h"
 #include "bflib_sprite.h"
-#include "bflib_vidsurface.h"
-#include "bflib_vidraw.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
 /******************************************************************************/
-struct SSurface;
-/******************************************************************************/
-// Global variables
-volatile TbBool lbPointerAdvancedDraw;
-int32_t cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
-int32_t cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
-/******************************************************************************/
-
-void LbCursorSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
-    if (swidth > CURSOR_SCALING_XSTEPS)
-        swidth = CURSOR_SCALING_XSTEPS;
-    LbSpriteSetScalingWidthClippedArray(cursor_xsteps_array, x, swidth, dwidth, gwidth);
-}
-
-void LbCursorSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
-    if (swidth > CURSOR_SCALING_XSTEPS)
-        swidth = CURSOR_SCALING_XSTEPS;
-    LbSpriteSetScalingWidthSimpleArray(cursor_xsteps_array, x, swidth, dwidth);
-}
-
-void LbCursorSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gheight)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
-    if (sheight > CURSOR_SCALING_YSTEPS)
-        sheight = CURSOR_SCALING_YSTEPS;
-    LbSpriteSetScalingHeightClippedArray(cursor_ysteps_array, y, sheight, dheight, gheight);
-}
-
-void LbCursorSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
-    if (sheight > CURSOR_SCALING_YSTEPS)
-        sheight = CURSOR_SCALING_YSTEPS;
-    LbSpriteSetScalingHeightSimpleArray(cursor_ysteps_array, y, sheight, dheight);
-}
-
-/**
- * Draws the mouse pointer sprite on a display buffer.
- */
-static long PointerDraw(long x, long y, const struct TbSprite *spr, TbPixel *outbuf, unsigned long scanline)
-{
-    unsigned int dwidth;
-    unsigned int dheight;
-    // Prepare bounds
-    dwidth = scale_ui_value_lofi(spr->SWidth);
-    dheight = scale_ui_value_lofi(spr->SHeight);
-    if ( (dwidth <= 0) || (dheight <= 0) )
-        return 1;
-    if ( (lbDisplay.MouseWindowWidth <= 0) || (lbDisplay.MouseWindowHeight <= 0) )
-        return 1;
-    // Normally it would be enough to check if ((dwidth+x) >= gwidth), but due to rounding we need to add swidth
-    if ((x < 0) || ((dwidth + spr->SWidth + x) >= lbDisplay.MouseWindowWidth))
-    {
-        LbCursorSpriteSetScalingWidthClipped(x, spr->SWidth, dwidth, lbDisplay.MouseWindowWidth);
-    } else {
-        LbCursorSpriteSetScalingWidthSimple(x, spr->SWidth, dwidth);
-    }
-    // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
-    if ((y < 0) || ((dheight + spr->SHeight + y) >= lbDisplay.MouseWindowHeight))
-    {
-        LbCursorSpriteSetScalingHeightClipped(y, spr->SHeight, dheight, lbDisplay.MouseWindowHeight);
-    } else {
-        LbCursorSpriteSetScalingHeightSimple(y, spr->SHeight, dheight);
-    }
-    int32_t *xstep;
-    int32_t *ystep;
-    {
-        xstep = &cursor_xsteps_array[0];
-        ystep = &cursor_ysteps_array[0];
-    }
-    outbuf = &outbuf[xstep[0] + scanline * ystep[0]];
-    const struct TbSourceBuffer buffer = {
-        spr->Data,
-        spr->SWidth,
-        spr->SHeight,
-        spr->SWidth,
-    };
-    return LbSpriteDrawUsingScalingUpDataSolidLR(outbuf, scanline, lbDisplay.MouseWindowHeight, xstep, ystep, &buffer);
-}
 
 // Methods
 
 LbI_PointerHandler::LbI_PointerHandler(void)
 {
-    LbScreenSurfaceInit(&surf1);
-    LbScreenSurfaceInit(&surf2);
     this->is_active = false;
     this->needs_redraw = false;
     this->sprite = NULL;
@@ -190,69 +103,31 @@ void LbI_PointerHandler::ClipHotspot(void)
 
 void LbI_PointerHandler::Initialise(const struct TbSprite *spr, struct TbPoint *npos, struct TbPoint *noffset)
 {
-    void *surfbuf;
-    TbPixel *buf;
-    long i;
-    int dstwidth;
-    int dstheight;
     Release();
     std::lock_guard<std::mutex> guard(lock);
     sprite = spr;
-    dstwidth = scale_ui_value_lofi(sprite->SWidth + 1);
-    dstheight = scale_ui_value_lofi(sprite->SHeight + 1);
-    LbScreenSurfaceCreate(&surf1, dstwidth, dstheight);
-    LbScreenSurfaceCreate(&surf2, dstwidth, dstheight);
-    surfbuf = LbScreenSurfaceLock(&surf1);
-    if (surfbuf == NULL)
-    {
-        LbScreenSurfaceRelease(&surf1);
-        LbScreenSurfaceRelease(&surf2);
-        sprite = NULL;
-        return;
-    }
-    buf = (TbPixel *)surfbuf;
-    for (i=0; i < dstheight; i++)
-    {
-        memset(buf, 255, surf1.pitch);
-        buf += surf1.pitch;
-    }
-    PointerDraw(0, 0, this->sprite, (TbPixel *)surfbuf, surf1.pitch);
-    LbScreenSurfaceUnlock(&surf1);
-    this->position = npos;
-    this->spr_offset = noffset;
+    position = npos;
+    spr_offset = noffset;
     ClipHotspot();
     this->is_active = true;
-    NewMousePos();
     this->needs_redraw = false;
-    LbScreenSurfaceBlit(&surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, 0x10|0x02);
+    NewMousePos();
 }
 
 void LbI_PointerHandler::Draw(bool a1)
 {
-    unsigned long flags;
-    flags = 0x10 | 0x08 | 0x04;
-    if ( a1 )
-      flags |= 0x02;
-    LbScreenSurfaceBlit(&this->surf1, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
+    (void)a1;
 }
 
 void LbI_PointerHandler::Backup(bool a1)
 {
-    unsigned long flags;
-    flags = 0x10;
-    if ( a1 )
-      flags |= 0x02;
+    (void)a1;
     this->needs_redraw = false;
-    LbScreenSurfaceBlit(&this->surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
 }
 
 void LbI_PointerHandler::Undraw(bool a1)
 {
-    unsigned long flags;
-    flags = 0x10 | 0x08;
-    if ( a1 )
-      flags |= 0x02;
-    LbScreenSurfaceBlit(&this->surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
+    (void)a1;
 }
 
 void LbI_PointerHandler::Release(void)
@@ -260,15 +135,12 @@ void LbI_PointerHandler::Release(void)
     std::lock_guard<std::mutex> guard(lock);
     if ( this->is_active )
     {
-        if ( lbInteruptMouse )
-            Undraw(true);
         this->is_active = false;
         this->needs_redraw = false;
         position = NULL;
         sprite = NULL;
         spr_offset = NULL;
-        LbScreenSurfaceRelease(&surf1);
-        LbScreenSurfaceRelease(&surf2);
+        CursorLayer_Clear();
     }
 }
 
@@ -286,9 +158,9 @@ void LbI_PointerHandler::NewMousePos(void)
         rect_1038.left -= this->draw_pos_x;
         this->draw_pos_x = 0;
     } else
-    if (this->draw_pos_x+dstwidth > lbDisplay.PhysicalScreenWidth)
+    if (this->draw_pos_x+dstwidth > RendererPhysicalWidth())
     {
-        rect_1038.right += lbDisplay.PhysicalScreenWidth-dstwidth-this->draw_pos_x;
+        rect_1038.right += RendererPhysicalWidth()-dstwidth-this->draw_pos_x;
     }
     if (this->draw_pos_y < 0)
     {
@@ -304,43 +176,47 @@ void LbI_PointerHandler::NewMousePos(void)
 bool LbI_PointerHandler::OnMove(void)
 {
     std::lock_guard<std::mutex> guard(lock);
-    if (lbPointerAdvancedDraw && lbInteruptMouse)
-    {
-        Undraw(true);
-        NewMousePos();
-        Backup(true);
-        Draw(true);
-    } else
-    {
-        NewMousePos();
-    }
+    NewMousePos();
     return true;
+}
+
+void LbI_PointerHandler::ComputeDrawParams(int32_t *out_x, int32_t *out_y, int *out_units_per_px)
+{
+    *out_x = position->x - scale_ui_value_lofi(spr_offset->x);
+    *out_y = position->y - scale_ui_value_lofi(spr_offset->y);
+    *out_units_per_px = (sprite->SWidth > 0)
+        ? (int)(scale_ui_value_lofi(sprite->SWidth) * 16 / sprite->SWidth)
+        : 16;
 }
 
 void LbI_PointerHandler::OnBeginSwap(void)
 {
     std::lock_guard<std::mutex> guard(lock);
-    if ( lbPointerAdvancedDraw )
+    if (sprite == NULL || !is_active)
     {
-        Backup(false);
-        Draw(false);
-    } else
-    if (RendererLockFramebuffer() == Lb_SUCCESS)
-    {
-      PointerDraw(position->x - scale_ui_value_lofi(spr_offset->x), position->y - scale_ui_value_lofi(spr_offset->y),
-          sprite, lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth);
-      RendererUnlockFramebuffer();
+        CursorLayer_Clear();
+        return;
     }
+    int32_t cx, cy;
+    int units_per_px;
+    ComputeDrawParams(&cx, &cy, &units_per_px);
+    CursorLayer_SubmitPointerSprite(sprite, cx, cy, units_per_px);
 }
 
 void LbI_PointerHandler::OnEndSwap(void)
 {
+    // No-op: for a backend that defers, cursor rendering happens entirely in
+    // CursorLayer_Draw() at end of frame. No restore needed.
+}
+
+bool LbI_PointerHandler::GetSpriteForDraw(const struct TbSprite **out_spr, int32_t *out_x, int32_t *out_y, int *out_units_per_px)
+{
     std::lock_guard<std::mutex> guard(lock);
-    if ( lbPointerAdvancedDraw )
-    {
-        Undraw(false);
-        this->needs_redraw = true;
-    }
+    if (sprite == NULL || !is_active)
+        return false;
+    *out_spr = sprite;
+    ComputeDrawParams(out_x, out_y, out_units_per_px);
+    return true;
 }
 
 /******************************************************************************/

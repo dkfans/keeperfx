@@ -122,6 +122,18 @@ extern short mz;
 
 extern long floor_pointed_at_x;
 extern long floor_pointed_at_y;
+
+// ToDo : this is fucking garbage, remove it and use the proper camera position instead
+// Front-view textured-quad UV corner tables (draw_texturedquad_block(), and
+// GLWorldViewRenderer::append_frontview_quad() -- P5.7.2a).
+extern long const orient_to_mapU1[];
+extern long const orient_to_mapU2[];
+extern long const orient_to_mapU3[];
+extern long const orient_to_mapU4[];
+extern long const orient_to_mapV1[];
+extern long const orient_to_mapV2[];
+extern long const orient_to_mapV3[];
+extern long const orient_to_mapV4[];
 extern long box_lag_compensation_x;
 extern long box_lag_compensation_y;
 extern Offset vert_offset[3];
@@ -153,11 +165,71 @@ void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, lo
 
 void process_keeper_sprite(short x, short y, unsigned short a3, short kspr_angle, unsigned char a5, long a6);
 void draw_status_sprites(long a1, long a2, struct Thing *thing);
+
+// Room-flag pole/top and floating gold/damage text raster. No longer static:
+// GLWorldViewRenderer's own bucket walk calls these directly (same reason as
+// draw_jonty_mapwho() below -- reuse the exact resolution+raster code
+// software uses; these already submit through LbSpriteDrawScaled()/
+// LbDrawBox(), which route through the renderer bridge on both backends).
+struct BucketKindRoomFlag;
+struct BucketKindFloatingGoldText;
+void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg);
+void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg);
+void draw_engine_number(struct BucketKindFloatingGoldText *num);
+
+// Walk-time keeper-sprite resolution+raster for one bucket entry (isometric
+// view: draw_jonty_mapwho(); front view: draw_fastview_mapwho()/
+// draw_iso_only_fastview_mapwho() for the spinning-key case). No longer
+// static: GLWorldViewRenderer's own bucket walk (P5.7.3b) calls these
+// directly so GL reuses the exact same resolution code software does --
+// only the final raster call inside draw_keepersprite() diverges per backend.
+// Forward-declared (full definition lives in engine_buckets.h, which this
+// header deliberately doesn't pull in) so the pointer-only use below doesn't
+// trigger gcc's "declared inside parameter list" -Werror.
+struct BucketKindJontySprite;
+void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
+void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr);
+void draw_iso_only_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *spr);
+
+// Resolve a keeper-sprite frame's atlas cache key (draw_idx) + raw RLE data
+// pointer + content dims, without any draw-flag/positioning side effects.
+// GLWorldViewRenderer's shadow case (P5.7.4) calls this directly to reuse
+// the exact same GPU atlas layer a real sprite draw of that frame would use.
+// out_kspr (optional, may be NULL) returns the resolved per-frame entry --
+// resolve_keepersprite_cursor_geometry() (below) needs it for FrameOffsW/H.
+struct KeeperSprite;
+TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
+    unsigned char current_frame, int32_t *out_draw_idx,
+    const unsigned char **out_data, int *out_src_w, int *out_src_h,
+    const struct KeeperSprite **out_kspr);
+
+// Cursor/power-hand geometry resolve (P5.7.5): the destination-rect twin of
+// process_keeper_sprite()'s own xflip/scaled-position math, minus the
+// water-cutoff logic (not applicable to a UI overlay sprite) and minus its
+// ambient draw-flag side effect. GLCursorLayer::SubmitKeeperHandSprite()
+// (game thread) calls this to resolve everything it needs up front before
+// submitting through GLWorldViewRenderer::BeginCursorCapture()/
+// SubmitKeeperSprite()/EndCursorCapture() (Beat 3), so the render thread
+// never touches game-thread-only state (keepersprite_array(), the sprite
+// heap) directly.
+TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short kspr_base,
+    short kspr_angle, unsigned char sprgroup, long scale,
+    int32_t *out_dst_x, int32_t *out_dst_y, int32_t *out_dst_w, int32_t *out_dst_h,
+    int32_t *out_draw_idx, const unsigned char **out_data, int *out_src_w, int *out_src_h);
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color);
 
 void update_engine_settings(struct PlayerInfo *player);
 void draw_view(struct Camera *cam, unsigned char a2);
 void draw_frontview_engine(struct Camera *cam);
+
+// Rasterize the bucket list built by the most recent draw_view()/
+// draw_frontview_engine() walk. Called (via SoftwareWorldViewRenderer) at
+// deferred-resolve time, not immediately after the walk -- see
+// software_execute_world_from_ir()'s comment in engine_render.c.
+void display_drawlist(void);
+void display_fast_drawlist(struct Camera *cam);
+void software_execute_world_from_ir(int win_x, int win_y, int win_w, int win_h,
+                                    int is_frontview, struct Camera *cam);
 /******************************************************************************/
 #ifdef __cplusplus
 }

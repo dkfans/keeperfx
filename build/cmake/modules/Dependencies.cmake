@@ -13,6 +13,9 @@ set(KFX_DEPS_BASE "https://github.com/dkfans/kfx-deps/releases/download")
 set(D "${CMAKE_BINARY_DIR}/deps")
 set(KFX_CENTITOML_SRC "${CMAKE_SOURCE_DIR}/deps/centitoml")
 
+# GL renderer backend: always built.
+find_package(OpenGL REQUIRED)
+
 # kfx_fetch(<dir> <url>): download + extract into <builddir>/deps/<dir>/ once.
 function(kfx_fetch dir url)
     set(_tgz "${D}/${dir}.tar.gz")
@@ -198,8 +201,12 @@ function(kfx_link_dependencies TARGET)
             openal_static astronomy_static enet6_static miniupnpc_static natpmp_static
             curl_static spng_static centijson_static minizip_static zlib_static
             luajit_static)
-        target_link_libraries(${TARGET} PRIVATE
-            kfx_sdl3 "$<LINK_GROUP:RESCAN,${_static}>" centitoml)
+        if(CMAKE_CXX_LINK_GROUP_USING_RESCAN_SUPPORTED)
+            set(_static_link "$<LINK_GROUP:RESCAN,${_static}>")
+        else()
+            set(_static_link ${_static})
+        endif()
+        target_link_libraries(${TARGET} PRIVATE kfx_sdl3 ${_static_link} centitoml)
     else()
         target_link_libraries(${TARGET} PRIVATE
             kfx_sdl3
@@ -209,4 +216,5 @@ function(kfx_link_dependencies TARGET)
             centitoml
             miniupnpc natpmp dl)
     endif()
+    target_link_libraries(${TARGET} PRIVATE OpenGL::GL)
 endfunction()

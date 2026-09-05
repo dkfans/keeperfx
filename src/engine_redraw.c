@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include <stdlib.h>
 #include "kfx/renderer/RendererManager.h"
 #include "engine_redraw.h"
 
@@ -42,6 +43,7 @@
 #include "power_process.h"
 #include "engine_render.h"
 #include "engine_lenses.h"
+#include "kfx/ui/GameUI.h"
 #include "local_camera.h"
 #include "front_simple.h"
 #include "front_easter.h"
@@ -60,6 +62,7 @@
 #include "magic_powers.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "config_keeperfx.h" // is_feature_on, Ft_DeltaTime
 #include "creature_instances.h"
 #include "packets.h"
 #include "custom_sprites.h"
@@ -78,14 +81,47 @@ extern "C" {
 void redraw_isometric_view(void);
 void redraw_frontview(void);
 /******************************************************************************/
-int32_t xtab[640][2];
-int32_t ytab[480][2];
+
+static int32_t *xtab = NULL;
+static int32_t *ytab = NULL;
+static int mapfade_tab_w = 0;
+static int mapfade_tab_h = 0;
 
 unsigned char smooth_on;
-static unsigned char * map_fade_ghost_table;
-static unsigned char * map_fade_dest;
-static unsigned char * map_fade_src;
+static unsigned char * map_fade_ghost_table = NULL;
+static unsigned char * map_fade_dest = NULL;
+static unsigned char * map_fade_src = NULL;
+static int mapfade_buf_w = 0;
+static int mapfade_buf_h = 0;
 static long draw_spell_cost;
+
+/** (Re)allocate xtab/ytab to at least width x height entries, if needed. */
+static void ensure_map_fade_tables(int width, int height)
+{
+    if ((xtab != NULL) && (ytab != NULL) && (width <= mapfade_tab_w) && (height <= mapfade_tab_h))
+        return;
+    free(xtab);
+    free(ytab);
+    xtab = (int32_t*)malloc(sizeof(int32_t) * 2 * width);
+    ytab = (int32_t*)malloc(sizeof(int32_t) * 2 * height);
+    mapfade_tab_w = (xtab != NULL) ? width : 0;
+    mapfade_tab_h = (ytab != NULL) ? height : 0;
+}
+
+static void ensure_map_fade_buffers(int width, int height)
+{
+    if ((map_fade_src != NULL) && (map_fade_dest != NULL) && (map_fade_ghost_table != NULL)
+        && (width <= mapfade_buf_w) && (height <= mapfade_buf_h))
+        return;
+    free(map_fade_src);
+    free(map_fade_dest);
+    map_fade_src = (unsigned char*)malloc((size_t)width * (size_t)height);
+    map_fade_dest = (unsigned char*)malloc((size_t)width * (size_t)height);
+    mapfade_buf_w = (map_fade_src != NULL && map_fade_dest != NULL) ? width : 0;
+    mapfade_buf_h = (map_fade_src != NULL && map_fade_dest != NULL) ? height : 0;
+    if (map_fade_ghost_table == NULL)
+        map_fade_ghost_table = (unsigned char*)malloc(PALETTE_COLORS * PALETTE_COLORS);
+}
 /******************************************************************************/
 static void draw_creature_view_icons(struct Thing* creatng)
 {
@@ -260,9 +296,12 @@ void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcb
 {
     long ix;
     long iy;
+    ensure_map_fade_tables(xmax, ymax);
+    if ((xtab == NULL) || (ytab == NULL))
+        return;
     long x1base = 4 * a6;
     long x0base = 4 * (32 - a6);
-    int32_t * xt = xtab[0];
+    int32_t * xt = xtab;
     int vx0 = 0;
     int vx1 = 0;
     for (ix = xmax; ix > 0; ix--)
@@ -292,7 +331,7 @@ void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcb
 
     long y1base = 8 * ymax / xmax * x1base / 8;
     long y0base = 8 * ymax / xmax * x0base / 8;
-    int32_t * yt = ytab[0];
+    int32_t * yt = ytab;
     int vy1 = 0;
     int vy0 = 0;
     for (iy = ymax; iy > 0; iy--)
@@ -324,12 +363,12 @@ void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcb
     x0base = a6 << 8;
     y0base = (32 - a6) << 8;
     unsigned char* out = outbuf;
-    yt = ytab[0];
+    yt = ytab;
     for (iy = ymax; iy > 0; iy--)
     {
         unsigned char* sbuf2 = &srcbuf2[yt[1]];
         unsigned char* sbuf1 = &srcbuf1[yt[0]];
-        xt = xtab[0];
+        xt = xtab;
         for (ix = xmax; ix > 0; ix--)
         {
             int px1 = fade_tbl[x0base + sbuf1[xt[0]]];
@@ -381,59 +420,105 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
       redraw_isometric_view();
     else
       redraw_frontview();
-    // Copy the screen to fade source temp buffer
+    // Copy the screen to fade source temp buffer. Software-only
     int i;
     int fadebuf_pos = 0;
-    for (i = 0; i < height; i++)
+    if (lbDisplay.WScreen != NULL)
     {
-        unsigned char* src = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth * i;
-        unsigned char* dst = &fade_src[fadebuf_pos];
-        fadebuf_pos += scanline;
-        memcpy(dst, src, MyScreenWidth/pixel_size);
+        for (i = 0; i < height; i++)
+        {
+            unsigned char* src = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth * i;
+            unsigned char* dst = &fade_src[fadebuf_pos];
+            fadebuf_pos += scanline;
+            memcpy(dst, src, MyScreenWidth/pixel_size);
+        }
     }
     // create the parchment screen
     load_parchment_file();
+    // ToDo : This crashes the game in GL mode.
+    RendererBeginParchmentCapture();
     redraw_minimal_overhead_view();
+    RendererEndParchmentCapture();
     // Copy the screen to fade destination temp buffer
     fadebuf_pos = 0;
-    for (i = 0; i < height; i++)
+    if (lbDisplay.WScreen != NULL)
     {
-        unsigned char* src = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth * i;
-        unsigned char* dst = &fade_dest[fadebuf_pos];
-        fadebuf_pos += scanline;
-        memcpy(dst, src, MyScreenWidth/pixel_size);
+        for (i = 0; i < height; i++)
+        {
+            unsigned char* src = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth * i;
+            unsigned char* dst = &fade_dest[fadebuf_pos];
+            fadebuf_pos += scanline;
+            memcpy(dst, src, MyScreenWidth/pixel_size);
+        }
     }
 }
 
 long map_fade_in(long palette_fade_step)
 {
     SYNCDBG(6,"Starting");
+    {
+        float remain = (float)get_my_player()->instance_remain_turns;
+        float frac = (is_feature_on(Ft_DeltaTime) && remain > 0.0f) ? (float)game.process_turn_time : 0.0f;
+        if (frac < 0.0f) frac = 0.0f;
+        if (frac > 1.0f) frac = 1.0f;
+        float display_step = (8.0f - remain + frac) * 4.0f;
+        if (display_step < 0.0f) display_step = 0.0f;
+        if (display_step > 32.0f) display_step = 32.0f;
+        RendererSubmitMapFadeStep((int)palette_fade_step, display_step, 1);
+    }
+    int real_w = MyScreenWidth/pixel_size;
+    int real_h = MyScreenHeight/pixel_size;
     if (palette_fade_step == 0)
     {
-        map_fade_ghost_table = poly_pool;
-        map_fade_src = poly_pool + PALETTE_COLORS*PALETTE_COLORS;
-        map_fade_dest = map_fade_src + 320*200;
-        prepare_map_fade_buffers(map_fade_src, map_fade_dest, 320, MyScreenHeight/pixel_size);
+        ensure_map_fade_buffers(real_w, real_h);
+        if ((map_fade_src == NULL) || (map_fade_dest == NULL) || (map_fade_ghost_table == NULL))
+        {
+            ERRORLOG("Failed to allocate map fade buffers for %dx%d", real_w, real_h);
+            return 32;
+        }
+        prepare_map_fade_buffers(map_fade_src, map_fade_dest, real_w, real_h);
         generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
-    map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
-        palette_fade_step, 320, 200, lbDisplay.GraphicsScreenWidth);
+    if (lbDisplay.WScreen != NULL)
+    {
+        map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
+            palette_fade_step, real_w, real_h, lbDisplay.GraphicsScreenWidth);
+    }
     return (8 - get_my_player()->instance_remain_turns) * 4;
 }
 
 long map_fade_out(long palette_fade_step)
 {
     SYNCDBG(6,"Starting");
+    {
+        float remain = (float)get_my_player()->instance_remain_turns;
+        float frac = (is_feature_on(Ft_DeltaTime) && remain > 0.0f) ? (float)game.process_turn_time : 0.0f;
+        if (frac < 0.0f) frac = 0.0f;
+        if (frac > 1.0f) frac = 1.0f;
+        float display_step = (remain - frac) * 4.0f;
+        if (display_step < 0.0f) display_step = 0.0f;
+        if (display_step > 32.0f) display_step = 32.0f;
+        RendererSubmitMapFadeStep((int)palette_fade_step, display_step, 0);
+    }
+    int real_w = MyScreenWidth/pixel_size;
+    int real_h = MyScreenHeight/pixel_size;
     if (palette_fade_step == 32)
     {
-        map_fade_ghost_table = poly_pool;
-        map_fade_src = poly_pool + PALETTE_COLORS*PALETTE_COLORS;
-        map_fade_dest = map_fade_src + 320*200;
-        prepare_map_fade_buffers(map_fade_src, map_fade_dest, 320, MyScreenHeight/pixel_size);
+        ensure_map_fade_buffers(real_w, real_h);
+        if ((map_fade_src == NULL) || (map_fade_dest == NULL) || (map_fade_ghost_table == NULL))
+        {
+            ERRORLOG("Failed to allocate map fade buffers for %dx%d", real_w, real_h);
+            return 0;
+        }
+        prepare_map_fade_buffers(map_fade_src, map_fade_dest, real_w, real_h);
         generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
-    map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
-      palette_fade_step, 320, 200, lbDisplay.GraphicsScreenWidth);
+    // Software-only CPU blend
+    if (lbDisplay.WScreen != NULL)
+    {
+        map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
+          palette_fade_step, real_w, real_h, lbDisplay.GraphicsScreenWidth);
+    }
     return get_my_player()->instance_remain_turns * 4;
 }
 
@@ -562,16 +647,7 @@ void redraw_creature_view(void)
             ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     }
     remove_explored_flags_for_power_sight(player);
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
-        draw_whole_status_panel();
-    }
-    draw_gui();
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
-        draw_overlay_compass(local_state.minimap_pos_x, local_state.minimap_pos_y);
-    }
-    message_draw();
-    gui_draw_all_boxes();
-    draw_tooltip();
+    GameUI_DrawFrame(player);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (!creature_control_invalid(cctrl))
     {
@@ -625,17 +701,7 @@ void redraw_isometric_view(void)
             ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     }
     remove_explored_flags_for_power_sight(player);
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
-        draw_whole_status_panel();
-    }
-    draw_gui();
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
-        draw_overlay_compass(local_state.minimap_pos_x, local_state.minimap_pos_y);
-    }
-    message_draw();
-    gui_draw_all_boxes();
-    draw_power_hand();
-    draw_tooltip();
+    GameUI_DrawFrame(player);
     SYNCDBG(8,"Finished");
 }
 
@@ -647,17 +713,7 @@ void redraw_frontview(void)
     update_explored_flags_for_power_sight(player);
     draw_frontview_engine(render_cam);
      remove_explored_flags_for_power_sight(player);
-    if (flag_is_set(game.operation_flags,GOF_ShowGui)) {
-        draw_whole_status_panel();
-    }
-    draw_gui();
-    if (flag_is_set(game.operation_flags,GOF_ShowGui)) {
-        draw_overlay_compass(local_state.minimap_pos_x, local_state.minimap_pos_y);
-    }
-    message_draw();
-    draw_power_hand();
-    draw_tooltip();
-    gui_draw_all_boxes();
+    GameUI_DrawFrame(player);
 }
 
 int get_place_room_pointer_graphics(RoomKind rkind)
@@ -1124,7 +1180,7 @@ void redraw_display(void)
         LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
     draw_eastegg();
-  //show_onscreen_msg(8, "Physical(%d,%d) Graphics(%d,%d) Lens(%d,%d)", (int)lbDisplay.PhysicalScreenWidth, (int)lbDisplay.PhysicalScreenHeight, (int)lbDisplay.GraphicsScreenWidth, (int)lbDisplay.GraphicsScreenHeight, (int)eye_lens_width, (int)eye_lens_height);
+  //show_onscreen_msg(8, "Physical(%d,%d) Graphics(%d,%d) Lens(%d,%d)", (int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight, (int)lbDisplay.GraphicsScreenWidth, (int)lbDisplay.GraphicsScreenHeight, (int)eye_lens_width, (int)eye_lens_height);
     SYNCDBG(7,"Finished");
 }
 
@@ -1135,12 +1191,12 @@ TbBool keeper_screen_redraw(void)
 {
     SYNCDBG(5,"Starting");
     RendererClearScreen(144);
-    if (RendererLockFramebuffer() == Lb_SUCCESS)
+    if (RendererBeginFrame())
     {
         setup_engine_window(local_state.engine_window_x, local_state.engine_window_y,
             local_state.engine_window_width, local_state.engine_window_height);
         redraw_display();
-        RendererUnlockFramebuffer();
+        RendererEndFrame();
         return true;
     }
     return false;

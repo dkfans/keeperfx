@@ -25,6 +25,7 @@
 #include "bflib_dernc.h"
 #include "bflib_enet.h"
 #include "bflib_video.h"
+#include "kfx/renderer/RendererManager.h" // RENDERER_SOFTWARE/RENDERER_OPENGL (P5.9)
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
 #include "bflib_mouse.h"
@@ -168,7 +169,14 @@ const struct NamedCommand conf_commands[] = {
   {"CAPTURE_CURSOR"                , 46},
   {"MATCHMAKING_SERVER"            , 47},
   {"MULTIPLAYER_PORT"              , 48},
+  {"RENDERER"                      , 49},
   {NULL,                   0},
+  };
+
+  const struct NamedCommand renderer_type_desc[] = {
+  {"SOFTWARE",     RENDERER_SOFTWARE},
+  {"OPENGL",       RENDERER_OPENGL},
+  {NULL,           0},
   };
 
   const struct NamedCommand vidscale_type[] = {
@@ -1047,6 +1055,16 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           } else {
             CONFWRNLOG("Invalid MULTIPLAYER_PORT '%s' in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
+          break;
+      case 49: // RENDERER
+          i = recognize_conf_parameter(buf,&pos,len,renderer_type_desc);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          requested_renderer_type = i;
           break;
       case ccr_comment:
           break;

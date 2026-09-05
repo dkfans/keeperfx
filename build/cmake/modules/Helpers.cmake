@@ -37,6 +37,6 @@ endfunction()
 function(apply_windows_system_libs TARGET)
     if(WIN32)
         target_link_libraries(${TARGET} PRIVATE
-            winmm mingw32 imagehlp ws2_32 dbghelp bcrypt ole32 uuid)
+            winmm mingw32 imagehlp ws2_32 dbghelp bcrypt ole32 uuid dxgi dwmapi)
     endif()
 endfunction()

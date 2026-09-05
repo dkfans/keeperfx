@@ -26,6 +26,7 @@
 #include "../../config_lenses.h"
 #include "../../vidmode.h"
 #include "../../lens_api.h"
+#include "../renderer/ir/WorldCommands.h"
 
 #include "../../keeperfx.hpp"
 #include "../../post_inc.h"
@@ -45,6 +46,7 @@ DisplacementEffect::DisplacementEffect()
     , m_lookup_table(nullptr)
     , m_table_width(0)
     , m_table_height(0)
+    , m_gpu_version(0)
 {
 }
 
@@ -161,6 +163,8 @@ void DisplacementEffect::BuildLookupTable(long width, long height)
         }
     }
     
+    m_gpu_version++;   // table just rebuilt -- GL upload must not skip it
+
     SYNCDBG(7, "Built displacement lookup table %ldx%ld", width, height);
 }
 
@@ -231,5 +235,42 @@ TbBool DisplacementEffect::Draw(LensRenderContext* ctx)
     }
     
     ctx->buffer_copied = true;
+    return true;
+}
+
+TbBool DisplacementEffect::BuildGPUParams(IRWorldLensCmd& out, long viewport_w, long viewport_h)
+{
+    if (m_current_lens < 0)
+    {
+        return false;
+    }
+
+    // Same lazy (re)build check Draw() uses, just against the real on-screen
+    // viewport size instead of ctx->width/height -- the GL path never calls
+    // Draw(), so this is the only place the table gets built for GL.
+    if (m_lookup_table == nullptr ||
+        m_table_width != viewport_w ||
+        m_table_height != viewport_h)
+    {
+        BuildLookupTable(viewport_w, viewport_h);
+        if (m_lookup_table == nullptr)
+        {
+            return false;
+        }
+    }
+
+    out.remap_version = m_gpu_version;
+    out.remap_w = (int)m_table_width;
+    out.remap_h = (int)m_table_height;
+    out.remap_pixels.resize((size_t)m_table_width * (size_t)m_table_height * 2);
+    const DisplaceLookupEntry* entry = m_lookup_table;
+    int16_t* dst = out.remap_pixels.data();
+    for (long i = 0; i < m_table_width * m_table_height; i++)
+    {
+        dst[i * 2 + 0] = entry[i].src_x;
+        dst[i * 2 + 1] = entry[i].src_y;
+    }
+
+    out.type = LensPixelEffectType::Displacement;
     return true;
 }

@@ -3,6 +3,7 @@
 
 #include "bflib_basics.h"  // TbResult
 #include "bflib_video.h"   // TbScreenMode, TbScreenCoord
+#include "kfx/renderer/DrawState.h" // TbDrawFlagsMask
 
 // RendererType is a C++ enum; C translation units see it as an opaque int.
 #ifdef __cplusplus
@@ -12,6 +13,7 @@ typedef int RendererType;
 #  define RENDERER_INVALID  (-1)
 #  define RENDERER_AUTO     0
 #  define RENDERER_SOFTWARE 1
+#  define RENDERER_OPENGL   2
 #endif
 
 #ifdef __cplusplus
@@ -22,6 +24,21 @@ extern "C" {
 int          RendererInit(RendererType type);
 void         RendererShutdown(void);
 RendererType RendererGetActiveType(void);
+
+// Resolve RENDERER_AUTO to a concrete backend type; other types pass through
+// unchanged. Must be called (via main.cpp's resolve_startup_config()) before
+// the game window is created, so window-creation flags can be decided from
+// the concrete type up front -- see RendererGetRequiredWindowFlags() below.
+// RendererInit() also calls this internally (idempotent), so it stays
+// correct even if ever handed RENDERER_AUTO directly.
+RendererType RendererResolveType(RendererType requested);
+
+// SDL3 window-creation flags (KfxWindowFlags, bflib_video.h) required by a
+// given backend -- e.g. KFX_WF_OPENGL for RENDERER_OPENGL. Queried by
+// LbScreenSetup() before the one-and-only SDL_CreateWindow() call, so the
+// window is born with the correct flags instead of being destroyed and
+// recreated later to add them.
+unsigned int RendererGetRequiredWindowFlags(RendererType type);
 
 // The currently-active 6-bit VGA palette (768 bytes) that indexed drawing samples.
 const unsigned char* RendererGetActivePalette(void);
@@ -39,12 +56,59 @@ void RendererClearScreen(unsigned char colour);
 // Present the drawn frame to the window (blit draw surface + flip).
 void RendererPresentFrame(void);
 
-// Lock / unlock the CPU framebuffer, pointing lbDisplay.WScreen at the backend pixels.
-TbResult RendererLockFramebuffer(void);
-TbResult RendererUnlockFramebuffer(void);
+TbBool RendererBeginFrame(void);
+void   RendererEndFrame(void);
+
+// Palette source for RendererPresentImageDesc::palette.
+#define PRESENT_PALETTE_GAME     0  /* live game palette (default -- existing zero-initialised callers) */
+#define PRESENT_PALETTE_EMBEDDED 1  /* per-present palette carried in embedded_palette (FMV, 256x4 BGRA) */
+
+// Compositing behaviour for RendererPresentImageDesc::kind.
+#define PRESENT_KIND_OPAQUE      0  /* fills the dest rect, clearing first (default) */
+#define PRESENT_KIND_TRANSPARENT 1  /* draws over whatever's already there; index 0 = see-through */
+
+struct RendererPresentImageDesc {
+    int dst_x, dst_y, dst_w, dst_h;
+    const unsigned char* src;
+    int src_pitch;
+    int src_w, src_h;
+    int palette;                            /* PRESENT_PALETTE_* */
+    const unsigned char* embedded_palette;  /* 256x4 BGRA, PRESENT_PALETTE_EMBEDDED only, else NULL */
+    int kind;                               /* PRESENT_KIND_* */
+};
+TbBool RendererPresentImage(const struct RendererPresentImageDesc* desc);
+
+/** Route an FMV frame's embedded palette through the renderer instead of
+ *  calling RendererSetDisplayPalette() directly */
+void RendererNotifyFmvPalette(const unsigned char *bgra_1024);
+
+/** Submit the landview zoom-in/out transition frame through the GPU path.
+ *  @param src_buf     map_screen -- 8-bit indexed pixels (src_w x src_h),
+ *                     cached by pointer identity: only re-uploaded when this
+ *                     differs from the last call's pointer.
+ *  @param center_map_x/y  Zoom centre, in source texel coordinates.
+ *  @param screen_cx/cy    Zoom centre, in screen pixel coordinates (y-down).
+ *  @param scale           Source texels per screen pixel (src_delta/256.0 in
+ *                         frontzoom_to_point()'s own terms).
+ *  @return true when the GPU path accepted the frame (caller skips its own
+ *          CPU zoom loop); false when no GPU backend is active (software
+ *          renderer) -- caller runs its existing CPU path instead. */
+TbBool RendererSubmitLandviewZoom(const unsigned char *src_buf, int src_w, int src_h,
+                                  float center_map_x, float center_map_y,
+                                  float screen_cx,    float screen_cy,
+                                  float scale);
 
 // Save the current frame to a file via the active backend (fmt: 1=PNG, 2=BMP).
 TbBool RendererScheduleScreenshot(const char* path, int fmt);
+
+// Full-screen tint overlay (pain/possession vignette, death/zoom-to-heart
+// white flash). Plain ambient state, backend-agnostic -- GL blends a
+// fullscreen quad from it each frame (FGDrawScreenTint()); software has no
+// consumer (see RendererApplyPossessionPalette() below for its equivalent).
+extern float g_screen_tint[4];
+void RendererSetScreenTint(float r, float g, float b, float a);
+
+void RendererApplyPossessionPalette(long step, const unsigned char *main_palette);
 
 // Screen lifecycle (window + draw surface).
 TbResult RendererSetupScreen(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
@@ -53,14 +117,27 @@ TbResult RendererResetScreen(TbBool exiting_application);
 TbResult RendererScreenInitialize(void);
 TbResult RendererSetDoubleBuffering(TbBool state);
 
-// Current draw colour — ambient draw-call state, held off lbDisplay.  will be removing in the future, just for now it keeps the pr small
-// Text. LbTextDrawResized routes here so the active backend can record the
-// draw for this frame or draw it now.
+/******************************************************************************/
+/* Display property accessors                                                 */
+/******************************************************************************/
+
+/** Visible display width in pixels (window or fullscreen). */
+TbScreenCoord RendererPhysicalWidth(void);
+
+/** Visible display height in pixels (window or fullscreen). */
+TbScreenCoord RendererPhysicalHeight(void);
+
+/** Graphics buffer scanline width (pitch) in pixels.
+ *  Use for pixel address arithmetic (ptr + y * stride + x). */
+TbScreenCoord RendererScreenWidth(void);
+
+/** Graphics buffer height in pixels. */
+TbScreenCoord RendererScreenHeight(void);
+
 TbBool RendererTextDrawResized(int posx, int posy, int units_per_px, const char *text);
 
-// Sprites. The Lb* entry points route here so the active backend can record the
-// draw for this frame or draw it now.
 struct TbSprite;
+struct Camera;
 TbResult RendererDrawBox(int32_t x, int32_t y, uint32_t width, uint32_t height, unsigned char colour);
 void RendererDrawSlabBackground(int32_t x, int32_t y, int32_t width, int32_t height);
 TbResult RendererSpriteDraw(int32_t x, int32_t y, const struct TbSprite *spr);
@@ -72,12 +149,62 @@ int      RendererSpriteDrawScaledRemap(int32_t x, int32_t y, const struct TbSpri
 unsigned char RendererGetDrawColour(void);
 void RendererSetDrawColour(unsigned char colour);
 
+
+void CursorLayer_Draw(void);
+void CursorLayer_Clear(void);
+void CursorLayer_SubmitPointerSprite(const struct TbSprite* spr, int32_t x, int32_t y, int units_per_px);
+// Returns 1 if a cursor layer handled the sprite (caller must not also draw
+// it via process_keeper_sprite()), 0 to fall back (P5.7.5).
+int RendererSubmitKeeperHandSprite(short x, short y, unsigned short kspr_base,
+    short angle, unsigned char sprgroup, int32_t scale, TbDrawFlagsMask draw_flags);
+
+void WorldViewRenderer_BeginWorldPass(int w, int h, int vp_x, int vp_y);
+void WorldViewRenderer_DrawIsometricView(void);
+void WorldViewRenderer_DrawFrontView(struct Camera* cam);
+
+
+int RendererBeginWorldSpriteCapture(int32_t bucket_idx);
+// content_h = visible rows out of src_h for this draw (Beat 4: water/lava
+// clipping) -- pass == src_h for "no clipping".
+int RendererSubmitKeeperSprite(int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+    const unsigned char* data, int src_w, int src_h, int32_t content_h,
+    unsigned int draw_flags, const unsigned char* remap, int32_t sprite_id);
+
+void RendererSetCurrentSpriteContext(int player_idx, int wants_outline);
+int  RendererGetCurrentSpriteOwner(void);
+int  RendererGetCurrentSpriteWantsOutline(void);
+
+void RendererClearKeeperSpriteAtlas(void);
+void RendererPreloadKeeperSpriteAtlas(void);
+
+void RendererSetWorldOverlay(float ndc_z);
+void RendererClearWorldOverlay(void);
+void RendererSetWorldOverlayFlat(float ndc_z);
+void RendererClearWorldOverlayFlat(void);
+
+void RendererUpdateSlabTexture(const unsigned char* data, int dim);
+
+void RendererSubmitPossessionLens(long viewport_x, long viewport_y, long viewport_w, long viewport_h);
+
+void RendererSubmitMapFadeStep(int tick_step, float display_step, TbBool fading_in);
+void RendererBeginParchmentCapture(void);
+void RendererEndParchmentCapture(void);
+TbBool MapFadePass_SupportsNativeResolution(void);
+
+void RendererBeginSwipeOverlay(void);
+void RendererEndSwipeOverlay(void);
+
 // Current draw flags (TbDrawFlags bitmask) — ambient draw-call state, held off lbDisplay.
 unsigned short RendererGetDrawFlags(void);
 void RendererSetDrawFlags(unsigned short flags);   // = flags
 void RendererAddDrawFlags(unsigned short flags);    // |= flags
 void RendererClearDrawFlags(unsigned short flags);  // &= ~flags
 void RendererToggleDrawFlags(unsigned short flags); // ^= flags
+
+// Renderer settings (Beat 4). Ported from develop's RendererApplySettings()/
+struct RendererSettings;
+void RendererApplySettings(const struct RendererSettings* s);
+const struct RendererSettings* RendererGetSettings(void);
 
 #ifdef __cplusplus
 }

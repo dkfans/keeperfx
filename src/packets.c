@@ -814,7 +814,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       return 0;
   case PckA_ZoomFromMap:
       if (network_is_active()
-          || (lbDisplay.PhysicalScreenWidth > 320))
+          || (RendererPhysicalWidth() > 320))
       {
         if (get_local_user() == user)
           toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);

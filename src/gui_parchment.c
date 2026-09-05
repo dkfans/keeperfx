@@ -73,7 +73,7 @@ void load_parchment_file(void)
 {
     if ( !parchment_loaded )
     {
-      reload_parchment_file(lbDisplay.PhysicalScreenWidth >= 640);
+      reload_parchment_file(RendererPhysicalWidth() >= 640);
     }
 }
 
@@ -300,8 +300,11 @@ static int get_overhead_mapblock_style(const struct Map* mapblk, const struct Sl
     return get_player_path_colour(owner);
 }
 
+// Todo : relace body with develop, use RendererSubmitOverheadMap
 void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
 {
+    if (lbDisplay.WScreen == NULL)
+        return;
     GameTurn turn = get_gameturn();
     int gui_frame = (turn / gui_blink_rate) & 7;
     TbPixel neutral_colour = player_room_colours[(turn / neutral_flash_rate) & 3];
@@ -1198,8 +1201,11 @@ void zoom_to_parchment_map(void)
     else
       set_flag(game.operation_flags, GOF_ShowPanel);
     struct PlayerInfo* player = get_my_player();
+    // GL removes the >320px instant-cut fallback entirely (P5.8b) -- that
+    // cap is a software-only per-pixel-LUT performance limit, not a
+    // fundamental one; see MapFadeSupportsNativeResolution()'s own comment.
     if (network_is_active()
-        || (lbDisplay.PhysicalScreenWidth > 320))
+        || (!MapFadePass_SupportsNativeResolution() && (RendererPhysicalWidth() > 320)))
     {
       set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
       turn_off_roaming_menus();
@@ -1214,7 +1220,7 @@ void zoom_from_parchment_map(void)
 {
     struct PlayerInfo* player = get_my_player();
     if (network_is_active()
-        || (lbDisplay.PhysicalScreenWidth > 320))
+        || (!MapFadePass_SupportsNativeResolution() && (RendererPhysicalWidth() > 320)))
     {
         set_players_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0,0,0);
     } else

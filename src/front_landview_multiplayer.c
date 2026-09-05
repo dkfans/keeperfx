@@ -158,6 +158,7 @@ void frontnetmap_unload(void)
     fe_network_active = 0;
     stop_music(false);
     set_music_volume(settings.music_volume);
+    LbTextInvalidateFontGeneration();
 }
 
 static int32_t get_hand_limp_frame(TbClockMSec now)
@@ -333,7 +334,7 @@ void frontnetmap_draw(void)
 {
     SYNCDBG(8,"Starting");
     LbTextSetFont(map_font);
-    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+    LbTextSetWindow(0, 0, RendererPhysicalWidth(), lbDisplay.PhysicalScreenHeight);
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0) {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
         compressed_window_draw();
@@ -440,6 +441,7 @@ TbBool frontnetmap_load(void)
         free_spritesheet(&map_hand);
         unload_map_and_window();
         frontend_load_data_reset();
+        LbTextInvalidateFontGeneration();
         return false;
     }
     frontend_load_data_reset();
@@ -447,7 +449,7 @@ TbBool frontnetmap_load(void)
     fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
     net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
-    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+    LbMouseSetPosition(RendererPhysicalWidth()/2, lbDisplay.PhysicalScreenHeight/2);
     map_sound_fade = FULL_LOUDNESS;
     RendererSetDrawFlags(0);
     set_music_volume(settings.music_volume);

@@ -141,6 +141,16 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
 {
     unsigned char* dst;
     SYNCDBG(18, "Starting; screen buf %d,%d screen size %d,%d dst pos %d,%d src %d,%d", (int)scanline, (int)nlines, (int)dst_width, (int)dst_height, (int)spw, (int)sph, (int)src_width, (int)src_height);
+    // ToDo : remove, why does this go through RendererPresntImage() instead of just copying into the screen buffer?
+    if (dst_buf == NULL)
+    {
+        struct RendererPresentImageDesc present_desc = {
+            spw, sph, dst_width, dst_height,
+            src_buf, src_width, src_width, src_height,
+            0, NULL, 0
+        };
+        return RendererPresentImage(&present_desc);
+    }
     // Source pixel coords
     int sw = 0;
     int sh = 0;
@@ -237,19 +247,18 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
         (int)scaled_width,  (int)scaled_height,
         (int)coord_x,  (int)coord_y);
 
-    // Lock the screen
-    if (RendererLockFramebuffer() != Lb_SUCCESS)
+    // Open the frame
+    if (!RendererBeginFrame())
         return false;
 
-    // Copy image buffer to screen buffer
     copy_raw8_image_buffer(lbDisplay.WScreen, LbGraphicsScreenWidth(), LbGraphicsScreenHeight(),
                            scaled_width, scaled_height, coord_x, coord_y, buf, img_width, img_height);
 
     // Perform any screen capturing
     perform_any_screen_capturing();
 
-    // Unlock the screen
-    RendererUnlockFramebuffer();
+    // Close the frame
+    RendererEndFrame();
 
     // Swap video buffers to make the image visible
     RendererPresentFrame();
@@ -466,7 +475,7 @@ TbBool wait_for_installation_files(void)
   if ( LbFileExists(ffullpath) )
     return true;
   if ( was_locked )
-    RendererUnlockFramebuffer();
+    RendererEndFrame();
   SYNCMSG("Installation file not found, waiting");
   if (!init_bitmap_screen(&nocd_bmp,RBmp_WaitNoCD))
   {
@@ -511,7 +520,7 @@ TbBool wait_for_installation_files(void)
   SYNCMSG("Finished waiting for installation after %lu seconds",counter);
   free_bitmap_screen(&nocd_bmp);
   if ( was_locked )
-    RendererLockFramebuffer();
+    RendererBeginFrame();
   return (!exit_keeper);
 }
 

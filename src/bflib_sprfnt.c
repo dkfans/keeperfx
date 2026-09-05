@@ -167,6 +167,109 @@ static void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height,
     }
 }
 
+/* Explicit-font counterpart of is_duospace_char()/dbc_char_width(), for
+ * GL's snapshotted IRTextDrawCmd::dbc_font (see bflib_sprfnt.h). */
+TbBool LbDbcIsDuospaceChar(const struct AsianFont *font, uint32_t chr)
+{
+    if (chr < 0xFF)
+        return false;
+    if (font == NULL || font->widths == NULL || chr > 0xFFFF)
+        return false;
+    return (font->widths[(unsigned int)chr] + font->wide_spacing) >= 16;
+}
+
+int LbDbcCharHeight(const struct AsianFont *font)
+{
+    if (font == NULL)
+        return 0;
+    return font->height + font->line_spacing + font->baseline_offset;
+}
+
+int LbDbcCharWidthM(const struct AsianFont *font, uint32_t chr, long units_per_px)
+{
+    if (chr == 0 || font == NULL || font->widths == NULL || chr > 0xFFFF)
+        return 0;
+    unsigned short width = font->widths[(unsigned int)chr];
+    if (width == 0)
+        return 0;
+    unsigned long spacing = LbDbcIsDuospaceChar(font, chr) ? font->wide_spacing : font->narrow_spacing;
+    return (int)((width + spacing) * units_per_px / 16);
+}
+
+/** Fetch the raw glyph bitmap (packed MSB-first, 1 bit per pixel) for one DBC
+ *  codepoint in an explicit font, for GL's on-demand glyph atlas. Mirrors
+ *  dbc_get_sprite_for_char()'s lookup, parameterized instead of reading
+ *  active_dbcfont, and returns only the bitmap geometry (not the
+ *  positioning fields -- those are recomputed by the caller from
+ *  LbDbcCharWidthM()/LbDbcCharHeight() the same way the software path does).
+ *  @return 0 on success, non-zero if the codepoint has no glyph. */
+int LbDbcGetGlyphBits(const struct AsianFont *font, uint32_t chr,
+                       const unsigned char **out_data, int *out_scanline_bytes,
+                       int *out_w, int *out_h, int *out_char_spacing, int *out_v_offset)
+{
+    if (font == NULL || font->widths == NULL || font->offsets == NULL || font->data == NULL)
+        return 4;
+    if (chr > 0xFFFF)
+        return 6;
+    unsigned short width = font->widths[(unsigned int)chr];
+    if (width == 0)
+        return 6;
+    unsigned int offset = font->offsets[(unsigned int)chr];
+    int scanline = (width >> 3) + (((width & 7) != 0) ? 1 : 0);
+    if (out_data)           *out_data = font->data + offset;
+    if (out_scanline_bytes) *out_scanline_bytes = scanline;
+    if (out_w)              *out_w = (int)width;
+    if (out_h)              *out_h = (int)font->height;
+    if (out_char_spacing)   *out_char_spacing = (int)(LbDbcIsDuospaceChar(font, chr) ? font->wide_spacing : font->narrow_spacing);
+    if (out_v_offset)       *out_v_offset = (int)font->baseline_offset;
+    return 0;
+}
+
+/** Explicit-font word-width scan, mirroring LbTextWordWidthM() but taking
+ *  the font/DBC-font as parameters instead of reading lbFontPtr/
+ *  active_dbcfont -- needed by GL's deferred text path, which must not read
+ *  those globals at replay time (see the header comment above). */
+int LbTextWordWidthExplicit(const struct TbSpriteSheet *font, const struct AsianFont *dbcfont,
+                             TbBool use_dbc, const char *str, long units_per_px)
+{
+    if (str == NULL || str[0] == 0)
+        return 0;
+    int len = 0;
+    const char *sbuf = str;
+    while (true)
+    {
+        size_t seq_len;
+        uint32_t chr = read_utf_8_codepoint((const char *)sbuf, &seq_len);
+        sbuf += seq_len;
+        if (seq_len == 0)
+            break;
+
+        if ((chr == ' ') || (chr == '\t') || (chr == '\0') || (chr == '\r') || (chr == '\n'))
+            break;
+
+        if (use_dbc)
+        {
+            if (LbDbcIsDuospaceChar(dbcfont, chr))
+            {
+                if (len != 0)
+                    break; // letters before, need to stop.
+                return LbDbcCharWidthM(dbcfont, chr, units_per_px);
+            }
+            len += LbDbcCharWidthM(dbcfont, chr, units_per_px);
+        }
+        else
+        {
+            len += LbSprFontCharWidth(font, chr) * units_per_px / 16;
+        }
+    }
+    return len;
+}
+
+unsigned char LbTextGetSpacesPerTab(void)
+{
+    return lbSpacesPerTab;
+}
+
 static int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
 {
     SYNCDBG(19,"Starting");
@@ -972,6 +1075,13 @@ int LbTextSetWindow(int posx, int posy, int width, int height)
     return 1;
 }
 
+static unsigned int lbTextFontGeneration = 0;
+
+void LbTextInvalidateFontGeneration(void)
+{
+    lbTextFontGeneration++;
+}
+
 TbBool LbTextSetFont(const struct TbSpriteSheet *font)
 {
     lbFontPtr = font;
@@ -985,7 +1095,7 @@ TbBool LbTextSetFont(const struct TbSpriteSheet *font)
         // set to 2 when I added a 24 pixel font
         //active_dbcfont = &dbcfonts[2];
     }
-    else if (lbDisplay.PhysicalScreenWidth < 512)
+    else if (RendererPhysicalWidth() < 512)
         active_dbcfont = &dbcfonts[0];
     else
         active_dbcfont = &dbcfonts[1];
@@ -1279,6 +1389,26 @@ TbResult LbTextSetClipWindow(int pos_x, int pos_y, int width, int height)
     lbTextClipWindow_window_ptr = lbDisplay.WScreen + pos_x + lbDisplay.GraphicsScreenWidth * pos_y;
     */
     return Lb_SUCCESS;
+}
+
+void LbTextGetJustifyWindow(int *out_x, int *out_y, int *out_width)
+{
+    *out_x = lbTextJustifyWindow.x;
+    *out_y = lbTextJustifyWindow.y;
+    *out_width = lbTextJustifyWindow.width;
+}
+
+void LbTextGetClipWindow(int *out_x, int *out_y, int *out_width, int *out_height)
+{
+    *out_x = lbTextClipWindow.x;
+    *out_y = lbTextClipWindow.y;
+    *out_width = lbTextClipWindow.width;
+    *out_height = lbTextClipWindow.height;
+}
+
+unsigned int LbTextGetFontGeneration(void)
+{
+    return lbTextFontGeneration;
 }
 
 /**

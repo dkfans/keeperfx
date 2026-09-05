@@ -2061,8 +2061,8 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
       break;
   default: // Desired position have direct coordinates
       pos = ((desired_pos*(long)units_per_pixel)>>4)*((long)pixel_size);
-      if (pos+scaled_width > lbDisplay.PhysicalScreenWidth*((long)pixel_size))
-        pos = lbDisplay.PhysicalScreenWidth*((long)pixel_size)-scaled_width;
+      if (pos+scaled_width > RendererPhysicalWidth()*((long)pixel_size))
+        pos = RendererPhysicalWidth()*((long)pixel_size)-scaled_width;
 /* Helps not to touch left panel - disabling, as needs additional conditions
       if (pos < status_panel_width)
         pos = status_panel_width;
@@ -2746,7 +2746,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           set_pointer_graphic_none();
           credits_offset = lbDisplay.PhysicalScreenHeight;
           credits_end = 0;
-          LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+          LbTextSetWindow(0, 0, RendererPhysicalWidth(), lbDisplay.PhysicalScreenHeight);
           RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
           play_music_track(7);
           break;
@@ -3335,7 +3335,7 @@ short frontend_draw(void)
         return 0;
     }
 
-    if (RendererLockFramebuffer() != Lb_SUCCESS)
+    if (!RendererBeginFrame())
         return 2;
 
     result = 1;
@@ -3391,7 +3391,7 @@ short frontend_draw(void)
     }
     draw_debug_messages();
     perform_any_screen_capturing();
-    RendererUnlockFramebuffer();
+    RendererEndFrame();
     return result;
 }
 
