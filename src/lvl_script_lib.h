@@ -31,6 +31,7 @@ extern "C" {
 #endif
 
 #define COMMANDDESC_ARGS_COUNT    8
+#define SCRIPT_VAR_ENUM_COUNT    92
 
 enum TbScriptCommands {
     Cmd_NONE                               =  0,
@@ -208,6 +209,7 @@ enum TbScriptCommands {
     Cmd_COPY_CREATURE_TYPE                 = 196,
     Cmd_TRIGGER_ACTION_POINT               = 197,
     Cmd_SET_LEVEL_ENSIGN                   = 198,
+    Cmd_DISPLAY_VARIABLE_WITH_LABEL        = 199,
 };
 
 struct ScriptLine {
@@ -313,8 +315,6 @@ enum ScriptVariables {
   SVar_MANAGE_SCORE                    = 90,
   SVar_CONTROLLED_THING                = 91,
  };
-
-
 
 extern const struct NamedCommand player_desc[];
 extern const struct NamedCommand controls_variable_desc[];
