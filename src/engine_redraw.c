@@ -1041,7 +1041,8 @@ void redraw_display(void)
     }
     if (display_variable_enabled())
     {
-        draw_script_variable(game.script_variable_player, game.script_value_type, game.script_value_id, game.script_variable_target, game.script_variable_target_type);
+        draw_script_variable_list();
+        // draw_script_variable(game.script_variable_player, game.script_value_type, game.script_value_id, game.script_variable_target, game.script_variable_target_type);
     }
     if (timer_enabled())
     {

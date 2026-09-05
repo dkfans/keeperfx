@@ -33,6 +33,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 struct ScriptValue *allocate_script_value(void)
 {
     if (game.script.values_num >= SCRIPT_VALUES_COUNT)

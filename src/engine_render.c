@@ -325,8 +325,14 @@ struct BucketKindRoomFlag { // BasicQ type 17,19
 
 
 
+/* Corner slot holding the ceiling vertex. Slots 0..COLUMN_STACK_HEIGHT belong to the
+   cubes of a column and the abyss walls own the slots above them, so the ceiling needs
+   a slot of its own past both. Sharing slot COLUMN_STACK_HEIGHT with the cubes made a
+   column with every cube filled draw its top face and topmost side at ceiling height. */
+#define ENGINE_COL_CEILING_CORNER (COLUMN_STACK_HEIGHT + ABYSS_WALL_RENDER_HEIGHT + 3)
+
 struct EngineCol {
-    struct EngineCoord cors[COLUMN_STACK_HEIGHT + ABYSS_WALL_RENDER_HEIGHT + 3];
+    struct EngineCoord cors[ENGINE_COL_CEILING_CORNER + 1];
 };
 
 struct SideOri {
@@ -1174,7 +1180,7 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         {
             wibl = get_wibble_from_table(cam, wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32, stl_x, stl_y);
         }
-        ecord = &ecol->cors[8];
+        ecord = &ecol->cors[ENGINE_COL_CEILING_CORNER];
         {
             ecord->x = apos + wibl->offset_x;
             ecord->y = hpos + wibl->offset_y;
@@ -4393,7 +4399,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         // Draw the universal ceiling on top of the columns
         TbBool edge_abyss = abyss && ((center_x == 1) || (center_x == game.map_subtiles_x - 1) || (stl_y == 1) || (stl_y == game.map_subtiles_y - 1));
         if (!edge_abyss) {
-            ecpos = 8;
+            ecpos = ENGINE_COL_CEILING_CORNER;
             textr_idx = floor_to_ceiling_map[colmn->floor_texture * !abyss];
             textr_idx = engine_remap_texture_blocks(center_x, stl_y, textr_idx);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);

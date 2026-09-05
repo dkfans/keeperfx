@@ -37,6 +37,7 @@ extern "C" {
 #define TUNNELLER_TRIGGERS_COUNT 256
 #define SCRIPT_VALUES_COUNT      2048
 #define WIN_CONDITIONS_COUNT      12
+#define DISPLAY_VARIABLES_LIMIT   7
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
@@ -186,6 +187,24 @@ struct LevelScript {
     long next_string_offset;
 };
 
+struct ScriptVariable{
+    unsigned char value_type;
+    unsigned char value_id;
+    PlayerNumber variable_player;
+    int32_t variable_target;
+    unsigned char variable_target_type;
+    TbBool include_icon;
+    short icon_idx;
+};
+
+struct ScriptVariableDetails{
+    long value;
+    const char* label;
+    short icon_idx;
+    int x_offset;
+    int y_offset;
+};
+
 /******************************************************************************/
 extern unsigned char next_command_reusable;
 
@@ -201,7 +220,9 @@ TbBool script_scan_line(char *line,TbBool preloaded, long file_version);
 TbBool preload_script(long lvnum);
 /******************************************************************************/
 
+struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
+const char* get_condition_label(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 void process_level_script(void);
 /******************************************************************************/
 #ifdef __cplusplus
