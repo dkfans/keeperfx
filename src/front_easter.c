@@ -186,10 +186,11 @@ void input_eastegg(void)
  */
 void draw_eastegg(void)
 {
-  static long px[2] = {0, 0};
-  static long py[2] = {0, 0};
-  static long vx[2] = {4, 4};
-  static long vy[2] = {6, 6};
+  static float px[2] = {0, 0};
+  static float py[2] = {0, 0};
+  static float vx[2] = {4, 4};
+  static float vy[2] = {6, 6};
+  static float skeksis_time = 0;
   long i;
   long k;
   SYNCDBG(5,"Starting");
@@ -209,24 +210,28 @@ void draw_eastegg(void)
   LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
   if (eastegg_skeksis_cntr >= eastegg_skeksis_codes.length)
   {
-      eastegg_skeksis_cntr++;
+      // Advance by frame time rather than by game turn, so the movement stays smooth.
+      // The 256 unit period is a whole number of cycles on both axes, so it wraps seamlessly.
+      skeksis_time += game.delta_time;
+      if (skeksis_time >= 256.0f)
+        skeksis_time -= 256.0f;
       LbTextSetFont(winfont);
       const char * text = "Dene says a big 'Hello' to Goth Buns, Tarts and Barbies";
       RendererSetDrawFlags(Lb_TEXT_ONE_COLOR);
-      unsigned char pos;
+      float pos;
       for (i = 0; i < 30; i += 2)
       {
-        pos = get_gameturn() - i;
-        RendererSetDrawColour(pos);
-        LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
-          scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
+        pos = skeksis_time - i;
+        if (pos < 0)
+          pos += 256.0f;
+        RendererSetDrawColour((unsigned char)pos);
+        LbTextDrawResized(scale_fixed_DK_value((LbCosL((long)(16*pos)) / 512 + skeksis_x_offset) / pixel_size),
+          scale_fixed_DK_value((LbSinL((long)(32*pos)) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
       }
       RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
-      pos=get_gameturn();
-      LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
-          scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
-      if (eastegg_skeksis_cntr >= 255)
-        eastegg_skeksis_cntr = 0;
+      pos = skeksis_time;
+      LbTextDrawResized(scale_fixed_DK_value((LbCosL((long)(16*pos)) / 512 + skeksis_x_offset) / pixel_size),
+          scale_fixed_DK_value((LbSinL((long)(32*pos)) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
   }
 
   if (game.eastegg01_cntr >= eastegg_feckoff_codes.length)
@@ -236,13 +241,13 @@ void draw_eastegg(void)
     LbTextSetFont(winfont);
     i = 0;
     const char * text = "Simon says Hi to everyone he knows...";
-    px[i] += vx[i];
+    px[i] += vx[i] * game.delta_time;
     if (px[i] < 0)
     {
       px[i] = 0;
       vx[i] = -vx[i];
     }
-    py[i] += vy[i];
+    py[i] += vy[i] * game.delta_time;
     if (py[i] < 0)
     {
       py[i] = 0;
@@ -276,13 +281,13 @@ void draw_eastegg(void)
     LbTextSetFont(winfont);
     i = 1;
     const char * text = "Alex, hopefully lying on a beach with Jo, says Hi";
-    px[i] += vx[i];
+    px[i] += vx[i] * game.delta_time;
     if (px[i] < 0)
     {
       px[i] = 0;
       vx[i] = -vx[i];
     }
-    py[i] += vy[i];
+    py[i] += vy[i] * game.delta_time;
     if (py[i] < 0)
     {
       py[i] = 0;
