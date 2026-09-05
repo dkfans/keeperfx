@@ -6,29 +6,34 @@
 			"type": "pickString",
 			"description": "Choose the debug option:",
 			"options": [
-				"DEBUG=1\t\t\t(debug symbols ON)",
-				"DEBUG=0\t[default]\t(debug symbols OFF)",
-				"FTEST_DEBUG=1\t\t(debug symbols ON, functional tests ON)",
-				"FTEST_DEBUG=0\t\t(debug symbols OFF, functional tests ON)"
+				"DEBUG=1",
+				"DEBUG=0",
+				"FTEST_DEBUG=0",
+				"FTEST_DEBUG=1"
 			],
-			"default": "DEBUG=0"
+			"default": "DEBUG=1"
 		}
 	],
 	"tasks": [
 		{
-			"label": "Default task",
+			"label": "Configure build",
 			"type": "shell",
 			"windows": {
 				"command": [
-					"$script = '{0}' -f '${workspaceFolder}\\.vscode\\default_task.ps1';",
 					"$compileSettingsFile = '{0}' -f '${workspaceFolder}\\.vscode\\compile_settings.cfg';",
-					"powershell -ExecutionPolicy Bypass -File \\\"${script}\\\" -workspaceFolder \\\"${workspaceFolder}\\\" -compileSettingsFile \\\"${compileSettingsFile}\\\" -debugChoice \\\"${input:debugChoice}\\\";",
+					"$debugChoice = '${input:debugChoice}';",
+					"$compileSettings = if (Test-Path $compileSettingsFile) { Get-Content $compileSettingsFile -Raw } else { \"DEBUG=1`nMAKE_JOBS=0`nHEAVYLOG=0`n\" };",
+					"$currentChoice = [regex]::Match($compileSettings, '(?m)^(?:FTEST_)?DEBUG=[01]').Value;",
+					"if ($currentChoice -ne $debugChoice) { $compileSettings = if ($currentChoice) { $compileSettings -replace '(?m)^(?:FTEST_)?DEBUG=[01]', $debugChoice } else { \"$debugChoice`n$compileSettings\" }; Set-Content -LiteralPath $compileSettingsFile -Value $compileSettings.TrimEnd(); if (Test-Path '${workspaceFolder}\\obj') { Remove-Item -LiteralPath '${workspaceFolder}\\obj' -Force -Recurse; } } else { Set-Content -LiteralPath $compileSettingsFile -Value $compileSettings.TrimEnd(); }",
 				]
 			},
 			"linux": {
 				"command": [
-					"chmod +x '${workspaceFolder}/.vscode/linuxscript.sh';",
-					"'${workspaceFolder}/.vscode/linuxscript.sh' '${workspaceFolder}'"
+					"compileSettingsFile='${workspaceFolder}/.vscode/compile_settings.cfg';",
+					"debugChoice='${input:debugChoice}';",
+					"if [ ! -f \"$compileSettingsFile\" ]; then printf 'DEBUG=1\\nMAKE_JOBS=0\\nHEAVYLOG=0\\n' > \"$compileSettingsFile\"; fi;",
+					"currentChoice=$(grep -m1 -E '^(FTEST_)?DEBUG=[01]' \"$compileSettingsFile\");",
+					"if [ \"$currentChoice\" != \"$debugChoice\" ]; then if [ -n \"$currentChoice\" ]; then sed -i -E \"s/^(FTEST_)?DEBUG=[01]/$debugChoice/\" \"$compileSettingsFile\"; else printf '%s\\n' \"$debugChoice\" >> \"$compileSettingsFile\"; fi; make clean-build; fi"
 				]
 			},
 			"problemMatcher": "$gcc",
@@ -49,12 +54,13 @@
 			"windows": {
 				"command": [
 					"$script = '{0}' -f '${workspaceFolder}\\.vscode\\compile_and_copy_files.ps1';",
-					"$launchJsonFile = '{0}' -f '${workspaceFolder}\\.vscode\\launch.json';",
 					"$compileSettingsFile = '{0}' -f '${workspaceFolder}\\.vscode\\compile_settings.cfg';",
-					"powershell -ExecutionPolicy Bypass -File \\\"${script}\\\" -workspaceFolder \\\"${workspaceFolder}\\\" -launchJsonFile \\\"${launchJsonFile}\\\" -compileSettingsFile \\\"${compileSettingsFile}\\\";",
+					"powershell -ExecutionPolicy Bypass -File \\\"${script}\\\" -workspaceFolder \\\"${workspaceFolder}\\\" -compileSettingsFile \\\"${compileSettingsFile}\\\";",
 				],
 			},
-			"linux": {"command": []},
+			"linux": {
+				"command": "bash '${workspaceFolder}/.vscode/compile_and_copy_files.sh' '${workspaceFolder}'"
+			},
 			"problemMatcher": "$gcc",
 			"group": "build",
 			"presentation": {
@@ -67,51 +73,11 @@
 			}
 		},
 		{
-			// After the project is first opened, settings.json and launch.json will be created
-			"label": "Create settings.json and launch.json",
-			"type": "shell",
-			"windows": {
-				"command": [
-					"$script = '{0}' -f '${workspaceFolder}\\.vscode\\create_settings_and_launch_files.ps1';",
-					"$templateSettingsFile = '{0}' -f '${workspaceFolder}\\.vscode\\defaultsettings';",
-					"$templateLaunchFile = '{0}' -f '${workspaceFolder}\\.vscode\\defaultlaunch';",
-					"$settingsJsonFile = '{0}' -f '${workspaceFolder}\\.vscode\\settings.json';",
-					"$launchJsonFile = '{0}' -f '${workspaceFolder}\\.vscode\\launch.json';",
-					"powershell -ExecutionPolicy Bypass -File \\\"${script}\\\" -workspaceFolder \\\"${workspaceFolder}\\\" -templateSettingsFile \\\"${templateSettingsFile}\\\" -templateLaunchFile \\\"${templateLaunchFile}\\\" -settingsJsonFile \\\"${settingsJsonFile}\\\" -launchJsonFile \\\"${launchJsonFile}\\\" ;",
-				]
-			},
-			"linux": {
-				"command": [
-					"if [ ! -f \"${workspaceFolder}/.vscode/settings.json\" ]; then",
-					"    cp \"${workspaceFolder}/.vscode/defaultsettings\" \"${workspaceFolder}/.vscode/settings.json\";",
-					"    echo \"/.vscode/settings.json was created.\";",
-					"fi;",
-					"if [ ! -f \"${workspaceFolder}/.vscode/launch.json\" ]; then",
-					"    cp \"${workspaceFolder}/.vscode/defaultlaunch\" \"${workspaceFolder}/.vscode/launch.json\";",
-					"    echo \"/.vscode/launch.json was created, but it won't work on linux. Use Ctrl+Shift+B instead.\";",
-					"fi;",
-					"if [ ! -f \"${workspaceFolder}/.vscode/linuxscript.sh\" ]; then",
-					"    cp \"${workspaceFolder}/.vscode/defaultlinuxscript\" \"${workspaceFolder}/.vscode/linuxscript.sh\";",
-					"    echo \"/.vscode/linuxscript.sh was created, please edit it and fill in your game directories.\";",
-					"fi"
-				]
-			},
-			"problemMatcher": "$gcc",
-			"runOptions": {"runOn": "folderOpen"},
-			"group": "build",
-			"presentation": {
-				"echo": false,
-				"focus": true,
-				"panel": "shared",
-				"showReuseMessage": false
-			}
-		},
-		{
 			"label": "Log",
 			"type": "shell",
 			"windows": {
 				"command": [
-					"$gameDir = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | Select-String -Pattern '\\\"cwd\\\"\\s*:\\s*\\\"(.*?)\\\"').Matches[0].Groups[1].Value.Replace('\\', '/');",
+					"$gameDir = '${workspaceFolder}\\.vscode\\game';",
 					"cd $gameDir;",
 					"Clear-Content keeperfx.log;",
 					"Get-Content keeperfx.log -Wait"

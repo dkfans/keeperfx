@@ -51,7 +51,7 @@ The first deploy will push everything, the rest just what changes
 ### A. VS Code — cross debug (build on PC, gdbserver on Deck)
 1. `scripts/deploy-to-deck.sh --gdb`.
 2. Run the **"Attach to Steam Deck (gdbserver)"** config (from
-   [`.vscode/defaultlaunch`](../.vscode/defaultlaunch)); it attaches to
+   [`.vscode/launch.json`](../.vscode/launch.json)); it attaches to
    `steamdeck:2345`, reading symbols from your local build.
 3. Or use the **"Deploy + Debug on Steam Deck"** task to do the deploy + server
    launch first.
