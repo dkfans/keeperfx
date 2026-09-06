@@ -519,18 +519,19 @@ short setup_game(void)
   return result;
 }
 
-/** Returns if cursor for given player is at top of the dungeon in 3D view.
+/** Returns if cursor for local player is at top of the dungeon in 3D view.
  *  Cursor placed at top of dungeon is marked by green/red "volume box";
  *   if there's no volume box, cursor should be of the field behind it
  *   (the exact field in a line of view through cursor). If cursor is at top
  *   of view, then pointed map field is a bit lower than the line of view
  *   through cursor.
  *
- * @param player
- * @return
+ *  This function reverse-engineers the decisions made by
+ *  get_player_coords_and_context() (front_input.c).
  */
-TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
+static bool players_cursor_is_at_top_of_view()
 {
+    const struct PlayerInfo *const player = get_my_player();
     switch (player->work_state)
     {
     case PSt_BuildRoom:
@@ -556,7 +557,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
                 return true;
 
             case CSt_PowerHand:
-                return (player->thing_under_hand == 0)
+                return (local_thing_under_hand == 0)
                     || (! power_hand_is_empty(player));
         }
     }
@@ -572,7 +573,7 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
       && (pointer_x < (player->engine_window_width/pixel_size))
       && (pointer_y < (player->engine_window_height/pixel_size)) )
     {
-        if ( players_cursor_is_at_top_of_view(player) )
+        if ( players_cursor_is_at_top_of_view() )
         {
               *map_x = subtile_coord(top_pointed_at_x,top_pointed_at_frac_x);
               *map_y = subtile_coord(top_pointed_at_y,top_pointed_at_frac_y);
