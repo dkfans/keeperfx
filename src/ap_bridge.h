@@ -1,7 +1,9 @@
+
 #ifndef AP_BRIDGE_H
 #define AP_BRIDGE_H
 
 void ap_connect();
+void ap_socketconnected();
 void ap_recieve(int id, bool notify);
 void ap_send(int id);
 void ap_clear();

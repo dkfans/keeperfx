@@ -7,6 +7,8 @@
 #include "frontmenu_ingame_tabs.h"
 #include "lua_triggers.h"
 #include <cstdio>
+#include <string>
+#include <iostream>
 #include <math.h>
 #include "post_inc.h"
 
@@ -31,15 +33,22 @@ RedirectStdoutToFile();
     }
 
     AP_Init(ip, "Dungeon Keeper", slot, "");
-
+    AP_SetSocketConnectedCallback(ap_socketconnected);
+    AP_SetSocketErrorCallback([](std::string err) {
+        JUSTLOG("AP error");
+    });
     AP_SetItemClearCallback(ap_clear);
     AP_SetItemRecvCallback(ap_recieve);
     AP_SetLocationCheckedCallback(ap_send);
-    AP_SetLocationInfoCallback(ap_location_info_callback);
-    AP_Start();
-    AP_SendLocationScouts(AP_GetMissingLocations(),0);
+    AP_SetLocationInfoCallback(ap_location_info_callback);    
+    ap_location_info_init();    
     ap_state_init(&g_ap_state);
-    ap_location_info_init();
+    AP_Start();
+}
+
+void ap_socketconnected(){
+    AP_SendLocationScouts(AP_GetMissingLocations(),0);
+    JUSTLOG("AP CONNECTED");
 }
 
 void ap_recieve(int id, bool notify)
