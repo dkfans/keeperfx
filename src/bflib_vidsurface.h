@@ -35,7 +35,6 @@ struct SSurface {
     long pitch;
 };
 /******************************************************************************/
-extern struct SDL_Surface * lbScreenSurface;
 extern struct SDL_Surface * lbDrawSurface;
 /******************************************************************************/
 void LbScreenSurfaceInit(struct SSurface *surf);

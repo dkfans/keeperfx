@@ -200,7 +200,6 @@ static int lua_Room_available(lua_State *L)
     }
     return 0;
 }
-
 // temp function for ap as we send/recieve items by id not name
 static int lua_Room_available_id(lua_State *L)
 {
@@ -226,7 +225,7 @@ lua_newtable(L);
 
 for (int i = 0; i < item_count; i++)
 {
-  
+
             lua_pushinteger(L, items[i]);
             lua_rawseti(L, -2, i + 1);
 }
@@ -244,7 +243,7 @@ lua_newtable(L);
 
 for (int i = 0; i < location_count; i++)
 {
-  
+
             lua_pushinteger(L, locations[i]);
             lua_rawseti(L, -2, i + 1);
 }
@@ -260,7 +259,6 @@ static int lua_send_location(lua_State *L)
     ap_bridge_location_check(location_id);
     return 0;
 }
-
 static int lua_Magic_available(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
@@ -448,6 +446,15 @@ static int lua_Set_next_level(lua_State *L)
     }
 
     intralvl.next_level = lvnum;
+    return 0;
+}
+
+static int lua_Trigger_action_point(lua_State *L)
+{
+    ActionPointId apt_idx = luaL_checkActionPoint(L, 1);
+    PlayerNumber player_range = luaL_checkPlayerRangeId(L, 2);
+
+    action_point_trigger_idx(apt_idx, player_range);
     return 0;
 }
 
@@ -787,7 +794,7 @@ static int lua_Display_message(lua_State *L)
 {
     int32_t msg_id = luaL_checkinteger(L, 1);
     const char *msg =  get_string(msg_id);
-    char id;
+    short id;
     char type;
     luaL_checkMessageIcon(L, 2, &type, &id);
 
@@ -799,7 +806,7 @@ static int lua_Display_message(lua_State *L)
 static int lua_Quick_message(lua_State *L)
 {
     const char *msg = lua_tostring(L, 1);
-    char id;
+    short id;
     char type;
     luaL_checkMessageIcon(L, 2, &type, &id);
 
@@ -926,11 +933,50 @@ static int lua_Display_variable(lua_State *L)
     int target = luaL_optinteger(L,3,0);
     unsigned char target_type = luaL_optinteger(L,4,0);
 
-    game.script_variable_player = player;
-    game.script_value_type = varib_type;
-    game.script_value_id = varib_id;
-    game.script_variable_target = target;
-    game.script_variable_target_type = target_type;
+    for (int i = DISPLAY_VARIABLES_LIMIT - 1; i > 0; i--)
+    {
+        memcpy(&game.script_variables[i], &game.script_variables[i-1], sizeof(struct ScriptVariable));
+    }    
+    game.script_variables[0].variable_player = player;
+    game.script_variables[0].value_type = varib_type;
+    game.script_variables[0].value_id = varib_id;
+    game.script_variables[0].variable_target = target;
+    game.script_variables[0].variable_target_type = target_type;
+
+    game.script_variables[0].include_icon = false;
+    game.script_variables[0].icon_idx = -1;
+    if (game.active_script_var_count < DISPLAY_VARIABLES_LIMIT) {
+        game.active_script_var_count++;
+    }	
+    
+    game.flags_gui |= GGUI_Variable;
+
+    return 0;
+}
+
+
+static int lua_DISPLAY_VARIABLE_WITH_LABEL(lua_State *L)
+{
+    PlayerNumber player   = luaL_checkPlayerSingle(L, 1);
+    int32_t varib_id, varib_type;
+    luaL_checkVariable(L, 2, &varib_id, &varib_type);
+    for (int i = DISPLAY_VARIABLES_LIMIT - 1; i > 0; i--)
+    {
+        memcpy(&game.script_variables[i], &game.script_variables[i-1], sizeof(struct ScriptVariable));
+    }    
+    
+    short id;
+    char type;
+    luaL_checkMessageIcon(L, 3, &type, &id);
+    game.script_variables[0].variable_player = player;
+    game.script_variables[0].value_type = varib_type;
+    game.script_variables[0].value_id = varib_id;
+    game.script_variables[0].include_icon = true;
+    game.script_variables[0].icon_idx = id;
+    if (game.active_script_var_count < DISPLAY_VARIABLES_LIMIT) {
+        game.active_script_var_count++;
+    }	
+    
     game.flags_gui |= GGUI_Variable;
 
     return 0;
@@ -1267,6 +1313,12 @@ static int lua_New_creature_type(lua_State* L)
             continue;
         dungeon->creature_max_level[game.conf.crtr_conf.model_count-1] = CREATURE_MAX_LEVEL + 1;
     }
+    return 0;
+}
+
+static int lua_Copy_creature_type(lua_State* L)
+{
+    script_copy_creature_type(luaL_checkNamedCommand(L, 1, creature_desc),luaL_checkstring(L, 2));
     return 0;
 }
 
@@ -2477,6 +2529,7 @@ static const luaL_Reg global_methods[] = {
    {"AddBonusTime",                     lua_Add_bonus_time                  },
    {"ResetActionPoint",                 lua_Reset_action_point              },
    {"SetNextLevel",                     lua_Set_next_level                  },
+   {"TriggerActionPoint",               lua_Trigger_action_point            },
 
 //Adding New Creatures and Parties to the Level
    {"AddCreatureToLevel",               lua_Add_creature_to_level           },
@@ -2513,6 +2566,7 @@ static const luaL_Reg global_methods[] = {
    {"TutorialFlashButton"                   ,lua_Tutorial_flash_button           },
    {"DisplayCountdown"                      ,lua_Display_countdown               },
    {"DisplayVariable"                       ,lua_Display_variable                },
+   {"DisplayVariableWithLabel"              ,lua_DISPLAY_VARIABLE_WITH_LABEL     },
    {"HideVariable"                          ,lua_Hide_variable                   },
 
 //Manipulating Map
@@ -2535,6 +2589,7 @@ static const luaL_Reg global_methods[] = {
 
 //Manipulating Configs
     {"NewCreatureType"                      ,lua_New_creature_type               },
+    {"CopyCreatureType"                     ,lua_Copy_creature_type              },
     //{"NewObjectType"                      ,lua_New_object_type                 },
     //{"NewTrapType"                        ,lua_New_trap_type                   },
     //{"NewRoomType"                        ,lua_New_room_type                   },
@@ -2622,11 +2677,11 @@ static const luaL_Reg global_methods[] = {
 //usecase specific functions
     {"PayForPower",                     lua_Pay_for_power},
 
-//Archipelago Commands
-    {"SendLocation",                     lua_send_location                   },  
-    {"RoomAvailableById",                lua_Room_available_id          }, 
-    {"GetAPItems",                lua_ap_get_items          }, 
-    {"GetAPCheckedLocations",                lua_ap_checked_locations          }, 
+    //Archipelago Commands
+    {"SendLocation",                     lua_send_location},  
+    {"RoomAvailableById",                lua_Room_available_id}, 
+    {"GetAPItems",                       lua_ap_get_items}, 
+    {"GetAPCheckedLocations",            lua_ap_checked_locations}, 
 };
 /*
 static const luaL_Reg game_meta[] = {

@@ -25,7 +25,7 @@
 #include "bflib_basics.h"
 #include "game_legacy.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include "post_inc.h"
 
 #ifdef __cplusplus

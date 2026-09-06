@@ -88,7 +88,7 @@ static TbBool prevent_local_dig_prediction(const struct Packet *pckt)
     return false;
 }
 
-TbBool local_dig_prediction_is_enabled(void)
+static TbBool local_dig_prediction_is_enabled(void)
 {
     return network_is_active() && !game.packet_load_enable && (game.input_lag_turns > 0);
 }

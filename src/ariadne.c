@@ -307,18 +307,55 @@ static long navigation_rule_normal(NavColour treeA, NavColour treeB)
 {
     if ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK) > 1)
       return NavigationRule_Blocked;
-    if ((treeB & (NAVMAP_OWNERSELECT_MASK | NAVMAP_UNSAFE_SURFACE)) == 0)
+    if ((treeB & (NAVMAP_OWNERSELECT_MASK | NAVMAP_UNSAFE_SURFACE | NAVMAP_ABYSS)) == 0)
       return NavigationRule_Normal;
     if (owner_player_navigating != -1)
     {
         if (get_navtree_owner_flags(treeB) & (1 << owner_player_navigating))
           return NavigationRule_Blocked;
     }
+    if ((treeB & NAVMAP_ABYSS) != 0 && !nav_thing_is_flying)
+        return NavigationRule_Blocked;
     if ((treeB & NAVMAP_UNSAFE_SURFACE) == 0)
         return NavigationRule_Normal;
     if ((treeA & NAVMAP_UNSAFE_SURFACE) != 0)
         return NavigationRule_Normal;
     return nav_thing_can_travel_over_lava;
+}
+
+static TbBool navigation_triangle_reachable(int32_t first_triangle, int32_t second_triangle)
+{
+    if (!regions_connected(first_triangle, second_triangle)) {
+        return false;
+    }
+    if (first_triangle == second_triangle) {
+        return true;
+    }
+    tags_init();
+    store_current_tag(first_triangle);
+    tree_val[0] = first_triangle;
+    for (uint32_t head = 0, tail = 1; head < tail; head++) {
+        int32_t triangle = tree_val[head];
+        for (int32_t edge = 0; edge < 3; edge++) {
+            int32_t next = Triangles[triangle].tags[edge];
+            if (next < 0 || is_current_tag(next)) {
+                continue;
+            }
+            NavColour next_alt = get_triangle_tree_alt(next);
+            if ((next_alt & NAVMAP_FLOORHEIGHT_MASK) == NAVMAP_FLOORHEIGHT_MAX) {
+                continue;
+            }
+            if (!navigation_rule_normal(get_triangle_tree_alt(triangle), next_alt)) {
+                continue;
+            }
+            if (next == second_triangle) {
+                return true;
+            }
+            store_current_tag(next);
+            tree_val[tail++] = next;
+        }
+    }
+    return false;
 }
 
 void set_nav_rule_default(void)
@@ -2519,6 +2556,7 @@ static AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thi
     memset(&path, 0, sizeof(struct Path));
     // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
+    nav_thing_is_flying = flag_is_set(thing->movement_flags, TMvF_Flying);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
     else
@@ -2530,6 +2568,7 @@ static AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thi
         dstpos->x.val, dstpos->y.val, -2, nav_sizexy, func_name);
     // Reset globals
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_is_flying = 0;
     owner_player_navigating = -1;
     // Fill the Ariadne struct
     arid->startpos.x.val = srcpos->x.val;
@@ -2595,6 +2634,7 @@ long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *t
     memset(&path, 0, sizeof(struct Path));
     // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
+    nav_thing_is_flying = flag_is_set(thing->movement_flags, TMvF_Flying);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
     else
@@ -2606,6 +2646,7 @@ long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *t
         dstpos->x.val, dstpos->y.val, -2, nav_sizexy, func_name);
     // Reset globals
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_is_flying = 0;
     owner_player_navigating = -1;
     // Note: since this point, the function body should be identical to ariadne_prepare_creature_route_to_target().
     NAVIDBG(19,"%s: Finished, %d waypoints",func_name,(int)path.waypoints_num);
@@ -3229,7 +3270,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
         return;
     }
     NAVIDBG(19,"%s: prepared triangles %ld -> %ld", func_name,tree_triA,tree_triB);
-    if (!regions_connected(tree_triA, tree_triB))
+    if (!navigation_triangle_reachable(tree_triA, tree_triB))
     {
         NAVIDBG(9,"%s: Regions not connected, cannot trace a path.", func_name);
         return;

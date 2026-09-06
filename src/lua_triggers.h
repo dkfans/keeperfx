@@ -37,6 +37,7 @@ void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng);
 void lua_on_dungeon_destroyed(PlayerNumber plyr_idx);
 void lua_on_creature_death(struct Thing *crtng);
 void lua_on_creature_rebirth(struct Thing* crtng);
+void lua_on_creature_fell_into_abyss(struct Thing *crtng);
 void lua_on_trap_placed(struct Thing *traptng);
 void lua_on_object_destroyed(struct Thing* objtng);
 void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx);

@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontend.h"
 
 #include <string.h>
@@ -438,6 +439,10 @@ int fe_computer_players;
 long old_mouse_over_button;
 long frontend_mouse_over_button;
 
+
+static int32_t last_mouse_x;
+static int32_t last_mouse_y;
+
 /******************************************************************************/
 short menu_is_active(short idx)
 {
@@ -493,6 +498,7 @@ void add_message(long plyr_idx, char *msg)
     }
     nmsg = &net_message[i];
     nmsg->plyr_idx = plyr_idx;
+    nmsg->connection_id = net_player_info[plyr_idx].connection_id;
     snprintf(nmsg->text, NET_MESSAGE_LEN, "%s", msg);
     i++;
     net_number_of_messages = i;
@@ -1060,9 +1066,9 @@ TbBool fronttestfont_input(void)
       num_chars_in_font = num_sprites(testfont[i]);
       SYNCDBG(9,"Characters in font %d: %ld",i,num_chars_in_font);
       if (i < 4)
-        LbPaletteSet(frontend_palette);//testfont_palette[0]
+        RendererPaletteSet(frontend_palette);//testfont_palette[0]
       else
-        LbPaletteSet(testfont_palette[1]);
+        RendererPaletteSet(testfont_palette[1]);
       LbTextSetFont(testfont[i]);
       return true;
     }
@@ -1246,7 +1252,7 @@ int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_b
 
 void frontend_draw_text(struct GuiButton *gbtn)
 {
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     int font_idx;
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
         font_idx = 3;
@@ -1291,7 +1297,7 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     }
     snprintf(text, sizeof(text), "%s%s", srctext, print_with_cursor?"_":"");
     LbTextSetFont(frontend_font[font_idx]);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, (240 + LbTextCharWidth('_')) * tx_units_per_px / 16, gbtn->height);
@@ -1332,11 +1338,11 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
     int ln_height;
     ln_height = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, ln_height);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     LbTextDrawResized(0, 0, tx_units_per_px, frontend_button_caption_text(gbtn));
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
     LbTextDrawResized(0, 0, tx_units_per_px, text);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
 }
 
 
@@ -1354,9 +1360,9 @@ void frontend_draw_mp_mappack(struct GuiButton *gbtn)
     ln_height = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, ln_height);
     
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     LbTextDrawResized(0, 0, tx_units_per_px, text);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
 }
 
 void set_packet_start(struct GuiButton *gbtn)
@@ -1373,9 +1379,9 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   unsigned short flg_mem;
   long text_height;
   long area_height;
-  flg_mem = lbDisplay.DrawFlags;
-  lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-  lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
+  flg_mem = RendererGetDrawFlags();
+  RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
+  RendererAddDrawFlags(Lb_TEXT_HALIGN_CENTER);
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
   scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
   if (scrollwnd == NULL)
@@ -1451,7 +1457,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   LbTextDrawResized(0, scrollwnd->start_y, tx_units_per_px, text);
   // And restore default drawing options
   LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
-  lbDisplay.DrawFlags = flg_mem;
+  RendererSetDrawFlags(flg_mem);
 }
 
 void gui_area_scroll_window(struct GuiButton *gbtn)
@@ -2617,6 +2623,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_QUIT_GAME:
     case FeSt_LOAD_GAME:
     case FeSt_INTRO:
+    case FeSt_DRAG:
     case FeSt_CAMPAIGN_INTRO:
     case FeSt_DEMO: //demo state (intro/credits)
     case FeSt_OUTRO:
@@ -2657,6 +2664,9 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
               char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
               LbFileDelete(fname);
           }
+          if (!is_campaign_loaded()) {
+              change_campaign(CampgnT_Default,"");
+          }
           turn_on_menu(GMnu_FEMAIN);
           last_mouse_x = GetMouseX();
           last_mouse_y = GetMouseY();
@@ -2694,6 +2704,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           turn_on_menu(GMnu_FENET_START);
           if (frontend_menu_state != FeSt_MP_MAPPACK_SELECT)
             frontnet_start_setup();
+          LbStartTextInput();
           set_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
@@ -2701,6 +2712,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_QUIT_GAME:
       case FeSt_LOAD_GAME:
       case FeSt_INTRO:
+      case FeSt_DRAG:
       case FeSt_CAMPAIGN_INTRO:
       case FeSt_DEMO:
       case FeSt_OUTRO:
@@ -2720,7 +2732,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           credits_offset = lbDisplay.PhysicalScreenHeight;
           credits_end = 0;
           LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-          lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+          RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
           play_music_track(7);
           break;
       case FeSt_LEVEL_STATS:
@@ -3152,14 +3164,14 @@ void draw_active_menus_buttons(void)
             {
               if (gmnu->menu_init != NULL)
                 if (gmnu->menu_init->fade_time)
-                  lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+                  RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
             }
             callback = gmnu->draw_cb;
             if (callback != NULL)
               callback(gmnu);
             if (gmnu->visual_state == 2)
               draw_menu_buttons(gmnu);
-            lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+            RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
         }
     }
     SYNCDBG(9,"Finished");
@@ -3245,7 +3257,7 @@ void draw_gui(void)
     SYNCDBG(6,"Starting");
     unsigned int flg_mem;
     LbTextSetFont(winfont);
-    flg_mem = lbDisplay.DrawFlags;
+    flg_mem = RendererGetDrawFlags();
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     update_fade_active_menus();
     draw_active_menus_buttons();
@@ -3260,14 +3272,14 @@ void draw_gui(void)
             }
         }
     }
-    lbDisplay.DrawFlags = flg_mem;
+    RendererSetDrawFlags(flg_mem);
     SYNCDBG(8,"Finished");
 }
 
 void draw_debug_messages() {
     LbTextSetFont(frontend_font[0]);
     LbTextSetWindow(0, 0, 640, 200);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     const int x = 8 / pixel_size;
     int y = 8 / pixel_size;
     for (auto message = debug_messages_head; message != nullptr; ) {
@@ -3308,7 +3320,7 @@ short frontend_draw(void)
         return 0;
     }
 
-    if (LbScreenLock() != Lb_SUCCESS)
+    if (RendererLockFramebuffer() != Lb_SUCCESS)
         return 2;
 
     result = 1;
@@ -3364,7 +3376,7 @@ short frontend_draw(void)
     }
     draw_debug_messages();
     perform_any_screen_capturing();
-    LbScreenUnlock();
+    RendererUnlockFramebuffer();
     return result;
 }
 
@@ -3454,6 +3466,11 @@ void update_player_objectives(PlayerNumber plyr_idx)
 
 void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
 {
+    display_objectives_with_icon(plyr_idx, x, y, -1);
+}
+
+void display_objectives_with_icon(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, short icon_idx)
+{
     MapCoord cor_x;
     MapCoord cor_y;
     cor_y = 0;
@@ -3475,6 +3492,7 @@ void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
         if (event->kind == EvKind_Objective)
         {
             event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);
+            game.event[evidx].icon_idx = icon_idx;
             return;
         }
     }
@@ -3487,9 +3505,23 @@ void display_objectives(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y)
             cor_y = creatng->mappos.y.val;
         }
         event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index);
+        struct Event *event = get_event_of_type_for_player(
+            EvKind_Objective, plyr_idx);
+
+        if (!event_is_invalid(event))
+        {
+            event->icon_idx = icon_idx;
+        }
     } else
     {
         event_create_event_or_update_old_event(cor_x, cor_y, EvKind_Objective, plyr_idx, 0);
+        struct Event *event = get_event_of_type_for_player(
+            EvKind_Objective, plyr_idx);
+
+        if (!event_is_invalid(event))
+        {
+            event->icon_idx = icon_idx;
+        }
     }
 }
 
@@ -3792,8 +3824,7 @@ FrontendMenuState get_startup_menu_state(void)
 
 void try_restore_frontend_error_box()
 {
-    if (LbTimerClock() < gui_message_timeout)
-    {
+    if (gui_message_timeout < 0 || LbTimerClock() < gui_message_timeout) {
         turn_on_menu(GMnu_FEERROR_BOX);
     }
 }
@@ -3801,7 +3832,10 @@ void try_restore_frontend_error_box()
 void create_frontend_error_box(long showTime, const char * text)
 {
     snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", text);
-    gui_message_timeout = LbTimerClock()+showTime;
+    gui_message_timeout = -1;
+    if (showTime > 0) {
+        gui_message_timeout = LbTimerClock() + showTime;
+    }
     turn_on_menu(GMnu_FEERROR_BOX);
 }
 
@@ -3818,14 +3852,14 @@ void frontend_maintain_error_text_box(struct GuiButton *gbtn)
         turn_off_menu(GMnu_FEERROR_BOX);
         return;
     }
-    if (LbTimerClock() > gui_message_timeout) {
+    if (gui_message_timeout > 0 && LbTimerClock() > gui_message_timeout) {
         turn_off_menu(GMnu_FEERROR_BOX);
     }
 }
 
 void frontend_draw_product_version(struct GuiButton *gbtn)
 {
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     LbTextSetFont(frontend_font[1]);
     int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
     int h = LbTextLineHeight() * units_per_px / 16;

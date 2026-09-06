@@ -271,7 +271,7 @@ TbBool slab_kind_is_animated(SlabKind slbkind)
 TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 {
     const struct SlabConfigStats* slabst = get_slab_stats(slb);
-    if ( any_flag_is_set(slabst->block_flags, (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) || (slb->kind == SlbT_LAVA) )
+    if (any_flag_is_set(slabst->block_flags, SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) || slab_kind_is_bridgeable(slb->kind))
         return true;
     return false;
 }
@@ -311,9 +311,8 @@ TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
         SYNCDBG(7,"Cannot place %s owner %d as slab (%d,%d) has blocking thing on it",room_code_name(rkind),(int)plyr_idx,(int)slb_x,(int)slb_y);
         return false;
     }
-    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava)) {
-        return ((room_role_matches(rkind,RoRoF_PassWater) && (slb->kind == SlbT_WATER && slab_by_players_land(plyr_idx, slb_x, slb_y))) ||
-                (room_role_matches(rkind,RoRoF_PassLava)  && (slb->kind == SlbT_LAVA  && slab_by_players_land(plyr_idx, slb_x, slb_y))));
+    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava|RoRoF_PassAbyss)) {
+        return room_can_build_on_bridge_slab(rkind, slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y);
     }
     if (slabmap_owner(slb) != plyr_idx) {
         return false;
@@ -324,10 +323,9 @@ TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
 TbBool can_build_room_at_slab_fast(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
+    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava|RoRoF_PassAbyss))
     {
-        return ((room_role_matches(rkind,RoRoF_PassWater) && (slb->kind == SlbT_WATER && slab_by_players_land(plyr_idx, slb_x, slb_y))) ||
-                (room_role_matches(rkind,RoRoF_PassLava)  && (slb->kind == SlbT_LAVA  && slab_by_players_land(plyr_idx, slb_x, slb_y))));
+        return room_can_build_on_bridge_slab(rkind, slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y);
     }
     else
     {
@@ -355,10 +353,9 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
 
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     int result = 0;
-    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
+    if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava|RoRoF_PassAbyss))
     {
-        result = ((room_role_matches(rkind,RoRoF_PassWater) && (slb->kind == SlbT_WATER && slab_by_players_land(plyr_idx, slb_x, slb_y))) ||
-                  (room_role_matches(rkind,RoRoF_PassLava)  && (slb->kind == SlbT_LAVA  && slab_by_players_land(plyr_idx, slb_x, slb_y)))); // 0 or 1
+        result = room_can_build_on_bridge_slab(rkind, slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y);
     }
     else
     {
@@ -421,6 +418,18 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
         result = 0;
     }
     return result;
+}
+
+TbBool room_can_build_on_bridge_slab(RoomKind rkind, SlabKind slbkind)
+{
+    unsigned char wlb_type = get_slab_kind_stats(slbkind)->wlb_type;
+    if (wlb_type == WlbT_Water)
+        return room_role_matches(rkind, RoRoF_PassWater);
+    if (wlb_type == WlbT_Lava)
+        return room_role_matches(rkind, RoRoF_PassLava);
+    if (wlb_type == WlbT_Abyss)
+        return room_role_matches(rkind, RoRoF_PassAbyss);
+    return false;
 }
 
 /**
@@ -804,7 +813,7 @@ TbBool slab_kind_has_no_ownership(SlabKind slbkind)
     return (slabst->is_ownable == 0);
 }
 
-TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind)
+TbBool players_land_by_bridgeable_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     if (slabmap_owner(slb) == plyr_idx)
@@ -814,7 +823,7 @@ TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
             MapSlabCoord aslb_x = slb_x + small_around[n].delta_x;
             MapSlabCoord aslb_y = slb_y + small_around[n].delta_y;
             struct SlabMap* aslb = get_slabmap_block(aslb_x, aslb_y);
-            if (aslb->kind == slbkind)
+            if (slab_kind_is_bridgeable(aslb->kind))
             {
                 return true;
             }
@@ -901,6 +910,55 @@ void set_player_texture(PlayerNumber plyr_idx, long texture_id)
                     game.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
                 }
             }
+        }
+    }
+}
+
+void initialise_map_collides(void)
+{
+    SYNCDBG(7,"Starting");
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_block(slb_x, slb_y);
+            int ssub_x;
+            int ssub_y;
+            for (ssub_y=0; ssub_y < STL_PER_SLB; ssub_y++)
+            {
+                for (ssub_x=0; ssub_x < STL_PER_SLB; ssub_x++)
+                {
+                    MapSubtlCoord stl_x;
+                    MapSubtlCoord stl_y;
+                    stl_x = slab_subtile(slb_x,ssub_x);
+                    stl_y = slab_subtile(slb_y,ssub_y);
+                    struct Map *mapblk;
+                    mapblk = get_map_block_at(stl_x, stl_y);
+                    mapblk->flags = 0;
+                    update_map_collide(slb->kind, stl_x, stl_y);
+                }
+            }
+        }
+    }
+}
+
+void initialise_map_health(void)
+{
+    SYNCDBG(7,"Starting");
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_block(slb_x, slb_y);
+            struct SlabConfigStats *slabst;
+            slabst = get_slab_stats(slb);
+            slb->health = game.block_health[slabst->block_health_index];
         }
     }
 }

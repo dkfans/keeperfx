@@ -51,9 +51,9 @@ extern "C" {
 struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
 {
     struct Coord3d pos;
-    pos.x.val = room->central_stl_x;
-    pos.y.val = room->central_stl_y;
-    pos.z.val = subtile_coord(1,0);
+    pos.x.val = subtile_coord_center(room->central_stl_x);
+    pos.y.val = subtile_coord_center(room->central_stl_y);
+    pos.z.val = get_floor_height_at(&pos);
     struct Thing* creatng = create_creature(&pos, crkind, room->owner);
     if (thing_is_invalid(creatng)) {
         ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crkind),(int)room->owner);
@@ -68,12 +68,6 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
         }
     }
     mark_creature_joined_dungeon(creatng);
-    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
-        ERRORLOG("Cannot find a valid place in player %d entrance to create creature %s",(int)room->owner,creature_code_name(crkind));
-        delete_thing_structure(creatng, 0);
-        return INVALID_THING;
-    }
-    move_thing_in_map(creatng, &pos);
     if (room->owner != game.neutral_player_num)
     {
         dungeon->lvstats.creatures_attracted++;
@@ -450,4 +444,10 @@ void add_creature_to_pool(ThingModel kind, int32_t amount)
     {
         game.pool.crtr_kind[kind] += amount;
     }
+}
+
+void clear_creature_pool(void)
+{
+    memset(&game.pool,0,sizeof(struct CreaturePool));
+    game.pool.is_empty = true;
 }

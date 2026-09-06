@@ -23,6 +23,7 @@
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "bflib_enet.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
@@ -40,6 +41,8 @@
 #include "sounds.h"
 #include "vidmode.h"
 #include "moonphase.h"
+#include "keeperfx.hpp"
+#include "net_matchmaking.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -160,6 +163,11 @@ const struct NamedCommand conf_commands[] = {
   {"DEFAULT_TAG_MODE"              , 41},
   {"ZOOM_TO_MOUSE"                 , 42},
   {"ROTATE_AROUND_MOUSE"           , 43},
+  {"VSYNC"                         , 44},
+  {"RELATIVE_MOUSE_MODE"           , 45},
+  {"CAPTURE_CURSOR"                , 46},
+  {"MATCHMAKING_SERVER"            , 47},
+  {"MULTIPLAYER_PORT"              , 48},
   {NULL,                   0},
   };
 
@@ -201,17 +209,13 @@ const struct NamedCommand conf_commands[] = {
   };
 
   const struct NamedCommand zoom_to_mouse_options[] = {
-  {"NEVER",    ZoomToMouse_Never},
   {"WHEEL",    ZoomToMouse_Wheel},
-  {"ALWAYS",   ZoomToMouse_Always},
   {NULL,       0},
   };
 
   const struct NamedCommand rotate_around_mouse_options[] = {
-  {"NEVER",         RotateAroundMouse_Never},
-  {"NOT_CTRL",      RotateAroundMouse_NotCtrl},
-  {"ONLY_CTRL",     RotateAroundMouse_OnlyCtrl},
-  {"ALWAYS",        RotateAroundMouse_Always},
+  {"ROTATION_KEYS", RotateAroundMouse_RotationKeys},
+  {"MOVEMENT_KEYS", RotateAroundMouse_MovementKeys},
   {NULL,            0},
   };
 
@@ -276,6 +280,14 @@ TbBool unlock_cursor_when_game_paused(void)
 TbBool lock_cursor_in_possession(void)
 {
   return ((features_enabled & Ft_LockCursorInPossession) != 0);
+}
+
+/**
+ * Returns if the mouse should use SDL relative ("raw") mode instead of the grab-and-warp scheme.
+ */
+TbBool use_relative_mouse_mode(void)
+{
+  return ((features_enabled & Ft_RelativeMouseMode) != 0);
 }
 
 /**
@@ -391,7 +403,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
       int cmd_num = recognize_conf_command(buf, &pos, len, conf_commands);
       // Now store the config item in correct place
       int k;
-      char word_buf[32];
+      char word_buf[128];
       switch (cmd_num)
       {
       case 1: // INSTALL_PATH
@@ -940,40 +952,110 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           break;
       case 42: // ZOOM_TO_MOUSE
-          i = recognize_conf_parameter(buf,&pos,len,zoom_to_mouse_options);
-          if (i <= 0)
+          i = recognize_conf_parameter(buf, &pos, len, logicval_type);
+          if (i == 1)
           {
-            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+              zoom_to_mouse_option = ZoomToMouse_Always;
+              break;
           }
-          else
+          else if (i == 2)
           {
-            zoom_to_mouse_option = i;
+              zoom_to_mouse_option = ZoomToMouse_Never;
+              break;
           }
+          else if (i <= 0)
+          {
+              i = recognize_conf_parameter(buf, &pos, len, zoom_to_mouse_options);
+              if (i > 0)
+              {
+                  zoom_to_mouse_option = i;
+                  break;
+              }
+          }
+          CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                     COMMAND_TEXT(cmd_num), config_textname);
           break;
       case 43: // ROTATE_AROUND_MOUSE
-          i = recognize_conf_parameter(buf,&pos,len,rotate_around_mouse_options);
+          i = recognize_conf_parameter(buf, &pos, len, logicval_type);
+          if (i == 1)
+          {
+              rotate_around_mouse_option = RotateAroundMouse_Always;
+              break;
+          }
+          else if (i == 2)
+          {
+              rotate_around_mouse_option = RotateAroundMouse_Never;
+              break;
+          }
+          else if (i <= 0)
+          {
+              i = recognize_conf_parameter(buf, &pos, len, rotate_around_mouse_options);
+              if (i > 0)
+              {
+                rotate_around_mouse_option = i;
+                break;
+              }
+          }
+          CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                     COMMAND_TEXT(cmd_num), config_textname);
+          break;
+      case 44: // VSYNC
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
-            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          vsync_enabled = (i == 1);
+          break;
+      case 45: // RELATIVE_MOUSE_MODE
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_RelativeMouseMode;
+          else
+              features_enabled &= ~Ft_RelativeMouseMode;
+          break;
+      case 46: // CAPTURE_CURSOR
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i!=1) lbMouseGrab = false;
+          break;
+      case 47: // MATCHMAKING_SERVER
+          get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf));
+          if (get_id(logicval_type, word_buf) == 2)
+          {
+              matchmaking_enabled = false;
+              matchmaking_set_server(NULL);
+              SYNCLOG("Matchmaking disabled (server set to OFF)");
           }
           else
           {
-            rotate_around_mouse_option = i;
+              matchmaking_enabled = true;
+              matchmaking_set_server(word_buf);
+              SYNCLOG("Matchmaking server: %s", matchmaking_ws_url);
           }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          break;
+      case 48: // MULTIPLAYER_PORT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              if (strcasecmp(word_buf, "FOLLOW") == 0)
-              {
-                  rotate_follow_mouse_option = true;
-              }
-              if (strcasecmp(word_buf, "NO_FOLLOW") == 0)
-              {
-                  rotate_follow_mouse_option = false;
-              }
-              else
-              {
-                  CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
-              }
+            i = atoi(word_buf);
+          }
+          if (i > 0 && i <= UINT16_MAX) {
+            enet_port = i;
+          } else {
+            CONFWRNLOG("Invalid MULTIPLAYER_PORT '%s' in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
       case ccr_comment:

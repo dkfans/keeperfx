@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_net.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -39,6 +40,7 @@
 #include "game_merge.h"
 #include "game_legacy.h"
 #include "sprites.h"
+#include "vidfade.h"
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "bflib_enet.h"
@@ -208,7 +210,7 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
 {
     int i;
     i = frontend_button_caption_font(gbtn, 0);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     LbTextSetFont(frontend_font[i]);
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / (2*LbTextLineHeight());
@@ -334,7 +336,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 {
     int i;
     i = frontend_button_caption_font(gbtn, 0);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     LbTextSetFont(frontend_font[i]);
     int height;
     height = 0;
@@ -492,7 +494,7 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
     const struct TbSprite *spr;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
-    lbDisplay.DrawFlags = Lb_SPRITE_FLIP_VERTIC;
+    RendererSetDrawFlags(Lb_SPRITE_FLIP_VERTIC);
     spr = get_frontend_sprite(GFS_hugearea_thc_cor_tl);
     int fs_units_per_px;
     fs_units_per_px = spr->SHeight * units_per_px / 26;
@@ -505,7 +507,7 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
     pos_x += spr->SWidth*fs_units_per_px/16;
     spr = get_frontend_sprite(GFS_hugearea_thc_cor_tr);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
 }
 
 void frontnet_draw_messages_scroll_tab(struct GuiButton *gbtn)
@@ -533,7 +535,7 @@ void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, long font_idx, c
     if (text != NULL)
     {
         LbTextSetFont(frontend_font[font_idx]);
-        lbDisplay.DrawFlags = 0;
+        RendererSetDrawFlags(0);
         int tx_units_per_px;
         tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
         height = LbTextLineHeight() * tx_units_per_px / 16;
@@ -572,10 +574,19 @@ void frontnet_draw_current_message(struct GuiButton *gbtn)
 
 void frontnet_draw_messages(struct GuiButton *gbtn)
 {
+    static unsigned char player_left_remap[PALETTE_COLORS];
+    static int player_left_remap_initialized;
+    if (!player_left_remap_initialized) {
+        for (int i = 0; i < PALETTE_COLORS; i++) {
+            int intensity = max(frontend_palette[3*i], max(frontend_palette[3*i+1], frontend_palette[3*i+2]));
+            player_left_remap[i] = LbPaletteFindColour(frontend_palette, intensity*5/8, intensity*3/8, intensity/4);
+        }
+        player_left_remap_initialized = 1;
+    }
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn, 0);
     LbTextSetFont(frontend_font[font_idx]);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     // While setting scale, aim for 4 lines of text
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / (4*LbTextLineHeight());
@@ -594,22 +605,31 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
             break;
         struct NetMessage *nmsg;
         nmsg = &net_message[netmsg_id];
+        TbBool sender_active = nmsg->connection_id == net_player_info[nmsg->plyr_idx].connection_id;
         int num_active;
         num_active = 0;
-        int i;
-        for (i = nmsg->plyr_idx; i > 0; i--)
-        {
-          if ( net_player_info[i].network_user_active)
-            num_active++;
+        if (sender_active) {
+            for (int i = nmsg->plyr_idx; i > 0; i--) {
+                if (net_player_info[i].network_user_active) {
+                    num_active++;
+                }
+            }
         }
 
         spr = get_frontend_sprite(GFS_bullfrog_red_med+num_active);
 
-        i = font_height - spr->SHeight * fs_units_per_px / 16;
-        LbSpriteDrawResized(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (i >> 1), fs_units_per_px, spr);
+        int icon_y = font_height - spr->SHeight * fs_units_per_px / 16;
+        if (sender_active) {
+            LbSpriteDrawResized(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (icon_y >> 1), fs_units_per_px, spr);
+        } else {
+            lbSpriteReMapPtr = player_left_remap;
+            RendererSetDrawFlags(Lb_TEXT_REMAP);
+            LbSpriteDrawResizedRemap(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (icon_y >> 1), fs_units_per_px, spr, player_left_remap);
+        }
 
         LbTextSetWindow(gbtn->scr_pos_x, y + gbtn->scr_pos_y, gbtn->width, min(font_height, gbtn->height-y));
         LbTextDrawResized(spr->SWidth * fs_units_per_px / 16, 0, tx_units_per_px, nmsg->text);
+        RendererSetDrawFlags(0);
 
         y += font_height;
     }
@@ -681,7 +701,7 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
   int font_idx;
   font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
   LbTextSetFont(frontend_font[font_idx]);
-  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+  RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
   // Set drawing window and draw the text
   int tx_units_per_px;
   tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();

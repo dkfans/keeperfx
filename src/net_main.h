@@ -36,6 +36,7 @@ extern "C" {
 #define PEER_TIMEOUT_MIN_MS 5000
 #define PEER_TIMEOUT_MAX_MS 30000
 
+#define MIN_NET_USERS 2
 #define MAX_NET_USERS 4
 #define MAX_NET_PEERS (MAX_NET_USERS - 1)
 #define SERVER_ID 0
@@ -126,6 +127,7 @@ struct NetState {
 struct TbNetworkPlayerInfo {
     char name[32];
     int32_t network_user_active;
+    uint32_t connection_id;
 };
 
 struct ServiceInitData {
@@ -155,6 +157,7 @@ TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkP
 TbBool OnNewUser(NetUserId *assigned_id);
 void OnDroppedUser(NetUserId id, enum NetDropReason reason);
 TbBool IsUserActive(NetUserId id);
+int32_t GetRemoteUserCount(void);
 void UpdateLocalPlayerInfo(NetUserId id);
 char *begin_net_message(enum NetMessageType msg_type);
 void send_message_buffer(NetUserId dest, const char *end_ptr);

@@ -260,6 +260,7 @@ struct PlayerInfo {
     ThingModel special_digger;
     int isometric_tilt;
     unsigned short generate_speed;
+    int first_person_unfreeze_delay;
     };
 
 /******************************************************************************/

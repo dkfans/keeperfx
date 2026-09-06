@@ -224,6 +224,54 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
     return 1;
 }
 
+/**
+ * Creates the lair totem for a creature at given position and books the room capacity for it.
+ * The lair the creature had before, if any, is removed.
+ * @param creatng The creature the lair will belong to.
+ * @param room The room to book the lair capacity in.
+ * @param pos Where the totem is placed. Does not have to be the creature's own position.
+ * @return True if the totem was created, false if the creature model has no lair object
+ *     or the object could not be created.
+ * @note The caller has to check that the room has enough free capacity
+ *     (room_has_enough_free_capacity_for_creature_job()) and that no lair totem is
+ *     standing at 'pos' yet (find_creature_lair_totem_at_subtile()).
+ */
+TbBool creature_place_lair_totem(struct Thing *creatng, struct Room *room, const struct Coord3d *pos)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureModelConfig *crconf = creature_stats_get(creatng->model);
+    if (crconf->lair_object == 0)
+    {
+        return false;
+    }
+    struct Thing *lairtng = create_object(pos, crconf->lair_object, creatng->owner, -1);
+    if (thing_is_invalid(lairtng))
+    {
+        ERRORLOG("Could not create lair totem");
+        return false;
+    }
+    room->content_per_model[creatng->model]++;
+    room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
+    if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
+    {
+        struct Room *origroom = room_get(cctrl->lair_room_id);
+        creature_remove_lair_totem_from_room(creatng, origroom);
+    }
+    cctrl->lair_room_id = room->index;
+    lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
+    lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
+    // Associate creature with the lair
+    cctrl->lairtng_idx = lairtng->index;
+    lairtng->lair.belongs_to = creatng->index;
+    lairtng->lair.cssize = 1;
+    // Lair size depends on creature level
+    lairtng->lair.spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
+    struct ObjectConfigStats* objst = get_object_model_stats(lairtng->model);
+    set_thing_draw(lairtng, objst->sprite_anim_idx, objst->anim_speed, lairtng->lair.cssize, 0, -1, objst->draw_class);
+    anger_set_creature_anger(creatng, 0, AngR_NoLair);
+    return true;
+}
+
 CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
 {
     if (!room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP))
@@ -232,43 +280,16 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     struct Thing* lairtng = find_creature_lair_totem_at_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0);
     if (!thing_is_invalid(lairtng))
         return CrStRet_Unchanged;
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    room->content_per_model[creatng->model]++;
-    room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
-    if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
+
+    if (!creature_place_lair_totem(creatng, room, &creatng->mappos))
     {
-        struct Room* origroom = room_get(cctrl->lair_room_id);
-        creature_remove_lair_totem_from_room(creatng, origroom);
-    }
-    cctrl->lair_room_id = room->index;
-    // Create the lair thing
-    struct Coord3d pos;
-    pos.x.val = creatng->mappos.x.val;
-    pos.y.val = creatng->mappos.y.val;
-    pos.z.val = creatng->mappos.z.val;
-    struct CreatureModelConfig* crconf = creature_stats_get(creatng->model);
-    lairtng = create_object(&pos, crconf->lair_object, creatng->owner, -1);
-    if (thing_is_invalid(lairtng))
-    {
-        ERRORLOG("Could not create lair totem");
         remove_thing_from_mapwho(creatng);
         place_thing_in_mapwho(creatng);
         return CrStRet_Modified; // Return that so we won't try to redo the action over and over
     }
-    lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
-    lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
-    // Associate creature with the lair
-    cctrl->lairtng_idx = lairtng->index;
-    lairtng->lair.belongs_to = creatng->index;
-    lairtng->lair.cssize = 1;
-    // Lair size depends on creature level
-    lairtng->lair.spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
-    lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
-    struct ObjectConfigStats* objst = get_object_model_stats(lairtng->model);
-    set_thing_draw(lairtng, objst->sprite_anim_idx, objst->anim_speed, lairtng->lair.cssize, 0, -1, objst->draw_class);
+
     thing_play_sample(creatng, 158, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
-    create_effect(&pos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
-    anger_set_creature_anger(creatng, 0, AngR_NoLair);
+    create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     remove_thing_from_mapwho(creatng);
     place_thing_in_mapwho(creatng);
     return CrStRet_ResetOk;

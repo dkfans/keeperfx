@@ -14,66 +14,68 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-// Used for TOLERATE_PACKET_MISS_PERCENT
-#define INPUT_LAG_SAMPLE_WINDOW_TURNS 100
-// Input lag increases when the packet miss percentage exceeds this value within the sample window. [Higher = more choppy FPS but lower input lag, lower = smoother FPS but higher input lag]
-#define TOLERATE_PACKET_MISS_PERCENT 70
-// Starts out low so we can more quickly determine the correct input_lag_turns at the start of the level, but doubles and takes longer to change as the game progresses.
-#define INPUT_LAG_INCREASE_INITIAL_INTERVAL_MS 600
-#define INPUT_LAG_DECREASE_INITIAL_INTERVAL_MS 500
-// When increasing input_lag_turns, cap the interval so that we can always get out of a laggy spot. Decreasing has no cap so that it will do less decreases as the game progresses.
-#define INPUT_LAG_INCREASE_MAX_INTERVAL_MS 5000
+#define INPUT_LAG_SAMPLE_START_TURN 50
 
-static int32_t input_lag_sample_count;
-static int32_t input_lag_history_position;
-static int32_t input_lag_missing_turn_count;
-static TbBool input_lag_missing_turn_history[INPUT_LAG_SAMPLE_WINDOW_TURNS];
-static TbClockMSec input_lag_reduction_check_interval;
-static TbClockMSec input_lag_increase_check_interval;
-static TbClockMSec input_lag_last_reduction_check;
-static TbClockMSec input_lag_last_increase_check;
+static int32_t input_lag_decrease_sample_time;
+static int32_t input_lag_decrease_wait_time;
+static uint32_t input_lag_decrease_last_update;
+static int32_t input_lag_time_spent_waiting;
+static unsigned char input_lag_increase_wait_history[INPUT_LAG_INCREASE_SAMPLE_MS];
+static uint32_t input_lag_increase_last_update;
 static int32_t local_input_lag_request;
 static int32_t input_lag_target;
 static int32_t input_lag_increase_turns;
+static GameTurn input_lag_next_increase_turn;
+static int32_t input_lag_adjustment_time = INPUT_LAG_ADJUSTMENT_TIME_1V1_MS;
 
-void input_lag_reset_intervals(void)
+static void input_lag_update_increase_sample(uint32_t current_time)
 {
-    input_lag_reduction_check_interval = INPUT_LAG_DECREASE_INITIAL_INTERVAL_MS;
-    input_lag_increase_check_interval = INPUT_LAG_INCREASE_INITIAL_INTERVAL_MS;
-    input_lag_last_reduction_check = input_lag_last_increase_check = LbTimerClock();
+    uint32_t elapsed = current_time - input_lag_increase_last_update;
+    if (elapsed >= INPUT_LAG_INCREASE_SAMPLE_MS) {
+        memset(input_lag_increase_wait_history, 0, sizeof(input_lag_increase_wait_history));
+        input_lag_time_spent_waiting = 0;
+    } else {
+        for (uint32_t offset = 1; offset <= elapsed; offset += 1) {
+            uint32_t index = (input_lag_increase_last_update + offset) % INPUT_LAG_INCREASE_SAMPLE_MS;
+            input_lag_time_spent_waiting -= input_lag_increase_wait_history[index];
+            input_lag_increase_wait_history[index] = 0;
+        }
+    }
+    input_lag_increase_last_update = current_time;
 }
 
-static void input_lag_reset_history(void)
+static void input_lag_reset_samples(void)
 {
-    input_lag_sample_count = 0;
-    input_lag_history_position = -1;
-    input_lag_missing_turn_count = 0;
-    memset(input_lag_missing_turn_history, 0, sizeof(input_lag_missing_turn_history));
-    input_lag_reset_intervals();
+    input_lag_decrease_sample_time = 0;
+    input_lag_decrease_wait_time = 0;
+    input_lag_decrease_last_update = LbTimerClock();
+    input_lag_time_spent_waiting = 0;
+    memset(input_lag_increase_wait_history, 0, sizeof(input_lag_increase_wait_history));
+    input_lag_increase_last_update = input_lag_decrease_last_update;
+}
+
+void input_lag_reset_request(int32_t input_lag_turns)
+{
+    input_lag_reset_samples();
+    local_input_lag_request = input_lag_turns;
+    input_lag_next_increase_turn = 0;
 }
 
 void input_lag_reset(void)
 {
-    input_lag_reset_history();
+    input_lag_reset_samples();
     local_input_lag_request = game.input_lag_turns;
     input_lag_target = game.input_lag_turns;
     input_lag_increase_turns = 0;
+    input_lag_next_increase_turn = 0;
 }
 
-void input_lag_get_stats(int32_t *packet_misses, TbClockMSec *increase_countdown, TbClockMSec *decrease_countdown)
+void input_lag_get_stats(int32_t *increase_wait_time, int32_t *increase_turn_time, int32_t *decrease_wait_time, int32_t *decrease_sample_time)
 {
-    TbClockMSec now = LbTimerClock();
-    TbClockMSec elapsed = now - input_lag_last_increase_check;
-    *packet_misses = input_lag_missing_turn_count;
-    *increase_countdown = 0;
-    if (elapsed < input_lag_increase_check_interval) {
-        *increase_countdown = input_lag_increase_check_interval - elapsed;
-    }
-    elapsed = now - input_lag_last_reduction_check;
-    *decrease_countdown = 0;
-    if (elapsed < input_lag_reduction_check_interval) {
-        *decrease_countdown = input_lag_reduction_check_interval - elapsed;
-    }
+    *increase_wait_time = input_lag_time_spent_waiting;
+    *increase_turn_time = INPUT_LAG_INCREASE_WAIT_MS;
+    *decrease_wait_time = input_lag_decrease_wait_time;
+    *decrease_sample_time = input_lag_decrease_sample_time;
 }
 
 TbBool input_lag_skips_processing(void)
@@ -114,67 +116,73 @@ void input_lag_update(struct Packet *packet)
 {
     packet->input_lag_turns = 0;
     if (!network_is_active()) { return; }
+    int32_t remote_player_count = GetRemoteUserCount();
+    input_lag_adjustment_time = INPUT_LAG_ADJUSTMENT_TIME_1V1_MS;
+    if (remote_player_count > 1) {
+        input_lag_adjustment_time = INPUT_LAG_ADJUSTMENT_TIME_HOST_RELAY_MS;
+    }
     if ((game.operation_flags & GOF_Paused) == 0 && input_lag_increase_turns == 0 && input_lag_target > game.input_lag_turns) {
         JUSTLOG("Input lag increased from %d to %d", game.input_lag_turns, input_lag_target);
         game.input_lag_turns = input_lag_target;
     }
-    TbClockMSec now = LbTimerClock();
-    if ((game.operation_flags & GOF_Paused) != 0 || game.skip_initial_input_turns > 0) {
-        input_lag_last_reduction_check = input_lag_last_increase_check = now;
-    } else {
-        if (now - input_lag_last_reduction_check >= input_lag_reduction_check_interval) {
-            input_lag_last_reduction_check = now;
-            if (input_lag_reduction_check_interval <= INT32_MAX / 2) {
-                input_lag_reduction_check_interval *= 2;
-            }
-            if (input_lag_sample_count > 0 && input_lag_missing_turn_count == 0 && local_input_lag_request > 0) {
+    uint32_t current_time = LbTimerClock();
+    input_lag_update_increase_sample(current_time);
+    if ((game.operation_flags & GOF_Paused) == 0 && game.skip_initial_input_turns == 0 && get_gameturn() >= INPUT_LAG_SAMPLE_START_TURN) {
+        uint32_t sample_time = current_time - input_lag_decrease_last_update;
+        if (sample_time > input_lag_adjustment_time) {
+            sample_time = input_lag_adjustment_time;
+        }
+        input_lag_decrease_sample_time += sample_time;
+        if (input_lag_decrease_sample_time >= input_lag_adjustment_time) {
+            if (input_lag_decrease_wait_time * 100 <= INPUT_LAG_DECREASE_WAIT_PERCENT * input_lag_decrease_sample_time && local_input_lag_request > 0) {
                 local_input_lag_request -= 1;
-                input_lag_last_increase_check = now;
-                MULTIPLAYER_LOG("Input lag request decreased after %d clean turns: request=%d next_check=%dms", input_lag_sample_count, local_input_lag_request, input_lag_reduction_check_interval);
+                input_lag_next_increase_turn = 0;
+                MULTIPLAYER_LOG("Input lag request decreased after %dms spent waiting in %dms: request=%d", input_lag_decrease_wait_time, input_lag_decrease_sample_time, local_input_lag_request);
+                input_lag_reset_samples();
+            } else {
+                input_lag_decrease_sample_time = 0;
+                input_lag_decrease_wait_time = 0;
             }
-        }
-        if (now - input_lag_last_increase_check >= input_lag_increase_check_interval) {
-            input_lag_last_increase_check = now;
-            input_lag_increase_check_interval *= 2;
-            if (input_lag_increase_check_interval > INPUT_LAG_INCREASE_MAX_INTERVAL_MS) {
-                input_lag_increase_check_interval = INPUT_LAG_INCREASE_MAX_INTERVAL_MS;
-            }
-            if (input_lag_missing_turn_count * 100 > TOLERATE_PACKET_MISS_PERCENT * input_lag_sample_count && local_input_lag_request < MAXIMUM_INPUT_LAG_TURNS) {
-                local_input_lag_request += 1;
-                MULTIPLAYER_LOG("Input lag request increased after %d waits in %d turns: request=%d next_check=%dms", input_lag_missing_turn_count, input_lag_sample_count, local_input_lag_request, input_lag_increase_check_interval);
-            }
-        }
-        input_lag_history_position = (input_lag_history_position + 1) % INPUT_LAG_SAMPLE_WINDOW_TURNS;
-        input_lag_missing_turn_count -= input_lag_missing_turn_history[input_lag_history_position];
-        input_lag_missing_turn_history[input_lag_history_position] = false;
-        if (input_lag_sample_count < INPUT_LAG_SAMPLE_WINDOW_TURNS) {
-            input_lag_sample_count += 1;
         }
     }
+    input_lag_decrease_last_update = current_time;
     packet->input_lag_turns = local_input_lag_request;
     if (my_player_number != get_host_player_id() || !netstate.sp) { return; }
-    int32_t remote_player_count = 0;
     for (NetUserId id = 0; id < netstate.max_players; id += 1) {
         if (id == netstate.my_id || netstate.users[id].progress != USER_LOGGEDIN) { continue; }
-        remote_player_count += 1;
         const struct Packet *peer_packet = get_latest_history_packet((PlayerNumber)id);
         if (peer_packet != NULL && (uint8_t)peer_packet->input_lag_turns <= MAXIMUM_INPUT_LAG_TURNS && peer_packet->input_lag_turns > packet->input_lag_turns) {
             packet->input_lag_turns = peer_packet->input_lag_turns;
         }
     }
     if (remote_player_count <= 0) {
-        input_lag_reset_history();
+        input_lag_reset_samples();
         local_input_lag_request = 0;
         packet->input_lag_turns = 0;
     }
 }
 
-void input_lag_note_packet_wait(void)
+void input_lag_note_packet_wait(int32_t wait_time)
 {
-    if (!network_is_active() || (game.operation_flags & GOF_Paused) != 0 || input_lag_history_position < 0) { return; }
-    if (!input_lag_missing_turn_history[input_lag_history_position]) {
-        input_lag_missing_turn_history[input_lag_history_position] = true;
-        input_lag_missing_turn_count += 1;
+    if (!network_is_active() || (game.operation_flags & GOF_Paused) != 0 || get_gameturn() < INPUT_LAG_SAMPLE_START_TURN) { return; }
+    uint32_t current_time = LbTimerClock();
+    input_lag_update_increase_sample(current_time);
+    input_lag_decrease_wait_time += wait_time;
+    if (wait_time > INPUT_LAG_INCREASE_SAMPLE_MS) {
+        wait_time = INPUT_LAG_INCREASE_SAMPLE_MS;
+    }
+    for (int32_t offset = 0; offset < wait_time; offset += 1) {
+        uint32_t index = (current_time % INPUT_LAG_INCREASE_SAMPLE_MS + INPUT_LAG_INCREASE_SAMPLE_MS - offset) % INPUT_LAG_INCREASE_SAMPLE_MS;
+        if (input_lag_increase_wait_history[index] == 0) {
+            input_lag_increase_wait_history[index] = 1;
+            input_lag_time_spent_waiting += 1;
+        }
+    }
+    if (input_lag_time_spent_waiting >= INPUT_LAG_INCREASE_WAIT_MS && local_input_lag_request < MAXIMUM_INPUT_LAG_TURNS && get_gameturn() >= input_lag_next_increase_turn) {
+        local_input_lag_request += 1;
+        input_lag_next_increase_turn = get_gameturn() + (int64_t)input_lag_adjustment_time * turns_per_second / 1000;
+        MULTIPLAYER_LOG("Input lag request increased after %dms spent waiting: request=%d", input_lag_time_spent_waiting, local_input_lag_request);
+        input_lag_reset_samples();
     }
 }
 

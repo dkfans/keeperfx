@@ -58,6 +58,7 @@
 #include "gui_frontbtns.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
+#include "timer.h"
 #include "post_inc.h"
 
 /******************************************************************************/

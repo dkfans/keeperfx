@@ -34,18 +34,24 @@
 #include "thing_physics.h"
 #include "thing_creature.h"
 #include "thing_navigate.h"
+#include "thing_factory.h"
 #include "creature_senses.h"
 #include "spdigger_stack.h"
 #include "power_hand.h"
 #include "magic_powers.h"
+#include "map_data.h"
 #include "map_utils.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "config_magic.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
+#include "room_data.h"
 #include "player_instances.h"
 #include "engine_camera.h"
+#include "map_columns.h"
 #include "game_legacy.h"
+#include "lua_triggers.h"
 #include "keeperfx.hpp"
 #include "bflib_planar.h"
 #include "post_inc.h"
@@ -55,6 +61,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+#define ABYSS_FALL_SOUND_DELAY 2
+
 Thing_Class_Func class_functions[] = {
   NULL,//TCls_Empty
   update_object,
@@ -98,9 +106,6 @@ static void update_thing_interpolation(struct Thing *thing)
 {
     thing->previous_mappos = thing->mappos;
     thing->previous_floor_height = thing->floor_height;
-
-    // Originally cleared by the renderer after drawing one frame.
-    clear_flag(thing->rendering_flags, TRF_BeingHit);
 
     // Signal to reset interpolation on attached armour/disease particle effect.
     clear_flag(thing->state_flags, TF1_Teleported);
@@ -290,7 +295,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
                 struct Thing* traptng = thing_get(param->primary_number);
-                if (players_are_enemies(traptng->owner, thing->owner) || is_neutral_thing(traptng))
+                if (players_are_enemies(traptng->owner, thing->owner) || (is_neutral_thing(traptng) && !is_neutral_thing(thing)))
                 {
                     if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing) && !thing_is_picked_up(thing)
                         && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing)
@@ -981,6 +986,63 @@ TngUpdateRet switch_object_on_destoyed_slab_to_new_owner(struct Thing *thing, Mo
     return TUFRet_Unchanged;
 }
 
+static void update_thing_animation(struct Thing *thing)
+{
+    SYNCDBG(18,"Starting for %s",thing_model_name(thing));
+    int i;
+    struct CreatureControl *cctrl;
+    if (thing->class_id == TCls_Creature)
+    {
+      cctrl = creature_control_get_from_thing(thing);
+      if (!creature_control_invalid(cctrl))
+        cctrl->anim_time = thing->anim_time;
+    }
+    if ((thing->anim_speed != 0) && (thing->max_frames != 0))
+    {
+        thing->anim_time += thing->anim_speed;
+        i = (thing->max_frames << 8);
+        if (i <= 0) i = 256;
+        while (thing->anim_time  < 0)
+        {
+          thing->anim_time += i;
+        }
+        if (thing->anim_time > i-1)
+        {
+          if (thing->rendering_flags & TRF_AnimateOnce)
+          {
+            thing->anim_speed = 0;
+            thing->anim_time = i-1;
+          } else
+          {
+            thing->anim_time %= i;
+          }
+        }
+        thing->current_frame = thing->anim_time >> 8;
+    }
+    if (thing->transformation_speed != 0)
+    {
+      thing->sprite_size += thing->transformation_speed;
+      if (thing->sprite_size > thing->sprite_size_min)
+      {
+        if (thing->sprite_size >= thing->sprite_size_max)
+        {
+          thing->sprite_size = thing->sprite_size_max;
+          if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
+            thing->transformation_speed = -thing->transformation_speed;
+          else
+            thing->transformation_speed = 0;
+        }
+      } else
+      {
+        thing->sprite_size = thing->sprite_size_min;
+        if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
+          thing->transformation_speed = -thing->transformation_speed;
+        else
+          thing->transformation_speed = 0;
+      }
+    }
+}
+
 /**
  * Makes per game turn update of all things in given StructureList.
  * @param list List of things to process.
@@ -1020,11 +1082,157 @@ void update_things_in_list(struct StructureList *list)
     SYNCDBG(19,"Finished, %d items",(int)k);
 }
 
+static TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param)
+{
+    SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    if (thing_is_picked_up(thing) || thing_is_dragged_or_pulled(thing))
+    {
+        return TUFRet_Unchanged;
+    }
+    if (thing_is_creature(thing))
+    {
+        apply_damage_to_thing_and_display_health(thing, param->secondary_number, param->primary_number);
+        if ((thing->health >= 0) && !creature_is_leaving_and_cannot_be_stopped(thing))
+        {
+            if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
+            {
+                if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureEscapingDeath)
+                {
+                    if (cleanup_current_thing_state(thing) && setup_move_out_of_cave_in(thing))
+                        thing->continue_state = CrSt_CreatureEscapingDeath;
+                }
+            }
+            return TUFRet_Modified;
+        } else
+        {
+            kill_creature(thing, INVALID_THING, param->primary_number, CrDed_NoEffects|CrDed_DiedInBattle);
+            return TUFRet_Deleted;
+        }
+    }
+    else if (thing_is_destructible_trap(thing) > 0)
+    {
+        apply_damage_to_thing(thing, param->secondary_number, param->primary_number);
+        return TUFRet_Modified;
+    }
+    return TUFRet_Unchanged;
+}
+
+static TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+        return false;
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(stl_x,stl_y);
+    return (plyr_idx == game.neutral_player_num) || (slabmap_owner(slb) == game.neutral_player_num) || (slabmap_owner(slb) == plyr_idx);
+}
+
+static long update_cave_in(struct Thing *thing)
+{
+    thing->health--;
+    thing->rendering_flags |= TRF_Invisible;
+    if (thing->health < 1)
+    {
+        delete_thing_structure(thing, 0);
+        return 1;
+    }
+
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_CAVEIN);
+    struct Thing *efftng;
+    struct Coord3d pos;
+    PlayerNumber owner;
+    owner = thing->owner;
+    if ((get_gameturn() % 3) == 0)
+    {
+        int n;
+        n = GAME_RANDOM(AROUND_TILES_COUNT);
+        pos.x.val = thing->mappos.x.val + GAME_RANDOM(704) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + GAME_RANDOM(704) * around[n].delta_y;
+        if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
+        {
+            pos.z.val = get_ceiling_height(&pos) - 128;
+            efftng = create_effect_element(&pos, TngEff_Flash, owner);
+            if (!thing_is_invalid(efftng)) {
+                efftng->health = powerst->duration;
+            }
+        }
+    }
+
+    GameTurnDelta turns_between;
+    GameTurnDelta turns_alive;
+    turns_between = powerst->duration / 5;
+    turns_alive = get_gameturn() - thing->creation_turn;
+    if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
+    {
+        pos.x.val = thing->mappos.x.val + THING_RANDOM(thing, 128);
+        pos.y.val = thing->mappos.y.val + THING_RANDOM(thing, 128);
+        pos.z.val = get_floor_height_at(&pos) + 384;
+        create_effect(&pos, TngEff_HarmlessGas4, owner);
+    }
+
+    if ((turns_alive % game.conf.rules[owner].magic.turns_per_collapse_dngn_dmg) == 0)
+    {
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = subtile_coord(1,0);
+        Thing_Modifier_Func do_cb;
+        struct CompoundTngFilterParam param;
+        param.plyr_idx = -1;
+        param.class_id = 0;
+        param.model_id = 0;
+        param.primary_number = thing->owner;
+        param.secondary_number = game.conf.rules[thing->owner].magic.collapse_dungeon_damage;
+        param.tertiary_pointer = 0;
+        do_cb = damage_creatures_with_physical_force;
+        do_to_things_with_param_around_map_block(&pos, do_cb, &param);
+    }
+
+    if ((8 * powerst->duration / 10 >= thing->health) && (2 * powerst->duration / 10 <= thing->health))
+    {
+        if ((powerst->duration < 10) || ((thing->health % (powerst->duration / 10)) == 0))
+        {
+            int round_idx;
+            round_idx = THING_RANDOM(thing, AROUND_TILES_COUNT);
+            set_coords_to_slab_center(&pos, subtile_slab(thing->mappos.x.val + 3 * around[round_idx].delta_x), subtile_slab(thing->mappos.y.val + 3 * around[round_idx].delta_y));
+            if (subtile_has_slab(coord_subtile(pos.x.val), coord_subtile(pos.y.val)) && valid_cave_in_position(thing->owner, coord_subtile(pos.x.val), coord_subtile(pos.y.val)))
+            {
+                struct Thing *ncavitng;
+                ncavitng = get_cavein_at_subtile_owned_by(coord_subtile(pos.x.val), coord_subtile(pos.y.val), -1);
+                if (thing_is_invalid(ncavitng))
+                {
+                    long dist;
+                    struct Coord3d pos2;
+                    pos2.x.val = subtile_coord(thing->cave_in.x,0);
+                    pos2.y.val = subtile_coord(thing->cave_in.y,0);
+                    pos2.z.val = subtile_coord(1,0);
+                    dist = get_chessboard_distance(&pos, &pos2);
+                    if (powerst->strength[thing->cave_in.model] >= coord_subtile(dist))
+                    {
+                        ncavitng = create_thing(&pos, TCls_CaveIn, thing->cave_in.model, owner, -1);
+                        if (!thing_is_invalid(ncavitng))
+                        {
+                            thing->health += 5;
+                            if (thing->health > 0)
+                            {
+                                ncavitng->cave_in.x = thing->cave_in.x;
+                                ncavitng->cave_in.y = thing->cave_in.y;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return 1;
+}
+
 /**
  * Makes per game turn update of cave in things, using proper StructureList.
  * @return Returns amount of cave in things in list.
  */
-unsigned long update_cave_in_things(void)
+static unsigned long update_cave_in_things(void)
 {
     unsigned long k = 0;
     const struct StructureList* slist = get_list_for_thing_class(TCls_CaveIn);
@@ -3125,8 +3333,23 @@ TbBool update_thing(struct Thing *thing)
     if (thing_is_invalid(thing))
         return false;
 
-    if ((thing->movement_flags & TMvF_Immobile) == 0)
-    {
+    TbBool falling = flag_is_set(thing->state_flags, TF1_FallingIntoAbyss);
+    if (falling) {
+        clear_thing_acceleration(thing);
+        thing->veloc_push_once.x.val = 0;
+        thing->veloc_push_once.y.val = 0;
+        thing->veloc_push_once.z.val = 0;
+        clear_flag(thing->state_flags, TF1_PushOnce);
+        if (thing->abyss_fall_sound_delay > 0) {
+            thing->abyss_fall_sound_delay--;
+            if ((thing->abyss_fall_sound_delay == 0) && thing_is_creature(thing) && is_my_player_number(thing->owner)) {
+                play_creature_sound(thing, CrSnd_Drop, 3, 0);
+            }
+        }
+        thing->veloc_push_add.z.val -= thing->fall_acceleration;
+        set_flag(thing->state_flags, TF1_PushAdd);
+    }
+    if (falling || ((thing->movement_flags & TMvF_Immobile) == 0)) {
         if ((thing->state_flags & TF1_PushAdd) != 0)
         {
             thing->veloc_base.x.val += thing->veloc_push_add.x.val;
@@ -3157,20 +3380,57 @@ TbBool update_thing(struct Thing *thing)
         classfunc = NULL;
     if (classfunc == NULL)
         return false;
-    if (classfunc(thing) == TUFRet_Deleted) {
+    if ((!falling || thing_is_creature(thing)) && (classfunc(thing) == TUFRet_Deleted)) {
+        return false;
+    }
+    if (flag_is_set(thing->state_flags, TF1_InCtrldLimbo)) {
+        return true;
+    }
+    falling = flag_is_set(thing->state_flags, TF1_FallingIntoAbyss);
+    if (falling) {
+        thing->velocity.z.val = clamp(thing->velocity.z.val, -CREATURE_TERMINAL_VELOCITY, CREATURE_TERMINAL_VELOCITY);
+        struct Coord3d pos;
+        set_coords_add_velocity(&pos, &thing->mappos, &thing->velocity, MapCoord_ClipX | MapCoord_ClipY);
+        if (thing_is_creature(thing) && ((thing->velocity.x.val != 0) || (thing->velocity.y.val != 0))) {
+            int32_t blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+            blocked_flags &= (SlbBloF_WalledX | SlbBloF_WalledY);
+            slide_thing_against_wall_at(thing, &pos, blocked_flags);
+            remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
+        }
+        move_thing_in_map(thing, &pos);
+        thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
+        thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
+    }
+    else {
+        if ((thing->class_id != TCls_EffectElem) && !flag_is_set(thing->movement_flags, TMvF_Immobile) && !flag_is_set(thing->movement_flags, TMvF_Flying) && (thing->fall_acceleration != 0) && (thing->mappos.z.val <= 0) && subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+            set_flag(thing->state_flags, TF1_FallingIntoAbyss);
+            falling = true;
+            thing->veloc_base.x.val = thing->velocity.x.val;
+            thing->veloc_base.y.val = thing->velocity.y.val;
+            thing->fall_acceleration = CREATURE_FALL_ACCELERATION;
+            thing->abyss_fall_sound_delay = ABYSS_FALL_SOUND_DELAY;
+        }
+    }
+    if (falling && (thing->mappos.z.val <= -subtile_coord(ABYSS_DEPTH, 0))) {
+        if (thing_is_creature(thing)) {
+            lua_on_creature_fell_into_abyss(thing);
+            if (!flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+                return true;
+            }
+            kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+        } else {
+            destroy_thing(thing);
+        }
         return false;
     }
     SYNCDBG(18,"Class function end ok");
-    if ((thing->movement_flags & TMvF_Immobile) == 0)
-    {
-        if (thing->mappos.z.val > thing->floor_height)
-        {
+    if (!falling && ((thing->movement_flags & TMvF_Immobile) == 0)) {
+        if ((thing->mappos.z.val > thing->floor_height) || (!flag_is_set(thing->movement_flags, TMvF_Flying) && subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))) {
             if (thing->veloc_base.x.val != 0)
                 thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
             if (thing->veloc_base.y.val != 0)
                 thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
-            if ((thing->movement_flags & TMvF_Flying) == 0)
-            {
+            if ((thing->movement_flags & TMvF_Flying) == 0) {
                 thing->veloc_push_add.z.val -= thing->fall_acceleration;
                 thing->state_flags |= TF1_PushAdd;
             } else

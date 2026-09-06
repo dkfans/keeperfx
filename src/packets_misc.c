@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "packets.h"
 
 #include "bflib_fileio.h"
@@ -44,7 +45,6 @@ extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool get_skip_heart_zoom_feature(void);
 extern unsigned long get_host_player_id(void);
 extern TbBool keeper_screen_redraw(void);
-extern TbResult LbScreenSwap(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -406,7 +406,7 @@ void set_packet_pause_toggle()
         MULTIPLAYER_LOG("set_packet_pause_toggle: broadcasting unpause");
         unpausing_in_progress = 1;
         keeper_screen_redraw();
-        LbScreenSwap();
+        RendererPresentFrame();
         LbNetwork_BroadcastUnpause();
         if (my_player_number == get_host_player_id()) {
             process_pause_packet(0, 0);

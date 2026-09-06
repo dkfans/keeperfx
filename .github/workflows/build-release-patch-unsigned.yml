@@ -28,7 +28,7 @@ jobs:
       run: |
         set -eux
         sudo apt update
-        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16t64 7zip
+        sudo apt install -y build-essential g++-mingw-w64-i686 cmake ninja-build libpng16-16t64 7zip
 
     - name: Build gfx
       run: |
@@ -42,10 +42,22 @@ jobs:
         set -eux
         BUILD_NUMBER=$(git rev-list --count HEAD)
         PACKAGE_SUFFIX=
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
-        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
+        # Compile both binaries with CMake (MinGW-w64 i686 cross-compile).
+        cmake -S . -B out -G Ninja -DCMAKE_TOOLCHAIN_FILE=build/cmake/toolchains/mingw32.cmake \
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          -DBUILD_NUMBER=$BUILD_NUMBER -DPACKAGE_SUFFIX=$PACKAGE_SUFFIX
+        cmake --build out --target keeperfx keeperfx_hvlog -j"$(nproc)"
+        # Assemble game data with the make pipeline (.dat data); the CMake build
+        # already provides the binaries and SDL runtime DLLs. Then archive with CPack.
+        make BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX pkg-assemble
+        cmake --build out --target package
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
+        # CPack stages the binaries (keeperfx.exe, keeperfx_hvlog.exe) and the SDL3
+        # runtime DLLs only inside the .7z archive, not into the loose pkg/ tree, so
+        # uploading pkg/** would drop them and leave SignPath with nothing to sign.
+        # Install the full package layout into dist/ so the uploaded artifact holds
+        # the binaries + DLLs + game data.
+        cmake --install out --prefix dist
         rm pkg/keeperfx*.7z
 
     - name: Upload artifact
@@ -53,7 +65,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.ZIP_NAME }}
-        path: pkg/**
+        path: dist/**
       
     outputs:
       artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}

@@ -29,6 +29,7 @@
 
 #include "engine_lenses.h"
 #include "engine_render.h"
+#include "thing_physics.h"
 #include "vidmode.h"
 #include "map_blocks.h"
 #include "dungeon_data.h"
@@ -466,7 +467,7 @@ void update_first_person_position(struct Camera *cam, struct Thing *thing, int e
     if ( thing_is_creature(thing) )
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-        if ( cctrl->move_speed && thing->floor_height >= thing->mappos.z.val )
+        if (cctrl->move_speed && thing_touching_floor(thing))
             cctrl->head_bob = 16 * get_walking_bob_direction(thing);
         else
             cctrl->head_bob = 0;
@@ -725,5 +726,8 @@ void update_all_players_cameras(void)
           update_player_camera(player);
     }
   }
+
+  // Send catchup packets if local camera has drifted too far from packet-based camera
+  send_camera_catchup_packets();
 }
 /******************************************************************************/

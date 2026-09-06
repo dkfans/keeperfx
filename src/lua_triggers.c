@@ -141,6 +141,35 @@ void lua_on_game_tick()
 		lua_pop(Lvl_script, 1);
 	}
 }
+void lua_on_game_load()
+{
+	SYNCDBG(6,"Starting");
+	lua_getglobal(Lvl_script, "OnGameLoad");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0), "OnGameLoad");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
+}
+
+// hook for archipelago's callback on receiving items
+void lua_on_item_received(int itemid)
+{
+	SYNCDBG(6,"Starting");
+	lua_getglobal(Lvl_script, "OnItemReceived");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushinteger(Lvl_script, itemid);
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnItemReceived");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
+}
 
 void lua_on_game_load()
 {
@@ -271,6 +300,18 @@ void lua_on_creature_rebirth(struct Thing* crtng)
     }
     else
     {
+        lua_pop(Lvl_script, 1);
+    }
+}
+
+void lua_on_creature_fell_into_abyss(struct Thing *crtng)
+{
+    SYNCDBG(6, "Starting");
+    lua_getglobal(Lvl_script, "OnCreatureFellIntoAbyss");
+    if (lua_isfunction(Lvl_script, -1)) {
+        lua_pushThing(Lvl_script, crtng);
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "OnCreatureFellIntoAbyss");
+    } else {
         lua_pop(Lvl_script, 1);
     }
 }

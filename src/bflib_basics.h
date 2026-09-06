@@ -207,7 +207,7 @@ int natoi(const char * str, int len) __attribute__ ((nonnull(1))); // like atoi 
  * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to check in the "flags" parameter.
  * @return Returns TRUE if the given masked bits are set to 1 in the given flags variable.
  */
-#define flag_is_set(flags,mask) ((flags & mask) == mask)
+#define flag_is_set(flags,mask) ((flags & (mask)) == (mask))
 
 /**
  * Check if any of the given flags is set - by checking if any of the given masked bits are set to 1 in the given flags variable.
@@ -216,7 +216,7 @@ int natoi(const char * str, int len) __attribute__ ((nonnull(1))); // like atoi 
  * @param mask Bitmask, containing 1 (or more) masked bits, representing the bit flags we want to check in the "flags" parameter.
  * @return Returns TRUE if any of the given masked bits are set to 1 in the given flags variable.
  */
-#define any_flag_is_set(flags,mask) ((flags & mask) != 0)
+#define any_flag_is_set(flags,mask) ((flags & (mask)) != 0)
 
 /**
  * Check if all of the flags are set - by checking if all of the bits are set to 1 in the given flags variable.

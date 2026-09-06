@@ -15,10 +15,13 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "net_exchange_gameplay.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
+#include "bflib_sound.h"
 #include "bflib_video.h"
+#include "config_sounds.h"
 #include "config_keeperfx.h"
 #include "console_cmd.h"
 #include "engine_redraw.h"
@@ -36,7 +39,10 @@
 #include "post_inc.h"
 
 extern void network_yield_waiting_gameplay_packets(void);
-extern int32_t multiplayer_speed_adjustment_ns;
+
+/******************************************************************************/
+
+int32_t multiplayer_speed_adjustment_ns;
 
 /******************************************************************************/
 
@@ -69,8 +75,9 @@ struct PacketHistoryHeader {
 static struct PacketHistory packet_history[MAX_NET_USERS];
 static TbClockMSec server_turn_received_at = 0;
 static int64_t server_turn_position_ns = 0;
-static TbClockMSec last_repair_history_send = 0;
+static TbClockMSec last_repair_history_send[MAX_NET_USERS];
 static TbClockMSec last_turn_sync_send = 0;
+static PlayerNumber next_repair_history_player = 0;
 
 static int64_t get_current_turn_position_ns(void)
 {
@@ -138,7 +145,7 @@ TbError process_network_unpause_message(void)
     MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE: applying unpause");
     unpausing_in_progress = 1;
     keeper_screen_redraw();
-    LbScreenSwap();
+    RendererPresentFrame();
     if (my_player_number == get_host_player_id()) {
         LbNetwork_BroadcastUnpause();
     }
@@ -154,6 +161,7 @@ void process_gameplay_chat_message(int player_id, const char *message)
         lua_on_chatmsg(player_id, player->mp_message_text);
         if (player->mp_message_text[0] != cmd_char || !cmd_exec(player_id, player->mp_message_text + 1) || network_is_active()) {
             message_add(MsgType_Player, player_id, player->mp_message_text);
+            play_non_3d_sample(snd_chat_message[player_id == my_player_number]);
         }
     }
     memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
@@ -280,8 +288,9 @@ void initialize_packet_history(void)
     server_turn_received_at = 0;
     server_turn_position_ns = 0;
     multiplayer_speed_adjustment_ns = 0;
-    last_repair_history_send = 0;
+    memset(last_repair_history_send, 0, sizeof(last_repair_history_send));
     last_turn_sync_send = 0;
+    next_repair_history_player = 0;
     input_lag_reset();
 }
 
@@ -378,17 +387,24 @@ static void send_player_repair_history(PlayerNumber player)
 static void send_repair_history_if_due(void)
 {
     TbClockMSec current_time = LbTimerClock();
-    if (last_repair_history_send != 0 && current_time - last_repair_history_send < REPAIR_HISTORY_RESEND_INTERVAL) {
+    PlayerNumber player = (PlayerNumber)netstate.my_id;
+    if (player == SERVER_ID) {
+        PlayerNumber offset;
+        for (offset = 0; offset < netstate.max_players; offset += 1) {
+            player = (next_repair_history_player + offset) % netstate.max_players;
+            if (network_player_active(player) && (last_repair_history_send[player] == 0 || current_time - last_repair_history_send[player] >= REPAIR_HISTORY_RESEND_INTERVAL)) {
+                break;
+            }
+        }
+        if (offset == netstate.max_players) {
+            return;
+        }
+        next_repair_history_player = (player + 1) % netstate.max_players;
+    } else if (last_repair_history_send[player] != 0 && current_time - last_repair_history_send[player] < REPAIR_HISTORY_RESEND_INTERVAL) {
         return;
     }
-    last_repair_history_send = current_time;
-    if (netstate.my_id != SERVER_ID) {
-        send_player_repair_history((PlayerNumber)netstate.my_id);
-        return;
-    }
-    for (PlayerNumber player = 0; player < netstate.max_players; player += 1) {
-        send_player_repair_history(player);
-    }
+    last_repair_history_send[player] = current_time;
+    send_player_repair_history(player);
 }
 
 static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, PlayerNumber local_packet_player)
@@ -397,7 +413,6 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Pla
     TbClockMSec wait_start_time = LbTimerClock();
     TbBool turn_complete = false;
     TbBool wait_timed_out = false;
-    input_lag_note_packet_wait();
     MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Missing packets for turn=%lu, collecting...", (unsigned long)expected_turn);
     while (!turn_complete) {
         send_turn_sync_if_due();
@@ -437,6 +452,7 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Pla
         }
     }
     TbClockMSec wait_time = LbTimerClock() - wait_start_time;
+    input_lag_note_packet_wait((int32_t)wait_time);
     if (wait_timed_out) {
         WARNLOG("LbNetwork_ExchangeGameplay: Timed out waiting for turn=%lu after %dms; continuing so resync can recover",
             (unsigned long)expected_turn, (int32_t)wait_time);

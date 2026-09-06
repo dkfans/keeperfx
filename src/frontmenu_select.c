@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_select.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -115,7 +116,7 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
       i = 3;
     else
       i = 1;
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     LbTextSetFont(frontend_font[i]);
     // This text is a bit condensed - button size is smaller than text height
     int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
@@ -198,7 +199,7 @@ void frontend_draw_level_select_mappack(struct GuiButton *gbtn)
         text = campaign.display_name;
     else
         text = frontend_button_caption_text(gbtn);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     LbTextSetFont(frontend_font[2]);
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
@@ -273,7 +274,7 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
       i = 3;
     else*/
       i = 1;
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     LbTextSetFont(frontend_font[i]);
     // This text is a bit condensed - button size is smaller than text height
     int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
@@ -526,7 +527,7 @@ void frontend_draw_mp_mappack_select_button(struct GuiButton *gbtn)
     else
       i = 1;
 
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     LbTextSetFont(frontend_font[i]);
     int tx_units_per_px;
     // This text is a bit condensed - button size is smaller than text height
@@ -555,7 +556,7 @@ void frontend_draw_mappack_select_button(struct GuiButton *gbtn)
     else
       i = 1;
 
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     LbTextSetFont(frontend_font[i]);
     int tx_units_per_px;
     // This text is a bit condensed - button size is smaller than text height

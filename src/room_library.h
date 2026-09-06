@@ -46,7 +46,8 @@ TbBool clear_research_for_all_players(void);
 TbBool research_overriden_for_player(PlayerNumber plyr_idx);
 TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount);
 TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount);
-void process_player_research(PlayerNumber plyr_idx);
+void send_research_complete_event(struct ResearchVal *rsrchval, PlayerNumber plyr_idx);
+void update_research(void);
 
 EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thing *picktng);
 void research_found_room(PlayerNumber plyr_idx, RoomKind rkind);

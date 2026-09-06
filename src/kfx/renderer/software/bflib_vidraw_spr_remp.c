@@ -19,6 +19,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "bflib_vidraw.h"
 
 #include <string.h>
@@ -1256,9 +1257,9 @@ TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct Tb
     setup_outbuf(xstep, ystep, &outbuf, &outheight);
     if ( scale_up )
     {
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
+        if ((RendererGetDrawFlags() & Lb_SPRITE_TRANSPAR4) != 0)
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+          if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_HORIZ) != 0)
           {
               return LbSpriteDrawRemapUsingScalingUpDataTrans1RL(outbuf, scanline, outheight, xstep, ystep, src_buf, cmap, render_ghost);
           }
@@ -1268,9 +1269,9 @@ TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct Tb
           }
         }
         else
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
+        if ((RendererGetDrawFlags() & Lb_SPRITE_TRANSPAR8) != 0)
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+          if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_HORIZ) != 0)
           {
               return LbSpriteDrawRemapUsingScalingUpDataTrans2RL(outbuf, scanline, outheight, xstep, ystep, src_buf, cmap, render_ghost);
           }
@@ -1281,7 +1282,7 @@ TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct Tb
         }
         else
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+          if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_HORIZ) != 0)
           {
               return LbSpriteDrawRemapUsingScalingUpDataSolidRL(outbuf, scanline, outheight, xstep, ystep, src_buf, cmap);
           }
@@ -1293,9 +1294,9 @@ TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct Tb
     }
     else
     {
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
+        if ((RendererGetDrawFlags() & Lb_SPRITE_TRANSPAR4) != 0)
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+          if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_HORIZ) != 0)
           {
               return LbSpriteDrawRemapUsingScalingDownDataTrans1RL(outbuf, scanline, outheight, xstep, ystep, src_buf, cmap, render_ghost);
           }
@@ -1305,9 +1306,9 @@ TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct Tb
           }
         }
         else
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
+        if ((RendererGetDrawFlags() & Lb_SPRITE_TRANSPAR8) != 0)
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+          if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_HORIZ) != 0)
           {
               return LbSpriteDrawRemapUsingScalingDownDataTrans2RL(outbuf, scanline, outheight, xstep, ystep, src_buf, cmap, render_ghost);
           }
@@ -1318,7 +1319,7 @@ TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct Tb
         }
         else
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+          if ((RendererGetDrawFlags() & Lb_SPRITE_FLIP_HORIZ) != 0)
           {
               return LbSpriteDrawRemapUsingScalingDownDataSolidRL(outbuf, scanline, outheight, xstep, ystep, src_buf, cmap);
           }

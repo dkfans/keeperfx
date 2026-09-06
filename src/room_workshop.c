@@ -37,6 +37,7 @@
 #include "player_instances.h"
 #include "creature_states.h"
 #include "keeperfx.hpp"
+#include "api.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -601,7 +602,7 @@ long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, cons
     }
 }
 
-short process_player_manufacturing(PlayerNumber plyr_idx)
+static short process_player_manufacturing(PlayerNumber plyr_idx)
 {
     SYNCDBG(7,"Starting for player %d",(int)plyr_idx);
 
@@ -644,22 +645,24 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
 
     switch (dungeon->manufacture_class)
     {
-    case TCls_Trap:
-        dungeon->lvstats.manufactured_traps++;
-        // If that's local player - make a message
-        if (is_my_player_number(plyr_idx))
-            output_message(SMsg_ManufacturedTrap, 0);
-        break;
-    case TCls_Door:
-        dungeon->lvstats.manufactured_doors++;
-        // If that's local player - make a message
-        if (is_my_player_number(plyr_idx))
-            output_message(SMsg_ManufacturedDoor, 0);
-        break;
-    default:
-        ERRORLOG("Invalid type of new manufacture: %d (%s)",(int)dungeon->manufacture_class, thing_class_code_name(dungeon->manufacture_class));
-        return false;
+        case TCls_Trap:
+            dungeon->lvstats.manufactured_traps++;
+            // If that's local player - make a message
+            if (is_my_player_number(plyr_idx))
+                output_message(SMsg_ManufacturedTrap, 0);
+            break;
+        case TCls_Door:
+            dungeon->lvstats.manufactured_doors++;
+            // If that's local player - make a message
+            if (is_my_player_number(plyr_idx))
+                output_message(SMsg_ManufacturedDoor, 0);
+            break;
+        default:
+            ERRORLOG("Invalid type of new manufacture: %d (%s)",(int)dungeon->manufacture_class, thing_class_code_name(dungeon->manufacture_class));
+            return false;
     }
+ 
+    send_manufacture_complete_event(dungeon, plyr_idx);
 
     dungeon->manufacture_progress -= (k << 8);
     dungeon->turn_last_manufacture = get_gameturn();
@@ -670,6 +673,21 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     }
     dungeon->manufacture_class = TCls_Empty;
     return false;
+}
+
+void update_manufacturing(void)
+{
+    int i;
+    struct PlayerInfo *player;
+    SYNCDBG(16,"Starting");
+    for (i=0; i<PLAYERS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player) && (player->is_active == 1))
+        {
+            process_player_manufacturing(i);
+        }
+    }
 }
 
 EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng)
@@ -923,4 +941,39 @@ void count_crates_in_room(struct Room *room)
     }
     room->capacity_used_for_storage = room->used_capacity;
 }
+
+void send_manufacture_complete_event(struct Dungeon *dungeon, PlayerNumber plyr_idx)
+{   
+    const char *kind_description = NULL;
+    const char *class_description = NULL;
+
+    switch (dungeon->manufacture_class)
+    {
+        case TCls_Trap:
+            kind_description = trap_code_name(dungeon->manufacture_kind);
+            class_description = "Trap";
+            break;
+        case TCls_Door:
+            kind_description = door_code_name(dungeon->manufacture_kind);
+            class_description = "Door";
+            break;
+        default:
+            ERRORLOG("Invalid manufacture class %d", (int)dungeon->manufacture_class);
+            return;
+    }
+
+    struct ApiEventData event_data[] = {
+        {"player", API_EVENT_DATA_INT32, {.int32_value = (int32_t)plyr_idx}},
+        {"class", API_EVENT_DATA_INT32, {.int32_value = (int32_t)dungeon->manufacture_class}},
+        {"class_description", API_EVENT_DATA_STRING, {.string_value = class_description}},
+        {"kind", API_EVENT_DATA_INT32, {.int32_value = (int32_t)dungeon->manufacture_kind}},
+        {"kind_description", API_EVENT_DATA_STRING, {.string_value = kind_description}},
+        {"level_number", API_EVENT_DATA_INT32, {.int32_value = get_loaded_level_number()}}
+    };
+
+    api_event_with_data("MANUFACTURE_COMPLETED",event_data,sizeof(event_data) / sizeof(event_data[0]));
+
+}
+
+
 /******************************************************************************/

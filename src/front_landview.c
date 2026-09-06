@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_landview.h"
 
 #include "globals.h"
@@ -40,6 +41,7 @@
 #include "config_keeperfx.h"
 #include "config_settings.h"
 #include "game_lghtshdw.h"
+#include "game_merge.h"
 #include "light_data.h"
 #include "lvl_filesdk1.h"
 #include "room_list.h"
@@ -55,6 +57,8 @@
 #include "front_input.h"
 #include "net_game.h"
 #include "keeperfx.hpp"
+#include "custom_sprites.h"
+#include "api.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -304,124 +308,142 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         return NULL;
     if (lvinfo->state == LvSt_Hidden)
         return NULL;
-
-    int ensign_sprite_index = lvinfo->ensign_type;
-    if (lvinfo->level_type & LvKind_IsSingle)
+    struct LevelEnsignOverride *override = get_level_ensign_override(lvinfo->lvnum);   
+    unsigned short ensign_type = override != NULL && override->active ? override->ensign_type : lvinfo->ensign_type;
+    if (ensign_type >= CUSTOM_ENSIGN_BASE)
     {
-        switch (lvinfo->state)
+        int frame = 0;
+        if (lvinfo->level_type & LvKind_IsMulti){
+            if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
+                frame = 1;
+        } else {
+            frame = anim_frame & 3;
+            if (lvinfo->lvnum == mouse_over_lvnum)
+                frame += 4;
+        }
+        spr = get_custom_ensign_sprite(
+            map_flag,
+            ensign_type - CUSTOM_ENSIGN_BASE,
+            frame);
+    } else {
+        int ensign_sprite_index = ensign_type;
+        if (lvinfo->level_type & LvKind_IsSingle)
         {
-        case LvSt_Visible:
+            switch (lvinfo->state)
+            {
+            case LvSt_Visible:
+                if (ensign_sprite_index == 0)
+                    ensign_sprite_index = EnsFullFlag;
+                if (lvinfo->lvnum == mouse_over_lvnum)
+                    ensign_sprite_index += 4;
+                spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
+                break;
+            default:
+                ensign_sprite_index = get_disabled_flag_option(ensign_type, EnsFullFlag);
+                spr = get_map_ensign(ensign_sprite_index);
+                break;
+            }
+        } else
+        if (lvinfo->level_type & LvKind_IsBonus)
+        {
             if (ensign_sprite_index == 0)
-                ensign_sprite_index = EnsFullFlag;
-            if (lvinfo->lvnum == mouse_over_lvnum)
-                ensign_sprite_index += 4;
-            spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
-            break;
-        default:
-            ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsFullFlag);
-            spr = get_map_ensign(ensign_sprite_index);
-            break;
-        }
-    } else
-    if (lvinfo->level_type & LvKind_IsBonus)
-    {
-        if (ensign_sprite_index == 0)
-            ensign_sprite_index = EnsBonus;
-        switch (lvinfo->state)
-        {
-        case LvSt_Visible:
-            if (lvinfo->lvnum == mouse_over_lvnum)
-                ensign_sprite_index += 4;
-            spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
-            break;
-        default:
-            ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsTutorial);
-            spr = get_map_ensign(ensign_sprite_index);
-            break;
-        }
-    } else
-    if (lvinfo->level_type & LvKind_IsExtra)
-    {
-        if (ensign_sprite_index == 0)
-        {
-            if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
+                ensign_sprite_index = EnsBonus;
+            switch (lvinfo->state)
             {
-                ensign_sprite_index = EnsNewMoon;
-            }
-            else
-            {
-                ensign_sprite_index = EnsFullMoon;
-            }
-        }
-        switch (lvinfo->state)
-        {
             case LvSt_Visible:
                 if (lvinfo->lvnum == mouse_over_lvnum)
                     ensign_sprite_index += 4;
                 spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
                 break;
             default:
+                ensign_sprite_index = get_disabled_flag_option(ensign_type, EnsTutorial);
+                spr = get_map_ensign(ensign_sprite_index);
+                break;
+            }
+        } else
+        if (lvinfo->level_type & LvKind_IsExtra)
+        {
+            if (ensign_sprite_index == 0)
+            {
                 if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
                 {
-                    ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsNewMoon);
+                    ensign_sprite_index = EnsNewMoon;
                 }
                 else
                 {
-                    ensign_sprite_index = get_disabled_flag_option(lvinfo->ensign_type, EnsFullMoon);
+                    ensign_sprite_index = EnsFullMoon;
                 }
-                spr = get_map_ensign(ensign_sprite_index);
-                break;
-        }
-    } else
-    if (lvinfo->level_type & LvKind_IsMulti) //Note that multiplayer flags have different file
-    {
-        if (frontend_menu_state == FeSt_NETLAND_VIEW)
+            }
+            switch (lvinfo->state)
+            {
+                case LvSt_Visible:
+                    if (lvinfo->lvnum == mouse_over_lvnum)
+                        ensign_sprite_index += 4;
+                    spr = get_map_ensign(ensign_sprite_index + (anim_frame & 3));
+                    break;
+                default:
+                    if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
+                    {
+                        ensign_sprite_index = get_disabled_flag_option(ensign_type, EnsNewMoon);
+                    }
+                    else
+                    {
+                        ensign_sprite_index = get_disabled_flag_option(ensign_type, EnsFullMoon);
+                    }
+                    spr = get_map_ensign(ensign_sprite_index);
+                    break;
+            }
+        } else
+        if (lvinfo->level_type & LvKind_IsMulti) //Note that multiplayer flags have different file
         {
-            switch (lvinfo->players)
+            if (frontend_menu_state == FeSt_NETLAND_VIEW)
             {
-            case 2:
-                ensign_sprite_index = 5;
-                break;
-            case 3:
-                ensign_sprite_index = 7;
-                break;
-            case 4:
-                ensign_sprite_index = 9;
-                break;
-            default:
-                ensign_sprite_index = 5;
-                break;
+                switch (lvinfo->players)
+                {
+                case 2:
+                    ensign_sprite_index = 5;
+                    break;
+                case 3:
+                    ensign_sprite_index = 7;
+                    break;
+                case 4:
+                    ensign_sprite_index = 9;
+                    break;
+                default:
+                    ensign_sprite_index = 5;
+                    break;
+                }
+                if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
+                    ensign_sprite_index++;
+                if (ensign_type == EnsCoop)
+                {
+                    ensign_sprite_index = ensign_sprite_index + 6;
+                }
             }
-            if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
-                ensign_sprite_index++;
-            if (lvinfo->ensign_type == EnsCoop)
+            else
             {
-                ensign_sprite_index = ensign_sprite_index + 6;
+                switch (lvinfo->players)
+                {
+                case 2:
+                    ensign_sprite_index = EnsDisMulti2;
+                    break;
+                case 3:
+                    ensign_sprite_index = EnsDisMulti3;
+                    break;
+                case 4:
+                    ensign_sprite_index = EnsDisMulti4;
+                    break;
+                default:
+                    ensign_sprite_index = EnsDisMulti2;
+                    break;
+                }
             }
+            spr = get_map_ensign(ensign_sprite_index);
         }
         else
         {
-            switch (lvinfo->players)
-            {
-            case 2:
-                ensign_sprite_index = EnsDisMulti2;
-                break;
-            case 3:
-                ensign_sprite_index = EnsDisMulti3;
-                break;
-            case 4:
-                ensign_sprite_index = EnsDisMulti4;
-                break;
-            default:
-                ensign_sprite_index = EnsDisMulti2;
-                break;
-            }
+            spr = get_map_ensign(EnsDisFull);
         }
-        spr = get_map_ensign(ensign_sprite_index);
-    }
-    else
-    {
-        spr = get_map_ensign(EnsDisFull);
     }
     if (spr == &dummy_sprite)
         ERRORLOG("Can't get Land view Ensign sprite");
@@ -993,7 +1015,7 @@ void process_zoom_palette(void)
     for (int i = 0; i < PALETTE_SIZE; i++) {
         palette[i] = frontend_palette[i] * remaining / half_length;
     }
-    LbPaletteSet(palette);
+    RendererPaletteSet(palette);
 }
 
 TbBool frontmap_update_zoom(void)
@@ -1016,8 +1038,8 @@ TbBool frontmap_update_zoom(void)
         if (map_info.state_trigger != FeSt_INITIAL)
         {
             frontend_set_state(map_info.state_trigger);
-            LbScreenClear(0);
-            LbScreenSwap();
+            RendererClearScreen(0);
+            RendererPresentFrame();
             map_info.state_trigger = FeSt_INITIAL;
             return true;
         }
@@ -1030,7 +1052,7 @@ TbBool frontmap_load(void)
 {
     SYNCDBG(4,"Starting");
     memset(scratch, 0, PALETTE_SIZE);
-    LbPaletteSet(scratch);
+    RendererPaletteSet(scratch);
     initialize_description_speech();
     mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
     frontend_load_data_from_cd();
@@ -1041,16 +1063,18 @@ TbBool frontmap_load(void)
         return false;
     }
     switch (campaign.land_markers) {
-    case LndMk_PINPOINTS:
-        map_flag = load_spritesheet("ldata/lndflag_pin.dat", "ldata/lndflag_pin.tab");
-        break;
-    default:
-        ERRORLOG("Unsupported land markers type %d",(int)campaign.land_markers);
-        // Fall through
-    case LndMk_ENSIGNS:
-        map_flag = load_spritesheet("ldata/lndflag_ens.dat", "ldata/lndflag_ens.tab");
-        break;
+        case LndMk_PINPOINTS:
+            map_flag = load_spritesheet("ldata/lndflag_pin.dat", "ldata/lndflag_pin.tab");
+            break;
+        default:
+            ERRORLOG("Unsupported land markers type %d",(int)campaign.land_markers);
+            // Fall through
+        case LndMk_ENSIGNS:
+            map_flag = load_spritesheet("ldata/lndflag_ens.dat", "ldata/lndflag_ens.tab");
+            break;
     }
+    // append any custom ensigns to the sheet
+    map_flag = load_custom_ensigns_into_sheet(map_flag, frontend_palette);    
     if (!map_flag)
     {
         ERRORLOG("Unable to load Land View Screen sprites");
@@ -1094,6 +1118,7 @@ TbBool frontmap_load(void)
     fe_computer_players = 0;
     update_ensigns_visibility();
     SYNCDBG(7,"Finished");
+    api_event("CAMPAIGN_LOADED");
     return true;
 }
 
@@ -1217,7 +1242,7 @@ void draw_map_level_descriptions(void)
 {
   if ((fe_net_level_selected > 0) || (net_level_hilighted > 0))
   {
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     LevelNumber lvnum = fe_net_level_selected;
     if (lvnum <= 0)
       lvnum = net_level_hilighted;

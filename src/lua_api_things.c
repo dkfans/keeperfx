@@ -28,6 +28,7 @@
 #include "creature_states_mood.h"
 #include "thing_stats.h"
 #include "local_camera.h"
+#include "light_data.h"
 
 #include "lua_base.h"
 #include "lua_params.h"
@@ -165,8 +166,9 @@ static int lua_transform_creature(lua_State* L)
         return 0;
     }
 
-    grow_up_creature(thing, crtr_id, crtr_level);
-    return 0;
+    struct Thing* newtng = grow_up_creature(thing, crtr_id, crtr_level);
+    lua_pushThing(L, newtng);
+    return 1;
 }
 
 static int lua_stun_creature(lua_State* L)
@@ -179,6 +181,35 @@ static int lua_stun_creature(lua_State* L)
         cctrl->conscious_back_turns = luaL_checkinteger(L, 2);
     }
 
+    return 0;
+}
+
+static int lua_remove_creature_from_play(lua_State *L)
+{
+    struct Thing *thing = luaL_checkCreature(L, 1);
+    lua_Integer turns = luaL_checkinteger(L, 2);
+    luaL_argcheck(L, (turns > 0) && (turns <= INT32_MAX), 2, "turns must be between 1 and 2147483647");
+    if (thing_is_picked_up(thing)) {
+        return luaL_error(L, "creature is already out of play");
+    }
+    if (is_thing_some_way_controlled(thing)) {
+        prepare_to_controlled_creature_death(thing);
+    }
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    initialise_thing_state(thing, CrSt_CreatureOutOfPlay);
+    clear_flag(thing->state_flags, TF1_FallingIntoAbyss);
+    set_flag(cctrl->creature_state_flags, TF2_CreatureOutOfPlay);
+    clear_thing_acceleration(thing);
+    clear_thing_velocity(thing);
+    cctrl->wait_to_turn = get_gameturn() + (GameTurn)turns;
+    if (thing->light_id != 0) {
+        light_turn_light_off(thing->light_id);
+    }
+    if (thing->snd_emitter_id != 0) {
+        S3DDestroySoundEmitterAndSamples(thing->snd_emitter_id);
+        thing->snd_emitter_id = 0;
+    }
+    place_thing_in_creature_controlled_limbo(thing);
     return 0;
 }
 
@@ -461,6 +492,14 @@ static int thing_set_field(lua_State *L) {
         {
             return luaL_error(L, "Field '%s' is not writable on Trap thing", key);
         }
+    } else if (thing_is_special_box(thing))
+    {
+        if (strcmp(key, "box_kind") == 0) {
+            thing->custom_box.box_kind = luaL_checkinteger(L, 3);
+        } else
+        {
+            return luaL_error(L, "Field '%s' is not writable on Trap thing", key);
+        }
     } else
     {
         return luaL_error(L, "Field '%s' is not writable on Thing", key);
@@ -555,6 +594,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, cctrl->hunger_level);
         } else if (strcmp(key, "hunger_loss") == 0) {
             lua_pushinteger(L, cctrl->hunger_loss);
+        } else if (strcmp(key, "lair") == 0) {
+            lua_pushThing(L, thing_get(cctrl->lairtng_idx));
         } else if (strcmp(key, "opponents_melee_count") == 0) {
             lua_pushinteger(L, cctrl->opponents_melee_count);
         } else if (strcmp(key, "opponents_ranged_count") == 0) {
@@ -610,6 +651,13 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, thing->trap.shooting_finished_turn);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Trap thing", key);
+        }
+    } else if (thing_is_special_box(thing))
+    {
+        if (strcmp(key, "box_kind") == 0) {
+            lua_pushinteger(L, thing->custom_box.box_kind);
+        } else {
+            return luaL_error(L, "Unknown field or method '%s' for Special box thing", key);
         }
     } else {
         return luaL_error(L, "Unknown or unavailable field or method '%s' for Thing", key);
@@ -687,6 +735,7 @@ static const struct luaL_Reg thing_methods[] = {
     {"walk_to"                      ,lua_creature_walk_to               },
     {"kill"                         ,lua_kill_creature                  },
     {"stun"                         ,lua_stun_creature                  },
+    {"remove_from_play"             ,lua_remove_creature_from_play     },
     {"destroy"                      ,lua_destroy_object                 },
     {"delete"                       ,lua_delete_thing                   },
     {"transform"                    ,lua_transform_creature             },

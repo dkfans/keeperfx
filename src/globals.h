@@ -64,6 +64,7 @@
 #include <algorithm>
 using std::min;
 using std::max;
+using std::clamp;
 extern "C" {
 #endif
 

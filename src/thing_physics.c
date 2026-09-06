@@ -76,7 +76,7 @@ void destroy_thing(struct Thing* thing)
 
 TbBool thing_touching_floor(const struct Thing *thing)
 {
-    return (thing->floor_height == thing->mappos.z.val);
+    return (thing->floor_height == thing->mappos.z.val) && !subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
 TbBool thing_touching_flight_altitude(const struct Thing *thing)
@@ -667,11 +667,13 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
     MapSubtlCoord stl_y_end = coord_subtile(pos->y.val + radius);
+    if ((stl_x_beg <= 0) || (stl_x_end >= game.map_subtiles_x) || (stl_y_beg <= 0) || (stl_y_end >= game.map_subtiles_y))
+        return 1;
     for (MapSubtlCoord stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
         for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
         {
-            if (map_is_solid_at_height(stl_x, stl_y, height_beg, height_end)) {
+            if (((height_beg >= 0) || !subtile_has_abyss_on_top(stl_x, stl_y)) && map_is_solid_at_height(stl_x, stl_y, height_beg, height_end)) {
                 return 1;
             }
         }
@@ -691,19 +693,7 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
     {
         for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
         {
-            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
-                return true;
-            }
-            int floor_stl = get_map_floor_filled_subtiles(mapblk);
-            if (subtile_coord(floor_stl,0) > z_beg) {
-                return true;
-            }
-            int ceiln_stl = get_map_ceiling_filled_subtiles(mapblk);
-            if (ceiln_stl == 0) {
-                ceiln_stl = get_mapblk_filled_subtiles(mapblk);
-            }
-            if (subtile_coord(ceiln_stl,0) < z_end) {
+            if (((z_beg >= 0) || !subtile_has_abyss_on_top(stl_x, stl_y)) && map_is_solid_at_height(stl_x, stl_y, z_beg, z_end)) {
                 return true;
             }
         }
@@ -818,6 +808,7 @@ void clear_thing_acceleration(struct Thing* thing)
     thing->veloc_push_add.x.val = 0;
     thing->veloc_push_add.y.val = 0;
     thing->veloc_push_add.z.val = 0;
+    clear_flag(thing->state_flags, TF1_PushAdd);
 }
 
 void clear_thing_velocity(struct Thing* thing)
@@ -825,6 +816,10 @@ void clear_thing_velocity(struct Thing* thing)
     thing->veloc_base.x.val = 0;
     thing->veloc_base.y.val = 0;
     thing->veloc_base.z.val = 0;
+    thing->veloc_push_once.x.val = 0;
+    thing->veloc_push_once.y.val = 0;
+    thing->veloc_push_once.z.val = 0;
+    clear_flag(thing->state_flags, TF1_PushOnce);
 }
 
 /**
@@ -899,12 +894,12 @@ TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing)
     return false;
 }
 
-unsigned short push_thingz_against_wall_at(const struct Thing *thing, const struct Coord3d *pos)
+MapCoord push_thingz_against_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
   unsigned short clipbox_size = thing->clipbox_size_z;
   long height = get_ceiling_height_above_thing_at(thing, pos);
-  short z_thing = (short)thing->mappos.z.val;
-  short z_pos = (short)pos->z.val;
+  MapCoord z_thing = thing->mappos.z.val;
+  MapCoord z_pos = pos->z.val;
   if ( (height - 1) <= (z_pos + clipbox_size) )
   {
     return (height - clipbox_size) - 1;
@@ -915,7 +910,7 @@ unsigned short push_thingz_against_wall_at(const struct Thing *thing, const stru
   }
   if ( z_pos < z_thing )
   {
-    return (z_pos & 0xFF00) + COORD_PER_STL;
+    return (z_pos & 0xFFFFFF00) + COORD_PER_STL;
   }
   return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) + 255);
 }

@@ -34,6 +34,37 @@
             "logging": {
                 "moduleLoad": false
             }
+        },
+        {
+            // Native remote debug on a Steam Deck (or any Linux box) over gdbserver.
+            // First deploy + start the server:  scripts/deploy-to-deck.sh --gdb
+            // then launch this config to attach. See docs/steam-deck.md.
+            "name": "Attach to Steam Deck (gdbserver)",
+            "type": "cppdbg",
+            "request": "launch",
+            "MIMode": "gdb",
+            // Local copy of the SAME binary you deployed - carries the symbols the
+            // debugger reads. Point this at your build output (e.g. out/keeperfx).
+            "program": "${workspaceFolder}/out/keeperfx",
+            "miDebuggerServerAddress": "steamdeck:2345",
+            "cwd": "${workspaceFolder}",
+            // Map the on-Deck source path back to your working copy so breakpoints
+            // resolve. Left side is where the binary was built; adjust if needed.
+            "sourceFileMap": {
+                "${workspaceFolder}": "${workspaceFolder}"
+            },
+            "windows": {
+                "miDebuggerPath": "${workspaceFolder}/.vscode/gdb.exe"
+            },
+            "linux": {
+                "miDebuggerPath": "gdb"
+            },
+            "setupCommands": [
+                {"description": "Enable pretty-printing for gdb", "text": "-enable-pretty-printing", "ignoreFailures": true},
+                {"description": "Set Disassembly Flavor to Intel", "text": "-gdb-set disassembly-flavor intel", "ignoreFailures": true}
+            ],
+            "externalConsole": false,
+            "stopAtEntry": false
         }
     ]
 }

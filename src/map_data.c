@@ -361,7 +361,8 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
     MapSubtlCoord stl_x = coord_subtile(cor_x);
     MapSubtlCoord stl_y = coord_subtile(cor_y);
     MapCoord height;
-    if (cor_z < -1)
+    TbBool over_abyss = subtile_has_abyss_on_top(stl_x, stl_y);
+    if ((cor_z < -1) && !over_abyss)
     {
         if (flags & MapCoord_ClipZ) cor_z = -1;
         corrected = true;
@@ -385,7 +386,7 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
     }
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    if ( (!slab_is_liquid(slb_x, slb_y)) && (!slab_is_door(slb_x, slb_y)) && (!slab_is_wall(slb_x, slb_y)) )
+    if ((!over_abyss) && (!slab_is_liquid(slb_x, slb_y)) && (!slab_is_door(slb_x, slb_y)) && (!slab_is_wall(slb_x, slb_y)))
     {
         height = get_floor_height(stl_x, stl_y);
         if (cor_z < height)

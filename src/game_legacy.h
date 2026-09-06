@@ -330,6 +330,7 @@ struct Game {
     int32_t flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
     char loaded_swipe_idx;
     unsigned char active_messages_count;
+    unsigned char active_script_var_count;
     int32_t bonus_time;
     struct Coord3d armageddon_mappos;
     GameTurn armageddon_cast_turn;
@@ -375,11 +376,7 @@ struct Game {
     unsigned char script_timer_id;
     uint32_t script_timer_limit;
     TbBool timer_real;
-    unsigned char script_value_type;
-    unsigned char script_value_id;
-    PlayerNumber script_variable_player;
-    int32_t script_variable_target;
-    unsigned char script_variable_target_type;
+    struct ScriptVariable script_variables[DISPLAY_VARIABLES_LIMIT];   
     TbBool heart_lost_display_message;
     TbBool heart_lost_quick_message;
     uint32_t heart_lost_message_id;

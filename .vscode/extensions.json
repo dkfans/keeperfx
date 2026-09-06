@@ -1,5 +1,8 @@
 {
 	"recommendations": [
 		"ms-vscode.cpptools",
+		"ms-vscode.cmake-tools",
+		// For the Steam Deck / remote-Linux dev loop (see docs/steam-deck.md):
+		"ms-vscode-remote.remote-ssh",
 	],
 }

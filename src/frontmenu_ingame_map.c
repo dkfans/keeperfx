@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_ingame_map.h"
 
 #include "globals.h"
@@ -73,6 +74,7 @@ enum PanelColourIds
     PnC_Tagged_Gems   = 10,
     PnC_Gems          = 11,
     //12-255 left free for future use
+    PnC_Abyss         = 12,
     PnC_RoomsStart    = 256,  //rooms 256-2559  (9*256 entries) TERRAIN_ITEMS_MAX
     PnC_DoorsStart    = 2560, //doors 2560-38559 (9*2000*2 entries) TRAPDOOR_TYPES_MAX
     PnC_DoorsStartLocked  = 2569,
@@ -639,7 +641,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     if (!thing_exists(thing)) {
         return 0;
     }
-    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+    RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
 
     const struct Coord2d pos = thing_minimap_position(thing, cam, zoom);
     RealScreenCoord basepos;
@@ -675,7 +677,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
             panel_map_draw_pixel((draw_x >> 8) + draw_square[p].delta_x, (draw_y >> 8) + draw_square[p].delta_y, col);
         }
     }
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+    RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
     return 1;
 }
 
@@ -738,6 +740,10 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
         if (slb->kind == SlbT_ROCK_FLOOR)
         {
             col = PnC_RockFloor;
+        }
+        else
+        if (subtile_has_abyss_on_top(stl_x, stl_y)) {
+            col = PnC_Abyss;
         }
         else
         if ((mapblk->flags & SlbAtFlg_Filled) != 0)
@@ -1031,6 +1037,7 @@ void setup_panel_colors(void)
         PanelColours[n + PnC_purplePath]    = 255;
         PanelColours[n + PnC_Gems]      = 102 + (pixmap.ghost[bkcol] >> 6);
         PanelColours[n + PnC_RockFloor] = 145;
+        PanelColours[n + PnC_Abyss]     = pixmap.map_abyss[bkcol];
 
         n = pncol_idx + PnC_RoomsStart;
         int i;

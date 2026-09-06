@@ -347,7 +347,7 @@ struct CreatureModelConfig {
     unsigned short jobs_anger;
     short annoy_others_leaving;
     unsigned char slaps_to_kill;
-    ThingModel lair_enemy[LAIR_ENEMY_MAX];
+    ThingModel lair_enemy[CREATURE_TYPES_MAX];
     unsigned char rebirth;
     TbBool can_see_invisible;
     TbBool can_go_locked_doors;

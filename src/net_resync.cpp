@@ -31,6 +31,7 @@
 #include "lua_base.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
+#include "keeperfx.hpp"
 #include "post_inc.h"
 
 #ifdef __cplusplus

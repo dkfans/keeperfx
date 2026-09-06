@@ -74,7 +74,7 @@ struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel
 TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmodel);
 long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind);
 TbBool get_next_manufacture(struct Dungeon *dungeon);
-short process_player_manufacturing(PlayerNumber plyr_idx);
+void update_manufacturing(void);
 EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng);
 
 TbBool is_trap_buildable(PlayerNumber plyr_idx, long tngmodel);
@@ -85,6 +85,7 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
 void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos);
 void count_and_reposition_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos);
 void count_crates_in_room(struct Room *room);
+void send_manufacture_complete_event(struct Dungeon *dungeon, PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

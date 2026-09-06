@@ -7352,3 +7352,9 @@ msgstr "/fxdata/%.39s 로드되지 않았습니다."
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "MOD로 /mods/에 설치하세요."
+
+#: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "서버 연결이 끊어졌습니다."

@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "gui_frontbtns.h"
 
 #include "globals.h"
@@ -793,7 +794,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     LbSpriteDrawResized(x, y, units_per_px, spr);
     if (text != NULL)
     {
-        lbDisplay.DrawFlags = drw_flags;
+        RendererSetDrawFlags(drw_flags);
         LbTextSetFont(frontend_font[fntidx]);
         spr = get_frontend_sprite(spridx);
         h = LbTextHeight(text) * units_per_px / 16;

@@ -38,6 +38,7 @@ enum CubePropertiesFlags {
     CPF_IsWater =             0x02,
     CPF_IsSacrificial =       0x04,
     CPF_IsUnclaimedPath =     0x08,
+    CPF_IsAbyss =             0x10,
 };
 
 struct CubeConfigStats {

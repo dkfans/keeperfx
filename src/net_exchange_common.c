@@ -28,7 +28,7 @@
 #include "net_lobby.h"
 #include "packets.h"
 #include "player_data.h"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include "post_inc.h"
 /******************************************************************************/
 
@@ -98,8 +98,8 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
         return Lb_OK;
     }
     char *player_frame = (char *)server_buf + peer_id * frame_size;
-    netstate.users[peer_id].ack = seq_nbr;
     size_t payload_size = message_size - (read_pos - netstate.msg_buffer);
+    TbBool relay_message = true;
     if (message_type == NETMSG_GAMEPLAY_UNSEQUENCED) {
         if (frame_size != sizeof(struct Packet)) {
             WARNLOG("Gameplay frame size mismatch (%u != %u)", (unsigned)frame_size, (unsigned)sizeof(struct Packet));
@@ -117,10 +117,8 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
             return Lb_OK;
         }
         const struct Packet *packets = (const struct Packet *)read_pos;
-        if (peer_id == SERVER_ID
-            && packets[0].turn == get_gameturn()
-            && get_history_packet((PlayerNumber)peer_id, packets[0].turn) == NULL)
-        {
+        relay_message = netstate.users[peer_id].ack != seq_nbr;
+        if (peer_id == SERVER_ID && packets[0].turn == get_gameturn() && get_history_packet((PlayerNumber)peer_id, packets[0].turn) == NULL) {
             host_packet_received = game.process_turn_time;
         }
         for (unsigned char i = 0; i < packet_count; i += 1) {
@@ -140,10 +138,11 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
         }
         memcpy(player_frame, read_pos, frame_size);
     }
+    netstate.users[peer_id].ack = seq_nbr;
     if (frame_peer_id != NULL) {
         *frame_peer_id = peer_id;
     }
-    if (netstate.my_id == SERVER_ID) {
+    if (netstate.my_id == SERVER_ID && relay_message) {
         send_exchange_message(message_type, message_size, peer_id);
     }
     return Lb_OK;

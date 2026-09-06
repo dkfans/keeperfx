@@ -18,6 +18,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "gui_parchment.h"
 
 #include "globals.h"
@@ -219,7 +220,13 @@ enum OverheadMapStyle {
     OMapSt_Gold,
     OMapSt_Gems,
     OMapSt_Wall,
+    OMapSt_Abyss,
 };
+
+static TbPixel get_player_path_colour(unsigned short owner)
+{
+  return player_path_colours[get_player_color_idx(owner % PLAYERS_COUNT)];
+}
 
 static int get_overhead_mapblock_style(const struct Map* mapblk, const struct SlabMap* slb, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx, int gui_frame, TbPixel neutral_colour)
 {
@@ -255,6 +262,9 @@ static int get_overhead_mapblock_style(const struct Map* mapblk, const struct Sl
     }
     if (slb->kind == SlbT_ROCK_FLOOR) {
         return pixmap.ghost[3];
+    }
+    if (subtile_has_abyss_on_top(slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
+        return OMapSt_Abyss;
     }
     if ((mapblk->flags & SlbAtFlg_Filled) != 0) {
         return OMapSt_Wall;
@@ -334,6 +344,8 @@ void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNum
                 add = 102;
             } else if (style == OMapSt_Wall) {
                 remap = &pixmap.ghost[0x1000];
+            } else if (style == OMapSt_Abyss) {
+                remap = pixmap.map_abyss;
             }
             unsigned char* dstline = dstblock;
             for (int32_t y = 0; y < block_size; y++) {
@@ -357,7 +369,7 @@ void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNum
             dstblock += run_width;
         }
     }
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
 }
 
 void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
@@ -374,9 +386,9 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
       {
           long room_visibility = abs(rkind_select - room->kind);
           if ((room_visibility < 2) || (room_visibility >= 4))
-            lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+            RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
           else
-              lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+              RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
           if (room_visibility < 4)
           {
             if (subtile_revealed(room->central_stl_x, room->central_stl_y, plyr_idx))
@@ -394,7 +406,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
           }
         }
     }
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+    RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
 }
 
 int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
@@ -405,7 +417,7 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
         if (player_uses_power_call_to_arms(i))
         {
             struct Dungeon* dungeon = get_dungeon(i);
-            lbDisplay.DrawFlags = Lb_SPRITE_OUTLINE;
+            RendererSetDrawFlags(Lb_SPRITE_OUTLINE);
             const struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CALL2ARMS);
             long m = (4 * ((i + get_gameturn()) & 7) * subtile_slab(powerst->strength[dungeon->cta_power_level]));
             long pos_x = map_area->left + block_size * (int)dungeon->cta_stl_x / STL_PER_SLB;
@@ -670,7 +682,7 @@ void draw_map_level_name(void)
     get_parchment_background_area_rect(&bkgnd_area);
     // Set position
     LbTextSetFont(winfont);
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     int x = bkgnd_area.left;
     int y = bkgnd_area.top;
     int w = bkgnd_area.right - bkgnd_area.left;
@@ -768,9 +780,249 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
     }
 }
 
+static void scale_tmap2(long texture_block_index, long flags, long fade_level, long screen_x, long screen_y, long scaled_width, long scaled_height)
+{
+    if ((scaled_width == 0) || (scaled_height == 0)) {
+        return;
+    }
+    long xstart;
+    long ystart;
+    long xend;
+    long yend;
+    char orient;
+    switch (flags)
+    {
+    case 0:
+        xstart = 0;
+        ystart = 0;
+        xend = 2097151 / scaled_width;
+        yend = 2097151 / scaled_height;
+        orient = 0;
+        break;
+    case 0x10:
+        xstart = 2097151;
+        ystart = 0;
+        xend = -2097151 / scaled_width;
+        yend = 2097151 / scaled_height;
+        orient = 0;
+        break;
+    case 0x20:
+        xstart = 0;
+        ystart = 2097151;
+        xend = 2097151 / scaled_width;
+        yend = -2097151 / scaled_height;
+        orient = 0;
+        break;
+    case 0x30:
+        xstart = 2097151;
+        ystart = 2097151;
+        xend = -2097151 / scaled_width;
+        yend = -2097151 / scaled_height;
+        orient = 0;
+        break;
+    case 0x40:
+        ystart = 0;
+        xstart = 0;
+        yend = 2097151 / scaled_height;
+        xend = 2097151 / scaled_width;
+        orient = 1;
+        break;
+    case 0x50:
+        ystart = 0;
+        xstart = 2097151;
+        yend = 2097151 / scaled_height;
+        xend = -2097151 / scaled_width;
+        orient = 1;
+        break;
+    case 0x60:
+        ystart = 2097151;
+        xstart = 0;
+        yend = -2097151 / scaled_height;
+        xend = 2097151 / scaled_width;
+        orient = 1;
+        break;
+    case 0x70:
+        xstart = 2097151;
+        ystart = 2097151;
+        yend = -2097151 / scaled_height;
+        xend = -2097151 / scaled_width;
+        orient = 1;
+        break;
+    default:
+          return;
+    }
+    long local_screen_x;
+    long local_screen_y;
+    local_screen_x = screen_x;
+    if (local_screen_x < 0)
+    {
+        scaled_width += local_screen_x;
+        if (scaled_width < 0) {
+            return;
+        }
+        xstart -= xend * local_screen_x;
+        local_screen_x = 0;
+    }
+    if (local_screen_x + scaled_width > vec_window_width)
+    {
+        scaled_width = vec_window_width - local_screen_x;
+        if (scaled_width < 0) {
+            return;
+        }
+    }
+    local_screen_y = screen_y;
+    if (local_screen_y < 0)
+    {
+        scaled_height += local_screen_y;
+        if (scaled_height < 0) {
+            return;
+        }
+        ystart -= local_screen_y * yend;
+        local_screen_y = 0;
+    }
+    if (local_screen_y + scaled_height > vec_window_height)
+    {
+        scaled_height = vec_window_height - local_screen_y;
+        if (scaled_height < 0) {
+            return;
+        }
+    }
+    int i;
+    int32_t hlimits[480];
+    int32_t wlimits[640];
+    int32_t *xlim;
+    int32_t *ylim;
+    unsigned char *dbuf;
+    unsigned char *block;
+    if (!orient)
+    {
+        xlim = wlimits;
+        for (i = scaled_width; i > 0; i--)
+        {
+            *xlim = xstart;
+            xlim++;
+            xstart += xend;
+        }
+        ylim = hlimits;
+        for (i = scaled_height; i > 0; i--)
+        {
+            *ylim = ystart;
+            ylim++;
+            ystart += yend;
+        }
+        dbuf = &vec_screen[local_screen_x + local_screen_y * vec_screen_width];
+        block = block_ptrs[texture_block_index];
+        ylim = hlimits;
+        long px;
+        long py;
+        int srcx;
+        int srcy;
+        unsigned char *d;
+        if ( fade_level >= 0 )
+        {
+          for (py = scaled_height; py > 0; py--)
+          {
+              xlim = wlimits;
+              d = dbuf;
+              srcy = (((*ylim) & 0xFF0000u) >> 16);
+              for (px = scaled_width; px > 0; px--)
+              {
+                srcx = (((*xlim) & 0xFF0000u) >> 16);
+                xlim++;
+                *d = pixmap.fade_tables[256 * fade_level + block[(srcy << 8) + srcx]];
+                ++d;
+              }
+              dbuf += vec_screen_width;
+              ylim++;
+          }
+        } else
+        {
+          for (py = scaled_height; py > 0; py--)
+          {
+            xlim = wlimits;
+            d = dbuf;
+            srcy = (((*ylim) & 0xFF0000u) >> 16);
+            for (px = scaled_width; px > 0; px--)
+            {
+              srcx = (((*xlim) & 0xFF0000u) >> 16);
+              xlim++;
+              *d = block[(srcy << 8) + srcx];
+              ++d;
+            }
+            dbuf += vec_screen_width;
+            ylim++;
+          }
+        }
+    } else
+    {
+        ylim = wlimits;
+        for (i = scaled_height; i > 0; i--)
+        {
+          *ylim = ystart;
+          ylim++;
+          ystart += yend;
+        }
+        xlim = hlimits;
+        for (i = scaled_width; i > 0; i--)
+        {
+          *xlim = xstart;
+          xlim++;
+          xstart += xend;
+        }
+        dbuf = &vec_screen[local_screen_x + local_screen_y * vec_screen_width];
+        block = block_ptrs[texture_block_index];
+        ylim = wlimits;
+        long px;
+        long py;
+        int srcx;
+        int srcy;
+        unsigned char *d;
+        if ( fade_level >= 0 )
+        {
+          for (py = scaled_height; py > 0; py--)
+          {
+              xlim = hlimits;
+              d = dbuf;
+              srcy = (((*ylim) & 0xFF0000u) >> 16);
+              for (px = scaled_width; px > 0; px--)
+              {
+                srcx = (((*xlim) & 0xFF0000u) >> 16);
+                xlim++;
+                *d = pixmap.fade_tables[256 * fade_level + block[(srcx << 8) + srcy]];
+                ++d;
+              }
+              dbuf += vec_screen_width;
+              ylim++;
+          }
+        } else
+        {
+          for (py = scaled_height; py > 0; py--)
+          {
+            xlim = hlimits;
+            d = dbuf;
+            srcy = (((*ylim) & 0xFF0000u) >> 16);
+            for (px = scaled_width; px > 0; px--)
+            {
+              srcx = (((*xlim) & 0xFF0000u) >> 16);
+              xlim++;
+              *d = block[(srcx << 8) + srcy];
+              ++d;
+            }
+            dbuf += vec_screen_width;
+            ylim++;
+          }
+        }
+    }
+}
+
+static void draw_texture(int32_t texture_x, int32_t texture_y, int32_t texture_width, int32_t texture_height, int32_t texture_block_index, int32_t flags, int32_t fade_level)
+{
+    scale_tmap2(texture_block_index, flags, fade_level, texture_x / pixel_size, texture_y / pixel_size, texture_width / pixel_size, texture_height / pixel_size);
+}
+
 void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, long draw_tiles_x, long draw_tiles_y, int subtile_size)
 {
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     scrtop_x += 4*units_per_pixel/16;
     scrtop_y -= 4*units_per_pixel/16;
     setup_vecs(lbDisplay.WScreen, 0, lbDisplay.GraphicsScreenWidth, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
@@ -795,9 +1047,9 @@ void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, P
       }
       scr_y += subtile_size;
     }
-    lbDisplay.DrawFlags |= Lb_SPRITE_OUTLINE;
+    RendererAddDrawFlags(Lb_SPRITE_OUTLINE);
     LbDrawBox(scrtop_x, scrtop_y, draw_tiles_x*subtile_size, draw_tiles_y*subtile_size, 0);
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
+    RendererClearDrawFlags(Lb_SPRITE_OUTLINE);
 }
 
 void draw_zoom_box_things(long scrtop_x, long scrtop_y, int stl_x, int stl_y, PlayerNumber plyr_idx, long draw_tiles_x, long draw_tiles_y, int subtile_size)
@@ -949,8 +1201,6 @@ void zoom_to_parchment_map(void)
     if (network_is_active()
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
-      if (!toggle_status_menu(0))
-        clear_flag(game.operation_flags, GOF_ShowPanel);
       set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
       turn_off_roaming_menus();
     } else

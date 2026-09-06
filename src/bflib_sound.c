@@ -798,7 +798,7 @@ long speech_sample_playing(void)
          return false;
      }
      SYNCDBG(17,"Starting");
-     if (Mix_Playing(MIX_SPEECH_CHANNEL))
+     if (is_streamed_sample_playing())
      {
          return true;
      }

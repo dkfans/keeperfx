@@ -71,9 +71,60 @@ const char *continue_game_filename="fx1contn.sav";
 const char *saved_game_filename="fx1g%04d.sav";
 const char *packet_filename="fx1rp%04d.pck";
 
-struct CatalogueEntry save_game_catalogue[TOTAL_SAVE_SLOTS_COUNT];
+/* Dynamically-grown savegame catalogue (see game_saves.h): holds one CatalogueEntry per
+ * reachable save slot. It is sized on load to (highest existing slot + 2), min
+ * SAVE_SLOTS_MIN, and grown on demand when writing to a higher slot, so the slot count
+ * is limited only by disk space. */
+struct CatalogueEntry *save_game_catalogue = NULL;
+long save_game_catalogue_count = 0;      // logical length (slots the menus range over)
+static long save_game_catalogue_capacity = 0;  // number of entries actually allocated
 
 int number_of_saved_games;
+
+/** Grow the catalogue so that index slot is valid; any newly added entries are zeroed
+ *  (not in use). Returns false only on allocation failure. */
+static TbBool ensure_catalogue_slot(long slot)
+{
+    if ((slot < 0) || (slot >= SAVE_SLOTS_LIMIT))
+        return false;
+    if (slot >= save_game_catalogue_capacity)
+    {
+        long newcap = slot + 1;
+        struct CatalogueEntry* p = (struct CatalogueEntry*)realloc(save_game_catalogue,
+            newcap * sizeof(struct CatalogueEntry));
+        if (p == NULL)
+        {
+            ERRORLOG("Cannot grow save catalogue to %ld entries", newcap);
+            return false;
+        }
+        memset(&p[save_game_catalogue_capacity], 0,
+            (newcap - save_game_catalogue_capacity) * sizeof(struct CatalogueEntry));
+        save_game_catalogue = p;
+        save_game_catalogue_capacity = newcap;
+    }
+    if (slot >= save_game_catalogue_count)
+        save_game_catalogue_count = slot + 1;
+    return true;
+}
+
+/** Parse the slot index from a savegame filename "fx1gNNNN.sav" (case-insensitive).
+ *  Returns the index, or -1 if the name does not match the expected pattern. */
+static int save_slot_index_from_filename(const char *fname)
+{
+    if (strncasecmp(fname, "fx1g", 4) != 0)
+        return -1;
+    const char* p = fname + 4;
+    if ((*p < '0') || (*p > '9'))
+        return -1;
+    long idx = atol(p);
+    while ((*p >= '0') && (*p <= '9'))
+        p++;
+    if (strcasecmp(p, ".sav") != 0)
+        return -1;
+    if ((idx < 0) || (idx >= SAVE_SLOTS_LIMIT))
+        return -1;
+    return (int)idx;
+}
 
 #define CONTINUE_GAME_FILE_SIZE (CAMPAIGN_FNAME_LEN + sizeof(LevelNumber) + sizeof(struct IntralevelData))
 /******************************************************************************/
@@ -310,7 +361,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
  */
 TbBool save_game(long slot_num)
 {
-    if ((slot_num < 0) || (slot_num >= TOTAL_SAVE_SLOTS_COUNT))
+    if (!ensure_catalogue_slot(slot_num))
     {
         ERRORLOG("Outranged slot index %d",(int)slot_num);
         return false;
@@ -354,7 +405,7 @@ TbBool is_save_game_loadable(long slot_num)
 
 TbBool load_game(long slot_num)
 {
-    if ((slot_num < 0) || (slot_num >= TOTAL_SAVE_SLOTS_COUNT))
+    if (!ensure_catalogue_slot(slot_num))
     {
         ERRORLOG("Outranged slot index %d",(int)slot_num);
         return false;
@@ -455,14 +506,13 @@ TbBool load_game(long slot_num)
 
     api_event("GAME_LOADED");
     lua_on_game_load();
-
     return true;
 }
 
 int count_valid_saved_games(void)
 {
   number_of_saved_games = 0;
-  for (int i = 0; i < TOTAL_SAVE_SLOTS_COUNT; i++)
+  for (int i = 0; i < save_game_catalogue_count; i++)
   {
       struct CatalogueEntry* centry = &save_game_catalogue[i];
       if ((centry->flags & CEF_InUse) != 0)
@@ -488,7 +538,7 @@ TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textn
 
 TbBool fill_game_catalogue_slot(long slot_num,const char *textname)
 {
-    if ((slot_num < 0) || (slot_num >= TOTAL_SAVE_SLOTS_COUNT))
+    if (!ensure_catalogue_slot(slot_num))
     {
         ERRORLOG("Outranged slot index %d",(int)slot_num);
         return false;
@@ -499,7 +549,7 @@ TbBool fill_game_catalogue_slot(long slot_num,const char *textname)
 
 TbBool game_catalogue_slot_disable(struct CatalogueEntry *game_catalg,unsigned int slot_idx)
 {
-  if (slot_idx >= TOTAL_SAVE_SLOTS_COUNT)
+  if (slot_idx >= (unsigned int)save_game_catalogue_count)
     return false;
   clear_flag(game_catalg[slot_idx].flags, CEF_InUse);
   return true;
@@ -531,8 +581,33 @@ TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct C
 
 TbBool load_game_save_catalogue(void)
 {
+    // Scan the save directory to find the highest existing slot index, so the catalogue
+    // can be sized to exactly the saves that exist plus one free slot to save into.
+    long highest = -1;
+    struct TbFileEntry fe;
+    char* spec = prepare_file_path(FGrp_Save, "fx1g*.sav");
+    struct TbFileFind* ff = LbFileFindFirst(spec, &fe);
+    if (ff != NULL)
+    {
+        do {
+            int idx = save_slot_index_from_filename(fe.Filename);
+            if (idx > highest)
+                highest = idx;
+        } while (LbFileFindNext(ff, &fe) >= 0);
+        LbFileFindEnd(ff);
+    }
+    long needed = highest + 2;               // used slots + one free slot to save into
+    if (needed < SAVE_SLOTS_MIN)
+        needed = SAVE_SLOTS_MIN;
+    if (needed > SAVE_SLOTS_LIMIT)
+        needed = SAVE_SLOTS_LIMIT;
+    if (!ensure_catalogue_slot(needed - 1))
+        return false;
+    save_game_catalogue_count = needed;      // logical length the menus range over
+
+    // (Re)load metadata for every slot in range; missing files leave a zeroed (free) entry.
     long saves_found = 0;
-    for (long slot_num = 0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
+    for (long slot_num = 0; slot_num < save_game_catalogue_count; slot_num++)
     {
         struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
         memset(centry, 0, sizeof(struct CatalogueEntry));

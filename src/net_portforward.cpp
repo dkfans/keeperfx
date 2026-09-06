@@ -17,6 +17,14 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+#endif
 #include "net_portforward.h"
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
@@ -25,11 +33,6 @@
 #include <miniupnpc/miniupnpc.h>
 #include <miniupnpc/upnpcommands.h>
 #include <miniupnpc/upnperrors.h>
-
-#if defined(__MINGW32__)
-// mingw is somewhat broken...
-typedef struct LPMSG *MSG;
-#endif
 
 #define NATPMP_STATICLIB
 #ifdef __WIN32__

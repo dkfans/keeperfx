@@ -88,6 +88,8 @@ TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, P
 void reset_hand_rules(void);
 void script_set_hand_rule(PlayerNumber plyr_idx, long crtr_id,long hand_rule_action,long hand_rule_slot,long hand_rule_type,long param);
 
+void process_things_in_dungeon_hand(void);
+
 enum HandRuleType {
     // hand_rule_test_fns are indexed by these enum values -> reordering or adding new types affects test_fns
     HandRule_Unset,

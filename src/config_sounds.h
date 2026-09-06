@@ -198,6 +198,9 @@ extern int            snd_tunnel_dig_count;
 extern SoundSmplTblID snd_button_click;
 extern SoundSmplTblID snd_buzzer;           /* error buzz */
 extern SoundSmplTblID snd_tab_fall;         /* event notification tab fall */
+extern SoundSmplTblID snd_chat_message[2];
+extern SoundSmplTblID snd_lobby_player_leave;
+extern int            snd_lobby_player_leave_count;
 
 /* Dungeon heart */
 extern SoundSmplTblID snd_heart_engine;     /* heartbeat engine hum (looping) */

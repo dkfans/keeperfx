@@ -13,6 +13,7 @@
 ---@field continue_state creature_state
 ---@field moveto_pos Pos3d should be combined with assigning a state that makes use of it
 ---@field flee_pos Pos3d The position the creature will flee too. For keeper creatures this is their lair
+---@field lair Thing|nil the lair totem of the creature, if it has one
 ---@field max_speed integer the movement speed of the creature after spell modifications
 ---@field gold_held integer gold carried by the creature
 ---@field opponents_count integer number of creatures it is in battle with, combined ranged and melee
@@ -57,6 +58,10 @@ function Creature:kill(killer) end
 ---@param turns? integer Sets conscious_back_turns; the duration of the stun.
 function Creature:stun(turns) end
 
+---Temporarily removes the creature from play.
+---@param turns integer
+function Creature:remove_from_play(turns) end
+
 ---increases creatures level by a given amount
 ---@param levels integer
 function Creature:level_up(levels) end
@@ -67,6 +72,7 @@ function Creature:transfer() end
 ---Transforms the creature into another model
 ---@param creaturemodel creature_type type of creature to transform into
 ---@param level integer xp level the creature gets. Use 0 for random
+---@return Creature|nil newcreature the newly created creature, nil if failed
 function Creature:transform(creaturemodel,level) end
 
 ---Checks if the creature is under enemy custody (e.g. in prison or torture chamber)

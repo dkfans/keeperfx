@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "gui_draw.h"
 
 #include "globals.h"
@@ -110,6 +111,11 @@ void draw_lit_bar64k(long pos_x, long pos_y, int units_per_px, long width)
 }
 
 void draw_slab64k_background(long pos_x, long pos_y, long width, long height)
+{
+    RendererDrawSlabBackground(pos_x, pos_y, width, height);
+}
+
+void draw_slab64k_background_immediate(long pos_x, long pos_y, long width, long height)
 {
     long i;
     long scr_x = pos_x / pixel_size;
@@ -222,12 +228,12 @@ void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, l
     LbSpriteDrawResized(pos_x - scale_ui_value(32), pos_y - scale_ui_value(14), bs_units_per_spr, spr);
     spr = get_button_sprite(GBS_parchment_map_frame_deco_a_bl);
     LbSpriteDrawResized(pos_x - scale_ui_value(34), pos_y + height - scale_ui_value(78), bs_units_per_spr, spr);
-    lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
+    RendererAddDrawFlags(Lb_SPRITE_FLIP_HORIZ);
     spr = get_button_sprite(GBS_parchment_map_frame_deco_a_tl);
     LbSpriteDrawResized(pos_x + width - scale_ui_value(96), pos_y - scale_ui_value(14), bs_units_per_spr, spr);
     spr = get_button_sprite(GBS_parchment_map_frame_deco_a_bl);
     LbSpriteDrawResized(pos_x + width - scale_ui_value(92), pos_y + height - scale_ui_value(78), bs_units_per_spr, spr);
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
+    RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
 }
 
 void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long width, long height)
@@ -263,26 +269,26 @@ void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long 
     LbSpriteDrawResized(x - scale_ui_value_lofi(32), y - scale_ui_value_lofi(14),          bs_units_per_spr, spr);
     spr = get_button_sprite(GBS_parchment_map_frame_deco_a_bl);
     LbSpriteDrawResized(x - scale_ui_value_lofi(34), y + height - scale_ui_value_lofi(78), bs_units_per_spr, spr);
-    lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
+    RendererAddDrawFlags(Lb_SPRITE_FLIP_HORIZ);
     spr = get_button_sprite(GBS_parchment_map_frame_deco_a_tl);
     LbSpriteDrawResized(x + width - scale_ui_value_lofi(96), y - scale_ui_value_lofi(14),          bs_units_per_spr, spr);
     spr = get_button_sprite(GBS_parchment_map_frame_deco_a_bl);
     LbSpriteDrawResized(x + width - scale_ui_value_lofi(92), y + height - scale_ui_value_lofi(78), bs_units_per_spr, spr);
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
+    RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
 }
 
 void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type)
 {
-    unsigned short drwflags_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
+    unsigned short drwflags_mem = RendererGetDrawFlags();
+    RendererClearDrawFlags(Lb_SPRITE_OUTLINE);
     if (style_type == ROUNDSLAB64K_LIGHT) {
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
         LbDrawBox(pos_x + scale_ui_value_lofi(4), pos_y + scale_ui_value_lofi(4), width - scale_ui_value_lofi(8), height - scale_ui_value_lofi(8), 1);
-        lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+        RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
     } else {
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR8);
         LbDrawBox(pos_x + scale_ui_value_lofi(4), pos_y + scale_ui_value_lofi(4), width - scale_ui_value_lofi(8), height - scale_ui_value_lofi(8), 1);
-        lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
+        RendererClearDrawFlags(Lb_SPRITE_TRANSPAR8);
     }
     int x;
     int y;
@@ -319,7 +325,7 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
     LbSpriteDrawResized(pos_x, y,     ps_units_per_spr, spr);
     spr = get_panel_sprite(GPS_message_frame_thin_hex_br);
     LbSpriteDrawResized(x,     y,     ps_units_per_spr, spr);
-    lbDisplay.DrawFlags = drwflags_mem;
+    RendererSetDrawFlags(drwflags_mem);
 }
 
 /**
@@ -438,7 +444,7 @@ int simple_frontend_sprite_width_units_per_px(const struct GuiButton *gbtn, long
  */
 void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text)
 {
-    unsigned long flgmem = lbDisplay.DrawFlags;
+    unsigned long flgmem = RendererGetDrawFlags();
     long cursor_pos = -1;
     static char dtext[TEXT_BUFFER_LENGTH];
     snprintf(dtext, TEXT_BUFFER_LENGTH, "%s", text);
@@ -448,7 +454,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         if ((LbTimerClock() / 100 & 1) == 0)
           cursor_pos = input_field_pos;
         LbLocTextStringConcat(dtext, " ", TEXT_BUFFER_LENGTH);
-        lbDisplay.DrawColour = LbTextGetFontFaceColor();
+        RendererSetDrawColour(LbTextGetFontFaceColor());
         lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
     }
     TbBool low_res = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) );
@@ -486,7 +492,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
     }
     LbTextSetJustifyWindow(x, gbtn->scr_pos_y, width);
     LbTextSetClipWindow(x, gbtn->scr_pos_y, width, gbtn->height);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER | Lb_TEXT_UNDERLNSHADOW;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER | Lb_TEXT_UNDERLNSHADOW);
     if (cursor_pos >= 0) {
         // Mind the order, 'cause inserting makes positions shift
         LbLocTextStringInsert(dtext, "\x0B", cursor_pos+1, TEXT_BUFFER_LENGTH);
@@ -535,7 +541,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    lbDisplay.DrawFlags = flgmem;
+    RendererSetDrawFlags(flgmem);
 }
 
 void draw_message_box_at(long startx, long starty, long box_width, long box_height, long spritesx, long spritesy)
@@ -640,7 +646,7 @@ TbBool draw_text_box(const char *text)
     long starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
     draw_message_box_at(startx, starty, box_width, box_height, spritesx, spritesy);
     // Draw the text inside box
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     int tx_units_per_px = ((box_height / 4) * 13 / 11) * 16 / LbTextLineHeight();
     LbTextSetWindow(startx, starty, box_width, box_height);
     n = LbTextLineHeight() * tx_units_per_px / 16;
@@ -683,7 +689,7 @@ TbBool draw_text_box_top(const char* text, ushort drawflags)
     long starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
     draw_message_box_at(startx, starty, box_width, box_height, spritesx, spritesy);
     // Draw the text inside box
-    lbDisplay.DrawFlags = drawflags;
+    RendererSetDrawFlags(drawflags);
     int tx_units_per_px = ((box_height / 4) * 13 / 11) * 16 / LbTextLineHeight();
     LbTextSetWindow(startx, starty, box_width, box_height);
     n = LbTextLineHeight() * tx_units_per_px / 16;
@@ -708,7 +714,7 @@ void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
     const struct TbSprite *spr;
     int pos_x;
     int i;
-    lbDisplay.DrawFlags = 0;
+    RendererSetDrawFlags(0);
     int pos_y = gbtn->scr_pos_y;
     { // First row
         pos_x = gbtn->scr_pos_x;
@@ -806,10 +812,10 @@ void draw_frontend_sprite_left(long x, long y, int units_per_px, long spridx)
 
 void draw_string64k(long x, long y, int units_per_px, const char * text)
 {
-    unsigned short drwflags_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
+    unsigned short drwflags_mem = RendererGetDrawFlags();
+    RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
     LbTextDrawResized(x, y, units_per_px, text);
-    lbDisplay.DrawFlags = drwflags_mem;
+    RendererSetDrawFlags(drwflags_mem);
 }
 
 TbBool frontmenu_copy_background_at(const struct TbRect *bkgnd_area, int units_per_px)

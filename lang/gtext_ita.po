@@ -7466,3 +7466,9 @@ msgstr "/fxdata/%.39s non è stato caricato."
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Installalo come mod nella cartella /mods/."
+
+#: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "Connessione al server persa."

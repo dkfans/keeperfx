@@ -3,7 +3,7 @@
 #include "bflib_basics.h"
 
 #include <enet6/enet.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -139,7 +139,7 @@ void lan_refresh_sessions(void)
             return;
         }
     }
-    Uint32 now = SDL_GetTicks();
+    Uint32 now = (Uint32)SDL_GetTicks();
     if (now - last_broadcast_milliseconds >= LAN_BROADCAST_INTERVAL_MS) {
         ENetAddress broadcast_address;
         enet_address_set_host_ip(&broadcast_address, "255.255.255.255");

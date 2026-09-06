@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "power_hand.h"
 
 #include "globals.h"
@@ -220,6 +221,9 @@ TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber
 
 long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
+    if (flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
+        return false;
+    }
     if (thing_is_creature(thing) && flag_is_set(get_creature_model_flags(thing), CMF_CannotPickUp)) {
         return false;
     }
@@ -541,7 +545,7 @@ void draw_power_hand(void)
         return;
     if (game.small_map_state == 2)
         return;
-    lbDisplay.DrawFlags = 0x00;
+    RendererSetDrawFlags(0x00);
     if (player->view_type != PVT_DungeonTop)
         return;
     // Color rendering array pointers used by draw_keepersprite()
@@ -648,13 +652,13 @@ void draw_power_hand(void)
                 struct CreatureModelConfig* crconf = creature_stats_get(picktng->model);
                 if (crconf->transparency_flags == TRF_Transpar_8)
                 {
-                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-                    lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
+                    RendererAddDrawFlags(Lb_SPRITE_TRANSPAR8);
+                    RendererClearDrawFlags(Lb_SPRITE_REMAP);
                 }
                 else if (crconf->transparency_flags == TRF_Transpar_4)
                 {
-                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-                    lbDisplay.DrawFlags &= ~Lb_SPRITE_REMAP;
+                    RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
+                    RendererClearDrawFlags(Lb_SPRITE_REMAP);
                 }
                 else if(crconf->transparency_flags == TRF_Transpar_Alpha)
                 {
@@ -663,7 +667,7 @@ void draw_power_hand(void)
 
                 process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
                     picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
-                lbDisplay.DrawFlags = 0;
+                RendererSetDrawFlags(0);
                 EngineSpriteDrawUsingAlpha = 0;
             } else
             {
@@ -1389,9 +1393,8 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, CrtrExpLe
 
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    long i;
-    player = get_player(plyr_idx);
+    struct PlayerInfo *player = get_player(plyr_idx);
+    short i;
     if (!thing_is_pickable_by_hand(player, thing)) {
         ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return false;
@@ -1708,7 +1711,7 @@ TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing
 
 TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx) {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if (thing_is_creature(thing_to_pick) && thing_to_pick->owner == plyr_idx)
+    if (thing_is_creature(thing_to_pick))
     {
         struct HandRule hand_rule;
         TbBool overwrite_default_block = false;

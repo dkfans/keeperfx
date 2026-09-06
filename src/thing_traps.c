@@ -43,10 +43,10 @@
 #include "engine_render.h"
 #include "gui_topmsg.h"
 
-#include "keeperfx.hpp"
 #include "creature_senses.h"
 #include "cursor_tag.h"
 #include "player_instances.h"
+#include "room_workshop.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

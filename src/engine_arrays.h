@@ -67,9 +67,7 @@ unsigned short get_render_animation_sprite(unsigned short animation_sprite);
 void init_fp_td_animation_conversion_tables(void);
 void setup_mesh_randomizers(void);
 
-TbBool load_ceiling_table(void);
-void generate_wibble_table(void);
-void fill_floor_heights_table(void);
+void engine_init(void);
 
 /******************************************************************************/
 #ifdef __cplusplus
