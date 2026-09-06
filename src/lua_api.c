@@ -924,7 +924,9 @@ static int lua_DISPLAY_VARIABLE_WITH_LABEL(lua_State *L)
 }
 
 static int lua_Hide_variable(lua_State *L)
-{
+{    
+    memset(game.script_variables, 0, sizeof(game.script_variables));
+    game.active_script_var_count = 0;
     game.flags_gui &= ~GGUI_Variable;
     return 0;
 }
