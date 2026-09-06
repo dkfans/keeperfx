@@ -147,10 +147,10 @@ void input_lag_update(struct Packet *packet)
     }
     input_lag_decrease_last_update = current_time;
     packet->input_lag_turns = local_input_lag_request;
-    if (my_player_number != get_host_player_id() || !netstate.sp) { return; }
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+    if (!network_is_host() || !netstate.sp) { return; }
+    for (NetUserId id = 0; id < netstate.max_users; id += 1) {
         if (id == netstate.my_id || netstate.users[id].progress != USER_LOGGEDIN) { continue; }
-        const struct Packet *peer_packet = get_latest_history_packet((PlayerNumber)id);
+        const struct Packet *peer_packet = get_latest_history_packet(id);
         if (peer_packet != NULL && (uint8_t)peer_packet->input_lag_turns <= MAXIMUM_INPUT_LAG_TURNS && peer_packet->input_lag_turns > packet->input_lag_turns) {
             packet->input_lag_turns = peer_packet->input_lag_turns;
         }

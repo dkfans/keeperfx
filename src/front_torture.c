@@ -217,10 +217,10 @@ void fronttorture_input(void)
 {
     long x;
     long y;
-    PlayerNumber plyr_idx;
+    NetUserId user;
     clear_packets();
     struct PlayerInfo* player = get_my_player();
-    struct Packet* pckt = get_packet(my_player_number);
+    struct Packet* pckt = get_local_packet();
     // Get inputs and create packet
     if (player->victory_state == VicS_WonLevel)
     {
@@ -261,24 +261,21 @@ void fronttorture_input(void)
         if (LbNetwork_ExchangeFrontend(pckt, game.packets, sizeof(struct Packet)))
             ERRORLOG("LbNetwork_Exchange failed");
     }
-    // Determine the controlling player and get his mouse coords
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    // Determine the controlling user's mouse coords
+    for (user = 0; user < MAX_NET_USERS; user++)
     {
-        player = get_player(plyr_idx);
-        pckt = get_packet(plyr_idx);
+        pckt = get_packet(user);
         if (pckt->action != 0)
             break;
     }
-    if (plyr_idx < PLAYERS_COUNT)
+    if (user < MAX_NET_USERS)
     {
         x = pckt->actn_par1;
         y = pckt->actn_par2;
         torture_idle_start = LbTimerClock();
     } else
     {
-        plyr_idx = my_player_number;
-        player = get_player(plyr_idx);
-        pckt = get_packet(plyr_idx);
+        pckt = get_local_packet();
         x = 0;
         y = 0;
     }

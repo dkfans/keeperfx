@@ -58,7 +58,7 @@ static const struct Packet* get_packet_for_local_camera_update(void)
     if (player_invalid(player)) {
         return NULL;
     }
-    return get_history_packet(player->packet_num, get_gameturn());
+    return get_history_packet(get_local_user(), get_gameturn());
 }
 
 void send_camera_catchup_packets(void)
@@ -90,7 +90,7 @@ void send_camera_catchup_packets(void)
 
     struct Camera* local_cam = &destination_local_cameras[cam_idx];
     struct Camera* packet_cam = &player->cameras[cam_idx];
-    struct Packet* pckt = get_packet(player->id_number);
+    struct Packet* pckt = get_local_packet();
 
     long diff_map_x = local_cam->mappos.x.val - packet_cam->mappos.x.val;
     long diff_map_y = local_cam->mappos.y.val - packet_cam->mappos.y.val;

@@ -239,14 +239,14 @@ void gui_video_view_distance_level(struct GuiButton *gbtn)
 
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
-    struct Packet* pckt = get_packet(my_player_number);
+    struct Packet* pckt = get_local_packet();
     set_packet_action(pckt, PckA_SwitchView, rotate_mode_to_view_mode(settings.video_rotate_mode), 0, 0, 0);
     save_settings();
 }
 
 void gui_video_cluedo_mode(struct GuiButton *gbtn)
 {
-    struct Packet* pckt = get_packet(my_player_number);
+    struct Packet* pckt = get_local_packet();
     set_packet_action(pckt, PckA_SetCluedo, video_cluedo_mode, 0, 0, 0);
 }
 

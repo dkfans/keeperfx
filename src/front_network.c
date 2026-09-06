@@ -85,7 +85,7 @@ static int32_t previous_active_players = 0;
 }
 #endif
 /******************************************************************************/
-static TbBool try_starting_level_from_chat(const char *message, int32_t player_id)
+static TbBool try_starting_level_from_chat(const char *message, NetUserId user_id)
 {
     const char *separator_pos = strchr(message, ':');
     if (separator_pos == NULL) {
@@ -104,7 +104,7 @@ static TbBool try_starting_level_from_chat(const char *message, int32_t player_i
     }
     LevelNumber level_num = -1;
     if (level_str[0] != '_') {
-        if (!isdigit(level_str[0]) || (player_id != get_host_player_id())) {
+        if (!isdigit(level_str[0]) || (user_id != SERVER_ID)) {
             return false;
         }
         level_num = atoi(level_str);
@@ -145,14 +145,17 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
     return true;
 }
 
-void process_frontend_chat_message(int player_id, const char *message)
+void process_frontend_chat_message(NetUserId user, const char *message)
 {
-    struct PlayerInfo *player = prepare_network_chat_message(player_id, message);
-    if (message[0] != '\0' && !try_starting_level_from_chat(player->mp_message_text, player_id)) {
-        add_message(player_id, player->mp_message_text);
-        play_non_3d_sample(snd_chat_message[player_id == my_player_number]);
+    if (message[0] == '\0') {
+        return;
     }
-    memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+    char text[PLAYER_MP_MESSAGE_LEN];
+    snprintf(text, sizeof(text), "%s", message);
+    if (!try_starting_level_from_chat(text, user)) {
+        add_message(user, text);
+        play_non_3d_sample(snd_chat_message[user == netstate.my_id]);
+    }
 }
 
 TbBool frontnet_service_selected(enum FrontendNetService service)
@@ -397,7 +400,7 @@ static TbBool check_frontend_version_mismatch(void)
   TbBool start_requested = false;
 
   for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
-    if (!network_player_active(i)) {
+    if (!network_user_active(i)) {
       continue;
     }
     active_players++;
@@ -421,8 +424,8 @@ static TbBool check_frontend_version_mismatch(void)
   char text[MESSAGE_TEXT_LEN];
   snprintf(text, sizeof(text), "%s\n%s: %d.%d.%d.%d\n%s: %d.%d.%d.%d",
       get_string(GUIStr_VersionMismatch),
-      network_player_name(SERVER_ID), (int)host_user->version.major, (int)host_user->version.minor, (int)host_user->version.release, (int)host_user->version.build,
-      network_player_name(remote_id), (int)remote_user->version.major, (int)remote_user->version.minor, (int)remote_user->version.release, (int)remote_user->version.build);
+      network_user_name(SERVER_ID), (int)host_user->version.major, (int)host_user->version.minor, (int)host_user->version.release, (int)host_user->version.build,
+      network_user_name(remote_id), (int)remote_user->version.major, (int)remote_user->version.minor, (int)remote_user->version.release, (int)remote_user->version.build);
   create_frontend_error_box(10000, text);
   return true;
 }
@@ -432,7 +435,7 @@ static void process_frontend_packets(void)
   if (!frontnet_matchmaking_update()) {
     return;
   }
-  int32_t i;
+  NetUserId i;
   for (i = 0; i < MAX_NET_USERS; i++) {
     net_screen_packet[i].networkstatus_flags &= ~NetStat_PlayerConnected;
   }
@@ -505,7 +508,7 @@ static void process_frontend_packets(void)
     frontend_alliances = 0;
   }
   for (i = 0; i < MAX_NET_USERS; i++) {
-    if (!network_player_active(i)) {
+    if (!network_user_active(i)) {
       const int32_t alliances_to_clear = alliance_grid[i][0] | alliance_grid[i][1] | alliance_grid[i][2] | alliance_grid[i][3];
       frontend_alliances = frontend_alliances & ~alliances_to_clear;
     }
@@ -514,7 +517,7 @@ static void process_frontend_packets(void)
 
 TbBool frontnet_matchmaking_update(void)
 {
-    if (my_player_number == get_host_player_id() && frontnet_service_selected(FrontendNetSvc_Online) && enet_matchmaking_host_update() < 0) {
+    if (network_is_host() && frontnet_service_selected(FrontendNetSvc_Online) && enet_matchmaking_host_update() < 0) {
         frontnet_return_to_session_menu(NULL);
         create_frontend_error_box(0, get_string(GUIStr_NetLobbyConnectionLost));
         return false;
@@ -537,7 +540,7 @@ void frontnet_send_campaign_change_message(const char* campaign_fname)
 
     char msg[64];
     snprintf(msg, sizeof(msg), "%s:_", base_name);
-    send_network_chat_message(my_player_number, msg);
+    send_network_chat_message(netstate.my_id, msg);
 }
 
 void handle_autostart_multiplayer_messaging(void)
@@ -550,10 +553,10 @@ void handle_autostart_multiplayer_messaging(void)
         return;
     }
 
-    if (player_joined && my_player_number == get_host_player_id()) {
+    if (player_joined && network_is_host()) {
         frontnet_send_campaign_change_message(campaign.fname);
     }
-    if (my_player_number != get_host_player_id() || get_selected_level_number() > SINGLEPLAYER_NOTSTARTED) {
+    if (!network_is_host() || get_selected_level_number() > SINGLEPLAYER_NOTSTARTED) {
         return;
     }
     if (autostart_multiplayer_campaign[0] == '\0' && autostart_multiplayer_level <= 0) {

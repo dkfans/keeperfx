@@ -112,7 +112,7 @@ TbError process_login_message(NetUserId source, char *read_pos)
     memcpy(reply_pos, &netstate.users[SERVER_ID].version, sizeof(netstate.users[SERVER_ID].version));
     reply_pos += sizeof(netstate.users[SERVER_ID].version);
     send_message_buffer(source, reply_pos);
-    for (NetUserId user_id = 0; user_id < netstate.max_players; user_id += 1) {
+    for (NetUserId user_id = 0; user_id < netstate.max_users; user_id += 1) {
         if (netstate.users[user_id].progress == USER_UNUSED) {
             continue;
         }
@@ -133,7 +133,7 @@ TbError process_user_update_message(NetUserId source, char *read_pos, const char
     }
     NetUserId user_id = (NetUserId)read_pos[0];
     read_pos += 1;
-    if (user_id < 0 || user_id >= netstate.max_players) {
+    if (user_id < 0 || user_id >= netstate.max_users) {
         ERRORLOG("Critical error: Out of range user ID %i received from server, could be used for buffer overflow attack", user_id);
         abort();
     }
@@ -283,7 +283,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 TbError LbNetwork_EnableNewPlayers(TbBool allow)
 {
     if (!netstate.locked && !allow) {
-        for (NetUserId i = 0; i < netstate.max_players; i += 1) {
+        for (NetUserId i = 0; i < netstate.max_users; i += 1) {
             if (netstate.users[i].progress == USER_CONNECTED) {
                 netstate.sp->drop_user(i);
             }
@@ -314,7 +314,7 @@ TbError LbNetwork_Stop(void)
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc callback, void *buf)
 {
     struct TbNetworkCallbackData data;
-    for (NetUserId id = 0; id < netstate.max_players; id += 1) {
+    for (NetUserId id = 0; id < netstate.max_users; id += 1) {
         if (!IsUserActive(id)) {
             continue;
         }

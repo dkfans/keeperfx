@@ -1105,6 +1105,7 @@ void init_players_local_game(void)
     SYNCDBG(4,"Starting");
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
+    player->user_id = SOLO_HUMAN_ID;
     player->allocflags |= PlaF_Allocated;
 
     if( player->id_number == PLAYER_GOOD)

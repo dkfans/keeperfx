@@ -38,6 +38,7 @@
 #include "bflib_mshandler.hpp"
 #include "bflib_filelst.h"
 #include "net_exchange_gameplay.h"
+#include "net_game.h"
 #include "net_lobby.h"
 #include "net_resync.h"
 #include "bflib_planar.h"
@@ -1465,9 +1466,9 @@ void update_mouse_light(struct PlayerInfo *player)
     const struct Packet *pckt = nullptr;
 
     if (is_my_player(player))
-        pckt = get_history_packet(player->packet_num, get_gameturn());
+        pckt = get_history_packet(player->user_id, get_gameturn());
     if (pckt == nullptr)
-        pckt = get_packet_direct(player->packet_num);
+        pckt = get_packet(player->user_id);
 
     const TbBool valid = (pckt->control_flags & PCtr_MapCoordsValid) != 0;
     struct Coord3d pos;

@@ -32,16 +32,16 @@ extern int32_t multiplayer_speed_adjustment_ns;
 struct Packet;
 
 void initialize_packet_history(void);
-void store_packet_history(PlayerNumber player, const struct Packet *packet);
-const struct Packet *get_history_packet(PlayerNumber player, GameTurn turn);
-const struct Packet *get_latest_history_packet(PlayerNumber player);
+void store_packet_history(NetUserId user, const struct Packet *packet);
+const struct Packet *get_history_packet(NetUserId user, GameTurn turn);
+const struct Packet *get_latest_history_packet(NetUserId user);
 TbBool read_repair_packet_history(NetUserId source, const char *buffer, size_t buffer_size);
 void network_update(void *server_buf, size_t frame_size);
 TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t frame_size);
 void LbNetwork_BroadcastUnpause(void);
 TbError process_network_unpause_message(void);
 TbError process_network_turn_sync_message(NetUserId source, const char *buffer, size_t buffer_size);
-void process_gameplay_chat_message(int player_id, const char *message);
+void process_gameplay_chat_message(NetUserId user, const char *message);
 
 #ifdef __cplusplus
 }

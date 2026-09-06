@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "net_game.h"
 #include "pre_inc.h"
 #include "kfx/renderer/RendererManager.h"
 #include "packets.h"
@@ -43,17 +44,37 @@ unsigned long last_pause_toggle_time = 0;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool get_skip_heart_zoom_feature(void);
-extern unsigned long get_host_player_id(void);
 extern TbBool keeper_screen_redraw(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 
+NetUserId get_local_user(void)
+{
+    if (!network_is_active())
+    {
+        return SOLO_HUMAN_ID;
+    }
+
+    if (netstate.my_id >= 0 && netstate.my_id < MAX_NET_USERS)
+    {
+        return netstate.my_id;
+    }
+
+    assert(false);
+    return 0;
+}
+
+struct Packet *get_local_packet(void)
+{
+    return get_packet(get_local_user());
+}
+
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
         unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4)
 {
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet(player->user_id);
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
     pckt->actn_par3 = par3;
@@ -63,7 +84,7 @@ void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
 
 unsigned char get_players_packet_action(struct PlayerInfo *player)
 {
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet(player->user_id);
     return pckt->action;
 }
 
@@ -74,7 +95,7 @@ void set_packet_control(struct Packet *pckt, unsigned long flag)
 
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 {
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet(player->user_id);
     pckt->control_flags |= flag;
 }
 
@@ -85,7 +106,7 @@ void unset_packet_control(struct Packet *pckt, unsigned long flag)
 
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 {
-    struct Packet* pckt = get_packet_direct(player->packet_num);
+    struct Packet* pckt = get_packet(player->user_id);
     pckt->control_flags &= ~flag;
 }
 
@@ -99,29 +120,15 @@ void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned c
 }
 
 /**
- * Gives a pointer for the player's packet.
- * @param plyr_idx The player index for which we want the packet.
+ * Gives a pointer to the packet of a given network user.
+ * @param user Network user id. Note that it may differ from the player index.
  * @return Returns Packet pointer. On error, returns a dummy structure.
  */
-struct Packet *get_packet(long plyr_idx)
+struct Packet *get_packet(NetUserId user)
 {
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if (player_invalid(player))
+    if ((user < 0) || (user >= PACKETS_COUNT))
         return INVALID_PACKET;
-    if (player->packet_num >= PACKETS_COUNT)
-        return INVALID_PACKET;
-    return &game.packets[player->packet_num];
-}
-/**
- * Gives a pointer to packet of given index.
- * @param pckt_idx Packet index in the array. Note that it may differ from player index.
- * @return Returns Packet pointer. On error, returns a dummy structure.
- */
-struct Packet *get_packet_direct(long pckt_idx)
-{
-    if ((pckt_idx < 0) || (pckt_idx >= PACKETS_COUNT))
-        return INVALID_PACKET;
-    return &game.packets[pckt_idx];
+    return &game.packets[user];
 }
 
 void clear_packets(void)
@@ -388,7 +395,7 @@ void set_packet_pause_toggle()
     struct PlayerInfo* player = get_my_player();
     if (player_invalid(player))
         return;
-    if (player->packet_num >= PACKETS_COUNT)
+    if (player->user_id >= PACKETS_COUNT)
         return;
     if (game.game_kind != GKind_LocalGame) {
         unsigned long current_time = LbTimerClock();
@@ -408,7 +415,7 @@ void set_packet_pause_toggle()
         keeper_screen_redraw();
         RendererPresentFrame();
         LbNetwork_BroadcastUnpause();
-        if (my_player_number == get_host_player_id()) {
+        if (network_is_host()) {
             process_pause_packet(0, 0);
         }
         unpausing_in_progress = 0;

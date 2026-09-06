@@ -521,11 +521,11 @@ void matchmaking_finish_lobby(enum MatchmakingLobbyResult result, int map_number
             int write_position = snprintf(finish_message, sizeof(finish_message), "{\"action\":\"game_started\",\"id\":\"%s\",\"mapNumber\":%d,\"mapName\":\"%s\",\"players\":[", hosted_lobby_id, map_number, escaped_map_name);
             const char *separator = "";
             for (int i = 0; i < MAX_NET_USERS; i++) {
-                if (!network_player_active(i)) {
+                if (!network_user_active(i)) {
                     continue;
                 }
                 char escaped_name[NETSP_PLAYER_NAME_MAX_LEN * 2 + 1];
-                json_escape(escaped_name, sizeof(escaped_name), network_player_name(i));
+                json_escape(escaped_name, sizeof(escaped_name), network_user_name(i));
                 write_position += snprintf(finish_message + write_position, sizeof(finish_message) - write_position, "%s\"%s\"", separator, escaped_name);
                 separator = ",";
             }

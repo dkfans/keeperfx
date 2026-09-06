@@ -304,7 +304,7 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length)
     MULTIPLAYER_LOG("Starting resync, my_id=%d, buffer_length=%u", netstate.my_id, (uint32_t)buffer_length);
 
     TbBool result;
-    if (my_player_number == get_host_player_id()) {
+    if (network_is_host()) {
         MULTIPLAYER_LOG("Resync: I am the server");
         result = send_resync_data(data_buffer, buffer_length);
     } else {
@@ -433,7 +433,7 @@ void resync_game(void)
     reset_eye_lenses();
     store_localised_game_structure();
     TbBool result;
-    if (my_player_number == get_host_player_id()) {
+    if (network_is_host()) {
         result = send_resync_game();
     } else {
         result = receive_resync_game();

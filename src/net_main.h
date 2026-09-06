@@ -40,6 +40,7 @@ extern "C" {
 #define MAX_NET_USERS 4
 #define MAX_NET_PEERS (MAX_NET_USERS - 1)
 #define SERVER_ID 0
+#define SOLO_HUMAN_ID 0 /* human player's user id in non-multiplayer, when relevant */
 #define NET_MSG_BUFFER_SIZE 5000
 #define INVALID_USER_ID 23456
 
@@ -118,13 +119,13 @@ struct NetState {
     char password[32];
     NetUserId my_id;
     int seq_nbr;
-    unsigned max_players;
+    unsigned max_users;
     char msg_buffer[NET_MSG_BUFFER_SIZE];
     char msg_buffer_null;
     TbBool locked;
 };
 
-struct TbNetworkPlayerInfo {
+struct TbNetworkUserInfo {
     char name[32];
     int32_t network_user_active;
     uint32_t connection_id;
@@ -153,7 +154,7 @@ static inline TbBool net_versions_match(const struct GameVersionPacket *version_
         (version_a->build == version_b->build);
 }
 
-TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
+TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkUserInfo *locplayr, struct ServiceInitData *init_data);
 TbBool OnNewUser(NetUserId *assigned_id);
 void OnDroppedUser(NetUserId id, enum NetDropReason reason);
 TbBool IsUserActive(NetUserId id);
