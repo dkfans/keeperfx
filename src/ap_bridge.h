@@ -4,6 +4,8 @@
 
 void ap_connect();
 void ap_socketconnected();
+void ap_slot_connected();
+void ap_room_update();
 void ap_recieve(int id, bool notify);
 void ap_send(int id);
 void ap_clear();

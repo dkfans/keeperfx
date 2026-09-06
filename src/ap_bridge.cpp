@@ -35,20 +35,32 @@ RedirectStdoutToFile();
     AP_Init(ip, "Dungeon Keeper", slot, "");
     AP_SetSocketConnectedCallback(ap_socketconnected);
     AP_SetSocketErrorCallback([](std::string err) {
+    // need to do something with errors, placeholder for now
         JUSTLOG("AP error");
     });
     AP_SetItemClearCallback(ap_clear);
     AP_SetItemRecvCallback(ap_recieve);
     AP_SetLocationCheckedCallback(ap_send);
     AP_SetLocationInfoCallback(ap_location_info_callback);    
+    AP_SetRoomUpdateCallback(ap_room_update);
+    AP_SetSlotConnectedCallback(ap_slot_connected);
     ap_location_info_init();    
     ap_state_init(&g_ap_state);
     AP_Start();
 }
 
 void ap_socketconnected(){
-    AP_SendLocationScouts(AP_GetMissingLocations(),0);
+
     JUSTLOG("AP CONNECTED");
+}
+
+void ap_slot_connected(){
+    //callback once connected to AP server, send scounts for all locations not checked yet, so that ap_location_info_callback will be triggered.
+    AP_SendLocationScouts(AP_GetMissingLocations(),0);
+}
+
+void ap_room_update(){
+
 }
 
 void ap_recieve(int id, bool notify)
@@ -95,6 +107,7 @@ void ap_clear()
 
 void ap_location_info_callback(std::vector<AP_NetworkItem> locations)
 {
+    // store the details of locations remaining so that tooltips can get set etc.
     for (const AP_NetworkItem &info : locations)
     {
         ap_location_info_update(
