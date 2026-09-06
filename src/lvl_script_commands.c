@@ -3688,12 +3688,14 @@ static void display_variable_with_label_check(const struct ScriptLine *scline)
     value->longs[1] = varib_id;    
     value->shorts[4] = -1;
     const char *icon = scline->tp[2];
-
-    if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[4]))
-    {
-        SCRPTERRLOG("Invalid custom icon (%s)", icon);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
+    if (icon[0] != '\0'){        
+        value->shorts[4] = get_chat_icon_sprite_idx(icon);
+        if (value->shorts[4] == -1)
+        {
+            SCRPTERRLOG("Invalid custom icon (%s)", icon);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
 
     PROCESS_SCRIPT_VALUE(scline->command);
