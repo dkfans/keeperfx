@@ -163,7 +163,6 @@ ChecksTable = {
     [705] = {id=705, internal_name="8",                    name="Progressive Level Cap 5",      string="",       text="Progressive Level Cap 5 Unlocked"},      --8
     [706] = {id=706, internal_name="9",                    name="Progressive Level Cap 6",      string="",       text="Progressive Level Cap 6 Unlocked"},      --9
     [707] = {id=707, internal_name="0",                    name="Progressive Level Cap 7",      string="",       text="Progressive Level Cap 7 Unlocked"},      --10 and growup
-    -- hopefully it's possible in the future, i think for now it caps them at 10 (hoping you can change 10 to 11 in the future)
     [711] = {id=711, internal_name="",                    name="Progressive Creature Limit 1", string="",       text="Progressive Creature Limit 1 Unlocked"}, --Increase creature limit by 5 (starts at max 10): 15
     [712] = {id=712, internal_name="",                    name="Progressive Creature Limit 2", string="",       text="Progressive Creature Limit 2 Unlocked"}, --20
     [713] = {id=713, internal_name="",                    name="Progressive Creature Limit 3", string="",       text="Progressive Creature Limit 3 Unlocked"}, --25
