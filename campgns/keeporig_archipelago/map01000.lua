@@ -25,7 +25,7 @@ function SetupTriggers()
 
 end
 
-
+--this is mostly a test for now, actual unlocking should be done from AP table or however we mark the levels unlocked at start?
 function UnlockRandomLevels(num, maxmap)
     local numbers = {}
     while #numbers < num do
