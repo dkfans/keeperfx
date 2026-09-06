@@ -37,6 +37,7 @@ RedirectStdoutToFile();
     AP_SetLocationCheckedCallback(ap_send);
     AP_SetLocationInfoCallback(ap_location_info_callback);
     AP_Start();
+    AP_SendLocationScouts(AP_GetMissingLocations(),0);
     ap_state_init(&g_ap_state);
     ap_location_info_init();
 }
