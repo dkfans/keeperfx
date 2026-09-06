@@ -1,0 +1,8 @@
+rm -rf ~/APCpp-build
+
+cmake -S . -B ~/APCpp-build -G "Unix Makefiles" \
+    -DCMAKE_TOOLCHAIN_FILE="$PWD/mingw32-toolchain.cmake" \
+    -DMINGW=1 \
+    -DBUILD_SHARED_LIBS=OFF
+
+cmake --build ~/APCpp-build --parallel
