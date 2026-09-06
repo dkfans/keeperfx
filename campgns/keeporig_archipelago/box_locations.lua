@@ -56,6 +56,8 @@ function BoxLocations.SpawnBoxes(level_id)
             SetBoxTooltip(id, info.itemName .. " for " .. info.playerName)
             
             -- Would like to add a way to check if the item associated with this number is useful or filler, then display the correct graphics.
+            -- if it's filler (i.e. looking up to the table of all tooltips for other player items) then
+            -- Game.APBox[id].anim_sprite = "ARCHIPELAGOITEMUSEFUL"
             if not first then message = message .. ", " end
             message = message .. id
             first = false
@@ -98,6 +100,7 @@ function BoxLocations.ActivateBoxes(level_id)
                 end
                 if not first2 then message2 = message2 .. "." end
                 QuickMessage(message2, "ARCHIPELAGO_ICON")
+                SentLocations.Save() --writes to AP_sent_locations_save.lua
                 Game.APBox[id] = nil
             end, id)
         else
