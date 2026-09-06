@@ -3751,7 +3751,9 @@ static void hide_timer_process(struct ScriptContext *context)
 
 static void hide_variable_process(struct ScriptContext *context)
 {
-   game.flags_gui &= ~GGUI_Variable;
+    memset(game.script_variables, 0, sizeof(game.script_variables));
+    game.active_script_var_count = 0;
+    game.flags_gui &= ~GGUI_Variable;
 }
 
 static void create_effect_check(const struct ScriptLine *scline)
