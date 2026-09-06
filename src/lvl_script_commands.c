@@ -6635,12 +6635,21 @@ static void set_next_level_check(const struct ScriptLine* scline)
     }
 
     value->shorts[1] = next_level;
+    if (is_bonus_level(game.loaded_level_number) || is_extra_level(game.loaded_level_number))
+    {
+        value->shorts[2] = true; // On bonus levels we have to force moving on.
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_next_level_process(struct ScriptContext* context)
 {
+    TbBool force_now = context->value->shorts[2];
     intralvl.next_level = context->value->shorts[1];
+    if (force_now)
+    {
+        set_continue_level_number(intralvl.next_level);
+    }
 }
 
 static void set_level_ensign_check(const struct ScriptLine* scline)
