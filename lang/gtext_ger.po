@@ -7130,8 +7130,8 @@ msgstr "KDK Levels"
 
 #: guitext:1024
 msgctxt "Menu interface item"
-msgid "Good Campaign"
-msgstr "Gute Kampagne"
+msgid "The Good Guys"
+msgstr "Die Guten"
 
 #: guitext:1025
 msgctxt "Menu interface item"
