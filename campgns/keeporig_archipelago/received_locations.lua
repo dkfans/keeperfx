@@ -1,3 +1,4 @@
+local ReceivedLocationsTable = require "received_locations_table"
 -- Might be worth having a "hub" map at the start of the game, which perhaps lets you turn unlocked stuff on/off (e.g. turn off things like alarm traps, guard posts, demon spawn so it's easier later)
 -- Could also be a useful way to check which levels are complete and which aren't (unless we are able to do this on the overworld map screen with a code change)
 -- Could also allow for things like unlocking a small pool of creatures you can transfer to whichever next level, or a pool of single-use specials you can somehow send to the next level.
@@ -127,39 +128,42 @@ ChecksTable = {
     [525] = {id=525, internal_name="",                    name="104",                          string="430",       text="Level 104 Unlocked"}, --string is just "Bonus"
     [526] = {id=526, internal_name="",                    name="105",                          string="430",       text="Level 105 Unlocked"}, --string is just "Bonus"
 -- RECIPES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    [601] = {id=601, internal_name="",                    name="Cheaper Imps",                 string="",       text="Cheaper Imps Recipe Unlocked"},
-    [602] = {id=602, internal_name="",                    name="Complete Manufacturing",       string="",       text="Complete Manufacturing Recipe Unlocked"},
-    [603] = {id=603, internal_name="",                    name="Complete Research",            string="",       text="Complete Research Recipe Unlocked"},
-    [604] = {id=604, internal_name="",                    name="Bile Demon",                   string="",       text="Bile Demon Recipe Unlocked"},
-    [605] = {id=605, internal_name="",                    name="Warlock",                      string="",       text="Warlock Recipe Unlocked"},
-    [606] = {id=606, internal_name="",                    name="Mistress",                     string="",       text="Mistress Recipe Unlocked"},
-    [607] = {id=607, internal_name="",                    name="Horned Reaper",                string="",       text="Horned Reaper Recipe Unlocked"},
---  [608] = {id=608, internal_name="",                    name="Wishing Well",                 string="",       text="Wishing Well Recipe Unlocked"}, --default, might be hardcoded, would probably be stupid to include
---  [609] = {id=609, internal_name="",                    name="All chickens die 1",           string="",       text="All chickens die 1 Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
---  [610] = {id=610, internal_name="",                    name="All chickens die 2",           string="",       text="All chickens die 2 Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
---  [611] = {id=611, internal_name="",                    name="Disease creatures",            string="",       text="Disease creatures Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
---  [612] = {id=612, internal_name="",                    name="All creatures angry",          string="",       text="All creatures angry Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
---  [613] = {id=613, internal_name="",                    name="Chicken creatures",            string="",       text="Chicken creatures Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
---  [614] = {id=614, internal_name="",                    name="Spider easter egg",            string="",       text="Spider easter egg Recipe Unlocked"}, --default, hardcoded easter egg and not really a recipe, would probably be stupid to include
---  [615] = {id=615, internal_name="",                    name="Good skeleton",                string="",       text="Good skeleton Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
---  [616] = {id=616, internal_name="",                    name="Tentacle",                     string="",       text="Tentacle Recipe Unlocked"},
---  [617] = {id=617, internal_name="",                    name="Hound",                        string="",       text="Hound Recipe Unlocked"},
---  [618] = {id=618, internal_name="",                    name="Speed creatures",              string="",       text="Speed creatures Recipe Unlocked"},
---  [619] = {id=619, internal_name="",                    name="Conceal creatures",            string="",       text="Conceal creatures Recipe Unlocked"},
---  [620] = {id=620, internal_name="",                    name="Heal creatures",               string="",       text="Heal creatures Recipe Unlocked"},
---  [621] = {id=621, internal_name="",                    name="Rebound creatures",            string="",       text="Rebound creatures Recipe Unlocked"},
---  [622] = {id=622, internal_name="",                    name="Protect creatures",            string="",       text="Protect creatures Recipe Unlocked"},
---  [623] = {id=623, internal_name="",                    name="Flight creatures",             string="",       text="Flight creatures Recipe Unlocked"},
---  [624] = {id=624, internal_name="",                    name="Freeze creatures",             string="",       text="Freeze creatures Recipe Unlocked"},
---  [625] = {id=625, internal_name="",                    name="Slow creatures",               string="",       text="Slow creatures Recipe Unlocked"},
+    [601] = {id=601, internal_name="PosUniqFunc,CHEAPER_IMPS,IMP",                    name="Cheaper Imps",                 string="",       text="Cheaper Imps Recipe Unlocked"},
+    [602] = {id=602, internal_name="PosUniqFunc,COMPLETE_MANUFACTR,BUG,BUG",          name="Complete Manufacturing",       string="",       text="Complete Manufacturing Recipe Unlocked"},
+    [603] = {id=603, internal_name="PosUniqFunc,COMPLETE_RESEARCH,FLY,FLY",           name="Complete Research",            string="",       text="Complete Research Recipe Unlocked"},
+    [604] = {id=604, internal_name="MkCreature,BILE_DEMON,SPIDER,SPIDER,SPIDER",      name="Bile Demon",                   string="",       text="Bile Demon Recipe Unlocked"},
+    [605] = {id=605, internal_name="MkCreature,SORCEROR,FLY,SPIDER",                  name="Warlock",                      string="",       text="Warlock Recipe Unlocked"},
+    [606] = {id=606, internal_name="MkCreature,DARK_MISTRESS,BUG,SPIDER",             name="Mistress",                     string="",       text="Mistress Recipe Unlocked"},
+    [607] = {id=607, internal_name="MkCreature,HORNY,TROLL,BILE_DEMON,DARK_MISTRESS", name="Horned Reaper",                string="",       text="Horned Reaper Recipe Unlocked"},
+--  [608] = {id=608, internal_name="NegUniqFunc,KILL_ALL_CHICKENS,GHOST",             name="All chickens die",             string="",       text="All chickens die Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+--  [609] = {id=609, internal_name="NegSpellAll,SPELL_DISEASE,VAMPIRE,VAMPIRE",       name="Disease creatures",            string="",       text="Disease creatures Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
+--  [610] = {id=610, internal_name="NegUniqFunc,ALL_CREATRS_ANGRY,HORNY",             name="All creatures angry",          string="",       text="All creatures angry Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
+--  [611] = {id=611, internal_name="NegSpellAll,SPELL_CHICKEN,BILE_DEMON,BILE_DEMON", name="Chicken creatures",            string="",       text="Chicken creatures Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
+--  [612] = {id=612, internal_name="MkGoodHero,SKELETON,SKELETON,SKELETON",           name="Good skeleton",                string="",       text="Good skeleton Recipe Unlocked"}, --default, unlock would probably be stupid to include outside of a Templesanity
+--  [613] = {id=613, internal_name="MkCreature,TENTACLE,TROLL,SPIDER",                name="Tentacle",                     string="",       text="Tentacle Recipe Unlocked"},
+--  [614] = {id=614, internal_name="MkCreature,HELL_HOUND,DRAGON,FLY",                name="Hound",                        string="",       text="Hound Recipe Unlocked"},
+--  [615] = {id=615, internal_name="PosSpellAll,SPELL_SPEED,FLY,HELL_HOUND",          name="Speed creatures",              string="",       text="Speed creatures Recipe Unlocked"},
+--  [616] = {id=616, internal_name="PosSpellAll,SPELL_INVISIBILITY,TROLL,FLY",        name="Conceal creatures",            string="",       text="Conceal creatures Recipe Unlocked"},
+--  [617] = {id=617, internal_name="PosSpellAll,SPELL_HEAL,ORC,SPIDER",               name="Heal creatures",               string="",       text="Heal creatures Recipe Unlocked"},
+--  [618] = {id=618, internal_name="PosSpellAll,SPELL_REBOUND,DARK_MISTRESS,BUG",     name="Rebound creatures",            string="",       text="Rebound creatures Recipe Unlocked"},
+--  [619] = {id=619, internal_name="PosSpellAll,SPELL_ARMOUR,BILE_DEMON,BUG",         name="Protect creatures",            string="",       text="Protect creatures Recipe Unlocked"},
+--  [620] = {id=620, internal_name="PosSpellAll,SPELL_FLIGHT,DEMONSPAWN,FLY",         name="Flight creatures",             string="",       text="Flight creatures Recipe Unlocked"},
+--  [621] = {id=621, internal_name="NegSpellAll,SPELL_FREEZE,VAMPIRE,SPIDER",         name="Freeze creatures",             string="",       text="Freeze creatures Recipe Unlocked"},
+--  [622] = {id=622, internal_name="NegSpellAll,SPELL_SLOW,VAMPIRE,DEMONSPAWN",       name="Slow creatures",               string="",       text="Slow creatures Recipe Unlocked"},
+-- Can't do these ones, they're hardcoded.
+--  [6XX] = {id=6XX, internal_name="",                    name="Wishing Well",                 string="",       text="Wishing Well Recipe Unlocked"}, --default, might be hardcoded, would probably be stupid to include
+--  [6XX] = {id=6XX, internal_name="",                    name="All chickens die 2",           string="",       text="All chickens die 2 Recipe Unlocked"}, -default, unlock would probably be stupid to include outside of a Templesanity
+--  [6XX] = {id=6XX, internal_name="",                    name="Spider easter egg",            string="",       text="Spider easter egg Recipe Unlocked"}, --default, hardcoded easter egg and not really a recipe, would probably be stupid to include
 -- PROGRESSIVES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    [701] = {id=701, internal_name="",                    name="Progressive Level Cap 1",      string="",       text="Progressive Level Cap 1 Unlocked"},      --Increase max creature level by 1 (starts max level 3): 4
-    [702] = {id=702, internal_name="",                    name="Progressive Level Cap 2",      string="",       text="Progressive Level Cap 2 Unlocked"},      --5
-    [703] = {id=703, internal_name="",                    name="Progressive Level Cap 3",      string="",       text="Progressive Level Cap 3 Unlocked"},      --6
-    [704] = {id=704, internal_name="",                    name="Progressive Level Cap 4",      string="",       text="Progressive Level Cap 4 Unlocked"},      --7
-    [705] = {id=705, internal_name="",                    name="Progressive Level Cap 5",      string="",       text="Progressive Level Cap 5 Unlocked"},      --8
-    [706] = {id=706, internal_name="",                    name="Progressive Level Cap 6",      string="",       text="Progressive Level Cap 6 Unlocked"},      --9
-    [707] = {id=707, internal_name="",                    name="Progressive Level Cap 7",      string="",       text="Progressive Level Cap 7 Unlocked"},      --10 and growup
+-- these work differently, see below.
+    [701] = {id=701, internal_name="4",                    name="Progressive Level Cap 1",      string="",       text="Progressive Level Cap 1 Unlocked"},      --Increase max creature level by 1 (starts max level 3): 4
+    [702] = {id=702, internal_name="5",                    name="Progressive Level Cap 2",      string="",       text="Progressive Level Cap 2 Unlocked"},      --5
+    [703] = {id=703, internal_name="6",                    name="Progressive Level Cap 3",      string="",       text="Progressive Level Cap 3 Unlocked"},      --6
+    [704] = {id=704, internal_name="7",                    name="Progressive Level Cap 4",      string="",       text="Progressive Level Cap 4 Unlocked"},      --7
+    [705] = {id=705, internal_name="8",                    name="Progressive Level Cap 5",      string="",       text="Progressive Level Cap 5 Unlocked"},      --8
+    [706] = {id=706, internal_name="9",                    name="Progressive Level Cap 6",      string="",       text="Progressive Level Cap 6 Unlocked"},      --9
+    [707] = {id=707, internal_name="0",                    name="Progressive Level Cap 7",      string="",       text="Progressive Level Cap 7 Unlocked"},      --10 and growup
+    -- hopefully it's possible in the future, i think for now it caps them at 10 (hoping you can change 10 to 11 in the future)
     [711] = {id=711, internal_name="",                    name="Progressive Creature Limit 1", string="",       text="Progressive Creature Limit 1 Unlocked"}, --Increase creature limit by 5 (starts at max 10): 15
     [712] = {id=712, internal_name="",                    name="Progressive Creature Limit 2", string="",       text="Progressive Creature Limit 2 Unlocked"}, --20
     [713] = {id=713, internal_name="",                    name="Progressive Creature Limit 3", string="",       text="Progressive Creature Limit 3 Unlocked"}, --25
@@ -175,7 +179,6 @@ ChecksTable = {
 }
 --    --Others e.g. progressive starting imps number/level, progressive auto-researched (e.g. at 1, bridge/guardpost and SOE are unlocked, at 2, workshop and speed are unlocked and so on (IF THOSE ARE UNLOCKED)},
 --    --progressive auto-manufacturing (at 1, you get an alarm/gas trap and wooden door at start, at 2 you get a lightning trap and braced door, at 3 you get WOP trap and iron door, at 4 you get lava/boulder and magic door (IF THOSE ARE UNLOCKED))
-
 
 --    -----------------------------------------------------------
 --    --Filler
@@ -204,6 +207,13 @@ ChecksTable = {
 --    --Spammed with taunts
 --    --player colours are shuffled around
 
+
+
+-- I think we need to split this between "stuff that stays active" (creatures/rooms/spells/trapdoors/recipes/progressives) and "one time effects" (level unlocks?/filler stuff/traps)
+
+--then we need to make: on level start, level load, on item receive, run this for every ID in the "received so far" table? Not sure if it's better to check current map table vs this and only update differences, or if it's actually fine to run through it all every time.
+-- then we gut every level's preamble and replace with that.
+
 function ReceivedLocations.ReceivedItemCheck(itemid)
       if itemid >= 1 and itemid <= 100 then
             UnlockCreature(itemid)
@@ -215,12 +225,12 @@ function ReceivedLocations.ReceivedItemCheck(itemid)
             UnlockDoor(itemid)
       elseif itemid > 400 and itemid <= 500 then
             UnlockSpell(itemid)
-      --elseif itemid > 500 and itemid <= 600 then
-      --      UnlockLevel(itemid)
-      --elseif itemid > 600 and itemid <= 700 then
-      --      UnlockRecipe(itemid)
-      --elseif itemid > 700 and itemid <= 800 then
-      --    UnlockProgressive(itemid)
+      elseif itemid > 500 and itemid <= 600 then
+            UnlockLevel(itemid)
+      elseif itemid > 600 and itemid <= 700 then
+            UnlockRecipe(itemid)
+      elseif itemid > 700 and itemid <= 800 then
+          UnlockProgressive(itemid)
       --don't think these work this way.
       --elseif itemid > 800 and itemid <= 900 then
       --    UnlockFiller(itemid)
@@ -230,6 +240,9 @@ function ReceivedLocations.ReceivedItemCheck(itemid)
             print("Unknown item ID " .. itemid)
       end
 end
+
+-- Might need to split these up or something, do we want to send the print message every time?
+-- Also want to do a separate check for OnItemReceived creating a QUICK_INFORMATION message displaying similar text when received.
 
 function UnlockCreature(itemid)
       print("Creature " .. itemid .. "( " .. ChecksTable[itemid].name .. ") Unlocked")
@@ -251,20 +264,15 @@ function UnlockSpell(itemid)
       print("Spell " .. itemid .. "( " .. ChecksTable[itemid].name .. ") Unlocked")
       MagicAvailable("PLAYER0",ChecksTable[itemid].internal_name,true,0)
 end
+function UnlockLevel(itemid)
+      print("Level " .. itemid .. "( " .. ChecksTable[itemid].name .. ") Unlocked")
+      RunDKScriptCommand("SHOW_BONUS_LEVEL(" .. ChecksTable[itemid].name .. ")") -- I think this is fine to just run every level start, but it would be nice if we just did it once.
+end
+function UnlockRecipe(itemid)
+      print("Recipe " .. itemid .. "( " .. ChecksTable[itemid].name .. ") Unlocked")
+      RunDKScriptCommand("SET_SACRIFICE_RECIPE(" .. ChecksTable[itemid].internal_name .. ")")
+end
 
---Level
---function UnlockLevel(itemid)
---
---end
-
---Recipe
---function UnlockRecipe(itemid)
---
---end
-
---Progressive
-
---need to write these.
 function UnlockProgressive(itemid)
       if itemid >= 701 and itemid <= 707 then
             IncreaseLevelCap()
@@ -273,4 +281,45 @@ function UnlockProgressive(itemid)
       elseif itemid >= 721 and itemid <= 726 then
             IncreaseStartingGold()
       end
+end
+
+function IncreaseLevelCap()
+    local levelcapcount = 0
+    for id = 701, 707 do
+      if ReceivedLocationsTable.Has(id) then
+            levelcapcount = levelcapcount + 1
+      end
+    end
+    local maxLevel = (levelcapcount + 3) % 10 --SET_CREATURE_MAX_LEVEL command uses 0 to mean "10 and growup"
+    if levelcapcount == 7 then
+      print("Level cap " .. levelcapcount .. "(Max level 10+) Unlocked")
+    else
+      print("Level cap " .. levelcapcount .. "(Max level " .. maxLevel .. ") Unlocked")
+    end
+      RunDKScriptCommand("SET_CREATURE_MAX_LEVEL(PLAYER0,ANY_CREATURE," .. maxLevel .. ")")
+      RunDKScriptCommand("SET_CREATURE_MAX_LEVEL(PLAYER0,IMP," .. maxLevel .. ")")
+end
+
+function IncreaseCreatureLimit()
+    local creaturelimitcount = 0
+    for id = 711, 716 do
+      if ReceivedLocationsTable.Has(id) then
+            creaturelimitcount = creaturelimitcount + 1
+      end
+    end
+    local creatureLimit = 10 + (creaturelimitcount * 5)
+    print("Creature limit " .. creaturelimitcount .. "(Max creatures " .. creatureLimit .. ") Unlocked")
+    RunDKScriptCommand("MAX_CREATURES(PLAYER0," .. creatureLimit .. ")")
+end
+
+function IncreaseStartingGold()
+    local startinggoldcount = 0
+    for id = 721, 726 do
+      if ReceivedLocationsTable.Has(id) then
+            startinggoldcount = startinggoldcount + 1
+      end
+    end
+    local startingGold = 2500 + (startinggoldcount * 1250)
+    print("Starting gold " .. startinggoldcount .. "(Starting gold " .. startingGold .. ") Unlocked")
+    RunDKScriptCommand("START_MONEY(PLAYER0," .. startingGold .. ")")
 end

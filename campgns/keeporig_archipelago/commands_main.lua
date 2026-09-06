@@ -1,5 +1,5 @@
 --Commands to be run and saved/loaded in every level.
-
+CommandsMain = {}
 
 function CommandsMain.MainSetup()
       RunDKScriptCommand("SET_NEXT_LEVEL(1000)")
@@ -12,5 +12,9 @@ end
 --then in the current level, if you've found every check, change the ensign to a star
 --if you have beat the level, change ensign to a tick
 --if both, both
+
+
+
+
 
 return CommandsMain
