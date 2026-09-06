@@ -498,7 +498,7 @@ void add_message(long plyr_idx, char *msg)
     }
     nmsg = &net_message[i];
     nmsg->plyr_idx = plyr_idx;
-    nmsg->connection_id = net_player_info[plyr_idx].connection_id;
+    nmsg->connection_id = net_user_info[plyr_idx].connection_id;
     snprintf(nmsg->text, NET_MESSAGE_LEN, "%s", msg);
     i++;
     net_number_of_messages = i;
@@ -3454,7 +3454,7 @@ void update_player_objectives(PlayerNumber plyr_idx)
           break;
       case VicS_LostLevel:
           TextStringId msg_idx = CpgStr_LevelLost;
-          if (network_is_active() && (player->id_number == get_host_player_id()) && network_human_contenders_remain()) {
+          if (network_is_active() && (player->id_number == get_net_user_player_number(SERVER_ID)) && network_human_contenders_remain()) {
               msg_idx = GUIStr_NetHostLostWaitingForPlayers;
           }
           set_level_objective(player->id_number, get_string(msg_idx));

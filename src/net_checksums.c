@@ -197,28 +197,25 @@ static struct ChecksumSnapshot* find_snapshot(GameTurn turn) {
 
 short checksums_different(void)
 {
-    int host_player_id = get_host_player_id();
-    struct Packet* host_packet = get_packet(host_player_id);
+    const NetUserId host_user_id = SERVER_ID;
+    struct Packet* host_packet = get_packet(host_user_id);
     TbBigChecksum host_checksum = host_packet->checksum;
     TbBool mismatch = false;
 
-    for (int i = 0; i < PLAYERS_COUNT; i++) {
-        struct PlayerInfo* player = get_player(i);
-        if (i == host_player_id) {
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        if (i == host_user_id) {
             continue;
         }
+        if (!network_user_active(i)) {
+            continue;
+        }
+        struct PlayerInfo* player = get_player(get_net_user_player_number(i));
         if (!player_exists(player)) {
             continue;
         }
-        if ((player->allocflags & PlaF_CompCtrl) != 0) {
-            continue;
-        }
-        if (!network_player_active(player->packet_num)) {
-            continue;
-        }
-        struct Packet* packet = get_packet_direct(player->packet_num);
+        struct Packet* packet = get_packet(i);
         if (is_packet_empty(packet)) {
-            ERRORLOG("Missing checksum packet for player %d packet %d; host turn: %d", i, player->packet_num, host_packet->turn);
+            ERRORLOG("Missing checksum packet for user %d; host turn: %d", i, host_packet->turn);
             desync_turn = host_packet->turn;
             mismatch = true;
             continue;
@@ -362,7 +359,7 @@ void update_turn_checksums(void) {
     things_sum += checksums->effect_gens;
     things_sum += checksums->doors;
 
-    struct Packet* packet = get_packet(my_player_number);
+    struct Packet* packet = get_local_packet();
     packet->checksum = 0;
     packet->checksum += things_sum;
     packet->checksum += checksums->rooms;

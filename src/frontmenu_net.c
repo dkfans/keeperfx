@@ -120,9 +120,10 @@ TbBool frontnet_start_input(void)
     struct PlayerInfo *player = get_my_player();
     if (lbInkey == KC_RETURN) {
         if (player->mp_message_text[0] != '\0') {
-            send_network_chat_message(my_player_number, player->mp_message_text);
+            send_network_chat_message(netstate.my_id, player->mp_message_text);
         }
-        process_frontend_chat_message(my_player_number, player->mp_message_text);
+        process_frontend_chat_message(netstate.my_id, player->mp_message_text);
+        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
     } else if (lbInkey == KC_ESCAPE) {
         player->mp_message_text[0] = '\0';
     } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
@@ -360,12 +361,12 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         if (netplyr_idx >= net_number_of_enum_players)
             break;
 
-        long subplyr_idx;
+        NetUserId subplyr_idx;
         for (subplyr_idx = 0; subplyr_idx < net_number_of_enum_players; subplyr_idx++)
         {
             if (subplyr_idx >= MAX_NET_USERS)
                 break;
-            if (net_player_info[subplyr_idx].network_user_active)
+            if (net_user_info[subplyr_idx].network_user_active)
             {
                 if (subplyr_idx == netplyr_idx)
                     break;
@@ -608,12 +609,12 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
             break;
         struct NetMessage *nmsg;
         nmsg = &net_message[netmsg_id];
-        TbBool sender_active = nmsg->connection_id == net_player_info[nmsg->plyr_idx].connection_id;
+        TbBool sender_active = nmsg->connection_id == net_user_info[nmsg->plyr_idx].connection_id;
         int num_active;
         num_active = 0;
         if (sender_active) {
             for (int i = nmsg->plyr_idx; i > 0; i--) {
-                if (net_player_info[i].network_user_active) {
+                if (net_user_info[i].network_user_active) {
                     num_active++;
                 }
             }

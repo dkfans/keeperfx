@@ -143,7 +143,7 @@ static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace 
     if ((player->work_state != PSt_BuildRoom) && (player->work_state != PSt_Sell)) {
         return false;
     }
-    struct Packet *direct_packet = get_packet_direct(player->packet_num);
+    struct Packet *direct_packet = get_packet(player->user_id);
     struct PlayerInfo saved_player = *player;
     struct Packet saved_packet = *direct_packet;
     *direct_packet = *pckt;
@@ -163,7 +163,7 @@ static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace 
 
 void update_local_dig_tag_prediction(void)
 {
-    struct Packet *pckt = get_packet(my_player_number);
+    struct Packet *pckt = get_local_packet();
     if (!local_dig_prediction_is_enabled()) {
         local_dig_render_roomspace_active = false;
         memset(&local_dig_tag_prediction, 0, sizeof(local_dig_tag_prediction));
@@ -252,8 +252,8 @@ unsigned char get_local_dig_prediction_render_flags(MapSubtlCoord stl_x, MapSubt
 void update_local_dig_prediction_cursor_preview(void)
 {
     struct PlayerInfo *player = get_my_player();
-    const struct Packet *pckt = get_history_packet(player->packet_num, get_gameturn());
-    const struct Packet *direct_packet = get_packet_direct(player->packet_num);
+    const struct Packet *pckt = get_history_packet(get_local_user(), get_gameturn());
+    const struct Packet *direct_packet = get_local_packet();
     if ((local_dig_roomspace_prediction.action != PckA_None) && ((GameTurnDelta)(direct_packet->turn - local_dig_roomspace_prediction.turn) >= 0)) {
         memset(&local_dig_roomspace_prediction, 0, sizeof(local_dig_roomspace_prediction));
     }
