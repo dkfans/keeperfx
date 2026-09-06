@@ -38,7 +38,6 @@ function BoxLocations.SpawnBoxes(level_id)
         QuickMessage("mapBoxIDs table not loaded!")
         return
     end
-    APScoutLocations(mapBoxIDs)
     local message = "Boxes Added: "
     local first = true
     for _, id in ipairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
