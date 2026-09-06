@@ -24,7 +24,7 @@
 					"$debugChoice = '${input:debugChoice}';",
 					"$compileSettings = if (Test-Path $compileSettingsFile) { Get-Content $compileSettingsFile -Raw } else { \"DEBUG=1`nMAKE_JOBS=0`nHEAVYLOG=0`n\" };",
 					"$currentChoice = [regex]::Match($compileSettings, '(?m)^(?:FTEST_)?DEBUG=[01]').Value;",
-					"if ($currentChoice -ne $debugChoice) { $compileSettings = if ($currentChoice) { $compileSettings -replace '(?m)^(?:FTEST_)?DEBUG=[01]', $debugChoice } else { \"$debugChoice`n$compileSettings\" }; Set-Content -LiteralPath $compileSettingsFile -Value $compileSettings.TrimEnd(); if (Test-Path '${workspaceFolder}\\obj') { Remove-Item -LiteralPath '${workspaceFolder}\\obj' -Force -Recurse; } } else { Set-Content -LiteralPath $compileSettingsFile -Value $compileSettings.TrimEnd(); }",
+					"if ($currentChoice -ne $debugChoice) { $compileSettings = if ($currentChoice) { $compileSettings -replace '(?m)^(?:FTEST_)?DEBUG=[01]', $debugChoice } else { $debugChoice, $compileSettings -join [Environment]::NewLine }; Set-Content -LiteralPath $compileSettingsFile -Value $compileSettings.TrimEnd(); if (Test-Path '${workspaceFolder}\\obj') { Remove-Item -LiteralPath '${workspaceFolder}\\obj' -Force -Recurse; } } else { Set-Content -LiteralPath $compileSettingsFile -Value $compileSettings.TrimEnd(); }",
 				]
 			},
 			"linux": {
