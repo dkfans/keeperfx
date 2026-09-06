@@ -6876,8 +6876,8 @@ msgstr "Nivåer"
 #| msgctxt "Menu interface item"
 #| msgid "Campaigns"
 msgctxt "Menu interface item"
-msgid "Good Campaign"
-msgstr "Kampanjer"
+msgid "The Good Guys"
+msgstr "De Goda"
 
 #: guitext:1025
 msgctxt "Menu interface item"

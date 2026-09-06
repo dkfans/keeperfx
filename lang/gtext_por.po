@@ -7073,7 +7073,7 @@ msgstr "Níveis KDK"
 
 #: guitext:1024
 msgctxt "Menu interface item"
-msgid "Good Campaign"
+msgid "The Good Guys"
 msgstr "Campanha do Bem"
 
 #: guitext:1025

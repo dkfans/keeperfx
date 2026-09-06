@@ -1095,7 +1095,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         {
             set_flag(cctrl->spell_flags, CSAfF_Freeze);
             set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
-            if ((thing->movement_flags & TMvF_Flying) != 0)
+            if ((thing->movement_flags & TMvF_Flying) != 0 || (creature_is_being_unconscious(thing) && (crconf->flying || creature_under_spell_effect(thing, CSAfF_Flying))))
             {
                 set_flag(thing->movement_flags, TMvF_Grounded);
                 clear_flag(thing->movement_flags, TMvF_Flying);
@@ -1330,7 +1330,9 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         clear_flag(cctrl->stateblock_flags, CCSpl_Freeze);
         if (flag_is_set(thing->movement_flags, TMvF_Grounded))
         {
-            set_flag(thing->movement_flags, TMvF_Flying);
+            if (!creature_is_being_unconscious(thing)) {
+                restore_creature_flight_flag(thing);
+            }
             clear_flag(thing->movement_flags, TMvF_Grounded);
         }
         cleared = true;
@@ -6057,7 +6059,7 @@ short update_creature_movements(struct Thing *thing)
 
 void check_for_creature_escape_from_lava(struct Thing *thing)
 {
-    if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnLava) != 0))
+    if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnLava) != 0) && !creature_is_being_unconscious(thing))
     {
         struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
         if (crconf->hurt_by_lava > 0)

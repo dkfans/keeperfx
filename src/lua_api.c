@@ -387,6 +387,11 @@ static int lua_Set_next_level(lua_State *L)
     }
 
     intralvl.next_level = lvnum;
+    if (is_bonus_level(game.loaded_level_number) || is_extra_level(game.loaded_level_number))
+    {
+        // Allow bonus levels to advance the campaign
+        set_continue_level_number(intralvl.next_level);
+    }
     return 0;
 }
 
@@ -924,7 +929,9 @@ static int lua_DISPLAY_VARIABLE_WITH_LABEL(lua_State *L)
 }
 
 static int lua_Hide_variable(lua_State *L)
-{
+{    
+    memset(game.script_variables, 0, sizeof(game.script_variables));
+    game.active_script_var_count = 0;
     game.flags_gui &= ~GGUI_Variable;
     return 0;
 }

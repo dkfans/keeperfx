@@ -6814,7 +6814,7 @@ msgstr ""
 
 #: guitext:1024
 msgctxt "Menu interface item"
-msgid "Good Campaign"
+msgid "The Good Guys"
 msgstr "Helden Campagne"
 
 #: guitext:1025

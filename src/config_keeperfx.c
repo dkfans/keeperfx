@@ -733,17 +733,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           break;
         case 23: //SKIP_HEART_ZOOM
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_SkipHeartZoom;
-          else
-              features_enabled &= ~Ft_SkipHeartZoom;
+          CONFLOG("The \"%s\" setting is unused. Use the -skipheartzoom command line option instead.", COMMAND_TEXT(cmd_num));
           break;
         case 24: //CURSOR_EDGE_CAMERA_PANNING
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
@@ -1177,9 +1167,11 @@ short load_configuration(void)
  */
 void process_cmdline_overrides(void)
 {
+  if (flag_is_set(start_params.operation_flags, GOF_SingleLevel)) {
+    clear_flag(start_params.startup_flags, SFlg_Legal | SFlg_FX | SFlg_Intro);
+  }
   // Use CD for music rather than OGG files
-  if (start_params.overrides[Clo_CDMusic])
-  {
+  if (start_params.overrides[Clo_CDMusic]) {
     features_enabled &= ~Ft_NoCdMusic;
   }
 }

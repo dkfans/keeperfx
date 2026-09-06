@@ -4,12 +4,11 @@
 #   @file Makefile
 #      A script used by GNU Make to recompile the project.
 #  @par Purpose:
-#      Allows to invoke "make all" or similar commands to compile all
-#      source code files and link them into executable file.
+#      Allows invoking "make all" or similar commands to compile all source
+#      files and link them into an executable file.
 #  @par Comment:
-#      Please note that the make must be run from 'sh'; starting if from
-#      Windows 'cmd.exe' won't work.
-#      You need mingw32 and coreutils to do the build.
+#      Run make from a POSIX-compatible shell; Windows cmd.exe is not supported.
+#      A MinGW-w64 toolchain and coreutils are required to build the project.
 #      To prepare a release package, run:
 #        make standard && make heavylog && make package
 #  @author   Tomasz Lis
@@ -21,28 +20,22 @@
 #      (at your option) any later version.
 #
 #******************************************************************************
-# Executable files extension on host environment
 ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe
-  # linker flags
   LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
-  # The following flags are only here to prevent a dependency on libwinpthread-1.dll when keeperfx is built with MSYS2:
-  # "-Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
 else
   CROSS_EXEEXT =
   CROSS_COMPILE = i686-w64-mingw32-
   LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
 endif
-# Executable files extension on target environment
 EXEEXT = .exe
-# Names of utility commands
 CPP      = $(CROSS_COMPILE)g++
 CC       = $(CROSS_COMPILE)gcc
 WINDRES  = $(CROSS_COMPILE)windres
-DLLTOOL  = $(CROSS_COMPILE)dlltool
 DOXYTOOL = doxygen
 BUILD_NUMBER ?= $(VER_BUILD)
 PACKAGE_SUFFIX ?= Prototype
+BUILD_START := $(shell date +%s.%N)
 PNGTOICO = tools/png2ico/png2ico$(CROSS_EXEEXT)
 PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
 PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal$(CROSS_EXEEXT)
@@ -50,341 +43,65 @@ POTONGDAT = tools/po2ngdat/bin/po2ngdat$(CROSS_EXEEXT)
 WAVTODAT = tools/sndbanker/bin/sndbanker$(CROSS_EXEEXT)
 RNC      = tools/rnctools/bin/rnc$(CROSS_EXEEXT)
 DERNC    = tools/rnctools/bin/dernc$(CROSS_EXEEXT)
-DKILLTOLVL = tools/dkillconv/bin/dkillcmpl$(CROSS_EXEEXT)
 RM       = rm -f
 MV       = mv -f
 CP       = cp -f
 MKDIR    = mkdir -p
 ECHO     = @echo
-
-# Names of target binary files
+COMPILER_CACHE := $(shell command -v ccache 2> /dev/null || command -v sccache 2> /dev/null)
+CV2PDB := $(shell PATH="$(CURDIR):$$PATH" command -v cv2pdb.exe 2> /dev/null)
+ifneq (,$(COMPILER_CACHE))
+CPP      := $(COMPILER_CACHE) $(CPP)
+CC       := $(COMPILER_CACHE) $(CC)
+endif
+CACHE_KEY := $(shell test -w /var/tmp && echo "$(CURDIR)" | cksum | cut -d' ' -f1)
+OBJDIR ?= $(if $(CACHE_KEY),/var/tmp/kfx-$(CACHE_KEY),obj)
 BIN      = bin/keeperfx$(EXEEXT)
 TEST_BIN = bin/tests$(EXEEXT)
 HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
-# Names of intermediate build products
 GENSRC   = src/ver_defs.h
-RES      = obj/keeperfx_stdres.res
-
-DEPS = \
-obj/centitoml/toml_api.o \
-deps/luajit/lib/libluajit.a
-
-# functional test debugging flags/objs
+RES      = $(OBJDIR)/keeperfx_stdres.res
+DEPS := \
+	obj/centitoml/toml_api.o \
+	deps/luajit/lib/libluajit.a
 FTEST_DEBUG ?= 0
-ifeq ($(FTEST_DEBUG), 1)
-  FTEST_DBGFLAGS = -DFUNCTESTING=1
-  FTEST_OBJS = obj/ftests/ftest.o \
-  			   obj/ftests/ftest_util.o \
-			   obj/ftests/ftest_list.o
-  FTEST_OBJS += $(patsubst src/ftests/tests/%,obj/ftests/tests/%,$(patsubst %.c,%.o,$(wildcard src/ftests/tests/ftest*.c)))
-else
-  FTEST_DBGFLAGS =
-  FTEST_OBJS =
+FTEST_DBGFLAGS := $(if $(filter 1,$(FTEST_DEBUG)),-DFUNCTESTING=1,)
+ifneq (,$(filter 1,$(FTEST_DEBUG)))
+FTEST_OBJS := \
+	obj/ftests/ftest.o \
+	obj/ftests/ftest_util.o \
+	obj/ftests/ftest_list.o \
+	$(patsubst src/ftests/tests/%,obj/ftests/tests/%,$(patsubst %.c,%.o,$(wildcard src/ftests/tests/ftest*.c)))
 endif
-
-OBJS = \
-$(DEPS) \
-obj/actionpt.o \
-obj/api.o \
-obj/ariadne.o \
-obj/ariadne_edge.o \
-obj/ariadne_findcache.o \
-obj/ariadne_naviheap.o \
-obj/ariadne_navitree.o \
-obj/ariadne_points.o \
-obj/ariadne_regions.o \
-obj/ariadne_tringls.o \
-obj/ariadne_update.o \
-obj/ariadne_wallhug.o \
-obj/bflib_basics.o \
-obj/bflib_coroutine.o \
-obj/bflib_cpu.o \
-obj/bflib_crash.o \
-obj/bflib_datetm.o \
-obj/bflib_dernc.o \
-obj/bflib_enet.o \
-obj/net_portforward.o \
-obj/net_holepunch.o \
-obj/bflib_fileio.o \
-obj/bflib_filelst.o \
-obj/bflib_fmvids.o \
-obj/bflib_guibtns.o \
-obj/bflib_input_joyst.o \
-obj/bflib_inputctrl.o \
-obj/bflib_keybrd.o \
-obj/bflib_main.o \
-obj/bflib_math.o \
-obj/bflib_mouse.o \
-obj/bflib_mshandler.o \
-obj/bflib_mspointer.o \
-obj/bflib_netsession.o \
-obj/bflib_netsp.o \
-obj/net_exchange_common.o \
-obj/net_exchange_gameplay.o \
-obj/net_main.o \
-obj/net_lobby.o \
-obj/net_resync.o \
-obj/bflib_planar.o \
-obj/kfx/renderer/software/bflib_render.o \
-obj/kfx/renderer/software/SwDrawTarget.o \
-obj/kfx/renderer/software/bflib_render_gpoly.o \
-obj/kfx/renderer/software/bflib_render_trig.o \
-obj/bflib_sndlib.o \
-obj/bflib_sound.o \
-obj/bflib_sprfnt.o \
-obj/bflib_string.o \
-obj/bflib_text.o \
-obj/bflib_video.o \
-obj/kfx/renderer/software/bflib_vidraw.o \
-obj/kfx/renderer/software/bflib_vidraw_spr_norm.o \
-obj/kfx/renderer/software/bflib_vidraw_spr_onec.o \
-obj/kfx/renderer/software/bflib_vidraw_spr_remp.o \
-obj/bflib_vidsurface.o \
-obj/button_snapping.o \
-obj/config.o \
-obj/config_campaigns.o \
-obj/config_creature.o \
-obj/config_crtrmodel.o \
-obj/config_crtrstates.o \
-obj/config_keeperfx.o \
-obj/config_lenses.o \
-obj/config_magic.o \
-obj/config_objects.o \
-obj/config_mods.o \
-obj/config_players.o \
-obj/config_powerhands.o \
-obj/config_rules.o \
-obj/config_settings.o \
-obj/config_slabsets.o \
-obj/config_strings.o \
-obj/config_terrain.o \
-obj/config_cubes.o \
-obj/config_textures.o \
-obj/config_translation.o \
-obj/config_trapdoor.o \
-obj/config_spritecolors.o \
-obj/config_sounds.o \
-obj/console_cmd.o \
-obj/custom_sprites.o \
-obj/custom_zip.o \
-obj/creature_battle.o \
-obj/creature_control.o \
-obj/creature_graphics.o \
-obj/creature_groups.o \
-obj/creature_instances.o \
-obj/creature_jobs.o \
-obj/creature_senses.o \
-obj/creature_states.o \
-obj/creature_states_barck.o \
-obj/creature_states_combt.o \
-obj/creature_states_gardn.o \
-obj/creature_states_guard.o \
-obj/creature_states_hero.o \
-obj/creature_states_lair.o \
-obj/creature_states_mood.o \
-obj/creature_states_pray.o \
-obj/creature_states_prisn.o \
-obj/creature_states_rsrch.o \
-obj/creature_states_scavn.o \
-obj/creature_states_spdig.o \
-obj/creature_states_tortr.o \
-obj/creature_states_train.o \
-obj/creature_states_tresr.o \
-obj/creature_states_wrshp.o \
-obj/cursor_tag.o \
-obj/dungeon_data.o \
-obj/dungeon_stats.o \
-obj/engine_arrays.o \
-obj/engine_camera.o \
-obj/local_camera.o \
-obj/engine_lenses.o \
-obj/engine_redraw.o \
-obj/engine_render.o \
-obj/engine_render_data.o \
-obj/engine_textures.o \
-obj/front_credits.o \
-obj/front_easter.o \
-obj/front_fmvids.o \
-obj/front_highscore.o \
-obj/front_input.o \
-obj/front_landview.o \
-obj/front_landview_multiplayer.o \
-obj/front_lvlstats.o \
-obj/front_lvlstats_data.o \
-obj/front_network.o \
-obj/front_simple.o \
-obj/front_torture.o \
-obj/front_torture_data.o \
-obj/frontend.o \
-obj/frontmenu_options_data.o \
-obj/frontmenu_saves_data.o \
-obj/frontmenu_select.o \
-obj/frontmenu_select_data.o \
-obj/frontmenu_ingame_evnt.o \
-obj/frontmenu_ingame_evnt_data.o \
-obj/frontmenu_ingame_map.o \
-obj/frontmenu_ingame_opts.o \
-obj/frontmenu_ingame_opts_data.o \
-obj/frontmenu_ingame_tabs.o \
-obj/frontmenu_ingame_tabs_data.o \
-obj/frontmenu_net.o \
-obj/frontmenu_net_data.o \
-obj/frontmenu_options.o \
-obj/frontmenu_saves.o \
-obj/gui_vscroll.o \
-obj/frontmenu_specials.o \
-obj/game_heap.o \
-obj/game_legacy.o \
-obj/game_loop.o \
-obj/game_lghtshdw.o \
-obj/game_merge.o \
-obj/game_saves.o \
-obj/game_update.o \
-obj/gui_boxmenu.o \
-obj/gui_draw.o \
-obj/gui_frontbtns.o \
-obj/gui_frontmenu.o \
-obj/gui_msgs.o \
-obj/gui_parchment.o \
-obj/gui_soundmsgs.o \
-obj/gui_tooltips.o \
-obj/gui_topmsg.o \
-obj/highscores.o \
-obj/kfx_memory.o \
-obj/kjm_input.o \
-obj/lens_api.o \
-obj/config_effects.o \
-obj/LensEffect.o \
-obj/LensManager.o \
-obj/MistEffect.o \
-obj/FlyeyeEffect.o \
-obj/DisplacementEffect.o \
-obj/OverlayEffect.o \
-obj/PaletteEffect.o \
-obj/LuaLensEffect.o \
-obj/light_data.o \
-obj/lua_api.o \
-obj/lua_api_camera.o \
-obj/lua_api_lens.o \
-obj/lua_api_map.o \
-obj/lua_api_player.o \
-obj/lua_api_room.o \
-obj/lua_api_sound.o \
-obj/lua_api_things.o \
-obj/lua_api_slabs.o \
-obj/lua_base.o \
-obj/lua_cfg_funcs.o \
-obj/lua_params.o \
-obj/lua_triggers.o \
-obj/lua_utils.o \
-obj/lvl_filesdk1.o \
-obj/lvl_script.o \
-obj/lvl_script_commands.o \
-obj/lvl_script_commands_old.o \
-obj/lvl_script_lib.o \
-obj/lvl_script_conditions.o \
-obj/lvl_script_value.o \
-obj/magic_powers.o \
-obj/main_game.o \
-obj/map_blocks.o \
-obj/map_columns.o \
-obj/map_ceiling.o \
-obj/map_data.o \
-obj/map_events.o \
-obj/map_locations.o \
-obj/map_utils.o \
-obj/moonphase.o \
-obj/net_game.o \
-obj/net_input_lag.o \
-obj/net_checksums.o \
-obj/net_matchmaking.o \
-obj/net_lan.o \
-obj/packets.o \
-obj/packets_cheats.o \
-obj/packets_input.o \
-obj/packets_misc.o \
-obj/kfx/platform/PlatformManager.o \
-obj/kfx/platform/PlatformWindows.o \
-obj/kfx/platform/WindowSystemSDL.o \
-obj/kfx/renderer/IUIRenderer.o \
-obj/kfx/renderer/ITextRenderer.o \
-obj/kfx/renderer/RendererManager.o \
-obj/kfx/renderer/RendererSoftware.o \
-obj/player_compchecks.o \
-obj/player_compevents.o \
-obj/player_complookup.o \
-obj/config_compp.o \
-obj/player_compprocs.o \
-obj/player_comptask.o \
-obj/player_computer.o \
-obj/player_computer_data.o \
-obj/player_data.o \
-obj/player_instances.o \
-obj/player_utils.o \
-obj/power_hand.o \
-obj/power_process.o \
-obj/power_specials.o \
-obj/room_data.o \
-obj/room_entrance.o \
-obj/room_garden.o \
-obj/room_graveyard.o \
-obj/room_jobs.o \
-obj/room_lair.o \
-obj/room_library.o \
-obj/room_list.o \
-obj/room_scavenge.o \
-obj/room_treasure.o \
-obj/room_util.o \
-obj/room_workshop.o \
-obj/roomspace.o \
-obj/roomspace_detection.o \
-obj/roomspace_prediction.o \
-obj/scrcapt.o \
-obj/slab_data.o \
-obj/sounds.o \
-obj/sound_manager.o \
-obj/spdigger_stack.o \
-obj/tasks_list.o \
-obj/thing_corpses.o \
-obj/thing_creature.o \
-obj/thing_data.o \
-obj/thing_doors.o \
-obj/thing_effects.o \
-obj/thing_factory.o \
-obj/thing_list.o \
-obj/thing_navigate.o \
-obj/thing_objects.o \
-obj/thing_physics.o \
-obj/thing_shots.o \
-obj/thing_stats.o \
-obj/thing_traps.o \
-obj/timer.o \
-obj/value_util.o \
-obj/vidfade.o \
-obj/vidmode_data.o \
-obj/vidmode.o \
-obj/spritesheet.o \
-$(FTEST_OBJS) \
-$(RES)
-
-MAIN_OBJ = obj/main.o
-
-TESTS_OBJ = obj/tests/tst_main.o \
-obj/tests/tst_fixes.o \
-obj/tests/001_test.o \
-obj/tests/tst_enet_server.o \
-obj/tests/tst_enet_client.o
-
-CU_DIR = deps/CUnit-2.1-3/CUnit
-CU_INC = -I"$(CU_DIR)/Headers"
-CU_OBJS = \
-	obj/cu/Basic.o \
-	obj/cu/TestDB.o \
-	obj/cu/CUError.o \
-	obj/cu/TestRun.o \
-	obj/cu/Util.o
-
-# include and library directories
+C_SRCS := $(wildcard \
+	src/*.c \
+	src/kfx/*.c \
+	src/kfx/*/*.c \
+	src/kfx/*/*/*.c)
+CXX_SRCS := $(filter-out src/kfx/platform/PlatformLinux.cpp src/main.cpp,$(wildcard \
+	src/*.cpp \
+	src/kfx/*.cpp \
+	src/kfx/*/*.cpp \
+	src/kfx/*/*/*.cpp))
+OBJS_CORE := \
+	$(patsubst src/%.c,obj/%.o,$(C_SRCS)) \
+	$(patsubst src/%.cpp,obj/%.o,$(CXX_SRCS))
+OBJS := $(OBJS_CORE) $(FTEST_OBJS) $(DEPS)
+MAIN_OBJ := obj/main.o
+TESTS_OBJ := \
+	$(OBJDIR)/tests/tst_main.o \
+	$(OBJDIR)/tests/tst_fixes.o \
+	$(OBJDIR)/tests/001_test.o \
+	$(OBJDIR)/tests/tst_enet_server.o \
+	$(OBJDIR)/tests/tst_enet_client.o
+CU_DIR := deps/CUnit-2.1-3/CUnit
+CU_INC := -idirafter"$(CU_DIR)/Headers"
+CU_OBJS := \
+	$(OBJDIR)/cu/Basic.o \
+	$(OBJDIR)/cu/TestDB.o \
+	$(OBJDIR)/cu/CUError.o \
+	$(OBJDIR)/cu/TestRun.o \
+	$(OBJDIR)/cu/Util.o
 LINKLIB = -mwindows \
 	-L"sdl/lib" -lSDL3 -lSDL3_mixer -lSDL3_image \
 	-L"deps/ffmpeg/libavformat" -lavformat \
@@ -400,287 +117,228 @@ LINKLIB = -mwindows \
 	-L"deps/spng" -lspng \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
-	deps/luajit/lib/libluajit.a \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
 INCS = \
 	-I"src" \
-	-I"deps/zlib/include" \
-	-I"deps/spng/include" \
-	-I"sdl/include" \
-	-I"deps/enet6/include" \
-	-I"deps/centijson/include" \
-	-I"deps/centitoml" \
-	-I"deps/astronomy/include" \
-	-I"deps/ffmpeg" \
-	-I"deps/openal/include" \
-	-I"deps/luajit/include" \
-	-I"deps/miniupnpc/include" \
-	-I"deps/libnatpmp/include" \
-	-I"deps/libcurl/include"
-CXXINCS =  $(INCS)
-
-STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
-HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
-STD_MAIN_OBJ = $(subst obj/,obj/std/,$(MAIN_OBJ))
-HVLOG_MAIN_OBJ = $(subst obj/,obj/hvlog/,$(MAIN_OBJ))
-
-
-# allow extracting files from archives, replacing pre-existing ones
-ENABLE_EXTRACT ?= 1
-
-# flags to generate dependency files
-DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -DSPNG_STATIC=1 -DAL_LIBTYPE_STATIC
-# other flags to include while compiling
-INCFLAGS =
-# code optimization and debugging flags
-CV2PDB := $(shell PATH=`pwd`:$$PATH command -v cv2pdb.exe 2> /dev/null)
+	-isystem"deps/zlib/include" \
+	-isystem"deps/spng/include" \
+	-isystem"sdl/include" \
+	-isystem"deps/enet6/include" \
+	-isystem"deps/centijson/include" \
+	-isystem"deps/centitoml" \
+	-isystem"deps/astronomy/include" \
+	-isystem"deps/ffmpeg" \
+	-isystem"deps/openal/include" \
+	-isystem"deps/luajit/include" \
+	-isystem"deps/miniupnpc/include" \
+	-isystem"deps/libnatpmp/include" \
+	-isystem"deps/libcurl/include"
+STDOBJS   := $(subst obj/,$(OBJDIR)/std/,$(OBJS))
+HVLOGOBJS := $(subst obj/,$(OBJDIR)/hvlog/,$(OBJS))
+STD_MAIN_OBJ := $(subst obj/,$(OBJDIR)/std/,$(MAIN_OBJ))
+HVLOG_MAIN_OBJ := $(subst obj/,$(OBJDIR)/hvlog/,$(MAIN_OBJ))
+NO_PCH_C = bflib_dernc bflib_text net_holepunch net_lan net_matchmaking centitoml/toml_api
+NO_PCH_CXX = net_portforward kfx/platform/WindowSystemSDL
+STD_CXX_O = \
+	$(patsubst src/%.cpp,$(OBJDIR)/std/%.o,$(CXX_SRCS)) \
+	$(STD_MAIN_OBJ)
+HVLOG_CXX_O = \
+	$(patsubst src/%.cpp,$(OBJDIR)/hvlog/%.o,$(CXX_SRCS)) \
+	$(HVLOG_MAIN_OBJ)
+STD_NO_PCH_C_O = $(addprefix $(OBJDIR)/std/,$(addsuffix .o,$(NO_PCH_C)))
+HVLOG_NO_PCH_C_O = $(addprefix $(OBJDIR)/hvlog/,$(addsuffix .o,$(NO_PCH_C)))
+STD_NO_PCH_CXX_O = $(addprefix $(OBJDIR)/std/,$(addsuffix .o,$(NO_PCH_CXX)))
+HVLOG_NO_PCH_CXX_O = $(addprefix $(OBJDIR)/hvlog/,$(addsuffix .o,$(NO_PCH_CXX)))
+$(STD_CXX_O): .EXTRA_PREREQS = $(OBJDIR)/std/.build_config $(OBJDIR)/std/kfx_pch_cxx.h.gch
+$(filter-out $(STD_CXX_O),$(filter %.o,$(STDOBJS) $(STD_MAIN_OBJ))): \
+	.EXTRA_PREREQS = $(OBJDIR)/std/.build_config $(OBJDIR)/std/kfx_pch_c.h.gch
+$(HVLOG_CXX_O): .EXTRA_PREREQS = $(OBJDIR)/hvlog/.build_config $(OBJDIR)/hvlog/kfx_pch_cxx.h.gch
+$(filter-out $(HVLOG_CXX_O),$(filter %.o,$(HVLOGOBJS) $(HVLOG_MAIN_OBJ))): \
+	.EXTRA_PREREQS = $(OBJDIR)/hvlog/.build_config $(OBJDIR)/hvlog/kfx_pch_c.h.gch
+$(TESTS_OBJ) $(CU_OBJS): .EXTRA_PREREQS = $(OBJDIR)/tests/.build_config
+DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -DSPNG_STATIC=1 -DAL_LIBTYPE_STATIC
 DEBUG ?= 0
-ifeq ($(DEBUG), 1)
-  OPTFLAGS = -march=x86-64 -fno-omit-frame-pointer -O0
-  DBGFLAGS = -g -DDEBUG
-else
-  # frame pointer is required for ASM code to work
-  OPTFLAGS = -march=x86-64 -fno-omit-frame-pointer -O3
-  # if we can create a separate debug info file then do it
-  ifdef CV2PDB
-    DBGFLAGS = -g
-  else
-    DBGFLAGS =
-  endif
-endif
-
-# logging level flags
-STLOGFLAGS = -DBFDEBUG_LEVEL=0
-HVLOGFLAGS = -DBFDEBUG_LEVEL=10
-# compiler warning generation flags
-WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-sign-compare -Wno-strict-aliasing -Wno-unknown-pragmas -Werror -Wno-format-truncation
-# disabled warnings: -Wextra -Wtype-limits
-CXXFLAGS = $(CXXINCS) -c -std=gnu++20 -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
-CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS) -DCURL_STATICLIB
-LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
-
-ifeq ($(USE_PRE_FILE), 1)
-CXXFLAGS += -DUSE_PRE_FILE=1
-CFLAGS += -DUSE_PRE_FILE=1
-endif
-
-CAMPAIGNS = $(patsubst campgns/%.cfg,%,$(wildcard campgns/*.cfg))
-MAPPACKS = $(patsubst levels/%.cfg,%,$(filter-out %/personal.cfg,$(wildcard levels/*.cfg)))
-LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
-
-# load program version
+OPTFLAGS = -march=x86-64 -fno-omit-frame-pointer $(if $(filter 1,$(DEBUG)),-O0,-O3)
+DBGFLAGS = $(if $(filter 1,$(DEBUG)),-g -DDEBUG,$(if $(CV2PDB),-g,))
+std_LOGFLAGS = -DBFDEBUG_LEVEL=0
+hvlog_LOGFLAGS = -DBFDEBUG_LEVEL=10
+WARNFLAGS = \
+	-Wall \
+	-W \
+	-Wshadow \
+	-Werror \
+	-Wno-sign-compare \
+	-Wno-unused-parameter \
+	-Wno-maybe-uninitialized \
+	-Wno-strict-aliasing \
+	-Wno-unknown-pragmas \
+	-Wno-format-truncation
+COMMONFLAGS := \
+	$(INCS) \
+	-c \
+	-pipe \
+	-fmessage-length=0 \
+	-ftrack-macro-expansion=0 \
+	$(WARNFLAGS) \
+	$(OPTFLAGS) \
+	$(DBGFLAGS) \
+	$(FTEST_DBGFLAGS) \
+	$(if $(filter 1,$(USE_PRE_FILE)),-DUSE_PRE_FILE=1,)
+CXXFLAGS = $(COMMONFLAGS) $(DEPFLAGS) -std=gnu++20
+CFLAGS = $(COMMONFLAGS) $(DEPFLAGS) -std=gnu11 -Werror=implicit -DCURL_STATICLIB
+LDFLAGS = $(LINKLIB) $(DBGFLAGS) $(LINKFLAGS) -Wl,--no-print-map-discarded
 include version.mk
-
 VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_SUFFIX)
-
-# Enable parallel compilation by default. Users can still override with: make -j8, make -j1, etc.
-ifndef MAKEFLAGS
-  MAKEFLAGS = -j$(shell nproc)
+ifeq ($(filter -j% --jobserver%,$(MAKEFLAGS)),)
+  MAKEFLAGS += -j$(shell nproc)
 endif
-
-# load depenency packages
+MAKEFLAGS += -rR
 include prebuilds.mk
-
-# name virtual targets
-.PHONY: all docs docsdox clean clean-build deep-clean build-before
-.PHONY: standard std-before std-after
-.PHONY: heavylog hvlog-before hvlog-after
-.PHONY: package clean-package deep-clean-package
-.PHONY: tools clean-tools deep-clean-tools
-.PHONY: clean-libexterns deep-clean-libexterns
-.PHONY: tests cppcheck
-
-# dependencies tracking
--include $(filter %.d,$(STDOBJS:%.o=%.d))
--include $(filter %.d,$(HVLOGOBJS:%.o=%.d))
-
-
-# 'make all' calculates the current checksum of all .h and .hpp files, storing the checksum in a file. Then it decides whether to run 'make clean' or 'make standard' based on whether any .h and .hpp files have been altered
-HEADER_CHECKSUM_FILE=.header_checksum
-
-all:
-	@start_time=$$(date +%s.%N); \
-	get_header_cksum=$$(find ./src/ -type f \( -name "*.h" -o -name "*.hpp" \) -print0 | xargs -0 cksum | LC_ALL=C sort | cksum | awk '{print $$1}'); \
-	current_checksum=$$(echo $$get_header_cksum $(DEBUG) | cksum | awk '{print $$1}'); \
-	if [ ! -f $(HEADER_CHECKSUM_FILE) ] || [ "$$(cat $(HEADER_CHECKSUM_FILE))" != "$$current_checksum" ]; then \
-		$(MAKE) clean; \
-	fi; \
-	$(MAKE) standard || exit 1; \
-	echo "$$current_checksum" > $(HEADER_CHECKSUM_FILE); \
-	end_time=$$(date +%s.%N); \
-	duration=$$(awk "BEGIN {print $$end_time - $$start_time}"); \
-	printf "\033[97mCompiled in: %0.2f seconds\033[0m\n" $$duration;
-
-standard: CXXFLAGS += $(STLOGFLAGS)
-standard: CFLAGS += $(STLOGFLAGS)
-standard: std-before $(BIN) std-after
-
-heavylog: CXXFLAGS += $(HVLOGFLAGS)
-heavylog: CFLAGS += $(HVLOGFLAGS)
-heavylog: hvlog-before $(HVLOGBIN) hvlog-after
-
-# not nice but necessary for make -j to work
-FOLDERS = bin obj/std obj/hvlog \
-obj/std/ftests \
-obj/std/ftests/tests \
-obj/tests obj/cu \
-obj/std/centitoml obj/hvlog/centitoml \
-obj/std/kfx/platform obj/hvlog/kfx/platform \
-obj/std/kfx/renderer/software obj/hvlog/kfx/renderer/software \
-obj/std/kfx/renderer obj/hvlog/kfx/renderer \
-sdl/for_final_package
-
+.DELETE_ON_ERROR:
+.PHONY: all standard heavylog package tools tests cppcheck docs docsdox FORCE
+.PHONY: clean clean-build deep-clean
+.PHONY: clean-package deep-clean-package clean-tools deep-clean-tools clean-libexterns deep-clean-libexterns
+STD_DEPFILES = \
+	$(filter %.d,$(STDOBJS:%.o=%.d) $(STD_MAIN_OBJ:%.o=%.d)) \
+	$(OBJDIR)/std/kfx_pch_c.h.d \
+	$(OBJDIR)/std/kfx_pch_cxx.h.d
+HVLOG_DEPFILES = \
+	$(filter %.d,$(HVLOGOBJS:%.o=%.d) $(HVLOG_MAIN_OBJ:%.o=%.d)) \
+	$(OBJDIR)/hvlog/kfx_pch_c.h.d \
+	$(OBJDIR)/hvlog/kfx_pch_cxx.h.d
+TEST_DEPFILES = $(filter %.d,$(TESTS_OBJ:%.o=%.d) $(CU_OBJS:%.o=%.d))
+REQUESTED_GOALS = $(if $(MAKECMDGOALS),$(MAKECMDGOALS),all)
+-include $(STD_DEPFILES)
+ifneq ($(filter-out all standard clean clean-build,$(REQUESTED_GOALS)),)
+-include $(HVLOG_DEPFILES)
+-include $(TEST_DEPFILES)
+endif
+all: standard
+	@duration=$$(awk "BEGIN { print $$(date +%s.%N) - $(BUILD_START) }"); printf '\033[97mCompile completed in %0.2fs\033[0m\n' $$duration
+standard: $(BIN) $(BIN:%.exe=%.map)
+heavylog: $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)
+$(OBJDIR)/std/%: COMMONFLAGS += $(std_LOGFLAGS)
+$(OBJDIR)/hvlog/%: COMMONFLAGS += $(hvlog_LOGFLAGS)
+PCH_SRC = src/kfx_pch.h
+PCH_HDRS = \
+	$(OBJDIR)/std/kfx_pch_c.h \
+	$(OBJDIR)/std/kfx_pch_cxx.h \
+	$(OBJDIR)/hvlog/kfx_pch_c.h \
+	$(OBJDIR)/hvlog/kfx_pch_cxx.h
+PCH_C_FLAGS = -include "$(PCHDIR)/kfx_pch_c.h"
+PCH_CXX_FLAGS = -include "$(PCHDIR)/kfx_pch_cxx.h"
+$(OBJDIR)/std/%.o: PCHDIR = $(OBJDIR)/std
+$(OBJDIR)/hvlog/%.o: PCHDIR = $(OBJDIR)/hvlog
+$(STD_NO_PCH_C_O) $(HVLOG_NO_PCH_C_O): PCH_C_FLAGS =
+$(STD_NO_PCH_CXX_O) $(HVLOG_NO_PCH_CXX_O): PCH_CXX_FLAGS =
+$(STD_NO_PCH_C_O) $(STD_NO_PCH_CXX_O): .EXTRA_PREREQS = $(OBJDIR)/std/.build_config
+$(HVLOG_NO_PCH_C_O) $(HVLOG_NO_PCH_CXX_O): .EXTRA_PREREQS = $(OBJDIR)/hvlog/.build_config
+$(PCH_HDRS): $(PCH_SRC)
+	@$(CP) "$<" "$@"
+$(OBJDIR)/%/kfx_pch_c.h.gch: $(OBJDIR)/%/kfx_pch_c.h $(OBJDIR)/%/.build_config | libexterns $(GENSRC)
+	$(CC) $(filter-out -M%,$(CFLAGS)) \
+		-MMD -MP -MF"$(@:%.h.gch=%.h.d)" -MT"$@" \
+		-x c-header -o"$@" "$<"
+$(OBJDIR)/%/kfx_pch_cxx.h.gch: $(OBJDIR)/%/kfx_pch_cxx.h $(OBJDIR)/%/.build_config | libexterns $(GENSRC)
+	$(CPP) $(filter-out -M%,$(CXXFLAGS)) \
+		-MMD -MP -MF"$(@:%.h.gch=%.h.d)" -MT"$@" \
+		-x c++-header -o"$@" "$<"
+FOLDERS = \
+	bin \
+	$(sort $(dir $(STDOBJS) $(HVLOGOBJS) $(STD_MAIN_OBJ) $(HVLOG_MAIN_OBJ) $(TESTS_OBJ) $(CU_OBJS))) \
+	sdl/for_final_package
 $(shell $(MKDIR) $(FOLDERS))
-
-build-before: libexterns
-
-std-before: build-before
-hvlog-before: build-before
-
+define UPDATE_BUILD_CONFIG
+$(shell \
+	printf '%s\n' '$(CPP) $(CXXFLAGS) $($(1)_LOGFLAGS) $(CC) $(CFLAGS) $($(1)_LOGFLAGS)' > "$(OBJDIR)/$(1)/.build_config.tmp"; \
+	cmp -s "$(OBJDIR)/$(1)/.build_config.tmp" "$(OBJDIR)/$(1)/.build_config" || $(MV) "$(OBJDIR)/$(1)/.build_config.tmp" "$(OBJDIR)/$(1)/.build_config"; \
+	$(RM) "$(OBJDIR)/$(1)/.build_config.tmp")
+endef
+$(foreach variant,std hvlog tests,$(call UPDATE_BUILD_CONFIG,$(variant)))
 docs: docsdox
-
 docsdox: docs/doxygen.conf
 	VERSION=$(VER_STRING) $(DOXYTOOL) docs/doxygen.conf
-
 deep-clean: deep-clean-tools deep-clean-package
 	$(MAKE) -f libexterns.mk deep-clean-libexterns
-
 clean: submodule clean-build clean-tools clean-libexterns clean-package
-
 submodule:
 	-git submodule init && git submodule update
-
 clean-build:
-	-$(RM) $(STDOBJS) $(STD_MAIN_OBJ) $(filter %.d,$(STDOBJS:%.o=%.d)) $(filter %.d,$(STD_MAIN_OBJ:%.o=%.d))
-	-$(RM) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(filter %.d,$(HVLOGOBJS:%.o=%.d)) $(filter %.d,$(HVLOG_MAIN_OBJ:%.o=%.d))
-	-$(RM) $(BIN) $(BIN:%.exe=%.map)
-	-$(RM) $(BIN) $(BIN:%.exe=%.pdb)
-	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)
-	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.pdb)
+	-$(RM) \
+		$(filter $(OBJDIR)/%,$(STDOBJS) $(STD_MAIN_OBJ) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ)) \
+		$(filter %.d,$(STDOBJS:%.o=%.d) $(STD_MAIN_OBJ:%.o=%.d) $(HVLOGOBJS:%.o=%.d) $(HVLOG_MAIN_OBJ:%.o=%.d))
+	-$(RM) \
+		$(BIN) $(BIN:%.exe=%.map) $(BIN:%.exe=%.pdb) \
+		$(HVLOGBIN) $(HVLOGBIN:%.exe=%.map) $(HVLOGBIN:%.exe=%.pdb)
 	-$(RM) bin/keeperfx.dll
-	-$(RM) $(GENSRC)
-	-$(RM) res/*.ico
-	-$(RM) obj/keeperfx.*
-
-$(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) std-before
-	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LDFLAGS)
-ifdef CV2PDB
-	$(CV2PDB) -C "$@"
-endif
-	-$(ECHO) ' '
-
-$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) hvlog-before
-	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LDFLAGS)
-ifdef CV2PDB
-	$(CV2PDB) -C "$@"
-endif
-	-$(ECHO) ' '
-
-$(TEST_BIN): $(GENSRC) $(STDOBJS) $(TESTS_OBJ) $(CU_OBJS) std-before
-	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(TESTS_OBJ) $(STDOBJS) $(CU_OBJS) $(LDFLAGS)
-ifdef CV2PDB
-	$(CV2PDB) -C "$@"
-endif
-
-obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c
-	-$(ECHO) 'Building file: $<'
+	-$(RM) $(GENSRC) $(OBJDIR)/keeperfx.* $(OBJDIR)/keeperfx_hvlog.* $(OBJDIR)/tests.*
+define LINK_RULE
+$1 $2 &: $(GENSRC) $3 | libexterns
+	$(CPP) -o"$(OBJDIR)/$4" $3 $(LDFLAGS) -Wl,-Map,"$(OBJDIR)/$5"
+	@$(CP) "$(OBJDIR)/$4" "$1" && $(CP) "$(OBJDIR)/$5" "$2" && $(RM) "$(OBJDIR)/$4" "$(OBJDIR)/$5"
+	$(if $(CV2PDB),$(CV2PDB) -C "$1")
+endef
+$(eval $(call LINK_RULE,$(BIN),$(BIN:%.exe=%.map),$(STDOBJS) $(STD_MAIN_OBJ) $(RES),keeperfx.exe,keeperfx.map))
+$(eval $(call LINK_RULE,$(HVLOGBIN),$(HVLOGBIN:%.exe=%.map),$(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(RES),keeperfx_hvlog.exe,keeperfx_hvlog.map))
+$(eval $(call LINK_RULE,$(TEST_BIN),$(TEST_BIN:%.exe=%.map),$(TESTS_OBJ) $(STDOBJS) $(CU_OBJS) $(RES),tests.exe,tests.map))
+$(OBJDIR)/std/centitoml/toml_api.o $(OBJDIR)/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c
 	$(CC) $(CFLAGS) -o"$@" "$<"
-	-$(ECHO) ' '
-
-obj/tests/%.o: src/tests/%.cpp $(GENSRC)
-	-$(ECHO) 'Building file: $<'
+$(OBJDIR)/tests/%.o: src/tests/%.cpp | $(GENSRC)
 	$(CPP) $(CXXFLAGS) -I"src/" $(CU_INC) -o"$@" "$<"
-	-$(ECHO) ' '
-
-obj/cu/%.o: $(CU_DIR)/Sources/Framework/%.c
+$(OBJDIR)/cu/%.o: $(CU_DIR)/Sources/Framework/%.c
 	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
-
-obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
+$(OBJDIR)/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
 	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
-
-
-define BUILD_CPP_FILES_CMD
-	-$(ECHO) 'Building cpp file: $<'
-	@grep -E "#include \"(\.\./)?(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
-	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+define COMPILE_RULES
+$(patsubst src/%.cpp,$(OBJDIR)/$1/%.o,$(CXX_SRCS) src/main.cpp): \
+	$(OBJDIR)/$1/%.o: src/%.cpp | libexterns $(GENSRC)
+	$$(CPP) $$(CXXFLAGS) $$(PCH_CXX_FLAGS) -o"$$@" "$$<"
+$(patsubst src/%.c,$(OBJDIR)/$1/%.o,$(C_SRCS)) $(subst obj/,$(OBJDIR)/$1/,$(FTEST_OBJS)): \
+	$(OBJDIR)/$1/%.o: src/%.c | libexterns $(GENSRC)
+	$$(CC) $$(CFLAGS) $$(PCH_C_FLAGS) -o"$$@" "$$<"
 endef
-
-# Pattern rules for src/kfx/lense (must come before general src/%.cpp rule)
-obj/std/%.o: src/kfx/lense/%.cpp libexterns $(GENSRC)
-	$(BUILD_CPP_FILES_CMD)
-
-obj/hvlog/%.o: src/kfx/lense/%.cpp libexterns $(GENSRC)
-	$(BUILD_CPP_FILES_CMD)
-
-obj/std/%.o: src/%.cpp libexterns $(GENSRC)
-	$(BUILD_CPP_FILES_CMD)
-
-obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
-	$(BUILD_CPP_FILES_CMD)
-
-
-define BUILD_CC_FILES_CMD
-	-$(ECHO) 'Building cc file: $<'
-	@grep -E "#include \"(\.\./)?(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
-	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
-	$(CC) $(CFLAGS) -o"$@" "$<"
-endef
-
-obj/std/%.o: src/%.c libexterns $(GENSRC)
-	$(BUILD_CC_FILES_CMD)
-
-obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
-	$(BUILD_CC_FILES_CMD)
-
-
-# Windows resources compilation
-
-define BUILD_RESOURCE_CMD
-	-$(ECHO) 'Building resource: $<'
-	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff -I"obj/"
-	-$(ECHO) ' '
-endef
-
-obj/std/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
-	$(BUILD_RESOURCE_CMD)
-
-obj/hvlog/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
-	$(BUILD_RESOURCE_CMD)
-
-
-# Creation of Windows icon files from PNG files
-res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08bpp.png res/%128-08bpp.png res/%128-24bpp.png res/%256-24bpp.png res/%512-24bpp.png $(PNGTOICO)
+$(foreach variant,std hvlog,$(eval $(call COMPILE_RULES,$(variant))))
+$(OBJDIR)/%.res: res/%.rc res/keeperfx_icon.ico src/version.h $(GENSRC)
+	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff -I"$(OBJDIR)/"
+.SECONDARY: res/keeperfx_icon.ico
+res/%.ico: \
+	res/%016-08bpp.png \
+	res/%032-08bpp.png \
+	res/%048-08bpp.png \
+	res/%064-08bpp.png \
+	res/%128-08bpp.png \
+	res/%128-24bpp.png \
+	res/%256-24bpp.png \
+	res/%512-24bpp.png \
+	$(PNGTOICO)
 	-$(ECHO) 'Building icon: $@'
-	$(PNGTOICO) "$@" $(word 8,$^) $(word 7,$^) $(word 6,$^) --colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) --colors 16 $(word 2,$^) $(word 1,$^)
-	-$(ECHO) ' '
-
-src/ver_defs.h: version.mk Makefile
-	$(ECHO) \#define VER_MAJOR   $(VER_MAJOR) > "$(@D)/tmp"
-	$(ECHO) \#define VER_MINOR   $(VER_MINOR) >> "$(@D)/tmp"
-	$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
-	$(ECHO) \#define VER_BUILD   $(BUILD_NUMBER) >> "$(@D)/tmp"
-	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
-	$(ECHO) \#define PACKAGE_SUFFIX  \"$(PACKAGE_SUFFIX)\" >> "$(@D)/tmp"
-	$(ECHO) \#define GIT_REVISION  \"`git describe  --always`\" >> "$(@D)/tmp"
-	$(MV) "$(@D)/tmp" "$@"
-
-tests: std-before $(TEST_BIN)
-
+	$(PNGTOICO) "$@" \
+		$(word 8,$^) $(word 7,$^) $(word 6,$^) \
+		--colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) \
+		--colors 16 $(word 2,$^) $(word 1,$^)
+src/ver_defs.h: FORCE version.mk Makefile
+	@printf '%s\n' \
+		'#define VER_MAJOR $(VER_MAJOR)' \
+		'#define VER_MINOR $(VER_MINOR)' \
+		'#define VER_RELEASE $(VER_RELEASE)' \
+		'#define VER_BUILD $(BUILD_NUMBER)' \
+		'#define VER_STRING "$(VER_STRING)"' \
+		'#define PACKAGE_SUFFIX "$(PACKAGE_SUFFIX)"' \
+		"#define GIT_REVISION \"$$(git describe --always)\"" \
+		> "$@.tmp"
+	@cmp -s "$@.tmp" "$@" || $(MV) "$@.tmp" "$@"; $(RM) "$@.tmp"
+tests: $(TEST_BIN) $(TEST_BIN:%.exe=%.map)
 libexterns: libexterns.mk
 	$(MAKE) -f libexterns.mk
-
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl
+	-$(RM) -rf \
+		deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson \
+		deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl
 	-$(RM) libexterns
-
-deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl:
+deps/enet6 deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg \
+deps/openal deps/luajit deps/miniupnpc deps/libnatpmp deps/libcurl:
 	$(MKDIR) $@
-
 src/api.c: deps/centijson/include/json.h
 src/bflib_enet.cpp: deps/enet6/include/enet6/enet.h
 src/custom_sprites.c: deps/zlib/include/zlib.h deps/spng/include/spng.h deps/centijson/include/json.h
@@ -695,85 +353,52 @@ src/net_resync.cpp: deps/zlib/include/zlib.h
 src/console_cmd.c: deps/luajit/include/lua.h
 src/net_portforward.cpp: deps/miniupnpc/include/miniupnpc/miniupnpc.h deps/libnatpmp/include/natpmp/natpmp.h
 src/net_matchmaking.c: deps/libcurl/include/curl/curl.h
-
-deps/enet6-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260212/enet6-mingw32.tar.gz"
-
-deps/enet6/include/enet6/enet.h: deps/enet6-mingw32.tar.gz | deps/enet6
-	tar xzmf $< -C deps/enet6
-
-deps/zlib-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/zlib-mingw32.tar.gz"
-
-deps/zlib/include/zlib.h: deps/zlib-mingw32.tar.gz | deps/zlib
-	tar xzmf $< -C deps/zlib
-
-deps/spng-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/spng-mingw32.tar.gz"
-
-deps/spng/include/spng.h: deps/spng-mingw32.tar.gz | deps/spng
-	tar xzmf $< -C deps/spng
-
-deps/astronomy-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/astronomy_fix/astronomy-mingw32.tar.gz"
-
-deps/astronomy/include/astronomy.h: deps/astronomy-mingw32.tar.gz | deps/astronomy
-	tar xzmf $< -C deps/astronomy
-
-deps/centijson-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/centijson-mingw32.tar.gz"
-
-deps/centijson/include/json.h: deps/centijson-mingw32.tar.gz | deps/centijson
-	tar xzmf $< -C deps/centijson
-
-deps/ffmpeg-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/ffmpeg-mingw32.tar.gz"
-
-deps/ffmpeg/libavformat/avformat.h: deps/ffmpeg-mingw32.tar.gz | deps/ffmpeg
-	tar xzmf $< -C deps/ffmpeg
-
-deps/openal-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/2024-11-14/openal-mingw32.tar.gz"
-
-deps/openal/include/AL/al.h: deps/openal-mingw32.tar.gz | deps/openal
-	tar xzmf $< -C deps/openal
-
-deps/luajit-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20250418/luajit-mingw32.tar.gz"
-
+KFX_DEPS_URL = https://github.com/dkfans/kfx-deps/releases/download
+define DEP_PKG
+deps/$1-mingw32.tar.gz:
+	$(MKDIR) "$$(@D)"
+	curl -Lso "$$@" "$(KFX_DEPS_URL)/$2/$1-mingw32.tar.gz" && tar -tzf "$$@" >/dev/null
+$3: deps/$1-mingw32.tar.gz | deps/$1
+	tar xzmf "$$<" -C deps/$1
+endef
+$(eval $(call DEP_PKG,enet6,20260212,deps/enet6/include/enet6/enet.h))
+$(eval $(call DEP_PKG,zlib,initial,deps/zlib/include/zlib.h))
+$(eval $(call DEP_PKG,spng,initial,deps/spng/include/spng.h))
+$(eval $(call DEP_PKG,astronomy,astronomy_fix,deps/astronomy/include/astronomy.h))
+$(eval $(call DEP_PKG,centijson,initial,deps/centijson/include/json.h))
+$(eval $(call DEP_PKG,ffmpeg,initial,deps/ffmpeg/libavformat/avformat.h))
+$(eval $(call DEP_PKG,openal,2024-11-14,deps/openal/include/AL/al.h))
+$(eval $(call DEP_PKG,luajit,20250418,deps/luajit/include/lua.h))
+$(eval $(call DEP_PKG,miniupnpc,20260102,deps/miniupnpc/include/miniupnpc/miniupnpc.h))
+$(eval $(call DEP_PKG,libnatpmp,20260102,deps/libnatpmp/include/natpmp/natpmp.h))
+$(eval $(call DEP_PKG,libcurl,20260310,deps/libcurl/include/curl/curl.h))
 deps/luajit/lib/libluajit.a: | deps/luajit/include/lua.h
-
-deps/luajit/include/lua.h: deps/luajit-mingw32.tar.gz | deps/luajit
-	tar xzmf $< -C deps/luajit
-
-deps/miniupnpc-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260102/miniupnpc-mingw32.tar.gz"
-
-deps/miniupnpc/include/miniupnpc/miniupnpc.h: deps/miniupnpc-mingw32.tar.gz | deps/miniupnpc
-	tar xzmf $< -C deps/miniupnpc
-
-deps/libnatpmp-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260102/libnatpmp-mingw32.tar.gz"
-
-deps/libnatpmp/include/natpmp/natpmp.h: deps/libnatpmp-mingw32.tar.gz | deps/libnatpmp
-	tar xzmf $< -C deps/libnatpmp
-
-deps/libcurl-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20260310/libcurl-mingw32.tar.gz"
-
-deps/libcurl/include/curl/curl.h: deps/libcurl-mingw32.tar.gz | deps/libcurl
-	tar xzmf $< -C deps/libcurl
-
-cppcheck: | src/ver_defs.h
-cppcheck: | deps/zlib/include/zlib.h
-cppcheck: | deps/spng/include/spng.h
-cppcheck: | deps/astronomy/include/astronomy.h
-cppcheck: | deps/centijson/include/json.h
-cppcheck: | deps/enet6/include/enet6/enet.h
-cppcheck: | deps/luajit/include/lua.h
-cppcheck: | deps/openal/include/AL/al.h
-cppcheck: | deps/ffmpeg/libavformat/avformat.h
-
+CPSUPPRESS = \
+	missingIncludeSystem constParameterPointer constVariablePointer functionConst \
+	unreadVariable uninitvar variableScope unusedStructMember \
+	funcArgNamesDifferent funcArgOrderDifferent cstyleCast functionStatic \
+	unsignedLessThanZero constParameterCallback constParameter knownConditionTrueFalse \
+	negativeIndex nullPointerRedundantCheck nullPointerArithmeticRedundantCheck \
+	invalidscanf invalidScanfArgType_int invalidPrintfArgType_uint invalidPrintfArgType_sint \
+	redundantAssignment preprocessorErrorDirective uninitMemberVar truncLongCastAssignment \
+	shiftNegativeLHS bitwiseOnBoolean shiftTooManyBits shiftTooManyBitsSigned \
+	identicalConditionAfterEarlyExit useInitializationList operatorEqVarError noExplicitConstructor \
+	useStlAlgorithm duplicateExpression duplicateBranch duplicateConditionalAssign \
+	duplicateAssignExpression nullPointer compareValueOutOfTypeRangeError redundantInitialization \
+	multiCondition internalAstError clarifyCondition memsetClassFloat comparePointers \
+	identicalInnerCondition uselessAssignmentPtrArg unassignedVariable shiftNegative \
+	duplicateCondition badBitmaskCheck shadowFunction shadowVariable \
+	uninitStructMember CastIntegerToAddressAtReturn
+cppcheck: | \
+	src/ver_defs.h \
+	deps/zlib/include/zlib.h \
+	deps/spng/include/spng.h \
+	deps/astronomy/include/astronomy.h \
+	deps/centijson/include/json.h \
+	deps/enet6/include/enet6/enet.h \
+	deps/luajit/include/lua.h \
+	deps/openal/include/AL/al.h \
+	deps/ffmpeg/libavformat/avformat.h
 cppcheck:
 	$(MKDIR) cppcheck.cache
 	cppcheck \
@@ -801,78 +426,34 @@ cppcheck:
 		-DSPNG_STATIC=1 \
 		-DAL_LIBTYPE_STATIC \
 		-DDEBUG_NETWORK_PACKETS=1 \
-		--suppress=missingIncludeSystem \
-		--suppress=constParameterPointer \
-		--suppress=constVariablePointer \
-		--suppress=functionConst \
-		--suppress=unreadVariable \
-		--suppress=uninitvar \
-		--suppress=variableScope \
-		--suppress=unusedStructMember \
-		--suppress=funcArgNamesDifferent \
-		--suppress=funcArgOrderDifferent \
-		--suppress=cstyleCast \
-		--suppress=functionStatic \
-		--suppress=unsignedLessThanZero \
-		--suppress=constParameterCallback \
-		--suppress=constParameter \
-		--suppress=knownConditionTrueFalse \
-		--suppress=negativeIndex \
-		--suppress=nullPointerRedundantCheck \
-		--suppress=nullPointerArithmeticRedundantCheck \
-		--suppress=invalidscanf \
-		--suppress=invalidScanfArgType_int \
-		--suppress=invalidPrintfArgType_uint \
-		--suppress=invalidPrintfArgType_sint \
-		--suppress=redundantAssignment \
-		--suppress=preprocessorErrorDirective \
-		--suppress=uninitMemberVar \
-		--suppress=truncLongCastAssignment \
-		--suppress=shiftNegativeLHS \
-		--suppress=bitwiseOnBoolean \
-		--suppress=shiftTooManyBits \
-		--suppress=shiftTooManyBitsSigned \
-		--suppress=identicalConditionAfterEarlyExit \
-		--suppress=useInitializationList \
-		--suppress=operatorEqVarError \
-		--suppress=noExplicitConstructor \
-		--suppress=useStlAlgorithm \
-		--suppress=duplicateExpression \
-		--suppress=duplicateBranch \
-		--suppress=duplicateConditionalAssign \
-		--suppress=duplicateAssignExpression \
-		--suppress=nullPointer \
-		--suppress=compareValueOutOfTypeRangeError \
-		--suppress=redundantInitialization \
-		--suppress=multiCondition \
-		--suppress=internalAstError \
-		--suppress=clarifyCondition \
-		--suppress=memsetClassFloat \
-		--suppress=comparePointers \
-		--suppress=identicalInnerCondition \
-		--suppress=uselessAssignmentPtrArg \
-		--suppress=unassignedVariable \
-		--suppress=shiftNegative \
-		--suppress=duplicateCondition \
-		--suppress=badBitmaskCheck \
-		--suppress=shadowFunction \
-		--suppress=shadowVariable \
-		--suppress=uninitStructMember \
-		--suppress=CastIntegerToAddressAtReturn \
+		$(addprefix --suppress=,$(CPSUPPRESS)) \
 		src 2>cppcheck.log
-
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
 include tool_png2bestpal.mk
 include tool_po2ngdat.mk
 include tool_sndbanker.mk
 include tool_rnctools.mk
-#include tool_dkillconv.mk
-
+PKG_GOALS = \
+	package \
+	pkg-assemble \
+	pkg-gfx \
+	pkg-landviews \
+	pkg-menugfx \
+	pkg-enginegfx \
+	pkg-sfx \
+	convert-sfx \
+	clean \
+	deep-clean \
+	clean-package \
+	deep-clean-package
+ifneq ($(filter $(PKG_GOALS) pkg/% tools/% sfx/%,$(MAKECMDGOALS)),)
+CAMPAIGNS = $(patsubst campgns/%.cfg,%,$(wildcard campgns/*.cfg))
+MAPPACKS = $(patsubst levels/%.cfg,%,$(filter-out %/personal.cfg,$(wildcard levels/*.cfg)))
+LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 include pkg_lang.mk
 include pkg_gfx.mk
 include pkg_sfx.mk
 include package.mk
-
+endif
 export RM CP MKDIR MV ECHO
-#******************************************************************************

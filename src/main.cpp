@@ -353,7 +353,11 @@ short setup_game(void)
   features_enabled |= Ft_RelativeMouseMode; // use SDL relative ("raw") mouse mode; set RELATIVE_MOUSE_MODE=OFF for the grab-and-warp scheme
   features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
-  features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
+  if (start_params.skip_heart_zoom) {
+    features_enabled |= Ft_SkipHeartZoom;
+  } else {
+    features_enabled &= ~Ft_SkipHeartZoom;
+  }
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   features_enabled |= Ft_DeltaTime; // enable delta time
   features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
@@ -1792,6 +1796,10 @@ static short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "nointro") == 0)
       {
         start_params.no_intro = true;
+      } else
+      if (strcasecmp(parstr, "skipheartzoom") == 0)
+      {
+        start_params.skip_heart_zoom = true;
       } else
       if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {

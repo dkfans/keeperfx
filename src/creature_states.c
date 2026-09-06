@@ -3210,6 +3210,7 @@ void make_creature_unconscious(struct Thing *creatng)
         update_dead_creatures_list_for_owner(creatng);
     }
     creatng->active_state = CrSt_CreatureUnconscious;
+    clear_flag(creatng->movement_flags, TMvF_Flying);
     cctrl->creature_control_flags |= CCFlg_PreventDamage;
     cctrl->creature_control_flags |= CCFlg_NoCompControl;
     cctrl->conscious_back_turns = game.conf.rules[creatng->owner].creature.game_turns_unconscious;
@@ -3223,6 +3224,7 @@ void make_creature_conscious_without_changing_state(struct Thing *creatng)
     cctrl->creature_control_flags &= ~CCFlg_PreventDamage;
     cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
     cctrl->conscious_back_turns = 0;
+    restore_creature_flight_flag(creatng);
     if ((creatng->state_flags & TF1_IsDragged1) != 0)
     {
         struct Thing* sectng = thing_get(cctrl->dragtng_idx);

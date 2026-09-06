@@ -20,7 +20,9 @@
 /build-*/
 /out/*
 *.cache
-.vscode
+/.vscode/compile_settings.cfg
+/.vscode/game
+/.vscode/launch.json
 /libexterns
 docs/html
 docs/latex
@@ -48,5 +50,4 @@ keeperfx.log
 crash_log.txt
 debug.log
 .local/
-.vscode/compile_and_copy_files.ps1
 /keeperfx_vs2010

@@ -143,6 +143,7 @@ struct StartupParameters {
     char config_file[CMDLN_MAXLEN+1];
     GameTurn pause_at_gameturn;
     unsigned char startup_flags;
+    TbBool skip_heart_zoom;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];

@@ -6812,7 +6812,7 @@ msgstr "KDKレベル"
 
 #: guitext:1024
 msgctxt "Menu interface item"
-msgid "Good Campaign"
+msgid "The Good Guys"
 msgstr "勇者キャンペーン"
 
 #: guitext:1025
