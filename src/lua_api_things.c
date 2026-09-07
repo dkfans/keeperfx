@@ -139,6 +139,15 @@ static int lua_creature_walk_to(lua_State *L)
     return 1;
 }
 
+static int lua_creature_set_start_state(lua_State *L)
+{
+    struct Thing *thing = luaL_checkCreature(L, 1);
+
+    CrtrStateId state = set_start_state(thing);
+    lua_pushstring(L, get_conf_parameter_text(creatrstate_desc, state));
+    return 1;
+}
+
 static int lua_kill_creature(lua_State *L)
 {
     struct Thing* thing = luaL_checkCreature(L, 1);
@@ -738,6 +747,7 @@ static int thing_eq(lua_State *L) {
 static const struct luaL_Reg thing_methods[] = {
     {"make_thing_zombie"            ,make_thing_zombie                  },
     {"walk_to"                      ,lua_creature_walk_to               },
+    {"set_start_state"              ,lua_creature_set_start_state       },
     {"kill"                         ,lua_kill_creature                  },
     {"stun"                         ,lua_stun_creature                  },
     {"remove_from_play"             ,lua_remove_creature_from_play     },
