@@ -239,6 +239,39 @@ TbBool script_new_creature_type(const char *name)
     return false;
 }
 
+TbBool script_copy_creature_type(ThingModel source_id, const char* name)
+{
+    if (game.conf.crtr_conf.model_count >= CREATURE_TYPES_MAX)
+    {
+        SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", name, CREATURE_TYPES_MAX);
+        return false;
+    }
+    for (int j = 0; j < (game.conf.crtr_conf.model_count - 1); j++)
+    {
+        if (strcmp(creature_desc[j].name, name) == 0)
+        {
+            SCRPTERRLOG("Trying to add creature type that already exists: %s", name);
+            return false;
+        }
+    }
+    int i = game.conf.crtr_conf.model_count;
+    game.conf.crtr_conf.model_count++;
+    
+
+//    init_creature_model_stats(i);
+    game.conf.crtr_conf.model[i] = game.conf.crtr_conf.model[source_id];
+    snprintf(game.conf.crtr_conf.model[i].name, COMMAND_WORD_LEN, "%s", name);
+    creature_desc[i - 1].name = game.conf.crtr_conf.model[i].name;
+    creature_desc[i - 1].num = i;
+    for (int k = 0; k < CREATURE_GRAPHICS_INSTANCES; k++)
+    {
+        game.conf.crtr_conf.creature_graphics[i][k] = game.conf.crtr_conf.creature_graphics[source_id][k];
+    }
+    game.conf.crtr_conf.creature_sounds[i] = game.conf.crtr_conf.creature_sounds[source_id];
+
+    return true;
+}
+
 void set_variable(int player_idx, long var_type, long var_idx, long new_val)
 {
     struct Dungeon *dungeon = get_dungeon(player_idx);

@@ -15,11 +15,15 @@ local saveFile = "AP_sent_locations_save.lua"
 
 function SentLocations.Add(id)
     SentLocations[id] = true
-    SentLocations.Save()
+    
 end
 
 function SentLocations.Has(id)
-    return SentLocations[id] == true
+    local sentLocations = GetAPCheckedLocations() or nil
+    if sentLocations == nil then
+        return false
+    end
+    return sentLocations[id] ~= nil -- Return the result of does ID exist in sentLocations ?
 end
 
 function SentLocations.CountFound(mapBoxIDs)

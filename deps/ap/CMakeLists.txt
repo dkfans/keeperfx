@@ -1,207 +1,280 @@
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.1.2)
-    #-Werror=* was introduced -after- GCC 4.1.2
-    add_compile_options("-Werror=strict-aliasing")
-endif()
+cmake_minimum_required(VERSION 3.24)
 
-include(CheckIncludeFileCXX)
-include(CheckTypeSize)
-include(CheckStructHasMember)
-include(CheckCXXSymbolExists)
+project(APCpp)
 
-check_include_file_cxx(clocale HAVE_CLOCALE)
-check_cxx_symbol_exists(localeconv clocale HAVE_LOCALECONV)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_EXTRA_INCLUDE_FILES clocale)
-check_type_size(lconv LCONV_SIZE LANGUAGE CXX)
-unset(CMAKE_EXTRA_INCLUDE_FILES)
-check_struct_has_member(lconv decimal_point clocale HAVE_DECIMAL_POINT LANGUAGE CXX)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-if(NOT (HAVE_CLOCALE AND HAVE_LCONV_SIZE AND HAVE_DECIMAL_POINT AND HAVE_LOCALECONV))
-    message(WARNING "Locale functionality is not supported")
-    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.12.0)
-        add_compile_definitions(JSONCPP_NO_LOCALE_SUPPORT)
-    else()
-        add_definitions(-DJSONCPP_NO_LOCALE_SUPPORT)
-    endif()
-endif()
+# APCpp itself
 
-set(JSONCPP_INCLUDE_DIR ../../include)
-
-set(PUBLIC_HEADERS
-    ${JSONCPP_INCLUDE_DIR}/json/config.h
-    ${JSONCPP_INCLUDE_DIR}/json/forwards.h
-    ${JSONCPP_INCLUDE_DIR}/json/json_features.h
-    ${JSONCPP_INCLUDE_DIR}/json/value.h
-    ${JSONCPP_INCLUDE_DIR}/json/reader.h
-    ${JSONCPP_INCLUDE_DIR}/json/version.h
-    ${JSONCPP_INCLUDE_DIR}/json/writer.h
-    ${JSONCPP_INCLUDE_DIR}/json/assertions.h
+add_library(APCpp STATIC
+    Archipelago.cpp
+    Archipelago_DataStorageSim.cpp
+    Archipelago_Gifting.cpp
 )
 
-source_group("Public API" FILES ${PUBLIC_HEADERS})
-
-set(JSONCPP_SOURCES
-    json_tool.h
-    json_reader.cpp
-    json_valueiterator.inl
-    json_value.cpp
-    json_writer.cpp
+target_include_directories(APCpp PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Install instructions for this target
-if(JSONCPP_WITH_CMAKE_PACKAGE)
-    set(INSTALL_EXPORT EXPORT jsoncpp)
-else()
-    set(INSTALL_EXPORT)
-endif()
-
-# Specify compiler features required when compiling a given target.
-# See https://cmake.org/cmake/help/v3.1/prop_gbl/CMAKE_CXX_KNOWN_FEATURES.html#prop_gbl:CMAKE_CXX_KNOWN_FEATURES
-# for complete list of features available
-list(APPEND REQUIRED_FEATURES
-        cxx_std_11 # Compiler mode is aware of C++ 11.
-        #MSVC 1900 cxx_alignas # Alignment control alignas, as defined in N2341.
-        #MSVC 1900 cxx_alignof # Alignment control alignof, as defined in N2341.
-        #MSVC 1900 cxx_attributes # Generic attributes, as defined in N2761.
-        cxx_auto_type # Automatic type deduction, as defined in N1984.
-        #MSVC 1900 cxx_constexpr # Constant expressions, as defined in N2235.
-        cxx_decltype # Decltype, as defined in N2343.
-        cxx_default_function_template_args # Default template arguments for function templates, as defined in DR226
-        cxx_defaulted_functions # Defaulted functions, as defined in N2346.
-        #MSVC 1900 cxx_defaulted_move_initializers # Defaulted move initializers, as defined in N3053.
-        cxx_delegating_constructors # Delegating constructors, as defined in N1986.
-        #MSVC 1900 cxx_deleted_functions # Deleted functions, as defined in N2346.
-        cxx_enum_forward_declarations # Enum forward declarations, as defined in N2764.
-        cxx_explicit_conversions # Explicit conversion operators, as defined in N2437.
-        cxx_extended_friend_declarations # Extended friend declarations, as defined in N1791.
-        cxx_extern_templates # Extern templates, as defined in N1987.
-        cxx_final # Override control final keyword, as defined in N2928, N3206 and N3272.
-        #MSVC 1900 cxx_func_identifier # Predefined __func__ identifier, as defined in N2340.
-        #MSVC 1900 cxx_generalized_initializers # Initializer lists, as defined in N2672.
-        #MSVC 1900 cxx_inheriting_constructors # Inheriting constructors, as defined in N2540.
-        #MSVC 1900 cxx_inline_namespaces # Inline namespaces, as defined in N2535.
-        cxx_lambdas # Lambda functions, as defined in N2927.
-        #MSVC 1900 cxx_local_type_template_args # Local and unnamed types as template arguments, as defined in N2657.
-        cxx_long_long_type # long long type, as defined in N1811.
-        #MSVC 1900 cxx_noexcept # Exception specifications, as defined in N3050.
-        #MSVC 1900 cxx_nonstatic_member_init # Non-static data member initialization, as defined in N2756.
-        cxx_nullptr # Null pointer, as defined in N2431.
-        cxx_override # Override control override keyword, as defined in N2928, N3206 and N3272.
-        cxx_range_for # Range-based for, as defined in N2930.
-        cxx_raw_string_literals # Raw string literals, as defined in N2442.
-        #MSVC 1900 cxx_reference_qualified_functions # Reference qualified functions, as defined in N2439.
-        cxx_right_angle_brackets # Right angle bracket parsing, as defined in N1757.
-        cxx_rvalue_references # R-value references, as defined in N2118.
-        #MSVC 1900 cxx_sizeof_member # Size of non-static data members, as defined in N2253.
-        cxx_static_assert # Static assert, as defined in N1720.
-        cxx_strong_enums # Strongly typed enums, as defined in N2347.
-        #MSVC 1900 cxx_thread_local # Thread-local variables, as defined in N2659.
-        cxx_trailing_return_types # Automatic function return type, as defined in N2541.
-        #MSVC 1900 cxx_unicode_literals # Unicode string literals, as defined in N2442.
-        cxx_uniform_initialization # Uniform initialization, as defined in N2640.
-        #MSVC 1900 cxx_unrestricted_unions # Unrestricted unions, as defined in N2544.
-        #MSVC 1900 cxx_user_literals # User-defined literals, as defined in N2765.
-        cxx_variadic_macros # Variadic macros, as defined in N1653.
-        cxx_variadic_templates # Variadic templates, as defined in N2242.
+set_target_properties(APCpp PROPERTIES
+    PUBLIC_HEADER Archipelago.h
 )
 
+# Dependency configuration
 
-if(BUILD_SHARED_LIBS)
-    set(SHARED_LIB ${PROJECT_NAME}_lib)
-    add_library(${SHARED_LIB} SHARED ${PUBLIC_HEADERS} ${JSONCPP_SOURCES})
-    set_target_properties(${SHARED_LIB} PROPERTIES
-        OUTPUT_NAME jsoncpp
-        VERSION ${PROJECT_VERSION}
-        SOVERSION ${PROJECT_SOVERSION}
-        POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS}
-    )
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+set(ENABLE_PROGRAMS OFF CACHE BOOL "" FORCE)
 
-    target_compile_definitions(${SHARED_LIB} PRIVATE JSON_DLL_BUILD)
+# mbedTLS
 
-    # Set library's runtime search path on OSX
-    if(APPLE)
-        set_target_properties(${SHARED_LIB} PROPERTIES INSTALL_RPATH "@loader_path/.")
+set(USE_TLS ON CACHE BOOL "Enable TLS support" FORCE)
+
+if (NOT MINGW)
+    find_package(OpenSSL)
+
+    if (NOT OPENSSL_FOUND)
+        set(USE_MBED_TLS ON)
     endif()
-
-    target_compile_features(${SHARED_LIB} PUBLIC ${REQUIRED_FEATURES})
-
-
-    target_include_directories(${SHARED_LIB} PUBLIC
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/${JSONCPP_INCLUDE_DIR}>
-    )
-
-    list(APPEND CMAKE_TARGETS ${SHARED_LIB})
 endif()
 
-if(BUILD_STATIC_LIBS)
-    set(STATIC_LIB ${PROJECT_NAME}_static)
-    add_library(${STATIC_LIB} STATIC ${PUBLIC_HEADERS} ${JSONCPP_SOURCES})
+if ((WIN32 AND USE_TLS) OR USE_MBED_TLS)
 
-    # avoid name clashes on windows as the shared import lib is also named jsoncpp.lib
-    if(NOT DEFINED STATIC_SUFFIX AND BUILD_SHARED_LIBS)
-        if (MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
-            set(STATIC_SUFFIX "_static")
-        else()
-            set(STATIC_SUFFIX "")
-        endif()
-    endif()
+    set(APCPP_MBEDTLS_VER 3.6.4)
 
-    set_target_properties(${STATIC_LIB} PROPERTIES
-        OUTPUT_NAME jsoncpp${STATIC_SUFFIX}
-        VERSION ${PROJECT_VERSION}
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E remove -f
+                mbedtls-${APCPP_MBEDTLS_VER}
     )
 
-    # Set library's runtime search path on OSX
-    if(APPLE)
-        set_target_properties(${STATIC_LIB} PROPERTIES INSTALL_RPATH "@loader_path/.")
-    endif()
-
-    target_compile_features(${STATIC_LIB} PUBLIC ${REQUIRED_FEATURES})
-
-
-    target_include_directories(${STATIC_LIB} PUBLIC
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/${JSONCPP_INCLUDE_DIR}>
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E tar xzf
+                ${CMAKE_CURRENT_SOURCE_DIR}/mbedtls-${APCPP_MBEDTLS_VER}.tar.bz2
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-    list(APPEND CMAKE_TARGETS ${STATIC_LIB})
+    set(USE_STATIC_MBEDTLS_LIBRARY ON CACHE BOOL "" FORCE)
+
+    set(MBEDTLS_INCLUDE_DIRS
+        ${CMAKE_BINARY_DIR}/mbedtls-${APCPP_MBEDTLS_VER}/include
+    )
+
+    set(MBEDTLS_VERSION_GREATER_THAN_3
+        ${MBEDTLS_INCLUDE_DIRS}
+    )
+
+    set(MBEDTLS_LIBRARY mbedtls)
+    set(MBEDX509_LIBRARY mbedx509)
+    set(MBEDCRYPTO_LIBRARY mbedcrypto)
+
+    add_subdirectory(
+        ${CMAKE_CURRENT_BINARY_DIR}/mbedtls-${APCPP_MBEDTLS_VER}
+        mbedtls_bin
+    )
+
+    if (MINGW)
+        target_compile_options(mbedtls PRIVATE -Wno-format)
+    endif()
+
 endif()
 
-if(BUILD_OBJECT_LIBS)
-    set(OBJECT_LIB ${PROJECT_NAME}_object)
-    add_library(${OBJECT_LIB} OBJECT ${PUBLIC_HEADERS} ${JSONCPP_SOURCES})
+# zlib
+# KeeperFX supplies its own zlib, so it is deliberately excluded
+# from the final bundled APCpp archive.
 
-    set_target_properties(${OBJECT_LIB} PROPERTIES
-        OUTPUT_NAME jsoncpp
-        VERSION ${PROJECT_VERSION}
-        SOVERSION ${PROJECT_SOVERSION}
-        POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS}
-    )
+if (NOT MINGW)
 
-    # Set library's runtime search path on OSX
-    if(APPLE)
-        set_target_properties(${OBJECT_LIB} PROPERTIES INSTALL_RPATH "@loader_path/.")
+    find_package(ZLIB QUIET)
+
+    if (ZLIB_FOUND)
+        message(STATUS "Using system zlib installation.")
     endif()
 
-    target_compile_features(${OBJECT_LIB} PUBLIC ${REQUIRED_FEATURES})
-
-
-    target_include_directories(${OBJECT_LIB} PUBLIC
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/${JSONCPP_INCLUDE_DIR}>
-    )
-
-    list(APPEND CMAKE_TARGETS ${OBJECT_LIB})
 endif()
 
-if (JSONCPP_WITH_INSTALL)
+if (MINGW OR NOT ZLIB_FOUND)
 
-install(TARGETS ${CMAKE_TARGETS} ${INSTALL_EXPORT}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    set(ZLIB_BUILD_SHARED OFF)
+
+    include(FetchContent)
+
+    FetchContent_Declare(
+        zlib
+        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zlib"
+        OVERRIDE_FIND_PACKAGE
+    )
+
+    FetchContent_MakeAvailable(zlib)
+
+    add_library(ZLIB::ZLIB ALIAS zlibstatic)
+
+endif()
+
+# IXWebSocket
+
+set(IXWEBSOCKET_INSTALL OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(IXWebSocket)
+
+target_include_directories(APCpp PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/IXWebSocket
 )
+
+target_link_libraries(APCpp
+    ixwebsocket
+)
+
+# JsonCpp
+
+find_package(PkgConfig)
+
+if (PKG_CONFIG_FOUND AND NOT MINGW AND NOT BUNDLED_JSONCPP)
+
+    pkg_check_modules(JSONCPP jsoncpp)
+
+    if (JSONCPP_FOUND)
+
+        target_include_directories(APCpp PRIVATE
+            ${JSONCPP_INCLUDE_DIRS}
+        )
+
+        target_link_libraries(APCpp
+            ${JSONCPP_LDFLAGS}
+        )
+
+    endif()
+
+endif()
+
+if (NOT JSONCPP_FOUND OR BUNDLED_JSONCPP)
+
+    set(JSONCPP_WITH_TESTS OFF CACHE BOOL "" FORCE)
+    set(JSONCPP_WITH_POST_BUILD_UNITTEST OFF CACHE BOOL "" FORCE)
+
+    add_subdirectory(jsoncpp)
+
+    set_property(
+        TARGET jsoncpp_static
+        PROPERTY POSITION_INDEPENDENT_CODE ON
+    )
+
+    target_include_directories(APCpp PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/jsoncpp/include
+    )
+
+    target_link_libraries(APCpp
+        jsoncpp_static
+    )
+
+endif()
+
+# Windows
+
+if (WIN32)
+
+    target_link_libraries(APCpp
+        ws2_32
+    )
+
+endif()
+
+# MinGW static runtime
+
+if (MINGW)
+
+    target_link_libraries(APCpp
+        -static
+        -static-libstdc++
+        -static-libgcc
+    )
+
+endif()
+
+# Build the single archive required by KeeperFX
+
+if (MINGW)
+
+    set(APCPP_BUNDLED_OBJECT
+        "${CMAKE_CURRENT_BINARY_DIR}/APCpp_all.o"
+    )
+
+    set(APCPP_BUNDLED_LIBRARY
+        "${CMAKE_CURRENT_SOURCE_DIR}/libAPCpp.a"
+    )
+
+    set(APCPP_BUNDLE_LIBRARIES
+        "${CMAKE_CURRENT_BINARY_DIR}/libAPCpp.a"
+        "${CMAKE_CURRENT_BINARY_DIR}/IXWebSocket/libixwebsocket.a"
+        "${CMAKE_CURRENT_BINARY_DIR}/jsoncpp/src/lib_json/libjsoncpp.a"
+        "${CMAKE_CURRENT_BINARY_DIR}/mbedtls_bin/library/libmbedtls.a"
+        "${CMAKE_CURRENT_BINARY_DIR}/mbedtls_bin/library/libmbedx509.a"
+        "${CMAKE_CURRENT_BINARY_DIR}/mbedtls_bin/library/libmbedcrypto.a"
+        "${CMAKE_CURRENT_BINARY_DIR}/mbedtls_bin/3rdparty/everest/libeverest.a"
+        "${CMAKE_CURRENT_BINARY_DIR}/mbedtls_bin/3rdparty/p256-m/libp256m.a"
+    )
+
+    add_custom_command(
+        OUTPUT
+            "${APCPP_BUNDLED_LIBRARY}"
+
+        COMMAND
+            "${CMAKE_CXX_COMPILER}"
+            -r
+            -Wl,--whole-archive
+            ${APCPP_BUNDLE_LIBRARIES}
+            -Wl,--no-whole-archive
+            -o
+            "${APCPP_BUNDLED_OBJECT}"
+
+        COMMAND
+            "${CMAKE_AR}"
+            rcs
+            "${APCPP_BUNDLED_LIBRARY}"
+            "${APCPP_BUNDLED_OBJECT}"
+
+        COMMAND
+            "${CMAKE_RANLIB}"
+            "${APCPP_BUNDLED_LIBRARY}"
+
+        DEPENDS
+            APCpp
+            ixwebsocket
+            jsoncpp_static
+            "${CMAKE_CURRENT_BINARY_DIR}/mbedtls_bin/library/libmbedtls.a"
+            "${CMAKE_CURRENT_BINARY_DIR}/mbedtls_bin/library/libmbedx509.a"
+            "${CMAKE_CURRENT_BINARY_DIR}/mbedtls_bin/library/libmbedcrypto.a"
+            "${CMAKE_CURRENT_BINARY_DIR}/mbedtls_bin/3rdparty/everest/libeverest.a"
+            "${CMAKE_CURRENT_BINARY_DIR}/mbedtls_bin/3rdparty/p256-m/libp256m.a"
+
+        COMMENT "Building bundled KeeperFX APCpp library"
+
+        VERBATIM
+    )
+
+    add_custom_target(APCpp_bundled ALL
+        DEPENDS
+            "${APCPP_BUNDLED_LIBRARY}"
+    )
+
+endif()
+
+# Install
+
+install(
+    TARGETS APCpp
+    PUBLIC_HEADER
+)
+
+if (MINGW)
+
+    install(
+        FILES
+            "${APCPP_BUNDLED_LIBRARY}"
+        DESTINATION .
+    )
 
 endif()

@@ -42,7 +42,18 @@ function BoxLocations.SpawnBoxes(level_id)
     local first = true
     for _, id in ipairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
         if not SentLocations.Has(id) then -- If it ISN'T in sent_locations , we've not sent it.
+            -- get info for specific location so we can check name and player
+            -- local info = GetAPLocationInfo(id)
+            -- if info ~= nil then
+            --    print("Location ID: " .. info.location)
+            --    print("Item ID: " .. info.item)
+            --    print("Player ID: " .. info.player)
+            --    print("Flags: " .. info.flags)
+            -- end
             Game.APBox[id] = AddObjectToLevel("SPECBOX_CUSTOM", (id % 100)+100, id, "PLAYER_NEUTRAL", 0) -- Action Points are limited to 256 I think, so each Archipelago action point on a level is 101+
+            local info = GetAPLocationInfo(id)
+            SetBoxTooltip(id, info.itemName .. " for " .. info.playerName)
+            
             -- Would like to add a way to check if the item associated with this number is useful or filler, then display the correct graphics.
             -- if it's not filler (i.e. looking up to the table of all tooltips for other player items) then
             -- Game.APBox[id].anim_sprite = "ARCHIPELAGOITEMUSEFUL"
@@ -82,10 +93,11 @@ function BoxLocations.ActivateBoxes(level_id)
             if not first then message = message .. ", " end
             message = message .. id
             first = false
-            RegisterSpecialActivatedEvent(function()
-                SentLocations.Add(id)
+            RegisterSpecialActivatedEvent(function()               
                 found = found + 1
-                QuickMessage("Box " .. id .. " Activated.", "ARCHIPELAGO_ICON")
+                -- get info for specific location so we can check name and player
+                local info = GetAPLocationInfo(id)
+                QuickMessage("Box " .. info.itemName .. " for " .. info.playerName .. " Activated.", "ARCHIPELAGO_ICON")
                 QuickMessage("Boxes Found: " .. found.. "/" .. total .. ".", "ARCHIPELAGO_ICON")
                 local message2 = "Sent Locations: "
                 local first2 = true

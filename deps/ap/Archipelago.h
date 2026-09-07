@@ -30,6 +30,7 @@ struct AP_NetworkItem {
     std::string itemName;
     std::string locationName;
     std::string playerName;
+    int index = -1;
 };
 
 struct AP_NetworkPlayer {
@@ -38,6 +39,27 @@ struct AP_NetworkPlayer {
     std::string name;
     std::string alias;
     std::string game;
+};
+
+enum struct AP_SlotType {
+    Spectator = 0,
+    Player = 1,
+    Group = 2
+};
+
+struct AP_NetworkSlot {
+    std::string name;
+    std::string game;
+    AP_SlotType type = AP_SlotType::Player;
+    std::vector<int> members;
+};
+
+enum struct AP_HintStatus {
+    Unspecified = 0,
+    NoPriority = 10,
+    Avoid = 20,
+    Priority = 30,
+    Found = 40
 };
 
 // Set current client version
@@ -60,6 +82,9 @@ void AP_SetLocationCheckedCallback(std::function<void(int64_t)> f_locrecv);
 
 /* Optional Callback Functions */
 
+// By default, logs are written to stdout. Set this callback to instead set a different function to receive the log string.
+void AP_SetLoggingCallback(std::function<void(std::string)> f_log);
+
 //Parameter Function will be called when Death Link is received. Alternative to Pending/Clear usage
 void AP_SetDeathLinkRecvCallback(std::function<void()> f_deathrecv);
 //Overload with the deathlink source and cause
@@ -72,8 +97,34 @@ void AP_RegisterSlotDataRawCallback(std::string, std::function<void(std::string)
 
 // Send LocationScouts packet
 void AP_SendLocationScouts(std::set<int64_t> const& locations, int create_as_hint);
+
+// Location state. Local sets describe what the client has reported; server sets
+// describe the state supplied by Archipelago.
+void AP_SetReceiveOwnLocations(bool);
+bool AP_GetReceiveOwnLocations();
+std::set<int64_t> AP_GetLocationsChecked();
+std::set<int64_t> AP_GetLocationsScouted();
+std::set<int64_t> AP_GetMissingLocations();
+std::set<int64_t> AP_GetCheckedLocations();
+std::set<int64_t> AP_GetServerLocations();
+bool AP_GetLocationInfo(int64_t location, AP_NetworkItem* info);
 // Receive Function for LocationInfo
 void AP_SetLocationInfoCallback(std::function<void(std::vector<AP_NetworkItem>)> f_locinfrecv);
+
+// Connection and protocol callbacks
+void AP_SetSocketConnectedCallback(std::function<void()> f_connected);
+void AP_SetSocketDisconnectedCallback(std::function<void()> f_disconnected);
+void AP_SetSocketErrorCallback(std::function<void(std::string)> f_error);
+void AP_SetSlotConnectedCallback(std::function<void()> f_connected);
+void AP_SetSlotDisconnectedCallback(std::function<void()> f_disconnected);
+void AP_SetConnectionRefusedCallback(std::function<void(std::vector<std::string>)> f_refused);
+void AP_SetRoomInfoCallback(std::function<void()> f_roominfo);
+void AP_SetRoomUpdateCallback(std::function<void()> f_roomupdate);
+void AP_SetItemsReceivedCallback(std::function<void(std::vector<AP_NetworkItem>)> f_itemsrecv);
+void AP_SetDataPackageChangedCallback(std::function<void()> f_datapkg);
+void AP_SetPrintCallback(std::function<void(std::string)> f_print);
+void AP_SetPrintJSONCallback(std::function<void(std::string)> f_printjson);
+void AP_SetRetrievedCallback(std::function<void(std::string)> f_retrieved);
 
 /* Game Management Functions */
 
@@ -83,6 +134,14 @@ void AP_SendItem(std::set<int64_t> const& locations);
 
 // Called when Story completed, sends StatusUpdate
 void AP_StoryComplete();
+void AP_StatusUpdate(int status);
+void AP_Sync();
+void AP_UpdateHint(int player, int64_t location, AP_HintStatus status);
+void AP_CreateHints(std::set<int64_t> const& locations, int player = -1, AP_HintStatus status = AP_HintStatus::Unspecified);
+
+const std::vector<AP_NetworkItem>& AP_GetItemsReceived();
+const std::map<int, AP_NetworkPlayer>& AP_GetPlayers();
+bool AP_GetSlot(int slot, AP_NetworkSlot* info);
 
 /* Deathlink Functions */
 
@@ -160,10 +219,13 @@ struct AP_RoomInfo {
     std::map<std::string, int> permissions;
     int hint_cost;
     int location_check_points;
-    //MISSING: games
     std::map<std::string, std::string> datapackage_checksums;
     std::string seed_name;
     double time;
+    AP_NetworkVersion generator_version;
+    std::vector<std::string> games;
+    int hint_points = 0;
+    int location_count = 0;
 };
 
 /* Connection Information Functions */
@@ -172,6 +234,7 @@ int AP_GetRoomInfo(AP_RoomInfo*);
 AP_ConnectionStatus AP_GetConnectionStatus();
 std::uint64_t AP_GetUUID();
 int AP_GetPlayerID();
+void AP_UpdateTags(std::vector<std::string> const& tags);
 
 /* Serverside Data Types */
 
@@ -212,7 +275,7 @@ struct AP_SetReply {
 
 struct AP_Bounce {
     std::vector<std::string>* games = nullptr; // Can be nullptr or empty, but must be set to either
-    std::vector<std::string>* slots = nullptr; // Can be nullptr or empty, but must be set to either
+    std::vector<int64_t>* slots = nullptr; // Can be nullptr or empty, but must be set to either
     std::vector<std::string>* tags  = nullptr; // Can be nullptr or empty, but must be set to either
     std::string data; // Valid JSON Data. Can also be primitive (Numbers or literals)
 };
@@ -222,6 +285,10 @@ struct AP_Bounce {
 // Set and Receive Data
 void AP_SetServerData(AP_SetServerDataRequest* request);
 void AP_GetServerData(AP_GetServerDataRequest* request);
+
+// Latest values received for server-data keys, encoded as JsonCpp JSON strings.
+bool AP_GetStoredServerData(std::string key, std::string* value);
+void AP_SetServerDataNotifyCallback(std::function<void(std::string, std::string)> f_notify);
 
 /* Set and Receive Data in bulk. These request will be queued up in a (shared) queue, and sent in one packet to Archipelago one one of the following is called:
  * - AP_CommitServerData()
