@@ -5939,12 +5939,12 @@ msgstr ""
 
 #: guitext:1123
 msgctxt "Archipelago Menu text"
-msgid "Keeper Archipelago"
+msgid "Archipelago"
 msgstr ""
 
 #: guitext:1124
 msgctxt "Archipelago Ip input"
-msgid "IP Address"
+msgid "Server"
 msgstr ""
 
 #: guitext:1125

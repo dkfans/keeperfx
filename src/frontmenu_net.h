@@ -61,7 +61,6 @@ void frontnet_service_up(struct GuiButton *gbtn);
 void frontnet_service_down(struct GuiButton *gbtn);
 void frontnet_service_select(struct GuiButton *gbtn);
 void frontnet_session_set_player_name(struct GuiButton *gbtn);
-void frontnet_archipelago_set_ip(struct GuiButton *gbtn);
 void frontnet_draw_text_bar(struct GuiButton *gbtn);
 void frontnet_session_up(struct GuiButton *gbtn);
 void frontnet_session_up_maintain(struct GuiButton *gbtn);

@@ -92,6 +92,7 @@
 #include "sprites.h"
 #include "moonphase.h"
 #include "config_keeperfx.h"
+#include "ap_bridge.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -105,6 +106,33 @@ static char path_string[178];
 MenuID vid_change_query_menu = GMnu_CREATURE_QUERY1;
 TbBool right_click_tag_mode_toggle = false;
 unsigned char default_tag_mode = 1;
+const char *arch_conf_file = "archconfig.net";
+
+
+struct ArchConfigInfo {
+    char arch_ip_address[20];
+    char arch_port[20];
+    char arch_slot_name[20];
+    char arch_password[20];
+};
+const struct ArchConfigInfo default_arch_config_info = {
+    "127.0.0.1",
+    "",
+    "",
+    ""
+};
+
+
+char arch_ip_address[20];
+char tmp_arch_ip_address[24];
+char arch_port[20];
+char tmp_arch_port[24];
+char arch_slot_name[20];
+char tmp_arch_slot_name[24];
+char arch_password[20];
+char tmp_arch_password[24];
+struct ArchConfigInfo arch_config_info;
+
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
@@ -149,19 +177,22 @@ struct GuiButtonInit frontend_archipelago_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {115},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  71,  82,  71,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  73,  91,  73,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {116},            0, NULL },
-  { LbBtnT_EditBox, BID_DEFAULT,0, 0, frontnet_archipelago_set_ip,NULL,frontend_over_button,19,200,63,95,63,432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = gui_message_text}, 20, NULL },
+  { LbBtnT_EditBox, BID_DEFAULT,0, 0, frontnet_archipelago_set_ip,NULL,frontend_over_button,19,200,73,95,73,432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = tmp_arch_ip_address}, 20, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  101,  82,  101,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  103,  91,  103,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {117},            0, NULL },
-  
+  { LbBtnT_EditBox, BID_DEFAULT,0, 0, frontnet_archipelago_set_port,NULL,frontend_over_button,19,200,103,95,103,432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = tmp_arch_port}, 20, NULL }, 
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  131,  82,  131,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  133,  91,  133,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {118},            0, NULL },
-  
+  { LbBtnT_EditBox, BID_DEFAULT,0, 0, frontnet_archipelago_set_slot_name,NULL,frontend_over_button,19,200,133,95,133,432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = tmp_arch_slot_name}, 20, NULL }, 
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  161,  82,  161,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  163,  91,  163,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {119},            0, NULL },
-   
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 82, 191,   82, 191, 165, 46, frontend_draw_small_menu_button,  0, GUIStr_Empty,  0,      {120},            0, NULL },
+  { LbBtnT_EditBox, BID_DEFAULT,0, 0, frontnet_archipelago_set_pwd,NULL,frontend_over_button,19,200,163,95,163,432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = tmp_arch_password}, 20, NULL }, 
   
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_archipelago_connect,NULL, frontend_over_button,   27, 82, 191,   82, 191, 165, 46, frontend_draw_small_menu_button,  0, GUIStr_Empty,  0,      {120},            0, NULL },
+  
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  276, 999,  276, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 322, 999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, frontend_continue_game_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 368,   999, 368, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, NULL },
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
@@ -1715,6 +1746,94 @@ void frontend_load_game_maintain(struct GuiButton *gbtn)
         gbtn->flags &= ~LbBtnF_Enabled;
 }
 
+void frontend_archipelago_connect(struct GuiButton *gbtn)
+{
+    char* full_ip = arch_config_info.arch_ip_address;
+    strcat(full_ip,":");    
+    strcat(full_ip,arch_config_info.arch_port);
+    
+    ap_bridge_connect(full_ip, arch_config_info.arch_slot_name);
+}
+
+void frontend_archipelago_connected(void)
+{    
+   create_frontend_error_box(3000, "Connected to Archipelago!");
+}
+
+void frontend_archipelago_error(const char* error)
+{
+   create_frontend_error_box(3000, error);
+}
+
+void write_arch_config_file(void)
+{
+    // Try to load the config file
+    char* fname = prepare_file_path(FGrp_Save, arch_conf_file);
+    TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
+    if (handle)
+    {
+        LbFileWrite(handle, &arch_config_info, sizeof(arch_config_info));
+        LbFileClose(handle);
+    }
+}
+
+
+void frontnet_archipelago_set_ip(struct GuiButton *gbtn)
+{  
+    strcpy(arch_ip_address, tmp_arch_ip_address);
+    strcpy(arch_config_info.arch_ip_address, tmp_net_player_name);
+    write_arch_config_file();
+}
+
+void frontnet_archipelago_set_port(struct GuiButton *gbtn)
+{  
+    strcpy(arch_port, tmp_arch_port);
+    strcpy(arch_config_info.arch_port, tmp_arch_port);
+    write_arch_config_file();
+}
+
+void frontnet_archipelago_set_slot_name(struct GuiButton *gbtn)
+{  
+    strcpy(arch_slot_name, tmp_arch_slot_name);
+    strcpy(arch_config_info.arch_slot_name, tmp_arch_slot_name);
+    write_arch_config_file();
+}
+
+void frontnet_archipelago_set_pwd(struct GuiButton *gbtn)
+{  
+    strcpy(arch_password, tmp_arch_password);
+    strcpy(arch_config_info.arch_password, tmp_arch_password);
+    write_arch_config_file();
+}
+
+
+void load_arch_config_file(void)
+{
+    // Try to load the config file
+    char* fname = prepare_file_path(FGrp_Save, arch_conf_file);
+    TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    if (handle)
+    {
+      if (LbFileRead(handle, &arch_config_info, sizeof(arch_config_info)) == sizeof(arch_config_info))
+      {
+        LbFileClose(handle);        
+        strcpy(tmp_arch_ip_address, arch_config_info.arch_ip_address);
+        strcpy(tmp_arch_port, arch_config_info.arch_port);
+        strcpy(tmp_arch_slot_name, arch_config_info.arch_slot_name);
+        strcpy(tmp_arch_password, arch_config_info.arch_password);
+        return;
+      }
+      LbFileClose(handle);
+    }
+    // If can't load, then use default config
+    memcpy(&arch_config_info, &default_arch_config_info, sizeof(arch_config_info));
+
+     strcpy(tmp_arch_ip_address, arch_config_info.arch_ip_address);
+     strcpy(tmp_arch_port, arch_config_info.arch_port);
+     strcpy(tmp_arch_slot_name, arch_config_info.arch_slot_name);
+     strcpy(tmp_arch_password, arch_config_info.arch_password);
+}
+
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
     SYNCDBG(9,"Starting for button type %d",(int)gbtn->gbtype);
@@ -2690,6 +2809,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
               char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
               LbFileDelete(fname);
           }
+          load_arch_config_file();
           if (!is_campaign_loaded()) {
               change_campaign(CampgnT_Default,"");
           }
@@ -3295,6 +3415,25 @@ void draw_gui(void)
             game.flash_button_time -= game.delta_time;
             if (game.flash_button_time <= 0) {
                 game.flash_button_index = 0;
+            }
+        }
+    }
+
+      /*
+     * Draw frontend message LAST so it is always above
+     * the current frontend GUI.
+     */
+    if (menu_is_active(GMnu_FEERROR_BOX))
+    {
+        long menu_num = menu_id_to_number(GMnu_FEERROR_BOX);
+
+        if (menu_num >= 0)
+        {
+            struct GuiMenu *gmnu = get_active_menu(menu_num);
+
+            if (gmnu->visual_state != 0 && gmnu->is_turned_on)
+            {
+                draw_menu_buttons(gmnu);
             }
         }
     }
