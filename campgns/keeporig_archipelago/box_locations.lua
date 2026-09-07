@@ -60,6 +60,17 @@ function BoxLocations.ActivateBoxes(level_id)
     local found = SentLocations.CountFound(mapBoxIDs)
     local total = #mapBoxIDs
     QuickMessage("Boxes Found: " .. found .. "/" .. total .. ".", "ARCHIPELAGO_ICON")
+    --if a level is completed, we will send out location 10000+level_id.
+    --check if 10000+level_id was in the sent table. If it was, add a tick
+    --if all checks found in level, add a star
+    --if both, both!
+    if found == total and SentLocations.Has(level_id + 10000) then
+        RunDKScriptCommand("SET_LEVEL_ENSIGN(" .. level_id .. ",TICKSTAR_ENSIGN)")
+    elseif found == total then
+        RunDKScriptCommand("SET_LEVEL_ENSIGN(" .. level_id .. ",STAR_ENSIGN)")
+    elseif SentLocations.Has(level_id+10000) then
+        RunDKScriptCommand("SET_LEVEL_ENSIGN(" .. level_id .. ",TICK_ENSIGN)")
+    end
     if not mapBoxIDs then
         QuickMessage("mapBoxIDs table not loaded!")
         return
