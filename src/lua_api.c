@@ -933,9 +933,10 @@ static int lua_DISPLAY_VARIABLE_WITH_LABEL(lua_State *L)
 static int lua_Hide_variable(lua_State *L)
 {    
     int32_t varib_id, varib_type;
+    PlayerNumber player   = luaL_checkPlayerSingle(L, 1);
     varib_id = -1;
     varib_type = -1;
-    const char* variable = luaL_checkstring(L, 1);
+    const char* variable = luaL_checkstring(L, 2);
     if(variable[0] != '\0'){
         luaL_checkVariable(L, 1, &varib_id, &varib_type);
     }
@@ -944,7 +945,7 @@ static int lua_Hide_variable(lua_State *L)
     {
         for (int i = 0; i < DISPLAY_VARIABLES_LIMIT; i++)
         {
-            if(game.script_variables[i].value_id == varib_id && game.script_variables[i].value_type == varib_type){
+            if(game.script_variables[i].value_id == varib_id && game.script_variables[i].value_type == varib_type && game.script_variables[i].variable_player == player){
                 for (int j = i; j < game.active_script_var_count - 1; j++)
                 {
                     game.script_variables[j] = game.script_variables[j+1];
