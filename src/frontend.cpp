@@ -107,7 +107,7 @@ MenuID vid_change_query_menu = GMnu_CREATURE_QUERY1;
 TbBool right_click_tag_mode_toggle = false;
 unsigned char default_tag_mode = 1;
 const char *arch_conf_file = "archconfig.net";
-
+static char frontend_archipelago_status_text[128] = "Please connect to Archipelago";
 
 struct ArchConfigInfo {
     char arch_ip_address[20];
@@ -187,8 +187,10 @@ struct GuiButtonInit frontend_archipelago_buttons[] = {
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  161,  82,  161,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  163,  91,  163,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {119},            0, NULL },
   { LbBtnT_EditBox, BID_DEFAULT,0, 0, frontnet_archipelago_set_pwd,NULL,frontend_over_button,19,200,163,95,163,432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = tmp_arch_password}, 20, NULL }, 
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_archipelago_connect,NULL, frontend_over_button,   27, 82, 191,   82, 191, 247, 46, frontend_draw_small_menu_button,  0, GUIStr_Empty,  0,      {120},            0, NULL },
   
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_archipelago_connect,NULL, frontend_over_button,   27, 82, 191,   82, 191, 165, 46, frontend_draw_small_menu_button,  0, GUIStr_Empty,  0,      {120},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  235,  82,  235,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  235,  91,  235,999, 25, frontend_draw_status_text,         0, GUIStr_Empty, 0,      {33},            0, NULL },
   
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  276, 999,  276, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 322, 999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, frontend_continue_game_maintain },
@@ -1753,16 +1755,39 @@ void frontend_archipelago_connect(struct GuiButton *gbtn)
     strcat(full_ip,arch_config_info.arch_port);
     
     ap_bridge_connect(full_ip, arch_config_info.arch_slot_name);
+    set_frontend_archipelago_status("Connecting...");
 }
 
 void frontend_archipelago_connected(void)
 {    
-   create_frontend_error_box(3000, "Connected to Archipelago!");
+    set_frontend_archipelago_status("Connected to Archipelago!");
 }
 
 void frontend_archipelago_error(const char* error)
 {
-   create_frontend_error_box(3000, error);
+    ERRORLOG("AP CONNECTION ERROR %s",error);
+    set_frontend_archipelago_status("Connection failed!");
+}
+
+void set_frontend_archipelago_status(const char *text)
+{
+    snprintf(
+        frontend_archipelago_status_text,
+        sizeof(frontend_archipelago_status_text),
+        "%s",
+        text
+    );
+}
+
+void frontend_draw_status_text(struct GuiButton *gbtn)
+{
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
+    LbTextSetFont(frontend_font[1]);
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    LbTextDrawResized(0, 0, tx_units_per_px, frontend_archipelago_status_text);
+    LbTextSetFont(winfont);
 }
 
 void write_arch_config_file(void)

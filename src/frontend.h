@@ -374,6 +374,8 @@ void write_arch_config_file(void);
 void frontend_archipelago_connect(struct GuiButton *gbtn);
 void frontend_archipelago_connected(void);
 void frontend_archipelago_error(const char* error);
+void set_frontend_archipelago_status(const char *text);
+void frontend_draw_status_text(struct GuiButton *gbtn);
 void set_packet_start(struct GuiButton *gbtn);
 void gui_area_scroll_window(struct GuiButton *gbtn);
 void gui_go_to_event(struct GuiButton *gbtn);
