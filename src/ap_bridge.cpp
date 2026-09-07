@@ -25,7 +25,7 @@ void RedirectStdoutToFile() {
     setvbuf(stdout, NULL, _IONBF, 0);
 }
 
-void ap_connect(char* ip, char* slot) {
+void ap_connect(char* ip, char* slot, char* password) {
 
 RedirectStdoutToFile();
     if(AP_IsInit())
@@ -33,7 +33,7 @@ RedirectStdoutToFile();
         AP_Shutdown();
     }
 
-    AP_Init(ip, "Dungeon Keeper", slot, "");
+    AP_Init(ip, "Dungeon Keeper", slot, password);
     AP_SetSocketConnectedCallback(ap_socketconnected);
     AP_SetSocketErrorCallback([](std::string err) {
         frontend_archipelago_error(err.c_str());
@@ -56,6 +56,7 @@ void ap_socketconnected(){
 }
 
 void ap_slot_connected(){
+    g_ap_state.connected = true;
     frontend_archipelago_connected();
     //callback once connected to AP server, send scounts for all locations not checked yet, so that ap_location_info_callback will be triggered.
     AP_SendLocationScouts(AP_GetMissingLocations(),0);
@@ -97,14 +98,16 @@ void ap_recieve(int id, bool notify)
 void ap_send(int id)
 {
     ap_state_update_locations(&g_ap_state, id);
-
 }
 
 void ap_clear()
 {
-
     ap_location_info_clear();
+}
 
+bool ap_connection_status()
+{
+    return g_ap_state.connected;
 }
 
 void ap_location_info_callback(std::vector<AP_NetworkItem> locations)
@@ -154,9 +157,9 @@ return itemType;
 extern "C" {
 #endif
 
-void ap_bridge_connect(char* ip, char* slot)
+void ap_bridge_connect(char* ip, char* slot, char* password)
 {
-ap_connect(ip, slot);
+    ap_connect(ip, slot, password);
 }
 
 void ap_bridge_location_check(int id)
@@ -165,6 +168,10 @@ void ap_bridge_location_check(int id)
     ap_state_update_locations(&g_ap_state, id);
 }
 
+bool ap_bridge_connection_status(void)
+{
+    return ap_connection_status();
+}
 #ifdef __cplusplus
 }
 #endif

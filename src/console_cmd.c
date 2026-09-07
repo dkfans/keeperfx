@@ -1763,21 +1763,21 @@ TbBool cmd_creature_add_health(PlayerNumber plyr_idx, char * args)
 // for connecting to archipelago
 TbBool cmd_connect(PlayerNumber plyr_idx, char * args)
 {
-
-        char * pr1str = strsep_param_with_space(&args);
-        char * pr2str = strsep_param_with_space(&args);
-    if (pr1str == NULL) 
+    char * ip_address = strsep_param_with_space(&args);
+    char * slot_name = strsep_param_with_space(&args);
+    char * password = strsep_param_with_space(&args);
+    if (ip_address == NULL) 
     {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "server ip required");
         return false;
     }
-    if (pr2str == NULL) 
+    if (slot_name == NULL) 
     {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 2");
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot name required");
         return false;
     }
-        ap_bridge_connect(pr1str, pr2str);
-        return true;
+    ap_bridge_connect(ip_address, slot_name, password);
+    return true;
 }
 
 TbBool cmd_testloc(PlayerNumber plyr_idx, char * args)
