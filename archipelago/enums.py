@@ -192,32 +192,32 @@ class KeeperLevelName(StrEnum):
 #   #Not sure:
 #       100: Sphere 2/3? not sure, doable with extreme care in possession, or still pretty handily with a cap of level 7. If you have certain spells and rooms you can cheese it way earlier.
 #       102: not sure, requires a way to kill imps en masse, e.g. cave-in, a transferred creature, placeable boulder traps
-        LEVEL_01 = "Level 1 Unlocked"
-        LEVEL_02 = "Level 2 Unlocked"
-        LEVEL_03 = "Level 3 Unlocked"
-        LEVEL_04 = "Level 4 Unlocked"
-        LEVEL_05 = "Level 5 Unlocked"
-        LEVEL_06 = "Level 6 Unlocked"
-        LEVEL_07 = "Level 7 Unlocked"
-        LEVEL_08 = "Level 8 Unlocked"
-        LEVEL_09 = "Level 9 Unlocked"
-        LEVEL_10 = "Level 10 Unlocked"
-        LEVEL_11 = "Level 11 Unlocked"
-        LEVEL_12 = "Level 12 Unlocked"
-        LEVEL_13 = "Level 13 Unlocked"
-        LEVEL_14 = "Level 14 Unlocked"
-        LEVEL_15 = "Level 15 Unlocked"
-        LEVEL_16 = "Level 16 Unlocked"
-        LEVEL_17 = "Level 17 Unlocked"
-        LEVEL_18 = "Level 18 Unlocked"
-        LEVEL_19 = "Level 19 Unlocked"
-        LEVEL_20 = "Level 20 Unlocked"
-        LEVEL_100 = "Level 100 Unlocked"
-        LEVEL_101 = "Level 101 Unlocked"
-        LEVEL_102 = "Level 102 Unlocked"
-        LEVEL_103 = "Level 103 Unlocked"
-        LEVEL_104 = "Level 104 Unlocked"
-        LEVEL_105 = "Level 105 Unlocked"
+        LEVEL_001 = "Level 1 Unlocked"
+        LEVEL_002 = "Level 2 Unlocked"
+        LEVEL_003 = "Level 3 Unlocked"
+        LEVEL_004 = "Level 4 Unlocked"
+        LEVEL_005 = "Level 5 Unlocked"
+        LEVEL_006 = "Level 6 Unlocked"
+        LEVEL_007 = "Level 7 Unlocked"
+        LEVEL_008 = "Level 8 Unlocked"
+        LEVEL_009 = "Level 9 Unlocked"
+        LEVEL_010 = "Level 10 Unlocked"
+        LEVEL_011 = "Level 11 Unlocked"
+        LEVEL_012 = "Level 12 Unlocked"
+        LEVEL_013 = "Level 13 Unlocked"
+        LEVEL_014 = "Level 14 Unlocked"
+        LEVEL_015 = "Level 15 Unlocked"
+        LEVEL_016 = "Level 16 Unlocked"
+        LEVEL_017 = "Level 17 Unlocked"
+        LEVEL_018 = "Level 18 Unlocked"
+        LEVEL_019 = "Level 19 Unlocked"
+        LEVEL_020 = "Level 20 Unlocked"
+        LEVEL_100 = "Secret 1 Unlocked"
+        LEVEL_101 = "Secret 2 Unlocked"
+        LEVEL_102 = "Secret 3 Unlocked"
+        LEVEL_103 = "Secret 4 Unlocked"
+        LEVEL_104 = "Secret 5 Unlocked"
+        LEVEL_105 = "Secret 6 Unlocked"
 
 class KeeperLevel(IntEnum):
         LEVEL_001 = 501
@@ -242,10 +242,11 @@ class KeeperLevel(IntEnum):
         LEVEL_020 = 520
         LEVEL_100 = 521
         LEVEL_101 = 522
-        LEVEL_103 = 523
-        LEVEL_104 = 524
-        LEVEL_105 = 525
-        LEVEL_106 = 526
+        LEVEL_102 = 523
+        LEVEL_103 = 524
+        LEVEL_104 = 525
+        LEVEL_105 = 526
+        LEVEL_106 = 527
 
 class KeeperRecipeName(StrEnum):
         RECIPE_CHEAPER_IMPS = "Cheaper Imps Recipe Unlocked"

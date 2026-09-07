@@ -253,8 +253,26 @@ def create_regular_locations(world: DungeonKeeperWorld) -> None:
     # Finally, we need to put the Locations ("checks") into their regions.
     # Once again, before we do anything, we can grab our regions we created by using world.get_region()
     overworld = world.get_region("Overworld")
-    
-    # One way to create locations is by just creating them directly via their constructor.
+    eversmile = world.get_region("Eversmile")
+    cosyton = world.get_region("Cosyton")
+    waterdreamwarm = world.get_region("Waterdream Warm")
+    flowerhat = world.get_region("Flowerhat")
+    lushmeadow = world.get_region("LushMeadow-On-Down")
+    snuggledell = world.get_region("Snuggledell")
+    wishvale = world.get_region("Wishvale")
+    tickle = world.get_region("Tickle")
+    moonbrushwood = world.get_region("Moonbrush Wood")
+    nevergrim = world.get_region("Nevergrim")
+    hearth = world.get_region("Hearth")
+    elfsdance = world.get_region("Elf's Dance")
+    buffyoak = world.get_region("Buffy Oak")
+    sleepiburgh = world.get_region("Sleepiburgh")
+    woodlyrhyme = world.get_region("Woodly Rhyme")
+    tulipscent = world.get_region("Tulipscent")
+    mirthshire = world.get_region("Mirthshire")
+    blaiseend = world.get_region("Blaise End")
+    mistle = world.get_region("Mistle")
+    skybirdtrill = world.get_region("Skybird Trill")
 
     # You can then add them to the region.
 
@@ -262,10 +280,147 @@ def create_regular_locations(world: DungeonKeeperWorld) -> None:
     # For this, you need to have a dict of location names to their IDs (i.e. a subset of location_name_to_id)
     # Aha! So that's why we made that "get_location_names_with_ids" helper method earlier.
     # You also need to pass your overridden Location class.
-    overworld_locations = get_location_names_with_ids(
-        ["Magic Box 1", "Magic Box 2", "Magic Box 3", "Magic Box 4", "Magic Box 5", "Magic Box 6", "Magic Box 7", "Magic Box 8", "Magic Box 9", "Magic Box 10", "Magic Box 11", "Magic Box 12", "Magic Box 13"]
+    eversmile_locations = get_location_names_with_ids(
+        ["Eversmile Starting Room", "Eversmile Water Patch", "Eversmile Hero Cave", "Level 1 Beaten"]
     )
-    overworld.add_locations(overworld_locations, DungeonKeeperLocation)
+    eversmile.add_locations(eversmile_locations, DungeonKeeperLocation)
+    cosyton_locations = get_location_names_with_ids(
+        ["Cosyton East Water", "Cosyton Treasure Room", "Cosyton Hero Fortress", "Level 2 Beaten"]
+    )
+    cosyton.add_locations(cosyton_locations, DungeonKeeperLocation) 
+    waterdreamwarm_locations = get_location_names_with_ids(
+        ["Waterdream Warm South Water", "Waterdream Warm Training Room", "Waterdream Warm Hero Fortress", "Level 3 Beaten"]
+    )
+    waterdreamwarm.add_locations(waterdreamwarm_locations, DungeonKeeperLocation)   
+    flowerhat_locations = get_location_names_with_ids(
+        ["Flowerhat Hero Fortress NE", "Flowerhat Hero Fortress SE", "Flowerhat Lava Island", "Flowerhat Spider Cave", "Level 4 Beaten"]
+    )
+    flowerhat.add_locations(flowerhat_locations, DungeonKeeperLocation)
+    lushmeadow_locations = get_location_names_with_ids(
+        ["Lushmeadow-on-Down East Fort", "Lushmeadow-on-Down West Fort", "Lushmeadow-on-Down West Islet", "Level 5 Beaten"]
+    )
+    lushmeadow.add_locations(lushmeadow_locations, DungeonKeeperLocation)
+    snuggledell_locations = get_location_names_with_ids(
+        ["Snuggledell East Water", "Snuggledell Southeast Water", "Snuggledell West Water", "Level 6 Beaten"]
+    )
+    snuggledell.add_locations(snuggledell_locations, DungeonKeeperLocation)
+
+    wishvale_locations = get_location_names_with_ids(
+        ["Wishvale NE Hero Fortress", "Wishvale East Hero Fortress", "Wishvale SE Hero Fortress", "Wishvale Blue Keeper", "Level 7 Beaten"]
+    )
+    wishvale.add_locations(wishvale_locations, DungeonKeeperLocation)
+
+    tickle_locations = get_location_names_with_ids(
+        ["Tickle Southeast Cave", "Tickle Northwest Cave", "Tickle Northeast Fortress", "Level 8 Beaten"]
+    )
+    tickle.add_locations(tickle_locations, DungeonKeeperLocation)
+
+    moonbrushwood_locations = get_location_names_with_ids(
+        ["Moonbrush Wood SW Library", "Moonbrush Wood NW Library", "Moonbrush Wood NE Library", "Moonbrush Wood SE Library", 
+         "Moonbrush Wood Maze Deadend", "Moonbrush Wood Maze Exit", "Moonbrush Wood Neutral Fort", "Level 9 Beaten"]
+    )
+    moonbrushwood.add_locations(moonbrushwood_locations, DungeonKeeperLocation)
+
+    nevergrim_locations = get_location_names_with_ids(
+        ["Nevergrim East Island", "Nevergrim West Island", "Nevergrim Blue Keeper", "Level 10 Beaten"]
+    )
+    nevergrim.add_locations(nevergrim_locations, DungeonKeeperLocation)
+
+    hearth_locations = get_location_names_with_ids(
+        ["Hearth Hero Storeroom 1", "Hearth Hero Storeroom 2", "Hearth NE Water", "Hearth SE Water", "Hearth SW Water", "Hearth NW Water", "Level 11 Beaten"]
+    )
+    hearth.add_locations(hearth_locations, DungeonKeeperLocation)
+
+    elfsdance_locations = get_location_names_with_ids(
+        ["Elf's Dance SE Cavern", "Elf's Dance SW Cavern", "Elf's Dance Western Trail", "Level 12 Beaten"]
+    )
+    elfsdance.add_locations(elfsdance_locations, DungeonKeeperLocation)
+
+    buffyoak_locations = get_location_names_with_ids(
+        ["Buffy Oak Poison Cavern", "Buffy Oak Lava Cavern", "Buffy Oak South Gold Seam", "Level 13 Beaten"]
+    )
+    buffyoak.add_locations(buffyoak_locations, DungeonKeeperLocation)
+
+    sleepiburgh_locations = get_location_names_with_ids(
+        ["Sleepiburgh NW Cavern", "Sleepiburgh NE Cavern", "Sleepiburgh Workshop Tunnel", "Level 14 Beaten"]
+    )
+    sleepiburgh.add_locations(sleepiburgh_locations, DungeonKeeperLocation)
+
+    woodlyrhyme_locations = get_location_names_with_ids(
+        ["Woodly Rhyme Hero Fortress North", "Woodly Rhyme Hero Fortress South", "Woodly Rhyme Checkerboard 1", 
+         "Woodly Rhyme Checkerboard 2", "Woodly Rhyme Southern Tunnel", "Level 15 Beaten"]
+    )
+    woodlyrhyme.add_locations(woodlyrhyme_locations, DungeonKeeperLocation)
+
+    tulipscent_locations = get_location_names_with_ids(
+        ["Tulipscent NE Hero Fortress", "Tulipscent SW Hero Fortress", "Tulipscent NW Hero Fortress 1", "Tulipscent NW Hero Fortress 2", "Level 16 Beaten"]
+    )
+    tulipscent.add_locations(tulipscent_locations, DungeonKeeperLocation)
+
+    mirthshire_locations = get_location_names_with_ids(
+        ["Mirthshire SE Fort", "Mirthshire Southern Storeroom", "Mirthshire Western Cavern", "Mirthshire NW Fort", "Level 17 Beaten"]
+    )
+    mirthshire.add_locations(mirthshire_locations, DungeonKeeperLocation)
+
+    blaiseend_locations = get_location_names_with_ids(
+        ["Blaise End Central Fort", "Blaise End Western Fort", "Blaise End NW Lava", "Blaise End NW Guard Room", 
+         "Blaise End Behind Wall NW", "Blaise End Behind Wall NE", "Blaise End Fortress Fairy Tunnel", 
+         "Blaise End NE Fairy Room", "Blaise End Fortress Barbarian Tunnel", "Blaise End Central Portal", "Level 18 Beaten"]
+    )
+    blaiseend.add_locations(blaiseend_locations, DungeonKeeperLocation)
+
+    mistle_locations = get_location_names_with_ids(
+        ["Mistle Behind Earth", "Mistle Prison Tunnel", "Mistle Central Water 1", "Mistle Central Water 2", 
+         "Mistle Fairy Room", "Mistle Cave Centre", "Mistle Cave North", "Mistle Hero Fortress Heart", "Level 19 Beaten"]
+    )
+    mistle.add_locations(mistle_locations, DungeonKeeperLocation)
+
+    skybirdtrill_locations = get_location_names_with_ids(
+        ["Skybird Trill Near Gems 1", "Skybird Trill Near Gems 2", "Skybird Trill Eastern Hero Fort 1", 
+         "Skybird Trill Eastern Hero Fort 2", "Skybird Trill Hero Fortress Centre", "Skybird Trill Hero Fortress West", "Level 20 Beaten"]
+    )
+    skybirdtrill.add_locations(skybirdtrill_locations, DungeonKeeperLocation)
+
+    secret1 = world.get_region("Secret 1")
+    secret1_locations = get_location_names_with_ids(
+        ["Secret 1 Archer Room", "Secret 1 Samurai Room", "Secret 1 Near Hatchery", "Secret 1 Prison Corridor", 
+         "Secret 1 Barbarian Room 1", "Secret 1 Barbarian Room 2", "Secret 1 Barbarian Room 3", "Secret 1 Barbarian Room 4", 
+         "Secret 1 Past Magic Door", "Secret 1 Knight Corridor", "Level 100 Beaten"]
+    )
+    secret1.add_locations(secret1_locations, DungeonKeeperLocation)
+
+    secret2 = world.get_region("Secret 2")
+    secret2_locations = get_location_names_with_ids(
+        ["Secret 2 Next to Heart", "Secret 2 Gold Mine", "Secret 2 Next to Hound", "Secret 2 In Water", "Secret 2 Lava Treasure Room", "Level 101 Beaten"]
+    )
+    secret2.add_locations(secret2_locations, DungeonKeeperLocation)
+
+    secret3 = world.get_region("Secret 3")
+    secret3_locations = get_location_names_with_ids(
+        ["Secret 3 NE", "Secret 3 NW 2", "Secret 3 NW 3", "Secret 3 NW 4", "Secret 3 Horny Lair", "Secret 3 Library", "Level 102 Beaten"]
+    )
+    secret3.add_locations(secret3_locations, DungeonKeeperLocation)
+
+    secret4 = world.get_region("Secret 4")
+    secret4_locations = get_location_names_with_ids(
+        ["Secret 4 Next to Heart", "Secret 4 Lava Pool", "Secret 4 Next to Witch", "Secret 4 Next to Boulder", "Level 103 Beaten"]
+    )
+    secret4.add_locations(secret4_locations, DungeonKeeperLocation)
+
+    secret5 = world.get_region("Secret 5")
+    secret5_locations = get_location_names_with_ids(
+        ["Secret 5 Near Heart", "Secret 5 Lava Platform", "Secret 5 Next to Bile Demon", "Secret 5 Next to Mistress", 
+         "Secret 5 Next to Vampire", "Secret 5 Goal Area", "Level 104 Beaten"]
+    )
+    secret5.add_locations(secret5_locations, DungeonKeeperLocation)
+
+    secret6 = world.get_region("Secret 6")
+    secret6_locations = get_location_names_with_ids(
+        ["Secret 6 NE Storeroom", "Secret 6 SE Storeroom", "Secret 6 SW Storeroom", "Secret 6 NW Storeroom", 
+         "Secret 6 Centre Gold", "Secret 6 NE Reward Moon", "Secret 6 Blue Library", "Secret 6 Green Library", "Secret 6 Yellow Library", "Level 105 Beaten"]
+    )
+    secret6.add_locations(secret6_locations, DungeonKeeperLocation)
+    
 
     # Locations may be in different regions depending on the player's options.
     # In our case, the hammer option puts the Top Middle Chest into its own room called Top Middle Room.
