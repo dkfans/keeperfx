@@ -5,6 +5,8 @@
 #include "bflib_fileio.h"
 #include <SDL3/SDL.h>
 #include <cstdlib>
+#include <cstdint>
+#include <cstring>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mmsystem.h>
@@ -386,6 +388,9 @@ void PlatformWindows::ShutdownSteam()
 
 namespace {
 
+constexpr DWORD MSVC_CXX_EXCEPTION = 0xe06d7363; // 0xE0 + 'msc', a throw from a MSVC-built module
+constexpr DWORD GCC_CXX_EXCEPTION = 0x20474343;  // 'GCC' + 1, a throw from a GCC-built module
+
 const char * exception_name(DWORD exception_code)
 {
     switch (exception_code) {
@@ -409,8 +414,29 @@ const char * exception_name(DWORD exception_code)
         case EXCEPTION_PRIV_INSTRUCTION: return "EXCEPTION_PRIV_INSTRUCTION";
         case EXCEPTION_SINGLE_STEP: return "EXCEPTION_SINGLE_STEP";
         case EXCEPTION_STACK_OVERFLOW: return "EXCEPTION_STACK_OVERFLOW";
+        case MSVC_CXX_EXCEPTION: return "C++ exception (MSVC runtime)";
+        case GCC_CXX_EXCEPTION: return "C++ exception (GCC runtime)";
     }
     return "Unknown";
+}
+
+// Names the module which owns an address, without the directory part, and how far into it the
+// address sits. Returns false when the address belongs to no loaded module.
+bool module_name_of(const void * address, char * name, size_t name_size, uintptr_t * offset)
+{
+    HMODULE module = nullptr;
+    if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+            (LPCSTR)address, &module) || (module == nullptr)) {
+        return false;
+    }
+    char module_path[MAX_PATH];
+    if (GetModuleFileNameA(module, module_path, sizeof(module_path)) == 0) {
+        return false;
+    }
+    const char * base_name = strrchr(module_path, '\\');
+    snprintf(name, name_size, "%s", (base_name != nullptr) ? (base_name + 1) : module_path);
+    *offset = (uintptr_t)address - (uintptr_t)module;
+    return true;
 }
 
 LONG __stdcall Vex_handler(_EXCEPTION_POINTERS *ExceptionInfo)
@@ -423,7 +449,24 @@ LONG __stdcall Vex_handler(_EXCEPTION_POINTERS *ExceptionInfo)
     } else if (exception_code == 0xe24c4a02) {
         return EXCEPTION_EXECUTE_HANDLER; // Thrown by luaJIT for some reason
     }
-    LbJustLog("Exception 0x%08lx thrown: %s\n", exception_code, exception_name(exception_code));
+    // Software exceptions are raised from inside RaiseException(), so their exception address
+    // always lands in KERNELBASE and never names the module at fault. A MSVC C++ throw does
+    // carry one usable pointer: its third parameter is the ThrowInfo block, which is static
+    // data of the module that compiled the throw.
+    const auto record = ExceptionInfo->ExceptionRecord;
+    char module[MAX_PATH];
+    uintptr_t offset = 0;
+    if ((exception_code == MSVC_CXX_EXCEPTION) && (record->NumberParameters >= 3)
+     && module_name_of((const void *)record->ExceptionInformation[2], module, sizeof(module), &offset)) {
+        LbJustLog("Exception 0x%08lx thrown: %s from %s\n", exception_code,
+            exception_name(exception_code), module);
+    } else if (module_name_of(record->ExceptionAddress, module, sizeof(module), &offset)) {
+        LbJustLog("Exception 0x%08lx thrown: %s at %s+0x%lx\n", exception_code,
+            exception_name(exception_code), module, (unsigned long)offset);
+    } else {
+        LbJustLog("Exception 0x%08lx thrown: %s at %p\n", exception_code,
+            exception_name(exception_code), record->ExceptionAddress);
+    }
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
