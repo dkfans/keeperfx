@@ -956,6 +956,7 @@ static TbBool wait_at_frontend(void)
     }
     reenter_video_mode();
 
+    level_load_time_phase(LevelLoadTime_EngineStartup);
     display_loading_screen();
 
     short flgmem;
@@ -982,11 +983,13 @@ static TbBool wait_at_frontend(void)
           clear_flag(game.system_flags, GSF_NetworkActive);
           RendererClearScreen(0);
           RendererPresentFrame();
+          level_load_time_phase(LevelLoadTime_Data);
           if (!load_game(game.save_game_slot))
           {
               ERRORLOG("Loading game %d failed; quitting.",(int)game.save_game_slot);
               quit_game = 1;
           }
+          level_load_time_phase(LevelLoadTime_GameSetup);
           game.save_game_slot = flgmem;
           break;
     case FeSt_PACKET_DEMO:

@@ -59,6 +59,7 @@
 #include "sounds.h"
 #include "api.h"
 #include "net_resync.h"
+#include "timer.h"
 
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
@@ -181,8 +182,11 @@ static TbBool init_level(void)
     // sounds are added to the already-restored bank (not wiped afterwards).
     sound_restore_to_campaign_snapshot();
     // Load configs which may have per-campaign part, and can even be modified within a level
+    level_load_time_phase(LevelLoadTime_Sprites);
     init_custom_sprites(get_selected_level_number());
+    level_load_time_phase(LevelLoadTime_Configs);
     load_stats_files();
+    level_load_time_phase(LevelLoadTime_GameSetup);
     check_and_auto_fix_stats();
 
     // We should do this after 'load stats'
@@ -205,17 +209,21 @@ static TbBool init_level(void)
     
     // Load the actual level files
     int level = get_selected_level_number();
+    level_load_time_phase(LevelLoadTime_Data);
     TbBool script_preloaded = preload_script(level);
     if (!load_map_file(level)) {
         create_frontend_error_box(15000, "Map content is missing or incompatible.");
         JUSTMSG("Unable to load level %d from %s", level, campaign.name);
         return false;
     }
+    level_load_time_phase(LevelLoadTime_GameSetup);
     if (!script_preloaded && !luascript_loaded) {
         show_onscreen_msg(200,"%s: No Script %d", get_string(GUIStr_Error), level);
         JUSTMSG("Unable to load script level %d from %s", level, campaign.name);
     }
+    level_load_time_phase(LevelLoadTime_Navigation);
     init_navigation();
+    level_load_time_phase(LevelLoadTime_GameSetup);
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     light_set_lights_on(1);
     {
@@ -441,6 +449,7 @@ void faststartup_network_game(CoroutineLoop *context)
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 {
+    level_load_time_phase(LevelLoadTime_Total);
     get_my_player()->display_flags &= ~PlaF6_PlyrHasQuit;
     return CLS_CONTINUE;
 }
