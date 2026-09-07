@@ -77,6 +77,7 @@
 #include "player_utils.h"
 #include "config_players.h"
 #include "player_computer.h"
+#include "timer.h"
 #include "game_heap.h"
 #include "game_saves.h"
 #include "engine_render.h"
@@ -493,6 +494,8 @@ short setup_game(void)
 
   if (result == 1)
   {
+      if (flag_is_set(start_params.operation_flags, GOF_SingleLevel) && !(game_flags2 & (GF2_Connect | GF2_Server)))
+          level_load_time_phase(LevelLoadTime_EngineStartup);
       display_loading_screen();
   }
   LbDataFreeAll(legal_load_files);

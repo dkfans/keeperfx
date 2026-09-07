@@ -27,6 +27,17 @@ extern "C" {
 
 void update_time(void);
 extern TbClockMSec timerstarttime;
+enum LevelLoadTimeKind {
+    LevelLoadTime_Total,
+    LevelLoadTime_Sprites,
+    LevelLoadTime_Configs,
+    LevelLoadTime_Data,
+    LevelLoadTime_Navigation,
+    LevelLoadTime_GameSetup,
+    LevelLoadTime_EngineStartup,
+    LevelLoadTime_Count,
+};
+void level_load_time_phase(enum LevelLoadTimeKind kind);
 struct TimerTime {
         unsigned char Hours;
         unsigned char Minutes;
