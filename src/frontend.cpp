@@ -192,10 +192,12 @@ struct GuiButtonInit frontend_archipelago_buttons[] = {
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  235,  82,  235,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  235,  91,  235,999, 25, frontend_draw_status_text,         0, GUIStr_Empty, 0,      {33},            0, NULL },
   
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  276, 999,  276, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 322, 999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, frontend_continue_game_maintain },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 368,   999, 368, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, NULL },
+  
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999, 275, 999, 275, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, maintain_arch_connected },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 315, 999, 315, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, arch_frontend_continue_game_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,     18,999, 355, 999, 355, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,        {3},            0, arch_frontend_main_menu_load_game_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,      27,999, 395, 999, 395, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {97},           0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 435, 999, 435, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, NULL },
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
@@ -1754,7 +1756,7 @@ void frontend_archipelago_connect(struct GuiButton *gbtn)
     strcat(full_ip,":");    
     strcat(full_ip,arch_config_info.arch_port);
     
-    ap_bridge_connect(full_ip, arch_config_info.arch_slot_name);
+    ap_bridge_connect(full_ip, arch_config_info.arch_slot_name, arch_config_info.arch_password);
     set_frontend_archipelago_status("Connecting...");
 }
 
@@ -1778,6 +1780,31 @@ void set_frontend_archipelago_status(const char *text)
         text
     );
 }
+
+void maintain_arch_connected(struct GuiButton *gbtn)
+{
+    if (ap_bridge_connection_status())
+        gbtn->flags |= LbBtnF_Enabled;
+    else
+        gbtn->flags &= ~LbBtnF_Enabled;
+}
+
+void arch_frontend_continue_game_maintain(struct GuiButton *gbtn)
+{
+    if (ap_bridge_connection_status() && continue_game_option_available != 0)
+        gbtn->flags |= LbBtnF_Enabled;
+    else
+        gbtn->flags &= ~LbBtnF_Enabled;
+}
+
+void arch_frontend_main_menu_load_game_maintain(struct GuiButton *gbtn)
+{
+    if (ap_bridge_connection_status() && number_of_saved_games > 0)
+        gbtn->flags |= LbBtnF_Enabled;
+    else
+        gbtn->flags &= ~LbBtnF_Enabled;
+}
+
 
 void frontend_draw_status_text(struct GuiButton *gbtn)
 {
