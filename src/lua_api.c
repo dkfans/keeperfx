@@ -887,7 +887,8 @@ static int lua_Display_variable(lua_State *L)
     game.script_variables[0].value_type = varib_type;
     game.script_variables[0].value_id = varib_id;
     game.script_variables[0].variable_target = target;
-    game.script_variables[0].variable_target_type = target_type;
+    game.script_variables[0].variable_target_type = target_type;    
+    game.script_variables[0].is_active = true;
 
     game.script_variables[0].include_icon = false;
     game.script_variables[0].icon_idx = -1;
@@ -917,7 +918,8 @@ static int lua_DISPLAY_VARIABLE_WITH_LABEL(lua_State *L)
     game.script_variables[0].variable_player = player;
     game.script_variables[0].value_type = varib_type;
     game.script_variables[0].value_id = varib_id;
-    game.script_variables[0].include_icon = true;
+    game.script_variables[0].include_icon = true;    
+    game.script_variables[0].is_active = true;
     game.script_variables[0].icon_idx = id;
     if (game.active_script_var_count < DISPLAY_VARIABLES_LIMIT) {
         game.active_script_var_count++;

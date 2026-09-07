@@ -667,7 +667,7 @@ void draw_script_variable_list(void)
 
     for (int i = 0; i < game.active_script_var_count; i++)
     {
-        if (game.script_variables[i].variable_player == my_player_number)
+        if (game.script_variables[i].is_active)
             valid_vars++;
     }
     if(valid_vars > 0){
@@ -725,61 +725,59 @@ void draw_script_variable_list(void)
         for (int i = 0; i < game.active_script_var_count; i++)
         {        
             struct ScriptVariable scval = game.script_variables[i];
-            if ((scval.variable_player == my_player_number))
+            int sprite_x = scr_x + 4 * units_per_pixel / 16;
+            int sprite_y = scr_y;
+
+            struct ScriptVariableDetails details = get_condition_details(scval.variable_player, scval.value_type, scval.value_id);
+        
+            short icon_idx = scval.icon_idx;
+            if(scval.include_icon && icon_idx < 0)
+                icon_idx = details.icon_idx;
+            if (scval.variable_target != 0)
             {
-                int sprite_x = scr_x + 4 * units_per_pixel / 16;
-                int sprite_y = scr_y;
-
-                struct ScriptVariableDetails details = get_condition_details(scval.variable_player, scval.value_type, scval.value_id);
-            
-                short icon_idx = scval.icon_idx;
-                if(scval.include_icon && icon_idx < 0)
-                    icon_idx = details.icon_idx;
-                if (scval.variable_target != 0)
+                if ((scval.variable_target_type == 0) || (scval.variable_target_type == 2) )
                 {
-                    if ((scval.variable_target_type == 0) || (scval.variable_target_type == 2) )
-                    {
-                        details.value = scval.variable_target - details.value;
-                    }
-                    else if (scval.variable_target_type == 1)
-                    {
-                        details.value = ((~scval.variable_target)+1) + details.value;
-                    }
+                    details.value = scval.variable_target - details.value;
                 }
-                if (scval.variable_target_type != 2)
+                else if (scval.variable_target_type == 1)
                 {
-                    if (details.value < 0)
-                    {
-                        details.value = 0;
-                    }
+                    details.value = ((~scval.variable_target)+1) + details.value;
                 }
-                char value_text[32];
-                snprintf(value_text, sizeof(value_text), "%ld", details.value);
-
-                if ((icon_idx > -1 && scval.include_icon)) {
-                    RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);          
-                    LbTextDrawResized(4, y, tx_units_per_px, value_text);
-                } else {                
-                    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);          
-                    LbTextDrawResized(0, y, tx_units_per_px, value_text);
-                }
-                if(icon_idx > -1 && scval.include_icon){
-                    const struct TbSprite* spr;
-                    int ps_units_per_px = 0;
-                    if(scval.icon_idx == -1){
-                        spr = get_panel_sprite(GPS_message_rpanel_msg_blank_std);                
-                        ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
-                        LbSpriteDrawResized(sprite_x, sprite_y + (2.5 * units_per_pixel / 16), ps_units_per_px, spr);
-                    }
-                    sprite_x += details.x_offset;                
-                    sprite_y += details.y_offset;
-                    spr = get_panel_sprite(icon_idx);
-                    ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
-                    LbSpriteDrawResized(sprite_x, sprite_y, ps_units_per_px, spr);
-                }            
-                y += row_height;
-                scr_y += row_height;
             }
+            if (scval.variable_target_type != 2)
+            {
+                if (details.value < 0)
+                {
+                    details.value = 0;
+                }
+            }
+            char value_text[32];
+            snprintf(value_text, sizeof(value_text), "%ld", details.value);
+
+            if ((icon_idx > -1 && scval.include_icon)) {
+                RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);          
+                LbTextDrawResized(4, y, tx_units_per_px, value_text);
+            } else {                
+                RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);          
+                LbTextDrawResized(0, y, tx_units_per_px, value_text);
+            }
+            if(icon_idx > -1 && scval.include_icon){
+                const struct TbSprite* spr;
+                int ps_units_per_px = 0;
+                if(scval.icon_idx == -1){
+                    spr = get_panel_sprite(GPS_message_rpanel_msg_blank_std);                
+                    ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+                    LbSpriteDrawResized(sprite_x, sprite_y + (2.5 * units_per_pixel / 16), ps_units_per_px, spr);
+                }
+                sprite_x += details.x_offset;                
+                sprite_y += details.y_offset;
+                spr = get_panel_sprite(icon_idx);
+                ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+                LbSpriteDrawResized(sprite_x, sprite_y, ps_units_per_px, spr);
+            }            
+            y += row_height;
+            scr_y += row_height;
+        
         }
     }
 

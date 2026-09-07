@@ -3664,7 +3664,8 @@ static void display_variable_process(struct ScriptContext *context)
     game.script_variables[0].value_type = context->value->bytes[2];
     game.script_variables[0].value_id = context->value->longs[1];
     game.script_variables[0].variable_target = context->value->longs[2];
-    game.script_variables[0].variable_target_type = context->value->bytes[1];
+    game.script_variables[0].variable_target_type = context->value->bytes[1];    
+    game.script_variables[0].is_active = true;
     
     game.script_variables[0].include_icon = false;
     game.script_variables[0].icon_idx = -1;
@@ -3712,6 +3713,7 @@ static void display_variable_with_label_process(struct ScriptContext *context)
     game.script_variables[0].value_type = context->value->bytes[2];
     game.script_variables[0].value_id = context->value->longs[1];
     game.script_variables[0].include_icon = true;
+    game.script_variables[0].is_active = true;
     game.script_variables[0].icon_idx = context->value->shorts[4];
     if (game.active_script_var_count < DISPLAY_VARIABLES_LIMIT) {
         game.active_script_var_count++;
