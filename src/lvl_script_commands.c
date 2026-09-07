@@ -3753,11 +3753,48 @@ static void hide_timer_process(struct ScriptContext *context)
    game.flags_gui &= ~GGUI_ScriptTimer;
 }
 
+static void hide_variable_check(const struct ScriptLine *scline)
+{
+    int32_t varib_id, varib_type;
+    varib_id = -1;
+    varib_type = -1;
+    const char *arg_text = scline->tp[0];    
+    if(arg_text[0] != '\0')
+    {
+        if (!parse_get_varib(scline->tp[0], &varib_id, &varib_type, level_file_version))
+        {
+            SCRPTERRLOG("Unknown variable, '%s'", scline->tp[0]);
+            return;
+        }    
+
+    }
+    
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    value->bytes[2] = varib_type;
+    value->longs[1] = varib_id;    
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
 static void hide_variable_process(struct ScriptContext *context)
 {
-    memset(game.script_variables, 0, sizeof(game.script_variables));
-    game.active_script_var_count = 0;
-    game.flags_gui &= ~GGUI_Variable;
+    short varib_id, varib_type;
+    varib_type = context->value->bytes[2];
+    varib_id = context->value->longs[1];
+    if(varib_id > -1 && varib_type > -1)
+    {
+        for (int i = 0; i < DISPLAY_VARIABLES_LIMIT; i++)
+        {
+            if(game.script_variables[i].value_id == varib_id && game.script_variables[i].value_type == varib_type){
+                memset(&game.script_variables[i], -1, sizeof(game.script_variables[i]));
+                game.active_script_var_count--;
+            }
+        }        
+    } else {
+        memset(game.script_variables, 0, sizeof(game.script_variables));
+        game.active_script_var_count = 0;
+    }
+    if(game.active_script_var_count == 0)
+        game.flags_gui &= ~GGUI_Variable;
 }
 
 static void create_effect_check(const struct ScriptLine *scline)
@@ -7020,7 +7057,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_VARIABLE_WITH_LABEL",       "PAa    ", Cmd_DISPLAY_VARIABLE_WITH_LABEL, &display_variable_with_label_check, &display_variable_with_label_process},
   {"DISPLAY_COUNTDOWN",                 "PANb    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
   {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
-  {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
+  {"HIDE_VARIABLE",                     "a       ", Cmd_HIDE_VARIABLE, &hide_variable_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_at_pos_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
