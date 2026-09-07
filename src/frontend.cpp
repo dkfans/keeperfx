@@ -145,9 +145,16 @@ struct GuiButtonInit frontend_error_box_buttons[] = {
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
+struct GuiButtonInit frontend_archipelago_buttons[] = {
+  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  61,  82,  61,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  63,  91,  63,165, 25, archipelago_draw_text,                0, GUIStr_Empty, 0,      {19},            0, NULL },
+  { LbBtnT_EditBox, BID_DEFAULT,0, 0, frontnet_archipelago_set_ip,NULL,frontend_over_button,19,200,63,95,63,432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = gui_message_text}, 20, NULL },
+  {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, NULL },
+};
 
 struct GuiMenu frontend_main_menu =
- { GMnu_FEMAIN,             0, 1, frontend_main_menu_buttons, POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
+ { GMnu_FEMAIN,             0, 1, frontend_archipelago_buttons, POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_statistics_menu =
  { GMnu_FESTATISTICS,       0, 1, frontend_statistics_buttons,POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_high_score_table_menu =
@@ -1249,6 +1256,22 @@ int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_b
         font_idx = 2;
     return font_idx;
 }
+
+void archipelago_draw_text(struct GuiButton *gbtn)
+{
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
+    int font_idx;
+    if ((gbtn->flags & LbBtnF_Enabled) == 0)
+        font_idx = 3;
+    else
+        font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
+    LbTextSetFont(frontend_font[font_idx]);
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    LbTextDrawResized(0, 0, tx_units_per_px, "IP Address");
+}
+
 
 void frontend_draw_text(struct GuiButton *gbtn)
 {

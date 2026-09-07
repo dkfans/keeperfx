@@ -360,6 +360,7 @@ void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long f
 long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long first_elem, long last_elem);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
 void frontend_draw_text(struct GuiButton *gbtn);
+void archipelago_draw_text(struct GuiButton *gbtn);
 void frontend_change_state(struct GuiButton *gbtn);
 void frontend_draw_enter_text(struct GuiButton *gbtn);
 void frontend_draw_small_menu_button(struct GuiButton *gbtn);

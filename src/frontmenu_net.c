@@ -149,6 +149,12 @@ void frontnet_session_set_player_name(struct GuiButton *gbtn)
     net_write_config_file();
 }
 
+
+void frontnet_archipelago_set_ip(struct GuiButton *gbtn)
+{
+  
+}
+
 void frontnet_draw_text_bar(struct GuiButton *gbtn)
 {
     const struct TbSprite *spr;
