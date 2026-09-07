@@ -429,6 +429,9 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "party_target_player") == 0)
         {
             cctrl->party.target_plyr_idx = luaL_checkPlayerSingle(L, 3);
+        } else if (strcmp(key, "countdown") == 0)
+        {
+            cctrl->countdown = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "state") == 0)
         {
             internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, creatrstate_desc));
@@ -608,6 +611,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, cctrl->force_health_flower_hidden);
         } else if (strcmp(key, "hand_blocked_turns") == 0) {
             lua_pushinteger(L, cctrl->hand_blocked_turns);
+        } else if (strcmp(key, "countdown") == 0) {
+            lua_pushinteger(L, cctrl->countdown);
         } else if (strcmp(key, "state") == 0) {
             lua_pushstring(L, get_conf_parameter_text(creatrstate_desc, thing->active_state));
         } else if (strcmp(key, "state_besides_interruptions") == 0) {
