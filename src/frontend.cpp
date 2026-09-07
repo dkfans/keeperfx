@@ -146,10 +146,23 @@ struct GuiButtonInit frontend_error_box_buttons[] = {
 };
 
 struct GuiButtonInit frontend_archipelago_buttons[] = {
-  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  61,  82,  61,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  63,  91,  63,165, 25, archipelago_draw_text,                0, GUIStr_Empty, 0,      {19},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {115},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  71,  82,  71,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  73,  91,  73,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {116},            0, NULL },
   { LbBtnT_EditBox, BID_DEFAULT,0, 0, frontnet_archipelago_set_ip,NULL,frontend_over_button,19,200,63,95,63,432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = gui_message_text}, 20, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  101,  82,  101,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  103,  91,  103,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {117},            0, NULL },
+  
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  131,  82,  131,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  133,  91,  133,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {118},            0, NULL },
+  
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  161,  82,  161,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  163,  91,  163,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {119},            0, NULL },
+   
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 82, 191,   82, 191, 165, 46, frontend_draw_small_menu_button,  0, GUIStr_Empty,  0,      {120},            0, NULL },
+  
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,      {97},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {5},            0, NULL },
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                             0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
@@ -337,6 +350,12 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuMapPacks, 2},
     {GUIStr_MnuMpMapPacks, 2},
     {GUIStr_MnuReturnToLobby, 1},
+    {GUIStr_ArchipelagoMenu,0},
+    {GUIStr_ArchipelagoIp,1},
+    {GUIStr_ArchipelagoPort,1},
+    {GUIStr_ArchipelagoSlotName,1},
+    {GUIStr_ArchipelagoPwd,1},
+    {GUIStr_ArchipelagoConnect,1}, // [120]
 };
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
@@ -1256,22 +1275,6 @@ int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_b
         font_idx = 2;
     return font_idx;
 }
-
-void archipelago_draw_text(struct GuiButton *gbtn)
-{
-    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
-    int font_idx;
-    if ((gbtn->flags & LbBtnF_Enabled) == 0)
-        font_idx = 3;
-    else
-        font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
-    LbTextSetFont(frontend_font[font_idx]);
-    int tx_units_per_px;
-    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    LbTextDrawResized(0, 0, tx_units_per_px, "IP Address");
-}
-
 
 void frontend_draw_text(struct GuiButton *gbtn)
 {

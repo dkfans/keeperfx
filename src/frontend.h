@@ -32,7 +32,7 @@ extern "C" {
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        100
 #define MENU_LIST_ITEMS_COUNT       52
-#define FRONTEND_BUTTON_INFO_COUNT 115
+#define FRONTEND_BUTTON_INFO_COUNT 121
 #define NET_MESSAGES_COUNT           8
 #define NET_MESSAGE_LEN             64
 // Sprite limits
@@ -360,7 +360,6 @@ void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long f
 long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long first_elem, long last_elem);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
 void frontend_draw_text(struct GuiButton *gbtn);
-void archipelago_draw_text(struct GuiButton *gbtn);
 void frontend_change_state(struct GuiButton *gbtn);
 void frontend_draw_enter_text(struct GuiButton *gbtn);
 void frontend_draw_small_menu_button(struct GuiButton *gbtn);
