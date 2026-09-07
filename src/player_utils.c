@@ -757,8 +757,26 @@ void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player)
     do_to_players_all_creatures_of_model(player->id_number, CREATURE_ANY, check_map_explored_at_current_pos);
 }
 
-void init_player_as_single_keeper(struct PlayerInfo *player)
+void turn_user_cursor_light(NetUserId user, TbBool turn_on)
 {
+    struct UserState* ustate = get_user_state(user);
+    if ((ustate == NULL) || (ustate->cursor_light_idx == 0))
+        return;
+    if (turn_on)
+        light_turn_light_on(ustate->cursor_light_idx);
+    else
+        light_turn_light_off(ustate->cursor_light_idx);
+}
+
+void init_user(NetUserId user)
+{
+    struct UserState* ustate = get_user_state(user);
+    if (ustate == NULL)
+    {
+        ERRORLOG("Cannot init user %d", (int)user);
+        return;
+    }
+    memset(ustate, 0, sizeof(*ustate));
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
     ilght.radius = 2560;
@@ -766,11 +784,11 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     ilght.flags = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
-    player->cursor_light_idx = idx;
+    ustate->cursor_light_idx = idx;
     if (idx != 0) {
         light_set_light_never_cache(idx);
     } else {
-        WARNLOG("Cannot allocate light to player %d.",(int)player->id_number);
+        WARNLOG("Cannot allocate cursor light to user %d.",(int)user);
     }
 }
 
@@ -811,7 +829,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
     switch (game.game_kind)
     {
     case GKind_LocalGame:
-        init_player_as_single_keeper(player);
         init_player_start(player, false);
         reset_player_mode(player, PVT_DungeonTop);
         if ( !no_explore ) {
@@ -836,7 +853,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
           ERRORLOG("Non Keeper in Keeper game");
           break;
         }
-        init_player_as_single_keeper(player);
         init_player_start(player, false);
         reset_player_mode(player, PVT_DungeonTop);
         init_keeper_map_exploration_by_terrain(player);
@@ -1124,6 +1140,7 @@ void init_players_local_game(void)
         default: player->view_mode_restore = PVM_IsoWibbleView; break;
     }
     init_player(player, 0);
+    init_user(SOLO_HUMAN_ID);
     set_creature_tendencies(player, CrTend_Imprison, IMPRISON_BUTTON_DEFAULT);
     set_creature_tendencies(player, CrTend_Flee, FLEE_BUTTON_DEFAULT);
     game.creatures_tend_imprison = IMPRISON_BUTTON_DEFAULT;

@@ -591,7 +591,7 @@ void process_user_dungeon_control_packet_control(NetUserId user)
         update_box_lag_compensation(player);
     }
     process_dungeon_control_packet_clicks(user);
-    update_mouse_light(player);
+    update_mouse_light(user);
 }
 
 static void set_all_cameras_position(struct Camera cams[], int32_t pos_x, int32_t pos_y)
@@ -1074,7 +1074,7 @@ void process_user_map_packet_control(NetUserId user)
     process_map_packet_clicks(user);
     player->cameras[CamIV_Parchment].mappos.x.val = pckt->pos_x;
     player->cameras[CamIV_Parchment].mappos.y.val = pckt->pos_y;
-    update_mouse_light(player);
+    update_mouse_light(user);
     SYNCDBG(8,"Finished");
 }
 
@@ -1104,8 +1104,9 @@ void process_user_packet(NetUserId user)
         return;
     }
     SYNCDBG(6, "Processing user %d packet of type %d.", user, (int)pckt->action);
-    player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
-    player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
+    struct UserState* uinfo = get_user_state(user);
+    uinfo->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
+    uinfo->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
 
   if (!process_user_global_packet_action(user))
   {

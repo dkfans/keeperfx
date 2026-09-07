@@ -732,7 +732,8 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     struct Thing *thing;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
-    if (dungeon_invalid(dungeon))
+    struct UserState* uinfo = get_user_state(get_local_user());
+    if (dungeon_invalid(dungeon) || (uinfo == NULL))
     {
         set_pointer_graphic(MousePG_Invisible);
         return;
@@ -808,7 +809,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             thing = thing_get(thing_under_hand);
             TRACE_THING(thing);
             TbBool can_cast = false;
-            if ((player->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != thing_under_hand))
+            if ((uinfo->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != thing_under_hand))
             {
                 PowerKind pwkind = PwrK_POSSESS;
                 if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
@@ -839,7 +840,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
 
                 player->display_flags |= PlaF6_DisplayNeedsUpdate;
             } else
-            if (((player->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != thing_under_hand)
+            if (((uinfo->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
                 set_pointer_graphic(MousePG_Query);

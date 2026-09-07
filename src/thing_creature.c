@@ -74,6 +74,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "player_instances.h"
+#include "player_utils.h"
 #include "config_players.h"
 #include "power_hand.h"
 #include "power_process.h"
@@ -3313,7 +3314,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         PaletteSetPlayerPalette(player, engine_palette);
         local_info.palette_fade_step_possession = 11;
     }
-    light_turn_light_on(player->cursor_light_idx);
+    turn_user_cursor_light(player->user_id, true);
 }
 
 void delete_armour_effects_attached_to_creature(struct Thing *thing)

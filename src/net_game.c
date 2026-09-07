@@ -148,6 +148,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         }
         player->is_active = 1;
         init_player(player, 0);
+        init_user(i);
         player->isometric_view_zoom_level = sync->isometric_view_zoom_level;
         player->frontview_zoom_level = sync->frontview_zoom_level;
         TbBool imprison = (sync->initial_tendencies & CrTend_Imprison) != 0;

@@ -1417,11 +1417,12 @@ short complete_level(struct PlayerInfo *player)
     return true;
 }
 
-static void set_mouse_light(struct PlayerInfo *player, TbBool valid, struct Coord3d pos)
+static void set_mouse_light(NetUserId user, TbBool valid, struct Coord3d pos)
 {
-    const int idx = player->cursor_light_idx;
-    if (idx == 0)
+    struct UserState *ustate = get_user_state(user);
+    if ((ustate == NULL) || (ustate->cursor_light_idx == 0))
         return;
+    const int idx = ustate->cursor_light_idx;
 
     if (valid)
     {
@@ -1429,7 +1430,7 @@ static void set_mouse_light(struct PlayerInfo *player, TbBool valid, struct Coor
         light_turn_light_on(idx);
         light_set_light_position(idx, &pos);
 
-        if (is_my_player(player))
+        if (user == get_local_user())
             game.mouse_light_pos = pos;
     }
     else
@@ -1457,27 +1458,29 @@ void update_local_mouse_light(void)
     struct Coord3d pos;
     const TbBool valid = screen_to_map(cam, GetMouseX(), GetMouseY(), &pos);
 
-    set_mouse_light(player, valid, pos);
+    NetUserId user = get_local_user();
+    set_mouse_light(user, valid, pos);
 
-    if (player->cursor_light_idx != 0)
-        light_reset_interpolation(player->cursor_light_idx);
+    struct UserState *ustate = get_user_state(user);
+    if ((ustate != NULL) && (ustate->cursor_light_idx != 0))
+        light_reset_interpolation(ustate->cursor_light_idx);
 }
 
-void update_mouse_light(struct PlayerInfo *player)
+void update_mouse_light(NetUserId user)
 {
     SYNCDBG(6,"Starting");
     const struct Packet *pckt = nullptr;
 
-    if (is_my_player(player))
-        pckt = get_history_packet(player->user_id, get_gameturn());
+    if (user == get_local_user())
+        pckt = get_history_packet(user, get_gameturn());
     if (pckt == nullptr)
-        pckt = get_packet(player->user_id);
+        pckt = get_packet(user);
 
     const TbBool valid = (pckt->control_flags & PCtr_MapCoordsValid) != 0;
     struct Coord3d pos;
     pos.x.val = pckt->pos_x;
     pos.y.val = pckt->pos_y;
-    set_mouse_light(player, valid, pos);
+    set_mouse_light(user, valid, pos);
 }
 
 void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)

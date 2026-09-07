@@ -118,6 +118,13 @@ TbBool is_my_player_number(PlayerNumber plyr_num)
     return (plyr_num == myplyr->id_number);
 }
 
+struct UserState *get_user_state(NetUserId user)
+{
+    if ((user < 0) || (user >= MAX_NET_USERS))
+        return NULL;
+    return &game.user_states[user];
+}
+
 TbBool player_is_roaming(PlayerNumber plyr_num)
 {
     struct PlayerInfo* player = get_player(plyr_num);
@@ -252,6 +259,7 @@ void clear_players(void)
         struct PlayerInfo* player = &game.players[i];
         memset(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
+        player->user_id = -1;
         switch (i)
         {
         case PLAYER_GOOD:
@@ -267,6 +275,8 @@ void clear_players(void)
     }
     memset(&bad_player, 0, sizeof(struct PlayerInfo));
     bad_player.id_number = PLAYERS_COUNT;
+    bad_player.user_id = -1;
+    memset(game.user_states, 0, sizeof(game.user_states));
     memset(&local_info, 0, sizeof(local_info));
     game.active_players_count = 0;
     //game.game_kind = GKind_LocalGame;

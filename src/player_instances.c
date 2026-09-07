@@ -503,7 +503,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
-  light_turn_light_on(player->cursor_light_idx);
+  turn_user_cursor_light(player->user_id, true);
   return 0;
 }
 
@@ -544,7 +544,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
-  light_turn_light_on(player->cursor_light_idx);
+  turn_user_cursor_light(player->user_id, true);
   return 0;
 }
 
@@ -582,7 +582,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
     if (is_my_player_number(player->id_number)) {
         LbPaletteDataFillWhite(zoom_to_heart_palette);
     }
-    light_turn_light_off(player->cursor_light_idx);
+    turn_user_cursor_light(player->user_id, false);
     struct Thing* thing = get_player_soul_container(player->id_number);
     ThingModel spectator_breed = get_players_spectator_model(player->id_number);
     struct Coord3d mappos;
@@ -713,7 +713,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
     cam->rotation_angle_x = DEGREES_45;
     set_local_camera_destination(player);
   }
-  light_turn_light_on(player->cursor_light_idx);
+  turn_user_cursor_light(player->user_id, true);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
   player->allocflags &= ~PlaF_MouseInputDisabled;
   game.view_mode_flags &= ~GNFldD_CreaturePasngr;
@@ -739,7 +739,7 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, int32_t *n)
       PaletteSetPlayerPalette(player, engine_palette);
   }
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
-  light_turn_light_off(player->cursor_light_idx);
+  turn_user_cursor_light(player->user_id, false);
   player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
