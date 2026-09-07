@@ -57,7 +57,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 void init_players(void);
 void init_player(struct PlayerInfo *player, short no_explore);
-void init_user(NetUserId user);
+void init_user_state(NetUserId user);
 void turn_user_cursor_light(NetUserId user, TbBool turn_on);
 void post_init_players(void);
 void post_init_player(struct PlayerInfo* player);

@@ -45,6 +45,7 @@ unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0
 
 struct PlayerInfo bad_player;
 struct LocalInfo local_info;
+struct UserState bad_user_state;
 
 /** The current player's number. */
 unsigned char my_player_number;
@@ -118,11 +119,19 @@ TbBool is_my_player_number(PlayerNumber plyr_num)
     return (plyr_num == myplyr->id_number);
 }
 
+// returns user's UserState, or INVALID_USER_STATE.
 struct UserState *get_user_state(NetUserId user)
 {
     if ((user < 0) || (user >= MAX_NET_USERS))
-        return NULL;
+        return INVALID_USER_STATE;
     return &game.user_states[user];
+}
+
+TbBool user_state_invalid(const struct UserState *ustate)
+{
+    if (ustate == INVALID_USER_STATE)
+        return true;
+    return (ustate == NULL);
 }
 
 TbBool player_is_roaming(PlayerNumber plyr_num)
@@ -278,6 +287,7 @@ void clear_players(void)
     bad_player.user_id = -1;
     memset(game.user_states, 0, sizeof(game.user_states));
     memset(&local_info, 0, sizeof(local_info));
+    memset(&bad_user_state, 0, sizeof(bad_user_state));
     game.active_players_count = 0;
     //game.game_kind = GKind_LocalGame;
 }

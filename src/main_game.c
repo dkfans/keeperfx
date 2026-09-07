@@ -342,7 +342,7 @@ TbBool startup_saved_packet_game(void)
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
     get_my_player()->user_id = SOLO_HUMAN_ID;
-    init_user(SOLO_HUMAN_ID);
+    init_user_state(get_my_player()->user_id);
     if (game.active_players_count == 1)
         game.game_kind = GKind_LocalGame;
     if (game.turns_stored < game.turns_fastforward)

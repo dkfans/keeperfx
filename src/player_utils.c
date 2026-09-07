@@ -759,21 +759,21 @@ void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player)
 
 void turn_user_cursor_light(NetUserId user, TbBool turn_on)
 {
-    struct UserState* ustate = get_user_state(user);
-    if ((ustate == NULL) || (ustate->cursor_light_idx == 0))
+    const int idx = get_user_state(user)->cursor_light_idx;
+    if (idx == 0)
         return;
     if (turn_on)
-        light_turn_light_on(ustate->cursor_light_idx);
+        light_turn_light_on(idx);
     else
-        light_turn_light_off(ustate->cursor_light_idx);
+        light_turn_light_off(idx);
 }
 
-void init_user(NetUserId user)
+void init_user_state(NetUserId user)
 {
     struct UserState* ustate = get_user_state(user);
-    if (ustate == NULL)
+    if (user_state_invalid(ustate))
     {
-        ERRORLOG("Cannot init user %d", (int)user);
+        ERRORLOG("Cannot init state of user %d", (int)user);
         return;
     }
     memset(ustate, 0, sizeof(*ustate));
@@ -1140,7 +1140,7 @@ void init_players_local_game(void)
         default: player->view_mode_restore = PVM_IsoWibbleView; break;
     }
     init_player(player, 0);
-    init_user(SOLO_HUMAN_ID);
+    init_user_state(player->user_id);
     set_creature_tendencies(player, CrTend_Imprison, IMPRISON_BUTTON_DEFAULT);
     set_creature_tendencies(player, CrTend_Flee, FLEE_BUTTON_DEFAULT);
     game.creatures_tend_imprison = IMPRISON_BUTTON_DEFAULT;

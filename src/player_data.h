@@ -34,6 +34,7 @@ extern "C" {
 #define COLOURS_COUNT       9
 
 #define INVALID_PLAYER (&bad_player)
+#define INVALID_USER_STATE (&bad_user_state)
 
 #define PLAYER_MP_MESSAGE_LEN  64
 
@@ -285,6 +286,7 @@ extern TbPixel player_highlight_colours[];
 extern TbPixel possession_hit_colours[];
 extern unsigned short const player_cubes[];
 extern struct PlayerInfo bad_player;
+extern struct UserState bad_user_state;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
@@ -293,6 +295,7 @@ TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
 struct UserState *get_user_state(NetUserId user);
+TbBool user_state_invalid(const struct UserState *ustate);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
 TbBool players_are_enemies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);

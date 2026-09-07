@@ -1104,9 +1104,9 @@ void process_user_packet(NetUserId user)
         return;
     }
     SYNCDBG(6, "Processing user %d packet of type %d.", user, (int)pckt->action);
-    struct UserState* uinfo = get_user_state(user);
-    uinfo->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
-    uinfo->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
+    struct UserState* ustate = get_user_state(user);
+    ustate->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
+    ustate->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
 
   if (!process_user_global_packet_action(user))
   {

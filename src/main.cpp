@@ -1036,6 +1036,7 @@ void clear_players_for_save(void)
       memcpy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = saved_player_id;
+      player->user_id = -1;
       player->is_active = saved_is_active;
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
@@ -1419,10 +1420,9 @@ short complete_level(struct PlayerInfo *player)
 
 static void set_mouse_light(NetUserId user, TbBool valid, struct Coord3d pos)
 {
-    struct UserState *ustate = get_user_state(user);
-    if ((ustate == NULL) || (ustate->cursor_light_idx == 0))
+    const int idx = get_user_state(user)->cursor_light_idx;
+    if (idx == 0)
         return;
-    const int idx = ustate->cursor_light_idx;
 
     if (valid)
     {
@@ -1461,9 +1461,9 @@ void update_local_mouse_light(void)
     NetUserId user = get_local_user();
     set_mouse_light(user, valid, pos);
 
-    struct UserState *ustate = get_user_state(user);
-    if ((ustate != NULL) && (ustate->cursor_light_idx != 0))
-        light_reset_interpolation(ustate->cursor_light_idx);
+    const int idx = get_user_state(user)->cursor_light_idx;
+    if (idx != 0)
+        light_reset_interpolation(idx);
 }
 
 void update_mouse_light(NetUserId user)
