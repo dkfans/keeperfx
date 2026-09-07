@@ -25,6 +25,7 @@
 #include "thing_physics.h"
 #include "magic_powers.h"
 #include "config_crtrstates.h"
+#include "creature_instances.h"
 #include "creature_states_mood.h"
 #include "thing_stats.h"
 #include "local_camera.h"
@@ -447,6 +448,14 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "continue_state") == 0)
         {
             thing->continue_state = luaL_checkNamedCommand(L, 3, creatrstate_desc);
+        } else if (strcmp(key, "instance") == 0)
+        {
+            CrInstance inst_idx = luaL_checkNamedCommand(L, 3, instance_desc);
+            if (inst_idx == CrInst_NULL) {
+                clear_creature_instance(thing);
+            } else {
+                set_creature_instance(thing, inst_idx, 0, NULL);
+            }
         } else if (strcmp(key, "hunger_amount") == 0)
         {
             cctrl->hunger_amount = luaL_checkinteger(L, 3);
@@ -628,6 +637,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushstring(L, get_conf_parameter_text(creatrstate_desc, get_creature_state_besides_interruptions(thing)));
         } else if (strcmp(key, "continue_state") == 0) {
             lua_pushstring(L, get_conf_parameter_text(creatrstate_desc, thing->continue_state));
+        } else if (strcmp(key, "instance") == 0) {
+            lua_pushstring(L, get_conf_parameter_text(instance_desc, cctrl->instance_id));
         } else if (strcmp(key, "workroom") == 0) {
             lua_pushRoom(L, room_get(cctrl->work_room_id));
         } else if (strcmp(key, "moveto_pos") == 0) {
