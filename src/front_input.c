@@ -977,10 +977,10 @@ static TbBool get_level_lost_inputs(void)
               }
               long mmzoom;
               if (16/mm_units_per_px < 3)
-                  mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
+                  mmzoom = (local_info.minimap_zoom) / (3-16/mm_units_per_px);
               else
-                  mmzoom = (player->minimap_zoom);
-              inp_done = get_small_map_inputs(player->minimap_pos_x*mm_units_per_px/16, player->minimap_pos_y*mm_units_per_px/16, mmzoom);
+                  mmzoom = (local_info.minimap_zoom);
+              inp_done = get_small_map_inputs(local_info.minimap_pos_x*mm_units_per_px/16, local_info.minimap_pos_y*mm_units_per_px/16, mmzoom);
               if ( !inp_done )
                 get_bookmark_inputs();
               get_dungeon_control_nonaction_inputs();
@@ -1357,11 +1357,11 @@ static TbBool get_dungeon_control_action_inputs(void)
     long mmzoom;
     if (16 / mm_units_per_px < 3)
     {
-        mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
+        mmzoom = (local_info.minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
     }
     else
-        mmzoom = (player->minimap_zoom);
-    if (get_small_map_inputs(player->minimap_pos_x * mm_units_per_px / 16, player->minimap_pos_y * mm_units_per_px / 16, mmzoom))
+        mmzoom = (local_info.minimap_zoom);
+    if (get_small_map_inputs(local_info.minimap_pos_x * mm_units_per_px / 16, local_info.minimap_pos_y * mm_units_per_px / 16, mmzoom))
         return 1;
 
     if (player->work_state == PSt_CtrlDungeon)
@@ -2408,8 +2408,8 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   struct PlayerInfo* player = get_my_player();
   TbBool hand_is_empty = power_hand_is_empty(player);
   if ((pointer_x < 0) || (pointer_y < 0)
-   || (pointer_x >= player->engine_window_width/pixel_size)
-   || (pointer_y >= player->engine_window_height/pixel_size))
+   || (pointer_x >= local_info.engine_window_width/pixel_size)
+   || (pointer_y >= local_info.engine_window_height/pixel_size))
       return false;
   if (top_pointed_at_x <= game.map_subtiles_x)
     x = top_pointed_at_x;
@@ -2972,7 +2972,7 @@ static short get_inputs(void)
         {
           if (!network_is_active())
             game.operation_flags &= ~GOF_Paused;
-          player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
+          local_info.status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
           set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
         }
         return false;
@@ -3045,7 +3045,6 @@ short get_gui_inputs(short gameplay_on)
   }
   update_busy_doing_gui_on_menu();
   int fmmenu_idx = first_monopoly_menu();
-  struct PlayerInfo* player = get_my_player();
   int gmbtn_idx = -1;
   ActiveButtonID nx_over_slider_button = -1;
   struct GuiButton *gbtn;
@@ -3063,7 +3062,7 @@ short get_gui_inputs(short gameplay_on)
       if ((gbtn->btype_value & LbBFeF_NoMouseOver) != 0)
           continue;
       // TODO GUI Introduce circular buttons instead of specific condition for pannel map
-      if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_panel_map(player->minimap_pos_x,player->minimap_pos_y))
+      if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_panel_map(local_info.minimap_pos_x,local_info.minimap_pos_y))
           continue;
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
         || ((gbtn->gbtype == LbBtnT_Hotspot) && (gbtn->button_state_left_pressed != 0)) )

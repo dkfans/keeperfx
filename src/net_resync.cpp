@@ -428,8 +428,7 @@ TbBool receive_resync_game(void)
 void resync_game(void)
 {
     SYNCDBG(2,"Starting");
-    struct PlayerInfo* player = get_my_player();
-    draw_out_of_sync_box(0, 32*units_per_pixel/16, player->engine_window_x);
+    draw_out_of_sync_box(0, 32*units_per_pixel/16, local_info.engine_window_x);
     reset_eye_lenses();
     store_localised_game_structure();
     TbBool result;

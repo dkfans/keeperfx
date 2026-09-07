@@ -147,16 +147,11 @@ struct CheatSelection
 
 struct PlayerInfo {
     unsigned char allocflags;
-    TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
-    TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
-    TbBool paused_state_restore; /**< Used to restore pause state after saving */
-    TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
     unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
     unsigned char additional_flags; // Uses PlayerAdditionalFlags
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
     unsigned char display_flags;
-    unsigned char *lens_palette;
     unsigned char /*NetUserId*/ user_id;
     int32_t hand_animationId;
     unsigned int hand_busy_until_turn;
@@ -181,13 +176,6 @@ struct PlayerInfo {
     short cta_flag_idx;
     short influenced_thing_idx;
     GameTurn influenced_thing_creation;
-    short engine_window_width;
-    short engine_window_height;
-    short engine_window_x;
-    short engine_window_y;
-    short minimap_pos_x;
-    short minimap_pos_y;
-    unsigned short minimap_zoom;
     unsigned char view_type;
     PlayerState work_state;
     unsigned char primary_cursor_state;
@@ -211,13 +199,8 @@ struct PlayerInfo {
     /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
     char view_mode_restore;
     int32_t dungeon_camera_zoom;
-    int32_t palette_fade_step_map;
-    int32_t palette_fade_step_pain;
-    int32_t palette_fade_step_possession;
-    unsigned char *main_palette;
     /** Overcharge level while casting keeper powers. */
     int32_t cast_expand_level;
-    char video_cluedo_mode;
     MapCoordDelta zoom_to_movement_x;
     MapCoordDelta zoom_to_movement_y;
     GameTurn power_of_cooldown_turn;
@@ -261,7 +244,7 @@ struct PlayerInfo {
     int isometric_tilt;
     unsigned short generate_speed;
     int first_person_unfreeze_delay;
-    };
+};
 
 /******************************************************************************/
 
@@ -270,6 +253,27 @@ extern short local_thing_under_hand;
 
 #pragma pack()
 /******************************************************************************/
+
+struct LocalInfo {
+    TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
+    TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
+    TbBool paused_state_restore; /**< Used to restore pause state after saving */
+    TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
+    unsigned char *lens_palette;
+    unsigned char *main_palette;
+    int32_t palette_fade_step_map;
+    int32_t palette_fade_step_pain;
+    int32_t palette_fade_step_possession;
+    short engine_window_width;
+    short engine_window_height;
+    short engine_window_x;
+    short engine_window_y;
+    short minimap_pos_x;
+    short minimap_pos_y;
+    unsigned short minimap_zoom;
+};
+
+extern struct LocalInfo local_info;
 extern unsigned short player_colors_map[];
 extern TbPixel player_path_colours[];
 extern TbPixel player_room_colours[];

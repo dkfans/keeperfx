@@ -44,6 +44,7 @@ TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,  54,  46
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
 struct PlayerInfo bad_player;
+struct LocalInfo local_info;
 
 /** The current player's number. */
 unsigned char my_player_number;
@@ -266,6 +267,7 @@ void clear_players(void)
     }
     memset(&bad_player, 0, sizeof(struct PlayerInfo));
     bad_player.id_number = PLAYERS_COUNT;
+    memset(&local_info, 0, sizeof(local_info));
     game.active_players_count = 0;
     //game.game_kind = GKind_LocalGame;
 }
@@ -476,19 +478,23 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
         set_engine_view(player, PVM_IsoWibbleView);
       }
       if (is_my_player(player))
+      {
         toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
-      if ((game.operation_flags & GOF_ShowGui) != 0)
-        setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
-      else
-        setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+        if ((game.operation_flags & GOF_ShowGui) != 0)
+          setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
+        else
+          setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+      }
       break;
   }
   case PVT_CreatureContrl:
   case PVT_CreaturePasngr:
       set_engine_view(player, PVM_CreatureView);
       if (is_my_player(player))
+      {
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
-      setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+        setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+      }
       break;
   case PVT_MapScreen:
       if (is_my_player(player)) {

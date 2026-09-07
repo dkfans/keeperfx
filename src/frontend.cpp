@@ -2021,8 +2021,6 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
 
 long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
   long scaled_width;
   scaled_width = (menu_width * units_per_px + 8) / 16;
   long pos;
@@ -2032,7 +2030,7 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
       pos = GetMouseX() - (scaled_width >> 1);
       break;
   case POS_GAMECTR: // Player-based positioning
-      pos = (player->engine_window_x) + (player->engine_window_width >> 1) - (scaled_width >> 1);
+      pos = (local_info.engine_window_x) + (local_info.engine_window_width >> 1) - (scaled_width >> 1);
       break;
   case POS_MOUSPRV: // Place menu centered over previous mouse position
       pos = old_menu_mouse_x - (scaled_width >> 1);
@@ -2058,8 +2056,8 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
   {
     if (pos+scaled_width > MyScreenWidth)
       pos = MyScreenWidth-scaled_width;
-    if (pos < player->engine_window_x)
-      pos = player->engine_window_x;
+    if (pos < local_info.engine_window_x)
+      pos = local_info.engine_window_x;
   } else
   {
     if (pos+scaled_width > MyScreenWidth)
@@ -2072,7 +2070,6 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
 
 long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
 {
-    struct PlayerInfo *player = get_my_player();
     long scaled_height;
     scaled_height = (menu_height * units_per_px + 8) / 16;
     long pos;
@@ -2082,7 +2079,7 @@ long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
         pos = GetMouseY() - (scaled_height >> 1);
         break;
     case POS_GAMECTR: // Player-based positioning
-        pos = (player->engine_window_height >> 1) - ((scaled_height+20*units_per_px/16) >> 1);
+        pos = (local_info.engine_window_height >> 1) - ((scaled_height+20*units_per_px/16) >> 1);
         break;
     case POS_MOUSPRV: // Place menu centered over previous mouse position
         pos = old_menu_mouse_y - (scaled_height >> 1);

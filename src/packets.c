@@ -747,10 +747,9 @@ TbBool process_user_global_packet_action(NetUserId user)
       process_pause_packet(pckt->actn_par1, 0);
       return 1;
   case PckA_SetCluedo:
-      player->video_cluedo_mode = pckt->actn_par1;
       if (is_my_player(player))
       {
-        settings.video_cluedo_mode = player->video_cluedo_mode;
+        settings.video_cluedo_mode = pckt->actn_par1;
         save_settings();
       }
       return 0;
@@ -769,10 +768,10 @@ TbBool process_user_global_packet_action(NetUserId user)
       }
       return 0;
   case PckA_SetMinimapConf:
-      player->minimap_zoom = pckt->actn_par1;
       if (is_my_player(player))
       {
-        settings.minimap_zoom = player->minimap_zoom;
+        local_info.minimap_zoom = pckt->actn_par1;
+        settings.minimap_zoom = local_info.minimap_zoom;
         save_settings();
       }
       return 0;
