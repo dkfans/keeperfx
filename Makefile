@@ -55,7 +55,10 @@ ifneq (,$(COMPILER_CACHE))
 CPP      := $(COMPILER_CACHE) $(CPP)
 CC       := $(COMPILER_CACHE) $(CC)
 endif
-CACHE_KEY := $(shell test -w /var/tmp && echo "$(CURDIR)" | cksum | cut -d' ' -f1)
+# Key the object cache on the compiler as well as the directory, so that building the same
+# checkout with another toolchain (a 32 and a 64 bit MSYS2 shell, say) does not have both
+# of them share one set of objects.
+CACHE_KEY := $(shell test -w /var/tmp && { echo "$(CURDIR)"; $(CC) -v; } 2>&1 | cksum | cut -d' ' -f1)
 OBJDIR ?= $(if $(CACHE_KEY),/var/tmp/kfx-$(CACHE_KEY),obj)
 $(if $(filter file,$(origin OBJDIR)),$(shell find "$(OBJDIR)" -type f -newermt now -delete 2> /dev/null))
 BIN      = bin/keeperfx$(EXEEXT)
@@ -158,7 +161,12 @@ $(HVLOG_CXX_O): .EXTRA_PREREQS = $(OBJDIR)/hvlog/.build_config $(OBJDIR)/hvlog/k
 $(filter-out $(HVLOG_CXX_O),$(filter %.o,$(HVLOGOBJS) $(HVLOG_MAIN_OBJ))): \
 	.EXTRA_PREREQS = $(OBJDIR)/hvlog/.build_config $(OBJDIR)/hvlog/kfx_pch_c.h.gch
 $(TESTS_OBJ) $(CU_OBJS): .EXTRA_PREREQS = $(OBJDIR)/tests/.build_config
-DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -DSPNG_STATIC=1 -DAL_LIBTYPE_STATIC
+# Pass the dependency file as a separate argument. MSYS2 only rewrites POSIX paths for a
+# few known flags, so a path glued to -MF reaches the native compiler unconverted.
+# Keep the -MT path glued: it is written into the dependency file as the target name,
+# and it has to stay in the form make uses, so it must not be rewritten.
+DEPFLAGS = -MMD -MP -MF "$(@:%.o=%.d)" -MT"$@"
+DEFFLAGS = -DSPNG_STATIC=1 -DAL_LIBTYPE_STATIC
 DEBUG ?= 0
 OPTFLAGS = -march=x86-64 -fno-omit-frame-pointer $(if $(filter 1,$(DEBUG)),-O0,-O3)
 DBGFLAGS = $(if $(filter 1,$(DEBUG)),-g -DDEBUG,$(if $(CV2PDB),-g,))
@@ -186,8 +194,10 @@ COMMONFLAGS := \
 	$(DBGFLAGS) \
 	$(FTEST_DBGFLAGS) \
 	$(if $(filter 1,$(USE_PRE_FILE)),-DUSE_PRE_FILE=1,)
-CXXFLAGS = $(COMMONFLAGS) $(DEPFLAGS) -std=gnu++20
-CFLAGS = $(COMMONFLAGS) $(DEPFLAGS) -std=gnu11 -Werror=implicit -DCURL_STATICLIB
+CXXFLAGS_NODEP = $(COMMONFLAGS) $(DEFFLAGS) -std=gnu++20
+CXXFLAGS = $(CXXFLAGS_NODEP) $(DEPFLAGS)
+CFLAGS_NODEP = $(COMMONFLAGS) $(DEFFLAGS) -std=gnu11 -Werror=implicit -DCURL_STATICLIB
+CFLAGS = $(CFLAGS_NODEP) $(DEPFLAGS)
 LDFLAGS = $(LINKLIB) $(DBGFLAGS) $(LINKFLAGS) -Wl,--no-print-map-discarded
 include version.mk
 VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_SUFFIX)
@@ -238,12 +248,12 @@ $(HVLOG_NO_PCH_C_O) $(HVLOG_NO_PCH_CXX_O): .EXTRA_PREREQS = $(OBJDIR)/hvlog/.bui
 $(PCH_HDRS): $(PCH_SRC)
 	@$(CP) "$<" "$@"
 $(OBJDIR)/%/kfx_pch_c.h.gch: $(OBJDIR)/%/kfx_pch_c.h $(OBJDIR)/%/.build_config | libexterns $(GENSRC)
-	$(CC) $(filter-out -M%,$(CFLAGS)) \
-		-MMD -MP -MF"$(@:%.h.gch=%.h.d)" -MT"$@" \
+	$(CC) $(CFLAGS_NODEP) \
+		-MMD -MP -MF "$(@:%.h.gch=%.h.d)" -MT"$@" \
 		-x c-header -o"$@" "$<"
 $(OBJDIR)/%/kfx_pch_cxx.h.gch: $(OBJDIR)/%/kfx_pch_cxx.h $(OBJDIR)/%/.build_config | libexterns $(GENSRC)
-	$(CPP) $(filter-out -M%,$(CXXFLAGS)) \
-		-MMD -MP -MF"$(@:%.h.gch=%.h.d)" -MT"$@" \
+	$(CPP) $(CXXFLAGS_NODEP) \
+		-MMD -MP -MF "$(@:%.h.gch=%.h.d)" -MT"$@" \
 		-x c++-header -o"$@" "$<"
 FOLDERS = \
 	bin \
