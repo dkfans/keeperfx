@@ -53,6 +53,10 @@ bool RendererSoftware::ensure_present_target()
             ERRORLOG("SDL_CreateRenderer failed: %s", SDL_GetError());
             return false;
         }
+        // Name the backend SDL picked for us, so a bug report tells which graphics path the
+        // game was presenting through, and which driver libraries that pulls into the process.
+        const char * backend = SDL_GetRendererName(m_renderer);
+        SYNCLOG("Presenting through SDL renderer: %s", (backend != nullptr) ? backend : "unknown");
     }
 
     const int want_vsync = vsync_enabled ? 1 : 0;
