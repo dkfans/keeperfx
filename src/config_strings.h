@@ -474,7 +474,13 @@ enum GUIStrings {
     GUIStr_NetHostConnectionLost,
     GUIStr_FxdataZipNotLoaded,
     GUIStr_FxdataZipInstallAsMod,
-    GUIStr_NetLobbyConnectionLost,
+    GUIStr_NetLobbyConnectionLost,       
+    GUIStr_ArchipelagoMenu,
+    GUIStr_ArchipelagoIp,
+    GUIStr_ArchipelagoPort,
+    GUIStr_ArchipelagoSlotName,
+    GUIStr_ArchipelagoPwd,
+    GUIStr_ArchipelagoConnect,
     GuiStrEnd
 };
 

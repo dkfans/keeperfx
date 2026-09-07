@@ -32,7 +32,7 @@ extern "C" {
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        100
 #define MENU_LIST_ITEMS_COUNT       52
-#define FRONTEND_BUTTON_INFO_COUNT 115
+#define FRONTEND_BUTTON_INFO_COUNT 121
 #define NET_MESSAGES_COUNT           8
 #define NET_MESSAGE_LEN             64
 // Sprite limits
@@ -366,6 +366,16 @@ void frontend_draw_small_menu_button(struct GuiButton *gbtn);
 void frontend_toggle_computer_players(struct GuiButton *gbtn);
 void frontend_draw_computer_players(struct GuiButton *gbtn);
 void frontend_draw_mp_mappack(struct GuiButton *gbtn);
+void frontnet_archipelago_set_ip(struct GuiButton *gbtn);
+void frontnet_archipelago_set_port(struct GuiButton *gbtn);
+void frontnet_archipelago_set_slot_name(struct GuiButton *gbtn);
+void frontnet_archipelago_set_pwd(struct GuiButton *gbtn);
+void write_arch_config_file(void);
+void frontend_archipelago_connect(struct GuiButton *gbtn);
+void frontend_archipelago_connected(void);
+void frontend_archipelago_error(const char* error);
+void set_frontend_archipelago_status(const char *text);
+void frontend_draw_status_text(struct GuiButton *gbtn);
 void set_packet_start(struct GuiButton *gbtn);
 void gui_area_scroll_window(struct GuiButton *gbtn);
 void gui_go_to_event(struct GuiButton *gbtn);

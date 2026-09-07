@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include <math.h>
+#include "frontend.h"
 #include "post_inc.h"
 
 
@@ -35,7 +36,7 @@ RedirectStdoutToFile();
     AP_Init(ip, "Dungeon Keeper", slot, "");
     AP_SetSocketConnectedCallback(ap_socketconnected);
     AP_SetSocketErrorCallback([](std::string err) {
-    // need to do something with errors, placeholder for now
+        frontend_archipelago_error(err.c_str());
         JUSTLOG("AP error");
     });
     AP_SetItemClearCallback(ap_clear);
@@ -55,6 +56,7 @@ void ap_socketconnected(){
 }
 
 void ap_slot_connected(){
+    frontend_archipelago_connected();
     //callback once connected to AP server, send scounts for all locations not checked yet, so that ap_location_info_callback will be triggered.
     AP_SendLocationScouts(AP_GetMissingLocations(),0);
 }
