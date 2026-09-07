@@ -3785,8 +3785,12 @@ static void hide_variable_process(struct ScriptContext *context)
         for (int i = 0; i < DISPLAY_VARIABLES_LIMIT; i++)
         {
             if(game.script_variables[i].value_id == varib_id && game.script_variables[i].value_type == varib_type){
-                memset(&game.script_variables[i], -1, sizeof(game.script_variables[i]));
+                for (int j = i; j < game.active_script_var_count - 1; j++)
+                {
+                    game.script_variables[j] = game.script_variables[j+1];
+                }
                 game.active_script_var_count--;
+                break;
             }
         }        
     } else {
