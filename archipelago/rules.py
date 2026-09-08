@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING, Literal
 from rule_builder.rules import (Rule, CanReachEntrance, Has, HasAll, HasAny, HasFromListUnique, HasGroupUnique,
                                 OptionFilter, True_)
 
-from .options import HardMode
-
 if TYPE_CHECKING:
     from .world import DungeonKeeperWorld
 
