@@ -26,16 +26,6 @@
  *       DrawIsometricView  → submit bucket list as GPU draw calls
  *       DrawFrontView      → submit front-view bucket list as GPU draw calls
  *
- * @par No draw-target parameter (P5.7.0 note):
- *     BeginWorldPass()/ResolveDeferredWorld()/ReexecuteDeferredWorld() do not
- *     take an explicit draw-target parameter here, even though this codebase
- *     has moved other draw paths (mouse cursor, sprite fonts) to explicit
- *     value-passing over ambient globals. draw_view() itself still reads
- *     lbDisplay.GraphicsWindowPtr ambiently when it calls setup_vecs() —
- *     that refactor never reached engine_render.c. Adding a target parameter
- *     here now would mean plumbing one through draw_view()'s call chain for
- *     no current consumer (GL's PiP/possession-lens off-screen redirect is
- *     P5.7.5 scope, not this one). Add it then, when something needs it.
  */
 /******************************************************************************/
 #pragma once
@@ -94,9 +84,6 @@ public:
      *  ResolveDeferredWorld() routes it through the lens buffer + distort. */
     virtual void MarkDeferredWorldAsLensCapture() {}
 
-    // =========================================================================
-    // Possession lens (P5.8a)
-
     /** Submit this frame's active possession-lens state (built by
      *  LensManager::BuildActiveGPULensCmd() -- see the RendererManager.cpp
      *  bridge). GPU backends store it and bracket their next world-geometry
@@ -146,22 +133,11 @@ public:
     }
 
     /** Begin IR capture for one world-sprite entry (one thing) at the given
-     *  depth bucket — sets whatever per-sprite state (NDC depth, sort key)
-     *  the backend needs before the SubmitKeeperSprite() call(s) that
-     *  follow. Callers are free to call this at fill time or walk time,
-     *  whichever the branch's bucket-population architecture actually
-     *  resolves sprite data at (GLWorldViewRenderer's own implementation
-     *  documents which this branch uses, and why). Return value is
-     *  currently unused by any caller; kept for backends that may want to
-     *  signal something back. */
+     *  depth bucket */
     virtual int BeginWorldSpriteCapture(int32_t /*bucket_idx*/) { return 0; }
 
     /** Whether this backend wants world sprites submitted through
-     *  SubmitKeeperSprite() at all (1) vs. left as CPU-rasterized rasterizer
-     *  output only (0, default — no world-view backend, or software). Not
-     *  branched on by any caller as of this writing (see
-     *  GLWorldViewRenderer::UsesFillTimeWorldSubmit()'s own comment);
-     *  callers instead just check SubmitKeeperSprite()'s own return value. */
+     *  SubmitKeeperSprite() at all */
     virtual int UsesFillTimeWorldSubmit() const { return 0; }
 
     /** Clear the keeper sprite atlas (called between levels).

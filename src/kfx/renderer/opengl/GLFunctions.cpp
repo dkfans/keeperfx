@@ -63,6 +63,7 @@ namespace {
 template<typename T>
 bool load(T& fn, const char* name)
 {
+    // ToDo: Ideally, this should not need SDL, but SDL_GL_GetProcAddress is the only cross-platform way to get OpenGL function pointers that I know of and we're using SDL for OpenGL context management right now anyway..
     fn = (T)SDL_GL_GetProcAddress(name);
     if (!fn) ERRORLOG("GLFunctions_Load: missing entry point %s", name);
     return fn != nullptr;
@@ -123,10 +124,6 @@ bool GLFunctions_Load()
     ok &= load(glBlitFramebuffer_ptr, "glBlitFramebuffer");
     ok &= load(glDrawBuffers_ptr, "glDrawBuffers");
 
-    // Optional -- see the comment on the declarations in GLFunctions.h.
-    // load() itself logs an ERRORLOG if missing; that's too alarming for an
-    // optional entry point, so don't call it -- just try SDL directly and
-    // accept null silently on drivers without GL_KHR_debug.
     glDebugMessageCallback_ptr = (PFNGLDEBUGMESSAGECALLBACKPROC)SDL_GL_GetProcAddress("glDebugMessageCallback");
     glDebugMessageControl_ptr  = (PFNGLDEBUGMESSAGECONTROLPROC)SDL_GL_GetProcAddress("glDebugMessageControl");
     return ok;

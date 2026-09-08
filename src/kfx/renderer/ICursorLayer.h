@@ -20,9 +20,7 @@ public:
                                      int units_per_px) = 0;
                                      
     // Returns 1 if this layer handled the sprite (caller must not also draw
-    // it), 0 to fall back to the caller's own immediate draw. Software
-    // always returns 1 (it draws immediately via process_keeper_sprite());
-    // GL returns 1 once its GPU resources are up, 0 before that (P5.7.5).
+    // it), 0 to fall back to the caller's own immediate draw.
     virtual int SubmitKeeperHandSprite(short x, short y,
                                        unsigned short kspr_base,
                                        short angle,

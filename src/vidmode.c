@@ -95,6 +95,7 @@ struct MapLevelInfo map_info;
 TbBool MinimalResolutionSetup;
 
 struct TbColorTables pixmap;
+TbBool fade_tables_ready = 0;
 struct TbAlphaTables alpha_sprite_table;
 unsigned char white_pal[256];
 unsigned char red_pal[256];
@@ -527,6 +528,7 @@ TbBool init_fades_table(void)
     for (int i = 0; i < 256; i++) {
         pixmap.map_abyss[i] = abyss_colours[pixmap.ghost[i] * 3 >> 8];
     }
+    fade_tables_ready = 1;
     return true;
 }
 

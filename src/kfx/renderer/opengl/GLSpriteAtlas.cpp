@@ -34,31 +34,12 @@ bool GLSpriteAtlas::Init()
     return true;
 }
 
-void GLSpriteAtlas::Free()
-{
-    // GPU Resource Mapper: this runs inside RendererOpenGL::
-    // render_thread_cleanup() on the render thread -- RequestRelease() is
-    // game-thread-only, so the mapper-owned texture is not released here.
-    // ShutdownAll() destroys it unconditionally instead.
-}
+void GLSpriteAtlas::Free() { }
 
 void GLSpriteAtlas::PackSprite(SpriteHandle handle, const struct TbSprite* spr)
 {
-    // Text/cursor sprites (GLTextRenderer/GLCursorLayer, via
-    // GLUIRenderer::DrawGlyphQuad) go through the exact same ResolveSprite()
-    // -> PackSprite() -> GetUV() path as regular UI sprites (GLUIRenderer.cpp's
-    // K_Sprite case in DrawFromIR) -- if either of these two early-returns
-    // fires for a glyph/cursor handle specifically, GetUV() later fails and
-    // DrawGlyphQuad() silently no-ops, with nothing in the log to explain
-    // why. Logged (once per handle -- see below) instead of silent, matching
-    // the "atlas full" ERRORLOG a few lines down.
     if (handle == kInvalidSpriteHandle) return;
 
-    // Diagnostic-only: PackSprite() is called every frame for every
-    // submitted handle (ResolveSprite() calls it unconditionally, see
-    // GLUIRenderer::ResolveSprite()), so an early-return that fired every
-    // call would flood the log for a persistent failure -- log each
-    // distinct broken handle once, not once per frame.
     static std::unordered_set<SpriteHandle> s_logged_no_data;
     static std::unordered_set<SpriteHandle> s_logged_bad_size;
 

@@ -2,31 +2,8 @@
 // Dungeon Keeper - Renderer Abstraction Layer
 /******************************************************************************/
 /** @file GLWorldViewRenderer.h
- *     Desktop OpenGL world-geometry renderer. P5.7.2 ported tile +
- *     flat-colour polygon geometry (wired into RendererOpenGL in P5.7.2b).
- *     P5.7.3a added keeper-sprite (creature/object) rendering: instanced
- *     atlas + CLUT remap, core path only -- no depth-fail outline, no
- *     additive-glow shader variant, no PiP/cursor-sprite capture. P5.7.3b
- *     wires the CPU side up: DrawIsometricView()/DrawFrontView()'s own
- *     bucket walk now dispatches QK_JontySprite/QK_JontyISOSprite into the
- *     same draw_jonty_mapwho()/draw_fastview_mapwho() resolution code
- *     software uses -- see the class-level note in the .cpp for the full
- *     rationale (including why fill-time submission wasn't needed after
- *     all) and the two disclosed visual gaps (water clipping, true alpha).
- * @par Purpose:
- *     Implements IWorldViewRenderer for the desktop OpenGL path.
- *     DrawIsometricView()/DrawFrontView() walk the engine bucket list,
- *     convert each PolyPoint triangle to WorldVertex (float NDC + UV +
- *     shade) or FlatPolyVertex (float NDC + linear RGB), batch the geometry
- *     into one of two VBOs (tiles vs. flat-colour polys), and issue one
- *     glDrawArrays call per batch. Keeper sprites are submitted separately,
- *     via SubmitKeeperSprite() -- see its own doc comment.
- *
- *     The fragment shader (WORLD_FRAGMENT_SHADER in GLShaders.h) replaces
- *     the entire CPU inner loop for tiles: palette-index lookup +
- *     fade-table lighting = two texture samples.
+ *     Desktop OpenGL world-geometry renderer. 
  */
-/******************************************************************************/
 #pragma once
 
 #include "kfx/renderer/opengl/GLFunctions.h"
@@ -58,9 +35,9 @@ public:
         enum Type {
             CMD_TILES,
             CMD_FLAT_POLYS,
-            CMD_IR_KEEPER_SPRITES,   // range into m_rt_kspr_ir (P5.7.3a)
-            CMD_PRELOAD_KSPR_ATLAS,  // one-shot: bulk decode+upload on render thread
-            CMD_CLEAR_KSPR_ATLAS,    // one-shot: reset the atlas/CLUT caches (P5.7.6)
+            CMD_IR_KEEPER_SPRITES,
+            CMD_PRELOAD_KSPR_ATLAS,
+            CMD_CLEAR_KSPR_ATLAS,
         } type;
         int vert_start = 0;       // CMD_TILES / CMD_FLAT_POLYS
         int vert_count = 0;       // CMD_TILES / CMD_FLAT_POLYS
@@ -79,7 +56,6 @@ public:
         uint32_t flags;     // bit0 = flip_h, bit1 = additive glow
     };
 
-    /** Per-instance record for the instanced depth-fail outline pass (Beat 4). */
     struct KsprOutlineInstance {
         float rect[4];
         float uvext[2];
@@ -89,33 +65,16 @@ public:
         float color[4];     // owner colour + outline alpha
     };
 
-    /** One creature-shadow quad captured at DrawIsometricView() time
-     *  (P5.7.4). Geometry is already fully resolved by create_shadows()
-     *  (engine_render.c, fill time) -- this just carries it across to the
-     *  render thread, where the atlas layer for (draw_idx/data) is resolved
-     *  via the existing resolve_atlas_layer() (shared with real sprite
-     *  draws of the same frame -- same cache, same layer). x/y are screen
-     *  px, u/v are content-pixel offsets within the sprite (0..src_w/src_h),
-     *  normalized against k_kspr_decode_dim at draw time, matching
-     *  KsprInstance::uvext's convention. */
+    /** One creature-shadow quad captured at DrawIsometricView() time */
     struct ShadowSubmission {
         float x[4], y[4], u[4], v[4];
         float z_ndc;
-        float darken;         // approximate distance-based intensity, see .cpp
-        int32_t draw_idx;     // atlas cache key -- shared with real sprite draws
-        const unsigned char* data;  // raw RLE data, resolved at capture time
+        float darken;
+        int32_t draw_idx;
+        const unsigned char* data;
         int src_w, src_h;
     };
 
-    // Trivial constructor -- like every other GL component in
-    // RendererOpenGL::Impl (GLSpriteAtlas, GLUIRenderer, GLTileAtlas), this
-    // must not touch GL: Impl is `new`'d on the game thread before the
-    // render thread exists / any context is current. Injected resources are
-    // supplied later via the setters below, from render_thread_init(),
-    // mirroring GLUIRenderer::SetAtlas()/SetPaletteTexture()/
-    // SetFadeTableTexture() exactly (P5.7.2b fix -- P5.7.2a's constructor
-    // took these as params and called init_gl_resources() directly, which
-    // only happened to compile because nothing ever constructed one).
     GLWorldViewRenderer() = default;
     ~GLWorldViewRenderer() override;
 
@@ -131,6 +90,13 @@ public:
     /** GPU resource handle for the 256x1 RGBA palette. */
     void SetPaletteTexture(GpuResourceHandle tex) { m_palette_tex_handle = tex; }
 
+    /** Re-uploads the fade/lighting LUT from pixmap.fade_tables and re-pushes
+     *  the shade uniforms from g_renderer_settings. Both are snapshotted too
+     *  early at CompileShaders() time (before init_fades_table()/
+     *  RendererSettings_Load() have run); the caller invokes this once,
+     *  after both are confirmed ready. */
+    void RefreshFadeTableAndSettings();
+
     // IWorldViewRenderer
     void BeginWorldPass(int w, int h, int vp_x, int vp_y) override;
     void DrawIsometricView() override;
@@ -138,33 +104,19 @@ public:
     const char* GetName() const override { return "GLWorldViewRenderer"; }
 
     /** Compile all GLSL programs owned by this renderer. Idempotent (safe to
-     *  call after construction). Not part of any interface -- this branch's
-     *  RendererOpenGL calls Init()-style methods on its GL components
-     *  directly (see GLSpriteAtlas::Init()/GLUIRenderer::Init()), not
-     *  through a shared shader-compile interface; the P5.7.2b wiring calls
-     *  this the same way, from render_thread_init(). */
+     *  call after construction). */
     bool CompileShaders() { return init_gl_resources(); }
 
     /** Release all GL resources. Must be called on the render thread (the
      *  only thread where the context is current) before the context itself
-     *  is destroyed -- mirrors GLUIRenderer::Shutdown(), called explicitly
-     *  from RendererOpenGL::render_thread_cleanup() rather than relied on
-     *  via the destructor (by the time Impl's members are destructed, on
-     *  the game thread after the render thread has already been joined and
-     *  the context destroyed, GL calls here would run with no current
-     *  context on any thread). */
+     *  is destroyed */
     void Shutdown() { free_gl_resources(); }
 
     /** Notify of the full OS-window dimensions (not the world viewport). */
     void SetScreenSize(int w, int h) override { m_full_screen_w = w; m_full_screen_h = h; }
 
-    // Called by the eventual render-thread integration (P5.7.2b) to issue
-    // the accumulated draw list after glClear().
     void GPURenderNow(const WorldCommandBuffers& cmds);
 
-    /** Swap game-thread <-> render-thread command buffers. Must be called
-     *  while the render thread is idle, same discipline as GLFrameData's
-     *  double buffer (see RendererOpenGL::PresentFrame()). */
     void FlipBuffers();
 
     bool HasPendingCommands() const
@@ -192,15 +144,8 @@ public:
      *  Returns true when initialisation is complete. */
     bool TryEarlyInit() { return init_gl_resources(); }
 
-    // ── Keeper sprites (P5.7.3a) ───────────────────────────────────────────────
+    // ── Keeper sprites  ───────────────────────────────────────────────
 
-    /** Supply the active 256-colour VGA palette (768 bytes: R,G,B x 256).
-     *  Pointer copy only, read at FlipBuffers() time into m_rt_palette --
-     *  needed for the CLUT (palette-remap) system. Nothing calls this yet
-     *  (no producer exists in this branch -- see the .cpp file header); the
-     *  base no-op default already made this safe before this override
-     *  existed, so m_palette_data simply stays null and m_rt_palette stays
-     *  zeroed until a future beat wires a real caller. */
     void SetPaletteSource(const uint8_t* palette) override { m_palette_data = palette; }
 
     /** Clear the keeper-sprite atlas + CLUT caches (called between levels). */
@@ -210,32 +155,14 @@ public:
      *  sprite into the atlas, executed on the render thread. */
     void PreloadKeeperSpriteAtlas() override;
 
-    // ── Possession lens (P5.8a) ─────────────────────────────────────────────
+    // ── Possession lens  ─────────────────────────────────────────────
 
-    /** Game thread: stash this frame's active lens state (built by
-     *  LensManager::BuildActiveGPULensCmd() via the RendererManager.cpp
-     *  bridge). Copied, not moved -- the bridge's local IRWorldLensCmd goes
-     *  out of scope right after this call. */
     void SubmitPossessionLens(const IRWorldLensCmd& cmd) override;
 
-    /** Render thread: bind the lens scene FBO (creating/resizing it to the
-     *  current full-screen capture resolution if needed) and clear it, iff
-     *  m_rt_lens_cmd has an active pixel effect. A palette-only lens (no
-     *  pixel effect) does not redirect -- world renders straight to the
-     *  backbuffer as normal; ApplyLensPaletteIfActive() handles that case.
-     *  Returns true iff the capture was begun (caller must then call
-     *  ResolveLensComposite() after the world pass). */
     bool BeginLensCapture();
 
-    /** Render thread: unbind back to the default framebuffer and run the one
-     *  shader variant matching m_rt_lens_cmd.type, compositing the captured
-     *  scene texture into the real viewport sub-rect of the backbuffer.
-     *  Only valid to call when BeginLensCapture() just returned true. */
     void ResolveLensComposite();
 
-    /** Render thread: true iff m_rt_lens_cmd carries a palette override this
-     *  frame (LCF_HasPalette) -- independent of whether a pixel effect is
-     *  also active. */
     bool HasActiveLensPalette() const { return m_rt_lens_cmd.active && m_rt_lens_cmd.has_palette; }
 
     /** Render thread: the active lens's palette, expanded to RGBA8 (matching
@@ -243,25 +170,14 @@ public:
      *  Only valid when HasActiveLensPalette() is true. */
     void GetActiveLensPaletteRGBA(unsigned char* out_rgba) const;
 
-    /** Submit one keeper-sprite (creature/object) for GPU rendering.
-     *  Game-thread only, pure CPU struct-building -- see IWorldViewRenderer's
-     *  doc comment for the parameter shapes. Always returns 1 (claims the
-     *  sprite) once GL resources are up. Called from draw_keepersprite()
-     *  (engine_render.c, P5.7.3b) right before its own CPU blit -- the
-     *  caller skips that blit whenever this returns 1. */
+    /** Submit one keeper-sprite (creature/object) for GPU rendering.*/
     int SubmitKeeperSprite(int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
                            const unsigned char* data, int src_w, int src_h, int32_t content_h,
                            unsigned int draw_flags, const unsigned char* remap,
                            int32_t sprite_id) override;
-
-    /** Begin IR capture for one world-sprite entry (one thing) at the given
-     *  depth bucket -- sets the NDC depth and composite sort key that
-     *  subsequent SubmitKeeperSprite() calls inherit. Despite the base
-     *  interface's "fill-time" doc comment, this branch calls it at WALK
-     *  time (from draw_jonty_mapwho()/draw_fastview_mapwho(), P5.7.3b) --
-     *  buckets are never skipped here, this call only tags the sort key. */
     int BeginWorldSpriteCapture(int32_t bucket_idx) override;
 
+    // ToDo : Remove.
     /** Vestigial after P5.7.3b: nothing branches on this return value
      *  anymore (draw_keepersprite() just checks SubmitKeeperSprite()'s own
      *  result). Kept for now in case a future caller needs it; candidate
@@ -272,47 +188,20 @@ public:
     }
 
     // ── Cursor keeper-sprite (P5.7.5) ───────────────────────────────────────────
-
-    /** Game thread: redirect SubmitKeeperSprite()'s append target from the
-     *  normal per-bucket world list (m_kspr_ir) to a dedicated cursor list
-     *  (m_cursor_kspr_ir) for the duration of the bracket, and pin the
-     *  z-depth every appended sprite inherits to the nearest legal NDC value
-     *  -- GL_LEQUAL against the world pass's own [-1,1] range means cursor
-     *  sprites are never occluded by world geometry, without needing to
-     *  disable depth testing. Ported from develop's GLCursorLayer::
-     *  SubmitKeeperHandSprite() (BeginCursorCapture()/process_keeper_sprite_ex()/
-     *  EndCursorCapture()) -- here the bracket lives on GLWorldViewRenderer
-     *  since that's where m_kspr_ir/SubmitKeeperSprite() already live on this
-     *  branch, rather than GLCursorLayer owning a second copy of the
-     *  accumulating-list state. */
     void BeginCursorCapture();
 
     /** Game thread: end the redirect started by BeginCursorCapture(). */
     void EndCursorCapture();
 
-    /** Render thread: draw every keeper sprite captured into
-     *  m_rt_cursor_kspr_ir this frame -- the power-hand cursor's held-thing
-     *  and hand-graphic sprites, now both preserved instead of the second
-     *  submission overwriting the first. Reuses append_keeper_sprite_instance()
-     *  (the same per-sprite atlas/CLUT resolution + instanced-batch path
-     *  normal world sprites use) followed by one flush_keeper_sprite_instances()
-     *  call -- so cursor sprites benefit from the same atlas caching and
-     *  (already-existing) additive-glow instance flag the normal sprite path
-     *  has. Called from RendererOpenGL::FGExecuteCursor(), after the world
-     *  pass. */
     void DrawCursorKeeperSprites();
 
 private:
     bool init_gl_resources();
     void free_gl_resources();
     bool compile_world_shaders();
+    void push_shade_uniforms();
     bool init_flatpoly_shader();
 
-    // Append one triangle (3 PolyPoint vertices, integer screen pixels) to the staging array.
-    // tile_id is the flat block_ptrs[] index from p->block;
-    // variation = tile_id / TEXTURE_BLOCKS_COUNT, tile_local = tile_id % TEXTURE_BLOCKS_COUNT.
-    // cam_z0/1/2: camera-space Z for each vertex (for perspective-correct interpolation).
-    //             Pass 0 for unknown/no-correction (defaults to 1.0).
     bool append_triangle(int tile_id,
                          const struct PolyPoint* p0,
                          const struct PolyPoint* p1,
@@ -361,11 +250,6 @@ private:
      *  keeper sprite, capped at k_kspr_atlas_preload_max. */
     void execute_preload_atlas();
 
-    /** Render-thread: the actual atlas/CLUT cache reset. ClearKeeperSpriteAtlas()
-     *  (game thread) only queues a CMD_CLEAR_KSPR_ATLAS command -- this is
-     *  what used to run directly on the game thread before P5.7.6, racing
-     *  resolve_atlas_layer()/resolve_clut_v() (render thread) on the same
-     *  m_kspr_atlas_map/m_kspr_clut_remaps. */
     void execute_clear_atlas();
 
     /** Rebuild CLUT row 0 (identity) when the palette has changed since the
@@ -386,9 +270,6 @@ private:
     void append_keeper_sprite_instance(const IRWorldKeeperSpriteCmd& cmd);
     void flush_keeper_sprite_instances();
 
-    /** Render-thread: decode + GL-draw one keeper sprite via the
-     *  non-instanced fallback path (atlas full, unknown sprite id, or
-     *  instancing unavailable). */
     int render_keepersprite_gpu(int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
                                 const unsigned char* data, int src_w, int src_h, int32_t content_h,
                                 unsigned int draw_flags, const unsigned char* remap,
@@ -396,30 +277,20 @@ private:
                                 int32_t sprite_id);
     void DrawKeeperSpriteGL(const IRWorldKeeperSpriteCmd& cmd);
 
-    // ── Possession lens (P5.8a) ─────────────────────────────────────────────
     bool init_lens_shaders();
     void free_lens_resources();  // called from free_gl_resources()
     void ensure_lens_fbo(int w, int h);
     void upload_lens_textures_if_dirty();
 
-    // ── Creature shadows (P5.7.4) ───────────────────────────────────────────────
     bool init_shadow_shader();
     void free_shadow_resources();  // called from free_gl_resources()
 
-    /** Game thread: capture one shadow quad from a resolved
-     *  BucketKindCreatureShadow bucket item into m_shadow_cmds. */
     void append_shadow_quad(const struct BucketKindCreatureShadow* sh,
                             int32_t draw_idx, const unsigned char* data,
                             int src_w, int src_h);
 
-    /** Render thread: draw every captured shadow this frame. Resolves each
-     *  entry's atlas layer via resolve_atlas_layer() (shared with the
-     *  keeper-sprite atlas -- same cache, no separate decode pipeline) and
-     *  issues one draw call for the whole batch. */
     void draw_shadows_gpu();
 
-    // Resolved fresh at each point of use rather than cached as a raw
-    // GLuint, so the id stays valid across a reload of the texture.
     GLuint ResolvePaletteTexId() const;
     GLuint ResolveShaderId(GpuResourceHandle handle) const;
     GLuint ResolveFadeTexId() const;
@@ -483,19 +354,12 @@ private:
     // executed in GPURenderNow().
     std::vector<DrawCmd> m_draw_cmds;
 
-    // ── Double-buffer render copies ───────────────────────────────────────────
-    // FlipBuffers() std::moves the game-thread vectors here so the game
-    // thread can start the next frame while the render thread reads stable
-    // copies -- same discipline as RendererOpenGL::GLFrameData's frames[2].
     std::vector<DrawCmd> m_rt_draw_cmds;  // RT:
     int m_rt_screen_w = 0;   // RT:
     int m_rt_screen_h = 0;   // RT:
     int m_rt_vp_x     = 0;   // RT:
     int m_rt_vp_y     = 0;   // RT:
 
-    // ── Lightmap shadow copy ──────────────────────────────────────────────────
-    // FlipBuffers() snapshots game.lish.subtile_lightness[] here so the render
-    // thread never touches the live game array.  511×511×2 bytes ~= 0.5 MB.
     static constexpr int k_lightmap_w = 511;
     static constexpr int k_lightmap_h = 511;
     uint16_t m_rt_lightmap[k_lightmap_w * k_lightmap_h] = {};
@@ -508,7 +372,7 @@ private:
     // IR write target -- set by SetWorldCommandBuffers(); used as sentinel.
     WorldCommandBuffers* m_world_write_cmds = nullptr;
 
-    // ── Keeper sprites (P5.7.3a) ───────────────────────────────────────────────
+    // ── Keeper sprites  ───────────────────────────────────────────────
 
     // Non-instanced fallback: single-texture, palette+CLUT shader.
     GpuResourceHandle m_kspr_shader_handle     = kInvalidGpuResource;
@@ -520,18 +384,12 @@ private:
     GLint  m_kspr_loc_alpha     = -1;
     GLint  m_kspr_loc_z_ndc     = -1;
 
-    // Additive-glow variant of the non-instanced shader (Beat 3), ported
-    // from develop -- used instead of m_kspr_shader_handle when
-    // Lb_SPRITE_ALPHA_ADDITIVE is set. No palette/alpha uniform: the glow
-    // colour is computed purely from the sprite's own DK glow-encoding
-    // pixel indices (see KSPR_GLOW_FRAGMENT_SHADER).
     GpuResourceHandle m_kspr_glow_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_glow_loc_viewport = -1;
     GLint  m_kspr_glow_loc_sprite   = -1;
     GLint  m_kspr_glow_loc_z_ndc    = -1;
 
-    // Depth-fail outline shaders (Beat 4), ported from develop. Single-texture
-    // variant (fallback/remapped sprites):
+    // Depth-fail outline shaders
     GpuResourceHandle m_kspr_outline_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_outline_loc_viewport = -1;
     GLint  m_kspr_outline_loc_sprite   = -1;
@@ -545,13 +403,12 @@ private:
     GLint  m_kspr_atlas_outline_loc_color    = -1;
     GLint  m_kspr_atlas_outline_loc_layer    = -1;
 
-    // Edge-detect outline shaders (Beat 4) -- same uniforms as the silhouette
-    // variants above. Single-texture variant:
     GpuResourceHandle m_kspr_edge_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_edge_loc_viewport     = -1;
     GLint  m_kspr_edge_loc_sprite       = -1;
     GLint  m_kspr_edge_loc_z_ndc        = -1;
     GLint  m_kspr_edge_loc_color        = -1;
+
     // Array-atlas variant:
     GpuResourceHandle m_kspr_atlas_edge_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_atlas_edge_loc_viewport = -1;
@@ -575,9 +432,7 @@ private:
     GLint  m_kspr_atlas_loc_layer    = -1;
     GLint  m_kspr_atlas_loc_clut_v   = -1;
 
-    // Additive-glow variant of the atlas shader (Beat 3) -- same relationship
-    // to m_kspr_atlas_shader_handle as m_kspr_glow_shader_handle has to
-    // m_kspr_shader_handle.
+    // Additive-glow variant of the atlas shader
     GpuResourceHandle m_kspr_atlas_glow_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_atlas_glow_loc_viewport = -1;
     GLint  m_kspr_atlas_glow_loc_sprite   = -1;
@@ -589,43 +444,22 @@ private:
     int    m_kspr_atlas_hits    = 0;  // cache hits this frame (diagnostic only)
     int    m_kspr_atlas_misses  = 0;  // cache misses this frame (diagnostic only)
     struct AtlasEntry { int layer; int src_w; };
-    // Keyed by sprite id (keepsprite_id-equivalent), not data pointer --
-    // heap block addresses aren't safe to use as a long-lived key (see the
-    // .cpp file header's note on reset_heap_manager()).
+
     std::unordered_map<int32_t, AtlasEntry> m_kspr_atlas_map;
 
-    // CLUT (Colour Lookup Table): 256 x k_clut_rows GL_RGBA8 texture.
-    // Row 0 = identity (palette[i] for all i). Rows 1..k_clut_rows-1 = one
-    // row per unique remap table seen this level.
     static const int k_clut_rows = 128;
     GpuResourceHandle m_kspr_clut_tex_handle = kInvalidGpuResource;
     int    m_kspr_clut_used     = 1;   // next free row (0 = identity, always allocated)
     std::vector<std::array<uint8_t, 256>> m_kspr_clut_remaps;
     uint8_t m_kspr_clut_palette_snap[768] = {};
 
-    // Instanced fast path: all atlas-resident sprites of a frame collapse
-    // into one glDrawArraysInstanced call.
     GpuResourceHandle m_kspr_inst_shader_handle = kInvalidGpuResource;
-    // Static unit quad shared by both instanced VAOs below -- created via
-    // the mapper as its own GpuGeometryBuffer (own VAO thrown away, never
-    // bound; only its .vbo is used, re-bound into two different VAOs at
-    // different attribute locations -- see init_keeper_sprite_instancing()'s
-    // comment for why the mapper's 1:1 VAO+VBO shape doesn't map cleanly
-    // onto a VBO shared across multiple VAOs, and why this is the disclosed
-    // resolution).
     GpuResourceHandle m_kspr_inst_quad_geom_handle = kInvalidGpuResource;
-    // VAO+VBO bundle for per-instance data (KsprInstance layout); attribs
-    // for the per-instance data (locations 1-4) are set up by the mapper
-    // per its own desc, but location 0 (from the shared quad VBO above)
-    // is bound manually, once, right after creation.
     GpuResourceHandle m_kspr_inst_geom_handle = kInvalidGpuResource;
     GLint  m_kspr_inst_loc_viewport = -1;
     std::vector<KsprInstance> m_kspr_instances;  // RT: batch scratch
 
-    // Instanced depth-fail outline/edge pass (Beat 4) -- own VAO/VBO
-    // (KsprOutlineInstance layout differs from KsprInstance), shares
-    // m_kspr_inst_quad_geom_handle's unit quad. Both shaders share one
-    // VAO/VBO; flush_keeper_sprite_instances() just switches GL program.
+    // Instanced depth-fail outline/edge pass
     GpuResourceHandle m_kspr_inst_outline_shader_handle = kInvalidGpuResource;
     GpuResourceHandle m_kspr_inst_edge_shader_handle    = kInvalidGpuResource;
     GpuResourceHandle m_kspr_inst_outline_geom_handle   = kInvalidGpuResource;
@@ -633,84 +467,34 @@ private:
     GLint  m_kspr_inst_edge_loc_viewport    = -1;
     std::vector<KsprOutlineInstance> m_kspr_outline_instances;  // RT: batch scratch
 
-    // Active VGA palette (R,G,B x 256) -- source pointer registered via
-    // SetPaletteSource(); no producer calls it yet (see .cpp header), so
-    // this stays null and m_rt_palette stays zeroed until a future beat
-    // wires a real caller. Needed for CLUT row construction only -- tiles
-    // don't read this (they sample the pre-baked palette texture instead).
     const uint8_t* m_palette_data = nullptr;  // GT:
     uint8_t m_rt_palette[768] = {};           // RT: snapshotted at FlipBuffers()
 
-    // Per-frame sprite capture state -- game-thread write, reset at BeginWorldPass()
-    float    m_current_sprite_z       = 0.0f;  // GT: NDC depth for current bucket's sprites
-    uint32_t m_current_sprite_sort_key = 0;    // GT: (bucket_idx << 16) | entry_seq
-    uint32_t m_sprite_entry_seq        = 0;    // GT: reset per world pass
-    size_t   m_kspr_pass_start         = 0;    // GT: kspr IR size at BeginWorldPass
+    float    m_current_sprite_z       = 0.0f;
+    uint32_t m_current_sprite_sort_key = 0;
+    uint32_t m_sprite_entry_seq        = 0;
+    size_t   m_kspr_pass_start         = 0;
 
-    // GT: sprite IR captured by SubmitKeeperSprite(); RT: stable copy after FlipBuffers().
     std::vector<IRWorldKeeperSpriteCmd> m_kspr_ir;
     std::vector<IRWorldKeeperSpriteCmd> m_rt_kspr_ir;
-    std::vector<int> m_kspr_sorted_idx;  // RT: depth-sort scratch, reused across ranges
+    std::vector<int> m_kspr_sorted_idx;
 
-    // ── Cursor keeper-sprite capture (P5.7.5b / Beat 3) ───────────────────────
-    // When true, SubmitKeeperSprite() appends to m_cursor_kspr_ir instead of
-    // the normal per-bucket m_kspr_ir -- set/cleared by BeginCursorCapture()/
-    // EndCursorCapture(), bracketing power_hand.c's keeper-sprite resolution
-    // calls the same way BeginParchmentCapture()/BeginSwipeOverlay() redirect
-    // GLUIRenderer's write target. Unlike m_kspr_ir (bucket-depth-sorted,
-    // drawn as part of the world pass), m_cursor_kspr_ir is drawn separately
-    // and unsorted, in submission order, always on top -- see
-    // DrawCursorKeeperSprites().
     bool m_capturing_cursor = false;  // GT
-    std::vector<IRWorldKeeperSpriteCmd> m_cursor_kspr_ir;     // GT
-    std::vector<IRWorldKeeperSpriteCmd> m_rt_cursor_kspr_ir;  // RT: stable copy after FlipBuffers()
+    std::vector<IRWorldKeeperSpriteCmd> m_cursor_kspr_ir;
+    std::vector<IRWorldKeeperSpriteCmd> m_rt_cursor_kspr_ir;
 
-    // ── Creature shadows (P5.7.4) ───────────────────────────────────────────────
-    // Minimal shader: samples the existing keeper-sprite atlas array (unit 0),
-    // discards on near-zero texel (same alpha-cutout test the sprite shaders
-    // use), multiplies the destination colour by (1 - darken) elsewhere --
-    // see the .cpp file header for why this approximates trig_render_md10's
-    // destination-dependent palette darken rather than reproducing it exactly.
     GpuResourceHandle m_shadow_shader_handle = kInvalidGpuResource;
     GpuResourceHandle m_shadow_geom_handle   = kInvalidGpuResource; // VAO+VBO bundle
     GLint  m_shadow_loc_viewport = -1;
     GLint  m_shadow_loc_sprite   = -1;
-    // No uniform for darken/z_ndc/layer -- all three are per-vertex
-    // attributes (locations 2-4), since a whole frame's shadows batch into
-    // one draw call, same reasoning as flat-poly's per-vertex colour.
-
-    // GT: shadow quads captured by append_shadow_quad(); RT: stable copy
-    // after FlipBuffers(). No cross-shadow ordering/sort key is needed --
-    // each is depth-tested independently against the tile buffer, and
-    // multiplicative blending is commutative so shadow-vs-shadow draw
-    // order doesn't affect the result.
     std::vector<ShadowSubmission> m_shadow_cmds;
     std::vector<ShadowSubmission> m_rt_shadow_cmds;
 
-    // ── Possession lens (P5.8a) ───────────────────────────────────────────────
-    // GT: written once per frame by SubmitPossessionLens(); RT: stable copy
-    // after FlipBuffers(). Unlike m_shadow_cmds (a vector, naturally emptied
-    // by std::move), IRWorldLensCmd::active is a scalar that survives a
-    // move-from unchanged -- FlipBuffers() must explicitly reset m_lens_cmd
-    // afterwards so a frame where SubmitPossessionLens() isn't called (lens
-    // no longer active) doesn't keep replaying a stale command.
-    IRWorldLensCmd m_lens_cmd;      // GT:
-    IRWorldLensCmd m_rt_lens_cmd;   // RT:
+    IRWorldLensCmd m_lens_cmd;
+    IRWorldLensCmd m_rt_lens_cmd;
 
-    /** GPU Resource Mapper: game-thread-only, called from
-     *  SubmitPossessionLens(). Creates/reloads m_lens_scene_rt_handle sized
-     *  to the current full-screen capture resolution -- the resize decision
-     *  has to happen here, not in BeginLensCapture() (render thread):
-     *  RequestReloadRenderTarget is game-thread-only. */
     void EnsureLensSceneRT(int w, int h);
-    /** Same reasoning, for the remap/displacement lookup texture (genuinely
-     *  resizes on resolution change -- gpu-resource-mapper-spec.md Part 6.7's
-     *  own open question, resolved by inspection: confirmed via
-     *  upload_lens_textures_if_dirty()'s original need_realloc check). */
     void EnsureLensRemapTexture(int w, int h);
-    /** Same, for the overlay texture -- also confirmed to genuinely resize
-     *  (COverlayRenderer content can differ in size between lenses),
-     *  contrary to the spec's speculative "verify before assuming fixed". */
     void EnsureLensOverlayTexture(int w, int h);
 
     GpuResourceHandle m_lens_scene_rt_handle = kInvalidGpuResource; // RGBA8 color + Depth24Stencil8
@@ -718,9 +502,6 @@ private:
 
     GpuResourceHandle m_lens_quad_geom_handle = kInvalidGpuResource; // shared unit quad, all three passes
 
-    // Sampler units (u_scene, u_mist/u_remap/u_overlay, u_palette) are bound
-    // once at link time in init_lens_shaders() -- only the per-frame
-    // uniforms below need a cached location.
     GpuResourceHandle m_lens_shader_mist_handle = kInvalidGpuResource;
     GLint  m_lens_mist_loc_src_off = -1, m_lens_mist_loc_src_scale = -1;
     GLint  m_lens_mist_loc_pos     = -1, m_lens_mist_loc_sec       = -1, m_lens_mist_loc_lightness = -1;

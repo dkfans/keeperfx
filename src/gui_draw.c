@@ -774,22 +774,22 @@ void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long 
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
 }
 
-void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx)
+void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx, TbDrawFlagsMask draw_flags)
 {
     spridx = get_player_colored_icon_idx(spridx,my_player_number);
     const struct TbSprite* spr = get_panel_sprite(spridx);
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
-    LbSpriteDrawResized(x, y, units_per_px, spr);
+    UIRenderer_SubmitPanelSpriteRaw(x, y, units_per_px, spr, draw_flags);
 }
 
-void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color)
+void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color, TbDrawFlagsMask draw_flags)
 {
     spridx = get_player_colored_icon_idx(spridx,my_player_number);
     const struct TbSprite* spr = get_panel_sprite(spridx);
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
-    LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
+    UIRenderer_SubmitPanelSpriteRawColored(x, y, units_per_px, spr, color, draw_flags);
 }
 
 void draw_button_sprite_left(long x, long y, int units_per_px, long spridx)
@@ -827,9 +827,14 @@ TbBool frontmenu_copy_background_at(const struct TbRect *bkgnd_area, int units_p
     if (LbGraphicsScreenBPP() != 8)
         return false;
     // Do the drawing
-    copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-        img_width*units_per_px/16,img_height*units_per_px/16,bkgnd_area->left,bkgnd_area->top,srcbuf,img_width,img_height);
-    // Burning candle flames
+    struct RendererPresentImageDesc d = {0};
+    d.format  = PRESENT_FORMAT_INDEXED8;
+    d.palette = PRESENT_PALETTE_GAME;
+    d.kind    = PRESENT_KIND_OPAQUE;
+    d.dst_w = img_width*units_per_px/16; d.dst_h = img_height*units_per_px/16;
+    d.dst_x = bkgnd_area->left;          d.dst_y = bkgnd_area->top;
+    d.src   = srcbuf; d.src_w = img_width; d.src_h = img_height;
+    RendererPresentImage(&d);
     return true;
 }
 

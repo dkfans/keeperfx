@@ -6,15 +6,6 @@
 #include <mutex>
 #include <condition_variable>
 
-// Owns the render-thread lifecycle: spawn, per-frame signal/wait, stop.
-// Ported unwired (P5.3) -- no backend calls Start() yet; RendererOpenGL
-// stays synchronous until P5.6 wires this in for real.
-//
-// Per-frame protocol from the game thread:
-//   WaitForCompletion();  // block until the previous frame's work_fn finished
-//   ... snapshot command buffers ...
-//   Signal();             // wake the render thread for this frame
-
 extern thread_local bool g_on_render_thread;
 
 class RenderThreadManager

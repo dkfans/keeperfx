@@ -142,6 +142,11 @@ extern unsigned short units_per_pixel_min;
 extern long base_mouse_sensitivity;
 
 extern struct TbColorTables pixmap;
+/** True once init_fades_table() has populated pixmap.fade_tables with real
+ *  data -- consumers that snapshot it before startup has run this (e.g. a
+ *  GPU texture upload during renderer init) need to re-check this and
+ *  refresh their copy once. */
+extern TbBool fade_tables_ready;
 extern struct TbAlphaTables alpha_sprite_table;
 extern unsigned char white_pal[256];
 extern unsigned char red_pal[256];

@@ -111,15 +111,6 @@ static void log_window_pixelformat(SDL_Window *window)
         ReleaseDC(hwnd, hdc);
     }
 
-    // Per-window HDR state -- different from the display's own DXGI
-    // colorspace logged above. SDL_PROP_WINDOW_HDR_ENABLED_BOOLEAN is true
-    // when the DWM HDR compositor is actively treating this window as an
-    // HDR surface; SDR_white_level/HDR_headroom govern how DWM tone-maps an
-    // SDR (this game's) surface into the HDR10 desktop. A game that looks
-    // "washed out"/oversaturated on an HDR desktop despite a correct 8-bit
-    // sRGB swapchain is DWM's SDR-in-HDR tone-mapping, not a swapchain bug --
-    // this is what would show that, so log it every time, not just on
-    // request.
     bool  winHdr      = SDL_GetBooleanProperty(props, SDL_PROP_WINDOW_HDR_ENABLED_BOOLEAN, false);
     float sdrWhite    = SDL_GetFloatProperty(props, SDL_PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT, 1.0f);
     float hdrHeadroom = SDL_GetFloatProperty(props, SDL_PROP_WINDOW_HDR_HEADROOM_FLOAT, 1.0f);

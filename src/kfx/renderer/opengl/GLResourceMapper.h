@@ -7,7 +7,6 @@
 #include <vector>
 #include <unordered_set>
 
-/// Concrete OpenGL implementation of IGpuResourceMapper.
 class GLResourceMapper : public IGpuResourceMapper
 {
 public:
@@ -50,6 +49,13 @@ private:
     {
         GpuResourceHandle handle;
         uint64_t destroy_after_frame;
+
+        bool is_release = false;
+        bool had_realized = false;
+        GLTexture         realized_texture;
+        GLRenderTarget    realized_render_target;
+        GLProgram         realized_program;
+        GLGeometryBuffer  realized_geometry_buffer;
     };
     std::vector<PendingDestroy> m_pending_destroys;
 

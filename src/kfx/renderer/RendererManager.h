@@ -5,7 +5,8 @@
 #include "bflib_video.h"   // TbScreenMode, TbScreenCoord
 #include "kfx/renderer/DrawState.h" // TbDrawFlagsMask
 
-// RendererType is a C++ enum; C translation units see it as an opaque int.
+// RendererType/OverlayCaptureKind are C++ enums; C translation units see
+// them as opaque ints.
 #ifdef __cplusplus
 #  include "kfx/renderer/IRenderer.h"
 #else
@@ -14,7 +15,15 @@ typedef int RendererType;
 #  define RENDERER_AUTO     0
 #  define RENDERER_SOFTWARE 1
 #  define RENDERER_OPENGL   2
+
+typedef int OverlayCaptureKind;
+#  define OVERLAY_CAPTURE_PARCHMENT 0
+#  define OVERLAY_CAPTURE_SWIPE     1
 #endif
+
+// UIRenderer_Submit*/Begin*/End* free-function wrappers, implemented in
+// their own translation unit (RendererBridge_UI.cpp).
+#include "kfx/renderer/RendererBridge_UI.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,12 +34,6 @@ int          RendererInit(RendererType type);
 void         RendererShutdown(void);
 RendererType RendererGetActiveType(void);
 
-// Resolve RENDERER_AUTO to a concrete backend type; other types pass through
-// unchanged. Must be called (via main.cpp's resolve_startup_config()) before
-// the game window is created, so window-creation flags can be decided from
-// the concrete type up front -- see RendererGetRequiredWindowFlags() below.
-// RendererInit() also calls this internally (idempotent), so it stays
-// correct even if ever handed RENDERER_AUTO directly.
 RendererType RendererResolveType(RendererType requested);
 
 // SDL3 window-creation flags (KfxWindowFlags, bflib_video.h) required by a
@@ -65,18 +68,43 @@ void   RendererEndFrame(void);
 
 // Compositing behaviour for RendererPresentImageDesc::kind.
 #define PRESENT_KIND_OPAQUE      0  /* fills the dest rect, clearing first (default) */
-#define PRESENT_KIND_TRANSPARENT 1  /* draws over whatever's already there; index 0 = see-through */
+#define PRESENT_KIND_TRANSPARENT 1  /* draws over whatever's already there; index 0 = see-through
+                                        unless coverage below is set */
+
+// Source pixel format for RendererPresentImageDesc::format. Only INDEXED8
+// exists today (every present source -- FMV frames, splash bitmaps, the
+// parchment background -- is 8-bit indexed); true-colour formats are future
+// work, not scaffolded here.
+#define PRESENT_FORMAT_INDEXED8  0
 
 struct RendererPresentImageDesc {
     int dst_x, dst_y, dst_w, dst_h;
     const unsigned char* src;
     int src_pitch;
     int src_w, src_h;
+    int format;                             /* PRESENT_FORMAT_* */
     int palette;                            /* PRESENT_PALETTE_* */
     const unsigned char* embedded_palette;  /* 256x4 BGRA, PRESENT_PALETTE_EMBEDDED only, else NULL */
     int kind;                               /* PRESENT_KIND_* */
+    /* Optional, PRESENT_KIND_TRANSPARENT only: per-pixel opacity, src_w*src_h
+       tightly packed (255 = opaque, 0 = transparent), same dimensions as
+       src. NULL (default) keeps the index-0-key behaviour. Set this when the
+       source legitimately paints with palette index 0 as an opaque colour
+       (e.g. the landview window frame). */
+    const unsigned char* coverage;
 };
 TbBool RendererPresentImage(const struct RendererPresentImageDesc* desc);
+
+/** Submit the zoom box's terrain as texture-block-indexed tiles. Returns
+ *  true when the GPU path accepted the submission (caller skips its own
+ *  CPU tile rasteriser); false when no GPU backend is active (software) --
+ *  caller runs its existing CPU tile loop instead.
+ *  @param tile_block_ids  tiles_x*tiles_y, row-major; 0xFFFF = unrevealed
+ *                         (caller draws those separately, e.g. a solid box).
+ *  @param dst_x/dst_y     Screen top-left of the tile grid (pixels).
+ *  @param tile_w/tile_h   On-screen size of each tile (pixels). */
+TbBool RendererSubmitZoomBoxTiles(const unsigned short* tile_block_ids, int tiles_x, int tiles_y,
+                                  int dst_x, int dst_y, int tile_w, int tile_h);
 
 /** Route an FMV frame's embedded palette through the renderer instead of
  *  calling RendererSetDisplayPalette() directly */
@@ -138,13 +166,6 @@ TbBool RendererTextDrawResized(int posx, int posy, int units_per_px, const char 
 
 struct TbSprite;
 struct Camera;
-TbResult RendererDrawBox(int32_t x, int32_t y, uint32_t width, uint32_t height, unsigned char colour);
-void RendererDrawSlabBackground(int32_t x, int32_t y, int32_t width, int32_t height);
-TbResult RendererSpriteDraw(int32_t x, int32_t y, const struct TbSprite *spr);
-TbResult RendererSpriteDrawOneColour(int32_t x, int32_t y, const struct TbSprite *spr, unsigned char colour);
-TbResult RendererSpriteDrawScaled(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h);
-TbResult RendererSpriteDrawScaledOneColour(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h, unsigned char colour);
-int      RendererSpriteDrawScaledRemap(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h, const unsigned char *cmap);
 
 unsigned char RendererGetDrawColour(void);
 void RendererSetDrawColour(unsigned char colour);
@@ -187,12 +208,22 @@ void RendererUpdateSlabTexture(const unsigned char* data, int dim);
 void RendererSubmitPossessionLens(long viewport_x, long viewport_y, long viewport_w, long viewport_h);
 
 void RendererSubmitMapFadeStep(int tick_step, float display_step, TbBool fading_in);
-void RendererBeginParchmentCapture(void);
-void RendererEndParchmentCapture(void);
 TbBool MapFadePass_SupportsNativeResolution(void);
 
-void RendererBeginSwipeOverlay(void);
-void RendererEndSwipeOverlay(void);
+// See OverlayCaptureKind's own comment (IRenderer.h) for each kind's caller.
+void RendererBeginOverlayCapture(OverlayCaptureKind kind);
+void RendererEndOverlayCapture(OverlayCaptureKind kind);
+
+/******************************************************************************/
+/* Zoom-box ambient state                                                     */
+/******************************************************************************/
+
+/** Screen-space rect of the active zoom box for the current frame. Set by
+ *  draw_zoom_box() before terrain/things are submitted so draw_overhead_*
+ *  can skip markers that fall inside the box. Half-open: [x0,x1) x [y0,y1). */
+void RendererSetZoomBoxScreenRect(int x0, int y0, int x1, int y1);
+void RendererClearZoomBoxScreenRect(void);
+int  RendererPointInZoomBoxScreenRect(int x, int y);
 
 // Current draw flags (TbDrawFlags bitmask) — ambient draw-call state, held off lbDisplay.
 unsigned short RendererGetDrawFlags(void);
@@ -201,7 +232,6 @@ void RendererAddDrawFlags(unsigned short flags);    // |= flags
 void RendererClearDrawFlags(unsigned short flags);  // &= ~flags
 void RendererToggleDrawFlags(unsigned short flags); // ^= flags
 
-// Renderer settings (Beat 4). Ported from develop's RendererApplySettings()/
 struct RendererSettings;
 void RendererApplySettings(const struct RendererSettings* s);
 const struct RendererSettings* RendererGetSettings(void);

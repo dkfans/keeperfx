@@ -4,26 +4,8 @@
 /** @file GLImagePresentPass.h
  *     GPU-native present of a raw indexed8 image (FMV frame, splash
  *     bitmap) at an arbitrary destination rect -- the GL side of
- *     RendererOpenGL::PresentImage()/RendererPresentImageDesc (see the
- *     BeginFrame/EndFrame/PresentImage plan doc). Same shape as
- *     GLMapFadePass (own shader, own texture, own small double-buffered
- *     command) -- new code, not a port of origin/develop's
- *     ImagePresentBuffers/ExecuteImagePresentsFromIR, which rides on a
- *     RenderGraph this branch doesn't have.
- *
- *     Beats 9/10 extended this with:
- *      - an embedded per-present palette (FMV, PRESENT_PALETTE_EMBEDDED) --
- *        own small palette texture, independent of the shared game-palette
- *        one so an FMV frame's colours never leak into anything else;
- *      - a second, non-clearing "overlay" slot (PRESENT_KIND_TRANSPARENT,
- *        index 0 = see-through) for content that draws over the base image
- *        instead of replacing it -- the landview window-frame
- *        (compressed_window_draw(), front_landview.c) is the only current
- *        user;
- *      - a dedicated landview zoom-in/out path (SubmitZoom()), with its own
- *        cached source texture (map_screen is a large, session-static
- *        buffer -- re-copying/re-uploading it every frame of the zoom
- *        animation would be wasteful) and its own sampling shader.
+ *     RendererOpenGL::PresentImage()/RendererPresentImageDesc 
+ *     ToDo : replace with Rendergraph impl?
  */
 /******************************************************************************/
 #pragma once
@@ -36,34 +18,21 @@ class GLResourceMapper;
 
 /******************************************************************************/
 
-// One base image-present submission (PRESENT_KIND_OPAQUE, the FMV/splash/
-// zoom-background case). GT builds it in Submit(), copying the source
-// pixels immediately (the caller's buffer -- an AVFrame's decode buffer, a
-// bitmap load buffer -- isn't guaranteed to outlive this call, same reason
-// every other GT->RT command in this codebase copies rather than aliases).
-// FlipBuffers() moves it to the RT-stable copy.
 struct IRImagePresentCmd {
     bool active = false;
     int dst_x = 0, dst_y = 0, dst_w = 0, dst_h = 0;
     int src_w = 0, src_h = 0;
     std::vector<unsigned char> pixels; // tightly packed, src_w * src_h, indexed8
 
-    int palette = 0; // PRESENT_PALETTE_* (RendererManager.h)
+    int palette = 0;
     std::vector<unsigned char> embedded_palette; // 256*4 BGRA, PRESENT_PALETTE_EMBEDDED only
+
+    // Overlay slot only: per-pixel opacity (255=opaque/0=transparent),
+    std::vector<unsigned char> coverage;
 };
 
-// One landview zoom submission (frontzoom_to_point(), front_landview.c).
-// Unlike IRImagePresentCmd, the source pixels (map_screen) are cached by
-// pointer identity rather than copied every call -- see SubmitZoom()'s
-// comment.
 struct IRLandviewZoomCmd {
     bool active = false;
-    // map_screen itself -- session-static (allocated at landview load, freed
-    // only at unload), so unlike every other buffer this codebase's GT->RT
-    // commands copy defensively, this one is safe to alias by pointer across
-    // the handoff. Used only as an identity check (upload_zoom_texture()
-    // re-copies/re-uploads only when this differs from the last frame's) and
-    // as the actual source when it does.
     const unsigned char* src_buf = nullptr;
     int src_w = 0, src_h = 0;
     float center_map_x = 0.0f, center_map_y = 0.0f;
@@ -124,7 +93,7 @@ public:
 
     // -- Render thread --------------------------------------------------------
 
-    bool IsActiveRT() const { return m_rt_cmd.active || m_rt_overlay_cmd.active || m_rt_zoom_cmd.active; }
+    bool IsActiveRT() const { return !m_rt_cmds.empty() || m_rt_overlay_cmd.active || m_rt_zoom_cmd.active; }
 
     /** Upload this frame's pixels (if any) and draw whatever's active this
      *  frame: the zoom background OR the base opaque image (mutually
@@ -139,23 +108,20 @@ public:
 
 private:
     bool init_quad();
-    void upload_texture();          // base image -> m_tex_handle
     void upload_overlay_texture();  // overlay image -> m_overlay_tex_handle
+    void upload_overlay_coverage_texture(); // overlay coverage -> m_coverage_tex_handle
+    void upload_opaque_texture(size_t idx); // m_rt_cmds[idx].pixels -> m_opaque_slots[idx].tex_handle
     void upload_zoom_texture();     // cached landview bitmap -> m_zoom_tex_handle (only on identity change)
-    void upload_embedded_palette(); // m_rt_cmd.embedded_palette -> m_embedded_palette_tex_handle
+    void upload_embedded_palette(const std::vector<unsigned char>& embedded_palette); // -> m_embedded_palette_tex_handle
     void draw_quad(GLuint program, GLuint image_tex, GLuint palette_tex,
-                  int dst_x, int dst_y, int dst_w, int dst_h, int screen_w, int screen_h);
+                  int dst_x, int dst_y, int dst_w, int dst_h, int screen_w, int screen_h,
+                  GLuint coverage_tex = 0);
 
-    /** Game-thread-only. Creates `handle` on first call, or reloads it
-     *  (RequestReloadTexture) if `gt_w`/`gt_h` -- the dimensions this same
-     *  call last committed the handle at -- differ from `new_w`/`new_h`.
-     *  The resize decision has to happen here, not in Resolve() (render
-     *  thread): RequestReloadTexture is game-thread-only. Content itself
-     *  is uploaded separately, later, on the render thread. */
+    /** Game-thread-only. Creates `handle` on first call, or reloads it. */
     void EnsureImageTextureHandle(GpuResourceHandle& handle, int& gt_w, int& gt_h, int new_w, int new_h);
 
-    IRImagePresentCmd m_cmd;             // GT: written by Submit() (kind == OPAQUE)
-    IRImagePresentCmd m_rt_cmd;          // RT: stable copy after FlipBuffers()
+    std::vector<IRImagePresentCmd> m_cmds;      // GT: appended by Submit() (kind == OPAQUE)
+    std::vector<IRImagePresentCmd> m_rt_cmds;   // RT: stable copy after FlipBuffers()
     IRImagePresentCmd m_overlay_cmd;     // GT: written by Submit() (kind == TRANSPARENT)
     IRImagePresentCmd m_rt_overlay_cmd;  // RT: stable copy after FlipBuffers()
     IRLandviewZoomCmd m_zoom_cmd;        // GT: written by SubmitZoom()
@@ -165,6 +131,7 @@ private:
 
     GpuResourceHandle m_shader_handle             = kInvalidGpuResource; // RAWIMAGE_BLIT_FRAGMENT_SHADER (opaque)
     GpuResourceHandle m_transparent_shader_handle = kInvalidGpuResource; // RAWIMAGE_TRANSPARENT_FRAGMENT_SHADER (overlay)
+    GpuResourceHandle m_coverage_shader_handle    = kInvalidGpuResource; // RAWIMAGE_TRANSPARENT_COVERAGE_FRAGMENT_SHADER (overlay w/ coverage)
     GpuResourceHandle m_zoom_shader_handle        = kInvalidGpuResource; // RAWIMAGE_ZOOM_FRAGMENT_SHADER
     GLint  m_loc_screen_size = -1;         // m_shader_handle / m_transparent_shader_handle
     GLint  m_loc_zoom_screen_size = -1;
@@ -174,24 +141,22 @@ private:
     GLint  m_loc_zoom_src_size = -1;
     GpuResourceHandle m_quad_geom_handle = kInvalidGpuResource;
 
-    // Base/overlay/zoom textures: game-thread-owned handle + the dimensions
-    // that handle was last created/reloaded at (gt_w/gt_h; compared against
-    // each new Submit()/SubmitZoom() to decide create vs. reload vs. no-op).
-    GpuResourceHandle m_tex_handle = kInvalidGpuResource;
-    int    m_tex_gt_w = 0, m_tex_gt_h = 0;
+    struct OpaqueSlot {
+        GpuResourceHandle tex_handle = kInvalidGpuResource;
+        int tex_gt_w = 0, tex_gt_h = 0;
+    };
+    std::vector<OpaqueSlot> m_opaque_slots;
+
     GpuResourceHandle m_overlay_tex_handle = kInvalidGpuResource;
     int    m_overlay_tex_gt_w = 0, m_overlay_tex_gt_h = 0;
+    GpuResourceHandle m_coverage_tex_handle = kInvalidGpuResource;
+    int    m_coverage_tex_gt_w = 0, m_coverage_tex_gt_h = 0;
     GpuResourceHandle m_zoom_tex_handle = kInvalidGpuResource;
     int    m_zoom_tex_gt_w = 0, m_zoom_tex_gt_h = 0;
-    // Render-thread-only: last-uploaded src_buf pointer + dimensions, purely
-    // a content-reupload-avoidance cache (distinct from gt_w/gt_h above,
-    // which gate handle creation/reload).
     const unsigned char* m_zoom_tex_identity = nullptr;
     int    m_zoom_tex_rt_w = 0, m_zoom_tex_rt_h = 0;
 
     GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource; // not owned (shared game palette)
-    // Fixed 256x1 RGBA8 -- a content-update case like the mapper spec's
-    // mist-texture guidance (Part 6.7), never needs RequestReloadTexture.
     GpuResourceHandle m_embedded_palette_tex_handle = kInvalidGpuResource; // owned -- FMV's own per-frame palette
 
     /** Resolves the shared palette handle to a raw GLuint. Zero if the

@@ -14,6 +14,7 @@
 #include "kfx/renderer/opengl/GLWorldViewRenderer.h"
 #include "kfx/renderer/opengl/GLMapFadePass.h"
 #include "kfx/renderer/opengl/GLImagePresentPass.h"
+#include "kfx/renderer/opengl/GLZoomBoxTilesPass.h"
 #include "kfx/renderer/opengl/GLResourceMapper.h"
 #include "kfx/renderer/GpuResourceHandle.h"
 #include "kfx/renderer/GpuResourceDesc.h"
@@ -30,7 +31,7 @@
 #include "vidmode.h" // pixmap.fade_tables
 #include "bflib_mouse.h" // LbMouseOnBeginSwap/EndSwap -- submits the cursor sprite around present
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h> // IMG_SavePNG (screenshots)
+#include <SDL3_image/SDL_image.h> // IMG_SavePNG (screenshots), Todo : move to platform layer
 #include <cstring>
 #include <string>
 #include <vector>
@@ -42,40 +43,17 @@ struct GLFrameData {
     WorldCommandBuffers world_cmds;
     uint32_t            frame_seq = 0;
 
-    // Parchment transition (P5.8b): diverted target for
-    // redraw_minimal_overhead_view()'s UI/text submissions, redirected here
-    // (instead of ui_cmds/text_cmds) for the one call inside
-    // prepare_map_fade_buffers() on the frame a transition starts, via
-    // RendererBeginParchmentCapture()/RendererEndParchmentCapture(). Empty
-    // every other frame -- DrawFromIR() on an empty buffer is a cheap no-op.
     UICommandBuffers    parchment_ui_cmds;
     TextCommandBuffers  parchment_text_cmds;
 
-    // Swipe-attack overlay (Beat 2): diverted target for
-    // draw_swipe_graphic()'s (thing_creature.c) UI submission, redirected
-    // here (instead of ui_cmds) via RendererBeginSwipeOverlay()/
-    // RendererEndSwipeOverlay() so FGFlushSwipeOverlay() can draw it inside
-    // the lens FBO bracket (before FGDrawGameUI() runs) instead of it
-    // landing in the general UI pass, which composites after the bracket
-    // closes. Empty every frame the player isn't in possession mode --
-    // DrawFromIR() on an empty buffer is a cheap no-op, same as
-    // parchment_ui_cmds above.
     UICommandBuffers    swipe_cmds;
 
     int32_t screen_w = 0;
     int32_t screen_h = 0;
 
-    // Beat 7: copy of g_screen_tint (RendererManager) at frame-submit time --
-    // same handoff point as screen_w/h below, so FGDrawScreenTint() (render
-    // thread) never reads the game thread's live global mid-update.
     float screen_tint[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-    // GPU Resource Mapper (gpu-resource-mapper-spec.md Part 4.3): the frame
-    // number this GLFrameData was sealed under, stamped in PresentFrame()
-    // before RendererFrameCounter_Advance() runs -- so it records the frame
-    // just authored, not the next one. render_thread_work() passes this (not
-    // RendererFrameCounter_Current(), which is always one frame ahead by the
-    // time the render thread wakes) to ProcessDeferredDestroys().
+    // The frame number this GLFrameData was sealed under
     uint64_t sealed_frame_number = 0;
 
     bool          palette_dirty = false;
@@ -93,13 +71,13 @@ struct RendererOpenGL::Impl {
     GLWorldViewRenderer world;
     GLMapFadePass      mapfade;
     GLImagePresentPass imgpresent;
-    // GPU Resource Mapper: owns the full lifecycle of every GL object used by
-    // this backend. Constructed here (game thread, at Impl's own construction
-    // -- must not touch GL, and it doesn't: RequestCreate* never calls gl*,
-    // see GLResourceMapper.h), used from render_thread_init() onward.
+    GLZoomBoxTilesPass zoomboxtiles;
+
     GLResourceMapper   resource_mapper;
     GpuResourceHandle  palette_tex_handle    = kInvalidGpuResource;
     GpuResourceHandle  fade_table_tex_handle = kInvalidGpuResource;
+
+    bool fade_tables_refreshed = false;
 
     RenderThreadManager thread_mgr;
     GLFrameData frames[2];
@@ -109,20 +87,10 @@ struct RendererOpenGL::Impl {
     bool init_ok         = false; // set by render_thread_init(), read after Start() returns
     bool functions_loaded = false; // guards render_thread_cleanup() from calling gl* before GLFunctions_Load() ran
 
-    // Render-thread-only scratch, valid for the span of one RenderGraph::Execute()
-    // call. Used to be locals inside the single render_thread_work() function;
-    // now split across FGBeginWorldCapture()/FGResolveWorldCapture(), so they
-    // need to persist on Impl between those two calls instead of the stack.
     bool          fg_lens_captured      = false;
     bool          fg_lens_palette_active = false;
     unsigned char fg_lens_palette_rgba[256 * 4] = {};
 
-    // Beat 8: screenshot request handoff. Set by ScheduleScreenshot() (game
-    // thread, in response to the screenshot hotkey -- a rare, one-shot
-    // action), consumed by FGCaptureScreenshot() (render thread). Not
-    // atomic/locked, matching every other game-thread -> render-thread value
-    // on this branch (GL doesn't genuinely run the two concurrently yet --
-    // see the P5.6 notes elsewhere in this file).
     std::string screenshot_path;
     int         screenshot_fmt = 0;
 };
@@ -173,14 +141,8 @@ RendererOpenGL::~RendererOpenGL()
 
 bool RendererOpenGL::Init()
 {
-    // The window is created exactly once, by LbScreenSetup() before
-    // RendererInit() ever runs (main.cpp's resolve_startup_config() resolves
-    // the renderer type -- and with it, the window's required SDL3 flags --
-    // before setup_screen_mode_zero() creates it). By the time Init() runs
-    // here, the window must already exist and already carry SDL_WINDOW_OPENGL;
-    // there is no "recreate the window to add the flag" step any more. A
-    // violation here means the startup ordering broke, not something to
-    // silently work around with a recreated/placeholder window -- fail loud.
+
+    // Todo : Make opaque, this bleeds SDL into OpenGL
     SDL_Window* window = GetSDLWindowSystem()->GetSDLWindow();
     if (window == nullptr)
     {
@@ -315,11 +277,6 @@ void RendererOpenGL::render_thread_init()
     }
 
     m_impl->atlas.SetResourceMapper(&m_impl->resource_mapper);
-    // GLUIRenderer::Init() requires m_resource_mapper already set (it calls
-    // RequestCreateProgram/RequestCreateGeometryBuffer during Init) -- must
-    // happen before ui.Init() below, not alongside the rest of ui's setup
-    // further down (SetAtlas/SetPaletteTexture/etc., none of which Init()
-    // itself touches).
     m_impl->ui.SetResourceMapper(&m_impl->resource_mapper);
     if (!m_impl->atlas.Init() || !m_impl->ui.Init())
     {
@@ -328,20 +285,6 @@ void RendererOpenGL::render_thread_init()
         return;
     }
 
-    // 256x1 RGBA8 palette lookup texture; content uploaded from the per-frame
-    // snapshot in render_thread_work() whenever SetDisplayPalette() marked
-    // one dirty. Seeded black+opaque (not `nullptr`, which leaves undefined
-    // driver content) so any sprite sampled before the first real upload
-    // lands reads a defined black, not implementation-defined VRAM garbage
-    // that happened to read back as solid white -- RendererManager.cpp's
-    // RendererInit() also replays the last palette set before this backend
-    // existed, so in practice this seed is a defensive fallback, not the
-    // load-bearing fix; a real upload should land within the first frame.
-    // 256x1 RGBA8 palette lookup texture, via the GPU Resource Mapper
-    // (gpu-resource-mapper-spec.md Part 6.1). Seeded black+opaque (not an
-    // empty initial_pixels, which leaves undefined driver content) so any
-    // sprite sampled before the first real upload reads a defined black --
-    // see the comment above this block for the full rationale.
     unsigned char black_palette[256 * 4] = {};
     for (int i = 0; i < 256; ++i)
         black_palette[i * 4 + 3] = 255; // alpha opaque, RGB stays zeroed
@@ -363,9 +306,7 @@ void RendererOpenGL::render_thread_init()
         return;
     }
 
-    // 256x64 R8 remap/fade table, matching pixmap.fade_tables. Uploaded once
-    // here; a runtime fade-table rebuild wouldn't be picked up -- not hit by
-    // this milestone's draw paths, but worth knowing if remap output looks stale.
+    // 256x64 R8 remap/fade table, matching pixmap.fade_tables.
     GpuTextureDesc fade_table_desc;
     fade_table_desc.width = 256;
     fade_table_desc.height = 64;
@@ -388,17 +329,9 @@ void RendererOpenGL::render_thread_init()
     m_impl->ui.SetScreenSize((int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight);
     m_impl->text.SetUIRenderer(&m_impl->ui);
     m_impl->cursor.SetUIRenderer(&m_impl->ui);
-    // Power-hand keeper sprite(s) (P5.7.5 / Beat 3) share world's keeper-
-    // sprite atlas/shaders/IR (BeginCursorCapture()/SubmitKeeperSprite()/
-    // EndCursorCapture()) rather than owning a second copy of that machinery.
     m_impl->cursor.SetWorldRenderer(&m_impl->world);
 
-    // World geometry renderer (P5.7.2b). world_atlas.Init() is NOT called
-    // here -- unlike the sprite atlas, its source data (block_ptrs[]) isn't
-    // populated yet this early (textures load per-level, after startup), so
-    // it's retried once per render_thread_work() tick instead (see there).
-    // The resource mapper reference must be set now regardless, since that
-    // first retried Init() call needs it already wired.
+
     m_impl->world_atlas.SetResourceMapper(&m_impl->resource_mapper);
     m_impl->world.SetAtlas(&m_impl->world_atlas);
     m_impl->world.SetResourceMapper(&m_impl->resource_mapper);
@@ -412,20 +345,12 @@ void RendererOpenGL::render_thread_init()
         return;
     }
 
-    // Parchment transition (P5.8b). Same non-fatal treatment as P5.8a's
-    // lens shaders: a compile failure just means the transition silently
-    // stays a no-op (BeginParchmentCapture()/ResolveComposite() both guard
-    // on m_shader/m_tex_* being non-zero), not a renderer init failure.
     m_impl->mapfade.SetResourceMapper(&m_impl->resource_mapper);
     if (!m_impl->mapfade.CompileShaders())
     {
         WARNLOG("RendererOpenGL::Init: parchment transition shaders unavailable -- transition disabled");
     }
 
-    // Raw image present (FMV/splash). Same non-fatal treatment -- a compile
-    // failure means PresentImage() keeps returning false (Resolve() guards
-    // on m_shader being non-zero), so callers fall back to their existing
-    // CPU blit, same as before this change.
     m_impl->imgpresent.SetResourceMapper(&m_impl->resource_mapper);
     m_impl->imgpresent.SetPaletteTexture(m_impl->palette_tex_handle);
     if (!m_impl->imgpresent.CompileShaders())
@@ -433,9 +358,14 @@ void RendererOpenGL::render_thread_init()
         WARNLOG("RendererOpenGL::Init: raw image present shaders unavailable -- FMV/splash will fall back to CPU blit");
     }
 
-    // GL always defers -- unlike software, there is no immediate draw path,
-    // so a write buffer stays bound for the renderer's whole lifetime; which
-    // FrameData slot it points at flips every PresentFrame().
+    m_impl->zoomboxtiles.SetResourceMapper(&m_impl->resource_mapper);
+    m_impl->zoomboxtiles.SetPaletteTexture(m_impl->palette_tex_handle);
+    m_impl->zoomboxtiles.SetTileAtlas(&m_impl->world_atlas);
+    if (!m_impl->zoomboxtiles.CompileShaders())
+    {
+        WARNLOG("RendererOpenGL::Init: zoom-box tile shaders unavailable -- zoom box terrain will fall back to CPU rasterisation");
+    }
+
     for (GLFrameData& fd : m_impl->frames)
     {
         fd.ui_cmds.shared_seq   = &fd.frame_seq;
@@ -452,24 +382,10 @@ void RendererOpenGL::render_thread_init()
     m_impl->init_ok = true;
 }
 
-// Render thread, once per present. Consumes m_impl->frames[render_idx],
-// which PresentFrame() sealed and handed off (via Signal()) before this ran.
-//
-// The per-frame draw sequence itself is NOT inlined here any more -- it's
-// RenderGraph::Execute(*this), the same shared, centrally-owned phase order
-// RendererSoftware uses (see RendererOpenGL.h's class comment for why).
-// What stays here is backend-resource bookkeeping that isn't frame *content*
-// (palette upload, atlas maintenance) as a prologue, and the buffer swap as
-// an epilogue -- matching develop's own RenderGraph::Execute() comment that
-// the swap stays in the backend, outside the graph.
 void RendererOpenGL::render_thread_work()
 {
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
 
-    // GPU Resource Mapper (gpu-resource-mapper-spec.md Part 4.3): reclaim
-    // anything released as of the frame actually being rendered -- must use
-    // fd.sealed_frame_number, not RendererFrameCounter_Current() (already
-    // one frame ahead by the time the render thread wakes for this tick).
     m_impl->resource_mapper.ProcessDeferredDestroys(fd.sealed_frame_number);
 
     if (fd.palette_dirty)
@@ -486,21 +402,20 @@ void RendererOpenGL::render_thread_work()
 
     m_impl->atlas.FlushPendingGL();
 
-    // Tile atlas build, retried once per tick until block_ptrs[] is
-    // populated (P5.7.2b) -- level textures load on the game thread, after
-    // this render thread has already started ticking, so this can't be a
-    // one-shot init the way the sprite atlas's can. Cheap no-op once built
-    // (IsInitialized() short-circuits), same shape as atlas.FlushPendingGL()
-    // above. Does NOT handle a texture reload after the first build (Lua's
-    // MAP.default_texture can trigger one mid-session) -- deliberately out
-    // of scope, see GLWorldViewRenderer.cpp's file header.
     if (!m_impl->world_atlas.IsInitialized() && block_ptrs[0] != nullptr)
         m_impl->world_atlas.Init();
+
+    if (!m_impl->fade_tables_refreshed && fade_tables_ready)
+    {
+        m_impl->world.RefreshFadeTableAndSettings();
+        m_impl->fade_tables_refreshed = true;
+    }
 
     RenderGraph::Execute(*this);
 
     SDL_GL_SwapWindow(GetSDLWindowSystem()->GetSDLWindow());
 
+// Todo : Remove this should not be specific to Win32.
 #ifdef _WIN32
     // DXGI factory calls are free-threaded -- safe to tick from the render
     // thread even though the factory was created on the game thread in
@@ -509,57 +424,19 @@ void RendererOpenGL::render_thread_work()
 #endif
 }
 
-// ---------------------------------------------------------------------------
-// IFrameGraphExecutor phases. Called from render_thread_work() above, via
-// RenderGraph::Execute(*this), in RenderGraph.cpp's fixed order. Each reads
-// the current frame's GLFrameData fresh -- render_idx doesn't change for the
-// span of one Execute() call, so this is just the old function-local `fd`
-// split across methods instead of computed once at the top.
-// ---------------------------------------------------------------------------
-
 void RendererOpenGL::FGClearFrame()
 {
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
 
-    // world/ui's cached "full screen" dimensions were previously set exactly
-    // once, at render_thread_init() time (the frontend/legal-screen
-    // resolution) and never refreshed -- entering a level at a different
-    // resolution (the shipped config's FRONTEND_RES=640x480w32 vs
-    // INGAME_RES=DESKTOP guarantees a mismatch) left GLWorldViewRenderer's
-    // viewport-Y math computed against the stale size, pushing the world
-    // geometry off-screen with no GL error (pure viewport-rect arithmetic).
-    // fd.screen_w/h is already refreshed every frame from
-    // RendererPhysicalWidth()/Height (PresentFrame()'s stamp below) --
-    // both setters are trivial field assignments, so just re-assert it here
-    // every frame rather than hunting down every video-mode-change call site
-    // that would otherwise need its own refresh hook.
     m_impl->world.SetScreenSize(fd.screen_w, fd.screen_h);
     m_impl->ui.SetScreenSize(fd.screen_w, fd.screen_h);
 
     glViewport(0, 0, fd.screen_w, fd.screen_h);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Beat 5: classify this frame's ui_cmds into the WorldOverlay/
-    // WorldOverlayFlat/GameUI quad layers up front, before any of the phases
-    // that consume them run (FGDrawWorldSpriteLayer/FGDrawWorldOverlayFlatLayer/
-    // FGDrawGameUI, in that order later in this same frame) -- classification
-    // is pure CPU work, so doing it once here rather than splitting it across
-    // 3 call sites keeps BuildQuadsFromIR() itself simple (one pass over the
-    // whole buffer, not 3 partial ones).
     m_impl->ui.BuildQuadsFromIR(fd.ui_cmds);
 }
 
-// Possession lens (P5.8a): BeginLensCapture() redirects the world pass into
-// an offscreen FBO when a pixel distortion effect is active this frame;
-// FGResolveWorldCapture() then composites it back into the real viewport
-// sub-rect of the backbuffer. A palette-only lens (no pixel effect) doesn't
-// redirect -- instead the palette texture is swapped to the tinted lens
-// palette for just the world draw, then restored before UI/cursor so they're
-// unaffected, matching the CPU path's PaletteEffect being a pure
-// palette-state effect with no pixel write of its own. fg_lens_captured/
-// fg_lens_palette_active/fg_lens_palette_rgba persist on Impl between this
-// call and FGResolveWorldCapture() -- they used to be locals spanning both
-// halves of one function.
 void RendererOpenGL::FGBeginWorldCapture()
 {
     m_impl->fg_lens_palette_active = m_impl->world.HasActiveLensPalette();
@@ -584,13 +461,6 @@ void RendererOpenGL::FGExecuteWorld()
     m_impl->world.GPURenderNow(fd.world_cmds);
 }
 
-// Possession-mode swipe overlay (Beat 2). RenderGraph::Execute() calls this
-// right after FGExecuteWorld(), still inside the lens FBO bracket (before
-// FGResolveWorldCapture() closes it) -- drawing here, rather than letting
-// draw_swipe_graphic()'s submission land in the general ui_cmds buffer
-// (consumed later by FGDrawGameUI(), after the bracket closes), is what
-// makes the swipe sprite lens-distorted like develop's does instead of
-// compositing flat on top of the finished frame.
 void RendererOpenGL::FGFlushSwipeOverlay()
 {
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
@@ -616,17 +486,6 @@ void RendererOpenGL::FGResolveWorldCapture()
     }
 }
 
-// Parchment transition (P5.8b). Capture happens once, on the frame the
-// transition starts: BeginParchmentCapture()/DrawFromIR() (against the
-// diverted parchment_ui_cmds/parchment_text_cmds, populated via
-// RendererBeginParchmentCapture()/RendererEndParchmentCapture() around
-// prepare_map_fade_buffers()'s redraw_minimal_overhead_view() call) captures
-// the overhead map into its own texture; CaptureWorldFrame() then blits this
-// frame's already-drawn world (FGExecuteWorld() above -- map-fade runs after
-// world in RenderGraph's order) into the other. ResolveComposite() runs
-// every active frame, not just the capture one -- non-capture frames have
-// nothing else to show (see the plan doc), so this is the only visible
-// content until the transition ends.
 void RendererOpenGL::FGExecuteMapFade()
 {
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
@@ -637,22 +496,11 @@ void RendererOpenGL::FGExecuteMapFade()
             m_impl->mapfade.BeginParchmentCapture(fd.screen_w, fd.screen_h);
             m_impl->ui.DrawFromIR(fd.parchment_ui_cmds, fd.parchment_text_cmds, &m_impl->text);
             m_impl->mapfade.EndParchmentCapture();
-            // CaptureWorldFrame() moved to FGCaptureWorldFrameIfPending() below
-            // -- see that override's comment for why.
         }
         m_impl->mapfade.ResolveComposite(fd.screen_w, fd.screen_h);
     }
 }
 
-// Regression fix: CaptureWorldFrame() used to run here, inside
-// FGExecuteMapFade(), which RenderGraph::Execute() calls *before*
-// FGDrawGameUI(). CaptureWorldFrame()'s own comment says it blits "world +
-// UI, whatever this frame's normal draw calls already produced" -- but at
-// that point in the frame, UI hadn't been drawn yet, so every parchment
-// transition captured a snapshot missing the sidebar. develop deliberately
-// keeps this as its own later phase, run after FGDrawGameUI so the sidebar
-// is part of the crossfaded snapshot (RenderGraph's own ordering comment
-// says so directly) -- this override restores that placement.
 void RendererOpenGL::FGCaptureWorldFrameIfPending()
 {
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
@@ -660,26 +508,18 @@ void RendererOpenGL::FGCaptureWorldFrameIfPending()
         m_impl->mapfade.CaptureWorldFrame(fd.screen_w, fd.screen_h);
 }
 
-// Raw image present (FMV/splash). Callers only submit one of these per
-// BeginFrame()/EndFrame() bracket, so on a genuine FMV/splash frame this
-// frame's other content (world/UI/mapfade) is empty -- drawing this here,
-// per RenderGraph's fixed order, is safe regardless.
 void RendererOpenGL::FGExecuteImagePresents()
 {
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
     m_impl->imgpresent.Resolve(fd.screen_w, fd.screen_h);
 }
 
-// Draws UI *and* text together: GLUIRenderer::DrawFromIR() interleaves them
-// by shared sequence number (see its own header comment), the same ordering
-// the software renderer's replay relies on -- they are not independent draw
-// batches the way develop's separate FGDrawGameUI/FGExecuteText assume.
-// FGExecuteText is left as IFrameGraphExecutor's inherited no-op.
-// Beat 5: flush the WorldOverlay/WorldOverlayFlat quad layers
-// BuildQuadsFromIR() (FGClearFrame(), above) already classified this frame's
-// ui_cmds into. RenderGraph::Execute() calls these right after map-fade
-// compose, before image-presents -- was already correctly scaffolded
-// (IFrameGraphExecutor's no-op defaults), just never overridden until now.
+void RendererOpenGL::FGDrawZoomBoxes()
+{
+    GLFrameData& fd = m_impl->frames[m_impl->render_idx];
+    m_impl->zoomboxtiles.Resolve(fd.screen_w, fd.screen_h);
+}
+
 void RendererOpenGL::FGDrawWorldSpriteLayer()
 {
     m_impl->ui.DrawWorldSpriteLayerRT();
@@ -694,6 +534,11 @@ void RendererOpenGL::FGDrawGameUI()
 {
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
     m_impl->ui.DrawGameUILayerRT(fd.text_cmds, &m_impl->text);
+}
+
+void RendererOpenGL::FGDrawFrontOverlay()
+{
+    m_impl->ui.DrawFrontOverlay();
 }
 
 void RendererOpenGL::FGDrawScreenTint()
@@ -719,10 +564,6 @@ bool RendererOpenGL::ScheduleScreenshot(const char* path, int fmt)
     return true;
 }
 
-// Present-time (before swap), matching RenderGraph.cpp's phase order.
-// glReadPixels() reads whatever is currently in the backbuffer -- everything
-// drawn earlier this frame (world, UI, tint, cursor) -- so this must stay
-// the last real draw-adjacent phase, same as develop's placement.
 void RendererOpenGL::FGCaptureScreenshot()
 {
     if (m_impl->screenshot_path.empty())
@@ -764,27 +605,13 @@ void RendererOpenGL::FGExecuteCursor()
 {
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
     m_impl->cursor.DrawSnapshot(fd.cursor_snapshot);
-    // Power-hand keeper sprites (held thing + hand graphic), captured this
-    // frame via GLCursorLayer::SubmitKeeperHandSprite() -> GLWorldViewRenderer::
-    // BeginCursorCapture()/SubmitKeeperSprite()/EndCursorCapture() and flipped
-    // into m_rt_cursor_kspr_ir by world.FlipBuffers() (P5.6's usual game/render
-    // thread handoff point) -- drawn separately from DrawSnapshot()'s pointer
-    // sprite since this is GLWorldViewRenderer's own IR, not GLCursorLayer's.
     m_impl->world.DrawCursorKeeperSprites();
 }
 
-// Render thread, once, at Stop()/join. Must tolerate a partial init (Start()
-// always runs this even if render_thread_init() bailed out early -- see
-// Init()'s init_ok check), so every step is guarded by what actually
-// succeeded rather than assumed.
 void RendererOpenGL::render_thread_cleanup()
 {
     if (m_impl->functions_loaded)
     {
-        // GPU Resource Mapper: destroys every realized GL object across every
-        // class before their own Shutdown()/Free() bodies run (which no
-        // longer own any GL objects themselves post-migration) --
-        // gpu-resource-mapper-spec.md Part 6.1 step 6.
         m_impl->resource_mapper.ShutdownAll();
         m_impl->ui.Shutdown();
         m_impl->atlas.Free();
@@ -792,6 +619,7 @@ void RendererOpenGL::render_thread_cleanup()
         m_impl->world_atlas.Free();
         m_impl->mapfade.Shutdown();
         m_impl->imgpresent.Shutdown();
+        m_impl->zoomboxtiles.Shutdown();
     }
     if (m_gl_context != nullptr)
     {
@@ -804,14 +632,6 @@ void RendererOpenGL::SetDisplayPalette(const unsigned char* rgb8)
 {
     if (m_impl == nullptr || rgb8 == nullptr) return;
 
-    // Deferred, not applied here: this can be called from the game thread at
-    // any point during a frame (palette fades reprogram it every frame), and
-    // once threaded, direct gl* calls from here would run concurrently with
-    // the render thread's own GL work on a context that isn't current on
-    // this thread. Stash into the slot the game thread currently owns
-    // (frames[write_idx]); render_thread_work() uploads it when that slot's
-    // turn comes, the same handoff every other per-frame draw already goes
-    // through.
     GLFrameData& fd = m_impl->frames[m_impl->write_idx];
     for (int i = 0; i < 256; ++i) {
         fd.palette_rgba[i * 4 + 0] = rgb8[i * 3 + 0];
@@ -827,16 +647,8 @@ void RendererOpenGL::PresentFrame()
     if (m_gl_context == nullptr || GetSDLWindowSystem()->GetSDLWindow() == nullptr || m_impl == nullptr)
         return;
 
-    // RenderTaskProducer (renderer-concurrency-architecture-spec.md 2.4):
-    // let every registered producer append into frames[write_idx] while the
-    // shared frame counter still holds this frame's number -- strictly
-    // before RendererFrameCounter_Advance() runs later in this function.
-    // No-op today (nothing registers a producer yet).
     RenderTaskProducerRegistry_ProduceAll(RendererFrameCounter_Current());
 
-    // Blocks until the render thread finishes the previous handoff's work
-    // (first call returns immediately -- nothing signalled yet). After this,
-    // frames[next] is guaranteed idle: the render thread is done reading it.
     m_impl->thread_mgr.WaitForCompletion();
 
     const int filled = m_impl->write_idx;  // this frame's IR, fully submitted by now
@@ -852,20 +664,12 @@ void RendererOpenGL::PresentFrame()
     next_fd.frame_seq = 0;
     next_fd.palette_dirty = false; // defensive; a real change always re-sets this itself
 
-    // GLWorldViewRenderer's own draw-command ordering list (m_draw_cmds,
-    // separate from the WorldCommandBuffers vertex payload rebound below)
-    // has its own internal double buffer -- flip it at the same handoff
-    // point frames[] itself flips, before rebinding the write target.
+    
     m_impl->world.FlipBuffers();
-    // Parchment transition (P5.8b): same handoff point, its own small
-    // double buffer (IRMapFadeCmd), not part of GLFrameData's Reset() above
-    // since it isn't reset to empty so much as reset to "inactive" -- see
-    // GLMapFadePass::FlipBuffers()'s own comment.
     m_impl->mapfade.FlipBuffers();
     m_impl->imgpresent.FlipBuffers();
+    m_impl->zoomboxtiles.FlipBuffers();
 
-    // From here, engine draw calls for the NEXT frame land in frames[next]
-    // while the render thread works through frames[filled] concurrently.
     m_impl->ui.SetUICommandBuffers(&next_fd.ui_cmds);
     m_impl->text.SetTextCommandBuffers(&next_fd.text_cmds);
     m_impl->world.SetWorldCommandBuffers(&next_fd.world_cmds);
@@ -874,21 +678,8 @@ void RendererOpenGL::PresentFrame()
     filled_fd.screen_w = (int32_t)RendererPhysicalWidth();
     filled_fd.screen_h = (int32_t)lbDisplay.PhysicalScreenHeight;
     std::memcpy(filled_fd.screen_tint, g_screen_tint, sizeof(filled_fd.screen_tint));
-    // GPU Resource Mapper (Part 4.3): stamp with the pre-advance counter
-    // value so this records the frame just authored, not the next one --
-    // render_thread_work() reads this back to bound ProcessDeferredDestroys().
     filled_fd.sealed_frame_number = RendererFrameCounter_Current();
 
-    // LbMouseOnBeginSwap() is what actually submits the OS pointer sprite
-    // (-> CursorLayer_SubmitPointerSprite() -> GLCursorLayer's m_pointer_handle)
-    // -- RendererSoftware::PresentFrame() calls this pair around its own
-    // present (see its comment), but nothing called it for GL at all, so the
-    // cursor was never submitted and FGExecuteCursor() had nothing to draw
-    // every single frame. LbMouseOnEndSwap() is a no-op for a deferred
-    // backend (see LbI_PointerHandler::OnEndSwap()'s own comment) so calling
-    // it immediately after, on the game thread, rather than after the actual
-    // async present completes on the render thread, is correct -- there's no
-    // state to restore either way.
     LbMouseOnBeginSwap();
     filled_fd.cursor_snapshot = m_impl->cursor.Snapshot();
     LbMouseOnEndSwap();
@@ -896,21 +687,11 @@ void RendererOpenGL::PresentFrame()
     m_impl->render_idx = filled;
     m_impl->write_idx  = next;
 
-    // Advance after stamping filled_fd.sealed_frame_number above, so the
-    // NEXT frame's authoring (and any RequestRelease() calls it makes) is
-    // tagged with the new value -- see gpu-resource-mapper-spec.md Part 4.3.
     RendererFrameCounter_Advance();
 
     m_impl->thread_mgr.Signal();
 }
 
-// Frame bracket (see IRenderer.h). GL has no CPU pointer to hand back --
-// content for this frame is already going into frames[write_idx] via the
-// existing Submit*/DrawGlyphs/etc. bridges, called by the same game code
-// that used to be gated behind RendererLockFramebuffer(). Succeeds
-// unconditionally once render_thread_init() has actually run (init_ok),
-// matching the old gate's one real check (lbScreenInitialised is checked
-// by the RendererBeginFrame() bridge itself, before this is even called).
 bool RendererOpenGL::BeginFrame()
 {
     return m_impl != nullptr && m_impl->init_ok;
@@ -927,6 +708,15 @@ bool RendererOpenGL::PresentImage(const struct RendererPresentImageDesc* desc)
     if (m_impl == nullptr || !m_impl->imgpresent.IsReady())
         return false;
     m_impl->imgpresent.Submit(desc);
+    return true;
+}
+
+bool RendererOpenGL::SubmitZoomBoxTiles(const uint16_t* tile_block_ids, int tiles_x, int tiles_y,
+                                        int dst_x, int dst_y, int tile_w, int tile_h)
+{
+    if (m_impl == nullptr || !m_impl->zoomboxtiles.IsReady())
+        return false;
+    m_impl->zoomboxtiles.Submit(tile_block_ids, tiles_x, tiles_y, dst_x, dst_y, tile_w, tile_h);
     return true;
 }
 
@@ -952,52 +742,36 @@ class IUIRenderer* RendererOpenGL::GetUIRenderer()
     return m_impl ? &m_impl->ui : nullptr;
 }
 
-// Parchment transition (P5.8b). Game thread -- called via the
-// RendererSubmitMapFadeStep()/RendererBeginParchmentCapture()/
-// RendererEndParchmentCapture()/MapFadeSupportsNativeResolution() bridges
-// (RendererManager.cpp), from engine_redraw.c/gui_parchment.c.
 void RendererOpenGL::SubmitMapFadeStep(int tick_step, float display_step, bool fading_in)
 {
     if (m_impl == nullptr) return;
     m_impl->mapfade.SubmitStep(tick_step, display_step, fading_in);
 }
 
-void RendererOpenGL::BeginParchmentCapture()
+void RendererOpenGL::BeginOverlayCapture(OverlayCaptureKind kind)
 {
     if (m_impl == nullptr) return;
-    // Redirect the UI/text renderers' write target to this frame's
-    // parchment-capture buffers -- restored by EndParchmentCapture() right
-    // after the one call (redraw_minimal_overhead_view(), via
-    // prepare_map_fade_buffers()) this brackets.
     GLFrameData& fd = m_impl->frames[m_impl->write_idx];
-    m_impl->ui.SetUICommandBuffers(&fd.parchment_ui_cmds);
-    m_impl->text.SetTextCommandBuffers(&fd.parchment_text_cmds);
+    switch (kind)
+    {
+    case OVERLAY_CAPTURE_PARCHMENT:
+        m_impl->ui.SetUICommandBuffers(&fd.parchment_ui_cmds);
+        m_impl->text.SetTextCommandBuffers(&fd.parchment_text_cmds);
+        break;
+    case OVERLAY_CAPTURE_SWIPE:
+        // Text isn't redirected: the swipe overlay only ever submits sprites.
+        m_impl->ui.SetUICommandBuffers(&fd.swipe_cmds);
+        break;
+    }
 }
 
-void RendererOpenGL::EndParchmentCapture()
+void RendererOpenGL::EndOverlayCapture(OverlayCaptureKind kind)
 {
     if (m_impl == nullptr) return;
     GLFrameData& fd = m_impl->frames[m_impl->write_idx];
     m_impl->ui.SetUICommandBuffers(&fd.ui_cmds);
-    m_impl->text.SetTextCommandBuffers(&fd.text_cmds);
-}
-
-void RendererOpenGL::BeginSwipeOverlay()
-{
-    if (m_impl == nullptr) return;
-    // Redirect the UI renderer's write target to this frame's swipe-overlay
-    // buffer -- restored by EndSwipeOverlay() right after the one call
-    // (draw_swipe_graphic(), thing_creature.c) this brackets. Text isn't
-    // redirected: the swipe overlay only ever submits sprites.
-    GLFrameData& fd = m_impl->frames[m_impl->write_idx];
-    m_impl->ui.SetUICommandBuffers(&fd.swipe_cmds);
-}
-
-void RendererOpenGL::EndSwipeOverlay()
-{
-    if (m_impl == nullptr) return;
-    GLFrameData& fd = m_impl->frames[m_impl->write_idx];
-    m_impl->ui.SetUICommandBuffers(&fd.ui_cmds);
+    if (kind == OVERLAY_CAPTURE_PARCHMENT)
+        m_impl->text.SetTextCommandBuffers(&fd.text_cmds);
 }
 
 bool RendererOpenGL::MapFadeSupportsNativeResolution() const

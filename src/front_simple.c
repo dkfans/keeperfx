@@ -144,11 +144,14 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
     // ToDo : remove, why does this go through RendererPresntImage() instead of just copying into the screen buffer?
     if (dst_buf == NULL)
     {
-        struct RendererPresentImageDesc present_desc = {
-            spw, sph, dst_width, dst_height,
-            src_buf, src_width, src_width, src_height,
-            0, NULL, 0
-        };
+        struct RendererPresentImageDesc present_desc = {0};
+        present_desc.dst_x = spw;         present_desc.dst_y = sph;
+        present_desc.dst_w = dst_width;   present_desc.dst_h = dst_height;
+        present_desc.src   = src_buf;     present_desc.src_pitch = src_width;
+        present_desc.src_w = src_width;   present_desc.src_h = src_height;
+        present_desc.format  = PRESENT_FORMAT_INDEXED8;
+        present_desc.palette = PRESENT_PALETTE_GAME;
+        present_desc.kind    = PRESENT_KIND_OPAQUE;
         return RendererPresentImage(&present_desc);
     }
     // Source pixel coords

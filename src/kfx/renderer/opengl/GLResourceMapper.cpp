@@ -161,23 +161,55 @@ void GLResourceMapper::RequestRelease(GpuResourceHandle handle)
     const uint32_t index = GpuResourceHandle_Index(handle);
 
     bool valid = false;
+    PendingDestroy pd;
+    pd.handle = handle;
+    pd.destroy_after_frame = RendererFrameCounter_Current();
+    pd.is_release = true;
     switch (kind)
     {
         case GpuResourceKind::Texture:
             if (index < (uint32_t)m_textures.size() && m_textures[index].generation == generation)
+            {
                 valid = true;
+                if (m_textures[index].state == SlotState::Realized)
+                {
+                    pd.had_realized = true;
+                    pd.realized_texture = m_textures[index].realized;
+                }
+            }
             break;
         case GpuResourceKind::RenderTarget:
             if (index < (uint32_t)m_render_targets.size() && m_render_targets[index].generation == generation)
+            {
                 valid = true;
+                if (m_render_targets[index].state == SlotState::Realized)
+                {
+                    pd.had_realized = true;
+                    pd.realized_render_target = m_render_targets[index].realized;
+                }
+            }
             break;
         case GpuResourceKind::Program:
             if (index < (uint32_t)m_programs.size() && m_programs[index].generation == generation)
+            {
                 valid = true;
+                if (m_programs[index].state == SlotState::Realized)
+                {
+                    pd.had_realized = true;
+                    pd.realized_program = m_programs[index].realized;
+                }
+            }
             break;
         case GpuResourceKind::GeometryBuffer:
             if (index < (uint32_t)m_geometry_buffers.size() && m_geometry_buffers[index].generation == generation)
+            {
                 valid = true;
+                if (m_geometry_buffers[index].state == SlotState::Realized)
+                {
+                    pd.had_realized = true;
+                    pd.realized_geometry_buffer = m_geometry_buffers[index].realized;
+                }
+            }
             break;
         default:
             break;
@@ -189,7 +221,7 @@ void GLResourceMapper::RequestRelease(GpuResourceHandle handle)
         return;
     }
 
-    m_pending_destroys.push_back({handle, RendererFrameCounter_Current()});
+    m_pending_destroys.push_back(std::move(pd));
 }
 
 GpuResourceHandle GLResourceMapper::RequestReloadTexture(GpuResourceHandle handle, const GpuTextureDesc& new_desc)
@@ -206,7 +238,16 @@ GpuResourceHandle GLResourceMapper::RequestReloadTexture(GpuResourceHandle handl
         return kInvalidGpuResource;
     }
 
-    m_pending_destroys.push_back({handle, RendererFrameCounter_Current()});
+    PendingDestroy pd;
+    pd.handle = handle;
+    pd.destroy_after_frame = RendererFrameCounter_Current();
+    pd.is_release = false;
+    if (m_textures[index].state == SlotState::Realized)
+    {
+        pd.had_realized = true;
+        pd.realized_texture = m_textures[index].realized;
+    }
+    m_pending_destroys.push_back(std::move(pd));
     m_textures[index].desc = new_desc;
     m_textures[index].state = SlotState::Pending;
     ++m_textures[index].generation;
@@ -228,7 +269,16 @@ GpuResourceHandle GLResourceMapper::RequestReloadRenderTarget(GpuResourceHandle 
         return kInvalidGpuResource;
     }
 
-    m_pending_destroys.push_back({handle, RendererFrameCounter_Current()});
+    PendingDestroy pd;
+    pd.handle = handle;
+    pd.destroy_after_frame = RendererFrameCounter_Current();
+    pd.is_release = false;
+    if (m_render_targets[index].state == SlotState::Realized)
+    {
+        pd.had_realized = true;
+        pd.realized_render_target = m_render_targets[index].realized;
+    }
+    m_pending_destroys.push_back(std::move(pd));
     m_render_targets[index].desc = new_desc;
     m_render_targets[index].state = SlotState::Pending;
     ++m_render_targets[index].generation;
@@ -250,7 +300,16 @@ GpuResourceHandle GLResourceMapper::RequestReloadProgram(GpuResourceHandle handl
         return kInvalidGpuResource;
     }
 
-    m_pending_destroys.push_back({handle, RendererFrameCounter_Current()});
+    PendingDestroy pd;
+    pd.handle = handle;
+    pd.destroy_after_frame = RendererFrameCounter_Current();
+    pd.is_release = false;
+    if (m_programs[index].state == SlotState::Realized)
+    {
+        pd.had_realized = true;
+        pd.realized_program = m_programs[index].realized;
+    }
+    m_pending_destroys.push_back(std::move(pd));
     m_programs[index].desc = new_desc;
     m_programs[index].state = SlotState::Pending;
     ++m_programs[index].generation;
@@ -272,7 +331,16 @@ GpuResourceHandle GLResourceMapper::RequestReloadGeometryBuffer(GpuResourceHandl
         return kInvalidGpuResource;
     }
 
-    m_pending_destroys.push_back({handle, RendererFrameCounter_Current()});
+    PendingDestroy pd;
+    pd.handle = handle;
+    pd.destroy_after_frame = RendererFrameCounter_Current();
+    pd.is_release = false;
+    if (m_geometry_buffers[index].state == SlotState::Realized)
+    {
+        pd.had_realized = true;
+        pd.realized_geometry_buffer = m_geometry_buffers[index].realized;
+    }
+    m_pending_destroys.push_back(std::move(pd));
     m_geometry_buffers[index].desc = new_desc;
     m_geometry_buffers[index].state = SlotState::Pending;
     ++m_geometry_buffers[index].generation;
@@ -506,57 +574,55 @@ void GLResourceMapper::ProcessDeferredDestroys(uint64_t frame_being_rendered)
         }
         else
         {
-            const GpuResourceKind kind = GpuResourceHandle_Kind(it->handle);
-            const uint32_t index = GpuResourceHandle_Index(it->handle);
-
-            switch (kind)
+            // Always destroy the SNAPSHOT captured at request time.
             {
-                case GpuResourceKind::Texture:
-                    if (index < (uint32_t)m_textures.size())
-                    {
-                        auto& slot = m_textures[index];
-                        if (slot.state == SlotState::Realized)
-                            DestroyTexture(slot.realized);
-                        slot.state = SlotState::Free;
-                        ++slot.generation;
-                    }
-                    break;
+                switch (GpuResourceHandle_Kind(it->handle))
+                {
+                    case GpuResourceKind::Texture:        DestroyTexture(it->realized_texture); break;
+                    case GpuResourceKind::RenderTarget:    DestroyRenderTarget(it->realized_render_target); break;
+                    case GpuResourceKind::Program:         DestroyProgram(it->realized_program); break;
+                    case GpuResourceKind::GeometryBuffer:  DestroyGeometryBuffer(it->realized_geometry_buffer); break;
+                    default: break;
+                }
+            }
 
-                case GpuResourceKind::RenderTarget:
-                    if (index < (uint32_t)m_render_targets.size())
-                    {
-                        auto& slot = m_render_targets[index];
-                        if (slot.state == SlotState::Realized)
-                            DestroyRenderTarget(slot.realized);
-                        slot.state = SlotState::Free;
-                        ++slot.generation;
-                    }
-                    break;
-
-                case GpuResourceKind::Program:
-                    if (index < (uint32_t)m_programs.size())
-                    {
-                        auto& slot = m_programs[index];
-                        if (slot.state == SlotState::Realized)
-                            DestroyProgram(slot.realized);
-                        slot.state = SlotState::Free;
-                        ++slot.generation;
-                    }
-                    break;
-
-                case GpuResourceKind::GeometryBuffer:
-                    if (index < (uint32_t)m_geometry_buffers.size())
-                    {
-                        auto& slot = m_geometry_buffers[index];
-                        if (slot.state == SlotState::Realized)
-                            DestroyGeometryBuffer(slot.realized);
-                        slot.state = SlotState::Free;
-                        ++slot.generation;
-                    }
-                    break;
-
-                default:
-                    break;
+            if (it->is_release)
+            {
+                const GpuResourceKind kind = GpuResourceHandle_Kind(it->handle);
+                const uint32_t index = GpuResourceHandle_Index(it->handle);
+                switch (kind)
+                {
+                    case GpuResourceKind::Texture:
+                        if (index < (uint32_t)m_textures.size())
+                        {
+                            m_textures[index].state = SlotState::Free;
+                            ++m_textures[index].generation;
+                        }
+                        break;
+                    case GpuResourceKind::RenderTarget:
+                        if (index < (uint32_t)m_render_targets.size())
+                        {
+                            m_render_targets[index].state = SlotState::Free;
+                            ++m_render_targets[index].generation;
+                        }
+                        break;
+                    case GpuResourceKind::Program:
+                        if (index < (uint32_t)m_programs.size())
+                        {
+                            m_programs[index].state = SlotState::Free;
+                            ++m_programs[index].generation;
+                        }
+                        break;
+                    case GpuResourceKind::GeometryBuffer:
+                        if (index < (uint32_t)m_geometry_buffers.size())
+                        {
+                            m_geometry_buffers[index].state = SlotState::Free;
+                            ++m_geometry_buffers[index].generation;
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
 
             it = m_pending_destroys.erase(it);

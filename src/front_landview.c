@@ -895,31 +895,62 @@ void compressed_window_draw(void)
     // Todo : should be abstracted into renderers, not within specific landview.
     if (RendererGetActiveType() == RENDERER_OPENGL)
     {
-        static unsigned char *window_frame_buf = NULL;
+        // Two scratch buffers, pre-filled with different sentinel values: a
+        // texel the huge-sprite's RLE actually writes (an opaque run, which
+        // may legitimately be palette index 0 -- black stone) lands on the
+        // same value in both buffers; a texel it skips (a transparent run)
+        // keeps its distinct pre-fill and so still differs between the two.
+        // Comparing the two therefore recovers per-pixel opacity exactly,
+        // with no value collision possible -- unlike keying transparency off
+        // index 0 alone, which can't tell "skipped" from "drawn as black"
+        // apart. See gl-visual-phase-2-landview-transparency-plan.md.
+        static unsigned char *window_frame_buf_a = NULL;
+        static unsigned char *window_frame_buf_b = NULL;
         static long window_frame_buf_w = 0, window_frame_buf_h = 0;
         long w = RendererPhysicalWidth();
         long h = lbDisplay.PhysicalScreenHeight;
-        if ((w > 0) && (h > 0) && ((window_frame_buf == NULL) || (window_frame_buf_w != w) || (window_frame_buf_h != h)))
+        if ((w > 0) && (h > 0) && ((window_frame_buf_a == NULL) || (window_frame_buf_w != w) || (window_frame_buf_h != h)))
         {
-            free(window_frame_buf);
-            window_frame_buf = (unsigned char *)malloc((size_t)w * (size_t)h);
-            window_frame_buf_w = window_frame_buf ? w : 0;
-            window_frame_buf_h = window_frame_buf ? h : 0;
+            free(window_frame_buf_a);
+            free(window_frame_buf_b);
+            window_frame_buf_a = (unsigned char *)malloc((size_t)w * (size_t)h);
+            window_frame_buf_b = (unsigned char *)malloc((size_t)w * (size_t)h);
+            if ((window_frame_buf_a != NULL) && (window_frame_buf_b != NULL))
+            {
+                window_frame_buf_w = w;
+                window_frame_buf_h = h;
+            }
+            else
+            {
+                free(window_frame_buf_a); window_frame_buf_a = NULL;
+                free(window_frame_buf_b); window_frame_buf_b = NULL;
+                window_frame_buf_w = window_frame_buf_h = 0;
+            }
         }
-        if (window_frame_buf != NULL)
+        if ((window_frame_buf_a != NULL) && (window_frame_buf_b != NULL))
         {
-            memset(window_frame_buf, 0, (size_t)w * (size_t)h);
-            LbHugeSpriteDraw(&map_window, map_window_len, window_frame_buf, (int)w, (int)h,
+            size_t npixels = (size_t)w * (size_t)h;
+            memset(window_frame_buf_a, 0x00, npixels);
+            memset(window_frame_buf_b, 0xFF, npixels);
+            LbHugeSpriteDraw(&map_window, map_window_len, window_frame_buf_a, (int)w, (int)h,
                 xshift, yshift, units_per_pixel_landview_frame);
+            LbHugeSpriteDraw(&map_window, map_window_len, window_frame_buf_b, (int)w, (int)h,
+                xshift, yshift, units_per_pixel_landview_frame);
+            // Coverage, computed in place into buffer b: 0xFF where both
+            // draws agree (opaque, incl. index 0), 0x00 where they still
+            // differ (never written -- transparent).
+            for (size_t i = 0; i < npixels; i++)
+                window_frame_buf_b[i] = (window_frame_buf_a[i] == window_frame_buf_b[i]) ? 0xFF : 0x00;
 
             struct RendererPresentImageDesc present_desc = {0};
             present_desc.dst_w = (int)w;
             present_desc.dst_h = (int)h;
-            present_desc.src = window_frame_buf;
+            present_desc.src = window_frame_buf_a;
             present_desc.src_pitch = (int)w;
             present_desc.src_w = (int)w;
             present_desc.src_h = (int)h;
             present_desc.kind = PRESENT_KIND_TRANSPARENT;
+            present_desc.coverage = window_frame_buf_b;
             if (RendererPresentImage(&present_desc))
                 return;
         }

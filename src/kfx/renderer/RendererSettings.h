@@ -2,39 +2,12 @@
 // Dungeon Keeper - Renderer Configuration
 /******************************************************************************/
 /** @file RendererSettings.h
- *     Run-time configurable renderer knobs. Ported from develop (Beat 4) --
- *     develop's own config surface for creature_outline_class_mask/shadow_type
- *     didn't exist on this branch at all before this beat; every hardcoded
- *     0.5/0.25/1.0 literal scattered through GLWorldViewRenderer.cpp for
- *     transpar4_alpha/transpar8_alpha/shade_scale/etc. (each individually
- *     disclosed as "g_renderer_settings doesn't exist on this branch") now
- *     has a real home.
- * @par Design:
- *     A C-compatible POD struct so that C translation units (config parsing)
- *     can read and modify settings without pulling in C++ headers. The active
- *     settings are stored in the global g_renderer_settings and applied to the
- *     active renderer via RendererApplySettings().
- *
- *     Default values (set by RendererSettings_Reset) preserve the original
- *     software-renderer behaviour exactly -- no visual change on first run.
+ *     Run-time configurable renderer knobs.
  *
  * @par Persistence:
  *     Read/written from renderer_prefs.ini in PlatformManager_GetUserPrefDir().
  *
- * @par Not ported from develop (disclosed, not guessed at):
- *     develop's other RendererSettings consumers -- console_cmd.c's debug
- *     commands, RendMenuOverlay.c/h (a non-ImGui settings overlay), and
- *     ImGuiRendererPanel.cpp -- are separate front-end/menu UI surfaces, not
- *     part of the renderer subsystems this beat's plan scoped (and ImGui was
- *     already dropped from this branch's own architecture, see the
- *     upstreaming plan doc). Only the module itself (struct/Reset/Sanitize/
- *     Load/Save/Apply) and the GL-side fields Beat 4 actually wires up
- *     (creature_outline_mode/_alpha/_class_mask, shadow_type is declared but
- *     circle-shadow rendering itself is a later fast-follow, and the
- *     already-existing-but-hardcoded shade/filter/transpar/glow/fog uniforms
- *     from P5.7.2b/P5.7.3a) are ported this beat.
  */
-/******************************************************************************/
 #pragma once
 
 #ifdef __cplusplus
@@ -92,13 +65,10 @@ extern "C" {
 /** Linear RGB multiply -- clean fade toward black. */
 #define RENDERER_DARKNESS_LINEAR     0
 /** Palette fade-table LUT -- samples the original DK fade table on the GPU.
- *  Reproduces the non-linear hue shifts of the software renderer. This
- *  branch's world shader already implements this mode (P5.7.2a's
- *  u_darkness_mode uniform) -- default here, matching what was hardcoded. */
+ *  Reproduces the non-linear hue shifts of the software renderer. */
 #define RENDERER_DARKNESS_PALETTE    1
 /** Animated fog -- dark areas receive a scrolling noise-based fog overlay
- *  instead of a flat colour multiply. Purely cosmetic enhancement; this
- *  branch's world shader already implements this mode too. */
+ *  instead of a flat colour multiply. Purely cosmetic enhancement; */
 #define RENDERER_DARKNESS_FOG        2
 
 /* ---------------------------------------------------------------------------
@@ -107,16 +77,14 @@ extern "C" {
 /** Accurate: possessed-creature lens effects reproduced in 8-bit
  *  palette-index space, bit-for-bit identical to the software renderer. */
 #define RENDERER_LENS_COLOR_ACCURATE  0
-/** Truecolor: lens effects operate directly on the decoded RGBA scene. Not
- *  consumed by this branch's lens code (P5.8a) yet -- declared for parity. */
+/** Truecolor: lens effects operate directly on the decoded RGBA scene */
 #define RENDERER_LENS_COLOR_TRUECOLOR 1
 
 /* ---------------------------------------------------------------------------
  * Lighting pipeline mode constants (lighting_mode field)
  * ------------------------------------------------------------------------- */
 /** Software-accurate lighting: per-vertex Gouraud shade from the DK fade
- *  table. Emulates the software renderer exactly. This branch's world
- *  shader already implements this mode (P5.7.2a's u_lighting_mode). */
+ *  table. Emulates the software renderer exactly. */
 #define RENDERER_LIGHTING_SOFTWARE 0
 /** Modern GPU lighting: per-fragment lightmap sampling + dynamic point
  *  lights. This branch's world shader already implements this mode too
@@ -158,7 +126,7 @@ extern "C" {
 typedef struct RendererSettings {
     /** Atlas colour mode. RENDERER_PALETTE_INDEXED (0) or
      *  RENDERER_PALETTE_TRUECOLOUR (1). Default: INDEXED. TRUECOLOUR is a
-     *  no-op on this branch (see the constant's own doc comment). */
+     *  no-op for now. */
     int   palette_mode;
 
     /* --- Shade / brightness knobs (applied as uniforms each frame) --- */
@@ -212,8 +180,8 @@ typedef struct RendererSettings {
      *  Default: 1.0. */
     float glow_intensity;
 
-    /** Glow blend equation. ADDITIVE (0) or SCREEN (1). Not yet consumed --
-     *  Beat 3's glow shaders are hardcoded additive. Default: ADDITIVE. */
+    /** Glow blend equation. ADDITIVE (0) or SCREEN (1). Not yet consumed 
+     *  Default: ADDITIVE. */
     int   glow_blend_mode;
 
     /* --- Shadow pass --- */

@@ -17,14 +17,7 @@
 
 /******************************************************************************/
 
-GLMapFadePass::~GLMapFadePass()
-{
-    // Shutdown() must be called explicitly on the render thread before
-    // destruction (mirrors GLWorldViewRenderer/GLUIRenderer -- by the time
-    // this destructs, on the game thread after the render thread has
-    // already been joined and the context destroyed, GL calls here would
-    // run with no current context on any thread).
-}
+GLMapFadePass::~GLMapFadePass() { }
 
 bool GLMapFadePass::CompileShaders()
 {
@@ -57,9 +50,6 @@ bool GLMapFadePass::CompileShaders()
 
 bool GLMapFadePass::init_quad()
 {
-    // Same static NDC unit quad shape as P5.8a's lens composite pass --
-    // glViewport is set to the full screen before ResolveComposite()'s
-    // draw call, so a_pos's -1..1 range covers the whole backbuffer.
     static const float k_quad[] = {
         //  x,     y,    u,    v
         -1.0f, -1.0f,  0.0f, 0.0f,
@@ -92,10 +82,6 @@ bool GLMapFadePass::init_quad()
 
 void GLMapFadePass::Shutdown()
 {
-    // GPU Resource Mapper: this runs inside RendererOpenGL::
-    // render_thread_cleanup() on the render thread -- RequestRelease() is
-    // game-thread-only, so none of the mapper-owned resources above are
-    // released here. ShutdownAll() destroys them unconditionally instead.
     m_capture_gt_w = m_capture_gt_h = 0;
     m_cmd = IRMapFadeCmd{};
     m_rt_cmd = IRMapFadeCmd{};
@@ -119,10 +105,6 @@ void GLMapFadePass::FlipBuffers()
     ASSERT_GAME_THREAD();
     m_was_active_gt = m_cmd.active;
     m_rt_cmd = std::move(m_cmd);
-    // IRMapFadeCmd::active is a scalar -- std::move leaves it unchanged in
-    // the moved-from object (same hazard IRWorldLensCmd's own comment
-    // documents). Reset explicitly so a frame with no SubmitStep() call
-    // (transition ended) starts clean rather than replaying stale state.
     m_cmd = IRMapFadeCmd{};
 }
 
@@ -198,20 +180,7 @@ void GLMapFadePass::CaptureWorldFrame(int w, int h)
     const GLTexture* world_tex = m_resource_mapper->ResolveTexture(m_tex_world_handle);
     if (!world_tex || w <= 0 || h <= 0)
         return;
-
-    // Blit the already-rendered default framebuffer (world + UI, whatever
-    // this frame's normal draw calls already produced) into m_tex_world --
-    // no new draw submission, matching origin/develop's CaptureWorldFrame()
-    // for the same reason: re-running the 3D/UI draw on the render thread
-    // would race the game thread already building the next frame.
-    //
-    // tmp_fbo is a deliberate exception to the mapper migration (gpu-
-    // resource-mapper-spec.md Part 6.6): created and destroyed within this
-    // one render-thread call, never referenced elsewhere -- routing it
-    // through the mapper is impossible to do correctly anyway, since
-    // RequestRelease is game-thread-only and this runs on the render
-    // thread. Direct glGenFramebuffers/glDeleteFramebuffers here is correct
-    // and permanent.
+        
     GLuint tmp_fbo = 0;
     glGenFramebuffers(1, &tmp_fbo);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, tmp_fbo);

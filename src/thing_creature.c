@@ -387,11 +387,11 @@ void draw_swipe_graphic(void)
         {
             // Redirect this call's sprite submissions into the dedicated
             // swipe-overlay buffer instead of the general UI one -- see
-            // RendererBeginSwipeOverlay()'s own comment for why (lets GL
+            // IRenderer::BeginOverlayCapture()'s own comment for why (lets GL
             // composite the swipe sprite inside the lens-distortion bracket,
             // matching develop, instead of flat on top of the finished
             // frame). No-op on software, which draws immediately either way.
-            RendererBeginSwipeOverlay();
+            RendererBeginOverlayCapture(OVERLAY_CAPTURE_SWIPE);
             RendererSetDrawFlags(Lb_SPRITE_TRANSPAR4);
             long n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
             long allwidth = 0;
@@ -403,7 +403,7 @@ void draw_swipe_graphic(void)
             {
                 ERRORLOG("Failed to draw swipe sprite for thing %d", (int)thing->index);
                 RendererSetDrawFlags(0);
-                RendererEndSwipeOverlay(); // must restore -- BeginSwipeOverlay() already ran above
+                RendererEndOverlayCapture(OVERLAY_CAPTURE_SWIPE); // must restore -- Begin already ran above
                 return;
             }
             const struct TbSprite* startspr = &sprlist[1];
@@ -450,7 +450,7 @@ void draw_swipe_graphic(void)
                 }
             }
             RendererSetDrawFlags(0);
-            RendererEndSwipeOverlay();
+            RendererEndOverlayCapture(OVERLAY_CAPTURE_SWIPE);
             return;
         }
     }

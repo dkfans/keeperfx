@@ -1,20 +1,21 @@
 #ifndef RENDERER_OPENGL_GLSHADERS_H
 #define RENDERER_OPENGL_GLSHADERS_H
 
-// UI/text/cursor shaders, plus the possession-lens composite shaders added
-// in P5.8a (world/mapfade are still out of scope). The lens shaders are new
-// code, not a port -- this branch's single-active-effect design (see the
-// P5.8a plan) has no equivalent in develop's multi-pass GLLensPass family,
-// so there was nothing to adapt from.
+/**
+ * @brief Shader source code for the OpenGL renderer.
+ * 
+ * I really don't like this.
+ * 
+ * The eventual plan is the define shaders like this;;
+ * 
+ * inline constexpr std::string_view UI_VERTEX_SHADER = R"( 
+ * foo...) and have a shader manager that can compile and cache them. 
+ * This will allow us to have a single source of truth for shaders,
+ *  and will also allow us to have a single place to manage shader compilation and caching.
+ * 
+ * It'll also allow us to implement a VFS and open up the possibility of having shaders be loaded from mod files
+ */
 
-// Beat 5: a_z carries a real per-vertex NDC depth so batched WorldOverlay/
-// WorldOverlayFlat quads (creature status, room flags, floating text) can
-// depth-test against the world's own [-1,1] z_ndc range within a single
-// batched draw call -- previously this shader hardcoded z=0.0, fine for
-// flat GameUI chrome (single draw call per quad, no batching) but incapable
-// of expressing "this batch of quads sits at these different world depths".
-// Existing callers (text glyphs, cursor, single-quad immediate draws) that
-// don't care about depth just pass a_z=0.0, unchanged behaviour.
 constexpr const char* UI_VERTEX_SHADER = R"glsl(
 #version 330 core
 layout(location = 0) in vec2 a_pos;
@@ -146,7 +147,7 @@ in vec3  vWorldPos;                     // reserved for future dynamic lighting 
 uniform sampler2DArray u_tile_atlas;    // R8 palette-index atlas array (unit 0)
 uniform sampler2D  u_palette;           // RGBA8 256×1 palette (unit 1)
 uniform usampler2D u_lightmap;          // R16UI subtile_lightness map (unit 2), mode 1
-uniform sampler2D  u_fade_table;        // R8 256×256 fade/remap LUT (unit 3), palette mode
+uniform sampler2D  u_fade_table;        // R8 256x64 fade/remap LUT (unit 3), palette mode
 uniform float      u_fullbright;        // 0=normal shading, 1=bypass shade
 uniform float      u_ambient;           // darkness floor added to shade [0,1]
 uniform float      u_shade_scale;       // brightness multiplier (1.0=original)
@@ -230,7 +231,9 @@ void main()
     if (u_darkness_mode != 0)
     {
         float fade_row = raw_shade * 32.0;
-        fade_v = (clamp(fade_row, 0.0, 63.0) + 0.5) / 256.0;
+        // pixmap.fade_tables is 64 rows x 256 columns (not 256 rows) --
+        // matches UI_REMAP_FRAGMENT_SHADER's identical /64.0 normalisation.
+        fade_v = (clamp(fade_row, 0.0, 63.0) + 0.5) / 64.0;
     }
 
     // --- Sample palette index from atlas (always needed) ---
@@ -295,7 +298,7 @@ void main()
     // Replicates the software renderer's pixmap.fade_tables[] exactly:
     //   fade_tables[row * 256 + palette_index] → remapped palette index.
     // Row 0 = fully dark, row 32 = full brightness (identity).
-    // The texture is 256 wide × 256 tall; first 64 rows are fade data.
+    // The texture is 256 wide x 64 tall -- all 64 rows are fade data.
     float remapped = pal_idx;      // fallback for LINEAR mode: identity remap
     vec3 pal_color = col.rgb;      // fallback for LINEAR mode: direct colour
     if (u_darkness_mode != 0 && u_tile_filter != 1)
@@ -998,6 +1001,28 @@ void main()
 }
 )glsl";
 
+// Coverage variant of RAWIMAGE_TRANSPARENT_FRAGMENT_SHADER: transparency
+// comes from an explicit per-pixel coverage map (unit 2, R8: 255 = opaque,
+// 0 = transparent) instead of the index-0 key, so a source image may
+// legitimately paint with palette index 0 (e.g. the landview window frame's
+// black stone) without being treated as see-through.
+constexpr const char* RAWIMAGE_TRANSPARENT_COVERAGE_FRAGMENT_SHADER = R"glsl(
+#version 330 core
+in vec2 v_uv;
+uniform sampler2D u_image;
+uniform sampler2D u_palette;
+uniform sampler2D u_coverage;
+out vec4 fragColor;
+void main()
+{
+    float cov = texture(u_coverage, v_uv).r;
+    if (cov < 0.5) discard;
+    float idx = texture(u_image, v_uv).r;
+    vec4 pal = texture(u_palette, vec2(idx, 0.5));
+    fragColor = vec4(pal.rgb, 1.0);
+}
+)glsl";
+
 // Beat 10: landview zoom-in/out transition (frontzoom_to_point(),
 // front_landview.c). Reuses RAWIMAGE_VERTEX_SHADER over a full-screen quad;
 // v_uv * u_screen_size recovers the destination screen pixel, which maps
@@ -1032,6 +1057,41 @@ void main()
         return;
     }
     float idx = texture(u_image, src_uv).r;
+    vec4 pal = texture(u_palette, vec2(idx, 0.5));
+    fragColor = vec4(pal.rgb, 1.0);
+}
+)glsl";
+
+// Zoom-box terrain tiles (draw_zoom_box_terrain(), gui_parchment.c): flat 2D
+// textured quads sampling the world tile atlas (GLTileAtlas, GL_TEXTURE_2D_ARRAY,
+// R8 palette-indexed -- same content the isometric world view samples, layer =
+// tile_id / TEXTURE_BLOCKS_COUNT).
+constexpr const char* ZOOMBOX_TILES_VERTEX_SHADER = R"glsl(
+#version 330 core
+layout(location = 0) in vec2 a_pos;
+layout(location = 1) in vec3 a_uvw;
+uniform vec2 u_screen_size;
+out vec3 v_uvw;
+void main()
+{
+    vec2 ndc;
+    ndc.x = (a_pos.x / u_screen_size.x) * 2.0 - 1.0;
+    ndc.y = 1.0 - (a_pos.y / u_screen_size.y) * 2.0;
+    gl_Position = vec4(ndc, 0.0, 1.0);
+    v_uvw = a_uvw;
+}
+)glsl";
+
+// Unit 0 = tile atlas (R8 palette-index, texture array). Unit 1 = palette (256x1 RGBA8).
+constexpr const char* ZOOMBOX_TILES_FRAGMENT_SHADER = R"glsl(
+#version 330 core
+in vec3 v_uvw;
+uniform sampler2DArray u_atlas;
+uniform sampler2D u_palette;
+out vec4 fragColor;
+void main()
+{
+    float idx = texture(u_atlas, v_uvw).r;
     vec4 pal = texture(u_palette, vec2(idx, 0.5));
     fragColor = vec4(pal.rgb, 1.0);
 }

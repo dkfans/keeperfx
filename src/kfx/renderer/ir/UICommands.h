@@ -6,25 +6,11 @@
 #include "kfx/renderer/SpriteHandle.h"
 #include "kfx/renderer/DrawState.h"
 #include "kfx/renderer/ir/IRCommandBuffer.h"
-
-// Trimmed to the families Phase 3 actually routes today: sprites, solid
-// boxes, slab background, cursor. World/image-present/post-process families
-// join when their phase needs them.
-
-// Beat 5: which composited layer a command belongs to, ported from develop's
-// IRUILayer -- WorldOverlay/WorldOverlayFlat let world-positioned UI content
-// (creature status, room flags, floating damage text) draw through this same
-// IR/batching pipeline instead of a separate bucket-switch path, at the
-// correct point in the frame (see RenderGraph::Execute()'s existing
-// FGDrawWorldSpriteLayer/FGDrawWorldOverlayFlatLayer call sites). Trimmed to
-// the 3 values this branch has a real consumer for; Overlay/Cursor from
-// develop's 5-value enum are deliberately not added until something needs
-// them (cursor stays on GLCursorLayer's own stash/snapshot path; nothing
-// currently needs a distinct top-overlay layer).
 enum class IRUILayer : uint8_t {
     WorldOverlay     = 0,  // World-space, depth-tested (creature status).
     WorldOverlayFlat = 1,  // World-space, NOT depth-tested (room flags, floating text).
     GameUI           = 2,  // All in-game 2D chrome (default).
+    Overlay          = 3,  // Drawn dead-last, over GameUI (zoom box, tooltips).
 };
 
 struct IRUISpriteCmd {
@@ -66,8 +52,6 @@ struct IRUISpriteScaledOneColourCmd {
     uint32_t seq = 0;
 };
 
-// cmap points into the static fade_tables array (never freed), so a raw
-// pointer survives the deferred gap safely -- unlike a sprite pointer.
 struct IRUISpriteScaledRemapCmd {
     int32_t x = 0, y = 0, w = 0, h = 0;
     SpriteHandle sprite = kInvalidSpriteHandle;
@@ -93,11 +77,6 @@ struct IRUISlabBackgroundCmd {
     float ndc_z = 0.5f;
     uint32_t seq = 0;
 };
-
-// No IR command type for the cursor: GLCursorLayer stashes the submitted
-// pointer sprite directly (see its header comment) rather than going through
-// this shared buffer -- it's a single value, not a stream of draws, and
-// Clear() already has the right lifecycle hook (LbI_PointerHandler::Release).
 
 struct UICommandBuffers {
     IRCommandBuffer<IRUISpriteCmd>                sprites;

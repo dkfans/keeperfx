@@ -435,10 +435,9 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
     }
     // create the parchment screen
     load_parchment_file();
-    // ToDo : This crashes the game in GL mode.
-    RendererBeginParchmentCapture();
+    RendererBeginOverlayCapture(OVERLAY_CAPTURE_PARCHMENT);
     redraw_minimal_overhead_view();
-    RendererEndParchmentCapture();
+    RendererEndOverlayCapture(OVERLAY_CAPTURE_PARCHMENT);
     // Copy the screen to fade destination temp buffer
     fadebuf_pos = 0;
     if (lbDisplay.WScreen != NULL)
@@ -639,7 +638,8 @@ void redraw_creature_view(void)
     TRACE_THING(thing);
     if (thing_exists(thing))
       draw_creature_view(thing);
-    if (smooth_on)
+    // Todo : De-global.
+    if (smooth_on && (lbDisplay.WScreen != NULL))
     {
         TbGraphicsWindow ewnd;
         store_engine_window(&ewnd, pixel_size);
@@ -694,7 +694,8 @@ void redraw_isometric_view(void)
     struct Camera* render_cam = get_local_active_camera(player);
     update_explored_flags_for_power_sight(player);
     engine(player,render_cam);
-    if (smooth_on)
+    // Todo : De-global.
+    if (smooth_on && (lbDisplay.WScreen != NULL))
     {
         store_engine_window(&ewnd,pixel_size);
         smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,

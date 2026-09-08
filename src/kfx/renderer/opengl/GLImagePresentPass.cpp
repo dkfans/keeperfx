@@ -25,8 +25,7 @@ GLuint GLImagePresentPass::ResolvePaletteTexId() const
 
 GLImagePresentPass::~GLImagePresentPass()
 {
-    // Shutdown() must be called explicitly on the render thread before
-    // destruction -- see GLMapFadePass's own destructor comment.
+    // Shutdown() must be called explicitly on the render thread before destruction
 }
 
 bool GLImagePresentPass::CompileShaders()
@@ -52,6 +51,12 @@ bool GLImagePresentPass::CompileShaders()
     transparent_desc.debug_name = "rawimage_transparent";
     m_transparent_shader_handle = m_resource_mapper->RequestCreateProgram(transparent_desc);
 
+    GpuProgramDesc coverage_desc;
+    coverage_desc.vertex_src = RAWIMAGE_VERTEX_SHADER;
+    coverage_desc.fragment_src = RAWIMAGE_TRANSPARENT_COVERAGE_FRAGMENT_SHADER;
+    coverage_desc.debug_name = "rawimage_transparent_coverage";
+    m_coverage_shader_handle = m_resource_mapper->RequestCreateProgram(coverage_desc);
+
     GpuProgramDesc zoom_desc;
     zoom_desc.vertex_src = RAWIMAGE_VERTEX_SHADER;
     zoom_desc.fragment_src = RAWIMAGE_ZOOM_FRAGMENT_SHADER;
@@ -60,8 +65,9 @@ bool GLImagePresentPass::CompileShaders()
 
     const GLProgram* shader = m_resource_mapper->ResolveProgram(m_shader_handle);
     const GLProgram* transparent_shader = m_resource_mapper->ResolveProgram(m_transparent_shader_handle);
+    const GLProgram* coverage_shader = m_resource_mapper->ResolveProgram(m_coverage_shader_handle);
     const GLProgram* zoom_shader = m_resource_mapper->ResolveProgram(m_zoom_shader_handle);
-    if (!shader || !transparent_shader || !zoom_shader)
+    if (!shader || !transparent_shader || !coverage_shader || !zoom_shader)
         return false;
 
     glUseProgram(shader->id);
@@ -72,6 +78,11 @@ bool GLImagePresentPass::CompileShaders()
     glUseProgram(transparent_shader->id);
     glUniform1i(glGetUniformLocation(transparent_shader->id, "u_image"), 0);
     glUniform1i(glGetUniformLocation(transparent_shader->id, "u_palette"), 1);
+
+    glUseProgram(coverage_shader->id);
+    glUniform1i(glGetUniformLocation(coverage_shader->id, "u_image"), 0);
+    glUniform1i(glGetUniformLocation(coverage_shader->id, "u_palette"), 1);
+    glUniform1i(glGetUniformLocation(coverage_shader->id, "u_coverage"), 2);
 
     glUseProgram(zoom_shader->id);
     glUniform1i(glGetUniformLocation(zoom_shader->id, "u_image"), 0);
@@ -129,13 +140,14 @@ void GLImagePresentPass::Shutdown()
     // render thread -- RequestRelease() is game-thread-only, so none of
     // the mapper-owned resources above are released here. ShutdownAll()
     // destroys them unconditionally instead.
-    m_tex_gt_w = m_tex_gt_h = 0;
+    m_opaque_slots.clear();
     m_overlay_tex_gt_w = m_overlay_tex_gt_h = 0;
+    m_coverage_tex_gt_w = m_coverage_tex_gt_h = 0;
     m_zoom_tex_gt_w = m_zoom_tex_gt_h = 0;
     m_zoom_tex_identity = nullptr;
     m_zoom_tex_rt_w = m_zoom_tex_rt_h = 0;
-    m_cmd = IRImagePresentCmd{};
-    m_rt_cmd = IRImagePresentCmd{};
+    m_cmds.clear();
+    m_rt_cmds.clear();
     m_overlay_cmd = IRImagePresentCmd{};
     m_rt_overlay_cmd = IRImagePresentCmd{};
     m_zoom_cmd = IRLandviewZoomCmd{};
@@ -169,6 +181,11 @@ static void fill_cmd(IRImagePresentCmd& dst, const struct RendererPresentImageDe
         dst.embedded_palette.assign(desc->embedded_palette, desc->embedded_palette + 256 * 4);
     else
         dst.embedded_palette.clear();
+
+    if (desc->coverage != nullptr)
+        dst.coverage.assign(desc->coverage, desc->coverage + (size_t)desc->src_w * (size_t)desc->src_h);
+    else
+        dst.coverage.clear();
 }
 
 void GLImagePresentPass::EnsureImageTextureHandle(GpuResourceHandle& handle, int& gt_w, int& gt_h, int new_w, int new_h)
@@ -208,11 +225,22 @@ void GLImagePresentPass::Submit(const struct RendererPresentImageDesc* desc)
     {
         fill_cmd(m_overlay_cmd, desc);
         EnsureImageTextureHandle(m_overlay_tex_handle, m_overlay_tex_gt_w, m_overlay_tex_gt_h, desc->src_w, desc->src_h);
+        if (desc->coverage != nullptr)
+            EnsureImageTextureHandle(m_coverage_tex_handle, m_coverage_tex_gt_w, m_coverage_tex_gt_h, desc->src_w, desc->src_h);
     }
     else
     {
-        fill_cmd(m_cmd, desc);
-        EnsureImageTextureHandle(m_tex_handle, m_tex_gt_w, m_tex_gt_h, desc->src_w, desc->src_h);
+        // Appends rather than replaces -- see m_cmds' own comment. `idx` is
+        // this present's position within THIS frame's queue-so-far; reused
+        // by position across frames for m_opaque_slots (grows once, then
+        // just gets resized-in-place -- EnsureImageTextureHandle()).
+        const size_t idx = m_cmds.size();
+        m_cmds.emplace_back();
+        fill_cmd(m_cmds.back(), desc);
+        if (idx >= m_opaque_slots.size())
+            m_opaque_slots.resize(idx + 1);
+        EnsureImageTextureHandle(m_opaque_slots[idx].tex_handle, m_opaque_slots[idx].tex_gt_w, m_opaque_slots[idx].tex_gt_h,
+                                 desc->src_w, desc->src_h);
     }
 }
 
@@ -241,14 +269,17 @@ void GLImagePresentPass::SubmitZoom(const unsigned char* src_buf, int src_w, int
 void GLImagePresentPass::FlipBuffers()
 {
     ASSERT_GAME_THREAD();
-    m_rt_cmd = std::move(m_cmd);
+    m_rt_cmds = std::move(m_cmds);
     m_rt_overlay_cmd = std::move(m_overlay_cmd);
     m_rt_zoom_cmd = std::move(m_zoom_cmd);
     // `active` is a scalar -- std::move leaves it unchanged in the moved-from
     // object (same hazard IRMapFadeCmd/IRWorldLensCmd's own comments
     // document). Reset explicitly so a frame with no Submit()/SubmitZoom()
-    // call starts clean rather than replaying stale state.
-    m_cmd = IRImagePresentCmd{};
+    // call starts clean rather than replaying stale state. m_cmds is a
+    // vector -- std::move already leaves it empty, but clear() explicitly
+    // rather than relying on moved-from-vector-is-empty being guaranteed
+    // behaviour beyond "valid but unspecified".
+    m_cmds.clear();
     m_overlay_cmd = IRImagePresentCmd{};
     m_zoom_cmd = IRLandviewZoomCmd{};
 }
@@ -268,12 +299,12 @@ static void upload_indexed8_content(GLuint tex_id, const unsigned char* pixels, 
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void GLImagePresentPass::upload_texture()
+void GLImagePresentPass::upload_opaque_texture(size_t idx)
 {
-    if (!m_resource_mapper) return;
-    const GLTexture* tex = m_resource_mapper->ResolveTexture(m_tex_handle);
+    if (!m_resource_mapper || idx >= m_rt_cmds.size() || idx >= m_opaque_slots.size()) return;
+    const GLTexture* tex = m_resource_mapper->ResolveTexture(m_opaque_slots[idx].tex_handle);
     if (!tex) return;
-    upload_indexed8_content(tex->id, m_rt_cmd.pixels.data(), m_rt_cmd.src_w, m_rt_cmd.src_h);
+    upload_indexed8_content(tex->id, m_rt_cmds[idx].pixels.data(), m_rt_cmds[idx].src_w, m_rt_cmds[idx].src_h);
 }
 
 void GLImagePresentPass::upload_overlay_texture()
@@ -282,6 +313,14 @@ void GLImagePresentPass::upload_overlay_texture()
     const GLTexture* tex = m_resource_mapper->ResolveTexture(m_overlay_tex_handle);
     if (!tex) return;
     upload_indexed8_content(tex->id, m_rt_overlay_cmd.pixels.data(), m_rt_overlay_cmd.src_w, m_rt_overlay_cmd.src_h);
+}
+
+void GLImagePresentPass::upload_overlay_coverage_texture()
+{
+    if (!m_resource_mapper) return;
+    const GLTexture* tex = m_resource_mapper->ResolveTexture(m_coverage_tex_handle);
+    if (!tex) return;
+    upload_indexed8_content(tex->id, m_rt_overlay_cmd.coverage.data(), m_rt_overlay_cmd.src_w, m_rt_overlay_cmd.src_h);
 }
 
 void GLImagePresentPass::upload_zoom_texture()
@@ -303,7 +342,7 @@ void GLImagePresentPass::upload_zoom_texture()
     m_zoom_tex_rt_h = m_rt_zoom_cmd.src_h;
 }
 
-void GLImagePresentPass::upload_embedded_palette()
+void GLImagePresentPass::upload_embedded_palette(const std::vector<unsigned char>& embedded_palette)
 {
     if (!m_resource_mapper) return;
 
@@ -326,21 +365,21 @@ void GLImagePresentPass::upload_embedded_palette()
     const GLTexture* tex = m_resource_mapper->ResolveTexture(m_embedded_palette_tex_handle);
     if (!tex) return;
 
-    if (m_rt_cmd.embedded_palette.size() >= 256u * 4u)
+    if (embedded_palette.size() >= 256u * 4u)
     {
         // GL_BGRA upload into an RGBA8 texture: the driver does the channel
         // swap, so the AVFrame's native BGRA layout needs no CPU-side
         // reordering (same trick develop's own equivalent upload uses).
         glBindTexture(GL_TEXTURE_2D, tex->id);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_BGRA, GL_UNSIGNED_BYTE,
-                        m_rt_cmd.embedded_palette.data());
+                        embedded_palette.data());
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 
 void GLImagePresentPass::draw_quad(GLuint program, GLuint image_tex, GLuint palette_tex,
                                    int dst_x, int dst_y, int dst_w, int dst_h,
-                                   int screen_w, int screen_h)
+                                   int screen_w, int screen_h, GLuint coverage_tex)
 {
     if (!m_resource_mapper) return;
     const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_quad_geom_handle);
@@ -369,10 +408,20 @@ void GLImagePresentPass::draw_quad(GLuint program, GLuint image_tex, GLuint pale
     glBindTexture(GL_TEXTURE_2D, image_tex);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, palette_tex);
+    if (coverage_tex != 0)
+    {
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, coverage_tex);
+    }
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glBindVertexArray(0);
+    if (coverage_tex != 0)
+    {
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -395,11 +444,12 @@ void GLImagePresentPass::Resolve(int screen_w, int screen_h)
 
     const GLProgram* zoom_shader_prog = m_resource_mapper->ResolveProgram(m_zoom_shader_handle);
 
-    // Base layer: the zoom transition and a plain opaque present are both
-    // "this frame's entire background" content and never active together
-    // (frontzoom_to_point() is the landview screen's own background draw;
-    // nothing else calls Submit() with PRESENT_KIND_OPAQUE while it's
-    // running) -- zoom takes priority if somehow both fired the same frame.
+    // Base layer: the zoom transition and the plain opaque present(s) are
+    // both "this frame's entire background" content and never active
+    // together (frontzoom_to_point() is the landview screen's own
+    // background draw; nothing else calls Submit() with PRESENT_KIND_OPAQUE
+    // while it's running) -- zoom takes priority if somehow both fired the
+    // same frame.
     if (m_rt_zoom_cmd.active && zoom_shader_prog)
     {
         upload_zoom_texture();
@@ -441,25 +491,30 @@ void GLImagePresentPass::Resolve(int screen_w, int screen_h)
             glBindTexture(GL_TEXTURE_2D, 0);
         }
     }
-    else if (m_rt_cmd.active)
+    else if (!m_rt_cmds.empty())
     {
-        upload_texture();
-        const GLTexture* tex = m_resource_mapper->ResolveTexture(m_tex_handle);
-        if (tex != nullptr)
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Composited in submission order -- see m_cmds' own comment. Each
+        // entry draws through its own texture slot (m_opaque_slots[i]).
+        for (size_t i = 0; i < m_rt_cmds.size() && i < m_opaque_slots.size(); ++i)
         {
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            upload_opaque_texture(i);
+            const GLTexture* tex = m_resource_mapper->ResolveTexture(m_opaque_slots[i].tex_handle);
+            if (tex == nullptr)
+                continue;
 
             GLuint palette_tex = palette_tex_id;
-            if (m_rt_cmd.palette == PRESENT_PALETTE_EMBEDDED)
+            if (m_rt_cmds[i].palette == PRESENT_PALETTE_EMBEDDED)
             {
-                upload_embedded_palette();
+                upload_embedded_palette(m_rt_cmds[i].embedded_palette);
                 const GLTexture* embedded_tex = m_resource_mapper->ResolveTexture(m_embedded_palette_tex_handle);
                 if (embedded_tex != nullptr)
                     palette_tex = embedded_tex->id;
             }
             draw_quad(shader, tex->id, palette_tex,
-                     m_rt_cmd.dst_x, m_rt_cmd.dst_y, m_rt_cmd.dst_w, m_rt_cmd.dst_h,
+                     m_rt_cmds[i].dst_x, m_rt_cmds[i].dst_y, m_rt_cmds[i].dst_w, m_rt_cmds[i].dst_h,
                      screen_w, screen_h);
         }
     }
@@ -467,19 +522,31 @@ void GLImagePresentPass::Resolve(int screen_w, int screen_h)
     // Transparent overlay (window-frame): drawn over whatever's already on
     // screen this frame -- the base/zoom layer above, or (if neither was
     // active) whatever the rest of the frame already put there. No clear.
-    const GLProgram* transparent_shader_prog = m_resource_mapper->ResolveProgram(m_transparent_shader_handle);
+    // Uses the coverage shader/texture instead of the index-0-key one when
+    // the command carries an explicit coverage map (see IRImagePresentCmd::
+    // coverage) -- otherwise unchanged.
+    const bool use_coverage = !m_rt_overlay_cmd.coverage.empty();
+    const GLProgram* transparent_shader_prog = m_resource_mapper->ResolveProgram(
+        use_coverage ? m_coverage_shader_handle : m_transparent_shader_handle);
     if (m_rt_overlay_cmd.active && transparent_shader_prog)
     {
         upload_overlay_texture();
         const GLTexture* overlay_tex = m_resource_mapper->ResolveTexture(m_overlay_tex_handle);
-        if (overlay_tex != nullptr)
+        GLuint coverage_tex_id = 0;
+        if (use_coverage)
+        {
+            upload_overlay_coverage_texture();
+            const GLTexture* coverage_tex = m_resource_mapper->ResolveTexture(m_coverage_tex_handle);
+            coverage_tex_id = coverage_tex ? coverage_tex->id : 0;
+        }
+        if (overlay_tex != nullptr && (!use_coverage || coverage_tex_id != 0))
         {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             draw_quad(transparent_shader_prog->id, overlay_tex->id, palette_tex_id,
                      m_rt_overlay_cmd.dst_x, m_rt_overlay_cmd.dst_y,
                      m_rt_overlay_cmd.dst_w, m_rt_overlay_cmd.dst_h,
-                     screen_w, screen_h);
+                     screen_w, screen_h, coverage_tex_id);
             glDisable(GL_BLEND);
         }
     }

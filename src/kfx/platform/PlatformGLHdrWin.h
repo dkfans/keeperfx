@@ -3,16 +3,12 @@
 
 struct SDL_Window;
 
-#ifdef _WIN32
 // Windows/DXGI HDR-compositor bookkeeping for the OpenGL backend.
 //
 // DXGI can engage "Independent Flip" (direct scanout) for a GL swapchain
 // that covers the full primary display. Independent Flip bypasses the DWM
 // HDR compositor, silently switching an HDR-enabled monitor to SDR at the
-// first buffer swap -- which reads to a player as "the colours are wrong",
-// with no error or log line to explain why. This ties a small always-on
-// compositor anchor + colour-space watcher (ported from develop's
-// platform_gl_sdl3.cpp) into this branch's own window/renderer split.
+// first buffer swap
 //
 // Thread contract: OnContextReady()/Shutdown() must run on the thread that
 // owns the SDL window (Win32 HWNDs are thread-affine -- DestroyWindow fails
@@ -25,6 +21,5 @@ struct SDL_Window;
 void PlatformGLHdrWin_OnContextReady(SDL_Window* window, bool desktop_fullscreen);
 void PlatformGLHdrWin_Tick();
 void PlatformGLHdrWin_Shutdown();
-#endif // _WIN32
 
 #endif // PLATFORM_GL_HDR_WIN_H

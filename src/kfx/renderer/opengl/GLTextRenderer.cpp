@@ -1,6 +1,10 @@
 #include "pre_inc.h"
 #include "kfx/renderer/opengl/GLTextRenderer.h"
 #include "kfx/renderer/opengl/GLUIRenderer.h"
+#include "kfx/renderer/opengl/GLFunctions.h" // glScissor/GL_SCISSOR_TEST
+#ifdef DrawState
+#undef DrawState // winuser.h's DrawState[AW] macro, pulled in transitively via SDL3/SDL_opengl.h -> windows.h; collides with this file's own DrawState struct
+#endif
 #include "kfx/renderer/ir/TextCommands.h"
 #include "kfx/renderer/RendererManager.h"
 #include "bflib_sprfnt.h"
@@ -25,9 +29,6 @@ float text_alpha_from_draw_flags(uint32_t draw_flags)
     return 1.0f;
 }
 
-// Explicit-font line height, mirroring LbTextLineHeight()'s dbc/western
-// branch but taking the font as a parameter instead of reading
-// lbFontPtr/active_dbcfont (see TextCommands.h's snapshot-safety comment).
 float LineHeightExplicit(const struct TbSpriteSheet* font, const struct AsianFont* dbc_font)
 {
     return dbc_font ? (float)LbDbcCharHeight(dbc_font) : (float)LbSprFontCharHeight(font, ' ');
@@ -38,11 +39,10 @@ void GLTextRenderer::DrawGlyphs(const IRTextDrawCmd& cmd)
 {
     if (!m_ui) return;
 
-    // Once GL genuinely threads (P5.6), this replay runs on the render
+    // TODO : Once GL genuinely threads, this replay runs on the render
     // thread while the game thread may already be building the next frame --
-    // if a font reload happened in that gap, cmd.font is a dangling
-    // TbSpriteSheet* (the same class of bug the Phase 4 cursor fix was
-    // about). Mirrors ITextRenderer::ReplayTextCommand's identical guard.
+    // if a font reload happened in that gap, Mirrors ITextRenderer::ReplayTextCommand's identical guard.
+    // prevents dangling pointer.
     if (cmd.font_generation != LbTextGetFontGeneration())
         return;
 
@@ -51,16 +51,25 @@ void GLTextRenderer::DrawGlyphs(const IRTextDrawCmd& cmd)
     if (!font && !dbc_font) return;
 
     DrawState state{ cmd.draw_colour, cmd.draw_flags };
+
+    const int screen_h = m_ui ? m_ui->GetScreenHeight() : 0;
+    const int sx = cmd.clip_x;
+    const int sy = screen_h - (cmd.clip_y + cmd.clip_h); // top-left origin -> GL's bottom-left
+    const int sw = cmd.clip_w;
+    const int sh = cmd.clip_h;
+    const bool scissor_valid = (sw > 0) && (sh > 0);
+    if (scissor_valid)
+    {
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(sx, sy, sw, sh);
+    }
+
     LayoutAndDraw(cmd, font, dbc_font, state);
+
+    if (scissor_valid)
+        glDisable(GL_SCISSOR_TEST);
 }
 
-// Mirrors LbTextDrawResizedImmediate()'s word-wrap loop (bflib_sprfnt.c),
-// which GL can't call directly -- it draws straight into the software
-// framebuffer. Operates purely on cmd's already-snapshotted fields plus the
-// explicit-font measurement helpers in bflib_sprfnt.h/.c, never the live
-// lbFontPtr/lbTextJustifyWindow/lbTextClipWindow/active_dbcfont globals
-// those functions read (this call can run out of step with the game thread
-// once GL genuinely threads).
 void GLTextRenderer::LayoutAndDraw(const IRTextDrawCmd& cmd, const struct TbSpriteSheet* font,
                                    const struct AsianFont* dbc_font, DrawState& state)
 {
@@ -74,12 +83,6 @@ void GLTextRenderer::LayoutAndDraw(const IRTextDrawCmd& cmd, const struct TbSpri
         return (float)LbTextWordWidthExplicit(font, dbc_font, dbc_font != nullptr, s, ups);
     };
     auto is_duospace = [&](uint32_t chr) -> bool {
-        // Only meaningful once DBC is actually active -- active_dbcfont is
-        // always non-null on this branch (LbTextSetFont() sets it
-        // unconditionally), so gating on dbc_font here (rather than
-        // replicating is_duospace_char()'s unconditional check) avoids
-        // resetting the word-boundary counter for stray >=0xFF codepoints
-        // in ordinary western text, which never matters in practice.
         return dbc_font && LbDbcIsDuospaceChar(dbc_font, chr);
     };
 
@@ -91,17 +94,23 @@ void GLTextRenderer::LayoutAndDraw(const IRTextDrawCmd& cmd, const struct TbSpri
     float starty = (float)cmd.pos_y + justifyy;
     const float justify_w = (float)cmd.justify_w;
 
-    // LbTextDrawResizedImmediate() computes posx/starty (and everything
-    // derived from them below) in a coordinate space local to
-    // lbTextClipWindow -- it draws through a graphics window rebased to
-    // (clip_x, clip_y), so the software renderer's actual screen position is
-    // clip_x/clip_y + local coordinate. GL has no such window-offset
-    // concept -- DrawGlyphQuad()/DrawSolidRect() take absolute screen
-    // pixels -- so clip_x/clip_y have to be added back in explicitly at the
-    // point a local (x, y) is materialized into an actual draw call
-    // (FlushSegment() below), even though they're otherwise not needed for
-    // any of the wrap/justify math itself (which the original algorithm
-    // performs entirely in that same local space).
+    auto justified_char_pos_x = [&](float startx_l, float all_chars_width, float spr_width, float mul_width) -> float {
+        const unsigned short flags = (unsigned short)state.flags;
+        if (flags & Lb_TEXT_HALIGN_RIGHT)
+            return startx_l + (justify_w + justifyx + mul_width * spr_width - all_chars_width);
+        if (flags & Lb_TEXT_HALIGN_CENTER)
+            return startx_l + (justify_w + justifyx + mul_width * spr_width - all_chars_width) / 2.0f;
+        return startx_l; // LEFT, JUSTIFY (justify only adjusts width, not the anchor), and no flag set
+    };
+    auto justified_char_width = [&](float all_chars_width, float spr_width, long words_count) -> float {
+        if (!((unsigned short)state.flags & Lb_TEXT_HALIGN_JUSTIFY))
+            return spr_width;
+        const float space_width = char_width(' ');
+        if (words_count > 0)
+            return spr_width + (justify_w + justifyx + space_width - all_chars_width) / (float)words_count;
+        return spr_width;
+    };
+
     const float clip_x = (float)cmd.clip_x;
     const float clip_y = (float)cmd.clip_y;
 
@@ -131,10 +140,9 @@ void GLTextRenderer::LayoutAndDraw(const IRTextDrawCmd& cmd, const struct TbSpri
             // built so far and wrap to the next line.
             w = char_width(' ');
             posx += w;
-            long lstartx = (long)startx, lposx = (long)posx, lw = (long)w;
-            float x = (float)LbGetJustifiedCharPosX(lstartx, lposx, lw, 1, (unsigned short)state.flags);
+            float x = justified_char_pos_x(startx, posx, w, 1.0f);
             float y = (float)LbGetJustifiedCharPosY((long)starty, (long)h, (long)h, (unsigned short)state.flags);
-            float len = (float)LbGetJustifiedCharWidth(lposx, lw, count, ups, (unsigned short)state.flags);
+            float len = justified_char_width(posx, w, count);
             FlushSegment(sbuf, seg_break, x + clip_x, y + clip_y, len, ups, font, dbc_font, cmd, state);
             posx = startx;
             sbuf = seg_break;
@@ -153,9 +161,9 @@ void GLTextRenderer::LayoutAndDraw(const IRTextDrawCmd& cmd, const struct TbSpri
                 continue;
             }
             posx += w;
-            float x = (float)LbGetJustifiedCharPosX((long)startx, (long)posx, (long)w, 1, (unsigned short)state.flags);
+            float x = justified_char_pos_x(startx, posx, w, 1.0f);
             float y = (float)LbGetJustifiedCharPosY((long)starty, (long)h, (long)h, (unsigned short)state.flags);
-            float len = (float)LbGetJustifiedCharWidth((long)posx, (long)w, count, ups, (unsigned short)state.flags);
+            float len = justified_char_width(posx, w, count);
             FlushSegment(sbuf, ebuf, x + clip_x, y + clip_y, len, ups, font, dbc_font, cmd, state);
             if (LbAlignMethodSet((unsigned short)state.flags))
             {
@@ -167,7 +175,7 @@ void GLTextRenderer::LayoutAndDraw(const IRTextDrawCmd& cmd, const struct TbSpri
         }
         else if (chr == '\n')
         {
-            float x = (float)LbGetJustifiedCharPosX((long)startx, (long)posx, 0, 1, (unsigned short)state.flags);
+            float x = justified_char_pos_x(startx, posx, 0.0f, 1.0f);
             float len = char_width(' ');
             float y = starty;
             FlushSegment(sbuf, ebuf, x + clip_x, y + clip_y, len, ups, font, dbc_font, cmd, state);
@@ -187,9 +195,9 @@ void GLTextRenderer::LayoutAndDraw(const IRTextDrawCmd& cmd, const struct TbSpri
                 count += spaces_per_tab;
                 continue;
             }
-            float x = (float)LbGetJustifiedCharPosX((long)startx, (long)posx, (long)w, spaces_per_tab, (unsigned short)state.flags);
+            float x = justified_char_pos_x(startx, posx, w, (float)spaces_per_tab);
             float y = (float)LbGetJustifiedCharPosY((long)starty, (long)h, (long)h, (unsigned short)state.flags);
-            len = (float)LbGetJustifiedCharWidth((long)posx, (long)w, count, ups, (unsigned short)state.flags);
+            len = justified_char_width(posx, w, count);
             FlushSegment(sbuf, ebuf, x + clip_x, y + clip_y, len, ups, font, dbc_font, cmd, state);
             if (LbAlignMethodSet((unsigned short)state.flags))
             {
@@ -201,10 +209,6 @@ void GLTextRenderer::LayoutAndDraw(const IRTextDrawCmd& cmd, const struct TbSpri
         }
         else if ((chr == DKChr_AlignLeft) || (chr == DKChr_AlignRight) || (chr == DKChr_AlignCenter))
         {
-            // DKChr_AlignJustify shares the value of '\t' (see the enum's own
-            // comment in bflib_sprfnt.h) -- the '\t' branch above already
-            // claims that value, matching LbTextDrawResizedImmediate's own
-            // if/else-if precedence exactly.
             if (posx - justifyx > justify_w)
             {
                 float len = char_width(' ');
@@ -214,43 +218,21 @@ void GLTextRenderer::LayoutAndDraw(const IRTextDrawCmd& cmd, const struct TbSpri
                 count = 0;
                 starty += h;
             }
-            // Switches on chr (the align code just matched), not the next
-            // byte -- LbTextDrawResizedImmediate's own switch reads *ebuf at
-            // this point instead, which is the byte AFTER this align code
-            // and only coincidentally matches one of these cases. develop's
-            // ported shared layout engine (ITextRenderer::TextLayout()) uses
-            // chr here too, so this matches its evidently-intentional fix
-            // rather than perpetuating what reads as an oversight in the
-            // original immediate-mode function (still used verbatim by the
-            // software renderer, unchanged by this port).
             switch (chr)
             {
-            case DKChr_AlignLeft:   state.flags ^= Lb_TEXT_HALIGN_LEFT;   break;
-            case DKChr_AlignRight:  state.flags ^= Lb_TEXT_HALIGN_RIGHT;  break;
-            case DKChr_AlignCenter: state.flags ^= Lb_TEXT_HALIGN_CENTER; break;
+                case DKChr_AlignLeft:   state.flags ^= Lb_TEXT_HALIGN_LEFT;   break;
+                case DKChr_AlignRight:  state.flags ^= Lb_TEXT_HALIGN_RIGHT;  break;
+                case DKChr_AlignCenter: state.flags ^= Lb_TEXT_HALIGN_CENTER; break;
             }
         }
-        // else: embedded colour-marker codepoints (>0xF100) already fall
-        // into the chr>32 branch above (0 width, no wrap decision -- same as
-        // the original); other control codes (transpar/outline/flip/
-        // underline/one-colour toggles, 1-5 and 11-14) are pure passthrough
-        // at this layout level, exactly like LbTextDrawResizedImmediate's
-        // own if/else-if chain (no final else) -- FlushSegment() interprets
-        // them when it re-scans this segment's text range.
     }
 
-    float x = (float)LbGetJustifiedCharPosX((long)startx, (long)posx, 0, 1, (unsigned short)state.flags);
+    float x = justified_char_pos_x(startx, posx, 0.0f, 1.0f);
     float y = (float)LbGetJustifiedCharPosY((long)starty, (long)h, (long)h, (unsigned short)state.flags);
     float len = char_width(' ');
     FlushSegment(sbuf, ebuf, x + clip_x, y + clip_y, len, ups, font, dbc_font, cmd, state);
 }
 
-// Mirrors put_down_sprites() (bflib_sprfnt.c): draws one already-wrapped
-// line segment [sbuf, ebuf), interpreting embedded colour-marker and
-// toggle-flag control codes as it scans -- these mutate `state`, which
-// persists across FlushSegment() calls within the same DrawGlyphs() call
-// (matching how the software path mutates RendererGetDrawColour()/
-// RendererGetDrawFlags() in place).
 void GLTextRenderer::FlushSegment(const char* sbuf, const char* ebuf, float x, float y,
                                   float space_len, int units_per_px,
                                   const struct TbSpriteSheet* font, const struct AsianFont* dbc_font,
@@ -304,14 +286,6 @@ void GLTextRenderer::FlushSegment(const char* sbuf, const char* ebuf, float x, f
     }
 }
 
-// Mirrors draw_simpletext_char()'s exact mode selection: the DEFAULT case
-// (neither ONE_COLOR nor REMAP set -- the common one, plain menu/HUD text)
-// shows the glyph in its own baked-in palette colour, no substitution at
-// all. Only Lb_TEXT_ONE_COLOR opts into a solid draw_colour override.
-// Lb_TEXT_REMAP (a fade_table index substitution) isn't ported here yet --
-// falls back to the default, unremapped glyph colour rather than drawing
-// something actively wrong; a disclosed gap, not silently different from
-// develop.
 float GLTextRenderer::DrawWesternGlyph(const struct TbSpriteSheet* font, uint32_t chr,
                                        float x, float y, int units_per_px, const DrawState& state)
 {
@@ -342,14 +316,6 @@ float GLTextRenderer::DrawWesternGlyph(const struct TbSpriteSheet* font, uint32_
     return w;
 }
 
-// Mirrors draw_dbc_char()/dbc_draw_font_sprite_text()'s colour selection and
-// shadow pass. The GL glyph atlas caches the bitmap at native (16 units-per-
-// px baseline) resolution -- DrawGlyphQuad() scales the quad geometry by
-// units_per_px itself, so unlike the CPU path (which manually resamples the
-// bitmap for non-16 scales), position metadata (vertical_offset, character
-// spacing) is scaled here but the shadow's 1-pixel offset is not -- it's a
-// flat output-pixel offset in the CPU path too, applied after that path's
-// own resampling.
 float GLTextRenderer::DrawDbcGlyph(const struct AsianFont* dbc_font, uint32_t chr,
                                    float x, float y, int units_per_px, const DrawState& state,
                                    long face_colour, long shadow_colour)
@@ -383,25 +349,16 @@ float GLTextRenderer::DrawDbcGlyph(const struct AsianFont* dbc_font, uint32_t ch
     const float scale = units_per_px / 16.0f;
     const float gy = y + (float)voffset * scale;
 
-    // Drop shadow, always drawn (this branch's dbc_colour1 is always a
-    // resolved palette index, never the "off" sentinel the CPU function
-    // also supports via a negative colr3).
+    // Drop shadow, always drawn
     m_ui->DrawGlyphQuad(handle, x + 1.0f, gy + 1.0f, units_per_px, sr, sg, sb, a, /*sample_palette=*/false);
     m_ui->DrawGlyphQuad(handle, x, gy, units_per_px, r, g, b, a, /*sample_palette=*/false);
 
-    // Mirrors draw_dbc_char()'s own (slightly odd, height==16-gated) advance
-    // width formula verbatim.
     float advance = (glyph_h == 16) ? (float)(spacing + glyph_w) * scale : (float)(spacing + glyph_w);
     if (state.flags & Lb_TEXT_UNDERLINE)
         EmitUnderline(x, y, advance, (float)LbDbcCharHeight(dbc_font) * scale, units_per_px, state);
     return advance;
 }
 
-// Mirrors LbDrawCharUnderline() (bflib_sprfnt.c) verbatim, including its
-// shadow-then-main stacking (the main loop continues decrementing `h` from
-// wherever the shadow loop left it, rather than resetting -- ported as-is,
-// not "fixed", since this determines the exact row layout of a double
-// underline/shadowed underline and nothing indicates it's unintentional).
 void GLTextRenderer::EmitUnderline(float x, float y, float w, float height, int units_per_px, const DrawState& state)
 {
     if (!(state.flags & Lb_TEXT_UNDERLINE) || w <= 0.0f || !m_ui)

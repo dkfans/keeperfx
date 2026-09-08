@@ -574,7 +574,7 @@ void draw_power_hand(void)
         {
             roomst = get_room_kind_stats(room->kind);
 
-            draw_gui_panel_sprite_centered(GetMouseX()+scale_ui_value(24*global_hand_scale), GetMouseY()+scale_ui_value(32*global_hand_scale), ps_units_per_px, roomst->medsym_sprite_idx);
+            draw_gui_panel_sprite_centered(GetMouseX()+scale_ui_value(24*global_hand_scale), GetMouseY()+scale_ui_value(32*global_hand_scale), ps_units_per_px, roomst->medsym_sprite_idx, 0);
         }
         if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
         {
@@ -1244,7 +1244,7 @@ void draw_mini_things_in_hand(long x, long y)
                     if (thing->owner != my_player_number)
                     {
                         ownshift_y = (irow == 0) ? 1 : 56;
-                        LbDrawCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[flash_color]);
+                        UIRenderer_SubmitCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[flash_color]);
                     }
                 }
                 else
@@ -1267,7 +1267,7 @@ void draw_mini_things_in_hand(long x, long y)
                                 // Draw the pixel if it's within the bounds of the window
                                 if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
                                 {
-                                    LbDrawPixel(draw_x, draw_y, player_flash_colours[flash_color]);
+                                    UIRenderer_SubmitSolidBox(draw_x, draw_y, 1, 1, player_flash_colours[flash_color]);
                                 }
                             }
                         }
@@ -1280,7 +1280,7 @@ void draw_mini_things_in_hand(long x, long y)
                                 // Draw the pixel if it's within the bounds of the window
                                 if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
                                 {
-                                    LbDrawPixel(draw_x, draw_y, player_path_colours[flash_color]);
+                                    UIRenderer_SubmitSolidBox(draw_x, draw_y, 1, 1, player_path_colours[flash_color]);
                                 }
                             }
                         }

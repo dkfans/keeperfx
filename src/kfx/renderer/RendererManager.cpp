@@ -1,5 +1,6 @@
 #include "pre_inc.h"
 #include "kfx/renderer/RendererManager.h"
+#include "kfx/renderer/RendererManager_Internal.h"
 #include "kfx/renderer/RendererSoftware.h"
 #include "kfx/renderer/RendererOpenGL.h"
 #include "bflib_basics.h"
@@ -13,7 +14,7 @@
 #include "kfx/lense/LensManager.h"
 #include "kfx/renderer/RendererSettings.h"
 #include "bflib_vidraw.h"   // LbSpriteDraw*Immediate, setup_vecs (world-view immediate fallback)
-#include "gui_draw.h"       // draw_slab64k_background_immediate
+#include "front_simple.h"   // copy_raw8_image_buffer (RendererPresentImage's software fallback)
 #include "engine_render.h"  // display_drawlist/display_fast_drawlist (world-view immediate fallback)
 #include <cstring>          // memcpy (s_last_palette_rgb8 buffering)
 #include "post_inc.h"
@@ -23,16 +24,6 @@ static RendererType s_active_type     = RENDERER_INVALID;
 static unsigned char s_draw_colour = 0;
 static unsigned short s_draw_flags = 0;
 
-// Last 8-bit display palette passed to RendererSetDisplayPalette(), kept
-// even when there's no active backend to receive it yet. LbScreenSetup()
-// calls RendererPaletteSet() -> RendererSetDisplayPalette() before
-// RendererInit() ever runs (setup_screen_mode_zero() in main.cpp, ahead of
-// RendererInit() by design -- see the window-lifecycle port), so the very
-// first palette set was previously just dropped on the floor for whichever
-// backend hadn't been created yet: RendererInit() replays this once the
-// backend exists, so a GL palette texture created with undefined content
-// (see RendererOpenGL.cpp's palette_tex comment) gets a real upload before
-// its first sample, not zero-initialized bytes that happen to be garbage.
 static unsigned char s_last_palette_rgb8[PALETTE_SIZE];
 static bool          s_have_last_palette = false;
 
@@ -63,9 +54,6 @@ unsigned int RendererGetRequiredWindowFlags(RendererType type)
 
 int RendererInit(RendererType type)
 {
-    // Initialise settings to defaults on first call (Beat 4, ported from
-    // develop). keeperfx.cfg parsing may override startup-only knobs before
-    // this function is reached; only reset if this is the first init.
     static int s_settings_initialised = 0;
     if (!s_settings_initialised) {
         RendererSettings_Reset();
@@ -198,9 +186,30 @@ void RendererEndFrame(void)
 
 TbBool RendererPresentImage(const struct RendererPresentImageDesc* desc)
 {
-    if (s_active_renderer == nullptr || desc == nullptr)
+    if (desc == nullptr || desc->src == nullptr)
         return 0;
-    return s_active_renderer->PresentImage(desc) ? 1 : 0;
+    if (s_active_renderer != nullptr && s_active_renderer->PresentImage(desc))
+        return 1;
+    // Backend declined (no GPU render path, e.g. software): fall back to the
+    // classic opaque game-palette CPU blit. Transparent overlays and the
+    // embedded-palette FMV case have no software equivalent here; their
+    // callers use backend-specific paths.
+    if (desc->format  != PRESENT_FORMAT_INDEXED8 ||
+        desc->kind    != PRESENT_KIND_OPAQUE     ||
+        desc->palette != PRESENT_PALETTE_GAME    ||
+        lbDisplay.WScreen == NULL)
+        return 0;
+    return copy_raw8_image_buffer(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight,
+        desc->dst_w, desc->dst_h, desc->dst_x, desc->dst_y, desc->src, desc->src_w, desc->src_h);
+}
+
+TbBool RendererSubmitZoomBoxTiles(const unsigned short* tile_block_ids, int tiles_x, int tiles_y,
+                                  int dst_x, int dst_y, int tile_w, int tile_h)
+{
+    if (s_active_renderer == nullptr || tile_block_ids == nullptr)
+        return 0;
+    return s_active_renderer->SubmitZoomBoxTiles(tile_block_ids, tiles_x, tiles_y,
+                                                 dst_x, dst_y, tile_w, tile_h) ? 1 : 0;
 }
 
 TbBool RendererSubmitLandviewZoom(const unsigned char *src_buf, int src_w, int src_h,
@@ -312,104 +321,38 @@ TbBool RendererTextDrawResized(int posx, int posy, int units_per_px, const char 
     return tr->DrawTextResized(posx, posy, units_per_px, text);
 }
 
-static IUIRenderer* active_ui_renderer(void)
+IUIRenderer* RendererGetActiveUIRenderer(void)
 {
     return (s_active_renderer != nullptr) ? s_active_renderer->GetUIRenderer() : nullptr;
 }
 
-/* The ambient draw state is what the caller set before the call, so it travels with
- * the submission and is reapplied if the draw is replayed later. */
-static KfxDrawState ambient_draw_state(void)
-{
-    return draw_state_make(RendererGetDrawFlags(), RendererGetDrawColour());
-}
-
-void RendererDrawSlabBackground(int32_t x, int32_t y, int32_t width, int32_t height)
-{
-    IUIRenderer* ui = active_ui_renderer();
-    if (ui == nullptr) { draw_slab64k_background_immediate(x, y, width, height); return; }
-    ui->SubmitSlabBackground((int32_t)x, (int32_t)y, (int32_t)width, (int32_t)height);
-}
-
-TbResult RendererDrawBox(int32_t x, int32_t y, uint32_t width, uint32_t height, unsigned char colour)
-{
-    IUIRenderer* ui = active_ui_renderer();
-    if (ui == nullptr) return LbDrawBoxImmediate(x, y, width, height, colour);
-    ui->SubmitSolidBox(x, y, (int32_t)width, (int32_t)height, colour, ambient_draw_state());
-    return Lb_SUCCESS;
-}
-
-TbResult RendererSpriteDraw(int32_t x, int32_t y, const struct TbSprite *spr)
-{
-    IUIRenderer* ui = active_ui_renderer();
-    if (ui == nullptr) return LbSpriteDrawImmediate(x, y, spr);
-    return ui->SubmitRawSprite(x, y, spr, ambient_draw_state());
-}
-
-TbResult RendererSpriteDrawOneColour(int32_t x, int32_t y, const struct TbSprite *spr, unsigned char colour)
-{
-    IUIRenderer* ui = active_ui_renderer();
-    if (ui == nullptr) return LbSpriteDrawOneColourImmediate(x, y, spr, colour);
-    return ui->SubmitRawSpriteOneColour(x, y, spr, colour, ambient_draw_state());
-}
-
-TbResult RendererSpriteDrawScaled(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h)
-{
-    IUIRenderer* ui = active_ui_renderer();
-    if (ui == nullptr) return LbSpriteDrawScaledImmediate(x, y, spr, w, h);
-    return ui->SubmitRawSpriteScaled(x, y, spr, w, h, ambient_draw_state());
-}
-
-TbResult RendererSpriteDrawScaledOneColour(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h, unsigned char colour)
-{
-    IUIRenderer* ui = active_ui_renderer();
-    if (ui == nullptr) return LbSpriteDrawScaledOneColourImmediate(x, y, spr, w, h, colour);
-    return ui->SubmitRawSpriteScaledOneColour(x, y, spr, w, h, colour, ambient_draw_state());
-}
-
-int RendererSpriteDrawScaledRemap(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h, const unsigned char *cmap)
-{
-    IUIRenderer* ui = active_ui_renderer();
-    if (ui == nullptr) return LbSpriteDrawScaledRemapImmediate(x, y, spr, w, h, cmap);
-    return ui->SubmitRawSpriteScaledRemap(x, y, spr, w, h, cmap, ambient_draw_state());
-}
-
-// Beat 5: bracket world-positioned UI content (creature status, room flags,
-// floating gold/damage text) so it submits into the WorldOverlay/
-// WorldOverlayFlat IR layers instead of always landing in GameUI -- ported
-// from develop's UIRenderer_BeginWorldOverlay()/EndWorldOverlay()/
-// BeginWorldOverlayFlat()/EndWorldOverlayFlat() bridges. No-op (not an
-// error) when no UI renderer is active, same as every other bridge here --
-// software doesn't need this layering distinction, so its no-op default
-// (IUIRenderer::SetWorldOverlay() etc.) is never even reached without a
-// real backend to call it through.
 void RendererSetWorldOverlay(float ndc_z)
 {
-    IUIRenderer* ui = active_ui_renderer();
+    IUIRenderer* ui = RendererGetActiveUIRenderer();
     if (ui != nullptr) ui->SetWorldOverlay(ndc_z);
 }
 
 void RendererClearWorldOverlay(void)
 {
-    IUIRenderer* ui = active_ui_renderer();
+    IUIRenderer* ui = RendererGetActiveUIRenderer();
     if (ui != nullptr) ui->ClearWorldOverlay();
 }
 
 void RendererSetWorldOverlayFlat(float ndc_z)
 {
-    IUIRenderer* ui = active_ui_renderer();
+    IUIRenderer* ui = RendererGetActiveUIRenderer();
     if (ui != nullptr) ui->SetWorldOverlayFlat(ndc_z);
 }
 
 void RendererClearWorldOverlayFlat(void)
 {
-    IUIRenderer* ui = active_ui_renderer();
+    IUIRenderer* ui = RendererGetActiveUIRenderer();
     if (ui != nullptr) ui->ClearWorldOverlayFlat();
 }
 
 void RendererUpdateSlabTexture(const unsigned char* data, int dim)
 {
-    IUIRenderer* ui = active_ui_renderer();
+    IUIRenderer* ui = RendererGetActiveUIRenderer();
     if (ui != nullptr) ui->UpdateSlabTexture(data, dim);
 }
 
@@ -422,28 +365,11 @@ void RendererAddDrawFlags(unsigned short flags) { s_draw_flags |= flags; }
 void RendererClearDrawFlags(unsigned short flags) { s_draw_flags &= ~flags; }
 void RendererToggleDrawFlags(unsigned short flags) { s_draw_flags ^= flags; }
 
-// Display property accessors (declared in the header but never implemented --
-// a partial de-globalisation left mid-way by the f2be58ea2b checkpoint commit,
-// which added these declarations plus ~19 RendererPhysicalWidth() call sites
-// without ever writing the .cpp bodies, causing a link error). develop has
-// fully de-globalised these (own statics, lbDisplay fields removed entirely);
-// this is the minimal-fix version -- thin passthroughs to the still-present
-// lbDisplay fields, zero behaviour change, so the existing call sites just
-// start working instead of pulling in develop's much larger field-removal
-// across ~19 files.
 TbScreenCoord RendererPhysicalWidth(void)  { return lbDisplay.PhysicalScreenWidth;  }
 TbScreenCoord RendererPhysicalHeight(void) { return lbDisplay.PhysicalScreenHeight; }
 TbScreenCoord RendererScreenWidth(void)    { return lbDisplay.GraphicsScreenWidth;  }
 TbScreenCoord RendererScreenHeight(void)   { return lbDisplay.GraphicsScreenHeight; }
 
-// Ported from develop's RendererManager.cpp (Beat 4). develop's own version
-// also rebuilds the sprite atlas when palette_mode changes and propagates
-// zoom_box_mode to a runtime selector -- both dropped here since neither has
-// a consumer on this branch (no truecolour atlas, no picture-in-picture
-// zoom-box), matching develop's own admission for the rest of this function
-// ("TODO: push shade/filter uniforms to the active world-view renderer" --
-// those are read directly from g_renderer_settings each frame by the GL
-// draw code instead, same as develop itself still does).
 void RendererApplySettings(const RendererSettings* s)
 {
     if (!s) return;
@@ -587,33 +513,48 @@ void RendererSubmitMapFadeStep(int tick_step, float display_step, TbBool fading_
         s_active_renderer->SubmitMapFadeStep(tick_step, display_step, fading_in != 0);
 }
 
-void RendererBeginParchmentCapture(void)
+void RendererBeginOverlayCapture(OverlayCaptureKind kind)
 {
     if (s_active_renderer != nullptr)
-        s_active_renderer->BeginParchmentCapture();
+        s_active_renderer->BeginOverlayCapture(kind);
 }
 
-void RendererEndParchmentCapture(void)
+void RendererEndOverlayCapture(OverlayCaptureKind kind)
 {
     if (s_active_renderer != nullptr)
-        s_active_renderer->EndParchmentCapture();
-}
-
-void RendererBeginSwipeOverlay(void)
-{
-    if (s_active_renderer != nullptr)
-        s_active_renderer->BeginSwipeOverlay();
-}
-
-void RendererEndSwipeOverlay(void)
-{
-    if (s_active_renderer != nullptr)
-        s_active_renderer->EndSwipeOverlay();
+        s_active_renderer->EndOverlayCapture(kind);
 }
 
 TbBool MapFadePass_SupportsNativeResolution(void)
 {
     return (s_active_renderer != nullptr) && s_active_renderer->MapFadeSupportsNativeResolution();
+}
+
+/******************************************************************************/
+/* Zoom-box ambient state                                                     */
+/******************************************************************************/
+
+static struct { int x0, y0, x1, y1; int active; } s_zoom_box_screen_rect = { 0, 0, 0, 0, 0 };
+
+void RendererSetZoomBoxScreenRect(int x0, int y0, int x1, int y1)
+{
+    s_zoom_box_screen_rect.x0 = x0;
+    s_zoom_box_screen_rect.y0 = y0;
+    s_zoom_box_screen_rect.x1 = x1;
+    s_zoom_box_screen_rect.y1 = y1;
+    s_zoom_box_screen_rect.active = 1;
+}
+
+void RendererClearZoomBoxScreenRect(void)
+{
+    s_zoom_box_screen_rect.active = 0;
+}
+
+int RendererPointInZoomBoxScreenRect(int x, int y)
+{
+    if (!s_zoom_box_screen_rect.active) return 0;
+    return (x >= s_zoom_box_screen_rect.x0 && x < s_zoom_box_screen_rect.x1 &&
+            y >= s_zoom_box_screen_rect.y0 && y < s_zoom_box_screen_rect.y1);
 }
 
 void RendererSubmitPossessionLens(long viewport_x, long viewport_y, long viewport_w, long viewport_h)

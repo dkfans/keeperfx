@@ -207,6 +207,19 @@ void IUIRenderer::SubmitSlabBackground(int32_t x, int32_t y, int32_t w, int32_t 
     draw_slab64k_background_immediate(x, y, w, h);
 }
 
+void IUIRenderer::BeginZoomBoxOverlay(int32_t x, int32_t y, int32_t w, int32_t h)
+{
+    LbScreenSetGraphicsWindow(x, y, w, h);
+    SetTopOverlay();
+}
+
+void IUIRenderer::EndZoomBoxOverlay(int32_t x, int32_t y, int32_t w, int32_t h)
+{
+    (void)x; (void)y; (void)w; (void)h;
+    ClearTopOverlay();
+    LbScreenSetGraphicsWindow(0, 0, RendererScreenWidth(), RendererScreenHeight());
+}
+
 /******************************************************************************/
 // Frame wiring
 

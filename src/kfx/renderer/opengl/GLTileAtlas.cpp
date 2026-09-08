@@ -23,16 +23,12 @@ bool GLTileAtlas::Init()
     if (m_initialized)
         return true;
 
-    // block_mem is a fixed-size array (always non-null); block_ptrs[0] is
-    // the real "textures loaded yet" signal.
-    if (block_ptrs[0] == nullptr)
+    if (block_ptrs[0] == nullptr || !level_textures_ready)
     {
-        SYNCDBG(7, "GLTileAtlas::Init — block_mem not ready (deferred until setup_stuff)");
+        SYNCDBG(7, "GLTileAtlas::Init — level texture data not ready yet");
         return false;
     }
 
-    // Allocate our own R8 scratch (1 byte/pixel — palette indices only).
-    // We do NOT call InitPacker() because we don't use the base-class RGBA8 decode.
     if (!m_r8_scratch)
     {
         m_r8_scratch = (uint8_t*)malloc((size_t)k_atlas_w * k_atlas_h);
@@ -43,8 +39,6 @@ bool GLTileAtlas::Init()
         }
     }
 
-    // Single GL_TEXTURE_2D_ARRAY: width × height × variations, GL_R8, via the
-    // GPU Resource Mapper (gpu-resource-mapper-spec.md Part 6.3).
     if (m_resource_mapper == nullptr)
     {
         ERRORLOG("GLTileAtlas::Init — no resource mapper set");
@@ -80,17 +74,12 @@ bool GLTileAtlas::Init()
 
 void GLTileAtlas::Free()
 {
-    // CPU-side scratch buffer -- unrelated to the mapper, still owned and
-    // freed here directly.
     if (m_r8_scratch)
     {
         free(m_r8_scratch);
         m_r8_scratch = nullptr;
     }
-    // GPU Resource Mapper: this runs inside RendererOpenGL::
-    // render_thread_cleanup() on the render thread -- RequestRelease() is
-    // game-thread-only, so the mapper-owned texture is not released here.
-    // ShutdownAll() destroys it unconditionally instead.
+    
     m_initialized = false;
 }
 

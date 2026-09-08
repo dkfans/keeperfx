@@ -1,12 +1,19 @@
 #ifndef RENDERER_IRENDERER_H
 #define RENDERER_IRENDERER_H
 
+#include <cstdint>
+
 // Selectable renderer backends.
 enum RendererType {
     RENDERER_INVALID  = -1,
     RENDERER_AUTO     = 0,  // pick the best available backend at startup
     RENDERER_SOFTWARE = 1,  // CPU software renderer, SDL display output
     RENDERER_OPENGL   = 2,  // OpenGL backend
+};
+
+enum OverlayCaptureKind {
+    OVERLAY_CAPTURE_PARCHMENT = 0,
+    OVERLAY_CAPTURE_SWIPE     = 1,
 };
 
 // Backend-agnostic renderer interface. Grown as drawing migrates behind the seam.
@@ -33,32 +40,26 @@ public:
     virtual unsigned char* LockFramebuffer(int* out_pitch) { (void)out_pitch; return nullptr; }
     virtual void UnlockFramebuffer() {}
 
-    // Declares whether this backend draws through a real GPU pipeline.
-    // Governs whether RendererBeginFrame()'s bridge additionally locks the
-    // CPU framebuffer for legacy direct-blit callers (software: yes; GL: no
-    // -- GL content goes through the IR/bridge submission calls instead).
     struct BackendCapabilities { int hasGPURenderPath = 0; };
     virtual BackendCapabilities GetCapabilities() const { return BackendCapabilities{}; }
 
-    // Per-frame bracket, replacing the old Lock/Unlock-as-readiness-check
-    // pattern. Call once before submitting any drawing for a frame, once
-    // after. GL succeeds unconditionally once initialised (no CPU pointer
-    // involved -- content is already IR/bridge-submitted); software wraps
-    // its own LockFramebuffer()/UnlockFramebuffer().
     virtual bool BeginFrame() = 0;
     virtual void EndFrame() = 0;
 
     // Present a raw indexed8 image (FMV frame, splash bitmap) at a
     // destination rect. Returns true if the backend drew it (GPU path
-    // taken) -- false means the caller must fall back to its own existing
-    // CPU blit into lbDisplay.WScreen (valid after BeginFrame() locked it
-    // for non-GPU backends). Default: always false (software's answer).
+    // taken). // Todo : software calls this instead
     virtual bool PresentImage(const struct RendererPresentImageDesc* desc) { (void)desc; return false; }
 
-    // Submit the landview zoom-in/out transition frame (Beat 10,
-    // frontzoom_to_point()). Returns true if the backend accepted it (GPU
-    // path taken) -- false means the caller must run its own CPU zoom loop.
-    // Default: always false (software's answer).
+    // Submit the zoom box's terrain as texture-block-indexed tiles
+    virtual bool SubmitZoomBoxTiles(const uint16_t* tile_block_ids, int tiles_x, int tiles_y,
+                                    int dst_x, int dst_y, int tile_w, int tile_h)
+    {
+        (void)tile_block_ids; (void)tiles_x; (void)tiles_y;
+        (void)dst_x; (void)dst_y; (void)tile_w; (void)tile_h;
+        return false;
+    }
+
     virtual bool SubmitLandviewZoom(const unsigned char* src_buf, int src_w, int src_h,
                                     float center_map_x, float center_map_y,
                                     float screen_cx,    float screen_cy,
@@ -79,35 +80,12 @@ public:
     virtual class ICursorLayer*       GetCursorLayer()       { return nullptr; }
     virtual class IWorldViewRenderer* GetWorldViewRenderer() { return nullptr; }
 
-    // Parchment transition (P5.8b). Default no-ops -- software has no GPU
-    // pass; its own CPU map_fade() (engine_redraw.c) is unaffected either
-    // way, so these are safe to call unconditionally regardless of backend.
-    // SubmitMapFadeStep() mirrors the world/lens bridges' shape (game
-    // thread, called every frame the transition is active). Begin/EndParchmentCapture()
-    // redirect UI/text submission into a separate buffer for exactly one
-    // call (prepare_map_fade_buffers()'s redraw_minimal_overhead_view()) --
-    // see GLMapFadePass.h for why. MapFadeSupportsNativeResolution() gates
-    // gui_parchment.c's software-only resolution cap.
-    // `tick_step` is software's own discrete palette_fade_step (0..32, step
-    // 4) -- used only to detect the transition's first frame, exactly as
-    // before. `display_step` is the (possibly Ft_DeltaTime-interpolated,
-    // continuous) value GL actually composites with; software ignores it.
     virtual void SubmitMapFadeStep(int tick_step, float display_step, bool fading_in)
         { (void)tick_step; (void)display_step; (void)fading_in; }
-    virtual void BeginParchmentCapture() {}
-    virtual void EndParchmentCapture() {}
     virtual bool MapFadeSupportsNativeResolution() const { return false; }
 
-    // Possession-mode swipe-attack overlay (Beat 2). Same shape as Begin/
-    // EndParchmentCapture() above -- redirect UI submission into a separate
-    // buffer for exactly one call (draw_swipe_graphic(), thing_creature.c),
-    // drawn back by the backend at a point that composites correctly (for
-    // GL: inside the lens FBO bracket, so it gets lens-distorted like
-    // develop's does -- see RendererOpenGL::FGFlushSwipeOverlay()). Default
-    // no-op for software: it draws immediately in the same call, already at
-    // the right point in the frame, no redirect needed.
-    virtual void BeginSwipeOverlay() {}
-    virtual void EndSwipeOverlay() {}
+    virtual void BeginOverlayCapture(OverlayCaptureKind kind) { (void)kind; }
+    virtual void EndOverlayCapture(OverlayCaptureKind kind) { (void)kind; }
 };
 
 #endif // RENDERER_IRENDERER_H

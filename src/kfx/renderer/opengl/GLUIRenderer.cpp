@@ -22,11 +22,6 @@ namespace {
 
 // TRANSPAR4/8 aren't a real alpha blend on the CPU path -- they dither
 // through a palette-index blend table (pixmap.ghost, bflib_vidraw_spr_norm.c)
-// with no GL equivalent -- so, matching develop's own approximation for this
-// same flag pair, treat them as flat alpha instead. Values match develop's
-// RendererSettings defaults (transpar4_alpha/transpar8_alpha) -- this branch
-// doesn't have that config module yet (see the plan doc's config-module
-// note), so these are fixed constants, not user-configurable, until it does.
 constexpr float kTranspar4Alpha = 0.5f;
 constexpr float kTranspar8Alpha = 0.25f;
 
@@ -119,8 +114,6 @@ bool GLUIRenderer::Init()
         || !ResolveShaderId(m_shader_remap_handle) || !ResolveShaderId(m_shader_solid_handle))
         return false;
 
-    // Single-quad immediate path (text glyphs, cursor): exactly one quad
-    // (6 verts) of dynamic storage.
     GpuGeometryBufferDesc geom_desc;
     geom_desc.vertex_stride = 9 * (uint32_t)sizeof(float);
     geom_desc.attribs = UIVertexAttribs();
@@ -131,10 +124,6 @@ bool GLUIRenderer::Init()
     if (m_resource_mapper->ResolveGeometryBuffer(m_geom_handle) == nullptr)
         return false;
 
-    // Beat 5: separate, larger scratch VAO/VBO for batched layer draws (world
-    // overlay / world overlay flat / game UI) -- m_geom_handle above stays
-    // sized for exactly one quad, used by the unrelated single-quad
-    // immediate path. Same attribute layout, bigger capacity.
     GpuGeometryBufferDesc batch_desc;
     batch_desc.vertex_stride = 9 * (uint32_t)sizeof(float);
     batch_desc.attribs = UIVertexAttribs();
@@ -148,13 +137,7 @@ bool GLUIRenderer::Init()
     return true;
 }
 
-void GLUIRenderer::Shutdown()
-{
-    // GPU Resource Mapper: this runs inside RendererOpenGL::
-    // render_thread_cleanup() on the render thread -- RequestRelease() is
-    // game-thread-only, so none of the mapper-owned resources above are
-    // released here. ShutdownAll() destroys them unconditionally instead.
-}
+void GLUIRenderer::Shutdown() { }
 
 SpriteHandle GLUIRenderer::ResolveSprite(const struct TbSprite* spr)
 {
@@ -246,13 +229,6 @@ void GLUIRenderer::DrawGlyphQuad(SpriteHandle glyph, float x, float y, int units
     SpriteUV uv;
     if (!m_atlas || !m_atlas->GetUV(glyph, uv))
     {
-        // Diagnostic-only: text glyphs and the cursor both draw through this
-        // function (GLTextRenderer/GLCursorLayer), unlike regular UI sprites
-        // (GLUIRenderer::DrawFromIR's K_Sprite case, which uses the same
-        // GetUV() and is confirmed working) -- if glyph/cursor handles are
-        // failing this lookup specifically, this is the one place that would
-        // otherwise silently swallow it every single frame. Logged once per
-        // handle, not once per call.
         static std::unordered_set<SpriteHandle> s_logged;
         if (m_atlas && s_logged.insert(glyph).second)
             WARNLOG("GLUIRenderer::DrawGlyphQuad: GetUV(handle=%u) failed -- glyph/cursor not in atlas", (unsigned)glyph);
@@ -329,16 +305,7 @@ void GLUIRenderer::FlushPendingSlabUpload()
     m_slab_pending_data.store(nullptr, std::memory_order_relaxed);
     m_slab_pending_dim.store(0, std::memory_order_relaxed);
 
-    if (!m_resource_mapper) return;
-
-    // GPU Resource Mapper: the slab tile's dimension is a fixed compile-time
-    // constant in practice (GUI_SLAB_DIMENSION, gui_draw.h) -- this is a
-    // content update, not a resize, matching the mapper spec's mist-texture
-    // guidance (Part 6.7): create the slot once (render thread; RequestCreate*
-    // has no thread assert), then only ever resolve + subimage-upload on
-    // later calls. If dim ever genuinely changed at runtime, that would need
-    // a game-thread-requested RequestReloadTexture instead -- not built here
-    // since nothing exercises that path today.
+    if (!m_resource_mapper) return; 
     if (m_slab_tex_handle == kInvalidGpuResource)
     {
         GpuTextureDesc desc;
@@ -364,10 +331,7 @@ void GLUIRenderer::FlushPendingSlabUpload()
     }
 
     // Substitute index 0 -> 1: sprites treat palette index 0 as transparent
-    // (UI_SPRITE_FRAGMENT_SHADER, reused for PASS_SLAB, discards it), but the
-    // slab tile must render fully opaque -- matches the CPU path's
-    // draw_slab64k_background_immediate() (gui_draw.c), which memcpy's every
-    // byte of gui_slab verbatim with no transparency concept at all.
+    // (UI_SPRITE_FRAGMENT_SHADER, reused for PASS_SLAB, discards it).
     const int total = dim * dim;
     std::vector<uint8_t> slab_buf((size_t)total);
     for (int k = 0; k < total; ++k)
@@ -699,13 +663,12 @@ void GLUIRenderer::DrawWorldOverlayFlatLayerRT()
     FlushQuadLayer(m_quads[(int)IRUILayer::WorldOverlayFlat], /*depth_test=*/false);
 }
 
-// Shared by DrawGameUILayerRT() (the real per-frame m_quads[] path) and
-// DrawFromIR() (a local, one-shot quad vector for standalone buffers) --
-// merges already seq-ordered quads with text draws by seq (same cross-
-// family interleaving this renderer always did), batching consecutive
-// same-pass quads instead of issuing one draw call per quad. A text draw
-// always breaks the current run (text isn't part of the UIQuad/mode
-// system, see the class comment). Clears `quads` when done.
+void GLUIRenderer::DrawFrontOverlay()
+{
+    FlushQuadLayer(m_quads[(int)IRUILayer::Overlay], /*depth_test=*/false);
+}
+
+// Dodge, Duck, Dip, Dive and Dodge
 void GLUIRenderer::DrawGameUIQuadsInterleaved(std::vector<UIQuad>& quads,
                                               const TextCommandBuffers& text,
                                               GLTextRenderer* text_renderer)
@@ -758,19 +721,11 @@ void GLUIRenderer::DrawGameUILayerRT(const TextCommandBuffers& text, GLTextRende
 void GLUIRenderer::DrawFromIR(const UICommandBuffers& ui, const TextCommandBuffers& text,
                               GLTextRenderer* text_renderer)
 {
-    // Self-contained buffer (currently only fd.swipe_cmds -- see the class
-    // comment): local quad arrays, never touching the per-frame m_quads[]
-    // state, which may be mid-frame (built but not yet fully flushed) when
-    // this runs -- FGFlushSwipeOverlay() fires between FGClearFrame()'s
-    // BuildQuadsFromIR() and the 3 Draw*LayerRT() calls that drain it.
     std::vector<UIQuad> local[kLayerCount];
     AppendQuadsFromIR(ui, local);
 
-    // Swipe (and any other standalone buffer) never sets ambient world-
-    // overlay state, so local[WorldOverlay]/[WorldOverlayFlat] are always
-    // empty in practice -- flushed anyway for correctness if that ever
-    // changes, in the same relative order the frame graph uses.
     FlushQuadLayer(local[(int)IRUILayer::WorldOverlay], /*depth_test=*/true);
     FlushQuadLayer(local[(int)IRUILayer::WorldOverlayFlat], /*depth_test=*/false);
     DrawGameUIQuadsInterleaved(local[(int)IRUILayer::GameUI], text, text_renderer);
+    FlushQuadLayer(local[(int)IRUILayer::Overlay], /*depth_test=*/false);
 }
