@@ -10,7 +10,7 @@ static int ap_location_info_count = 0;
 
 void ap_state_init(struct APState* ap)
 {
-if (!ap) return;
+    if (!ap) return;
 
     ap->items_count = 0;
     ap->locations_count = 0;
