@@ -14,6 +14,20 @@ elseif(UNIX AND NOT APPLE)
     list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/PlatformWindows\\.cpp$")
 endif()
 
+# Window icon
+if(NOT WIN32)
+    set(KFX_ICON_PNG "${CMAKE_SOURCE_DIR}/res/keeperfx_icon256-24bpp.png")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${KFX_ICON_PNG}")
+    file(READ "${KFX_ICON_PNG}" _icon_hex HEX)
+    string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," _icon_bytes "${_icon_hex}")
+    set(KFX_ICON_C "${CMAKE_BINARY_DIR}/generated/window_icon.c")
+    file(WRITE "${KFX_ICON_C}.in"
+        "const unsigned char kfx_window_icon_png[] = {${_icon_bytes}};\n"
+        "const unsigned int kfx_window_icon_png_size = sizeof(kfx_window_icon_png);\n")
+    configure_file("${KFX_ICON_C}.in" "${KFX_ICON_C}" COPYONLY)
+    list(APPEND KEEPERFX_SOURCES_C "${KFX_ICON_C}")
+endif()
+
 add_executable(keeperfx       ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
 add_executable(keeperfx_hvlog ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
 target_compile_definitions(keeperfx       PUBLIC BFDEBUG_LEVEL=0)

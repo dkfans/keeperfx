@@ -11,7 +11,30 @@
 #include "bflib_basics.h"
 #include "bflib_video.h"
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include "post_inc.h"
+
+#ifndef _WIN32
+extern "C" const unsigned char kfx_window_icon_png[];
+extern "C" const unsigned int kfx_window_icon_png_size;
+#endif
+
+static void ApplyWindowIcon(SDL_Window *window)
+{
+#ifndef _WIN32
+    SDL_Surface *icon = IMG_Load_IO(SDL_IOFromConstMem(kfx_window_icon_png, kfx_window_icon_png_size), true);
+    if (icon == nullptr) {
+        WARNLOG("Failed to load window icon: %s", SDL_GetError());
+        return;
+    }
+    if (!SDL_SetWindowIcon(window, icon)) {
+        WARNLOG("Failed to window icon: %s", SDL_GetError());
+    }
+    SDL_DestroySurface(icon);
+#else
+    // MS Windows executable gets icon from .rc resource
+#endif
+}
 
 /******************************************************************************/
 
@@ -267,6 +290,7 @@ bool WindowSystemSDL::CreateWindow(const char* title, int x, int y, int w, int h
     lbWindow = SDL_CreateWindow(title, w, h, sdl3_flags);
     if (!lbWindow)
         return false;
+    ApplyWindowIcon(lbWindow);
 
     // A window created with SDL_WINDOW_FULLSCREEN starts as desktop fullscreen,
     // which is exactly what a desktop-fullscreen mode wants; an exclusive mode is
@@ -298,6 +322,7 @@ bool WindowSystemSDL::RecreateForSoftwareRenderer()
         ERRORLOG("WindowSystemSDL::RecreateForSoftwareRenderer failed: %s", SDL_GetError());
         return false;
     }
+    ApplyWindowIcon(lbWindow);
     SDL_SetWindowPosition(lbWindow, x, y);
     SDL_ShowWindow(lbWindow);
     return true;
