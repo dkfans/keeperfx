@@ -50,7 +50,7 @@ static float destination_deviation_y;
 static TbBool local_camera_ready;
 static MapCoord local_camera_move_target[2];
 static MapCoordDelta local_camera_move_delta[2];
-static TbBool local_camera_move_active;
+static struct Camera *local_camera_move_cam;
 /******************************************************************************/
 
 void send_camera_catchup_packets(void)
@@ -140,7 +140,7 @@ void init_local_cameras(struct PlayerInfo *player)
     for (int i = 0; i < CamIV_EndList; i++) {
         sync_camera_state(i, &player->cameras[i]);
     }
-    local_camera_move_active = false;
+    local_camera_move_cam = NULL;
     local_camera_ready = true;
 }
 
@@ -151,10 +151,10 @@ void move_local_camera_to_position(MapCoord x, MapCoord y)
     }
     int cam_idx = get_local_active_camera(get_my_player()) - local_cameras;
     struct Camera *cam = &destination_local_cameras[cam_idx];
+    local_camera_move_cam = cam;
     local_camera_move_target[0] = x;
     local_camera_move_target[1] = y;
     view_set_camera_move_to_position(cam, x, y, &local_camera_move_delta[0], &local_camera_move_delta[1]);
-    local_camera_move_active = true;
 }
 
 static void update_local_first_person_camera(struct Thing *ctrltng, const struct Packet *pckt)
@@ -214,12 +214,12 @@ void update_local_cameras(void)
     }
 
     struct Camera *cam = &destination_local_cameras[active_cam_idx];
-    if (active_cam_idx == CamIV_Parchment) {
-        local_camera_move_active = false;
+    if (local_camera_move_cam != NULL) {
+        if (view_move_camera_to_position(local_camera_move_cam, local_camera_move_target[0], local_camera_move_target[1], local_camera_move_delta[0], local_camera_move_delta[1])) {
+            local_camera_move_cam = NULL;
+        }
     }
-    if (local_camera_move_active) {
-        local_camera_move_active = !view_move_camera_to_position(cam, local_camera_move_target[0], local_camera_move_target[1], local_camera_move_delta[0], local_camera_move_delta[1]);
-    } else {
+    if (local_camera_move_cam != cam) {
         process_camera_controls(cam, pckt, player);
         view_process_camera_inertia(cam);
     }
@@ -323,6 +323,9 @@ void set_local_camera_destination(struct PlayerInfo *player)
 
 void update_local_view_prediction(const struct Packet *pckt)
 {
+    if (pckt->action == PckA_ZoomFromMap) {
+        local_camera_move_cam = NULL;
+    }
     if (pckt->action == PckA_SaveViewType && pckt->actn_par1 == PVT_MapScreen) {
         local_state.view_type = PVT_MapScreen;
         toggle_status_menu(0);
