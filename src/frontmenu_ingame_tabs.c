@@ -734,9 +734,8 @@ void go_to_next_spell_of_type(PowerKind pwkind)
 
 void gui_go_to_next_spell(struct GuiButton *gbtn)
 {
-    PowerKind pwkind = gbtn->content.lval;
-    go_to_next_spell_of_type(pwkind);
-    set_chosen_power(pwkind, gbtn->tooltip_stridx);
+    go_to_next_spell_of_type(gbtn->content.lval);
+    gui_choose_spell(gbtn);
 }
 
 void gui_area_spell_button(struct GuiButton *gbtn)
