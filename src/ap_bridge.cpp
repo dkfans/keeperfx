@@ -4,6 +4,7 @@
 #include "ap_data.h"
 #include "Archipelago.h"
 #include "config_terrain.h"
+#include "config_campaigns.h"
 #include "frontmenu_ingame_tabs.h"
 #include "lua_triggers.h"
 #include <cstdio>
@@ -69,8 +70,10 @@ void ap_room_update(){
 void ap_recieve(int id, bool notify)
 {
 
-
-    lua_on_item_received(id);
+    if(frontend_menu_state != 1)
+    {
+            lua_on_item_received(id);
+    }
     ap_state_update_items(&g_ap_state, id);
 
  //   pre lua version testing code   
