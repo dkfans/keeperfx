@@ -3014,6 +3014,9 @@ void input(void)
         pckt->additional_packet_values &= ~PCAdV_RotatePressed;
 
     get_inputs();
+    if ((game.mode_flags & MFlg_IsDemoMode) == 0 && !game.packet_load_enable) {
+        update_local_view_prediction(pckt);
+    }
 
     SYNCDBG(7,"Finished");
 }

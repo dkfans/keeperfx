@@ -31,6 +31,7 @@
 #include "map_data.h"
 #include "bflib_math.h"
 #include "frontmenu_ingame_map.h"
+#include "frontend.h"
 
 #include <math.h>
 #include "post_inc.h"
@@ -347,6 +348,26 @@ void set_local_camera_destination(struct PlayerInfo *player)
     if (thing_exists(ctrltng)) {
         destination_local_cameras[CamIV_FirstPerson].rotation_angle_x = ctrltng->move_angle_xy;
         destination_local_cameras[CamIV_FirstPerson].rotation_angle_y = ctrltng->move_angle_z;
+    }
+}
+
+void update_local_view_prediction(const struct Packet *pckt)
+{
+    unsigned char view_type = PVT_None;
+    if (pckt->action == PckA_SaveViewType && pckt->actn_par1 == PVT_MapScreen) {
+        view_type = PVT_MapScreen;
+    }
+    if ((pckt->action == PckA_LoadViewType && pckt->actn_par1 == PVT_DungeonTop) || pckt->action == PckA_ZoomFromMap) {
+        view_type = PVT_DungeonTop;
+    }
+    if (view_type == PVT_None) {
+        return;
+    }
+    local_state.view_type = view_type;
+    if (view_type == PVT_MapScreen) {
+        toggle_status_menu(0);
+    } else {
+        toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
     }
 }
 
