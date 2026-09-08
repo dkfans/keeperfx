@@ -984,7 +984,6 @@ TbBool process_user_global_packet_action(NetUserId user)
     }
   case PckA_LoadViewType:
       set_player_mode(player, pckt->actn_par1);
-      set_engine_view(player, player->view_mode_restore);
       return false;
     case PckA_SetRoomspaceAuto:
     case PckA_SetRoomspaceMan:

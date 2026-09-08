@@ -1216,8 +1216,6 @@ void zoom_from_parchment_map(void)
     if (network_is_active()
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
-        if ((game.operation_flags & GOF_ShowPanel) != 0)
-          toggle_status_menu(1);
         set_players_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0,0,0);
     } else
     {

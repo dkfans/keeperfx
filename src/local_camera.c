@@ -313,6 +313,9 @@ void sync_local_camera(struct PlayerInfo *player)
         return;
     }
     struct Camera *camera = get_player_active_camera(player);
+    if (camera == &player->cameras[CamIV_Parchment] || player->view_mode == PVM_ParchmentView) {
+        return;
+    }
     if (camera == &player->cameras[CamIV_FirstPerson]) {
         sync_first_person_camera(camera, player);
         return;
@@ -324,7 +327,7 @@ void sync_local_camera(struct PlayerInfo *player)
 
 void set_local_camera_destination(struct PlayerInfo *player)
 {
-    if (!is_my_player(player) || !local_camera_ready) {
+    if (!is_my_player(player) || !local_camera_ready || player->view_mode == PVM_ParchmentView) {
         return;
     }
     for (int cam_idx = CamIV_Isometric; cam_idx <= CamIV_FrontView; cam_idx++) {
