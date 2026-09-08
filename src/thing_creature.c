@@ -1682,9 +1682,13 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                 }
                 case 16: // Fight
                 {
-                    if (active_battle_exists(thing->owner))
+                    // visible_battles[] is battle panel state, refilled by
+                    // maintain_my_battle_list() only for the local client's own player;
+                    // for every other player it stays zeroed. Ask the battle list itself.
+                    if (find_first_battle_of_mine(thing->owner) != 0)
                     {
                         long count = 0;
+                        TbBool battle_found = false;
                         if (player->battleid > BATTLES_COUNT)
                         {
                             player->battleid = 1;
@@ -1707,6 +1711,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                                     pos.x.val = tng->mappos.x.val;
                                     pos.y.val = tng->mappos.y.val;
                                     player->battleid = i + 1;
+                                    battle_found = true;
                                     break;
                                 }
                             }
@@ -1721,6 +1726,13 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                                 player->battleid = 1;
                                 continue;
                             }
+                        }
+                        if (!battle_found)
+                        {
+                            // No battle could be reached; fall back to the default
+                            // destination instead of keeping the unset position,
+                            // which would teleport the creature into the map border.
+                            allowed = false;
                         }
                     }
                     else
