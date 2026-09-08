@@ -17,7 +17,7 @@ void ap_state_init(struct APState* ap)
     for (int i = 0; i < AP_LOCATION_NO; i++) {
         ap->checked_locations[i] = 0;
         ap->missing_locations[i] = 0; 
-        ap->items_recieved[i] = 0;
+        ap->items_received[i] = 0;
     }
 }
 
@@ -27,14 +27,14 @@ void ap_state_update_items(struct APState* ap, int itemid)
 
     for (int i = 0; i < item_count ; i++)
     {
-        if (itemid == ap->items_recieved[i])
+        if (itemid == ap->items_received[i])
         {
             return;
         }
         
     }
 
-    ap->items_recieved[item_count] = itemid;
+    ap->items_received[item_count] = itemid;
     ap->items_count++;
     
 }

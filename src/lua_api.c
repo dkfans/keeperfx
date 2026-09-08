@@ -200,7 +200,7 @@ static int lua_Room_available(lua_State *L)
     }
     return 0;
 }
-// temp function for ap as we send/recieve items by id not name
+// temp function for ap as we send/receive items by id not name
 static int lua_Room_available_id(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
@@ -218,7 +218,7 @@ static int lua_Room_available_id(lua_State *L)
 static int lua_ap_get_items(lua_State *L)
 {
     int item_count = g_ap_state.items_count;
-    int *items = g_ap_state.items_recieved;
+    int *items = g_ap_state.items_received;
 
     lua_newtable(L);
 

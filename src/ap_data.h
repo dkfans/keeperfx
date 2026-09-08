@@ -16,7 +16,7 @@ struct APState
     bool connected;
     int checked_locations[AP_LOCATION_NO];
     int missing_locations[AP_LOCATION_NO];
-    int items_recieved[AP_LOCATION_NO];   
+    int items_received[AP_LOCATION_NO];   
     int items_count; 
     int locations_count;
 };

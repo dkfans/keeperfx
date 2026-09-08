@@ -12,6 +12,7 @@
 #include <iostream>
 #include <math.h>
 #include "frontend.h"
+#include "game_legacy.h"
 #include "post_inc.h"
 
 
@@ -41,7 +42,7 @@ RedirectStdoutToFile();
         JUSTLOG("AP error");
     });
     AP_SetItemClearCallback(ap_clear);
-    AP_SetItemRecvCallback(ap_recieve);
+    AP_SetItemRecvCallback(ap_receive);
     AP_SetLocationCheckedCallback(ap_send);
     AP_SetLocationInfoCallback(ap_location_info_callback);    
     AP_SetRoomUpdateCallback(ap_room_update);
@@ -67,12 +68,12 @@ void ap_room_update(){
 
 }
 
-void ap_recieve(int id, bool notify)
+void ap_receive(int id, bool notify)
 {
 
-    if(frontend_menu_state != 1)
+    if(game.game_kind == GKind_LocalGame)
     {
-            lua_on_item_received(id);
+        lua_on_item_received(id);
     }
     ap_state_update_items(&g_ap_state, id);
 
