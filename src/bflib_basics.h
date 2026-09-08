@@ -23,6 +23,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdint.h>
+#include "compiler_compat.h"
 
 #ifdef __cplusplus
 extern "C" {
