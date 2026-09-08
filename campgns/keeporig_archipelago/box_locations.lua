@@ -50,13 +50,13 @@ function BoxLocations.SpawnBoxes(level_id)
                print("Player ID: " .. info.player)
                print("Flags: " .. info.flags)
             end
-            Game.APBox[id] = AddObjectToLevel("SPECBOX_CUSTOM", (id % 100)+100, id, "PLAYER_NEUTRAL", 0) -- Action Points are limited to 256 I think, so each Archipelago action point on a level is 101+
+            Game.APBox[id] = AddObjectToLevel("SPECBOX_CUSTOM", (id % 100)+100, id, "PLAYER_NEUTRAL", 0) -- Action Points are limited to 256, so each Archipelago action point on a level is 101+
             local info = GetAPLocationInfo(id)
             SetBoxTooltip(id, info.itemName .. " for " .. info.playerName)
             
             -- Would like to add a way to check if the item associated with this number is useful or filler, then display the correct graphics.
             -- if it's useful or progression, show it off as such.
-            if (info.flags & 1) ~= 0 or (info.flags & 2) ~= 0 then
+            if (info.flags % 1) ~= 0 or (info.flags % 2) ~= 0 then
                 Game.APBox[id].anim_sprite = "ARCHIPELAGOITEMUSEFUL"
             end
             if not first then message = message .. ", " end
