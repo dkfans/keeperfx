@@ -376,11 +376,13 @@ void process_pause_packet(long curr_pause, long new_pause)
   }
 }
 
-void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera)
+void process_camera_controls(struct Camera* cam, const struct Packet* pckt,
+    struct PlayerInfo* player)
 {
     if (cam == NULL) {
         return;
     }
+    const TbBool is_local_camera = cam != get_player_active_camera(player);
     long inter_val;
     int scroll_speed = cam->zoom;
     if (scroll_speed <= 0)
@@ -569,7 +571,7 @@ void process_user_dungeon_control_packet_control(NetUserId user)
         ERRORLOG("No active camera");
         return;
     }
-    process_camera_controls(cam, pckt, player, false);
+    process_camera_controls(cam, pckt, player);
     if (is_my_player(player)) {
         TbBool settings_changed = false;
         if ((pckt->control_flags & (PCtr_ViewTiltUp | PCtr_ViewTiltDown | PCtr_ViewTiltReset)) != 0) {

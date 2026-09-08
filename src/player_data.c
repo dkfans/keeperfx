@@ -481,12 +481,10 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   player->view_type = nview;
   player->allocflags &= ~PlaF_CreaturePassengerMode;
   player->first_person_unfreeze_delay = 0;
-  if (is_my_player(player))
-  {
+  if (is_my_player(player)) {
     game.view_mode_flags &= ~GNFldD_CreaturePasngr;
     game.view_mode_flags |= GNFldD_CreatureViewMode;
-    if (is_my_player(player))
-      stop_all_things_playing_samples();
+    stop_all_things_playing_samples();
   }
   switch (player->view_type)
   {
@@ -500,10 +498,9 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
         set_engine_view(player, PVM_IsoWibbleView);
       }
       if (is_my_player(player)) {
-        if (local_state.view_type == PVT_MapScreen)
-          toggle_status_menu(0);
-        else
+        if (local_state.view_type == PVT_None) {
           toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
+        }
         if ((game.operation_flags & GOF_ShowGui) != 0)
           setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
         else
@@ -521,11 +518,8 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
       }
       break;
   case PVT_MapScreen:
-      if (is_my_player(player)) {
-        if (local_state.view_type == PVT_DungeonTop)
-          toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
-        else
-          toggle_status_menu(0);
+      if (is_my_player(player) && local_state.view_type == PVT_None) {
+        toggle_status_menu(0);
       }
       player->continue_work_state = player->work_state;
       set_engine_view(player, PVM_ParchmentView);

@@ -1647,15 +1647,6 @@ RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind)
     return next_room[rkind];
 }
 
-void go_to_my_next_room_of_type_and_select(RoomKind rkind)
-{
-    RoomIndex room_idx = find_my_next_room_of_type(rkind);
-    if (room_idx > 0) {
-        struct Room* room = room_get(room_idx);
-        move_local_camera_to_position(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y));
-    }
-}
-
 void go_to_my_next_room_of_type(RoomKind rkind)
 {
     //_DK_go_to_my_next_room_of_type(rkind); return;
@@ -1669,7 +1660,7 @@ void go_to_my_next_room_of_type(RoomKind rkind)
 void gui_go_to_next_room(struct GuiButton *gbtn)
 {
     unsigned long rkind = gbtn->content.lval;
-    go_to_my_next_room_of_type_and_select(rkind);
+    go_to_my_next_room_of_type(rkind);
     game.chosen_room_kind = rkind;
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
