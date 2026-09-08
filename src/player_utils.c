@@ -797,11 +797,11 @@ void init_player(struct PlayerInfo *player, short no_explore)
     SYNCDBG(5,"Starting");
     if (is_my_player(player))
     {
-        local_info.minimap_pos_x = 11;
-        local_info.minimap_pos_y = 11;
-        local_info.minimap_zoom = settings.minimap_zoom;
+        local_state.minimap_pos_x = 11;
+        local_state.minimap_pos_y = 11;
+        local_state.minimap_zoom = settings.minimap_zoom;
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-        local_info.main_palette = engine_palette;
+        local_state.main_palette = engine_palette;
     }
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
@@ -839,7 +839,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     case GKind_MultiGame:
         //workaround until settings are synced through multiplayer
         if (is_my_player(player))
-            local_info.minimap_zoom = 256;
+            local_state.minimap_zoom = 256;
         if (game.packet_save_head.isometric_view_zoom_level == 0)
         {
             player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;

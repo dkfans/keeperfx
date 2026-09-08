@@ -138,7 +138,7 @@ void gui_save_game(struct GuiButton *gbtn)
           create_error_box(GUIStr_ErrorSaving);
       }
   }
-  set_players_packet_action(player, PckA_UpdatePause, local_info.paused_state_restore, 0, 0, 0);
+  set_players_packet_action(player, PckA_UpdatePause, local_state.paused_state_restore, 0, 0, 0);
 }
 
 void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
@@ -264,7 +264,7 @@ void init_save_menu(struct GuiMenu *gmnu)
 {
   SYNCDBG(6,"Starting");
   struct PlayerInfo* player = get_my_player();
-  local_info.paused_state_restore = flag_is_set(game.operation_flags, GOF_Paused);
+  local_state.paused_state_restore = flag_is_set(game.operation_flags, GOF_Paused);
   set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
   load_game_save_catalogue();
   gui_vscroll_offset = 0;

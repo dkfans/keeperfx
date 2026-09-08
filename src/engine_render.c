@@ -664,13 +664,13 @@ static long compute_cells_away(void) // For overhead view, not for 1st person vi
     int32_t xcell;
     int32_t ycell;
     long ncells_a;
-    half_width = (local_info.engine_window_width >> 1);
-    half_height = (local_info.engine_window_height >> 1);
-    xcell = ((half_width<<1) + (half_width>>4))/pixel_size - local_info.engine_window_x/pixel_size;
-    ycell = ((8 * high_offset[1]) >> 8) - (half_width>>4)/pixel_size - local_info.engine_window_y/pixel_size;
+    half_width = (local_state.engine_window_width >> 1);
+    half_height = (local_state.engine_window_height >> 1);
+    xcell = ((half_width<<1) + (half_width>>4))/pixel_size - local_state.engine_window_x/pixel_size;
+    ycell = ((8 * high_offset[1]) >> 8) - (half_width>>4)/pixel_size - local_state.engine_window_y/pixel_size;
     get_floor_pointed_at(xcell, ycell, &xmax, &ymax);
-    xcell = (half_width)/pixel_size - local_info.engine_window_x/pixel_size;
-    ycell = (half_height)/pixel_size - local_info.engine_window_y/pixel_size;
+    xcell = (half_width)/pixel_size - local_state.engine_window_x/pixel_size;
+    ycell = (half_height)/pixel_size - local_state.engine_window_y/pixel_size;
     get_floor_pointed_at(xcell, ycell, &xmin, &ymin);
     xcell = abs(ymax - ymin);
     ycell = abs(xmax - xmin);
@@ -1752,8 +1752,8 @@ static void do_perspective_rotation(long x, long y, long z)
     long engine_w;
     long engine_h;
     zoom = camera_zoom / pixel_size;
-    engine_w = local_info.engine_window_width/pixel_size;
-    engine_h = local_info.engine_window_height/pixel_size;
+    engine_w = local_state.engine_window_width/pixel_size;
+    engine_h = local_state.engine_window_height/pixel_size;
     epos.x = -x;
     epos.y = 0;
     epos.z = y;
@@ -2466,8 +2466,8 @@ static void fiddle_gamut(long pos_x, long pos_y)
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
         // Retrieve coordinates on limiting map points
-        ewwidth = local_info.engine_window_width / pixel_size;
-        ewheight = local_info.engine_window_height / pixel_size - ((8 * high_offset[1]) >> 8);
+        ewwidth = local_state.engine_window_width / pixel_size;
+        ewheight = local_state.engine_window_height / pixel_size - ((8 * high_offset[1]) >> 8);
         ewzoom = (768 * (camera_zoom/pixel_size)) >> 17;
         fiddle_gamut_find_limits(floor_x, floor_y, ewwidth, ewheight, ewzoom);
         // Place the area at proper base coords
@@ -5781,8 +5781,8 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     unsigned char color_index = get_gameturn() & 0xf;
 
     // get engine window width and height
-    long relative_window_width = ((local_info.engine_window_width * 256) / (pixel_size * 256)) - 1;
-    long relative_window_height = ((local_info.engine_window_height * 256) / (pixel_size * 256)) - 1;
+    long relative_window_width = ((local_state.engine_window_width * 256) / (pixel_size * 256)) - 1;
+    long relative_window_height = ((local_state.engine_window_height * 256) / (pixel_size * 256)) - 1;
 
     // Bresenham’s Line Drawing Algorithm - handles all octants
     // A and B are relative, and are set to be either X (shallow curves) or Y (steep curves).
@@ -5992,9 +5992,9 @@ static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
     {
       if ((y1 >= 0) || (y2 >= 0))
       {
-        if ((x1 < local_info.engine_window_width) || (x2 < local_info.engine_window_width))
+        if ((x1 < local_state.engine_window_width) || (x2 < local_state.engine_window_width))
         {
-          if ((y1 < local_info.engine_window_height) || (y2 < local_info.engine_window_height))
+          if ((y1 < local_state.engine_window_height) || (y2 < local_state.engine_window_height))
           {
             draw_stripey_line(x1, y1, x2, y2, color);
           }
@@ -7311,8 +7311,8 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
 {
     int vertical_shift;
     int64_t new_zoom;
-    short window_width = local_info.engine_window_width;
-    short window_height = local_info.engine_window_height;
+    short window_width = local_state.engine_window_width;
+    short window_height = local_state.engine_window_height;
 
     *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width / 2);
     vertical_shift = zoom * vertical_delta >> 8;
@@ -7602,7 +7602,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     myplyr = get_my_player();
     cube_itm = (qdrant + 2) & 3;
     delta_y = (zoom << 7) / 256;
-    bckt_idx = local_info.engine_window_height - (pos_y >> 8) + FRONTVIEW_BUCKET_MARGIN;
+    bckt_idx = local_state.engine_window_height - (pos_y >> 8) + FRONTVIEW_BUCKET_MARGIN;
     // Check if there's enough place to draw
     if (!is_free_space_in_poly_pool(8))
       return;
@@ -9281,8 +9281,8 @@ void draw_frontview_engine(struct Camera *cam)
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam_x = cam->mappos.x.val;
     cam_y = cam->mappos.y.val;
-    pointer_x = (GetMouseX() - local_info.engine_window_x) / pixel_size;
-    pointer_y = (GetMouseY() - local_info.engine_window_y) / pixel_size;
+    pointer_x = (GetMouseX() - local_state.engine_window_x) / pixel_size;
+    pointer_y = (GetMouseY() - local_state.engine_window_y) / pixel_size;
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);

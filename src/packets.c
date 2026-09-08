@@ -770,8 +770,8 @@ TbBool process_user_global_packet_action(NetUserId user)
   case PckA_SetMinimapConf:
       if (is_my_player(player))
       {
-        local_info.minimap_zoom = pckt->actn_par1;
-        settings.minimap_zoom = local_info.minimap_zoom;
+        local_state.minimap_zoom = pckt->actn_par1;
+        settings.minimap_zoom = local_state.minimap_zoom;
         save_settings();
       }
       return 0;

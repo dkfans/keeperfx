@@ -576,8 +576,8 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
     *map_x = 0;
     *map_y = 0;
     if ( (pointer_x >= 0) && (pointer_y >= 0)
-      && (pointer_x < (local_info.engine_window_width/pixel_size))
-      && (pointer_y < (local_info.engine_window_height/pixel_size)) )
+      && (pointer_x < (local_state.engine_window_width/pixel_size))
+      && (pointer_y < (local_state.engine_window_height/pixel_size)) )
     {
         if ( players_cursor_is_at_top_of_view() )
         {
@@ -907,8 +907,8 @@ void reinit_level_after_load(void)
     SYNCDBG(6,"Starting");
     // Reinit structures from within the game
     player = get_my_player();
-    local_info.lens_palette = 0;
-    local_info.main_palette = engine_palette;
+    local_state.lens_palette = 0;
+    local_state.main_palette = engine_palette;
     init_navigation();
     reinit_packets_after_load();
     game.easter_eggs_enabled = start_params.easter_egg;
@@ -1147,8 +1147,8 @@ void reset_creature_max_levels(void)
 
 void change_engine_window_relative_size(long w_delta, long h_delta)
 {
-    setup_engine_window(local_info.engine_window_x, local_info.engine_window_y,
-        local_info.engine_window_width+w_delta, local_info.engine_window_height+h_delta);
+    setup_engine_window(local_state.engine_window_x, local_state.engine_window_y,
+        local_state.engine_window_width+w_delta, local_state.engine_window_height+h_delta);
 }
 
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
@@ -1164,11 +1164,11 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
     }
     if (!is_my_player(player))
         return;
-    if ( (local_info.lens_palette == 0) || ((pal != local_info.main_palette) && (pal == local_info.lens_palette)) )
+    if ( (local_state.lens_palette == 0) || ((pal != local_state.main_palette) && (pal == local_state.lens_palette)) )
     {
-        local_info.main_palette = pal;
-        local_info.palette_fade_step_pain = 0;
-        local_info.palette_fade_step_possession = 0;
+        local_state.main_palette = pal;
+        local_state.palette_fade_step_pain = 0;
+        local_state.palette_fade_step_possession = 0;
         LbScreenWaitVbi();
         RendererPaletteSet(pal);
     }
@@ -1210,11 +1210,11 @@ void centre_engine_window(void)
     long window_center_x;
     long window_center_y;
     if ((game.operation_flags & GOF_ShowGui) != 0)
-      window_center_x = (MyScreenWidth-local_info.engine_window_width-status_panel_width) / 2 + status_panel_width;
+      window_center_x = (MyScreenWidth-local_state.engine_window_width-status_panel_width) / 2 + status_panel_width;
     else
-      window_center_x = (MyScreenWidth-local_info.engine_window_width) / 2;
-    window_center_y = (MyScreenHeight-local_info.engine_window_height) / 2;
-    setup_engine_window(window_center_x, window_center_y, local_info.engine_window_width, local_info.engine_window_height);
+      window_center_x = (MyScreenWidth-local_state.engine_window_width) / 2;
+    window_center_y = (MyScreenHeight-local_state.engine_window_height) / 2;
+    setup_engine_window(window_center_x, window_center_y, local_state.engine_window_width, local_state.engine_window_height);
 }
 
 void turn_off_query(PlayerNumber plyr_idx)
@@ -1614,8 +1614,8 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     mx = cam->mappos.x.val;
     my = cam->mappos.y.val;
     mz = cam->mappos.z.val;
-    pointer_x = (GetMouseX() - local_info.engine_window_x) / pixel_size;
-    pointer_y = (GetMouseY() - local_info.engine_window_y) / pixel_size;
+    pointer_x = (GetMouseX() - local_state.engine_window_x) / pixel_size;
+    pointer_y = (GetMouseY() - local_state.engine_window_y) / pixel_size;
     lens = cam->horizontal_fov * scale_value_by_horizontal_resolution(4) / pixel_size;
     if (lens_mode == 0)
         update_blocks_pointed();

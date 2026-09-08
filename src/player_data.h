@@ -146,6 +146,14 @@ struct CheatSelection
     unsigned char chosen_experience_level;
 };
 
+/*
+ * Per-player game data.
+ *
+ * Players can be human-controlled, AI controlled, etc. (See player_instances.h)
+ * 
+ * Note: for legacy reasons, this struct currently contains some fields that
+ * should eventually be ported to UserState or LocalState.
+*/
 struct PlayerInfo {
     unsigned char allocflags;
     unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
@@ -244,6 +252,12 @@ struct PlayerInfo {
     int first_person_unfreeze_delay;
 };
 
+/* Game state that exists per human user. Computer-controlled
+ * players are not users.
+ *
+ * Local games only have a single user. Networked games have one
+ * user per client, including the host.
+ */
 struct UserState {
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
@@ -258,7 +272,12 @@ extern short local_thing_under_hand;
 #pragma pack()
 /******************************************************************************/
 
-struct LocalInfo {
+/* Miscellaneous state relating to this device and
+ * the local human player.
+ *
+ * Not sync'd over the network.
+ */
+extern struct LocalState {
     TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
     TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
     TbBool paused_state_restore; /**< Used to restore pause state after saving */
@@ -275,9 +294,8 @@ struct LocalInfo {
     short minimap_pos_x;
     short minimap_pos_y;
     unsigned short minimap_zoom;
-};
+} local_state;
 
-extern struct LocalInfo local_info;
 extern unsigned short player_colors_map[];
 extern TbPixel player_path_colours[];
 extern TbPixel player_room_colours[];
