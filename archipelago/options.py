@@ -12,7 +12,7 @@ def get_val(key):
 class StartingLevels(ItemDict):
     """Levels available at the start of the game."""
     display_name = "Starting Levels"
-    min = 0
+    min = 1
     max = 5
     default: Dict[str, int] = {
         get_val(KeeperLevelName.LEVEL_001): 1,
@@ -37,7 +37,7 @@ class StartingSpells(ItemDict):
 class StartingCreatures(ItemDict):
     """Creatures available at the start of the game."""
     display_name = "Starting Creatures"
-    min = 0
+    min = 1
     max = 5
     default: Dict[str, int] = {
         get_val(KeeperCreatureName.FLY): 1,
