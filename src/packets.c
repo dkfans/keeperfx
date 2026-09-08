@@ -172,15 +172,18 @@ void update_double_click_detection(NetUserId user)
 struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct UserState* ustate = get_player_user_state(player);
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     // Take top left subtile on single subtile boundbox, take center subtile on full slab boundbox
-    MapCoord x = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab(stl_x), 0) : slab_subtile_center(subtile_slab(stl_x)));
-    MapCoord y = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab(stl_y), 0) : slab_subtile_center(subtile_slab(stl_y)));
-    struct Room* room = player_build_room_at(x, y, plyr_idx, rkind);
+    MapCoord x = ((ustate->full_slab_cursor == 0) ? slab_subtile(subtile_slab(stl_x), 0) : slab_subtile_center(subtile_slab(stl_x)));
+    MapCoord y = ((ustate->full_slab_cursor == 0) ? slab_subtile(subtile_slab(stl_y), 0) : slab_subtile_center(subtile_slab(stl_y)));
+    struct Room* room = player_build_room_at(x, y, plyr_idx, rkind, ustate->boxsize);
     if (!room_is_invalid(room))
     {
-        if (player->boxsize > 1)
+        if (ustate->boxsize > 0)
+            ustate->boxsize--;
+        if (ustate->boxsize > 1)
         {
             dungeon->camera_deviate_jump = 240;
         }
@@ -198,6 +201,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
 TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
 {
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
+    struct UserState* ustate = get_player_user_state(player);
     const PlayerNumber plyr_idx = player->id_number;
     struct Dungeon* dungeon = get_players_dungeon(player);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
@@ -205,7 +209,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
 
     while (game.conf.rules[plyr_idx].magic.allow_instant_charge_up && (pckt->additional_packet_values & PCAdV_SpeedupPressed))
     {
-        struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
+        struct PowerConfigStats *powerst = get_power_model_stats(ustate->chosen_power_kind);
 
         if (powerst->overcharge_check_idx == OcC_CallToArms_expand
             || powerst->overcharge_check_idx == OcC_SightOfEvil_expand
@@ -214,7 +218,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
             if (powerst->overcharge_check_idx == OcC_CallToArms_expand && player_uses_power_call_to_arms(plyr_idx))
                 break;
 
-            while(update_power_overcharge(player, player->chosen_power_kind))
+            while(update_power_overcharge(player, ustate->chosen_power_kind))
             {}
 
             return true;
@@ -224,7 +228,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
 
     if (flag_is_set(pckt->control_flags,PCtr_LBtnHeld))
     {
-        struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
+        struct PowerConfigStats *powerst = get_power_model_stats(ustate->chosen_power_kind);
 
         switch (powerst->overcharge_check_idx)
         {
@@ -232,11 +236,11 @@ TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
                 if (player_uses_power_call_to_arms(plyr_idx))
                     player->cast_expand_level = (dungeon->cta_power_level << 2);
                 else
-                    update_power_overcharge(player, player->chosen_power_kind);
+                    update_power_overcharge(player, ustate->chosen_power_kind);
                 break;
             case OcC_SightOfEvil_expand:
             case OcC_General_expand:
-                update_power_overcharge(player, player->chosen_power_kind);
+                update_power_overcharge(player, ustate->chosen_power_kind);
                 break;
             case OcC_do_not_expand:
             case OcC_Null:
@@ -1024,7 +1028,7 @@ TbBool process_user_global_packet_action(NetUserId user)
             // exit out of click and drag mode
             if (player->render_roomspace.drag_mode)
             {
-                player->cursor_button_down = 0;
+                get_player_user_state(player)->cursor_button_down = 0;
                 player->one_click_lock_cursor = false;
                 if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
                 {
@@ -1459,6 +1463,7 @@ void process_user_creature_control_packet_action(NetUserId user)
   struct Packet *pckt;
   long i;
   player = get_player(plyr_idx);
+  struct UserState* ustate = get_player_user_state(player);
   pckt = get_packet(user);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
@@ -1542,7 +1547,7 @@ void process_user_creature_control_packet_action(NetUserId user)
       }
     case PckA_SetFirstPersonDigMode:
     {
-        player->first_person_dig_claim_mode = pckt->actn_par1;
+        ustate->first_person_dig_claim_mode = pckt->actn_par1;
         break;
     }
     case PckA_SwitchTeleportDest:
@@ -1552,7 +1557,7 @@ void process_user_creature_control_packet_action(NetUserId user)
     }
     case PckA_SelectFPPickup:
     {
-        player->selected_fp_thing_pickup = pckt->actn_par1;
+        ustate->selected_fp_thing_pickup = pckt->actn_par1;
         break;
     }
     case PckA_SetNearestTeleport:

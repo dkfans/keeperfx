@@ -390,8 +390,8 @@ short get_chat_icon_sprite_idx_from_id(short id, char type)
 
 short get_chat_icon_sprite_idx(const char* txt)
 {
-    short id;
-    char type;
+    short id = 0;
+    char type = 0;
 
     get_chat_icon_from_value(txt, &id, &type);
 

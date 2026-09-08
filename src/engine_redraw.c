@@ -688,7 +688,8 @@ TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord 
     long i;
     long pwkind = -1;
     struct PlayerInfo* player = get_my_player();
-    pwkind = player->chosen_power_kind;
+    struct UserState* ustate = get_player_user_state(player);
+    pwkind = ustate->chosen_power_kind;
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)
     {
@@ -756,7 +757,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     // Mouse over battle message box
     if (battle_creature_over > 0)
     {
-        PowerKind pwkind = player->chosen_power_kind;
+        PowerKind pwkind = ustate->chosen_power_kind;
         thing = thing_get(battle_creature_over);
         TRACE_THING(thing);
         if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
@@ -829,9 +830,9 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 }
                 if (can_cast)
                 {
-                    player->chosen_power_kind = pwkind;
+                    ustate->chosen_power_kind = pwkind;
                     draw_spell_cursor(0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-                    player->chosen_power_kind = 0;
+                    ustate->chosen_power_kind = 0;
                     player->thing_under_hand = thing->index;
                 } else {
                     set_pointer_graphic(MousePG_Arrow);
@@ -862,7 +863,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         }
         break;
     case PsPg_BuildRoom:
-        i = get_place_room_pointer_graphics(player->chosen_room_kind);
+        i = get_place_room_pointer_graphics(ustate->chosen_room_kind);
         set_pointer_graphic(i);
         break;
     case PsPg_Invisible:
@@ -875,11 +876,11 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         set_pointer_graphic(MousePG_Query);
         break;
     case PsPg_PlaceTrap:
-        i = get_place_trap_pointer_graphics(player->chosen_trap_kind);
+        i = get_place_trap_pointer_graphics(ustate->chosen_trap_kind);
         set_pointer_graphic(i);
         break;
     case PsPg_PlaceDoor:
-        i = get_place_door_pointer_graphics(player->chosen_door_kind);
+        i = get_place_door_pointer_graphics(ustate->chosen_door_kind);
         set_pointer_graphic(i);
         break;
     case PsPg_Sell:
@@ -887,7 +888,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PsPg_PlaceTerrain:
     {
-        i = get_place_terrain_pointer_graphics(player->cheatselection.chosen_terrain_kind);
+        i = get_place_terrain_pointer_graphics(ustate->cheatselection.chosen_terrain_kind);
         set_pointer_graphic(i);
         break;
     }

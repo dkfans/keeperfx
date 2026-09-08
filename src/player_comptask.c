@@ -363,7 +363,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
     }
     case GA_Unk15:
     case GA_PlaceRoom:
-        room = player_build_room_at(stl_x, stl_y, plyr_idx, param2);
+        room = player_build_room_at(stl_x, stl_y, plyr_idx, param2, 1);
         if (room_is_invalid(room))
             break;
         return Lb_SUCCESS;
@@ -383,7 +383,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
         }
     }
     case GA_SellTrap:
-        return player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y);
+        return player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y, false);
     case GA_SellDoor:
         return player_sell_door_at_subtile(plyr_idx, stl_x, stl_y);
     case GA_UsePwrLightning:

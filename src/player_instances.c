@@ -1121,7 +1121,7 @@ TbBool clear_selected_thing(struct PlayerInfo *player)
  * @param rkind Kind of the room.
  * @return Returns room struct, or invalid room on error.
  */
-struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind)
+struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind, int slabs_left)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
@@ -1154,21 +1154,15 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         play_non_3d_sample(snd_refusal);
       return INVALID_ROOM;
     }
-    if (player->boxsize == 0)
-    {
-        player->boxsize++;
-    }
-    if (dungeon->total_money_owned >= roomst->cost * player->boxsize)
+    if (slabs_left < 1)
+        slabs_left = 1;
+    if (dungeon->total_money_owned >= roomst->cost * slabs_left)
     {
         if (take_money_from_dungeon(plyr_idx, roomst->cost, 1) < 0)
         {
             if (is_my_player(player))
                 output_message(SMsg_GoldNotEnough, 0);
             return INVALID_ROOM;
-        }
-        if (player->boxsize > 0)
-        {
-        player->boxsize--;
         }
     }
     else
@@ -1192,7 +1186,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
       if (is_my_player(player))
       {
           play_non_3d_sample(snd_tile_place);
-          if (player->boxsize > 1)
+          if (slabs_left > 2) // more slabs follow this one
           {
               play_non_3d_sample(snd_larg_tile_down);
               play_non_3d_sample(snd_larg_tile_up);

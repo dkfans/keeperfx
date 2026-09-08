@@ -1556,6 +1556,7 @@ static short get_creature_control_action_inputs(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_player_user_state(player);
     if (get_players_packet_action(player) != PckA_None)
         return 1;
     if ( ((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
@@ -1861,14 +1862,14 @@ static short get_creature_control_action_inputs(void)
         }
         if (is_game_key_pressed(Gkey_CrtrContrlMod, false, false))
         {
-            if (!player->first_person_dig_claim_mode)
+            if (!ustate->first_person_dig_claim_mode)
             {
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, true, 0, 0, 0);
             }
         }
         else
         {
-            if (player->first_person_dig_claim_mode)
+            if (ustate->first_person_dig_claim_mode)
             {
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, false, 0, 0, 0);
             }
@@ -1938,7 +1939,7 @@ static short get_creature_control_action_inputs(void)
                 }
             }
             local_thing_under_hand = player->thing_under_hand;
-            if (player->selected_fp_thing_pickup != player->thing_under_hand)
+            if (ustate->selected_fp_thing_pickup != player->thing_under_hand)
             {
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
             }
@@ -1986,6 +1987,7 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
 {
     NetUserId user = get_local_user();
     struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_player_user_state(player);
     if ((get_local_view_type(player) != PVT_DungeonTop) || ((pckt->control_flags & PCtr_Gui) != 0) || (local_thing_under_hand <= 0) || (pckt->action != PckA_None) || (get_gameturn() - hand_pick_pending_turn <= game.input_lag_turns)) {
         return;
     }
@@ -1997,7 +1999,7 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
     if (!left_button_released) {
         return;
     }
-    PowerKind pwkind = player->chosen_power_kind;
+    PowerKind pwkind = ustate->chosen_power_kind;
     PlayerState work_state = player->work_state;
     for (GameTurnDelta i = 1; i <= game.input_lag_turns; i += 1) {
         const struct Packet* delayed_pckt = get_history_packet(user, get_gameturn() - i);
@@ -3139,12 +3141,13 @@ short get_gui_inputs(short gameplay_on)
 static void process_cheat_mode_selection_inputs(void)
 {
     struct PlayerInfo *player = get_my_player();
+    struct UserState* ustate = get_player_user_state(player);
     unsigned char new_value;
     struct CreatureModelConfig* crconf;
     // player selection
     if (player->work_state == PSt_PlaceTerrain)
     {
-        if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
+        if (slab_kind_has_no_ownership(ustate->cheatselection.chosen_terrain_kind))
         {
             goto INPUTS;
         }
@@ -3275,7 +3278,7 @@ static void process_cheat_mode_selection_inputs(void)
             else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
             {
 
-                new_value = player->cheatselection.chosen_experience_level;
+                new_value = ustate->cheatselection.chosen_experience_level;
                 if (new_value < 9)
                 {
                     new_value++;
@@ -3285,7 +3288,7 @@ static void process_cheat_mode_selection_inputs(void)
             }
             else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
             {
-                new_value = player->cheatselection.chosen_experience_level;
+                new_value = ustate->cheatselection.chosen_experience_level;
                 if (new_value > 0)
                 {
                     new_value--;
@@ -3297,7 +3300,7 @@ static void process_cheat_mode_selection_inputs(void)
             {
                 if (player->work_state == PSt_MkGoodCreatr)
                 {
-                    new_value = player->cheatselection.chosen_hero_kind;
+                    new_value = ustate->cheatselection.chosen_hero_kind;
                     do
                     {
                         new_value++;
@@ -3313,7 +3316,7 @@ static void process_cheat_mode_selection_inputs(void)
                 }
                 else if (player->work_state == PSt_MkBadCreatr)
                 {
-                    new_value = player->cheatselection.chosen_creature_kind;
+                    new_value = ustate->cheatselection.chosen_creature_kind;
                     do
                     {
                         new_value++;
@@ -3333,7 +3336,7 @@ static void process_cheat_mode_selection_inputs(void)
             {
                 if (player->work_state == PSt_MkGoodCreatr)
                 {
-                    new_value = player->cheatselection.chosen_hero_kind;
+                    new_value = ustate->cheatselection.chosen_hero_kind;
                     do
                     {
                         if (new_value == 0)
@@ -3355,7 +3358,7 @@ static void process_cheat_mode_selection_inputs(void)
                 }
                 else if (player->work_state == PSt_MkBadCreatr)
                 {
-                    new_value = player->cheatselection.chosen_creature_kind;
+                    new_value = ustate->cheatselection.chosen_creature_kind;
                     do
                     {
                         if (new_value == 0)
@@ -3381,7 +3384,7 @@ static void process_cheat_mode_selection_inputs(void)
         }
         case PSt_PlaceTerrain:
         {
-            new_value = player->cheatselection.chosen_terrain_kind;
+            new_value = ustate->cheatselection.chosen_terrain_kind;
             if (is_key_pressed(KC_0, KMod_NONE))
             {
                 new_value = SlbT_ROCK;
@@ -3477,7 +3480,7 @@ static void process_cheat_mode_selection_inputs(void)
                 set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_LCONTROL);
             }
-            if ( (player->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (player->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
+            if ( (ustate->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (ustate->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
             {
                 if (is_key_pressed(KC_LALT, KMod_DONTCARE))
                 {
@@ -3494,7 +3497,7 @@ static void process_cheat_mode_selection_inputs(void)
                         }
                         else
                         {
-                            id = player->cheatselection.chosen_player;
+                            id = ustate->cheatselection.chosen_player;
                         }
                         new_value = choose_pretty_type(id, slb_x, slb_y);
                         set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);

@@ -215,13 +215,14 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
 {
     SYNCDBG(7,"Starting");
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct UserState* ustate = get_player_user_state(player);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     slb_x = subtile_slab(stl_x);
     slb_y = subtile_slab(stl_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     unsigned char colour = SLC_RED;
-    if(can_build_roomspace(plyr_idx, player->chosen_room_kind, player->render_roomspace) > 0)
+    if(can_build_roomspace(plyr_idx, ustate->chosen_room_kind, player->render_roomspace) > 0)
     {
         colour = SLC_GREEN;
     }
@@ -229,7 +230,7 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     {
         #if (BFDEBUG_LEVEL > 7)
             struct SlabMap* slb = get_slabmap_block(slb_x, slb_y); //inside condition because otherwise it would throw a build warning for not using this variable.
-            SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind), slab_code_name(slb->kind), (int)slb_x, (int)slb_y);
+            SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(ustate->chosen_room_kind), slab_code_name(slb->kind), (int)slb_x, (int)slb_y);
         #endif
     }
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
@@ -345,7 +346,7 @@ TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     unsigned char colour;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ( ( ( ((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->category == SlbAtCtg_FortifiedWall) ) && (slabmap_owner(slb) != player->cheatselection.chosen_player) ) )
+    if ( ( ( ((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->category == SlbAtCtg_FortifiedWall) ) && (slabmap_owner(slb) != get_player_user_state(player)->cheatselection.chosen_player) ) )
         || ( (slabst->category == SlbAtCtg_FriableDirt) || ( (slabst->category == SlbAtCtg_Unclaimed) && (slabst->is_safe_land) && (!slab_is_liquid(slb_x, slb_y) ) ) ) )
     {
         colour = SLC_GREEN;
@@ -375,8 +376,9 @@ TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     TbBool can_place = can_place_trap_on(plyr_idx, stl_x, stl_y, trpkind);
     int floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct UserState* ustate = get_player_user_state(player);
     TbBool full_slab = !get_trap_model_stats(trpkind)->place_on_subtile;
-    player->full_slab_cursor = full_slab;
+    ustate->full_slab_cursor = full_slab;
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2)) {
         MapSubtlCoord box_size = 1;
         if (full_slab) {

@@ -8939,7 +8939,8 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
 TbBool cursor_on_room(RoomIndex room_index)
 {
     struct PlayerInfo* player = get_my_player();
-    struct SlabMap* slb = get_slabmap_for_subtile(player->cursor_subtile_x, player->cursor_subtile_y);
+    struct UserState* ustate = get_player_user_state(player);
+    struct SlabMap* slb = get_slabmap_for_subtile(ustate->cursor_subtile_x, ustate->cursor_subtile_y);
     if (slabmap_block_invalid(slb)) {
         return false;
     }
@@ -8959,11 +8960,12 @@ TbBool room_is_damaged(RoomIndex room_index)
 TbBool placing_same_room_type(RoomIndex room_index)
 {
     struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_player_user_state(player);
     if (map_volume_box.visible == 0) {
         return false;
     }
     struct Room* room = room_get(room_index);
-    if (player->chosen_room_kind != room->kind) {
+    if (ustate->chosen_room_kind != room->kind) {
         return false;
     }
     return true;

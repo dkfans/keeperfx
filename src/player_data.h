@@ -156,7 +156,6 @@ struct CheatSelection
 */
 struct PlayerInfo {
     unsigned char allocflags;
-    unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
     unsigned char additional_flags; // Uses PlayerAdditionalFlags
     unsigned char display_flags;
     NetUserId user_id; // -1 if no user
@@ -191,14 +190,6 @@ struct PlayerInfo {
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
     char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
-    unsigned char chosen_room_kind;
-    unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
-    ThingModel chosen_trap_kind;
-    ThingModel chosen_door_kind;
-    PowerKind chosen_power_kind;
-    MapSubtlCoord cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
-    MapSubtlCoord cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
-    unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;
     unsigned long instance_remain_turns;
@@ -215,12 +206,6 @@ struct PlayerInfo {
     uint32_t isometric_view_zoom_level;
     uint32_t frontview_zoom_level;
     unsigned char hand_idx;
-    struct CheatSelection cheatselection;
-    TbBool first_person_dig_claim_mode;
-    unsigned char teleport_destination;
-    TbBool nearest_teleport;
-    BattleIndex battleid;
-    unsigned short selected_fp_thing_pickup;
     struct RoomSpace render_roomspace;
     struct RoomSpace roomspace;
     unsigned char roomspace_mode;
@@ -235,21 +220,18 @@ struct PlayerInfo {
     char swap_to_untag_mode;
     unsigned char roomspace_highlight_mode;
     TbBool roomspace_no_default;
-    MapSubtlCoord cursor_subtile_x;
-    MapSubtlCoord cursor_subtile_y;
-    MapSubtlCoord previous_cursor_subtile_x;
-    MapSubtlCoord previous_cursor_subtile_y;
-    TbBool mouse_on_map;
     TbBool interpolated_tagging;
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
-    TbBool pickup_all_gold;
     unsigned char player_type; //enum PlayerTypes
     ThingModel special_digger;
     int isometric_tilt;
     unsigned short generate_speed;
     int first_person_unfreeze_delay;
+    unsigned char teleport_destination;
+    TbBool nearest_teleport;
+    BattleIndex battleid;
 };
 
 /* Game state that exists per human user. Computer-controlled
@@ -262,6 +244,26 @@ struct UserState {
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
     short cursor_light_idx;
+    /** Cursor position, and the subtile it last clicked on. */
+    MapSubtlCoord cursor_subtile_x;
+    MapSubtlCoord cursor_subtile_y;
+    MapSubtlCoord previous_cursor_subtile_x;
+    MapSubtlCoord previous_cursor_subtile_y;
+    MapSubtlCoord cursor_clicked_subtile_x;
+    MapSubtlCoord cursor_clicked_subtile_y;
+    unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
+    TbBool mouse_on_map;
+    /** First person (possession) controls. */
+    TbBool first_person_dig_claim_mode;
+    unsigned short selected_fp_thing_pickup;
+    struct CheatSelection cheatselection;
+    unsigned char boxsize;
+    unsigned char chosen_room_kind;
+    unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
+    ThingModel chosen_trap_kind;
+    ThingModel chosen_door_kind;
+    PowerKind chosen_power_kind;
+    TbBool pickup_all_gold;
 };
 
 /******************************************************************************/
@@ -314,6 +316,7 @@ TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
 struct UserState *get_user_state(NetUserId user);
+struct UserState *get_player_user_state(const struct PlayerInfo *player);
 TbBool user_state_invalid(const struct UserState *ustate);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);

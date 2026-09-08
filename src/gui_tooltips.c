@@ -132,7 +132,8 @@ static inline void clear_gui_tooltip_button(void)
 
 TbBool cursor_moved_to_new_subtile(struct PlayerInfo *player)
 {
-    return ((player->cursor_subtile_x != player->previous_cursor_subtile_x) || (player->cursor_subtile_y != player->previous_cursor_subtile_y));
+    const struct UserState* ustate = get_player_user_state(player);
+    return ((ustate->cursor_subtile_x != ustate->previous_cursor_subtile_x) || (ustate->cursor_subtile_y != ustate->previous_cursor_subtile_y));
 }
 
 TbBool setup_trap_tooltips(struct Coord3d *pos)
