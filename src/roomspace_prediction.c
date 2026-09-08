@@ -258,6 +258,7 @@ unsigned char get_local_dig_prediction_render_flags(MapSubtlCoord stl_x, MapSubt
 void update_local_dig_prediction_cursor_preview(void)
 {
     struct PlayerInfo *player = get_my_player();
+    struct UserState *ustate = get_user_state(get_local_user());
     const struct Packet *pckt = get_history_packet(get_local_user(), get_gameturn());
     const struct Packet *direct_packet = get_local_packet();
     if ((local_dig_roomspace_prediction.action != PckA_None) && ((GameTurnDelta)(direct_packet->turn - local_dig_roomspace_prediction.turn) >= 0)) {
@@ -284,7 +285,7 @@ void update_local_dig_prediction_cursor_preview(void)
         if (player->primary_cursor_state == CSt_PickAxe) {
             dig_cursor = true;
         } else if (player->primary_cursor_state == CSt_PowerHand) {
-            dig_cursor = (player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0;
+            dig_cursor = (ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0;
         }
         if ((pckt != NULL) && (player->work_state == PSt_CtrlDungeon) && dig_cursor) {
             map_volume_box.visible = 0;

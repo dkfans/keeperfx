@@ -817,7 +817,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         } else
         {
             player = get_my_player();
-            PaletteSetPlayerPalette(player, engine_palette);
+            PaletteSetUserPalette(player->user_id, engine_palette);
             LbPaletteStopOpenFade();
             RendererSetScreenTint(0.0f, 0.0f, 0.0f, 0.0f);
         }

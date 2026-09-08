@@ -351,6 +351,7 @@ void process_pause_packet(long curr_pause, long new_pause)
   if ( can )
   {
       player = get_my_player();
+      struct UserState* ustate = get_user_state(get_local_user());
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
       if ((game.operation_flags & GOF_Paused) != 0) {
           set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
@@ -372,10 +373,10 @@ void process_pause_packet(long curr_pause, long new_pause)
       }
       if ((game.operation_flags & GOF_Paused) != 0)
       {
-          if ((player->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
+          if ((ustate->additional_flags & UsrAF_LightningPaletteIsActive) != 0)
           {
-              PaletteSetPlayerPalette(player, engine_palette);
-              player->additional_flags &= ~PlaAF_LightningPaletteIsActive;
+              PaletteSetUserPalette(player->user_id, engine_palette);
+              ustate->additional_flags &= ~UsrAF_LightningPaletteIsActive;
           }
       }
   }
@@ -698,9 +699,9 @@ TbBool process_user_global_packet_action(NetUserId user)
         if (victory_state == VicS_WonLevel) {
           player->victory_state = VicS_WonLevel;
           if (game.conf.rules[player->id_number].gameplay.winner_tortures_loser) {
-              get_my_player()->additional_flags |= PlaAF_UnlockedLordTorture;
+              get_user_state(get_local_user())->additional_flags |= UsrAF_UnlockedLordTorture;
           } else {
-              get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
+              get_user_state(get_local_user())->additional_flags &= ~UsrAF_UnlockedLordTorture;
           }
           quit_game = 1;
           return 0;
@@ -708,7 +709,7 @@ TbBool process_user_global_packet_action(NetUserId user)
         TbBool host_packet = player->user_id == SERVER_ID;
         if (!my_player) {
           if (host_packet && (player->victory_state != VicS_LostLevel)) {
-            get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
+            get_user_state(get_local_user())->additional_flags &= ~UsrAF_UnlockedLordTorture;
             quit_game = 1;
           }
           return 0;
@@ -739,7 +740,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       player->mp_pending_message[0] = '\0';
       return 0;
   case PckA_PlyrMsgClear:
-      player->allocflags &= ~PlaF_NewMPMessage;
+      get_user_state(user)->init_flags &= ~UsrIF_NewMPMessage;
       LbStopTextInput();
       memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;

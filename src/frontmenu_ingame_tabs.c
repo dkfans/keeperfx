@@ -2215,7 +2215,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         turn_on_event_info_panel_if_necessary(my_visible_event_idx);
         //TODO: that should be not here, Keys should be processed at one place
-        if (((get_player(my_player_number)->allocflags & PlaF_NewMPMessage) == 0) &&
+        if (((get_local_user_state()->init_flags & UsrIF_NewMPMessage) == 0) &&
                 is_game_key_pressed(Gkey_ToggleMessage, true, false))
         {
             gui_kill_event(gbtn);
@@ -2225,7 +2225,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         if (my_visible_event_idx == 0)
         {
-            if (((get_player(my_player_number)->allocflags & PlaF_NewMPMessage) == 0) &&
+            if (((get_local_user_state()->init_flags & UsrIF_NewMPMessage) == 0) &&
                 is_game_key_pressed(Gkey_ToggleMessage, true, false))
             {
                 for (int i = EVENT_BUTTONS_COUNT; i >= 0; i--)
