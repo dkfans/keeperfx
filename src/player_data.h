@@ -278,6 +278,7 @@ extern short local_thing_under_hand;
  * Not sync'd over the network.
  */
 extern struct LocalState {
+    unsigned char view_type;
     TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
     TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
     TbBool paused_state_restore; /**< Used to restore pause state after saving */

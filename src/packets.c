@@ -415,7 +415,7 @@ void process_camera_controls(struct Camera* cam, const struct Packet* pckt, stru
     if (pckt->additional_packet_values & PCAdV_SpeedupPressed)
       inter_val *= 3;
 
-    if (is_local_camera && !game.packet_load_enable)
+    if (is_local_camera && !game.packet_load_enable && cam->view_mode != PVM_ParchmentView)
     {        
         // Apply same scaling as packet-based movement for consistency
         if (camera_movement_y != 0.0f) {
@@ -428,12 +428,9 @@ void process_camera_controls(struct Camera* cam, const struct Packet* pckt, stru
             long limit = (long)(camera_movement_x * inter_val);
             view_set_camera_x_inertia(cam, delta, limit);
         }
-        camera_movement_x = 0.0f;
-        camera_movement_y = 0.0f;
     }
     else
     {
-        // Packet-based movement for non-local cameras or when local camera is disabled
         if ((pckt->control_flags & PCtr_MoveUp) != 0) {
             view_set_camera_y_inertia(cam, -inter_val/4, -inter_val);
         }
@@ -446,6 +443,10 @@ void process_camera_controls(struct Camera* cam, const struct Packet* pckt, stru
         if ((pckt->control_flags & PCtr_MoveRight) != 0) {
             view_set_camera_x_inertia(cam, inter_val/4, inter_val);
         }
+    }
+    if (is_local_camera) {
+        camera_movement_x = 0.0f;
+        camera_movement_y = 0.0f;
     }
 
     const TbBool use_rotate_pos = flag_is_set(pckt->control_flags, PCtr_ViewRotatePos | PCtr_MapCoordsValid);
@@ -627,6 +628,11 @@ void process_camera_action(struct Camera cams[], const struct Packet *pckt)
     case PckA_ZoomFromMap:
         set_all_cameras_position(cams, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
         set_all_cameras_rotation(cams, 0);
+        for (int i = 0; i < CamIV_EndList; i++) {
+            cams[i].inertia_x = 0;
+            cams[i].inertia_y = 0;
+            cams[i].inertia_rotation = 0;
+        }
         break;
     }
 }

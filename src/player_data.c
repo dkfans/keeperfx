@@ -474,6 +474,8 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chose
  */
 void set_player_mode(struct PlayerInfo *player, unsigned short nview)
 {
+  if (is_my_player(player) && local_state.view_type == nview)
+    local_state.view_type = PVT_None;
   if (player->view_type == nview)
     return;
   player->view_type = nview;
@@ -497,9 +499,11 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
       } else {
         set_engine_view(player, PVM_IsoWibbleView);
       }
-      if (is_my_player(player))
-      {
-        toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
+      if (is_my_player(player)) {
+        if (local_state.view_type == PVT_MapScreen)
+          toggle_status_menu(0);
+        else
+          toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
         if ((game.operation_flags & GOF_ShowGui) != 0)
           setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
         else
@@ -518,7 +522,10 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
       break;
   case PVT_MapScreen:
       if (is_my_player(player)) {
-        toggle_status_menu(0);
+        if (local_state.view_type == PVT_DungeonTop)
+          toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
+        else
+          toggle_status_menu(0);
       }
       player->continue_work_state = player->work_state;
       set_engine_view(player, PVM_ParchmentView);

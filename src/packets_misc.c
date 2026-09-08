@@ -30,6 +30,7 @@
 #include "game_saves.h"
 #include "gui_topmsg.h"
 #include "config_settings.h"
+#include "player_data.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -80,6 +81,17 @@ void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
     pckt->actn_par3 = par3;
     pckt->actn_par4 = par4;
     pckt->action = pcktype;
+    if (!is_my_player(player)) {
+        return;
+    }
+    if (pcktype == PckA_SaveViewType && par1 == PVT_MapScreen) {
+        local_state.view_type = PVT_MapScreen;
+        toggle_status_menu(0);
+    }
+    if ((pcktype == PckA_LoadViewType && par1 == PVT_DungeonTop) || pcktype == PckA_ZoomFromMap) {
+        local_state.view_type = PVT_DungeonTop;
+        toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
+    }
 }
 
 unsigned char get_players_packet_action(struct PlayerInfo *player)
