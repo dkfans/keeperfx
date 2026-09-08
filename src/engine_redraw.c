@@ -847,7 +847,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 player->display_flags |= PlaF6_DisplayNeedsUpdate;
             } else
             {
-                if ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) {
+                if ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0) {
                   set_pointer_graphic((player->roomspace_highlight_mode == drag_placement_mode) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
                 } else {
                   set_pointer_graphic(MousePG_Invisible);
@@ -993,7 +993,7 @@ void redraw_display(void)
     RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
     int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-    if ((player->allocflags & PlaF_NewMPMessage) != 0)
+    if ((get_local_user_state()->init_flags & UsrIF_NewMPMessage) != 0)
     {
         char text[sizeof(player->mp_message_text) + 4];
         snprintf(text, sizeof(text), ">%s_", player->mp_message_text);

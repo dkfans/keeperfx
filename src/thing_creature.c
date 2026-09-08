@@ -3323,7 +3323,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_off_query_menus();
         turn_on_main_panel_menu();
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-        PaletteSetPlayerPalette(player, engine_palette);
+        PaletteSetUserPalette(player->user_id, engine_palette);
         local_state.palette_fade_step_possession = 11;
     }
     turn_user_cursor_light(player->user_id, true);
@@ -6489,18 +6489,19 @@ TngUpdateRet update_creature(struct Thing *thing)
             }
         }
         struct PlayerInfo* player = get_player(thing->owner);
+        struct UserState* ustate = get_user_state(player->user_id);
         if (creature_under_spell_effect(thing, CSAfF_Freeze))
         {
-            if (!flag_is_set(player->additional_flags, PlaAF_FreezePaletteIsActive))
+            if (!flag_is_set(ustate->additional_flags, UsrAF_FreezePaletteIsActive))
             {
-                PaletteSetPlayerPalette(player, blue_palette);
+                PaletteSetUserPalette(player->user_id, blue_palette);
             }
         }
         else
         {
-            if (flag_is_set(player->additional_flags, PlaAF_FreezePaletteIsActive))
+            if (flag_is_set(ustate->additional_flags, UsrAF_FreezePaletteIsActive))
             {
-                PaletteSetPlayerPalette(player, engine_palette);
+                PaletteSetUserPalette(player->user_id, engine_palette);
             }
         }
     } else

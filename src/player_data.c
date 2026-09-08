@@ -134,6 +134,11 @@ struct UserState *get_player_user_state(const struct PlayerInfo *player)
     return get_user_state(player->user_id);
 }
 
+struct UserState *get_local_user_state(void)
+{
+    return get_user_state(get_local_user());
+}
+
 TbBool user_state_invalid(const struct UserState *ustate)
 {
     if (ustate == INVALID_USER_STATE)
@@ -487,7 +492,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   if (player->view_type == nview)
     return;
   player->view_type = nview;
-  player->allocflags &= ~PlaF_CreaturePassengerMode;
+  get_player_user_state(player)->init_flags &= ~UsrIF_CreaturePassengerMode;
   player->first_person_unfreeze_delay = 0;
   if (is_my_player(player)) {
     game.view_mode_flags &= ~GNFldD_CreaturePasngr;

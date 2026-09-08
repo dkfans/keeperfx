@@ -543,6 +543,7 @@ void draw_power_hand(void)
     struct Room *room;
     struct RoomConfigStats* roomst;
     player = get_my_player();
+    struct UserState* ustate = get_user_state(get_local_user());
     if ((player->display_flags & PlaF6_DisplayNeedsUpdate) != 0)
         return;
     if (game.small_map_state == 2)
@@ -606,7 +607,7 @@ void draw_power_hand(void)
         return;
     }
     SYNCDBG(7,"Drawing hand %s index %d", thing_model_name(thing), (int)thing->index);
-    if ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0)
+    if ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0)
     {
         draw_mini_things_in_hand(GetMouseX()+scale_ui_value(18*global_hand_scale), GetMouseY());
         return;

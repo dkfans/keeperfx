@@ -43,11 +43,7 @@ extern "C" {
 enum PlayerInitFlags {
     PlaF_Allocated               = 0x01,
     PlaF_unusedparam             = 0x02,
-    PlaF_NewMPMessage            = 0x04,
-    PlaF_CreaturePassengerMode   = 0x08,
-    PlaF_KeyboardInputDisabled   = 0x10,
     PlaF_CompCtrl                = 0x40,
-    PlaF_MouseInputDisabled      = 0x80,
 };
 
 enum PlayerField6Flags {
@@ -91,17 +87,24 @@ enum PlayerCursorStates {
     CSt_PowerHand     = 3, // Power Hand cursor
 };
 
-enum PlayerAdditionalFlags {
-    PlaAF_None                      = 0x00,
-    PlaAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
-    PlaAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
-    PlaAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell
-    PlaAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell
-    PlaAF_UnlockedLordTorture       = 0x10, // if this flag is set, the player will be sent to the Lord Torture Mini-game
+enum UserInitFlags {
+    UsrIF_NewMPMessage            = 0x04,
+    UsrIF_CreaturePassengerMode   = 0x08,
+    UsrIF_KeyboardInputDisabled   = 0x10,
+    UsrIF_MouseInputDisabled      = 0x80,
+};
+
+enum UserAdditionalFlags {
+    UsrAF_None                      = 0x00,
+    UsrAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
+    UsrAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
+    UsrAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell
+    UsrAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell
+    UsrAF_UnlockedLordTorture       = 0x10, // if this flag is set, the player will be sent to the Lord Torture Mini-game
     // The below are unused in KFX
-    PlaAF_Unkn20                    = 0x20,
-    PlaAF_Unkn40                    = 0x40,
-    PlaAF_Unkn80                    = 0x80,
+    UsrAF_Unkn20                    = 0x20,
+    UsrAF_Unkn40                    = 0x40,
+    UsrAF_Unkn80                    = 0x80,
 };
 
 enum PlayerTypes {
@@ -156,7 +159,6 @@ struct CheatSelection
 */
 struct PlayerInfo {
     unsigned char allocflags;
-    unsigned char additional_flags; // Uses PlayerAdditionalFlags
     unsigned char display_flags;
     NetUserId user_id; // -1 if no user
     int32_t hand_animationId;
@@ -241,6 +243,8 @@ struct PlayerInfo {
  * user per client, including the host.
  */
 struct UserState {
+    unsigned char init_flags; // Uses UserInitFlags
+    unsigned char additional_flags; // Uses UserAdditionalFlags
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
     short cursor_light_idx;
@@ -317,6 +321,7 @@ TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
 struct UserState *get_user_state(NetUserId user);
 struct UserState *get_player_user_state(const struct PlayerInfo *player);
+struct UserState *get_local_user_state(void);
 TbBool user_state_invalid(const struct UserState *ustate);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);

@@ -673,7 +673,7 @@ static void keeper_gameplay_loop(void)
     struct PlayerInfo *player;
     SYNCDBG(5,"Starting");
     player = get_my_player();
-    PaletteSetPlayerPalette(player, engine_palette);
+    PaletteSetUserPalette(player->user_id, engine_palette);
     if ((game.operation_flags & GOF_SingleLevel) != 0) {
         initialise_eye_lenses();
     }

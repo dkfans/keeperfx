@@ -193,7 +193,7 @@ void send_network_chat_message(NetUserId sender, const char *message)
 struct PlayerInfo *prepare_network_chat_message(int player_id, const char *message)
 {
     struct PlayerInfo *player = get_player(player_id);
-    player->allocflags &= ~PlaF_NewMPMessage;
+    get_player_user_state(player)->init_flags &= ~UsrIF_NewMPMessage;
     if (message[0] != '\0') {
         memcpy(player->mp_message_text, message, PLAYER_MP_MESSAGE_LEN);
         memcpy(player->mp_message_text_last, message, PLAYER_MP_MESSAGE_LEN);

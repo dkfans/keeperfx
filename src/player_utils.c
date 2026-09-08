@@ -133,7 +133,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
     if (lord_of_the_land_in_prison_or_tortured())
     {
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
-        player->additional_flags |= PlaAF_UnlockedLordTorture;
+        get_user_state(player->user_id)->additional_flags |= UsrAF_UnlockedLordTorture;
     }
     output_message(SMsg_LevelWon, 0);
   }
