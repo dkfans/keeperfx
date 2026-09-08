@@ -122,7 +122,9 @@ function DisplayVariable(player, variable, target, target_type) end
 function DisplayVariableWithLabel(player, variable, icon) end
 
 ---Hides the variable that has been made visible with Display_variable
-function HideVariable() end
+---@param player Player The player’s name, e.g. PLAYER1.
+---@param variable? string optional variable to hide, if not populated will hide all
+function HideVariable(variable) end
 
 --- Displays on screen how long a specific script timer reaches the target turn.
 --- @param player Player The player’s name, e.g. PLAYER1.
