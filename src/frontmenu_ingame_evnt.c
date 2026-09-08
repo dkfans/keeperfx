@@ -358,11 +358,14 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
 
 short zoom_to_fight(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo* player = get_my_player();
     if (active_battle_exists(plyr_idx))
     {
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-        set_players_packet_action(player, PckA_ZoomToBattle, dungeon->visible_battles[0], 0, 0, 0);
+        struct CreatureBattle* battle = creature_battle_get(dungeon->visible_battles[0]);
+        struct Thing* thing = thing_get(battle->first_creatr);
+        if (thing_exists(thing)) {
+            move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
+        }
         step_battles_forward(plyr_idx);
         return true;
     }

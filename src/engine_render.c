@@ -2452,12 +2452,13 @@ static void fiddle_gamut_set_minmaxes(int32_t *floor_x, int32_t *floor_y, long m
 static void fiddle_gamut(long pos_x, long pos_y)
 {
     struct PlayerInfo *player = get_my_player();
+    struct Camera *camera = get_local_active_camera(player);
     long ewwidth;
     long ewheight;
     long ewzoom;
     int32_t floor_x[4];
     int32_t floor_y[4];
-    switch (player->view_mode)
+    switch (camera->view_mode)
     {
     case PVM_CreatureView:
         fiddle_half_gamut(pos_x, pos_y, 1, cells_away);
@@ -5102,7 +5103,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         scale = (flame.sprite_size * base_sprite_size / thing->sprite_size);
     }
 
-    if (player->view_type == PVT_DungeonTop)
+    if (get_local_view_type(player) == PVT_DungeonTop)
     {
         add_x = (base_sprite_size * flame.td_add_x) >> 5;
         add_y = (base_sprite_size * flame.td_add_y) >> 5;
@@ -5313,13 +5314,8 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
     spr = get_button_sprite(GBS_fontchars_number_dig0);
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
-    struct Camera *active_cam = get_player_active_camera(player);
-    if (
-        active_cam != NULL &&
-        (active_cam->view_mode == PVM_IsoWibbleView ||
-         active_cam->view_mode == PVM_FrontView ||
-         active_cam->view_mode == PVM_IsoStraightView)
-    ) {
+    struct Camera *active_cam = get_local_active_camera(player);
+    if (active_cam != NULL && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_FrontView || active_cam->view_mode == PVM_IsoStraightView)) {
         // Count digits to be displayed
         ndigits=0;
         for (remaining_digits = num->lvl; remaining_digits > 0; remaining_digits /= 10)
@@ -5349,7 +5345,7 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(get_player_active_camera(player));
+    const struct Camera *cam = get_local_active_camera(player);
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -5508,7 +5504,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(get_player_active_camera(player));
+    const struct Camera *cam = get_local_active_camera(player);
     if (cam == NULL)
     {
         return;
@@ -5748,7 +5744,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(get_player_active_camera(player));
+    const struct Camera *cam = get_local_active_camera(player);
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -6969,7 +6965,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 break;
             case QK_JontyISOSprite: // Spinning key
                 player = get_my_player();
-                cam = get_local_camera(get_player_active_camera(player));
+                cam = get_local_active_camera(player);
                 if (cam != NULL)
                 {
                     if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
@@ -8073,7 +8069,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
             lltemp = dim_oh * (48 - (long)cctrl->sacrifice.animation_counter);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
         }
-        if (player->view_mode == PVM_CreatureView)
+        if (get_local_active_camera(player)->view_mode == PVM_CreatureView)
         {
             water_source_cutoff = cutoff;
             water_y_offset = (2 * scale * cutoff) >> 5;
@@ -8180,7 +8176,7 @@ static void draw_mapwho_ariadne_path(struct Thing *thing)
 {
     // Don't draw debug pathfinding lines in Possession to avoid crash
     struct PlayerInfo *player = get_my_player();
-    if (player->view_mode == PVM_CreatureView)
+    if (get_local_active_camera(player)->view_mode == PVM_CreatureView)
         return;
 
     struct Ariadne *arid;
@@ -8253,7 +8249,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     if (!thing_is_invalid(thing))
     {
         if ((local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
-          struct Camera *active_cam = get_player_active_camera(player);
+          struct Camera *active_cam = get_local_active_camera(player);
           if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
           {
               RendererAddDrawFlags(Lb_SPRITE_REMAP);

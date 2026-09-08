@@ -875,7 +875,7 @@ short zoom_to_next_annoyed_creature(void)
     {
       return false;
     }
-    set_players_packet_action(player, PckA_ZoomToPosition, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+    move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
     return true;
 }
 
@@ -1454,7 +1454,7 @@ void update_local_mouse_light(void)
     if (game_is_busy_doing_gui_string_input())
         return;
 
-    struct Camera *cam = get_local_camera(get_player_active_camera(player));
+    struct Camera *cam = get_local_active_camera(player);
     struct Coord3d pos;
     const TbBool valid = screen_to_map(cam, GetMouseX(), GetMouseY(), &pos);
 

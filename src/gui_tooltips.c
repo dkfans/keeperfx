@@ -459,18 +459,18 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
     struct PlayerInfo* player = get_my_player();
     if ((gameplay_on) && (tool_tip_time == 0) && (!busy_doing_gui))
     {
-      struct Camera *camera = get_player_active_camera(player);
+      struct Camera *camera = get_local_active_camera(player);
       if (camera == NULL)
         {
             ERRORLOG("No active camera");
             return false;
         }
         struct Coord3d mappos;
-      if (screen_to_map(get_local_camera(camera), GetMouseX(), GetMouseY(), &mappos))
+      if (screen_to_map(camera, GetMouseX(), GetMouseY(), &mappos))
         {
             if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
             {
-                if (player->view_mode != PVM_CreatureView)
+                if (camera->view_mode != PVM_CreatureView)
                     shown = setup_scrolling_tooltips(&mappos);
             }
         }
@@ -623,7 +623,7 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
   struct PlayerInfo* player = get_my_player();
   long pos_x = ttpos_x;
   long pos_y = ttpos_y;
-  if (player->view_type == PVT_MapScreen)
+  if (get_local_view_type(player) == PVT_MapScreen)
   {
       pos_y = GetMouseY() + scale_ui_value(24);
       if (pos_y > MyScreenHeight - scale_ui_value(104))

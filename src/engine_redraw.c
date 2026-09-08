@@ -511,8 +511,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
 void draw_overlay_compass(long base_x, long base_y)
 {
     struct PlayerInfo* player = get_my_player();
-    struct Camera* camera = get_player_active_camera(player);
-    struct Camera* cam = get_local_camera(camera);
+    struct Camera* cam = get_local_active_camera(player);
     unsigned short flg_mem = RendererGetDrawFlags();
     LbTextSetFont(winfont);
     RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
@@ -616,7 +615,7 @@ void redraw_isometric_view(void)
         return;
     TbGraphicsWindow ewnd;
     memset(&ewnd, 0, sizeof(TbGraphicsWindow));
-    struct Camera* render_cam = get_local_camera(&player->cameras[CamIV_Isometric]);
+    struct Camera* render_cam = get_local_active_camera(player);
     update_explored_flags_for_power_sight(player);
     engine(player,render_cam);
     if (smooth_on)
@@ -644,7 +643,7 @@ void redraw_frontview(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
-    struct Camera* render_cam = get_local_camera(&player->cameras[CamIV_FrontView]);
+    struct Camera* render_cam = get_local_active_camera(player);
     update_explored_flags_for_power_sight(player);
     draw_frontview_engine(render_cam);
      remove_explored_flags_for_power_sight(player);
@@ -916,7 +915,7 @@ void process_pointer_graphic(void)
 {
     struct PlayerInfo* player = get_my_player();
     SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)player->view_type,player_state_code_name(player->work_state),(int)player->instance_num);
-    switch (player->view_type)
+    switch (get_local_view_type(player))
     {
     case PVT_DungeonTop:
         // This case is complicated
@@ -956,7 +955,7 @@ void redraw_display(void)
     else
       process_pointer_graphic();
     interpolate_local_cameras();
-    switch (player->view_mode)
+    switch (get_local_active_camera(player)->view_mode)
     {
     case PVM_EmptyView:
         break;
@@ -1065,12 +1064,8 @@ void redraw_display(void)
           const char * text = get_string(GUIStr_PausedMsg);
           long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16));
           long pos_x;
-          if (
-              player->view_mode == PVM_IsoWibbleView ||
-              player->view_mode == PVM_FrontView ||
-              player->view_mode == PVM_IsoStraightView ||
-              player->view_mode == PVM_CreatureView
-          ) {
+          struct Camera *camera = get_local_active_camera(player);
+          if (camera->view_mode == PVM_IsoWibbleView || camera->view_mode == PVM_FrontView || camera->view_mode == PVM_IsoStraightView || camera->view_mode == PVM_CreatureView) {
               pos_x = local_state.engine_window_x + (MyScreenWidth - w - local_state.engine_window_x) / 2;
           } else {
               pos_x = (MyScreenWidth-w)/2;

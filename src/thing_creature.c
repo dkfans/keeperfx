@@ -4337,7 +4337,7 @@ void draw_creature_view(struct Thing *thing)
 {
   // If no eye lens required - just draw on the screen, directly
   struct PlayerInfo* player = get_my_player();
-  struct Camera* render_cam = get_local_camera(&player->cameras[CamIV_FirstPerson]);
+  struct Camera* render_cam = get_local_active_camera(player);
   if (!lens_is_ready())
   {
       engine(player, render_cam);
@@ -5685,8 +5685,7 @@ void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx, unsign
     struct Thing* creatng = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, my_player_number, pick_flags);
     if (!thing_is_invalid(creatng))
     {
-        struct PlayerInfo* player = get_my_player();
-        set_players_packet_action(player, PckA_ZoomToPosition, creatng->mappos.x.val, creatng->mappos.y.val, 0, 0);
+        move_local_camera_to_position(creatng->mappos.x.val, creatng->mappos.y.val);
     }
 }
 

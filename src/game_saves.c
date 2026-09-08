@@ -484,6 +484,7 @@ TbBool load_game(long slot_num)
     struct PlayerInfo* player = get_my_player();
     clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
     clear_flag(player->additional_flags, PlaAF_FreezePaletteIsActive);
+    local_state.view_type = PVT_None;
     local_state.palette_fade_step_pain = 0;
     local_state.palette_fade_step_possession = 0;
     local_state.lens_palette = 0;
