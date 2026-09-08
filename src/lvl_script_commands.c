@@ -3755,23 +3755,39 @@ static void hide_timer_process(struct ScriptContext *context)
 
 static void hide_variable_check(const struct ScriptLine *scline)
 {
-    int32_t varib_id, varib_type;
-    varib_id = -1;
-    varib_type = -1;
-    const char *arg_text = scline->tp[1];    
-    if(arg_text[0] != '\0')
+    int32_t varib_id = -1;
+    int32_t varib_type = -1;
+    int32_t player_idx = -1;
+
+    if (scline->tp[0][0] == '\0')
+    {
+        ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+        value->longs[0] = -1;  // All players
+        value->longs[1] = -1;  // All variables
+        value->bytes[2] = -1;
+
+        PROCESS_SCRIPT_VALUE(scline->command);
+        return;
+    }
+
+    player_idx = scline->np[0];
+
+    if (scline->tp[1][0] != '\0')
     {
         if (!parse_get_varib(scline->tp[1], &varib_id, &varib_type, level_file_version))
         {
             SCRPTERRLOG("Unknown variable, '%s'", scline->tp[1]);
             return;
-        }    
-
+        }
     }
-    
+
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    value->longs[0] = player_idx;
+    value->longs[1] = varib_id;
     value->bytes[2] = varib_type;
-    value->longs[1] = varib_id;    
+
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3780,7 +3796,7 @@ static void hide_variable_process(struct ScriptContext *context)
     short varib_id, varib_type, player_idx;
     varib_type = context->value->bytes[2];
     varib_id = context->value->longs[1];
-    player_idx = context->player_idx;
+    player_idx = context->value->longs[0];
     if(varib_id > -1 && varib_type > -1)
     {
         for (int i = 0; i < DISPLAY_VARIABLES_LIMIT; i++)
@@ -3797,7 +3813,7 @@ static void hide_variable_process(struct ScriptContext *context)
     } else {
         for (int i = 0; i < game.active_script_var_count; i++)
         {
-            if (game.script_variables[i].variable_player == player_idx)
+            if (game.script_variables[i].variable_player == player_idx || player_idx == -1)
             {
                 for (int j = i; j < game.active_script_var_count - 1; j++)
                 {
@@ -7072,7 +7088,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_VARIABLE_WITH_LABEL",       "PAa    ", Cmd_DISPLAY_VARIABLE_WITH_LABEL, &display_variable_with_label_check, &display_variable_with_label_process},
   {"DISPLAY_COUNTDOWN",                 "PANb    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
   {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
-  {"HIDE_VARIABLE",                     "Pa      ", Cmd_HIDE_VARIABLE, &hide_variable_check, &hide_variable_process},
+  {"HIDE_VARIABLE",                     "pa      ", Cmd_HIDE_VARIABLE, &hide_variable_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_at_pos_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
