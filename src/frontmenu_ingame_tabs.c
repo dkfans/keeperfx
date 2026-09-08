@@ -190,18 +190,18 @@ short get_pixels_scaled_and_zoomed(long basic_zoom)
 
 void gui_zoom_in(struct GuiButton *gbtn)
 {
-    if (local_info.minimap_zoom > 128) {
-        local_info.minimap_zoom >>= 1;
-        settings.minimap_zoom = local_info.minimap_zoom;
+    if (local_state.minimap_zoom > 128) {
+        local_state.minimap_zoom >>= 1;
+        settings.minimap_zoom = local_state.minimap_zoom;
         save_settings();
     }
 }
 
 void gui_zoom_out(struct GuiButton *gbtn)
 {
-    if (local_info.minimap_zoom < 2048) {
-        local_info.minimap_zoom <<= 1;
-        settings.minimap_zoom = local_info.minimap_zoom;
+    if (local_state.minimap_zoom < 2048) {
+        local_state.minimap_zoom <<= 1;
+        settings.minimap_zoom = local_state.minimap_zoom;
         save_settings();
     }
 }
@@ -2657,11 +2657,11 @@ void draw_whole_status_panel(void)
     // Draws gold amount; note that button_sprite[] is used instead of full font
     draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, fs_units_per_px, dungeon->total_money_owned);
     if (16/mm_units_per_px < 3)
-        mmzoom = (local_info.minimap_zoom) / scale_value_for_resolution_with_upp(2,mm_units_per_px);
+        mmzoom = (local_state.minimap_zoom) / scale_value_for_resolution_with_upp(2,mm_units_per_px);
     else
-        mmzoom = local_info.minimap_zoom;
-    panel_map_draw_slabs(local_info.minimap_pos_x, local_info.minimap_pos_y, mm_units_per_px, mmzoom);
-    long basic_zoom = local_info.minimap_zoom;
+        mmzoom = local_state.minimap_zoom;
+    panel_map_draw_slabs(local_state.minimap_pos_x, local_state.minimap_pos_y, mm_units_per_px, mmzoom);
+    long basic_zoom = local_state.minimap_zoom;
     panel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
     unsigned char placefill_threshold = (LbScreenHeight() >= 400) ? 80 : 40;
     if (LbScreenHeight() - gmnu->height >= placefill_threshold)

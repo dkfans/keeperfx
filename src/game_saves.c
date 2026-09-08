@@ -484,16 +484,16 @@ TbBool load_game(long slot_num)
     struct PlayerInfo* player = get_my_player();
     clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
     clear_flag(player->additional_flags, PlaAF_FreezePaletteIsActive);
-    local_info.palette_fade_step_pain = 0;
-    local_info.palette_fade_step_possession = 0;
-    local_info.lens_palette = 0;
-    local_info.minimap_pos_x = 11;
-    local_info.minimap_pos_y = 11;
-    local_info.minimap_zoom = settings.minimap_zoom;
+    local_state.palette_fade_step_pain = 0;
+    local_state.palette_fade_step_possession = 0;
+    local_state.lens_palette = 0;
+    local_state.minimap_pos_x = 11;
+    local_state.minimap_pos_y = 11;
+    local_state.minimap_zoom = settings.minimap_zoom;
     // Reinitialize lens first (restores lens_palette pointer from config)
     reinitialise_eye_lens(game.applied_lens_type);
     // Apply the appropriate palette (lens palette if active, otherwise engine default)
-    PaletteSetPlayerPalette(player, local_info.lens_palette ? local_info.lens_palette : engine_palette);
+    PaletteSetPlayerPalette(player, local_state.lens_palette ? local_state.lens_palette : engine_palette);
     init_local_cameras(player);
     // Update the lights system state
     light_import_system_state(&game.lightst);

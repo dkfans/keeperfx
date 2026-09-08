@@ -224,36 +224,36 @@ void setup_engine_window(long x, long y, long width, long height)
       height = MyScreenHeight-y;
     if (height < 0)
       height = 0;
-    local_info.engine_window_x = x;
-    local_info.engine_window_y = y;
-    local_info.engine_window_width = width;
-    local_info.engine_window_height = height;
+    local_state.engine_window_x = x;
+    local_state.engine_window_y = y;
+    local_state.engine_window_width = width;
+    local_state.engine_window_height = height;
 }
 
 void store_engine_window(TbGraphicsWindow *ewnd,int divider)
 {
     if (divider <= 1)
     {
-        ewnd->x = local_info.engine_window_x;
-        ewnd->y = local_info.engine_window_y;
-        ewnd->width = local_info.engine_window_width;
-        ewnd->height = local_info.engine_window_height;
+        ewnd->x = local_state.engine_window_x;
+        ewnd->y = local_state.engine_window_y;
+        ewnd->width = local_state.engine_window_width;
+        ewnd->height = local_state.engine_window_height;
     } else
     {
-        ewnd->x = local_info.engine_window_x/divider;
-        ewnd->y = local_info.engine_window_y/divider;
-        ewnd->width = local_info.engine_window_width/divider;
-        ewnd->height = local_info.engine_window_height/divider;
+        ewnd->x = local_state.engine_window_x/divider;
+        ewnd->y = local_state.engine_window_y/divider;
+        ewnd->width = local_state.engine_window_width/divider;
+        ewnd->height = local_state.engine_window_height/divider;
     }
     ewnd->ptr = NULL;
 }
 
 void load_engine_window(TbGraphicsWindow *ewnd)
 {
-    local_info.engine_window_x = ewnd->x;
-    local_info.engine_window_y = ewnd->y;
-    local_info.engine_window_width = ewnd->width;
-    local_info.engine_window_height = ewnd->height;
+    local_state.engine_window_x = ewnd->x;
+    local_state.engine_window_y = ewnd->y;
+    local_state.engine_window_width = ewnd->width;
+    local_state.engine_window_height = ewnd->height;
 }
 
 void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, long a6, long const xmax, long const ymax, long a9)
@@ -568,7 +568,7 @@ void redraw_creature_view(void)
     }
     draw_gui();
     if ((game.operation_flags & GOF_ShowGui) != 0) {
-        draw_overlay_compass(local_info.minimap_pos_x, local_info.minimap_pos_y);
+        draw_overlay_compass(local_state.minimap_pos_x, local_state.minimap_pos_y);
     }
     message_draw();
     gui_draw_all_boxes();
@@ -631,7 +631,7 @@ void redraw_isometric_view(void)
     }
     draw_gui();
     if ((game.operation_flags & GOF_ShowGui) != 0) {
-        draw_overlay_compass(local_info.minimap_pos_x, local_info.minimap_pos_y);
+        draw_overlay_compass(local_state.minimap_pos_x, local_state.minimap_pos_y);
     }
     message_draw();
     gui_draw_all_boxes();
@@ -653,7 +653,7 @@ void redraw_frontview(void)
     }
     draw_gui();
     if (flag_is_set(game.operation_flags,GOF_ShowGui)) {
-        draw_overlay_compass(local_info.minimap_pos_x, local_info.minimap_pos_y);
+        draw_overlay_compass(local_state.minimap_pos_x, local_state.minimap_pos_y);
     }
     message_draw();
     draw_power_hand();
@@ -732,6 +732,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     struct Thing *thing;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
+    struct UserState* ustate = get_user_state(player->user_id);
     if (dungeon_invalid(dungeon))
     {
         set_pointer_graphic(MousePG_Invisible);
@@ -744,7 +745,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         return;
     }
     // Mouse over panel map
-    if (((game.operation_flags & GOF_ShowGui) != 0) && mouse_is_over_panel_map(local_info.minimap_pos_x, local_info.minimap_pos_y))
+    if (((game.operation_flags & GOF_ShowGui) != 0) && mouse_is_over_panel_map(local_state.minimap_pos_x, local_state.minimap_pos_y))
     {
         if (game.small_map_state == 2) {
             set_pointer_graphic(MousePG_Invisible);
@@ -808,7 +809,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             thing = thing_get(thing_under_hand);
             TRACE_THING(thing);
             TbBool can_cast = false;
-            if ((player->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != thing_under_hand))
+            if ((ustate->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != thing_under_hand))
             {
                 PowerKind pwkind = PwrK_POSSESS;
                 if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
@@ -839,7 +840,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
 
                 player->display_flags |= PlaF6_DisplayNeedsUpdate;
             } else
-            if (((player->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != thing_under_hand)
+            if (((ustate->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
                 set_pointer_graphic(MousePG_Query);
@@ -977,11 +978,11 @@ void redraw_display(void)
         break;
     case PVM_ParchFadeIn:
         parchment_loaded = 0;
-        local_info.palette_fade_step_map = map_fade_in(local_info.palette_fade_step_map);
+        local_state.palette_fade_step_map = map_fade_in(local_state.palette_fade_step_map);
         break;
     case PVM_ParchFadeOut:
         parchment_loaded = 0;
-        local_info.palette_fade_step_map = map_fade_out(local_info.palette_fade_step_map);
+        local_state.palette_fade_step_map = map_fade_out(local_state.palette_fade_step_map);
         break;
     default:
         ERRORLOG("Unsupported drawing state, %d",(int)player->view_mode);
@@ -1070,7 +1071,7 @@ void redraw_display(void)
               player->view_mode == PVM_IsoStraightView ||
               player->view_mode == PVM_CreatureView
           ) {
-              pos_x = local_info.engine_window_x + (MyScreenWidth - w - local_info.engine_window_x) / 2;
+              pos_x = local_state.engine_window_x + (MyScreenWidth - w - local_state.engine_window_x) / 2;
           } else {
               pos_x = (MyScreenWidth-w)/2;
           }
@@ -1140,8 +1141,8 @@ TbBool keeper_screen_redraw(void)
     RendererClearScreen(144);
     if (RendererLockFramebuffer() == Lb_SUCCESS)
     {
-        setup_engine_window(local_info.engine_window_x, local_info.engine_window_y,
-            local_info.engine_window_width, local_info.engine_window_height);
+        setup_engine_window(local_state.engine_window_x, local_state.engine_window_y,
+            local_state.engine_window_width, local_state.engine_window_height);
         redraw_display();
         RendererUnlockFramebuffer();
         return true;

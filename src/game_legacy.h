@@ -232,6 +232,7 @@ struct Game {
     char active_lens_type;
     unsigned char applied_lens_type;
     struct PlayerInfo players[PLAYERS_COUNT];
+    struct UserState user_states[MAX_NET_USERS];
     struct Column columns_data[COLUMNS_COUNT];
     unsigned short slabset_num;
     struct SlabSet slabset[SLABSET_COUNT];

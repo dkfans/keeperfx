@@ -74,6 +74,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "player_instances.h"
+#include "player_utils.h"
 #include "config_players.h"
 #include "power_hand.h"
 #include "power_process.h"
@@ -366,13 +367,13 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
 /**
  * Randomise the draw direction of the swipe sprite in the first-person possession view.
  *
- * Sets local_info.swipe_sprite_drawLR to either TRUE or FALSE.
+ * Sets local_state.swipe_sprite_drawLR to either TRUE or FALSE.
  *
  * Draw direction is either: left-to-right (TRUE) or right-to-left (FALSE)
  */
 void randomise_swipe_graphic_direction()
 {
-    local_info.swipe_sprite_drawLR = UNSYNC_RANDOM(2); // equal chance to be left-to-right or right-to-left
+    local_state.swipe_sprite_drawLR = UNSYNC_RANDOM(2); // equal chance to be left-to-right or right-to-left
 }
 
 void draw_swipe_graphic(void)
@@ -407,13 +408,13 @@ void draw_swipe_graphic(void)
             int scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
             const struct TbSprite *spr;
             int scrpos_x;
-            if (local_info.swipe_sprite_drawLR)
+            if (local_state.swipe_sprite_drawLR)
             {
                 int delta_y = sprlist[1].SHeight;
                 for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
                 {
                     spr = &startspr[i];
-                    scrpos_x = ((MyScreenWidth + (2 * local_info.engine_window_x)) * 16 / units_per_px - allwidth)/ 2;
+                    scrpos_x = ((MyScreenWidth + (2 * local_state.engine_window_x)) * 16 / units_per_px - allwidth)/ 2;
                     for (n=0; n < SWIPE_SPRITES_X; n++)
                     {
                         LbSpriteDrawResized(scrpos_x * units_per_px / 16, scrpos_y * units_per_px / 16, units_per_px, spr);
@@ -3311,9 +3312,9 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_on_main_panel_menu();
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
         PaletteSetPlayerPalette(player, engine_palette);
-        local_info.palette_fade_step_possession = 11;
+        local_state.palette_fade_step_possession = 11;
     }
-    light_turn_light_on(player->cursor_light_idx);
+    turn_user_cursor_light(player->user_id, true);
 }
 
 void delete_armour_effects_attached_to_creature(struct Thing *thing)
@@ -4354,10 +4355,10 @@ void draw_creature_view(struct Thing *thing)
   // Draw swipe into buffer BEFORE lens effects (so overlay renders on top of swipe)
   draw_swipe_graphic();
   // Get the actual viewport dimensions (accounts for sidebar)
-  long view_width = local_info.engine_window_width / pixel_size;
-  long view_height = local_info.engine_window_height / pixel_size;
-  long view_x = local_info.engine_window_x / pixel_size;
-  long view_y = local_info.engine_window_y / pixel_size;
+  long view_width = local_state.engine_window_width / pixel_size;
+  long view_height = local_state.engine_window_height / pixel_size;
+  long view_x = local_state.engine_window_x / pixel_size;
+  long view_y = local_state.engine_window_y / pixel_size;
   // Restore original graphics settings
   lbDisplay.WScreen = wscr_cp;
   LbScreenLoadGraphicsWindow(&grwnd);

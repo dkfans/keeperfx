@@ -34,6 +34,7 @@ extern "C" {
 #define COLOURS_COUNT       9
 
 #define INVALID_PLAYER (&bad_player)
+#define INVALID_USER_STATE (&bad_user_state)
 
 #define PLAYER_MP_MESSAGE_LEN  64
 
@@ -145,14 +146,20 @@ struct CheatSelection
     unsigned char chosen_experience_level;
 };
 
+/*
+ * Per-player game data.
+ *
+ * Players can be human-controlled, AI controlled, etc. (See player_instances.h)
+ * 
+ * Note: for legacy reasons, this struct currently contains some fields that
+ * should eventually be ported to UserState or LocalState.
+*/
 struct PlayerInfo {
     unsigned char allocflags;
     unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
     unsigned char additional_flags; // Uses PlayerAdditionalFlags
-    unsigned char input_crtr_control;
-    unsigned char input_crtr_query;
     unsigned char display_flags;
-    unsigned char /*NetUserId*/ user_id;
+    NetUserId user_id; // -1 if no user
     int32_t hand_animationId;
     unsigned int hand_busy_until_turn;
     char player_name[20];
@@ -181,7 +188,6 @@ struct PlayerInfo {
     unsigned char primary_cursor_state;
     unsigned char secondary_cursor_state;
     PlayerState continue_work_state;
-    short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
     char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
@@ -246,6 +252,18 @@ struct PlayerInfo {
     int first_person_unfreeze_delay;
 };
 
+/* Game state that exists per human user. Computer-controlled
+ * players are not users.
+ *
+ * Local games only have a single user. Networked games have one
+ * user per client, including the host.
+ */
+struct UserState {
+    unsigned char input_crtr_control;
+    unsigned char input_crtr_query;
+    short cursor_light_idx;
+};
+
 /******************************************************************************/
 
 extern unsigned char my_player_number;
@@ -254,7 +272,12 @@ extern short local_thing_under_hand;
 #pragma pack()
 /******************************************************************************/
 
-struct LocalInfo {
+/* Miscellaneous state relating to this device and
+ * the local human player.
+ *
+ * Not sync'd over the network.
+ */
+extern struct LocalState {
     TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
     TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
     TbBool paused_state_restore; /**< Used to restore pause state after saving */
@@ -271,9 +294,8 @@ struct LocalInfo {
     short minimap_pos_x;
     short minimap_pos_y;
     unsigned short minimap_zoom;
-};
+} local_state;
 
-extern struct LocalInfo local_info;
 extern unsigned short player_colors_map[];
 extern TbPixel player_path_colours[];
 extern TbPixel player_room_colours[];
@@ -282,6 +304,7 @@ extern TbPixel player_highlight_colours[];
 extern TbPixel possession_hit_colours[];
 extern unsigned short const player_cubes[];
 extern struct PlayerInfo bad_player;
+extern struct UserState bad_user_state;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
@@ -289,6 +312,8 @@ struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name);
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
+struct UserState *get_user_state(NetUserId user);
+TbBool user_state_invalid(const struct UserState *ustate);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
 TbBool players_are_enemies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);

@@ -132,6 +132,16 @@ void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str
 extern void render_set_sprite_debug(int level);
 extern TbBool process_user_global_packet_action(NetUserId user);
 
+// player's user, or if that's invalid then the local user
+static NetUserId console_cmd_user(PlayerNumber plyr_idx)
+{
+    NetUserId user = get_player(plyr_idx)->user_id;
+    if (user < 0) {
+        user = get_local_user();
+    }
+    return user;
+}
+
 static struct GuiBoxOption cmd_comp_procs_data[COMPUTER_PROCESSES_COUNT + 3] = {
   {"!", 1, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
@@ -826,7 +836,7 @@ TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
     }
     if (r > 0) {
         int radius_offset = r / 2;
-        struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+        struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
         MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
         MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
         clear_dig_for_map_rect(player->id_number,
@@ -857,7 +867,7 @@ TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
     }
     if (r > 0) {
         int radius_offset = r / 2;
-        struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+        struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
         MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
         MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
         conceal_map_area(player->id_number, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset, false);
@@ -1046,7 +1056,7 @@ TbBool cmd_create_gold(PlayerNumber plyr_idx, char * args)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "parameter 1 requires a number");
         return false;
     }
-    struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+    struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
     struct Thing * thing = create_gold_pot_at(pckt->pos_x, pckt->pos_y, plyr_idx);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "coordinate thing is invalid");
@@ -1087,13 +1097,13 @@ TbBool cmd_look(PlayerNumber plyr_idx, char * args)
     long room_id = get_id(room_desc, pr1str);
     if (room_id != -1) {
         go_to_my_next_room_of_type(room_id);
-        process_user_global_packet_action(get_player(plyr_idx)->user_id); // Dirty hack
+        process_user_global_packet_action(console_cmd_user(plyr_idx)); // Dirty hack
         return true;
     }
     long crmodel = get_id(creature_desc, pr1str);
     if(crmodel != -1) {
         go_to_next_creature_of_model_and_gui_job(crmodel, CrGUIJob_Any, TPF_OrderedPick);
-        process_user_global_packet_action(get_player(plyr_idx)->user_id); // Dirty hack
+        process_user_global_packet_action(console_cmd_user(plyr_idx)); // Dirty hack
         return true;
     }
     TbMapLocation loc = {0};
@@ -1101,15 +1111,14 @@ TbBool cmd_look(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "failed to get map location");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
     MapSubtlCoord stl_x, stl_y;
     find_map_location_coords(loc, &stl_x, &stl_y, plyr_idx, __func__);
     if (stl_x == 0 && stl_y == 0) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "subtile coord is invalid");
         return false;
     }
-    set_players_packet_action(player, PckA_ZoomToPosition, subtile_coord_center(stl_x), subtile_coord_center(stl_y), 0, 0);
-    process_user_global_packet_action(get_player(plyr_idx)->user_id); // Dirty hack
+    set_packet_action(get_packet(console_cmd_user(plyr_idx)), PckA_ZoomToPosition, subtile_coord_center(stl_x), subtile_coord_center(stl_y), 0, 0);
+    process_user_global_packet_action(console_cmd_user(plyr_idx)); // Dirty hack
     return true;
 }
 
@@ -1124,7 +1133,7 @@ TbBool cmd_create_object(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as object model");
         return false;
     }
-    struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+    struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
     struct Coord3d pos = {0};
     pos.x.stl.num = coord_subtile(pckt->pos_x);
     pos.y.stl.num = coord_subtile(pckt->pos_y);
@@ -1206,7 +1215,7 @@ TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "creature model [%d] exceeds (%d, %d)", crmodel, 0, game.conf.crtr_conf.model_count);
         return false;
     }
-    struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+    struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     if (subtile_coords_invalid(stl_x, stl_y)) {
@@ -1298,7 +1307,7 @@ TbBool cmd_create_thing(PlayerNumber plyr_idx, char * args)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "model is invalid");
         return false;
     }
-    struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+    struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
     struct Coord3d pos = {0};
     pos.x.stl.num = coord_subtile(pckt->pos_x);
     pos.y.stl.num = coord_subtile(pckt->pos_y);
@@ -1546,7 +1555,7 @@ TbBool cmd_place_slab(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as slbkind");
         return false;
     }
-    struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+    struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     MapSlabCoord slb_x = subtile_slab(stl_x);
@@ -1898,7 +1907,7 @@ TbBool cmd_mapwho_info(PlayerNumber plyr_idx, char * args)
     char * pr1str = strsep_param_with_space(&args);
     struct Coord3d pos = {0};
     if (pr1str == NULL) {
-        struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+        struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
         pos.x.val = pckt->pos_x;
         pos.y.val = pckt->pos_y;
     } else {
@@ -2006,7 +2015,7 @@ TbBool cmd_cursor_pos(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+    struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
     struct Coord3d pos = {0};
     pos.x.val = pckt->pos_x;
     pos.y.val = pckt->pos_y;
@@ -2024,7 +2033,7 @@ TbBool cmd_get_thing(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+    struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     struct Thing * thing = (pr1str != NULL) ? thing_get(atoi(pr1str)) : get_nearest_thing_at_position(stl_x, stl_y);
@@ -2101,7 +2110,7 @@ TbBool cmd_move_thing(PlayerNumber plyr_idx, char * args)
             pos.z.val = get_floor_height_at(&pos);
         }
     } else {
-        struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+        struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
         pos.x.val = pckt->pos_x;
         pos.y.val = pckt->pos_y;
         pos.z.val = get_floor_height_at(&pos);
@@ -2134,7 +2143,7 @@ TbBool cmd_get_room(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+    struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
     MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
     MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
     struct Room * room = (pr1str != NULL) ? room_get(atoi(pr1str)) : subtile_room_get(stl_x, stl_y);
@@ -2175,7 +2184,7 @@ TbBool cmd_slab_health(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    struct Packet * pckt = get_packet(get_player(plyr_idx)->user_id);
+    struct Packet * pckt = get_packet(console_cmd_user(plyr_idx));
     MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
     MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
     struct SlabMap * slb = get_slabmap_for_subtile(stl_x, stl_y);

@@ -414,7 +414,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
         } else
         if (player->cursor_button_down != 0)
         {
-            TbBool direct_control_target = !thing_target_action && (player->thing_under_hand != 0) && (player->input_crtr_control != 0);
+            TbBool direct_control_target = !thing_target_action && (player->thing_under_hand != 0) && (get_user_state(user)->input_crtr_control != 0);
             if (direct_control_target && (dungeon->things_in_hand[0] != player->thing_under_hand)) {
                 thing = get_creature_near_for_controlling(player->id_number, x, y);
                 if (!thing_is_invalid(thing))
@@ -430,7 +430,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                     set_player_state(player, player->continue_work_state, 0);
                 }
                 unset_packet_control(pckt, PCtr_LBtnRelease);
-            } else if (!thing_target_action && player->input_crtr_query != 0) {
+            } else if (!thing_target_action && get_user_state(user)->input_crtr_query != 0) {
                 thing = get_creature_near(x, y);
                 if (!can_thing_be_queried(thing, plyr_idx))
                 {

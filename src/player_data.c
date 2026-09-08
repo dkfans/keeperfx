@@ -44,7 +44,8 @@ TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,  54,  46
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
 struct PlayerInfo bad_player;
-struct LocalInfo local_info;
+struct LocalState local_state;
+struct UserState bad_user_state;
 
 /** The current player's number. */
 unsigned char my_player_number;
@@ -116,6 +117,21 @@ TbBool is_my_player_number(PlayerNumber plyr_num)
 {
     struct PlayerInfo* myplyr = &game.players[my_player_number % PLAYERS_COUNT];
     return (plyr_num == myplyr->id_number);
+}
+
+// returns user's UserState, or INVALID_USER_STATE.
+struct UserState *get_user_state(NetUserId user)
+{
+    if ((user < 0) || (user >= MAX_NET_USERS))
+        return INVALID_USER_STATE;
+    return &game.user_states[user];
+}
+
+TbBool user_state_invalid(const struct UserState *ustate)
+{
+    if (ustate == INVALID_USER_STATE)
+        return true;
+    return (ustate == NULL);
 }
 
 TbBool player_is_roaming(PlayerNumber plyr_num)
@@ -252,6 +268,7 @@ void clear_players(void)
         struct PlayerInfo* player = &game.players[i];
         memset(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
+        player->user_id = -1;
         switch (i)
         {
         case PLAYER_GOOD:
@@ -267,7 +284,10 @@ void clear_players(void)
     }
     memset(&bad_player, 0, sizeof(struct PlayerInfo));
     bad_player.id_number = PLAYERS_COUNT;
-    memset(&local_info, 0, sizeof(local_info));
+    bad_player.user_id = -1;
+    memset(game.user_states, 0, sizeof(game.user_states));
+    memset(&local_state, 0, sizeof(local_state));
+    memset(&bad_user_state, 0, sizeof(bad_user_state));
     game.active_players_count = 0;
     //game.game_kind = GKind_LocalGame;
 }
