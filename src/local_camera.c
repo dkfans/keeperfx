@@ -323,18 +323,12 @@ void set_local_camera_destination(struct PlayerInfo *player)
 
 void update_local_view_prediction(const struct Packet *pckt)
 {
-    switch (pckt->action) {
-    case PckA_SaveViewType:
+    if (pckt->action == PckA_SaveViewType && pckt->actn_par1 == PVT_MapScreen) {
         local_state.view_type = PVT_MapScreen;
         toggle_status_menu(0);
-        break;
-    case PckA_LoadViewType:
-    case PckA_ZoomFromMap:
+    } else if ((pckt->action == PckA_LoadViewType && pckt->actn_par1 == PVT_DungeonTop) || pckt->action == PckA_ZoomFromMap) {
         local_state.view_type = PVT_DungeonTop;
         toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
-        break;
-    default:
-        return;
     }
 }
 

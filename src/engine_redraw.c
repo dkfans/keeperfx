@@ -1065,10 +1065,7 @@ void redraw_display(void)
           long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16));
           long pos_x;
           struct Camera *camera = get_local_active_camera(player);
-          unsigned char view_mode = camera->view_mode;
-          TbBool world_view = view_mode == PVM_IsoWibbleView || view_mode == PVM_FrontView;
-          world_view |= view_mode == PVM_IsoStraightView || view_mode == PVM_CreatureView;
-          if (world_view) {
+          if (camera->view_mode == PVM_IsoWibbleView || camera->view_mode == PVM_FrontView || camera->view_mode == PVM_IsoStraightView || camera->view_mode == PVM_CreatureView) {
               pos_x = local_state.engine_window_x + (MyScreenWidth - w - local_state.engine_window_x) / 2;
           } else {
               pos_x = (MyScreenWidth-w)/2;

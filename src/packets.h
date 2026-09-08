@@ -343,8 +343,7 @@ void process_user_creature_passenger_packet_action(NetUserId user);
 void process_user_creature_control_packet_action(NetUserId user);
 void process_map_packet_clicks(NetUserId user);
 void process_pause_packet(long a1, long a2);
-void process_camera_controls(struct Camera* cam, const struct Packet* pckt,
-    struct PlayerInfo* player);
+void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
 void process_camera_action(struct Camera cams[], const struct Packet* pckt);
 void process_first_person_look(struct Thing *thing, const struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
 TbBool can_process_creature_input(struct Thing *thing);

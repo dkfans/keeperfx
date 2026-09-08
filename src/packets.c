@@ -376,8 +376,7 @@ void process_pause_packet(long curr_pause, long new_pause)
   }
 }
 
-void process_camera_controls(struct Camera* cam, const struct Packet* pckt,
-    struct PlayerInfo* player)
+void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player)
 {
     if (cam == NULL) {
         return;

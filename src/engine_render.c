@@ -5315,14 +5315,7 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
     struct Camera *active_cam = get_local_active_camera(player);
-    if (active_cam != NULL) {
-        unsigned char view_mode = active_cam->view_mode;
-        TbBool overhead_view = view_mode == PVM_IsoWibbleView || view_mode == PVM_FrontView;
-        overhead_view |= view_mode == PVM_IsoStraightView;
-        if (!overhead_view) {
-            RendererSetDrawFlags(flg_mem);
-            return;
-        }
+    if (active_cam != NULL && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_FrontView || active_cam->view_mode == PVM_IsoStraightView)) {
         // Count digits to be displayed
         ndigits=0;
         for (remaining_digits = num->lvl; remaining_digits > 0; remaining_digits /= 10)

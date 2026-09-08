@@ -725,9 +725,7 @@ static short get_global_inputs(void)
     get_players_message_inputs();
     return true;
   }
-  TbBool chat_view = view_type == PVT_DungeonTop || view_type == PVT_CreatureContrl;
-  TbBool chat_enabled = network_is_active() || (game.flags_gui & GGUI_SoloChatEnabled) != 0;
-  if (chat_view && chat_enabled) {
+  if ((view_type == PVT_DungeonTop || view_type == PVT_CreatureContrl) && (network_is_active() || (game.flags_gui & GGUI_SoloChatEnabled) != 0)) {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
           if (menu_is_active(GMnu_QUIT))
@@ -915,10 +913,7 @@ static TbBool get_level_lost_inputs(void)
     {
       if (is_key_pressed(KC_TAB,KMod_DONTCARE))
       {
-          unsigned char view_mode = camera->view_mode;
-          TbBool overhead_view = view_mode == PVM_IsoWibbleView || view_mode == PVM_FrontView;
-          overhead_view |= view_mode == PVM_IsoStraightView;
-          if (overhead_view) {
+          if (camera->view_mode == PVM_IsoWibbleView || camera->view_mode == PVM_FrontView || camera->view_mode == PVM_IsoStraightView) {
             clear_key_pressed(KC_TAB);
             toggle_gui();
           }
