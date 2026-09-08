@@ -67,6 +67,7 @@
 #include "frontend.h"
 #include "front_input.h"
 #include "game_legacy.h"
+#include "local_camera.h"
 #include "keeperfx.hpp"
 #include "vidfade.h"
 #include "kjm_input.h"
@@ -725,8 +726,10 @@ void gui_choose_spell(struct GuiButton *gbtn)
 
 void go_to_next_spell_of_type(PowerKind pwkind)
 {
-    struct Packet* pckt = get_local_packet();
-    set_packet_action(pckt, PckA_ZoomToSpell, pwkind, 0, 0, 0);
+    struct Coord3d pos;
+    if (find_power_cast_place(my_player_number, pwkind, &pos)) {
+        move_local_camera_to_position(pos.x.val, pos.y.val);
+    }
 }
 
 void gui_go_to_next_spell(struct GuiButton *gbtn)
@@ -934,8 +937,8 @@ void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
     }
     i = seltrap[tngmodel];
     if (i > 0) {
-        struct Packet* pckt = get_local_packet();
-        set_packet_action(pckt, PckA_ZoomToTrap, i, 0, 0, 0);
+        thing = thing_get(i);
+        move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
     }
 }
 
@@ -989,8 +992,8 @@ void go_to_next_door_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
     }
     i = seldoor[tngmodel];
     if (i > 0) {
-        struct Packet* pckt = get_local_packet();
-        set_packet_action(pckt, PckA_ZoomToDoor, i, 0, 0, 0);
+        thing = thing_get(i);
+        move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
     }
 }
 
@@ -1647,9 +1650,9 @@ RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind)
 void go_to_my_next_room_of_type_and_select(RoomKind rkind)
 {
     RoomIndex room_idx = find_my_next_room_of_type(rkind);
-    struct PlayerInfo* player = get_my_player();
     if (room_idx > 0) {
-        set_players_packet_action(player, PckA_ZoomToRoom, room_idx, 0, 0, 0);
+        struct Room* room = room_get(room_idx);
+        move_local_camera_to_position(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y));
     }
 }
 
@@ -1657,10 +1660,9 @@ void go_to_my_next_room_of_type(RoomKind rkind)
 {
     //_DK_go_to_my_next_room_of_type(rkind); return;
     RoomIndex room_idx = find_my_next_room_of_type(rkind);
-    struct PlayerInfo* player = get_my_player();
     if (room_idx > 0) {
         struct Room* room = room_get(room_idx);
-        set_players_packet_action(player, PckA_ZoomToPosition, subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y), 0, 0);
+        move_local_camera_to_position(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y));
     }
 }
 
