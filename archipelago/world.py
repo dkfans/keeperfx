@@ -77,6 +77,20 @@ class DungeonKeeperWorld(World):
             player=self.player
         )
 
+    def generate_early(self) -> None:
+        starting_options = [
+            self.options.starting_levels,
+            self.options.starting_spells,
+            self.options.starting_rooms,
+            self.options.starting_creatures,
+        ]
+
+        for option in starting_options:
+            for item_name, count in option.value.items():
+                for _ in range(count):
+                    item = self.create_item(item_name)
+                    self.multiworld.push_precollected(item)
+
     # For features such as item links and panic-method start inventory, AP may ask your world to create extra filler.
     # The way it does this is by calling get_filler_item_name.
     # For this purpose, your world *must* have at least one infinitely repeatable item (usually filler).
