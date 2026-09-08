@@ -1,33 +1,33 @@
-MapID = require("map_ids")
+--MapID = require("map_ids")
 SentLocations = require("sent_locations")
 
 local BoxLocations = {
-    [MapID.MAP_001.id] = {101, 102, 103},
-    [MapID.MAP_002.id] = {201, 202, 203},
-    [MapID.MAP_003.id] = {301, 302, 303},
-    [MapID.MAP_004.id] = {401, 402, 403, 404},
-    [MapID.MAP_005.id] = {501, 502, 503},
-    [MapID.MAP_006.id] = {601, 602, 603},
-    [MapID.MAP_007.id] = {701, 702, 703, 704},
-    [MapID.MAP_008.id] = {801, 802, 803},
-    [MapID.MAP_009.id] = {901, 902, 903, 904, 905, 906, 907},
-    [MapID.MAP_010.id] = {1001, 1002, 1003},
-    [MapID.MAP_011.id] = {1101, 1102, 1103, 1104, 1105, 1106},
-    [MapID.MAP_012.id] = {1201, 1202, 1203},
-    [MapID.MAP_013.id] = {1301, 1302, 1303},
-    [MapID.MAP_014.id] = {1401, 1402, 1403},
-    [MapID.MAP_015.id] = {1501, 1502, 1503, 1504, 1505},
-    [MapID.MAP_016.id] = {1601, 1602, 1603, 1604},
-    [MapID.MAP_017.id] = {1701, 1702, 1703, 1704},
-    [MapID.MAP_018.id] = {1801, 1802, 1803, 1804, 1805, 1806, 1807, 1808, 1809, 1810},
-    [MapID.MAP_019.id] = {1901, 1902, 1903, 1904, 1905, 1906, 1907, 1908},
-    [MapID.MAP_020.id] = {2001, 2002, 2003, 2004, 2005, 2006},
-    [MapID.MAP_100.id] = {2101, 2102, 2103, 2104, 2105, 2106, 2107, 2108, 2109, 2110},
-    [MapID.MAP_101.id] = {2201, 2202, 2203, 2204, 2205},
-    [MapID.MAP_102.id] = {2301, 2302, 2303, 2304, 2305, 2306},
-    [MapID.MAP_103.id] = {2401, 2402, 2403, 2404},
-    [MapID.MAP_104.id] = {2501, 2502, 2503, 2504, 2505, 2506},
-    [MapID.MAP_105.id] = {2601, 2602, 2603, 2604, 2605, 2606, 2607, 2608, 2609},
+    [1] = {101, 102, 103},
+    [2] = {201, 202, 203},
+    [3] = {301, 302, 303},
+    [4] = {401, 402, 403, 404},
+    [5] = {501, 502, 503},
+    [6] = {601, 602, 603},
+    [7] = {701, 702, 703, 704},
+    [8] = {801, 802, 803},
+    [9] = {901, 902, 903, 904, 905, 906, 907},
+    [10] = {1001, 1002, 1003},
+    [11] = {1101, 1102, 1103, 1104, 1105, 1106},
+    [12] = {1201, 1202, 1203},
+    [13] = {1301, 1302, 1303},
+    [14] = {1401, 1402, 1403},
+    [15] = {1501, 1502, 1503, 1504, 1505},
+    [16] = {1601, 1602, 1603, 1604},
+    [17] = {1701, 1702, 1703, 1704},
+    [18] = {1801, 1802, 1803, 1804, 1805, 1806, 1807, 1808, 1809, 1810},
+    [19] = {1901, 1902, 1903, 1904, 1905, 1906, 1907, 1908},
+    [20] = {2001, 2002, 2003, 2004, 2005, 2006},
+    [100] = {2101, 2102, 2103, 2104, 2105, 2106, 2107, 2108, 2109, 2110},
+    [101] = {2201, 2202, 2203, 2204, 2205},
+    [102] = {2301, 2302, 2303, 2304, 2305, 2306},
+    [103] = {2401, 2402, 2403, 2404},
+    [104] = {2501, 2502, 2503, 2504, 2505, 2506},
+    [105] = {2601, 2602, 2603, 2604, 2605, 2606, 2607, 2608, 2609},
 }
 
 Game.APBox = {}
@@ -43,20 +43,22 @@ function BoxLocations.SpawnBoxes(level_id)
     for _, id in ipairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
         if not SentLocations.Has(id) then -- If it ISN'T in sent_locations , we've not sent it.
             -- get info for specific location so we can check name and player
-            -- local info = GetAPLocationInfo(id)
-            -- if info ~= nil then
-            --    print("Location ID: " .. info.location)
-            --    print("Item ID: " .. info.item)
-            --    print("Player ID: " .. info.player)
-            --    print("Flags: " .. info.flags)
-            -- end
+            local info = GetAPLocationInfo(id)
+            if info ~= nil then
+               print("Location ID: " .. info.location)
+               print("Item ID: " .. info.item)
+               print("Player ID: " .. info.player)
+               print("Flags: " .. info.flags)
+            end
             Game.APBox[id] = AddObjectToLevel("SPECBOX_CUSTOM", (id % 100)+100, id, "PLAYER_NEUTRAL", 0) -- Action Points are limited to 256 I think, so each Archipelago action point on a level is 101+
             local info = GetAPLocationInfo(id)
             SetBoxTooltip(id, info.itemName .. " for " .. info.playerName)
             
             -- Would like to add a way to check if the item associated with this number is useful or filler, then display the correct graphics.
-            -- if it's not filler (i.e. looking up to the table of all tooltips for other player items) then
-            -- Game.APBox[id].anim_sprite = "ARCHIPELAGOITEMUSEFUL"
+            -- if it's useful or progression, show it off as such.
+            if (info.flags & 1) ~= 0 or (info.flags & 2) ~= 0 then
+                Game.APBox[id].anim_sprite = "ARCHIPELAGOITEMUSEFUL"
+            end
             if not first then message = message .. ", " end
             message = message .. id
             first = false
@@ -148,17 +150,5 @@ function BoxLocations.DeleteBoxes(level_id)
     if not first then message = message .. "." end
     QuickMessage(message, "ARCHIPELAGO_ICON")
 end
-
---function BoxLocations.DeleteBoxes() -- this is currently VERY basic. Just deletes all objects, with the idea to just rerun the spawning code. Not great if they've been picked up and put in a library!
---    local objects = GetThingsOfClass("Object")
---    local counter = 0
---    for index, object in ipairs(objects) do
---        if object.model == "SPECBOX_CUSTOM" then
---            object: delete()
---            counter = counter + 1
---        end
---    end
---    QuickMessage("Deleted " .. counter .. " boxes.", "ARCHIPELAGO_ICON")
---end
 
 return BoxLocations

@@ -9,11 +9,10 @@ end
 
 function Setup()
       QuickMessage("Map: " .. Map.map_number .. " (" .. Map.map_name .. ").", "ARCHIPELAGO_ICON")
-      -- BoxLocations.DeleteBoxes(Map.map_number)
+      BoxLocations.DeleteBoxes(Map.map_number)
       BoxLocations.SpawnBoxes(Map.map_number)
       BoxLocations.ActivateBoxes(Map.map_number)
 end
-
 
 function SetupTriggers()
     RegisterSpecialActivatedEvent(function (eventData)
@@ -22,4 +21,10 @@ function SetupTriggers()
       SendLocation(activated_box)
       end)
 end
+
+function OnItemReceived(itemid)
+      print("Received item " .. itemid)
+      ReceivedLocations.ReceivedItemCheck(itemid)
+end
+
 return CommandsMain
