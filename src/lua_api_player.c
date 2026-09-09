@@ -241,6 +241,8 @@ static int player_get_field(lua_State *L) {
         } else {
             lua_pushinteger(L, dungeon->max_creatures_attracted);
         }
+    } else if (strcmp(key, "victory_state") == 0) {
+        lua_pushinteger(L,  player_invalid(player) ? 0 : player->victory_state);  
     } else if (strcmp(key, "player_name") == 0) {
         lua_pushstring(L, player_invalid(player) ? "" : player->player_name);
     } else if (strcmp(key, "colour") == 0) {
