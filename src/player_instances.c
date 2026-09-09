@@ -314,7 +314,8 @@ long pinstfe_hand_whip_end(struct PlayerInfo *player, int32_t *n)
 
 long pinstfs_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
 {
-  get_player_user_state(player)->init_flags |= UsrIF_MouseInputDisabled;
+  struct UserState* ustate = get_player_user_state(player);
+  ustate->init_flags |= UsrIF_MouseInputDisabled;
   if (is_my_player(player))
   {
     local_state.palette_fade_step_possession = 1;
@@ -323,7 +324,7 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
     turn_off_menu(GMnu_CREATURE_QUERY2);
   }
     struct Camera* cam = get_player_active_camera(player);
-  get_player_user_state(player)->init_flags |= UsrIF_KeyboardInputDisabled;
+  ustate->init_flags |= UsrIF_KeyboardInputDisabled;
   player->dungeon_camera_zoom = get_camera_zoom(cam);
   // Play possession sound
   if (is_my_player(player))
@@ -349,6 +350,7 @@ long pinstfs_direct_control_creature(struct PlayerInfo *player, int32_t *n)
 
 long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
 {
+    struct UserState* ustate = get_player_user_state(player);
     struct Camera* cam = get_player_active_camera(player);
     if (cam == NULL)
         return 0;
@@ -360,8 +362,8 @@ long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
             PaletteSetUserPalette(player->user_id, engine_palette);
         player->influenced_thing_idx = 0;
         player->influenced_thing_creation = 0;
-        get_player_user_state(player)->init_flags &= ~UsrIF_KeyboardInputDisabled;
-        get_player_user_state(player)->init_flags &= ~UsrIF_MouseInputDisabled;
+        ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
+        ustate->init_flags &= ~UsrIF_MouseInputDisabled;
         set_player_instance(player, PI_Unset, true);
         return 0;
     }
@@ -419,6 +421,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
 
 long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
 {
+    struct UserState* ustate = get_player_user_state(player);
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     if (thing_exists(thing) && (thing->creation_turn == player->influenced_thing_creation))
     {
@@ -432,8 +435,8 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
         if (is_my_player(player)) {
             PaletteSetUserPalette(player->user_id, engine_palette);
         }
-        get_player_user_state(player)->init_flags &= ~UsrIF_KeyboardInputDisabled;
-        get_player_user_state(player)->init_flags &= ~UsrIF_MouseInputDisabled;
+        ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
+        ustate->init_flags &= ~UsrIF_MouseInputDisabled;
         return 0;
     }
     set_player_instance(player, PI_CrCtrlFade, false);
@@ -481,12 +484,13 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
 
 long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
 {
+  struct UserState* ustate = get_player_user_state(player);
   if (player->influenced_thing_idx == 0)
   {
     set_player_instance(player, PI_Unset, true);
     return 0;
   }
-  get_player_user_state(player)->init_flags |= UsrIF_MouseInputDisabled;
+  ustate->init_flags |= UsrIF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
   if (is_my_player(player))
   {
@@ -500,7 +504,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   }
   thing = thing_get(player->influenced_thing_idx);
   leave_creature_as_controller(player, thing);
-  get_player_user_state(player)->init_flags |= UsrIF_KeyboardInputDisabled;
+  ustate->init_flags |= UsrIF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
   turn_user_cursor_light(player->user_id, true);
@@ -523,12 +527,13 @@ long pinstfm_leave_creature(struct PlayerInfo *player, int32_t *n)
 
 long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
 {
+  struct UserState* ustate = get_player_user_state(player);
   if (player->influenced_thing_idx == 0)
   {
       set_player_instance(player, PI_Unset, true);
       return 0;
   }
-  get_player_user_state(player)->init_flags |= UsrIF_MouseInputDisabled;
+  ustate->init_flags |= UsrIF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
   if (is_my_player(player))
   {
@@ -541,7 +546,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
     set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
   leave_creature_as_passenger(player, thing);
-  get_player_user_state(player)->init_flags |= UsrIF_KeyboardInputDisabled;
+  ustate->init_flags |= UsrIF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
   turn_user_cursor_light(player->user_id, true);
@@ -550,12 +555,13 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
 
 long pinstfe_leave_creature(struct PlayerInfo *player, int32_t *n)
 {
+    struct UserState* ustate = get_player_user_state(player);
     set_camera_zoom(get_player_active_camera(player), player->dungeon_camera_zoom);
   if (is_my_player(player)) {
     PaletteSetUserPalette(player->user_id, engine_palette);
   }
-  get_player_user_state(player)->init_flags &= ~UsrIF_KeyboardInputDisabled;
-  get_player_user_state(player)->init_flags &= ~UsrIF_MouseInputDisabled;
+  ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
+  ustate->init_flags &= ~UsrIF_MouseInputDisabled;
   return 0;
 }
 
@@ -578,6 +584,7 @@ long pinstfs_unquery_creature(struct PlayerInfo *player, int32_t *n)
 
 long pinstfs_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 {
+    struct UserState* ustate = get_player_user_state(player);
     SYNCDBG(6,"Starting for player %d",(int)player->id_number);
     if (is_my_player_number(player->id_number)) {
         LbPaletteDataFillWhite(zoom_to_heart_palette);
@@ -594,8 +601,8 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         cctrl->creature_control_flags |= CCFlg_NoCompControl;
-        get_player_user_state(player)->init_flags |= UsrIF_KeyboardInputDisabled;
-        get_player_user_state(player)->init_flags |= UsrIF_MouseInputDisabled;
+        ustate->init_flags |= UsrIF_KeyboardInputDisabled;
+        ustate->init_flags |= UsrIF_MouseInputDisabled;
         game.view_mode_flags |= GNFldD_CreaturePasngr;
     }
     return 0;
@@ -703,6 +710,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 
 long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 {
+  struct UserState* ustate = get_player_user_state(player);
   if (is_my_player(player)) {
     LbPaletteStopOpenFade();
   }
@@ -714,8 +722,8 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
     set_local_camera_destination(player);
   }
   turn_user_cursor_light(player->user_id, true);
-  get_player_user_state(player)->init_flags &= ~UsrIF_KeyboardInputDisabled;
-  get_player_user_state(player)->init_flags &= ~UsrIF_MouseInputDisabled;
+  ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
+  ustate->init_flags &= ~UsrIF_MouseInputDisabled;
   game.view_mode_flags &= ~GNFldD_CreaturePasngr;
   if (is_my_player(player)) {
     PaletteSetUserPalette(player->user_id, engine_palette);
@@ -731,7 +739,7 @@ long pinstfm_control_creature_fade(struct PlayerInfo *player, int32_t *n)
 
 long pinstfe_control_creature_fade(struct PlayerInfo *player, int32_t *n)
 {
-  struct UserState* ustate = get_user_state(player->user_id);
+  struct UserState* ustate = get_player_user_state(player);
   if (is_my_player(player))
   {
     if ((ustate->additional_flags & UsrAF_FreezePaletteIsActive) != 0)
@@ -739,9 +747,9 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, int32_t *n)
     else
       PaletteSetUserPalette(player->user_id, engine_palette);
   }
-  get_player_user_state(player)->init_flags &= ~UsrIF_KeyboardInputDisabled;
+  ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
   turn_user_cursor_light(player->user_id, false);
-  get_player_user_state(player)->init_flags &= ~UsrIF_MouseInputDisabled;
+  ustate->init_flags &= ~UsrIF_MouseInputDisabled;
   return 0;
 }
 
@@ -837,10 +845,11 @@ void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
 
 long pinstfs_zoom_to_position(struct PlayerInfo *player, int32_t *n)
 {
+    struct UserState* ustate = get_player_user_state(player);
     player->controlled_thing_idx = 0;
     player->controlled_thing_creatrn = 0;
-    get_player_user_state(player)->init_flags |= UsrIF_MouseInputDisabled;
-    get_player_user_state(player)->init_flags |= UsrIF_KeyboardInputDisabled;
+    ustate->init_flags |= UsrIF_MouseInputDisabled;
+    ustate->init_flags |= UsrIF_KeyboardInputDisabled;
     struct Camera* cam = get_player_active_camera(player);
     view_set_camera_move_to_position(cam, player->zoom_to_pos_x, player->zoom_to_pos_y, &player->zoom_to_movement_x, &player->zoom_to_movement_y);
     return 0;
@@ -858,8 +867,9 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, int32_t *n)
 
 long pinstfe_zoom_to_position(struct PlayerInfo *player, int32_t *n)
 {
-    get_player_user_state(player)->init_flags &= ~UsrIF_MouseInputDisabled;
-    get_player_user_state(player)->init_flags &= ~UsrIF_KeyboardInputDisabled;
+    struct UserState* ustate = get_player_user_state(player);
+    ustate->init_flags &= ~UsrIF_MouseInputDisabled;
+    ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
     if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
     {
         player->controlled_thing_idx = player->influenced_thing_idx;
@@ -925,13 +935,14 @@ void process_player_instances(void)
 
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
 {
+    struct UserState* ustate = get_player_user_state(player);
     SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
     if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect))
       || (thing->index != player->controlled_thing_idx))
     {
         set_player_instance(player, PI_Unset, 1);
         set_player_mode(player, PVT_DungeonTop);
-        get_player_user_state(player)->init_flags &= ~UsrIF_CreaturePassengerMode;
+        ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
         set_engine_view(player, player->view_mode_restore);
         player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
         player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
@@ -948,7 +959,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     }
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->rendering_flags &= ~TRF_Invisible;
-    get_player_user_state(player)->init_flags &= ~UsrIF_CreaturePassengerMode;
+    ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
     set_engine_view(player, player->view_mode_restore);
     struct Camera* cam = get_player_active_camera(player);
     long i = (cam != NULL) ? cam->rotation_angle_x : 0;
@@ -979,13 +990,14 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
 
 void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
 {
+  struct UserState* ustate = get_player_user_state(player);
   SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
   if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlPassngr))
     || (thing->index != player->controlled_thing_idx))
   {
     set_player_instance(player, PI_Unset, 1);
     set_player_mode(player, PVT_DungeonTop);
-    get_player_user_state(player)->init_flags &= ~UsrIF_CreaturePassengerMode;
+    ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
     set_engine_view(player, player->view_mode_restore);
     player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
     player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
@@ -997,7 +1009,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   }
   set_player_mode(player, PVT_DungeonTop);
   thing->rendering_flags &= ~TRF_Invisible;
-  get_player_user_state(player)->init_flags &= ~UsrIF_CreaturePassengerMode;
+  ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
   set_engine_view(player, player->view_mode_restore);
     struct Camera* cam = get_player_active_camera(player);
     long i = (cam != NULL) ? cam->rotation_angle_x : 0;

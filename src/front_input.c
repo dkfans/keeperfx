@@ -422,6 +422,7 @@ float get_game_key_axis_value(long key_id, TbBool ignore_mods)
 static short get_players_message_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_local_user_state();
 
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
@@ -429,13 +430,13 @@ static short get_players_message_inputs(void)
         if (network_is_active()) {
             send_network_chat_message(get_local_user(), player->mp_message_text);
         }
-        get_local_user_state()->init_flags &= ~UsrIF_NewMPMessage;
+        ustate->init_flags &= ~UsrIF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_RETURN);
         LbStopTextInput();
     } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
         set_players_packet_action(player, PckA_PlyrMsgClear, 0, 0, 0, 0);
-        get_local_user_state()->init_flags &= ~UsrIF_NewMPMessage;
+        ustate->init_flags &= ~UsrIF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_ESCAPE);
         LbStopTextInput();
@@ -720,7 +721,8 @@ static short get_global_inputs(void)
     return false;
   struct PlayerInfo* player = get_my_player();
   unsigned char view_type = get_local_view_type(player);
-  if ((get_local_user_state()->init_flags & UsrIF_NewMPMessage) != 0)
+  struct UserState* ustate = get_local_user_state();
+  if ((ustate->init_flags & UsrIF_NewMPMessage) != 0)
   {
     get_players_message_inputs();
     return true;
@@ -734,7 +736,7 @@ static short get_global_inputs(void)
               clear_key_pressed(KC_RETURN);
               return true;
           }
-        get_local_user_state()->init_flags |= UsrIF_NewMPMessage;
+        ustate->init_flags |= UsrIF_NewMPMessage;
         LbStartTextInput();
         clear_key_pressed(KC_RETURN);
         return true;
@@ -855,7 +857,8 @@ static TbBool get_level_lost_inputs(void)
     struct PlayerInfo* player = get_my_player();
     unsigned char view_type = get_local_view_type(player);
     struct Camera* camera = get_local_active_camera(player);
-    if ((get_local_user_state()->init_flags & UsrIF_NewMPMessage) != 0)
+    struct UserState* ustate = get_local_user_state();
+    if ((ustate->init_flags & UsrIF_NewMPMessage) != 0)
     {
       get_players_message_inputs();
       return true;
@@ -864,7 +867,7 @@ static TbBool get_level_lost_inputs(void)
     {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
-        get_local_user_state()->init_flags |= UsrIF_NewMPMessage;
+        ustate->init_flags |= UsrIF_NewMPMessage;
         LbStartTextInput();
         clear_key_pressed(KC_RETURN);
         return true;
@@ -1876,14 +1879,14 @@ static short get_creature_control_action_inputs(void)
         }
         if (is_key_pressed(KC_LALT,KMod_DONTCARE))
         {
-            if (!player->nearest_teleport)
+            if (!ustate->nearest_teleport)
             {
                 set_players_packet_action(player, PckA_SetNearestTeleport, true, 0, 0, 0);
             }
         }
         else
         {
-            if (player->nearest_teleport)
+            if (ustate->nearest_teleport)
             {
                 set_players_packet_action(player, PckA_SetNearestTeleport, false, 0, 0, 0);
             }
@@ -2737,7 +2740,7 @@ static void get_player_gui_clicks(void)
   if ( ((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     return;
   struct PlayerInfo *player = get_my_player();
-  struct UserState *ustate = get_user_state(get_local_user());
+  struct UserState *ustate = get_local_user_state();
   switch (get_local_view_type(player))
   {
   case PVT_CreaturePasngr:
@@ -2749,12 +2752,12 @@ static void get_player_gui_clicks(void)
           if (a_menu_window_is_active())
           {
             game.view_mode_flags &= ~GNFldD_CreaturePasngr;
-            get_local_user_state()->init_flags &= ~UsrIF_CreaturePassengerMode;
+            ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
             turn_off_all_window_menus();
           } else
           {
             game.view_mode_flags |= GNFldD_CreaturePasngr;
-            get_local_user_state()->init_flags |= UsrIF_CreaturePassengerMode;
+            ustate->init_flags |= UsrIF_CreaturePassengerMode;
             turn_on_menu(GMnu_QUERY);
           }
         }

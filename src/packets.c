@@ -649,6 +649,7 @@ TbBool process_user_global_packet_action(NetUserId user)
   PlayerNumber plyr_idx = get_net_user_player_number(user);
   struct PlayerInfo* player = get_player(plyr_idx);
   struct Packet* pckt = get_packet(user);
+  struct UserState* local_ustate = get_local_user_state();
   SYNCDBG(6,"Processing user %d action %d",(int)user,(int)pckt->action);
   struct Dungeon *dungeon;
   struct Thing *thing;
@@ -698,9 +699,9 @@ TbBool process_user_global_packet_action(NetUserId user)
         if (victory_state == VicS_WonLevel) {
           player->victory_state = VicS_WonLevel;
           if (game.conf.rules[player->id_number].gameplay.winner_tortures_loser) {
-              get_user_state(get_local_user())->additional_flags |= UsrAF_UnlockedLordTorture;
+              local_ustate->additional_flags |= UsrAF_UnlockedLordTorture;
           } else {
-              get_user_state(get_local_user())->additional_flags &= ~UsrAF_UnlockedLordTorture;
+              local_ustate->additional_flags &= ~UsrAF_UnlockedLordTorture;
           }
           quit_game = 1;
           return 0;
@@ -708,7 +709,7 @@ TbBool process_user_global_packet_action(NetUserId user)
         TbBool host_packet = player->user_id == SERVER_ID;
         if (!my_player) {
           if (host_packet && (player->victory_state != VicS_LostLevel)) {
-            get_user_state(get_local_user())->additional_flags &= ~UsrAF_UnlockedLordTorture;
+            local_ustate->additional_flags &= ~UsrAF_UnlockedLordTorture;
             quit_game = 1;
           }
           return 0;
@@ -1553,7 +1554,7 @@ void process_user_creature_control_packet_action(NetUserId user)
     }
     case PckA_SwitchTeleportDest:
     {
-        player->teleport_destination = pckt->actn_par1;
+        ustate->teleport_destination = pckt->actn_par1;
         break;
     }
     case PckA_SelectFPPickup:
@@ -1563,7 +1564,7 @@ void process_user_creature_control_packet_action(NetUserId user)
     }
     case PckA_SetNearestTeleport:
     {
-        player->nearest_teleport = pckt->actn_par1;
+        ustate->nearest_teleport = pckt->actn_par1;
         break;
     }
   }

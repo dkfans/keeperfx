@@ -777,6 +777,8 @@ void init_user_state(NetUserId user)
         return;
     }
     memset(ustate, 0, sizeof(*ustate));
+    ustate->teleport_destination = 19;
+    ustate->battleid = 1;
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
     ilght.radius = 2560;
