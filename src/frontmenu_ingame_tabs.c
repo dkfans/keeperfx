@@ -1660,8 +1660,12 @@ void go_to_my_next_room_of_type(RoomKind rkind)
 
 void gui_go_to_next_room(struct GuiButton *gbtn)
 {
-    go_to_my_next_room_of_type(gbtn->content.lval);
-    gui_choose_room(gbtn);
+    RoomKind rkind = gbtn->content.lval;
+    go_to_my_next_room_of_type(rkind);
+    game.chosen_room_kind = rkind;
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
+    game.chosen_room_spridx = roomst->bigsym_sprite_idx;
+    game.chosen_room_tooltip = gbtn->tooltip_stridx;
 }
 
 void gui_over_room_button(struct GuiButton *gbtn)
