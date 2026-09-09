@@ -3,6 +3,8 @@ local ReceivedLocationsTable = require "received_locations_table"
 -- Could also be a useful way to check which levels are complete and which aren't (unless we are able to do this on the overworld map screen with a code change)
 -- Could also allow for things like unlocking a small pool of creatures you can transfer to whichever next level, or a pool of single-use specials you can somehow send to the next level.
 
+ReceivedLocations = {}
+
 -- Every check must have a unique integer ID associated with it.
 ChecksTable = {
 --CREATURES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
@@ -322,3 +324,5 @@ function IncreaseStartingGold()
     print("Starting gold " .. startinggoldcount .. "(Starting gold " .. startingGold .. ") Unlocked")
     RunDKScriptCommand("START_MONEY(PLAYER0," .. startingGold .. ")")
 end
+
+return ReceivedLocations
