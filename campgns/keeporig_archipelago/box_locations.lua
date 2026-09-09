@@ -96,7 +96,7 @@ function BoxLocations.ActivateBoxes(level_id)
             if not first then message = message .. ", " end
             message = message .. id
             first = false
-            RegisterSpecialActivatedEvent(function()               
+            RegisterSpecialActivatedEvent(function()             
                 found = found + 1
                 -- get info for specific location so we can check name and player
                 local info = GetAPLocationInfo(id)
@@ -104,8 +104,8 @@ function BoxLocations.ActivateBoxes(level_id)
                 QuickMessage("Boxes Found: " .. found.. "/" .. total .. ".", "ARCHIPELAGO_ICON")
                 local message2 = "Sent Locations: "
                 local first2 = true
-                for _, id2 in ipairs(mapBoxIDs) do
-                    if SentLocations.Has(id2) then
+                for id2, _ in pairs(SentLocations) do
+                    if id2 == id then --not quite this but getting closer.
                         if not first2 then message2 = message2 .. ", " end
                         message2 = message2 .. id2
                         first2 = false
