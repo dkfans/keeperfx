@@ -214,6 +214,10 @@ void update_local_cameras(void)
     }
 
     struct Camera *cam = &destination_local_cameras[active_cam_idx];
+    if (active_cam_idx == CamIV_Parchment) {
+        cam->mappos.x.val = player->cameras[CamIV_Parchment].mappos.x.val;
+        cam->mappos.y.val = player->cameras[CamIV_Parchment].mappos.y.val;
+    }
     if (local_camera_move_cam != NULL) {
         if (view_move_camera_to_position(local_camera_move_cam, local_camera_move_target[0], local_camera_move_target[1], local_camera_move_delta[0], local_camera_move_delta[1])) {
             local_camera_move_cam = NULL;
