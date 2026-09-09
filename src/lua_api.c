@@ -1076,9 +1076,13 @@ static int lua_Hide_variable(lua_State *L)
     PlayerNumber player   = luaL_checkPlayerSingle(L, 1);
     varib_id = -1;
     varib_type = -1;
-    const char* variable = luaL_checkstring(L, 2);
-    if(variable[0] != '\0'){
-        luaL_checkVariable(L, 1, &varib_id, &varib_type);
+    const char* variable;
+    if (lua_isstring(L, 2))
+    {
+        variable = luaL_checkstring(L, 2);
+        if(variable[0] != '\0'){
+            luaL_checkVariable(L, 1, &varib_id, &varib_type);
+        }
     }
 
     if(varib_id > -1 && varib_type > -1)
