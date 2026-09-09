@@ -129,7 +129,7 @@ struct UserState *get_user_state(NetUserId user)
 
 struct UserState *get_player_user_state(const struct PlayerInfo *player)
 {
-    if (player == NULL)
+    if ((player == NULL) || player_invalid(player))
         return INVALID_USER_STATE;
     return get_user_state(player->user_id);
 }
