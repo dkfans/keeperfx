@@ -8,7 +8,9 @@ function CommandsMain.MainSetup()
 end
 
 function Setup()
-      QuickMessage("Map: " .. Map.map_number .. " (" .. Map.map_name .. ").", "ARCHIPELAGO_ICON")    
+      QuickMessage("Map: " .. Map.map_number .. " (" .. Map.map_name .. ").", "ARCHIPELAGO_ICON")
+      HideVariable()    
+      DisplayVariableWithLabel("PLAYER0","BOXES_REMAIN","ARCHIPELAGO_MESSAGE")
       ActivateItems()
       BoxLocations.DeleteBoxes(Map.map_number)
       BoxLocations.SpawnBoxes(Map.map_number)

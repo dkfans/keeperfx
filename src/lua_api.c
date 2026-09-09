@@ -247,6 +247,20 @@ static int lua_ap_checked_locations(lua_State *L)
     return 1; 
 }
 
+static int lua_ap_set_level_box_remain(lua_State *L)
+{
+    int boxes_remain = lua_tointeger(L, 1);
+
+    ap_update_current_lvl_box_remaining(boxes_remain);
+    return 0;
+}
+
+static int lua_ap_decrease_level_box_remain(lua_State *L)
+{
+    ap_decrease_current_lvl_box_remaining();
+    return 0;
+}
+
 // passes location id to archipelago
 static int lua_send_location(lua_State *L)
 {
@@ -2757,7 +2771,10 @@ static const luaL_Reg global_methods[] = {
     {"GetAPItems",                       lua_ap_get_items}, 
     {"GetAPCheckedLocations",            lua_ap_checked_locations}, 
     {"GetAPLocationInfo",                lua_ap_get_location_info},
-    {"APScoutLocations",                 lua_ap_bridge_scout_locations},
+    {"APScoutLocations",                 lua_ap_bridge_scout_locations},    
+    {"SetAPLvlBoxRemain",                lua_ap_set_level_box_remain},      
+    {"DecAPLvlBoxRemain",                lua_ap_decrease_level_box_remain},
+    
 };
 /*
 static const luaL_Reg game_meta[] = {

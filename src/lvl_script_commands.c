@@ -456,6 +456,11 @@ const struct NamedCommand texture_pack_desc[] = {
   {NULL,           0},
 };
 
+const struct NamedCommand archipelago_flag_desc[] = {
+  {"BOXES_REMAIN",  0},
+  {NULL,     0},
+};
+
 ThingModel parse_creature_name(const char *creature_name)
 {
     ThingModel ret = get_rid(creature_desc, creature_name);
@@ -607,6 +612,11 @@ TbBool parse_get_varib(const char *varib_name, int32_t *varib_id, int32_t *varib
             *varib_id = get_id(creature_desc, arg);
             *varib_type = SVar_REWARDED;
         }
+    }
+    if (*varib_id == -1)
+    {
+        *varib_id = get_id(archipelago_flag_desc, varib_name);
+        *varib_type = SVar_BOXES_REMAIN;        
     }
     if (*varib_id == -1)
     {

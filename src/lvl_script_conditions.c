@@ -28,6 +28,7 @@
 #include "bflib_math.h"
 #include "lvl_script_lib.h"
 #include "sprites.h"
+#include "ap_data.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -428,6 +429,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short val
     case SVar_MANAGE_SCORE:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->manage_score;
+    case SVar_BOXES_REMAIN:
+        return ap_get_current_lvl_box_remaining();
     default:
         break;
     };

@@ -7,7 +7,7 @@
 struct APState g_ap_state;
 static struct AP_LocationInfo ap_location_info[AP_LOCATION_NO];
 static int ap_location_info_count = 0;
-
+static int ap_current_lvl_remaining_box = 0;
 void ap_state_init(struct APState* ap)
 {
     if (!ap) return;
@@ -48,8 +48,7 @@ void ap_state_update_locations(struct APState* ap, int locationid)
         if (locationid == ap->checked_locations[i])
         {
             return;
-        }
-        
+        }        
     }
 
     ap->checked_locations[location_count] = locationid;
@@ -129,4 +128,18 @@ const struct AP_LocationInfo *ap_location_info_get(long long location)
 void ap_location_info_clear(void)
 {
     ap_location_info_init();
+}
+
+void ap_update_current_lvl_box_remaining(int cnt)
+{
+    ap_current_lvl_remaining_box = cnt;
+}
+
+void ap_decrease_current_lvl_box_remaining(void)
+{
+    ap_current_lvl_remaining_box = ap_current_lvl_remaining_box-1;
+}
+int ap_get_current_lvl_box_remaining(void)
+{
+    return ap_current_lvl_remaining_box;
 }

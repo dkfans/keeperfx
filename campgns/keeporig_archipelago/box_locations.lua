@@ -75,6 +75,7 @@ function BoxLocations.ActivateBoxes(level_id)
     if(mapBoxIDs) then
         total = #mapBoxIDs
     end
+    SetAPLvlBoxRemain(total)
     QuickMessage("Boxes Found: " .. found .. "/" .. total .. ".", "ARCHIPELAGO_ICON")
     --if a level is completed, we will send out location 10000+level_id.
     --check if 10000+level_id was in the sent table. If it was, add a tick
@@ -101,6 +102,7 @@ function BoxLocations.ActivateBoxes(level_id)
             first = false
             RegisterSpecialActivatedEvent(function()             
                 found = found + 1
+                DecAPLvlBoxRemain()
                 -- get info for specific location so we can check name and player
                 local info = GetAPLocationInfo(id)
                 QuickMessage("Box " .. info.itemName .. " for " .. info.playerName .. " Activated.", "ARCHIPELAGO_ICON")

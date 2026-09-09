@@ -51,6 +51,9 @@ void ap_location_info_update(
 const struct AP_LocationInfo *ap_location_info_get(long long location);
 
 void ap_location_info_clear(void);
+void ap_update_current_lvl_box_remaining(int cnt);
+void ap_decrease_current_lvl_box_remaining(void);
+int ap_get_current_lvl_box_remaining(void);
 
 #ifdef __cplusplus
 }
