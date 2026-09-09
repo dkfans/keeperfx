@@ -126,8 +126,7 @@ static float get_button_score(long mouse_x, long mouse_y, long btn_center_x, lon
 static float get_battle_buttons_top_score(const struct GuiButton* gbtn, long *btn_center_x, long *btn_center_y, long mouse_x, long mouse_y, float dx, float dy, float MIN_DOT)
 {
     int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    BattleIndex battle_id = dungeon->visible_battles[visbtl_id];
+    BattleIndex battle_id = visible_battles[visbtl_id];
     struct CreatureBattle* battle = creature_battle_get(battle_id);
     if (creature_battle_invalid(battle)) {
         return -1.0f;

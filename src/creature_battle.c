@@ -37,8 +37,33 @@
 
 /******************************************************************************/
 
-unsigned short friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
-unsigned short enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
+BattleIndex visible_battles[VISIBLE_BATTLES_COUNT];
+unsigned short friendly_battler_list[VISIBLE_BATTLES_COUNT*MESSAGE_BATTLERS_COUNT];
+unsigned short enemy_battler_list[VISIBLE_BATTLES_COUNT*MESSAGE_BATTLERS_COUNT];
+
+/** Battle shown on the top row of the battle panel, and the turn it started on. The panel is
+ * the window of the battle list of the local player which starts at it; zero means it starts
+ * at the first battle. The turn is kept so that the panel can stay in place when the anchored
+ * battle is over and its index is gone from the list. */
+static BattleIndex visible_battles_anchor;
+static GameTurn visible_battles_anchor_turn;
+
+/** Bumped whenever creatures enter or leave the battles, so that the battle panel knows it
+ * has to be built again. A missed bump can only leave the panel one step behind, never in an
+ * invalid state, as the panel is always built from scratch out of the battles themselves. */
+static unsigned long battle_lists_change_count;
+/** The state the battle panel was last built from, to skip building it again for nothing. */
+static unsigned long visible_battles_built_count;
+static PlayerNumber visible_battles_built_plyr;
+static PlayerBitFlags visible_battles_built_allies;
+/** Amount of battles the panel was built out of, which is how it knows whether it leaves any
+ * of them out and so whether there is anywhere to scroll to. */
+static int visible_battles_total;
+
+void battle_lists_changed(void)
+{
+    battle_lists_change_count++;
+}
 
 /******************************************************************************/
 /**
@@ -110,20 +135,6 @@ TbBool has_ranged_combat_attackers(const struct Thing *victim)
 BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx)
 {
     for (long i = 1; i < BATTLES_COUNT; i++)
-    {
-        struct CreatureBattle* battle = creature_battle_get(i);
-        if (battle->fighters_num != 0)
-        {
-            if (battle_with_creature_of_player(plyr_idx, i))
-               return i;
-        }
-    }
-    return 0;
-}
-
-BattleIndex find_last_battle_of_mine(PlayerNumber plyr_idx)
-{
-    for (long i = BATTLES_COUNT; i > 0; i--)
     {
         struct CreatureBattle* battle = creature_battle_get(i);
         if (battle->fighters_num != 0)
@@ -293,40 +304,9 @@ void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, CrAttac
     setup_combat_flee_position(fightng);
 }
 
-TbBool active_battle_exists(PlayerNumber plyr_idx)
+TbBool active_battle_exists(void)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    return (dungeon->visible_battles[0] != 0);
-}
-
-TbBool step_battles_forward(PlayerNumber plyr_idx)
-{
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon)) {
-        ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)plyr_idx);
-        return false;
-    }
-    BattleIndex i = dungeon->visible_battles[2];
-    if (i > 0) {
-        i = find_next_battle_of_mine_excluding_current_list(plyr_idx, i);
-    }
-    if (i > 0) {
-        dungeon->visible_battles[2] = i;
-        i = find_previous_battle_of_mine_excluding_current_list(plyr_idx, i);
-        dungeon->visible_battles[1] = i;
-        i = find_previous_battle_of_mine_excluding_current_list(plyr_idx, i);
-        dungeon->visible_battles[0] = i;
-    } else if (dungeon->visible_battles[1] > 0) {
-        i = dungeon->visible_battles[0];
-        dungeon->visible_battles[0] = dungeon->visible_battles[1];
-        dungeon->visible_battles[1] = dungeon->visible_battles[2];
-        if (dungeon->visible_battles[1] == 0) {
-            dungeon->visible_battles[1] = i;
-        } else {
-            dungeon->visible_battles[2] = i;
-        }
-    }
-    return active_battle_exists(plyr_idx);
+    return (visible_battles[0] != 0);
 }
 
 long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex battle_idx)
@@ -353,68 +333,7 @@ void battle_initialise(void)
     {
         memset(&game.battles[battle_idx], 0, sizeof(struct CreatureBattle));
     }
-}
-
-BattleIndex find_next_battle_of_mine(PlayerNumber plyr_idx, BattleIndex prev_idx)
-{
-    for (BattleIndex next_idx = prev_idx + 1; next_idx < BATTLES_COUNT; next_idx++)
-    {
-        if (creature_battle_exists(next_idx) && battle_with_creature_of_player(plyr_idx, next_idx)) {
-            return next_idx;
-        }
-    }
-    return find_first_battle_of_mine(plyr_idx);
-}
-
-BattleIndex find_previous_battle_of_mine(PlayerNumber plyr_idx, BattleIndex next_idx)
-{
-    for (BattleIndex prev_idx = next_idx - 1; prev_idx > 0; prev_idx--)
-    {
-        if (creature_battle_exists(prev_idx) && battle_with_creature_of_player(plyr_idx, prev_idx)) {
-            return prev_idx;
-        }
-    }
-    return find_last_battle_of_mine(plyr_idx);
-}
-
-TbBool battle_in_list(PlayerNumber plyr_idx, BattleIndex battle_id)
-{
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    for (long i = 0; i < 3; i++)
-    {
-        if (battle_id > 0)
-        {
-            if (dungeon->visible_battles[i] == battle_id)
-                return true;
-        }
-    }
-    return false;
-}
-
-BattleIndex find_next_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex prev_idx)
-{
-    BattleIndex battle_idx = find_next_battle_of_mine(plyr_idx, prev_idx);
-    BattleIndex first_idx = battle_idx;
-    while (battle_in_list(plyr_idx, battle_idx))
-    {
-        battle_idx = find_next_battle_of_mine(plyr_idx, battle_idx);
-        if (battle_idx == first_idx)
-            return 0;
-    }
-    return battle_idx;
-}
-
-BattleIndex find_previous_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex next_idx)
-{
-    BattleIndex battle_id = find_previous_battle_of_mine(plyr_idx, next_idx);
-    BattleIndex last_idx = battle_id;
-    while (battle_in_list(plyr_idx, battle_id))
-    {
-        battle_id = find_previous_battle_of_mine(plyr_idx, battle_id);
-        if (battle_id == last_idx)
-            return 0;
-    }
-    return battle_id;
+    reset_visible_battles();
 }
 
 TbBool clear_battlers(unsigned short *friendly_battlers, unsigned short *enemy_battlers)
@@ -489,57 +408,191 @@ long setup_my_battlers(unsigned char battle_idx, unsigned short *friendly_battle
     return setup_player_battlers(player, battle, friendly_battlers, enemy_battlers);
 }
 
+/**
+ * Orders battles by the turn they started on, newest first. Battles started on the same turn
+ * keep a stable order by index, so that the list does not shuffle from one frame to the next.
+ */
+static int compare_battles_by_recency(const void *ptr_a, const void *ptr_b)
+{
+    BattleIndex battle_id_a = *(const BattleIndex *)ptr_a;
+    BattleIndex battle_id_b = *(const BattleIndex *)ptr_b;
+    GameTurn turn_a = creature_battle_get(battle_id_a)->start_turn;
+    GameTurn turn_b = creature_battle_get(battle_id_b)->start_turn;
+    if (turn_a != turn_b) {
+        // Newest battle first. Swapping the two returned values orders the panel the other
+        // way around, oldest battle first; nothing else has to change for that.
+        return (turn_a < turn_b) ? 1 : -1;
+    }
+    return (int)battle_id_a - (int)battle_id_b;
+}
+
+/**
+ * Stores the indexes of all the ongoing battles of given player, newest battle first.
+ * Returns the amount of battles stored.
+ */
+static int collect_battles_of_player(PlayerNumber plyr_idx, BattleIndex *battles, int max_battles)
+{
+    int nbattles = 0;
+    for (BattleIndex battle_id = 1; (battle_id < BATTLES_COUNT) && (nbattles < max_battles); battle_id++)
+    {
+        if (creature_battle_exists(battle_id) && battle_with_creature_of_player(plyr_idx, battle_id)) {
+            battles[nbattles] = battle_id;
+            nbattles++;
+        }
+    }
+    if (nbattles > 1) {
+        // The order the panel shows is decided here alone, so another comparison function
+        // sorts it by another key with no other change. The fields of struct CreatureBattle,
+        // start_turn and fighters_num, are free to read; a key which belongs to the fighters
+        // instead, such as their health or their exp_level, needs the battle walked from
+        // first_creatr through battle_prev_creatr; work such a key out once per battle
+        // before sorting rather than inside the comparison, which qsort calls far more often.
+        qsort(battles, nbattles, sizeof(battles[0]), compare_battles_by_recency);
+    }
+    return nbattles;
+}
+
+/**
+ * Returns the position which the battle panel anchor has on given battle list. If the anchored
+ * battle is over, the panel stays on the first battle which is not newer than the anchored one
+ * was, so that it keeps about the place the player had scrolled to.
+ */
+static int visible_battles_anchor_position(const BattleIndex *battles, int nbattles)
+{
+    if (visible_battles_anchor == 0) {
+        return 0;
+    }
+    for (int i = 0; i < nbattles; i++)
+    {
+        // The turn has to match as well: battle indexes are handed out again as soon as a
+        // battle is over, so the index alone could be a different battle by now
+        if ((battles[i] == visible_battles_anchor)
+         && (creature_battle_get(battles[i])->start_turn == visible_battles_anchor_turn))
+            return i;
+    }
+    for (int i = 0; i < nbattles; i++)
+    {
+        if (creature_battle_get(battles[i])->start_turn <= visible_battles_anchor_turn)
+            return i;
+    }
+    return 0;
+}
+
+/**
+ * Returns the players which given player is allied with. The battle panel splits every battle
+ * into allies and enemies, so it has to be built again whenever an alliance changes.
+ */
+static PlayerBitFlags allies_of_player(PlayerNumber plyr_idx)
+{
+    PlayerBitFlags allies = 0;
+    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+    {
+        if (players_are_mutual_allies(plyr_idx, i)) {
+            set_flag(allies, to_flag(i));
+        }
+    }
+    return allies;
+}
+
+/**
+ * Fills the battle panel with the window of given battle list which starts at the anchor; as
+ * the list has no repeated entries, neither has the panel. When there are less battles than
+ * rows, the remaining rows are left empty.
+ */
+static void fill_visible_battles(PlayerNumber plyr_idx, const BattleIndex *battles, int nbattles)
+{
+    int anchor_pos = visible_battles_anchor_position(battles, nbattles);
+    for (int i = 0; i < VISIBLE_BATTLES_COUNT; i++)
+    {
+        BattleIndex battle_id = (i < nbattles) ? battles[(anchor_pos + i) % nbattles] : 0;
+        visible_battles[i] = battle_id;
+        if (battle_id > 0) {
+            setup_my_battlers(battle_id, &friendly_battler_list[MESSAGE_BATTLERS_COUNT*i], &enemy_battler_list[MESSAGE_BATTLERS_COUNT*i]);
+        } else {
+            clear_battlers(&friendly_battler_list[MESSAGE_BATTLERS_COUNT*i], &enemy_battler_list[MESSAGE_BATTLERS_COUNT*i]);
+        }
+    }
+    visible_battles_anchor = visible_battles[0];
+    visible_battles_anchor_turn = creature_battle_get(visible_battles_anchor)->start_turn;
+    visible_battles_total = nbattles;
+    visible_battles_built_count = battle_lists_change_count;
+    visible_battles_built_plyr = plyr_idx;
+    visible_battles_built_allies = allies_of_player(plyr_idx);
+}
+
+/**
+ * Rebuilds the battle panel out of the battles of given player.
+ */
+static void rebuild_visible_battles(PlayerNumber plyr_idx)
+{
+    BattleIndex battles[BATTLES_COUNT];
+    int nbattles = collect_battles_of_player(plyr_idx, battles, BATTLES_COUNT);
+    fill_visible_battles(plyr_idx, battles, nbattles);
+}
+
+/**
+ * Moves the battle panel by given amount of rows over the battle list of given player.
+ * Scrolling the panel only leads anywhere while the list is longer than the panel, as every
+ * battle is on show otherwise; moving on to another battle wraps around the list however few
+ * battles are on it, so that it can be used to visit them one after another.
+ */
+static void move_visible_battles(PlayerNumber plyr_idx, int delta, TbBool wrap_when_all_shown)
+{
+    BattleIndex battles[BATTLES_COUNT];
+    int nbattles = collect_battles_of_player(plyr_idx, battles, BATTLES_COUNT);
+    if ((nbattles > 0) && (wrap_when_all_shown || (nbattles > VISIBLE_BATTLES_COUNT)))
+    {
+        int anchor_pos = visible_battles_anchor_position(battles, nbattles);
+        visible_battles_anchor = battles[(anchor_pos + delta + nbattles) % nbattles];
+    }
+    fill_visible_battles(plyr_idx, battles, nbattles);
+}
+
 void maintain_my_battle_list(void)
 {
-    long i;
-    // Find battle index
     struct PlayerInfo* player = get_my_player();
-    struct Dungeon* dungeon = get_players_dungeon(player);
-    BattleIndex battle_id = 0;
-    for (i=0; i < 3; i++)
-    {
-        struct CreatureBattle* battle = creature_battle_get(dungeon->visible_battles[i]);
-        if (battle->fighters_num > 0) {
-            battle_id = dungeon->visible_battles[i];
-        } else {
-            dungeon->visible_battles[i] = 0;
-        }
+    if ((visible_battles_built_count == battle_lists_change_count)
+     && (visible_battles_built_plyr == player->id_number)
+     && (visible_battles_built_allies == allies_of_player(player->id_number))) {
+        // Nothing which the panel shows has changed since it was built
+        return;
     }
-    // Move array items down to make sure empty slots are at end
-    for (i=0; i < 2; i++)
-    {
-      if (dungeon->visible_battles[i] <= 0)
-      {
-          // Got empty spot - fill it with first non-empty item
-          for (long n = i + 1; n < 3; n++)
-          {
-              if (dungeon->visible_battles[n] > 0)
-              {
-                  dungeon->visible_battles[i] = dungeon->visible_battles[n];
-                  dungeon->visible_battles[n] = 0;
-                  break;
-              }
-          }
-      }
-    }
-    // Find battles to fill empty slots
-    for (i=0; i < 3; i++)
-    {
-      if (dungeon->visible_battles[i] <= 0)
-      {
-          battle_id = find_next_battle_of_mine_excluding_current_list(player->id_number, battle_id);
-          if (battle_id > 0) {
-              dungeon->visible_battles[i] = battle_id;
-          }
-      }
-    }
-    for (i=0; i < 3; i++)
-    {
-        battle_id = dungeon->visible_battles[i];
-        if (battle_id > 0) {
-            setup_my_battlers(dungeon->visible_battles[i], &friendly_battler_list[MESSAGE_BATTLERS_COUNT*i], &enemy_battler_list[MESSAGE_BATTLERS_COUNT*i]);
-        }
-    }
+    rebuild_visible_battles(player->id_number);
+}
+
+void reset_visible_battles(void)
+{
+    struct PlayerInfo* player = get_my_player();
+    visible_battles_anchor = 0;
+    visible_battles_anchor_turn = 0;
+    rebuild_visible_battles(player->id_number);
+}
+
+TbBool step_battles_forward(PlayerNumber plyr_idx)
+{
+    move_visible_battles(plyr_idx, 1, false);
+    return active_battle_exists();
+}
+
+TbBool step_battles_backward(PlayerNumber plyr_idx)
+{
+    move_visible_battles(plyr_idx, -1, false);
+    return active_battle_exists();
+}
+
+/**
+ * Returns whether the battle panel has anywhere to scroll to, which it only has while there
+ * are more battles than it has rows to show them on.
+ */
+TbBool battle_panel_can_scroll(void)
+{
+    return (visible_battles_total > VISIBLE_BATTLES_COUNT);
+}
+
+TbBool cycle_to_next_battle(PlayerNumber plyr_idx)
+{
+    move_visible_battles(plyr_idx, 1, true);
+    return active_battle_exists();
 }
 
 unsigned long count_active_battles(PlayerNumber plyr_idx)
