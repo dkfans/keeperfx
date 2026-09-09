@@ -28,9 +28,11 @@ end
 
 function SentLocations.CountFound(mapBoxIDs)
     local found = 0
-    for _, id in ipairs(mapBoxIDs) do
-        if SentLocations.Has(id) then
-            found = found + 1
+    if mapBoxIDs then
+        for _, id in ipairs(mapBoxIDs) do
+            if SentLocations.Has(id) then
+                found = found + 1
+            end
         end
     end
     return found
