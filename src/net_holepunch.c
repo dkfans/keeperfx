@@ -170,6 +170,40 @@ static int send_and_burst(ENetSocket socket_handle, const ENetAddress *address, 
     return 1;
 }
 
+int holepunch_receive(ENetHost *host, ENetAddress *expected, size_t expected_count)
+{
+    static const uint8_t punch_payload[HOLE_PUNCH_PAYLOAD_SIZE] = {0};
+    uint8_t payload[HOLE_PUNCH_PAYLOAD_SIZE + 1];
+    int found = 0;
+    for (size_t packet = 0; packet < expected_count * HOLE_PUNCH_COUNT; packet++) {
+        int peeked = recv(host->socket, (char *)payload, sizeof(payload), MSG_PEEK);
+        if (peeked != HOLE_PUNCH_PAYLOAD_SIZE || memcmp(payload, punch_payload, HOLE_PUNCH_PAYLOAD_SIZE) != 0)
+            return found;
+        ENetBuffer receive_buffer = {.data = payload, .dataLength = sizeof(payload)};
+        ENetAddress source;
+        int received = enet_socket_receive(host->socket, &source, &receive_buffer, 1);
+        if (received != HOLE_PUNCH_PAYLOAD_SIZE)
+            return found;
+        for (size_t i = 0; i < expected_count; i++) {
+            ENetAddress comparable = expected[i];
+            comparable.port = source.port;
+            if (source.type == ENET_ADDRESS_TYPE_IPV6)
+                enet_address_convert_ipv6(&comparable);
+            if (!expected[i].port || !enet_address_equal_host(&source, &comparable))
+                continue;
+            if (source.port != expected[i].port) {
+                LbNetLog("Holepunch: learned peer port %d (advertised %d)\n", (int)source.port, (int)expected[i].port);
+                found = 2;
+            } else if (!found) {
+                found = 1;
+            }
+            expected[i] = source;
+            break;
+        }
+    }
+    return found;
+}
+
 void holepunch_punch_to(ENetHost *host, const ENetAddress *target)
 {
     static const uint8_t punch_payload[HOLE_PUNCH_PAYLOAD_SIZE] = {0};
