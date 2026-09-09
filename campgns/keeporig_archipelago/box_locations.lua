@@ -53,11 +53,11 @@ function BoxLocations.SpawnBoxes(level_id)
             Game.APBox[id] = AddObjectToLevel("SPECBOX_CUSTOM", (id % 100)+100, id, "PLAYER_NEUTRAL", 0) -- Action Points are limited to 256, so each Archipelago action point on a level is 101+
             local info = GetAPLocationInfo(id)
             SetBoxTooltip(id, info.itemName .. " for " .. info.playerName)
-            
             -- Would like to add a way to check if the item associated with this number is useful or filler, then display the correct graphics.
             -- if it's useful or progression, show it off as such.
             if (info.flags % 1) ~= 0 or (info.flags % 2) ~= 0 then
                 Game.APBox[id].anim_sprite = "ARCHIPELAGOITEMUSEFUL"
+                --Game.APBox[id].map_icon = "ARCHIPELAGO_USEFUL_SMALL" -- This isn't possible sadly
             end
             if not first then message = message .. ", " end
             message = message .. id
@@ -88,6 +88,7 @@ function BoxLocations.ActivateBoxes(level_id)
         QuickMessage("mapBoxIDs table not loaded!")
         return
     end
+    --I think this needs rewriting because SentLocations.Has works differently now: previously just added "[id] = true" to a table, what does it do now?
     local message = "Boxes Prepped: "
     local first = true
     for _, id in ipairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
@@ -103,8 +104,8 @@ function BoxLocations.ActivateBoxes(level_id)
                 QuickMessage("Boxes Found: " .. found.. "/" .. total .. ".", "ARCHIPELAGO_ICON")
                 local message2 = "Sent Locations: "
                 local first2 = true
-                for id2, _ in pairs(SentLocations) do
-                    if type(id2) == "number" then
+                for _, id2 in ipairs(mapBoxIDs) do
+                    if SentLocations.Has(id2) then
                         if not first2 then message2 = message2 .. ", " end
                         message2 = message2 .. id2
                         first2 = false

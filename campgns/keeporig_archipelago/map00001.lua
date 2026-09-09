@@ -33,22 +33,12 @@ end
 --will get called when the game is loaded from the Save/Load menu
 function OnGameLoad()
       QuickMessage("Game loaded.", "ARCHIPELAGO_ICON")
-      RoomAvailable("ALL_PLAYERS", "WORKSHOP", 2, true)
+      --RoomAvailable("ALL_PLAYERS", "WORKSHOP", 2, true)
       CommandsMain.MainSetup()
 end
 
-function OnItemReceived(itemid)
-      print("Received item " .. itemid)
-      ReceivedLocations.ReceivedItemCheck(itemid)
-end
+--function OnItemReceived(itemid)
+--      print("Received item " .. itemid)
+--      ReceivedLocations.ReceivedItemCheck(itemid)
+--end
 
---example list, I assume we could have a way to link these from the full list.
---local BoxTooltips = {
---      [101] = "Cooldave's BOULDERBADGE",
---      [102] = "PinkGuy's Hookshot",
---      [103] = "xxSkullBoixx's BFG9000",
---}
-
--- presumably we need the Archipelago python file containing the strings to write a lua file linking the ingame locations with the strings, then use BoxTooltips.
-
---here we setup things 

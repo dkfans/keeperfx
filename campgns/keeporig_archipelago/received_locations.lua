@@ -5,7 +5,6 @@ local ReceivedLocationsTable = require "received_locations_table"
 
 ReceivedLocations = {}
 
-
 -- Every check must have a unique integer ID associated with it.
 ChecksTable = {
 --CREATURES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
@@ -325,3 +324,5 @@ function IncreaseStartingGold()
     print("Starting gold " .. startinggoldcount .. "(Starting gold " .. startingGold .. ") Unlocked")
     RunDKScriptCommand("START_MONEY(PLAYER0," .. startingGold .. ")")
 end
+
+return ReceivedLocations
