@@ -10,7 +10,7 @@ end
 function Setup()
       QuickMessage("Map: " .. Map.map_number .. " (" .. Map.map_name .. ").", "ARCHIPELAGO_ICON")
       HideVariable()    
-      DisplayVariableWithLabel("PLAYER0","BOXES_REMAIN","ARCHIPELAGO_MESSAGE")
+      DisplayVariableWithLabel("PLAYER0","BOXES_REMAIN","ARCHIPELAGO_ICON")
       ActivateItems()
       BoxLocations.DeleteBoxes(Map.map_number)
       BoxLocations.SpawnBoxes(Map.map_number)
