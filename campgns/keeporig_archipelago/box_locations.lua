@@ -32,6 +32,16 @@ local BoxLocations = {
 
 Game.APBox = {}
 
+function BoxLocations.Total()
+    local total = 0
+    for level_id, location_ids in pairs(BoxLocations) do
+        if type(level_id) == "number" then
+            total = total + #location_ids
+        end
+    end
+    return total
+end
+
 function BoxLocations.SpawnBoxes(level_id)
     local mapBoxIDs = BoxLocations[level_id]
     if not mapBoxIDs then
@@ -40,7 +50,7 @@ function BoxLocations.SpawnBoxes(level_id)
     end
     local message = "Boxes Added: "
     local first = true
-    for _, id in ipairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
+    for _, id in pairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
         if not SentLocations.Has(id) then -- If it ISN'T in sent_locations , we've not sent it.
             -- get info for specific location so we can check name and player
             local info = GetAPLocationInfo(id)
@@ -68,7 +78,16 @@ function BoxLocations.SpawnBoxes(level_id)
 end
 
 function BoxLocations.ActivateBoxes(level_id)
-    if level_id ~= 1000 then --we can do something different for the hub level, e.g. display the full total of found and yet to find.
+    if level_id == 1000 then --we can do something different for the hub level, e.g. display the full total of found and yet to find.
+        local found = 0
+        local total = BoxLocations.Total()
+        for level_id, location_ids in pairs(BoxLocations) do
+            if type(level_id) == "number" then
+                found = found + SentLocations.CountFound(location_ids)
+            end
+        end
+        QuickMessage("Total Boxes Found: " .. found .. "/" .. total .. ".", "ARCHIPELAGO_ICON")
+    else
         local mapBoxIDs = BoxLocations[level_id]
         local found = SentLocations.CountFound(mapBoxIDs)
         local total = 0
@@ -96,12 +115,12 @@ function BoxLocations.ActivateBoxes(level_id)
             --I think this needs rewriting because SentLocations.Has works differently now: previously just added "[id] = true" to a table, what does it do now?
             local message = "Boxes Prepped: "
             local first = true
-            for _, id in ipairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
+            for _, id in pairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
                 if not SentLocations.Has(id) then -- If it ISN'T in sent_locations , we've not sent it.
                     if not first then message = message .. ", " end
                     message = message .. id
                     first = false
-                    RegisterSpecialActivatedEvent(function()             
+                    RegisterSpecialActivatedEvent(function()           
                         found = found + 1
                         DecAPLvlBoxRemain()
                         -- get info for specific location so we can check name and player
@@ -119,7 +138,6 @@ function BoxLocations.ActivateBoxes(level_id)
                         end
                         if not first2 then message2 = message2 .. "." end
                         QuickMessage(message2, "ARCHIPELAGO_ICON")
-                        --SentLocations.Save() --writes to AP_sent_locations_save.lua
                         Game.APBox[id] = nil
                     end, id)
                 else
@@ -144,7 +162,7 @@ function BoxLocations.DeleteBoxes(level_id)
     end
     local message = "Boxes Deleted: "
     local first = true
-    for _, id in ipairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
+    for _, id in pairs(mapBoxIDs) do -- For each of the boxIDs we assign to this level
         if Game.APBox[id] then
             Game.APBox[id]: delete()
             Game.APBox[id] = nil

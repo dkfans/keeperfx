@@ -39,7 +39,7 @@ end
 
 function ActivateItems()
       local receivedItems = GetAPItems()
-      for index, itemid in ipairs(receivedItems) do
+      for index, itemid in pairs(receivedItems) do
             ReceivedLocations.ReceivedItemCheck(itemid)
       end
 end

@@ -13,7 +13,7 @@ end
 function ReceivedLocationsTable.CountFound(mapBoxIDs)
     local found = 0
     if mapBoxIDs then
-        for _, id in ipairs(mapBoxIDs) do
+        for _, id in pairs(mapBoxIDs) do
             if ReceivedLocationsTable.Has(id) then
                 found = found + 1
             end
