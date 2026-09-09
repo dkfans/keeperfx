@@ -517,6 +517,7 @@ const struct NamedCommand move_check_func_commands[] = {
     {"move_check_attack_any_door",        12},
     {"move_check_can_damage_wall",        13},
     {"move_check_persuade",               14},
+    {NULL,                                 0},
 };
 
 const CreatureStateCheck move_check_func_list[] = {
