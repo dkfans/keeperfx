@@ -536,6 +536,7 @@ void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx)
 
 void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct PlayerInfo *player, const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const unsigned char *predicted_slab_tag_modes)
 {
+    struct UserState* ustate = get_player_user_state(player);
     PlayerNumber plyr_idx = player->id_number;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
@@ -557,7 +558,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
         current_roomspace.untag_mode = false;
         current_roomspace.one_click_mode_exclusive = false;
         current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx, predicted_slab_tag_modes);
-        player->boxsize = current_roomspace.slab_count;
+        ustate->boxsize = current_roomspace.slab_count;
         *roomspace = current_roomspace;
         return;
     }
@@ -655,7 +656,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
             player->swap_to_untag_mode = -1; // disable
         }
     }
-    player->boxsize = current_roomspace.slab_count;
+    ustate->boxsize = current_roomspace.slab_count;
     if (current_roomspace.slab_count > 0)
     {
         current_roomspace.tag_for_dig = true;
@@ -670,6 +671,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
 void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct UserState* ustate = get_player_user_state(player);
     struct RoomSpace current_roomspace;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
@@ -689,7 +691,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
         current_roomspace.untag_mode = false;
         current_roomspace.one_click_mode_exclusive = false;
         current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx, NULL);
-        player->boxsize = current_roomspace.slab_count;
+        ustate->boxsize = current_roomspace.slab_count;
         *roomspace = current_roomspace;
         player->ignore_next_PCtr_LBtnRelease = false;
         return;
@@ -745,7 +747,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
         player->roomspace_width = current_roomspace.width;
         player->roomspace_height = current_roomspace.height;
     }
-    player->boxsize = current_roomspace.slab_count;
+    ustate->boxsize = current_roomspace.slab_count;
     current_roomspace.one_click_mode_exclusive = player->one_click_mode_exclusive;
     *roomspace = current_roomspace;
 }
@@ -753,6 +755,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
 void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct UserState* ustate = get_player_user_state(player);
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     struct RoomSpace best_roomspace;
@@ -776,7 +779,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         best_roomspace.untag_mode = false;
         best_roomspace.one_click_mode_exclusive = false;
         best_roomspace = check_roomspace_for_diggable_slabs(best_roomspace, plyr_idx, NULL);
-        player->boxsize = best_roomspace.slab_count;
+        ustate->boxsize = best_roomspace.slab_count;
         *roomspace = best_roomspace;
         player->ignore_next_PCtr_LBtnRelease = false;
         return;
@@ -795,7 +798,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         best_roomspace = get_biggest_roomspace(plyr_idx, rkind, slb_x, slb_y, roomst->cost, 0, 32, player->roomspace_detection_looseness);
         slb_x = best_roomspace.centreX;
         slb_y = best_roomspace.centreY;
-        player->boxsize = best_roomspace.slab_count; // correct number of tiles always returned from get_biggest_roomspace
+        ustate->boxsize = best_roomspace.slab_count; // correct number of tiles always returned from get_biggest_roomspace
     }
     else if ( (mode == drag_placement_mode) && (player->roomspace_drag_paint_mode == false) )
     {
@@ -841,7 +844,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         }
         temp_best_room = check_slabs_in_roomspace(temp_best_room, roomst->cost);
         best_roomspace = temp_best_room;
-        player->boxsize = best_roomspace.slab_count;
+        ustate->boxsize = best_roomspace.slab_count;
         player->roomspace_width = best_roomspace.width;
         player->roomspace_height = best_roomspace.height;
         best_roomspace.render_roomspace_as_box = true;
@@ -852,7 +855,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         temp_best_room.drag_direction = top_left_to_bottom_right;
         temp_best_room = check_slabs_in_roomspace(temp_best_room, roomst->cost);
         best_roomspace = temp_best_room;
-        player->boxsize = best_roomspace.slab_count; // correct number of tiles returned from check_slabs_in_roomspace
+        ustate->boxsize = best_roomspace.slab_count; // correct number of tiles returned from check_slabs_in_roomspace
             // Make sure the "outer box" bounding is drawn with square room mode
             best_roomspace.width = player->roomspace_width;
             best_roomspace.height = player->roomspace_height;
@@ -869,24 +872,26 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
 TbBool update_dungeon_build_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    player->full_slab_cursor = 1;
+    struct UserState* ustate = get_player_user_state(player);
+    ustate->full_slab_cursor = 1;
     if (is_my_player(player)) {
-        gui_room_type_highlighted = player->chosen_room_kind;
+        gui_room_type_highlighted = ustate->chosen_room_kind;
     }
-    get_dungeon_build_user_roomspace(&player->render_roomspace, player->id_number, player->chosen_room_kind, stl_x, stl_y, player->roomspace_mode);
-    return tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+    get_dungeon_build_user_roomspace(&player->render_roomspace, player->id_number, ustate->chosen_room_kind, stl_x, stl_y, player->roomspace_mode);
+    return tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, ustate->full_slab_cursor);
 }
 
 TbBool update_dungeon_sell_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
+    struct UserState* ustate = get_player_user_state(player);
     if (player->roomspace_mode != single_subtile_mode) {
-        player->full_slab_cursor = 1;
+        ustate->full_slab_cursor = 1;
     } else {
-        player->full_slab_cursor = 0;
+        ustate->full_slab_cursor = 0;
     }
     get_dungeon_sell_user_roomspace(&player->render_roomspace, player->id_number, stl_x, stl_y);
-    return tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, player->full_slab_cursor);
+    return tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, ustate->full_slab_cursor);
 }
 
 void apply_roomspace_packet_action(struct PlayerInfo *player, const struct Packet *pckt)
@@ -947,7 +952,8 @@ static void sell_at_point(struct RoomSpace *roomspace)
     struct SlabMap *slb = get_slabmap_block(roomspace->buildx, roomspace->buildy);
     if (slabmap_owner(slb) == roomspace->plyr_idx)
     {
-        if (player_sell_trap_at_subtile(roomspace->plyr_idx, slab_subtile_center(roomspace->buildx), slab_subtile_center(roomspace->buildy)) ||
+        if (player_sell_trap_at_subtile(roomspace->plyr_idx, slab_subtile_center(roomspace->buildx), slab_subtile_center(roomspace->buildy),
+                get_player_user_state(get_player(roomspace->plyr_idx))->full_slab_cursor != 0) ||
             player_sell_door_at_subtile(roomspace->plyr_idx, slab_subtile(roomspace->buildx, 0), slab_subtile(roomspace->buildy, 0)) ) // Trying to sell trap
         {
             // Nothing to do here - trap already sold
@@ -1136,7 +1142,7 @@ int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *r
 void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    int dig_change_count = apply_roomspace_dig_tag_selection(plyr_idx, roomspace, player->previous_cursor_subtile_x / STL_PER_SLB, player->previous_cursor_subtile_y / STL_PER_SLB, player->roomspace_highlight_mode, NULL, NULL, NULL, NULL);
+    int dig_change_count = apply_roomspace_dig_tag_selection(plyr_idx, roomspace, get_player_user_state(player)->previous_cursor_subtile_x / STL_PER_SLB, get_player_user_state(player)->previous_cursor_subtile_y / STL_PER_SLB, player->roomspace_highlight_mode, NULL, NULL, NULL, NULL);
     if (is_my_player(player))
     {
         if (dig_change_count > 0) {
@@ -1358,8 +1364,9 @@ void update_roomspaces()
 void process_build_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct UserState* ustate = get_player_user_state(player);
     struct Packet* pckt = get_packet(player->user_id);
-    if (room_role_matches(player->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater|RoRoF_PassAbyss))
+    if (room_role_matches(ustate->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater|RoRoF_PassAbyss))
     {
         TbBool drag_check = ( ( (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) || (is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) ) && (left_button_held));
         if (drag_check) // Enable "paint mode" if Ctrl or Shift are held

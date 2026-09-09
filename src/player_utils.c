@@ -1190,7 +1190,7 @@ void process_players(void)
     SYNCDBG(17,"Finished");
 }
 
-TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool whole_slab)
 {
     struct Thing *thing;
     struct Coord3d pos;
@@ -1198,8 +1198,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     MapSlabCoord slb_y = subtile_slab(stl_y);
     int32_t sell_value = 0;
     unsigned long traps_sold;
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if (player->full_slab_cursor == false)
+    if (!whole_slab)
     {
         thing = get_trap_for_position(stl_x, stl_y);
         if (!thing_is_sellable_trap(thing))

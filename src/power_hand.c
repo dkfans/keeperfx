@@ -84,11 +84,13 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(owner);
     struct PlayerInfo* player = get_player(dungeon->owner);
+    struct UserState* ustate = get_player_user_state(player);
+    TbBool pickup_all = !user_state_invalid(ustate) && ustate->pickup_all_gold;
     if (dungeon->gold_hoard_for_pickup != thing->index)
     {
         dungeon->gold_hoard_for_pickup = thing->index;
         GoldAmount gold_req;
-        if (player->pickup_all_gold)
+        if (pickup_all)
         {
             gold_req = thing->valuable.gold_stored;
         }
@@ -105,7 +107,7 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val;
 
-    if (player->pickup_all_gold)
+    if (pickup_all)
     {
         dungeon->gold_pickup_amount = thing->valuable.gold_stored;
     }

@@ -867,6 +867,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct PlayerInfo* player = get_player(get_appropriate_player_for_creature(creatng));
+    struct UserState* ustate = get_player_user_state(player);
     TRACE_THING(creatng);
     struct SlabMap* slb;
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
@@ -903,7 +904,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param)
         ahead_stl_x++;
         ahead_slb_x++;
     }
-    if ( (player->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
+    if ( (ustate->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
     {
         set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
         return 1;
@@ -936,7 +937,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param)
     slb = get_slabmap_block(slb_x, slb_y);
     if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
     {
-        if (!player->first_person_dig_claim_mode)
+        if (!ustate->first_person_dig_claim_mode)
         {
             struct SlabConfigStats* slabst = get_slab_stats(slb);
             instf_destroy(creatng, NULL);
@@ -973,7 +974,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param)
             return 1;
         }
     }
-    else if (player->first_person_dig_claim_mode)
+    else if (ustate->first_person_dig_claim_mode)
     {
         if (slabmap_owner(slb) == creatng->owner)
         {

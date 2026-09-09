@@ -44,12 +44,12 @@ TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,  54,  46
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
 struct PlayerInfo bad_player;
+short local_thing_under_hand;
 struct LocalState local_state;
 struct UserState bad_user_state;
 
 /** The current player's number. */
 unsigned char my_player_number;
-short local_thing_under_hand;
 /******************************************************************************/
 
 struct Camera *get_player_active_camera(const struct PlayerInfo *player)
@@ -125,6 +125,13 @@ struct UserState *get_user_state(NetUserId user)
     if ((user < 0) || (user >= MAX_NET_USERS))
         return INVALID_USER_STATE;
     return &game.user_states[user];
+}
+
+struct UserState *get_player_user_state(const struct PlayerInfo *player)
+{
+    if ((player == NULL) || player_invalid(player))
+        return INVALID_USER_STATE;
+    return get_user_state(player->user_id);
 }
 
 TbBool user_state_invalid(const struct UserState *ustate)
@@ -344,6 +351,7 @@ void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chosen_kind)
 {
+  struct UserState* ustate = get_player_user_state(player);
   SYNCDBG(6,"Player %d state %s to %s",(int)player->id_number,player_state_code_name(player->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
@@ -351,35 +359,35 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chose
     switch ( player->work_state )
     {
     case PSt_BuildRoom:
-        player->chosen_room_kind = chosen_kind;
+        ustate->chosen_room_kind = chosen_kind;
         break;
     case PSt_PlaceTrap:
-        player->chosen_trap_kind = chosen_kind;
+        ustate->chosen_trap_kind = chosen_kind;
         break;
     case PSt_PlaceDoor:
-        player->chosen_door_kind = chosen_kind;
+        ustate->chosen_door_kind = chosen_kind;
         break;
     case PSt_CastPowerOnSubtile:
     case PST_CastPowerOnTarget:
     case PSt_CreateDigger:
     case PSt_SightOfEvil:
     case PSt_CallToArms:
-        player->chosen_power_kind = chosen_kind;
+        ustate->chosen_power_kind = chosen_kind;
         break;
     case PSt_CtrlDirect:
     case PSt_CtrlPassngr:
     case PSt_FreeCtrlPassngr:
     case PSt_FreeCtrlDirect:
-        player->chosen_power_kind = PwrK_POSSESS;
+        ustate->chosen_power_kind = PwrK_POSSESS;
         break;
     case PSt_FreeDestroyWalls:
-        player->chosen_power_kind = PwrK_DESTRWALLS;
+        ustate->chosen_power_kind = PwrK_DESTRWALLS;
         break;
     case PSt_FreeCastDisease:
-        player->chosen_power_kind = PwrK_DISEASE;
+        ustate->chosen_power_kind = PwrK_DISEASE;
         break;
     case PSt_FreeTurnChicken:
-        player->chosen_power_kind = PwrK_CHICKEN;
+        ustate->chosen_power_kind = PwrK_CHICKEN;
         break;
     }
     return;
@@ -396,11 +404,11 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chose
   switch (player->work_state)
   {
   case PSt_CtrlDungeon:
-      player->full_slab_cursor = 1;
-      player->chosen_power_kind = PwrK_None; //Cleanup for spells. Traps, doors and rooms do not require cleanup.
+      ustate->full_slab_cursor = 1;
+      ustate->chosen_power_kind = PwrK_None; //Cleanup for spells. Traps, doors and rooms do not require cleanup.
       break;
   case PSt_BuildRoom:
-      player->chosen_room_kind = chosen_kind;
+      ustate->chosen_room_kind = chosen_kind;
       break;
   case PSt_HoldInHand:
       create_power_hand(player->id_number);
@@ -425,41 +433,41 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chose
       }
   }
   case PSt_PlaceTrap:
-      player->chosen_trap_kind = chosen_kind;
+      ustate->chosen_trap_kind = chosen_kind;
       break;
   case PSt_PlaceDoor:
-      player->chosen_door_kind = chosen_kind;
+      ustate->chosen_door_kind = chosen_kind;
       break;
   case PSt_CastPowerOnSubtile:
   case PST_CastPowerOnTarget:
   case PSt_CallToArms:
   case PSt_SightOfEvil:
   case PSt_CreateDigger:
-      player->chosen_power_kind = chosen_kind;
+      ustate->chosen_power_kind = chosen_kind;
       break;
   case PSt_MkGoodCreatr:
-        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-        player->cheatselection.chosen_player = PLAYER_GOOD;
+        clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+        ustate->cheatselection.chosen_player = PLAYER_GOOD;
         break;
   case PSt_MkBadCreatr:
   case PSt_MkDigger:
-        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-        player->cheatselection.chosen_player = player->id_number;
+        clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+        ustate->cheatselection.chosen_player = player->id_number;
         break;
   case PSt_FreeCtrlPassngr:
   case PSt_FreeCtrlDirect:
   case PSt_CtrlPassngr:
   case PSt_CtrlDirect:
-        player->chosen_power_kind = PwrK_POSSESS;
+        ustate->chosen_power_kind = PwrK_POSSESS;
         break;
   case PSt_FreeDestroyWalls:
-      player->chosen_power_kind = PwrK_DESTRWALLS;
+      ustate->chosen_power_kind = PwrK_DESTRWALLS;
       break;
   case PSt_FreeCastDisease:
-      player->chosen_power_kind = PwrK_DISEASE;
+      ustate->chosen_power_kind = PwrK_DISEASE;
       break;
   case PSt_FreeTurnChicken:
-      player->chosen_power_kind = PwrK_CHICKEN;
+      ustate->chosen_power_kind = PwrK_CHICKEN;
       break;
    default:
       break;

@@ -576,9 +576,10 @@ void process_disconnected_network_players(void)
         if ((player->allocflags & PlaF_CompCtrl) == 0) {
             network_lobby_ping = GetPing(my_player_number);
             input_lag_reset_request(calculate_initial_input_lag());
-            if (!host_disconnected && player->id_number != get_net_user_player_number(SERVER_ID) && player->player_name[0] != '\0') {
-                message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), player->player_name);
-                JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
+            const char* departed_name = player->player_name;
+            if (!host_disconnected && player->id_number != get_net_user_player_number(SERVER_ID) && departed_name[0] != '\0') {
+                message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), departed_name);
+                JUSTLOG("p:%d player %s departed", player->id_number, departed_name);
             }
             if (player->victory_state == VicS_Undecided) {
                 replace_network_player_with_ai(player);

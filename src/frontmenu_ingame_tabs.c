@@ -602,6 +602,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 {
     RoomKind rkind = gbtn->content.lval;
     struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_player_user_state(player);
 
     struct Dungeon* dungeon = get_players_dungeon(player);
 
@@ -628,7 +629,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
 
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
-    unsigned char boxsize = player->boxsize;
+    unsigned char boxsize = ustate->boxsize;
     if (boxsize == 0)
     {
         boxsize = 1;
@@ -643,7 +644,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     }
     if (player->render_roomspace.total_roomspace_cost <= dungeon->total_money_owned)
     {
-        if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
+        if ((player->work_state == PSt_BuildRoom) && (ustate->chosen_room_kind == game.chosen_room_kind)
           && ((get_gameturn() % (2 * gui_blink_rate)) < gui_blink_rate))
         {
             draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
@@ -1157,6 +1158,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 {
     int manufctr_idx = gbtn->content.lval;
     struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_player_user_state(player);
 
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
@@ -1204,8 +1206,8 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
         if (amount <= 0) {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
         } else
-        if ((((manufctr->tngclass == TCls_Trap) && (player->chosen_trap_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceTrap))
-        || ((manufctr->tngclass == TCls_Door) && (player->chosen_door_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceDoor)))
+        if ((((manufctr->tngclass == TCls_Trap) && (ustate->chosen_trap_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceTrap))
+        || ((manufctr->tngclass == TCls_Door) && (ustate->chosen_door_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceDoor)))
         && ((get_gameturn() % (2 * gui_blink_rate)) < gui_blink_rate) )
         {
             draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
