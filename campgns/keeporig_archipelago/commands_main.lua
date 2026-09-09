@@ -31,8 +31,8 @@ function OnItemReceived(itemid)
 end
 
 function ActivateItems()
-      local recievedItems = GetAPItems()
-      for index, itemid in ipairs(recievedItems) do
+      local receivedItems = GetAPItems()
+      for index, itemid in ipairs(receivedItems) do
             ReceivedLocations.ReceivedItemCheck(itemid)
       end
 end      
