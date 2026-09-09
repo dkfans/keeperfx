@@ -246,31 +246,32 @@ end
 -- Also want to do a separate check for OnItemReceived creating a QUICK_INFORMATION message displaying similar text when received.
 
 function UnlockCreature(itemid)
-      print("Creature " .. itemid .. "( " .. ChecksTable[itemid].name .. ") Unlocked")
+      print("Creature " .. itemid .. " (" .. ChecksTable[itemid].name .. ") Unlocked")
       CreatureAvailable("PLAYER0",ChecksTable[itemid].internal_name,true,0)
+      AddCreatureToPool(ChecksTable[itemid].internal_name,10) -- want every creature available everywhere we've unlocked it!
 end
 function UnlockRoom(itemid)
-      print("Room " .. itemid .. "( " .. ChecksTable[itemid].name .. ") Unlocked")
+      print("Room " .. itemid .. " (" .. ChecksTable[itemid].name .. ") Unlocked")
       RoomAvailable("PLAYER0",ChecksTable[itemid].internal_name,2,true)
 end
 function UnlockTrap(itemid)
-      print("Trap " .. itemid .. "( " .. ChecksTable[itemid].name .. ") Unlocked")
+      print("Trap " .. itemid .. " (" .. ChecksTable[itemid].name .. ") Unlocked")
       TrapAvailable("PLAYER0",ChecksTable[itemid].internal_name,true,0)
 end
 function UnlockDoor(itemid)
-      print("Door " .. itemid .. "( " .. ChecksTable[itemid].name .. ") Unlocked")
+      print("Door " .. itemid .. " (" .. ChecksTable[itemid].name .. ") Unlocked")
       DoorAvailable("PLAYER0",ChecksTable[itemid].internal_name,true,0)
 end
 function UnlockSpell(itemid)
-      print("Spell " .. itemid .. "( " .. ChecksTable[itemid].name .. ") Unlocked")
+      print("Spell " .. itemid .. " (" .. ChecksTable[itemid].name .. ") Unlocked")
       MagicAvailable("PLAYER0",ChecksTable[itemid].internal_name,true,0)
 end
 function UnlockLevel(itemid)
-      print("Level " .. itemid .. "( " .. ChecksTable[itemid].name .. ") Unlocked")
+      print("Level " .. itemid .. " (Map " .. ChecksTable[itemid].name .. ") Unlocked")
       RunDKScriptCommand("SHOW_BONUS_LEVEL(" .. ChecksTable[itemid].name .. ")") -- I think this is fine to just run every level start, but it would be nice if we just did it once.
 end
 function UnlockRecipe(itemid)
-      print("Recipe " .. itemid .. "( " .. ChecksTable[itemid].name .. ") Unlocked")
+      print("Recipe " .. itemid .. " (" .. ChecksTable[itemid].name .. ") Unlocked")
       RunDKScriptCommand("SET_SACRIFICE_RECIPE(" .. ChecksTable[itemid].internal_name .. ")")
 end
 
@@ -310,7 +311,7 @@ function IncreaseCreatureLimit()
     end
     local creatureLimit = 10 + (creaturelimitcount * 5)
     print("Creature limit " .. creaturelimitcount .. "(Max creatures " .. creatureLimit .. ") Unlocked")
-    RunDKScriptCommand("MAX_CREATURES(PLAYER0," .. creatureLimit .. ")")
+    MaxCreatures(PLAYER0, creatureLimit)
 end
 
 function IncreaseStartingGold()
@@ -322,7 +323,7 @@ function IncreaseStartingGold()
     end
     local startingGold = 2500 + (startinggoldcount * 1250)
     print("Starting gold " .. startinggoldcount .. "(Starting gold " .. startingGold .. ") Unlocked")
-    RunDKScriptCommand("START_MONEY(PLAYER0," .. startingGold .. ")")
+    StartMoney(PLAYER0, startingGold)
 end
 
 return ReceivedLocations

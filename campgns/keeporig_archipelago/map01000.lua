@@ -1,7 +1,6 @@
 -- ********************************************
 --
---        Unnamed 2026.8.16 map
---        by --insert author--
+--        Hub Level
 --
 -- ********************************************
 
@@ -9,13 +8,14 @@ BoxLocations = require("box_locations")
 SentLocations = require("sent_locations")
 CommandsMain = require("commands_main")
 ReceivedLocations = require("received_locations")
---local n = 3
---local maxmap = 26
 
 --will get called when the game starts
 function OnGameStart()
 	CommandsMain.MainSetup()
-	--UnlockRandomLevels(n, maxmap)
+    RegisterTimerEvent(function ()
+        QuickInformation(99,"Welcome to KeeperAP!\nWoo!")
+        QuickObjective("Welcome to KeeperAP!\nWoo!")
+    end, 20, false)
 end
 
 function OnGameLoad()
