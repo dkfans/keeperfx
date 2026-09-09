@@ -441,7 +441,11 @@ static int thing_set_field(lua_State *L) {
             cctrl->party.target_plyr_idx = luaL_checkPlayerSingle(L, 3);
         } else if (strcmp(key, "countdown") == 0)
         {
-            cctrl->countdown = luaL_checkinteger(L, 3);
+            lua_Integer value = luaL_checkinteger(L, 3);
+            if (value < SHRT_MIN || value > SHRT_MAX) {
+                return luaL_error(L, "Creature countdown out of range (-32768..32767)");
+            }
+            cctrl->countdown = (short)value;
         } else if (strcmp(key, "state") == 0)
         {
             internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, creatrstate_desc));
