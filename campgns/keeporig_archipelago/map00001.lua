@@ -23,4 +23,5 @@ end
 -- Need some sort of OnGameWin command so we can send location 10000 + Map.map_number on map win.
 --IF(PLAYER0,FLAG0 == 7) you win, try to send the check 10000+level here.
 --Replace the flag condition with a general "level is won" one when we can.
+--also maybe see if you can update the ensign here, or whether it goes in box_locations.
 RegisterOnConditionEvent(function() SendLocation(10000+Map.map_number) end, function() return (PLAYER0.FLAG0 == 7) end)

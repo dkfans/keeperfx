@@ -30,7 +30,7 @@ end
 
 function OnItemReceived(itemid)
       print("Received item " .. itemid)
-      QuickInformation(100,"AP Item Received:\n" .. ChecksTable[itemid].text) --need to add "ARCHIPELAGO_MESSAGE" message tab icon. 
+      RunDKScriptCommand("QUICK_INFORMATION(100,\"AP Item Received:\n" .. ChecksTable[itemid].text .. "\",ALL_PLAYERS,ARCHIPELAGO_MESSAGE)") -- have to use this version as the custom icon argument isn't set up in Lua yet
       -- only need to do this when new items are received. Need to check setting message number to 100 is ok.
       -- Also if you receive items while outside a level and then join, will it send all of the new ones when you go into a level?
       ReceivedLocations.ReceivedItemCheck(itemid)
