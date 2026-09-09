@@ -17,6 +17,7 @@
 #include "config_creature.h"
 #include "creature_states_pray.h"
 #include "custom_sprites.h"
+#include "sprites.h"
 #include "dungeon_data.h"
 #include "gui_msgs.h"
 #include "lvl_filesdk1.h"
@@ -343,6 +344,60 @@ long get_players_range_single_f(long plr_range_id, const char *func_name, long l
     }
     return -2;
 }
+
+short get_chat_icon_sprite_idx_from_id(short id, char type)
+{
+    switch (type)
+    {
+        case MsgType_Player:
+            if (player_is_roaming(id))
+                return GPS_plyrsym_symbol_player_red_std_b;
+
+            if (id == game.neutral_player_num)
+                return ((get_gameturn() >> 1) & 3)
+                    + GPS_plyrsym_symbol_player_red_std_b;
+
+            return player_has_heart(id)
+                ? GPS_plyrsym_symbol_player_red_std_b
+                : GPS_plyrsym_symbol_player_red_dead;
+
+        case MsgType_Creature:
+            return get_creature_model_graphics(id, CGI_HandSymbol);
+
+        case MsgType_CreatureSpell:
+            return get_spell_config(id)->medsym_sprite_idx;
+
+        case MsgType_Room:
+            return get_room_kind_stats(id)->medsym_sprite_idx;
+
+        case MsgType_KeeperSpell:
+            return get_power_model_stats(id)->medsym_sprite_idx;
+
+        case MsgType_Query:
+            return id + GPS_plyrsym_symbol_room_yellow_std_a;
+
+        case MsgType_CreatureInstance:
+            return creature_instance_info_get(id)->symbol_spridx;
+
+        case MsgType_Custom:
+            return id;
+
+        case MsgType_Blank:
+        default:
+            return -1;
+    }
+}
+
+short get_chat_icon_sprite_idx(const char* txt)
+{
+    short id = 0;
+    char type = 0;
+
+    get_chat_icon_from_value(txt, &id, &type);
+
+    return get_chat_icon_sprite_idx_from_id(id, type);
+}
+
 
 void get_chat_icon_from_value(const char* txt, short* id, char* type)
 {

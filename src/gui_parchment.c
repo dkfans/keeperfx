@@ -1085,27 +1085,27 @@ void draw_zoom_box(void)
 
     long draw_tiles = 13;
     long subtile_unscaled = 8;
-    if (player->minimap_zoom == 128)
+    if (local_state.minimap_zoom == 128)
     {
         draw_tiles = 6;
         subtile_unscaled = 18;
     } else
-    if (player->minimap_zoom == 256)
+    if (local_state.minimap_zoom == 256)
     {
         draw_tiles = 9;
         subtile_unscaled = 12;
     } else
-    if (player->minimap_zoom == 512)
+    if (local_state.minimap_zoom == 512)
     {
         draw_tiles = 12;
         subtile_unscaled = 9;
     } else
-    if (player->minimap_zoom == 1024)
+    if (local_state.minimap_zoom == 1024)
     {
         draw_tiles = 18;
         subtile_unscaled = 6;
     } else
-    if (player->minimap_zoom == 2048)
+    if (local_state.minimap_zoom == 2048)
     {
         draw_tiles = 36;
         subtile_unscaled = 3;
@@ -1216,8 +1216,6 @@ void zoom_from_parchment_map(void)
     if (network_is_active()
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
-        if ((game.operation_flags & GOF_ShowPanel) != 0)
-          toggle_status_menu(1);
         set_players_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0,0,0);
     } else
     {

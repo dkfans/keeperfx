@@ -663,16 +663,14 @@ static long compute_cells_away(void) // For overhead view, not for 1st person vi
     int32_t ymax;
     int32_t xcell;
     int32_t ycell;
-    struct PlayerInfo *player;
     long ncells_a;
-    player = get_my_player();
-    half_width = (player->engine_window_width >> 1);
-    half_height = (player->engine_window_height >> 1);
-    xcell = ((half_width<<1) + (half_width>>4))/pixel_size - player->engine_window_x/pixel_size;
-    ycell = ((8 * high_offset[1]) >> 8) - (half_width>>4)/pixel_size - player->engine_window_y/pixel_size;
+    half_width = (local_state.engine_window_width >> 1);
+    half_height = (local_state.engine_window_height >> 1);
+    xcell = ((half_width<<1) + (half_width>>4))/pixel_size - local_state.engine_window_x/pixel_size;
+    ycell = ((8 * high_offset[1]) >> 8) - (half_width>>4)/pixel_size - local_state.engine_window_y/pixel_size;
     get_floor_pointed_at(xcell, ycell, &xmax, &ymax);
-    xcell = (half_width)/pixel_size - player->engine_window_x/pixel_size;
-    ycell = (half_height)/pixel_size - player->engine_window_y/pixel_size;
+    xcell = (half_width)/pixel_size - local_state.engine_window_x/pixel_size;
+    ycell = (half_height)/pixel_size - local_state.engine_window_y/pixel_size;
     get_floor_pointed_at(xcell, ycell, &xmin, &ymin);
     xcell = abs(ymax - ymin);
     ycell = abs(xmax - xmin);
@@ -1749,14 +1747,13 @@ static void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
 
 static void do_perspective_rotation(long x, long y, long z)
 {
-    struct PlayerInfo *player = get_my_player();
     struct EngineCoord epos;
     long zoom;
     long engine_w;
     long engine_h;
     zoom = camera_zoom / pixel_size;
-    engine_w = player->engine_window_width/pixel_size;
-    engine_h = player->engine_window_height/pixel_size;
+    engine_w = local_state.engine_window_width/pixel_size;
+    engine_h = local_state.engine_window_height/pixel_size;
     epos.x = -x;
     epos.y = 0;
     epos.z = y;
@@ -2455,12 +2452,13 @@ static void fiddle_gamut_set_minmaxes(int32_t *floor_x, int32_t *floor_y, long m
 static void fiddle_gamut(long pos_x, long pos_y)
 {
     struct PlayerInfo *player = get_my_player();
+    struct Camera *camera = get_local_active_camera(player);
     long ewwidth;
     long ewheight;
     long ewzoom;
     int32_t floor_x[4];
     int32_t floor_y[4];
-    switch (player->view_mode)
+    switch (camera->view_mode)
     {
     case PVM_CreatureView:
         fiddle_half_gamut(pos_x, pos_y, 1, cells_away);
@@ -2469,8 +2467,8 @@ static void fiddle_gamut(long pos_x, long pos_y)
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
         // Retrieve coordinates on limiting map points
-        ewwidth = player->engine_window_width / pixel_size;
-        ewheight = player->engine_window_height / pixel_size - ((8 * high_offset[1]) >> 8);
+        ewwidth = local_state.engine_window_width / pixel_size;
+        ewheight = local_state.engine_window_height / pixel_size - ((8 * high_offset[1]) >> 8);
         ewzoom = (768 * (camera_zoom/pixel_size)) >> 17;
         fiddle_gamut_find_limits(floor_x, floor_y, ewwidth, ewheight, ewzoom);
         // Place the area at proper base coords
@@ -5105,7 +5103,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         scale = (flame.sprite_size * base_sprite_size / thing->sprite_size);
     }
 
-    if (player->view_type == PVT_DungeonTop)
+    if (get_local_view_type(player) == PVT_DungeonTop)
     {
         add_x = (base_sprite_size * flame.td_add_x) >> 5;
         add_y = (base_sprite_size * flame.td_add_y) >> 5;
@@ -5316,13 +5314,8 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
     spr = get_button_sprite(GBS_fontchars_number_dig0);
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
-    struct Camera *active_cam = get_player_active_camera(player);
-    if (
-        active_cam != NULL &&
-        (active_cam->view_mode == PVM_IsoWibbleView ||
-         active_cam->view_mode == PVM_FrontView ||
-         active_cam->view_mode == PVM_IsoStraightView)
-    ) {
+    struct Camera *active_cam = get_local_active_camera(player);
+    if (active_cam != NULL && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_FrontView || active_cam->view_mode == PVM_IsoStraightView)) {
         // Count digits to be displayed
         ndigits=0;
         for (remaining_digits = num->lvl; remaining_digits > 0; remaining_digits /= 10)
@@ -5352,7 +5345,7 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(get_player_active_camera(player));
+    const struct Camera *cam = get_local_active_camera(player);
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -5511,7 +5504,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(get_player_active_camera(player));
+    const struct Camera *cam = get_local_active_camera(player);
     if (cam == NULL)
     {
         return;
@@ -5751,7 +5744,7 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const struct Camera *cam = get_local_camera(get_player_active_camera(player));
+    const struct Camera *cam = get_local_active_camera(player);
 
     if (
         cam->view_mode == PVM_IsoWibbleView ||
@@ -5784,9 +5777,8 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     unsigned char color_index = get_gameturn() & 0xf;
 
     // get engine window width and height
-    struct PlayerInfo *player = get_my_player();
-    long relative_window_width = ((player->engine_window_width * 256) / (pixel_size * 256)) - 1;
-    long relative_window_height = ((player->engine_window_height * 256) / (pixel_size * 256)) - 1;
+    long relative_window_width = ((local_state.engine_window_width * 256) / (pixel_size * 256)) - 1;
+    long relative_window_height = ((local_state.engine_window_height * 256) / (pixel_size * 256)) - 1;
 
     // Bresenham’s Line Drawing Algorithm - handles all octants
     // A and B are relative, and are set to be either X (shallow curves) or Y (steep curves).
@@ -5992,15 +5984,13 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
 
 static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
 {
-    struct PlayerInfo *player;
     if ((x1 >= 0) || (x2 >= 0))
     {
       if ((y1 >= 0) || (y2 >= 0))
       {
-        player = get_my_player();
-        if ((x1 < player->engine_window_width) || (x2 < player->engine_window_width))
+        if ((x1 < local_state.engine_window_width) || (x2 < local_state.engine_window_width))
         {
-          if ((y1 < player->engine_window_height) || (y2 < player->engine_window_height))
+          if ((y1 < local_state.engine_window_height) || (y2 < local_state.engine_window_height))
           {
             draw_stripey_line(x1, y1, x2, y2, color);
           }
@@ -6975,7 +6965,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 break;
             case QK_JontyISOSprite: // Spinning key
                 player = get_my_player();
-                cam = get_local_camera(get_player_active_camera(player));
+                cam = get_local_active_camera(player);
                 if (cam != NULL)
                 {
                     if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
@@ -7317,8 +7307,8 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
 {
     int vertical_shift;
     int64_t new_zoom;
-    short window_width = player->engine_window_width;
-    short window_height = player->engine_window_height;
+    short window_width = local_state.engine_window_width;
+    short window_height = local_state.engine_window_height;
 
     *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width / 2);
     vertical_shift = zoom * vertical_delta >> 8;
@@ -7608,7 +7598,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     myplyr = get_my_player();
     cube_itm = (qdrant + 2) & 3;
     delta_y = (zoom << 7) / 256;
-    bckt_idx = myplyr->engine_window_height - (pos_y >> 8) + FRONTVIEW_BUCKET_MARGIN;
+    bckt_idx = local_state.engine_window_height - (pos_y >> 8) + FRONTVIEW_BUCKET_MARGIN;
     // Check if there's enough place to draw
     if (!is_free_space_in_poly_pool(8))
       return;
@@ -8079,7 +8069,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
             lltemp = dim_oh * (48 - (long)cctrl->sacrifice.animation_counter);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
         }
-        if (player->view_mode == PVM_CreatureView)
+        if (get_local_active_camera(player)->view_mode == PVM_CreatureView)
         {
             water_source_cutoff = cutoff;
             water_y_offset = (2 * scale * cutoff) >> 5;
@@ -8186,7 +8176,7 @@ static void draw_mapwho_ariadne_path(struct Thing *thing)
 {
     // Don't draw debug pathfinding lines in Possession to avoid crash
     struct PlayerInfo *player = get_my_player();
-    if (player->view_mode == PVM_CreatureView)
+    if (get_local_active_camera(player)->view_mode == PVM_CreatureView)
         return;
 
     struct Ariadne *arid;
@@ -8259,7 +8249,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     if (!thing_is_invalid(thing))
     {
         if ((local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
-          struct Camera *active_cam = get_player_active_camera(player);
+          struct Camera *active_cam = get_local_active_camera(player);
           if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
           {
               RendererAddDrawFlags(Lb_SPRITE_REMAP);
@@ -8949,7 +8939,8 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
 TbBool cursor_on_room(RoomIndex room_index)
 {
     struct PlayerInfo* player = get_my_player();
-    struct SlabMap* slb = get_slabmap_for_subtile(player->cursor_subtile_x, player->cursor_subtile_y);
+    struct UserState* ustate = get_player_user_state(player);
+    struct SlabMap* slb = get_slabmap_for_subtile(ustate->cursor_subtile_x, ustate->cursor_subtile_y);
     if (slabmap_block_invalid(slb)) {
         return false;
     }
@@ -8969,11 +8960,12 @@ TbBool room_is_damaged(RoomIndex room_index)
 TbBool placing_same_room_type(RoomIndex room_index)
 {
     struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_player_user_state(player);
     if (map_volume_box.visible == 0) {
         return false;
     }
     struct Room* room = room_get(room_index);
-    if (player->chosen_room_kind != room->kind) {
+    if (ustate->chosen_room_kind != room->kind) {
         return false;
     }
     return true;
@@ -9287,8 +9279,8 @@ void draw_frontview_engine(struct Camera *cam)
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam_x = cam->mappos.x.val;
     cam_y = cam->mappos.y.val;
-    pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
-    pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
+    pointer_x = (GetMouseX() - local_state.engine_window_x) / pixel_size;
+    pointer_y = (GetMouseY() - local_state.engine_window_y) / pixel_size;
     LbScreenStoreGraphicsWindow(&grwnd);
     store_engine_window(&ewnd,pixel_size);
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);

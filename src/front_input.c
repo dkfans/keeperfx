@@ -638,7 +638,7 @@ static short get_bookmark_inputs(void)
         if (is_key_pressed(kcode, KMod_CONTROL))
         {
             clear_key_pressed(kcode);
-            struct Camera* camera = get_player_active_camera(player);
+            struct Camera* camera = get_local_active_camera(player);
             if (camera != NULL)
             {
                 bmark->x = camera->mappos.x.stl.num;
@@ -719,15 +719,13 @@ static short get_global_inputs(void)
   if (game_is_busy_doing_gui_string_input())
     return false;
   struct PlayerInfo* player = get_my_player();
+  unsigned char view_type = get_local_view_type(player);
   if ((player->allocflags & PlaF_NewMPMessage) != 0)
   {
     get_players_message_inputs();
     return true;
   }
-  if (((player->view_type == PVT_DungeonTop) || (player->view_type == PVT_CreatureContrl))
-  && (network_is_active() ||
-     ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
-  {
+  if ((view_type == PVT_DungeonTop || view_type == PVT_CreatureContrl) && (network_is_active() || (game.flags_gui & GGUI_SoloChatEnabled) != 0)) {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
           if (menu_is_active(GMnu_QUIT))
@@ -855,6 +853,8 @@ static TbBool get_level_lost_inputs(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
+    unsigned char view_type = get_local_view_type(player);
+    struct Camera* camera = get_local_active_camera(player);
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
       get_players_message_inputs();
@@ -882,15 +882,14 @@ static TbBool get_level_lost_inputs(void)
     {
         set_players_packet_action(player, PckA_FinishGame, player->victory_state, 0, 0, 0);
     }
-    if (player->view_type == PVT_MapScreen)
+    if (view_type == PVT_MapScreen)
     {
-        struct Camera* camera = get_player_active_camera(player);
         long mouse_x = GetMouseX();
         long mouse_y = GetMouseY();
         // Position on the parchment map on which we're doing action
         int32_t map_x;
         int32_t map_y;
-        TbBool map_valid = point_to_overhead_map(get_local_camera(camera), mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
+        TbBool map_valid = point_to_overhead_map(camera, mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
         if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
         {
             zoom_from_parchment_map();
@@ -910,15 +909,11 @@ static TbBool get_level_lost_inputs(void)
             }
         }
     } else
-    if (player->view_type == PVT_DungeonTop)
+    if (view_type == PVT_DungeonTop)
     {
       if (is_key_pressed(KC_TAB,KMod_DONTCARE))
       {
-          if (
-            player->view_mode == PVM_IsoWibbleView ||
-            player->view_mode == PVM_FrontView ||
-            player->view_mode == PVM_IsoStraightView
-          ) {
+          if (camera->view_mode == PVM_IsoWibbleView || camera->view_mode == PVM_FrontView || camera->view_mode == PVM_IsoStraightView) {
             clear_key_pressed(KC_TAB);
             toggle_gui();
           }
@@ -944,7 +939,7 @@ static TbBool get_level_lost_inputs(void)
     get_options_menu_inputs();
 
     TbBool inp_done=false;
-    switch (player->view_type)
+    switch (view_type)
     {
       case PVT_DungeonTop:
         inp_done = menu_is_active(GMnu_SPELL_LOST);
@@ -977,10 +972,10 @@ static TbBool get_level_lost_inputs(void)
               }
               long mmzoom;
               if (16/mm_units_per_px < 3)
-                  mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
+                  mmzoom = (local_state.minimap_zoom) / (3-16/mm_units_per_px);
               else
-                  mmzoom = (player->minimap_zoom);
-              inp_done = get_small_map_inputs(player->minimap_pos_x*mm_units_per_px/16, player->minimap_pos_y*mm_units_per_px/16, mmzoom);
+                  mmzoom = (local_state.minimap_zoom);
+              inp_done = get_small_map_inputs(local_state.minimap_pos_x*mm_units_per_px/16, local_state.minimap_pos_y*mm_units_per_px/16, mmzoom);
               if ( !inp_done )
                 get_bookmark_inputs();
               get_dungeon_control_nonaction_inputs();
@@ -1179,6 +1174,7 @@ static short get_status_panel_keyboard_action_inputs(void)
 static TbBool get_dungeon_control_pausable_action_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
+    struct Camera* camera = get_local_active_camera(player);
     if (get_players_packet_action(player) != PckA_None)
       return true;
 
@@ -1225,7 +1221,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
             }
         }
     }
-    if (player->view_mode == PVM_IsoWibbleView || player->view_mode == PVM_IsoStraightView)
+    if (camera->view_mode == PVM_IsoWibbleView || camera->view_mode == PVM_IsoStraightView)
     {
         if (is_key_pressed(KC_TAB, !KMod_CONTROL))
         {
@@ -1270,7 +1266,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
             return true;
         }
     }
-    if (player->view_mode == PVM_FrontView)
+    if (camera->view_mode == PVM_FrontView)
     {
         if (is_game_key_pressed(Gkey_ToggleGui, true, false))
         {
@@ -1357,11 +1353,11 @@ static TbBool get_dungeon_control_action_inputs(void)
     long mmzoom;
     if (16 / mm_units_per_px < 3)
     {
-        mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
+        mmzoom = (local_state.minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
     }
     else
-        mmzoom = (player->minimap_zoom);
-    if (get_small_map_inputs(player->minimap_pos_x * mm_units_per_px / 16, player->minimap_pos_y * mm_units_per_px / 16, mmzoom))
+        mmzoom = (local_state.minimap_zoom);
+    if (get_small_map_inputs(local_state.minimap_pos_x * mm_units_per_px / 16, local_state.minimap_pos_y * mm_units_per_px / 16, mmzoom))
         return 1;
 
     if (player->work_state == PSt_CtrlDungeon)
@@ -1560,6 +1556,7 @@ static short get_creature_control_action_inputs(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_player_user_state(player);
     if (get_players_packet_action(player) != PckA_None)
         return 1;
     if ( ((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
@@ -1865,14 +1862,14 @@ static short get_creature_control_action_inputs(void)
         }
         if (is_game_key_pressed(Gkey_CrtrContrlMod, false, false))
         {
-            if (!player->first_person_dig_claim_mode)
+            if (!ustate->first_person_dig_claim_mode)
             {
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, true, 0, 0, 0);
             }
         }
         else
         {
-            if (player->first_person_dig_claim_mode)
+            if (ustate->first_person_dig_claim_mode)
             {
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, false, 0, 0, 0);
             }
@@ -1942,7 +1939,7 @@ static short get_creature_control_action_inputs(void)
                 }
             }
             local_thing_under_hand = player->thing_under_hand;
-            if (player->selected_fp_thing_pickup != player->thing_under_hand)
+            if (ustate->selected_fp_thing_pickup != player->thing_under_hand)
             {
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
             }
@@ -1990,7 +1987,8 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
 {
     NetUserId user = get_local_user();
     struct PlayerInfo* player = get_my_player();
-    if ((player->view_type != PVT_DungeonTop) || ((pckt->control_flags & PCtr_Gui) != 0) || (local_thing_under_hand <= 0) || (pckt->action != PckA_None) || (get_gameturn() - hand_pick_pending_turn <= game.input_lag_turns)) {
+    struct UserState* ustate = get_player_user_state(player);
+    if ((get_local_view_type(player) != PVT_DungeonTop) || ((pckt->control_flags & PCtr_Gui) != 0) || (local_thing_under_hand <= 0) || (pckt->action != PckA_None) || (get_gameturn() - hand_pick_pending_turn <= game.input_lag_turns)) {
         return;
     }
     int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
@@ -2001,7 +1999,7 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
     if (!left_button_released) {
         return;
     }
-    PowerKind pwkind = player->chosen_power_kind;
+    PowerKind pwkind = ustate->chosen_power_kind;
     PlayerState work_state = player->work_state;
     for (GameTurnDelta i = 1; i <= game.input_lag_turns; i += 1) {
         const struct Packet* delayed_pckt = get_history_packet(user, get_gameturn() - i);
@@ -2080,13 +2078,13 @@ static void get_packet_control_mouse_clicks(void)
 static short get_map_action_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    struct Camera* camera = get_player_active_camera(player);
+    struct Camera* camera = get_local_active_camera(player);
     long mouse_x = GetMouseX();
     long mouse_y = GetMouseY();
     // Get map coordinates from mouse position on parchment screen
     int32_t map_x;
     int32_t map_y;
-    TbBool map_valid = point_to_overhead_map(get_local_camera(camera), mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
+    TbBool map_valid = point_to_overhead_map(camera, mouse_x / pixel_size, mouse_y / pixel_size, &map_x, &map_y);
     if  (map_valid)
     {
         MapSubtlCoord stl_x = coord_subtile(map_x);
@@ -2324,7 +2322,6 @@ static void get_overhead_view_nonaction_inputs(void)
         if (mx >= MyScreenWidth-4)
           set_packet_control(pckt, PCtr_MoveRight);
     }
-    set_local_camera_destination(player);
 }
 
 static void get_front_view_nonaction_inputs(void)
@@ -2408,8 +2405,8 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   struct PlayerInfo* player = get_my_player();
   TbBool hand_is_empty = power_hand_is_empty(player);
   if ((pointer_x < 0) || (pointer_y < 0)
-   || (pointer_x >= player->engine_window_width/pixel_size)
-   || (pointer_y >= player->engine_window_height/pixel_size))
+   || (pointer_x >= local_state.engine_window_width/pixel_size)
+   || (pointer_y >= local_state.engine_window_height/pixel_size))
       return false;
   if (top_pointed_at_x <= game.map_subtiles_x)
     x = top_pointed_at_x;
@@ -2486,6 +2483,7 @@ static void get_dungeon_control_nonaction_inputs(void)
   my_mouse_x = GetMouseX();
   my_mouse_y = GetMouseY();
   struct PlayerInfo* player = get_my_player();
+  struct Camera* camera = get_local_active_camera(player);
   struct Packet* pckt = get_local_packet();
   if (get_gameturn() - hand_pick_pending_turn > game.input_lag_turns) {
     local_thing_under_hand = 0;
@@ -2500,7 +2498,7 @@ static void get_dungeon_control_nonaction_inputs(void)
     }
   } else
   {
-    if (screen_to_map(get_local_camera(get_player_active_camera(player)), my_mouse_x, my_mouse_y, &pos))
+    if (screen_to_map(camera, my_mouse_x, my_mouse_y, &pos))
     {
         set_players_packet_position(pckt, pos.x.val, pos.y.val, 0);
         pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
@@ -2549,7 +2547,7 @@ static void get_dungeon_control_nonaction_inputs(void)
       set_packet_control(pckt, PCtr_ViewRotatePos);
   if ((player->allocflags & PlaF_NewMPMessage) == 0)
   {
-      switch (player->view_mode)
+      switch (camera->view_mode)
       {
       case PVM_IsoWibbleView:
       case PVM_IsoStraightView:
@@ -2573,7 +2571,8 @@ static void get_map_nonaction_inputs(void)
     pos.y.val = 0;
     pos.z.val = 0;
     struct PlayerInfo* player = get_my_player();
-    TbBool coords_valid = screen_to_map(get_local_camera(get_player_active_camera(player)), GetMouseX(), GetMouseY(), &pos);
+    struct Camera* camera = get_local_active_camera(player);
+    TbBool coords_valid = screen_to_map(camera, GetMouseX(), GetMouseY(), &pos);
     set_players_packet_position(get_local_packet(), pos.x.val, pos.y.val, 0);
     struct Packet* pckt = get_local_packet();
     if (coords_valid) {
@@ -2581,7 +2580,7 @@ static void get_map_nonaction_inputs(void)
     } else {
         unset_packet_control(pckt, PCtr_MapCoordsValid);
     }
-    if (((game.operation_flags & GOF_Paused) == 0) && (player->view_mode == PVM_ParchmentView))
+    if (((game.operation_flags & GOF_Paused) == 0) && (camera->view_mode == PVM_ParchmentView))
     {
         get_overhead_view_nonaction_inputs();
     }
@@ -2741,7 +2740,7 @@ static void get_player_gui_clicks(void)
   if ( ((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     return;
   struct PlayerInfo *player = get_my_player();
-  switch (player->view_type)
+  switch (get_local_view_type(player))
   {
   case PVT_CreaturePasngr:
       if (right_button_released)
@@ -2933,8 +2932,9 @@ static short get_inputs(void)
     if (game_is_busy_doing_gui_string_input())
       return false;
     get_screen_capture_inputs();
-    SYNCDBG(7,"Getting inputs for view %d",(int)player->view_type);
-    switch (player->view_type)
+    unsigned char view_type = get_local_view_type(player);
+    SYNCDBG(7,"Getting inputs for view %d",(int)view_type);
+    switch (view_type)
     {
     case PVT_DungeonTop:
         get_dungeon_control_pausable_action_inputs();
@@ -2972,7 +2972,7 @@ static short get_inputs(void)
         {
           if (!network_is_active())
             game.operation_flags &= ~GOF_Paused;
-          player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
+          local_state.status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
           set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
         }
         return false;
@@ -3015,6 +3015,9 @@ void input(void)
         pckt->additional_packet_values &= ~PCAdV_RotatePressed;
 
     get_inputs();
+    if ((game.mode_flags & MFlg_IsDemoMode) == 0 && !game.packet_load_enable) {
+        update_local_view_prediction(pckt);
+    }
 
     SYNCDBG(7,"Finished");
 }
@@ -3045,7 +3048,6 @@ short get_gui_inputs(short gameplay_on)
   }
   update_busy_doing_gui_on_menu();
   int fmmenu_idx = first_monopoly_menu();
-  struct PlayerInfo* player = get_my_player();
   int gmbtn_idx = -1;
   ActiveButtonID nx_over_slider_button = -1;
   struct GuiButton *gbtn;
@@ -3063,7 +3065,7 @@ short get_gui_inputs(short gameplay_on)
       if ((gbtn->btype_value & LbBFeF_NoMouseOver) != 0)
           continue;
       // TODO GUI Introduce circular buttons instead of specific condition for pannel map
-      if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_panel_map(player->minimap_pos_x,player->minimap_pos_y))
+      if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_panel_map(local_state.minimap_pos_x,local_state.minimap_pos_y))
           continue;
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
         || ((gbtn->gbtype == LbBtnT_Hotspot) && (gbtn->button_state_left_pressed != 0)) )
@@ -3139,12 +3141,13 @@ short get_gui_inputs(short gameplay_on)
 static void process_cheat_mode_selection_inputs(void)
 {
     struct PlayerInfo *player = get_my_player();
+    struct UserState* ustate = get_player_user_state(player);
     unsigned char new_value;
     struct CreatureModelConfig* crconf;
     // player selection
     if (player->work_state == PSt_PlaceTerrain)
     {
-        if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
+        if (slab_kind_has_no_ownership(ustate->cheatselection.chosen_terrain_kind))
         {
             goto INPUTS;
         }
@@ -3275,7 +3278,7 @@ static void process_cheat_mode_selection_inputs(void)
             else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
             {
 
-                new_value = player->cheatselection.chosen_experience_level;
+                new_value = ustate->cheatselection.chosen_experience_level;
                 if (new_value < 9)
                 {
                     new_value++;
@@ -3285,7 +3288,7 @@ static void process_cheat_mode_selection_inputs(void)
             }
             else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
             {
-                new_value = player->cheatselection.chosen_experience_level;
+                new_value = ustate->cheatselection.chosen_experience_level;
                 if (new_value > 0)
                 {
                     new_value--;
@@ -3297,7 +3300,7 @@ static void process_cheat_mode_selection_inputs(void)
             {
                 if (player->work_state == PSt_MkGoodCreatr)
                 {
-                    new_value = player->cheatselection.chosen_hero_kind;
+                    new_value = ustate->cheatselection.chosen_hero_kind;
                     do
                     {
                         new_value++;
@@ -3313,7 +3316,7 @@ static void process_cheat_mode_selection_inputs(void)
                 }
                 else if (player->work_state == PSt_MkBadCreatr)
                 {
-                    new_value = player->cheatselection.chosen_creature_kind;
+                    new_value = ustate->cheatselection.chosen_creature_kind;
                     do
                     {
                         new_value++;
@@ -3333,7 +3336,7 @@ static void process_cheat_mode_selection_inputs(void)
             {
                 if (player->work_state == PSt_MkGoodCreatr)
                 {
-                    new_value = player->cheatselection.chosen_hero_kind;
+                    new_value = ustate->cheatselection.chosen_hero_kind;
                     do
                     {
                         if (new_value == 0)
@@ -3355,7 +3358,7 @@ static void process_cheat_mode_selection_inputs(void)
                 }
                 else if (player->work_state == PSt_MkBadCreatr)
                 {
-                    new_value = player->cheatselection.chosen_creature_kind;
+                    new_value = ustate->cheatselection.chosen_creature_kind;
                     do
                     {
                         if (new_value == 0)
@@ -3381,7 +3384,7 @@ static void process_cheat_mode_selection_inputs(void)
         }
         case PSt_PlaceTerrain:
         {
-            new_value = player->cheatselection.chosen_terrain_kind;
+            new_value = ustate->cheatselection.chosen_terrain_kind;
             if (is_key_pressed(KC_0, KMod_NONE))
             {
                 new_value = SlbT_ROCK;
@@ -3477,12 +3480,12 @@ static void process_cheat_mode_selection_inputs(void)
                 set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_LCONTROL);
             }
-            if ( (player->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (player->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
+            if ( (ustate->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (ustate->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
             {
                 if (is_key_pressed(KC_LALT, KMod_DONTCARE))
                 {
                     struct Coord3d pos;
-                    if (screen_to_map(get_local_camera(get_player_active_camera(player)), GetMouseX(), GetMouseY(), &pos))
+                    if (screen_to_map(get_local_active_camera(player), GetMouseX(), GetMouseY(), &pos))
                     {
                         MapSlabCoord slb_x = subtile_slab(pos.x.stl.num);
                         MapSlabCoord slb_y = subtile_slab(pos.y.stl.num);
@@ -3494,7 +3497,7 @@ static void process_cheat_mode_selection_inputs(void)
                         }
                         else
                         {
-                            id = player->cheatselection.chosen_player;
+                            id = ustate->cheatselection.chosen_player;
                         }
                         new_value = choose_pretty_type(id, slb_x, slb_y);
                         set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);

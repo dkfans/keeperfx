@@ -386,8 +386,16 @@ TbBool cross_y_boundary_first(const struct Coord3d *pos1, const struct Coord3d *
   return abs(delta_y * mul_x) > abs(mul_y * delta_x);
 }
 
+TbBool thing_can_traverse_abyss_at(const struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    return !subtile_has_abyss_on_top(stl_x, stl_y) || flag_is_set(thing->movement_flags, TMvF_Flying);
+}
+
 TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d *pos)
 {
+    if (!thing_can_traverse_abyss_at(thing, pos->x.stl.num, pos->y.stl.num)) {
+        return true;
+    }
     struct Coord3d modpos;
     modpos.x.val = pos->x.val;
     modpos.y.val = pos->y.val;

@@ -3402,7 +3402,7 @@ TbBool update_thing(struct Thing *thing)
         thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
     }
     else {
-        if ((thing->class_id != TCls_EffectElem) && !flag_is_set(thing->movement_flags, TMvF_Immobile) && !flag_is_set(thing->movement_flags, TMvF_Flying) && (thing->fall_acceleration != 0) && (thing->mappos.z.val <= 0) && subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+        if ((thing->class_id != TCls_EffectElem) && !flag_is_set(thing->movement_flags, TMvF_Immobile) && (thing->fall_acceleration != 0) && (thing->mappos.z.val <= 0) && !thing_can_traverse_abyss_at(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
             set_flag(thing->state_flags, TF1_FallingIntoAbyss);
             falling = true;
             thing->veloc_base.x.val = thing->velocity.x.val;
@@ -3425,7 +3425,7 @@ TbBool update_thing(struct Thing *thing)
     }
     SYNCDBG(18,"Class function end ok");
     if (!falling && ((thing->movement_flags & TMvF_Immobile) == 0)) {
-        if ((thing->mappos.z.val > thing->floor_height) || (!flag_is_set(thing->movement_flags, TMvF_Flying) && subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))) {
+        if ((thing->mappos.z.val > thing->floor_height) || !thing_can_traverse_abyss_at(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
             if (thing->veloc_base.x.val != 0)
                 thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
             if (thing->veloc_base.y.val != 0)

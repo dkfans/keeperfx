@@ -130,7 +130,10 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
         predicted_player->render_roomspace.drag_start_y = local_dig_tag_prediction.drag_start_slb_y;
         predicted_player->render_roomspace.untag_mode = local_dig_tag_prediction.untag_mode;
     }
+    struct UserState *ustate = get_player_user_state(predicted_player);
+    struct UserState saved_ustate = *ustate;
     get_dungeon_highlight_user_roomspace(roomspace, predicted_player, pckt, stl_x, stl_y, local_dig_tag_prediction.slab_tag_modes);
+    *ustate = saved_ustate;
     return true;
 }
 
@@ -144,7 +147,9 @@ static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace 
         return false;
     }
     struct Packet *direct_packet = get_packet(player->user_id);
+    struct UserState *ustate = get_player_user_state(player);
     struct PlayerInfo saved_player = *player;
+    struct UserState saved_ustate = *ustate;
     struct Packet saved_packet = *direct_packet;
     *direct_packet = *pckt;
     apply_roomspace_packet_action(player, pckt);
@@ -157,6 +162,7 @@ static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace 
     }
     *roomspace = player->render_roomspace;
     *player = saved_player;
+    *ustate = saved_ustate;
     *direct_packet = saved_packet;
     return true;
 }

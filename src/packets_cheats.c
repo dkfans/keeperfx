@@ -69,6 +69,7 @@ TbBool packets_process_cheats(
     PowerKind pwkind;
     struct SlabMap *slb;
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct UserState* ustate = get_player_user_state(player);
     TbBool allowed;
     char str[255] = "";
     switch (player->work_state)
@@ -76,13 +77,13 @@ TbBool packets_process_cheats(
         case PSt_MkDigger:
         player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-        targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%d", player->cheatselection.chosen_experience_level + 1);
+        clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+        targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, "%d", ustate->cheatselection.chosen_experience_level + 1);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
             {
-                set_packet_action(pckt, PckA_CheatMakeDigger, player->cheatselection.chosen_player, player->cheatselection.chosen_experience_level, 0, 0);
+                set_packet_action(pckt, PckA_CheatMakeDigger, ustate->cheatselection.chosen_player, ustate->cheatselection.chosen_experience_level, 0, 0);
             }
             else
             {
@@ -97,24 +98,24 @@ TbBool packets_process_cheats(
         case PSt_MkGoodCreatr:
         player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-        if (player->cheatselection.chosen_hero_kind == 0)
+        clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+        if (ustate->cheatselection.chosen_hero_kind == 0)
         {
             snprintf(str, sizeof(str), "?");
         }
         else
         {
-            struct CreatureModelConfig* crconf = creature_stats_get(player->cheatselection.chosen_hero_kind);
-            snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
+            struct CreatureModelConfig* crconf = creature_stats_get(ustate->cheatselection.chosen_hero_kind);
+            snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), ustate->cheatselection.chosen_experience_level + 1);
         }
-        targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
+        targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
             {
                 ThingModel crmodel;
                 unsigned char exp;
-                if (player->cheatselection.chosen_hero_kind == 0)
+                if (ustate->cheatselection.chosen_hero_kind == 0)
                 {
                     while (1)
                     {
@@ -137,10 +138,10 @@ TbBool packets_process_cheats(
                 }
                 else
                 {
-                    crmodel = player->cheatselection.chosen_hero_kind;
-                    exp = player->cheatselection.chosen_experience_level;
+                    crmodel = ustate->cheatselection.chosen_hero_kind;
+                    exp = ustate->cheatselection.chosen_experience_level;
                 }
-                unsigned short param2 = player->cheatselection.chosen_player | (exp << 8);
+                unsigned short param2 = ustate->cheatselection.chosen_player | (exp << 8);
                 set_packet_action(pckt, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
             }
             else
@@ -254,24 +255,24 @@ TbBool packets_process_cheats(
         case PSt_MkBadCreatr:
         player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-        if (player->cheatselection.chosen_creature_kind == 0)
+        clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+        if (ustate->cheatselection.chosen_creature_kind == 0)
         {
             snprintf(str, sizeof(str), "?");
         }
         else
         {
-            struct CreatureModelConfig* crconf = creature_stats_get(player->cheatselection.chosen_creature_kind);
-            snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
+            struct CreatureModelConfig* crconf = creature_stats_get(ustate->cheatselection.chosen_creature_kind);
+            snprintf(str, sizeof(str), "%s %d", get_string(crconf->namestr_idx), ustate->cheatselection.chosen_experience_level + 1);
         }
-        targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
+        targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
             {
                 ThingModel crmodel;
                 unsigned char exp;
-                if (player->cheatselection.chosen_creature_kind == 0)
+                if (ustate->cheatselection.chosen_creature_kind == 0)
                 {
                     while (1)
                     {
@@ -288,10 +289,10 @@ TbBool packets_process_cheats(
                 }
                 else
                 {
-                    crmodel = player->cheatselection.chosen_creature_kind;
-                    exp = player->cheatselection.chosen_experience_level;
+                    crmodel = ustate->cheatselection.chosen_creature_kind;
+                    exp = ustate->cheatselection.chosen_experience_level;
                 }
-                unsigned short param2 = player->cheatselection.chosen_player | (exp << 8);
+                unsigned short param2 = ustate->cheatselection.chosen_player | (exp << 8);
                 set_packet_action(pckt, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
             }
             else
@@ -307,7 +308,7 @@ TbBool packets_process_cheats(
         case PSt_FreeDestroyWalls:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                pwkind = player->chosen_power_kind;
+                pwkind = ustate->chosen_power_kind;
                 i = get_power_overcharge_level(player);
                 magic_use_power_direct(plyr_idx,pwkind,i,stl_x, stl_y,INVALID_THING, PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -316,7 +317,7 @@ TbBool packets_process_cheats(
         case PSt_FreeTurnChicken:
         case PSt_FreeCastDisease:
         {
-            pwkind = player->chosen_power_kind;
+            pwkind = ustate->chosen_power_kind;
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {
@@ -333,21 +334,21 @@ TbBool packets_process_cheats(
             break;
         }
         case PSt_StealRoom:
-        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
+        clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         slb = get_slabmap_block(slb_x, slb_y);
         room = room_get(slb->room_index);
-        allowed = ( (room_exists(room)) && (room->owner != player->cheatselection.chosen_player) );
+        allowed = ( (room_exists(room)) && (room->owner != ustate->cheatselection.chosen_player) );
         if (allowed)
         {
             snprintf(str, sizeof(str), "%s", get_string(GUIStr_MnuOk));
         }
-        targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, str);
+        targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
             {
                 TbBool effect = (is_key_pressed(KC_RALT, KMod_DONTCARE));
-                set_packet_action(pckt, PckA_CheatStealRoom, player->cheatselection.chosen_player, effect, 0, 0);
+                set_packet_action(pckt, PckA_CheatStealRoom, ustate->cheatselection.chosen_player, effect, 0, 0);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -390,10 +391,10 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_ConvertCreatr:
-        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-        targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, str);
+        clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+        targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, str);
         thing = get_creature_near(x, y);
-        if ((!thing_is_creature(thing)) || (thing->owner == player->cheatselection.chosen_player))
+        if ((!thing_is_creature(thing)) || (thing->owner == ustate->cheatselection.chosen_player))
         {
             player->thing_under_hand = 0;
         }
@@ -403,15 +404,15 @@ TbBool packets_process_cheats(
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            set_packet_action(pckt, PckA_CheatConvertCreature, player->cheatselection.chosen_player, 0, 0, 0);
+            set_packet_action(pckt, PckA_CheatConvertCreature, ustate->cheatselection.chosen_player, 0, 0, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
         case PSt_StealSlab:
         player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_steal_slab(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-        targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, str);
+        clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+        targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -431,7 +432,7 @@ TbBool packets_process_cheats(
                         {
                             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
                             {
-                                slbkind = choose_pretty_type(player->cheatselection.chosen_player, slb_x, slb_y);
+                                slbkind = choose_pretty_type(ustate->cheatselection.chosen_player, slb_x, slb_y);
                             }
                             else
                             {
@@ -443,7 +444,7 @@ TbBool packets_process_cheats(
                         {
                             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
                             {
-                                slbkind = choose_pretty_type(player->cheatselection.chosen_player, slb_x, slb_y);
+                                slbkind = choose_pretty_type(ustate->cheatselection.chosen_player, slb_x, slb_y);
                             }
                             else
                             {
@@ -466,7 +467,7 @@ TbBool packets_process_cheats(
                     {
                         effect = false;
                     }
-                    unsigned short param2 = player->cheatselection.chosen_player | (effect << 8);
+                    unsigned short param2 = ustate->cheatselection.chosen_player | (effect << 8);
                     set_packet_action(pckt, PckA_CheatStealSlab, slbkind, param2, 0, 0);
                 }
             }
@@ -517,11 +518,11 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_KillPlayer:
-          clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-          struct PlayerInfo* PlayerToKill = get_player(player->cheatselection.chosen_player);
+          clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+          struct PlayerInfo* PlayerToKill = get_player(ustate->cheatselection.chosen_player);
           if (player_exists(PlayerToKill))
           {
-              targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, str);
+              targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, str);
               if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
               {
                 set_packet_action(pckt, PckA_CheatKillPlayer, PlayerToKill->id_number, 0, 0, 0);
@@ -530,8 +531,8 @@ TbBool packets_process_cheats(
           }
         break;
         case PSt_HeartHealth:
-        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-        thing = get_player_soul_container(player->cheatselection.chosen_player);
+        clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+        thing = get_player_soul_container(ustate->cheatselection.chosen_player);
         struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
         if (thing_exists(thing))
         {
@@ -544,7 +545,7 @@ TbBool packets_process_cheats(
         HitPoints new_health = thing->health;
         if (process_cheat_heart_health_inputs(&new_health, objst->health))
         {
-            set_packet_action(pckt, PckA_CheatHeartHealth, player->cheatselection.chosen_player, new_health, 0, 0);
+            set_packet_action(pckt, PckA_CheatHeartHealth, ustate->cheatselection.chosen_player, new_health, 0, 0);
         }
         break;
         case PSt_QueryAll:
@@ -647,11 +648,11 @@ TbBool packets_process_cheats(
             player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
             tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
             struct SlabConfigStats* slab_cfgstats;
-            clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-            struct SlabConfigStats *slabst = get_slab_kind_stats(player->cheatselection.chosen_terrain_kind);
-            if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
+            clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+            struct SlabConfigStats *slabst = get_slab_kind_stats(ustate->cheatselection.chosen_terrain_kind);
+            if (slab_kind_has_no_ownership(ustate->cheatselection.chosen_terrain_kind))
             {
-                player->cheatselection.chosen_player = game.neutral_player_num;
+                ustate->cheatselection.chosen_player = game.neutral_player_num;
             }
             if (slabst->tooltip_stridx <= GUI_STRINGS_COUNT)
             {
@@ -662,12 +663,12 @@ TbBool packets_process_cheats(
                 {
                     dis_msg = str;
                 }
-                targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, dis_msg);
+                targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, dis_msg);
             }
             else
             {
-                slab_cfgstats = get_slab_kind_stats(player->cheatselection.chosen_terrain_kind);
-                targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, slab_cfgstats->code_name);
+                slab_cfgstats = get_slab_kind_stats(ustate->cheatselection.chosen_terrain_kind);
+                targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, slab_cfgstats->code_name);
             }
             clear_messages_from_player(MsgType_Blank, -1);
             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
@@ -688,11 +689,11 @@ TbBool packets_process_cheats(
                     room = subtile_room_get(stl_x, stl_y);
                     delete_room_slab(slb_x, slb_y, true);
                 }
-                PlayerNumber id = (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind)) ? game.neutral_player_num : player->cheatselection.chosen_player;
-                set_packet_action(pckt, PckA_CheatPlaceTerrain, player->cheatselection.chosen_terrain_kind, id, 0, 0);
-                if ( (player->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (player->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
+                PlayerNumber id = (slab_kind_has_no_ownership(ustate->cheatselection.chosen_terrain_kind)) ? game.neutral_player_num : ustate->cheatselection.chosen_player;
+                set_packet_action(pckt, PckA_CheatPlaceTerrain, ustate->cheatselection.chosen_terrain_kind, id, 0, 0);
+                if ( (ustate->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (ustate->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
                 {
-                    player->cheatselection.chosen_terrain_kind = SlbT_WALLDRAPE + GAME_RANDOM(5);
+                    ustate->cheatselection.chosen_terrain_kind = SlbT_WALLDRAPE + GAME_RANDOM(5);
                 }
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -768,7 +769,8 @@ TbBool packets_process_cheats(
 
 TbBool process_player_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt)
 {
-  struct PlayerInfo* player;
+  struct PlayerInfo* player = get_player(plyr_idx);
+  struct UserState* ustate = get_player_user_state(player);
   switch (pckt->action)
   {
       case PckA_CheatEnter:
@@ -804,38 +806,33 @@ TbBool process_player_global_cheats_packet_action(PlayerNumber plyr_idx, struct 
           return false;
       case PckA_CheatSwitchTerrain:
         {
-            player = get_player(plyr_idx);
-            player->cheatselection.chosen_terrain_kind = pckt->actn_par1;
-            if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
+            ustate->cheatselection.chosen_terrain_kind = pckt->actn_par1;
+            if (slab_kind_has_no_ownership(ustate->cheatselection.chosen_terrain_kind))
             {
-               clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-               player->cheatselection.chosen_player = game.neutral_player_num;
+               clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+               ustate->cheatselection.chosen_player = game.neutral_player_num;
             }
             return false;
         }
       case PckA_CheatSwitchPlayer:
         {
-            player = get_player(plyr_idx);
-            clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-            player->cheatselection.chosen_player = pckt->actn_par1;
+            clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+            ustate->cheatselection.chosen_player = pckt->actn_par1;
             return false;
         }
       case PckA_CheatSwitchCreature:
         {
-            player = get_player(plyr_idx);
-            player->cheatselection.chosen_creature_kind = pckt->actn_par1;
+            ustate->cheatselection.chosen_creature_kind = pckt->actn_par1;
             return false;
         }
       case PckA_CheatSwitchHero:
         {
-            player = get_player(plyr_idx);
-            player->cheatselection.chosen_hero_kind = pckt->actn_par1;
+            ustate->cheatselection.chosen_hero_kind = pckt->actn_par1;
             return false;
         }
       case PckA_CheatSwitchExperience:
         {
-            player = get_player(plyr_idx);
-            player->cheatselection.chosen_experience_level = pckt->actn_par1;
+            ustate->cheatselection.chosen_experience_level = pckt->actn_par1;
             return false;
         }
         case PckA_CheatAllDoors:

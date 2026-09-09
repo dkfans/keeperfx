@@ -3664,7 +3664,8 @@ static void display_variable_process(struct ScriptContext *context)
     game.script_variables[0].value_type = context->value->bytes[2];
     game.script_variables[0].value_id = context->value->longs[1];
     game.script_variables[0].variable_target = context->value->longs[2];
-    game.script_variables[0].variable_target_type = context->value->bytes[1];
+    game.script_variables[0].variable_target_type = context->value->bytes[1];    
+    game.script_variables[0].is_active = true;
     
     game.script_variables[0].include_icon = false;
     game.script_variables[0].icon_idx = -1;
@@ -3688,12 +3689,14 @@ static void display_variable_with_label_check(const struct ScriptLine *scline)
     value->longs[1] = varib_id;    
     value->shorts[4] = -1;
     const char *icon = scline->tp[2];
-
-    if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[4]))
-    {
-        SCRPTERRLOG("Invalid custom icon (%s)", icon);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
+    if (icon[0] != '\0'){        
+        value->shorts[4] = get_chat_icon_sprite_idx(icon);
+        if (value->shorts[4] == -1)
+        {
+            SCRPTERRLOG("Invalid custom icon (%s)", icon);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
 
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -3710,6 +3713,7 @@ static void display_variable_with_label_process(struct ScriptContext *context)
     game.script_variables[0].value_type = context->value->bytes[2];
     game.script_variables[0].value_id = context->value->longs[1];
     game.script_variables[0].include_icon = true;
+    game.script_variables[0].is_active = true;
     game.script_variables[0].icon_idx = context->value->shorts[4];
     if (game.active_script_var_count < DISPLAY_VARIABLES_LIMIT) {
         game.active_script_var_count++;
@@ -3749,11 +3753,79 @@ static void hide_timer_process(struct ScriptContext *context)
    game.flags_gui &= ~GGUI_ScriptTimer;
 }
 
+static void hide_variable_check(const struct ScriptLine *scline)
+{
+    int32_t varib_id = -1;
+    int32_t varib_type = -1;
+    int32_t player_idx = -1;
+
+    if (scline->tp[0][0] == '\0')
+    {
+        ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+        value->longs[0] = -1;  // All players
+        value->longs[1] = -1;  // All variables
+        value->bytes[2] = -1;
+
+        PROCESS_SCRIPT_VALUE(scline->command);
+        return;
+    }
+
+    player_idx = scline->np[0];
+
+    if (scline->tp[1][0] != '\0')
+    {
+        if (!parse_get_varib(scline->tp[1], &varib_id, &varib_type, level_file_version))
+        {
+            SCRPTERRLOG("Unknown variable, '%s'", scline->tp[1]);
+            return;
+        }
+    }
+
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    value->longs[0] = player_idx;
+    value->longs[1] = varib_id;
+    value->bytes[2] = varib_type;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
 static void hide_variable_process(struct ScriptContext *context)
 {
-    memset(game.script_variables, 0, sizeof(game.script_variables));
-    game.active_script_var_count = 0;
-    game.flags_gui &= ~GGUI_Variable;
+    short varib_id, varib_type, player_idx;
+    varib_type = context->value->bytes[2];
+    varib_id = context->value->longs[1];
+    player_idx = context->value->longs[0];
+    if(varib_id > -1 && varib_type > -1)
+    {
+        for (int i = 0; i < DISPLAY_VARIABLES_LIMIT; i++)
+        {
+            if(game.script_variables[i].value_id == varib_id && game.script_variables[i].value_type == varib_type && game.script_variables[i].variable_player == player_idx){
+                for (int j = i; j < game.active_script_var_count - 1; j++)
+                {
+                    game.script_variables[j] = game.script_variables[j+1];
+                }
+                game.active_script_var_count--;
+                break;
+            }
+        }        
+    } else {
+        for (int i = 0; i < game.active_script_var_count; i++)
+        {
+            if (game.script_variables[i].variable_player == player_idx || player_idx == -1)
+            {
+                for (int j = i; j < game.active_script_var_count - 1; j++)
+                {
+                    game.script_variables[j] = game.script_variables[j+1];
+                }
+                game.active_script_var_count--;
+                i--; 
+            }
+        }
+    }
+    if(game.active_script_var_count == 0)
+        game.flags_gui &= ~GGUI_Variable;
 }
 
 static void create_effect_check(const struct ScriptLine *scline)
@@ -7016,7 +7088,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_VARIABLE_WITH_LABEL",       "PAa    ", Cmd_DISPLAY_VARIABLE_WITH_LABEL, &display_variable_with_label_check, &display_variable_with_label_process},
   {"DISPLAY_COUNTDOWN",                 "PANb    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
   {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
-  {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
+  {"HIDE_VARIABLE",                     "pa      ", Cmd_HIDE_VARIABLE, &hide_variable_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_at_pos_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},

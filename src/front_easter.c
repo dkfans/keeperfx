@@ -182,17 +182,57 @@ void input_eastegg(void)
 }
 
 /**
- * Displays easter egg messages on screen.
+ * Draws one of the easter egg messages which bounce around the screen.
+ * @param idx Index of the message, used to keep its position and velocity.
  */
-void draw_eastegg(void)
+static void draw_bouncing_eastegg_message(long idx, const char *text, long width, long height, int ee_units_per_px)
 {
   static float px[2] = {0, 0};
   static float py[2] = {0, 0};
   static float vx[2] = {4, 4};
   static float vy[2] = {6, 6};
+  long k;
+  LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
+  LbTextSetFont(winfont);
+  px[idx] += vx[idx] * game.delta_time;
+  if (px[idx] < 0)
+  {
+    px[idx] = 0;
+    vx[idx] = -vx[idx];
+  }
+  py[idx] += vy[idx] * game.delta_time;
+  if (py[idx] < 0)
+  {
+    py[idx] = 0;
+    vy[idx] = -vy[idx];
+  }
+  k = pixel_size * LbTextStringWidth(text);
+  if (px[idx]+k >= width)
+  {
+    vx[idx] = -vx[idx];
+    px[idx] = width-k-1;
+  }
+  k = pixel_size * LbTextStringHeight(text);
+  if (py[idx]+k >= height)
+  {
+    vy[idx] = -vy[idx];
+    py[idx] = height-k-1;
+  }
+  if (LbScreenIsLocked())
+  {
+    LbTextDrawResized(scale_fixed_DK_value(px[idx]/pixel_size), scale_fixed_DK_value(py[idx]/pixel_size), ee_units_per_px, text);
+  }
+  play_non_3d_sample_no_overlap(snd_alarm);
+}
+
+/**
+ * Displays easter egg messages on screen.
+ */
+void draw_eastegg(void)
+{
   static float skeksis_time = 0;
   long i;
-  long k;
   SYNCDBG(5,"Starting");
   int ee_units_per_px = calculate_relative_upp(22, units_per_pixel_best, LbTextLineHeight());
   int width = 640, height = 400, skeksis_x_offset = 120, skeksis_y_offset = 200;
@@ -236,80 +276,14 @@ void draw_eastegg(void)
 
   if (game.eastegg01_cntr >= eastegg_feckoff_codes.length)
   {
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
-    LbTextSetFont(winfont);
-    i = 0;
-    const char * text = "Simon says Hi to everyone he knows...";
-    px[i] += vx[i] * game.delta_time;
-    if (px[i] < 0)
-    {
-      px[i] = 0;
-      vx[i] = -vx[i];
-    }
-    py[i] += vy[i] * game.delta_time;
-    if (py[i] < 0)
-    {
-      py[i] = 0;
-      vy[i] = -vy[i];
-    }
-    k = pixel_size*LbTextStringWidth(text);
-    if (px[i]+k  >= width)
-    {
-      vx[i] = -vx[i];
-      px[i] = width-k-1;
-    }
-    k = pixel_size*LbTextStringHeight(text);
-    if (py[i]+k >= height)
-    {
-      vy[i] = -vy[i];
-      py[i] = height-k-1;
-    }
-    if (LbScreenIsLocked())
-    {
-      LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
-    }
-    play_non_3d_sample_no_overlap(snd_alarm);
+    draw_bouncing_eastegg_message(0, "Simon says Hi to everyone he knows...", width, height, ee_units_per_px);
   }
   if (game.easter_eggs_enabled == false)
     return;
 
   if (game.eastegg02_cntr >= eastegg_jlw_codes.length)
   {
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
-    LbTextSetFont(winfont);
-    i = 1;
-    const char * text = "Alex, hopefully lying on a beach with Jo, says Hi";
-    px[i] += vx[i] * game.delta_time;
-    if (px[i] < 0)
-    {
-      px[i] = 0;
-      vx[i] = -vx[i];
-    }
-    py[i] += vy[i] * game.delta_time;
-    if (py[i] < 0)
-    {
-      py[i] = 0;
-      vy[i] = -vy[i];
-    }
-    k = pixel_size * LbTextStringWidth(text);
-    if (px[i]+k >= width)
-    {
-      vx[i] = -vx[i];
-      px[i] = width-k-1;
-    }
-    k = pixel_size * LbTextStringHeight(text);
-    if (py[i]+k >= height)
-    {
-      vy[i] = -vy[i];
-      py[i] = height-k-1;
-    }
-    if (LbScreenIsLocked())
-    {
-        LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
-    }
-    play_non_3d_sample_no_overlap(snd_alarm);
+    draw_bouncing_eastegg_message(1, "Alex, hopefully lying on a beach with Jo, says Hi", width, height, ee_units_per_px);
   }
 }
 

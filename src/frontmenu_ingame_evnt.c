@@ -154,7 +154,7 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     if (battle_creature_over <= 0) {
         return;
     }
-    PowerKind pwkind = myplyr->chosen_power_kind;
+    PowerKind pwkind = get_player_user_state(myplyr)->chosen_power_kind;
     struct Thing* thing = thing_get(battle_creature_over);
     if (!thing_exists(thing)) {
         WARNLOG("Nonexisting thing %d in battle",(int)battle_creature_over);
@@ -358,11 +358,14 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
 
 short zoom_to_fight(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo* player = get_my_player();
     if (active_battle_exists(plyr_idx))
     {
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-        set_players_packet_action(player, PckA_ZoomToBattle, dungeon->visible_battles[0], 0, 0, 0);
+        struct CreatureBattle* battle = creature_battle_get(dungeon->visible_battles[0]);
+        struct Thing* thing = thing_get(battle->first_creatr);
+        if (thing_exists(thing)) {
+            move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
+        }
         step_battles_forward(plyr_idx);
         return true;
     }
@@ -667,71 +670,69 @@ void draw_script_variable_list(void)
 
     for (int i = 0; i < game.active_script_var_count; i++)
     {
-        if (game.script_variables[i].variable_player == my_player_number)
+        if (game.script_variables[i].is_active)
             valid_vars++;
     }
-
-    int h = LbTextLineHeight();
-    int row_height = h * units_per_pixel / 16;
+    if(valid_vars > 0){
+        int h = LbTextLineHeight();
+        int row_height = h * units_per_pixel / 16;
+        
+        long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+        long height = row_height + (row_height) / 2;
+        if (MyScreenHeight < 400)
+        {
+            height *= 2;
+            width *= 2;
+            if (dbc_initialized && dbc_enabled)
+            {
+                width += (width / 3);
+            }
+        }
+        RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
+        long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+        long scr_y = 16 * units_per_pixel / 16;
+        if (game.armageddon_cast_turn != 0)
+        {
+            struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
+            scr_x = (gmnu->width + (width >> 1) - 16 * units_per_pixel / 16);
+            if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
+            {
+                scr_x += ((width + (width >> 1)) - 16 * units_per_pixel / 16);
+            }
+        }
+        else if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
+        {
+            scr_x -= ((width + (width >> 1)) - 16 * units_per_pixel / 16);
+        }
+        long padding = 8 * units_per_pixel / 16;
+        height += row_height*(valid_vars-1);
+        draw_round_slab64k(scr_x, scr_y, units_per_pixel, width, height + padding, ROUNDSLAB64K_DARK);
     
-    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
-    long height = row_height + (row_height) / 2;
-    if (MyScreenHeight < 400)
-    {
-        height *= 2;
-        width *= 2;
-        if (dbc_initialized && dbc_enabled)
+        scr_y += padding;
+        width -= 4 * units_per_pixel / 16;    
+        LbTextSetWindow(scr_x, scr_y, width, height);  
+        // draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
+        int y;
+        int tx_units_per_px;
+                
+        if ( (dbc_initialized && dbc_enabled) && (MyScreenWidth > 1280) )
         {
-            width += (width / 3);
+            tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
+            y = height / 4;
         }
-    }
-    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
-    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
-    long scr_y = 16 * units_per_pixel / 16;
-    if (game.armageddon_cast_turn != 0)
-    {
-        struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
-        scr_x = (gmnu->width + (width >> 1) - 16 * units_per_pixel / 16);
-        if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
+        else
         {
-            scr_x += ((width + (width >> 1)) - 16 * units_per_pixel / 16);
+            tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
+            y = 0;
         }
-    }
-    else if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
-    {
-        scr_x -= ((width + (width >> 1)) - 16 * units_per_pixel / 16);
-    }
-    long padding = 8 * units_per_pixel / 16;
-    height += row_height*(valid_vars-1);
-    draw_round_slab64k(scr_x, scr_y, units_per_pixel, width, height + padding, ROUNDSLAB64K_DARK);
-   
-    scr_y += padding;
-    width -= 4 * units_per_pixel / 16;    
-    LbTextSetWindow(scr_x, scr_y, width, height);  
-    // draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
-    int y;
-    int tx_units_per_px;
-            
-    if ( (dbc_initialized && dbc_enabled) && (MyScreenWidth > 1280) )
-    {
-        tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
-        y = height / 4;
-    }
-    else
-    {
-        tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
-        y = 0;
-    }
-    for (int i = 0; i < game.active_script_var_count; i++)
-    {        
-        struct ScriptVariable scval = game.script_variables[i];
-        if ((scval.variable_player == my_player_number))
-        {
+        for (int i = 0; i < game.active_script_var_count; i++)
+        {        
+            struct ScriptVariable scval = game.script_variables[i];
             int sprite_x = scr_x + 4 * units_per_pixel / 16;
             int sprite_y = scr_y;
 
             struct ScriptVariableDetails details = get_condition_details(scval.variable_player, scval.value_type, scval.value_id);
-          
+        
             short icon_idx = scval.icon_idx;
             if(scval.include_icon && icon_idx < 0)
                 icon_idx = details.icon_idx;
@@ -779,6 +780,7 @@ void draw_script_variable_list(void)
             }            
             y += row_height;
             scr_y += row_height;
+        
         }
     }
 

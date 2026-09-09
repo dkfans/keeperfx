@@ -33,6 +33,7 @@
 #include "player_data.h"
 #include "front_landview.h"
 #include "player_utils.h"
+#include "light_data.h"
 #include "packets.h"
 #include "frontend.h"
 #include "front_network.h"
@@ -148,6 +149,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         }
         player->is_active = 1;
         init_player(player, 0);
+        init_user_state(player->user_id);
         player->isometric_view_zoom_level = sync->isometric_view_zoom_level;
         player->frontview_zoom_level = sync->frontview_zoom_level;
         TbBool imprison = (sync->initial_tendencies & CrTend_Imprison) != 0;
@@ -463,7 +465,30 @@ static void stop_network_game_state(void)
 {
     memset(net_user_info, 0, sizeof(net_user_info));
     clear_flag(game.system_flags, GSF_NetworkActive);
-    get_my_player()->user_id = SOLO_HUMAN_ID;
+    struct PlayerInfo *myplyr = get_my_player();
+    NetUserId old_user = myplyr->user_id;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (user == old_user) {
+            continue;
+        }
+        struct UserState *ustate = get_user_state(user);
+        if (ustate->cursor_light_idx != 0) {
+            light_delete_light(ustate->cursor_light_idx);
+        }
+        memset(ustate, 0, sizeof(*ustate));
+    }
+    struct UserState *old_state = get_user_state(old_user);
+    if ((old_user != SOLO_HUMAN_ID) && !user_state_invalid(old_state)) {
+        *get_user_state(SOLO_HUMAN_ID) = *old_state;
+        memset(old_state, 0, sizeof(*old_state));
+    }
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        struct PlayerInfo *player = get_player(plyr_idx);
+        if (player != myplyr) {
+            player->user_id = -1;
+        }
+    }
+    myplyr->user_id = SOLO_HUMAN_ID;
     clear_flag(game.system_flags, GSF_NetGameNoSync);
     clear_flag(game.system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;
@@ -551,9 +576,10 @@ void process_disconnected_network_players(void)
         if ((player->allocflags & PlaF_CompCtrl) == 0) {
             network_lobby_ping = GetPing(my_player_number);
             input_lag_reset_request(calculate_initial_input_lag());
-            if (!host_disconnected && player->id_number != get_net_user_player_number(SERVER_ID) && player->player_name[0] != '\0') {
-                message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), player->player_name);
-                JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
+            const char* departed_name = player->player_name;
+            if (!host_disconnected && player->id_number != get_net_user_player_number(SERVER_ID) && departed_name[0] != '\0') {
+                message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), departed_name);
+                JUSTLOG("p:%d player %s departed", player->id_number, departed_name);
             }
             if (player->victory_state == VicS_Undecided) {
                 replace_network_player_with_ai(player);

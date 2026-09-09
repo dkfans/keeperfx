@@ -317,7 +317,7 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
   player->allocflags |= PlaF_MouseInputDisabled;
   if (is_my_player(player))
   {
-    player->palette_fade_step_possession = 1;
+    local_state.palette_fade_step_possession = 1;
     turn_off_all_window_menus();
     turn_off_menu(GMnu_CREATURE_QUERY1);
     turn_off_menu(GMnu_CREATURE_QUERY2);
@@ -491,7 +491,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   if (is_my_player(player))
   {
       PaletteSetPlayerPalette(player, engine_palette);
-      player->palette_fade_step_possession = 11;
+      local_state.palette_fade_step_possession = 11;
       turn_off_all_window_menus();
       turn_off_query_menus();
       turn_on_main_panel_menu();
@@ -503,7 +503,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
-  light_turn_light_on(player->cursor_light_idx);
+  turn_user_cursor_light(player->user_id, true);
   return 0;
 }
 
@@ -533,7 +533,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   if (is_my_player(player))
   {
     PaletteSetPlayerPalette(player, engine_palette);
-    player->palette_fade_step_possession = 11;
+    local_state.palette_fade_step_possession = 11;
     turn_off_all_window_menus();
     turn_off_query_menus();
     turn_off_all_panel_menus();
@@ -544,7 +544,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
-  light_turn_light_on(player->cursor_light_idx);
+  turn_user_cursor_light(player->user_id, true);
   return 0;
 }
 
@@ -582,7 +582,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
     if (is_my_player_number(player->id_number)) {
         LbPaletteDataFillWhite(zoom_to_heart_palette);
     }
-    light_turn_light_off(player->cursor_light_idx);
+    turn_user_cursor_light(player->user_id, false);
     struct Thing* thing = get_player_soul_container(player->id_number);
     ThingModel spectator_breed = get_players_spectator_model(player->id_number);
     struct Coord3d mappos;
@@ -713,7 +713,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
     cam->rotation_angle_x = DEGREES_45;
     set_local_camera_destination(player);
   }
-  light_turn_light_on(player->cursor_light_idx);
+  turn_user_cursor_light(player->user_id, true);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
   player->allocflags &= ~PlaF_MouseInputDisabled;
   game.view_mode_flags &= ~GNFldD_CreaturePasngr;
@@ -739,7 +739,7 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, int32_t *n)
       PaletteSetPlayerPalette(player, engine_palette);
   }
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
-  light_turn_light_off(player->cursor_light_idx);
+  turn_user_cursor_light(player->user_id, false);
   player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
@@ -747,14 +747,14 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, int32_t *n)
 long pinstfs_fade_to_map(struct PlayerInfo *player, int32_t *n)
 {
     struct Camera* cam = get_player_active_camera(player);
-    player->palette_fade_step_map = 0;
     player->allocflags |= PlaF_MouseInputDisabled;
     player->view_mode_restore = cam->view_mode;
     if (is_my_player(player))
     {
-        player->tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
+        local_state.palette_fade_step_map = 0;
+        local_state.tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
         settings.tooltips_on = false; // don't show tooltips during the fade
-        player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible)
+        local_state.status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible)
   }
   set_engine_view(player, PVM_ParchFadeIn);
   return 0;
@@ -770,7 +770,7 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, int32_t *n)
 {
   set_player_mode(player, PVT_MapScreen);
   if (is_my_player(player))
-    settings.tooltips_on = player->tooltips_restore; // restore tooltips setting after the fade is completed
+    settings.tooltips_on = local_state.tooltips_restore; // restore tooltips setting after the fade is completed
   player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
@@ -780,11 +780,11 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, int32_t *n)
   player->allocflags |= PlaF_MouseInputDisabled;
   if (is_my_player(player))
   {
-    player->tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
+    local_state.tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
     settings.tooltips_on = false; // don't show tooltips during the fade
     game.operation_flags &= ~GOF_ShowPanel;
+    local_state.palette_fade_step_map = 32;
   }
-  player->palette_fade_step_map = 32;
   set_player_mode(player, PVT_DungeonTop);
   set_engine_view(player, PVM_ParchFadeOut);
   return 0;
@@ -800,8 +800,8 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, int32_t *n)
     struct PlayerInfo* myplyr = get_player(my_player_number);
     set_engine_view(player, player->view_mode_restore);
     if (player->id_number == myplyr->id_number) {
-        settings.tooltips_on = player->tooltips_restore; // restore tooltips setting after the fade is completed
-        toggle_status_menu(player->status_menu_restore); // restore the status menu visiblity now that the map is no longer visible
+        settings.tooltips_on = local_state.tooltips_restore; // restore tooltips setting after the fade is completed
+        toggle_status_menu(local_state.status_menu_restore); // restore the status menu visiblity now that the map is no longer visible
     }
     player->allocflags &= ~PlaF_MouseInputDisabled;
     return 0;
@@ -1121,7 +1121,7 @@ TbBool clear_selected_thing(struct PlayerInfo *player)
  * @param rkind Kind of the room.
  * @return Returns room struct, or invalid room on error.
  */
-struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind)
+struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind, int slabs_left)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
@@ -1154,21 +1154,15 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         play_non_3d_sample(snd_refusal);
       return INVALID_ROOM;
     }
-    if (player->boxsize == 0)
-    {
-        player->boxsize++;
-    }
-    if (dungeon->total_money_owned >= roomst->cost * player->boxsize)
+    if (slabs_left < 1)
+        slabs_left = 1;
+    if (dungeon->total_money_owned >= roomst->cost * slabs_left)
     {
         if (take_money_from_dungeon(plyr_idx, roomst->cost, 1) < 0)
         {
             if (is_my_player(player))
                 output_message(SMsg_GoldNotEnough, 0);
             return INVALID_ROOM;
-        }
-        if (player->boxsize > 0)
-        {
-        player->boxsize--;
         }
     }
     else
@@ -1192,7 +1186,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
       if (is_my_player(player))
       {
           play_non_3d_sample(snd_tile_place);
-          if (player->boxsize > 1)
+          if (slabs_left > 2) // more slabs follow this one
           {
               play_non_3d_sample(snd_larg_tile_down);
               play_non_3d_sample(snd_larg_tile_up);

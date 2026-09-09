@@ -67,6 +67,7 @@
 #include "frontend.h"
 #include "front_input.h"
 #include "game_legacy.h"
+#include "local_camera.h"
 #include "keeperfx.hpp"
 #include "vidfade.h"
 #include "kjm_input.h"
@@ -190,20 +191,18 @@ short get_pixels_scaled_and_zoomed(long basic_zoom)
 
 void gui_zoom_in(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
-    if (player->minimap_zoom > 128) {
-        player->minimap_zoom >>= 1;
-        settings.minimap_zoom = player->minimap_zoom;
+    if (local_state.minimap_zoom > 128) {
+        local_state.minimap_zoom >>= 1;
+        settings.minimap_zoom = local_state.minimap_zoom;
         save_settings();
     }
 }
 
 void gui_zoom_out(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
-    if (player->minimap_zoom < 2048) {
-        player->minimap_zoom <<= 1;
-        settings.minimap_zoom = player->minimap_zoom;
+    if (local_state.minimap_zoom < 2048) {
+        local_state.minimap_zoom <<= 1;
+        settings.minimap_zoom = local_state.minimap_zoom;
         save_settings();
     }
 }
@@ -603,6 +602,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 {
     RoomKind rkind = gbtn->content.lval;
     struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_player_user_state(player);
 
     struct Dungeon* dungeon = get_players_dungeon(player);
 
@@ -629,7 +629,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
 
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
-    unsigned char boxsize = player->boxsize;
+    unsigned char boxsize = ustate->boxsize;
     if (boxsize == 0)
     {
         boxsize = 1;
@@ -644,7 +644,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     }
     if (player->render_roomspace.total_roomspace_cost <= dungeon->total_money_owned)
     {
-        if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
+        if ((player->work_state == PSt_BuildRoom) && (ustate->chosen_room_kind == game.chosen_room_kind)
           && ((get_gameturn() % (2 * gui_blink_rate)) < gui_blink_rate))
         {
             draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
@@ -727,15 +727,16 @@ void gui_choose_spell(struct GuiButton *gbtn)
 
 void go_to_next_spell_of_type(PowerKind pwkind)
 {
-    struct Packet* pckt = get_local_packet();
-    set_packet_action(pckt, PckA_ZoomToSpell, pwkind, 0, 0, 0);
+    struct Coord3d pos;
+    if (find_power_cast_place(my_player_number, pwkind, &pos)) {
+        move_local_camera_to_position(pos.x.val, pos.y.val);
+    }
 }
 
 void gui_go_to_next_spell(struct GuiButton *gbtn)
 {
-    PowerKind pwkind = gbtn->content.lval;
-    go_to_next_spell_of_type(pwkind);
-    set_chosen_power(pwkind, gbtn->tooltip_stridx);
+    go_to_next_spell_of_type(gbtn->content.lval);
+    gui_choose_spell(gbtn);
 }
 
 void gui_area_spell_button(struct GuiButton *gbtn)
@@ -936,8 +937,8 @@ void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
     }
     i = seltrap[tngmodel];
     if (i > 0) {
-        struct Packet* pckt = get_local_packet();
-        set_packet_action(pckt, PckA_ZoomToTrap, i, 0, 0, 0);
+        thing = thing_get(i);
+        move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
     }
 }
 
@@ -991,8 +992,8 @@ void go_to_next_door_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
     }
     i = seldoor[tngmodel];
     if (i > 0) {
-        struct Packet* pckt = get_local_packet();
-        set_packet_action(pckt, PckA_ZoomToDoor, i, 0, 0, 0);
+        thing = thing_get(i);
+        move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
     }
 }
 
@@ -1157,6 +1158,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 {
     int manufctr_idx = gbtn->content.lval;
     struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_player_user_state(player);
 
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
@@ -1204,8 +1206,8 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
         if (amount <= 0) {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
         } else
-        if ((((manufctr->tngclass == TCls_Trap) && (player->chosen_trap_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceTrap))
-        || ((manufctr->tngclass == TCls_Door) && (player->chosen_door_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceDoor)))
+        if ((((manufctr->tngclass == TCls_Trap) && (ustate->chosen_trap_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceTrap))
+        || ((manufctr->tngclass == TCls_Door) && (ustate->chosen_door_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceDoor)))
         && ((get_gameturn() % (2 * gui_blink_rate)) < gui_blink_rate) )
         {
             draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
@@ -1646,34 +1648,20 @@ RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind)
     return next_room[rkind];
 }
 
-void go_to_my_next_room_of_type_and_select(RoomKind rkind)
-{
-    RoomIndex room_idx = find_my_next_room_of_type(rkind);
-    struct PlayerInfo* player = get_my_player();
-    if (room_idx > 0) {
-        set_players_packet_action(player, PckA_ZoomToRoom, room_idx, 0, 0, 0);
-    }
-}
-
 void go_to_my_next_room_of_type(RoomKind rkind)
 {
     //_DK_go_to_my_next_room_of_type(rkind); return;
     RoomIndex room_idx = find_my_next_room_of_type(rkind);
-    struct PlayerInfo* player = get_my_player();
     if (room_idx > 0) {
         struct Room* room = room_get(room_idx);
-        set_players_packet_action(player, PckA_ZoomToPosition, subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y), 0, 0);
+        move_local_camera_to_position(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y));
     }
 }
 
 void gui_go_to_next_room(struct GuiButton *gbtn)
 {
-    unsigned long rkind = gbtn->content.lval;
-    go_to_my_next_room_of_type_and_select(rkind);
-    game.chosen_room_kind = rkind;
-    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
-    game.chosen_room_spridx = roomst->bigsym_sprite_idx;
-    game.chosen_room_tooltip = gbtn->tooltip_stridx;
+    go_to_my_next_room_of_type(gbtn->content.lval);
+    gui_choose_room(gbtn);
 }
 
 void gui_over_room_button(struct GuiButton *gbtn)
@@ -2659,11 +2647,11 @@ void draw_whole_status_panel(void)
     // Draws gold amount; note that button_sprite[] is used instead of full font
     draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, fs_units_per_px, dungeon->total_money_owned);
     if (16/mm_units_per_px < 3)
-        mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2,mm_units_per_px);
+        mmzoom = (local_state.minimap_zoom) / scale_value_for_resolution_with_upp(2,mm_units_per_px);
     else
-        mmzoom = player->minimap_zoom;
-    panel_map_draw_slabs(player->minimap_pos_x, player->minimap_pos_y, mm_units_per_px, mmzoom);
-    long basic_zoom = player->minimap_zoom;
+        mmzoom = local_state.minimap_zoom;
+    panel_map_draw_slabs(local_state.minimap_pos_x, local_state.minimap_pos_y, mm_units_per_px, mmzoom);
+    long basic_zoom = local_state.minimap_zoom;
     panel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
     unsigned char placefill_threshold = (LbScreenHeight() >= 400) ? 80 : 40;
     if (LbScreenHeight() - gmnu->height >= placefill_threshold)

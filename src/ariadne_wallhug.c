@@ -419,7 +419,7 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
             struct Map* mapblk = get_map_block_at(current_stl_x,current_stl_y);
             struct SlabMap* slb = get_slabmap_block(subtile_slab(current_stl_x), subtile_slab(current_stl_y));
 
-            if (!flag_is_set(creatng->movement_flags, TMvF_Flying) && subtile_has_abyss_on_top(current_stl_x, current_stl_y))
+            if (!thing_can_traverse_abyss_at(creatng, current_stl_x, current_stl_y))
                 return get_subtile_number(current_stl_x,current_stl_y);
 
             // If the current subtile has none of the attribute flags passed to this function (as slab_flags) and is not ROCK
@@ -458,6 +458,9 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
 
 static long creature_cannot_move_directly_to_with_collide_sub(struct Thing *creatng, struct Coord3d pos, long slab_flags, PlayerBitFlags crt_owner_flags)
 {
+    if (!thing_can_traverse_abyss_at(creatng, pos.x.stl.num, pos.y.stl.num)) {
+        return 4;
+    }
     if (thing_in_wall_at(creatng, &pos))
     {
         pos.z.val = subtile_coord(map_subtiles_z,COORD_PER_STL-1);
@@ -1433,8 +1436,7 @@ static TbBool find_approach_position_to_subtile(const struct Thing *creatng, con
         tmpos.y.val = targetpos.y.val + dy;
         tmpos.z.val = 0;
         struct Map* mapblk = get_map_block_at(tmpos.x.stl.num, tmpos.y.stl.num);
-        if ((!map_block_invalid(mapblk)) && ((mapblk->flags & SlbAtFlg_Blocking) == 0) && (flag_is_set(creatng->movement_flags, TMvF_Flying) || !subtile_has_abyss_on_top(tmpos.x.stl.num, tmpos.y.stl.num)))
-        {
+        if ((!map_block_invalid(mapblk)) && ((mapblk->flags & SlbAtFlg_Blocking) == 0) && thing_can_traverse_abyss_at(creatng, tmpos.x.stl.num, tmpos.y.stl.num)) {
             MapCoordDelta dist = get_chessboard_distance(srcpos, &tmpos);
             if (min_dist > dist)
             {
@@ -1948,7 +1950,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         navi->first_colliding_block = stl_num;
         navi->second_colliding_block = stl_num;
         mapblk = get_map_block_at_pos(navi->first_colliding_block);
-        if ((mapblk->flags & SlbAtFlg_Blocking) != 0 || (!flag_is_set(creatng->movement_flags, TMvF_Flying) && subtile_has_abyss_on_top(stl_x, stl_y))) {
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0 || !thing_can_traverse_abyss_at(creatng, stl_x, stl_y)) {
           return 2;
         }
         nav_radius = thing_nav_sizexy(creatng) / 2;
@@ -1977,7 +1979,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         navi->first_colliding_block = stl_num;
         navi->second_colliding_block = stl_num;
         mapblk = get_map_block_at_pos(navi->first_colliding_block);
-        if ((mapblk->flags & SlbAtFlg_Blocking) != 0 || (!flag_is_set(creatng->movement_flags, TMvF_Flying) && subtile_has_abyss_on_top(stl_x, stl_y))) {
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0 || !thing_can_traverse_abyss_at(creatng, stl_x, stl_y)) {
             return 2;
         }
         navi->navstate = NavS_WallhugInProgress;

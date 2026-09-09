@@ -77,6 +77,7 @@
 #include "player_utils.h"
 #include "config_players.h"
 #include "player_computer.h"
+#include "timer.h"
 #include "game_heap.h"
 #include "game_saves.h"
 #include "engine_render.h"
@@ -493,6 +494,8 @@ short setup_game(void)
 
   if (result == 1)
   {
+      if (flag_is_set(start_params.operation_flags, GOF_SingleLevel) && !(game_flags2 & (GF2_Connect | GF2_Server)))
+          level_load_time_phase(LevelLoadTime_EngineStartup);
       display_loading_screen();
   }
   LbDataFreeAll(legal_load_files);
@@ -570,12 +573,11 @@ static bool players_cursor_is_at_top_of_view()
 
 TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, int32_t *map_x, int32_t *map_y)
 {
-    struct PlayerInfo *player = get_my_player();
     *map_x = 0;
     *map_y = 0;
     if ( (pointer_x >= 0) && (pointer_y >= 0)
-      && (pointer_x < (player->engine_window_width/pixel_size))
-      && (pointer_y < (player->engine_window_height/pixel_size)) )
+      && (pointer_x < (local_state.engine_window_width/pixel_size))
+      && (pointer_y < (local_state.engine_window_height/pixel_size)) )
     {
         if ( players_cursor_is_at_top_of_view() )
         {
@@ -873,7 +875,7 @@ short zoom_to_next_annoyed_creature(void)
     {
       return false;
     }
-    set_players_packet_action(player, PckA_ZoomToPosition, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+    move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
     return true;
 }
 
@@ -905,8 +907,8 @@ void reinit_level_after_load(void)
     SYNCDBG(6,"Starting");
     // Reinit structures from within the game
     player = get_my_player();
-    player->lens_palette = 0;
-    player->main_palette = engine_palette;
+    local_state.lens_palette = 0;
+    local_state.main_palette = engine_palette;
     init_navigation();
     reinit_packets_after_load();
     game.easter_eggs_enabled = start_params.easter_egg;
@@ -1034,6 +1036,7 @@ void clear_players_for_save(void)
       memcpy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = saved_player_id;
+      player->user_id = -1;
       player->is_active = saved_is_active;
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
@@ -1144,10 +1147,8 @@ void reset_creature_max_levels(void)
 
 void change_engine_window_relative_size(long w_delta, long h_delta)
 {
-    struct PlayerInfo *myplyr;
-    myplyr=get_my_player();
-    setup_engine_window(myplyr->engine_window_x, myplyr->engine_window_y,
-        myplyr->engine_window_width+w_delta, myplyr->engine_window_height+h_delta);
+    setup_engine_window(local_state.engine_window_x, local_state.engine_window_y,
+        local_state.engine_window_width+w_delta, local_state.engine_window_height+h_delta);
 }
 
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
@@ -1161,16 +1162,15 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
     {
       player->additional_flags &= ~PlaAF_FreezePaletteIsActive; // flag Freeze palette is not active
     }
-    if ( (player->lens_palette == 0) || ((pal != player->main_palette) && (pal == player->lens_palette)) )
+    if (!is_my_player(player))
+        return;
+    if ( (local_state.lens_palette == 0) || ((pal != local_state.main_palette) && (pal == local_state.lens_palette)) )
     {
-        player->main_palette = pal;
-        player->palette_fade_step_pain = 0;
-        player->palette_fade_step_possession = 0;
-        if (is_my_player(player))
-        {
-            LbScreenWaitVbi();
-            RendererPaletteSet(pal);
-        }
+        local_state.main_palette = pal;
+        local_state.palette_fade_step_pain = 0;
+        local_state.palette_fade_step_possession = 0;
+        LbScreenWaitVbi();
+        RendererPaletteSet(pal);
     }
 }
 
@@ -1209,13 +1209,12 @@ void centre_engine_window(void)
 {
     long window_center_x;
     long window_center_y;
-    struct PlayerInfo *player=get_my_player();
     if ((game.operation_flags & GOF_ShowGui) != 0)
-      window_center_x = (MyScreenWidth-player->engine_window_width-status_panel_width) / 2 + status_panel_width;
+      window_center_x = (MyScreenWidth-local_state.engine_window_width-status_panel_width) / 2 + status_panel_width;
     else
-      window_center_x = (MyScreenWidth-player->engine_window_width) / 2;
-    window_center_y = (MyScreenHeight-player->engine_window_height) / 2;
-    setup_engine_window(window_center_x, window_center_y, player->engine_window_width, player->engine_window_height);
+      window_center_x = (MyScreenWidth-local_state.engine_window_width) / 2;
+    window_center_y = (MyScreenHeight-local_state.engine_window_height) / 2;
+    setup_engine_window(window_center_x, window_center_y, local_state.engine_window_width, local_state.engine_window_height);
 }
 
 void turn_off_query(PlayerNumber plyr_idx)
@@ -1419,9 +1418,9 @@ short complete_level(struct PlayerInfo *player)
     return true;
 }
 
-static void set_mouse_light(struct PlayerInfo *player, TbBool valid, struct Coord3d pos)
+static void set_mouse_light(NetUserId user, TbBool valid, struct Coord3d pos)
 {
-    const int idx = player->cursor_light_idx;
+    const int idx = get_user_state(user)->cursor_light_idx;
     if (idx == 0)
         return;
 
@@ -1431,7 +1430,7 @@ static void set_mouse_light(struct PlayerInfo *player, TbBool valid, struct Coor
         light_turn_light_on(idx);
         light_set_light_position(idx, &pos);
 
-        if (is_my_player(player))
+        if (user == get_local_user())
             game.mouse_light_pos = pos;
     }
     else
@@ -1455,31 +1454,33 @@ void update_local_mouse_light(void)
     if (game_is_busy_doing_gui_string_input())
         return;
 
-    struct Camera *cam = get_local_camera(get_player_active_camera(player));
+    struct Camera *cam = get_local_active_camera(player);
     struct Coord3d pos;
     const TbBool valid = screen_to_map(cam, GetMouseX(), GetMouseY(), &pos);
 
-    set_mouse_light(player, valid, pos);
+    NetUserId user = get_local_user();
+    set_mouse_light(user, valid, pos);
 
-    if (player->cursor_light_idx != 0)
-        light_reset_interpolation(player->cursor_light_idx);
+    const int idx = get_user_state(user)->cursor_light_idx;
+    if (idx != 0)
+        light_reset_interpolation(idx);
 }
 
-void update_mouse_light(struct PlayerInfo *player)
+void update_mouse_light(NetUserId user)
 {
     SYNCDBG(6,"Starting");
     const struct Packet *pckt = nullptr;
 
-    if (is_my_player(player))
-        pckt = get_history_packet(player->user_id, get_gameturn());
+    if (user == get_local_user())
+        pckt = get_history_packet(user, get_gameturn());
     if (pckt == nullptr)
-        pckt = get_packet(player->user_id);
+        pckt = get_packet(user);
 
     const TbBool valid = (pckt->control_flags & PCtr_MapCoordsValid) != 0;
     struct Coord3d pos;
     pos.x.val = pckt->pos_x;
     pos.y.val = pckt->pos_y;
-    set_mouse_light(player, valid, pos);
+    set_mouse_light(user, valid, pos);
 }
 
 void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
@@ -1613,8 +1614,8 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     mx = cam->mappos.x.val;
     my = cam->mappos.y.val;
     mz = cam->mappos.z.val;
-    pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
-    pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
+    pointer_x = (GetMouseX() - local_state.engine_window_x) / pixel_size;
+    pointer_y = (GetMouseY() - local_state.engine_window_y) / pixel_size;
     lens = cam->horizontal_fov * scale_value_by_horizontal_resolution(4) / pixel_size;
     if (lens_mode == 0)
         update_blocks_pointed();

@@ -310,8 +310,8 @@ void ftest_util_center_cursor_over_dungeon_view()
     }
 
     struct TbPoint point;
-    point.x = player->engine_window_width/2;
-    point.y = player->engine_window_height/2;
+    point.x = local_state.engine_window_width/2;
+    point.y = local_state.engine_window_height/2;
     if ((game.operation_flags & GOF_ShowGui) != 0)
     {
         point.x += status_panel_width;

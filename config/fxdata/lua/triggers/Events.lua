@@ -204,10 +204,10 @@ function RegisterSlapEvent(action, thing, player)
     
     local trigger = CreateTrigger("Slap",action,trigData)
     if thing then
-        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.Thing == triggerData.Thing end)
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.thing == triggerData.Thing end)
     end
     if player then
-        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.Player == triggerData.Player end)
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.Player end)
     end
     return trigger
 end
@@ -222,10 +222,10 @@ function RegisterPickUpEvent(action, thing, player)
     
     local trigger = CreateTrigger("PickUp",action,trigData)
     if thing then
-        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.Thing == triggerData.Thing end)
+        TriggerAddCondition(trigger, function(eventData, triggerData) return eventData.thing == triggerData.Thing end)
     end
     if player then
-        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.Player == triggerData.Player end)
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.Player end)
     end
     return trigger
 end
