@@ -9,6 +9,9 @@ end
 
 function Setup()
       QuickMessage("Map: " .. Map.map_number .. " (" .. Map.map_name .. ").", "ARCHIPELAGO_ICON")
+      IncreaseLevelCap()
+      IncreaseCreatureLimit()
+      IncreaseStartingGold()
       HideVariable()    
       DisplayVariableWithLabel("PLAYER0","BOXES_REMAIN","ARCHIPELAGO_ICON")
       ActivateItems()
@@ -27,10 +30,9 @@ end
 
 function OnItemReceived(itemid)
       print("Received item " .. itemid)
-      QuickInformation(100,"AP Item Received: " .. ChecksTable[itemid].text .. ".", "ARCHIPELAGO_MESSAGE") 
+      QuickInformation(100,"AP Item Received:\n" .. ChecksTable[itemid].text) --need to add "ARCHIPELAGO_MESSAGE" message tab icon. 
       -- only need to do this when new items are received. Need to check setting message number to 100 is ok.
       -- Also if you receive items while outside a level and then join, will it send all of the new ones when you go into a level?
-      -- Also need to confirm if line breaks are possible using QuickInformation or a strong.
       ReceivedLocations.ReceivedItemCheck(itemid)
 end
 
@@ -39,8 +41,6 @@ function ActivateItems()
       for index, itemid in ipairs(receivedItems) do
             ReceivedLocations.ReceivedItemCheck(itemid)
       end
-end      
-
-
+end
 
 return CommandsMain
