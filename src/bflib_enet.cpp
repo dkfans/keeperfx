@@ -62,6 +62,7 @@ namespace
     ENetAddress pending_punch_ipv4 = {};
     ENetAddress pending_punch_ipv6 = {};
     TbClockMSec next_punch_time = 0;
+    TbClockMSec host_punch_learn_deadline = 0;
 
     // List
     ENetPacket *oldest_packet[MAX_NET_USERS] = {nullptr};
@@ -167,6 +168,7 @@ namespace
         host_is_dual_stack = 0;
         pending_punch_ipv4.port = 0;
         pending_punch_ipv6.port = 0;
+        host_punch_learn_deadline = 0;
     }
 
     void bf_enet_exit()
@@ -407,7 +409,8 @@ namespace
         return join_direct_session(session, display_deadline, TIMEOUT_CONNECT_DIRECT_IPV4, "direct connect fallback");
     }
 
-    TbError join_via_holepunch(TbClockMSec join_start_ms) {
+    TbError join_via_holepunch(TbClockMSec join_start_ms)
+    {
         LbNetLog("Join: connecting via matchmaking server (UDP hole punching)\n");
         if (create_join_host(ENET_ADDRESS_TYPE_IPV4) != Lb_OK)
             return Lb_FAIL;
@@ -452,9 +455,23 @@ namespace
             return join_direct_fallback(&punch_addresses, LbTimerClock() + direct_display_ms);
         }
         enet_host_compress_with_range_coder(host);
-        if (has_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
-        if (has_ipv4) holepunch_punch_to(host, &ipv4_address);
-        SDL_Delay(HOLEPUNCH_PRE_CONNECT_DELAY_MS);
+        TbClockMSec punch_learn_deadline = LbTimerClock() + HOLEPUNCH_PRE_CONNECT_DELAY_MS * 2;
+        int learned_ipv4 = 0;
+        int learned_ipv6 = 0;
+        while (LbTimerClock() < punch_learn_deadline) {
+            if (has_ipv6 && !learned_ipv6) holepunch_punch_to(ipv6_host, &ipv6_address);
+            if (has_ipv4 && !learned_ipv4) holepunch_punch_to(host, &ipv4_address);
+            SDL_Delay(100);
+            if (has_ipv6 && !learned_ipv6) learned_ipv6 = holepunch_receive(ipv6_host, &ipv6_address, 1);
+            if (has_ipv4 && !learned_ipv4) learned_ipv4 = holepunch_receive(host, &ipv4_address, 1);
+            if ((!has_ipv6 || learned_ipv6) && (!has_ipv4 || learned_ipv4)) break;
+            if (attempting_to_join_cancel_requested()) {
+                LbNetLog("Join: cancelled by user during hole-punch\n");
+                cleanup_join_host(ipv6_host, nullptr);
+                host_destroy();
+                return Lb_FAIL;
+            }
+        }
         ENetPeer *ipv4_peer = nullptr;
         ENetPeer *ipv6_peer = nullptr;
         if (has_ipv6) {
@@ -986,9 +1003,21 @@ int enet_matchmaking_host_update(void)
         if (!pending_punch_ipv6.port && punch_addresses.ipv6[0] != '\0') {
             LbNetLog("Host: IPv6 punch skipped (host is not dual-stack)\n");
         }
+        host_punch_learn_deadline = LbTimerClock() + HOLEPUNCH_PRE_CONNECT_DELAY_MS;
     }
     if (!pending_punch_ipv4.port && !pending_punch_ipv6.port) {
         return 0;
+    }
+    TbClockMSec now = LbTimerClock();
+    if (now < host_punch_learn_deadline) {
+        ENetAddress pending_punches[] = {pending_punch_ipv4, pending_punch_ipv6};
+        int punch_result = holepunch_receive(host, pending_punches, 2);
+        pending_punch_ipv4 = pending_punches[0];
+        pending_punch_ipv6 = pending_punches[1];
+        if (punch_result > 1) {
+            next_punch_time = now;
+            poll_result = 1;
+        }
     }
     if (!poll_result) {
         for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
@@ -997,7 +1026,6 @@ int enet_matchmaking_host_update(void)
             }
         }
     }
-    TbClockMSec now = LbTimerClock();
     if (!poll_result && now < next_punch_time) {
         return 0;
     }
