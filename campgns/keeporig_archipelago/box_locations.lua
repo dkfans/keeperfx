@@ -71,7 +71,10 @@ end
 function BoxLocations.ActivateBoxes(level_id)
     local mapBoxIDs = BoxLocations[level_id]
     local found = SentLocations.CountFound(mapBoxIDs)
-    local total = #mapBoxIDs
+    local total = 0
+    if(mapBoxIDs) then
+        total = #mapBoxIDs
+    end
     QuickMessage("Boxes Found: " .. found .. "/" .. total .. ".", "ARCHIPELAGO_ICON")
     --if a level is completed, we will send out location 10000+level_id.
     --check if 10000+level_id was in the sent table. If it was, add a tick
