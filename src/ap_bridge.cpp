@@ -62,6 +62,9 @@ void ap_slot_connected(){
     frontend_archipelago_connected();
     //callback once connected to AP server, send scounts for all locations not checked yet, so that ap_location_info_callback will be triggered.
     AP_SendLocationScouts(AP_GetMissingLocations(),0);
+    for (int64_t loc : AP_GetCheckedLocations()) {
+        ap_state_update_locations(&g_ap_state, (int)loc);
+    }
 }
 
 void ap_room_update(){
