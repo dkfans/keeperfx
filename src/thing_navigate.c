@@ -105,8 +105,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
 
         mapblk = get_map_block_at(stl_x, stl_y);
 
-        if ( (mapblk->flags & SlbAtFlg_Blocking) == 0 )
-        {
+        if ((mapblk->flags & SlbAtFlg_Blocking) == 0 && thing_can_traverse_abyss_at(thing, stl_x, stl_y)) {
             spiral_pos.x.val = (stl_x << 8) + 128;
             spiral_pos.y.val = (stl_y << 8) + 128;
             spiral_pos.z.val = get_thing_height_at(thing, &spiral_pos);
@@ -408,6 +407,9 @@ TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSu
 
 TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
+    if (!thing_can_traverse_abyss_at(creatng, stl_x, stl_y)) {
+        return true;
+    }
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     // If the position is over lava, and we can't continuously fly, then it's toxic
     if ((crconf->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
@@ -879,7 +881,7 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
     if (slabmap_block_invalid(slb))
         return false;
     struct SlabConfigStats* slabst = get_slab_stats(slb);
-    if (!flag_is_set(creatng->movement_flags, TMvF_Flying) && subtile_has_abyss_on_top(stl_x, stl_y))
+    if (!thing_can_traverse_abyss_at(creatng, stl_x, stl_y))
         return false;
     if (flag_is_set(slabst->block_flags, SlbAtFlg_IsDoor))
     {
