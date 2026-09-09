@@ -1662,7 +1662,9 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     if (cspell->duration == spconf->duration / 2)
     {
         PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
-        struct PlayerInfo* player = get_player(plyr_idx);
+        struct UserState* ustate = get_player_user_state(get_player(plyr_idx));
+        TbBool has_user = !user_state_invalid(ustate);
+        unsigned char destination = has_user ? ustate->teleport_destination : 19;
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(cctrl->teleport_x);
         pos.y.val = subtile_coord_center(cctrl->teleport_y);
@@ -1683,7 +1685,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             }
             const struct Coord3d* newpos = NULL;
             struct Coord3d room_pos;
-            switch(player->teleport_destination)
+            switch(destination)
             {
                 case 6: // Dungeon Heart
                 {
@@ -1699,16 +1701,16 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                     {
                         long count = 0;
                         TbBool battle_found = false;
-                        if (player->battleid > BATTLES_COUNT)
+                        if (ustate->battleid > BATTLES_COUNT)
                         {
-                            player->battleid = 1;
+                            ustate->battleid = 1;
                         }
-                        for (i = player->battleid; i <= BATTLES_COUNT; i++)
+                        for (i = ustate->battleid; i <= BATTLES_COUNT; i++)
                         {
                             if (i > BATTLES_COUNT)
                             {
                                 i = 1;
-                                player->battleid = 1;
+                                ustate->battleid = 1;
                             }
                             count++;
                             struct CreatureBattle* battle = creature_battle_get(i);
@@ -1720,20 +1722,20 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                                 {
                                     pos.x.val = tng->mappos.x.val;
                                     pos.y.val = tng->mappos.y.val;
-                                    player->battleid = i + 1;
+                                    ustate->battleid = i + 1;
                                     battle_found = true;
                                     break;
                                 }
                             }
                             if (count >= BATTLES_COUNT)
                             {
-                                player->battleid = 1;
+                                ustate->battleid = 1;
                                 break;
                             }
                             if (i >= BATTLES_COUNT)
                             {
                                 i = 0;
-                                player->battleid = 1;
+                                ustate->battleid = 1;
                                 continue;
                             }
                         }
@@ -1779,13 +1781,13 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                 }
                 default:
                 {
-                    rkind = zoom_key_room_order[player->teleport_destination];
+                    rkind = zoom_key_room_order[destination];
                 }
             }
             if (rkind > 0)
             {
                 long count = 0;
-                if (player->nearest_teleport)
+                if (ustate->nearest_teleport)
                 {
                     room = find_room_nearest_to_position(thing->owner, rkind, &thing->mappos, &distance);
                 }
@@ -1880,7 +1882,9 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             set_flag(thing->state_flags, TF1_PushAdd);
         }
         set_flag(thing->state_flags, TF1_Teleported);
-        player->teleport_destination = 19;
+        if (has_user) {
+            ustate->teleport_destination = 19;
+        }
     }
 }
 

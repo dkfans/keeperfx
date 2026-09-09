@@ -100,8 +100,7 @@ enum UserAdditionalFlags {
     UsrAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
     UsrAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell
     UsrAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell
-    UsrAF_UnlockedLordTorture       = 0x10, // if this flag is set, the player will be sent to the Lord Torture Mini-game
-    // The below are unused in KFX
+    UsrAF_UnlockedLordTorture       = 0x10, // if this flag is set, the user will be sent to the Lord Torture Mini-game
     UsrAF_Unkn20                    = 0x20,
     UsrAF_Unkn40                    = 0x40,
     UsrAF_Unkn80                    = 0x80,
@@ -231,9 +230,6 @@ struct PlayerInfo {
     int isometric_tilt;
     unsigned short generate_speed;
     int first_person_unfreeze_delay;
-    unsigned char teleport_destination;
-    TbBool nearest_teleport;
-    BattleIndex battleid;
 };
 
 /* Game state that exists per human user. Computer-controlled
@@ -260,6 +256,9 @@ struct UserState {
     /** First person (possession) controls. */
     TbBool first_person_dig_claim_mode;
     unsigned short selected_fp_thing_pickup;
+    unsigned char teleport_destination;
+    TbBool nearest_teleport;
+    BattleIndex battleid;
     struct CheatSelection cheatselection;
     unsigned char boxsize;
     unsigned char chosen_room_kind;
