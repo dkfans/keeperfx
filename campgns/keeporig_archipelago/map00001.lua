@@ -36,6 +36,8 @@ function OnGameLoad()
       CommandsMain.MainSetup()
 end
 
+-- Need some sort of OnGameWin command so we can send location 10000 + Map.map_number on map win.
+
 --function OnItemReceived(itemid)
 --      print("Received item " .. itemid)
 --      ReceivedLocations.ReceivedItemCheck(itemid)
