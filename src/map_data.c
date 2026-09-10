@@ -577,7 +577,7 @@ void clear_slab_dig(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_id
         else if ( (get_slab_stats(slb)->category == SlbAtCtg_FortifiedWall)
             && (slabmap_owner(slb) != plyr_idx ))
         {
-        untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+            untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
         }
     }
     else if ( !subtile_revealed(slab_subtile(slb_x, 0) , slab_subtile(slb_y, 0), plyr_idx) )          //    if (map_block_revealed(mapblk, plyr_idx))

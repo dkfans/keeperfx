@@ -2860,7 +2860,7 @@ Columns = [253, 253, 253, 253, 253, 253, 1196, 1196, 1196]
 [[slab20.S_objects]]
 IsLight = 0
 Subtile = 6
-RelativePosition = [192, 128, 256]
+RelativePosition = [128, 128, 256]
 ThingType = 1
 Subtype = 27
 EffectRange = 0
