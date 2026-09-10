@@ -71,9 +71,7 @@ public:
     bool IsActiveRT() const { return m_rt_cmd.active; }
 
     /** Build one quad per revealed tile and draw them in a single batched
-     *  call. No-op if IsActiveRT() is false or the tile atlas isn't ready
-     *  yet (level textures load after startup -- see RendererOpenGL.cpp's
-     *  world_atlas.Init() retry comment). */
+     *  call. */
     void Resolve(int screen_w, int screen_h);
 
 private:

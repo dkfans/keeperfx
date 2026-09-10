@@ -2097,10 +2097,10 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     int units_per_px;
     units_per_px = min((int)units_per_pixel,units_per_pixel_min*16/10);
     // Decrease scale factor if for some reason resulting size would exceed screen (wierd aspec ratio support)
-    if (gmnu->width * units_per_px > LbScreenWidth() * 16)
-        units_per_px = LbScreenWidth() * 16 / gmnu->width;
-    if (gmnu->height * units_per_px > LbScreenHeight() * 16)
-        units_per_px = LbScreenHeight() * 16 / gmnu->height;
+    if (gmnu->width * units_per_px > RendererPhysicalWidth() * 16)
+        units_per_px = RendererPhysicalWidth() * 16 / gmnu->width;
+    if (gmnu->height * units_per_px > RendererPhysicalHeight() * 16)
+        units_per_px = RendererPhysicalHeight() * 16 / gmnu->height;
     // Setting position X
     amnu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width,units_per_px);
     // Setting position Y

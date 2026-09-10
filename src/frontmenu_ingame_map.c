@@ -125,7 +125,7 @@ void panel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
     {
         if ((x >= MapShapeStart[y]) && (x < MapShapeEnd[y]))
         {
-            lbDisplay.WScreen[(PanelMapY + y) * lbDisplay.GraphicsScreenWidth + (PanelMapX + x)] = col;
+            lbDisplay.WScreen[(PanelMapY + y) * RendererScreenHeight() + (PanelMapX + x)] = col;
         }
     }
 }
@@ -969,7 +969,7 @@ void setup_background(long units_per_px)
         int num_colours;
         num_colours = 0;
         long out_scanline;
-        out_scanline = lbDisplay.GraphicsScreenWidth;
+        out_scanline = RendererScreenHeight();
         long bkgnd_pos;
         bkgnd_pos = 0;
         TbPixel *out;
@@ -1270,7 +1270,7 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     TbPixel *bkgnd_line;
     bkgnd_line = MapBackground;
     TbPixel *out_line;
-    out_line = &lbDisplay.WScreen[PanelMapX + lbDisplay.GraphicsScreenWidth * PanelMapY];
+    out_line = &lbDisplay.WScreen[PanelMapX + RendererScreenHeight() * PanelMapY];
     int h;
     for (h = 0; h < MapDiagonalLength; h++)
     {
@@ -1322,7 +1322,7 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
             out++;
             bkgnd++;
         }
-        out_line += lbDisplay.GraphicsScreenWidth;
+        out_line += RendererScreenHeight();
         bkgnd_line += MapDiagonalLength;
         shift_stl_x += shift_x;
         shift_stl_y += shift_y;

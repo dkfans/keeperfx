@@ -140,7 +140,7 @@ void draw_slab64k_background_immediate(long pos_x, long pos_y, long width, long 
     i = MyScreenHeight;
     if (scr_y + scr_h > i)
         scr_h = i - scr_y;
-    TbPixel* out = &lbDisplay.WScreen[scr_x + lbDisplay.GraphicsScreenWidth * scr_y];
+    TbPixel* out = &lbDisplay.WScreen[scr_x + RendererScreenHeight() * scr_y];
     for (i=0; scr_h > i; i++)
     {
         TbPixel* inp = &gui_slab[GUI_SLAB_DIMENSION * (i % GUI_SLAB_DIMENSION)];
@@ -159,7 +159,7 @@ void draw_slab64k_background_immediate(long pos_x, long pos_y, long width, long 
         {
             memcpy(out, inp, scr_w);
         }
-        out += lbDisplay.GraphicsScreenWidth;
+        out += RendererScreenHeight();
     }
 }
 
@@ -538,7 +538,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         }
     }
     LbTextDrawResized(w, h, tx_units_per_px, dtext);
-    LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
+    LbTextSetJustifyWindow(0, 0, RendererScreenWidth());
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     RendererSetDrawFlags(flgmem);

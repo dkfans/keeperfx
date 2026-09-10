@@ -643,12 +643,12 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
       return nmode;
     }
   }
-  TbBool hi_res = ((LbGraphicsScreenHeight() < 400) ? false : true);
+  TbBool hi_res = ((RendererScreenHeight() < 400) ? false : true);
   long lens_mem = game.applied_lens_type;
   unsigned int flg_mem = RendererGetDrawFlags();
   TbBool was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
   set_pointer_graphic_none();
-  if (LbGraphicsScreenHeight() < 200)
+  if (RendererScreenHeight() < 200)
   {
       WARNLOG("Unhandled previous Screen Mode %d, Reset skipped",(int)old_mode);
   } else
@@ -821,9 +821,9 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
       return nmode;
     }
   }
-  TbBool hi_res = ((LbGraphicsScreenHeight() < 400) ? false : true);
+  TbBool hi_res = ((RendererScreenHeight() < 400) ? false : true);
   ushort flg_mem = RendererGetDrawFlags();
-  if (LbGraphicsScreenHeight() < 200)
+  if (RendererScreenHeight() < 200)
   {
     WARNLOG("Unhandled previous Screen Mode %d, Reset skipped",(int)old_mode);
   } else

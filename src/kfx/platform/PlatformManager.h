@@ -31,6 +31,7 @@ void         PlatformManager_SetWindowSize(int w, int h);
 int          PlatformManager_SetWindowFullscreen(unsigned int flags);
 void         PlatformManager_SetWindowBordered(int bordered);
 void         PlatformManager_SetWindowPosition(int x, int y);
+void         PlatformManager_SetWindowTitle(const char* title);
 int          PlatformManager_CreateWindow(const char* title, int x, int y, int w, int h, unsigned int flags);
 void         PlatformManager_WarpCursor(int x, int y);
 int          PlatformManager_IsCursorInWindow(void);

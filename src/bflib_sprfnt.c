@@ -632,7 +632,7 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
     awind.buf_ptr = lbDisplay.GraphicsWindowPtr;
     awind.width = lbDisplay.GraphicsWindowWidth;
     awind.height = lbDisplay.GraphicsWindowHeight;
-    awind.scanline = lbDisplay.GraphicsScreenWidth;
+    awind.scanline = RendererScreenHeight();
   for (c=sbuf; c < ebuf; )
   {
     size_t seq_len;
@@ -1070,7 +1070,7 @@ int LbTextSetWindow(int posx, int posy, int width, int height)
     lbTextJustifyWindow.x = posx;
     lbTextJustifyWindow.y = posy;
     lbTextJustifyWindow.width = width;
-    lbTextJustifyWindow.ptr = &lbDisplay.WScreen[posx + posy * lbDisplay.GraphicsScreenWidth];
+    lbTextJustifyWindow.ptr = &lbDisplay.WScreen[posx + posy * RendererScreenHeight()];
     LbTextSetClipWindow(posx, posy, width, height);
     return 1;
 }
@@ -1338,7 +1338,7 @@ TbResult LbTextSetJustifyWindow(int pos_x, int pos_y, int width)
     /* Note: DON'T USE lbTextJustifyWindow_window_ptr in KeeperFX!
     if (lbDisplay.WScreen != NULL)
     {
-        lbTextJustifyWindow_window_ptr = lbDisplay.WScreen + pos_x + lbDisplay.GraphicsScreenWidth * pos_y;
+        lbTextJustifyWindow_window_ptr = lbDisplay.WScreen + pos_x + RendererScreenHeight() * pos_y;
     } else
     {
         lbTextJustifyWindow_window_ptr = NULL;
@@ -1373,20 +1373,20 @@ TbResult LbTextSetClipWindow(int pos_x, int pos_y, int width, int height)
         start_y = 0;
     if ( end_y < 0 )
       end_y = 0;
-    if (start_x > lbDisplay.GraphicsScreenWidth)
-        start_x = lbDisplay.GraphicsScreenWidth;
-    if (end_x > lbDisplay.GraphicsScreenWidth)
-      end_x = lbDisplay.GraphicsScreenWidth;
-    if (start_y > lbDisplay.GraphicsScreenHeight)
-        start_y = lbDisplay.GraphicsScreenHeight;
-    if (end_y > lbDisplay.GraphicsScreenHeight)
-      end_y = lbDisplay.GraphicsScreenHeight;
+    if (start_x > RendererScreenHeight())
+        start_x = RendererScreenHeight();
+    if (end_x > RendererScreenHeight())
+      end_x = RendererScreenHeight();
+    if (start_y > RendererScreenWidth())
+        start_y = RendererScreenWidth();
+    if (end_y > RendererScreenWidth())
+      end_y = RendererScreenWidth();
     lbTextClipWindow.x = start_x;
     lbTextClipWindow.y = start_y;
     lbTextClipWindow.width = end_x - start_x;
     lbTextClipWindow.height = end_y - start_y;
     /* Note: DON'T USE lbTextClipWindow_window_ptr in KeeperFX!
-    lbTextClipWindow_window_ptr = lbDisplay.WScreen + pos_x + lbDisplay.GraphicsScreenWidth * pos_y;
+    lbTextClipWindow_window_ptr = lbDisplay.WScreen + pos_x + RendererScreenHeight() * pos_y;
     */
     return Lb_SUCCESS;
 }

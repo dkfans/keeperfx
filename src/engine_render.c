@@ -5711,8 +5711,8 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     b = b_start;
 
     // A hack-fix to ensure that pixels are always drawn on screen. Otherwise when zoomed in, pixels have trouble being drawn in the bottom right corner
-    relative_window_a = lbDisplay.GraphicsScreenWidth;
-    relative_window_b = lbDisplay.GraphicsScreenHeight;
+    relative_window_a = RendererScreenHeight();
+    relative_window_b = RendererScreenWidth();
 
     // Set up parameters before starting the drawing loop
     float custom_line_box_size = line_box_size / 100.0;
@@ -6783,7 +6783,7 @@ void software_execute_world_from_ir(int win_x, int win_y, int win_w, int win_h,
                                     int is_frontview, struct Camera *cam)
 {
     LbScreenSetGraphicsWindow(win_x, win_y, win_w, win_h);
-    setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, lbDisplay.GraphicsScreenWidth,
+    setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, RendererScreenHeight(),
                (unsigned int)win_w, (unsigned int)win_h);
     render_fade_tables = pixmap.fade_tables;
     if (is_frontview)

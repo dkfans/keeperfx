@@ -272,24 +272,12 @@ void GLImagePresentPass::FlipBuffers()
     m_rt_cmds = std::move(m_cmds);
     m_rt_overlay_cmd = std::move(m_overlay_cmd);
     m_rt_zoom_cmd = std::move(m_zoom_cmd);
-    // `active` is a scalar -- std::move leaves it unchanged in the moved-from
-    // object (same hazard IRMapFadeCmd/IRWorldLensCmd's own comments
-    // document). Reset explicitly so a frame with no Submit()/SubmitZoom()
-    // call starts clean rather than replaying stale state. m_cmds is a
-    // vector -- std::move already leaves it empty, but clear() explicitly
-    // rather than relying on moved-from-vector-is-empty being guaranteed
-    // behaviour beyond "valid but unspecified".
+
     m_cmds.clear();
     m_overlay_cmd = IRImagePresentCmd{};
     m_zoom_cmd = IRLandviewZoomCmd{};
 }
 
-// Shared content-upload helper: uploads an R8 indexed8 image into an
-// already-correctly-sized, already-resolved texture id. Resizing (create/
-// reload) happens on the game thread now (EnsureImageTextureHandle(),
-// called from Submit()/SubmitZoom()) -- gpu-resource-mapper-spec.md Part
-// 6.7's remap-texture pattern, since RequestReloadTexture is game-thread-
-// only and this runs on the render thread.
 static void upload_indexed8_content(GLuint tex_id, const unsigned char* pixels, int w, int h)
 {
     glBindTexture(GL_TEXTURE_2D, tex_id);

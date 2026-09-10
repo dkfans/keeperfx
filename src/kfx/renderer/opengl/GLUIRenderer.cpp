@@ -651,8 +651,7 @@ void GLUIRenderer::BuildQuadsFromIR(const UICommandBuffers& ui)
 
 void GLUIRenderer::DrawWorldSpriteLayerRT()
 {
-    // Depth-tested against world geometry -- creature status should occlude
-    // behind walls (matches develop's WorldOverlay semantics).
+    // Depth-tested against world geometry -- creature status should occlude behind walls
     FlushQuadLayer(m_quads[(int)IRUILayer::WorldOverlay], /*depth_test=*/true);
 }
 

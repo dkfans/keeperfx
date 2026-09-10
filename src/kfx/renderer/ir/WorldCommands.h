@@ -142,8 +142,10 @@ struct IRWorldShadowCmd
     unsigned char    is_circle     = 0;  /**< 1 = draw pre-baked circle, 0 = decode sprite. */
 };
 
+// TODO remove? this isn't exactly a world command. probably should be in PostProcessCommand like I had in develop.
+
 /******************************************************************************/
-// Possession lens (P5.8a)
+// Possession lens
 /******************************************************************************/
 
 /** Which single pixel-writing lens effect is active this frame. Decoupled
@@ -210,17 +212,11 @@ struct IRWorldLensCmd
 };
 
 /******************************************************************************/
-// Parchment transition (P5.8b)
+// Parchment transition
+// TODO remove? this isn't exactly a world command. probably should be in PostProcessCommand like I had in develop.
 /******************************************************************************/
 
-/** One frame's active parchment-transition ("map-fade" in code identifiers
- *  elsewhere -- see the P5.8b plan for why that name is avoided in prose)
- *  state, built on the game thread by GLMapFadePass::SubmitStep() (called
- *  via the RendererSubmitMapFadeStep() bridge from redraw_display()) and
- *  consumed by GLMapFadePass's own capture/composite bracket. Mirrors
- *  IRWorldLensCmd's shape and move-then-reset discipline exactly -- see
- *  that struct's own comment for why `active` needs an explicit reset
- *  after FlipBuffers() rather than relying on the move alone. */
+/** One frame's active parchment-transition */
 struct IRMapFadeCmd
 {
     bool  active = false;           /**< False on any frame SubmitStep() wasn't called this transition. */

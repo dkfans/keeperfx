@@ -12,8 +12,7 @@
 
 /** Fixed-point screen-space vertex produced by the engine polygon pipeline.
  *  Coordinates are in screen pixels; U/V are fixed-point texture coordinates.
- *  The 'S' (shininess) field from PolyPoint is intentionally omitted — shadow
- *  IR commands carry darkness as a separate scalar, not per-vertex. */
+ */
 struct EnginePolyVertex {
     int32_t x;  /**< Screen X coordinate */
     int32_t y;  /**< Screen Y coordinate */
@@ -21,8 +20,7 @@ struct EnginePolyVertex {
     int32_t v;  /**< Texture V (fixed-point) */
 };
 
-/** Copy a PolyPoint into an EnginePolyVertex with explicit field-by-field
- *  assignment.  Safe on all platforms regardless of sizeof(long). */
+/** Copy a PolyPoint into an EnginePolyVertex*/
 #ifdef __cplusplus
 #include "bflib_render.h"  /* struct PolyPoint for EnginePolyVertexFrom() */
 inline EnginePolyVertex EnginePolyVertexFrom(const struct PolyPoint& p)

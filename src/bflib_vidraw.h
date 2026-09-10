@@ -35,6 +35,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+// TODO : I've moved bflib_vidraw.c to kfx/renderer/software, clean this up and split to files elsewhere.
 struct TiledSprite;
 struct TbSprite;
 struct TbHugeSprite;

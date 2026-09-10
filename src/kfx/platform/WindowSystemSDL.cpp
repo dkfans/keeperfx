@@ -348,6 +348,14 @@ bool WindowSystemSDL::CreateWindow(const char* title, int x, int y, int w, int h
     return true;
 }
 
+bool WindowSystemSDL::SetWindowTitle(const char* title)
+{
+    if (!m_window)
+        return false;
+    SDL_SetWindowTitle(m_window, title);
+    return true;
+}
+
 int WindowSystemSDL::GetDisplayRefreshRate() const
 {
     if (m_window == nullptr)

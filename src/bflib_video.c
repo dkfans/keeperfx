@@ -55,13 +55,14 @@ TbBool lbDoubleBufferingRequested;
 /** Colour palette buffer, to be used inside lbDisplay. */
 static unsigned char lbPalette[PALETTE_SIZE];
 
+// If you see this in the window, the platform title set didnt get called.
 char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
 volatile unsigned long lbIconIndex = 0;
 
 TbDisplayStruct lbDisplay;
 
-
+// Todo : Replace these with RendererManager calls, and remove them from here.
 unsigned short MyScreenWidth;
 unsigned short MyScreenHeight;
 unsigned short pixel_size;
@@ -77,10 +78,12 @@ unsigned short units_per_pixel;
   */
 unsigned short display_id = 0;
 
-/** Vertical sync for the software present; set from keeperfx.cfg (VSYNC), on by default. */
+/** Vertical sync for the software present; set from keeperfx.cfg (VSYNC), on by default.
+ * todo : move to render settings
+ */
 TbBool vsync_enabled = 1;
 
-/** Requested renderer backend (P5.9); set from keeperfx.cfg (RENDERER) */
+/** Requested renderer backen; set from keeperfx.cfg (RENDERER) */
 int requested_renderer_type = RENDERER_SOFTWARE;
 
 static unsigned char fade_started;
@@ -120,35 +123,6 @@ unsigned short LbGraphicsScreenBPP(void)
     // Old way - returns video BPP, not graphics BPP
     // TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
     // return mdinfo->BitsPerPixel;
-}
-
-TbScreenCoord LbGraphicsScreenWidth(void)
-{
-    return lbDisplay.GraphicsScreenWidth;
-}
-
-TbScreenCoord LbGraphicsScreenHeight(void)
-{
-    return lbDisplay.GraphicsScreenHeight;
-}
-
-/** Resolution in width of the current video mode.
- *  Note that it's not always "physical" size,
- *  and it definitely can't be used as pitch/scanline
- *  (size of data for one line) in the graphics buffer.
- *
- *  But it is the width that will be visible on screen.
- *
- * @return
- */
-TbScreenCoord LbScreenWidth(void)
-{
-    return RendererPhysicalWidth();
-}
-
-TbScreenCoord LbScreenHeight(void)
-{
-    return lbDisplay.PhysicalScreenHeight;
 }
 
 TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette,long fade_steps)
@@ -1136,7 +1110,7 @@ long scale_ui_value(long base_value)
  */
 long scale_ui_value_lofi(long base_value)
 {
-    TbBool lofi_mode = ((LbGraphicsScreenHeight() < 400) ? true : false);
+    TbBool lofi_mode = ((RendererScreenHeight() < 400) ? true : false);
     long value;
     if (lofi_mode)
     {

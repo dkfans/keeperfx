@@ -93,26 +93,26 @@ void copy_to_screen(const AVFrame & frame, const int flags)
 	auto srcbuf = frame.data[0];
 	long screen_buffer_center_offset;
 	if (flags & (SMK_PixelDoubleLine | SMK_InterlaceLine)) {
-		screen_buffer_center_offset = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - 2 * frame.height) >> 1);
+		screen_buffer_center_offset = RendererScreenHeight() * ((RendererPhysicalHeight() - 2 * frame.height) >> 1);
 	} else {
-		screen_buffer_center_offset = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - frame.height) >> 1);
+		screen_buffer_center_offset = RendererScreenHeight() * ((RendererPhysicalHeight() - frame.height) >> 1);
 	}
 	auto w = frame.width;
 	if (flags & SMK_PixelDoubleWidth) {
 		w = 2 * frame.width;
 	}
-	auto dstbuf = &lbDisplay.WScreen[screen_buffer_center_offset + ((LbScreenWidth() - w) >> 1)];
+	auto dstbuf = &lbDisplay.WScreen[screen_buffer_center_offset + ((RendererPhysicalWidth() - w) >> 1)];
 	if (flags & SMK_PixelDoubleLine) {
 		if (flags & SMK_PixelDoubleWidth) {
 			for (int h = frame.height; h > 0; h--) {
-				copy_to_screen_pxquad(srcbuf, dstbuf, frame.width, lbDisplay.GraphicsScreenWidth);
-				dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
+				copy_to_screen_pxquad(srcbuf, dstbuf, frame.width, RendererScreenHeight());
+				dstbuf += 2 * RendererScreenHeight();
 				srcbuf += src_pitch;
 			}
 		} else {
 			for (int h = frame.height; h > 0; h--) {
-				copy_to_screen_pxdblh(srcbuf, dstbuf, frame.width, lbDisplay.GraphicsScreenWidth);
-				dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
+				copy_to_screen_pxdblh(srcbuf, dstbuf, frame.width, RendererScreenHeight());
+				dstbuf += 2 * RendererScreenHeight();
 				srcbuf += src_pitch;
 			}
 		}
@@ -121,26 +121,26 @@ void copy_to_screen(const AVFrame & frame, const int flags)
 				if (flags & SMK_InterlaceLine) {
 					for (int h = frame.height; h > 0; h--) {
 						copy_to_screen_pxdblw(srcbuf, dstbuf, frame.width);
-						dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
+						dstbuf += 2 * RendererScreenHeight();
 						srcbuf += src_pitch;
 					}
 				} else {
 					for (int h = frame.height; h > 0; h--) {
 						copy_to_screen_pxdblw(srcbuf, dstbuf, frame.width);
-						dstbuf += lbDisplay.GraphicsScreenWidth;
+						dstbuf += RendererScreenHeight();
 						srcbuf += src_pitch;
 					}
 				}
 		} else if (flags & SMK_InterlaceLine) {
 			for (int h = frame.height; h > 0; h--) {
 				memcpy(dstbuf, srcbuf, frame.width);
-				dstbuf += 2 * lbDisplay.GraphicsScreenWidth;
+				dstbuf += 2 * RendererScreenHeight();
 				srcbuf += src_pitch;
 			}
 		} else {
 			for (int h = frame.height; h > 0; h--) {
 				memcpy(dstbuf, srcbuf, frame.width);
-				dstbuf += lbDisplay.GraphicsScreenWidth;
+				dstbuf += RendererScreenHeight();
 				srcbuf += src_pitch;
 			}
 		}
@@ -223,8 +223,8 @@ void copy_to_screen_scaled(const AVFrame & frame, const int flags)
 	const auto src_pitch = frame.linesize[0];
 	const auto src_buf = frame.data[0];
 	const auto dst_buf = &lbDisplay.WScreen[0];
-	const int scanline = lbDisplay.GraphicsScreenWidth;
-	const int nlines = lbDisplay.GraphicsScreenHeight;
+	const int scanline = RendererScreenHeight();
+	const int nlines = RendererScreenWidth();
 	int spw, sph, dst_width, dst_height;
 	compute_scaled_video_rect(frame, flags, scanline, nlines, &spw, &sph, &dst_width, &dst_height);
 
@@ -547,13 +547,13 @@ struct movie_t {
 		present_desc.palette = PRESENT_PALETTE_EMBEDDED;
 		present_desc.embedded_palette = m_frame->data[1];
 		if (scaling_mode) {
-			compute_scaled_video_rect(*m_frame, m_flags, lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight,
+			compute_scaled_video_rect(*m_frame, m_flags, RendererScreenHeight(), RendererScreenWidth(),
 				&present_desc.dst_x, &present_desc.dst_y, &present_desc.dst_w, &present_desc.dst_h);
 		} else {
 			const int dst_w = (m_flags & SMK_PixelDoubleWidth) ? 2 * m_frame->width : m_frame->width;
 			const int dst_h = (m_flags & (SMK_PixelDoubleLine | SMK_InterlaceLine)) ? 2 * m_frame->height : m_frame->height;
-			present_desc.dst_x = (LbScreenWidth() - dst_w) >> 1;
-			present_desc.dst_y = (LbScreenHeight() - dst_h) >> 1;
+			present_desc.dst_x = (RendererPhysicalWidth() - dst_w) >> 1;
+			present_desc.dst_y = (RendererPhysicalHeight() - dst_h) >> 1;
 			present_desc.dst_w = dst_w;
 			present_desc.dst_h = dst_h;
 		}
@@ -948,8 +948,8 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 			}
 			if (2*(long)k == animation.header.width) {
 				wend--;
-				cbf += LbGraphicsScreenWidth();
-				pbf += LbGraphicsScreenWidth();
+				cbf += RendererScreenWidth();
+				pbf += RendererScreenWidth();
 				continue;
 			}
 			if ( w > 0 ) {
@@ -1024,8 +1024,8 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 				}
 			}
 		}
-		cbuf += LbGraphicsScreenWidth();
-		pbuf += LbGraphicsScreenWidth();
+		cbuf += RendererScreenWidth();
+		pbuf += RendererScreenWidth();
 	}
 
 	if (animation.header.height+wend == 0) {
@@ -1077,8 +1077,8 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 			++wend;
 		}
 		if ( wend != animation.header.width ) break;
-		cbuf += LbGraphicsScreenWidth();
-		pbuf += LbGraphicsScreenWidth();
+		cbuf += RendererScreenWidth();
+		pbuf += RendererScreenWidth();
 	}
 	if (hend != 0) {
 		hend = animation.header.height - hend;
@@ -1092,8 +1092,8 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 				wend++;
 			}
 			if ( wend != animation.header.width ) break;
-			cbuf -= LbGraphicsScreenWidth();
-			pbuf -= LbGraphicsScreenWidth();
+			cbuf -= RendererScreenWidth();
+			pbuf -= RendererScreenWidth();
 		}
 		hdim = h - hend;
 		blksize = animation.header.width * (long)hend;
@@ -1181,8 +1181,8 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 					}
 				}
 			}
-			cbuf += LbGraphicsScreenWidth();
-			pbuf += LbGraphicsScreenWidth();
+			cbuf += RendererScreenWidth();
+			pbuf += RendererScreenWidth();
 		}
 	} else {
 		*(short *)animation.buffer_write_pointer = 0;

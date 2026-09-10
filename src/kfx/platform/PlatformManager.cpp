@@ -182,6 +182,12 @@ extern "C" void PlatformManager_SetWindowPosition(int x, int y)
     if (ws) ws->SetWindowPosition(x, y);
 }
 
+extern "C" void PlatformManager_SetWindowTitle(const char* title)
+{
+    IWindowSystem* ws = GetSDLWindowSystem();
+    if (ws) ws->SetWindowTitle(title);
+}   
+
 extern "C" int PlatformManager_CreateWindow(const char* title, int x, int y, int w, int h, unsigned int flags)
 {
     IWindowSystem* ws = GetSDLWindowSystem();

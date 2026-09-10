@@ -33,6 +33,7 @@
 #include "../../lens_api.h"
 #include "../../vidmode.h"
 #include "../../game_legacy.h"
+#include "../renderer/RendererManager.h"
 #include "../renderer/ir/WorldCommands.h"
 
 #include "../../keeperfx.hpp"
@@ -486,8 +487,8 @@ void LensManager::FreeAllEffects()
 
 TbBool LensManager::AllocateBuffers()
 {
-    m_buffer_width = lbDisplay.GraphicsScreenWidth;
-    m_buffer_height = lbDisplay.GraphicsScreenHeight;
+    m_buffer_width = RendererScreenHeight();
+    m_buffer_height = RendererScreenWidth();
     
     unsigned long buffer_size = m_buffer_width * m_buffer_height + 2;
     

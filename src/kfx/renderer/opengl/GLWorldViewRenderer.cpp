@@ -2481,7 +2481,7 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
                 glUseProgram(flatpoly_shader_id);
                 glBindVertexArray(flatpoly_geom->vao);
                 glUniform2f(m_flatpoly_loc_viewport, (float)screen_w, (float)screen_h);
-                glDepthFunc(GL_LEQUAL); // flat-polys test against tile depth normally
+                glDepthFunc(GL_ALWAYS);
                 glDrawArrays(GL_TRIANGLES, cmd.vert_start, cmd.vert_count);
                 // Restore tile shader state for subsequent CMD_TILES.
                 glUseProgram(world_shader_id);

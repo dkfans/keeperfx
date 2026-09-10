@@ -308,11 +308,7 @@ TbScreenMode LbRegisterVideoModeString(const char *desc);
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode);
 
 TbScreenMode LbScreenActiveMode(void);
-TbScreenCoord LbScreenWidth(void);
-TbScreenCoord LbScreenHeight(void);
 unsigned short LbGraphicsScreenBPP(void);
-TbScreenCoord LbGraphicsScreenWidth(void);
-TbScreenCoord LbGraphicsScreenHeight(void);
 
 TbBool LbScreenIsLocked(void);
 

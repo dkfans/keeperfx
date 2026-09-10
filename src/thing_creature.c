@@ -413,7 +413,7 @@ void draw_swipe_graphic(void)
                 allwidth += endspr->SWidth;
                 endspr++;
             }
-            int units_per_px = (LbScreenWidth() * 59 / 64) * 16 / allwidth;
+            int units_per_px = (RendererPhysicalWidth() * 59 / 64) * 16 / allwidth;
             int scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
             const struct TbSprite *spr;
             int scrpos_x;
