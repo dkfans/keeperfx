@@ -4184,7 +4184,6 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
 
 static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
     struct BucketKindPolygonStandard *current_polygon_bucket;
     int bucket_index;
@@ -4250,7 +4249,6 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
 
 static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
     struct BucketKindPolygonStandard *current_polygon_bucket;
     int bucket_index;
@@ -4298,7 +4296,6 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
 
 static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
     struct BucketKindPolygonStandard *current_polygon_bucket;
     int bucket_index;
@@ -4344,7 +4341,6 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
 
 static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
     struct BucketKindPolygonStandard *current_polygon_bucket;
     int zdiv16;
@@ -5711,8 +5707,8 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     b = b_start;
 
     // A hack-fix to ensure that pixels are always drawn on screen. Otherwise when zoomed in, pixels have trouble being drawn in the bottom right corner
-    relative_window_a = RendererScreenHeight();
-    relative_window_b = RendererScreenWidth();
+    relative_window_a = RendererScreenWidth();
+    relative_window_b = RendererScreenHeight();
 
     // Set up parameters before starting the drawing loop
     float custom_line_box_size = line_box_size / 100.0;
@@ -6565,16 +6561,7 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
     union {
         struct BasicQ *b;
         struct BucketKindPolygonStandard *polygonStandard;
-        struct BucketKindPolygonSimple *polygonSimple;
-        struct BucketKindPolyMode0 *polyMode0;
-        struct BucketKindPolyMode4 *polyMode4;
-        struct BucketKindTrigMode2 *trigMode2;
-        struct BucketKindPolyMode5 *polyMode5;
-        struct BucketKindTrigMode3 *trigMode3;
-        struct BucketKindTrigMode6 *trigMode6;
-        struct BucketKindRotableSprite *rotableSprite;
         struct BucketKindPolygonNearFP *polygonNearFP;
-        struct BucketKindBasicUnk10 *basicUnk10;
         struct BucketKindJontySprite *jontySprite;
         struct BucketKindCreatureShadow *creatureShadow;
         struct BucketKindSlabSelector *slabSelector;
@@ -6584,9 +6571,6 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
         struct BucketKindRoomFlag *roomFlag;
     } item;
     long bucket_num;
-    struct PolyPoint point_a;
-    struct PolyPoint point_b;
-    struct PolyPoint point_c;
     SYNCDBG(9,"Starting");
     // Color rendering array pointers used by draw_keepersprite()
     render_fade_tables = pixmap.fade_tables;
@@ -6608,117 +6592,8 @@ void display_drawlist(void) // Draws isometric and 1st person view. Not frontvie
                 vec_map = block_ptrs[item.polygonStandard->block];
                 draw_gpoly(&item.polygonStandard->vertex_first, &item.polygonStandard->vertex_second, &item.polygonStandard->vertex_third);
                 break;
-            case QK_PolygonSimple: // Possibly unused
-                vec_mode = VM_SolidColor;
-                vec_colour = ((item.polygonSimple->vertex_third.S + item.polygonSimple->vertex_second.S + item.polygonSimple->vertex_first.S)/3) >> 16;
-                vec_map = block_ptrs[item.polygonSimple->block];
-                trig(&item.polygonSimple->vertex_first, &item.polygonSimple->vertex_second, &item.polygonSimple->vertex_third);
-                break;
-            case QK_PolyMode0: // Possibly unused
-                vec_mode = VM_FlatColor;
-                vec_colour = item.polyMode0->colour;
-                point_a.X = item.polyMode0->vertex_first_x;
-                point_a.Y = item.polyMode0->vertex_first_y;
-                point_b.X = item.polyMode0->vertex_second_x;
-                point_b.Y = item.polyMode0->vertex_second_y;
-                point_c.X = item.polyMode0->vertex_third_x;
-                point_c.Y = item.polyMode0->vertex_third_y;
-                draw_gpoly(&point_a, &point_b, &point_c);
-                break;
-            case QK_PolyMode4: // Possibly unused
-                vec_mode = VM_QuadFlatColor;
-                vec_colour = item.polyMode4->colour;
-                point_a.X = item.polyMode4->vertex_first_x;
-                point_a.Y = item.polyMode4->vertex_first_y;
-                point_b.X = item.polyMode4->vertex_second_x;
-                point_b.Y = item.polyMode4->vertex_second_y;
-                point_c.X = item.polyMode4->vertex_third_x;
-                point_c.Y = item.polyMode4->vertex_third_y;
-                point_a.S = item.polyMode4->texture_vertex_first << 16;
-                point_b.S = item.polyMode4->texture_vertex_second << 16;
-                point_c.S = item.polyMode4->texture_vertex_third << 16;
-                draw_gpoly(&point_a, &point_b, &point_c);
-                break;
-            case QK_TrigMode2: // Possibly unused
-                vec_mode = VM_TriangularGouraud;
-                point_a.X = item.trigMode2->vertex_first_x;
-                point_a.Y = item.trigMode2->vertex_first_y;
-                point_b.X = item.trigMode2->vertex_second_x;
-                point_b.Y = item.trigMode2->vertex_second_y;
-                point_c.X = item.trigMode2->vertex_third_x;
-                point_c.Y = item.trigMode2->vertex_third_y;
-                point_a.U = item.trigMode2->texture_u_first << 16;
-                point_a.V = item.trigMode2->texture_v_first << 16;
-                point_b.U = item.trigMode2->texture_u_second << 16;
-                point_b.V = item.trigMode2->texture_v_second << 16;
-                point_c.U = item.trigMode2->texture_u_third << 16;
-                point_c.V = item.trigMode2->texture_v_third << 16;
-                trig(&point_a, &point_b, &point_c);
-                break;
-            case QK_PolyMode5: // Possibly unused
-                vec_mode = VM_QuadTextured;
-                point_a.X = item.polyMode5->vertex_first_x;
-                point_a.Y = item.polyMode5->vertex_first_y;
-                point_b.X = item.polyMode5->vertex_second_x;
-                point_b.Y = item.polyMode5->vertex_second_y;
-                point_c.X = item.polyMode5->vertex_third_x;
-                point_c.Y = item.polyMode5->vertex_third_y;
-                point_a.U = item.polyMode5->texture_u_first << 16;
-                point_a.V = item.polyMode5->texture_v_first << 16;
-                point_b.U = item.polyMode5->texture_u_second << 16;
-                point_b.V = item.polyMode5->texture_v_second << 16;
-                point_c.U = item.polyMode5->texture_u_third << 16;
-                point_c.V = item.polyMode5->texture_v_third << 16;
-                point_a.S = item.polyMode5->texture_w_first << 16;
-                point_b.S = item.polyMode5->texture_w_second << 16;
-                point_c.S = item.polyMode5->texture_w_third << 16;
-                draw_gpoly(&point_a, &point_b, &point_c);
-                break;
-            case QK_TrigMode3: // Possibly unused
-                vec_mode = VM_TriangularTexture;
-                point_a.X = item.trigMode3->vertex_first_x;
-                point_a.Y = item.trigMode3->vertex_first_y;
-                point_b.X = item.trigMode3->vertex_second_x;
-                point_b.Y = item.trigMode3->vertex_second_y;
-                point_c.X = item.trigMode3->vertex_third_x;
-                point_c.Y = item.trigMode3->vertex_third_y;
-                point_a.U = item.trigMode3->texture_u_first << 16;
-                point_a.V = item.trigMode3->texture_v_first << 16;
-                point_b.U = item.trigMode3->texture_u_second << 16;
-                point_b.V = item.trigMode3->texture_v_second << 16;
-                point_c.U = item.trigMode3->texture_u_third << 16;
-                point_c.V = item.trigMode3->texture_v_third << 16;
-                trig(&point_a, &point_b, &point_c);
-                break;
-            case QK_TrigMode6: // Possibly unused
-                vec_mode = VM_TriangularTextured;
-                point_a.X = item.trigMode6->vertex_first_x;
-                point_a.Y = item.trigMode6->vertex_first_y;
-                point_b.X = item.trigMode6->vertex_second_x;
-                point_b.Y = item.trigMode6->vertex_second_y;
-                point_c.X = item.trigMode6->vertex_third_x;
-                point_c.Y = item.trigMode6->vertex_third_y;
-                point_a.U = item.trigMode6->texture_u_first << 16;
-                point_a.V = item.trigMode6->texture_v_first << 16;
-                point_b.U = item.trigMode6->texture_u_second << 16;
-                point_b.V = item.trigMode6->texture_v_second << 16;
-                point_c.U = item.trigMode6->texture_u_third << 16;
-                point_c.V = item.trigMode6->texture_v_third << 16;
-                point_a.S = item.trigMode6->texture_w_first << 16;
-                point_b.S = item.trigMode6->texture_w_second << 16;
-                point_c.S = item.trigMode6->texture_w_third << 16;
-                trig(&point_a, &point_b, &point_c);
-                break;
-            case QK_RotableSprite: // Possibly unused
-                // draw_map_who did nothing
-                break;
             case QK_PolygonNearFP: // 'Near' textured polygons (closer to camera) in 1st person view
                 draw_subdivided_near_polygon(item.polygonNearFP);
-                break;
-            case QK_BasicPolygon:
-                vec_mode = VM_FlatColor;
-                vec_colour = item.basicUnk10->color_value;
-                draw_gpoly(&item.basicUnk10->vertex_first, &item.basicUnk10->vertex_second, &item.basicUnk10->vertex_third);
                 break;
             case QK_JontySprite: // All creatures and things in isometric and 1st person view
                 draw_jonty_mapwho(item.jontySprite);
@@ -6783,7 +6658,7 @@ void software_execute_world_from_ir(int win_x, int win_y, int win_w, int win_h,
                                     int is_frontview, struct Camera *cam)
 {
     LbScreenSetGraphicsWindow(win_x, win_y, win_w, win_h);
-    setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, RendererScreenHeight(),
+    setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, RendererScreenWidth(),
                (unsigned int)win_w, (unsigned int)win_h);
     render_fade_tables = pixmap.fade_tables;
     if (is_frontview)
@@ -7023,16 +6898,7 @@ void display_fast_drawlist(struct Camera *cam) // Draws frontview only. Not isom
         struct BasicQ *b;
         // Unused in display_fast_drawlist()
         struct BucketKindPolygonStandard *polygonStandard;
-        struct BucketKindPolygonSimple *polygonSimple;
-        struct BucketKindPolyMode0 *polyMode0;
-        struct BucketKindPolyMode4 *polyMode4;
-        struct BucketKindTrigMode2 *trigMode2;
-        struct BucketKindPolyMode5 *polyMode5;
-        struct BucketKindTrigMode3 *trigMode3;
-        struct BucketKindTrigMode6 *trigMode6;
-        struct BucketKindRotableSprite *rotableSprite;
         struct BucketKindPolygonNearFP *polygonNearFP;
-        struct BucketKindBasicUnk10 *basicUnk10;
         struct BucketKindCreatureShadow *creatureShadow;
         // Used
         struct BucketKindJontySprite *jontySprite;

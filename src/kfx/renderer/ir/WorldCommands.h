@@ -22,7 +22,6 @@
 #include <utility>
 #include <vector>
 #include "kfx/renderer/WorldVertex.h"
-#include "kfx/renderer/FlatPolyVertex.h"
 #include "kfx/renderer/EngineVertex.h"
 
 /******************************************************************************/
@@ -64,16 +63,6 @@ struct IRWorldTexQuadCmd
     int32_t       shade[4]     = {};  /**< Per-corner shade_intensity. */
     int32_t       marked_mode  = 0;
     uint32_t      sort_key     = 0;
-};
-
-/** Draw a batch of flat-colour triangles (QK_PolyMode0 / BasicPolygon).
- *  Vertices are screen-pixel coords; the backend converts to NDC. */
-struct IRWorldFlatPolyBatchCmd
-{
-    WorldCmdLayer layer      = WorldCmdLayer::Geometry;
-    int           vert_start = 0;   /**< First index in the flat-poly vertex buffer. */
-    int           vert_count = 0;
-    uint32_t      sort_key   = 0;
 };
 
 /******************************************************************************/
@@ -233,46 +222,38 @@ struct WorldCommandBuffers
 {
     IRCommandBuffer<IRWorldTileBatchCmd>     tiles;
     IRCommandBuffer<IRWorldTexQuadCmd>       tex_quads;
-    IRCommandBuffer<IRWorldFlatPolyBatchCmd> flat_polys;
     IRCommandBuffer<IRWorldKeeperSpriteCmd>  keeper_sprites;
     IRCommandBuffer<IRWorldShadowCmd>        shadows;
 
-    // Vertex data backing vert_start/vert_count in tiles and flat_polys commands.
+    // Vertex data backing vert_start/vert_count in tiles commands.
     // Owned here so any backend's ExecuteWorldFromIR can access them without
     // coupling to backend-private arrays.
     std::vector<WorldVertex>    tile_verts;
-    std::vector<FlatPolyVertex> flat_poly_verts;
 
     void Reset()
     {
         tiles.Reset();
         tex_quads.Reset();
-        flat_polys.Reset();
         keeper_sprites.Reset();
         shadows.Reset();
         tile_verts.clear();
-        flat_poly_verts.clear();
     }
 
     void Reserve(size_t tiles_n, size_t sprites_n, size_t shadows_n)
     {
         tiles.Reserve(tiles_n);
-        flat_polys.Reserve(tiles_n / 4);
         keeper_sprites.Reserve(sprites_n);
         shadows.Reserve(shadows_n);
         tile_verts.reserve(65536);
-        flat_poly_verts.reserve(8192);
     }
 
     void Swap(WorldCommandBuffers& other)
     {
         tiles.Swap(other.tiles);
         tex_quads.Swap(other.tex_quads);
-        flat_polys.Swap(other.flat_polys);
         keeper_sprites.Swap(other.keeper_sprites);
         shadows.Swap(other.shadows);
         std::swap(tile_verts, other.tile_verts);
-        std::swap(flat_poly_verts, other.flat_poly_verts);
     }
 };
 

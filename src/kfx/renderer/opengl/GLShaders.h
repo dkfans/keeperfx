@@ -351,32 +351,6 @@ void main()
 }
 )glsl";
 
-// Flat-colour polygon shaders (QK_PolyMode0, QK_PolyMode4, QK_BasicPolygon)
-constexpr const char* FLATPOLY_VERTEX_SHADER = R"glsl(
-#version 330 core
-layout(location = 0) in vec3 a_pos;    // x,y = screen pixel; z = NDC depth [-1,1]
-layout(location = 1) in vec3 a_color;  // linear RGB [0,1]
-uniform vec2 u_viewport;
-out vec3 v_color;
-void main()
-{
-    float ndc_x = a_pos.x / u_viewport.x * 2.0 - 1.0;
-    float ndc_y = 1.0 - a_pos.y / u_viewport.y * 2.0;
-    gl_Position = vec4(ndc_x, ndc_y, a_pos.z, 1.0);
-    v_color = a_color;
-}
-)glsl";
-
-constexpr const char* FLATPOLY_FRAGMENT_SHADER = R"glsl(
-#version 330 core
-in vec3 v_color;
-out vec4 fragColor;
-void main()
-{
-    fragColor = vec4(v_color, 1.0);
-}
-)glsl";
-
 // Keeper-sprite (creature/object) shaders (P5.7.3a: core path only -- no
 // depth-fail outline. Beat 3 added the non-instanced glow programs below,
 // verbatim from develop, so the atlas-full/unknown-sprite-id fallback path

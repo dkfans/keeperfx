@@ -1167,7 +1167,7 @@ void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, P
     // only path that can write there at all.
     if (!submitted && lbDisplay.WScreen != NULL)
     {
-        setup_vecs(lbDisplay.WScreen, 0, RendererScreenHeight(), MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+        setup_vecs(lbDisplay.WScreen, 0, RendererScreenWidth(), MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
         int scr_y = scrtop_y;
         for (int map_dy = 0; map_dy < draw_tiles_y; map_dy++)
         {

@@ -487,8 +487,8 @@ void LensManager::FreeAllEffects()
 
 TbBool LensManager::AllocateBuffers()
 {
-    m_buffer_width = RendererScreenHeight();
-    m_buffer_height = RendererScreenWidth();
+    m_buffer_width = RendererScreenWidth();
+    m_buffer_height = RendererScreenHeight();
     
     unsigned long buffer_size = m_buffer_width * m_buffer_height + 2;
     

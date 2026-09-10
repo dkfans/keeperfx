@@ -115,34 +115,4 @@ struct WorldVertex {
         (wv)->wz = 0.0f; \
     } while (0)
 
-/**
- * Fill a WorldVertex from compact-format bucket data.
- * Compact types store screen X/Y as unsigned short (raw pixel coord, NOT
- * fixed-point 16:16) and texture U/V as unsigned char (0..255 texel index).
- * @param wv     Pointer to destination WorldVertex.
- * @param sx     Screen X (unsigned short, raw pixel coord).
- * @param sy     Screen Y (unsigned short, raw pixel coord).
- * @param u8     Texture U (unsigned char, 0..255 texel index).
- * @param v8     Texture V (unsigned char, 0..255 texel index).
- * @param shade8 Shade index (unsigned char, 0..255); pass 255 for full-bright.
- * @param sw     Screen width (pixels).
- * @param sh     Screen height (pixels).
- */
-#define COMPACT_UV_TO_WORLDVERTEX(wv, sx, sy, u8, v8, shade8, sw, sh) \
-    do { \
-        (wv)->x     = ((float)(sx) / (float)(sw)) * 2.0f - 1.0f; \
-        (wv)->y     = 1.0f - ((float)(sy) / (float)(sh)) * 2.0f; \
-        (wv)->z     = 0.0f; \
-        (wv)->u     = (float)(u8) / 256.0f; \
-        (wv)->v     = (float)(v8) / 256.0f; \
-        (wv)->shade = (float)(shade8) / 255.0f; \
-        (wv)->stl_x = 0.0f; \
-        (wv)->stl_y = 0.0f; \
-        (wv)->camera_z = 1.0f; \
-        (wv)->atlas_layer = 0.0f; \
-        (wv)->wx = 0.0f; \
-        (wv)->wy = 0.0f; \
-        (wv)->wz = 0.0f; \
-    } while (0)
-
 /******************************************************************************/

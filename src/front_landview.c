@@ -812,7 +812,7 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     if (scr_y > lbDisplay.PhysicalScreenHeight-1) scr_y = lbDisplay.PhysicalScreenHeight-1;
     if (scr_y < 1) scr_y = 1;
     unsigned char* src_buf = &map_screen[LANDVIEW_MAP_WIDTH * map_y + map_x];
-    long dst_scanln = RendererScreenHeight();
+    long dst_scanln = RendererScreenWidth();
     unsigned char* dst_buf = &lbDisplay.WScreen[dst_scanln * scr_y + scr_x];
     // Drawing first quadre
     long bpos_y = 0;
@@ -960,7 +960,7 @@ void compressed_window_draw(void)
     if (lbDisplay.WScreen == NULL)
         return;
     LbHugeSpriteDraw(&map_window, map_window_len,
-        lbDisplay.WScreen, RendererScreenHeight(), lbDisplay.PhysicalScreenHeight,
+        lbDisplay.WScreen, RendererScreenWidth(), lbDisplay.PhysicalScreenHeight,
         xshift, yshift, units_per_pixel_landview_frame);
 }
 

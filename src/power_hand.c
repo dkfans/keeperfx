@@ -1252,8 +1252,8 @@ void draw_mini_things_in_hand(long x, long y)
                     ownshift_y = (irow > 0) ? 44 : 10;
                     if (thing->owner != my_player_number)
                     {
-                        long relative_window_a = RendererScreenHeight();
-                        long relative_window_b = RendererScreenWidth();
+                        long relative_window_a = RendererScreenWidth();
+                        long relative_window_b = RendererScreenHeight();
                         short n = min(scale_ui_value(1),4);
                         ScreenCoord coord_y = scrpos_y + scale_ui_value(ownshift_y);
                         ScreenCoord draw_y;

@@ -93,9 +93,9 @@ void copy_to_screen(const AVFrame & frame, const int flags)
 	auto srcbuf = frame.data[0];
 	long screen_buffer_center_offset;
 	if (flags & (SMK_PixelDoubleLine | SMK_InterlaceLine)) {
-		screen_buffer_center_offset = RendererScreenHeight() * ((RendererPhysicalHeight() - 2 * frame.height) >> 1);
+		screen_buffer_center_offset = RendererScreenWidth() * ((RendererPhysicalHeight() - 2 * frame.height) >> 1);
 	} else {
-		screen_buffer_center_offset = RendererScreenHeight() * ((RendererPhysicalHeight() - frame.height) >> 1);
+		screen_buffer_center_offset = RendererScreenWidth() * ((RendererPhysicalHeight() - frame.height) >> 1);
 	}
 	auto w = frame.width;
 	if (flags & SMK_PixelDoubleWidth) {
@@ -105,14 +105,14 @@ void copy_to_screen(const AVFrame & frame, const int flags)
 	if (flags & SMK_PixelDoubleLine) {
 		if (flags & SMK_PixelDoubleWidth) {
 			for (int h = frame.height; h > 0; h--) {
-				copy_to_screen_pxquad(srcbuf, dstbuf, frame.width, RendererScreenHeight());
-				dstbuf += 2 * RendererScreenHeight();
+				copy_to_screen_pxquad(srcbuf, dstbuf, frame.width, RendererScreenWidth());
+				dstbuf += 2 * RendererScreenWidth();
 				srcbuf += src_pitch;
 			}
 		} else {
 			for (int h = frame.height; h > 0; h--) {
-				copy_to_screen_pxdblh(srcbuf, dstbuf, frame.width, RendererScreenHeight());
-				dstbuf += 2 * RendererScreenHeight();
+				copy_to_screen_pxdblh(srcbuf, dstbuf, frame.width, RendererScreenWidth());
+				dstbuf += 2 * RendererScreenWidth();
 				srcbuf += src_pitch;
 			}
 		}
@@ -121,26 +121,26 @@ void copy_to_screen(const AVFrame & frame, const int flags)
 				if (flags & SMK_InterlaceLine) {
 					for (int h = frame.height; h > 0; h--) {
 						copy_to_screen_pxdblw(srcbuf, dstbuf, frame.width);
-						dstbuf += 2 * RendererScreenHeight();
+						dstbuf += 2 * RendererScreenWidth();
 						srcbuf += src_pitch;
 					}
 				} else {
 					for (int h = frame.height; h > 0; h--) {
 						copy_to_screen_pxdblw(srcbuf, dstbuf, frame.width);
-						dstbuf += RendererScreenHeight();
+						dstbuf += RendererScreenWidth();
 						srcbuf += src_pitch;
 					}
 				}
 		} else if (flags & SMK_InterlaceLine) {
 			for (int h = frame.height; h > 0; h--) {
 				memcpy(dstbuf, srcbuf, frame.width);
-				dstbuf += 2 * RendererScreenHeight();
+				dstbuf += 2 * RendererScreenWidth();
 				srcbuf += src_pitch;
 			}
 		} else {
 			for (int h = frame.height; h > 0; h--) {
 				memcpy(dstbuf, srcbuf, frame.width);
-				dstbuf += RendererScreenHeight();
+				dstbuf += RendererScreenWidth();
 				srcbuf += src_pitch;
 			}
 		}
@@ -223,8 +223,8 @@ void copy_to_screen_scaled(const AVFrame & frame, const int flags)
 	const auto src_pitch = frame.linesize[0];
 	const auto src_buf = frame.data[0];
 	const auto dst_buf = &lbDisplay.WScreen[0];
-	const int scanline = RendererScreenHeight();
-	const int nlines = RendererScreenWidth();
+	const int scanline = RendererScreenWidth();
+	const int nlines = RendererScreenHeight();
 	int spw, sph, dst_width, dst_height;
 	compute_scaled_video_rect(frame, flags, scanline, nlines, &spw, &sph, &dst_width, &dst_height);
 
@@ -547,7 +547,7 @@ struct movie_t {
 		present_desc.palette = PRESENT_PALETTE_EMBEDDED;
 		present_desc.embedded_palette = m_frame->data[1];
 		if (scaling_mode) {
-			compute_scaled_video_rect(*m_frame, m_flags, RendererScreenHeight(), RendererScreenWidth(),
+			compute_scaled_video_rect(*m_frame, m_flags, RendererScreenWidth(), RendererScreenHeight(),
 				&present_desc.dst_x, &present_desc.dst_y, &present_desc.dst_w, &present_desc.dst_h);
 		} else {
 			const int dst_w = (m_flags & SMK_PixelDoubleWidth) ? 2 * m_frame->width : m_frame->width;

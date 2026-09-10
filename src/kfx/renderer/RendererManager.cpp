@@ -166,7 +166,7 @@ TbBool RendererBeginFrame(void)
         lbDisplay.WScreen = px;
         lbDisplay.GraphicsScreenWidth = pitch;
         lbDisplay.GraphicsWindowPtr = &lbDisplay.WScreen[lbDisplay.GraphicsWindowX +
-            RendererScreenHeight() * lbDisplay.GraphicsWindowY];
+            RendererScreenWidth() * lbDisplay.GraphicsWindowY];
     }
     return 1;
 }
@@ -199,7 +199,7 @@ TbBool RendererPresentImage(const struct RendererPresentImageDesc* desc)
         desc->palette != PRESENT_PALETTE_GAME    ||
         lbDisplay.WScreen == NULL)
         return 0;
-    return copy_raw8_image_buffer(lbDisplay.WScreen, RendererScreenHeight(), RendererScreenWidth(),
+    return copy_raw8_image_buffer(lbDisplay.WScreen, RendererScreenWidth(), RendererScreenHeight(),
         desc->dst_w, desc->dst_h, desc->dst_x, desc->dst_y, desc->src, desc->src_w, desc->src_h);
 }
 
@@ -424,7 +424,7 @@ void WorldViewRenderer_BeginWorldPass(int w, int h, int vp_x, int vp_y)
     IWorldViewRenderer* world = active_world_renderer();
     if (world != nullptr) { world->BeginWorldPass(w, h, vp_x, vp_y); return; }
     (void)vp_x; (void)vp_y;
-    setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, RendererScreenHeight(),
+    setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, RendererScreenWidth(),
                (unsigned int)w, (unsigned int)h);
 }
 

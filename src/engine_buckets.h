@@ -26,22 +26,13 @@ typedef unsigned char QKind;
 
 enum QKinds {
     QK_PolygonStandard = 0,
-    QK_PolygonSimple,
-    QK_PolyMode0,
-    QK_PolyMode4,
-    QK_TrigMode2,
-    QK_PolyMode5,
-    QK_TrigMode3,
-    QK_TrigMode6,
-    QK_RotableSprite, // 8
     QK_PolygonNearFP,
-    QK_BasicPolygon,
     QK_JontySprite,
     QK_CreatureShadow,
     QK_SlabSelector,
     QK_CreatureStatus,
     QK_TextureQuad,
-    QK_FloatingGoldText, // 16
+    QK_FloatingGoldText,
     QK_RoomFlagBottomPole,
     QK_JontyISOSprite,
     QK_RoomFlagStatusBox,
@@ -61,115 +52,6 @@ struct BucketKindPolygonStandard {
     struct PolyPoint vertex_third;
 };
 
-struct BucketKindPolygonSimple {
-    struct BasicQ b;
-    unsigned short block;
-    struct PolyPoint vertex_first;
-    struct PolyPoint vertex_second;
-    struct PolyPoint vertex_third;
-};
-
-struct BucketKindPolyMode0 {
-    struct BasicQ b;
-    unsigned char colour;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-};
-
-struct BucketKindPolyMode4 {
-    struct BasicQ b;
-    unsigned char colour;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-    unsigned char texture_vertex_first;
-    unsigned char texture_vertex_second;
-    unsigned char texture_vertex_third;
-};
-
-struct BucketKindTrigMode2 {
-    struct BasicQ b;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-    unsigned char texture_u_first;
-    unsigned char texture_v_first;
-    unsigned char texture_u_second;
-    unsigned char texture_v_second;
-    unsigned char texture_u_third;
-    unsigned char texture_v_third;
-};
-
-struct BucketKindPolyMode5 {
-    struct BasicQ b;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-    unsigned char texture_u_first;
-    unsigned char texture_v_first;
-    unsigned char texture_u_second;
-    unsigned char texture_v_second;
-    unsigned char texture_u_third;
-    unsigned char texture_v_third;
-    unsigned char texture_w_first;
-    unsigned char texture_w_second;
-    unsigned char texture_w_third;
-};
-
-struct BucketKindTrigMode3 {
-    struct BasicQ b;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-    unsigned char texture_u_first;
-    unsigned char texture_v_first;
-    unsigned char texture_u_second;
-    unsigned char texture_v_second;
-    unsigned char texture_u_third;
-    unsigned char texture_v_third;
-};
-
-struct BucketKindTrigMode6 {
-    struct BasicQ b;
-    unsigned short vertex_first_x;
-    unsigned short vertex_first_y;
-    unsigned short vertex_second_x;
-    unsigned short vertex_second_y;
-    unsigned short vertex_third_x;
-    unsigned short vertex_third_y;
-    unsigned char texture_u_first;
-    unsigned char texture_v_first;
-    unsigned char texture_u_second;
-    unsigned char texture_v_second;
-    unsigned char texture_u_third;
-    unsigned char texture_v_third;
-    unsigned char texture_w_first;
-    unsigned char texture_w_second;
-    unsigned char texture_w_third;
-};
-
-struct BucketKindRotableSprite {
-    struct BasicQ b;
-    long clip_flags;
-    long depth_fade;
-};
-
 struct BucketKindPolygonNearFP {
     struct BasicQ b;
     unsigned char subtype;
@@ -182,15 +64,7 @@ struct BucketKindPolygonNearFP {
     struct XYZ coordinate_third;
 };
 
-struct BucketKindBasicUnk10 {
-    struct BasicQ b;
-    unsigned char color_value;
-    struct PolyPoint vertex_first;
-    struct PolyPoint vertex_second;
-    struct PolyPoint vertex_third;
-};
-
-struct BucketKindJontySprite { 
+struct BucketKindJontySprite {
     struct BasicQ b;
     struct Thing *thing;
     long scr_x;

@@ -9,7 +9,6 @@
 #include "kfx/renderer/opengl/GLFunctions.h"
 #include "kfx/renderer/IWorldViewRenderer.h"
 #include "kfx/renderer/WorldVertex.h"
-#include "kfx/renderer/FlatPolyVertex.h"
 #include "kfx/renderer/ir/WorldCommands.h"
 #include "kfx/renderer/ir/IRCommandBuffer.h"
 #include "kfx/renderer/GpuResourceHandle.h"
@@ -34,13 +33,12 @@ public:
     struct DrawCmd {
         enum Type {
             CMD_TILES,
-            CMD_FLAT_POLYS,
             CMD_IR_KEEPER_SPRITES,
             CMD_PRELOAD_KSPR_ATLAS,
             CMD_CLEAR_KSPR_ATLAS,
         } type;
-        int vert_start = 0;       // CMD_TILES / CMD_FLAT_POLYS
-        int vert_count = 0;       // CMD_TILES / CMD_FLAT_POLYS
+        int vert_start = 0;       // CMD_TILES
+        int vert_count = 0;       // CMD_TILES
         int sprite_ir_start = 0;  // CMD_IR_KEEPER_SPRITES
         int sprite_ir_count = 0;  // CMD_IR_KEEPER_SPRITES
     };
@@ -122,7 +120,6 @@ public:
     bool HasPendingCommands() const
     {
         return !m_draw_cmds.empty()
-            || (m_world_write_cmds != nullptr && !m_world_write_cmds->flat_poly_verts.empty())
             || (m_vert_count > m_cmd_vert_start)
             || !m_kspr_ir.empty()
             || !m_shadow_cmds.empty();
@@ -130,13 +127,12 @@ public:
 
     // ── IR (Intermediate Representation) path ─────────────────────────────────
 
-    /** Set the IR write target for this frame. Tile/flat-poly vertex data is
-     *  written into @p cmds by append_triangle()/append_flatpoly_triangle();
-     *  ordering is recorded separately in m_draw_cmds. Call with nullptr to
-     *  close the write window. */
+    /** Set the IR write target for this frame. Tile vertex data is
+     *  written into @p cmds by append_triangle(); ordering is recorded
+     *  separately in m_draw_cmds. Call with nullptr to close the write window. */
     void SetWorldCommandBuffers(WorldCommandBuffers* cmds) override { m_world_write_cmds = cmds; }
 
-    /** Replay the captured tile/flat-poly geometry on the render thread. */
+    /** Replay the captured tile geometry on the render thread. */
     void ExecuteFromIR(const WorldCommandBuffers& cmds) override { GPURenderNow(cmds); }
 
     /** Attempt to initialise GL resources outside of a world pass, e.g. from
@@ -200,7 +196,6 @@ private:
     void free_gl_resources();
     bool compile_world_shaders();
     void push_shade_uniforms();
-    bool init_flatpoly_shader();
 
     bool append_triangle(int tile_id,
                          const struct PolyPoint* p0,
@@ -211,35 +206,20 @@ private:
                          int32_t wx1 = 0, int32_t wy1 = 0, int32_t wz1 = 0,
                          int32_t wx2 = 0, int32_t wy2 = 0, int32_t wz2 = 0);
 
-    // Append one triangle from compact-format fields (unsigned short xy, unsigned char uv/shade)
-    bool append_triangle_compact(int sx0, int sy0, int u0, int v0, int shade0,
-                                 int sx1, int sy1, int u1, int v1, int shade1,
-                                 int sx2, int sy2, int u2, int v2, int shade2);
-
     // Append a front-view textured quad (2 triangles = 6 vertices) from a BucketKindTexturedQuad.
     // Converts the axis-aligned screen quad to WorldVertex format using the tile atlas.
     bool append_frontview_quad(const struct BucketKindTexturedQuad* txquad);
-
-    // Append one flat-colour triangle (QK_PolyMode0/QK_PolyMode4/QK_BasicPolygon).
-    // colour_index is an 8-bit palette index, resolved to linear RGB here --
-    // new code, not ported: the reference never actually implements this
-    // conversion (see the .cpp class-level note).
-    bool append_flatpoly_triangle(uint8_t colour_index,
-                                  const struct PolyPoint* p0,
-                                  const struct PolyPoint* p1,
-                                  const struct PolyPoint* p2);
 
     // Record the current tile batch as a deferred draw command; advances the
     // batch start pointer. No GL calls are issued -- everything is replayed
     // in GPURenderNow().
     void gpu_flush();
 
-    /** Core GL draw pass: uploads the vertex buffers, executes the tile and
-     *  flat-poly draw commands in order, then resets the viewport to the
-     *  full screen and clears the draw-command list. */
+    /** Core GL draw pass: uploads the vertex buffer, executes the tile
+     *  draw commands in order, then resets the viewport to the full
+     *  screen and clears the draw-command list. */
     void gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w, int screen_h,
-                            const std::vector<WorldVertex>& tile_verts,
-                            const std::vector<FlatPolyVertex>& fp_verts);
+                            const std::vector<WorldVertex>& tile_verts);
 
     // ── Keeper sprites (P5.7.3a) ───────────────────────────────────────────────
     bool init_keeper_sprite_shader();
@@ -304,11 +284,6 @@ private:
     // Tile GL objects
     GpuResourceHandle m_geom_handle   = kInvalidGpuResource; // VAO+VBO bundle
     GpuResourceHandle m_shader_handle = kInvalidGpuResource;
-
-    // Flat-colour polygon GL objects (QK_PolyMode0/4/BasicPolygon)
-    GpuResourceHandle m_flatpoly_shader_handle = kInvalidGpuResource;
-    GpuResourceHandle m_flatpoly_geom_handle   = kInvalidGpuResource; // VAO+VBO bundle
-    GLint  m_flatpoly_loc_viewport  = -1;
 
     // Uniform locations (cached at shader compile time)
     GLint  m_loc_tile_atlas  = -1;

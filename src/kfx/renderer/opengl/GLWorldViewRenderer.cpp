@@ -2,21 +2,7 @@
 // Dungeon Keeper - Renderer Abstraction Layer
 /******************************************************************************/
 /** @file GLWorldViewRenderer.cpp
- *     OpenGL world-geometry renderer. 
- *
- *      // TODO : address below.
- *     Two engine bucket kinds are deliberately NOT handled (left as
- *     no-op/default, same as sprites): QK_PolygonNearFP (first-person
- *     near-plane subdivision -- draw_subdivided_near_polygon() in
- *     engine_render.c does real perspective-correcting subdivision with no
- *     direct PolyPoint-triple mapping; hand-porting it now, untested,
- *     risked introducing a real bug for a case that isn't needed for the
- *     isometric-view milestone this beat targets) and QK_PolygonSimple
- *     ("possibly unused" on both branches, and the two branches disagree on
- *     its treatment -- target's own switch marks it VM_SolidColor, the
- *     reference's treats it as a textured tile; picking either would be an
- *     unverified guess for a case that may never fire).
- *
+ *     OpenGL world-geometry renderer.
  */
 /******************************************************************************/
 #include "pre_inc.h"
@@ -217,13 +203,6 @@ bool GLWorldViewRenderer::init_gl_resources()
         }
     }
 
-    if (!init_flatpoly_shader())
-    {
-        ERRORLOG("GLWorldViewRenderer: failed to initialise flat-colour polygon shader");
-        free_gl_resources();
-        return false;
-    }
-
     if (!init_keeper_sprite_shader())
     {
         ERRORLOG("GLWorldViewRenderer: failed to initialise keeper-sprite shader");
@@ -314,39 +293,6 @@ bool GLWorldViewRenderer::compile_world_shaders()
     desc.debug_name = "world";
     m_shader_handle = m_resource_mapper->RequestCreateProgram(desc);
     return m_resource_mapper->ResolveProgram(m_shader_handle) != nullptr;
-}
-
-bool GLWorldViewRenderer::init_flatpoly_shader()
-{
-    if (!m_resource_mapper) return false;
-
-    GpuProgramDesc prog_desc;
-    prog_desc.vertex_src = FLATPOLY_VERTEX_SHADER;
-    prog_desc.fragment_src = FLATPOLY_FRAGMENT_SHADER;
-    prog_desc.debug_name = "flatpoly";
-    m_flatpoly_shader_handle = m_resource_mapper->RequestCreateProgram(prog_desc);
-
-    const GLProgram* prog = m_resource_mapper->ResolveProgram(m_flatpoly_shader_handle);
-    if (!prog) return false;
-
-    glUseProgram(prog->id);
-    m_flatpoly_loc_viewport = glGetUniformLocation(prog->id, "u_viewport");
-    glUseProgram(0);
-
-    // VAO + dynamic VBO: sizeof(FlatPolyVertex) per vertex (x, y, z, r, g, b)
-    GpuGeometryBufferDesc geom_desc;
-    geom_desc.vertex_stride = (uint32_t)sizeof(FlatPolyVertex);
-    geom_desc.attribs = {
-        // layout(location=0) vec3 a_pos  (x, y = screen px; z = NDC)
-        { 0, 3, GpuVertexAttribType::Float, 0 },
-        // layout(location=1) vec3 a_color (linear RGB)
-        { 1, 3, GpuVertexAttribType::Float, 3 * (uint32_t)sizeof(float) },
-    };
-    geom_desc.dynamic = true;
-    geom_desc.debug_name = "flatpoly_geom";
-    m_flatpoly_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(geom_desc);
-
-    return m_resource_mapper->ResolveGeometryBuffer(m_flatpoly_geom_handle) != nullptr;
 }
 
 /******************************************************************************/
@@ -1465,57 +1411,6 @@ bool GLWorldViewRenderer::append_triangle(int tile_id,
     return true;
 }
 
-bool GLWorldViewRenderer::append_triangle_compact(
-    int sx0, int sy0, int u0, int v0, int shade0,
-    int sx1, int sy1, int u1, int v1, int shade1,
-    int sx2, int sy2, int u2, int v2, int shade2)
-{
-    // Compact UV (0..255) addresses the original 8-tiles-wide source layout:
-    //   column in 8-wide layout = u8 / 32,  within-tile x = u8 % 32
-    //   row in source layout    = v8 / 32,  within-tile y = v8 % 32
-    //   tile_id = tile_row * block_count_per_row + tile_col
-
-    if (m_vert_count + 3 > k_max_verts)
-    {
-        gpu_flush();
-        if (m_vert_count + 3 > k_max_verts)
-            return false; // buffer full; drop gracefully rather than write OOB
-    }
-
-    if (!m_world_write_cmds)
-        return false;
-    std::vector<WorldVertex>& verts_vec = m_world_write_cmds->tile_verts;
-    verts_vec.resize((size_t)(m_vert_count + 3));
-
-    auto compact_to_atlas = [](int u8, int v8, float& out_u, float& out_v)
-    {
-        const int tile_col = (u8 >> 5) & 7;   // u8 / 32 — column in 8-wide source (0-7)
-        const int within_x =  u8 & 31;         // u8 % 32 — pixel within tile horizontally
-        const int tile_row =  v8 >> 5;          // v8 / 32 — tile row in source
-        const int within_y =  v8 & 31;          // v8 % 32 — pixel within tile vertically
-        const int tile_id  = tile_row * (int)block_count_per_row + tile_col;
-        float u0f, v0f, u1f, v1f;
-        TileAtlasPacker::GetTileUV(tile_id, &u0f, &v0f, &u1f, &v1f);
-        out_u = u0f + ((float)within_x / 32.0f) * (u1f - u0f);
-        out_v = v0f + ((float)within_y / 32.0f) * (v1f - v0f);
-    };
-
-    const float z_ndc = 2.0f * (float)m_current_bucket / (float)(BUCKETS_COUNT - 1) - 1.0f;
-
-    WorldVertex* const verts = verts_vec.data();
-    WorldVertex* v = &verts[m_vert_count];
-
-    COMPACT_UV_TO_WORLDVERTEX(&v[0], sx0, sy0, u0, v0, shade0, m_screen_w, m_screen_h);
-    COMPACT_UV_TO_WORLDVERTEX(&v[1], sx1, sy1, u1, v1, shade1, m_screen_w, m_screen_h);
-    COMPACT_UV_TO_WORLDVERTEX(&v[2], sx2, sy2, u2, v2, shade2, m_screen_w, m_screen_h);
-    compact_to_atlas(u0, v0, v[0].u, v[0].v);
-    compact_to_atlas(u1, v1, v[1].u, v[1].v);
-    compact_to_atlas(u2, v2, v[2].u, v[2].v);
-    v[0].z = z_ndc; v[1].z = z_ndc; v[2].z = z_ndc;
-    m_vert_count += 3;
-    return true;
-}
-
 bool GLWorldViewRenderer::append_frontview_quad(const struct BucketKindTexturedQuad* txquad)
 {
     // Mirror draw_texturedquad_block() (engine_render.c) exactly, including
@@ -1558,41 +1453,6 @@ bool GLWorldViewRenderer::append_frontview_quad(const struct BucketKindTexturedQ
     bool ok = append_triangle(tile_id, &a, &d, &b);
     ok     &= append_triangle(tile_id, &a, &b, &c);
     return ok;
-}
-
-bool GLWorldViewRenderer::append_flatpoly_triangle(uint8_t colour_index,
-                                                    const struct PolyPoint* p0,
-                                                    const struct PolyPoint* p1,
-                                                    const struct PolyPoint* p2)
-{
-    if (!m_world_write_cmds)
-        return false;
-
-    std::vector<FlatPolyVertex>& verts = m_world_write_cmds->flat_poly_verts;
-    const size_t base = verts.size();
-    verts.resize(base + 3);
-
-    const float z_ndc = 2.0f * (float)m_current_bucket / (float)(BUCKETS_COUNT - 1) - 1.0f;
-
-    // 6-bit-per-channel palette -> 8-bit -> [0,1] float, same expansion
-    // TileAtlasPacker.cpp already uses for tile pixels (P5.7.1).
-    const uint8_t* pal = LbPaletteGetReadonly();
-    const float r = (float)(pal[colour_index * 3 + 0] << 2) / 255.0f;
-    const float g = (float)(pal[colour_index * 3 + 1] << 2) / 255.0f;
-    const float b = (float)(pal[colour_index * 3 + 2] << 2) / 255.0f;
-
-    const struct PolyPoint* pts[3] = { p0, p1, p2 };
-    for (int i = 0; i < 3; i++)
-    {
-        FlatPolyVertex* fv = &verts[base + i];
-        fv->x = (float)(pts[i]->X);  // raw screen pixels -- shader does NDC conversion
-        fv->y = (float)(pts[i]->Y);
-        fv->z = z_ndc;
-        fv->r = r;
-        fv->g = g;
-        fv->b = b;
-    }
-    return true;
 }
 
 /******************************************************************************/
@@ -2371,13 +2231,11 @@ void GLWorldViewRenderer::GPURenderNow(const WorldCommandBuffers& cmds)
         return;
 
     const int vp_y_gl = m_full_screen_h - m_rt_vp_y - m_rt_screen_h;
-    gpu_execute_passes(m_rt_vp_x, vp_y_gl, m_rt_screen_w, m_rt_screen_h,
-                       cmds.tile_verts, cmds.flat_poly_verts);
+    gpu_execute_passes(m_rt_vp_x, vp_y_gl, m_rt_screen_w, m_rt_screen_h, cmds.tile_verts);
 }
 
 void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w, int screen_h,
-                                             const std::vector<WorldVertex>& tile_verts,
-                                             const std::vector<FlatPolyVertex>& fp_verts)
+                                             const std::vector<WorldVertex>& tile_verts)
 {
     m_draw_screen_w = screen_w;
     m_draw_screen_h = screen_h;
@@ -2391,8 +2249,6 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
     const GLGeometryBuffer* const world_geom = m_resource_mapper->ResolveGeometryBuffer(m_geom_handle);
     const GLuint world_shader_id = ResolveShaderId(m_shader_handle);
     const GLTexture* const lightmap_tex = m_resource_mapper->ResolveTexture(m_lightmap_tex_handle);
-    const GLGeometryBuffer* const flatpoly_geom = m_resource_mapper->ResolveGeometryBuffer(m_flatpoly_geom_handle);
-    const GLuint flatpoly_shader_id = ResolveShaderId(m_flatpoly_shader_handle);
     if (!world_geom || !world_shader_id || !lightmap_tex) return;
 
     glBindBuffer(GL_ARRAY_BUFFER, world_geom->vbo);
@@ -2409,7 +2265,6 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
     glDepthMask(GL_TRUE);
 
     bool atlas_bound       = false;  // tile atlas array bound to GL_TEXTURE0
-    bool flatpoly_uploaded = false;  // flat-poly VBO uploaded on first CMD_FLAT_POLYS
 
     // Upload lightmap shadow copy (snapshotted from game.lish.subtile_lightness[]
     // during FlipBuffers() on the game thread — no live game struct access here).
@@ -2465,29 +2320,6 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
             }
             glDepthFunc(GL_ALWAYS);
             glDrawArrays(GL_TRIANGLES, cmd.vert_start, cmd.vert_count);
-        }
-        else if (cmd.type == DrawCmd::CMD_FLAT_POLYS)
-        {
-            if (!fp_verts.empty() && flatpoly_geom && flatpoly_shader_id)
-            {
-                if (!flatpoly_uploaded)
-                {
-                    glBindBuffer(GL_ARRAY_BUFFER, flatpoly_geom->vbo);
-                    glBufferData(GL_ARRAY_BUFFER,
-                                 (GLsizeiptr)(fp_verts.size() * sizeof(FlatPolyVertex)),
-                                 fp_verts.data(), GL_STREAM_DRAW);
-                    flatpoly_uploaded = true;
-                }
-                glUseProgram(flatpoly_shader_id);
-                glBindVertexArray(flatpoly_geom->vao);
-                glUniform2f(m_flatpoly_loc_viewport, (float)screen_w, (float)screen_h);
-                glDepthFunc(GL_ALWAYS);
-                glDrawArrays(GL_TRIANGLES, cmd.vert_start, cmd.vert_count);
-                // Restore tile shader state for subsequent CMD_TILES.
-                glUseProgram(world_shader_id);
-                glBindVertexArray(world_geom->vao);
-                atlas_bound = false;
-            }
         }
         else if (cmd.type == DrawCmd::CMD_PRELOAD_KSPR_ATLAS)
         {
@@ -2605,18 +2437,10 @@ void GLWorldViewRenderer::DrawIsometricView()
     render_ghost        = pixmap.ghost;
     render_alpha        = (unsigned char *)&alpha_sprite_table;
 
-    std::vector<FlatPolyVertex>& fpverts = m_world_write_cmds->flat_poly_verts;
-
     union {
         struct BasicQ *b;
         struct BucketKindPolygonStandard *polygonStandard;
-        struct BucketKindPolyMode0 *polyMode0;
-        struct BucketKindPolyMode4 *polyMode4;
-        struct BucketKindTrigMode2 *trigMode2;
-        struct BucketKindPolyMode5 *polyMode5;
-        struct BucketKindTrigMode3 *trigMode3;
-        struct BucketKindTrigMode6 *trigMode6;
-        struct BucketKindBasicUnk10 *basicUnk10;
+        struct BucketKindPolygonNearFP *polygonNearFP;
         struct BucketKindJontySprite *jontySprite;
         struct BucketKindCreatureShadow *creatureShadow;
         struct BucketKindRoomFlag *roomFlag;
@@ -2629,8 +2453,6 @@ void GLWorldViewRenderer::DrawIsometricView()
     for (long bucket_num = BUCKETS_COUNT - 1; bucket_num > 0; bucket_num--)
     {
         m_current_bucket = (int)bucket_num;
-        bool bucket_has_flat_polys = false;
-        const int flatpoly_vert_start = (int)fpverts.size();
 
         for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
         {
@@ -2641,57 +2463,6 @@ void GLWorldViewRenderer::DrawIsometricView()
                                 &item.polygonStandard->vertex_first,
                                 &item.polygonStandard->vertex_second,
                                 &item.polygonStandard->vertex_third);
-                break;
-            case QK_PolyMode0: // Flat-colour triangle
-            {
-                struct PolyPoint pm0_a = {}, pm0_b = {}, pm0_c = {};
-                pm0_a.X = item.polyMode0->vertex_first_x;  pm0_a.Y = item.polyMode0->vertex_first_y;
-                pm0_b.X = item.polyMode0->vertex_second_x; pm0_b.Y = item.polyMode0->vertex_second_y;
-                pm0_c.X = item.polyMode0->vertex_third_x;  pm0_c.Y = item.polyMode0->vertex_third_y;
-                append_flatpoly_triangle(item.polyMode0->colour, &pm0_a, &pm0_b, &pm0_c);
-                bucket_has_flat_polys = true;
-                break;
-            }
-            case QK_PolyMode4: // Flat-colour triangle
-            {
-                struct PolyPoint pm4_a = {}, pm4_b = {}, pm4_c = {};
-                pm4_a.X = item.polyMode4->vertex_first_x;  pm4_a.Y = item.polyMode4->vertex_first_y;
-                pm4_b.X = item.polyMode4->vertex_second_x; pm4_b.Y = item.polyMode4->vertex_second_y;
-                pm4_c.X = item.polyMode4->vertex_third_x;  pm4_c.Y = item.polyMode4->vertex_third_y;
-                append_flatpoly_triangle(item.polyMode4->colour, &pm4_a, &pm4_b, &pm4_c);
-                bucket_has_flat_polys = true;
-                break;
-            }
-            case QK_TrigMode2: // Compact textured triangle (no per-vertex shade -- full bright)
-                append_triangle_compact(
-                    item.trigMode2->vertex_first_x,  item.trigMode2->vertex_first_y,  item.trigMode2->texture_u_first,  item.trigMode2->texture_v_first,  255,
-                    item.trigMode2->vertex_second_x, item.trigMode2->vertex_second_y, item.trigMode2->texture_u_second, item.trigMode2->texture_v_second, 255,
-                    item.trigMode2->vertex_third_x,  item.trigMode2->vertex_third_y,  item.trigMode2->texture_u_third,  item.trigMode2->texture_v_third,  255);
-                break;
-            case QK_PolyMode5: // Compact textured triangle
-                append_triangle_compact(
-                    item.polyMode5->vertex_first_x,  item.polyMode5->vertex_first_y,  item.polyMode5->texture_u_first,  item.polyMode5->texture_v_first,  item.polyMode5->texture_w_first,
-                    item.polyMode5->vertex_second_x, item.polyMode5->vertex_second_y, item.polyMode5->texture_u_second, item.polyMode5->texture_v_second, item.polyMode5->texture_w_second,
-                    item.polyMode5->vertex_third_x,  item.polyMode5->vertex_third_y,  item.polyMode5->texture_u_third,  item.polyMode5->texture_v_third,  item.polyMode5->texture_w_third);
-                break;
-            case QK_TrigMode3: // Compact textured triangle (no per-vertex shade -- full bright)
-                append_triangle_compact(
-                    item.trigMode3->vertex_first_x,  item.trigMode3->vertex_first_y,  item.trigMode3->texture_u_first,  item.trigMode3->texture_v_first,  255,
-                    item.trigMode3->vertex_second_x, item.trigMode3->vertex_second_y, item.trigMode3->texture_u_second, item.trigMode3->texture_v_second, 255,
-                    item.trigMode3->vertex_third_x,  item.trigMode3->vertex_third_y,  item.trigMode3->texture_u_third,  item.trigMode3->texture_v_third,  255);
-                break;
-            case QK_TrigMode6: // Compact textured triangle
-                append_triangle_compact(
-                    item.trigMode6->vertex_first_x,  item.trigMode6->vertex_first_y,  item.trigMode6->texture_u_first,  item.trigMode6->texture_v_first,  item.trigMode6->texture_w_first,
-                    item.trigMode6->vertex_second_x, item.trigMode6->vertex_second_y, item.trigMode6->texture_u_second, item.trigMode6->texture_v_second, item.trigMode6->texture_w_second,
-                    item.trigMode6->vertex_third_x,  item.trigMode6->vertex_third_y,  item.trigMode6->texture_u_third,  item.trigMode6->texture_v_third,  item.trigMode6->texture_w_third);
-                break;
-            case QK_BasicPolygon: // Flat-colour triangle (real PolyPoint triple)
-                append_flatpoly_triangle(item.basicUnk10->color_value,
-                                         &item.basicUnk10->vertex_first,
-                                         &item.basicUnk10->vertex_second,
-                                         &item.basicUnk10->vertex_third);
-                bucket_has_flat_polys = true;
                 break;
             case QK_JontySprite:
                 draw_jonty_mapwho(item.jontySprite);
@@ -2752,22 +2523,16 @@ void GLWorldViewRenderer::DrawIsometricView()
                 break;
             }
 
-            // QK_PolygonSimple and QK_PolygonNearFP deliberately not handled
-            // Todo : refactor and enable for consistency?
+            case QK_PolygonNearFP:
+                append_triangle(item.polygonNearFP->block,
+                                &item.polygonNearFP->vertex_first,
+                                &item.polygonNearFP->vertex_second,
+                                &item.polygonNearFP->vertex_third);
+                break;
+
             default:
                 break;
             }
-        }
-
-        if (bucket_has_flat_polys)
-        {
-            gpu_flush();
-
-            DrawCmd cmd;
-            cmd.type       = DrawCmd::CMD_FLAT_POLYS;
-            cmd.vert_start = flatpoly_vert_start;
-            cmd.vert_count = (int)fpverts.size() - flatpoly_vert_start;
-            m_draw_cmds.push_back(cmd);
         }
     }
 
@@ -2810,6 +2575,16 @@ void GLWorldViewRenderer::DrawFrontView(struct Camera* cam)
                 draw_fastview_mapwho(cam, (struct BucketKindJontySprite*)b);
             else if (b->kind == QK_JontyISOSprite)
                 draw_iso_only_fastview_mapwho(cam, (struct BucketKindJontySprite*)b);
+            else if (b->kind == QK_PolygonNearFP)
+            {
+                const struct BucketKindPolygonNearFP* p = (const struct BucketKindPolygonNearFP*)b;
+                append_triangle((int)p->block, &p->vertex_first, &p->vertex_second, &p->vertex_third);
+            }
+            else if (b->kind == QK_PolygonStandard)
+            {
+                const struct BucketKindPolygonStandard* p = (const struct BucketKindPolygonStandard*)b;
+                append_triangle((int)p->block, &p->vertex_first, &p->vertex_second, &p->vertex_third);
+            }
         }
     }
 

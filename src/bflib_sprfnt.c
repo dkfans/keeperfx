@@ -632,7 +632,7 @@ static void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y,
     awind.buf_ptr = lbDisplay.GraphicsWindowPtr;
     awind.width = lbDisplay.GraphicsWindowWidth;
     awind.height = lbDisplay.GraphicsWindowHeight;
-    awind.scanline = RendererScreenHeight();
+    awind.scanline = RendererScreenWidth();
   for (c=sbuf; c < ebuf; )
   {
     size_t seq_len;
@@ -1070,7 +1070,7 @@ int LbTextSetWindow(int posx, int posy, int width, int height)
     lbTextJustifyWindow.x = posx;
     lbTextJustifyWindow.y = posy;
     lbTextJustifyWindow.width = width;
-    lbTextJustifyWindow.ptr = &lbDisplay.WScreen[posx + posy * RendererScreenHeight()];
+    lbTextJustifyWindow.ptr = &lbDisplay.WScreen[posx + posy * RendererScreenWidth()];
     LbTextSetClipWindow(posx, posy, width, height);
     return 1;
 }
@@ -1373,20 +1373,20 @@ TbResult LbTextSetClipWindow(int pos_x, int pos_y, int width, int height)
         start_y = 0;
     if ( end_y < 0 )
       end_y = 0;
-    if (start_x > RendererScreenHeight())
-        start_x = RendererScreenHeight();
-    if (end_x > RendererScreenHeight())
-      end_x = RendererScreenHeight();
-    if (start_y > RendererScreenWidth())
-        start_y = RendererScreenWidth();
-    if (end_y > RendererScreenWidth())
-      end_y = RendererScreenWidth();
+    if (start_x > RendererScreenWidth())
+        start_x = RendererScreenWidth();
+    if (end_x > RendererScreenWidth())
+      end_x = RendererScreenWidth();
+    if (start_y > RendererScreenHeight())
+        start_y = RendererScreenHeight();
+    if (end_y > RendererScreenHeight())
+      end_y = RendererScreenHeight();
     lbTextClipWindow.x = start_x;
     lbTextClipWindow.y = start_y;
     lbTextClipWindow.width = end_x - start_x;
     lbTextClipWindow.height = end_y - start_y;
     /* Note: DON'T USE lbTextClipWindow_window_ptr in KeeperFX!
-    lbTextClipWindow_window_ptr = lbDisplay.WScreen + pos_x + RendererScreenHeight() * pos_y;
+    lbTextClipWindow_window_ptr = lbDisplay.WScreen + pos_x + RendererScreenWidth() * pos_y;
     */
     return Lb_SUCCESS;
 }

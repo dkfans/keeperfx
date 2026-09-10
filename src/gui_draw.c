@@ -140,7 +140,7 @@ void draw_slab64k_background_immediate(long pos_x, long pos_y, long width, long 
     i = MyScreenHeight;
     if (scr_y + scr_h > i)
         scr_h = i - scr_y;
-    TbPixel* out = &lbDisplay.WScreen[scr_x + RendererScreenHeight() * scr_y];
+    TbPixel* out = &lbDisplay.WScreen[scr_x + RendererScreenWidth() * scr_y];
     for (i=0; scr_h > i; i++)
     {
         TbPixel* inp = &gui_slab[GUI_SLAB_DIMENSION * (i % GUI_SLAB_DIMENSION)];
@@ -159,7 +159,7 @@ void draw_slab64k_background_immediate(long pos_x, long pos_y, long width, long 
         {
             memcpy(out, inp, scr_w);
         }
-        out += RendererScreenHeight();
+        out += RendererScreenWidth();
     }
 }
 

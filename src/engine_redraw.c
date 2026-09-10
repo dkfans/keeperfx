@@ -427,7 +427,7 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
     {
         for (i = 0; i < height; i++)
         {
-            unsigned char* src = lbDisplay.WScreen + RendererScreenHeight() * i;
+            unsigned char* src = lbDisplay.WScreen + RendererScreenWidth() * i;
             unsigned char* dst = &fade_src[fadebuf_pos];
             fadebuf_pos += scanline;
             memcpy(dst, src, MyScreenWidth/pixel_size);
@@ -444,7 +444,7 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
     {
         for (i = 0; i < height; i++)
         {
-            unsigned char* src = lbDisplay.WScreen + RendererScreenHeight() * i;
+            unsigned char* src = lbDisplay.WScreen + RendererScreenWidth() * i;
             unsigned char* dst = &fade_dest[fadebuf_pos];
             fadebuf_pos += scanline;
             memcpy(dst, src, MyScreenWidth/pixel_size);
@@ -481,7 +481,7 @@ long map_fade_in(long palette_fade_step)
     if (lbDisplay.WScreen != NULL)
     {
         map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
-            palette_fade_step, real_w, real_h, RendererScreenHeight());
+            palette_fade_step, real_w, real_h, RendererScreenWidth());
     }
     return (8 - get_my_player()->instance_remain_turns) * 4;
 }
@@ -516,7 +516,7 @@ long map_fade_out(long palette_fade_step)
     if (lbDisplay.WScreen != NULL)
     {
         map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
-          palette_fade_step, real_w, real_h, RendererScreenHeight());
+          palette_fade_step, real_w, real_h, RendererScreenWidth());
     }
     return get_my_player()->instance_remain_turns * 4;
 }
@@ -644,7 +644,7 @@ void redraw_creature_view(void)
         TbGraphicsWindow ewnd;
         store_engine_window(&ewnd, pixel_size);
         smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
-            ewnd.width, ewnd.height, RendererScreenHeight());
+            ewnd.width, ewnd.height, RendererScreenWidth());
     }
     remove_explored_flags_for_power_sight(player);
     GameUI_DrawFrame(player);
@@ -699,7 +699,7 @@ void redraw_isometric_view(void)
     {
         store_engine_window(&ewnd,pixel_size);
         smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
-            ewnd.width, ewnd.height, RendererScreenHeight());
+            ewnd.width, ewnd.height, RendererScreenWidth());
     }
     remove_explored_flags_for_power_sight(player);
     GameUI_DrawFrame(player);
