@@ -279,11 +279,14 @@ SpriteHandle GLUIRenderer::ResolveDbcGlyph(const struct AsianFont* font, uint32_
 
 GLUIRenderer::PassType GLUIRenderer::classify(float mode)
 {
-    if (mode < 0.5f)  return PASS_SPRITE;
-    if (mode < 9.5f)  return PASS_SOLID;
-    if (mode < 19.5f) return PASS_SLAB;
-    if (mode < 29.5f) return PASS_COLORED;
-    return PASS_REMAP;
+    switch ((int)(mode + 0.5f))
+    {
+    case PASS_SOLID:   return PASS_SOLID;
+    case PASS_SLAB:    return PASS_SLAB;
+    case PASS_COLORED: return PASS_COLORED;
+    case PASS_REMAP:   return PASS_REMAP;
+    default:           return PASS_SPRITE;
+    }
 }
 
 void GLUIRenderer::UpdateSlabTexture(const unsigned char* data, int dim)
