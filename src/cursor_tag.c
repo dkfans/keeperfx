@@ -46,6 +46,7 @@ extern "C" {
 /******************************************************************************/
 unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, const struct Packet *pckt, struct RoomSpace *render_roomspace, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
 {
+    struct UserState* ustate = get_player_user_state(player);
     SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)player->id_number,(int)stl_x,(int)stl_y);
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
@@ -59,7 +60,7 @@ unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, const struct Pack
     {
         allowed = true;
     }
-    else if ((player->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0))
+    else if ((ustate->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0))
     {
         allowed = true;
     }

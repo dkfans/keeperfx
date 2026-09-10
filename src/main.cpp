@@ -539,6 +539,7 @@ short setup_game(void)
 static bool players_cursor_is_at_top_of_view()
 {
     const struct PlayerInfo *const player = get_my_player();
+    const struct UserState *const ustate = get_local_user_state();
     switch (player->work_state)
     {
     case PSt_BuildRoom:
@@ -554,7 +555,7 @@ static bool players_cursor_is_at_top_of_view()
         return (player->controlled_thing_idx > 0);
 
     case PSt_CtrlDungeon:
-        switch (player->primary_cursor_state)
+        switch (ustate->primary_cursor_state)
         {
             case CSt_DefaultArrow:
                 return false;
@@ -564,7 +565,7 @@ static bool players_cursor_is_at_top_of_view()
                 return true;
 
             case CSt_PowerHand:
-                return (local_thing_under_hand == 0)
+                return (local_state.local_thing_under_hand == 0)
                     || (! power_hand_is_empty(player));
         }
     }

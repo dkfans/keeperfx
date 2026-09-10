@@ -44,7 +44,7 @@ TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,  54,  46
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
 struct PlayerInfo bad_player;
-short local_thing_under_hand;
+
 struct LocalState local_state;
 struct UserState bad_user_state;
 
@@ -492,8 +492,9 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   if (player->view_type == nview)
     return;
   player->view_type = nview;
-  get_player_user_state(player)->init_flags &= ~UsrIF_CreaturePassengerMode;
-  player->first_person_unfreeze_delay = 0;
+  struct UserState* ustate = get_player_user_state(player);
+  ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
+  ustate->first_person_unfreeze_delay = 0;
   if (is_my_player(player)) {
     game.view_mode_flags &= ~GNFldD_CreaturePasngr;
     game.view_mode_flags |= GNFldD_CreatureViewMode;
@@ -548,8 +549,9 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
 
 void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
 {
+  struct UserState* ustate = get_player_user_state(player);
   player->view_type = nview;
-  player->first_person_unfreeze_delay = 0;
+  ustate->first_person_unfreeze_delay = 0;
   switch (nview)
   {
     case PVT_DungeonTop:

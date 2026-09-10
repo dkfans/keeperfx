@@ -809,7 +809,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->work_state = PSt_CtrlDungeon;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
-    player->isometric_tilt = settings.isometric_tilt;
     if (is_my_player(player))
     {
         if (default_tag_mode != 3)

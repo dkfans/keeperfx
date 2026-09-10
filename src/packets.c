@@ -649,6 +649,7 @@ TbBool process_user_global_packet_action(NetUserId user)
   PlayerNumber plyr_idx = get_net_user_player_number(user);
   struct PlayerInfo* player = get_player(plyr_idx);
   struct Packet* pckt = get_packet(user);
+  struct UserState* ustate = get_user_state(user);
   struct UserState* local_ustate = get_local_user_state();
   SYNCDBG(6,"Processing user %d action %d",(int)user,(int)pckt->action);
   struct Dungeon *dungeon;
@@ -1030,11 +1031,11 @@ TbBool process_user_global_packet_action(NetUserId user)
             // exit out of click and drag mode
             if (player->render_roomspace.drag_mode)
             {
-                get_player_user_state(player)->cursor_button_down = 0;
-                player->one_click_lock_cursor = false;
+                ustate->cursor_button_down = 0;
+                ustate->one_click_lock_cursor = false;
                 if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
                 {
-                    player->ignore_next_PCtr_LBtnRelease = true;
+                    ustate->ignore_next_PCtr_LBtnRelease = true;
                 }
             }
             player->render_roomspace.drag_mode = false;
@@ -1246,6 +1247,7 @@ TbBool can_process_creature_input(struct Thing *thing)
 
 void process_user_creature_control_packet_control(NetUserId user)
 {
+    struct UserState* ustate = get_user_state(user);
     const PlayerNumber plyr_idx = get_net_user_player_number(user);
     SYNCDBG(6,"Starting");
     struct InstanceInfo *inst_inf;
@@ -1353,7 +1355,7 @@ void process_user_creature_control_packet_control(NetUserId user)
                 }
             }
         }
-        if (player->first_person_unfreeze_delay <= 0)
+        if (ustate->first_person_unfreeze_delay <= 0)
         {
             long new_horizontal, new_vertical, new_roll;
             process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
@@ -1361,7 +1363,7 @@ void process_user_creature_control_packet_control(NetUserId user)
             cctng->move_angle_z = new_vertical;
             ccctrl->roll = new_roll;
         }
-        else --player->first_person_unfreeze_delay;
+        else --ustate->first_person_unfreeze_delay;
     }
     else
     {
@@ -1369,7 +1371,7 @@ void process_user_creature_control_packet_control(NetUserId user)
         // frozen for this duration after the creature is allowed to move again.
         // Apply this same delay to the creature's move_angle_{xy,z}, to keep it
         // synchronized.
-        player->first_person_unfreeze_delay = game.input_lag_turns;
+        ustate->first_person_unfreeze_delay = game.input_lag_turns;
     }
 
     if ((thing_is_creature(cctng) && !creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
