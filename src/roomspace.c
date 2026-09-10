@@ -546,11 +546,11 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
     TbBool one_click_mode_exclusive = false;
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
-    if (player->ignore_next_PCtr_LBtnRelease)
+    if (ustate->ignore_next_PCtr_LBtnRelease)
     {
         // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
         player->render_roomspace.drag_mode = false;
-        player->one_click_lock_cursor = false;
+        ustate->one_click_lock_cursor = false;
         player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
         player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
         current_roomspace = create_box_roomspace(player->render_roomspace, player->roomspace_width, player->roomspace_height, slb_x, slb_y);
@@ -570,9 +570,9 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
     if ((pckt->control_flags & PCtr_LBtnClick) != 0) {
         player->render_roomspace.untag_mode = (get_roomspace_slab_dig_tag_mode(plyr_idx, slb_x, slb_y, predicted_slab_tag_modes) == DigTagMode_Untag);
     }
-    if (((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld) || (((pckt->control_flags & PCtr_LBtnRelease) != 0) && player->one_click_lock_cursor)) // highlight "paint mode" enabled
+    if (((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld) || (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ustate->one_click_lock_cursor)) // highlight "paint mode" enabled
     {
-        player->one_click_lock_cursor = true;
+        ustate->one_click_lock_cursor = true;
         untag_mode = player->render_roomspace.untag_mode; // get tag/untag mode from the slab that was clicked (before the user started holding mouse button)
     }
     else // user is hovering the mouse cursor
@@ -582,25 +582,25 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
             untag_mode = true;
         }
     }
-    if ((player->swap_to_untag_mode == -1) && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && (player->roomspace_highlight_mode == roomspace_detection_mode) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0))
+    if ((ustate->swap_to_untag_mode == -1) && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && (player->roomspace_highlight_mode == roomspace_detection_mode) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0))
     {
         // Allow RMB + CTRL to work as expected over lowslabs (for tagging and untagging)
         // we reset swap_to_untag_mode whenever LMB is not pressed (i.e. we are still in preview mode)
-        player->swap_to_untag_mode = 0;
+        ustate->swap_to_untag_mode = 0;
     }
-    if (player->swap_to_untag_mode == 0) // if swap_to_untag_mode ==  no / enabled
+    if (ustate->swap_to_untag_mode == 0) // if swap_to_untag_mode ==  no / enabled
     {
         //if (untag_or_tag_started_on_undiggable_highslab OR lowslab)
         if (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false))
         {
-            player->swap_to_untag_mode = 1; // maybe
+            ustate->swap_to_untag_mode = 1; // maybe
         }
     }
     if (player->roomspace_highlight_mode == drag_placement_mode)
     {
         if (((pckt->control_flags & PCtr_LBtnHeld) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
-            player->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
+            ustate->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
             untag_mode = player->render_roomspace.untag_mode; // get tag/untag mode from the slab that was clicked (before the user started holding mouse button)
             one_click_mode_exclusive = true; // Block camera zoom/rotate if Ctrl is held with LMB/RMB
             drag_start_x = player->render_roomspace.drag_start_x; // if we are dragging, get the starting coords from the slab the player clicked on
@@ -608,12 +608,12 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
         }
         if (((pckt->control_flags & PCtr_RBtnHeld) != 0) && ((pckt->control_flags & PCtr_LBtnClick) != 0))
         {
-            player->ignore_next_PCtr_RBtnRelease = true;
+            ustate->ignore_next_PCtr_RBtnRelease = true;
         }
         if (((pckt->control_flags & PCtr_LBtnHeld) != 0) && ((pckt->control_flags & PCtr_RBtnClick) != 0))
         {
-            player->ignore_next_PCtr_LBtnRelease = true;
-            player->ignore_next_PCtr_RBtnRelease = true;
+            ustate->ignore_next_PCtr_LBtnRelease = true;
+            ustate->ignore_next_PCtr_RBtnRelease = true;
             drag_start_x = slb_x;
             drag_start_y = slb_y;
         }
@@ -623,7 +623,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
     {
         if ((pckt->control_flags & PCtr_HeldAnyButton) != 0) // Block camera zoom/rotate if Ctrl is held with LMB/RMB
         {
-            player->one_click_lock_cursor = true;
+            ustate->one_click_lock_cursor = true;
             one_click_mode_exclusive = true;
         }
         player->roomspace_width = player->roomspace_height = player->user_defined_roomspace_width;
@@ -634,7 +634,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
     current_roomspace.untag_mode = untag_mode;
     current_roomspace.one_click_mode_exclusive = one_click_mode_exclusive;
     current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx, predicted_slab_tag_modes);
-    if (player->swap_to_untag_mode == 1) // if swap_to_untag_mode == maybe
+    if (ustate->swap_to_untag_mode == 1) // if swap_to_untag_mode == maybe
     {
         // highlight roomspace was started on undiggable highslab, and we are therefore in "tag mode"...
         if (current_roomspace.slab_count == 0)
@@ -647,13 +647,13 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
             if ((untag_roomspace.slab_count > 0) && (((pckt->control_flags & PCtr_LBtnAnyAction) == 0) || ((pckt->control_flags & PCtr_LBtnClick) != 0)))
             {
                 current_roomspace = untag_roomspace;
-                player->swap_to_untag_mode = -1;
+                ustate->swap_to_untag_mode = -1;
             }
         }
         else if (current_roomspace.slab_count > 0)
         {
             // player has started a "room" in tag mode, so...
-            player->swap_to_untag_mode = -1; // disable
+            ustate->swap_to_untag_mode = -1; // disable
         }
     }
     ustate->boxsize = current_roomspace.slab_count;
@@ -661,7 +661,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
     {
         current_roomspace.tag_for_dig = true;
     }
-    if ((player->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && (!current_roomspace.drag_mode))
+    if ((ustate->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && (!current_roomspace.drag_mode))
     {
         current_roomspace.is_roomspace_a_box = true; // force full box cursor in "paint mode" - this stops the accurate boundbox appearing for a frame, before the slabs are tagged/untagged (which appears as flickering to the user)
     }
@@ -679,9 +679,9 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
     struct Packet* pckt = get_packet(player->user_id);
-    player->one_click_lock_cursor = false;
-    player->one_click_mode_exclusive = false;
-    if (player->ignore_next_PCtr_LBtnRelease)
+    ustate->one_click_lock_cursor = false;
+    ustate->one_click_mode_exclusive = false;
+    if (ustate->ignore_next_PCtr_LBtnRelease)
     {
         // because player cancelled with RMB, we need to default back to vanilla 1x1 box
         player->render_roomspace.drag_mode = false;
@@ -693,7 +693,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
         current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx, NULL);
         ustate->boxsize = current_roomspace.slab_count;
         *roomspace = current_roomspace;
-        player->ignore_next_PCtr_LBtnRelease = false;
+        ustate->ignore_next_PCtr_LBtnRelease = false;
         return;
     }
     if (!player->render_roomspace.drag_mode) // reset drag start slab
@@ -725,18 +725,18 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
     {
         if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
-            player->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
+            ustate->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
             drag_start_x = player->render_roomspace.drag_start_x; // if we are dragging, get the starting coords from the slab the player clicked on
             drag_start_y = player->render_roomspace.drag_start_y;
         }
         if (((pckt->control_flags & PCtr_RBtnHeld) != 0) && ((pckt->control_flags & PCtr_LBtnClick) != 0))
         {
-            player->ignore_next_PCtr_RBtnRelease = true;
+            ustate->ignore_next_PCtr_RBtnRelease = true;
         }
         if (((pckt->control_flags & PCtr_LBtnHeld) != 0) && ((pckt->control_flags & PCtr_RBtnClick) != 0))
         {
-            player->ignore_next_PCtr_LBtnRelease = true;
-            player->ignore_next_PCtr_RBtnRelease = true;
+            ustate->ignore_next_PCtr_LBtnRelease = true;
+            ustate->ignore_next_PCtr_RBtnRelease = true;
             drag_start_x = slb_x;
             drag_start_y = slb_y;
         }
@@ -748,7 +748,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
         player->roomspace_height = current_roomspace.height;
     }
     ustate->boxsize = current_roomspace.slab_count;
-    current_roomspace.one_click_mode_exclusive = player->one_click_mode_exclusive;
+    current_roomspace.one_click_mode_exclusive = ustate->one_click_mode_exclusive;
     *roomspace = current_roomspace;
 }
 
@@ -768,8 +768,8 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
     MapSlabCoord drag_start_y = slb_y;
     struct Packet* pckt = get_packet(player->user_id);
     struct RoomSpace temp_best_room;
-    player->one_click_lock_cursor = false;
-    if (player->ignore_next_PCtr_LBtnRelease)
+    ustate->one_click_lock_cursor = false;
+    if (ustate->ignore_next_PCtr_LBtnRelease)
     {
         // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
         player->render_roomspace.drag_mode = false;
@@ -781,7 +781,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         best_roomspace = check_roomspace_for_diggable_slabs(best_roomspace, plyr_idx, NULL);
         ustate->boxsize = best_roomspace.slab_count;
         *roomspace = best_roomspace;
-        player->ignore_next_PCtr_LBtnRelease = false;
+        ustate->ignore_next_PCtr_LBtnRelease = false;
         return;
     }
     if (!player->render_roomspace.drag_mode) // reset drag start slab
@@ -791,7 +791,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
     }
     if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld) // highlight "paint mode" enabled
     {
-        player->one_click_lock_cursor = true;
+        ustate->one_click_lock_cursor = true;
     }
     if (mode == roomspace_detection_mode) // room auto-detection mode
     {
@@ -804,19 +804,19 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
     {
         if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
-            player->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
-            player->one_click_mode_exclusive = true; // Block camera zoom/rotate if Ctrl is held with LMB/RMB
+            ustate->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
+            ustate->one_click_mode_exclusive = true; // Block camera zoom/rotate if Ctrl is held with LMB/RMB
             drag_start_x = player->render_roomspace.drag_start_x; // if we are dragging, get the starting coords from the slab the player clicked on
             drag_start_y = player->render_roomspace.drag_start_y;
         }
         if (((pckt->control_flags & PCtr_RBtnHeld) != 0) && ((pckt->control_flags & PCtr_LBtnClick) != 0))
         {
-            player->ignore_next_PCtr_RBtnRelease = true;
+            ustate->ignore_next_PCtr_RBtnRelease = true;
         }
         if (((pckt->control_flags & PCtr_LBtnHeld) != 0) && ((pckt->control_flags & PCtr_RBtnClick) != 0))
         {
-            player->ignore_next_PCtr_LBtnRelease = true;
-            player->ignore_next_PCtr_RBtnRelease = true;
+            ustate->ignore_next_PCtr_LBtnRelease = true;
+            ustate->ignore_next_PCtr_RBtnRelease = true;
             drag_start_x = slb_x;
             drag_start_y = slb_y;
         }
@@ -824,7 +824,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava|RoRoF_PassAbyss))
         {
             can_drag = can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y) || players_land_by_bridgeable_slab(plyr_idx, drag_start_x, drag_start_y);
-            player->one_click_mode_exclusive = false;
+            ustate->one_click_mode_exclusive = false;
         }
         else
         {
@@ -861,11 +861,11 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             best_roomspace.height = player->roomspace_height;
             best_roomspace.render_roomspace_as_box = true;
     }
-    if ((player->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && (!best_roomspace.drag_mode) && (mode != roomspace_detection_mode))
+    if ((ustate->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && (!best_roomspace.drag_mode) && (mode != roomspace_detection_mode))
     {
         best_roomspace.is_roomspace_a_box = true;
     }
-    best_roomspace.one_click_mode_exclusive = player->one_click_mode_exclusive;
+    best_roomspace.one_click_mode_exclusive = ustate->one_click_mode_exclusive;
     *roomspace = best_roomspace; // make sure we can render the correct boundbox to the user
 }
 
@@ -896,11 +896,12 @@ TbBool update_dungeon_sell_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoor
 
 void apply_roomspace_packet_action(struct PlayerInfo *player, const struct Packet *pckt)
 {
+    struct UserState* ustate = get_player_user_state(player);
     switch (pckt->action) {
     case PckA_SetRoomspaceAuto:
         player->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
         player->roomspace_mode = roomspace_detection_mode;
-        player->one_click_mode_exclusive = false;
+        ustate->one_click_mode_exclusive = false;
         player->render_roomspace.highlight_mode = false;
         return;
     case PckA_SetRoomspaceMan:
@@ -908,7 +909,7 @@ void apply_roomspace_packet_action(struct PlayerInfo *player, const struct Packe
         player->roomspace_width = pckt->actn_par1;
         player->roomspace_height = pckt->actn_par1;
         player->roomspace_mode = box_placement_mode;
-        player->one_click_mode_exclusive = false;
+        ustate->one_click_mode_exclusive = false;
         player->render_roomspace.highlight_mode = false;
         player->roomspace_no_default = true;
         return;
@@ -923,7 +924,7 @@ void apply_roomspace_packet_action(struct PlayerInfo *player, const struct Packe
         player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
         player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
         player->roomspace_mode = drag_placement_mode;
-        player->one_click_mode_exclusive = true;
+        ustate->one_click_mode_exclusive = true;
         player->render_roomspace.highlight_mode = false;
         player->roomspace_no_default = false;
         return;
@@ -933,7 +934,7 @@ void apply_roomspace_packet_action(struct PlayerInfo *player, const struct Packe
         player->roomspace_width = pckt->actn_par1;
         player->roomspace_height = pckt->actn_par1;
         player->roomspace_mode = box_placement_mode;
-        player->one_click_mode_exclusive = false;
+        ustate->one_click_mode_exclusive = false;
         player->roomspace_no_default = false;
         return;
     case PckA_SetRoomspaceWholeRoom:
@@ -1498,6 +1499,7 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
 {
+    struct UserState* ustate = get_player_user_state(get_player(plyr_idx));
     unsigned long par2;
     struct PlayerInfo* player = get_player(plyr_idx);
     if ( (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) ) // Use "modern" click and drag method
@@ -1530,7 +1532,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     }
     else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true) )
     {
-        if (player->primary_cursor_state == CSt_PowerHand)
+        if (ustate->primary_cursor_state == CSt_PowerHand)
         {
             player = get_player(plyr_idx);
             if (player->roomspace_mode != single_subtile_mode)

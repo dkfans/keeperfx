@@ -47,7 +47,6 @@ enum PlayerInitFlags {
 };
 
 enum PlayerField6Flags {
-    PlaF6_DisplayNeedsUpdate = 0x01,
     PlaF6_PlyrHasQuit       = 0x02,
 };
 
@@ -185,8 +184,6 @@ struct PlayerInfo {
     GameTurn influenced_thing_creation;
     unsigned char view_type;
     PlayerState work_state;
-    unsigned char primary_cursor_state;
-    unsigned char secondary_cursor_state;
     PlayerState continue_work_state;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
@@ -214,22 +211,14 @@ struct PlayerInfo {
     int roomspace_detection_looseness;
     int roomspace_width;
     int roomspace_height;
-    TbBool one_click_mode_exclusive;
-    TbBool one_click_lock_cursor;
-    TbBool ignore_next_PCtr_RBtnRelease;
-    TbBool ignore_next_PCtr_LBtnRelease;
-    char swap_to_untag_mode;
     unsigned char roomspace_highlight_mode;
     TbBool roomspace_no_default;
-    TbBool interpolated_tagging;
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
     unsigned char player_type; //enum PlayerTypes
     ThingModel special_digger;
-    int isometric_tilt;
     unsigned short generate_speed;
-    int first_person_unfreeze_delay;
 };
 
 /* Game state that exists per human user. Computer-controlled
@@ -253,8 +242,17 @@ struct UserState {
     MapSubtlCoord cursor_clicked_subtile_y;
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
     TbBool mouse_on_map;
+    unsigned char primary_cursor_state;
+    unsigned char secondary_cursor_state;
+    TbBool one_click_mode_exclusive;
+    TbBool one_click_lock_cursor;
+    TbBool ignore_next_PCtr_RBtnRelease;
+    TbBool ignore_next_PCtr_LBtnRelease;
+    char swap_to_untag_mode;
+    TbBool interpolated_tagging;
     /** First person (possession) controls. */
     TbBool first_person_dig_claim_mode;
+    int first_person_unfreeze_delay;
     unsigned short selected_fp_thing_pickup;
     unsigned char teleport_destination;
     TbBool nearest_teleport;
@@ -272,7 +270,6 @@ struct UserState {
 /******************************************************************************/
 
 extern unsigned char my_player_number;
-extern short local_thing_under_hand;
 
 #pragma pack()
 /******************************************************************************/
@@ -287,6 +284,8 @@ extern struct LocalState {
     TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
     TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
     TbBool paused_state_restore; /**< Used to restore pause state after saving */
+    TbBool display_needs_update;
+    short local_thing_under_hand;
     TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
     unsigned char *lens_palette;
     unsigned char *main_palette;
