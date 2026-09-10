@@ -3386,6 +3386,9 @@ TbBool update_thing(struct Thing *thing)
     if (flag_is_set(thing->state_flags, TF1_InCtrldLimbo)) {
         return true;
     }
+    MapCoord floor_height;
+    MapCoord ceiling_height;
+    TbBool over_solid_ground = true;
     falling = flag_is_set(thing->state_flags, TF1_FallingIntoAbyss);
     if (falling) {
         thing->velocity.z.val = clamp(thing->velocity.z.val, -CREATURE_TERMINAL_VELOCITY, CREATURE_TERMINAL_VELOCITY);
@@ -3402,7 +3405,10 @@ TbBool update_thing(struct Thing *thing)
         thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
     }
     else {
-        if ((thing->class_id != TCls_EffectElem) && !flag_is_set(thing->movement_flags, TMvF_Immobile) && (thing->fall_acceleration != 0) && (thing->mappos.z.val <= 0) && !thing_can_traverse_abyss_at(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+        if (!flag_is_set(thing->movement_flags, TMvF_Immobile) && !flag_is_set(thing->movement_flags, TMvF_Flying) && (thing->mappos.z.val <= thing->floor_height)) {
+            over_solid_ground = get_floor_and_ceiling_height_under_thing_at(thing, &thing->mappos, &floor_height, &ceiling_height);
+        }
+        if ((thing->class_id != TCls_EffectElem) && !flag_is_set(thing->movement_flags, TMvF_Immobile) && !flag_is_set(thing->movement_flags, TMvF_Flying) && (thing->fall_acceleration != 0) && (thing->mappos.z.val <= 0) && !over_solid_ground) {
             set_flag(thing->state_flags, TF1_FallingIntoAbyss);
             falling = true;
             thing->veloc_base.x.val = thing->velocity.x.val;
@@ -3425,7 +3431,7 @@ TbBool update_thing(struct Thing *thing)
     }
     SYNCDBG(18,"Class function end ok");
     if (!falling && ((thing->movement_flags & TMvF_Immobile) == 0)) {
-        if ((thing->mappos.z.val > thing->floor_height) || !thing_can_traverse_abyss_at(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+        if ((thing->mappos.z.val > thing->floor_height) || (!flag_is_set(thing->movement_flags, TMvF_Flying) && !over_solid_ground)) {
             if (thing->veloc_base.x.val != 0)
                 thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
             if (thing->veloc_base.y.val != 0)

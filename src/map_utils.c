@@ -161,21 +161,24 @@ void init_spiral_steps(void)
  * @param floor_height Floor height value reference. Set to max floor height in range.
  * @param ceiling_height Ceiling height value reference. Set to min ceiling height in range.
  */
-void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubtlCoord stl_y_beg,
+TbBool get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubtlCoord stl_y_beg,
     MapSubtlCoord stl_x_end, MapSubtlCoord stl_y_end,
     MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height)
 {
     *floor_height = 0;
     *ceiling_height = 15;
+    TbBool solid_ground = false;
     // Sweep through subtiles and select highest floor and lowest ceiling
     for (MapSubtlCoord stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
         for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
         {
-            update_floor_and_ceiling_heights_at(stl_x, stl_y,
-                floor_height, ceiling_height);
+            if (update_floor_and_ceiling_heights_at(stl_x, stl_y, floor_height, ceiling_height)) {
+                solid_ground = true;
+            }
         }
     }
+    return solid_ground;
 }
 
 long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilterParam param, long maximizer)

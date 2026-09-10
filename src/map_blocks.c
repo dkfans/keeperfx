@@ -1844,7 +1844,7 @@ void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
  * @param floor_height Floor height value reference. Value is updated only if new one is larger.
  * @param ceiling_height Ceiling height value reference. Value is updated only if new one is smaller.
  */
-void update_floor_and_ceiling_heights_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y,
+TbBool update_floor_and_ceiling_heights_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y,
     MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height)
 {
     struct Map *mapblk;
@@ -1869,6 +1869,7 @@ void update_floor_and_ceiling_heights_at(MapSubtlCoord stl_x, MapSubtlCoord stl_
     if (*ceiling_height > height) {
         *ceiling_height = height;
     }
+    return !subtile_has_abyss_on_top(stl_x, stl_y);
 }
 
 TbBool point_in_map_is_solid(const struct Coord3d *pos)

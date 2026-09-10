@@ -76,7 +76,12 @@ void destroy_thing(struct Thing* thing)
 
 TbBool thing_touching_floor(const struct Thing *thing)
 {
-    return (thing->floor_height == thing->mappos.z.val) && !subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    if (thing->floor_height != thing->mappos.z.val) {
+        return false;
+    }
+    MapCoord floor_height;
+    MapCoord ceiling_height;
+    return get_floor_and_ceiling_height_under_thing_at(thing, &thing->mappos, &floor_height, &ceiling_height);
 }
 
 TbBool thing_touching_flight_altitude(const struct Thing *thing)
@@ -768,7 +773,7 @@ long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct C
     return subtile_coord(ceiling_height,0);
 }
 
-void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
+TbBool get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor)
 {
     long i;
@@ -794,10 +799,11 @@ void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     // Find correct floor and ceiling plane for the area
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
-    get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
+    TbBool solid_ground = get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
     *floor_height_cor = subtile_coord(floor_height,0);
     *ceiling_height_cor = subtile_coord(ceiling_height,0);
+    return solid_ground;
 }
 
 void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVector *veloc)

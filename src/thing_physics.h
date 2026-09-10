@@ -64,7 +64,7 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
 TbBool creature_can_pass_through_wall_at(const struct Thing *thing, const struct Coord3d *pos);
 long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos);
 long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos);
-void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
+TbBool get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor);
 TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing);
 MapCoord push_thingz_against_wall_at(const struct Thing *thing, const struct Coord3d *pos);
