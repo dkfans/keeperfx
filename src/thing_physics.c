@@ -393,9 +393,6 @@ TbBool thing_can_traverse_abyss_at(const struct Thing *thing, MapSubtlCoord stl_
 
 TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d *pos)
 {
-    if (!thing_can_traverse_abyss_at(thing, pos->x.stl.num, pos->y.stl.num)) {
-        return true;
-    }
     struct Coord3d modpos;
     modpos.x.val = pos->x.val;
     modpos.y.val = pos->y.val;
