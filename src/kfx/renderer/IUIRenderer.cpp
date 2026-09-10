@@ -79,10 +79,11 @@ TbResult IUIRenderer::SubmitRawSprite(int32_t x, int32_t y, const struct TbSprit
     if (!spr) return Lb_FAIL;
     if (m_ui_write_cmds) {
         IRUISpriteCmd cmd;
+        cmd.layer = ComputeCurrentLayer();
+        ApplyGameViewportOffset(cmd.layer, x, y);
         cmd.x = x; cmd.y = y;
         cmd.sprite = ResolveSprite(spr);
         cmd.draw_flags = state.flags;
-        cmd.layer = ComputeCurrentLayer();
         cmd.ndc_z = ComputeCurrentNdcZ();
         cmd.seq = m_ui_write_cmds->NextSeq();
         m_ui_write_cmds->sprites.Append(cmd);
@@ -98,11 +99,12 @@ TbResult IUIRenderer::SubmitRawSpriteOneColour(int32_t x, int32_t y, const struc
     if (!spr) return Lb_FAIL;
     if (m_ui_write_cmds) {
         IRUISpriteOneColourCmd cmd;
+        cmd.layer = ComputeCurrentLayer();
+        ApplyGameViewportOffset(cmd.layer, x, y);
         cmd.x = x; cmd.y = y;
         cmd.sprite = ResolveSprite(spr);
         cmd.colour = colour;
         cmd.draw_flags = state.flags;
-        cmd.layer = ComputeCurrentLayer();
         cmd.ndc_z = ComputeCurrentNdcZ();
         cmd.seq = m_ui_write_cmds->NextSeq();
         m_ui_write_cmds->sprites_one_colour.Append(cmd);
@@ -118,10 +120,11 @@ TbResult IUIRenderer::SubmitRawSpriteScaled(int32_t x, int32_t y, const struct T
     if (!spr) return Lb_FAIL;
     if (m_ui_write_cmds) {
         IRUISpriteScaledCmd cmd;
+        cmd.layer = ComputeCurrentLayer();
+        ApplyGameViewportOffset(cmd.layer, x, y);
         cmd.x = x; cmd.y = y; cmd.w = w; cmd.h = h;
         cmd.sprite = ResolveSprite(spr);
         cmd.draw_flags = state.flags;
-        cmd.layer = ComputeCurrentLayer();
         cmd.ndc_z = ComputeCurrentNdcZ();
         cmd.seq = m_ui_write_cmds->NextSeq();
         m_ui_write_cmds->sprites_scaled.Append(cmd);
@@ -138,11 +141,12 @@ TbResult IUIRenderer::SubmitRawSpriteScaledOneColour(int32_t x, int32_t y, const
     if (!spr) return Lb_FAIL;
     if (m_ui_write_cmds) {
         IRUISpriteScaledOneColourCmd cmd;
+        cmd.layer = ComputeCurrentLayer();
+        ApplyGameViewportOffset(cmd.layer, x, y);
         cmd.x = x; cmd.y = y; cmd.w = w; cmd.h = h;
         cmd.sprite = ResolveSprite(spr);
         cmd.colour = colour;
         cmd.draw_flags = state.flags;
-        cmd.layer = ComputeCurrentLayer();
         cmd.ndc_z = ComputeCurrentNdcZ();
         cmd.seq = m_ui_write_cmds->NextSeq();
         m_ui_write_cmds->sprites_scaled_one_colour.Append(cmd);
@@ -159,11 +163,12 @@ int IUIRenderer::SubmitRawSpriteScaledRemap(int32_t x, int32_t y, const struct T
     if (!spr || !cmap) return Lb_FAIL;
     if (m_ui_write_cmds) {
         IRUISpriteScaledRemapCmd cmd;
+        cmd.layer = ComputeCurrentLayer();
+        ApplyGameViewportOffset(cmd.layer, x, y);
         cmd.x = x; cmd.y = y; cmd.w = w; cmd.h = h;
         cmd.sprite = ResolveSprite(spr);
         cmd.cmap = cmap;
         cmd.draw_flags = state.flags;
-        cmd.layer = ComputeCurrentLayer();
         cmd.ndc_z = ComputeCurrentNdcZ();
         cmd.seq = m_ui_write_cmds->NextSeq();
         m_ui_write_cmds->sprites_scaled_remap.Append(cmd);
@@ -179,10 +184,11 @@ void IUIRenderer::SubmitSolidBox(int32_t x, int32_t y, int32_t w, int32_t h,
     if (w <= 0 || h <= 0) return;
     if (m_ui_write_cmds) {
         IRUISolidBoxCmd cmd;
+        cmd.layer = ComputeCurrentLayer();
+        ApplyGameViewportOffset(cmd.layer, x, y);
         cmd.x = x; cmd.y = y; cmd.w = w; cmd.h = h;
         cmd.colour = colour_idx;
         cmd.draw_flags = state.flags;
-        cmd.layer = ComputeCurrentLayer();
         cmd.ndc_z = ComputeCurrentNdcZ();
         cmd.seq = m_ui_write_cmds->NextSeq();
         m_ui_write_cmds->solid_boxes.Append(cmd);
@@ -197,8 +203,9 @@ void IUIRenderer::SubmitSlabBackground(int32_t x, int32_t y, int32_t w, int32_t 
 {
     if (m_ui_write_cmds) {
         IRUISlabBackgroundCmd cmd;
-        cmd.x = x; cmd.y = y; cmd.w = w; cmd.h = h;
         cmd.layer = ComputeCurrentLayer();
+        ApplyGameViewportOffset(cmd.layer, x, y);
+        cmd.x = x; cmd.y = y; cmd.w = w; cmd.h = h;
         cmd.ndc_z = ComputeCurrentNdcZ();
         cmd.seq = m_ui_write_cmds->NextSeq();
         m_ui_write_cmds->slab_backgrounds.Append(cmd);
@@ -226,6 +233,13 @@ void IUIRenderer::EndZoomBoxOverlay(int32_t x, int32_t y, int32_t w, int32_t h)
 void IUIRenderer::SetUICommandBuffers(UICommandBuffers* cmds)
 {
     m_ui_write_cmds = cmds;
+}
+
+void IUIRenderer::SetGameViewport(int32_t x, int32_t y, int32_t w, int32_t h)
+{
+    m_game_vp_x = x; m_game_vp_y = y; m_game_vp_w = w; m_game_vp_h = h;
+    m_game_vp_set = true;
+    if (m_ui_write_cmds) m_ui_write_cmds->game_vp = { x, y, w, h, true };
 }
 
 void IUIRenderer::ReplayMergedFromIR(const UICommandBuffers& ui,

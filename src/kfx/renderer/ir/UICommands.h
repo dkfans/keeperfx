@@ -78,6 +78,12 @@ struct IRUISlabBackgroundCmd {
     uint32_t seq = 0;
 };
 
+/** Game viewport rect, snapshot captured at SetGameViewport() call time. */
+struct UIGameViewport {
+    int32_t x = 0, y = 0, w = 0, h = 0;
+    bool set = false;
+};
+
 struct UICommandBuffers {
     IRCommandBuffer<IRUISpriteCmd>                sprites;
     IRCommandBuffer<IRUISpriteOneColourCmd>       sprites_one_colour;
@@ -86,6 +92,8 @@ struct UICommandBuffers {
     IRCommandBuffer<IRUISpriteScaledRemapCmd>     sprites_scaled_remap;
     IRCommandBuffer<IRUISolidBoxCmd>              solid_boxes;
     IRCommandBuffer<IRUISlabBackgroundCmd>        slab_backgrounds;
+
+    UIGameViewport game_vp;
 
     uint32_t  next_seq   = 0;
     uint32_t* shared_seq = nullptr;
@@ -103,6 +111,7 @@ struct UICommandBuffers {
         sprites_scaled_remap.Reset();
         solid_boxes.Reset();
         slab_backgrounds.Reset();
+        game_vp = {};
         next_seq = 0;
     }
 
@@ -126,6 +135,7 @@ struct UICommandBuffers {
         sprites_scaled_remap.Swap(other.sprites_scaled_remap);
         solid_boxes.Swap(other.solid_boxes);
         slab_backgrounds.Swap(other.slab_backgrounds);
+        std::swap(game_vp, other.game_vp);
         std::swap(next_seq, other.next_seq);
     }
 };

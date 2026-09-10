@@ -350,6 +350,12 @@ void RendererClearWorldOverlayFlat(void)
     if (ui != nullptr) ui->ClearWorldOverlayFlat();
 }
 
+void RendererSetGameViewport(int x, int y, int w, int h)
+{
+    IUIRenderer* ui = RendererGetActiveUIRenderer();
+    if (ui != nullptr) ui->SetGameViewport(x, y, w, h);
+}
+
 void RendererUpdateSlabTexture(const unsigned char* data, int dim)
 {
     IUIRenderer* ui = RendererGetActiveUIRenderer();

@@ -77,6 +77,14 @@ public:
     virtual void SetTopOverlay() { m_top_overlay_active = true; }
     virtual void ClearTopOverlay() { m_top_overlay_active = false; }
 
+    /** Game viewport rect (screen pixels), set once per frame from the
+     *  engine window. WorldOverlay/WorldOverlayFlat coordinates are
+     *  submitted relative to it (the CPU immediate path resolves that
+     *  through its own graphics-window pointer); a bound IR buffer gets
+     *  this added back here, so IR always carries absolute-screen
+     *  coordinates and no backend needs to know about the viewport. */
+    void SetGameViewport(int32_t x, int32_t y, int32_t w, int32_t h);
+
     virtual void BeginZoomBoxOverlay(int32_t x, int32_t y, int32_t w, int32_t h);
     virtual void EndZoomBoxOverlay(int32_t x, int32_t y, int32_t w, int32_t h);
 
@@ -113,6 +121,12 @@ protected:
     float m_world_overlay_flat_z      = 0.5f;
     bool  m_top_overlay_active        = false;
 
+    int32_t m_game_vp_x   = 0;
+    int32_t m_game_vp_y   = 0;
+    int32_t m_game_vp_w   = 0;
+    int32_t m_game_vp_h   = 0;
+    bool    m_game_vp_set = false;
+
     IRUILayer ComputeCurrentLayer() const
     {
         if (m_top_overlay_active)        return IRUILayer::Overlay;
@@ -126,6 +140,18 @@ protected:
         if (m_world_overlay_active)      return m_world_overlay_z;
         if (m_world_overlay_flat_active) return m_world_overlay_flat_z;
         return 0.5f;
+    }
+
+    /** Adds the game-viewport origin to x/y for WorldOverlay/WorldOverlayFlat
+     *  IR submissions, so a deferred command lands in the same absolute-screen
+     *  coordinate an immediate draw reaches through the graphics-window
+     *  pointer. No-op for every other layer or when no viewport is set. */
+    void ApplyGameViewportOffset(IRUILayer layer, int32_t& x, int32_t& y) const
+    {
+        if (!m_game_vp_set) return;
+        if (layer != IRUILayer::WorldOverlay && layer != IRUILayer::WorldOverlayFlat) return;
+        x += m_game_vp_x;
+        y += m_game_vp_y;
     }
 };
 

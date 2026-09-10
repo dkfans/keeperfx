@@ -130,6 +130,13 @@ private:
     static constexpr int kLayerCount = 4;
     std::vector<UIQuad> m_quads[kLayerCount]; // RT: per-frame scratch, built by BuildQuadsFromIR()
 
+    // Game viewport rect for this frame, captured by BuildQuadsFromIR().
+    int  m_game_vp_x = 0;
+    int  m_game_vp_y = 0;
+    int  m_game_vp_w = 0;
+    int  m_game_vp_h = 0;
+    bool m_game_vp_set = false;
+
     /** walks every IR command kind in cross-kind seq order, converts each to 1 UIQuad (2
      *  for slab backgrounds: an opaque backing quad + the tiled quad), and
      *  appends into out[cmd.layer]. */

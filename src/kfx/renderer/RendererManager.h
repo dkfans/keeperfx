@@ -202,6 +202,7 @@ void RendererSetWorldOverlay(float ndc_z);
 void RendererClearWorldOverlay(void);
 void RendererSetWorldOverlayFlat(float ndc_z);
 void RendererClearWorldOverlayFlat(void);
+void RendererSetGameViewport(int x, int y, int w, int h);
 
 void RendererUpdateSlabTexture(const unsigned char* data, int dim);
 

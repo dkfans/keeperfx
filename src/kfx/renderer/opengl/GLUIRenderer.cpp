@@ -650,19 +650,39 @@ void GLUIRenderer::BuildQuadsFromIR(const UICommandBuffers& ui)
 {
     for (auto& v : m_quads) v.clear();
     AppendQuadsFromIR(ui, m_quads);
+    m_game_vp_x   = ui.game_vp.x;
+    m_game_vp_y   = ui.game_vp.y;
+    m_game_vp_w   = ui.game_vp.w;
+    m_game_vp_h   = ui.game_vp.h;
+    m_game_vp_set = ui.game_vp.set;
 }
 
 void GLUIRenderer::DrawWorldSpriteLayerRT()
 {
+    // Guards against bleeding into the overhead map / zoom box regions.
+    bool scissor = m_game_vp_set && m_game_vp_w > 0 && m_game_vp_h > 0;
+    if (scissor)
+    {
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(m_game_vp_x, m_screen_h - m_game_vp_y - m_game_vp_h, m_game_vp_w, m_game_vp_h);
+    }
     // Depth-tested against world geometry -- creature status should occlude behind walls
     FlushQuadLayer(m_quads[(int)IRUILayer::WorldOverlay], /*depth_test=*/true);
+    if (scissor) glDisable(GL_SCISSOR_TEST);
 }
 
 void GLUIRenderer::DrawWorldOverlayFlatLayerRT()
 {
+    bool scissor = m_game_vp_set && m_game_vp_w > 0 && m_game_vp_h > 0;
+    if (scissor)
+    {
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(m_game_vp_x, m_screen_h - m_game_vp_y - m_game_vp_h, m_game_vp_w, m_game_vp_h);
+    }
     // Not depth-tested -- room flags/floating text always draw over world
     // geometry (matches develop's WorldOverlayFlat semantics).
     FlushQuadLayer(m_quads[(int)IRUILayer::WorldOverlayFlat], /*depth_test=*/false);
+    if (scissor) glDisable(GL_SCISSOR_TEST);
 }
 
 void GLUIRenderer::DrawFrontOverlay()

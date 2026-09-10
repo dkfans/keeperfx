@@ -1595,6 +1595,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     view_width_over_2 = ewnd.width/2;
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
     WorldViewRenderer_BeginWorldPass(ewnd.width, ewnd.height, ewnd.x, ewnd.y);
+    RendererSetGameViewport(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     draw_view(cam, 0);
     RendererSetDrawFlags(flg_mem);
