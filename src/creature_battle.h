@@ -41,7 +41,7 @@ struct CreatureBattle {
   unsigned long fighters_num;
   unsigned short first_creatr;
   unsigned short last_creatr;
-  /** Turn on which the battle started, ie. on which its first two fighters were added. */
+  /** Turn on which the battle started, ie. on which its first fighter was added. */
   GameTurn start_turn;
 };
 
@@ -50,8 +50,9 @@ struct CreatureBattle {
 #define INVALID_CRTR_BATTLE (&game.battles[0])
 /******************************************************************************/
 /** Battles shown in the battle panel, newest first, and the creatures listed on each of its
- * rows. This is interface state of the local client alone; it is derived from game.battles[]
- * by maintain_my_battle_list() on every frame, and is no part of the game state. */
+ * rows. This is interface state of the local client alone, no part of the game state; it is
+ * derived from game.battles[] by maintain_my_battle_list(), which runs every frame and builds
+ * it again whenever battle_lists_changed() has been called or the alliances differ. */
 extern BattleIndex visible_battles[VISIBLE_BATTLES_COUNT];
 extern unsigned short friendly_battler_list[VISIBLE_BATTLES_COUNT*MESSAGE_BATTLERS_COUNT];
 extern unsigned short enemy_battler_list[VISIBLE_BATTLES_COUNT*MESSAGE_BATTLERS_COUNT];

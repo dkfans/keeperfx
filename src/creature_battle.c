@@ -43,8 +43,9 @@ unsigned short enemy_battler_list[VISIBLE_BATTLES_COUNT*MESSAGE_BATTLERS_COUNT];
 
 /** Battle shown on the top row of the battle panel, and the turn it started on. The panel is
  * the window of the battle list of the local player which starts at it; zero means it starts
- * at the first battle. The turn is kept so that the panel can stay in place when the anchored
- * battle is over and its index is gone from the list. */
+ * at the first battle. The turn is kept to tell the anchored battle apart from another one
+ * which was later handed the same index, and to keep the panel about the same place once the
+ * anchored battle is over. */
 static BattleIndex visible_battles_anchor;
 static GameTurn visible_battles_anchor_turn;
 
@@ -453,8 +454,9 @@ static int collect_battles_of_player(PlayerNumber plyr_idx, BattleIndex *battles
 }
 
 /**
- * Returns the position which the battle panel anchor has on given battle list. If the anchored
- * battle is over, the panel stays on the first battle which is not newer than the anchored one
+ * Returns the position which the battle panel anchor has on given battle list. When the anchored
+ * battle is no longer on it, either because it is over or because its index has since been handed
+ * to another battle, the panel stays on the first battle which is not newer than the anchored one
  * was, so that it keeps about the place the player had scrolled to.
  */
 static int visible_battles_anchor_position(const BattleIndex *battles, int nbattles)
