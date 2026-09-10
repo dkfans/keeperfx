@@ -6433,6 +6433,10 @@ static void block_voluntary_move_onto_toxic_terrain(struct Thing *thing, struct 
     if (terrain_toxic_for_creature_at_position(thing, pos->x.stl.num, nextpos.y.stl.num)) {
         cctrl->moveaccel.y.val = 0;
     }
+    if ((cctrl->moveaccel.x.val != 0) && (cctrl->moveaccel.y.val != 0) && terrain_toxic_for_creature_at_position(thing, nextpos.x.stl.num, nextpos.y.stl.num)) {
+        cctrl->moveaccel.x.val = 0;
+        cctrl->moveaccel.y.val = 0;
+    }
 }
 
 TngUpdateRet update_creature(struct Thing *thing)
