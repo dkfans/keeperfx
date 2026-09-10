@@ -1744,6 +1744,130 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
     }
 }
 
+/** Adds a command line parameter to the comma separated list of rejected ones. */
+static void append_bad_param(char *bad_params, int bad_params_size, const char *param)
+{
+    str_appendf(bad_params, bad_params_size, "%s%s", (bad_params[0] != '\0') ? ", " : "", param);
+}
+
+/** Whether a command line switch takes the token that follows it as its value. */
+enum CmdLnValueUse {
+    CLVal_None = 0, // The switch never takes a value.
+    CLVal_Always,   // The token after the switch is always taken as its value.
+    CLVal_Maybe,    // The token after the switch is taken only when the switch accepts it.
+};
+
+/** Identifiers of the command line switches the game accepts. */
+enum CmdLnParam {
+    CLPar_OnePlayer = 0,
+    CLPar_Alex,
+    CLPar_AltInput,
+    CLPar_Bullfrog,
+    CLPar_Campaign,
+    CLPar_Cd,
+    CLPar_CompuChat,
+    CLPar_Config,
+    CLPar_Connect,
+    CLPar_DbgPathfind,
+    CLPar_DbgShots,
+    CLPar_Ea,
+    CLPar_ExitOnFailedTest,
+    CLPar_Fps,
+    CLPar_FpsDraw,
+    CLPar_FrameSkip,
+    CLPar_FrameStep,
+    CLPar_FTests,
+    CLPar_Human,
+    CLPar_IncludeLongTests,
+    CLPar_Level,
+    CLPar_Log,
+    CLPar_MpLog,
+    CLPar_NetStats,
+    CLPar_Nick,
+    CLPar_NoCd,
+    CLPar_NoIntro,
+    CLPar_NoMods,
+    CLPar_NoSound,
+    CLPar_Obsolete,
+    CLPar_PacketLoad,
+    CLPar_PacketSave,
+    CLPar_PauseAtGameturn,
+    CLPar_Server,
+    CLPar_Sessions,
+    CLPar_ShowGameTurns,
+    CLPar_SingleLevel,
+    CLPar_SkipHeartZoom,
+    CLPar_Timer,
+    CLPar_VidSmooth,
+    CLPar_WaitUsers,
+};
+
+struct CmdLnParamDesc {
+    const char *name;
+    enum CmdLnParam id;
+    enum CmdLnValueUse value_use;
+};
+
+/** Every accepted command line switch, kept sorted by name. */
+static const struct CmdLnParamDesc cmdln_params[] = {
+    {"1player",           CLPar_OnePlayer,        CLVal_None},
+    {"alex",              CLPar_Alex,             CLVal_None},
+    {"altinput",          CLPar_AltInput,         CLVal_None},
+    {"Bullfrog",          CLPar_Bullfrog,         CLVal_None},
+    {"campaign",          CLPar_Campaign,         CLVal_Always},
+    {"cd",                CLPar_Cd,               CLVal_None},
+    {"columnconvert",     CLPar_Obsolete,         CLVal_None},
+    {"compuchat",         CLPar_CompuChat,        CLVal_Always},
+    {"config",            CLPar_Config,           CLVal_Always},
+    {"connect",           CLPar_Connect,          CLVal_Always},
+    {"dbgpathfind",       CLPar_DbgPathfind,      CLVal_None},
+    {"dbgshots",          CLPar_DbgShots,         CLVal_None},
+    {"ea",                CLPar_Ea,               CLVal_None},
+    {"exitonfailedtest",  CLPar_ExitOnFailedTest, CLVal_None},
+    {"fps",               CLPar_Fps,              CLVal_Always},
+    {"fps_draw",          CLPar_FpsDraw,          CLVal_Always},
+    {"frameskip",         CLPar_FrameSkip,        CLVal_Always},
+    {"framestep",         CLPar_FrameStep,        CLVal_None},
+    {"ftests",            CLPar_FTests,           CLVal_Maybe},
+    {"human",             CLPar_Human,            CLVal_Always},
+    {"includelongtests",  CLPar_IncludeLongTests, CLVal_None},
+    {"level",             CLPar_Level,            CLVal_Always},
+    {"lightconvert",      CLPar_Obsolete,         CLVal_None},
+    {"log",               CLPar_Log,              CLVal_Always},
+    {"mplog",             CLPar_MpLog,            CLVal_None},
+    {"netstats",          CLPar_NetStats,         CLVal_None},
+    {"nick",              CLPar_Nick,             CLVal_Maybe},
+    {"nocd",              CLPar_NoCd,             CLVal_None},
+    {"nointro",           CLPar_NoIntro,          CLVal_None},
+    {"nomods",            CLPar_NoMods,           CLVal_None},
+    {"nosound",           CLPar_NoSound,          CLVal_None},
+    {"packetload",        CLPar_PacketLoad,       CLVal_Always},
+    {"packetsave",        CLPar_PacketSave,       CLVal_Always},
+    {"pause_at_gameturn", CLPar_PauseAtGameturn,  CLVal_Always},
+    {"q",                 CLPar_SingleLevel,      CLVal_None},
+    {"s",                 CLPar_NoSound,          CLVal_None},
+    {"server",            CLPar_Server,           CLVal_Maybe},
+    {"sessions",          CLPar_Sessions,         CLVal_Always},
+    {"show_game_turns",   CLPar_ShowGameTurns,    CLVal_None},
+    {"skipheartzoom",     CLPar_SkipHeartZoom,    CLVal_None},
+    {"timer",             CLPar_Timer,            CLVal_Maybe},
+    {"vidsmooth",         CLPar_VidSmooth,        CLVal_None},
+    {"waitusers",         CLPar_WaitUsers,        CLVal_Always},
+};
+
+/** Finds the description of a command line switch by name, ignoring case.
+ * @return The matching description, or NULL when the name is not a known switch.
+ */
+static const struct CmdLnParamDesc *recognize_cmdln_param(const char *name)
+{
+    for (size_t i = 0; i < sizeof(cmdln_params) / sizeof(cmdln_params[0]); i++)
+    {
+        if (strcasecmp(cmdln_params[i].name, name) == 0)
+            return &cmdln_params[i];
+    }
+    return NULL;
+}
+
 static short process_command_line(unsigned short argc, char *argv[])
 {
   char fullpath[CMDLN_MAXLEN+1];
@@ -1773,291 +1897,223 @@ static short process_command_line(unsigned short argc, char *argv[])
   char bad_params[TEXT_BUFFER_LENGTH] = "\0";
   while ( narg < argc )
   {
-      char *par;
-      par = argv[narg];
+      const char *par = argv[narg];
       if ( (par == NULL) || ((par[0] != '-') && (par[0] != '/')) )
-          return -1;
-      char parstr[CMDLN_MAXLEN+1];
-      char pr2str[CMDLN_MAXLEN+1];
-      char pr3str[CMDLN_MAXLEN+1];
-      snprintf(parstr, CMDLN_MAXLEN, "%s", par + 1);
-      if (narg + 1 < argc)
       {
-          snprintf(pr2str, CMDLN_MAXLEN, "%s", argv[narg + 1]);
-          if (narg + 2 < argc)
-              snprintf(pr3str, CMDLN_MAXLEN, "%s", argv[narg + 2]);
-          else
-              pr3str[0]='\0';
+          // Not a switch at all; report it like an unrecognized switch rather than quitting silently
+          append_bad_param(bad_params, sizeof(bad_params), (par == NULL) ? "(null)" : par);
+          bad_param = narg;
+          narg++;
+          continue;
       }
-      else
+      const char *parstr = par + 1;
+      const struct CmdLnParamDesc *desc = recognize_cmdln_param(parstr);
+      if (desc == NULL)
       {
-          pr2str[0]='\0';
-          pr3str[0]='\0';
+          append_bad_param(bad_params, sizeof(bad_params), parstr);
+          bad_param = narg;
+          narg++;
+          continue;
       }
-
-      if (strcasecmp(parstr, "nointro") == 0)
+      // Writable empty string, as not every parser below takes a constant argument
+      char no_value[] = "";
+      char *value = (narg + 1 < argc) ? argv[narg + 1] : no_value;
+      // Switches which only accept some values decide for themselves whether the value was theirs
+      TbBool value_used = (desc->value_use == CLVal_Always);
+      switch (desc->id)
       {
-        start_params.no_intro = true;
-      } else
-      if (strcasecmp(parstr, "skipheartzoom") == 0)
-      {
-        start_params.skip_heart_zoom = true;
-      } else
-      if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
-      {
-          WARNLOG("The -nocd commandline parameter is no longer functional. Game music from CD is a setting in keeperfx.cfg instead.");
-      } else
-      if (strcasecmp(parstr, "columnconvert") == 0) //todo remove once it's no longer in the launcher
-      {
-          WARNLOG("The -%s commandline parameter is no longer functional.", parstr);
-      }
-      else
-      if (strcasecmp(parstr, "cd") == 0)
-      {
-          start_params.overrides[Clo_CDMusic] = true;
-      } else
-      if (strcasecmp(parstr, "1player") == 0)
-      {
+      case CLPar_OnePlayer:
           start_params.one_player = true;
           one_player_mode = true;
-      } else
-      if ((strcasecmp(parstr, "s") == 0) || (strcasecmp(parstr, "nosound") == 0))
-      {
-          SoundDisabled = true;
-      } else
-      if (strcasecmp(parstr, "fps") == 0)
-      {
-          narg++;
-          start_params.num_fps = atoi(pr2str);
-          start_params.overrides[Clo_GameTurns] = true;
-      } else
-      if (strcasecmp(parstr, "fps_draw") == 0)
-      {
-          narg++;
-	  if (parse_draw_fps_config_val(pr2str, &start_params.num_fps_draw_main, &start_params.num_fps_draw_secondary) > 0)
-            start_params.overrides[Clo_FramesPerSecond] = true;
-      } else
-      if (strcasecmp(parstr, "human") == 0)
-      {
-          narg++;
-          default_loc_player = atoi(pr2str);
-          force_player_num = true;
-      } else
-      if (strcasecmp(parstr, "vidsmooth") == 0)
-      {
-          smooth_on = true;
-      } else
-      if ( strcasecmp(parstr,"level") == 0 )
-      {
-        set_flag(start_params.operation_flags, GOF_SingleLevel);
-        level_num = atoi(pr2str);
-        autostart_multiplayer_level = atoi(pr2str);
-        narg++;
-      } else
-      if ( strcasecmp(parstr,"campaign") == 0 )
-      {
-        strcpy(start_params.selected_campaign, pr2str);
-        strcpy(autostart_multiplayer_campaign, pr2str);
-        narg++;
-      } else
-      if ( strcasecmp(parstr,"altinput") == 0 )
-      {
+          break;
+      case CLPar_Alex:
+          start_params.easter_egg = true;
+          break;
+      case CLPar_AltInput:
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
-      }
-      else if (strcasecmp(parstr,"packetload") == 0)
-      {
-         if (start_params.packet_save_enable)
-            WARNMSG("PacketSave disabled to enable PacketLoad.");
-         start_params.packet_load_enable = true;
-         start_params.packet_save_enable = false;
-         snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
-         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
-         narg++;
-      } else
-      if (strcasecmp(parstr,"packetsave") == 0)
-      {
-         if (start_params.packet_load_enable)
-            WARNMSG("PacketLoad disabled to enable PacketSave.");
-         start_params.packet_load_enable = false;
-         start_params.packet_save_enable = true;
-         snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
-         narg++;
-      } else
-      if (strcasecmp(parstr,"pause_at_gameturn") == 0)
-      {
-         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep | DFlg_PauseAtGameTurn);
-         start_params.pause_at_gameturn = atoi(pr2str);
-         narg++;
-      } else
-      if (strcasecmp(parstr,"q") == 0)
-      {
-         set_flag(start_params.operation_flags, GOF_SingleLevel);
-      } else
-      if (strcasecmp(parstr,"lightconvert") == 0)
-      {
-         WARNLOG("The -%s commandline parameter is no longer functional.", parstr); //todo remove once it's no longer in the launcher
-      } else
-      if (strcasecmp(parstr, "dbgshots") == 0)
-      {
-          set_flag(start_params.debug_flags, DFlg_ShotsDamage);
-      } else
-      if (strcasecmp(parstr, "dbgpathfind") == 0)
-      {
-          set_flag(start_params.debug_flags, DFlg_CreatrPaths);
-      } else
-      if (strcasecmp(parstr, "show_game_turns") == 0)
-      {
-          set_flag(start_params.debug_flags, DFlg_ShowGameTurns);
-      } else
-      if (strcasecmp(parstr, "mplog") == 0)
-      {
-          detailed_multiplayer_logging = true;
-      } else
-      if (strcasecmp(parstr, "netstats") == 0)
-      {
-          debug_display_network_stats = 1;
-      } else
-      if (strcasecmp(parstr, "compuchat") == 0)
-      {
-          if (strcasecmp(pr2str,"scarce") == 0) {
+          break;
+      case CLPar_Bullfrog: // force playing the Bullfrog video
+          set_flag(start_params.startup_flags, SFlg_Bullfrog);
+          break;
+      case CLPar_Campaign:
+          snprintf(start_params.selected_campaign, sizeof(start_params.selected_campaign), "%s", value);
+          snprintf(autostart_multiplayer_campaign, sizeof(autostart_multiplayer_campaign), "%s", value);
+          break;
+      case CLPar_Cd:
+          start_params.overrides[Clo_CDMusic] = true;
+          break;
+      case CLPar_CompuChat:
+          if (strcasecmp(value, "scarce") == 0) {
               start_params.computer_chat_flags = CChat_TasksScarce;
           } else
-          if (strcasecmp(pr2str,"frequent") == 0) {
+          if (strcasecmp(value, "frequent") == 0) {
               start_params.computer_chat_flags = CChat_TasksScarce|CChat_TasksFrequent;
           } else {
               start_params.computer_chat_flags = CChat_None;
           }
-          narg++;
-      } else
-      if (strcasecmp(parstr, "sessions") == 0) {
-          narg++;
-          LbNetwork_InitSessionsFromCmdLine(pr2str);
-      } else
-      if (strcasecmp(parstr, "nomods") == 0) {
-          start_params.ignore_mods = true;
-      } else
-      if (strcasecmp(parstr,"alex") == 0)
-      {
-         start_params.easter_egg = true;
-      }
-      else if (strcasecmp(parstr,"connect") == 0)
-      {
-          narg++;
-          LbNetwork_InitSessionsFromCmdLine(pr2str);
+          break;
+      case CLPar_Config:
+          snprintf(start_params.config_file, sizeof(start_params.config_file), "%s", value);
+          start_params.overrides[Clo_ConfigFile] = true;
+          break;
+      case CLPar_Connect:
+          LbNetwork_InitSessionsFromCmdLine(value);
           game_flags2 |= GF2_Connect;
-      }
-      else if (strcasecmp(parstr,"waitusers") == 0)
-      {
-          autostart_multiplayer_users_expected = clamp(atoi(pr2str), MIN_NET_USERS, MAX_NET_USERS);
-          narg++;
-      }
-      else if (strcasecmp(parstr,"server") == 0)
-      {
-          game_flags2 |= GF2_Server;
-          int port = atoi(pr2str);
-          if (port > 0)
+          break;
+      case CLPar_DbgPathfind:
+          set_flag(start_params.debug_flags, DFlg_CreatrPaths);
+          break;
+      case CLPar_DbgShots:
+          set_flag(start_params.debug_flags, DFlg_ShotsDamage);
+          break;
+      case CLPar_Ea: // force playing the EA video
+          set_flag(start_params.startup_flags, SFlg_EA);
+          break;
+      case CLPar_ExitOnFailedTest:
+#ifdef FUNCTESTING
+          set_flag(start_params.functest_flags, FTF_ExitOnTestFailure);
+#else
+          WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
+          break;
+      case CLPar_Fps:
+          start_params.num_fps = atoi(value);
+          start_params.overrides[Clo_GameTurns] = true;
+          break;
+      case CLPar_FpsDraw:
+          if (parse_draw_fps_config_val(value, &start_params.num_fps_draw_main, &start_params.num_fps_draw_secondary) > 0)
+              start_params.overrides[Clo_FramesPerSecond] = true;
+          break;
+      case CLPar_FrameSkip:
+          start_params.frame_skip = atoi(value);
+          break;
+      case CLPar_FrameStep:
+          set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
+          break;
+      case CLPar_FTests:
+#ifdef FUNCTESTING
+          value_used = ftest_parse_arg(value); // handle arg on ftest build
+          set_flag(start_params.functest_flags, FTF_Enabled);
+#else
+          value_used = ((value[0] != '\0') && (value[0] != '-')); // ignore arg on regular build
+          WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
+          break;
+      case CLPar_Human:
+          default_loc_player = atoi(value);
+          force_player_num = true;
+          break;
+      case CLPar_IncludeLongTests:
+#ifdef FUNCTESTING
+          set_flag(start_params.functest_flags, FTF_IncludeLongTests);
+#else
+          WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
+          break;
+      case CLPar_Level:
+          set_flag(start_params.operation_flags, GOF_SingleLevel);
+          level_num = atoi(value);
+          autostart_multiplayer_level = atoi(value);
+          break;
+      case CLPar_Log:
+          break; // the value was already picked up by determine_log_filename()
+      case CLPar_MpLog:
+          detailed_multiplayer_logging = true;
+          break;
+      case CLPar_NetStats:
+          debug_display_network_stats = 1;
+          break;
+      case CLPar_Nick:
+          if (value[0] != '\0')
           {
-              LbNetwork_SetServerPort(port);
-              narg++;
-          }
-      }
-      else if (strcasecmp(parstr, "nick") == 0)
-      {
-          if (pr2str[0])
-          {
-              snprintf(net_player_name, sizeof(net_player_name), "%s", pr2str);
-              snprintf(tmp_net_player_name, sizeof(net_player_name), "%s", pr2str);
-              narg++;
+              snprintf(net_player_name, sizeof(net_player_name), "%s", value);
+              snprintf(tmp_net_player_name, sizeof(net_player_name), "%s", value);
+              value_used = true;
           }
           else
           {
               WARNMSG("No player name given after -nick");
           }
+          break;
+      case CLPar_NoCd: // kept for legacy reasons
+          WARNLOG("The -nocd commandline parameter is no longer functional. Game music from CD is a setting in keeperfx.cfg instead.");
+          break;
+      case CLPar_NoIntro:
+          start_params.no_intro = true;
+          break;
+      case CLPar_NoMods:
+          start_params.ignore_mods = true;
+          break;
+      case CLPar_NoSound:
+          SoundDisabled = true;
+          break;
+      case CLPar_Obsolete: //todo remove once these are no longer in the launcher
+          WARNLOG("The -%s commandline parameter is no longer functional.", parstr);
+          break;
+      case CLPar_PacketLoad:
+          if (start_params.packet_save_enable)
+              WARNMSG("PacketSave disabled to enable PacketLoad.");
+          start_params.packet_load_enable = true;
+          start_params.packet_save_enable = false;
+          snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", value);
+          set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
+          break;
+      case CLPar_PacketSave:
+          if (start_params.packet_load_enable)
+              WARNMSG("PacketLoad disabled to enable PacketSave.");
+          start_params.packet_load_enable = false;
+          start_params.packet_save_enable = true;
+          snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", value);
+          break;
+      case CLPar_PauseAtGameturn:
+          set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep | DFlg_PauseAtGameTurn);
+          start_params.pause_at_gameturn = atoi(value);
+          break;
+      case CLPar_Server:
+      {
+          game_flags2 |= GF2_Server;
+          int port = atoi(value);
+          if (port > 0)
+          {
+              LbNetwork_SetServerPort(port);
+              value_used = true;
+          }
+          break;
       }
-      else if (strcasecmp(parstr,"frameskip") == 0)
-      {
-         start_params.frame_skip = atoi(pr2str);
-         narg++;
-      } else
-      if (strcasecmp(parstr,"framestep") == 0)
-      {
-         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
-      }
-      else if (strcasecmp(parstr, "timer") == 0)
-      {
+      case CLPar_Sessions:
+          LbNetwork_InitSessionsFromCmdLine(value);
+          break;
+      case CLPar_ShowGameTurns:
+          set_flag(start_params.debug_flags, DFlg_ShowGameTurns);
+          break;
+      case CLPar_SingleLevel:
+          set_flag(start_params.operation_flags, GOF_SingleLevel);
+          break;
+      case CLPar_SkipHeartZoom:
+          start_params.skip_heart_zoom = true;
+          break;
+      case CLPar_Timer:
           game_flags2 |= GF2_Timer;
-          if (strcasecmp(pr2str, "game") == 0)
+          if (strcasecmp(value, "game") == 0)
           {
               TimerGame = true;
-              narg++;
+              value_used = true;
           }
-          else if (strcasecmp(pr2str, "continuous") == 0)
+          else if (strcasecmp(value, "continuous") == 0)
           {
               TimerNoReset = true;
-              narg++;
+              value_used = true;
           }
+          break;
+      case CLPar_VidSmooth:
+          smooth_on = true;
+          break;
+      case CLPar_WaitUsers:
+          autostart_multiplayer_users_expected = clamp(atoi(value), MIN_NET_USERS, MAX_NET_USERS);
+          break;
       }
-      else if ( strcasecmp(parstr,"config") == 0 )
-      {
-        strcpy(start_params.config_file, pr2str);
-        start_params.overrides[Clo_ConfigFile] = true;
-        narg++;
-      }
-      else if ( strcasecmp(parstr,"Bullfrog") == 0 ) // force playing the Bullfrog video
-      {
-        set_flag(start_params.startup_flags, SFlg_Bullfrog);
-      }
-      else if ( strcasecmp(parstr,"ea") == 0 ) // force playing the EA video
-      {
-        set_flag(start_params.startup_flags, SFlg_EA);
-      }
-      else if (strcasecmp(parstr, "ftests") == 0)
-      {
-#ifdef FUNCTESTING
-        if(ftest_parse_arg(pr2str)) // handle arg on ftest build
-#else
-        if(strlen(pr2str) > 0 && pr2str[0] != '-') // ignore arg on regular build
-#endif // FUNCTESTING
-        {
-            ++narg;
-        }
-
-#ifdef FUNCTESTING
-        set_flag(start_params.functest_flags, FTF_Enabled);
-#else
-        WARNLOG("Flag '%s' disabled for release builds.", parstr);
-#endif // FUNCTESTING
-      }
-      else if (strcasecmp(parstr, "log") == 0)
-      {
-          narg++;
-      }
-      else if(strcasecmp(parstr, "exitonfailedtest") == 0)
-      {
-#ifdef FUNCTESTING
-        set_flag(start_params.functest_flags, FTF_ExitOnTestFailure);
-#else
-       WARNLOG("Flag '%s' disabled for release builds.", parstr);
-#endif // FUNCTESTING
-      }
-      else if(strcasecmp(parstr, "includelongtests") == 0)
-      {
-#ifdef FUNCTESTING
-        set_flag(start_params.functest_flags, FTF_IncludeLongTests);
-#else
-       WARNLOG("Flag '%s' disabled for release builds.", parstr);
-#endif // FUNCTESTING
-      }
-      else
-      {
-        // append bad parstr to bad_params string
-        char param_buffer[128] = "";
-        snprintf(param_buffer, sizeof(param_buffer), "%s%s", strnlen(bad_params, TEXT_BUFFER_LENGTH) > 0 ? ", " : "" , parstr);
-        str_append(bad_params, sizeof(bad_params), param_buffer);
-        bad_param=narg;
-      }
-      narg++;
+      narg += value_used ? 2 : 1;
   }
 
   if (level_num == LEVELNUMBER_ERROR)
