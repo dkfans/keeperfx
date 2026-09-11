@@ -34,7 +34,6 @@ int GLCursorLayer::SubmitKeeperHandSprite(short x, short y, unsigned short kspr_
     if (!m_world)
         return 1; //OK, Nothing drawable.
 
-
     m_world->BeginCursorCapture();
     m_world->SubmitKeeperSprite(dst_x, dst_y, dst_w, dst_h, data, src_w, src_h, src_h,
                                 (unsigned int)draw_flags, nullptr, draw_idx);

@@ -2165,9 +2165,32 @@ void GLWorldViewRenderer::DrawCursorKeeperSprites()
     ASSERT_RENDER_THREAD();
     if (m_rt_cursor_kspr_ir.empty())
         return;
+    ensure_clut_valid();
+
+    const int saved_draw_w = m_draw_screen_w;
+    const int saved_draw_h = m_draw_screen_h;
+    const float saved_z    = m_current_sprite_z;
+
+    // Cursor sprites are full-screen (mouse coords, not 3D-viewport-relative)
+    // and must always render on top -- force full-window size/near-z before
+    // drawing, same as develop's DrawCursorKeeperSprites().
+    m_draw_screen_w    = m_full_screen_w;
+    m_draw_screen_h    = m_full_screen_h;
+    m_current_sprite_z = -1.0f;
+
+    glViewport(0, 0, m_full_screen_w, m_full_screen_h);
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
+
     for (const IRWorldKeeperSpriteCmd& cmd : m_rt_cursor_kspr_ir)
         append_keeper_sprite_instance(cmd);
     flush_keeper_sprite_instances();
+
+    glDepthMask(GL_TRUE);
+
+    m_draw_screen_w    = saved_draw_w;
+    m_draw_screen_h    = saved_draw_h;
+    m_current_sprite_z = saved_z;
 }
 
 void GLWorldViewRenderer::gpu_flush()

@@ -122,6 +122,7 @@ TbResult RendererPaletteSet(unsigned char *palette)
         for (int i = 0; i < PALETTE_SIZE; i++)
             rgb8[i] = chan6_to_8(pal6[i]);
         RendererSetDisplayPalette(rgb8);
+        RendererSetPaletteForRenderers(pal6);
     }
     return ret;
 }
@@ -421,6 +422,13 @@ void CursorLayer_SubmitPointerSprite(const struct TbSprite* spr, int32_t x, int3
 static IWorldViewRenderer* active_world_renderer(void)
 {
     return (s_active_renderer != nullptr) ? s_active_renderer->GetWorldViewRenderer() : nullptr;
+}
+
+void RendererSetPaletteForRenderers(const unsigned char* pal6)
+{
+    IWorldViewRenderer* world = active_world_renderer();
+    if (world != nullptr)
+        world->SetPaletteSource(pal6);
 }
 
 // Immediate-fallback bodies: reproduce the pre-P5.7.0 behaviour exactly for
