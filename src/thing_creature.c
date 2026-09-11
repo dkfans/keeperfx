@@ -6418,6 +6418,27 @@ static void process_keeper_spell_aura(struct Thing *thing)
     create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner, thing->index);
 }
 
+static void block_voluntary_move_onto_toxic_terrain(struct Thing *thing, struct CreatureControl *cctrl)
+{
+    const struct Coord3d *pos = &thing->mappos;
+    if (flag_is_set(thing->alloc_flags, TAlF_IsControlled) || terrain_toxic_for_creature_at_position(thing, pos->x.stl.num, pos->y.stl.num)) {
+        return;
+    }
+    struct Coord3d nextpos;
+    nextpos.x.val = pos->x.val + cctrl->moveaccel.x.val;
+    nextpos.y.val = pos->y.val + cctrl->moveaccel.y.val;
+    if (terrain_toxic_for_creature_at_position(thing, nextpos.x.stl.num, pos->y.stl.num)) {
+        cctrl->moveaccel.x.val = 0;
+    }
+    if (terrain_toxic_for_creature_at_position(thing, pos->x.stl.num, nextpos.y.stl.num)) {
+        cctrl->moveaccel.y.val = 0;
+    }
+    if ((cctrl->moveaccel.x.val != 0) && (cctrl->moveaccel.y.val != 0) && terrain_toxic_for_creature_at_position(thing, nextpos.x.stl.num, nextpos.y.stl.num)) {
+        cctrl->moveaccel.x.val = 0;
+        cctrl->moveaccel.y.val = 0;
+    }
+}
+
 TngUpdateRet update_creature(struct Thing *thing)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
@@ -6526,6 +6547,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         SYNCDBG(19,"The %s index %d acceleration is (%d,%d,%d)",thing_model_name(thing),
             (int)thing->index,(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val,(int)cctrl->moveaccel.z.val);
+        block_voluntary_move_onto_toxic_terrain(thing, cctrl);
         thing->velocity.x.val += cctrl->moveaccel.x.val;
         thing->velocity.y.val += cctrl->moveaccel.y.val;
         thing->velocity.z.val += cctrl->moveaccel.z.val;
