@@ -155,4 +155,18 @@ void UIRenderer_EndZoomBoxOverlay(int32_t x, int32_t y, int32_t w, int32_t h)
     if (ui != nullptr) ui->EndZoomBoxOverlay(x, y, w, h);
 }
 
+unsigned char* UIRenderer_AcquireMinimapBuffer(int32_t size)
+{
+    IUIRenderer* ui = RendererGetActiveUIRenderer();
+    if (ui == nullptr) return nullptr;
+    return ui->AcquireMinimapBuffer(size);
+}
+
+void UIRenderer_SubmitMinimap(int32_t screen_x, int32_t screen_y, int32_t size,
+                              const int32_t *shape_start, const int32_t *shape_end)
+{
+    IUIRenderer* ui = RendererGetActiveUIRenderer();
+    if (ui != nullptr) ui->SubmitMinimap(screen_x, screen_y, size, shape_start, shape_end);
+}
+
 /******************************************************************************/

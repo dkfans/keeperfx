@@ -25,6 +25,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_vidraw.h"
+#include "vidmode.h" // pixmap.ghost, ghost_table_blend() -- shared with the minimap's identical blend
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_dernc.h"
@@ -400,28 +401,38 @@ void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNum
                 dstblock += run_width;
                 continue;
             }
-            const unsigned char* remap = NULL;
+            // ghost_table_blend()'s table_offset for each style, or -1 for a
+            // literal colour write -- same table/formula the minimap uses
+            // (vidmode.h) for the identical categories. Abyss uses its own
+            // direct 256-entry LUT (pixmap.map_abyss) instead, since it isn't
+            // an offset into pixmap.ghost.
+            int table_offset = -1;
             int shift = 0;
             int add = 0;
+            const unsigned char* abyss_remap = NULL;
             if (style == OMapSt_Tagged || style == OMapSt_TaggedGems) {
-                remap = &pixmap.ghost[0x1A00];
+                table_offset = 0x1A00;
                 if (style == OMapSt_TaggedGems) {
                     add = 2;
                 }
             } else if (style == OMapSt_Gold) {
-                remap = &pixmap.ghost[0x8C00];
+                table_offset = 0x8C00;
             } else if (style == OMapSt_Gems) {
-                remap = pixmap.ghost;
+                table_offset = 0;
                 shift = 6;
                 add = 102;
             } else if (style == OMapSt_Wall) {
-                remap = &pixmap.ghost[0x1000];
+                table_offset = 0x1000;
             } else if (style == OMapSt_Abyss) {
-                remap = pixmap.map_abyss;
+                abyss_remap = pixmap.map_abyss;
             }
             unsigned char* dstline = dstblock;
             for (int32_t y = 0; y < block_size; y++) {
-                if (remap == NULL) {
+                if (abyss_remap != NULL) {
+                    for (int32_t x = 0; x < run_width; x++) {
+                        dstline[x] = abyss_remap[dstline[x]];
+                    }
+                } else if (table_offset < 0) {
                     if (run_width >= 16) {
                         memset(dstline, style, run_width);
                     } else {
@@ -432,7 +443,7 @@ void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNum
                     }
                 } else {
                     for (int32_t x = 0; x < run_width; x++) {
-                        dstline[x] = add + (remap[dstline[x]] >> shift);
+                        dstline[x] = ghost_table_blend(dstline[x], table_offset, shift, add);
                     }
                 }
                 dstline += map_w;

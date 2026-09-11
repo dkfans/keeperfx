@@ -40,7 +40,13 @@ public:
     virtual unsigned char* LockFramebuffer(int* out_pitch) { (void)out_pitch; return nullptr; }
     virtual void UnlockFramebuffer() {}
 
-    struct BackendCapabilities { int hasGPURenderPath = 0; };
+    struct BackendCapabilities {
+        int hasGPURenderPath = 0;
+        // True when the backend composites the minimap over the panel artwork
+        // itself (draw-order layering), so submitted minimap pixels must NOT
+        // have the panel-background colour baked into them.
+        int compositesMinimapBackground = 0;
+    };
     virtual BackendCapabilities GetCapabilities() const { return BackendCapabilities{}; }
 
     virtual bool BeginFrame() = 0;

@@ -72,6 +72,17 @@ public:
      *  develop's UpdateSlabTexture()/FlushPendingInit() split. */
     void UpdateSlabTexture(const unsigned char* data, int dim) override;
 
+    /** Renderer-owned minimap pixel buffer + GPU texture upload/draw --
+     *  bypasses the normal per-command IR (bulk raster data, same shape as
+     *  the slab texture above), and draws its own quad directly from
+     *  DrawGameUILayerRT() rather than through AppendQuadsFromIR()/m_quads,
+     *  so it always composites on top of the panel-background sprites GameUI
+     *  already flushed this frame (see BackendCapabilities::
+     *  compositesMinimapBackground). */
+    uint8_t* AcquireMinimapBuffer(int size) override;
+    void SubmitMinimap(int screen_x, int screen_y, int size,
+                       const int32_t* shape_start, const int32_t* shape_end) override;
+
     void DrawGlyphQuad(SpriteHandle glyph, float x, float y, int units_per_px,
                        float r, float g, float b, float a, bool sample_palette = true);
 
@@ -123,7 +134,7 @@ private:
         uint32_t seq = 0;
     };
 
-    enum PassType { PASS_SPRITE, PASS_SOLID, PASS_SLAB, PASS_COLORED, PASS_REMAP };
+    enum PassType { PASS_SPRITE, PASS_SOLID, PASS_SLAB, PASS_COLORED, PASS_REMAP, PASS_MINIMAP };
     static PassType classify(float mode);
 
     // WorldOverlay=0, WorldOverlayFlat=1, GameUI=2, Overlay=3 (matches IRUILayer).
@@ -170,6 +181,35 @@ private:
     std::atomic<int> m_slab_pending_dim{0};
 
     void FlushPendingSlabUpload();
+
+    // Minimap: 2-slot CPU buffer -- AcquireMinimapBuffer() hands out
+    // slot[m_minimap_write_idx] each frame; SubmitMinimap() publishes it via
+    // m_minimap_read_idx (release) and flips to the other slot, so the game
+    // thread can safely start refilling next frame's buffer while the render
+    // thread is still uploading the one it just published. Matches the one-
+    // frame-of-overlap PresentFrame()'s WaitForCompletion() already bounds
+    // for every other GT->RT handoff on this branch.
+    std::vector<uint8_t> m_minimap_cpu_buf[2];
+    int m_minimap_cpu_size = 0;   // GT: current buffer side length (both slots)
+    int m_minimap_write_idx = 0;  // GT: slot AcquireMinimapBuffer() currently hands out
+    std::atomic<int> m_minimap_read_idx{-1};       // GT->RT publish (sticky); -1 = never submitted
+    std::atomic<uint32_t> m_minimap_submit_seq{0}; // GT: bumped every SubmitMinimap() call
+    int m_minimap_pub_x = 0, m_minimap_pub_y = 0, m_minimap_pub_size = 0; // GT-written, visible to RT once m_minimap_read_idx's release is observed
+
+    GpuResourceHandle m_minimap_tex_handle = kInvalidGpuResource;
+    int m_minimap_tex_size = 0; // RT: currently-allocated texture side length, 0 = none yet
+    int m_minimap_rt_active_idx = -1; // RT-only: slot DrawMinimapQuad() is currently drawing, for FlushPendingMinimapUpload()
+
+    // RT-only: hides the minimap after several consecutive frames with no
+    // fresh SubmitMinimap() call (a real navigate-away, not just the render
+    // loop occasionally outpacing a slower game-logic tick).
+    uint32_t m_minimap_rt_last_seq = 0;
+    uint32_t m_minimap_rt_uploaded_seq = 0;
+    int m_minimap_rt_idle_frames = 0;
+    static constexpr int kMinimapIdleGraceFrames = 5;
+
+    void FlushPendingMinimapUpload();
+    void DrawMinimapQuad();
 };
 
 #endif // RENDERER_OPENGL_GLUIRENDERER_H

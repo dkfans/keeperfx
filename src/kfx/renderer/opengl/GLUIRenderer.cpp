@@ -346,6 +346,122 @@ void GLUIRenderer::FlushPendingSlabUpload()
     m_slab_dim = dim;
 }
 
+uint8_t* GLUIRenderer::AcquireMinimapBuffer(int size)
+{
+    if (size <= 0) return nullptr;
+    auto& buf = m_minimap_cpu_buf[m_minimap_write_idx];
+    const size_t needed = (size_t)size * (size_t)size;
+    if (buf.size() != needed)
+        buf.assign(needed, 0);
+    else
+        std::fill(buf.begin(), buf.end(), (uint8_t)0);
+    m_minimap_cpu_size = size;
+    return buf.data();
+}
+
+void GLUIRenderer::SubmitMinimap(int screen_x, int screen_y, int size,
+                                 const int32_t* /*shape_start*/, const int32_t* /*shape_end*/)
+{
+    // shape_start/shape_end are unused here: any buffer cell panel_map_draw_pixel()
+    // never wrote stays index 0 and is discarded by the sprite shader like any
+    // other transparent texel, letting the panel-background quad already drawn
+    // underneath show through -- see BackendCapabilities::compositesMinimapBackground.
+    if (size <= 0 || m_minimap_cpu_size != size) return;
+    m_minimap_pub_x = screen_x;
+    m_minimap_pub_y = screen_y;
+    m_minimap_pub_size = size;
+    // Release: publishes this frame's buffer contents (and the x/y/size writes
+    // above) to whichever thread next does an acquire-load of m_minimap_read_idx.
+    m_minimap_read_idx.store(m_minimap_write_idx, std::memory_order_release);
+    m_minimap_submit_seq.fetch_add(1, std::memory_order_release);
+    m_minimap_write_idx = 1 - m_minimap_write_idx;
+}
+
+void GLUIRenderer::FlushPendingMinimapUpload()
+{
+    const int idx = m_minimap_rt_active_idx;
+    if (idx < 0 || !m_resource_mapper) return;
+    // Nothing new since the last upload (grace-period frame reusing the
+    // existing texture) -- skip the redundant glTexSubImage2D.
+    if (m_minimap_rt_uploaded_seq == m_minimap_rt_last_seq && m_minimap_tex_handle != kInvalidGpuResource)
+        return;
+    const int size = m_minimap_pub_size;
+    const auto& buf = m_minimap_cpu_buf[idx];
+    if (size <= 0 || buf.size() != (size_t)size * (size_t)size) return;
+
+    if (m_minimap_tex_handle == kInvalidGpuResource)
+    {
+        GpuTextureDesc desc;
+        desc.width = size;
+        desc.height = size;
+        desc.format = GpuTextureFormat::R8;
+        desc.min_filter = GpuTextureFilter::Nearest;
+        desc.mag_filter = GpuTextureFilter::Nearest;
+        desc.wrap = GpuTextureWrap::Clamp;
+        desc.debug_name = "minimap";
+        m_minimap_tex_handle = m_resource_mapper->RequestCreateTexture(desc);
+        m_minimap_tex_size = 0;
+    }
+    const GLTexture* tex = m_resource_mapper->ResolveTexture(m_minimap_tex_handle);
+    if (tex == nullptr) return;
+
+    glBindTexture(GL_TEXTURE_2D, tex->id);
+    if (size != m_minimap_tex_size)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, size, size, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+        m_minimap_tex_size = size;
+    }
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size, size, GL_RED, GL_UNSIGNED_BYTE, buf.data());
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    m_minimap_rt_uploaded_seq = m_minimap_rt_last_seq;
+}
+
+void GLUIRenderer::DrawMinimapQuad()
+{
+    // Acquire: must happen-before reading m_minimap_pub_x/y/size below, which
+    // were published (release) by SubmitMinimap() alongside this index.
+    const int idx = m_minimap_read_idx.load(std::memory_order_acquire);
+    if (idx < 0) return;
+
+    // Distinguish "genuinely not visible this view" (parchment, main menu --
+    // many consecutive frames with nothing submitted) from the render loop
+    // occasionally outpacing a slower game-logic tick (a frame or two with
+    // nothing new, then resuming) -- the latter must keep showing the last
+    // real submission, not flicker to nothing and back.
+    const uint32_t seq = m_minimap_submit_seq.load(std::memory_order_acquire);
+    if (seq != m_minimap_rt_last_seq)
+    {
+        m_minimap_rt_last_seq = seq;
+        m_minimap_rt_idle_frames = 0;
+    }
+    else if (++m_minimap_rt_idle_frames > kMinimapIdleGraceFrames)
+    {
+        return;
+    }
+    m_minimap_rt_active_idx = idx;
+
+    UIQuad q;
+    q.x0 = (float)m_minimap_pub_x;
+    q.y0 = (float)m_minimap_pub_y;
+    q.x1 = q.x0 + (float)m_minimap_pub_size;
+    q.y1 = q.y0 + (float)m_minimap_pub_size;
+    q.u0 = 0.0f; q.v0 = 0.0f; q.u1 = 1.0f; q.v1 = 1.0f;
+    q.ndc_z = 0.5f;
+    q.mode = (float)PASS_MINIMAP;
+
+    // DrawGameUIQuadsInterleaved() (called just before this, from
+    // DrawGameUILayerRT()) leaves blend disabled on exit -- re-enable it so
+    // the minimap's index-0 texels composite as transparent over the panel
+    // background already drawn, instead of opaque black.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    std::vector<UIQuad> run{ q };
+    FlushQuadRun(run, PASS_MINIMAP, -1);
+    glDisable(GL_BLEND);
+}
+
 void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQuad> (&out)[kLayerCount])
 {
     struct Ref { uint32_t seq; uint8_t kind; uint32_t idx; };
@@ -557,6 +673,14 @@ void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, i
         shader = ResolveShaderId(m_shader_sprite_handle); tex0 = slab_tex->id; bind_palette = true;
         break;
     }
+    case PASS_MINIMAP:
+    {
+        FlushPendingMinimapUpload();
+        const GLTexture* mm_tex = m_resource_mapper->ResolveTexture(m_minimap_tex_handle);
+        if (!mm_tex) return;
+        shader = ResolveShaderId(m_shader_sprite_handle); tex0 = mm_tex->id; bind_palette = true;
+        break;
+    }
     }
     if (!shader) return;
 
@@ -738,6 +862,11 @@ void GLUIRenderer::DrawGameUIQuadsInterleaved(std::vector<UIQuad>& quads,
 void GLUIRenderer::DrawGameUILayerRT(const TextCommandBuffers& text, GLTextRenderer* text_renderer)
 {
     DrawGameUIQuadsInterleaved(m_quads[(int)IRUILayer::GameUI], text, text_renderer);
+    // Drawn after (not as part of) the normal IR-ordered flush above: minimap
+    // pixels never flow through UICommandBuffers (see AcquireMinimapBuffer()'s
+    // comment), so it always composites on top of whatever panel-background
+    // sprites this frame's GameUI submission already contained.
+    DrawMinimapQuad();
 }
 
 void GLUIRenderer::DrawFromIR(const UICommandBuffers& ui, const TextCommandBuffers& text,

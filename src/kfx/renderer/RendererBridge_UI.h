@@ -63,6 +63,18 @@ void UIRenderer_EndTopOverlay(void);
 void UIRenderer_BeginZoomBoxOverlay(int32_t x, int32_t y, int32_t w, int32_t h);
 void UIRenderer_EndZoomBoxOverlay(int32_t x, int32_t y, int32_t w, int32_t h);
 
+/** Renderer-owned size*size palette-index scratch buffer for the minimap
+ *  (zero-filled; index 0 = "nothing drawn here"). Caller writes into it, then
+ *  calls UIRenderer_SubmitMinimap(). Never null for size > 0 with a renderer
+ *  active; null when no renderer is active. */
+unsigned char* UIRenderer_AcquireMinimapBuffer(int32_t size);
+
+/** Display the buffer filled via UIRenderer_AcquireMinimapBuffer() at
+ *  (screen_x, screen_y). shape_start/shape_end are the per-row circular-mask
+ *  bounds (size entries each) -- see IUIRenderer::SubmitMinimap()'s comment. */
+void UIRenderer_SubmitMinimap(int32_t screen_x, int32_t screen_y, int32_t size,
+                              const int32_t *shape_start, const int32_t *shape_end);
+
 #ifdef __cplusplus
 }
 #endif

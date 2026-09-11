@@ -2657,6 +2657,7 @@ void draw_whole_status_panel(void)
     panel_map_draw_slabs(local_state.minimap_pos_x, local_state.minimap_pos_y, mm_units_per_px, mmzoom);
     long basic_zoom = local_state.minimap_zoom;
     panel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
+    panel_map_submit_to_renderer();
     unsigned char placefill_threshold = (RendererPhysicalHeight() >= 400) ? 80 : 40;
     if (RendererPhysicalHeight() - gmnu->height >= placefill_threshold)
     {

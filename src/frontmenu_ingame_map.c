@@ -97,6 +97,13 @@ static unsigned char *MapBackground = NULL;
 static int32_t *MapShapeStart = NULL;
 static int32_t *MapShapeEnd = NULL;
 
+/**
+ * Frame-scoped pointer to the renderer-owned minimap pixel buffer. Set by
+ * panel_map_draw_slabs() via UIRenderer_AcquireMinimapBuffer() and cleared by
+ * panel_map_submit_to_renderer() once the data is handed off.
+ */
+static unsigned char *s_minimap_pixels = NULL;
+
 static long PanelMapY;
 static long PanelMapX;
 static long NumBackColours;
@@ -115,17 +122,15 @@ long MapDiagonalLength = 0;
 
 /******************************************************************************/
 
-// todo : replace with renderer owned buffer.
 void panel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
 {
-    // No CPU framebuffer under GL -- see setup_background()'s comment.
-    if (lbDisplay.WScreen == NULL)
+    if (s_minimap_pixels == NULL)
         return;
     if ((y >= 0) && (y < MapDiagonalLength))
     {
         if ((x >= MapShapeStart[y]) && (x < MapShapeEnd[y]))
         {
-            lbDisplay.WScreen[(PanelMapY + y) * RendererScreenWidth() + (PanelMapX + x)] = col;
+            s_minimap_pixels[y * MapDiagonalLength + x] = col;
         }
     }
 }
@@ -962,8 +967,16 @@ void setup_background(long units_per_px)
         MapShapeEnd[i] = radius + LbSqrL(n);
     }
 
-    // ToDo : replace with UIRenderer_SetupMinimapBackground()
-    
+    if (RendererCompositesMinimapBackground())
+    {
+        // Backend composites the minimap over the panel art itself (draw-order
+        // layering, see panel_map_draw_slabs()'s bake_background) -- a single
+        // dummy background colour is all that's needed here.
+        NumBackColours = 1;
+        MapBackColours[0] = 0;
+        return;
+    }
+
     if (lbDisplay.WScreen != NULL)
     {
         int num_colours;
@@ -1023,23 +1036,34 @@ void setup_panel_colors(void)
         n = pncol_idx;
         if (frame != 0)
         {
-            PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
-            PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
-            PanelColours[n + PnC_Gems] = 102 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + PnC_Unexplored] = ghost_table_blend(bkcol, 26*256, 0, 0);
+            PanelColours[n + PnC_Tagged_Gold] = ghost_table_blend(bkcol, 140*256, 0, 0);
+            PanelColours[n + PnC_Gems] = ghost_table_blend(bkcol, 0, 6, 102);
         } else //as this is during setup at gameturn 1, the else looks like it is never used.
         {
             PanelColours[n + PnC_Unexplored] = bkcol;
             PanelColours[n + PnC_Tagged_Gold] = bkcol;
-            PanelColours[n + PnC_Tagged_Gems] = 104 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + PnC_Tagged_Gems] = ghost_table_blend(bkcol, 0, 6, 104);
         }
         PanelColours[n + 0] = bkcol;
-        PanelColours[n + PnC_Wall]    = pixmap.ghost[bkcol + 16*256];
-        PanelColours[n + PnC_Rock]      = 0;
-        PanelColours[n + PnC_Gold]      = pixmap.ghost[bkcol + 140*256];
+        PanelColours[n + PnC_Wall]    = ghost_table_blend(bkcol, 16*256, 0, 0);
+        if (RendererCompositesMinimapBackground())
+        {
+            // Index 0 is the transparent sentinel there -- use the palette's
+            // actual black entry instead of the raw index 0 constant, falling
+            // back to 1 only on the rare palette where black itself is index 0.
+            unsigned char black_idx = colours[0][0][0];
+            PanelColours[n + PnC_Rock] = (black_idx != 0) ? black_idx : 1;
+        }
+        else
+        {
+            PanelColours[n + PnC_Rock] = 0;
+        }
+        PanelColours[n + PnC_Gold]      = ghost_table_blend(bkcol, 140*256, 0, 0);
         PanelColours[n + PnC_Lava]      = 146;
         PanelColours[n + PnC_Water]     = 85;
         PanelColours[n + PnC_purplePath]    = 255;
-        PanelColours[n + PnC_Gems]      = 102 + (pixmap.ghost[bkcol] >> 6);
+        PanelColours[n + PnC_Gems]      = ghost_table_blend(bkcol, 0, 6, 102);
         PanelColours[n + PnC_RockFloor] = 145;
         PanelColours[n + PnC_Abyss]     = pixmap.map_abyss[bkcol];
 
@@ -1129,14 +1153,14 @@ void update_panel_colors(void)
         n = pncol_idx;
         if (frame != 0)
         {
-            PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
-            PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
-            PanelColours[n + PnC_Tagged_Gems] = 102 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + PnC_Unexplored] = ghost_table_blend(bkcol, 26*256, 0, 0);
+            PanelColours[n + PnC_Tagged_Gold] = ghost_table_blend(bkcol, 140*256, 0, 0);
+            PanelColours[n + PnC_Tagged_Gems] = ghost_table_blend(bkcol, 0, 6, 102);
         } else
         {
             PanelColours[n + PnC_Unexplored] = bkcol;
             PanelColours[n + PnC_Tagged_Gold] = bkcol;
-            PanelColours[n + PnC_Tagged_Gems] = 100 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + PnC_Tagged_Gems] = ghost_table_blend(bkcol, 0, 6, 100);
         }
         n = pncol_idx + PnC_RoomsStart;
         int i;
@@ -1253,14 +1277,18 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 {
     PanelMapX = scale_value_for_resolution_with_upp(x,units_per_px);
     PanelMapY = scale_value_for_resolution_with_upp(y,units_per_px);
+    // auto_gen_tables sets MapDiagonalLength; acquire the buffer afterwards so
+    // it gets the correct (non-zero) size on the very first frame.
     auto_gen_tables(units_per_px);
+    s_minimap_pixels = UIRenderer_AcquireMinimapBuffer(MapDiagonalLength);
     update_panel_colors();
     struct PlayerInfo *player = get_my_player();
     struct Camera *cam = get_local_active_camera(player);
 
-    // No CPU framebuffer under GL -- see setup_background()'s comment.
-    if ((cam == NULL) || (MapDiagonalLength < 1) || (lbDisplay.WScreen == NULL))
+    if ((cam == NULL) || (MapDiagonalLength < 1) || (s_minimap_pixels == NULL))
         return;
+
+    const TbBool bake_background = !RendererCompositesMinimapBackground();
 
     const int32_t shift_x = -LbSinL(cam->rotation_angle_x) * zoom / 256;
     const int32_t shift_y = LbCosL(cam->rotation_angle_x) * zoom / 256;
@@ -1269,8 +1297,11 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 
     TbPixel *bkgnd_line;
     bkgnd_line = MapBackground;
+    // Buffer was already zeroed by UIRenderer_AcquireMinimapBuffer(); use it
+    // as output, in its own size*size coordinate space (no PanelMapX/Y offset
+    // -- the renderer positions it at (PanelMapX, PanelMapY) on submit).
     TbPixel *out_line;
-    out_line = &lbDisplay.WScreen[PanelMapX + RendererScreenWidth() * PanelMapY];
+    out_line = s_minimap_pixels;
     int h;
     for (h = 0; h < MapDiagonalLength; h++)
     {
@@ -1314,18 +1345,34 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
             int pnmap_idx;
             pnmap_idx = ((precor_x>>16)) + (((precor_y>>16)) * (game.map_subtiles_x + 1) );
             int pncol_idx;
-            //TODO reenable background
-            pncol_idx = PanelMap[pnmap_idx] + (*bkgnd * PnC_End);
+            if (bake_background) {
+                pncol_idx = PanelMap[pnmap_idx] + (*bkgnd * PnC_End);
+            } else {
+                // Backend composites the background itself; MapBackground is
+                // all-zeros there (see setup_background()), so skip the multiply.
+                pncol_idx = PanelMap[pnmap_idx];
+            }
             *out = PanelColours[pncol_idx];
             precor_x += shift_y;
             precor_y -= shift_x;
             out++;
             bkgnd++;
         }
-        out_line += RendererScreenWidth();
+        out_line += MapDiagonalLength;
         bkgnd_line += MapDiagonalLength;
         shift_stl_x += shift_x;
         shift_stl_y += shift_y;
     }
+}
+
+/**
+ * After panel_map_draw_slabs + panel_map_draw_overlay_things have finished
+ * writing into the renderer-owned pixel buffer, submit the minimap data to
+ * the renderer so it appears in the frame.
+ */
+void panel_map_submit_to_renderer(void)
+{
+    UIRenderer_SubmitMinimap(PanelMapX, PanelMapY, MapDiagonalLength, MapShapeStart, MapShapeEnd);
+    s_minimap_pixels = NULL;
 }
 /******************************************************************************/

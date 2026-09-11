@@ -142,6 +142,13 @@ extern unsigned short units_per_pixel_min;
 extern long base_mouse_sensitivity;
 
 extern struct TbColorTables pixmap;
+
+/** Background-tint lookup shared by the minimap (frontmenu_ingame_map.c) and
+ *  the parchment overhead map (gui_parchment.c). */
+static inline TbPixel ghost_table_blend(TbPixel bg_pixel, int table_offset, int shift, int add)
+{
+    return (TbPixel)(add + (pixmap.ghost[table_offset + (int)bg_pixel] >> shift));
+}
 /** True once init_fades_table() has populated pixmap.fade_tables with real
  *  data -- consumers that snapshot it before startup has run this (e.g. a
  *  GPU texture upload during renderer init) need to re-check this and

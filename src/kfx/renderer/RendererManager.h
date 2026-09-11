@@ -133,6 +133,12 @@ TbBool RendererSubmitLandviewZoom(const unsigned char *src_buf, int src_w, int s
 // Save the current frame to a file via the active backend (fmt: 1=PNG, 2=BMP).
 TbBool RendererScheduleScreenshot(const char* path, int fmt);
 
+/** True when the active backend composites the minimap over the panel
+ *  artwork itself (draw-order layering) -- callers that build minimap pixel
+ *  data must not bake a background colour into it themselves in that case.
+ *  See IRenderer::BackendCapabilities::compositesMinimapBackground. */
+TbBool RendererCompositesMinimapBackground(void);
+
 // Full-screen tint overlay (pain/possession vignette, death/zoom-to-heart
 // white flash). Plain ambient state, backend-agnostic -- GL blends a
 // fullscreen quad from it each frame (FGDrawScreenTint()); software has no

@@ -16,7 +16,7 @@ public:
     void SetDisplayPalette(const unsigned char* rgb8) override;
     void PresentFrame() override;
 
-    BackendCapabilities GetCapabilities() const override { return BackendCapabilities{ 1 }; }
+    BackendCapabilities GetCapabilities() const override { return BackendCapabilities{ 1, 1 }; }
     bool BeginFrame() override;
     void EndFrame() override;
     bool PresentImage(const struct RendererPresentImageDesc* desc) override;

@@ -214,6 +214,46 @@ void IUIRenderer::SubmitSlabBackground(int32_t x, int32_t y, int32_t w, int32_t 
     draw_slab64k_background_immediate(x, y, w, h);
 }
 
+uint8_t* IUIRenderer::AcquireMinimapBuffer(int size)
+{
+    if (size <= 0) return nullptr;
+    const size_t needed = (size_t)size * (size_t)size;
+    if (m_minimap_cpu_size != size)
+    {
+        m_minimap_cpu_buf.assign(needed, 0);
+        m_minimap_cpu_size = size;
+    }
+    else
+    {
+        std::fill(m_minimap_cpu_buf.begin(), m_minimap_cpu_buf.end(), (uint8_t)0);
+    }
+    return m_minimap_cpu_buf.data();
+}
+
+void IUIRenderer::SubmitMinimap(int screen_x, int screen_y, int size,
+                                const int32_t* shape_start, const int32_t* shape_end)
+{
+    // CPU default: blit the acquired buffer straight into the framebuffer,
+    // masked to the circular shape so panel art outside the minimap circle
+    // survives (mirrors what the old direct-WScreen-write code did).
+    if (size <= 0 || (int)m_minimap_cpu_buf.size() < size * size || lbDisplay.WScreen == NULL)
+        return;
+    const long stride = RendererScreenWidth();
+    TbPixel* out_line = &lbDisplay.WScreen[screen_x + stride * screen_y];
+    const uint8_t* src_line = m_minimap_cpu_buf.data();
+    for (int h = 0; h < size; h++)
+    {
+        int w0 = shape_start ? shape_start[h] : 0;
+        int w1 = shape_end   ? shape_end[h]   : size;
+        if (w0 < 0) w0 = 0;
+        if (w1 > size) w1 = size;
+        for (int w = w0; w < w1; w++)
+            out_line[w] = (TbPixel)src_line[w];
+        out_line += stride;
+        src_line += size;
+    }
+}
+
 void IUIRenderer::BeginZoomBoxOverlay(int32_t x, int32_t y, int32_t w, int32_t h)
 {
     LbScreenSetGraphicsWindow(x, y, w, h);
