@@ -150,6 +150,11 @@ public:
      *  (e.g. on the loading screen).  Default: no-op. */
     virtual void PreloadKeeperSpriteAtlas() {}
 
+    /** Re-upload the tile atlas's animated rows (lava, water, dig-tag
+     *  cross-hatch, etc.).  Call once per game tick, right after
+     *  update_animating_texture_maps().  Default: no-op. */
+    virtual void UpdateAnimatedTiles() {}
+
     /** Notify the renderer of the current OS-window dimensions.
      *  Called from RendererOpenGL::BeginFrame_GL() whenever the screen size
      *  changes.  GPU backends use this to update projection matrices and

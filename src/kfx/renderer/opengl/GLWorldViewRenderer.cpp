@@ -1466,6 +1466,13 @@ void GLWorldViewRenderer::ClearKeeperSpriteAtlas()
     SYNCLOG("GLWorldViewRenderer: CMD_CLEAR_KSPR_ATLAS queued");
 }
 
+void GLWorldViewRenderer::UpdateAnimatedTiles()
+{
+    DrawCmd cmd;
+    cmd.type = DrawCmd::CMD_UPDATE_ANIMATED_TILES;
+    m_draw_cmds.push_back(cmd);
+}
+
 void GLWorldViewRenderer::execute_clear_atlas()
 {
     m_kspr_atlas_map.clear();
@@ -2357,6 +2364,11 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
             // Pure CPU-side cache reset, no GL calls -- unlike preload, no
             // shader/VAO state to restore afterward.
             execute_clear_atlas();
+        }
+        else if (cmd.type == DrawCmd::CMD_UPDATE_ANIMATED_TILES)
+        {
+            if (m_atlas)
+                m_atlas->UpdateAnimatedTiles();
         }
     }
 

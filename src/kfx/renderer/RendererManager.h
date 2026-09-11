@@ -225,6 +225,11 @@ int  RendererGetCurrentSpriteWantsOutline(void);
 void RendererClearKeeperSpriteAtlas(void);
 void RendererPreloadKeeperSpriteAtlas(void);
 
+/** Re-upload the tile atlas's animated rows (lava, water, dig-tag
+ *  cross-hatch). Call once per game tick, right after
+ *  update_animating_texture_maps(). No-op when no renderer is active. */
+void RendererUpdateAnimatedTiles(void);
+
 void RendererSetWorldOverlay(float ndc_z);
 void RendererClearWorldOverlay(void);
 void RendererSetWorldOverlayFlat(float ndc_z);

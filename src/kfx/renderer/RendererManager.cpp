@@ -555,6 +555,13 @@ void RendererPreloadKeeperSpriteAtlas(void)
         world->PreloadKeeperSpriteAtlas();
 }
 
+void RendererUpdateAnimatedTiles(void)
+{
+    IWorldViewRenderer* world = active_world_renderer();
+    if (world != nullptr)
+        world->UpdateAnimatedTiles();
+}
+
 void RendererSubmitMapFadeStep(int tick_step, float display_step, TbBool fading_in)
 {
     if (s_active_renderer != nullptr)
