@@ -1,0 +1,145 @@
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Level Nevergrim
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM            KeeperFX CCP Team
+REM  Date:     17 Dec 1996 - 07 Sep 2014
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
+LEVEL_VERSION(1)
+
+REM New rooms for the player:
+REM   SCAVENGER - researchable from start
+REM New creatures for the player:
+REM   DRAGON - able to attract from start
+REM   HELL_HOUND - able to attract from start
+REM New powers for the player:
+REM   POWER_CAVE_IN - researchable from start
+REM New manufacture for the player:
+REM   TRAP_BOULDER - able to manufacture from start
+REM Not introduced in this level:
+REM   POWER_CHICKEN - introduced in level 11 to distribute new items equally amongst levels
+REM   TRAP_ALARM - introduced in level 11 to distribute new items equally amongst levels
+REM   TRAP_LAVA - introduced in level 12 to distribute new items equally amongst levels
+REM   DOOR_MAGIC - introduced in level 13 to distribute new items equally amongst levels
+
+SET_GENERATE_SPEED(600)
+
+START_MONEY(PLAYER0,6000)
+START_MONEY(PLAYER1,16000)
+
+COMPUTER_PLAYER(PLAYER1,0)
+REM Re-configure computer player
+SET_COMPUTER_CHECKS(PLAYER1,"CHECK FOR QUICK ATTACK",700,70,3000,8,12500)
+SET_COMPUTER_CHECKS(PLAYER1,"CHECK FOR ENOUGH IMPS",0,6,6,0,0)
+SET_COMPUTER_PROCESS(PLAYER1,"ATTACK SAFE ATTACK",0,70,8,70,0)
+SET_COMPUTER_PROCESS(PLAYER1,"ATTACK PLAN 1",0,70,8,70,0)
+
+MAX_CREATURES(PLAYER0,25)
+MAX_CREATURES(PLAYER1,20)
+
+ADD_CREATURE_TO_POOL(DARK_MISTRESS,15)
+ADD_CREATURE_TO_POOL(SORCEROR,20)
+ADD_CREATURE_TO_POOL(BILE_DEMON,10)
+ADD_CREATURE_TO_POOL(HELL_HOUND,20)
+ADD_CREATURE_TO_POOL(DRAGON,12)
+ADD_CREATURE_TO_POOL(ORC,12)
+
+REM	Creature availability
+CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,HELL_HOUND,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,0)
+	
+REM	Room availability
+ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,WORKSHOP,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,BARRACKS,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,GUARD_POST,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,PRISON,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,TORTURE,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,TEMPLE,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,GRAVEYARD,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,SCAVENGER,1,0)
+ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
+
+REM	Spells availability
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_LIGHTNING,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_DISEASE,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CAVE_IN,1,0)
+
+REM	Doors and traps availability
+DOOR_AVAILABLE(ALL_PLAYERS,WOOD,1,0)
+DOOR_AVAILABLE(ALL_PLAYERS,BRACED,1,0)
+TRAP_AVAILABLE(ALL_PLAYERS,POISON_GAS,1,0)
+TRAP_AVAILABLE(ALL_PLAYERS,LIGHTNING,1,0)
+DOOR_AVAILABLE(ALL_PLAYERS,STEEL,1,0)
+TRAP_AVAILABLE(ALL_PLAYERS,BOULDER,1,0)
+
+REM ****************************************************************************
+
+REM "Elsewhere in this fiery realm you have a rival Keeper to contend with. I advise extreme antisocial behaviour on your part."
+DISPLAY_OBJECTIVE(100,PLAYER0)
+
+REM Allow building SCAVENGER when claimed on map
+IF(PLAYER0,SCAVENGER > 0)
+	ROOM_AVAILABLE(PLAYER0,SCAVENGER,1,1)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,BOULDER >= 1)
+	REM "You have a manufactured a Boulder Trap. Place it in a corridor and howl deliriously as it rumbles inexorably towards unwary trespassers."
+	DISPLAY_INFORMATION(90,ALL_PLAYERS)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POWER_CAVE_IN >= 1)
+	REM "With typical brilliance, you have researched the Cave-In spell. Use it to block off passages and repair dungeon breaches..."
+	DISPLAY_INFORMATION(91,ALL_PLAYERS)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,SCAVENGER >= 1)
+	REM "Your tireless librarians have researched the Scavenger Room. Creatures placed within a Scavenger Room will lure their kin..."
+	DISPLAY_INFORMATION(92,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER0,DRAGON > 0)
+	REM "Your great wealth has bought the loyalty of a passing Dragon. They are fickle creatures. Keep your eye on this one."
+	DISPLAY_INFORMATION(93,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER0,HELL_HOUND > 0)
+	REM	"A Hell Hound has been lured to your domain by your Scavenger Room."
+	DISPLAY_INFORMATION(94,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER1,TOTAL_GOLD_MINED >= 80000)
+	ROOM_AVAILABLE(PLAYER1,BRIDGE,1,0)
+ENDIF
+
+IF(PLAYER1,DUNGEON_DESTROYED == 1)
+	REM "Notch up another victory, most malicious one. You have another land to add to your dismal collection."
+	DISPLAY_OBJECTIVE(101,PLAYER0)
+	WIN_GAME
+ENDIF
+
+REM ****************************************************************************
