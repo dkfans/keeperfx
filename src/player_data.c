@@ -32,6 +32,7 @@
 #include "thing_objects.h"
 #include "power_hand.h"
 #include "gui_msgs.h"
+#include "kfx/renderer/RendererManager.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -489,7 +490,16 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   player->view_type = nview;
   player->allocflags &= ~PlaF_CreaturePassengerMode;
   player->first_person_unfreeze_delay = 0;
-  if (is_my_player(player)) {
+  if (is_my_player(player))
+  {
+    // GameUI::IsActiveForCurrentView() decides fresh each frame whether to
+    // submit sidebar content based on view_type, but a transition that also
+    // kicks off a palette fade (e.g. entering/leaving the parchment map) can
+    // have its now-correct submission get stuck behind a fade-preserve
+    // window that keeps replaying the last frame. Force one real flip so the
+    // change actually lands on the read-side buffer before any such window
+    // starts.
+    RendererForceUIFlipNextFrame();
     game.view_mode_flags &= ~GNFldD_CreaturePasngr;
     game.view_mode_flags |= GNFldD_CreatureViewMode;
     stop_all_things_playing_samples();

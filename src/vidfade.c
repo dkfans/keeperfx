@@ -227,6 +227,7 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
     } else*/
     if (lbAdvancedFade)
     {
+        RendererPreserveFadeCache(1);
         TbClockMSec latest_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
@@ -239,6 +240,7 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
             LbSleepUntil(latest_loop_time);
           }
         }
+        RendererPreserveFadeCache(0);
     } else
     if (pal != NULL)
     {
@@ -259,6 +261,7 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
     }
     if (lbAdvancedFade)
     {
+        RendererPreserveFadeCache(1);
         TbClockMSec latest_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
@@ -268,6 +271,7 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
               LbSleepUntil(latest_loop_time);
           }
         }
+        RendererPreserveFadeCache(0);
     } else
     if (pal != NULL)
     {

@@ -651,6 +651,28 @@ void RendererOpenGL::PresentFrame()
 
     m_impl->thread_mgr.WaitForCompletion();
 
+    if (RendererIsFadeCachePreserved() && !RendererConsumeForceUIFlip())
+    {
+        // Blocking palette fade in progress: the game thread isn't running its
+        // normal submit pass, so a real flip here would advance render_idx to
+        // a buffer nothing was freshly drawn into (black screen). Keep
+        // re-reading the last real frame and only refresh the palette/tint
+        // driving it.
+        GLFrameData& write_fd  = m_impl->frames[m_impl->write_idx];
+        GLFrameData& render_fd = m_impl->frames[m_impl->render_idx];
+        if (write_fd.palette_dirty)
+        {
+            std::memcpy(render_fd.palette_rgba, write_fd.palette_rgba, sizeof(render_fd.palette_rgba));
+            render_fd.palette_dirty = true;
+            write_fd.palette_dirty = false;
+        }
+        std::memcpy(render_fd.screen_tint, g_screen_tint, sizeof(render_fd.screen_tint));
+
+        RendererFrameCounter_Advance();
+        m_impl->thread_mgr.Signal();
+        return;
+    }
+
     const int filled = m_impl->write_idx;  // this frame's IR, fully submitted by now
     const int next    = 1 - filled;        // safe to reuse for the NEXT frame
 

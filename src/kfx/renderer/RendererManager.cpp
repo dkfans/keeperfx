@@ -243,6 +243,35 @@ void RendererSetScreenTint(float r, float g, float b, float a)
     g_screen_tint[3] = a;
 }
 
+/******************************************************************************/
+/* Fade-cache preservation / forced UI flip                                   */
+/******************************************************************************/
+
+static int s_fade_cache_preserve = 0;
+static int s_force_ui_flip = 0;
+
+void RendererPreserveFadeCache(int active)
+{
+    s_fade_cache_preserve = active;
+}
+
+int RendererIsFadeCachePreserved(void)
+{
+    return s_fade_cache_preserve;
+}
+
+void RendererForceUIFlipNextFrame(void)
+{
+    s_force_ui_flip = 1;
+}
+
+int RendererConsumeForceUIFlip(void)
+{
+    int v = s_force_ui_flip;
+    s_force_ui_flip = 0;
+    return v;
+}
+
 void RendererApplyPossessionPalette(long step, const unsigned char *main_palette)
 {
     // GPU renderers use the screen tint overlay for possession/pain effects

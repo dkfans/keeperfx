@@ -140,6 +140,23 @@ TbBool RendererScheduleScreenshot(const char* path, int fmt);
 extern float g_screen_tint[4];
 void RendererSetScreenTint(float r, float g, float b, float a);
 
+/** Tell the GPU renderer to preserve the last real frame's content across
+ *  PresentFrame() (world/UI/image-present buffers not flipped, only the
+ *  palette/tint refreshed). Call with 1 before entering a blocking palette-
+ *  fade loop, 0 after -- without it, a fade loop's repeated PresentFrame()
+ *  calls advance to buffers nothing was freshly submitted into. */
+void RendererPreserveFadeCache(int active);
+int  RendererIsFadeCachePreserved(void);
+
+/** Force the next PresentFrame() to perform a real flip even if
+ *  RendererIsFadeCachePreserved() is currently true. One-shot: cleared as
+ *  soon as it's consumed. Call whenever a player's view_type changes in a
+ *  way that affects what the UI submits (set_player_mode(), player_data.c)
+ *  so the new content commits to the read-side buffer before any subsequent
+ *  fade-preserve window replays stale content over it. */
+void RendererForceUIFlipNextFrame(void);
+int  RendererConsumeForceUIFlip(void);
+
 void RendererApplyPossessionPalette(long step, const unsigned char *main_palette);
 
 // Screen lifecycle (window + draw surface).
