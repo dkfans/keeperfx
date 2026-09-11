@@ -116,7 +116,7 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-extern TbBool process_player_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
+extern TbBool process_user_global_cheats_packet_action(NetUserId user, struct Packet* pckt);
 extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 /******************************************************************************/
 TbBool unpausing_in_progress = 0;
@@ -169,10 +169,10 @@ void update_double_click_detection(NetUserId user)
   }
 }
 
-struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
+struct Room *keeper_build_room(NetUserId user,long stl_x,long stl_y,long plyr_idx,long rkind)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     // Take top left subtile on single subtile boundbox, take center subtile on full slab boundbox
@@ -201,7 +201,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
 TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
 {
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     const PlayerNumber plyr_idx = player->id_number;
     struct Dungeon* dungeon = get_players_dungeon(player);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
@@ -1007,7 +1007,7 @@ TbBool process_user_global_packet_action(NetUserId user)
     case PckA_SetRoomspaceWholeRoom:
     case PckA_SetRoomspaceSubtile:
     {
-        apply_roomspace_packet_action(player, pckt);
+        apply_roomspace_packet_action(player, user, pckt);
         return false;
     }
     case PckA_RoomspaceHighlightToggle:
@@ -1073,7 +1073,7 @@ TbBool process_user_global_packet_action(NetUserId user)
         return false;
     }
     default:
-      return process_player_global_cheats_packet_action(plyr_idx, pckt);
+      return process_user_global_cheats_packet_action(user, pckt);
   }
 }
 
@@ -1467,7 +1467,7 @@ void process_user_creature_control_packet_action(NetUserId user)
   struct Packet *pckt;
   long i;
   player = get_player(plyr_idx);
-  struct UserState* ustate = get_player_user_state(player);
+  struct UserState* ustate = get_user_state(user);
   pckt = get_packet(user);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)

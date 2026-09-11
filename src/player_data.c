@@ -27,6 +27,7 @@
 #include "player_instances.h"
 #include "config_players.h"
 #include "game_legacy.h"
+#include "net_game.h"
 #include "engine_redraw.h"
 #include "frontend.h"
 #include "thing_objects.h"
@@ -131,7 +132,14 @@ struct UserState *get_player_user_state(const struct PlayerInfo *player)
 {
     if ((player == NULL) || player_invalid(player))
         return INVALID_USER_STATE;
-    return get_user_state(player->user_id);
+    // get state for lowest-id connected user that has this player
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+        // TODO: store player_id in UserState, avoids net_* function
+        if (get_net_user_player_number(user) == player->id_number) {
+            return &game.user_states[user];
+        }
+    }
+    return INVALID_USER_STATE;
 }
 
 struct UserState *get_local_user_state(void)

@@ -1560,7 +1560,7 @@ static short get_creature_control_action_inputs(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_local_user_state();
     if (get_players_packet_action(player) != PckA_None)
         return 1;
     if ( ((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
@@ -1991,7 +1991,7 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
 {
     NetUserId user = get_local_user();
     struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_local_user_state();
     if ((get_local_view_type(player) != PVT_DungeonTop) || ((pckt->control_flags & PCtr_Gui) != 0) || (local_state.local_thing_under_hand <= 0) || (pckt->action != PckA_None) || (get_gameturn() - hand_pick_pending_turn <= game.input_lag_turns)) {
         return;
     }
@@ -3144,7 +3144,7 @@ short get_gui_inputs(short gameplay_on)
 static void process_cheat_mode_selection_inputs(void)
 {
     struct PlayerInfo *player = get_my_player();
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_local_user_state();
     unsigned char new_value;
     struct CreatureModelConfig* crconf;
     // player selection

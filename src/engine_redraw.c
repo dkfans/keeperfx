@@ -688,7 +688,7 @@ TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord 
     long i;
     long pwkind = -1;
     struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_local_user_state();
     pwkind = ustate->chosen_power_kind;
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)

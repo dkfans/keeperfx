@@ -20,6 +20,8 @@
 #ifndef DK_ROOMSPACE_H
 #define DK_ROOMSPACE_H
 
+#include "net_main.h"
+
 // This is included at the end of "slab_data.h"
 
 #ifdef __cplusplus
@@ -86,6 +88,7 @@ struct RoomSpace {
     MapSlabCoord centreY;
     int total_roomspace_cost;
     int invalid_slabs_count;
+    NetUserId user;
     PlayerNumber plyr_idx;
     RoomKind rkind;
     TbBool is_roomspace_a_single_subtile;
@@ -133,19 +136,19 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx,
                                                MapSlabCoord cursor_x, 
                                                MapSlabCoord cursor_y);
 
-void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct PlayerInfo *player, const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const unsigned char *predicted_slab_tag_modes);
+void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct PlayerInfo *player, NetUserId user, const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const unsigned char *predicted_slab_tag_modes);
 
-void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode);
-TbBool update_dungeon_build_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-TbBool update_dungeon_sell_roomspace_preview(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-void apply_roomspace_packet_action(struct PlayerInfo *player, const struct Packet *pckt);
+void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, NetUserId user, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode);
+TbBool update_dungeon_build_roomspace_preview(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool update_dungeon_sell_roomspace_preview(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void apply_roomspace_packet_action(struct PlayerInfo *player, NetUserId user, const struct Packet *pckt);
 
-void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
+void keeper_highlight_roomspace(NetUserId user, struct RoomSpace *roomspace);
 int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, unsigned char *predicted_slab_tag_modes, SlabCodedCoords *predicted_slabs, int *predicted_slab_count, int *predicted_task_count);
-void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
-void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
+void keeper_sell_roomspace(NetUserId user, struct RoomSpace *roomspace);
+void keeper_build_roomspace(NetUserId user, struct RoomSpace *roomspace);
 
 void update_roomspaces();
 

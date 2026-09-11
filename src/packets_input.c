@@ -67,10 +67,10 @@ TbBool is_mouse_on_map(struct Packet* pckt)
     return true;
 }
 
-void remember_cursor_subtile(struct PlayerInfo *player)
+static void remember_cursor_subtile(NetUserId user)
 {
-    struct Packet* pckt = get_packet(player->user_id);
-    struct UserState* ustate = get_player_user_state(player);
+    struct Packet* pckt = get_packet(user);
+    struct UserState* ustate = get_user_state(user);
     MapSubtlCoord cursor_subtile_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord cursor_subtile_y = coord_subtile(pckt->pos_y);
     ustate->previous_cursor_subtile_x = ustate->cursor_subtile_x;
@@ -121,7 +121,6 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
 {
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
     struct UserState* ustate = get_user_state(user);
-    PlayerNumber plyr_idx = player->id_number;
     struct Packet* pckt = get_packet(user);
     MapCoord x = (pckt->pos_x);
     MapCoord y = (pckt->pos_y);
@@ -136,7 +135,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
         }
         return false;
     }
-    TbBool can_place_room = update_dungeon_build_roomspace_preview(plyr_idx, stl_x, stl_y);
+    TbBool can_place_room = update_dungeon_build_roomspace_preview(user, stl_x, stl_y);
     if ( (player->roomspace_mode == drag_placement_mode) && (player->roomspace_drag_paint_mode == false) )
     {
        if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
@@ -188,7 +187,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
     }
     if (ustate->boxsize > 0)
     {
-        keeper_build_roomspace(plyr_idx, &player->render_roomspace);
+        keeper_build_roomspace(user, &player->render_roomspace);
     }
     else
     {
@@ -204,7 +203,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
 TbBool process_dungeon_power_hand_state(NetUserId user)
 {
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     PlayerNumber plyr_idx = player->id_number;
     struct Packet* pckt = get_packet(user);
     MapCoord x = pckt->pos_x;
@@ -245,8 +244,8 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
         } else
         {
             ustate->additional_flags |= UsrAF_ChosenSubTileIsHigh;
-            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, pckt, stl_x, stl_y, NULL);
-            tag_cursor_blocks_dig(player, pckt, &player->render_roomspace, stl_x, stl_y, ustate->full_slab_cursor);
+            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, user, pckt, stl_x, stl_y, NULL);
+            tag_cursor_blocks_dig(player, user, pckt, &player->render_roomspace, stl_x, stl_y, ustate->full_slab_cursor);
             player->thing_under_hand = 0;
         }
     }
@@ -303,12 +302,12 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
         if ( (ustate->primary_cursor_state == CSt_PickAxe) || ( (ustate->primary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0) ) )
         {
             player->thing_under_hand = 0;
-            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, pckt, stl_x, stl_y, NULL);
+            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, user, pckt, stl_x, stl_y, NULL);
             if (apply_roomspace_tag) {
                 player->render_roomspace.untag_mode = pckt->actn_par4;
                 player->render_roomspace = check_roomspace_for_diggable_slabs(player->render_roomspace, plyr_idx, NULL);
             }
-            box_colour = tag_cursor_blocks_dig(player, pckt, &player->render_roomspace, stl_x, stl_y, ustate->full_slab_cursor);
+            box_colour = tag_cursor_blocks_dig(player, user, pckt, &player->render_roomspace, stl_x, stl_y, ustate->full_slab_cursor);
             at_limit = (box_colour == SLC_REDYELLOW) || (box_colour == SLC_REDFLASH);
             if (apply_roomspace_tag) {
                 MapSlabCoord previous_slb_x = (uint16_t)pckt->actn_par3 & 0xFF;
@@ -392,7 +391,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                 {
                     if (!apply_roomspace_tag && ((ustate->secondary_cursor_state == CSt_PickAxe) || ((ustate->secondary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_NoThingUnderPowerHand) != 0))))
                     {
-                        keeper_highlight_roomspace(plyr_idx, &player->render_roomspace);
+                        keeper_highlight_roomspace(user, &player->render_roomspace);
                     }
                 }
             }
@@ -481,7 +480,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                         }
                         else
                         {
-                            keeper_highlight_roomspace(plyr_idx, &player->render_roomspace);
+                            keeper_highlight_roomspace(user, &player->render_roomspace);
                         }
                     }
                 }
@@ -561,7 +560,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
 TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
 {
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     PlayerNumber plyr_idx = player->id_number;
     struct Packet* pckt = get_packet(user);
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
@@ -577,7 +576,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
     MapCoord y = (pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
-    update_dungeon_sell_roomspace_preview(plyr_idx, stl_x, stl_y);
+    update_dungeon_sell_roomspace_preview(user, stl_x, stl_y);
     if (player->roomspace_mode == drag_placement_mode)
     {
        if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
@@ -602,7 +601,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
         //Slab Mode
         if (player->render_roomspace.slab_count > 0)
         {
-            keeper_sell_roomspace(plyr_idx, &player->render_roomspace);
+            keeper_sell_roomspace(user, &player->render_roomspace);
         }
         else
         {
@@ -684,7 +683,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(NetUserId user)
         }
         return false;
     }
-    TbBool can_place = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, ustate->chosen_trap_kind);
+    TbBool can_place = tag_cursor_blocks_place_trap(user, stl_x, stl_y, ustate->chosen_trap_kind);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (ustate->cursor_button_down != 0))
@@ -724,7 +723,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
     ustate->primary_cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
     packet_left_button_double_clicked[user] = 0;
     ustate->mouse_on_map = is_mouse_on_map(pckt);
-    remember_cursor_subtile(player);
+    remember_cursor_subtile(user);
     process_dungeon_control_packet_spell_overcharge(user);
     if (flag_is_set(pckt->control_flags,PCtr_Gui))
         return false;
@@ -912,7 +911,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
             process_dungeon_control_packet_sell_operation(user);
             break;
         default:
-            if (!packets_process_cheats(plyr_idx, x, y, pckt,
+            if (!packets_process_cheats(user, plyr_idx, x, y, pckt,
                                         stl_x, stl_y, slb_x, slb_y))
             {
                 ERRORLOG("Unrecognized player %d work state: %d", (int) plyr_idx, (int) player->work_state);
