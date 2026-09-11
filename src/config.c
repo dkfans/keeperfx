@@ -1013,6 +1013,7 @@ TbBool parse_named_field_block(const char *buf, long len, const char *config_tex
 void set_defaults(const struct NamedFieldSet* named_fields_set, const char *config_textname)
 {
   memset(named_fields_set->get_struct_base(), 0, named_fields_set->struct_size * named_fields_set->max_count);
+  *named_fields_set->get_count() = 0;
 
   const struct NamedField* name_NamedField = NULL;
 
