@@ -207,6 +207,7 @@ struct GuiMenu *menu_list[] = {
     &room_menu2,
     &trap_menu2,
     &frontend_select_mp_mappack_menu,
+    &frontend_net_directip_menu,
     NULL,
 };
 
@@ -330,6 +331,8 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuMapPacks, 2},
     {GUIStr_MnuMpMapPacks, 2},
     {GUIStr_MnuReturnToLobby, 1},
+    {GUIStr_NetDirectIp, 0},
+    {GUIStr_NetHost, 1},
 };
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
@@ -1919,6 +1922,7 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_FELOAD:
   case GMnu_FENET_SERVICE:
   case GMnu_FENET_SESSION:
+  case GMnu_FENET_DIRECTIP:
   case GMnu_FENET_START:
   case GMnu_FESTATISTICS:
   case GMnu_FEHIGH_SCORE_TABLE:
@@ -2566,6 +2570,10 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_NET_SESSION: // Network play mode
         turn_off_menu(GMnu_FENET_SESSION);
         break;
+    case FeSt_NET_DIRECT_IP:
+        LbStopTextInput();
+        turn_off_menu(GMnu_FENET_DIRECTIP);
+        break;
     case FeSt_NET_START:
         LbStopTextInput();
         turn_off_menu(GMnu_FENET_START);
@@ -2697,6 +2705,12 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           clear_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
+      case FeSt_NET_DIRECT_IP:
+          turn_on_menu(GMnu_FENET_DIRECTIP);
+          frontnet_directip_setup();
+          clear_flag(game.system_flags, GSF_NetworkActive);
+          set_pointer_graphic_menu();
+          break;
       case FeSt_NET_START:
           turn_on_menu(GMnu_FENET_START);
           if (frontend_menu_state != FeSt_MP_MAPPACK_SELECT)
@@ -2808,6 +2822,7 @@ static const char * menu_state_str(FrontendMenuState state)
         case FeSt_LAND_VIEW: return "FeSt_LAND_VIEW";
         case FeSt_NET_SERVICE: return "FeSt_NET_SERVICE";
         case FeSt_NET_SESSION: return "FeSt_NET_SESSION";
+        case FeSt_NET_DIRECT_IP: return "FeSt_NET_DIRECT_IP";
         case FeSt_NET_START: return "FeSt_NET_START";
         case FeSt_START_KPRLEVEL: return "FeSt_START_KPRLEVEL";
         case FeSt_START_MPLEVEL: return "FeSt_START_MPLEVEL";
@@ -2980,6 +2995,7 @@ void frontend_input(void)
         frontmap_input();
         break;
     case FeSt_NET_SESSION:
+    case FeSt_NET_DIRECT_IP:
         get_gui_inputs(0);
         break;
     case FeSt_NET_START:
@@ -3327,6 +3343,7 @@ short frontend_draw(void)
     case FeSt_FELOAD_GAME:
     case FeSt_NET_SERVICE:
     case FeSt_NET_SESSION:
+    case FeSt_NET_DIRECT_IP:
     case FeSt_NET_START:
     case FeSt_LEVEL_STATS:
     case FeSt_HIGH_SCORES:
@@ -3547,6 +3564,8 @@ void frontend_update(short *finish_menu)
     case FeSt_NET_SESSION:
         frontnet_session_update();
         break;
+    case FeSt_NET_DIRECT_IP:
+        break;
     case FeSt_NET_START:
         frontnet_start_update();
         break;
@@ -3637,7 +3656,7 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_LOAD_GAME:
         return FeSt_START_KPRLEVEL;
     case FeSt_NET_START:
-        return FeSt_NET_SESSION;
+        return frontnet_service_selected(FrontendNetSvc_DirectIP) ? FeSt_NET_DIRECT_IP : FeSt_NET_SESSION;
     case FeSt_MP_MAPPACK_SELECT:
         if (net_service_index_selected == FrontendNetSvc_Skirmish)
         {
@@ -3650,6 +3669,7 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_LEVEL_SELECT:
          return FeSt_MAPPACK_SELECT;
     case FeSt_NET_SESSION:
+    case FeSt_NET_DIRECT_IP:
     case FeSt_NETLAND_VIEW:
         return FeSt_NET_SERVICE;
     case FeSt_TORTURE:
@@ -3661,7 +3681,7 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
         return FeSt_TORTURE;
     case FeSt_LEVEL_STATS:
         if (network_is_active() || skip_high_score_screen) {
-            return FeSt_NET_SESSION;
+            return frontnet_service_selected(FrontendNetSvc_DirectIP) ? FeSt_NET_DIRECT_IP : FeSt_NET_SESSION;
         }
         lvnum = get_loaded_level_number();
         if (is_multiplayer_level(lvnum))
@@ -3762,7 +3782,7 @@ FrontendMenuState get_startup_menu_state(void)
         } else
         if (setup_old_network_service())
         {
-          return FeSt_NET_SESSION;
+          return frontnet_service_selected(FrontendNetSvc_DirectIP) ? FeSt_NET_DIRECT_IP : FeSt_NET_SESSION;
         } else
         {
           return FeSt_MAIN_MENU;

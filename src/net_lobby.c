@@ -263,13 +263,13 @@ TbError LbNetwork_Create(char *, char *plyr_name, uint32_t *plyr_num, void *optn
     return Lb_OK;
 }
 
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, int32_t *plyr_num, void *optns)
+TbError LbNetwork_JoinAddress(const char *address, char *plyr_name, int32_t *plyr_num, void *optns)
 {
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-    if (netstate.sp->join(nsname->text, optns) == Lb_FAIL) {
+    if (netstate.sp->join(address, optns) == Lb_FAIL) {
         return Lb_FAIL;
     }
     netstate.my_id = INVALID_USER_ID;
@@ -278,6 +278,11 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     }
     *plyr_num = netstate.my_id;
     return Lb_OK;
+}
+
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, int32_t *plyr_num, void *optns)
+{
+    return LbNetwork_JoinAddress(nsname->text, plyr_name, plyr_num, optns);
 }
 
 TbError LbNetwork_EnableNewPlayers(TbBool allow)

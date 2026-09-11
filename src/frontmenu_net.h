@@ -39,6 +39,7 @@ struct GuiButton;
 extern struct GuiMenu frontend_net_service_menu;
 extern struct GuiMenu frontend_net_session_menu;
 extern struct GuiMenu frontend_net_start_menu;
+extern struct GuiMenu frontend_net_directip_menu;
 extern struct GuiMenu frontend_add_session_box;
 /******************************************************************************/
 void frontnet_session_up_maintain(struct GuiButton *gbtn);
@@ -47,6 +48,10 @@ void frontnet_session_maintain(struct GuiButton *gbtn);
 void frontnet_players_up_maintain(struct GuiButton *gbtn);
 void frontnet_players_down_maintain(struct GuiButton *gbtn);
 void frontnet_join_game_maintain(struct GuiButton *gbtn);
+void frontnet_directip_join_maintain(struct GuiButton *gbtn);
+void frontnet_directip_join(struct GuiButton *gbtn);
+void frontnet_directip_host_confirm(struct GuiButton *gbtn);
+void frontnet_draw_host_enter_text(struct GuiButton *gbtn);
 void frontnet_maintain_alliance(struct GuiButton *gbtn);
 void frontnet_messages_up_maintain(struct GuiButton *gbtn);
 void frontnet_messages_down_maintain(struct GuiButton *gbtn);

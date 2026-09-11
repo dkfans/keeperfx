@@ -31,11 +31,14 @@ extern "C" {
 
 /******************************************************************************/
 #define NET_SERVICE_LEN 64
+#define DIRECTIP_HOST_LEN 128
 
 enum FrontendNetService {
+    FrontendNetSvc_Invalid = -2,
     FrontendNetSvc_Skirmish = -1,
     FrontendNetSvc_Online = 0,
     FrontendNetSvc_LAN = 1,
+    FrontendNetSvc_DirectIP = 2,
 };
 
 #pragma pack(1)
@@ -61,6 +64,7 @@ extern struct ConfigInfo net_config_info;
 extern char net_service[16][NET_SERVICE_LEN];
 extern char net_player_name[20];
 extern char tmp_net_player_name[24];
+extern char net_directip_host[DIRECTIP_HOST_LEN];
 
 #pragma pack()
 /******************************************************************************/
@@ -72,6 +76,9 @@ TbBool attempting_to_join_cancel_requested(void);
 void setup_alliances(void);
 void frontnet_service_setup(void);
 void frontnet_session_setup(void);
+void frontnet_directip_setup(void);
+enum FrontendNetService frontnet_service_id_by_row(int row);
+TbBool net_directip_host_is_valid(const char *host);
 void frontnet_start_setup(void);
 void frontnet_service_update(void);
 void frontnet_session_update(void);

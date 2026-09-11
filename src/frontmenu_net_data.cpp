@@ -92,6 +92,20 @@ struct GuiButtonInit frontend_net_session_buttons[] = {
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,           0,  0,       {0},            0, NULL },
 };
 
+struct GuiButtonInit frontend_net_directip_buttons[] = {
+  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,            NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,     {115},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82, 100,  82, 100,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95, 102,  91, 102,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {19},            0, NULL },
+  { 5, -1,-1, 0, frontnet_session_set_player_name,NULL,frontend_over_button,19,200,102,95,102,432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = tmp_net_player_name}, 20, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82, 140,  82, 140,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95, 142,  91, 142,165, 26, frontend_draw_text,                0, GUIStr_Empty, 0,     {116},            0, NULL },
+  { 5, -1,-1, 0, frontnet_directip_host_confirm,NULL,frontend_over_button,116,200,142,95,142,360, 26, frontnet_draw_host_enter_text,     0, GUIStr_Empty, 0,{.str = net_directip_host}, DIRECTIP_HOST_LEN, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_directip_join,NULL,    frontend_over_button,0,  72, 360,  72, 360,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,      {13},            0, frontnet_directip_join_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_session_create,NULL,   frontend_over_button,0, 321, 360, 321, 360,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,      {14},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_return_to_main_menu,NULL,frontend_over_button,0,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,       {6},            0, NULL },
+  {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,           0,  0,       {0},            0, NULL },
+};
+
 struct GuiButtonInit frontend_net_start_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,   NULL,                    0, 999,  30, 999,  30, 371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,  {11},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  82,  78,  82,  78, 220, 26, frontnet_draw_scroll_box_tab,      0, GUIStr_Empty, 0,  {28},    0, NULL },
@@ -150,6 +164,8 @@ struct GuiMenu frontend_net_session_menu =
  { GMnu_FENET_SESSION, 0, 1, frontend_net_session_buttons, POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_start_menu =
  { GMnu_FENET_START,   0, 1, frontend_net_start_buttons,   POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
+struct GuiMenu frontend_net_directip_menu =
+ { GMnu_FENET_DIRECTIP,0, 1, frontend_net_directip_buttons,POS_SCRCTR, POS_SCRCTR,  640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_add_session_box =
  { GMnu_FEADD_SESSION, 0, 1, frontend_add_session_buttons, POS_SCRCTR, POS_SCRCTR,  450,  92, NULL, 0, NULL,    NULL,                    0, 1, 0,};
 /******************************************************************************/

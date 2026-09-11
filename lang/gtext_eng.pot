@@ -5936,3 +5936,23 @@ msgstr ""
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr ""
+
+#: guitext:1123
+msgctxt "Menu interface, Network service item"
+msgid "Direct IP"
+msgstr ""
+
+#: guitext:1124
+msgctxt "Menu interface, Direct IP screen"
+msgid "Host"
+msgstr ""
+
+#: guitext:1125
+msgctxt "Menu interface, Direct IP screen"
+msgid "Enter IP Address"
+msgstr ""
+
+#: guitext:1126
+msgctxt "Menu Interface"
+msgid "Direct IP Lobby"
+msgstr ""

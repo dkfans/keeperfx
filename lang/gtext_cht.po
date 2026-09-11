@@ -6966,3 +6966,27 @@ msgstr "請將其作為模組安裝到 /mods/ 資料夾中。"
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "與伺服器的連線已中斷。"
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Menu interface, Network service item"
+msgid "Direct IP"
+msgstr "直接連線"
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Host"
+msgstr "主機"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Enter IP Address"
+msgstr "輸入主機位址"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Menu Interface"
+msgid "Direct IP Lobby"
+msgstr "直接連線大廳"

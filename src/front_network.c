@@ -20,6 +20,8 @@
 #include "kfx/renderer/RendererManager.h"
 #include "front_network.h"
 
+#include <ctype.h>
+
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_enet.h"
@@ -78,6 +80,8 @@ struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
 char tmp_net_player_name[24];
+char net_directip_host[DIRECTIP_HOST_LEN];
+static enum FrontendNetService net_service_id[16];
 static TbBool attempting_to_join_cancelled = false;
 static int32_t previous_active_players = 0;
 /******************************************************************************/
@@ -668,19 +672,34 @@ void net_write_config_file(void)
     }
 }
 
+static void frontnet_add_service(enum FrontendNetService service, const char *name)
+{
+    net_service_id[net_number_of_services] = service;
+    snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", name);
+    net_number_of_services++;
+}
+
 void frontnet_service_setup(void)
 {
     net_number_of_services = 0;
     memset(net_service, 0, sizeof(net_service));
-    snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetOnline));
-    snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetLan));
+    memset(net_service_id, 0, sizeof(net_service_id));
+    frontnet_add_service(FrontendNetSvc_Online, get_string(GUIStr_NetOnline));
+    frontnet_add_service(FrontendNetSvc_LAN, get_string(GUIStr_NetLan));
+    frontnet_add_service(FrontendNetSvc_DirectIP, get_string(GUIStr_NetDirectIp));
     // Create skirmish option if it should be enabled
     if ((game.system_flags & GSF_AllowOnePlayer) != 0)
     {
-        snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetServiceSkirmish));
-        net_number_of_services++;
+        frontnet_add_service(FrontendNetSvc_Skirmish, get_string(GUIStr_NetServiceSkirmish));
     }
     net_load_config_file();
+}
+
+enum FrontendNetService frontnet_service_id_by_row(int row)
+{
+    if ((row < 0) || (row >= net_number_of_services))
+        return FrontendNetSvc_Invalid;
+    return net_service_id[row];
 }
 
 void frontnet_session_setup(void)
@@ -698,6 +717,155 @@ void frontnet_session_setup(void)
     if (frontnet_service_selected(FrontendNetSvc_Online)) {
         matchmaking_connect_async();
     }
+}
+
+static TbBool host_label_is_valid(const char *label, int len)
+{
+    if ((len < 1) || (len > 63))
+        return false;
+    if ((label[0] == '-') || (label[len-1] == '-'))
+        return false;
+    for (int i = 0; i < len; i++)
+    {
+        char c = label[i];
+        if (!isalnum((unsigned char)c) && (c != '-'))
+            return false;
+    }
+    return true;
+}
+
+static TbBool host_is_valid_name(const char *host, int len)
+{
+    if ((len < 1) || (len > 253))
+        return false;
+    int start = 0;
+    int last_start = 0;
+    for (int i = 0; i <= len; i++)
+    {
+        if ((i < len) && (host[i] != '.'))
+            continue;
+        if (!host_label_is_valid(&host[start], i - start))
+            return false;
+        last_start = start;
+        start = i + 1;
+    }
+    for (int i = last_start; i < len; i++)
+    {
+        if (!isdigit((unsigned char)host[i]))
+            return true;
+    }
+    return false;
+}
+
+static TbBool host_is_valid_ipv4(const char *host, int len)
+{
+    int groups = 0;
+    int start = 0;
+    for (int i = 0; i <= len; i++)
+    {
+        if ((i < len) && (host[i] != '.'))
+            continue;
+        int glen = i - start;
+        if ((glen < 1) || (glen > 3))
+            return false;
+        int value = 0;
+        for (int k = start; k < i; k++)
+        {
+            if (!isdigit((unsigned char)host[k]))
+                return false;
+            value = value * 10 + (host[k] - '0');
+        }
+        if (value > 255)
+            return false;
+        groups++;
+        start = i + 1;
+    }
+    return (groups == 4);
+}
+
+static TbBool host_is_valid_ipv6(const char *host, int len)
+{
+    if (len < 2)
+        return false;
+    int groups = 0;
+    int double_colons = 0;
+    int start = 0;
+    for (int i = 0; i <= len; i++)
+    {
+        if ((i < len) && (host[i] != ':'))
+            continue;
+        int glen = i - start;
+        if (glen == 0)
+        {
+            if ((i > 0) && (i < len) && (host[i-1] != ':'))
+                return false;
+            if ((i > 0) && (host[i-1] == ':'))
+            {
+                double_colons++;
+                if (double_colons > 1)
+                    return false;
+            }
+        }
+        else if ((i == len) && (memchr(&host[start], '.', glen) != NULL))
+        {
+            if (!host_is_valid_ipv4(&host[start], glen))
+                return false;
+            groups += 2;
+        }
+        else
+        {
+            if (glen > 4)
+                return false;
+            for (int k = start; k < i; k++)
+            {
+                if (!isxdigit((unsigned char)host[k]))
+                    return false;
+            }
+            groups++;
+        }
+        start = i + 1;
+    }
+    if (groups > 8)
+        return false;
+    return (double_colons == 1) ? (groups < 8) : (groups == 8);
+}
+
+TbBool net_directip_host_is_valid(const char *host)
+{
+    if (host == NULL)
+        return false;
+    int len = strlen(host);
+    if ((len < 1) || (len >= DIRECTIP_HOST_LEN))
+        return false;
+    if (isspace((unsigned char)host[0]) || isspace((unsigned char)host[len-1]))
+        return false;
+    if (host[0] == '[')
+    {
+        if (host[len-1] != ']')
+            return false;
+        return host_is_valid_ipv6(&host[1], len - 2);
+    }
+    int colons = 0;
+    for (int i = 0; i < len; i++)
+    {
+        if (host[i] == ':')
+            colons++;
+    }
+    if (colons == 1)
+        return false;
+    if (colons > 1)
+        return host_is_valid_ipv6(host, len);
+    if (host_is_valid_ipv4(host, len))
+        return true;
+    return host_is_valid_name(host, len);
+}
+
+void frontnet_directip_setup(void)
+{
+    frontnet_session_setup();
+    net_directip_host[0] = '\0';
+    net_number_of_sessions = 0;
+    memset(net_session, 0, sizeof(net_session));
 }
 
 void frontnet_start_setup(void)

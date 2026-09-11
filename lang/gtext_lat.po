@@ -7374,3 +7374,27 @@ msgstr "Instrue ut modulum in /mods/."
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "Conexio ad servitorem amissa est."
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Menu interface, Network service item"
+msgid "Direct IP"
+msgstr "Connexio Directa"
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Host"
+msgstr "Hospes"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Enter IP Address"
+msgstr "Inscriptionem insere"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Menu Interface"
+msgid "Direct IP Lobby"
+msgstr "Vestibulum Connexionis Directae"

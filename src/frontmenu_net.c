@@ -87,6 +87,11 @@ void frontnet_join_game_maintain(struct GuiButton *gbtn)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * frontnet_can_join_session()) & LbBtnF_Enabled;
 }
 
+void frontnet_directip_join_maintain(struct GuiButton *gbtn)
+{
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * net_directip_host_is_valid(net_directip_host)) & LbBtnF_Enabled;
+}
+
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
 {
     long plyr_idx1;
@@ -148,8 +153,8 @@ void frontnet_draw_services_scroll_tab(struct GuiButton *gbtn)
 
 void frontnet_session_set_player_name(struct GuiButton *gbtn)
 {
-    strcpy(net_player_name, tmp_net_player_name);
-    strcpy(net_config_info.net_player_name, tmp_net_player_name);
+    snprintf(net_player_name, sizeof(net_player_name), "%s", tmp_net_player_name);
+    snprintf(net_config_info.net_player_name, sizeof(net_config_info.net_player_name), "%s", tmp_net_player_name);
     net_write_config_file();
 }
 
@@ -258,6 +263,75 @@ void frontnet_session_join(struct GuiButton *gbtn)
         return;
     frontend_set_player_number(plyr_num);
     frontend_set_state(FeSt_NET_START);
+}
+
+void frontnet_directip_join(struct GuiButton *gbtn)
+{
+    long plyr_num;
+    if (!net_directip_host_is_valid(net_directip_host))
+        return;
+    plyr_num = network_directip_join();
+    if (plyr_num < 0)
+        return;
+    frontend_set_player_number(plyr_num);
+    frontend_set_state(FeSt_NET_START);
+}
+
+void frontnet_directip_host_confirm(struct GuiButton *gbtn)
+{
+    // TODO: save host for next time
+}
+
+// Scroll to the right as needed to keep caret visible
+void frontnet_draw_host_enter_text(struct GuiButton *gbtn)
+{
+    int font_idx = 1;
+    if (gbtn == input_button) {
+        font_idx = 2;
+    } else
+    if ((gbtn->flags & LbBtnF_Enabled) == 0) {
+        font_idx = 3;
+    } else
+    if ((gbtn->content.str != NULL) && ((gbtn->btype_value & LbBFeF_IntValueMask) == frontend_mouse_over_button)) {
+        font_idx = 2;
+    }
+    int tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+    int avail = gbtn->width * 16 / tx_units_per_px;
+    char text[DIRECTIP_HOST_LEN + 8];
+    snprintf(text, sizeof(text), "%s", gbtn->content.str);
+    if ((gbtn != input_button) && (text[0] == '\0'))
+    {
+        snprintf(text, sizeof(text), "%s", get_string(GUIStr_NetEnterIpAddress));
+        font_idx = 3;
+    }
+    else
+    {
+        TbCharCount caret_pos = input_field_pos;
+        if ((gbtn == input_button) && ((LbTimerClock() / 200 & 1) != 0))
+        {
+            if (LbLocTextStringInsert(text, "_", caret_pos, sizeof(text)) != NULL)
+                caret_pos++;
+        }
+        while (LbTextStringWidth(text) > avail)
+        {
+            if (caret_pos > 0)
+            {
+                LbLocTextStringDelete(text, 0, 1);
+                caret_pos--;
+            }
+            else
+            {
+                TbCharCount last = LbLocTextStringLength(text);
+                if (last <= 0)
+                    break;
+                LbLocTextStringDelete(text, last - 1, 1);
+            }
+        }
+    }
+    LbTextSetFont(frontend_font[font_idx]);
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
 }
 
 void frontnet_return_to_main_menu(struct GuiButton *gbtn)
@@ -646,7 +720,7 @@ void frontnet_return_to_session_menu(struct GuiButton *gbtn)
     }
     FrontendMenuState nstate;
     nstate = get_menu_state_when_back_from_substate(FeSt_NET_START);
-    if (nstate == FeSt_NET_SESSION)
+    if ((nstate == FeSt_NET_SESSION) || (nstate == FeSt_NET_DIRECT_IP))
     {
         // If the parent state is network session state, try to stay in net service
         if (!setup_old_network_service()) {
@@ -717,22 +791,24 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
 
 void frontnet_service_select(struct GuiButton *gbtn)
 {
-  int srvidx;
-  srvidx = gbtn->content.lval + net_service_scroll_offset - 45;
-  if ( ((game.system_flags & GSF_AllowOnePlayer) != 0)
-     && (srvidx+1 >= net_number_of_services) )
+  int srvidx = gbtn->content.lval + net_service_scroll_offset - 45;
+  enum FrontendNetService service = frontnet_service_id_by_row(srvidx);
+  switch (service)
   {
+  case FrontendNetSvc_Skirmish:
       frontend_set_player_number(default_loc_player);
       fe_network_active = 0;
       net_service_index_selected = FrontendNetSvc_Skirmish;
       frontend_set_state(FeSt_MP_MAPPACK_SELECT);
-  } else
-  if (srvidx < 0)
-  {
+      break;
+  case FrontendNetSvc_Online:
+  case FrontendNetSvc_LAN:
+  case FrontendNetSvc_DirectIP:
+      setup_network_service(service);
+      break;
+  default:
       frontend_set_state(FeSt_NET_SERVICE);
-  } else
-  {
-      setup_network_service(srvidx);
+      break;
   }
 }
 

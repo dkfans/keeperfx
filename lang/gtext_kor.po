@@ -7358,3 +7358,27 @@ msgstr "MOD로 /mods/에 설치하세요."
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "서버 연결이 끊어졌습니다."
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Menu interface, Network service item"
+msgid "Direct IP"
+msgstr "직접 연결"
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Host"
+msgstr "호스트"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Enter IP Address"
+msgstr "호스트 주소 입력"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Menu Interface"
+msgid "Direct IP Lobby"
+msgstr "직접 연결 로비"

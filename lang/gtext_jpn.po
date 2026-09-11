@@ -7307,3 +7307,27 @@ msgstr "MODとして /mods/ に入れてください。"
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "サーバーへの接続が失われました。"
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Menu interface, Network service item"
+msgid "Direct IP"
+msgstr "直接接続"
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Host"
+msgstr "ホスト"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Enter IP Address"
+msgstr "ホストのアドレスを入力"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Menu Interface"
+msgid "Direct IP Lobby"
+msgstr "直接接続ロビー"

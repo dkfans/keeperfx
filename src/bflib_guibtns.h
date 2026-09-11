@@ -36,7 +36,7 @@ struct GuiMenu;
 struct GuiBox;
 struct GuiBoxOption;
 
-#define INPUT_FIELD_LEN     40
+#define INPUT_FIELD_LEN     128
 #define TOOLTIP_MAX_LEN   2048
 
 /** Default button designation ID. Other designation IDs should be defined relatively to it. */

@@ -47,6 +47,7 @@ void setup_count_players(void);
 void are_disconnect_victories_allowed(void);
 
 long network_session_join(void);
+long network_directip_join(void);
 
 TbBool network_user_active(NetUserId);
 const char *network_user_name(NetUserId);

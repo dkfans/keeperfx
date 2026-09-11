@@ -304,7 +304,7 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
 void init_menu_state_on_net_stats_exit(void)
 {
     FrontendMenuState nstate = get_menu_state_when_back_from_substate(FeSt_LEVEL_STATS);
-    if (nstate == FeSt_NET_SESSION)
+    if ((nstate == FeSt_NET_SESSION) || (nstate == FeSt_NET_DIRECT_IP))
     {
         // If the parent state is network session state, try to stay in net service
         if (!setup_old_network_service()) {

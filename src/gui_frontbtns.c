@@ -371,7 +371,7 @@ void kill_button(struct GuiButton *gbtn)
 void kill_button_area_input(void)
 {
   if (input_button != NULL)
-    strcpy(input_button->content.str, backup_input_field);
+    snprintf(input_button->content.str, input_button->maxval, "%s", backup_input_field);
   input_button = NULL;
   if (LbIsTextInputActive())
     LbStopTextInput();

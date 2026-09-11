@@ -6972,3 +6972,27 @@ msgstr "请将其作为模组安装到 /mods/ 文件夹中。"
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "与服务器的连接已中断。"
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Menu interface, Network service item"
+msgid "Direct IP"
+msgstr "直接连接"
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Host"
+msgstr "主机"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Enter IP Address"
+msgstr "输入主机地址"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Menu Interface"
+msgid "Direct IP Lobby"
+msgstr "直接连接大厅"

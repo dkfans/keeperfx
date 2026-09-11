@@ -79,7 +79,8 @@ short setup_network_service(enum FrontendNetService service)
   SYNCMSG("Initializing 4-players type %d network", service);
   memset(net_user_info, 0, sizeof(net_user_info));
   network_lobby_ping = 0;
-  if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
+  if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN
+   && service != FrontendNetSvc_DirectIP) {
     process_network_error(-800);
     return 0;
   }
@@ -89,14 +90,17 @@ short setup_network_service(enum FrontendNetService service)
     return 0;
   }
   net_service_index_selected = service;
-  if (service == FrontendNetSvc_LAN) {
+  if (service == FrontendNetSvc_DirectIP) {
+    frontend_button_info[11].capstr_idx = GUIStr_MnuDirectIpLobby;
+    frontend_button_info[12].capstr_idx = GUIStr_MnuOnlineLobbies;
+  } else if (service == FrontendNetSvc_LAN) {
     frontend_button_info[11].capstr_idx = GUIStr_MnuLanLobby;
     frontend_button_info[12].capstr_idx = GUIStr_MnuLanLobbies;
   } else {
     frontend_button_info[11].capstr_idx = GUIStr_MnuOnlineLobby;
     frontend_button_info[12].capstr_idx = GUIStr_MnuOnlineLobbies;
   }
-  frontend_set_state(FeSt_NET_SESSION);
+  frontend_set_state((service == FrontendNetSvc_DirectIP) ? FeSt_NET_DIRECT_IP : FeSt_NET_SESSION);
   return 1;
 }
 
@@ -648,6 +652,21 @@ long network_session_join(void)
         }
         process_network_error(-802);
     }
+    return -1;
+}
+
+long network_directip_join(void)
+{
+    int32_t plyr_num;
+    reset_attempting_to_join_cancel();
+    display_attempting_to_join_message(-1);
+    if (attempting_to_join_cancel_requested())
+        return -1;
+    join_lobby_id[0] = '\0';
+    if (LbNetwork_JoinAddress(net_directip_host, net_player_name, &plyr_num, NULL) == 0)
+        return plyr_num;
+    if (!attempting_to_join_cancel_requested())
+        process_network_error(-802);
     return -1;
 }
 

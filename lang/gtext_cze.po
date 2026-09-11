@@ -7343,3 +7343,27 @@ msgstr "Nainstalujte jej jako mod do složky /mods/."
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "Připojení k serveru bylo ztraceno."
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Menu interface, Network service item"
+msgid "Direct IP"
+msgstr "Přímá IP"
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Host"
+msgstr "Hostitel"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Enter IP Address"
+msgstr "Zadejte IP adresu"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Menu Interface"
+msgid "Direct IP Lobby"
+msgstr "Přímá IP lobby"

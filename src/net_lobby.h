@@ -36,6 +36,7 @@ TbError process_user_update_message(NetUserId source, char *read_pos, const char
 void LbNetwork_SetServerPort(int port);
 void LbNetwork_InitSessionsFromCmdLine(const char *str);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, int32_t *playr_num, void *optns);
+TbError LbNetwork_JoinAddress(const char *address, char *playr_name, int32_t *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, void *optns);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);

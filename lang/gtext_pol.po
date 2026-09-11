@@ -7460,3 +7460,27 @@ msgstr "Zainstaluj to jako mod w folderze /mods/."
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "Utracono połączenie z serwerem."
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Menu interface, Network service item"
+msgid "Direct IP"
+msgstr "Bezpośrednie IP"
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Host"
+msgstr "Host"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface, Direct IP screen"
+msgid "Enter IP Address"
+msgstr "Wpisz adres IP"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Menu Interface"
+msgid "Direct IP Lobby"
+msgstr "Lobby bezpośredniego IP"
