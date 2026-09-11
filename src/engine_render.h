@@ -177,6 +177,9 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg);
 void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg);
 void draw_engine_number(struct BucketKindFloatingGoldText *num);
 
+// Slab/dig selection outline raster, same reason: submits through LbDrawBox().
+void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color);
+
 // Walk-time keeper-sprite resolution+raster for one bucket entry (isometric
 // view: draw_jonty_mapwho(); front view: draw_fastview_mapwho()/
 // draw_iso_only_fastview_mapwho() for the spinning-key case). No longer

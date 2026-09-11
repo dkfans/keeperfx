@@ -2469,6 +2469,7 @@ void GLWorldViewRenderer::DrawIsometricView()
         struct BucketKindRoomFlag *roomFlag;
         struct BucketKindFloatingGoldText *floatingGoldText;
         struct BucketKindCreatureStatus *creatureStatus;
+        struct BucketKindSlabSelector *slabSelector;
     } item;
     struct PlayerInfo *player;
     struct Camera *cam;
@@ -2553,6 +2554,17 @@ void GLWorldViewRenderer::DrawIsometricView()
                                 &item.polygonNearFP->vertex_third);
                 break;
 
+            case QK_SlabSelector: // Selection outline box for placing/digging slabs
+            {
+                const float ndc_z = 2.0f * ((float)m_current_bucket - 0.5f) / (float)(BUCKETS_COUNT - 1) - 1.0f;
+                RendererSetWorldOverlayFlat(ndc_z);
+                draw_clipped_line(item.slabSelector->p.X, item.slabSelector->p.Y,
+                                  item.slabSelector->p.U, item.slabSelector->p.V,
+                                  item.slabSelector->p.S);
+                RendererClearWorldOverlayFlat();
+                break;
+            }
+
             default:
                 break;
             }
@@ -2607,6 +2619,14 @@ void GLWorldViewRenderer::DrawFrontView(struct Camera* cam)
             {
                 const struct BucketKindPolygonStandard* p = (const struct BucketKindPolygonStandard*)b;
                 append_triangle((int)p->block, &p->vertex_first, &p->vertex_second, &p->vertex_third);
+            }
+            else if (b->kind == QK_SlabSelector) // Selection outline box for placing/digging slabs
+            {
+                const struct BucketKindSlabSelector* p = (const struct BucketKindSlabSelector*)b;
+                const float ndc_z = 2.0f * ((float)m_current_bucket - 0.5f) / (float)(BUCKETS_COUNT - 1) - 1.0f;
+                RendererSetWorldOverlayFlat(ndc_z);
+                draw_clipped_line(p->p.X, p->p.Y, p->p.U, p->p.V, p->p.S);
+                RendererClearWorldOverlayFlat();
             }
         }
     }

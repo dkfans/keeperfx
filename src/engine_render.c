@@ -5749,9 +5749,11 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
                     temp_y = *y_coord;
                 }
 
-                // Draw the pixel if it's within the bounds of the window
+                // Draw the pixel if it's within the bounds of the window.
+                // LbDrawBox (not LbDrawPixel) so this routes through IR under GL
+                // instead of a raw WScreen poke -- WScreen is NULL there.
                 if ((temp_x >= 0) && (temp_x < relative_window_a) && (temp_y >= 0) && (temp_y < relative_window_b)) {
-                    LbDrawPixel(temp_x, temp_y, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
+                    LbDrawBox(temp_x, temp_y, 1, 1, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
                 }
             }
         }
@@ -5764,7 +5766,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     }
 }
 
-static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
+void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
 {
     if ((x1 >= 0) || (x2 >= 0))
     {
