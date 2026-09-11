@@ -62,6 +62,15 @@ SpriteHandle IUIRenderer::ResolveSprite(const struct TbSprite* spr)
     return h;
 }
 
+int32_t IUIRenderer::ClearSpriteHandleCache()
+{
+    std::lock_guard<std::mutex> guard(m_handle_mutex);
+    const int32_t count = (int32_t)m_sprite_to_handle.size();
+    m_sprite_to_handle.clear();
+    m_handle_to_sprite.clear();
+    return count;
+}
+
 void IUIRenderer::RegisterSpriteSheet(const struct TbSpriteSheet* sheet)
 {
     if (!sheet) return;
