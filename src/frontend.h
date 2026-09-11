@@ -330,6 +330,7 @@ void create_error_box(TextStringId msg_idx);
 void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char *line4, const char* line5);
 void gui_area_text(struct GuiButton *gbtn);
 TbBool get_button_area_input(struct GuiButton *gbtn, int a2);
+void finish_button_area_input(void);
 const char *frontend_button_caption_text(const struct GuiButton *gbtn);
 int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_btn_idx);
 void maintain_loadsave(struct GuiButton *gbtn);

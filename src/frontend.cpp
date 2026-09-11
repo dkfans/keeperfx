@@ -549,6 +549,23 @@ short game_is_busy_doing_gui(void)
     return true;
 }
 
+// force finish text entry
+// (if text field is empty, reverts as though esc was pressed.)
+void finish_button_area_input(void)
+{
+    if (input_button == NULL)
+        return;
+    TbKeyCode prev_key = lbInkey;
+    lbInkey = KC_RETURN;
+    get_button_area_input(input_button, input_button->id_num);
+    if (input_button != NULL)
+    {
+        lbInkey = KC_ESCAPE;
+        get_button_area_input(input_button, input_button->id_num);
+    }
+    lbInkey = prev_key;
+}
+
 TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 {
     if (input_button == NULL)
@@ -1957,6 +1974,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->gbtype = gbinit->gbtype;
     gbtn->id_num = gbinit->id_num;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Clickable * (gbinit->button_flags & 0xff)) & LbBtnF_Clickable;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_NoClickAway * ((gbinit->button_flags >> 1) & 1)) & LbBtnF_NoClickAway;
     gbtn->click_event = gbinit->click_event;
     gbtn->rclick_event = gbinit->rclick_event;
     gbtn->ptover_event = gbinit->ptover_event;
