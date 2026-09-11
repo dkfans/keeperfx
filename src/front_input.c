@@ -3047,6 +3047,17 @@ short get_gui_inputs(short gameplay_on)
       }
   }
   update_busy_doing_gui_on_menu();
+  
+  // click outside of edit box to end entry
+  if (game_is_busy_doing_gui_string_input()
+     && (left_button_clicked || right_button_clicked)
+     && !(input_button->flags & LbBtnF_NoClickAway)
+     && !check_if_mouse_is_over_button(input_button)
+  )
+  {
+      finish_button_area_input();
+  }
+  
   int fmmenu_idx = first_monopoly_menu();
   int gmbtn_idx = -1;
   ActiveButtonID nx_over_slider_button = -1;
