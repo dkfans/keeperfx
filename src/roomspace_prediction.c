@@ -107,7 +107,7 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
         return false;
     }
     *predicted_player = *get_my_player();
-    struct UserState *ustate = get_player_user_state(predicted_player);
+    struct UserState *ustate = get_user_state(get_local_user());
     struct UserState saved_ustate = *ustate;
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
@@ -132,7 +132,7 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
         predicted_player->render_roomspace.drag_start_y = local_dig_tag_prediction.drag_start_slb_y;
         predicted_player->render_roomspace.untag_mode = local_dig_tag_prediction.untag_mode;
     }
-    get_dungeon_highlight_user_roomspace(roomspace, predicted_player, pckt, stl_x, stl_y, local_dig_tag_prediction.slab_tag_modes);
+    get_dungeon_highlight_user_roomspace(roomspace, predicted_player, get_local_user(), pckt, stl_x, stl_y, local_dig_tag_prediction.slab_tag_modes);
     *ustate = saved_ustate;
     return true;
 }
@@ -146,19 +146,19 @@ static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace 
     if ((player->work_state != PSt_BuildRoom) && (player->work_state != PSt_Sell)) {
         return false;
     }
-    struct Packet *direct_packet = get_packet(player->user_id);
-    struct UserState *ustate = get_player_user_state(player);
+    struct Packet *direct_packet = get_local_packet();
+    struct UserState *ustate = get_user_state(get_local_user());
     struct PlayerInfo saved_player = *player;
     struct UserState saved_ustate = *ustate;
     struct Packet saved_packet = *direct_packet;
     *direct_packet = *pckt;
-    apply_roomspace_packet_action(player, pckt);
+    apply_roomspace_packet_action(player, get_local_user(), pckt);
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     if (player->work_state == PSt_BuildRoom) {
-        update_dungeon_build_roomspace_preview(plyr_idx, stl_x, stl_y);
+        update_dungeon_build_roomspace_preview(get_local_user(), stl_x, stl_y);
     } else {
-        update_dungeon_sell_roomspace_preview(plyr_idx, stl_x, stl_y);
+        update_dungeon_sell_roomspace_preview(get_local_user(), stl_x, stl_y);
     }
     *roomspace = player->render_roomspace;
     *player = saved_player;
@@ -298,7 +298,7 @@ void update_local_dig_prediction_cursor_preview(void)
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     local_dig_render_roomspace = roomspace;
     local_dig_render_roomspace_active = true;
-    tag_cursor_blocks_dig(&predicted_player, pckt, &local_dig_render_roomspace, stl_x, stl_y, true);
+    tag_cursor_blocks_dig(&predicted_player, get_local_user(), pckt, &local_dig_render_roomspace, stl_x, stl_y, true);
     box_lag_compensation_x = 0;
     box_lag_compensation_y = 0;
 }

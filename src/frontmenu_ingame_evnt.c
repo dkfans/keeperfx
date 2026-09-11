@@ -150,11 +150,10 @@ void gui_next_battle(struct GuiButton *gbtn)
 
 void gui_get_creature_in_battle(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* myplyr = get_my_player();
     if (battle_creature_over <= 0) {
         return;
     }
-    PowerKind pwkind = get_player_user_state(myplyr)->chosen_power_kind;
+    PowerKind pwkind = get_local_user_state()->chosen_power_kind;
     struct Thing* thing = thing_get(battle_creature_over);
     if (!thing_exists(thing)) {
         WARNLOG("Nonexisting thing %d in battle",(int)battle_creature_over);
