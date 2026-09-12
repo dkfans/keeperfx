@@ -2568,12 +2568,14 @@ void GLWorldViewRenderer::DrawIsometricView()
 
             case QK_SlabSelector: // Selection outline box for placing/digging slabs
             {
-                const float ndc_z = 2.0f * ((float)m_current_bucket - 0.5f) / (float)(BUCKETS_COUNT - 1) - 1.0f;
-                RendererSetWorldOverlayFlat(ndc_z);
+                // fudge the position of the slab selector to look more like CPU
+                const float true_bucket = (float)m_current_bucket + 2.0f;
+                const float ndc_z = 2.0f * (true_bucket - 0.5f) / (float)(BUCKETS_COUNT - 1) - 1.0f;
+                RendererSetWorldOverlay(ndc_z);
                 draw_clipped_line(item.slabSelector->p.X, item.slabSelector->p.Y,
                                   item.slabSelector->p.U, item.slabSelector->p.V,
                                   item.slabSelector->p.S);
-                RendererClearWorldOverlayFlat();
+                RendererClearWorldOverlay();
                 break;
             }
 
@@ -2636,9 +2638,9 @@ void GLWorldViewRenderer::DrawFrontView(struct Camera* cam)
             {
                 const struct BucketKindSlabSelector* p = (const struct BucketKindSlabSelector*)b;
                 const float ndc_z = 2.0f * ((float)m_current_bucket - 0.5f) / (float)(BUCKETS_COUNT - 1) - 1.0f;
-                RendererSetWorldOverlayFlat(ndc_z);
+                RendererSetWorldOverlay(ndc_z);
                 draw_clipped_line(p->p.X, p->p.Y, p->p.U, p->p.V, p->p.S);
-                RendererClearWorldOverlayFlat();
+                RendererClearWorldOverlay();
             }
         }
     }

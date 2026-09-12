@@ -5714,7 +5714,6 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     line_thickness = LbLerp(line_thickness, 1, 1.0-hud_scale);
 
     int put_pixels_left = line_thickness/2; // Allocate half of the thickness to the left
-    int put_pixels_right = line_thickness-put_pixels_left; // Remaining thickness is placed to the right
 
     TbBool isHorizontal = abs(x2 - x1) >= abs(y2 - y1); // Check if line is more horizontal than vertical, helps with the "pixel-art look".
     int temp_x, temp_y;
@@ -5733,24 +5732,23 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
         }
         color_index = max(0, (int)color_animation_position);
 
-        // Nested loops to draw square pixels around each point for the specified thickness
-        for (int dx = -put_pixels_left; dx < put_pixels_right; dx++) {
-            for (int dy = -put_pixels_left; dy < put_pixels_right; dy++) {
-                // Determine pixel coordinates based on line orientation
-                if (isHorizontal) {
-                    temp_x = *x_coord;
-                    temp_y = *y_coord + dy;
-                } else {
-                    temp_x = *x_coord + dx;
-                    temp_y = *y_coord;
-                }
-
-                // Draw the pixel if it's within the bounds of the window.
-                // LbDrawBox (not LbDrawPixel) so this routes through IR under GL
-                // instead of a raw WScreen poke -- WScreen is NULL there.
-                if ((temp_x >= 0) && (temp_x < relative_window_a) && (temp_y >= 0) && (temp_y < relative_window_b)) {
-                    LbDrawBox(temp_x, temp_y, 1, 1, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
-                }
+        if (isHorizontal) {
+            temp_x = *x_coord;
+            temp_y = *y_coord - put_pixels_left;
+            if ((temp_x >= 0) && (temp_x < relative_window_a)) {
+                long box_y0 = max(temp_y, 0L);
+                long box_y1 = min(temp_y + line_thickness, relative_window_b);
+                if (box_y1 > box_y0)
+                    LbDrawBox(temp_x, box_y0, 1, box_y1 - box_y0, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
+            }
+        } else {
+            temp_x = *x_coord - put_pixels_left;
+            temp_y = *y_coord;
+            if ((temp_y >= 0) && (temp_y < relative_window_b)) {
+                long box_x0 = max(temp_x, 0L);
+                long box_x1 = min(temp_x + line_thickness, relative_window_a);
+                if (box_x1 > box_x0)
+                    LbDrawBox(box_x0, temp_y, box_x1 - box_x0, 1, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
             }
         }
 
