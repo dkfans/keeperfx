@@ -485,7 +485,7 @@ void GLWorldViewRenderer::SubmitPossessionLens(const IRWorldLensCmd& cmd)
     ASSERT_GAME_THREAD();
     m_lens_cmd = cmd;
 
-    EnsureLensSceneRT(m_screen_w, m_screen_h);
+    EnsureLensSceneRT(RendererScreenWidth(), RendererScreenHeight());
 
     if (cmd.type == LensPixelEffectType::Displacement || cmd.type == LensPixelEffectType::Flyeye)
         EnsureLensRemapTexture(cmd.remap_w, cmd.remap_h);
