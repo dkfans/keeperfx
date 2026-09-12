@@ -85,6 +85,8 @@ public:
         return false;
     }
 
+    virtual void AdvanceAnimation(float /*delta*/) {}
+
     // Configuration
     void SetEnabled(TbBool enabled) { m_enabled = enabled; }
     TbBool IsEnabled() const { return m_enabled; }

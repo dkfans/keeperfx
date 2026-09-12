@@ -239,8 +239,15 @@ void setup_engine_window(long x, long y, long width, long height)
     {
       if (x > MyScreenWidth)
         x = MyScreenWidth;
-      if (x < status_panel_width)
+      if (RendererWantsFullscreenViewport())
+      {
+        if (x < 0)
+          x = 0;
+      }
+      else if (x < status_panel_width)
+      {
         x = status_panel_width;
+      }
     } else
     {
       if (x > MyScreenWidth)

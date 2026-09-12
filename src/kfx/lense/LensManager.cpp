@@ -306,7 +306,10 @@ TbBool LensManager::BuildActiveGPULensCmd(long viewport_w, long viewport_h, IRWo
         // Draw()'s own logic by construction.
         for (LensEffect* effect : m_effects)
         {
-            if (effect->IsEnabled() && effect->BuildGPUParams(out, viewport_w, viewport_h))
+            if (!effect->IsEnabled())
+                continue;
+            effect->AdvanceAnimation(game.delta_time);
+            if (effect->BuildGPUParams(out, viewport_w, viewport_h))
             {
                 has_pixel_effect = true;
             }

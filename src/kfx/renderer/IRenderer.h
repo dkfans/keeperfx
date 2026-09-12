@@ -46,6 +46,11 @@ public:
         // itself (draw-order layering), so submitted minimap pixels must NOT
         // have the panel-background colour baked into them.
         int compositesMinimapBackground = 0;
+        // True when the backend draws the 3D world at the full screen rect
+        // and composites UI on top of it, rather than needing the engine
+        // window itself clipped to make room for the sidebar (see
+        // setup_engine_window()).
+        int wantsFullscreenViewport = 0;
     };
     virtual BackendCapabilities GetCapabilities() const { return BackendCapabilities{}; }
 

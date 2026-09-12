@@ -232,6 +232,11 @@ TbBool RendererCompositesMinimapBackground(void)
     return (s_active_renderer != nullptr) ? (TbBool)s_active_renderer->GetCapabilities().compositesMinimapBackground : 0;
 }
 
+TbBool RendererWantsFullscreenViewport(void)
+{
+    return (s_active_renderer != nullptr) ? (TbBool)s_active_renderer->GetCapabilities().wantsFullscreenViewport : 0;
+}
+
 TbBool RendererScheduleScreenshot(const char* path, int fmt)
 {
     return (s_active_renderer != nullptr) ? s_active_renderer->ScheduleScreenshot(path, fmt) : 0;
