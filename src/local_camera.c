@@ -199,10 +199,11 @@ void update_local_cameras(void)
     destination_deviation_x = 0;
     destination_deviation_y = 0;
 
+    // Must snapshot before process_camera_action() mutates destination, or interpolation has nothing to ease from.
+    memcpy(previous_local_cameras, destination_local_cameras, sizeof(previous_local_cameras));
     if (pckt != NULL) {
         process_camera_action(destination_local_cameras, pckt);
     }
-    memcpy(previous_local_cameras, destination_local_cameras, sizeof(previous_local_cameras));
 
     int active_cam_idx = get_local_active_camera(player) - local_cameras;
     if (active_cam_idx == CamIV_FirstPerson && thing_exists(ctrltng)) {
