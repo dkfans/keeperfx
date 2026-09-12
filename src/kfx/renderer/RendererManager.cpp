@@ -422,6 +422,20 @@ void RendererAddDrawFlags(unsigned short flags) { s_draw_flags |= flags; }
 void RendererClearDrawFlags(unsigned short flags) { s_draw_flags &= ~flags; }
 void RendererToggleDrawFlags(unsigned short flags) { s_draw_flags ^= flags; }
 
+// Display property accessors (declared in the header but never implemented --
+// a partial de-globalisation left mid-way by the f2be58ea2b checkpoint commit,
+// which added these declarations plus ~19 RendererPhysicalWidth() call sites
+// without ever writing the .cpp bodies, causing a link error). develop has
+// fully de-globalised these (own statics, lbDisplay fields removed entirely);
+// this is the minimal-fix version -- thin passthroughs to the still-present
+// lbDisplay fields, zero behaviour change, so the existing call sites just
+// start working instead of pulling in develop's much larger field-removal
+// across ~19 files.
+TbScreenCoord RendererPhysicalWidth(void)  { return lbDisplay.PhysicalScreenWidth;  }
+TbScreenCoord RendererPhysicalHeight(void) { return lbDisplay.PhysicalScreenHeight; }
+TbScreenCoord RendererScreenWidth(void)    { return lbDisplay.GraphicsScreenWidth;  }
+TbScreenCoord RendererScreenHeight(void)   { return lbDisplay.GraphicsScreenHeight; }
+
 // Ported from develop's RendererManager.cpp (Beat 4). develop's own version
 // also rebuilds the sprite atlas when palette_mode changes and propagates
 // zoom_box_mode to a runtime selector -- both dropped here since neither has

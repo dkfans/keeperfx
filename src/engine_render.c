@@ -7785,7 +7785,8 @@ static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, 
     if (sprite_data_ptr == NULL || *sprite_data_ptr == NULL) {
         WARNDBG(9,"Unallocated KeeperSprite %ld can't be drawn at (%ld,%ld)",kspr_idx,x,y);
         return;
-        
+    }
+
     if (RendererSubmitKeeperSprite((int32_t)dst_x, (int32_t)dst_y, (int32_t)dst_w, (int32_t)dst_h,
             *sprite_data_ptr, kspr->SWidth, kspr->SHeight, (int32_t)clipped_height,
             (unsigned int)RendererGetDrawFlags(),

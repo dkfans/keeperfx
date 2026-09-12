@@ -106,6 +106,7 @@
 #include "lua_triggers.h"
 
 #include "keeperfx.hpp"
+#include "kfx/renderer/RendererManager.h" // RendererPhysicalWidth
 #include "post_inc.h"
 
 #ifdef __cplusplus

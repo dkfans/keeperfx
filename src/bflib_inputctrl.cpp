@@ -38,6 +38,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include <SDL3/SDL.h>
+#include "kfx/renderer/RendererManager.h" // RendererPhysicalWidth
 #include "post_inc.h"
 
 using namespace std;

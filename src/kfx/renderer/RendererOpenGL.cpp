@@ -315,6 +315,12 @@ void RendererOpenGL::render_thread_init()
     }
 
     m_impl->atlas.SetResourceMapper(&m_impl->resource_mapper);
+    // GLUIRenderer::Init() requires m_resource_mapper already set (it calls
+    // RequestCreateProgram/RequestCreateGeometryBuffer during Init) -- must
+    // happen before ui.Init() below, not alongside the rest of ui's setup
+    // further down (SetAtlas/SetPaletteTexture/etc., none of which Init()
+    // itself touches).
+    m_impl->ui.SetResourceMapper(&m_impl->resource_mapper);
     if (!m_impl->atlas.Init() || !m_impl->ui.Init())
     {
         ERRORLOG("RendererOpenGL::Init: UI renderer/atlas init failed");
@@ -377,7 +383,6 @@ void RendererOpenGL::render_thread_init()
     }
 
     m_impl->ui.SetAtlas(&m_impl->atlas);
-    m_impl->ui.SetResourceMapper(&m_impl->resource_mapper);
     m_impl->ui.SetPaletteTexture(m_impl->palette_tex_handle);
     m_impl->ui.SetFadeTableTexture(m_impl->fade_table_tex_handle);
     m_impl->ui.SetScreenSize((int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight);

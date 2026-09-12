@@ -5,6 +5,8 @@
 #include "kfx/renderer/software/SwDisplaySurface.h"
 #include "kfx/renderer/RendererManager.h" // RendererBeginFrame/EndFrame, around FGExecuteCursor
 #include "kfx/renderer/RenderGraph.h"
+#include "kfx/renderer/RenderTaskProducerRegistry.h"
+#include "kfx/renderer/RendererFrameCounter.h"
 #include "bflib_mouse.h"       // LbMouseOnBeginSwap/EndSwap (submits the cursor sprite around present)
 #include <SDL3_image/SDL_image.h> // IMG_SavePNG (screenshots)
 #include "post_inc.h"
@@ -149,12 +151,22 @@ void RendererSoftware::PresentFrame()
         ERRORLOG("Present texture lock failed: %s", SDL_GetError());
         return;
     }
+    // Same call as RendererOpenGL::PresentFrame(), placed ahead of
+    // RenderGraph::Execute() below so producers append using this frame's
+    // number before it advances.
+    RenderTaskProducerRegistry_ProduceAll(RendererFrameCounter_Current());
     LbMouseOnBeginSwap(); // submits the OS pointer sprite; FGExecuteCursor() below draws it
     if (RendererBeginFrame())
     {
         RenderGraph::Execute(*this);
         RendererEndFrame();
     }
+    // Software has no resource mapper of its own, but the shared frame
+    // counter must still advance every PresentFrame() call so
+    // RenderTaskProducer's frame_number keeps moving forward for both
+    // backends (spec 2.4) -- mirrors RendererOpenGL::PresentFrame()'s own
+    // RendererFrameCounter_Advance() call.
+    RendererFrameCounter_Advance();
     // INDEX8 (palette) -> RGBA and present
     if (!SDL_BlitSurface(draw_surface, NULL, texture_surface, NULL))
     {

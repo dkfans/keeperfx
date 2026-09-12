@@ -52,6 +52,7 @@
 #include "creature_instances.h"
 #include "creature_states.h"
 #include "gui_boxmenu.h"
+#include "kfx/renderer/RendererManager.h" // RendererPhysicalWidth
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
 #include "gui_tooltips.h"

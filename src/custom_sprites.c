@@ -35,6 +35,7 @@
 #include <json.h>
 #include <json-dom.h>
 #include <minizip/unzip.h>
+#include "kfx/renderer/RendererManager.h" // RendererPhysicalWidth
 #include "post_inc.h"
 #include "bflib_sprite.h"
 

@@ -542,7 +542,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     RendererSetDrawFlags(0);
     RendererSetDrawColour(0);
     lbDisplayEx.ShadowColour = 0;
-    RendererPhysicalWidth() = mdinfo->Width;
+    lbDisplay.PhysicalScreenWidth = mdinfo->Width;
     lbDisplay.PhysicalScreenHeight = mdinfo->Height;
     lbDisplay.ScreenMode = mode;
     lbDisplay.PhysicalScreen = NULL;

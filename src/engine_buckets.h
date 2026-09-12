@@ -197,7 +197,7 @@ struct BucketKindJontySprite {
     long scr_y;
     long depth_fade;
     long bucket_idx;
-}
+};
 
 struct BucketKindCreatureShadow {
     struct BasicQ b;

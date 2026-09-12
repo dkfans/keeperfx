@@ -27,6 +27,7 @@
 #include "creature_battle.h"
 #include "map_data.h"
 #include "game_legacy.h"
+#include "kfx/renderer/RendererManager.h" // RendererPhysicalWidth
 #include "post_inc.h"
 
 #ifdef __cplusplus
