@@ -13,9 +13,14 @@ add_compile_definitions("DEBUG=$<IF:$<CONFIG:Debug>,1,0>")
 # Static-linkage defines for the prebuilt Windows dependencies.
 if(WIN32)
     add_compile_definitions(_CRT_NONSTDC_NO_WARNINGS _CRT_SECURE_NO_WARNINGS)
-    # AL_LIBTYPE_STATIC is deliberately not defined here: OpenAL is linked
-    # dynamically for the CMake build (via vcpkg's openal-soft), unlike the
-    # Makefile's static prebuilt - see Dependencies.cmake for why.
+    # AL_LIBTYPE_STATIC tells <AL/al.h> not to mark its functions dllimport.
+    # Needed when linking the kfx-deps static prebuilt (mirrors the Makefile);
+    # not needed -- and not defined -- when vcpkg's openal-soft is in play,
+    # which is linked dynamically. See Dependencies.cmake for why the two
+    # differ.
+    if(NOT VCPKG_TOOLCHAIN)
+        add_compile_definitions(AL_LIBTYPE_STATIC)
+    endif()
     add_compile_definitions(SPNG_STATIC=1)
     # MSVC's <math.h> only defines M_PI/M_E/etc. when this is set before the
     # first include; MinGW's <math.h> defines them unconditionally regardless,
