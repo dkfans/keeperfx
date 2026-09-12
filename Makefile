@@ -35,7 +35,7 @@ WINDRES  = $(CROSS_COMPILE)windres
 DOXYTOOL = doxygen
 BUILD_NUMBER ?= $(VER_BUILD)
 PACKAGE_SUFFIX ?= Prototype
-$(if $(WSL_DISTRO_NAME),$(shell wsl.exe -d "$(WSL_DISTRO_NAME)" -u root -- bash -c 'date -s "$$(powershell.exe -NoProfile -Command Get-Date -Format o)" > /dev/null'))
+$(if $(WSL_DISTRO_NAME),$(shell git ls-files -z | xargs -0r -n 128 sh -c 'find -- "$$@" -maxdepth 0 -type f -newermt now -exec touch {} +' sh 2> /dev/null))
 BUILD_START := $(shell date +%s.%N)
 PNGTOICO = tools/png2ico/png2ico$(CROSS_EXEEXT)
 PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
@@ -448,12 +448,7 @@ include tool_sndbanker.mk
 include tool_rnctools.mk
 PKG_GOALS = \
 	package \
-	pkg-assemble \
-	pkg-gfx \
-	pkg-landviews \
-	pkg-menugfx \
-	pkg-enginegfx \
-	pkg-sfx \
+	pkg-% \
 	convert-sfx \
 	clean \
 	deep-clean \
