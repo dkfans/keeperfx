@@ -539,7 +539,10 @@ void update(void)
         clear_active_dungeons_stats();
         update_creature_pool_state();
         if ((get_gameturn() & 0x01) != 0)
+        {
             update_animating_texture_maps();
+            RendererUpdateAnimatedTiles();
+        }
         update_things();
         process_rooms();
         process_dungeons();

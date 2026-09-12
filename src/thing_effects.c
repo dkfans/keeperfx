@@ -795,24 +795,31 @@ void effect_generate_effect_elements(const struct Thing *thing)
         if (thing->health == effcst->start_health)
         {
             memset(temp_pal, 63, PALETTE_SIZE);
+            RendererSetScreenTint(1.0f, 1.0f, 1.0f, 0.0f);
         } else
         if (thing->health > i)
         {
           LbPaletteFade(temp_pal, i, Lb_PALETTE_FADE_OPEN);
+          RendererSetScreenTint(1.0f, 1.0f, 1.0f,
+              (float)(effcst->start_health - thing->health) / (float)i);
         } else
         if (thing->health == i)
         {
           LbPaletteStopOpenFade();
           RendererPaletteSet(temp_pal);
+          RendererSetScreenTint(1.0f, 1.0f, 1.0f, 1.0f);
         } else
         if (thing->health > 0)
         {
             LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
+            RendererSetScreenTint(1.0f, 1.0f, 1.0f,
+                (float)thing->health / (float)i);
         } else
         {
             player = get_my_player();
             PaletteSetPlayerPalette(player, engine_palette);
             LbPaletteStopOpenFade();
+            RendererSetScreenTint(0.0f, 0.0f, 0.0f, 0.0f);
         }
         break;
     }

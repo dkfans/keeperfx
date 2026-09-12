@@ -8,6 +8,8 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kfx/platform/WindowSystemSDL.h"
+#include "kfx/platform/IPlatform.h"
+#include "kfx/platform/IGLHdrPolicy.h"
 #include "bflib_basics.h"
 #include "bflib_video.h"
 #include <SDL3/SDL.h>
@@ -64,9 +66,9 @@ void WindowSystemSDL::OnFocusLost()       { m_appActive = false; ApplyOsCursorPo
 
 void WindowSystemSDL::ApplyOsCursorPolicy()
 {
-    if (!lbWindow)
+    if (!m_window)
         return;
-    const bool focused = (SDL_GetWindowFlags(lbWindow) & SDL_WINDOW_INPUT_FOCUS) != 0;
+    const bool focused = (SDL_GetWindowFlags(m_window) & SDL_WINDOW_INPUT_FOCUS) != 0;
     if (focused)
         SDL_HideCursor();
     else
@@ -75,20 +77,20 @@ void WindowSystemSDL::ApplyOsCursorPolicy()
 
 void WindowSystemSDL::SetCursorGrab(bool grab)
 {
-    if (!lbWindow)
+    if (!m_window)
         return;
     if (m_useRelativeMouse) {
         // deltas straight from the OS.
-        SDL_SetWindowRelativeMouseMode(lbWindow, grab);
+        SDL_SetWindowRelativeMouseMode(m_window, grab);
     }
     else{
         // confine the cursor to the window and re-center it.
-        SDL_SetWindowMouseGrab(lbWindow, grab);
+        SDL_SetWindowMouseGrab(m_window, grab);
         if (grab)
         {
             int w = 0, h = 0;
-            SDL_GetWindowSize(lbWindow, &w, &h);
-            SDL_WarpMouseInWindow(lbWindow, w / 2.0f, h / 2.0f);
+            SDL_GetWindowSize(m_window, &w, &h);
+            SDL_WarpMouseInWindow(m_window, w / 2.0f, h / 2.0f);
         }
     }
     ApplyOsCursorPolicy();
@@ -99,12 +101,12 @@ void WindowSystemSDL::SetUseRelativeMouse(bool relative)
     if (relative == m_useRelativeMouse)
         return;
 
-    if (lbWindow)
+    if (m_window)
     {
         if (m_useRelativeMouse)
-            SDL_SetWindowRelativeMouseMode(lbWindow, false);
+            SDL_SetWindowRelativeMouseMode(m_window, false);
         else
-            SDL_SetWindowMouseGrab(lbWindow, false);
+            SDL_SetWindowMouseGrab(m_window, false);
     }
     m_useRelativeMouse = relative;
 }
@@ -119,39 +121,39 @@ void WindowSystemSDL::SetCursorVisible(bool visible)
 
 void WindowSystemSDL::WarpCursor(int x, int y)
 {
-    if (!lbWindow)
+    if (!m_window)
         return;
-    SDL_WarpMouseInWindow(lbWindow, (float)x, (float)y);
+    SDL_WarpMouseInWindow(m_window, (float)x, (float)y);
 }
 
 bool WindowSystemSDL::IsCursorInWindow() const
 {
-    if (!lbWindow)
+    if (!m_window)
         return false;
     float gx = 0.0f, gy = 0.0f;
     SDL_GetGlobalMouseState(&gx, &gy);
     int wx = 0, wy = 0, ww = 0, wh = 0;
-    SDL_GetWindowPosition(lbWindow, &wx, &wy);
-    SDL_GetWindowSize(lbWindow, &ww, &wh);
+    SDL_GetWindowPosition(m_window, &wx, &wy);
+    SDL_GetWindowSize(m_window, &ww, &wh);
     return gx >= wx && gx < wx + ww && gy >= wy && gy < wy + wh;
 }
 
 // ----- Window management -----
 
-bool WindowSystemSDL::HasWindow() const          { return lbWindow != nullptr; }
-SDL_Window* WindowSystemSDL::GetSDLWindow() const { return lbWindow; }
+bool WindowSystemSDL::HasWindow() const          { return m_window != nullptr; }
+SDL_Window* WindowSystemSDL::GetSDLWindow() const { return m_window; }
 
 unsigned int WindowSystemSDL::GetWindowFlags() const
 {
-    if (!lbWindow)
+    if (!m_window)
         return 0;
-    SDL_WindowFlags sdl_flags = SDL_GetWindowFlags(lbWindow);
+    SDL_WindowFlags sdl_flags = SDL_GetWindowFlags(m_window);
     unsigned int kfx_flags = 0;
     if (sdl_flags & SDL_WINDOW_FULLSCREEN)
     {
         // SDL3: a NULL fullscreen mode means desktop (borderless) fullscreen;
         // a non-NULL mode means an exclusive video mode.
-        if (SDL_GetWindowFullscreenMode(lbWindow) == nullptr)
+        if (SDL_GetWindowFullscreenMode(m_window) == nullptr)
             kfx_flags |= KFX_WF_FULLSCREEN_DESKTOP;
         else
             kfx_flags |= KFX_WF_FULLSCREEN_EXCLUSIVE;
@@ -165,15 +167,15 @@ void WindowSystemSDL::GetWindowSize(int* out_w, int* out_h) const
 {
     if (out_w) *out_w = 0;
     if (out_h) *out_h = 0;
-    if (lbWindow == nullptr)
+    if (m_window == nullptr)
         return;
-    SDL_GetWindowSize(lbWindow, out_w, out_h);
+    SDL_GetWindowSize(m_window, out_w, out_h);
 }
 
 int WindowSystemSDL::GetWindowDisplayIndex() const
 {
-    if (lbWindow)
-        return (int)SDL_GetDisplayForWindow(lbWindow);
+    if (m_window)
+        return (int)SDL_GetDisplayForWindow(m_window);
 
     return (int)SDL_GetPrimaryDisplay();
 }
@@ -233,49 +235,53 @@ int WindowSystemSDL::GetClosestDisplayMode(int display, int desired_w, int desir
 
 int WindowSystemSDL::SetWindowDisplayMode(int w, int h)
 {
-    if (lbWindow == nullptr)
+    if (m_window == nullptr)
         return -1;
-    SDL_DisplayID disp_id = SDL_GetDisplayForWindow(lbWindow);
+    SDL_DisplayID disp_id = SDL_GetDisplayForWindow(m_window);
     SDL_DisplayMode dm = {};
     if (SDL_GetClosestFullscreenDisplayMode(disp_id, w, h, 0.0f, false, &dm))
-        return SDL_SetWindowFullscreenMode(lbWindow, &dm) ? 0 : -1;
+        return SDL_SetWindowFullscreenMode(m_window, &dm) ? 0 : -1;
     // No matching exclusive mode — fall back to desktop (borderless) fullscreen.
-    return SDL_SetWindowFullscreenMode(lbWindow, nullptr) ? 0 : -1;
+    return SDL_SetWindowFullscreenMode(m_window, nullptr) ? 0 : -1;
 }
 
 void WindowSystemSDL::SetWindowSize(int w, int h)
 {
-    if (lbWindow != nullptr)
-        SDL_SetWindowSize(lbWindow, w, h);
+    if (m_window != nullptr)
+        SDL_SetWindowSize(m_window, w, h);
 }
 
 int WindowSystemSDL::SetWindowFullscreen(unsigned int flags)
 {
-    if (!lbWindow)
+    if (!m_window)
         return -1;
     if (flags == 0)
-        return SDL_SetWindowFullscreen(lbWindow, false) ? 0 : -1; // windowed
+        return SDL_SetWindowFullscreen(m_window, false) ? 0 : -1; // windowed
     if (flags & KFX_WF_FULLSCREEN_DESKTOP)
     {
         // Desktop (borderless) fullscreen at the native resolution.
-        SDL_SetWindowFullscreenMode(lbWindow, nullptr);
-        return SDL_SetWindowFullscreen(lbWindow, true) ? 0 : -1;
+        SDL_SetWindowFullscreenMode(m_window, nullptr);
+        int result = SDL_SetWindowFullscreen(m_window, true) ? 0 : -1;
+        
+        if (result == 0 && (SDL_GetWindowFlags(m_window) & SDL_WINDOW_OPENGL))
+            GetPlatform()->GetGLHdrPolicy()->OnContextReady(m_window, true);
+        return result;
     }
     // Exclusive fullscreen: the specific mode is applied via SetWindowDisplayMode();
     // here we just enter fullscreen.
-    return SDL_SetWindowFullscreen(lbWindow, true) ? 0 : -1;
+    return SDL_SetWindowFullscreen(m_window, true) ? 0 : -1;
 }
 
 void WindowSystemSDL::SetWindowBordered(int bordered)
 {
-    if (lbWindow != nullptr)
-        SDL_SetWindowBordered(lbWindow, bordered ? true : false);
+    if (m_window != nullptr)
+        SDL_SetWindowBordered(m_window, bordered ? true : false);
 }
 
 void WindowSystemSDL::SetWindowPosition(int x, int y)
 {
-    if (lbWindow != nullptr)
-        SDL_SetWindowPosition(lbWindow, x, y);
+    if (m_window != nullptr)
+        SDL_SetWindowPosition(m_window, x, y);
 }
 
 bool WindowSystemSDL::CreateWindow(const char* title, int x, int y, int w, int h, unsigned int flags)
@@ -287,62 +293,66 @@ bool WindowSystemSDL::CreateWindow(const char* title, int x, int y, int w, int h
     if (flags & KFX_WF_BORDERLESS) sdl3_flags |= SDL_WINDOW_BORDERLESS;
     if (flags & KFX_WF_HIDDEN)     sdl3_flags |= SDL_WINDOW_HIDDEN;
 
-    lbWindow = SDL_CreateWindow(title, w, h, sdl3_flags);
-    if (!lbWindow)
+    if (flags & KFX_WF_OPENGL)
+    {
+        sdl3_flags |= SDL_WINDOW_OPENGL;
+        // Created hidden regardless of the caller's KFX_WF_HIDDEN request:
+        // SDL3 sets the window's pixel format as part of SDL_CreateWindow,
+        // and doing that on a visible window can trigger a DWM
+        // composition-pipeline reconfiguration (a visible black flash on
+        // HDR displays). RendererOpenGL::Init() shows the window once the
+        // GL context is fully created and current -- matches develop's
+        // platform_create_gl_context() sequencing.
+        sdl3_flags |= SDL_WINDOW_HIDDEN;
+
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        // World geometry depth-tests tile/flat-poly draws for correct
+        // near/far ordering -- request a depth buffer explicitly rather than
+        // relying on a driver default, which may be none.
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        // Pin the colour channel sizes explicitly instead of letting SDL/the
+        // driver pick a default pixel format. Without this a driver is free to
+        // hand back a surface with a different bit layout (or, on an HDR-capable
+        // display, an extended-precision one) -- matches develop's
+        // platform_gl_sdl3.cpp, which calls out the 8-bit RGBA request as what
+        // keeps an HDR display's DWM compositor tone-mapping the game as SDR
+        // instead of applying an unwanted brightness boost.
+        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+        SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
+        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   8);
+        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    8);
+        SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,   8);
+    }
+
+    m_window = SDL_CreateWindow(title, w, h, sdl3_flags);
+    if (!m_window)
         return false;
-    ApplyWindowIcon(lbWindow);
+    ApplyWindowIcon(m_window);
 
     // A window created with SDL_WINDOW_FULLSCREEN starts as desktop fullscreen,
     // which is exactly what a desktop-fullscreen mode wants; an exclusive mode is
     // applied later via SetWindowDisplayMode(). Windowed modes get their position.
     if (!(sdl3_flags & SDL_WINDOW_FULLSCREEN))
-        SDL_SetWindowPosition(lbWindow, x, y);
+        SDL_SetWindowPosition(m_window, x, y);
     return true;
 }
 
-bool WindowSystemSDL::RecreateForSoftwareRenderer()
+bool WindowSystemSDL::SetWindowTitle(const char* title)
 {
-    if (lbWindow == nullptr)
+    if (!m_window)
         return false;
-    SDL_WindowFlags cur_flags = SDL_GetWindowFlags(lbWindow);
-    if (!(cur_flags & (SDL_WINDOW_OPENGL | SDL_WINDOW_VULKAN)))
-        return true;
-
-    int w = 0, h = 0;
-    SDL_GetWindowSize(lbWindow, &w, &h);
-    int x = SDL_WINDOWPOS_UNDEFINED, y = SDL_WINDOWPOS_UNDEFINED;
-    SDL_GetWindowPosition(lbWindow, &x, &y);
-    char title[256];
-    { const char* cur = SDL_GetWindowTitle(lbWindow); snprintf(title, sizeof(title), "%s", cur ? cur : ""); }
-    SDL_WindowFlags new_flags = cur_flags & ~(SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_VULKAN);
-
-    SDL_DestroyWindow(lbWindow);
-    lbWindow = SDL_CreateWindow(title, w, h, new_flags);
-    if (!lbWindow) {
-        ERRORLOG("WindowSystemSDL::RecreateForSoftwareRenderer failed: %s", SDL_GetError());
-        return false;
-    }
-    ApplyWindowIcon(lbWindow);
-    SDL_SetWindowPosition(lbWindow, x, y);
-    SDL_ShowWindow(lbWindow);
-    return true;
-}
-
-bool WindowSystemSDL::RecreateForVulkanRenderer()
-{
-    // No Vulkan window in this build; kept for interface parity with develop.
-    if (lbWindow == nullptr)
-        return false;
-    if (!(SDL_GetWindowFlags(lbWindow) & SDL_WINDOW_VULKAN))
-        return true;
+    SDL_SetWindowTitle(m_window, title);
     return true;
 }
 
 int WindowSystemSDL::GetDisplayRefreshRate() const
 {
-    if (lbWindow == nullptr)
+    if (m_window == nullptr)
         return 0;
-    SDL_DisplayID disp_id = SDL_GetDisplayForWindow(lbWindow);
+    SDL_DisplayID disp_id = SDL_GetDisplayForWindow(m_window);
     if (disp_id == 0)
         return 0;
     const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(disp_id);

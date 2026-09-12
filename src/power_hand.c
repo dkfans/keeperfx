@@ -574,7 +574,7 @@ void draw_power_hand(void)
         {
             roomst = get_room_kind_stats(room->kind);
 
-            draw_gui_panel_sprite_centered(GetMouseX()+scale_ui_value(24*global_hand_scale), GetMouseY()+scale_ui_value(32*global_hand_scale), ps_units_per_px, roomst->medsym_sprite_idx);
+            draw_gui_panel_sprite_centered(GetMouseX()+scale_ui_value(24*global_hand_scale), GetMouseY()+scale_ui_value(32*global_hand_scale), ps_units_per_px, roomst->medsym_sprite_idx, 0);
         }
         if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
         {
@@ -592,16 +592,20 @@ void draw_power_hand(void)
     if (!thing_exists(thing))
     {
         if ((local_thing_under_hand > 0) && (player->work_state == PSt_CtrlDungeon)) {
-            process_keeper_sprite(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY()+scale_ui_value(40*global_hand_scale),
-              game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HndA_Hover], 0, 0, scale_ui_value(64*global_hand_scale));
+            if (!RendererSubmitKeeperHandSprite(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY()+scale_ui_value(40*global_hand_scale),
+                  game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HndA_Hover], 0, 0, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags()))
+                process_keeper_sprite(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY()+scale_ui_value(40*global_hand_scale),
+                  game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HndA_Hover], 0, 0, scale_ui_value(64*global_hand_scale));
         }
         return;
     }
     if (player->hand_busy_until_turn > get_gameturn())
     {
         SYNCDBG(7,"Drawing hand %s index %d, busy state", thing_model_name(thing), (int)thing->index);
-        process_keeper_sprite(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY()+scale_ui_value(40*global_hand_scale),
-          thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale));
+        if (!RendererSubmitKeeperHandSprite(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY()+scale_ui_value(40*global_hand_scale),
+              thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags()))
+            process_keeper_sprite(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY()+scale_ui_value(40*global_hand_scale),
+              thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale));
         draw_mini_things_in_hand(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY());
         return;
     }
@@ -623,8 +627,10 @@ void draw_power_hand(void)
         {
           if (player->work_state == PSt_Slap)
           {
-            process_keeper_sprite(GetMouseX() + scale_ui_value(70*global_hand_scale), GetMouseY() + scale_ui_value(46*global_hand_scale),
-                thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale));
+            if (!RendererSubmitKeeperHandSprite(GetMouseX() + scale_ui_value(70*global_hand_scale), GetMouseY() + scale_ui_value(46*global_hand_scale),
+                    thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags()))
+                process_keeper_sprite(GetMouseX() + scale_ui_value(70*global_hand_scale), GetMouseY() + scale_ui_value(46*global_hand_scale),
+                    thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale));
           } else
           if (player->work_state == PSt_CtrlDungeon)
           {
@@ -665,18 +671,24 @@ void draw_power_hand(void)
                 else if(crconf->transparency_flags == TRF_Transpar_Alpha)
                 {
                     EngineSpriteDrawUsingAlpha = 1;
+                    RendererAddDrawFlags(Lb_SPRITE_ALPHA_ADDITIVE);
+                    RendererClearDrawFlags(Lb_SPRITE_REMAP);
                 }
 
-                process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-                    picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
+                if (!RendererSubmitKeeperHandSprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                        picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags()))
+                    process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                        picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
                 RendererSetDrawFlags(0);
                 EngineSpriteDrawUsingAlpha = 0;
             } else
             {
                 inputpos_x = GetMouseX() + scale_ui_value(11*global_hand_scale);
                 inputpos_y = GetMouseY() + scale_ui_value(56*global_hand_scale);
-                process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-                    picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
+                if (!RendererSubmitKeeperHandSprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                        picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags()))
+                    process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                        picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
             }
             break;
         case TCls_Object:
@@ -684,8 +696,10 @@ void draw_power_hand(void)
             {
               inputpos_x = GetMouseX() + scale_ui_value(11*global_hand_scale);
               inputpos_y = GetMouseY() + scale_ui_value(56*global_hand_scale);
-              process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-                  picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
+              if (!RendererSubmitKeeperHandSprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                      picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags()))
+                  process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                      picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
               break;
             } else
             if ((picktng->class_id == TCls_Object) && object_is_gold_pile(picktng))
@@ -697,15 +711,19 @@ void draw_power_hand(void)
                 pickoffs = get_object_picked_up_offset(picktng);
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x * global_hand_scale);
                 inputpos_y = GetMouseY() + scale_ui_value(pickoffs->delta_y * global_hand_scale);
-                process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-                    picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64 * global_hand_scale));
+                if (!RendererSubmitKeeperHandSprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                        picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64 * global_hand_scale), RendererGetDrawFlags()))
+                    process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                        picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64 * global_hand_scale));
             }
             break;
         default:
             inputpos_x = GetMouseX();
             inputpos_y = GetMouseY();
-            process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-                  picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
+            if (!RendererSubmitKeeperHandSprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                    picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags()))
+                process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                      picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale));
             break;
         }
     }
@@ -713,15 +731,19 @@ void draw_power_hand(void)
     {
         inputpos_x = GetMouseX() + scale_ui_value(58*global_hand_scale);
         inputpos_y = GetMouseY() +  scale_ui_value(6*global_hand_scale);
-        process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-            thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale));
+        if (!RendererSubmitKeeperHandSprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags()))
+            process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale));
         draw_mini_things_in_hand(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY());
     } else
     {
         inputpos_x = GetMouseX() + scale_ui_value(60*global_hand_scale);
         inputpos_y = GetMouseY() + scale_ui_value(40*global_hand_scale);
-        process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
-            thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale));
+        if (!RendererSubmitKeeperHandSprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags()))
+            process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale));
         draw_mini_things_in_hand(GetMouseX()+scale_ui_value(60*global_hand_scale), GetMouseY());
     }
 }
@@ -1222,7 +1244,7 @@ void draw_mini_things_in_hand(long x, long y)
                     if (thing->owner != my_player_number)
                     {
                         ownshift_y = (irow == 0) ? 1 : 56;
-                        LbDrawCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[flash_color]);
+                        UIRenderer_SubmitCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[flash_color]);
                     }
                 }
                 else
@@ -1230,8 +1252,8 @@ void draw_mini_things_in_hand(long x, long y)
                     ownshift_y = (irow > 0) ? 44 : 10;
                     if (thing->owner != my_player_number)
                     {
-                        long relative_window_a = lbDisplay.GraphicsScreenWidth;
-                        long relative_window_b = lbDisplay.GraphicsScreenHeight;
+                        long relative_window_a = RendererScreenWidth();
+                        long relative_window_b = RendererScreenHeight();
                         short n = min(scale_ui_value(1),4);
                         ScreenCoord coord_y = scrpos_y + scale_ui_value(ownshift_y);
                         ScreenCoord draw_y;
@@ -1245,7 +1267,7 @@ void draw_mini_things_in_hand(long x, long y)
                                 // Draw the pixel if it's within the bounds of the window
                                 if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
                                 {
-                                    LbDrawPixel(draw_x, draw_y, player_flash_colours[flash_color]);
+                                    UIRenderer_SubmitSolidBox(draw_x, draw_y, 1, 1, player_flash_colours[flash_color]);
                                 }
                             }
                         }
@@ -1258,7 +1280,7 @@ void draw_mini_things_in_hand(long x, long y)
                                 // Draw the pixel if it's within the bounds of the window
                                 if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
                                 {
-                                    LbDrawPixel(draw_x, draw_y, player_path_colours[flash_color]);
+                                    UIRenderer_SubmitSolidBox(draw_x, draw_y, 1, 1, player_path_colours[flash_color]);
                                 }
                             }
                         }

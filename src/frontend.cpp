@@ -1029,71 +1029,6 @@ void gui_area_slider(struct GuiButton *gbtn)
     LbSpriteDrawResized(gbtn->scr_pos_x + shift_x + 24*units_per_px/16, gbtn->scr_pos_y + 6*units_per_px/16, bs_units_per_px, spr);
 }
 
-#if (BFDEBUG_LEVEL > 0)
-// Code for font testing screen (debug version only)
-TbBool fronttestfont_draw(void)
-{
-  const struct TbSprite *spr;
-  unsigned long i;
-  unsigned long k;
-  long w;
-  long h;
-  long x;
-  long y;
-  SYNCDBG(9,"Starting");
-  for (y=0; y < lbDisplay.GraphicsScreenHeight; y++)
-    for (x=0; x < lbDisplay.GraphicsScreenWidth; x++)
-    {
-        lbDisplay.WScreen[y*lbDisplay.GraphicsScreenWidth+x] = 0;
-    }
-  LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
-  // Drawing
-  w = 32;
-  h = 48;
-  for (i=31; i < num_chars_in_font+31; i++)
-  {
-    k = (i-31);
-    SYNCDBG(9,"Drawing char %lu",i);
-    x = (k%32)*w + 2;
-    y = (k/32)*h + 2;
-    if (lbFontPtr != NULL)
-      spr = LbFontCharSprite(lbFontPtr,i);
-    else
-      spr = NULL;
-    if (spr != NULL)
-    {
-      LbDrawBox(x, y, spr->SWidth+2, spr->SHeight+2, 255);
-      LbSpriteDraw(x+1, y+1, spr);
-    }
-//TODO SPRITES enhance font support
-  }
-  // Displaying the new frame
-  return true;
-}
-
-TbBool fronttestfont_input(void)
-{
-  const unsigned int keys[] = {KC_Z,KC_1,KC_2,KC_3,KC_4,KC_5,KC_6,KC_7,KC_8,KC_9,KC_0};
-  int i;
-  for (i=0; i < sizeof(keys)/sizeof(keys[0]); i++)
-  {
-    if (lbKeyOn[keys[i]])
-    {
-      lbKeyOn[keys[i]] = 0;
-      num_chars_in_font = num_sprites(testfont[i]);
-      SYNCDBG(9,"Characters in font %d: %ld",i,num_chars_in_font);
-      if (i < 4)
-        RendererPaletteSet(frontend_palette);//testfont_palette[0]
-      else
-        RendererPaletteSet(testfont_palette[1]);
-      LbTextSetFont(testfont[i]);
-      return true;
-    }
-  }
-  return false;
-}
-#endif
-
 
 void frontend_draw_icon(struct GuiButton *gbtn)
 {
@@ -2061,8 +1996,8 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
       break;
   default: // Desired position have direct coordinates
       pos = ((desired_pos*(long)units_per_pixel)>>4)*((long)pixel_size);
-      if (pos+scaled_width > lbDisplay.PhysicalScreenWidth*((long)pixel_size))
-        pos = lbDisplay.PhysicalScreenWidth*((long)pixel_size)-scaled_width;
+      if (pos+scaled_width > RendererPhysicalWidth()*((long)pixel_size))
+        pos = RendererPhysicalWidth()*((long)pixel_size)-scaled_width;
 /* Helps not to touch left panel - disabling, as needs additional conditions
       if (pos < status_panel_width)
         pos = status_panel_width;
@@ -2162,10 +2097,10 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     int units_per_px;
     units_per_px = min((int)units_per_pixel,units_per_pixel_min*16/10);
     // Decrease scale factor if for some reason resulting size would exceed screen (wierd aspec ratio support)
-    if (gmnu->width * units_per_px > LbScreenWidth() * 16)
-        units_per_px = LbScreenWidth() * 16 / gmnu->width;
-    if (gmnu->height * units_per_px > LbScreenHeight() * 16)
-        units_per_px = LbScreenHeight() * 16 / gmnu->height;
+    if (gmnu->width * units_per_px > RendererPhysicalWidth() * 16)
+        units_per_px = RendererPhysicalWidth() * 16 / gmnu->width;
+    if (gmnu->height * units_per_px > RendererPhysicalHeight() * 16)
+        units_per_px = RendererPhysicalHeight() * 16 / gmnu->height;
     // Setting position X
     amnu->pos_x = compute_menu_position_x(gmnu->pos_x,gmnu->width,units_per_px);
     // Setting position Y
@@ -2746,7 +2681,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           set_pointer_graphic_none();
           credits_offset = lbDisplay.PhysicalScreenHeight;
           credits_end = 0;
-          LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+          LbTextSetWindow(0, 0, RendererPhysicalWidth(), lbDisplay.PhysicalScreenHeight);
           RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
           play_music_track(7);
           break;
@@ -3051,7 +2986,7 @@ void frontend_input(void)
         if (input_consumed) {
             break;
         }
-        fronttestfont_input();
+        //fronttestfont_input();
         break;
 #endif
     default:
@@ -3335,7 +3270,7 @@ short frontend_draw(void)
         return 0;
     }
 
-    if (RendererLockFramebuffer() != Lb_SUCCESS)
+    if (!RendererBeginFrame())
         return 2;
 
     result = 1;
@@ -3383,7 +3318,7 @@ short frontend_draw(void)
         break;
 #if (BFDEBUG_LEVEL > 0)
     case FeSt_FONT_TEST:
-        fronttestfont_draw();
+        //fronttestfont_draw();
         break;
 #endif
     default:
@@ -3391,7 +3326,7 @@ short frontend_draw(void)
     }
     draw_debug_messages();
     perform_any_screen_capturing();
-    RendererUnlockFramebuffer();
+    RendererEndFrame();
     return result;
 }
 

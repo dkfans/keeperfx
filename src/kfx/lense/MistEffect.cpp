@@ -22,11 +22,14 @@
 #include "MistEffect.h"
 
 #include <string.h>
+#include <cmath>
 #include "../../config_lenses.h"
 #include "../../lens_api.h"
+#include "../../game_legacy.h"
 #include "../../custom_sprites.h"
 #include "../../globals.h"
 #include "../../vidmode.h"
+#include "../renderer/ir/WorldCommands.h"
 
 #include "../../keeperfx.hpp"
 #include "../../post_inc.h"
@@ -48,11 +51,22 @@ public:
                unsigned char pos_x_step, unsigned char pos_y_step,
                unsigned char sec_x_step, unsigned char sec_y_step);
     void SetAnimation(long counter, long speed);
-    void Render(unsigned char *dstbuf, long dstpitch, 
+    void Render(unsigned char *dstbuf, long dstpitch,
                unsigned char *srcbuf, long srcpitch,
                long width, long height);
     void Animate();
-    
+
+    /** Push the shared animation phase (owned by MistEffect, advanced by
+     *  AdvanceAnimation()) into this renderer ahead of Render(), which reads
+     *  its own position/secondary offset fields. */
+    void SetOffsets(int pos_x, int pos_y, int sec_x, int sec_y)
+    {
+        position_offset_x  = (unsigned char)(pos_x & 0xFF);
+        position_offset_y  = (unsigned char)(pos_y & 0xFF);
+        secondary_offset_x = (unsigned char)(sec_x & 0xFF);
+        secondary_offset_y = (unsigned char)(sec_y & 0xFF);
+    }
+
 private:
     /** Mist data width and height are the same and equal to this dimension */
     unsigned int lens_dim;
@@ -196,6 +210,7 @@ void CMistFade::Render(unsigned char *dstbuf, long dstpitch,
 MistEffect::MistEffect()
     : LensEffect(LensEffectType::Mist, "Mist")
     , m_current_lens(-1)
+    , m_gpu_version(0)
 {
 }
 
@@ -235,11 +250,18 @@ TbBool MistEffect::Setup(long lens_idx)
                    (unsigned char)cfg->mist_sec_x_step,
                    (unsigned char)cfg->mist_sec_y_step);
     renderer->SetAnimation(0, 1024);
-    
+    m_pos_x = 0.0f;   m_pos_y = 0.0f;
+    m_sec_x = 50.0f;  m_sec_y = 128.0f;
+    m_vel_pos_x =  (float)(signed char)(unsigned char)cfg->mist_pos_x_step;
+    m_vel_pos_y =  (float)(signed char)(unsigned char)cfg->mist_pos_y_step;
+    m_vel_sec_x = -(float)(signed char)(unsigned char)cfg->mist_sec_x_step;
+    m_vel_sec_y =  (float)(signed char)(unsigned char)cfg->mist_sec_y_step;
+
     // Store renderer in user data (we'll manage it through the base class)
     m_user_data = renderer;
     m_current_lens = lens_idx;
-    
+    m_gpu_version++;   // mist texture just (re)loaded -- GL upload must not skip it
+
     SYNCDBG(7, "Mist effect ready");
     return true;
 }
@@ -274,12 +296,50 @@ TbBool MistEffect::Draw(LensRenderContext* ctx)
     // Mist reads from viewport-aligned source
     unsigned char* viewport_src = ctx->srcbuf + ctx->viewport_x;
     
-    // Render mist effect
+    renderer->SetOffsets((int)m_pos_x, (int)m_pos_y, (int)m_sec_x, (int)m_sec_y);
     renderer->Render(ctx->dstbuf, ctx->dstpitch, viewport_src, ctx->srcpitch,
                     ctx->width, ctx->height);
-    renderer->Animate();
-    
+    AdvanceAnimation(game.delta_time);
+
     ctx->buffer_copied = true;  // Mist writes to dstbuf
+    return true;
+}
+
+void MistEffect::AdvanceAnimation(float delta)
+{
+    if (m_current_lens < 0)
+        return;
+    auto wrap256 = [](float v) -> float {
+        v = std::fmod(v, 256.0f);
+        if (v < 0.0f) v += 256.0f;
+        return v;
+    };
+    m_pos_x = wrap256(m_pos_x + m_vel_pos_x * delta);
+    m_pos_y = wrap256(m_pos_y + m_vel_pos_y * delta);
+    m_sec_x = wrap256(m_sec_x + m_vel_sec_x * delta);
+    m_sec_y = wrap256(m_sec_y + m_vel_sec_y * delta);
+}
+
+TbBool MistEffect::BuildGPUParams(IRWorldLensCmd& out, long viewport_w, long viewport_h)
+{
+    (void)viewport_w; (void)viewport_h;   // mist has no resolution-dependent table
+    if (m_current_lens < 0 || m_user_data == NULL)
+    {
+        return false;
+    }
+
+    struct LensConfig* cfg = &lenses_conf.lenses[m_current_lens];
+
+    out.mist_pos_x = m_pos_x;
+    out.mist_pos_y = m_pos_y;
+    out.mist_sec_x = m_sec_x;
+    out.mist_sec_y = m_sec_y;
+    out.mist_lightness = cfg->mist_lightness;
+
+    out.mist_version = m_gpu_version;
+    out.mist_pixels.assign((const uint8_t*)eye_lens_memory, (const uint8_t*)eye_lens_memory + 256 * 256);
+
+    out.type = LensPixelEffectType::Mist;
     return true;
 }
 

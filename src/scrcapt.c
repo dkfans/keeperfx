@@ -26,7 +26,6 @@
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
-#include "bflib_vidsurface.h"
 #include "globals.h"
 
 #include "gui_topmsg.h"
@@ -48,7 +47,7 @@ TbBool take_screenshot(char *fname)
     TbBool lock_mem = LbScreenIsLocked();
     if (!lock_mem)
     {
-        if (RendererLockFramebuffer() != Lb_SUCCESS)
+        if (!RendererBeginFrame())
         {
             ERRORLOG("Can't lock canvas");
             return false;
@@ -57,7 +56,7 @@ TbBool take_screenshot(char *fname)
     TbBool success = RendererScheduleScreenshot(fname, screenshot_format);
     if (!lock_mem)
     {
-        RendererUnlockFramebuffer();
+        RendererEndFrame();
     }
     return success;
 }
@@ -123,13 +122,18 @@ TbBool movie_record_frame(void)
     short lock_mem = LbScreenIsLocked();
     if (!lock_mem)
     {
-        if (RendererLockFramebuffer() != Lb_SUCCESS)
+        if (!RendererBeginFrame())
             return false;
   }
   RendererPaletteGet(cap_palette);
-  short result = anim_record_frame(lbDisplay.WScreen, cap_palette);
+  // anim_record_frame() reads raw pixels straight from lbDisplay.WScreen --
+  // only ever valid for backends without a GPU render path (RendererBeginFrame()
+  // only locks the CPU framebuffer for those). GL genuinely has no CPU
+  // surface to read back here yet (needs its own glReadPixels()-based
+  // capture path, not yet built).
+  short result = (lbDisplay.WScreen != NULL) ? anim_record_frame(lbDisplay.WScreen, cap_palette) : false;
   if (!lock_mem)
-    RendererUnlockFramebuffer();
+    RendererEndFrame();
   return result;
 }
 

@@ -35,6 +35,7 @@
 #include <json.h>
 #include <json-dom.h>
 #include <minizip/unzip.h>
+#include "kfx/renderer/RendererManager.h" // RendererPhysicalWidth
 #include "post_inc.h"
 #include "bflib_sprite.h"
 
@@ -2041,7 +2042,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
     const char *name = value_string(val);
     SYNCDBG(2, "found icon: '%s/%s'", path,name);
 
-    TbBool is_lowres = (lbDisplay.PhysicalScreenWidth <= LOWRES_SCREEN_SIZE);
+    TbBool is_lowres = (RendererPhysicalWidth() <= LOWRES_SCREEN_SIZE);
     const char *file_key = is_lowres ? "lowres" : "file";
 
     VALUE *file_value = value_dict_get(root, file_key);

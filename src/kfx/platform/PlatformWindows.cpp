@@ -1,8 +1,11 @@
 #include "pre_inc.h"
 #include "kfx/platform/PlatformWindows.h"
 #include "kfx/platform/FileFind.h"
+#include "kfx/platform/GLHdrPolicyWin.h"
+#include "kfx/platform/GLHdrPolicyNull.h"
 #include "platform.h"
 #include "bflib_fileio.h"
+#include "config.h" // keeper_runtime_directory (GetUserPrefDir() SDL-less fallback)
 #include <SDL3/SDL.h>
 #include <cstdlib>
 #include <cstdint>
@@ -36,6 +39,31 @@ const char* PlatformWindows::GetOSVersion() const
 const void* PlatformWindows::GetImageBase() const
 {
     return GetModuleHandle(NULL);
+}
+
+const char* PlatformWindows::GetUserPrefDir()
+{
+    static char pref_path[512] = {};
+    if (pref_path[0] != '\0')
+        return pref_path;
+    char* sdl_path = SDL_GetPrefPath("keeperfx", "keeperfx");
+    if (sdl_path)
+    {
+        snprintf(pref_path, sizeof(pref_path), "%s", sdl_path);
+        // SDL appends a trailing separator -- strip it for consistency.
+        size_t len = strlen(pref_path);
+        if (len > 0 && (pref_path[len - 1] == '\\' || pref_path[len - 1] == '/'))
+            pref_path[len - 1] = '\0';
+        SDL_free(sdl_path);
+    }
+    else
+    {
+        // Fall back to the game's own runtime directory (where keeperfx.cfg
+        // already lives) rather than an SDL-less user-pref concept this
+        // branch doesn't otherwise have.
+        snprintf(pref_path, sizeof(pref_path), "%s", keeper_runtime_directory);
+    }
+    return pref_path;
 }
 
 const char* PlatformWindows::GetWineVersion() const
@@ -94,6 +122,15 @@ TbFileFind* PlatformWindows::FileFindFirst(const char* filespec, TbFileEntry* en
     std::sort(ffind->names.begin(), ffind->names.end());
     entry->Filename = ffind->names[0].second.c_str();
     return ffind.release();
+}
+
+IGLHdrPolicy* PlatformWindows::GetGLHdrPolicy()
+{
+    // Wine has DXGI but no DWM: (double check later) the frame-extension and anchor-window tricks are
+    // inert there, and the host compositor owns HDR.
+    if (GetWineVersion() != nullptr)
+        return &g_hdr_policy_null;
+    return &g_hdr_policy_dxgi;
 }
 
 bool PlatformWindows::VideoInit()

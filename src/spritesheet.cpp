@@ -2,6 +2,8 @@
 #include "bflib_sprite.h"
 #include "bflib_filelst.h"
 #include "bflib_dernc.h"
+#include "globals.h"        // SYNCLOG
+#include "kfx/renderer/RendererBridge_UI.h" // RendererClearSpriteHandleCache
 #include <vector>
 #include <memory>
 #include <map>
@@ -107,6 +109,18 @@ extern "C" TbSpriteSheet * load_spritesheet(const char * data_fname, const char 
 
 extern "C" void free_spritesheet(TbSpriteSheet ** sheet)
 {
+    if (sheet && *sheet) {
+        // IUIRenderer::ResolveSprite() caches TbSprite* -> handle
+        // forever, keyed by raw pointer -- a freed sheet's memory can be
+        // reused by the next one loaded, silently aliasing the new sheet's
+        // sprite onto the old one's stale atlas pixels. Dropping the whole
+        // cache on every sheet free is cheap (this happens a handful of
+        // times per session, not per frame) and can't miss a stale pointer.
+        int32_t cleared = RendererClearSpriteHandleCache();
+        if (cleared > 0) {
+            SYNCLOG("cleared %d cached UI sprite handle(s) before freeing a sprite sheet", (int)cleared);
+        }
+    }
     if (sheet) {
         delete *sheet;
         *sheet = NULL;

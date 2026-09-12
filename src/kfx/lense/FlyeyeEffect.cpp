@@ -25,6 +25,7 @@
 #include <string.h>
 #include "../../config_lenses.h"
 #include "../../lens_api.h"
+#include "../renderer/ir/WorldCommands.h"
 
 #include "../../keeperfx.hpp"
 #include "../../post_inc.h"
@@ -220,6 +221,7 @@ FlyeyeEffect::FlyeyeEffect()
     , m_lookup_table(nullptr)
     , m_table_width(0)
     , m_table_height(0)
+    , m_gpu_version(0)
 {
 }
 
@@ -349,6 +351,8 @@ void FlyeyeEffect::BuildLookupTable(long width, long height)
     free(g_ref_scanlines);
     g_ref_scanlines = nullptr;
     
+    m_gpu_version++;   // table just rebuilt -- GL upload must not skip it
+
     SYNCDBG(7, "Built flyeye lookup table %ldx%ld", width, height);
 }
 
@@ -404,5 +408,39 @@ TbBool FlyeyeEffect::Draw(LensRenderContext* ctx)
     }
     
     ctx->buffer_copied = true;
+    return true;
+}
+
+TbBool FlyeyeEffect::BuildGPUParams(IRWorldLensCmd& out, long viewport_w, long viewport_h)
+{
+    if (m_current_lens < 0)
+    {
+        return false;
+    }
+
+    if (m_lookup_table == nullptr ||
+        m_table_width != viewport_w ||
+        m_table_height != viewport_h)
+    {
+        BuildLookupTable(viewport_w, viewport_h);
+        if (m_lookup_table == nullptr)
+        {
+            return false;
+        }
+    }
+
+    out.remap_version = m_gpu_version;
+    out.remap_w = (int)m_table_width;
+    out.remap_h = (int)m_table_height;
+    out.remap_pixels.resize((size_t)m_table_width * (size_t)m_table_height * 2);
+    const FlyeyeLookupEntry* entry = m_lookup_table;
+    int16_t* dst = out.remap_pixels.data();
+    for (long i = 0; i < m_table_width * m_table_height; i++)
+    {
+        dst[i * 2 + 0] = entry[i].src_x;
+        dst[i * 2 + 1] = entry[i].src_y;
+    }
+
+    out.type = LensPixelEffectType::Flyeye;
     return true;
 }

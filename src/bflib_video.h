@@ -28,10 +28,11 @@
 
 /** Window-mode flags: the currency passed across the window-system seam. */
 enum KfxWindowFlags {
-    KFX_WF_FULLSCREEN_EXCLUSIVE = 0x1, // fullscreen at a specific video mode
-    KFX_WF_FULLSCREEN_DESKTOP   = 0x2, // borderless fullscreen at native resolution
-    KFX_WF_BORDERLESS           = 0x4, // borderless window (also FILL ALL)
-    KFX_WF_HIDDEN               = 0x8, // created hidden
+    KFX_WF_FULLSCREEN_EXCLUSIVE = 0x1,  // fullscreen at a specific video mode
+    KFX_WF_FULLSCREEN_DESKTOP   = 0x2,  // borderless fullscreen at native resolution
+    KFX_WF_BORDERLESS           = 0x4,  // borderless window (also FILL ALL)
+    KFX_WF_HIDDEN               = 0x8,  // created hidden
+    KFX_WF_OPENGL               = 0x10, // window must be OpenGL-capable at creation
 };
 
 #ifdef __cplusplus
@@ -110,6 +111,8 @@ enum TbDrawFlags {
     Lb_SPRITE_REMAP        = 0x0800,
     Lb_TEXT_UNDERLNSHADOW  = 0x1000,
     Lb_TEXT_REMAP          = 0x2000,
+    // GPU additive (glow/fire) blend for keeper sprites, only used by gl fragmnt shader.
+    Lb_SPRITE_ALPHA_ADDITIVE = 0x4000,
 };
 
 enum TbVideoModeFlags {
@@ -241,9 +244,6 @@ struct DisplayStructEx {
 };
 typedef struct DisplayStructEx TbDisplayStructEx;
 
-struct SSurface;
-typedef struct SSurface TSurface;
-
 /******************************************************************************/
 
 
@@ -290,8 +290,9 @@ extern unsigned short display_id;
 
 extern TbBool vsync_enabled;
 
+extern int requested_renderer_type;
+
 extern TbDisplayStruct lbDisplay;
-extern SDL_Window *lbWindow;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
@@ -307,11 +308,7 @@ TbScreenMode LbRegisterVideoModeString(const char *desc);
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode);
 
 TbScreenMode LbScreenActiveMode(void);
-TbScreenCoord LbScreenWidth(void);
-TbScreenCoord LbScreenHeight(void);
 unsigned short LbGraphicsScreenBPP(void);
-TbScreenCoord LbGraphicsScreenWidth(void);
-TbScreenCoord LbGraphicsScreenHeight(void);
 
 TbBool LbScreenIsLocked(void);
 

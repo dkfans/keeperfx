@@ -24,9 +24,9 @@
 #include "bflib_mouse.h"
 #include "bflib_render.h"
 #include "bflib_sprfnt.h"
-#include "bflib_vidsurface.h"
 #include "kfx/platform/PlatformManager.h"
 #include "kfx/renderer/RendererManager.h"
+#include "kfx/renderer/software/SwDisplaySurface.h"
 
 #include "keeperfx.hpp"
 
@@ -55,14 +55,14 @@ TbBool lbDoubleBufferingRequested;
 /** Colour palette buffer, to be used inside lbDisplay. */
 static unsigned char lbPalette[PALETTE_SIZE];
 
+// If you see this in the window, the platform title set didnt get called.
 char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
 volatile unsigned long lbIconIndex = 0;
-SDL_Window *lbWindow = NULL;
 
 TbDisplayStruct lbDisplay;
 
-
+// Todo : Replace these with RendererManager calls, and remove them from here.
 unsigned short MyScreenWidth;
 unsigned short MyScreenHeight;
 unsigned short pixel_size;
@@ -78,8 +78,13 @@ unsigned short units_per_pixel;
   */
 unsigned short display_id = 0;
 
-/** Vertical sync for the software present; set from keeperfx.cfg (VSYNC), on by default. */
+/** Vertical sync for the software present; set from keeperfx.cfg (VSYNC), on by default.
+ * todo : move to render settings
+ */
 TbBool vsync_enabled = 1;
+
+/** Requested renderer backen; set from keeperfx.cfg (RENDERER) */
+int requested_renderer_type = RENDERER_SOFTWARE;
 
 static unsigned char fade_started;
 static unsigned char from_pal[PALETTE_SIZE];
@@ -109,43 +114,15 @@ TbScreenMode LbScreenActiveMode(void)
  */
 unsigned short LbGraphicsScreenBPP(void)
 {
-    if (lbDrawSurface != NULL) {
-        return SDL_BITSPERPIXEL(lbDrawSurface->format);
+    struct SDL_Surface *draw_surface = SwDisplaySurfaceGet();
+    if (draw_surface != NULL) {
+        return SDL_BITSPERPIXEL(draw_surface->format);
     }
     // On error, return 0
     return 0;
     // Old way - returns video BPP, not graphics BPP
     // TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(lbDisplay.ScreenMode);
     // return mdinfo->BitsPerPixel;
-}
-
-TbScreenCoord LbGraphicsScreenWidth(void)
-{
-    return lbDisplay.GraphicsScreenWidth;
-}
-
-TbScreenCoord LbGraphicsScreenHeight(void)
-{
-    return lbDisplay.GraphicsScreenHeight;
-}
-
-/** Resolution in width of the current video mode.
- *  Note that it's not always "physical" size,
- *  and it definitely can't be used as pitch/scanline
- *  (size of data for one line) in the graphics buffer.
- *
- *  But it is the width that will be visible on screen.
- *
- * @return
- */
-TbScreenCoord LbScreenWidth(void)
-{
-    return lbDisplay.PhysicalScreenWidth;
-}
-
-TbScreenCoord LbScreenHeight(void)
-{
-    return lbDisplay.PhysicalScreenHeight;
 }
 
 TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette,long fade_steps)
@@ -443,7 +420,6 @@ TbResult LbScreenInitialize(void)
 {
     // Clear global variables
     lbScreenInitialised = false;
-    lbDrawSurface = NULL;
     lbDoubleBufferingRequested = false;
     LbMouseChangeMoveRatio(256, 256);
     // Register default video modes
@@ -474,10 +450,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     }
     LbMouseChangeSprite(NULL);
 
-    if (lbDrawSurface != NULL) {
-        SDL_DestroySurface(lbDrawSurface);
-    }
-    lbDrawSurface = NULL;
+    SwDisplaySurfaceDestroy();
     lbScreenInitialised = false;
 
     TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode); // The desired mode has already been checked
@@ -517,7 +490,10 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     // If the game window doesn't yet exist, create it.
     if (!PlatformManager_HasWindow())
     {
-        if (PlatformManager_CreateWindow(lbDrawAreaTitle, mdinfo->window_pos_x, mdinfo->window_pos_y, mdinfo->Width, mdinfo->Height, mdinfo->windowFlags) == 0)
+        // Bake the active renderer backend's required SDL3 capability flags
+        // (e.g. KFX_WF_OPENGL) into the window at birth
+        unsigned int window_flags = mdinfo->windowFlags | RendererGetRequiredWindowFlags((RendererType)requested_renderer_type);
+        if (PlatformManager_CreateWindow(lbDrawAreaTitle, mdinfo->window_pos_x, mdinfo->window_pos_y, mdinfo->Width, mdinfo->Height, window_flags) == 0)
         {
             ERRORLOG("PlatformManager_CreateWindow failed for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
             return Lb_FAIL;
@@ -529,18 +505,10 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
             PlatformManager_SetWindowDisplayMode((int)mdinfo->Width, (int)mdinfo->Height);
         }
     }
-    // The engine renders 8-bit indexed into a standalone draw surface; the software
-    // backend presents it through an SDL_Renderer + texture (which is incompatible with
-    // a window surface, so we no longer call SDL_GetWindowSurface here). SDL3 does not
-    // allocate a palette for indexed surfaces, so create one.
-    lbDrawSurface = SDL_CreateSurface(mdinfo->Width, mdinfo->Height, SDL_PIXELFORMAT_INDEX8);
-    if (lbDrawSurface == NULL) {
+
+    struct SDL_Surface *draw_surface = SwDisplaySurfaceCreate(mdinfo->Width, mdinfo->Height);
+    if (draw_surface == NULL) {
         ERRORLOG("Can't create draw surface for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
-        LbScreenReset(false);
-        return Lb_FAIL;
-    }
-    if (!SDL_CreateSurfacePalette(lbDrawSurface)) {
-        ERRORLOG("Can't create palette for draw surface (mode %d, %s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
         LbScreenReset(false);
         return Lb_FAIL;
     }
@@ -553,12 +521,12 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     lbDisplay.ScreenMode = mode;
     lbDisplay.PhysicalScreen = NULL;
     // The graphics screen size should be really taken after screen is locked, but it seem just getting in now will work too
-    lbDisplay.GraphicsScreenWidth = lbDrawSurface->pitch;
+    lbDisplay.GraphicsScreenWidth = draw_surface->pitch;
     lbDisplay.GraphicsScreenHeight = mdinfo->Height;
     lbDisplay.WScreen = NULL;
     lbDisplay.GraphicsWindowPtr = NULL;
     lbScreenInitialised = true;
-    SYNCLOG("Mode %dx%dx8 setup succeeded (indexed draw surface)",(int)lbDrawSurface->w,(int)lbDrawSurface->h);
+    SYNCLOG("Mode %dx%dx8 setup succeeded (indexed draw surface)",(int)draw_surface->w,(int)draw_surface->h);
     if (palette != NULL)
     {
         RendererPaletteSet(palette);
@@ -568,7 +536,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     SYNCDBG(8,"Done filling display properties struct");
     if ( LbMouseIsInstalled() )
     {
-        LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+        LbMouseSetWindow(0, 0, RendererPhysicalWidth(), lbDisplay.PhysicalScreenHeight);
         if (msspr != NULL)
         {
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
@@ -648,7 +616,7 @@ const unsigned char *LbPaletteGetReadonly(void)
 TbResult LbPaletteGet(unsigned char *palette)
 {
     SYNCDBG(12,"Starting");
-    if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
+    if ((!lbScreenInitialised) || (SwDisplaySurfaceGet() == NULL))
       return Lb_FAIL;
     if (lbDisplay.Palette == NULL)
         return Lb_FAIL;
@@ -707,10 +675,7 @@ TbResult LbScreenReset(TbBool exiting_application)
     if (!lbScreenInitialised)
       return Lb_FAIL;
     LbMouseChangeSprite(NULL);
-    if (lbDrawSurface != NULL) {
-        SDL_DestroySurface(lbDrawSurface);
-    }
-    lbDrawSurface = NULL;
+    SwDisplaySurfaceDestroy();
     // Mark as not initialized
     lbScreenInitialised = false;
     if (exiting_application)
@@ -1145,7 +1110,7 @@ long scale_ui_value(long base_value)
  */
 long scale_ui_value_lofi(long base_value)
 {
-    TbBool lofi_mode = ((LbGraphicsScreenHeight() < 400) ? true : false);
+    TbBool lofi_mode = ((RendererScreenHeight() < 400) ? true : false);
     long value;
     if (lofi_mode)
     {

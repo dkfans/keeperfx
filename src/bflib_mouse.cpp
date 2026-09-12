@@ -18,6 +18,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "bflib_mouse.h"
 
 #include <string.h>
@@ -79,7 +80,7 @@ TbResult LbMouseSetup(struct TbSprite *pointerSprite)
   pointerHandler.Install();
   lbMouseOffline = true;
   lbMouseInstalled = true;
-  LbMouseSetWindow(0,0,LbGraphicsScreenWidth(),LbGraphicsScreenHeight());
+  LbMouseSetWindow(0,0,RendererScreenWidth(),RendererScreenHeight());
   LbGrabMouseInit();
   ret = Lb_SUCCESS;
   if (LbMouseChangeSprite(pointerSprite) != Lb_SUCCESS)
@@ -230,6 +231,13 @@ TbResult LbMouseOnEndSwap(void)
     if (!pointerHandler.PointerEndSwap())
         return Lb_FAIL;
     return Lb_SUCCESS;
+}
+
+TbBool LbMouseGetActivePointerSprite(const struct TbSprite **out_spr, int32_t *out_x, int32_t *out_y, int *out_units_per_px)
+{
+    if ((!lbMouseInstalled) || (lbMouseOffline))
+        return false;
+    return pointerHandler.GetActivePointerSprite(out_spr, out_x, out_y, out_units_per_px);
 }
 
 void mouseControl(unsigned int action, struct TbPoint *pos)

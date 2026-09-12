@@ -168,6 +168,10 @@ static TbBool init_level(void)
     game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
     reset_heap_manager();
+    // GL's keeper-sprite atlas caches by draw_idx, stable only within one
+    // sprite-heap generation -- clear it in lockstep with the heap reset
+    // above. No-op on software / before GL is active.
+    RendererClearKeeperSpriteAtlas();
     lens_mode = 0;
     setup_heap_manager();
 

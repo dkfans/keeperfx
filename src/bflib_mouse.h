@@ -136,6 +136,7 @@ TbResult LbMouseChangeMoveRatio(long ratio_x, long ratio_y);
 void mouseControl(unsigned int action, struct TbPoint *pos);
 TbResult LbMouseOnBeginSwap(void);
 TbResult LbMouseOnEndSwap(void);
+TbBool LbMouseGetActivePointerSprite(const struct TbSprite **out_spr, int32_t *out_x, int32_t *out_y, int *out_units_per_px);
 /******************************************************************************/
 #ifdef __cplusplus
 }

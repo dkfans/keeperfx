@@ -675,7 +675,7 @@ static long bitScanReverse(long s)
 {
   unsigned long source = (unsigned long)s;
 #if defined(_MSC_VER)
-    DWORD i;
+    unsigned long i; // DWORD, without pulling in <windows.h> just for the typedef
     uint8_t success = _BitScanReverse(&i, source);
     return success != 0 ? i : -1;
 #elif defined(__GNUC__)

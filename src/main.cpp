@@ -16,6 +16,8 @@
 #include "platform.h"
 #include "kfx/platform/PlatformManager.h"
 #include "kfx/renderer/RendererManager.h"
+#include "kfx/renderer/RendererSettings.h"
+#include "kfx/renderer/RendererThread.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -363,43 +365,10 @@ short setup_game(void)
   features_enabled |= Ft_DeltaTime; // enable delta time
   features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
 
-  // Configuration file
-  if ( !load_configuration() )
-  {
-      ERRORLOG("Configuration load error.");
-      return 0;
-  }
-
-  #ifdef FUNCTESTING
-    start_params.startup_flags &= ~SFlg_Legal;
-    start_params.startup_flags &= ~SFlg_FX;
-    features_enabled |= Ft_SkipHeartZoom;
-  #endif
-
-  // Process CmdLine overrides
-  process_cmdline_overrides();
-
-  LbIKeyboardOpen();
-
-  if (LbDataLoadAll(legal_load_files) != 0)
-  {
-      ERRORLOG("Error on allocation/loading of legal_load_files.");
-      return 0;
-  }
-
-  // Setup polyscans
-  setup_bflib_render();
-
   // View the legal screen
-  if (!setup_screen_mode_zero(get_frontend_vidmode()))
-  {
-      ERRORLOG("Unable to set display mode for legal screen");
-      return 0;
-  }
-
   if (flag_is_set(start_params.startup_flags, SFlg_Legal))
   {
-      if (is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
+      if (is_ar_wider_than_original(RendererScreenWidth(), RendererScreenHeight()))
       {
         result = init_actv_bitmap_screen(RBmp_SplashLegalWide);
       } else {
@@ -1625,8 +1594,8 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     view_height_over_2 = ewnd.height/2;
     view_width_over_2 = ewnd.width/2;
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    setup_vecs(lbDisplay.GraphicsWindowPtr, 0, lbDisplay.GraphicsScreenWidth,
-        ewnd.width, ewnd.height);
+    WorldViewRenderer_BeginWorldPass(ewnd.width, ewnd.height, ewnd.x, ewnd.y);
+    RendererSetGameViewport(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     draw_view(cam, 0);
     RendererSetDrawFlags(flg_mem);
@@ -1802,6 +1771,11 @@ static short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "skipheartzoom") == 0)
       {
         start_params.skip_heart_zoom = true;
+      } else
+      if (strcasecmp(parstr, "opengl") == 0)
+      {
+        start_params.overrides[Clo_Renderer] = true;
+        start_params.renderer_type = RENDERER_OPENGL;
       } else
       if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
@@ -2107,6 +2081,26 @@ static const char* determine_log_filename(unsigned short argument_count, char *a
     return log_file_name;
 }
 
+static short resolve_startup_config(void)
+{
+    if (!load_configuration())
+    {
+        ERRORLOG("Configuration load error.");
+        return 0;
+    }
+
+#ifdef FUNCTESTING
+    start_params.startup_flags &= ~SFlg_Legal;
+    start_params.startup_flags &= ~SFlg_FX;
+    features_enabled |= Ft_SkipHeartZoom;
+#endif
+
+    process_cmdline_overrides();
+
+    requested_renderer_type = (int)RendererResolveType((RendererType)requested_renderer_type);
+    return 1;
+}
+
 static short reset_game(void)
 {
     SYNCDBG(6,"Starting");
@@ -2126,6 +2120,10 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     short retval;
     retval=0;
 
+    // Establish this thread's identity as "the game thread" before anything
+    // else runs. ASSERT_GAME_THREAD() will throw if func called on RT happens on this thread, implying access violation
+    RendererThread_RegisterGameThread();
+
     // Determine correct log file based on command line flags
     const char* selected_log_file_name = determine_log_filename(argc, argv);
     LbErrorLogSetup("/", selected_log_file_name, 5);
@@ -2140,8 +2138,33 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval = true;
     retval &= (LbTimerInit() != Lb_FAIL);
     retval &= (RendererScreenInitialize() != Lb_FAIL);
-    retval &= (RendererInit(RENDERER_SOFTWARE) != 0);
-    LbSetTitle(PROGRAM_NAME);
+
+    if (!resolve_startup_config())
+    {
+        LbErrorLogClose();
+        return 0;
+    }
+
+    LbIKeyboardOpen();
+    if (LbDataLoadAll(legal_load_files) != 0)
+    {
+        ERRORLOG("Error on allocation/loading of legal_load_files.");
+        LbErrorLogClose();
+        return 0;
+    }
+    // Setup polyscans
+    setup_bflib_render();
+    // View the legal screen
+    if (!setup_screen_mode_zero(get_frontend_vidmode()))
+    {
+        ERRORLOG("Unable to set display mode for legal screen");
+        LbErrorLogClose();
+        return 0;
+    }
+
+    retval &= (RendererInit((RendererType)requested_renderer_type) != 0);
+    RendererSettings_Load();
+    PlatformManager_SetWindowTitle(PROGRAM_NAME);
     LbSetIcon(1);
     RendererSetDoubleBuffering(true);
     srand(LbTimerClock());

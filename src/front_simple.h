@@ -67,7 +67,8 @@ extern unsigned char *scratch;
 extern unsigned char *big_scratch; // 16 Mb
 /******************************************************************************/
 TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int dst_width,const int dst_height,
-    const int spw,const int sph,const unsigned char *src_buf,const int src_width,const int src_height);
+    const int spw,const int sph,const unsigned char *src_buf,const int src_width,const int src_height,
+    TbBool clear_margins);
 TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height);
 TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay);
 /******************************************************************************/

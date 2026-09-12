@@ -1,8 +1,8 @@
 {
     "dependencies": [
-        "sdl2",
-        "sdl2-image",
-        "sdl2-mixer",
-        "sdl2-net"
+        "sdl3",
+        "sdl3-image",
+        "sdl3-mixer",
+        "openal-soft"
     ]
 }

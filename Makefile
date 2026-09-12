@@ -68,6 +68,7 @@ GENSRC   = src/ver_defs.h
 RES      = $(OBJDIR)/keeperfx_stdres.res
 DEPS := \
 	obj/centitoml/toml_api.o \
+	obj/glad/glad.o \
 	deps/luajit/lib/libluajit.a
 FTEST_DEBUG ?= 0
 FTEST_DBGFLAGS := $(if $(filter 1,$(FTEST_DEBUG)),-DFUNCTESTING=1,)
@@ -123,6 +124,10 @@ LINKLIB = -mwindows \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
+# OpenGL renderer backend -- always built.
+LINKLIB += -lopengl32
+# DXGI/DWM HDR compositor policy (GLHdrPolicyWin.cpp).
+LINKLIB += -ldxgi -ldwmapi
 INCS = \
 	-I"src" \
 	-isystem"deps/zlib/include" \
@@ -137,13 +142,14 @@ INCS = \
 	-isystem"deps/luajit/include" \
 	-isystem"deps/miniupnpc/include" \
 	-isystem"deps/libnatpmp/include" \
-	-isystem"deps/libcurl/include"
+	-isystem"deps/libcurl/include" \
+	-isystem"deps/glad/include"
 STDOBJS   := $(subst obj/,$(OBJDIR)/std/,$(OBJS))
 HVLOGOBJS := $(subst obj/,$(OBJDIR)/hvlog/,$(OBJS))
 STD_MAIN_OBJ := $(subst obj/,$(OBJDIR)/std/,$(MAIN_OBJ))
 HVLOG_MAIN_OBJ := $(subst obj/,$(OBJDIR)/hvlog/,$(MAIN_OBJ))
 NO_PCH_C = bflib_dernc bflib_text net_holepunch net_lan net_matchmaking centitoml/toml_api
-NO_PCH_CXX = net_portforward kfx/platform/WindowSystemSDL
+NO_PCH_CXX = net_portforward kfx/platform/WindowSystemSDL kfx/platform/GLHdrPolicyWin
 STD_CXX_O = \
 	$(patsubst src/%.cpp,$(OBJDIR)/std/%.o,$(CXX_SRCS)) \
 	$(STD_MAIN_OBJ)
@@ -294,6 +300,8 @@ $(eval $(call LINK_RULE,$(BIN),$(BIN:%.exe=%.map),$(STDOBJS) $(STD_MAIN_OBJ) $(R
 $(eval $(call LINK_RULE,$(HVLOGBIN),$(HVLOGBIN:%.exe=%.map),$(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(RES),keeperfx_hvlog.exe,keeperfx_hvlog.map))
 $(eval $(call LINK_RULE,$(TEST_BIN),$(TEST_BIN:%.exe=%.map),$(TESTS_OBJ) $(STDOBJS) $(CU_OBJS) $(RES),tests.exe,tests.map))
 $(OBJDIR)/std/centitoml/toml_api.o $(OBJDIR)/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c
+	$(CC) $(CFLAGS) -o"$@" "$<"
+$(OBJDIR)/std/glad/glad.o $(OBJDIR)/hvlog/glad/glad.o: deps/glad/src/glad.c
 	$(CC) $(CFLAGS) -o"$@" "$<"
 $(OBJDIR)/tests/%.o: src/tests/%.cpp | $(GENSRC)
 	$(CPP) $(CXXFLAGS) -I"src/" $(CU_INC) -o"$@" "$<"

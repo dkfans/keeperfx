@@ -861,7 +861,7 @@ int consolelog_simultaneous_message_count = 21;
 int consolelog_max_line_width = 1250; // Maximum line width
 void draw_consolelog()
 {
-    draw_round_slab64k(0, 0, units_per_pixel, lbDisplay.GraphicsScreenWidth, (lbDisplay.GraphicsScreenHeight/2), ROUNDSLAB64K_DARK);
+    draw_round_slab64k(0, 0, units_per_pixel, RendererScreenWidth(), (RendererScreenHeight()/2), ROUNDSLAB64K_DARK);
     LbTextSetFont(winfont);
     RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
 

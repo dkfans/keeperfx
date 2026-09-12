@@ -57,6 +57,7 @@
 #include "config_settings.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
+#include "kfx/renderer/RendererManager.h"
 #include "config_magic.h"
 #include "thing_shots.h"
 #include "bflib_inputctrl.h"
@@ -613,8 +614,11 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
         move_thing_in_map(thing, &pos);
   }
   if (is_my_player_number(player->id_number)) {
-      if (player->instance_remain_turns <= 8)
+      if (player->instance_remain_turns <= 8) {
         LbPaletteFade(zoom_to_heart_palette, 8, Lb_PALETTE_FADE_OPEN);
+        float alpha = (float)(8 - player->instance_remain_turns) / 8.0f;
+        RendererSetScreenTint(1.0f, 1.0f, 1.0f, alpha);
+      }
   }
   return 0;
 }
@@ -623,8 +627,10 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 long pinstfe_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 {
     set_player_instance(player, PI_HeartZoomOut, false);
-    if (is_my_player_number(player->id_number))
+    if (is_my_player_number(player->id_number)) {
         LbPaletteStopOpenFade();
+        RendererSetScreenTint(1.0f, 1.0f, 1.0f, 1.0f);
+    }
     return 0;
 }
 
@@ -696,8 +702,11 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
         dstcam->mappos.y.val = thing->mappos.y.val + deltay;
         set_local_camera_destination(player);
     }
-    if (is_my_player_number(player->id_number) && (player->instance_remain_turns >= 8))
+    if (is_my_player_number(player->id_number) && (player->instance_remain_turns >= 8)) {
         LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
+        float alpha = (float)(player->instance_remain_turns - 8) / 8.0f;
+        RendererSetScreenTint(1.0f, 1.0f, 1.0f, alpha);
+    }
     return 0;
 }
 
@@ -705,6 +714,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 {
   if (is_my_player(player)) {
     LbPaletteStopOpenFade();
+    RendererSetScreenTint(0.0f, 0.0f, 0.0f, 0.0f);
   }
     struct Camera* cam = get_player_active_camera(player);
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))

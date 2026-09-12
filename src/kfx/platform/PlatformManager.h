@@ -10,6 +10,7 @@ const char * PlatformManager_GetOSVersion(void);
 const void * PlatformManager_GetImageBase(void);
 const char * PlatformManager_GetWineVersion(void);
 const char * PlatformManager_GetWineHost(void);
+const char * PlatformManager_GetUserPrefDir(void);
 
 int          PlatformManager_InitVideo(void);
 int          PlatformManager_HasWindow(void);
@@ -30,10 +31,10 @@ void         PlatformManager_SetWindowSize(int w, int h);
 int          PlatformManager_SetWindowFullscreen(unsigned int flags);
 void         PlatformManager_SetWindowBordered(int bordered);
 void         PlatformManager_SetWindowPosition(int x, int y);
+void         PlatformManager_SetWindowTitle(const char* title);
 int          PlatformManager_CreateWindow(const char* title, int x, int y, int w, int h, unsigned int flags);
 void         PlatformManager_WarpCursor(int x, int y);
 int          PlatformManager_IsCursorInWindow(void);
-int          PlatformManager_RecreateWindowForSoftwareRenderer(void);
 int          PlatformManager_GetDisplayRefreshRate(void);
 
 #ifdef __cplusplus

@@ -10,6 +10,7 @@
 #include "kfx/platform/PlatformManager.h"
 #include "kfx/platform/WindowSystemSDL.h"
 #include "kfx/platform/IPlatform.h"
+#include "kfx/platform/GLHdrPolicyNull.h"
 #include "kfx/platform/PlatformWindows.h"
 #include "kfx/platform/PlatformLinux.h"
 #include "kfx/platform/FileFind.h"
@@ -22,6 +23,10 @@
 /******************************************************************************/
 
 IWindowSystem* IPlatform::GetWindowSystem() { return GetSDLWindowSystem(); }
+
+// Default: no compositor mutations, host owns HDR. PlatformWindows overrides
+// this with the DXGI policy on native Windows.
+IGLHdrPolicy* IPlatform::GetGLHdrPolicy() { return &g_hdr_policy_null; }
 
 IPlatform* GetPlatform()
 {
@@ -39,6 +44,7 @@ extern "C" const char * PlatformManager_GetOSVersion(void)   { return GetPlatfor
 extern "C" const void * PlatformManager_GetImageBase(void)   { return GetPlatform()->GetImageBase(); }
 extern "C" const char * PlatformManager_GetWineVersion(void) { return GetPlatform()->GetWineVersion(); }
 extern "C" const char * PlatformManager_GetWineHost(void)    { return GetPlatform()->GetWineHost(); }
+extern "C" const char * PlatformManager_GetUserPrefDir(void) { return GetPlatform()->GetUserPrefDir(); }
 
 /******************************************************************************/
 
@@ -181,6 +187,12 @@ extern "C" void PlatformManager_SetWindowPosition(int x, int y)
     if (ws) ws->SetWindowPosition(x, y);
 }
 
+extern "C" void PlatformManager_SetWindowTitle(const char* title)
+{
+    IWindowSystem* ws = GetSDLWindowSystem();
+    if (ws) ws->SetWindowTitle(title);
+}   
+
 extern "C" int PlatformManager_CreateWindow(const char* title, int x, int y, int w, int h, unsigned int flags)
 {
     IWindowSystem* ws = GetSDLWindowSystem();
@@ -197,12 +209,6 @@ extern "C" int PlatformManager_IsCursorInWindow(void)
 {
     IWindowSystem* ws = GetSDLWindowSystem();
     return (ws && ws->IsCursorInWindow()) ? 1 : 0;
-}
-
-extern "C" int PlatformManager_RecreateWindowForSoftwareRenderer(void)
-{
-    IWindowSystem* ws = GetSDLWindowSystem();
-    return (ws && ws->RecreateForSoftwareRenderer()) ? 1 : 0;
 }
 
 extern "C" int PlatformManager_GetDisplayRefreshRate(void)
