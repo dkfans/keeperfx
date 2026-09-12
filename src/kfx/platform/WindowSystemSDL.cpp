@@ -8,7 +8,8 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kfx/platform/WindowSystemSDL.h"
-#include "kfx/platform/PlatformGLHdrWin.h"
+#include "kfx/platform/IPlatform.h"
+#include "kfx/platform/IGLHdrPolicy.h"
 #include "bflib_basics.h"
 #include "bflib_video.h"
 #include <SDL3/SDL.h>
@@ -261,18 +262,9 @@ int WindowSystemSDL::SetWindowFullscreen(unsigned int flags)
         // Desktop (borderless) fullscreen at the native resolution.
         SDL_SetWindowFullscreenMode(m_window, nullptr);
         int result = SDL_SetWindowFullscreen(m_window, true) ? 0 : -1;
-#ifdef _WIN32
-        // A desktop-fullscreen GL swapchain is exactly the shape DXGI's
-        // Independent Flip targets (see PlatformGLHdrWin.h). RendererOpenGL::
-        // Init() already tries this mitigation once, right after the GL
-        // context is created. Re-applying here, on every fullscreen-state
-        // change, is what actually matters for e.g. an in-game switch back
-        // into desktop fullscreen after windowed play; the Init()-time call
-        // and this one are both idempotent (safe no-ops if already applied),
-        // so calling both is deliberate belt-and-suspenders, not redundant risk.
+        
         if (result == 0 && (SDL_GetWindowFlags(m_window) & SDL_WINDOW_OPENGL))
-            PlatformGLHdrWin_OnContextReady(m_window, true);
-#endif
+            GetPlatform()->GetGLHdrPolicy()->OnContextReady(m_window, true);
         return result;
     }
     // Exclusive fullscreen: the specific mode is applied via SetWindowDisplayMode();

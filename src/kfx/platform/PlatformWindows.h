@@ -25,6 +25,8 @@ public:
     void ShutdownSteam() override;
 
     bool VideoInit() override;
+
+    IGLHdrPolicy* GetGLHdrPolicy() override;
 };
 
 #endif // PLATFORM_WINDOWS_H

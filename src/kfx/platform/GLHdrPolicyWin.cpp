@@ -2,16 +2,12 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file PlatformGLHdrWin.cpp
+/** @file GLHdrPolicyWin.cpp
  *     Windows/DXGI HDR-compositor bookkeeping for the OpenGL backend.
- *     See PlatformGLHdrWin.h for why this exists. Ported from develop's
- *     platform_gl_sdl3.cpp (hdr_anchor_.../hdr_watcher_... + DXGI diagnostics),
- *     adapted to this branch's own window/renderer split.
  */
 /******************************************************************************/
-#ifdef _WIN32
 #include "pre_inc.h"
-#include "kfx/platform/PlatformGLHdrWin.h"
+#include "kfx/platform/GLHdrPolicyWin.h"
 #include "bflib_basics.h"
 #include <SDL3/SDL.h>
 #include <dxgi1_6.h>
@@ -88,7 +84,7 @@ static void log_dxgi_hdr_info(HWND hwnd)
     factory->Release();
 }
 
-static void log_window_pixelformat(SDL_Window *window)
+void LogGLHdrDiagnostics(SDL_Window *window)
 {
     SDL_PropertiesID props = SDL_GetWindowProperties(window);
     HWND hwnd = (HWND)SDL_GetPointerProperty(props, SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
@@ -178,9 +174,8 @@ static void hdr_anchor_destroy(void)
 
 // ---------------------------------------------------------------------------
 // HDR compositor watcher -- polls DXGI color space every 250ms during rendering
+// This exists so I can see that fecking flip that happens on MY monitor.
 // ---------------------------------------------------------------------------
-// Independent of SDL's HDR event system: catches any DXGI-level color space
-// change even if SDL_EVENT_WINDOW_HDR_STATE_CHANGED doesn't fire.
 static IDXGIFactory1 *s_watcher_factory = nullptr;
 static int            s_watcher_last_cs  = -99;   // -99 = uninitialized
 static ULONGLONG      s_watcher_next_ms  = 0;
@@ -238,15 +233,13 @@ static void hdr_watcher_shutdown(void)
 
 /******************************************************************************/
 
-void PlatformGLHdrWin_OnContextReady(SDL_Window* window, bool desktop_fullscreen)
+void GLHdrPolicyWin::OnContextReady(SDL_Window* window, bool desktop_fullscreen)
 {
-    log_window_pixelformat(window);
+    LogGLHdrDiagnostics(window);
 
     // Independent Flip only bypasses the DWM HDR compositor for a swapchain
     // that covers the full display -- i.e. desktop-fullscreen/borderless
-    // mode. A bordered window is already DWM-composited, so the anchor and
-    // frame-extension trick are unnecessary (and DwmExtendFrameIntoClientArea
-    // on a bordered window would fight the window manager's own frame).
+    // mode.
     if (desktop_fullscreen)
     {
         SDL_PropertiesID props = SDL_GetWindowProperties(window);
@@ -264,15 +257,15 @@ void PlatformGLHdrWin_OnContextReady(SDL_Window* window, bool desktop_fullscreen
     hdr_watcher_init();
 }
 
-void PlatformGLHdrWin_Tick()
+void GLHdrPolicyWin::OnPresent()
 {
     hdr_watcher_tick();
 }
 
-void PlatformGLHdrWin_Shutdown()
+void GLHdrPolicyWin::Shutdown()
 {
     hdr_watcher_shutdown();
     hdr_anchor_destroy();
 }
 
-#endif // _WIN32
+GLHdrPolicyWin g_hdr_policy_dxgi;

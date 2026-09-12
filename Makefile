@@ -147,7 +147,7 @@ HVLOGOBJS := $(subst obj/,$(OBJDIR)/hvlog/,$(OBJS))
 STD_MAIN_OBJ := $(subst obj/,$(OBJDIR)/std/,$(MAIN_OBJ))
 HVLOG_MAIN_OBJ := $(subst obj/,$(OBJDIR)/hvlog/,$(MAIN_OBJ))
 NO_PCH_C = bflib_dernc bflib_text net_holepunch net_lan net_matchmaking centitoml/toml_api
-NO_PCH_CXX = net_portforward kfx/platform/WindowSystemSDL
+NO_PCH_CXX = net_portforward kfx/platform/WindowSystemSDL kfx/platform/GLHdrPolicyWin
 STD_CXX_O = \
 	$(patsubst src/%.cpp,$(OBJDIR)/std/%.o,$(CXX_SRCS)) \
 	$(STD_MAIN_OBJ)

@@ -4,7 +4,8 @@
 #include "globals.h"        // ERRORLOG/SYNCDBG
 #include "bflib_video.h"    // lbDisplay
 #include "kfx/platform/WindowSystemSDL.h"
-#include "kfx/platform/PlatformGLHdrWin.h"
+#include "kfx/platform/IPlatform.h"
+#include "kfx/platform/IGLHdrPolicy.h"
 #include "kfx/renderer/opengl/GLFunctions.h"
 #include "kfx/renderer/opengl/GLSpriteAtlas.h"
 #include "kfx/renderer/opengl/GLUIRenderer.h"
@@ -181,19 +182,14 @@ bool RendererOpenGL::Init()
 
     SDL_ShowWindow(window);
 
-    // Todo : replace with agnostic Hdr initialization. This is a temporary solution to get the OpenGL renderer working.
-#ifdef _WIN32
-    PlatformGLHdrWin_OnContextReady(window,
+    GetPlatform()->GetGLHdrPolicy()->OnContextReady(window,
         (GetSDLWindowSystem()->GetWindowFlags() & KFX_WF_FULLSCREEN_DESKTOP) != 0);
-#endif
 
     if (!SDL_GL_MakeCurrent(window, nullptr))
     {
         ERRORLOG("RendererOpenGL::Init: failed to release GL context on the game thread: %s", SDL_GetError());
         SDL_GL_DestroyContext(ctx);
-#ifdef _WIN32
-        PlatformGLHdrWin_Shutdown();
-#endif
+        GetPlatform()->GetGLHdrPolicy()->Shutdown();
         return false;
     }
     m_gl_context = ctx;
@@ -212,9 +208,7 @@ bool RendererOpenGL::Init()
         delete m_impl;
         m_impl = nullptr;
         m_gl_context = nullptr; // destroyed by render_thread_cleanup()
-#ifdef _WIN32
-        PlatformGLHdrWin_Shutdown();
-#endif
+        GetPlatform()->GetGLHdrPolicy()->Shutdown();
         return false;
     }
 
@@ -235,10 +229,7 @@ void RendererOpenGL::Shutdown()
         SDL_GL_DestroyContext(static_cast<SDL_GLContext>(m_gl_context));
         m_gl_context = nullptr;
     }
-#ifdef _WIN32
-    // Todo : replace with agnostic Hdr shutdown. This is a temporary solution to get the OpenGL renderer working.
-    PlatformGLHdrWin_Shutdown();
-#endif
+    GetPlatform()->GetGLHdrPolicy()->Shutdown();
 }
 
 // Render thread. Everything that creates or touches GL state lives here so
@@ -414,13 +405,10 @@ void RendererOpenGL::render_thread_work()
 
     SDL_GL_SwapWindow(GetSDLWindowSystem()->GetSDLWindow());
 
-// Todo : Remove this should not be specific to Win32.
-#ifdef _WIN32
-    // DXGI factory calls are free-threaded -- safe to tick from the render
-    // thread even though the factory was created on the game thread in
+    // DXGI factory calls are free-threaded -- safe to call from the render
+    // thread even though the policy was selected on the game thread in
     // Init(). Matches develop's platform_swap_gl_buffers().
-    PlatformGLHdrWin_Tick();
-#endif
+    GetPlatform()->GetGLHdrPolicy()->OnPresent();
 }
 
 void RendererOpenGL::FGClearFrame()

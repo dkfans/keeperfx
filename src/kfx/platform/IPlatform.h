@@ -5,6 +5,7 @@
 #include "bflib_sound.h"  // SoundVolume
 
 class IWindowSystem;
+class IGLHdrPolicy;
 struct TbFileFind;
 struct TbFileEntry;
 
@@ -55,6 +56,9 @@ public:
 
     /** The window system backing this platform (SDL desktop backend). */
     virtual IWindowSystem* GetWindowSystem();
+
+    /** HDR/compositor policy for the GL backend on this host. Never null. */
+    virtual IGLHdrPolicy* GetGLHdrPolicy();
 };
 
 /** The platform implementation selected for this build target. */

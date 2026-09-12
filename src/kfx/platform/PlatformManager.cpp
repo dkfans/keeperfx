@@ -10,6 +10,7 @@
 #include "kfx/platform/PlatformManager.h"
 #include "kfx/platform/WindowSystemSDL.h"
 #include "kfx/platform/IPlatform.h"
+#include "kfx/platform/GLHdrPolicyNull.h"
 #include "kfx/platform/PlatformWindows.h"
 #include "kfx/platform/PlatformLinux.h"
 #include "kfx/platform/FileFind.h"
@@ -22,6 +23,10 @@
 /******************************************************************************/
 
 IWindowSystem* IPlatform::GetWindowSystem() { return GetSDLWindowSystem(); }
+
+// Default: no compositor mutations, host owns HDR. PlatformWindows overrides
+// this with the DXGI policy on native Windows.
+IGLHdrPolicy* IPlatform::GetGLHdrPolicy() { return &g_hdr_policy_null; }
 
 IPlatform* GetPlatform()
 {
