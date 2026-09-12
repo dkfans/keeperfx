@@ -343,7 +343,12 @@ int sac_compare_fn(const void* ptr_a, const void* ptr_b)
 {
     ThingModel a = *(const ThingModel*)ptr_a;
     ThingModel b = *(const ThingModel*)ptr_b;
-    return a < b;
+
+    if (a == 0)
+        return (b == 0) ? 0 : 1;
+    if (b == 0)
+        return -1;
+    return (a > b) - (a < b);
 }
 
 static void set_rules_defaults()
