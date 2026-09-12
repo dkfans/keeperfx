@@ -5227,7 +5227,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         || (thing->class_id == TCls_DeadCreature)
         || (player->work_state == PSt_QueryAll))
     {
-        if ((local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
+        if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
             RendererAddDrawFlags(Lb_SPRITE_REMAP);
             lbSpriteReMapPtr = white_pal;
         } else {
@@ -5542,7 +5542,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     }
     if (flag_is_set(game.mode_flags,MFlg_NoHeroHealthFlower))
     {
-        if (local_thing_under_hand != thing->index) {
+        if (local_state.local_thing_under_hand != thing->index) {
             cctrl->thought_bubble_last_turn_drawn = get_gameturn();
             if (cctrl->force_health_flower_displayed == false)
             {
@@ -5624,7 +5624,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     else
     {
         // Determine if the creature is under the player's hand (being hovered over).
-        TbBool is_thing_under_hand = (local_thing_under_hand == thing->index);
+        TbBool is_thing_under_hand = (local_state.local_thing_under_hand == thing->index);
         // Check if the creature is an enemy and is visible.
         TbBool is_enemy_and_visible = players_are_enemies(player->id_number, thing->owner) && !creature_is_invisible(thing);
         // Check if the creature belongs to the player, is hurt but not unconscious.
@@ -8248,7 +8248,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 
     if (!thing_is_invalid(thing))
     {
-        if ((local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
+        if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
           struct Camera *active_cam = get_local_active_camera(player);
           if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
           {
@@ -8269,7 +8269,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   }
                   else if (thing_is_trap_crate(dragtng))
                   {
-                      struct Thing *handthing = thing_get(local_thing_under_hand);
+                      struct Thing *handthing = thing_get(local_state.local_thing_under_hand);
                       if (thing_exists(handthing))
                       {
                           if (handthing->class_id == TCls_Trap)
@@ -8938,8 +8938,7 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
 
 TbBool cursor_on_room(RoomIndex room_index)
 {
-    struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_local_user_state();
     struct SlabMap* slb = get_slabmap_for_subtile(ustate->cursor_subtile_x, ustate->cursor_subtile_y);
     if (slabmap_block_invalid(slb)) {
         return false;
@@ -8959,8 +8958,7 @@ TbBool room_is_damaged(RoomIndex room_index)
 }
 TbBool placing_same_room_type(RoomIndex room_index)
 {
-    struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_local_user_state();
     if (map_volume_box.visible == 0) {
         return false;
     }

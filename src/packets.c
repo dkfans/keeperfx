@@ -116,7 +116,7 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-extern TbBool process_player_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
+extern TbBool process_user_global_cheats_packet_action(NetUserId user, struct Packet* pckt);
 extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 /******************************************************************************/
 TbBool unpausing_in_progress = 0;
@@ -169,10 +169,10 @@ void update_double_click_detection(NetUserId user)
   }
 }
 
-struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
+struct Room *keeper_build_room(NetUserId user,long stl_x,long stl_y,long plyr_idx,long rkind)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     // Take top left subtile on single subtile boundbox, take center subtile on full slab boundbox
@@ -201,7 +201,7 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
 TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
 {
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     const PlayerNumber plyr_idx = player->id_number;
     struct Dungeon* dungeon = get_players_dungeon(player);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
@@ -350,6 +350,7 @@ void process_pause_packet(long curr_pause, long new_pause)
   if ( can )
   {
       player = get_my_player();
+      struct UserState* ustate = get_user_state(get_local_user());
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
       if ((game.operation_flags & GOF_Paused) != 0) {
           set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
@@ -371,10 +372,10 @@ void process_pause_packet(long curr_pause, long new_pause)
       }
       if ((game.operation_flags & GOF_Paused) != 0)
       {
-          if ((player->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
+          if ((ustate->additional_flags & UsrAF_LightningPaletteIsActive) != 0)
           {
-              PaletteSetPlayerPalette(player, engine_palette);
-              player->additional_flags &= ~PlaAF_LightningPaletteIsActive;
+              PaletteSetUserPalette(player->user_id, engine_palette);
+              ustate->additional_flags &= ~UsrAF_LightningPaletteIsActive;
           }
       }
   }
@@ -648,6 +649,8 @@ TbBool process_user_global_packet_action(NetUserId user)
   PlayerNumber plyr_idx = get_net_user_player_number(user);
   struct PlayerInfo* player = get_player(plyr_idx);
   struct Packet* pckt = get_packet(user);
+  struct UserState* ustate = get_user_state(user);
+  struct UserState* local_ustate = get_local_user_state();
   SYNCDBG(6,"Processing user %d action %d",(int)user,(int)pckt->action);
   struct Dungeon *dungeon;
   struct Thing *thing;
@@ -697,9 +700,9 @@ TbBool process_user_global_packet_action(NetUserId user)
         if (victory_state == VicS_WonLevel) {
           player->victory_state = VicS_WonLevel;
           if (game.conf.rules[player->id_number].gameplay.winner_tortures_loser) {
-              get_my_player()->additional_flags |= PlaAF_UnlockedLordTorture;
+              local_ustate->additional_flags |= UsrAF_UnlockedLordTorture;
           } else {
-              get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
+              local_ustate->additional_flags &= ~UsrAF_UnlockedLordTorture;
           }
           quit_game = 1;
           return 0;
@@ -707,7 +710,7 @@ TbBool process_user_global_packet_action(NetUserId user)
         TbBool host_packet = player->user_id == SERVER_ID;
         if (!my_player) {
           if (host_packet && (player->victory_state != VicS_LostLevel)) {
-            get_my_player()->additional_flags &= ~PlaAF_UnlockedLordTorture;
+            local_ustate->additional_flags &= ~UsrAF_UnlockedLordTorture;
             quit_game = 1;
           }
           return 0;
@@ -738,7 +741,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       player->mp_pending_message[0] = '\0';
       return 0;
   case PckA_PlyrMsgClear:
-      player->allocflags &= ~PlaF_NewMPMessage;
+      get_user_state(user)->init_flags &= ~UsrIF_NewMPMessage;
       LbStopTextInput();
       memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
@@ -1004,7 +1007,7 @@ TbBool process_user_global_packet_action(NetUserId user)
     case PckA_SetRoomspaceWholeRoom:
     case PckA_SetRoomspaceSubtile:
     {
-        apply_roomspace_packet_action(player, pckt);
+        apply_roomspace_packet_action(player, user, pckt);
         return false;
     }
     case PckA_RoomspaceHighlightToggle:
@@ -1028,11 +1031,11 @@ TbBool process_user_global_packet_action(NetUserId user)
             // exit out of click and drag mode
             if (player->render_roomspace.drag_mode)
             {
-                get_player_user_state(player)->cursor_button_down = 0;
-                player->one_click_lock_cursor = false;
+                ustate->cursor_button_down = 0;
+                ustate->one_click_lock_cursor = false;
                 if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
                 {
-                    player->ignore_next_PCtr_LBtnRelease = true;
+                    ustate->ignore_next_PCtr_LBtnRelease = true;
                 }
             }
             player->render_roomspace.drag_mode = false;
@@ -1070,7 +1073,7 @@ TbBool process_user_global_packet_action(NetUserId user)
         return false;
     }
     default:
-      return process_player_global_cheats_packet_action(plyr_idx, pckt);
+      return process_user_global_cheats_packet_action(user, pckt);
   }
 }
 
@@ -1244,6 +1247,7 @@ TbBool can_process_creature_input(struct Thing *thing)
 
 void process_user_creature_control_packet_control(NetUserId user)
 {
+    struct UserState* ustate = get_user_state(user);
     const PlayerNumber plyr_idx = get_net_user_player_number(user);
     SYNCDBG(6,"Starting");
     struct InstanceInfo *inst_inf;
@@ -1351,7 +1355,7 @@ void process_user_creature_control_packet_control(NetUserId user)
                 }
             }
         }
-        if (player->first_person_unfreeze_delay <= 0)
+        if (ustate->first_person_unfreeze_delay <= 0)
         {
             long new_horizontal, new_vertical, new_roll;
             process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
@@ -1359,7 +1363,7 @@ void process_user_creature_control_packet_control(NetUserId user)
             cctng->move_angle_z = new_vertical;
             ccctrl->roll = new_roll;
         }
-        else --player->first_person_unfreeze_delay;
+        else --ustate->first_person_unfreeze_delay;
     }
     else
     {
@@ -1367,7 +1371,7 @@ void process_user_creature_control_packet_control(NetUserId user)
         // frozen for this duration after the creature is allowed to move again.
         // Apply this same delay to the creature's move_angle_{xy,z}, to keep it
         // synchronized.
-        player->first_person_unfreeze_delay = game.input_lag_turns;
+        ustate->first_person_unfreeze_delay = game.input_lag_turns;
     }
 
     if ((thing_is_creature(cctng) && !creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
@@ -1463,7 +1467,7 @@ void process_user_creature_control_packet_action(NetUserId user)
   struct Packet *pckt;
   long i;
   player = get_player(plyr_idx);
-  struct UserState* ustate = get_player_user_state(player);
+  struct UserState* ustate = get_user_state(user);
   pckt = get_packet(user);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
@@ -1552,7 +1556,7 @@ void process_user_creature_control_packet_action(NetUserId user)
     }
     case PckA_SwitchTeleportDest:
     {
-        player->teleport_destination = pckt->actn_par1;
+        ustate->teleport_destination = pckt->actn_par1;
         break;
     }
     case PckA_SelectFPPickup:
@@ -1562,7 +1566,7 @@ void process_user_creature_control_packet_action(NetUserId user)
     }
     case PckA_SetNearestTeleport:
     {
-        player->nearest_teleport = pckt->actn_par1;
+        ustate->nearest_teleport = pckt->actn_par1;
         break;
     }
   }

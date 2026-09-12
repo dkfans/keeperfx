@@ -217,7 +217,7 @@ void toggle_hero_health_flowers(void);
 
 
 TbBool toggle_computer_player(PlayerNumber plyr_idx);
-void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
+void PaletteSetUserPalette(NetUserId user, unsigned char *pal);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);

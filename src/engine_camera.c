@@ -418,7 +418,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 0;
     cam->rotation_angle_z = 0;
     cam->horizontal_fov = 94;
-    cam->rotation_angle_y = player->isometric_tilt;
+    cam->rotation_angle_y = settings.isometric_tilt;
     cam->rotation_angle_x = DEGREES_45;
     if (settings.video_rotate_mode == 1) {
         cam->view_mode = PVM_IsoStraightView;

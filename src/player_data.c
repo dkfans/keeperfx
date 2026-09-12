@@ -27,6 +27,7 @@
 #include "player_instances.h"
 #include "config_players.h"
 #include "game_legacy.h"
+#include "net_game.h"
 #include "engine_redraw.h"
 #include "frontend.h"
 #include "thing_objects.h"
@@ -44,7 +45,7 @@ TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,  54,  46
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
 struct PlayerInfo bad_player;
-short local_thing_under_hand;
+
 struct LocalState local_state;
 struct UserState bad_user_state;
 
@@ -131,7 +132,19 @@ struct UserState *get_player_user_state(const struct PlayerInfo *player)
 {
     if ((player == NULL) || player_invalid(player))
         return INVALID_USER_STATE;
-    return get_user_state(player->user_id);
+    // get state for lowest-id connected user that has this player
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+        // TODO: store player_id in UserState, avoids net_* function
+        if (get_net_user_player_number(user) == player->id_number) {
+            return &game.user_states[user];
+        }
+    }
+    return INVALID_USER_STATE;
+}
+
+struct UserState *get_local_user_state(void)
+{
+    return get_user_state(get_local_user());
 }
 
 TbBool user_state_invalid(const struct UserState *ustate)
@@ -487,8 +500,9 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   if (player->view_type == nview)
     return;
   player->view_type = nview;
-  player->allocflags &= ~PlaF_CreaturePassengerMode;
-  player->first_person_unfreeze_delay = 0;
+  struct UserState* ustate = get_player_user_state(player);
+  ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
+  ustate->first_person_unfreeze_delay = 0;
   if (is_my_player(player)) {
     game.view_mode_flags &= ~GNFldD_CreaturePasngr;
     game.view_mode_flags |= GNFldD_CreatureViewMode;
@@ -543,8 +557,9 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
 
 void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
 {
+  struct UserState* ustate = get_player_user_state(player);
   player->view_type = nview;
-  player->first_person_unfreeze_delay = 0;
+  ustate->first_person_unfreeze_delay = 0;
   switch (nview)
   {
     case PVT_DungeonTop:

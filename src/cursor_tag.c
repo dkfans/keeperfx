@@ -44,8 +44,9 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, const struct Packet *pckt, struct RoomSpace *render_roomspace, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
+unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, NetUserId user, const struct Packet *pckt, struct RoomSpace *render_roomspace, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
 {
+    struct UserState* ustate = get_user_state(user);
     SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)player->id_number,(int)stl_x,(int)stl_y);
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
@@ -59,7 +60,7 @@ unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, const struct Pack
     {
         allowed = true;
     }
-    else if ((player->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0))
+    else if ((ustate->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0))
     {
         allowed = true;
     }
@@ -211,11 +212,12 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     return allowed;
 }
 
-TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
+TbBool tag_cursor_blocks_place_room(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
 {
     SYNCDBG(7,"Starting");
+    PlayerNumber plyr_idx = get_net_user_player_number(user);
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     slb_x = subtile_slab(stl_x);
@@ -336,8 +338,9 @@ TbBool tag_cursor_blocks_order_creature(PlayerNumber plyr_idx, MapSubtlCoord stl
     return (colour != SLC_RED);
 }
 
-TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool tag_cursor_blocks_steal_slab(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
+    PlayerNumber plyr_idx = get_net_user_player_number(user);
     SYNCDBG(7,"Starting");
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
@@ -345,8 +348,7 @@ TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     struct SlabConfigStats* slabst = get_slab_stats(slb);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     unsigned char colour;
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if ( ( ( ((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->category == SlbAtCtg_FortifiedWall) ) && (slabmap_owner(slb) != get_player_user_state(player)->cheatselection.chosen_player) ) )
+    if ( ( ( ((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->category == SlbAtCtg_FortifiedWall) ) && (slabmap_owner(slb) != get_user_state(user)->cheatselection.chosen_player) ) )
         || ( (slabst->category == SlbAtCtg_FriableDirt) || ( (slabst->category == SlbAtCtg_Unclaimed) && (slabst->is_safe_land) && (!slab_is_liquid(slb_x, slb_y) ) ) ) )
     {
         colour = SLC_GREEN;
@@ -368,15 +370,16 @@ TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     return (colour != SLC_RED);
 }
 
-TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
+TbBool tag_cursor_blocks_place_trap(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
 {
+    PlayerNumber plyr_idx = get_net_user_player_number(user);
     SYNCDBG(7,"Starting");
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     TbBool can_place = can_place_trap_on(plyr_idx, stl_x, stl_y, trpkind);
     int floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     TbBool full_slab = !get_trap_model_stats(trpkind)->place_on_subtile;
     ustate->full_slab_cursor = full_slab;
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2)) {

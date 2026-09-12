@@ -688,7 +688,7 @@ TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord 
     long i;
     long pwkind = -1;
     struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_local_user_state();
     pwkind = ustate->chosen_power_kind;
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)
@@ -780,11 +780,11 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     switch (plrst_cfg_stat->pointer_group)
     {
     case PsPg_CtrlDungeon:
-        if (player->secondary_cursor_state)
-          i = player->secondary_cursor_state;
+        if (ustate->secondary_cursor_state)
+          i = ustate->secondary_cursor_state;
         else
-          i = player->primary_cursor_state;
-        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || (local_thing_under_hand > 0) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
+          i = ustate->primary_cursor_state;
+        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || (local_state.local_thing_under_hand > 0) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
             i = CSt_PowerHand;
         } else
         if ((i == CSt_PowerHand) && power_hand_is_empty(player))
@@ -803,8 +803,8 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             break;
         case CSt_PowerHand:
             thing_under_hand = player->thing_under_hand;
-            if (local_thing_under_hand > 0) {
-                thing_under_hand = local_thing_under_hand;
+            if (local_state.local_thing_under_hand > 0) {
+                thing_under_hand = local_state.local_thing_under_hand;
             }
             thing = thing_get(thing_under_hand);
             TRACE_THING(thing);
@@ -838,16 +838,16 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                     set_pointer_graphic(MousePG_Arrow);
                 }
 
-                player->display_flags |= PlaF6_DisplayNeedsUpdate;
+                local_state.display_needs_update = true;
             } else
             if (((ustate->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
                 set_pointer_graphic(MousePG_Query);
-                player->display_flags |= PlaF6_DisplayNeedsUpdate;
+                local_state.display_needs_update = true;
             } else
             {
-                if ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) {
+                if ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0) {
                   set_pointer_graphic((player->roomspace_highlight_mode == drag_placement_mode) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
                 } else {
                   set_pointer_graphic(MousePG_Invisible);
@@ -948,7 +948,7 @@ void redraw_display(void)
 {
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
-    player->display_flags &= ~PlaF6_DisplayNeedsUpdate;
+    local_state.display_needs_update = false;
     if (game.game_kind == GKind_NonInteractiveState)
       return;
     if (game.small_map_state == 2)
@@ -993,7 +993,7 @@ void redraw_display(void)
     RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
     int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-    if ((player->allocflags & PlaF_NewMPMessage) != 0)
+    if ((get_local_user_state()->init_flags & UsrIF_NewMPMessage) != 0)
     {
         char text[sizeof(player->mp_message_text) + 4];
         snprintf(text, sizeof(text), ">%s_", player->mp_message_text);

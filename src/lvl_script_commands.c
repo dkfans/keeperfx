@@ -3545,11 +3545,11 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                     initialise_eye_lenses();
                     if (flag_is_set(lenscfg->flags, LCF_HasPalette))
                     {
-                        PaletteSetPlayerPalette(get_my_player(), lenscfg->palette);
+                        PaletteSetUserPalette(get_local_user(), lenscfg->palette);
                     }
                     else
                     {
-                        PaletteSetPlayerPalette(get_my_player(), engine_palette);
+                        PaletteSetUserPalette(get_local_user(), engine_palette);
                     }
                     setup_eye_lens(value);
                 }

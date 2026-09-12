@@ -539,6 +539,7 @@ short setup_game(void)
 static bool players_cursor_is_at_top_of_view()
 {
     const struct PlayerInfo *const player = get_my_player();
+    const struct UserState *const ustate = get_local_user_state();
     switch (player->work_state)
     {
     case PSt_BuildRoom:
@@ -554,7 +555,7 @@ static bool players_cursor_is_at_top_of_view()
         return (player->controlled_thing_idx > 0);
 
     case PSt_CtrlDungeon:
-        switch (player->primary_cursor_state)
+        switch (ustate->primary_cursor_state)
         {
             case CSt_DefaultArrow:
                 return false;
@@ -564,7 +565,7 @@ static bool players_cursor_is_at_top_of_view()
                 return true;
 
             case CSt_PowerHand:
-                return (local_thing_under_hand == 0)
+                return (local_state.local_thing_under_hand == 0)
                     || (! power_hand_is_empty(player));
         }
     }
@@ -1151,18 +1152,21 @@ void change_engine_window_relative_size(long w_delta, long h_delta)
         local_state.engine_window_width+w_delta, local_state.engine_window_height+h_delta);
 }
 
-void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
+void PaletteSetUserPalette(NetUserId user, unsigned char *pal)
 {
+    struct UserState* ustate = get_user_state(user);
+    if (user_state_invalid(ustate))
+        return;
     if (pal == blue_palette) // if the requested palette is the Freeze palette
     {
-      if ((player->additional_flags & PlaAF_FreezePaletteIsActive) != 0)
+      if ((ustate->additional_flags & UsrAF_FreezePaletteIsActive) != 0)
         return; // Freeze palette is already on
-      player->additional_flags |= PlaAF_FreezePaletteIsActive; // flag Freeze palette is active
+      ustate->additional_flags |= UsrAF_FreezePaletteIsActive; // flag Freeze palette is active
     } else
     {
-      player->additional_flags &= ~PlaAF_FreezePaletteIsActive; // flag Freeze palette is not active
+      ustate->additional_flags &= ~UsrAF_FreezePaletteIsActive; // flag Freeze palette is not active
     }
-    if (!is_my_player(player))
+    if (user != get_local_user())
         return;
     if ( (local_state.lens_palette == 0) || ((pal != local_state.main_palette) && (pal == local_state.lens_palette)) )
     {
@@ -1196,9 +1200,7 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
     }
     if ((result) && (do_set))
     {
-      struct PlayerInfo *myplyr;
-      myplyr=get_my_player();
-      PaletteSetPlayerPalette(myplyr, engine_palette);
+      PaletteSetUserPalette(get_local_user(), engine_palette);
     }
     if (!result)
       ERRORLOG("Can't load palette file.");

@@ -57,6 +57,7 @@ TbBool terrain_details = false;
 /******************************************************************************/
 
 TbBool packets_process_cheats(
+        NetUserId user,
         PlayerNumber plyr_idx,
         MapCoord x, MapCoord y,
         struct Packet* pckt,
@@ -69,7 +70,7 @@ TbBool packets_process_cheats(
     PowerKind pwkind;
     struct SlabMap *slb;
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     TbBool allowed;
     char str[255] = "";
     switch (player->work_state)
@@ -410,7 +411,7 @@ TbBool packets_process_cheats(
         break;
         case PSt_StealSlab:
         player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
-        allowed = tag_cursor_blocks_steal_slab(plyr_idx, stl_x, stl_y);
+        allowed = tag_cursor_blocks_steal_slab(user, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -767,10 +768,11 @@ TbBool packets_process_cheats(
     return true;
 }
 
-TbBool process_player_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt)
+TbBool process_user_global_cheats_packet_action(NetUserId user, struct Packet* pckt)
 {
-  struct PlayerInfo* player = get_player(plyr_idx);
-  struct UserState* ustate = get_player_user_state(player);
+  struct PlayerInfo* player = get_player(get_net_user_player_number(user));
+  PlayerNumber plyr_idx = player->id_number;
+  struct UserState* ustate = get_user_state(user);
   switch (pckt->action)
   {
       case PckA_CheatEnter:

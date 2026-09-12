@@ -602,7 +602,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 {
     RoomKind rkind = gbtn->content.lval;
     struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_local_user_state();
 
     struct Dungeon* dungeon = get_players_dungeon(player);
 
@@ -1158,7 +1158,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 {
     int manufctr_idx = gbtn->content.lval;
     struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_local_user_state();
 
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
@@ -2211,11 +2211,12 @@ void maintain_event_button(struct GuiButton *gbtn)
 {
     EventIndex evidx = get_my_event_button_index(gbtn->content.lval);
     struct Event* event = &game.event[evidx];
+    struct UserState* ustate = get_local_user_state();
     if ((my_visible_event_idx != 0) && (evidx == my_visible_event_idx))
     {
         turn_on_event_info_panel_if_necessary(my_visible_event_idx);
         //TODO: that should be not here, Keys should be processed at one place
-        if (((get_player(my_player_number)->allocflags & PlaF_NewMPMessage) == 0) &&
+        if (((ustate->init_flags & UsrIF_NewMPMessage) == 0) &&
                 is_game_key_pressed(Gkey_ToggleMessage, true, false))
         {
             gui_kill_event(gbtn);
@@ -2225,7 +2226,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         if (my_visible_event_idx == 0)
         {
-            if (((get_player(my_player_number)->allocflags & PlaF_NewMPMessage) == 0) &&
+            if (((ustate->init_flags & UsrIF_NewMPMessage) == 0) &&
                 is_game_key_pressed(Gkey_ToggleMessage, true, false))
             {
                 for (int i = EVENT_BUTTONS_COUNT; i >= 0; i--)

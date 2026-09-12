@@ -67,24 +67,24 @@ TbBool is_mouse_on_map(struct Packet* pckt)
     return true;
 }
 
-void remember_cursor_subtile(struct PlayerInfo *player)
+static void remember_cursor_subtile(NetUserId user)
 {
-    struct Packet* pckt = get_packet(player->user_id);
-    struct UserState* ustate = get_player_user_state(player);
+    struct Packet* pckt = get_packet(user);
+    struct UserState* ustate = get_user_state(user);
     MapSubtlCoord cursor_subtile_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord cursor_subtile_y = coord_subtile(pckt->pos_y);
     ustate->previous_cursor_subtile_x = ustate->cursor_subtile_x;
     ustate->previous_cursor_subtile_y = ustate->cursor_subtile_y;
-    if (!player->interpolated_tagging && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0)) {
+    if (!ustate->interpolated_tagging && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0)) {
         ustate->previous_cursor_subtile_x = cursor_subtile_x;
         ustate->previous_cursor_subtile_y = cursor_subtile_y;
     }
     ustate->cursor_subtile_x = cursor_subtile_x;
     ustate->cursor_subtile_y = cursor_subtile_y;
     if (ustate->mouse_on_map && ((pckt->control_flags & (PCtr_LBtnClick | PCtr_LBtnHeld)) != 0)) {
-        player->interpolated_tagging = true;
+        ustate->interpolated_tagging = true;
     } else {
-        player->interpolated_tagging = false;
+        ustate->interpolated_tagging = false;
     }
 }
 
@@ -121,7 +121,6 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
 {
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
     struct UserState* ustate = get_user_state(user);
-    PlayerNumber plyr_idx = player->id_number;
     struct Packet* pckt = get_packet(user);
     MapCoord x = (pckt->pos_x);
     MapCoord y = (pckt->pos_y);
@@ -136,7 +135,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
         }
         return false;
     }
-    TbBool can_place_room = update_dungeon_build_roomspace_preview(plyr_idx, stl_x, stl_y);
+    TbBool can_place_room = update_dungeon_build_roomspace_preview(user, stl_x, stl_y);
     if ( (player->roomspace_mode == drag_placement_mode) && (player->roomspace_drag_paint_mode == false) )
     {
        if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
@@ -188,7 +187,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
     }
     if (ustate->boxsize > 0)
     {
-        keeper_build_roomspace(plyr_idx, &player->render_roomspace);
+        keeper_build_roomspace(user, &player->render_roomspace);
     }
     else
     {
@@ -204,7 +203,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
 TbBool process_dungeon_power_hand_state(NetUserId user)
 {
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     PlayerNumber plyr_idx = player->id_number;
     struct Packet* pckt = get_packet(user);
     MapCoord x = pckt->pos_x;
@@ -212,8 +211,8 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
 
-    player->additional_flags &= ~PlaAF_ChosenSubTileIsHigh;
-    if ((player->secondary_cursor_state != CSt_DefaultArrow) && (player->secondary_cursor_state != CSt_PowerHand))
+    ustate->additional_flags &= ~UsrAF_ChosenSubTileIsHigh;
+    if ((ustate->secondary_cursor_state != CSt_DefaultArrow) && (ustate->secondary_cursor_state != CSt_PowerHand))
     {
         if (player->instance_num != PI_Grab) {
             delete_power_hand(player->id_number);
@@ -221,7 +220,7 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
         return false;
     }
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
-    if (!thing_is_invalid(thing) && (!player->one_click_lock_cursor))
+    if (!thing_is_invalid(thing) && (!ustate->one_click_lock_cursor))
     {
         SYNCDBG(19,"Thing %d under hand at (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
         if (player->hand_thing_idx == 0)
@@ -237,16 +236,16 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
         long allow_unclaimed_path = is_creature_droppable_on_path(thing);
         if ((can_drop_thing_here(stl_x, stl_y, player->id_number, allow_unclaimed_path)
              || !can_dig_here(stl_x, stl_y, player->id_number, true))
-            && (!player->one_click_lock_cursor))
+            && (!ustate->one_click_lock_cursor))
         {
             player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
             ustate->full_slab_cursor = (player->roomspace_mode != single_subtile_mode);
             tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, allow_unclaimed_path, ustate->full_slab_cursor);
         } else
         {
-            player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
-            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, pckt, stl_x, stl_y, NULL);
-            tag_cursor_blocks_dig(player, pckt, &player->render_roomspace, stl_x, stl_y, ustate->full_slab_cursor);
+            ustate->additional_flags |= UsrAF_ChosenSubTileIsHigh;
+            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, user, pckt, stl_x, stl_y, NULL);
+            tag_cursor_blocks_dig(player, user, pckt, &player->render_roomspace, stl_x, stl_y, ustate->full_slab_cursor);
             player->thing_under_hand = 0;
         }
     }
@@ -293,22 +292,22 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
     TbBool thing_target_action = apply_roomspace_tag || (pckt->action == PckA_UsePwrHandPick) || (pckt->action == PckA_UsePwrOnThing);
     unsigned char box_colour;
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
-        player->secondary_cursor_state = CSt_DefaultArrow;
+        ustate->secondary_cursor_state = CSt_DefaultArrow;
     player->render_roomspace.highlight_mode = settings.highlight_mode; // reset one-click highlight mode
-    player->render_roomspace.drag_mode = player->one_click_lock_cursor;
+    player->render_roomspace.drag_mode = ustate->one_click_lock_cursor;
     ustate->pickup_all_gold = (pckt->additional_packet_values & PCAdV_RotatePressed);
     process_dungeon_power_hand_state(user);
     if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
     {
-        if ( (player->primary_cursor_state == CSt_PickAxe) || ( (player->primary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) ) )
+        if ( (ustate->primary_cursor_state == CSt_PickAxe) || ( (ustate->primary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0) ) )
         {
             player->thing_under_hand = 0;
-            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, pckt, stl_x, stl_y, NULL);
+            get_dungeon_highlight_user_roomspace(&player->render_roomspace, player, user, pckt, stl_x, stl_y, NULL);
             if (apply_roomspace_tag) {
                 player->render_roomspace.untag_mode = pckt->actn_par4;
                 player->render_roomspace = check_roomspace_for_diggable_slabs(player->render_roomspace, plyr_idx, NULL);
             }
-            box_colour = tag_cursor_blocks_dig(player, pckt, &player->render_roomspace, stl_x, stl_y, ustate->full_slab_cursor);
+            box_colour = tag_cursor_blocks_dig(player, user, pckt, &player->render_roomspace, stl_x, stl_y, ustate->full_slab_cursor);
             at_limit = (box_colour == SLC_REDYELLOW) || (box_colour == SLC_REDFLASH);
             if (apply_roomspace_tag) {
                 MapSlabCoord previous_slb_x = (uint16_t)pckt->actn_par3 & 0xFF;
@@ -321,8 +320,8 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
             ustate->cursor_clicked_subtile_x = stl_x;
             ustate->cursor_clicked_subtile_y = stl_y;
             ustate->cursor_button_down = 1;
-            player->secondary_cursor_state = player->primary_cursor_state;
-            switch (player->primary_cursor_state)
+            ustate->secondary_cursor_state = ustate->primary_cursor_state;
+            switch (ustate->primary_cursor_state)
             {
                 case CSt_PickAxe:
                     if (!player->render_roomspace.drag_mode)
@@ -363,7 +362,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                                 }
                             }
                         }
-                        player->additional_flags |= PlaAF_NoThingUnderPowerHand;
+                        ustate->additional_flags |= UsrAF_NoThingUnderPowerHand;
                     }
                     break;
             }
@@ -380,19 +379,19 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
 
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
-        if (player->secondary_cursor_state == CSt_DefaultArrow)
+        if (ustate->secondary_cursor_state == CSt_DefaultArrow)
         {
-            player->secondary_cursor_state = player->primary_cursor_state;
+            ustate->secondary_cursor_state = ustate->primary_cursor_state;
         }
         if (ustate->cursor_button_down != 0)
         {
             if (!player->render_roomspace.drag_mode) // allow drag and click to not place on LMB hold
             {
-                if (player->primary_cursor_state == player->secondary_cursor_state)
+                if (ustate->primary_cursor_state == ustate->secondary_cursor_state)
                 {
-                    if (!apply_roomspace_tag && ((player->secondary_cursor_state == CSt_PickAxe) || ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))))
+                    if (!apply_roomspace_tag && ((ustate->secondary_cursor_state == CSt_PickAxe) || ((ustate->secondary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_NoThingUnderPowerHand) != 0))))
                     {
-                        keeper_highlight_roomspace(plyr_idx, &player->render_roomspace);
+                        keeper_highlight_roomspace(user, &player->render_roomspace);
                     }
                 }
             }
@@ -406,11 +405,11 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
     }
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
-        if (player->secondary_cursor_state == CSt_DefaultArrow)
-            player->secondary_cursor_state = player->primary_cursor_state;
-        if (player->ignore_next_PCtr_LBtnRelease)
+        if (ustate->secondary_cursor_state == CSt_DefaultArrow)
+            ustate->secondary_cursor_state = ustate->primary_cursor_state;
+        if (ustate->ignore_next_PCtr_LBtnRelease)
         {
-            player->ignore_next_PCtr_LBtnRelease = false;
+            ustate->ignore_next_PCtr_LBtnRelease = false;
             if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
             {
                 ustate->cursor_button_down = 0;
@@ -461,8 +460,8 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                     }
                     unset_packet_control(pckt, PCtr_LBtnRelease);
                 }
-            } else if (!thing_target_action && player->secondary_cursor_state == player->primary_cursor_state) {
-                if ( (player->primary_cursor_state == CSt_PickAxe) || (player->primary_cursor_state == CSt_PowerHand) )
+            } else if (!thing_target_action && ustate->secondary_cursor_state == ustate->primary_cursor_state) {
+                if ( (ustate->primary_cursor_state == CSt_PickAxe) || (ustate->primary_cursor_state == CSt_PowerHand) )
                 {
                     if (player->thing_under_hand != 0) 
                     {
@@ -481,7 +480,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                         }
                         else
                         {
-                            keeper_highlight_roomspace(plyr_idx, &player->render_roomspace);
+                            keeper_highlight_roomspace(user, &player->render_roomspace);
                         }
                     }
                 }
@@ -489,7 +488,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
             if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
             {
                 ustate->cursor_button_down = 0;
-                player->one_click_lock_cursor = false;
+                ustate->one_click_lock_cursor = false;
             }
             if (player->render_roomspace.drag_mode)
             {
@@ -502,17 +501,17 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                     player->render_roomspace.untag_mode = !player->render_roomspace.untag_mode;
                 }
             }
-            player->secondary_cursor_state = CSt_DefaultArrow;
-            player->additional_flags &= ~PlaAF_NoThingUnderPowerHand;
+            ustate->secondary_cursor_state = CSt_DefaultArrow;
+            ustate->additional_flags &= ~UsrAF_NoThingUnderPowerHand;
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
     }
 
     if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
     {
-        if (player->ignore_next_PCtr_RBtnRelease && (!player->one_click_lock_cursor))
+        if (ustate->ignore_next_PCtr_RBtnRelease && (!ustate->one_click_lock_cursor))
         {
-            player->ignore_next_PCtr_RBtnRelease = false;
+            ustate->ignore_next_PCtr_RBtnRelease = false;
             if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
             {
                 ustate->cursor_button_down = 0;
@@ -521,7 +520,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
         } else
         if (ustate->cursor_button_down != 0)
         {
-            if (!power_hand_is_empty(player) && (!player->one_click_lock_cursor))
+            if (!power_hand_is_empty(player) && (!ustate->one_click_lock_cursor))
             {
                 if (dump_first_held_thing_on_map(player->id_number, stl_x, stl_y, 1)) {
                     if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
@@ -532,7 +531,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                 }
             } else
             {
-                if (!thing_target_action && (player->primary_cursor_state == CSt_PowerHand) && (!player->one_click_lock_cursor)) {
+                if (!thing_target_action && (ustate->primary_cursor_state == CSt_PowerHand) && (!ustate->one_click_lock_cursor)) {
                     thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
                     if(!thing_is_invalid(thing))
                         magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
@@ -540,19 +539,19 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                 if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
                 {
                     ustate->cursor_button_down = 0;
-                    player->one_click_lock_cursor = false;
+                    ustate->one_click_lock_cursor = false;
                 }
                 unset_packet_control(pckt, PCtr_RBtnRelease);
             }
         }
     }
-    if ((ustate->cursor_button_down == 0) || (!player->one_click_lock_cursor))
+    if ((ustate->cursor_button_down == 0) || (!ustate->one_click_lock_cursor))
     {
         //if (untag_or_tag_completed_or_cancelled)
-        player->swap_to_untag_mode = 0; // no
+        ustate->swap_to_untag_mode = 0; // no
         if ((ustate->cursor_button_down == 0) && ((pckt->control_flags & PCtr_LBtnHeld) == 0))
         {
-            player->one_click_lock_cursor = false;
+            ustate->one_click_lock_cursor = false;
         }
     }
     return true;
@@ -561,7 +560,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
 TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
 {
     struct PlayerInfo* player = get_player(get_net_user_player_number(user));
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     PlayerNumber plyr_idx = player->id_number;
     struct Packet* pckt = get_packet(user);
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
@@ -577,7 +576,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
     MapCoord y = (pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
-    update_dungeon_sell_roomspace_preview(plyr_idx, stl_x, stl_y);
+    update_dungeon_sell_roomspace_preview(user, stl_x, stl_y);
     if (player->roomspace_mode == drag_placement_mode)
     {
        if ((pckt->control_flags & PCtr_LBtnRelease) != PCtr_LBtnRelease)
@@ -602,7 +601,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
         //Slab Mode
         if (player->render_roomspace.slab_count > 0)
         {
-            keeper_sell_roomspace(plyr_idx, &player->render_roomspace);
+            keeper_sell_roomspace(user, &player->render_roomspace);
         }
         else
         {
@@ -684,7 +683,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(NetUserId user)
         }
         return false;
     }
-    TbBool can_place = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, ustate->chosen_trap_kind);
+    TbBool can_place = tag_cursor_blocks_place_trap(user, stl_x, stl_y, ustate->chosen_trap_kind);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (ustate->cursor_button_down != 0))
@@ -721,10 +720,10 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
     SYNCDBG(6,"Starting for user %d state %s",user,player_state_code_name(player->work_state));
     TbBool thing_target_action = (pckt->action == PckA_UsePwrHandPick) || (pckt->action == PckA_UsePwrOnThing);
     ustate->full_slab_cursor = 1;
-    player->primary_cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
+    ustate->primary_cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
     packet_left_button_double_clicked[user] = 0;
     ustate->mouse_on_map = is_mouse_on_map(pckt);
-    remember_cursor_subtile(player);
+    remember_cursor_subtile(user);
     process_dungeon_control_packet_spell_overcharge(user);
     if (flag_is_set(pckt->control_flags,PCtr_Gui))
         return false;
@@ -912,7 +911,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
             process_dungeon_control_packet_sell_operation(user);
             break;
         default:
-            if (!packets_process_cheats(plyr_idx, x, y, pckt,
+            if (!packets_process_cheats(user, plyr_idx, x, y, pckt,
                                         stl_x, stl_y, slb_x, slb_y))
             {
                 ERRORLOG("Unrecognized player %d work state: %d", (int) plyr_idx, (int) player->work_state);
@@ -928,7 +927,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
     struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
     if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (plrst_cfg_stat->stop_own_units))
     {
-        if (((player->secondary_cursor_state == CSt_DefaultArrow) || (player->secondary_cursor_state == CSt_PowerHand)) && (!player->one_click_lock_cursor))
+        if (((ustate->secondary_cursor_state == CSt_DefaultArrow) || (ustate->secondary_cursor_state == CSt_PowerHand)) && (!ustate->one_click_lock_cursor))
             stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
     }
     return ret;
