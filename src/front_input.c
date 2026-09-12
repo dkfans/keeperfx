@@ -1379,7 +1379,7 @@ static TbBool get_dungeon_control_action_inputs(void)
     // Zooming cannot be done paused because it's a player instance.
     if (is_game_key_pressed(Gkey_ZoomToFight, true, false))
     {
-        zoom_to_fight(player->id_number);
+        zoom_to_fight();
         return true;
     }
     if (is_game_key_pressed(Gkey_ZoomCrAnnoyed, true, false))

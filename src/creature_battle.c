@@ -570,15 +570,17 @@ void reset_visible_battles(void)
     rebuild_visible_battles(player->id_number);
 }
 
-TbBool step_battles_forward(PlayerNumber plyr_idx)
+TbBool step_battles_forward(void)
 {
-    move_visible_battles(plyr_idx, 1, false);
+    struct PlayerInfo* player = get_my_player();
+    move_visible_battles(player->id_number, 1, false);
     return active_battle_exists();
 }
 
-TbBool step_battles_backward(PlayerNumber plyr_idx)
+TbBool step_battles_backward(void)
 {
-    move_visible_battles(plyr_idx, -1, false);
+    struct PlayerInfo* player = get_my_player();
+    move_visible_battles(player->id_number, -1, false);
     return active_battle_exists();
 }
 
@@ -591,9 +593,10 @@ TbBool battle_panel_can_scroll(void)
     return (visible_battles_total > VISIBLE_BATTLES_COUNT);
 }
 
-TbBool cycle_to_next_battle(PlayerNumber plyr_idx)
+TbBool cycle_to_next_battle(void)
 {
-    move_visible_battles(plyr_idx, 1, true);
+    struct PlayerInfo* player = get_my_player();
+    move_visible_battles(player->id_number, 1, true);
     return active_battle_exists();
 }
 

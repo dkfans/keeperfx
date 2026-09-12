@@ -55,7 +55,7 @@ void activate_event_box(EventIndex evidx);
 void gui_next_battle(struct GuiButton *gbtn);
 void gui_previous_battle(struct GuiButton *gbtn);
 
-short zoom_to_fight(PlayerNumber plyr_idx);
+short zoom_to_fight(void);
 
 void draw_bonus_timer(void);
 TbBool bonus_timer_enabled(void);

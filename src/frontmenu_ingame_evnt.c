@@ -114,12 +114,12 @@ void turn_on_event_info_panel_if_necessary(EventIndex evidx)
 
 void gui_previous_battle(struct GuiButton *gbtn)
 {
-    step_battles_backward(my_player_number);
+    step_battles_backward();
 }
 
 void gui_next_battle(struct GuiButton *gbtn)
 {
-    step_battles_forward(my_player_number);
+    step_battles_forward();
 }
 
 void gui_get_creature_in_battle(struct GuiButton *gbtn)
@@ -339,7 +339,7 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     }
 }
 
-short zoom_to_fight(PlayerNumber plyr_idx)
+short zoom_to_fight(void)
 {
     if (active_battle_exists())
     {
@@ -348,7 +348,7 @@ short zoom_to_fight(PlayerNumber plyr_idx)
         if (thing_exists(thing)) {
             move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
         }
-        cycle_to_next_battle(plyr_idx);
+        cycle_to_next_battle();
         return true;
     }
     return false;
