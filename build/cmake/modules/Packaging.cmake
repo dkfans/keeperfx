@@ -59,6 +59,19 @@ install(TARGETS keeperfx_hvlog RUNTIME DESTINATION . OPTIONAL)
 install(FILES "${CMAKE_BINARY_DIR}/keeperfx.map" DESTINATION . OPTIONAL)
 install(FILES "${CMAKE_BINARY_DIR}/keeperfx_hvlog.map" DESTINATION . OPTIONAL)
 
+# vcpkg's applocal deployment (VCPKG_APPLOCAL_DEPS, default ON) already copies
+# runtime DLLs next to the keeperfx binary in the build tree for every
+# toolchain preset. Install them too, so `cmake --install <builddir> --prefix
+# <game-dir>` drops a runnable update into an existing DK install on its own —
+# no pkg/ data assembly required. This is what the VS Code CMake debug tasks
+# and a personal CMakeUserPresets.json deploy preset both use.
+install(CODE "
+    file(GLOB _kfx_runtime_dlls \"$<TARGET_FILE_DIR:keeperfx>/*.dll\")
+    foreach(_dll IN LISTS _kfx_runtime_dlls)
+        file(INSTALL \"\${_dll}\" DESTINATION \"\${CMAKE_INSTALL_PREFIX}\")
+    endforeach()
+")
+
 # The game data assembled by "make pkg-assemble" (configs, campaigns, levels,
 # language/sound .dat files, SDL3 runtime DLLs, docs). Evaluated at pack time so
 # pkg/ is read then, not at configure time. Skips any archive left in pkg/.

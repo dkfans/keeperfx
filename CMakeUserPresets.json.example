@@ -1,0 +1,29 @@
+// Copy this file to CMakeUserPresets.json (gitignored, personal - see .gitignore)
+// and edit CMAKE_INSTALL_PREFIX to point at your own Dungeon Keeper install.
+//
+// This is only needed for driving `cmake --install` by hand (e.g. from
+// Visual Studio 2026's CMake integration, or a plain terminal). The VS Code
+// CMake debug tasks (see .vscode/defaultlaunch) don't need this file - they
+// read the deploy path from launch.json's "cwd" instead, the same way the
+// Makefile debug flow already does.
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "my-mingw32-debug",
+            "displayName": "My MinGW32 Debug (deploys to my game folder)",
+            "inherits": "x86-MinGW32-Debug",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "D:/Games/DungeonKeeper"
+            }
+        },
+        {
+            "name": "my-msvc-debug",
+            "displayName": "My MSVC Debug (deploys to my game folder)",
+            "inherits": "Debug-MSVC",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "D:/Games/DungeonKeeper"
+            }
+        }
+    ]
+}

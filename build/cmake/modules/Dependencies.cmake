@@ -89,7 +89,6 @@ if(WIN32)
     kfx_fetch(astronomy  "${KFX_DEPS_BASE}/astronomy_fix/astronomy-mingw32.tar.gz")
     kfx_fetch(centijson  "${KFX_DEPS_BASE}/initial/centijson-mingw32.tar.gz")
     kfx_fetch(ffmpeg     "${KFX_DEPS_BASE}/initial/ffmpeg-mingw32.tar.gz")
-    kfx_fetch(openal     "${KFX_DEPS_BASE}/2024-11-14/openal-mingw32.tar.gz")
     kfx_fetch(luajit     "${KFX_DEPS_BASE}/20250418/luajit-mingw32.tar.gz")
     kfx_fetch(miniupnpc  "${KFX_DEPS_BASE}/20260102/miniupnpc-mingw32.tar.gz")
     kfx_fetch(libnatpmp  "${KFX_DEPS_BASE}/20260102/libnatpmp-mingw32.tar.gz")
@@ -103,8 +102,15 @@ if(WIN32)
     kfx_imported(zlib_static       "${D}/zlib/libz.a"                "${D}/zlib/include")
     kfx_imported(minizip_static    "${D}/zlib/libminizip.a"          "${D}/zlib/include")
     target_link_libraries(minizip_static INTERFACE zlib_static)
-    kfx_imported(openal_static     "${D}/openal/libOpenAL32.a"       "${D}/openal/include")
-    target_link_libraries(openal_static INTERFACE winmm ole32 uuid)
+    # OpenAL: built from source via vcpkg (openal-soft in vcpkg.json), not the
+    # kfx-deps prebuilt tarball. That prebuilt is win32-thread-model MinGW and
+    # only links against a matching win32-threads i686-w64-mingw32-g++ (what
+    # the Makefile uses under WSL); MSYS2's native mingw32 gcc used by this
+    # CMake preset is posix-threads only, so linking against it fails with
+    # "undefined reference to `__gthr_win32_mutex_lock'" etc. vcpkg builds
+    # openal-soft with whatever compiler this preset is actually using, so the
+    # thread model always matches.
+    find_package(OpenAL CONFIG REQUIRED)
     kfx_imported(luajit_static     "${D}/luajit/lib/libluajit.a"     "${D}/luajit/include")
     kfx_imported(miniupnpc_static  "${D}/miniupnpc/libminiupnpc.a"   "${D}/miniupnpc/include")
     target_link_libraries(miniupnpc_static INTERFACE ws2_32 iphlpapi)
@@ -198,7 +204,7 @@ function(kfx_link_dependencies TARGET)
         # link them in a group (RESCAN == --start-group/--end-group).
         set(_static
             libavformat_static libavcodec_static libswresample_static libavutil_static
-            openal_static astronomy_static enet6_static miniupnpc_static natpmp_static
+            astronomy_static enet6_static miniupnpc_static natpmp_static
             curl_static spng_static centijson_static minizip_static zlib_static
             luajit_static)
         if(CMAKE_CXX_LINK_GROUP_USING_RESCAN_SUPPORTED)
@@ -206,7 +212,7 @@ function(kfx_link_dependencies TARGET)
         else()
             set(_static_link ${_static})
         endif()
-        target_link_libraries(${TARGET} PRIVATE kfx_sdl3 ${_static_link} centitoml)
+        target_link_libraries(${TARGET} PRIVATE kfx_sdl3 ${_static_link} centitoml OpenAL::OpenAL)
     else()
         target_link_libraries(${TARGET} PRIVATE
             kfx_sdl3
