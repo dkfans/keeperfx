@@ -253,8 +253,6 @@ void RendererOpenGL::render_thread_init()
         return;
     }
 
-    SYNCDBG(0, "RendererOpenGL::Init: GL context current on render thread (version: %s)", (const char*)glGetString(GL_VERSION));
-
     if (!GLFunctions_Load())
     {
         ERRORLOG("RendererOpenGL::Init: failed to load required GL entry points");
@@ -263,13 +261,14 @@ void RendererOpenGL::render_thread_init()
     }
     m_impl->functions_loaded = true;
 
-    if (glDebugMessageCallback != nullptr)
+    SYNCDBG(0, "RendererOpenGL::Init: GL context current on render thread (version: %s)", (const char*)glGetString(GL_VERSION));
+
+    if (GLAD_GL_KHR_debug)
     {
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(GLDebugCallback, nullptr);
-        if (glDebugMessageControl != nullptr)
-            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
     else
     {

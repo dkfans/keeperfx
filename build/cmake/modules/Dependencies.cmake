@@ -16,6 +16,10 @@ set(KFX_CENTITOML_SRC "${CMAKE_SOURCE_DIR}/deps/centitoml")
 # GL renderer backend: always built.
 find_package(OpenGL REQUIRED)
 
+# Vendored glad loader -- outside src/, so BuildTargets' glob won't pick it up.
+add_library(glad STATIC "${CMAKE_SOURCE_DIR}/deps/glad/src/glad.c")
+target_include_directories(glad PUBLIC "${CMAKE_SOURCE_DIR}/deps/glad/include")
+
 # kfx_fetch(<dir> <url>): download + extract into <builddir>/deps/<dir>/ once.
 function(kfx_fetch dir url)
     set(_tgz "${D}/${dir}.tar.gz")
@@ -235,5 +239,5 @@ function(kfx_link_dependencies TARGET)
             centitoml
             miniupnpc natpmp dl)
     endif()
-    target_link_libraries(${TARGET} PRIVATE OpenGL::GL)
+    target_link_libraries(${TARGET} PRIVATE OpenGL::GL glad)
 endfunction()
