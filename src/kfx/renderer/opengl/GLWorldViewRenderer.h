@@ -35,6 +35,9 @@
 #include "kfx/renderer/FlatPolyVertex.h"
 #include "kfx/renderer/ir/WorldCommands.h"
 #include "kfx/renderer/ir/IRCommandBuffer.h"
+#include "kfx/renderer/GpuResourceHandle.h"
+
+class GLResourceMapper;
 
 #include <vector>
 #include <unordered_map>
@@ -119,10 +122,14 @@ public:
     /** Tile atlas providing GL texture handles. Owned externally
      *  (RendererOpenGL); must outlive this. */
     void SetAtlas(ITileAtlas* atlas) { m_atlas = atlas; }
-    /** GL texture handle for the 256x256 fade/lighting LUT. */
-    void SetFadeTexture(GLuint tex) { m_fade_tex = tex; }
-    /** GL texture handle for the 256x1 RGBA palette. */
-    void SetPaletteTexture(GLuint tex) { m_palette_tex = tex; }
+    // Palette/fade textures: only the handle is stored, resolved fresh at
+    // each point of use rather than cached as a raw GLuint, so it stays
+    // valid across a reload of the underlying texture.
+    void SetResourceMapper(GLResourceMapper* mapper) { m_resource_mapper = mapper; }
+    /** GPU resource handle for the 256x256 fade/lighting LUT. */
+    void SetFadeTexture(GpuResourceHandle tex) { m_fade_tex_handle = tex; }
+    /** GPU resource handle for the 256x1 RGBA palette. */
+    void SetPaletteTexture(GpuResourceHandle tex) { m_palette_tex_handle = tex; }
 
     // IWorldViewRenderer
     void BeginWorldPass(int w, int h, int vp_x, int vp_y) override;
@@ -411,10 +418,16 @@ private:
      *  issues one draw call for the whole batch. */
     void draw_shadows_gpu();
 
+    // Resolved fresh at each point of use rather than cached as a raw
+    // GLuint, so the id stays valid across a reload of the texture.
+    GLuint ResolvePaletteTexId() const;
+    GLuint ResolveFadeTexId() const;
+
     // Injected resources (not owned)
     ITileAtlas* m_atlas       = nullptr;
-    GLuint      m_fade_tex    = 0;
-    GLuint      m_palette_tex = 0;
+    GLResourceMapper* m_resource_mapper = nullptr;
+    GpuResourceHandle m_fade_tex_handle    = kInvalidGpuResource;
+    GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource;
 
     // Tile GL objects
     GLuint m_vao    = 0;

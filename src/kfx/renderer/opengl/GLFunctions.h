@@ -99,6 +99,10 @@ extern PFNGLDELETERENDERBUFFERSPROC    glDeleteRenderbuffers_ptr;
 // redundant re-render.
 extern PFNGLBLITFRAMEBUFFERPROC        glBlitFramebuffer_ptr;
 #define glBlitFramebuffer glBlitFramebuffer_ptr
+// glDrawBuffers (GL 2.0), needed by GLResourceMapper::RealizeRenderTarget()
+// for multi-attachment (G-Buffer-capable) render targets.
+extern PFNGLDRAWBUFFERSPROC            glDrawBuffers_ptr;
+#define glDrawBuffers glDrawBuffers_ptr
 
 // GL_KHR_debug (core since GL 4.3, widely available as an extension on 3.3
 // drivers too). Loaded but NOT required for GLFunctions_Load() to succeed --

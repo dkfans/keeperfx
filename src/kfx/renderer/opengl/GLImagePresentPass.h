@@ -29,7 +29,10 @@
 #pragma once
 
 #include "kfx/renderer/opengl/GLFunctions.h"
+#include "kfx/renderer/GpuResourceHandle.h"
 #include <vector>
+
+class GLResourceMapper;
 
 /******************************************************************************/
 
@@ -88,8 +91,11 @@ public:
     /** Shared 256x1 RGBA8 palette texture (same one world/UI already bind)
      *  -- used for every present except PRESENT_PALETTE_EMBEDDED, which
      *  brings its own (see m_embedded_palette_tex). This pass never owns
-     *  a copy of the shared one. */
-    void SetPaletteTexture(GLuint tex) { m_palette_tex = tex; }
+     *  a copy of the shared one: only the handle is stored, resolved fresh
+     *  at each point of use rather than cached as a raw GL id, so it stays
+     *  valid across a reload of the underlying texture. */
+    void SetResourceMapper(GLResourceMapper* mapper) { m_resource_mapper = mapper; }
+    void SetPaletteTexture(GpuResourceHandle tex) { m_palette_tex_handle = tex; }
 
     // -- Game thread --------------------------------------------------------
 
@@ -166,8 +172,13 @@ private:
     int    m_zoom_tex_w = 0, m_zoom_tex_h = 0;
     const unsigned char* m_zoom_tex_identity = nullptr; // last-uploaded src_buf pointer
 
-    GLuint m_palette_tex = 0;          // not owned (shared game palette)
+    GLResourceMapper* m_resource_mapper = nullptr;
+    GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource; // not owned (shared game palette)
     GLuint m_embedded_palette_tex = 0; // owned -- FMV's own per-frame palette
+
+    /** Resolves the shared palette handle to a raw GLuint. Zero if the
+     *  handle is unset or resolution fails. */
+    GLuint ResolvePaletteTexId() const;
 };
 
 /******************************************************************************/

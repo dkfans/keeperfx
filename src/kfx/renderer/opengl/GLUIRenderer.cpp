@@ -4,6 +4,7 @@
 #include "kfx/renderer/opengl/GLTextRenderer.h"
 #include "kfx/renderer/opengl/GLShaders.h"
 #include "kfx/renderer/opengl/GLFunctions.h"
+#include "kfx/renderer/opengl/GLResourceMapper.h"
 #include "kfx/renderer/ir/UICommands.h"
 #include "kfx/renderer/ir/TextCommands.h"
 #include "kfx/renderer/RendererManager.h"
@@ -190,13 +191,15 @@ void GLUIRenderer::draw_textured_quad(unsigned int shader, float x, float y, flo
     glUniform1i(glGetUniformLocation(shader, "u_sprite_atlas"), 0);
 
     if (shader == m_shader_sprite || shader == m_shader_remap) {
+        const GLTexture* pal_tex = m_resource_mapper ? m_resource_mapper->ResolveTexture(m_palette_tex_handle) : nullptr;
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, m_palette_tex);
+        glBindTexture(GL_TEXTURE_2D, pal_tex ? pal_tex->id : 0);
         glUniform1i(glGetUniformLocation(shader, "u_palette"), 1);
     }
     if (shader == m_shader_remap) {
+        const GLTexture* fade_tex = m_resource_mapper ? m_resource_mapper->ResolveTexture(m_fade_table_tex_handle) : nullptr;
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, m_fade_table_tex);
+        glBindTexture(GL_TEXTURE_2D, fade_tex ? fade_tex->id : 0);
         glUniform1i(glGetUniformLocation(shader, "u_fade_table"), 2);
         glUniform1f(glGetUniformLocation(shader, "u_remap_row"), remap_row);
     }
@@ -571,14 +574,16 @@ void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, i
     }
     if (bind_palette)
     {
+        const GLTexture* pal_tex = m_resource_mapper ? m_resource_mapper->ResolveTexture(m_palette_tex_handle) : nullptr;
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, m_palette_tex);
+        glBindTexture(GL_TEXTURE_2D, pal_tex ? pal_tex->id : 0);
         glUniform1i(glGetUniformLocation(shader, "u_palette"), 1);
     }
     if (bind_fade)
     {
+        const GLTexture* fade_tex = m_resource_mapper ? m_resource_mapper->ResolveTexture(m_fade_table_tex_handle) : nullptr;
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, m_fade_table_tex);
+        glBindTexture(GL_TEXTURE_2D, fade_tex ? fade_tex->id : 0);
         glUniform1i(glGetUniformLocation(shader, "u_fade_table"), 2);
         glUniform1f(glGetUniformLocation(shader, "u_remap_row"), (float)remap_row);
     }

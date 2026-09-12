@@ -17,6 +17,7 @@
 #include "kfx/platform/PlatformManager.h"
 #include "kfx/renderer/RendererManager.h"
 #include "kfx/renderer/RendererSettings.h"
+#include "kfx/renderer/RendererThread.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -2158,6 +2159,15 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 {
     short retval;
     retval=0;
+
+    // Establish this thread's identity as "the game thread" before anything
+    // else runs. ASSERT_GAME_THREAD() (GLWorldViewRenderer/GLImagePresentPass/
+    // GLMapFadePass) compares std::this_thread::get_id() against whatever
+    // was registered here; skipping this call left the registered id at its
+    // default-constructed sentinel, which the standard guarantees never
+    // equals a real thread's id -- so every ASSERT_GAME_THREAD() check failed
+    // unconditionally, on the very thread it's meant to allow.
+    RendererThread_RegisterGameThread();
 
     // Determine correct log file based on command line flags
     const char* selected_log_file_name = determine_log_filename(argc, argv);

@@ -3,6 +3,7 @@
 
 #include "kfx/renderer/IUIRenderer.h"
 #include "kfx/renderer/ir/UICommands.h" // IRUILayer
+#include "kfx/renderer/GpuResourceHandle.h"
 #include <atomic>
 #include <vector>
 #include <unordered_map>
@@ -10,6 +11,7 @@
 
 class GLSpriteAtlas;
 class GLTextRenderer;
+class GLResourceMapper;
 struct UICommandBuffers;
 struct TextCommandBuffers;
 struct AsianFont;
@@ -40,8 +42,12 @@ public:
     void Shutdown();
 
     void SetAtlas(GLSpriteAtlas* atlas) { m_atlas = atlas; }
-    void SetPaletteTexture(unsigned int tex) { m_palette_tex = tex; }
-    void SetFadeTableTexture(unsigned int tex) { m_fade_table_tex = tex; }
+    // Palette/fade-table textures: only the handle is stored, resolved fresh
+    // at each point of use rather than cached as a raw GLuint, so it stays
+    // valid across a reload of the underlying texture.
+    void SetResourceMapper(GLResourceMapper* mapper) { m_resource_mapper = mapper; }
+    void SetPaletteTexture(GpuResourceHandle tex) { m_palette_tex_handle = tex; }
+    void SetFadeTableTexture(GpuResourceHandle tex) { m_fade_table_tex_handle = tex; }
     void SetScreenSize(int w, int h) { m_screen_w = w; m_screen_h = h; }
 
     // Packs into the atlas as a side effect, so every handle IUIRenderer
@@ -134,8 +140,9 @@ public:
 
 private:
     GLSpriteAtlas* m_atlas = nullptr;
-    unsigned int m_palette_tex = 0;
-    unsigned int m_fade_table_tex = 0;
+    GLResourceMapper* m_resource_mapper = nullptr;
+    GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource;
+    GpuResourceHandle m_fade_table_tex_handle = kInvalidGpuResource;
     int m_screen_w = 0;
     int m_screen_h = 0;
 

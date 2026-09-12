@@ -151,6 +151,7 @@
 #include "kfx/renderer/ITileAtlas.h"
 #include "kfx/renderer/TileAtlasPacker.h"  // GetTileUV
 #include "kfx/renderer/opengl/GLShaders.h"
+#include "kfx/renderer/opengl/GLResourceMapper.h"
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "kfx/renderer/RendererSettings.h" // g_renderer_settings (Beat 4)
 #include "kfx/renderer/RendererManager.h"  // RendererGetCurrentSpriteOwner/WantsOutline (Beat 4)
@@ -175,6 +176,18 @@
 #include "post_inc.h"
 
 /******************************************************************************/
+
+GLuint GLWorldViewRenderer::ResolvePaletteTexId() const
+{
+    const GLTexture* tex = m_resource_mapper ? m_resource_mapper->ResolveTexture(m_palette_tex_handle) : nullptr;
+    return tex ? tex->id : 0;
+}
+
+GLuint GLWorldViewRenderer::ResolveFadeTexId() const
+{
+    const GLTexture* tex = m_resource_mapper ? m_resource_mapper->ResolveTexture(m_fade_tex_handle) : nullptr;
+    return tex ? tex->id : 0;
+}
 
 static GLuint compile_shader_src(GLenum type, const char* src, const char* debug_name)
 {
@@ -1040,7 +1053,7 @@ void GLWorldViewRenderer::ResolveLensComposite()
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, m_lens_overlay_tex);
             glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, m_palette_tex);
+            glBindTexture(GL_TEXTURE_2D, ResolvePaletteTexId());
             glUniform2f(m_lens_overlay_loc_src_off, src_off_x, 0.0f);
             glUniform2f(m_lens_overlay_loc_src_scale, src_scale_x, src_scale_y);
             glUniform1f(m_lens_overlay_loc_alpha, m_rt_lens_cmd.overlay_alpha);
@@ -2435,7 +2448,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
     // the CPU software rasteriser from here; that would produce mixed-path
     // frames (and there's no caller that would even understand a "fall
     // back to CPU" return value yet -- see the file header).
-    if (!m_kspr_shader || !m_kspr_sprite_tex || !m_palette_tex) {
+    if (!m_kspr_shader || !m_kspr_sprite_tex || m_palette_tex_handle == kInvalidGpuResource) {
         static int s_miss = 0;
         if (s_miss++ < 5)
             ERRORLOG("render_keepersprite_gpu: GL resources not ready -- sprite dropped");
@@ -2675,7 +2688,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
         glUniform1f(m_kspr_loc_alpha,    alpha);
         glUniform1f(m_kspr_loc_z_ndc,    z_ndc);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, m_palette_tex);
+        glBindTexture(GL_TEXTURE_2D, ResolvePaletteTexId());
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_kspr_sprite_tex);
         glBlendFunc(GL_SRC_ALPHA, blend_dfactor);
@@ -2826,17 +2839,17 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
 
     // Bind fade table to unit 3 unconditionally — the sampler must always
     // reference a valid texture even when darkness_mode != PALETTE.
-    if (m_fade_tex)
+    if (m_fade_tex_handle != kInvalidGpuResource)
     {
         glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, m_fade_tex);
+        glBindTexture(GL_TEXTURE_2D, ResolveFadeTexId());
     }
 
     glActiveTexture(GL_TEXTURE0);  // restore default active texture unit
 
     // Bind palette once for the entire pass — it never changes mid-frame.
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_palette_tex);
+    glBindTexture(GL_TEXTURE_2D, ResolvePaletteTexId());
 
     // Opaque geometry only (tiles, flat-colour polys) -- no shadow/sprite
     // passes in this slice.
@@ -2988,7 +3001,7 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
             // subsequent CMD_TILES batch (front view after iso, etc.)
             // doesn't sample the wrong row of the CLUT.
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, m_palette_tex);
+            glBindTexture(GL_TEXTURE_2D, ResolvePaletteTexId());
             glActiveTexture(GL_TEXTURE0);
         }
     }

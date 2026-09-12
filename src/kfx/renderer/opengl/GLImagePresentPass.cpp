@@ -8,11 +8,18 @@
 #include "pre_inc.h"
 #include "kfx/renderer/opengl/GLImagePresentPass.h"
 #include "kfx/renderer/opengl/GLShaders.h"
+#include "kfx/renderer/opengl/GLResourceMapper.h"
 #include "kfx/renderer/RendererManager.h"  // RendererPresentImageDesc, PRESENT_*
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "bflib_basics.h"                  // ERRORLOG
 #include <cstring>
 #include "post_inc.h"
+
+GLuint GLImagePresentPass::ResolvePaletteTexId() const
+{
+    const GLTexture* tex = m_resource_mapper ? m_resource_mapper->ResolveTexture(m_palette_tex_handle) : nullptr;
+    return tex ? tex->id : 0;
+}
 
 /******************************************************************************/
 
@@ -359,7 +366,8 @@ void GLImagePresentPass::draw_quad(GLuint program, GLuint image_tex, GLuint pale
 void GLImagePresentPass::Resolve(int screen_w, int screen_h)
 {
     ASSERT_RENDER_THREAD();
-    if (!IsActiveRT() || !m_shader || m_palette_tex == 0 || screen_w <= 0 || screen_h <= 0)
+    const GLuint palette_tex_id = ResolvePaletteTexId();
+    if (!IsActiveRT() || !m_shader || palette_tex_id == 0 || screen_w <= 0 || screen_h <= 0)
         return;
 
     glViewport(0, 0, screen_w, screen_h);
@@ -402,7 +410,7 @@ void GLImagePresentPass::Resolve(int screen_w, int screen_h)
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, m_zoom_tex);
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, m_palette_tex);
+            glBindTexture(GL_TEXTURE_2D, palette_tex_id);
 
             glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -419,7 +427,7 @@ void GLImagePresentPass::Resolve(int screen_w, int screen_h)
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            GLuint palette_tex = m_palette_tex;
+            GLuint palette_tex = palette_tex_id;
             if (m_rt_cmd.palette == PRESENT_PALETTE_EMBEDDED)
             {
                 upload_embedded_palette();
@@ -442,7 +450,7 @@ void GLImagePresentPass::Resolve(int screen_w, int screen_h)
         {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            draw_quad(m_transparent_shader, m_overlay_tex, m_palette_tex,
+            draw_quad(m_transparent_shader, m_overlay_tex, palette_tex_id,
                      m_rt_overlay_cmd.dst_x, m_rt_overlay_cmd.dst_y,
                      m_rt_overlay_cmd.dst_w, m_rt_overlay_cmd.dst_h,
                      screen_w, screen_h);

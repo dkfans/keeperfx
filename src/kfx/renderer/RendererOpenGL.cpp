@@ -14,6 +14,11 @@
 #include "kfx/renderer/opengl/GLWorldViewRenderer.h"
 #include "kfx/renderer/opengl/GLMapFadePass.h"
 #include "kfx/renderer/opengl/GLImagePresentPass.h"
+#include "kfx/renderer/opengl/GLResourceMapper.h"
+#include "kfx/renderer/GpuResourceHandle.h"
+#include "kfx/renderer/GpuResourceDesc.h"
+#include "kfx/renderer/RendererFrameCounter.h"
+#include "kfx/renderer/RenderTaskProducerRegistry.h"
 #include "kfx/renderer/ir/UICommands.h"
 #include "kfx/renderer/ir/TextCommands.h"
 #include "kfx/renderer/ir/WorldCommands.h"
@@ -65,6 +70,14 @@ struct GLFrameData {
     // thread) never reads the game thread's live global mid-update.
     float screen_tint[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
+    // GPU Resource Mapper (gpu-resource-mapper-spec.md Part 4.3): the frame
+    // number this GLFrameData was sealed under, stamped in PresentFrame()
+    // before RendererFrameCounter_Advance() runs -- so it records the frame
+    // just authored, not the next one. render_thread_work() passes this (not
+    // RendererFrameCounter_Current(), which is always one frame ahead by the
+    // time the render thread wakes) to ProcessDeferredDestroys().
+    uint64_t sealed_frame_number = 0;
+
     bool          palette_dirty = false;
     unsigned char palette_rgba[256 * 4] = {};
 
@@ -80,8 +93,13 @@ struct RendererOpenGL::Impl {
     GLWorldViewRenderer world;
     GLMapFadePass      mapfade;
     GLImagePresentPass imgpresent;
-    unsigned int       palette_tex     = 0;
-    unsigned int       fade_table_tex  = 0;
+    // GPU Resource Mapper: owns the full lifecycle of every GL object used by
+    // this backend. Constructed here (game thread, at Impl's own construction
+    // -- must not touch GL, and it doesn't: RequestCreate* never calls gl*,
+    // see GLResourceMapper.h), used from render_thread_init() onward.
+    GLResourceMapper   resource_mapper;
+    GpuResourceHandle  palette_tex_handle    = kInvalidGpuResource;
+    GpuResourceHandle  fade_table_tex_handle = kInvalidGpuResource;
 
     RenderThreadManager thread_mgr;
     GLFrameData frames[2];
@@ -312,31 +330,55 @@ void RendererOpenGL::render_thread_init()
     // RendererInit() also replays the last palette set before this backend
     // existed, so in practice this seed is a defensive fallback, not the
     // load-bearing fix; a real upload should land within the first frame.
+    // 256x1 RGBA8 palette lookup texture, via the GPU Resource Mapper
+    // (gpu-resource-mapper-spec.md Part 6.1). Seeded black+opaque (not an
+    // empty initial_pixels, which leaves undefined driver content) so any
+    // sprite sampled before the first real upload reads a defined black --
+    // see the comment above this block for the full rationale.
     unsigned char black_palette[256 * 4] = {};
     for (int i = 0; i < 256; ++i)
         black_palette[i * 4 + 3] = 255; // alpha opaque, RGB stays zeroed
 
-    glGenTextures(1, &m_impl->palette_tex);
-    glBindTexture(GL_TEXTURE_2D, m_impl->palette_tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, black_palette);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    GpuTextureDesc palette_desc;
+    palette_desc.width = 256;
+    palette_desc.height = 1;
+    palette_desc.format = GpuTextureFormat::RGBA8;
+    palette_desc.min_filter = GpuTextureFilter::Nearest;
+    palette_desc.mag_filter = GpuTextureFilter::Nearest;
+    palette_desc.wrap = GpuTextureWrap::Clamp;
+    palette_desc.initial_pixels.assign(black_palette, black_palette + sizeof(black_palette));
+    palette_desc.debug_name = "palette";
+    m_impl->palette_tex_handle = m_impl->resource_mapper.RequestCreateTexture(palette_desc);
+    if (m_impl->resource_mapper.ResolveTexture(m_impl->palette_tex_handle) == nullptr)
+    {
+        ERRORLOG("RendererOpenGL::Init: palette texture realization failed");
+        m_impl->init_ok = false;
+        return;
+    }
 
     // 256x64 R8 remap/fade table, matching pixmap.fade_tables. Uploaded once
     // here; a runtime fade-table rebuild wouldn't be picked up -- not hit by
     // this milestone's draw paths, but worth knowing if remap output looks stale.
-    glGenTextures(1, &m_impl->fade_table_tex);
-    glBindTexture(GL_TEXTURE_2D, m_impl->fade_table_tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, 256, 64, 0, GL_RED, GL_UNSIGNED_BYTE, pixmap.fade_tables);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    GpuTextureDesc fade_table_desc;
+    fade_table_desc.width = 256;
+    fade_table_desc.height = 64;
+    fade_table_desc.format = GpuTextureFormat::R8;
+    fade_table_desc.min_filter = GpuTextureFilter::Nearest;
+    fade_table_desc.mag_filter = GpuTextureFilter::Nearest;
+    fade_table_desc.initial_pixels.assign(pixmap.fade_tables, pixmap.fade_tables + (256 * 64));
+    fade_table_desc.debug_name = "fade_table";
+    m_impl->fade_table_tex_handle = m_impl->resource_mapper.RequestCreateTexture(fade_table_desc);
+    if (m_impl->resource_mapper.ResolveTexture(m_impl->fade_table_tex_handle) == nullptr)
+    {
+        ERRORLOG("RendererOpenGL::Init: fade table texture realization failed");
+        m_impl->init_ok = false;
+        return;
+    }
 
     m_impl->ui.SetAtlas(&m_impl->atlas);
-    m_impl->ui.SetPaletteTexture(m_impl->palette_tex);
-    m_impl->ui.SetFadeTableTexture(m_impl->fade_table_tex);
+    m_impl->ui.SetResourceMapper(&m_impl->resource_mapper);
+    m_impl->ui.SetPaletteTexture(m_impl->palette_tex_handle);
+    m_impl->ui.SetFadeTableTexture(m_impl->fade_table_tex_handle);
     m_impl->ui.SetScreenSize((int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight);
     m_impl->text.SetUIRenderer(&m_impl->ui);
     m_impl->cursor.SetUIRenderer(&m_impl->ui);
@@ -350,8 +392,9 @@ void RendererOpenGL::render_thread_init()
     // populated yet this early (textures load per-level, after startup), so
     // it's retried once per render_thread_work() tick instead (see there).
     m_impl->world.SetAtlas(&m_impl->world_atlas);
-    m_impl->world.SetFadeTexture(m_impl->fade_table_tex);
-    m_impl->world.SetPaletteTexture(m_impl->palette_tex);
+    m_impl->world.SetResourceMapper(&m_impl->resource_mapper);
+    m_impl->world.SetFadeTexture(m_impl->fade_table_tex_handle);
+    m_impl->world.SetPaletteTexture(m_impl->palette_tex_handle);
     m_impl->world.SetScreenSize((int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight);
     if (!m_impl->world.CompileShaders())
     {
@@ -373,7 +416,8 @@ void RendererOpenGL::render_thread_init()
     // failure means PresentImage() keeps returning false (Resolve() guards
     // on m_shader being non-zero), so callers fall back to their existing
     // CPU blit, same as before this change.
-    m_impl->imgpresent.SetPaletteTexture(m_impl->palette_tex);
+    m_impl->imgpresent.SetResourceMapper(&m_impl->resource_mapper);
+    m_impl->imgpresent.SetPaletteTexture(m_impl->palette_tex_handle);
     if (!m_impl->imgpresent.CompileShaders())
     {
         WARNLOG("RendererOpenGL::Init: raw image present shaders unavailable -- FMV/splash will fall back to CPU blit");
@@ -412,12 +456,22 @@ void RendererOpenGL::render_thread_work()
 {
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
 
+    // GPU Resource Mapper (gpu-resource-mapper-spec.md Part 4.3): reclaim
+    // anything released as of the frame actually being rendered -- must use
+    // fd.sealed_frame_number, not RendererFrameCounter_Current() (already
+    // one frame ahead by the time the render thread wakes for this tick).
+    m_impl->resource_mapper.ProcessDeferredDestroys(fd.sealed_frame_number);
+
     if (fd.palette_dirty)
     {
         fd.palette_dirty = false;
-        glBindTexture(GL_TEXTURE_2D, m_impl->palette_tex);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, fd.palette_rgba);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        const GLTexture* const tex = m_impl->resource_mapper.ResolveTexture(m_impl->palette_tex_handle);
+        if (tex != nullptr)
+        {
+            glBindTexture(GL_TEXTURE_2D, tex->id);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, fd.palette_rgba);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
     }
 
     m_impl->atlas.FlushPendingGL();
@@ -502,9 +556,13 @@ void RendererOpenGL::FGBeginWorldCapture()
     if (m_impl->fg_lens_palette_active)
     {
         m_impl->world.GetActiveLensPaletteRGBA(m_impl->fg_lens_palette_rgba);
-        glBindTexture(GL_TEXTURE_2D, m_impl->palette_tex);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, m_impl->fg_lens_palette_rgba);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        const GLTexture* const tex = m_impl->resource_mapper.ResolveTexture(m_impl->palette_tex_handle);
+        if (tex != nullptr)
+        {
+            glBindTexture(GL_TEXTURE_2D, tex->id);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, m_impl->fg_lens_palette_rgba);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
     }
 
     m_impl->fg_lens_captured = m_impl->world.BeginLensCapture();
@@ -538,9 +596,13 @@ void RendererOpenGL::FGResolveWorldCapture()
 
     if (m_impl->fg_lens_palette_active)
     {
-        glBindTexture(GL_TEXTURE_2D, m_impl->palette_tex);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, fd.palette_rgba);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        const GLTexture* const tex = m_impl->resource_mapper.ResolveTexture(m_impl->palette_tex_handle);
+        if (tex != nullptr)
+        {
+            glBindTexture(GL_TEXTURE_2D, tex->id);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, fd.palette_rgba);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
     }
 }
 
@@ -709,14 +771,17 @@ void RendererOpenGL::render_thread_cleanup()
 {
     if (m_impl->functions_loaded)
     {
+        // GPU Resource Mapper: destroys every realized GL object across every
+        // class before their own Shutdown()/Free() bodies run (which no
+        // longer own any GL objects themselves post-migration) --
+        // gpu-resource-mapper-spec.md Part 6.1 step 6.
+        m_impl->resource_mapper.ShutdownAll();
         m_impl->ui.Shutdown();
         m_impl->atlas.Free();
         m_impl->world.Shutdown();
         m_impl->world_atlas.Free();
         m_impl->mapfade.Shutdown();
         m_impl->imgpresent.Shutdown();
-        if (m_impl->palette_tex)    glDeleteTextures(1, &m_impl->palette_tex);
-        if (m_impl->fade_table_tex) glDeleteTextures(1, &m_impl->fade_table_tex);
     }
     if (m_gl_context != nullptr)
     {
@@ -751,6 +816,13 @@ void RendererOpenGL::PresentFrame()
 {
     if (m_gl_context == nullptr || GetSDLWindowSystem()->GetSDLWindow() == nullptr || m_impl == nullptr)
         return;
+
+    // RenderTaskProducer (renderer-concurrency-architecture-spec.md 2.4):
+    // let every registered producer append into frames[write_idx] while the
+    // shared frame counter still holds this frame's number -- strictly
+    // before RendererFrameCounter_Advance() runs later in this function.
+    // No-op today (nothing registers a producer yet).
+    RenderTaskProducerRegistry_ProduceAll(RendererFrameCounter_Current());
 
     // Blocks until the render thread finishes the previous handoff's work
     // (first call returns immediately -- nothing signalled yet). After this,
@@ -792,6 +864,10 @@ void RendererOpenGL::PresentFrame()
     filled_fd.screen_w = (int32_t)RendererPhysicalWidth();
     filled_fd.screen_h = (int32_t)lbDisplay.PhysicalScreenHeight;
     std::memcpy(filled_fd.screen_tint, g_screen_tint, sizeof(filled_fd.screen_tint));
+    // GPU Resource Mapper (Part 4.3): stamp with the pre-advance counter
+    // value so this records the frame just authored, not the next one --
+    // render_thread_work() reads this back to bound ProcessDeferredDestroys().
+    filled_fd.sealed_frame_number = RendererFrameCounter_Current();
 
     // LbMouseOnBeginSwap() is what actually submits the OS pointer sprite
     // (-> CursorLayer_SubmitPointerSprite() -> GLCursorLayer's m_pointer_handle)
@@ -809,6 +885,11 @@ void RendererOpenGL::PresentFrame()
 
     m_impl->render_idx = filled;
     m_impl->write_idx  = next;
+
+    // Advance after stamping filled_fd.sealed_frame_number above, so the
+    // NEXT frame's authoring (and any RequestRelease() calls it makes) is
+    // tagged with the new value -- see gpu-resource-mapper-spec.md Part 4.3.
+    RendererFrameCounter_Advance();
 
     m_impl->thread_mgr.Signal();
 }

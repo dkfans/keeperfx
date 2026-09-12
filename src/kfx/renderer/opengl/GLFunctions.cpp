@@ -54,6 +54,7 @@ PFNGLRENDERBUFFERSTORAGEPROC    glRenderbufferStorage_ptr    = nullptr;
 PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer_ptr = nullptr;
 PFNGLDELETERENDERBUFFERSPROC    glDeleteRenderbuffers_ptr    = nullptr;
 PFNGLBLITFRAMEBUFFERPROC        glBlitFramebuffer_ptr        = nullptr;
+PFNGLDRAWBUFFERSPROC            glDrawBuffers_ptr            = nullptr;
 
 PFNGLDEBUGMESSAGECALLBACKPROC glDebugMessageCallback_ptr = nullptr;
 PFNGLDEBUGMESSAGECONTROLPROC  glDebugMessageControl_ptr  = nullptr;
@@ -120,6 +121,7 @@ bool GLFunctions_Load()
     ok &= load(glFramebufferRenderbuffer_ptr, "glFramebufferRenderbuffer");
     ok &= load(glDeleteRenderbuffers_ptr, "glDeleteRenderbuffers");
     ok &= load(glBlitFramebuffer_ptr, "glBlitFramebuffer");
+    ok &= load(glDrawBuffers_ptr, "glDrawBuffers");
 
     // Optional -- see the comment on the declarations in GLFunctions.h.
     // load() itself logs an ERRORLOG if missing; that's too alarming for an
