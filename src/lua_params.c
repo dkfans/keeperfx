@@ -652,6 +652,27 @@ void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
     lua_setmetatable(L, -2);  
 }
 
+
+void lua_push_parent(lua_State *L, const struct Thing *thing)
+{
+    switch (thing->class_id)
+    {
+    case TCls_Shot:
+    case TCls_Effect:
+    case TCls_EffectElem:
+    case TCls_EffectGen:
+        lua_pushThing(L, get_parent_thing(thing));
+        break;
+    case TCls_Object:
+        // a room index or a slab number, depending on the object model
+        lua_pushinteger(L, thing->parent_idx);
+        break;
+    default:
+        lua_pushnil(L);
+        break;
+    }
+}
+
 //takes the leader of the party as argument
 //pushes a table of all the creatures in the party onto the stack
 void lua_pushPartyTable(lua_State *L, struct Thing* thing) {

@@ -525,6 +525,18 @@ static int thing_set_field(lua_State *L) {
         {
             return luaL_error(L, "Field '%s' is not writable on Trap thing", key);
         }
+    } else if (thing->class_id == TCls_Shot))
+    {
+        } else if (strcmp(key, "shot_target") == 0) {
+            if (lua_isnil(L, 3)) {
+                thing->shot.target_idx = 0;
+            } else {
+                struct Thing* target = luaL_checkThing(L, 3);
+                thing->shot.target_idx = target->index;
+            }
+        } else {
+            return luaL_error(L, "Field '%s' is not writable on Shot thing", key);
+        }
     } else
     {
         return luaL_error(L, "Field '%s' is not writable on Thing", key);
@@ -584,6 +596,8 @@ static int thing_get_field(lua_State *L) {
         lua_pushboolean(L, thing_is_picked_up(thing));
     } else if (strcmp(key, "thing_class") == 0) {
         lua_pushstring(L, thing_class_code_name(thing->class_id));
+    } else if (strcmp(key, "parent") == 0) {
+        lua_push_parent(L, thing);
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     }
@@ -627,6 +641,29 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, cctrl->opponents_ranged_count);
         } else if (strcmp(key, "opponents_count") == 0) {
             lua_pushinteger(L, (cctrl->opponents_melee_count + cctrl->opponents_ranged_count));
+        } else if (strcmp(key, "battle_enemy") == 0) {
+            // only read if a real enemy fight happens
+            if (cctrl->combat_flags != 0) {
+                lua_pushThing(L,( thing_get(cctrl->combat.battle_enemy_idx)));
+            } else {
+                lua_pushnil(L);
+            }
+        } else if (strcmp(key, "combat_type") == 0) {
+            if (flag_is_set(cctrl->combat_flags, CmbtF_Melee)) {
+                lua_pushstring(L, "MELEE");
+            } else if (flag_is_set(cctrl->combat_flags, CmbtF_Ranged)) {
+                lua_pushstring(L, "RANGED");
+            } else if (flag_is_set(cctrl->combat_flags, CmbtF_Waiting)) {
+                lua_pushstring(L, "WAITING");
+            } else if (flag_is_set(cctrl->combat_flags, CmbtF_ObjctFight)) {
+                lua_pushstring(L, "OBJECT");
+            } else if (flag_is_set(cctrl->combat_flags, CmbtF_DoorFight)) {
+                lua_pushstring(L, "DOOR");
+            } else {
+                lua_pushnil(L);
+            }
+        } else if (strcmp(key, "battle_id") == 0) {
+            lua_pushinteger(L, cctrl->battle_id);
         } else if (strcmp(key, "force_health_flower_displayed") == 0) {
             lua_pushinteger(L, cctrl->force_health_flower_displayed);
         } else if (strcmp(key, "force_health_flower_hidden") == 0) {
@@ -687,6 +724,13 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, thing->custom_box.box_kind);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Special box thing", key);
+        }
+    } else if (thing->class_id == TCls_Shot)
+    {
+        if (strcmp(key, "shot_target") == 0) {
+            lua_pushThing(L, thing_get(thing->shot.target_idx));
+        } else {
+            return luaL_error(L, "Unknown field or method '%s' for Shot thing", key);
         }
     } else {
         return luaL_error(L, "Unknown or unavailable field or method '%s' for Thing", key);
