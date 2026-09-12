@@ -47,46 +47,6 @@ void apply_flip_flags(TbDrawFlagsMask draw_flags, float& u0, float& v0, float& u
     if (draw_flags & Lb_SPRITE_FLIP_VERTIC) std::swap(v0, v1);
 }
 
-unsigned int compile_shader(unsigned int type, const char* src)
-{
-    unsigned int s = glCreateShader(type);
-    glShaderSource(s, 1, &src, nullptr);
-    glCompileShader(s);
-    int ok = 0;
-    glGetShaderiv(s, GL_COMPILE_STATUS, &ok);
-    if (!ok) {
-        char log[512];
-        glGetShaderInfoLog(s, sizeof(log), nullptr, log);
-        ERRORLOG("GLUIRenderer shader compile error: %s", log);
-        glDeleteShader(s);
-        return 0;
-    }
-    return s;
-}
-
-unsigned int link_program(const char* vs_src, const char* fs_src)
-{
-    unsigned int vs = compile_shader(GL_VERTEX_SHADER, vs_src);
-    unsigned int fs = compile_shader(GL_FRAGMENT_SHADER, fs_src);
-    if (!vs || !fs) return 0;
-    unsigned int prog = glCreateProgram();
-    glAttachShader(prog, vs);
-    glAttachShader(prog, fs);
-    glLinkProgram(prog);
-    int ok = 0;
-    glGetProgramiv(prog, GL_LINK_STATUS, &ok);
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-    if (!ok) {
-        char log[512];
-        glGetProgramInfoLog(prog, sizeof(log), nullptr, log);
-        ERRORLOG("GLUIRenderer program link error: %s", log);
-        glDeleteProgram(prog);
-        return 0;
-    }
-    return prog;
-}
-
 // palette channels are 6-bit (VGA); expand to 8-bit for display, then to [0,1].
 inline float chan6_to_unit(unsigned char v) { return (float)((v * 255) / 63) / 255.0f; }
 
@@ -101,64 +61,99 @@ void palette_index_to_rgb(unsigned char idx, float* r, float* g, float* b)
 
 } // namespace
 
+namespace {
+// Shared attribute layout for both VAO/VBO pairs below: 9 floats/vertex --
+// x,y (pos), u,v, r,g,b,a (color), z (NDC depth, used by depth-tested
+// world-overlay draws so they sort against world geometry).
+std::vector<GpuVertexAttribDesc> UIVertexAttribs()
+{
+    std::vector<GpuVertexAttribDesc> attribs(4);
+    attribs[0] = { 0, 2, GpuVertexAttribType::Float, 0 };
+    attribs[1] = { 1, 2, GpuVertexAttribType::Float, 2 * (uint32_t)sizeof(float) };
+    attribs[2] = { 2, 4, GpuVertexAttribType::Float, 4 * (uint32_t)sizeof(float) };
+    attribs[3] = { 3, 1, GpuVertexAttribType::Float, 8 * (uint32_t)sizeof(float) };
+    return attribs;
+}
+} // namespace
+
+unsigned int GLUIRenderer::ResolveShaderId(GpuResourceHandle handle) const
+{
+    if (!m_resource_mapper) return 0;
+    const GLProgram* prog = m_resource_mapper->ResolveProgram(handle);
+    return prog ? prog->id : 0;
+}
+
 bool GLUIRenderer::Init()
 {
-    m_shader_sprite         = link_program(UI_VERTEX_SHADER, UI_SPRITE_FRAGMENT_SHADER);
-    m_shader_sprite_colored = link_program(UI_VERTEX_SHADER, UI_SPRITE_COLORED_FRAGMENT_SHADER);
-    m_shader_remap          = link_program(UI_VERTEX_SHADER, UI_REMAP_FRAGMENT_SHADER);
-    m_shader_solid          = link_program(UI_VERTEX_SHADER, UI_SOLID_FRAGMENT_SHADER);
-    if (!m_shader_sprite || !m_shader_sprite_colored || !m_shader_remap || !m_shader_solid)
+    if (m_resource_mapper == nullptr)
+    {
+        ERRORLOG("GLUIRenderer::Init -- no resource mapper set");
+        return false;
+    }
+
+    GpuProgramDesc sprite_desc;
+    sprite_desc.vertex_src = UI_VERTEX_SHADER;
+    sprite_desc.fragment_src = UI_SPRITE_FRAGMENT_SHADER;
+    sprite_desc.debug_name = "ui_sprite";
+    m_shader_sprite_handle = m_resource_mapper->RequestCreateProgram(sprite_desc);
+
+    GpuProgramDesc colored_desc;
+    colored_desc.vertex_src = UI_VERTEX_SHADER;
+    colored_desc.fragment_src = UI_SPRITE_COLORED_FRAGMENT_SHADER;
+    colored_desc.debug_name = "ui_sprite_colored";
+    m_shader_sprite_colored_handle = m_resource_mapper->RequestCreateProgram(colored_desc);
+
+    GpuProgramDesc remap_desc;
+    remap_desc.vertex_src = UI_VERTEX_SHADER;
+    remap_desc.fragment_src = UI_REMAP_FRAGMENT_SHADER;
+    remap_desc.debug_name = "ui_remap";
+    m_shader_remap_handle = m_resource_mapper->RequestCreateProgram(remap_desc);
+
+    GpuProgramDesc solid_desc;
+    solid_desc.vertex_src = UI_VERTEX_SHADER;
+    solid_desc.fragment_src = UI_SOLID_FRAGMENT_SHADER;
+    solid_desc.debug_name = "ui_solid";
+    m_shader_solid_handle = m_resource_mapper->RequestCreateProgram(solid_desc);
+
+    if (!ResolveShaderId(m_shader_sprite_handle) || !ResolveShaderId(m_shader_sprite_colored_handle)
+        || !ResolveShaderId(m_shader_remap_handle) || !ResolveShaderId(m_shader_solid_handle))
         return false;
 
-    glGenVertexArrays(1, &m_vao);
-    glGenBuffers(1, &m_vbo);
-    glBindVertexArray(m_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    // 9 floats/vertex: x,y (pos), u,v, r,g,b,a (color), z (NDC depth, Beat 5).
-    glBufferData(GL_ARRAY_BUFFER, 6 * 9 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(4 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(8 * sizeof(float)));
-    glEnableVertexAttribArray(3);
-    glBindVertexArray(0);
+    // Single-quad immediate path (text glyphs, cursor): exactly one quad
+    // (6 verts) of dynamic storage.
+    GpuGeometryBufferDesc geom_desc;
+    geom_desc.vertex_stride = 9 * (uint32_t)sizeof(float);
+    geom_desc.attribs = UIVertexAttribs();
+    geom_desc.dynamic = true;
+    geom_desc.initial_vertex_capacity = 6 * 9 * sizeof(float);
+    geom_desc.debug_name = "ui_quad";
+    m_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(geom_desc);
+    if (m_resource_mapper->ResolveGeometryBuffer(m_geom_handle) == nullptr)
+        return false;
 
     // Beat 5: separate, larger scratch VAO/VBO for batched layer draws (world
-    // overlay / world overlay flat / game UI) -- m_vao/m_vbo above stays
-    // sized for exactly one quad (6 verts), used by the unrelated single-
-    // quad immediate path (text glyphs via DrawGlyphQuad(), cursor). Same
-    // attribute layout, bigger capacity.
-    glGenVertexArrays(1, &m_batch_vao);
-    glGenBuffers(1, &m_batch_vbo);
-    glBindVertexArray(m_batch_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_batch_vbo);
-    glBufferData(GL_ARRAY_BUFFER, kBatchVertexCapacity * 9 * sizeof(float), nullptr, GL_STREAM_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(4 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(8 * sizeof(float)));
-    glEnableVertexAttribArray(3);
-    glBindVertexArray(0);
+    // overlay / world overlay flat / game UI) -- m_geom_handle above stays
+    // sized for exactly one quad, used by the unrelated single-quad
+    // immediate path. Same attribute layout, bigger capacity.
+    GpuGeometryBufferDesc batch_desc;
+    batch_desc.vertex_stride = 9 * (uint32_t)sizeof(float);
+    batch_desc.attribs = UIVertexAttribs();
+    batch_desc.dynamic = true;
+    batch_desc.initial_vertex_capacity = kBatchVertexCapacity * 9 * sizeof(float);
+    batch_desc.debug_name = "ui_batch";
+    m_batch_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(batch_desc);
+    if (m_resource_mapper->ResolveGeometryBuffer(m_batch_geom_handle) == nullptr)
+        return false;
+
     return true;
 }
 
 void GLUIRenderer::Shutdown()
 {
-    if (m_vbo) { glDeleteBuffers(1, &m_vbo); m_vbo = 0; }
-    if (m_vao) { glDeleteVertexArrays(1, &m_vao); m_vao = 0; }
-    if (m_batch_vbo) { glDeleteBuffers(1, &m_batch_vbo); m_batch_vbo = 0; }
-    if (m_batch_vao) { glDeleteVertexArrays(1, &m_batch_vao); m_batch_vao = 0; }
-    if (m_slab_tex) { glDeleteTextures(1, &m_slab_tex); m_slab_tex = 0; }
-    if (m_shader_sprite)         { glDeleteProgram(m_shader_sprite);         m_shader_sprite = 0; }
-    if (m_shader_sprite_colored) { glDeleteProgram(m_shader_sprite_colored); m_shader_sprite_colored = 0; }
-    if (m_shader_remap)          { glDeleteProgram(m_shader_remap);          m_shader_remap = 0; }
-    if (m_shader_solid)          { glDeleteProgram(m_shader_solid);          m_shader_solid = 0; }
+    // GPU Resource Mapper: this runs inside RendererOpenGL::
+    // render_thread_cleanup() on the render thread -- RequestRelease() is
+    // game-thread-only, so none of the mapper-owned resources above are
+    // released here. ShutdownAll() destroys them unconditionally instead.
 }
 
 SpriteHandle GLUIRenderer::ResolveSprite(const struct TbSprite* spr)
@@ -169,11 +164,16 @@ SpriteHandle GLUIRenderer::ResolveSprite(const struct TbSprite* spr)
     return h;
 }
 
-void GLUIRenderer::draw_textured_quad(unsigned int shader, float x, float y, float w, float h,
+void GLUIRenderer::draw_textured_quad(GpuResourceHandle shader_handle, float x, float y, float w, float h,
                                       float u0, float v0, float u1, float v1,
                                       float r, float g, float b, float a,
                                       float remap_row)
 {
+    if (!m_resource_mapper) return;
+    const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_geom_handle);
+    const unsigned int shader = ResolveShaderId(shader_handle);
+    if (!shader || !geom) return;
+
     const float verts[6 * 9] = {
         x,     y,     u0, v0,  r, g, b, a, 0.0f,
         x + w, y,     u1, v0,  r, g, b, a, 0.0f,
@@ -187,25 +187,29 @@ void GLUIRenderer::draw_textured_quad(unsigned int shader, float x, float y, flo
     glUniform2f(glGetUniformLocation(shader, "u_screen_size"), (float)m_screen_w, (float)m_screen_h);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_atlas ? m_atlas->GetTexture() : 0);
+    {
+        const GLTexture* atlas_tex = (m_atlas && m_resource_mapper)
+            ? m_resource_mapper->ResolveTexture(m_atlas->GetTexture()) : nullptr;
+        glBindTexture(GL_TEXTURE_2D, atlas_tex ? atlas_tex->id : 0);
+    }
     glUniform1i(glGetUniformLocation(shader, "u_sprite_atlas"), 0);
 
-    if (shader == m_shader_sprite || shader == m_shader_remap) {
-        const GLTexture* pal_tex = m_resource_mapper ? m_resource_mapper->ResolveTexture(m_palette_tex_handle) : nullptr;
+    if (shader_handle == m_shader_sprite_handle || shader_handle == m_shader_remap_handle) {
+        const GLTexture* pal_tex = m_resource_mapper->ResolveTexture(m_palette_tex_handle);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, pal_tex ? pal_tex->id : 0);
         glUniform1i(glGetUniformLocation(shader, "u_palette"), 1);
     }
-    if (shader == m_shader_remap) {
-        const GLTexture* fade_tex = m_resource_mapper ? m_resource_mapper->ResolveTexture(m_fade_table_tex_handle) : nullptr;
+    if (shader_handle == m_shader_remap_handle) {
+        const GLTexture* fade_tex = m_resource_mapper->ResolveTexture(m_fade_table_tex_handle);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, fade_tex ? fade_tex->id : 0);
         glUniform1i(glGetUniformLocation(shader, "u_fade_table"), 2);
         glUniform1f(glGetUniformLocation(shader, "u_remap_row"), remap_row);
     }
 
-    glBindVertexArray(m_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBindVertexArray(geom->vao);
+    glBindBuffer(GL_ARRAY_BUFFER, geom->vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verts), verts);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
@@ -213,6 +217,11 @@ void GLUIRenderer::draw_textured_quad(unsigned int shader, float x, float y, flo
 
 void GLUIRenderer::draw_solid_quad(float x, float y, float w, float h, float r, float g, float b, float a)
 {
+    if (!m_resource_mapper) return;
+    const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_geom_handle);
+    const unsigned int shader = ResolveShaderId(m_shader_solid_handle);
+    if (!shader || !geom) return;
+
     const float verts[6 * 9] = {
         x,     y,     0, 0,  r, g, b, a, 0.0f,
         x + w, y,     0, 0,  r, g, b, a, 0.0f,
@@ -222,10 +231,10 @@ void GLUIRenderer::draw_solid_quad(float x, float y, float w, float h, float r, 
         x,     y + h, 0, 0,  r, g, b, a, 0.0f,
     };
 
-    glUseProgram(m_shader_solid);
-    glUniform2f(glGetUniformLocation(m_shader_solid, "u_screen_size"), (float)m_screen_w, (float)m_screen_h);
-    glBindVertexArray(m_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glUseProgram(shader);
+    glUniform2f(glGetUniformLocation(shader, "u_screen_size"), (float)m_screen_w, (float)m_screen_h);
+    glBindVertexArray(geom->vao);
+    glBindBuffer(GL_ARRAY_BUFFER, geom->vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verts), verts);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
@@ -251,7 +260,7 @@ void GLUIRenderer::DrawGlyphQuad(SpriteHandle glyph, float x, float y, int units
     }
     float w = uv.pixel_w * units_per_px / 16.0f;
     float h = uv.pixel_h * units_per_px / 16.0f;
-    draw_textured_quad(sample_palette ? m_shader_sprite : m_shader_sprite_colored,
+    draw_textured_quad(sample_palette ? m_shader_sprite_handle : m_shader_sprite_colored_handle,
                         x, y, w, h, uv.u0, uv.v0, uv.u1, uv.v1, r, g, b, a);
 }
 
@@ -320,7 +329,39 @@ void GLUIRenderer::FlushPendingSlabUpload()
     m_slab_pending_data.store(nullptr, std::memory_order_relaxed);
     m_slab_pending_dim.store(0, std::memory_order_relaxed);
 
-    if (m_slab_tex == 0) glGenTextures(1, &m_slab_tex);
+    if (!m_resource_mapper) return;
+
+    // GPU Resource Mapper: the slab tile's dimension is a fixed compile-time
+    // constant in practice (GUI_SLAB_DIMENSION, gui_draw.h) -- this is a
+    // content update, not a resize, matching the mapper spec's mist-texture
+    // guidance (Part 6.7): create the slot once (render thread; RequestCreate*
+    // has no thread assert), then only ever resolve + subimage-upload on
+    // later calls. If dim ever genuinely changed at runtime, that would need
+    // a game-thread-requested RequestReloadTexture instead -- not built here
+    // since nothing exercises that path today.
+    if (m_slab_tex_handle == kInvalidGpuResource)
+    {
+        GpuTextureDesc desc;
+        desc.width = dim;
+        desc.height = dim;
+        desc.format = GpuTextureFormat::R8;
+        desc.min_filter = GpuTextureFilter::Nearest;
+        desc.mag_filter = GpuTextureFilter::Nearest;
+        desc.wrap = GpuTextureWrap::Repeat;
+        desc.debug_name = "slab_tile";
+        m_slab_tex_handle = m_resource_mapper->RequestCreateTexture(desc);
+        m_slab_dim = 0; // force the subimage-upload path below on first content
+    }
+
+    const GLTexture* tex = m_resource_mapper->ResolveTexture(m_slab_tex_handle);
+    if (tex == nullptr) return;
+
+    if (dim != m_slab_dim && m_slab_dim != 0)
+    {
+        WARNLOG("GLUIRenderer::FlushPendingSlabUpload: slab dimension changed at runtime "
+                "(%d -> %d) -- not supported, dropping update", m_slab_dim, dim);
+        return;
+    }
 
     // Substitute index 0 -> 1: sprites treat palette index 0 as transparent
     // (UI_SPRITE_FRAGMENT_SHADER, reused for PASS_SLAB, discards it), but the
@@ -332,12 +373,8 @@ void GLUIRenderer::FlushPendingSlabUpload()
     for (int k = 0; k < total; ++k)
         slab_buf[(size_t)k] = data[k] ? data[k] : 1;
 
-    glBindTexture(GL_TEXTURE_2D, m_slab_tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, dim, dim, 0, GL_RED, GL_UNSIGNED_BYTE, slab_buf.data());
+    glBindTexture(GL_TEXTURE_2D, tex->id);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dim, dim, GL_RED, GL_UNSIGNED_BYTE, slab_buf.data());
     glBindTexture(GL_TEXTURE_2D, 0);
     m_slab_dim = dim;
 }
@@ -528,22 +565,31 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
 void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, int remap_row)
 {
     if (run.empty()) return;
+    if (!m_resource_mapper) return;
 
     unsigned int shader = 0;
     unsigned int tex0 = 0;
     bool bind_palette = false;
     bool bind_fade = false;
+    auto resolve_atlas_tex = [this]() -> unsigned int {
+        if (!m_atlas || !m_resource_mapper) return 0;
+        const GLTexture* tex = m_resource_mapper->ResolveTexture(m_atlas->GetTexture());
+        return tex ? tex->id : 0;
+    };
     switch (pass)
     {
-    case PASS_SPRITE:  shader = m_shader_sprite;         tex0 = m_atlas ? m_atlas->GetTexture() : 0; bind_palette = true; break;
-    case PASS_SOLID:   shader = m_shader_solid;                                                                          break;
-    case PASS_COLORED: shader = m_shader_sprite_colored; tex0 = m_atlas ? m_atlas->GetTexture() : 0;                     break;
-    case PASS_REMAP:   shader = m_shader_remap;          tex0 = m_atlas ? m_atlas->GetTexture() : 0; bind_palette = true; bind_fade = true; break;
+    case PASS_SPRITE:  shader = ResolveShaderId(m_shader_sprite_handle);         tex0 = resolve_atlas_tex(); bind_palette = true; break;
+    case PASS_SOLID:   shader = ResolveShaderId(m_shader_solid_handle);                                                          break;
+    case PASS_COLORED: shader = ResolveShaderId(m_shader_sprite_colored_handle); tex0 = resolve_atlas_tex();                     break;
+    case PASS_REMAP:   shader = ResolveShaderId(m_shader_remap_handle);          tex0 = resolve_atlas_tex(); bind_palette = true; bind_fade = true; break;
     case PASS_SLAB:
+    {
         FlushPendingSlabUpload();
-        if (!m_slab_tex) return;
-        shader = m_shader_sprite; tex0 = m_slab_tex; bind_palette = true;
+        const GLTexture* slab_tex = m_resource_mapper->ResolveTexture(m_slab_tex_handle);
+        if (!slab_tex) return;
+        shader = ResolveShaderId(m_shader_sprite_handle); tex0 = slab_tex->id; bind_palette = true;
         break;
+    }
     }
     if (!shader) return;
 
@@ -588,8 +634,10 @@ void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, i
         glUniform1f(glGetUniformLocation(shader, "u_remap_row"), (float)remap_row);
     }
 
-    glBindVertexArray(m_batch_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_batch_vbo);
+    const GLGeometryBuffer* batch_geom = m_resource_mapper->ResolveGeometryBuffer(m_batch_geom_handle);
+    if (!batch_geom) return;
+    glBindVertexArray(batch_geom->vao);
+    glBindBuffer(GL_ARRAY_BUFFER, batch_geom->vbo);
     // Orphan + refill: avoids the driver stalling this frame's batch on last
     // frame's still-in-flight draw of the same buffer.
     glBufferData(GL_ARRAY_BUFFER, (long)(verts.size() * sizeof(float)), nullptr, GL_STREAM_DRAW);

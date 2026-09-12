@@ -15,6 +15,10 @@
 /******************************************************************************/
 #pragma once
 
+// Pure typedef/handle header -- no GL types, so including it here doesn't
+// violate this file's own "no GL headers" contract (see file header above).
+#include "kfx/renderer/GpuResourceHandle.h"
+
 /******************************************************************************/
 
 class ITileAtlas {
@@ -33,13 +37,10 @@ public:
      *  Call once per game tick after update_animating_texture_maps(). */
     virtual void UpdateAnimatedTiles() = 0;
 
-    /** Return the platform texture handle for the given variation (0–31).
-     *  Returns 0 if not initialised or out of range. */
-    virtual unsigned int GetAtlasTexture(int variation) const = 0;
-
-    /** Return a GL_TEXTURE_2D_ARRAY handle covering all variations as layers.
-     *  Returns 0 when the platform uses individual textures instead. */
-    virtual unsigned int GetAtlasTextureArray() const { return 0; }
+    /** Return a GPU resource handle for a GL_TEXTURE_2D_ARRAY covering all
+     *  variations as layers. kInvalidGpuResource when the platform uses
+     *  individual textures instead. */
+    virtual GpuResourceHandle GetAtlasTextureArray() const { return kInvalidGpuResource; }
 
     bool IsInitialized() const { return m_initialized; }
 

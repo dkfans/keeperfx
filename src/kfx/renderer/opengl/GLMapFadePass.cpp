@@ -8,33 +8,14 @@
 #include "pre_inc.h"
 #include "kfx/renderer/opengl/GLMapFadePass.h"
 #include "kfx/renderer/opengl/GLShaders.h"
+#include "kfx/renderer/opengl/GLResourceMapper.h"
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
+#include "kfx/renderer/RendererManager.h"  // RendererPhysicalWidth
 #include "bflib_basics.h"                  // ERRORLOG
+#include "bflib_video.h"                   // lbDisplay
 #include "post_inc.h"
 
 /******************************************************************************/
-
-// File-local copy of GLWorldViewRenderer.cpp's own compile_shader_src() --
-// that one has internal linkage (static), can't be shared across
-// translation units without a new shared header, and this is the only
-// other file that needs it so far.
-static GLuint compile_shader_src(GLenum type, const char* src, const char* debug_name)
-{
-    GLuint s = glCreateShader(type);
-    glShaderSource(s, 1, &src, nullptr);
-    glCompileShader(s);
-    GLint ok = 0;
-    glGetShaderiv(s, GL_COMPILE_STATUS, &ok);
-    if (!ok)
-    {
-        char log[512];
-        glGetShaderInfoLog(s, sizeof(log), nullptr, log);
-        ERRORLOG("GLMapFadePass: shader '%s' compile error: %s", debug_name, log);
-        glDeleteShader(s);
-        return 0;
-    }
-    return s;
-}
 
 GLMapFadePass::~GLMapFadePass()
 {
@@ -47,46 +28,29 @@ GLMapFadePass::~GLMapFadePass()
 
 bool GLMapFadePass::CompileShaders()
 {
-    GLuint vs = compile_shader_src(GL_VERTEX_SHADER, LENS_COMPOSITE_VERTEX_SHADER, "mapfade_composite_vert.glsl");
-    if (!vs)
+    if (m_resource_mapper == nullptr)
+    {
+        ERRORLOG("GLMapFadePass::CompileShaders -- no resource mapper set");
         return false;
+    }
 
     if (!init_quad())
-    {
-        glDeleteShader(vs);
         return false;
-    }
 
-    GLuint fs = compile_shader_src(GL_FRAGMENT_SHADER, MAPFADE_FRAGMENT_SHADER, "mapfade_frag.glsl");
-    if (!fs)
-    {
-        glDeleteShader(vs);
+    GpuProgramDesc desc;
+    desc.vertex_src = LENS_COMPOSITE_VERTEX_SHADER;
+    desc.fragment_src = MAPFADE_FRAGMENT_SHADER;
+    desc.debug_name = "mapfade_composite";
+    m_shader_handle = m_resource_mapper->RequestCreateProgram(desc);
+
+    const GLProgram* prog = m_resource_mapper->ResolveProgram(m_shader_handle);
+    if (!prog)
         return false;
-    }
 
-    GLuint prog = glCreateProgram();
-    glAttachShader(prog, vs);
-    glAttachShader(prog, fs);
-    glLinkProgram(prog);
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    GLint linked = 0;
-    glGetProgramiv(prog, GL_LINK_STATUS, &linked);
-    if (!linked)
-    {
-        char log[512];
-        glGetProgramInfoLog(prog, sizeof(log), nullptr, log);
-        ERRORLOG("GLMapFadePass: shader link error: %s", log);
-        glDeleteProgram(prog);
-        return false;
-    }
-
-    m_shader = prog;
-    glUseProgram(prog);
-    glUniform1i(glGetUniformLocation(prog, "u_parchment"), 0);
-    glUniform1i(glGetUniformLocation(prog, "u_world"), 1);
-    m_loc_step = glGetUniformLocation(prog, "u_step");
+    glUseProgram(prog->id);
+    glUniform1i(glGetUniformLocation(prog->id, "u_parchment"), 0);
+    glUniform1i(glGetUniformLocation(prog->id, "u_world"), 1);
+    m_loc_step = glGetUniformLocation(prog->id, "u_step");
     glUseProgram(0);
     return true;
 }
@@ -105,28 +69,34 @@ bool GLMapFadePass::init_quad()
          1.0f,  1.0f,  1.0f, 1.0f,
         -1.0f,  1.0f,  0.0f, 1.0f,
     };
-    glGenVertexArrays(1, &m_quad_vao);
-    glGenBuffers(1, &m_quad_vbo);
-    glBindVertexArray(m_quad_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_quad_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(k_quad), k_quad, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glBindVertexArray(0);
+
+    GpuGeometryBufferDesc desc;
+    desc.vertex_stride = 4 * (uint32_t)sizeof(float);
+    desc.attribs = {
+        { 0, 2, GpuVertexAttribType::Float, 0 },
+        { 1, 2, GpuVertexAttribType::Float, 2 * (uint32_t)sizeof(float) },
+    };
+    desc.dynamic = false; // static unit quad, content never changes after this
+    desc.initial_vertex_capacity = sizeof(k_quad);
+    desc.debug_name = "mapfade_quad";
+    m_quad_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(desc);
+
+    const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_quad_geom_handle);
+    if (!geom) return false;
+
+    glBindBuffer(GL_ARRAY_BUFFER, geom->vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(k_quad), k_quad);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     return true;
 }
 
 void GLMapFadePass::Shutdown()
 {
-    if (m_quad_vbo) { glDeleteBuffers(1, &m_quad_vbo); m_quad_vbo = 0; }
-    if (m_quad_vao) { glDeleteVertexArrays(1, &m_quad_vao); m_quad_vao = 0; }
-    if (m_shader)   { glDeleteProgram(m_shader); m_shader = 0; }
-    if (m_tex_parchment) { glDeleteTextures(1, &m_tex_parchment); m_tex_parchment = 0; }
-    if (m_tex_world)     { glDeleteTextures(1, &m_tex_world);     m_tex_world = 0; }
-    if (m_parchment_fbo) { glDeleteFramebuffers(1, &m_parchment_fbo); m_parchment_fbo = 0; }
-    m_tex_w = m_tex_h = 0;
+    // GPU Resource Mapper: this runs inside RendererOpenGL::
+    // render_thread_cleanup() on the render thread -- RequestRelease() is
+    // game-thread-only, so none of the mapper-owned resources above are
+    // released here. ShutdownAll() destroys them unconditionally instead.
+    m_capture_gt_w = m_capture_gt_h = 0;
     m_cmd = IRMapFadeCmd{};
     m_rt_cmd = IRMapFadeCmd{};
     m_was_active_gt = false;
@@ -139,6 +109,9 @@ void GLMapFadePass::SubmitStep(int tick_step, float display_step, bool fading_in
     m_cmd.active = true;
     m_cmd.step = display_step;
     m_cmd.capture_pending = is_start && !m_was_active_gt;
+
+    if (m_cmd.capture_pending)
+        EnsureCaptureResources((int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight);
 }
 
 void GLMapFadePass::FlipBuffers()
@@ -153,43 +126,51 @@ void GLMapFadePass::FlipBuffers()
     m_cmd = IRMapFadeCmd{};
 }
 
-void GLMapFadePass::ensure_textures(int w, int h)
+void GLMapFadePass::EnsureCaptureResources(int w, int h)
 {
-    if (w <= 0 || h <= 0)
+    if (!m_resource_mapper || w <= 0 || h <= 0)
         return;
-    if (m_tex_parchment != 0 && m_tex_world != 0 && m_tex_w == w && m_tex_h == h)
+    if (m_parchment_rt_handle != kInvalidGpuResource && m_tex_world_handle != kInvalidGpuResource
+        && m_capture_gt_w == w && m_capture_gt_h == h)
         return;
 
-    if (m_tex_parchment == 0) glGenTextures(1, &m_tex_parchment);
-    if (m_tex_world == 0)     glGenTextures(1, &m_tex_world);
+    GpuRenderTargetDesc rt_desc;
+    rt_desc.width = w;
+    rt_desc.height = h;
+    rt_desc.attachments = { { GpuTextureFormat::RGBA8, false } };
+    rt_desc.debug_name = "mapfade_parchment";
 
-    GLuint textures[2] = { m_tex_parchment, m_tex_world };
-    for (int i = 0; i < 2; i++)
-    {
-        glBindTexture(GL_TEXTURE_2D, textures[i]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    }
-    glBindTexture(GL_TEXTURE_2D, 0);
+    GpuTextureDesc world_desc;
+    world_desc.width = w;
+    world_desc.height = h;
+    world_desc.format = GpuTextureFormat::RGBA8;
+    world_desc.min_filter = GpuTextureFilter::Linear;
+    world_desc.mag_filter = GpuTextureFilter::Linear;
+    world_desc.wrap = GpuTextureWrap::Clamp;
+    world_desc.debug_name = "mapfade_world";
 
-    m_tex_w = w;
-    m_tex_h = h;
+    if (m_parchment_rt_handle == kInvalidGpuResource)
+        m_parchment_rt_handle = m_resource_mapper->RequestCreateRenderTarget(rt_desc);
+    else
+        m_parchment_rt_handle = m_resource_mapper->RequestReloadRenderTarget(m_parchment_rt_handle, rt_desc);
+
+    if (m_tex_world_handle == kInvalidGpuResource)
+        m_tex_world_handle = m_resource_mapper->RequestCreateTexture(world_desc);
+    else
+        m_tex_world_handle = m_resource_mapper->RequestReloadTexture(m_tex_world_handle, world_desc);
+
+    m_capture_gt_w = w;
+    m_capture_gt_h = h;
 }
 
 void GLMapFadePass::BeginParchmentCapture(int w, int h)
 {
     ASSERT_RENDER_THREAD();
-    ensure_textures(w, h);
-    if (m_tex_parchment == 0)
-        return;
+    if (!m_resource_mapper) return;
+    const GLRenderTarget* rt = m_resource_mapper->ResolveRenderTarget(m_parchment_rt_handle);
+    if (!rt) return;
 
-    if (m_parchment_fbo == 0)
-        glGenFramebuffers(1, &m_parchment_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_parchment_fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_tex_parchment, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, rt->fbo);
 
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -213,8 +194,9 @@ void GLMapFadePass::EndParchmentCapture()
 void GLMapFadePass::CaptureWorldFrame(int w, int h)
 {
     ASSERT_RENDER_THREAD();
-    ensure_textures(w, h);
-    if (m_tex_world == 0 || w <= 0 || h <= 0)
+    if (!m_resource_mapper) return;
+    const GLTexture* world_tex = m_resource_mapper->ResolveTexture(m_tex_world_handle);
+    if (!world_tex || w <= 0 || h <= 0)
         return;
 
     // Blit the already-rendered default framebuffer (world + UI, whatever
@@ -222,10 +204,18 @@ void GLMapFadePass::CaptureWorldFrame(int w, int h)
     // no new draw submission, matching origin/develop's CaptureWorldFrame()
     // for the same reason: re-running the 3D/UI draw on the render thread
     // would race the game thread already building the next frame.
+    //
+    // tmp_fbo is a deliberate exception to the mapper migration (gpu-
+    // resource-mapper-spec.md Part 6.6): created and destroyed within this
+    // one render-thread call, never referenced elsewhere -- routing it
+    // through the mapper is impossible to do correctly anyway, since
+    // RequestRelease is game-thread-only and this runs on the render
+    // thread. Direct glGenFramebuffers/glDeleteFramebuffers here is correct
+    // and permanent.
     GLuint tmp_fbo = 0;
     glGenFramebuffers(1, &tmp_fbo);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, tmp_fbo);
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_tex_world, 0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, world_tex->id, 0);
 
     if (glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
     {
@@ -244,20 +234,26 @@ void GLMapFadePass::CaptureWorldFrame(int w, int h)
 void GLMapFadePass::ResolveComposite(int screen_w, int screen_h)
 {
     ASSERT_RENDER_THREAD();
-    if (!m_shader || m_tex_parchment == 0 || m_tex_world == 0)
+    if (!m_resource_mapper) return;
+
+    const GLProgram* prog = m_resource_mapper->ResolveProgram(m_shader_handle);
+    const GLRenderTarget* parchment_rt = m_resource_mapper->ResolveRenderTarget(m_parchment_rt_handle);
+    const GLTexture* world_tex = m_resource_mapper->ResolveTexture(m_tex_world_handle);
+    const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_quad_geom_handle);
+    if (!prog || !parchment_rt || parchment_rt->color_attachments.empty() || !world_tex || !geom)
         return;
 
     glViewport(0, 0, screen_w, screen_h);
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
 
-    glUseProgram(m_shader);
-    glBindVertexArray(m_quad_vao);
+    glUseProgram(prog->id);
+    glBindVertexArray(geom->vao);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_tex_parchment);
+    glBindTexture(GL_TEXTURE_2D, parchment_rt->color_attachments[0]);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_tex_world);
+    glBindTexture(GL_TEXTURE_2D, world_tex->id);
 
     glUniform1f(m_loc_step, m_rt_cmd.step);
     glDrawArrays(GL_TRIANGLES, 0, 6);

@@ -23,49 +23,6 @@ GLuint GLImagePresentPass::ResolvePaletteTexId() const
 
 /******************************************************************************/
 
-// File-local copy of GLWorldViewRenderer.cpp's/GLMapFadePass.cpp's own
-// compile_shader_src() -- static, no shared header for it yet.
-static GLuint compile_shader_src(GLenum type, const char* src, const char* debug_name)
-{
-    GLuint s = glCreateShader(type);
-    glShaderSource(s, 1, &src, nullptr);
-    glCompileShader(s);
-    GLint ok = 0;
-    glGetShaderiv(s, GL_COMPILE_STATUS, &ok);
-    if (!ok)
-    {
-        char log[512];
-        glGetShaderInfoLog(s, sizeof(log), nullptr, log);
-        ERRORLOG("GLImagePresentPass: shader '%s' compile error: %s", debug_name, log);
-        glDeleteShader(s);
-        return 0;
-    }
-    return s;
-}
-
-static GLuint link_program(GLuint vs, const char* fs_src, const char* debug_name)
-{
-    GLuint fs = compile_shader_src(GL_FRAGMENT_SHADER, fs_src, debug_name);
-    if (!fs)
-        return 0;
-    GLuint prog = glCreateProgram();
-    glAttachShader(prog, vs);
-    glAttachShader(prog, fs);
-    glLinkProgram(prog);
-    glDeleteShader(fs);
-    GLint linked = 0;
-    glGetProgramiv(prog, GL_LINK_STATUS, &linked);
-    if (!linked)
-    {
-        char log[512];
-        glGetProgramInfoLog(prog, sizeof(log), nullptr, log);
-        ERRORLOG("GLImagePresentPass: '%s' link error: %s", debug_name, log);
-        glDeleteProgram(prog);
-        return 0;
-    }
-    return prog;
-}
-
 GLImagePresentPass::~GLImagePresentPass()
 {
     // Shutdown() must be called explicitly on the render thread before
@@ -74,40 +31,56 @@ GLImagePresentPass::~GLImagePresentPass()
 
 bool GLImagePresentPass::CompileShaders()
 {
-    GLuint vs = compile_shader_src(GL_VERTEX_SHADER, RAWIMAGE_VERTEX_SHADER, "rawimage_vert.glsl");
-    if (!vs)
-        return false;
-    if (!init_quad())
+    if (m_resource_mapper == nullptr)
     {
-        glDeleteShader(vs);
+        ERRORLOG("GLImagePresentPass::CompileShaders -- no resource mapper set");
         return false;
     }
 
-    m_shader             = link_program(vs, RAWIMAGE_BLIT_FRAGMENT_SHADER, "rawimage_blit_frag.glsl");
-    m_transparent_shader = link_program(vs, RAWIMAGE_TRANSPARENT_FRAGMENT_SHADER, "rawimage_transparent_frag.glsl");
-    m_zoom_shader        = link_program(vs, RAWIMAGE_ZOOM_FRAGMENT_SHADER, "rawimage_zoom_frag.glsl");
-    glDeleteShader(vs);
-
-    if (!m_shader || !m_transparent_shader || !m_zoom_shader)
+    if (!init_quad())
         return false;
 
-    glUseProgram(m_shader);
-    glUniform1i(glGetUniformLocation(m_shader, "u_image"), 0);
-    glUniform1i(glGetUniformLocation(m_shader, "u_palette"), 1);
-    m_loc_screen_size = glGetUniformLocation(m_shader, "u_screen_size");
+    GpuProgramDesc blit_desc;
+    blit_desc.vertex_src = RAWIMAGE_VERTEX_SHADER;
+    blit_desc.fragment_src = RAWIMAGE_BLIT_FRAGMENT_SHADER;
+    blit_desc.debug_name = "rawimage_blit";
+    m_shader_handle = m_resource_mapper->RequestCreateProgram(blit_desc);
 
-    glUseProgram(m_transparent_shader);
-    glUniform1i(glGetUniformLocation(m_transparent_shader, "u_image"), 0);
-    glUniform1i(glGetUniformLocation(m_transparent_shader, "u_palette"), 1);
+    GpuProgramDesc transparent_desc;
+    transparent_desc.vertex_src = RAWIMAGE_VERTEX_SHADER;
+    transparent_desc.fragment_src = RAWIMAGE_TRANSPARENT_FRAGMENT_SHADER;
+    transparent_desc.debug_name = "rawimage_transparent";
+    m_transparent_shader_handle = m_resource_mapper->RequestCreateProgram(transparent_desc);
 
-    glUseProgram(m_zoom_shader);
-    glUniform1i(glGetUniformLocation(m_zoom_shader, "u_image"), 0);
-    glUniform1i(glGetUniformLocation(m_zoom_shader, "u_palette"), 1);
-    m_loc_zoom_screen_size    = glGetUniformLocation(m_zoom_shader, "u_screen_size");
-    m_loc_zoom_center_map     = glGetUniformLocation(m_zoom_shader, "u_zoom_center_map");
-    m_loc_zoom_screen_center  = glGetUniformLocation(m_zoom_shader, "u_zoom_screen_center");
-    m_loc_zoom_scale          = glGetUniformLocation(m_zoom_shader, "u_zoom_scale");
-    m_loc_zoom_src_size       = glGetUniformLocation(m_zoom_shader, "u_src_size");
+    GpuProgramDesc zoom_desc;
+    zoom_desc.vertex_src = RAWIMAGE_VERTEX_SHADER;
+    zoom_desc.fragment_src = RAWIMAGE_ZOOM_FRAGMENT_SHADER;
+    zoom_desc.debug_name = "rawimage_zoom";
+    m_zoom_shader_handle = m_resource_mapper->RequestCreateProgram(zoom_desc);
+
+    const GLProgram* shader = m_resource_mapper->ResolveProgram(m_shader_handle);
+    const GLProgram* transparent_shader = m_resource_mapper->ResolveProgram(m_transparent_shader_handle);
+    const GLProgram* zoom_shader = m_resource_mapper->ResolveProgram(m_zoom_shader_handle);
+    if (!shader || !transparent_shader || !zoom_shader)
+        return false;
+
+    glUseProgram(shader->id);
+    glUniform1i(glGetUniformLocation(shader->id, "u_image"), 0);
+    glUniform1i(glGetUniformLocation(shader->id, "u_palette"), 1);
+    m_loc_screen_size = glGetUniformLocation(shader->id, "u_screen_size");
+
+    glUseProgram(transparent_shader->id);
+    glUniform1i(glGetUniformLocation(transparent_shader->id, "u_image"), 0);
+    glUniform1i(glGetUniformLocation(transparent_shader->id, "u_palette"), 1);
+
+    glUseProgram(zoom_shader->id);
+    glUniform1i(glGetUniformLocation(zoom_shader->id, "u_image"), 0);
+    glUniform1i(glGetUniformLocation(zoom_shader->id, "u_palette"), 1);
+    m_loc_zoom_screen_size    = glGetUniformLocation(zoom_shader->id, "u_screen_size");
+    m_loc_zoom_center_map     = glGetUniformLocation(zoom_shader->id, "u_zoom_center_map");
+    m_loc_zoom_screen_center  = glGetUniformLocation(zoom_shader->id, "u_zoom_screen_center");
+    m_loc_zoom_scale          = glGetUniformLocation(zoom_shader->id, "u_zoom_scale");
+    m_loc_zoom_src_size       = glGetUniformLocation(zoom_shader->id, "u_src_size");
 
     glUseProgram(0);
     return true;
@@ -126,34 +99,41 @@ bool GLImagePresentPass::init_quad()
         0.0f, 0.0f,  1.0f, 1.0f,
         0.0f, 0.0f,  0.0f, 1.0f,
     };
-    glGenVertexArrays(1, &m_quad_vao);
-    glGenBuffers(1, &m_quad_vbo);
-    glBindVertexArray(m_quad_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_quad_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(k_quad), k_quad, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glBindVertexArray(0);
+
+    GpuGeometryBufferDesc geom_desc;
+    geom_desc.vertex_stride = 4 * (uint32_t)sizeof(float);
+    geom_desc.attribs = {
+        { 0, 2, GpuVertexAttribType::Float, 0 },
+        { 1, 2, GpuVertexAttribType::Float, 2 * (uint32_t)sizeof(float) },
+    };
+    geom_desc.dynamic = true;
+    geom_desc.initial_vertex_capacity = sizeof(k_quad);
+    geom_desc.debug_name = "rawimage_quad";
+    m_quad_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(geom_desc);
+
+    const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_quad_geom_handle);
+    if (!geom) return false;
+
+    // Seed with the placeholder quad -- RealizeGeometryBuffer() only
+    // allocates storage (nullptr data), the actual initial content upload
+    // happens here, same as the original glBufferData(..., k_quad, ...) did.
+    glBindBuffer(GL_ARRAY_BUFFER, geom->vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(k_quad), k_quad);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     return true;
 }
 
 void GLImagePresentPass::Shutdown()
 {
-    if (m_quad_vbo) { glDeleteBuffers(1, &m_quad_vbo); m_quad_vbo = 0; }
-    if (m_quad_vao) { glDeleteVertexArrays(1, &m_quad_vao); m_quad_vao = 0; }
-    if (m_shader)             { glDeleteProgram(m_shader);             m_shader = 0; }
-    if (m_transparent_shader) { glDeleteProgram(m_transparent_shader); m_transparent_shader = 0; }
-    if (m_zoom_shader)        { glDeleteProgram(m_zoom_shader);        m_zoom_shader = 0; }
-    if (m_tex)         { glDeleteTextures(1, &m_tex);         m_tex = 0; }
-    if (m_overlay_tex) { glDeleteTextures(1, &m_overlay_tex); m_overlay_tex = 0; }
-    if (m_zoom_tex)    { glDeleteTextures(1, &m_zoom_tex);    m_zoom_tex = 0; }
-    if (m_embedded_palette_tex) { glDeleteTextures(1, &m_embedded_palette_tex); m_embedded_palette_tex = 0; }
-    m_tex_w = m_tex_h = 0;
-    m_overlay_tex_w = m_overlay_tex_h = 0;
-    m_zoom_tex_w = m_zoom_tex_h = 0;
+    // This runs inside RendererOpenGL::render_thread_cleanup() on the
+    // render thread -- RequestRelease() is game-thread-only, so none of
+    // the mapper-owned resources above are released here. ShutdownAll()
+    // destroys them unconditionally instead.
+    m_tex_gt_w = m_tex_gt_h = 0;
+    m_overlay_tex_gt_w = m_overlay_tex_gt_h = 0;
+    m_zoom_tex_gt_w = m_zoom_tex_gt_h = 0;
     m_zoom_tex_identity = nullptr;
+    m_zoom_tex_rt_w = m_zoom_tex_rt_h = 0;
     m_cmd = IRImagePresentCmd{};
     m_rt_cmd = IRImagePresentCmd{};
     m_overlay_cmd = IRImagePresentCmd{};
@@ -191,6 +171,33 @@ static void fill_cmd(IRImagePresentCmd& dst, const struct RendererPresentImageDe
         dst.embedded_palette.clear();
 }
 
+void GLImagePresentPass::EnsureImageTextureHandle(GpuResourceHandle& handle, int& gt_w, int& gt_h, int new_w, int new_h)
+{
+    if (!m_resource_mapper) return;
+
+    GpuTextureDesc desc;
+    desc.width = new_w;
+    desc.height = new_h;
+    desc.format = GpuTextureFormat::R8;
+    desc.min_filter = GpuTextureFilter::Nearest;
+    desc.mag_filter = GpuTextureFilter::Nearest;
+    desc.wrap = GpuTextureWrap::Clamp;
+    desc.debug_name = "image_present";
+
+    if (handle == kInvalidGpuResource)
+    {
+        handle = m_resource_mapper->RequestCreateTexture(desc);
+        gt_w = new_w;
+        gt_h = new_h;
+    }
+    else if (gt_w != new_w || gt_h != new_h)
+    {
+        handle = m_resource_mapper->RequestReloadTexture(handle, desc);
+        gt_w = new_w;
+        gt_h = new_h;
+    }
+}
+
 void GLImagePresentPass::Submit(const struct RendererPresentImageDesc* desc)
 {
     ASSERT_GAME_THREAD();
@@ -198,9 +205,15 @@ void GLImagePresentPass::Submit(const struct RendererPresentImageDesc* desc)
         return;
 
     if (desc->kind == PRESENT_KIND_TRANSPARENT)
+    {
         fill_cmd(m_overlay_cmd, desc);
+        EnsureImageTextureHandle(m_overlay_tex_handle, m_overlay_tex_gt_w, m_overlay_tex_gt_h, desc->src_w, desc->src_h);
+    }
     else
+    {
         fill_cmd(m_cmd, desc);
+        EnsureImageTextureHandle(m_tex_handle, m_tex_gt_w, m_tex_gt_h, desc->src_w, desc->src_h);
+    }
 }
 
 void GLImagePresentPass::SubmitZoom(const unsigned char* src_buf, int src_w, int src_h,
@@ -221,6 +234,8 @@ void GLImagePresentPass::SubmitZoom(const unsigned char* src_buf, int src_w, int
     m_zoom_cmd.screen_cx = screen_cx;
     m_zoom_cmd.screen_cy = screen_cy;
     m_zoom_cmd.scale = scale;
+
+    EnsureImageTextureHandle(m_zoom_tex_handle, m_zoom_tex_gt_w, m_zoom_tex_gt_h, src_w, src_h);
 }
 
 void GLImagePresentPass::FlipBuffers()
@@ -238,100 +253,99 @@ void GLImagePresentPass::FlipBuffers()
     m_zoom_cmd = IRLandviewZoomCmd{};
 }
 
-// Shared upload helper: (re)allocate `tex`/`tex_w`/`tex_h` to hold an R8
-// indexed8 image, uploading via glTexImage2D on a size change or
-// glTexSubImage2D otherwise. Mirrors upload_texture()'s original body,
-// factored out so the base/overlay/zoom textures can all use it.
-static void upload_indexed8(GLuint& tex, int& tex_w, int& tex_h,
-                            const unsigned char* pixels, int w, int h)
+// Shared content-upload helper: uploads an R8 indexed8 image into an
+// already-correctly-sized, already-resolved texture id. Resizing (create/
+// reload) happens on the game thread now (EnsureImageTextureHandle(),
+// called from Submit()/SubmitZoom()) -- gpu-resource-mapper-spec.md Part
+// 6.7's remap-texture pattern, since RequestReloadTexture is game-thread-
+// only and this runs on the render thread.
+static void upload_indexed8_content(GLuint tex_id, const unsigned char* pixels, int w, int h)
 {
-    if (tex == 0)
-    {
-        glGenTextures(1, &tex);
-        glBindTexture(GL_TEXTURE_2D, tex);
-        // NEAREST, not LINEAR: this texture holds raw 8-bit palette
-        // *indices*, not colour -- see the original comment this was copied
-        // from (GLImagePresentPass::upload_texture(), P5.8-era).
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    }
-    else
-    {
-        glBindTexture(GL_TEXTURE_2D, tex);
-    }
-
+    glBindTexture(GL_TEXTURE_2D, tex_id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    if (tex_w != w || tex_h != h)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, pixels);
-        tex_w = w;
-        tex_h = h;
-    }
-    else
-    {
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RED, GL_UNSIGNED_BYTE, pixels);
-    }
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RED, GL_UNSIGNED_BYTE, pixels);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void GLImagePresentPass::upload_texture()
 {
-    upload_indexed8(m_tex, m_tex_w, m_tex_h, m_rt_cmd.pixels.data(), m_rt_cmd.src_w, m_rt_cmd.src_h);
+    if (!m_resource_mapper) return;
+    const GLTexture* tex = m_resource_mapper->ResolveTexture(m_tex_handle);
+    if (!tex) return;
+    upload_indexed8_content(tex->id, m_rt_cmd.pixels.data(), m_rt_cmd.src_w, m_rt_cmd.src_h);
 }
 
 void GLImagePresentPass::upload_overlay_texture()
 {
-    upload_indexed8(m_overlay_tex, m_overlay_tex_w, m_overlay_tex_h,
-                    m_rt_overlay_cmd.pixels.data(), m_rt_overlay_cmd.src_w, m_rt_overlay_cmd.src_h);
+    if (!m_resource_mapper) return;
+    const GLTexture* tex = m_resource_mapper->ResolveTexture(m_overlay_tex_handle);
+    if (!tex) return;
+    upload_indexed8_content(tex->id, m_rt_overlay_cmd.pixels.data(), m_rt_overlay_cmd.src_w, m_rt_overlay_cmd.src_h);
 }
 
 void GLImagePresentPass::upload_zoom_texture()
 {
+    if (!m_resource_mapper) return;
     // map_screen is session-static -- only re-upload when the pointer
     // identity actually changed (a new landview loaded), not every frame of
-    // the zoom animation. See IRLandviewZoomCmd::src_buf's own comment.
-    if (m_zoom_tex != 0 && m_zoom_tex_identity == m_rt_zoom_cmd.src_buf
-        && m_zoom_tex_w == m_rt_zoom_cmd.src_w && m_zoom_tex_h == m_rt_zoom_cmd.src_h)
+    // the zoom animation. See IRLandviewZoomCmd::src_buf's own comment. This
+    // is a pure content-reupload-avoidance cache, separate from the handle
+    // sizing already settled on the game thread (EnsureImageTextureHandle()).
+    if (m_zoom_tex_identity == m_rt_zoom_cmd.src_buf
+        && m_zoom_tex_rt_w == m_rt_zoom_cmd.src_w && m_zoom_tex_rt_h == m_rt_zoom_cmd.src_h)
         return;
-    upload_indexed8(m_zoom_tex, m_zoom_tex_w, m_zoom_tex_h, m_rt_zoom_cmd.src_buf,
-                    m_rt_zoom_cmd.src_w, m_rt_zoom_cmd.src_h);
+    const GLTexture* tex = m_resource_mapper->ResolveTexture(m_zoom_tex_handle);
+    if (!tex) return;
+    upload_indexed8_content(tex->id, m_rt_zoom_cmd.src_buf, m_rt_zoom_cmd.src_w, m_rt_zoom_cmd.src_h);
     m_zoom_tex_identity = m_rt_zoom_cmd.src_buf;
+    m_zoom_tex_rt_w = m_rt_zoom_cmd.src_w;
+    m_zoom_tex_rt_h = m_rt_zoom_cmd.src_h;
 }
 
 void GLImagePresentPass::upload_embedded_palette()
 {
-    if (m_embedded_palette_tex == 0)
+    if (!m_resource_mapper) return;
+
+    // Fixed 256x1 RGBA8, so this is a pure content update: never needs
+    // RequestReloadTexture. RequestCreateTexture has no thread assert, so
+    // creating it here (render thread, first use) is safe.
+    if (m_embedded_palette_tex_handle == kInvalidGpuResource)
     {
-        glGenTextures(1, &m_embedded_palette_tex);
-        glBindTexture(GL_TEXTURE_2D, m_embedded_palette_tex);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 1, 0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
+        GpuTextureDesc desc;
+        desc.width = 256;
+        desc.height = 1;
+        desc.format = GpuTextureFormat::RGBA8;
+        desc.min_filter = GpuTextureFilter::Nearest;
+        desc.mag_filter = GpuTextureFilter::Nearest;
+        desc.wrap = GpuTextureWrap::Clamp;
+        desc.debug_name = "fmv_embedded_palette";
+        m_embedded_palette_tex_handle = m_resource_mapper->RequestCreateTexture(desc);
     }
-    else
-    {
-        glBindTexture(GL_TEXTURE_2D, m_embedded_palette_tex);
-    }
+
+    const GLTexture* tex = m_resource_mapper->ResolveTexture(m_embedded_palette_tex_handle);
+    if (!tex) return;
+
     if (m_rt_cmd.embedded_palette.size() >= 256u * 4u)
     {
         // GL_BGRA upload into an RGBA8 texture: the driver does the channel
         // swap, so the AVFrame's native BGRA layout needs no CPU-side
         // reordering (same trick develop's own equivalent upload uses).
+        glBindTexture(GL_TEXTURE_2D, tex->id);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_BGRA, GL_UNSIGNED_BYTE,
                         m_rt_cmd.embedded_palette.data());
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void GLImagePresentPass::draw_quad(GLuint program, GLuint image_tex, GLuint palette_tex,
                                    int dst_x, int dst_y, int dst_w, int dst_h,
                                    int screen_w, int screen_h)
 {
+    if (!m_resource_mapper) return;
+    const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_quad_geom_handle);
+    if (!geom) return;
+
     const float x0 = (float)dst_x;
     const float y0 = (float)dst_y;
     const float x1 = (float)(dst_x + dst_w);
@@ -344,12 +358,12 @@ void GLImagePresentPass::draw_quad(GLuint program, GLuint image_tex, GLuint pale
         x1, y1,  1.0f, 1.0f,
         x0, y1,  0.0f, 1.0f,
     };
-    glBindBuffer(GL_ARRAY_BUFFER, m_quad_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, geom->vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verts), verts);
 
     glUseProgram(program);
     glUniform2f(glGetUniformLocation(program, "u_screen_size"), (float)screen_w, (float)screen_h);
-    glBindVertexArray(m_quad_vao);
+    glBindVertexArray(geom->vao);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, image_tex);
@@ -366,24 +380,32 @@ void GLImagePresentPass::draw_quad(GLuint program, GLuint image_tex, GLuint pale
 void GLImagePresentPass::Resolve(int screen_w, int screen_h)
 {
     ASSERT_RENDER_THREAD();
+    if (!m_resource_mapper) return;
+
     const GLuint palette_tex_id = ResolvePaletteTexId();
-    if (!IsActiveRT() || !m_shader || palette_tex_id == 0 || screen_w <= 0 || screen_h <= 0)
+    const GLProgram* shader_prog = m_resource_mapper->ResolveProgram(m_shader_handle);
+    if (!IsActiveRT() || !shader_prog || palette_tex_id == 0 || screen_w <= 0 || screen_h <= 0)
         return;
+    const GLuint shader = shader_prog->id;
 
     glViewport(0, 0, screen_w, screen_h);
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
     glDisable(GL_BLEND);
 
+    const GLProgram* zoom_shader_prog = m_resource_mapper->ResolveProgram(m_zoom_shader_handle);
+
     // Base layer: the zoom transition and a plain opaque present are both
     // "this frame's entire background" content and never active together
     // (frontzoom_to_point() is the landview screen's own background draw;
     // nothing else calls Submit() with PRESENT_KIND_OPAQUE while it's
     // running) -- zoom takes priority if somehow both fired the same frame.
-    if (m_rt_zoom_cmd.active && m_zoom_shader)
+    if (m_rt_zoom_cmd.active && zoom_shader_prog)
     {
         upload_zoom_texture();
-        if (m_zoom_tex != 0)
+        const GLTexture* zoom_tex = m_resource_mapper->ResolveTexture(m_zoom_tex_handle);
+        const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_quad_geom_handle);
+        if (zoom_tex != nullptr && geom != nullptr)
         {
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -396,19 +418,19 @@ void GLImagePresentPass::Resolve(int screen_w, int screen_h)
                 (float)screen_w, (float)screen_h,  1.0f, 1.0f,
                 0.0f,            (float)screen_h,  0.0f, 1.0f,
             };
-            glBindBuffer(GL_ARRAY_BUFFER, m_quad_vbo);
+            glBindBuffer(GL_ARRAY_BUFFER, geom->vbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verts), verts);
 
-            glUseProgram(m_zoom_shader);
+            glUseProgram(zoom_shader_prog->id);
             glUniform2f(m_loc_zoom_screen_size, (float)screen_w, (float)screen_h);
             glUniform2f(m_loc_zoom_center_map, m_rt_zoom_cmd.center_map_x, m_rt_zoom_cmd.center_map_y);
             glUniform2f(m_loc_zoom_screen_center, m_rt_zoom_cmd.screen_cx, m_rt_zoom_cmd.screen_cy);
             glUniform1f(m_loc_zoom_scale, m_rt_zoom_cmd.scale);
             glUniform2f(m_loc_zoom_src_size, (float)m_rt_zoom_cmd.src_w, (float)m_rt_zoom_cmd.src_h);
-            glBindVertexArray(m_quad_vao);
+            glBindVertexArray(geom->vao);
 
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, m_zoom_tex);
+            glBindTexture(GL_TEXTURE_2D, zoom_tex->id);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, palette_tex_id);
 
@@ -422,7 +444,8 @@ void GLImagePresentPass::Resolve(int screen_w, int screen_h)
     else if (m_rt_cmd.active)
     {
         upload_texture();
-        if (m_tex != 0)
+        const GLTexture* tex = m_resource_mapper->ResolveTexture(m_tex_handle);
+        if (tex != nullptr)
         {
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -431,10 +454,11 @@ void GLImagePresentPass::Resolve(int screen_w, int screen_h)
             if (m_rt_cmd.palette == PRESENT_PALETTE_EMBEDDED)
             {
                 upload_embedded_palette();
-                if (m_embedded_palette_tex != 0)
-                    palette_tex = m_embedded_palette_tex;
+                const GLTexture* embedded_tex = m_resource_mapper->ResolveTexture(m_embedded_palette_tex_handle);
+                if (embedded_tex != nullptr)
+                    palette_tex = embedded_tex->id;
             }
-            draw_quad(m_shader, m_tex, palette_tex,
+            draw_quad(shader, tex->id, palette_tex,
                      m_rt_cmd.dst_x, m_rt_cmd.dst_y, m_rt_cmd.dst_w, m_rt_cmd.dst_h,
                      screen_w, screen_h);
         }
@@ -443,14 +467,16 @@ void GLImagePresentPass::Resolve(int screen_w, int screen_h)
     // Transparent overlay (window-frame): drawn over whatever's already on
     // screen this frame -- the base/zoom layer above, or (if neither was
     // active) whatever the rest of the frame already put there. No clear.
-    if (m_rt_overlay_cmd.active && m_transparent_shader)
+    const GLProgram* transparent_shader_prog = m_resource_mapper->ResolveProgram(m_transparent_shader_handle);
+    if (m_rt_overlay_cmd.active && transparent_shader_prog)
     {
         upload_overlay_texture();
-        if (m_overlay_tex != 0)
+        const GLTexture* overlay_tex = m_resource_mapper->ResolveTexture(m_overlay_tex_handle);
+        if (overlay_tex != nullptr)
         {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            draw_quad(m_transparent_shader, m_overlay_tex, palette_tex_id,
+            draw_quad(transparent_shader_prog->id, overlay_tex->id, palette_tex_id,
                      m_rt_overlay_cmd.dst_x, m_rt_overlay_cmd.dst_y,
                      m_rt_overlay_cmd.dst_w, m_rt_overlay_cmd.dst_h,
                      screen_w, screen_h);

@@ -24,6 +24,9 @@
 
 #include "kfx/renderer/opengl/GLFunctions.h"
 #include "kfx/renderer/ir/WorldCommands.h"  // IRMapFadeCmd
+#include "kfx/renderer/GpuResourceHandle.h"
+
+class GLResourceMapper;
 
 /******************************************************************************/
 
@@ -31,6 +34,9 @@ class GLMapFadePass {
 public:
     GLMapFadePass() = default;
     ~GLMapFadePass();
+
+    /** Must be called before CompileShaders(). Not owned; must outlive this. */
+    void SetResourceMapper(GLResourceMapper* mapper) { m_resource_mapper = mapper; }
 
     /** Compile the composite shader + build the shared unit quad. Safe to
      *  call after construction; idempotent. */
@@ -43,7 +49,7 @@ public:
      *  MapFadeSupportsNativeResolution(), matching develop's
      *  GLMapFadePass::SupportsNativeResolution() (which returns its own
      *  m_initialized) exactly. */
-    bool IsReady() const { return m_shader != 0; }
+    bool IsReady() const { return m_shader_handle != kInvalidGpuResource; }
 
     // ── Game thread ─────────────────────────────────────────────────────────
 
@@ -108,20 +114,39 @@ public:
 
 private:
     bool init_quad();
-    void ensure_textures(int w, int h);
+
+    /** GPU Resource Mapper: game-thread-only. Creates m_parchment_rt_handle/
+     *  m_tex_world_handle on first call, or reloads them (RequestReload*) if
+     *  m_capture_gt_w/h -- the size these handles were last committed at --
+     *  differ from w/h. The resize decision has to happen here, called from
+     *  SubmitStep() right as a capture is starting, not from
+     *  BeginParchmentCapture()/CaptureWorldFrame() (render thread):
+     *  RequestReloadTexture/RequestReloadRenderTarget are game-thread-only
+     *  (gpu-resource-mapper-spec.md Part 6.7's remap-texture pattern). */
+    void EnsureCaptureResources(int w, int h);
 
     IRMapFadeCmd m_cmd;         // GT: written by SubmitStep(); reset after FlipBuffers()
     IRMapFadeCmd m_rt_cmd;      // RT: stable copy after FlipBuffers()
     bool m_was_active_gt = false;  // GT: was a transition active as of the end of the previous frame
 
-    GLuint m_shader = 0;
+    GLResourceMapper* m_resource_mapper = nullptr;
+
+    GpuResourceHandle m_shader_handle = kInvalidGpuResource;
     GLint  m_loc_step = -1;
-    GLuint m_quad_vao = 0, m_quad_vbo = 0;
+    GpuResourceHandle m_quad_geom_handle = kInvalidGpuResource;
 
-    GLuint m_tex_parchment = 0, m_tex_world = 0;
-    int    m_tex_w = 0, m_tex_h = 0;
-
-    GLuint m_parchment_fbo = 0;  // reused/resized; bound only during BeginParchmentCapture()/EndParchmentCapture()
+    // Parchment capture target: one color attachment (m_tex_parchment,
+    // sampled directly by ResolveComposite() via GLRenderTarget::
+    // color_attachments[0]), no depth -- the reference RequestCreateRenderTarget
+    // example gpu-resource-mapper-spec.md Part 6.7 refers to.
+    GpuResourceHandle m_parchment_rt_handle = kInvalidGpuResource;
+    // Plain texture, populated by CaptureWorldFrame()'s blit -- not a render
+    // target of its own (no persistent FBO; see tmp_fbo's own comment there).
+    GpuResourceHandle m_tex_world_handle = kInvalidGpuResource;
+    // Game-thread-owned: the dimensions the two handles above were last
+    // created/reloaded at (compared against each SubmitStep() capture-start
+    // to decide create vs. reload vs. no-op).
+    int    m_capture_gt_w = 0, m_capture_gt_h = 0;
 };
 
 /******************************************************************************/

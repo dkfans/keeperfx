@@ -1,5 +1,6 @@
 #include "pre_inc.h"
 #include "kfx/renderer/opengl/GLSpriteAtlas.h"
+#include "kfx/renderer/opengl/GLResourceMapper.h"
 #include "bflib_basics.h"
 #include "bflib_sprite.h"
 #include "kfx/renderer/opengl/GLFunctions.h"
@@ -15,20 +16,30 @@ bool GLSpriteAtlas::Init()
     m_shelf_h  = 0;
     m_dirty_y_min = k_atlas_h;
     m_dirty_y_max = -1;
-    m_gl_init_needed = true;
     m_uvs.clear();
+
+    if (m_resource_mapper != nullptr)
+    {
+        GpuTextureDesc desc;
+        desc.width = k_atlas_w;
+        desc.height = k_atlas_h;
+        desc.format = GpuTextureFormat::R8;
+        desc.min_filter = GpuTextureFilter::Nearest;
+        desc.mag_filter = GpuTextureFilter::Nearest;
+        desc.wrap = GpuTextureWrap::Clamp;
+        desc.debug_name = "sprite_atlas";
+        m_texture_handle = m_resource_mapper->RequestCreateTexture(desc);
+    }
+
     return true;
 }
 
 void GLSpriteAtlas::Free()
 {
-    if (m_texture) {
-        glDeleteTextures(1, &m_texture);
-        m_texture = 0;
-    }
-    m_gl_init_needed = false;
-    m_pixels.clear();
-    m_uvs.clear();
+    // GPU Resource Mapper: this runs inside RendererOpenGL::
+    // render_thread_cleanup() on the render thread -- RequestRelease() is
+    // game-thread-only, so the mapper-owned texture is not released here.
+    // ShutdownAll() destroys it unconditionally instead.
 }
 
 void GLSpriteAtlas::PackSprite(SpriteHandle handle, const struct TbSprite* spr)
@@ -153,13 +164,13 @@ bool GLSpriteAtlas::GetUV(SpriteHandle handle, SpriteUV& out) const
 }
 
 // Called with m_mutex already held (from FlushPendingGL()).
-void GLSpriteAtlas::flush_dirty()
+void GLSpriteAtlas::flush_dirty(unsigned int tex_id)
 {
     if (m_dirty_y_min > m_dirty_y_max) return;
     int h = m_dirty_y_max - m_dirty_y_min;
     if (h <= 0) return;
 
-    glBindTexture(GL_TEXTURE_2D, m_texture);
+    glBindTexture(GL_TEXTURE_2D, tex_id);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, m_dirty_y_min, k_atlas_w, h,
                     GL_RED, GL_UNSIGNED_BYTE,
                     m_pixels.data() + (size_t)m_dirty_y_min * k_atlas_w);
@@ -173,23 +184,9 @@ void GLSpriteAtlas::FlushPendingGL()
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
-    if (m_gl_init_needed && !m_pixels.empty())
-    {
-        glGenTextures(1, &m_texture);
-        glBindTexture(GL_TEXTURE_2D, m_texture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, k_atlas_w, k_atlas_h, 0,
-                     GL_RED, GL_UNSIGNED_BYTE, m_pixels.data());
-        glBindTexture(GL_TEXTURE_2D, 0);
-        m_gl_init_needed = false;
-        m_dirty_y_min = k_atlas_h;
-        m_dirty_y_max = -1;
-    }
-    else
-    {
-        flush_dirty();
-    }
+    if (m_resource_mapper == nullptr) return;
+    const GLTexture* const tex = m_resource_mapper->ResolveTexture(m_texture_handle);
+    if (tex == nullptr) return;
+
+    flush_dirty(tex->id);
 }

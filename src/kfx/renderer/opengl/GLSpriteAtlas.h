@@ -6,8 +6,10 @@
 #include <cstdint>
 #include <mutex>
 #include "kfx/renderer/SpriteHandle.h"
+#include "kfx/renderer/GpuResourceHandle.h"
 
 struct TbSprite;
+class GLResourceMapper;
 
 struct SpriteUV {
     float u0, v0, u1, v1;
@@ -30,6 +32,9 @@ public:
     static constexpr int k_atlas_w = 4096;
     static constexpr int k_atlas_h = 2048;
 
+    /** Must be called before Init(). Not owned; must outlive this. */
+    void SetResourceMapper(GLResourceMapper* mapper) { m_resource_mapper = mapper; }
+
     bool Init();
     void Free();
 
@@ -49,16 +54,17 @@ public:
 
     bool GetUV(SpriteHandle handle, SpriteUV& out) const;
 
-    unsigned int GetTexture() const { return m_texture; }
+    GpuResourceHandle GetTexture() const { return m_texture_handle; }
 
-    /** Create/upload the GL texture for whatever PackSprite() has queued.
-     *  Must run on the thread owning the GL context. */
+    /** Upload whatever PackSprite()/PackRaw() has queued into the mapper-
+     *  owned texture (realizing it on first call). Must run on the render
+     *  thread (Resolve* is render-thread-only). */
     void FlushPendingGL();
 
 private:
     std::vector<uint8_t> m_pixels;
-    unsigned int m_texture = 0;
-    bool m_gl_init_needed = false;
+    GLResourceMapper* m_resource_mapper = nullptr;
+    GpuResourceHandle m_texture_handle = kInvalidGpuResource;
 
     int m_cursor_x = 1; // reserve (0,0) as a safe fallback UV
     int m_shelf_y  = 0;
@@ -76,7 +82,9 @@ private:
      *  Caller already holds m_mutex. */
     bool alloc_shelf_rect(int w, int h, int* out_x, int* out_y, const char* what);
 
-    void flush_dirty();
+    /** Uploads the dirty region into the given (already-resolved) texture
+     *  id. Caller already holds m_mutex. */
+    void flush_dirty(unsigned int tex_id);
 };
 
 #endif // RENDERER_OPENGL_GLSPRITEATLAS_H

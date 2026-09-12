@@ -20,6 +20,9 @@
 #include "kfx/renderer/opengl/GLFunctions.h"
 #include "kfx/renderer/TileAtlasPacker.h"
 #include "kfx/renderer/ITileAtlas.h"
+#include "kfx/renderer/GpuResourceHandle.h"
+
+class GLResourceMapper;
 
 class GLTileAtlas : public TileAtlasPacker, public ITileAtlas {
 public:
@@ -29,12 +32,14 @@ public:
     GLTileAtlas(const GLTileAtlas&)            = delete;
     GLTileAtlas& operator=(const GLTileAtlas&) = delete;
 
+    /** Must be called before Init(). Not owned; must outlive this. */
+    void SetResourceMapper(GLResourceMapper* mapper) { m_resource_mapper = mapper; }
+
     // ITileAtlas
-    bool         Init() override;
-    void         Free() override;
-    void         UpdateAnimatedTiles() override;
-    unsigned int GetAtlasTexture(int variation) const override;
-    unsigned int GetAtlasTextureArray() const override;
+    bool              Init() override;
+    void              Free() override;
+    void              UpdateAnimatedTiles() override;
+    GpuResourceHandle GetAtlasTextureArray() const override;
 
 protected:
     // TileAtlasPacker build overrides — use R8 raw index copy instead of RGBA8 decode
@@ -46,6 +51,7 @@ protected:
     void UploadAnimatedStrip(int variation, int y_offset, int h_pixels) override;
 
 private:
-    GLuint   m_texture_array = 0;     // GL_TEXTURE_2D_ARRAY: 2048×1024×32 R8
+    GLResourceMapper* m_resource_mapper = nullptr;
+    GpuResourceHandle m_texture_handle = kInvalidGpuResource; // GL_TEXTURE_2D_ARRAY: 2048×1024×32 R8
     uint8_t* m_r8_scratch = nullptr;  // R8 (1 byte/pixel) CPU scratch; replaces m_rgba_scratch
 };

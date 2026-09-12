@@ -7,6 +7,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kfx/renderer/opengl/GLTileAtlas.h"
+#include "kfx/renderer/opengl/GLResourceMapper.h"
 
 #include "engine_textures.h"   // TEXTURE_VARIATIONS_COUNT
 #include "bflib_basics.h"      // SYNCLOG / ERRORLOG
@@ -42,18 +43,29 @@ bool GLTileAtlas::Init()
         }
     }
 
-    // Single GL_TEXTURE_2D_ARRAY: width × height × variations, GL_R8.
-    glGenTextures(1, &m_texture_array);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+    // Single GL_TEXTURE_2D_ARRAY: width × height × variations, GL_R8, via the
+    // GPU Resource Mapper (gpu-resource-mapper-spec.md Part 6.3).
+    if (m_resource_mapper == nullptr)
+    {
+        ERRORLOG("GLTileAtlas::Init — no resource mapper set");
+        return false;
+    }
 
-    // Allocate storage for all layers at once (immutable-ish via glTexImage3D).
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8,
-                 k_atlas_w, k_atlas_h, TEXTURE_VARIATIONS_COUNT,
-                 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+    GpuTextureDesc desc;
+    desc.width = k_atlas_w;
+    desc.height = k_atlas_h;
+    desc.array_layers = TEXTURE_VARIATIONS_COUNT;
+    desc.format = GpuTextureFormat::R8;
+    desc.min_filter = GpuTextureFilter::Nearest;
+    desc.mag_filter = GpuTextureFilter::Nearest;
+    desc.wrap = GpuTextureWrap::Clamp;
+    desc.debug_name = "tile_atlas_array";
+    m_texture_handle = m_resource_mapper->RequestCreateTexture(desc);
+    if (m_resource_mapper->ResolveTexture(m_texture_handle) == nullptr)
+    {
+        ERRORLOG("GLTileAtlas::Init — tile atlas array texture realization failed");
+        return false;
+    }
 
     for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
         BuildVariation(v);
@@ -68,17 +80,18 @@ bool GLTileAtlas::Init()
 
 void GLTileAtlas::Free()
 {
+    // CPU-side scratch buffer -- unrelated to the mapper, still owned and
+    // freed here directly.
     if (m_r8_scratch)
     {
         free(m_r8_scratch);
         m_r8_scratch = nullptr;
     }
-    if (m_initialized)
-    {
-        glDeleteTextures(1, &m_texture_array);
-        m_texture_array = 0;
-        m_initialized = false;
-    }
+    // GPU Resource Mapper: this runs inside RendererOpenGL::
+    // render_thread_cleanup() on the render thread -- RequestRelease() is
+    // game-thread-only, so the mapper-owned texture is not released here.
+    // ShutdownAll() destroys it unconditionally instead.
+    m_initialized = false;
 }
 
 void GLTileAtlas::UpdateAnimatedTiles()
@@ -88,19 +101,9 @@ void GLTileAtlas::UpdateAnimatedTiles()
         BuildAnimatedStrip(v);
 }
 
-unsigned int GLTileAtlas::GetAtlasTexture(int variation) const
+GpuResourceHandle GLTileAtlas::GetAtlasTextureArray() const
 {
-    // Legacy per-variation query — returns the shared array texture.
-    // The consumer should prefer GetAtlasTextureArray() and pass variation
-    // as a vertex attribute / uniform instead.
-    if (!m_initialized || variation < 0 || variation >= k_max_variations)
-        return 0;
-    return (unsigned int)m_texture_array;
-}
-
-unsigned int GLTileAtlas::GetAtlasTextureArray() const
-{
-    return m_initialized ? (unsigned int)m_texture_array : 0;
+    return m_initialized ? m_texture_handle : kInvalidGpuResource;
 }
 
 /******************************************************************************/
@@ -176,7 +179,11 @@ void GLTileAtlas::BuildAnimatedStrip(int variation)
 
 void GLTileAtlas::UploadFull(int variation)
 {
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
+    if (m_resource_mapper == nullptr) return;
+    const GLTexture* const tex = m_resource_mapper->ResolveTexture(m_texture_handle);
+    if (tex == nullptr) return;
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, tex->id);
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
                     0, 0, variation,
                     k_atlas_w, k_atlas_h, 1,
@@ -186,7 +193,11 @@ void GLTileAtlas::UploadFull(int variation)
 
 void GLTileAtlas::UploadAnimatedStrip(int variation, int y_offset, int h_pixels)
 {
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
+    if (m_resource_mapper == nullptr) return;
+    const GLTexture* const tex = m_resource_mapper->ResolveTexture(m_texture_handle);
+    if (tex == nullptr) return;
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, tex->id);
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
                     0, y_offset, variation,
                     k_atlas_w, h_pixels, 1,

@@ -146,14 +146,18 @@ private:
     int m_screen_w = 0;
     int m_screen_h = 0;
 
-    unsigned int m_shader_sprite         = 0;
-    unsigned int m_shader_sprite_colored = 0;
-    unsigned int m_shader_remap          = 0;
-    unsigned int m_shader_solid          = 0;
-    unsigned int m_vao = 0;   // single-quad immediate path (text glyphs, cursor)
-    unsigned int m_vbo = 0;
+    GpuResourceHandle m_shader_sprite_handle         = kInvalidGpuResource;
+    GpuResourceHandle m_shader_sprite_colored_handle = kInvalidGpuResource;
+    GpuResourceHandle m_shader_remap_handle          = kInvalidGpuResource;
+    GpuResourceHandle m_shader_solid_handle          = kInvalidGpuResource;
+    // Single-quad immediate path (text glyphs, cursor). One GpuGeometryBuffer
+    // handle bundles the VAO+VBO pair the mapper realizes together.
+    GpuResourceHandle m_geom_handle = kInvalidGpuResource;
 
-    void draw_textured_quad(unsigned int shader, float x, float y, float w, float h,
+    /** Resolves a program handle to its raw GL id, or 0 if unresolved. */
+    unsigned int ResolveShaderId(GpuResourceHandle handle) const;
+
+    void draw_textured_quad(GpuResourceHandle shader_handle, float x, float y, float w, float h,
                             float u0, float v0, float u1, float v1,
                             float r, float g, float b, float a,
                             float remap_row = -1.0f);
@@ -216,14 +220,13 @@ private:
     void DrawGameUIQuadsInterleaved(std::vector<UIQuad>& quads, const TextCommandBuffers& text,
                                     GLTextRenderer* text_renderer);
 
-    // Batched-layer scratch VAO/VBO -- separate from m_vao/m_vbo (the
+    // Batched-layer scratch VAO/VBO -- separate from m_geom_handle (the
     // single-quad immediate path) since a batch run can be many quads.
     static constexpr int kBatchVertexCapacity = 4096;
-    unsigned int m_batch_vao = 0;
-    unsigned int m_batch_vbo = 0;
+    GpuResourceHandle m_batch_geom_handle = kInvalidGpuResource;
 
     // ── Beat 5: slab background tiling ──────────────────────────────────────
-    unsigned int m_slab_tex = 0;
+    GpuResourceHandle m_slab_tex_handle = kInvalidGpuResource;
     int m_slab_dim = 0; // RT: dimension of the currently-uploaded texture, 0 = none yet
     std::atomic<const unsigned char*> m_slab_pending_data{nullptr}; // GT->RT handoff
     std::atomic<int> m_slab_pending_dim{0};

@@ -314,6 +314,7 @@ void RendererOpenGL::render_thread_init()
         WARNLOG("RendererOpenGL::Init: GL_KHR_debug not available; debug callback disabled");
     }
 
+    m_impl->atlas.SetResourceMapper(&m_impl->resource_mapper);
     if (!m_impl->atlas.Init() || !m_impl->ui.Init())
     {
         ERRORLOG("RendererOpenGL::Init: UI renderer/atlas init failed");
@@ -391,6 +392,9 @@ void RendererOpenGL::render_thread_init()
     // here -- unlike the sprite atlas, its source data (block_ptrs[]) isn't
     // populated yet this early (textures load per-level, after startup), so
     // it's retried once per render_thread_work() tick instead (see there).
+    // The resource mapper reference must be set now regardless, since that
+    // first retried Init() call needs it already wired.
+    m_impl->world_atlas.SetResourceMapper(&m_impl->resource_mapper);
     m_impl->world.SetAtlas(&m_impl->world_atlas);
     m_impl->world.SetResourceMapper(&m_impl->resource_mapper);
     m_impl->world.SetFadeTexture(m_impl->fade_table_tex_handle);
@@ -407,6 +411,7 @@ void RendererOpenGL::render_thread_init()
     // lens shaders: a compile failure just means the transition silently
     // stays a no-op (BeginParchmentCapture()/ResolveComposite() both guard
     // on m_shader/m_tex_* being non-zero), not a renderer init failure.
+    m_impl->mapfade.SetResourceMapper(&m_impl->resource_mapper);
     if (!m_impl->mapfade.CompileShaders())
     {
         WARNLOG("RendererOpenGL::Init: parchment transition shaders unavailable -- transition disabled");

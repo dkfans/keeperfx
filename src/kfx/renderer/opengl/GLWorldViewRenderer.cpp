@@ -2859,9 +2859,12 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
         {
             if (!atlas_bound)
             {
-                GLuint atlas_tex = (m_atlas && m_atlas->IsInitialized())
-                                   ? m_atlas->GetAtlasTextureArray()
-                                   : 0;
+                GLuint atlas_tex = 0;
+                if (m_atlas && m_atlas->IsInitialized() && m_resource_mapper)
+                {
+                    const GLTexture* const tex = m_resource_mapper->ResolveTexture(m_atlas->GetAtlasTextureArray());
+                    atlas_tex = tex ? tex->id : 0;
+                }
                 glActiveTexture(GL_TEXTURE0);
                 // Unbind any GL_TEXTURE_2D that may linger on unit 0 -- having
                 // both a TEXTURE_2D and TEXTURE_2D_ARRAY bound on the same

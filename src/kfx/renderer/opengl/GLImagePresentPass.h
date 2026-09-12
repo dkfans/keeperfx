@@ -86,14 +86,14 @@ public:
     /** True once CompileShaders() has succeeded -- gates
      *  RendererOpenGL::PresentImage()'s return value (false means the
      *  caller falls back to its own CPU blit). */
-    bool IsReady() const { return m_shader != 0; }
+    bool IsReady() const { return m_shader_handle != kInvalidGpuResource; }
 
     /** Shared 256x1 RGBA8 palette texture (same one world/UI already bind)
      *  -- used for every present except PRESENT_PALETTE_EMBEDDED, which
-     *  brings its own (see m_embedded_palette_tex). This pass never owns
-     *  a copy of the shared one: only the handle is stored, resolved fresh
-     *  at each point of use rather than cached as a raw GL id, so it stays
-     *  valid across a reload of the underlying texture. */
+     *  brings its own (see m_embedded_palette_tex_handle). This pass never
+     *  owns a copy of the shared one: only the handle is stored, resolved
+     *  fresh at each point of use rather than cached as a raw GL id, so it
+     *  stays valid across a reload of the underlying texture. */
     void SetResourceMapper(GLResourceMapper* mapper) { m_resource_mapper = mapper; }
     void SetPaletteTexture(GpuResourceHandle tex) { m_palette_tex_handle = tex; }
 
@@ -139,12 +139,20 @@ public:
 
 private:
     bool init_quad();
-    void upload_texture();          // base image -> m_tex
-    void upload_overlay_texture();  // overlay image -> m_overlay_tex
-    void upload_zoom_texture();     // cached landview bitmap -> m_zoom_tex (only on identity change)
-    void upload_embedded_palette(); // m_rt_cmd.embedded_palette -> m_embedded_palette_tex
+    void upload_texture();          // base image -> m_tex_handle
+    void upload_overlay_texture();  // overlay image -> m_overlay_tex_handle
+    void upload_zoom_texture();     // cached landview bitmap -> m_zoom_tex_handle (only on identity change)
+    void upload_embedded_palette(); // m_rt_cmd.embedded_palette -> m_embedded_palette_tex_handle
     void draw_quad(GLuint program, GLuint image_tex, GLuint palette_tex,
                   int dst_x, int dst_y, int dst_w, int dst_h, int screen_w, int screen_h);
+
+    /** Game-thread-only. Creates `handle` on first call, or reloads it
+     *  (RequestReloadTexture) if `gt_w`/`gt_h` -- the dimensions this same
+     *  call last committed the handle at -- differ from `new_w`/`new_h`.
+     *  The resize decision has to happen here, not in Resolve() (render
+     *  thread): RequestReloadTexture is game-thread-only. Content itself
+     *  is uploaded separately, later, on the render thread. */
+    void EnsureImageTextureHandle(GpuResourceHandle& handle, int& gt_w, int& gt_h, int new_w, int new_h);
 
     IRImagePresentCmd m_cmd;             // GT: written by Submit() (kind == OPAQUE)
     IRImagePresentCmd m_rt_cmd;          // RT: stable copy after FlipBuffers()
@@ -153,28 +161,38 @@ private:
     IRLandviewZoomCmd m_zoom_cmd;        // GT: written by SubmitZoom()
     IRLandviewZoomCmd m_rt_zoom_cmd;     // RT: stable copy after FlipBuffers()
 
-    GLuint m_shader             = 0; // RAWIMAGE_BLIT_FRAGMENT_SHADER (opaque)
-    GLuint m_transparent_shader = 0; // RAWIMAGE_TRANSPARENT_FRAGMENT_SHADER (overlay)
-    GLuint m_zoom_shader        = 0; // RAWIMAGE_ZOOM_FRAGMENT_SHADER
-    GLint  m_loc_screen_size = -1;         // m_shader / m_transparent_shader
+    GLResourceMapper* m_resource_mapper = nullptr;
+
+    GpuResourceHandle m_shader_handle             = kInvalidGpuResource; // RAWIMAGE_BLIT_FRAGMENT_SHADER (opaque)
+    GpuResourceHandle m_transparent_shader_handle = kInvalidGpuResource; // RAWIMAGE_TRANSPARENT_FRAGMENT_SHADER (overlay)
+    GpuResourceHandle m_zoom_shader_handle        = kInvalidGpuResource; // RAWIMAGE_ZOOM_FRAGMENT_SHADER
+    GLint  m_loc_screen_size = -1;         // m_shader_handle / m_transparent_shader_handle
     GLint  m_loc_zoom_screen_size = -1;
     GLint  m_loc_zoom_center_map  = -1;
     GLint  m_loc_zoom_screen_center = -1;
     GLint  m_loc_zoom_scale = -1;
     GLint  m_loc_zoom_src_size = -1;
-    GLuint m_quad_vao = 0, m_quad_vbo = 0;
+    GpuResourceHandle m_quad_geom_handle = kInvalidGpuResource;
 
-    GLuint m_tex = 0;
-    int    m_tex_w = 0, m_tex_h = 0;
-    GLuint m_overlay_tex = 0;
-    int    m_overlay_tex_w = 0, m_overlay_tex_h = 0;
-    GLuint m_zoom_tex = 0;
-    int    m_zoom_tex_w = 0, m_zoom_tex_h = 0;
-    const unsigned char* m_zoom_tex_identity = nullptr; // last-uploaded src_buf pointer
+    // Base/overlay/zoom textures: game-thread-owned handle + the dimensions
+    // that handle was last created/reloaded at (gt_w/gt_h; compared against
+    // each new Submit()/SubmitZoom() to decide create vs. reload vs. no-op).
+    GpuResourceHandle m_tex_handle = kInvalidGpuResource;
+    int    m_tex_gt_w = 0, m_tex_gt_h = 0;
+    GpuResourceHandle m_overlay_tex_handle = kInvalidGpuResource;
+    int    m_overlay_tex_gt_w = 0, m_overlay_tex_gt_h = 0;
+    GpuResourceHandle m_zoom_tex_handle = kInvalidGpuResource;
+    int    m_zoom_tex_gt_w = 0, m_zoom_tex_gt_h = 0;
+    // Render-thread-only: last-uploaded src_buf pointer + dimensions, purely
+    // a content-reupload-avoidance cache (distinct from gt_w/gt_h above,
+    // which gate handle creation/reload).
+    const unsigned char* m_zoom_tex_identity = nullptr;
+    int    m_zoom_tex_rt_w = 0, m_zoom_tex_rt_h = 0;
 
-    GLResourceMapper* m_resource_mapper = nullptr;
     GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource; // not owned (shared game palette)
-    GLuint m_embedded_palette_tex = 0; // owned -- FMV's own per-frame palette
+    // Fixed 256x1 RGBA8 -- a content-update case like the mapper spec's
+    // mist-texture guidance (Part 6.7), never needs RequestReloadTexture.
+    GpuResourceHandle m_embedded_palette_tex_handle = kInvalidGpuResource; // owned -- FMV's own per-frame palette
 
     /** Resolves the shared palette handle to a raw GLuint. Zero if the
      *  handle is unset or resolution fails. */
