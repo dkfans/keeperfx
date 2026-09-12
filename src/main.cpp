@@ -112,6 +112,7 @@
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
+#include "creature_battle.h"
 #include "creature_states_combt.h"
 #include "creature_states_mood.h"
 #include "lens_api.h"
@@ -930,6 +931,7 @@ void reinit_level_after_load(void)
     load_texture_map_file(game.texture_id, get_loaded_level_number(), get_level_fgroup(get_loaded_level_number()));
     init_animating_texture_maps();
     init_gui();
+    reset_visible_battles();
     reset_gui_based_on_player_mode();
     erstats_clear();
     player = get_my_player();

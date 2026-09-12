@@ -114,38 +114,12 @@ void turn_on_event_info_panel_if_necessary(EventIndex evidx)
 
 void gui_previous_battle(struct GuiButton *gbtn)
 {
-    struct Dungeon* dungeon = get_my_dungeon();
-    BattleIndex battle_id = dungeon->visible_battles[0];
-    if (battle_id != 0)
-    {
-        battle_id = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
-        if (battle_id > 0)
-        {
-            dungeon->visible_battles[0] = battle_id;
-            battle_id = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
-            dungeon->visible_battles[1] = battle_id;
-            battle_id = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
-            dungeon->visible_battles[2] = battle_id;
-        }
-    }
+    step_battles_backward();
 }
 
 void gui_next_battle(struct GuiButton *gbtn)
 {
-    struct Dungeon* dungeon = get_my_dungeon();
-    BattleIndex battle_id = dungeon->visible_battles[2];
-    if (battle_id != 0)
-    {
-        battle_id = find_next_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
-        if (battle_id > 0)
-        {
-            dungeon->visible_battles[2] = battle_id;
-            battle_id = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
-            dungeon->visible_battles[1] = battle_id;
-            battle_id = find_previous_battle_of_mine_excluding_current_list(dungeon->owner, battle_id);
-            dungeon->visible_battles[0] = battle_id;
-        }
-    }
+    step_battles_forward();
 }
 
 void gui_get_creature_in_battle(struct GuiButton *gbtn)
@@ -188,6 +162,17 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
     }
 }
 
+void maintain_battle_scroll(struct GuiButton *gbtn)
+{
+    if (battle_panel_can_scroll()) {
+        gbtn->btype_value &= LbBFeF_IntValueMask;
+        gbtn->flags |= LbBtnF_Enabled;
+    } else {
+        gbtn->btype_value |= LbBFeF_NoTooltip;
+        gbtn->flags &= ~LbBtnF_Enabled;
+    }
+}
+
 void gui_setup_friend_over(struct GuiButton *gbtn)
 {
     int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
@@ -195,7 +180,7 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
     {
         struct Dungeon* dungeon = get_my_dungeon();
         struct Thing* thing = INVALID_THING;
-        if (dungeon->visible_battles[visbtl_id] != 0)
+        if (visible_battles[visbtl_id] != 0)
         {
             int battlr_id = (gbtn->scr_pos_x - lbDisplay.MMouseX * pixel_size) / (gbtn->width / 7) + 6;
             if (battlr_id < MESSAGE_BATTLERS_COUNT-1) {
@@ -254,8 +239,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
 void gui_area_friendly_battlers(struct GuiButton *gbtn)
 {
     int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    BattleIndex battle_id = dungeon->visible_battles[visbtl_id];
+    BattleIndex battle_id = visible_battles[visbtl_id];
     struct CreatureBattle* battle = creature_battle_get(battle_id);
     if (creature_battle_invalid(battle)) {
         return;
@@ -300,7 +284,7 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
     {
         struct Dungeon* dungeon = get_my_dungeon();
         struct Thing* thing = INVALID_THING;
-        if (dungeon->visible_battles[visbtl_id] != 0)
+        if (visible_battles[visbtl_id] != 0)
         {
             int battlr_id = (lbDisplay.MMouseX * pixel_size - gbtn->scr_pos_x) / (gbtn->width / 7);
             if (battlr_id < MESSAGE_BATTLERS_COUNT-1) {
@@ -317,8 +301,7 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
 void gui_area_enemy_battlers(struct GuiButton *gbtn)
 {
     int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-    BattleIndex battle_id = dungeon->visible_battles[visbtl_id];
+    BattleIndex battle_id = visible_battles[visbtl_id];
     struct CreatureBattle* battle = creature_battle_get(battle_id);
     if (creature_battle_invalid(battle)) {
         return;
@@ -356,17 +339,16 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     }
 }
 
-short zoom_to_fight(PlayerNumber plyr_idx)
+short zoom_to_fight(void)
 {
-    if (active_battle_exists(plyr_idx))
+    if (active_battle_exists())
     {
-        struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
-        struct CreatureBattle* battle = creature_battle_get(dungeon->visible_battles[0]);
+        struct CreatureBattle* battle = creature_battle_get(visible_battles[0]);
         struct Thing* thing = thing_get(battle->first_creatr);
         if (thing_exists(thing)) {
             move_local_camera_to_position(thing->mappos.x.val, thing->mappos.y.val);
         }
-        step_battles_forward(plyr_idx);
+        cycle_to_next_battle();
         return true;
     }
     return false;
