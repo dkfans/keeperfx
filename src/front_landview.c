@@ -1275,6 +1275,53 @@ void set_level_name_text(LevelNumber lvnum, const char *lv_name)
     snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
 }
 
+int order_number_for_bonus_level(LevelNumber bn_lvnum)
+{
+  int orderNum = 1;
+  if (bn_lvnum < 1) return -1;
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.bonus_levels[i] == bn_lvnum)
+    {
+      return orderNum;
+    }
+    else if (campaign.bonus_levels[i] != 0)
+    {
+      orderNum++;
+    }
+  }
+  return -1;
+}
+
+
+const char* get_level_description(struct LevelInformation *lvinfo)
+{
+  if (lvinfo == NULL)
+  {
+    return NULL;
+  }
+
+  if (lvinfo->level_type & LvKind_IsSingle|| lvinfo->level_type & LvKind_IsMulti)
+  {
+      if (lvinfo->name_stridx > 0)
+      {
+        return get_string(lvinfo->name_stridx);
+      }
+      else
+      {
+        return lvinfo->name;
+      }
+  }
+
+  if ((lvinfo->level_type & LvKind_IsBonus) || (lvinfo->level_type & LvKind_IsExtra))
+  {
+    static char name_and_num[32];
+    snprintf(name_and_num, sizeof(name_and_num), "%s %d", get_string(CpgStr_BonusLevel), (int)order_number_for_bonus_level(lvinfo->lvnum));
+    return name_and_num;
+  }
+  return "";
+}
+
 /**
  * Draws text description of active level.
  */
@@ -1289,11 +1336,7 @@ void draw_map_level_descriptions(void)
     struct LevelInformation* lvinfo = get_level_info(lvnum);
     if (lvinfo == NULL)
       return;
-    const char* lv_name;
-    if (lvinfo->name_stridx > 0)
-        lv_name = get_string(lvinfo->name_stridx);
-    else
-      lv_name = lvinfo->name;
+    const char* lv_name = get_level_description(lvinfo); 
     set_level_name_text(lvnum, lv_name);
     long w = LbTextStringWidth(level_name);
     long x = lvinfo->ensign_x - (long)map_info.screen_shift_x;
