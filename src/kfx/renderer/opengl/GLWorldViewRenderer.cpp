@@ -13,9 +13,9 @@
 #include "kfx/renderer/opengl/GLShaders.h"
 #include "kfx/renderer/opengl/GLResourceMapper.h"
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
-#include "kfx/renderer/RendererSettings.h" // g_renderer_settings (Beat 4)
-#include "kfx/renderer/RendererManager.h"  // RendererGetCurrentSpriteOwner/WantsOutline (Beat 4)
-#include "player_data.h"                    // get_player_color_idx/player_room_colours (Beat 4 outline colour)
+#include "kfx/renderer/RendererSettings.h" // g_renderer_settings
+#include "kfx/renderer/RendererManager.h"  // RendererGetCurrentSpriteOwner/WantsOutline
+#include "player_data.h"                    // get_player_color_idx/player_room_colours (outline colour)
 
 #include "engine_buckets.h"   // QKinds enum, BasicQ, BucketKind* structs, buckets[]
 #include "engine_render.h"    // BUCKETS_COUNT, orient_to_mapU/V tables
@@ -25,9 +25,9 @@
 #include "bflib_vidraw.h"     // vec_window_width/height
 #include "bflib_video.h"      // LbPaletteGetReadonly(), pixel_size, Lb_SPRITE_* flags
 #include "bflib_basics.h"     // ERRORLOG / SYNCLOG / WARNLOG
-#include "vidmode.h"          // pixmap, alpha_sprite_table (P5.7.3b CPU-fallback globals)
-#include "player_data.h"      // get_my_player(), get_player_active_camera(), PVM_* (P5.7.3b)
-#include "local_camera.h"     // get_local_camera() (P5.7.3b, spinning-key gate)
+#include "vidmode.h"          // pixmap, alpha_sprite_table (CPU-fallback globals)
+#include "player_data.h"      // get_my_player(), get_player_active_camera(), PVM_*
+#include "local_camera.h"     // get_local_camera() (spinning-key gate)
 #include "game_legacy.h"      // game.lish.subtile_lightness (lightmap snapshot in FlipBuffers)
 
 #include <cstring>

@@ -207,7 +207,7 @@ void CursorLayer_Draw(void);
 void CursorLayer_Clear(void);
 void CursorLayer_SubmitPointerSprite(const struct TbSprite* spr, int32_t x, int32_t y, int units_per_px);
 // Returns 1 if a cursor layer handled the sprite (caller must not also draw
-// it via process_keeper_sprite()), 0 to fall back (P5.7.5).
+// it via process_keeper_sprite()), 0 to fall back.
 int RendererSubmitKeeperHandSprite(short x, short y, unsigned short kspr_base,
     short angle, unsigned char sprgroup, int32_t scale, TbDrawFlagsMask draw_flags);
 
@@ -217,7 +217,7 @@ void WorldViewRenderer_DrawFrontView(struct Camera* cam);
 
 
 int RendererBeginWorldSpriteCapture(int32_t bucket_idx);
-// content_h = visible rows out of src_h for this draw (Beat 4: water/lava
+// content_h = visible rows out of src_h for this draw (water/lava
 // clipping) -- pass == src_h for "no clipping".
 int RendererSubmitKeeperSprite(int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
     const unsigned char* data, int src_w, int src_h, int32_t content_h,

@@ -86,7 +86,7 @@ struct IRWorldKeeperSpriteCmd
     int32_t               dst_h         = 0;   /**< Destination height. */
     int32_t               src_w         = 0;   /**< Source sprite width. */
     int32_t               src_h         = 0;   /**< Source sprite height -- also the atlas decode/cache height (always the sprite's full, unclipped content, so a later full-height draw of the same sprite_id never samples missing rows). */
-    /** Visible rows out of @p src_h for THIS draw (Beat 4: water/lava
+    /** Visible rows out of @p src_h for THIS draw (water/lava
      *  clipping) -- <= src_h; the destination rect's drawn height and the UV
      *  V-range both scale down by content_h/src_h, matching the CPU path's
      *  LbSpriteDrawUsingScalingData()/DrawAlphaSpriteUsingScalingData()
@@ -153,9 +153,9 @@ enum class LensPixelEffectType : uint8_t
  *  LensManager::BuildActiveGPULensCmd() and consumed by the GL world-view
  *  renderer's capture/composite bracket. Mirrors software's LensManager::Draw()
  *  precedence: only the single winning pixel effect (if any) is carried,
- *  since software itself never blends multiple enabled effects -- see the
- *  P5.8a plan for why. Pixel buffers are owned copies (std::vector), not
- *  pointers into LensEffect-owned storage, because those buffers can be
+ *  since software itself never blends multiple enabled effects. Pixel
+ *  buffers are owned copies (std::vector), not pointers into
+ *  LensEffect-owned storage, because those buffers can be
  *  reassigned/freed on the next SetLens() call (confirmed hazard, see
  *  OverlayEffect::LoadOverlay()) -- unsafe to reference across the
  *  game-thread/render-thread gap. std::move()'d by FlipBuffers(), same as

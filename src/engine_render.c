@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kfx/renderer/RendererManager.h"
-#include "kfx/renderer/RendererSettings.h" // g_renderer_settings.creature_outline_class_mask (Beat 4)
+#include "kfx/renderer/RendererSettings.h" // g_renderer_settings.creature_outline_class_mask
 #include <stddef.h>
 
 #include "engine_render.h"
@@ -85,7 +85,7 @@ extern "C" {
 #define ABYSS_LIQUID_SCROLL_CYCLE 128.0f
 
 // QKinds enum, BasicQ, and all BucketKind* item structs moved to
-// engine_buckets.h (P5.7.2a) so GLWorldViewRenderer can walk the same
+// engine_buckets.h so GLWorldViewRenderer can walk the same
 // buckets[] list (included above). buckets[] itself stays defined here
 // (below), only extern-declared there.
 
@@ -3880,28 +3880,24 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
         return;
     kspr->bucket_idx = shadow_bckt_idx;
 
-    // P1
     kspr->vertex_first.X = ecor1.view_width;
     kspr->vertex_first.Y = ecor1.view_height;
     kspr->vertex_first.U = 0;
     kspr->vertex_first.V = TO_FIXED(dim_oh - 1);
     kspr->vertex_first.S = find_fade_S(&ecor1);
 
-    // P2
     kspr->vertex_second.X = ecor2.view_width;
     kspr->vertex_second.Y = ecor2.view_height;
     kspr->vertex_second.U = 0;
     kspr->vertex_second.V = 0;
     kspr->vertex_second.S = find_fade_S(&ecor2);
 
-    // P3
     kspr->vertex_third.X = ecor3.view_width;
     kspr->vertex_third.Y = ecor3.view_height;
     kspr->vertex_third.U = TO_FIXED(dim_ow - 1);
     kspr->vertex_third.V = 0;
     kspr->vertex_third.S = find_fade_S(&ecor3);
 
-    // P4
     kspr->vertex_fourth.X = ecor4.view_width;
     kspr->vertex_fourth.Y = ecor4.view_height;
     kspr->vertex_fourth.U = TO_FIXED(dim_ow - 1);
@@ -4991,7 +4987,7 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
             break;
         case TRF_Transpar_Alpha:
             EngineSpriteDrawUsingAlpha = 1;
-            RendererAddDrawFlags(Lb_SPRITE_ALPHA_ADDITIVE);  // Beat 4, see power_hand.c's identical precedent
+            RendererAddDrawFlags(Lb_SPRITE_ALPHA_ADDITIVE);  // see power_hand.c's identical precedent
             RendererClearDrawFlags(Lb_SPRITE_REMAP);
             break;
     }

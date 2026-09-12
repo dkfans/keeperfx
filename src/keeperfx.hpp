@@ -75,7 +75,7 @@ enum CmdLineOverrides {
     Clo_CDMusic,
     Clo_GameTurns,
     Clo_FramesPerSecond,
-    Clo_Renderer, /**< Special: handled before the renderer is initialised (P5.9). */
+    Clo_Renderer, /**< Special: handled before the renderer is initialised. */
 };
 
 enum ModeFlags {
@@ -142,7 +142,7 @@ struct StartupParameters {
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
-    int renderer_type; /**< RendererType value from -opengl (P5.9); only meaningful when overrides[Clo_Renderer] is set. */
+    int renderer_type; /**< RendererType value from -opengl; only meaningful when overrides[Clo_Renderer] is set. */
     GameTurn pause_at_gameturn;
     unsigned char startup_flags;
     TbBool skip_heart_zoom;

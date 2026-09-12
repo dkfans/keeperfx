@@ -125,7 +125,7 @@ extern long floor_pointed_at_y;
 
 // ToDo : this is fucking garbage, remove it and use the proper camera position instead
 // Front-view textured-quad UV corner tables (draw_texturedquad_block(), and
-// GLWorldViewRenderer::append_frontview_quad() -- P5.7.2a).
+// GLWorldViewRenderer::append_frontview_quad()).
 extern long const orient_to_mapU1[];
 extern long const orient_to_mapU2[];
 extern long const orient_to_mapU3[];
@@ -183,7 +183,7 @@ void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color);
 // Walk-time keeper-sprite resolution+raster for one bucket entry (isometric
 // view: draw_jonty_mapwho(); front view: draw_fastview_mapwho()/
 // draw_iso_only_fastview_mapwho() for the spinning-key case). No longer
-// static: GLWorldViewRenderer's own bucket walk (P5.7.3b) calls these
+// static: GLWorldViewRenderer's own bucket walk calls these
 // directly so GL reuses the exact same resolution code software does --
 // only the final raster call inside draw_keepersprite() diverges per backend.
 // Forward-declared (full definition lives in engine_buckets.h, which this
@@ -196,7 +196,7 @@ void draw_iso_only_fastview_mapwho(struct Camera *cam, struct BucketKindJontySpr
 
 // Resolve a keeper-sprite frame's atlas cache key (draw_idx) + raw RLE data
 // pointer + content dims, without any draw-flag/positioning side effects.
-// GLWorldViewRenderer's shadow case (P5.7.4) calls this directly to reuse
+// GLWorldViewRenderer's shadow case calls this directly to reuse
 // the exact same GPU atlas layer a real sprite draw of that frame would use.
 // out_kspr (optional, may be NULL) returns the resolved per-frame entry --
 // resolve_keepersprite_cursor_geometry() (below) needs it for FrameOffsW/H.
@@ -206,13 +206,13 @@ TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
     const unsigned char **out_data, int *out_src_w, int *out_src_h,
     const struct KeeperSprite **out_kspr);
 
-// Cursor/power-hand geometry resolve (P5.7.5): the destination-rect twin of
+// Cursor/power-hand geometry resolve: the destination-rect twin of
 // process_keeper_sprite()'s own xflip/scaled-position math, minus the
 // water-cutoff logic (not applicable to a UI overlay sprite) and minus its
 // ambient draw-flag side effect. GLCursorLayer::SubmitKeeperHandSprite()
 // (game thread) calls this to resolve everything it needs up front before
 // submitting through GLWorldViewRenderer::BeginCursorCapture()/
-// SubmitKeeperSprite()/EndCursorCapture() (Beat 3), so the render thread
+// SubmitKeeperSprite()/EndCursorCapture(), so the render thread
 // never touches game-thread-only state (keepersprite_array(), the sprite
 // heap) directly.
 TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short kspr_base,

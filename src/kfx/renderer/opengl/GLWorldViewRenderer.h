@@ -179,7 +179,7 @@ public:
     int BeginWorldSpriteCapture(int32_t bucket_idx) override;
 
     // ToDo : Remove.
-    /** Vestigial after P5.7.3b: nothing branches on this return value
+    /** Vestigial: nothing branches on this return value
      *  anymore (draw_keepersprite() just checks SubmitKeeperSprite()'s own
      *  result). Kept for now in case a future caller needs it; candidate
      *  for removal if none turns up. */
@@ -188,7 +188,7 @@ public:
         return (m_initialized && m_world_write_cmds != nullptr) ? 1 : 0;
     }
 
-    // ── Cursor keeper-sprite (P5.7.5) ───────────────────────────────────────────
+    // ── Cursor keeper-sprite ───────────────────────────────────────────────────
     void BeginCursorCapture();
 
     /** Game thread: end the redirect started by BeginCursorCapture(). */
@@ -226,7 +226,7 @@ private:
     void gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w, int screen_h,
                             const std::vector<WorldVertex>& tile_verts);
 
-    // ── Keeper sprites (P5.7.3a) ───────────────────────────────────────────────
+    // ── Keeper sprites ───────────────────────────────────────────────────────
     bool init_keeper_sprite_shader();
     bool init_keeper_sprite_instancing();
     void free_keeper_sprite_resources();  // called from free_gl_resources()

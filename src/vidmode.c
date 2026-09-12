@@ -129,7 +129,7 @@ short LoadVRes256Data(long scrbuf_size)
     if (!winfont || !font_sprites || !button_sprites || !gui_panel_sprites || LbDataLoadAll(gui_load_files_640)) {
         return 0;
     }
-    // Beat 5: gui_slab was just (re)loaded by the LbDataLoadAll() call above --
+    // gui_slab was just (re)loaded by the LbDataLoadAll() call above --
     // notify the active renderer so GL can (re)upload its cached slab texture.
     RendererUpdateSlabTexture(gui_slab, GUI_SLAB_DIMENSION);
     return 1;
@@ -206,7 +206,7 @@ short LoadMcgaData(void)
   winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
   font_sprites = load_font("data/font1-32.dat", "data/font1-32.tab");
   gui_panel_sprites = load_spritesheet("data/gui2-32.dat", "data/gui2-32.tab");
-  // Beat 5: gui_slab was just (re)loaded by the LbDataLoad() loop above --
+  // gui_slab was just (re)loaded by the LbDataLoad() loop above --
   // notify the active renderer so GL can (re)upload its cached slab texture.
   RendererUpdateSlabTexture(gui_slab, GUI_SLAB_DIMENSION);
   return button_sprites && winfont && font_sprites && gui_panel_sprites && (ferror == 0);
@@ -659,7 +659,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
       reset_heap_manager();
       // GL's keeper-sprite atlas caches by draw_idx, stable only within one
       // sprite-heap generation -- clear it in lockstep with the heap reset
-      // above (P5.7.6; main_game.c's init_level() covers the level-load
+      // above (main_game.c's init_level() covers the level-load
       // case, this covers the video-mode-switch case). No-op on software /
       // before GL is active.
       RendererClearKeeperSpriteAtlas();
@@ -832,7 +832,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
     {
       reset_eye_lenses();
       reset_heap_manager();
-      // See setup_screen_mode()'s identical comment above (P5.7.6).
+      // See setup_screen_mode()'s identical comment above.
       RendererClearKeeperSpriteAtlas();
     }
     if ((!MinimalResolutionSetup && !hi_res) || (MinimalResolutionSetup && hi_res))

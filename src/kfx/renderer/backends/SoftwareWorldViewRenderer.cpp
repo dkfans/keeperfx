@@ -24,14 +24,14 @@ void SoftwareWorldViewRenderer::DrawIsometricView()
 {
     m_valid     = true;
     m_frontview = false;
-    m_lens      = false;   // no lens redirect wired yet (P5.7.5)
+    m_lens      = false;   // no lens redirect in software
     m_cam       = nullptr;
     // Execute now, not at frame-graph resolve time: callers such as
     // draw_creature_view() (thing_creature.c) temporarily swap
     // lbDisplay.WScreen to an offscreen lens-capture buffer around this call
     // and restore it immediately after -- deferring the rasterize to a later
     // phase would run it against whatever buffer/window happens to be live
-    // by then, not the one that was live here. Matches pre-P5.7.0 timing.
+    // by then, not the one that was live here.
     ExecuteRecordedWorld();
 }
 
@@ -54,8 +54,8 @@ int SoftwareWorldViewRenderer::ResolveDeferredWorld()
 {
     // Software already executed synchronously in Draw*View() above; nothing
     // is ever left pending here. True deferral (record now, resolve at
-    // frame-graph time) is GL-only, added when GL actually needs to batch
-    // world geometry through IR (P5.7.6+).
+    // frame-graph time) is GL-only, added when GL needs to batch
+    // world geometry through IR.
     return 0;
 }
 

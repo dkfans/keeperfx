@@ -25,7 +25,7 @@
 #include "bflib_dernc.h"
 #include "bflib_enet.h"
 #include "bflib_video.h"
-#include "kfx/renderer/RendererManager.h" // RENDERER_SOFTWARE/RENDERER_OPENGL (P5.9)
+#include "kfx/renderer/RendererManager.h" // RENDERER_SOFTWARE/RENDERER_OPENGL
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
 #include "bflib_mouse.h"

@@ -1070,7 +1070,6 @@ int LbTextSetWindow(int posx, int posy, int width, int height)
     lbTextJustifyWindow.x = posx;
     lbTextJustifyWindow.y = posy;
     lbTextJustifyWindow.width = width;
-    lbTextJustifyWindow.ptr = &lbDisplay.WScreen[posx + posy * RendererScreenWidth()];
     LbTextSetClipWindow(posx, posy, width, height);
     return 1;
 }

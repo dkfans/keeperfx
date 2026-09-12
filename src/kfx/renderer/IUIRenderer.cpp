@@ -3,21 +3,18 @@
 /******************************************************************************/
 /** @file IUIRenderer.cpp
  *     Software draw path for the shared UI submission API, plus the IR
- *     bind/replay machinery a deferring backend (GL) needs.
+ *     bind machinery a deferring backend (GL) needs.
  */
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kfx/renderer/IUIRenderer.h"
-#include "kfx/renderer/ITextRenderer.h"
 #include "kfx/renderer/ir/UICommands.h"
-#include "kfx/renderer/ir/TextCommands.h"
 #include "kfx/renderer/RendererManager.h"
 #include "bflib_vidraw.h"   // the raster primitives
 #include "bflib_sprite.h"   // TbSprite, num_sprites, get_sprite
 #include "bflib_video.h"    // Lb_SPRITE_* draw flags
 #include "gui_draw.h"       // draw_slab64k_background_immediate
-#include <algorithm>        // std::sort for the seq merge
-#include <vector>
+#include <algorithm>        // std::fill (AcquireMinimapBuffer)
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -289,105 +286,6 @@ void IUIRenderer::SetGameViewport(int32_t x, int32_t y, int32_t w, int32_t h)
     m_game_vp_x = x; m_game_vp_y = y; m_game_vp_w = w; m_game_vp_h = h;
     m_game_vp_set = true;
     if (m_ui_write_cmds) m_ui_write_cmds->game_vp = { x, y, w, h, true };
-}
-
-void IUIRenderer::ReplayMergedFromIR(const UICommandBuffers& ui,
-                                     const TextCommandBuffers& text,
-                                     ITextRenderer* text_renderer)
-{
-    // Commands are grouped by type, so gather them into one list ordered by
-    // the shared submission seq to recover the order they were issued in.
-    struct Ref { uint32_t seq; uint8_t kind; uint32_t idx; };
-    enum { K_Sprite = 0, K_OneColour, K_Scaled, K_ScaledOneColour, K_ScaledRemap, K_Box, K_Slab, K_Text };
-
-    std::vector<Ref> order;
-    order.reserve(ui.sprites.Size() + ui.sprites_one_colour.Size() +
-                  ui.sprites_scaled.Size() + ui.sprites_scaled_one_colour.Size() +
-                  ui.sprites_scaled_remap.Size() + ui.solid_boxes.Size() +
-                  ui.slab_backgrounds.Size() + text.draws.Size());
-
-    for (uint32_t i = 0; i < (uint32_t)ui.sprites.Size(); ++i)
-        order.push_back({ ui.sprites.Data()[i].seq, K_Sprite, i });
-    for (uint32_t i = 0; i < (uint32_t)ui.sprites_one_colour.Size(); ++i)
-        order.push_back({ ui.sprites_one_colour.Data()[i].seq, K_OneColour, i });
-    for (uint32_t i = 0; i < (uint32_t)ui.sprites_scaled.Size(); ++i)
-        order.push_back({ ui.sprites_scaled.Data()[i].seq, K_Scaled, i });
-    for (uint32_t i = 0; i < (uint32_t)ui.sprites_scaled_one_colour.Size(); ++i)
-        order.push_back({ ui.sprites_scaled_one_colour.Data()[i].seq, K_ScaledOneColour, i });
-    for (uint32_t i = 0; i < (uint32_t)ui.sprites_scaled_remap.Size(); ++i)
-        order.push_back({ ui.sprites_scaled_remap.Data()[i].seq, K_ScaledRemap, i });
-    for (uint32_t i = 0; i < (uint32_t)ui.solid_boxes.Size(); ++i)
-        order.push_back({ ui.solid_boxes.Data()[i].seq, K_Box, i });
-    for (uint32_t i = 0; i < (uint32_t)ui.slab_backgrounds.Size(); ++i)
-        order.push_back({ ui.slab_backgrounds.Data()[i].seq, K_Slab, i });
-    if (text_renderer)
-        for (uint32_t i = 0; i < (uint32_t)text.draws.Size(); ++i)
-            order.push_back({ text.draws.Data()[i].seq, K_Text, i });
-
-    std::sort(order.begin(), order.end(),
-              [](const Ref& a, const Ref& b) { return a.seq < b.seq; });
-
-    // Detach the write buffer so the Submit* bodies below draw instead of
-    // appending the commands back onto it.
-    UICommandBuffers* saved = m_ui_write_cmds;
-    m_ui_write_cmds = nullptr;
-
-    for (const Ref& r : order)
-    {
-        switch (r.kind)
-        {
-        case K_Sprite: {
-            const IRUISpriteCmd& c = ui.sprites.Data()[r.idx];
-            auto it = m_handle_to_sprite.find(c.sprite);
-            if (it != m_handle_to_sprite.end())
-                SubmitRawSprite(c.x, c.y, it->second, draw_state_make(c.draw_flags, 0));
-            break;
-        }
-        case K_OneColour: {
-            const IRUISpriteOneColourCmd& c = ui.sprites_one_colour.Data()[r.idx];
-            auto it = m_handle_to_sprite.find(c.sprite);
-            if (it != m_handle_to_sprite.end())
-                SubmitRawSpriteOneColour(c.x, c.y, it->second, c.colour, draw_state_make(c.draw_flags, 0));
-            break;
-        }
-        case K_Scaled: {
-            const IRUISpriteScaledCmd& c = ui.sprites_scaled.Data()[r.idx];
-            auto it = m_handle_to_sprite.find(c.sprite);
-            if (it != m_handle_to_sprite.end())
-                SubmitRawSpriteScaled(c.x, c.y, it->second, c.w, c.h, draw_state_make(c.draw_flags, 0));
-            break;
-        }
-        case K_ScaledOneColour: {
-            const IRUISpriteScaledOneColourCmd& c = ui.sprites_scaled_one_colour.Data()[r.idx];
-            auto it = m_handle_to_sprite.find(c.sprite);
-            if (it != m_handle_to_sprite.end())
-                SubmitRawSpriteScaledOneColour(c.x, c.y, it->second, c.w, c.h, c.colour, draw_state_make(c.draw_flags, 0));
-            break;
-        }
-        case K_ScaledRemap: {
-            const IRUISpriteScaledRemapCmd& c = ui.sprites_scaled_remap.Data()[r.idx];
-            auto it = m_handle_to_sprite.find(c.sprite);
-            if (it != m_handle_to_sprite.end())
-                SubmitRawSpriteScaledRemap(c.x, c.y, it->second, c.w, c.h, c.cmap, draw_state_make(c.draw_flags, 0));
-            break;
-        }
-        case K_Box: {
-            const IRUISolidBoxCmd& c = ui.solid_boxes.Data()[r.idx];
-            SubmitSolidBox(c.x, c.y, c.w, c.h, c.colour, draw_state_make(c.draw_flags, 0));
-            break;
-        }
-        case K_Slab: {
-            const IRUISlabBackgroundCmd& c = ui.slab_backgrounds.Data()[r.idx];
-            SubmitSlabBackground(c.x, c.y, c.w, c.h);
-            break;
-        }
-        case K_Text:
-            text_renderer->ReplayTextCommand(text.draws.Data()[r.idx]);
-            break;
-        }
-    }
-
-    m_ui_write_cmds = saved;
 }
 
 /******************************************************************************/

@@ -104,8 +104,8 @@ extern "C" {
 #define RENDERER_SHADOW_4      4
 /** Pre-baked soft circle blob under each creature. Declared for parity;
  *  the instanced circle-shadow GL pass itself is a later fast-follow on
- *  this branch (Beat 4 disclosed this as lower priority -- visual variety,
- *  not a correctness bug) -- selecting it currently falls back to
+ *  this branch (lower priority -- visual variety, not a correctness bug)
+ *  -- selecting it currently falls back to
  *  RENDERER_SHADOW_4's existing behaviour, same as develop's own documented
  *  software-renderer fallback. */
 #define RENDERER_SHADOW_CIRCLE 5
@@ -175,8 +175,8 @@ typedef struct RendererSettings {
     /* --- Glow / additive passes --- */
 
     /** Scale multiplier for k_glow_step contribution. 1.0 = original,
-     *  0.0 = no glow. Not yet consumed by the glow shaders (Beat 3 ported
-     *  them with a fixed k_glow_step table) -- declared for parity.
+     *  0.0 = no glow. Not yet consumed by the glow shaders (ported
+     *  with a fixed k_glow_step table) -- declared for parity.
      *  Default: 1.0. */
     float glow_intensity;
 
@@ -241,8 +241,8 @@ typedef struct RendererSettings {
     /* --- Lighting pipeline --- */
 
     /** Lighting pipeline mode. See the RENDERER_LIGHTING_* constants above
-     *  -- both are already implemented by this branch's world shader
-     *  (P5.7.2a). Default: RENDERER_LIGHTING_SOFTWARE. */
+     *  -- both are already implemented by this branch's world shader.
+     *  Default: RENDERER_LIGHTING_SOFTWARE. */
     int   lighting_mode;
 
     /* --- Darkness mode --- */
@@ -251,8 +251,8 @@ typedef struct RendererSettings {
      *  above -- all three are already implemented by this branch's world
      *  shader. Default: RENDERER_DARKNESS_PALETTE, matching develop's own
      *  default -- NOTE this is a real, disclosed visual-default change:
-     *  before this beat the uniform was hardcoded to LINEAR (0) at shader
-     *  init (there was no settings module to read a real default from). */
+     *  before this settings module existed the uniform was hardcoded to
+     *  LINEAR (0) at shader init. */
     int   darkness_mode;
 
     /** Fog animation speed (darkness_mode == FOG only). 1.0 = default speed. */
@@ -265,7 +265,7 @@ typedef struct RendererSettings {
     /* --- Lens colour fidelity (possession eye-lens effects) --- */
 
     /** Colour mode for possessed-creature lens effects. Not yet consumed by
-     *  this branch's lens code (P5.8a is always palette-accurate) --
+     *  this branch's lens code (always palette-accurate) --
      *  declared for parity. Default: RENDERER_LENS_COLOR_ACCURATE. */
     int   lens_color_mode;
 

@@ -27,7 +27,7 @@ public:
     bool SubmitZoomBoxTiles(const uint16_t* tile_block_ids, int tiles_x, int tiles_y,
                             int dst_x, int dst_y, int tile_w, int tile_h) override;
 
-    // Beat 10: landview zoom-in/out transition (frontzoom_to_point()).
+    // Landview zoom-in/out transition (frontzoom_to_point()).
     bool SubmitLandviewZoom(const unsigned char* src_buf, int src_w, int src_h,
                             float center_map_x, float center_map_y,
                             float screen_cx,    float screen_cy,
@@ -38,7 +38,7 @@ public:
     class ICursorLayer*         GetCursorLayer() override;
     class IWorldViewRenderer*   GetWorldViewRenderer() override;
 
-    // Parchment transition (P5.8b). See GLMapFadePass.h for the design.
+    // Parchment transition. See GLMapFadePass.h for the design.
     void SubmitMapFadeStep(int tick_step, float display_step, bool fading_in) override;
     bool MapFadeSupportsNativeResolution() const override;
     void BeginOverlayCapture(OverlayCaptureKind kind) override;

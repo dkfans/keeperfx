@@ -48,7 +48,7 @@ public:
     void Render(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch,
                 long width, long height);
 
-    /** P5.8a: raw accessors for the GL path, which composites via a shader
+    /** Raw accessors for the GL path, which composites via a shader
      *  instead of Render()'s CPU alpha blend. */
     const unsigned char* GetData() const { return m_loaded ? m_overlay_data : nullptr; }
     int GetWidth() const { return m_width; }

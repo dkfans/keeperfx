@@ -34,7 +34,7 @@ public:
 
 private:
     long m_current_lens;
-    uint32_t m_gpu_version;   // bumped each Setup() (P5.8a) -- lets the GL upload skip unchanged textures
+    uint32_t m_gpu_version;   // bumped each Setup() -- lets the GL upload skip unchanged textures
 };
 
 /******************************************************************************/

@@ -170,7 +170,7 @@ static TbBool init_level(void)
     reset_heap_manager();
     // GL's keeper-sprite atlas caches by draw_idx, stable only within one
     // sprite-heap generation -- clear it in lockstep with the heap reset
-    // above (P5.7.5). No-op on software / before GL is active.
+    // above. No-op on software / before GL is active.
     RendererClearKeeperSpriteAtlas();
     lens_mode = 0;
     setup_heap_manager();

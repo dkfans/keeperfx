@@ -63,7 +63,7 @@ private:
     DisplaceLookupEntry* m_lookup_table;
     long m_table_width;
     long m_table_height;
-    uint32_t m_gpu_version;   // bumped each BuildLookupTable() (P5.8a) -- lets the GL upload skip unchanged tables
+    uint32_t m_gpu_version;   // bumped each BuildLookupTable() -- lets the GL upload skip unchanged tables
 };
 
 /******************************************************************************/

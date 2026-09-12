@@ -28,8 +28,6 @@
 struct TbSprite;
 struct TbSpriteSheet;
 struct UICommandBuffers;
-struct TextCommandBuffers;
-class  ITextRenderer;
 
 /******************************************************************************/
 
@@ -123,13 +121,6 @@ public:
     /** Open the IR write window for this frame; nullptr closes it and returns
      *  the Submit* calls to drawing immediately. */
     virtual void SetUICommandBuffers(UICommandBuffers* cmds);
-
-    /** Replay one frame of UI and text commands through the immediate draw
-     *  path, interleaved by their shared submission order, so the result
-     *  matches what drawing them as they arrived would have produced. */
-    virtual void ReplayMergedFromIR(const UICommandBuffers& ui,
-                                    const TextCommandBuffers& text,
-                                    ITextRenderer* text_renderer);
 
     virtual const char* GetName() const { return "UI"; }
 

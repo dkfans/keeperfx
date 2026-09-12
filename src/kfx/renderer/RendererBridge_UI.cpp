@@ -11,7 +11,6 @@
 #include "kfx/renderer/IUIRenderer.h"
 #include "bflib_sprite.h"   // TbSprite
 #include "bflib_vidraw.h"   // LbSpriteDraw*Immediate, LbDrawBoxImmediate
-#include "gui_draw.h"       // draw_slab64k_background_immediate
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -25,9 +24,7 @@ static KfxDrawState ambient_draw_state(void)
 
 void RendererDrawSlabBackground(int32_t x, int32_t y, int32_t width, int32_t height)
 {
-    IUIRenderer* ui = RendererGetActiveUIRenderer();
-    if (ui == nullptr) { draw_slab64k_background_immediate(x, y, width, height); return; }
-    ui->SubmitSlabBackground(x, y, width, height);
+    RendererGetActiveUIRenderer()->SubmitSlabBackground(x, y, width, height);
 }
 
 TbResult RendererDrawBox(int32_t x, int32_t y, uint32_t width, uint32_t height, unsigned char colour)

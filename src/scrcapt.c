@@ -130,7 +130,7 @@ TbBool movie_record_frame(void)
   // only ever valid for backends without a GPU render path (RendererBeginFrame()
   // only locks the CPU framebuffer for those). GL genuinely has no CPU
   // surface to read back here yet (needs its own glReadPixels()-based
-  // capture path, not built as part of this change -- see the plan doc).
+  // capture path, not yet built).
   short result = (lbDisplay.WScreen != NULL) ? anim_record_frame(lbDisplay.WScreen, cap_palette) : false;
   if (!lock_mem)
     RendererEndFrame();

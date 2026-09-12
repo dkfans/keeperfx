@@ -3,7 +3,7 @@
 /******************************************************************************/
 /** @file RendererSettings.c
  *     Global renderer settings instance, reset, load and save functions.
- *     Ported from develop (Beat 4) -- see RendererSettings.h's file header
+ *     Ported from develop -- see RendererSettings.h's file header
  *     for what's deliberately not consumed yet on this branch.
  */
 /******************************************************************************/

@@ -317,7 +317,7 @@ bool WindowSystemSDL::CreateWindow(const char* title, int x, int y, int w, int h
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        // World geometry (P5.7.2b) depth-tests tile/flat-poly draws for correct
+        // World geometry depth-tests tile/flat-poly draws for correct
         // near/far ordering -- request a depth buffer explicitly rather than
         // relying on a driver default, which may be none.
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);

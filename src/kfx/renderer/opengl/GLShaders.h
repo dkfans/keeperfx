@@ -105,7 +105,7 @@ void main()
 }
 )glsl";
 
-// World rendering shaders (P5.7.2a: tile geometry only, no sprites/shadows)
+// World rendering shaders (tile geometry only, no sprites/shadows)
 constexpr const char* WORLD_VERTEX_SHADER = R"glsl(
 #version 330 core
 layout(location = 0) in vec3  a_pos;
@@ -351,8 +351,8 @@ void main()
 }
 )glsl";
 
-// Keeper-sprite (creature/object) shaders (P5.7.3a: core path only -- no
-// depth-fail outline. Beat 3 added the non-instanced glow programs below,
+// Keeper-sprite (creature/object) shaders (core path only -- no
+// depth-fail outline. The non-instanced glow programs below are ported
 // verbatim from develop, so the atlas-full/unknown-sprite-id fallback path
 // (render_keepersprite_gpu()) gets the same family-aware additive glow the
 // instanced fragment shader already computed inline via its flag bit).
@@ -389,7 +389,7 @@ void main()
 }
 )glsl";
 
-// Non-instanced additive-glow fragment shader (Beat 3), ported verbatim from
+// Non-instanced additive-glow fragment shader, ported verbatim from
 // develop. Reuses KSPR_VERTEX_SHADER -- no palette needed, the glow colour
 // comes entirely from the DK glow-encoding index baked into the sprite's own
 // pixels (1-64: family = code/8, row = code%8, intensity scales with row).
@@ -484,7 +484,7 @@ void main()
 }
 )glsl";
 
-// Depth-fail outline shaders (Beat 4) -- draw a flat owner-colour silhouette
+// Depth-fail outline shaders -- draw a flat owner-colour silhouette
 // only where the creature sprite is occluded by geometry (depth test =
 // GL_GREATER, set at the draw call site, not here).
 constexpr const char* KSPR_OUTLINE_FRAGMENT_SHADER = R"glsl(
@@ -638,7 +638,7 @@ void main()
 }
 )glsl";
 
-// Instanced depth-fail outline (Beat 4): flat owner colour where the sprite
+// Instanced depth-fail outline: flat owner colour where the sprite
 // is behind geometry (drawn with glDepthFunc(GL_GREATER) before the main
 // instanced pass -- see flush_keeper_sprite_instances()).
 constexpr const char* KSPR_INST_OUTLINE_VERTEX_SHADER = R"glsl(
@@ -705,7 +705,7 @@ void main()
 }
 )glsl";
 
-// Creature-shadow shaders (P5.7.4). Samples the same GL_TEXTURE_2D_ARRAY
+// Creature-shadow shaders. Samples the same GL_TEXTURE_2D_ARRAY
 // the keeper-sprite atlas already builds (resolve_atlas_layer(), shared
 // cache) as a binary silhouette mask, discarding transparent texels the
 // same way KSPR_ARRAY_FRAGMENT_SHADER does. Where the mask is solid, the
@@ -752,7 +752,7 @@ void main()
 )glsl";
 
 /******************************************************************************/
-// Possession lens (P5.8a)
+// Possession lens
 /******************************************************************************/
 
 // Shared by all three lens composite passes: a static NDC unit quad, drawn
@@ -797,7 +797,7 @@ void main()
     // CPU (draw_creature_view()) only offsets the SOURCE sample by
     // viewport_x, never by viewport_y -- the destination write is
     // positioned by both, via dst_offset. Replicated here bug-for-bug via
-    // u_src_off's Y component always being 0 -- see the P5.8a plan.
+    // u_src_off's Y component always being 0.
     vec2 src_uv = u_src_off + v_uv * u_src_scale;
     vec3 scene = texture(u_scene, src_uv).rgb;
 
@@ -879,13 +879,13 @@ void main()
 )glsl";
 
 /******************************************************************************/
-// Parchment transition (P5.8b)
+// Parchment transition
 /******************************************************************************/
 
 // Adapted directly from origin/develop's actual GLMapFadePass fragment
 // shader (fetched via `git show`, not re-derived) -- a GLSL port of the
 // CPU map_fade()'s elastic-pinch UV warp + additive weighted blend
-// (engine_redraw.c), not a plain crossfade. Uses P5.8a's
+// (engine_redraw.c), not a plain crossfade. Uses the possession-lens
 // LENS_COMPOSITE_VERTEX_SHADER (a generic fullscreen-quad-to-viewport
 // vertex shader -- no map-fade-specific vertex work needed, reused as-is).
 // Unit 0 = captured parchment view. Unit 1 = captured 3D world view.
@@ -956,7 +956,7 @@ void main()
 }
 )glsl";
 
-// Beat 10: window-frame overlay (compressed_window_draw(), front_landview.c)
+// Window-frame overlay (compressed_window_draw(), front_landview.c)
 // -- same as RAWIMAGE_BLIT_FRAGMENT_SHADER but index 0 is transparent instead
 // of opaque black, so this draws over whatever the opaque present already put
 // on screen (the zoomed landview background) instead of replacing it.
@@ -997,7 +997,7 @@ void main()
 }
 )glsl";
 
-// Beat 10: landview zoom-in/out transition (frontzoom_to_point(),
+// Landview zoom-in/out transition (frontzoom_to_point(),
 // front_landview.c). Reuses RAWIMAGE_VERTEX_SHADER over a full-screen quad;
 // v_uv * u_screen_size recovers the destination screen pixel, which maps
 // back to a source texel via the same linear "centre + (pixel - screen

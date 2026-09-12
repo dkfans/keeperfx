@@ -71,7 +71,7 @@ public:
     virtual void Cleanup() = 0;
     virtual TbBool Draw(LensRenderContext* ctx) = 0;
 
-    // GPU path (P5.8a): fill the fields of @p out this effect owns (mist
+    // GPU path: fill the fields of @p out this effect owns (mist
     // texture + animation offsets, displacement/flyeye remap table, or
     // overlay texture + alpha -- see the concrete override). @p viewport_w/h
     // is the real on-screen viewport size (matches the CPU Draw() path's

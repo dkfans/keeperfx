@@ -1370,7 +1370,7 @@ void zoom_to_parchment_map(void)
     else
       set_flag(game.operation_flags, GOF_ShowPanel);
     struct PlayerInfo* player = get_my_player();
-    // GL removes the >320px instant-cut fallback entirely (P5.8b) -- that
+    // GL removes the >320px instant-cut fallback entirely -- that
     // cap is a software-only per-pixel-LUT performance limit, not a
     // fundamental one; see MapFadeSupportsNativeResolution()'s own comment.
     if (network_is_active()

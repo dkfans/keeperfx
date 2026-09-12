@@ -3,7 +3,7 @@
 #include "kfx/renderer/opengl/GLUIRenderer.h"
 #include "kfx/renderer/opengl/GLWorldViewRenderer.h"
 #include "bflib_sprite.h"
-#include "engine_render.h"  // resolve_keepersprite_cursor_geometry() (P5.7.5)
+#include "engine_render.h"  // resolve_keepersprite_cursor_geometry()
 #include "post_inc.h"
 
 void GLCursorLayer::SubmitPointerSprite(const struct TbSprite* spr, int32_t x, int32_t y, int units_per_px)

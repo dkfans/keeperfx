@@ -28,11 +28,11 @@ public:
 
 private:
     // Rasterise the recorded descriptor. Called synchronously from
-    // DrawIsometricView()/DrawFrontView() (P5.7.0 fix: software has no
+    // DrawIsometricView()/DrawFrontView() because software has no
     // ILensRenderer to redirect a later-resolved draw into a lens-capture
     // buffer, so it cannot actually defer past callers that swap
     // lbDisplay.WScreen around the Draw*View() call -- see draw_creature_view()
-    // in thing_creature.c). True deferral is GL-only, added in P5.7.6+.
+    // in thing_creature.c. True deferral is GL-only.
     void ExecuteRecordedWorld();
 
     // Engine-window rect of the current pass.
@@ -44,7 +44,7 @@ private:
     // Last-recorded world descriptor, kept for ReexecuteDeferredWorld().
     bool m_valid     = false;  // a world has been recorded at least once (re-execute)
     bool m_frontview = false;  // front view vs isometric/1st-person
-    bool m_lens      = false;  // possession lens capture flag (unused until P5.7.5)
+    bool m_lens      = false;  // possession lens capture flag (unused by software; only GL sets this)
     struct Camera* m_cam = nullptr; // front-view camera (null for iso)
 };
 

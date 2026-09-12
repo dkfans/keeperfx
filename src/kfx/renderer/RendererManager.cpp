@@ -468,8 +468,8 @@ void RendererSetPaletteForRenderers(const unsigned char* pal6)
         world->SetPaletteSource(pal6);
 }
 
-// Immediate-fallback bodies: reproduce the pre-P5.7.0 behaviour exactly for
-// callers with no world-view backend (GL, or before RendererInit()).
+// Immediate-fallback bodies: reproduce the original software behaviour
+// exactly for callers with no world-view backend (GL, or before RendererInit()).
 void WorldViewRenderer_BeginWorldPass(int w, int h, int vp_x, int vp_y)
 {
     IWorldViewRenderer* world = active_world_renderer();
@@ -522,7 +522,7 @@ int RendererSubmitKeeperSprite(int32_t dst_x, int32_t dst_y, int32_t dst_w, int3
 }
 
 /******************************************************************************/
-/* Sprite-owner tracking for the depth-fail creature outline (Beat 4)         */
+/* Sprite-owner tracking for the depth-fail creature outline                 */
 /******************************************************************************/
 
 static int s_current_sprite_owner         = -1;

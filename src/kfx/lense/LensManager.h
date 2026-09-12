@@ -79,7 +79,7 @@ public:
              long srcpitch, long dstpitch,
              long width, long height, long viewport_x);
 
-    // GPU path (P5.8a): build the single winning pixel effect's GPU params
+    // GPU path: build the single winning pixel effect's GPU params
     // (same precedence SetLens()'s per-effect loop applies -- see .cpp) plus
     // any active palette override, for the currently applied lens.
     // viewport_w/h is the real on-screen viewport size (not the full-screen

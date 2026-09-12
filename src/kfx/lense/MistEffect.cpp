@@ -54,7 +54,7 @@ public:
                long width, long height);
     void Animate();
 
-    /** P5.8a: advance one tick (same step Animate() applies) and return the
+    /** Advance one tick (same step Animate() applies) and return the
      *  resulting offsets, for the GL path where Draw() is never called. */
     void AdvanceAndGetOffsets(float& pos_x, float& pos_y, float& sec_x, float& sec_y)
     {

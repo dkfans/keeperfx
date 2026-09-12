@@ -11,8 +11,8 @@ static constexpr size_t kIRTextMaxLen = 256;
 // LbTextDrawResizedImmediate is a full layout pass over lbTextJustifyWindow/
 // lbTextClipWindow/lbFontPtr; this snapshots that ambient state so a deferred
 // replay reproduces the same layout. Safe only because submit and replay
-// happen on the same thread within the same frame (P5.1-P5.5); a real
-// cross-thread gap (P5.6) would need font_generation to actually be checked,
+// happen on the same thread within the same frame; a real
+// cross-thread gap would need font_generation to actually be checked,
 // not just carried.
 struct IRTextDrawCmd
 {

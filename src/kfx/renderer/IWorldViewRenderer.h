@@ -110,8 +110,8 @@ public:
      *                atlas decode/cache height; always pass the unclipped
      *                value here so a cache hit never has fewer rows decoded
      *                than a later, unclipped draw of the same sprite needs).
-     *  content_h   = visible rows out of src_h for THIS draw (Beat 4:
-     *                water/lava clipping) -- <= src_h; backends scale both
+     *  content_h   = visible rows out of src_h for THIS draw (water/lava
+     *                clipping) -- <= src_h; backends scale both
      *                the destination rect height and the UV V-range by
      *                content_h/src_h. Pass == src_h for "no clipping" (every
      *                caller except draw_keepersprite()'s
