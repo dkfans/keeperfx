@@ -113,13 +113,13 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     TbBool cursor_is_locked = local_dig_tag_prediction.cursor_button_down && ((pckt->control_flags & PCtr_LBtnClick) == 0) && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0);
-    if (!cursor_is_locked && (((pckt->control_flags & PCtr_LBtnAnyAction) == 0) || ((pckt->control_flags & PCtr_LBtnClick) != 0))) {
-        ustate->swap_to_untag_mode = 0;
-    }
     if ((cursor_context != CSt_PickAxe) && !cursor_is_locked) {
         if ((cursor_context != CSt_PowerHand) || (local_state.local_thing_under_hand != 0) || !can_dig_here(stl_x, stl_y, my_player_number, true)) {
             return false;
         }
+    }
+    if (!cursor_is_locked && (((pckt->control_flags & PCtr_LBtnAnyAction) == 0) || ((pckt->control_flags & PCtr_LBtnClick) != 0))) {
+        ustate->swap_to_untag_mode = 0;
     }
     if (local_dig_roomspace_prediction.action != PckA_None) {
         predicted_player->roomspace_highlight_mode = local_dig_roomspace_prediction.actn_par1;

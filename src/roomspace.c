@@ -441,7 +441,7 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx, Ma
 {
     struct SlabMap *slb = get_slabmap_block(cursor_x, cursor_y);
     // Set default "room" - i.e. 1x1 slabs, centred on the cursor
-    struct RoomSpace default_room = { {{false}}, 0, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, 0, 0, current_plyr_idx, -1 /*user*/, RoK_SELL, false, 0, 0, false, true, false, false, false, false, 0, 0, 0, 0, false, top_left_to_bottom_right };
+    struct RoomSpace default_room = { {{false}}, 0, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, 0, 0, -1 /*user*/, current_plyr_idx, RoK_SELL, false, 0, 0, false, true, false, false, false, false, 0, 0, 0, 0, false, top_left_to_bottom_right };
 
     if (slabmap_owner(slb) == current_plyr_idx)
     {
@@ -800,6 +800,8 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, NetUserId use
     if (mode == roomspace_detection_mode) // room auto-detection mode
     {
         best_roomspace = get_biggest_roomspace(plyr_idx, rkind, slb_x, slb_y, roomst->cost, 0, 32, player->roomspace_detection_looseness);
+        best_roomspace.plyr_idx = plyr_idx;
+        best_roomspace.user = user;
         slb_x = best_roomspace.centreX;
         slb_y = best_roomspace.centreY;
         ustate->boxsize = best_roomspace.slab_count; // correct number of tiles always returned from get_biggest_roomspace
@@ -1170,6 +1172,7 @@ void keeper_sell_roomspace(NetUserId user, struct RoomSpace *roomspace)
     roomspace->rkind = RoK_SELL;
     memcpy(&player->roomspace, roomspace, sizeof(player->roomspace));
     player->roomspace.user = user;
+    player->roomspace.plyr_idx = player->id_number;
     // Init
     player->roomspace.is_active = true;
     if (!player->roomspace.drag_mode)
@@ -1199,6 +1202,7 @@ void keeper_build_roomspace(NetUserId user, struct RoomSpace *roomspace)
     }
     memcpy(&player->roomspace, roomspace, sizeof(player->roomspace));
     player->roomspace.user = user;
+    player->roomspace.plyr_idx = player->id_number;
     // Init
     player->roomspace.is_active = true;
     if (!player->roomspace.drag_mode)
