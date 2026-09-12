@@ -260,7 +260,7 @@ extern long net_service_scroll_offset;
 extern long net_number_of_services;
 extern long net_number_of_players;
 extern long net_number_of_enum_players;
-extern long net_level_hilighted;
+extern long net_level_highlighted;
 extern struct NetMessage net_message[NET_MESSAGES_COUNT];
 extern long net_number_of_messages;
 extern long net_message_scroll_offset;

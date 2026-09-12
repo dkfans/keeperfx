@@ -385,13 +385,13 @@ void frontnetmap_input(void)
         return;
     }
 
-    net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
+    net_level_highlighted = SINGLEPLAYER_NOTSTARTED;
     frontmap_input_active_ensign(GetMouseX(), GetMouseY());
     if (mouse_over_lvnum > 0) {
-        net_level_hilighted = mouse_over_lvnum;
+        net_level_highlighted = mouse_over_lvnum;
     }
-    if ((net_level_hilighted > 0) && can_select && left_button_clicked) {
-        fe_net_level_selected = net_level_hilighted;
+    if ((net_level_highlighted > 0) && can_select && left_button_clicked) {
+        fe_net_level_selected = net_level_highlighted;
         left_button_clicked = 0;
         set_level_name_text(fe_net_level_selected, NULL);
         SYNCLOG("Selected level %d with description \"%s\"",(int)fe_net_level_selected,level_name);
@@ -445,7 +445,7 @@ TbBool frontnetmap_load(void)
     frontend_load_data_reset();
     frontmap_zoom_skip_init(SINGLEPLAYER_NOTSTARTED);
     fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-    net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
+    net_level_highlighted = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     map_sound_fade = FULL_LOUDNESS;
