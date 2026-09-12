@@ -30,7 +30,7 @@ extern "C" {
 #define BATTLES_COUNT          192
 #define MESSAGE_BATTLERS_COUNT   8
 /** Amount of battles the battle panel can show at the same time. */
-#define VISIBLE_BATTLES_COUNT    3
+#define VISIBLE_BATTLES_COUNT    3 //TODO: Keep at 3 for now until the battle panel is made dynamic (allowing more battles to be shown at once, more creatures/heroes on each of them, etc) and really scalable
 /******************************************************************************/
 #pragma pack(1)
 
