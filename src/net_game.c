@@ -417,12 +417,14 @@ static void resolve_network_quit_outcome(struct PlayerInfo *player)
     set_player_as_won_level(player);
 }
 
-static TbBool network_has_remote_enemies_remaining(void)
+static TbBool player_has_enemies_remaining(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *myplyr = get_my_player();
     for (int i = 0; i < PLAYERS_COUNT; i++) {
+        if (i == plyr_idx) {
+            continue;
+        }
         struct PlayerInfo *player = get_player(i);
-        TbBool is_active_enemy = player_exists(player) && !is_my_player(player) && player->is_active == 1 && !player_cannot_win(player->id_number) && players_are_enemies(myplyr->id_number, player->id_number);
+        TbBool is_active_enemy = player_exists(player) && player->is_active == 1 && !player_cannot_win(player->id_number) && players_are_enemies(plyr_idx, player->id_number);
         TbBool is_connected_network_player = (player->allocflags & PlaF_CompCtrl) == 0 && network_user_active(player->user_id);
         TbBool is_initial_computer_player = (player->allocflags & PlaF_CompCtrl) != 0 && i >= game.active_players_count;
         if (is_active_enemy && (is_connected_network_player || is_initial_computer_player)) {
@@ -591,7 +593,20 @@ void process_disconnected_network_players(void)
         }
     }
 
-    TbBool has_enemies_to_defeat = network_has_remote_enemies_remaining();
+    // award disconnect victories for all relevant players
+    if (network_disconnect_victory_enabled && disconnected) {
+        for (int i = 0; i < PLAYERS_COUNT; i++) {
+            struct PlayerInfo *plyr = get_player(i);
+            if (!player_exists(plyr) || plyr->is_active != 1 || (plyr->allocflags & PlaF_CompCtrl)) {
+                continue;
+            }
+            if (!player_has_enemies_remaining(plyr->id_number)) {
+                resolve_network_quit_outcome(plyr);
+            }
+        }
+    }
+    TbBool has_enemies_to_defeat = player_has_enemies_remaining(get_my_player()->id_number);
+    
     if (!disconnected || (!host_disconnected && has_enemies_to_defeat)) {
         return;
     }
@@ -609,9 +624,6 @@ void process_disconnected_network_players(void)
                 resolve_network_quit_outcome(swplyr);
             }
         }
-    }
-    if (enemy_disconnected) {
-        resolve_network_quit_outcome(myplyr);
     }
     if (winning_quit && (plyr_count > 1)) {
         if (game.conf.rules[myplyr->id_number].gameplay.winner_tortures_loser) {
