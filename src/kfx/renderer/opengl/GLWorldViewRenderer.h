@@ -216,7 +216,7 @@ public:
      *  LensManager::BuildActiveGPULensCmd() via the RendererManager.cpp
      *  bridge). Copied, not moved -- the bridge's local IRWorldLensCmd goes
      *  out of scope right after this call. */
-    void SubmitPossessionLens(const IRWorldLensCmd& cmd) override { m_lens_cmd = cmd; }
+    void SubmitPossessionLens(const IRWorldLensCmd& cmd) override;
 
     /** Render thread: bind the lens scene FBO (creating/resizing it to the
      *  current full-screen capture resolution if needed) and clear it, iff
@@ -421,6 +421,7 @@ private:
     // Resolved fresh at each point of use rather than cached as a raw
     // GLuint, so the id stays valid across a reload of the texture.
     GLuint ResolvePaletteTexId() const;
+    GLuint ResolveShaderId(GpuResourceHandle handle) const;
     GLuint ResolveFadeTexId() const;
 
     // Injected resources (not owned)
@@ -430,14 +431,12 @@ private:
     GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource;
 
     // Tile GL objects
-    GLuint m_vao    = 0;
-    GLuint m_vbo    = 0;
-    GLuint m_shader = 0;
+    GpuResourceHandle m_geom_handle   = kInvalidGpuResource; // VAO+VBO bundle
+    GpuResourceHandle m_shader_handle = kInvalidGpuResource;
 
     // Flat-colour polygon GL objects (QK_PolyMode0/4/BasicPolygon)
-    GLuint m_flatpoly_shader        = 0;
-    GLuint m_flatpoly_vao           = 0;
-    GLuint m_flatpoly_vbo           = 0;
+    GpuResourceHandle m_flatpoly_shader_handle = kInvalidGpuResource;
+    GpuResourceHandle m_flatpoly_geom_handle   = kInvalidGpuResource; // VAO+VBO bundle
     GLint  m_flatpoly_loc_viewport  = -1;
 
     // Uniform locations (cached at shader compile time)
@@ -459,7 +458,7 @@ private:
     GLint  m_loc_missing_tile  = -1;  // u_missing_tile -- diagnostic checkerboard when atlas absent
     int    m_tile_filter_applied = -1; // last GL filter mode applied; -1 = force re-apply on next flush
     // Lightmap texture (unit 2): mirrors game.lish.subtile_lightness[] as GL_R16UI
-    GLuint m_tex_lightmap      = 0;
+    GpuResourceHandle m_lightmap_tex_handle = kInvalidGpuResource;
 
     // Full OS-window dimensions -- set by SetScreenSize(), used for the
     // full-screen viewport reset in gpu_execute_passes().
@@ -512,10 +511,9 @@ private:
     // ── Keeper sprites (P5.7.3a) ───────────────────────────────────────────────
 
     // Non-instanced fallback: single-texture, palette+CLUT shader.
-    GLuint m_kspr_shader        = 0;
-    GLuint m_kspr_sprite_tex    = 0;  // 256x256 GL_R8, overwritten per sprite
-    GLuint m_kspr_vao           = 0;
-    GLuint m_kspr_vbo           = 0;
+    GpuResourceHandle m_kspr_shader_handle     = kInvalidGpuResource;
+    GpuResourceHandle m_kspr_sprite_tex_handle = kInvalidGpuResource;  // 256x256 GL_R8, overwritten per sprite
+    GpuResourceHandle m_kspr_geom_handle       = kInvalidGpuResource;  // VAO+VBO bundle
     GLint  m_kspr_loc_viewport  = -1;
     GLint  m_kspr_loc_sprite    = -1;
     GLint  m_kspr_loc_palette   = -1;
@@ -523,24 +521,24 @@ private:
     GLint  m_kspr_loc_z_ndc     = -1;
 
     // Additive-glow variant of the non-instanced shader (Beat 3), ported
-    // from develop -- used instead of m_kspr_shader when Lb_SPRITE_ALPHA_ADDITIVE
-    // is set. No palette/alpha uniform: the glow colour is computed purely
-    // from the sprite's own DK glow-encoding pixel indices (see
-    // KSPR_GLOW_FRAGMENT_SHADER).
-    GLuint m_kspr_glow_shader       = 0;
+    // from develop -- used instead of m_kspr_shader_handle when
+    // Lb_SPRITE_ALPHA_ADDITIVE is set. No palette/alpha uniform: the glow
+    // colour is computed purely from the sprite's own DK glow-encoding
+    // pixel indices (see KSPR_GLOW_FRAGMENT_SHADER).
+    GpuResourceHandle m_kspr_glow_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_glow_loc_viewport = -1;
     GLint  m_kspr_glow_loc_sprite   = -1;
     GLint  m_kspr_glow_loc_z_ndc    = -1;
 
     // Depth-fail outline shaders (Beat 4), ported from develop. Single-texture
     // variant (fallback/remapped sprites):
-    GLuint m_kspr_outline_shader       = 0;
+    GpuResourceHandle m_kspr_outline_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_outline_loc_viewport = -1;
     GLint  m_kspr_outline_loc_sprite   = -1;
     GLint  m_kspr_outline_loc_z_ndc    = -1;
     GLint  m_kspr_outline_loc_color    = -1;
     // Array-atlas variant (normal sprites using GL_TEXTURE_2D_ARRAY):
-    GLuint m_kspr_atlas_outline_shader       = 0;
+    GpuResourceHandle m_kspr_atlas_outline_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_atlas_outline_loc_viewport = -1;
     GLint  m_kspr_atlas_outline_loc_sprite   = -1;
     GLint  m_kspr_atlas_outline_loc_z_ndc    = -1;
@@ -549,13 +547,13 @@ private:
 
     // Edge-detect outline shaders (Beat 4) -- same uniforms as the silhouette
     // variants above. Single-texture variant:
-    GLuint m_kspr_edge_shader           = 0;
+    GpuResourceHandle m_kspr_edge_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_edge_loc_viewport     = -1;
     GLint  m_kspr_edge_loc_sprite       = -1;
     GLint  m_kspr_edge_loc_z_ndc        = -1;
     GLint  m_kspr_edge_loc_color        = -1;
     // Array-atlas variant:
-    GLuint m_kspr_atlas_edge_shader     = 0;
+    GpuResourceHandle m_kspr_atlas_edge_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_atlas_edge_loc_viewport = -1;
     GLint  m_kspr_atlas_edge_loc_sprite   = -1;
     GLint  m_kspr_atlas_edge_loc_z_ndc    = -1;
@@ -564,11 +562,11 @@ private:
 
     // Sprite decode atlas: GL_TEXTURE_2D_ARRAY where each layer holds one
     // pre-decoded sprite (populated on first use, persists for the level).
-    // Fallback to m_kspr_sprite_tex when atlas is full/absent/unsupported.
+    // Fallback to m_kspr_sprite_tex_handle when atlas is full/absent/unsupported.
     static const int k_kspr_atlas_layers = 2048;       // 2048x256x256 GL_R8 = 128 MB
     static const int k_kspr_atlas_preload_max = k_kspr_atlas_layers / 2;
-    GLuint m_kspr_sprite_array  = 0;
-    GLuint m_kspr_atlas_shader  = 0;  // sampler2DArray variant
+    GpuResourceHandle m_kspr_sprite_array_handle = kInvalidGpuResource;
+    GpuResourceHandle m_kspr_atlas_shader_handle = kInvalidGpuResource;  // sampler2DArray variant
     GLint  m_kspr_atlas_loc_viewport = -1;
     GLint  m_kspr_atlas_loc_sprite   = -1;
     GLint  m_kspr_atlas_loc_clut     = -1;
@@ -578,8 +576,9 @@ private:
     GLint  m_kspr_atlas_loc_clut_v   = -1;
 
     // Additive-glow variant of the atlas shader (Beat 3) -- same relationship
-    // to m_kspr_atlas_shader as m_kspr_glow_shader has to m_kspr_shader.
-    GLuint m_kspr_atlas_glow_shader       = 0;
+    // to m_kspr_atlas_shader_handle as m_kspr_glow_shader_handle has to
+    // m_kspr_shader_handle.
+    GpuResourceHandle m_kspr_atlas_glow_shader_handle = kInvalidGpuResource;
     GLint  m_kspr_atlas_glow_loc_viewport = -1;
     GLint  m_kspr_atlas_glow_loc_sprite   = -1;
     GLint  m_kspr_atlas_glow_loc_z_ndc    = -1;
@@ -599,28 +598,37 @@ private:
     // Row 0 = identity (palette[i] for all i). Rows 1..k_clut_rows-1 = one
     // row per unique remap table seen this level.
     static const int k_clut_rows = 128;
-    GLuint m_kspr_clut_tex      = 0;
+    GpuResourceHandle m_kspr_clut_tex_handle = kInvalidGpuResource;
     int    m_kspr_clut_used     = 1;   // next free row (0 = identity, always allocated)
     std::vector<std::array<uint8_t, 256>> m_kspr_clut_remaps;
     uint8_t m_kspr_clut_palette_snap[768] = {};
 
     // Instanced fast path: all atlas-resident sprites of a frame collapse
     // into one glDrawArraysInstanced call.
-    GLuint m_kspr_inst_shader     = 0;
-    GLuint m_kspr_inst_quad_vbo   = 0;  // static unit quad shared by the VAOs
-    GLuint m_kspr_inst_vao        = 0;
-    GLuint m_kspr_inst_vbo        = 0;
+    GpuResourceHandle m_kspr_inst_shader_handle = kInvalidGpuResource;
+    // Static unit quad shared by both instanced VAOs below -- created via
+    // the mapper as its own GpuGeometryBuffer (own VAO thrown away, never
+    // bound; only its .vbo is used, re-bound into two different VAOs at
+    // different attribute locations -- see init_keeper_sprite_instancing()'s
+    // comment for why the mapper's 1:1 VAO+VBO shape doesn't map cleanly
+    // onto a VBO shared across multiple VAOs, and why this is the disclosed
+    // resolution).
+    GpuResourceHandle m_kspr_inst_quad_geom_handle = kInvalidGpuResource;
+    // VAO+VBO bundle for per-instance data (KsprInstance layout); attribs
+    // for the per-instance data (locations 1-4) are set up by the mapper
+    // per its own desc, but location 0 (from the shared quad VBO above)
+    // is bound manually, once, right after creation.
+    GpuResourceHandle m_kspr_inst_geom_handle = kInvalidGpuResource;
     GLint  m_kspr_inst_loc_viewport = -1;
     std::vector<KsprInstance> m_kspr_instances;  // RT: batch scratch
 
     // Instanced depth-fail outline/edge pass (Beat 4) -- own VAO/VBO
     // (KsprOutlineInstance layout differs from KsprInstance), shares
-    // m_kspr_inst_quad_vbo's unit quad. Both shaders share one VAO/VBO;
-    // flush_keeper_sprite_instances() just switches GL program.
-    GLuint m_kspr_inst_outline_shader       = 0;
-    GLuint m_kspr_inst_edge_shader          = 0;
-    GLuint m_kspr_inst_outline_vao          = 0;
-    GLuint m_kspr_inst_outline_vbo          = 0;
+    // m_kspr_inst_quad_geom_handle's unit quad. Both shaders share one
+    // VAO/VBO; flush_keeper_sprite_instances() just switches GL program.
+    GpuResourceHandle m_kspr_inst_outline_shader_handle = kInvalidGpuResource;
+    GpuResourceHandle m_kspr_inst_edge_shader_handle    = kInvalidGpuResource;
+    GpuResourceHandle m_kspr_inst_outline_geom_handle   = kInvalidGpuResource;
     GLint  m_kspr_inst_outline_loc_viewport = -1;
     GLint  m_kspr_inst_edge_loc_viewport    = -1;
     std::vector<KsprOutlineInstance> m_kspr_outline_instances;  // RT: batch scratch
@@ -663,9 +671,8 @@ private:
     // use), multiplies the destination colour by (1 - darken) elsewhere --
     // see the .cpp file header for why this approximates trig_render_md10's
     // destination-dependent palette darken rather than reproducing it exactly.
-    GLuint m_shadow_shader       = 0;
-    GLuint m_shadow_vao          = 0;
-    GLuint m_shadow_vbo          = 0;
+    GpuResourceHandle m_shadow_shader_handle = kInvalidGpuResource;
+    GpuResourceHandle m_shadow_geom_handle   = kInvalidGpuResource; // VAO+VBO bundle
     GLint  m_shadow_loc_viewport = -1;
     GLint  m_shadow_loc_sprite   = -1;
     // No uniform for darken/z_ndc/layer -- all three are per-vertex
@@ -690,36 +697,50 @@ private:
     IRWorldLensCmd m_lens_cmd;      // GT:
     IRWorldLensCmd m_rt_lens_cmd;   // RT:
 
-    GLuint m_lens_scene_fbo       = 0;
-    GLuint m_lens_scene_tex       = 0;
-    GLuint m_lens_scene_depth_rb  = 0;
-    int    m_lens_fbo_w = 0, m_lens_fbo_h = 0;   // RT: current FBO size, 0 = not yet created
+    /** GPU Resource Mapper: game-thread-only, called from
+     *  SubmitPossessionLens(). Creates/reloads m_lens_scene_rt_handle sized
+     *  to the current full-screen capture resolution -- the resize decision
+     *  has to happen here, not in BeginLensCapture() (render thread):
+     *  RequestReloadRenderTarget is game-thread-only. */
+    void EnsureLensSceneRT(int w, int h);
+    /** Same reasoning, for the remap/displacement lookup texture (genuinely
+     *  resizes on resolution change -- gpu-resource-mapper-spec.md Part 6.7's
+     *  own open question, resolved by inspection: confirmed via
+     *  upload_lens_textures_if_dirty()'s original need_realloc check). */
+    void EnsureLensRemapTexture(int w, int h);
+    /** Same, for the overlay texture -- also confirmed to genuinely resize
+     *  (COverlayRenderer content can differ in size between lenses),
+     *  contrary to the spec's speculative "verify before assuming fixed". */
+    void EnsureLensOverlayTexture(int w, int h);
 
-    GLuint m_lens_quad_vao = 0, m_lens_quad_vbo = 0;   // shared unit quad, all three passes
+    GpuResourceHandle m_lens_scene_rt_handle = kInvalidGpuResource; // RGBA8 color + Depth24Stencil8
+    int m_lens_scene_gt_w = 0, m_lens_scene_gt_h = 0; // GT: size last committed at
+
+    GpuResourceHandle m_lens_quad_geom_handle = kInvalidGpuResource; // shared unit quad, all three passes
 
     // Sampler units (u_scene, u_mist/u_remap/u_overlay, u_palette) are bound
     // once at link time in init_lens_shaders() -- only the per-frame
     // uniforms below need a cached location.
-    GLuint m_lens_shader_mist      = 0;
+    GpuResourceHandle m_lens_shader_mist_handle = kInvalidGpuResource;
     GLint  m_lens_mist_loc_src_off = -1, m_lens_mist_loc_src_scale = -1;
     GLint  m_lens_mist_loc_pos     = -1, m_lens_mist_loc_sec       = -1, m_lens_mist_loc_lightness = -1;
 
-    GLuint m_lens_shader_remap       = 0;
+    GpuResourceHandle m_lens_shader_remap_handle = kInvalidGpuResource;
     GLint  m_lens_remap_loc_src_off  = -1, m_lens_remap_loc_tex_size = -1;
 
-    GLuint m_lens_shader_overlay      = 0;
+    GpuResourceHandle m_lens_shader_overlay_handle = kInvalidGpuResource;
     GLint  m_lens_overlay_loc_src_off = -1, m_lens_overlay_loc_src_scale = -1, m_lens_overlay_loc_alpha = -1;
 
     // Uploaded-texture caches, so upload_lens_textures_if_dirty() can skip
     // a re-upload when *_version hasn't changed since last frame.
-    GLuint m_lens_mist_tex        = 0;
+    GpuResourceHandle m_lens_mist_tex_handle = kInvalidGpuResource; // fixed 256x256, created lazily on RT
     uint32_t m_lens_mist_uploaded_version    = 0xFFFFFFFFu;   // never matches a real version 0-based frame 1
-    GLuint m_lens_remap_tex       = 0;   // GL_RG16UI equivalent -- stored as two-channel signed via RG16I
+    GpuResourceHandle m_lens_remap_tex_handle = kInvalidGpuResource; // GL_RG16UI
     uint32_t m_lens_remap_uploaded_version   = 0xFFFFFFFFu;
-    int      m_lens_remap_tex_w = 0, m_lens_remap_tex_h = 0;
-    GLuint m_lens_overlay_tex     = 0;
+    int      m_lens_remap_gt_w = 0, m_lens_remap_gt_h = 0; // GT: size last committed at
+    GpuResourceHandle m_lens_overlay_tex_handle = kInvalidGpuResource;
     uint32_t m_lens_overlay_uploaded_version = 0xFFFFFFFFu;
-    int      m_lens_overlay_tex_w = 0, m_lens_overlay_tex_h = 0;
+    int      m_lens_overlay_gt_w = 0, m_lens_overlay_gt_h = 0; // GT: size last committed at
 };
 
 /******************************************************************************/

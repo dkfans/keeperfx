@@ -189,22 +189,10 @@ GLuint GLWorldViewRenderer::ResolveFadeTexId() const
     return tex ? tex->id : 0;
 }
 
-static GLuint compile_shader_src(GLenum type, const char* src, const char* debug_name)
+GLuint GLWorldViewRenderer::ResolveShaderId(GpuResourceHandle handle) const
 {
-    GLuint s = glCreateShader(type);
-    glShaderSource(s, 1, &src, nullptr);
-    glCompileShader(s);
-    GLint ok = 0;
-    glGetShaderiv(s, GL_COMPILE_STATUS, &ok);
-    if (!ok)
-    {
-        char log[512];
-        glGetShaderInfoLog(s, sizeof(log), nullptr, log);
-        ERRORLOG("GLWorldViewRenderer: shader '%s' compile error: %s", debug_name, log);
-        glDeleteShader(s);
-        return 0;
-    }
-    return s;
+    const GLProgram* prog = m_resource_mapper ? m_resource_mapper->ResolveProgram(handle) : nullptr;
+    return prog ? prog->id : 0;
 }
 
 /******************************************************************************/
@@ -279,51 +267,42 @@ bool GLWorldViewRenderer::init_gl_resources()
     }
 
     // VAO + dynamic VBO for world geometry
-    glGenVertexArrays(1, &m_vao);
-    glGenBuffers(1, &m_vbo);
-
-    glBindVertexArray(m_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER,
-                 (GLsizeiptr)(k_max_verts * sizeof(WorldVertex)),
-                 nullptr, GL_DYNAMIC_DRAW);
-
-    // layout(location=0) vec3 a_pos  — x,y,z at byte offset 0
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(WorldVertex),
-                          (void*)0);
-    glEnableVertexAttribArray(0);
-    // layout(location=1) vec2 a_uv   — u,v at byte offset 12 (after x,y,z)
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(WorldVertex),
-                          (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    // layout(location=2) float a_shade — shade at byte offset 20 (after x,y,z,u,v)
-    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(WorldVertex),
-                          (void*)(5 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    // layout(location=3) vec2 a_stl — subtile coords at byte offset 24 (after x,y,z,u,v,shade)
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(WorldVertex),
-                          (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(3);
-    // layout(location=4) float a_camera_z — camera-space depth for perspective correction, byte offset 32
-    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(WorldVertex),
-                          (void*)(8 * sizeof(float)));
-    glEnableVertexAttribArray(4);
-    // layout(location=5) float a_layer — texture array layer (atlas variation), byte offset 36
-    glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(WorldVertex),
-                          (void*)(9 * sizeof(float)));
-    glEnableVertexAttribArray(5);
-    // layout(location=6) vec3 aWorldPos — pre-projection world-space position
-    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, sizeof(WorldVertex),
-                          (void*)(10 * sizeof(float)));
-    glEnableVertexAttribArray(6);
-
-    glBindVertexArray(0);
+    {
+        GpuGeometryBufferDesc geom_desc;
+        geom_desc.vertex_stride = (uint32_t)sizeof(WorldVertex);
+        geom_desc.attribs = {
+            // layout(location=0) vec3 a_pos  — x,y,z at byte offset 0
+            { 0, 3, GpuVertexAttribType::Float, 0 },
+            // layout(location=1) vec2 a_uv   — u,v at byte offset 12 (after x,y,z)
+            { 1, 2, GpuVertexAttribType::Float, 3 * (uint32_t)sizeof(float) },
+            // layout(location=2) float a_shade — shade at byte offset 20 (after x,y,z,u,v)
+            { 2, 1, GpuVertexAttribType::Float, 5 * (uint32_t)sizeof(float) },
+            // layout(location=3) vec2 a_stl — subtile coords at byte offset 24 (after x,y,z,u,v,shade)
+            { 3, 2, GpuVertexAttribType::Float, 6 * (uint32_t)sizeof(float) },
+            // layout(location=4) float a_camera_z — camera-space depth for perspective correction, byte offset 32
+            { 4, 1, GpuVertexAttribType::Float, 8 * (uint32_t)sizeof(float) },
+            // layout(location=5) float a_layer — texture array layer (atlas variation), byte offset 36
+            { 5, 1, GpuVertexAttribType::Float, 9 * (uint32_t)sizeof(float) },
+            // layout(location=6) vec3 aWorldPos — pre-projection world-space position
+            { 6, 3, GpuVertexAttribType::Float, 10 * (uint32_t)sizeof(float) },
+        };
+        geom_desc.dynamic = true;
+        geom_desc.initial_vertex_capacity = k_max_verts * sizeof(WorldVertex);
+        geom_desc.debug_name = "world_geom";
+        m_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(geom_desc);
+        if (m_resource_mapper->ResolveGeometryBuffer(m_geom_handle) == nullptr)
+        {
+            ERRORLOG("GLWorldViewRenderer: world geometry buffer realization failed");
+            return false;
+        }
+    }
 
     // Cache uniform locations and bind samplers to fixed texture units
-    glUseProgram(m_shader);
-    m_loc_tile_atlas = glGetUniformLocation(m_shader, "u_tile_atlas");
+    const GLuint world_shader_id = ResolveShaderId(m_shader_handle);
+    glUseProgram(world_shader_id);
+    m_loc_tile_atlas = glGetUniformLocation(world_shader_id, "u_tile_atlas");
     glUniform1i(m_loc_tile_atlas, 0);   // GL_TEXTURE0 — R8 palette-index atlas array
-    m_loc_palette = glGetUniformLocation(m_shader, "u_palette");
+    m_loc_palette = glGetUniformLocation(world_shader_id, "u_palette");
     glUniform1i(m_loc_palette, 1);      // GL_TEXTURE1 — 1D RGBA8 palette
     // Shade / lighting uniforms — cache locations and push defaults from
     // g_renderer_settings (Beat 4, ported from develop). Read once here
@@ -332,19 +311,19 @@ bool GLWorldViewRenderer::init_gl_resources()
     // settings-editing UI yet (console commands / ImGui panel / menu
     // overlay are all out of scope, see RendererSettings.h's file header),
     // so there is nothing that could change these after startup anyway.
-    m_loc_fullbright    = glGetUniformLocation(m_shader, "u_fullbright");
-    m_loc_ambient       = glGetUniformLocation(m_shader, "u_ambient");
-    m_loc_shade_scale   = glGetUniformLocation(m_shader, "u_shade_scale");
-    m_loc_shade_gamma   = glGetUniformLocation(m_shader, "u_shade_gamma");
-    m_loc_lighting_mode = glGetUniformLocation(m_shader, "u_lighting_mode");
-    m_loc_darkness_mode = glGetUniformLocation(m_shader, "u_darkness_mode");
-    m_loc_fade_table    = glGetUniformLocation(m_shader, "u_fade_table");
-    m_loc_time          = glGetUniformLocation(m_shader, "u_time");
-    m_loc_fog_speed     = glGetUniformLocation(m_shader, "u_fog_speed");
-    m_loc_fog_density   = glGetUniformLocation(m_shader, "u_fog_density");
-    m_loc_lightmap      = glGetUniformLocation(m_shader, "u_lightmap");
-    m_loc_missing_tile  = glGetUniformLocation(m_shader, "u_missing_tile");
-    m_loc_tile_filter   = glGetUniformLocation(m_shader, "u_tile_filter");
+    m_loc_fullbright    = glGetUniformLocation(world_shader_id, "u_fullbright");
+    m_loc_ambient       = glGetUniformLocation(world_shader_id, "u_ambient");
+    m_loc_shade_scale   = glGetUniformLocation(world_shader_id, "u_shade_scale");
+    m_loc_shade_gamma   = glGetUniformLocation(world_shader_id, "u_shade_gamma");
+    m_loc_lighting_mode = glGetUniformLocation(world_shader_id, "u_lighting_mode");
+    m_loc_darkness_mode = glGetUniformLocation(world_shader_id, "u_darkness_mode");
+    m_loc_fade_table    = glGetUniformLocation(world_shader_id, "u_fade_table");
+    m_loc_time          = glGetUniformLocation(world_shader_id, "u_time");
+    m_loc_fog_speed     = glGetUniformLocation(world_shader_id, "u_fog_speed");
+    m_loc_fog_density   = glGetUniformLocation(world_shader_id, "u_fog_density");
+    m_loc_lightmap      = glGetUniformLocation(world_shader_id, "u_lightmap");
+    m_loc_missing_tile  = glGetUniformLocation(world_shader_id, "u_missing_tile");
+    m_loc_tile_filter   = glGetUniformLocation(world_shader_id, "u_tile_filter");
     glUniform1f(m_loc_fullbright,    g_renderer_settings.shade_fullbright);
     glUniform1f(m_loc_ambient,       g_renderer_settings.shade_ambient);
     glUniform1f(m_loc_shade_scale,   g_renderer_settings.shade_scale);
@@ -363,15 +342,22 @@ bool GLWorldViewRenderer::init_gl_resources()
 
     // Lightmap texture — mirrors game.lish.subtile_lightness[] each frame.
     // GL_R16UI stores the raw 0..16128 lightness values; the shader normalises them.
-    glGenTextures(1, &m_tex_lightmap);
-    glBindTexture(GL_TEXTURE_2D, m_tex_lightmap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16UI, MAX_SUBTILES_X, MAX_SUBTILES_Y,
-                 0, GL_RED_INTEGER, GL_UNSIGNED_SHORT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    {
+        GpuTextureDesc desc;
+        desc.width = MAX_SUBTILES_X;
+        desc.height = MAX_SUBTILES_Y;
+        desc.format = GpuTextureFormat::R16UI;
+        desc.min_filter = GpuTextureFilter::Nearest;
+        desc.mag_filter = GpuTextureFilter::Nearest;
+        desc.wrap = GpuTextureWrap::Clamp;
+        desc.debug_name = "world_lightmap";
+        m_lightmap_tex_handle = m_resource_mapper->RequestCreateTexture(desc);
+        if (m_resource_mapper->ResolveTexture(m_lightmap_tex_handle) == nullptr)
+        {
+            ERRORLOG("GLWorldViewRenderer: lightmap texture realization failed");
+            return false;
+        }
+    }
 
     if (!init_flatpoly_shader())
     {
@@ -416,14 +402,11 @@ bool GLWorldViewRenderer::init_gl_resources()
 
 void GLWorldViewRenderer::free_gl_resources()
 {
-    if (m_vao)    { glDeleteVertexArrays(1, &m_vao);  m_vao = 0; }
-    if (m_vbo)    { glDeleteBuffers(1, &m_vbo);        m_vbo = 0; }
-    if (m_shader) { glDeleteProgram(m_shader);          m_shader = 0; }
-
-    if (m_flatpoly_vao)    { glDeleteVertexArrays(1, &m_flatpoly_vao); m_flatpoly_vao = 0; }
-    if (m_flatpoly_vbo)    { glDeleteBuffers(1, &m_flatpoly_vbo);       m_flatpoly_vbo = 0; }
-    if (m_flatpoly_shader) { glDeleteProgram(m_flatpoly_shader);        m_flatpoly_shader = 0; }
-    if (m_tex_lightmap)    { glDeleteTextures(1, &m_tex_lightmap);      m_tex_lightmap = 0; }
+    // GPU Resource Mapper: base geometry, flat-poly, and the lightmap
+    // texture are mapper-owned now -- this runs inside RendererOpenGL::
+    // render_thread_cleanup() on the render thread, where RequestRelease()
+    // (game-thread-only) can't be called. ShutdownAll() destroys them
+    // unconditionally instead.
 
     free_keeper_sprite_resources();
     free_shadow_resources();
@@ -434,116 +417,62 @@ void GLWorldViewRenderer::free_gl_resources()
 
 void GLWorldViewRenderer::free_keeper_sprite_resources()
 {
-    if (m_kspr_vao)          { glDeleteVertexArrays(1, &m_kspr_vao);          m_kspr_vao = 0; }
-    if (m_kspr_vbo)          { glDeleteBuffers(1, &m_kspr_vbo);                m_kspr_vbo = 0; }
-    if (m_kspr_shader)       { glDeleteProgram(m_kspr_shader);                 m_kspr_shader = 0; }
-    if (m_kspr_glow_shader)  { glDeleteProgram(m_kspr_glow_shader);            m_kspr_glow_shader = 0; }
-    if (m_kspr_sprite_tex)   { glDeleteTextures(1, &m_kspr_sprite_tex);        m_kspr_sprite_tex = 0; }
-    if (m_kspr_sprite_array) { glDeleteTextures(1, &m_kspr_sprite_array);      m_kspr_sprite_array = 0; }
-    if (m_kspr_atlas_shader) { glDeleteProgram(m_kspr_atlas_shader);           m_kspr_atlas_shader = 0; }
-    if (m_kspr_atlas_glow_shader) { glDeleteProgram(m_kspr_atlas_glow_shader); m_kspr_atlas_glow_shader = 0; }
-    if (m_kspr_outline_shader)       { glDeleteProgram(m_kspr_outline_shader);       m_kspr_outline_shader = 0; }
-    if (m_kspr_atlas_outline_shader) { glDeleteProgram(m_kspr_atlas_outline_shader); m_kspr_atlas_outline_shader = 0; }
-    if (m_kspr_edge_shader)          { glDeleteProgram(m_kspr_edge_shader);          m_kspr_edge_shader = 0; }
-    if (m_kspr_atlas_edge_shader)    { glDeleteProgram(m_kspr_atlas_edge_shader);    m_kspr_atlas_edge_shader = 0; }
+    // GPU Resource Mapper: this runs inside RendererOpenGL::
+    // render_thread_cleanup() on the render thread -- RequestRelease() is
+    // game-thread-only, so none of the mapper-owned resources are released
+    // here. ShutdownAll() destroys them unconditionally instead. Only CPU-
+    // side bookkeeping (unrelated to the mapper) is reset below.
     m_kspr_atlas_used = 0;
     m_kspr_atlas_map.clear();
-    if (m_kspr_clut_tex) { glDeleteTextures(1, &m_kspr_clut_tex); m_kspr_clut_tex = 0; }
     m_kspr_clut_remaps.clear();
     m_kspr_clut_used = 1;
     memset(m_kspr_clut_palette_snap, 0, sizeof(m_kspr_clut_palette_snap));
-
-    if (m_kspr_inst_vao)      { glDeleteVertexArrays(1, &m_kspr_inst_vao);      m_kspr_inst_vao = 0; }
-    if (m_kspr_inst_vbo)      { glDeleteBuffers(1, &m_kspr_inst_vbo);            m_kspr_inst_vbo = 0; }
-    if (m_kspr_inst_quad_vbo) { glDeleteBuffers(1, &m_kspr_inst_quad_vbo);       m_kspr_inst_quad_vbo = 0; }
-    if (m_kspr_inst_shader)   { glDeleteProgram(m_kspr_inst_shader);             m_kspr_inst_shader = 0; }
     m_kspr_instances.clear();
-
-    if (m_kspr_inst_outline_vao)    { glDeleteVertexArrays(1, &m_kspr_inst_outline_vao); m_kspr_inst_outline_vao = 0; }
-    if (m_kspr_inst_outline_vbo)    { glDeleteBuffers(1, &m_kspr_inst_outline_vbo);       m_kspr_inst_outline_vbo = 0; }
-    if (m_kspr_inst_outline_shader) { glDeleteProgram(m_kspr_inst_outline_shader);        m_kspr_inst_outline_shader = 0; }
-    if (m_kspr_inst_edge_shader)    { glDeleteProgram(m_kspr_inst_edge_shader);           m_kspr_inst_edge_shader = 0; }
     m_kspr_outline_instances.clear();
 }
 
 bool GLWorldViewRenderer::compile_world_shaders()
 {
-    GLuint vert = compile_shader_src(GL_VERTEX_SHADER,   WORLD_VERTEX_SHADER,   "world_vert.glsl");
-    GLuint frag = compile_shader_src(GL_FRAGMENT_SHADER, WORLD_FRAGMENT_SHADER, "world_frag.glsl");
-    if (!vert || !frag)
-    {
-        if (vert) glDeleteShader(vert);
-        if (frag) glDeleteShader(frag);
-        return false;
-    }
-    m_shader = glCreateProgram();
-    glAttachShader(m_shader, vert);
-    glAttachShader(m_shader, frag);
-    glLinkProgram(m_shader);
-    glDeleteShader(vert);
-    glDeleteShader(frag);
-
-    GLint linked = 0;
-    glGetProgramiv(m_shader, GL_LINK_STATUS, &linked);
-    if (!linked)
-    {
-        char log[512];
-        glGetProgramInfoLog(m_shader, sizeof(log), nullptr, log);
-        ERRORLOG("GLWorldViewRenderer: shader link error: %s", log);
-        glDeleteProgram(m_shader);
-        m_shader = 0;
-        return false;
-    }
-    return true;
+    if (!m_resource_mapper) return false;
+    GpuProgramDesc desc;
+    desc.vertex_src = WORLD_VERTEX_SHADER;
+    desc.fragment_src = WORLD_FRAGMENT_SHADER;
+    desc.debug_name = "world";
+    m_shader_handle = m_resource_mapper->RequestCreateProgram(desc);
+    return m_resource_mapper->ResolveProgram(m_shader_handle) != nullptr;
 }
 
 bool GLWorldViewRenderer::init_flatpoly_shader()
 {
-    GLuint sv = compile_shader_src(GL_VERTEX_SHADER,   FLATPOLY_VERTEX_SHADER,   "flatpoly_vert.glsl");
-    GLuint sf = compile_shader_src(GL_FRAGMENT_SHADER, FLATPOLY_FRAGMENT_SHADER, "flatpoly_frag.glsl");
-    if (!sv || !sf)
-    {
-        if (sv) glDeleteShader(sv);
-        if (sf) glDeleteShader(sf);
-        return false;
-    }
-    m_flatpoly_shader = glCreateProgram();
-    glAttachShader(m_flatpoly_shader, sv);
-    glAttachShader(m_flatpoly_shader, sf);
-    glLinkProgram(m_flatpoly_shader);
-    glDeleteShader(sv);
-    glDeleteShader(sf);
+    if (!m_resource_mapper) return false;
 
-    GLint linked = 0;
-    glGetProgramiv(m_flatpoly_shader, GL_LINK_STATUS, &linked);
-    if (!linked)
-    {
-        char log[512];
-        glGetProgramInfoLog(m_flatpoly_shader, sizeof(log), nullptr, log);
-        ERRORLOG("GLWorldViewRenderer: flat-poly shader link error: %s", log);
-        glDeleteProgram(m_flatpoly_shader);
-        m_flatpoly_shader = 0;
-        return false;
-    }
+    GpuProgramDesc prog_desc;
+    prog_desc.vertex_src = FLATPOLY_VERTEX_SHADER;
+    prog_desc.fragment_src = FLATPOLY_FRAGMENT_SHADER;
+    prog_desc.debug_name = "flatpoly";
+    m_flatpoly_shader_handle = m_resource_mapper->RequestCreateProgram(prog_desc);
 
-    glUseProgram(m_flatpoly_shader);
-    m_flatpoly_loc_viewport = glGetUniformLocation(m_flatpoly_shader, "u_viewport");
+    const GLProgram* prog = m_resource_mapper->ResolveProgram(m_flatpoly_shader_handle);
+    if (!prog) return false;
+
+    glUseProgram(prog->id);
+    m_flatpoly_loc_viewport = glGetUniformLocation(prog->id, "u_viewport");
     glUseProgram(0);
 
     // VAO + dynamic VBO: sizeof(FlatPolyVertex) per vertex (x, y, z, r, g, b)
-    glGenVertexArrays(1, &m_flatpoly_vao);
-    glGenBuffers(1, &m_flatpoly_vbo);
-    glBindVertexArray(m_flatpoly_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_flatpoly_vbo);
-    // layout(location=0) vec3 a_pos  (x, y = screen px; z = NDC)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(FlatPolyVertex), (void*)0);
-    glEnableVertexAttribArray(0);
-    // layout(location=1) vec3 a_color (linear RGB)
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(FlatPolyVertex), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glBindVertexArray(0);
+    GpuGeometryBufferDesc geom_desc;
+    geom_desc.vertex_stride = (uint32_t)sizeof(FlatPolyVertex);
+    geom_desc.attribs = {
+        // layout(location=0) vec3 a_pos  (x, y = screen px; z = NDC)
+        { 0, 3, GpuVertexAttribType::Float, 0 },
+        // layout(location=1) vec3 a_color (linear RGB)
+        { 1, 3, GpuVertexAttribType::Float, 3 * (uint32_t)sizeof(float) },
+    };
+    geom_desc.dynamic = true;
+    geom_desc.debug_name = "flatpoly_geom";
+    m_flatpoly_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(geom_desc);
 
-    return true;
+    return m_resource_mapper->ResolveGeometryBuffer(m_flatpoly_geom_handle) != nullptr;
 }
 
 /******************************************************************************/
@@ -560,64 +489,46 @@ std::vector<ShadowGLVertex> s_shadow_verts;
 
 bool GLWorldViewRenderer::init_shadow_shader()
 {
-    GLuint sv = compile_shader_src(GL_VERTEX_SHADER,   SHADOW_VERTEX_SHADER,   "shadow_vert.glsl");
-    GLuint sf = compile_shader_src(GL_FRAGMENT_SHADER, SHADOW_FRAGMENT_SHADER, "shadow_frag.glsl");
-    if (!sv || !sf)
-    {
-        if (sv) glDeleteShader(sv);
-        if (sf) glDeleteShader(sf);
-        return false;
-    }
-    m_shadow_shader = glCreateProgram();
-    glAttachShader(m_shadow_shader, sv);
-    glAttachShader(m_shadow_shader, sf);
-    glLinkProgram(m_shadow_shader);
-    glDeleteShader(sv);
-    glDeleteShader(sf);
+    if (!m_resource_mapper) return false;
 
-    GLint linked = 0;
-    glGetProgramiv(m_shadow_shader, GL_LINK_STATUS, &linked);
-    if (!linked)
-    {
-        char log[512];
-        glGetProgramInfoLog(m_shadow_shader, sizeof(log), nullptr, log);
-        ERRORLOG("GLWorldViewRenderer: shadow shader link error: %s", log);
-        glDeleteProgram(m_shadow_shader);
-        m_shadow_shader = 0;
-        return false;
-    }
+    GpuProgramDesc prog_desc;
+    prog_desc.vertex_src = SHADOW_VERTEX_SHADER;
+    prog_desc.fragment_src = SHADOW_FRAGMENT_SHADER;
+    prog_desc.debug_name = "shadow";
+    m_shadow_shader_handle = m_resource_mapper->RequestCreateProgram(prog_desc);
 
-    glUseProgram(m_shadow_shader);
-    m_shadow_loc_viewport = glGetUniformLocation(m_shadow_shader, "u_viewport");
-    m_shadow_loc_sprite   = glGetUniformLocation(m_shadow_shader, "u_sprite");
+    const GLProgram* prog = m_resource_mapper->ResolveProgram(m_shadow_shader_handle);
+    if (!prog) return false;
+
+    glUseProgram(prog->id);
+    m_shadow_loc_viewport = glGetUniformLocation(prog->id, "u_viewport");
+    m_shadow_loc_sprite   = glGetUniformLocation(prog->id, "u_sprite");
     glUniform1i(m_shadow_loc_sprite, 0);  // GL_TEXTURE0
     glUseProgram(0);
 
     // VAO + dynamic VBO: 7 floats/vertex (x, y, u, v, layer, z_ndc, darken)
-    glGenVertexArrays(1, &m_shadow_vao);
-    glGenBuffers(1, &m_shadow_vbo);
-    glBindVertexArray(m_shadow_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_shadow_vbo);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ShadowGLVertex), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ShadowGLVertex), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(ShadowGLVertex), (void*)(4 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(ShadowGLVertex), (void*)(5 * sizeof(float)));
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(ShadowGLVertex), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(4);
-    glBindVertexArray(0);
+    GpuGeometryBufferDesc geom_desc;
+    geom_desc.vertex_stride = (uint32_t)sizeof(ShadowGLVertex);
+    geom_desc.attribs = {
+        { 0, 2, GpuVertexAttribType::Float, 0 },
+        { 1, 2, GpuVertexAttribType::Float, 2 * (uint32_t)sizeof(float) },
+        { 2, 1, GpuVertexAttribType::Float, 4 * (uint32_t)sizeof(float) },
+        { 3, 1, GpuVertexAttribType::Float, 5 * (uint32_t)sizeof(float) },
+        { 4, 1, GpuVertexAttribType::Float, 6 * (uint32_t)sizeof(float) },
+    };
+    geom_desc.dynamic = true;
+    geom_desc.debug_name = "shadow_geom";
+    m_shadow_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(geom_desc);
 
-    return true;
+    return m_resource_mapper->ResolveGeometryBuffer(m_shadow_geom_handle) != nullptr;
 }
 
 void GLWorldViewRenderer::free_shadow_resources()
 {
-    if (m_shadow_vbo)    { glDeleteBuffers(1, &m_shadow_vbo);         m_shadow_vbo = 0; }
-    if (m_shadow_vao)    { glDeleteVertexArrays(1, &m_shadow_vao);    m_shadow_vao = 0; }
-    if (m_shadow_shader) { glDeleteProgram(m_shadow_shader);          m_shadow_shader = 0; }
+    // GPU Resource Mapper: this runs inside RendererOpenGL::
+    // render_thread_cleanup() on the render thread -- RequestRelease() is
+    // game-thread-only, so the mapper-owned resources above are not
+    // released here. ShutdownAll() destroys them unconditionally instead.
     m_shadow_cmds.clear();
     m_rt_shadow_cmds.clear();
 }
@@ -646,9 +557,7 @@ void GLWorldViewRenderer::free_shadow_resources()
 
 bool GLWorldViewRenderer::init_lens_shaders()
 {
-    GLuint vs = compile_shader_src(GL_VERTEX_SHADER, LENS_COMPOSITE_VERTEX_SHADER, "lens_composite_vert.glsl");
-    if (!vs)
-        return false;
+    if (!m_resource_mapper) return false;
 
     // Shared unit quad: two triangles covering NDC [-1,1], UV [0,1]. Drawn
     // with glViewport already set to the destination sub-rect (see
@@ -663,291 +572,297 @@ bool GLWorldViewRenderer::init_lens_shaders()
          1.0f,  1.0f,  1.0f, 1.0f,
         -1.0f,  1.0f,  0.0f, 1.0f,
     };
-    glGenVertexArrays(1, &m_lens_quad_vao);
-    glGenBuffers(1, &m_lens_quad_vbo);
-    glBindVertexArray(m_lens_quad_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_lens_quad_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(k_quad), k_quad, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glBindVertexArray(0);
+    {
+        GpuGeometryBufferDesc geom_desc;
+        geom_desc.vertex_stride = 4 * (uint32_t)sizeof(float);
+        geom_desc.attribs = {
+            { 0, 2, GpuVertexAttribType::Float, 0 },
+            { 1, 2, GpuVertexAttribType::Float, 2 * (uint32_t)sizeof(float) },
+        };
+        geom_desc.dynamic = false; // static unit quad, content never changes
+        geom_desc.initial_vertex_capacity = sizeof(k_quad);
+        geom_desc.debug_name = "lens_quad";
+        m_lens_quad_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(geom_desc);
+        const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_lens_quad_geom_handle);
+        if (!geom) return false;
+        glBindBuffer(GL_ARRAY_BUFFER, geom->vbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(k_quad), k_quad);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 
     bool any_ok = false;
 
     // Mist
     {
-        GLuint fs = compile_shader_src(GL_FRAGMENT_SHADER, LENS_MIST_FRAGMENT_SHADER, "lens_mist_frag.glsl");
-        if (fs)
+        GpuProgramDesc desc;
+        desc.vertex_src = LENS_COMPOSITE_VERTEX_SHADER;
+        desc.fragment_src = LENS_MIST_FRAGMENT_SHADER;
+        desc.debug_name = "lens_mist";
+        m_lens_shader_mist_handle = m_resource_mapper->RequestCreateProgram(desc);
+        const GLProgram* prog = m_resource_mapper->ResolveProgram(m_lens_shader_mist_handle);
+        if (prog)
         {
-            GLuint prog = glCreateProgram();
-            glAttachShader(prog, vs);
-            glAttachShader(prog, fs);
-            glLinkProgram(prog);
-            glDeleteShader(fs);
-            GLint linked = 0;
-            glGetProgramiv(prog, GL_LINK_STATUS, &linked);
-            if (linked)
-            {
-                m_lens_shader_mist = prog;
-                glUseProgram(prog);
-                glUniform1i(glGetUniformLocation(prog, "u_scene"), 0);
-                glUniform1i(glGetUniformLocation(prog, "u_mist"), 1);
-                m_lens_mist_loc_src_off   = glGetUniformLocation(prog, "u_src_off");
-                m_lens_mist_loc_src_scale = glGetUniformLocation(prog, "u_src_scale");
-                m_lens_mist_loc_pos       = glGetUniformLocation(prog, "u_pos");
-                m_lens_mist_loc_sec       = glGetUniformLocation(prog, "u_sec");
-                m_lens_mist_loc_lightness = glGetUniformLocation(prog, "u_lightness");
-                glUseProgram(0);
-                any_ok = true;
-            }
-            else
-            {
-                char log[512];
-                glGetProgramInfoLog(prog, sizeof(log), nullptr, log);
-                ERRORLOG("GLWorldViewRenderer: lens mist shader link error: %s", log);
-                glDeleteProgram(prog);
-            }
+            glUseProgram(prog->id);
+            glUniform1i(glGetUniformLocation(prog->id, "u_scene"), 0);
+            glUniform1i(glGetUniformLocation(prog->id, "u_mist"), 1);
+            m_lens_mist_loc_src_off   = glGetUniformLocation(prog->id, "u_src_off");
+            m_lens_mist_loc_src_scale = glGetUniformLocation(prog->id, "u_src_scale");
+            m_lens_mist_loc_pos       = glGetUniformLocation(prog->id, "u_pos");
+            m_lens_mist_loc_sec       = glGetUniformLocation(prog->id, "u_sec");
+            m_lens_mist_loc_lightness = glGetUniformLocation(prog->id, "u_lightness");
+            glUseProgram(0);
+            any_ok = true;
+        }
+        else
+        {
+            WARNLOG("GLWorldViewRenderer: lens mist shader unavailable");
         }
     }
 
     // Remap (displacement/flyeye -- same table layout, same shader)
     {
-        GLuint fs = compile_shader_src(GL_FRAGMENT_SHADER, LENS_REMAP_FRAGMENT_SHADER, "lens_remap_frag.glsl");
-        if (fs)
+        GpuProgramDesc desc;
+        desc.vertex_src = LENS_COMPOSITE_VERTEX_SHADER;
+        desc.fragment_src = LENS_REMAP_FRAGMENT_SHADER;
+        desc.debug_name = "lens_remap";
+        m_lens_shader_remap_handle = m_resource_mapper->RequestCreateProgram(desc);
+        const GLProgram* prog = m_resource_mapper->ResolveProgram(m_lens_shader_remap_handle);
+        if (prog)
         {
-            GLuint prog = glCreateProgram();
-            glAttachShader(prog, vs);
-            glAttachShader(prog, fs);
-            glLinkProgram(prog);
-            glDeleteShader(fs);
-            GLint linked = 0;
-            glGetProgramiv(prog, GL_LINK_STATUS, &linked);
-            if (linked)
-            {
-                m_lens_shader_remap = prog;
-                glUseProgram(prog);
-                glUniform1i(glGetUniformLocation(prog, "u_scene"), 0);
-                glUniform1i(glGetUniformLocation(prog, "u_remap"), 1);
-                m_lens_remap_loc_src_off  = glGetUniformLocation(prog, "u_src_off");
-                m_lens_remap_loc_tex_size = glGetUniformLocation(prog, "u_tex_size");
-                glUseProgram(0);
-                any_ok = true;
-            }
-            else
-            {
-                char log[512];
-                glGetProgramInfoLog(prog, sizeof(log), nullptr, log);
-                ERRORLOG("GLWorldViewRenderer: lens remap shader link error: %s", log);
-                glDeleteProgram(prog);
-            }
+            glUseProgram(prog->id);
+            glUniform1i(glGetUniformLocation(prog->id, "u_scene"), 0);
+            glUniform1i(glGetUniformLocation(prog->id, "u_remap"), 1);
+            m_lens_remap_loc_src_off  = glGetUniformLocation(prog->id, "u_src_off");
+            m_lens_remap_loc_tex_size = glGetUniformLocation(prog->id, "u_tex_size");
+            glUseProgram(0);
+            any_ok = true;
+        }
+        else
+        {
+            WARNLOG("GLWorldViewRenderer: lens remap shader unavailable");
         }
     }
 
     // Overlay
     {
-        GLuint fs = compile_shader_src(GL_FRAGMENT_SHADER, LENS_OVERLAY_FRAGMENT_SHADER, "lens_overlay_frag.glsl");
-        if (fs)
+        GpuProgramDesc desc;
+        desc.vertex_src = LENS_COMPOSITE_VERTEX_SHADER;
+        desc.fragment_src = LENS_OVERLAY_FRAGMENT_SHADER;
+        desc.debug_name = "lens_overlay";
+        m_lens_shader_overlay_handle = m_resource_mapper->RequestCreateProgram(desc);
+        const GLProgram* prog = m_resource_mapper->ResolveProgram(m_lens_shader_overlay_handle);
+        if (prog)
         {
-            GLuint prog = glCreateProgram();
-            glAttachShader(prog, vs);
-            glAttachShader(prog, fs);
-            glLinkProgram(prog);
-            glDeleteShader(fs);
-            GLint linked = 0;
-            glGetProgramiv(prog, GL_LINK_STATUS, &linked);
-            if (linked)
-            {
-                m_lens_shader_overlay = prog;
-                glUseProgram(prog);
-                glUniform1i(glGetUniformLocation(prog, "u_scene"), 0);
-                glUniform1i(glGetUniformLocation(prog, "u_overlay"), 1);
-                glUniform1i(glGetUniformLocation(prog, "u_palette"), 2);
-                m_lens_overlay_loc_src_off   = glGetUniformLocation(prog, "u_src_off");
-                m_lens_overlay_loc_src_scale = glGetUniformLocation(prog, "u_src_scale");
-                m_lens_overlay_loc_alpha     = glGetUniformLocation(prog, "u_alpha");
-                glUseProgram(0);
-                any_ok = true;
-            }
-            else
-            {
-                char log[512];
-                glGetProgramInfoLog(prog, sizeof(log), nullptr, log);
-                ERRORLOG("GLWorldViewRenderer: lens overlay shader link error: %s", log);
-                glDeleteProgram(prog);
-            }
+            glUseProgram(prog->id);
+            glUniform1i(glGetUniformLocation(prog->id, "u_scene"), 0);
+            glUniform1i(glGetUniformLocation(prog->id, "u_overlay"), 1);
+            glUniform1i(glGetUniformLocation(prog->id, "u_palette"), 2);
+            m_lens_overlay_loc_src_off   = glGetUniformLocation(prog->id, "u_src_off");
+            m_lens_overlay_loc_src_scale = glGetUniformLocation(prog->id, "u_src_scale");
+            m_lens_overlay_loc_alpha     = glGetUniformLocation(prog->id, "u_alpha");
+            glUseProgram(0);
+            any_ok = true;
+        }
+        else
+        {
+            WARNLOG("GLWorldViewRenderer: lens overlay shader unavailable");
         }
     }
 
-    glDeleteShader(vs);
     return any_ok;
 }
 
 void GLWorldViewRenderer::free_lens_resources()
 {
-    if (m_lens_quad_vbo) { glDeleteBuffers(1, &m_lens_quad_vbo);      m_lens_quad_vbo = 0; }
-    if (m_lens_quad_vao) { glDeleteVertexArrays(1, &m_lens_quad_vao); m_lens_quad_vao = 0; }
-
-    if (m_lens_shader_mist)    { glDeleteProgram(m_lens_shader_mist);    m_lens_shader_mist = 0; }
-    if (m_lens_shader_remap)   { glDeleteProgram(m_lens_shader_remap);   m_lens_shader_remap = 0; }
-    if (m_lens_shader_overlay) { glDeleteProgram(m_lens_shader_overlay); m_lens_shader_overlay = 0; }
-
-    if (m_lens_scene_tex)      { glDeleteTextures(1, &m_lens_scene_tex);          m_lens_scene_tex = 0; }
-    if (m_lens_scene_depth_rb) { glDeleteRenderbuffers(1, &m_lens_scene_depth_rb); m_lens_scene_depth_rb = 0; }
-    if (m_lens_scene_fbo)      { glDeleteFramebuffers(1, &m_lens_scene_fbo);       m_lens_scene_fbo = 0; }
-    m_lens_fbo_w = m_lens_fbo_h = 0;
-
-    if (m_lens_mist_tex)    { glDeleteTextures(1, &m_lens_mist_tex);    m_lens_mist_tex = 0; }
-    if (m_lens_remap_tex)   { glDeleteTextures(1, &m_lens_remap_tex);   m_lens_remap_tex = 0; }
-    if (m_lens_overlay_tex) { glDeleteTextures(1, &m_lens_overlay_tex); m_lens_overlay_tex = 0; }
+    // GPU Resource Mapper: this runs inside RendererOpenGL::
+    // render_thread_cleanup() on the render thread -- RequestRelease() is
+    // game-thread-only, so none of the mapper-owned resources above are
+    // released here. ShutdownAll() destroys them unconditionally instead.
     m_lens_mist_uploaded_version = m_lens_remap_uploaded_version = m_lens_overlay_uploaded_version = 0xFFFFFFFFu;
-    m_lens_remap_tex_w = m_lens_remap_tex_h = 0;
-    m_lens_overlay_tex_w = m_lens_overlay_tex_h = 0;
+    m_lens_scene_gt_w = m_lens_scene_gt_h = 0;
+    m_lens_remap_gt_w = m_lens_remap_gt_h = 0;
+    m_lens_overlay_gt_w = m_lens_overlay_gt_h = 0;
 
     m_lens_cmd    = IRWorldLensCmd{};
     m_rt_lens_cmd = IRWorldLensCmd{};
 }
 
-void GLWorldViewRenderer::ensure_lens_fbo(int w, int h)
+void GLWorldViewRenderer::SubmitPossessionLens(const IRWorldLensCmd& cmd)
 {
-    if (w <= 0 || h <= 0)
+    ASSERT_GAME_THREAD();
+    m_lens_cmd = cmd;
+
+    EnsureLensSceneRT(m_screen_w, m_screen_h);
+
+    if (cmd.type == LensPixelEffectType::Displacement || cmd.type == LensPixelEffectType::Flyeye)
+        EnsureLensRemapTexture(cmd.remap_w, cmd.remap_h);
+    else if (cmd.type == LensPixelEffectType::Overlay)
+        EnsureLensOverlayTexture(cmd.overlay_w, cmd.overlay_h);
+}
+
+void GLWorldViewRenderer::EnsureLensSceneRT(int w, int h)
+{
+    if (!m_resource_mapper || w <= 0 || h <= 0)
         return;
-    if (m_lens_scene_fbo != 0 && m_lens_fbo_w == w && m_lens_fbo_h == h)
-        return;  // already the right size
-
-    if (m_lens_scene_fbo == 0)      glGenFramebuffers(1, &m_lens_scene_fbo);
-    if (m_lens_scene_tex == 0)      glGenTextures(1, &m_lens_scene_tex);
-    if (m_lens_scene_depth_rb == 0) glGenRenderbuffers(1, &m_lens_scene_depth_rb);
-
-    glBindTexture(GL_TEXTURE_2D, m_lens_scene_tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glBindRenderbuffer(GL_RENDERBUFFER, m_lens_scene_depth_rb);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, m_lens_scene_fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_lens_scene_tex, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_lens_scene_depth_rb);
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
-        ERRORLOG("GLWorldViewRenderer: lens scene FBO incomplete (0x%x) -- possession lens distortion disabled this run", (unsigned)status);
-        glDeleteFramebuffers(1, &m_lens_scene_fbo);
-        m_lens_scene_fbo = 0;
-        m_lens_fbo_w = m_lens_fbo_h = 0;
+    if (m_lens_scene_rt_handle != kInvalidGpuResource && m_lens_scene_gt_w == w && m_lens_scene_gt_h == h)
         return;
-    }
 
-    m_lens_fbo_w = w;
-    m_lens_fbo_h = h;
+    GpuRenderTargetDesc desc;
+    desc.width = w;
+    desc.height = h;
+    // Depth24Stencil8, not the original's depth-only GL_DEPTH_COMPONENT24
+    // renderbuffer -- GpuTextureFormat has no depth-only option and
+    // RealizeRenderTarget only supports texture attachments (not
+    // renderbuffers). Functionally equivalent for this use (nothing reads
+    // the depth buffer as a texture; GL_DEPTH_TEST is all that's needed),
+    // just an unused stencil channel.
+    desc.attachments = {
+        { GpuTextureFormat::RGBA8, false },
+        { GpuTextureFormat::Depth24Stencil8, true },
+    };
+    desc.debug_name = "lens_scene";
+
+    if (m_lens_scene_rt_handle == kInvalidGpuResource)
+        m_lens_scene_rt_handle = m_resource_mapper->RequestCreateRenderTarget(desc);
+    else
+        m_lens_scene_rt_handle = m_resource_mapper->RequestReloadRenderTarget(m_lens_scene_rt_handle, desc);
+
+    m_lens_scene_gt_w = w;
+    m_lens_scene_gt_h = h;
+}
+
+void GLWorldViewRenderer::EnsureLensRemapTexture(int w, int h)
+{
+    if (!m_resource_mapper || w <= 0 || h <= 0)
+        return;
+    if (m_lens_remap_tex_handle != kInvalidGpuResource && m_lens_remap_gt_w == w && m_lens_remap_gt_h == h)
+        return;
+
+    GpuTextureDesc desc;
+    desc.width = w;
+    desc.height = h;
+    desc.format = GpuTextureFormat::RG16UI;
+    desc.min_filter = GpuTextureFilter::Nearest;
+    desc.mag_filter = GpuTextureFilter::Nearest;
+    desc.wrap = GpuTextureWrap::Clamp;
+    desc.debug_name = "lens_remap";
+
+    if (m_lens_remap_tex_handle == kInvalidGpuResource)
+        m_lens_remap_tex_handle = m_resource_mapper->RequestCreateTexture(desc);
+    else
+        m_lens_remap_tex_handle = m_resource_mapper->RequestReloadTexture(m_lens_remap_tex_handle, desc);
+
+    m_lens_remap_gt_w = w;
+    m_lens_remap_gt_h = h;
+}
+
+void GLWorldViewRenderer::EnsureLensOverlayTexture(int w, int h)
+{
+    if (!m_resource_mapper || w <= 0 || h <= 0)
+        return;
+    if (m_lens_overlay_tex_handle != kInvalidGpuResource && m_lens_overlay_gt_w == w && m_lens_overlay_gt_h == h)
+        return;
+
+    GpuTextureDesc desc;
+    desc.width = w;
+    desc.height = h;
+    desc.format = GpuTextureFormat::R8;
+    // GL_NEAREST matches COverlayRenderer::Render()'s own "nearest-neighbor
+    // sampling" comment.
+    desc.min_filter = GpuTextureFilter::Nearest;
+    desc.mag_filter = GpuTextureFilter::Nearest;
+    desc.wrap = GpuTextureWrap::Clamp;
+    desc.debug_name = "lens_overlay";
+
+    if (m_lens_overlay_tex_handle == kInvalidGpuResource)
+        m_lens_overlay_tex_handle = m_resource_mapper->RequestCreateTexture(desc);
+    else
+        m_lens_overlay_tex_handle = m_resource_mapper->RequestReloadTexture(m_lens_overlay_tex_handle, desc);
+
+    m_lens_overlay_gt_w = w;
+    m_lens_overlay_gt_h = h;
 }
 
 void GLWorldViewRenderer::upload_lens_textures_if_dirty()
 {
+    if (!m_resource_mapper) return;
+
     switch (m_rt_lens_cmd.type)
     {
     case LensPixelEffectType::Mist:
         if (m_rt_lens_cmd.mist_pixels.size() != 256 * 256)
             break;
-        if (m_lens_mist_tex == 0)
+        // Fixed 256x256 -- a content-update case (mapper spec's
+        // mist-texture guidance, Part 6.7), never needs RequestReloadTexture.
+        // RequestCreateTexture has no thread assert, so creating it here
+        // (render thread, first use) is safe.
+        if (m_lens_mist_tex_handle == kInvalidGpuResource)
         {
-            glGenTextures(1, &m_lens_mist_tex);
-            glBindTexture(GL_TEXTURE_2D, m_lens_mist_tex);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, 256, 256, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-            glBindTexture(GL_TEXTURE_2D, 0);
+            GpuTextureDesc desc;
+            desc.width = 256;
+            desc.height = 256;
+            desc.format = GpuTextureFormat::R8;
+            desc.min_filter = GpuTextureFilter::Nearest;
+            desc.mag_filter = GpuTextureFilter::Nearest;
+            desc.wrap = GpuTextureWrap::Clamp;
+            desc.debug_name = "lens_mist";
+            m_lens_mist_tex_handle = m_resource_mapper->RequestCreateTexture(desc);
             m_lens_mist_uploaded_version = 0xFFFFFFFFu;
         }
         if (m_rt_lens_cmd.mist_version != m_lens_mist_uploaded_version)
         {
-            glBindTexture(GL_TEXTURE_2D, m_lens_mist_tex);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_RED, GL_UNSIGNED_BYTE, m_rt_lens_cmd.mist_pixels.data());
-            glBindTexture(GL_TEXTURE_2D, 0);
-            m_lens_mist_uploaded_version = m_rt_lens_cmd.mist_version;
+            const GLTexture* tex = m_resource_mapper->ResolveTexture(m_lens_mist_tex_handle);
+            if (tex)
+            {
+                glBindTexture(GL_TEXTURE_2D, tex->id);
+                glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_RED, GL_UNSIGNED_BYTE, m_rt_lens_cmd.mist_pixels.data());
+                glBindTexture(GL_TEXTURE_2D, 0);
+                m_lens_mist_uploaded_version = m_rt_lens_cmd.mist_version;
+            }
         }
         break;
 
     case LensPixelEffectType::Displacement:
     case LensPixelEffectType::Flyeye:
+        // Sizing already settled on the game thread (EnsureLensRemapTexture(),
+        // called from SubmitPossessionLens()) -- this only uploads content.
         if (m_rt_lens_cmd.remap_w <= 0 || m_rt_lens_cmd.remap_h <= 0 ||
             (size_t)(m_rt_lens_cmd.remap_w * m_rt_lens_cmd.remap_h * 2) != m_rt_lens_cmd.remap_pixels.size())
             break;
+        if (m_rt_lens_cmd.remap_version != m_lens_remap_uploaded_version)
         {
-            bool need_realloc = (m_lens_remap_tex == 0) ||
-                                 (m_lens_remap_tex_w != m_rt_lens_cmd.remap_w) ||
-                                 (m_lens_remap_tex_h != m_rt_lens_cmd.remap_h);
-            if (m_lens_remap_tex == 0)
-                glGenTextures(1, &m_lens_remap_tex);
-            glBindTexture(GL_TEXTURE_2D, m_lens_remap_tex);
-            if (need_realloc)
+            const GLTexture* tex = m_resource_mapper->ResolveTexture(m_lens_remap_tex_handle);
+            if (tex)
             {
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 // Uploaded as unsigned -- entries are always >= 0 in practice
                 // (clamped to [0,width)/[0,height) by BuildLookupTable()), so
                 // the int16_t bit pattern is identical reinterpreted unsigned.
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16UI, m_rt_lens_cmd.remap_w, m_rt_lens_cmd.remap_h,
-                             0, GL_RG_INTEGER, GL_UNSIGNED_SHORT, m_rt_lens_cmd.remap_pixels.data());
-                m_lens_remap_tex_w = m_rt_lens_cmd.remap_w;
-                m_lens_remap_tex_h = m_rt_lens_cmd.remap_h;
-                m_lens_remap_uploaded_version = m_rt_lens_cmd.remap_version;
-            }
-            else if (m_rt_lens_cmd.remap_version != m_lens_remap_uploaded_version)
-            {
+                glBindTexture(GL_TEXTURE_2D, tex->id);
                 glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_rt_lens_cmd.remap_w, m_rt_lens_cmd.remap_h,
                                 GL_RG_INTEGER, GL_UNSIGNED_SHORT, m_rt_lens_cmd.remap_pixels.data());
+                glBindTexture(GL_TEXTURE_2D, 0);
                 m_lens_remap_uploaded_version = m_rt_lens_cmd.remap_version;
             }
-            glBindTexture(GL_TEXTURE_2D, 0);
         }
         break;
 
     case LensPixelEffectType::Overlay:
+        // Sizing already settled on the game thread (EnsureLensOverlayTexture(),
+        // called from SubmitPossessionLens()) -- this only uploads content.
         if (m_rt_lens_cmd.overlay_w <= 0 || m_rt_lens_cmd.overlay_h <= 0 ||
             (size_t)(m_rt_lens_cmd.overlay_w * m_rt_lens_cmd.overlay_h) != m_rt_lens_cmd.overlay_pixels.size())
             break;
+        if (m_rt_lens_cmd.overlay_version != m_lens_overlay_uploaded_version)
         {
-            bool need_realloc = (m_lens_overlay_tex == 0) ||
-                                 (m_lens_overlay_tex_w != m_rt_lens_cmd.overlay_w) ||
-                                 (m_lens_overlay_tex_h != m_rt_lens_cmd.overlay_h);
-            if (m_lens_overlay_tex == 0)
-                glGenTextures(1, &m_lens_overlay_tex);
-            glBindTexture(GL_TEXTURE_2D, m_lens_overlay_tex);
-            if (need_realloc)
+            const GLTexture* tex = m_resource_mapper->ResolveTexture(m_lens_overlay_tex_handle);
+            if (tex)
             {
-                // GL_NEAREST matches COverlayRenderer::Render()'s own
-                // "nearest-neighbor sampling" comment.
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_rt_lens_cmd.overlay_w, m_rt_lens_cmd.overlay_h,
-                             0, GL_RED, GL_UNSIGNED_BYTE, m_rt_lens_cmd.overlay_pixels.data());
-                m_lens_overlay_tex_w = m_rt_lens_cmd.overlay_w;
-                m_lens_overlay_tex_h = m_rt_lens_cmd.overlay_h;
-                m_lens_overlay_uploaded_version = m_rt_lens_cmd.overlay_version;
-            }
-            else if (m_rt_lens_cmd.overlay_version != m_lens_overlay_uploaded_version)
-            {
+                glBindTexture(GL_TEXTURE_2D, tex->id);
                 glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_rt_lens_cmd.overlay_w, m_rt_lens_cmd.overlay_h,
                                 GL_RED, GL_UNSIGNED_BYTE, m_rt_lens_cmd.overlay_pixels.data());
+                glBindTexture(GL_TEXTURE_2D, 0);
                 m_lens_overlay_uploaded_version = m_rt_lens_cmd.overlay_version;
             }
-            glBindTexture(GL_TEXTURE_2D, 0);
         }
         break;
 
@@ -962,27 +877,31 @@ bool GLWorldViewRenderer::BeginLensCapture()
 
     if (!m_rt_lens_cmd.active || m_rt_lens_cmd.type == LensPixelEffectType::None)
         return false;
+    if (!m_resource_mapper)
+        return false;
 
-    GLuint shader = 0;
+    GpuResourceHandle shader_handle = kInvalidGpuResource;
     switch (m_rt_lens_cmd.type)
     {
-    case LensPixelEffectType::Mist:         shader = m_lens_shader_mist;    break;
+    case LensPixelEffectType::Mist:         shader_handle = m_lens_shader_mist_handle;    break;
     case LensPixelEffectType::Displacement:
-    case LensPixelEffectType::Flyeye:       shader = m_lens_shader_remap;   break;
-    case LensPixelEffectType::Overlay:      shader = m_lens_shader_overlay; break;
+    case LensPixelEffectType::Flyeye:       shader_handle = m_lens_shader_remap_handle;   break;
+    case LensPixelEffectType::Overlay:      shader_handle = m_lens_shader_overlay_handle; break;
     default: break;
     }
     // The shader for this frame's specific effect failed to compile (see
     // init_lens_shaders()'s WARNLOG) -- don't redirect world rendering into
     // an FBO we then couldn't resolve back to the backbuffer.
-    if (shader == 0)
+    if (ResolveShaderId(shader_handle) == 0)
         return false;
 
-    ensure_lens_fbo(m_rt_screen_w, m_rt_screen_h);
-    if (m_lens_scene_fbo == 0)
+    // Sizing already settled on the game thread (EnsureLensSceneRT(), called
+    // from SubmitPossessionLens()) -- this only resolves + clears.
+    const GLRenderTarget* rt = m_resource_mapper->ResolveRenderTarget(m_lens_scene_rt_handle);
+    if (!rt)
         return false;
 
-    glBindFramebuffer(GL_FRAMEBUFFER, m_lens_scene_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, rt->fbo);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     return true;
@@ -991,13 +910,19 @@ bool GLWorldViewRenderer::BeginLensCapture()
 void GLWorldViewRenderer::ResolveLensComposite()
 {
     ASSERT_RENDER_THREAD();
+    if (!m_resource_mapper) return;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     upload_lens_textures_if_dirty();
 
-    const float tex_w = (float)m_lens_fbo_w;
-    const float tex_h = (float)m_lens_fbo_h;
+    const GLRenderTarget* scene_rt = m_resource_mapper->ResolveRenderTarget(m_lens_scene_rt_handle);
+    const GLGeometryBuffer* quad_geom = m_resource_mapper->ResolveGeometryBuffer(m_lens_quad_geom_handle);
+    if (!scene_rt || scene_rt->color_attachments.empty() || !quad_geom)
+        return;
+
+    const float tex_w = (float)scene_rt->width;
+    const float tex_h = (float)scene_rt->height;
     const float vp_x  = (float)m_rt_lens_cmd.viewport_x;
     const float vp_w  = (float)m_rt_lens_cmd.viewport_w;
     const float vp_h  = (float)m_rt_lens_cmd.viewport_h;
@@ -1012,18 +937,21 @@ void GLWorldViewRenderer::ResolveLensComposite()
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
 
-    glBindVertexArray(m_lens_quad_vao);
+    glBindVertexArray(quad_geom->vao);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_lens_scene_tex);
+    glBindTexture(GL_TEXTURE_2D, scene_rt->color_attachments[0]);
 
     switch (m_rt_lens_cmd.type)
     {
     case LensPixelEffectType::Mist:
-        if (m_lens_shader_mist)
+    {
+        const GLProgram* prog = m_resource_mapper->ResolveProgram(m_lens_shader_mist_handle);
+        const GLTexture* mist_tex = m_resource_mapper->ResolveTexture(m_lens_mist_tex_handle);
+        if (prog && mist_tex)
         {
-            glUseProgram(m_lens_shader_mist);
+            glUseProgram(prog->id);
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, m_lens_mist_tex);
+            glBindTexture(GL_TEXTURE_2D, mist_tex->id);
             glUniform2f(m_lens_mist_loc_src_off, src_off_x, 0.0f);
             glUniform2f(m_lens_mist_loc_src_scale, src_scale_x, src_scale_y);
             glUniform2f(m_lens_mist_loc_pos, m_rt_lens_cmd.mist_pos_x, m_rt_lens_cmd.mist_pos_y);
@@ -1032,26 +960,34 @@ void GLWorldViewRenderer::ResolveLensComposite()
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
         break;
+    }
 
     case LensPixelEffectType::Displacement:
     case LensPixelEffectType::Flyeye:
-        if (m_lens_shader_remap)
+    {
+        const GLProgram* prog = m_resource_mapper->ResolveProgram(m_lens_shader_remap_handle);
+        const GLTexture* remap_tex = m_resource_mapper->ResolveTexture(m_lens_remap_tex_handle);
+        if (prog && remap_tex)
         {
-            glUseProgram(m_lens_shader_remap);
+            glUseProgram(prog->id);
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, m_lens_remap_tex);
+            glBindTexture(GL_TEXTURE_2D, remap_tex->id);
             glUniform2f(m_lens_remap_loc_src_off, src_off_x, 0.0f);
             glUniform2f(m_lens_remap_loc_tex_size, tex_w, tex_h);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
         break;
+    }
 
     case LensPixelEffectType::Overlay:
-        if (m_lens_shader_overlay)
+    {
+        const GLProgram* prog = m_resource_mapper->ResolveProgram(m_lens_shader_overlay_handle);
+        const GLTexture* overlay_tex = m_resource_mapper->ResolveTexture(m_lens_overlay_tex_handle);
+        if (prog && overlay_tex)
         {
-            glUseProgram(m_lens_shader_overlay);
+            glUseProgram(prog->id);
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, m_lens_overlay_tex);
+            glBindTexture(GL_TEXTURE_2D, overlay_tex->id);
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, ResolvePaletteTexId());
             glUniform2f(m_lens_overlay_loc_src_off, src_off_x, 0.0f);
@@ -1060,6 +996,7 @@ void GLWorldViewRenderer::ResolveLensComposite()
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
         break;
+    }
 
     default:
         break;
@@ -1087,7 +1024,7 @@ void GLWorldViewRenderer::append_shadow_quad(const struct BucketKindCreatureShad
                                              int32_t draw_idx, const unsigned char* data,
                                              int src_w, int src_h)
 {
-    if (!m_shadow_shader)
+    if (m_shadow_shader_handle == kInvalidGpuResource)
         return;  // shadow GL resources unavailable this run -- no fallback needed, just skip
 
     ShadowSubmission cmd;
@@ -1119,7 +1056,11 @@ void GLWorldViewRenderer::append_shadow_quad(const struct BucketKindCreatureShad
 
 void GLWorldViewRenderer::draw_shadows_gpu()
 {
-    if (m_rt_shadow_cmds.empty() || !m_shadow_shader)
+    if (m_rt_shadow_cmds.empty() || !m_resource_mapper)
+        return;
+    const GLProgram* const shadow_prog = m_resource_mapper->ResolveProgram(m_shadow_shader_handle);
+    const GLGeometryBuffer* const shadow_geom = m_resource_mapper->ResolveGeometryBuffer(m_shadow_geom_handle);
+    if (!shadow_prog || !shadow_geom)
         return;
 
     std::vector<ShadowGLVertex>& s_verts = s_shadow_verts;
@@ -1153,17 +1094,18 @@ void GLWorldViewRenderer::draw_shadows_gpu()
     if (s_verts.empty())
         return;
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_shadow_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, shadow_geom->vbo);
     glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(s_verts.size() * sizeof(ShadowGLVertex)),
                  s_verts.data(), GL_STREAM_DRAW);
 
-    glUseProgram(m_shadow_shader);
-    glBindVertexArray(m_shadow_vao);
+    glUseProgram(shadow_prog->id);
+    glBindVertexArray(shadow_geom->vao);
     glUniform2f(m_shadow_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
 
+    const GLTexture* sprite_array_tex = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_kspr_sprite_array);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, sprite_array_tex ? sprite_array_tex->id : 0);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_ZERO, GL_SRC_COLOR);
@@ -1178,115 +1120,109 @@ void GLWorldViewRenderer::draw_shadows_gpu()
 /******************************************************************************/
 // Keeper sprites (P5.7.3a)
 
+namespace {
+/** Mechanical helper for init_keeper_sprite_shader()'s many "create program,
+ *  resolve, cache uniform locations if it linked" blocks -- returns the
+ *  resolved GLProgram* (nullptr on failure), so the caller's own
+ *  uniform-caching code (which differs per shader) stays inline. */
+const GLProgram* CreateKsprProgram(GLResourceMapper* mapper, GpuResourceHandle& handle,
+                                   const char* vs_src, const char* fs_src, const char* debug_name)
+{
+    GpuProgramDesc desc;
+    desc.vertex_src = vs_src;
+    desc.fragment_src = fs_src;
+    desc.debug_name = debug_name;
+    handle = mapper->RequestCreateProgram(desc);
+    return mapper->ResolveProgram(handle);
+}
+} // namespace
+
 bool GLWorldViewRenderer::init_keeper_sprite_shader()
 {
+    if (!m_resource_mapper) return false;
+
     // Non-instanced fallback: single-texture, palette+CLUT shader.
-    GLuint sv = compile_shader_src(GL_VERTEX_SHADER,   KSPR_VERTEX_SHADER,   "kspr_vert.glsl");
-    GLuint sf = compile_shader_src(GL_FRAGMENT_SHADER, KSPR_FRAGMENT_SHADER, "kspr_frag.glsl");
-    if (!sv || !sf)
+    const GLProgram* kspr_prog = CreateKsprProgram(m_resource_mapper, m_kspr_shader_handle,
+        KSPR_VERTEX_SHADER, KSPR_FRAGMENT_SHADER, "kspr");
+    if (!kspr_prog)
     {
-        if (sv) glDeleteShader(sv);
-        if (sf) glDeleteShader(sf);
+        ERRORLOG("GLWorldViewRenderer: keeper-sprite shader link error");
         return false;
     }
-    m_kspr_shader = glCreateProgram();
-    glAttachShader(m_kspr_shader, sv);
-    glAttachShader(m_kspr_shader, sf);
-    glLinkProgram(m_kspr_shader);
-    glDeleteShader(sv);
-    glDeleteShader(sf);
-
-    GLint linked = 0;
-    glGetProgramiv(m_kspr_shader, GL_LINK_STATUS, &linked);
-    if (!linked)
-    {
-        char log[512];
-        glGetProgramInfoLog(m_kspr_shader, sizeof(log), nullptr, log);
-        ERRORLOG("GLWorldViewRenderer: keeper-sprite shader link error: %s", log);
-        glDeleteProgram(m_kspr_shader);
-        m_kspr_shader = 0;
-        return false;
-    }
-
-    glUseProgram(m_kspr_shader);
-    m_kspr_loc_viewport = glGetUniformLocation(m_kspr_shader, "u_viewport");
-    m_kspr_loc_sprite   = glGetUniformLocation(m_kspr_shader, "u_sprite");
-    m_kspr_loc_palette  = glGetUniformLocation(m_kspr_shader, "u_palette");
-    m_kspr_loc_alpha    = glGetUniformLocation(m_kspr_shader, "u_alpha");
-    m_kspr_loc_z_ndc    = glGetUniformLocation(m_kspr_shader, "u_z_ndc");
+    glUseProgram(kspr_prog->id);
+    m_kspr_loc_viewport = glGetUniformLocation(kspr_prog->id, "u_viewport");
+    m_kspr_loc_sprite   = glGetUniformLocation(kspr_prog->id, "u_sprite");
+    m_kspr_loc_palette  = glGetUniformLocation(kspr_prog->id, "u_palette");
+    m_kspr_loc_alpha    = glGetUniformLocation(kspr_prog->id, "u_alpha");
+    m_kspr_loc_z_ndc    = glGetUniformLocation(kspr_prog->id, "u_z_ndc");
     glUniform1i(m_kspr_loc_sprite,  0);  // GL_TEXTURE0
     glUniform1i(m_kspr_loc_palette, 1);  // GL_TEXTURE1
     glUseProgram(0);
 
     // Additive-glow variant (Beat 3): same vertex shader, dedicated glow
     // fragment shader -- no palette uniform needed. A link failure here
-    // just leaves m_kspr_glow_shader == 0, which render_keepersprite_gpu()'s
+    // just leaves the handle invalid, which render_keepersprite_gpu()'s
     // additive branch already checks before selecting it (falls through to
-    // the normal m_kspr_shader path, same "degrade, don't crash" pattern
+    // the normal kspr shader path, same "degrade, don't crash" pattern
     // every other optional GL resource on this branch follows).
     {
-        GLuint gv = compile_shader_src(GL_VERTEX_SHADER,   KSPR_VERTEX_SHADER,       "kspr_vert.glsl");
-        GLuint gf = compile_shader_src(GL_FRAGMENT_SHADER, KSPR_GLOW_FRAGMENT_SHADER, "kspr_glow_frag.glsl");
-        if (gv && gf)
+        const GLProgram* glow_prog = CreateKsprProgram(m_resource_mapper, m_kspr_glow_shader_handle,
+            KSPR_VERTEX_SHADER, KSPR_GLOW_FRAGMENT_SHADER, "kspr_glow");
+        if (glow_prog)
         {
-            m_kspr_glow_shader = glCreateProgram();
-            glAttachShader(m_kspr_glow_shader, gv);
-            glAttachShader(m_kspr_glow_shader, gf);
-            glLinkProgram(m_kspr_glow_shader);
-            glDeleteShader(gv);
-            glDeleteShader(gf);
-            GLint glinked = 0;
-            glGetProgramiv(m_kspr_glow_shader, GL_LINK_STATUS, &glinked);
-            if (!glinked)
-            {
-                char log[512];
-                glGetProgramInfoLog(m_kspr_glow_shader, sizeof(log), nullptr, log);
-                WARNLOG("GLWorldViewRenderer: keeper-sprite glow shader link error: %s", log);
-                glDeleteProgram(m_kspr_glow_shader);
-                m_kspr_glow_shader = 0;
-            }
-            else
-            {
-                glUseProgram(m_kspr_glow_shader);
-                m_kspr_glow_loc_viewport = glGetUniformLocation(m_kspr_glow_shader, "u_viewport");
-                m_kspr_glow_loc_sprite   = glGetUniformLocation(m_kspr_glow_shader, "u_sprite");
-                m_kspr_glow_loc_z_ndc    = glGetUniformLocation(m_kspr_glow_shader, "u_z_ndc");
-                glUniform1i(m_kspr_glow_loc_sprite, 0);  // GL_TEXTURE0
-                glUseProgram(0);
-            }
+            glUseProgram(glow_prog->id);
+            m_kspr_glow_loc_viewport = glGetUniformLocation(glow_prog->id, "u_viewport");
+            m_kspr_glow_loc_sprite   = glGetUniformLocation(glow_prog->id, "u_sprite");
+            m_kspr_glow_loc_z_ndc    = glGetUniformLocation(glow_prog->id, "u_z_ndc");
+            glUniform1i(m_kspr_glow_loc_sprite, 0);  // GL_TEXTURE0
+            glUseProgram(0);
         }
         else
         {
-            if (gv) glDeleteShader(gv);
-            if (gf) glDeleteShader(gf);
-            WARNLOG("GLWorldViewRenderer: failed to compile keeper-sprite glow shader");
+            WARNLOG("GLWorldViewRenderer: keeper-sprite glow shader unavailable");
         }
     }
 
     // Reusable 256x256 R8 texture -- overwritten per sprite. Zero-initialised
     // so unwritten regions sample as index 0 (transparent) rather than
     // undefined garbage.
-    static const uint8_t s_zero_256x256[256 * 256] = {};
-    glGenTextures(1, &m_kspr_sprite_tex);
-    glBindTexture(GL_TEXTURE_2D, m_kspr_sprite_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, 256, 256, 0, GL_RED, GL_UNSIGNED_BYTE, s_zero_256x256);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    {
+        static const uint8_t s_zero_256x256[256 * 256] = {};
+        GpuTextureDesc desc;
+        desc.width = 256;
+        desc.height = 256;
+        desc.format = GpuTextureFormat::R8;
+        desc.min_filter = GpuTextureFilter::Nearest;
+        desc.mag_filter = GpuTextureFilter::Nearest;
+        desc.wrap = GpuTextureWrap::Clamp;
+        desc.initial_pixels.assign(s_zero_256x256, s_zero_256x256 + sizeof(s_zero_256x256));
+        desc.debug_name = "kspr_sprite";
+        m_kspr_sprite_tex_handle = m_resource_mapper->RequestCreateTexture(desc);
+        if (m_resource_mapper->ResolveTexture(m_kspr_sprite_tex_handle) == nullptr)
+        {
+            ERRORLOG("GLWorldViewRenderer: keeper-sprite texture realization failed");
+            return false;
+        }
+    }
 
     // VAO + VBO: 6 vertices x (vec2 pos + vec2 uv) = 4 floats each
-    glGenVertexArrays(1, &m_kspr_vao);
-    glGenBuffers(1, &m_kspr_vbo);
-    glBindVertexArray(m_kspr_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_kspr_vbo);
-    glBufferData(GL_ARRAY_BUFFER, 6 * 4 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glBindVertexArray(0);
+    {
+        GpuGeometryBufferDesc desc;
+        desc.vertex_stride = 4 * (uint32_t)sizeof(float);
+        desc.attribs = {
+            { 0, 2, GpuVertexAttribType::Float, 0 },
+            { 1, 2, GpuVertexAttribType::Float, 2 * (uint32_t)sizeof(float) },
+        };
+        desc.dynamic = true;
+        desc.initial_vertex_capacity = 6 * 4 * sizeof(float);
+        desc.debug_name = "kspr_geom";
+        m_kspr_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(desc);
+        if (m_resource_mapper->ResolveGeometryBuffer(m_kspr_geom_handle) == nullptr)
+        {
+            ERRORLOG("GLWorldViewRenderer: keeper-sprite geometry buffer realization failed");
+            return false;
+        }
+    }
 
     // Attempt to build the sprite decode atlas (GL_TEXTURE_2D_ARRAY). This is
     // an optional optimisation: on first use each unique sprite id is decoded
@@ -1295,207 +1231,139 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
     // driver does not support GL_TEXTURE_2D_ARRAY the atlas is skipped and
     // the single-texture fallback path above is used unchanged.
     do {
-        GLuint av = compile_shader_src(GL_VERTEX_SHADER,   KSPR_VERTEX_SHADER,        "kspr_vert.glsl");
-        GLuint af = compile_shader_src(GL_FRAGMENT_SHADER, KSPR_ARRAY_FRAGMENT_SHADER, "kspr_array_frag.glsl");
-        if (!av || !af) { if (av) glDeleteShader(av); if (af) glDeleteShader(af); break; }
-
-        m_kspr_atlas_shader = glCreateProgram();
-        glAttachShader(m_kspr_atlas_shader, av);
-        glAttachShader(m_kspr_atlas_shader, af);
-        glLinkProgram(m_kspr_atlas_shader);
-        glDeleteShader(av);
-        glDeleteShader(af);
-        GLint alinked = 0;
-        glGetProgramiv(m_kspr_atlas_shader, GL_LINK_STATUS, &alinked);
-        if (!alinked) {
-            char log[512];
-            glGetProgramInfoLog(m_kspr_atlas_shader, sizeof(log), nullptr, log);
-            WARNLOG("kspr_array shader link failed: %s", log);
-            glDeleteProgram(m_kspr_atlas_shader);
-            m_kspr_atlas_shader = 0;
+        const GLProgram* atlas_prog = CreateKsprProgram(m_resource_mapper, m_kspr_atlas_shader_handle,
+            KSPR_VERTEX_SHADER, KSPR_ARRAY_FRAGMENT_SHADER, "kspr_array");
+        if (!atlas_prog)
+        {
+            WARNLOG("kspr_array shader link failed");
             break;
         }
-        glUseProgram(m_kspr_atlas_shader);
-        m_kspr_atlas_loc_viewport = glGetUniformLocation(m_kspr_atlas_shader, "u_viewport");
-        m_kspr_atlas_loc_sprite   = glGetUniformLocation(m_kspr_atlas_shader, "u_sprite");
-        m_kspr_atlas_loc_clut     = glGetUniformLocation(m_kspr_atlas_shader, "u_clut");
-        m_kspr_atlas_loc_alpha    = glGetUniformLocation(m_kspr_atlas_shader, "u_alpha");
-        m_kspr_atlas_loc_z_ndc    = glGetUniformLocation(m_kspr_atlas_shader, "u_z_ndc");
-        m_kspr_atlas_loc_layer    = glGetUniformLocation(m_kspr_atlas_shader, "u_layer");
-        m_kspr_atlas_loc_clut_v   = glGetUniformLocation(m_kspr_atlas_shader, "u_clut_v");
+        glUseProgram(atlas_prog->id);
+        m_kspr_atlas_loc_viewport = glGetUniformLocation(atlas_prog->id, "u_viewport");
+        m_kspr_atlas_loc_sprite   = glGetUniformLocation(atlas_prog->id, "u_sprite");
+        m_kspr_atlas_loc_clut     = glGetUniformLocation(atlas_prog->id, "u_clut");
+        m_kspr_atlas_loc_alpha    = glGetUniformLocation(atlas_prog->id, "u_alpha");
+        m_kspr_atlas_loc_z_ndc    = glGetUniformLocation(atlas_prog->id, "u_z_ndc");
+        m_kspr_atlas_loc_layer    = glGetUniformLocation(atlas_prog->id, "u_layer");
+        m_kspr_atlas_loc_clut_v   = glGetUniformLocation(atlas_prog->id, "u_clut_v");
         glUniform1i(m_kspr_atlas_loc_sprite, 0);  // GL_TEXTURE0
         glUniform1i(m_kspr_atlas_loc_clut,   1);  // GL_TEXTURE1
         glUseProgram(0);
 
         // Additive-glow variant of the atlas shader (Beat 3) -- same
-        // relationship to m_kspr_atlas_shader as m_kspr_glow_shader has to
-        // m_kspr_shader above. Failure here just leaves
-        // m_kspr_atlas_glow_shader == 0 (checked before use), same
-        // degrade-not-crash pattern as the rest of this function.
+        // relationship to the atlas shader as the glow shader has to the
+        // base kspr shader above. Failure here just leaves the handle
+        // invalid (checked before use), same degrade-not-crash pattern as
+        // the rest of this function.
         {
-            GLuint gav = compile_shader_src(GL_VERTEX_SHADER,   KSPR_VERTEX_SHADER,             "kspr_vert.glsl");
-            GLuint gaf = compile_shader_src(GL_FRAGMENT_SHADER, KSPR_ARRAY_GLOW_FRAGMENT_SHADER, "kspr_array_glow_frag.glsl");
-            if (gav && gaf)
+            const GLProgram* atlas_glow_prog = CreateKsprProgram(m_resource_mapper, m_kspr_atlas_glow_shader_handle,
+                KSPR_VERTEX_SHADER, KSPR_ARRAY_GLOW_FRAGMENT_SHADER, "kspr_array_glow");
+            if (atlas_glow_prog)
             {
-                m_kspr_atlas_glow_shader = glCreateProgram();
-                glAttachShader(m_kspr_atlas_glow_shader, gav);
-                glAttachShader(m_kspr_atlas_glow_shader, gaf);
-                glLinkProgram(m_kspr_atlas_glow_shader);
-                glDeleteShader(gav);
-                glDeleteShader(gaf);
-                GLint galinked = 0;
-                glGetProgramiv(m_kspr_atlas_glow_shader, GL_LINK_STATUS, &galinked);
-                if (!galinked)
-                {
-                    char log[512];
-                    glGetProgramInfoLog(m_kspr_atlas_glow_shader, sizeof(log), nullptr, log);
-                    WARNLOG("kspr_array_glow shader link failed: %s", log);
-                    glDeleteProgram(m_kspr_atlas_glow_shader);
-                    m_kspr_atlas_glow_shader = 0;
-                }
-                else
-                {
-                    glUseProgram(m_kspr_atlas_glow_shader);
-                    m_kspr_atlas_glow_loc_viewport = glGetUniformLocation(m_kspr_atlas_glow_shader, "u_viewport");
-                    m_kspr_atlas_glow_loc_sprite   = glGetUniformLocation(m_kspr_atlas_glow_shader, "u_sprite");
-                    m_kspr_atlas_glow_loc_z_ndc    = glGetUniformLocation(m_kspr_atlas_glow_shader, "u_z_ndc");
-                    m_kspr_atlas_glow_loc_layer    = glGetUniformLocation(m_kspr_atlas_glow_shader, "u_layer");
-                    glUniform1i(m_kspr_atlas_glow_loc_sprite, 0);  // GL_TEXTURE0
-                    glUseProgram(0);
-                }
+                glUseProgram(atlas_glow_prog->id);
+                m_kspr_atlas_glow_loc_viewport = glGetUniformLocation(atlas_glow_prog->id, "u_viewport");
+                m_kspr_atlas_glow_loc_sprite   = glGetUniformLocation(atlas_glow_prog->id, "u_sprite");
+                m_kspr_atlas_glow_loc_z_ndc    = glGetUniformLocation(atlas_glow_prog->id, "u_z_ndc");
+                m_kspr_atlas_glow_loc_layer    = glGetUniformLocation(atlas_glow_prog->id, "u_layer");
+                glUniform1i(m_kspr_atlas_glow_loc_sprite, 0);  // GL_TEXTURE0
+                glUseProgram(0);
             }
             else
             {
-                if (gav) glDeleteShader(gav);
-                if (gaf) glDeleteShader(gaf);
                 WARNLOG("GLWorldViewRenderer: failed to compile keeper-sprite array glow shader");
             }
         }
 
-        // Allocate the texture array. Clear any pre-existing GL error so the
-        // subsequent error check is reliable.
-        while (glGetError() != GL_NO_ERROR) {}
-        glGenTextures(1, &m_kspr_sprite_array);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, m_kspr_sprite_array);
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8,
-                     k_kspr_decode_dim, k_kspr_decode_dim, k_kspr_atlas_layers,
-                     0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-        GLenum err = glGetError();
-        if (err != GL_NO_ERROR) {
-            WARNLOG("GL_TEXTURE_2D_ARRAY alloc failed (err=%u), sprite atlas disabled", (unsigned)err);
-            glDeleteTextures(1, &m_kspr_sprite_array);
-            m_kspr_sprite_array = 0;
-            glDeleteProgram(m_kspr_atlas_shader);
-            m_kspr_atlas_shader = 0;
-            if (m_kspr_atlas_glow_shader) { glDeleteProgram(m_kspr_atlas_glow_shader); m_kspr_atlas_glow_shader = 0; }
-            glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+        // Allocate the texture array. RequestCreateTexture's initial_pixels
+        // stays empty (nullptr upload) -- undefined storage is valid and
+        // expected here, matching the original's own glTexImage3D(...,
+        // nullptr) call.
+        GpuTextureDesc array_desc;
+        array_desc.width = k_kspr_decode_dim;
+        array_desc.height = k_kspr_decode_dim;
+        array_desc.array_layers = k_kspr_atlas_layers;
+        array_desc.format = GpuTextureFormat::R8;
+        array_desc.min_filter = GpuTextureFilter::Nearest;
+        array_desc.mag_filter = GpuTextureFilter::Nearest;
+        array_desc.wrap = GpuTextureWrap::Clamp;
+        array_desc.debug_name = "kspr_sprite_array";
+        m_kspr_sprite_array_handle = m_resource_mapper->RequestCreateTexture(array_desc);
+        if (m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle) == nullptr)
+        {
+            WARNLOG("GL_TEXTURE_2D_ARRAY alloc failed, sprite atlas disabled");
+            m_kspr_sprite_array_handle = kInvalidGpuResource;
+            m_kspr_atlas_shader_handle = kInvalidGpuResource;
+            m_kspr_atlas_glow_shader_handle = kInvalidGpuResource;
             break;
         }
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
         SYNCLOG("GLWorldViewRenderer: keeper-sprite decode atlas ready (%d layers, 256x256 GL_R8)",
                 k_kspr_atlas_layers);
     } while (false);
 
     // CLUT texture -- only useful (and only allocated) when the atlas shader
     // compiled successfully.
-    if (m_kspr_atlas_shader && !m_kspr_clut_tex)
+    if (m_kspr_atlas_shader_handle != kInvalidGpuResource && m_kspr_clut_tex_handle == kInvalidGpuResource)
     {
-        glGenTextures(1, &m_kspr_clut_tex);
-        glBindTexture(GL_TEXTURE_2D, m_kspr_clut_tex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, k_clut_rows,
-                     0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-        {
-            // Clear the entire CLUT to zero (transparent black) so unwritten
-            // rows never produce garbage. Only 256*k_clut_rows*4 = 128 KB.
-            std::vector<uint8_t> zero_clut((size_t)256 * k_clut_rows * 4, 0);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, k_clut_rows,
-                            GL_RGBA, GL_UNSIGNED_BYTE, zero_clut.data());
-        }
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        // Clear the entire CLUT to zero (transparent black) so unwritten
+        // rows never produce garbage. Only 256*k_clut_rows*4 = 128 KB.
+        std::vector<uint8_t> zero_clut((size_t)256 * k_clut_rows * 4, 0);
+        GpuTextureDesc desc;
+        desc.width = 256;
+        desc.height = k_clut_rows;
+        desc.format = GpuTextureFormat::RGBA8;
+        desc.min_filter = GpuTextureFilter::Nearest;
+        desc.mag_filter = GpuTextureFilter::Nearest;
+        desc.wrap = GpuTextureWrap::Clamp;
+        desc.initial_pixels = std::move(zero_clut);
+        desc.debug_name = "kspr_clut";
+        m_kspr_clut_tex_handle = m_resource_mapper->RequestCreateTexture(desc);
+        m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle); // force realization now
         m_kspr_clut_used = 1;
     }
 
     // ── Depth-fail outline shaders (Beat 4) ───────────────────────────────────
     // Two variants: single-texture (fallback path) and array-atlas (cached
     // path). Compiled opportunistically -- missing shaders just disable the
-    // outline (checked at the draw call site via m_kspr_outline_shader/
-    // m_kspr_atlas_outline_shader being 0), same degrade-not-crash pattern
-    // every other optional GL resource on this branch follows.
+    // outline (checked at the draw call site via handle validity), same
+    // degrade-not-crash pattern every other optional GL resource on this
+    // branch follows.
     {
-        GLuint ov = compile_shader_src(GL_VERTEX_SHADER,   KSPR_VERTEX_SHADER,          "kspr_vert.glsl");
-        GLuint of = compile_shader_src(GL_FRAGMENT_SHADER, KSPR_OUTLINE_FRAGMENT_SHADER, "kspr_outline_frag.glsl");
-        if (ov && of)
+        const GLProgram* outline_prog = CreateKsprProgram(m_resource_mapper, m_kspr_outline_shader_handle,
+            KSPR_VERTEX_SHADER, KSPR_OUTLINE_FRAGMENT_SHADER, "kspr_outline");
+        if (outline_prog)
         {
-            m_kspr_outline_shader = glCreateProgram();
-            glAttachShader(m_kspr_outline_shader, ov);
-            glAttachShader(m_kspr_outline_shader, of);
-            glLinkProgram(m_kspr_outline_shader);
-            glDeleteShader(ov); glDeleteShader(of);
-            GLint ol = 0;
-            glGetProgramiv(m_kspr_outline_shader, GL_LINK_STATUS, &ol);
-            if (ol)
+            glUseProgram(outline_prog->id);
+            m_kspr_outline_loc_viewport = glGetUniformLocation(outline_prog->id, "u_viewport");
+            m_kspr_outline_loc_sprite   = glGetUniformLocation(outline_prog->id, "u_sprite");
+            m_kspr_outline_loc_z_ndc    = glGetUniformLocation(outline_prog->id, "u_z_ndc");
+            m_kspr_outline_loc_color    = glGetUniformLocation(outline_prog->id, "u_outline_color");
+            glUniform1i(m_kspr_outline_loc_sprite, 0); // GL_TEXTURE0
+            glUseProgram(0);
+        }
+        else
+        {
+            WARNLOG("GLWorldViewRenderer: kspr_outline shader link failed");
+        }
+
+        if (m_kspr_atlas_shader_handle != kInvalidGpuResource)
+        {
+            const GLProgram* atlas_outline_prog = CreateKsprProgram(m_resource_mapper, m_kspr_atlas_outline_shader_handle,
+                KSPR_VERTEX_SHADER, KSPR_ARRAY_OUTLINE_FRAGMENT_SHADER, "kspr_array_outline");
+            if (atlas_outline_prog)
             {
-                glUseProgram(m_kspr_outline_shader);
-                m_kspr_outline_loc_viewport = glGetUniformLocation(m_kspr_outline_shader, "u_viewport");
-                m_kspr_outline_loc_sprite   = glGetUniformLocation(m_kspr_outline_shader, "u_sprite");
-                m_kspr_outline_loc_z_ndc    = glGetUniformLocation(m_kspr_outline_shader, "u_z_ndc");
-                m_kspr_outline_loc_color    = glGetUniformLocation(m_kspr_outline_shader, "u_outline_color");
-                glUniform1i(m_kspr_outline_loc_sprite, 0); // GL_TEXTURE0
+                glUseProgram(atlas_outline_prog->id);
+                m_kspr_atlas_outline_loc_viewport = glGetUniformLocation(atlas_outline_prog->id, "u_viewport");
+                m_kspr_atlas_outline_loc_sprite   = glGetUniformLocation(atlas_outline_prog->id, "u_sprite");
+                m_kspr_atlas_outline_loc_z_ndc    = glGetUniformLocation(atlas_outline_prog->id, "u_z_ndc");
+                m_kspr_atlas_outline_loc_color    = glGetUniformLocation(atlas_outline_prog->id, "u_outline_color");
+                m_kspr_atlas_outline_loc_layer    = glGetUniformLocation(atlas_outline_prog->id, "u_layer");
+                glUniform1i(m_kspr_atlas_outline_loc_sprite, 0); // GL_TEXTURE0
                 glUseProgram(0);
             }
             else
             {
-                char log[512];
-                glGetProgramInfoLog(m_kspr_outline_shader, sizeof(log), nullptr, log);
-                WARNLOG("GLWorldViewRenderer: kspr_outline shader link failed: %s", log);
-                glDeleteProgram(m_kspr_outline_shader);
-                m_kspr_outline_shader = 0;
+                WARNLOG("GLWorldViewRenderer: kspr_array_outline shader link failed");
             }
-        }
-        else { if (ov) glDeleteShader(ov); if (of) glDeleteShader(of); }
-
-        if (m_kspr_atlas_shader)
-        {
-            GLuint oav = compile_shader_src(GL_VERTEX_SHADER,   KSPR_VERTEX_SHADER,                "kspr_vert.glsl");
-            GLuint oaf = compile_shader_src(GL_FRAGMENT_SHADER, KSPR_ARRAY_OUTLINE_FRAGMENT_SHADER, "kspr_array_outline_frag.glsl");
-            if (oav && oaf)
-            {
-                m_kspr_atlas_outline_shader = glCreateProgram();
-                glAttachShader(m_kspr_atlas_outline_shader, oav);
-                glAttachShader(m_kspr_atlas_outline_shader, oaf);
-                glLinkProgram(m_kspr_atlas_outline_shader);
-                glDeleteShader(oav); glDeleteShader(oaf);
-                GLint oal = 0;
-                glGetProgramiv(m_kspr_atlas_outline_shader, GL_LINK_STATUS, &oal);
-                if (oal)
-                {
-                    glUseProgram(m_kspr_atlas_outline_shader);
-                    m_kspr_atlas_outline_loc_viewport = glGetUniformLocation(m_kspr_atlas_outline_shader, "u_viewport");
-                    m_kspr_atlas_outline_loc_sprite   = glGetUniformLocation(m_kspr_atlas_outline_shader, "u_sprite");
-                    m_kspr_atlas_outline_loc_z_ndc    = glGetUniformLocation(m_kspr_atlas_outline_shader, "u_z_ndc");
-                    m_kspr_atlas_outline_loc_color    = glGetUniformLocation(m_kspr_atlas_outline_shader, "u_outline_color");
-                    m_kspr_atlas_outline_loc_layer    = glGetUniformLocation(m_kspr_atlas_outline_shader, "u_layer");
-                    glUniform1i(m_kspr_atlas_outline_loc_sprite, 0); // GL_TEXTURE0
-                    glUseProgram(0);
-                }
-                else
-                {
-                    char log[512];
-                    glGetProgramInfoLog(m_kspr_atlas_outline_shader, sizeof(log), nullptr, log);
-                    WARNLOG("GLWorldViewRenderer: kspr_array_outline shader link failed: %s", log);
-                    glDeleteProgram(m_kspr_atlas_outline_shader);
-                    m_kspr_atlas_outline_shader = 0;
-                }
-            }
-            else { if (oav) glDeleteShader(oav); if (oaf) glDeleteShader(oaf); }
         }
     }
 
@@ -1503,144 +1371,96 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
     // Same structure as the silhouette outline shaders above, but sample 4
     // neighbours to emit only boundary pixels.
     {
-        GLuint ev = compile_shader_src(GL_VERTEX_SHADER,   KSPR_VERTEX_SHADER,        "kspr_vert.glsl");
-        GLuint ef = compile_shader_src(GL_FRAGMENT_SHADER, KSPR_EDGE_FRAGMENT_SHADER, "kspr_edge_frag.glsl");
-        if (ev && ef)
+        const GLProgram* edge_prog = CreateKsprProgram(m_resource_mapper, m_kspr_edge_shader_handle,
+            KSPR_VERTEX_SHADER, KSPR_EDGE_FRAGMENT_SHADER, "kspr_edge");
+        if (edge_prog)
         {
-            m_kspr_edge_shader = glCreateProgram();
-            glAttachShader(m_kspr_edge_shader, ev);
-            glAttachShader(m_kspr_edge_shader, ef);
-            glLinkProgram(m_kspr_edge_shader);
-            glDeleteShader(ev); glDeleteShader(ef);
-            GLint el = 0;
-            glGetProgramiv(m_kspr_edge_shader, GL_LINK_STATUS, &el);
-            if (el)
+            glUseProgram(edge_prog->id);
+            m_kspr_edge_loc_viewport = glGetUniformLocation(edge_prog->id, "u_viewport");
+            m_kspr_edge_loc_sprite   = glGetUniformLocation(edge_prog->id, "u_sprite");
+            m_kspr_edge_loc_z_ndc    = glGetUniformLocation(edge_prog->id, "u_z_ndc");
+            m_kspr_edge_loc_color    = glGetUniformLocation(edge_prog->id, "u_outline_color");
+            glUniform1i(m_kspr_edge_loc_sprite, 0);
+            glUseProgram(0);
+        }
+        else
+        {
+            WARNLOG("GLWorldViewRenderer: kspr_edge shader link failed");
+        }
+
+        if (m_kspr_atlas_shader_handle != kInvalidGpuResource)
+        {
+            const GLProgram* atlas_edge_prog = CreateKsprProgram(m_resource_mapper, m_kspr_atlas_edge_shader_handle,
+                KSPR_VERTEX_SHADER, KSPR_ARRAY_EDGE_FRAGMENT_SHADER, "kspr_array_edge");
+            if (atlas_edge_prog)
             {
-                glUseProgram(m_kspr_edge_shader);
-                m_kspr_edge_loc_viewport = glGetUniformLocation(m_kspr_edge_shader, "u_viewport");
-                m_kspr_edge_loc_sprite   = glGetUniformLocation(m_kspr_edge_shader, "u_sprite");
-                m_kspr_edge_loc_z_ndc    = glGetUniformLocation(m_kspr_edge_shader, "u_z_ndc");
-                m_kspr_edge_loc_color    = glGetUniformLocation(m_kspr_edge_shader, "u_outline_color");
-                glUniform1i(m_kspr_edge_loc_sprite, 0);
+                glUseProgram(atlas_edge_prog->id);
+                m_kspr_atlas_edge_loc_viewport = glGetUniformLocation(atlas_edge_prog->id, "u_viewport");
+                m_kspr_atlas_edge_loc_sprite   = glGetUniformLocation(atlas_edge_prog->id, "u_sprite");
+                m_kspr_atlas_edge_loc_z_ndc    = glGetUniformLocation(atlas_edge_prog->id, "u_z_ndc");
+                m_kspr_atlas_edge_loc_color    = glGetUniformLocation(atlas_edge_prog->id, "u_outline_color");
+                m_kspr_atlas_edge_loc_layer    = glGetUniformLocation(atlas_edge_prog->id, "u_layer");
+                glUniform1i(m_kspr_atlas_edge_loc_sprite, 0);
                 glUseProgram(0);
             }
             else
             {
-                char log[512];
-                glGetProgramInfoLog(m_kspr_edge_shader, sizeof(log), nullptr, log);
-                WARNLOG("GLWorldViewRenderer: kspr_edge shader link failed: %s", log);
-                glDeleteProgram(m_kspr_edge_shader);
-                m_kspr_edge_shader = 0;
+                WARNLOG("GLWorldViewRenderer: kspr_array_edge shader link failed");
             }
-        }
-        else { if (ev) glDeleteShader(ev); if (ef) glDeleteShader(ef); }
-
-        if (m_kspr_atlas_shader)
-        {
-            GLuint eav = compile_shader_src(GL_VERTEX_SHADER,   KSPR_VERTEX_SHADER,              "kspr_vert.glsl");
-            GLuint eaf = compile_shader_src(GL_FRAGMENT_SHADER, KSPR_ARRAY_EDGE_FRAGMENT_SHADER, "kspr_array_edge_frag.glsl");
-            if (eav && eaf)
-            {
-                m_kspr_atlas_edge_shader = glCreateProgram();
-                glAttachShader(m_kspr_atlas_edge_shader, eav);
-                glAttachShader(m_kspr_atlas_edge_shader, eaf);
-                glLinkProgram(m_kspr_atlas_edge_shader);
-                glDeleteShader(eav); glDeleteShader(eaf);
-                GLint eal = 0;
-                glGetProgramiv(m_kspr_atlas_edge_shader, GL_LINK_STATUS, &eal);
-                if (eal)
-                {
-                    glUseProgram(m_kspr_atlas_edge_shader);
-                    m_kspr_atlas_edge_loc_viewport = glGetUniformLocation(m_kspr_atlas_edge_shader, "u_viewport");
-                    m_kspr_atlas_edge_loc_sprite   = glGetUniformLocation(m_kspr_atlas_edge_shader, "u_sprite");
-                    m_kspr_atlas_edge_loc_z_ndc    = glGetUniformLocation(m_kspr_atlas_edge_shader, "u_z_ndc");
-                    m_kspr_atlas_edge_loc_color    = glGetUniformLocation(m_kspr_atlas_edge_shader, "u_outline_color");
-                    m_kspr_atlas_edge_loc_layer    = glGetUniformLocation(m_kspr_atlas_edge_shader, "u_layer");
-                    glUniform1i(m_kspr_atlas_edge_loc_sprite, 0);
-                    glUseProgram(0);
-                }
-                else
-                {
-                    char log[512];
-                    glGetProgramInfoLog(m_kspr_atlas_edge_shader, sizeof(log), nullptr, log);
-                    WARNLOG("GLWorldViewRenderer: kspr_array_edge shader link failed: %s", log);
-                    glDeleteProgram(m_kspr_atlas_edge_shader);
-                    m_kspr_atlas_edge_shader = 0;
-                }
-            }
-            else { if (eav) glDeleteShader(eav); if (eaf) glDeleteShader(eaf); }
         }
     }
 
     SYNCLOG("GLWorldViewRenderer: keeper-sprite shader initialised");
 
     // Instanced fast path: optional, requires the decode atlas. Failure just
-    // leaves the per-sprite path active (m_kspr_inst_shader == 0 gates usage
-    // in gpu_execute_passes()).
-    if (m_kspr_sprite_array && !init_keeper_sprite_instancing())
+    // leaves the per-sprite path active (handle invalid gates usage in
+    // gpu_execute_passes()).
+    if (m_kspr_sprite_array_handle != kInvalidGpuResource && !init_keeper_sprite_instancing())
         WARNLOG("GLWorldViewRenderer: sprite instancing unavailable, using per-sprite path");
 
     return true;
 }
 
-namespace {
-/** Compile + link one instanced sprite program; returns 0 on failure. */
-GLuint link_kspr_inst_program(const char* vsrc, const char* fsrc,
-                              const char* vname, const char* fname,
-                              const char* what)
-{
-    GLuint sv = compile_shader_src(GL_VERTEX_SHADER,   vsrc, vname);
-    GLuint sf = compile_shader_src(GL_FRAGMENT_SHADER, fsrc, fname);
-    if (!sv || !sf)
-    {
-        if (sv) glDeleteShader(sv);
-        if (sf) glDeleteShader(sf);
-        return 0;
-    }
-    GLuint prog = glCreateProgram();
-    glAttachShader(prog, sv);
-    glAttachShader(prog, sf);
-    glLinkProgram(prog);
-    glDeleteShader(sv);
-    glDeleteShader(sf);
-    GLint linked = 0;
-    glGetProgramiv(prog, GL_LINK_STATUS, &linked);
-    if (!linked)
-    {
-        char log[512];
-        glGetProgramInfoLog(prog, sizeof(log), nullptr, log);
-        WARNLOG("GLWorldViewRenderer: %s link failed: %s", what, log);
-        glDeleteProgram(prog);
-        return 0;
-    }
-    return prog;
-}
-} // namespace
-
 bool GLWorldViewRenderer::init_keeper_sprite_instancing()
 {
-    m_kspr_inst_shader = link_kspr_inst_program(
-        KSPR_INST_VERTEX_SHADER, KSPR_INST_FRAGMENT_SHADER,
-        "kspr_inst_vert.glsl", "kspr_inst_frag.glsl", "kspr_inst shader");
-    if (!m_kspr_inst_shader)
+    if (!m_resource_mapper) return false;
+
+    const GLProgram* inst_prog = CreateKsprProgram(m_resource_mapper, m_kspr_inst_shader_handle,
+        KSPR_INST_VERTEX_SHADER, KSPR_INST_FRAGMENT_SHADER, "kspr_inst");
+    if (!inst_prog)
         return false;
 
-    glUseProgram(m_kspr_inst_shader);
-    m_kspr_inst_loc_viewport = glGetUniformLocation(m_kspr_inst_shader, "u_viewport");
-    glUniform1i(glGetUniformLocation(m_kspr_inst_shader, "u_sprite"), 0);  // GL_TEXTURE0
-    glUniform1i(glGetUniformLocation(m_kspr_inst_shader, "u_clut"),   1);  // GL_TEXTURE1
+    glUseProgram(inst_prog->id);
+    m_kspr_inst_loc_viewport = glGetUniformLocation(inst_prog->id, "u_viewport");
+    glUniform1i(glGetUniformLocation(inst_prog->id, "u_sprite"), 0);  // GL_TEXTURE0
+    glUniform1i(glGetUniformLocation(inst_prog->id, "u_clut"),   1);  // GL_TEXTURE1
     glUseProgram(0);
 
-    // Static unit quad shared by the VAO (triangle strip: TL TR BL BR).
+    // Static unit quad shared by both instanced VAOs (triangle strip: TL TR
+    // BL BR). Created via the mapper as its own GpuGeometryBuffer -- its own
+    // VAO is never bound (only its .vbo is used, re-bound manually into the
+    // two VAOs below at different attribute locations, since the mapper's
+    // 1:1 VAO+VBO shape has no concept of a VBO shared across multiple VAOs).
     static const float k_unit_quad[8] = {
         0.0f, 0.0f,
         1.0f, 0.0f,
         0.0f, 1.0f,
         1.0f, 1.0f,
     };
-    glGenBuffers(1, &m_kspr_inst_quad_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, m_kspr_inst_quad_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(k_unit_quad), k_unit_quad, GL_STATIC_DRAW);
+    {
+        GpuGeometryBufferDesc desc;
+        desc.vertex_stride = 2 * (uint32_t)sizeof(float);
+        desc.attribs = { { 0, 2, GpuVertexAttribType::Float, 0 } };
+        desc.dynamic = false; // static unit quad, content never changes
+        desc.initial_vertex_capacity = sizeof(k_unit_quad);
+        desc.debug_name = "kspr_inst_quad";
+        m_kspr_inst_quad_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(desc);
+        const GLGeometryBuffer* quad_geom = m_resource_mapper->ResolveGeometryBuffer(m_kspr_inst_quad_geom_handle);
+        if (!quad_geom) return false;
+        glBindBuffer(GL_ARRAY_BUFFER, quad_geom->vbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(k_unit_quad), k_unit_quad);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 
     // Attribute byte offsets, locked to KsprInstance's layout.
     static_assert(sizeof(KsprInstance) == 44, "KsprInstance layout changed -- update attrib offsets");
@@ -1649,13 +1469,25 @@ bool GLWorldViewRenderer::init_keeper_sprite_instancing()
     constexpr uintptr_t k_inst_off_misc  = 24;  // layer, clut_v, alpha, z_ndc
     constexpr uintptr_t k_inst_off_flags = 40;  // uint32_t
 
-    glGenVertexArrays(1, &m_kspr_inst_vao);
-    glGenBuffers(1, &m_kspr_inst_vbo);
-    glBindVertexArray(m_kspr_inst_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_kspr_inst_quad_vbo);
+    // Empty attribs: all attribute setup (including location 0 from the
+    // shared quad buffer, and the per-instance divisors, which
+    // GpuVertexAttribDesc has no field for) is done manually below.
+    {
+        GpuGeometryBufferDesc desc;
+        desc.vertex_stride = (uint32_t)sizeof(KsprInstance);
+        desc.dynamic = true;
+        desc.debug_name = "kspr_inst_geom";
+        m_kspr_inst_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(desc);
+    }
+    const GLGeometryBuffer* quad_geom = m_resource_mapper->ResolveGeometryBuffer(m_kspr_inst_quad_geom_handle);
+    const GLGeometryBuffer* inst_geom = m_resource_mapper->ResolveGeometryBuffer(m_kspr_inst_geom_handle);
+    if (!quad_geom || !inst_geom) return false;
+
+    glBindVertexArray(inst_geom->vao);
+    glBindBuffer(GL_ARRAY_BUFFER, quad_geom->vbo);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, m_kspr_inst_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, inst_geom->vbo);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(KsprInstance),
                           (void*)k_inst_off_rect);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(KsprInstance),
@@ -1674,34 +1506,32 @@ bool GLWorldViewRenderer::init_keeper_sprite_instancing()
     // Instanced depth-fail outline shader (Beat 4) -- optional, same
     // degrade-not-crash pattern as the non-instanced outline shaders:
     // without it, sprites still draw instanced, just with no depth-fail
-    // outline in the instanced path (m_kspr_outline_shader/
-    // m_kspr_atlas_outline_shader still cover the non-instanced fallback).
-    m_kspr_inst_outline_shader = link_kspr_inst_program(
-        KSPR_INST_OUTLINE_VERTEX_SHADER, KSPR_INST_OUTLINE_FRAGMENT_SHADER,
-        "kspr_inst_outline_vert.glsl", "kspr_inst_outline_frag.glsl",
-        "kspr_inst_outline shader");
-    if (m_kspr_inst_outline_shader)
+    // outline in the instanced path (the non-instanced outline/atlas-outline
+    // shaders still cover the non-instanced fallback).
     {
-        glUseProgram(m_kspr_inst_outline_shader);
-        m_kspr_inst_outline_loc_viewport =
-            glGetUniformLocation(m_kspr_inst_outline_shader, "u_viewport");
-        glUniform1i(glGetUniformLocation(m_kspr_inst_outline_shader, "u_sprite"), 0);
-        glUseProgram(0);
+        const GLProgram* inst_outline_prog = CreateKsprProgram(m_resource_mapper, m_kspr_inst_outline_shader_handle,
+            KSPR_INST_OUTLINE_VERTEX_SHADER, KSPR_INST_OUTLINE_FRAGMENT_SHADER, "kspr_inst_outline");
+        if (inst_outline_prog)
+        {
+            glUseProgram(inst_outline_prog->id);
+            m_kspr_inst_outline_loc_viewport = glGetUniformLocation(inst_outline_prog->id, "u_viewport");
+            glUniform1i(glGetUniformLocation(inst_outline_prog->id, "u_sprite"), 0);
+            glUseProgram(0);
+        }
     }
 
     // Instanced edge-detect shader -- shares the same vertex shader and VAO
     // as the instanced outline, but uses edge-detection in the fragment shader.
-    m_kspr_inst_edge_shader = link_kspr_inst_program(
-        KSPR_INST_OUTLINE_VERTEX_SHADER, KSPR_INST_EDGE_FRAGMENT_SHADER,
-        "kspr_inst_outline_vert.glsl", "kspr_inst_edge_frag.glsl",
-        "kspr_inst_edge shader");
-    if (m_kspr_inst_edge_shader)
     {
-        glUseProgram(m_kspr_inst_edge_shader);
-        m_kspr_inst_edge_loc_viewport =
-            glGetUniformLocation(m_kspr_inst_edge_shader, "u_viewport");
-        glUniform1i(glGetUniformLocation(m_kspr_inst_edge_shader, "u_sprite"), 0);
-        glUseProgram(0);
+        const GLProgram* inst_edge_prog = CreateKsprProgram(m_resource_mapper, m_kspr_inst_edge_shader_handle,
+            KSPR_INST_OUTLINE_VERTEX_SHADER, KSPR_INST_EDGE_FRAGMENT_SHADER, "kspr_inst_edge");
+        if (inst_edge_prog)
+        {
+            glUseProgram(inst_edge_prog->id);
+            m_kspr_inst_edge_loc_viewport = glGetUniformLocation(inst_edge_prog->id, "u_viewport");
+            glUniform1i(glGetUniformLocation(inst_edge_prog->id, "u_sprite"), 0);
+            glUseProgram(0);
+        }
     }
 
     // Outline VAO: same shared unit quad, KsprOutlineInstance layout.
@@ -1711,13 +1541,21 @@ bool GLWorldViewRenderer::init_keeper_sprite_instancing()
     constexpr uintptr_t k_outl_off_lzf   = 24;  // layer, z_ndc, flip
     constexpr uintptr_t k_outl_off_color = 36;  // float[4]
 
-    glGenVertexArrays(1, &m_kspr_inst_outline_vao);
-    glGenBuffers(1, &m_kspr_inst_outline_vbo);
-    glBindVertexArray(m_kspr_inst_outline_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_kspr_inst_quad_vbo);
+    {
+        GpuGeometryBufferDesc desc;
+        desc.vertex_stride = (uint32_t)sizeof(KsprOutlineInstance);
+        desc.dynamic = true;
+        desc.debug_name = "kspr_inst_outline_geom";
+        m_kspr_inst_outline_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(desc);
+    }
+    const GLGeometryBuffer* outline_geom = m_resource_mapper->ResolveGeometryBuffer(m_kspr_inst_outline_geom_handle);
+    if (!outline_geom) return false;
+
+    glBindVertexArray(outline_geom->vao);
+    glBindBuffer(GL_ARRAY_BUFFER, quad_geom->vbo);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, m_kspr_inst_outline_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, outline_geom->vbo);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(KsprOutlineInstance),
                           (void*)k_outl_off_rect);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(KsprOutlineInstance),
@@ -2029,9 +1867,10 @@ void GLWorldViewRenderer::PreloadKeeperSpriteAtlas()
 
 void GLWorldViewRenderer::execute_preload_atlas()
 {
-    if (!m_kspr_sprite_array || !m_kspr_atlas_shader) {
-        ERRORLOG("execute_preload_atlas: GL resources not ready -- preload skipped (sprite_array=%u, shader=%u)",
-                 m_kspr_sprite_array, m_kspr_atlas_shader);
+    if (!m_resource_mapper) return;
+    const GLTexture* sprite_array = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
+    if (!sprite_array || m_kspr_atlas_shader_handle == kInvalidGpuResource) {
+        ERRORLOG("execute_preload_atlas: GL resources not ready -- preload skipped");
         return;
     }
 
@@ -2039,7 +1878,7 @@ void GLWorldViewRenderer::execute_preload_atlas()
 
     int preloaded = 0;
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_kspr_sprite_array);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, sprite_array->id);
 
     // Vanilla sprites: only those already resident in RAM. keepsprite[i] is
     // lazy-loaded from disk; null entries haven't been accessed yet and
@@ -2098,7 +1937,9 @@ void GLWorldViewRenderer::execute_preload_atlas()
 
 void GLWorldViewRenderer::ensure_clut_valid()
 {
-    if (!m_kspr_clut_tex) return;
+    if (!m_resource_mapper) return;
+    const GLTexture* clut_tex = m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle);
+    if (!clut_tex) return;
     if (memcmp(m_rt_palette, m_kspr_clut_palette_snap, sizeof(m_rt_palette)) == 0) return;
 
     memcpy(m_kspr_clut_palette_snap, m_rt_palette, sizeof(m_rt_palette));
@@ -2113,7 +1954,7 @@ void GLWorldViewRenderer::ensure_clut_valid()
         row[i*4+3] = (i == 0) ? 0 : 255;
     }
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_kspr_clut_tex);
+    glBindTexture(GL_TEXTURE_2D, clut_tex->id);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, row);
     glBindTexture(GL_TEXTURE_2D, 0);
     glActiveTexture(GL_TEXTURE0);  // restore active unit
@@ -2180,7 +2021,10 @@ int GLWorldViewRenderer::SubmitKeeperSprite(
 
 int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h)
 {
-    if (!m_kspr_sprite_array || !m_kspr_atlas_shader || !m_kspr_clut_tex)
+    if (!m_resource_mapper) return -1;
+    const GLTexture* sprite_array = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
+    const GLTexture* clut_tex = m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle);
+    if (!sprite_array || m_kspr_atlas_shader_handle == kInvalidGpuResource || !clut_tex)
         return -1;
     if (sprite_id < 0)
         return -1;  // no stable identity -- cannot cache safely
@@ -2201,7 +2045,7 @@ int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned c
     if (m_kspr_atlas_used > m_kspr_atlas_peak)
         m_kspr_atlas_peak = m_kspr_atlas_used;
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_kspr_sprite_array);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, sprite_array->id);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, k_kspr_decode_dim);
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
                     0, 0, atlas_layer,
@@ -2217,7 +2061,9 @@ float GLWorldViewRenderer::resolve_clut_v(const unsigned char* remap)
 {
     // Row 0 = identity (non-remapped sprites).
     float clut_v = 0.5f / (float)k_clut_rows;
-    if (!remap || !m_kspr_clut_tex)
+    if (!m_resource_mapper) return clut_v;
+    const GLTexture* clut_tex = m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle);
+    if (!remap || !clut_tex)
         return clut_v;
     for (size_t i = 0; i < m_kspr_clut_remaps.size(); ++i)
     {
@@ -2237,7 +2083,7 @@ float GLWorldViewRenderer::resolve_clut_v(const unsigned char* remap)
         row_data[ci*4+3] = (ci == 0) ? 0 : 255;
     }
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_kspr_clut_tex);
+    glBindTexture(GL_TEXTURE_2D, clut_tex->id);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, row_idx, 256, 1,
                     GL_RGBA, GL_UNSIGNED_BYTE, row_data);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -2340,7 +2186,7 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
 
     // Depth-fail outline pass (Beat 4).
     if (g_renderer_settings.creature_outline_mode != RENDERER_OUTLINE_NONE && !additive && cmd.wants_outline
-        && (m_kspr_inst_outline_shader || m_kspr_inst_edge_shader))
+        && (m_kspr_inst_outline_shader_handle != kInvalidGpuResource || m_kspr_inst_edge_shader_handle != kInvalidGpuResource))
     {
         // Resolve owner -> player colour index -> linear RGB from the palette.
         float oc_r = 0.9f, oc_g = 0.9f, oc_b = 0.9f;
@@ -2376,6 +2222,7 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
 {
     if (m_kspr_instances.empty() && m_kspr_outline_instances.empty())
         return;
+    if (!m_resource_mapper) return;
 
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
@@ -2384,10 +2231,14 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
     // and (rgb, 0) for additive glow, so one blend mode covers both.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_kspr_clut_tex);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_kspr_sprite_array);
+    {
+        const GLTexture* clut_tex = m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle);
+        const GLTexture* sprite_array = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, clut_tex ? clut_tex->id : 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, sprite_array ? sprite_array->id : 0);
+    }
 
     // Depth-fail outline pass first (Beat 4). Outline pixels only appear
     // where the sprite is occluded (GL_GREATER); main pixels only where it
@@ -2396,15 +2247,17 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
     if (!m_kspr_outline_instances.empty())
     {
         const bool use_edge = (g_renderer_settings.creature_outline_mode == RENDERER_OUTLINE_EDGE);
-        GLuint prog = use_edge ? m_kspr_inst_edge_shader    : m_kspr_inst_outline_shader;
+        GpuResourceHandle prog_handle = use_edge ? m_kspr_inst_edge_shader_handle : m_kspr_inst_outline_shader_handle;
         GLint  vloc = use_edge ? m_kspr_inst_edge_loc_viewport : m_kspr_inst_outline_loc_viewport;
-        if (prog)
+        const GLProgram* prog = m_resource_mapper->ResolveProgram(prog_handle);
+        const GLGeometryBuffer* outline_geom = m_resource_mapper->ResolveGeometryBuffer(m_kspr_inst_outline_geom_handle);
+        if (prog && outline_geom)
         {
             glDepthFunc(GL_GREATER);
-            glUseProgram(prog);
+            glUseProgram(prog->id);
             glUniform2f(vloc, (float)m_draw_screen_w, (float)m_draw_screen_h);
-            glBindVertexArray(m_kspr_inst_outline_vao);
-            glBindBuffer(GL_ARRAY_BUFFER, m_kspr_inst_outline_vbo);
+            glBindVertexArray(outline_geom->vao);
+            glBindBuffer(GL_ARRAY_BUFFER, outline_geom->vbo);
             glBufferData(GL_ARRAY_BUFFER,
                          (GLsizeiptr)(m_kspr_outline_instances.size() * sizeof(KsprOutlineInstance)),
                          m_kspr_outline_instances.data(), GL_STREAM_DRAW);
@@ -2415,16 +2268,21 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
 
     if (!m_kspr_instances.empty())
     {
-        glDepthFunc(GL_LEQUAL);
-        glUseProgram(m_kspr_inst_shader);
-        glUniform2f(m_kspr_inst_loc_viewport,
-                    (float)m_draw_screen_w, (float)m_draw_screen_h);
-        glBindVertexArray(m_kspr_inst_vao);
-        glBindBuffer(GL_ARRAY_BUFFER, m_kspr_inst_vbo);
-        glBufferData(GL_ARRAY_BUFFER,
-                     (GLsizeiptr)(m_kspr_instances.size() * sizeof(KsprInstance)),
-                     m_kspr_instances.data(), GL_STREAM_DRAW);
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, (GLsizei)m_kspr_instances.size());
+        const GLProgram* prog = m_resource_mapper->ResolveProgram(m_kspr_inst_shader_handle);
+        const GLGeometryBuffer* inst_geom = m_resource_mapper->ResolveGeometryBuffer(m_kspr_inst_geom_handle);
+        if (prog && inst_geom)
+        {
+            glDepthFunc(GL_LEQUAL);
+            glUseProgram(prog->id);
+            glUniform2f(m_kspr_inst_loc_viewport,
+                        (float)m_draw_screen_w, (float)m_draw_screen_h);
+            glBindVertexArray(inst_geom->vao);
+            glBindBuffer(GL_ARRAY_BUFFER, inst_geom->vbo);
+            glBufferData(GL_ARRAY_BUFFER,
+                         (GLsizeiptr)(m_kspr_instances.size() * sizeof(KsprInstance)),
+                         m_kspr_instances.data(), GL_STREAM_DRAW);
+            glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, (GLsizei)m_kspr_instances.size());
+        }
     }
 
     glDepthFunc(GL_LEQUAL);
@@ -2448,12 +2306,25 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
     // the CPU software rasteriser from here; that would produce mixed-path
     // frames (and there's no caller that would even understand a "fall
     // back to CPU" return value yet -- see the file header).
-    if (!m_kspr_shader || !m_kspr_sprite_tex || m_palette_tex_handle == kInvalidGpuResource) {
+    if (!m_resource_mapper) return 1;
+    const GLProgram* kspr_prog = m_resource_mapper->ResolveProgram(m_kspr_shader_handle);
+    const GLTexture* kspr_sprite_tex = m_resource_mapper->ResolveTexture(m_kspr_sprite_tex_handle);
+    const GLGeometryBuffer* kspr_geom = m_resource_mapper->ResolveGeometryBuffer(m_kspr_geom_handle);
+    if (!kspr_prog || !kspr_sprite_tex || !kspr_geom || m_palette_tex_handle == kInvalidGpuResource) {
         static int s_miss = 0;
         if (s_miss++ < 5)
             ERRORLOG("render_keepersprite_gpu: GL resources not ready -- sprite dropped");
         return 1;
     }
+    const GLProgram* kspr_glow_prog = m_resource_mapper->ResolveProgram(m_kspr_glow_shader_handle);
+    const GLProgram* kspr_atlas_glow_prog = m_resource_mapper->ResolveProgram(m_kspr_atlas_glow_shader_handle);
+    const GLProgram* kspr_atlas_prog = m_resource_mapper->ResolveProgram(m_kspr_atlas_shader_handle);
+    const GLTexture* kspr_sprite_array = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
+    const GLTexture* kspr_clut_tex = m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle);
+    const GLProgram* kspr_outline_prog = m_resource_mapper->ResolveProgram(m_kspr_outline_shader_handle);
+    const GLProgram* kspr_atlas_outline_prog = m_resource_mapper->ResolveProgram(m_kspr_atlas_outline_shader_handle);
+    const GLProgram* kspr_edge_prog = m_resource_mapper->ResolveProgram(m_kspr_edge_shader_handle);
+    const GLProgram* kspr_atlas_edge_prog = m_resource_mapper->ResolveProgram(m_kspr_atlas_edge_shader_handle);
     if (src_w <= 0 || src_h <= 0 || src_w > k_kspr_decode_dim || src_h > k_kspr_decode_dim) {
         static int s_dim = 0;
         if (s_dim++ < 20)
@@ -2469,7 +2340,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
     int atlas_layer = resolve_atlas_layer(sprite_id, data, src_w, src_h);
 
     float clut_v = 0.5f / (float)k_clut_rows;
-    if (atlas_layer >= 0 && use_remap && m_kspr_clut_tex)
+    if (atlas_layer >= 0 && use_remap && kspr_clut_tex)
         clut_v = resolve_clut_v(remap);
 
     // Water/lava clipping (Beat 4) -- see IRWorldKeeperSpriteCmd::content_h's
@@ -2493,7 +2364,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
         { vx1, vy1, ur,  v1   },
         { vx0, vy1, ul,  v1   },
     };
-    glBindBuffer(GL_ARRAY_BUFFER, m_kspr_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, kspr_geom->vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(sv), nullptr, GL_DYNAMIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(sv), sv);
 
@@ -2510,11 +2381,11 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
     // older flat-additive-blend approximation via the normal shader rather
     // than crash -- same "optional GL resource, don't require it" pattern
     // every other shader in this function follows.
-    const bool use_glow_atlas    = additive && atlas_layer >= 0 && m_kspr_atlas_glow_shader;
-    const bool use_glow_fallback = additive && atlas_layer <  0 && m_kspr_glow_shader;
+    const bool use_glow_atlas    = additive && atlas_layer >= 0 && kspr_atlas_glow_prog;
+    const bool use_glow_fallback = additive && atlas_layer <  0 && kspr_glow_prog;
     const GLenum blend_dfactor = additive ? GL_ONE : GL_ONE_MINUS_SRC_ALPHA;
 
-    glBindVertexArray(m_kspr_vao);
+    glBindVertexArray(kspr_geom->vao);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glDepthMask(GL_FALSE);
@@ -2558,21 +2429,21 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
         if (atlas_layer >= 0)
         {
             // Select edge vs silhouette shader for the atlas path.
-            GLuint prog    = use_edge ? m_kspr_atlas_edge_shader         : m_kspr_atlas_outline_shader;
+            const GLProgram* prog = use_edge ? kspr_atlas_edge_prog : kspr_atlas_outline_prog;
             GLint  loc_vp  = use_edge ? m_kspr_atlas_edge_loc_viewport   : m_kspr_atlas_outline_loc_viewport;
             GLint  loc_z   = use_edge ? m_kspr_atlas_edge_loc_z_ndc      : m_kspr_atlas_outline_loc_z_ndc;
             GLint  loc_lay = use_edge ? m_kspr_atlas_edge_loc_layer      : m_kspr_atlas_outline_loc_layer;
             GLint  loc_col = use_edge ? m_kspr_atlas_edge_loc_color      : m_kspr_atlas_outline_loc_color;
-            if (prog)
+            if (prog && kspr_sprite_array)
             {
-                // Atlas path: texture already cached in m_kspr_sprite_array.
-                glUseProgram(prog);
+                // Atlas path: texture already cached in kspr_sprite_array.
+                glUseProgram(prog->id);
                 glUniform2f(loc_vp, (float)m_draw_screen_w, (float)m_draw_screen_h);
                 glUniform1f(loc_z,    outline_z);
                 glUniform1f(loc_lay,  (float)atlas_layer);
                 glUniform4f(loc_col,  oc_r, oc_g, oc_b, oc_a);
                 glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D_ARRAY, m_kspr_sprite_array);
+                glBindTexture(GL_TEXTURE_2D_ARRAY, kspr_sprite_array->id);
                 glDrawArrays(GL_TRIANGLES, 0, 6);
             }
         }
@@ -2580,7 +2451,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
         {
             // Fallback path: decode + upload now so the outline has pixel data.
             // The normal draw below will re-use the already-uploaded texture.
-            GLuint prog    = use_edge ? m_kspr_edge_shader         : m_kspr_outline_shader;
+            const GLProgram* prog = use_edge ? kspr_edge_prog : kspr_outline_prog;
             GLint  loc_vp  = use_edge ? m_kspr_edge_loc_viewport   : m_kspr_outline_loc_viewport;
             GLint  loc_z   = use_edge ? m_kspr_edge_loc_z_ndc      : m_kspr_outline_loc_z_ndc;
             GLint  loc_col = use_edge ? m_kspr_edge_loc_color      : m_kspr_outline_loc_color;
@@ -2596,13 +2467,13 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
                     }
                 }
                 glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, m_kspr_sprite_tex);
+                glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
                 glPixelStorei(GL_UNPACK_ROW_LENGTH, k_kspr_decode_dim);
                 glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, src_w, src_h,
                                 GL_RED, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
                 glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
-                glUseProgram(prog);
+                glUseProgram(prog->id);
                 glUniform2f(loc_vp, (float)m_draw_screen_w, (float)m_draw_screen_h);
                 glUniform1f(loc_z,    outline_z);
                 glUniform4f(loc_col,  oc_r, oc_g, oc_b, oc_a);
@@ -2616,25 +2487,25 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
     if (atlas_layer >= 0) {
         if (use_glow_atlas) {
             // Additive glow via atlas: no CLUT/palette needed, glow math in shader.
-            glUseProgram(m_kspr_atlas_glow_shader);
+            glUseProgram(kspr_atlas_glow_prog->id);
             glUniform2f(m_kspr_atlas_glow_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
             glUniform1f(m_kspr_atlas_glow_loc_z_ndc, z_ndc);
             glUniform1f(m_kspr_atlas_glow_loc_layer, (float)atlas_layer);
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, m_kspr_sprite_array);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, kspr_sprite_array ? kspr_sprite_array->id : 0);
             glBlendFunc(GL_ONE, GL_ONE);
         } else {
             // Normal or remapped sprite via atlas + CLUT.
-            glUseProgram(m_kspr_atlas_shader);
+            glUseProgram(kspr_atlas_prog->id);
             glUniform2f(m_kspr_atlas_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
             glUniform1f(m_kspr_atlas_loc_alpha, alpha);
             glUniform1f(m_kspr_atlas_loc_z_ndc, z_ndc);
             glUniform1f(m_kspr_atlas_loc_layer, (float)atlas_layer);
             glUniform1f(m_kspr_atlas_loc_clut_v, clut_v);
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, m_kspr_clut_tex);
+            glBindTexture(GL_TEXTURE_2D, kspr_clut_tex ? kspr_clut_tex->id : 0);
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, m_kspr_sprite_array);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, kspr_sprite_array ? kspr_sprite_array->id : 0);
             glBlendFunc(GL_SRC_ALPHA, blend_dfactor);
         }
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -2651,7 +2522,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
                                    && !additive
                                    && wants_outline
                                    && atlas_layer < 0
-                                   && (m_kspr_outline_shader || m_kspr_edge_shader);
+                                   && (kspr_outline_prog || kspr_edge_prog);
     if (!outline_uploaded)
     {
         decode_keeper_rle(s_kspr_decode_buf, data, src_w, src_h);
@@ -2664,7 +2535,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
             }
         }
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_kspr_sprite_tex);
+        glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, k_kspr_decode_dim);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, src_w, src_h,
                         GL_RED, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
@@ -2674,23 +2545,23 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
     if (use_glow_fallback)
     {
         // Pure additive blend: adds the glow RGB delta to the framebuffer.
-        glUseProgram(m_kspr_glow_shader);
+        glUseProgram(kspr_glow_prog->id);
         glUniform2f(m_kspr_glow_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
         glUniform1f(m_kspr_glow_loc_z_ndc,    z_ndc);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_kspr_sprite_tex);
+        glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
         glBlendFunc(GL_ONE, GL_ONE);
     }
     else
     {
-        glUseProgram(m_kspr_shader);
+        glUseProgram(kspr_prog->id);
         glUniform2f(m_kspr_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
         glUniform1f(m_kspr_loc_alpha,    alpha);
         glUniform1f(m_kspr_loc_z_ndc,    z_ndc);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, ResolvePaletteTexId());
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_kspr_sprite_tex);
+        glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
         glBlendFunc(GL_SRC_ALPHA, blend_dfactor);
     }
 
@@ -2811,14 +2682,22 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
 
     ensure_clut_valid();  // identity row 0 must exist before any sprite draws
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    if (!m_resource_mapper) return;
+    const GLGeometryBuffer* const world_geom = m_resource_mapper->ResolveGeometryBuffer(m_geom_handle);
+    const GLuint world_shader_id = ResolveShaderId(m_shader_handle);
+    const GLTexture* const lightmap_tex = m_resource_mapper->ResolveTexture(m_lightmap_tex_handle);
+    const GLGeometryBuffer* const flatpoly_geom = m_resource_mapper->ResolveGeometryBuffer(m_flatpoly_geom_handle);
+    const GLuint flatpoly_shader_id = ResolveShaderId(m_flatpoly_shader_handle);
+    if (!world_geom || !world_shader_id || !lightmap_tex) return;
+
+    glBindBuffer(GL_ARRAY_BUFFER, world_geom->vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0,
                     (GLsizeiptr)(tile_verts.size() * sizeof(WorldVertex)),
                     tile_verts.data());
 
     glViewport(vp_x, vp_y_gl, screen_w, screen_h);
-    glUseProgram(m_shader);
-    glBindVertexArray(m_vao);
+    glUseProgram(world_shader_id);
+    glBindVertexArray(world_geom->vao);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -2830,7 +2709,7 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
     // Upload lightmap shadow copy (snapshotted from game.lish.subtile_lightness[]
     // during FlipBuffers() on the game thread — no live game struct access here).
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, m_tex_lightmap);
+    glBindTexture(GL_TEXTURE_2D, lightmap_tex->id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, k_lightmap_w, k_lightmap_h,
                     GL_RED_INTEGER, GL_UNSIGNED_SHORT,
@@ -2893,23 +2772,23 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
         }
         else if (cmd.type == DrawCmd::CMD_FLAT_POLYS)
         {
-            if (!fp_verts.empty())
+            if (!fp_verts.empty() && flatpoly_geom && flatpoly_shader_id)
             {
                 if (!flatpoly_uploaded)
                 {
-                    glBindBuffer(GL_ARRAY_BUFFER, m_flatpoly_vbo);
+                    glBindBuffer(GL_ARRAY_BUFFER, flatpoly_geom->vbo);
                     glBufferData(GL_ARRAY_BUFFER,
                                  (GLsizeiptr)(fp_verts.size() * sizeof(FlatPolyVertex)),
                                  fp_verts.data(), GL_STREAM_DRAW);
                     flatpoly_uploaded = true;
                 }
-                glUseProgram(m_flatpoly_shader);
-                glBindVertexArray(m_flatpoly_vao);
+                glUseProgram(flatpoly_shader_id);
+                glBindVertexArray(flatpoly_geom->vao);
                 glUniform2f(m_flatpoly_loc_viewport, (float)screen_w, (float)screen_h);
                 glDrawArrays(GL_TRIANGLES, cmd.vert_start, cmd.vert_count);
                 // Restore tile shader state for subsequent CMD_TILES.
-                glUseProgram(m_shader);
-                glBindVertexArray(m_vao);
+                glUseProgram(world_shader_id);
+                glBindVertexArray(world_geom->vao);
                 atlas_bound = false;
             }
         }
@@ -2917,8 +2796,8 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
         {
             execute_preload_atlas();
             // Restore tile shader and VAO that were active before the preload.
-            glUseProgram(m_shader);
-            glBindVertexArray(m_vao);
+            glUseProgram(world_shader_id);
+            glBindVertexArray(world_geom->vao);
             atlas_bound = false;
         }
         else if (cmd.type == DrawCmd::CMD_CLEAR_KSPR_ATLAS)
@@ -2936,8 +2815,8 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
     // needed between shadows (multiplicative blend is commutative) or
     // relative to tiles (each is independently depth-tested).
     draw_shadows_gpu();
-    glUseProgram(m_shader);
-    glBindVertexArray(m_vao);
+    glUseProgram(world_shader_id);
+    glBindVertexArray(world_geom->vao);
 
     // ── Keeper sprites ────────────────────────────────────────────────────────
     // Sprites depth-test against the tile z-buffer written above (wall
@@ -2974,7 +2853,8 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
                 return m_kspr_sorted_idx;
             };
 
-            const bool use_instancing = (m_kspr_inst_shader != 0) && (m_kspr_sprite_array != 0);
+            const bool use_instancing = (m_kspr_inst_shader_handle != kInvalidGpuResource)
+                                      && (m_kspr_sprite_array_handle != kInvalidGpuResource);
             if (use_instancing)
             {
                 m_kspr_instances.clear();
@@ -2997,8 +2877,8 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
             }
 
             glDisable(GL_SCISSOR_TEST);
-            glUseProgram(m_shader);
-            glBindVertexArray(m_vao);
+            glUseProgram(world_shader_id);
+            glBindVertexArray(world_geom->vao);
             // Sprite pass leaves unit 1 bound to m_kspr_clut_tex. The tile
             // shader samples unit 1 as the 256x1 palette -- restore it so a
             // subsequent CMD_TILES batch (front view after iso, etc.)
