@@ -2986,7 +2986,7 @@ void frontend_input(void)
         if (input_consumed) {
             break;
         }
-        fronttestfont_input();
+        //fronttestfont_input();
         break;
 #endif
     default:
@@ -3318,7 +3318,7 @@ short frontend_draw(void)
         break;
 #if (BFDEBUG_LEVEL > 0)
     case FeSt_FONT_TEST:
-        fronttestfont_draw();
+        //fronttestfont_draw();
         break;
 #endif
     default:
