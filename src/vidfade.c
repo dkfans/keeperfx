@@ -327,7 +327,7 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   // GPU backends rely solely on the screen tint overlay above; only the
   // software path (no GPU render path, so no tint overlay) still needs the
   // whole-palette recolour, done inside RendererApplyPossessionPalette().
-  RendererApplyPossessionPalette(step, player->main_palette);
+  RendererApplyPossessionPalette(step, local_state.main_palette);
   return step;
 }
 

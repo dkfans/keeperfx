@@ -27,7 +27,7 @@
 #include "bflib_basics.h"     // ERRORLOG / SYNCLOG / WARNLOG
 #include "vidmode.h"          // pixmap, alpha_sprite_table (CPU-fallback globals)
 #include "player_data.h"      // get_my_player(), get_player_active_camera(), PVM_*
-#include "local_camera.h"     // get_local_camera() (spinning-key gate)
+#include "local_camera.h"     // get_local_active_camera() (spinning-key gate)
 #include "game_legacy.h"      // game.lish.subtile_lightness (lightmap snapshot in FlipBuffers)
 
 #include <cstring>
@@ -2505,7 +2505,7 @@ void GLWorldViewRenderer::DrawIsometricView()
                 break;
             case QK_JontyISOSprite:
                 player = get_my_player();
-                cam = get_local_camera(get_player_active_camera(player));
+                cam = get_local_active_camera(player);
                 if (cam != NULL)
                 {
                     if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {

@@ -106,12 +106,13 @@ struct NearestLights {
     struct Coord3d coord[SHADOW_SOURCES_MAX_COUNT];
 };
 
-struct BucketKindTexturedQuad { // sizeof = 46
+struct BucketKindTexturedQuad { // sizeof = 54
     struct BasicQ b;
     unsigned char orient;
     long texture_idx;
     long texture_x;
     long texture_y;
+    struct Coord2d texture_scroll;
     long zoom_x;
     long zoom_y;
     long shade_intensity0;

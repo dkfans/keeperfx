@@ -338,7 +338,7 @@ bool WindowSystemSDL::CreateWindow(const char* title, int x, int y, int w, int h
     m_window = SDL_CreateWindow(title, w, h, sdl3_flags);
     if (!m_window)
         return false;
-    ApplyWindowIcon(lbWindow);
+    ApplyWindowIcon(m_window);
 
     // A window created with SDL_WINDOW_FULLSCREEN starts as desktop fullscreen,
     // which is exactly what a desktop-fullscreen mode wants; an exclusive mode is
