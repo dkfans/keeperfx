@@ -52,6 +52,7 @@ TbBool load_stats_files(void)
     init_all_creature_model_stats();
     init_creature_model_graphics();
 
+    load_config(&keeper_gui_translation_file_data, CnfLd_Standard);
     load_config(&keeper_translation_file_data, CnfLd_Standard);
 
     //first preload some configs which contain names that are used in other cfgs in ListOnly mode
