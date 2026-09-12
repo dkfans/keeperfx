@@ -453,10 +453,13 @@ void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNum
         }
     }
 
+    // COMPOSITE, not OPAQUE: this rect sits inside the already-drawn parchment
+    // background, not the whole screen -- OPAQUE would letterbox (blacken)
+    // everything outside it.
     struct RendererPresentImageDesc d = {0};
     d.format = PRESENT_FORMAT_INDEXED8;
     d.palette = PRESENT_PALETTE_GAME;
-    d.kind = PRESENT_KIND_OPAQUE;
+    d.kind = PRESENT_KIND_COMPOSITE;
     d.dst_x = map_area->left;   d.dst_y = map_area->top;
     d.dst_w = map_w;            d.dst_h = map_h;
     d.src = omap_scratch;            d.src_pitch = map_w;

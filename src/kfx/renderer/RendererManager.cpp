@@ -192,16 +192,19 @@ TbBool RendererPresentImage(const struct RendererPresentImageDesc* desc)
     if (s_active_renderer != nullptr && s_active_renderer->PresentImage(desc))
         return 1;
     // Backend declined (no GPU render path, e.g. software): fall back to the
-    // classic opaque game-palette CPU blit. Transparent overlays and the
+    // classic CPU blit. Transparent-with-index-0-see-through and the
     // embedded-palette FMV case have no software equivalent here; their
     // callers use backend-specific paths.
     if (desc->format  != PRESENT_FORMAT_INDEXED8 ||
-        desc->kind    != PRESENT_KIND_OPAQUE     ||
+        (desc->kind   != PRESENT_KIND_OPAQUE && desc->kind != PRESENT_KIND_COMPOSITE) ||
         desc->palette != PRESENT_PALETTE_GAME    ||
         lbDisplay.WScreen == NULL)
         return 0;
+    // Only OPAQUE owns the whole screen and gets its margins letterboxed;
+    // COMPOSITE owns only its own rect.
     return copy_raw8_image_buffer(lbDisplay.WScreen, RendererScreenWidth(), RendererScreenHeight(),
-        desc->dst_w, desc->dst_h, desc->dst_x, desc->dst_y, desc->src, desc->src_w, desc->src_h);
+        desc->dst_w, desc->dst_h, desc->dst_x, desc->dst_y, desc->src, desc->src_w, desc->src_h,
+        desc->kind == PRESENT_KIND_OPAQUE);
 }
 
 TbBool RendererSubmitZoomBoxTiles(const unsigned short* tile_block_ids, int tiles_x, int tiles_y,

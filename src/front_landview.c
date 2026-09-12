@@ -103,7 +103,7 @@ void draw_map_screen(void)
     copy_raw8_image_buffer(lbDisplay.WScreen,RendererScreenWidth(),RendererScreenHeight(),
         scale_value_landview(LANDVIEW_MAP_WIDTH), scale_value_landview(LANDVIEW_MAP_HEIGHT),
         -scale_value_landview(map_info.screen_shift_x), -scale_value_landview(map_info.screen_shift_y),
-        map_screen,LANDVIEW_MAP_WIDTH,LANDVIEW_MAP_HEIGHT);
+        map_screen,LANDVIEW_MAP_WIDTH,LANDVIEW_MAP_HEIGHT,true);
 }
 
 const struct TbSprite * get_map_ensign(long idx)

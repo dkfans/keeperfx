@@ -134,10 +134,15 @@ unsigned char palette_buf[PALETTE_SIZE];
  * @param src_width Source image width.
  * @param src_height Source image height.
  *     Factor of 2 would mean every pixel is repeated in both dimensions and drawn 2*2 times.
+ * @param clear_margins Whole-screen present: black out every pixel outside the
+ *     dest rect too (top/bottom/left/right margins), not just fill the rect
+ *     itself. False for a present that owns only its own rect and must leave
+ *     the rest of an already-drawn screen alone.
  * @return Gives true on success.
  */
 TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int dst_width,const int dst_height,
-    const int spw,const int sph,const unsigned char *src_buf,const int src_width,const int src_height)
+    const int spw,const int sph,const unsigned char *src_buf,const int src_width,const int src_height,
+    TbBool clear_margins)
 {
     unsigned char* dst;
     SYNCDBG(18, "Starting; screen buf %d,%d screen size %d,%d dst pos %d,%d src %d,%d", (int)scanline, (int)nlines, (int)dst_width, (int)dst_height, (int)spw, (int)sph, (int)src_width, (int)src_height);
@@ -151,25 +156,28 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
         present_desc.src_w = src_width;   present_desc.src_h = src_height;
         present_desc.format  = PRESENT_FORMAT_INDEXED8;
         present_desc.palette = PRESENT_PALETTE_GAME;
-        present_desc.kind    = PRESENT_KIND_OPAQUE;
+        present_desc.kind    = clear_margins ? PRESENT_KIND_OPAQUE : PRESENT_KIND_COMPOSITE;
         return RendererPresentImage(&present_desc);
     }
     // Source pixel coords
     int sw = 0;
     int sh = 0;
-    // Clearing top of the canvas
-    for (sh = 0; sh < sph; sh++)
+    if (clear_margins)
     {
-        dst = dst_buf + (sh)*scanline;
-        memset(dst, 0, scanline);
-  }
-  // Clearing bottom of the canvas
-  // (Note: it must be done before drawing, to make sure we won't overwrite last line)
-  for (sh=sph+dst_height; sh<nlines; sh++)
-  {
-      dst = dst_buf + (sh)*scanline;
-      memset(dst, 0, scanline);
-  }
+        // Clearing top of the canvas
+        for (sh = 0; sh < sph; sh++)
+        {
+            dst = dst_buf + (sh)*scanline;
+            memset(dst, 0, scanline);
+        }
+        // Clearing bottom of the canvas
+        // (Note: it must be done before drawing, to make sure we won't overwrite last line)
+        for (sh=sph+dst_height; sh<nlines; sh++)
+        {
+            dst = dst_buf + (sh)*scanline;
+            memset(dst, 0, scanline);
+        }
+    }
   // Now drawing
   int dhstart = sph;
   for (sh=0; sh<src_height; sh++)
@@ -183,7 +191,7 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
       {
           dst = dst_buf + (dhstart+k)*scanline;
           int dwstart = spw;
-          if (dwstart > 0) {
+          if (clear_margins && dwstart > 0) {
               memset(dst, 0, dwstart);
           }
           for (sw=0; sw<src_width; sw++)
@@ -198,7 +206,7 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
               }
               dwstart = dwend;
           }
-          if (dwstart < scanline) {
+          if (clear_margins && dwstart < scanline) {
               memset(dst+dwstart, 0, scanline-dwstart);
           }
       }
@@ -255,7 +263,7 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
         return false;
 
     copy_raw8_image_buffer(lbDisplay.WScreen, RendererScreenWidth(), RendererScreenHeight(),
-                           scaled_width, scaled_height, coord_x, coord_y, buf, img_width, img_height);
+                           scaled_width, scaled_height, coord_x, coord_y, buf, img_width, img_height, true);
 
     // Perform any screen capturing
     perform_any_screen_capturing();

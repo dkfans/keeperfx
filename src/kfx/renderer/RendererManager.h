@@ -71,9 +71,14 @@ void   RendererEndFrame(void);
 #define PRESENT_PALETTE_EMBEDDED 1  /* per-present palette carried in embedded_palette (FMV, 256x4 BGRA) */
 
 // Compositing behaviour for RendererPresentImageDesc::kind.
-#define PRESENT_KIND_OPAQUE      0  /* fills the dest rect, clearing first (default) */
+#define PRESENT_KIND_OPAQUE      0  /* whole-screen present: fills the dest rect, letterboxing
+                                        (clearing) everything outside it too (default) */
 #define PRESENT_KIND_TRANSPARENT 1  /* draws over whatever's already there; index 0 = see-through
                                         unless coverage below is set */
+#define PRESENT_KIND_COMPOSITE   2  /* draws over whatever's already there, like TRANSPARENT, but
+                                        index 0 is a literal opaque colour, not see-through -- for a
+                                        sub-rect present (e.g. the parchment overhead map) that owns
+                                        every pixel in its own rect and none outside it */
 
 // Source pixel format for RendererPresentImageDesc::format. Only INDEXED8
 // exists today (every present source -- FMV frames, splash bitmaps, the
