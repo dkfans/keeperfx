@@ -652,7 +652,6 @@ void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
     lua_setmetatable(L, -2);  
 }
 
-
 void lua_pushParent(lua_State *L, const struct Thing *thing)
 {
     switch (thing->class_id)
@@ -665,7 +664,12 @@ void lua_pushParent(lua_State *L, const struct Thing *thing)
         break;
     case TCls_Object:
         // a room index or a slab number, depending on the object model
-        lua_pushinteger(L, thing->parent_idx);
+        // if belongs to nothing its -1
+        if (thing->parent_idx > 0) {
+            lua_pushinteger(L, thing->parent_idx);
+        } else {
+            lua_pushnil(L);
+        }
         break;
     default:
         lua_pushnil(L);

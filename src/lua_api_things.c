@@ -535,7 +535,11 @@ static int thing_set_field(lua_State *L) {
                 thing->shot.target_idx = target->index;
             }
         } else if (strcmp(key, "damage") == 0) {
-            thing->shot.damage = luaL_checkinteger(L, 3);
+            lua_Integer value = luaL_checkinteger(L, 3);
+            if (value < SHRT_MIN || value > SHRT_MAX) {
+                return luaL_error(L, "damage out of range (-32768..32767)");
+            }
+            thing->shot.damage = (short)value;
         } else {
             return luaL_error(L, "Field '%s' is not writable on Shot thing", key);
         }
@@ -734,7 +738,11 @@ static int thing_get_field(lua_State *L) {
     } else if (thing->class_id == TCls_Shot)
     {
         if (strcmp(key, "target") == 0) {
-            lua_pushThing(L, thing_get(thing->shot.target_idx));
+            struct Thing* targettng = thing_get(thing->shot.target_idx);
+            if (!thing_exists(targettng)) {
+                targettng = INVALID_THING;
+            }
+            lua_pushThing(L, targettng);
         } else if (strcmp(key, "damage") == 0) {
             lua_pushinteger(L, thing->shot.damage);
         } else if (strcmp(key, "originpos") == 0) {
