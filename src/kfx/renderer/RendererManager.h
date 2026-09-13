@@ -154,8 +154,7 @@ TbBool RendererScheduleScreenshot(const char* path, int fmt);
 TbBool RendererCompositesMinimapBackground(void);
 
 /** True when draws made now reach the current frame: the software framebuffer
- *  is locked, or the backend records draws to render later. Use this, not
- *  LbScreenIsLocked(), to decide whether to draw. */
+ *  is locked, or the backend records draws to render later. */
 TbBool RendererCanDraw(void);
 
 /** True when the active backend wants the 3D world drawn at the full screen

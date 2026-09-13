@@ -241,7 +241,7 @@ TbBool RendererCompositesMinimapBackground(void)
 
 TbBool RendererCanDraw(void)
 {
-    if (LbScreenIsLocked())
+    if (lbDisplay.WScreen != NULL)
         return 1;
     return (s_active_renderer != nullptr) ? (TbBool)s_active_renderer->GetCapabilities().hasGPURenderPath : 0;
 }
