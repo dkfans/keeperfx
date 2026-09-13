@@ -326,7 +326,7 @@ private:
     int m_draw_screen_h = 0;  // RT: active viewport height for GL draw calls
 
     // CPU-side vertex staging buffer (dynamic VBO)
-    static const int k_max_verts = 65536;   // ~21000 triangles per frame
+    static const int k_initial_verts = 65536;   // starting VBO size; grows to fit the frame
     int m_vert_count     = 0;   // GT: vertex count in WorldCommandBuffers::tile_verts
     int m_cmd_vert_start = 0;   // GT: start index of current accumulating tile batch
 
