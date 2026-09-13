@@ -2973,7 +2973,7 @@ static short get_inputs(void)
         {
           if (!network_is_active())
             game.operation_flags &= ~GOF_Paused;
-          hide_status_menu_for_map();
+          set_map_ui_hidden(true, false);
           set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
         }
         return false;
