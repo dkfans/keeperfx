@@ -283,6 +283,8 @@ extern struct LocalState {
     unsigned char view_type;
     TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
     TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
+    TbBool status_menu_hidden_for_map; /**< The status menu is hidden for the map and status_menu_restore holds its visibility. */
+    TbBool tooltips_hidden_for_map; /**< Tooltips are off for a map fade and tooltips_restore holds the setting. */
     TbBool paused_state_restore; /**< Used to restore pause state after saving */
     TbBool display_needs_update;
     short local_thing_under_hand;

@@ -18,12 +18,12 @@ public:
     virtual void FGResolveWorldCapture() {}
     virtual void FGApplyLensPaletteUIExclusion() {}
 
-    // -- Map-fade compose (after world, before presents/overhead) -----------
-    virtual void FGExecuteMapFade() {}
-
     // -- World-space sprite / flat overlay layers ----------------------------
     virtual void FGDrawWorldSpriteLayer() {}
     virtual void FGDrawWorldOverlayFlatLayer() {}
+
+    // -- Map-fade world snapshot (after all world layers, before the parchment)
+    virtual void FGCaptureMapFadeWorld() {}
 
     // -- Full-screen image presents (backgrounds / parchment / FMV) ---------
     virtual void FGExecuteImagePresents() {}
@@ -32,9 +32,9 @@ public:
     virtual void FGDrawOverheadMap() {}
     virtual void FGExecutePiPCaptures() {}
 
-    // -- Game UI, then deferred world-view capture ---------------------------
+    // -- Game UI, then the map-fade parchment snapshot and composite --------
     virtual void FGDrawGameUI() {}
-    virtual void FGCaptureWorldFrameIfPending() {}
+    virtual void FGResolveMapFade() {}
 
     // -- Zoom-box tiles (on top of GameUI), front overlay, text -------------
     virtual void FGDrawZoomBoxes() {}

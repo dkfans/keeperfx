@@ -2139,6 +2139,42 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     return mnu_num;
 }
 
+/** Saves `current` as the value to put back when a hold ends. Holding again
+ *  keeps the first saved value, unless the value was put back in between (an
+ *  exit that skipped the restore). */
+static void begin_map_ui_hold(TbBool* held, TbBool* saved, TbBool current)
+{
+    if (current || !*held)
+        *saved = current;
+    *held = true;
+}
+
+/** Hides the status menu and turns tooltips off for the map and its fades, or
+ *  puts them back. Each argument is the state wanted from this call on. */
+void set_map_ui_hidden(TbBool status_menu, TbBool tooltips)
+{
+    if (status_menu)
+    {
+        begin_map_ui_hold(&local_state.status_menu_hidden_for_map, &local_state.status_menu_restore, toggle_status_menu(0));
+    }
+    else if (local_state.status_menu_hidden_for_map)
+    {
+        toggle_status_menu(local_state.status_menu_restore);
+        local_state.status_menu_hidden_for_map = false;
+    }
+
+    if (tooltips)
+    {
+        begin_map_ui_hold(&local_state.tooltips_hidden_for_map, &local_state.tooltips_restore, settings.tooltips_on);
+        settings.tooltips_on = false;
+    }
+    else if (local_state.tooltips_hidden_for_map)
+    {
+        settings.tooltips_on = local_state.tooltips_restore;
+        local_state.tooltips_hidden_for_map = false;
+    }
+}
+
 /**
  * Sets the status menu visiblity.
  *

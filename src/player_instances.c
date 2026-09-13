@@ -764,9 +764,7 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, int32_t *n)
     if (is_my_player(player))
     {
         local_state.palette_fade_step_map = 0;
-        local_state.tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
-        settings.tooltips_on = false; // don't show tooltips during the fade
-        local_state.status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible)
+        set_map_ui_hidden(true, true);
   }
   set_engine_view(player, PVM_ParchFadeIn);
   return 0;
@@ -782,7 +780,7 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, int32_t *n)
 {
   set_player_mode(player, PVT_MapScreen);
   if (is_my_player(player))
-    settings.tooltips_on = local_state.tooltips_restore; // restore tooltips setting after the fade is completed
+    set_map_ui_hidden(true, false);
   get_player_user_state(player)->init_flags &= ~UsrIF_MouseInputDisabled;
   return 0;
 }
@@ -792,8 +790,7 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, int32_t *n)
   get_player_user_state(player)->init_flags |= UsrIF_MouseInputDisabled;
   if (is_my_player(player))
   {
-    local_state.tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
-    settings.tooltips_on = false; // don't show tooltips during the fade
+    set_map_ui_hidden(true, true);
     game.operation_flags &= ~GOF_ShowPanel;
     local_state.palette_fade_step_map = 32;
   }
@@ -812,8 +809,7 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, int32_t *n)
     struct PlayerInfo* myplyr = get_player(my_player_number);
     set_engine_view(player, player->view_mode_restore);
     if (player->id_number == myplyr->id_number) {
-        settings.tooltips_on = local_state.tooltips_restore; // restore tooltips setting after the fade is completed
-        toggle_status_menu(local_state.status_menu_restore); // restore the status menu visiblity now that the map is no longer visible
+        set_map_ui_hidden(false, false);
     }
     get_player_user_state(player)->init_flags &= ~UsrIF_MouseInputDisabled;
     return 0;

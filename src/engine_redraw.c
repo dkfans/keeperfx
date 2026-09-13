@@ -1011,7 +1011,10 @@ void redraw_display(void)
     else
       process_pointer_graphic();
     interpolate_local_cameras();
-    switch (get_local_active_camera(player)->view_mode)
+    int32_t view_mode = get_local_active_camera(player)->view_mode;
+    if ((player->view_mode == PVM_ParchFadeIn) || (player->view_mode == PVM_ParchFadeOut))
+        view_mode = player->view_mode;
+    switch (view_mode)
     {
     case PVM_EmptyView:
         break;

@@ -149,7 +149,7 @@ bool GLWorldViewRenderer::init_gl_resources()
             { 6, 3, GpuVertexAttribType::Float, 10 * (uint32_t)sizeof(float) },
         };
         geom_desc.dynamic = true;
-        geom_desc.initial_vertex_capacity = k_max_verts * sizeof(WorldVertex);
+        geom_desc.initial_vertex_capacity = k_initial_verts * sizeof(WorldVertex);
         geom_desc.debug_name = "world_geom";
         m_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(geom_desc);
         if (m_resource_mapper->ResolveGeometryBuffer(m_geom_handle) == nullptr)
@@ -226,7 +226,7 @@ bool GLWorldViewRenderer::init_gl_resources()
 
     m_initialized = true;
     SYNCLOG("GLWorldViewRenderer: initialised (VBO %d verts x %u bytes)",
-            k_max_verts, (unsigned)sizeof(WorldVertex));
+            k_initial_verts, (unsigned)sizeof(WorldVertex));
     return true;
 }
 
@@ -1364,13 +1364,6 @@ bool GLWorldViewRenderer::append_triangle(int tile_id,
     const int variation  = tile_id / TEXTURE_BLOCKS_COUNT;
     const int tile_local = tile_id % TEXTURE_BLOCKS_COUNT;
 
-    if (m_vert_count + 3 > k_max_verts)
-    {
-        gpu_flush();
-        if (m_vert_count + 3 > k_max_verts)
-            return false; // buffer full; drop gracefully rather than write OOB
-    }
-
     if (!m_world_write_cmds)
         return false;
     std::vector<WorldVertex>& verts_vec = m_world_write_cmds->tile_verts;
@@ -2286,9 +2279,10 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
     if (!world_geom || !world_shader_id || !lightmap_tex) return;
 
     glBindBuffer(GL_ARRAY_BUFFER, world_geom->vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0,
-                    (GLsizeiptr)(tile_verts.size() * sizeof(WorldVertex)),
-                    tile_verts.data());
+    // Re-specify the storage each frame so it always fits the frame's vertices.
+    glBufferData(GL_ARRAY_BUFFER,
+                 (GLsizeiptr)(tile_verts.size() * sizeof(WorldVertex)),
+                 tile_verts.data(), GL_STREAM_DRAW);
 
     glViewport(vp_x, vp_y_gl, screen_w, screen_h);
     glUseProgram(world_shader_id);

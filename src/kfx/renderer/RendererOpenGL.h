@@ -52,14 +52,14 @@ public:
     void FGExecuteWorld() override;
     void FGFlushSwipeOverlay() override;
     void FGResolveWorldCapture() override;
-    void FGExecuteMapFade() override;
+    void FGCaptureMapFadeWorld() override;
     void FGDrawWorldSpriteLayer() override;
     void FGDrawWorldOverlayFlatLayer() override;
     void FGExecuteImagePresents() override;
     void FGDrawZoomBoxes() override;
     void FGDrawGameUI() override;
     void FGDrawFrontOverlay() override;
-    void FGCaptureWorldFrameIfPending() override;
+    void FGResolveMapFade() override;
     void FGExecuteCursor() override;
     void FGDrawScreenTint() override;
 
