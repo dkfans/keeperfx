@@ -154,8 +154,21 @@ TbBool RendererScheduleScreenshot(const char* path, int fmt);
 TbBool RendererCompositesMinimapBackground(void);
 
 /** True when draws made now reach the current frame: the software framebuffer
- *  is locked, or the backend records draws to render later. */
+ *  is locked, or the backend records draws to render later. Use this, not
+ *  LbScreenIsLocked(), to decide whether to draw. */
 TbBool RendererCanDraw(void);
+
+/** True when the active backend wants the 3D world drawn at the full screen
+ *  rect, with UI composited on top, instead of the engine window itself
+ *  clipped to make room for the sidebar. */
+TbBool RendererWantsFullscreenViewport(void);
+
+// Full-screen tint overlay (pain/possession vignette, death/zoom-to-heart
+// white flash). Plain ambient state, backend-agnostic -- GL blends a
+// fullscreen quad from it each frame (FGDrawScreenTint()); software has no
+// consumer (see RendererApplyPossessionPalette() below for its equivalent).
+extern float g_screen_tint[4];
+void RendererSetScreenTint(float r, float g, float b, float a);
 
 /** Tell the GPU renderer to preserve the last real frame's content across
  *  PresentFrame() (world/UI/image-present buffers not flipped, only the
