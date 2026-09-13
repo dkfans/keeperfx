@@ -35,24 +35,34 @@ float LineHeightExplicit(const struct TbSpriteSheet* font, const struct AsianFon
 }
 } // namespace
 
-void GLTextRenderer::DrawGlyphs(const IRTextDrawCmd& cmd)
+TbBool GLTextRenderer::DrawTextResized(int32_t x, int32_t y, int32_t units_per_px, const char* text)
 {
-    if (!m_ui) return;
+    IRTextDrawCmd* cmd = AppendTextCommand(x, y, units_per_px, text);
+    if (cmd == nullptr)
+        return LbTextDrawResizedImmediate(x, y, units_per_px, text);
 
-    // TODO : Once GL genuinely threads, this replay runs on the render
-    // thread while the game thread may already be building the next frame --
-    // if a font reload happened in that gap, Mirrors ITextRenderer::ReplayTextCommand's identical guard.
-    // prevents dangling pointer.
-    if (cmd.font_generation != LbTextGetFontGeneration())
+    const struct TbSpriteSheet* font = (const struct TbSpriteSheet*)cmd->font;
+    const struct AsianFont* dbc_font = cmd->dbc_enabled ? (const struct AsianFont*)cmd->dbc_font : nullptr;
+    cmd->glyph_first = (uint32_t)m_text_write_cmds->glyphs.Size();
+    if (m_ui && (font || dbc_font))
+    {
+        DrawState state{ cmd->draw_colour, cmd->draw_flags };
+        m_layout_out = m_text_write_cmds;
+        Layout(*cmd, font, dbc_font, state);
+        m_layout_out = nullptr;
+    }
+    cmd->glyph_count = (uint32_t)m_text_write_cmds->glyphs.Size() - cmd->glyph_first;
+    return true;
+}
+
+void GLTextRenderer::DrawGlyphs(const IRTextDrawCmd& cmd, const TextCommandBuffers& text)
+{
+    if (!m_ui || cmd.glyph_count == 0)
+        return;
+    if ((size_t)cmd.glyph_first + cmd.glyph_count > text.glyphs.Size())
         return;
 
-    const struct TbSpriteSheet* font = (const struct TbSpriteSheet*)cmd.font;
-    const struct AsianFont* dbc_font = cmd.dbc_enabled ? (const struct AsianFont*)cmd.dbc_font : nullptr;
-    if (!font && !dbc_font) return;
-
-    DrawState state{ cmd.draw_colour, cmd.draw_flags };
-
-    const int screen_h = m_ui ? m_ui->GetScreenHeight() : 0;
+    const int screen_h = m_ui->GetScreenHeight();
     const int sx = cmd.clip_x;
     const int sy = screen_h - (cmd.clip_y + cmd.clip_h); // top-left origin -> GL's bottom-left
     const int sw = cmd.clip_w;
@@ -64,13 +74,37 @@ void GLTextRenderer::DrawGlyphs(const IRTextDrawCmd& cmd)
         glScissor(sx, sy, sw, sh);
     }
 
-    LayoutAndDraw(cmd, font, dbc_font, state);
+    const unsigned char* pal = RendererGetActivePalette();
+    const IRTextGlyph* glyphs = text.glyphs.Data() + cmd.glyph_first;
+    for (uint32_t i = 0; i < cmd.glyph_count; ++i)
+    {
+        const IRTextGlyph& glyph = glyphs[i];
+        float r = 1.0f, g = 1.0f, b = 1.0f;
+        if (glyph.kind != IRTextGlyphKind::PaletteSprite && pal)
+        {
+            r = chan6_to_unit(pal[glyph.colour * 3 + 0]);
+            g = chan6_to_unit(pal[glyph.colour * 3 + 1]);
+            b = chan6_to_unit(pal[glyph.colour * 3 + 2]);
+        }
+        switch (glyph.kind)
+        {
+        case IRTextGlyphKind::PaletteSprite:
+            m_ui->DrawGlyphQuad(glyph.sprite, glyph.x, glyph.y, glyph.units_per_px, 1.0f, 1.0f, 1.0f, glyph.alpha, /*sample_palette=*/true);
+            break;
+        case IRTextGlyphKind::ColourSprite:
+            m_ui->DrawGlyphQuad(glyph.sprite, glyph.x, glyph.y, glyph.units_per_px, r, g, b, glyph.alpha, /*sample_palette=*/false);
+            break;
+        case IRTextGlyphKind::SolidRect:
+            m_ui->DrawSolidRect(glyph.x, glyph.y, glyph.w, glyph.h, r, g, b, glyph.alpha);
+            break;
+        }
+    }
 
     if (scissor_valid)
         glDisable(GL_SCISSOR_TEST);
 }
 
-void GLTextRenderer::LayoutAndDraw(const IRTextDrawCmd& cmd, const struct TbSpriteSheet* font,
+void GLTextRenderer::Layout(const IRTextDrawCmd& cmd, const struct TbSpriteSheet* font,
                                    const struct AsianFont* dbc_font, DrawState& state)
 {
     const int ups = cmd.units_per_px;
@@ -258,8 +292,8 @@ void GLTextRenderer::FlushSegment(const char* sbuf, const char* ebuf, float x, f
         }
         else if (chr > 32)
         {
-            float w = dbc_font ? DrawDbcGlyph(dbc_font, chr, x, y, units_per_px, state, cmd.dbc_colour0, cmd.dbc_colour1)
-                                : DrawWesternGlyph(font, chr, x, y, units_per_px, state);
+            float w = dbc_font ? EmitDbcGlyph(dbc_font, chr, x, y, units_per_px, state, cmd.dbc_colour0, cmd.dbc_colour1)
+                                : EmitWesternGlyph(font, chr, x, y, units_per_px, state);
             x += w;
         }
         else if (chr == '\t')
@@ -286,29 +320,22 @@ void GLTextRenderer::FlushSegment(const char* sbuf, const char* ebuf, float x, f
     }
 }
 
-float GLTextRenderer::DrawWesternGlyph(const struct TbSpriteSheet* font, uint32_t chr,
+float GLTextRenderer::EmitWesternGlyph(const struct TbSpriteSheet* font, uint32_t chr,
                                        float x, float y, int units_per_px, const DrawState& state)
 {
     const struct TbSprite* spr = LbFontCharSprite(font, chr);
     if (!spr || spr->SWidth == 0 || spr->SHeight == 0)
         return 0.0f;
 
-    const bool one_colour = (state.flags & Lb_TEXT_ONE_COLOR) != 0;
-    float r = 1, g = 1, b = 1;
-    if (one_colour)
-    {
-        const unsigned char* pal = RendererGetActivePalette();
-        if (pal)
-        {
-            r = chan6_to_unit(pal[state.colour * 3 + 0]);
-            g = chan6_to_unit(pal[state.colour * 3 + 1]);
-            b = chan6_to_unit(pal[state.colour * 3 + 2]);
-        }
-    }
-    const float a = text_alpha_from_draw_flags(state.flags);
-
-    SpriteHandle h = m_ui->ResolveSprite(spr);
-    m_ui->DrawGlyphQuad(h, x, y, units_per_px, r, g, b, a, /*sample_palette=*/!one_colour);
+    IRTextGlyph glyph;
+    glyph.kind = (state.flags & Lb_TEXT_ONE_COLOR) ? IRTextGlyphKind::ColourSprite : IRTextGlyphKind::PaletteSprite;
+    glyph.colour = state.colour;
+    glyph.sprite = m_ui->ResolveSprite(spr);
+    glyph.x = x;
+    glyph.y = y;
+    glyph.units_per_px = units_per_px;
+    glyph.alpha = text_alpha_from_draw_flags(state.flags);
+    m_layout_out->glyphs.Append(glyph);
 
     float w = spr->SWidth * units_per_px / 16.0f;
     if (state.flags & Lb_TEXT_UNDERLINE)
@@ -316,7 +343,7 @@ float GLTextRenderer::DrawWesternGlyph(const struct TbSpriteSheet* font, uint32_
     return w;
 }
 
-float GLTextRenderer::DrawDbcGlyph(const struct AsianFont* dbc_font, uint32_t chr,
+float GLTextRenderer::EmitDbcGlyph(const struct AsianFont* dbc_font, uint32_t chr,
                                    float x, float y, int units_per_px, const DrawState& state,
                                    long face_colour, long shadow_colour)
 {
@@ -329,29 +356,27 @@ float GLTextRenderer::DrawDbcGlyph(const struct AsianFont* dbc_font, uint32_t ch
     if (LbDbcGetGlyphBits(dbc_font, chr, &data, &scanline, &glyph_w, &glyph_h, &spacing, &voffset) != 0)
         return 0.0f;
 
-    const bool one_colour = (state.flags & Lb_TEXT_ONE_COLOR) != 0;
     // Lb_TEXT_REMAP isn't ported for DBC glyphs either -- same disclosed gap
-    // as DrawWesternGlyph(), falls back to the unremapped colour.
-    long colour_idx = one_colour ? (long)state.colour : face_colour;
-
-    const unsigned char* pal = RendererGetActivePalette();
-    float r = 1, g = 1, b = 1, sr = 0, sg = 0, sb = 0;
-    if (pal)
-    {
-        r  = chan6_to_unit(pal[colour_idx    * 3 + 0]);
-        g  = chan6_to_unit(pal[colour_idx    * 3 + 1]);
-        b  = chan6_to_unit(pal[colour_idx    * 3 + 2]);
-        sr = chan6_to_unit(pal[shadow_colour * 3 + 0]);
-        sg = chan6_to_unit(pal[shadow_colour * 3 + 1]);
-        sb = chan6_to_unit(pal[shadow_colour * 3 + 2]);
-    }
-    const float a = text_alpha_from_draw_flags(state.flags);
+    // as EmitWesternGlyph(), falls back to the unremapped colour.
+    const bool one_colour = (state.flags & Lb_TEXT_ONE_COLOR) != 0;
+    const long colour_idx = one_colour ? (long)state.colour : face_colour;
     const float scale = units_per_px / 16.0f;
     const float gy = y + (float)voffset * scale;
 
+    IRTextGlyph glyph;
+    glyph.kind = IRTextGlyphKind::ColourSprite;
+    glyph.sprite = handle;
+    glyph.units_per_px = units_per_px;
+    glyph.alpha = text_alpha_from_draw_flags(state.flags);
     // Drop shadow, always drawn
-    m_ui->DrawGlyphQuad(handle, x + 1.0f, gy + 1.0f, units_per_px, sr, sg, sb, a, /*sample_palette=*/false);
-    m_ui->DrawGlyphQuad(handle, x, gy, units_per_px, r, g, b, a, /*sample_palette=*/false);
+    glyph.colour = (uint8_t)shadow_colour;
+    glyph.x = x + 1.0f;
+    glyph.y = gy + 1.0f;
+    m_layout_out->glyphs.Append(glyph);
+    glyph.colour = (uint8_t)colour_idx;
+    glyph.x = x;
+    glyph.y = gy;
+    m_layout_out->glyphs.Append(glyph);
 
     float advance = (glyph_h == 16) ? (float)(spacing + glyph_w) * scale : (float)(spacing + glyph_w);
     if (state.flags & Lb_TEXT_UNDERLINE)
@@ -369,39 +394,32 @@ void GLTextRenderer::EmitUnderline(float x, float y, float w, float height, int 
     long thickness = ((base_height > 16) ? 2 : 1) * units_per_px / 16;
     if (thickness < 1) thickness = 1;
 
-    const unsigned char* pal = RendererGetActivePalette();
-    float dr = 1, dg = 1, db = 1;
-    if (pal)
-    {
-        dr = chan6_to_unit(pal[state.colour * 3 + 0]);
-        dg = chan6_to_unit(pal[state.colour * 3 + 1]);
-        db = chan6_to_unit(pal[state.colour * 3 + 2]);
-    }
-    const float a = text_alpha_from_draw_flags(state.flags);
+    IRTextGlyph rect;
+    rect.kind = IRTextGlyphKind::SolidRect;
+    rect.alpha = text_alpha_from_draw_flags(state.flags);
+    rect.w = w;
+    rect.h = 1.0f;
 
     float h = height;
     if (state.flags & Lb_TEXT_UNDERLNSHADOW)
     {
         long shadow_off = ((base_height > 32) ? 2 : 1) * units_per_px / 16;
         if (shadow_off < 1) shadow_off = 1;
-        float shadow_x = x + (float)shadow_off;
-        unsigned char shadow_colour = lbDisplayEx.ShadowColour;
-        float sr = 0, sg = 0, sb = 0;
-        if (pal)
-        {
-            sr = chan6_to_unit(pal[shadow_colour * 3 + 0]);
-            sg = chan6_to_unit(pal[shadow_colour * 3 + 1]);
-            sb = chan6_to_unit(pal[shadow_colour * 3 + 2]);
-        }
+        rect.colour = lbDisplayEx.ShadowColour;
+        rect.x = x + (float)shadow_off;
         for (long i = 0; i < thickness; i++)
         {
-            m_ui->DrawSolidRect(shadow_x, y + h, w, 1.0f, sr, sg, sb, a);
+            rect.y = y + h;
+            m_layout_out->glyphs.Append(rect);
             h -= 1.0f;
         }
     }
+    rect.colour = state.colour;
+    rect.x = x;
     for (long i = 0; i < thickness; i++)
     {
-        m_ui->DrawSolidRect(x, y + h, w, 1.0f, dr, dg, db, a);
+        rect.y = y + h;
+        m_layout_out->glyphs.Append(rect);
         h -= 1.0f;
     }
 }

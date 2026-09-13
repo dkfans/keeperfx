@@ -64,6 +64,7 @@ char keeper_runtime_directory[152];
 short api_enabled = false;
 uint16_t api_port = 5599;
 unsigned long features_enabled = 0;
+unsigned char viewport_mode = VpMode_Original;
 TbBool exit_on_lua_error = false;
 TbBool FLEE_BUTTON_DEFAULT = false;
 TbBool IMPRISON_BUTTON_DEFAULT = false;
@@ -170,7 +171,15 @@ const struct NamedCommand conf_commands[] = {
   {"MATCHMAKING_SERVER"            , 47},
   {"MULTIPLAYER_PORT"              , 48},
   {"RENDERER"                      , 49},
+  {"VIEWPORT_MODE"                 , 50},
   {NULL,                   0},
+  };
+
+  const struct NamedCommand viewport_mode_desc[] = {
+  {"ORIGINAL",       VpMode_Original},
+  {"FULL",           VpMode_Full},
+  {"FULL_LETTERBOX", VpMode_FullLetterbox},
+  {NULL,             0},
   };
 
   const struct NamedCommand renderer_type_desc[] = {
@@ -1065,6 +1074,16 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             break;
           }
           requested_renderer_type = i;
+          break;
+      case 50: // VIEWPORT_MODE
+          i = recognize_conf_parameter(buf,&pos,len,viewport_mode_desc);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          viewport_mode = i;
           break;
       case ccr_comment:
           break;

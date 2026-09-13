@@ -481,7 +481,7 @@ TbBool display_loading_screen(void)
 TbBool wait_for_installation_files(void)
 {
   char ffullpath[2048];
-  short was_locked = LbScreenIsLocked();
+  TbBool was_locked = RendererIsFrameOpen();
   prepare_file_path_buf(ffullpath, sizeof(ffullpath), FGrp_StdData, "bluepal.dat");
   if ( LbFileExists(ffullpath) )
     return true;

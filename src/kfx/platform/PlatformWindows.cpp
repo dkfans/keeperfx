@@ -1,8 +1,7 @@
 #include "pre_inc.h"
 #include "kfx/platform/PlatformWindows.h"
 #include "kfx/platform/FileFind.h"
-#include "kfx/platform/GLHdrPolicyWin.h"
-#include "kfx/platform/GLHdrPolicyNull.h"
+#include "kfx/platform/WindowCompositorWin.h"
 #include "platform.h"
 #include "bflib_fileio.h"
 #include "config.h" // keeper_runtime_directory (GetUserPrefDir() SDL-less fallback)
@@ -124,13 +123,17 @@ TbFileFind* PlatformWindows::FileFindFirst(const char* filespec, TbFileEntry* en
     return ffind.release();
 }
 
-IGLHdrPolicy* PlatformWindows::GetGLHdrPolicy()
+void PlatformWindows::KeepFullscreenWindowComposited(SDL_Window* window)
 {
-    // Wine has DXGI but no DWM: (double check later) the frame-extension and anchor-window tricks are
-    // inert there, and the host compositor owns HDR.
+    // Wine has no DWM; the host compositor decides.
     if (GetWineVersion() != nullptr)
-        return &g_hdr_policy_null;
-    return &g_hdr_policy_dxgi;
+        return;
+    WinKeepFullscreenWindowComposited(window);
+}
+
+void PlatformWindows::LogDisplayDiagnostics(SDL_Window* window)
+{
+    WinLogDisplayDiagnostics(window);
 }
 
 bool PlatformWindows::VideoInit()

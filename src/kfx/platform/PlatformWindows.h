@@ -26,7 +26,8 @@ public:
 
     bool VideoInit() override;
 
-    IGLHdrPolicy* GetGLHdrPolicy() override;
+    void KeepFullscreenWindowComposited(SDL_Window* window) override;
+    void LogDisplayDiagnostics(SDL_Window* window) override;
 };
 
 #endif // PLATFORM_WINDOWS_H

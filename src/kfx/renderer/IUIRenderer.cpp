@@ -15,6 +15,7 @@
 #include "bflib_video.h"    // Lb_SPRITE_* draw flags
 #include "gui_draw.h"       // draw_slab64k_background_immediate
 #include <algorithm>        // std::fill (AcquireMinimapBuffer)
+#include <functional>       // std::less (ForgetSprites)
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -59,13 +60,28 @@ SpriteHandle IUIRenderer::ResolveSprite(const struct TbSprite* spr)
     return h;
 }
 
-int32_t IUIRenderer::ClearSpriteHandleCache()
+int32_t IUIRenderer::ForgetSprites(const struct TbSprite* first, size_t count)
 {
+    if (first == nullptr || count == 0)
+        return 0;
+    const std::less<const struct TbSprite*> before;
+    const struct TbSprite* const end = first + count;
     std::lock_guard<std::mutex> guard(m_handle_mutex);
-    const int32_t count = (int32_t)m_sprite_to_handle.size();
-    m_sprite_to_handle.clear();
-    m_handle_to_sprite.clear();
-    return count;
+    int32_t dropped = 0;
+    for (auto it = m_sprite_to_handle.begin(); it != m_sprite_to_handle.end(); )
+    {
+        if (!before(it->first, first) && before(it->first, end))
+        {
+            m_handle_to_sprite.erase(it->second);
+            it = m_sprite_to_handle.erase(it);
+            ++dropped;
+        }
+        else
+        {
+            ++it;
+        }
+    }
+    return dropped;
 }
 
 void IUIRenderer::RegisterSpriteSheet(const struct TbSpriteSheet* sheet)

@@ -21,6 +21,7 @@
 
 static IRenderer*   s_active_renderer = nullptr;
 static RendererType s_active_type     = RENDERER_INVALID;
+static bool         s_frame_open      = false;
 static unsigned char s_draw_colour = 0;
 static unsigned short s_draw_flags = 0;
 
@@ -47,7 +48,10 @@ unsigned int RendererGetRequiredWindowFlags(RendererType type)
 {
     switch (RendererResolveType(type))
     {
-        case RENDERER_OPENGL: return KFX_WF_OPENGL;
+        // GL presents can bypass the compositor when the window exactly covers a
+        // monitor, and a real display mode change does the same, so GL scales
+        // into a composited desktop fullscreen window instead.
+        case RENDERER_OPENGL: return KFX_WF_OPENGL | KFX_WF_KEEP_COMPOSITED | KFX_WF_DESKTOP_FULLSCREEN_ONLY;
         default:               return 0;
     }
 }
@@ -92,6 +96,7 @@ void RendererShutdown(void)
     delete s_active_renderer;
     s_active_renderer = nullptr;
     s_active_type     = RENDERER_INVALID;
+    s_frame_open      = false;
 }
 
 RendererType RendererGetActiveType(void)
@@ -169,11 +174,18 @@ TbBool RendererBeginFrame(void)
         lbDisplay.GraphicsWindowPtr = &lbDisplay.WScreen[lbDisplay.GraphicsWindowX +
             RendererScreenWidth() * lbDisplay.GraphicsWindowY];
     }
+    s_frame_open = true;
     return 1;
+}
+
+TbBool RendererIsFrameOpen(void)
+{
+    return s_frame_open ? 1 : 0;
 }
 
 void RendererEndFrame(void)
 {
+    s_frame_open = false;
     if (s_active_renderer == nullptr)
         return;
     if (!s_active_renderer->GetCapabilities().hasGPURenderPath)
@@ -232,9 +244,11 @@ TbBool RendererCompositesMinimapBackground(void)
     return (s_active_renderer != nullptr) ? (TbBool)s_active_renderer->GetCapabilities().compositesMinimapBackground : 0;
 }
 
-TbBool RendererWantsFullscreenViewport(void)
+TbBool RendererCanDraw(void)
 {
-    return (s_active_renderer != nullptr) ? (TbBool)s_active_renderer->GetCapabilities().wantsFullscreenViewport : 0;
+    if (lbDisplay.WScreen != NULL)
+        return 1;
+    return (s_active_renderer != nullptr) ? (TbBool)s_active_renderer->GetCapabilities().hasGPURenderPath : 0;
 }
 
 TbBool RendererScheduleScreenshot(const char* path, int fmt)

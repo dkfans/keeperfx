@@ -83,6 +83,12 @@ enum TbLanguage {
     Lang_Ukrainian,
 };
 
+enum ViewportMode {
+    VpMode_Original = 1,  /**< The world view leaves the sidebar's column free. */
+    VpMode_Full,          /**< The world view spans the screen, sidebar drawn over it. */
+    VpMode_FullLetterbox, /**< As Full, with the sidebar's column filled black. */
+};
+
 enum StartupFlags {
     SFlg_Legal        =  0x01,
     SFlg_FX           =  0x02,
@@ -115,6 +121,7 @@ extern char keeper_runtime_directory[152];
 #pragma pack()
 /******************************************************************************/
 extern unsigned long features_enabled;
+extern unsigned char viewport_mode;
 extern const struct NamedCommand lang_type[];
 extern const struct NamedCommand scrshot_type[];
 extern char cmd_char;

@@ -9,7 +9,7 @@
 #include "pre_inc.h"
 #include "kfx/platform/WindowSystemSDL.h"
 #include "kfx/platform/IPlatform.h"
-#include "kfx/platform/IGLHdrPolicy.h"
+#include "kfx/platform/GLContextSDL.h"
 #include "bflib_basics.h"
 #include "bflib_video.h"
 #include <SDL3/SDL.h>
@@ -87,11 +87,7 @@ void WindowSystemSDL::SetCursorGrab(bool grab)
         // confine the cursor to the window and re-center it.
         SDL_SetWindowMouseGrab(m_window, grab);
         if (grab)
-        {
-            int w = 0, h = 0;
-            SDL_GetWindowSize(m_window, &w, &h);
-            SDL_WarpMouseInWindow(m_window, w / 2.0f, h / 2.0f);
-        }
+            RecenterCursor();
     }
     ApplyOsCursorPolicy();
 }
@@ -123,7 +119,66 @@ void WindowSystemSDL::WarpCursor(int x, int y)
 {
     if (!m_window)
         return;
-    SDL_WarpMouseInWindow(m_window, (float)x, (float)y);
+    int px = 0, py = 0, pw = 0, ph = 0;
+    GetPresentRect(&px, &py, &pw, &ph);
+    float ux = 1.0f, uy = 1.0f;
+    GetPixelsPerWindowUnit(&ux, &uy);
+    float wx = (float)x;
+    float wy = (float)y;
+    if (m_gameW > 0 && m_gameH > 0 && pw > 0 && ph > 0)
+    {
+        // Aim at the middle of the game pixel so reading it back lands on the same pixel.
+        wx = (px + (x + 0.5f) * pw / m_gameW) / ux;
+        wy = (py + (y + 0.5f) * ph / m_gameH) / uy;
+    }
+    SDL_WarpMouseInWindow(m_window, wx, wy);
+}
+
+void WindowSystemSDL::RecenterCursor()
+{
+    if (!m_window)
+        return;
+    int w = 0, h = 0;
+    SDL_GetWindowSize(m_window, &w, &h);
+    SDL_WarpMouseInWindow(m_window, w / 2.0f, h / 2.0f);
+}
+
+bool WindowSystemSDL::GetCursorPosition(int* out_x, int* out_y) const
+{
+    if (!m_window)
+        return false;
+    float wx = 0.0f, wy = 0.0f;
+    SDL_GetMouseState(&wx, &wy);
+    int px = 0, py = 0, pw = 0, ph = 0;
+    GetPresentRect(&px, &py, &pw, &ph);
+    float ux = 1.0f, uy = 1.0f;
+    GetPixelsPerWindowUnit(&ux, &uy);
+    int gx = (int)wx;
+    int gy = (int)wy;
+    if (m_gameW > 0 && m_gameH > 0 && pw > 0 && ph > 0)
+    {
+        gx = (int)SDL_floor((wx * ux - px) * m_gameW / pw);
+        gy = (int)SDL_floor((wy * uy - py) * m_gameH / ph);
+    }
+    if (out_x) *out_x = gx;
+    if (out_y) *out_y = gy;
+    return true;
+}
+
+void WindowSystemSDL::GetCursorScale(float* out_sx, float* out_sy) const
+{
+    float sx = 1.0f, sy = 1.0f;
+    int px = 0, py = 0, pw = 0, ph = 0;
+    GetPresentRect(&px, &py, &pw, &ph);
+    if (m_window && m_gameW > 0 && m_gameH > 0 && pw > 0 && ph > 0)
+    {
+        float ux = 1.0f, uy = 1.0f;
+        GetPixelsPerWindowUnit(&ux, &uy);
+        sx = ux * m_gameW / pw;
+        sy = uy * m_gameH / ph;
+    }
+    if (out_sx) *out_sx = sx;
+    if (out_sy) *out_sy = sy;
 }
 
 bool WindowSystemSDL::IsCursorInWindow() const
@@ -170,6 +225,92 @@ void WindowSystemSDL::GetWindowSize(int* out_w, int* out_h) const
     if (m_window == nullptr)
         return;
     SDL_GetWindowSize(m_window, out_w, out_h);
+}
+
+void WindowSystemSDL::GetDrawableSize(int* out_w, int* out_h) const
+{
+    if (out_w) *out_w = 0;
+    if (out_h) *out_h = 0;
+    if (m_window == nullptr)
+        return;
+    SDL_GetWindowSizeInPixels(m_window, out_w, out_h);
+}
+
+void WindowSystemSDL::SetGameSurfaceSize(int w, int h)
+{
+    m_gameW = w;
+    m_gameH = h;
+}
+
+void WindowSystemSDL::GetPresentRect(int* out_x, int* out_y, int* out_w, int* out_h) const
+{
+    int x = 0, y = 0, w = 0, h = 0;
+    GetVisibleArea(&x, &y, &w, &h);
+    if (m_gameW > 0 && m_gameH > 0 && w > 0 && h > 0)
+    {
+        const double scale = SDL_min((double)w / m_gameW, (double)h / m_gameH);
+        const int fit_w = (int)(m_gameW * scale + 0.5);
+        const int fit_h = (int)(m_gameH * scale + 0.5);
+        x += (w - fit_w) / 2;
+        y += (h - fit_h) / 2;
+        w = fit_w;
+        h = fit_h;
+    }
+    if (out_x) *out_x = x;
+    if (out_y) *out_y = y;
+    if (out_w) *out_w = w;
+    if (out_h) *out_h = h;
+}
+
+// Drawable pixels per window coordinate unit (cursor positions are in window units).
+void WindowSystemSDL::GetPixelsPerWindowUnit(float* out_sx, float* out_sy) const
+{
+    float sx = 1.0f, sy = 1.0f;
+    if (m_window != nullptr)
+    {
+        int ww = 0, wh = 0, dw = 0, dh = 0;
+        SDL_GetWindowSize(m_window, &ww, &wh);
+        SDL_GetWindowSizeInPixels(m_window, &dw, &dh);
+        if (ww > 0 && wh > 0 && dw > 0 && dh > 0)
+        {
+            sx = (float)dw / (float)ww;
+            sy = (float)dh / (float)wh;
+        }
+    }
+    if (out_sx) *out_sx = sx;
+    if (out_sy) *out_sy = sy;
+}
+
+// On-screen part of the drawable, in pixels from its top-left corner.
+void WindowSystemSDL::GetVisibleArea(int* out_x, int* out_y, int* out_w, int* out_h) const
+{
+    int dw = 0, dh = 0;
+    GetDrawableSize(&dw, &dh);
+    int x = 0, y = 0, w = dw, h = dh;
+    if (m_window != nullptr && (SDL_GetWindowFlags(m_window) & SDL_WINDOW_FULLSCREEN))
+    {
+        SDL_Rect win = {0, 0, 0, 0};
+        SDL_Rect bounds = {0, 0, 0, 0};
+        SDL_Rect visible = {0, 0, 0, 0};
+        SDL_GetWindowPosition(m_window, &win.x, &win.y);
+        SDL_GetWindowSize(m_window, &win.w, &win.h);
+        if (win.w > 0 && win.h > 0
+            && SDL_GetDisplayBounds(SDL_GetDisplayForWindow(m_window), &bounds)
+            && SDL_GetRectIntersection(&win, &bounds, &visible))
+        {
+            // Window coordinates may be scaled points; convert to drawable pixels.
+            const float sx = (float)dw / (float)win.w;
+            const float sy = (float)dh / (float)win.h;
+            x = (int)((visible.x - win.x) * sx + 0.5f);
+            y = (int)((visible.y - win.y) * sy + 0.5f);
+            w = (int)(visible.w * sx + 0.5f);
+            h = (int)(visible.h * sy + 0.5f);
+        }
+    }
+    if (out_x) *out_x = x;
+    if (out_y) *out_y = y;
+    if (out_w) *out_w = w;
+    if (out_h) *out_h = h;
 }
 
 int WindowSystemSDL::GetWindowDisplayIndex() const
@@ -237,6 +378,11 @@ int WindowSystemSDL::SetWindowDisplayMode(int w, int h)
 {
     if (m_window == nullptr)
         return -1;
+    if (m_desktopFullscreenOnly)
+    {
+        // The renderer scales the game frame into a desktop fullscreen window instead.
+        return SDL_SetWindowFullscreenMode(m_window, nullptr) ? 0 : -1;
+    }
     SDL_DisplayID disp_id = SDL_GetDisplayForWindow(m_window);
     SDL_DisplayMode dm = {};
     if (SDL_GetClosestFullscreenDisplayMode(disp_id, w, h, 0.0f, false, &dm))
@@ -262,14 +408,16 @@ int WindowSystemSDL::SetWindowFullscreen(unsigned int flags)
         // Desktop (borderless) fullscreen at the native resolution.
         SDL_SetWindowFullscreenMode(m_window, nullptr);
         int result = SDL_SetWindowFullscreen(m_window, true) ? 0 : -1;
-        
-        if (result == 0 && (SDL_GetWindowFlags(m_window) & SDL_WINDOW_OPENGL))
-            GetPlatform()->GetGLHdrPolicy()->OnContextReady(m_window, true);
+        if (result == 0)
+            KeepFullscreenComposited();
         return result;
     }
     // Exclusive fullscreen: the specific mode is applied via SetWindowDisplayMode();
     // here we just enter fullscreen.
-    return SDL_SetWindowFullscreen(m_window, true) ? 0 : -1;
+    int result = SDL_SetWindowFullscreen(m_window, true) ? 0 : -1;
+    if (result == 0)
+        KeepFullscreenComposited();
+    return result;
 }
 
 void WindowSystemSDL::SetWindowBordered(int bordered)
@@ -304,33 +452,17 @@ bool WindowSystemSDL::CreateWindow(const char* title, int x, int y, int w, int h
         // GL context is fully created and current -- matches develop's
         // platform_create_gl_context() sequencing.
         sdl3_flags |= SDL_WINDOW_HIDDEN;
-
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        // World geometry depth-tests tile/flat-poly draws for correct
-        // near/far ordering -- request a depth buffer explicitly rather than
-        // relying on a driver default, which may be none.
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-        // Pin the colour channel sizes explicitly instead of letting SDL/the
-        // driver pick a default pixel format. Without this a driver is free to
-        // hand back a surface with a different bit layout (or, on an HDR-capable
-        // display, an extended-precision one) -- matches develop's
-        // platform_gl_sdl3.cpp, which calls out the 8-bit RGBA request as what
-        // keeps an HDR display's DWM compositor tone-mapping the game as SDR
-        // instead of applying an unwanted brightness boost.
-        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-        SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
-        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   8);
-        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    8);
-        SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,   8);
+        GLContextSDL::RequestWindowAttributes();
     }
 
     m_window = SDL_CreateWindow(title, w, h, sdl3_flags);
     if (!m_window)
         return false;
+    m_keepComposited = (flags & KFX_WF_KEEP_COMPOSITED) != 0;
+    m_desktopFullscreenOnly = (flags & KFX_WF_DESKTOP_FULLSCREEN_ONLY) != 0;
     ApplyWindowIcon(m_window);
+    GetPlatform()->LogDisplayDiagnostics(m_window);
+    KeepFullscreenComposited();
 
     // A window created with SDL_WINDOW_FULLSCREEN starts as desktop fullscreen,
     // which is exactly what a desktop-fullscreen mode wants; an exclusive mode is
@@ -340,12 +472,45 @@ bool WindowSystemSDL::CreateWindow(const char* title, int x, int y, int w, int h
     return true;
 }
 
+void WindowSystemSDL::ShowWindow()
+{
+    if (m_window != nullptr)
+        SDL_ShowWindow(m_window);
+}
+
+std::unique_ptr<IGLContext> WindowSystemSDL::CreateGLContext()
+{
+    return GLContextSDL::Create(m_window);
+}
+
 bool WindowSystemSDL::SetWindowTitle(const char* title)
 {
     if (!m_window)
         return false;
     SDL_SetWindowTitle(m_window, title);
     return true;
+}
+
+void WindowSystemSDL::KeepFullscreenComposited()
+{
+    if (!m_keepComposited || m_window == nullptr)
+        return;
+    // Only desktop fullscreen: resizing an exclusive-mode window would fight the mode change.
+    if ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_FULLSCREEN) && SDL_GetWindowFullscreenMode(m_window) == nullptr)
+        GetPlatform()->KeepFullscreenWindowComposited(m_window);
+}
+
+void WindowSystemSDL::HandleWindowEvent(const SDL_Event* ev)
+{
+    switch (ev->type)
+    {
+    case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
+    case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
+        KeepFullscreenComposited();
+        break;
+    default:
+        break;
+    }
 }
 
 int WindowSystemSDL::GetDisplayRefreshRate() const

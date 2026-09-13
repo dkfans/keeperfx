@@ -5,6 +5,7 @@
 #include "kfx/renderer/ir/UICommands.h" // IRUILayer
 #include "kfx/renderer/GpuResourceHandle.h"
 #include <atomic>
+#include <mutex>
 #include <vector>
 #include <unordered_map>
 #include <cstdint>
@@ -177,39 +178,28 @@ private:
 
     GpuResourceHandle m_slab_tex_handle = kInvalidGpuResource;
     int m_slab_dim = 0; // RT: dimension of the currently-uploaded texture, 0 = none yet
-    std::atomic<const unsigned char*> m_slab_pending_data{nullptr}; // GT->RT handoff
-    std::atomic<int> m_slab_pending_dim{0};
+    // GT->RT handoff. A copy: the game can free its slab data before the upload runs.
+    std::mutex m_slab_mutex;
+    std::vector<uint8_t> m_slab_pending;
+    int m_slab_pending_dim = 0;
 
     void FlushPendingSlabUpload();
 
     // Minimap: 2-slot CPU buffer -- AcquireMinimapBuffer() hands out
-    // slot[m_minimap_write_idx] each frame; SubmitMinimap() publishes it via
-    // m_minimap_read_idx (release) and flips to the other slot, so the game
+    // slot[m_minimap_write_idx] each frame; SubmitMinimap() records that slot
+    // in the frame's IRUIMinimapCmd and flips to the other slot, so the game
     // thread can safely start refilling next frame's buffer while the render
-    // thread is still uploading the one it just published. Matches the one-
+    // thread is still uploading the one it just recorded. Matches the one-
     // frame-of-overlap PresentFrame()'s WaitForCompletion() already bounds
     // for every other GT->RT handoff on this branch.
     std::vector<uint8_t> m_minimap_cpu_buf[2];
     int m_minimap_cpu_size = 0;   // GT: current buffer side length (both slots)
     int m_minimap_write_idx = 0;  // GT: slot AcquireMinimapBuffer() currently hands out
-    std::atomic<int> m_minimap_read_idx{-1};       // GT->RT publish (sticky); -1 = never submitted
-    std::atomic<uint32_t> m_minimap_submit_seq{0}; // GT: bumped every SubmitMinimap() call
-    int m_minimap_pub_x = 0, m_minimap_pub_y = 0, m_minimap_pub_size = 0; // GT-written, visible to RT once m_minimap_read_idx's release is observed
-
     GpuResourceHandle m_minimap_tex_handle = kInvalidGpuResource;
     int m_minimap_tex_size = 0; // RT: currently-allocated texture side length, 0 = none yet
-    int m_minimap_rt_active_idx = -1; // RT-only: slot DrawMinimapQuad() is currently drawing, for FlushPendingMinimapUpload()
 
-    // RT-only: hides the minimap after several consecutive frames with no
-    // fresh SubmitMinimap() call (a real navigate-away, not just the render
-    // loop occasionally outpacing a slower game-logic tick).
-    uint32_t m_minimap_rt_last_seq = 0;
-    uint32_t m_minimap_rt_uploaded_seq = 0;
-    int m_minimap_rt_idle_frames = 0;
-    static constexpr int kMinimapIdleGraceFrames = 5;
-
-    void FlushPendingMinimapUpload();
-    void DrawMinimapQuad();
+    /** RT: uploads buffer `slot` into the minimap texture. */
+    bool UploadMinimap(int slot, int size);
 };
 
 #endif // RENDERER_OPENGL_GLUIRENDERER_H

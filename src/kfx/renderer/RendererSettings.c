@@ -11,7 +11,6 @@
 #include "kfx/renderer/RendererSettings.h"
 #include "kfx/renderer/RendererManager.h"
 #include "kfx/platform/PlatformManager.h"
-#include "bflib_video.h" // KFX_WF_FULLSCREEN_EXCLUSIVE/_DESKTOP
 #include "thing_list.h" // TCls_* enum values for outline class mask default
 #include <stdio.h>
 #include <string.h>
@@ -157,11 +156,6 @@ void RendererSettings_Load(void)
     if (!f)
         return; // first run -- silently use defaults
 
-    // Window state -- loaded from file, applied after the main settings block.
-    int win_mode = -1; // -1 means not present in file
-    int win_w    = 0;
-    int win_h    = 0;
-
     char line[256];
     while (fgets(line, sizeof(line), f))
     {
@@ -210,34 +204,11 @@ void RendererSettings_Load(void)
         else if (strcmp(key, "wireframe")                  == 0) g_renderer_settings.wireframe                  = ival;
         else if (strcmp(key, "show_depth")                 == 0) g_renderer_settings.show_depth                 = ival;
         else if (strcmp(key, "debug_gui_hitboxes")         == 0) g_renderer_settings.debug_gui_hitboxes         = ival;
-        // Window state (applied after all keys are read, once window exists).
-        else if (strcmp(key, "window_mode") == 0) win_mode = ival;
-        else if (strcmp(key, "window_w")    == 0) win_w    = ival;
-        else if (strcmp(key, "window_h")    == 0) win_h    = ival;
     }
 
     fclose(f);
     RendererSettings_Sanitize();
     RendererApplySettings(&g_renderer_settings);
-
-    // Apply saved window geometry if the window exists and values were loaded.
-    // win_mode: 0 = windowed, 1 = exclusive fullscreen, 2 = borderless/desktop
-    // fullscreen -- matches KFX_WF_FULLSCREEN_EXCLUSIVE/_DESKTOP (bflib_video.h),
-    // this branch's own windowing abstraction (PlatformManager_SetWindowFullscreen()
-    // takes those, not raw SDL flags).
-    if (PlatformManager_HasWindow() && win_mode >= 0)
-    {
-        if (win_mode == 2)
-            PlatformManager_SetWindowFullscreen(KFX_WF_FULLSCREEN_DESKTOP);
-        else if (win_mode == 1)
-            PlatformManager_SetWindowFullscreen(KFX_WF_FULLSCREEN_EXCLUSIVE);
-        else
-        {
-            PlatformManager_SetWindowFullscreen(0);
-            if (win_w > 0 && win_h > 0)
-                PlatformManager_SetWindowSize(win_w, win_h);
-        }
-    }
 }
 
 void RendererSettings_Save(void)
@@ -294,27 +265,6 @@ void RendererSettings_Save(void)
     fprintf(f, "wireframe               = %d\n",   g_renderer_settings.wireframe);
     fprintf(f, "show_depth              = %d\n",   g_renderer_settings.show_depth);
     fprintf(f, "debug_gui_hitboxes      = %d\n",   g_renderer_settings.debug_gui_hitboxes);
-
-    // Window geometry -- saved so the window restores its mode and size on next launch.
-    if (PlatformManager_HasWindow())
-    {
-        unsigned int wflags = PlatformManager_GetWindowFlags();
-        int wmode;
-        if (wflags & KFX_WF_FULLSCREEN_DESKTOP)
-            wmode = 2;
-        else if (wflags & KFX_WF_FULLSCREEN_EXCLUSIVE)
-            wmode = 1;
-        else
-            wmode = 0;
-
-        int ww = 0, wh = 0;
-        PlatformManager_GetWindowSize(&ww, &wh);
-
-        fprintf(f, "\n# window state\n");
-        fprintf(f, "window_mode             = %d\n", wmode);
-        fprintf(f, "window_w                = %d\n", ww);
-        fprintf(f, "window_h                = %d\n", wh);
-    }
 
     fclose(f);
 }

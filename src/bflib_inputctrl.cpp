@@ -295,6 +295,9 @@ static void process_event(const SDL_Event *ev)
     int x;
     SYNCDBG(10, "Starting");
 
+    if (ev->type >= SDL_EVENT_WINDOW_FIRST && ev->type <= SDL_EVENT_WINDOW_LAST)
+        GetSDLWindowSystem()->HandleWindowEvent(ev);
+
     switch (ev->type)
     {
     case SDL_EVENT_KEY_DOWN:
@@ -351,18 +354,32 @@ static void process_event(const SDL_Event *ev)
                 (ev->motion.x <= margin || ev->motion.x >= win_w - margin ||
                  ev->motion.y <= margin || ev->motion.y >= win_h - margin))
             {
-                ws->WarpCursor(win_w / 2, win_h / 2);
+                ws->RecenterCursor();
                 s_recenter_pending = true;
             }
         }
         else
         {
-            mouseDelta.x = ev->motion.xrel;
-            mouseDelta.y = ev->motion.yrel;
+            // The game frame may be scaled inside the window; keep the game cursor
+            // following the OS cursor, carrying sub-pixel remainders.
+            static float rel_x = 0.0f, rel_y = 0.0f;
+            float scale_x = 1.0f, scale_y = 1.0f;
+            GetSDLWindowSystem()->GetCursorScale(&scale_x, &scale_y);
+            rel_x += ev->motion.xrel * scale_x;
+            rel_y += ev->motion.yrel * scale_y;
+            mouseDelta.x = (long)rel_x;
+            mouseDelta.y = (long)rel_y;
+            rel_x -= mouseDelta.x;
+            rel_y -= mouseDelta.y;
             if (isMouseActivated)
             {
                 isMouseActivated = 0;
-                pointerHandler.SetMousePosition(ev->motion.x + lbDisplay.MouseWindowY, ev->motion.y + lbDisplay.MouseWindowY);
+                int game_x = (int)ev->motion.x;
+                int game_y = (int)ev->motion.y;
+                GetSDLWindowSystem()->GetCursorPosition(&game_x, &game_y);
+                rel_x = 0.0f;
+                rel_y = 0.0f;
+                pointerHandler.SetMousePosition(game_x + lbDisplay.MouseWindowY, game_y + lbDisplay.MouseWindowY);
                 mouseDelta.x = 0;
                 mouseDelta.y = 0;
                 frac_x = 0;

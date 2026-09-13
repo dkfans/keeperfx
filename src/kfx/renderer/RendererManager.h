@@ -36,8 +36,8 @@ RendererType RendererGetActiveType(void);
 
 RendererType RendererResolveType(RendererType requested);
 
-// SDL3 window-creation flags (KfxWindowFlags, bflib_video.h) required by a
-// given backend -- e.g. KFX_WF_OPENGL for RENDERER_OPENGL. Queried by
+// Window flags (KfxWindowFlags, bflib_video.h) required by a given backend --
+// e.g. KFX_WF_OPENGL for RENDERER_OPENGL. Queried by
 // LbScreenSetup() before the one-and-only SDL_CreateWindow() call, so the
 // window is born with the correct flags instead of being destroyed and
 // recreated later to add them.
@@ -65,6 +65,9 @@ void RendererPresentFrame(void);
 
 TbBool RendererBeginFrame(void);
 void   RendererEndFrame(void);
+
+// True between a successful RendererBeginFrame() and its RendererEndFrame().
+TbBool RendererIsFrameOpen(void);
 
 // Palette source for RendererPresentImageDesc::palette.
 #define PRESENT_PALETTE_GAME     0  /* live game palette (default -- existing zero-initialised callers) */
@@ -144,15 +147,14 @@ TbBool RendererScheduleScreenshot(const char* path, int fmt);
  *  See IRenderer::BackendCapabilities::compositesMinimapBackground. */
 TbBool RendererCompositesMinimapBackground(void);
 
-/** True when the active backend wants the 3D world drawn at the full screen
- *  rect, with UI composited on top, instead of the engine window itself
- *  clipped to make room for the sidebar. */
-TbBool RendererWantsFullscreenViewport(void);
+/** True when draws made now reach the current frame: the software framebuffer
+ *  is locked, or the backend records draws to render later. */
+TbBool RendererCanDraw(void);
 
-// Full-screen tint overlay (pain/possession vignette, death/zoom-to-heart
-// white flash). Plain ambient state, backend-agnostic -- GL blends a
-// fullscreen quad from it each frame (FGDrawScreenTint()); software has no
-// consumer (see RendererApplyPossessionPalette() below for its equivalent).
+// Full-screen tint overlay (pain/possession vignette). Plain ambient state,
+// backend-agnostic -- GL blends a fullscreen quad from it each frame
+// (FGDrawScreenTint()); software has no consumer (see
+// RendererApplyPossessionPalette() below for its equivalent).
 extern float g_screen_tint[4];
 void RendererSetScreenTint(float r, float g, float b, float a);
 

@@ -78,6 +78,16 @@ struct IRUISlabBackgroundCmd {
     uint32_t seq = 0;
 };
 
+/** The minimap image, drawn from the renderer's own pixel buffer `slot`
+ *  (see IUIRenderer::AcquireMinimapBuffer()) at its place in submission order. */
+struct IRUIMinimapCmd {
+    int32_t x = 0, y = 0, size = 0;
+    int32_t slot = -1;
+    IRUILayer layer = IRUILayer::GameUI;
+    float ndc_z = 0.5f;
+    uint32_t seq = 0;
+};
+
 /** Game viewport rect, snapshot captured at SetGameViewport() call time. */
 struct UIGameViewport {
     int32_t x = 0, y = 0, w = 0, h = 0;
@@ -92,6 +102,7 @@ struct UICommandBuffers {
     IRCommandBuffer<IRUISpriteScaledRemapCmd>     sprites_scaled_remap;
     IRCommandBuffer<IRUISolidBoxCmd>              solid_boxes;
     IRCommandBuffer<IRUISlabBackgroundCmd>        slab_backgrounds;
+    IRCommandBuffer<IRUIMinimapCmd>               minimaps;
 
     UIGameViewport game_vp;
 
@@ -111,6 +122,7 @@ struct UICommandBuffers {
         sprites_scaled_remap.Reset();
         solid_boxes.Reset();
         slab_backgrounds.Reset();
+        minimaps.Reset();
         game_vp = {};
         next_seq = 0;
     }
@@ -135,6 +147,7 @@ struct UICommandBuffers {
         sprites_scaled_remap.Swap(other.sprites_scaled_remap);
         solid_boxes.Swap(other.solid_boxes);
         slab_backgrounds.Swap(other.slab_backgrounds);
+        minimaps.Swap(other.minimaps);
         std::swap(game_vp, other.game_vp);
         std::swap(next_seq, other.next_seq);
     }

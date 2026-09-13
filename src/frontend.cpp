@@ -2374,14 +2374,7 @@ void set_gui_visible(TbBool visible)
       toggle_status_menu(is_visbl);
       break;
   }
-  if (((game.view_mode_flags & GNFldD_StatusPanelDisplay) != 0) && ((game.operation_flags & GOF_ShowGui) != 0))
-  {
-      setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
-  }
-  else
-  {
-      setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-  }
+  setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
 }
 
 void toggle_gui(void)

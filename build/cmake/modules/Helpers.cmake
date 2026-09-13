@@ -61,7 +61,7 @@ endfunction()
 function(apply_windows_system_libs TARGET)
     if(WIN32)
         target_link_libraries(${TARGET} PRIVATE
-            winmm imagehlp ws2_32 dbghelp bcrypt ole32 uuid dxgi dwmapi)
+            winmm imagehlp ws2_32 dbghelp bcrypt ole32 uuid dxgi)
         if(NOT MSVC)
             # mingw32 (CRT startup wrapper import lib) only exists for MinGW/clang-cl.
             target_link_libraries(${TARGET} PRIVATE mingw32)

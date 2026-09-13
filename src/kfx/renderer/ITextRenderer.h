@@ -31,6 +31,10 @@ public:
     virtual const char* GetName() const { return "TEXT"; }
 
 protected:
+    /** Appends a command capturing the current text state, or returns
+     *  nullptr when no write buffer is bound. */
+    IRTextDrawCmd* AppendTextCommand(int32_t x, int32_t y, int32_t units_per_px, const char* text);
+
     TextCommandBuffers* m_text_write_cmds = nullptr;
 };
 

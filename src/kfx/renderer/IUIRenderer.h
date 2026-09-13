@@ -42,12 +42,11 @@ public:
     virtual SpriteHandle ResolveSprite(const struct TbSprite* spr);
     virtual void RegisterSpriteSheet(const struct TbSpriteSheet* sheet);
 
-    /** Drops every cached TbSprite*->handle mapping. Called
-     *  whenever any sprite sheet frees, since a freed sheet's memory can be
-     *  reused by the next one loaded, and a stale pointer-keyed cache entry
-     *  would alias the new sheet's sprite onto the old one's atlas pixels.
-     *  Returns the number of entries cleared. */
-    int32_t ClearSpriteHandleCache();
+    /** Drops the cached handles for the `count` sprites starting at `first`.
+     *  Called when that memory is freed or moved, since a new sprite placed
+     *  at the same address would otherwise pick up the old sprite's handle
+     *  and atlas pixels. Returns the number of entries dropped. */
+    int32_t ForgetSprites(const struct TbSprite* first, size_t count);
 
     virtual TbResult SubmitRawSprite(int32_t x, int32_t y, const struct TbSprite* spr,
                                      KfxDrawState state);

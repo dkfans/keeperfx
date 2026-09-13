@@ -39,6 +39,7 @@ public:
     void PackRaw(SpriteHandle handle, const uint8_t* pixels, int w, int h);
 
     bool GetUV(SpriteHandle handle, SpriteUV& out) const;
+    bool Contains(SpriteHandle handle) const;
 
     GpuResourceHandle GetTexture() const { return m_texture_handle; }
 
@@ -61,9 +62,12 @@ private:
     mutable std::mutex m_mutex;
 
     /** Shelf-allocate a w x h (+1px margin) rect, advancing the packer
-     *  cursor. Returns false (logging via `what`) if the atlas is full.
+     *  cursor. When the atlas is full it is emptied first, so everything
+     *  packed so far re-packs the next time it is drawn. Returns false
+     *  (logging via `what`) only if the rect can't fit an empty atlas.
      *  Caller already holds m_mutex. */
     bool alloc_shelf_rect(int w, int h, int* out_x, int* out_y, const char* what);
+    bool try_alloc_shelf_rect(int alloc_w, int alloc_h, int* out_x, int* out_y);
 
     /** Uploads the dirty region into the given (already-resolved) texture
      *  id. Caller already holds m_mutex. */

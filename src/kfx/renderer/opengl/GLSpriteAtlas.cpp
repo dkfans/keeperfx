@@ -113,26 +113,53 @@ void GLSpriteAtlas::PackRaw(SpriteHandle handle, const uint8_t* pixels, int w, i
 }
 
 // Caller already holds m_mutex.
+bool GLSpriteAtlas::try_alloc_shelf_rect(int alloc_w, int alloc_h, int* out_x, int* out_y)
+{
+    int cursor_x = m_cursor_x;
+    int shelf_y  = m_shelf_y;
+    int shelf_h  = m_shelf_h;
+    if (cursor_x + alloc_w > k_atlas_w) {
+        shelf_y += shelf_h;
+        cursor_x = 0;
+        shelf_h  = 0;
+    }
+    if (alloc_w > k_atlas_w || shelf_y + alloc_h > k_atlas_h)
+        return false;
+    if (alloc_h > shelf_h) shelf_h = alloc_h;
+
+    *out_x = cursor_x;
+    *out_y = shelf_y;
+    m_cursor_x = cursor_x + alloc_w;
+    m_shelf_y  = shelf_y;
+    m_shelf_h  = shelf_h;
+    return true;
+}
+
+// Caller already holds m_mutex.
 bool GLSpriteAtlas::alloc_shelf_rect(int w, int h, int* out_x, int* out_y, const char* what)
 {
     const int alloc_w = w + 1; // 1px margin, avoids bleed between shelf entries
     const int alloc_h = h + 1;
 
-    if (m_cursor_x + alloc_w > k_atlas_w) {
-        m_shelf_y += m_shelf_h;
-        m_cursor_x = 0;
-        m_shelf_h  = 0;
-    }
-    if (m_shelf_y + alloc_h > k_atlas_h) {
-        ERRORLOG("GLSpriteAtlas: atlas full -- cannot pack %dx%d %s", w, h, what);
-        return false;
-    }
-    if (alloc_h > m_shelf_h) m_shelf_h = alloc_h;
+    if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
+        return true;
 
-    *out_x = m_cursor_x;
-    *out_y = m_shelf_y;
-    m_cursor_x += alloc_w;
-    return true;
+    WARNLOG("GLSpriteAtlas: atlas full -- emptying it, %d sprites will re-pack as they are drawn", (int)m_uvs.size());
+    m_uvs.clear();
+    m_cursor_x = 1; // reserve (0,0) as a safe fallback UV
+    m_shelf_y  = 0;
+    m_shelf_h  = 0;
+
+    if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
+        return true;
+    ERRORLOG("GLSpriteAtlas: cannot pack %dx%d %s, larger than the atlas", w, h, what);
+    return false;
+}
+
+bool GLSpriteAtlas::Contains(SpriteHandle handle) const
+{
+    std::lock_guard<std::mutex> guard(m_mutex);
+    return m_uvs.find(handle) != m_uvs.end();
 }
 
 bool GLSpriteAtlas::GetUV(SpriteHandle handle, SpriteUV& out) const
