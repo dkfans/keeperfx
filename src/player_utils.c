@@ -133,7 +133,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
     if (lord_of_the_land_in_prison_or_tortured())
     {
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
-        player->additional_flags |= PlaAF_UnlockedLordTorture;
+        get_user_state(player->user_id)->additional_flags |= UsrAF_UnlockedLordTorture;
     }
     output_message(SMsg_LevelWon, 0);
   }
@@ -777,6 +777,8 @@ void init_user_state(NetUserId user)
         return;
     }
     memset(ustate, 0, sizeof(*ustate));
+    ustate->teleport_destination = 19;
+    ustate->battleid = 1;
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
     ilght.radius = 2560;
@@ -807,7 +809,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->work_state = PSt_CtrlDungeon;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
-    player->isometric_tilt = settings.isometric_tilt;
     if (is_my_player(player))
     {
         if (default_tag_mode != 3)

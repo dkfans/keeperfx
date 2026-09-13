@@ -43,15 +43,10 @@ extern "C" {
 enum PlayerInitFlags {
     PlaF_Allocated               = 0x01,
     PlaF_unusedparam             = 0x02,
-    PlaF_NewMPMessage            = 0x04,
-    PlaF_CreaturePassengerMode   = 0x08,
-    PlaF_KeyboardInputDisabled   = 0x10,
     PlaF_CompCtrl                = 0x40,
-    PlaF_MouseInputDisabled      = 0x80,
 };
 
 enum PlayerField6Flags {
-    PlaF6_DisplayNeedsUpdate = 0x01,
     PlaF6_PlyrHasQuit       = 0x02,
 };
 
@@ -91,17 +86,23 @@ enum PlayerCursorStates {
     CSt_PowerHand     = 3, // Power Hand cursor
 };
 
-enum PlayerAdditionalFlags {
-    PlaAF_None                      = 0x00,
-    PlaAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
-    PlaAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
-    PlaAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell
-    PlaAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell
-    PlaAF_UnlockedLordTorture       = 0x10, // if this flag is set, the player will be sent to the Lord Torture Mini-game
-    // The below are unused in KFX
-    PlaAF_Unkn20                    = 0x20,
-    PlaAF_Unkn40                    = 0x40,
-    PlaAF_Unkn80                    = 0x80,
+enum UserInitFlags {
+    UsrIF_NewMPMessage            = 0x04,
+    UsrIF_CreaturePassengerMode   = 0x08,
+    UsrIF_KeyboardInputDisabled   = 0x10,
+    UsrIF_MouseInputDisabled      = 0x80,
+};
+
+enum UserAdditionalFlags {
+    UsrAF_None                      = 0x00,
+    UsrAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
+    UsrAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
+    UsrAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell
+    UsrAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell
+    UsrAF_UnlockedLordTorture       = 0x10, // if this flag is set, the user will be sent to the Lord Torture Mini-game
+    UsrAF_Unkn20                    = 0x20,
+    UsrAF_Unkn40                    = 0x40,
+    UsrAF_Unkn80                    = 0x80,
 };
 
 enum PlayerTypes {
@@ -156,7 +157,6 @@ struct CheatSelection
 */
 struct PlayerInfo {
     unsigned char allocflags;
-    unsigned char additional_flags; // Uses PlayerAdditionalFlags
     unsigned char display_flags;
     NetUserId user_id; // -1 if no user
     int32_t hand_animationId;
@@ -184,8 +184,6 @@ struct PlayerInfo {
     GameTurn influenced_thing_creation;
     unsigned char view_type;
     PlayerState work_state;
-    unsigned char primary_cursor_state;
-    unsigned char secondary_cursor_state;
     PlayerState continue_work_state;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
@@ -213,25 +211,14 @@ struct PlayerInfo {
     int roomspace_detection_looseness;
     int roomspace_width;
     int roomspace_height;
-    TbBool one_click_mode_exclusive;
-    TbBool one_click_lock_cursor;
-    TbBool ignore_next_PCtr_RBtnRelease;
-    TbBool ignore_next_PCtr_LBtnRelease;
-    char swap_to_untag_mode;
     unsigned char roomspace_highlight_mode;
     TbBool roomspace_no_default;
-    TbBool interpolated_tagging;
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
     unsigned char player_type; //enum PlayerTypes
     ThingModel special_digger;
-    int isometric_tilt;
     unsigned short generate_speed;
-    int first_person_unfreeze_delay;
-    unsigned char teleport_destination;
-    TbBool nearest_teleport;
-    BattleIndex battleid;
 };
 
 /* Game state that exists per human user. Computer-controlled
@@ -241,6 +228,8 @@ struct PlayerInfo {
  * user per client, including the host.
  */
 struct UserState {
+    unsigned char init_flags; // Uses UserInitFlags
+    unsigned char additional_flags; // Uses UserAdditionalFlags
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
     short cursor_light_idx;
@@ -253,9 +242,21 @@ struct UserState {
     MapSubtlCoord cursor_clicked_subtile_y;
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
     TbBool mouse_on_map;
+    unsigned char primary_cursor_state;
+    unsigned char secondary_cursor_state;
+    TbBool one_click_mode_exclusive;
+    TbBool one_click_lock_cursor;
+    TbBool ignore_next_PCtr_RBtnRelease;
+    TbBool ignore_next_PCtr_LBtnRelease;
+    char swap_to_untag_mode;
+    TbBool interpolated_tagging;
     /** First person (possession) controls. */
     TbBool first_person_dig_claim_mode;
+    int first_person_unfreeze_delay;
     unsigned short selected_fp_thing_pickup;
+    unsigned char teleport_destination;
+    TbBool nearest_teleport;
+    BattleIndex battleid;
     struct CheatSelection cheatselection;
     unsigned char boxsize;
     unsigned char chosen_room_kind;
@@ -269,7 +270,6 @@ struct UserState {
 /******************************************************************************/
 
 extern unsigned char my_player_number;
-extern short local_thing_under_hand;
 
 #pragma pack()
 /******************************************************************************/
@@ -284,6 +284,8 @@ extern struct LocalState {
     TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
     TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
     TbBool paused_state_restore; /**< Used to restore pause state after saving */
+    TbBool display_needs_update;
+    short local_thing_under_hand;
     TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
     unsigned char *lens_palette;
     unsigned char *main_palette;
@@ -317,6 +319,7 @@ TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
 struct UserState *get_user_state(NetUserId user);
 struct UserState *get_player_user_state(const struct PlayerInfo *player);
+struct UserState *get_local_user_state(void);
 TbBool user_state_invalid(const struct UserState *ustate);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);

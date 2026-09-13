@@ -46,9 +46,9 @@ TbBool PaletteEffect::Setup(long lens_idx)
     struct LensConfig* cfg = &lenses_conf.lenses[lens_idx];
     struct PlayerInfo* player = get_my_player();
     
-    // Set lens_palette first, then call PaletteSetPlayerPalette to apply it
+    // Set lens_palette first, then call PaletteSetUserPalette to apply it
     local_state.lens_palette = cfg->palette;
-    PaletteSetPlayerPalette(player, cfg->palette);
+    PaletteSetUserPalette(player->user_id, cfg->palette);
     
     m_current_lens = lens_idx;
     SYNCDBG(7, "Palette effect ready");
@@ -60,7 +60,7 @@ void PaletteEffect::Cleanup()
     if (m_current_lens >= 0) {
         struct PlayerInfo* player = get_my_player();
         local_state.lens_palette = NULL;
-        PaletteSetPlayerPalette(player, engine_palette);
+        PaletteSetUserPalette(player->user_id, engine_palette);
         m_current_lens = -1;
         SYNCDBG(9, "Palette effect cleaned up");
     }
