@@ -489,6 +489,9 @@ static void stop_network_game_state(void)
         }
     }
     myplyr->user_id = SOLO_HUMAN_ID;
+    if (myplyr->roomspace.is_active && (myplyr->roomspace.user == old_user)) {
+        myplyr->roomspace.user = SOLO_HUMAN_ID;
+    }
     clear_flag(game.system_flags, GSF_NetGameNoSync);
     clear_flag(game.system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;
