@@ -557,6 +557,7 @@ void process_disconnected_network_players(void)
     TbBool disconnected = host_disconnected;
     TbBool enemy_disconnected = false;
     TbBool winning_quit = false;
+    TbBool departed_player[PLAYERS_COUNT] = {false};
     int32_t plyr_count = 0;
     if (host_disconnected && host_already_won_level()) {
         myplyr->additional_flags &= ~PlaAF_UnlockedLordTorture;
@@ -569,6 +570,7 @@ void process_disconnected_network_players(void)
             continue;
         }
         disconnected = true;
+        departed_player[player->id_number] = true;
         if (network_disconnect_victory_enabled && players_are_enemies(myplyr->id_number, player->id_number)) {
             enemy_disconnected = true;
             if (!winning_quit && winning_player_quitting(player, &plyr_count)) {
@@ -593,20 +595,27 @@ void process_disconnected_network_players(void)
         }
     }
 
-    // award disconnect victories for all relevant players
-    if (network_disconnect_victory_enabled && disconnected) {
-        for (int i = 0; i < PLAYERS_COUNT; i++) {
+    // Award disconnect victories for every player.
+    // (If we only award for the local player, a desync occurs.)
+    if (disconnected) {
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
             struct PlayerInfo *plyr = get_player(i);
-            if (!player_exists(plyr) || plyr->is_active != 1 || (plyr->allocflags & PlaF_CompCtrl)) {
+            if (!player_exists(plyr) || (plyr->is_active != 1) || ((plyr->allocflags & PlaF_CompCtrl) != 0)) {
                 continue;
             }
-            if (!player_has_enemies_remaining(plyr->id_number)) {
+            TbBool enemy_of_this_player_departed = false;
+            for (PlayerNumber departed = 0; departed < PLAYERS_COUNT; departed++) {
+                if (departed_player[departed] && players_are_enemies(i, departed)) {
+                    enemy_of_this_player_departed = true;
+                    break;
+                }
+            }
+            if (enemy_of_this_player_departed && !player_has_enemies_remaining(i)) {
                 resolve_network_quit_outcome(plyr);
             }
         }
     }
-    TbBool has_enemies_to_defeat = player_has_enemies_remaining(get_my_player()->id_number);
-    
+    TbBool has_enemies_to_defeat = player_has_enemies_remaining(myplyr->id_number);
     if (!disconnected || (!host_disconnected && has_enemies_to_defeat)) {
         return;
     }
