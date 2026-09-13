@@ -25,6 +25,7 @@
 #include "bflib_sprite.h"
 #include "globals.h"
 #include "vidmode.h"
+#include "kfx/renderer/DrawState.h" // TbDrawFlagsMask
 
 // Sprites
 // Maybe "Count + 1"? there is no sprite#517
@@ -85,8 +86,8 @@ int scroll_box_get_units_per_px(struct GuiButton *gbtn);
 void draw_gui_panel_sprite_left_player(long x, long y, int units_per_px, long spridx, PlayerNumber plyr_idx);
 #define draw_gui_panel_sprite_rmleft(x, y, units_per_px, spridx, remap) draw_gui_panel_sprite_rmleft_player(x, y, units_per_px, spridx, remap, my_player_number)
 void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long spridx, unsigned long remap, PlayerNumber plyr_idx);
-void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx);
-void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color);
+void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx, TbDrawFlagsMask draw_flags);
+void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color, TbDrawFlagsMask draw_flags);
 void draw_button_sprite_left(long x, long y, int units_per_px, long spridx);
 void draw_button_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap);
 

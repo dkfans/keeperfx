@@ -199,10 +199,14 @@ void update_local_cameras(void)
     destination_deviation_x = 0;
     destination_deviation_y = 0;
 
+    memcpy(previous_local_cameras, destination_local_cameras, sizeof(previous_local_cameras));
     if (pckt != NULL) {
         process_camera_action(destination_local_cameras, pckt);
+        // Skip interpolation for parchment jumps, while retaining it for minimap dragging.
+        if (pckt->action == PckA_ZoomFromMap) {
+            memcpy(previous_local_cameras, destination_local_cameras, sizeof(previous_local_cameras));
+        }
     }
-    memcpy(previous_local_cameras, destination_local_cameras, sizeof(previous_local_cameras));
 
     int active_cam_idx = get_local_active_camera(player) - local_cameras;
     if (active_cam_idx == CamIV_FirstPerson && thing_exists(ctrltng)) {

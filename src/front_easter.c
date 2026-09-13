@@ -219,7 +219,7 @@ static void draw_bouncing_eastegg_message(long idx, const char *text, long width
     vy[idx] = -vy[idx];
     py[idx] = height-k-1;
   }
-  if (LbScreenIsLocked())
+  if (RendererCanDraw())
   {
     LbTextDrawResized(scale_fixed_DK_value(px[idx]/pixel_size), scale_fixed_DK_value(py[idx]/pixel_size), ee_units_per_px, text);
   }

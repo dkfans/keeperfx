@@ -76,6 +76,7 @@ void frontstory_load(void)
 void frontstory_unload(void)
 {
     free_font(&frontstory_font);
+    LbTextInvalidateFontGeneration();
 }
 
 void frontstory_draw(void)
@@ -99,7 +100,7 @@ void frontcredits_draw(void)
     frontend_copy_background();
 
     RendererSetDrawFlags(Lb_SPRITE_OUTLINE | Lb_TEXT_HALIGN_CENTER);
-    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+    LbTextSetWindow(0, 0, RendererPhysicalWidth(), lbDisplay.PhysicalScreenHeight);
     int fontid = 1;
     LbTextSetFont(frontend_font[fontid]);
     long h = credits_offset;

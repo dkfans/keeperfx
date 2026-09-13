@@ -21,6 +21,12 @@
 
 #include "../../bflib_basics.h"
 
+// Forward declaration only -- defined in kfx/renderer/ir/WorldCommands.h.
+// Only .cpp files that implement BuildGPUParams() need the full definition;
+// keeping it out of this widely-included header avoids pulling the renderer
+// IR chain into every lense translation unit.
+struct IRWorldLensCmd;
+
 /**
  * Effect rendering context - passed to all effect draw methods.
  */
@@ -64,7 +70,23 @@ public:
     virtual TbBool Setup(long lens_idx) = 0;
     virtual void Cleanup() = 0;
     virtual TbBool Draw(LensRenderContext* ctx) = 0;
-    
+
+    // GPU path: fill the fields of @p out this effect owns (mist
+    // texture + animation offsets, displacement/flyeye remap table, or
+    // overlay texture + alpha -- see the concrete override). @p viewport_w/h
+    // is the real on-screen viewport size (matches the CPU Draw() path's
+    // ctx->width/height), used to size any resolution-dependent table.
+    // Returns false (default) for effects with no GPU realisation --
+    // currently only PaletteEffect, which never touches pixels and is read
+    // directly by LensManager instead. Game-thread only.
+    virtual TbBool BuildGPUParams(struct IRWorldLensCmd& out, long viewport_w, long viewport_h)
+    {
+        (void)out; (void)viewport_w; (void)viewport_h;
+        return false;
+    }
+
+    virtual void AdvanceAnimation(float /*delta*/) {}
+
     // Configuration
     void SetEnabled(TbBool enabled) { m_enabled = enabled; }
     TbBool IsEnabled() const { return m_enabled; }

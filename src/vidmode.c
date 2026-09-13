@@ -95,6 +95,7 @@ struct MapLevelInfo map_info;
 TbBool MinimalResolutionSetup;
 
 struct TbColorTables pixmap;
+TbBool fade_tables_ready = 0;
 struct TbAlphaTables alpha_sprite_table;
 unsigned char white_pal[256];
 unsigned char red_pal[256];
@@ -128,6 +129,9 @@ short LoadVRes256Data(long scrbuf_size)
     if (!winfont || !font_sprites || !button_sprites || !gui_panel_sprites || LbDataLoadAll(gui_load_files_640)) {
         return 0;
     }
+    // gui_slab was just (re)loaded by the LbDataLoadAll() call above --
+    // notify the active renderer so GL can (re)upload its cached slab texture.
+    RendererUpdateSlabTexture(gui_slab, GUI_SLAB_DIMENSION);
     return 1;
 }
 
@@ -138,6 +142,7 @@ void FreeVRes256Data(void)
     free_spritesheet(&button_sprites);
     free_spritesheet(&gui_panel_sprites);
     LbDataFreeAll(gui_load_files_640);
+    LbTextInvalidateFontGeneration();
 }
 
 short LoadVResMinimal(void)
@@ -165,6 +170,7 @@ void FreeVResMinimal(void)
     }
     free_spritesheet(&button_sprites);
     LbDataFreeAll(front_load_files_minimal_640);
+    LbTextInvalidateFontGeneration();
 }
 
 /**
@@ -200,6 +206,9 @@ short LoadMcgaData(void)
   winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
   font_sprites = load_font("data/font1-32.dat", "data/font1-32.tab");
   gui_panel_sprites = load_spritesheet("data/gui2-32.dat", "data/gui2-32.tab");
+  // gui_slab was just (re)loaded by the LbDataLoad() loop above --
+  // notify the active renderer so GL can (re)upload its cached slab texture.
+  RendererUpdateSlabTexture(gui_slab, GUI_SLAB_DIMENSION);
   return button_sprites && winfont && font_sprites && gui_panel_sprites && (ferror == 0);
 }
 
@@ -210,6 +219,7 @@ void FreeMcgaData(void)
     free_font(&font_sprites);
     free_spritesheet(&button_sprites);
     free_spritesheet(&gui_panel_sprites);
+    LbTextInvalidateFontGeneration();
 }
 
 void set_game_vidmode(uint i, TbScreenMode nmode)
@@ -518,6 +528,7 @@ TbBool init_fades_table(void)
     for (int i = 0; i < 256; i++) {
         pixmap.map_abyss[i] = abyss_colours[pixmap.ghost[i] * 3 >> 8];
     }
+    fade_tables_ready = 1;
     return true;
 }
 
@@ -632,12 +643,12 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
       return nmode;
     }
   }
-  TbBool hi_res = ((LbGraphicsScreenHeight() < 400) ? false : true);
+  TbBool hi_res = ((RendererScreenHeight() < 400) ? false : true);
   long lens_mem = game.applied_lens_type;
   unsigned int flg_mem = RendererGetDrawFlags();
   TbBool was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
   set_pointer_graphic_none();
-  if (LbGraphicsScreenHeight() < 200)
+  if (RendererScreenHeight() < 200)
   {
       WARNLOG("Unhandled previous Screen Mode %d, Reset skipped",(int)old_mode);
   } else
@@ -646,6 +657,12 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     {
       reset_eye_lenses();
       reset_heap_manager();
+      // GL's keeper-sprite atlas caches by draw_idx, stable only within one
+      // sprite-heap generation -- clear it in lockstep with the heap reset
+      // above (main_game.c's init_level() covers the level-load
+      // case, this covers the video-mode-switch case). No-op on software /
+      // before GL is active.
+      RendererClearKeeperSpriteAtlas();
       unload_pointer_file(hi_res);
     }
     if (nmode != old_mode)
@@ -804,9 +821,9 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
       return nmode;
     }
   }
-  TbBool hi_res = ((LbGraphicsScreenHeight() < 400) ? false : true);
+  TbBool hi_res = ((RendererScreenHeight() < 400) ? false : true);
   ushort flg_mem = RendererGetDrawFlags();
-  if (LbGraphicsScreenHeight() < 200)
+  if (RendererScreenHeight() < 200)
   {
     WARNLOG("Unhandled previous Screen Mode %d, Reset skipped",(int)old_mode);
   } else
@@ -815,6 +832,8 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
     {
       reset_eye_lenses();
       reset_heap_manager();
+      // See setup_screen_mode()'s identical comment above.
+      RendererClearKeeperSpriteAtlas();
     }
     if ((!MinimalResolutionSetup && !hi_res) || (MinimalResolutionSetup && hi_res))
       unload_pointer_file(hi_res);

@@ -18,7 +18,6 @@
             "defines": [
                 "SPNG_STATIC=1",
                 "AL_LIBTYPE_STATIC",
-                "USE_PRE_FILE=1",
                 "BFDEBUG_LEVEL=0"
             ],
             "cStandard": "gnu11",
@@ -43,7 +42,6 @@
             "defines": [
                 "SPNG_STATIC=1",
                 "AL_LIBTYPE_STATIC",
-                "USE_PRE_FILE=1",
                 "BFDEBUG_LEVEL=0"
             ],
             "compilerPath": "/usr/bin/i686-w64-mingw32-gcc",
@@ -69,13 +67,20 @@
             "defines": [
                 "SPNG_STATIC=1",
                 "AL_LIBTYPE_STATIC",
-                "USE_PRE_FILE=1",
                 "BFDEBUG_LEVEL=0"
             ],
             "compilerPath": "C:\\msys64\\mingw32\\bin\\gcc.exe",
             "cStandard": "gnu11",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "windows-gcc-x86"
+        },
+        {
+            // Select this configuration (bottom-right IntelliSense picker) when
+            // building via CMake Tools instead of the Makefile. Include paths,
+            // defines and compiler are all supplied by whichever CMake preset
+            // CMake Tools has active, so nothing else here needs maintaining.
+            "name": "CMake Tools",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

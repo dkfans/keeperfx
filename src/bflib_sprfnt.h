@@ -71,6 +71,10 @@ static const uint32_t colour_modifiers_end   = 0xF1FF;
 extern TbBool dbc_enabled;
 extern TbBool dbc_initialized;
 extern const struct TbSpriteSheet *lbFontPtr;
+extern long dbc_colour0;
+extern long dbc_colour1;
+struct AsianFont;
+extern struct AsianFont *active_dbcfont;
 
 /******************************************************************************/
 
@@ -89,6 +93,14 @@ int LbTextLineHeight(void);
 int LbTextSetWindow(int posx, int posy, int width, int height);
 TbResult LbTextSetJustifyWindow(int pos_x, int pos_y, int width);
 TbResult LbTextSetClipWindow(int x1, int y1, int x2, int y2);
+void LbTextGetJustifyWindow(int *out_x, int *out_y, int *out_width);
+void LbTextGetClipWindow(int *out_x, int *out_y, int *out_width, int *out_height);
+unsigned int LbTextGetFontGeneration(void);
+/** Call when a font's underlying TbSpriteSheet memory is freed/reloaded --
+ *  NOT on mere selection (LbTextSetFont() just changes which already-loaded
+ *  font is current, it doesn't invalidate any pointer). See the generation
+ *  field's own comment in bflib_sprfnt.c for what this guards against. */
+void LbTextInvalidateFontGeneration(void);
 TbBool LbTextSetFont(const struct TbSpriteSheet *font);
 unsigned char LbTextGetFontFaceColor(void);
 unsigned char LbTextGetFontBackColor(void);
@@ -119,6 +131,17 @@ void LbTextUseByteCoding(TbBool is_enabled);
 long text_string_height(int units_per_px, const char *text);
 short load_unifont_files();
 TbBool is_dbc_language(short language);
+unsigned char LbTextGetSpacesPerTab(void);
+
+// Todo : Refactor, these are used by GL, i hate this.
+int LbDbcGetGlyphBits(const struct AsianFont *font, uint32_t chr,
+                       const unsigned char **out_data, int *out_scanline_bytes,
+                       int *out_w, int *out_h, int *out_char_spacing, int *out_v_offset);
+int LbDbcCharWidthM(const struct AsianFont *font, uint32_t chr, long units_per_px);
+int LbDbcCharHeight(const struct AsianFont *font);
+TbBool LbDbcIsDuospaceChar(const struct AsianFont *font, uint32_t chr);
+int LbTextWordWidthExplicit(const struct TbSpriteSheet *font, const struct AsianFont *dbcfont,
+                             TbBool use_dbc, const char *str, long units_per_px);
 
 /******************************************************************************/
 #ifdef __cplusplus

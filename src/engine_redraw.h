@@ -36,6 +36,8 @@ struct PlayerInfo;
 /******************************************************************************/
 extern unsigned char smooth_on;
 /******************************************************************************/
+/** Screen columns on the left the engine window must leave free for the sidebar. */
+int32_t engine_window_reserved_left(void);
 void setup_engine_window(long x1, long y1, long x2, long y2);
 void store_engine_window(TbGraphicsWindow *ewnd,int divider);
 void load_engine_window(TbGraphicsWindow *ewnd);

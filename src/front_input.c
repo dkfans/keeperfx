@@ -52,6 +52,7 @@
 #include "creature_instances.h"
 #include "creature_states.h"
 #include "gui_boxmenu.h"
+#include "kfx/renderer/RendererManager.h" // RendererPhysicalWidth
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
 #include "gui_tooltips.h"
@@ -925,7 +926,7 @@ static TbBool get_level_lost_inputs(void)
           turn_off_all_window_menus();
           set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
           if (network_is_active()
-            || (lbDisplay.PhysicalScreenWidth > 320))
+            || (RendererPhysicalWidth() > 320))
           {
                 set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
           } else

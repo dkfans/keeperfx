@@ -51,3 +51,8 @@ crash_log.txt
 debug.log
 .local/
 /keeperfx_vs2010
+#temporary ignore.
+/build/tools
+
+# Personal CMake presets (per-dev deploy path etc.) - see CMakeUserPresets.json.example
+/CMakeUserPresets.json

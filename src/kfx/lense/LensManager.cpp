@@ -33,6 +33,8 @@
 #include "../../lens_api.h"
 #include "../../vidmode.h"
 #include "../../game_legacy.h"
+#include "../renderer/RendererManager.h"
+#include "../renderer/ir/WorldCommands.h"
 
 #include "../../keeperfx.hpp"
 #include "../../post_inc.h"
@@ -268,6 +270,56 @@ void LensManager::Draw(unsigned char* srcbuf, unsigned char* dstbuf,
     }
 }
 
+TbBool LensManager::BuildActiveGPULensCmd(long viewport_w, long viewport_h, IRWorldLensCmd& out) const
+{
+    out = IRWorldLensCmd{};
+
+    if (!m_initialized || m_applied_lens == 0)
+    {
+        return false;
+    }
+
+    struct LensConfig* cfg = &lenses_conf.lenses[m_applied_lens];
+
+    // Palette is a separate side channel -- it never touches pixels (see
+    // PaletteEffect::Draw()), so it's read directly here rather than routed
+    // through BuildGPUParams(). Independent of the pixel-effect precedence
+    // below: a lens can combine LCF_HasPalette with a pixel effect.
+    if ((cfg->flags & LCF_HasPalette) != 0 && IsEffectEnabled(LensEffectType::Palette))
+    {
+        out.has_palette = true;
+        memcpy(out.palette, cfg->palette, sizeof(out.palette));
+    }
+
+    // Custom (LUA) lenses have no GPU realisation -- only standard lenses
+    // are eligible for the pixel-effect pass.
+    TbBool has_pixel_effect = false;
+    if (m_active_custom_lens.empty())
+    {
+        // Same registration-order precedence LensManager::Draw() applies on
+        // the CPU path: each enabled effect that's set up for the current
+        // lens (BuildGPUParams() itself gates on that, same as Draw() does)
+        // overwrites whatever the previous one wrote -- so the last one to
+        // return true is the single "winning" effect carried to the GPU.
+        // Iterating the same way Draw() does (rather than re-deriving the
+        // winner from cfg->flags separately) keeps this in lockstep with
+        // Draw()'s own logic by construction.
+        for (LensEffect* effect : m_effects)
+        {
+            if (!effect->IsEnabled())
+                continue;
+            effect->AdvanceAnimation(game.delta_time);
+            if (effect->BuildGPUParams(out, viewport_w, viewport_h))
+            {
+                has_pixel_effect = true;
+            }
+        }
+    }
+
+    out.active = has_pixel_effect || out.has_palette;
+    return out.active;
+}
+
 void LensManager::LoadAccessibilityConfig()
 {
     // TODO: Load from keeper.cfg
@@ -438,8 +490,8 @@ void LensManager::FreeAllEffects()
 
 TbBool LensManager::AllocateBuffers()
 {
-    m_buffer_width = lbDisplay.GraphicsScreenWidth;
-    m_buffer_height = lbDisplay.GraphicsScreenHeight;
+    m_buffer_width = RendererScreenWidth();
+    m_buffer_height = RendererScreenHeight();
     
     unsigned long buffer_size = m_buffer_width * m_buffer_height + 2;
     

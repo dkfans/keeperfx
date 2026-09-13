@@ -7,13 +7,13 @@
             "project": "CMakeLists.txt",
             "projectTarget": "keeperfx.exe",
             "name": "keeperfx.exe (gdb)",
-            "currentDir": "E:\\Games\\keeperfx_1_2_0_complete",
-            "cwd": "E:\\Games\\keeperfx_1_2_0_complete",
+            "currentDir": "C:\\Users\\peter\\source\\repos\\keeperfx-clean\\1.4 - SDL3",
+            "cwd": "C:\\Users\\peter\\source\\repos\\keeperfx-clean\\1.4 - SDL3",
             "args": [
                 "-level",
                 "00001",
                 "-campaign",
-                "personal",
+                "keeporig",
                 "-nointro",
                 "-alex"
             ],
@@ -39,13 +39,13 @@
             "project": "CMakeLists.txt",
             "projectTarget": "keeperfx_hvlog.exe",
             "name": "keeperfx_hvlog.exe (gdb)",
-            "currentDir": "E:\\Games\\keeperfx_1_2_0_complete",
-            "cwd": "E:\\Games\\keeperfx_1_2_0_complete",
+            "currentDir": "C:\\Users\\peter\\source\\repos\\keeperfx-clean\\1.4 - SDL3",
+            "cwd": "C:\\Users\\peter\\source\\repos\\keeperfx-clean\\1.4 - SDL3",
             "args": [
                 "-level",
                 "00001",
                 "-campaign",
-                "personal",
+                "keeporig",
                 "-nointro",
                 "-alex"
             ],

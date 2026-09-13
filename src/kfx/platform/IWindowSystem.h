@@ -1,6 +1,9 @@
 #ifndef IWINDOWSYSTEM_H
 #define IWINDOWSYSTEM_H
 
+#include "kfx/platform/IGLContext.h"
+#include <memory>
+
 /** Abstract interface for platform windowing, focus, and OS cursor management.
  *
  */
@@ -40,6 +43,19 @@ public:
     /** Warp the cursor to (x, y) in game-surface coordinates. */
     virtual void WarpCursor(int /*x*/, int /*y*/) {}
 
+    /** Move the OS cursor to the middle of the window. */
+    virtual void RecenterCursor() {}
+
+    /** Cursor position in game-surface coordinates. False when unavailable. */
+    virtual bool GetCursorPosition(int* /*out_x*/, int* /*out_y*/) const { return false; }
+
+    /** Game-surface pixels per unit of OS cursor movement. */
+    virtual void GetCursorScale(float* out_sx, float* out_sy) const
+    {
+        if (out_sx) *out_sx = 1.0f;
+        if (out_sy) *out_sy = 1.0f;
+    }
+
     /** True if the OS cursor is within the window bounds. 
      * On platforms that own the display exclusively the cursor can never leave
      * so the default is true. */
@@ -53,6 +69,23 @@ public:
     {
         if (out_w) *out_w = 0;
         if (out_h) *out_h = 0;
+    }
+    /** Size of the window's drawable area in pixels. */
+    virtual void GetDrawableSize(int* out_w, int* out_h) const
+    {
+        if (out_w) *out_w = 0;
+        if (out_h) *out_h = 0;
+    }
+    /** Size in pixels of the frame the game draws. */
+    virtual void SetGameSurfaceSize(int /*w*/, int /*h*/) {}
+    /** Where renderers place the game frame, in drawable pixels from the
+     *  top-left corner: scaled to fit the on-screen part of the window,
+     *  keeping its aspect ratio. */
+    virtual void GetPresentRect(int* out_x, int* out_y, int* out_w, int* out_h) const
+    {
+        if (out_x) *out_x = 0;
+        if (out_y) *out_y = 0;
+        GetDrawableSize(out_w, out_h);
     }
     virtual int GetWindowDisplayIndex() const { return -1; }
     virtual int GetNumVideoDisplays() const { return 0; }
@@ -81,17 +114,22 @@ public:
     virtual int SetWindowFullscreen(unsigned int /*flags*/) { return -1; }
     virtual void SetWindowBordered(int /*bordered*/) {}
     virtual void SetWindowPosition(int /*x*/, int /*y*/) {}
+    /** Create the game window. The renderer backend is already resolved by
+     *  this point (see RendererManager.h's RendererResolveType()), so `flags`
+     *  already carries whatever backend-required capability flags (e.g.
+     *  KFX_WF_OPENGL) the active renderer needs -- CreateWindow() is the only
+     *  place the window is ever constructed, and it is born with the correct
+     *  flags. There is deliberately no "recreate window to add/remove a
+     *  renderer capability flag" API: that need only existed because window
+     *  creation used to be decided before the renderer type was known. */
     virtual bool CreateWindow(const char* /*title*/, int /*x*/, int /*y*/, int /*w*/, int /*h*/, unsigned int /*flags*/) { return false; }
+    virtual bool SetWindowTitle(const char* /*title*/) { return false; }
+    virtual void ShowWindow() {}
 
-    /** Recreate the window without SDL_WINDOW_OPENGL so that SDL_GetWindowSurface()
-     *  can be used for software rendering.  No-op (returns true) on platforms where
-     *  the window is not OpenGL-flagged or where this is not applicable. */
-    virtual bool RecreateForSoftwareRenderer() { return true; }
+    /** Create an OpenGL context for a window created with KFX_WF_OPENGL. The
+     *  context is current on the calling thread. Returns nullptr on failure. */
+    virtual std::unique_ptr<IGLContext> CreateGLContext() { return nullptr; }
 
-    /** Recreate the window without SDL_WINDOW_VULKAN so that the Vulkan surface is
-     *  released before switching away from the Vulkan backend.  No-op (returns
-     *  true) on platforms where the window is not Vulkan-flagged. */
-    virtual bool RecreateForVulkanRenderer() { return true; }
 
     // ----- Display info -----
 

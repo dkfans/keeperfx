@@ -134,13 +134,13 @@ void draw_slab64k_background_immediate(long pos_x, long pos_y, long width, long 
         scr_y = 0;
         scr_h = i;
     }
-    i = lbDisplay.PhysicalScreenWidth * pixel_size;
+    i = RendererPhysicalWidth() * pixel_size;
     if (scr_x + scr_w > i)
         scr_w = i - scr_x;
     i = MyScreenHeight;
     if (scr_y + scr_h > i)
         scr_h = i - scr_y;
-    TbPixel* out = &lbDisplay.WScreen[scr_x + lbDisplay.GraphicsScreenWidth * scr_y];
+    TbPixel* out = &lbDisplay.WScreen[scr_x + RendererScreenWidth() * scr_y];
     for (i=0; scr_h > i; i++)
     {
         TbPixel* inp = &gui_slab[GUI_SLAB_DIMENSION * (i % GUI_SLAB_DIMENSION)];
@@ -159,7 +159,7 @@ void draw_slab64k_background_immediate(long pos_x, long pos_y, long width, long 
         {
             memcpy(out, inp, scr_w);
         }
-        out += lbDisplay.GraphicsScreenWidth;
+        out += RendererScreenWidth();
     }
 }
 
@@ -538,7 +538,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         }
     }
     LbTextDrawResized(w, h, tx_units_per_px, dtext);
-    LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
+    LbTextSetJustifyWindow(0, 0, RendererScreenWidth());
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     RendererSetDrawFlags(flgmem);
@@ -642,7 +642,7 @@ TbBool draw_text_box(const char *text)
     }
     long box_width = (108 * spritesx + 18) * units_per_pixel / 16;
     long box_height = 92 * units_per_pixel / 16;
-    long startx = (lbDisplay.PhysicalScreenWidth - box_width) / 2;
+    long startx = (RendererPhysicalWidth() - box_width) / 2;
     long starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
     draw_message_box_at(startx, starty, box_width, box_height, spritesx, spritesy);
     // Draw the text inside box
@@ -685,7 +685,7 @@ TbBool draw_text_box_top(const char* text, ushort drawflags)
         }
     long box_width = (108 * spritesx + 18) * units_per_pixel / 16;
     long box_height = 92 * units_per_pixel / 16;
-    long startx = (lbDisplay.PhysicalScreenWidth - box_width) / 2;
+    long startx = (RendererPhysicalWidth() - box_width) / 2;
     long starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
     draw_message_box_at(startx, starty, box_width, box_height, spritesx, spritesy);
     // Draw the text inside box
@@ -774,22 +774,22 @@ void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long 
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
 }
 
-void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx)
+void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx, TbDrawFlagsMask draw_flags)
 {
     spridx = get_player_colored_icon_idx(spridx,my_player_number);
     const struct TbSprite* spr = get_panel_sprite(spridx);
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
-    LbSpriteDrawResized(x, y, units_per_px, spr);
+    UIRenderer_SubmitPanelSpriteRaw(x, y, units_per_px, spr, draw_flags);
 }
 
-void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color)
+void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color, TbDrawFlagsMask draw_flags)
 {
     spridx = get_player_colored_icon_idx(spridx,my_player_number);
     const struct TbSprite* spr = get_panel_sprite(spridx);
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
-    LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
+    UIRenderer_SubmitPanelSpriteRawColored(x, y, units_per_px, spr, color, draw_flags);
 }
 
 void draw_button_sprite_left(long x, long y, int units_per_px, long spridx)
@@ -827,9 +827,14 @@ TbBool frontmenu_copy_background_at(const struct TbRect *bkgnd_area, int units_p
     if (LbGraphicsScreenBPP() != 8)
         return false;
     // Do the drawing
-    copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-        img_width*units_per_px/16,img_height*units_per_px/16,bkgnd_area->left,bkgnd_area->top,srcbuf,img_width,img_height);
-    // Burning candle flames
+    struct RendererPresentImageDesc d = {0};
+    d.format  = PRESENT_FORMAT_INDEXED8;
+    d.palette = PRESENT_PALETTE_GAME;
+    d.kind    = PRESENT_KIND_OPAQUE;
+    d.dst_w = img_width*units_per_px/16; d.dst_h = img_height*units_per_px/16;
+    d.dst_x = bkgnd_area->left;          d.dst_y = bkgnd_area->top;
+    d.src   = srcbuf; d.src_w = img_width; d.src_h = img_height;
+    RendererPresentImage(&d);
     return true;
 }
 

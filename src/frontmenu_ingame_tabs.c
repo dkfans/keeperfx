@@ -70,6 +70,7 @@
 #include "local_camera.h"
 #include "keeperfx.hpp"
 #include "vidfade.h"
+#include "config_keeperfx.h"
 #include "kjm_input.h"
 #include "custom_sprites.h"
 #include "sprites.h"
@@ -1487,8 +1488,8 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     int text_y = -6*dst_w/base_w;
     
     LbTextDrawResized(text_x, text_y, tx_units_per_px, text);
-    LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
-    LbTextSetClipWindow(0, 0, LbGraphicsScreenWidth(), LbGraphicsScreenHeight());
+    LbTextSetJustifyWindow(0, 0, RendererScreenWidth());
+    LbTextSetClipWindow(0, 0, RendererScreenWidth(), RendererScreenHeight());
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     RendererSetDrawFlags(flg_mem);
 }
@@ -2647,6 +2648,9 @@ void draw_whole_status_panel(void)
     }
     RendererSetDrawColour(colours[15][15][15]);
     RendererSetDrawFlags(0);
+    // The world view runs under the sidebar; hide it below the panel art too.
+    if (viewport_mode == VpMode_FullLetterbox)
+        LbDrawBox(0, 0, gmnu->pos_x + gmnu->width, MyScreenHeight, colours[0][0][0]);
     LbTiledSpriteDraw(0, 0, fs_units_per_px, &status_panel);
     // Draws gold amount; note that button_sprite[] is used instead of full font
     draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, fs_units_per_px, dungeon->total_money_owned);
@@ -2657,8 +2661,9 @@ void draw_whole_status_panel(void)
     panel_map_draw_slabs(local_state.minimap_pos_x, local_state.minimap_pos_y, mm_units_per_px, mmzoom);
     long basic_zoom = local_state.minimap_zoom;
     panel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
-    unsigned char placefill_threshold = (LbScreenHeight() >= 400) ? 80 : 40;
-    if (LbScreenHeight() - gmnu->height >= placefill_threshold)
+    panel_map_submit_to_renderer();
+    unsigned char placefill_threshold = (RendererPhysicalHeight() >= 400) ? 80 : 40;
+    if (RendererPhysicalHeight() - gmnu->height >= placefill_threshold)
     {
         draw_placefiller(0, gmnu->pos_y + gmnu->height, fs_units_per_px);
     }

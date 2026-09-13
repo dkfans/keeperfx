@@ -811,7 +811,7 @@ void gui_draw_box(struct GuiBox *gbox)
             RendererSetDrawColour(colours[0][0][0]);
           else
             RendererSetDrawColour(colours[3][3][3]);
-          if (LbScreenIsLocked())
+          if (RendererCanDraw())
           {
             LbTextDraw(pos_x/pixel_size, pos_y/pixel_size, goptn->label);
           }
@@ -847,7 +847,7 @@ void gui_draw_box(struct GuiBox *gbox)
               RendererSetDrawColour(colours[15][15][15]);
             else
               RendererSetDrawColour(colours[9][9][9]);
-            if (LbScreenIsLocked())
+            if (RendererCanDraw())
             {
               LbTextDraw(pos_x/pixel_size, pos_y/pixel_size, goptn->label);
             }
