@@ -23,6 +23,13 @@ void GLContextSDL::RequestWindowAttributes()
     // near/far ordering -- request a depth buffer explicitly rather than
     // relying on a driver default, which may be none.
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    // Pin the colour channel sizes explicitly instead of letting SDL/the
+    // driver pick a default pixel format. Without this a driver is free to
+    // hand back a surface with a different bit layout (or, on an HDR-capable
+    // display, an extended-precision one) -- matches develop's
+    // platform_gl_sdl3.cpp, which calls out the 8-bit RGBA request as what
+    // keeps an HDR display's DWM compositor tone-mapping the game as SDR
+    // instead of applying an unwanted brightness boost.
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   8);
@@ -48,7 +55,10 @@ std::unique_ptr<GLContextSDL> GLContextSDL::Create(SDL_Window* window)
     SDL_GL_GetAttribute(SDL_GL_FLOATBUFFERS, &floatbuf);
     if (floatbuf != 0)
     {
-        // TODO : port scrb from dev
+        WARNLOG("GLContextSDL::Create: driver granted a float (scRGB) backbuffer -- "
+                "gamma-lift compensation is not implemented on this branch yet "
+                "(see develop's FGApplyScrgbLift); colours will look washed out "
+                "until it is ported");
     }
 
     return std::unique_ptr<GLContextSDL>(new GLContextSDL(window, context));

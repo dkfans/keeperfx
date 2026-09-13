@@ -65,6 +65,8 @@ struct GLFrameData {
     int32_t present_w = 0;
     int32_t present_h = 0;
 
+    float screen_tint[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
     // The frame number this GLFrameData was sealed under
     uint64_t sealed_frame_number = 0;
 
@@ -729,6 +731,7 @@ void RendererOpenGL::PresentFrame()
         filled_fd.present_w = pw;
         filled_fd.present_h = ph;
     }
+    std::memcpy(filled_fd.screen_tint, g_screen_tint, sizeof(filled_fd.screen_tint));
     filled_fd.sealed_frame_number = RendererFrameCounter_Current();
 
     LbMouseOnBeginSwap();
