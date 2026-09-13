@@ -489,6 +489,9 @@ static void stop_network_game_state(void)
         }
     }
     myplyr->user_id = SOLO_HUMAN_ID;
+    if (myplyr->roomspace.is_active && (myplyr->roomspace.user == old_user)) {
+        myplyr->roomspace.user = SOLO_HUMAN_ID;
+    }
     clear_flag(game.system_flags, GSF_NetGameNoSync);
     clear_flag(game.system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;
@@ -551,13 +554,14 @@ void process_disconnected_network_players(void)
         return;
     }
     struct PlayerInfo *myplyr = get_my_player();
+    struct UserState *ustate = get_user_state(get_local_user());
     TbBool host_disconnected = (netstate.my_id != SERVER_ID) && (netstate.users[SERVER_ID].progress == USER_UNUSED);
     TbBool disconnected = host_disconnected;
     TbBool enemy_disconnected = false;
     TbBool winning_quit = false;
     int32_t plyr_count = 0;
     if (host_disconnected && host_already_won_level()) {
-        myplyr->additional_flags &= ~PlaAF_UnlockedLordTorture;
+        ustate->additional_flags &= ~UsrAF_UnlockedLordTorture;
         quit_game = 1;
         return;
     }
@@ -615,9 +619,9 @@ void process_disconnected_network_players(void)
     }
     if (winning_quit && (plyr_count > 1)) {
         if (game.conf.rules[myplyr->id_number].gameplay.winner_tortures_loser) {
-            myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
+            ustate->additional_flags |= UsrAF_UnlockedLordTorture;
         } else {
-            myplyr->additional_flags &= ~PlaAF_UnlockedLordTorture;
+            ustate->additional_flags &= ~UsrAF_UnlockedLordTorture;
         }
     }
     if (!host_disconnected && network_has_remote_users_remaining()) {

@@ -1844,8 +1844,8 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
     player->influenced_thing_creation = thing->creation_turn;
     struct UserState* ustate = get_player_user_state(player);
     ustate->first_person_dig_claim_mode = false;
-    player->teleport_destination = 19; // reset to default behaviour
-    player->battleid = 1;
+    ustate->teleport_destination = 19; // reset to default behaviour
+    ustate->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     if (is_my_player(player)) {

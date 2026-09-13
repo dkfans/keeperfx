@@ -103,7 +103,6 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
     struct Thing* castng = get_parent_thing(shotng);
     TRACE_THING(castng);
-    struct PlayerInfo* myplyr = get_my_player();
     KeepPwrLevel power_level;
     long damage;
     // If the shot has area_range, then make area damage
@@ -156,7 +155,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     case ShM_GodLightning:
     case ShM_GodLightBall:
         if (lens_mode != 0) {
-            PaletteSetPlayerPalette(myplyr, engine_palette);
+            PaletteSetUserPalette(get_local_user(), engine_palette);
         }
         break;
     case ShM_TrapTNT:
@@ -1796,16 +1795,14 @@ TngUpdateRet update_shot(struct Thing *thing)
         {
             case ShUL_Lightning:
             {
-                struct PlayerInfo* player;
                 if (lightning_is_close_to_player(myplyr, &thing->mappos))
                 {
                   if (is_my_player_number(thing->owner))
                   {
-                      player = get_player(thing->owner);
                       if ((thing->parent_idx > 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
                       {
-                          PaletteSetPlayerPalette(player, lightning_palette);
-                          myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
+                          PaletteSetUserPalette(get_local_user(), lightning_palette);
+                          get_user_state(get_local_user())->additional_flags |= UsrAF_LightningPaletteIsActive;
                       }
                   }
                 }
