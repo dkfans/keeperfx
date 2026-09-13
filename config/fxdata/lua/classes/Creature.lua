@@ -36,7 +36,7 @@
 ---@field party_target_player integer The player the hero party is targetting
 ---@field patrol_pos Pos3d should be combined with assigning a hero state that makes use of it
 ---@field patrol_countdown integer When this value reaches 0 the hero will look for new patrol position on its own. Used for brief pauses between movements.
----@field instance string The instance the creature is currently performing, `"NULL"` when there is none. Assigning one starts it, assigning `"NULL"` stops it. This is what decides the drawn animation, above state and movement. An instance also runs its own action function, so spell and attack instances really do cast or fire. Check for `"NULL"` before assigning, or the animation restarts from frame 0 every time.
+---@field instance string|table The instance the creature is currently performing, `"NULL"` when there is none. Assigning starts it and really does cast or fire, `"NULL"` stops it. A table `{instance, target}` aims it at a thing. Reading always gives a string.
 ---@field countdown integer Generic timer whose meaning depends on the current state. Changing state does not reset it, so a state that counts it down needs it set explicitly: `cr.state = "CreatureBeHappy"` plus `cr.countdown = 50` gives 50 turns of celebrating.
 ---@field conscious_back_turns integer Turns until the creature wakes up from stun.
 ---@field unsummon_duration integer Turns until the creature will unsummon. It's set on temporary creatures/familiars.

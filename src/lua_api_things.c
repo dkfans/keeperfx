@@ -454,11 +454,29 @@ static int thing_set_field(lua_State *L) {
             thing->continue_state = luaL_checkNamedCommand(L, 3, creatrstate_desc);
         } else if (strcmp(key, "instance") == 0)
         {
-            CrInstance inst_idx = luaL_checkNamedCommand(L, 3, instance_desc);
+            //Lua stack: 1 = thing, 2 = key, 3 = value
+            int stackcount = lua_gettop(L);
+            int inst_pos = 3;
+            if (lua_istable(L, 3)) {
+                //unpack table content onto stack
+                lua_rawgeti(L, 3, 1);       // {1} instance
+                lua_rawgeti(L, 3, 2);       // {2} target, may be nil
+                //instance is now on stackposition 4
+                inst_pos = stackcount + 1;
+            }
+            CrInstance inst_idx = luaL_checkNamedCommand(L, inst_pos, instance_desc);
+            ThingIndex targtng_idx = 0;
+            // without table, stack position 5 doesnt exist
+            if (!lua_isnoneornil(L, stackcount + 2)) {
+                targtng_idx = luaL_checkThing(L, stackcount + 2)->index;
+            }
+            // drop what we pushed on the stack
+            lua_settop(L, stackcount);
+
             if (inst_idx == CrInst_NULL) {
                 clear_creature_instance(thing);
             } else {
-                set_creature_instance(thing, inst_idx, 0, NULL);
+                set_creature_instance(thing, inst_idx, targtng_idx, NULL);
             }
         } else if (strcmp(key, "hunger_amount") == 0)
         {
