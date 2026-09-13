@@ -1667,13 +1667,6 @@ void update_gameplay_delta_time()
     }
 }
 
-void gameplay_loop_draw();
-
-extern "C" void network_yield_draw_gameplay()
-{
-    gameplay_loop_draw();
-}
-
 extern "C" void update_velocity(void);
 extern "C" void check_mouse_scroll(void);
 extern "C" void fronttorture_update(void);
