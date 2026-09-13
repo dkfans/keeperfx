@@ -653,7 +653,7 @@ void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
 }
 
 
-void lua_push_parent(lua_State *L, const struct Thing *thing)
+void lua_pushParent(lua_State *L, const struct Thing *thing)
 {
     switch (thing->class_id)
     {

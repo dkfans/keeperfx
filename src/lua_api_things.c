@@ -525,15 +525,17 @@ static int thing_set_field(lua_State *L) {
         {
             return luaL_error(L, "Field '%s' is not writable on Trap thing", key);
         }
-    } else if (thing->class_id == TCls_Shot))
+    } else if (thing->class_id == TCls_Shot)
     {
-        } else if (strcmp(key, "shot_target") == 0) {
+        if (strcmp(key, "target") == 0) {
             if (lua_isnil(L, 3)) {
                 thing->shot.target_idx = 0;
             } else {
                 struct Thing* target = luaL_checkThing(L, 3);
                 thing->shot.target_idx = target->index;
             }
+        } else if (strcmp(key, "damage") == 0) {
+            thing->shot.damage = luaL_checkinteger(L, 3);
         } else {
             return luaL_error(L, "Field '%s' is not writable on Shot thing", key);
         }
@@ -597,7 +599,7 @@ static int thing_get_field(lua_State *L) {
     } else if (strcmp(key, "thing_class") == 0) {
         lua_pushstring(L, thing_class_code_name(thing->class_id));
     } else if (strcmp(key, "parent") == 0) {
-        lua_push_parent(L, thing);
+        lua_pushParent(L, thing);
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     }
@@ -642,12 +644,16 @@ static int thing_get_field(lua_State *L) {
         } else if (strcmp(key, "opponents_count") == 0) {
             lua_pushinteger(L, (cctrl->opponents_melee_count + cctrl->opponents_ranged_count));
         } else if (strcmp(key, "battle_enemy") == 0) {
+            struct Thing* enmtng = INVALID_THING;
             // only read if a real enemy fight happens
-            if (cctrl->combat_flags != 0) {
-                lua_pushThing(L,( thing_get(cctrl->combat.battle_enemy_idx)));
-            } else {
-                lua_pushnil(L);
+            if (cctrl->combat_flags != 0)
+            {
+                enmtng = thing_get(cctrl->combat.battle_enemy_idx);
+                if (!thing_exists(enmtng) || (enmtng->creation_turn != cctrl->combat.battle_enemy_crtn)) {
+                    enmtng = INVALID_THING;
+                }
             }
+            lua_pushThing(L, enmtng);
         } else if (strcmp(key, "combat_type") == 0) {
             if (flag_is_set(cctrl->combat_flags, CmbtF_Melee)) {
                 lua_pushstring(L, "MELEE");
@@ -727,8 +733,12 @@ static int thing_get_field(lua_State *L) {
         }
     } else if (thing->class_id == TCls_Shot)
     {
-        if (strcmp(key, "shot_target") == 0) {
+        if (strcmp(key, "target") == 0) {
             lua_pushThing(L, thing_get(thing->shot.target_idx));
+        } else if (strcmp(key, "damage") == 0) {
+            lua_pushinteger(L, thing->shot.damage);
+        } else if (strcmp(key, "originpos") == 0) {
+            lua_pushPos(L, &thing->shot.originpos);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Shot thing", key);
         }

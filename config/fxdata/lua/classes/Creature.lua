@@ -19,6 +19,9 @@
 ---@field opponents_count integer number of creatures it is in battle with, combined ranged and melee
 ---@field opponents_melee_count integer number of creatures it is in melee battle with
 ---@field opponents_ranged_count integer number of creatures it is in ranged battle
+---@field battle_enemy Thing|nil ***read-only*** the thing this creature is fighting, nil when not in combat. Can be a creature, object, door or trap.
+---@field combat_type string|nil ***read-only*** kind of combat: "MELEE", "RANGED", "WAITING", "OBJECT", "DOOR", or nil when not fighting. "WAITING" means all attacker slots on the enemy are taken, the creature stays nearby until one frees up.
+---@field battle_id integer ***read-only*** id of the battle the creature takes part in, 0 when not fighting. Creatures sharing an id fight in the same battle.
 ---@field hunger_level integer hunger points of creature, increases by one each turn until hunger is started
 ---@field hunger_amount integer amount of chickens it will grab to eat
 ---@field hunger_loss integer amount of chickens it won't eat but would have wanted to
