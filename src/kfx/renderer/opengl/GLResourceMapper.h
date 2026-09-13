@@ -28,6 +28,10 @@ public:
     /// @brief Destroys every realized object unconditionally. Render thread only, at shutdown.
     void ShutdownAll();
 
+    /// @brief The framebuffer passes treat as the screen. Render thread only.
+    void SetScreenFramebuffer(GLuint fbo) { m_screen_fbo = fbo; }
+    GLuint GetScreenFramebuffer() const { return m_screen_fbo; }
+
 private:
     enum class SlotState : uint8_t { Free, Pending, Realized, Failed };
 
@@ -58,6 +62,7 @@ private:
         GLGeometryBuffer  realized_geometry_buffer;
     };
     std::vector<PendingDestroy> m_pending_destroys;
+    GLuint m_screen_fbo = 0;
 
     std::mutex m_mutex;
     std::unordered_set<GpuResourceHandle> m_warned_stale;

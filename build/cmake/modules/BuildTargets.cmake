@@ -12,7 +12,7 @@ if(WIN32)
     list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/PlatformLinux\\.cpp$")
 elseif(UNIX AND NOT APPLE)
     list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/PlatformWindows\\.cpp$")
-    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/GLHdrPolicyWin\\.cpp$")
+    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/WindowCompositorWin\\.cpp$")
 endif()
 
 # Window icon

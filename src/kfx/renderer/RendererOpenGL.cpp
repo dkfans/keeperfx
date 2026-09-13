@@ -3,9 +3,9 @@
 #include "bflib_basics.h"
 #include "globals.h"        // ERRORLOG/SYNCDBG
 #include "bflib_video.h"    // lbDisplay
-#include "kfx/platform/WindowSystemSDL.h"
 #include "kfx/platform/IPlatform.h"
-#include "kfx/platform/IGLHdrPolicy.h"
+#include "kfx/platform/IWindowSystem.h"
+#include "kfx/platform/IGLContext.h"
 #include "kfx/renderer/opengl/GLFunctions.h"
 #include "kfx/renderer/opengl/GLSpriteAtlas.h"
 #include "kfx/renderer/opengl/GLUIRenderer.h"
@@ -52,6 +52,17 @@ struct GLFrameData {
     int32_t screen_w = 0;
     int32_t screen_h = 0;
 
+    // Offscreen target the frame is drawn into at screen_w x screen_h.
+    GpuResourceHandle screen_rt = kInvalidGpuResource;
+
+    // Window drawable height and where the frame goes in it (top-left origin).
+    int32_t drawable_w = 0;
+    int32_t drawable_h = 0;
+    int32_t present_x = 0;
+    int32_t present_y = 0;
+    int32_t present_w = 0;
+    int32_t present_h = 0;
+
     float screen_tint[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     // The frame number this GLFrameData was sealed under
@@ -94,7 +105,81 @@ struct RendererOpenGL::Impl {
 
     std::string screenshot_path;
     int         screenshot_fmt = 0;
+
+    int swap_interval = -1; // render thread: interval last applied to the context
+
+    GpuResourceHandle screen_rt_handle = kInvalidGpuResource;
+    int32_t           screen_rt_w = 0;
+    int32_t           screen_rt_h = 0;
+
+    void EnsureScreenTarget(int32_t w, int32_t h);
+    void BindScreenTarget(const GLFrameData& fd);
+    void PresentScreenTarget(const GLFrameData& fd);
 };
+
+// Game thread.
+void RendererOpenGL::Impl::EnsureScreenTarget(int32_t w, int32_t h)
+{
+    if (w <= 0 || h <= 0)
+        return;
+    if (screen_rt_handle != kInvalidGpuResource && screen_rt_w == w && screen_rt_h == h)
+        return;
+    GpuRenderTargetDesc desc;
+    desc.width = w;
+    desc.height = h;
+    desc.attachments = {
+        { GpuTextureFormat::RGBA8, false },
+        { GpuTextureFormat::Depth24Stencil8, true },
+    };
+    desc.debug_name = "screen";
+    if (screen_rt_handle == kInvalidGpuResource)
+        screen_rt_handle = resource_mapper.RequestCreateRenderTarget(desc);
+    else
+        screen_rt_handle = resource_mapper.RequestReloadRenderTarget(screen_rt_handle, desc);
+    screen_rt_w = w;
+    screen_rt_h = h;
+}
+
+void RendererOpenGL::Impl::BindScreenTarget(const GLFrameData& fd)
+{
+    const GLRenderTarget* rt = (fd.screen_rt != kInvalidGpuResource)
+        ? resource_mapper.ResolveRenderTarget(fd.screen_rt) : nullptr;
+    const GLuint fbo = (rt != nullptr) ? rt->fbo : 0;
+    resource_mapper.SetScreenFramebuffer(fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+}
+
+// Copies the finished frame into its place in the window.
+void RendererOpenGL::Impl::PresentScreenTarget(const GLFrameData& fd)
+{
+    const GLuint fbo = resource_mapper.GetScreenFramebuffer();
+    if (fbo == 0 || fd.screen_w <= 0 || fd.screen_h <= 0 || fd.present_w <= 0 || fd.present_h <= 0)
+        return;
+
+    const int dst_x = fd.present_x;
+    const int dst_w = fd.present_w;
+    const int dst_h = fd.present_h;
+    const int dst_y = fd.drawable_h - fd.present_y - fd.present_h;
+
+    GLfloat clear_colour[4];
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, clear_colour);
+    const GLboolean scissor = glIsEnabled(GL_SCISSOR_TEST);
+    glDisable(GL_SCISSOR_TEST);
+
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+    glViewport(0, 0, fd.drawable_w, fd.drawable_h);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBlitFramebuffer(0, 0, fd.screen_w, fd.screen_h,
+                      dst_x, dst_y, dst_x + dst_w, dst_y + dst_h,
+                      GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glClearColor(clear_colour[0], clear_colour[1], clear_colour[2], clear_colour[3]);
+    if (scissor)
+        glEnable(GL_SCISSOR_TEST);
+}
 
 // GL_KHR_debug callback -- surfaces driver-reported errors/warnings (bad
 // texture uploads, shader link failures the compile-time check missed,
@@ -142,57 +227,29 @@ RendererOpenGL::~RendererOpenGL()
 
 bool RendererOpenGL::Init()
 {
-
-    // Todo : Make opaque, this bleeds SDL into OpenGL
-    SDL_Window* window = GetSDLWindowSystem()->GetSDLWindow();
-    if (window == nullptr)
+    IWindowSystem* ws = GetPlatform()->GetWindowSystem();
+    if (ws == nullptr || !ws->HasWindow())
     {
-        ERRORLOG("RendererOpenGL::Init: no SDL window (startup ordering invariant violated -- "
+        ERRORLOG("RendererOpenGL::Init: no window (startup ordering invariant violated -- "
                  "the window must exist before RendererInit() runs)");
         return false;
     }
-    if (!(SDL_GetWindowFlags(window) & SDL_WINDOW_OPENGL))
+
+    m_gl_context = ws->CreateGLContext();
+    if (!m_gl_context)
     {
-        ERRORLOG("RendererOpenGL::Init: window was not created with SDL_WINDOW_OPENGL "
-                 "(startup ordering invariant violated -- see RendererGetRequiredWindowFlags())");
+        ERRORLOG("RendererOpenGL::Init: could not create a GL context "
+                 "(the window needs the flags from RendererGetRequiredWindowFlags())");
         return false;
     }
 
-    // TODO : Create Context from abstraction layer, not direrctly from SDL. This is a temporary solution to get the OpenGL renderer working.
-    SDL_GLContext ctx = SDL_GL_CreateContext(window);
-    if (ctx == nullptr)
+    ws->ShowWindow();
+
+    if (!m_gl_context->ReleaseCurrent())
     {
-        ERRORLOG("RendererOpenGL::Init: SDL_GL_CreateContext failed: %s", SDL_GetError());
+        m_gl_context.reset();
         return false;
     }
-
-    SDL_GL_SetSwapInterval(0);
-
-    {
-        int floatbuf = 0;
-        SDL_GL_GetAttribute(SDL_GL_FLOATBUFFERS, &floatbuf);
-        if (floatbuf != 0)
-        {
-            WARNLOG("RendererOpenGL::Init: driver granted a float (scRGB) backbuffer -- "
-                    "gamma-lift compensation is not implemented on this branch yet "
-                    "(see develop's FGApplyScrgbLift); colours will look washed out "
-                    "until it is ported");
-        }
-    }
-
-    SDL_ShowWindow(window);
-
-    GetPlatform()->GetGLHdrPolicy()->OnContextReady(window,
-        (GetSDLWindowSystem()->GetWindowFlags() & KFX_WF_FULLSCREEN_DESKTOP) != 0);
-
-    if (!SDL_GL_MakeCurrent(window, nullptr))
-    {
-        ERRORLOG("RendererOpenGL::Init: failed to release GL context on the game thread: %s", SDL_GetError());
-        SDL_GL_DestroyContext(ctx);
-        GetPlatform()->GetGLHdrPolicy()->Shutdown();
-        return false;
-    }
-    m_gl_context = ctx;
 
     m_impl = new Impl();
 
@@ -207,8 +264,7 @@ bool RendererOpenGL::Init()
         m_impl->thread_mgr.Stop();
         delete m_impl;
         m_impl = nullptr;
-        m_gl_context = nullptr; // destroyed by render_thread_cleanup()
-        GetPlatform()->GetGLHdrPolicy()->Shutdown();
+        m_gl_context.reset(); // already destroyed by render_thread_cleanup()
         return false;
     }
 
@@ -222,29 +278,21 @@ void RendererOpenGL::Shutdown()
         m_impl->thread_mgr.Stop(); // runs render_thread_cleanup() on the render thread, joins
         delete m_impl;
         m_impl = nullptr;
-        m_gl_context = nullptr; // destroyed by render_thread_cleanup()
     }
-    if (m_gl_context != nullptr)
-    {
-        SDL_GL_DestroyContext(static_cast<SDL_GLContext>(m_gl_context));
-        m_gl_context = nullptr;
-    }
-    GetPlatform()->GetGLHdrPolicy()->Shutdown();
+    m_gl_context.reset();
 }
 
 // Render thread. Everything that creates or touches GL state lives here so
 // it all runs on the thread that ends up owning the context.
 void RendererOpenGL::render_thread_init()
 {
-    SDL_GLContext ctx = static_cast<SDL_GLContext>(m_gl_context);
-    if (!SDL_GL_MakeCurrent(GetSDLWindowSystem()->GetSDLWindow(), ctx))
+    if (!m_gl_context->MakeCurrent())
     {
-        ERRORLOG("RendererOpenGL::Init: SDL_GL_MakeCurrent failed: %s", SDL_GetError());
         m_impl->init_ok = false;
         return;
     }
 
-    if (!GLFunctions_Load())
+    if (!GLFunctions_Load(m_gl_context->GetProcLoader()))
     {
         ERRORLOG("RendererOpenGL::Init: failed to load required GL entry points");
         m_impl->init_ok = false;
@@ -403,12 +451,15 @@ void RendererOpenGL::render_thread_work()
 
     RenderGraph::Execute(*this);
 
-    SDL_GL_SwapWindow(GetSDLWindowSystem()->GetSDLWindow());
+    m_impl->PresentScreenTarget(fd);
 
-    // DXGI factory calls are free-threaded -- safe to call from the render
-    // thread even though the policy was selected on the game thread in
-    // Init(). Matches develop's platform_swap_gl_buffers().
-    GetPlatform()->GetGLHdrPolicy()->OnPresent();
+    const int want_interval = vsync_enabled ? 1 : 0;
+    if (want_interval != m_impl->swap_interval)
+    {
+        m_gl_context->SetSwapInterval(want_interval);
+        m_impl->swap_interval = want_interval;
+    }
+    m_gl_context->SwapBuffers();
 }
 
 void RendererOpenGL::FGClearFrame()
@@ -418,6 +469,7 @@ void RendererOpenGL::FGClearFrame()
     m_impl->world.SetScreenSize(fd.screen_w, fd.screen_h);
     m_impl->ui.SetScreenSize(fd.screen_w, fd.screen_h);
 
+    m_impl->BindScreenTarget(fd);
     glViewport(0, 0, fd.screen_w, fd.screen_h);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -566,6 +618,7 @@ void RendererOpenGL::FGCaptureScreenshot()
     }
 
     std::vector<unsigned char> pixels((size_t)w * (size_t)h * 4);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_impl->resource_mapper.GetScreenFramebuffer());
     glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
     // GL's origin is bottom-left; flip rows for a top-down image file.
@@ -608,11 +661,7 @@ void RendererOpenGL::render_thread_cleanup()
         m_impl->imgpresent.Shutdown();
         m_impl->zoomboxtiles.Shutdown();
     }
-    if (m_gl_context != nullptr)
-    {
-        SDL_GL_DestroyContext(static_cast<SDL_GLContext>(m_gl_context));
-        m_gl_context = nullptr;
-    }
+    m_gl_context.reset();
 }
 
 void RendererOpenGL::SetDisplayPalette(const unsigned char* rgb8)
@@ -631,7 +680,7 @@ void RendererOpenGL::SetDisplayPalette(const unsigned char* rgb8)
 
 void RendererOpenGL::PresentFrame()
 {
-    if (m_gl_context == nullptr || GetSDLWindowSystem()->GetSDLWindow() == nullptr || m_impl == nullptr)
+    if (!m_gl_context || m_impl == nullptr || !GetPlatform()->GetWindowSystem()->HasWindow())
         return;
 
     RenderTaskProducerRegistry_ProduceAll(RendererFrameCounter_Current());
@@ -686,6 +735,20 @@ void RendererOpenGL::PresentFrame()
     GLFrameData& filled_fd = m_impl->frames[filled];
     filled_fd.screen_w = (int32_t)RendererPhysicalWidth();
     filled_fd.screen_h = (int32_t)lbDisplay.PhysicalScreenHeight;
+    m_impl->EnsureScreenTarget(filled_fd.screen_w, filled_fd.screen_h);
+    filled_fd.screen_rt = m_impl->screen_rt_handle;
+    {
+        const IWindowSystem* ws = GetPlatform()->GetWindowSystem();
+        int dw = 0, dh = 0, px = 0, py = 0, pw = 0, ph = 0;
+        ws->GetDrawableSize(&dw, &dh);
+        ws->GetPresentRect(&px, &py, &pw, &ph);
+        filled_fd.drawable_w = dw;
+        filled_fd.drawable_h = dh;
+        filled_fd.present_x = px;
+        filled_fd.present_y = py;
+        filled_fd.present_w = pw;
+        filled_fd.present_h = ph;
+    }
     std::memcpy(filled_fd.screen_tint, g_screen_tint, sizeof(filled_fd.screen_tint));
     filled_fd.sealed_frame_number = RendererFrameCounter_Current();
 

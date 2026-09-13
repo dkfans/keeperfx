@@ -3,6 +3,9 @@
 
 #include "kfx/renderer/IRenderer.h"
 #include "kfx/renderer/IFrameGraphExecutor.h"
+#include <memory>
+
+class IGLContext;
 
 class RendererOpenGL : public IRenderer, public IFrameGraphExecutor {
 public:
@@ -67,8 +70,7 @@ private:
     struct Impl;
     Impl* m_impl = nullptr;
 
-    // SDL_GLContext, kept opaque so this header doesn't need SDL/GL headers.
-    void* m_gl_context = nullptr;
+    std::unique_ptr<IGLContext> m_gl_context;
 
     void render_thread_init();
     void render_thread_work();

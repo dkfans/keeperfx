@@ -2,12 +2,11 @@
 #include "kfx/renderer/opengl/GLFunctions.h"
 #include "bflib_basics.h"
 #include "globals.h" // ERRORLOG
-#include <SDL3/SDL.h>
 #include "post_inc.h"
 
-bool GLFunctions_Load()
+bool GLFunctions_Load(void* (*proc_loader)(const char* name))
 {
-    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
+    if (proc_loader == nullptr || !gladLoadGLLoader((GLADloadproc)proc_loader))
     {
         ERRORLOG("GLFunctions_Load: gladLoadGLLoader failed");
         return false;

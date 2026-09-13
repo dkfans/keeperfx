@@ -47,7 +47,10 @@ unsigned int RendererGetRequiredWindowFlags(RendererType type)
 {
     switch (RendererResolveType(type))
     {
-        case RENDERER_OPENGL: return KFX_WF_OPENGL;
+        // GL presents can bypass the compositor when the window exactly covers a
+        // monitor, and a real display mode change does the same, so GL scales
+        // into a composited desktop fullscreen window instead.
+        case RENDERER_OPENGL: return KFX_WF_OPENGL | KFX_WF_KEEP_COMPOSITED | KFX_WF_DESKTOP_FULLSCREEN_ONLY;
         default:               return 0;
     }
 }

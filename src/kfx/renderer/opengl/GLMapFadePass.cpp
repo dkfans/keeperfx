@@ -158,7 +158,7 @@ void GLMapFadePass::BeginParchmentCapture(int w, int h)
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
         ERRORLOG("GLMapFadePass: parchment FBO incomplete (0x%x) -- transition will show a blank parchment side this run", (unsigned)status);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_resource_mapper->GetScreenFramebuffer());
         return;
     }
 
@@ -170,7 +170,7 @@ void GLMapFadePass::BeginParchmentCapture(int w, int h)
 void GLMapFadePass::EndParchmentCapture()
 {
     ASSERT_RENDER_THREAD();
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_resource_mapper ? m_resource_mapper->GetScreenFramebuffer() : 0);
 }
 
 void GLMapFadePass::CaptureWorldFrame(int w, int h)
@@ -188,7 +188,7 @@ void GLMapFadePass::CaptureWorldFrame(int w, int h)
 
     if (glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
     {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_resource_mapper->GetScreenFramebuffer());
         glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     }
     else
@@ -196,7 +196,7 @@ void GLMapFadePass::CaptureWorldFrame(int w, int h)
         ERRORLOG("GLMapFadePass: world-capture FBO incomplete -- transition will show a blank world side this run");
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_resource_mapper->GetScreenFramebuffer());
     glDeleteFramebuffers(1, &tmp_fbo);
 }
 

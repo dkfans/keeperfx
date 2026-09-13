@@ -180,8 +180,11 @@ void RendererSoftware::PresentFrame()
         return;
     }
     SDL_UnlockTexture(m_texture);
+    int px = 0, py = 0, pw = 0, ph = 0;
+    GetSDLWindowSystem()->GetPresentRect(&px, &py, &pw, &ph);
+    const SDL_FRect dst = { (float)px, (float)py, (float)pw, (float)ph };
     SDL_RenderClear(m_renderer);
-    SDL_RenderTexture(m_renderer, m_texture, NULL, NULL);
+    SDL_RenderTexture(m_renderer, m_texture, NULL, (pw > 0 && ph > 0) ? &dst : NULL);
     SDL_RenderPresent(m_renderer);
     LbMouseOnEndSwap();
 }

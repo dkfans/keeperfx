@@ -691,7 +691,7 @@ void GLWorldViewRenderer::ResolveLensComposite()
     ASSERT_RENDER_THREAD();
     if (!m_resource_mapper) return;
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_resource_mapper->GetScreenFramebuffer());
 
     upload_lens_textures_if_dirty();
 

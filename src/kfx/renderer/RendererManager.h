@@ -36,8 +36,8 @@ RendererType RendererGetActiveType(void);
 
 RendererType RendererResolveType(RendererType requested);
 
-// SDL3 window-creation flags (KfxWindowFlags, bflib_video.h) required by a
-// given backend -- e.g. KFX_WF_OPENGL for RENDERER_OPENGL. Queried by
+// Window flags (KfxWindowFlags, bflib_video.h) required by a given backend --
+// e.g. KFX_WF_OPENGL for RENDERER_OPENGL. Queried by
 // LbScreenSetup() before the one-and-only SDL_CreateWindow() call, so the
 // window is born with the correct flags instead of being destroyed and
 // recreated later to add them.

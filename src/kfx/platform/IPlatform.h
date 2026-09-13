@@ -5,7 +5,7 @@
 #include "bflib_sound.h"  // SoundVolume
 
 class IWindowSystem;
-class IGLHdrPolicy;
+struct SDL_Window;
 struct TbFileFind;
 struct TbFileEntry;
 
@@ -57,8 +57,12 @@ public:
     /** The window system backing this platform (SDL desktop backend). */
     virtual IWindowSystem* GetWindowSystem();
 
-    /** HDR/compositor policy for the GL backend on this host. Never null. */
-    virtual IGLHdrPolicy* GetGLHdrPolicy();
+    /** Adjust a desktop-fullscreen window so the OS compositor keeps compositing
+     *  it, rather than letting the driver present it straight to the display. */
+    virtual void KeepFullscreenWindowComposited(SDL_Window* /*window*/) {}
+
+    /** Log display and HDR details for the game window. */
+    virtual void LogDisplayDiagnostics(SDL_Window* /*window*/) {}
 };
 
 /** The platform implementation selected for this build target. */

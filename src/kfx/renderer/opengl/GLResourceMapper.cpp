@@ -760,6 +760,9 @@ bool GLResourceMapper::RealizeRenderTarget(const GpuRenderTargetDesc& desc, GLRe
         return false;
     }
 
+    // Realization can happen mid-frame, so put back whatever was bound.
+    GLint prev_fbo = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prev_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
     std::vector<GLuint> color_attachments;
@@ -783,7 +786,7 @@ bool GLResourceMapper::RealizeRenderTarget(const GpuRenderTargetDesc& desc, GLRe
         if (!RealizeTexture(tex_desc, att_tex))
         {
             ERRORLOG("GLResourceMapper::RealizeRenderTarget: failed to create attachment texture");
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prev_fbo);
             glDeleteFramebuffers(1, &fbo);
             return false;
         }
@@ -808,7 +811,7 @@ bool GLResourceMapper::RealizeRenderTarget(const GpuRenderTargetDesc& desc, GLRe
     }
 
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prev_fbo);
 
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {

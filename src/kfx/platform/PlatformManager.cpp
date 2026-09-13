@@ -10,7 +10,6 @@
 #include "kfx/platform/PlatformManager.h"
 #include "kfx/platform/WindowSystemSDL.h"
 #include "kfx/platform/IPlatform.h"
-#include "kfx/platform/GLHdrPolicyNull.h"
 #include "kfx/platform/PlatformWindows.h"
 #include "kfx/platform/PlatformLinux.h"
 #include "kfx/platform/FileFind.h"
@@ -23,10 +22,6 @@
 /******************************************************************************/
 
 IWindowSystem* IPlatform::GetWindowSystem() { return GetSDLWindowSystem(); }
-
-// Default: no compositor mutations, host owns HDR. PlatformWindows overrides
-// this with the DXGI policy on native Windows.
-IGLHdrPolicy* IPlatform::GetGLHdrPolicy() { return &g_hdr_policy_null; }
 
 IPlatform* GetPlatform()
 {
@@ -197,6 +192,18 @@ extern "C" int PlatformManager_CreateWindow(const char* title, int x, int y, int
 {
     IWindowSystem* ws = GetSDLWindowSystem();
     return (ws && ws->CreateWindow(title, x, y, w, h, flags)) ? 1 : 0;
+}
+
+extern "C" void PlatformManager_SetGameSurfaceSize(int w, int h)
+{
+    IWindowSystem* ws = GetSDLWindowSystem();
+    if (ws) ws->SetGameSurfaceSize(w, h);
+}
+
+extern "C" int PlatformManager_GetCursorPosition(int* x, int* y)
+{
+    IWindowSystem* ws = GetSDLWindowSystem();
+    return (ws && ws->GetCursorPosition(x, y)) ? 1 : 0;
 }
 
 extern "C" void PlatformManager_WarpCursor(int x, int y)
