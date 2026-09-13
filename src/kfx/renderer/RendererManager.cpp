@@ -235,6 +235,13 @@ TbBool RendererCompositesMinimapBackground(void)
     return (s_active_renderer != nullptr) ? (TbBool)s_active_renderer->GetCapabilities().compositesMinimapBackground : 0;
 }
 
+TbBool RendererCanDraw(void)
+{
+    if (LbScreenIsLocked())
+        return 1;
+    return (s_active_renderer != nullptr) ? (TbBool)s_active_renderer->GetCapabilities().hasGPURenderPath : 0;
+}
+
 TbBool RendererWantsFullscreenViewport(void)
 {
     return (s_active_renderer != nullptr) ? (TbBool)s_active_renderer->GetCapabilities().wantsFullscreenViewport : 0;

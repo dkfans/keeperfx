@@ -144,6 +144,11 @@ TbBool RendererScheduleScreenshot(const char* path, int fmt);
  *  See IRenderer::BackendCapabilities::compositesMinimapBackground. */
 TbBool RendererCompositesMinimapBackground(void);
 
+/** True when draws made now reach the current frame: the software framebuffer
+ *  is locked, or the backend records draws to render later. Use this, not
+ *  LbScreenIsLocked(), to decide whether to draw. */
+TbBool RendererCanDraw(void);
+
 /** True when the active backend wants the 3D world drawn at the full screen
  *  rect, with UI composited on top, instead of the engine window itself
  *  clipped to make room for the sidebar. */
