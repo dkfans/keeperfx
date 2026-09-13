@@ -157,11 +157,6 @@ TbBool RendererCompositesMinimapBackground(void);
  *  is locked, or the backend records draws to render later. */
 TbBool RendererCanDraw(void);
 
-/** True when the active backend wants the 3D world drawn at the full screen
- *  rect, with UI composited on top, instead of the engine window itself
- *  clipped to make room for the sidebar. */
-TbBool RendererWantsFullscreenViewport(void);
-
 // Full-screen tint overlay (pain/possession vignette). Plain ambient state,
 // backend-agnostic -- GL blends a fullscreen quad from it each frame
 // (FGDrawScreenTint()); software has no consumer (see
