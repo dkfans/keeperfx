@@ -283,6 +283,7 @@ extern struct LocalState {
     unsigned char view_type;
     TbBool tooltips_restore; /**< Used to store/restore the value of settings.tooltips_on when transitioning to/from the map. */
     TbBool status_menu_restore; /**< Used to store/restore the current status menu visibility when the map is shown/hidden. */
+    TbBool status_menu_hidden_for_map; /**< The status menu is hidden for the map and status_menu_restore holds its visibility. */
     TbBool paused_state_restore; /**< Used to restore pause state after saving */
     TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
     unsigned char *lens_palette;

@@ -424,6 +424,8 @@ void set_gui_visible(TbBool visible);
 void toggle_gui(void);
 void add_message(long plyr_idx, char *msg);
 unsigned long toggle_status_menu(short visib);
+void hide_status_menu_for_map(void);
+void restore_status_menu_after_map(void);
 TbBool toggle_first_person_menu(TbBool visible);
 void toggle_gui_overlay_map(void);
 

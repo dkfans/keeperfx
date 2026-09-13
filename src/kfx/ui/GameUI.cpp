@@ -37,6 +37,9 @@ bool GameUI::IsActiveForCurrentView(const struct PlayerInfo* player) const
         || player->view_type == PVT_MapFadeIn
         || player->view_type == PVT_MapFadeOut)
         return false;
+
+    if (player->view_mode == PVM_ParchFadeIn || player->view_mode == PVM_ParchFadeOut)
+        return false;
     return true;
 }
 

@@ -525,26 +525,29 @@ void RendererOpenGL::FGResolveWorldCapture()
     }
 }
 
-void RendererOpenGL::FGExecuteMapFade()
+void RendererOpenGL::FGCaptureMapFadeWorld()
 {
+    if (!m_impl->mapfade.IsCapturePendingRT())
+        return;
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
-    if (m_impl->mapfade.IsActiveRT())
-    {
-        if (m_impl->mapfade.IsCapturePendingRT())
-        {
-            m_impl->mapfade.BeginParchmentCapture(fd.screen_w, fd.screen_h);
-            m_impl->ui.DrawFromIR(fd.parchment_ui_cmds, fd.parchment_text_cmds, &m_impl->text);
-            m_impl->mapfade.EndParchmentCapture();
-        }
-        m_impl->mapfade.ResolveComposite(fd.screen_w, fd.screen_h);
-    }
+    m_impl->mapfade.CaptureWorldFrame(fd.screen_w, fd.screen_h);
+    // The parchment draws that follow need a clean screen, as the parchment view has.
+    glViewport(0, 0, fd.screen_w, fd.screen_h);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void RendererOpenGL::FGCaptureWorldFrameIfPending()
+void RendererOpenGL::FGResolveMapFade()
 {
+    if (!m_impl->mapfade.IsActiveRT())
+        return;
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
-    if (m_impl->mapfade.IsActiveRT() && m_impl->mapfade.IsCapturePendingRT())
-        m_impl->mapfade.CaptureWorldFrame(fd.screen_w, fd.screen_h);
+    if (m_impl->mapfade.IsCapturePendingRT())
+    {
+        m_impl->ui.DrawFromIR(fd.parchment_ui_cmds, fd.parchment_text_cmds, &m_impl->text);
+        m_impl->mapfade.CaptureParchmentFrame(fd.screen_w, fd.screen_h);
+    }
+    m_impl->mapfade.ResolveComposite(fd.screen_w, fd.screen_h);
 }
 
 void RendererOpenGL::FGExecuteImagePresents()

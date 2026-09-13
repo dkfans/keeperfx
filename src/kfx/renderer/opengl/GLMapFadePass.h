@@ -51,20 +51,16 @@ public:
     bool IsActiveRT() const { return m_rt_cmd.active; }
     bool IsCapturePendingRT() const { return m_rt_cmd.active && m_rt_cmd.capture_pending; }
 
-    /** Bind (creating/resizing if needed) the parchment capture FBO and
-     *  clear it. Caller then issues whatever draws should land in it
-     *  (GLUIRenderer::DrawFromIR() against the diverted parchment IR
-     *  buffers) before calling EndParchmentCapture(). Only valid to call
-     *  when IsCapturePendingRT() is true. */
-    void BeginParchmentCapture(int w, int h);
-
-    void EndParchmentCapture();
-
+    /** Copy the screen target into the world side of the transition. Call
+     *  once the world is drawn and before anything of the parchment is. */
     void CaptureWorldFrame(int w, int h);
 
+    /** Copy the screen target into the parchment side of the transition.
+     *  Call once the whole parchment view is drawn. */
+    void CaptureParchmentFrame(int w, int h);
+
     /** Draw the full-screen wipe composite (MAPFADE_FRAGMENT_SHADER,
-     *  sampling m_tex_parchment/m_tex_world) over whatever is currently in
-     *  the default framebuffer. */
+     *  sampling the parchment and world snapshots) over the screen target. */
     void ResolveComposite(int screen_w, int screen_h);
 
 private:

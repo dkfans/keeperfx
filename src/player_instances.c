@@ -757,7 +757,7 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, int32_t *n)
         local_state.palette_fade_step_map = 0;
         local_state.tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
         settings.tooltips_on = false; // don't show tooltips during the fade
-        local_state.status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible)
+        hide_status_menu_for_map();
   }
   set_engine_view(player, PVM_ParchFadeIn);
   return 0;
@@ -804,7 +804,7 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, int32_t *n)
     set_engine_view(player, player->view_mode_restore);
     if (player->id_number == myplyr->id_number) {
         settings.tooltips_on = local_state.tooltips_restore; // restore tooltips setting after the fade is completed
-        toggle_status_menu(local_state.status_menu_restore); // restore the status menu visiblity now that the map is no longer visible
+        restore_status_menu_after_map();
     }
     player->allocflags &= ~PlaF_MouseInputDisabled;
     return 0;

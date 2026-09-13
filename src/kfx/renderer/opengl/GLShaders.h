@@ -898,8 +898,8 @@ void main()
     float uv_wy = clamp(fy + ww * 4.0 * (1.0 - 2.0 * fy) / xmax, 0.0, 1.0);
     float samp_py = 1.0 - uv_py;
     float samp_wy = 1.0 - uv_wy;
-    float f_parch = wp / 32.0;
-    float f_world = ww / 32.0;
+    float f_parch = a6 / 32.0;
+    float f_world = (32.0 - a6) / 32.0;
     vec3 c_parch = texture(u_parchment, vec2(uv_px, samp_py)).rgb * f_parch;
     vec3 c_world = texture(u_world,     vec2(uv_wx, samp_wy)).rgb * f_world;
     fragColor = vec4(clamp(c_parch + c_world, 0.0, 1.0), 1.0);

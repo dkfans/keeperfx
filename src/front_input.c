@@ -2973,7 +2973,7 @@ static short get_inputs(void)
         {
           if (!network_is_active())
             game.operation_flags &= ~GOF_Paused;
-          local_state.status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
+          hide_status_menu_for_map();
           set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
         }
         return false;

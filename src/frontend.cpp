@@ -2146,6 +2146,24 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
  * @param visible If TRUE show the menu, if FALSE hide the menu
  * @return The visibility of the menu before this function was called (used to store the user's previous setting when the menu is forcibly hidden).
  */
+/** Hides the status menu while the map is up. Calling it again before the
+ *  restore keeps the visibility saved by the first call. */
+void hide_status_menu_for_map(void)
+{
+    if (local_state.status_menu_hidden_for_map)
+        return;
+    local_state.status_menu_restore = toggle_status_menu(0);
+    local_state.status_menu_hidden_for_map = true;
+}
+
+void restore_status_menu_after_map(void)
+{
+    if (!local_state.status_menu_hidden_for_map)
+        return;
+    toggle_status_menu(local_state.status_menu_restore);
+    local_state.status_menu_hidden_for_map = false;
+}
+
 unsigned long toggle_status_menu(short visible)
 {
   static TbBool room_on = false;

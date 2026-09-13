@@ -145,32 +145,24 @@ void GLMapFadePass::EnsureCaptureResources(int w, int h)
     m_capture_gt_h = h;
 }
 
-void GLMapFadePass::BeginParchmentCapture(int w, int h)
+void GLMapFadePass::CaptureParchmentFrame(int w, int h)
 {
     ASSERT_RENDER_THREAD();
     if (!m_resource_mapper) return;
     const GLRenderTarget* rt = m_resource_mapper->ResolveRenderTarget(m_parchment_rt_handle);
-    if (!rt) return;
+    if (!rt || w <= 0 || h <= 0) return;
 
-    glBindFramebuffer(GL_FRAMEBUFFER, rt->fbo);
-
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rt->fbo);
+    if (glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
     {
-        ERRORLOG("GLMapFadePass: parchment FBO incomplete (0x%x) -- transition will show a blank parchment side this run", (unsigned)status);
-        glBindFramebuffer(GL_FRAMEBUFFER, m_resource_mapper->GetScreenFramebuffer());
-        return;
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_resource_mapper->GetScreenFramebuffer());
+        glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     }
-
-    glViewport(0, 0, w, h);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void GLMapFadePass::EndParchmentCapture()
-{
-    ASSERT_RENDER_THREAD();
-    glBindFramebuffer(GL_FRAMEBUFFER, m_resource_mapper ? m_resource_mapper->GetScreenFramebuffer() : 0);
+    else
+    {
+        ERRORLOG("GLMapFadePass: parchment FBO incomplete -- transition will show a blank parchment side this run");
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, m_resource_mapper->GetScreenFramebuffer());
 }
 
 void GLMapFadePass::CaptureWorldFrame(int w, int h)
