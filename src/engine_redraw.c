@@ -232,29 +232,20 @@ static void draw_creature_view_icons(struct Thing* creatng)
     }
 }
 
+int32_t engine_window_reserved_left(void)
+{
+    if ((game.operation_flags & GOF_ShowGui) == 0)
+        return 0;
+    return (viewport_mode == VpMode_Original) ? status_panel_width : 0;
+}
+
 void setup_engine_window(long x, long y, long width, long height)
 {
     SYNCDBG(6,"Starting for size (%ld,%ld) at (%ld,%ld)",width,height,x,y);
-    if ((game.operation_flags & GOF_ShowGui) != 0)
-    {
-      if (x > MyScreenWidth)
-        x = MyScreenWidth;
-      if (RendererWantsFullscreenViewport())
-      {
-        if (x < 0)
-          x = 0;
-      }
-      else if (x < status_panel_width)
-      {
-        x = status_panel_width;
-      }
-    } else
-    {
-      if (x > MyScreenWidth)
-        x = MyScreenWidth;
-      if (x < 0)
-        x = 0;
-    }
+    if (x > MyScreenWidth)
+      x = MyScreenWidth;
+    if (x < engine_window_reserved_left())
+      x = engine_window_reserved_left();
     if (y > MyScreenHeight)
       y = MyScreenHeight;
     if (y < 0)

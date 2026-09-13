@@ -1178,10 +1178,8 @@ void centre_engine_window(void)
 {
     long window_center_x;
     long window_center_y;
-    if ((game.operation_flags & GOF_ShowGui) != 0)
-      window_center_x = (MyScreenWidth-local_state.engine_window_width-status_panel_width) / 2 + status_panel_width;
-    else
-      window_center_x = (MyScreenWidth-local_state.engine_window_width) / 2;
+    int32_t reserved = engine_window_reserved_left();
+    window_center_x = (MyScreenWidth-local_state.engine_window_width-reserved) / 2 + reserved;
     window_center_y = (MyScreenHeight-local_state.engine_window_height) / 2;
     setup_engine_window(window_center_x, window_center_y, local_state.engine_window_width, local_state.engine_window_height);
 }
