@@ -5,6 +5,7 @@
 #include "kfx/renderer/ir/UICommands.h" // IRUILayer
 #include "kfx/renderer/GpuResourceHandle.h"
 #include <atomic>
+#include <mutex>
 #include <vector>
 #include <unordered_map>
 #include <cstdint>
@@ -177,8 +178,10 @@ private:
 
     GpuResourceHandle m_slab_tex_handle = kInvalidGpuResource;
     int m_slab_dim = 0; // RT: dimension of the currently-uploaded texture, 0 = none yet
-    std::atomic<const unsigned char*> m_slab_pending_data{nullptr}; // GT->RT handoff
-    std::atomic<int> m_slab_pending_dim{0};
+    // GT->RT handoff. A copy: the game can free its slab data before the upload runs.
+    std::mutex m_slab_mutex;
+    std::vector<uint8_t> m_slab_pending;
+    int m_slab_pending_dim = 0;
 
     void FlushPendingSlabUpload();
 

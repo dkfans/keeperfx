@@ -75,10 +75,10 @@ unsigned char* UIRenderer_AcquireMinimapBuffer(int32_t size);
 void UIRenderer_SubmitMinimap(int32_t screen_x, int32_t screen_y, int32_t size,
                               const int32_t *shape_start, const int32_t *shape_end);
 
-/** Drops every cached sprite/glyph handle. Call whenever any
- *  sprite sheet frees -- see IUIRenderer::ClearSpriteHandleCache(). Returns
- *  the number of entries cleared. */
-int32_t RendererClearSpriteHandleCache(void);
+/** Drops cached handles for `count` sprites starting at `first`. Call when
+ *  that sprite memory is freed or moved -- see IUIRenderer::ForgetSprites().
+ *  Returns the number of entries dropped. */
+int32_t RendererForgetSprites(const struct TbSprite *first, long count);
 
 #ifdef __cplusplus
 }

@@ -245,9 +245,15 @@ SpriteHandle GLUIRenderer::ResolveDbcGlyph(const struct AsianFont* font, uint32_
     if (!font) return kInvalidSpriteHandle;
 
     const uint64_t key = ((uint64_t)(uintptr_t)font << 20) | (uint64_t)(codepoint & 0xFFFFFu);
+    SpriteHandle handle = kInvalidSpriteHandle;
     auto it = m_dbc_glyph_handles.find(key);
     if (it != m_dbc_glyph_handles.end())
-        return it->second;
+    {
+        handle = it->second;
+        if (!m_atlas || m_atlas->Contains(handle))
+            return handle;
+        // Dropped by an atlas reset; expand and pack it again below.
+    }
 
     const unsigned char* data = nullptr;
     int scanline = 0, w = 0, h = 0, spacing = 0, voffset = 0;
@@ -255,8 +261,11 @@ SpriteHandle GLUIRenderer::ResolveDbcGlyph(const struct AsianFont* font, uint32_
         || !data || w <= 0 || h <= 0)
         return kInvalidSpriteHandle;
 
-    SpriteHandle handle = m_next_dbc_handle++;
-    m_dbc_glyph_handles[key] = handle;
+    if (handle == kInvalidSpriteHandle)
+    {
+        handle = m_next_dbc_handle++;
+        m_dbc_glyph_handles[key] = handle;
+    }
 
     // Expand the 1bpp bitmap (MSB-first per byte, matching bflib_sprfnt.c's
     // dbc_draw_font_sprite()) into 8-bit-per-pixel "palette index" bytes so
@@ -292,21 +301,23 @@ GLUIRenderer::PassType GLUIRenderer::classify(float mode)
 void GLUIRenderer::UpdateSlabTexture(const unsigned char* data, int dim)
 {
     if (!data || dim <= 0) return;
-    // Store dim first (relaxed), then data (release) so the render thread's
-    // acquire-load on data is guaranteed to see dim too -- same ordering
-    // develop's own UpdateSlabTexture() uses.
-    m_slab_pending_dim.store(dim, std::memory_order_relaxed);
-    m_slab_pending_data.store(data, std::memory_order_release);
+    std::lock_guard<std::mutex> guard(m_slab_mutex);
+    m_slab_pending.assign(data, data + (size_t)dim * (size_t)dim);
+    m_slab_pending_dim = dim;
 }
 
 void GLUIRenderer::FlushPendingSlabUpload()
 {
-    const unsigned char* data = m_slab_pending_data.load(std::memory_order_acquire);
-    if (!data) return;
-    int dim = m_slab_pending_dim.load(std::memory_order_relaxed);
-    if (dim <= 0) return;
-    m_slab_pending_data.store(nullptr, std::memory_order_relaxed);
-    m_slab_pending_dim.store(0, std::memory_order_relaxed);
+    std::vector<uint8_t> pending;
+    int dim = 0;
+    {
+        std::lock_guard<std::mutex> guard(m_slab_mutex);
+        if (m_slab_pending_dim <= 0) return;
+        pending.swap(m_slab_pending);
+        dim = m_slab_pending_dim;
+        m_slab_pending_dim = 0;
+    }
+    const unsigned char* data = pending.data();
 
     if (!m_resource_mapper) return; 
     if (m_slab_tex_handle == kInvalidGpuResource)
@@ -616,11 +627,13 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
         }
         case K_Slab: {
             const IRUISlabBackgroundCmd& c = ui.slab_backgrounds.Data()[ref.idx];
-            if (m_slab_dim <= 0 && !m_slab_pending_data.load(std::memory_order_relaxed))
-                break; // no slab texture uploaded (or pending) yet -- nothing to tile
-            const int dim = (m_slab_dim > 0) ? m_slab_dim
-                                              : m_slab_pending_dim.load(std::memory_order_relaxed);
-            if (dim <= 0) break;
+            int dim = m_slab_dim;
+            if (dim <= 0)
+            {
+                std::lock_guard<std::mutex> guard(m_slab_mutex);
+                dim = m_slab_pending_dim;
+            }
+            if (dim <= 0) break; // no slab texture uploaded (or pending) yet -- nothing to tile
             const float u1 = (float)c.w / (float)dim;
             const float v1 = (float)c.h / (float)dim;
             // Opaque backing quad first (blocks world bleed-through under
@@ -850,7 +863,7 @@ void GLUIRenderer::DrawGameUIQuadsInterleaved(std::vector<UIQuad>& quads,
         else
         {
             flush_run();
-            text_renderer->DrawGlyphs(text.draws.Data()[ti++]);
+            text_renderer->DrawGlyphs(text.draws.Data()[ti++], text);
         }
     }
     flush_run();

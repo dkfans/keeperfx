@@ -166,11 +166,11 @@ void UIRenderer_SubmitMinimap(int32_t screen_x, int32_t screen_y, int32_t size,
     if (ui != nullptr) ui->SubmitMinimap(screen_x, screen_y, size, shape_start, shape_end);
 }
 
-int32_t RendererClearSpriteHandleCache(void)
+int32_t RendererForgetSprites(const struct TbSprite *first, long count)
 {
     IUIRenderer* ui = RendererGetActiveUIRenderer();
-    if (ui == nullptr) return 0;
-    return ui->ClearSpriteHandleCache();
+    if (ui == nullptr || count <= 0) return 0;
+    return ui->ForgetSprites(first, (size_t)count);
 }
 
 /******************************************************************************/

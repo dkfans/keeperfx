@@ -5,15 +5,36 @@
 #include <cstring>
 #include <utility>
 #include "kfx/renderer/ir/IRCommandBuffer.h"
+#include "kfx/renderer/SpriteHandle.h"
 
 static constexpr size_t kIRTextMaxLen = 256;
 
+enum class IRTextGlyphKind : uint8_t
+{
+    PaletteSprite, // glyph sampled through the palette
+    ColourSprite,  // glyph drawn flat in `colour`
+    SolidRect,     // underline segment drawn flat in `colour`
+};
+
+// One glyph or underline segment, laid out when the text is submitted so a
+// replay on another thread never reads font memory the game may have freed.
+struct IRTextGlyph
+{
+    IRTextGlyphKind kind   = IRTextGlyphKind::PaletteSprite;
+    uint8_t         colour = 0; // palette index, for ColourSprite and SolidRect
+    SpriteHandle    sprite = kInvalidSpriteHandle;
+    float x = 0.0f, y = 0.0f;
+    float w = 0.0f, h = 0.0f;   // SolidRect only; sprites take their size from the atlas
+    int32_t units_per_px = 16;
+    float alpha = 1.0f;
+};
+
 // LbTextDrawResizedImmediate is a full layout pass over lbTextJustifyWindow/
 // lbTextClipWindow/lbFontPtr; this snapshots that ambient state so a deferred
-// replay reproduces the same layout. Safe only because submit and replay
-// happen on the same thread within the same frame; a real
-// cross-thread gap would need font_generation to actually be checked,
-// not just carried.
+// replay reproduces the same layout. Replaying from `font` is only safe on
+// the thread that submitted it within the same frame (checked against
+// font_generation); a backend replaying on another thread uses the glyphs
+// laid out at submission instead (glyph_first/glyph_count).
 struct IRTextDrawCmd
 {
     int32_t  pos_x        = 0;
@@ -42,6 +63,10 @@ struct IRTextDrawCmd
     uint32_t seq = 0; // shared with UICommandBuffers so a merged replay
                        // recovers true UI+text submission order
 
+    // Range in TextCommandBuffers::glyphs, for backends that lay out at submission.
+    uint32_t glyph_first = 0;
+    uint32_t glyph_count = 0;
+
     char text[kIRTextMaxLen] = {};
 
     void SetText(const char* src)
@@ -58,15 +83,16 @@ struct IRTextDrawCmd
 struct TextCommandBuffers
 {
     IRCommandBuffer<IRTextDrawCmd> draws;
+    IRCommandBuffer<IRTextGlyph>   glyphs;
 
     uint32_t  next_seq   = 0;
     uint32_t* shared_seq = nullptr;
 
     uint32_t NextSeq() { return shared_seq ? (*shared_seq)++ : next_seq++; }
 
-    void Reset()   { draws.Reset(); next_seq = 0; }
+    void Reset()   { draws.Reset(); glyphs.Reset(); next_seq = 0; }
     void Reserve(size_t n) { draws.Reserve(n); }
-    void Swap(TextCommandBuffers& other) { draws.Swap(other.draws); std::swap(next_seq, other.next_seq); }
+    void Swap(TextCommandBuffers& other) { draws.Swap(other.draws); glyphs.Swap(other.glyphs); std::swap(next_seq, other.next_seq); }
 };
 
 #endif // RENDERER_IR_TEXTCOMMANDS_H
