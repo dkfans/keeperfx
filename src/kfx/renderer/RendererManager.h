@@ -66,6 +66,9 @@ void RendererPresentFrame(void);
 TbBool RendererBeginFrame(void);
 void   RendererEndFrame(void);
 
+// True between a successful RendererBeginFrame() and its RendererEndFrame().
+TbBool RendererIsFrameOpen(void);
+
 // Palette source for RendererPresentImageDesc::palette.
 #define PRESENT_PALETTE_GAME     0  /* live game palette (default -- existing zero-initialised callers) */
 #define PRESENT_PALETTE_EMBEDDED 1  /* per-present palette carried in embedded_palette (FMV, 256x4 BGRA) */
@@ -145,8 +148,7 @@ TbBool RendererScheduleScreenshot(const char* path, int fmt);
 TbBool RendererCompositesMinimapBackground(void);
 
 /** True when draws made now reach the current frame: the software framebuffer
- *  is locked, or the backend records draws to render later. Use this, not
- *  LbScreenIsLocked(), to decide whether to draw. */
+ *  is locked, or the backend records draws to render later. */
 TbBool RendererCanDraw(void);
 
 /** True when the active backend wants the 3D world drawn at the full screen

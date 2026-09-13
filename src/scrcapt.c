@@ -44,8 +44,8 @@ unsigned char cap_palette[768];
 /******************************************************************************/
 TbBool take_screenshot(char *fname)
 {
-    TbBool lock_mem = LbScreenIsLocked();
-    if (!lock_mem)
+    TbBool frame_open = RendererIsFrameOpen();
+    if (!frame_open)
     {
         if (!RendererBeginFrame())
         {
@@ -54,7 +54,7 @@ TbBool take_screenshot(char *fname)
         }
     }
     TbBool success = RendererScheduleScreenshot(fname, screenshot_format);
-    if (!lock_mem)
+    if (!frame_open)
     {
         RendererEndFrame();
     }
@@ -119,8 +119,8 @@ TbBool movie_record_stop(void)
 
 TbBool movie_record_frame(void)
 {
-    short lock_mem = LbScreenIsLocked();
-    if (!lock_mem)
+    TbBool frame_open = RendererIsFrameOpen();
+    if (!frame_open)
     {
         if (!RendererBeginFrame())
             return false;
@@ -132,7 +132,7 @@ TbBool movie_record_frame(void)
   // surface to read back here yet (needs its own glReadPixels()-based
   // capture path, not yet built).
   short result = (lbDisplay.WScreen != NULL) ? anim_record_frame(lbDisplay.WScreen, cap_palette) : false;
-  if (!lock_mem)
+  if (!frame_open)
     RendererEndFrame();
   return result;
 }

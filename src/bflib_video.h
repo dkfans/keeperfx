@@ -312,8 +312,6 @@ TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode);
 TbScreenMode LbScreenActiveMode(void);
 unsigned short LbGraphicsScreenBPP(void);
 
-TbBool LbScreenIsLocked(void);
-
 TbResult LbScreenWaitVbi(void);
 unsigned short LbGetCurrentDisplayIndex();
 
