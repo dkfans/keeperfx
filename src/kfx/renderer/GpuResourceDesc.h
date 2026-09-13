@@ -5,14 +5,11 @@
 #include <string>
 #include <vector>
 
-// R16UI: unsigned-integer single-channel, GL_R16UI/GL_RED_INTEGER/GL_UNSIGNED_SHORT --
-// added for GLWorldViewRenderer's lightmap texture (Part 6.7), which needs raw
-// 0..16128 lightness values with no float normalization.
-// RG16UI: unsigned-integer two-channel, GL_RG16UI/GL_RG_INTEGER/GL_UNSIGNED_SHORT --
-// added for GLWorldViewRenderer's lens remap/displacement lookup texture
-// (Part 6.7), which stores signed 16-bit (x,y) pairs bit-reinterpreted as
-// unsigned (entries are always >= 0 in practice).
-enum class GpuTextureFormat : uint8_t { R8, RGBA8, RGBA16F, Depth24Stencil8, R16UI, RG16UI };
+
+// Create Texture formats for effectively each of the palette types.
+// At the increse of VRAM, this'll prevent incosistent fuckery with transparent pixels.
+// When I come to do propper colour, this will likely be renamed to '8bit RAW'
+enum class GpuTextureFormat : uint8_t { R8, RGBA8, RGBA16F, Depth24Stencil8, R16UI, RG16UI, RG8 };
 enum class GpuTextureFilter : uint8_t { Nearest, Linear };
 enum class GpuTextureWrap   : uint8_t { Clamp, Repeat };
 

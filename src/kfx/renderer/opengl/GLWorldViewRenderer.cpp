@@ -59,25 +59,26 @@ GLuint GLWorldViewRenderer::ResolveShaderId(GpuResourceHandle handle) const
 /** Max dimension of a keeper-sprite decode buffer (stride for GL_UNPACK_ROW_LENGTH). */
 static constexpr int k_kspr_decode_dim = 256;
 
-/** Scratch buffer used to hold decoded palette indices before upload.
- *  Stride is always k_kspr_decode_dim so glTexSubImage*() can use
- *  GL_UNPACK_ROW_LENGTH regardless of the sprite's actual width. */
-static uint8_t s_kspr_decode_buf[k_kspr_decode_dim * k_kspr_decode_dim];
+/** Scratch buffer used to hold decoded RG pixels (palette index, coverage)
+ *  before upload. Stride is always k_kspr_decode_dim pixels so glTexSubImage*()
+ *  can use GL_UNPACK_ROW_LENGTH regardless of the sprite's actual width. */
+static uint8_t s_kspr_decode_buf[k_kspr_decode_dim * k_kspr_decode_dim * 2];
 
-/** Decode keeper-sprite RLE into a stride-k_kspr_decode_dim palette-index
- *  buffer. Format matches TbSprite.Data: negative cmd = transparent skip,
- *  positive cmd = run of palette-index bytes, 0 = end of row. */
+/** Decode keeper-sprite RLE into a stride-k_kspr_decode_dim RG buffer.
+ *  Format matches TbSprite.Data: negative cmd = transparent skip, positive
+ *  cmd = run of palette-index bytes, 0 = end of row. Every pixel in a run is
+ *  opaque, index 0 included, so coverage is stored separately from the index. */
 static void decode_keeper_rle(uint8_t* dst, const uint8_t* data, int w, int h)
 {
     if (!data || w <= 0 || h <= 0) return;
 
     for (int y = 0; y < h; ++y)
-        memset(dst + y * k_kspr_decode_dim, 0, k_kspr_decode_dim);
+        memset(dst + y * k_kspr_decode_dim * 2, 0, k_kspr_decode_dim * 2);
 
     const signed char* sp     = reinterpret_cast<const signed char*>(data);
     const signed char* sp_end = sp + (ptrdiff_t)w * h * 3 + h;  // generous worst-case bound
     for (int y = 0; y < h; ++y) {
-        uint8_t* row = dst + y * k_kspr_decode_dim;
+        uint8_t* row = dst + y * k_kspr_decode_dim * 2;
         int x = 0;
         while (true) {
             if (sp >= sp_end) {
@@ -95,7 +96,10 @@ static void decode_keeper_rle(uint8_t* dst, const uint8_t* data, int w, int h)
                         WARNLOG("decode_keeper_rle: pixel data past expected end");
                         return;
                     }
-                    if (x < w) row[x] = (uint8_t)(*sp);
+                    if (x < w) {
+                        row[x * 2]     = (uint8_t)(*sp);
+                        row[x * 2 + 1] = 255;
+                    }
                     ++sp;
                     ++x;
                 }
@@ -952,15 +956,15 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
         }
     }
 
-    // Reusable 256x256 R8 texture -- overwritten per sprite. Zero-initialised
-    // so unwritten regions sample as index 0 (transparent) rather than
+    // Reusable 256x256 RG8 texture -- overwritten per sprite. Zero-initialised
+    // so unwritten regions sample as zero coverage (transparent) rather than
     // undefined garbage.
     {
-        static const uint8_t s_zero_256x256[256 * 256] = {};
+        static const uint8_t s_zero_256x256[256 * 256 * 2] = {};
         GpuTextureDesc desc;
         desc.width = 256;
         desc.height = 256;
-        desc.format = GpuTextureFormat::R8;
+        desc.format = GpuTextureFormat::RG8;
         desc.min_filter = GpuTextureFilter::Nearest;
         desc.mag_filter = GpuTextureFilter::Nearest;
         desc.wrap = GpuTextureWrap::Clamp;
@@ -1042,7 +1046,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
         array_desc.width = k_kspr_decode_dim;
         array_desc.height = k_kspr_decode_dim;
         array_desc.array_layers = k_kspr_atlas_layers;
-        array_desc.format = GpuTextureFormat::R8;
+        array_desc.format = GpuTextureFormat::RG8;
         array_desc.min_filter = GpuTextureFilter::Nearest;
         array_desc.mag_filter = GpuTextureFilter::Nearest;
         array_desc.wrap = GpuTextureWrap::Clamp;
@@ -1056,7 +1060,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
             m_kspr_atlas_glow_shader_handle = kInvalidGpuResource;
             break;
         }
-        SYNCLOG("GLWorldViewRenderer: keeper-sprite decode atlas ready (%d layers, 256x256 GL_R8)",
+        SYNCLOG("GLWorldViewRenderer: keeper-sprite decode atlas ready (%d layers, 256x256 GL_RG8)",
                 k_kspr_atlas_layers);
     } while (false);
 
@@ -1525,7 +1529,7 @@ void GLWorldViewRenderer::execute_preload_atlas()
         glPixelStorei(GL_UNPACK_ROW_LENGTH, k_kspr_decode_dim);
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer,
                         ks.SWidth, k_kspr_decode_dim, 1,
-                        GL_RED, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
+                        GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         m_kspr_atlas_map[i] = {layer, ks.SWidth};
         preloaded++;
@@ -1548,7 +1552,7 @@ void GLWorldViewRenderer::execute_preload_atlas()
         glPixelStorei(GL_UNPACK_ROW_LENGTH, k_kspr_decode_dim);
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer,
                         ks.SWidth, k_kspr_decode_dim, 1,
-                        GL_RED, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
+                        GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         m_kspr_atlas_map[sprite_id] = {layer, ks.SWidth};
         preloaded++;
@@ -1571,13 +1575,13 @@ void GLWorldViewRenderer::ensure_clut_valid()
     memcpy(m_kspr_clut_palette_snap, m_rt_palette, sizeof(m_rt_palette));
 
     // Rebuild identity CLUT row 0: palette[i] for all i. DK palette is 6-bit
-    // (0-63); shift left 2 to get 8-bit. Index 0 = transparent (alpha 0).
+    // (0-63); shift left 2 to get 8-bit.
     uint8_t row[256 * 4];
     for (int i = 0; i < 256; i++) {
         row[i*4+0] = (uint8_t)(m_rt_palette[i*3+0] << 2);
         row[i*4+1] = (uint8_t)(m_rt_palette[i*3+1] << 2);
         row[i*4+2] = (uint8_t)(m_rt_palette[i*3+2] << 2);
-        row[i*4+3] = (i == 0) ? 0 : 255;
+        row[i*4+3] = 255;
     }
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, clut_tex->id);
@@ -1654,7 +1658,7 @@ int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned c
         return -1;
 
     // Clear the full scratch buffer before decoding so rows beyond src_h
-    // (uploaded at full k_kspr_decode_dim height) are transparent (index 0).
+    // (uploaded at full k_kspr_decode_dim height) are transparent (coverage 0).
     memset(s_kspr_decode_buf, 0, sizeof(s_kspr_decode_buf));
     decode_keeper_rle(s_kspr_decode_buf, data, src_w, src_h);
     const int atlas_layer = m_kspr_atlas_used++;
@@ -1666,7 +1670,7 @@ int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned c
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
                     0, 0, atlas_layer,
                     src_w, k_kspr_decode_dim, 1,
-                    GL_RED, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
+                    GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     m_kspr_atlas_map[sprite_id] = {atlas_layer, src_w};
     m_kspr_atlas_misses++;
@@ -1696,7 +1700,7 @@ float GLWorldViewRenderer::resolve_clut_v(const unsigned char* remap)
         row_data[ci*4+0] = (uint8_t)(m_rt_palette[ri*3+0] << 2);
         row_data[ci*4+1] = (uint8_t)(m_rt_palette[ri*3+1] << 2);
         row_data[ci*4+2] = (uint8_t)(m_rt_palette[ri*3+2] << 2);
-        row_data[ci*4+3] = (ci == 0) ? 0 : 255;
+        row_data[ci*4+3] = 255;
     }
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, clut_tex->id);
@@ -1750,7 +1754,7 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
 
     const bool additive = (cmd.draw_flags & Lb_SPRITE_ALPHA_ADDITIVE) != 0;
     const unsigned char* remap = cmd.remap_enabled ? cmd.remap_table : nullptr;
-    const bool use_remap = remap && (cmd.draw_flags & Lb_TEXT_UNDERLNSHADOW) && !additive;
+    const bool use_remap = remap && (cmd.draw_flags & Lb_SPRITE_REMAP) && !additive;
 
     const int layer = resolve_atlas_layer(cmd.sprite_id, cmd.data, cmd.src_w, cmd.src_h);
     if (layer < 0)
@@ -1933,7 +1937,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
     if (content_h <= 0 || content_h > src_h) content_h = src_h;
 
     const bool additive = (draw_flags & Lb_SPRITE_ALPHA_ADDITIVE) != 0;
-    const bool use_remap = remap && (draw_flags & Lb_TEXT_UNDERLNSHADOW) && !additive;
+    const bool use_remap = remap && (draw_flags & Lb_SPRITE_REMAP) && !additive;
     int atlas_layer = resolve_atlas_layer(sprite_id, data, src_w, src_h);
 
     float clut_v = 0.5f / (float)k_clut_rows;
@@ -2046,16 +2050,16 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
                 if (use_remap)
                 {
                     for (int oy = 0; oy < src_h; ++oy) {
-                        uint8_t* orow = s_kspr_decode_buf + oy * k_kspr_decode_dim;
+                        uint8_t* orow = s_kspr_decode_buf + oy * k_kspr_decode_dim * 2;
                         for (int ox = 0; ox < src_w; ++ox)
-                            if (orow[ox] != 0) orow[ox] = remap[orow[ox]];
+                            if (orow[ox * 2 + 1] != 0) orow[ox * 2] = remap[orow[ox * 2]];
                     }
                 }
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
                 glPixelStorei(GL_UNPACK_ROW_LENGTH, k_kspr_decode_dim);
                 glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, src_w, src_h,
-                                GL_RED, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
+                                GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
                 glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
                 glUseProgram(prog->id);
@@ -2114,16 +2118,16 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
         if (use_remap)
         {
             for (int y = 0; y < src_h; ++y) {
-                uint8_t* row = s_kspr_decode_buf + y * k_kspr_decode_dim;
+                uint8_t* row = s_kspr_decode_buf + y * k_kspr_decode_dim * 2;
                 for (int x = 0; x < src_w; ++x)
-                    if (row[x] != 0) row[x] = remap[row[x]];
+                    if (row[x * 2 + 1] != 0) row[x * 2] = remap[row[x * 2]];
             }
         }
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, k_kspr_decode_dim);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, src_w, src_h,
-                        GL_RED, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
+                        GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
 

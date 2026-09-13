@@ -141,9 +141,7 @@ TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette
         palette[i+2] = fade_count * (target_color_component - source_color_component) / fade_steps + source_color_component;
     }
     LbScreenWaitVbi();
-    TbResult ret = RendererPaletteSet(palette);
-    RendererPresentFrame();
-    return ret;
+    return RendererPaletteSet(palette);
 }
 
 TbResult LbPaletteStopOpenFade(void)
@@ -169,6 +167,7 @@ long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag f
         {
             if (LbPaletteFadeStep(from_pal,pal,fade_steps) == Lb_FAIL)
                 errors_num++;
+            RendererPresentFrame();
             fade_count++;
         }
         while (fade_count <= fade_steps);

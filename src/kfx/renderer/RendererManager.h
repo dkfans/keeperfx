@@ -156,10 +156,10 @@ TbBool RendererCanDraw(void);
  *  clipped to make room for the sidebar. */
 TbBool RendererWantsFullscreenViewport(void);
 
-// Full-screen tint overlay (pain/possession vignette, death/zoom-to-heart
-// white flash). Plain ambient state, backend-agnostic -- GL blends a
-// fullscreen quad from it each frame (FGDrawScreenTint()); software has no
-// consumer (see RendererApplyPossessionPalette() below for its equivalent).
+// Full-screen tint overlay (pain/possession vignette). Plain ambient state,
+// backend-agnostic -- GL blends a fullscreen quad from it each frame
+// (FGDrawScreenTint()); software has no consumer (see
+// RendererApplyPossessionPalette() below for its equivalent).
 extern float g_screen_tint[4];
 void RendererSetScreenTint(float r, float g, float b, float a);
 

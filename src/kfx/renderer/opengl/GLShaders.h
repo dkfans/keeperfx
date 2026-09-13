@@ -280,15 +280,6 @@ void main()
         col = texture(u_palette, vec2(pal_idx, 0.5));
     }
 
-    // Palette index 0 = void/transparent in DK1 paletted data.
-    // The same convention applies here as in the sprite/UI shader (which also discards index 0).
-    // Without this, world-geometry tiles whose data is all-zero bytes (e.g. the entrance-portal
-    // centre column, or unclaimed portal-floor tiles whose atlas variation is empty) render as
-    // a solid opaque black quad, which is visually wrong.  Making them transparent is correct:
-    // the portal centre is a gateway void, and unset tiles should not occlude anything beneath.
-    if (pal_idx < 0.5 / 255.0)
-        discard;
-
     // --- Palette fade-table lookup (PALETTE and FOG modes, nearest path only) ---
     // In the bilinear path (u_tile_filter == 1) each neighbour is already shaded
     // above, so col already contains the fully shaded and blended colour.
@@ -376,15 +367,15 @@ void main()
 constexpr const char* KSPR_FRAGMENT_SHADER = R"glsl(
 #version 330 core
 in vec2 v_uv;
-uniform sampler2D u_sprite;    // GL_R8  palette-index map (256x256)
+uniform sampler2D u_sprite;    // GL_RG8 palette index (R) + coverage (G), 256x256
 uniform sampler2D u_palette;   // GL_RGBA8 colour table  (256x1)
 uniform float     u_alpha;     // 1.0=solid, 0.5=transpar4, 0.25=transpar8
 out vec4 fragColor;
 void main()
 {
-    float idx = texture(u_sprite, v_uv).r;
-    if (idx < (0.5 / 255.0)) discard;
-    vec4 color = texture(u_palette, vec2(idx, 0.5));
+    vec4 texel = texture(u_sprite, v_uv);
+    if (texel.g < 0.5) discard;
+    vec4 color = texture(u_palette, vec2(texel.r, 0.5));
     fragColor = vec4(color.rgb, u_alpha);
 }
 )glsl";
@@ -436,7 +427,7 @@ void main()
 constexpr const char* KSPR_ARRAY_FRAGMENT_SHADER = R"glsl(
 #version 330 core
 in vec2 v_uv;
-uniform sampler2DArray u_sprite;   // GL_R8 texture array, one layer per unique sprite
+uniform sampler2DArray u_sprite;   // GL_RG8 texture array (index, coverage), one layer per unique sprite
 uniform sampler2D      u_clut;     // GL_RGBA8 256xN CLUT -- row 0=identity, rows 1..N-1=remaps
 uniform float          u_alpha;    // 1.0=solid, 0.5=transpar4, 0.25=transpar8
 uniform float          u_layer;    // layer index in the sprite array
@@ -444,9 +435,9 @@ uniform float          u_clut_v;   // V texcoord selecting the CLUT row
 out vec4 fragColor;
 void main()
 {
-    float idx = texture(u_sprite, vec3(v_uv, u_layer)).r;
-    if (idx < (0.5 / 255.0)) discard;
-    vec4 color = texture(u_clut, vec2(idx, u_clut_v));
+    vec4 texel = texture(u_sprite, vec3(v_uv, u_layer));
+    if (texel.g < 0.5) discard;
+    vec4 color = texture(u_clut, vec2(texel.r, u_clut_v));
     fragColor = vec4(color.rgb, color.a * u_alpha);
 }
 )glsl";
@@ -495,8 +486,7 @@ uniform vec4      u_outline_color;
 out vec4 fragColor;
 void main()
 {
-    float idx = texture(u_sprite, v_uv).r;
-    if (idx < (0.5 / 255.0)) discard;
+    if (texture(u_sprite, v_uv).g < 0.5) discard;
     fragColor = u_outline_color;
 }
 )glsl";
@@ -511,15 +501,14 @@ uniform vec4           u_outline_color;
 out vec4 fragColor;
 void main()
 {
-    float idx = texture(u_sprite, vec3(v_uv, u_layer)).r;
-    if (idx < (0.5 / 255.0)) discard;
+    if (texture(u_sprite, vec3(v_uv, u_layer)).g < 0.5) discard;
     fragColor = u_outline_color;
 }
 )glsl";
 
 // Edge-detect variant of the outline shader (sampler2D). Emits outline
 // colour only at sprite boundary pixels (where at least one cardinal
-// neighbour has palette index 0). Texel step is 1/256 -- the atlas tile
+// neighbour is transparent). Texel step is 1/256 -- the atlas tile
 // dimension is compile-time fixed at 256x256.
 constexpr const char* KSPR_EDGE_FRAGMENT_SHADER = R"glsl(
 #version 330 core
@@ -528,15 +517,15 @@ uniform sampler2D u_sprite;
 uniform vec4      u_outline_color;
 out vec4 fragColor;
 const float kStep = 1.0 / 256.0;
-const float kThr  = 0.5 / 255.0;
+const float kThr  = 0.5;
 void main()
 {
-    float idx = texture(u_sprite, v_uv).r;
+    float idx = texture(u_sprite, v_uv).g;
     if (idx < kThr) discard;
-    float l = texture(u_sprite, v_uv + vec2(-kStep, 0.0)).r;
-    float r = texture(u_sprite, v_uv + vec2( kStep, 0.0)).r;
-    float u = texture(u_sprite, v_uv + vec2(0.0, -kStep)).r;
-    float d = texture(u_sprite, v_uv + vec2(0.0,  kStep)).r;
+    float l = texture(u_sprite, v_uv + vec2(-kStep, 0.0)).g;
+    float r = texture(u_sprite, v_uv + vec2( kStep, 0.0)).g;
+    float u = texture(u_sprite, v_uv + vec2(0.0, -kStep)).g;
+    float d = texture(u_sprite, v_uv + vec2(0.0,  kStep)).g;
     if (l >= kThr && r >= kThr && u >= kThr && d >= kThr) discard;
     fragColor = u_outline_color;
 }
@@ -551,15 +540,15 @@ uniform float          u_layer;
 uniform vec4           u_outline_color;
 out vec4 fragColor;
 const float kStep = 1.0 / 256.0;
-const float kThr  = 0.5 / 255.0;
+const float kThr  = 0.5;
 void main()
 {
-    float idx = texture(u_sprite, vec3(v_uv, u_layer)).r;
+    float idx = texture(u_sprite, vec3(v_uv, u_layer)).g;
     if (idx < kThr) discard;
-    float l = texture(u_sprite, vec3(v_uv + vec2(-kStep, 0.0), u_layer)).r;
-    float r = texture(u_sprite, vec3(v_uv + vec2( kStep, 0.0), u_layer)).r;
-    float u = texture(u_sprite, vec3(v_uv + vec2(0.0, -kStep), u_layer)).r;
-    float d = texture(u_sprite, vec3(v_uv + vec2(0.0,  kStep), u_layer)).r;
+    float l = texture(u_sprite, vec3(v_uv + vec2(-kStep, 0.0), u_layer)).g;
+    float r = texture(u_sprite, vec3(v_uv + vec2( kStep, 0.0), u_layer)).g;
+    float u = texture(u_sprite, vec3(v_uv + vec2(0.0, -kStep), u_layer)).g;
+    float d = texture(u_sprite, vec3(v_uv + vec2(0.0,  kStep), u_layer)).g;
     if (l >= kThr && r >= kThr && u >= kThr && d >= kThr) discard;
     fragColor = u_outline_color;
 }
@@ -595,7 +584,7 @@ constexpr const char* KSPR_INST_FRAGMENT_SHADER = R"glsl(
 in vec2 v_uv;
 flat in vec3 v_lca;    // layer, clut_v, alpha
 flat in uint v_flags;  // bit1 = additive glow
-uniform sampler2DArray u_sprite;   // GL_R8 decode atlas, one layer per sprite
+uniform sampler2DArray u_sprite;   // GL_RG8 decode atlas (index, coverage), one layer per sprite
 uniform sampler2D      u_clut;     // 256xN CLUT -- row 0 identity, rows 1..N remaps
 out vec4 fragColor;
 
@@ -615,7 +604,8 @@ const vec3 k_glow_step[8] = vec3[8](
 
 void main()
 {
-    float idx = texture(u_sprite, vec3(v_uv, v_lca.x)).r;
+    vec4 texel = texture(u_sprite, vec3(v_uv, v_lca.x));
+    float idx = texel.r;
     if ((v_flags & 2u) != 0u)
     {
         // Additive glow: alpha 0 makes (ONE, ONE_MINUS_SRC_ALPHA) act as (ONE, ONE).
@@ -630,7 +620,7 @@ void main()
     }
     else
     {
-        if (idx < (0.5 / 255.0)) discard;
+        if (texel.g < 0.5) discard;
         vec4 c = texture(u_clut, vec2(idx, v_lca.y));
         float a = c.a * v_lca.z;
         fragColor = vec4(c.rgb * a, a);  // premultiplied
@@ -675,8 +665,7 @@ uniform sampler2DArray u_sprite;
 out vec4 fragColor;
 void main()
 {
-    float idx = texture(u_sprite, vec3(v_uv, v_layer)).r;
-    if (idx < (0.5 / 255.0)) discard;
+    if (texture(u_sprite, vec3(v_uv, v_layer)).g < 0.5) discard;
     fragColor = vec4(v_color.rgb * v_color.a, v_color.a);  // premultiplied
 }
 )glsl";
@@ -691,15 +680,15 @@ flat in vec4  v_color;
 uniform sampler2DArray u_sprite;
 out vec4 fragColor;
 const float kStep = 1.0 / 256.0;
-const float kThr  = 0.5 / 255.0;
+const float kThr  = 0.5;
 void main()
 {
-    float idx = texture(u_sprite, vec3(v_uv, v_layer)).r;
+    float idx = texture(u_sprite, vec3(v_uv, v_layer)).g;
     if (idx < kThr) discard;
-    float l = texture(u_sprite, vec3(v_uv + vec2(-kStep, 0.0), v_layer)).r;
-    float r = texture(u_sprite, vec3(v_uv + vec2( kStep, 0.0), v_layer)).r;
-    float u = texture(u_sprite, vec3(v_uv + vec2(0.0, -kStep), v_layer)).r;
-    float d = texture(u_sprite, vec3(v_uv + vec2(0.0,  kStep), v_layer)).r;
+    float l = texture(u_sprite, vec3(v_uv + vec2(-kStep, 0.0), v_layer)).g;
+    float r = texture(u_sprite, vec3(v_uv + vec2( kStep, 0.0), v_layer)).g;
+    float u = texture(u_sprite, vec3(v_uv + vec2(0.0, -kStep), v_layer)).g;
+    float d = texture(u_sprite, vec3(v_uv + vec2(0.0,  kStep), v_layer)).g;
     if (l >= kThr && r >= kThr && u >= kThr && d >= kThr) discard;
     fragColor = vec4(v_color.rgb * v_color.a, v_color.a);  // premultiplied
 }
@@ -744,8 +733,7 @@ uniform sampler2DArray u_sprite;
 out vec4 fragColor;
 void main()
 {
-    float idx = texture(u_sprite, vec3(v_uv, v_layer)).r;
-    if (idx < (0.5 / 255.0)) discard;
+    if (texture(u_sprite, vec3(v_uv, v_layer)).g < 0.5) discard;
     float keep = 1.0 - v_darken;
     fragColor = vec4(keep, keep, keep, 1.0);
 }

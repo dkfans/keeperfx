@@ -724,6 +724,11 @@ bool GLResourceMapper::RealizeTexture(const GpuTextureDesc& desc, GLTexture& out
             gl_type = GL_UNSIGNED_SHORT;
             internal_format = GL_RG16UI;
             break;
+        case GpuTextureFormat::RG8:
+            gl_format = GL_RG;
+            gl_type = GL_UNSIGNED_BYTE;
+            internal_format = GL_RG8;
+            break;
         default:
             break;
     }

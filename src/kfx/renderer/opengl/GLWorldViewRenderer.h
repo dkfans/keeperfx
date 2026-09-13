@@ -400,7 +400,7 @@ private:
     // Sprite decode atlas: GL_TEXTURE_2D_ARRAY where each layer holds one
     // pre-decoded sprite (populated on first use, persists for the level).
     // Fallback to m_kspr_sprite_tex_handle when atlas is full/absent/unsupported.
-    static const int k_kspr_atlas_layers = 2048;       // 2048x256x256 GL_R8 = 128 MB
+    static const int k_kspr_atlas_layers = 2048;       // 2048x256x256 GL_RG8 = 256 MB
     static const int k_kspr_atlas_preload_max = k_kspr_atlas_layers / 2;
     GpuResourceHandle m_kspr_sprite_array_handle = kInvalidGpuResource;
     GpuResourceHandle m_kspr_atlas_shader_handle = kInvalidGpuResource;  // sampler2DArray variant
