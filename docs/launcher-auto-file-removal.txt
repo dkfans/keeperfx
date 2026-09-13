@@ -2,6 +2,24 @@
 # The launcher will ask if the user wants to remove these files.
 # These files should not be present anymore starting from a specific version.
 
+[1.4.0.5397]
+/campgns/burdnimp/map00220.apt
+/campgns/burdnimp/map00221.apt
+/campgns/burdnimp/map00222.apt
+/campgns/burdnimp/map00223.apt
+/campgns/burdnimp/map00224.apt
+/campgns/burdnimp/map00225.apt
+/campgns/burdnimp/map00226.apt
+/campgns/burdnimp/map00227.apt
+/campgns/burdnimp/map00220.lgt
+/campgns/burdnimp/map00221.lgt
+/campgns/burdnimp/map00222.lgt
+/campgns/burdnimp/map00223.lgt
+/campgns/burdnimp/map00224.lgt
+/campgns/burdnimp/map00225.lgt
+/campgns/burdnimp/map00226.lgt
+/campgns/burdnimp/map00227.lgt
+
 [1.4.0.5273]
 SDL2.dll
 SDL2_image.dll
