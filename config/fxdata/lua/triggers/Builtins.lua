@@ -163,7 +163,7 @@ function OnRoomOwnerChange(room, old_owner)
 end
 
 --- Called when a shot hits a thing
----@param shot Thing the shot hitting something.
+---@param shot Shot the shot hitting something.
 ---@param shooter Thing|nil the shooter of the shot.
 ---@param target Thing|nil what was hit, will be nil if the shot hit a wall. 
 ---@param next_stl_x integer where the shot would have been had it not hit something. Useful if the shot hit a wall.

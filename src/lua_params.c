@@ -20,9 +20,12 @@
 #include "lvl_script_lib.h"
 #include "map_data.h"
 #include "player_utils.h"
+#include "room_data.h"
 #include "room_library.h"
+#include "slab_data.h"
 #include "thing_data.h"
 #include "thing_navigate.h"
+#include "thing_objects.h"
 
 #include "post_inc.h"
 
@@ -659,14 +662,20 @@ void lua_pushParent(lua_State *L, const struct Thing *thing)
     case TCls_Shot:
     case TCls_Effect:
     case TCls_EffectElem:
-    case TCls_EffectGen:
         lua_pushThing(L, get_parent_thing(thing));
         break;
     case TCls_Object:
-        // a room index or a slab number, depending on the object model
-        // if belongs to nothing its -1
+        // Room for chickens
+        if (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing)) {
+            lua_pushRoom(L, room_get(thing->parent_idx));
+            break;
+        }
+        // else a slabnumber
+        // fall through
+    case TCls_EffectGen:
         if (thing->parent_idx > 0) {
-            lua_pushinteger(L, thing->parent_idx);
+            //slabnumber to slb_x and slb_y
+            lua_pushSlab(L, slb_num_decode_x(thing->parent_idx), slb_num_decode_y(thing->parent_idx));
         } else {
             lua_pushnil(L);
         }

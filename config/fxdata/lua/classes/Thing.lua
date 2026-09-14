@@ -28,7 +28,7 @@ if not Thing then Thing = {} end
 
 ---@class Object: Thing
 ---@field box_kind integer The Custom box number on a special box.
----@field parent integer|nil ***read-only*** The slab number or room index (chicken) it belongs to.
+---@field parent Slab|Room|nil ***read-only*** The Slab or room (for chicken) it belongs to.
 if not Object then Object = {} end
 
 ---@class Corpse: Thing
@@ -43,7 +43,7 @@ if not Effect then Effect = {} end
 if not EffectElem then EffectElem = {} end
 
 ---@class EffectGen: Thing
----@field parent Thing|nil ***read-only*** The thing that created this one.
+---@field parent Slab|nil ***read-only*** The Slab it belongs to.
 if not EffectGen then EffectGen = {} end
 
 ---Destroys the object, triggers onObjectDestroyed if applicable.

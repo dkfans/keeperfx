@@ -62,7 +62,7 @@ function ChangeCreaturesAnnoyance(player,creature,operation,annoyance) end
 ---@param hit_type hit_type What the shot can hit.
 ---@param target? Thing When used the shot will target the thing. If not, use Thing:set_velocity to move the shot.
 ---@param speed? integer speed / the distance it moves to the target every tick
----@return Thing shot
+---@return Shot shot
 function AddShotToLevel(shot_type,location,player, hit_type,target,speed) local shot return shot end
 
 ---Place any corpse at a specific place on the map
