@@ -270,30 +270,18 @@ void LensManager::Draw(unsigned char* srcbuf, unsigned char* dstbuf,
     }
 }
 
-TbBool LensManager::BuildActiveGPULensCmd(long viewport_w, long viewport_h, IRWorldLensCmd& out) const
+void LensManager::BuildActiveGPULensCmd(long viewport_w, long viewport_h, IRWorldLensCmd& out) const
 {
     out = IRWorldLensCmd{};
+    out.active = true;
 
     if (!m_initialized || m_applied_lens == 0)
     {
-        return false;
-    }
-
-    struct LensConfig* cfg = &lenses_conf.lenses[m_applied_lens];
-
-    // Palette is a separate side channel -- it never touches pixels (see
-    // PaletteEffect::Draw()), so it's read directly here rather than routed
-    // through BuildGPUParams(). Independent of the pixel-effect precedence
-    // below: a lens can combine LCF_HasPalette with a pixel effect.
-    if ((cfg->flags & LCF_HasPalette) != 0 && IsEffectEnabled(LensEffectType::Palette))
-    {
-        out.has_palette = true;
-        memcpy(out.palette, cfg->palette, sizeof(out.palette));
+        return;
     }
 
     // Custom (LUA) lenses have no GPU realisation -- only standard lenses
     // are eligible for the pixel-effect pass.
-    TbBool has_pixel_effect = false;
     if (m_active_custom_lens.empty())
     {
         // Same registration-order precedence LensManager::Draw() applies on
@@ -309,15 +297,9 @@ TbBool LensManager::BuildActiveGPULensCmd(long viewport_w, long viewport_h, IRWo
             if (!effect->IsEnabled())
                 continue;
             effect->AdvanceAnimation(game.delta_time);
-            if (effect->BuildGPUParams(out, viewport_w, viewport_h))
-            {
-                has_pixel_effect = true;
-            }
+            effect->BuildGPUParams(out, viewport_w, viewport_h);
         }
     }
-
-    out.active = has_pixel_effect || out.has_palette;
-    return out.active;
 }
 
 void LensManager::LoadAccessibilityConfig()

@@ -14,7 +14,7 @@
 #include "bflib_sprite.h"   // TbSprite, num_sprites, get_sprite
 #include "bflib_video.h"    // Lb_SPRITE_* draw flags
 #include "gui_draw.h"       // draw_slab64k_background_immediate
-#include <algorithm>        // std::fill (AcquireMinimapBuffer)
+#include <algorithm>        // std::fill, std::copy (AcquireMinimapBuffer)
 #include <functional>       // std::less (ForgetSprites)
 #include "post_inc.h"
 
@@ -236,7 +236,7 @@ void IUIRenderer::SubmitSlabBackground(int32_t x, int32_t y, int32_t w, int32_t 
     draw_slab64k_background_immediate(x, y, w, h);
 }
 
-uint8_t* IUIRenderer::AcquireMinimapBuffer(int size)
+uint8_t* IUIRenderer::AcquireMinimapBuffer(int screen_x, int screen_y, int size)
 {
     if (size <= 0) return nullptr;
     const size_t needed = (size_t)size * (size_t)size;
@@ -245,9 +245,21 @@ uint8_t* IUIRenderer::AcquireMinimapBuffer(int size)
         m_minimap_cpu_buf.assign(needed, 0);
         m_minimap_cpu_size = size;
     }
-    else
+    if (lbDisplay.WScreen == NULL)
     {
         std::fill(m_minimap_cpu_buf.begin(), m_minimap_cpu_buf.end(), (uint8_t)0);
+        return m_minimap_cpu_buf.data();
+    }
+    // Start from what is already on screen, so pixels the minimap doesn't draw
+    // keep the panel art when SubmitMinimap() copies the buffer back.
+    const int32_t stride = RendererScreenWidth();
+    const TbPixel* in_line = &lbDisplay.WScreen[screen_x + stride * screen_y];
+    uint8_t* dst_line = m_minimap_cpu_buf.data();
+    for (int h = 0; h < size; h++)
+    {
+        std::copy(in_line, in_line + size, dst_line);
+        in_line += stride;
+        dst_line += size;
     }
     return m_minimap_cpu_buf.data();
 }

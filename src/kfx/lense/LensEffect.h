@@ -87,6 +87,11 @@ public:
 
     virtual void AdvanceAnimation(float /*delta*/) {}
 
+    // Version for a rebuilt GPU table or texture. Unique across all effects:
+    // effects of different types can share one GPU resource (displacement
+    // and fly-eye share the remap table), so their versions must not repeat.
+    static uint32_t NextGPUVersion();
+
     // Configuration
     void SetEnabled(TbBool enabled) { m_enabled = enabled; }
     TbBool IsEnabled() const { return m_enabled; }

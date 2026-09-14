@@ -90,6 +90,7 @@ public:
     void SetResourceMapper(GLResourceMapper* mapper) { m_resource_mapper = mapper; }
     /** GPU resource handle for the 256x256 fade/lighting LUT. */
     void SetFadeTexture(GpuResourceHandle tex) { m_fade_tex_handle = tex; }
+    void SetPaletteIndexTexture(GpuResourceHandle tex) { m_palette_index_tex_handle = tex; }
     /** GPU resource handle for the 256x1 RGBA palette. */
     void SetPaletteTexture(GpuResourceHandle tex) { m_palette_tex_handle = tex; }
 
@@ -163,13 +164,6 @@ public:
     bool BeginLensCapture();
 
     void ResolveLensComposite();
-
-    bool HasActiveLensPalette() const { return m_rt_lens_cmd.active && m_rt_lens_cmd.has_palette; }
-
-    /** Render thread: the active lens's palette, expanded to RGBA8 (matching
-     *  GLFrameData::palette_rgba's layout) into @p out_rgba (>= 1024 bytes).
-     *  Only valid when HasActiveLensPalette() is true. */
-    void GetActiveLensPaletteRGBA(unsigned char* out_rgba) const;
 
     /** Submit one keeper-sprite (creature/object) for GPU rendering.*/
     int SubmitKeeperSprite(int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
@@ -285,6 +279,7 @@ private:
     GLResourceMapper* m_resource_mapper = nullptr;
     GpuResourceHandle m_fade_tex_handle    = kInvalidGpuResource;
     GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource;
+    GpuResourceHandle m_palette_index_tex_handle = kInvalidGpuResource;
 
     // Tile GL objects
     GpuResourceHandle m_geom_handle   = kInvalidGpuResource; // VAO+VBO bundle
@@ -483,14 +478,17 @@ private:
     GpuResourceHandle m_lens_quad_geom_handle = kInvalidGpuResource; // shared unit quad, all three passes
 
     GpuResourceHandle m_lens_shader_mist_handle = kInvalidGpuResource;
-    GLint  m_lens_mist_loc_src_off = -1, m_lens_mist_loc_src_scale = -1;
+    GLint  m_lens_mist_loc_src_x = -1, m_lens_mist_loc_view_size = -1;
     GLint  m_lens_mist_loc_pos     = -1, m_lens_mist_loc_sec       = -1, m_lens_mist_loc_lightness = -1;
 
     GpuResourceHandle m_lens_shader_remap_handle = kInvalidGpuResource;
-    GLint  m_lens_remap_loc_src_off  = -1, m_lens_remap_loc_tex_size = -1;
+    GLint  m_lens_remap_loc_src_x = -1, m_lens_remap_loc_view_size = -1;
 
     GpuResourceHandle m_lens_shader_overlay_handle = kInvalidGpuResource;
-    GLint  m_lens_overlay_loc_src_off = -1, m_lens_overlay_loc_src_scale = -1, m_lens_overlay_loc_alpha = -1;
+    GLint  m_lens_overlay_loc_src_x = -1, m_lens_overlay_loc_view_size = -1, m_lens_overlay_loc_alpha = -1;
+
+    GpuResourceHandle m_lens_shader_copy_handle = kInvalidGpuResource;
+    GLint  m_lens_copy_loc_src_x = -1, m_lens_copy_loc_view_size = -1;
 
     // Uploaded-texture caches, so upload_lens_textures_if_dirty() can skip
     // a re-upload when *_version hasn't changed since last frame.

@@ -9,9 +9,10 @@ void RenderGraph::Execute(IFrameGraphExecutor& exec)
     // This function OWNS the per-frame execution order. Each call
     // is one ordered phase realised by the backend.
     // Ordering constraints:
-    //   - World must run INSIDE the lens FBO bracket
-    //     (FGBeginWorldCapture ... FGResolveWorldCapture) so post-process passes
-    //     operate on the captured scene before it reaches the screen.
+    //   - World, its sprite/flat overlay layers and the swipe must run INSIDE
+    //     the lens FBO bracket (FGBeginWorldCapture ... FGResolveWorldCapture):
+    //     software draws all of them into the lens buffer, so the lens
+    //     distorts them together.
     //   - The map-fade world snapshot runs AFTER every world layer and BEFORE
     //     image-presents / overhead, which draw the parchment. Its parchment
     //     snapshot and composite run once the parchment is on screen.
@@ -22,16 +23,15 @@ void RenderGraph::Execute(IFrameGraphExecutor& exec)
     exec.FGClearFrame();
     exec.FGPopulateUI();
 
-    // World inside the lens scene-capture bracket.
+    // World, world-space sprite / flat overlay layers and swipe, inside the
+    // lens scene-capture bracket.
     exec.FGBeginWorldCapture();
     exec.FGExecuteWorld();
+    exec.FGDrawWorldSpriteLayer();
+    exec.FGDrawWorldOverlayFlatLayer();
     exec.FGFlushSwipeOverlay();
     exec.FGResolveWorldCapture();
     exec.FGApplyLensPaletteUIExclusion();
-
-    // World-space sprite / flat overlay layers.
-    exec.FGDrawWorldSpriteLayer();
-    exec.FGDrawWorldOverlayFlatLayer();
 
     // Map-fade world snapshot (after world, before presents / overhead).
     exec.FGCaptureMapFadeWorld();
@@ -52,8 +52,7 @@ void RenderGraph::Execute(IFrameGraphExecutor& exec)
     exec.FGDrawFrontOverlay();
     exec.FGExecuteText();
 
-    // Full-screen tint, cursor, dev overlay.
-    exec.FGDrawScreenTint();
+    // Cursor, dev overlay.
     exec.FGExecuteCursor();
     exec.FGDrawDevToolsOverlay();
 

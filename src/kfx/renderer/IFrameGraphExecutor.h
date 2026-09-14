@@ -41,8 +41,7 @@ public:
     virtual void FGDrawFrontOverlay() {}
     virtual void FGExecuteText() {}
 
-    // -- Full-screen tint, cursor, dev overlay -------------------------------
-    virtual void FGDrawScreenTint() {}
+    // -- Cursor, dev overlay -------------------------------------------------
     virtual void FGExecuteCursor() {}
     virtual void FGDrawDevToolsOverlay() {}
 

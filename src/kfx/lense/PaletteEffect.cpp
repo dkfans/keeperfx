@@ -22,11 +22,23 @@
 #include "../../config_lenses.h"
 #include "../../player_data.h"
 #include "../../game_legacy.h"
+#include "../../front_simple.h"
+#include "../renderer/RendererManager.h"
 
 #include "../../keeperfx.hpp"
 #include "../../post_inc.h"
 
 /******************************************************************************/
+
+/** Makes @p pal the palette possession and pain fades work from. A running
+ *  fade brings it in over its remaining steps, as the original lens code did;
+ *  PaletteSetUserPalette() would reset the fade and switch at once. */
+static void set_main_palette(unsigned char *pal)
+{
+    local_state.main_palette = pal;
+    if ((local_state.palette_fade_step_possession == 0) && (local_state.palette_fade_step_pain == 0))
+        RendererPaletteSet(pal);
+}
 
 PaletteEffect::PaletteEffect()
     : LensEffect(LensEffectType::Palette, "Palette")
@@ -44,11 +56,8 @@ TbBool PaletteEffect::Setup(long lens_idx)
     SYNCDBG(8, "Setting up palette effect for lens %ld", lens_idx);
     
     struct LensConfig* cfg = &lenses_conf.lenses[lens_idx];
-    struct PlayerInfo* player = get_my_player();
-    
-    // Set lens_palette first, then call PaletteSetUserPalette to apply it
     local_state.lens_palette = cfg->palette;
-    PaletteSetUserPalette(player->user_id, cfg->palette);
+    set_main_palette(cfg->palette);
     
     m_current_lens = lens_idx;
     SYNCDBG(7, "Palette effect ready");
@@ -58,9 +67,8 @@ TbBool PaletteEffect::Setup(long lens_idx)
 void PaletteEffect::Cleanup()
 {
     if (m_current_lens >= 0) {
-        struct PlayerInfo* player = get_my_player();
         local_state.lens_palette = NULL;
-        PaletteSetUserPalette(player->user_id, engine_palette);
+        set_main_palette(engine_palette);
         m_current_lens = -1;
         SYNCDBG(9, "Palette effect cleaned up");
     }

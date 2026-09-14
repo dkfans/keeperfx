@@ -144,8 +144,9 @@ void GLImagePresentPass::Shutdown()
     m_overlay_tex_gt_w = m_overlay_tex_gt_h = 0;
     m_coverage_tex_gt_w = m_coverage_tex_gt_h = 0;
     m_zoom_tex_gt_w = m_zoom_tex_gt_h = 0;
-    m_zoom_tex_identity = nullptr;
-    m_zoom_tex_rt_w = m_zoom_tex_rt_h = 0;
+    m_zoom_active_last_frame = false;
+    m_rt_zoom_pixels.clear();
+    m_rt_zoom_pixels_w = m_rt_zoom_pixels_h = 0;
     m_cmds.clear();
     m_rt_cmds.clear();
     m_overlay_cmd = IRImagePresentCmd{};
@@ -253,8 +254,11 @@ void GLImagePresentPass::SubmitZoom(const unsigned char* src_buf, int src_w, int
     if (src_buf == nullptr || src_w <= 0 || src_h <= 0)
         return;
 
+    const bool size_changed = (m_zoom_tex_gt_w != src_w) || (m_zoom_tex_gt_h != src_h);
+    if (!m_zoom_active_last_frame || size_changed)
+        m_zoom_cmd.pixels.assign(src_buf, src_buf + (size_t)src_w * (size_t)src_h);
+
     m_zoom_cmd.active = true;
-    m_zoom_cmd.src_buf = src_buf;
     m_zoom_cmd.src_w = src_w;
     m_zoom_cmd.src_h = src_h;
     m_zoom_cmd.center_map_x = center_map_x;
@@ -271,6 +275,7 @@ void GLImagePresentPass::FlipBuffers()
     ASSERT_GAME_THREAD();
     m_rt_cmds = std::move(m_cmds);
     m_rt_overlay_cmd = std::move(m_overlay_cmd);
+    m_zoom_active_last_frame = m_zoom_cmd.active;
     m_rt_zoom_cmd = std::move(m_zoom_cmd);
 
     m_cmds.clear();
@@ -314,20 +319,20 @@ void GLImagePresentPass::upload_overlay_coverage_texture()
 void GLImagePresentPass::upload_zoom_texture()
 {
     if (!m_resource_mapper) return;
-    // map_screen is session-static -- only re-upload when the pointer
-    // identity actually changed (a new landview loaded), not every frame of
-    // the zoom animation. See IRLandviewZoomCmd::src_buf's own comment. This
-    // is a pure content-reupload-avoidance cache, separate from the handle
-    // sizing already settled on the game thread (EnsureImageTextureHandle()).
-    if (m_zoom_tex_identity == m_rt_zoom_cmd.src_buf
-        && m_zoom_tex_rt_w == m_rt_zoom_cmd.src_w && m_zoom_tex_rt_h == m_rt_zoom_cmd.src_h)
+    // Kept until uploaded, in case the texture isn't resolvable on the frame
+    // the copy arrives.
+    if (!m_rt_zoom_cmd.pixels.empty())
+    {
+        m_rt_zoom_pixels.swap(m_rt_zoom_cmd.pixels);
+        m_rt_zoom_pixels_w = m_rt_zoom_cmd.src_w;
+        m_rt_zoom_pixels_h = m_rt_zoom_cmd.src_h;
+    }
+    if (m_rt_zoom_pixels.empty())
         return;
     const GLTexture* tex = m_resource_mapper->ResolveTexture(m_zoom_tex_handle);
     if (!tex) return;
-    upload_indexed8_content(tex->id, m_rt_zoom_cmd.src_buf, m_rt_zoom_cmd.src_w, m_rt_zoom_cmd.src_h);
-    m_zoom_tex_identity = m_rt_zoom_cmd.src_buf;
-    m_zoom_tex_rt_w = m_rt_zoom_cmd.src_w;
-    m_zoom_tex_rt_h = m_rt_zoom_cmd.src_h;
+    upload_indexed8_content(tex->id, m_rt_zoom_pixels.data(), m_rt_zoom_pixels_w, m_rt_zoom_pixels_h);
+    m_rt_zoom_pixels.clear();
 }
 
 void GLImagePresentPass::upload_embedded_palette(const std::vector<unsigned char>& embedded_palette)

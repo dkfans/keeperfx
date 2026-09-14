@@ -306,12 +306,10 @@ long PaletteFadePlayer(struct PlayerInfo *player)
     i = 4 * (3 * (local_state.palette_fade_step_pain-1));
   } else
   { // both are == 0 - no fade
-    RendererSetScreenTint(0.0f, 0.0f, 0.0f, 0.0f);
     return 0;
   }
   if (i >= 120)
     i = 120;
-  RendererSetScreenTint(1.0f, 0.0f, 0.0f, (float)i / 120.0f);
   long step = 120 - i;
   // Update the fade step
   if (local_state.palette_fade_step_pain > 0)
@@ -328,9 +326,6 @@ long PaletteFadePlayer(struct PlayerInfo *player)
     if (local_state.palette_fade_step_possession > 0)
       local_state.palette_fade_step_possession--;
   }
-  // GPU backends rely solely on the screen tint overlay above; only the
-  // software path (no GPU render path, so no tint overlay) still needs the
-  // whole-palette recolour, done inside RendererApplyPossessionPalette().
   RendererApplyPossessionPalette(step, local_state.main_palette);
   return step;
 }

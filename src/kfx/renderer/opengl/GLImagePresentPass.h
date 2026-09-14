@@ -33,7 +33,7 @@ struct IRImagePresentCmd {
 
 struct IRLandviewZoomCmd {
     bool active = false;
-    const unsigned char* src_buf = nullptr;
+    std::vector<unsigned char> pixels; // copy of the source image, only on a zoom's first frame
     int src_w = 0, src_h = 0;
     float center_map_x = 0.0f, center_map_y = 0.0f;
     float screen_cx = 0.0f, screen_cy = 0.0f;
@@ -75,12 +75,11 @@ public:
      *  composited in Resolve() in that order. */
     void Submit(const struct RendererPresentImageDesc* desc);
 
-    /** Submit this frame's landview zoom parameters. src_buf is cached by
-     *  pointer identity (map_screen is a large, session-static buffer,
-     *  reallocated only when a new landview loads) -- only re-copied into
-     *  the upload staging buffer when the pointer changes from the last
-     *  call, not every frame of the zoom animation. Mirrors
-     *  RendererSubmitLandviewZoom()'s own contract (RendererManager.h). */
+    /** Submit this frame's landview zoom parameters. The source image is
+     *  copied on the first frame of each zoom (a frame after one with no
+     *  zoom) and on a size change, not every frame of the animation. The
+     *  landview image can be reloaded between zooms at the same address, so
+     *  the address is not a usable cache key. */
     void SubmitZoom(const unsigned char* src_buf, int src_w, int src_h,
                     float center_map_x, float center_map_y,
                     float screen_cx,    float screen_cy,
@@ -111,7 +110,7 @@ private:
     void upload_overlay_texture();  // overlay image -> m_overlay_tex_handle
     void upload_overlay_coverage_texture(); // overlay coverage -> m_coverage_tex_handle
     void upload_opaque_texture(size_t idx); // m_rt_cmds[idx].pixels -> m_opaque_slots[idx].tex_handle
-    void upload_zoom_texture();     // cached landview bitmap -> m_zoom_tex_handle (only on identity change)
+    void upload_zoom_texture();     // landview image -> m_zoom_tex_handle (only when a new copy arrived)
     void upload_embedded_palette(const std::vector<unsigned char>& embedded_palette); // -> m_embedded_palette_tex_handle
     void draw_quad(GLuint program, GLuint image_tex, GLuint palette_tex,
                   int dst_x, int dst_y, int dst_w, int dst_h, int screen_w, int screen_h,
@@ -153,8 +152,9 @@ private:
     int    m_coverage_tex_gt_w = 0, m_coverage_tex_gt_h = 0;
     GpuResourceHandle m_zoom_tex_handle = kInvalidGpuResource;
     int    m_zoom_tex_gt_w = 0, m_zoom_tex_gt_h = 0;
-    const unsigned char* m_zoom_tex_identity = nullptr;
-    int    m_zoom_tex_rt_w = 0, m_zoom_tex_rt_h = 0;
+    bool   m_zoom_active_last_frame = false;          // GT
+    std::vector<unsigned char> m_rt_zoom_pixels;      // RT: latest image not yet uploaded
+    int    m_rt_zoom_pixels_w = 0, m_rt_zoom_pixels_h = 0;
 
     GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource; // not owned (shared game palette)
     GpuResourceHandle m_embedded_palette_tex_handle = kInvalidGpuResource; // owned -- FMV's own per-frame palette

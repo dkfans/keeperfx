@@ -14,7 +14,6 @@
 #include "post_inc.h"
 
 namespace {
-inline float chan6_to_unit(unsigned char v) { return (float)((v * 255) / 63) / 255.0f; }
 
 // TRANSPAR4/8 aren't a real alpha blend on the CPU path -- matches
 // GLUIRenderer.cpp's identical alpha_from_draw_flags() (kept as a separate
@@ -74,18 +73,13 @@ void GLTextRenderer::DrawGlyphs(const IRTextDrawCmd& cmd, const TextCommandBuffe
         glScissor(sx, sy, sw, sh);
     }
 
-    const unsigned char* pal = RendererGetActivePalette();
     const IRTextGlyph* glyphs = text.glyphs.Data() + cmd.glyph_first;
     for (uint32_t i = 0; i < cmd.glyph_count; ++i)
     {
         const IRTextGlyph& glyph = glyphs[i];
         float r = 1.0f, g = 1.0f, b = 1.0f;
-        if (glyph.kind != IRTextGlyphKind::PaletteSprite && pal)
-        {
-            r = chan6_to_unit(pal[glyph.colour * 3 + 0]);
-            g = chan6_to_unit(pal[glyph.colour * 3 + 1]);
-            b = chan6_to_unit(pal[glyph.colour * 3 + 2]);
-        }
+        if (glyph.kind != IRTextGlyphKind::PaletteSprite)
+            m_ui->PaletteColour(glyph.colour, &r, &g, &b);
         switch (glyph.kind)
         {
         case IRTextGlyphKind::PaletteSprite:

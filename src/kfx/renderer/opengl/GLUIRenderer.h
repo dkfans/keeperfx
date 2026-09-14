@@ -30,6 +30,11 @@ public:
     void SetPaletteTexture(GpuResourceHandle tex) { m_palette_tex_handle = tex; }
     void SetFadeTableTexture(GpuResourceHandle tex) { m_fade_table_tex_handle = tex; }
     void SetScreenSize(int w, int h) { m_screen_w = w; m_screen_h = h; }
+    /** Render thread: the palette of the frame being drawn (256 RGBA8
+     *  entries), used for flat palette colours so they change on the same
+     *  frame as everything sampling the palette texture. */
+    void SetFramePalette(const unsigned char* rgba) { m_frame_palette = rgba; }
+    void PaletteColour(unsigned char idx, float* r, float* g, float* b) const;
     /** For GLTextRenderer's glScissor Y-flip (top-left clip rect -> GL's
      *  bottom-left scissor origin). */
     int GetScreenWidth() const { return m_screen_w; }
@@ -80,7 +85,7 @@ public:
      *  so it always composites on top of the panel-background sprites GameUI
      *  already flushed this frame (see BackendCapabilities::
      *  compositesMinimapBackground). */
-    uint8_t* AcquireMinimapBuffer(int size) override;
+    uint8_t* AcquireMinimapBuffer(int screen_x, int screen_y, int size) override;
     void SubmitMinimap(int screen_x, int screen_y, int size,
                        const int32_t* shape_start, const int32_t* shape_end) override;
 
@@ -101,6 +106,7 @@ private:
     GLResourceMapper* m_resource_mapper = nullptr;
     GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource;
     GpuResourceHandle m_fade_table_tex_handle = kInvalidGpuResource;
+    const unsigned char* m_frame_palette = nullptr;
     int m_screen_w = 0;
     int m_screen_h = 0;
 
