@@ -14,6 +14,7 @@
 #include "kfx/renderer/opengl/GLTileAtlas.h"
 #include "kfx/renderer/opengl/GLWorldViewRenderer.h"
 #include "kfx/renderer/opengl/GLMapFadePass.h"
+#include "kfx/renderer/opengl/GLPaletteIndexLookup.h"
 #include "kfx/renderer/opengl/GLImagePresentPass.h"
 #include "kfx/renderer/opengl/GLZoomBoxTilesPass.h"
 #include "kfx/renderer/opengl/GLResourceMapper.h"
@@ -27,9 +28,10 @@
 #include "kfx/renderer/RenderThreadManager.h"
 #include "kfx/renderer/RendererThread.h"
 #include "kfx/renderer/RenderGraph.h"
-#include "kfx/renderer/RendererManager.h" // g_screen_tint
+#include "kfx/renderer/RendererManager.h"
 #include "engine_textures.h" // block_ptrs[] -- tile atlas build-ready check
 #include "vidmode.h" // pixmap.fade_tables
+#include "front_simple.h" // engine_palette
 #include "bflib_mouse.h" // LbMouseOnBeginSwap/EndSwap -- submits the cursor sprite around present
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h> // IMG_SavePNG (screenshots), Todo : move to platform layer
@@ -63,8 +65,6 @@ struct GLFrameData {
     int32_t present_w = 0;
     int32_t present_h = 0;
 
-    float screen_tint[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
     // The frame number this GLFrameData was sealed under
     uint64_t sealed_frame_number = 0;
 
@@ -88,6 +88,7 @@ struct RendererOpenGL::Impl {
     GLResourceMapper   resource_mapper;
     GpuResourceHandle  palette_tex_handle    = kInvalidGpuResource;
     GpuResourceHandle  fade_table_tex_handle = kInvalidGpuResource;
+    GLPaletteIndexLookup palette_index_lookup;
 
     bool fade_tables_refreshed = false;
 
@@ -100,8 +101,6 @@ struct RendererOpenGL::Impl {
     bool functions_loaded = false; // guards render_thread_cleanup() from calling gl* before GLFunctions_Load() ran
 
     bool          fg_lens_captured      = false;
-    bool          fg_lens_palette_active = false;
-    unsigned char fg_lens_palette_rgba[256 * 4] = {};
 
     std::string screenshot_path;
     int         screenshot_fmt = 0;
@@ -361,6 +360,13 @@ void RendererOpenGL::render_thread_init()
         return;
     }
 
+    if (!m_impl->palette_index_lookup.Init(&m_impl->resource_mapper))
+    {
+        ERRORLOG("RendererOpenGL::Init: palette index lookup texture realization failed");
+        m_impl->init_ok = false;
+        return;
+    }
+
     m_impl->ui.SetAtlas(&m_impl->atlas);
     m_impl->ui.SetPaletteTexture(m_impl->palette_tex_handle);
     m_impl->ui.SetFadeTableTexture(m_impl->fade_table_tex_handle);
@@ -375,6 +381,7 @@ void RendererOpenGL::render_thread_init()
     m_impl->world.SetResourceMapper(&m_impl->resource_mapper);
     m_impl->world.SetFadeTexture(m_impl->fade_table_tex_handle);
     m_impl->world.SetPaletteTexture(m_impl->palette_tex_handle);
+    m_impl->world.SetPaletteIndexTexture(m_impl->palette_index_lookup.GetTexture());
     m_impl->world.SetScreenSize((int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight);
     if (!m_impl->world.CompileShaders())
     {
@@ -384,6 +391,9 @@ void RendererOpenGL::render_thread_init()
     }
 
     m_impl->mapfade.SetResourceMapper(&m_impl->resource_mapper);
+    m_impl->mapfade.SetPaletteTexture(m_impl->palette_tex_handle);
+    m_impl->mapfade.SetFadeTableTexture(m_impl->fade_table_tex_handle);
+    m_impl->mapfade.SetPaletteIndexTexture(m_impl->palette_index_lookup.GetTexture());
     if (!m_impl->mapfade.CompileShaders())
     {
         WARNLOG("RendererOpenGL::Init: parchment transition shaders unavailable -- transition disabled");
@@ -436,7 +446,10 @@ void RendererOpenGL::render_thread_work()
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, fd.palette_rgba);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
+        m_impl->palette_index_lookup.SetPalette(fd.palette_rgba);
     }
+
+    m_impl->ui.SetFramePalette(fd.palette_rgba);
 
     m_impl->atlas.FlushPendingGL();
 
@@ -446,6 +459,8 @@ void RendererOpenGL::render_thread_work()
     if (!m_impl->fade_tables_refreshed && fade_tables_ready)
     {
         m_impl->world.RefreshFadeTableAndSettings();
+        m_impl->palette_index_lookup.RefreshBase(engine_palette);
+        m_impl->palette_index_lookup.SetPalette(fd.palette_rgba);
         m_impl->fade_tables_refreshed = true;
     }
 
@@ -478,19 +493,6 @@ void RendererOpenGL::FGClearFrame()
 
 void RendererOpenGL::FGBeginWorldCapture()
 {
-    m_impl->fg_lens_palette_active = m_impl->world.HasActiveLensPalette();
-    if (m_impl->fg_lens_palette_active)
-    {
-        m_impl->world.GetActiveLensPaletteRGBA(m_impl->fg_lens_palette_rgba);
-        const GLTexture* const tex = m_impl->resource_mapper.ResolveTexture(m_impl->palette_tex_handle);
-        if (tex != nullptr)
-        {
-            glBindTexture(GL_TEXTURE_2D, tex->id);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, m_impl->fg_lens_palette_rgba);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-    }
-
     m_impl->fg_lens_captured = m_impl->world.BeginLensCapture();
 }
 
@@ -509,20 +511,8 @@ void RendererOpenGL::FGFlushSwipeOverlay()
 
 void RendererOpenGL::FGResolveWorldCapture()
 {
-    GLFrameData& fd = m_impl->frames[m_impl->render_idx];
     if (m_impl->fg_lens_captured)
         m_impl->world.ResolveLensComposite();
-
-    if (m_impl->fg_lens_palette_active)
-    {
-        const GLTexture* const tex = m_impl->resource_mapper.ResolveTexture(m_impl->palette_tex_handle);
-        if (tex != nullptr)
-        {
-            glBindTexture(GL_TEXTURE_2D, tex->id);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, fd.palette_rgba);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-    }
 }
 
 void RendererOpenGL::FGCaptureMapFadeWorld()
@@ -581,20 +571,6 @@ void RendererOpenGL::FGDrawGameUI()
 void RendererOpenGL::FGDrawFrontOverlay()
 {
     m_impl->ui.DrawFrontOverlay();
-}
-
-void RendererOpenGL::FGDrawScreenTint()
-{
-    GLFrameData& fd = m_impl->frames[m_impl->render_idx];
-    const float* tint = fd.screen_tint;
-    if (tint[3] <= 0.0f)
-        return;
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    m_impl->ui.DrawSolidRect(0.0f, 0.0f, (float)fd.screen_w, (float)fd.screen_h,
-                             tint[0], tint[1], tint[2], tint[3]);
-    glDisable(GL_BLEND);
 }
 
 bool RendererOpenGL::ScheduleScreenshot(const char* path, int fmt)
@@ -695,7 +671,7 @@ void RendererOpenGL::PresentFrame()
         // Blocking palette fade in progress: the game thread isn't running its
         // normal submit pass, so a real flip here would advance render_idx to
         // a buffer nothing was freshly drawn into (black screen). Keep
-        // re-reading the last real frame and only refresh the palette/tint
+        // re-reading the last real frame and only refresh the palette
         // driving it.
         GLFrameData& write_fd  = m_impl->frames[m_impl->write_idx];
         GLFrameData& render_fd = m_impl->frames[m_impl->render_idx];
@@ -705,7 +681,6 @@ void RendererOpenGL::PresentFrame()
             render_fd.palette_dirty = true;
             write_fd.palette_dirty = false;
         }
-        std::memcpy(render_fd.screen_tint, g_screen_tint, sizeof(render_fd.screen_tint));
 
         RendererFrameCounter_Advance();
         m_impl->thread_mgr.Signal();
@@ -724,6 +699,8 @@ void RendererOpenGL::PresentFrame()
     next_fd.swipe_cmds.Reset();
     next_fd.frame_seq = 0;
     next_fd.palette_dirty = false; // defensive; a real change always re-sets this itself
+    // Both slots must hold the current palette, not the one last written into them.
+    std::memcpy(next_fd.palette_rgba, m_impl->frames[filled].palette_rgba, sizeof(next_fd.palette_rgba));
 
     
     m_impl->world.FlipBuffers();
@@ -752,7 +729,6 @@ void RendererOpenGL::PresentFrame()
         filled_fd.present_w = pw;
         filled_fd.present_h = ph;
     }
-    std::memcpy(filled_fd.screen_tint, g_screen_tint, sizeof(filled_fd.screen_tint));
     filled_fd.sealed_frame_number = RendererFrameCounter_Current();
 
     LbMouseOnBeginSwap();
@@ -817,10 +793,11 @@ class IUIRenderer* RendererOpenGL::GetUIRenderer()
     return m_impl ? &m_impl->ui : nullptr;
 }
 
-void RendererOpenGL::SubmitMapFadeStep(int tick_step, float display_step, bool fading_in)
+void RendererOpenGL::SubmitMapFadeStep(int tick_step, float display_step, bool fading_in,
+                                       const unsigned char* ghost_table)
 {
     if (m_impl == nullptr) return;
-    m_impl->mapfade.SubmitStep(tick_step, display_step, fading_in);
+    m_impl->mapfade.SubmitStep(tick_step, display_step, fading_in, ghost_table);
 }
 
 void RendererOpenGL::BeginOverlayCapture(OverlayCaptureKind kind)

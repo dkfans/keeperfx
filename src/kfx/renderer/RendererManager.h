@@ -46,6 +46,12 @@ unsigned int RendererGetRequiredWindowFlags(RendererType type);
 // The currently-active 6-bit VGA palette (768 bytes) that indexed drawing samples.
 const unsigned char* RendererGetActivePalette(void);
 
+// Expands a 6-bit palette channel to 8 bits, the way the display palette does.
+static inline unsigned char RendererPaletteChannel8(unsigned char v)
+{
+    return (unsigned char)((v * 255) / 63);
+}
+
 // Set / read back the active game palette (the seam entry points engine code uses).
 TbResult RendererPaletteSet(unsigned char *palette);
 TbResult RendererPaletteGet(unsigned char *palette);
@@ -123,9 +129,9 @@ TbBool RendererSubmitZoomBoxTiles(const unsigned short* tile_block_ids, int tile
 void RendererNotifyFmvPalette(const unsigned char *bgra_1024);
 
 /** Submit the landview zoom-in/out transition frame through the GPU path.
- *  @param src_buf     map_screen -- 8-bit indexed pixels (src_w x src_h),
- *                     cached by pointer identity: only re-uploaded when this
- *                     differs from the last call's pointer.
+ *  @param src_buf     map_screen -- 8-bit indexed pixels (src_w x src_h).
+ *                     Must stay unchanged for the duration of one zoom; it is
+ *                     read again when the next zoom starts.
  *  @param center_map_x/y  Zoom centre, in source texel coordinates.
  *  @param screen_cx/cy    Zoom centre, in screen pixel coordinates (y-down).
  *  @param scale           Source texels per screen pixel (src_delta/256.0 in
@@ -151,16 +157,9 @@ TbBool RendererCompositesMinimapBackground(void);
  *  is locked, or the backend records draws to render later. */
 TbBool RendererCanDraw(void);
 
-// Full-screen tint overlay (pain/possession vignette). Plain ambient state,
-// backend-agnostic -- GL blends a fullscreen quad from it each frame
-// (FGDrawScreenTint()); software has no consumer (see
-// RendererApplyPossessionPalette() below for its equivalent).
-extern float g_screen_tint[4];
-void RendererSetScreenTint(float r, float g, float b, float a);
-
 /** Tell the GPU renderer to preserve the last real frame's content across
  *  PresentFrame() (world/UI/image-present buffers not flipped, only the
- *  palette/tint refreshed). Call with 1 before entering a blocking palette-
+ *  palette refreshed). Call with 1 before entering a blocking palette-
  *  fade loop, 0 after -- without it, a fade loop's repeated PresentFrame()
  *  calls advance to buffers nothing was freshly submitted into. */
 void RendererPreserveFadeCache(int active);
@@ -252,7 +251,9 @@ void RendererUpdateSlabTexture(const unsigned char* data, int dim);
 
 void RendererSubmitPossessionLens(long viewport_x, long viewport_y, long viewport_w, long viewport_h);
 
-void RendererSubmitMapFadeStep(int tick_step, float display_step, TbBool fading_in);
+/** @param ghost_table the 256x256 map-fade ghost table used for this transition. */
+void RendererSubmitMapFadeStep(int tick_step, float display_step, TbBool fading_in,
+                               const unsigned char *ghost_table);
 TbBool MapFadePass_SupportsNativeResolution(void);
 
 // See OverlayCaptureKind's own comment (IRenderer.h) for each kind's caller.

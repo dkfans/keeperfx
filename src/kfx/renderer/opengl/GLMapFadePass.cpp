@@ -43,9 +43,23 @@ bool GLMapFadePass::CompileShaders()
     glUseProgram(prog->id);
     glUniform1i(glGetUniformLocation(prog->id, "u_parchment"), 0);
     glUniform1i(glGetUniformLocation(prog->id, "u_world"), 1);
+    glUniform1i(glGetUniformLocation(prog->id, "u_palette"), 2);
+    glUniform1i(glGetUniformLocation(prog->id, "u_index_lookup"), 3);
+    glUniform1i(glGetUniformLocation(prog->id, "u_fade_table"), 4);
+    glUniform1i(glGetUniformLocation(prog->id, "u_ghost"), 5);
     m_loc_step = glGetUniformLocation(prog->id, "u_step");
     glUseProgram(0);
-    return true;
+
+    GpuTextureDesc ghost_desc;
+    ghost_desc.width = 256;
+    ghost_desc.height = 256;
+    ghost_desc.format = GpuTextureFormat::R8;
+    ghost_desc.min_filter = GpuTextureFilter::Nearest;
+    ghost_desc.mag_filter = GpuTextureFilter::Nearest;
+    ghost_desc.wrap = GpuTextureWrap::Clamp;
+    ghost_desc.debug_name = "mapfade_ghost";
+    m_ghost_tex_handle = m_resource_mapper->RequestCreateTexture(ghost_desc);
+    return m_resource_mapper->ResolveTexture(m_ghost_tex_handle) != nullptr;
 }
 
 bool GLMapFadePass::init_quad()
@@ -88,13 +102,15 @@ void GLMapFadePass::Shutdown()
     m_was_active_gt = false;
 }
 
-void GLMapFadePass::SubmitStep(int tick_step, float display_step, bool fading_in)
+void GLMapFadePass::SubmitStep(int tick_step, float display_step, bool fading_in, const unsigned char* ghost_table)
 {
     ASSERT_GAME_THREAD();
     const bool is_start = (fading_in && tick_step == 0) || (!fading_in && tick_step == 32);
     m_cmd.active = true;
     m_cmd.step = display_step;
     m_cmd.capture_pending = is_start && !m_was_active_gt;
+    if (m_cmd.capture_pending && ghost_table != nullptr)
+        m_cmd.ghost_table.assign(ghost_table, ghost_table + 256 * 256);
 
     if (m_cmd.capture_pending)
         EnsureCaptureResources((int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight);
@@ -197,11 +213,25 @@ void GLMapFadePass::ResolveComposite(int screen_w, int screen_h)
     ASSERT_RENDER_THREAD();
     if (!m_resource_mapper) return;
 
+    const GLTexture* ghost_tex = m_resource_mapper->ResolveTexture(m_ghost_tex_handle);
+    if (ghost_tex != nullptr && m_rt_cmd.ghost_table.size() == 256u * 256u)
+    {
+        glBindTexture(GL_TEXTURE_2D, ghost_tex->id);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_RED, GL_UNSIGNED_BYTE, m_rt_cmd.ghost_table.data());
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
     const GLProgram* prog = m_resource_mapper->ResolveProgram(m_shader_handle);
     const GLRenderTarget* parchment_rt = m_resource_mapper->ResolveRenderTarget(m_parchment_rt_handle);
     const GLTexture* world_tex = m_resource_mapper->ResolveTexture(m_tex_world_handle);
     const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_quad_geom_handle);
-    if (!prog || !parchment_rt || parchment_rt->color_attachments.empty() || !world_tex || !geom)
+    const GLTexture* palette_tex = m_resource_mapper->ResolveTexture(m_palette_tex_handle);
+    const GLTexture* fade_tex = m_resource_mapper->ResolveTexture(m_fade_table_tex_handle);
+    const GLTexture* index_tex = m_resource_mapper->ResolveTexture(m_palette_index_tex_handle);
+    if (!prog || !parchment_rt || parchment_rt->color_attachments.empty() || !world_tex || !geom
+        || !ghost_tex || !palette_tex || !fade_tex || !index_tex)
         return;
 
     glViewport(0, 0, screen_w, screen_h);
@@ -215,6 +245,14 @@ void GLMapFadePass::ResolveComposite(int screen_w, int screen_h)
     glBindTexture(GL_TEXTURE_2D, parchment_rt->color_attachments[0]);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, world_tex->id);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, palette_tex->id);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, index_tex->id);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, fade_tex->id);
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, ghost_tex->id);
 
     glUniform1f(m_loc_step, m_rt_cmd.step);
     glDrawArrays(GL_TRIANGLES, 0, 6);

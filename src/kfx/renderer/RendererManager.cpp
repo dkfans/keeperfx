@@ -110,11 +110,6 @@ const unsigned char* RendererGetActivePalette(void)
 }
 
 // Palette channels are stored 6-bit (0..63) - because of VGA constraint, convert to 8-bit (0..255) for display.
-static inline unsigned char chan6_to_8(unsigned char v)
-{
-    return (unsigned char)((v * 255) / 63);
-}
-
 TbResult RendererPaletteSet(unsigned char *palette)
 {
     if (!lbScreenInitialised)
@@ -125,7 +120,7 @@ TbResult RendererPaletteSet(unsigned char *palette)
         const unsigned char* pal6 = LbPaletteGetReadonly();
         unsigned char rgb8[PALETTE_SIZE];
         for (int i = 0; i < PALETTE_SIZE; i++)
-            rgb8[i] = chan6_to_8(pal6[i]);
+            rgb8[i] = RendererPaletteChannel8(pal6[i]);
         RendererSetDisplayPalette(rgb8);
         RendererSetPaletteForRenderers(pal6);
     }
@@ -257,20 +252,6 @@ TbBool RendererScheduleScreenshot(const char* path, int fmt)
 }
 
 /******************************************************************************/
-/* Full-screen tint overlay                                                   */
-/******************************************************************************/
-
-float g_screen_tint[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-void RendererSetScreenTint(float r, float g, float b, float a)
-{
-    g_screen_tint[0] = r;
-    g_screen_tint[1] = g;
-    g_screen_tint[2] = b;
-    g_screen_tint[3] = a;
-}
-
-/******************************************************************************/
 /* Fade-cache preservation / forced UI flip                                   */
 /******************************************************************************/
 
@@ -301,13 +282,6 @@ int RendererConsumeForceUIFlip(void)
 
 void RendererApplyPossessionPalette(long step, const unsigned char *main_palette)
 {
-    // GPU renderers use the screen tint overlay for possession/pain effects
-    // (RendererSetScreenTint(), called by every caller of this function
-    // alongside it); the software path has no tint consumer and must modify
-    // the palette directly instead, exactly as it always has.
-    if (s_active_renderer != nullptr && s_active_renderer->GetCapabilities().hasGPURenderPath)
-        return;
-
     unsigned char palette[PALETTE_SIZE];
     for (int i = 0; i < PALETTE_COLORS; i++)
     {
@@ -584,10 +558,11 @@ void RendererUpdateAnimatedTiles(void)
         world->UpdateAnimatedTiles();
 }
 
-void RendererSubmitMapFadeStep(int tick_step, float display_step, TbBool fading_in)
+void RendererSubmitMapFadeStep(int tick_step, float display_step, TbBool fading_in,
+                               const unsigned char *ghost_table)
 {
     if (s_active_renderer != nullptr)
-        s_active_renderer->SubmitMapFadeStep(tick_step, display_step, fading_in != 0);
+        s_active_renderer->SubmitMapFadeStep(tick_step, display_step, fading_in != 0, ghost_table);
 }
 
 void RendererBeginOverlayCapture(OverlayCaptureKind kind)
@@ -640,14 +615,17 @@ void RendererSubmitPossessionLens(long viewport_x, long viewport_y, long viewpor
     if (world == nullptr)
         return;
 
-    LensManager* lm = LensManager::GetInstance();
+    // The world was drawn into a full-screen capture, so a command is always
+    // submitted: without one the capture would never be composited into the
+    // viewport.
     IRWorldLensCmd cmd;
-    if (lm != nullptr && lm->BuildActiveGPULensCmd(viewport_w, viewport_h, cmd))
-    {
-        cmd.viewport_x = viewport_x;
-        cmd.viewport_y = viewport_y;
-        cmd.viewport_w = viewport_w;
-        cmd.viewport_h = viewport_h;
-        world->SubmitPossessionLens(cmd);
-    }
+    cmd.active = true;
+    LensManager* lm = LensManager::GetInstance();
+    if (lm != nullptr)
+        lm->BuildActiveGPULensCmd(viewport_w, viewport_h, cmd);
+    cmd.viewport_x = viewport_x;
+    cmd.viewport_y = viewport_y;
+    cmd.viewport_w = viewport_w;
+    cmd.viewport_h = viewport_h;
+    world->SubmitPossessionLens(cmd);
 }

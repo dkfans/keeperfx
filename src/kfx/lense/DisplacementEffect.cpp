@@ -163,7 +163,7 @@ void DisplacementEffect::BuildLookupTable(long width, long height)
         }
     }
     
-    m_gpu_version++;   // table just rebuilt -- GL upload must not skip it
+    m_gpu_version = NextGPUVersion();   // table just rebuilt -- GL upload must not skip it
 
     SYNCDBG(7, "Built displacement lookup table %ldx%ld", width, height);
 }

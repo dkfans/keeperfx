@@ -29,6 +29,11 @@ public:
 
     /** Must be called before CompileShaders(). Not owned; must outlive this. */
     void SetResourceMapper(GLResourceMapper* mapper) { m_resource_mapper = mapper; }
+    /** Shared textures the blend reads (not owned): the frame palette, the
+     *  fade table and the palette index lookup. */
+    void SetPaletteTexture(GpuResourceHandle tex) { m_palette_tex_handle = tex; }
+    void SetFadeTableTexture(GpuResourceHandle tex) { m_fade_table_tex_handle = tex; }
+    void SetPaletteIndexTexture(GpuResourceHandle tex) { m_palette_index_tex_handle = tex; }
 
     /** Compile the composite shader + build the shared unit quad. Safe to
      *  call after construction; idempotent. */
@@ -43,7 +48,9 @@ public:
      *  m_initialized) exactly. */
     bool IsReady() const { return m_shader_handle != kInvalidGpuResource; }
 
-    void SubmitStep(int tick_step, float display_step, bool fading_in);
+    /** @p ghost_table is the 256x256 map-fade ghost table; it's copied on the
+     *  transition's first frame. */
+    void SubmitStep(int tick_step, float display_step, bool fading_in, const unsigned char* ghost_table);
 
     void FlipBuffers();
 
@@ -80,6 +87,10 @@ private:
 
     GpuResourceHandle m_parchment_rt_handle = kInvalidGpuResource;
     GpuResourceHandle m_tex_world_handle = kInvalidGpuResource;
+    GpuResourceHandle m_ghost_tex_handle = kInvalidGpuResource;   // owned, 256x256 R8
+    GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource;
+    GpuResourceHandle m_fade_table_tex_handle = kInvalidGpuResource;
+    GpuResourceHandle m_palette_index_tex_handle = kInvalidGpuResource;
     int    m_capture_gt_w = 0, m_capture_gt_h = 0;
 };
 

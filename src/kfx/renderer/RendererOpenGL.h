@@ -42,7 +42,8 @@ public:
     class IWorldViewRenderer*   GetWorldViewRenderer() override;
 
     // Parchment transition. See GLMapFadePass.h for the design.
-    void SubmitMapFadeStep(int tick_step, float display_step, bool fading_in) override;
+    void SubmitMapFadeStep(int tick_step, float display_step, bool fading_in,
+                           const unsigned char* ghost_table) override;
     bool MapFadeSupportsNativeResolution() const override;
     void BeginOverlayCapture(OverlayCaptureKind kind) override;
     void EndOverlayCapture(OverlayCaptureKind kind) override;
@@ -61,7 +62,6 @@ public:
     void FGDrawFrontOverlay() override;
     void FGResolveMapFade() override;
     void FGExecuteCursor() override;
-    void FGDrawScreenTint() override;
 
     bool ScheduleScreenshot(const char* path, int fmt) override;
     void FGCaptureScreenshot() override;

@@ -743,10 +743,9 @@ void main()
 // Possession lens
 /******************************************************************************/
 
-// Shared by all three lens composite passes: a static NDC unit quad, drawn
-// with glViewport already set to the destination viewport sub-rect, so
-// a_pos's -1..1 range maps exactly onto that sub-rect. v_uv (0..1) is only
-// used for sampling the source scene/effect textures, not for positioning.
+// Shared by all lens composite passes: a static NDC unit quad, drawn with
+// glViewport already set to the destination viewport sub-rect, so a_pos's
+// -1..1 range maps exactly onto that sub-rect.
 constexpr const char* LENS_COMPOSITE_VERTEX_SHADER = R"glsl(
 #version 330 core
 layout(location = 0) in vec2 a_pos;
@@ -759,110 +758,149 @@ void main()
 }
 )glsl";
 
-// Truecolor mist blend -- NOT a port of develop's palette-index-exact
-// LENS_MIST_FRAGMENT_SHADER/LENS_MIST_ACCURATE_FRAGMENT_SHADER (this
-// branch's captured scene texture is already RGB, the palette index is
-// gone by this point). Reproduces the CPU CMistFade::Render() density
-// calculation exactly (same two-layer wrap-around texture sampling, same
-// (primary+secondary)>>3 combine clamped to 0..32), then blends the scene
-// toward a grey target driven by mist_lightness (0=dark, 63=light, per
-// config_lenses.c's own field comment) rather than reproducing
-// pixmap.fade_tables' exact palette-index remap.
-// Unit 0 = captured scene. Unit 1 = 256x256 R8 mist density texture.
-constexpr const char* LENS_MIST_FRAGMENT_SHADER = R"glsl(
+// Addressing shared by the lens fragment shaders, matching the CPU lens
+// buffers exactly: the destination pixel is counted from the viewport's
+// top-left, and the source is read at (viewport_x + x, y) from the top of the
+// captured scene -- software never offsets the source row by viewport_y.
+// All reads are texelFetch, so no filtering or rounding is involved.
+#define LENS_FRAGMENT_COMMON R"glsl(
 #version 330 core
 in vec2 v_uv;
 uniform sampler2D u_scene;
+uniform float u_src_x;       // viewport left edge, in scene texels
+uniform vec2  u_view_size;   // viewport size, in pixels
+out vec4 fragColor;
+
+ivec2 lens_dest_pixel()
+{
+    ivec2 size = ivec2(u_view_size);
+    ivec2 d = clamp(ivec2(v_uv * u_view_size), ivec2(0), size - 1);
+    return ivec2(d.x, size.y - 1 - d.y);
+}
+
+vec3 lens_scene(ivec2 src)
+{
+    ivec2 size = textureSize(u_scene, 0);
+    ivec2 t = ivec2(int(u_src_x) + src.x, size.y - 1 - src.y);
+    return texelFetch(u_scene, clamp(t, ivec2(0), size - 1), 0).rgb;
+}
+)glsl"
+
+// Palette index recovery shared by passes that apply the game's index tables
+// to a captured RGB image. Every colour drawn from the frame palette maps back
+// to its own index (see GLPaletteIndexLookup), so the table results are the
+// ones software produces for those pixels.
+#define PALETTE_INDEX_COMMON R"glsl(
+uniform sampler2D u_palette;        // 256x1 RGBA8, the frame palette
+uniform sampler2D u_index_lookup;   // 512x512 R8, 6-bit RGB -> palette index
+uniform sampler2D u_fade_table;     // 256x64 R8, pixmap.fade_tables
+
+int palette_index(vec3 rgb)
+{
+    ivec3 c = ivec3(clamp(rgb, 0.0, 1.0) * 63.0 + 0.5);
+    int key = (c.r << 12) | (c.g << 6) | c.b;
+    return int(texelFetch(u_index_lookup, ivec2(key & 511, key >> 9), 0).r * 255.0 + 0.5);
+}
+
+int fade_index(int row, int idx)
+{
+    return int(texelFetch(u_fade_table, ivec2(idx, row), 0).r * 255.0 + 0.5);
+}
+
+vec3 palette_colour(int idx)
+{
+    return texelFetch(u_palette, ivec2(idx, 0), 0).rgb;
+}
+)glsl"
+
+// Mist lens, following CMistFade::Render(): virtual 640x480 coordinates in
+// 16.16 fixed point, two wrapped layers of the 256x256 density texture,
+// n = (primary+secondary)>>3 clamped to 32, then each pixel's index goes
+// through fade table row (mist_lightness + n).
+// Units: 0 scene, 1 mist density, 2 palette, 3 index lookup, 4 fade table.
+constexpr const char* LENS_MIST_FRAGMENT_SHADER = LENS_FRAGMENT_COMMON PALETTE_INDEX_COMMON R"glsl(
 uniform sampler2D u_mist;
-uniform vec2 u_src_off;      // (viewport_x / tex_w, 0) -- see the CPU source-Y asymmetry note below
-uniform vec2 u_src_scale;    // (viewport_w / tex_w, viewport_h / tex_h)
-uniform vec2 u_pos;          // primary layer offset, 0..255 wrapped
-uniform vec2 u_sec;          // secondary layer offset, 0..255 wrapped
-uniform float u_lightness;   // 0..63
-out vec4 fragColor;
+uniform vec2 u_pos;          // primary layer offset, 0..255
+uniform vec2 u_sec;          // secondary layer offset, 0..255
+uniform float u_lightness;   // fade table row base
 void main()
 {
-    // CPU (draw_creature_view()) only offsets the SOURCE sample by
-    // viewport_x, never by viewport_y -- the destination write is
-    // positioned by both, via dst_offset. Replicated here bug-for-bug via
-    // u_src_off's Y component always being 0.
-    vec2 src_uv = u_src_off + v_uv * u_src_scale;
-    vec3 scene = texture(u_scene, src_uv).rgb;
+    ivec2 d = lens_dest_pixel();
 
-    // Reference-space (640x480) virtual coords, matching CMistFade::Render()'s
-    // fixed-point scale_x/scale_y.
-    vec2 virtual_xy = v_uv * vec2(640.0, 480.0);
+    ivec2 size = ivec2(u_view_size);
+    int scale_x = (640 << 16) / size.x;
+    int scale_y = (480 << 16) / size.y;
+    int vx = (d.x * scale_x) >> 16;
+    int vy = (d.y * scale_y) >> 16;
 
-    float p2 = mod(u_pos.x + virtual_xy.x, 256.0);
-    float c2 = mod(u_pos.y + virtual_xy.y, 256.0);
-    float c1 = mod(u_sec.y - virtual_xy.x, 256.0);
-    float p1 = mod(u_sec.x - virtual_xy.y, 256.0);
+    int pos_x = int(u_pos.x), pos_y = int(u_pos.y);
+    int sec_x = int(u_sec.x), sec_y = int(u_sec.y);
+    int p2 = (pos_x + vx) & 255;
+    int c2 = (pos_y + vy) & 255;
+    int c1 = (sec_y + 0x10000 - vx) & 255;
+    int p1 = (sec_x + 0x10000 - vy) & 255;
 
-    float primary   = texture(u_mist, vec2((p2 + 0.5) / 256.0, (c2 + 0.5) / 256.0)).r * 255.0;
-    float secondary = texture(u_mist, vec2((p1 + 0.5) / 256.0, (c1 + 0.5) / 256.0)).r * 255.0;
+    int k = int(texelFetch(u_mist, ivec2(p2, c2), 0).r * 255.0 + 0.5);
+    int i = int(texelFetch(u_mist, ivec2(p1, c1), 0).r * 255.0 + 0.5);
+    int n = min((k + i) >> 3, 32);
 
-    float density = clamp((primary + secondary) / 8.0, 0.0, 32.0) / 32.0;
-    vec3 fog_color = vec3(u_lightness / 63.0);
-
-    fragColor = vec4(mix(scene, fog_color, density), 1.0);
+    int row = min(int(u_lightness) + n, 63);
+    int idx = fade_index(row, palette_index(lens_scene(d)));
+    fragColor = vec4(palette_colour(idx), 1.0);
 }
 )glsl";
 
-// Displacement/flyeye distortion -- samples the captured scene through a
-// precomputed per-pixel remap table (identical layout to
-// DisplaceLookupEntry/FlyeyeLookupEntry: src_x,src_y in viewport-local pixel
-// space), so the distortion shape is pixel-identical to the CPU tables, not
-// a procedural re-derivation. Unit 0 = captured scene. Unit 1 = GL_RG16UI
-// remap table, sized viewport_w x viewport_h.
-constexpr const char* LENS_REMAP_FRAGMENT_SHADER = R"glsl(
-#version 330 core
-in vec2 v_uv;
-uniform sampler2D u_scene;
+// Displacement/flyeye distortion through the CPU's own lookup table
+// (DisplaceLookupEntry/FlyeyeLookupEntry: src_x,src_y per destination pixel,
+// rows from the top). Unit 0 = captured scene. Unit 1 = GL_RG16UI table,
+// sized viewport_w x viewport_h.
+constexpr const char* LENS_REMAP_FRAGMENT_SHADER = LENS_FRAGMENT_COMMON R"glsl(
 uniform usampler2D u_remap;
-uniform vec2 u_src_off;      // (viewport_x / tex_w, 0) -- see the mist shader's asymmetry note
-uniform vec2 u_tex_size;     // captured scene texture size, texels
-out vec4 fragColor;
 void main()
 {
-    ivec2 remap_size = textureSize(u_remap, 0);
-    ivec2 texel = ivec2(v_uv * vec2(remap_size));
-    texel = clamp(texel, ivec2(0), remap_size - ivec2(1));
-    uvec2 src_xy = texelFetch(u_remap, texel, 0).rg;
-
-    vec2 src_uv = u_src_off + vec2(src_xy) / u_tex_size;
-    fragColor = vec4(texture(u_scene, src_uv).rgb, 1.0);
+    ivec2 d = lens_dest_pixel();
+    ivec2 table_size = textureSize(u_remap, 0);
+    uvec2 src = texelFetch(u_remap, clamp(d, ivec2(0), table_size - 1), 0).rg;
+    fragColor = vec4(lens_scene(ivec2(src)), 1.0);
 }
 )glsl";
 
-// Overlay alpha composite -- overlay stretches to exactly fill the viewport
-// (matches CPU's stretch-to-fit scale_x/scale_y), so v_uv doubles as the
-// overlay's own UV with no extra offset math. Palette index 255 is the
-// transparent sentinel (OverlayEffect.cpp), passed through unblended.
-// Unit 0 = captured scene. Unit 1 = R8 palette-index overlay texture.
-// Unit 2 = 256x1 RGBA8 palette (shared with the world/UI passes).
-constexpr const char* LENS_OVERLAY_FRAGMENT_SHADER = R"glsl(
-#version 330 core
-in vec2 v_uv;
-uniform sampler2D u_scene;
+// Overlay composite, following OverlayEffect's Render(): the overlay is
+// stretched to the viewport with 16.16 nearest sampling, rows from the top;
+// index 255 is transparent; otherwise the result is the index-number blend
+// (overlay * alpha + scene * (256 - alpha)) >> 8, as software computes it.
+// Units: 0 scene, 1 overlay (R8 palette index), 2 palette, 3 index lookup.
+constexpr const char* LENS_OVERLAY_FRAGMENT_SHADER = LENS_FRAGMENT_COMMON PALETTE_INDEX_COMMON R"glsl(
 uniform sampler2D u_overlay;
-uniform sampler2D u_palette;
-uniform vec2 u_src_off;
-uniform vec2 u_src_scale;
-uniform float u_alpha;       // 0..1
-out vec4 fragColor;
+uniform int u_alpha;         // 0..256
 void main()
 {
-    vec2 src_uv = u_src_off + v_uv * u_src_scale;
-    vec3 scene = texture(u_scene, src_uv).rgb;
+    ivec2 d = lens_dest_pixel();
+    vec3 scene = lens_scene(d);
 
-    float idx = texture(u_overlay, v_uv).r;
-    if (idx * 255.0 > 254.5)
+    ivec2 size = ivec2(u_view_size);
+    ivec2 overlay_size = textureSize(u_overlay, 0);
+    int ox = min((d.x * ((overlay_size.x << 16) / size.x)) >> 16, overlay_size.x - 1);
+    int oy = min((d.y * ((overlay_size.y << 16) / size.y)) >> 16, overlay_size.y - 1);
+
+    int ov = int(texelFetch(u_overlay, ivec2(ox, oy), 0).r * 255.0 + 0.5);
+    if (ov == 255)
     {
         fragColor = vec4(scene, 1.0);
         return;
     }
-    vec3 overlay_rgb = texture(u_palette, vec2(idx, 0.5)).rgb;
-    fragColor = vec4(mix(scene, overlay_rgb, u_alpha), 1.0);
+    int idx = (ov * u_alpha + palette_index(scene) * (256 - u_alpha)) >> 8;
+    fragColor = vec4(palette_colour(idx), 1.0);
+}
+)glsl";
+
+// Plain copy of the captured scene into the viewport, for a lens with no
+// pixel effect (palette-only or custom lens) -- the software fallback's
+// CopyBuffer(). Unit 0 = captured scene.
+constexpr const char* LENS_COPY_FRAGMENT_SHADER = LENS_FRAGMENT_COMMON R"glsl(
+void main()
+{
+    fragColor = vec4(lens_scene(lens_dest_pixel()), 1.0);
 }
 )glsl";
 
@@ -870,20 +908,29 @@ void main()
 // Parchment transition
 /******************************************************************************/
 
-// Adapted directly from origin/develop's actual GLMapFadePass fragment
-// shader (fetched via `git show`, not re-derived) -- a GLSL port of the
-// CPU map_fade()'s elastic-pinch UV warp + additive weighted blend
-// (engine_redraw.c), not a plain crossfade. Uses the possession-lens
-// LENS_COMPOSITE_VERTEX_SHADER (a generic fullscreen-quad-to-viewport
-// vertex shader -- no map-fade-specific vertex work needed, reused as-is).
-// Unit 0 = captured parchment view. Unit 1 = captured 3D world view.
+// Parchment transition. The elastic-pinch warp is a GLSL port of the CPU
+// map_fade() (engine_redraw.c), kept continuous so the delta-time step stays
+// smooth. The blend is software's: each side's palette index goes through
+// fade table row step (parchment) or 32-step (world), then the pair goes
+// through the map-fade ghost table, ghost[world_row][parchment_col].
+// Units: 0 parchment, 1 world, 2 palette, 3 index lookup, 4 fade table,
+// 5 map-fade ghost table (256x256 R8).
 constexpr const char* MAPFADE_FRAGMENT_SHADER = R"glsl(
 #version 330 core
+)glsl" PALETTE_INDEX_COMMON R"glsl(
 in vec2 v_uv;
 uniform sampler2D u_parchment;
 uniform sampler2D u_world;
+uniform sampler2D u_ghost;
 uniform float u_step;        // 0.0..32.0
 out vec4 fragColor;
+
+vec3 fetch_nearest(sampler2D tex, vec2 uv)
+{
+    ivec2 size = textureSize(tex, 0);
+    return texelFetch(tex, clamp(ivec2(uv * vec2(size)), ivec2(0), size - 1), 0).rgb;
+}
+
 void main()
 {
     float a6 = u_step;
@@ -896,13 +943,15 @@ void main()
     float ww = a6;
     float uv_wx = clamp(fx + ww * (4.0 - 8.0 * fx) / xmax, 0.0, 1.0);
     float uv_wy = clamp(fy + ww * 4.0 * (1.0 - 2.0 * fy) / xmax, 0.0, 1.0);
-    float samp_py = 1.0 - uv_py;
-    float samp_wy = 1.0 - uv_wy;
-    float f_parch = a6 / 32.0;
-    float f_world = (32.0 - a6) / 32.0;
-    vec3 c_parch = texture(u_parchment, vec2(uv_px, samp_py)).rgb * f_parch;
-    vec3 c_world = texture(u_world,     vec2(uv_wx, samp_wy)).rgb * f_world;
-    fragColor = vec4(clamp(c_parch + c_world, 0.0, 1.0), 1.0);
+
+    vec3 c_parch = fetch_nearest(u_parchment, vec2(uv_px, 1.0 - uv_py));
+    vec3 c_world = fetch_nearest(u_world,     vec2(uv_wx, 1.0 - uv_wy));
+
+    int row = clamp(int(a6 + 0.5), 0, 32);
+    int px1 = fade_index(row, palette_index(c_parch));
+    int px2 = fade_index(32 - row, palette_index(c_world));
+    int idx = int(texelFetch(u_ghost, ivec2(px1, px2), 0).r * 255.0 + 0.5);
+    fragColor = vec4(palette_colour(idx), 1.0);
 }
 )glsl";
 

@@ -186,12 +186,6 @@ struct IRWorldLensCmd
     float    overlay_alpha = 0.0f;         /**< 0..1 (LensConfig::overlay_alpha / 256). */
     uint32_t overlay_version = 0;   /**< Bumped only when overlay_pixels changes (lens switch). */
 
-    // Palette (separate side channel -- LCF_HasPalette never touches pixels,
-    // it mutates the active palette; independent of `type`/`active` above,
-    // since a lens can combine a palette swap with a pixel effect).
-    bool    has_palette = false;
-    uint8_t palette[768] = {};
-
     // Real on-screen viewport rect (sidebar excluded) within the captured
     // full-screen buffer -- the composite target. Matches
     // draw_creature_view()'s capture-full/composite-viewport-only asymmetry:
@@ -211,6 +205,7 @@ struct IRMapFadeCmd
     bool  active = false;           /**< False on any frame SubmitStep() wasn't called this transition. */
     float step = 0.0f;              /**< 0..32, matches software's palette_fade_step_map exactly (no interpolation). */
     bool  capture_pending = false;  /**< True only on the one frame the transition just started. */
+    std::vector<uint8_t> ghost_table; /**< 256x256 map-fade ghost table, only on the capture frame. */
 };
 
 /******************************************************************************/

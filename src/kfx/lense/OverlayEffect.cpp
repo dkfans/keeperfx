@@ -276,7 +276,7 @@ TbBool OverlayEffect::Setup(long lens_idx)
     
     m_user_data = renderer;
     m_current_lens = lens_idx;
-    m_gpu_version++;   // overlay texture just (re)loaded -- GL upload must not skip it
+    m_gpu_version = NextGPUVersion();   // overlay texture just (re)loaded -- GL upload must not skip it
 
     SYNCDBG(7, "Overlay effect ready");
     return true;

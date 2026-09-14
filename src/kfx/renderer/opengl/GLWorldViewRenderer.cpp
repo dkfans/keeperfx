@@ -406,8 +406,11 @@ bool GLWorldViewRenderer::init_lens_shaders()
             glUseProgram(prog->id);
             glUniform1i(glGetUniformLocation(prog->id, "u_scene"), 0);
             glUniform1i(glGetUniformLocation(prog->id, "u_mist"), 1);
-            m_lens_mist_loc_src_off   = glGetUniformLocation(prog->id, "u_src_off");
-            m_lens_mist_loc_src_scale = glGetUniformLocation(prog->id, "u_src_scale");
+            glUniform1i(glGetUniformLocation(prog->id, "u_palette"), 2);
+            glUniform1i(glGetUniformLocation(prog->id, "u_index_lookup"), 3);
+            glUniform1i(glGetUniformLocation(prog->id, "u_fade_table"), 4);
+            m_lens_mist_loc_src_x     = glGetUniformLocation(prog->id, "u_src_x");
+            m_lens_mist_loc_view_size = glGetUniformLocation(prog->id, "u_view_size");
             m_lens_mist_loc_pos       = glGetUniformLocation(prog->id, "u_pos");
             m_lens_mist_loc_sec       = glGetUniformLocation(prog->id, "u_sec");
             m_lens_mist_loc_lightness = glGetUniformLocation(prog->id, "u_lightness");
@@ -433,8 +436,8 @@ bool GLWorldViewRenderer::init_lens_shaders()
             glUseProgram(prog->id);
             glUniform1i(glGetUniformLocation(prog->id, "u_scene"), 0);
             glUniform1i(glGetUniformLocation(prog->id, "u_remap"), 1);
-            m_lens_remap_loc_src_off  = glGetUniformLocation(prog->id, "u_src_off");
-            m_lens_remap_loc_tex_size = glGetUniformLocation(prog->id, "u_tex_size");
+            m_lens_remap_loc_src_x     = glGetUniformLocation(prog->id, "u_src_x");
+            m_lens_remap_loc_view_size = glGetUniformLocation(prog->id, "u_view_size");
             glUseProgram(0);
             any_ok = true;
         }
@@ -458,8 +461,9 @@ bool GLWorldViewRenderer::init_lens_shaders()
             glUniform1i(glGetUniformLocation(prog->id, "u_scene"), 0);
             glUniform1i(glGetUniformLocation(prog->id, "u_overlay"), 1);
             glUniform1i(glGetUniformLocation(prog->id, "u_palette"), 2);
-            m_lens_overlay_loc_src_off   = glGetUniformLocation(prog->id, "u_src_off");
-            m_lens_overlay_loc_src_scale = glGetUniformLocation(prog->id, "u_src_scale");
+            glUniform1i(glGetUniformLocation(prog->id, "u_index_lookup"), 3);
+            m_lens_overlay_loc_src_x     = glGetUniformLocation(prog->id, "u_src_x");
+            m_lens_overlay_loc_view_size = glGetUniformLocation(prog->id, "u_view_size");
             m_lens_overlay_loc_alpha     = glGetUniformLocation(prog->id, "u_alpha");
             glUseProgram(0);
             any_ok = true;
@@ -467,6 +471,29 @@ bool GLWorldViewRenderer::init_lens_shaders()
         else
         {
             WARNLOG("GLWorldViewRenderer: lens overlay shader unavailable");
+        }
+    }
+
+    // Copy (no pixel effect, or the effect's resources are unavailable)
+    {
+        GpuProgramDesc desc;
+        desc.vertex_src = LENS_COMPOSITE_VERTEX_SHADER;
+        desc.fragment_src = LENS_COPY_FRAGMENT_SHADER;
+        desc.debug_name = "lens_copy";
+        m_lens_shader_copy_handle = m_resource_mapper->RequestCreateProgram(desc);
+        const GLProgram* prog = m_resource_mapper->ResolveProgram(m_lens_shader_copy_handle);
+        if (prog)
+        {
+            glUseProgram(prog->id);
+            glUniform1i(glGetUniformLocation(prog->id, "u_scene"), 0);
+            m_lens_copy_loc_src_x     = glGetUniformLocation(prog->id, "u_src_x");
+            m_lens_copy_loc_view_size = glGetUniformLocation(prog->id, "u_view_size");
+            glUseProgram(0);
+            any_ok = true;
+        }
+        else
+        {
+            WARNLOG("GLWorldViewRenderer: lens copy shader unavailable");
         }
     }
 
@@ -663,7 +690,7 @@ bool GLWorldViewRenderer::BeginLensCapture()
 {
     ASSERT_RENDER_THREAD();
 
-    if (!m_rt_lens_cmd.active || m_rt_lens_cmd.type == LensPixelEffectType::None)
+    if (!m_rt_lens_cmd.active)
         return false;
     if (!m_resource_mapper)
         return false;
@@ -677,7 +704,7 @@ bool GLWorldViewRenderer::BeginLensCapture()
     case LensPixelEffectType::Overlay:      shader_handle = m_lens_shader_overlay_handle; break;
     default: break;
     }
-    if (ResolveShaderId(shader_handle) == 0)
+    if (ResolveShaderId(shader_handle) == 0 && ResolveShaderId(m_lens_shader_copy_handle) == 0)
         return false;
 
     const GLRenderTarget* rt = m_resource_mapper->ResolveRenderTarget(m_lens_scene_rt_handle);
@@ -704,39 +731,47 @@ void GLWorldViewRenderer::ResolveLensComposite()
     if (!scene_rt || scene_rt->color_attachments.empty() || !quad_geom)
         return;
 
-    const float tex_w = (float)scene_rt->width;
-    const float tex_h = (float)scene_rt->height;
-    const float vp_x  = (float)m_rt_lens_cmd.viewport_x;
-    const float vp_w  = (float)m_rt_lens_cmd.viewport_w;
-    const float vp_h  = (float)m_rt_lens_cmd.viewport_h;
-    // CPU (draw_creature_view()) only offsets the SOURCE sample by
-    // viewport_x, never viewport_y -- see the shader file header note.
-    const float src_off_x   = tex_w > 0.0f ? vp_x / tex_w : 0.0f;
-    const float src_scale_x = tex_w > 0.0f ? vp_w / tex_w : 1.0f;
-    const float src_scale_y = tex_h > 0.0f ? vp_h / tex_h : 1.0f;
+    if (m_rt_lens_cmd.viewport_w <= 0 || m_rt_lens_cmd.viewport_h <= 0)
+        return;
+    const float vp_x = (float)m_rt_lens_cmd.viewport_x;
+    const float vp_w = (float)m_rt_lens_cmd.viewport_w;
+    const float vp_h = (float)m_rt_lens_cmd.viewport_h;
 
     const int dest_vp_y_gl = m_full_screen_h - m_rt_lens_cmd.viewport_y - m_rt_lens_cmd.viewport_h;
     glViewport(m_rt_lens_cmd.viewport_x, dest_vp_y_gl, m_rt_lens_cmd.viewport_w, m_rt_lens_cmd.viewport_h);
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
 
+    const GLTexture* index_tex = m_resource_mapper->ResolveTexture(m_palette_index_tex_handle);
+    const GLuint palette_tex_id = ResolvePaletteTexId();
+    const GLuint fade_tex_id = ResolveFadeTexId();
+    const bool have_index_tables = (index_tex != nullptr) && (palette_tex_id != 0) && (fade_tex_id != 0);
+
     glBindVertexArray(quad_geom->vao);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, scene_rt->color_attachments[0]);
 
+    bool drawn = false;
     switch (m_rt_lens_cmd.type)
     {
     case LensPixelEffectType::Mist:
     {
         const GLProgram* prog = m_resource_mapper->ResolveProgram(m_lens_shader_mist_handle);
         const GLTexture* mist_tex = m_resource_mapper->ResolveTexture(m_lens_mist_tex_handle);
-        if (prog && mist_tex)
+        if (prog && mist_tex && have_index_tables)
         {
+            drawn = true;
             glUseProgram(prog->id);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, mist_tex->id);
-            glUniform2f(m_lens_mist_loc_src_off, src_off_x, 0.0f);
-            glUniform2f(m_lens_mist_loc_src_scale, src_scale_x, src_scale_y);
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, palette_tex_id);
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, index_tex->id);
+            glActiveTexture(GL_TEXTURE4);
+            glBindTexture(GL_TEXTURE_2D, fade_tex_id);
+            glUniform1f(m_lens_mist_loc_src_x, vp_x);
+            glUniform2f(m_lens_mist_loc_view_size, vp_w, vp_h);
             glUniform2f(m_lens_mist_loc_pos, m_rt_lens_cmd.mist_pos_x, m_rt_lens_cmd.mist_pos_y);
             glUniform2f(m_lens_mist_loc_sec, m_rt_lens_cmd.mist_sec_x, m_rt_lens_cmd.mist_sec_y);
             glUniform1f(m_lens_mist_loc_lightness, (float)m_rt_lens_cmd.mist_lightness);
@@ -752,11 +787,12 @@ void GLWorldViewRenderer::ResolveLensComposite()
         const GLTexture* remap_tex = m_resource_mapper->ResolveTexture(m_lens_remap_tex_handle);
         if (prog && remap_tex)
         {
+            drawn = true;
             glUseProgram(prog->id);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, remap_tex->id);
-            glUniform2f(m_lens_remap_loc_src_off, src_off_x, 0.0f);
-            glUniform2f(m_lens_remap_loc_tex_size, tex_w, tex_h);
+            glUniform1f(m_lens_remap_loc_src_x, vp_x);
+            glUniform2f(m_lens_remap_loc_view_size, vp_w, vp_h);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
         break;
@@ -766,16 +802,19 @@ void GLWorldViewRenderer::ResolveLensComposite()
     {
         const GLProgram* prog = m_resource_mapper->ResolveProgram(m_lens_shader_overlay_handle);
         const GLTexture* overlay_tex = m_resource_mapper->ResolveTexture(m_lens_overlay_tex_handle);
-        if (prog && overlay_tex)
+        if (prog && overlay_tex && have_index_tables)
         {
+            drawn = true;
             glUseProgram(prog->id);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, overlay_tex->id);
             glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, ResolvePaletteTexId());
-            glUniform2f(m_lens_overlay_loc_src_off, src_off_x, 0.0f);
-            glUniform2f(m_lens_overlay_loc_src_scale, src_scale_x, src_scale_y);
-            glUniform1f(m_lens_overlay_loc_alpha, m_rt_lens_cmd.overlay_alpha);
+            glBindTexture(GL_TEXTURE_2D, palette_tex_id);
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, index_tex->id);
+            glUniform1f(m_lens_overlay_loc_src_x, vp_x);
+            glUniform2f(m_lens_overlay_loc_view_size, vp_w, vp_h);
+            glUniform1i(m_lens_overlay_loc_alpha, (GLint)(m_rt_lens_cmd.overlay_alpha * 256.0f + 0.5f));
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
         break;
@@ -785,22 +824,27 @@ void GLWorldViewRenderer::ResolveLensComposite()
         break;
     }
 
+    if (!drawn)
+    {
+        const GLProgram* prog = m_resource_mapper->ResolveProgram(m_lens_shader_copy_handle);
+        if (prog)
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, scene_rt->color_attachments[0]);
+            glUseProgram(prog->id);
+            glUniform1f(m_lens_copy_loc_src_x, vp_x);
+            glUniform2f(m_lens_copy_loc_view_size, vp_w, vp_h);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
+    }
+
     glUseProgram(0);
     glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDepthMask(GL_TRUE);
-}
-
-void GLWorldViewRenderer::GetActiveLensPaletteRGBA(unsigned char* out_rgba) const
-{
-    for (int i = 0; i < 256; i++)
-    {
-        out_rgba[i * 4 + 0] = m_rt_lens_cmd.palette[i * 3 + 0];
-        out_rgba[i * 4 + 1] = m_rt_lens_cmd.palette[i * 3 + 1];
-        out_rgba[i * 4 + 2] = m_rt_lens_cmd.palette[i * 3 + 2];
-        out_rgba[i * 4 + 3] = 255;
-    }
+    // Everything drawn after the lens (UI, overlays) expects the full screen.
+    glViewport(0, 0, m_full_screen_w, m_full_screen_h);
 }
 
 void GLWorldViewRenderer::append_shadow_quad(const struct BucketKindCreatureShadow* sh,
@@ -1567,13 +1611,12 @@ void GLWorldViewRenderer::ensure_clut_valid()
 
     memcpy(m_kspr_clut_palette_snap, m_rt_palette, sizeof(m_rt_palette));
 
-    // Rebuild identity CLUT row 0: palette[i] for all i. DK palette is 6-bit
-    // (0-63); shift left 2 to get 8-bit.
+    // Rebuild identity CLUT row 0: palette[i] for all i.
     uint8_t row[256 * 4];
     for (int i = 0; i < 256; i++) {
-        row[i*4+0] = (uint8_t)(m_rt_palette[i*3+0] << 2);
-        row[i*4+1] = (uint8_t)(m_rt_palette[i*3+1] << 2);
-        row[i*4+2] = (uint8_t)(m_rt_palette[i*3+2] << 2);
+        row[i*4+0] = RendererPaletteChannel8(m_rt_palette[i*3+0]);
+        row[i*4+1] = RendererPaletteChannel8(m_rt_palette[i*3+1]);
+        row[i*4+2] = RendererPaletteChannel8(m_rt_palette[i*3+2]);
         row[i*4+3] = 255;
     }
     glActiveTexture(GL_TEXTURE1);
@@ -1690,9 +1733,9 @@ float GLWorldViewRenderer::resolve_clut_v(const unsigned char* remap)
     uint8_t row_data[256 * 4];
     for (int ci = 0; ci < 256; ci++) {
         int ri = remap[ci];
-        row_data[ci*4+0] = (uint8_t)(m_rt_palette[ri*3+0] << 2);
-        row_data[ci*4+1] = (uint8_t)(m_rt_palette[ri*3+1] << 2);
-        row_data[ci*4+2] = (uint8_t)(m_rt_palette[ri*3+2] << 2);
+        row_data[ci*4+0] = RendererPaletteChannel8(m_rt_palette[ri*3+0]);
+        row_data[ci*4+1] = RendererPaletteChannel8(m_rt_palette[ri*3+1]);
+        row_data[ci*4+2] = RendererPaletteChannel8(m_rt_palette[ri*3+2]);
         row_data[ci*4+3] = 255;
     }
     glActiveTexture(GL_TEXTURE1);
@@ -1797,9 +1840,9 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
             if (color_idx < 9)
             {
                 uint8_t pal_idx = player_room_colours[color_idx];
-                oc_r = (float)((int)m_rt_palette[pal_idx * 3 + 0] << 2) / 255.0f;
-                oc_g = (float)((int)m_rt_palette[pal_idx * 3 + 1] << 2) / 255.0f;
-                oc_b = (float)((int)m_rt_palette[pal_idx * 3 + 2] << 2) / 255.0f;
+                oc_r = (float)RendererPaletteChannel8(m_rt_palette[pal_idx * 3 + 0]) / 255.0f;
+                oc_g = (float)RendererPaletteChannel8(m_rt_palette[pal_idx * 3 + 1]) / 255.0f;
+                oc_b = (float)RendererPaletteChannel8(m_rt_palette[pal_idx * 3 + 2]) / 255.0f;
             }
         }
         KsprOutlineInstance o;
@@ -1991,9 +2034,9 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
             if (color_idx < 9)
             {
                 uint8_t pal_idx = player_room_colours[color_idx];
-                oc_r = (float)((int)m_rt_palette[pal_idx * 3 + 0] << 2) / 255.0f;
-                oc_g = (float)((int)m_rt_palette[pal_idx * 3 + 1] << 2) / 255.0f;
-                oc_b = (float)((int)m_rt_palette[pal_idx * 3 + 2] << 2) / 255.0f;
+                oc_r = (float)RendererPaletteChannel8(m_rt_palette[pal_idx * 3 + 0]) / 255.0f;
+                oc_g = (float)RendererPaletteChannel8(m_rt_palette[pal_idx * 3 + 1]) / 255.0f;
+                oc_b = (float)RendererPaletteChannel8(m_rt_palette[pal_idx * 3 + 2]) / 255.0f;
             }
         }
         const float oc_a = g_renderer_settings.creature_outline_alpha;

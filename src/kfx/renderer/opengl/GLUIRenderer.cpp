@@ -42,19 +42,15 @@ void apply_flip_flags(TbDrawFlagsMask draw_flags, float& u0, float& v0, float& u
     if (draw_flags & Lb_SPRITE_FLIP_VERTIC) std::swap(v0, v1);
 }
 
-// palette channels are 6-bit (VGA); expand to 8-bit for display, then to [0,1].
-inline float chan6_to_unit(unsigned char v) { return (float)((v * 255) / 63) / 255.0f; }
-
-void palette_index_to_rgb(unsigned char idx, float* r, float* g, float* b)
-{
-    const unsigned char* pal = RendererGetActivePalette();
-    if (!pal) { *r = *g = *b = 1.0f; return; }
-    *r = chan6_to_unit(pal[idx * 3 + 0]);
-    *g = chan6_to_unit(pal[idx * 3 + 1]);
-    *b = chan6_to_unit(pal[idx * 3 + 2]);
-}
-
 } // namespace
+
+void GLUIRenderer::PaletteColour(unsigned char idx, float* r, float* g, float* b) const
+{
+    if (m_frame_palette == nullptr) { *r = *g = *b = 1.0f; return; }
+    *r = (float)m_frame_palette[idx * 4 + 0] / 255.0f;
+    *g = (float)m_frame_palette[idx * 4 + 1] / 255.0f;
+    *b = (float)m_frame_palette[idx * 4 + 2] / 255.0f;
+}
 
 namespace {
 // Shared attribute layout for both VAO/VBO pairs below: 9 floats/vertex --
@@ -486,7 +482,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             q.x0 = (float)c.x; q.y0 = (float)c.y;
             q.x1 = q.x0 + uv.pixel_w; q.y1 = q.y0 + uv.pixel_h;
             q.u0 = u0; q.v0 = v0; q.u1 = u1; q.v1 = v1;
-            palette_index_to_rgb(c.colour, &q.r, &q.g, &q.b);
+            PaletteColour(c.colour, &q.r, &q.g, &q.b);
             q.a = alpha_from_draw_flags(c.draw_flags);
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_COLORED; q.seq = c.seq;
             out[(int)c.layer].push_back(q);
@@ -517,7 +513,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             q.x0 = (float)c.x; q.y0 = (float)c.y;
             q.x1 = q.x0 + (float)c.w; q.y1 = q.y0 + (float)c.h;
             q.u0 = u0; q.v0 = v0; q.u1 = u1; q.v1 = v1;
-            palette_index_to_rgb(c.colour, &q.r, &q.g, &q.b);
+            PaletteColour(c.colour, &q.r, &q.g, &q.b);
             q.a = alpha_from_draw_flags(c.draw_flags);
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_COLORED; q.seq = c.seq;
             out[(int)c.layer].push_back(q);
@@ -546,7 +542,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
         case K_Box: {
             const IRUISolidBoxCmd& c = ui.solid_boxes.Data()[ref.idx];
             float r, g, b;
-            palette_index_to_rgb(c.colour, &r, &g, &b);
+            PaletteColour(c.colour, &r, &g, &b);
             const float a = alpha_from_draw_flags(c.draw_flags);
             if (c.draw_flags & Lb_SPRITE_OUTLINE)
             {

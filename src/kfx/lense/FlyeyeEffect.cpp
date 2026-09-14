@@ -351,7 +351,7 @@ void FlyeyeEffect::BuildLookupTable(long width, long height)
     free(g_ref_scanlines);
     g_ref_scanlines = nullptr;
     
-    m_gpu_version++;   // table just rebuilt -- GL upload must not skip it
+    m_gpu_version = NextGPUVersion();   // table just rebuilt -- GL upload must not skip it
 
     SYNCDBG(7, "Built flyeye lookup table %ldx%ld", width, height);
 }

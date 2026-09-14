@@ -86,8 +86,9 @@ public:
     virtual class ICursorLayer*       GetCursorLayer()       { return nullptr; }
     virtual class IWorldViewRenderer* GetWorldViewRenderer() { return nullptr; }
 
-    virtual void SubmitMapFadeStep(int tick_step, float display_step, bool fading_in)
-        { (void)tick_step; (void)display_step; (void)fading_in; }
+    virtual void SubmitMapFadeStep(int tick_step, float display_step, bool fading_in,
+                                   const unsigned char* ghost_table)
+        { (void)tick_step; (void)display_step; (void)fading_in; (void)ghost_table; }
     virtual bool MapFadeSupportsNativeResolution() const { return false; }
 
     virtual void BeginOverlayCapture(OverlayCaptureKind kind) { (void)kind; }
