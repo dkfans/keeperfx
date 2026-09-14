@@ -9,7 +9,6 @@
 #include "kfx/renderer/opengl/GLWorldViewRenderer.h"
 
 #include "kfx/renderer/ITileAtlas.h"
-#include "kfx/renderer/TileAtlasPacker.h"  // GetTileUV
 #include "kfx/renderer/opengl/GLShaders.h"
 #include "kfx/renderer/opengl/GLResourceMapper.h"
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
@@ -147,6 +146,8 @@ bool GLWorldViewRenderer::init_gl_resources()
             { 5, 1, GpuVertexAttribType::Float, 9 * (uint32_t)sizeof(float) },
             // layout(location=6) vec3 aWorldPos — pre-projection world-space position
             { 6, 3, GpuVertexAttribType::Float, 10 * (uint32_t)sizeof(float) },
+            // layout(location=7) float a_tile — tile index within the atlas layer
+            { 7, 1, GpuVertexAttribType::Float, 13 * (uint32_t)sizeof(float) },
         };
         geom_desc.dynamic = true;
         geom_desc.initial_vertex_capacity = k_initial_verts * sizeof(WorldVertex);
@@ -686,7 +687,7 @@ void GLWorldViewRenderer::upload_lens_textures_if_dirty()
     }
 }
 
-bool GLWorldViewRenderer::BeginLensCapture()
+bool GLWorldViewRenderer::BeginLensCapture(const float* clear_rgba)
 {
     ASSERT_RENDER_THREAD();
 
@@ -712,7 +713,7 @@ bool GLWorldViewRenderer::BeginLensCapture()
         return false;
 
     glBindFramebuffer(GL_FRAMEBUFFER, rt->fbo);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(clear_rgba[0], clear_rgba[1], clear_rgba[2], clear_rgba[3]);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     return true;
 }
@@ -1413,10 +1414,6 @@ bool GLWorldViewRenderer::append_triangle(int tile_id,
     std::vector<WorldVertex>& verts_vec = m_world_write_cmds->tile_verts;
     verts_vec.resize((size_t)(m_vert_count + 3));
 
-    // Look up the normalised UV rectangle for this tile in the atlas.
-    float u0f, v0f, u1f, v1f;
-    TileAtlasPacker::GetTileUV(tile_local, &u0f, &v0f, &u1f, &v1f);
-
     // Derive NDC depth from the painter's-algorithm bucket index:
     //   high bi (far away) -> z near +1.0; low bi (close) -> z near -1.0.
     const float z_ndc = 2.0f * (float)m_current_bucket / (float)(BUCKETS_COUNT - 1) - 1.0f;
@@ -1435,9 +1432,10 @@ bool GLWorldViewRenderer::append_triangle(int tile_id,
         wv->x = (float)(pts[i]->X) / (float)m_screen_w * 2.0f - 1.0f;
         wv->y = 1.0f - (float)(pts[i]->Y) / (float)m_screen_h * 2.0f;
         wv->z = z_ndc;
-        // U/V are 16:16; integer part (>>16) is texel 0..31 within the 32-px tile.
-        wv->u = u0f + ((float)(pts[i]->U >> 16) / 32.0f) * (u1f - u0f);
-        wv->v = v0f + ((float)(pts[i]->V >> 16) / 32.0f) * (v1f - v0f);
+        // U/V are 16:16 texel coordinates. They can run past the tile (scrolled
+        // liquid); the shader wraps them within the tile like the software rasteriser.
+        wv->u = (float)pts[i]->U / 65536.0f;
+        wv->v = (float)pts[i]->V / 65536.0f;
         // S = shade_intensity<<8; (S>>16) gives shade level 0..62.
         wv->shade = (float)(pts[i]->S >> 16) / 32.0f;
         wv->stl_x = 0.0f;
@@ -1447,6 +1445,7 @@ bool GLWorldViewRenderer::append_triangle(int tile_id,
         wv->wx = (float)world_x[i];
         wv->wy = (float)world_y[i];
         wv->wz = (float)world_z[i];
+        wv->tile = (float)tile_local;
     }
     m_vert_count += 3;
     return true;
@@ -1461,26 +1460,26 @@ bool GLWorldViewRenderer::append_frontview_quad(const struct BucketKindTexturedQ
     struct PolyPoint a, d, b, c;
     a.X = (txquad->texture_x >> 8) / pixel_size;
     a.Y = (txquad->texture_y >> 8) / pixel_size;
-    a.U = orient_to_mapU1[txquad->orient];
-    a.V = orient_to_mapV1[txquad->orient];
+    a.U = orient_to_mapU1[txquad->orient] + txquad->texture_scroll.x.val;
+    a.V = orient_to_mapV1[txquad->orient] + txquad->texture_scroll.y.val;
     a.S = txquad->shade_intensity0;
 
     d.X = ((txquad->zoom_x + txquad->texture_x) >> 8) / pixel_size;
     d.Y = (txquad->texture_y >> 8) / pixel_size;
-    d.U = orient_to_mapU2[txquad->orient];
-    d.V = orient_to_mapV2[txquad->orient];
+    d.U = orient_to_mapU2[txquad->orient] + txquad->texture_scroll.x.val;
+    d.V = orient_to_mapV2[txquad->orient] + txquad->texture_scroll.y.val;
     d.S = txquad->shade_intensity1;
 
     b.X = ((txquad->zoom_x + txquad->texture_x) >> 8) / pixel_size;
     b.Y = ((txquad->zoom_y + txquad->texture_y) >> 8) / pixel_size;
-    b.U = orient_to_mapU3[txquad->orient];
-    b.V = orient_to_mapV3[txquad->orient];
+    b.U = orient_to_mapU3[txquad->orient] + txquad->texture_scroll.x.val;
+    b.V = orient_to_mapV3[txquad->orient] + txquad->texture_scroll.y.val;
     b.S = txquad->shade_intensity2;
 
     c.X = (txquad->texture_x >> 8) / pixel_size;
     c.Y = ((txquad->zoom_y + txquad->texture_y) >> 8) / pixel_size;
-    c.U = orient_to_mapU4[txquad->orient];
-    c.V = orient_to_mapV4[txquad->orient];
+    c.U = orient_to_mapU4[txquad->orient] + txquad->texture_scroll.x.val;
+    c.V = orient_to_mapV4[txquad->orient] + txquad->texture_scroll.y.val;
     c.S = txquad->shade_intensity3;
 
     int tile_id;

@@ -17,6 +17,7 @@ public:
     const char* GetName() const override { return "OpenGL"; }
 
     void SetDisplayPalette(const unsigned char* rgb8) override;
+    void ClearScreen(unsigned char colour) override;
     void PresentFrame() override;
 
     BackendCapabilities GetCapabilities() const override { return BackendCapabilities{ 1, 1 }; }

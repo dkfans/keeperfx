@@ -70,9 +70,20 @@ struct GLFrameData {
 
     bool          palette_dirty = false;
     unsigned char palette_rgba[256 * 4] = {};
+    // Palette index the frame is cleared to, as RendererClearScreen() fills the software screen.
+    unsigned char clear_index = 0;
 
     GLCursorSnapshot cursor_snapshot;
 };
+
+static void frame_clear_colour(const GLFrameData& fd, GLfloat* rgba)
+{
+    const unsigned char* c = &fd.palette_rgba[fd.clear_index * 4];
+    rgba[0] = c[0] / 255.0f;
+    rgba[1] = c[1] / 255.0f;
+    rgba[2] = c[2] / 255.0f;
+    rgba[3] = 1.0f;
+}
 
 struct RendererOpenGL::Impl {
     GLSpriteAtlas      atlas;
@@ -486,6 +497,9 @@ void RendererOpenGL::FGClearFrame()
 
     m_impl->BindScreenTarget(fd);
     glViewport(0, 0, fd.screen_w, fd.screen_h);
+    GLfloat clear_rgba[4];
+    frame_clear_colour(fd, clear_rgba);
+    glClearColor(clear_rgba[0], clear_rgba[1], clear_rgba[2], clear_rgba[3]);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_impl->ui.BuildQuadsFromIR(fd.ui_cmds);
@@ -493,7 +507,9 @@ void RendererOpenGL::FGClearFrame()
 
 void RendererOpenGL::FGBeginWorldCapture()
 {
-    m_impl->fg_lens_captured = m_impl->world.BeginLensCapture();
+    GLfloat clear_rgba[4];
+    frame_clear_colour(m_impl->frames[m_impl->render_idx], clear_rgba);
+    m_impl->fg_lens_captured = m_impl->world.BeginLensCapture(clear_rgba);
 }
 
 void RendererOpenGL::FGExecuteWorld()
@@ -657,6 +673,12 @@ void RendererOpenGL::SetDisplayPalette(const unsigned char* rgb8)
     fd.palette_dirty = true;
 }
 
+void RendererOpenGL::ClearScreen(unsigned char colour)
+{
+    if (m_impl == nullptr) return;
+    m_impl->frames[m_impl->write_idx].clear_index = colour;
+}
+
 void RendererOpenGL::PresentFrame()
 {
     if (!m_gl_context || m_impl == nullptr || !GetPlatform()->GetWindowSystem()->HasWindow())
@@ -701,6 +723,7 @@ void RendererOpenGL::PresentFrame()
     next_fd.palette_dirty = false; // defensive; a real change always re-sets this itself
     // Both slots must hold the current palette, not the one last written into them.
     std::memcpy(next_fd.palette_rgba, m_impl->frames[filled].palette_rgba, sizeof(next_fd.palette_rgba));
+    next_fd.clear_index = m_impl->frames[filled].clear_index;
 
     
     m_impl->world.FlipBuffers();

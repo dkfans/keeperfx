@@ -115,10 +115,12 @@ layout(location = 3) in vec2  a_stl;       // subtile coords for lightmap (mode 
 layout(location = 4) in float a_camera_z;  // camera-space Z for perspective correction
 layout(location = 5) in float a_layer;     // texture array layer (atlas variation)
 layout(location = 6) in vec3  aWorldPos;   // pre-projection world-space position
+layout(location = 7) in float a_tile;      // tile index within the atlas layer
 out vec2  v_uv;
 out float v_shade;
 out vec2  v_stl;
 flat out float v_layer;
+flat out int v_tile;
 out vec3  vWorldPos;
 void main()
 {
@@ -133,16 +135,18 @@ void main()
     v_shade     = a_shade;
     v_stl       = a_stl;
     v_layer     = a_layer;
+    v_tile      = int(a_tile + 0.5);
     vWorldPos   = aWorldPos;
 }
 )glsl";
 
 constexpr const char* WORLD_FRAGMENT_SHADER = R"glsl(
 #version 330 core
-in vec2  v_uv;
+in vec2  v_uv;                          // texel coords within the tile, wrapped below
 in float v_shade;
 in vec2  v_stl;                         // subtile coords [0..511], mode 1 only
 flat in float v_layer;                  // texture array layer (atlas variation)
+flat in int v_tile;                     // tile index within the layer
 in vec3  vWorldPos;                     // reserved for future dynamic lighting / shadow mapping
 uniform sampler2DArray u_tile_atlas;    // R8 palette-index atlas array (unit 0)
 uniform sampler2D  u_palette;           // RGBA8 256×1 palette (unit 1)
@@ -196,6 +200,15 @@ float fbm(vec2 p)
     return v;
 }
 
+// Palette index of a tile texel. The coordinates wrap within the 32x32 tile, as the
+// software rasteriser masks them, so scrolled liquid textures repeat.
+float tile_index(ivec2 texel)
+{
+    int cols = textureSize(u_tile_atlas, 0).x / 32;
+    ivec2 origin = ivec2(v_tile % cols, v_tile / cols) * 32;
+    return texelFetch(u_tile_atlas, ivec3(origin + (texel & 31), int(v_layer + 0.5)), 0).r;
+}
+
 void main()
 {
     // When the tile atlas slot is missing (atlas not yet loaded or variation out of
@@ -242,16 +255,13 @@ void main()
 
     if (u_tile_filter == 1) {
         // Palette-correct bilinear: sample 4 neighbours, decode each, then lerp.
-        vec2 tex_size = vec2(textureSize(u_tile_atlas, 0).xy);
-        vec2 px   = v_uv * tex_size - 0.5;
-        vec2 f    = fract(px);
-        vec2 base = (floor(px) + 0.5) / tex_size;
-        vec2 st   = 1.0 / tex_size;
-        float layer = v_layer;
-        float idx00 = texture(u_tile_atlas, vec3(base, layer)).r;
-        float idx10 = texture(u_tile_atlas, vec3(base + vec2(st.x, 0.0), layer)).r;
-        float idx01 = texture(u_tile_atlas, vec3(base + vec2(0.0, st.y), layer)).r;
-        float idx11 = texture(u_tile_atlas, vec3(base + st, layer)).r;
+        vec2 px    = v_uv - 0.5;
+        vec2 f     = fract(px);
+        ivec2 base = ivec2(floor(px));
+        float idx00 = tile_index(base);
+        float idx10 = tile_index(base + ivec2(1, 0));
+        float idx01 = tile_index(base + ivec2(0, 1));
+        float idx11 = tile_index(base + ivec2(1, 1));
 
         if (u_darkness_mode != 0) {
             // Palette-mode darkness: shade each neighbour through the fade table
@@ -276,7 +286,7 @@ void main()
         }
         pal_idx = idx00;  // kept for LINEAR shade multiply below
     } else {
-        pal_idx = texture(u_tile_atlas, vec3(v_uv, v_layer)).r;
+        pal_idx = tile_index(ivec2(floor(v_uv)));
         col = texture(u_palette, vec2(pal_idx, 0.5));
     }
 

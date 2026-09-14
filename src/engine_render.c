@@ -3964,12 +3964,14 @@ static unsigned short engine_remap_top_texture_blocks(MapSubtlCoord stl_x, MapSu
     if (offset == 0) {
         return texture;
     }
+    // The whole slab scrolls one way, toward the abyss slabs around it, so its
+    // subtiles stay joined. Diagonal abyss only counts when no side touches one.
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    int32_t nearest = STL_PER_SLB + 1;
+    TbBool touches_abyss = false;
     int32_t flow_x = 0;
     int32_t flow_y = 0;
-    for (int32_t side = 0; side < AROUND_EIGHT_LENGTH && (side < 4 || nearest > STL_PER_SLB); side++) {
+    for (int32_t side = 0; side < AROUND_EIGHT_LENGTH && (side < 4 || !touches_abyss); side++) {
         const struct Around *direction = &my_around_eight[(2 * side + side / 4) & 7];
         MapSlabCoord adjacent_slb_x = slb_x + direction->delta_x;
         MapSlabCoord adjacent_slb_y = slb_y + direction->delta_y;
@@ -3982,23 +3984,12 @@ static unsigned short engine_remap_top_texture_blocks(MapSubtlCoord stl_x, MapSu
         if (!map_block_revealed(adjacent_map, my_player_number) || !map_block_has_rendered_abyss(adjacent_map, adjacent_x, adjacent_y)) {
             continue;
         }
-        int32_t distance = max(
-            abs(direction->delta_x) * (STL_PER_SLB + 1) / 2 + direction->delta_x * (slab_subtile_center(slb_x) - stl_x),
-            abs(direction->delta_y) * (STL_PER_SLB + 1) / 2 + direction->delta_y * (slab_subtile_center(slb_y) - stl_y));
-        if (distance > nearest) {
-            continue;
-        }
-        if (distance < nearest) {
-            nearest = distance;
-            flow_x = 0;
-            flow_y = 0;
-        }
+        touches_abyss = true;
         flow_x += direction->delta_x;
         flow_y += direction->delta_y;
     }
-    int32_t scroll = TO_FIXED(FROM_FIXED(offset * (STL_PER_SLB + 1 - nearest) / (STL_PER_SLB + 1)));
-    texture_scroll.x.val = -max(-1, min(1, flow_x)) * scroll;
-    texture_scroll.y.val = -max(-1, min(1, flow_y)) * scroll;
+    texture_scroll.x.val = -max(-1, min(1, flow_x)) * offset;
+    texture_scroll.y.val = -max(-1, min(1, flow_y)) * offset;
     return texture;
 }
 

@@ -161,7 +161,7 @@ public:
 
     void SubmitPossessionLens(const IRWorldLensCmd& cmd) override;
 
-    bool BeginLensCapture();
+    bool BeginLensCapture(const float* clear_rgba);
 
     void ResolveLensComposite();
 
