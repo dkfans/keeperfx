@@ -358,7 +358,7 @@ void GLUIRenderer::FlushPendingSlabUpload()
     m_slab_dim = dim;
 }
 
-uint8_t* GLUIRenderer::AcquireMinimapBuffer(int size)
+uint8_t* GLUIRenderer::AcquireMinimapBuffer(int /*screen_x*/, int /*screen_y*/, int size)
 {
     if (size <= 0) return nullptr;
     auto& buf = m_minimap_cpu_buf[m_minimap_write_idx];

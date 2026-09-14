@@ -71,13 +71,15 @@ public:
 
     virtual void UpdateSlabTexture(const unsigned char* /*data*/, int /*dim*/) {}
 
-    /** Acquire a renderer-owned size*size palette-index scratch buffer
-     *  (zero-filled; index 0 = "nothing drawn here"), always non-null for a
-     *  valid size. The caller (the minimap draw functions) writes into it
+    /** Acquire a renderer-owned size*size palette-index scratch buffer for the
+     *  minimap at (screen_x, screen_y), always non-null for a valid size. The
+     *  CPU default fills it with the framebuffer pixels already there; a backend
+     *  that composites the background zero-fills it (index 0 = "nothing drawn
+     *  here"). The caller (the minimap draw functions) writes into it
      *  directly and calls SubmitMinimap() once done -- this is bulk raster
      *  data, not a per-command IR submission, same shape as UpdateSlabTexture()
      *  above. */
-    virtual uint8_t* AcquireMinimapBuffer(int size);
+    virtual uint8_t* AcquireMinimapBuffer(int screen_x, int screen_y, int size);
 
     /** Display the buffer filled via AcquireMinimapBuffer() at (screen_x,
      *  screen_y). shape_start/shape_end are the per-row circular-mask bounds

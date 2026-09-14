@@ -142,8 +142,8 @@ TbBool RendererSubmitLandviewZoom(const unsigned char *src_buf, int src_w, int s
 TbBool RendererScheduleScreenshot(const char* path, int fmt);
 
 /** True when the active backend composites the minimap over the panel
- *  artwork itself (draw-order layering) -- callers that build minimap pixel
- *  data must not bake a background colour into it themselves in that case.
+ *  artwork itself (draw-order layering) -- index 0 in its minimap buffer is
+ *  transparent, so callers must draw black with another index.
  *  See IRenderer::BackendCapabilities::compositesMinimapBackground. */
 TbBool RendererCompositesMinimapBackground(void);
 

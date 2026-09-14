@@ -608,7 +608,7 @@ static long get_small_map_inputs(long x, long y, long zoom)
     }
     if ( do_left_map_click(x, y, curr_mx, curr_my, zoom)
       || do_right_map_click(x, y, curr_mx, curr_my, zoom)
-      || do_left_map_drag(x, y, curr_mx, curr_my, zoom) )
+      || do_left_map_drag(curr_mx, curr_my, zoom) )
       result = 1;
   } else
   {

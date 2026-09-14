@@ -43,8 +43,8 @@ public:
     struct BackendCapabilities {
         int hasGPURenderPath = 0;
         // True when the backend composites the minimap over the panel artwork
-        // itself (draw-order layering), so submitted minimap pixels must NOT
-        // have the panel-background colour baked into them.
+        // itself (draw-order layering): its minimap buffer starts zeroed and
+        // index 0 is transparent, so real black must use another index.
         int compositesMinimapBackground = 0;
     };
     virtual BackendCapabilities GetCapabilities() const { return BackendCapabilities{}; }

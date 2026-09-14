@@ -90,10 +90,6 @@ enum TbPixelsColours
 
 };
 /**************************/
-/**
- * Background behind the map area.
- */
-static unsigned char *MapBackground = NULL;
 static int32_t *MapShapeStart = NULL;
 static int32_t *MapShapeEnd = NULL;
 
@@ -106,10 +102,11 @@ static unsigned char *s_minimap_pixels = NULL;
 
 static long PanelMapY;
 static long PanelMapX;
-static long NumBackColours;
 static long PrevPixelSize;
-static unsigned char MapBackColours[256];
-static unsigned char PanelColours[16*PnC_End];
+/** Colour of each basic kind (below PnC_RoomsStart), indexed by the pixel it is drawn over. */
+static TbPixel MapKindColours[PnC_Abyss + 1][256];
+/** Colours of the per-player kinds, from PnC_RoomsStart on. */
+static unsigned char PanelColours[PnC_End];
 static long PrevRoomHighlight;
 static long PrevDoorHighlight;
 static unsigned short PanelMap[MAX_SUBTILES_X*MAX_SUBTILES_Y];
@@ -122,7 +119,7 @@ long MapDiagonalLength = 0;
 
 /******************************************************************************/
 
-void panel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
+static void panel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
 {
     if (s_minimap_pixels == NULL)
         return;
@@ -135,103 +132,95 @@ void panel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
     }
 }
 
+/** Draws the square dot for the given zoom, centred on (x, y). */
+static void panel_map_draw_square(int32_t x, int32_t y, TbPixel col, int32_t zoom)
+{
+    short pixel_end = get_pixels_scaled_and_zoomed(zoom);
+    for (int p = 0; p < pixel_end; p++)
+    {
+        panel_map_draw_pixel(x + draw_square[p].delta_x, y + draw_square[p].delta_y, col);
+    }
+}
+
+/** Draws five square dots for the given zoom as a cross, centred on (x, y). */
+static void panel_map_draw_cross(int32_t x, int32_t y, TbPixel col, int32_t zoom)
+{
+    short offset = scale_pixel(zoom);
+    panel_map_draw_square(x, y, col, zoom);
+    panel_map_draw_square(x + offset, y, col, zoom);
+    panel_map_draw_square(x - offset, y, col, zoom);
+    panel_map_draw_square(x, y + offset, col, zoom);
+    panel_map_draw_square(x, y - offset, col, zoom);
+}
+
+static void panel_map_draw_creature_dot(int32_t x, int32_t y, TbPixel col, int32_t basic_zoom, TbBool is_low_res)
+{
+    if (is_low_res)
+    {
+        // At low resolutions, we only need the single pixel
+        panel_map_draw_pixel(x, y, col);
+        return;
+    }
+    panel_map_draw_square(x, y, col, basic_zoom);
+}
+
+/** Draws the 8 symmetric points of a circle outline at offsets (sx, sy) and (sy, sx). */
+static void panel_map_draw_circle_points(int32_t center_x, int32_t center_y, int sx, int sy, TbPixel col)
+{
+    panel_map_draw_pixel(center_x - sx, center_y - sy, col);
+    panel_map_draw_pixel(center_x + sx, center_y - sy, col);
+    panel_map_draw_pixel(center_x - sx, center_y + sy, col);
+    panel_map_draw_pixel(center_x + sx, center_y + sy, col);
+    panel_map_draw_pixel(center_x - sy, center_y - sx, col);
+    panel_map_draw_pixel(center_x + sy, center_y - sx, col);
+    panel_map_draw_pixel(center_x - sy, center_y + sx, col);
+    panel_map_draw_pixel(center_x + sy, center_y + sx, col);
+}
+
 /**
  * Draws single call to arms overlay on minimap.
- * @param owner
- * @param x1
- * @param y1
- * @param x2
- * @param y2
- * @param zoom
+ * @param owner Owner of the call to arms.
+ * @param pos_x Position relative to the minimap centre.
+ * @param pos_y Position relative to the minimap centre.
+ * @param zoom Scale between map coordinates and minimap pixels.
  */
-void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, long y2, long zoom)
+static void draw_call_to_arms_circle(unsigned char owner, int32_t pos_x, int32_t pos_y, int32_t zoom)
 {
-    const struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(PwrK_CALL2ARMS);
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(owner);
-    int units_per_px;
-    units_per_px = (16*status_panel_width + 140/2) / 140;
-    TbPixel col;
-    col = player_room_colours[get_player_color_idx(owner)];
-    int i;
-    i = 2*(PANEL_MAP_RADIUS*units_per_px/16) / 2;
-    long center_x;
-    long center_y;
-    center_x = i + x2;
-    center_y = i + y2;
-    long long cscale;
+    const struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CALL2ARMS);
+    struct Dungeon *dungeon = get_players_num_dungeon(owner);
+    const int units_per_px = (16*status_panel_width + 140/2) / 140;
+    const TbPixel col = player_room_colours[get_player_color_idx(owner)];
+    int i = 2*(PANEL_MAP_RADIUS*units_per_px/16) / 2;
+    const int32_t center_x = i + pos_x;
+    const int32_t center_y = i + pos_y;
     float circle_time;
     if ((game.operation_flags & GOF_Paused) == 0) {
         circle_time = ((get_gameturn() + owner) & 7) + game.process_turn_time;
     } else {
         circle_time = ((get_gameturn() + owner) & 7);
     }
-    cscale = circle_time * powerst->strength[dungeon->cta_power_level];
-    int dxq1;
-    int dyq1;
-    int dxq2;
-    int dyq2;
-    int dxq3;
-    int dyq3;
-    int dxq4;
-    int dyq4;
-
+    const int64_t cscale = circle_time * powerst->strength[dungeon->cta_power_level];
+    const int32_t base_y = ((cscale >> 3) << 8) / zoom;
+    if (base_y <= 1)
+        return;
+    int sy = base_y;
     int sx;
-    int sy;
-    long base_y;
-    base_y = ((cscale >> 3) << 8) / zoom;
-    if ( base_y > 1 )
+    i = 3 - 2 * base_y;
+    for (sx = 0; sx < sy; sx++)
     {
-      sy = base_y;
-      i = 3 - 2 * base_y;
-      for (sx=0; sx < sy; sx++)
-      {
-          dxq1 = center_x - sx;
-          dyq1 = center_y - sy;
-          panel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
-          dxq2 = center_x + sx;
-          panel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
-          dyq2 = sy + center_y;
-          panel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
-          panel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
-          dxq3 = center_x - sy;
-          dyq3 = center_y - sx;
-          panel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
-          dxq4 = center_x + sy;
-          panel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
-          dyq4 = sx + center_y;
-          panel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
-          panel_map_draw_pixel(x1 + dxq4, y1 + dyq4, col);
-          if (i >= 0)
-          {
-              i += 4 * (sx - sy) + 10*units_per_px/16;
-              sy--;
-          } else
-          {
-              i += 4 * (sx - 1) + 10*units_per_px/16;
-          }
-      }
-
-      if (sy == sx)
-      {
-        dxq1 = center_x - sx;
-        dyq1 = center_y - sy;
-        panel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
-        dxq2 = center_x + sx;
-        panel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
-        dyq2 = sy + center_y;
-        panel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
-        panel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
-        dxq3 = center_x - sy;
-        dyq3 = center_y - sx;
-        panel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
-        dxq4 = center_x + sy;
-        panel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
-        dyq4 = sx + center_y;
-        panel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
-        panel_map_draw_pixel(dxq4 + x1, dyq4 + y1, col);
-      }
+        panel_map_draw_circle_points(center_x, center_y, sx, sy, col);
+        if (i >= 0)
+        {
+            i += 4 * (sx - sy) + 10*units_per_px/16;
+            sy--;
+        } else
+        {
+            i += 4 * (sx - 1) + 10*units_per_px/16;
+        }
+    }
+    if (sy == sx)
+    {
+        panel_map_draw_circle_points(center_x, center_y, sx, sy, col);
     }
 }
 
@@ -257,25 +246,24 @@ static struct Coord2d thing_minimap_position(struct Thing* thing, const struct C
     return result;
 }
 
-/**
- * Draws all call to arms objects on minimap.
- * @param player The player for whom drawing occurs.
- * @param zoom Zoom level of the minimap.
- * @return Amount of objects drawn.
- */
-int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long zoom)
+/** State shared by the overlay drawing of one minimap frame. */
+struct MinimapOverlay {
+    struct PlayerInfo *player;
+    const struct Camera *cam;
+    int32_t zoom;                /**< Scale between map coordinates and minimap pixels. */
+    int32_t basic_zoom;          /**< Unscaled minimap zoom, sizes the dots. */
+    RealScreenCoord basepos;     /**< Minimap centre, in minimap pixels. */
+    TbBool is_low_res;
+};
+
+typedef void (*MinimapThingDraw)(struct Thing *thing, const struct MinimapOverlay *ov);
+
+/** Calls draw for every thing of the class, stopping on a broken list. */
+static void draw_overlay_things_of_class(ThingClass tng_class, MinimapThingDraw draw, const struct MinimapOverlay *ov)
 {
-    unsigned long k;
-    int i;
-    int n;
-    SYNCDBG(18,"Starting");
-    struct Camera *cam = get_local_active_camera(player);
-    if (cam == NULL)
-        return 0;
-    n = 0;
-    const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
-    k = 0;
-    i = slist->index;
+    const struct StructureList *slist = get_list_for_thing_class(tng_class);
+    uint32_t k = 0;
+    int i = slist->index;
     while (i != 0)
     {
         struct Thing *thing = thing_get(i);
@@ -285,17 +273,7 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
             break;
         }
         i = thing->next_of_class;
-        // Per-thing code
-        if (!thing_is_picked_up(thing))
-        {
-            if (thing->model == ObjMdl_CTAEnsign)//TODO CONFIG object model dependency, move to config
-            {
-                const struct Coord2d pos = thing_minimap_position(thing, cam, zoom);
-                draw_call_to_arms_circle(thing->owner, 0, 0, pos.x.val, pos.y.val, zoom);
-                n++;
-            }
-        }
-        // Per-thing code ends
+        draw(thing, ov);
         k++;
         if (k > slist->count)
         {
@@ -303,370 +281,148 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
             break;
         }
     }
-    return n;
 }
 
-/**
- * Draws all owned traps on minimap.
- * @param player The player for whom drawing occurs.
- * @param zoom Scale between map coordinates and minimap pixels.
- * @return Amount of traps drawn.
- */
-int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled_zoom, long basic_zoom)
+static void draw_overlay_call_to_arms(struct Thing *thing, const struct MinimapOverlay *ov)
 {
-    unsigned long k;
-    int i;
-    int n;
-    SYNCDBG(18,"Starting");
-    struct Camera *cam = get_local_active_camera(player);
-    if (cam == NULL)
-        return 0;
-    n = 0;
-    k = 0;
-    const struct StructureList *slist = get_list_for_thing_class(TCls_Trap);
-    i = slist->index;
-    while (i != 0)
-    {
-        struct Thing *thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        i = thing->next_of_class;
-        // Per-thing code
-        if (player->id_number == thing->owner)
-        {
-            const struct Coord2d pos = thing_minimap_position(thing, cam, scaled_zoom);
-            RealScreenCoord basepos;
-            basepos = MapDiagonalLength/2;
-            // Do the drawing
-            if ((thing->trap.revealed) || (player->id_number == thing->owner))
-            {
-                TbPixel col;
-                if ((thing->model == gui_trap_type_highlighted) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
-                    col = player_highlight_colours[thing->owner];
-                } else {
-                    col = 60;
-                }
-                short pixels_amount = scale_pixel(basic_zoom*2);
-                short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom*2);
-                for (int p = 0; p < pixel_end; p++)
-                {
-                    // Draw a cross
-                    panel_map_draw_pixel(pos.x.val + basepos + draw_square[p].delta_x,
-                                         pos.y.val + basepos + draw_square[p].delta_y,
-                                         col);
-                    panel_map_draw_pixel(pos.x.val + basepos + draw_square[p].delta_x + pixels_amount,
-                                         pos.y.val + basepos + draw_square[p].delta_y,
-                                         col);
-                    panel_map_draw_pixel(pos.x.val + basepos + draw_square[p].delta_x - pixels_amount,
-                                         pos.y.val + basepos + draw_square[p].delta_y,
-                                         col);
-                    panel_map_draw_pixel(pos.x.val + basepos + draw_square[p].delta_x,
-                                         pos.y.val + basepos + draw_square[p].delta_y + pixels_amount,
-                                         col);
-                    panel_map_draw_pixel(pos.x.val + basepos + draw_square[p].delta_x,
-                                         pos.y.val + basepos + draw_square[p].delta_y - pixels_amount,
-                                         col);
-                }
-                n++;
-            }
-        }
-        // Per-thing code ends
-        k++;
-        if (k > slist->count)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
+    if (thing_is_picked_up(thing) || (thing->model != ObjMdl_CTAEnsign))//TODO CONFIG object model dependency, move to config
+        return;
+    const struct Coord2d pos = thing_minimap_position(thing, ov->cam, ov->zoom);
+    draw_call_to_arms_circle(thing->owner, pos.x.val, pos.y.val, ov->zoom);
+}
+
+static void draw_overlay_trap(struct Thing *thing, const struct MinimapOverlay *ov)
+{
+    if (thing->owner != ov->player->id_number)
+        return;
+    const struct Coord2d pos = thing_minimap_position(thing, ov->cam, ov->zoom);
+    TbPixel col;
+    if ((thing->model == gui_trap_type_highlighted) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate)) {
+        col = player_highlight_colours[thing->owner];
+    } else {
+        col = 60;
     }
-    return n;
+    panel_map_draw_cross(pos.x.val + ov->basepos, pos.y.val + ov->basepos, col, ov->basic_zoom * 2);
 }
 
-/**
- * Draws all spells and specials on minimap.
- * @param player The player for whom drawing occurs.
- * @param zoom Zoom level of the minimap.
- * @return Amount of objects drawn.
- */
-int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, long scaled_zoom, long basic_zoom)
+static void draw_overlay_spell_or_box(struct Thing *thing, const struct MinimapOverlay *ov)
 {
-    unsigned long k;
-    int i;
-    int n;
-    SYNCDBG(18,"Starting");
-    struct Camera *cam = get_local_active_camera(player);
-    if (cam == NULL)
-        return 0;
-    n = 0;
-    const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
-    k = 0;
-    i = slist->index;
-    while (i != 0)
-    {
-        struct Thing *thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        i = thing->next_of_class;
-        // Per-thing code
-        if (!thing_is_picked_up(thing))
-        {
-            if (thing_revealed(thing, player->id_number))
-            {
-                const struct Coord2d pos = thing_minimap_position(thing, cam, scaled_zoom);
-                RealScreenCoord basepos;
-                basepos = MapDiagonalLength/2;
-
-                // Do the drawing
-                if (((get_gameturn() % (4 * gui_blink_rate)) / gui_blink_rate) == 1) {
-                    if (thing_is_special_box(thing) || thing_is_spellbook(thing))
-                    {
-                        short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
-                        int p;
-                        for (p = 0; p < pixel_end; p++)
-                        {
-                            panel_map_draw_pixel(pos.x.val + basepos + draw_square[p].delta_x,
-                                                 pos.y.val + basepos + draw_square[p].delta_y,
-                                                 colours[15][0][15]);
-                        }
-                        n++;
-                    }
-                    else if (thing_is_workshop_crate(thing))
-                    {
-                        short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
-                        int p;
-                        for (p = 0; p < pixel_end; p++)
-                        {
-                            panel_map_draw_pixel(pos.x.val + basepos + draw_square[p].delta_x,
-                                                 pos.y.val + basepos + draw_square[p].delta_y,
-                                                 colours[7][6][7]);
-                        }
-                        n++;
-                    }
-                }
-            }
-        }
-        // Per-thing code ends
-        k++;
-        if (k > slist->count)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-    }
-    return n;
-}
-
-void panel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
-{
-    if (isLowRes)
-    {
-        // At low resolutions, we only need the single pixel
-        panel_map_draw_pixel(mapos_x + basepos, mapos_y + basepos, col);
+    if (thing_is_picked_up(thing) || !thing_revealed(thing, ov->player->id_number))
+        return;
+    const struct Coord2d pos = thing_minimap_position(thing, ov->cam, ov->zoom);
+    if (((get_gameturn() % (4 * gui_blink_rate)) / gui_blink_rate) != 1)
+        return;
+    TbPixel col;
+    if (thing_is_special_box(thing) || thing_is_spellbook(thing)) {
+        col = colours[15][0][15];
+    } else if (thing_is_workshop_crate(thing)) {
+        col = colours[7][6][7];
+    } else {
         return;
     }
-    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
-    for (int i = 0; i < pixel_end; i++)
-    {
-        panel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
-    }
+    panel_map_draw_square(pos.x.val + ov->basepos, pos.y.val + ov->basepos, col, ov->basic_zoom);
 }
 
-int draw_overlay_possessed_thing(struct PlayerInfo* player, long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
+static void draw_overlay_possessed_thing(const struct MinimapOverlay *ov, int32_t x, int32_t y, TbPixel col)
 {
-    const struct Camera* cam;
-    cam = get_local_active_camera(player);
-    if (cam == NULL)
-        return 0;
-    if (cam->view_mode != PVM_CreatureView)
-        return 0;
+    if (ov->cam->view_mode != PVM_CreatureView)
+        return;
     if ((get_gameturn() % (8 * gui_blink_rate)) >= 4 * gui_blink_rate)
     {
         col = colours[15][15][15];
     }
-    if (isLowRes)
+    if (ov->is_low_res)
     {
         // At low resolutions, we only need the single pixel
-        panel_map_draw_pixel(mapos_x + basepos, mapos_y + basepos, col);
-        return 1;
+        panel_map_draw_pixel(x, y, col);
+        return;
     }
-    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom * 2);
-    short pixels_amount = scale_pixel(basic_zoom * 2);
-    for (int i = 0; i < pixel_end; i++)
-    {
-        panel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
-        panel_map_draw_pixel(mapos_x + basepos + pixels_amount + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
-        panel_map_draw_pixel(mapos_x + basepos - pixels_amount + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
-        panel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + pixels_amount + draw_square[i].delta_y, col);
-        panel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos - pixels_amount + draw_square[i].delta_y, col);
-    }
-    return 1;
+    panel_map_draw_cross(x, y, col, ov->basic_zoom * 2);
 }
 
-int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zoom, long basic_zoom)
+static void draw_overlay_creature(struct Thing *thing, const struct MinimapOverlay *ov)
 {
-    TbBool isLowRes = 0;
-    if (units_per_px < 16)
+    if (thing_is_picked_up(thing))
+        return;
+    const PlayerNumber plyr_idx = ov->player->id_number;
+    const TbBool blink_on = (get_gameturn() % (8 * gui_blink_rate)) < 4 * gui_blink_rate;
+    TbPixel col1 = 31;
+    TbPixel col2 = 1;
+    if (thing_revealed(thing, plyr_idx))
     {
-       isLowRes = 1;
-    }
-
-    unsigned long k;
-    int i;
-    int n;
-    SYNCDBG(18,"Starting");
-    struct Camera *cam = get_local_active_camera(player);
-    if (cam == NULL)
-        return 0;
-    n = 0;
-    k = 0;
-    const struct StructureList *slist = get_list_for_thing_class(TCls_Creature);
-    i = slist->index;
-    while (i != 0)
-    {
-        struct Thing *thing = thing_get(i);
-        if (thing_is_invalid(thing))
+        if (blink_on)
         {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
+            col1 = player_room_colours[get_player_color_idx(thing->owner)];
+            col2 = col1;
         }
-        i = thing->next_of_class;
-        // Per-thing code
-        TbPixel col1;
-        TbPixel col2;
-        TbPixel col;
-        col1 = 31;
-        col2 = 1;
-        if (!thing_is_picked_up(thing))
+        const struct Coord2d pos = thing_minimap_position(thing, ov->cam, ov->zoom);
+        const int32_t x = pos.x.val + ov->basepos;
+        const int32_t y = pos.y.val + ov->basepos;
+        if (thing->owner != plyr_idx)
         {
-            if (thing_revealed(thing, player->id_number))
-            {
-                if ((get_gameturn() % (8 * gui_blink_rate)) < 4 * gui_blink_rate)
-                {
-                    col1 = player_room_colours[get_player_color_idx(thing->owner)];
-                    col2 = player_room_colours[get_player_color_idx(thing->owner)];
-                }
-                const struct Coord2d pos = thing_minimap_position(thing, cam, zoom);
-                RealScreenCoord basepos;
-                basepos = MapDiagonalLength/2;
-                // Do the drawing
-                if (thing->owner == player->id_number)
-                {
-                    if ((thing->model == gui_creature_type_highlighted) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
-                    {
-                        short pixels_amount = scale_pixel(basic_zoom * 4);
-                        panel_map_draw_creature_dot(pos.x.val + pixels_amount, pos.y.val, basepos, col2, basic_zoom, isLowRes);
-                        panel_map_draw_creature_dot(pos.x.val - pixels_amount, pos.y.val, basepos, col2, basic_zoom, isLowRes);
-                        panel_map_draw_creature_dot(pos.x.val, pos.y.val + pixels_amount, basepos, col2, basic_zoom, isLowRes);
-                        panel_map_draw_creature_dot(pos.x.val, pos.y.val - pixels_amount, basepos, col2, basic_zoom, isLowRes);
-                        panel_map_draw_creature_dot(pos.x.val, pos.y.val, basepos, 31, basic_zoom, isLowRes);
-                    } else
-                    {
-                        if ((is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)))
-                        {
-                            draw_overlay_possessed_thing(player, pos.x.val, pos.y.val, basepos, col2, basic_zoom, isLowRes);
-                        }
-                        else
-                        {
-                            panel_map_draw_creature_dot(pos.x.val, pos.y.val, basepos, col2, basic_zoom, isLowRes);
-                        }
-                    }
-                } else
-                {
-                    if (thing->owner == game.neutral_player_num) {
-                        col = player_room_colours[get_player_color_idx(((get_gameturn() + 1) % (4 * neutral_flash_rate)) / neutral_flash_rate)];
-                    } else {
-                        col = col1;
-                    }
-                    panel_map_draw_creature_dot(pos.x.val, pos.y.val, basepos, col, basic_zoom, isLowRes);
-                }
-            } else
-            // Hero tunnelers may be visible on unrevealed terrain too (if on revealed, then they're already drawn)
-            if (is_hero_tunnelling_to_attack(thing))
-            {
-                struct CreatureControl *cctrl;
-                cctrl = creature_control_get_from_thing(thing);
-                int m;
-                for (m=0; m < 5; m++)
-                {
-                    long memberpos;
-                    memberpos = cctrl->party.member_pos_stl[m];
-                    if (memberpos == 0)
-                        break;
-                    if ((get_gameturn() % (8 * gui_blink_rate)) < 4 * gui_blink_rate)
-                    {
-                        col1 = player_room_colours[get_player_color_idx((int)(cctrl->party.target_plyr_idx >= 0 ? cctrl->party.target_plyr_idx : 0))];
-                        col2 = player_room_colours[get_player_color_idx(thing->owner)];
-                    }
-                    MapCoord x = subtile_coord_center(stl_num_decode_x(memberpos));
-                    MapCoord y = subtile_coord_center(stl_num_decode_y(memberpos));
-                    map_to_minimap(&x, &y, cam, zoom);
-
-                    RealScreenCoord basepos;
-                    basepos = MapDiagonalLength/2;
-                    // Do the drawing
-                    if (thing->owner == player->id_number) {
-                        col = col2;
-                    } else {
-                        col = col1;
-                    }
-                    panel_map_draw_creature_dot(x, y, basepos, col, basic_zoom, isLowRes);
-                }
+            TbPixel col = col1;
+            if (thing->owner == game.neutral_player_num) {
+                col = player_room_colours[get_player_color_idx(((get_gameturn() + 1) % (4 * neutral_flash_rate)) / neutral_flash_rate)];
             }
-        }
-        // Per-thing code ends
-        k++;
-        if (k > THINGS_COUNT)
+            panel_map_draw_creature_dot(x, y, col, ov->basic_zoom, ov->is_low_res);
+        } else
+        if ((thing->model == gui_creature_type_highlighted) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
         {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
+            short offset = scale_pixel(ov->basic_zoom * 4);
+            panel_map_draw_creature_dot(x + offset, y, col2, ov->basic_zoom, ov->is_low_res);
+            panel_map_draw_creature_dot(x - offset, y, col2, ov->basic_zoom, ov->is_low_res);
+            panel_map_draw_creature_dot(x, y + offset, col2, ov->basic_zoom, ov->is_low_res);
+            panel_map_draw_creature_dot(x, y - offset, col2, ov->basic_zoom, ov->is_low_res);
+            panel_map_draw_creature_dot(x, y, 31, ov->basic_zoom, ov->is_low_res);
+        } else
+        if ((is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)))
+        {
+            draw_overlay_possessed_thing(ov, x, y, col2);
+        } else
+        {
+            panel_map_draw_creature_dot(x, y, col2, ov->basic_zoom, ov->is_low_res);
+        }
+    } else
+    // Hero tunnelers may be visible on unrevealed terrain too (if on revealed, then they're already drawn)
+    if (is_hero_tunnelling_to_attack(thing))
+    {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        for (int m = 0; m < 5; m++)
+        {
+            SubtlCodedCoords memberpos = cctrl->party.member_pos_stl[m];
+            if (memberpos == 0)
+                break;
+            if (blink_on)
+            {
+                col1 = player_room_colours[get_player_color_idx((int)(cctrl->party.target_plyr_idx >= 0 ? cctrl->party.target_plyr_idx : 0))];
+                col2 = player_room_colours[get_player_color_idx(thing->owner)];
+            }
+            MapCoord x = subtile_coord_center(stl_num_decode_x(memberpos));
+            MapCoord y = subtile_coord_center(stl_num_decode_y(memberpos));
+            map_to_minimap(&x, &y, ov->cam, ov->zoom);
+            TbPixel col = (thing->owner == plyr_idx) ? col2 : col1;
+            panel_map_draw_creature_dot(x + ov->basepos, y + ov->basepos, col, ov->basic_zoom, ov->is_low_res);
         }
     }
-    return n;
 }
 
-/**
- * Draws own dungeon heart line on minimap.
- * @param player The player for whom drawing occurs.
- * @param zoom Zoom level of the minimap.
- * @return Amount of hearts drawn, either 0 or 1.
- */
-int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
+/** Draws the animated arrow from the minimap centre towards the player's own dungeon heart. */
+static void draw_line_to_heart(const struct MinimapOverlay *ov)
 {
-    struct Camera *cam = get_local_active_camera(player);
-    if (cam == NULL)
-        return 0;
-    struct Thing *thing = get_player_soul_container(player->id_number);
-
+    struct Thing *thing = get_player_soul_container(ov->player->id_number);
     if (!thing_exists(thing)) {
-        return 0;
+        return;
     }
-    RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
-
-    const struct Coord2d pos = thing_minimap_position(thing, cam, zoom);
-    RealScreenCoord basepos;
-    basepos = MapDiagonalLength/2;
-    // Do the drawing
-    long dist;
-    long angle;
-    dist = get_distance_xy(basepos, basepos, pos.x.val + basepos, pos.y.val + basepos);
-    angle = -(LbArcTanAngle(pos.x.val, pos.y.val) & ANGLE_MASK) & ANGLE_MASK_4;
-    int delta_x;
-    int delta_y;
-    delta_x = scale_ui_value(MAP_ARROW_DISTANCE) * LbSinL(angle) >> 16;
-    delta_y = scale_ui_value(MAP_ARROW_DISTANCE) * LbCosL(angle) >> 16;
-    long frame;
-    frame = (get_gameturn() & 3) + 1;
-    int draw_x;
-    int draw_y;
-    draw_x = -delta_x / 2 + (frame * delta_x) / 4 + (basepos << 8);
-    draw_y = -delta_y / 2 + (frame * delta_y) / 4 + (basepos << 8);
-    int i;
-    for (i = dist - 4; i > 0; i -= 4)
+    const struct Coord2d pos = thing_minimap_position(thing, ov->cam, ov->basic_zoom);
+    const RealScreenCoord basepos = ov->basepos;
+    const int32_t dist = get_distance_xy(basepos, basepos, pos.x.val + basepos, pos.y.val + basepos);
+    const int32_t angle = -(LbArcTanAngle(pos.x.val, pos.y.val) & ANGLE_MASK) & ANGLE_MASK_4;
+    const int delta_x = scale_ui_value(MAP_ARROW_DISTANCE) * LbSinL(angle) >> 16;
+    const int delta_y = scale_ui_value(MAP_ARROW_DISTANCE) * LbCosL(angle) >> 16;
+    const int32_t frame = (get_gameturn() & 3) + 1;
+    int draw_x = -delta_x / 2 + (frame * delta_x) / 4 + (basepos << 8);
+    int draw_y = -delta_y / 2 + (frame * delta_y) / 4 + (basepos << 8);
+    for (int32_t i = dist - 4; i > 0; i -= 4)
     {
         if ((draw_x < 0) || (draw_x >> 8 >= MapDiagonalLength))
             break;
@@ -674,29 +430,30 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
             break;
         draw_x += delta_x;
         draw_y += delta_y;
-        short pixel_end = get_pixels_scaled_and_zoomed(zoom * 2);
-        TbPixel col = 15;
-        for (int p = 0; p < pixel_end; p++)
-        {
-            panel_map_draw_pixel((draw_x >> 8) + draw_square[p].delta_x, (draw_y >> 8) + draw_square[p].delta_y, col);
-        }
+        panel_map_draw_square(draw_x >> 8, draw_y >> 8, 15, ov->basic_zoom * 2);
     }
-    RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
-    return 1;
 }
 
-void panel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long basic_zoom)
+void panel_map_draw_overlay_things(int32_t units_per_px, int32_t scaled_zoom, int32_t basic_zoom)
 {
     SYNCDBG(7,"Starting");
     if (scaled_zoom < 1) {
         return;
     }
-    struct PlayerInfo *player = get_my_player();
-    draw_overlay_call_to_arms(player, units_per_px, scaled_zoom);
-    draw_overlay_traps(player, units_per_px, scaled_zoom,basic_zoom);
-    draw_overlay_creatures(player, units_per_px, scaled_zoom, basic_zoom);
-    draw_overlay_spells_and_boxes(player, units_per_px, scaled_zoom, basic_zoom);
-    draw_line_to_heart(player, units_per_px, basic_zoom);
+    struct MinimapOverlay ov;
+    ov.player = get_my_player();
+    ov.cam = get_local_active_camera(ov.player);
+    if (ov.cam == NULL)
+        return;
+    ov.zoom = scaled_zoom;
+    ov.basic_zoom = basic_zoom;
+    ov.basepos = MapDiagonalLength / 2;
+    ov.is_low_res = (units_per_px < 16);
+    draw_overlay_things_of_class(TCls_Object, draw_overlay_call_to_arms, &ov);
+    draw_overlay_things_of_class(TCls_Trap, draw_overlay_trap, &ov);
+    draw_overlay_things_of_class(TCls_Creature, draw_overlay_creature, &ov);
+    draw_overlay_things_of_class(TCls_Object, draw_overlay_spell_or_box, &ov);
+    draw_line_to_heart(&ov);
 }
 
 void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -832,7 +589,7 @@ static void do_map_rotate_stuff_subtile(float relpos_x, float relpos_y, MapSubtl
     *stl_y = lroundf(tmp_y) / COORD_PER_STL;
 }
 
-short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom)
+short do_left_map_drag(int32_t curr_x, int32_t curr_y, int32_t zoom)
 {
   SYNCDBG(17,"Starting");
   static float frac_x, frac_y;
@@ -938,19 +695,17 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
     return 0;
 }
 
-void setup_background(long units_per_px)
+static void setup_map_shape(long units_per_px)
 {
     if (MapDiagonalLength != 2*(PANEL_MAP_RADIUS*units_per_px/16))
     {
         MapDiagonalLength = 2*(PANEL_MAP_RADIUS*units_per_px/16);
-        free(MapBackground);
-        MapBackground = calloc(MapDiagonalLength*MapDiagonalLength, sizeof(TbPixel));
         free(MapShapeStart);
         MapShapeStart = (int32_t *)calloc(MapDiagonalLength, sizeof(int32_t));
         free(MapShapeEnd);
         MapShapeEnd = (int32_t *)calloc(MapDiagonalLength, sizeof(int32_t));
     }
-    if ((MapBackground == NULL) || (MapShapeStart == NULL) || (MapShapeEnd == NULL)) {
+    if ((MapShapeStart == NULL) || (MapShapeEnd == NULL)) {
         MapDiagonalLength = 0;
         return;
     }
@@ -966,297 +721,150 @@ void setup_background(long units_per_px)
         MapShapeStart[i] = radius - LbSqrL(n);
         MapShapeEnd[i] = radius + LbSqrL(n);
     }
+}
 
-    if (RendererCompositesMinimapBackground())
+/** Unexplored and tagged valuables blink between tinted and plain. */
+static void set_blinking_kind_colours(int frame)
+{
+    for (int bg = 0; bg < 256; bg++)
     {
-        // Backend composites the minimap over the panel art itself (draw-order
-        // layering, see panel_map_draw_slabs()'s bake_background) -- a single
-        // dummy background colour is all that's needed here.
-        NumBackColours = 1;
-        MapBackColours[0] = 0;
-        return;
-    }
-
-    if (lbDisplay.WScreen != NULL)
-    {
-        int num_colours;
-        num_colours = 0;
-        long out_scanline;
-        out_scanline = RendererScreenWidth();
-        long bkgnd_pos;
-        bkgnd_pos = 0;
-        TbPixel *out;
-        out = &lbDisplay.WScreen[PanelMapX + out_scanline * PanelMapY];
-        int w;
-        int h;
-        for (h=0; h < MapDiagonalLength; h++)
+        if (frame != 0)
         {
-            for (w = MapShapeStart[h]; w < MapShapeEnd[h]; w++)
-            {
-                if (w < 0) continue;
-
-                TbPixel orig;
-                orig = out[w];
-                out[w] = 255;
-                int colour;
-                for (colour=0; colour < num_colours; colour++)
-                {
-                    if (MapBackColours[colour] == orig) {
-                        break;
-                    }
-                }
-                if (num_colours == colour)
-                {
-                    MapBackColours[num_colours] = orig;
-                    num_colours++;
-                }
-                MapBackground[bkgnd_pos+w] = colour;
-            }
-            bkgnd_pos += MapDiagonalLength;
-            out += out_scanline;
+            MapKindColours[PnC_Unexplored][bg] = ghost_table_blend(bg, 26*256, 0, 0);
+            MapKindColours[PnC_Tagged_Gold][bg] = ghost_table_blend(bg, 140*256, 0, 0);
+            MapKindColours[PnC_Tagged_Gems][bg] = ghost_table_blend(bg, 0, 6, 102);
+        } else
+        {
+            MapKindColours[PnC_Unexplored][bg] = bg;
+            MapKindColours[PnC_Tagged_Gold][bg] = bg;
+            MapKindColours[PnC_Tagged_Gems][bg] = ghost_table_blend(bg, 0, 6, 100);
         }
-        NumBackColours = num_colours;
     }
+}
+
+/** Room colour for a player slot; neutral rooms flash through frcol. */
+static TbPixel panel_room_colour(PlayerNumber plyr_idx, TbPixel frcol)
+{
+    if (plyr_idx == PLAYER_NEUTRAL)
+        return frcol;
+    return player_room_colours[get_player_color_idx(plyr_idx)];
 }
 
 void setup_panel_colors(void)
 {
-    int frame;
-    frame = (get_gameturn() % (4 * gui_blink_rate)) / gui_blink_rate;
-    unsigned int frcol;
-    frcol = player_room_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
-    int bkcol_idx;
-    int pncol_idx;
-    pncol_idx = 0;
-    for (bkcol_idx=0; bkcol_idx < NumBackColours; bkcol_idx++)
+    const int frame = (get_gameturn() % (4 * gui_blink_rate)) / gui_blink_rate;
+    const TbPixel frcol = player_room_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
+    // Index 0 is the transparent sentinel
+    TbPixel rock_col = 0;
+    if (RendererCompositesMinimapBackground())
     {
-        unsigned int bkcol;
-        bkcol = MapBackColours[bkcol_idx];
-        int n;
-        n = pncol_idx;
-        if (frame != 0)
-        {
-            PanelColours[n + PnC_Unexplored] = ghost_table_blend(bkcol, 26*256, 0, 0);
-            PanelColours[n + PnC_Tagged_Gold] = ghost_table_blend(bkcol, 140*256, 0, 0);
-            PanelColours[n + PnC_Gems] = ghost_table_blend(bkcol, 0, 6, 102);
-        } else //as this is during setup at gameturn 1, the else looks like it is never used.
-        {
-            PanelColours[n + PnC_Unexplored] = bkcol;
-            PanelColours[n + PnC_Tagged_Gold] = bkcol;
-            PanelColours[n + PnC_Tagged_Gems] = ghost_table_blend(bkcol, 0, 6, 104);
-        }
-        PanelColours[n + 0] = bkcol;
-        PanelColours[n + PnC_Wall]    = ghost_table_blend(bkcol, 16*256, 0, 0);
-        if (RendererCompositesMinimapBackground())
-        {
-            // Index 0 is the transparent sentinel there -- use the palette's
-            // actual black entry instead of the raw index 0 constant, falling
-            // back to 1 only on the rare palette where black itself is index 0.
-            unsigned char black_idx = colours[0][0][0];
-            PanelColours[n + PnC_Rock] = (black_idx != 0) ? black_idx : 1;
-        }
-        else
-        {
-            PanelColours[n + PnC_Rock] = 0;
-        }
-        PanelColours[n + PnC_Gold]      = ghost_table_blend(bkcol, 140*256, 0, 0);
-        PanelColours[n + PnC_Lava]      = 146;
-        PanelColours[n + PnC_Water]     = 85;
-        PanelColours[n + PnC_purplePath]    = 255;
-        PanelColours[n + PnC_Gems]      = ghost_table_blend(bkcol, 0, 6, 102);
-        PanelColours[n + PnC_RockFloor] = 145;
-        PanelColours[n + PnC_Abyss]     = pixmap.map_abyss[bkcol];
+        unsigned char black_idx = colours[0][0][0];
+        rock_col = (black_idx != 0) ? black_idx : 1;
+    }
+    set_blinking_kind_colours(frame);
+    for (int bg = 0; bg < 256; bg++)
+    {
+        MapKindColours[0][bg] = bg;
+        MapKindColours[PnC_Wall][bg]       = ghost_table_blend(bg, 16*256, 0, 0);
+        MapKindColours[PnC_Rock][bg]       = rock_col;
+        MapKindColours[PnC_Gold][bg]       = ghost_table_blend(bg, 140*256, 0, 0);
+        MapKindColours[PnC_Lava][bg]       = 146;
+        MapKindColours[PnC_Water][bg]      = 85;
+        MapKindColours[PnC_purplePath][bg] = 255;
+        MapKindColours[PnC_Gems][bg]       = ghost_table_blend(bg, 0, 6, 102);
+        MapKindColours[PnC_RockFloor][bg]  = 145;
+        MapKindColours[PnC_Abyss][bg]      = pixmap.map_abyss[bg];
+    }
 
-        n = pncol_idx + PnC_RoomsStart;
-        int i;
-        int k;
-        for (i=TERRAIN_ITEMS_MAX; i > 0; i--)
+    int n = PnC_RoomsStart;
+    for (int i = TERRAIN_ITEMS_MAX; i > 0; i--)
+    {
+        for (PlayerNumber k = 0; k < PLAYERS_COUNT; k++)
         {
-            PanelColours[n + 0] = player_room_colours[get_player_color_idx(PLAYER0)];
-            PanelColours[n + 1] = player_room_colours[get_player_color_idx(PLAYER1)];
-            PanelColours[n + 2] = player_room_colours[get_player_color_idx(PLAYER2)];
-            PanelColours[n + 3] = player_room_colours[get_player_color_idx(PLAYER3)];
-            PanelColours[n + 4] = player_room_colours[get_player_color_idx(PLAYER_GOOD)];
-            PanelColours[n + 5] = frcol;
-            PanelColours[n + 6] = player_room_colours[get_player_color_idx(PLAYER4)];
-            PanelColours[n + 7] = player_room_colours[get_player_color_idx(PLAYER5)];
-            PanelColours[n + 8] = player_room_colours[get_player_color_idx(PLAYER6)];
-            n += PLAYERS_COUNT;
+            PanelColours[n + k] = panel_room_colour(k, frcol);
         }
-
-        n = pncol_idx + PnC_PathStart;
+        n += PLAYERS_COUNT;
+    }
+    for (PlayerNumber k = 0; k < PLAYERS_COUNT; k++)
+    {
+        PanelColours[PnC_PathStart + k] = player_path_colours[(k == PLAYER_NEUTRAL) ? PLAYER_NEUTRAL : get_player_color_idx(k)];
+    }
+    n = PnC_DoorsStart;
+    for (int i = TRAPDOOR_TYPES_MAX; i > 0; i--)
+    {
+        for (int k = 0; k < PLAYERS_COUNT; k++)
         {
-            PanelColours[n + 0] = player_path_colours[get_player_color_idx(PLAYER0)];
-            PanelColours[n + 1] = player_path_colours[get_player_color_idx(PLAYER1)];
-            PanelColours[n + 2] = player_path_colours[get_player_color_idx(PLAYER2)];
-            PanelColours[n + 3] = player_path_colours[get_player_color_idx(PLAYER3)];
-            PanelColours[n + 4] = player_path_colours[get_player_color_idx(PLAYER_GOOD)];
-            PanelColours[n + 5] = player_path_colours[PLAYER_NEUTRAL];
-            PanelColours[n + 6] = player_path_colours[get_player_color_idx(PLAYER4)];
-            PanelColours[n + 7] = player_path_colours[get_player_color_idx(PLAYER5)];
-            PanelColours[n + 8] = player_path_colours[get_player_color_idx(PLAYER6)];
+            PanelColours[n + k] = Tbp_OpenDoor;
+            PanelColours[n + PLAYERS_COUNT + k] = Tbp_LockedDoor;
         }
-        n = pncol_idx + PnC_DoorsStart;
-        for (i=TRAPDOOR_TYPES_MAX; i > 0; i--)
-        {
-            for (k=0; k < PLAYERS_COUNT; k++)
-            {
-              PanelColours[n + k] = Tbp_OpenDoor;
-            }
-            n += PLAYERS_COUNT;
-            for (k=0; k < PLAYERS_COUNT; k++)
-            {
-              PanelColours[n + k] = Tbp_LockedDoor;
-            }
-            n += PLAYERS_COUNT;
-        }
-        pncol_idx += PnC_End;
+        n += 2 * PLAYERS_COUNT;
     }
 }
 
 void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_idx)
 {
-    int n = 0;
-    int pncol_idx = 0;
-    for (int bkcol_idx=0; bkcol_idx < NumBackColours; bkcol_idx++)
+    int n = PnC_RoomsStart;
+    for (int i=TERRAIN_ITEMS_MAX; i > 0; i--)
     {
-        n = pncol_idx + PnC_RoomsStart;
-
-        for (int i=TERRAIN_ITEMS_MAX; i > 0; i--)
-        {
-            PanelColours[n + plyr_idx] = player_room_colours[color_idx];
-            n += PLAYERS_COUNT;
-        }
-        n = pncol_idx + PnC_PathStart;
-        {
-            PanelColours[n + plyr_idx] = player_path_colours[color_idx];
-        }
-
-        pncol_idx += PnC_End;
+        PanelColours[n + plyr_idx] = player_room_colours[color_idx];
+        n += PLAYERS_COUNT;
     }
+    PanelColours[PnC_PathStart + plyr_idx] = player_path_colours[color_idx];
 }
 
 void update_panel_colors(void)
 {
-    int frame;
-    frame = (get_gameturn() % (4 * gui_blink_rate)) / gui_blink_rate;
-    unsigned int frcol;
-    frcol = player_room_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
-    int bkcol_idx;
-    int pncol_idx;
-    pncol_idx = 0;
-    for (bkcol_idx=0; bkcol_idx < NumBackColours; bkcol_idx++)
+    const TbPixel frcol = player_room_colours[(get_gameturn() % (4 * neutral_flash_rate)) / neutral_flash_rate];
+    set_blinking_kind_colours((get_gameturn() % (4 * gui_blink_rate)) / gui_blink_rate);
+    int n = PnC_RoomsStart;
+    for (int i=TERRAIN_ITEMS_MAX; i > 0; i--)
     {
-        unsigned int bkcol;
-        bkcol = MapBackColours[bkcol_idx];
-        int n;
-        n = pncol_idx;
-        if (frame != 0)
-        {
-            PanelColours[n + PnC_Unexplored] = ghost_table_blend(bkcol, 26*256, 0, 0);
-            PanelColours[n + PnC_Tagged_Gold] = ghost_table_blend(bkcol, 140*256, 0, 0);
-            PanelColours[n + PnC_Tagged_Gems] = ghost_table_blend(bkcol, 0, 6, 102);
-        } else
-        {
-            PanelColours[n + PnC_Unexplored] = bkcol;
-            PanelColours[n + PnC_Tagged_Gold] = bkcol;
-            PanelColours[n + PnC_Tagged_Gems] = ghost_table_blend(bkcol, 0, 6, 100);
-        }
-        n = pncol_idx + PnC_RoomsStart;
-        int i;
-        for (i=TERRAIN_ITEMS_MAX; i > 0; i--)
-        {
-            PanelColours[n + PLAYER_NEUTRAL] = frcol;
-            n += PLAYERS_COUNT;
-        }
-        pncol_idx += PnC_End;
+        PanelColours[n + PLAYER_NEUTRAL] = frcol;
+        n += PLAYERS_COUNT;
     }
 
-    int highlight;
-    highlight = gui_room_type_highlighted;
-    frame = get_gameturn() % (2 * gui_blink_rate);
-    if (frame >= gui_blink_rate)
-        highlight = -1;
+    const TbBool highlight_off = (get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate;
+    int highlight = highlight_off ? -1 : gui_room_type_highlighted;
     if (PrevRoomHighlight != highlight)
     {
-        if ((PrevRoomHighlight >= 0) && (NumBackColours > 0))
+        if (PrevRoomHighlight >= 0)
         {
-            int i;
-            int n;
             n = PLAYERS_COUNT * PrevRoomHighlight + PnC_RoomsStart;
-            for (i=NumBackColours; i > 0; i--)
+            for (PlayerNumber k = 0; k < PLAYERS_COUNT; k++)
             {
-                PanelColours[n + 0] = player_room_colours[get_player_color_idx(0)];
-                PanelColours[n + 1] = player_room_colours[get_player_color_idx(1)];
-                PanelColours[n + 2] = player_room_colours[get_player_color_idx(2)];
-                PanelColours[n + 3] = player_room_colours[get_player_color_idx(3)];
-                PanelColours[n + 4] = player_room_colours[get_player_color_idx(4)];
-                PanelColours[n + 5] = frcol;
-                PanelColours[n + 6] = player_room_colours[get_player_color_idx(6)];
-                PanelColours[n + 7] = player_room_colours[get_player_color_idx(7)];
-                PanelColours[n + 8] = player_room_colours[get_player_color_idx(8)];
-                n += PnC_End;
+                PanelColours[n + k] = panel_room_colour(k, frcol);
             }
         }
-
-        if ((highlight >= 0) && (NumBackColours > 0))
+        if (highlight >= 0)
         {
-            int i;
-            int n;
             n = PLAYERS_COUNT * highlight + PnC_RoomsStart;
-            for (i=NumBackColours; i > 0; i--)
+            for (int k = 0; k < PLAYERS_COUNT; k++)
             {
-                PanelColours[n + 0] = 31;
-                PanelColours[n + 1] = 31;
-                PanelColours[n + 2] = 31;
-                PanelColours[n + 3] = 31;
-                PanelColours[n + 4] = 31;
-                PanelColours[n + 5] = 31;
-                PanelColours[n + 6] = 31;
-                PanelColours[n + 7] = 31;
-                PanelColours[n + 8] = 31;
-                n += PnC_End;
+                PanelColours[n + k] = 31;
             }
         }
-
         PrevRoomHighlight = highlight;
     }
 
-    highlight = gui_door_type_highlighted;
-    if (frame >= gui_blink_rate)
-        highlight = -1;
+    highlight = highlight_off ? -1 : gui_door_type_highlighted;
     if (highlight != PrevDoorHighlight)
     {
-        if ((PrevDoorHighlight >= 0) && (PrevDoorHighlight != TRAPDOOR_TYPES_MAX) && (NumBackColours > 0))
+        if ((PrevDoorHighlight >= 0) && (PrevDoorHighlight != TRAPDOOR_TYPES_MAX))
         {
-            int i;
-            int n;
             n = 2 * PLAYERS_COUNT * PrevDoorHighlight;
-            for (i=NumBackColours; i > 0; i--)
+            for (int k=0; k < PLAYERS_COUNT; k++)
             {
-                int k;
-                for (k=0; k < PLAYERS_COUNT; k+=2)
-                {
-                  PanelColours[n + PnC_DoorsStart       + k] = Tbp_OpenDoor;
-                  PanelColours[n + PnC_DoorsStartLocked + k] = Tbp_LockedDoor;
-                }
-                n += PnC_End;
+              PanelColours[n + PnC_DoorsStart       + k] = Tbp_OpenDoor;
+              PanelColours[n + PnC_DoorsStartLocked + k] = Tbp_LockedDoor;
             }
         }
-        if ((highlight >= 0) && (NumBackColours > 0))
+        if (highlight >= 0)
         {
-            int i;
-            int n;
             n = 2 * PLAYERS_COUNT * highlight;
-            for (i = NumBackColours; i > 0; i--)
+            for (int k=0; k < PLAYERS_COUNT; k++)
             {
-                int k;
-                for (k=0; k < PLAYERS_COUNT; k+=2)
-                {
-                  PanelColours[n + PnC_DoorsStart       + k] = Tbp_DoorHighlighted;
-                  PanelColours[n + PnC_DoorsStartLocked + k] = Tbp_DoorHighlighted;
-                }
-                n += PnC_End;
+              PanelColours[n + PnC_DoorsStart       + k] = Tbp_DoorHighlighted;
+              PanelColours[n + PnC_DoorsStartLocked + k] = Tbp_DoorHighlighted;
             }
         }
         PrevDoorHighlight = highlight;
@@ -1268,7 +876,7 @@ void auto_gen_tables(long units_per_px)
     if (PrevPixelSize != 256 * units_per_px / 16)
     {
         PrevPixelSize = 256 * units_per_px / 16;
-        setup_background(units_per_px);
+        setup_map_shape(units_per_px);
         setup_panel_colors();
     }
 }
@@ -1280,7 +888,7 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     // auto_gen_tables sets MapDiagonalLength; acquire the buffer afterwards so
     // it gets the correct (non-zero) size on the very first frame.
     auto_gen_tables(units_per_px);
-    s_minimap_pixels = UIRenderer_AcquireMinimapBuffer(MapDiagonalLength);
+    s_minimap_pixels = UIRenderer_AcquireMinimapBuffer(PanelMapX, PanelMapY, MapDiagonalLength);
     update_panel_colors();
     struct PlayerInfo *player = get_my_player();
     struct Camera *cam = get_local_active_camera(player);
@@ -1288,18 +896,14 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     if ((cam == NULL) || (MapDiagonalLength < 1) || (s_minimap_pixels == NULL))
         return;
 
-    const TbBool bake_background = !RendererCompositesMinimapBackground();
-
     const int32_t shift_x = -LbSinL(cam->rotation_angle_x) * zoom / 256;
     const int32_t shift_y = LbCosL(cam->rotation_angle_x) * zoom / 256;
     int32_t shift_stl_x = (cam->mappos.x.val << 8) - MapDiagonalLength * shift_x / 2 - MapDiagonalLength * shift_y / 2;
     int32_t shift_stl_y = (cam->mappos.y.val << 8) - MapDiagonalLength * shift_y / 2 + MapDiagonalLength * shift_x / 2;
 
-    TbPixel *bkgnd_line;
-    bkgnd_line = MapBackground;
-    // Buffer was already zeroed by UIRenderer_AcquireMinimapBuffer(); use it
-    // as output, in its own size*size coordinate space (no PanelMapX/Y offset
-    // -- the renderer positions it at (PanelMapX, PanelMapY) on submit).
+    // The buffer from UIRenderer_AcquireMinimapBuffer() already holds what each pixel is
+    // drawn over, in its own size*size coordinate space (no PanelMapX/Y offset -- the
+    // renderer positions it at (PanelMapX, PanelMapY) on submit).
     TbPixel *out_line;
     out_line = s_minimap_pixels;
     int h;
@@ -1331,8 +935,6 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
             subpos_y += shift_y;
             subpos_x -= shift_x;
         }
-        TbPixel *bkgnd;
-        bkgnd = &bkgnd_line[start_w];
         TbPixel *out;
         out = &out_line[start_w];
         unsigned int precor_y;
@@ -1344,22 +946,13 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         {
             int pnmap_idx;
             pnmap_idx = ((precor_x>>16)) + (((precor_y>>16)) * (game.map_subtiles_x + 1) );
-            int pncol_idx;
-            if (bake_background) {
-                pncol_idx = PanelMap[pnmap_idx] + (*bkgnd * PnC_End);
-            } else {
-                // Backend composites the background itself; MapBackground is
-                // all-zeros there (see setup_background()), so skip the multiply.
-                pncol_idx = PanelMap[pnmap_idx];
-            }
-            *out = PanelColours[pncol_idx];
+            unsigned short kind = PanelMap[pnmap_idx];
+            *out = (kind <= PnC_Abyss) ? MapKindColours[kind][*out] : PanelColours[kind];
             precor_x += shift_y;
             precor_y -= shift_x;
             out++;
-            bkgnd++;
         }
         out_line += MapDiagonalLength;
-        bkgnd_line += MapDiagonalLength;
         shift_stl_x += shift_x;
         shift_stl_y += shift_y;
     }

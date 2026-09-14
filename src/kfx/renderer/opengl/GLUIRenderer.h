@@ -80,7 +80,7 @@ public:
      *  so it always composites on top of the panel-background sprites GameUI
      *  already flushed this frame (see BackendCapabilities::
      *  compositesMinimapBackground). */
-    uint8_t* AcquireMinimapBuffer(int size) override;
+    uint8_t* AcquireMinimapBuffer(int screen_x, int screen_y, int size) override;
     void SubmitMinimap(int screen_x, int screen_y, int size,
                        const int32_t* shape_start, const int32_t* shape_end) override;
 
