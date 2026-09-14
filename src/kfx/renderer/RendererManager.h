@@ -157,13 +157,6 @@ TbBool RendererCompositesMinimapBackground(void);
  *  is locked, or the backend records draws to render later. */
 TbBool RendererCanDraw(void);
 
-// Full-screen tint overlay (pain/possession vignette). Plain ambient state,
-// backend-agnostic -- GL blends a fullscreen quad from it each frame
-// (FGDrawScreenTint()); software has no consumer (see
-// RendererApplyPossessionPalette() below for its equivalent).
-extern float g_screen_tint[4];
-void RendererSetScreenTint(float r, float g, float b, float a);
-
 /** Tell the GPU renderer to preserve the last real frame's content across
  *  PresentFrame() (world/UI/image-present buffers not flipped, only the
  *  palette refreshed). Call with 1 before entering a blocking palette-
