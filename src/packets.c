@@ -1621,6 +1621,7 @@ void exchange_packets(void)
     update_turn_checksums();
     update_local_dig_tag_prediction();
     store_packet_history(local_user, get_local_packet());
+    host_spoof_dropped_user_packets();
     if (game.game_kind != GKind_LocalGame)
     {
         if (!game.packet_load_enable || game.packet_load_initialized)
