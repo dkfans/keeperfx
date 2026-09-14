@@ -878,18 +878,16 @@ void restore_users_from_packet_save(void)
         }
         set_net_user_player_number(user, plyr_idx);
         struct PlayerInfo *player = get_player(plyr_idx);
-        player->user_id = user;
         snprintf(player->player_name, sizeof(player->player_name), "%s",
             replay.head.user_names[user]);
-        init_user_state(user);
+        init_user_state(user, plyr_idx);
         local_mapped |= (plyr_idx == my_player_number);
         SYNCLOG("Replay user %d -> player %d", (int)user, (int)plyr_idx);
     }
     if (!local_mapped)
     {
         set_net_user_player_number(SOLO_HUMAN_ID, my_player_number);
-        get_player(my_player_number)->user_id = SOLO_HUMAN_ID;
-        init_user_state(SOLO_HUMAN_ID);
+        init_user_state(SOLO_HUMAN_ID, my_player_number);
         SYNCLOG("Replay local user %d -> player %d (not in the recorded map)",
             (int)SOLO_HUMAN_ID, (int)my_player_number);
     }

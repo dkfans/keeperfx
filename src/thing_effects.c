@@ -80,14 +80,17 @@ struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmo
 
 static TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
 {
-    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
+        PlayerNumber plyr_idx = get_net_user_player_number(user);
+        if (plyr_idx < 0)
+            continue;
         struct PlayerInfo *player = get_player(plyr_idx);
         if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
             MapCoord x = 0;
             MapCoord y = 0;
-            const int32_t radius = user_get_visibility_bounds(player->user_id, &x, &y);
+            const int32_t radius = user_get_visibility_bounds(user, &x, &y);
             if (chessboard_distance(x, y, (MapCoord)pos->x.val, (MapCoord)pos->y.val) <= radius)
             {
                 return true;
@@ -775,7 +778,6 @@ void effect_generate_effect_elements(const struct Thing *thing)
     case 4:
     {
         HitPoints i = effcst->start_health / 2;
-        struct PlayerInfo* player;
         if (thing->health == effcst->start_health)
         {
             memset(temp_pal, 63, PALETTE_SIZE);
@@ -794,8 +796,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
         } else
         {
-            player = get_my_player();
-            PaletteSetUserPalette(player->user_id, engine_palette);
+            PaletteSetUserPalette(get_local_user(), engine_palette);
             LbPaletteStopOpenFade();
         }
         break;

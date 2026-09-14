@@ -719,10 +719,8 @@ static void gameplay_loop_timestep()
 
 static void keeper_gameplay_loop(void)
 {
-    struct PlayerInfo *player;
     SYNCDBG(5,"Starting");
-    player = get_my_player();
-    PaletteSetUserPalette(player->user_id, engine_palette);
+    PaletteSetUserPalette(get_local_user(), engine_palette);
     if ((game.operation_flags & GOF_SingleLevel) != 0) {
         initialise_eye_lenses();
     }

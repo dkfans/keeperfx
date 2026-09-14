@@ -69,7 +69,7 @@ static void get_lua_camera_view(const struct PlayerInfo *player, const struct Us
     case PVT_MapScreen:
     case PVT_MapFadeOut:
     {
-        const struct Packet *pckt = get_packet(player->user_id);
+        const struct Packet *pckt = get_packet(get_player_primary_user(player));
         if (packet_camera_context(pckt) == CamIV_Parchment)
         {
             view->pos.x.val = pckt->pos_x;

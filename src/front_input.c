@@ -281,13 +281,13 @@ TbBool check_current_gui_layer(long layer_id)
 
 static void update_gui_layer(void)
 {
+    struct UserState* ustate = get_local_user_state();
     // Determine the current/correct GUI Layer to use at this moment
 
-    struct PlayerInfo* player = get_my_player();
-    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (player->render_roomspace.highlight_mode))  &&
+    if ( ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom) || (ustate->render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, false, true) || is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) )
     {
-        if (player->render_roomspace.one_click_mode_exclusive)
+        if (ustate->render_roomspace.one_click_mode_exclusive)
         {
             // Is the user in "one-click bridge building" mode
             set_current_gui_layer(GuiLayer_OneClickBridgeBuild);
@@ -1115,7 +1115,7 @@ static TbBool get_level_lost_inputs(void)
         inp_done = get_gui_inputs(1);
         if ( !inp_done )
         {
-          if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
+          if ( (ustate->work_state == PSt_CreatrInfo) || (ustate->work_state == PSt_CreatrInfoAll) )
           {
               set_player_instance(player, PI_UnqueryCrtr, 0);
           } else
@@ -1179,8 +1179,8 @@ static TbBool get_level_lost_inputs(void)
 
 static short get_status_panel_keyboard_action_inputs(void)
 {
-  struct PlayerInfo* player = get_my_player();
-  if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkGoodCreatr) || (player->work_state == PSt_MkBadCreatr) )
+  struct UserState* ustate = get_local_user_state();
+  if ( (ustate->work_state == PSt_PlaceTerrain) || (ustate->work_state == PSt_MkDigger) || (ustate->work_state == PSt_MkGoodCreatr) || (ustate->work_state == PSt_MkBadCreatr) )
   {
       return false;
   }
@@ -1333,6 +1333,7 @@ static short get_status_panel_keyboard_action_inputs(void)
 
 static TbBool get_dungeon_control_pausable_action_inputs(void)
 {
+    struct UserState* ustate = get_local_user_state();
     struct PlayerInfo* player = get_my_player();
     struct Camera* camera = get_local_active_camera(player);
     if (get_players_packet_action(player) != PckA_None)
@@ -1355,7 +1356,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
 
     if (is_game_key_pressed(Gkey_CheatMenu2, true, false))
     {
-        if ( (player->continue_work_state == PSt_CreatrQuery) || (player->continue_work_state == PSt_QueryAll) )
+        if ( (ustate->continue_work_state == PSt_CreatrQuery) || (ustate->continue_work_state == PSt_QueryAll) )
         {
             struct Thing *creatng = thing_get(player->controlled_thing_idx);
             if (thing_is_creature(creatng))
@@ -1389,7 +1390,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
         }
     }
 
-    switch (player->work_state)
+    switch (ustate->work_state)
     {
     case PSt_PlaceTerrain:
     case PSt_MkDigger:
@@ -1462,18 +1463,18 @@ static TbBool get_dungeon_control_action_inputs(void)
     if (get_dungeon_small_map_inputs(get_local_packet()))
         return 1;
 
-    if (player->work_state == PSt_CtrlDungeon)
+    if (ustate->work_state == PSt_CtrlDungeon)
     {
         if ((ustate->primary_cursor_state == CSt_PickAxe) || (ustate->primary_cursor_state == CSt_PowerHand))
         {
             process_highlight_roomspace_inputs(player->id_number);
         }
     }
-    else if (player->work_state == PSt_BuildRoom)
+    else if (ustate->work_state == PSt_BuildRoom)
     {
         process_build_roomspace_inputs(player->id_number);
     }
-    else if (player->work_state == PSt_Sell)
+    else if (ustate->work_state == PSt_Sell)
     {
         process_sell_roomspace_inputs(player->id_number);
     }
@@ -1964,7 +1965,7 @@ static short get_creature_control_action_inputs(void)
                 set_players_packet_action(player, PckA_SetNearestTeleport, false, 0, 0, 0);
             }
         }
-        player->thing_under_hand = 0;
+        ustate->thing_under_hand = 0;
         local_state.local_thing_under_hand = 0;
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
@@ -1983,7 +1984,7 @@ static short get_creature_control_action_inputs(void)
                 struct Thing* traptng = controlled_get_trap_to_rearm(thing);
                 if (!thing_is_invalid(traptng))
                 {
-                    player->thing_under_hand = traptng->index;
+                    ustate->thing_under_hand = traptng->index;
                 }
             }
             else if (!thing_exists(dragtng))
@@ -2006,7 +2007,7 @@ static short get_creature_control_action_inputs(void)
                     struct Thing* picktng = controlled_get_thing_to_pick_up(thing);
                     if (!thing_is_invalid(picktng))
                     {
-                        player->thing_under_hand = picktng->index;
+                        ustate->thing_under_hand = picktng->index;
                         if (first_person_see_item_desc)
                         {
                             display_controlled_pick_up_thing_name(picktng, 1, player->id_number);
@@ -2014,10 +2015,10 @@ static short get_creature_control_action_inputs(void)
                     }
                 }
             }
-            local_state.local_thing_under_hand = player->thing_under_hand;
-            if (ustate->selected_fp_thing_pickup != player->thing_under_hand)
+            local_state.local_thing_under_hand = ustate->thing_under_hand;
+            if (ustate->selected_fp_thing_pickup != ustate->thing_under_hand)
             {
-                set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
+                set_players_packet_action(player, PckA_SelectFPPickup, ustate->thing_under_hand, 0, 0, 0);
             }
         }
         if (numkey != -1)
@@ -2068,7 +2069,7 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
         return;
     }
     int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
-    if (right_button_released && (player->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && power_hand_is_empty(player) && !ustate->one_click_lock_cursor && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
+    if (right_button_released && (ustate->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && power_hand_is_empty(player) && !ustate->one_click_lock_cursor && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
         set_packet_power_on_thing(pckt, PwrK_SLAP, local_state.local_thing_under_hand);
         return;
     }
@@ -2076,7 +2077,7 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
         return;
     }
     PowerKind pwkind = ustate->chosen_power_kind;
-    PlayerState work_state = player->work_state;
+    PlayerState work_state = ustate->work_state;
     for (GameTurnDelta i = 1; i <= game.input_lag_turns; i += 1) {
         const struct Packet* delayed_pckt = get_history_packet(user, get_gameturn() - i);
         if ((delayed_pckt != NULL) && (delayed_pckt->action == PckA_SetPlyrState)) {
@@ -2550,6 +2551,7 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
  */
 static void get_dungeon_control_nonaction_inputs(void)
 {
+  struct UserState* ustate = get_local_user_state();
   struct Coord3d pos;
   my_mouse_x = GetMouseX();
   my_mouse_y = GetMouseY();
@@ -2560,7 +2562,7 @@ static void get_dungeon_control_nonaction_inputs(void)
     local_state.local_thing_under_hand = 0;
   }
   unset_packet_control(pckt, PCtr_MapCoordsValid);
-  if (player->work_state == PSt_CtrlDungeon)
+  if (ustate->work_state == PSt_CtrlDungeon)
   {
       unsigned char context;
       if (get_player_coords_and_context(&pos, &context))
@@ -2573,7 +2575,7 @@ static void get_dungeon_control_nonaction_inputs(void)
     {
         set_players_packet_position(pckt, pos.x.val, pos.y.val, 0);
         pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
-        switch (player->work_state)
+        switch (ustate->work_state)
         {
             case PSt_KillCreatr:
             case PSt_ConvertCreatr:
@@ -2585,14 +2587,14 @@ static void get_dungeon_control_nonaction_inputs(void)
             case PSt_DestroyThing:
             case PSt_CreatrInfoAll:
             {
-                local_state.local_thing_under_hand = player->thing_under_hand;
+                local_state.local_thing_under_hand = ustate->thing_under_hand;
                 break;
             }
             case PSt_OrderCreatr:
             {
-                if ( (player->controlled_thing_idx == 0) || (player->thing_under_hand == player->controlled_thing_idx) )
+                if ( (player->controlled_thing_idx == 0) || (ustate->thing_under_hand == player->controlled_thing_idx) )
                 {
-                    local_state.local_thing_under_hand = player->thing_under_hand;
+                    local_state.local_thing_under_hand = ustate->thing_under_hand;
                 }
                 break;
             }
@@ -2927,7 +2929,7 @@ static void get_player_gui_clicks(void)
       {
           if (right_click_tag_mode_toggle)
           {
-              if (player->work_state == PSt_CtrlDungeon)
+              if (ustate->work_state == PSt_CtrlDungeon)
               {
                   switch (ustate->primary_cursor_state)
                   {
@@ -2951,7 +2953,7 @@ static void get_player_gui_clicks(void)
                       }
                       case CSt_PowerHand:
                       {
-                         if (player->thing_under_hand == 0)
+                         if (ustate->thing_under_hand == 0)
                          {
                              if (!a_menu_window_is_active())
                              {
@@ -2980,17 +2982,17 @@ static void get_player_gui_clicks(void)
       }
       if (right_button_released)
       {
-        if ((player->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
+        if ((ustate->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
         {
           if ( !turn_off_all_window_menus() )
           {
-            if (player->work_state == PSt_CreatrQuery)
+            if (ustate->work_state == PSt_CreatrQuery)
             {
               turn_off_query_menus();
               set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
               right_button_released = 0;
             } else
-            if ((player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CreatrInfoAll) && (player->work_state != PSt_CtrlDungeon))
+            if ((ustate->work_state != PSt_CreatrInfo) && (ustate->work_state != PSt_CreatrInfoAll) && (ustate->work_state != PSt_CtrlDungeon))
             {
               set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
               right_button_released = 0;
@@ -3017,6 +3019,7 @@ static TbBool active_menu_functions_while_paused(void)
  */
 static short get_inputs(void)
 {
+    struct UserState* ustate = get_local_user_state();
     move_camera_this_turn = update_local_camera_time();
 
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
@@ -3324,7 +3327,7 @@ static void process_cheat_mode_selection_inputs(void)
     unsigned char new_value;
     struct CreatureModelConfig* crconf;
     // player selection
-    if (player->work_state == PSt_PlaceTerrain)
+    if (ustate->work_state == PSt_PlaceTerrain)
     {
         if (slab_kind_has_no_ownership(ustate->cheatselection.chosen_terrain_kind))
         {
@@ -3388,7 +3391,7 @@ static void process_cheat_mode_selection_inputs(void)
 
     INPUTS:
     // state-specific inputs
-    switch (player->work_state)
+    switch (ustate->work_state)
     {
         case PSt_MkBadCreatr:
         case PSt_MkGoodCreatr:
@@ -3477,7 +3480,7 @@ static void process_cheat_mode_selection_inputs(void)
             }
             else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
             {
-                if (player->work_state == PSt_MkGoodCreatr)
+                if (ustate->work_state == PSt_MkGoodCreatr)
                 {
                     new_value = ustate->cheatselection.chosen_hero_kind;
                     do
@@ -3493,7 +3496,7 @@ static void process_cheat_mode_selection_inputs(void)
                     while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
                 }
-                else if (player->work_state == PSt_MkBadCreatr)
+                else if (ustate->work_state == PSt_MkBadCreatr)
                 {
                     new_value = ustate->cheatselection.chosen_creature_kind;
                     do
@@ -3513,7 +3516,7 @@ static void process_cheat_mode_selection_inputs(void)
             }
             else if (is_key_pressed(KC_LCONTROL, KMod_DONTCARE))
             {
-                if (player->work_state == PSt_MkGoodCreatr)
+                if (ustate->work_state == PSt_MkGoodCreatr)
                 {
                     new_value = ustate->cheatselection.chosen_hero_kind;
                     do
@@ -3535,7 +3538,7 @@ static void process_cheat_mode_selection_inputs(void)
                     while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
                 }
-                else if (player->work_state == PSt_MkBadCreatr)
+                else if (ustate->work_state == PSt_MkBadCreatr)
                 {
                     new_value = ustate->cheatselection.chosen_creature_kind;
                     do

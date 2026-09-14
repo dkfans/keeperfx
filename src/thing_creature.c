@@ -237,9 +237,10 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
 
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
 {
+    struct UserState* ustate = get_player_user_state(player);
     struct CreatureModelConfig *crconf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect))
+    if (((thing->owner != player->id_number) && (ustate->work_state != PSt_FreeCtrlDirect))
       || !thing_can_be_controlled_as_controller(thing))
     {
       if (!control_creature_as_passenger(player, thing))
@@ -269,7 +270,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         internal_set_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
     }
-    set_player_mode(player, PVT_CreatureContrl);
+    set_user_view_type(get_player_primary_user(player), PVT_CreatureContrl);
     if (thing_is_creature(thing))
     {
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -293,7 +294,8 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
 
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
 {
-    if ((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlPassngr))
+    struct UserState* ustate = get_player_user_state(player);
+    if ((thing->owner != player->id_number) && (ustate->work_state != PSt_FreeCtrlPassngr))
     {
         ERRORLOG("Player %d cannot control as passenger thing owned by player %d",(int)player->id_number,(int)thing->owner);
         return false;
@@ -310,7 +312,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
         turn_off_roaming_menus();
     }
     set_selected_thing(player, thing);
-    set_player_mode(player, PVT_CreaturePasngr);
+    set_user_view_type(get_player_primary_user(player), PVT_CreaturePasngr);
     thing->rendering_flags |= TRF_Invisible;
     return true;
 }
@@ -3360,6 +3362,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 void prepare_to_controlled_creature_death(struct Thing *thing)
 {
     struct PlayerInfo* player = get_player(thing->owner);
+    struct UserState* ustate = get_player_user_state(player);
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
     player->influenced_thing_creation = 0;
@@ -3369,10 +3372,10 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_off_query_menus();
         turn_on_main_panel_menu();
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-        PaletteSetUserPalette(player->user_id, engine_palette);
+        PaletteSetUserPalette(get_player_primary_user(player), engine_palette);
         local_state.palette_fade_step_possession = 11;
     }
-    turn_user_cursor_light(player->user_id, true);
+    turn_user_cursor_light(get_player_primary_user(player), true);
 }
 
 void delete_armour_effects_attached_to_creature(struct Thing *thing)
@@ -6566,19 +6569,19 @@ TngUpdateRet update_creature(struct Thing *thing)
             }
         }
         struct PlayerInfo* player = get_player(thing->owner);
-        struct UserState* ustate = get_user_state(player->user_id);
+        struct UserState* ustate = get_player_user_state(player);
         if (creature_under_spell_effect(thing, CSAfF_Freeze))
         {
             if (!flag_is_set(ustate->additional_flags, UsrAF_FreezePaletteIsActive))
             {
-                PaletteSetUserPalette(player->user_id, blue_palette);
+                PaletteSetUserPalette(get_player_primary_user(player), blue_palette);
             }
         }
         else
         {
             if (flag_is_set(ustate->additional_flags, UsrAF_FreezePaletteIsActive))
             {
-                PaletteSetUserPalette(player->user_id, engine_palette);
+                PaletteSetUserPalette(get_player_primary_user(player), engine_palette);
             }
         }
     } else
@@ -7753,10 +7756,11 @@ void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, T
 
 TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 {
+    struct UserState* ustate = get_player_user_state(player);
     if (creature_is_leaving_and_cannot_be_stopped(creatng))
         return false;
 
-    switch (player->work_state)
+    switch (ustate->work_state)
     {
         case PSt_CreatrInfo:
         case PSt_CreatrQuery:

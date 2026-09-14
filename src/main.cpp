@@ -492,7 +492,7 @@ static bool players_cursor_is_at_top_of_view()
 {
     const struct PlayerInfo *const player = get_displayed_player();
     const struct UserState *const ustate = get_player_user_state(player);
-    switch (player->work_state)
+    switch (ustate->work_state)
     {
     case PSt_BuildRoom:
     case PSt_PlaceDoor:
@@ -675,6 +675,7 @@ void toggle_hero_health_flowers(void)
 
 void reset_gui_based_on_player_mode(void)
 {
+    struct UserState* ustate = get_local_user_state();
     struct PlayerInfo *player = get_my_player();
     if (get_player_view_type(player) == PVT_CreatureContrl)
     {
@@ -695,7 +696,7 @@ void reset_gui_based_on_player_mode(void)
         if (game.active_panel_mnu_idx > 0)
         {
             initialise_tab_tags(game.active_panel_mnu_idx);
-            if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
+            if ( (ustate->work_state == PSt_CreatrInfo) || (ustate->work_state == PSt_CreatrInfoAll) )
             {
                 turn_on_menu(vid_change_query_menu);
             }
@@ -972,7 +973,6 @@ void clear_players_for_save(void)
       saved_allocation_flags = player->allocflags;
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = saved_player_id;
-      player->user_id = -1;
       player->player_type = saved_player_type;
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));

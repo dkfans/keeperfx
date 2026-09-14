@@ -63,7 +63,7 @@ int32_t user_get_visibility_bounds(NetUserId user, MapCoord *x, MapCoord *y);
 TbBool get_starting_highlight_mode(void);
 void init_local_player_state(void);
 void init_player(struct PlayerInfo *player, short no_explore);
-void init_user_state(NetUserId user);
+void init_user_state(NetUserId user, PlayerNumber player_id);
 void turn_user_cursor_light(NetUserId user, TbBool turn_on);
 void post_init_players(void);
 void post_init_player(struct PlayerInfo* player);

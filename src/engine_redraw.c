@@ -127,6 +127,7 @@ static void ensure_map_fade_buffers(int width, int height)
 /******************************************************************************/
 static void draw_creature_view_icons(struct Thing* creatng)
 {
+    struct UserState* ustate = get_local_user_state();
     struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
     ScreenCoord x = gmnu->width + scale_value_by_horizontal_resolution(5);
     ScreenCoord y;
@@ -416,9 +417,9 @@ void generate_map_fade_ghost_table(const char *fname, unsigned char *palette, un
  */
 void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest, int scanline, int height)
 {
-    struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_local_user_state();
     // render the 3D screen
-    if (get_player_user_state(player)->prefs[UPref_FrontView] != 0)
+    if (ustate->prefs[UPref_FrontView] != 0)
       redraw_frontview();
     else
       redraw_isometric_view();
@@ -764,8 +765,8 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
 {
     struct Thing *thing;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
-    struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
     const struct UserState *ustate = get_player_user_state(player);
+    struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(ustate->work_state);
     if (dungeon_invalid(dungeon) || user_state_invalid(ustate)) {
         set_pointer_graphic(MousePG_Invisible);
         return;
@@ -812,7 +813,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
     }
     int32_t i;
     int32_t dig_graphic = MousePG_Pickaxe;
-    if (player->roomspace_highlight_mode == drag_placement_mode) {
+    if (ustate->roomspace_highlight_mode == drag_placement_mode) {
         dig_graphic = MousePG_Pickaxe2;
     }
     short thing_under_hand;
@@ -837,7 +838,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
             set_pointer_graphic(MousePG_LockMark);
             break;
         case CSt_PowerHand:
-            thing_under_hand = player->thing_under_hand;
+            thing_under_hand = ustate->thing_under_hand;
             if (is_my_player(player) && local_state.local_thing_under_hand > 0) {
                 thing_under_hand = local_state.local_thing_under_hand;
             }
@@ -947,7 +948,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
 void process_pointer_graphic(void)
 {
     struct PlayerInfo* player = get_my_player();
-    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(player->work_state),(int)player->instance_num);
+    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(get_player_user_state(player)->work_state),(int)player->instance_num);
     switch (get_local_view_type(player)) {
     case PVT_DungeonTop:
         // This case is complicated
@@ -977,6 +978,7 @@ void process_pointer_graphic(void)
 
 void redraw_display(void)
 {
+    struct UserState* ustate = get_local_user_state();
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
     local_state.display_needs_update = false;

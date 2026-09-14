@@ -179,7 +179,7 @@ const struct Packet *observer_get_view_packet(void)
         return NULL;
     }
     const struct PlayerInfo *player = get_player(my_player_number);
-    NetUserId user = player->user_id;
+    NetUserId user = get_player_primary_user(player);
     if (user < 0 || user >= MAX_NET_USERS) {
         return NULL;
     }
@@ -215,7 +215,7 @@ void observer_update_cursor(void)
     if (pckt == NULL || gameplay_cursor_is_over_gui()) {
         return;
     }
-    NetUserId user = get_player(my_player_number)->user_id;
+    NetUserId user = get_player_primary_user(get_player(my_player_number));
     const struct ObserverCursor *previous = &observer_previous_cursors[user];
     observer_cursor_visible = observer_cursor_to_screen(&observer_cursors[user], &observer_cursor_screen_position[0], &observer_cursor_screen_position[1]);
     int32_t previous_screen_x;
@@ -347,14 +347,13 @@ void observer_init(PlayerNumber camera_player_number)
         local_observer_user_state.prefs[UPref_FrontView] = camera_state->prefs[UPref_FrontView];
         local_observer_user_state.prefs[UPref_Wibble] = camera_state->prefs[UPref_Wibble];
     }
-    local_observer_player.user_id = get_local_user();
     local_observer_player.allocflags = PlaF_Allocated;
     local_observer_player.victory_state = VicS_LostLevel;
-    local_observer_player.work_state = PSt_CtrlDungeon;
-    local_observer_player.continue_work_state = PSt_CtrlDungeon;
-    local_observer_player.roomspace_width = 1;
-    local_observer_player.roomspace_height = 1;
-    local_observer_player.roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+    local_observer_user_state.work_state = PSt_CtrlDungeon;
+    local_observer_user_state.continue_work_state = PSt_CtrlDungeon;
+    local_observer_user_state.roomspace_width = 1;
+    local_observer_user_state.roomspace_height = 1;
+    local_observer_user_state.roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
     local_observer_user_state.view_type = PVT_DungeonTop;
     local_observer_user_state.teleport_destination = 19;
     local_observer_user_state.battleid = 1;

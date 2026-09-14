@@ -575,7 +575,6 @@ static void finish_resync(const struct Packet *saved_packets)
         lua_set_random_seed(game.action_random_seed);
     }
     recall_localised_game_structure();
-    rebuild_net_user_player_numbers();
     reinit_level_after_load();
     if (network_is_active() && net_join_role == NetRole_Spectator) {
         reinitialise_eye_lens(game.applied_lens_type);

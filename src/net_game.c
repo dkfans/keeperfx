@@ -110,20 +110,15 @@ TbBool network_is_host(void)
     return netstate.my_id == SERVER_ID;
 }
 
-// map NetUserId -> PlayerNumber, or -1 for a user without a player.
-// Currently, this mapping is 1-1.
-// Potential future work: "archon mode" (multiple users share a player)
-static PlayerNumber net_user_player_number[MAX_NET_USERS];
+// user->player map received with the spectator bootstrap, applied once the level is set up
+static PlayerNumber spectator_user_player_number[MAX_NET_USERS];
 
 PlayerNumber get_net_user_player_number(NetUserId user)
 {
     if ((user < 0) || (user >= MAX_NET_USERS)) {
-        return -1;
+        return PLAYER_NONE;
     }
-    if (!network_is_active() && !replay.load_enable) {
-        return (user == SOLO_HUMAN_ID) ? my_player_number : -1;
-    }
-    return net_user_player_number[user];
+    return game.user_states[user].player_id;
 }
 
 // user exists to the game layer (even if their connection has dropped,
@@ -139,20 +134,7 @@ void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx)
     if ((user < 0) || (user >= MAX_NET_USERS)) {
         return;
     }
-    net_user_player_number[user] = plyr_idx;
-}
-
-void rebuild_net_user_player_numbers(void)
-{
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        net_user_player_number[user] = -1;
-    }
-    for (PlayerNumber id = 0; id < PLAYERS_COUNT; id++) {
-        const struct PlayerInfo *player = get_player(id);
-        if (player_exists(player) && player->user_id >= 0 && player->user_id < MAX_NET_USERS) {
-            net_user_player_number[player->user_id] = id;
-        }
-    }
+    game.user_states[user].player_id = plyr_idx;
 }
 
 static const unsigned char user_preference_flags[UPref_Count] = {
@@ -276,10 +258,10 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
             continue;
         }
         struct PlayerInfo *player = get_player(k);
+        struct UserState* ustate = get_user_state(i);
         player->id_number = k;
-        player->user_id = i;
         player->allocflags |= PlaF_Allocated;
-        init_user_state(player->user_id);
+        init_user_state(i, k);
         apply_user_preferences(i, sync->user_prefs, UPF_NewGame);
         init_player(player, 0);
         apply_user_start_tendencies(player);
@@ -432,10 +414,10 @@ static void setup_network_player_numbers(void)
     SYNCDBG(6, "Starting");
     for (NetUserId i = 0; i < MAX_NET_USERS; i++)
     {
-        net_user_player_number[i] = -1;
+        game.user_states[i].player_id = PLAYER_NONE;
         if (net_user_info[i].network_user_active)
         {
-            net_user_player_number[i] = k;
+            game.user_states[i].player_id = k;
             if ((!is_set) && (my_player_number == i))
             {
                 is_set = true;
@@ -474,6 +456,9 @@ TbBool init_players_network_game(void)
             create_frontend_error_box(get_string(GUIStr_NetUnsyncedMap));
             LbNetwork_Stop();
             return false;
+        }
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+            set_net_user_player_number(user, spectator_user_player_number[user]);
         }
         setup_players_from_startup_packets(s_startup_sync_packets);
         return true;
@@ -595,7 +580,7 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
 // local single-player must have the local user in slot 0.
 void remap_user_to_solo(struct PlayerInfo *myplyr)
 {
-    NetUserId old_user = myplyr->user_id;
+    NetUserId old_user = netstate.my_id;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (user == old_user) {
             continue;
@@ -605,22 +590,14 @@ void remap_user_to_solo(struct PlayerInfo *myplyr)
             light_delete_light(ustate->cursor_light_idx);
         }
         memset(ustate, 0, sizeof(*ustate));
+        ustate->player_id = PLAYER_NONE;
     }
     struct UserState *old_state = get_user_state(old_user);
     if ((old_user != SOLO_HUMAN_ID) && !user_state_invalid(old_state)) {
         *get_user_state(SOLO_HUMAN_ID) = *old_state;
         memset(old_state, 0, sizeof(*old_state));
+        old_state->player_id = PLAYER_NONE;
     }
-    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
-        struct PlayerInfo *player = get_player(plyr_idx);
-        if (player != myplyr) {
-            player->user_id = -1;
-        }
-    }
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        set_net_user_player_number(user, -1);
-    }
-    myplyr->user_id = SOLO_HUMAN_ID;
     set_net_user_player_number(SOLO_HUMAN_ID, myplyr->id_number);
     if (myplyr->roomspace.is_active && (myplyr->roomspace.user == old_user)) {
         myplyr->roomspace.user = SOLO_HUMAN_ID;
@@ -740,18 +717,25 @@ static void abandon_network_player(struct PlayerInfo *player, TbBool announce)
     }
 }
 
+// Take a user out of the game: their player is handed to the AI, or written
+// off if their fate was already decided. Nothing here touches the transport.
 static void remove_user_from_game(NetUserId user, TbBool announce)
 {
-    if ((user < 0) || (user >= MAX_NET_USERS) || (net_user_player_number[user] < 0)) {
+    struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate) || (ustate->player_id == PLAYER_NONE)) {
         return;
     }
-    struct PlayerInfo *player = get_player(net_user_player_number[user]);
-    JUSTLOG("u:%d user left the game (player %d)", (int)user, (int)net_user_player_number[user]);
-    net_user_player_number[user] = -1;
-    if (!player_exists(player)) {
+    struct PlayerInfo *player = get_player(ustate->player_id);
+    JUSTLOG("u:%d user left the game (player %d)", (int)user, (int)ustate->player_id);
+    if (ustate->cursor_light_idx != 0) {
+        light_delete_light(ustate->cursor_light_idx);
+    }
+    memset(ustate, 0, sizeof(*ustate));
+    ustate->player_id = PLAYER_NONE;
+    // another user may still be driving this keeper
+    if (!player_exists(player) || (get_player_primary_user(player) >= 0)) {
         return;
     }
-    player->user_id = -1;
     abandon_network_player(player, announce);
 }
 
@@ -765,32 +749,41 @@ static void leave_network_if_alone(void)
     }
 }
 
-void process_player_leave_game_packet(struct PlayerInfo *player)
+void process_user_leave_game_packet(NetUserId user)
 {
-    if (network_is_active() && network_user_is_spectator(netstate.my_id) && player->user_id == SERVER_ID) {
+    if (network_is_active() && network_user_is_spectator(netstate.my_id) && user == SERVER_ID) {
         stop_network_game_and_quit_to_main_menu();
         return;
     }
-    if (player != get_my_player()) {
-        if (game.game_kind == GKind_MultiGame) {
-            NetUserId user = player->user_id;
-            if (network_is_active()) {
-                OnDroppedUser(user, NETDROP_MANUAL);
-            }
-            remove_user_from_game(user, user != SERVER_ID);
-            if (network_is_active()) {
-                leave_network_if_alone();
-            } else if (replay.load_enable && !replay_has_remote_humans()) {
-                stop_network_game_and_continue_locally();
-            }
-            return;
+    if (user == get_local_user()) {
+        if (network_is_active()) {
+            stop_network_game_and_quit_to_main_menu();
+        } else {
+            quit_game = 1;
         }
-    } else if (network_is_active()) {
-        stop_network_game_and_quit_to_main_menu();
-    } else {
-        quit_game = 1;
+        get_my_player()->allocflags &= ~PlaF_Allocated;
+        return;
     }
-    player->allocflags &= ~PlaF_Allocated;
+    if (game.game_kind != GKind_MultiGame) {
+        // the user's keeper simply vanishes
+        struct PlayerInfo *player = get_player(get_net_user_player_number(user));
+        if (player_exists(player)) {
+            player->allocflags &= ~PlaF_Allocated;
+        }
+        return;
+    }
+
+    // note: packet processed in sync with simulation, it's okay to do this.
+    // replays take this path too, so the departure is visible there.
+    if (network_is_active()) {
+        OnDroppedUser(user, NETDROP_MANUAL);
+    }
+    remove_user_from_game(user, user != SERVER_ID);
+    if (network_is_active()) {
+        leave_network_if_alone();
+    } else if (replay.load_enable && !replay_has_remote_humans()) {
+        stop_network_game_and_continue_locally();
+    }
 }
 
 // (host-only) host sends packets for dropped users, indicating
@@ -920,8 +913,12 @@ void network_spectator_send_bootstrap(NetUserId user_id)
     write_pos += sizeof(level);
     snprintf(write_pos, DISKPATH_SIZE, "%s", campaign.fname);
     write_pos += strlen(write_pos) + 1;
-    memcpy(write_pos, net_user_player_number, sizeof(net_user_player_number));
-    write_pos += sizeof(net_user_player_number);
+    PlayerNumber user_player_number[MAX_NET_USERS];
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        user_player_number[user] = get_net_user_player_number(user);
+    }
+    memcpy(write_pos, user_player_number, sizeof(user_player_number));
+    write_pos += sizeof(user_player_number);
     memcpy(write_pos, s_startup_sync_packets, sizeof(s_startup_sync_packets));
     write_pos += sizeof(s_startup_sync_packets);
     send_message_buffer(user_id, write_pos);
@@ -929,7 +926,7 @@ void network_spectator_send_bootstrap(NetUserId user_id)
 
 TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer, size_t size)
 {
-    if (source != SERVER_ID || net_join_role != NetRole_Spectator || size < sizeof(int32_t) + 1 + sizeof(net_user_player_number) + sizeof(s_startup_sync_packets)) {
+    if (source != SERVER_ID || net_join_role != NetRole_Spectator || size < sizeof(int32_t) + 1 + sizeof(spectator_user_player_number) + sizeof(s_startup_sync_packets)) {
         return Lb_FAIL;
     }
     int32_t level;
@@ -937,7 +934,7 @@ TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer
     buffer += sizeof(level);
     size -= sizeof(level);
     size_t name_length = strnlen(buffer, min(size, (size_t)DISKPATH_SIZE));
-    if (name_length == 0 || name_length >= DISKPATH_SIZE || name_length + 1 + sizeof(net_user_player_number) + sizeof(s_startup_sync_packets) != size || strchr(buffer, '/') || strchr(buffer, '\\') || strstr(buffer, "..")) {
+    if (name_length == 0 || name_length >= DISKPATH_SIZE || name_length + 1 + sizeof(spectator_user_player_number) + sizeof(s_startup_sync_packets) != size || strchr(buffer, '/') || strchr(buffer, '\\') || strstr(buffer, "..")) {
         return Lb_FAIL;
     }
     char campaign_file[DISKPATH_SIZE];
@@ -949,11 +946,11 @@ TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer
         return Lb_FAIL;
     }
     buffer += name_length + 1;
-    memcpy(net_user_player_number, buffer, sizeof(net_user_player_number));
-    buffer += sizeof(net_user_player_number);
+    memcpy(spectator_user_player_number, buffer, sizeof(spectator_user_player_number));
+    buffer += sizeof(spectator_user_player_number);
     memcpy(s_startup_sync_packets, buffer, sizeof(s_startup_sync_packets));
     for (NetUserId id = 0; id < MAX_NET_USERS; id++) {
-        if (net_user_player_number[id] < -1 || net_user_player_number[id] >= PLAYERS_COUNT) {
+        if (spectator_user_player_number[id] < PLAYER_NONE || spectator_user_player_number[id] >= PLAYERS_COUNT) {
             return Lb_FAIL;
         }
     }

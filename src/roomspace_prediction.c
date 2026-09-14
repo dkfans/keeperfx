@@ -102,7 +102,7 @@ struct RoomSpace *get_local_dig_prediction_render_roomspace(struct RoomSpace *ro
     return roomspace;
 }
 
-static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, struct PlayerInfo *predicted_player, struct RoomSpace *roomspace)
+static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, struct PlayerInfo *predicted_player, struct UserState *predicted_ustate, struct RoomSpace *roomspace)
 {
     if (!local_dig_prediction_is_enabled() || prevent_local_dig_prediction(pckt)) {
         return false;
@@ -123,18 +123,19 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
         ustate->swap_to_untag_mode = 0;
     }
     if (local_dig_roomspace_prediction.action != PckA_None) {
-        predicted_player->roomspace_highlight_mode = local_dig_roomspace_prediction.actn_par1;
-        predicted_player->roomspace_width = local_dig_roomspace_prediction.actn_par2;
-        predicted_player->roomspace_height = local_dig_roomspace_prediction.actn_par2;
+        ustate->roomspace_highlight_mode = local_dig_roomspace_prediction.actn_par1;
+        ustate->roomspace_width = local_dig_roomspace_prediction.actn_par2;
+        ustate->roomspace_height = local_dig_roomspace_prediction.actn_par2;
     }
     ustate->one_click_lock_cursor = cursor_is_locked;
-    predicted_player->render_roomspace.drag_mode = cursor_is_locked;
+    ustate->render_roomspace.drag_mode = cursor_is_locked;
     if (cursor_is_locked) {
-        predicted_player->render_roomspace.drag_start_x = local_dig_tag_prediction.drag_start_slb_x;
-        predicted_player->render_roomspace.drag_start_y = local_dig_tag_prediction.drag_start_slb_y;
-        predicted_player->render_roomspace.untag_mode = local_dig_tag_prediction.untag_mode;
+        ustate->render_roomspace.drag_start_x = local_dig_tag_prediction.drag_start_slb_x;
+        ustate->render_roomspace.drag_start_y = local_dig_tag_prediction.drag_start_slb_y;
+        ustate->render_roomspace.untag_mode = local_dig_tag_prediction.untag_mode;
     }
     get_dungeon_highlight_user_roomspace(roomspace, predicted_player, get_local_user(), pckt, stl_x, stl_y, local_dig_tag_prediction.slab_tag_modes);
+    *predicted_ustate = *ustate;
     *ustate = saved_ustate;
     return true;
 }
@@ -145,7 +146,7 @@ static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace 
         return false;
     }
     struct PlayerInfo *player = get_player(plyr_idx);
-    if ((player->work_state != PSt_BuildRoom) && (player->work_state != PSt_Sell)) {
+    if ((get_local_user_state()->work_state != PSt_BuildRoom) && (get_local_user_state()->work_state != PSt_Sell)) {
         return false;
     }
     struct Packet *direct_packet = get_local_packet();
@@ -157,12 +158,12 @@ static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace 
     apply_roomspace_packet_action(player, get_local_user(), pckt);
     MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
-    if (player->work_state == PSt_BuildRoom) {
+    if (ustate->work_state == PSt_BuildRoom) {
         update_dungeon_build_roomspace_preview(get_local_user(), stl_x, stl_y);
     } else {
         update_dungeon_sell_roomspace_preview(get_local_user(), stl_x, stl_y);
     }
-    *roomspace = player->render_roomspace;
+    *roomspace = ustate->render_roomspace;
     *player = saved_player;
     *ustate = saved_ustate;
     *direct_packet = saved_packet;
@@ -210,24 +211,25 @@ void update_local_dig_tag_prediction(void)
     }
     struct RoomSpace roomspace;
     struct PlayerInfo predicted_player;
-    if (!get_local_dig_prediction_roomspace(pckt, &predicted_player, &roomspace)) {
+    struct UserState predicted_ustate;
+    if (!get_local_dig_prediction_roomspace(pckt, &predicted_player, &predicted_ustate, &roomspace)) {
         memset(&local_dig_tag_prediction, 0, sizeof(local_dig_tag_prediction));
         return;
     }
     int predicted_task_count = reconcile_local_dig_predictions();
     local_dig_tag_prediction.untag_mode = roomspace.untag_mode;
     TbBool apply_selection = (pckt->control_flags & PCtr_LBtnHeld) != 0;
-    if (predicted_player.roomspace_highlight_mode == drag_placement_mode) {
+    if (predicted_ustate.roomspace_highlight_mode == drag_placement_mode) {
         apply_selection = (pckt->control_flags & PCtr_LBtnRelease) != 0;
     }
     if (!apply_selection) {
         return;
     }
-    int changed_slab_count = apply_roomspace_dig_tag_selection(my_player_number, &roomspace, local_dig_tag_prediction.previous_slb_x, local_dig_tag_prediction.previous_slb_y, predicted_player.roomspace_highlight_mode, local_dig_tag_prediction.slab_tag_modes, local_dig_tag_prediction.slabs, &local_dig_tag_prediction.slab_count, &predicted_task_count);
+    int changed_slab_count = apply_roomspace_dig_tag_selection(my_player_number, &roomspace, local_dig_tag_prediction.previous_slb_x, local_dig_tag_prediction.previous_slb_y, predicted_ustate.roomspace_highlight_mode, local_dig_tag_prediction.slab_tag_modes, local_dig_tag_prediction.slabs, &local_dig_tag_prediction.slab_count, &predicted_task_count);
     if (changed_slab_count > 0) {
         uint16_t previous_slb = (uint16_t)local_dig_tag_prediction.previous_slb_x | ((uint16_t)local_dig_tag_prediction.previous_slb_y << 8);
         local_dig_tag_prediction.last_packet_turn = pckt->turn;
-        set_packet_action(pckt, PckA_ApplyRoomspaceDigTag, predicted_player.roomspace_highlight_mode, predicted_player.roomspace_width, previous_slb, roomspace.untag_mode);
+        set_packet_action(pckt, PckA_ApplyRoomspaceDigTag, predicted_ustate.roomspace_highlight_mode, predicted_ustate.roomspace_width, previous_slb, roomspace.untag_mode);
         play_non_3d_sample(snd_tile_dig);
     }
     local_dig_tag_prediction.previous_slb_x = slb_x;
@@ -268,7 +270,8 @@ void update_local_dig_prediction_cursor_preview(void)
     }
     struct RoomSpace roomspace;
     struct PlayerInfo predicted_player;
-    TbBool has_roomspace = get_local_dig_prediction_roomspace(pckt, &predicted_player, &roomspace);
+    struct UserState predicted_ustate;
+    TbBool has_roomspace = get_local_dig_prediction_roomspace(pckt, &predicted_player, &predicted_ustate, &roomspace);
     if ((pckt != NULL) && ((pckt->control_flags & PCtr_LBtnRelease) != 0)) {
         local_dig_tag_prediction.cursor_button_down = false;
     }
@@ -289,7 +292,7 @@ void update_local_dig_prediction_cursor_preview(void)
         } else if (ustate->primary_cursor_state == CSt_PowerHand) {
             dig_cursor = (ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0;
         }
-        if ((pckt != NULL) && (player->work_state == PSt_CtrlDungeon) && dig_cursor) {
+        if ((pckt != NULL) && (ustate->work_state == PSt_CtrlDungeon) && dig_cursor) {
             map_volume_box.visible = 0;
             box_lag_compensation_x = 0;
             box_lag_compensation_y = 0;

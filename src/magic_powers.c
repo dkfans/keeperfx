@@ -133,12 +133,13 @@ const Magic_use_Func magic_use_func_list[] = {
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    if (player->work_state == PSt_FreeDestroyWalls)
+    struct UserState* ustate = get_player_user_state(player);
+    if (ustate->work_state == PSt_FreeDestroyWalls)
     {
         struct SlabConfigStats *slabst = get_slab_stats(get_slabmap_for_subtile(stl_x, stl_y));
         return ( (slabst->category == SlbAtCtg_FortifiedWall) || (slabst->category == SlbAtCtg_FriableDirt) );
     }
-    else if ( (player->work_state == PSt_FreeCastDisease) || (player->work_state == PSt_FreeTurnChicken) )
+    else if ( (ustate->work_state == PSt_FreeCastDisease) || (ustate->work_state == PSt_FreeTurnChicken) )
     {
         return (slab_is_wall(subtile_slab(stl_x), subtile_slab(stl_y)) == false);
     }
@@ -148,7 +149,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
             return false;
         }
     }
-    if (player->work_state == PSt_FreeCtrlDirect)
+    if (ustate->work_state == PSt_FreeCtrlDirect)
     {
         return true;
     }

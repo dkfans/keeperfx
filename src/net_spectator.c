@@ -219,7 +219,6 @@ TbBool network_spectator_start(void)
     memset(&local_observer_user_state, 0, sizeof(local_observer_user_state));
     init_local_player_state();
     local_observer_player.id_number = my_player_number;
-    local_observer_player.user_id = netstate.my_id;
     local_observer_player.allocflags = PlaF_Allocated;
     local_observer_user_state.teleport_destination = 19;
     local_observer_user_state.battleid = 1;

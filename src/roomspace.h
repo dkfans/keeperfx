@@ -156,7 +156,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx);
 void process_sell_roomspace_inputs(PlayerNumber plyr_idx);
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx);
 
-void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx);
+void reset_dungeon_build_room_ui_variables(NetUserId user);
 
 void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode);
 

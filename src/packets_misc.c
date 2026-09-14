@@ -117,7 +117,7 @@ static struct Packet *get_player_packet(const struct PlayerInfo *player)
     if (player == &local_observer_player) {
         return get_local_packet();
     }
-    return get_packet(player->user_id);
+    return get_packet(get_player_primary_user(player));
 }
 
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
@@ -225,7 +225,7 @@ void set_packet_pause_toggle()
     struct PlayerInfo* player = get_my_player();
     if (player_invalid(player))
         return;
-    if (player->user_id >= PACKETS_COUNT)
+    if (get_local_user() >= PACKETS_COUNT)
         return;
     if (network_user_is_spectator(netstate.my_id)) {
         return;

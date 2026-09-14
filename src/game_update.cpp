@@ -497,7 +497,7 @@ void update(void)
         }
         if (flag_is_set(ustate->additional_flags,UsrAF_LightningPaletteIsActive))
         {
-            PaletteSetUserPalette(player->user_id, engine_palette);
+            PaletteSetUserPalette(get_local_user(), engine_palette);
             clear_flag(ustate->additional_flags, UsrAF_LightningPaletteIsActive);
         }
         clear_active_dungeons_stats();
