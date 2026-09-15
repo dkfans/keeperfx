@@ -67,6 +67,7 @@
     <ClCompile Include="src\kfx\renderer\software\bflib_vidraw_spr_onec.c" />
     <ClCompile Include="src\kfx\renderer\software\bflib_vidraw_spr_remp.c" />
     <ClCompile Include="src\kfx\renderer\software\SwDrawTarget.c" />
+    <ClCompile Include="src\kfx\renderer\software\SwZoomBoxTiles.c" />
     <ClCompile Include="src\kfx_memory.c" />
     <ClCompile Include="src\lua_api_lens.c" />
     <ClCompile Include="src\lua_api_room.c" />
@@ -390,6 +391,7 @@
     <ClInclude Include="src\kfx\renderer\RendererManager.h" />
     <ClInclude Include="src\kfx\renderer\RendererSoftware.h" />
     <ClInclude Include="src\kfx\renderer\software\SwDrawTarget.h" />
+    <ClInclude Include="src\kfx\renderer\software\SwZoomBoxTiles.h" />
     <ClInclude Include="src\kfx_memory.h" />
     <ClInclude Include="src\lua_api_lens.h" />
     <ClInclude Include="src\lua_api_sound.h" />

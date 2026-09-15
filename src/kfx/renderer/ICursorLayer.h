@@ -19,9 +19,8 @@ public:
                                      int32_t x, int32_t y,
                                      int units_per_px) = 0;
                                      
-    // Returns 1 if this layer handled the sprite (caller must not also draw
-    // it), 0 to fall back to the caller's own immediate draw.
-    virtual int SubmitKeeperHandSprite(short x, short y,
+    // Submit the keeper-hand sprite (and anything held in it).
+    virtual void SubmitKeeperHandSprite(short x, short y,
                                        unsigned short kspr_base,
                                        short angle,
                                        unsigned char sprgroup,

@@ -8,6 +8,8 @@
 #include "pre_inc.h"
 #include "kfx/renderer/backends/SoftwareWorldViewRenderer.h"
 #include "engine_render.h"  // software_execute_world_from_ir
+#include "keeperfx.hpp"       // EngineSpriteDrawUsingAlpha
+#include "bflib_vidraw.h"   // LbSpriteDrawUsingScalingData, DrawAlphaSpriteUsingScalingData
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -63,4 +65,26 @@ void SoftwareWorldViewRenderer::ReexecuteDeferredWorld()
 {
     if (m_valid)
         ExecuteRecordedWorld();
+}
+
+// Draws through the scaling data the caller set for the sprite's frame; the
+// draw flags and remap table are read from the ambient draw state.
+void SoftwareWorldViewRenderer::SubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
+                                                   int32_t /*dst_x*/, int32_t /*dst_y*/,
+                                                   int32_t /*dst_w*/, int32_t /*dst_h*/,
+                                                   const unsigned char* data, int src_w, int /*src_h*/,
+                                                   int32_t content_h,
+                                                   unsigned int /*draw_flags*/, const unsigned char* /*remap*/,
+                                                   int32_t /*sprite_id*/)
+{
+    const struct TbSourceBuffer buffer = {
+        data,
+        (unsigned long)src_w,
+        (unsigned long)content_h,
+        (unsigned long)src_w,
+    };
+    if (EngineSpriteDrawUsingAlpha)
+        DrawAlphaSpriteUsingScalingData(frame_x, frame_y, &buffer);
+    else
+        LbSpriteDrawUsingScalingData(frame_x, frame_y, &buffer);
 }

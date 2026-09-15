@@ -7640,25 +7640,12 @@ static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, 
         return;
     }
 
-    if (RendererSubmitKeeperSprite((int32_t)dst_x, (int32_t)dst_y, (int32_t)dst_w, (int32_t)dst_h,
+    RendererSubmitKeeperSprite((int32_t)x, (int32_t)y,
+            (int32_t)dst_x, (int32_t)dst_y, (int32_t)dst_w, (int32_t)dst_h,
             *sprite_data_ptr, kspr->SWidth, kspr->SHeight, (int32_t)clipped_height,
             (unsigned int)RendererGetDrawFlags(),
             (RendererGetDrawFlags() & Lb_SPRITE_REMAP) ? lbSpriteReMapPtr : NULL,
-            (int32_t)kspr_idx))
-    {
-        return; // GPU handled it
-    }
-    const struct TbSourceBuffer buffer = {
-        *sprite_data_ptr,
-        kspr->SWidth,
-        clipped_height,
-        kspr->SWidth,
-    };
-    if ( EngineSpriteDrawUsingAlpha ) {
-        DrawAlphaSpriteUsingScalingData(x, y, &buffer);
-    } else {
-        LbSpriteDrawUsingScalingData(x, y, &buffer);
-    }
+            (int32_t)kspr_idx);
     SYNCDBG(18,"Finished");
 }
 

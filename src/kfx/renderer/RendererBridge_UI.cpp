@@ -10,7 +10,6 @@
 #include "kfx/renderer/RendererManager_Internal.h"
 #include "kfx/renderer/IUIRenderer.h"
 #include "bflib_sprite.h"   // TbSprite
-#include "bflib_vidraw.h"   // LbSpriteDraw*Immediate, LbDrawBoxImmediate
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -24,13 +23,14 @@ static KfxDrawState ambient_draw_state(void)
 
 void RendererDrawSlabBackground(int32_t x, int32_t y, int32_t width, int32_t height)
 {
-    RendererGetActiveUIRenderer()->SubmitSlabBackground(x, y, width, height);
+    IUIRenderer* ui = RendererGetActiveUIRenderer();
+    if (ui != nullptr) ui->SubmitSlabBackground(x, y, width, height);
 }
 
 TbResult RendererDrawBox(int32_t x, int32_t y, uint32_t width, uint32_t height, unsigned char colour)
 {
     IUIRenderer* ui = RendererGetActiveUIRenderer();
-    if (ui == nullptr) return LbDrawBoxImmediate(x, y, width, height, colour);
+    if (ui == nullptr) return Lb_FAIL;
     ui->SubmitSolidBox(x, y, (int32_t)width, (int32_t)height, colour, ambient_draw_state());
     return Lb_SUCCESS;
 }
@@ -38,35 +38,35 @@ TbResult RendererDrawBox(int32_t x, int32_t y, uint32_t width, uint32_t height, 
 TbResult RendererSpriteDraw(int32_t x, int32_t y, const struct TbSprite *spr)
 {
     IUIRenderer* ui = RendererGetActiveUIRenderer();
-    if (ui == nullptr) return LbSpriteDrawImmediate(x, y, spr);
+    if (ui == nullptr) return Lb_FAIL;
     return ui->SubmitRawSprite(x, y, spr, ambient_draw_state());
 }
 
 TbResult RendererSpriteDrawOneColour(int32_t x, int32_t y, const struct TbSprite *spr, unsigned char colour)
 {
     IUIRenderer* ui = RendererGetActiveUIRenderer();
-    if (ui == nullptr) return LbSpriteDrawOneColourImmediate(x, y, spr, colour);
+    if (ui == nullptr) return Lb_FAIL;
     return ui->SubmitRawSpriteOneColour(x, y, spr, colour, ambient_draw_state());
 }
 
 TbResult RendererSpriteDrawScaled(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h)
 {
     IUIRenderer* ui = RendererGetActiveUIRenderer();
-    if (ui == nullptr) return LbSpriteDrawScaledImmediate(x, y, spr, w, h);
+    if (ui == nullptr) return Lb_FAIL;
     return ui->SubmitRawSpriteScaled(x, y, spr, w, h, ambient_draw_state());
 }
 
 TbResult RendererSpriteDrawScaledOneColour(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h, unsigned char colour)
 {
     IUIRenderer* ui = RendererGetActiveUIRenderer();
-    if (ui == nullptr) return LbSpriteDrawScaledOneColourImmediate(x, y, spr, w, h, colour);
+    if (ui == nullptr) return Lb_FAIL;
     return ui->SubmitRawSpriteScaledOneColour(x, y, spr, w, h, colour, ambient_draw_state());
 }
 
 int RendererSpriteDrawScaledRemap(int32_t x, int32_t y, const struct TbSprite *spr, int32_t w, int32_t h, const unsigned char *cmap)
 {
     IUIRenderer* ui = RendererGetActiveUIRenderer();
-    if (ui == nullptr) return LbSpriteDrawScaledRemapImmediate(x, y, spr, w, h, cmap);
+    if (ui == nullptr) return Lb_FAIL;
     return ui->SubmitRawSpriteScaledRemap(x, y, spr, w, h, cmap, ambient_draw_state());
 }
 
@@ -142,7 +142,7 @@ void UIRenderer_SubmitPanelSpriteRaw(int32_t x, int32_t y, int units_per_px, con
     int32_t w = ((int32_t)spr->SWidth  * units_per_px + 8) / 16;
     int32_t h = ((int32_t)spr->SHeight * units_per_px + 8) / 16;
     IUIRenderer* ui = RendererGetActiveUIRenderer();
-    if (ui == nullptr) { LbSpriteDrawScaledImmediate(x, y, spr, w, h); return; }
+    if (ui == nullptr) return;
     ui->SubmitRawSpriteScaled(x, y, spr, w, h, draw_state_make(draw_flags, 0));
 }
 
@@ -152,7 +152,7 @@ void UIRenderer_SubmitPanelSpriteRawColored(int32_t x, int32_t y, int units_per_
     int32_t w = ((int32_t)spr->SWidth  * units_per_px + 8) / 16;
     int32_t h = ((int32_t)spr->SHeight * units_per_px + 8) / 16;
     IUIRenderer* ui = RendererGetActiveUIRenderer();
-    if (ui == nullptr) { LbSpriteDrawScaledOneColourImmediate(x, y, spr, w, h, colour); return; }
+    if (ui == nullptr) return;
     ui->SubmitRawSpriteScaledOneColour(x, y, spr, w, h, colour, draw_state_make(draw_flags, 0));
 }
 
@@ -164,7 +164,7 @@ void UIRenderer_SubmitButtonSprite(int32_t x, int32_t y, int units_per_px, const
 void UIRenderer_SubmitScaledSprite(int32_t x, int32_t y, int32_t w, int32_t h, const struct TbSprite *spr, TbDrawFlagsMask draw_flags)
 {
     IUIRenderer* ui = RendererGetActiveUIRenderer();
-    if (ui == nullptr) { LbSpriteDrawScaledImmediate(x, y, spr, w, h); return; }
+    if (ui == nullptr) return;
     ui->SubmitRawSpriteScaled(x, y, spr, w, h, draw_state_make(draw_flags, 0));
 }
 

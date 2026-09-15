@@ -21,12 +21,20 @@ public:
     void SetDisplayPalette(const unsigned char* pal6) override;
     void ClearScreen(unsigned char colour) override;
     void PresentFrame() override;
-    unsigned char* LockFramebuffer(int* out_pitch) override;
-    void UnlockFramebuffer() override;
     BackendCapabilities GetCapabilities() const override { return BackendCapabilities{ 0 }; }
     bool BeginFrame() override;
     void EndFrame() override;
+    bool CanDraw() const override;
+    bool PresentImage(const struct RendererPresentImageDesc* desc) override;
+    void PresentHugeSprite(const struct TbHugeSprite* spr, int32_t sp_len,
+                           int32_t x_shift, int32_t y_shift, int32_t units_per_px) override;
+    void SubmitZoomBoxTiles(const uint16_t* tile_block_ids, int tiles_x, int tiles_y,
+                            int dst_x, int dst_y, int tile_w, int tile_h) override;
     bool ScheduleScreenshot(const char* path, int fmt) override;
+    bool SubmitLandviewZoom(const unsigned char* src_buf, int src_w, int src_h,
+                            float center_map_x, float center_map_y,
+                            float screen_cx,    float screen_cy,
+                            float scale) override;
 
 
     IUIRenderer*         GetUIRenderer()        override { return &m_ui_renderer; }

@@ -20,15 +20,15 @@ public:
     void ClearScreen(unsigned char colour) override;
     void PresentFrame() override;
 
-    BackendCapabilities GetCapabilities() const override { return BackendCapabilities{ 1, 1 }; }
+    BackendCapabilities GetCapabilities() const override { return BackendCapabilities{ 1 }; }
+    bool CanDraw() const override { return true; }
     bool BeginFrame() override;
     void EndFrame() override;
     bool PresentImage(const struct RendererPresentImageDesc* desc) override;
+    void PresentHugeSprite(const struct TbHugeSprite* spr, int32_t sp_len,
+                           int32_t x_shift, int32_t y_shift, int32_t units_per_px) override;
 
-    // Zoom-box terrain tiles (gui_parchment.c). Returns true if the GPU path
-    // accepted the submission (caller skips its own CPU tile loop); false
-    // means no GL shaders available, caller falls back.
-    bool SubmitZoomBoxTiles(const uint16_t* tile_block_ids, int tiles_x, int tiles_y,
+    void SubmitZoomBoxTiles(const uint16_t* tile_block_ids, int tiles_x, int tiles_y,
                             int dst_x, int dst_y, int tile_w, int tile_h) override;
 
     // Landview zoom-in/out transition (frontzoom_to_point()).
@@ -62,6 +62,7 @@ public:
     void FGDrawGameUI() override;
     void FGDrawFrontOverlay() override;
     void FGResolveMapFade() override;
+    void FGExecuteImagePresentOverlay() override;
     void FGExecuteCursor() override;
 
     bool ScheduleScreenshot(const char* path, int fmt) override;

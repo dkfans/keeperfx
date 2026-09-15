@@ -52,6 +52,11 @@ void RenderGraph::Execute(IFrameGraphExecutor& exec)
     exec.FGDrawFrontOverlay();
     exec.FGExecuteText();
 
+    // Image-present overlay (e.g. landview window frame) -- after Game UI
+    // and text so it draws on top of them, matching the immediate-mode
+    // renderer's call-order-determined layering.
+    exec.FGExecuteImagePresentOverlay();
+
     // Cursor, dev overlay.
     exec.FGExecuteCursor();
     exec.FGDrawDevToolsOverlay();

@@ -26,7 +26,7 @@
 #include "bflib_vidraw.h"     // vec_window_width/height
 #include "bflib_video.h"      // LbPaletteGetReadonly(), pixel_size, Lb_SPRITE_* flags
 #include "bflib_basics.h"     // ERRORLOG / SYNCLOG / WARNLOG
-#include "vidmode.h"          // pixmap, alpha_sprite_table (CPU-fallback globals)
+#include "vidmode.h"          // pixmap, alpha_sprite_table
 #include "player_data.h"      // get_my_player(), get_player_active_camera(), PVM_*
 #include "local_camera.h"     // get_local_active_camera() (spinning-key gate)
 #include "game_legacy.h"      // game.lish.subtile_lightness (lightmap snapshot in FlipBuffers)
@@ -1392,10 +1392,9 @@ void GLWorldViewRenderer::BeginWorldPass(int w, int h, int vp_x, int vp_y)
     m_cmd_vert_start = m_vert_count;
 
     // Set the vec globals that bucket-list filling code reads
-    // (setup_rotate_stuff, fill_in_points_*, etc.) without invoking the
-    // full software fallback which would also zero WScreen and set
-    // vec_screen/poly_screen for the CPU rasteriser -- both unnecessary
-    // for the GPU path.
+    // (setup_rotate_stuff, fill_in_points_*, etc.) without the software
+    // world pass's setup_vecs(), which also points vec_screen/poly_screen
+    // at the CPU raster's target -- unnecessary for the GPU path.
     if (w > 0) vec_window_width  = (long)w;
     if (h > 0) vec_window_height = (long)h;
 }
@@ -1636,7 +1635,8 @@ void GLWorldViewRenderer::ensure_clut_valid()
     SYNCDBG(6, "GLWorldViewRenderer: CLUT rebuilt (palette changed)");
 }
 
-int GLWorldViewRenderer::SubmitKeeperSprite(
+void GLWorldViewRenderer::SubmitKeeperSprite(
+    int32_t /*frame_x*/, int32_t /*frame_y*/,
     int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
     const unsigned char* data, int src_w, int src_h, int32_t content_h,
     unsigned int draw_flags, const unsigned char* remap,
@@ -1647,9 +1647,9 @@ int GLWorldViewRenderer::SubmitKeeperSprite(
         if (s_dim++ < 20)
             WARNLOG("SubmitKeeperSprite: invalid sprite dimensions %dx%d (max %d) -- dropped",
                     src_w, src_h, k_kspr_decode_dim);
-        return 1;
+        return;
     }
-    if (dst_w <= 0 || dst_h <= 0) return 1;
+    if (dst_w <= 0 || dst_h <= 0) return;
     // Clamp rather than trust the caller: a bad content_h must not produce
     // an inverted/oversized UV range or a negative destination height.
     if (content_h <= 0 || content_h > src_h) content_h = src_h;
@@ -1676,7 +1676,6 @@ int GLWorldViewRenderer::SubmitKeeperSprite(
         m_cursor_kspr_ir.push_back(cmd);
     else
         m_kspr_ir.push_back(cmd);
-    return 1;
 }
 
 int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h)
@@ -1754,10 +1753,10 @@ float GLWorldViewRenderer::resolve_clut_v(const unsigned char* remap)
     return (float(row_idx) + 0.5f) / (float)k_clut_rows;
 }
 
-int GLWorldViewRenderer::BeginWorldSpriteCapture(int32_t bucket_idx)
+void GLWorldViewRenderer::BeginWorldSpriteCapture(int32_t bucket_idx)
 {
-    if (!UsesFillTimeWorldSubmit())
-        return 0;
+    if (!m_initialized || m_world_write_cmds == nullptr)
+        return;
     if (bucket_idx >= BUCKETS_COUNT)
         bucket_idx = BUCKETS_COUNT - 1;
     else if (bucket_idx < 0)
@@ -1767,7 +1766,6 @@ int GLWorldViewRenderer::BeginWorldSpriteCapture(int32_t bucket_idx)
     m_current_sprite_z = 2.0f * ((float)bucket_idx - 0.5f) / (float)(BUCKETS_COUNT - 1) - 1.0f;
     m_current_sprite_sort_key = ((uint32_t)bucket_idx << 16)
                               | (m_sprite_entry_seq++ & 0xFFFFu);
-    return 1;
 }
 
 void GLWorldViewRenderer::BeginCursorCapture()

@@ -379,7 +379,7 @@ void GLUIRenderer::SubmitMinimap(int screen_x, int screen_y, int size,
     cmd.layer = ComputeCurrentLayer();
     cmd.x = screen_x;
     cmd.y = screen_y;
-    ApplyGameViewportOffset(cmd.layer, cmd.x, cmd.y);
+    ApplyWindowOffset(cmd.layer, cmd.x, cmd.y);
     cmd.size = size;
     cmd.slot = m_minimap_write_idx;
     cmd.ndc_z = ComputeCurrentNdcZ();

@@ -21,7 +21,7 @@ public:
     void SetWorldRenderer(GLWorldViewRenderer* world) { m_world = world; }
 
     void SubmitPointerSprite(const struct TbSprite* spr, int32_t x, int32_t y, int units_per_px) override;
-    int SubmitKeeperHandSprite(short x, short y, unsigned short kspr_base,
+    void SubmitKeeperHandSprite(short x, short y, unsigned short kspr_base,
                                short angle, unsigned char sprgroup,
                                int32_t scale, TbDrawFlagsMask draw_flags) override;
     void Draw() override;

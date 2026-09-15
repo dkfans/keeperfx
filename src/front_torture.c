@@ -190,8 +190,12 @@ TbBool fronttorture_draw(void)
   // Starting point coords
   int spx = (RendererPhysicalWidth() - w) >> 1;
   int spy = (RendererPhysicalHeight() - h) >> 1;
-  copy_raw8_image_buffer(lbDisplay.WScreen,RendererScreenWidth(),RendererScreenHeight(),
-      w,h,spx,spy,torture_background,img_width,img_height,true);
+  struct RendererPresentImageDesc desc = {0};
+  desc.dst_x = spx;  desc.dst_y = spy;
+  desc.dst_w = w;    desc.dst_h = h;
+  desc.src = torture_background;  desc.src_pitch = img_width;
+  desc.src_w = img_width;         desc.src_h = img_height;
+  RendererPresentImage(&desc);
 
   for (int i = 0; i < torture_doors_available; i++)
   {
