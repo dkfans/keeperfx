@@ -61,12 +61,14 @@ enum ThingFlags1 {
     TF1_PushOnce       = 0x08,
     TF1_DoFootsteps    = 0x10,
     TF1_Teleported     = 0x20,
+    TF1_FallingIntoAbyss = 0x40,
 };
 
 enum ThingFlags2 {
     TF2_CreatureIsMoving              = 0x01,
     TF2_Spectator           = 0x02,
     TF2_SummonedCreature    = 0x04,
+    TF2_CreatureOutOfPlay   = 0x08,
 };
 
 enum ThingRenderingFlags {
@@ -83,7 +85,6 @@ enum ThingRenderingFlags {
     TRF_Transpar_Flags = 0x30,
 
     TRF_AnimateOnce    = 0x40,
-    TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
 };
 
  /**
@@ -266,6 +267,7 @@ struct Thing {
     unsigned char class_id;
     unsigned char fall_acceleration;
     unsigned char bounce_angle;
+    unsigned char abyss_fall_sound_delay;
     short inertia_floor;
     short inertia_air;
     unsigned short movement_flags;
@@ -301,7 +303,8 @@ struct Thing {
     short next_of_class;
     short prev_of_class;
     uint32_t flags; //ThingAddFlags
-    int32_t last_turn_drawn;
+    GameTurn last_turn_drawn;
+    GameTurn last_turn_damaged;
     unsigned short previous_floor_height;
     struct Coord3d previous_mappos;
     uint32_t random_seed;

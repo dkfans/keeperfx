@@ -941,7 +941,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
 
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, KeepPwrLevel power_level)
 {
-    long price;
+    GoldAmount price;
     if (pwkind >= game.conf.magic_conf.power_types_count)
         return false;
     if (power_level >= MAGIC_OVERCHARGE_LEVELS)
@@ -1828,12 +1828,24 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
             return Lb_FAIL;
         }
     }
+
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the power, fail
+        if (!pay_for_spell(plyr_idx, power_kind, 0)) {
+            if (is_my_player_number(plyr_idx))
+                output_message(SMsg_GoldNotEnough, 0);
+            return Lb_OK;
+        }
+    }
+
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
-    player->first_person_dig_claim_mode = false;
-    player->teleport_destination = 19; // reset to default behaviour
-    player->battleid = 1;
+    struct UserState* ustate = get_player_user_state(player);
+    ustate->first_person_dig_claim_mode = false;
+    ustate->teleport_destination = 19; // reset to default behaviour
+    ustate->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     if (is_my_player(player)) {

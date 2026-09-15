@@ -20,6 +20,7 @@
 #define KFX_MISTEFFECT_H
 
 #include "LensEffect.h"
+#include <cstdint>
 
 /******************************************************************************/
 
@@ -31,11 +32,19 @@ public:
     virtual TbBool Setup(long lens_idx) override;
     virtual void Cleanup() override;
     virtual TbBool Draw(LensRenderContext* ctx) override;
-    
+    virtual TbBool BuildGPUParams(struct IRWorldLensCmd& out, long viewport_w, long viewport_h) override;
+    virtual void AdvanceAnimation(float delta) override;
+
 private:
     TbBool LoadMistTexture(const char* filename);
-    
+
     long m_current_lens;
+    uint32_t m_gpu_version;   // bumped each Setup() -- lets the GL upload skip unchanged textures
+
+    float m_pos_x = 0.0f,  m_pos_y = 0.0f;
+    float m_sec_x = 50.0f, m_sec_y = 128.0f;
+    float m_vel_pos_x = 0.0f, m_vel_pos_y = 0.0f;
+    float m_vel_sec_x = 0.0f, m_vel_sec_y = 0.0f;
 };
 
 /******************************************************************************/

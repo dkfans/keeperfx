@@ -70,6 +70,8 @@ const struct NamedCommand logicval_type[] = {
   {"FALSE",    2},
   {"YES",      1},
   {"NO",       2},
+  {"ALWAYS",   1},
+  {"NEVER",    2},
   {"1",        1},
   {"0",        2},
   {NULL,       0},
@@ -1011,6 +1013,7 @@ TbBool parse_named_field_block(const char *buf, long len, const char *config_tex
 void set_defaults(const struct NamedFieldSet* named_fields_set, const char *config_textname)
 {
   memset(named_fields_set->get_struct_base(), 0, named_fields_set->struct_size * named_fields_set->max_count);
+  *named_fields_set->get_count() = 0;
 
   const struct NamedField* name_NamedField = NULL;
 
@@ -2203,6 +2206,15 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
     return false;
 }
 
+/**
+  * sets a custom ensign sprite sheet index for the level
+ */
+TbBool set_level_ensign(LevelNumber lvnum, short ensign_id)
+{    
+    if(!is_campaign_level(lvnum))
+        return false;
+    return update_or_create_level_ensign_override(lvnum, ensign_id);
+}
 
 /* @comment
  *     The loading items of load_config and load_config_for_mod need to be consistent.

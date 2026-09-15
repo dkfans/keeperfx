@@ -517,6 +517,7 @@ const struct NamedCommand move_check_func_commands[] = {
     {"move_check_attack_any_door",        12},
     {"move_check_can_damage_wall",        13},
     {"move_check_persuade",               14},
+    {NULL,                                 0},
 };
 
 const CreatureStateCheck move_check_func_list[] = {
@@ -551,21 +552,21 @@ long const state_type_to_gui_state[STATE_TYPES_COUNT] = {
 /******************************************************************************/
 struct CreatureStateConfig *get_thing_active_state_info(struct Thing *thing)
 {
-  if (thing->active_state >= CREATURE_STATES_COUNT)
+  if (thing->active_state >= game.conf.crtr_conf.states_count)
     return &game.conf.crtr_conf.states[0];
   return &game.conf.crtr_conf.states[thing->active_state];
 }
 
 struct CreatureStateConfig *get_thing_continue_state_info(struct Thing *thing)
 {
-    if (thing->continue_state >= CREATURE_STATES_COUNT)
+    if (thing->continue_state >= game.conf.crtr_conf.states_count)
         return &game.conf.crtr_conf.states[0];
     return &game.conf.crtr_conf.states[thing->continue_state];
 }
 
 struct CreatureStateConfig *get_thing_state_info_num(CrtrStateId state_id)
 {
-    if (state_id >= CREATURE_STATES_COUNT)
+    if (state_id >= game.conf.crtr_conf.states_count)
         return &game.conf.crtr_conf.states[0];
     return &game.conf.crtr_conf.states[state_id];
 }
@@ -630,7 +631,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
   long state_type;
   unsigned long state = thing->active_state;
-  if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
+  if ( (state > 0) && (state < game.conf.crtr_conf.states_count) )
   {
       state_type = game.conf.crtr_conf.states[state].state_type;
   } else
@@ -642,7 +643,7 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
   if (state_type == CrStTyp_Move)
   {
       state = thing->continue_state;
-      if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
+      if ( (state > 0) && (state < game.conf.crtr_conf.states_count) )
       {
           state_type = game.conf.crtr_conf.states[state].state_type;
       } else
@@ -3210,6 +3211,7 @@ void make_creature_unconscious(struct Thing *creatng)
         update_dead_creatures_list_for_owner(creatng);
     }
     creatng->active_state = CrSt_CreatureUnconscious;
+    clear_flag(creatng->movement_flags, TMvF_Flying);
     cctrl->creature_control_flags |= CCFlg_PreventDamage;
     cctrl->creature_control_flags |= CCFlg_NoCompControl;
     cctrl->conscious_back_turns = game.conf.rules[creatng->owner].creature.game_turns_unconscious;
@@ -3223,6 +3225,7 @@ void make_creature_conscious_without_changing_state(struct Thing *creatng)
     cctrl->creature_control_flags &= ~CCFlg_PreventDamage;
     cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
     cctrl->conscious_back_turns = 0;
+    restore_creature_flight_flag(creatng);
     if ((creatng->state_flags & TF1_IsDragged1) != 0)
     {
         struct Thing* sectng = thing_get(cctrl->dragtng_idx);
@@ -4630,6 +4633,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         return 0;
 
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(creatng);
+    nav_thing_is_flying = flag_is_set(creatng->movement_flags, TMvF_Flying);
     if (resetOwnerPlayerNavigating)
         owner_player_navigating = -1;
     else
@@ -4646,6 +4650,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         pos->y.val,
         -2, nav_sizexy, __func__);
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_is_flying = 0;
 
     int distance = 0;
     if (!path.waypoints_num)

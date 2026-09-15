@@ -6812,7 +6812,7 @@ msgstr "KDKレベル"
 
 #: guitext:1024
 msgctxt "Menu interface item"
-msgid "Good Campaign"
+msgid "The Good Guys"
 msgstr "勇者キャンペーン"
 
 #: guitext:1025
@@ -7303,6 +7303,13 @@ msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "MODとして /mods/ に入れてください。"
 
 #: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "サーバーへの接続が失われました。"
+
+#: guitext:1123
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot (with cursor)"
 msgstr "スクリーンショット（カーソル付き）"

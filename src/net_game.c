@@ -24,6 +24,7 @@
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
 #include "bflib_datetm.h"
+#include "bflib_enet.h"
 #include "net_exchange_common.h"
 #include "net_lobby.h"
 #include "net_main.h"
@@ -32,6 +33,7 @@
 #include "player_data.h"
 #include "front_landview.h"
 #include "player_utils.h"
+#include "light_data.h"
 #include "packets.h"
 #include "frontend.h"
 #include "front_network.h"
@@ -52,7 +54,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct TbNetworkPlayerInfo net_player_info[MAX_NET_USERS];
+struct TbNetworkUserInfo net_user_info[MAX_NET_USERS];
 extern int32_t multiplayer_speed_adjustment_ns;
 /******************************************************************************/
 
@@ -75,13 +77,13 @@ short setup_network_service(enum FrontendNetService service)
 {
   struct ServiceInitData *init_data = NULL;
   SYNCMSG("Initializing 4-players type %d network", service);
-  memset(net_player_info, 0, sizeof(net_player_info));
+  memset(net_user_info, 0, sizeof(net_user_info));
   network_lobby_ping = 0;
   if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
     process_network_error(-800);
     return 0;
   }
-  if ( LbNetwork_Init(NS_ENET_UDP, MAX_NET_USERS, &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(NS_ENET_UDP, MAX_NET_USERS, &net_user_info[0], init_data) )
   {
     process_network_error(-800);
     return 0;
@@ -98,27 +100,46 @@ short setup_network_service(enum FrontendNetService service)
   return 1;
 }
 
-unsigned long get_host_player_id(void) {
-    return 0;
-}
-
 int setup_old_network_service(void)
 {
     return setup_network_service(net_service_index_selected);
 }
 
+TbBool network_is_host(void)
+{
+    return netstate.my_id == SERVER_ID;
+}
+
+// map NetUserId -> PlayerNumber, or -1 for a user without a player.
+// Currently, this mapping is 1-1.
+// Potential future work: "archon mode" (multiple users share a player)
+static PlayerNumber net_user_player_number[MAX_NET_USERS];
+
+PlayerNumber get_net_user_player_number(NetUserId user)
+{
+    if (!network_is_active()) {
+        return (user == SOLO_HUMAN_ID) ? my_player_number : -1;
+    }
+    if ((user < 0) || (user >= MAX_NET_USERS)) {
+        return -1;
+    }
+    return net_user_player_number[user];
+}
 
 static void setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
-    int k = 0;
-    for (int i = 0; i < MAX_NET_USERS; i++) {
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
         const struct StartupSyncPacket *sync = &startup_sync_packets[i];
-        if (!net_player_info[i].network_user_active) {
+        if (!net_user_info[i].network_user_active) {
+            continue;
+        }
+        int k = get_net_user_player_number(i);
+        if (k < 0) {
             continue;
         }
         struct PlayerInfo *player = get_player(k);
         player->id_number = k;
-        player->packet_num = i;
+        player->user_id = i;
         player->allocflags |= PlaF_Allocated;
         switch (sync->video_rotate_mode) {
             case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
@@ -128,6 +149,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         }
         player->is_active = 1;
         init_player(player, 0);
+        init_user_state(player->user_id);
         player->isometric_view_zoom_level = sync->isometric_view_zoom_level;
         player->frontview_zoom_level = sync->frontview_zoom_level;
         TbBool imprison = (sync->initial_tendencies & CrTend_Imprison) != 0;
@@ -138,17 +160,16 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
             game.creatures_tend_imprison = imprison;
             game.creatures_tend_flee = flee;
         }
-        snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
-        k++;
+        snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", network_user_name(i));
     }
 }
 
 static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
-    const TbBigChecksum *host = startup_sync_packets[get_host_player_id()].map_checksums;
+    const TbBigChecksum *host = startup_sync_packets[SERVER_ID].map_checksums;
     for (int i = 0; i < MAX_NET_USERS; i++) {
         const TbBigChecksum *client = startup_sync_packets[i].map_checksums;
-        if (!net_player_info[i].network_user_active) {
+        if (!net_user_info[i].network_user_active) {
             continue;
         }
         int diff_count = 0;
@@ -172,11 +193,11 @@ static TbBool verify_map_checksums(const struct StartupSyncPacket startup_sync_p
 
 static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
-    int host_player_id = get_host_player_id();
-    const struct StartupSyncPacket *host_sync = &startup_sync_packets[host_player_id];
+    NetUserId host_user_id = SERVER_ID;
+    const struct StartupSyncPacket *host_sync = &startup_sync_packets[host_user_id];
     TbBool verified = true;
-    for (int i = 0; i < MAX_NET_USERS; i++) {
-        if (!net_player_info[i].network_user_active || i == host_player_id) {
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        if (!net_user_info[i].network_user_active || i == host_user_id) {
             continue;
         }
         const struct StartupSyncPacket *client_sync = &startup_sync_packets[i];
@@ -184,8 +205,8 @@ static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket
             if (client_sync->required_sprite_zip_checksums[zip_idx] == host_sync->required_sprite_zip_checksums[zip_idx]) {
                 continue;
             }
-            WARNLOG("Custom sprite zip differs between %s and %s: %s", network_player_name(host_player_id), network_player_name(i), required_sprite_zips[zip_idx]);
-            message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s differs for %.12s", required_sprite_zips[zip_idx], network_player_name(i));
+            WARNLOG("Custom sprite zip differs between %s and %s: %s", network_user_name(host_user_id), network_user_name(i), required_sprite_zips[zip_idx]);
+            message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s differs for %.12s", required_sprite_zips[zip_idx], network_user_name(i));
             verified = false;
         }
     }
@@ -200,7 +221,7 @@ static uint8_t calculate_initial_input_lag(void)
 {
     int32_t player_count = 0;
     for (int32_t i = 0; i < MAX_NET_USERS; i++) {
-        if (net_player_info[i].network_user_active) {
+        if (net_user_info[i].network_user_active) {
             player_count++;
         }
     }
@@ -213,10 +234,13 @@ static uint8_t calculate_initial_input_lag(void)
         input_lag_turns = (ping * turns_per_second + 999) / 1000;
     }
     uint64_t uncapped_input_lag_turns = input_lag_turns;
+    if (input_lag_turns > 0) {
+        input_lag_turns -= 1;
+    }
     if (input_lag_turns > MAXIMUM_INPUT_LAG_TURNS) {
         input_lag_turns = MAXIMUM_INPUT_LAG_TURNS;
     }
-    JUSTLOG("Initial input lag: (%llu ms * %d turns/s + 999) / 1000 = %llu turns, capped to %llu", (unsigned long long)ping, turns_per_second, (unsigned long long)uncapped_input_lag_turns, (unsigned long long)input_lag_turns);
+    JUSTLOG("Initial input lag: (%llu ms * %d turns/s + 999) / 1000 = %llu turns, adjusted to %llu", (unsigned long long)ping, turns_per_second, (unsigned long long)uncapped_input_lag_turns, (unsigned long long)input_lag_turns);
     return input_lag_turns;
 }
 
@@ -247,7 +271,7 @@ static TbBool net_startup_sync_exchange_and_apply(void)
     }
 
     for (int i = 0; i < MAX_NET_USERS; i++) {
-        if (net_player_info[i].network_user_active && !s_startup_sync_packets[i].startup_sync_packet_valid) {
+        if (net_user_info[i].network_user_active && !s_startup_sync_packets[i].startup_sync_packet_valid) {
             ERRORLOG("Startup sync exchange missed one or more peers");
             return false;
         }
@@ -261,7 +285,7 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         create_frontend_error_box(5000, get_string(GUIStr_NetVerifyFxdataSame));
         return false;
     }
-    const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[get_host_player_id()];
+    const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[SERVER_ID];
     game.input_lag_turns = host_sync->initial_input_lag_turns;
     input_lag_reset();
     game.skip_initial_input_turns = calculate_skip_input();
@@ -277,12 +301,12 @@ static void setup_network_player_numbers(void)
     TbBool is_set = false;
     int k = 0;
     SYNCDBG(6, "Starting");
-    for (int i = 0; i < MAX_NET_USERS; i++)
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++)
     {
-        struct PlayerInfo* player = get_player(i);
-        if (net_player_info[i].network_user_active)
+        net_user_player_number[i] = -1;
+        if (net_user_info[i].network_user_active)
         {
-            player->packet_num = i;
+            net_user_player_number[i] = k;
             if ((!is_set) && (my_player_number == i))
             {
                 is_set = true;
@@ -306,7 +330,7 @@ void setup_count_players(void)
     game.active_players_count = 0;
     for (int i = 0; i < MAX_NET_USERS; i++)
     {
-      if (net_player_info[i].network_user_active)
+      if (net_user_info[i].network_user_active)
         game.active_players_count++;
     }
   }
@@ -327,12 +351,21 @@ TbBool init_players_network_game(void)
         initialized = false;
         break;
     }
-    if (netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
-        matchmaking_close_lobby();
-    }
     if (initialized) {
         build_local_startup_sync();
         initialized = net_startup_sync_exchange_and_apply();
+    }
+    if (initialized && netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
+        LevelNumber map_number = get_level_number();
+        struct LevelInformation *level_info = get_level_info(map_number);
+        const char *map_name = "";
+        if (level_info) {
+            map_name = level_info->name;
+            if (level_info->name_stridx > 0) {
+                map_name = get_string(level_info->name_stridx);
+            }
+        }
+        matchmaking_finish_lobby(MMLobbyResult_Started, (int)map_number, map_name);
     }
     if (!initialized) {
         LbNetwork_Stop();
@@ -353,23 +386,23 @@ void are_disconnect_victories_allowed(void)
     }
 }
 
-/** Check whether a network player is active.
+/** Check whether a network user is active.
  *
- * @param plyr_idx
+ * @param user
  * @return
  */
-TbBool network_player_active(int plyr_idx)
+TbBool network_user_active(NetUserId user)
 {
-    if ((plyr_idx < 0) || (plyr_idx >= MAX_NET_USERS))
+    if ((user < 0) || (user >= MAX_NET_USERS))
         return false;
-    return (net_player_info[plyr_idx].network_user_active != 0);
+    return (net_user_info[user].network_user_active != 0);
 }
 
-const char *network_player_name(int plyr_idx)
+const char *network_user_name(NetUserId user)
 {
-    if ((plyr_idx < 0) || (plyr_idx >= MAX_NET_USERS))
+    if ((user < 0) || (user >= MAX_NET_USERS))
         return NULL;
-    return net_player_info[plyr_idx].name;
+    return net_user_info[user].name;
 }
 
 static void resolve_network_quit_outcome(struct PlayerInfo *player)
@@ -390,7 +423,7 @@ static TbBool network_has_remote_enemies_remaining(void)
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo *player = get_player(i);
         TbBool is_active_enemy = player_exists(player) && !is_my_player(player) && player->is_active == 1 && !player_cannot_win(player->id_number) && players_are_enemies(myplyr->id_number, player->id_number);
-        TbBool is_connected_network_player = (player->allocflags & PlaF_CompCtrl) == 0 && network_player_active(player->packet_num);
+        TbBool is_connected_network_player = (player->allocflags & PlaF_CompCtrl) == 0 && network_user_active(player->user_id);
         TbBool is_initial_computer_player = (player->allocflags & PlaF_CompCtrl) != 0 && i >= game.active_players_count;
         if (is_active_enemy && (is_connected_network_player || is_initial_computer_player)) {
             return true;
@@ -412,7 +445,7 @@ TbBool network_human_contenders_remain(void)
 
 static TbBool network_has_remote_users_remaining(void)
 {
-    for (NetUserId user_id = 0; user_id < (NetUserId)netstate.max_players; user_id += 1) {
+    for (NetUserId user_id = 0; user_id < (NetUserId)netstate.max_users; user_id += 1) {
         if (user_id != netstate.my_id && netstate.users[user_id].progress != USER_UNUSED) {
             return true;
         }
@@ -430,8 +463,35 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
 
 static void stop_network_game_state(void)
 {
-    memset(net_player_info, 0, sizeof(net_player_info));
+    memset(net_user_info, 0, sizeof(net_user_info));
     clear_flag(game.system_flags, GSF_NetworkActive);
+    struct PlayerInfo *myplyr = get_my_player();
+    NetUserId old_user = myplyr->user_id;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (user == old_user) {
+            continue;
+        }
+        struct UserState *ustate = get_user_state(user);
+        if (ustate->cursor_light_idx != 0) {
+            light_delete_light(ustate->cursor_light_idx);
+        }
+        memset(ustate, 0, sizeof(*ustate));
+    }
+    struct UserState *old_state = get_user_state(old_user);
+    if ((old_user != SOLO_HUMAN_ID) && !user_state_invalid(old_state)) {
+        *get_user_state(SOLO_HUMAN_ID) = *old_state;
+        memset(old_state, 0, sizeof(*old_state));
+    }
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        struct PlayerInfo *player = get_player(plyr_idx);
+        if (player != myplyr) {
+            player->user_id = -1;
+        }
+    }
+    myplyr->user_id = SOLO_HUMAN_ID;
+    if (myplyr->roomspace.is_active && (myplyr->roomspace.user == old_user)) {
+        myplyr->roomspace.user = SOLO_HUMAN_ID;
+    }
     clear_flag(game.system_flags, GSF_NetGameNoSync);
     clear_flag(game.system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;
@@ -464,7 +524,7 @@ static TbBool host_already_won_level(void)
         if ((GameTurn)offset > newest_turn) {
             break;
         }
-        const struct Packet *host_packet = get_history_packet(get_host_player_id(), newest_turn - offset);
+        const struct Packet *host_packet = get_history_packet(SERVER_ID, newest_turn - offset);
         if (host_packet != NULL && host_packet->action == PckA_FinishGame && host_packet->actn_par1 == VicS_WonLevel) {
             return true;
         }
@@ -476,7 +536,7 @@ void process_player_leave_game_packet(struct PlayerInfo *player)
 {
     if (player != get_my_player()) {
         if (network_is_active()) {
-            OnDroppedUser(player->packet_num, NETDROP_MANUAL);
+            OnDroppedUser(player->user_id, NETDROP_MANUAL);
             process_disconnected_network_players();
             return;
         }
@@ -494,19 +554,20 @@ void process_disconnected_network_players(void)
         return;
     }
     struct PlayerInfo *myplyr = get_my_player();
+    struct UserState *ustate = get_user_state(get_local_user());
     TbBool host_disconnected = (netstate.my_id != SERVER_ID) && (netstate.users[SERVER_ID].progress == USER_UNUSED);
     TbBool disconnected = host_disconnected;
     TbBool enemy_disconnected = false;
     TbBool winning_quit = false;
     int32_t plyr_count = 0;
     if (host_disconnected && host_already_won_level()) {
-        myplyr->additional_flags &= ~PlaAF_UnlockedLordTorture;
+        ustate->additional_flags &= ~UsrAF_UnlockedLordTorture;
         quit_game = 1;
         return;
     }
     for (int player_index = 0; player_index < MAX_NET_USERS; player_index++) {
         struct PlayerInfo *player = get_player(player_index);
-        if (!player_exists(player) || is_my_player(player) || (!host_disconnected && network_player_active(player->packet_num))) {
+        if (!player_exists(player) || is_my_player(player) || (!host_disconnected && network_user_active(player->user_id))) {
             continue;
         }
         disconnected = true;
@@ -517,10 +578,12 @@ void process_disconnected_network_players(void)
             }
         }
         if ((player->allocflags & PlaF_CompCtrl) == 0) {
-            input_lag_reset_intervals();
-            if (!host_disconnected && player->id_number != get_host_player_id() && player->player_name[0] != '\0') {
-                message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), player->player_name);
-                JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
+            network_lobby_ping = GetPing(my_player_number);
+            input_lag_reset_request(calculate_initial_input_lag());
+            const char* departed_name = player->player_name;
+            if (!host_disconnected && player->id_number != get_net_user_player_number(SERVER_ID) && departed_name[0] != '\0') {
+                message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), departed_name);
+                JUSTLOG("p:%d player %s departed", player->id_number, departed_name);
             }
             if (player->victory_state == VicS_Undecided) {
                 replace_network_player_with_ai(player);
@@ -556,9 +619,9 @@ void process_disconnected_network_players(void)
     }
     if (winning_quit && (plyr_count > 1)) {
         if (game.conf.rules[myplyr->id_number].gameplay.winner_tortures_loser) {
-            myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
+            ustate->additional_flags |= UsrAF_UnlockedLordTorture;
         } else {
-            myplyr->additional_flags &= ~PlaAF_UnlockedLordTorture;
+            ustate->additional_flags &= ~UsrAF_UnlockedLordTorture;
         }
     }
     if (!host_disconnected && network_has_remote_users_remaining()) {

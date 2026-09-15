@@ -63,6 +63,7 @@ enum TbButtonFlags {
     LbBtnF_Enabled    =  0x08,  /**< Informs if the button is enabled and can be clicked, or disabled and grayed out with no reaction to input. */
     LbBtnF_MouseOver  =  0x10,
     LbBtnF_Toggle     =  0x20,
+    LbBtnF_NoClickAway = 0x40,  /** Cannot click outside of entry box to finalize entry */
 };
 
 enum GBoxFlags {
@@ -119,7 +120,7 @@ struct GuiButtonInit {
     char gbtype; /**< GUI Button Type, directly copied to button instance. */
     short id_num; /**< GUI Button ID, directly copied to button instance. If there is no need of identifying the button within game code, it should be set to BID_DEFAULT.*/
     short unused_field; // unused
-    unsigned short button_flags; // two bool values; maybe convert it to flags?
+    unsigned short button_flags;
     Gf_Btn_Callback click_event;
     Gf_Btn_Callback rclick_event;
     Gf_Btn_Callback ptover_event;

@@ -23,7 +23,9 @@
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "bflib_enet.h"
 #include "bflib_video.h"
+#include "kfx/renderer/RendererManager.h" // RENDERER_SOFTWARE/RENDERER_OPENGL
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
 #include "bflib_mouse.h"
@@ -41,6 +43,7 @@
 #include "vidmode.h"
 #include "moonphase.h"
 #include "keeperfx.hpp"
+#include "net_matchmaking.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -61,6 +64,7 @@ char keeper_runtime_directory[152];
 short api_enabled = false;
 uint16_t api_port = 5599;
 unsigned long features_enabled = 0;
+unsigned char viewport_mode = VpMode_Original;
 TbBool exit_on_lua_error = false;
 TbBool FLEE_BUTTON_DEFAULT = false;
 TbBool IMPRISON_BUTTON_DEFAULT = false;
@@ -161,7 +165,27 @@ const struct NamedCommand conf_commands[] = {
   {"DEFAULT_TAG_MODE"              , 41},
   {"ZOOM_TO_MOUSE"                 , 42},
   {"ROTATE_AROUND_MOUSE"           , 43},
+  {"VSYNC"                         , 44},
+  {"RELATIVE_MOUSE_MODE"           , 45},
+  {"CAPTURE_CURSOR"                , 46},
+  {"MATCHMAKING_SERVER"            , 47},
+  {"MULTIPLAYER_PORT"              , 48},
+  {"RENDERER"                      , 49},
+  {"VIEWPORT_MODE"                 , 50},
   {NULL,                   0},
+  };
+
+  const struct NamedCommand viewport_mode_desc[] = {
+  {"ORIGINAL",       VpMode_Original},
+  {"FULL",           VpMode_Full},
+  {"FULL_LETTERBOX", VpMode_FullLetterbox},
+  {NULL,             0},
+  };
+
+  const struct NamedCommand renderer_type_desc[] = {
+  {"SOFTWARE",     RENDERER_SOFTWARE},
+  {"OPENGL",       RENDERER_OPENGL},
+  {NULL,           0},
   };
 
   const struct NamedCommand vidscale_type[] = {
@@ -202,17 +226,13 @@ const struct NamedCommand conf_commands[] = {
   };
 
   const struct NamedCommand zoom_to_mouse_options[] = {
-  {"NEVER",    ZoomToMouse_Never},
   {"WHEEL",    ZoomToMouse_Wheel},
-  {"ALWAYS",   ZoomToMouse_Always},
   {NULL,       0},
   };
 
   const struct NamedCommand rotate_around_mouse_options[] = {
-  {"NEVER",         RotateAroundMouse_Never},
-  {"NOT_CTRL",      RotateAroundMouse_NotCtrl},
-  {"ONLY_CTRL",     RotateAroundMouse_OnlyCtrl},
-  {"ALWAYS",        RotateAroundMouse_Always},
+  {"ROTATION_KEYS", RotateAroundMouse_RotationKeys},
+  {"MOVEMENT_KEYS", RotateAroundMouse_MovementKeys},
   {NULL,            0},
   };
 
@@ -277,6 +297,14 @@ TbBool unlock_cursor_when_game_paused(void)
 TbBool lock_cursor_in_possession(void)
 {
   return ((features_enabled & Ft_LockCursorInPossession) != 0);
+}
+
+/**
+ * Returns if the mouse should use SDL relative ("raw") mode instead of the grab-and-warp scheme.
+ */
+TbBool use_relative_mouse_mode(void)
+{
+  return ((features_enabled & Ft_RelativeMouseMode) != 0);
 }
 
 /**
@@ -392,7 +420,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
       int cmd_num = recognize_conf_command(buf, &pos, len, conf_commands);
       // Now store the config item in correct place
       int k;
-      char word_buf[32];
+      char word_buf[128];
       switch (cmd_num)
       {
       case 1: // INSTALL_PATH
@@ -722,17 +750,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           break;
         case 23: //SKIP_HEART_ZOOM
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_SkipHeartZoom;
-          else
-              features_enabled &= ~Ft_SkipHeartZoom;
+          CONFLOG("The \"%s\" setting is unused. Use the -skipheartzoom command line option instead.", COMMAND_TEXT(cmd_num));
           break;
         case 24: //CURSOR_EDGE_CAMERA_PANNING
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
@@ -941,41 +959,131 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           break;
       case 42: // ZOOM_TO_MOUSE
-          i = recognize_conf_parameter(buf,&pos,len,zoom_to_mouse_options);
-          if (i <= 0)
+          i = recognize_conf_parameter(buf, &pos, len, logicval_type);
+          if (i == 1)
           {
-            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+              zoom_to_mouse_option = ZoomToMouse_Always;
+              break;
           }
-          else
+          else if (i == 2)
           {
-            zoom_to_mouse_option = i;
+              zoom_to_mouse_option = ZoomToMouse_Never;
+              break;
           }
+          else if (i <= 0)
+          {
+              i = recognize_conf_parameter(buf, &pos, len, zoom_to_mouse_options);
+              if (i > 0)
+              {
+                  zoom_to_mouse_option = i;
+                  break;
+              }
+          }
+          CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                     COMMAND_TEXT(cmd_num), config_textname);
           break;
       case 43: // ROTATE_AROUND_MOUSE
-          i = recognize_conf_parameter(buf,&pos,len,rotate_around_mouse_options);
+          i = recognize_conf_parameter(buf, &pos, len, logicval_type);
+          if (i == 1)
+          {
+              rotate_around_mouse_option = RotateAroundMouse_Always;
+              break;
+          }
+          else if (i == 2)
+          {
+              rotate_around_mouse_option = RotateAroundMouse_Never;
+              break;
+          }
+          else if (i <= 0)
+          {
+              i = recognize_conf_parameter(buf, &pos, len, rotate_around_mouse_options);
+              if (i > 0)
+              {
+                rotate_around_mouse_option = i;
+                break;
+              }
+          }
+          CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                     COMMAND_TEXT(cmd_num), config_textname);
+          break;
+      case 44: // VSYNC
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
-            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          vsync_enabled = (i == 1);
+          break;
+      case 45: // RELATIVE_MOUSE_MODE
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_RelativeMouseMode;
+          else
+              features_enabled &= ~Ft_RelativeMouseMode;
+          break;
+      case 46: // CAPTURE_CURSOR
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i!=1) lbMouseGrab = false;
+          break;
+      case 47: // MATCHMAKING_SERVER
+          get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf));
+          if (get_id(logicval_type, word_buf) == 2)
+          {
+              matchmaking_enabled = false;
+              matchmaking_set_server(NULL);
+              SYNCLOG("Matchmaking disabled (server set to OFF)");
           }
           else
           {
-            rotate_around_mouse_option = i;
+              matchmaking_enabled = true;
+              matchmaking_set_server(word_buf);
+              SYNCLOG("Matchmaking server: %s", matchmaking_ws_url);
           }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          break;
+      case 48: // MULTIPLAYER_PORT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              if (strcasecmp(word_buf, "FOLLOW") == 0)
-              {
-                  rotate_follow_mouse_option = true;
-              }
-              if (strcasecmp(word_buf, "NO_FOLLOW") == 0)
-              {
-                  rotate_follow_mouse_option = false;
-              }
-              else
-              {
-                  CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
-              }
+            i = atoi(word_buf);
           }
+          if (i > 0 && i <= UINT16_MAX) {
+            enet_port = i;
+          } else {
+            CONFWRNLOG("Invalid MULTIPLAYER_PORT '%s' in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
+          break;
+      case 49: // RENDERER
+          i = recognize_conf_parameter(buf,&pos,len,renderer_type_desc);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          requested_renderer_type = i;
+          break;
+      case 50: // VIEWPORT_MODE
+          i = recognize_conf_parameter(buf,&pos,len,viewport_mode_desc);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          viewport_mode = i;
           break;
       case ccr_comment:
           break;
@@ -1096,9 +1204,11 @@ short load_configuration(void)
  */
 void process_cmdline_overrides(void)
 {
+  if (flag_is_set(start_params.operation_flags, GOF_SingleLevel)) {
+    clear_flag(start_params.startup_flags, SFlg_Legal | SFlg_FX | SFlg_Intro);
+  }
   // Use CD for music rather than OGG files
-  if (start_params.overrides[Clo_CDMusic])
-  {
+  if (start_params.overrides[Clo_CDMusic]) {
     features_enabled &= ~Ft_NoCdMusic;
   }
 }

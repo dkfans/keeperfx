@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_lvlstats.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -240,9 +241,9 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
             border = spr->SWidth * fs_units_per_px / 16;
         }
         LbTextSetWindow(pos_x + border, pos_y, gbtn->width - 2 * border, ln_height);
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+        RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
         LbTextDrawResized(0, 0, tx_units_per_px, get_string(stat->name_stridx));
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+        RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
         int stat_val;
         if (stat->get_value != NULL)
         {
@@ -281,9 +282,9 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
     int pos_y = -scrolling_offset * tx_units_per_px / 16;
     for (struct StatsData* stat = &scrolling_stats_data[scrolling_index]; pos_y < gbtn->height; pos_y += ln_height + 4 * units_per_pixel / 16)
     {
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+        RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, get_string(stat->name_stridx));
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+        RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
         int stat_val;
         if (stat->get_value != NULL)
         {

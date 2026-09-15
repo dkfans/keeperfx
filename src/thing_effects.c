@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 
 #include "thing_effects.h"
 
@@ -311,6 +312,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng->tint_colour = thing->tint_colour;
             effeltng->anim_speed = 0;
             effeltng->move_angle_xy = thing->move_angle_xy;
+            effeltng->movement_flags = thing->movement_flags;
         }
     }
     // Effect elements related to Teleport.
@@ -801,7 +803,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         if (thing->health == i)
         {
           LbPaletteStopOpenFade();
-          LbPaletteSet(temp_pal);
+          RendererPaletteSet(temp_pal);
         } else
         if (thing->health > 0)
         {
@@ -809,7 +811,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         } else
         {
             player = get_my_player();
-            PaletteSetPlayerPalette(player, engine_palette);
+            PaletteSetUserPalette(player->user_id, engine_palette);
             LbPaletteStopOpenFade();
         }
         break;

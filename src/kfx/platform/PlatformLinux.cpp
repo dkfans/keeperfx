@@ -3,6 +3,7 @@
 #include "kfx/platform/FileFind.h"
 #include "platform.h" // kfxmain
 #include "bflib_fileio.h"
+#include "config.h" // keeper_runtime_directory (GetUserPrefDir() SDL-less fallback)
 #include <SDL3/SDL.h>
 #include <cstdlib>
 #include <cctype>
@@ -33,6 +34,30 @@ const char* PlatformLinux::GetOSVersion() const { return "Linux"; }
 const void* PlatformLinux::GetImageBase() const { return nullptr; }
 const char* PlatformLinux::GetWineVersion() const { return nullptr; } // running native
 const char* PlatformLinux::GetWineHost() const { return nullptr; }    // running native
+
+const char* PlatformLinux::GetUserPrefDir()
+{
+    static char pref_path[512] = {};
+    if (pref_path[0] != '\0')
+        return pref_path;
+    char* sdl_path = SDL_GetPrefPath("keeperfx", "keeperfx");
+    if (sdl_path)
+    {
+        snprintf(pref_path, sizeof(pref_path), "%s", sdl_path);
+        size_t len = strlen(pref_path);
+        if (len > 0 && pref_path[len - 1] == '/')
+            pref_path[len - 1] = '\0';
+        SDL_free(sdl_path);
+    }
+    else
+    {
+        // Fall back to the game's own runtime directory (where keeperfx.cfg
+        // already lives) rather than an SDL-less user-pref concept this
+        // branch doesn't otherwise have.
+        snprintf(pref_path, sizeof(pref_path), "%s", keeper_runtime_directory);
+    }
+    return pref_path;
+}
 
 TbFileFind* PlatformLinux::FileFindFirst(const char* filespec, TbFileEntry* entry)
 {

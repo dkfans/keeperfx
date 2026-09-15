@@ -67,7 +67,7 @@ extern "C" {
 #define SPELL_POINTER_GROUPS   14
 #define ZOOM_KEY_ROOMS_COUNT   15
 
-#define CMDLINE_OVERRIDES      4
+#define CMDLINE_OVERRIDES      5
 
 /** Command Line overrides for config settings. Checked after the config file is loaded. */
 enum CmdLineOverrides {
@@ -75,6 +75,7 @@ enum CmdLineOverrides {
     Clo_CDMusic,
     Clo_GameTurns,
     Clo_FramesPerSecond,
+    Clo_Renderer, /**< Special: handled before the renderer is initialised. */
 };
 
 enum ModeFlags {
@@ -141,8 +142,10 @@ struct StartupParameters {
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
+    int renderer_type; /**< RendererType value from -opengl; only meaningful when overrides[Clo_Renderer] is set. */
     GameTurn pause_at_gameturn;
     unsigned char startup_flags;
+    TbBool skip_heart_zoom;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];
@@ -216,7 +219,7 @@ void toggle_hero_health_flowers(void);
 
 
 TbBool toggle_computer_player(PlayerNumber plyr_idx);
-void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
+void PaletteSetUserPalette(NetUserId user, unsigned char *pal);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
@@ -227,7 +230,7 @@ short zoom_to_next_annoyed_creature(void);
 TbBool LbIsFrozenOrPaused(void); // from bflib_inputctrl.cpp
 
 void update_local_mouse_light(void);
-void update_mouse_light(struct PlayerInfo *player);
+void update_mouse_light(NetUserId user);
 void delete_all_structures(void);
 void clear_map(void);
 void clear_game(void);
@@ -251,10 +254,14 @@ short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count);
 short lose_level(struct PlayerInfo *player);
 short resign_level(struct PlayerInfo *player);
 short complete_level(struct PlayerInfo *player);
+void set_general_information_with_icon(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx);
+void set_quick_information_with_icon(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx);
 void set_general_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
 void set_quick_information(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
 void process_objective(const char *msg_text, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
+void process_objective_with_icon(const char *msg_text, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx);
 void set_general_objective(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y);
+void set_general_objective_with_icon(int32_t msg_id, PlayerNumber plyr_idx, TbMapLocation target, MapSubtlCoord x, MapSubtlCoord y, short icon_idx);
 void turn_off_power_sight_of_evil(PlayerNumber plyr_idx);
 void turn_off_power_obey(PlayerNumber plyr_idx);
 
@@ -274,7 +281,7 @@ long get_foot_creature_has_down(struct Thing *thing);
 void init_seeds();
 
 
-void startup_saved_packet_game(void);
+TbBool startup_saved_packet_game(void);
 void reinit_level_after_load(void);
 void redetect_screen_refresh_rate_for_draw();
 

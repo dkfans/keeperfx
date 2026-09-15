@@ -19,6 +19,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_torture.h"
 #include "net_lobby.h"
 #include "globals.h"
@@ -100,8 +101,8 @@ long torture_door_over_point(long x,long y)
     int w = img_width * units_per_px / 16;
     int h = img_height * units_per_px / 16;
     // Starting point coords
-    int spx = (LbScreenWidth() - w) >> 1;
-    int spy = (LbScreenHeight() - h) >> 1;
+    int spx = (RendererPhysicalWidth() - w) >> 1;
+    int spy = (RendererPhysicalHeight() - h) >> 1;
     for (long i = 0; i < torture_doors_available; i++)
     {
         struct DoorDesc* door = &doors[i];
@@ -187,10 +188,10 @@ TbBool fronttorture_draw(void)
   int w = img_width * units_per_px / 16;
   int h = img_height * units_per_px / 16;
   // Starting point coords
-  int spx = (LbScreenWidth() - w) >> 1;
-  int spy = (LbScreenHeight() - h) >> 1;
-  copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-      w,h,spx,spy,torture_background,img_width,img_height);
+  int spx = (RendererPhysicalWidth() - w) >> 1;
+  int spy = (RendererPhysicalHeight() - h) >> 1;
+  copy_raw8_image_buffer(lbDisplay.WScreen,RendererScreenWidth(),RendererScreenHeight(),
+      w,h,spx,spy,torture_background,img_width,img_height,true);
 
   for (int i = 0; i < torture_doors_available; i++)
   {
@@ -217,10 +218,10 @@ void fronttorture_input(void)
 {
     long x;
     long y;
-    PlayerNumber plyr_idx;
+    NetUserId user;
     clear_packets();
     struct PlayerInfo* player = get_my_player();
-    struct Packet* pckt = get_packet(my_player_number);
+    struct Packet* pckt = get_local_packet();
     // Get inputs and create packet
     if (player->victory_state == VicS_WonLevel)
     {
@@ -261,24 +262,21 @@ void fronttorture_input(void)
         if (LbNetwork_ExchangeFrontend(pckt, game.packets, sizeof(struct Packet)))
             ERRORLOG("LbNetwork_Exchange failed");
     }
-    // Determine the controlling player and get his mouse coords
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    // Determine the controlling user's mouse coords
+    for (user = 0; user < MAX_NET_USERS; user++)
     {
-        player = get_player(plyr_idx);
-        pckt = get_packet(plyr_idx);
+        pckt = get_packet(user);
         if (pckt->action != 0)
             break;
     }
-    if (plyr_idx < PLAYERS_COUNT)
+    if (user < MAX_NET_USERS)
     {
         x = pckt->actn_par1;
         y = pckt->actn_par2;
         torture_idle_start = LbTimerClock();
     } else
     {
-        plyr_idx = my_player_number;
-        player = get_player(plyr_idx);
-        pckt = get_packet(plyr_idx);
+        pckt = get_local_packet();
         x = 0;
         y = 0;
     }

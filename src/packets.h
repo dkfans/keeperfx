@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_keybrd.h"
 #include "globals.h"
+#include "net_main.h"
 #include "player_data.h"
 #include <stdint.h>
 
@@ -321,8 +322,9 @@ struct PacketEx
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
-struct Packet *get_packet_direct(long pckt_idx);
-struct Packet *get_packet(long plyr_idx);
+struct Packet *get_local_packet(void);
+NetUserId get_local_user(void);
+struct Packet *get_packet(NetUserId user);
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4);
 TbBool is_packet_empty(const struct Packet *pckt);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4);
@@ -334,14 +336,15 @@ void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context);
 void set_packet_pause_toggle(void);
 struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoord y);
-TbBool process_dungeon_control_packet_clicks(long idx);
-TbBool process_players_dungeon_control_packet_action(long idx);
-void process_players_creature_control_packet_control(long idx);
-void process_players_creature_passenger_packet_action(long idx);
-void process_players_creature_control_packet_action(long idx);
-void process_map_packet_clicks(long idx);
+TbBool process_dungeon_control_packet_clicks(NetUserId user);
+TbBool process_user_dungeon_control_packet_action(NetUserId user);
+void process_user_creature_control_packet_control(NetUserId user);
+void process_user_creature_passenger_packet_action(NetUserId user);
+void process_user_creature_control_packet_action(NetUserId user);
+void process_map_packet_clicks(NetUserId user);
 void process_pause_packet(long a1, long a2);
-void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player, TbBool is_local_camera);
+void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
+void process_camera_action(struct Camera cams[], const struct Packet* pckt);
 void process_first_person_look(struct Thing *thing, const struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
 TbBool can_process_creature_input(struct Thing *thing);
 void exchange_packets(void);
@@ -357,9 +360,9 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
 void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
-struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
+struct Room *keeper_build_room(NetUserId user,long stl_x,long stl_y,long plyr_idx,long rkind);
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
-TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
+TbBool packets_process_cheats(NetUserId user, PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void disable_packet_mode(void);
 /******************************************************************************/

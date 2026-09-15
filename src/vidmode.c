@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "vidmode.h"
 
 #include "globals.h"
@@ -94,6 +95,7 @@ struct MapLevelInfo map_info;
 TbBool MinimalResolutionSetup;
 
 struct TbColorTables pixmap;
+TbBool fade_tables_ready = 0;
 struct TbAlphaTables alpha_sprite_table;
 unsigned char white_pal[256];
 unsigned char red_pal[256];
@@ -127,6 +129,9 @@ short LoadVRes256Data(long scrbuf_size)
     if (!winfont || !font_sprites || !button_sprites || !gui_panel_sprites || LbDataLoadAll(gui_load_files_640)) {
         return 0;
     }
+    // gui_slab was just (re)loaded by the LbDataLoadAll() call above --
+    // notify the active renderer so GL can (re)upload its cached slab texture.
+    RendererUpdateSlabTexture(gui_slab, GUI_SLAB_DIMENSION);
     return 1;
 }
 
@@ -137,6 +142,7 @@ void FreeVRes256Data(void)
     free_spritesheet(&button_sprites);
     free_spritesheet(&gui_panel_sprites);
     LbDataFreeAll(gui_load_files_640);
+    LbTextInvalidateFontGeneration();
 }
 
 short LoadVResMinimal(void)
@@ -164,6 +170,7 @@ void FreeVResMinimal(void)
     }
     free_spritesheet(&button_sprites);
     LbDataFreeAll(front_load_files_minimal_640);
+    LbTextInvalidateFontGeneration();
 }
 
 /**
@@ -199,6 +206,9 @@ short LoadMcgaData(void)
   winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
   font_sprites = load_font("data/font1-32.dat", "data/font1-32.tab");
   gui_panel_sprites = load_spritesheet("data/gui2-32.dat", "data/gui2-32.tab");
+  // gui_slab was just (re)loaded by the LbDataLoad() loop above --
+  // notify the active renderer so GL can (re)upload its cached slab texture.
+  RendererUpdateSlabTexture(gui_slab, GUI_SLAB_DIMENSION);
   return button_sprites && winfont && font_sprites && gui_panel_sprites && (ferror == 0);
 }
 
@@ -209,6 +219,7 @@ void FreeMcgaData(void)
     free_font(&font_sprites);
     free_spritesheet(&button_sprites);
     free_spritesheet(&gui_panel_sprites);
+    LbTextInvalidateFontGeneration();
 }
 
 void set_game_vidmode(uint i, TbScreenMode nmode)
@@ -497,6 +508,7 @@ void unload_pointer_file(short hi_res)
 
 TbBool init_fades_table(void)
 {
+    static const TbPixel abyss_colours[] = {160, 1, 253};
     char* fname = prepare_file_path(FGrp_StdData, "tables.dat");
     SYNCDBG(0,"Reading fade table file \"%s\".",fname);
     if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
@@ -513,6 +525,10 @@ TbBool init_fades_table(void)
             pixmap.fade_tables[i] = cblack;
         }
     }
+    for (int i = 0; i < 256; i++) {
+        pixmap.map_abyss[i] = abyss_colours[pixmap.ghost[i] * 3 >> 8];
+    }
+    fade_tables_ready = 1;
     return true;
 }
 
@@ -627,12 +643,12 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
       return nmode;
     }
   }
-  TbBool hi_res = ((LbGraphicsScreenHeight() < 400) ? false : true);
+  TbBool hi_res = ((RendererScreenHeight() < 400) ? false : true);
   long lens_mem = game.applied_lens_type;
-  unsigned int flg_mem = lbDisplay.DrawFlags;
+  unsigned int flg_mem = RendererGetDrawFlags();
   TbBool was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
   set_pointer_graphic_none();
-  if (LbGraphicsScreenHeight() < 200)
+  if (RendererScreenHeight() < 200)
   {
       WARNLOG("Unhandled previous Screen Mode %d, Reset skipped",(int)old_mode);
   } else
@@ -641,10 +657,16 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     {
       reset_eye_lenses();
       reset_heap_manager();
+      // GL's keeper-sprite atlas caches by draw_idx, stable only within one
+      // sprite-heap generation -- clear it in lockstep with the heap reset
+      // above (main_game.c's init_level() covers the level-load
+      // case, this covers the video-mode-switch case). No-op on software /
+      // before GL is active.
+      RendererClearKeeperSpriteAtlas();
       unload_pointer_file(hi_res);
     }
     if (nmode != old_mode)
-        LbScreenReset(false);
+        RendererResetScreen(false);
     if (MinimalResolutionSetup) {
       if (hi_res) {
         FreeVResMinimal();
@@ -688,7 +710,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
     if ((nmode != old_mode) || (was_minimal_res))
     {
-        if (LbScreenSetup(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, (hi_res ? 1 : 2), 0) < Lb_SUCCESS)
+        if (RendererSetupScreen(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, (hi_res ? 1 : 2), 0) < Lb_SUCCESS)
         {
           ERRORLOG("Unable to setup screen resolution %s (mode %d)", new_mdinfo->Desc,(int)nmode);
           force_video_mode_reset = true;
@@ -697,13 +719,13 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
     load_pointer_file(hi_res);
   }
-  LbScreenClear(0);
-  LbScreenSwap();
+  RendererClearScreen(0);
+  RendererPresentFrame();
   update_screen_mode_data(new_mdinfo->Width, new_mdinfo->Height);
   if (parchment_loaded)
     reload_parchment_file(hi_res);
   reinitialise_eye_lens(lens_mem);
-  lbDisplay.DrawFlags = flg_mem;
+  RendererSetDrawFlags(flg_mem);
   setup_heap_manager();
   force_video_mode_reset = false;
   SYNCDBG(8,"Finished");
@@ -799,9 +821,9 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
       return nmode;
     }
   }
-  TbBool hi_res = ((LbGraphicsScreenHeight() < 400) ? false : true);
-  ushort flg_mem = lbDisplay.DrawFlags;
-  if (LbGraphicsScreenHeight() < 200)
+  TbBool hi_res = ((RendererScreenHeight() < 400) ? false : true);
+  ushort flg_mem = RendererGetDrawFlags();
+  if (RendererScreenHeight() < 200)
   {
     WARNLOG("Unhandled previous Screen Mode %d, Reset skipped",(int)old_mode);
   } else
@@ -810,11 +832,13 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
     {
       reset_eye_lenses();
       reset_heap_manager();
+      // See setup_screen_mode()'s identical comment above.
+      RendererClearKeeperSpriteAtlas();
     }
     if ((!MinimalResolutionSetup && !hi_res) || (MinimalResolutionSetup && hi_res))
       unload_pointer_file(hi_res);
     if ((nmode != old_mode) || (force_video_mode_reset))
-      LbScreenReset(false);
+      RendererResetScreen(false);
     if (hi_res)
     {
       if (MinimalResolutionSetup) {
@@ -853,7 +877,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
 
     if ((nmode != old_mode) || (force_video_mode_reset))
     {
-        if (LbScreenSetup(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, (hi_res ? 1 : 2), 0) < Lb_SUCCESS)
+        if (RendererSetupScreen(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, (hi_res ? 1 : 2), 0) < Lb_SUCCESS)
         {
           ERRORLOG("Unable to setup screen resolution %s (mode %d)", new_mdinfo->Desc,(int)nmode);
           force_video_mode_reset = true;
@@ -861,10 +885,10 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
         }
     }
   }
-  LbScreenClear(0);
-  LbScreenSwap();
+  RendererClearScreen(0);
+  RendererPresentFrame();
   update_screen_mode_data(new_mdinfo->Width, new_mdinfo->Height);
-  lbDisplay.DrawFlags = flg_mem;
+  RendererSetDrawFlags(flg_mem);
   force_video_mode_reset = false;
   return nmode;
 }
@@ -898,7 +922,7 @@ TbScreenMode setup_screen_mode_zero(TbScreenMode nmode)
       new_mdinfo = LbScreenGetModeInfo(nmode);
   }
   LbPaletteDataFillBlack(engine_palette);
-  if (LbScreenSetup(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, 2, 0) < Lb_SUCCESS)
+  if (RendererSetupScreen(nmode, new_mdinfo->Width, new_mdinfo->Height, engine_palette, 2, 0) < Lb_SUCCESS)
   {
       ERRORLOG("Unable to setup screen resolution %s (mode %d)", new_mdinfo->Desc,(int)nmode);
       return Lb_SCREEN_MODE_INVALID;

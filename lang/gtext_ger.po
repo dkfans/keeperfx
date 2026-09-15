@@ -7130,8 +7130,8 @@ msgstr "KDK Levels"
 
 #: guitext:1024
 msgctxt "Menu interface item"
-msgid "Good Campaign"
-msgstr "Gute Kampagne"
+msgid "The Good Guys"
+msgstr "Die Guten"
 
 #: guitext:1025
 msgctxt "Menu interface item"
@@ -7624,6 +7624,11 @@ msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Installiere es als Mod im Ordner /mods/."
 
 #: guitext:1122
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "Netzwerkverbindung zum Server verloren."
+
+#: guitext:1123
 #, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot (with cursor)"

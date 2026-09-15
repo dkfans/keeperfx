@@ -11,6 +11,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "platform.h"
 #include "keeperfx.hpp"
 
@@ -27,6 +28,7 @@
 #include "lua_triggers.h"
 #include "lvl_script.h"
 #include "thing_list.h"
+#include "thing_physics.h"
 #include "player_utils.h"
 #include "player_computer.h"
 #include "engine_camera.h"
@@ -134,7 +136,7 @@ static void check_players_lost(void)
             //this would easily prevent computer player activities on dead player, but it also makes dead player unable to use
             //floating spirit, so it can't be done this way: player->is_active = 0;
             if (is_my_player_number(i)) {
-                LbPaletteSet(engine_palette);
+                RendererPaletteSet(engine_palette);
             }
           }
       }
@@ -356,8 +358,7 @@ static void update_near_creatures_for_footsteps(int32_t *near_creatures, const s
                 ndist = get_chessboard_distance(srcpos, &thing->mappos);
                 if (ndist < near_distance[0])
                 {
-                    if (((cctrl->distance_to_destination != 0) && ((int)thing->floor_height >= (int)thing->mappos.z.val))
-                      || ((thing->movement_flags & TMvF_Flying) != 0))
+                    if (((cctrl->distance_to_destination != 0) && thing_touching_floor(thing)) || ((thing->movement_flags & TMvF_Flying) != 0))
                     {
                         // Insert the new item to our list
                         int n;
@@ -524,18 +525,25 @@ void update(void)
         return;
     }
     player = get_my_player();
+    struct UserState *ustate = get_user_state(get_local_user());
 
     if (!flag_is_set(game.operation_flags,GOF_Paused))
     {
-        if (flag_is_set(player->additional_flags,PlaAF_LightningPaletteIsActive))
+        for (int i = 1; i < EVENTS_COUNT; i++) {
+            game.event[i].flags &= ~EvF_BtnFalling;
+        }
+        if (flag_is_set(ustate->additional_flags,UsrAF_LightningPaletteIsActive))
         {
-            PaletteSetPlayerPalette(player, engine_palette);
-            clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
+            PaletteSetUserPalette(player->user_id, engine_palette);
+            clear_flag(ustate->additional_flags, UsrAF_LightningPaletteIsActive);
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();
         if ((get_gameturn() & 0x01) != 0)
+        {
             update_animating_texture_maps();
+            RendererUpdateAnimatedTiles();
+        }
         update_things();
         process_rooms();
         process_dungeons();

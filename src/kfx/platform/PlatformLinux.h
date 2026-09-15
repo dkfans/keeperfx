@@ -13,6 +13,8 @@ public:
 
     TbFileFind* FileFindFirst(const char* filespec, TbFileEntry* entry) override;
 
+    const char* GetUserPrefDir() override;
+
     void   SetRedbookVolume(SoundVolume vol) override;
     TbBool PlayRedbookTrack(int track) override;
     void   PauseRedbookTrack() override;

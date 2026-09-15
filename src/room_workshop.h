@@ -85,6 +85,7 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
 void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos);
 void count_and_reposition_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos);
 void count_crates_in_room(struct Room *room);
+void send_manufacture_complete_event(struct Dungeon *dungeon, PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

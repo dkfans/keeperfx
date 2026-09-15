@@ -1634,6 +1634,8 @@ static NavColour get_navigation_colour_for_cube(long stl_x, long stl_y)
       i = NAVMAP_FLOORHEIGHT_MAX;
     if (subtile_is_unsafe(stl_x, stl_y))
       i |= NAVMAP_UNSAFE_SURFACE;
+    if (subtile_has_abyss_on_top(stl_x, stl_y))
+      i |= NAVMAP_ABYSS;
     return i;
 }
 

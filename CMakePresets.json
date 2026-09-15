@@ -64,26 +64,22 @@
         {
             "name": "Debug-Clang",
             "displayName": "Debug Clang",
-            "inherits": [ "base", "x86", "Debug", "Clang" ],
-            "hidden": true
+            "inherits": [ "base", "x86", "Debug", "Clang" ]
         },
         {
             "name": "Release-Clang",
             "displayName": "Release Clang",
-            "inherits": [ "base", "x86", "Release", "Clang" ],
-            "hidden": true
+            "inherits": [ "base", "x86", "Release", "Clang" ]
         },
         {
             "name": "Debug-MSVC",
             "displayName": "Debug MSVC",
-            "inherits": [ "base", "x86", "Debug", "MSVC" ],
-            "hidden": true
+            "inherits": [ "base", "x86", "Debug", "MSVC" ]
         },
         {
             "name": "Release-MSVC",
             "displayName": "Release MSVC",
-            "inherits": [ "base", "x86", "Release", "MSVC" ],
-            "hidden": true
+            "inherits": [ "base", "x86", "Release", "MSVC" ]
         },
 
         {

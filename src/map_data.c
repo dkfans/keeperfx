@@ -361,7 +361,8 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
     MapSubtlCoord stl_x = coord_subtile(cor_x);
     MapSubtlCoord stl_y = coord_subtile(cor_y);
     MapCoord height;
-    if (cor_z < -1)
+    TbBool over_abyss = subtile_has_abyss_on_top(stl_x, stl_y);
+    if ((cor_z < -1) && !over_abyss)
     {
         if (flags & MapCoord_ClipZ) cor_z = -1;
         corrected = true;
@@ -385,7 +386,7 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
     }
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    if ( (!slab_is_liquid(slb_x, slb_y)) && (!slab_is_door(slb_x, slb_y)) && (!slab_is_wall(slb_x, slb_y)) )
+    if ((!over_abyss) && (!slab_is_liquid(slb_x, slb_y)) && (!slab_is_door(slb_x, slb_y)) && (!slab_is_wall(slb_x, slb_y)))
     {
         height = get_floor_height(stl_x, stl_y);
         if (cor_z < height)
@@ -576,7 +577,7 @@ void clear_slab_dig(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_id
         else if ( (get_slab_stats(slb)->category == SlbAtCtg_FortifiedWall)
             && (slabmap_owner(slb) != plyr_idx ))
         {
-        untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+            untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
         }
     }
     else if ( !subtile_revealed(slab_subtile(slb_x, 0) , slab_subtile(slb_y, 0), plyr_idx) )          //    if (map_block_revealed(mapblk, plyr_idx))
@@ -661,7 +662,7 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
   clear_dig_for_map_rect(plyr_idx,subtile_slab(start_x),subtile_slab(end_x),
       subtile_slab(start_y),subtile_slab(end_y));
   reveal_map_rect(plyr_idx,start_x,end_x,start_y,end_y);
-  panel_map_update(start_x,start_y,end_x,end_y);
+  panel_map_update(start_x,start_y,end_x - start_x,end_y - start_y);
 }
 
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all)
@@ -694,7 +695,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
             conceal_map_block(mapblk, plyr_idx);
         }
     }
-    panel_map_update(start_x,start_y,end_x,end_y);
+    panel_map_update(start_x,start_y,end_x - start_x,end_y - start_y);
 }
 
 TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)

@@ -266,4 +266,12 @@ bool MouseStateHandler::PointerEndSwap(void)
     }
     return true;
 }
+
+bool MouseStateHandler::GetActivePointerSprite(const struct TbSprite **out_spr, int32_t *out_x, int32_t *out_y, int *out_units_per_px)
+{
+    std::lock_guard<std::mutex> guard(lock);
+    if ((mssprite == NULL) || (!this->installed))
+      return false;
+    return pointer.GetSpriteForDraw(out_spr, out_x, out_y, out_units_per_px);
+}
 /******************************************************************************/

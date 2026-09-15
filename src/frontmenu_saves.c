@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "frontmenu_saves.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -137,7 +138,7 @@ void gui_save_game(struct GuiButton *gbtn)
           create_error_box(GUIStr_ErrorSaving);
       }
   }
-  set_players_packet_action(player, PckA_UpdatePause, player->paused_state_restore, 0, 0, 0);
+  set_players_packet_action(player, PckA_UpdatePause, local_state.paused_state_restore, 0, 0, 0);
 }
 
 void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
@@ -181,7 +182,7 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
     // Select font to draw
     int font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
     LbTextSetFont(frontend_font[font_idx]);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     // Set drawing window and draw the text
     int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
     int height = LbTextLineHeight() * tx_units_per_px / 16;
@@ -263,7 +264,7 @@ void init_save_menu(struct GuiMenu *gmnu)
 {
   SYNCDBG(6,"Starting");
   struct PlayerInfo* player = get_my_player();
-  player->paused_state_restore = flag_is_set(game.operation_flags, GOF_Paused);
+  local_state.paused_state_restore = flag_is_set(game.operation_flags, GOF_Paused);
   set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
   load_game_save_catalogue();
   gui_vscroll_offset = 0;

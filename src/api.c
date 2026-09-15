@@ -30,6 +30,7 @@
 #include <json-dom.h>
 #include "config_keeperfx.h"
 #include "config_campaigns.h"
+#include "front_landview.h"
 #include "lvl_script.h"
 #include "lvl_script_commands.h"
 #include "lvl_script_lib.h"
@@ -915,14 +916,17 @@ void api_check_var_update()
 }
 
 /**
- * Send an API event message.
+ * Send an API event message with optional structured data.
  *
- * This function sends an event message to the API client over the active socket.
- * If the API server is not active, this function does nothing.
+ * JSON construction is kept inside the API implementation so callers only
+ * provide typed C values. The event is only serialized and sent when a client
+ * is actively subscribed to it.
  *
- * @param event_name A null-terminated string representing the name of the event to be sent.
+ * @param event_name A null-terminated string representing the event name.
+ * @param data Optional array of named event data values.
+ * @param data_count Number of entries in data.
  */
-void api_event(const char *event_name)
+void api_event_with_data(const char *event_name, const struct ApiEventData *data, size_t data_count)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -936,10 +940,81 @@ void api_event(const char *event_name)
         return;
     }
 
-    // Create the JSON response and send it to the client
-    char buf[512];
-    int len = snprintf(buf, sizeof(buf) - 1, "{\"event\":\"%s\"}\n", event_name);
-    api_send(buf, len);
+    VALUE json_root_real;
+    VALUE *json_root = &json_root_real;
+    value_init_dict(json_root);
+
+    VALUE *val_event = value_dict_add(json_root, "event");
+    value_init_string(val_event, event_name);
+
+    if (data != NULL && data_count > 0)
+    {
+        VALUE *val_data = value_dict_add(json_root, "data");
+        value_init_dict(val_data);
+
+        for (size_t i = 0; i < data_count; i++)
+        {
+            const struct ApiEventData *item = &data[i];
+            VALUE *value = value_dict_add(val_data, item->name);
+
+            switch (item->type)
+            {
+            case API_EVENT_DATA_INT32:
+                value_init_int32(value, item->value.int32_value);
+                break;
+            case API_EVENT_DATA_UINT32:
+                value_init_uint32(value, item->value.uint32_value);
+                break;
+            case API_EVENT_DATA_INT64:
+                value_init_int64(value, item->value.int64_value);
+                break;
+            case API_EVENT_DATA_UINT64:
+                value_init_uint64(value, item->value.uint64_value);
+                break;
+            case API_EVENT_DATA_FLOAT:
+                value_init_float(value, item->value.float_value);
+                break;
+            case API_EVENT_DATA_DOUBLE:
+                value_init_double(value, item->value.double_value);
+                break;
+            case API_EVENT_DATA_BOOL:
+                value_init_bool(value, item->value.bool_value);
+                break;
+            case API_EVENT_DATA_STRING:
+                value_init_string(value, item->value.string_value != NULL ? item->value.string_value : "");
+                break;
+            default:
+                value_init_null(value);
+                break;
+            }
+        }
+
+    }
+
+    char json_string[API_SERVER_BUFFER];
+    struct dump_buf_state dump_state = {json_string, sizeof(json_string) - 1};
+    int json_dump_return_value = json_dom_dump(json_root, json_value_dump_writer, &dump_state, 0, JSON_DOM_DUMP_MINIMIZE);
+
+    *dump_state.out = 0;
+    if (json_dump_return_value != 0)
+    {
+        value_fini(json_root);
+        return;
+    }
+
+    *dump_state.out++ = '\n';
+    api_send(json_string, dump_state.out - json_string);
+    value_fini(json_root);
+}
+
+/**
+ * Send an API event message without additional data.
+ *
+ * This remains the compatibility wrapper used by existing event callers.
+ */
+void api_event(const char *event_name)
+{
+    api_event_with_data(event_name, NULL, 0);
 }
 
 /**

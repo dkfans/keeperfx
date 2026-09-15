@@ -27,6 +27,7 @@
 if not Thing then Thing = {} end
 
 ---@class Object: Thing
+---@field box_kind integer The Custom box number on a special box.
 if not Object then Object = {} end
 
 ---@class Corpse: Thing

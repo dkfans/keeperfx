@@ -31,6 +31,7 @@ struct _ENetHost;
 struct _ENetAddress;
 
 uint16_t holepunch_stun_query(struct _ENetHost *host, char *output_ip, size_t output_ip_buffer_size);
+int holepunch_receive(struct _ENetHost *host, struct _ENetAddress *expected, size_t expected_count);
 void holepunch_punch_to(struct _ENetHost *host, const struct _ENetAddress *target);
 
 #ifdef __cplusplus

@@ -73,6 +73,7 @@ enum EventKinds {
 enum EventFlags {
     EvF_Exists       = 0x0001,
     EvF_BtnFirstFall = 0x0002, /*< Informs whether the button is falling for a first time. */
+    EvF_BtnFalling   = 0x0004,
 };
 
 /******************************************************************************/
@@ -92,6 +93,8 @@ struct Event {
     int32_t target;
     /** Button lifespan, decreased over time. When reaches 0, the button disappears. */
     uint32_t lifespan_turns;
+    /** Custom button icon sprite index; -1 uses the default event icon. */
+    short icon_idx;
 };
 
 struct Bookmark {

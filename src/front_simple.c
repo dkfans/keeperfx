@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_simple.h"
 
 #include <math.h>
@@ -133,29 +134,50 @@ unsigned char palette_buf[PALETTE_SIZE];
  * @param src_width Source image width.
  * @param src_height Source image height.
  *     Factor of 2 would mean every pixel is repeated in both dimensions and drawn 2*2 times.
+ * @param clear_margins Whole-screen present: black out every pixel outside the
+ *     dest rect too (top/bottom/left/right margins), not just fill the rect
+ *     itself. False for a present that owns only its own rect and must leave
+ *     the rest of an already-drawn screen alone.
  * @return Gives true on success.
  */
 TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int dst_width,const int dst_height,
-    const int spw,const int sph,const unsigned char *src_buf,const int src_width,const int src_height)
+    const int spw,const int sph,const unsigned char *src_buf,const int src_width,const int src_height,
+    TbBool clear_margins)
 {
     unsigned char* dst;
     SYNCDBG(18, "Starting; screen buf %d,%d screen size %d,%d dst pos %d,%d src %d,%d", (int)scanline, (int)nlines, (int)dst_width, (int)dst_height, (int)spw, (int)sph, (int)src_width, (int)src_height);
+    // ToDo : remove, why does this go through RendererPresntImage() instead of just copying into the screen buffer?
+    if (dst_buf == NULL)
+    {
+        struct RendererPresentImageDesc present_desc = {0};
+        present_desc.dst_x = spw;         present_desc.dst_y = sph;
+        present_desc.dst_w = dst_width;   present_desc.dst_h = dst_height;
+        present_desc.src   = src_buf;     present_desc.src_pitch = src_width;
+        present_desc.src_w = src_width;   present_desc.src_h = src_height;
+        present_desc.format  = PRESENT_FORMAT_INDEXED8;
+        present_desc.palette = PRESENT_PALETTE_GAME;
+        present_desc.kind    = clear_margins ? PRESENT_KIND_OPAQUE : PRESENT_KIND_COMPOSITE;
+        return RendererPresentImage(&present_desc);
+    }
     // Source pixel coords
     int sw = 0;
     int sh = 0;
-    // Clearing top of the canvas
-    for (sh = 0; sh < sph; sh++)
+    if (clear_margins)
     {
-        dst = dst_buf + (sh)*scanline;
-        memset(dst, 0, scanline);
-  }
-  // Clearing bottom of the canvas
-  // (Note: it must be done before drawing, to make sure we won't overwrite last line)
-  for (sh=sph+dst_height; sh<nlines; sh++)
-  {
-      dst = dst_buf + (sh)*scanline;
-      memset(dst, 0, scanline);
-  }
+        // Clearing top of the canvas
+        for (sh = 0; sh < sph; sh++)
+        {
+            dst = dst_buf + (sh)*scanline;
+            memset(dst, 0, scanline);
+        }
+        // Clearing bottom of the canvas
+        // (Note: it must be done before drawing, to make sure we won't overwrite last line)
+        for (sh=sph+dst_height; sh<nlines; sh++)
+        {
+            dst = dst_buf + (sh)*scanline;
+            memset(dst, 0, scanline);
+        }
+    }
   // Now drawing
   int dhstart = sph;
   for (sh=0; sh<src_height; sh++)
@@ -169,7 +191,7 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
       {
           dst = dst_buf + (dhstart+k)*scanline;
           int dwstart = spw;
-          if (dwstart > 0) {
+          if (clear_margins && dwstart > 0) {
               memset(dst, 0, dwstart);
           }
           for (sw=0; sw<src_width; sw++)
@@ -184,7 +206,7 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
               }
               dwstart = dwend;
           }
-          if (dwstart < scanline) {
+          if (clear_margins && dwstart < scanline) {
               memset(dst+dwstart, 0, scanline-dwstart);
           }
       }
@@ -212,8 +234,8 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
         return false;
 
     // Get screen dimensions
-    int screen_width = LbScreenWidth();
-    int screen_height = LbScreenHeight();
+    int screen_width = RendererPhysicalWidth();
+    int screen_height = RendererPhysicalHeight();
 
     // Get the scaling ratios
     float width_ratio = (float)screen_width / (float)img_width;
@@ -236,29 +258,28 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
         (int)scaled_width,  (int)scaled_height,
         (int)coord_x,  (int)coord_y);
 
-    // Lock the screen
-    if (LbScreenLock() != Lb_SUCCESS)
+    // Open the frame
+    if (!RendererBeginFrame())
         return false;
 
-    // Copy image buffer to screen buffer
-    copy_raw8_image_buffer(lbDisplay.WScreen, LbGraphicsScreenWidth(), LbGraphicsScreenHeight(),
-                           scaled_width, scaled_height, coord_x, coord_y, buf, img_width, img_height);
+    copy_raw8_image_buffer(lbDisplay.WScreen, RendererScreenWidth(), RendererScreenHeight(),
+                           scaled_width, scaled_height, coord_x, coord_y, buf, img_width, img_height, true);
 
     // Perform any screen capturing
     perform_any_screen_capturing();
 
-    // Unlock the screen
-    LbScreenUnlock();
+    // Close the frame
+    RendererEndFrame();
 
     // Swap video buffers to make the image visible
-    LbScreenSwap();
+    RendererPresentFrame();
 
     return true;
 }
 
 TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay)
 {
-    LbPaletteSet(pal);
+    RendererPaletteSet(pal);
     TbClockMSec end_time = LbTimerClock() + tmdelay;
     TbClockMSec tmdelta = tmdelay / 100;
     if (tmdelta > 100)
@@ -315,9 +336,9 @@ TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   struct RawBitmap *rbmp;
 
   // Decide best image to show based on the width of the screen
-  if (LbGraphicsScreenWidth() >= 1280)
+  if (RendererScreenWidth() >= 1280)
     rbmp = &bitmaps_1280[stype];
-  else if (LbGraphicsScreenWidth() >= 640)
+  else if (RendererScreenWidth() >= 640)
     rbmp = &bitmaps_640[stype];
   else
     rbmp = &bitmaps_320[stype];
@@ -362,7 +383,7 @@ TbBool draw_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
     if (actv_bmp->pal_data == NULL)
       return false;
-    LbPaletteSet(actv_bmp->pal_data);
+    RendererPaletteSet(actv_bmp->pal_data);
     if (actv_bmp->raw_data == NULL)
       return false;
     copy_raw8_image_to_screen_center(actv_bmp->raw_data,actv_bmp->width,actv_bmp->height);
@@ -403,9 +424,9 @@ short show_bitmap_screen(struct ActiveBitmap *actv_bmp,TbClockMSec tmdelay)
 TbBool draw_clear_screen(void)
 {
     LbPaletteDataFillBlack(palette_buf);
-    LbPaletteSet(palette_buf);
-    LbScreenClear(0);
-    LbScreenSwap();
+    RendererPaletteSet(palette_buf);
+    RendererClearScreen(0);
+    RendererPresentFrame();
     return true;
 }
 
@@ -460,12 +481,12 @@ TbBool display_loading_screen(void)
 TbBool wait_for_installation_files(void)
 {
   char ffullpath[2048];
-  short was_locked = LbScreenIsLocked();
+  TbBool was_locked = RendererIsFrameOpen();
   prepare_file_path_buf(ffullpath, sizeof(ffullpath), FGrp_StdData, "bluepal.dat");
   if ( LbFileExists(ffullpath) )
     return true;
   if ( was_locked )
-    LbScreenUnlock();
+    RendererEndFrame();
   SYNCMSG("Installation file not found, waiting");
   if (!init_bitmap_screen(&nocd_bmp,RBmp_WaitNoCD))
   {
@@ -510,7 +531,7 @@ TbBool wait_for_installation_files(void)
   SYNCMSG("Finished waiting for installation after %lu seconds",counter);
   free_bitmap_screen(&nocd_bmp);
   if ( was_locked )
-    LbScreenLock();
+    RendererBeginFrame();
   return (!exit_keeper);
 }
 

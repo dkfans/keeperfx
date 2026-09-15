@@ -13,6 +13,13 @@ set(KFX_DEPS_BASE "https://github.com/dkfans/kfx-deps/releases/download")
 set(D "${CMAKE_BINARY_DIR}/deps")
 set(KFX_CENTITOML_SRC "${CMAKE_SOURCE_DIR}/deps/centitoml")
 
+# GL renderer backend: always built.
+find_package(OpenGL REQUIRED)
+
+# Vendored glad loader -- outside src/, so BuildTargets' glob won't pick it up.
+add_library(glad STATIC "${CMAKE_SOURCE_DIR}/deps/glad/src/glad.c")
+target_include_directories(glad PUBLIC "${CMAKE_SOURCE_DIR}/deps/glad/include")
+
 # kfx_fetch(<dir> <url>): download + extract into <builddir>/deps/<dir>/ once.
 function(kfx_fetch dir url)
     set(_tgz "${D}/${dir}.tar.gz")
@@ -86,7 +93,6 @@ if(WIN32)
     kfx_fetch(astronomy  "${KFX_DEPS_BASE}/astronomy_fix/astronomy-mingw32.tar.gz")
     kfx_fetch(centijson  "${KFX_DEPS_BASE}/initial/centijson-mingw32.tar.gz")
     kfx_fetch(ffmpeg     "${KFX_DEPS_BASE}/initial/ffmpeg-mingw32.tar.gz")
-    kfx_fetch(openal     "${KFX_DEPS_BASE}/2024-11-14/openal-mingw32.tar.gz")
     kfx_fetch(luajit     "${KFX_DEPS_BASE}/20250418/luajit-mingw32.tar.gz")
     kfx_fetch(miniupnpc  "${KFX_DEPS_BASE}/20260102/miniupnpc-mingw32.tar.gz")
     kfx_fetch(libnatpmp  "${KFX_DEPS_BASE}/20260102/libnatpmp-mingw32.tar.gz")
@@ -100,8 +106,22 @@ if(WIN32)
     kfx_imported(zlib_static       "${D}/zlib/libz.a"                "${D}/zlib/include")
     kfx_imported(minizip_static    "${D}/zlib/libminizip.a"          "${D}/zlib/include")
     target_link_libraries(minizip_static INTERFACE zlib_static)
-    kfx_imported(openal_static     "${D}/openal/libOpenAL32.a"       "${D}/openal/include")
-    target_link_libraries(openal_static INTERFACE winmm ole32 uuid)
+    # OpenAL: the kfx-deps prebuilt tarball is win32-thread-model MinGW, built
+    # against i686-w64-mingw32-g++ (what the Makefile and the CI cross-compile
+    # toolchain use) -- fine there, but MSYS2's native mingw32 gcc used by the
+    # vcpkg-based CMake presets is posix-threads only, so linking against it
+    # fails with "undefined reference to `__gthr_win32_mutex_lock'" etc. Build
+    # it from source via vcpkg (openal-soft in vcpkg.json) instead when vcpkg
+    # is actually in play, so the thread model always matches the compiler
+    # actually in use; otherwise use the prebuilt tarball, matching the
+    # i686-w64-mingw32-g++ toolchain.
+    if(VCPKG_TOOLCHAIN)
+        find_package(OpenAL CONFIG REQUIRED)
+    else()
+        kfx_fetch(openal "${KFX_DEPS_BASE}/2024-11-14/openal-mingw32.tar.gz")
+        kfx_imported(openal_static "${D}/openal/libOpenAL32.a" "${D}/openal/include")
+        target_link_libraries(openal_static INTERFACE winmm ole32 uuid)
+    endif()
     kfx_imported(luajit_static     "${D}/luajit/lib/libluajit.a"     "${D}/luajit/include")
     kfx_imported(miniupnpc_static  "${D}/miniupnpc/libminiupnpc.a"   "${D}/miniupnpc/include")
     target_link_libraries(miniupnpc_static INTERFACE ws2_32 iphlpapi)
@@ -195,11 +215,21 @@ function(kfx_link_dependencies TARGET)
         # link them in a group (RESCAN == --start-group/--end-group).
         set(_static
             libavformat_static libavcodec_static libswresample_static libavutil_static
-            openal_static astronomy_static enet6_static miniupnpc_static natpmp_static
+            astronomy_static enet6_static miniupnpc_static natpmp_static
             curl_static spng_static centijson_static minizip_static zlib_static
             luajit_static)
-        target_link_libraries(${TARGET} PRIVATE
-            kfx_sdl3 "$<LINK_GROUP:RESCAN,${_static}>" centitoml)
+        if(NOT VCPKG_TOOLCHAIN)
+            list(APPEND _static openal_static)
+        endif()
+        if(CMAKE_CXX_LINK_GROUP_USING_RESCAN_SUPPORTED)
+            set(_static_link "$<LINK_GROUP:RESCAN,${_static}>")
+        else()
+            set(_static_link ${_static})
+        endif()
+        target_link_libraries(${TARGET} PRIVATE kfx_sdl3 ${_static_link} centitoml)
+        if(VCPKG_TOOLCHAIN)
+            target_link_libraries(${TARGET} PRIVATE OpenAL::OpenAL)
+        endif()
     else()
         target_link_libraries(${TARGET} PRIVATE
             kfx_sdl3
@@ -209,4 +239,5 @@ function(kfx_link_dependencies TARGET)
             centitoml
             miniupnpc natpmp dl)
     endif()
+    target_link_libraries(${TARGET} PRIVATE OpenGL::GL glad)
 endfunction()

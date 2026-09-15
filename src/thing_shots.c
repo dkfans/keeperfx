@@ -103,7 +103,6 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
     struct Thing* castng = get_parent_thing(shotng);
     TRACE_THING(castng);
-    struct PlayerInfo* myplyr = get_my_player();
     KeepPwrLevel power_level;
     long damage;
     // If the shot has area_range, then make area damage
@@ -139,8 +138,8 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets);
     }
-    create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner, shotng->parent_idx); //Parent of explosion is set to caster creature/trap
-    create_used_effect_or_element(&shotng->mappos, shotst->explode.effect2_model, shotng->owner, shotng->parent_idx);
+    create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner, shotng->index);
+    create_used_effect_or_element(&shotng->mappos, shotst->explode.effect2_model, shotng->owner, shotng->index);
     if (shotst->explode.around_effect1_model != 0)
     {
         create_effect_around_thing(shotng, shotst->explode.around_effect1_model);
@@ -156,7 +155,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     case ShM_GodLightning:
     case ShM_GodLightBall:
         if (lens_mode != 0) {
-            PaletteSetPlayerPalette(myplyr, engine_palette);
+            PaletteSetUserPalette(get_local_user(), engine_palette);
         }
         break;
     case ShM_TrapTNT:
@@ -1796,16 +1795,14 @@ TngUpdateRet update_shot(struct Thing *thing)
         {
             case ShUL_Lightning:
             {
-                struct PlayerInfo* player;
                 if (lightning_is_close_to_player(myplyr, &thing->mappos))
                 {
                   if (is_my_player_number(thing->owner))
                   {
-                      player = get_player(thing->owner);
                       if ((thing->parent_idx > 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
                       {
-                          PaletteSetPlayerPalette(player, lightning_palette);
-                          myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
+                          PaletteSetUserPalette(get_local_user(), lightning_palette);
+                          get_user_state(get_local_user())->additional_flags |= UsrAF_LightningPaletteIsActive;
                       }
                   }
                 }
@@ -2103,7 +2100,7 @@ struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation locatio
 long apply_wallhug_force_to_boulder(struct Thing *thing)
 {
   unsigned short angle;
-  long collide;
+  int collide;
   unsigned short new_angle;
   struct Coord3d pos2;
   struct Coord3d pos;
@@ -2210,7 +2207,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   return 0;
 }
 
-long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y)
+int process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y)
 {
     unsigned short boulder_radius = (boulder->clipbox_size_xy >> 1);
     MapSubtlCoord pos_x = (pos->x.val + boulder_radius * direction_x) >> 8;
@@ -2221,7 +2218,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
     struct Room *room = subtile_room_get(stl_x, stl_y);
     if (room_exists(room))
     {
-        if (room->kind == RoK_GUARDPOST)  // Collide with Guardposts
+        if (flag_is_set(get_room_kind_stats(room->kind)->flags, RoCFlg_BoulderDestroys)) // Collide with Guardposts
         {
             if (room->owner != game.neutral_player_num)
             {

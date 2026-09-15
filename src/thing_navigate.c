@@ -52,6 +52,7 @@ extern "C" {
 
 long owner_player_navigating;
 long nav_thing_can_travel_over_lava;
+int32_t nav_thing_is_flying;
 
 /******************************************************************************/
 
@@ -104,8 +105,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
 
         mapblk = get_map_block_at(stl_x, stl_y);
 
-        if ( (mapblk->flags & SlbAtFlg_Blocking) == 0 )
-        {
+        if ((mapblk->flags & SlbAtFlg_Blocking) == 0 && thing_can_traverse_abyss_at(thing, stl_x, stl_y)) {
             spiral_pos.x.val = (stl_x << 8) + 128;
             spiral_pos.y.val = (stl_y << 8) + 128;
             spiral_pos.z.val = get_thing_height_at(thing, &spiral_pos);
@@ -130,6 +130,7 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
     int32_t px;
     int32_t py;
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
+    nav_thing_is_flying = flag_is_set(thing->movement_flags, TMvF_Flying);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
     else
@@ -144,6 +145,7 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
     if (thing_in_wall_at(thing, pos2))
         get_nearest_valid_position_for_creature_at(thing, pos2);
     nav_thing_can_travel_over_lava = 0;
+    nav_thing_is_flying = 0;
 }
 
 TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name)
@@ -405,6 +407,9 @@ TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSu
 
 TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
+    if (!thing_can_traverse_abyss_at(creatng, stl_x, stl_y)) {
+        return true;
+    }
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     // If the position is over lava, and we can't continuously fly, then it's toxic
     if ((crconf->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
@@ -876,6 +881,8 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
     if (slabmap_block_invalid(slb))
         return false;
     struct SlabConfigStats* slabst = get_slab_stats(slb);
+    if (!thing_can_traverse_abyss_at(creatng, stl_x, stl_y))
+        return false;
     if (flag_is_set(slabst->block_flags, SlbAtFlg_IsDoor))
     {
         struct Thing* doortng = get_door_for_position(stl_x, stl_y);

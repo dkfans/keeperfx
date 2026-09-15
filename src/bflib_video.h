@@ -28,10 +28,13 @@
 
 /** Window-mode flags: the currency passed across the window-system seam. */
 enum KfxWindowFlags {
-    KFX_WF_FULLSCREEN_EXCLUSIVE = 0x1, // fullscreen at a specific video mode
-    KFX_WF_FULLSCREEN_DESKTOP   = 0x2, // borderless fullscreen at native resolution
-    KFX_WF_BORDERLESS           = 0x4, // borderless window (also FILL ALL)
-    KFX_WF_HIDDEN               = 0x8, // created hidden
+    KFX_WF_FULLSCREEN_EXCLUSIVE = 0x1,  // fullscreen at a specific video mode
+    KFX_WF_FULLSCREEN_DESKTOP   = 0x2,  // borderless fullscreen at native resolution
+    KFX_WF_BORDERLESS           = 0x4,  // borderless window (also FILL ALL)
+    KFX_WF_HIDDEN               = 0x8,  // created hidden
+    KFX_WF_OPENGL               = 0x10, // window must be OpenGL-capable at creation
+    KFX_WF_KEEP_COMPOSITED      = 0x20, // desktop fullscreen must stay composited by the OS compositor
+    KFX_WF_DESKTOP_FULLSCREEN_ONLY = 0x40, // exclusive fullscreen requests use desktop fullscreen, scaled by the renderer
 };
 
 #ifdef __cplusplus
@@ -109,6 +112,9 @@ enum TbDrawFlags {
     Lb_TEXT_UNDERLINE      = 0x0400,
     Lb_SPRITE_REMAP        = 0x0800,
     Lb_TEXT_UNDERLNSHADOW  = 0x1000,
+    Lb_TEXT_REMAP          = 0x2000,
+    // GPU additive (glow/fire) blend for keeper sprites, only used by gl fragmnt shader.
+    Lb_SPRITE_ALPHA_ADDITIVE = 0x4000,
 };
 
 enum TbVideoModeFlags {
@@ -210,7 +216,6 @@ struct DisplayStruct {
         int32_t RMouseX;
         /** Mouse position during button release, Y coordinate. */
         int32_t RMouseY;
-        ushort DrawFlags;
         short MouseMoveRatio; // was ushort OldVideoMode; but wasn't needed
         ushort ScreenMode;
         /** VESA set-up flag, used only with VBE video modes. */
@@ -225,8 +230,6 @@ struct DisplayStruct {
         uchar RMiddleButton;
         uchar RRightButton;
         uchar FadeStep;
-        /** Selected drawing colour index. */
-        uchar DrawColour;
         /** Currently active colour palette.
          *  LbPaletteGet() should be used to retrieve a copy of the palette. */
         uchar *Palette;
@@ -243,9 +246,6 @@ struct DisplayStructEx {
 };
 typedef struct DisplayStructEx TbDisplayStructEx;
 
-struct SSurface;
-typedef struct SSurface TSurface;
-
 /******************************************************************************/
 
 
@@ -255,7 +255,6 @@ extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbUseSdk;
 extern volatile TbBool lbInteruptMouse;
 extern volatile TbDisplayStructEx lbDisplayEx;
-extern unsigned char lbPalette[PALETTE_SIZE];
 
 #define DEFAULT_UI_SCALE                       128 // is equivilent to size 1 or 100%
 #define DEFAULT_ASPECT_RATIO_FACTOR            160 // is equivilent to 16/10 * 100
@@ -291,8 +290,11 @@ extern unsigned short units_per_pixel;
 
 extern unsigned short display_id;
 
+extern TbBool vsync_enabled;
+
+extern int requested_renderer_type;
+
 extern TbDisplayStruct lbDisplay;
-extern SDL_Window *lbWindow;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
@@ -308,25 +310,16 @@ TbScreenMode LbRegisterVideoModeString(const char *desc);
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode);
 
 TbScreenMode LbScreenActiveMode(void);
-TbScreenCoord LbScreenWidth(void);
-TbScreenCoord LbScreenHeight(void);
 unsigned short LbGraphicsScreenBPP(void);
-TbScreenCoord LbGraphicsScreenWidth(void);
-TbScreenCoord LbGraphicsScreenHeight(void);
 
-TbResult LbScreenLock(void);
-TbResult LbScreenUnlock(void);
-TbBool LbScreenIsLocked(void);
-
-TbResult LbScreenSwap(void);
-TbResult LbScreenClear(TbPixel colour);
 TbResult LbScreenWaitVbi(void);
 unsigned short LbGetCurrentDisplayIndex();
 
 long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 TbResult LbPaletteStopOpenFade(void);
-TbResult LbPaletteSet(unsigned char *palette);
+TbResult LbPaletteStore(const unsigned char *palette);
 TbResult LbPaletteGet(unsigned char *palette);
+const unsigned char *LbPaletteGetReadonly(void);
 TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
 TbResult LbPaletteDataFillBlack(unsigned char *palette);
 TbResult LbPaletteDataFillWhite(unsigned char *palette);

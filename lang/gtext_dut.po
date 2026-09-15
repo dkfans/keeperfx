@@ -6814,7 +6814,7 @@ msgstr ""
 
 #: guitext:1024
 msgctxt "Menu interface item"
-msgid "Good Campaign"
+msgid "The Good Guys"
 msgstr "Helden Campagne"
 
 #: guitext:1025
@@ -7306,6 +7306,12 @@ msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Installeer dit als mod in de map /mods/."
 
 #: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "Verbinding met de server verloren."
+
+#: guitext:1123
 #, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot (with cursor)"

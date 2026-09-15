@@ -20,6 +20,7 @@
 #define KFX_FLYEYEEFFECT_H
 
 #include "LensEffect.h"
+#include <cstdint>
 
 /******************************************************************************/
 
@@ -39,17 +40,19 @@ public:
     virtual TbBool Setup(long lens_idx) override;
     virtual void Cleanup() override;
     virtual TbBool Draw(LensRenderContext* ctx) override;
-    
+    virtual TbBool BuildGPUParams(struct IRWorldLensCmd& out, long viewport_w, long viewport_h) override;
+
 private:
     void BuildLookupTable(long width, long height);
     void FreeLookupTable();
-    
+
     long m_current_lens;
-    
+
     // Pre-computed lookup table
     FlyeyeLookupEntry* m_lookup_table;
     long m_table_width;
     long m_table_height;
+    uint32_t m_gpu_version;   // bumped each BuildLookupTable() -- lets the GL upload skip unchanged tables
 };
 
 /******************************************************************************/

@@ -11,6 +11,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "keeperfx.hpp"
 
 #include "bflib_math.h"
@@ -418,6 +419,42 @@ static short display_should_be_updated_this_turn(void)
     return false;
 }
 
+static long double get_turn_start()
+{
+    if (game.input_lag_turns > 0 || ! network_is_active())
+        return 1.0;
+
+    // Aim to exchange network packets before the turn ends.  If drawing
+    // another frame could miss this deadline, skip it.
+    // In a 3-4 player game, clients must be 2 frames early.
+    const int frames = 1 + (netstate.my_id != SERVER_ID && game.active_players_count > 2);
+    return 1.0 - frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.frame_skip, 1);
+}
+
+static void update_multiplayer_clock_adjust()
+{
+    multiplayer_clock_adjust = 1.0;
+    if (netstate.my_id == SERVER_ID || ! network_is_active())
+        return;
+
+    if (game.input_lag_turns == 0)
+    {
+        // Adjust the clock rate so that the host packet is received at
+        // process_turn_time == 1.0 (on average).  If it is received later,
+        // reduce the scaling factor (< 1.0) so that the next turn takes a
+        // little longer in real time.  Vice-versa if it is early.
+        multiplayer_clock_adjust = 1 + (1 - host_packet_received) / 20;
+        host_packet_received = 1.0;
+    }
+    else
+    {
+        const long double tick_ns_one_turn = 1e9L / turns_per_second;
+        const long double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
+        assert (tick_ns_adjusted_turn > 0);
+        multiplayer_clock_adjust = tick_ns_one_turn / tick_ns_adjusted_turn;
+    }
+}
+
 // this one isn't static for now, because it's used in the network code
 // if networking had its own thread, it wouldn't need the yield that calls this function, but for now it does
 void gameplay_loop_draw()
@@ -466,16 +503,16 @@ void gameplay_loop_draw()
     }
     keeper_wait_for_screen_focus();
     // Direct information/error messages
-    if (LbScreenLock() == Lb_SUCCESS) {
+    if (RendererBeginFrame()) {
         if ( do_draw ) {
             perform_any_screen_capturing();
         }
         draw_onscreen_direct_messages();
-        LbScreenUnlock();
+        RendererEndFrame();
     }
     // Move the graphics window to center of screen buffer and swap screen
     if ( do_draw ) {
-        LbScreenSwap();
+        RendererPresentFrame();
     }
     frametime_end_measurement(Frametime_Draw);
 
@@ -484,6 +521,16 @@ void gameplay_loop_draw()
         const long double delta = time_since_last_draw - average_frame_draw_time;
         average_frame_draw_time += delta * max(average_frame_draw_time, .05L) / 20;
     }
+}
+
+void network_yield_waiting_gameplay_packets()
+{
+    poll_inputs();
+    gameplay_loop_draw();
+    update_gameplay_delta_time();
+    // Reduce game speed during lag spikes.
+    if (game.process_turn_time > 2.0)
+        game.process_turn_time = 2.0;
 }
 
 static void gameplay_loop_logic()
@@ -511,21 +558,9 @@ static void gameplay_loop_logic()
     if (use_delta_time())
     {
         update_gameplay_delta_time();
-        if (game.input_lag_turns == 0 && network_is_active())
-        {
-            // Aim to exchange network packets before the turn ends.  If drawing
-            // another frame could miss this deadline, skip it.
-            // In a 3-4 player game, clients must be 2 frames early.
-            const int frames = 1 + (netstate.my_id != SERVER_ID && game.active_players_count > 2);
-            const long double offset = frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.frame_skip, 1);
-            if (game.process_turn_time + offset < 1.0)
-                return;
-        }
-        else
-        {
-            if (game.process_turn_time < 1.0)
-                return;
-        }
+        const long double turn_start = get_turn_start();
+        if (game.process_turn_time < turn_start)
+            return;
     }
 
     frametime_start_measurement(Frametime_Logic);
@@ -549,34 +584,10 @@ static void gameplay_loop_logic()
     input_eastegg();
     input();
     exchange_packets();
-
+    update_multiplayer_clock_adjust();
     update_gameplay_delta_time();
     if (game.process_turn_time > turns_per_second + 1)
         game.process_turn_time = turns_per_second + 1;
-
-    // Adjust client time scaling
-    if (netstate.my_id != SERVER_ID && network_is_active())
-    {
-        if (game.input_lag_turns == 0)
-        {
-            // Adjust the clock rate so that the host packet is received at
-            // process_turn_time == 1.0 (on average).  If it is received later,
-            // reduce the scaling factor (< 1.0) so that the next turn takes a
-            // little longer in real time.  Vice-versa if it is early.
-
-            multiplayer_clock_adjust = 1 + (1 - host_packet_received) / 20;
-        }
-        else
-        {
-            const long double tick_ns_one_turn = 1e9L / turns_per_second;
-            const long double tick_ns_adjusted_turn = tick_ns_one_turn + multiplayer_speed_adjustment_ns;
-            assert (tick_ns_adjusted_turn > 0);
-            multiplayer_clock_adjust = tick_ns_one_turn / tick_ns_adjusted_turn;
-        }
-    }
-    else multiplayer_clock_adjust = 1.0;
-    host_packet_received = 1.0;
-
     while (game.process_turn_time < 1.0)
     {
         gameplay_loop_draw();
@@ -662,7 +673,7 @@ static void keeper_gameplay_loop(void)
     struct PlayerInfo *player;
     SYNCDBG(5,"Starting");
     player = get_my_player();
-    PaletteSetPlayerPalette(player, engine_palette);
+    PaletteSetUserPalette(player->user_id, engine_palette);
     if ((game.operation_flags & GOF_SingleLevel) != 0) {
         initialise_eye_lenses();
     }
@@ -719,10 +730,11 @@ static TbBool should_use_delta_time_on_menu()
     }
 }
 
-static void faststartup_saved_packet_game(void)
+static TbBool faststartup_saved_packet_game(void)
 {
     reenter_video_mode();
-    startup_saved_packet_game();
+    if (!startup_saved_packet_game())
+        return false;
     {
         struct PlayerInfo *player;
         player = get_my_player();
@@ -730,6 +742,7 @@ static void faststartup_saved_packet_game(void)
     }
     set_gui_visible(false);
     clear_flag(game.operation_flags, GOF_ShowPanel);
+    return true;
 }
 
 static TbBool wait_at_frontend(void)
@@ -815,6 +828,8 @@ static TbBool wait_at_frontend(void)
         }
         faststartup_network_game(&loop);
         coroutine_process(&loop);
+        if (loop.error)
+            exit_keeper = true;
         return true;
     }
     #endif
@@ -822,7 +837,8 @@ static TbBool wait_at_frontend(void)
     // Prepare to enter PacketLoad game
     if ((game.packet_load_enable) && (!game.packet_load_initialized))
     {
-      faststartup_saved_packet_game();
+      if (!faststartup_saved_packet_game())
+          exit_keeper = true;
       return true;
     }
     // Load single-player level directly from command line arguments (-server and -connect bypass this, autoloading a multiplayer map is handled elsewhere)
@@ -830,6 +846,8 @@ static TbBool wait_at_frontend(void)
     {
       faststartup_network_game(&loop);
       coroutine_process(&loop);
+      if (loop.error)
+          exit_keeper = true;
       return true;
     }
 
@@ -839,8 +857,8 @@ static TbBool wait_at_frontend(void)
       exit_keeper = 1;
       return true;
     }
-    LbScreenClear(0);
-    LbScreenSwap();
+    RendererClearScreen(0);
+    RendererPresentFrame();
     if (frontend_load_data() != Lb_SUCCESS)
     {
       ERRORLOG("Unable to load frontend data");
@@ -848,7 +866,7 @@ static TbBool wait_at_frontend(void)
       return true;
     }
     memset(scratch, 0, PALETTE_SIZE);
-    LbPaletteSet(scratch);
+    RendererPaletteSet(scratch);
     frontend_set_state(get_startup_menu_state());
 
     // Once the Mouse Sprite initialization is complete, the sprite's position needs to be reset because it defaults to (0, 0).
@@ -895,7 +913,7 @@ static TbBool wait_at_frontend(void)
       if ((!finish_menu) && (LbIsActive()))
       {
         frontend_draw();
-        LbScreenSwap();
+        RendererPresentFrame();
       }
 
       if (!SoundDisabled)
@@ -925,8 +943,8 @@ static TbBool wait_at_frontend(void)
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
-    LbScreenClear(0);
-    LbScreenSwap();
+    RendererClearScreen(0);
+    RendererPresentFrame();
     FrontendMenuState prev_state;
     prev_state = frontend_menu_state;
     frontend_set_state(FeSt_INITIAL);
@@ -938,6 +956,7 @@ static TbBool wait_at_frontend(void)
     }
     reenter_video_mode();
 
+    level_load_time_phase(LevelLoadTime_EngineStartup);
     display_loading_screen();
 
     short flgmem;
@@ -962,24 +981,30 @@ static TbBool wait_at_frontend(void)
     case FeSt_LOAD_GAME:
           flgmem = game.save_game_slot;
           clear_flag(game.system_flags, GSF_NetworkActive);
-          LbScreenClear(0);
-          LbScreenSwap();
+          RendererClearScreen(0);
+          RendererPresentFrame();
+          level_load_time_phase(LevelLoadTime_Data);
           if (!load_game(game.save_game_slot))
           {
               ERRORLOG("Loading game %d failed; quitting.",(int)game.save_game_slot);
               quit_game = 1;
           }
+          level_load_time_phase(LevelLoadTime_GameSetup);
           game.save_game_slot = flgmem;
           break;
     case FeSt_PACKET_DEMO:
           game.mode_flags |= MFlg_IsDemoMode;
-          startup_saved_packet_game();
-          set_gui_visible(false);
-          clear_flag(game.operation_flags, GOF_ShowPanel);
+          if (!startup_saved_packet_game())
+              coroutine_clear(&loop, true);
+          else {
+              set_gui_visible(false);
+              clear_flag(game.operation_flags, GOF_ShowPanel);
+          }
           break;
     }
 
-    coroutine_add(&loop, &set_not_has_quit);
+    if (!loop.error)
+        coroutine_add(&loop, &set_not_has_quit);
     coroutine_process(&loop);
     if (loop.error)
     {
@@ -1067,13 +1092,13 @@ void game_loop(void)
           }
           memset(&Timer, 0, sizeof(Timer));
       }
-      LbScreenClear(0);
-      LbScreenSwap();
+      RendererClearScreen(0);
+      RendererPresentFrame();
       game.frame_skip = 0;
       keeper_gameplay_loop();
       set_pointer_graphic_none();
-      LbScreenClear(0);
-      LbScreenSwap();
+      RendererClearScreen(0);
+      RendererPresentFrame();
       stop_atmos_sounds();
       stop_music(true);
       stop_streamed_samples();

@@ -6869,7 +6869,7 @@ msgstr "KDK 레벨"
 
 #: guitext:1024
 msgctxt "Menu interface item"
-msgid "Good Campaign"
+msgid "The Good Guys"
 msgstr "선한 캠패인"
 
 #: guitext:1025
@@ -7354,6 +7354,12 @@ msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "MOD로 /mods/에 설치하세요."
 
 #: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "서버 연결이 끊어졌습니다."
+
+#: guitext:1123
 #, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot (with cursor)"

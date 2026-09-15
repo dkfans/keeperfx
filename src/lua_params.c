@@ -361,7 +361,7 @@ unsigned char luaL_checkParty(lua_State *L, int index)
     return prty_id;
 }
 
-void luaL_checkMessageIcon(lua_State *L, int index, char* type, char* id)
+void luaL_checkMessageIcon(lua_State *L, int index, char* type, short* id)
 {
     if (lua_isnone(L, index))
     {

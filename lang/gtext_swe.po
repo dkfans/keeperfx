@@ -6876,8 +6876,8 @@ msgstr "Nivåer"
 #| msgctxt "Menu interface item"
 #| msgid "Campaigns"
 msgctxt "Menu interface item"
-msgid "Good Campaign"
-msgstr "Kampanjer"
+msgid "The Good Guys"
+msgstr "De Goda"
 
 #: guitext:1025
 msgctxt "Menu interface item"
@@ -7366,6 +7366,12 @@ msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Installera den som mod i mappen /mods/."
 
 #: guitext:1122
+#, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "Anslutningen till servern förlorades."
+
+#: guitext:1123
 #, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot (with cursor)"

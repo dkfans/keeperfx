@@ -67,6 +67,7 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck* check);
+long computer_check_sacrifice_diggers(struct Computer2 *comp, struct ComputerCheck * check);
 
 /******************************************************************************/
 const struct NamedCommand computer_check_func_type[] = {
@@ -87,7 +88,8 @@ const struct NamedCommand computer_check_func_type[] = {
   {"check_prison_tendency",  15,},
   {"check_for_flight",       16,},
   {"check_for_vision",       17,},
-  {"none",                   18,},
+  {"check_sacrifice_diggers",   18,},
+  {"none",                   19,},
   {NULL,                      0,},
 };
 
@@ -110,6 +112,7 @@ Comp_Check_Func computer_check_func_list[] = {
   computer_check_prison_tendency,
   computer_check_for_flight,
   computer_check_for_vision,
+  computer_check_sacrifice_diggers,
   NULL,
   NULL,
 };
@@ -323,51 +326,6 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
 }
 
 /**
- * Returns whether special diggers in given dungeon are actually digging indestructible valuables.
- * In standard configuration, indestructible valuables are simply slabs with gems.
- * @param dungeon
- * @return
- */
-static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dungeon)
-{
-    unsigned long k = 0;
-    long i = dungeon->digger_list_start;
-    while (i != 0)
-    {
-        struct Thing* thing = thing_get(i);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-        {
-            ERRORLOG("Jump to invalid creature detected");
-            break;
-        }
-        i = cctrl->players_next_creature_idx;
-        // Thing list loop body
-        if (cctrl->combat_flags == 0)
-        {
-            long state_type = get_creature_state_type(thing);
-
-            if (((state_type == CrStTyp_Work) || (state_type == CrStTyp_DeepWork))
-                && (cctrl->digger.last_did_job == SDLstJob_DigOrMine)
-                && is_digging_indestructible_place(thing))
-            {
-                SYNCDBG(18, "Indestructible valuables being dug by player %d", (int)dungeon->owner);
-                return true;
-            }
-        }
-        // Thing list loop body ends
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            return false;
-        }
-    }
-    SYNCDBG(18, "Indestructible valuables NOT being dug by player %d", (int)dungeon->owner);
-    return false;
-}
-
-/**
  * Returns number of diggable faces of indestructible valuables marked for digging.
  * In standard configuration, indestructible valuables are simply slabs with gems.
  * @param dungeon
@@ -400,80 +358,11 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
 }
 
 /**
- * Filter function for selecting creature which is best candidate for being sacrificed.
- * A specific thing can be selected either by class, model and owner.
- *
- * @param thing Creature thing to be filtered.
- * @param param Struct with specific thing which is dragged.
- * @param maximizer Previous max value.
- * @return If returned value is greater than maximizer, then the filtering result should be updated.
- */
-long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
-{
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-
-    if ((cctrl->combat_flags == 0) && (param->secondary_number || thing->creature.gold_carried == 0)) //no gold carried if no gem access
-    {
-        if (creature_is_being_unconscious(thing) || creature_under_spell_effect(thing, CSAfF_Chicken))
-            return -1;
-        if (creature_is_being_dropped(thing) || !can_thing_be_picked_up_by_player(thing, param->plyr_idx))
-            return -1;
-        if ((param->plyr_idx >= 0) && (thing->owner != param->plyr_idx))
-            return -1;
-        if (!thing_matches_model(thing, param->model_id))
-            return -1;
-        if ((param->class_id > 0) && (thing->class_id != param->class_id))
-            return -1;
-        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-        // Let us estimate value of the creature in gold
-        long priority = thing->creature.gold_carried;             // base value
-        priority += param->primary_number * thing->health / crconf->health; // full health valued at this many gold
-        priority += 10000 * cctrl->exp_level; // experience earned by the creature has a big value
-        if (get_creature_state_type(thing) == CrStTyp_Work)
-            priority += 500; // aborted work valued at this many gold
-        else if (get_creature_state_type(thing) == CrStTyp_DeepWork)
-            priority += 2000; // aborted important work valued at this many gold
-        if (anger_is_creature_angry(thing))
-            priority /= 2; // angry creatures have lower value
-        if (anger_is_creature_livid(thing))
-            priority /= 3; // livid creatures have minimal value
-         // Return maximizer based on our evaluated gold value
-        return INT32_MAX - priority;
-    }
-    // If conditions are not met, return -1 to be sure thing will not be returned.
-    return -1;
-}
-
-static struct Thing *find_creature_for_sacrifice(struct Computer2 *comp, ThingModel crmodel)
-{
-    struct Dungeon* dungeon = comp->dungeon;
-
-    struct CompoundTngFilterParam param;
-    param.plyr_idx = dungeon->owner;
-    param.class_id = TCls_Creature;
-    param.model_id = crmodel;
-    param.primary_number = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    param.secondary_number = any_digger_is_digging_indestructible_valuables(dungeon);
-    Thing_Maximizer_Filter filter = player_list_creature_filter_best_for_sacrifice;
-    TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(dungeon->owner, crmodel);
-    struct Thing* thing = INVALID_THING;
-    if (is_spec_digger)
-    {
-        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
-    }
-    if ((!is_spec_digger) && thing_is_invalid(thing))
-    {
-        thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
-    }
-    return thing;
-}
-
-/**
  * Checks if a computer player can sacrifice imps to reduce price.
  * @param comp
  * @param check
  */
-long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct ComputerCheck * check)
+long computer_check_sacrifice_diggers(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
@@ -481,34 +370,17 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    if (game.conf.rules[dungeon->owner].sacrifices.cheaper_diggers_sacrifice_model == 0) {
-        return CTaskRet_Unk0;
-    }
-
-    GoldAmount power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
-
-    if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
-        && computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
+    
+    if ((get_computer_money_less_cost(comp) > check->secondary_parameter) && !is_task_in_progress_using_hand(comp))
     {
-        struct Thing* creatng = find_creature_for_sacrifice(comp, game.conf.rules[dungeon->owner].sacrifices.cheaper_diggers_sacrifice_model);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        if (!thing_is_invalid(creatng) && (cctrl->exp_level < 2))
+        int digger_model_id = check->primary_parameter;
+        int max_level = check->tertiary_parameter;
+        if(!create_task_sacrifice_diggers(comp, max_level, digger_model_id))
         {
-            SYNCDBG(18, "Got digger to sacrifice, %s index %d owner %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-            if (creature_can_do_job_for_player(creatng, dungeon->owner, Job_TEMPLE_SACRIFICE, JobChk_None))
-            {
-                struct Coord3d pos;
-                // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
-                if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, creatng, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
-                {
-                    if (create_task_move_creature_to_pos(comp, creatng, pos, get_initial_state_for_job(Job_TEMPLE_SACRIFICE))) {
-                        return CTaskRet_Unk1;
-                    }
-                }
-            }
+            SYNCDBG(18,"Cannot sacrifice imps %s",check->name);
+            return CTaskRet_Unk0;
         }
+        return CTaskRet_Unk1;
     }
     return CTaskRet_Unk4;
 }
@@ -521,10 +393,6 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
  */
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    // TODO COMPUTER_PLAYER create a separate check for imps sacrificing diggers
-    if (computer_check_sacrifice_for_cheap_diggers(comp, check) == CTaskRet_Unk1) {
-        return CTaskRet_Unk1;
-    }
     struct Dungeon* dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);

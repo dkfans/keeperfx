@@ -106,6 +106,7 @@ struct KeeperSpriteDisk {
 //extern unsigned short creature_graphics[][22];
 extern struct KeeperSprite *creature_table;
 extern struct KeeperSprite creature_table_add[];
+extern size_t creature_table_length;
 /******************************************************************************/
 
 #pragma pack()

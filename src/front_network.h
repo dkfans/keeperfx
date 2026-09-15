@@ -76,8 +76,9 @@ void frontnet_start_setup(void);
 void frontnet_service_update(void);
 void frontnet_session_update(void);
 void frontnet_start_update(void);
+TbBool frontnet_matchmaking_update(void);
 TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum);
-void process_frontend_chat_message(int player_id, const char *message);
+void process_frontend_chat_message(NetUserId user, const char *message);
 TbBool frontnet_service_selected(enum FrontendNetService service);
 void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 

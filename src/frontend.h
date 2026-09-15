@@ -242,8 +242,9 @@ struct DemoItem { //sizeof = 5
     };
 };
 
-struct NetMessage { // sizeof = 0x41
+struct NetMessage { // sizeof = 0x45
   unsigned char plyr_idx;
+  uint32_t connection_id;
   char text[NET_MESSAGE_LEN];
 };
 
@@ -259,7 +260,7 @@ extern long net_service_scroll_offset;
 extern long net_number_of_services;
 extern long net_number_of_players;
 extern long net_number_of_enum_players;
-extern long net_level_hilighted;
+extern long net_level_highlighted;
 extern struct NetMessage net_message[NET_MESSAGES_COUNT];
 extern long net_number_of_messages;
 extern long net_message_scroll_offset;
@@ -329,6 +330,7 @@ void create_error_box(TextStringId msg_idx);
 void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char *line4, const char* line5);
 void gui_area_text(struct GuiButton *gbtn);
 TbBool get_button_area_input(struct GuiButton *gbtn, int a2);
+void finish_button_area_input(void);
 const char *frontend_button_caption_text(const struct GuiButton *gbtn);
 int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_btn_idx);
 void maintain_loadsave(struct GuiButton *gbtn);
@@ -422,12 +424,14 @@ void set_gui_visible(TbBool visible);
 void toggle_gui(void);
 void add_message(long plyr_idx, char *msg);
 unsigned long toggle_status_menu(short visib);
+void set_map_ui_hidden(TbBool status_menu, TbBool tooltips);
 TbBool toggle_first_person_menu(TbBool visible);
 void toggle_gui_overlay_map(void);
 
 void update_player_objectives(PlayerNumber plyr_idx);
 void set_level_objective(PlayerNumber plyr_idx, const char *msg_text);
 void display_objectives(PlayerNumber plyr_idx,MapSubtlCoord x,MapSubtlCoord y);
+void display_objectives_with_icon(PlayerNumber plyr_idx,MapSubtlCoord x,MapSubtlCoord y, short icon_idx);
 
 short toggle_main_cheat_menu(void);
 TbBool close_main_cheat_menu(void);

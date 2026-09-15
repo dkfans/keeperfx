@@ -63,6 +63,7 @@ int            snd_foot_snow_count = 0;
 int            snd_chicken_cluck_count = 0;
 int            snd_strike_wall_count = 0;
 int            snd_reinforce_hit_count = 0;
+int            snd_lobby_player_leave_count = 0;
 
 SoundSmplTblID snd_foot_spur       = 0;
 SoundSmplTblID snd_foot_wet        = 0;
@@ -115,6 +116,8 @@ SoundSmplTblID snd_larg_tile_up    = 0;
 SoundSmplTblID snd_larg_tile_down  = 0;
 
 SoundSmplTblID snd_tab_fall        = 0;
+SoundSmplTblID snd_chat_message[2] = { 0 };
+SoundSmplTblID snd_lobby_player_leave = 0;
 SoundSmplTblID snd_reinforce_hit   = 0;
 
 // Trap trigger sounds
@@ -1042,6 +1045,9 @@ TbBool cache_common_sound_ids(void)
     CACHE_SND(snd_button_click,   "BUTTON_CLICK2")
     CACHE_SND(snd_buzzer,          "BUZZER")
     CACHE_SND(snd_tab_fall,        "TAB_FALL")
+    CACHE_SND(snd_chat_message[0], "RECEIVE_CHAT_MESSAGE")
+    CACHE_SND(snd_chat_message[1], "SEND_CHAT_MESSAGE")
+    CACHE_SND_COUNT(snd_lobby_player_leave, snd_lobby_player_leave_count, "LOBBY_PLAYER_LEAVE")
     CACHE_SND(snd_heart_engine,    "HEART_ENGINE")
     CACHE_SND(snd_scavenge,        "SCAVENGE")
     CACHE_SND(snd_tile_place,      "ROOM_BUILD")

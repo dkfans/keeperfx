@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "power_specials.h"
+#include "api.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -527,6 +528,22 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
     TbBool no_speech = false;
     if (thing_exists(cratetng) && thing_is_special_box(cratetng))
     {
+        
+    struct ApiEventData event_data[] = {
+        { .name = "player", .type = API_EVENT_DATA_INT32, .value.int32_value = player->id_number },
+        { .name = "special", .type = API_EVENT_DATA_INT32, .value.int32_value = spkindidx },
+        { .name = "special_name", .type = API_EVENT_DATA_STRING, .value.string_value = specst->code_name },
+        { .name = "special_value", .type = API_EVENT_DATA_INT32, .value.int32_value = specst->value },
+        { .name = "thing", .type = API_EVENT_DATA_INT32, .value.int32_value = cratetng->index },
+        { .name = "model", .type = API_EVENT_DATA_INT32, .value.int32_value = cratetng->model },
+        { .name = "x", .type = API_EVENT_DATA_INT32, .value.int32_value = cratetng->mappos.x.val >> 8},
+        { .name = "y", .type = API_EVENT_DATA_INT32, .value.int32_value = cratetng->mappos.y.val >> 8 },
+        { .name = "z", .type = API_EVENT_DATA_INT32, .value.int32_value = cratetng->mappos.z.val >> 8 },
+        { .name = "level_number", .type = API_EVENT_DATA_INT32, .value.int32_value = get_loaded_level_number() },
+        { .name = "game_turn", .type = API_EVENT_DATA_UINT64, .value.uint64_value = (uint64_t)get_gameturn() },
+    };
+    api_event_with_data("SPECIAL_ACTIVATED", event_data, sizeof(event_data) / sizeof(event_data[0]));
+
     switch (spkindidx)
     {
         case SpcKind_RevealMap:

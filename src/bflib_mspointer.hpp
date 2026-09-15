@@ -22,15 +22,9 @@
 
 #include "bflib_basics.h"
 #include "bflib_planar.h"
-#include "bflib_vidsurface.h"
 #include "bflib_video.h"
 #include "mutex.hpp"
 
-/******************************************************************************/
-#define CURSOR_SCALING_XSTEPS MAX_SUPPORTED_SCREEN_WIDTH/10
-#define CURSOR_SCALING_YSTEPS MAX_SUPPORTED_SCREEN_HEIGHT/10
-extern int32_t cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
-extern int32_t cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
 /******************************************************************************/
 
 // Exported class
@@ -45,15 +39,14 @@ class LbI_PointerHandler {
     bool OnMove(void);
     void OnBeginSwap(void);
     void OnEndSwap(void);
+    bool GetSpriteForDraw(const struct TbSprite **out_spr, int32_t *out_x, int32_t *out_y, int *out_units_per_px);
  protected:
+    void ComputeDrawParams(int32_t *out_x, int32_t *out_y, int *out_units_per_px);
     void ClipHotspot(void);
     void Draw(bool);
     void Undraw(bool);
     void Backup(bool);
     // Properties
-    struct SSurface surf1;
-    struct SSurface surf2;
-    //unsigned char sprite_data[4096];
     struct TbPoint *position;
     struct TbPoint *spr_offset;
     struct TbRect rect_1038;

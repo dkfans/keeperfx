@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "net_main.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,11 +52,13 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx);
 void compute_and_update_player_backpay_total(PlayerNumber plyr_idx);
 void calculate_dungeon_area_scores(void);
 
-TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool whole_slab);
 TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void init_players(void);
 void init_player(struct PlayerInfo *player, short no_explore);
+void init_user_state(NetUserId user);
+void turn_user_cursor_light(NetUserId user, TbBool turn_on);
 void post_init_players(void);
 void post_init_player(struct PlayerInfo* player);
 void init_players_local_game(void);

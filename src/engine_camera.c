@@ -29,6 +29,7 @@
 
 #include "engine_lenses.h"
 #include "engine_render.h"
+#include "thing_physics.h"
 #include "vidmode.h"
 #include "map_blocks.h"
 #include "dungeon_data.h"
@@ -417,7 +418,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 0;
     cam->rotation_angle_z = 0;
     cam->horizontal_fov = 94;
-    cam->rotation_angle_y = player->isometric_tilt;
+    cam->rotation_angle_y = settings.isometric_tilt;
     cam->rotation_angle_x = DEGREES_45;
     if (settings.video_rotate_mode == 1) {
         cam->view_mode = PVM_IsoStraightView;
@@ -466,7 +467,7 @@ void update_first_person_position(struct Camera *cam, struct Thing *thing, int e
     if ( thing_is_creature(thing) )
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-        if ( cctrl->move_speed && thing->floor_height >= thing->mappos.z.val )
+        if (cctrl->move_speed && thing_touching_floor(thing))
             cctrl->head_bob = 16 * get_walking_bob_direction(thing);
         else
             cctrl->head_bob = 0;
@@ -728,15 +729,5 @@ void update_all_players_cameras(void)
 
   // Send catchup packets if local camera has drifted too far from packet-based camera
   send_camera_catchup_packets();
-}
-
-void set_player_cameras_position(struct PlayerInfo *player, int32_t pos_x, int32_t pos_y)
-{
-    player->cameras[CamIV_Parchment].mappos.x.val = pos_x;
-    player->cameras[CamIV_FrontView].mappos.x.val = pos_x;
-    player->cameras[CamIV_Isometric].mappos.x.val = pos_x;
-    player->cameras[CamIV_Parchment].mappos.y.val = pos_y;
-    player->cameras[CamIV_FrontView].mappos.y.val = pos_y;
-    player->cameras[CamIV_Isometric].mappos.y.val = pos_y;
 }
 /******************************************************************************/

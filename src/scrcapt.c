@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "scrcapt.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
@@ -25,7 +26,6 @@
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
-#include "bflib_vidsurface.h"
 #include "globals.h"
 
 #include "gui_topmsg.h"
@@ -34,8 +34,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include <ctype.h>
 #include "post_inc.h"
 /******************************************************************************/
@@ -44,48 +42,26 @@ unsigned char screenshot_format = 1;
 unsigned char cap_palette[768];
 
 /******************************************************************************/
-TbBool take_screenshot(char *fname, TbBool screen)
+TbBool take_screenshot(char *fname)
 {
-    TbBool lock_mem = LbScreenIsLocked();
-    if (!lock_mem)
+    TbBool frame_open = RendererIsFrameOpen();
+    if (!frame_open)
     {
-        if (LbScreenLock() != Lb_SUCCESS)
+        if (!RendererBeginFrame())
         {
             ERRORLOG("Can't lock canvas");
             return false;
         }
     }
-    TbBool success;
-    switch (screenshot_format)
+    TbBool success = RendererScheduleScreenshot(fname, screenshot_format);
+    if (!frame_open)
     {
-        case 1:
-        {
-            success = IMG_SavePNG(screen ? lbScreenSurface : lbDrawSurface, fname);
-            break;
-        }
-        case 2:
-        {
-            success = SDL_SaveBMP(screen ? lbScreenSurface : lbDrawSurface, fname);
-            break;
-        }
-        default:
-        {
-            success = false;
-            break;
-        }
-    }
-    if (!success)
-    {
-        ERRORLOG("Unable to save to file %s: %s", fname, SDL_GetError());
-    }
-    if (!lock_mem)
-    {
-        LbScreenUnlock();
+        RendererEndFrame();
     }
     return success;
 }
 
-TbBool cumulative_screen_shot(TbBool screen)
+TbBool cumulative_screen_shot(void)
 {
     char fname[255] = "";
     const char *fext;
@@ -112,7 +88,7 @@ TbBool cumulative_screen_shot(TbBool screen)
         show_onscreen_msg(turns_per_second, "No free filename for screenshot.");
         return false;
     }
-    TbBool ret = take_screenshot(fname, screen);
+    TbBool ret = take_screenshot(fname);
     if (ret)
     {
         show_onscreen_msg(turns_per_second, "File \"%s\" saved.", fname);
@@ -143,16 +119,21 @@ TbBool movie_record_stop(void)
 
 TbBool movie_record_frame(void)
 {
-    short lock_mem = LbScreenIsLocked();
-    if (!lock_mem)
+    TbBool frame_open = RendererIsFrameOpen();
+    if (!frame_open)
     {
-        if (LbScreenLock() != Lb_SUCCESS)
+        if (!RendererBeginFrame())
             return false;
   }
-  LbPaletteGet(cap_palette);
-  short result = anim_record_frame(lbDisplay.WScreen, cap_palette);
-  if (!lock_mem)
-    LbScreenUnlock();
+  RendererPaletteGet(cap_palette);
+  // anim_record_frame() reads raw pixels straight from lbDisplay.WScreen --
+  // only ever valid for backends without a GPU render path (RendererBeginFrame()
+  // only locks the CPU framebuffer for those). GL genuinely has no CPU
+  // surface to read back here yet (needs its own glReadPixels()-based
+  // capture path, not yet built).
+  short result = (lbDisplay.WScreen != NULL) ? anim_record_frame(lbDisplay.WScreen, cap_palette) : false;
+  if (!frame_open)
+    RendererEndFrame();
   return result;
 }
 
@@ -162,16 +143,11 @@ TbBool movie_record_frame(void)
  */
 TbBool perform_any_screen_capturing(void)
 {
-    TbBool captured = false;
+    TbBool captured=0;
     if ((game.system_flags & GSF_CaptureSShot) != 0)
     {
-      captured |= cumulative_screen_shot(false);
+      captured |= cumulative_screen_shot();
       clear_flag(game.system_flags, GSF_CaptureSShot);
-    }
-    else if ((game.system_flags & GSF_CaptureSShot2) != 0)
-    {
-      captured |= cumulative_screen_shot(true);
-      clear_flag(game.system_flags, GSF_CaptureSShot2);
     }
     if ((game.system_flags & GSF_CaptureMovie) != 0)
     {

@@ -6969,6 +6969,12 @@ msgstr "请将其作为模组安装到 /mods/ 文件夹中。"
 
 #: guitext:1122
 #, fuzzy
+msgctxt "Network game message"
+msgid "Lost connection to server"
+msgstr "与服务器的连接已中断。"
+
+#: guitext:1123
+#, fuzzy
 msgctxt "Game controls"
 msgid "Screenshot (with cursor)"
 msgstr "屏幕截图（含光标）"

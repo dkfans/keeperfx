@@ -33,18 +33,15 @@ struct Packet;
 struct PlayerInfo;
 
 /******************************************************************************/
-extern struct Camera local_cameras[4];
-extern struct Camera previous_local_cameras[4];
-extern struct Camera destination_local_cameras[4];
-extern TbBool local_camera_ready;
-/******************************************************************************/
 void init_local_cameras(struct PlayerInfo *player);
 void update_local_cameras(void);
 void interpolate_local_cameras(void);
 void sync_local_camera(struct PlayerInfo *player);
 void set_local_camera_destination(struct PlayerInfo *player);
 void move_local_camera_to_position(MapCoord x, MapCoord y);
-struct Camera* get_local_camera(struct Camera* cam);
+void update_local_view_prediction(const struct Packet *pckt);
+unsigned char get_local_view_type(const struct PlayerInfo *player);
+struct Camera* get_local_active_camera(struct PlayerInfo *player);
 void send_camera_catchup_packets(void);
 
 /******************************************************************************/

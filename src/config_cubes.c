@@ -49,6 +49,7 @@ static const struct NamedCommand cubes_properties_flags[] = {
     {"WATER",          CPF_IsWater},
     {"SACRIFICIAL",    CPF_IsSacrificial},
     {"UNCLAIMED_PATH", CPF_IsUnclaimedPath},
+    {"ABYSS",          CPF_IsAbyss},
     {NULL,             0},
 };
 

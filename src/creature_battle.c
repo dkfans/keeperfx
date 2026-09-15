@@ -316,6 +316,15 @@ TbBool step_battles_forward(PlayerNumber plyr_idx)
         dungeon->visible_battles[1] = i;
         i = find_previous_battle_of_mine_excluding_current_list(plyr_idx, i);
         dungeon->visible_battles[0] = i;
+    } else if (dungeon->visible_battles[1] > 0) {
+        i = dungeon->visible_battles[0];
+        dungeon->visible_battles[0] = dungeon->visible_battles[1];
+        dungeon->visible_battles[1] = dungeon->visible_battles[2];
+        if (dungeon->visible_battles[1] == 0) {
+            dungeon->visible_battles[1] = i;
+        } else {
+            dungeon->visible_battles[2] = i;
+        }
     }
     return active_battle_exists(plyr_idx);
 }

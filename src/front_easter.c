@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "front_easter.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -98,7 +99,7 @@ void frontbirthday_draw(void)
     frontend_copy_background();
     LbTextSetWindow(70, 70, 500, 340);
     LbTextSetFont(frontstory_font);
-    lbDisplay.DrawFlags = Lb_SPRITE_OUTLINE;
+    RendererSetDrawFlags(Lb_SPRITE_OUTLINE);
     const char *name=get_team_birthday();
     if ( name != NULL )
     {
@@ -181,16 +182,57 @@ void input_eastegg(void)
 }
 
 /**
+ * Draws one of the easter egg messages which bounce around the screen.
+ * @param idx Index of the message, used to keep its position and velocity.
+ */
+static void draw_bouncing_eastegg_message(long idx, const char *text, long width, long height, int ee_units_per_px)
+{
+  static float px[2] = {0, 0};
+  static float py[2] = {0, 0};
+  static float vx[2] = {4, 4};
+  static float vy[2] = {6, 6};
+  long k;
+  LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
+  LbTextSetFont(winfont);
+  px[idx] += vx[idx] * game.delta_time;
+  if (px[idx] < 0)
+  {
+    px[idx] = 0;
+    vx[idx] = -vx[idx];
+  }
+  py[idx] += vy[idx] * game.delta_time;
+  if (py[idx] < 0)
+  {
+    py[idx] = 0;
+    vy[idx] = -vy[idx];
+  }
+  k = pixel_size * LbTextStringWidth(text);
+  if (px[idx]+k >= width)
+  {
+    vx[idx] = -vx[idx];
+    px[idx] = width-k-1;
+  }
+  k = pixel_size * LbTextStringHeight(text);
+  if (py[idx]+k >= height)
+  {
+    vy[idx] = -vy[idx];
+    py[idx] = height-k-1;
+  }
+  if (RendererCanDraw())
+  {
+    LbTextDrawResized(scale_fixed_DK_value(px[idx]/pixel_size), scale_fixed_DK_value(py[idx]/pixel_size), ee_units_per_px, text);
+  }
+  play_non_3d_sample_no_overlap(snd_alarm);
+}
+
+/**
  * Displays easter egg messages on screen.
  */
 void draw_eastegg(void)
 {
-  static long px[2] = {0, 0};
-  static long py[2] = {0, 0};
-  static long vx[2] = {4, 4};
-  static long vy[2] = {6, 6};
+  static float skeksis_time = 0;
   long i;
-  long k;
   SYNCDBG(5,"Starting");
   int ee_units_per_px = calculate_relative_upp(22, units_per_pixel_best, LbTextLineHeight());
   int width = 640, height = 400, skeksis_x_offset = 120, skeksis_y_offset = 200;
@@ -208,102 +250,40 @@ void draw_eastegg(void)
   LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
   if (eastegg_skeksis_cntr >= eastegg_skeksis_codes.length)
   {
-      eastegg_skeksis_cntr++;
+      // Advance by frame time rather than by game turn, so the movement stays smooth.
+      // The 256 unit period is a whole number of cycles on both axes, so it wraps seamlessly.
+      skeksis_time += game.delta_time;
+      if (skeksis_time >= 256.0f)
+        skeksis_time -= 256.0f;
       LbTextSetFont(winfont);
       const char * text = "Dene says a big 'Hello' to Goth Buns, Tarts and Barbies";
-      lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
-      unsigned char pos;
+      RendererSetDrawFlags(Lb_TEXT_ONE_COLOR);
+      float pos;
       for (i = 0; i < 30; i += 2)
       {
-        pos = get_gameturn() - i;
-        lbDisplay.DrawColour = pos;
-        LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
-          scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
+        pos = skeksis_time - i;
+        if (pos < 0)
+          pos += 256.0f;
+        RendererSetDrawColour((unsigned char)pos);
+        LbTextDrawResized(scale_fixed_DK_value((LbCosL((long)(16*pos)) / 512 + skeksis_x_offset) / pixel_size),
+          scale_fixed_DK_value((LbSinL((long)(32*pos)) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
       }
-      clear_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
-      pos=get_gameturn();
-      LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
-          scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
-      if (eastegg_skeksis_cntr >= 255)
-        eastegg_skeksis_cntr = 0;
+      RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
+      pos = skeksis_time;
+      LbTextDrawResized(scale_fixed_DK_value((LbCosL((long)(16*pos)) / 512 + skeksis_x_offset) / pixel_size),
+          scale_fixed_DK_value((LbSinL((long)(32*pos)) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
   }
 
   if (game.eastegg01_cntr >= eastegg_feckoff_codes.length)
   {
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-    LbTextSetFont(winfont);
-    i = 0;
-    const char * text = "Simon says Hi to everyone he knows...";
-    px[i] += vx[i];
-    if (px[i] < 0)
-    {
-      px[i] = 0;
-      vx[i] = -vx[i];
-    }
-    py[i] += vy[i];
-    if (py[i] < 0)
-    {
-      py[i] = 0;
-      vy[i] = -vy[i];
-    }
-    k = pixel_size*LbTextStringWidth(text);
-    if (px[i]+k  >= width)
-    {
-      vx[i] = -vx[i];
-      px[i] = width-k-1;
-    }
-    k = pixel_size*LbTextStringHeight(text);
-    if (py[i]+k >= height)
-    {
-      vy[i] = -vy[i];
-      py[i] = height-k-1;
-    }
-    if (LbScreenIsLocked())
-    {
-      LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
-    }
-    play_non_3d_sample_no_overlap(snd_alarm);
+    draw_bouncing_eastegg_message(0, "Simon says Hi to everyone he knows...", width, height, ee_units_per_px);
   }
   if (game.easter_eggs_enabled == false)
     return;
 
   if (game.eastegg02_cntr >= eastegg_jlw_codes.length)
   {
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-    LbTextSetFont(winfont);
-    i = 1;
-    const char * text = "Alex, hopefully lying on a beach with Jo, says Hi";
-    px[i] += vx[i];
-    if (px[i] < 0)
-    {
-      px[i] = 0;
-      vx[i] = -vx[i];
-    }
-    py[i] += vy[i];
-    if (py[i] < 0)
-    {
-      py[i] = 0;
-      vy[i] = -vy[i];
-    }
-    k = pixel_size * LbTextStringWidth(text);
-    if (px[i]+k >= width)
-    {
-      vx[i] = -vx[i];
-      px[i] = width-k-1;
-    }
-    k = pixel_size * LbTextStringHeight(text);
-    if (py[i]+k >= height)
-    {
-      vy[i] = -vy[i];
-      py[i] = height-k-1;
-    }
-    if (LbScreenIsLocked())
-    {
-        LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
-    }
-    play_non_3d_sample_no_overlap(snd_alarm);
+    draw_bouncing_eastegg_message(1, "Alex, hopefully lying on a beach with Jo, says Hi", width, height, ee_units_per_px);
   }
 }
 

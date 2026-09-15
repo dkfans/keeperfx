@@ -27,11 +27,13 @@
 #include "player_instances.h"
 #include "config_players.h"
 #include "game_legacy.h"
+#include "net_game.h"
 #include "engine_redraw.h"
 #include "frontend.h"
 #include "thing_objects.h"
 #include "power_hand.h"
 #include "gui_msgs.h"
+#include "kfx/renderer/RendererManager.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -45,9 +47,11 @@ unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0
 
 struct PlayerInfo bad_player;
 
+struct LocalState local_state;
+struct UserState bad_user_state;
+
 /** The current player's number. */
 unsigned char my_player_number;
-short local_thing_under_hand;
 /******************************************************************************/
 
 struct Camera *get_player_active_camera(const struct PlayerInfo *player)
@@ -115,6 +119,40 @@ TbBool is_my_player_number(PlayerNumber plyr_num)
 {
     struct PlayerInfo* myplyr = &game.players[my_player_number % PLAYERS_COUNT];
     return (plyr_num == myplyr->id_number);
+}
+
+// returns user's UserState, or INVALID_USER_STATE.
+struct UserState *get_user_state(NetUserId user)
+{
+    if ((user < 0) || (user >= MAX_NET_USERS))
+        return INVALID_USER_STATE;
+    return &game.user_states[user];
+}
+
+struct UserState *get_player_user_state(const struct PlayerInfo *player)
+{
+    if ((player == NULL) || player_invalid(player))
+        return INVALID_USER_STATE;
+    // get state for lowest-id connected user that has this player
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+        // TODO: store player_id in UserState, avoids net_* function
+        if (get_net_user_player_number(user) == player->id_number) {
+            return &game.user_states[user];
+        }
+    }
+    return INVALID_USER_STATE;
+}
+
+struct UserState *get_local_user_state(void)
+{
+    return get_user_state(get_local_user());
+}
+
+TbBool user_state_invalid(const struct UserState *ustate)
+{
+    if (ustate == INVALID_USER_STATE)
+        return true;
+    return (ustate == NULL);
 }
 
 TbBool player_is_roaming(PlayerNumber plyr_num)
@@ -251,6 +289,7 @@ void clear_players(void)
         struct PlayerInfo* player = &game.players[i];
         memset(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
+        player->user_id = -1;
         switch (i)
         {
         case PLAYER_GOOD:
@@ -266,6 +305,10 @@ void clear_players(void)
     }
     memset(&bad_player, 0, sizeof(struct PlayerInfo));
     bad_player.id_number = PLAYERS_COUNT;
+    bad_player.user_id = -1;
+    memset(game.user_states, 0, sizeof(game.user_states));
+    memset(&local_state, 0, sizeof(local_state));
+    memset(&bad_user_state, 0, sizeof(bad_user_state));
     game.active_players_count = 0;
     //game.game_kind = GKind_LocalGame;
 }
@@ -322,6 +365,7 @@ void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chosen_kind)
 {
+  struct UserState* ustate = get_player_user_state(player);
   SYNCDBG(6,"Player %d state %s to %s",(int)player->id_number,player_state_code_name(player->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
@@ -329,35 +373,35 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chose
     switch ( player->work_state )
     {
     case PSt_BuildRoom:
-        player->chosen_room_kind = chosen_kind;
+        ustate->chosen_room_kind = chosen_kind;
         break;
     case PSt_PlaceTrap:
-        player->chosen_trap_kind = chosen_kind;
+        ustate->chosen_trap_kind = chosen_kind;
         break;
     case PSt_PlaceDoor:
-        player->chosen_door_kind = chosen_kind;
+        ustate->chosen_door_kind = chosen_kind;
         break;
     case PSt_CastPowerOnSubtile:
     case PST_CastPowerOnTarget:
     case PSt_CreateDigger:
     case PSt_SightOfEvil:
     case PSt_CallToArms:
-        player->chosen_power_kind = chosen_kind;
+        ustate->chosen_power_kind = chosen_kind;
         break;
     case PSt_CtrlDirect:
     case PSt_CtrlPassngr:
     case PSt_FreeCtrlPassngr:
     case PSt_FreeCtrlDirect:
-        player->chosen_power_kind = PwrK_POSSESS;
+        ustate->chosen_power_kind = PwrK_POSSESS;
         break;
     case PSt_FreeDestroyWalls:
-        player->chosen_power_kind = PwrK_DESTRWALLS;
+        ustate->chosen_power_kind = PwrK_DESTRWALLS;
         break;
     case PSt_FreeCastDisease:
-        player->chosen_power_kind = PwrK_DISEASE;
+        ustate->chosen_power_kind = PwrK_DISEASE;
         break;
     case PSt_FreeTurnChicken:
-        player->chosen_power_kind = PwrK_CHICKEN;
+        ustate->chosen_power_kind = PwrK_CHICKEN;
         break;
     }
     return;
@@ -374,11 +418,11 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chose
   switch (player->work_state)
   {
   case PSt_CtrlDungeon:
-      player->full_slab_cursor = 1;
-      player->chosen_power_kind = PwrK_None; //Cleanup for spells. Traps, doors and rooms do not require cleanup.
+      ustate->full_slab_cursor = 1;
+      ustate->chosen_power_kind = PwrK_None; //Cleanup for spells. Traps, doors and rooms do not require cleanup.
       break;
   case PSt_BuildRoom:
-      player->chosen_room_kind = chosen_kind;
+      ustate->chosen_room_kind = chosen_kind;
       break;
   case PSt_HoldInHand:
       create_power_hand(player->id_number);
@@ -403,41 +447,41 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chose
       }
   }
   case PSt_PlaceTrap:
-      player->chosen_trap_kind = chosen_kind;
+      ustate->chosen_trap_kind = chosen_kind;
       break;
   case PSt_PlaceDoor:
-      player->chosen_door_kind = chosen_kind;
+      ustate->chosen_door_kind = chosen_kind;
       break;
   case PSt_CastPowerOnSubtile:
   case PST_CastPowerOnTarget:
   case PSt_CallToArms:
   case PSt_SightOfEvil:
   case PSt_CreateDigger:
-      player->chosen_power_kind = chosen_kind;
+      ustate->chosen_power_kind = chosen_kind;
       break;
   case PSt_MkGoodCreatr:
-        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-        player->cheatselection.chosen_player = PLAYER_GOOD;
+        clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+        ustate->cheatselection.chosen_player = PLAYER_GOOD;
         break;
   case PSt_MkBadCreatr:
   case PSt_MkDigger:
-        clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-        player->cheatselection.chosen_player = player->id_number;
+        clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
+        ustate->cheatselection.chosen_player = player->id_number;
         break;
   case PSt_FreeCtrlPassngr:
   case PSt_FreeCtrlDirect:
   case PSt_CtrlPassngr:
   case PSt_CtrlDirect:
-        player->chosen_power_kind = PwrK_POSSESS;
+        ustate->chosen_power_kind = PwrK_POSSESS;
         break;
   case PSt_FreeDestroyWalls:
-      player->chosen_power_kind = PwrK_DESTRWALLS;
+      ustate->chosen_power_kind = PwrK_DESTRWALLS;
       break;
   case PSt_FreeCastDisease:
-      player->chosen_power_kind = PwrK_DISEASE;
+      ustate->chosen_power_kind = PwrK_DISEASE;
       break;
   case PSt_FreeTurnChicken:
-      player->chosen_power_kind = PwrK_CHICKEN;
+      ustate->chosen_power_kind = PwrK_CHICKEN;
       break;
    default:
       break;
@@ -452,17 +496,27 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, int32_t chose
  */
 void set_player_mode(struct PlayerInfo *player, unsigned short nview)
 {
+  if (is_my_player(player) && local_state.view_type == nview)
+    local_state.view_type = PVT_None;
   if (player->view_type == nview)
     return;
   player->view_type = nview;
-  player->allocflags &= ~PlaF_CreaturePassengerMode;
-  player->first_person_unfreeze_delay = 0;
+  struct UserState* ustate = get_player_user_state(player);
+  ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
+  ustate->first_person_unfreeze_delay = 0;
   if (is_my_player(player))
   {
+    // GameUI::IsActiveForCurrentView() decides fresh each frame whether to
+    // submit sidebar content based on view_type, but a transition that also
+    // kicks off a palette fade (e.g. entering/leaving the parchment map) can
+    // have its now-correct submission get stuck behind a fade-preserve
+    // window that keeps replaying the last frame. Force one real flip so the
+    // change actually lands on the read-side buffer before any such window
+    // starts.
+    RendererForceUIFlipNextFrame();
     game.view_mode_flags &= ~GNFldD_CreaturePasngr;
     game.view_mode_flags |= GNFldD_CreatureViewMode;
-    if (is_my_player(player))
-      stop_all_things_playing_samples();
+    stop_all_things_playing_samples();
   }
   switch (player->view_type)
   {
@@ -475,23 +529,25 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
       } else {
         set_engine_view(player, PVM_IsoWibbleView);
       }
-      if (is_my_player(player))
-        toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
-      if ((game.operation_flags & GOF_ShowGui) != 0)
-        setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
-      else
+      if (is_my_player(player)) {
+        if (local_state.view_type == PVT_None) {
+          toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
+        }
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+      }
       break;
   }
   case PVT_CreatureContrl:
   case PVT_CreaturePasngr:
       set_engine_view(player, PVM_CreatureView);
       if (is_my_player(player))
+      {
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
-      setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+        setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+      }
       break;
   case PVT_MapScreen:
-      if (is_my_player(player)) {
+      if (is_my_player(player) && local_state.view_type == PVT_None) {
         toggle_status_menu(0);
       }
       player->continue_work_state = player->work_state;
@@ -508,8 +564,9 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
 
 void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
 {
+  struct UserState* ustate = get_player_user_state(player);
   player->view_type = nview;
-  player->first_person_unfreeze_delay = 0;
+  ustate->first_person_unfreeze_delay = 0;
   switch (nview)
   {
     case PVT_DungeonTop:

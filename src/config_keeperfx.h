@@ -52,6 +52,7 @@ enum TbFeature {
     Ft_DisableCursorCameraPanning   = 0x20000,
     Ft_DeltaTime                    = 0x40000,
     Ft_NoCdMusic                    = 0x80000,
+    Ft_RelativeMouseMode            = 0x100000,
 };
 
 enum TbLanguage {
@@ -80,6 +81,12 @@ enum TbLanguage {
     Lang_Javanese,
     Lang_Latin,
     Lang_Ukrainian,
+};
+
+enum ViewportMode {
+    VpMode_Original = 1,  /**< The world view leaves the sidebar's column free. */
+    VpMode_Full,          /**< The world view spans the screen, sidebar drawn over it. */
+    VpMode_FullLetterbox, /**< As Full, with the sidebar's column filled black. */
 };
 
 enum StartupFlags {
@@ -114,6 +121,7 @@ extern char keeper_runtime_directory[152];
 #pragma pack()
 /******************************************************************************/
 extern unsigned long features_enabled;
+extern unsigned char viewport_mode;
 extern const struct NamedCommand lang_type[];
 extern const struct NamedCommand scrshot_type[];
 extern char cmd_char;
@@ -137,6 +145,7 @@ TbBool resize_movies_enabled(void);
 TbBool freeze_game_on_focus_lost(void);
 TbBool unlock_cursor_when_game_paused(void);
 TbBool lock_cursor_in_possession(void);
+TbBool use_relative_mouse_mode(void);
 TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
 /******************************************************************************/

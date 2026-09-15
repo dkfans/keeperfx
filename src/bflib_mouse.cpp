@@ -18,6 +18,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "bflib_mouse.h"
 
 #include <string.h>
@@ -79,7 +80,7 @@ TbResult LbMouseSetup(struct TbSprite *pointerSprite)
   pointerHandler.Install();
   lbMouseOffline = true;
   lbMouseInstalled = true;
-  LbMouseSetWindow(0,0,LbGraphicsScreenWidth(),LbGraphicsScreenHeight());
+  LbMouseSetWindow(0,0,RendererScreenWidth(),RendererScreenHeight());
   LbGrabMouseInit();
   ret = Lb_SUCCESS;
   if (LbMouseChangeSprite(pointerSprite) != Lb_SUCCESS)
@@ -124,10 +125,10 @@ void LbMoveHostCursorToGameCursor(void)
 {
     int game_cursor_x = lbDisplay.MMouseX;
     int game_cursor_y = lbDisplay.MMouseY;
-    float host_fx = 0.0f, host_fy = 0.0f;
-    SDL_GetMouseState(&host_fx, &host_fy);
-    int host_cursor_x = (int)host_fx;
-    int host_cursor_y = (int)host_fy;
+    int host_cursor_x = 0;
+    int host_cursor_y = 0;
+    if (!PlatformManager_GetCursorPosition(&host_cursor_x, &host_cursor_y))
+        return;
     if ((host_cursor_x != game_cursor_x) || (host_cursor_y != game_cursor_y))
     {
         LbMouseSetPosition(game_cursor_x, game_cursor_y);
@@ -138,10 +139,10 @@ TbResult LbMoveGameCursorToHostCursor(void)
 {
     int game_cursor_x = lbDisplay.MMouseX;
     int game_cursor_y = lbDisplay.MMouseY;
-    float host_fx = 0.0f, host_fy = 0.0f;
-    SDL_GetMouseState(&host_fx, &host_fy);
-    int host_cursor_x = (int)host_fx;
-    int host_cursor_y = (int)host_fy;
+    int host_cursor_x = 0;
+    int host_cursor_y = 0;
+    if (!PlatformManager_GetCursorPosition(&host_cursor_x, &host_cursor_y))
+        return Lb_SUCCESS;
     if (((host_cursor_x != game_cursor_x) || (host_cursor_y != game_cursor_y)) && LbIsActive())
     {
         if (!pointerHandler.SetMousePosition(host_cursor_x, host_cursor_y))
@@ -230,6 +231,13 @@ TbResult LbMouseOnEndSwap(void)
     if (!pointerHandler.PointerEndSwap())
         return Lb_FAIL;
     return Lb_SUCCESS;
+}
+
+TbBool LbMouseGetActivePointerSprite(const struct TbSprite **out_spr, int32_t *out_x, int32_t *out_y, int *out_units_per_px)
+{
+    if ((!lbMouseInstalled) || (lbMouseOffline))
+        return false;
+    return pointerHandler.GetActivePointerSprite(out_spr, out_x, out_y, out_units_per_px);
 }
 
 void mouseControl(unsigned int action, struct TbPoint *pos)
