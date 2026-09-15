@@ -802,6 +802,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         local_state.minimap_pos_x = 11;
         local_state.minimap_pos_y = 11;
         local_state.minimap_zoom = settings.minimap_zoom;
+        local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
         local_state.main_palette = engine_palette;
     }
@@ -826,7 +827,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->roomspace_width = 1;
     player->roomspace_height = 1;
     player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-    player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
     switch (game.game_kind)
     {
     case GKind_LocalGame:
@@ -1363,12 +1363,6 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
             }
         }
     }
-}
-
-void set_player_roomspace_size(struct PlayerInfo *player, long size) {
-    player->user_defined_roomspace_width = size;
-    player->roomspace_width = size;
-    player->roomspace_height = size;
 }
 
 /******************************************************************************/

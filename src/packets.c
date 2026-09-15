@@ -1047,12 +1047,6 @@ TbBool process_user_global_packet_action(NetUserId user)
             case box_placement_mode:
             {
                 reset_dungeon_build_room_ui_variables(plyr_idx);
-                player->roomspace_width = player->roomspace_height = pckt->actn_par2;
-                break;
-            }
-            case roomspace_detection_mode:
-            {
-                set_player_roomspace_size(player, pckt->actn_par2);
                 break;
             }
             case drag_placement_mode: // drag
@@ -1065,7 +1059,6 @@ TbBool process_user_global_packet_action(NetUserId user)
                 break;
             }
         }
-        player->roomspace_no_default = true;
         return false;
     }
     case PckA_PlyrQueryCreature:
