@@ -45,9 +45,8 @@ public:
     /** Release all GL resources. Must be called on the render thread. */
     void Shutdown();
 
-    /** True once CompileShaders() has succeeded -- gates
-     *  RendererOpenGL::SubmitZoomBoxTiles()'s return value (false means the
-     *  caller falls back to its own CPU tile loop). */
+    /** True once CompileShaders() has succeeded -- without it
+     *  RendererOpenGL::SubmitZoomBoxTiles() draws nothing. */
     bool IsReady() const { return m_shader_handle != kInvalidGpuResource; }
 
     void SetResourceMapper(GLResourceMapper* mapper) { m_resource_mapper = mapper; }

@@ -103,10 +103,14 @@ void draw_map_screen(void)
         return;
     }
 
-    copy_raw8_image_buffer(lbDisplay.WScreen,RendererScreenWidth(),RendererScreenHeight(),
-        scale_value_landview(LANDVIEW_MAP_WIDTH), scale_value_landview(LANDVIEW_MAP_HEIGHT),
-        -scale_value_landview(map_info.screen_shift_x), -scale_value_landview(map_info.screen_shift_y),
-        map_screen,LANDVIEW_MAP_WIDTH,LANDVIEW_MAP_HEIGHT,true);
+    struct RendererPresentImageDesc desc = {0};
+    desc.dst_x = -scale_value_landview(map_info.screen_shift_x);
+    desc.dst_y = -scale_value_landview(map_info.screen_shift_y);
+    desc.dst_w = scale_value_landview(LANDVIEW_MAP_WIDTH);
+    desc.dst_h = scale_value_landview(LANDVIEW_MAP_HEIGHT);
+    desc.src = map_screen;           desc.src_pitch = LANDVIEW_MAP_WIDTH;
+    desc.src_w = LANDVIEW_MAP_WIDTH; desc.src_h = LANDVIEW_MAP_HEIGHT;
+    RendererPresentImage(&desc);
 }
 
 TbBool init_netfont_palette_remap(void)
@@ -809,190 +813,26 @@ TbBool set_pointer_graphic_spland(long frame)
 
 void frontzoom_to_point(long map_x, long map_y, long zoom)
 {
-    {
-        long src_delta = (256 - zoom) * 16 / units_per_pixel_landview;
-        long smap_x = scale_value_landview(map_x);
-        long smap_y = scale_value_landview(map_y);
-        long scr_x = smap_x - scale_value_landview(map_info.screen_shift_x);
-        if (scr_x > RendererPhysicalWidth()-1) scr_x = RendererPhysicalWidth()-1;
-        if (scr_x < 1) scr_x = 1;
-        long scr_y = smap_y - scale_value_landview(map_info.screen_shift_y);
-        if (scr_y > lbDisplay.PhysicalScreenHeight-1) scr_y = lbDisplay.PhysicalScreenHeight-1;
-        if (scr_y < 1) scr_y = 1;
-        if (RendererSubmitLandviewZoom(map_screen, LANDVIEW_MAP_WIDTH, LANDVIEW_MAP_HEIGHT,
-                (float)map_x, (float)map_y, (float)scr_x, (float)scr_y, (float)src_delta / 256.0f))
-            return;
-    }
-    // CPU fallback (software renderer).
-    if (lbDisplay.WScreen == NULL)
-        return;
-    unsigned char *src;
-    long bpos_x;
-    long x;
-    long y;
     long src_delta = (256 - zoom) * 16 / units_per_pixel_landview;
     long smap_x = scale_value_landview(map_x);
     long smap_y = scale_value_landview(map_y);
-    // Initializing variables used for all quadres of screen
-    // First find a quadres division place - coords bounding the quadres
-    // Make sure each quadre is at least one pixel wide and high
+    // Make sure the zoom centre stays at least one pixel from every edge.
     long scr_x = smap_x - scale_value_landview(map_info.screen_shift_x);
     if (scr_x > RendererPhysicalWidth()-1) scr_x = RendererPhysicalWidth()-1;
     if (scr_x < 1) scr_x = 1;
     long scr_y = smap_y - scale_value_landview(map_info.screen_shift_y);
     if (scr_y > lbDisplay.PhysicalScreenHeight-1) scr_y = lbDisplay.PhysicalScreenHeight-1;
     if (scr_y < 1) scr_y = 1;
-    unsigned char* src_buf = &map_screen[LANDVIEW_MAP_WIDTH * map_y + map_x];
-    long dst_scanln = RendererScreenWidth();
-    unsigned char* dst_buf = &lbDisplay.WScreen[dst_scanln * scr_y + scr_x];
-    // Drawing first quadre
-    long bpos_y = 0;
-    unsigned char* dst = dst_buf;
-    long dst_width = scr_x;
-    long dst_height = scr_y;
-    // FIXME: I'm sure there's a less convoluted way of doing this, code below is setting off lots of cppcheck alarms
-    for (y=0; y <= dst_height; y++)
-    {
-        bpos_x = 0;
-        src = &src_buf[-LANDVIEW_MAP_WIDTH*(bpos_y >> 8)];
-        for (x=0; x <= dst_width; x++)
-        {
-          bpos_x += src_delta;
-          dst[-x] = src[-(bpos_x >> 8)];
-        }
-        dst -= dst_scanln;
-        bpos_y += src_delta;
-    }
-    // Drawing 2nd quadre
-    bpos_y = 0;
-    dst = dst_buf + 1;
-    dst_width = -scr_x + RendererPhysicalWidth() - 1; // one pixel less in destination
-    dst_height = scr_y;
-    for (y=0; y <= dst_height; y++)
-    {
-        bpos_x = (1 << 8); // one pixel less in source
-        src = &src_buf[-LANDVIEW_MAP_WIDTH*(bpos_y >> 8)];
-        for (x=0; x < dst_width; x++)
-        {
-          bpos_x += src_delta;
-          dst[x] = src[(bpos_x >> 8)];
-        }
-        dst -= dst_scanln;
-        bpos_y += src_delta;
-    }
-    // Drawing 3rd quadre
-    bpos_y = (1 << 8); // one pixel less in source
-    dst = dst_buf + dst_scanln;
-    dst_width = scr_x;
-    dst_height = -scr_y + lbDisplay.PhysicalScreenHeight - 1; // one pixel less in destination
-    for (y=0; y < dst_height; y++)
-    {
-        bpos_x = 0;
-        src = &src_buf[LANDVIEW_MAP_WIDTH*(bpos_y >> 8)];
-        for (x=0; x <= dst_width; x++)
-        {
-            bpos_x += src_delta;
-            dst[-x] = src[-(bpos_x >> 8)];
-        }
-        dst += dst_scanln;
-        bpos_y += src_delta;
-    }
-    // Drawing 4th quadre
-    bpos_y = (1 << 8);
-    dst = dst_buf + dst_scanln + 1;
-    dst_width = -scr_x + RendererPhysicalWidth() - 1;
-    dst_height = -scr_y + lbDisplay.PhysicalScreenHeight - 1;
-    for (y=0; y < dst_height; y++)
-    {
-        bpos_x = (1 << 8);
-        src = &src_buf[LANDVIEW_MAP_WIDTH*(bpos_y >> 8)];
-        for (x=0; x < dst_width; x++)
-        {
-            dst[x] = src[(bpos_x >> 8)];
-            bpos_x += src_delta;
-        }
-        dst += dst_scanln;
-        bpos_y += src_delta;
-    }
+    RendererSubmitLandviewZoom(map_screen, LANDVIEW_MAP_WIDTH, LANDVIEW_MAP_HEIGHT,
+            (float)map_x, (float)map_y, (float)scr_x, (float)scr_y, (float)src_delta / 256.0f);
 }
 /** Draw the window frame on the campaign map (land view). */
 void compressed_window_draw(void)
 {
-    SYNCDBG(18,"Starting");
     long default_movement_scale = 1024;
     long xshift = map_info.screen_shift_x * landview_frame_movement_scale_x / default_movement_scale / 2; // X speed is slower on aspect ratios wider than 4:3
     long yshift = map_info.screen_shift_y *landview_frame_movement_scale_y / default_movement_scale / 2; // Y speed is slower on aspect ratios taller than 4:3
-
-    // Todo : should be abstracted into renderers, not within specific landview.
-    if (RendererGetActiveType() == RENDERER_OPENGL)
-    {
-        // Two scratch buffers, pre-filled with different sentinel values: a
-        // texel the huge-sprite's RLE actually writes (an opaque run, which
-        // may legitimately be palette index 0 -- black stone) lands on the
-        // same value in both buffers; a texel it skips (a transparent run)
-        // keeps its distinct pre-fill and so still differs between the two.
-        // Comparing the two therefore recovers per-pixel opacity exactly,
-        // with no value collision possible -- unlike keying transparency off
-        // index 0 alone, which can't tell "skipped" from "drawn as black"
-        // apart. See gl-visual-phase-2-landview-transparency-plan.md.
-        static unsigned char *window_frame_buf_a = NULL;
-        static unsigned char *window_frame_buf_b = NULL;
-        static long window_frame_buf_w = 0, window_frame_buf_h = 0;
-        long w = RendererPhysicalWidth();
-        long h = lbDisplay.PhysicalScreenHeight;
-        if ((w > 0) && (h > 0) && ((window_frame_buf_a == NULL) || (window_frame_buf_w != w) || (window_frame_buf_h != h)))
-        {
-            free(window_frame_buf_a);
-            free(window_frame_buf_b);
-            window_frame_buf_a = (unsigned char *)malloc((size_t)w * (size_t)h);
-            window_frame_buf_b = (unsigned char *)malloc((size_t)w * (size_t)h);
-            if ((window_frame_buf_a != NULL) && (window_frame_buf_b != NULL))
-            {
-                window_frame_buf_w = w;
-                window_frame_buf_h = h;
-            }
-            else
-            {
-                free(window_frame_buf_a); window_frame_buf_a = NULL;
-                free(window_frame_buf_b); window_frame_buf_b = NULL;
-                window_frame_buf_w = window_frame_buf_h = 0;
-            }
-        }
-        if ((window_frame_buf_a != NULL) && (window_frame_buf_b != NULL))
-        {
-            size_t npixels = (size_t)w * (size_t)h;
-            memset(window_frame_buf_a, 0x00, npixels);
-            memset(window_frame_buf_b, 0xFF, npixels);
-            LbHugeSpriteDraw(&map_window, map_window_len, window_frame_buf_a, (int)w, (int)h,
-                xshift, yshift, units_per_pixel_landview_frame);
-            LbHugeSpriteDraw(&map_window, map_window_len, window_frame_buf_b, (int)w, (int)h,
-                xshift, yshift, units_per_pixel_landview_frame);
-            // Coverage, computed in place into buffer b: 0xFF where both
-            // draws agree (opaque, incl. index 0), 0x00 where they still
-            // differ (never written -- transparent).
-            for (size_t i = 0; i < npixels; i++)
-                window_frame_buf_b[i] = (window_frame_buf_a[i] == window_frame_buf_b[i]) ? 0xFF : 0x00;
-
-            struct RendererPresentImageDesc present_desc = {0};
-            present_desc.dst_w = (int)w;
-            present_desc.dst_h = (int)h;
-            present_desc.src = window_frame_buf_a;
-            present_desc.src_pitch = (int)w;
-            present_desc.src_w = (int)w;
-            present_desc.src_h = (int)h;
-            present_desc.kind = PRESENT_KIND_TRANSPARENT;
-            present_desc.coverage = window_frame_buf_b;
-            if (RendererPresentImage(&present_desc))
-                return;
-        }
-    }
-
-    // CPU fallback (software renderer, or the GL path above didn't take).
-    if (lbDisplay.WScreen == NULL)
-        return;
-    LbHugeSpriteDraw(&map_window, map_window_len,
-        lbDisplay.WScreen, RendererScreenWidth(), lbDisplay.PhysicalScreenHeight,
-        xshift, yshift, units_per_pixel_landview_frame);
+    RendererPresentHugeSprite(&map_window, map_window_len, xshift, yshift, units_per_pixel_landview_frame);
 }
 
 void unload_map_and_window(void)

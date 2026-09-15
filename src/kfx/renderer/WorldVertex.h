@@ -17,6 +17,7 @@
  *       location 4: a_camera_z (camera_z)   — camera-space depth for perspective correction
  *       location 5: a_layer (atlas_layer)   — texture array layer (variation index)
  *       location 6: aWorldPos (wx, wy, wz)  — pre-projection world-space position
+ *       location 7: a_tile  (tile)          — tile index within the atlas layer
  *
  *     Field conventions (from bflib_render.h / engine_render.c):
  *       X, Y  — integer screen pixel coordinate (NOT 16:16; value is the pixel directly)
@@ -35,8 +36,8 @@ struct WorldVertex {
     float x;         /**< NDC horizontal: [-1, 1], left = -1 */
     float y;         /**< NDC vertical:   [-1, 1], bottom = -1 */
     float z;         /**< NDC depth:      [-1, 1], -1 = near, +1 = far (bucket-derived) */
-    float u;         /**< Texture U:  [0, 1] */
-    float v;         /**< Texture V:  [0, 1] */
+    float u;         /**< Texel U within the tile, PolyPoint U / 65536; wraps every 32 texels */
+    float v;         /**< Texel V within the tile, PolyPoint V / 65536; wraps every 32 texels */
     float shade;     /**< Lighting:   [0, 1], 0 = dark, 1 = full-bright */
     float stl_x;     /**< Map subtile X [0..511]; for lightmap sampling in modern mode */
     float stl_y;     /**< Map subtile Y [0..511]; for lightmap sampling in modern mode */
@@ -45,6 +46,7 @@ struct WorldVertex {
     float wx;        /**< World-space X from EngineCoord.x */
     float wy;        /**< World-space Y from EngineCoord.y */
     float wz;        /**< World-space Z from EngineCoord.z */
+    float tile;      /**< Tile index within the atlas variation layer */
 };
 
 /******************************************************************************/

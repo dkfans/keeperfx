@@ -512,36 +512,54 @@ void GLImagePresentPass::Resolve(int screen_w, int screen_h)
         }
     }
 
-    // Transparent overlay (window-frame): drawn over whatever's already on
-    // screen this frame -- the base/zoom layer above, or (if neither was
-    // active) whatever the rest of the frame already put there. No clear.
-    // Uses the coverage shader/texture instead of the index-0-key one when
-    // the command carries an explicit coverage map (see IRImagePresentCmd::
-    // coverage) -- otherwise unchanged.
+    glUseProgram(0);
+    glDepthMask(GL_TRUE);
+}
+
+void GLImagePresentPass::ResolveOverlay(int screen_w, int screen_h)
+{
+    ASSERT_RENDER_THREAD();
+    if (!m_resource_mapper || !m_rt_overlay_cmd.active || screen_w <= 0 || screen_h <= 0)
+        return;
+
+    const GLuint palette_tex_id = ResolvePaletteTexId();
+    if (palette_tex_id == 0)
+        return;
+
+    // Drawn over whatever's already on screen this frame -- the base/zoom
+    // layer from Resolve() plus everything Game UI put down since (e.g.
+    // landview ensigns). No clear, no depth test. Uses the coverage
+    // shader/texture instead of the index-0-key one when the command
+    // carries an explicit coverage map (see IRImagePresentCmd::coverage) --
+    // otherwise unchanged.
     const bool use_coverage = !m_rt_overlay_cmd.coverage.empty();
     const GLProgram* transparent_shader_prog = m_resource_mapper->ResolveProgram(
         use_coverage ? m_coverage_shader_handle : m_transparent_shader_handle);
-    if (m_rt_overlay_cmd.active && transparent_shader_prog)
+    if (!transparent_shader_prog)
+        return;
+
+    glViewport(0, 0, screen_w, screen_h);
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
+
+    upload_overlay_texture();
+    const GLTexture* overlay_tex = m_resource_mapper->ResolveTexture(m_overlay_tex_handle);
+    GLuint coverage_tex_id = 0;
+    if (use_coverage)
     {
-        upload_overlay_texture();
-        const GLTexture* overlay_tex = m_resource_mapper->ResolveTexture(m_overlay_tex_handle);
-        GLuint coverage_tex_id = 0;
-        if (use_coverage)
-        {
-            upload_overlay_coverage_texture();
-            const GLTexture* coverage_tex = m_resource_mapper->ResolveTexture(m_coverage_tex_handle);
-            coverage_tex_id = coverage_tex ? coverage_tex->id : 0;
-        }
-        if (overlay_tex != nullptr && (!use_coverage || coverage_tex_id != 0))
-        {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            draw_quad(transparent_shader_prog->id, overlay_tex->id, palette_tex_id,
-                     m_rt_overlay_cmd.dst_x, m_rt_overlay_cmd.dst_y,
-                     m_rt_overlay_cmd.dst_w, m_rt_overlay_cmd.dst_h,
-                     screen_w, screen_h, coverage_tex_id);
-            glDisable(GL_BLEND);
-        }
+        upload_overlay_coverage_texture();
+        const GLTexture* coverage_tex = m_resource_mapper->ResolveTexture(m_coverage_tex_handle);
+        coverage_tex_id = coverage_tex ? coverage_tex->id : 0;
+    }
+    if (overlay_tex != nullptr && (!use_coverage || coverage_tex_id != 0))
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        draw_quad(transparent_shader_prog->id, overlay_tex->id, palette_tex_id,
+                 m_rt_overlay_cmd.dst_x, m_rt_overlay_cmd.dst_y,
+                 m_rt_overlay_cmd.dst_w, m_rt_overlay_cmd.dst_h,
+                 screen_w, screen_h, coverage_tex_id);
+        glDisable(GL_BLEND);
     }
 
     glUseProgram(0);

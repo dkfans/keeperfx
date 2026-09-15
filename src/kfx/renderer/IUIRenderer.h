@@ -105,10 +105,11 @@ public:
 
     /** Game viewport rect (screen pixels), set once per frame from the
      *  engine window. WorldOverlay/WorldOverlayFlat coordinates are
-     *  submitted relative to it (the CPU immediate path resolves that
-     *  through its own graphics-window pointer); a bound IR buffer gets
-     *  this added back here, so IR always carries absolute-screen
-     *  coordinates and no backend needs to know about the viewport. */
+     *  submitted relative to it, as zoom box overlay coordinates are to the
+     *  zoom box (the CPU immediate path resolves both through its own
+     *  graphics-window pointer); a bound IR buffer gets the origin added
+     *  back in ApplyWindowOffset(), so IR always carries absolute-screen
+     *  coordinates and no backend needs to know about either window. */
     void SetGameViewport(int32_t x, int32_t y, int32_t w, int32_t h);
 
     virtual void BeginZoomBoxOverlay(int32_t x, int32_t y, int32_t w, int32_t h);
@@ -140,6 +141,10 @@ protected:
     float m_world_overlay_flat_z      = 0.5f;
     bool  m_top_overlay_active        = false;
 
+    bool    m_zoom_box_active = false;
+    int32_t m_zoom_box_x      = 0;
+    int32_t m_zoom_box_y      = 0;
+
     int32_t m_game_vp_x   = 0;
     int32_t m_game_vp_y   = 0;
     int32_t m_game_vp_w   = 0;
@@ -169,8 +174,14 @@ protected:
      *  IR submissions, so a deferred command lands in the same absolute-screen
      *  coordinate an immediate draw reaches through the graphics-window
      *  pointer. No-op for every other layer or when no viewport is set. */
-    void ApplyGameViewportOffset(IRUILayer layer, int32_t& x, int32_t& y) const
+    void ApplyWindowOffset(IRUILayer layer, int32_t& x, int32_t& y) const
     {
+        if (layer == IRUILayer::Overlay && m_zoom_box_active)
+        {
+            x += m_zoom_box_x;
+            y += m_zoom_box_y;
+            return;
+        }
         if (!m_game_vp_set) return;
         if (layer != IRUILayer::WorldOverlay && layer != IRUILayer::WorldOverlayFlat) return;
         x += m_game_vp_x;

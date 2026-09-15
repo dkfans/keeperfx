@@ -16,6 +16,7 @@
 #include "kfx/renderer/opengl/GLMapFadePass.h"
 #include "kfx/renderer/opengl/GLPaletteIndexLookup.h"
 #include "kfx/renderer/opengl/GLImagePresentPass.h"
+#include "bflib_vidraw.h"  // LbHugeSpriteDraw
 #include "kfx/renderer/opengl/GLZoomBoxTilesPass.h"
 #include "kfx/renderer/opengl/GLResourceMapper.h"
 #include "kfx/renderer/GpuResourceHandle.h"
@@ -70,9 +71,20 @@ struct GLFrameData {
 
     bool          palette_dirty = false;
     unsigned char palette_rgba[256 * 4] = {};
+    // Palette index the frame is cleared to, as RendererClearScreen() fills the software screen.
+    unsigned char clear_index = 0;
 
     GLCursorSnapshot cursor_snapshot;
 };
+
+static void frame_clear_colour(const GLFrameData& fd, GLfloat* rgba)
+{
+    const unsigned char* c = &fd.palette_rgba[fd.clear_index * 4];
+    rgba[0] = c[0] / 255.0f;
+    rgba[1] = c[1] / 255.0f;
+    rgba[2] = c[2] / 255.0f;
+    rgba[3] = 1.0f;
+}
 
 struct RendererOpenGL::Impl {
     GLSpriteAtlas      atlas;
@@ -84,6 +96,10 @@ struct RendererOpenGL::Impl {
     GLMapFadePass      mapfade;
     GLImagePresentPass imgpresent;
     GLZoomBoxTilesPass zoomboxtiles;
+
+    // Game thread: PresentHugeSprite() scratch -- sprite pixels, and its coverage.
+    std::vector<unsigned char> huge_sprite_pixels;
+    std::vector<unsigned char> huge_sprite_coverage;
 
     GLResourceMapper   resource_mapper;
     GpuResourceHandle  palette_tex_handle    = kInvalidGpuResource;
@@ -403,7 +419,7 @@ void RendererOpenGL::render_thread_init()
     m_impl->imgpresent.SetPaletteTexture(m_impl->palette_tex_handle);
     if (!m_impl->imgpresent.CompileShaders())
     {
-        WARNLOG("RendererOpenGL::Init: raw image present shaders unavailable -- FMV/splash will fall back to CPU blit");
+        WARNLOG("RendererOpenGL::Init: raw image present shaders unavailable -- FMV/splash/backgrounds will not be drawn");
     }
 
     m_impl->zoomboxtiles.SetResourceMapper(&m_impl->resource_mapper);
@@ -411,7 +427,7 @@ void RendererOpenGL::render_thread_init()
     m_impl->zoomboxtiles.SetTileAtlas(&m_impl->world_atlas);
     if (!m_impl->zoomboxtiles.CompileShaders())
     {
-        WARNLOG("RendererOpenGL::Init: zoom-box tile shaders unavailable -- zoom box terrain will fall back to CPU rasterisation");
+        WARNLOG("RendererOpenGL::Init: zoom-box tile shaders unavailable -- zoom box terrain will not be drawn");
     }
 
     for (GLFrameData& fd : m_impl->frames)
@@ -486,6 +502,9 @@ void RendererOpenGL::FGClearFrame()
 
     m_impl->BindScreenTarget(fd);
     glViewport(0, 0, fd.screen_w, fd.screen_h);
+    GLfloat clear_rgba[4];
+    frame_clear_colour(fd, clear_rgba);
+    glClearColor(clear_rgba[0], clear_rgba[1], clear_rgba[2], clear_rgba[3]);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_impl->ui.BuildQuadsFromIR(fd.ui_cmds);
@@ -493,7 +512,9 @@ void RendererOpenGL::FGClearFrame()
 
 void RendererOpenGL::FGBeginWorldCapture()
 {
-    m_impl->fg_lens_captured = m_impl->world.BeginLensCapture();
+    GLfloat clear_rgba[4];
+    frame_clear_colour(m_impl->frames[m_impl->render_idx], clear_rgba);
+    m_impl->fg_lens_captured = m_impl->world.BeginLensCapture(clear_rgba);
 }
 
 void RendererOpenGL::FGExecuteWorld()
@@ -544,6 +565,12 @@ void RendererOpenGL::FGExecuteImagePresents()
 {
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
     m_impl->imgpresent.Resolve(fd.screen_w, fd.screen_h);
+}
+
+void RendererOpenGL::FGExecuteImagePresentOverlay()
+{
+    GLFrameData& fd = m_impl->frames[m_impl->render_idx];
+    m_impl->imgpresent.ResolveOverlay(fd.screen_w, fd.screen_h);
 }
 
 void RendererOpenGL::FGDrawZoomBoxes()
@@ -657,6 +684,12 @@ void RendererOpenGL::SetDisplayPalette(const unsigned char* rgb8)
     fd.palette_dirty = true;
 }
 
+void RendererOpenGL::ClearScreen(unsigned char colour)
+{
+    if (m_impl == nullptr) return;
+    m_impl->frames[m_impl->write_idx].clear_index = colour;
+}
+
 void RendererOpenGL::PresentFrame()
 {
     if (!m_gl_context || m_impl == nullptr || !GetPlatform()->GetWindowSystem()->HasWindow())
@@ -701,6 +734,7 @@ void RendererOpenGL::PresentFrame()
     next_fd.palette_dirty = false; // defensive; a real change always re-sets this itself
     // Both slots must hold the current palette, not the one last written into them.
     std::memcpy(next_fd.palette_rgba, m_impl->frames[filled].palette_rgba, sizeof(next_fd.palette_rgba));
+    next_fd.clear_index = m_impl->frames[filled].clear_index;
 
     
     m_impl->world.FlipBuffers();
@@ -762,13 +796,46 @@ bool RendererOpenGL::PresentImage(const struct RendererPresentImageDesc* desc)
     return true;
 }
 
-bool RendererOpenGL::SubmitZoomBoxTiles(const uint16_t* tile_block_ids, int tiles_x, int tiles_y,
+void RendererOpenGL::PresentHugeSprite(const struct TbHugeSprite* spr, int32_t sp_len,
+                                       int32_t x_shift, int32_t y_shift, int32_t units_per_px)
+{
+    if (m_impl == nullptr || !m_impl->imgpresent.IsReady())
+        return;
+    const int32_t w = RendererPhysicalWidth();
+    const int32_t h = lbDisplay.PhysicalScreenHeight;
+    if (w <= 0 || h <= 0)
+        return;
+    // The RLE never writes its transparent runs, so drawing into two buffers
+    // pre-filled with different values and comparing them recovers per-pixel
+    // opacity -- including opaque runs of palette index 0.
+    const size_t npixels = (size_t)w * (size_t)h;
+    std::vector<unsigned char>& pixels = m_impl->huge_sprite_pixels;
+    std::vector<unsigned char>& coverage = m_impl->huge_sprite_coverage;
+    pixels.assign(npixels, 0x00);
+    coverage.assign(npixels, 0xFF);
+    LbHugeSpriteDraw(spr, sp_len, pixels.data(), w, h, x_shift, y_shift, units_per_px);
+    LbHugeSpriteDraw(spr, sp_len, coverage.data(), w, h, x_shift, y_shift, units_per_px);
+    for (size_t i = 0; i < npixels; i++)
+        coverage[i] = (pixels[i] == coverage[i]) ? 0xFF : 0x00;
+
+    struct RendererPresentImageDesc desc = {};
+    desc.dst_w = w;
+    desc.dst_h = h;
+    desc.src = pixels.data();
+    desc.src_pitch = w;
+    desc.src_w = w;
+    desc.src_h = h;
+    desc.kind = PRESENT_KIND_TRANSPARENT;
+    desc.coverage = coverage.data();
+    m_impl->imgpresent.Submit(&desc);
+}
+
+void RendererOpenGL::SubmitZoomBoxTiles(const uint16_t* tile_block_ids, int tiles_x, int tiles_y,
                                         int dst_x, int dst_y, int tile_w, int tile_h)
 {
     if (m_impl == nullptr || !m_impl->zoomboxtiles.IsReady())
-        return false;
+        return;
     m_impl->zoomboxtiles.Submit(tile_block_ids, tiles_x, tiles_y, dst_x, dst_y, tile_w, tile_h);
-    return true;
 }
 
 bool RendererOpenGL::SubmitLandviewZoom(const unsigned char* src_buf, int src_w, int src_h,

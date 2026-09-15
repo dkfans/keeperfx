@@ -18,7 +18,7 @@ void GLCursorLayer::SubmitPointerSprite(const struct TbSprite* spr, int32_t x, i
     m_has_pointer = (m_pointer_handle != kInvalidSpriteHandle);
 }
 
-int GLCursorLayer::SubmitKeeperHandSprite(short x, short y, unsigned short kspr_base,
+void GLCursorLayer::SubmitKeeperHandSprite(short x, short y, unsigned short kspr_base,
                                           short angle, unsigned char sprgroup,
                                           int32_t scale, TbDrawFlagsMask draw_flags)
 {
@@ -29,17 +29,15 @@ int GLCursorLayer::SubmitKeeperHandSprite(short x, short y, unsigned short kspr_
     if (!resolve_keepersprite_cursor_geometry(x, y, kspr_base, angle, sprgroup, (long)scale,
             &dst_x, &dst_y, &dst_w, &dst_h, &draw_idx, &data, &src_w, &src_h))
     {
-        return 1;  // OK, Nothing drawable.
+        return;
     }
     if (!m_world)
-        return 1; //OK, Nothing drawable.
+        return;
 
     m_world->BeginCursorCapture();
-    m_world->SubmitKeeperSprite(dst_x, dst_y, dst_w, dst_h, data, src_w, src_h, src_h,
+    m_world->SubmitKeeperSprite(0, 0, dst_x, dst_y, dst_w, dst_h, data, src_w, src_h, src_h,
                                 (unsigned int)draw_flags, nullptr, draw_idx);
     m_world->EndCursorCapture();
-
-    return 1;
 }
 
 void GLCursorLayer::Draw()

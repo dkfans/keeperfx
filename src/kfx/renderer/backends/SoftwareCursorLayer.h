@@ -9,7 +9,7 @@ public:
                              int32_t x, int32_t y,
                              int units_per_px) override;
 
-    int SubmitKeeperHandSprite(short x, short y,
+    void SubmitKeeperHandSprite(short x, short y,
                                unsigned short kspr_base,
                                short angle,
                                unsigned char sprgroup,

@@ -102,7 +102,10 @@ public:
     // =========================================================================
     // Keeper sprite (world-space billboarded sprites)
 
-    /** Submit a keeper-sprite (creature/object/shadow) for GPU rendering.
+    /** Draw a keeper-sprite (creature/object/shadow).
+     *  frame_x/y   = sprite content offset inside its frame, in source pixels
+     *                (the offset draw_keepersprite() applies to the frame's
+     *                scaling data -- the software raster draws through it).
      *  dst_x/y/w/h = screen destination rect (pixels), computed from the
      *                sprite's FULL (unclipped) src_h -- see content_h.
      *  data        = raw RLE palette-index sprite data.
@@ -118,27 +121,17 @@ public:
      *                water_source_cutoff case).
      *  draw_flags  = caller draw flags at time of call (flip, transpar, remap, additive).
      *  remap       = colour remap table (may be NULL).
-     *  sprite_id   = frame-resolved global sprite index (stable cache key; -1 = unknown).
-     *  Returns 1 if the GPU handled it (CPU blit should be skipped), 0 to fall back. */
-    virtual int SubmitKeeperSprite(int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
-                                   const unsigned char* data, int src_w, int src_h,
-                                   int32_t content_h,
-                                   unsigned int draw_flags, const unsigned char* remap,
-                                   int32_t sprite_id)
-    {
-        (void)dst_x; (void)dst_y; (void)dst_w; (void)dst_h;
-        (void)data;  (void)src_w; (void)src_h; (void)content_h;
-        (void)draw_flags; (void)remap; (void)sprite_id;
-        return 0;
-    }
+     *  sprite_id   = frame-resolved global sprite index (stable cache key; -1 = unknown). */
+    virtual void SubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
+                                    int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+                                    const unsigned char* data, int src_w, int src_h,
+                                    int32_t content_h,
+                                    unsigned int draw_flags, const unsigned char* remap,
+                                    int32_t sprite_id) = 0;
 
-    /** Begin IR capture for one world-sprite entry (one thing) at the given
-     *  depth bucket */
-    virtual int BeginWorldSpriteCapture(int32_t /*bucket_idx*/) { return 0; }
-
-    /** Whether this backend wants world sprites submitted through
-     *  SubmitKeeperSprite() at all */
-    virtual int UsesFillTimeWorldSubmit() const { return 0; }
+    /** Begin capture for one world-sprite entry (one thing) at the given
+     *  depth bucket. */
+    virtual void BeginWorldSpriteCapture(int32_t /*bucket_idx*/) {}
 
     /** Clear the keeper sprite atlas (called between levels).
      *  GPU backends should flush their per-level sprite cache here.
@@ -171,10 +164,6 @@ public:
      *  GPU backends use this as the target for game-thread world submissions.
      *  Default: no-op. */
     virtual void SetWorldCommandBuffers(struct WorldCommandBuffers* /*cmds*/) {}
-
-    /** Submit a creature-shadow world command during the bucket walk.
-     *  Returns 1 if captured by the active hardware renderer, 0 to fall back. */
-    virtual int SubmitWorldShadowCmd(const struct IRWorldShadowCmd& /*cmd*/) { return 0; }
 
     // ── IR (Intermediate Representation) dispatch ──────────────────────────────
 

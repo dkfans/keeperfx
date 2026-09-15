@@ -85,7 +85,7 @@ void SoftwareCursorLayer::SubmitPointerSprite(const TbSprite* /*spr*/, int32_t /
     // No-op: software queries the live pointer state itself in Draw()
 }
 
-int SoftwareCursorLayer::SubmitKeeperHandSprite(short x, short y,
+void SoftwareCursorLayer::SubmitKeeperHandSprite(short x, short y,
                                                 unsigned short kspr_base,
                                                 short angle,
                                                 unsigned char sprgroup,
@@ -94,7 +94,6 @@ int SoftwareCursorLayer::SubmitKeeperHandSprite(short x, short y,
 {
     (void)draw_flags; // no alpha-additive keeper path in this engine yet
     process_keeper_sprite(x, y, kspr_base, angle, sprgroup, (long)scale);
-    return 1;  // always handled -- caller must not also call process_keeper_sprite()
 }
 
 void SoftwareCursorLayer::Draw()
