@@ -281,8 +281,8 @@ struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace, short rkin
     roomspace.total_roomspace_cost = roomspace.slab_count * rkind_cost;
     if (roomspace.slab_count != (roomspace.width * roomspace.height))
     {
-        roomspace.is_roomspace_a_box = false;
-        roomspace.render_roomspace_as_box = false;
+        roomspace.is_roomspace_a_box = (roomspace.slab_count == 0); // don't need a "fancy" roomspace for a room with no valid slabs
+        roomspace.render_roomspace_as_box = roomspace.is_roomspace_a_box;
     }
     struct PlayerInfo* player = get_player(roomspace.plyr_idx);
     if (player->roomspace_mode != drag_placement_mode) // don't alter the roomspace in drag mode
