@@ -52,9 +52,8 @@ public:
     /** Release all GL resources. Must be called on the render thread. */
     void Shutdown();
 
-    /** True once CompileShaders() has succeeded -- gates
-     *  RendererOpenGL::PresentImage()'s return value (false means the
-     *  caller falls back to its own CPU blit). */
+    /** True once CompileShaders() has succeeded -- without it
+     *  RendererOpenGL::PresentImage() draws nothing. */
     bool IsReady() const { return m_shader_handle != kInvalidGpuResource; }
 
     /** Shared 256x1 RGBA8 palette texture (same one world/UI already bind)
@@ -94,16 +93,22 @@ public:
 
     bool IsActiveRT() const { return !m_rt_cmds.empty() || m_rt_overlay_cmd.active || m_rt_zoom_cmd.active; }
 
-    /** Upload this frame's pixels (if any) and draw whatever's active this
-     *  frame: the zoom background OR the base opaque image (mutually
-     *  exclusive -- both are full-screen "this frame's entire background"
-     *  content), then the transparent overlay on top if also active.
-     *  Clears to black first only for the base/zoom layer -- matches the
-     *  CPU raster's own letterbox behaviour (copy_to_screen()/
-     *  copy_to_screen_scaled() memset the surrounding area to palette
-     *  index 0) since nothing else draws on an FMV/splash/landview frame.
-     *  No-op if IsActiveRT() is false. */
+    /** Upload this frame's pixels (if any) and draw whatever background is
+     *  active this frame: the zoom transition OR the base opaque image
+     *  (mutually exclusive -- both are full-screen "this frame's entire
+     *  background" content). Clears to black first -- matches
+     *  RendererSoftware::PresentImage()'s letterboxing of an OPAQUE present,
+     *  since nothing else draws on an FMV/splash/landview frame.
+     *  Does not draw the transparent overlay -- see ResolveOverlay(). */
     void Resolve(int screen_w, int screen_h);
+
+    /** Draws the transparent overlay (e.g. the landview window frame) over
+     *  whatever is already on screen. Called separately from Resolve() and
+     *  later in the frame graph -- the overlay is meant to sit on top of
+     *  Game UI (e.g. landview ensigns), not just on top of the background,
+     *  so it can't run in the same early image-present phase as Resolve().
+     *  No-op if no overlay was submitted this frame. */
+    void ResolveOverlay(int screen_w, int screen_h);
 
 private:
     bool init_quad();

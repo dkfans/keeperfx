@@ -121,100 +121,6 @@ unsigned char palette_buf[PALETTE_SIZE];
 #endif
 /******************************************************************************/
 
-/** Copies the given RAW image at given point of screen buffer.
- *
- * @param dst_buf Destination screen buffer.
- * @param scanline Amount of bytes making up one line in screen buffer.
- * @param nlines Amount of lines in screen buffer.
- * @param dst_width Destination image width.
- * @param dst_height Destination image height.
- * @param spw Starting position in screen buffer.
- * @param sph Starting position in screen buffer.
- * @param src_buf Source image buffer.
- * @param src_width Source image width.
- * @param src_height Source image height.
- *     Factor of 2 would mean every pixel is repeated in both dimensions and drawn 2*2 times.
- * @param clear_margins Whole-screen present: black out every pixel outside the
- *     dest rect too (top/bottom/left/right margins), not just fill the rect
- *     itself. False for a present that owns only its own rect and must leave
- *     the rest of an already-drawn screen alone.
- * @return Gives true on success.
- */
-TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int dst_width,const int dst_height,
-    const int spw,const int sph,const unsigned char *src_buf,const int src_width,const int src_height,
-    TbBool clear_margins)
-{
-    unsigned char* dst;
-    SYNCDBG(18, "Starting; screen buf %d,%d screen size %d,%d dst pos %d,%d src %d,%d", (int)scanline, (int)nlines, (int)dst_width, (int)dst_height, (int)spw, (int)sph, (int)src_width, (int)src_height);
-    // ToDo : remove, why does this go through RendererPresntImage() instead of just copying into the screen buffer?
-    if (dst_buf == NULL)
-    {
-        struct RendererPresentImageDesc present_desc = {0};
-        present_desc.dst_x = spw;         present_desc.dst_y = sph;
-        present_desc.dst_w = dst_width;   present_desc.dst_h = dst_height;
-        present_desc.src   = src_buf;     present_desc.src_pitch = src_width;
-        present_desc.src_w = src_width;   present_desc.src_h = src_height;
-        present_desc.format  = PRESENT_FORMAT_INDEXED8;
-        present_desc.palette = PRESENT_PALETTE_GAME;
-        present_desc.kind    = clear_margins ? PRESENT_KIND_OPAQUE : PRESENT_KIND_COMPOSITE;
-        return RendererPresentImage(&present_desc);
-    }
-    // Source pixel coords
-    int sw = 0;
-    int sh = 0;
-    if (clear_margins)
-    {
-        // Clearing top of the canvas
-        for (sh = 0; sh < sph; sh++)
-        {
-            dst = dst_buf + (sh)*scanline;
-            memset(dst, 0, scanline);
-        }
-        // Clearing bottom of the canvas
-        // (Note: it must be done before drawing, to make sure we won't overwrite last line)
-        for (sh=sph+dst_height; sh<nlines; sh++)
-        {
-            dst = dst_buf + (sh)*scanline;
-            memset(dst, 0, scanline);
-        }
-    }
-  // Now drawing
-  int dhstart = sph;
-  for (sh=0; sh<src_height; sh++)
-  {
-      int dhend = sph + (dst_height * (sh + 1) / src_height);
-      const unsigned char* src = src_buf + sh * src_width;
-      // make for(k=0;k<dhend-dhstart;k++) but restrict k to draw area
-      int mhmin = max(0, -dhstart);
-      int mhmax = min(dhend - dhstart, nlines - dhstart);
-      for (int k = mhmin; k < mhmax; k++)
-      {
-          dst = dst_buf + (dhstart+k)*scanline;
-          int dwstart = spw;
-          if (clear_margins && dwstart > 0) {
-              memset(dst, 0, dwstart);
-          }
-          for (sw=0; sw<src_width; sw++)
-          {
-              int dwend = spw + (dst_width * (sw + 1) / src_width);
-              // make for(i=0;i<dwend-dwstart;i++) but restrict i to draw area
-              int mwmin = max(0, -dwstart);
-              int mwmax = min(dwend - dwstart, scanline - dwstart);
-              for (int i = mwmin; i < mwmax; i++)
-              {
-                  dst[dwstart+i] = src[sw];
-              }
-              dwstart = dwend;
-          }
-          if (clear_margins && dwstart < scanline) {
-              memset(dst+dwstart, 0, scanline-dwstart);
-          }
-      }
-      dhstart = dhend;
-  }
-  return true;
-}
-
 /**
  * Copies the given RAW image to the center of the screen buffer and swaps video
  * buffers to make the image visible.
@@ -262,8 +168,12 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_
     if (!RendererBeginFrame())
         return false;
 
-    copy_raw8_image_buffer(lbDisplay.WScreen, RendererScreenWidth(), RendererScreenHeight(),
-                           scaled_width, scaled_height, coord_x, coord_y, buf, img_width, img_height, true);
+    struct RendererPresentImageDesc desc = {0};
+    desc.dst_x = coord_x;       desc.dst_y = coord_y;
+    desc.dst_w = scaled_width;  desc.dst_h = scaled_height;
+    desc.src = buf;             desc.src_pitch = img_width;
+    desc.src_w = img_width;     desc.src_h = img_height;
+    RendererPresentImage(&desc);
 
     // Perform any screen capturing
     perform_any_screen_capturing();

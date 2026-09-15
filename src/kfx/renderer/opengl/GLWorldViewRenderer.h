@@ -12,6 +12,7 @@
 #include "kfx/renderer/ir/WorldCommands.h"
 #include "kfx/renderer/ir/IRCommandBuffer.h"
 #include "kfx/renderer/GpuResourceHandle.h"
+#include "kfx/renderer/PaletteTransform.h"
 
 class GLResourceMapper;
 
@@ -161,26 +162,17 @@ public:
 
     void SubmitPossessionLens(const IRWorldLensCmd& cmd) override;
 
-    bool BeginLensCapture();
+    bool BeginLensCapture(const float* clear_rgba);
 
     void ResolveLensComposite();
 
     /** Submit one keeper-sprite (creature/object) for GPU rendering.*/
-    int SubmitKeeperSprite(int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
-                           const unsigned char* data, int src_w, int src_h, int32_t content_h,
-                           unsigned int draw_flags, const unsigned char* remap,
-                           int32_t sprite_id) override;
-    int BeginWorldSpriteCapture(int32_t bucket_idx) override;
-
-    // ToDo : Remove.
-    /** Vestigial: nothing branches on this return value
-     *  anymore (draw_keepersprite() just checks SubmitKeeperSprite()'s own
-     *  result). Kept for now in case a future caller needs it; candidate
-     *  for removal if none turns up. */
-    int UsesFillTimeWorldSubmit() const override
-    {
-        return (m_initialized && m_world_write_cmds != nullptr) ? 1 : 0;
-    }
+    void SubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
+                            int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+                            const unsigned char* data, int src_w, int src_h, int32_t content_h,
+                            unsigned int draw_flags, const unsigned char* remap,
+                            int32_t sprite_id) override;
+    void BeginWorldSpriteCapture(int32_t bucket_idx) override;
 
     // ── Cursor keeper-sprite ───────────────────────────────────────────────────
     void BeginCursorCapture();
@@ -363,6 +355,7 @@ private:
     GLint  m_kspr_glow_loc_viewport = -1;
     GLint  m_kspr_glow_loc_sprite   = -1;
     GLint  m_kspr_glow_loc_z_ndc    = -1;
+    GLint  m_kspr_glow_loc_palette_xform = -1;
 
     // Depth-fail outline shaders
     GpuResourceHandle m_kspr_outline_shader_handle = kInvalidGpuResource;
@@ -413,6 +406,7 @@ private:
     GLint  m_kspr_atlas_glow_loc_sprite   = -1;
     GLint  m_kspr_atlas_glow_loc_z_ndc    = -1;
     GLint  m_kspr_atlas_glow_loc_layer    = -1;
+    GLint  m_kspr_atlas_glow_loc_palette_xform = -1;
 
     int    m_kspr_atlas_used    = 0;  // next free layer index
     int    m_kspr_atlas_peak    = 0;  // high-water mark (diagnostic only)
@@ -432,6 +426,7 @@ private:
     GpuResourceHandle m_kspr_inst_quad_geom_handle = kInvalidGpuResource;
     GpuResourceHandle m_kspr_inst_geom_handle = kInvalidGpuResource;
     GLint  m_kspr_inst_loc_viewport = -1;
+    GLint  m_kspr_inst_loc_palette_xform = -1;
     std::vector<KsprInstance> m_kspr_instances;  // RT: batch scratch
 
     // Instanced depth-fail outline/edge pass
@@ -444,6 +439,7 @@ private:
 
     const uint8_t* m_palette_data = nullptr;  // GT:
     uint8_t m_rt_palette[768] = {};           // RT: snapshotted at FlipBuffers()
+    PaletteTransform m_rt_palette_xform;      // RT: engine palette to m_rt_palette, for glow
 
     float    m_current_sprite_z       = 0.0f;
     uint32_t m_current_sprite_sort_key = 0;

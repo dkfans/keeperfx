@@ -33,15 +33,7 @@ public:
     // Present the drawn frame to the window (blit + flip). Default no-op.
     virtual void PresentFrame() {}
 
-    // Lock the CPU framebuffer for drawing; return its pixels + pitch, or nullptr.
-    // Backend-internal now -- only RendererBeginFrame()/RendererEndFrame()'s
-    // bridge calls these (for backends without a GPU render path). Game code
-    // calls BeginFrame()/EndFrame() instead; see below.
-    virtual unsigned char* LockFramebuffer(int* out_pitch) { (void)out_pitch; return nullptr; }
-    virtual void UnlockFramebuffer() {}
-
     struct BackendCapabilities {
-        int hasGPURenderPath = 0;
         // True when the backend composites the minimap over the panel artwork
         // itself (draw-order layering): its minimap buffer starts zeroed and
         // index 0 is transparent, so real black must use another index.
@@ -52,19 +44,22 @@ public:
     virtual bool BeginFrame() = 0;
     virtual void EndFrame() = 0;
 
-    // Present a raw indexed8 image (FMV frame, splash bitmap) at a
-    // destination rect. Returns true if the backend drew it (GPU path
-    // taken). // Todo : software calls this instead
-    virtual bool PresentImage(const struct RendererPresentImageDesc* desc) { (void)desc; return false; }
+    // True when draws made now reach the current frame.
+    virtual bool CanDraw() const = 0;
 
-    // Submit the zoom box's terrain as texture-block-indexed tiles
-    virtual bool SubmitZoomBoxTiles(const uint16_t* tile_block_ids, int tiles_x, int tiles_y,
-                                    int dst_x, int dst_y, int tile_w, int tile_h)
-    {
-        (void)tile_block_ids; (void)tiles_x; (void)tiles_y;
-        (void)dst_x; (void)dst_y; (void)tile_w; (void)tile_h;
-        return false;
-    }
+    // Present a raw indexed8 image (FMV frame, splash bitmap) at a
+    // destination rect. Returns false if the image couldn't be drawn.
+    virtual bool PresentImage(const struct RendererPresentImageDesc* desc) = 0;
+
+    // Draw a full-screen RLE huge sprite (the landview window frame) over
+    // whatever is already on screen.
+    virtual void PresentHugeSprite(const struct TbHugeSprite* spr, int32_t sp_len,
+                                   int32_t x_shift, int32_t y_shift, int32_t units_per_px) = 0;
+
+    // Draw the zoom box's terrain from texture-block-indexed tiles.
+    // 0xFFFF tiles (unrevealed) are skipped.
+    virtual void SubmitZoomBoxTiles(const uint16_t* tile_block_ids, int tiles_x, int tiles_y,
+                                    int dst_x, int dst_y, int tile_w, int tile_h) = 0;
 
     virtual bool SubmitLandviewZoom(const unsigned char* src_buf, int src_w, int src_h,
                                     float center_map_x, float center_map_y,
@@ -79,12 +74,11 @@ public:
     // Save the current frame to a file (fmt: 1=PNG, 2=BMP). Default: unsupported.
     virtual bool ScheduleScreenshot(const char* path, int fmt) { (void)path; (void)fmt; return false; }
 
-    // Sub-renderers. Null when a backend has none, so callers fall back to
-    // drawing directly.
-    virtual class ITextRenderer*      GetTextRenderer()      { return nullptr; }
-    virtual class IUIRenderer*        GetUIRenderer()        { return nullptr; }
-    virtual class ICursorLayer*       GetCursorLayer()       { return nullptr; }
-    virtual class IWorldViewRenderer* GetWorldViewRenderer() { return nullptr; }
+    // Sub-renderers. Every backend provides all four once initialised.
+    virtual class ITextRenderer*      GetTextRenderer()      = 0;
+    virtual class IUIRenderer*        GetUIRenderer()        = 0;
+    virtual class ICursorLayer*       GetCursorLayer()       = 0;
+    virtual class IWorldViewRenderer* GetWorldViewRenderer() = 0;
 
     virtual void SubmitMapFadeStep(int tick_step, float display_step, bool fading_in,
                                    const unsigned char* ghost_table)

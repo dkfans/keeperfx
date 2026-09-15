@@ -41,6 +41,11 @@ public:
     virtual void FGDrawFrontOverlay() {}
     virtual void FGExecuteText() {}
 
+    // -- Full-screen image-present overlay (e.g. landview window frame) --
+    // -- runs after Game UI/text so it draws on top of them, unlike the
+    // -- early background present in FGExecuteImagePresents() above. -----
+    virtual void FGExecuteImagePresentOverlay() {}
+
     // -- Cursor, dev overlay -------------------------------------------------
     virtual void FGExecuteCursor() {}
     virtual void FGDrawDevToolsOverlay() {}

@@ -9,12 +9,13 @@
 #include "kfx/renderer/opengl/GLWorldViewRenderer.h"
 
 #include "kfx/renderer/ITileAtlas.h"
-#include "kfx/renderer/TileAtlasPacker.h"  // GetTileUV
 #include "kfx/renderer/opengl/GLShaders.h"
 #include "kfx/renderer/opengl/GLResourceMapper.h"
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "kfx/renderer/RendererSettings.h" // g_renderer_settings
 #include "kfx/renderer/RendererManager.h"  // RendererGetCurrentSpriteOwner/WantsOutline
+// TODO : I really don't like this touching the engine, should really be cleaning this up.
+#include "front_simple.h"                   // engine_palette
 #include "player_data.h"                    // get_player_color_idx/player_room_colours (outline colour)
 
 #include "engine_buckets.h"   // QKinds enum, BasicQ, BucketKind* structs, buckets[]
@@ -25,7 +26,7 @@
 #include "bflib_vidraw.h"     // vec_window_width/height
 #include "bflib_video.h"      // LbPaletteGetReadonly(), pixel_size, Lb_SPRITE_* flags
 #include "bflib_basics.h"     // ERRORLOG / SYNCLOG / WARNLOG
-#include "vidmode.h"          // pixmap, alpha_sprite_table (CPU-fallback globals)
+#include "vidmode.h"          // pixmap, alpha_sprite_table
 #include "player_data.h"      // get_my_player(), get_player_active_camera(), PVM_*
 #include "local_camera.h"     // get_local_active_camera() (spinning-key gate)
 #include "game_legacy.h"      // game.lish.subtile_lightness (lightmap snapshot in FlipBuffers)
@@ -147,6 +148,8 @@ bool GLWorldViewRenderer::init_gl_resources()
             { 5, 1, GpuVertexAttribType::Float, 9 * (uint32_t)sizeof(float) },
             // layout(location=6) vec3 aWorldPos — pre-projection world-space position
             { 6, 3, GpuVertexAttribType::Float, 10 * (uint32_t)sizeof(float) },
+            // layout(location=7) float a_tile — tile index within the atlas layer
+            { 7, 1, GpuVertexAttribType::Float, 13 * (uint32_t)sizeof(float) },
         };
         geom_desc.dynamic = true;
         geom_desc.initial_vertex_capacity = k_initial_verts * sizeof(WorldVertex);
@@ -686,7 +689,7 @@ void GLWorldViewRenderer::upload_lens_textures_if_dirty()
     }
 }
 
-bool GLWorldViewRenderer::BeginLensCapture()
+bool GLWorldViewRenderer::BeginLensCapture(const float* clear_rgba)
 {
     ASSERT_RENDER_THREAD();
 
@@ -712,7 +715,7 @@ bool GLWorldViewRenderer::BeginLensCapture()
         return false;
 
     glBindFramebuffer(GL_FRAMEBUFFER, rt->fbo);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(clear_rgba[0], clear_rgba[1], clear_rgba[2], clear_rgba[3]);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     return true;
 }
@@ -991,6 +994,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
             m_kspr_glow_loc_viewport = glGetUniformLocation(glow_prog->id, "u_viewport");
             m_kspr_glow_loc_sprite   = glGetUniformLocation(glow_prog->id, "u_sprite");
             m_kspr_glow_loc_z_ndc    = glGetUniformLocation(glow_prog->id, "u_z_ndc");
+            m_kspr_glow_loc_palette_xform = glGetUniformLocation(glow_prog->id, "u_palette_xform");
             glUniform1i(m_kspr_glow_loc_sprite, 0);  // GL_TEXTURE0
             glUseProgram(0);
         }
@@ -1073,6 +1077,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
                 m_kspr_atlas_glow_loc_sprite   = glGetUniformLocation(atlas_glow_prog->id, "u_sprite");
                 m_kspr_atlas_glow_loc_z_ndc    = glGetUniformLocation(atlas_glow_prog->id, "u_z_ndc");
                 m_kspr_atlas_glow_loc_layer    = glGetUniformLocation(atlas_glow_prog->id, "u_layer");
+                m_kspr_atlas_glow_loc_palette_xform = glGetUniformLocation(atlas_glow_prog->id, "u_palette_xform");
                 glUniform1i(m_kspr_atlas_glow_loc_sprite, 0);  // GL_TEXTURE0
                 glUseProgram(0);
             }
@@ -1235,6 +1240,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_instancing()
 
     glUseProgram(inst_prog->id);
     m_kspr_inst_loc_viewport = glGetUniformLocation(inst_prog->id, "u_viewport");
+    m_kspr_inst_loc_palette_xform = glGetUniformLocation(inst_prog->id, "u_palette_xform");
     glUniform1i(glGetUniformLocation(inst_prog->id, "u_sprite"), 0);  // GL_TEXTURE0
     glUniform1i(glGetUniformLocation(inst_prog->id, "u_clut"),   1);  // GL_TEXTURE1
     glUseProgram(0);
@@ -1386,10 +1392,9 @@ void GLWorldViewRenderer::BeginWorldPass(int w, int h, int vp_x, int vp_y)
     m_cmd_vert_start = m_vert_count;
 
     // Set the vec globals that bucket-list filling code reads
-    // (setup_rotate_stuff, fill_in_points_*, etc.) without invoking the
-    // full software fallback which would also zero WScreen and set
-    // vec_screen/poly_screen for the CPU rasteriser -- both unnecessary
-    // for the GPU path.
+    // (setup_rotate_stuff, fill_in_points_*, etc.) without the software
+    // world pass's setup_vecs(), which also points vec_screen/poly_screen
+    // at the CPU raster's target -- unnecessary for the GPU path.
     if (w > 0) vec_window_width  = (long)w;
     if (h > 0) vec_window_height = (long)h;
 }
@@ -1413,10 +1418,6 @@ bool GLWorldViewRenderer::append_triangle(int tile_id,
     std::vector<WorldVertex>& verts_vec = m_world_write_cmds->tile_verts;
     verts_vec.resize((size_t)(m_vert_count + 3));
 
-    // Look up the normalised UV rectangle for this tile in the atlas.
-    float u0f, v0f, u1f, v1f;
-    TileAtlasPacker::GetTileUV(tile_local, &u0f, &v0f, &u1f, &v1f);
-
     // Derive NDC depth from the painter's-algorithm bucket index:
     //   high bi (far away) -> z near +1.0; low bi (close) -> z near -1.0.
     const float z_ndc = 2.0f * (float)m_current_bucket / (float)(BUCKETS_COUNT - 1) - 1.0f;
@@ -1435,9 +1436,10 @@ bool GLWorldViewRenderer::append_triangle(int tile_id,
         wv->x = (float)(pts[i]->X) / (float)m_screen_w * 2.0f - 1.0f;
         wv->y = 1.0f - (float)(pts[i]->Y) / (float)m_screen_h * 2.0f;
         wv->z = z_ndc;
-        // U/V are 16:16; integer part (>>16) is texel 0..31 within the 32-px tile.
-        wv->u = u0f + ((float)(pts[i]->U >> 16) / 32.0f) * (u1f - u0f);
-        wv->v = v0f + ((float)(pts[i]->V >> 16) / 32.0f) * (v1f - v0f);
+        // U/V are 16:16 texel coordinates. They can run past the tile (scrolled
+        // liquid); the shader wraps them within the tile like the software rasteriser.
+        wv->u = (float)pts[i]->U / 65536.0f;
+        wv->v = (float)pts[i]->V / 65536.0f;
         // S = shade_intensity<<8; (S>>16) gives shade level 0..62.
         wv->shade = (float)(pts[i]->S >> 16) / 32.0f;
         wv->stl_x = 0.0f;
@@ -1447,6 +1449,7 @@ bool GLWorldViewRenderer::append_triangle(int tile_id,
         wv->wx = (float)world_x[i];
         wv->wy = (float)world_y[i];
         wv->wz = (float)world_z[i];
+        wv->tile = (float)tile_local;
     }
     m_vert_count += 3;
     return true;
@@ -1461,26 +1464,26 @@ bool GLWorldViewRenderer::append_frontview_quad(const struct BucketKindTexturedQ
     struct PolyPoint a, d, b, c;
     a.X = (txquad->texture_x >> 8) / pixel_size;
     a.Y = (txquad->texture_y >> 8) / pixel_size;
-    a.U = orient_to_mapU1[txquad->orient];
-    a.V = orient_to_mapV1[txquad->orient];
+    a.U = orient_to_mapU1[txquad->orient] + txquad->texture_scroll.x.val;
+    a.V = orient_to_mapV1[txquad->orient] + txquad->texture_scroll.y.val;
     a.S = txquad->shade_intensity0;
 
     d.X = ((txquad->zoom_x + txquad->texture_x) >> 8) / pixel_size;
     d.Y = (txquad->texture_y >> 8) / pixel_size;
-    d.U = orient_to_mapU2[txquad->orient];
-    d.V = orient_to_mapV2[txquad->orient];
+    d.U = orient_to_mapU2[txquad->orient] + txquad->texture_scroll.x.val;
+    d.V = orient_to_mapV2[txquad->orient] + txquad->texture_scroll.y.val;
     d.S = txquad->shade_intensity1;
 
     b.X = ((txquad->zoom_x + txquad->texture_x) >> 8) / pixel_size;
     b.Y = ((txquad->zoom_y + txquad->texture_y) >> 8) / pixel_size;
-    b.U = orient_to_mapU3[txquad->orient];
-    b.V = orient_to_mapV3[txquad->orient];
+    b.U = orient_to_mapU3[txquad->orient] + txquad->texture_scroll.x.val;
+    b.V = orient_to_mapV3[txquad->orient] + txquad->texture_scroll.y.val;
     b.S = txquad->shade_intensity2;
 
     c.X = (txquad->texture_x >> 8) / pixel_size;
     c.Y = ((txquad->zoom_y + txquad->texture_y) >> 8) / pixel_size;
-    c.U = orient_to_mapU4[txquad->orient];
-    c.V = orient_to_mapV4[txquad->orient];
+    c.U = orient_to_mapU4[txquad->orient] + txquad->texture_scroll.x.val;
+    c.V = orient_to_mapV4[txquad->orient] + txquad->texture_scroll.y.val;
     c.S = txquad->shade_intensity3;
 
     int tile_id;
@@ -1632,7 +1635,8 @@ void GLWorldViewRenderer::ensure_clut_valid()
     SYNCDBG(6, "GLWorldViewRenderer: CLUT rebuilt (palette changed)");
 }
 
-int GLWorldViewRenderer::SubmitKeeperSprite(
+void GLWorldViewRenderer::SubmitKeeperSprite(
+    int32_t /*frame_x*/, int32_t /*frame_y*/,
     int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
     const unsigned char* data, int src_w, int src_h, int32_t content_h,
     unsigned int draw_flags, const unsigned char* remap,
@@ -1643,9 +1647,9 @@ int GLWorldViewRenderer::SubmitKeeperSprite(
         if (s_dim++ < 20)
             WARNLOG("SubmitKeeperSprite: invalid sprite dimensions %dx%d (max %d) -- dropped",
                     src_w, src_h, k_kspr_decode_dim);
-        return 1;
+        return;
     }
-    if (dst_w <= 0 || dst_h <= 0) return 1;
+    if (dst_w <= 0 || dst_h <= 0) return;
     // Clamp rather than trust the caller: a bad content_h must not produce
     // an inverted/oversized UV range or a negative destination height.
     if (content_h <= 0 || content_h > src_h) content_h = src_h;
@@ -1672,7 +1676,6 @@ int GLWorldViewRenderer::SubmitKeeperSprite(
         m_cursor_kspr_ir.push_back(cmd);
     else
         m_kspr_ir.push_back(cmd);
-    return 1;
 }
 
 int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h)
@@ -1750,10 +1753,10 @@ float GLWorldViewRenderer::resolve_clut_v(const unsigned char* remap)
     return (float(row_idx) + 0.5f) / (float)k_clut_rows;
 }
 
-int GLWorldViewRenderer::BeginWorldSpriteCapture(int32_t bucket_idx)
+void GLWorldViewRenderer::BeginWorldSpriteCapture(int32_t bucket_idx)
 {
-    if (!UsesFillTimeWorldSubmit())
-        return 0;
+    if (!m_initialized || m_world_write_cmds == nullptr)
+        return;
     if (bucket_idx >= BUCKETS_COUNT)
         bucket_idx = BUCKETS_COUNT - 1;
     else if (bucket_idx < 0)
@@ -1763,7 +1766,6 @@ int GLWorldViewRenderer::BeginWorldSpriteCapture(int32_t bucket_idx)
     m_current_sprite_z = 2.0f * ((float)bucket_idx - 0.5f) / (float)(BUCKETS_COUNT - 1) - 1.0f;
     m_current_sprite_sort_key = ((uint32_t)bucket_idx << 16)
                               | (m_sprite_entry_seq++ & 0xFFFFu);
-    return 1;
 }
 
 void GLWorldViewRenderer::BeginCursorCapture()
@@ -1917,6 +1919,7 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
             glUseProgram(prog->id);
             glUniform2f(m_kspr_inst_loc_viewport,
                         (float)m_draw_screen_w, (float)m_draw_screen_h);
+            glUniformMatrix3fv(m_kspr_inst_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
             glBindVertexArray(inst_geom->vao);
             glBindBuffer(GL_ARRAY_BUFFER, inst_geom->vbo);
             glBufferData(GL_ARRAY_BUFFER,
@@ -2116,6 +2119,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
             glUniform2f(m_kspr_atlas_glow_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
             glUniform1f(m_kspr_atlas_glow_loc_z_ndc, z_ndc);
             glUniform1f(m_kspr_atlas_glow_loc_layer, (float)atlas_layer);
+            glUniformMatrix3fv(m_kspr_atlas_glow_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D_ARRAY, kspr_sprite_array ? kspr_sprite_array->id : 0);
             glBlendFunc(GL_ONE, GL_ONE);
@@ -2173,6 +2177,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
         glUseProgram(kspr_glow_prog->id);
         glUniform2f(m_kspr_glow_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
         glUniform1f(m_kspr_glow_loc_z_ndc,    z_ndc);
+        glUniformMatrix3fv(m_kspr_glow_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
         glBlendFunc(GL_ONE, GL_ONE);
@@ -2269,10 +2274,14 @@ void GLWorldViewRenderer::FlipBuffers()
     m_rt_vp_x      = m_vp_x;
     m_rt_vp_y      = m_vp_y;
 
+    uint8_t palette[768] = {};
     if (m_palette_data)
-        memcpy(m_rt_palette, m_palette_data, sizeof(m_rt_palette));
-    else
-        memset(m_rt_palette, 0, sizeof(m_rt_palette));
+        memcpy(palette, m_palette_data, sizeof(palette));
+    if (memcmp(palette, m_rt_palette, sizeof(palette)) != 0)
+    {
+        memcpy(m_rt_palette, palette, sizeof(m_rt_palette));
+        m_rt_palette_xform = PaletteTransformFit(engine_palette, m_rt_palette);
+    }
 
     // Snapshot the lightmap so the render thread never reads the live game array.
     memcpy(m_rt_lightmap, game.lish.subtile_lightness, sizeof(m_rt_lightmap));

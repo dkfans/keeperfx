@@ -113,22 +113,21 @@ struct RendererPresentImageDesc {
 };
 TbBool RendererPresentImage(const struct RendererPresentImageDesc* desc);
 
-/** Submit the zoom box's terrain as texture-block-indexed tiles. Returns
- *  true when the GPU path accepted the submission (caller skips its own
- *  CPU tile rasteriser); false when no GPU backend is active (software) --
- *  caller runs its existing CPU tile loop instead.
+struct TbHugeSprite;
+/** Draw a full-screen RLE huge sprite (the landview window frame) over
+ *  whatever is already on screen. */
+void RendererPresentHugeSprite(const struct TbHugeSprite* spr, int32_t sp_len,
+                               int32_t x_shift, int32_t y_shift, int32_t units_per_px);
+
+/** Draw the zoom box's terrain from texture-block-indexed tiles.
  *  @param tile_block_ids  tiles_x*tiles_y, row-major; 0xFFFF = unrevealed
- *                         (caller draws those separately, e.g. a solid box).
+ *                         (skipped -- caller draws those separately).
  *  @param dst_x/dst_y     Screen top-left of the tile grid (pixels).
  *  @param tile_w/tile_h   On-screen size of each tile (pixels). */
-TbBool RendererSubmitZoomBoxTiles(const unsigned short* tile_block_ids, int tiles_x, int tiles_y,
-                                  int dst_x, int dst_y, int tile_w, int tile_h);
+void RendererSubmitZoomBoxTiles(const unsigned short* tile_block_ids, int tiles_x, int tiles_y,
+                                int dst_x, int dst_y, int tile_w, int tile_h);
 
-/** Route an FMV frame's embedded palette through the renderer instead of
- *  calling RendererSetDisplayPalette() directly */
-void RendererNotifyFmvPalette(const unsigned char *bgra_1024);
-
-/** Submit the landview zoom-in/out transition frame through the GPU path.
+/** Draw the landview zoom-in/out transition frame.
  *  @param src_buf     map_screen -- 8-bit indexed pixels (src_w x src_h).
  *                     Must stay unchanged for the duration of one zoom; it is
  *                     read again when the next zoom starts.
@@ -136,9 +135,7 @@ void RendererNotifyFmvPalette(const unsigned char *bgra_1024);
  *  @param screen_cx/cy    Zoom centre, in screen pixel coordinates (y-down).
  *  @param scale           Source texels per screen pixel (src_delta/256.0 in
  *                         frontzoom_to_point()'s own terms).
- *  @return true when the GPU path accepted the frame (caller skips its own
- *          CPU zoom loop); false when no GPU backend is active (software
- *          renderer) -- caller runs its existing CPU path instead. */
+ *  @return true if the active backend drew the frame. */
 TbBool RendererSubmitLandviewZoom(const unsigned char *src_buf, int src_w, int src_h,
                                   float center_map_x, float center_map_y,
                                   float screen_cx,    float screen_cy,
@@ -212,9 +209,7 @@ void RendererSetDrawColour(unsigned char colour);
 void CursorLayer_Draw(void);
 void CursorLayer_Clear(void);
 void CursorLayer_SubmitPointerSprite(const struct TbSprite* spr, int32_t x, int32_t y, int units_per_px);
-// Returns 1 if a cursor layer handled the sprite (caller must not also draw
-// it via process_keeper_sprite()), 0 to fall back.
-int RendererSubmitKeeperHandSprite(short x, short y, unsigned short kspr_base,
+void RendererSubmitKeeperHandSprite(short x, short y, unsigned short kspr_base,
     short angle, unsigned char sprgroup, int32_t scale, TbDrawFlagsMask draw_flags);
 
 void WorldViewRenderer_BeginWorldPass(int w, int h, int vp_x, int vp_y);
@@ -222,10 +217,12 @@ void WorldViewRenderer_DrawIsometricView(void);
 void WorldViewRenderer_DrawFrontView(struct Camera* cam);
 
 
-int RendererBeginWorldSpriteCapture(int32_t bucket_idx);
+void RendererBeginWorldSpriteCapture(int32_t bucket_idx);
+// frame_x/y = content offset inside the sprite's frame (source pixels).
 // content_h = visible rows out of src_h for this draw (water/lava
 // clipping) -- pass == src_h for "no clipping".
-int RendererSubmitKeeperSprite(int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+void RendererSubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
+    int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
     const unsigned char* data, int src_w, int src_h, int32_t content_h,
     unsigned int draw_flags, const unsigned char* remap, int32_t sprite_id);
 
