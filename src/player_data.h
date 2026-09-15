@@ -193,7 +193,6 @@ struct PlayerInfo {
     int32_t game_version;
     GameTurn display_objective_turn;
     unsigned char hand_idx;
-    /** Deferred build/sell in progress. Per player: the dungeon is what gets built. */
     struct RoomSpace roomspace;
     unsigned char player_type; //enum PlayerTypes
     ThingModel special_digger;

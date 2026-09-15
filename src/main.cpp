@@ -964,8 +964,8 @@ void clear_players_for_save(void)
     unsigned short saved_player_id;
     unsigned char saved_player_type;
     unsigned short saved_allocation_flags;
-    int i;
-    for (i=0; i < PLAYERS_COUNT; i++)
+    
+    for (int i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
       saved_player_id = player->id_number;

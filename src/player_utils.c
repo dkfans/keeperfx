@@ -141,7 +141,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
 {
   if (player->victory_state != VicS_Undecided)
   {
-      //WARNLOG("Player fate is already decided to %d",(int)player->victory_state);
+      //WARNLOG("Player fate is already decided to %d",(int)player->victory_state); 
       return;
   }
   TbBool my_player = (is_my_player(player));
