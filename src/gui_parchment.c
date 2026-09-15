@@ -519,9 +519,7 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
             long radius = (((m & 7) + m) >> 3) / pixel_size;
             unsigned char col = player_room_colours[get_player_color_idx(i)];
             if (RendererPointInZoomBoxScreenRect((int)pos_x, (int)pos_y)) { n++; continue; }
-            // GPU path has no circle primitive -- approximate as an outline
-            // square (matches develop's UIRenderer_SubmitOutlineBox use here).
-            UIRenderer_SubmitOutlineBox(pos_x - radius, pos_y - radius, radius * 2, radius * 2, col);
+            UIRenderer_SubmitCircleOutline(pos_x, pos_y, radius, col);
             n++;
         }
     }
