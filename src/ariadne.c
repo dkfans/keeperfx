@@ -1891,6 +1891,9 @@ static TbBool ariadne_creature_reached_position(const struct Thing *thing, const
 
 static long ariadne_creature_blocked_by_wall_at(struct Thing *thing, const struct Coord3d *pos)
 {
+    if (!flag_is_set(thing->alloc_flags, TAlF_IsControlled) && !terrain_toxic_for_creature_at_position(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num) && terrain_toxic_for_creature_at_position(thing, pos->x.stl.num, pos->y.stl.num)) {
+        return true;
+    }
     struct Coord3d mvpos;
     long zmem;
     long ret;
@@ -2232,18 +2235,7 @@ static AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *a
         arid->manoeuvre_state = AridUpSStM_ContinueWallhug;
         return AridRet_OK;
     }
-    long cannot_move;
-    {
-        MapCoord tng_z_mem;
-        tng_z_mem = thing->mappos.z.val;
-        struct Coord3d mvpos;
-        mvpos.x.val = arid->next_position.x.val;
-        mvpos.y.val = arid->next_position.y.val;
-        mvpos.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
-        thing->mappos.z.val = mvpos.z.val;
-        cannot_move = creature_cannot_move_directly_to(thing, &mvpos);
-        thing->mappos.z.val = tng_z_mem;
-    }
+    long cannot_move = ariadne_creature_blocked_by_wall_at(thing, &arid->next_position);
     if ( cannot_move )
     {
         struct Coord3d pos2;
@@ -2921,7 +2913,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
     potentional_next_pos_3d.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
 
     thing->mappos.z.val = potentional_next_pos_3d.z.val;
-    TbBool cant_move_to_pos_directly = creature_cannot_move_directly_to(thing, &potentional_next_pos_3d);
+    TbBool cant_move_to_pos_directly = ariadne_creature_blocked_by_wall_at(thing, &potentional_next_pos_3d);
 
     if (cant_move_to_pos_directly)
     {
@@ -2934,7 +2926,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
         potentional_next_pos_3d.y.val = move_coord_with_angle_y(thing->mappos.y.val, arid->move_speed, quadrant);
         potentional_next_pos_3d.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
         thing->mappos.z.val = potentional_next_pos_3d.z.val;
-        cant_move_to_pos_directly = creature_cannot_move_directly_to(thing, &potentional_next_pos_3d);
+        cant_move_to_pos_directly = ariadne_creature_blocked_by_wall_at(thing, &potentional_next_pos_3d);
 
         thing->mappos = original_mappos;
 
