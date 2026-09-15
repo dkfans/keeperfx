@@ -207,12 +207,10 @@ struct PlayerInfo {
     struct RoomSpace render_roomspace;
     struct RoomSpace roomspace;
     unsigned char roomspace_mode;
-    int user_defined_roomspace_width;
     int roomspace_detection_looseness;
     int roomspace_width;
     int roomspace_height;
     unsigned char roomspace_highlight_mode;
-    TbBool roomspace_no_default;
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
@@ -301,6 +299,7 @@ extern struct LocalState {
     short minimap_pos_x;
     short minimap_pos_y;
     unsigned short minimap_zoom;
+    int roomspace_size;
 } local_state;
 
 extern unsigned short player_colors_map[];
