@@ -20,9 +20,12 @@
 #include "lvl_script_lib.h"
 #include "map_data.h"
 #include "player_utils.h"
+#include "room_data.h"
 #include "room_library.h"
+#include "slab_data.h"
 #include "thing_data.h"
 #include "thing_navigate.h"
+#include "thing_objects.h"
 
 #include "post_inc.h"
 
@@ -650,6 +653,37 @@ void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
 
     luaL_getmetatable(L, "Slab");
     lua_setmetatable(L, -2);  
+}
+
+void lua_pushParent(lua_State *L, const struct Thing *thing)
+{
+    switch (thing->class_id)
+    {
+    case TCls_Shot:
+    case TCls_Effect:
+    case TCls_EffectElem:
+        lua_pushThing(L, get_parent_thing(thing));
+        break;
+    case TCls_Object:
+        // Room for chickens
+        if (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing)) {
+            lua_pushRoom(L, room_get(thing->parent_idx));
+            break;
+        }
+        // else a slabnumber
+        // fall through
+    case TCls_EffectGen:
+        if (thing->parent_idx > 0) {
+            //slabnumber to slb_x and slb_y
+            lua_pushSlab(L, slb_num_decode_x(thing->parent_idx), slb_num_decode_y(thing->parent_idx));
+        } else {
+            lua_pushnil(L);
+        }
+        break;
+    default:
+        lua_pushnil(L);
+        break;
+    }
 }
 
 //takes the leader of the party as argument
