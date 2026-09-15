@@ -519,6 +519,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
     } else {
         ERRORLOG("Removing %s index %d from battle, but counter is 0",thing_model_name(thing),(int)thing->index);
     }
+    battle_lists_changed();
     SYNCDBG(19,"Finished");
 }
 
@@ -526,6 +527,10 @@ void insert_thing_in_battle_list(struct Thing *thing, BattleIndex battle_id)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureBattle* battle = creature_battle_get(battle_id);
+    if (battle->fighters_num == 0) {
+        // The battle starts with this creature; the battle panel lists the newest ones first
+        battle->start_turn = get_gameturn();
+    }
     cctrl->battle_next_creatr = battle->last_creatr;
     cctrl->battle_prev_creatr = 0;
     cctrl->battle_id = battle_id;
@@ -539,6 +544,7 @@ void insert_thing_in_battle_list(struct Thing *thing, BattleIndex battle_id)
     }
     battle->last_creatr = thing->index;
     battle->fighters_num++;
+    battle_lists_changed();
 }
 
 long count_creatures_really_in_combat(BattleIndex battle_id)
