@@ -14,6 +14,8 @@
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "kfx/renderer/RendererSettings.h" // g_renderer_settings
 #include "kfx/renderer/RendererManager.h"  // RendererGetCurrentSpriteOwner/WantsOutline
+// TODO : I really don't like this touching the engine, should really be cleaning this up.
+#include "front_simple.h"                   // engine_palette
 #include "player_data.h"                    // get_player_color_idx/player_room_colours (outline colour)
 
 #include "engine_buckets.h"   // QKinds enum, BasicQ, BucketKind* structs, buckets[]
@@ -992,6 +994,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
             m_kspr_glow_loc_viewport = glGetUniformLocation(glow_prog->id, "u_viewport");
             m_kspr_glow_loc_sprite   = glGetUniformLocation(glow_prog->id, "u_sprite");
             m_kspr_glow_loc_z_ndc    = glGetUniformLocation(glow_prog->id, "u_z_ndc");
+            m_kspr_glow_loc_palette_xform = glGetUniformLocation(glow_prog->id, "u_palette_xform");
             glUniform1i(m_kspr_glow_loc_sprite, 0);  // GL_TEXTURE0
             glUseProgram(0);
         }
@@ -1074,6 +1077,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
                 m_kspr_atlas_glow_loc_sprite   = glGetUniformLocation(atlas_glow_prog->id, "u_sprite");
                 m_kspr_atlas_glow_loc_z_ndc    = glGetUniformLocation(atlas_glow_prog->id, "u_z_ndc");
                 m_kspr_atlas_glow_loc_layer    = glGetUniformLocation(atlas_glow_prog->id, "u_layer");
+                m_kspr_atlas_glow_loc_palette_xform = glGetUniformLocation(atlas_glow_prog->id, "u_palette_xform");
                 glUniform1i(m_kspr_atlas_glow_loc_sprite, 0);  // GL_TEXTURE0
                 glUseProgram(0);
             }
@@ -1236,6 +1240,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_instancing()
 
     glUseProgram(inst_prog->id);
     m_kspr_inst_loc_viewport = glGetUniformLocation(inst_prog->id, "u_viewport");
+    m_kspr_inst_loc_palette_xform = glGetUniformLocation(inst_prog->id, "u_palette_xform");
     glUniform1i(glGetUniformLocation(inst_prog->id, "u_sprite"), 0);  // GL_TEXTURE0
     glUniform1i(glGetUniformLocation(inst_prog->id, "u_clut"),   1);  // GL_TEXTURE1
     glUseProgram(0);
@@ -1916,6 +1921,7 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
             glUseProgram(prog->id);
             glUniform2f(m_kspr_inst_loc_viewport,
                         (float)m_draw_screen_w, (float)m_draw_screen_h);
+            glUniformMatrix3fv(m_kspr_inst_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
             glBindVertexArray(inst_geom->vao);
             glBindBuffer(GL_ARRAY_BUFFER, inst_geom->vbo);
             glBufferData(GL_ARRAY_BUFFER,
@@ -2115,6 +2121,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
             glUniform2f(m_kspr_atlas_glow_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
             glUniform1f(m_kspr_atlas_glow_loc_z_ndc, z_ndc);
             glUniform1f(m_kspr_atlas_glow_loc_layer, (float)atlas_layer);
+            glUniformMatrix3fv(m_kspr_atlas_glow_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D_ARRAY, kspr_sprite_array ? kspr_sprite_array->id : 0);
             glBlendFunc(GL_ONE, GL_ONE);
@@ -2172,6 +2179,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
         glUseProgram(kspr_glow_prog->id);
         glUniform2f(m_kspr_glow_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
         glUniform1f(m_kspr_glow_loc_z_ndc,    z_ndc);
+        glUniformMatrix3fv(m_kspr_glow_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
         glBlendFunc(GL_ONE, GL_ONE);
@@ -2268,10 +2276,14 @@ void GLWorldViewRenderer::FlipBuffers()
     m_rt_vp_x      = m_vp_x;
     m_rt_vp_y      = m_vp_y;
 
+    uint8_t palette[768] = {};
     if (m_palette_data)
-        memcpy(m_rt_palette, m_palette_data, sizeof(m_rt_palette));
-    else
-        memset(m_rt_palette, 0, sizeof(m_rt_palette));
+        memcpy(palette, m_palette_data, sizeof(palette));
+    if (memcmp(palette, m_rt_palette, sizeof(palette)) != 0)
+    {
+        memcpy(m_rt_palette, palette, sizeof(m_rt_palette));
+        m_rt_palette_xform = PaletteTransformFit(engine_palette, m_rt_palette);
+    }
 
     // Snapshot the lightmap so the render thread never reads the live game array.
     memcpy(m_rt_lightmap, game.lish.subtile_lightness, sizeof(m_rt_lightmap));

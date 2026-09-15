@@ -38,6 +38,11 @@ void UIRenderer_SubmitOutlineBox(int32_t x, int32_t y, int32_t w, int32_t h, uns
  *  UIRenderer_SubmitCircle, which is the same approximation). */
 void UIRenderer_SubmitCircle(int32_t x, int32_t y, int32_t radius, unsigned char colour);
 
+/** 1-pixel-thick circle outline, midpoint algorithm, plotted as SubmitSolidBox()
+ *  pixels -- same shape as LbDrawCircleOutline's solid case. No IR circle
+ *  primitive is needed, so this is identical on every renderer for free. */
+void UIRenderer_SubmitCircleOutline(int32_t x, int32_t y, int32_t radius, unsigned char colour);
+
 /** Sprite drawn at an explicit size (spr->SWidth/SHeight scaled by
  *  units_per_px), with an explicit draw-flags parameter instead of reading
  *  ambient RendererGetDrawFlags() state. */

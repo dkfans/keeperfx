@@ -390,16 +390,18 @@ void main()
 }
 )glsl";
 
-// Non-instanced additive-glow fragment shader, ported verbatim from
-// develop. Reuses KSPR_VERTEX_SHADER -- no palette needed, the glow colour
-// comes entirely from the DK glow-encoding index baked into the sprite's own
-// pixels (1-64: family = code/8, row = code%8, intensity scales with row).
+// Non-instanced additive-glow fragment shader. Reuses KSPR_VERTEX_SHADER.
+// The glow colour comes from the DK glow-encoding index baked into the
+// sprite's own pixels (1-64: family = code/8, row = code%8, intensity scales
+// with row), moved into the current palette by u_palette_xform.
 // Drawn with glBlendFunc(GL_ONE, GL_ONE) so the RGB delta adds directly onto
 // the framebuffer -- see render_keepersprite_gpu()'s additive branch.
 constexpr const char* KSPR_GLOW_FRAGMENT_SHADER = R"glsl(
 #version 330 core
 in vec2 v_uv;
 uniform sampler2D u_sprite;
+// Glow steps are engine-palette colours; this moves them into the palette drawn with.
+uniform mat3 u_palette_xform;
 out vec4 fragColor;
 
 // Per-row additive RGB step for each of the 8 glow families (8-bit normalised).
@@ -427,7 +429,7 @@ void main()
     int family = code / 8;
     int row    = code % 8;
     if (row == 0 || family == 6) discard;
-    vec3 glow = clamp(k_glow_step[family] * float(row), 0.0, 1.0);
+    vec3 glow = clamp(u_palette_xform * (k_glow_step[family] * float(row)), 0.0, 1.0);
     fragColor = vec4(glow, 1.0);
 }
 )glsl";
@@ -459,6 +461,8 @@ constexpr const char* KSPR_ARRAY_GLOW_FRAGMENT_SHADER = R"glsl(
 in vec2 v_uv;
 uniform sampler2DArray u_sprite;
 uniform float          u_layer;
+// Glow steps are engine-palette colours; this moves them into the palette drawn with.
+uniform mat3 u_palette_xform;
 out vec4 fragColor;
 
 const vec3 k_glow_step[8] = vec3[8](
@@ -480,7 +484,7 @@ void main()
     int family = code / 8;
     int row    = code % 8;
     if (row == 0 || family == 6) discard;
-    vec3 glow = clamp(k_glow_step[family] * float(row), 0.0, 1.0);
+    vec3 glow = clamp(u_palette_xform * (k_glow_step[family] * float(row)), 0.0, 1.0);
     fragColor = vec4(glow, 1.0);
 }
 )glsl";
@@ -596,6 +600,8 @@ flat in vec3 v_lca;    // layer, clut_v, alpha
 flat in uint v_flags;  // bit1 = additive glow
 uniform sampler2DArray u_sprite;   // GL_RG8 decode atlas (index, coverage), one layer per sprite
 uniform sampler2D      u_clut;     // 256xN CLUT -- row 0 identity, rows 1..N remaps
+// Glow steps are engine-palette colours; this moves them into the palette drawn with.
+uniform mat3 u_palette_xform;
 out vec4 fragColor;
 
 // Per-row additive RGB step for each of the 8 glow families (8-bit normalised).
@@ -625,7 +631,7 @@ void main()
         int family = code / 8;
         int row    = code % 8;
         if (row == 0 || family == 6) discard;
-        vec3 glow = clamp(k_glow_step[family] * float(row), 0.0, 1.0);
+        vec3 glow = clamp(u_palette_xform * (k_glow_step[family] * float(row)), 0.0, 1.0);
         fragColor = vec4(glow, 0.0);
     }
     else

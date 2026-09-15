@@ -93,6 +93,46 @@ void UIRenderer_SubmitCircle(int32_t x, int32_t y, int32_t radius, unsigned char
     ui->SubmitSolidBox(x - radius, y - radius, d, d, colour, draw_state_default());
 }
 
+/** Plots the 8 symmetric points of a circle outline at offsets (dx, dy) from (cx, cy). */
+static void UIRenderer_PlotCircleOctant(int32_t cx, int32_t cy, int32_t dx, int32_t dy, unsigned char colour)
+{
+    UIRenderer_SubmitSolidBox(cx - dx, cy - dy, 1, 1, colour);
+    UIRenderer_SubmitSolidBox(cx + dx, cy - dy, 1, 1, colour);
+    UIRenderer_SubmitSolidBox(cx - dx, cy + dy, 1, 1, colour);
+    UIRenderer_SubmitSolidBox(cx + dx, cy + dy, 1, 1, colour);
+    UIRenderer_SubmitSolidBox(cx - dy, cy - dx, 1, 1, colour);
+    UIRenderer_SubmitSolidBox(cx + dy, cy - dx, 1, 1, colour);
+    UIRenderer_SubmitSolidBox(cx - dy, cy + dx, 1, 1, colour);
+    UIRenderer_SubmitSolidBox(cx + dy, cy + dx, 1, 1, colour);
+}
+
+void UIRenderer_SubmitCircleOutline(int32_t x, int32_t y, int32_t radius, unsigned char colour)
+{
+    if (radius < 1)
+    {
+        UIRenderer_SubmitSolidBox(x, y, 1, 1, colour);
+        return;
+    }
+    int32_t dx = 0;
+    int32_t dy = radius;
+    int32_t d = 3 - 2 * radius;
+    for (; dx < dy; dx++)
+    {
+        UIRenderer_PlotCircleOctant(x, y, dx, dy, colour);
+        if (d >= 0)
+        {
+            d += 4 * (dx - dy) + 10;
+            dy--;
+        }
+        else
+        {
+            d += 4 * dx + 6;
+        }
+    }
+    if (dx == dy)
+        UIRenderer_PlotCircleOctant(x, y, dx, dy, colour);
+}
+
 // Both scaled-sprite bridges below round the same way LbSpriteDrawResized*'s
 // macros do (see bflib_vidraw.h): (dim * units_per_px + 8) / 16.
 
