@@ -432,7 +432,7 @@ static void resolve_network_quit_outcome(struct PlayerInfo *player)
     set_player_as_won_level(player);
 }
 
-static TbBool player_has_enemies_to_defeat(const struct PlayerInfo *player)
+TbBool player_has_enemies_to_defeat(const struct PlayerInfo *player)
 {
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo *other = get_player(i);
