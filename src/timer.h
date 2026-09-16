@@ -48,6 +48,7 @@ extern struct TimerTime Timer;
 extern TbBool TimerGame;
 extern TbBool TimerNoReset;
 extern TbBool TimerFreeze;
+extern TbBool TimerGameReal;
 struct GameTime {
     unsigned char Seconds;
     unsigned char Minutes;
