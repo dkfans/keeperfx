@@ -450,6 +450,21 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
     }
 }
 
+static float map_fade_progress(long instance)
+{
+    struct PlayerInfo* player = get_my_player();
+    const float turns = (float)(player_instance_info[instance].length_turns - 1);
+    if (turns <= 0.0f)
+        return 1.0f;
+    float frac = is_feature_on(Ft_DeltaTime) ? (float)game.process_turn_time : 0.0f;
+    if (frac < 0.0f) frac = 0.0f;
+    if (frac > 1.0f) frac = 1.0f;
+    float progress = (turns - (float)player->instance_remain_turns + frac) / turns;
+    if (progress < 0.0f) progress = 0.0f;
+    if (progress > 1.0f) progress = 1.0f;
+    return progress;
+}
+
 long map_fade_in(long palette_fade_step)
 {
     SYNCDBG(6,"Starting");
@@ -466,16 +481,7 @@ long map_fade_in(long palette_fade_step)
         prepare_map_fade_buffers(map_fade_src, map_fade_dest, real_w, real_h);
         generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
-    {
-        float remain = (float)get_my_player()->instance_remain_turns;
-        float frac = (is_feature_on(Ft_DeltaTime) && remain > 0.0f) ? (float)game.process_turn_time : 0.0f;
-        if (frac < 0.0f) frac = 0.0f;
-        if (frac > 1.0f) frac = 1.0f;
-        float display_step = (8.0f - remain + frac) * 4.0f;
-        if (display_step < 0.0f) display_step = 0.0f;
-        if (display_step > 32.0f) display_step = 32.0f;
-        RendererSubmitMapFadeStep((int)palette_fade_step, display_step, 1, map_fade_ghost_table);
-    }
+    RendererSubmitMapFadeStep((int)palette_fade_step, 32.0f * map_fade_progress(PI_MapFadeTo), 1, map_fade_ghost_table);
     if (lbDisplay.WScreen != NULL)
     {
         map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
@@ -500,16 +506,7 @@ long map_fade_out(long palette_fade_step)
         prepare_map_fade_buffers(map_fade_src, map_fade_dest, real_w, real_h);
         generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
-    {
-        float remain = (float)get_my_player()->instance_remain_turns;
-        float frac = (is_feature_on(Ft_DeltaTime) && remain > 0.0f) ? (float)game.process_turn_time : 0.0f;
-        if (frac < 0.0f) frac = 0.0f;
-        if (frac > 1.0f) frac = 1.0f;
-        float display_step = (remain - frac) * 4.0f;
-        if (display_step < 0.0f) display_step = 0.0f;
-        if (display_step > 32.0f) display_step = 32.0f;
-        RendererSubmitMapFadeStep((int)palette_fade_step, display_step, 0, map_fade_ghost_table);
-    }
+    RendererSubmitMapFadeStep((int)palette_fade_step, 32.0f * (1.0f - map_fade_progress(PI_MapFadeFrom)), 0, map_fade_ghost_table);
     // Software-only CPU blend
     if (lbDisplay.WScreen != NULL)
     {
