@@ -106,7 +106,6 @@
 #include "lua_triggers.h"
 
 #include "keeperfx.hpp"
-#include "kfx/renderer/RendererManager.h" // RendererPhysicalWidth
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -817,15 +816,14 @@ TbBool process_user_global_packet_action(NetUserId user)
       set_player_mode(player, pckt->actn_par1);
       return 0;
   case PckA_ZoomFromMap:
-      if (network_is_active()
-          || (RendererPhysicalWidth() > 320))
+      if (parchment_map_fade_enabled())
+      {
+        set_player_mode(player, PVT_MapFadeOut);
+      } else
       {
         if (get_local_user() == user)
           toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
         set_player_mode(player, PVT_DungeonTop);
-      } else
-      {
-        set_player_mode(player, PVT_MapFadeOut);
       }
       return 0;
   case PckA_UpdatePause:
