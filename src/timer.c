@@ -33,6 +33,7 @@ struct TimerTime Timer;
 TbBool TimerGame = false;
 TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
+TbBool TimerGameReal = false;
 static TbClockMSec level_load_times[LevelLoadTime_Count];
 static TbClockMSec level_load_total_start;
 static TbClockMSec level_load_phase_start;

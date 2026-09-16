@@ -460,7 +460,15 @@ void draw_timer(void)
         {
             TimerTurns = get_gameturn();
         }
-        snprintf(text, sizeof(text), "%08ld", TimerTurns);
+        if (TimerGameReal)
+        {
+            struct GameTime GameT = get_game_time(TimerTurns, turns_per_second);
+            snprintf(text, sizeof(text), "%02d:%02d:%02d", GameT.Hours, GameT.Minutes, GameT.Seconds);
+        }
+        else
+        {
+            snprintf(text, sizeof(text), "%08ld", TimerTurns);
+        }
     }
     else
     {
