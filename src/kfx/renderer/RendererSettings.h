@@ -162,16 +162,6 @@ typedef struct RendererSettings {
      *  Default: NEAREST. */
     int   shadow_filter;
 
-    /* --- Transparency --- */
-
-    /** Alpha value for Lb_SPRITE_TRANSPAR4 sprites (one-quarter alpha).
-     *  Default: 0.5 (matches original visual weight). */
-    float transpar4_alpha;
-
-    /** Alpha value for Lb_SPRITE_TRANSPAR8 sprites (one-eighth alpha).
-     *  Default: 0.25. */
-    float transpar8_alpha;
-
     /* --- Glow / additive passes --- */
 
     /** Scale multiplier for k_glow_step contribution. 1.0 = original,

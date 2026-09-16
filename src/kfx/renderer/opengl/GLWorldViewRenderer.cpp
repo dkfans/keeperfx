@@ -1826,9 +1826,7 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
     if (use_remap)
         clut_v = resolve_clut_v(remap);
 
-    float alpha = 1.0f;
-    if      (cmd.draw_flags & Lb_SPRITE_TRANSPAR4) alpha = g_renderer_settings.transpar4_alpha;
-    else if (cmd.draw_flags & Lb_SPRITE_TRANSPAR8) alpha = g_renderer_settings.transpar8_alpha;
+    const float alpha = draw_flags_source_weight(cmd.draw_flags);
 
     KsprInstance inst;
     inst.rect[0]  = (float)cmd.dst_x;
@@ -2028,9 +2026,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
     glBufferData(GL_ARRAY_BUFFER, sizeof(sv), nullptr, GL_DYNAMIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(sv), sv);
 
-    float alpha = 1.0f;
-    if      (draw_flags & Lb_SPRITE_TRANSPAR4) alpha = g_renderer_settings.transpar4_alpha;
-    else if (draw_flags & Lb_SPRITE_TRANSPAR8) alpha = g_renderer_settings.transpar8_alpha;
+    const float alpha = draw_flags_source_weight(draw_flags);
 
     // Additive glow
     const bool use_glow_atlas    = additive && atlas_layer >= 0 && kspr_atlas_glow_prog;

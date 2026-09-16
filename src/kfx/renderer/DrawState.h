@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "bflib_video.h" // Lb_SPRITE_TRANSPAR4/8
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +40,21 @@ static inline KfxDrawState draw_state_make(TbDrawFlagsMask flags, unsigned char 
     s.flags  = flags;
     s.colour = colour;
     return s;
+}
+
+/** How much of the drawn colour a translucent draw keeps, with the rest from
+ *  what is underneath. Software blends through the ghost table
+ *  (compute_fade_tables): ghost[a][b] is the palette colour nearest to
+ *  (a + 2*b) / 3. TRANSPAR4 looks up ghost[drawn][screen] and TRANSPAR8
+ *  ghost[screen][drawn], and TRANSPAR4 wins when both are set. */
+static inline float draw_flags_source_weight(TbDrawFlagsMask flags)
+{
+    // TODO : These could be configurable
+    if (flags & Lb_SPRITE_TRANSPAR4)
+        return 1.0f / 3.0f;
+    if (flags & Lb_SPRITE_TRANSPAR8)
+        return 2.0f / 3.0f;
+    return 1.0f;
 }
 
 #ifdef __cplusplus

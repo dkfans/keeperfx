@@ -20,19 +20,6 @@
 
 namespace {
 
-// TRANSPAR4/8 aren't a real alpha blend on the CPU path -- they dither
-// through a palette-index blend table (pixmap.ghost, bflib_vidraw_spr_norm.c)
-constexpr float kTranspar4Alpha = 0.5f;
-constexpr float kTranspar8Alpha = 0.25f;
-
-// Priority matches the software renderer (bflib_vidraw.c): TRANSPAR4 checked first.
-float alpha_from_draw_flags(TbDrawFlagsMask draw_flags)
-{
-    if (draw_flags & Lb_SPRITE_TRANSPAR4) return kTranspar4Alpha;
-    if (draw_flags & Lb_SPRITE_TRANSPAR8) return kTranspar8Alpha;
-    return 1.0f;
-}
-
 // Swap the U or V pair to mirror the sprite instead of touching vertex
 // positions -- draw_textured_quad()'s quad geometry stays untouched, so the
 // existing dst rect (x,y,w,h) is unaffected either way.
@@ -467,7 +454,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             q.x0 = (float)c.x; q.y0 = (float)c.y;
             q.x1 = q.x0 + uv.pixel_w; q.y1 = q.y0 + uv.pixel_h;
             q.u0 = u0; q.v0 = v0; q.u1 = u1; q.v1 = v1;
-            q.a = alpha_from_draw_flags(c.draw_flags);
+            q.a = draw_flags_source_weight(c.draw_flags);
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_SPRITE; q.seq = c.seq;
             out[(int)c.layer].push_back(q);
             break;
@@ -483,7 +470,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             q.x1 = q.x0 + uv.pixel_w; q.y1 = q.y0 + uv.pixel_h;
             q.u0 = u0; q.v0 = v0; q.u1 = u1; q.v1 = v1;
             PaletteColour(c.colour, &q.r, &q.g, &q.b);
-            q.a = alpha_from_draw_flags(c.draw_flags);
+            q.a = draw_flags_source_weight(c.draw_flags);
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_COLORED; q.seq = c.seq;
             out[(int)c.layer].push_back(q);
             break;
@@ -498,7 +485,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             q.x0 = (float)c.x; q.y0 = (float)c.y;
             q.x1 = q.x0 + (float)c.w; q.y1 = q.y0 + (float)c.h;
             q.u0 = u0; q.v0 = v0; q.u1 = u1; q.v1 = v1;
-            q.a = alpha_from_draw_flags(c.draw_flags);
+            q.a = draw_flags_source_weight(c.draw_flags);
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_SPRITE; q.seq = c.seq;
             out[(int)c.layer].push_back(q);
             break;
@@ -514,7 +501,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             q.x1 = q.x0 + (float)c.w; q.y1 = q.y0 + (float)c.h;
             q.u0 = u0; q.v0 = v0; q.u1 = u1; q.v1 = v1;
             PaletteColour(c.colour, &q.r, &q.g, &q.b);
-            q.a = alpha_from_draw_flags(c.draw_flags);
+            q.a = draw_flags_source_weight(c.draw_flags);
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_COLORED; q.seq = c.seq;
             out[(int)c.layer].push_back(q);
             break;
@@ -532,7 +519,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             q.x0 = (float)c.x; q.y0 = (float)c.y;
             q.x1 = q.x0 + (float)c.w; q.y1 = q.y0 + (float)c.h;
             q.u0 = u0; q.v0 = v0; q.u1 = u1; q.v1 = v1;
-            q.a = alpha_from_draw_flags(c.draw_flags);
+            q.a = draw_flags_source_weight(c.draw_flags);
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_REMAP;
             q.remap_row = (offset >= 0) ? (int)(offset / 256) : 0;
             q.seq = c.seq;
@@ -543,7 +530,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             const IRUISolidBoxCmd& c = ui.solid_boxes.Data()[ref.idx];
             float r, g, b;
             PaletteColour(c.colour, &r, &g, &b);
-            const float a = alpha_from_draw_flags(c.draw_flags);
+            const float a = draw_flags_source_weight(c.draw_flags);
             if (c.draw_flags & Lb_SPRITE_OUTLINE)
             {
                 // Hollow border, matching LbDrawBoxImmediate()'s CPU geometry
