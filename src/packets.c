@@ -575,7 +575,9 @@ void process_user_dungeon_control_packet_control(NetUserId user)
         ERRORLOG("No active camera");
         return;
     }
-    process_camera_controls(cam, pckt, player);
+    // A parchment map jump's controls were made on the parchment, not for the dungeon camera it jumps.
+    if (pckt->action != PckA_ZoomFromMap)
+        process_camera_controls(cam, pckt, player);
     if (is_my_player(player)) {
         TbBool settings_changed = false;
         if ((pckt->control_flags & (PCtr_ViewTiltUp | PCtr_ViewTiltDown | PCtr_ViewTiltReset)) != 0) {

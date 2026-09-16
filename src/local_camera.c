@@ -229,7 +229,9 @@ void update_local_cameras(void)
         }
     }
     if (local_camera_move_cam != cam) {
-        process_camera_controls(cam, pckt, player);
+        // Same as the packet camera: a parchment map jump ignores the packet's camera controls.
+        if (pckt->action != PckA_ZoomFromMap)
+            process_camera_controls(cam, pckt, player);
         view_process_camera_inertia(cam);
     }
 
