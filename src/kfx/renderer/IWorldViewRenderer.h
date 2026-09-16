@@ -106,7 +106,7 @@ public:
      *  frame_x/y   = sprite content offset inside its frame, in source pixels
      *                (the offset draw_keepersprite() applies to the frame's
      *                scaling data -- the software raster draws through it).
-     *  dst_x/y/w/h = screen destination rect (pixels), computed from the
+     *  dst_x/y/w/h = screen destination rect (sub-pixel), computed from the
      *                sprite's FULL (unclipped) src_h -- see content_h.
      *  data        = raw RLE palette-index sprite data.
      *  src_w/h     = sprite source dimensions (full content -- also the
@@ -123,7 +123,7 @@ public:
      *  remap       = colour remap table (may be NULL).
      *  sprite_id   = frame-resolved global sprite index (stable cache key; -1 = unknown). */
     virtual void SubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
-                                    int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+                                    float dst_x, float dst_y, float dst_w, float dst_h,
                                     const unsigned char* data, int src_w, int src_h,
                                     int32_t content_h,
                                     unsigned int draw_flags, const unsigned char* remap,

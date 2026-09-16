@@ -25,7 +25,7 @@ void GLCursorLayer::SubmitKeeperHandSprite(short x, short y, unsigned short kspr
     int32_t draw_idx = -1;
     const unsigned char* data = nullptr;
     int src_w = 0, src_h = 0;
-    int32_t dst_x = 0, dst_y = 0, dst_w = 0, dst_h = 0;
+    float dst_x = 0.0f, dst_y = 0.0f, dst_w = 0.0f, dst_h = 0.0f;
     if (!resolve_keepersprite_cursor_geometry(x, y, kspr_base, angle, sprgroup, (long)scale,
             &dst_x, &dst_y, &dst_w, &dst_h, &draw_idx, &data, &src_w, &src_h))
     {

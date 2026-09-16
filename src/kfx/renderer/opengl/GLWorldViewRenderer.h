@@ -168,7 +168,7 @@ public:
 
     /** Submit one keeper-sprite (creature/object) for GPU rendering.*/
     void SubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
-                            int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+                            float dst_x, float dst_y, float dst_w, float dst_h,
                             const unsigned char* data, int src_w, int src_h, int32_t content_h,
                             unsigned int draw_flags, const unsigned char* remap,
                             int32_t sprite_id) override;
@@ -241,7 +241,7 @@ private:
     void append_keeper_sprite_instance(const IRWorldKeeperSpriteCmd& cmd);
     void flush_keeper_sprite_instances();
 
-    int render_keepersprite_gpu(int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+    int render_keepersprite_gpu(float dst_x, float dst_y, float dst_w, float dst_h,
                                 const unsigned char* data, int src_w, int src_h, int32_t content_h,
                                 unsigned int draw_flags, const unsigned char* remap,
                                 float z_ndc, int sprite_owner, int sprite_wants_outline,

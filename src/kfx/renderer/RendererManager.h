@@ -222,7 +222,7 @@ void RendererBeginWorldSpriteCapture(int32_t bucket_idx);
 // content_h = visible rows out of src_h for this draw (water/lava
 // clipping) -- pass == src_h for "no clipping".
 void RendererSubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
-    int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+    float dst_x, float dst_y, float dst_w, float dst_h,
     const unsigned char* data, int src_w, int src_h, int32_t content_h,
     unsigned int draw_flags, const unsigned char* remap, int32_t sprite_id);
 

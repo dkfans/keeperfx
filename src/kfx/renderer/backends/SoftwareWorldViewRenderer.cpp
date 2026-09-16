@@ -70,8 +70,8 @@ void SoftwareWorldViewRenderer::ReexecuteDeferredWorld()
 // Draws through the scaling data the caller set for the sprite's frame; the
 // draw flags and remap table are read from the ambient draw state.
 void SoftwareWorldViewRenderer::SubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
-                                                   int32_t /*dst_x*/, int32_t /*dst_y*/,
-                                                   int32_t /*dst_w*/, int32_t /*dst_h*/,
+                                                   float /*dst_x*/, float /*dst_y*/,
+                                                   float /*dst_w*/, float /*dst_h*/,
                                                    const unsigned char* data, int src_w, int /*src_h*/,
                                                    int32_t content_h,
                                                    unsigned int /*draw_flags*/, const unsigned char* /*remap*/,

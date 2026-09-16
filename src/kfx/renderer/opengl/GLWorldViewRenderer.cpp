@@ -1637,7 +1637,7 @@ void GLWorldViewRenderer::ensure_clut_valid()
 
 void GLWorldViewRenderer::SubmitKeeperSprite(
     int32_t /*frame_x*/, int32_t /*frame_y*/,
-    int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+    float dst_x, float dst_y, float dst_w, float dst_h,
     const unsigned char* data, int src_w, int src_h, int32_t content_h,
     unsigned int draw_flags, const unsigned char* remap,
     int32_t sprite_id)
@@ -1649,7 +1649,7 @@ void GLWorldViewRenderer::SubmitKeeperSprite(
                     src_w, src_h, k_kspr_decode_dim);
         return;
     }
-    if (dst_w <= 0 || dst_h <= 0) return;
+    if (dst_w <= 0.0f || dst_h <= 0.0f) return;
     // Clamp rather than trust the caller: a bad content_h must not produce
     // an inverted/oversized UV range or a negative destination height.
     if (content_h <= 0 || content_h > src_h) content_h = src_h;
@@ -1786,7 +1786,7 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
     if (cmd.src_w <= 0 || cmd.src_h <= 0 ||
         cmd.src_w > k_kspr_decode_dim || cmd.src_h > k_kspr_decode_dim)
         return;
-    if (cmd.dst_w <= 0 || cmd.dst_h <= 0)
+    if (cmd.dst_w <= 0.0f || cmd.dst_h <= 0.0f)
         return;
 
     const bool additive = (cmd.draw_flags & Lb_SPRITE_ALPHA_ADDITIVE) != 0;
@@ -1815,10 +1815,10 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
     const float clip_frac = (float)cmd.content_h / (float)cmd.src_h;
 
     KsprInstance inst;
-    inst.rect[0]  = (float)cmd.dst_x;
-    inst.rect[1]  = (float)cmd.dst_y;
-    inst.rect[2]  = (float)cmd.dst_w;
-    inst.rect[3]  = (float)cmd.dst_h * clip_frac;
+    inst.rect[0]  = cmd.dst_x;
+    inst.rect[1]  = cmd.dst_y;
+    inst.rect[2]  = cmd.dst_w;
+    inst.rect[3]  = cmd.dst_h * clip_frac;
     inst.uvext[0] = (float)cmd.src_w / (float)k_kspr_decode_dim;
     inst.uvext[1] = (float)cmd.content_h / (float)k_kspr_decode_dim;
     inst.layer    = (float)layer;
@@ -1939,7 +1939,7 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
 }
 
 int GLWorldViewRenderer::render_keepersprite_gpu(
-    int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+    float dst_x, float dst_y, float dst_w, float dst_h,
     const unsigned char* data, int src_w, int src_h, int32_t content_h,
     unsigned int draw_flags, const unsigned char* remap,
     float z_ndc, int sprite_owner, int sprite_wants_outline, int32_t sprite_id)
@@ -1971,7 +1971,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
                     src_w, src_h, k_kspr_decode_dim);
         return 1;
     }
-    if (dst_w <= 0 || dst_h <= 0) return 1;
+    if (dst_w <= 0.0f || dst_h <= 0.0f) return 1;
     if (content_h <= 0 || content_h > src_h) content_h = src_h;
 
     const bool additive = (draw_flags & Lb_SPRITE_ALPHA_ADDITIVE) != 0;
@@ -1990,8 +1990,8 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
     float ul = 0.0f, ur = u1;
     if (draw_flags & Lb_SPRITE_FLIP_HORIZ) { ul = u1; ur = 0.0f; }
 
-    float vx0 = (float)dst_x,          vy0 = (float)dst_y;
-    float vx1 = (float)(dst_x + dst_w), vy1 = (float)dst_y + (float)dst_h * clip_frac;
+    float vx0 = dst_x,         vy0 = dst_y;
+    float vx1 = dst_x + dst_w, vy1 = dst_y + dst_h * clip_frac;
 
     float sv[6][4] = {
         { vx0, vy0, ul,  0.0f },

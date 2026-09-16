@@ -7504,6 +7504,21 @@ static long heap_manage_keepersprite(unsigned short kspr_idx)
     return result;
 }
 
+static void keepersprite_scaled_span(int32_t origin, int32_t src_len, int32_t dst_len,
+    int32_t off, int32_t len, float *out_pos, float *out_len)
+{
+    if ((src_len <= 0) || (dst_len <= 0))
+    {
+        *out_pos = (float)origin;
+        *out_len = 0.0f;
+        return;
+    }
+    const int64_t factor = ((int64_t)dst_len << 16) / src_len;
+    const int64_t start = (factor >> 1) + ((int64_t)origin << 16) + off * factor;
+    *out_pos = (float)((double)start / 65536.0 - 0.5 + 1.0 / 1024.0);
+    *out_len = (float)((double)(len * factor) / 65536.0);
+}
+
 TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
     unsigned char current_frame, int32_t *out_draw_idx,
     const unsigned char **out_data, int *out_src_w, int *out_src_h,
@@ -7565,7 +7580,7 @@ TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
 
 TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short kspr_base,
     short kspr_angle, unsigned char sprgroup, long scale,
-    int32_t *out_dst_x, int32_t *out_dst_y, int32_t *out_dst_w, int32_t *out_dst_h,
+    float *out_dst_x, float *out_dst_y, float *out_dst_w, float *out_dst_h,
     int32_t *out_draw_idx, const unsigned char **out_data, int *out_src_w, int *out_src_h)
 {
     struct KeeperSprite *creature_sprites = keepersprite_array(kspr_base);
@@ -7602,15 +7617,25 @@ TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short ksp
         x_off = kspr->FrameOffsW;
     y_off = kspr->FrameOffsH;
 
-    *out_dst_x = (int32_t)(scaled_x + ((x_off * scale) >> 5));
-    *out_dst_y = (int32_t)(scaled_y + ((y_off * scale) >> 5));
-    *out_dst_w = (int32_t)(((long)kspr->SWidth * scale) >> 5);
-    *out_dst_h = (int32_t)(((long)kspr->SHeight * scale) >> 5);
+    if (creature_sprites->Rotable == 0)
+    {
+        keepersprite_scaled_span((int32_t)scaled_x, kspr->FrameWidth, (int32_t)(((long)kspr->FrameWidth * scale) >> 5),
+            (int32_t)x_off, kspr->SWidth, out_dst_x, out_dst_w);
+        keepersprite_scaled_span((int32_t)scaled_y, kspr->FrameHeight, (int32_t)(((long)kspr->FrameHeight * scale) >> 5),
+            (int32_t)y_off, kspr->SHeight, out_dst_y, out_dst_h);
+    }
+    else
+    {
+        keepersprite_scaled_span((int32_t)(scaled_x + ((x_off * scale) >> 5)), kspr->SWidth,
+            (int32_t)(((long)kspr->SWidth * scale) >> 5), 0, kspr->SWidth, out_dst_x, out_dst_w);
+        keepersprite_scaled_span((int32_t)(scaled_y + ((y_off * scale) >> 5)), kspr->SHeight,
+            (int32_t)(((long)kspr->SHeight * scale) >> 5), 0, kspr->SHeight, out_dst_y, out_dst_h);
+    }
     return true;
 }
 
 static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, long kspr_idx,
-    long dst_x, long dst_y, long dst_w, long dst_h)
+    float dst_x, float dst_y, float dst_w, float dst_h)
 {
     if ((kspr_idx < 0)
         || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET))
@@ -7641,7 +7666,7 @@ static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, 
     }
 
     RendererSubmitKeeperSprite((int32_t)x, (int32_t)y,
-            (int32_t)dst_x, (int32_t)dst_y, (int32_t)dst_w, (int32_t)dst_h,
+            dst_x, dst_y, dst_w, dst_h,
             *sprite_data_ptr, kspr->SWidth, kspr->SHeight, (int32_t)clipped_height,
             (unsigned int)RendererGetDrawFlags(),
             (RendererGetDrawFlags() & Lb_SPRITE_REMAP) ? lbSpriteReMapPtr : NULL,
@@ -7676,9 +7701,10 @@ static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, stru
       }
     }
     // Content sub-rect within the already-scaled frame
-    draw_keepersprite(x, y, kspr, kspr_idx,
-        kspos_x + ((x * scale) >> 5), kspos_y + ((y * scale) >> 5),
-        ((long)kspr->SWidth * scale) >> 5, ((long)kspr->SHeight * scale) >> 5);
+    float dst_x, dst_y, dst_w, dst_h;
+    keepersprite_scaled_span(kspos_x, src_dx, sp_dx, x, kspr->SWidth, &dst_x, &dst_w);
+    keepersprite_scaled_span(kspos_y, src_dy, sp_dy, y, kspr->SHeight, &dst_y, &dst_h);
+    draw_keepersprite(x, y, kspr, kspr_idx, dst_x, dst_y, dst_w, dst_h);
 }
 
 static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
@@ -7700,9 +7726,10 @@ static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct Kee
           }
       }
     }
-    draw_keepersprite(x, y, kspr, kspr_idx,
-        kspos_x + ((x * scale) >> 5), kspos_y + ((y * scale) >> 5),
-        ((long)kspr->SWidth * scale) >> 5, ((long)kspr->SHeight * scale) >> 5);
+    float dst_x, dst_y, dst_w, dst_h;
+    keepersprite_scaled_span(kspos_x, src_dx, sp_dx, x, kspr->SWidth, &dst_x, &dst_w);
+    keepersprite_scaled_span(kspos_y, src_dy, sp_dy, y, kspr->SHeight, &dst_y, &dst_h);
+    draw_keepersprite(x, y, kspr, kspr_idx, dst_x, dst_y, dst_w, dst_h);
 }
 
 static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
@@ -7727,9 +7754,10 @@ static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct Ke
           }
       }
     }
-    // sp_x/sp_y/sp_dx/sp_dy are already the final content dst rect here
-    // (src_dx/src_dy above are SWidth/SHeight, not FrameWidth/FrameHeight).
-    draw_keepersprite(0, 0, kspr, kspr_idx, sp_x, sp_y, sp_dx, sp_dy);
+    float dst_x, dst_y, dst_w, dst_h;
+    keepersprite_scaled_span(sp_x, src_dx, sp_dx, 0, src_dx, &dst_x, &dst_w);
+    keepersprite_scaled_span(sp_y, src_dy, sp_dy, 0, src_dy, &dst_y, &dst_h);
+    draw_keepersprite(0, 0, kspr, kspr_idx, dst_x, dst_y, dst_w, dst_h);
     SYNCDBG(18,"Finished");
 }
 
@@ -7755,8 +7783,10 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
             }
         }
     }
-    // sp_x/sp_y/sp_dx/sp_dy are already the final content dst rect here.
-    draw_keepersprite(0, 0, kspr, kspr_idx, sp_x, sp_y, sp_dx, sp_dy);
+    float dst_x, dst_y, dst_w, dst_h;
+    keepersprite_scaled_span(sp_x, src_dx, sp_dx, 0, src_dx, &dst_x, &dst_w);
+    keepersprite_scaled_span(sp_y, src_dy, sp_dy, 0, src_dy, &dst_y, &dst_h);
+    draw_keepersprite(0, 0, kspr, kspr_idx, dst_x, dst_y, dst_w, dst_h);
     SYNCDBG(18,"Finished");
 }
 
