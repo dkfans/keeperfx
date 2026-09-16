@@ -341,30 +341,6 @@ short setup_game(void)
         SYNCMSG("Wine Host: %s", wine_host);
   }
 
-  // Enable features that require more than 32 megs of memory
-  features_enabled |= Ft_HiResCreatr;
-  // Enable features that require more than 16 megs of memory
-  features_enabled |= Ft_EyeLens;
-  features_enabled |= Ft_HiResVideo;
-  features_enabled |= Ft_BigPointer;
-  features_enabled |= Ft_AdvAmbSound;
-
-  // Default feature settings (in case the options are absent from keeperfx.cfg)
-  features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
-  features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
-  features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
-  features_enabled |= Ft_RelativeMouseMode; // use SDL relative ("raw") mouse mode; set RELATIVE_MOUSE_MODE=OFF for the grab-and-warp scheme
-  features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
-  features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
-  if (start_params.skip_heart_zoom) {
-    features_enabled |= Ft_SkipHeartZoom;
-  } else {
-    features_enabled &= ~Ft_SkipHeartZoom;
-  }
-  features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
-  features_enabled |= Ft_DeltaTime; // enable delta time
-  features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
-
   // View the legal screen
   if (flag_is_set(start_params.startup_flags, SFlg_Legal))
   {
@@ -2081,6 +2057,29 @@ static const char* determine_log_filename(unsigned short argument_count, char *a
 
 static short resolve_startup_config(void)
 {
+    // Enable features that require more than 32 megs of memory
+    features_enabled |= Ft_HiResCreatr;
+    // Enable features that require more than 16 megs of memory
+    features_enabled |= Ft_EyeLens;
+    features_enabled |= Ft_HiResVideo;
+    features_enabled |= Ft_BigPointer;
+    features_enabled |= Ft_AdvAmbSound;
+
+    // Default feature settings (in case the options are absent from keeperfx.cfg)
+    features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
+    features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
+    features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
+    features_enabled |= Ft_RelativeMouseMode; // use SDL relative ("raw") mouse mode; set RELATIVE_MOUSE_MODE=OFF for the grab-and-warp scheme
+    features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
+    features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
+    if (start_params.skip_heart_zoom) {
+      features_enabled |= Ft_SkipHeartZoom;
+    } else {
+      features_enabled &= ~Ft_SkipHeartZoom;
+    }
+    features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
+    features_enabled |= Ft_DeltaTime; // enable delta time
+    features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
     if (!load_configuration())
     {
         ERRORLOG("Configuration load error.");
