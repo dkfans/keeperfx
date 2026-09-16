@@ -1764,8 +1764,7 @@ void GLWorldViewRenderer::BeginWorldSpriteCapture(int32_t bucket_idx)
     // Biased half a bucket closer to the camera so sprites always pass the
     // depth test against same-bucket ground polygons.
     m_current_sprite_z = 2.0f * ((float)bucket_idx - 0.5f) / (float)(BUCKETS_COUNT - 1) - 1.0f;
-    m_current_sprite_sort_key = ((uint32_t)bucket_idx << 16)
-                              | (m_sprite_entry_seq++ & 0xFFFFu);
+    m_current_sprite_sort_key = ((uint64_t)bucket_idx << 32) | m_sprite_entry_seq++;
 }
 
 void GLWorldViewRenderer::BeginCursorCapture()
@@ -2452,7 +2451,13 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
                     m_kspr_sorted_idx.push_back(i);
                 std::stable_sort(m_kspr_sorted_idx.begin(), m_kspr_sorted_idx.end(),
                                  [this](int a, int b) {
-                                     return m_rt_kspr_ir[a].sort_key > m_rt_kspr_ir[b].sort_key;
+                                     // Far buckets first; within a bucket, keep submission
+                                     // order to match the software bucket walk.
+                                     const uint64_t ka = m_rt_kspr_ir[a].sort_key;
+                                     const uint64_t kb = m_rt_kspr_ir[b].sort_key;
+                                     if ((ka >> 32) != (kb >> 32))
+                                         return (ka >> 32) > (kb >> 32);
+                                     return (uint32_t)ka < (uint32_t)kb;
                                  });
                 return m_kspr_sorted_idx;
             };

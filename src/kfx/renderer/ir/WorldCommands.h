@@ -107,7 +107,7 @@ struct IRWorldKeeperSpriteCmd
     float                 z_ndc         = 0.0f;  /**< Pre-computed NDC depth (half-bucket bias). */
     int8_t                owner         = -1;    /**< Player owner index (-1 = none). */
     int8_t                wants_outline =  0;    /**< Non-zero if depth-fail outline is wanted. */
-    uint32_t               sort_key      = 0;
+    uint64_t              sort_key      = 0;     /**< (bucket << 32) | submission seq. */
 };
 
 /******************************************************************************/

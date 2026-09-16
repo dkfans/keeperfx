@@ -442,7 +442,7 @@ private:
     PaletteTransform m_rt_palette_xform;      // RT: engine palette to m_rt_palette, for glow
 
     float    m_current_sprite_z       = 0.0f;
-    uint32_t m_current_sprite_sort_key = 0;
+    uint64_t m_current_sprite_sort_key = 0;
     uint32_t m_sprite_entry_seq        = 0;
     size_t   m_kspr_pass_start         = 0;
 
