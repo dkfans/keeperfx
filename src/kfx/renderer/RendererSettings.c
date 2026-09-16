@@ -34,10 +34,6 @@ void RendererSettings_Reset(void)
     g_renderer_settings.ui_sprite_filter      = RENDERER_FILTER_NEAREST;
     g_renderer_settings.shadow_filter         = RENDERER_FILTER_NEAREST;
 
-    /* Transparency */
-    g_renderer_settings.transpar4_alpha       = 0.5f;
-    g_renderer_settings.transpar8_alpha       = 0.25f;
-
     /* Glow */
     g_renderer_settings.glow_intensity        = 1.0f;
     g_renderer_settings.glow_blend_mode       = RENDERER_GLOW_ADDITIVE;
@@ -119,8 +115,6 @@ void RendererSettings_Sanitize(void)
     RS_CLAMP_F(shade_scale,               0.1f, 3.0f);
     RS_CLAMP_F(shade_gamma,               0.1f, 3.0f);
     RS_CLAMP_F(glow_intensity,            0.0f, 2.0f);
-    RS_CLAMP_F(transpar4_alpha,           0.0f, 1.0f);
-    RS_CLAMP_F(transpar8_alpha,           0.0f, 1.0f);
     RS_CLAMP_F(shadow_darkness_scale,     0.0f, 2.0f);
     RS_CLAMP_F(shadow_colour_r,           0.0f, 1.0f);
     RS_CLAMP_F(shadow_colour_g,           0.0f, 1.0f);
@@ -183,8 +177,6 @@ void RendererSettings_Load(void)
         else if (strcmp(key, "shade_gamma")                == 0) g_renderer_settings.shade_gamma                = fval;
         else if (strcmp(key, "glow_intensity")             == 0) g_renderer_settings.glow_intensity             = fval;
         else if (strcmp(key, "glow_blend_mode")            == 0) g_renderer_settings.glow_blend_mode            = ival;
-        else if (strcmp(key, "transpar4_alpha")            == 0) g_renderer_settings.transpar4_alpha            = fval;
-        else if (strcmp(key, "transpar8_alpha")            == 0) g_renderer_settings.transpar8_alpha            = fval;
         else if (strcmp(key, "shadow_darkness_scale")      == 0) g_renderer_settings.shadow_darkness_scale      = fval;
         else if (strcmp(key, "shadow_depth_test")          == 0) g_renderer_settings.shadow_depth_test          = ival;
         else if (strcmp(key, "shadow_max_count")           == 0) g_renderer_settings.shadow_max_count           = ival;
@@ -241,9 +233,6 @@ void RendererSettings_Save(void)
     fprintf(f, "\n");
     fprintf(f, "glow_intensity          = %.4f\n", g_renderer_settings.glow_intensity);
     fprintf(f, "glow_blend_mode         = %d\n",   g_renderer_settings.glow_blend_mode);
-    fprintf(f, "\n");
-    fprintf(f, "transpar4_alpha         = %.4f\n", g_renderer_settings.transpar4_alpha);
-    fprintf(f, "transpar8_alpha         = %.4f\n", g_renderer_settings.transpar8_alpha);
     fprintf(f, "\n");
     fprintf(f, "shadow_darkness_scale   = %.4f\n", g_renderer_settings.shadow_darkness_scale);
     fprintf(f, "shadow_depth_test       = %d\n",   g_renderer_settings.shadow_depth_test);

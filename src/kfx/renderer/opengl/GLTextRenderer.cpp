@@ -15,19 +15,6 @@
 
 namespace {
 
-// TRANSPAR4/8 aren't a real alpha blend on the CPU path -- matches
-// GLUIRenderer.cpp's identical alpha_from_draw_flags() (kept as a separate
-// copy here since text and UI quads are drawn through different immediate
-// paths; same constants, same develop-derived defaults).
-constexpr float kTextTranspar4Alpha = 0.5f;
-constexpr float kTextTranspar8Alpha = 0.25f;
-float text_alpha_from_draw_flags(uint32_t draw_flags)
-{
-    if (draw_flags & Lb_SPRITE_TRANSPAR4) return kTextTranspar4Alpha;
-    if (draw_flags & Lb_SPRITE_TRANSPAR8) return kTextTranspar8Alpha;
-    return 1.0f;
-}
-
 float LineHeightExplicit(const struct TbSpriteSheet* font, const struct AsianFont* dbc_font)
 {
     return dbc_font ? (float)LbDbcCharHeight(dbc_font) : (float)LbSprFontCharHeight(font, ' ');
@@ -328,7 +315,7 @@ float GLTextRenderer::EmitWesternGlyph(const struct TbSpriteSheet* font, uint32_
     glyph.x = x;
     glyph.y = y;
     glyph.units_per_px = units_per_px;
-    glyph.alpha = text_alpha_from_draw_flags(state.flags);
+    glyph.alpha = draw_flags_source_weight(state.flags);
     m_layout_out->glyphs.Append(glyph);
 
     float w = spr->SWidth * units_per_px / 16.0f;
@@ -361,7 +348,7 @@ float GLTextRenderer::EmitDbcGlyph(const struct AsianFont* dbc_font, uint32_t ch
     glyph.kind = IRTextGlyphKind::ColourSprite;
     glyph.sprite = handle;
     glyph.units_per_px = units_per_px;
-    glyph.alpha = text_alpha_from_draw_flags(state.flags);
+    glyph.alpha = draw_flags_source_weight(state.flags);
     // Drop shadow, always drawn
     glyph.colour = (uint8_t)shadow_colour;
     glyph.x = x + 1.0f;
@@ -390,7 +377,7 @@ void GLTextRenderer::EmitUnderline(float x, float y, float w, float height, int 
 
     IRTextGlyph rect;
     rect.kind = IRTextGlyphKind::SolidRect;
-    rect.alpha = text_alpha_from_draw_flags(state.flags);
+    rect.alpha = draw_flags_source_weight(state.flags);
     rect.w = w;
     rect.h = 1.0f;
 

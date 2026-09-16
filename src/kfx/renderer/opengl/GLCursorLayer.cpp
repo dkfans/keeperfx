@@ -4,6 +4,7 @@
 #include "kfx/renderer/opengl/GLWorldViewRenderer.h"
 #include "bflib_sprite.h"
 #include "engine_render.h"  // resolve_keepersprite_cursor_geometry()
+#include "kfx/renderer/SpriteScale.h"
 #include "post_inc.h"
 
 void GLCursorLayer::SubmitPointerSprite(const struct TbSprite* spr, int32_t x, int32_t y, int units_per_px)
@@ -25,9 +26,9 @@ void GLCursorLayer::SubmitKeeperHandSprite(short x, short y, unsigned short kspr
     int32_t draw_idx = -1;
     const unsigned char* data = nullptr;
     int src_w = 0, src_h = 0;
-    int32_t dst_x = 0, dst_y = 0, dst_w = 0, dst_h = 0;
+    struct SpriteScale sprite_scale;
     if (!resolve_keepersprite_cursor_geometry(x, y, kspr_base, angle, sprgroup, (long)scale,
-            &dst_x, &dst_y, &dst_w, &dst_h, &draw_idx, &data, &src_w, &src_h))
+            &sprite_scale, &draw_idx, &data, &src_w, &src_h))
     {
         return;
     }
@@ -35,7 +36,7 @@ void GLCursorLayer::SubmitKeeperHandSprite(short x, short y, unsigned short kspr
         return;
 
     m_world->BeginCursorCapture();
-    m_world->SubmitKeeperSprite(0, 0, dst_x, dst_y, dst_w, dst_h, data, src_w, src_h, src_h,
+    m_world->SubmitKeeperSprite(&sprite_scale, data, src_w, src_h, src_h,
                                 (unsigned int)draw_flags, nullptr, draw_idx);
     m_world->EndCursorCapture();
 }

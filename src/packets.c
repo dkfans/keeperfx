@@ -106,7 +106,6 @@
 #include "lua_triggers.h"
 
 #include "keeperfx.hpp"
-#include "kfx/renderer/RendererManager.h" // RendererPhysicalWidth
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -576,7 +575,9 @@ void process_user_dungeon_control_packet_control(NetUserId user)
         ERRORLOG("No active camera");
         return;
     }
-    process_camera_controls(cam, pckt, player);
+    // A parchment map jump's controls were made on the parchment, not for the dungeon camera it jumps.
+    if (pckt->action != PckA_ZoomFromMap)
+        process_camera_controls(cam, pckt, player);
     if (is_my_player(player)) {
         TbBool settings_changed = false;
         if ((pckt->control_flags & (PCtr_ViewTiltUp | PCtr_ViewTiltDown | PCtr_ViewTiltReset)) != 0) {
@@ -817,15 +818,14 @@ TbBool process_user_global_packet_action(NetUserId user)
       set_player_mode(player, pckt->actn_par1);
       return 0;
   case PckA_ZoomFromMap:
-      if (network_is_active()
-          || (RendererPhysicalWidth() > 320))
+      if (parchment_map_fade_enabled())
+      {
+        set_player_mode(player, PVT_MapFadeOut);
+      } else
       {
         if (get_local_user() == user)
           toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
         set_player_mode(player, PVT_DungeonTop);
-      } else
-      {
-        set_player_mode(player, PVT_MapFadeOut);
       }
       return 0;
   case PckA_UpdatePause:

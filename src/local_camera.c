@@ -32,6 +32,7 @@
 #include "bflib_math.h"
 #include "frontmenu_ingame_map.h"
 #include "frontend.h"
+#include "gui_parchment.h"
 
 #include <math.h>
 #include "post_inc.h"
@@ -228,7 +229,9 @@ void update_local_cameras(void)
         }
     }
     if (local_camera_move_cam != cam) {
-        process_camera_controls(cam, pckt, player);
+        // Same as the packet camera: a parchment map jump ignores the packet's camera controls.
+        if (pckt->action != PckA_ZoomFromMap)
+            process_camera_controls(cam, pckt, player);
         view_process_camera_inertia(cam);
     }
 
@@ -337,7 +340,8 @@ void update_local_view_prediction(const struct Packet *pckt)
     if (pckt->action == PckA_SaveViewType && pckt->actn_par1 == PVT_MapScreen) {
         local_state.view_type = PVT_MapScreen;
         toggle_status_menu(0);
-    } else if ((pckt->action == PckA_LoadViewType && pckt->actn_par1 == PVT_DungeonTop) || pckt->action == PckA_ZoomFromMap) {
+    } else if ((pckt->action == PckA_LoadViewType && pckt->actn_par1 == PVT_DungeonTop)
+            || (pckt->action == PckA_ZoomFromMap && !parchment_map_fade_enabled())) {
         local_state.view_type = PVT_DungeonTop;
         toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
     }
