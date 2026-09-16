@@ -440,6 +440,27 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
 
     std::sort(order.begin(), order.end(), [](const Ref& a, const Ref& b) { return a.seq < b.seq; });
 
+    // Clip to the command's graphics window; UVs move with the edges cut away.
+    auto push_clipped = [&](IRUILayer layer, UIQuad q, const IRUIClip& clip) {
+        const float qw = q.x1 - q.x0;
+        const float qh = q.y1 - q.y0;
+        if (qw <= 0.0f || qh <= 0.0f) return;
+        const float x0 = std::max(q.x0, (float)clip.x);
+        const float y0 = std::max(q.y0, (float)clip.y);
+        const float x1 = std::min(q.x1, (float)(clip.x + clip.w));
+        const float y1 = std::min(q.y1, (float)(clip.y + clip.h));
+        if (x1 <= x0 || y1 <= y0) return;
+        const float du = (q.u1 - q.u0) / qw;
+        const float dv = (q.v1 - q.v0) / qh;
+        const float u0 = q.u0 + (x0 - q.x0) * du;
+        const float u1 = q.u0 + (x1 - q.x0) * du;
+        const float v0 = q.v0 + (y0 - q.y0) * dv;
+        const float v1 = q.v0 + (y1 - q.y0) * dv;
+        q.x0 = x0; q.y0 = y0; q.x1 = x1; q.y1 = y1;
+        q.u0 = u0; q.u1 = u1; q.v0 = v0; q.v1 = v1;
+        out[(int)layer].push_back(q);
+    };
+
     for (const Ref& ref : order)
     {
         switch (ref.kind)
@@ -456,7 +477,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             q.u0 = u0; q.v0 = v0; q.u1 = u1; q.v1 = v1;
             q.a = draw_flags_source_weight(c.draw_flags);
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_SPRITE; q.seq = c.seq;
-            out[(int)c.layer].push_back(q);
+            push_clipped(c.layer, q, c.clip);
             break;
         }
         case K_OneColour: {
@@ -472,7 +493,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             PaletteColour(c.colour, &q.r, &q.g, &q.b);
             q.a = draw_flags_source_weight(c.draw_flags);
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_COLORED; q.seq = c.seq;
-            out[(int)c.layer].push_back(q);
+            push_clipped(c.layer, q, c.clip);
             break;
         }
         case K_Scaled: {
@@ -487,7 +508,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             q.u0 = u0; q.v0 = v0; q.u1 = u1; q.v1 = v1;
             q.a = draw_flags_source_weight(c.draw_flags);
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_SPRITE; q.seq = c.seq;
-            out[(int)c.layer].push_back(q);
+            push_clipped(c.layer, q, c.clip);
             break;
         }
         case K_ScaledOneColour: {
@@ -503,7 +524,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             PaletteColour(c.colour, &q.r, &q.g, &q.b);
             q.a = draw_flags_source_weight(c.draw_flags);
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_COLORED; q.seq = c.seq;
-            out[(int)c.layer].push_back(q);
+            push_clipped(c.layer, q, c.clip);
             break;
         }
         case K_ScaledRemap: {
@@ -523,7 +544,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             q.ndc_z = c.ndc_z; q.mode = (float)PASS_REMAP;
             q.remap_row = (offset >= 0) ? (int)(offset / 256) : 0;
             q.seq = c.seq;
-            out[(int)c.layer].push_back(q);
+            push_clipped(c.layer, q, c.clip);
             break;
         }
         case K_Box: {
@@ -544,7 +565,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
                     q.x0 = x; q.y0 = y; q.x1 = x + w; q.y1 = y + h;
                     q.r = r; q.g = g; q.b = b; q.a = a;
                     q.ndc_z = c.ndc_z; q.mode = (float)PASS_SOLID; q.seq = c.seq;
-                    out[(int)c.layer].push_back(q);
+                    push_clipped(c.layer, q, c.clip);
                 };
                 push_rect((float)c.x, (float)c.y, (float)c.w, 1.0f);
                 push_rect((float)c.x, (float)(c.y + c.h - 1), (float)c.w, 1.0f);
@@ -561,7 +582,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
                 q.x1 = q.x0 + (float)c.w; q.y1 = q.y0 + (float)c.h;
                 q.r = r; q.g = g; q.b = b; q.a = a;
                 q.ndc_z = c.ndc_z; q.mode = (float)PASS_SOLID; q.seq = c.seq;
-                out[(int)c.layer].push_back(q);
+                push_clipped(c.layer, q, c.clip);
             }
             break;
         }
