@@ -80,10 +80,14 @@ struct IRWorldTexQuadCmd
 struct IRWorldKeeperSpriteCmd
 {
     WorldCmdLayer         layer         = WorldCmdLayer::Sprites;
-    float                 dst_x         = 0.0f; /**< Screen destination left (sub-pixel). */
-    float                 dst_y         = 0.0f; /**< Screen destination top (sub-pixel). */
-    float                 dst_w         = 0.0f; /**< Destination width. */
-    float                 dst_h         = 0.0f; /**< Destination height. */
+    int32_t               dst_x         = 0;   /**< First destination pixel (SpriteScaleAxis::dst_start). */
+    int32_t               dst_y         = 0;
+    int32_t               dst_w         = 0;   /**< Destination pixels covered (SpriteScaleAxis::dst_len). */
+    int32_t               dst_h         = 0;
+    int32_t               phase_x       = 0;   /**< SpriteScaleAxis::phase, 16.16. */
+    int32_t               phase_y       = 0;
+    int32_t               step_x        = 1;   /**< SpriteScaleAxis::step, 16.16. */
+    int32_t               step_y        = 1;
     int32_t               src_w         = 0;   /**< Source sprite width. */
     int32_t               src_h         = 0;   /**< Source sprite height -- also the atlas decode/cache height (always the sprite's full, unclipped content, so a later full-height draw of the same sprite_id never samples missing rows). */
     /** Visible rows out of @p src_h for THIS draw (water/lava

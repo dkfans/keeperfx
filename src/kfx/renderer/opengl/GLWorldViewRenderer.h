@@ -47,8 +47,9 @@ public:
 
     /** Per-instance record for the instanced keeper-sprite pass. */
     struct KsprInstance {
-        float    rect[4];   // dst x, y, w, h (screen px)
-        float    uvext[2];  // src_w/decode_dim, src_h/decode_dim
+        float    rect[4];   // dst x, y, w, h (whole screen px)
+        float    src[2];    // src_w, content_h
+        float    map[4];    // phase x/y, step x/y (SpriteScaleAxis)
         float    layer;     // atlas layer
         float    clut_v;    // CLUT row V coord (row 0 = identity)
         float    alpha;     // 1.0 / transpar4 / transpar8
@@ -58,7 +59,8 @@ public:
 
     struct KsprOutlineInstance {
         float rect[4];
-        float uvext[2];
+        float src[2];
+        float map[4];
         float layer;
         float z_ndc;        // sprite z + outline bias
         float flip;         // 0/1
@@ -167,8 +169,7 @@ public:
     void ResolveLensComposite();
 
     /** Submit one keeper-sprite (creature/object) for GPU rendering.*/
-    void SubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
-                            float dst_x, float dst_y, float dst_w, float dst_h,
+    void SubmitKeeperSprite(const struct SpriteScale* scale,
                             const unsigned char* data, int src_w, int src_h, int32_t content_h,
                             unsigned int draw_flags, const unsigned char* remap,
                             int32_t sprite_id) override;
@@ -241,11 +242,7 @@ private:
     void append_keeper_sprite_instance(const IRWorldKeeperSpriteCmd& cmd);
     void flush_keeper_sprite_instances();
 
-    int render_keepersprite_gpu(float dst_x, float dst_y, float dst_w, float dst_h,
-                                const unsigned char* data, int src_w, int src_h, int32_t content_h,
-                                unsigned int draw_flags, const unsigned char* remap,
-                                float z_ndc, int sprite_owner, int sprite_wants_outline,
-                                int32_t sprite_id);
+    int render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& cmd);
     void DrawKeeperSpriteGL(const IRWorldKeeperSpriteCmd& cmd);
 
     bool init_lens_shaders();

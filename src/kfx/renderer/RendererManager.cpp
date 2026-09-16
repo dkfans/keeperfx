@@ -437,14 +437,13 @@ void RendererBeginWorldSpriteCapture(int32_t bucket_idx)
         world->BeginWorldSpriteCapture(bucket_idx);
 }
 
-void RendererSubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
-    float dst_x, float dst_y, float dst_w, float dst_h,
+void RendererSubmitKeeperSprite(const struct SpriteScale* scale,
     const unsigned char* data, int src_w, int src_h, int32_t content_h,
     unsigned int draw_flags, const unsigned char* remap, int32_t sprite_id)
 {
     IWorldViewRenderer* world = active_world_renderer();
     if (world != nullptr)
-        world->SubmitKeeperSprite(frame_x, frame_y, dst_x, dst_y, dst_w, dst_h, data, src_w, src_h,
+        world->SubmitKeeperSprite(scale, data, src_w, src_h,
                                   content_h, draw_flags, remap, sprite_id);
 }
 

@@ -587,6 +587,7 @@
     <ClInclude Include="src\kfx\platform\WindowCompositorWin.h" />
     <ClInclude Include="src\kfx\platform\WindowSystemSDL.h" />
     <ClInclude Include="src\kfx\renderer\DrawState.h" />
+    <ClInclude Include="src\kfx\renderer\SpriteScale.h" />
     <ClInclude Include="src\kfx\renderer\EngineVertex.h" />
     <ClInclude Include="src\kfx\renderer\GpuResourceDesc.h" />
     <ClInclude Include="src\kfx\renderer\GpuResourceHandle.h" />

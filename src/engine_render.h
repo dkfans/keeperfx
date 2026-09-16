@@ -201,6 +201,7 @@ void draw_iso_only_fastview_mapwho(struct Camera *cam, struct BucketKindJontySpr
 // out_kspr (optional, may be NULL) returns the resolved per-frame entry --
 // resolve_keepersprite_cursor_geometry() (below) needs it for FrameOffsW/H.
 struct KeeperSprite;
+struct SpriteScale;
 TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
     unsigned char current_frame, int32_t *out_draw_idx,
     const unsigned char **out_data, int *out_src_w, int *out_src_h,
@@ -217,7 +218,7 @@ TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
 // heap) directly.
 TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short kspr_base,
     short kspr_angle, unsigned char sprgroup, long scale,
-    float *out_dst_x, float *out_dst_y, float *out_dst_w, float *out_dst_h,
+    struct SpriteScale *out_scale,
     int32_t *out_draw_idx, const unsigned char **out_data, int *out_src_w, int *out_src_h);
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color);
 

@@ -385,6 +385,7 @@
     <ClInclude Include="src\kfx\renderer\backends\SoftwareTextRenderer.h" />
     <ClInclude Include="src\kfx\renderer\backends\SoftwareUIRenderer.h" />
     <ClInclude Include="src\kfx\renderer\DrawState.h" />
+    <ClInclude Include="src\kfx\renderer\SpriteScale.h" />
     <ClInclude Include="src\kfx\renderer\IRenderer.h" />
     <ClInclude Include="src\kfx\renderer\ITextRenderer.h" />
     <ClInclude Include="src\kfx\renderer\IUIRenderer.h" />

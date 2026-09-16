@@ -37,6 +37,7 @@ struct Camera;
 struct WorldCommandBuffers;
 struct IRWorldShadowCmd;
 struct IRWorldLensCmd;
+struct SpriteScale;
 
 /******************************************************************************/
 
@@ -103,27 +104,22 @@ public:
     // Keeper sprite (world-space billboarded sprites)
 
     /** Draw a keeper-sprite (creature/object/shadow).
-     *  frame_x/y   = sprite content offset inside its frame, in source pixels
-     *                (the offset draw_keepersprite() applies to the frame's
-     *                scaling data -- the software raster draws through it).
-     *  dst_x/y/w/h = screen destination rect (sub-pixel), computed from the
-     *                sprite's FULL (unclipped) src_h -- see content_h.
+     *  scale       = where the sprite's frame lands and where the content sits
+     *                in it. Backends map pixels as sprite_scale_axis() says.
      *  data        = raw RLE palette-index sprite data.
      *  src_w/h     = sprite source dimensions (full content -- also the
      *                atlas decode/cache height; always pass the unclipped
      *                value here so a cache hit never has fewer rows decoded
      *                than a later, unclipped draw of the same sprite needs).
      *  content_h   = visible rows out of src_h for THIS draw (water/lava
-     *                clipping) -- <= src_h; backends scale both
-     *                the destination rect height and the UV V-range by
-     *                content_h/src_h. Pass == src_h for "no clipping" (every
+     *                clipping) -- <= src_h; only those rows are drawn.
+     *                Pass == src_h for "no clipping" (every
      *                caller except draw_keepersprite()'s
      *                water_source_cutoff case).
      *  draw_flags  = caller draw flags at time of call (flip, transpar, remap, additive).
      *  remap       = colour remap table (may be NULL).
      *  sprite_id   = frame-resolved global sprite index (stable cache key; -1 = unknown). */
-    virtual void SubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
-                                    float dst_x, float dst_y, float dst_w, float dst_h,
+    virtual void SubmitKeeperSprite(const struct SpriteScale* scale,
                                     const unsigned char* data, int src_w, int src_h,
                                     int32_t content_h,
                                     unsigned int draw_flags, const unsigned char* remap,
