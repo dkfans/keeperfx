@@ -373,6 +373,33 @@ ivec2 kspr_source_texel(vec2 local, vec4 map, vec2 src, float flip)
 }
 )glsl"
 
+#define KSPR_GLOW_GLSL R"glsl(
+// Per-strength RGB step, (dR*4, dG*4, dB*4) / 255 from compute_alpha_tables().
+// Black's step is subtracted.
+const vec3 k_glow_step[8] = vec3[8](
+    vec3(16.0, 16.0, 16.0) / 255.0,  // white:  dR=4, dG=4, dB=4
+    vec3(24.0, 16.0,  0.0) / 255.0,  // yellow: dR=6, dG=4, dB=0
+    vec3(24.0,  4.0,  4.0) / 255.0,  // red:    dR=6, dG=1, dB=1
+    vec3( 8.0,  8.0, 24.0) / 255.0,  // blue:   dR=2, dG=2, dB=6
+    vec3( 8.0, 24.0,  8.0) / 255.0,  // green:  dR=2, dG=6, dB=2
+    vec3(12.0,  0.0, 12.0) / 255.0,  // purple: dR=3, dG=0, dB=3
+    vec3( 8.0,  8.0,  8.0) / 255.0,  // black:  dR=-2, dG=-2, dB=-2
+    vec3(24.0, 12.0,  4.0) / 255.0   // orange: dR=6, dG=3, dB=1
+);
+// False when the pixel isn't drawn by this pass; the darken pass draws only black.
+bool kspr_glow_delta(int px, bool darken, mat3 palette_xform, out vec3 delta)
+{
+    delta = vec3(0.0);
+    if (px < 1 || px > 64) return false;
+    int code   = px - 1;
+    int family = code / 8;
+    int row    = code % 8;
+    if (row == 0 || (family == 6) != darken) return false;
+    delta = clamp(palette_xform * (k_glow_step[family] * float(row)), 0.0, 1.0);
+    return true;
+}
+)glsl"
+
 constexpr const char* KSPR_VERTEX_SHADER = R"glsl(
 #version 330 core
 layout(location = 0) in vec2  a_pos;
@@ -419,12 +446,8 @@ void main()
 }
 )glsl";
 
-// Non-instanced additive-glow fragment shader. Reuses KSPR_VERTEX_SHADER.
-// The glow colour comes from the DK glow-encoding index baked into the
-// sprite's own pixels (1-64: family = code/8, row = code%8, intensity scales
-// with row), moved into the current palette by u_palette_xform.
-// Drawn with glBlendFunc(GL_ONE, GL_ONE) so the RGB delta adds directly onto
-// the framebuffer -- see render_keepersprite_gpu()'s additive branch.
+// Non-instanced glow fragment shader (see KSPR_GLOW_GLSL). Reuses KSPR_VERTEX_SHADER.
+// Drawn with glBlendFunc(GL_ONE, GL_ONE): added, or reverse-subtracted when u_darken is set.
 constexpr const char* KSPR_GLOW_FRAGMENT_SHADER = R"glsl(
 #version 330 core
 in vec2 v_local;
@@ -434,35 +457,15 @@ flat in float v_flip;
 uniform sampler2D u_sprite;
 // Glow steps are engine-palette colours; this moves them into the palette drawn with.
 uniform mat3 u_palette_xform;
+uniform bool u_darken;
 out vec4 fragColor;
-
-// Per-row additive RGB step for each of the 8 glow families (8-bit normalised).
-// Order: white, yellow, red, blue, green, purple, black/darken, orange.
-// Values = (dR*4, dG*4, dB*4) / 255  where dR/dG/dB are from compute_alpha_tables().
-const vec3 k_glow_step[8] = vec3[8](
-    vec3(16.0, 16.0, 16.0) / 255.0,  // white:  dR=4, dG=4, dB=4
-    vec3(24.0, 16.0,  0.0) / 255.0,  // yellow: dR=6, dG=4, dB=0
-    vec3(24.0,  4.0,  4.0) / 255.0,  // red:    dR=6, dG=1, dB=1
-    vec3( 8.0,  8.0, 24.0) / 255.0,  // blue:   dR=2, dG=2, dB=6
-    vec3( 8.0, 24.0,  8.0) / 255.0,  // green:  dR=2, dG=6, dB=2
-    vec3(12.0,  0.0, 12.0) / 255.0,  // purple: dR=3, dG=0, dB=3
-    vec3( 0.0,  0.0,  0.0) / 255.0,  // black/darken -- no additive contribution
-    vec3(24.0, 12.0,  4.0) / 255.0   // orange: dR=6, dG=3, dB=1
-);
-)glsl" KSPR_SOURCE_TEXEL_GLSL R"glsl(
+)glsl" KSPR_SOURCE_TEXEL_GLSL KSPR_GLOW_GLSL R"glsl(
 void main()
 {
-    // Sprite pixels 1-64 are DK glow-encoding indices.
-    // code = px-1; family = code/8 (0=white..7=orange); row = code%8 (intensity)
-    // Row 0 = no glow; family 6 = darken (no additive contribution).
     int px = int(texelFetch(u_sprite, kspr_source_texel(v_local, v_map, v_src, v_flip), 0).r * 255.0 + 0.5);
-    if (px < 1 || px > 64) discard;
-    int code   = px - 1;
-    int family = code / 8;
-    int row    = code % 8;
-    if (row == 0 || family == 6) discard;
-    vec3 glow = clamp(u_palette_xform * (k_glow_step[family] * float(row)), 0.0, 1.0);
-    fragColor = vec4(glow, 1.0);
+    vec3 delta;
+    if (!kspr_glow_delta(px, u_darken, u_palette_xform, delta)) discard;
+    fragColor = vec4(delta, u_darken ? 0.0 : 1.0);
 }
 )glsl";
 
@@ -491,8 +494,7 @@ void main()
 }
 )glsl";
 
-// Array-atlas variant of the glow shader -- additive sprites cached in atlas.
-// Same glow families/steps as KSPR_GLOW_FRAGMENT_SHADER (see there for docs).
+// Array-atlas variant of the glow shader -- glow sprites cached in atlas.
 constexpr const char* KSPR_ARRAY_GLOW_FRAGMENT_SHADER = R"glsl(
 #version 330 core
 in vec2 v_local;
@@ -503,30 +505,16 @@ uniform sampler2DArray u_sprite;
 uniform float          u_layer;
 // Glow steps are engine-palette colours; this moves them into the palette drawn with.
 uniform mat3 u_palette_xform;
+uniform bool u_darken;
 out vec4 fragColor;
-
-const vec3 k_glow_step[8] = vec3[8](
-    vec3(16.0, 16.0, 16.0) / 255.0,
-    vec3(24.0, 16.0,  0.0) / 255.0,
-    vec3(24.0,  4.0,  4.0) / 255.0,
-    vec3( 8.0,  8.0, 24.0) / 255.0,
-    vec3( 8.0, 24.0,  8.0) / 255.0,
-    vec3(12.0,  0.0, 12.0) / 255.0,
-    vec3( 0.0,  0.0,  0.0) / 255.0,
-    vec3(24.0, 12.0,  4.0) / 255.0
-);
-)glsl" KSPR_SOURCE_TEXEL_GLSL R"glsl(
+)glsl" KSPR_SOURCE_TEXEL_GLSL KSPR_GLOW_GLSL R"glsl(
 void main()
 {
     ivec2 t = kspr_source_texel(v_local, v_map, v_src, v_flip);
     int px = int(texelFetch(u_sprite, ivec3(t, int(u_layer + 0.5)), 0).r * 255.0 + 0.5);
-    if (px < 1 || px > 64) discard;
-    int code   = px - 1;
-    int family = code / 8;
-    int row    = code % 8;
-    if (row == 0 || family == 6) discard;
-    vec3 glow = clamp(u_palette_xform * (k_glow_step[family] * float(row)), 0.0, 1.0);
-    fragColor = vec4(glow, 1.0);
+    vec3 delta;
+    if (!kspr_glow_delta(px, u_darken, u_palette_xform, delta)) discard;
+    fragColor = vec4(delta, u_darken ? 0.0 : 1.0);
 }
 )glsl";
 
@@ -637,7 +625,7 @@ layout(location = 0) in vec2 a_corner;  // unit quad corner, (0,0)..(1,1)
 layout(location = 1) in vec4 a_rect;    // instance: dst x, y, w, h (whole screen px)
 layout(location = 2) in vec2 a_src;     // instance: src_w, content_h
 layout(location = 3) in vec4 a_misc;    // instance: layer, clut_v, alpha, z_ndc
-layout(location = 4) in uint a_flags;   // instance: bit0 = flip_h, bit1 = additive
+layout(location = 4) in uint a_flags;   // instance: bit0 = flip_h, bit1 = glow, bit2 = darken pass
 layout(location = 5) in vec4 a_map;     // instance: phase x/y, step x/y
 uniform vec2 u_viewport;
 out vec2 v_local;
@@ -666,27 +654,13 @@ in vec2 v_local;
 flat in vec4 v_map;
 flat in vec2 v_src;
 flat in vec3 v_lca;    // layer, clut_v, alpha
-flat in uint v_flags;  // bit0 = flip_h, bit1 = additive glow
+flat in uint v_flags;  // bit0 = flip_h, bit1 = glow, bit2 = darken pass
 uniform sampler2DArray u_sprite;   // GL_RG8 decode atlas (index, coverage), one layer per sprite
 uniform sampler2D      u_clut;     // 256xN CLUT -- row 0 identity, rows 1..N remaps
 // Glow steps are engine-palette colours; this moves them into the palette drawn with.
 uniform mat3 u_palette_xform;
 out vec4 fragColor;
-
-// Per-row additive RGB step for each of the 8 glow families (8-bit normalised).
-// Order: white, yellow, red, blue, green, purple, black/darken, orange.
-// Values = (dR*4, dG*4, dB*4) / 255  where dR/dG/dB are from compute_alpha_tables().
-const vec3 k_glow_step[8] = vec3[8](
-    vec3(16.0, 16.0, 16.0) / 255.0,
-    vec3(24.0, 16.0,  0.0) / 255.0,
-    vec3(24.0,  4.0,  4.0) / 255.0,
-    vec3( 8.0,  8.0, 24.0) / 255.0,
-    vec3( 8.0, 24.0,  8.0) / 255.0,
-    vec3(12.0,  0.0, 12.0) / 255.0,
-    vec3( 0.0,  0.0,  0.0) / 255.0,
-    vec3(24.0, 12.0,  4.0) / 255.0
-);
-)glsl" KSPR_SOURCE_TEXEL_GLSL R"glsl(
+)glsl" KSPR_SOURCE_TEXEL_GLSL KSPR_GLOW_GLSL R"glsl(
 void main()
 {
     float flip = ((v_flags & 1u) != 0u) ? 1.0 : 0.0;
@@ -695,15 +669,11 @@ void main()
     float idx = texel.r;
     if ((v_flags & 2u) != 0u)
     {
-        // Additive glow: alpha 0 makes (ONE, ONE_MINUS_SRC_ALPHA) act as (ONE, ONE).
-        int px = int(idx * 255.0 + 0.5);
-        if (px < 1 || px > 64) discard;
-        int code   = px - 1;
-        int family = code / 8;
-        int row    = code % 8;
-        if (row == 0 || family == 6) discard;
-        vec3 glow = clamp(u_palette_xform * (k_glow_step[family] * float(row)), 0.0, 1.0);
-        fragColor = vec4(glow, 0.0);
+        // Glow: alpha 0 makes (ONE, ONE_MINUS_SRC_ALPHA) act as (ONE, ONE).
+        // The darken pass is drawn with a reverse-subtract blend.
+        vec3 delta;
+        if (!kspr_glow_delta(int(idx * 255.0 + 0.5), (v_flags & 4u) != 0u, u_palette_xform, delta)) discard;
+        fragColor = vec4(delta, 0.0);
     }
     else
     {

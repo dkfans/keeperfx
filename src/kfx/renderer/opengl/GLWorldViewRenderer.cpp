@@ -66,6 +66,20 @@ static constexpr int k_kspr_decode_dim = 256;
  *  can use GL_UNPACK_ROW_LENGTH regardless of the sprite's actual width. */
 static uint8_t s_kspr_decode_buf[k_kspr_decode_dim * k_kspr_decode_dim * 2];
 
+/** True when the sprite just decoded into s_kspr_decode_buf has black glow
+ *  pixels (codes 50-56), which a glow draw subtracts in a second pass. */
+static bool decoded_sprite_darkens(int w, int h)
+{
+    for (int y = 0; y < h; ++y)
+    {
+        const uint8_t* row = s_kspr_decode_buf + y * k_kspr_decode_dim * 2;
+        for (int x = 0; x < w; ++x)
+            if (row[x * 2 + 1] != 0 && row[x * 2] >= 50 && row[x * 2] <= 56)
+                return true;
+    }
+    return false;
+}
+
 /** Decode keeper-sprite RLE into a stride-k_kspr_decode_dim RG buffer.
  *  Format matches TbSprite.Data: negative cmd = transparent skip, positive
  *  cmd = run of palette-index bytes, 0 = end of row. Every pixel in a run is
@@ -289,6 +303,7 @@ void GLWorldViewRenderer::free_keeper_sprite_resources()
     m_kspr_clut_used = 1;
     memset(m_kspr_clut_palette_snap, 0, sizeof(m_kspr_clut_palette_snap));
     m_kspr_instances.clear();
+    m_kspr_instance_runs.clear();
     m_kspr_outline_instances.clear();
 }
 
@@ -996,6 +1011,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
             m_kspr_glow_loc_sprite   = glGetUniformLocation(glow_prog->id, "u_sprite");
             m_kspr_glow_loc_z_ndc    = glGetUniformLocation(glow_prog->id, "u_z_ndc");
             m_kspr_glow_loc_palette_xform = glGetUniformLocation(glow_prog->id, "u_palette_xform");
+            m_kspr_glow_loc_darken   = glGetUniformLocation(glow_prog->id, "u_darken");
             glUniform1i(m_kspr_glow_loc_sprite, 0);  // GL_TEXTURE0
             glUseProgram(0);
         }
@@ -1082,6 +1098,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
                 m_kspr_atlas_glow_loc_z_ndc    = glGetUniformLocation(atlas_glow_prog->id, "u_z_ndc");
                 m_kspr_atlas_glow_loc_layer    = glGetUniformLocation(atlas_glow_prog->id, "u_layer");
                 m_kspr_atlas_glow_loc_palette_xform = glGetUniformLocation(atlas_glow_prog->id, "u_palette_xform");
+                m_kspr_atlas_glow_loc_darken   = glGetUniformLocation(atlas_glow_prog->id, "u_darken");
                 glUniform1i(m_kspr_atlas_glow_loc_sprite, 0);  // GL_TEXTURE0
                 glUseProgram(0);
             }
@@ -1581,7 +1598,7 @@ void GLWorldViewRenderer::execute_preload_atlas()
                         ks.SWidth, k_kspr_decode_dim, 1,
                         GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        m_kspr_atlas_map[i] = {layer, ks.SWidth};
+        m_kspr_atlas_map[i] = {layer, ks.SWidth, decoded_sprite_darkens(ks.SWidth, ks.SHeight)};
         preloaded++;
     }
 
@@ -1604,7 +1621,7 @@ void GLWorldViewRenderer::execute_preload_atlas()
                         ks.SWidth, k_kspr_decode_dim, 1,
                         GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        m_kspr_atlas_map[sprite_id] = {layer, ks.SWidth};
+        m_kspr_atlas_map[sprite_id] = {layer, ks.SWidth, decoded_sprite_darkens(ks.SWidth, ks.SHeight)};
         preloaded++;
     }
 
@@ -1697,8 +1714,10 @@ void GLWorldViewRenderer::SubmitKeeperSprite(
         m_kspr_ir.push_back(cmd);
 }
 
-int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h)
+int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h,
+                                             bool* darkens)
 {
+    if (darkens) *darkens = false;
     if (!m_resource_mapper) return -1;
     const GLTexture* sprite_array = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
     const GLTexture* clut_tex = m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle);
@@ -1710,6 +1729,7 @@ int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned c
     if (it != m_kspr_atlas_map.end())
     {
         m_kspr_atlas_hits++;
+        if (darkens) *darkens = it->second.darkens;
         return it->second.layer;
     }
     if (m_kspr_atlas_used >= k_kspr_atlas_layers)
@@ -1730,7 +1750,9 @@ int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned c
                     src_w, k_kspr_decode_dim, 1,
                     GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    m_kspr_atlas_map[sprite_id] = {atlas_layer, src_w};
+    const bool sprite_darkens = decoded_sprite_darkens(src_w, src_h);
+    m_kspr_atlas_map[sprite_id] = {atlas_layer, src_w, sprite_darkens};
+    if (darkens) *darkens = sprite_darkens;
     m_kspr_atlas_misses++;
     return atlas_layer;
 }
@@ -1812,7 +1834,8 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
     const unsigned char* remap = cmd.remap_enabled ? cmd.remap_table : nullptr;
     const bool use_remap = remap && (cmd.draw_flags & Lb_SPRITE_REMAP) && !additive;
 
-    const int layer = resolve_atlas_layer(cmd.sprite_id, cmd.data, cmd.src_w, cmd.src_h);
+    bool darkens = false;
+    const int layer = resolve_atlas_layer(cmd.sprite_id, cmd.data, cmd.src_w, cmd.src_h, &darkens);
     if (layer < 0)
     {
         // Atlas full: flush what we have so painter's order holds, then draw
@@ -1845,7 +1868,12 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
     inst.z_ndc    = cmd.z_ndc;
     inst.flags    = ((cmd.draw_flags & Lb_SPRITE_FLIP_HORIZ) ? 1u : 0u)
                   | (additive ? 2u : 0u);
-    m_kspr_instances.push_back(inst);
+    push_keeper_sprite_instance(inst, false);
+    if (additive && darkens)
+    {
+        inst.flags |= 4u;
+        push_keeper_sprite_instance(inst, true);
+    }
 
     // Depth-fail outline pass
     if (g_renderer_settings.creature_outline_mode != RENDERER_OUTLINE_NONE && !additive && cmd.wants_outline
@@ -1880,6 +1908,14 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
         o.color[3] = g_renderer_settings.creature_outline_alpha;
         m_kspr_outline_instances.push_back(o);
     }
+}
+
+void GLWorldViewRenderer::push_keeper_sprite_instance(const KsprInstance& inst, bool darken)
+{
+    m_kspr_instances.push_back(inst);
+    if (m_kspr_instance_runs.empty() || m_kspr_instance_runs.back().darken != darken)
+        m_kspr_instance_runs.push_back({0, darken});
+    m_kspr_instance_runs.back().count++;
 }
 
 void GLWorldViewRenderer::flush_keeper_sprite_instances()
@@ -1940,10 +1976,17 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
             glUniformMatrix3fv(m_kspr_inst_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
             glBindVertexArray(inst_geom->vao);
             glBindBuffer(GL_ARRAY_BUFFER, inst_geom->vbo);
-            glBufferData(GL_ARRAY_BUFFER,
-                         (GLsizeiptr)(m_kspr_instances.size() * sizeof(KsprInstance)),
-                         m_kspr_instances.data(), GL_STREAM_DRAW);
-            glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, (GLsizei)m_kspr_instances.size());
+            // Runs keep submission order; a darken run subtracts from what is already drawn.
+            size_t first = 0;
+            for (const KsprInstanceRun& run : m_kspr_instance_runs)
+            {
+                glBlendEquation(run.darken ? GL_FUNC_REVERSE_SUBTRACT : GL_FUNC_ADD);
+                glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(run.count * sizeof(KsprInstance)),
+                             m_kspr_instances.data() + first, GL_STREAM_DRAW);
+                glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, (GLsizei)run.count);
+                first += run.count;
+            }
+            glBlendEquation(GL_FUNC_ADD);
         }
     }
 
@@ -1954,6 +1997,7 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
     glUseProgram(0);
 
     m_kspr_instances.clear();
+    m_kspr_instance_runs.clear();
     m_kspr_outline_instances.clear();
 }
 
@@ -2027,6 +2071,14 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(sv), sv);
 
     const float alpha = draw_flags_source_weight(draw_flags);
+
+    // Draws the black pixels of the glow quad just drawn, subtracted.
+    auto draw_glow_darken_pass = [](GLint loc_darken) {
+        glUniform1i(loc_darken, 1);
+        glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBlendEquation(GL_FUNC_ADD);
+    };
 
     // Additive glow
     const bool use_glow_atlas    = additive && atlas_layer >= 0 && kspr_atlas_glow_prog;
@@ -2138,6 +2190,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
             glUniform1f(m_kspr_atlas_glow_loc_z_ndc, z_ndc);
             glUniform1f(m_kspr_atlas_glow_loc_layer, (float)atlas_layer);
             glUniformMatrix3fv(m_kspr_atlas_glow_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
+            glUniform1i(m_kspr_atlas_glow_loc_darken, 0);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D_ARRAY, kspr_sprite_array ? kspr_sprite_array->id : 0);
             glBlendFunc(GL_ONE, GL_ONE);
@@ -2156,6 +2209,8 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
             glBlendFunc(GL_SRC_ALPHA, blend_dfactor);
         }
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        if (use_glow_atlas)
+            draw_glow_darken_pass(m_kspr_atlas_glow_loc_darken);
         glDisable(GL_BLEND);
         glBindVertexArray(0);
         glUseProgram(0);
@@ -2196,6 +2251,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
         glUniform2f(m_kspr_glow_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
         glUniform1f(m_kspr_glow_loc_z_ndc,    z_ndc);
         glUniformMatrix3fv(m_kspr_glow_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
+        glUniform1i(m_kspr_glow_loc_darken, 0);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
         glBlendFunc(GL_ONE, GL_ONE);
@@ -2214,6 +2270,8 @@ int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& c
     }
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    if (use_glow_fallback)
+        draw_glow_darken_pass(m_kspr_glow_loc_darken);
 
     glDisable(GL_BLEND);
     glBindVertexArray(0);

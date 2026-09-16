@@ -54,7 +54,13 @@ public:
         float    clut_v;    // CLUT row V coord (row 0 = identity)
         float    alpha;     // 1.0 / transpar4 / transpar8
         float    z_ndc;     // pre-computed NDC depth
-        uint32_t flags;     // bit0 = flip_h, bit1 = additive glow
+        uint32_t flags;     // bit0 = flip_h, bit1 = glow, bit2 = darken pass
+    };
+
+    /** Consecutive instances drawn with one blend: added, or subtracted for the darken pass. */
+    struct KsprInstanceRun {
+        uint32_t count;
+        bool     darken;
     };
 
     struct KsprOutlineInstance {
@@ -233,7 +239,9 @@ private:
      *  @p sprite_id (stable across sprite-heap reload, unlike a raw data
      *  pointer -- see the .cpp file header). Returns -1 when the atlas is
      *  absent/full or sprite_id is unknown (< 0). */
-    int resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h);
+    int resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h,
+                            bool* darkens = nullptr);
+    void push_keeper_sprite_instance(const KsprInstance& inst, bool darken);
 
     /** Look up (or lazily build) the CLUT row for a remap table. Returns the
      *  row's V texcoord; identity row 0 when the CLUT is full. */
@@ -353,6 +361,7 @@ private:
     GLint  m_kspr_glow_loc_sprite   = -1;
     GLint  m_kspr_glow_loc_z_ndc    = -1;
     GLint  m_kspr_glow_loc_palette_xform = -1;
+    GLint  m_kspr_glow_loc_darken = -1;
 
     // Depth-fail outline shaders
     GpuResourceHandle m_kspr_outline_shader_handle = kInvalidGpuResource;
@@ -404,12 +413,13 @@ private:
     GLint  m_kspr_atlas_glow_loc_z_ndc    = -1;
     GLint  m_kspr_atlas_glow_loc_layer    = -1;
     GLint  m_kspr_atlas_glow_loc_palette_xform = -1;
+    GLint  m_kspr_atlas_glow_loc_darken = -1;
 
     int    m_kspr_atlas_used    = 0;  // next free layer index
     int    m_kspr_atlas_peak    = 0;  // high-water mark (diagnostic only)
     int    m_kspr_atlas_hits    = 0;  // cache hits this frame (diagnostic only)
     int    m_kspr_atlas_misses  = 0;  // cache misses this frame (diagnostic only)
-    struct AtlasEntry { int layer; int src_w; };
+    struct AtlasEntry { int layer; int src_w; bool darkens; };
 
     std::unordered_map<int32_t, AtlasEntry> m_kspr_atlas_map;
 
@@ -425,6 +435,7 @@ private:
     GLint  m_kspr_inst_loc_viewport = -1;
     GLint  m_kspr_inst_loc_palette_xform = -1;
     std::vector<KsprInstance> m_kspr_instances;  // RT: batch scratch
+    std::vector<KsprInstanceRun> m_kspr_instance_runs;  // RT: batch scratch
 
     // Instanced depth-fail outline/edge pass
     GpuResourceHandle m_kspr_inst_outline_shader_handle = kInvalidGpuResource;
