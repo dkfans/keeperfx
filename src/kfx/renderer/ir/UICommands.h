@@ -13,7 +13,14 @@ enum class IRUILayer : uint8_t {
     Overlay          = 3,  // Drawn dead-last, over GameUI (zoom box, tooltips).
 };
 
+/** The engine graphics window a draw was submitted under, in absolute screen
+ *  pixels. The draw is clipped to it, as the software raster clips to its window. */
+struct IRUIClip {
+    int32_t x = 0, y = 0, w = 0, h = 0;
+};
+
 struct IRUISpriteCmd {
+    IRUIClip clip;
     int32_t x = 0, y = 0;
     int32_t units_per_px = 16;
     SpriteHandle sprite = kInvalidSpriteHandle;
@@ -24,6 +31,7 @@ struct IRUISpriteCmd {
 };
 
 struct IRUISpriteOneColourCmd {
+    IRUIClip clip;
     int32_t x = 0, y = 0;
     SpriteHandle sprite = kInvalidSpriteHandle;
     unsigned char colour = 0;
@@ -34,6 +42,7 @@ struct IRUISpriteOneColourCmd {
 };
 
 struct IRUISpriteScaledCmd {
+    IRUIClip clip;
     int32_t x = 0, y = 0, w = 0, h = 0;
     SpriteHandle sprite = kInvalidSpriteHandle;
     TbDrawFlagsMask draw_flags = 0;
@@ -43,6 +52,7 @@ struct IRUISpriteScaledCmd {
 };
 
 struct IRUISpriteScaledOneColourCmd {
+    IRUIClip clip;
     int32_t x = 0, y = 0, w = 0, h = 0;
     SpriteHandle sprite = kInvalidSpriteHandle;
     unsigned char colour = 0;
@@ -53,6 +63,7 @@ struct IRUISpriteScaledOneColourCmd {
 };
 
 struct IRUISpriteScaledRemapCmd {
+    IRUIClip clip;
     int32_t x = 0, y = 0, w = 0, h = 0;
     SpriteHandle sprite = kInvalidSpriteHandle;
     const unsigned char* cmap = nullptr;
@@ -63,6 +74,7 @@ struct IRUISpriteScaledRemapCmd {
 };
 
 struct IRUISolidBoxCmd {
+    IRUIClip clip;
     int32_t x = 0, y = 0, w = 0, h = 0;
     unsigned char colour = 0;
     TbDrawFlagsMask draw_flags = 0;

@@ -10,6 +10,7 @@
 #include "engine_render.h"  // software_execute_world_from_ir
 #include "keeperfx.hpp"       // EngineSpriteDrawUsingAlpha
 #include "bflib_vidraw.h"   // LbSpriteDrawUsingScalingData, DrawAlphaSpriteUsingScalingData
+#include "kfx/renderer/SpriteScale.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -67,11 +68,8 @@ void SoftwareWorldViewRenderer::ReexecuteDeferredWorld()
         ExecuteRecordedWorld();
 }
 
-// Draws through the scaling data the caller set for the sprite's frame; the
-// draw flags and remap table are read from the ambient draw state.
-void SoftwareWorldViewRenderer::SubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
-                                                   int32_t /*dst_x*/, int32_t /*dst_y*/,
-                                                   int32_t /*dst_w*/, int32_t /*dst_h*/,
+// The draw flags and remap table are read from the ambient draw state.
+void SoftwareWorldViewRenderer::SubmitKeeperSprite(const struct SpriteScale* scale,
                                                    const unsigned char* data, int src_w, int /*src_h*/,
                                                    int32_t content_h,
                                                    unsigned int /*draw_flags*/, const unsigned char* /*remap*/,
@@ -83,8 +81,10 @@ void SoftwareWorldViewRenderer::SubmitKeeperSprite(int32_t frame_x, int32_t fram
         (unsigned long)content_h,
         (unsigned long)src_w,
     };
+    LbSpriteSetScalingData(scale->frame_x, scale->frame_y, scale->frame_src_w, scale->frame_src_h,
+                           scale->frame_dst_w, scale->frame_dst_h);
     if (EngineSpriteDrawUsingAlpha)
-        DrawAlphaSpriteUsingScalingData(frame_x, frame_y, &buffer);
+        DrawAlphaSpriteUsingScalingData(scale->content_x, scale->content_y, &buffer);
     else
-        LbSpriteDrawUsingScalingData(frame_x, frame_y, &buffer);
+        LbSpriteDrawUsingScalingData(scale->content_x, scale->content_y, &buffer);
 }

@@ -1077,6 +1077,14 @@ void redraw_minimal_overhead_view(void)
     draw_tooltip();
 }
 
+/** Whether entering or leaving the parchment map plays the fade instead of cutting. */
+TbBool parchment_map_fade_enabled(void)
+{
+    if (network_is_active())
+        return false;
+    return MapFadePass_SupportsNativeResolution() || (RendererPhysicalWidth() <= 320);
+}
+
 void zoom_to_parchment_map(void)
 {
     turn_off_all_window_menus();
@@ -1085,17 +1093,13 @@ void zoom_to_parchment_map(void)
     else
       set_flag(game.operation_flags, GOF_ShowPanel);
     struct PlayerInfo* player = get_my_player();
-    // GL removes the >320px instant-cut fallback entirely -- that
-    // cap is a software-only per-pixel-LUT performance limit, not a
-    // fundamental one; see MapFadeSupportsNativeResolution()'s own comment.
-    if (network_is_active()
-        || (!MapFadePass_SupportsNativeResolution() && (RendererPhysicalWidth() > 320)))
+    if (parchment_map_fade_enabled())
     {
-      set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
+      set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
       turn_off_roaming_menus();
     } else
     {
-      set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
+      set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
       turn_off_roaming_menus();
     }
 }
@@ -1103,13 +1107,12 @@ void zoom_to_parchment_map(void)
 void zoom_from_parchment_map(void)
 {
     struct PlayerInfo* player = get_my_player();
-    if (network_is_active()
-        || (!MapFadePass_SupportsNativeResolution() && (RendererPhysicalWidth() > 320)))
-    {
-        set_players_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0,0,0);
-    } else
+    if (parchment_map_fade_enabled())
     {
         set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeOut, 0,0,0);
+    } else
+    {
+        set_players_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0,0,0);
     }
 }
 /******************************************************************************/

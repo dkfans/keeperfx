@@ -102,7 +102,7 @@ TbResult IUIRenderer::SubmitRawSprite(int32_t x, int32_t y, const struct TbSprit
     if (m_ui_write_cmds) {
         IRUISpriteCmd cmd;
         cmd.layer = ComputeCurrentLayer();
-        ApplyWindowOffset(cmd.layer, x, y);
+        ApplyGraphicsWindow(x, y, cmd.clip);
         cmd.x = x; cmd.y = y;
         cmd.sprite = ResolveSprite(spr);
         cmd.draw_flags = state.flags;
@@ -122,7 +122,7 @@ TbResult IUIRenderer::SubmitRawSpriteOneColour(int32_t x, int32_t y, const struc
     if (m_ui_write_cmds) {
         IRUISpriteOneColourCmd cmd;
         cmd.layer = ComputeCurrentLayer();
-        ApplyWindowOffset(cmd.layer, x, y);
+        ApplyGraphicsWindow(x, y, cmd.clip);
         cmd.x = x; cmd.y = y;
         cmd.sprite = ResolveSprite(spr);
         cmd.colour = colour;
@@ -143,7 +143,7 @@ TbResult IUIRenderer::SubmitRawSpriteScaled(int32_t x, int32_t y, const struct T
     if (m_ui_write_cmds) {
         IRUISpriteScaledCmd cmd;
         cmd.layer = ComputeCurrentLayer();
-        ApplyWindowOffset(cmd.layer, x, y);
+        ApplyGraphicsWindow(x, y, cmd.clip);
         cmd.x = x; cmd.y = y; cmd.w = w; cmd.h = h;
         cmd.sprite = ResolveSprite(spr);
         cmd.draw_flags = state.flags;
@@ -164,7 +164,7 @@ TbResult IUIRenderer::SubmitRawSpriteScaledOneColour(int32_t x, int32_t y, const
     if (m_ui_write_cmds) {
         IRUISpriteScaledOneColourCmd cmd;
         cmd.layer = ComputeCurrentLayer();
-        ApplyWindowOffset(cmd.layer, x, y);
+        ApplyGraphicsWindow(x, y, cmd.clip);
         cmd.x = x; cmd.y = y; cmd.w = w; cmd.h = h;
         cmd.sprite = ResolveSprite(spr);
         cmd.colour = colour;
@@ -186,7 +186,7 @@ int IUIRenderer::SubmitRawSpriteScaledRemap(int32_t x, int32_t y, const struct T
     if (m_ui_write_cmds) {
         IRUISpriteScaledRemapCmd cmd;
         cmd.layer = ComputeCurrentLayer();
-        ApplyWindowOffset(cmd.layer, x, y);
+        ApplyGraphicsWindow(x, y, cmd.clip);
         cmd.x = x; cmd.y = y; cmd.w = w; cmd.h = h;
         cmd.sprite = ResolveSprite(spr);
         cmd.cmap = cmap;
@@ -207,7 +207,7 @@ void IUIRenderer::SubmitSolidBox(int32_t x, int32_t y, int32_t w, int32_t h,
     if (m_ui_write_cmds) {
         IRUISolidBoxCmd cmd;
         cmd.layer = ComputeCurrentLayer();
-        ApplyWindowOffset(cmd.layer, x, y);
+        ApplyGraphicsWindow(x, y, cmd.clip);
         cmd.x = x; cmd.y = y; cmd.w = w; cmd.h = h;
         cmd.colour = colour_idx;
         cmd.draw_flags = state.flags;

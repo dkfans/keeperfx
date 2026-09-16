@@ -7,6 +7,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "kfx/renderer/opengl/GLWorldViewRenderer.h"
+#include "kfx/renderer/SpriteScale.h"
 
 #include "kfx/renderer/ITileAtlas.h"
 #include "kfx/renderer/opengl/GLShaders.h"
@@ -64,6 +65,20 @@ static constexpr int k_kspr_decode_dim = 256;
  *  before upload. Stride is always k_kspr_decode_dim pixels so glTexSubImage*()
  *  can use GL_UNPACK_ROW_LENGTH regardless of the sprite's actual width. */
 static uint8_t s_kspr_decode_buf[k_kspr_decode_dim * k_kspr_decode_dim * 2];
+
+/** True when the sprite just decoded into s_kspr_decode_buf has black glow
+ *  pixels (codes 50-56), which a glow draw subtracts in a second pass. */
+static bool decoded_sprite_darkens(int w, int h)
+{
+    for (int y = 0; y < h; ++y)
+    {
+        const uint8_t* row = s_kspr_decode_buf + y * k_kspr_decode_dim * 2;
+        for (int x = 0; x < w; ++x)
+            if (row[x * 2 + 1] != 0 && row[x * 2] >= 50 && row[x * 2] <= 56)
+                return true;
+    }
+    return false;
+}
 
 /** Decode keeper-sprite RLE into a stride-k_kspr_decode_dim RG buffer.
  *  Format matches TbSprite.Data: negative cmd = transparent skip, positive
@@ -288,6 +303,7 @@ void GLWorldViewRenderer::free_keeper_sprite_resources()
     m_kspr_clut_used = 1;
     memset(m_kspr_clut_palette_snap, 0, sizeof(m_kspr_clut_palette_snap));
     m_kspr_instances.clear();
+    m_kspr_instance_runs.clear();
     m_kspr_outline_instances.clear();
 }
 
@@ -995,6 +1011,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
             m_kspr_glow_loc_sprite   = glGetUniformLocation(glow_prog->id, "u_sprite");
             m_kspr_glow_loc_z_ndc    = glGetUniformLocation(glow_prog->id, "u_z_ndc");
             m_kspr_glow_loc_palette_xform = glGetUniformLocation(glow_prog->id, "u_palette_xform");
+            m_kspr_glow_loc_darken   = glGetUniformLocation(glow_prog->id, "u_darken");
             glUniform1i(m_kspr_glow_loc_sprite, 0);  // GL_TEXTURE0
             glUseProgram(0);
         }
@@ -1026,16 +1043,19 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
         }
     }
 
-    // VAO + VBO: 6 vertices x (vec2 pos + vec2 uv) = 4 floats each
+    // VAO + VBO: 6 vertices x (pos, local px, map, src, flip) = 11 floats each
     {
         GpuGeometryBufferDesc desc;
-        desc.vertex_stride = 4 * (uint32_t)sizeof(float);
+        desc.vertex_stride = 11 * (uint32_t)sizeof(float);
         desc.attribs = {
             { 0, 2, GpuVertexAttribType::Float, 0 },
             { 1, 2, GpuVertexAttribType::Float, 2 * (uint32_t)sizeof(float) },
+            { 2, 4, GpuVertexAttribType::Float, 4 * (uint32_t)sizeof(float) },
+            { 3, 2, GpuVertexAttribType::Float, 8 * (uint32_t)sizeof(float) },
+            { 4, 1, GpuVertexAttribType::Float, 10 * (uint32_t)sizeof(float) },
         };
         desc.dynamic = true;
-        desc.initial_vertex_capacity = 6 * 4 * sizeof(float);
+        desc.initial_vertex_capacity = 6 * 11 * sizeof(float);
         desc.debug_name = "kspr_geom";
         m_kspr_geom_handle = m_resource_mapper->RequestCreateGeometryBuffer(desc);
         if (m_resource_mapper->ResolveGeometryBuffer(m_kspr_geom_handle) == nullptr)
@@ -1078,6 +1098,7 @@ bool GLWorldViewRenderer::init_keeper_sprite_shader()
                 m_kspr_atlas_glow_loc_z_ndc    = glGetUniformLocation(atlas_glow_prog->id, "u_z_ndc");
                 m_kspr_atlas_glow_loc_layer    = glGetUniformLocation(atlas_glow_prog->id, "u_layer");
                 m_kspr_atlas_glow_loc_palette_xform = glGetUniformLocation(atlas_glow_prog->id, "u_palette_xform");
+                m_kspr_atlas_glow_loc_darken   = glGetUniformLocation(atlas_glow_prog->id, "u_darken");
                 glUniform1i(m_kspr_atlas_glow_loc_sprite, 0);  // GL_TEXTURE0
                 glUseProgram(0);
             }
@@ -1267,11 +1288,12 @@ bool GLWorldViewRenderer::init_keeper_sprite_instancing()
     }
 
     // Attribute byte offsets, locked to KsprInstance's layout.
-    static_assert(sizeof(KsprInstance) == 44, "KsprInstance layout changed -- update attrib offsets");
+    static_assert(sizeof(KsprInstance) == 60, "KsprInstance layout changed -- update attrib offsets");
     constexpr uintptr_t k_inst_off_rect  = 0;   // float[4]
-    constexpr uintptr_t k_inst_off_uvext = 16;  // float[2]
-    constexpr uintptr_t k_inst_off_misc  = 24;  // layer, clut_v, alpha, z_ndc
-    constexpr uintptr_t k_inst_off_flags = 40;  // uint32_t
+    constexpr uintptr_t k_inst_off_src   = 16;  // float[2]
+    constexpr uintptr_t k_inst_off_map   = 24;  // float[4]
+    constexpr uintptr_t k_inst_off_misc  = 40;  // layer, clut_v, alpha, z_ndc
+    constexpr uintptr_t k_inst_off_flags = 56;  // uint32_t
 
     {
         GpuGeometryBufferDesc desc;
@@ -1292,12 +1314,14 @@ bool GLWorldViewRenderer::init_keeper_sprite_instancing()
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(KsprInstance),
                           (void*)k_inst_off_rect);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(KsprInstance),
-                          (void*)k_inst_off_uvext);
+                          (void*)k_inst_off_src);
     glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(KsprInstance),
                           (void*)k_inst_off_misc);
     glVertexAttribIPointer(4, 1, GL_UNSIGNED_INT, sizeof(KsprInstance),
                            (void*)k_inst_off_flags);
-    for (GLuint loc = 1; loc <= 4; ++loc)
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(KsprInstance),
+                          (void*)k_inst_off_map);
+    for (GLuint loc = 1; loc <= 5; ++loc)
     {
         glEnableVertexAttribArray(loc);
         glVertexAttribDivisor(loc, 1);
@@ -1332,11 +1356,12 @@ bool GLWorldViewRenderer::init_keeper_sprite_instancing()
     }
 
     // Outline VAO: same shared unit quad, KsprOutlineInstance layout.
-    static_assert(sizeof(KsprOutlineInstance) == 52, "KsprOutlineInstance layout changed -- update attrib offsets");
+    static_assert(sizeof(KsprOutlineInstance) == 68, "KsprOutlineInstance layout changed -- update attrib offsets");
     constexpr uintptr_t k_outl_off_rect  = 0;   // float[4]
-    constexpr uintptr_t k_outl_off_uvext = 16;  // float[2]
-    constexpr uintptr_t k_outl_off_lzf   = 24;  // layer, z_ndc, flip
-    constexpr uintptr_t k_outl_off_color = 36;  // float[4]
+    constexpr uintptr_t k_outl_off_src   = 16;  // float[2]
+    constexpr uintptr_t k_outl_off_map   = 24;  // float[4]
+    constexpr uintptr_t k_outl_off_lzf   = 40;  // layer, z_ndc, flip
+    constexpr uintptr_t k_outl_off_color = 52;  // float[4]
 
     {
         GpuGeometryBufferDesc desc;
@@ -1356,12 +1381,14 @@ bool GLWorldViewRenderer::init_keeper_sprite_instancing()
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(KsprOutlineInstance),
                           (void*)k_outl_off_rect);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(KsprOutlineInstance),
-                          (void*)k_outl_off_uvext);
+                          (void*)k_outl_off_src);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(KsprOutlineInstance),
                           (void*)k_outl_off_lzf);
     glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(KsprOutlineInstance),
                           (void*)k_outl_off_color);
-    for (GLuint loc = 1; loc <= 4; ++loc)
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(KsprOutlineInstance),
+                          (void*)k_outl_off_map);
+    for (GLuint loc = 1; loc <= 5; ++loc)
     {
         glEnableVertexAttribArray(loc);
         glVertexAttribDivisor(loc, 1);
@@ -1571,7 +1598,7 @@ void GLWorldViewRenderer::execute_preload_atlas()
                         ks.SWidth, k_kspr_decode_dim, 1,
                         GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        m_kspr_atlas_map[i] = {layer, ks.SWidth};
+        m_kspr_atlas_map[i] = {layer, ks.SWidth, decoded_sprite_darkens(ks.SWidth, ks.SHeight)};
         preloaded++;
     }
 
@@ -1594,7 +1621,7 @@ void GLWorldViewRenderer::execute_preload_atlas()
                         ks.SWidth, k_kspr_decode_dim, 1,
                         GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        m_kspr_atlas_map[sprite_id] = {layer, ks.SWidth};
+        m_kspr_atlas_map[sprite_id] = {layer, ks.SWidth, decoded_sprite_darkens(ks.SWidth, ks.SHeight)};
         preloaded++;
     }
 
@@ -1636,8 +1663,7 @@ void GLWorldViewRenderer::ensure_clut_valid()
 }
 
 void GLWorldViewRenderer::SubmitKeeperSprite(
-    int32_t /*frame_x*/, int32_t /*frame_y*/,
-    int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+    const struct SpriteScale* scale,
     const unsigned char* data, int src_w, int src_h, int32_t content_h,
     unsigned int draw_flags, const unsigned char* remap,
     int32_t sprite_id)
@@ -1649,16 +1675,26 @@ void GLWorldViewRenderer::SubmitKeeperSprite(
                     src_w, src_h, k_kspr_decode_dim);
         return;
     }
-    if (dst_w <= 0 || dst_h <= 0) return;
     // Clamp rather than trust the caller: a bad content_h must not produce
-    // an inverted/oversized UV range or a negative destination height.
+    // rows past the decoded sprite.
     if (content_h <= 0 || content_h > src_h) content_h = src_h;
 
+    struct SpriteScaleAxis ax, ay;
+    sprite_scale_axis(scale->frame_x, scale->frame_src_w, scale->frame_dst_w, scale->window_w,
+                      scale->content_x, src_w, &ax);
+    sprite_scale_axis(scale->frame_y, scale->frame_src_h, scale->frame_dst_h, scale->window_h,
+                      scale->content_y, content_h, &ay);
+    if (ax.dst_len <= 0 || ay.dst_len <= 0) return;
+
     IRWorldKeeperSpriteCmd cmd;
-    cmd.dst_x         = dst_x;
-    cmd.dst_y         = dst_y;
-    cmd.dst_w         = dst_w;
-    cmd.dst_h         = dst_h;
+    cmd.dst_x         = ax.dst_start;
+    cmd.dst_y         = ay.dst_start;
+    cmd.dst_w         = ax.dst_len;
+    cmd.dst_h         = ay.dst_len;
+    cmd.phase_x       = ax.phase;
+    cmd.phase_y       = ay.phase;
+    cmd.step_x        = ax.step;
+    cmd.step_y        = ay.step;
     cmd.src_w         = src_w;
     cmd.src_h         = src_h;
     cmd.content_h     = content_h;
@@ -1678,8 +1714,10 @@ void GLWorldViewRenderer::SubmitKeeperSprite(
         m_kspr_ir.push_back(cmd);
 }
 
-int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h)
+int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h,
+                                             bool* darkens)
 {
+    if (darkens) *darkens = false;
     if (!m_resource_mapper) return -1;
     const GLTexture* sprite_array = m_resource_mapper->ResolveTexture(m_kspr_sprite_array_handle);
     const GLTexture* clut_tex = m_resource_mapper->ResolveTexture(m_kspr_clut_tex_handle);
@@ -1691,6 +1729,7 @@ int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned c
     if (it != m_kspr_atlas_map.end())
     {
         m_kspr_atlas_hits++;
+        if (darkens) *darkens = it->second.darkens;
         return it->second.layer;
     }
     if (m_kspr_atlas_used >= k_kspr_atlas_layers)
@@ -1711,7 +1750,9 @@ int GLWorldViewRenderer::resolve_atlas_layer(int32_t sprite_id, const unsigned c
                     src_w, k_kspr_decode_dim, 1,
                     GL_RG, GL_UNSIGNED_BYTE, s_kspr_decode_buf);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    m_kspr_atlas_map[sprite_id] = {atlas_layer, src_w};
+    const bool sprite_darkens = decoded_sprite_darkens(src_w, src_h);
+    m_kspr_atlas_map[sprite_id] = {atlas_layer, src_w, sprite_darkens};
+    if (darkens) *darkens = sprite_darkens;
     m_kspr_atlas_misses++;
     return atlas_layer;
 }
@@ -1764,8 +1805,7 @@ void GLWorldViewRenderer::BeginWorldSpriteCapture(int32_t bucket_idx)
     // Biased half a bucket closer to the camera so sprites always pass the
     // depth test against same-bucket ground polygons.
     m_current_sprite_z = 2.0f * ((float)bucket_idx - 0.5f) / (float)(BUCKETS_COUNT - 1) - 1.0f;
-    m_current_sprite_sort_key = ((uint32_t)bucket_idx << 16)
-                              | (m_sprite_entry_seq++ & 0xFFFFu);
+    m_current_sprite_sort_key = ((uint64_t)bucket_idx << 32) | m_sprite_entry_seq++;
 }
 
 void GLWorldViewRenderer::BeginCursorCapture()
@@ -1794,7 +1834,8 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
     const unsigned char* remap = cmd.remap_enabled ? cmd.remap_table : nullptr;
     const bool use_remap = remap && (cmd.draw_flags & Lb_SPRITE_REMAP) && !additive;
 
-    const int layer = resolve_atlas_layer(cmd.sprite_id, cmd.data, cmd.src_w, cmd.src_h);
+    bool darkens = false;
+    const int layer = resolve_atlas_layer(cmd.sprite_id, cmd.data, cmd.src_w, cmd.src_h, &darkens);
     if (layer < 0)
     {
         // Atlas full: flush what we have so painter's order holds, then draw
@@ -1808,27 +1849,31 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
     if (use_remap)
         clut_v = resolve_clut_v(remap);
 
-    float alpha = 1.0f;
-    if      (cmd.draw_flags & Lb_SPRITE_TRANSPAR4) alpha = g_renderer_settings.transpar4_alpha;
-    else if (cmd.draw_flags & Lb_SPRITE_TRANSPAR8) alpha = g_renderer_settings.transpar8_alpha;
-
-    // Water/lava clipping
-    const float clip_frac = (float)cmd.content_h / (float)cmd.src_h;
+    const float alpha = draw_flags_source_weight(cmd.draw_flags);
 
     KsprInstance inst;
     inst.rect[0]  = (float)cmd.dst_x;
     inst.rect[1]  = (float)cmd.dst_y;
     inst.rect[2]  = (float)cmd.dst_w;
-    inst.rect[3]  = (float)cmd.dst_h * clip_frac;
-    inst.uvext[0] = (float)cmd.src_w / (float)k_kspr_decode_dim;
-    inst.uvext[1] = (float)cmd.content_h / (float)k_kspr_decode_dim;
+    inst.rect[3]  = (float)cmd.dst_h;
+    inst.src[0]   = (float)cmd.src_w;
+    inst.src[1]   = (float)cmd.content_h;
+    inst.map[0]   = (float)cmd.phase_x;
+    inst.map[1]   = (float)cmd.phase_y;
+    inst.map[2]   = (float)cmd.step_x;
+    inst.map[3]   = (float)cmd.step_y;
     inst.layer    = (float)layer;
     inst.clut_v   = clut_v;
     inst.alpha    = alpha;
     inst.z_ndc    = cmd.z_ndc;
     inst.flags    = ((cmd.draw_flags & Lb_SPRITE_FLIP_HORIZ) ? 1u : 0u)
                   | (additive ? 2u : 0u);
-    m_kspr_instances.push_back(inst);
+    push_keeper_sprite_instance(inst, false);
+    if (additive && darkens)
+    {
+        inst.flags |= 4u;
+        push_keeper_sprite_instance(inst, true);
+    }
 
     // Depth-fail outline pass
     if (g_renderer_settings.creature_outline_mode != RENDERER_OUTLINE_NONE && !additive && cmd.wants_outline
@@ -1848,8 +1893,9 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
             }
         }
         KsprOutlineInstance o;
-        memcpy(o.rect,  inst.rect,  sizeof(o.rect));
-        memcpy(o.uvext, inst.uvext, sizeof(o.uvext));
+        memcpy(o.rect, inst.rect, sizeof(o.rect));
+        memcpy(o.src,  inst.src,  sizeof(o.src));
+        memcpy(o.map,  inst.map,  sizeof(o.map));
         o.layer    = (float)layer;
         // Push the outline slightly farther from the camera so it only appears
         // when the sprite is meaningfully behind geometry, not at tile edges
@@ -1862,6 +1908,14 @@ void GLWorldViewRenderer::append_keeper_sprite_instance(const IRWorldKeeperSprit
         o.color[3] = g_renderer_settings.creature_outline_alpha;
         m_kspr_outline_instances.push_back(o);
     }
+}
+
+void GLWorldViewRenderer::push_keeper_sprite_instance(const KsprInstance& inst, bool darken)
+{
+    m_kspr_instances.push_back(inst);
+    if (m_kspr_instance_runs.empty() || m_kspr_instance_runs.back().darken != darken)
+        m_kspr_instance_runs.push_back({0, darken});
+    m_kspr_instance_runs.back().count++;
 }
 
 void GLWorldViewRenderer::flush_keeper_sprite_instances()
@@ -1922,10 +1976,17 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
             glUniformMatrix3fv(m_kspr_inst_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
             glBindVertexArray(inst_geom->vao);
             glBindBuffer(GL_ARRAY_BUFFER, inst_geom->vbo);
-            glBufferData(GL_ARRAY_BUFFER,
-                         (GLsizeiptr)(m_kspr_instances.size() * sizeof(KsprInstance)),
-                         m_kspr_instances.data(), GL_STREAM_DRAW);
-            glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, (GLsizei)m_kspr_instances.size());
+            // Runs keep submission order; a darken run subtracts from what is already drawn.
+            size_t first = 0;
+            for (const KsprInstanceRun& run : m_kspr_instance_runs)
+            {
+                glBlendEquation(run.darken ? GL_FUNC_REVERSE_SUBTRACT : GL_FUNC_ADD);
+                glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(run.count * sizeof(KsprInstance)),
+                             m_kspr_instances.data() + first, GL_STREAM_DRAW);
+                glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, (GLsizei)run.count);
+                first += run.count;
+            }
+            glBlendEquation(GL_FUNC_ADD);
         }
     }
 
@@ -1936,15 +1997,22 @@ void GLWorldViewRenderer::flush_keeper_sprite_instances()
     glUseProgram(0);
 
     m_kspr_instances.clear();
+    m_kspr_instance_runs.clear();
     m_kspr_outline_instances.clear();
 }
 
-int GLWorldViewRenderer::render_keepersprite_gpu(
-    int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
-    const unsigned char* data, int src_w, int src_h, int32_t content_h,
-    unsigned int draw_flags, const unsigned char* remap,
-    float z_ndc, int sprite_owner, int sprite_wants_outline, int32_t sprite_id)
+int GLWorldViewRenderer::render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& cmd)
 {
+    const unsigned char* data = cmd.data;
+    const int src_w = cmd.src_w;
+    const int src_h = cmd.src_h;
+    int32_t content_h = cmd.content_h;
+    const unsigned int draw_flags = cmd.draw_flags;
+    const unsigned char* remap = cmd.remap_enabled ? cmd.remap_table : nullptr;
+    const float z_ndc = cmd.z_ndc;
+    const int sprite_owner = (int)cmd.owner;
+    const int sprite_wants_outline = (int)cmd.wants_outline;
+    const int32_t sprite_id = cmd.sprite_id;
     // No mapper, no run.
     if (!m_resource_mapper) return 1;
     const GLProgram* kspr_prog = m_resource_mapper->ResolveProgram(m_kspr_shader_handle);
@@ -1972,7 +2040,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
                     src_w, src_h, k_kspr_decode_dim);
         return 1;
     }
-    if (dst_w <= 0 || dst_h <= 0) return 1;
+    if (cmd.dst_w <= 0 || cmd.dst_h <= 0) return 1;
     if (content_h <= 0 || content_h > src_h) content_h = src_h;
 
     const bool additive = (draw_flags & Lb_SPRITE_ALPHA_ADDITIVE) != 0;
@@ -1983,32 +2051,34 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
     if (atlas_layer >= 0 && use_remap && kspr_clut_tex)
         clut_v = resolve_clut_v(remap);
 
-    // Water/lava clipping
-    const float clip_frac = (float)content_h / (float)src_h;
+    const float vx0 = (float)cmd.dst_x, vy0 = (float)cmd.dst_y;
+    const float vw  = (float)cmd.dst_w, vh  = (float)cmd.dst_h;
+    const float mpx = (float)cmd.phase_x, mpy = (float)cmd.phase_y;
+    const float msx = (float)cmd.step_x,  msy = (float)cmd.step_y;
+    const float sw  = (float)src_w, sh = (float)content_h;
+    const float flip = (draw_flags & Lb_SPRITE_FLIP_HORIZ) ? 1.0f : 0.0f;
 
-    float u1 = (float)src_w / (float)k_kspr_decode_dim;
-    float v1 = (float)content_h / (float)k_kspr_decode_dim;
-    float ul = 0.0f, ur = u1;
-    if (draw_flags & Lb_SPRITE_FLIP_HORIZ) { ul = u1; ur = 0.0f; }
-
-    float vx0 = (float)dst_x,          vy0 = (float)dst_y;
-    float vx1 = (float)(dst_x + dst_w), vy1 = (float)dst_y + (float)dst_h * clip_frac;
-
-    float sv[6][4] = {
-        { vx0, vy0, ul,  0.0f },
-        { vx1, vy0, ur,  0.0f },
-        { vx1, vy1, ur,  v1   },
-        { vx0, vy0, ul,  0.0f },
-        { vx1, vy1, ur,  v1   },
-        { vx0, vy1, ul,  v1   },
+    float sv[6][11] = {
+        { vx0,      vy0,      0.0f, 0.0f, mpx, mpy, msx, msy, sw, sh, flip },
+        { vx0 + vw, vy0,      vw,   0.0f, mpx, mpy, msx, msy, sw, sh, flip },
+        { vx0 + vw, vy0 + vh, vw,   vh,   mpx, mpy, msx, msy, sw, sh, flip },
+        { vx0,      vy0,      0.0f, 0.0f, mpx, mpy, msx, msy, sw, sh, flip },
+        { vx0 + vw, vy0 + vh, vw,   vh,   mpx, mpy, msx, msy, sw, sh, flip },
+        { vx0,      vy0 + vh, 0.0f, vh,   mpx, mpy, msx, msy, sw, sh, flip },
     };
     glBindBuffer(GL_ARRAY_BUFFER, kspr_geom->vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(sv), nullptr, GL_DYNAMIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(sv), sv);
 
-    float alpha = 1.0f;
-    if      (draw_flags & Lb_SPRITE_TRANSPAR4) alpha = g_renderer_settings.transpar4_alpha;
-    else if (draw_flags & Lb_SPRITE_TRANSPAR8) alpha = g_renderer_settings.transpar8_alpha;
+    const float alpha = draw_flags_source_weight(draw_flags);
+
+    // Draws the black pixels of the glow quad just drawn, subtracted.
+    auto draw_glow_darken_pass = [](GLint loc_darken) {
+        glUniform1i(loc_darken, 1);
+        glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBlendEquation(GL_FUNC_ADD);
+    };
 
     // Additive glow
     const bool use_glow_atlas    = additive && atlas_layer >= 0 && kspr_atlas_glow_prog;
@@ -2120,6 +2190,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
             glUniform1f(m_kspr_atlas_glow_loc_z_ndc, z_ndc);
             glUniform1f(m_kspr_atlas_glow_loc_layer, (float)atlas_layer);
             glUniformMatrix3fv(m_kspr_atlas_glow_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
+            glUniform1i(m_kspr_atlas_glow_loc_darken, 0);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D_ARRAY, kspr_sprite_array ? kspr_sprite_array->id : 0);
             glBlendFunc(GL_ONE, GL_ONE);
@@ -2138,6 +2209,8 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
             glBlendFunc(GL_SRC_ALPHA, blend_dfactor);
         }
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        if (use_glow_atlas)
+            draw_glow_darken_pass(m_kspr_atlas_glow_loc_darken);
         glDisable(GL_BLEND);
         glBindVertexArray(0);
         glUseProgram(0);
@@ -2178,6 +2251,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
         glUniform2f(m_kspr_glow_loc_viewport, (float)m_draw_screen_w, (float)m_draw_screen_h);
         glUniform1f(m_kspr_glow_loc_z_ndc,    z_ndc);
         glUniformMatrix3fv(m_kspr_glow_loc_palette_xform, 1, GL_TRUE, &m_rt_palette_xform.m[0][0]);
+        glUniform1i(m_kspr_glow_loc_darken, 0);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, kspr_sprite_tex->id);
         glBlendFunc(GL_ONE, GL_ONE);
@@ -2196,6 +2270,8 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
     }
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    if (use_glow_fallback)
+        draw_glow_darken_pass(m_kspr_glow_loc_darken);
 
     glDisable(GL_BLEND);
     glBindVertexArray(0);
@@ -2206,10 +2282,7 @@ int GLWorldViewRenderer::render_keepersprite_gpu(
 void GLWorldViewRenderer::DrawKeeperSpriteGL(const IRWorldKeeperSpriteCmd& cmd)
 {
     ASSERT_RENDER_THREAD();
-    const unsigned char* remap = cmd.remap_enabled ? cmd.remap_table : nullptr;
-    render_keepersprite_gpu(cmd.dst_x, cmd.dst_y, cmd.dst_w, cmd.dst_h,
-                            cmd.data, cmd.src_w, cmd.src_h, cmd.content_h, cmd.draw_flags, remap,
-                            cmd.z_ndc, (int)cmd.owner, (int)cmd.wants_outline, cmd.sprite_id);
+    render_keepersprite_gpu(cmd);
 }
 
 void GLWorldViewRenderer::DrawCursorKeeperSprites()
@@ -2452,7 +2525,13 @@ void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w
                     m_kspr_sorted_idx.push_back(i);
                 std::stable_sort(m_kspr_sorted_idx.begin(), m_kspr_sorted_idx.end(),
                                  [this](int a, int b) {
-                                     return m_rt_kspr_ir[a].sort_key > m_rt_kspr_ir[b].sort_key;
+                                     // Far buckets first; within a bucket, keep submission
+                                     // order to match the software bucket walk.
+                                     const uint64_t ka = m_rt_kspr_ir[a].sort_key;
+                                     const uint64_t kb = m_rt_kspr_ir[b].sort_key;
+                                     if ((ka >> 32) != (kb >> 32))
+                                         return (ka >> 32) > (kb >> 32);
+                                     return (uint32_t)ka < (uint32_t)kb;
                                  });
                 return m_kspr_sorted_idx;
             };

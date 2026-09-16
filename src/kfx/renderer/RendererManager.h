@@ -218,11 +218,11 @@ void WorldViewRenderer_DrawFrontView(struct Camera* cam);
 
 
 void RendererBeginWorldSpriteCapture(int32_t bucket_idx);
-// frame_x/y = content offset inside the sprite's frame (source pixels).
+// scale = where the frame lands and where the content sits in it (SpriteScale.h).
 // content_h = visible rows out of src_h for this draw (water/lava
 // clipping) -- pass == src_h for "no clipping".
-void RendererSubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
-    int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+struct SpriteScale;
+void RendererSubmitKeeperSprite(const struct SpriteScale* scale,
     const unsigned char* data, int src_w, int src_h, int32_t content_h,
     unsigned int draw_flags, const unsigned char* remap, int32_t sprite_id);
 

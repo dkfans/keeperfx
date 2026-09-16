@@ -19,6 +19,7 @@
 #include "pre_inc.h"
 #include "kfx/renderer/RendererManager.h"
 #include "kfx/renderer/RendererSettings.h" // g_renderer_settings.creature_outline_class_mask
+#include "kfx/renderer/SpriteScale.h"
 #include <stddef.h>
 
 #include "engine_render.h"
@@ -7504,6 +7505,21 @@ static long heap_manage_keepersprite(unsigned short kspr_idx)
     return result;
 }
 
+static void set_sprite_scale(struct SpriteScale *out, long frame_x, long frame_y,
+    long frame_src_w, long frame_src_h, long frame_dst_w, long frame_dst_h, long content_x, long content_y)
+{
+    out->frame_x = (int32_t)frame_x;
+    out->frame_y = (int32_t)frame_y;
+    out->frame_src_w = (int32_t)frame_src_w;
+    out->frame_src_h = (int32_t)frame_src_h;
+    out->frame_dst_w = (int32_t)frame_dst_w;
+    out->frame_dst_h = (int32_t)frame_dst_h;
+    out->content_x = (int32_t)content_x;
+    out->content_y = (int32_t)content_y;
+    out->window_w = (int32_t)lbDisplay.GraphicsWindowWidth;
+    out->window_h = (int32_t)lbDisplay.GraphicsWindowHeight;
+}
+
 TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
     unsigned char current_frame, int32_t *out_draw_idx,
     const unsigned char **out_data, int *out_src_w, int *out_src_h,
@@ -7565,7 +7581,7 @@ TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
 
 TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short kspr_base,
     short kspr_angle, unsigned char sprgroup, long scale,
-    int32_t *out_dst_x, int32_t *out_dst_y, int32_t *out_dst_w, int32_t *out_dst_h,
+    struct SpriteScale *out_scale,
     int32_t *out_draw_idx, const unsigned char **out_data, int *out_src_w, int *out_src_h)
 {
     struct KeeperSprite *creature_sprites = keepersprite_array(kspr_base);
@@ -7602,25 +7618,30 @@ TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short ksp
         x_off = kspr->FrameOffsW;
     y_off = kspr->FrameOffsH;
 
-    *out_dst_x = (int32_t)(scaled_x + ((x_off * scale) >> 5));
-    *out_dst_y = (int32_t)(scaled_y + ((y_off * scale) >> 5));
-    *out_dst_w = (int32_t)(((long)kspr->SWidth * scale) >> 5);
-    *out_dst_h = (int32_t)(((long)kspr->SHeight * scale) >> 5);
+    if (creature_sprites->Rotable == 0)
+    {
+        set_sprite_scale(out_scale, scaled_x, scaled_y, kspr->FrameWidth, kspr->FrameHeight,
+            ((long)kspr->FrameWidth * scale) >> 5, ((long)kspr->FrameHeight * scale) >> 5, x_off, y_off);
+    }
+    else
+    {
+        set_sprite_scale(out_scale, scaled_x + ((x_off * scale) >> 5), scaled_y + ((y_off * scale) >> 5),
+            kspr->SWidth, kspr->SHeight, ((long)kspr->SWidth * scale) >> 5, ((long)kspr->SHeight * scale) >> 5, 0, 0);
+    }
     return true;
 }
 
-static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, long kspr_idx,
-    long dst_x, long dst_y, long dst_w, long dst_h)
+static void draw_keepersprite(const struct SpriteScale *sprite_scale, const struct KeeperSprite * kspr, long kspr_idx)
 {
     if ((kspr_idx < 0)
         || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET))
         || (kspr_idx > (KEEPERSPRITE_ADD_NUM + KEEPERSPRITE_ADD_OFFSET))) {
         WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%u,%u) alpha %d",
-            kspr_idx, x, y, kspr->SWidth, kspr->SHeight, (int)EngineSpriteDrawUsingAlpha);
+            kspr_idx, (long)sprite_scale->content_x, (long)sprite_scale->content_y, kspr->SWidth, kspr->SHeight, (int)EngineSpriteDrawUsingAlpha);
         return;
     }
     SYNCDBG(17,"Drawing %ld at (%ld,%ld) size (%u,%u) alpha %d",
-        kspr_idx, x, y, kspr->SWidth, kspr->SHeight, (int)EngineSpriteDrawUsingAlpha);
+        kspr_idx, (long)sprite_scale->content_x, (long)sprite_scale->content_y, kspr->SWidth, kspr->SHeight, (int)EngineSpriteDrawUsingAlpha);
     const long clipped_height = kspr->SHeight - water_source_cutoff;
     if (clipped_height <= 0) {
         return;
@@ -7636,12 +7657,11 @@ static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, 
         }
     }
     if (sprite_data_ptr == NULL || *sprite_data_ptr == NULL) {
-        WARNDBG(9,"Unallocated KeeperSprite %ld can't be drawn at (%ld,%ld)",kspr_idx,x,y);
+        WARNDBG(9,"Unallocated KeeperSprite %ld can't be drawn at (%ld,%ld)",kspr_idx,(long)sprite_scale->content_x,(long)sprite_scale->content_y);
         return;
     }
 
-    RendererSubmitKeeperSprite((int32_t)x, (int32_t)y,
-            (int32_t)dst_x, (int32_t)dst_y, (int32_t)dst_w, (int32_t)dst_h,
+    RendererSubmitKeeperSprite(sprite_scale,
             *sprite_data_ptr, kspr->SWidth, kspr->SHeight, (int32_t)clipped_height,
             (unsigned int)RendererGetDrawFlags(),
             (RendererGetDrawFlags() & Lb_SPRITE_REMAP) ? lbSpriteReMapPtr : NULL,
@@ -7664,7 +7684,6 @@ static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, stru
     long y = kspr->FrameOffsH;
     long sp_dy = (src_dy * scale) >> 5;
     long sp_dx = (src_dx * scale) >> 5;
-    LbSpriteSetScalingData(kspos_x, kspos_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
       if ( (pointer_x >= kspos_x) && (pointer_x <= sp_dx + kspos_x) )
@@ -7675,10 +7694,9 @@ static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, stru
           }
       }
     }
-    // Content sub-rect within the already-scaled frame
-    draw_keepersprite(x, y, kspr, kspr_idx,
-        kspos_x + ((x * scale) >> 5), kspos_y + ((y * scale) >> 5),
-        ((long)kspr->SWidth * scale) >> 5, ((long)kspr->SHeight * scale) >> 5);
+    struct SpriteScale sprite_scale;
+    set_sprite_scale(&sprite_scale, kspos_x, kspos_y, src_dx, src_dy, sp_dx, sp_dy, x, y);
+    draw_keepersprite(&sprite_scale, kspr, kspr_idx);
 }
 
 static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
@@ -7689,7 +7707,6 @@ static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct Kee
     long y = kspr->FrameOffsH;
     long sp_dy = (src_dy * scale) >> 5;
     long sp_dx = (src_dx * scale) >> 5;
-    LbSpriteSetScalingData(kspos_x, kspos_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
       if ( (pointer_x >= kspos_x) && (pointer_x <= sp_dx + kspos_x) )
@@ -7700,9 +7717,9 @@ static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct Kee
           }
       }
     }
-    draw_keepersprite(x, y, kspr, kspr_idx,
-        kspos_x + ((x * scale) >> 5), kspos_y + ((y * scale) >> 5),
-        ((long)kspr->SWidth * scale) >> 5, ((long)kspr->SHeight * scale) >> 5);
+    struct SpriteScale sprite_scale;
+    set_sprite_scale(&sprite_scale, kspos_x, kspos_y, src_dx, src_dy, sp_dx, sp_dy, x, y);
+    draw_keepersprite(&sprite_scale, kspr, kspr_idx);
 }
 
 static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
@@ -7716,7 +7733,6 @@ static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct Ke
     long sp_y = kspos_y + ((scale * y) >> 5);
     long sp_dy = (src_dy * scale) >> 5;
     long sp_dx = (src_dx * scale) >> 5;
-    LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
       if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
@@ -7727,9 +7743,9 @@ static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct Ke
           }
       }
     }
-    // sp_x/sp_y/sp_dx/sp_dy are already the final content dst rect here
-    // (src_dx/src_dy above are SWidth/SHeight, not FrameWidth/FrameHeight).
-    draw_keepersprite(0, 0, kspr, kspr_idx, sp_x, sp_y, sp_dx, sp_dy);
+    struct SpriteScale sprite_scale;
+    set_sprite_scale(&sprite_scale, sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy, 0, 0);
+    draw_keepersprite(&sprite_scale, kspr, kspr_idx);
     SYNCDBG(18,"Finished");
 }
 
@@ -7744,7 +7760,6 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
     long sp_y = kspos_y + ((scale * y) >> 5);
     long sp_dy = (src_dy * scale) >> 5;
     long sp_dx = (src_dx * scale) >> 5;
-    LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
         if ( (pointer_x >= x) && (pointer_x <= sp_dx + x) )
@@ -7755,8 +7770,9 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
             }
         }
     }
-    // sp_x/sp_y/sp_dx/sp_dy are already the final content dst rect here.
-    draw_keepersprite(0, 0, kspr, kspr_idx, sp_x, sp_y, sp_dx, sp_dy);
+    struct SpriteScale sprite_scale;
+    set_sprite_scale(&sprite_scale, sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy, 0, 0);
+    draw_keepersprite(&sprite_scale, kspr, kspr_idx);
     SYNCDBG(18,"Finished");
 }
 

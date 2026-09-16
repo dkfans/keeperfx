@@ -170,6 +170,20 @@ protected:
         return 0.5f;
     }
 
+    /** Sprite and box coordinates are relative to the engine graphics window,
+     *  and the draw is clipped to it, as they are when software draws through
+     *  GraphicsWindowPtr. Moves x/y to absolute screen pixels and records the
+     *  window so a deferred command keeps both. */
+    static void ApplyGraphicsWindow(int32_t& x, int32_t& y, IRUIClip& clip)
+    {
+        clip.x = (int32_t)lbDisplay.GraphicsWindowX;
+        clip.y = (int32_t)lbDisplay.GraphicsWindowY;
+        clip.w = (int32_t)lbDisplay.GraphicsWindowWidth;
+        clip.h = (int32_t)lbDisplay.GraphicsWindowHeight;
+        x += clip.x;
+        y += clip.y;
+    }
+
     /** Adds the game-viewport origin to x/y for WorldOverlay/WorldOverlayFlat
      *  IR submissions, so a deferred command lands in the same absolute-screen
      *  coordinate an immediate draw reaches through the graphics-window

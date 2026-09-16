@@ -47,18 +47,26 @@ public:
 
     /** Per-instance record for the instanced keeper-sprite pass. */
     struct KsprInstance {
-        float    rect[4];   // dst x, y, w, h (screen px)
-        float    uvext[2];  // src_w/decode_dim, src_h/decode_dim
+        float    rect[4];   // dst x, y, w, h (whole screen px)
+        float    src[2];    // src_w, content_h
+        float    map[4];    // phase x/y, step x/y (SpriteScaleAxis)
         float    layer;     // atlas layer
         float    clut_v;    // CLUT row V coord (row 0 = identity)
         float    alpha;     // 1.0 / transpar4 / transpar8
         float    z_ndc;     // pre-computed NDC depth
-        uint32_t flags;     // bit0 = flip_h, bit1 = additive glow
+        uint32_t flags;     // bit0 = flip_h, bit1 = glow, bit2 = darken pass
+    };
+
+    /** Consecutive instances drawn with one blend: added, or subtracted for the darken pass. */
+    struct KsprInstanceRun {
+        uint32_t count;
+        bool     darken;
     };
 
     struct KsprOutlineInstance {
         float rect[4];
-        float uvext[2];
+        float src[2];
+        float map[4];
         float layer;
         float z_ndc;        // sprite z + outline bias
         float flip;         // 0/1
@@ -167,8 +175,7 @@ public:
     void ResolveLensComposite();
 
     /** Submit one keeper-sprite (creature/object) for GPU rendering.*/
-    void SubmitKeeperSprite(int32_t frame_x, int32_t frame_y,
-                            int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
+    void SubmitKeeperSprite(const struct SpriteScale* scale,
                             const unsigned char* data, int src_w, int src_h, int32_t content_h,
                             unsigned int draw_flags, const unsigned char* remap,
                             int32_t sprite_id) override;
@@ -232,7 +239,9 @@ private:
      *  @p sprite_id (stable across sprite-heap reload, unlike a raw data
      *  pointer -- see the .cpp file header). Returns -1 when the atlas is
      *  absent/full or sprite_id is unknown (< 0). */
-    int resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h);
+    int resolve_atlas_layer(int32_t sprite_id, const unsigned char* data, int src_w, int src_h,
+                            bool* darkens = nullptr);
+    void push_keeper_sprite_instance(const KsprInstance& inst, bool darken);
 
     /** Look up (or lazily build) the CLUT row for a remap table. Returns the
      *  row's V texcoord; identity row 0 when the CLUT is full. */
@@ -241,11 +250,7 @@ private:
     void append_keeper_sprite_instance(const IRWorldKeeperSpriteCmd& cmd);
     void flush_keeper_sprite_instances();
 
-    int render_keepersprite_gpu(int32_t dst_x, int32_t dst_y, int32_t dst_w, int32_t dst_h,
-                                const unsigned char* data, int src_w, int src_h, int32_t content_h,
-                                unsigned int draw_flags, const unsigned char* remap,
-                                float z_ndc, int sprite_owner, int sprite_wants_outline,
-                                int32_t sprite_id);
+    int render_keepersprite_gpu(const IRWorldKeeperSpriteCmd& cmd);
     void DrawKeeperSpriteGL(const IRWorldKeeperSpriteCmd& cmd);
 
     bool init_lens_shaders();
@@ -356,6 +361,7 @@ private:
     GLint  m_kspr_glow_loc_sprite   = -1;
     GLint  m_kspr_glow_loc_z_ndc    = -1;
     GLint  m_kspr_glow_loc_palette_xform = -1;
+    GLint  m_kspr_glow_loc_darken = -1;
 
     // Depth-fail outline shaders
     GpuResourceHandle m_kspr_outline_shader_handle = kInvalidGpuResource;
@@ -407,12 +413,13 @@ private:
     GLint  m_kspr_atlas_glow_loc_z_ndc    = -1;
     GLint  m_kspr_atlas_glow_loc_layer    = -1;
     GLint  m_kspr_atlas_glow_loc_palette_xform = -1;
+    GLint  m_kspr_atlas_glow_loc_darken = -1;
 
     int    m_kspr_atlas_used    = 0;  // next free layer index
     int    m_kspr_atlas_peak    = 0;  // high-water mark (diagnostic only)
     int    m_kspr_atlas_hits    = 0;  // cache hits this frame (diagnostic only)
     int    m_kspr_atlas_misses  = 0;  // cache misses this frame (diagnostic only)
-    struct AtlasEntry { int layer; int src_w; };
+    struct AtlasEntry { int layer; int src_w; bool darkens; };
 
     std::unordered_map<int32_t, AtlasEntry> m_kspr_atlas_map;
 
@@ -428,6 +435,7 @@ private:
     GLint  m_kspr_inst_loc_viewport = -1;
     GLint  m_kspr_inst_loc_palette_xform = -1;
     std::vector<KsprInstance> m_kspr_instances;  // RT: batch scratch
+    std::vector<KsprInstanceRun> m_kspr_instance_runs;  // RT: batch scratch
 
     // Instanced depth-fail outline/edge pass
     GpuResourceHandle m_kspr_inst_outline_shader_handle = kInvalidGpuResource;
@@ -442,7 +450,7 @@ private:
     PaletteTransform m_rt_palette_xform;      // RT: engine palette to m_rt_palette, for glow
 
     float    m_current_sprite_z       = 0.0f;
-    uint32_t m_current_sprite_sort_key = 0;
+    uint64_t m_current_sprite_sort_key = 0;
     uint32_t m_sprite_entry_seq        = 0;
     size_t   m_kspr_pass_start         = 0;
 
