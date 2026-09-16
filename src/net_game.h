@@ -53,6 +53,8 @@ const char *network_user_name(NetUserId);
 TbBool network_human_contenders_remain(void);
 void process_player_leave_game_packet(struct PlayerInfo *player);
 void process_disconnected_network_players(void);
+TbBool user_present(NetUserId user);
+void host_spoof_dropped_user_packets(void);
 void sync_initial_network_seed(void);
 TbBool network_is_host(void);
 PlayerNumber get_net_user_player_number(NetUserId user);
