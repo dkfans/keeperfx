@@ -650,11 +650,6 @@ void process_player_leave_game_packet(struct PlayerInfo *player)
     player->allocflags &= ~PlaF_Allocated;
 }
 
-static TbBool packet_is_departure(const struct Packet *pckt)
-{
-    return (pckt != NULL) && ((pckt->action == PckA_QuitToMainMenu) || (pckt->action == PckA_ForceApplicationClose));
-}
-
 // (host-only) host sends packets for dropped users, indicating
 // the user has dropped.
 void host_spoof_dropped_user_packets(void)
@@ -670,16 +665,11 @@ void host_spoof_dropped_user_packets(void)
         if ((user == netstate.my_id) || network_user_active(user) || !user_present(user)) {
             continue;
         }
-        const struct Packet *latest = get_latest_history_packet(user);
-        GameTurn turn = first_turn;
-        if ((latest != NULL) && ((GameTurnDelta)(latest->turn + 1 - first_turn) > 0)) {
-            turn = packet_is_departure(latest) ? latest->turn : (latest->turn + 1);
-        }
         struct Packet spoofed;
         memset(&spoofed, 0, sizeof(spoofed));
         set_packet_action(&spoofed, PckA_ForceApplicationClose, 0, 0, 0, 0);
-        // 2 turns, as user_has_required_turn_packets requires
-        for (int i = 0; i < 2; i++, turn++) {
+        // only the turns user_has_required_turn_packets expects
+        for (GameTurn turn = first_turn; turn < first_turn + 2; turn++) {
             if (get_history_packet(user, turn) != NULL) {
                 continue;
             }
