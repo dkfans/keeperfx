@@ -199,6 +199,7 @@ struct DesyncChecksums {
     TbBigChecksum doors;
     TbBigChecksum rooms;
     TbBigChecksum players;
+    TbBigChecksum dig_tasks;
     TbBigChecksum action_seed;
     TbBigChecksum ai_seed;
     TbBigChecksum player_seed;
@@ -212,6 +213,8 @@ struct LogDetailedSnapshot {
     int player_count;
     struct LogRoomDesyncInfo rooms[ROOMS_COUNT];
     int room_count;
+    struct MapTask dig_tasks[DUNGEONS_COUNT][MAPTASKS_COUNT];
+    unsigned short dig_task_counts[DUNGEONS_COUNT];
 };
 
 struct Game {
