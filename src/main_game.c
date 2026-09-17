@@ -359,6 +359,8 @@ TbBool startup_saved_packet_game(void)
     setup_zombie_players();
     init_players();
     restore_users_from_packet_save();
+    frontend_alliances = game.packet_save_head.frontend_alliances;
+    setup_alliances();
     if (game.active_players_count == 1)
         game.game_kind = GKind_LocalGame;
     if (game.turns_stored < game.turns_fastforward)

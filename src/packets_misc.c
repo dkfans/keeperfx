@@ -295,7 +295,7 @@ TbBigChecksum compute_replay_integrity(void)
         const struct Dungeon* dungeon = get_players_dungeon(player);
         if (dungeon_invalid(dungeon))
             continue;
-        for (long i = 0; i < MAPTASKS_COUNT; i++)
+        for (size_t i = 0; i < MAPTASKS_COUNT; i++)
         {
             const struct MapTask* task = &dungeon->task_list[i];
             if (task->kind != SDDigTask_None)
@@ -341,11 +341,11 @@ short save_packets(void)
     }
     if (packetsave_max_kb > 0)
     {
-        long pos = LbFilePosition(game.packet_save_fp);
-        if ((pos >= 0) && ((unsigned long)pos >= packetsave_max_kb * 1024))
+        int pos = LbFilePosition(game.packet_save_fp);
+        if ((pos >= 0) && ((uint32_t)pos >= packetsave_max_kb * 1024))
         {
-            JUSTMSG("PacketSave reached the %lu KB limit at turn %lu; recording stopped",
-                packetsave_max_kb, (unsigned long)get_gameturn());
+            JUSTMSG("PacketSave reached the %u KB limit at turn %u; recording stopped",
+                packetsave_max_kb, get_gameturn());
             close_packet_file();
             game.packet_save_enable = false;
         }
@@ -420,6 +420,7 @@ TbBool open_new_packet_file_for_save(void)
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
         game.packet_save_head.user_players[user] = get_net_user_player_number(user);
     game.packet_save_head.recording_user = get_local_user();
+    game.packet_save_head.frontend_alliances = frontend_alliances;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
@@ -454,7 +455,7 @@ TbBool open_new_packet_file_for_save(void)
 
 static TbBool turn_has_quit_packet(void)
 {
-    for (long i = 0; i < MAX_NET_USERS; i++)
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++)
     {
         switch (game.packets[i].action)
         {

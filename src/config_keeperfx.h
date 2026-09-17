@@ -129,7 +129,7 @@ extern char cmd_char;
 extern short api_enabled;
 extern uint16_t api_port;
 extern TbBool exit_on_lua_error;
-extern unsigned long packetsave_max_kb;
+extern uint32_t packetsave_max_kb;
 extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 /******************************************************************************/

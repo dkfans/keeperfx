@@ -63,7 +63,7 @@ struct InstallInfo install_info;
 char keeper_runtime_directory[152];
 short api_enabled = false;
 uint16_t api_port = 5599;
-unsigned long packetsave_max_kb = 0;
+uint32_t packetsave_max_kb = 0;
 unsigned long features_enabled = 0;
 unsigned char viewport_mode = VpMode_Original;
 TbBool exit_on_lua_error = false;

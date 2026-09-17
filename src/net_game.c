@@ -70,6 +70,7 @@ struct StartupSyncPacket {
     uint32_t zoom_distance_setting;
     uint32_t frontview_zoom_distance_setting;
     uint8_t initial_input_lag_turns;
+    // TODO: also record alliance matrix.
 };
 #pragma pack()
 
