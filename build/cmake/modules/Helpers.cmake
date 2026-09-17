@@ -57,6 +57,28 @@ function(apply_keeperfx_link_flags TARGET)
     endif()
 endfunction()
 
+function(apply_keeperfx_debug_split TARGET)
+    if(NOT WIN32 OR MSVC)
+        return()
+    endif()
+    if(NOT CMAKE_OBJCOPY)
+        get_filename_component(_kfx_toolchain_bin "${CMAKE_CXX_COMPILER}" DIRECTORY)
+        get_filename_component(_kfx_cxx_name "${CMAKE_CXX_COMPILER}" NAME_WE)
+        string(REGEX REPLACE "-?g\\+\\+$" "" _kfx_toolchain_prefix "${_kfx_cxx_name}")
+        find_program(CMAKE_OBJCOPY NAMES "${_kfx_toolchain_prefix}objcopy" objcopy
+            HINTS "${_kfx_toolchain_bin}")
+    endif()
+    if(NOT CMAKE_OBJCOPY)
+        message(WARNING "objcopy not found - ${TARGET} will ship with embedded debug info (no size-split)")
+        return()
+    endif()
+    add_custom_command(TARGET ${TARGET} POST_BUILD
+        COMMAND ${CMAKE_OBJCOPY} --only-keep-debug "$<TARGET_FILE:${TARGET}>" "$<TARGET_FILE:${TARGET}>.debug"
+        COMMAND ${CMAKE_OBJCOPY} --strip-debug --add-gnu-debuglink=$<TARGET_FILE:${TARGET}>.debug "$<TARGET_FILE:${TARGET}>"
+        COMMENT "Splitting debug info for ${TARGET}"
+        VERBATIM)
+endfunction()
+
 # Windows system libraries (matches the Makefile LINKLIB trailer). No-op elsewhere.
 function(apply_windows_system_libs TARGET)
     if(WIN32)
