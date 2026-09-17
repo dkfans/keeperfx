@@ -471,10 +471,6 @@ void draw_timer(void)
     }
     else
     {
-        if (!TimerFreeze)
-        {
-            update_time();
-        }
         snprintf(text, sizeof(text), "%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
     }
     LbTextSetFont(winfont);
