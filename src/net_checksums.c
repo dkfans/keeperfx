@@ -180,6 +180,15 @@ static void compute_checksums(struct DesyncChecksums* checksums) {
             checksums->players += compute_player_checksum(player);
         }
     }
+    checksums->dig_tasks = 0;
+    for (int i = 0; i < DUNGEONS_COUNT; i++) {
+        struct Dungeon* dungeon = get_dungeon(i);
+        for (int t = 0; t < dungeon->task_count; t++) {
+            struct MapTask* task = get_dungeon_task_list_entry(dungeon, t);
+            CHECKSUM_ADD(checksums->dig_tasks, task->kind);
+            CHECKSUM_ADD(checksums->dig_tasks, task->coords);
+        }
+    }
     checksums->action_seed = game.action_random_seed;
     checksums->ai_seed = game.ai_random_seed;
     checksums->player_seed = game.player_random_seed;
@@ -269,6 +278,7 @@ void update_turn_checksums(void) {
     snapshot_info->thing_count = 0;
     snapshot_info->player_count = 0;
     snapshot_info->room_count = 0;
+    memset(snapshot_info->dig_task_counts, 0, sizeof(snapshot_info->dig_task_counts));
     if (network_is_active()) {
         for (int i = 1; i < SYNCED_THINGS_COUNT; i++) {
             struct Thing* thing = thing_get(i);
@@ -350,6 +360,11 @@ void update_turn_checksums(void) {
             room_snapshot->used_capacity = room->used_capacity;
             room_snapshot->checksum = get_room_checksum(room);
         }
+        for (int i = 0; i < DUNGEONS_COUNT; i++) {
+            struct Dungeon* dungeon = get_dungeon(i);
+            snapshot_info->dig_task_counts[i] = dungeon->task_count;
+            memcpy(snapshot_info->dig_tasks[i], dungeon->task_list, dungeon->task_count * sizeof(struct MapTask));
+        }
     }
     snapshot_head = (snapshot_head + 1) % SNAPSHOT_BUFFER_SIZE;
 
@@ -369,6 +384,7 @@ void update_turn_checksums(void) {
     packet->checksum += things_sum;
     packet->checksum += checksums->rooms;
     packet->checksum += checksums->players;
+    packet->checksum += checksums->dig_tasks;
     packet->checksum += checksums->action_seed;
     packet->checksum += checksums->player_seed;
     packet->checksum += checksums->ai_seed;
@@ -383,10 +399,54 @@ void pack_desync_history_for_resync(void) {
         game.log_snapshot.thing_count = 0;
         game.log_snapshot.player_count = 0;
         game.log_snapshot.room_count = 0;
+        memset(game.log_snapshot.dig_task_counts, 0, sizeof(game.log_snapshot.dig_task_counts));
         return;
     }
     game.host_checksums = snapshot->checksums;
     game.log_snapshot = snapshot->log_details;
+}
+
+static void log_dig_task_differences(const struct LogDetailedSnapshot* client)
+{
+    const struct LogDetailedSnapshot* host = &game.log_snapshot;
+    int shown = 0;
+    for (int plyr_idx = 0; plyr_idx < DUNGEONS_COUNT && shown < 10; plyr_idx++) {
+        unsigned short host_count = host->dig_task_counts[plyr_idx];
+        unsigned short client_count = client->dig_task_counts[plyr_idx];
+        TbBool same = (host_count == client_count);
+        for (int i = 0; (i < host_count) && same; i++) {
+            if (host->dig_tasks[plyr_idx][i].kind != client->dig_tasks[plyr_idx][i].kind) {
+                same = false;
+            }
+            if (host->dig_tasks[plyr_idx][i].coords != client->dig_tasks[plyr_idx][i].coords) {
+                same = false;
+            }
+        }
+        if (same) {
+            continue;
+        }
+        ERRORLOG("    Player[%d] dig tags: Host count=%u, Client count=%u", plyr_idx, (unsigned)host_count, (unsigned)client_count);
+        shown++;
+        int count = host_count;
+        if (client_count > count) {
+            count = client_count;
+        }
+        for (int i = 0; (i < count) && (shown < 10); i++) {
+            struct MapTask host_task = host->dig_tasks[plyr_idx][i];
+            struct MapTask client_task = client->dig_tasks[plyr_idx][i];
+            if ((i < host_count) && (i < client_count) && (host_task.kind == client_task.kind) && (host_task.coords == client_task.coords)) {
+                continue;
+            }
+            if (i >= client_count) {
+                ERRORLOG("    Player[%d] dig tag[%d]: Host kind=%u stl=(%u,%u), Client missing", plyr_idx, i, (unsigned)host_task.kind, (unsigned)stl_num_decode_x(host_task.coords), (unsigned)stl_num_decode_y(host_task.coords));
+            } else if (i >= host_count) {
+                ERRORLOG("    Player[%d] dig tag[%d]: Host missing, Client kind=%u stl=(%u,%u)", plyr_idx, i, (unsigned)client_task.kind, (unsigned)stl_num_decode_x(client_task.coords), (unsigned)stl_num_decode_y(client_task.coords));
+            } else {
+                ERRORLOG("    Player[%d] dig tag[%d]: Host kind=%u stl=(%u,%u), Client kind=%u stl=(%u,%u)", plyr_idx, i, (unsigned)host_task.kind, (unsigned)stl_num_decode_x(host_task.coords), (unsigned)stl_num_decode_y(host_task.coords), (unsigned)client_task.kind, (unsigned)stl_num_decode_x(client_task.coords), (unsigned)stl_num_decode_y(client_task.coords));
+            }
+            shown++;
+        }
+    }
 }
 
 static void log_thing_differences(struct LogDetailedSnapshot* client, const char* name, TbBigChecksum client_sum, TbBigChecksum host_sum, ThingClass filter_class) {
@@ -478,6 +538,14 @@ void compare_desync_history_from_host(void) {
     struct LogDetailedSnapshot* client_snapshot = &snapshot->log_details;
 
     ERRORLOG("=== DESYNC ANALYSIS: Host (turn %lu) vs Client (turn %lu) ===", (unsigned long)host->game_turn, (unsigned long)client->game_turn);
+    const char* dig_tasks_state = "match";
+    if (client->dig_tasks != host->dig_tasks) {
+        dig_tasks_state = "MISMATCH";
+    }
+    ERRORLOG("  DigTags %s - Host: %08lx, Client: %08lx", dig_tasks_state, (unsigned long)host->dig_tasks, (unsigned long)client->dig_tasks);
+    if (client->dig_tasks != host->dig_tasks) {
+        log_dig_task_differences(client_snapshot);
+    }
     ERRORLOG("  ACTION_SEED %s - Host: %08lx, Client: %08lx", (client->action_seed == host->action_seed) ? "match" : "MISMATCH", (unsigned long)host->action_seed, (unsigned long)client->action_seed);
     ERRORLOG("  AI_SEED %s - Host: %08lx, Client: %08lx", (client->ai_seed == host->ai_seed) ? "match" : "MISMATCH", (unsigned long)host->ai_seed, (unsigned long)client->ai_seed);
     ERRORLOG("  PLAYER_SEED %s - Host: %08lx, Client: %08lx", (client->player_seed == host->player_seed) ? "match" : "MISMATCH", (unsigned long)host->player_seed, (unsigned long)client->player_seed);
