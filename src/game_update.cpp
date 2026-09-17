@@ -52,6 +52,7 @@
 #include "power_process.h"
 #include "power_hand.h"
 #include "game_merge.h"
+#include "net_game.h"
 #include "gui_soundmsgs.h"
 #include "sounds.h"
 #include "vidfade.h"
@@ -81,29 +82,11 @@ static void check_players_won(void)
         if (!player_exists(curPlayer) || (curPlayer->is_active != 1) || (curPlayer->victory_state != VicS_Undecided))
             continue;
 
-        // check if any other player is still alive
-        TbBool LivingOpponent = false;
-        for (PlayerNumber secondPlayerIdx = 0; secondPlayerIdx < PLAYERS_COUNT; ++secondPlayerIdx)
-        {
-            if (secondPlayerIdx == playerIdx)
-                continue;
+        if (player_has_enemies_to_defeat(curPlayer))
+            continue;
 
-            struct PlayerInfo* otherPlayer = get_player(secondPlayerIdx);
-            if (player_exists(otherPlayer) && otherPlayer->victory_state == VicS_Undecided)
-            {
-                struct Thing* heartng = get_player_soul_container(secondPlayerIdx);
-                if (heartng->active_state != ObSt_BeingDestroyed)
-                {
-                    LivingOpponent = true;
-                    break;
-                }
-            }
-        }
-        if (LivingOpponent == false)
-        {
-            set_player_as_won_level(curPlayer);
-            return;
-        }
+        set_player_as_won_level(curPlayer);
+        return;
     }
 }
 

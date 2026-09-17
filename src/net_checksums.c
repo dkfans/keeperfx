@@ -206,7 +206,7 @@ short checksums_different(void)
         if (i == host_user_id) {
             continue;
         }
-        if (!network_user_active(i)) {
+        if (!user_present(i)) {
             continue;
         }
         struct PlayerInfo* player = get_player(get_net_user_player_number(i));
@@ -214,6 +214,11 @@ short checksums_different(void)
             continue;
         }
         struct Packet* packet = get_packet(i);
+        // no need to validate checksm for users who are dropping
+        // (and the host sometimes emits checksumless packets for such users)
+        if ((packet->action == PckA_QuitToMainMenu) || (packet->action == PckA_ForceApplicationClose)) {
+            continue;
+        }
         if (is_packet_empty(packet)) {
             ERRORLOG("Missing checksum packet for user %d; host turn: %d", i, host_packet->turn);
             desync_turn = host_packet->turn;
