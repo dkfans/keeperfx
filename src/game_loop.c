@@ -590,9 +590,13 @@ static void gameplay_loop_logic()
     {
         if (TimerGame)
         {
+            if (get_my_player()->victory_state != VicS_WonLevel)
+            {
+                TimerTurns = get_gameturn();
+            }
             if (TimerGameReal)
             {
-                update_game_time(&GameT, get_gameturn(), turns_per_second, &GameSeconds);
+                update_game_time(&GameT, TimerTurns, turns_per_second, &GameSeconds);
             }
         }
         else

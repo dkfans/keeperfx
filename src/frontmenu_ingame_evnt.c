@@ -456,10 +456,6 @@ void draw_timer(void)
     char text[32];
     if (TimerGame)
     {
-        if (get_my_player()->victory_state != VicS_WonLevel)
-        {
-            TimerTurns = get_gameturn();
-        }
         if (TimerGameReal)
         {
             snprintf(text, sizeof(text), "%02d:%02d:%02d", GameT.Hours, GameT.Minutes, GameT.Seconds);
