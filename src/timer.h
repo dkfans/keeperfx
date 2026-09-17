@@ -49,6 +49,7 @@ extern TbBool TimerGame;
 extern TbBool TimerNoReset;
 extern TbBool TimerFreeze;
 extern TbBool TimerGameReal;
+extern unsigned long GameTime;
 struct GameTime {
     unsigned char Seconds;
     unsigned char Minutes;
@@ -56,6 +57,7 @@ struct GameTime {
 };
 
 struct GameTime get_game_time(unsigned long turns, unsigned long fps);
+struct GameTime update_game_time(unsigned long turns, unsigned long fps, unsigned long *gametime);
 
 /******************************************************************************/
 #ifdef __cplusplus

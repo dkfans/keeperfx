@@ -39,6 +39,7 @@ static TbClockMSec level_load_total_start;
 static TbClockMSec level_load_phase_start;
 static enum LevelLoadTimeKind level_load_phase;
 static TbBool level_load_time_active;
+unsigned long GameTime = 0;
 /******************************************************************************/
 
 void level_load_time_phase(enum LevelLoadTimeKind kind)
@@ -84,6 +85,22 @@ struct GameTime get_game_time(unsigned long turns, unsigned long fps)
     time /= 60;
     GameT.Minutes = time % 60;
     GameT.Hours = time / 60;
+    return GameT;
+}
+
+struct GameTime update_game_time(unsigned long turns, unsigned long fps, unsigned long *gametime)
+{
+    struct GameTime GameT;
+    unsigned long GT = *gametime;
+    if (turns % fps == 0)
+    {
+        GT++;
+        *gametime = GT;
+    }
+    GameT.Seconds = GT % 60;
+    GT /= 60;
+    GameT.Minutes = GT % 60;
+    GameT.Hours = GT / 60;
     return GameT;
 }
 
