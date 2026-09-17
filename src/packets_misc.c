@@ -41,7 +41,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PACKET_TURN_SIZE (MAX_NET_USERS*sizeof(struct Packet) + sizeof(TbBigChecksum))
+#define PACKET_TURN_MAX_SIZE (MAX_NET_USERS*sizeof(struct Packet) + sizeof(TbBigChecksum))
 #define MULTIPLAYER_PAUSE_COOLDOWN_MS 500
 struct Packet bad_packet;
 unsigned long initial_replay_seed;
@@ -153,6 +153,23 @@ void clear_packets(void)
     }
 }
 
+static int packet_saved_users(NetUserId *users)
+{
+    int n = 0;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        if (game.packet_save_head.user_players[user] >= 0)
+            users[n++] = user;
+    }
+    return n;
+}
+
+static int packet_turn_size(void)
+{
+    NetUserId users[MAX_NET_USERS];
+    return packet_saved_users(users) * sizeof(struct Packet) + sizeof(TbBigChecksum);
+}
+
 TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 {
     memset(centry, 0, sizeof(struct CatalogueEntry));
@@ -174,7 +191,7 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
         return false;
     }
     game.packet_file_pos = LbFilePosition(game.packet_save_fp);
-    game.turns_stored = (LbFileLengthHandle(game.packet_save_fp) - game.packet_file_pos) / PACKET_TURN_SIZE;
+    game.turns_stored = (LbFileLengthHandle(game.packet_save_fp) - game.packet_file_pos) / packet_turn_size();
     if ((game.packet_checksum_verify) && (!game.packet_save_head.chksum_available))
     {
         WARNMSG("PacketSave checksum not available, checking disabled.");
@@ -289,8 +306,10 @@ TbBigChecksum compute_replay_integrity(void)
 
 short save_packets(void)
 {
-    const int turn_data_size = PACKET_TURN_SIZE;
-    unsigned char pckt_buf[PACKET_TURN_SIZE+4];
+    NetUserId users[MAX_NET_USERS];
+    const int nusers = packet_saved_users(users);
+    const int turn_data_size = nusers * sizeof(struct Packet) + sizeof(TbBigChecksum);
+    unsigned char pckt_buf[PACKET_TURN_MAX_SIZE+4];
     TbBigChecksum chksum;
     SYNCDBG(6,"Starting");
     if (game.packet_checksum_verify)
@@ -299,17 +318,17 @@ short save_packets(void)
         chksum = 0;
     LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
     // Prepare data in the buffer
-    for (int i = 0; i < MAX_NET_USERS; i++)
-        memcpy(&pckt_buf[i*sizeof(struct Packet)], &game.packets[i], sizeof(struct Packet));
-    memcpy(&pckt_buf[MAX_NET_USERS*sizeof(struct Packet)], &chksum, sizeof(TbBigChecksum));
+    for (int i = 0; i < nusers; i++)
+        memcpy(&pckt_buf[i*sizeof(struct Packet)], &game.packets[users[i]], sizeof(struct Packet));
+    memcpy(&pckt_buf[nusers*sizeof(struct Packet)], &chksum, sizeof(TbBigChecksum));
     // Write buffer into file
     if (LbFileWrite(game.packet_save_fp, &pckt_buf, turn_data_size) != turn_data_size)
     {
         ERRORLOG("Packet file write error");
     }
-    for (int i = 0; i < MAX_NET_USERS; i++) {
-        if (game.packets[i].action == PckA_PlyrMsgEnd) {
-            if (LbFileWrite(game.packet_save_fp, get_player(get_net_user_player_number(i))->mp_pending_message, PLAYER_MP_MESSAGE_LEN) != PLAYER_MP_MESSAGE_LEN) {
+    for (int i = 0; i < nusers; i++) {
+        if (game.packets[users[i]].action == PckA_PlyrMsgEnd) {
+            if (LbFileWrite(game.packet_save_fp, get_player(get_net_user_player_number(users[i]))->mp_pending_message, PLAYER_MP_MESSAGE_LEN) != PLAYER_MP_MESSAGE_LEN) {
                 ERRORLOG("Chat message file write error");
             }
         }
@@ -429,7 +448,6 @@ static TbBool turn_has_quit_packet(void)
         {
         case PckA_QuitToMainMenu:
         case PckA_ForceApplicationClose:
-        case PckA_FinishGame:
             return true;
         default:
             break;
@@ -441,8 +459,10 @@ static TbBool turn_has_quit_packet(void)
 void load_packets_for_turn(GameTurn nturn)
 {
     SYNCDBG(19,"Starting");
-    const int turn_data_size = PACKET_TURN_SIZE;
-    unsigned char pckt_buf[PACKET_TURN_SIZE+4];
+    NetUserId users[MAX_NET_USERS];
+    const int nusers = packet_saved_users(users);
+    const int turn_data_size = nusers * sizeof(struct Packet) + sizeof(TbBigChecksum);
+    unsigned char pckt_buf[PACKET_TURN_MAX_SIZE+4];
     if (nturn >= game.turns_stored)
     {
         ERRORDBG(18,"Out of turns to load from Packet File");
@@ -457,18 +477,18 @@ void load_packets_for_turn(GameTurn nturn)
         return;
     }
     game.packet_file_pos += turn_data_size;
-    for (long i = 0; i < MAX_NET_USERS; i++)
-        memcpy(&game.packets[i], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
-    for (long i = 0; i < MAX_NET_USERS; i++) {
-        if (game.packets[i].action == PckA_PlyrMsgEnd) {
-            if (LbFileRead(game.packet_save_fp, get_player(get_net_user_player_number(i))->mp_pending_message, PLAYER_MP_MESSAGE_LEN) == PLAYER_MP_MESSAGE_LEN) {
+    for (int i = 0; i < nusers; i++)
+        memcpy(&game.packets[users[i]], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
+    for (int i = 0; i < nusers; i++) {
+        if (game.packets[users[i]].action == PckA_PlyrMsgEnd) {
+            if (LbFileRead(game.packet_save_fp, get_player(get_net_user_player_number(users[i]))->mp_pending_message, PLAYER_MP_MESSAGE_LEN) == PLAYER_MP_MESSAGE_LEN) {
                 game.packet_file_pos += PLAYER_MP_MESSAGE_LEN;
             } else {
                 ERRORDBG(18,"Cannot read chat message from Packet File");
             }
         }
     }
-    TbBigChecksum tot_chksum = llong(&pckt_buf[MAX_NET_USERS * sizeof(struct Packet)]);
+    TbBigChecksum tot_chksum = llong(&pckt_buf[nusers * sizeof(struct Packet)]);
     if (game.turns_fastforward > 0)
         game.turns_fastforward--;
     if (game.packet_checksum_verify && !turn_has_quit_packet())
