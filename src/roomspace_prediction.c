@@ -122,7 +122,8 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
     }
     if (local_dig_roomspace_prediction.action != PckA_None) {
         predicted_player->roomspace_highlight_mode = local_dig_roomspace_prediction.actn_par1;
-        set_player_roomspace_size(predicted_player, local_dig_roomspace_prediction.actn_par2);
+        predicted_player->roomspace_width = local_dig_roomspace_prediction.actn_par2;
+        predicted_player->roomspace_height = local_dig_roomspace_prediction.actn_par2;
     }
     ustate->one_click_lock_cursor = cursor_is_locked;
     predicted_player->render_roomspace.drag_mode = cursor_is_locked;

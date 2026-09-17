@@ -1042,30 +1042,12 @@ TbBool process_user_global_packet_action(NetUserId user)
             player->render_roomspace.drag_mode = false;
         }
         player->roomspace_highlight_mode = pckt->actn_par1;
-        switch (pckt->actn_par1)
-        {
-            case box_placement_mode:
-            {
-                reset_dungeon_build_room_ui_variables(plyr_idx);
-                player->roomspace_width = player->roomspace_height = pckt->actn_par2;
-                break;
-            }
-            case roomspace_detection_mode:
-            {
-                set_player_roomspace_size(player, pckt->actn_par2);
-                break;
-            }
-            case drag_placement_mode: // drag
-            {
-                if (pckt->actn_par2 == 1)
-                {
-                    player->roomspace_width = 1;
-                    player->roomspace_height = 1;
-                }
-                break;
-            }
+        if (pckt->actn_par1 == box_placement_mode) {
+            reset_dungeon_build_room_ui_variables(plyr_idx);
         }
-        player->roomspace_no_default = true;
+        if (pckt->actn_par1 == box_placement_mode || pckt->actn_par1 == roomspace_detection_mode || (pckt->actn_par1 == drag_placement_mode && pckt->actn_par2 == 1)) {
+            player->roomspace_width = player->roomspace_height = pckt->actn_par2;
+        }
         return false;
     }
     case PckA_PlyrQueryCreature:
