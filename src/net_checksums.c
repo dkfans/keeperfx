@@ -182,11 +182,10 @@ static void compute_checksums(struct DesyncChecksums* checksums) {
     }
     checksums->dig_tasks = 0;
     for (int i = 0; i < DUNGEONS_COUNT; i++) {
-        struct Dungeon* dungeon = get_dungeon(i);
-        for (int t = 0; t < dungeon->task_count; t++) {
-            struct MapTask* task = get_dungeon_task_list_entry(dungeon, t);
-            CHECKSUM_ADD(checksums->dig_tasks, task->kind);
-            CHECKSUM_ADD(checksums->dig_tasks, task->coords);
+        struct MapTask* task = get_dungeon(i)->task_list;
+        for (int t = 0; t < MAPTASKS_COUNT; t++) {
+            CHECKSUM_ADD(checksums->dig_tasks, task[t].kind);
+            CHECKSUM_ADD(checksums->dig_tasks, task[t].coords);
         }
     }
     checksums->action_seed = game.action_random_seed;
@@ -363,7 +362,7 @@ void update_turn_checksums(void) {
         for (int i = 0; i < DUNGEONS_COUNT; i++) {
             struct Dungeon* dungeon = get_dungeon(i);
             snapshot_info->dig_task_counts[i] = dungeon->task_count;
-            memcpy(snapshot_info->dig_tasks[i], dungeon->task_list, dungeon->task_count * sizeof(struct MapTask));
+            memcpy(snapshot_info->dig_tasks[i], dungeon->task_list, sizeof(dungeon->task_list));
         }
     }
     snapshot_head = (snapshot_head + 1) % SNAPSHOT_BUFFER_SIZE;
@@ -399,6 +398,7 @@ void pack_desync_history_for_resync(void) {
         game.log_snapshot.thing_count = 0;
         game.log_snapshot.player_count = 0;
         game.log_snapshot.room_count = 0;
+        memset(game.log_snapshot.dig_tasks, 0, sizeof(game.log_snapshot.dig_tasks));
         memset(game.log_snapshot.dig_task_counts, 0, sizeof(game.log_snapshot.dig_task_counts));
         return;
     }
@@ -420,29 +420,20 @@ static void log_dig_task_differences(const struct LogDetailedSnapshot* client)
     const struct LogDetailedSnapshot* host = &game.log_snapshot;
     int shown = 0;
     for (int plyr_idx = 0; plyr_idx < DUNGEONS_COUNT && shown < 10; plyr_idx++) {
-        unsigned short host_count = host->dig_task_counts[plyr_idx];
-        unsigned short client_count = client->dig_task_counts[plyr_idx];
-        if ((host_count == client_count) && (memcmp(host->dig_tasks[plyr_idx], client->dig_tasks[plyr_idx], host_count * sizeof(struct MapTask)) == 0)) {
+        if (memcmp(host->dig_tasks[plyr_idx], client->dig_tasks[plyr_idx], sizeof(host->dig_tasks[plyr_idx])) == 0) {
             continue;
         }
-        ERRORLOG("    Player[%d] dig tags: Host count=%u, Client count=%u", plyr_idx, (unsigned)host_count, (unsigned)client_count);
+        ERRORLOG("    Player[%d] dig tags: Host count=%u, Client count=%u", plyr_idx, (unsigned)host->dig_task_counts[plyr_idx], (unsigned)client->dig_task_counts[plyr_idx]);
         shown++;
-        int count = max(host_count, client_count);
-        for (int i = 0; (i < count) && (shown < 10); i++) {
-            struct MapTask host_task = host->dig_tasks[plyr_idx][i];
-            struct MapTask client_task = client->dig_tasks[plyr_idx][i];
-            if ((i < host_count) && (i < client_count) && (host_task.kind == client_task.kind) && (host_task.coords == client_task.coords)) {
+        for (int i = 0; (i < MAPTASKS_COUNT) && (shown < 10); i++) {
+            const struct MapTask* host_task = &host->dig_tasks[plyr_idx][i];
+            const struct MapTask* client_task = &client->dig_tasks[plyr_idx][i];
+            if ((host_task->kind == client_task->kind) && (host_task->coords == client_task->coords)) {
                 continue;
             }
-            char host_text[32] = "missing";
-            char client_text[32] = "missing";
-            if (i < host_count) {
-                snprintf(host_text, sizeof(host_text), "kind=%u stl=(%u,%u)", (unsigned)host_task.kind, (unsigned)stl_num_decode_x(host_task.coords), (unsigned)stl_num_decode_y(host_task.coords));
-            }
-            if (i < client_count) {
-                snprintf(client_text, sizeof(client_text), "kind=%u stl=(%u,%u)", (unsigned)client_task.kind, (unsigned)stl_num_decode_x(client_task.coords), (unsigned)stl_num_decode_y(client_task.coords));
-            }
-            ERRORLOG("    Player[%d] dig tag[%d]: Host %s, Client %s", plyr_idx, i, host_text, client_text);
+            ERRORLOG("    Player[%d] dig tag[%d]: Host kind=%u stl=(%u,%u), Client kind=%u stl=(%u,%u)", plyr_idx, i,
+                (unsigned)host_task->kind, (unsigned)stl_num_decode_x(host_task->coords), (unsigned)stl_num_decode_y(host_task->coords),
+                (unsigned)client_task->kind, (unsigned)stl_num_decode_x(client_task->coords), (unsigned)stl_num_decode_y(client_task->coords));
             shown++;
         }
     }
