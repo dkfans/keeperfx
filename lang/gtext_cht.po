@@ -6966,3 +6966,9 @@ msgstr "請將其作為模組安裝到 /mods/ 資料夾中。"
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "與伺服器的連線已中斷。"
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Network game message"
+msgid "Multiplayer is out of sync."
+msgstr "多人遊戲不同步。"

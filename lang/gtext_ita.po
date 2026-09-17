@@ -7472,3 +7472,9 @@ msgstr "Installalo come mod nella cartella /mods/."
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "Connessione al server persa."
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Network game message"
+msgid "Multiplayer is out of sync."
+msgstr "La partita multigiocatore non è sincronizzata."

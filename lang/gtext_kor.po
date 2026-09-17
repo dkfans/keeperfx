@@ -7358,3 +7358,9 @@ msgstr "MOD로 /mods/에 설치하세요."
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "서버 연결이 끊어졌습니다."
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Network game message"
+msgid "Multiplayer is out of sync."
+msgstr "멀티플레이가 동기화되지 않았습니다."

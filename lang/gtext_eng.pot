@@ -5936,3 +5936,8 @@ msgstr ""
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr ""
+
+#: guitext:1123
+msgctxt "Network game message"
+msgid "Multiplayer is out of sync."
+msgstr ""

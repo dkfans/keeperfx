@@ -7374,3 +7374,9 @@ msgstr "Instrue ut modulum in /mods/."
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "Conexio ad servitorem amissa est."
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Network game message"
+msgid "Multiplayer is out of sync."
+msgstr "Multiplayer spēle nav sinhronizēta."

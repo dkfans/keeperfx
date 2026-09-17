@@ -7307,3 +7307,9 @@ msgstr "MODとして /mods/ に入れてください。"
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "サーバーへの接続が失われました。"
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Network game message"
+msgid "Multiplayer is out of sync."
+msgstr "マルチプレイが同期していません。"
