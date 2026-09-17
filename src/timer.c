@@ -39,7 +39,8 @@ static TbClockMSec level_load_total_start;
 static TbClockMSec level_load_phase_start;
 static enum LevelLoadTimeKind level_load_phase;
 static TbBool level_load_time_active;
-unsigned long GameTime = 0;
+unsigned long GameSeconds = 0;
+struct GameTime GameT;
 /******************************************************************************/
 
 void level_load_time_phase(enum LevelLoadTimeKind kind)
@@ -77,31 +78,27 @@ void update_time(void)
     Timer.Hours = time / 60;
 }
 
-struct GameTime get_game_time(unsigned long turns, unsigned long fps)
+void get_game_time(struct GameTime *GT, unsigned long turns, unsigned long fps)
 {
-    struct GameTime GameT;
     unsigned long time = turns / fps;
-    GameT.Seconds = time % 60;
+    GT->Seconds = time % 60;
     time /= 60;
-    GameT.Minutes = time % 60;
-    GameT.Hours = time / 60;
-    return GameT;
+    GT->Minutes = time % 60;
+    GT->Hours = time / 60;
 }
 
-struct GameTime update_game_time(unsigned long turns, unsigned long fps, unsigned long *gametime)
+void update_game_time(struct GameTime *GT, unsigned long turns, unsigned long fps, unsigned long *gameseconds)
 {
-    struct GameTime GameT;
-    unsigned long GT = *gametime;
     if (turns % fps == 0)
     {
-        GT++;
-        *gametime = GT;
+        unsigned long seconds = *gameseconds;
+        seconds++;
+        *gameseconds = seconds;
+        GT->Seconds = seconds % 60;
+        seconds /= 60;
+        GT->Minutes = seconds % 60;
+        GT->Hours = seconds / 60;
     }
-    GameT.Seconds = GT % 60;
-    GT /= 60;
-    GameT.Minutes = GT % 60;
-    GameT.Hours = GT / 60;
-    return GameT;
 }
 
 /******************************************************************************/

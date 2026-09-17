@@ -1080,7 +1080,10 @@ void game_loop(void)
       starttime = LbTimerClock();
       dungeon->lvstats.start_time = starttime;
       dungeon->lvstats.end_time = starttime;
-      GameTime = 0;
+      GameSeconds = 0;
+      GameT.Seconds = 0;
+      GameT.Minutes = 0;
+      GameT.Hours = 0;
       if (!TimerNoReset)
       {
           if (is_feature_on(Ft_SkipHeartZoom))
