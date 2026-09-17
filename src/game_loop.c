@@ -590,22 +590,26 @@ static void gameplay_loop_logic()
     {
         if (TimerGame)
         {
-            if (get_my_player()->victory_state != VicS_WonLevel)
+            TbBool won_level = (get_my_player()->victory_state == VicS_WonLevel);
+            if (!won_level)
             {
                 TimerTurns = get_gameturn();
             }
             if (TimerGameReal)
             {
-                if (TimerTurns != 0)
+                if (!won_level)
                 {
-                    uint32_t turns = turns_per_second;
-                    if (game.frame_skip > 0)
+                    if (TimerTurns != 0)
                     {
-                        turns *= game.frame_skip;
-                    }
-                    if (TimerTurns % turns == 0)
-                    {
-                        update_game_time(&GameT, &GameSeconds);
+                        uint32_t turns = turns_per_second;
+                        if (game.frame_skip > 0)
+                        {
+                            turns *= game.frame_skip;
+                        }
+                        if (TimerTurns % turns == 0)
+                        {
+                            update_game_time(&GameT, &GameSeconds);
+                        }
                     }
                 }
             }
