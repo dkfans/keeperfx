@@ -310,7 +310,8 @@ void targeted_message_add(char type, PlayerNumber plyr_idx, PlayerNumber target_
 
 void show_game_time_taken(unsigned long fps, unsigned long turns)
 {
-    struct GameTime gt = get_game_time(turns, fps);
+    struct GameTime gt;
+    get_game_time(&gt, turns, fps);
     struct PlayerInfo* player = get_my_player();
     targeted_message_add(MsgType_Player, player->id_number, player->id_number, GUI_MESSAGES_DELAY, "%s: %02ld:%02ld:%02ld", get_string(GUIStr_Time), gt.Hours, gt.Minutes, gt.Seconds);
 }

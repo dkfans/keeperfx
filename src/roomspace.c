@@ -43,6 +43,19 @@ extern "C" {
 /******************************************************************************/
 TbBool reset_roomspace = false;
 
+static int get_packet_roomspace_size(const struct Packet *pckt, int size)
+{
+    switch (pckt->action) {
+    case PckA_SetRoomspaceMan:
+    case PckA_SetRoomspaceDefault:
+        return pckt->actn_par1;
+    case PckA_SetRoomspaceHighlight:
+    case PckA_ApplyRoomspaceDigTag:
+        return pckt->actn_par2;
+    }
+    return size;
+}
+
 static enum DigTagMode get_roomspace_slab_dig_tag_mode(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y, const unsigned char *predicted_slab_tag_modes)
 {
     if (slab_coords_invalid(slb_x, slb_y)) {
@@ -531,7 +544,6 @@ void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-    player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
 }
 
 void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct PlayerInfo *player, NetUserId user, const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const unsigned char *predicted_slab_tag_modes)
@@ -546,14 +558,14 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
     TbBool one_click_mode_exclusive = false;
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
+    int roomspace_size = get_packet_roomspace_size(pckt, player->roomspace_width);
     if (ustate->ignore_next_PCtr_LBtnRelease)
     {
         // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
         player->render_roomspace.drag_mode = false;
         ustate->one_click_lock_cursor = false;
         player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        current_roomspace = create_box_roomspace(player->render_roomspace, player->roomspace_width, player->roomspace_height, slb_x, slb_y);
+        current_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
         current_roomspace.highlight_mode = false;
         current_roomspace.untag_mode = false;
         current_roomspace.one_click_mode_exclusive = false;
@@ -626,10 +638,9 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, struct Pl
             ustate->one_click_lock_cursor = true;
             one_click_mode_exclusive = true;
         }
-        player->roomspace_width = player->roomspace_height = player->user_defined_roomspace_width;
         highlight_mode = true;
     }
-    current_roomspace = create_dig_highlight_roomspace(player->render_roomspace, player->roomspace_highlight_mode, player->roomspace_width, drag_start_x, drag_start_y, slb_x, slb_y);
+    current_roomspace = create_dig_highlight_roomspace(player->render_roomspace, player->roomspace_highlight_mode, roomspace_size, drag_start_x, drag_start_y, slb_x, slb_y);
     current_roomspace.highlight_mode = highlight_mode;
     current_roomspace.untag_mode = untag_mode;
     current_roomspace.one_click_mode_exclusive = one_click_mode_exclusive;
@@ -681,6 +692,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, NetUserId user
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
     struct Packet* pckt = get_packet(user);
+    int roomspace_size = get_packet_roomspace_size(pckt, player->roomspace_width);
     ustate->one_click_lock_cursor = false;
     ustate->one_click_mode_exclusive = false;
     if (ustate->ignore_next_PCtr_LBtnRelease)
@@ -688,7 +700,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, NetUserId user
         // because player cancelled with RMB, we need to default back to vanilla 1x1 box
         player->render_roomspace.drag_mode = false;
         reset_dungeon_build_room_ui_variables(plyr_idx);
-        current_roomspace = create_box_roomspace(player->render_roomspace, player->roomspace_width, player->roomspace_height, slb_x, slb_y);
+        current_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
         current_roomspace.highlight_mode = false;
         current_roomspace.untag_mode = false;
         current_roomspace.one_click_mode_exclusive = false;
@@ -715,7 +727,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, NetUserId user
     {
         current_roomspace.is_roomspace_a_box = true;
         current_roomspace.render_roomspace_as_box = true;
-        current_roomspace = create_box_roomspace(current_roomspace, player->roomspace_width, player->roomspace_height, slb_x, slb_y);
+        current_roomspace = create_box_roomspace(current_roomspace, roomspace_size, roomspace_size, slb_x, slb_y);
         current_roomspace.drag_direction = top_left_to_bottom_right;
         current_roomspace = check_roomspace_for_sellable_slabs(current_roomspace, plyr_idx);
     }
@@ -771,6 +783,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, NetUserId use
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
     struct Packet* pckt = get_packet(user);
+    int roomspace_size = get_packet_roomspace_size(pckt, player->roomspace_width);
     struct RoomSpace temp_best_room;
     ustate->one_click_lock_cursor = false;
     if (ustate->ignore_next_PCtr_LBtnRelease)
@@ -778,7 +791,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, NetUserId use
         // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
         player->render_roomspace.drag_mode = false;
         reset_dungeon_build_room_ui_variables(plyr_idx);
-        best_roomspace = create_box_roomspace(player->render_roomspace, player->roomspace_width, player->roomspace_height, slb_x, slb_y);
+        best_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
         best_roomspace.highlight_mode = false;
         best_roomspace.untag_mode = false;
         best_roomspace.one_click_mode_exclusive = false;
@@ -857,14 +870,14 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, NetUserId use
     }
     else
     {
-        temp_best_room = create_box_roomspace(best_roomspace, player->roomspace_width, player->roomspace_height, slb_x, slb_y);
+        temp_best_room = create_box_roomspace(best_roomspace, roomspace_size, roomspace_size, slb_x, slb_y);
         temp_best_room.drag_direction = top_left_to_bottom_right;
         temp_best_room = check_slabs_in_roomspace(temp_best_room, roomst->cost);
         best_roomspace = temp_best_room;
         ustate->boxsize = best_roomspace.slab_count; // correct number of tiles returned from check_slabs_in_roomspace
             // Make sure the "outer box" bounding is drawn with square room mode
-            best_roomspace.width = player->roomspace_width;
-            best_roomspace.height = player->roomspace_height;
+            best_roomspace.width = roomspace_size;
+            best_roomspace.height = roomspace_size;
             best_roomspace.render_roomspace_as_box = true;
     }
     if ((ustate->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && (!best_roomspace.drag_mode) && (mode != roomspace_detection_mode))
@@ -904,6 +917,9 @@ TbBool update_dungeon_sell_roomspace_preview(NetUserId user, MapSubtlCoord stl_x
 void apply_roomspace_packet_action(struct PlayerInfo *player, NetUserId user, const struct Packet *pckt)
 {
     struct UserState* ustate = get_user_state(user);
+    if (pckt->action == PckA_SetRoomspaceMan || pckt->action == PckA_SetRoomspaceDefault) {
+        player->roomspace_width = player->roomspace_height = pckt->actn_par1;
+    }
     switch (pckt->action) {
     case PckA_SetRoomspaceAuto:
         player->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
@@ -912,13 +928,9 @@ void apply_roomspace_packet_action(struct PlayerInfo *player, NetUserId user, co
         player->render_roomspace.highlight_mode = false;
         return;
     case PckA_SetRoomspaceMan:
-        player->user_defined_roomspace_width = pckt->actn_par1;
-        player->roomspace_width = pckt->actn_par1;
-        player->roomspace_height = pckt->actn_par1;
         player->roomspace_mode = box_placement_mode;
         ustate->one_click_mode_exclusive = false;
         player->render_roomspace.highlight_mode = false;
-        player->roomspace_no_default = true;
         return;
     case PckA_SetRoomspaceDragPaint:
     case PckA_SetRoomspaceDrag:
@@ -929,20 +941,14 @@ void apply_roomspace_packet_action(struct PlayerInfo *player, NetUserId user, co
             player->roomspace_drag_paint_mode = true;
         }
         player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
         player->roomspace_mode = drag_placement_mode;
         ustate->one_click_mode_exclusive = true;
         player->render_roomspace.highlight_mode = false;
-        player->roomspace_no_default = false;
         return;
     case PckA_SetRoomspaceDefault:
         player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        player->roomspace_width = pckt->actn_par1;
-        player->roomspace_height = pckt->actn_par1;
         player->roomspace_mode = box_placement_mode;
         ustate->one_click_mode_exclusive = false;
-        player->roomspace_no_default = false;
         return;
     case PckA_SetRoomspaceWholeRoom:
         player->render_roomspace.highlight_mode = false;
@@ -1375,201 +1381,110 @@ void update_roomspaces()
     }
 }
 
+static int get_roomspace_size_input(void)
+{
+    if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true)) {
+        if (local_state.roomspace_size < MAX_USER_ROOMSPACE_WIDTH) {
+            local_state.roomspace_size++;
+        }
+    } else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true) && local_state.roomspace_size > MIN_USER_ROOMSPACE_WIDTH) {
+        local_state.roomspace_size--;
+    }
+    return local_state.roomspace_size;
+}
+
+static void process_box_roomspace_inputs(struct Packet *pckt)
+{
+    if (is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) {
+        set_packet_action(pckt, PckA_SetRoomspaceMan, get_roomspace_size_input(), 0, 0, 0);
+    } else {
+        local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
+        int size = numpad_to_value(false);
+        if (size > 1) {
+            set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
+        } else {
+            set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
+        }
+    }
+}
+
 void process_build_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct UserState* ustate = get_local_user_state(); // local input path
     struct Packet* pckt = get_local_packet() /* local input path */;
-    if (room_role_matches(ustate->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater|RoRoF_PassAbyss))
-    {
+    if (room_role_matches(ustate->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater|RoRoF_PassAbyss)) {
+        local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
         TbBool drag_check = ( ( (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) || (is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) ) && (left_button_held));
-        if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
-        {
+        if (drag_check) { // Enable "paint mode" if Ctrl or Shift are held
             set_packet_action(pckt, PckA_SetRoomspaceDragPaint, 0, 0, 0, 0);
-        }
-        else
-        {
+        } else {
             set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
         }
-    }
-    else if (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) // Find "best" room
-    {
+    } else if (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) { // Find "best" room
         unsigned char looseness = player->roomspace_detection_looseness;
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true))
-        {
-            if (looseness < tolerate_gold)
-            {
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true)) {
+            if (looseness < tolerate_gold) {
                 looseness = tolerate_gold;
-            }
-            else if (looseness != tolerate_rock)
-            {
+            } else if (looseness != tolerate_rock) {
                 looseness = tolerate_rock;
             }
-        }
-        else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true))
-        {
-            if (looseness == tolerate_rock)
-            {
+        } else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true)) {
+            if (looseness == tolerate_rock) {
                 looseness = tolerate_gold;
-            }
-            else if (looseness != disable_tolerance_layers)
-            {
+            } else if (looseness != disable_tolerance_layers) {
                 looseness = disable_tolerance_layers;
             }
         }
-        if (looseness != player->roomspace_detection_looseness || player->roomspace_mode != roomspace_detection_mode)
-        {
+        if (looseness != player->roomspace_detection_looseness || player->roomspace_mode != roomspace_detection_mode) {
             set_packet_action(pckt, PckA_SetRoomspaceAuto, looseness, 0, 0, 0);
         }
+    } else {
+        process_box_roomspace_inputs(pckt);
     }
-    else if (is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
-    {
-        int width = (player->roomspace_no_default) ? player->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true))
-        {
-            if (width != MAX_USER_ROOMSPACE_WIDTH)
-            {
-                width++;
-                set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
-            }
-        }
-        else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true))
-        {
-            if (width != MIN_USER_ROOMSPACE_WIDTH)
-            {
-                width--;
-                set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
-            }
-        }
-        if (player->roomspace_no_default == false)
-        {
-            set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
-        }
-    }
-    else
-        {
-            int size = numpad_to_value(false);
-            if (size > 1)
-            {
-                set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
-            }
-            else
-            {
-                set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
-            }
-        }
 }
 
 void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_local_packet() /* local input path */;
-    if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true))
-    {
+    if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true)) {
         set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
-    }
-    else if (is_game_key_pressed(Gkey_BestRoomSpace, false, true))
-    {
+    } else if (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) {
         set_packet_action(pckt, PckA_SetRoomspaceWholeRoom, 0, 0, 0, 0);
-    }
-    else if (is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
-    {
-        int width = (player->roomspace_no_default) ? player->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true))
-        {
-            if (width != MAX_USER_ROOMSPACE_WIDTH)
-            {
-                width++;
-                set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
-            }
-        }
-        else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true))
-        {
-            if (width != MIN_USER_ROOMSPACE_WIDTH)
-            {
-                width--;
-                set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
-            }
-        }
-        if (player->roomspace_no_default == false)
-        {
-            set_packet_action(pckt, PckA_SetRoomspaceMan, width, 0, 0, 0);
-        }
-    }
-    else
-    {
-        int size = numpad_to_value(false);
-        if (size > 1)
-        {
-            set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
-        }
-        else
-        {
-            set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
-        }
+    } else {
+        process_box_roomspace_inputs(pckt);
     }
 }
 
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct UserState* ustate = get_local_user_state(); // local input path
-    unsigned long par2;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ( (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) ) // Use "modern" click and drag method
-    {
+    if (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) {
         set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode ^ 1, settings.highlight_mode, 0, 0);
         reset_roomspace = true;
         return;
-    }
-    else if ( (is_game_key_pressed(Gkey_SquareRoomSpace, false, true))  ) // Use "modern" click and drag method
-    {
-        par2 = (player->roomspace_no_default) ? player->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true))
-        {
-            if (par2 != MAX_USER_ROOMSPACE_WIDTH)
-            {
-                par2++;
-            }
-        }
-        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true))
-        {
-            if (par2 != MIN_USER_ROOMSPACE_WIDTH)
-            {
-                par2--;
-            }
-        }
-        set_player_roomspace_size(player, par2);
-        set_players_packet_action(player, PckA_SetRoomspaceHighlight, roomspace_detection_mode, par2, 0, 0);
+    } else if (is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) {
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, roomspace_detection_mode, get_roomspace_size_input(), 0, 0);
         reset_roomspace = true;
         return;
-    }
-    else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true) )
-    {
-        if (ustate->primary_cursor_state == CSt_PowerHand)
-        {
-            player = get_player(plyr_idx);
-            if (player->roomspace_mode != single_subtile_mode)
-            {
-                struct Packet* pckt = get_local_packet();
-                set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
-                reset_roomspace = true;
-            }
+    } else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true)) {
+        if (ustate->primary_cursor_state == CSt_PowerHand && player->roomspace_mode != single_subtile_mode) {
+            set_players_packet_action(player, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+            reset_roomspace = true;
         }
         return;
-    }
-    else
-    {
-        par2 = numpad_to_value(false);
-        if (par2 > 1)
-        {
-            set_player_roomspace_size(player, par2);
+    } else {
+        int par2 = numpad_to_value(false);
+        if (par2 > 1) {
+            local_state.roomspace_size = par2;
             set_players_packet_action(player, PckA_SetRoomspaceHighlight, roomspace_detection_mode, par2, 0, 0);
             reset_roomspace = true;
             return;
         }
     }
-    if (reset_roomspace)
-    {
+    local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
+    if (reset_roomspace) {
         set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
         reset_roomspace = false; // don't constantly send packets we don't need to
     }

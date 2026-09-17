@@ -115,10 +115,11 @@ void set_player_as_won_level(struct PlayerInfo *player)
         {
             show_real_time_taken();
         }
-        struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, turns_per_second);
+        struct GameTime GT;
+        get_game_time(&GT, dungeon->lvstats.hopes_dashed, turns_per_second);
         SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
             game.loaded_level_number, dungeon->lvstats.hopes_dashed,
-            GameT.Hours, GameT.Minutes, GameT.Seconds, turns_per_second,
+            GT.Hours, GT.Minutes, GT.Seconds, turns_per_second,
             Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
       }
   }
@@ -802,6 +803,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         local_state.minimap_pos_x = 11;
         local_state.minimap_pos_y = 11;
         local_state.minimap_zoom = settings.minimap_zoom;
+        local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
         local_state.main_palette = engine_palette;
     }
@@ -826,7 +828,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->roomspace_width = 1;
     player->roomspace_height = 1;
     player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-    player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
     switch (game.game_kind)
     {
     case GKind_LocalGame:
@@ -1363,12 +1364,6 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
             }
         }
     }
-}
-
-void set_player_roomspace_size(struct PlayerInfo *player, long size) {
-    player->user_defined_roomspace_width = size;
-    player->roomspace_width = size;
-    player->roomspace_height = size;
 }
 
 /******************************************************************************/

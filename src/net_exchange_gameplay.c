@@ -311,7 +311,7 @@ static TbBool user_has_required_turn_packets(NetUserId user)
 static TbBool have_all_turn_packets(NetUserId local_user)
 {
     for (NetUserId user = 0; user < MAX_NET_USERS; user += 1) {
-        if (user != local_user && network_user_active(user) && !user_has_required_turn_packets(user)) {
+        if (user != local_user && user_present(user) && !user_has_required_turn_packets(user)) {
             return false;
         }
     }
@@ -328,17 +328,23 @@ static TbBool host_lost(GameTurn turn, const char *state)
     return true;
 }
 
+static TbBool user_has_relayable_history(NetUserId user)
+{
+    if (user < 0 || user >= MAX_NET_USERS) {
+        return false;
+    }
+    const struct Packet *latest = get_latest_history_packet(user);
+    return (latest != NULL) && ((GameTurnDelta)(get_gameturn() - latest->turn) < PACKET_HISTORY_SIZE);
+}
+
 static void send_user_repair_history(NetUserId user)
 {
-    if (user < 0 || user >= MAX_NET_USERS || !network_user_active(user)) {
+    if (!user_has_relayable_history(user)) {
         return;
     }
     struct RedundantPacketBundle packet_bundle;
     packet_bundle.valid_count = 0;
     const struct Packet *latest = get_latest_history_packet(user);
-    if (latest == NULL) {
-        return;
-    }
     const struct PacketHistory *history = &packet_history[user];
     GameTurn latest_turn = latest->turn;
     for (GameTurnDelta offset = 0; offset < PACKET_HISTORY_SIZE; offset += 1) {
@@ -394,7 +400,7 @@ static void send_repair_history_if_due(void)
         PlayerNumber offset;
         for (offset = 0; offset < netstate.max_users; offset += 1) {
             user = (next_repair_history_user + offset) % netstate.max_users;
-            if (network_user_active(user) && (last_repair_history_send[user] == 0 || current_time - last_repair_history_send[user] >= REPAIR_HISTORY_RESEND_INTERVAL)) {
+            if (user_has_relayable_history(user) && (last_repair_history_send[user] == 0 || current_time - last_repair_history_send[user] >= REPAIR_HISTORY_RESEND_INTERVAL)) {
                 break;
             }
         }
@@ -420,6 +426,7 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
         send_turn_sync_if_due();
         send_repair_history_if_due();
         netstate.sp->update(OnNewUser);
+        host_spoof_dropped_user_packets();
         if (host_lost(expected_turn, "waiting for")) {
             return Lb_OK;
         }
