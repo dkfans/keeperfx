@@ -1939,12 +1939,14 @@ struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, 
 {
     TSP_SCAN_BEGIN(param->class_id);
     TSP_SCAN_ZONE_BEGIN(ctx_nth_thing);
+    creature_hostility_memo_begin_scan();
     long maximizer = 0;
     long curindex = 0;
     struct Thing* retng = INVALID_THING;
     SYNCDBG(19,"Starting");
     struct StructureList* slist = get_list_for_thing_class(param->class_id);
     if (slist == NULL) {
+        creature_hostility_memo_end_scan();
         TSP_SCAN_ZONE_END(ctx_nth_thing, 0);
         TSP_SCAN_END(param->class_id, 0);
         return INVALID_THING;
@@ -1999,6 +2001,7 @@ struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, 
             break;
         }
     }
+    creature_hostility_memo_end_scan();
     TSP_SCAN_ZONE_END(ctx_nth_thing, k);
     TSP_SCAN_END(param->class_id, k);
     return retng;

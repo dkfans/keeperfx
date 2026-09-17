@@ -4324,10 +4324,44 @@ TbBool trap_is_valid_combat_target_for_creature(const struct Thing* fightng, con
     return creature_has_disarming_weapon(fightng);
 }
 
+// Cleared per scan; hostile_towards is never written during a scan
+static int32_t hostility_memo_depth = 0;
+static uint8_t hostility_memo[CREATURE_TYPES_MAX]; // 0 = unknown, 1 = all slots empty, 2 = has entries
+
+void creature_hostility_memo_begin_scan(void)
+{
+    if (hostility_memo_depth++ == 0)
+        memset(hostility_memo, 0, sizeof(hostility_memo));
+}
+
+void creature_hostility_memo_end_scan(void)
+{
+    hostility_memo_depth--;
+}
+
 TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
 {
     TSP_INC(TSP_HostileTowards_Calls);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(fightng);
+    if (hostility_memo_depth > 0)
+    {
+        long conf_idx = crconf - game.conf.crtr_conf.model;
+        if (hostility_memo[conf_idx] == 0)
+        {
+            hostility_memo[conf_idx] = 1;
+            for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+            {
+                if (crconf->hostile_towards[i] != 0)
+                {
+                    hostility_memo[conf_idx] = 2;
+                    break;
+                }
+            }
+        }
+        // all slots 0: the loop can only match model 0
+        if (hostility_memo[conf_idx] == 1)
+            return (enmtng->model == 0);
+    }
     for (int i = 0; i < CREATURE_TYPES_MAX; i++)
     {
         if ((crconf->hostile_towards[i] == enmtng->model) || (crconf->hostile_towards[i] == CREATURE_ANY))
