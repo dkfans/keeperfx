@@ -105,8 +105,6 @@ static long triangle_find_cache_get(long pos_x, long pos_y)
     long ntri = find_cache[cache_y][cache_x];
     if (get_triangle_tree_alt(ntri) == NAV_COL_UNSET)
     {
-        // Spatial 4x4 grid cache missed -- fall back to the expensive
-        // sibling-then-full-cache-then-linear-scan search below.
         KFX_C_ZONE_BEGIN_COLOR(ctx_cache_miss, "triangle_find_cache_get: MISS", KFX_COLOR_PATHFINDING);
         ntri = triangle_brute_find8_near(pos_x, pos_y);
         KFX_C_ZONE_END(ctx_cache_miss);

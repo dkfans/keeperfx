@@ -19,6 +19,7 @@
 #include "pre_inc.h"
 #include "kfx/renderer/RendererManager.h"
 #include <assert.h>
+#include <string.h>
 
 #include "thing_creature.h"
 #include "globals.h"
@@ -2548,17 +2549,33 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     unsigned long model_flags = get_creature_model_flags(thing);
 
+    KFX_C_ZONE_BEGIN_COLOR(ctx_moods, "CreatureAI: MoodsAndNeeds", KFX_COLOR_AI);
     process_person_moods_and_needs(thing);
-    if (creature_available_for_combat_this_turn(thing))
+    KFX_C_ZONE_END(ctx_moods);
+
+    KFX_C_ZONE_BEGIN_COLOR(ctx_combat, "CreatureAI: CombatLookup", KFX_COLOR_AI);
+    KFX_C_ZONE_BEGIN_COLOR(ctx_combat_gate, "CreatureAI: CombatLookup.AvailableGate", KFX_COLOR_AI);
+    TbBool combat_gate_open = creature_available_for_combat_this_turn(thing);
+    KFX_C_ZONE_END(ctx_combat_gate);
+    if (combat_gate_open)
     {
+        KFX_C_ZONE_BEGIN_COLOR(ctx_combat_look, "CreatureAI: CombatLookup.LookForCombat", KFX_COLOR_AI);
         TbBool fighting = creature_look_for_combat(thing);
+        KFX_C_ZONE_END(ctx_combat_look);
         if (!fighting) {
+            KFX_C_ZONE_BEGIN_COLOR(ctx_combat_heart, "CreatureAI: CombatLookup.LookForEnemyHeart", KFX_COLOR_AI);
             fighting = creature_look_for_enemy_heart_combat(thing);
+            KFX_C_ZONE_END(ctx_combat_heart);
         }
         if (!fighting) {
+            KFX_C_ZONE_BEGIN_COLOR(ctx_combat_obj, "CreatureAI: CombatLookup.LookForEnemyObject", KFX_COLOR_AI);
             fighting = creature_look_for_enemy_object_combat(thing);
+            KFX_C_ZONE_END(ctx_combat_obj);
         }
     }
+    KFX_C_ZONE_END(ctx_combat);
+
+    KFX_C_ZONE_BEGIN_COLOR(ctx_doors, "CreatureAI: DoorInteraction", KFX_COLOR_AI);
     creature_look_for_hidden_doors(thing);
     if ((cctrl->combat_flags & CmbtF_DoorFight) == 0)
     {
@@ -2589,12 +2606,17 @@ TngUpdateRet process_creature_state(struct Thing *thing)
             }
         }
     }
+    KFX_C_ZONE_END(ctx_doors);
+
+    KFX_C_ZONE_BEGIN_COLOR(ctx_group, "CreatureAI: GroupLeader", KFX_COLOR_AI);
     if (creature_is_group_member(thing))
     {
         if (!creature_is_group_leader(thing)) {
             process_obey_leader(thing);
         }
     }
+    KFX_C_ZONE_END(ctx_group);
+
     if ((thing->active_state < 1) || (thing->active_state >= game.conf.crtr_conf.states_count))
     {
         ERRORLOG("The %s index %d has illegal state[1], S=%d, TCS=%d, reset", thing_model_name(thing), (int)thing->index, (int)thing->active_state, (int)thing->continue_state);
@@ -2602,6 +2624,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     }
 
     // Creatures that are not special diggers will pick up any nearby gold or food
+    KFX_C_ZONE_BEGIN_COLOR(ctx_pickup, "CreatureAI: ObjectPickup", KFX_COLOR_AI);
     if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) == 0))
     {
         if (!creature_is_being_unconscious(thing) && !creature_is_dying(thing) &&
@@ -2610,6 +2633,8 @@ TngUpdateRet process_creature_state(struct Thing *thing)
             creature_pick_up_interesting_object_laying_nearby(thing);
         }
     }
+    KFX_C_ZONE_END(ctx_pickup);
+
     // Enable this to know which function hangs on update_creature.
     //TODO CREATURE_AI rewrite state subfunctions so they won't hang
     //if (get_gameturn() > 119800)
@@ -2617,10 +2642,18 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
     if (stati->process_state != 0) {
         short k = 0;
+        KFX_C_ZONE_BEGIN_COLOR(ctx_state_dispatch, "CreatureAI: StateDispatch", KFX_COLOR_AI);
+#ifdef TRACY_ENABLE
+        {
+            const char* state_name = creature_state_code_name(thing->active_state);
+            KFX_C_ZONE_NAME(ctx_state_dispatch, state_name, strlen(state_name));
+        }
+#endif
         if (stati->process_state > 0)
             k = process_func_list[stati->process_state](thing);
         else
             k = luafunc_crstate_func(stati->process_state, thing);
+        KFX_C_ZONE_END(ctx_state_dispatch);
 
         if (k == CrStRet_Deleted) {
             SYNCDBG(18,"Finished with creature deleted");

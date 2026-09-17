@@ -55,6 +55,7 @@
 #include "keeperfx.hpp"
 #include "bflib_planar.h"
 #include "kfx/profiling/KfxProfilingC.h"
+#include "kfx/ai/TargetSearchProbe.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -398,31 +399,55 @@ long near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creatu
  */
 long highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    if ((param->class_id == -1) || (thing->class_id == param->class_id))
-    {
-        if (thing_matches_model(thing,param->model_id))
-        {
-            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
-            {
-                struct Thing* creatng = thing_get(param->primary_number);
-                if (creature_will_attack_creature(creatng, thing) && !creature_has_creature_in_combat(creatng, thing))
-                {
-                    long distance = get_combat_distance(creatng, thing);
-                    if (distance >= param->secondary_number) {
-                        return -1;
-                    }
-                    CrAttackType attack_type = creature_can_have_combat_with_creature(creatng, (struct Thing*)thing, distance, param->tertiary_number, 0);
-                    if (attack_type > AttckT_Unset)
-                    {
-                        long score = get_combat_score(creatng, thing, attack_type, distance);
-                        return score;
-                    }
-                }
-            }
-        }
+    TSP_INC(TSP_Funnel_Entered);
+
+    TSP_ZONE_BEGIN(z_cmo, "TS/Filter: ClassModelOwner");
+    TbBool matches = ((param->class_id == -1) || (thing->class_id == param->class_id))
+        && thing_matches_model(thing, param->model_id)
+        && ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx));
+    TSP_ZONE_END(z_cmo);
+    if (!matches) {
+        TSP_INC(TSP_Rej_ClassModelOwner);
+        return -1;
     }
-    // If conditions are not met, return -1 to be sure thing will not be returned.
-    return -1;
+    struct Thing* creatng = thing_get(param->primary_number);
+
+    TSP_ZONE_BEGIN(z_wa, "TS/Filter: WillAttack");
+    TbBool will_attack = creature_will_attack_creature(creatng, thing);
+    TSP_ZONE_END(z_wa);
+    if (!will_attack) {
+        return -1;
+    }
+
+    TSP_ZONE_BEGIN(z_ic, "TS/Filter: InCombatWith");
+    TbBool in_combat = creature_has_creature_in_combat(creatng, thing);
+    TSP_ZONE_END(z_ic);
+    if (in_combat) {
+        TSP_INC(TSP_Rej_InCombat);
+        return -1;
+    }
+
+    TSP_ZONE_BEGIN(z_dist, "TS/Filter: Distance");
+    long distance = get_combat_distance(creatng, thing);
+    TSP_ZONE_END(z_dist);
+    if (distance >= param->secondary_number) {
+        TSP_INC(TSP_Rej_Distance);
+        return -1;
+    }
+
+    TSP_ZONE_BEGIN(z_reach, "TS/Filter: Reachability");
+    CrAttackType attack_type = creature_can_have_combat_with_creature(creatng, (struct Thing*)thing, distance, param->tertiary_number, 0);
+    TSP_ZONE_END(z_reach);
+    if (attack_type <= AttckT_Unset) {
+        TSP_INC(TSP_Rej_Reachability);
+        return -1;
+    }
+
+    TSP_ZONE_BEGIN(z_score, "TS/Filter: Score");
+    long score = get_combat_score(creatng, thing, attack_type, distance);
+    TSP_ZONE_END(z_score);
+    TSP_INC(TSP_Accepted);
+    return score;
 }
 
 /**
@@ -1339,9 +1364,8 @@ void update_things(void)
     total_lights = 0;
     do_lights = game.lish.light_enabled;
 
-    // Lets a Tracy capture correlate simulation cost against live population
-    // (e.g. spawning a batch of creatures to see if the slowdown scales with it).
     KFX_C_PLOT("Creatures", game.thing_lists[TngList_Creatures].count);
+    TSP_EMIT_TURN();
 
     KFX_C_ZONE_BEGIN(ctx_creatures, "update_things: Creatures");
     update_things_in_list(&game.thing_lists[TngList_Creatures]);
@@ -1913,27 +1937,39 @@ long count_things_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilt
  */
 struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, long tngindex)
 {
+    TSP_SCAN_BEGIN(param->class_id);
+    TSP_SCAN_ZONE_BEGIN(ctx_nth_thing);
     long maximizer = 0;
     long curindex = 0;
     struct Thing* retng = INVALID_THING;
     SYNCDBG(19,"Starting");
     struct StructureList* slist = get_list_for_thing_class(param->class_id);
     if (slist == NULL) {
+        TSP_SCAN_ZONE_END(ctx_nth_thing, 0);
+        TSP_SCAN_END(param->class_id, 0);
         return INVALID_THING;
     }
     long i = slist->index;
     unsigned long k = 0;
     while (i != 0)
     {
+        TSP_ZONE_BEGIN(z_step, "TS/Scan: ListStep");
         struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing))
+        TbBool invalid = thing_is_invalid(thing);
+        if (!invalid)
+            i = thing->next_of_class;
+        TSP_ZONE_END(z_step);
+        if (invalid)
         {
             ERRORLOG("Jump to invalid thing detected");
             break;
         }
-        i = thing->next_of_class;
         // Per-thing code
+        TSP_ZONE_BEGIN(z_filter, "TS/Scan: FilterCall");
         long n = filter(thing, param, maximizer);
+        TSP_ZONE_END(z_filter);
+        TSP_ZONE_BEGIN(z_max, "TS/Scan: Maximizer");
+        TbBool stop = false;
         if (n > maximizer)
         {
             retng = thing;
@@ -1947,10 +1983,14 @@ struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, 
             }
             // Only break if we can't get any higher with the filter function result
             if ((maximizer == INT32_MAX) && (curindex >= tngindex)) {
-                break;
+                stop = true;
+            } else {
+                curindex++;
             }
-            curindex++;
         }
+        TSP_ZONE_END(z_max);
+        if (stop)
+            break;
         // Per-thing code ends
         k++;
         if (k > slist->count)
@@ -1959,6 +1999,8 @@ struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, 
             break;
         }
     }
+    TSP_SCAN_ZONE_END(ctx_nth_thing, k);
+    TSP_SCAN_END(param->class_id, k);
     return retng;
 }
 

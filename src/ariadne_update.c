@@ -1502,7 +1502,6 @@ static void border_unlock(long start_x, long start_y, long end_x, long end_y)
 static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x, long end_y)
 {
     KFX_C_ZONE_BEGIN_COLOR(ctx_triangulate_area, "triangulate_area", KFX_COLOR_PATHFINDING);
-    // Area in subtiles -- distinguishes a small per-dig update from a full-map init.
     KFX_C_ZONE_VALUE(ctx_triangulate_area, (long)(end_x - start_x) * (long)(end_y - start_y));
     TbBool one_tile;
     TbBool not_whole_map;
@@ -1694,10 +1693,6 @@ long init_navigation(void)
 
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y)
 {
-    // Fires whenever a slab changes (digging, room building, wall collapse) --
-    // the trigger for local navmesh re-triangulation. With many creatures
-    // digging at once this can fire frequently -- Tracy's per-zone call count
-    // (Statistics view) tracks the rate for free.
     KFX_C_ZONE_BEGIN_COLOR(ctx_update_nav, "update_navigation_triangulation", KFX_COLOR_PATHFINDING);
     long sx;
     long sy;

@@ -33,8 +33,6 @@ void RenderThreadManager::Start(Fn init_fn, Fn work_fn, Fn cleanup_fn)
 
 void RenderThreadManager::WaitForCompletion()
 {
-    // Game thread stalls here until the render thread finishes the previous
-    // frame's work_fn(); a wide zone means the game thread is GPU/render-bound.
     KFX_ZONE_COLOR("RenderThreadManager::WaitForCompletion", KFX_COLOR_SIMULATION);
     std::unique_lock<std::mutex> lock(m_mutex);
     m_cv.wait(lock, [this]{ return m_work_done; });

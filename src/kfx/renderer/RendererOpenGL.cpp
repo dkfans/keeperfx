@@ -456,39 +456,45 @@ void RendererOpenGL::render_thread_work()
 
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
 
-    m_impl->resource_mapper.ProcessDeferredDestroys(fd.sealed_frame_number);
-
-    if (fd.palette_dirty)
     {
-        fd.palette_dirty = false;
-        const GLTexture* const tex = m_impl->resource_mapper.ResolveTexture(m_impl->palette_tex_handle);
-        if (tex != nullptr)
+        KFX_ZONE_COLOR("RendererOpenGL::FrameHousekeeping", KFX_COLOR_RENDER_GPU);
+        m_impl->resource_mapper.ProcessDeferredDestroys(fd.sealed_frame_number);
+
+        if (fd.palette_dirty)
         {
-            glBindTexture(GL_TEXTURE_2D, tex->id);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, fd.palette_rgba);
-            glBindTexture(GL_TEXTURE_2D, 0);
+            fd.palette_dirty = false;
+            const GLTexture* const tex = m_impl->resource_mapper.ResolveTexture(m_impl->palette_tex_handle);
+            if (tex != nullptr)
+            {
+                glBindTexture(GL_TEXTURE_2D, tex->id);
+                glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, fd.palette_rgba);
+                glBindTexture(GL_TEXTURE_2D, 0);
+            }
+            m_impl->palette_index_lookup.SetPalette(fd.palette_rgba);
         }
-        m_impl->palette_index_lookup.SetPalette(fd.palette_rgba);
-    }
 
-    m_impl->ui.SetFramePalette(fd.palette_rgba);
+        m_impl->ui.SetFramePalette(fd.palette_rgba);
 
-    m_impl->atlas.FlushPendingGL();
+        m_impl->atlas.FlushPendingGL();
 
-    if (!m_impl->world_atlas.IsInitialized() && block_ptrs[0] != nullptr)
-        m_impl->world_atlas.Init();
+        if (!m_impl->world_atlas.IsInitialized() && block_ptrs[0] != nullptr)
+            m_impl->world_atlas.Init();
 
-    if (!m_impl->fade_tables_refreshed && fade_tables_ready)
-    {
-        m_impl->world.RefreshFadeTableAndSettings();
-        m_impl->palette_index_lookup.RefreshBase(engine_palette);
-        m_impl->palette_index_lookup.SetPalette(fd.palette_rgba);
-        m_impl->fade_tables_refreshed = true;
+        if (!m_impl->fade_tables_refreshed && fade_tables_ready)
+        {
+            m_impl->world.RefreshFadeTableAndSettings();
+            m_impl->palette_index_lookup.RefreshBase(engine_palette);
+            m_impl->palette_index_lookup.SetPalette(fd.palette_rgba);
+            m_impl->fade_tables_refreshed = true;
+        }
     }
 
     RenderGraph::Execute(*this);
 
-    m_impl->PresentScreenTarget(fd);
+    {
+        KFX_ZONE_COLOR("RendererOpenGL::PresentScreenTarget", KFX_COLOR_RENDER_GPU);
+        m_impl->PresentScreenTarget(fd);
+    }
 
     const int want_interval = vsync_enabled ? 1 : 0;
     if (want_interval != m_impl->swap_interval)
@@ -496,7 +502,11 @@ void RendererOpenGL::render_thread_work()
         m_gl_context->SetSwapInterval(want_interval);
         m_impl->swap_interval = want_interval;
     }
-    m_gl_context->SwapBuffers();
+    {
+        // blocks on vsync
+        KFX_ZONE_COLOR("RendererOpenGL::SwapBuffers", KFX_COLOR_RENDER_GPU);
+        m_gl_context->SwapBuffers();
+    }
     KFX_GPU_COLLECT();
     KFX_FRAMEMARK();
 }

@@ -83,6 +83,7 @@
 #include "creature_states_barck.h"
 
 #include "keeperfx.hpp"
+#include "kfx/ai/TargetSearchProbe.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -4325,14 +4326,17 @@ TbBool trap_is_valid_combat_target_for_creature(const struct Thing* fightng, con
 
 TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
 {
+    TSP_INC(TSP_HostileTowards_Calls);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(fightng);
     for (int i = 0; i < CREATURE_TYPES_MAX; i++)
     {
         if ((crconf->hostile_towards[i] == enmtng->model) || (crconf->hostile_towards[i] == CREATURE_ANY))
         {
+            TSP_ADD(TSP_HostileTowards_Iterations, i + 1);
             return true;
         }
     }
+    TSP_ADD(TSP_HostileTowards_Iterations, CREATURE_TYPES_MAX);
     return false;
 }
 
@@ -4346,17 +4350,26 @@ TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thi
 TbBool creature_is_hostile_to_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
     // Creatures cannot be hostile towards allies if influenced by CTA.
-    if (creature_affected_by_call_to_arms(fightng) || creature_affected_by_call_to_arms(enmtng))
+    TSP_ZONE_BEGIN(z_cta, "TS/Hostile: CallToArms");
+    TbBool called_to_arms = creature_affected_by_call_to_arms(fightng) || creature_affected_by_call_to_arms(enmtng);
+    TSP_ZONE_END(z_cta);
+    if (called_to_arms)
     {
         return false;
     }
     // Creatures cannot be hostile towards allies if they are part of a group.
-    if (creature_is_group_member(fightng) || creature_is_group_member(enmtng))
+    TSP_ZONE_BEGIN(z_grp, "TS/Hostile: GroupMember");
+    TbBool in_group = creature_is_group_member(fightng) || creature_is_group_member(enmtng);
+    TSP_ZONE_END(z_grp);
+    if (in_group)
     {
         return false;
     }
     // Lastly, check if neither creature has hostility set towards the other.
-    if (!creature_is_hostile_towards(fightng, enmtng) && !creature_is_hostile_towards(enmtng, fightng))
+    TSP_ZONE_BEGIN(z_ht, "TS/Hostile: HostileTowardsLoop");
+    TbBool neither_hostile = !creature_is_hostile_towards(fightng, enmtng) && !creature_is_hostile_towards(enmtng, fightng);
+    TSP_ZONE_END(z_ht);
+    if (neither_hostile)
     {
         return false;
     }
@@ -4373,33 +4386,46 @@ TbBool creature_is_hostile_to_creature(const struct Thing *fightng, const struct
  */
 TbBool creature_will_attack_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng))
+    TSP_ZONE_BEGIN(z_state, "TS/WillAttack: StateChecks");
+    TbBool bad_state = creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)
+        || creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)
+        || thing_is_picked_up(fightng) || thing_is_picked_up(enmtng);
+    TSP_ZONE_END(z_state);
+    if (bad_state)
     {
-        return false;
-    }
-    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng))
-    {
-        return false;
-    }
-    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng))
-    {
+        TSP_INC(TSP_Rej_WillAttack_State);
         return false;
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner) && !creature_is_hostile_to_creature(fightng, enmtng))
+
+    TSP_ZONE_BEGIN(z_tol, "TS/WillAttack: Tolerate");
+    TbBool tolerate = players_creatures_tolerate_each_other(fightng->owner, enmtng->owner);
+    TSP_ZONE_END(z_tol);
+    TbBool hostile = false;
+    if (tolerate)
     {
-        if ((!creature_under_spell_effect(fightng, CSAfF_MadKilling))
-        && (!creature_under_spell_effect(enmtng, CSAfF_MadKilling)))
+        TSP_ZONE_BEGIN(z_hostile, "TS/WillAttack: HostileToCreature");
+        hostile = creature_is_hostile_to_creature(fightng, enmtng);
+        TSP_ZONE_END(z_hostile);
+    }
+    if (tolerate && !hostile)
+    {
+        TSP_ZONE_BEGIN(z_mad, "TS/WillAttack: MadKilling");
+        TbBool mad_killing = creature_under_spell_effect(fightng, CSAfF_MadKilling) || creature_under_spell_effect(enmtng, CSAfF_MadKilling);
+        TSP_ZONE_END(z_mad);
+        if (!mad_killing)
         {
             if (fighctrl->combat_flags == 0)
             {
+                TSP_INC(TSP_Rej_WillAttack_AllyIdle);
                 return false;
             }
             struct Thing* tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
             if (tmptng->index != enmtng->index)
             {
+                TSP_INC(TSP_Rej_WillAttack_AllyOtherTarget);
                 return false;
             }
         }
@@ -4407,27 +4433,35 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
     // No self fight.
     if (enmtng->index == fightng->index)
     {
+        TSP_INC(TSP_Rej_WillAttack_Self);
         return false;
     }
     // No fight when creature in custody.
-    if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
-    || creature_is_kept_in_custody_by_player(enmtng, fightng->owner))
+    TSP_ZONE_BEGIN(z_custody, "TS/WillAttack: Custody");
+    TbBool in_custody = creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
+        || creature_is_kept_in_custody_by_player(enmtng, fightng->owner);
+    TSP_ZONE_END(z_custody);
+    if (in_custody)
     {
+        TSP_INC(TSP_Rej_WillAttack_Custody);
         return false;
     }
     // No fight while dropping.
     if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng))
     {
+        TSP_INC(TSP_Rej_WillAttack_Dropping);
         return false;
     }
     // Final check - if creature is in control and can see the enemy - fight.
-    if ((creature_control_exists(enmctrl)) && ((enmctrl->creature_control_flags & CCFlg_NoCompControl) == 0))
+    TSP_ZONE_BEGIN(z_vis, "TS/WillAttack: ControlAndVisibility");
+    TbBool can_fight = creature_control_exists(enmctrl) && ((enmctrl->creature_control_flags & CCFlg_NoCompControl) == 0)
+        && (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng));
+    TSP_ZONE_END(z_vis);
+    if (can_fight)
     {
-        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng))
-        {
-            return true;
-        }
+        return true;
     }
+    TSP_INC(TSP_Rej_WillAttack_NoControlOrUnseen);
     return false;
 }
 
