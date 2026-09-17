@@ -456,18 +456,17 @@ void draw_timer(void)
     char text[32];
     if (TimerGame)
     {
-        if (get_my_player()->victory_state != VicS_WonLevel)
+        if (TimerGameReal)
         {
-            TimerTurns = get_gameturn();
+            snprintf(text, sizeof(text), "%02d:%02d:%02d", GameT.Hours, GameT.Minutes, GameT.Seconds);
         }
-        snprintf(text, sizeof(text), "%08ld", TimerTurns);
+        else
+        {
+            snprintf(text, sizeof(text), "%08ld", TimerTurns);
+        }
     }
     else
     {
-        if (!TimerFreeze)
-        {
-            update_time();
-        }
         snprintf(text, sizeof(text), "%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
     }
     LbTextSetFont(winfont);

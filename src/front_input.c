@@ -834,9 +834,10 @@ static short get_global_inputs(void)
         if ( timer_enabled() )
         {
             update_time();
-            struct GameTime GameT = get_game_time(get_gameturn(), turns_per_second);
+            struct GameTime GT;
+            get_game_time(&GT, get_gameturn(), turns_per_second);
             SYNCMSG("Finished level %d. Total turns taken: %u (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
-                game.loaded_level_number, get_gameturn(), GameT.Hours, GameT.Minutes, GameT.Seconds, turns_per_second, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+                game.loaded_level_number, get_gameturn(), GT.Hours, GT.Minutes, GT.Seconds, turns_per_second, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         set_players_packet_action(player, PckA_FinishGame, player->victory_state, 0, 0, 0);
         return true;
