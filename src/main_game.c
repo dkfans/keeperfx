@@ -301,7 +301,12 @@ TbBool startup_saved_packet_game(void)
 {
     struct CatalogueEntry centry;
     clear_packets();
-    open_packet_file_for_load(game.packet_fname,&centry);
+    if (!open_packet_file_for_load(game.packet_fname,&centry))
+    {
+        ERRORLOG("Cannot replay \"%s\": unreadable, or written by an incompatible version",
+            game.packet_fname);
+        return false;
+    }
     if (!change_campaign(CampgnT_Default, centry.campaign_fname))
     {
         ERRORLOG("Unable to load campaign associated with packet file");
@@ -329,11 +334,19 @@ TbBool startup_saved_packet_game(void)
         WARNLOG("Packet file was created with different version of the game; this rarely works");
     }
     game.game_kind = GKind_LocalGame;
-    if (!flag_is_set(game.packet_save_head.players_exist, to_flag(game.local_plyr_idx))
-        || flag_is_set(game.packet_save_head.players_comp, to_flag(game.local_plyr_idx)))
-        my_player_number = 0;
-    else
-        my_player_number = game.local_plyr_idx;
+    {
+        PlayerNumber view_plyr = -1;
+        NetUserId rec_user = game.packet_save_head.recording_user;
+        if (!force_player_num && (rec_user >= 0) && (rec_user < MAX_NET_USERS))
+            view_plyr = game.packet_save_head.user_players[rec_user];
+        if (view_plyr < 0)
+            view_plyr = game.local_plyr_idx;
+        if (!flag_is_set(game.packet_save_head.players_exist, to_flag(view_plyr))
+            || flag_is_set(game.packet_save_head.players_comp, to_flag(view_plyr)))
+            my_player_number = 0;
+        else
+            my_player_number = view_plyr;
+    }
     settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
     settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
     settings.isometric_tilt = game.packet_save_head.isometric_tilt;
@@ -343,10 +356,9 @@ TbBool startup_saved_packet_game(void)
     set_skip_heart_zoom_feature(game.packet_save_head.skip_heart_zoom);
     if (!init_level())
         return false;
-    setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
+    setup_zombie_players();
     init_players();
-    get_my_player()->user_id = SOLO_HUMAN_ID;
-    init_user_state(get_my_player()->user_id);
+    restore_users_from_packet_save();
     if (game.active_players_count == 1)
         game.game_kind = GKind_LocalGame;
     if (game.turns_stored < game.turns_fastforward)

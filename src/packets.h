@@ -311,6 +311,8 @@ struct PacketSaveHead {
     TbBool default_flee_tendency;
     TbBool skip_heart_zoom;
     TbBool highlight_mode;
+    signed char user_players[MAX_NET_USERS];
+    signed char recording_user;
 };
 
 struct PacketEx
@@ -354,6 +356,7 @@ void set_local_packet_turn(void);
 void clear_packets(void);
 TbBigChecksum compute_replay_integrity(void);
 void post_init_packets(void);
+void restore_users_from_packet_save(void);
 
 TbBool open_new_packet_file_for_save(void);
 void load_packets_for_turn(GameTurn nturn);

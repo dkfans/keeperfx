@@ -117,11 +117,11 @@ static PlayerNumber net_user_player_number[MAX_NET_USERS];
 
 PlayerNumber get_net_user_player_number(NetUserId user)
 {
-    if (!network_is_active()) {
-        return (user == SOLO_HUMAN_ID) ? my_player_number : -1;
-    }
     if ((user < 0) || (user >= MAX_NET_USERS)) {
         return -1;
+    }
+    if (!network_is_active() && !game.packet_load_enable) {
+        return (user == SOLO_HUMAN_ID) ? my_player_number : -1;
     }
     return net_user_player_number[user];
 }
@@ -135,6 +135,14 @@ TbBool user_present(NetUserId user)
         return false;
     }
     return net_user_player_number[user] >= 0;
+}
+
+void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx)
+{
+    if ((user < 0) || (user >= MAX_NET_USERS)) {
+        return;
+    }
+    net_user_player_number[user] = plyr_idx;
 }
 
 static void setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
