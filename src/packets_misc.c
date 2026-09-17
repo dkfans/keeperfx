@@ -554,6 +554,7 @@ void disable_packet_mode(void)
     close_packet_file();
     game.packet_load_enable = false;
     game.packet_save_enable = false;
+    remap_local_user_to_solo();
     show_onscreen_msg(2*turns_per_second, "Packet mode disabled");
     set_gui_visible(true);
 }

@@ -493,10 +493,10 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
     JUSTLOG("p:%d computer took over", player->id_number);
 }
 
-static void stop_network_game_state(void)
+// used when ending a netplay game or recording.
+// local single-player must have the local user in slot 0.
+void remap_local_user_to_solo(void)
 {
-    memset(net_user_info, 0, sizeof(net_user_info));
-    clear_flag(game.system_flags, GSF_NetworkActive);
     struct PlayerInfo *myplyr = get_my_player();
     NetUserId old_user = myplyr->user_id;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
@@ -520,10 +520,21 @@ static void stop_network_game_state(void)
             player->user_id = -1;
         }
     }
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        set_net_user_player_number(user, -1);
+    }
     myplyr->user_id = SOLO_HUMAN_ID;
+    set_net_user_player_number(SOLO_HUMAN_ID, myplyr->id_number);
     if (myplyr->roomspace.is_active && (myplyr->roomspace.user == old_user)) {
         myplyr->roomspace.user = SOLO_HUMAN_ID;
     }
+}
+
+static void stop_network_game_state(void)
+{
+    memset(net_user_info, 0, sizeof(net_user_info));
+    clear_flag(game.system_flags, GSF_NetworkActive);
+    remap_local_user_to_solo();
     clear_flag(game.system_flags, GSF_NetGameNoSync);
     clear_flag(game.system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;
