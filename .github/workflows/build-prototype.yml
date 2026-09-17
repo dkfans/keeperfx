@@ -55,6 +55,14 @@ jobs:
         name: ${{ env.ZIP_NAME }}
         path: dist/**
 
+    - name: Upload debug symbols
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.ZIP_NAME }}-symbols
+        path: |
+          out/keeperfx.exe.debug
+          out/keeperfx_hvlog.exe.debug
+
   build-prototype-linux:
     name: "Build Prototype Linux x86_64"
     runs-on: ubuntu-24.04

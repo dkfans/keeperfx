@@ -83,6 +83,7 @@ foreach(_t IN LISTS KFX_TARGETS)
     apply_keeperfx_link_flags(${_t})
     kfx_link_dependencies(${_t})
     apply_windows_system_libs(${_t})
+    apply_keeperfx_debug_split(${_t})
 endforeach()
 
 kfx_status("BUILD" "${CMAKE_CXX_COMPILER_ID} -> keeperfx, keeperfx_hvlog")
