@@ -598,7 +598,12 @@ static void gameplay_loop_logic()
             {
                 if (TimerTurns != 0)
                 {
-                    if (TimerTurns % turns_per_second == 0)
+                    uint32_t turns = turns_per_second;
+                    if (game.frame_skip > 0)
+                    {
+                        turns *= game.frame_skip;
+                    }
+                    if (TimerTurns % turns == 0)
                     {
                         update_game_time(&GameT, &GameSeconds);
                     }
