@@ -89,18 +89,15 @@ void get_game_time(struct GameTime *GT, unsigned long turns, unsigned long fps)
 
 void update_game_time(struct GameTime *GT, unsigned long turns, unsigned long fps, unsigned long *gameseconds)
 {
-    if (turns != 0)
+    if (turns % fps == 0)
     {
-        if (turns % fps == 0)
-        {
-            unsigned long seconds = *gameseconds;
-            seconds++;
-            *gameseconds = seconds;
-            GT->Seconds = seconds % 60;
-            seconds /= 60;
-            GT->Minutes = seconds % 60;
-            GT->Hours = seconds / 60;
-        }
+        unsigned long seconds = *gameseconds;
+        seconds++;
+        *gameseconds = seconds;
+        GT->Seconds = seconds % 60;
+        seconds /= 60;
+        GT->Minutes = seconds % 60;
+        GT->Hours = seconds / 60;
     }
 }
 

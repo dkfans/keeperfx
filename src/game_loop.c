@@ -596,7 +596,10 @@ static void gameplay_loop_logic()
             }
             if (TimerGameReal)
             {
-                update_game_time(&GameT, TimerTurns, turns_per_second, &GameSeconds);
+                if (TimerTurns != 0)
+                {
+                    update_game_time(&GameT, TimerTurns, turns_per_second, &GameSeconds);
+                }
             }
         }
         else
