@@ -30,6 +30,7 @@
 #include "game_saves.h"
 #include "gui_topmsg.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "player_utils.h"
 #include "slab_data.h"
 #include "dungeon_data.h"
@@ -337,6 +338,17 @@ short save_packets(void)
     {
         ERRORLOG("Unable to flush PacketSave File");
         return false;
+    }
+    if (packetsave_max_kb > 0)
+    {
+        long pos = LbFilePosition(game.packet_save_fp);
+        if ((pos >= 0) && ((unsigned long)pos >= packetsave_max_kb * 1024))
+        {
+            JUSTMSG("PacketSave reached the %lu KB limit at turn %lu; recording stopped",
+                packetsave_max_kb, (unsigned long)get_gameturn());
+            close_packet_file();
+            game.packet_save_enable = false;
+        }
     }
     return true;
 }
