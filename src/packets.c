@@ -1602,7 +1602,7 @@ void exchange_packets(void)
     host_spoof_dropped_user_packets();
     if (game.game_kind != GKind_LocalGame)
     {
-        if (!game.packet_load_enable || game.packet_load_initialized)
+        if (!game.packet_load_enable)
         {
             struct Packet* my_packet = get_local_packet();
             const char* player_name = (local_user == SERVER_ID) ? "Host" : "Client";

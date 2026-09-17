@@ -361,6 +361,7 @@ TbBool startup_saved_packet_game(void)
     restore_users_from_packet_save();
     frontend_alliances = game.packet_save_head.frontend_alliances;
     setup_alliances();
+    are_disconnect_victories_allowed();
     if (game.active_players_count == 1)
         game.game_kind = GKind_LocalGame;
     if (game.turns_stored < game.turns_fastforward)
@@ -487,7 +488,6 @@ void clear_complete_game(void)
     game.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
     game.packet_checksum_verify = start_params.packet_checksum_verify;
-    game.packet_load_initialized = 0;
     // Set levels to 0, as we may not have the campaign loaded yet
     set_continue_level_number(first_singleplayer_level());
     if ((start_params.operation_flags & GOF_SingleLevel) != 0)

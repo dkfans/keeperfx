@@ -132,10 +132,7 @@ PlayerNumber get_net_user_player_number(NetUserId user)
 // nondeterminism.)
 TbBool user_present(NetUserId user)
 {
-    if (!network_is_active() || (user < 0) || (user >= MAX_NET_USERS)) {
-        return false;
-    }
-    return net_user_player_number[user] >= 0;
+    return get_net_user_player_number(user) >= 0;
 }
 
 void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx)
@@ -613,9 +610,11 @@ static void resolve_disconnect_victories(struct PlayerInfo *departed)
 static void abandon_network_player(struct PlayerInfo *player, TbBool announce)
 {
     if ((player->allocflags & PlaF_CompCtrl) == 0) {
-        // re-negotiate input latency
-        network_lobby_ping = GetPing(my_player_number);
-        input_lag_reset_request(calculate_initial_input_lag());
+        if (network_is_active()) {
+            // re-negotiate input latency
+            network_lobby_ping = GetPing(my_player_number);
+            input_lag_reset_request(calculate_initial_input_lag());
+        }
         if (announce && player->player_name[0] != '\0') {
             message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), player->player_name);
         }
@@ -655,11 +654,15 @@ static void leave_network_if_alone(void)
 void process_player_leave_game_packet(struct PlayerInfo *player)
 {
     if (player != get_my_player()) {
-        if (network_is_active()) {
+        if (network_is_active() || game.packet_load_enable /* handle replays */) {
             NetUserId user = player->user_id;
-            OnDroppedUser(user, NETDROP_MANUAL);
+            if (network_is_active()) {
+                OnDroppedUser(user, NETDROP_MANUAL);
+            }
             remove_user_from_game(user, user != SERVER_ID);
-            leave_network_if_alone();
+            if (network_is_active()) {
+                leave_network_if_alone();
+            }
             return;
         }
     } else if (network_is_active()) {

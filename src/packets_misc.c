@@ -246,12 +246,6 @@ void post_init_packets(void)
 {
     SYNCDBG(6,"Starting");
     initialize_packet_history();
-    if ((game.packet_load_enable) && (game.packet_load_initialized))
-    {
-        struct CatalogueEntry centry;
-        open_packet_file_for_load(game.packet_fname, &centry);
-        game.pckt_gameturn = 0;
-    }
     clear_packets();
 }
 
