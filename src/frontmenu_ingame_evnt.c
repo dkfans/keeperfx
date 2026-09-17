@@ -462,7 +462,6 @@ void draw_timer(void)
         }
         if (TimerGameReal)
         {
-            update_game_time(&GameT, TimerTurns, turns_per_second, &GameSeconds);
             snprintf(text, sizeof(text), "%02d:%02d:%02d", GameT.Hours, GameT.Minutes, GameT.Seconds);
         }
         else

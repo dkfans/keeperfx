@@ -586,6 +586,10 @@ static void gameplay_loop_logic()
     exchange_packets();
     update_multiplayer_clock_adjust();
     update_gameplay_delta_time();
+    if (TimerGameReal)
+    {
+        update_game_time(&GameT, TimerTurns, turns_per_second, &GameSeconds);
+    }
     if (game.process_turn_time > turns_per_second + 1)
         game.process_turn_time = turns_per_second + 1;
     while (game.process_turn_time < 1.0)
