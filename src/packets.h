@@ -349,6 +349,7 @@ void process_first_person_look(struct Thing *thing, const struct Packet *pckt, l
 TbBool can_process_creature_input(struct Thing *thing);
 void exchange_packets(void);
 void process_packets(void);
+TbBool is_desync_warning_active(void);
 void set_local_packet_turn(void);
 void clear_packets(void);
 TbBigChecksum compute_replay_integrity(void);

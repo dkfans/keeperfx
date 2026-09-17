@@ -90,7 +90,6 @@
 #include "map_utils.h"
 #include "light_data.h"
 #include "gui_draw.h"
-#include "gui_topmsg.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "gui_parchment.h"
@@ -258,37 +257,34 @@ TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
     return false;
 }
 
+static int32_t resync_attempt_count = 0;
+
+TbBool is_desync_warning_active(void)
+{
+    return resync_attempt_count >= RESYNC_LIMIT_BEFORE_COOLDOWN && (game.system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0;
+}
+
 static TbBool resync_game_allowed(void)
 {
-    static int32_t resync_attempt_count = 0;
     static TbClockMSec resync_cooldown_end = 0;
     static GameTurn resync_last_turn = 0;
-    static TbBool resync_cooldown_warned = false;
     TbClockMSec now = LbTimerClock();
     GameTurn turn = get_gameturn();
 
     if (turn < resync_last_turn) {
         resync_attempt_count = 0;
         resync_cooldown_end = 0;
-        resync_cooldown_warned = false;
     }
     resync_last_turn = turn;
 
-    if (resync_attempt_count >= RESYNC_LIMIT_BEFORE_COOLDOWN) {
-        if ((int32_t)(now - resync_cooldown_end) < 0) {
-            if (!resync_cooldown_warned) {
-                show_onscreen_msg(10 * turns_per_second, "Game may be in a desynced state.");
-                resync_cooldown_warned = true;
-            }
-            return false;
-        }
+    if (resync_attempt_count >= RESYNC_LIMIT_BEFORE_COOLDOWN && (int32_t)(now - resync_cooldown_end) < 0) {
+        return false;
     }
 
     if (resync_attempt_count < RESYNC_LIMIT_BEFORE_COOLDOWN) {
         resync_attempt_count++;
     }
     resync_cooldown_end = now + RESYNC_COOLDOWN_MS;
-    resync_cooldown_warned = false;
     return true;
 }
 
