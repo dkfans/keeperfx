@@ -917,6 +917,9 @@ TbBool update_dungeon_sell_roomspace_preview(NetUserId user, MapSubtlCoord stl_x
 void apply_roomspace_packet_action(struct PlayerInfo *player, NetUserId user, const struct Packet *pckt)
 {
     struct UserState* ustate = get_user_state(user);
+    if (pckt->action == PckA_SetRoomspaceMan || pckt->action == PckA_SetRoomspaceDefault) {
+        player->roomspace_width = player->roomspace_height = pckt->actn_par1;
+    }
     switch (pckt->action) {
     case PckA_SetRoomspaceAuto:
         player->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
