@@ -101,6 +101,7 @@
 #include "room_workshop.h"
 
 #include "keeperfx.hpp"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -2541,6 +2542,7 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
 
 TngUpdateRet process_creature_state(struct Thing *thing)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_process_creature_state, "process_creature_state", KFX_COLOR_CREATURE);
     SYNCDBG(19,"Starting for %s index %d owned by player %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -2622,10 +2624,12 @@ TngUpdateRet process_creature_state(struct Thing *thing)
 
         if (k == CrStRet_Deleted) {
             SYNCDBG(18,"Finished with creature deleted");
+            KFX_C_ZONE_END(ctx_process_creature_state);
             return TUFRet_Deleted;
         }
     }
     SYNCDBG(18,"Finished");
+    KFX_C_ZONE_END(ctx_process_creature_state);
     return TUFRet_Modified;
 }
 

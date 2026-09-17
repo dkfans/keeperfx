@@ -30,6 +30,7 @@
 #include "kfx/renderer/RendererThread.h"
 #include "kfx/renderer/RenderGraph.h"
 #include "kfx/renderer/RendererManager.h"
+#include "kfx/profiling/KfxProfiling.h"
 #include "engine_textures.h" // block_ptrs[] -- tile atlas build-ready check
 #include "vidmode.h" // pixmap.fade_tables
 #include "front_simple.h" // engine_palette
@@ -315,6 +316,8 @@ void RendererOpenGL::render_thread_init()
     }
     m_impl->functions_loaded = true;
 
+    KFX_GPU_CTX_CREATE();
+
     SYNCDBG(0, "RendererOpenGL::Init: GL context current on render thread (version: %s)", (const char*)glGetString(GL_VERSION));
 
     if (GLAD_GL_KHR_debug)
@@ -448,6 +451,9 @@ void RendererOpenGL::render_thread_init()
 
 void RendererOpenGL::render_thread_work()
 {
+    KFX_ZONE_COLOR("RendererOpenGL::render_thread_work", KFX_COLOR_RENDER_GPU);
+    KFX_GPU_ZONE("GL Frame");
+
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
 
     m_impl->resource_mapper.ProcessDeferredDestroys(fd.sealed_frame_number);
@@ -491,6 +497,8 @@ void RendererOpenGL::render_thread_work()
         m_impl->swap_interval = want_interval;
     }
     m_gl_context->SwapBuffers();
+    KFX_GPU_COLLECT();
+    KFX_FRAMEMARK();
 }
 
 void RendererOpenGL::FGClearFrame()

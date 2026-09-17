@@ -61,6 +61,7 @@
 #include "room_workshop.h"
 #include <cstdint>
 
+#include "kfx/profiling/KfxProfiling.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -509,6 +510,7 @@ static void update_global_lighting()
 
 void update(void)
 {
+    KFX_ZONE_COLOR("update", KFX_COLOR_SIMULATION);
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)get_gameturn());
 

@@ -26,6 +26,7 @@
 #include "ariadne_edge.h"
 #include "ariadne.h"
 #include "gui_topmsg.h"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #define EDGELEN_BITS 6
@@ -74,16 +75,20 @@ long tri_new(void)
     }
     Triangles[i].tree_alt = 0;
     count_Triangles++;
+    KFX_C_ALLOC_NAMED(&Triangles[i], sizeof(struct Triangle), "Ariadne-Triangles");
+    KFX_C_PLOT("Ariadne: Triangles in use", count_Triangles);
     return i;
 }
 
 void tri_dispose(long tri_idx)
 {
+    KFX_C_FREE_NAMED(&Triangles[tri_idx], "Ariadne-Triangles");
     long pfree_idx = free_Triangles;
     free_Triangles = tri_idx;
     Triangles[tri_idx].tags[0] = pfree_idx;
     Triangles[tri_idx].tree_alt = NAV_COL_UNSET;
     count_Triangles--;
+    KFX_C_PLOT("Ariadne: Triangles in use", count_Triangles);
 }
 
 long get_triangle_region_id(long tri_id)

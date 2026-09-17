@@ -37,6 +37,7 @@
 #include "map_columns.h"
 #include "map_utils.h"
 #include "game_legacy.h"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #define EDGEFIT_LEN           64
@@ -1153,6 +1154,7 @@ static long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, int
 
 static void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char unusedparam)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_gate_nav_init, "gate_navigator_init8", KFX_COLOR_PATHFINDING);
     pway->start_coordinate_x = trAx;
     pway->start_coordinate_y = trAy;
     pway->finish_coordinate_x = trBx;
@@ -1169,11 +1171,14 @@ static void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, lon
     tree_altB = get_triangle_tree_alt(tree_triB);
     if ((tree_triA != -1) && (tree_triB != -1))
     {
+        KFX_C_ZONE_BEGIN_COLOR(ctx_ma_route, "ma_triangle_route", KFX_COLOR_PATHFINDING);
         tree_routelen = ma_triangle_route(tree_triA, tree_triB, &tree_routecost);
+        KFX_C_ZONE_END(ctx_ma_route);
         if (tree_routelen != -1) {
             pway->points_num = gate_route_to_coords(trAx, trAy, trBx, trBy, tree_route, tree_routelen, pway, wp_lim);
         }
     }
+    KFX_C_ZONE_END(ctx_gate_nav_init);
 }
 
 static void route_through_gates(const struct Pathway *pway, struct Path *path, long subroute)
@@ -1799,7 +1804,9 @@ static long ma_triangle_route(long ttriA, long ttriB, int32_t *routecost)
     // Forward route
     NAVIDBG(19,"Making forward route");
     rcost_fwd = 0;
+    KFX_C_ZONE_BEGIN_COLOR(ctx_route_fwd, "triangle_route_do_fwd", KFX_COLOR_PATHFINDING);
     forward_route_length = triangle_route_do_fwd(ttriA, ttriB, route_fwd, &rcost_fwd);
+    KFX_C_ZONE_END(ctx_route_fwd);
     if (forward_route_length == -1)
     {
         NAVIDBG(19,"No forward route");
@@ -1815,7 +1822,9 @@ static long ma_triangle_route(long ttriA, long ttriB, int32_t *routecost)
     // Backward route
     NAVIDBG(19,"Making backward route");
     rcost_bak = 0;
+    KFX_C_ZONE_BEGIN_COLOR(ctx_route_bak, "triangle_route_do_bak", KFX_COLOR_PATHFINDING);
     backward_route_length = triangle_route_do_bak(ttriB, ttriA, route_bak, &rcost_bak);
+    KFX_C_ZONE_END(ctx_route_bak);
     if (backward_route_length == -1)
     {
         NAVIDBG(19,"No backward route");
@@ -2658,6 +2667,7 @@ AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing)
 
 AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, AriadneRouteFlags flags, const char *func_name)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_ariadne_route, "ariadne_initialise_creature_route", KFX_COLOR_PATHFINDING);
     struct CreatureControl *cctrl;
     struct Ariadne *arid;
     AriadneReturn ret;
@@ -2673,6 +2683,7 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const str
         if (ret != AridRet_OK) {
             NAVIDBG(19,"%s: Failed to reach route from %5d,%5d to %5d,%5d", func_name,
                 (int)thing->mappos.x.val,(int)thing->mappos.y.val, (int)pos->x.val,(int)pos->y.val);
+            KFX_C_ZONE_END(ctx_ariadne_route);
             return ret;
         }
     } else
@@ -2681,12 +2692,14 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const str
         if (ret != AridRet_OK) {
             NAVIDBG(19,"%s: Failed to prepare route from %5d,%5d to %5d,%5d", func_name,
                 (int)thing->mappos.x.val,(int)thing->mappos.y.val, (int)pos->x.val,(int)pos->y.val);
+            KFX_C_ZONE_END(ctx_ariadne_route);
             return ret;
         }
         ariadne_init_current_waypoint(thing, arid);
     }
     ret = ariadne_init_movement_to_current_waypoint(thing, arid);
     NAVIDBG(19,"%s: Route prepared", func_name);
+    KFX_C_ZONE_END(ctx_ariadne_route);
     return AridRet_OK;
 }
 
@@ -3176,23 +3189,35 @@ static AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, st
     switch (arid->update_state)
     {
     case AridUpSt_OnLine:
+    {
+        KFX_C_ZONE_BEGIN_COLOR(ctx_st_online, "ariadne_update_state_on_line", KFX_COLOR_PATHFINDING);
         result = ariadne_update_state_on_line(thing, arid);
+        KFX_C_ZONE_END(ctx_st_online);
         nextpos->x.val = arid->next_position.x.val;
         nextpos->y.val = arid->next_position.y.val;
         nextpos->z.val = arid->next_position.z.val;
         break;
+    }
     case AridUpSt_Wallhug:
+    {
+        KFX_C_ZONE_BEGIN_COLOR(ctx_st_wallhug, "ariadne_update_state_wallhug", KFX_COLOR_PATHFINDING);
         result = ariadne_update_state_wallhug(thing, arid);
+        KFX_C_ZONE_END(ctx_st_wallhug);
         nextpos->x.val = arid->next_position.x.val;
         nextpos->y.val = arid->next_position.y.val;
         nextpos->z.val = arid->next_position.z.val;
         break;
+    }
     case AridUpSt_Manoeuvre:
+    {
+        KFX_C_ZONE_BEGIN_COLOR(ctx_st_manoeuvre, "ariadne_update_state_manoeuvre_to_position", KFX_COLOR_PATHFINDING);
         result = ariadne_update_state_manoeuvre_to_position(thing, arid);
+        KFX_C_ZONE_END(ctx_st_manoeuvre);
         nextpos->x.val = arid->next_position.x.val;
         nextpos->y.val = arid->next_position.y.val;
         nextpos->z.val = arid->next_position.z.val;
         break;
+    }
     default:
         result = AridRet_PartOK;
         break;
@@ -3222,7 +3247,10 @@ AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct C
         cctrl = creature_control_get_from_thing(thing);
         cctrl->arid.may_need_reroute = 1;
     }
-    return ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, flags);
+    KFX_C_ZONE_BEGIN_COLOR(ctx_next_pos, "ariadne_get_next_position_for_route", KFX_COLOR_PATHFINDING);
+    AriadneReturn ariadne_next_pos_ret = ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, flags);
+    KFX_C_ZONE_END(ctx_next_pos);
+    return ariadne_next_pos_ret;
 }
 
 /**
@@ -3240,6 +3268,7 @@ AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct C
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y,
     long subroute, unsigned char nav_size, const char *func_name)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_path_init, "path_init8_wide_f", KFX_COLOR_PATHFINDING);
     int32_t route_dist;
     NAVIDBG(9,"%s: Path from %5ld,%5ld to %5ld,%5ld on turn %u", func_name, start_x, start_y, end_x, end_y, get_gameturn());
     if (subroute == -1)
@@ -3259,12 +3288,14 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
     if ((tree_triA == -1) || (tree_triB == -1))
     {
         ERRORLOG("%s: Boundary triangle not found: %ld -> %ld.", func_name,tree_triA,tree_triB);
+        KFX_C_ZONE_END(ctx_path_init);
         return;
     }
     NAVIDBG(19,"%s: prepared triangles %ld -> %ld", func_name,tree_triA,tree_triB);
     if (!navigation_triangle_reachable(tree_triA, tree_triB))
     {
         NAVIDBG(9,"%s: Regions not connected, cannot trace a path.", func_name);
+        KFX_C_ZONE_END(ctx_path_init);
         return;
     }
     NAVIDBG(19,"%s: regions connected", func_name);
@@ -3275,6 +3306,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
         if ((creature_radius < CreatureRadius_Small) || (creature_radius > CreatureRadius_Large))
         {
             ERRORLOG("%s: only radius 1..3 allowed, got %d", func_name,creature_radius);
+            KFX_C_ZONE_END(ctx_path_init);
             return;
         }
         EdgeFit = RadiusEdgeFit[creature_radius];
@@ -3283,7 +3315,9 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
     tree_altB = get_triangle_tree_alt(tree_triB);
     if (subroute == -2)
     {
+        KFX_C_ZONE_BEGIN_COLOR(ctx_ma_route2, "ma_triangle_route", KFX_COLOR_PATHFINDING);
         tree_routelen = ma_triangle_route(tree_triA, tree_triB, &tree_routecost);
+        KFX_C_ZONE_END(ctx_ma_route2);
         NAVIDBG(19,"%s: route=%ld", func_name, tree_routelen);
         if (tree_routelen != -1)
         {
@@ -3310,6 +3344,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
     } else {
         NAVIDBG(9,"%s: Finished with %3ld waypoints", func_name,(long)path->waypoints_num);
     }
+    KFX_C_ZONE_END(ctx_path_init);
 }
 
 /******************************************************************************/

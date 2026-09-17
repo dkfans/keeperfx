@@ -54,6 +54,7 @@
 #include "lua_triggers.h"
 #include "keeperfx.hpp"
 #include "bflib_planar.h"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1332,24 +1333,49 @@ unsigned long update_creatures_not_in_list(void)
 
 void update_things(void)
 {
+    KFX_C_ZONE_BEGIN(ctx_update_things, "update_things");
     SYNCDBG(7,"Starting");
     optimised_lights = 0;
     total_lights = 0;
     do_lights = game.lish.light_enabled;
+
+    // Lets a Tracy capture correlate simulation cost against live population
+    // (e.g. spawning a batch of creatures to see if the slowdown scales with it).
+    KFX_C_PLOT("Creatures", game.thing_lists[TngList_Creatures].count);
+
+    KFX_C_ZONE_BEGIN(ctx_creatures, "update_things: Creatures");
     update_things_in_list(&game.thing_lists[TngList_Creatures]);
     update_creatures_not_in_list();
+    KFX_C_ZONE_END(ctx_creatures);
+
+    KFX_C_ZONE_BEGIN(ctx_traps, "update_things: Traps");
     update_things_in_list(&game.thing_lists[TngList_Traps]);
+    KFX_C_ZONE_END(ctx_traps);
+
+    KFX_C_ZONE_BEGIN(ctx_shots, "update_things: Shots");
     update_things_in_list(&game.thing_lists[TngList_Shots]);
+    KFX_C_ZONE_END(ctx_shots);
+
+    KFX_C_ZONE_BEGIN(ctx_objects, "update_things: Objects");
     update_things_in_list(&game.thing_lists[TngList_Objects]);
+    KFX_C_ZONE_END(ctx_objects);
+
+    KFX_C_ZONE_BEGIN(ctx_effects, "update_things: Effects");
     update_things_in_list(&game.thing_lists[TngList_Effects]);
     update_things_in_list(&game.thing_lists[TngList_EffectElems]);
-    update_things_in_list(&game.thing_lists[TngList_DeadCreatrs]);
     update_things_in_list(&game.thing_lists[TngList_EffectGens]);
+    KFX_C_ZONE_END(ctx_effects);
+
+    KFX_C_ZONE_BEGIN(ctx_other, "update_things: Other");
+    update_things_in_list(&game.thing_lists[TngList_DeadCreatrs]);
     update_things_in_list(&game.thing_lists[TngList_Doors]);
     update_things_sounds_in_list(&game.thing_lists[TngList_AmbientSnds]);
     update_cave_in_things();
+    KFX_C_ZONE_END(ctx_other);
+
     game.map_changed_for_navigation = 0;
     SYNCDBG(9,"Finished");
+    KFX_C_ZONE_END(ctx_update_things);
 }
 
 struct Thing *find_players_dungeon_heart(PlayerNumber plyridx)
