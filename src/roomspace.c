@@ -1378,191 +1378,110 @@ void update_roomspaces()
     }
 }
 
+static int get_roomspace_size_input(void)
+{
+    if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true)) {
+        if (local_state.roomspace_size < MAX_USER_ROOMSPACE_WIDTH) {
+            local_state.roomspace_size++;
+        }
+    } else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true) && local_state.roomspace_size > MIN_USER_ROOMSPACE_WIDTH) {
+        local_state.roomspace_size--;
+    }
+    return local_state.roomspace_size;
+}
+
+static void process_box_roomspace_inputs(struct Packet *pckt)
+{
+    if (is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) {
+        set_packet_action(pckt, PckA_SetRoomspaceMan, get_roomspace_size_input(), 0, 0, 0);
+    } else {
+        local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
+        int size = numpad_to_value(false);
+        if (size > 1) {
+            set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
+        } else {
+            set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
+        }
+    }
+}
+
 void process_build_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct UserState* ustate = get_local_user_state(); // local input path
     struct Packet* pckt = get_local_packet() /* local input path */;
-    if (room_role_matches(ustate->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater|RoRoF_PassAbyss))
-    {
+    if (room_role_matches(ustate->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater|RoRoF_PassAbyss)) {
         local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
         TbBool drag_check = ( ( (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) || (is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) ) && (left_button_held));
-        if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
-        {
+        if (drag_check) { // Enable "paint mode" if Ctrl or Shift are held
             set_packet_action(pckt, PckA_SetRoomspaceDragPaint, 0, 0, 0, 0);
-        }
-        else
-        {
+        } else {
             set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
         }
-    }
-    else if (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) // Find "best" room
-    {
+    } else if (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) { // Find "best" room
         unsigned char looseness = player->roomspace_detection_looseness;
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true))
-        {
-            if (looseness < tolerate_gold)
-            {
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true)) {
+            if (looseness < tolerate_gold) {
                 looseness = tolerate_gold;
-            }
-            else if (looseness != tolerate_rock)
-            {
+            } else if (looseness != tolerate_rock) {
                 looseness = tolerate_rock;
             }
-        }
-        else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true))
-        {
-            if (looseness == tolerate_rock)
-            {
+        } else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true)) {
+            if (looseness == tolerate_rock) {
                 looseness = tolerate_gold;
-            }
-            else if (looseness != disable_tolerance_layers)
-            {
+            } else if (looseness != disable_tolerance_layers) {
                 looseness = disable_tolerance_layers;
             }
         }
-        if (looseness != player->roomspace_detection_looseness || player->roomspace_mode != roomspace_detection_mode)
-        {
+        if (looseness != player->roomspace_detection_looseness || player->roomspace_mode != roomspace_detection_mode) {
             set_packet_action(pckt, PckA_SetRoomspaceAuto, looseness, 0, 0, 0);
         }
+    } else {
+        process_box_roomspace_inputs(pckt);
     }
-    else if (is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
-    {
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true))
-        {
-            if (local_state.roomspace_size != MAX_USER_ROOMSPACE_WIDTH)
-            {
-                local_state.roomspace_size++;
-            }
-        }
-        else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true))
-        {
-            if (local_state.roomspace_size != MIN_USER_ROOMSPACE_WIDTH)
-            {
-                local_state.roomspace_size--;
-            }
-        }
-        set_packet_action(pckt, PckA_SetRoomspaceMan, local_state.roomspace_size, 0, 0, 0);
-    }
-    else
-        {
-            local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
-            int size = numpad_to_value(false);
-            if (size > 1)
-            {
-                set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
-            }
-            else
-            {
-                set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
-            }
-        }
 }
 
 void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct Packet* pckt = get_local_packet() /* local input path */;
-    if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true))
-    {
+    if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true)) {
         set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
-    }
-    else if (is_game_key_pressed(Gkey_BestRoomSpace, false, true))
-    {
+    } else if (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) {
         set_packet_action(pckt, PckA_SetRoomspaceWholeRoom, 0, 0, 0, 0);
-    }
-    else if (is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
-    {
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true))
-        {
-            if (local_state.roomspace_size != MAX_USER_ROOMSPACE_WIDTH)
-            {
-                local_state.roomspace_size++;
-            }
-        }
-        else if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true))
-        {
-            if (local_state.roomspace_size != MIN_USER_ROOMSPACE_WIDTH)
-            {
-                local_state.roomspace_size--;
-            }
-        }
-        set_packet_action(pckt, PckA_SetRoomspaceMan, local_state.roomspace_size, 0, 0, 0);
-    }
-    else
-    {
-        local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
-        int size = numpad_to_value(false);
-        if (size > 1)
-        {
-            set_packet_action(pckt, PckA_SetRoomspaceDefault, size, 0, 0, 0);
-        }
-        else
-        {
-            set_packet_action(pckt, PckA_SetRoomspaceDrag, 0, 0, 0, 0);
-        }
+    } else {
+        process_box_roomspace_inputs(pckt);
     }
 }
 
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct UserState* ustate = get_local_user_state(); // local input path
-    unsigned long par2;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ( (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) ) // Use "modern" click and drag method
-    {
+    if (is_game_key_pressed(Gkey_BestRoomSpace, false, true)) {
         set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode ^ 1, settings.highlight_mode, 0, 0);
         reset_roomspace = true;
         return;
-    }
-    else if ( (is_game_key_pressed(Gkey_SquareRoomSpace, false, true))  ) // Use "modern" click and drag method
-    {
-        par2 = local_state.roomspace_size;
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, false, true))
-        {
-            if (par2 != MAX_USER_ROOMSPACE_WIDTH)
-            {
-                par2++;
-            }
-        }
-        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, false, true))
-        {
-            if (par2 != MIN_USER_ROOMSPACE_WIDTH)
-            {
-                par2--;
-            }
-        }
-        local_state.roomspace_size = par2;
-        set_players_packet_action(player, PckA_SetRoomspaceHighlight, roomspace_detection_mode, par2, 0, 0);
+    } else if (is_game_key_pressed(Gkey_SquareRoomSpace, false, true)) {
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, roomspace_detection_mode, get_roomspace_size_input(), 0, 0);
         reset_roomspace = true;
         return;
-    }
-    else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true) )
-    {
-        if (ustate->primary_cursor_state == CSt_PowerHand)
-        {
-            player = get_player(plyr_idx);
-            if (player->roomspace_mode != single_subtile_mode)
-            {
-                struct Packet* pckt = get_local_packet();
-                set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
-                reset_roomspace = true;
-            }
+    } else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true)) {
+        if (ustate->primary_cursor_state == CSt_PowerHand && player->roomspace_mode != single_subtile_mode) {
+            set_players_packet_action(player, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+            reset_roomspace = true;
         }
         return;
-    }
-    else
-    {
-        par2 = numpad_to_value(false);
-        if (par2 > 1)
-        {
+    } else {
+        int par2 = numpad_to_value(false);
+        if (par2 > 1) {
             local_state.roomspace_size = par2;
             set_players_packet_action(player, PckA_SetRoomspaceHighlight, roomspace_detection_mode, par2, 0, 0);
             reset_roomspace = true;
             return;
         }
     }
-    if (reset_roomspace)
-    {
+    local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
+    if (reset_roomspace) {
         set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
         reset_roomspace = false; // don't constantly send packets we don't need to
     }
