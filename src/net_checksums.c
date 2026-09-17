@@ -201,6 +201,7 @@ short checksums_different(void)
     struct Packet* host_packet = get_packet(host_user_id);
     TbBigChecksum host_checksum = host_packet->checksum;
     TbBool mismatch = false;
+    TbBool already_desynced = (game.system_flags & GSF_NetGameNoSync) != 0;
 
     for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
         if (i == host_user_id) {
@@ -220,13 +221,17 @@ short checksums_different(void)
             continue;
         }
         if (is_packet_empty(packet)) {
-            ERRORLOG("Missing checksum packet for user %d; host turn: %d", i, host_packet->turn);
+            if (!already_desynced) {
+                ERRORLOG("Missing checksum packet for user %d; host turn: %d", i, host_packet->turn);
+            }
             desync_turn = host_packet->turn;
             mismatch = true;
             continue;
         }
         if (packet->checksum != host_checksum) {
-            ERRORLOG("Checksums %08x(Host) != %08x(Client) turn: %d vs %d", host_checksum, packet->checksum, host_packet->turn, packet->turn);
+            if (!already_desynced) {
+                ERRORLOG("Checksums %08x(Host) != %08x(Client) turn: %d vs %d", host_checksum, packet->checksum, host_packet->turn, packet->turn);
+            }
             desync_turn = host_packet->turn;
             mismatch = true;
         }

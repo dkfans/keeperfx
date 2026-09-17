@@ -6740,3 +6740,9 @@ msgstr "Распакуйте архив мода в папку /mods/."
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "Соединение с сервером потеряно."
+
+#: guitext:1123
+#, fuzzy
+msgctxt "Network game message"
+msgid "Multiplayer is out of sync."
+msgstr "Сетевая игра рассинхронизирована."
