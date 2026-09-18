@@ -530,6 +530,13 @@ void print_device_info() {
 	} else {
 		return;
 	}
+	if (devices == nullptr || devices[0] == 0) {
+		LbJustLog("Audio devices: none\n");
+		return;
+	}
+	if (default_device == nullptr) {
+		default_device = "";
+	}
 	LbJustLog("Audio devices:");
 	const char * separator = " ";
 	for (auto device = devices; device[0] != 0; device += strlen(device) + 1) {
