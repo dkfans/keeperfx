@@ -580,7 +580,7 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
 // local single-player must have the local user in slot 0.
 void remap_user_to_solo(struct PlayerInfo *myplyr)
 {
-    NetUserId old_user = netstate.my_id;
+    NetUserId old_user = get_player_primary_user(myplyr);
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (user == old_user) {
             continue;

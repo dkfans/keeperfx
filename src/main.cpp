@@ -977,6 +977,17 @@ void clear_players_for_save(void)
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
       set_flag_value(player->allocflags, PlaF_Placeholder, ((saved_allocation_flags & PlaF_Placeholder) != 0));
+      NetUserId user = get_player_primary_user(player);
+      if (user >= 0)
+      {
+        // things and lights were just destroyed; these indices moved to
+        // UserState, so the PlayerInfo memset above no longer clears them
+        struct UserState *ustate = get_user_state(user);
+        ustate->hand_thing_idx = 0;
+        ustate->hand_animationId = 0;
+        ustate->thing_under_hand = 0;
+        ustate->cursor_light_idx = 0;
+      }
     }
 }
 

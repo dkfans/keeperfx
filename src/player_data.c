@@ -458,6 +458,8 @@ void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
 void set_user_work_state(NetUserId user, short nwrk_state, int32_t chosen_kind)
 {
   struct UserState* ustate = get_user_state(user);
+  if (user_state_invalid(ustate))
+    return;
   struct PlayerInfo* player = get_player(get_net_user_player_number(user));
   SYNCDBG(6,"User %d (player %d) state %s to %s",(int)user,(int)player->id_number,player_state_code_name(ustate->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter
@@ -590,6 +592,8 @@ void set_user_work_state(NetUserId user, short nwrk_state, int32_t chosen_kind)
 void set_user_view_type(NetUserId user, unsigned short nview)
 {
   struct UserState* ustate = get_user_state(user);
+  if (user_state_invalid(ustate))
+    return;
   struct PlayerInfo* player = get_player(get_net_user_player_number(user));
   const TbBool is_local = (user == get_local_user());
   if (is_local && local_state.view_type == nview)
@@ -658,6 +662,8 @@ void set_user_view_type(NetUserId user, unsigned short nview)
 void reset_user_view_type(NetUserId user, unsigned short nview)
 {
   struct UserState* ustate = get_user_state(user);
+  if (user_state_invalid(ustate))
+    return;
   struct PlayerInfo* player = get_player(get_net_user_player_number(user));
   const TbBool is_local = (user == get_local_user());
   const TbBool leaving_map = (ustate->view_type == PVT_MapScreen) || (ustate->view_type == PVT_MapFadeOut);

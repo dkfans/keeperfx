@@ -335,6 +335,10 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber p
 void set_power_hand_graphic(NetUserId user, long HandAnimationID)
 {
     struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate)) {
+        // (computer keepers have no hand animation)
+        return;
+    }
     struct PlayerInfo *player = get_player(get_net_user_player_number(user));
     if (player->hand_busy_until_turn >= get_gameturn())
     {
@@ -1319,6 +1323,9 @@ void draw_mini_things_in_hand(long x, long y)
 struct Thing *create_power_hand(NetUserId user)
 {
     struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate)) {
+        return INVALID_THING;
+    }
     PlayerNumber owner = get_net_user_player_number(user);
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -1371,7 +1378,8 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
     NetUserId user = get_player_primary_user(player);
-    if (get_user_state(user)->hand_thing_idx == 0) {
+    struct UserState *ustate = get_user_state(user);
+    if (!user_state_invalid(ustate) && (ustate->hand_thing_idx == 0)) {
         create_power_hand(user);
     }
     if (dungeon->num_things_in_hand >= game.conf.rules[plyr_idx].gameplay.max_things_in_hand) {
