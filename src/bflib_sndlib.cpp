@@ -441,7 +441,6 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 		stream.seekg(directory.first_data_offset + sample.data_offset, std::ios::beg);
 		buffers.emplace_back(sample.filename, sample.sfxid, wave_file(stream));
 	}
-	LbJustLog("Loaded %d sound samples from %s\n", (int) buffers.size(), filename);
 	return buffers;
 }
 
@@ -513,30 +512,35 @@ void load_sound_banks() {
 	}
 	g_banks[0] = load_sound_bank(snd_fname);
 	g_banks[1] = load_sound_bank(spc_fname);
+	LbJustLog("Loaded %s (%d samples), %s (%d samples)\n",
+		snd_fname, (int)g_banks[0].size(), spc_fname, (int)g_banks[1].size());
 	g_speech_offset = (SoundSmplTblID)g_banks[0].size();
 	g_custom_offset = g_speech_offset + (SoundSmplTblID)g_banks[1].size();
 }
 
 void print_device_info() {
+	const char * devices;
+	const char * default_device;
 	if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATE_ALL_EXT")) {
-		const auto devices = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
-		LbJustLog("Available audio devices:\n");
-		for (auto device = devices; device[0] != 0; device += strlen(device)) {
-			LbJustLog("  %s\n", device);
-		}
-		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
-		LbJustLog("Default audio device: %s\n", default_device);
+		devices = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
+		default_device = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
 	} else if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT")) {
-		const auto devices = alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
-		LbJustLog("Available audio devices:\n");
-		for (auto device = devices; device[0] != 0; device += strlen(device)) {
-			LbJustLog("  %s\n", device);
-		}
-		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-		LbJustLog("Default audio device: %s\n", default_device);
+		devices = alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
+		default_device = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
 	} else {
-		// Cannot enumerate devices :(
+		return;
 	}
+	LbJustLog("Audio devices:");
+	const char * separator = " ";
+	for (auto device = devices; device[0] != 0; device += strlen(device) + 1) {
+		const char * suffix = "";
+		if (strcmp(device, default_device) == 0) {
+			suffix = " (default)";
+		}
+		LbJustLog("%s%s%s", separator, device, suffix);
+		separator = ", ";
+	}
+	LbJustLog("\n");
 }
 
 // The currently-playing streamed speech sample (played on g_speech_track).
