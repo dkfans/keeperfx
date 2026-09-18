@@ -441,7 +441,7 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 		stream.seekg(directory.first_data_offset + sample.data_offset, std::ios::beg);
 		buffers.emplace_back(sample.filename, sample.sfxid, wave_file(stream));
 	}
-	JUSTLOG("Loaded %d sound samples from %s", (int) buffers.size(), filename);
+	LbJustLog("Loaded %d sound samples from %s\n", (int) buffers.size(), filename);
 	return buffers;
 }
 
@@ -520,20 +520,20 @@ void load_sound_banks() {
 void print_device_info() {
 	if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATE_ALL_EXT")) {
 		const auto devices = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
-		JUSTLOG("Available audio devices:");
+		LbJustLog("Available audio devices:\n");
 		for (auto device = devices; device[0] != 0; device += strlen(device)) {
-			JUSTLOG("  %s", device);
+			LbJustLog("  %s\n", device);
 		}
 		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
-		JUSTLOG("Default audio device: %s", default_device);
+		LbJustLog("Default audio device: %s\n", default_device);
 	} else if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT")) {
 		const auto devices = alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
-		JUSTLOG("Available audio devices:");
+		LbJustLog("Available audio devices:\n");
 		for (auto device = devices; device[0] != 0; device += strlen(device)) {
-			JUSTLOG("  %s", device);
+			LbJustLog("  %s\n", device);
 		}
 		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-		JUSTLOG("Default audio device: %s", default_device);
+		LbJustLog("Default audio device: %s\n", default_device);
 	} else {
 		// Cannot enumerate devices :(
 	}
