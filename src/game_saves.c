@@ -233,12 +233,12 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
     return true;
 }
 
-static TbBool chunk_version_ok(TbFileHandle fhandle, const struct FileChunkHeader *hdr, unsigned long expected)
+static TbBool chunk_version_ok(TbFileHandle fhandle, const struct FileChunkHeader *hdr, unsigned expected)
 {
     if (hdr->ver == expected)
         return true;
-    WARNLOG("Chunk %08lx is version %lu, expected %lu; skipping it",
-        (unsigned long)hdr->id, (unsigned long)hdr->ver, expected);
+    WARNLOG("Chunk %04x is version %u, expected %u; skipping it",
+        (unsigned)hdr->id, (unsigned)hdr->ver, (unsigned)expected);
     if (LbFileSeek(fhandle, hdr->len, Lb_FILE_SEEK_CURRENT) < 0)
         LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
     return false;
