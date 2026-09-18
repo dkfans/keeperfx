@@ -1929,7 +1929,7 @@ msgstr ""
 
 #: guitext:328
 msgctxt "Slab description"
-msgid "Water: Creatures move more slowly through water. Build the Bridge to make new land on the water."
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
 msgstr ""
 
 #: guitext:329
