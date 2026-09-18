@@ -2048,8 +2048,8 @@ msgid "Speed"
 msgstr ""
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
 msgstr ""
 
 #: guitext:354
