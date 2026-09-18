@@ -871,7 +871,7 @@ static TbBool wait_at_frontend(void)
     #endif
 
     // Prepare to enter PacketLoad game
-    if ((game.packet_load_enable) && (!game.packet_load_initialized))
+    if (game.packet_load_enable)
     {
       if (!faststartup_saved_packet_game())
           exit_keeper = true;

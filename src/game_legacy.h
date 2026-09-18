@@ -270,7 +270,6 @@ struct Game {
     uint32_t log_things_end_turn;
     uint32_t turns_packetoff;
     PlayerNumber local_plyr_idx;
-    unsigned char packet_load_initialized; // something with packetload
     // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];

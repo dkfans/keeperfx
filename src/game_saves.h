@@ -75,6 +75,9 @@ enum CatalogueEntryFlags {
     CEF_InUse       = 0x0001,
 };
 
+// file header for game saves. Also used in packet recordings.
+// (Remember to bump the version number if the layout of this struct changes!)
+#define CATALOGUE_ENTRY_VER 0
 struct CatalogueEntry {
     unsigned short flags;
     char textname[SAVE_TEXTNAME_LEN];

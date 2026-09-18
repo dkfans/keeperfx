@@ -59,6 +59,8 @@ void host_spoof_dropped_user_packets(void);
 void sync_initial_network_seed(void);
 TbBool network_is_host(void);
 PlayerNumber get_net_user_player_number(NetUserId user);
+void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx);
+void remap_local_user_to_solo(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -70,6 +70,7 @@ struct StartupSyncPacket {
     uint32_t zoom_distance_setting;
     uint32_t frontview_zoom_distance_setting;
     uint8_t initial_input_lag_turns;
+    // TODO: also record alliance matrix.
 };
 #pragma pack()
 
@@ -117,11 +118,11 @@ static PlayerNumber net_user_player_number[MAX_NET_USERS];
 
 PlayerNumber get_net_user_player_number(NetUserId user)
 {
-    if (!network_is_active()) {
-        return (user == SOLO_HUMAN_ID) ? my_player_number : -1;
-    }
     if ((user < 0) || (user >= MAX_NET_USERS)) {
         return -1;
+    }
+    if (!network_is_active() && !game.packet_load_enable) {
+        return (user == SOLO_HUMAN_ID) ? my_player_number : -1;
     }
     return net_user_player_number[user];
 }
@@ -131,10 +132,15 @@ PlayerNumber get_net_user_player_number(NetUserId user)
 // nondeterminism.)
 TbBool user_present(NetUserId user)
 {
-    if (!network_is_active() || (user < 0) || (user >= MAX_NET_USERS)) {
-        return false;
+    return get_net_user_player_number(user) >= 0;
+}
+
+void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx)
+{
+    if ((user < 0) || (user >= MAX_NET_USERS)) {
+        return;
     }
-    return net_user_player_number[user] >= 0;
+    net_user_player_number[user] = plyr_idx;
 }
 
 static void setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
@@ -484,10 +490,10 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
     JUSTLOG("p:%d computer took over", player->id_number);
 }
 
-static void stop_network_game_state(void)
+// used when ending a netplay game or recording.
+// local single-player must have the local user in slot 0.
+void remap_local_user_to_solo(void)
 {
-    memset(net_user_info, 0, sizeof(net_user_info));
-    clear_flag(game.system_flags, GSF_NetworkActive);
     struct PlayerInfo *myplyr = get_my_player();
     NetUserId old_user = myplyr->user_id;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
@@ -511,10 +517,21 @@ static void stop_network_game_state(void)
             player->user_id = -1;
         }
     }
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        set_net_user_player_number(user, -1);
+    }
     myplyr->user_id = SOLO_HUMAN_ID;
+    set_net_user_player_number(SOLO_HUMAN_ID, myplyr->id_number);
     if (myplyr->roomspace.is_active && (myplyr->roomspace.user == old_user)) {
         myplyr->roomspace.user = SOLO_HUMAN_ID;
     }
+}
+
+static void stop_network_game_state(void)
+{
+    memset(net_user_info, 0, sizeof(net_user_info));
+    clear_flag(game.system_flags, GSF_NetworkActive);
+    remap_local_user_to_solo();
     clear_flag(game.system_flags, GSF_NetGameNoSync);
     clear_flag(game.system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;
@@ -593,9 +610,11 @@ static void resolve_disconnect_victories(struct PlayerInfo *departed)
 static void abandon_network_player(struct PlayerInfo *player, TbBool announce)
 {
     if ((player->allocflags & PlaF_CompCtrl) == 0) {
-        // re-negotiate input latency
-        network_lobby_ping = GetPing(my_player_number);
-        input_lag_reset_request(calculate_initial_input_lag());
+        if (network_is_active()) {
+            // re-negotiate input latency
+            network_lobby_ping = GetPing(my_player_number);
+            input_lag_reset_request(calculate_initial_input_lag());
+        }
         if (announce && player->player_name[0] != '\0') {
             message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), player->player_name);
         }
@@ -635,11 +654,15 @@ static void leave_network_if_alone(void)
 void process_player_leave_game_packet(struct PlayerInfo *player)
 {
     if (player != get_my_player()) {
-        if (network_is_active()) {
+        if (network_is_active() || game.packet_load_enable /* handle replays */) {
             NetUserId user = player->user_id;
-            OnDroppedUser(user, NETDROP_MANUAL);
+            if (network_is_active()) {
+                OnDroppedUser(user, NETDROP_MANUAL);
+            }
             remove_user_from_game(user, user != SERVER_ID);
-            leave_network_if_alone();
+            if (network_is_active()) {
+                leave_network_if_alone();
+            }
             return;
         }
     } else if (network_is_active()) {
