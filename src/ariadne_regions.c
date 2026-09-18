@@ -23,6 +23,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "ariadne_tringls.h"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -167,7 +168,9 @@ void region_lnk(int nreg)
 
 static void region_connect(unsigned long tree_reg)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_region_alloc, "region_alloc", KFX_COLOR_PATHFINDING);
     long nreg_id = region_alloc();
+    KFX_C_ZONE_END(ctx_region_alloc);
     Regions[nreg_id].is_connected = 1;
     region_store_init();
     region_set(tree_reg, nreg_id);
@@ -224,7 +227,9 @@ TbBool regions_connected(long first_tree_region, long second_tree_region)
         return (reg_id2 == reg_id1);
     if (Regions[reg_id2].is_connected == 1)
         return (reg_id2 == reg_id1);
+    KFX_C_ZONE_BEGIN_COLOR(ctx_region_connect, "region_connect", KFX_COLOR_PATHFINDING);
     region_connect(first_tree_region);
+    KFX_C_ZONE_END(ctx_region_connect);
     // Fast version of comparing region id values
     unsigned long intersect = (Triangles[second_tree_region].region_and_edgelen ^ Triangles[first_tree_region].region_and_edgelen);
     return ((intersect & 0xFFC0) == 0);

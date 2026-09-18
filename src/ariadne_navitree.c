@@ -29,6 +29,7 @@
 #include "ariadne_findcache.h"
 #include "ariadne_naviheap.h"
 #include "gui_topmsg.h"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -261,6 +262,7 @@ long optimise_heuristic(long tri_id1, long cor_id1)
 
 long delaunay_seeded(long start_x, long start_y, long end_x, long end_y, TbBool keep_edge)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_delaunay, "delaunay_seeded", KFX_COLOR_PATHFINDING);
     NAVIDBG(19,"Starting");
     tags_init();
     delaunay_init();
@@ -301,6 +303,8 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y, TbBool 
             if (ix_delaunay+4 >= DELAUNAY_COUNT)
             {
               ERRORLOG("stack full");
+              KFX_C_ZONE_VALUE(ctx_delaunay, count);
+              KFX_C_ZONE_END(ctx_delaunay);
               return count;
             }
             for (long cor_id2 = 0; cor_id2 < 3; cor_id2++)
@@ -312,6 +316,8 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y, TbBool 
             }
         }
     }
+    KFX_C_ZONE_VALUE(ctx_delaunay, count);
+    KFX_C_ZONE_END(ctx_delaunay);
     return count;
 }
 

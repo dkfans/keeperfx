@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "gui_topmsg.h"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -62,16 +63,20 @@ static AridPointId point_new(void)
     }
     ari_Points[i].y = 0;
     count_Points++;
+    KFX_C_ALLOC_NAMED(&ari_Points[i], sizeof(struct Point), "Ariadne-Points");
+    KFX_C_PLOT("Ariadne: Points in use", count_Points);
     return i;
 }
 
 void point_dispose(AridPointId pt_id)
 {
+    KFX_C_FREE_NAMED(&ari_Points[pt_id], "Ariadne-Points");
     AridPointId last_pt_id = free_Points;
     ari_Points[pt_id].y = 0x8000;
     free_Points = pt_id;
     ari_Points[pt_id].x = last_pt_id;
     count_Points--;
+    KFX_C_PLOT("Ariadne: Points in use", count_Points);
 }
 
 TbBool point_set(AridPointId pt_id, long x, long y)
@@ -128,7 +133,9 @@ AridPointId allocated_point_search(long pt_x, long pt_y)
 
 AridPointId point_set_new_or_reuse(long pt_x, long pt_y)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_search, "allocated_point_search", KFX_COLOR_PATHFINDING);
     AridPointId pt_idx = allocated_point_search(pt_x, pt_y);
+    KFX_C_ZONE_END(ctx_search);
     if (pt_idx >= 0) {
         return pt_idx;
     }

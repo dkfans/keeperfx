@@ -48,6 +48,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -351,12 +352,18 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
         {
             if (move_on_ground)
             {
-                if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
+                KFX_C_ZONE_BEGIN_COLOR(ctx_reach_move1, "Combat: MoveToCombat (expensive)", KFX_COLOR_PATHFINDING);
+                long move_result = creature_can_move_to_combat(fightng, enmtng);
+                KFX_C_ZONE_END(ctx_reach_move1);
+                if (move_result >= 0) {
                     return AttckT_Melee;
                 }
             } else
             {
-                if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
+                KFX_C_ZONE_BEGIN_COLOR(ctx_reach_hug1, "Combat: WallHugRoute (cheap)", KFX_COLOR_PATHFINDING);
+                long hug_result = slab_wall_hug_route(fightng, &enmtng->mappos, 8);
+                KFX_C_ZONE_END(ctx_reach_hug1);
+                if (hug_result > 0) {
                     return AttckT_Melee;
                 }
             }
@@ -382,13 +389,19 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
         {
             if (move_on_ground)
             {
-                if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
+                KFX_C_ZONE_BEGIN_COLOR(ctx_reach_move2, "Combat: MoveToCombat (expensive)", KFX_COLOR_PATHFINDING);
+                long move_result = creature_can_move_to_combat(fightng, enmtng);
+                KFX_C_ZONE_END(ctx_reach_move2);
+                if (move_result >= 0) {
                     return AttckT_Melee;
                 }
             }
             else
             {
-                if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
+                KFX_C_ZONE_BEGIN_COLOR(ctx_reach_hug2, "Combat: WallHugRoute (cheap)", KFX_COLOR_PATHFINDING);
+                long hug_result = slab_wall_hug_route(fightng, &enmtng->mappos, 8);
+                KFX_C_ZONE_END(ctx_reach_hug2);
+                if (hug_result > 0) {
                     return AttckT_Melee;
                 }
             }
@@ -419,13 +432,19 @@ CrAttackType creature_can_have_combat_with_object(struct Thing* fightng, struct 
         // We can have a melee combat if we hear an enemy and we can move to it
         if (move_on_ground)
         {
-            if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
+            KFX_C_ZONE_BEGIN_COLOR(ctx_reach_move_obj, "Combat: MoveToCombat (expensive)", KFX_COLOR_PATHFINDING);
+            long move_result = creature_can_move_to_combat(fightng, enmtng);
+            KFX_C_ZONE_END(ctx_reach_move_obj);
+            if (move_result >= 0) {
                 return AttckT_Melee;
             }
         }
         else
         {
-            if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
+            KFX_C_ZONE_BEGIN_COLOR(ctx_reach_hug_obj, "Combat: WallHugRoute (cheap)", KFX_COLOR_PATHFINDING);
+            long hug_result = slab_wall_hug_route(fightng, &enmtng->mappos, 8);
+            KFX_C_ZONE_END(ctx_reach_hug_obj);
+            if (hug_result > 0) {
                 return AttckT_Melee;
             }
         }
@@ -2662,11 +2681,15 @@ CrAttackType check_for_possible_combat(struct Thing *creatng, struct Thing **fig
     uint32_t outscore = 0;
     // Check for combat with attacker - someone who already participates in a fight
     struct Thing* enmtng;
+    KFX_C_ZONE_BEGIN_COLOR(ctx_cfpc_attacker, "check_for_possible_combat.WithAttacker", KFX_COLOR_AI);
     CrAttackType attack_type = check_for_possible_combat_with_attacker_within_distance(creatng, &enmtng, INT32_MAX, &outscore);
+    KFX_C_ZONE_END(ctx_cfpc_attacker);
     if (attack_type <= AttckT_Unset)
     {
         // Look for a new fight - with creature we're not fighting yet
+        KFX_C_ZONE_BEGIN_COLOR(ctx_cfpc_newenemy, "check_for_possible_combat.WithNewEnemy", KFX_COLOR_AI);
         attack_type = check_for_possible_combat_with_enemy_creature_within_distance(creatng, &enmtng, INT32_MAX);
+        KFX_C_ZONE_END(ctx_cfpc_newenemy);
     }
     if (attack_type <= AttckT_Unset) {
         return AttckT_Unset;

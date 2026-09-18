@@ -25,6 +25,7 @@
 #include "ariadne_tringls.h"
 #include "ariadne_points.h"
 #include "ariadne.h"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -89,6 +90,7 @@ long triangle_brute_find8_near(long pos_x, long pos_y)
 
 static long triangle_find_cache_get(long pos_x, long pos_y)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_cache_get, "triangle_find_cache_get", KFX_COLOR_PATHFINDING);
     long cache_x = (pos_x >> 14);
     if (cache_x > 3)
         cache_x = 3;
@@ -103,7 +105,9 @@ static long triangle_find_cache_get(long pos_x, long pos_y)
     long ntri = find_cache[cache_y][cache_x];
     if (get_triangle_tree_alt(ntri) == NAV_COL_UNSET)
     {
+        KFX_C_ZONE_BEGIN_COLOR(ctx_cache_miss, "triangle_find_cache_get: MISS", KFX_COLOR_PATHFINDING);
         ntri = triangle_brute_find8_near(pos_x, pos_y);
+        KFX_C_ZONE_END(ctx_cache_miss);
         if ((ntri < 0) || (ntri > ix_Triangles))
         {
             ERRORLOG("triangles count overflow");
@@ -111,6 +115,7 @@ static long triangle_find_cache_get(long pos_x, long pos_y)
         }
         find_cache[cache_y][cache_x] = ntri;
   }
+  KFX_C_ZONE_END(ctx_cache_get);
   return ntri;
 
 }
@@ -145,6 +150,7 @@ long triangle_find8(long pt_x, long pt_y)
 {
     NAVIDBG(19,"Starting");
     //TODO PATHFINDING triangulate_area sub-sub-sub-function
+    KFX_C_ZONE_BEGIN_COLOR(ctx_find8, "triangle_find8", KFX_COLOR_PATHFINDING);
     int32_t ntri = triangle_find_cache_get(pt_x, pt_y);
     for (unsigned long k = 0; k < TRIANLGLES_COUNT; k++)
     {
@@ -183,14 +189,18 @@ long triangle_find8(long pt_x, long pt_y)
             break;
         case 0:
             triangle_find_cache_put(pt_x, pt_y, ntri);
+            KFX_C_ZONE_VALUE(ctx_find8, k);
+            KFX_C_ZONE_END(ctx_find8);
             return ntri;
       }
       if (nxcor < 0) {
           ERRORLOG("No position pointed at %d,%d",(int)pt_x, (int)pt_y);
+          KFX_C_ZONE_END(ctx_find8);
           return -1;
       }
     }
     ERRORLOG("Infinite loop detected");
+    KFX_C_ZONE_END(ctx_find8);
     return -1;
 }
 

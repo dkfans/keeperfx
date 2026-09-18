@@ -289,6 +289,7 @@
     <ClCompile Include="src\kfx\renderer\RendererManager.cpp" />
     <ClCompile Include="src\kfx\renderer\RendererOpenGL.cpp" />
     <ClCompile Include="src\kfx\renderer\RendererSettings.c" />
+    <ClCompile Include="src\kfx\ai\TargetSearchProbe.c" />
     <ClCompile Include="src\kfx\renderer\RendererSoftware.cpp" />
     <ClCompile Include="src\kfx\renderer\RendererThread.cpp" />
     <ClCompile Include="src\kfx\renderer\TileAtlasPacker.cpp" />
@@ -610,6 +611,7 @@
     <ClInclude Include="src\kfx\renderer\RendererManager_Internal.h" />
     <ClInclude Include="src\kfx\renderer\RendererOpenGL.h" />
     <ClInclude Include="src\kfx\renderer\RendererSettings.h" />
+    <ClInclude Include="src\kfx\ai\TargetSearchProbe.h" />
     <ClInclude Include="src\kfx\renderer\RendererSoftware.h" />
     <ClInclude Include="src\kfx\renderer\RendererThread.h" />
     <ClInclude Include="src\kfx\renderer\SpriteHandle.h" />

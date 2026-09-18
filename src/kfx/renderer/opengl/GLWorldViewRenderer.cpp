@@ -15,6 +15,7 @@
 #include "kfx/renderer/RendererThread.h"   // ASSERT_GAME_THREAD/ASSERT_RENDER_THREAD
 #include "kfx/renderer/RendererSettings.h" // g_renderer_settings
 #include "kfx/renderer/RendererManager.h"  // RendererGetCurrentSpriteOwner/WantsOutline
+#include "kfx/profiling/KfxProfiling.h"
 // TODO : I really don't like this touching the engine, should really be cleaning this up.
 #include "front_simple.h"                   // engine_palette
 #include "player_data.h"                    // get_player_color_idx/player_room_colours (outline colour)
@@ -2389,6 +2390,9 @@ void GLWorldViewRenderer::GPURenderNow(const WorldCommandBuffers& cmds)
 void GLWorldViewRenderer::gpu_execute_passes(int vp_x, int vp_y_gl, int screen_w, int screen_h,
                                              const std::vector<WorldVertex>& tile_verts)
 {
+    KFX_ZONE_COLOR("GLWorldViewRenderer::gpu_execute_passes", KFX_COLOR_RENDER_GPU);
+    KFX_GPU_ZONE("World Draw");
+
     m_draw_screen_w = screen_w;
     m_draw_screen_h = screen_h;
 

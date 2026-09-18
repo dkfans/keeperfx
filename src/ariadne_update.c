@@ -24,6 +24,7 @@
 #include "ariadne_navitree.h"
 
 #include "game_legacy.h"
+#include "kfx/profiling/KfxProfilingC.h"
 
 
 #include "post_inc.h"
@@ -1500,6 +1501,8 @@ static void border_unlock(long start_x, long start_y, long end_x, long end_y)
 
 static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x, long end_y)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_triangulate_area, "triangulate_area", KFX_COLOR_PATHFINDING);
+    KFX_C_ZONE_VALUE(ctx_triangulate_area, (long)(end_x - start_x) * (long)(end_y - start_y));
     TbBool one_tile;
     TbBool not_whole_map;
     NavColour colour;
@@ -1529,6 +1532,7 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
     if ((start_x == -1) || (start_y == -1) || (end_x == start_x) || (end_y == start_y))
     {
         NAVIDBG(9,"Invalid area bounds");
+        KFX_C_ZONE_END(ctx_triangulate_area);
         return false;
     }
     // Prepare some basic logic information
@@ -1599,6 +1603,7 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
         border_unlock(start_x, start_y, end_x, end_y);
     triangulation_border_init();
     NAVIDBG(9,"Done");
+    KFX_C_ZONE_END(ctx_triangulate_area);
     return triangulation_successful;
 }
 
@@ -1688,6 +1693,7 @@ long init_navigation(void)
 
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y)
 {
+    KFX_C_ZONE_BEGIN_COLOR(ctx_update_nav, "update_navigation_triangulation", KFX_COLOR_PATHFINDING);
     long sx;
     long sy;
     long ex;
@@ -1730,7 +1736,8 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
         game.map_changed_for_navigation = 1;
         triangulate_area(game.navigation_map, sx, sy, ex, ey);
     }
-    
+
+    KFX_C_ZONE_END(ctx_update_nav);
     return true;
 }
 

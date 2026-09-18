@@ -1,6 +1,7 @@
 #include "pre_inc.h"
 #include "kfx/renderer/RenderThreadManager.h"
 #include "kfx/renderer/RendererThread.h"
+#include "kfx/profiling/KfxProfiling.h"
 #include "post_inc.h"
 
 thread_local bool g_on_render_thread = false;
@@ -32,6 +33,7 @@ void RenderThreadManager::Start(Fn init_fn, Fn work_fn, Fn cleanup_fn)
 
 void RenderThreadManager::WaitForCompletion()
 {
+    KFX_ZONE_COLOR("RenderThreadManager::WaitForCompletion", KFX_COLOR_SIMULATION);
     std::unique_lock<std::mutex> lock(m_mutex);
     m_cv.wait(lock, [this]{ return m_work_done; });
 }
@@ -78,7 +80,10 @@ void RenderThreadManager::ThreadProc(Fn init_fn, Fn work_fn, Fn cleanup_fn)
             m_work_ready = false;
         }
 
-        work_fn();
+        {
+            KFX_ZONE_COLOR("RenderThreadManager::work_fn", KFX_COLOR_RENDER_CPU);
+            work_fn();
+        }
 
         {
             std::lock_guard<std::mutex> lk(m_mutex);

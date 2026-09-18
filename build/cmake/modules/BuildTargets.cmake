@@ -84,6 +84,10 @@ foreach(_t IN LISTS KFX_TARGETS)
     kfx_link_dependencies(${_t})
     apply_windows_system_libs(${_t})
     apply_keeperfx_debug_split(${_t})
+    # Tracy profiler (FetchContent target — compiled from source, matches CRT).
+    if(KEEPERFX_TRACY AND TARGET TracyClient)
+        target_link_libraries(${_t} PRIVATE TracyClient)
+    endif()
 endforeach()
 
 kfx_status("BUILD" "${CMAKE_CXX_COMPILER_ID} -> keeperfx, keeperfx_hvlog")
