@@ -431,6 +431,11 @@ const char * get_string(TextStringId stridx)
         return gui_string(stridx - GUI_STRINGS_START);
 }
 
+TbBool string_idx_is_empty(TextStringId stridx)
+{
+    return (stridx == CpgStr_Empty || stridx == GUIStr_Empty);
+}
+
 unsigned long count_strings(char *strings, int size)
 {
     unsigned long result = 0;

@@ -542,6 +542,7 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
 TbBool fill_strings_list(char **strings,char *strings_data,char *strings_data_end, int max);
 unsigned long count_strings(char *strings, int size);
 const char * cmpgn_string(unsigned int index);
+TbBool string_idx_is_empty(TextStringId stridx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

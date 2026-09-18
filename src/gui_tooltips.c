@@ -181,7 +181,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     {
         update_gui_tooltip_target(thing);
         objst = get_object_model_stats(thing->model);
-        if ((objst->tooltip_stridx >= 0) && (objst->tooltip_stridx != GUIStr_Empty))
+        if ((objst->tooltip_stridx >= 0) && (!string_idx_is_empty(objst->tooltip_stridx)))
         {
             if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
             {
@@ -211,7 +211,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
                     {
                         i = box_thing_to_special(thing);
                         int32_t strngindex = get_special_description_strindex(i);
-                        if (strngindex != GUIStr_Empty)
+                        if (string_idx_is_empty(strngindex))
                         {
                             set_gui_tooltip_box_fmt(5, "%s", get_string(strngindex));
                         }
@@ -274,7 +274,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   struct SlabMap* slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
   long skind = slb->kind;
   struct SlabConfigStats* slabst = get_slab_kind_stats(skind);
-  if (slabst->tooltip_stridx == GUIStr_Empty)
+  if (string_idx_is_empty(slabst->tooltip_stridx))
     return false;
   update_gui_tooltip_target((void *)(uintptr_t)skind);
   struct PlayerInfo* player = get_my_player();
@@ -309,7 +309,7 @@ short setup_room_tooltips(struct Coord3d *pos)
   if (room_is_invalid(room))
     return false;
   int stridx = roomst->name_stridx;
-  if (stridx == GUIStr_Empty)
+  if (string_idx_is_empty(stridx))
     return false;
   update_gui_tooltip_target(room);
   struct PlayerInfo* player = get_my_player();
@@ -351,7 +351,7 @@ short setup_scrolling_tooltips(struct Coord3d *mappos)
 void setup_gui_tooltip(struct GuiButton* gbtn)
 {
     long k;
-    if (gbtn->tooltip_stridx == GUIStr_Empty)
+    if (string_idx_is_empty(gbtn->tooltip_stridx))
         return;
     if (!settings.tooltips_on)
         return;
@@ -639,7 +639,7 @@ void draw_tooltip(void)
 {
     SYNCDBG(7,"Starting");
     LbTextSetFont(winfont);
-    if ((tool_tip_box.flags & TTip_Visible) != 0)
+    if (flag_is_set(tool_tip_box.flags,TTip_Visible))
     {
       if (tool_tip_box.box_type != 0) {
           tool_tip_box.pos_x = GetMouseX();
