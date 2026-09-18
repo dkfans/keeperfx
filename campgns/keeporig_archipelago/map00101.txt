@@ -1,0 +1,58 @@
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Bonus Level - Imp slapping Hidden Realm
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM         KeeperFX CCP Team
+REM  Date:   17 Aug 1997 - 02 Nov 2013
+REM  Copying and copyrights:
+REM This program is free software; you can redistribute it and/or modify
+REM it under the terms of the GNU General Public License as published by
+REM the Free Software Foundation; either version 2 of the License, or
+REM (at your option) any later version.
+REM ****************************************************************************
+
+REM "These Imps have all turned rogue and therefore must die."
+DISPLAY_OBJECTIVE(140,PLAYER0)
+
+START_MONEY(PLAYER0,1200)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_LIGHTNING,1,1)
+
+SET_TIMER(PLAYER0,TIMER0)
+BONUS_LEVEL_TIME(6600)
+
+IF(PLAYER0,TIMER0 >= 3300)
+	IF(PLAYER0,FLAG1 == 0)
+		REM "Tempus fugit, Keeper. You have been warned."
+		DISPLAY_INFORMATION(141)
+	ENDIF
+ENDIF					   
+
+IF(PLAYER0,TIMER0 >= 6600)
+	IF(PLAYER0,FLAG1 == 0)
+		DISPLAY_OBJECTIVE(142,PLAYER0)
+		LOSE_GAME
+	ENDIF
+ENDIF					  
+
+IF(PLAYER0,FLAG2 == 1)
+	IF(PLAYER0,IMP == 0)
+		REM "You are indeed a twisted soul, master. You made the Imps extinct with such panache that not one but two Dark Mistresses have devoted themselves to helping you achieve your next goal. You may proceed to your next conquest."
+		DISPLAY_OBJECTIVE(143,PLAYER0)
+		ADD_CREATURE_TO_LEVEL(PLAYER0,DARK_MISTRESS,PLAYER0,2,10,10000)
+        REM Using a timer to make sure add creature command will be executed
+        SET_TIMER(PLAYER0,TIMER1)
+		BONUS_LEVEL_TIME(0)
+	ENDIF	
+ENDIF
+
+IF(PLAYER0,IMP == 0)
+	SET_FLAG(PLAYER0,FLAG2,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,PLAYER0,10,10,10000)
+ENDIF
+
+IF(PLAYER0,TIMER1 >= 100)
+    WIN_GAME
+ENDIF
