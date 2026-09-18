@@ -36,6 +36,8 @@ FuncIdx get_function_idx(const char *func_name,const struct NamedCommand * Cfunc
 TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 
+TbResult luafunc_magic_use_spell(FuncIdx func_idx, SpellKind spkind, struct Thing* thing, unsigned short splevel, PlayerNumber plyr_idx);
+
 short luafunc_crstate_func(FuncIdx func_idx,struct Thing *thing);
 short luafunc_thing_update_func(FuncIdx func_idx,struct Thing *thing);
 short luafunc_trap_activation_func(FuncIdx func_idx,struct Thing *trap, struct Thing *creature);
