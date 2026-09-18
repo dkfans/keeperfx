@@ -172,6 +172,7 @@ const struct NamedCommand conf_commands[] = {
   {"MULTIPLAYER_PORT"              , 48},
   {"RENDERER"                      , 49},
   {"VIEWPORT_MODE"                 , 50},
+  {"PARCHMENT_MAP_FADE"            , 51},
   {NULL,                   0},
   };
 
@@ -307,6 +308,13 @@ TbBool use_relative_mouse_mode(void)
   return ((features_enabled & Ft_RelativeMouseMode) != 0);
 }
 
+/**
+ * Returns if the mouse should use SDL relative ("raw") mode instead of the grab-and-warp scheme.
+ */
+TbBool use_parchment_fade(void)
+{
+    return ((features_enabled & Ft_ParchmentFade) != 0);
+}
 /**
  * Returns if we should pause the music, if the user pauses the game.
  */
@@ -1084,6 +1092,19 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             break;
           }
           viewport_mode = i;
+          break;
+      case 51: // PARCHMENT_MAP_FADE
+          i = recognize_conf_parameter(buf, &pos, len, logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                  COMMAND_TEXT(cmd_num), config_textname);
+              break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_ParchmentFade;
+          else
+              features_enabled &= ~Ft_ParchmentFade;
           break;
       case ccr_comment:
           break;

@@ -32,7 +32,6 @@
 #include "bflib_planar.h"
 #include "custom_sprites.h"
 #include "frontend.h"
-#include "front_simple.h"
 #include "config.h"
 #include "gui_boxmenu.h"
 #include "gui_tooltips.h"
@@ -44,19 +43,16 @@
 #include "player_data.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
-#include "config_creature.h"
 #include "config_terrain.h"
 #include "config_spritecolors.h"
+#include "config_keeperfx.h"
 #include "thing_data.h"
 #include "thing_objects.h"
-#include "thing_traps.h"
 #include "creature_graphics.h"
-#include "creature_states.h"
 #include "creature_states_hero.h"
 #include "power_hand.h"
 #include "game_legacy.h"
 #include "room_list.h"
-#include "room_workshop.h"
 #include "frontmenu_ingame_tabs.h"
 #include "vidfade.h"
 #include "sprites.h"
@@ -1082,7 +1078,7 @@ TbBool parchment_map_fade_enabled(void)
 {
     if (network_is_active())
         return false;
-    return MapFadePass_SupportsNativeResolution() || (RendererPhysicalWidth() <= 320);
+    return use_parchment_fade();
 }
 
 void zoom_to_parchment_map(void)
