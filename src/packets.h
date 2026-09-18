@@ -320,6 +320,7 @@ struct PacketSaveHead {
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
     char frontend_alliances;
+    char user_names[MAX_NET_USERS][20];
 };
 
 struct PacketEx

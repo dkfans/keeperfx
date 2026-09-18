@@ -233,6 +233,17 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
     return true;
 }
 
+static TbBool chunk_version_ok(TbFileHandle fhandle, const struct FileChunkHeader *hdr, unsigned long expected)
+{
+    if (hdr->ver == expected)
+        return true;
+    WARNLOG("Chunk %08lx is version %lu, expected %lu; skipping it",
+        (unsigned long)hdr->id, (unsigned long)hdr->ver, expected);
+    if (LbFileSeek(fhandle, hdr->len, Lb_FILE_SEEK_CURRENT) < 0)
+        LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
+    return false;
+}
+
 int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 {
     long chunks_done = 0;
@@ -244,6 +255,8 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
         switch (hdr.id)
         {
         case SGC_InfoBlock:
+            if (!chunk_version_ok(fhandle, &hdr, CATALOGUE_ENTRY_VER))
+                break;
             if (load_catalogue_entry(fhandle, &hdr, centry))
             {
                 chunks_done |= SGF_InfoBlock;
@@ -276,6 +289,8 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             }
             break;
         case SGC_PacketHeader:
+            if (!chunk_version_ok(fhandle, &hdr, PACKET_SAVE_HEAD_VER))
+                break;
             if (hdr.len != sizeof(struct PacketSaveHead))
             {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
@@ -291,6 +306,8 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             }
             break;
         case SGC_PacketData:
+            if (!chunk_version_ok(fhandle, &hdr, PACKET_VER))
+                break;
             if (hdr.len != 0)
             {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)

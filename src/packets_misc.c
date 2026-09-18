@@ -227,7 +227,10 @@ void restore_users_from_packet_save(void)
             continue;
         }
         set_net_user_player_number(user, plyr_idx);
-        get_player(plyr_idx)->user_id = user;
+        struct PlayerInfo *player = get_player(plyr_idx);
+        player->user_id = user;
+        snprintf(player->player_name, sizeof(player->player_name), "%s",
+            game.packet_save_head.user_names[user]);
         init_user_state(user);
         local_mapped |= (plyr_idx == my_player_number);
         SYNCLOG("Replay user %d -> player %d", (int)user, (int)plyr_idx);
@@ -415,6 +418,12 @@ TbBool open_new_packet_file_for_save(void)
         game.packet_save_head.user_players[user] = get_net_user_player_number(user);
     game.packet_save_head.recording_user = get_local_user();
     game.packet_save_head.frontend_alliances = frontend_alliances;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        const char *name = network_user_name(user);
+        snprintf(game.packet_save_head.user_names[user],
+            sizeof(game.packet_save_head.user_names[user]), "%s", (name != NULL) ? name : "");
+    }
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
