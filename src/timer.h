@@ -58,7 +58,7 @@ struct GameTime {
 extern struct GameTime GameT;
 
 void get_game_time(struct GameTime *GT, unsigned long turns, unsigned long fps);
-void update_game_time(struct GameTime *GT, unsigned long turns, unsigned long fps, unsigned long *gameseconds);
+void update_game_time(struct GameTime *GT, unsigned long *gameseconds);
 
 /******************************************************************************/
 #ifdef __cplusplus
