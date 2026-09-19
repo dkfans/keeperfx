@@ -101,7 +101,7 @@ void GLTextRenderer::Layout(const IRTextDrawCmd& cmd, const struct TbSpriteSheet
         return dbc_font && LbDbcIsDuospaceChar(dbc_font, chr);
     };
 
-    const float h = LineHeightExplicit(font, dbc_font) * ups / 16.0f;
+    const float h = (float)((int)LineHeightExplicit(font, dbc_font) * ups / 16);
     const float justifyx = (float)(cmd.justify_x - cmd.clip_x);
     const float justifyy = (float)(cmd.justify_y - cmd.clip_y);
     float posx = (float)cmd.pos_x + justifyx;
@@ -318,7 +318,7 @@ float GLTextRenderer::EmitWesternGlyph(const struct TbSpriteSheet* font, uint32_
     glyph.alpha = draw_flags_source_weight(state.flags);
     m_layout_out->glyphs.Append(glyph);
 
-    float w = spr->SWidth * units_per_px / 16.0f;
+    float w = (float)(spr->SWidth * units_per_px / 16);
     if (state.flags & Lb_TEXT_UNDERLINE)
         EmitUnderline(x, y, w, (float)LbSprFontCharHeight(font, ' ') * units_per_px / 16.0f, units_per_px, state);
     return w;
@@ -359,7 +359,7 @@ float GLTextRenderer::EmitDbcGlyph(const struct AsianFont* dbc_font, uint32_t ch
     glyph.y = gy;
     m_layout_out->glyphs.Append(glyph);
 
-    float advance = (glyph_h == 16) ? (float)(spacing + glyph_w) * scale : (float)(spacing + glyph_w);
+    float advance = (glyph_h == 16) ? (float)((spacing + glyph_w) * units_per_px / 16) : (float)(spacing + glyph_w);
     if (state.flags & Lb_TEXT_UNDERLINE)
         EmitUnderline(x, y, advance, (float)LbDbcCharHeight(dbc_font) * scale, units_per_px, state);
     return advance;
