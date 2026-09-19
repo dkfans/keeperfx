@@ -2706,9 +2706,10 @@ msgid "Speed"
 msgstr "速度"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "COM连接埠"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "深淵: 無底深坑，你的怪物最好避開。"
 
 #: guitext:354
 msgctxt "Menu interface item"

@@ -2592,9 +2592,10 @@ msgid "Speed"
 msgstr "Скорость"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "COM-порт"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "Бездна: Бездонная пропасть, которую Вашим созданиям лучше обходить стороной."
 
 #: guitext:354
 msgctxt "Menu interface item"

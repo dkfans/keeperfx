@@ -2961,9 +2961,10 @@ msgid "Speed"
 msgstr "Celeritas"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "Portus COM"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "Abyssus: Puteus sine fundo, quem creaturae tuae bene vitabunt."
 
 #: guitext:354
 msgctxt "Menu interface item"

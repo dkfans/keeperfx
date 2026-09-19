@@ -3060,9 +3060,10 @@ msgid "Speed"
 msgstr "Velocidad"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "Puerto COM"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "Abismo: Un pozo sin fondo que tus criaturas harían bien en evitar."
 
 #: guitext:354
 msgctxt "Menu interface item"
