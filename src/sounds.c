@@ -58,6 +58,7 @@
 
 #include "keeperfx.hpp"
 #include "game_heap.h"
+#include "kfx/profiling/KfxProfilingC.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -442,9 +443,11 @@ void update_player_sounds(void)
 void process_3d_sounds(void)
 {
     SYNCDBG(9,"Starting");
+    KFX_C_ZONE_BEGIN_COLOR(ctx_3d_sounds, "process_3d_sounds", KFX_COLOR_AUDIO);
     increment_sample_times();
     process_sound_samples();
     process_sound_emitters();
+    KFX_C_ZONE_END(ctx_3d_sounds);
 }
 
 TbBool init_sound(void)

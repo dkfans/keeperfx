@@ -6,6 +6,7 @@
 #include "game_legacy.h"
 #include "bflib_sound.h"
 #include "bflib_fileio.h"
+#include "kfx/profiling/KfxProfiling.h"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
@@ -466,6 +467,11 @@ static std::unordered_map<SoundSmplTblID, SoundStackPolicy> g_stack_policies;
 static unsigned long g_audio_tick_counter = 0; // tick != turn; ticks continue while navigating the frontend/main menu
 static std::unordered_map<SoundSmplTblID, unsigned long> g_tick_samples_last_tick;
 
+// Per-tick counts of samples play_sample() refused, plotted in MonitorStreamedSoundTrack().
+static uint32_t g_drops_tick_gate = 0;
+static uint32_t g_drops_stack_cap = 0;
+static uint32_t g_drops_no_voice = 0;
+
 static SoundStackPolicy get_stack_policy(SoundSmplTblID smptbl_id) {
 	const auto it = g_stack_policies.find(smptbl_id);
 	if (it != g_stack_policies.end()) {
@@ -500,6 +506,7 @@ static void apply_duck_gain(SoundSmplTblID smptbl_id) {
 }
 
 void load_sound_banks() {
+	KFX_ZONE_COLOR("load_sound_banks", KFX_COLOR_AUDIO);
 	char snd_fname[2048];
 	prepare_file_path_buf(snd_fname, sizeof(snd_fname), FGrp_LrgSound, "sound.dat");
 	// language-specific speech file
@@ -851,6 +858,7 @@ static TbBool resolve_track_music_path(int track, char *dst, int dst_size) {
 }
 
 extern "C" TbBool play_music_track(int track) {
+	KFX_ZONE_COLOR("play_music_track", KFX_COLOR_AUDIO);
 	game.music_track = track;
 	memset(game.music_fname, 0, sizeof(game.music_fname));
 	if (game.music_track == 0) {
@@ -925,7 +933,9 @@ extern "C" TbBool GetSoundInstalled() {
 // This function gets called every tick, both during active gameplay and while navigating
 // the frontend/main menu, this should probably be buffer based and not tick based..
 extern "C" void MonitorStreamedSoundTrack() {
+	KFX_ZONE_COLOR("MonitorStreamedSoundTrack", KFX_COLOR_AUDIO);
 	++g_audio_tick_counter;
+	[[maybe_unused]] int active_voices = 0;
 	for (auto & source : g_sources) {
 		try {
 			if (source.emit_id > 0 && !source.is_playing()) {
@@ -941,7 +951,17 @@ extern "C" void MonitorStreamedSoundTrack() {
 		} catch (const std::exception & e) {
 			ERRORLOG("%s", e.what());
 		}
+		if (source.emit_id > 0) {
+			++active_voices;
+		}
 	}
+	KFX_PLOT("Audio voices", active_voices);
+	KFX_PLOT("Audio drops: tick gate", g_drops_tick_gate);
+	KFX_PLOT("Audio drops: stack cap", g_drops_stack_cap);
+	KFX_PLOT("Audio drops: no voice", g_drops_no_voice);
+	g_drops_tick_gate = 0;
+	g_drops_stack_cap = 0;
+	g_drops_no_voice = 0;
 }
 
 extern "C" void * GetSoundDriver() {
@@ -1144,6 +1164,7 @@ extern "C" SoundMilesID play_sample(
 			// only start once per tick, regardless of which emitter triggers it.
 			const auto tick_it = g_tick_samples_last_tick.find(smptbl_id);
 			if (tick_it != g_tick_samples_last_tick.end() && tick_it->second == g_audio_tick_counter) {
+				++g_drops_tick_gate;
 				return 0; // dropped: already triggered this tick
 			}
 			g_tick_samples_last_tick[smptbl_id] = g_audio_tick_counter;
@@ -1156,6 +1177,7 @@ extern "C" SoundMilesID play_sample(
 					}
 				}
 				if (active_count >= stack_policy.max_instances) {
+					++g_drops_stack_cap;
 					return 0; // dropped: at this sample's concurrency cap
 				}
 			}
@@ -1187,6 +1209,7 @@ extern "C" SoundMilesID play_sample(
 				return source.mss_id;
 			}
 		}
+		++g_drops_no_voice;
 		if (local_state.fast_forward < 2) {
 			ERRORLOG("Can't play sample %d, too many samples playing at once", smptbl_id);
 		}
@@ -1385,6 +1408,7 @@ static TbBool decode_mp3_and_store(const char* filepath, int sample_id,
 static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample_id,
 	const uint8_t* data, size_t size)
 {
+	KFX_ZONE_COLOR("decode_custom_sound", KFX_COLOR_AUDIO);
 	// Detect BMU V1.0 wrapper (8-byte ASCII prefix used by some campaigns).
 	// After the prefix the payload is a standard MP3 (often with an ID3 tag).
 	static const uint8_t bmu_magic[8] = { 'B','M','U',' ','V','1','.','0' };
