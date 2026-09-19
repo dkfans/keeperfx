@@ -5,7 +5,6 @@
  * @file net_portforward.cpp
  *     Port forwarding support using NAT-PMP and UPnP.
  * @par Purpose:
- *     Automatic port forwarding for multiplayer hosting.
  *     Tries NAT-PMP first (simpler/faster), falls back to UPnP.
  * @author   KeeperFX Team
  * @date     01 Jan 2026
@@ -62,6 +61,7 @@ enum PortForwardMethod {
 
 static enum PortForwardMethod active_method = PORT_FORWARD_NONE;
 static uint16_t mapped_port = 0;
+static std::thread mapping_thread;
 
 static struct UPNPUrls upnp_urls;
 static struct IGDdatas upnp_data;
@@ -196,13 +196,11 @@ static int natpmp_add_port_mapping(uint16_t port) {
     return 1;
 }
 
-static void port_forward_add_mapping_internal(uint16_t port) {
+static void port_forward_add_mapping_internal(uint16_t port)
+{
     if (is_cgnat_detected()) {
         LbNetLog("CGNAT detected, automatic port forwarding unavailable\n");
         return;
-    }
-    if (active_method != PORT_FORWARD_NONE) {
-        port_forward_remove_mapping();
     }
     if (natpmp_add_port_mapping(port)) {
         return;
@@ -243,12 +241,18 @@ static void port_forward_add_mapping_internal(uint16_t port) {
     active_method = PORT_FORWARD_UPNP;
 }
 
-int port_forward_add_mapping(uint16_t port) {
-    std::thread(port_forward_add_mapping_internal, port).detach();
+int port_forward_add_mapping(uint16_t port)
+{
+    port_forward_remove_mapping();
+    mapping_thread = std::thread(port_forward_add_mapping_internal, port);
     return 1;
 }
 
-void port_forward_remove_mapping(void) {
+void port_forward_remove_mapping(void)
+{
+    if (mapping_thread.joinable()) {
+        mapping_thread.join();
+    }
     if (active_method == PORT_FORWARD_NONE || mapped_port == 0) {
         return;
     }

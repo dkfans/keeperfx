@@ -249,7 +249,7 @@ TbError LbNetwork_Create(char *, char *plyr_name, uint32_t *plyr_num, void *optn
     if (frontnet_service_selected(FrontendNetSvc_LAN)) {
         lan_host_start(plyr_name, local_port);
     }
-    if (frontnet_service_selected(FrontendNetSvc_Online) && matchmaking_create(plyr_name, ipv4_port, ipv6_port) != 0) {
+    if (frontnet_service_selected(FrontendNetSvc_Online) && matchmaking_create(plyr_name, external_ipv4_address, ipv4_port, ipv6_port, local_port) != 0) {
         netstate.sp->exit();
         return Lb_FAIL;
     }

@@ -39,6 +39,7 @@ unsigned int GetUploadRateBytesPerSecond();
 unsigned int GetDownloadRateBytesPerSecond();
 int enet_matchmaking_host_update(void);
 extern uint16_t external_ipv4_port;
+extern char external_ipv4_address[64];
 extern int skip_holepunch;
 uint16_t enet_get_bound_ipv6_port(void);
 
