@@ -176,6 +176,19 @@ static int send_and_burst(ENetSocket socket_handle, const ENetAddress *address, 
     return 1;
 }
 
+static int address_family_is_ipv4(const ENetAddress *address)
+{
+    if (address->type == ENET_ADDRESS_TYPE_IPV4)
+        return 1;
+    if (address->type != ENET_ADDRESS_TYPE_IPV6)
+        return 0;
+    for (int i = 0; i < 5; i++) {
+        if (address->host.v6[i] != 0)
+            return 0;
+    }
+    return address->host.v6[5] == 0xFFFF;
+}
+
 int holepunch_handle_packet(ENetHost *host, ENetAddress *expected, size_t expected_count, int *received_mask)
 {
     static const uint8_t punch_payload[HOLE_PUNCH_PAYLOAD_SIZE] = {0};
@@ -184,14 +197,19 @@ int holepunch_handle_packet(ENetHost *host, ENetAddress *expected, size_t expect
         return 0;
     ENetAddress source = host->receivedAddress;
     for (size_t i = 0; i < expected_count; i++) {
-        ENetAddress comparable = expected[i];
-        comparable.port = source.port;
-        if (source.type == ENET_ADDRESS_TYPE_IPV6)
-            enet_address_convert_ipv6(&comparable);
-        if (!expected[i].port || !enet_address_equal_host(&source, &comparable))
+        if (address_family_is_ipv4(&source) != address_family_is_ipv4(&expected[i]))
             continue;
-        if (source.port != expected[i].port)
-            LbNetLog("Holepunch: learned peer port %d (advertised %d)\n", (int)source.port, (int)expected[i].port);
+        ENetAddress mapped_source = source;
+        ENetAddress mapped_expected = expected[i];
+        enet_address_convert_ipv6(&mapped_source);
+        enet_address_convert_ipv6(&mapped_expected);
+        if (!enet_address_equal(&mapped_source, &mapped_expected)) {
+            char source_address[64] = {0};
+            char advertised_address[64] = {0};
+            enet_address_get_host_ip(&source, source_address, sizeof(source_address));
+            enet_address_get_host_ip(&expected[i], advertised_address, sizeof(advertised_address));
+            LbNetLog("Holepunch: peer at %s (advertised %s)\n", source_address, advertised_address);
+        }
         expected[i] = source;
         *received_mask |= 1 << i;
         break;
