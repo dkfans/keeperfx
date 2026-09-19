@@ -44,6 +44,7 @@
 #define STUN_ATTRIBUTE_XOR_MAPPED 0x0020U
 #define STUN_RESPONSE_BUFFER_SIZE 512
 #define HOLE_PUNCH_COUNT 4
+#define HOLE_PUNCH_RECEIVE_LIMIT 64
 #define HOLE_PUNCH_PAYLOAD_SIZE 8
 #define HOLE_PUNCH_LOG_INTERVAL_MS 1000
 
@@ -175,7 +176,7 @@ int holepunch_receive(ENetHost *host, ENetAddress *expected, size_t expected_cou
     static const uint8_t punch_payload[HOLE_PUNCH_PAYLOAD_SIZE] = {0};
     uint8_t payload[HOLE_PUNCH_PAYLOAD_SIZE + 1];
     int found = 0;
-    for (size_t packet = 0; packet < expected_count * HOLE_PUNCH_COUNT; packet++) {
+    for (size_t packet = 0; packet < HOLE_PUNCH_RECEIVE_LIMIT; packet++) {
         int peeked = recv(host->socket, (char *)payload, sizeof(payload), MSG_PEEK);
         if (peeked != HOLE_PUNCH_PAYLOAD_SIZE || memcmp(payload, punch_payload, HOLE_PUNCH_PAYLOAD_SIZE) != 0)
             return found;
