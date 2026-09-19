@@ -1057,7 +1057,7 @@ extern "C" void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id,
 		if (source.emit_id == emit_id && source.smptbl_id == smptbl_id) {
 			try {
 				if (source.flags & bb_king_mode) {
-					return; // ben enjoyed dofi's stream so much I made random pitch an easter egg
+					continue; // ben enjoyed dofi's stream so much I made random pitch an easter egg
 				} else {
 					source.pitch(pitch);
 				}
@@ -1157,7 +1157,6 @@ extern "C" SoundMilesID play_sample(
 				++g_drops_tick_gate;
 				return 0; // dropped: already triggered this tick
 			}
-			g_tick_samples_last_tick[smptbl_id] = g_audio_tick_counter;
 		} else {
 			if (stack_policy.max_instances > 0) {
 				int active_count = 0;
@@ -1193,6 +1192,10 @@ extern "C" SoundMilesID play_sample(
 				source.play(*buf);
 				source.emit_id = emit_id;
 				source.smptbl_id = smptbl_id;
+				if (!has_explicit_stack_policy) {
+					// Mark the tick only once a voice is secured, so a failed start doesn't block retries.
+					g_tick_samples_last_tick[smptbl_id] = g_audio_tick_counter;
+				}
 				if (has_explicit_stack_policy && stack_policy.mode == SStack_Duck) {
 					apply_duck_gain(smptbl_id);
 				}
