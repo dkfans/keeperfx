@@ -308,6 +308,7 @@ public:
 					throw std::runtime_error("Unsupported format");
 				}
 				m_samplerate = formatex.nSamplesPerSec;
+				m_block_align = formatex.nBlockAlign;
 				if (chunk.size > sizeof(formatex)) {
 					stream.seekg(chunk.size - sizeof(formatex), std::ios::cur);
 				}
@@ -334,8 +335,13 @@ public:
 		return m_format;
 	}
 
+	inline int block_align() const {
+		return m_block_align;
+	}
+
 protected:
 	int m_samplerate = 0;
+	int m_block_align = 0;
 	ALenum m_format = 0;
 	std::vector<uint8_t> m_pcm;
 };
@@ -351,16 +357,8 @@ struct sound_sample {
 		sfx_id = _sfx_id;
 		const auto & pcm = wav.pcm();
 		const auto format = wav.format();
-		if (format == AL_FORMAT_MONO_MSADPCM_SOFT) {
-			// Needed for heart6a.wav
-			std::vector<uint8_t> converted(pcm.size() * 2);
-			for (size_t i = 0; i < pcm.size(); ++i) {
-				converted[(i * 2) + 0] = (pcm[i] >> 4) * 2;
-				converted[(i * 2) + 1] = (pcm[i] & 0x7) * 2;
-			}
-			alBufferData(buffer.id, AL_FORMAT_MONO8, converted.data(), converted.size(), wav.samplerate());
-		} else if (format == AL_FORMAT_STEREO_MSADPCM_SOFT) {
-			throw std::runtime_error("Format not implemented");
+		if (format == AL_FORMAT_MONO_MSADPCM_SOFT || format == AL_FORMAT_STEREO_MSADPCM_SOFT) {
+			buffer_msadpcm(wav);
 		} else {
 			alBufferData(buffer.id, format, pcm.data(), pcm.size(), wav.samplerate());
 		}
@@ -368,6 +366,27 @@ struct sound_sample {
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot buffer sample data", errcode);
 		}
+	}
+
+	// OpenAL decodes MS-ADPCM itself; it needs the block size in sample frames and
+	// only accepts whole blocks. A sample it rejects is replaced with silence so one
+	// bad entry can't fail the whole bank load.
+	void buffer_msadpcm(const wave_file & wav) {
+		const auto & data = wav.pcm();
+		const int channels = (wav.format() == AL_FORMAT_MONO_MSADPCM_SOFT) ? 1 : 2;
+		const int block_align = wav.block_align();
+		if (block_align > 7 * channels) {
+			const ALint frames_per_block = (block_align - 7 * channels) * 2 / channels + 2;
+			const size_t whole_blocks = data.size() - (data.size() % block_align);
+			alBufferi(buffer.id, AL_UNPACK_BLOCK_ALIGNMENT_SOFT, frames_per_block);
+			alBufferData(buffer.id, wav.format(), data.data(), (ALsizei)whole_blocks, wav.samplerate());
+			if (alGetError() == AL_NO_ERROR) {
+				return;
+			}
+		}
+		WARNLOG("Cannot decode MS-ADPCM sample %s, using silence", name.c_str());
+		const int16_t silence = 0;
+		alBufferData(buffer.id, AL_FORMAT_MONO16, &silence, sizeof(silence), wav.samplerate());
 	}
 
 	sound_sample(const char * _name, SoundSFXID _sfx_id,
@@ -1392,10 +1411,8 @@ static TbBool decode_mp3_and_store(const char* filepath, int sample_id,
 // loading entry points below.
 //   - Plain WAV/RIFF : wave_file (same in-process header parser the base sound.dat bank
 //                       uses) — preserves the source's own channel count/format exactly.
-//   - OGG / FLAC     : Mix_LoadWAV_RW (SDL_mixer; require MIX_INIT_OGG/MIX_INIT_FLAC).
-//                       Converts to the mixer device's opened channel count/rate, so a
-//                       mono OGG/FLAC source is force-upmixed to stereo — see the caveat
-//                       comment below.
+//   - OGG / FLAC     : SDL3_mixer MIX_AudioDecoder, keeping the source's channel count
+//                       (mono or stereo) and rate.
 //   - Plain MP3      : dr_mp3 single-header decoder (compiled in, no external DLLs)
 //   - BMU V1.0       : 8-byte wrapper used by some campaigns; contains a plain MP3
 //                       stream after the header — stripped and decoded via dr_mp3.
@@ -1420,9 +1437,7 @@ static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample
 	}
 
 	// --- Plain WAV/RIFF path: parse with wave_file, same as the base sound.dat bank uses.
-	// This preserves the file's own channel count (mono stays mono). Otherwise this'll go to 
-    // SDL's Mix_LoadWAV_RW path below, which converts to the mixer's output format (44100 Hz / Sint16 / stereo)
-    // and blow your ears off if the source is mono. 
+	// This preserves the file's own format exactly, including ADPCM.
 	if (size >= 12 && memcmp(data, "RIFF", 4) == 0 && memcmp(data + 8, "WAVE", 4) == 0) {
 		try {
 			std::string buf(reinterpret_cast<const char*>(data), size);
@@ -1453,22 +1468,35 @@ static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample
 		return false;
 	}
 
-	const SDL_AudioSpec out_spec = { SDL_AUDIO_S16, 2, 44100 };
-	const ALenum al_fmt = AL_FORMAT_STEREO16;
+	// Keep the source's channel count and rate: forcing stereo stops OpenAL from positioning
+	// the sound, and upmixing mono makes it louder. More than two channels is downmixed.
+	SDL_AudioSpec src_spec;
+	if (!MIX_GetAudioDecoderFormat(decoder, &src_spec)) {
+		ERRORLOG("Cannot read audio format of %s: %s", logical_name, SDL_GetError());
+		MIX_DestroyAudioDecoder(decoder);
+		return false;
+	}
+	const SDL_AudioSpec out_spec = { SDL_AUDIO_S16, (src_spec.channels == 1) ? 1 : 2, src_spec.freq };
+	const ALenum al_fmt = (out_spec.channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
 
+	std::vector<uint8_t> pcm;
 	try {
-		std::vector<uint8_t> pcm;
 		uint8_t buffer[16384];
 		for (;;) {
 			int got = MIX_DecodeAudio(decoder, buffer, sizeof(buffer), &out_spec);
 			if (got <= 0) break; // 0 == end of stream, <0 == error
 			pcm.insert(pcm.end(), buffer, buffer + got);
 		}
-		MIX_DestroyAudioDecoder(decoder);
-		g_custom_bank.emplace_back(logical_name, sample_id, pcm, al_fmt, out_spec.freq);
 	} catch (...) {
 		MIX_DestroyAudioDecoder(decoder);
 		ERRORLOG("Out of memory buffering audio %s", logical_name);
+		return false;
+	}
+	MIX_DestroyAudioDecoder(decoder);
+	try {
+		g_custom_bank.emplace_back(logical_name, sample_id, pcm, al_fmt, out_spec.freq);
+	} catch (const std::exception & e) {
+		ERRORLOG("Cannot store audio %s: %s", logical_name, e.what());
 		return false;
 	}
 	return true;
