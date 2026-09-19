@@ -2879,12 +2879,8 @@ msgstr ""
 
 #: guitext:328
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr ""
-"Eau: Les créatures se déplacent plus lentement dans l'eau. Construisez un "
-"pont pour permettre à votre territoire de la traverser[14.1]"
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "Eau : Les créatures se déplacent librement dans l'eau. Construisez un pont pour relier un territoire éloigné."
 
 #: guitext:329
 msgctxt "Slab description"
@@ -3016,9 +3012,10 @@ msgid "Speed"
 msgstr "Vitesse"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "Port Com"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "Abîme: Un gouffre sans fond que vos créatures feraient bien d'éviter."
 
 #: guitext:354
 msgctxt "Menu interface item"

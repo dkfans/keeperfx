@@ -25,7 +25,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_vidraw.h"
-#include "vidmode.h" // pixmap.ghost, ghost_table_blend() -- shared with the minimap's identical blend
+#include "vidmode.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_dernc.h"

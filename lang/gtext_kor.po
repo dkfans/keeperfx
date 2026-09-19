@@ -2787,12 +2787,8 @@ msgstr ""
 
 #: guitext:328
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr ""
-"물: 생물은 물을 통해 더 천천히 움직입니다. 다리를 건설하여 물 위에 새 땅을 만"
-"듭니다."
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "물: 생물은 물속을 자유롭게 이동합니다. 다리를 건설해 멀리 떨어진 영토와 연결하세요."
 
 #: guitext:329
 msgctxt "Slab description"
@@ -2923,9 +2919,10 @@ msgid "Speed"
 msgstr "속도"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "COM Port"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "심연: 당신의 피조물이 피하는 것이 좋은 바닥 없는 구덩이입니다."
 
 #: guitext:354
 msgctxt "Menu interface item"

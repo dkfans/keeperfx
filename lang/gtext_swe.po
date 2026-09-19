@@ -2821,10 +2821,8 @@ msgstr ""
 
 #: guitext:328
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr "Vatten: Varelser rör sig långsamt genom vatten [14.1]"
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "Vatten: Varelser rör sig fritt genom vatten. Bygg en bro för att nå avlägsna områden."
 
 #: guitext:329
 msgctxt "Slab description"
@@ -2950,9 +2948,10 @@ msgid "Speed"
 msgstr "Hastighet"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "COM-Port"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "Avgrund: En bottenlös grop som dina varelser gör bäst i att undvika."
 
 #: guitext:354
 msgctxt "Menu interface item"

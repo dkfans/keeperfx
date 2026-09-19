@@ -2803,10 +2803,8 @@ msgstr "Lava: Verbrandt elk wezen dat er op stapt. [14.2]"
 #: guitext:328
 #, fuzzy
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr "Water: Wezens bewegen langzamer door water. [14.1]"
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "Water: Wezens bewegen zich vrij door water. Bouw een brug om afgelegen gebied te verbinden."
 
 #: guitext:329
 #, fuzzy
@@ -2935,9 +2933,10 @@ msgid "Speed"
 msgstr "Versnellen"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "COM poort"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "Afgrond: Een bodemloze put die je wezens maar beter kunnen vermijden."
 
 #: guitext:354
 msgctxt "Menu interface item"

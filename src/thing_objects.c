@@ -279,7 +279,7 @@ TbBool thing_is_object_with_tooltip(const struct Thing* thing, TbBool is_optiona
     if (!thing_is_object(thing))
         return false;
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return ((objst->tooltip_stridx != GUIStr_Empty) && (objst->tooltip_optional == is_optional));
+    return (!string_idx_is_empty(objst->tooltip_stridx) && (objst->tooltip_optional == is_optional));
 }
 TbBool thing_is_object_with_mandatory_tooltip(const struct Thing* thing)
 {

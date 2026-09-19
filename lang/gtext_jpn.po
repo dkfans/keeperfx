@@ -2761,12 +2761,8 @@ msgstr ""
 #: guitext:328
 #, fuzzy
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr ""
-"水: 水の中ではクリーチャーの動きは遅くなる。水上に新しい陸地を作るために橋を"
-"建てる。 [14.1]"
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "水：クリーチャーは水中を自由に移動できる。橋を建てて離れた領地とつなげよう。"
 
 #: guitext:329
 #, fuzzy
@@ -2898,9 +2894,10 @@ msgid "Speed"
 msgstr "速度"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "COMポート"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "深淵: 底なしの穴。手下クリーチャーは避けた方がよい。"
 
 #: guitext:354
 msgctxt "Menu interface item"

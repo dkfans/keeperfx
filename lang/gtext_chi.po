@@ -2605,10 +2605,8 @@ msgstr "岩浆: 灼烧任何触碰到它的生物。施放一个塌方术或者�
 
 #: guitext:328
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr "水: 怪物在水中移动更慢。在水上建造桥梁使其就像新的陆地。"
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "水：怪物可以在水中自由移动。建造桥梁以连接远处的领地。"
 
 #: guitext:329
 msgctxt "Slab description"
@@ -2733,9 +2731,10 @@ msgid "Speed"
 msgstr "速度"
 
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr "COM端口"
+#, fuzzy
+msgctxt "Slab description"
+msgid "Abyss: A bottomless pit your creatures would do well to avoid."
+msgstr "深渊: 无底深坑，你的怪物最好避开。"
 
 #: guitext:354
 msgctxt "Menu interface item"
