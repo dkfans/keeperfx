@@ -186,12 +186,12 @@ namespace
 
     void host_destroy()
     {
+        port_forward_remove_mapping();
         destroy_incoming_queue();
         download_rate_tracker = TransferRateTracker();
         upload_rate_tracker = TransferRateTracker();
         client_peer = nullptr;
-        if (host)
-        {
+        if (host) {
             for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
                 if (peer->state == ENET_PEER_STATE_CONNECTED) {
                     enet_peer_disconnect(peer, 0);
@@ -211,7 +211,6 @@ namespace
 
     void bf_enet_exit()
     {
-        port_forward_remove_mapping();
         host_destroy();
         g_drop_callback = nullptr;
         enet_deinitialize();
@@ -480,6 +479,7 @@ namespace
         LbNetLog("Join: connecting via matchmaking server (UDP hole punching)\n");
         if (create_join_host(ENET_ADDRESS_TYPE_IPV4) != Lb_OK)
             return Lb_FAIL;
+        port_forward_add_mapping(host->address.port);
         uint16_t my_external_ipv4_port = holepunch_stun_query(host, NULL, 0);
         if (my_external_ipv4_port == 0) {
             my_external_ipv4_port = host->address.port;
