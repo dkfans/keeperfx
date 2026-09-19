@@ -62,7 +62,6 @@ ALCcontext_ptr g_openal_context;
 // mixer + per-purpose tracks. Music and speech each get their own track.
 MIX_Mixer* g_mixer = nullptr;
 MIX_Track* g_music_track = nullptr;
-MIX_Audio* g_music_audio = nullptr;
 MIX_Track* g_speech_track = nullptr;
 
 bool g_bb_king_mode = false;
@@ -585,10 +584,6 @@ extern "C" void FreeAudio() {
 	// Free SDL3_mixer resources
 	{
 		std::lock_guard<std::mutex> guard(g_mix_mutex);
-		if (auto music = std::exchange(g_music_audio, (MIX_Audio*)nullptr)) {
-			MIX_DestroyAudio(music);
-			SYNCDBG(8, "Freed SDL_mixer music");
-		}
 		g_current_music_track = 0;
 		g_current_music_fname.clear();
 		if (g_streamed_sample) {
@@ -707,18 +702,13 @@ extern "C" TbBool play_music(const char * fname) {
 	if (!g_mixer || !g_music_track) {
 		return false;
 	}
-	// SDL3_mixer: load into a MIX_Audio and bind it to the persistent music track.
-	MIX_Audio* new_audio = MIX_LoadAudio(g_mixer, game.music_fname, false);
-	if (!new_audio) {
+	KFX_ZONE_COLOR("play_music", KFX_COLOR_AUDIO);
+	// Stream from disk: MIX_LoadAudio would read the whole file on the game thread.
+	// On failure the stream is closed and the current music keeps playing.
+	SDL_IOStream* io = SDL_IOFromFile(game.music_fname, "rb");
+	if (!io || !MIX_SetTrackIOStream(g_music_track, io, true)) {
 		WARNLOG("Cannot load music from %s: %s", game.music_fname, SDL_GetError());
 		return false;
-	}
-	// MIX_SetTrackAudio replaces any currently-bound audio; the old audio is no
-	// longer referenced by the track afterwards, so it is safe to destroy.
-	MIX_SetTrackAudio(g_music_track, new_audio);
-	MIX_Audio* old_audio = std::exchange(g_music_audio, new_audio);
-	if (old_audio) {
-		MIX_DestroyAudio(old_audio);
 	}
 	if (!MIX_PlayTrack(g_music_track, 0)) {
 		WARNLOG("Cannot play music from %s: %s", game.music_fname, SDL_GetError());
@@ -1307,8 +1297,9 @@ extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)
 	if (!g_mixer || !g_speech_track) {
 		return false;
 	}
-	// Predecode speech so short samples start with no I/O latency.
-	MIX_Audio* sample = MIX_LoadAudio(g_mixer, fname, true);
+	KFX_ZONE_COLOR("play_streamed_sample", KFX_COLOR_AUDIO);
+	// No predecode: decoding happens on the mixer thread, only the file read stays here.
+	MIX_Audio* sample = MIX_LoadAudio(g_mixer, fname, false);
 	if (sample == nullptr) {
 		ERRORLOG("Cannot load \"%s\": %s", fname, SDL_GetError());
 		return false;
