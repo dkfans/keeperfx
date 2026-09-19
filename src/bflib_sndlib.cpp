@@ -64,6 +64,9 @@ MIX_Mixer* g_mixer = nullptr;
 MIX_Track* g_music_track = nullptr;
 MIX_Track* g_speech_track = nullptr;
 
+LPALDEFERUPDATESSOFT g_al_defer_updates = nullptr;
+LPALPROCESSUPDATESSOFT g_al_process_updates = nullptr;
+
 bool g_bb_king_mode = false;
 
 enum source_flags {
@@ -627,6 +630,8 @@ extern "C" void FreeAudio() {
 	SYNCDBG(7, "Cleared OpenAL sources and sound banks");
 
 	// Now destroy OpenAL context and device (unique_ptr handles proper cleanup)
+	g_al_defer_updates = nullptr;
+	g_al_process_updates = nullptr;
 	g_openal_context = nullptr;
 	g_openal_device = nullptr;
 	SYNCDBG(6, "Audio cleanup complete");
@@ -1015,6 +1020,10 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 		} else if (!alcMakeContextCurrent(context.get())) {
 			throw openal_error("Cannot make context current");
 		}
+		if (alIsExtensionPresent("AL_SOFT_deferred_updates")) {
+			g_al_defer_updates = reinterpret_cast<LPALDEFERUPDATESSOFT>(alGetProcAddress("alDeferUpdatesSOFT"));
+			g_al_process_updates = reinterpret_cast<LPALPROCESSUPDATESSOFT>(alGetProcAddress("alProcessUpdatesSOFT"));
+		}
 		g_sources.resize(settings->max_number_of_samples);
 		for (size_t i = 0; i < g_sources.size(); ++i) {
 			g_sources[i].mss_id = i + 1;
@@ -1084,6 +1093,18 @@ extern "C" void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id,
 				ERRORLOG("%s", e.what());
 			}
 		}
+	}
+}
+
+extern "C" void begin_sample_updates() {
+	if (g_al_defer_updates && g_al_process_updates && GetSoundInstalled()) {
+		g_al_defer_updates();
+	}
+}
+
+extern "C" void end_sample_updates() {
+	if (g_al_defer_updates && g_al_process_updates && GetSoundInstalled()) {
+		g_al_process_updates();
 	}
 }
 

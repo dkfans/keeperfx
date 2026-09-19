@@ -44,6 +44,9 @@ SoundVolume GetCurrentSoundMasterVolume(void);
 void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume);
 void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan);
 void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch);
+/** Hold sample volume/pan/pitch changes until end_sample_updates(), so they take effect together. */
+void begin_sample_updates(void);
+void end_sample_updates(void);
 void toggle_bbking_mode(void);
 
 /**

@@ -444,9 +444,11 @@ void process_3d_sounds(void)
 {
     SYNCDBG(9,"Starting");
     KFX_C_ZONE_BEGIN_COLOR(ctx_3d_sounds, "process_3d_sounds", KFX_COLOR_AUDIO);
+    begin_sample_updates();
     increment_sample_times();
     process_sound_samples();
     process_sound_emitters();
+    end_sample_updates();
     KFX_C_ZONE_END(ctx_3d_sounds);
 }
 
