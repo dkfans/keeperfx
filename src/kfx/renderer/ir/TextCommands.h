@@ -2,12 +2,9 @@
 #define RENDERER_IR_TEXTCOMMANDS_H
 
 #include <cstdint>
-#include <cstring>
 #include <utility>
 #include "kfx/renderer/ir/IRCommandBuffer.h"
 #include "kfx/renderer/SpriteHandle.h"
-
-static constexpr size_t kIRTextMaxLen = 256;
 
 enum class IRTextGlyphKind : uint8_t
 {
@@ -29,12 +26,9 @@ struct IRTextGlyph
     float alpha = 1.0f;
 };
 
-// LbTextDrawResizedImmediate is a full layout pass over lbTextJustifyWindow/
-// lbTextClipWindow/lbFontPtr; this snapshots that ambient state so a deferred
-// replay reproduces the same layout. Replaying from `font` is only safe on
-// the thread that submitted it within the same frame (checked against
-// font_generation); a backend replaying on another thread uses the glyphs
-// laid out at submission instead (glyph_first/glyph_count).
+// Snapshot of the ambient text state (lbTextJustifyWindow/lbTextClipWindow/
+// lbFontPtr) at submission. The string itself isn't kept: the backend lays out
+// glyphs from the caller's text during submission (glyph_first/glyph_count).
 struct IRTextDrawCmd
 {
     int32_t  pos_x        = 0;
@@ -66,18 +60,6 @@ struct IRTextDrawCmd
     // Range in TextCommandBuffers::glyphs, for backends that lay out at submission.
     uint32_t glyph_first = 0;
     uint32_t glyph_count = 0;
-
-    char text[kIRTextMaxLen] = {};
-
-    void SetText(const char* src)
-    {
-        if (src) {
-            std::strncpy(text, src, kIRTextMaxLen - 1);
-            text[kIRTextMaxLen - 1] = '\0';
-        } else {
-            text[0] = '\0';
-        }
-    }
 };
 
 struct TextCommandBuffers
