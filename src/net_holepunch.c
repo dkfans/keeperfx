@@ -146,9 +146,15 @@ uint16_t holepunch_stun_query(ENetHost *host, char *output_ip, size_t output_ip_
         }
         if (!external_port)
             continue;
-        if (fallback_socket != ENET_SOCKET_NULL)
+        ENetAddress local_address = {0};
+        if (enet_socket_get_address(send_socket, &local_address) < 0)
+            local_address.port = 0;
+        if (fallback_socket != ENET_SOCKET_NULL) {
+            LbNetLog("STUN: fallback local port %u -> external %s:%u; advertising host port %u\n", (unsigned)local_address.port, mapped_ip, (unsigned)external_port, (unsigned)host->address.port);
             external_port = host->address.port;
-        LbNetLog("STUN: external address %s:%u\n", mapped_ip, (unsigned)external_port);
+        } else {
+            LbNetLog("STUN: local port %u -> external %s:%u\n", (unsigned)local_address.port, mapped_ip, (unsigned)external_port);
+        }
         if (output_ip && output_ip_buffer_size > 0)
             snprintf(output_ip, output_ip_buffer_size, "%s", mapped_ip);
         external_port_result = external_port;
@@ -170,38 +176,45 @@ static int send_and_burst(ENetSocket socket_handle, const ENetAddress *address, 
     return 1;
 }
 
-int holepunch_receive(ENetHost *host, ENetAddress *expected, size_t expected_count)
+static int address_family_is_ipv4(const ENetAddress *address)
+{
+    if (address->type == ENET_ADDRESS_TYPE_IPV4)
+        return 1;
+    if (address->type != ENET_ADDRESS_TYPE_IPV6)
+        return 0;
+    for (int i = 0; i < 5; i++) {
+        if (address->host.v6[i] != 0)
+            return 0;
+    }
+    return address->host.v6[5] == 0xFFFF;
+}
+
+int holepunch_handle_packet(ENetHost *host, ENetAddress *expected, size_t expected_count, int *received_mask)
 {
     static const uint8_t punch_payload[HOLE_PUNCH_PAYLOAD_SIZE] = {0};
-    uint8_t payload[HOLE_PUNCH_PAYLOAD_SIZE + 1];
-    int found = 0;
-    for (size_t packet = 0; packet < expected_count * HOLE_PUNCH_COUNT; packet++) {
-        int peeked = recv(host->socket, (char *)payload, sizeof(payload), MSG_PEEK);
-        if (peeked != HOLE_PUNCH_PAYLOAD_SIZE || memcmp(payload, punch_payload, HOLE_PUNCH_PAYLOAD_SIZE) != 0)
-            return found;
-        ENetBuffer receive_buffer = {.data = payload, .dataLength = sizeof(payload)};
-        ENetAddress source;
-        int received = enet_socket_receive(host->socket, &source, &receive_buffer, 1);
-        if (received != HOLE_PUNCH_PAYLOAD_SIZE)
-            return found;
-        for (size_t i = 0; i < expected_count; i++) {
-            ENetAddress comparable = expected[i];
-            comparable.port = source.port;
-            if (source.type == ENET_ADDRESS_TYPE_IPV6)
-                enet_address_convert_ipv6(&comparable);
-            if (!expected[i].port || !enet_address_equal_host(&source, &comparable))
-                continue;
-            if (source.port != expected[i].port) {
-                LbNetLog("Holepunch: learned peer port %d (advertised %d)\n", (int)source.port, (int)expected[i].port);
-                found = 2;
-            } else if (!found) {
-                found = 1;
-            }
-            expected[i] = source;
-            break;
+    *received_mask = 0;
+    if (host->receivedDataLength != HOLE_PUNCH_PAYLOAD_SIZE || memcmp(host->receivedData, punch_payload, HOLE_PUNCH_PAYLOAD_SIZE) != 0)
+        return 0;
+    ENetAddress source = host->receivedAddress;
+    for (size_t i = 0; i < expected_count; i++) {
+        if (address_family_is_ipv4(&source) != address_family_is_ipv4(&expected[i]))
+            continue;
+        ENetAddress mapped_source = source;
+        ENetAddress mapped_expected = expected[i];
+        enet_address_convert_ipv6(&mapped_source);
+        enet_address_convert_ipv6(&mapped_expected);
+        if (!enet_address_equal(&mapped_source, &mapped_expected)) {
+            char source_address[64] = {0};
+            char advertised_address[64] = {0};
+            enet_address_get_host_ip(&source, source_address, sizeof(source_address));
+            enet_address_get_host_ip(&expected[i], advertised_address, sizeof(advertised_address));
+            LbNetLog("Holepunch: peer at %s (advertised %s)\n", source_address, advertised_address);
         }
+        expected[i] = source;
+        *received_mask |= 1 << i;
+        break;
     }
-    return found;
+    return 1;
 }
 
 void holepunch_punch_to(ENetHost *host, const ENetAddress *target)
