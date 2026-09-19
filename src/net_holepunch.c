@@ -302,6 +302,11 @@ void holepunch_punch_to(ENetHost *host, const ENetAddress *target)
     Uint32 current_time = (Uint32)SDL_GetTicks();
     if (last_failure_log_time == 0 || (Sint32)((last_failure_log_time + HOLE_PUNCH_LOG_INTERVAL_MS) - current_time) <= 0) {
         last_failure_log_time = current_time;
-        LbNetLog("Holepunch: send failed\n");
+        char address[64] = {0};
+        const char *family = "IPv4";
+        if (target->type == ENET_ADDRESS_TYPE_IPV6)
+            family = "IPv6";
+        enet_address_get_host_ip(target, address, sizeof(address));
+        LbNetLog("Holepunch: send failed to %s:%u (%s)\n", address, (unsigned)target->port, family);
     }
 }

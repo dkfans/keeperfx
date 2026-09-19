@@ -71,6 +71,7 @@ static char finish_message[SEND_BUFFER_SIZE];
 static char create_ipv4_address[MATCHMAKING_IP_MAX];
 static int create_ipv4_port;
 static int create_ipv6_port;
+static int create_direct_ipv4_port;
 static char create_host_name[MATCHMAKING_NAME_MAX];
 static Uint32 heartbeat_time;
 static int heartbeat_attempts;
@@ -389,6 +390,7 @@ static void parse_punch_addresses(const char *json, PunchAddresses *output)
     json_parse_int(json, "peerIpv4Port", &output->ipv4_port);
     output->ipv6_port = output->ipv4_port;
     json_parse_int(json, "peerIpv6Port", &output->ipv6_port);
+    json_parse_int(json, "peerDirectIpv4Port", &output->direct_ipv4_port);
 }
 
 static int punch_addresses_valid(const PunchAddresses *addresses)
@@ -607,8 +609,8 @@ static int matchmaking_create_lobby(const char *name, const char *udp_ipv4, int 
     }
     json_escape(escaped_lobby_name, sizeof(escaped_lobby_name), name);
     snprintf(request_message, sizeof(request_message),
-        "{\"action\":\"create\",\"name\":\"%s\",\"ipv4Port\":%d,\"ipv6Port\":%d,\"version\":\"%s\",\"ipv4\":\"%s\",\"ipv6\":\"%s\",\"resultActions\":true}",
-        escaped_lobby_name, udp_ipv4_port, udp_ipv6_port, MATCHMAKING_VERSION,
+        "{\"action\":\"create\",\"name\":\"%s\",\"ipv4Port\":%d,\"ipv6Port\":%d,\"directIpv4Port\":%d,\"version\":\"%s\",\"ipv4\":\"%s\",\"ipv6\":\"%s\",\"resultActions\":true}",
+        escaped_lobby_name, udp_ipv4_port, udp_ipv6_port, create_direct_ipv4_port, MATCHMAKING_VERSION,
         published_addresses.ipv4, published_addresses.ipv6);
     int bytes_received = websocket_exchange(request_message, response_buffer, sizeof(response_buffer));
     if (bytes_received > 0) {
@@ -631,7 +633,7 @@ static int matchmaking_create_lobby(const char *name, const char *udp_ipv4, int 
     return 0;
 }
 
-int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port)
+int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, int direct_ipv4_port)
 {
     if (!SDL_CompareAndSwapAtomicInt(&create_thread_active, 0, 1)) {
         return -1;
@@ -639,6 +641,7 @@ int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port
     snprintf(create_ipv4_address, sizeof(create_ipv4_address), "%s", udp_ipv4);
     create_ipv4_port = udp_ipv4_port;
     create_ipv6_port = udp_ipv6_port;
+    create_direct_ipv4_port = direct_ipv4_port;
     snprintf(create_host_name, sizeof(create_host_name), "%s", name);
     SDL_Thread *thread = SDL_CreateThread(matchmaking_create_thread, "matchmaking_host", NULL);
     if (thread == NULL) {
