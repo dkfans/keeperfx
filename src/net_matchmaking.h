@@ -60,8 +60,8 @@ int matchmaking_request_list(void);
 void matchmaking_disconnect(void);
 void matchmaking_finish_lobby(enum MatchmakingLobbyResult result, int map_number, const char *map_name);
 void matchmaking_refresh_sessions(void);
-int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port);
-int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output);
+int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port);
+int matchmaking_punch(const char *lobby_id, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output);
 int matchmaking_poll_punch(PunchAddresses *output);
 
 #ifdef __cplusplus

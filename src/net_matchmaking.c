@@ -68,6 +68,7 @@ static int connect_gave_up = 0;
 static char local_ipv4[MATCHMAKING_IP_MAX] = {0};
 static char local_ipv6[MATCHMAKING_IP_MAX] = {0};
 static char finish_message[SEND_BUFFER_SIZE];
+static char create_ipv4_address[MATCHMAKING_IP_MAX];
 static int create_ipv4_port;
 static int create_ipv6_port;
 static char create_host_name[MATCHMAKING_NAME_MAX];
@@ -78,7 +79,7 @@ struct TbNetworkSessionNameEntry matchmaking_sessions[MATCHMAKING_SESSIONS_MAX];
 int matchmaking_session_count = 0;
 
 static void matchmaking_init(void);
-static int matchmaking_create_lobby(const char *name, int udp_ipv4_port, int udp_ipv6_port);
+static int matchmaking_create_lobby(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port);
 
 void matchmaking_set_server(const char* host)
 {
@@ -118,7 +119,7 @@ void matchmaking_set_server(const char* host)
 static int matchmaking_create_thread(void *)
 {
     if (matchmaking_connect() == 0) {
-        matchmaking_create_lobby(create_host_name, create_ipv4_port, create_ipv6_port);
+        matchmaking_create_lobby(create_host_name, create_ipv4_address, create_ipv4_port, create_ipv6_port);
     }
     SDL_SetAtomicInt(&create_thread_active, 0);
     return 0;
@@ -405,11 +406,16 @@ static void matchmaking_init(void)
     curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
-static void load_published_public_ips(int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *published_addresses)
+static void load_published_public_ips(const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *published_addresses)
 {
     *published_addresses = (PunchAddresses){0};
-    if (udp_ipv4_port > 0)
-        copy_public_ip(0, published_addresses->ipv4, sizeof(published_addresses->ipv4));
+    if (udp_ipv4_port > 0) {
+        if (udp_ipv4[0]) {
+            snprintf(published_addresses->ipv4, sizeof(published_addresses->ipv4), "%s", udp_ipv4);
+        } else {
+            copy_public_ip(0, published_addresses->ipv4, sizeof(published_addresses->ipv4));
+        }
+    }
     if (udp_ipv6_port > 0)
         copy_public_ip(1, published_addresses->ipv6, sizeof(published_addresses->ipv6));
 }
@@ -579,7 +585,7 @@ void matchmaking_refresh_sessions(void)
     SDL_UnlockMutex(mutex);
 }
 
-static int matchmaking_create_lobby(const char *name, int udp_ipv4_port, int udp_ipv6_port)
+static int matchmaking_create_lobby(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port)
 {
     if (!matchmaking_enabled) {
         return -1;
@@ -588,7 +594,7 @@ static int matchmaking_create_lobby(const char *name, int udp_ipv4_port, int udp
     char request_message[SEND_BUFFER_SIZE];
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
     PunchAddresses published_addresses;
-    load_published_public_ips(udp_ipv4_port, udp_ipv6_port, &published_addresses);
+    load_published_public_ips(udp_ipv4, udp_ipv4_port, udp_ipv6_port, &published_addresses);
     SDL_LockMutex(mutex);
     if (!curl_handle) {
         LbNetLog("Matchmaking: not connected to server, lobby won't be listed online\n");
@@ -625,11 +631,12 @@ static int matchmaking_create_lobby(const char *name, int udp_ipv4_port, int udp
     return 0;
 }
 
-int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
+int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port)
 {
     if (!SDL_CompareAndSwapAtomicInt(&create_thread_active, 0, 1)) {
         return -1;
     }
+    snprintf(create_ipv4_address, sizeof(create_ipv4_address), "%s", udp_ipv4);
     create_ipv4_port = udp_ipv4_port;
     create_ipv6_port = udp_ipv6_port;
     snprintf(create_host_name, sizeof(create_host_name), "%s", name);
@@ -642,7 +649,7 @@ int matchmaking_create(const char *name, int udp_ipv4_port, int udp_ipv6_port)
     return 0;
 }
 
-int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output)
+int matchmaking_punch(const char *lobby_id, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output)
 {
     if (!matchmaking_enabled) {
         return -1;
@@ -650,7 +657,7 @@ int matchmaking_punch(const char *lobby_id, int udp_ipv4_port, int udp_ipv6_port
     char request_message[SEND_BUFFER_SIZE];
     char response_buffer[WEBSOCKET_BUFFER_SIZE];
     PunchAddresses published_addresses;
-    load_published_public_ips(udp_ipv4_port, udp_ipv6_port, &published_addresses);
+    load_published_public_ips(udp_ipv4, udp_ipv4_port, udp_ipv6_port, &published_addresses);
     SDL_LockMutex(mutex);
     if (!curl_handle) {
         LbNetLog("Matchmaking: not connected to server, UDP hole punching unavailable\n");

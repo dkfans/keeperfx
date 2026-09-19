@@ -42,6 +42,7 @@
 #define INCOMING_QUEUE_WARNING_INTERVAL 100
 
 uint16_t external_ipv4_port = 0;
+char external_ipv4_address[64] = {0};
 uint16_t enet_port = ENET_DEFAULT_PORT;
 int skip_holepunch = 0;
 
@@ -202,6 +203,7 @@ namespace
             host = nullptr;
         }
         external_ipv4_port = 0;
+        external_ipv4_address[0] = '\0';
         host_is_dual_stack = 0;
         reset_punch_addresses();
         host_punch_deadline = 0;
@@ -254,7 +256,7 @@ namespace
         }
         enet_host_compress_with_range_coder(host);
         port_forward_add_mapping(address.port);
-        external_ipv4_port = holepunch_stun_query(host, NULL, 0);
+        external_ipv4_port = holepunch_stun_query(host, external_ipv4_address, sizeof(external_ipv4_address));
         enet_host_set_intercept_callback(host, intercept_punch);
         return Lb_OK;
     }
@@ -480,7 +482,7 @@ namespace
         if (create_join_host(ENET_ADDRESS_TYPE_IPV4) != Lb_OK)
             return Lb_FAIL;
         port_forward_add_mapping(host->address.port);
-        uint16_t my_external_ipv4_port = holepunch_stun_query(host, NULL, 0);
+        uint16_t my_external_ipv4_port = holepunch_stun_query(host, external_ipv4_address, sizeof(external_ipv4_address));
         if (my_external_ipv4_port == 0) {
             my_external_ipv4_port = host->address.port;
             LbNetLog("Join: STUN failed, trying local IPv4 port %u\n", (unsigned)my_external_ipv4_port);
@@ -492,7 +494,7 @@ namespace
             my_ipv6_port = (int)ipv6_host->address.port;
         }
         PunchAddresses punch_addresses;
-        if (matchmaking_punch(join_lobby_id, (int)my_external_ipv4_port, my_ipv6_port, &punch_addresses) != 0) {
+        if (matchmaking_punch(join_lobby_id, external_ipv4_address, (int)my_external_ipv4_port, my_ipv6_port, &punch_addresses) != 0) {
             LbNetLog("Join: matchmaking_punch failed\n");
             cleanup_join_host(ipv6_host, nullptr);
             host_destroy();
@@ -546,6 +548,7 @@ namespace
         TbClockMSec ipv4_delay_end = LbTimerClock() + HAPPY_EYEBALLS_DELAY_MS;
         TbClockMSec next_join_punch_time = connection_start;
         while (LbTimerClock() < connection_deadline) {
+            holepunch_stun_keepalive(host);
             if (ipv4_peer == nullptr && ipv4_address.port && LbTimerClock() >= ipv4_delay_end) {
                 ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
             }
@@ -1052,6 +1055,7 @@ int enet_matchmaking_host_update(void)
     if (!host) {
         return 0;
     }
+    holepunch_stun_keepalive(host);
     PunchAddresses punch_addresses;
     int poll_result = matchmaking_poll_punch(&punch_addresses);
     if (poll_result < 0) {
