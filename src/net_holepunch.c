@@ -48,6 +48,7 @@
 #define HOLE_PUNCH_PAYLOAD_SIZE 8
 #define HOLE_PUNCH_LOG_INTERVAL_MS 1000
 
+static uint8_t identified_punch[14] = {'K', 'F', 'X', 'P', 1, 0, 0, 0};
 static ENetAddress keepalive_address;
 static ENetSocket keepalive_socket = ENET_SOCKET_NULL;
 static Uint32 keepalive_time;
@@ -158,6 +159,8 @@ uint16_t holepunch_stun_query(ENetHost *host, char *output_ip, size_t output_ip_
     uint16_t result = 0;
     char previous_ip[64] = {0};
     keepalive_socket = ENET_SOCKET_NULL;
+    identified_punch[12] = 0;
+    identified_punch[13] = 0;
     if (output_ip && output_ip_buffer_size > 0)
         output_ip[0] = '\0';
     for (size_t i = 0; i < sizeof(servers) / sizeof(servers[0]); i++) {
@@ -173,6 +176,11 @@ uint16_t holepunch_stun_query(ENetHost *host, char *output_ip, size_t output_ip_
             LbNetLog("STUN: %s:%u unavailable, trying another server\n", servers[i], (unsigned)server.port);
             continue;
         }
+        ENetAddress identity;
+        enet_address_set_host_ip(&identity, mapped_ip);
+        memcpy(identified_punch + 8, identity.host.v4, 4);
+        identified_punch[12] = port >> 8;
+        identified_punch[13] = port & 0xFF;
         keepalive_address = server;
         keepalive_socket = host->socket;
         keepalive_time = (Uint32)SDL_GetTicks();
@@ -211,6 +219,11 @@ void holepunch_stun_keepalive(ENetHost *host)
 
 static int send_and_burst(ENetSocket socket_handle, const ENetAddress *address, ENetBuffer *buffer)
 {
+    if (socket_handle == keepalive_socket && (identified_punch[12] || identified_punch[13])) {
+        ENetBuffer identity_buffer = {.data = identified_punch, .dataLength = sizeof(identified_punch)};
+        if (enet_socket_send(socket_handle, address, &identity_buffer, 1) < 0)
+            return 0;
+    }
     if (enet_socket_send(socket_handle, address, buffer, 1) < 0)
         return 0;
     for (int i = 1; i < HOLE_PUNCH_COUNT; i++)
@@ -218,44 +231,58 @@ static int send_and_burst(ENetSocket socket_handle, const ENetAddress *address, 
     return 1;
 }
 
-static int address_family_is_ipv4(const ENetAddress *address)
-{
-    if (address->type == ENET_ADDRESS_TYPE_IPV4)
-        return 1;
-    if (address->type != ENET_ADDRESS_TYPE_IPV6)
-        return 0;
-    for (int i = 0; i < 5; i++) {
-        if (address->host.v6[i] != 0)
-            return 0;
-    }
-    return address->host.v6[5] == 0xFFFF;
-}
-
-int holepunch_handle_packet(ENetHost *host, ENetAddress *expected, size_t expected_count, int *received_mask)
+int holepunch_handle_packet(ENetHost *host, ENetAddress *expected, const ENetAddress *advertised, size_t expected_count, int *received_mask)
 {
     static const uint8_t punch_payload[HOLE_PUNCH_PAYLOAD_SIZE] = {0};
     *received_mask = 0;
-    if (host->receivedDataLength != HOLE_PUNCH_PAYLOAD_SIZE || memcmp(host->receivedData, punch_payload, HOLE_PUNCH_PAYLOAD_SIZE) != 0)
+    ENetAddress identity = {0};
+    int identified = host->receivedDataLength == sizeof(identified_punch) && memcmp(host->receivedData, identified_punch, 8) == 0;
+    if (identified) {
+        identity.type = ENET_ADDRESS_TYPE_IPV4;
+        memcpy(identity.host.v4, host->receivedData + 8, 4);
+        identity.port = ((uint16_t)host->receivedData[12] << 8) | host->receivedData[13];
+        enet_address_convert_ipv6(&identity);
+    } else if (host->receivedDataLength != HOLE_PUNCH_PAYLOAD_SIZE || memcmp(host->receivedData, punch_payload, HOLE_PUNCH_PAYLOAD_SIZE) != 0) {
         return 0;
-    ENetAddress source = host->receivedAddress;
-    for (size_t i = 0; i < expected_count; i++) {
-        if (address_family_is_ipv4(&source) != address_family_is_ipv4(&expected[i]))
-            continue;
-        ENetAddress mapped_source = source;
-        ENetAddress mapped_expected = expected[i];
-        enet_address_convert_ipv6(&mapped_source);
-        enet_address_convert_ipv6(&mapped_expected);
-        if (!enet_address_equal(&mapped_source, &mapped_expected)) {
-            char source_address[64] = {0};
-            char advertised_address[64] = {0};
-            enet_address_get_host_ip(&source, source_address, sizeof(source_address));
-            enet_address_get_host_ip(&expected[i], advertised_address, sizeof(advertised_address));
-            LbNetLog("Holepunch: peer at %s (advertised %s)\n", source_address, advertised_address);
-        }
-        expected[i] = source;
-        *received_mask |= 1 << i;
-        break;
     }
+    ENetAddress source = host->receivedAddress;
+    ENetAddress mapped_source = source;
+    enet_address_convert_ipv6(&mapped_source);
+    size_t match = 0;
+    int matches = 0;
+    for (size_t i = 0; i < expected_count; i++) {
+        if (!expected[i].port)
+            continue;
+        ENetAddress mapped_expected = expected[i];
+        enet_address_convert_ipv6(&mapped_expected);
+        if (!enet_address_equal_host(&mapped_source, &mapped_expected))
+            continue;
+        if (identified) {
+            ENetAddress mapped_advertised = advertised[i];
+            enet_address_convert_ipv6(&mapped_advertised);
+            if (!enet_address_equal(&identity, &mapped_advertised))
+                continue;
+        }
+        match = i;
+        matches++;
+        if (identified || enet_address_equal(&mapped_source, &mapped_expected)) {
+            matches = 1;
+            break;
+        }
+    }
+    if (matches != 1)
+        return 1;
+    ENetAddress mapped_expected = expected[match];
+    enet_address_convert_ipv6(&mapped_expected);
+    if (!enet_address_equal(&mapped_source, &mapped_expected)) {
+        char source_address[64] = {0};
+        char advertised_address[64] = {0};
+        enet_address_get_host_ip(&source, source_address, sizeof(source_address));
+        enet_address_get_host_ip(&expected[match], advertised_address, sizeof(advertised_address));
+        LbNetLog("Holepunch: peer at %s (advertised %s)\n", source_address, advertised_address);
+    }
+    expected[match] = source;
+    *received_mask = 1 << match;
     return 1;
 }
 
