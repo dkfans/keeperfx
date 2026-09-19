@@ -2803,10 +2803,8 @@ msgstr "Lava: Verbrandt elk wezen dat er op stapt. [14.2]"
 #: guitext:328
 #, fuzzy
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr "Water: Wezens bewegen langzamer door water. [14.1]"
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "Water: Wezens bewegen zich vrij door water. Bouw een brug om afgelegen gebied te verbinden."
 
 #: guitext:329
 #, fuzzy

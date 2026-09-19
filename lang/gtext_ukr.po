@@ -2834,12 +2834,8 @@ msgstr ""
 
 #: guitext:328
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr ""
-"Вода: Створіння рухаються повільніше через воду. Побудуйте міст, щоб "
-"створити нову землю на воді."
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "Вода: Створіння вільно пересуваються водою. Побудуйте міст, щоб з'єднати віддалені території."
 
 #: guitext:329
 msgctxt "Slab description"

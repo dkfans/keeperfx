@@ -2471,8 +2471,8 @@ msgstr "Лава: Причиняет ожоги любым ступившим н
 
 #: guitext:328
 msgctxt "Slab description"
-msgid "Water: Creatures move more slowly through water. Build the Bridge to make new land on the water."
-msgstr "Вода: В воде создания двигаются медленнее. Постройте мост, чтобы ходить по воде аки посуху."
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "Вода: Существа свободно передвигаются по воде. Постройте мост, чтобы соединить отдалённые территории."
 
 #: guitext:329
 msgctxt "Slab description"

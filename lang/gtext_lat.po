@@ -2825,12 +2825,8 @@ msgstr ""
 
 #: guitext:328
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr ""
-"Aqua: Creaturae lentius per aquam se movent. Construe pontem ut terram novam "
-"in aqua facias."
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "Aqua: Creaturae libere per aquam se movent. Pontem exstrue ut regiones remotas coniungas."
 
 #: guitext:329
 msgctxt "Slab description"

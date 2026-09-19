@@ -2774,10 +2774,8 @@ msgstr "Lava: Spali vsechna stvoreni, ktera do ni vstoupi. [14.2]"
 #: guitext:328
 #, fuzzy
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
-msgstr "Voda: Voda zpomali pohyb vsech stvoreni. [14.1]"
+msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
+msgstr "Voda: Tvorové se vodou pohybují volně. Postav most, abys propojil vzdálené území."
 
 #: guitext:329
 #, fuzzy
