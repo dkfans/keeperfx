@@ -34,7 +34,7 @@ private:
     TextCommandBuffers* m_layout_out = nullptr;
 
     // Mirrors LbTextDrawResizedImmediate()'s word-wrap loop.
-    void Layout(const IRTextDrawCmd& cmd, const struct TbSpriteSheet* font,
+    void Layout(const IRTextDrawCmd& cmd, const char* text, const struct TbSpriteSheet* font,
                 const struct AsianFont* dbc_font, DrawState& state);
 
     // Mirrors put_down_sprites(): lays out one already-wrapped line segment,

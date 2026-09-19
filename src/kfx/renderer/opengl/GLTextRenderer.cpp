@@ -23,18 +23,18 @@ float LineHeightExplicit(const struct TbSpriteSheet* font, const struct AsianFon
 
 TbBool GLTextRenderer::DrawTextResized(int32_t x, int32_t y, int32_t units_per_px, const char* text)
 {
-    IRTextDrawCmd* cmd = AppendTextCommand(x, y, units_per_px, text);
+    IRTextDrawCmd* cmd = AppendTextCommand(x, y, units_per_px);
     if (cmd == nullptr)
         return LbTextDrawResizedImmediate(x, y, units_per_px, text);
 
     const struct TbSpriteSheet* font = (const struct TbSpriteSheet*)cmd->font;
     const struct AsianFont* dbc_font = cmd->dbc_enabled ? (const struct AsianFont*)cmd->dbc_font : nullptr;
     cmd->glyph_first = (uint32_t)m_text_write_cmds->glyphs.Size();
-    if (m_ui && (font || dbc_font))
+    if (m_ui && text && (font || dbc_font))
     {
         DrawState state{ cmd->draw_colour, cmd->draw_flags };
         m_layout_out = m_text_write_cmds;
-        Layout(*cmd, font, dbc_font, state);
+        Layout(*cmd, text, font, dbc_font, state);
         m_layout_out = nullptr;
     }
     cmd->glyph_count = (uint32_t)m_text_write_cmds->glyphs.Size() - cmd->glyph_first;
@@ -85,7 +85,7 @@ void GLTextRenderer::DrawGlyphs(const IRTextDrawCmd& cmd, const TextCommandBuffe
         glDisable(GL_SCISSOR_TEST);
 }
 
-void GLTextRenderer::Layout(const IRTextDrawCmd& cmd, const struct TbSpriteSheet* font,
+void GLTextRenderer::Layout(const IRTextDrawCmd& cmd, const char* text, const struct TbSpriteSheet* font,
                                    const struct AsianFont* dbc_font, DrawState& state)
 {
     const int ups = cmd.units_per_px;
@@ -130,8 +130,8 @@ void GLTextRenderer::Layout(const IRTextDrawCmd& cmd, const struct TbSpriteSheet
     const float clip_y = (float)cmd.clip_y;
 
     long count = 0;
-    const char* sbuf = cmd.text;
-    const char* ebuf = cmd.text;
+    const char* sbuf = text;
+    const char* ebuf = text;
 
     while (*ebuf != '\0')
     {
