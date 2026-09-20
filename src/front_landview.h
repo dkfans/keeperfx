@@ -122,6 +122,7 @@ void frontnetmap_draw(void);
 TbBool frontnetmap_update(void);
 void frontmap_input(void);
 void frontmap_draw(void);
+void landview_set_text(const char *text);
 TbBool frontmap_load(void);
 void frontmap_unload(void);
 long frontmap_update(void);

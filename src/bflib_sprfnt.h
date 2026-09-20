@@ -102,6 +102,7 @@ unsigned int LbTextGetFontGeneration(void);
  *  field's own comment in bflib_sprfnt.c for what this guards against. */
 void LbTextInvalidateFontGeneration(void);
 TbBool LbTextSetFont(const struct TbSpriteSheet *font);
+void LbTextSetRemap(const unsigned char *cmap);
 unsigned char LbTextGetFontFaceColor(void);
 unsigned char LbTextGetFontBackColor(void);
 int LbTextStringWidth(const char *str);
