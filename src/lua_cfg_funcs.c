@@ -123,6 +123,24 @@ short luafunc_crstate_func(FuncIdx func_idx,struct Thing *thing)
     }
 }
 
+void luafunc_room_capacity_func(FuncIdx func_idx, struct Room *room)
+{
+    const char *func_name = get_function_name(func_idx);
+    if (!func_name) {
+        ERRORLOG("Invalid function index: %d", func_idx);
+        return;
+    }
+
+    lua_getglobal(Lvl_script, func_name);
+    if (lua_isfunction(Lvl_script, -1)) {
+        lua_pushRoom(Lvl_script, room);
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"room_capacity_func");
+    } else {
+        ERRORLOG("Lua function '%s' not found or not a function", func_name);
+        lua_pop(Lvl_script, 1);
+    }
+}
+
 short luafunc_thing_update_func(FuncIdx func_idx,struct Thing *thing)
 {
     const char *func_name = get_function_name(func_idx);
