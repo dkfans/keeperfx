@@ -133,10 +133,17 @@ static int lua_Start_money(lua_State *L)
             gold_val = SENSIBLE_GOLD;
             SCRPTWRNLOG("Gold added to player reduced to %d", SENSIBLE_GOLD);
         }
-        player_add_offmap_gold(i, gold_val);
+        struct Dungeon* dungeon = get_dungeon(i);
+        if (dungeon_invalid(dungeon)) {
+            continue;
+        }
+        gold_val -= dungeon->offmap_money_owned;
+        if (gold_val != 0)
+        {
+            player_add_offmap_gold(i, gold_val);
+        }
     }
     return 0;
-
 }
 
 static int lua_Max_creatures(lua_State *L)
