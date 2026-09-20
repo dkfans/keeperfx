@@ -94,7 +94,7 @@ struct Room {
     unsigned char player_interested[PLAYERS_COUNT];
     /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
-    unsigned short capacity_used_for_storage;
+    uint32_t capacity_used_for_storage;
     ThingIndex cached_nearby_creature_index;
     // Rooms with a global list: Entrances
     RoomIndex prev_of_kind;
