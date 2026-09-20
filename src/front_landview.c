@@ -34,6 +34,8 @@
 #include "bflib_math.h"
 #include "bflib_sndlib.h"
 #include "bflib_sound.h"
+#include "sprites.h"
+#include "gui_draw.h"
 #include "bflib_vidraw.h"
 
 #include "config_strings.h"
@@ -177,17 +179,28 @@ static void landview_update_textbox_text(void)
         return;
     const char* lv_name = (lvinfo->name_stridx > 0) ? get_string(lvinfo->name_stridx) : lvinfo->name;
     set_level_name_text(mouse_over_lvnum, lv_name);
-    landview_set_text(level_name);
+    // landview_set_text(level_name);
+    landview_set_text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque est erat, sodales vel efficitur non, rutrum auctor nisl. Suspendisse ultricies felis vel turpis suscipit dapibus. Proin gravida, orci vulputate tincidunt finibus, nunc dui bibendum elit, tempus sodales urna purus elementum ex. Donec placerat nec libero venenatis interdum. Ut malesuada dolor ut ipsum tincidunt, id mollis augue ultrices. Donec eleifend velit sed finibus efficitur. Nulla pretium eget nisi quis gravida. Sed feugiat pretium tortor. Fusce bibendum volutpat nibh sit amet blandit. Sed ac magna suscipit, malesuada massa eget, aliquam ipsum. Phasellus sodales elit ut nisi vehicula imperdiet. Aenean pretium neque ac felis tincidunt, auctor vulputate massa fringilla. Cras congue elit metus, eu consectetur sem vehicula nec. Sed nec erat quis ex rutrum mattis. In lectus sapien, scelerisque vel nisl malesuada, accumsan ultricies orci. Aenean sit amet fermentum massa.");
 }
 
 static void landview_textbox_geometry(struct ScrollBoxGeom *geo)
 {
     long width = scale_value_landview(LANDVIEW_TEXTBOX_WIDTH);
+    long close_width = scale_value_landview(30);
+    long close_height = scale_value_landview(24);
+
     // First pass gives the sizes, which are needed to align the box on screen
     scroll_box_geometry_at(0, 0, width, LANDVIEW_TEXTBOX_LINES, true, geo);
     long pos_x = (lbDisplay.PhysicalScreenWidth - geo->up_arrow.right) / 2;
     long pos_y = lbDisplay.PhysicalScreenHeight - geo->height - scale_value_landview(LANDVIEW_TEXTBOX_MARGIN);
     scroll_box_geometry_at(pos_x, pos_y, width, LANDVIEW_TEXTBOX_LINES, true, geo);
+
+    // Match the normal close button used by the in-game information window:
+    // 30x24 pixels, positioned in the top-right of the panel.
+    geo->close_button.left = geo->pos_x;
+    geo->close_button.top = geo->pos_y;
+    geo->close_button.right = geo->close_button.left + close_width;
+    geo->close_button.bottom = geo->close_button.top + close_height;
 }
 
 static TbBool landview_point_within(const struct TbRect *rect, long pos_x, long pos_y)
@@ -205,6 +218,14 @@ static void draw_landview_textbox(void)
     RendererSetDrawFlags(0);
     landview_draw_glass_box(&geo.area);
     draw_scroll_box_at(geo.pos_x, geo.pos_y, geo.width, LANDVIEW_TEXTBOX_LINES, true, landview_gui_remap, false);
+
+    struct GuiButton close_button;
+    memset(&close_button, 0, sizeof(close_button));
+    close_button.width = geo.close_button.right - geo.close_button.left;
+    close_button.height = geo.close_button.bottom - geo.close_button.top;
+    const struct TbSprite *close_spr = get_frontend_sprite(GFS_scrollbar_indicator_std);
+    LbSpriteDrawResizedRemap(geo.close_button.left, geo.close_button.top, units_per_pixel_landview, close_spr, landview_gui_remap);
+
     // Front-end fonts are indexed against front.pal, just like the frame sprites, so the
     // glyphs are remapped the same way - which keeps their shading, unlike Lb_TEXT_ONE_COLOR
     LbTextSetFont(frontend_font[1]);
@@ -236,7 +257,8 @@ static TbBool landview_textbox_input(void)
     long mouse_y = GetMouseY();
     TbBool over_up = landview_point_within(&geo.up_arrow, mouse_x, mouse_y);
     TbBool over_down = landview_point_within(&geo.down_arrow, mouse_x, mouse_y);
-    TbBool over_box = landview_point_within(&box, mouse_x, mouse_y) || over_up || over_down;
+    TbBool over_close = landview_point_within(&geo.close_button, mouse_x, mouse_y);
+    TbBool over_box = landview_point_within(&box, mouse_x, mouse_y) || over_up || over_down || over_close;
     if (!over_box)
         return false;
     if (wheel_scrolled_up)
@@ -246,13 +268,19 @@ static TbBool landview_textbox_input(void)
     if (left_button_clicked)
     {
         left_button_clicked = 0;
-        if (over_up)
+        if (over_close)
+        {
+            landview_set_text("");
+            landview_textbox_lvnum = SINGLEPLAYER_NOTSTARTED;
+        }
+        else if (over_up)
             landview_text_scroll.action = 1;
         else if (over_down)
             landview_text_scroll.action = 2;
     }
     return true;
 }
+/******************************************************************************/
 /******************************************************************************/
 void draw_map_screen(void)
 {
@@ -1238,7 +1266,7 @@ TbBool frontmap_load(void)
     landview_build_gui_remap();
     landview_build_glass_map();
     landview_textbox_lvnum = SINGLEPLAYER_NOTSTARTED;
-    landview_set_text(get_string(GUIStr_MnuLevel));
+    // landview_set_text(get_string(GUIStr_MnuLevel));
     SYNCDBG(7,"Finished");
     api_event("CAMPAIGN_LOADED");
     return true;

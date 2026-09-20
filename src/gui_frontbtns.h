@@ -43,6 +43,7 @@ struct ScrollBoxGeom {
     struct TbRect area; /**< Interior area, to be used for the text. */
     struct TbRect up_arrow; /**< Scrollbar arrows; empty rects if drawn without scrollbar. */
     struct TbRect down_arrow;
+    struct TbRect close_button;
 };
 
 /******************************************************************************/
