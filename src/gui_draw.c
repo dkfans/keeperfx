@@ -277,7 +277,15 @@ void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long 
     RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
 }
 
-void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type)
+static void draw_round_slab_sprite(long pos_x, long pos_y, int units_per_px, const struct TbSprite *spr, const unsigned char *cmap)
+{
+    if (cmap != NULL)
+        LbSpriteDrawResizedRemap(pos_x, pos_y, units_per_px, spr, cmap);
+    else
+        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
+}
+
+void draw_round_slab64k_remap(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type, const unsigned char *cmap)
 {
     unsigned short drwflags_mem = RendererGetDrawFlags();
     RendererClearDrawFlags(Lb_SPRITE_OUTLINE);
@@ -300,32 +308,37 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
         x = pos_x + i + scale_ui_value_lofi(34);
         y = pos_y;
         spr = get_panel_sprite(GPS_message_frame_thin_hex_ct);
-        LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
+        draw_round_slab_sprite(x, y, ps_units_per_spr, spr, cmap);
         y += height - scale_ui_value_lofi(4);
         spr = get_panel_sprite(GPS_message_frame_thin_hex_cb);
-        LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
+        draw_round_slab_sprite(x, y, ps_units_per_spr, spr, cmap);
     }
     for (i = 0; i < height - scale_ui_value_lofi(56); i += scale_ui_value_lofi(20))
     {
         x = pos_x;
         y = pos_y + i + scale_ui_value_lofi(28);
         spr = get_panel_sprite(GPS_message_frame_thin_hex_cr);
-        LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
+        draw_round_slab_sprite(x, y, ps_units_per_spr, spr, cmap);
         x += width - scale_ui_value_lofi(4);
         spr = get_panel_sprite(GPS_message_frame_thin_hex_cl);
-        LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
+        draw_round_slab_sprite(x, y, ps_units_per_spr, spr, cmap);
     }
     x = pos_x + width - scale_ui_value_lofi(34);
     y = pos_y + height - scale_ui_value_lofi(28);
     spr = get_panel_sprite(GPS_message_frame_thin_hex_tl);
-    LbSpriteDrawResized(pos_x, pos_y, ps_units_per_spr, spr);
+    draw_round_slab_sprite(pos_x, pos_y, ps_units_per_spr, spr, cmap);
     spr = get_panel_sprite(GPS_message_frame_thin_hex_tr);
-    LbSpriteDrawResized(x,     pos_y, ps_units_per_spr, spr);
+    draw_round_slab_sprite(x, pos_y, ps_units_per_spr, spr, cmap);
     spr = get_panel_sprite(GPS_message_frame_thin_hex_bl);
-    LbSpriteDrawResized(pos_x, y,     ps_units_per_spr, spr);
+    draw_round_slab_sprite(pos_x, y, ps_units_per_spr, spr, cmap);
     spr = get_panel_sprite(GPS_message_frame_thin_hex_br);
-    LbSpriteDrawResized(x,     y,     ps_units_per_spr, spr);
+    draw_round_slab_sprite(x, y, ps_units_per_spr, spr, cmap);
     RendererSetDrawFlags(drwflags_mem);
+}
+
+void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type)
+{
+    draw_round_slab64k_remap(pos_x, pos_y, units_per_px, width, height, style_type, NULL);
 }
 
 /**

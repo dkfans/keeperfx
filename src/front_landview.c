@@ -19,6 +19,7 @@
 #include "pre_inc.h"
 #include "kfx/renderer/RendererManager.h"
 #include "front_landview.h"
+#include "front_landview_textbox.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -93,76 +94,27 @@ unsigned char *map_screen;
 
 static unsigned char netfont_palette_remap[PALETTE_COLORS];
 static unsigned char netfont_source_palette[PALETTE_SIZE];
+static unsigned char landview_gui_remap[PALETTE_COLORS];
+static struct LandViewTextBox landview_textbox;
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
-// Scrolling text box drawn over the land view. It is not a part of any menu, so it owns
-// its scroll state and does its own hit testing; the frame and font come from the
-// front-end sprites, remapped to whatever palette the current land view has loaded.
-#define LANDVIEW_TEXTBOX_LINES 4
-#define LANDVIEW_TEXTBOX_WIDTH 400
-#define LANDVIEW_TEXTBOX_MARGIN 24
-/** Brightness of the map seen through the box background, in 1/256th. */
-#define LANDVIEW_TEXTBOX_SHADE 96
-
-static struct TextScrollWindow landview_text_scroll;
 static LevelNumber landview_textbox_lvnum;
-static unsigned char landview_gui_remap[PALETTE_COLORS];
-static unsigned char landview_glass_map[PALETTE_COLORS];
 
-/**
- * Builds a colour remap table for the front-end sprites (ldata/frontbit), which are
- * indexed against front.pal, to be drawn while a land view palette is active.
- * load_map_and_window() keeps front.pal in frontend_backup_palette, so both palettes
- * are available here.
- */
+void landview_set_text(const char *text)
+{
+    landview_textbox_show(&landview_textbox, text);
+}
+
 static void landview_build_gui_remap(void)
 {
     for (int i = 0; i < PALETTE_COLORS; i++)
     {
-        const unsigned char* col = &frontend_backup_palette[3*i];
-        landview_gui_remap[i] = LbPaletteFindColour(frontend_palette, col[0], col[1], col[2]);
+        const unsigned char *colour = &frontend_backup_palette[3 * i];
+        landview_gui_remap[i] = LbPaletteFindColour(frontend_palette, colour[0], colour[1], colour[2]);
     }
-}
-
-/**
- * Builds a single row of a translucency table for the land view palette; drawing a box of
- * colour 0 through it darkens whatever is below instead of covering it. The tables in
- * pixmap.ghost cannot be used here, as they are computed for the engine palette.
- */
-static void landview_build_glass_map(void)
-{
-    for (int i = 0; i < PALETTE_COLORS; i++)
-    {
-        const unsigned char* col = &frontend_palette[3*i];
-        landview_glass_map[i] = LbPaletteFindColour(frontend_palette,
-            col[0] * LANDVIEW_TEXTBOX_SHADE / 256, col[1] * LANDVIEW_TEXTBOX_SHADE / 256,
-            col[2] * LANDVIEW_TEXTBOX_SHADE / 256);
-    }
-}
-
-/** Darkens the area below the box, so that the map stays visible through it. */
-static void landview_draw_glass_box(const struct TbRect *rect)
-{
-    unsigned char* glass_mem = lbDisplay.GlassMap;
-    unsigned short flg_mem = RendererGetDrawFlags();
-    // With colour 0, the transparency code indexes the table with the screen colour alone
-    lbDisplay.GlassMap = landview_glass_map;
-    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR4);
-    LbDrawBox(rect->left, rect->top, (rect->right - rect->left)+20, (rect->bottom - rect->top)+5, 0);
-    RendererSetDrawFlags(flg_mem);
-    lbDisplay.GlassMap = glass_mem;
-}
-
-void landview_set_text(const char *text)
-{
-    snprintf(landview_text_scroll.text, sizeof(landview_text_scroll.text), "%s", (text != NULL) ? text : "");
-    landview_text_scroll.start_y = 0;
-    landview_text_scroll.action = 0;
-    landview_text_scroll.text_height = 0; // Zero makes the height be recomputed on next draw
-    landview_text_scroll.window_height = 0;
 }
 
 /**
@@ -183,103 +135,6 @@ static void landview_update_textbox_text(void)
     landview_set_text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque est erat, sodales vel efficitur non, rutrum auctor nisl. Suspendisse ultricies felis vel turpis suscipit dapibus. Proin gravida, orci vulputate tincidunt finibus, nunc dui bibendum elit, tempus sodales urna purus elementum ex. Donec placerat nec libero venenatis interdum. Ut malesuada dolor ut ipsum tincidunt, id mollis augue ultrices. Donec eleifend velit sed finibus efficitur. Nulla pretium eget nisi quis gravida. Sed feugiat pretium tortor. Fusce bibendum volutpat nibh sit amet blandit. Sed ac magna suscipit, malesuada massa eget, aliquam ipsum. Phasellus sodales elit ut nisi vehicula imperdiet. Aenean pretium neque ac felis tincidunt, auctor vulputate massa fringilla. Cras congue elit metus, eu consectetur sem vehicula nec. Sed nec erat quis ex rutrum mattis. In lectus sapien, scelerisque vel nisl malesuada, accumsan ultricies orci. Aenean sit amet fermentum massa.");
 }
 
-static void landview_textbox_geometry(struct ScrollBoxGeom *geo)
-{
-    long width = scale_value_landview(LANDVIEW_TEXTBOX_WIDTH);
-    long close_width = scale_value_landview(30);
-    long close_height = scale_value_landview(24);
-
-    // First pass gives the sizes, which are needed to align the box on screen
-    scroll_box_geometry_at(0, 0, width, LANDVIEW_TEXTBOX_LINES, true, geo);
-    long pos_x = (lbDisplay.PhysicalScreenWidth - geo->up_arrow.right) / 2;
-    long pos_y = lbDisplay.PhysicalScreenHeight - geo->height - scale_value_landview(LANDVIEW_TEXTBOX_MARGIN);
-    scroll_box_geometry_at(pos_x, pos_y, width, LANDVIEW_TEXTBOX_LINES, true, geo);
-
-    // Match the normal close button used by the in-game information window:
-    // 30x24 pixels, positioned in the top-right of the panel.
-    geo->close_button.left = geo->pos_x;
-    geo->close_button.top = geo->pos_y;
-    geo->close_button.right = geo->close_button.left + close_width;
-    geo->close_button.bottom = geo->close_button.top + close_height;
-}
-
-static TbBool landview_point_within(const struct TbRect *rect, long pos_x, long pos_y)
-{
-    return (pos_x >= rect->left) && (pos_x < rect->right) && (pos_y >= rect->top) && (pos_y < rect->bottom);
-}
-
-static void draw_landview_textbox(void)
-{
-    if (landview_text_scroll.text[0] == '\0')
-        return;
-    struct ScrollBoxGeom geo;
-    landview_textbox_geometry(&geo);
-    unsigned short flg_mem = RendererGetDrawFlags();
-    RendererSetDrawFlags(0);
-    landview_draw_glass_box(&geo.area);
-    draw_scroll_box_at(geo.pos_x, geo.pos_y, geo.width, LANDVIEW_TEXTBOX_LINES, true, landview_gui_remap, false);
-
-    struct GuiButton close_button;
-    memset(&close_button, 0, sizeof(close_button));
-    close_button.width = geo.close_button.right - geo.close_button.left;
-    close_button.height = geo.close_button.bottom - geo.close_button.top;
-    const struct TbSprite *close_spr = get_frontend_sprite(GFS_scrollbar_indicator_std);
-    LbSpriteDrawResizedRemap(geo.close_button.left, geo.close_button.top, units_per_pixel_landview, close_spr, landview_gui_remap);
-
-    // Front-end fonts are indexed against front.pal, just like the frame sprites, so the
-    // glyphs are remapped the same way - which keeps their shading, unlike Lb_TEXT_ONE_COLOR
-    LbTextSetFont(frontend_font[1]);
-    LbTextSetRemap(landview_gui_remap);
-    draw_scrolling_text_at(geo.area.left, geo.area.top, geo.area.right - geo.area.left,
-        geo.area.bottom - geo.area.top, &landview_text_scroll, landview_text_scroll.text);
-    LbTextSetRemap(NULL);
-    LbTextSetFont(map_font);
-    RendererSetDrawFlags(flg_mem);
-}
-
-/**
- * Handles mouse input of the land view text box.
- * @return Gives true if the input was over the box, so that it isn't also treated
- *     as input for the land view below it.
- */
-static TbBool landview_textbox_input(void)
-{
-    if (landview_text_scroll.text[0] == '\0')
-        return false;
-    struct ScrollBoxGeom geo;
-    landview_textbox_geometry(&geo);
-    struct TbRect box;
-    box.left = geo.pos_x;
-    box.top = geo.pos_y;
-    box.right = geo.pos_x + geo.width;
-    box.bottom = geo.pos_y + geo.height;
-    long mouse_x = GetMouseX();
-    long mouse_y = GetMouseY();
-    TbBool over_up = landview_point_within(&geo.up_arrow, mouse_x, mouse_y);
-    TbBool over_down = landview_point_within(&geo.down_arrow, mouse_x, mouse_y);
-    TbBool over_close = landview_point_within(&geo.close_button, mouse_x, mouse_y);
-    TbBool over_box = landview_point_within(&box, mouse_x, mouse_y) || over_up || over_down || over_close;
-    if (!over_box)
-        return false;
-    if (wheel_scrolled_up)
-        landview_text_scroll.action = 1;
-    else if (wheel_scrolled_down)
-        landview_text_scroll.action = 2;
-    if (left_button_clicked)
-    {
-        left_button_clicked = 0;
-        if (over_close)
-        {
-            landview_set_text("");
-            landview_textbox_lvnum = SINGLEPLAYER_NOTSTARTED;
-        }
-        else if (over_up)
-            landview_text_scroll.action = 1;
-        else if (over_down)
-            landview_text_scroll.action = 2;
-    }
-    return true;
-}
 /******************************************************************************/
 /******************************************************************************/
 void draw_map_screen(void)
@@ -1263,8 +1118,10 @@ TbBool frontmap_load(void)
     frontmap_start_music();
     fe_computer_players = 0;
     update_ensigns_visibility();
+    landview_textbox_init(&landview_textbox);
+    landview_textbox_set_text_rendering(&landview_textbox, map_font, netfont_palette_remap);
     landview_build_gui_remap();
-    landview_build_glass_map();
+    landview_textbox_set_gui_remap(&landview_textbox, landview_gui_remap);
     landview_textbox_lvnum = SINGLEPLAYER_NOTSTARTED;
     // landview_set_text(get_string(GUIStr_MnuLevel));
     SYNCDBG(7,"Finished");
@@ -1288,8 +1145,9 @@ void frontmap_draw(void)
         draw_map_level_descriptions();
         set_pointer_graphic_spland(0);
         compressed_window_draw();
-        draw_landview_textbox();
     }
+    // landview_textbox_set_geometry(&landview_textbox, ((RendererPhysicalWidth()*16/units_per_pixel_landview)-480) / 2, (RendererPhysicalHeight()*16/units_per_pixel_landview) - 86 - 24, 480, 86);
+    landview_textbox_draw(&landview_textbox);
 }
 
 void check_mouse_scroll(void)
@@ -1478,7 +1336,8 @@ void frontmap_input(void)
     }
     if (zoom_done)
     {
-      TbBool over_textbox = landview_textbox_input();
+      if (landview_textbox_input(&landview_textbox))
+        return;
       check_mouse_scroll();
       if (is_game_key_pressed(Gkey_LVShowAllEnsigns, true, false))
       {
@@ -1510,19 +1369,16 @@ void frontmap_input(void)
           return;
         }
       }
-      if (!over_textbox)
+      if (left_button_clicked)
       {
-        if (left_button_clicked)
-        {
-          left_button_clicked = 0;
-          frontmap_input_active_ensign(left_button_clicked_x, left_button_clicked_y);
-          if (clicked_map_level_ensign())
-            return;
-        }
-        long mouse_x = GetMouseX();
-        long mouse_y = GetMouseY();
-        frontmap_input_active_ensign(mouse_x, mouse_y);
+        left_button_clicked = 0;
+        frontmap_input_active_ensign(left_button_clicked_x, left_button_clicked_y);
+        if (clicked_map_level_ensign())
+          return;
       }
+      long mouse_x = GetMouseX();
+      long mouse_y = GetMouseY();
+      frontmap_input_active_ensign(mouse_x, mouse_y);
     }
     update_velocity();
 }
@@ -1531,7 +1387,7 @@ void frontmap_unload(void)
 {
     SYNCDBG(8,"Starting");
     landview_textbox_lvnum = SINGLEPLAYER_NOTSTARTED;
-    landview_set_text("");
+    landview_textbox_hide(&landview_textbox);
     set_pointer_graphic_none();
     unload_map_and_window();
     free_spritesheet(&map_flag);

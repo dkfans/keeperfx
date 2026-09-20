@@ -148,6 +148,9 @@ void FreeVRes256Data(void)
 short LoadVResMinimal(void)
 {
     button_sprites = load_spritesheet("data/gui1-32.dat", "data/gui1-32.tab");
+    // Land View runs with the minimal front-end resource set, but its standalone
+    // information box uses the normal GUI2 panel frame and button sprites.
+    gui_panel_sprites = load_spritesheet("data/gui2-32.dat", "data/gui2-32.tab");
 #ifdef SPRITE_FORMAT_V2
     frontend_font[0] = load_font("ldata/frontft1-64.dat", "ldata/frontft1-64.tab");
     frontend_font[1] = load_font("ldata/frontft2-64.dat", "ldata/frontft2-64.tab");
@@ -159,7 +162,7 @@ short LoadVResMinimal(void)
     frontend_font[2] = load_font("ldata/frontft3.dat", "ldata/frontft3.tab");
     frontend_font[3] = load_font("ldata/frontft4.dat", "ldata/frontft4.tab");
 #endif
-    return button_sprites && frontend_font[0] && frontend_font[1] && frontend_font[2] &&
+    return button_sprites && gui_panel_sprites && frontend_font[0] && frontend_font[1] && frontend_font[2] &&
         frontend_font[3] && LbDataLoadAll(front_load_files_minimal_640) == 0;
 }
 
@@ -169,6 +172,7 @@ void FreeVResMinimal(void)
         free_font(&frontend_font[i]);
     }
     free_spritesheet(&button_sprites);
+    free_spritesheet(&gui_panel_sprites);
     LbDataFreeAll(front_load_files_minimal_640);
     LbTextInvalidateFontGeneration();
 }
