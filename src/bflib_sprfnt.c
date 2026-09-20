@@ -1089,6 +1089,13 @@ void LbTextSetRemap(const unsigned char *cmap)
     lbTextRemap = cmap;
 }
 
+const unsigned char *LbTextGetRemap(void)
+{
+    if ((RendererGetDrawFlags() & Lb_TEXT_REMAP) != 0)
+        return lbSpriteReMapPtr;
+    return lbTextRemap;
+}
+
 static unsigned int lbTextFontGeneration = 0;
 
 void LbTextInvalidateFontGeneration(void)

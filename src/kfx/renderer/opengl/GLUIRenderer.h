@@ -5,6 +5,7 @@
 #include "kfx/renderer/ir/UICommands.h" // IRUILayer
 #include "kfx/renderer/GpuResourceHandle.h"
 #include <atomic>
+#include <array>
 #include <mutex>
 #include <vector>
 #include <unordered_map>
@@ -91,6 +92,8 @@ public:
 
     void DrawGlyphQuad(SpriteHandle glyph, float x, float y, int units_per_px,
                        float r, float g, float b, float a, bool sample_palette = true);
+    void DrawGlyphRemapQuad(SpriteHandle glyph, float x, float y, int units_per_px,
+                            float a, const std::array<unsigned char, 256>& remap);
 
     SpriteHandle ResolveDbcGlyph(const struct AsianFont* font, uint32_t codepoint);
 
@@ -106,6 +109,8 @@ private:
     GLResourceMapper* m_resource_mapper = nullptr;
     GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource;
     GpuResourceHandle m_fade_table_tex_handle = kInvalidGpuResource;
+    GpuResourceHandle m_custom_remap_tex_handle = kInvalidGpuResource;
+    GpuResourceHandle m_text_remap_tex_handle = kInvalidGpuResource;
     const unsigned char* m_frame_palette = nullptr;
     int m_screen_w = 0;
     int m_screen_h = 0;
@@ -124,7 +129,8 @@ private:
     void draw_textured_quad(GpuResourceHandle shader_handle, float x, float y, float w, float h,
                             float u0, float v0, float u1, float v1,
                             float r, float g, float b, float a,
-                            float remap_row = -1.0f);
+                            float remap_row = -1.0f,
+                            GpuResourceHandle remap_tex_handle = kInvalidGpuResource);
     void draw_solid_quad(float x, float y, float w, float h, float r, float g, float b, float a);
 
     static constexpr SpriteHandle kDbcHandleBase = 0x80000000u;
@@ -141,12 +147,19 @@ private:
         uint32_t seq = 0;
     };
 
-    enum PassType { PASS_SPRITE, PASS_SOLID, PASS_SLAB, PASS_COLORED, PASS_REMAP, PASS_MINIMAP };
+    enum PassType { PASS_SPRITE, PASS_SOLID, PASS_SLAB, PASS_COLORED, PASS_REMAP, PASS_CUSTOM_REMAP, PASS_MINIMAP };
     static PassType classify(float mode);
 
     // WorldOverlay=0, WorldOverlayFlat=1, GameUI=2, Overlay=3 (matches IRUILayer).
     static constexpr int kLayerCount = 4;
     std::vector<UIQuad> m_quads[kLayerCount]; // RT: per-frame scratch, built by BuildQuadsFromIR()
+    std::vector<std::array<unsigned char, 256>> m_custom_remaps;
+    bool m_custom_remaps_uploaded = false;
+    std::array<unsigned char, 256> m_text_remap_cache{};
+    bool m_text_remap_cached = false;
+
+    int FindCustomRemap(const std::array<unsigned char, 256>& remap);
+    void UploadCustomRemaps();
 
     // Game viewport rect for this frame, captured by BuildQuadsFromIR().
     int  m_game_vp_x = 0;

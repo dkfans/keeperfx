@@ -11,9 +11,9 @@
 #include "bflib_basics.h"
 #include "bflib_video.h" // Lb_SPRITE_TRANSPAR4/8, Lb_SPRITE_FLIP_HORIZ/VERTIC
 #include "bflib_sprfnt.h" // LbDbcGetGlyphBits
-#include "vidmode.h" // pixmap.fade_tables, for recovering a remap row from its pointer
 #include <vector>
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <unordered_set>
 #include "post_inc.h"
@@ -117,6 +117,22 @@ bool GLUIRenderer::Init()
     if (m_resource_mapper->ResolveGeometryBuffer(m_batch_geom_handle) == nullptr)
         return false;
 
+    GpuTextureDesc remap_tex_desc;
+    remap_tex_desc.width = 256;
+    remap_tex_desc.height = 64;
+    remap_tex_desc.format = GpuTextureFormat::R8;
+    remap_tex_desc.min_filter = GpuTextureFilter::Nearest;
+    remap_tex_desc.mag_filter = GpuTextureFilter::Nearest;
+    remap_tex_desc.wrap = GpuTextureWrap::Clamp;
+    remap_tex_desc.initial_pixels.resize(256 * 64);
+    remap_tex_desc.debug_name = "ui_custom_remap";
+    m_custom_remap_tex_handle = m_resource_mapper->RequestCreateTexture(remap_tex_desc);
+    remap_tex_desc.debug_name = "ui_text_remap";
+    m_text_remap_tex_handle = m_resource_mapper->RequestCreateTexture(remap_tex_desc);
+    if (m_resource_mapper->ResolveTexture(m_custom_remap_tex_handle) == nullptr ||
+        m_resource_mapper->ResolveTexture(m_text_remap_tex_handle) == nullptr)
+        return false;
+
     return true;
 }
 
@@ -133,7 +149,7 @@ SpriteHandle GLUIRenderer::ResolveSprite(const struct TbSprite* spr)
 void GLUIRenderer::draw_textured_quad(GpuResourceHandle shader_handle, float x, float y, float w, float h,
                                       float u0, float v0, float u1, float v1,
                                       float r, float g, float b, float a,
-                                      float remap_row)
+                                      float remap_row, GpuResourceHandle remap_tex_handle)
 {
     if (!m_resource_mapper) return;
     const GLGeometryBuffer* geom = m_resource_mapper->ResolveGeometryBuffer(m_geom_handle);
@@ -167,7 +183,8 @@ void GLUIRenderer::draw_textured_quad(GpuResourceHandle shader_handle, float x, 
         glUniform1i(glGetUniformLocation(shader, "u_palette"), 1);
     }
     if (shader_handle == m_shader_remap_handle) {
-        const GLTexture* fade_tex = m_resource_mapper->ResolveTexture(m_fade_table_tex_handle);
+        const GLTexture* fade_tex = m_resource_mapper->ResolveTexture(
+            remap_tex_handle != kInvalidGpuResource ? remap_tex_handle : m_fade_table_tex_handle);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, fade_tex ? fade_tex->id : 0);
         glUniform1i(glGetUniformLocation(shader, "u_fade_table"), 2);
@@ -221,6 +238,58 @@ void GLUIRenderer::DrawGlyphQuad(SpriteHandle glyph, float x, float y, int units
     float h = uv.pixel_h * units_per_px / 16.0f;
     draw_textured_quad(sample_palette ? m_shader_sprite_handle : m_shader_sprite_colored_handle,
                         x, y, w, h, uv.u0, uv.v0, uv.u1, uv.v1, r, g, b, a);
+}
+
+void GLUIRenderer::DrawGlyphRemapQuad(SpriteHandle glyph, float x, float y, int units_per_px,
+                                      float a, const std::array<unsigned char, 256>& remap)
+{
+    SpriteUV uv;
+    if (!m_atlas || !m_atlas->GetUV(glyph, uv) || !m_resource_mapper)
+        return;
+    const GLTexture* tex = m_resource_mapper->ResolveTexture(m_text_remap_tex_handle);
+    if (!tex)
+        return;
+    if (!m_text_remap_cached || m_text_remap_cache != remap)
+    {
+        glBindTexture(GL_TEXTURE_2D, tex->id);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RED, GL_UNSIGNED_BYTE, remap.data());
+        glBindTexture(GL_TEXTURE_2D, 0);
+        m_text_remap_cache = remap;
+        m_text_remap_cached = true;
+    }
+    const float w = uv.pixel_w * units_per_px / 16.0f;
+    const float h = uv.pixel_h * units_per_px / 16.0f;
+    draw_textured_quad(m_shader_remap_handle, x, y, w, h, uv.u0, uv.v0, uv.u1, uv.v1,
+                       1.0f, 1.0f, 1.0f, a, 0.0f, m_text_remap_tex_handle);
+}
+
+int GLUIRenderer::FindCustomRemap(const std::array<unsigned char, 256>& remap)
+{
+    for (size_t i = 0; i < m_custom_remaps.size(); ++i)
+        if (m_custom_remaps[i] == remap)
+            return (int)i;
+    if (m_custom_remaps.size() >= 64)
+    {
+        WARNLOG("GLUIRenderer: too many distinct UI remap tables in one frame");
+        return 0;
+    }
+    m_custom_remaps.push_back(remap);
+    return (int)m_custom_remaps.size() - 1;
+}
+
+void GLUIRenderer::UploadCustomRemaps()
+{
+    if (m_custom_remaps_uploaded || m_custom_remaps.empty() || !m_resource_mapper)
+        return;
+    const GLTexture* tex = m_resource_mapper->ResolveTexture(m_custom_remap_tex_handle);
+    if (!tex)
+        return;
+    glBindTexture(GL_TEXTURE_2D, tex->id);
+    for (size_t i = 0; i < m_custom_remaps.size(); ++i)
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, (int)i, 256, 1, GL_RED, GL_UNSIGNED_BYTE,
+                        m_custom_remaps[i].data());
+    glBindTexture(GL_TEXTURE_2D, 0);
+    m_custom_remaps_uploaded = true;
 }
 
 SpriteHandle GLUIRenderer::ResolveDbcGlyph(const struct AsianFont* font, uint32_t codepoint)
@@ -277,6 +346,7 @@ GLUIRenderer::PassType GLUIRenderer::classify(float mode)
     case PASS_SLAB:    return PASS_SLAB;
     case PASS_COLORED: return PASS_COLORED;
     case PASS_REMAP:   return PASS_REMAP;
+    case PASS_CUSTOM_REMAP: return PASS_CUSTOM_REMAP;
     case PASS_MINIMAP: return PASS_MINIMAP;
     default:           return PASS_SPRITE;
     }
@@ -533,16 +603,13 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             if (!m_atlas || !m_atlas->GetUV(c.sprite, uv)) break;
             float u0 = uv.u0, v0 = uv.v0, u1 = uv.u1, v1 = uv.v1;
             apply_flip_flags(c.draw_flags, u0, v0, u1, v1);
-            // cmap points into pixmap.fade_tables (64 rows x 256 cols);
-            // recover the row index from the pointer offset.
-            ptrdiff_t offset = c.cmap - pixmap.fade_tables;
             UIQuad q;
             q.x0 = (float)c.x; q.y0 = (float)c.y;
             q.x1 = q.x0 + (float)c.w; q.y1 = q.y0 + (float)c.h;
             q.u0 = u0; q.v0 = v0; q.u1 = u1; q.v1 = v1;
             q.a = draw_flags_source_weight(c.draw_flags);
-            q.ndc_z = c.ndc_z; q.mode = (float)PASS_REMAP;
-            q.remap_row = (offset >= 0) ? (int)(offset / 256) : 0;
+            q.ndc_z = c.ndc_z; q.mode = (float)PASS_CUSTOM_REMAP;
+            q.remap_row = FindCustomRemap(c.cmap);
             q.seq = c.seq;
             push_clipped(c.layer, q, c.clip);
             break;
@@ -650,6 +717,10 @@ void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, i
     case PASS_SOLID:   shader = ResolveShaderId(m_shader_solid_handle);                                                          break;
     case PASS_COLORED: shader = ResolveShaderId(m_shader_sprite_colored_handle); tex0 = resolve_atlas_tex();                     break;
     case PASS_REMAP:   shader = ResolveShaderId(m_shader_remap_handle);          tex0 = resolve_atlas_tex(); bind_palette = true; bind_fade = true; break;
+    case PASS_CUSTOM_REMAP:
+        UploadCustomRemaps();
+        shader = ResolveShaderId(m_shader_remap_handle); tex0 = resolve_atlas_tex(); bind_palette = true; bind_fade = true;
+        break;
     case PASS_SLAB:
     {
         FlushPendingSlabUpload();
@@ -702,7 +773,8 @@ void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, i
     }
     if (bind_fade)
     {
-        const GLTexture* fade_tex = m_resource_mapper ? m_resource_mapper->ResolveTexture(m_fade_table_tex_handle) : nullptr;
+        const GpuResourceHandle remap_tex = (pass == PASS_CUSTOM_REMAP) ? m_custom_remap_tex_handle : m_fade_table_tex_handle;
+        const GLTexture* fade_tex = m_resource_mapper ? m_resource_mapper->ResolveTexture(remap_tex) : nullptr;
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, fade_tex ? fade_tex->id : 0);
         glUniform1i(glGetUniformLocation(shader, "u_fade_table"), 2);
@@ -737,7 +809,7 @@ void GLUIRenderer::FlushQuadLayer(std::vector<UIQuad>& quads, bool depth_test)
     for (const UIQuad& q : quads)
     {
         PassType p = classify(q.mode);
-        bool remap_changed = (p == PASS_REMAP && q.remap_row != run_remap_row);
+        bool remap_changed = ((p == PASS_REMAP || p == PASS_CUSTOM_REMAP) && q.remap_row != run_remap_row);
         if (!run.empty() && (p != run_pass || remap_changed))
         {
             FlushQuadRun(run, run_pass, run_remap_row);
@@ -757,6 +829,8 @@ void GLUIRenderer::FlushQuadLayer(std::vector<UIQuad>& quads, bool depth_test)
 void GLUIRenderer::BuildQuadsFromIR(const UICommandBuffers& ui)
 {
     for (auto& v : m_quads) v.clear();
+    m_custom_remaps.clear();
+    m_custom_remaps_uploaded = false;
     AppendQuadsFromIR(ui, m_quads);
     m_game_vp_x   = ui.game_vp.x;
     m_game_vp_y   = ui.game_vp.y;
@@ -825,7 +899,7 @@ void GLUIRenderer::DrawGameUIQuadsInterleaved(std::vector<UIQuad>& quads,
         {
             const UIQuad& q = quads[qi++];
             PassType p = classify(q.mode);
-            bool remap_changed = (p == PASS_REMAP && q.remap_row != run_remap_row);
+            bool remap_changed = ((p == PASS_REMAP || p == PASS_CUSTOM_REMAP) && q.remap_row != run_remap_row);
             if (!run.empty() && (p != run_pass || remap_changed))
                 flush_run();
             if (run.empty()) { run_pass = p; run_remap_row = q.remap_row; }

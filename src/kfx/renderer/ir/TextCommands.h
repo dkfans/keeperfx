@@ -1,6 +1,7 @@
 #ifndef RENDERER_IR_TEXTCOMMANDS_H
 #define RENDERER_IR_TEXTCOMMANDS_H
 
+#include <array>
 #include <cstdint>
 #include <utility>
 #include "kfx/renderer/ir/IRCommandBuffer.h"
@@ -53,6 +54,12 @@ struct IRTextDrawCmd
     uint8_t     dbc_enabled = 0;
     long        dbc_colour0 = 0; // DBC face colour (palette index)
     long        dbc_colour1 = 0; // DBC shadow colour (palette index)
+
+    // Western sprite fonts can use an arbitrary index remap. Snapshot it
+    // alongside the rest of the text state so deferred renderers match the
+    // software rasteriser.
+    bool has_remap = false;
+    std::array<unsigned char, 256> remap{};
 
     uint32_t seq = 0; // shared with UICommandBuffers so a merged replay
                        // recovers true UI+text submission order

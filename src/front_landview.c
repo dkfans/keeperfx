@@ -149,7 +149,7 @@ static void landview_draw_glass_box(const struct TbRect *rect)
     // With colour 0, the transparency code indexes the table with the screen colour alone
     lbDisplay.GlassMap = landview_glass_map;
     RendererSetDrawFlags(Lb_SPRITE_TRANSPAR4);
-    LbDrawBox(rect->left, rect->top, rect->right - rect->left, rect->bottom - rect->top, 0);
+    LbDrawBox(rect->left, rect->top, (rect->right - rect->left)+20, (rect->bottom - rect->top)+5, 0);
     RendererSetDrawFlags(flg_mem);
     lbDisplay.GlassMap = glass_mem;
 }

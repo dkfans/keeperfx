@@ -103,6 +103,8 @@ unsigned int LbTextGetFontGeneration(void);
 void LbTextInvalidateFontGeneration(void);
 TbBool LbTextSetFont(const struct TbSpriteSheet *font);
 void LbTextSetRemap(const unsigned char *cmap);
+/** The effective index remap for the next text draw, or NULL when none is active. */
+const unsigned char *LbTextGetRemap(void);
 unsigned char LbTextGetFontFaceColor(void);
 unsigned char LbTextGetFontBackColor(void);
 int LbTextStringWidth(const char *str);
