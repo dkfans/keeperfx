@@ -15,6 +15,21 @@ FuncIdx get_function_idx(const char *func_name, const struct NamedCommand *Cfunc
         return 0;
     }
 
+    // Numeric values are accepted as direct indexes into the C function table,
+    // but only if a name in that table actually maps to them.
+    if (parameter_is_number(func_name))
+    {
+        long id = atol(func_name);
+        for (int i = 0; (Cfuncs != NULL) && (Cfuncs[i].name != NULL); i++)
+        {
+            if (Cfuncs[i].num == id) {
+                return id;
+            }
+        }
+        ERRORLOG("Invalid function index '%s'", func_name);
+        return 0;
+    }
+    
     // If it's a C function, return positive index
     FuncIdx id = get_id(Cfuncs, func_name);
     if (id >= 0) {
