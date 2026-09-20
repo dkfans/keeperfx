@@ -88,32 +88,21 @@ struct Room {
     HitPoints health;
     unsigned short total_capacity;
     unsigned short used_capacity;
+    
     /* Informs whether players are interested in that room.
      * Usually used for neutral rooms, set if a player is starting to dig to that room. */
     unsigned char player_interested[PLAYERS_COUNT];
-    union {
     /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
-    struct {
-      unsigned long capacity_used_for_storage;
-      ThingIndex cached_nearby_creature_index;
-    };
-    /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
-     *  Rooms which have such list are entrances (only?). */
-    struct {
-      RoomIndex prev_of_kind;
-      RoomIndex next_of_kind;
-    };
-    struct {
-      /** For rooms which store creatures, amount of each model.
-       * Rooms which have such lists are lairs. */
-      unsigned char content_per_model[CREATURE_TYPES_MAX];
-    };
-    /* For hatchery; integrate with something else, if possible */
-    struct {
-      long hatch_gameturn;
-    };
-    };
+    unsigned short capacity_used_for_storage;
+    ThingIndex cached_nearby_creature_index;
+    // Rooms with a global list: Entrances
+    RoomIndex prev_of_kind;
+    RoomIndex next_of_kind;
+    // For rooms which store creatures, amount of each model: Lairs
+    unsigned char content_per_model[CREATURE_TYPES_MAX];
+    GameTurn hatch_gameturn;
+
     SlabCodedCoords slabs_list;
     SlabCodedCoords slabs_list_tail;
     unsigned short slabs_count;
