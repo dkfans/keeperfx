@@ -2701,6 +2701,19 @@ void update_room_tab_to_config(void)
         ibtn->ptover_event = NULL;
         ibtn->draw_call = gui_area_new_null_button;
     }
+    // Restore the "sell" button
+    struct GuiButtonInit* sell_btns[] = { &room_menu.buttons[15], &room_menu2.buttons[15] };
+    for (i=0; i < 2; i++)
+    {
+        ibtn = sell_btns[i];
+        ibtn->sprite_idx = GPS_rpanel_frame_portrt_sell;
+        ibtn->tooltip_stridx = GUIStr_SellRoomDesc;
+        ibtn->content.lval = RoK_NONE;
+        ibtn->click_event = gui_remove_area_for_rooms;
+        ibtn->rclick_event = NULL;
+        ibtn->ptover_event = NULL;
+        ibtn->draw_call = gui_area_new_no_anim_button;
+    }
     for (i=0; i < game.conf.slab_conf.room_types_count; i++)
     {
         struct RoomConfigStats* roomst = get_room_kind_stats(i);
@@ -2769,6 +2782,20 @@ void update_trap_tab_to_config(void)
         ibtn->rclick_event = NULL;
         ibtn->ptover_event = NULL;
         ibtn->draw_call = gui_area_new_null_button;
+        ibtn->maintain_call = NULL;
+    }
+    // Restore the "sell" button at the end
+    struct GuiButtonInit* sell_btns[] = { &trap_menu.buttons[15], &trap_menu2.buttons[15] };
+    for (i=0; i < 2; i++)
+    {
+        ibtn = sell_btns[i];
+        ibtn->sprite_idx = GPS_rpanel_frame_portrt_sell;
+        ibtn->tooltip_stridx = GUIStr_SellItemDesc;
+        ibtn->content.lval = 0;
+        ibtn->click_event = gui_remove_area_for_traps;
+        ibtn->rclick_event = NULL;
+        ibtn->ptover_event = NULL;
+        ibtn->draw_call = gui_area_new_no_anim_button;
         ibtn->maintain_call = NULL;
     }
     for (i=0; i < game.conf.trapdoor_conf.manufacture_types_count; i++)
