@@ -11,7 +11,7 @@
 ---@field max_health integer maximum health of the room
 ---@field used_capacity integer how much of the room's capacity is used
 ---@field max_capacity integer maximum capacity of the room
----@field capacity_used_for_storage integer storage in use without workers, in gold rooms the gold amount. Don't set on entrance, lair or hatchery since they reuse the same memory slot for other room data
+---@field capacity_used_for_storage integer storage in use without workers, in gold rooms the gold amount
 ---@field efficiency integer efficiency of the room, 0-255
 ---@field centerpos Pos3d center of the room, z will be floor height, for oddly shaped rooms, it'll be the closest point to center within the room
 if not Room then Room = {} end
