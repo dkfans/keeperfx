@@ -104,6 +104,7 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"DATE",               12},
   {"MAPSIZE",            13},
   {"MAP_FORMAT_VERSION", 14},
+  {"DESCRIPTION_KEY",    15},
   {NULL,                  0},
   };
 
@@ -1040,6 +1041,14 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;       
+            
+        case 15: // DESCRIPTION_KEY
+            if (get_conf_parameter_whole(buf,&pos,len,lvinfo->description_key,LINEMSG_SIZE) <= 0)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of '%s' file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
         case ccr_comment:
             break;
         case ccr_endOfFile:
@@ -1135,6 +1144,8 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
         // Loading campaign sprites, we know config location after parse_campaign_common_blocks, need to be loaded before parse_campaign_map_blocks
         char *dname = prepare_file_path(FGrp_CmpgConfig, NULL);
         init_custom_campaign_sprites(dname, "Main CmpgConfig dir");  
+        // make sure that translation.toml is loaded
+        load_config(&keeper_translation_file_data, CnfLd_Standard);
         result = parse_campaign_strings_blocks(campgn, buf, len, fname);
         if (!result)
           WARNMSG("Parsing campaign file \"%s\" strings block failed.",cmpgn_fname);

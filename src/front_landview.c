@@ -62,6 +62,7 @@
 #include "net_game.h"
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
+#include "config_translation.h"
 #include "api.h"
 #include "post_inc.h"
 
@@ -147,10 +148,17 @@ static void landview_update_textbox_text(void)
     struct LevelInformation* lvinfo = get_level_info(mouse_over_lvnum);
     if (lvinfo == NULL)
         return;
+
+    const TextStringId lv_description_key = get_string_id_by_alias(lvinfo->description_key);    
     const char* lv_name = (lvinfo->name_stridx > 0) ? get_string(lvinfo->name_stridx) : lvinfo->name;
+    const char* lv_description;
+    if(lv_description_key >= 0)
+        lv_description = get_string(lv_description_key);
+    else 
+        lv_description = lv_name;
+    landview_set_text(lv_description);
+    
     set_level_name_text(mouse_over_lvnum, lv_name);
-    // landview_set_text(level_name);
-    landview_set_text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque est erat, sodales vel efficitur non, rutrum auctor nisl. Suspendisse ultricies felis vel turpis suscipit dapibus. Proin gravida, orci vulputate tincidunt finibus, nunc dui bibendum elit, tempus sodales urna purus elementum ex. Donec placerat nec libero venenatis interdum. Ut malesuada dolor ut ipsum tincidunt, id mollis augue ultrices. Donec eleifend velit sed finibus efficitur. Nulla pretium eget nisi quis gravida. Sed feugiat pretium tortor. Fusce bibendum volutpat nibh sit amet blandit. Sed ac magna suscipit, malesuada massa eget, aliquam ipsum. Phasellus sodales elit ut nisi vehicula imperdiet. Aenean pretium neque ac felis tincidunt, auctor vulputate massa fringilla. Cras congue elit metus, eu consectetur sem vehicula nec. Sed nec erat quis ex rutrum mattis. In lectus sapien, scelerisque vel nisl malesuada, accumsan ultricies orci. Aenean sit amet fermentum massa.");
 }
 
 /******************************************************************************/
