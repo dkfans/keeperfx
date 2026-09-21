@@ -104,7 +104,8 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"DATE",               12},
   {"MAPSIZE",            13},
   {"MAP_FORMAT_VERSION", 14},
-  {"DESCRIPTION_KEY",    15},
+  {"INTRO_DESC_KEY",     15},
+  {"SUMMARY_DESC_KEY",   16},
   {NULL,                  0},
   };
 
@@ -1040,10 +1041,16 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
               CONFWRNLOG("Couldn't recognize \"%s\" mapsize in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
-            break;       
-            
-        case 15: // DESCRIPTION_KEY
-            if (get_conf_parameter_whole(buf,&pos,len,lvinfo->description_key,LINEMSG_SIZE) <= 0)
+            break;            
+        case 15: // INTRO_DESC_KEY
+            if (get_conf_parameter_whole(buf,&pos,len,lvinfo->intro_desc_key,LINEMSG_SIZE) <= 0)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of '%s' file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;            
+        case 16: // SUMMARY_DESC_KEY
+            if (get_conf_parameter_whole(buf,&pos,len,lvinfo->summary_desc_key,LINEMSG_SIZE) <= 0)
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);

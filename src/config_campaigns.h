@@ -159,7 +159,8 @@ struct LevelInformation {
   unsigned short location;
   int mapsize_x;
   int mapsize_y;  
-  char description_key[LINEMSG_SIZE];
+  char intro_desc_key[LINEMSG_SIZE];
+  char summary_desc_key[LINEMSG_SIZE];
 };
 
 struct CampaignsList {
