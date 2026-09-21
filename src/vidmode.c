@@ -149,8 +149,9 @@ short LoadVResMinimal(void)
 {
     button_sprites = load_spritesheet("data/gui1-32.dat", "data/gui1-32.tab");
     // Land View runs with the minimal front-end resource set, but its standalone
-    // information box uses the normal GUI2 panel frame and button sprites.
-    gui_panel_sprites = load_spritesheet("data/gui2-32.dat", "data/gui2-32.tab");
+    // information box recreates the normal in-game panel and therefore needs the
+    // high-resolution GUI2 art instead of the reduced gui2-32 sheet.
+    gui_panel_sprites = load_spritesheet("data/gui2-64.dat", "data/gui2-64.tab");
 #ifdef SPRITE_FORMAT_V2
     frontend_font[0] = load_font("ldata/frontft1-64.dat", "ldata/frontft1-64.tab");
     frontend_font[1] = load_font("ldata/frontft2-64.dat", "ldata/frontft2-64.tab");

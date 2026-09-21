@@ -95,6 +95,8 @@ unsigned char *map_screen;
 static unsigned char netfont_palette_remap[PALETTE_COLORS];
 static unsigned char netfont_source_palette[PALETTE_SIZE];
 static unsigned char landview_gui_remap[PALETTE_COLORS];
+/* The land view has its own palette, so it cannot use pixmap.ghost. */
+static unsigned char landview_glass_map[PALETTE_COLORS * PALETTE_COLORS];
 static struct LandViewTextBox landview_textbox;
 /******************************************************************************/
 #ifdef __cplusplus
@@ -114,6 +116,20 @@ static void landview_build_gui_remap(void)
     {
         const unsigned char *colour = &frontend_backup_palette[3 * i];
         landview_gui_remap[i] = LbPaletteFindColour(frontend_palette, colour[0], colour[1], colour[2]);
+    }
+}
+
+static void landview_build_glass_map(void)
+{
+    for (int screen_colour = 0; screen_colour < PALETTE_COLORS; screen_colour++)
+    {
+        const unsigned char *colour = &frontend_palette[3 * screen_colour];
+        unsigned char darkened = LbPaletteFindColour(frontend_palette,
+            colour[0] * 96 / 256, colour[1] * 96 / 256, colour[2] * 96 / 256);
+
+        /* TRANSPAR4 indexes the table as [drawn colour][screen colour]. */
+        for (int drawn_colour = 0; drawn_colour < PALETTE_COLORS; drawn_colour++)
+            landview_glass_map[drawn_colour * PALETTE_COLORS + screen_colour] = darkened;
     }
 }
 
@@ -1119,9 +1135,12 @@ TbBool frontmap_load(void)
     fe_computer_players = 0;
     update_ensigns_visibility();
     landview_textbox_init(&landview_textbox);
-    landview_textbox_set_text_rendering(&landview_textbox, map_font, netfont_palette_remap);
     landview_build_gui_remap();
+    landview_build_glass_map();
+    /* Match the objective panel's front-end glyphs and palette remap. */
+    landview_textbox_set_text_rendering(&landview_textbox, frontend_font[1], landview_gui_remap);
     landview_textbox_set_gui_remap(&landview_textbox, landview_gui_remap);
+    landview_textbox_set_glass_map(&landview_textbox, landview_glass_map);
     landview_textbox_lvnum = SINGLEPLAYER_NOTSTARTED;
     // landview_set_text(get_string(GUIStr_MnuLevel));
     SYNCDBG(7,"Finished");
@@ -1146,7 +1165,7 @@ void frontmap_draw(void)
         set_pointer_graphic_spland(0);
         compressed_window_draw();
     }
-    // landview_textbox_set_geometry(&landview_textbox, ((RendererPhysicalWidth()*16/units_per_pixel_landview)-480) / 2, (RendererPhysicalHeight()*16/units_per_pixel_landview) - 86 - 24, 480, 86);
+    landview_textbox_set_geometry(&landview_textbox, ((RendererPhysicalWidth()*16/units_per_pixel_landview)-480) / 2, (RendererPhysicalHeight()*16/units_per_pixel_landview) - 86 - 24, 480, 86);
     landview_textbox_draw(&landview_textbox);
 }
 

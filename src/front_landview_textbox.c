@@ -36,7 +36,6 @@ struct LandViewTextBoxGeometry {
     long width;
     long height;
     struct TbRect text;
-    struct TbRect zoom;
     struct TbRect close;
     struct TbRect up;
     struct TbRect down;
@@ -64,11 +63,9 @@ static void landview_textbox_geometry(const struct LandViewTextBox *box, struct 
         lbDisplay.PhysicalScreenHeight - geo->height : textbox_scale(box->pos_y);
 
     /* These values are the text_info_buttons offsets and dimensions. */
-    textbox_set_rect(&geo->text, geo->pos_x + textbox_scale((box->width - 400) / 2), geo->pos_y + textbox_scale(4),
-        textbox_scale(box->width - 80), textbox_scale(box->height - 8));
-    textbox_set_rect(&geo->zoom, geo->pos_x + textbox_scale(4), geo->pos_y + textbox_scale(4),
-        textbox_scale(30), textbox_scale(24));
-    textbox_set_rect(&geo->close, geo->pos_x + textbox_scale(4), geo->pos_y + textbox_scale(56),
+    textbox_set_rect(&geo->text, geo->pos_x + textbox_scale(40), geo->pos_y + textbox_scale(4),
+        geo->width - textbox_scale(80), geo->height - textbox_scale(8));
+    textbox_set_rect(&geo->close, geo->pos_x + textbox_scale(4), geo->pos_y + geo->height - textbox_scale(30),
         textbox_scale(30), textbox_scale(24));
     textbox_set_rect(&geo->up, geo->pos_x + textbox_scale(box->width - 34), geo->pos_y + textbox_scale(4),
         textbox_scale(30), textbox_scale(24));
@@ -94,10 +91,12 @@ static TbBool textbox_can_scroll_down(const struct LandViewTextBox *box)
 
 static void textbox_draw_button(const struct LandViewTextBox *box, const struct TbRect *rect, long sprite_idx, TbBool enabled)
 {
-    int units_per_px = textbox_scale(16);
-    const struct TbSprite *sprite = get_panel_sprite(sprite_idx + 1);
-    /* The Land View palette needs its own remap even for a disabled button. */
-    (void)enabled;
+    const struct TbSprite *standard_sprite = get_panel_sprite(sprite_idx + 1);
+    TbBool pressed = enabled && left_button_held && textbox_point_in_rect(rect, GetMouseX(), GetMouseY());
+    const struct TbSprite *sprite = get_panel_sprite(sprite_idx + (pressed ? 0 : 1));
+    /* Match gui_area_new_normal_button(): fit the standard sprite by width and
+       retain its native aspect ratio instead of stretching it to the hit box. */
+    int units_per_px = ((rect->right - rect->left) * 16 + standard_sprite->SWidth / 2) / standard_sprite->SWidth;
     if (box->gui_remap != NULL)
         LbSpriteDrawResizedRemap(rect->left, rect->top, units_per_px, sprite, box->gui_remap);
     else
@@ -115,14 +114,14 @@ void landview_textbox_init(struct LandViewTextBox *box)
 
 void landview_textbox_set_geometry(struct LandViewTextBox *box, long pos_x, long pos_y, long width, long height)
 {
+    TbBool size_changed = (box->width != width) || (box->height != height);
     box->pos_x = pos_x;
     box->pos_y = pos_y;
     box->width = width;
     box->height = height;
-    box->scroll_window.start_y = 0;
-    box->scroll_window.action = 0;
-    box->scroll_window.text_height = 0;
-    box->scroll_window.window_height = 0;
+    /* Geometry may be supplied every frame. Do not discard a pending scroll action. */
+    if (size_changed)
+        box->scroll_window.text_height = 0;
 }
 
 void landview_textbox_set_text_rendering(struct LandViewTextBox *box, const struct TbSpriteSheet *font, const unsigned char *text_remap)
@@ -134,6 +133,11 @@ void landview_textbox_set_text_rendering(struct LandViewTextBox *box, const stru
 void landview_textbox_set_gui_remap(struct LandViewTextBox *box, const unsigned char *gui_remap)
 {
     box->gui_remap = gui_remap;
+}
+
+void landview_textbox_set_glass_map(struct LandViewTextBox *box, const unsigned char *glass_map)
+{
+    box->glass_map = glass_map;
 }
 
 void landview_textbox_show(struct LandViewTextBox *box, const char *text)
@@ -159,8 +163,11 @@ void landview_textbox_draw(struct LandViewTextBox *box)
     struct LandViewTextBoxGeometry geo;
     landview_textbox_geometry(box, &geo);
     unsigned short flags = RendererGetDrawFlags();
+    unsigned char *glass_map = lbDisplay.GlassMap;
+    if (box->glass_map != NULL)
+        lbDisplay.GlassMap = (unsigned char *)box->glass_map;
     draw_round_slab64k_remap(geo.pos_x, geo.pos_y, units_per_pixel_landview, geo.width, geo.height, ROUNDSLAB64K_LIGHT, box->gui_remap);
-    textbox_draw_button(box, &geo.zoom, GPS_message_message_btn_show_act, true);
+    lbDisplay.GlassMap = glass_map;
     textbox_draw_button(box, &geo.close, GPS_message_message_btn_accept_act, true);
     textbox_draw_button(box, &geo.up, GPS_message_message_btn_up_act, textbox_can_scroll_up(box));
     textbox_draw_button(box, &geo.down, GPS_message_message_btn_down_act, textbox_can_scroll_down(box));
