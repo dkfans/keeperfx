@@ -139,6 +139,8 @@ static void landview_build_glass_map(void)
  */
 static void landview_update_textbox_text(void)
 {
+    if(!campaign.show_level_description)
+        return;
     if ((mouse_over_lvnum <= 0) || (mouse_over_lvnum == landview_textbox_lvnum))
         return;
     landview_textbox_lvnum = mouse_over_lvnum;

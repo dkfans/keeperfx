@@ -131,6 +131,7 @@ struct GameCampaign {
   TbBool assignCpuKeepers;
   unsigned char default_language;
   char soundtrack_fname[DISKPATH_SIZE];
+  TbBool show_level_description;
 };
 
 struct HighScore {
