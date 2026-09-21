@@ -108,7 +108,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         if ((mapblk->flags & SlbAtFlg_Blocking) == 0 && thing_can_traverse_abyss_at(thing, stl_x, stl_y)) {
             spiral_pos.x.val = (stl_x << 8) + 128;
             spiral_pos.y.val = (stl_y << 8) + 128;
-            spiral_pos.z.val = get_thing_height_at(thing, &spiral_pos);
+            spiral_pos.z.val = get_floor_height_at(&spiral_pos);
             if ( !thing_in_wall_at(thing, &spiral_pos) )
             {
                 pos->x.val = spiral_pos.x.val;
