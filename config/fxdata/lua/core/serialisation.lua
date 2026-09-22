@@ -4,55 +4,78 @@
 
 local binser = require 'external.binser'
 local base64 = require 'external.base64'
+require 'classes.Pos3d'
+local serialization_version = 2
 
--- Get C metatables
-local PlayerMeta = debug.getregistry()["Player"]
-local ThingMeta = debug.getregistry()["Thing"]
-local SlabMeta = debug.getregistry()["Slab"]
-
--- Recursively walk table and patch functions + metaclass types
-local function preprocess(value)
-    if type(value) == "function" then
-        return { __serialized_function = base64.encode(string.dump(value)) }
-    elseif type(value) == "table" then
-        local out = {}
-        for k, v in pairs(value) do
-            out[k] = preprocess(v)
-        end
-        return out
-    else
-        return value
-    end
+local registry = debug.getregistry()
+for _, name in ipairs({ "Player", "Thing", "Slab", "Camera", "Room", "Map", "Pos3d" }) do
+    binser.registerResource(registry[name], "metatable:" .. name)
 end
 
-local function postprocess(value)
+local registered_cfunctions = {}
+local scanned_tables = {}
+local function register_cfunctions(source, prefix)
+    if scanned_tables[source] then
+        return
+    end
+    scanned_tables[source] = true
+    local names = {}
+    for name in pairs(source) do
+        if type(name) == "string" then
+            names[#names + 1] = name
+        end
+    end
+    table.sort(names)
+    for _, name in ipairs(names) do
+        local value = rawget(source, name)
+        local path = prefix .. name
+        if type(value) == "function" and debug.getinfo(value, "S").what == "C" then
+            if not registered_cfunctions[value] then
+                binser.registerResource(value, path)
+                registered_cfunctions[value] = true
+            end
+        elseif type(value) == "table" then
+            register_cfunctions(value, path .. ".")
+        end
+    end
+end
+register_cfunctions(_G, "global:")
+register_cfunctions(registry, "registry:")
+
+local function restore_legacy_data(value, seen)
     if type(value) == "table" then
+        if seen[value] then
+            return seen[value]
+        end
         if value.__serialized_function then
             local dumped = base64.decode(value.__serialized_function)
             local func, err = load(dumped, nil, "b", _G)
-            assert(func, "Failed to load function" .. (err and (": " .. err) or " (no error given)"))     
+            assert(func, "Failed to load function: " .. tostring(err))
+            seen[value] = func
             return func
         end
 
+        local out = {}
+        seen[value] = out
         for k, v in pairs(value) do
-            value[k] = postprocess(v)
+            out[restore_legacy_data(k, seen)] = restore_legacy_data(v, seen)
         end
 
-        if value.__class == "Player" then
-            setmetatable(value, PlayerMeta)
-        elseif value.__class == "Thing" then
-            setmetatable(value, ThingMeta)
-        elseif value.__class == "Slab" then
-            setmetatable(value, SlabMeta)
+        if out.__class == "Player" then
+            setmetatable(out, registry.Player)
+        elseif out.__class == "Thing" then
+            setmetatable(out, registry.Thing)
+        elseif out.__class == "Slab" then
+            setmetatable(out, registry.Slab)
         end
+        return out
     end
     return value
 end
 
 function GetSerializedData()
     local ok, result = pcall(function()
-        local prepped = preprocess(Game)
-        return binser.serialize(prepped)
+        return binser.serialize(Game, serialization_version)
     end)
     print("GetSerializedData ok: " .. tostring(ok))
     if not ok then
@@ -64,7 +87,10 @@ end
 function SetSerializedData(serialized_data)
     local ok, result = pcall(function()
         local values = binser.deserialize(serialized_data)
-        return postprocess(values[1])
+        if values[2] == serialization_version then
+            return values[1]
+        end
+        return restore_legacy_data(values[1], {})
     end)
     if not ok then
         error("binser load failed: " .. result)
