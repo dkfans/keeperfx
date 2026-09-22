@@ -442,8 +442,7 @@ TbBool player_has_enemies_to_defeat(const struct PlayerInfo *player)
 {
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo *other = get_player(i);
-        TbBool players_at_war = players_are_enemies(player->id_number, other->id_number) || players_are_enemies(other->id_number, player->id_number);
-        TbBool is_active_enemy = player_exists(other) && (other != player) && other->is_active == 1 && !player_cannot_win(other->id_number) && players_at_war;
+        TbBool is_active_enemy = player_exists(other) && (other != player) && (other->is_active == 1) && !player_cannot_win(other->id_number) && !(players_are_mutual_allies(player->id_number,i));
         TbBool is_human_driven = (other->allocflags & PlaF_CompCtrl) == 0 && user_present(other->user_id);
         TbBool is_initial_computer_player = (other->allocflags & PlaF_CompCtrl) != 0 && i >= game.active_players_count;
         if (is_active_enemy && (is_human_driven || is_initial_computer_player)) {
