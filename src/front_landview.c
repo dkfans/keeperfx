@@ -177,7 +177,6 @@ static void landview_update_textbox_text(void)
 }
 
 /******************************************************************************/
-/******************************************************************************/
 void draw_map_screen(void)
 {
     if (map_screen == NULL)
@@ -1172,7 +1171,6 @@ TbBool frontmap_load(void)
     fe_computer_players = 0;
     update_ensigns_visibility();
     landview_textbox_setup();
-    // landview_set_text(get_string(GUIStr_MnuLevel));
     SYNCDBG(7,"Finished");
     api_event("CAMPAIGN_LOADED");
     return true;

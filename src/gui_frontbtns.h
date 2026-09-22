@@ -74,10 +74,10 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn);
 
 void gui_draw_tab(struct GuiButton *gbtn);
 void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_scrollbar);
-void draw_scroll_box_at(long pos_x, long pos_y, long width, int height_lines, TbBool draw_scrollbar, const unsigned char *cmap, TbBool draw_interior);
-void scroll_box_geometry_at(long pos_x, long pos_y, long width, int height_lines, TbBool with_scrollbar, struct ScrollBoxGeom *geo);
-int scroll_box_units_per_px_at(long width);
-long scroll_box_height_at(long width, int height_lines);
+void draw_scroll_box_at(int32_t pos_x, int32_t pos_y, int32_t width, int height_lines, TbBool draw_scrollbar, const unsigned char *cmap, TbBool draw_interior);
+void scroll_box_geometry_at(int32_t pos_x, int32_t pos_y, int32_t width, int height_lines, TbBool with_scrollbar, struct ScrollBoxGeom *geo);
+int scroll_box_units_per_px_at(int32_t width);
+int32_t scroll_box_height_at(int32_t width, int height_lines);
 void frontend_over_button(struct GuiButton *gbtn);
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags);
 void frontend_draw_large_menu_button(struct GuiButton *gbtn);

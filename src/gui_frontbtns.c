@@ -1027,7 +1027,7 @@ struct GuiButtonInit * get_gui_button_init(struct GuiMenu * menu, int id)
     }
 }
 
-static void draw_scroll_box_sprite(long pos_x, long pos_y, int units_per_px, const struct TbSprite *spr, const unsigned char *cmap)
+static void draw_scroll_box_sprite(int32_t pos_x, int32_t pos_y, int units_per_px, const struct TbSprite *spr, const unsigned char *cmap)
 {
     if (cmap == NULL) {
         LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
@@ -1036,7 +1036,7 @@ static void draw_scroll_box_sprite(long pos_x, long pos_y, int units_per_px, con
     }
 }
 
-int scroll_box_units_per_px_at(long width)
+int scroll_box_units_per_px_at(int32_t width)
 {
     // Detecting the scaling factor is quite complicated for this item
     const struct TbSprite* spr = get_frontend_sprite(GFS_hugearea_thn_cor_ml);
@@ -1051,13 +1051,13 @@ int scroll_box_units_per_px_at(long width)
     return (width * 16 + orig_size/2) / orig_size;
 }
 
-void scroll_box_geometry_at(long pos_x, long pos_y, long width, int height_lines, TbBool with_scrollbar, struct ScrollBoxGeom *geo)
+void scroll_box_geometry_at(int32_t pos_x, int32_t pos_y, int32_t width, int height_lines, TbBool with_scrollbar, struct ScrollBoxGeom *geo)
 {
     int units_per_px = scroll_box_units_per_px_at(width);
     const struct TbSprite* row_spr = get_frontend_sprite(GFS_hugearea_thn_cor_ml);
-    long top_height = get_frontend_sprite(GFS_hugearea_thn_cor_tl)->SHeight * units_per_px / 16;
-    long btm_height = get_frontend_sprite(GFS_hugearea_thn_cor_bl)->SHeight * units_per_px / 16;
-    long inner_height = 0;
+    int32_t top_height = get_frontend_sprite(GFS_hugearea_thn_cor_tl)->SHeight * units_per_px / 16;
+    int32_t btm_height = get_frontend_sprite(GFS_hugearea_thn_cor_bl)->SHeight * units_per_px / 16;
+    int32_t inner_height = 0;
     for (int lines = height_lines; lines > 0; )
     {
         if (lines < 3) {
@@ -1094,7 +1094,7 @@ void scroll_box_geometry_at(long pos_x, long pos_y, long width, int height_lines
     }
 }
 
-long scroll_box_height_at(long width, int height_lines)
+int32_t scroll_box_height_at(int32_t width, int height_lines)
 {
     struct ScrollBoxGeom geo;
     scroll_box_geometry_at(0, 0, width, height_lines, false, &geo);
@@ -1108,15 +1108,15 @@ long scroll_box_height_at(long width, int height_lines)
  * @param draw_interior Set to false to skip the opaque texture inside the frame, leaving
  *     the interior for the caller to fill - ie. with a translucent box.
  */
-void draw_scroll_box_at(long pos_x, long pos_y, long width, int height_lines, TbBool draw_scrollbar, const unsigned char *cmap, TbBool draw_interior)
+void draw_scroll_box_at(int32_t pos_x, int32_t pos_y, int32_t width, int height_lines, TbBool draw_scrollbar, const unsigned char *cmap, TbBool draw_interior)
 {
     const struct TbSprite *spr;
-    long i;
-    long delta;
-    long spr_idx;
-    long secspr_idx;
-    long cur_x;
-    long cur_y = pos_y;
+    int32_t i;
+    int32_t delta;
+    int32_t spr_idx;
+    int32_t secspr_idx;
+    int32_t cur_x;
+    int32_t cur_y = pos_y;
     int units_per_px = scroll_box_units_per_px_at(width);
     // Draw top border
     spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
