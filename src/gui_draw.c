@@ -293,13 +293,7 @@ void draw_round_slab64k_remap(long pos_x, long pos_y, int units_per_px, long wid
        interior of the larger corner and button sprites. */
     int32_t corner_width = scale_ui_value_lofi(12);
     int32_t corner_height = scale_ui_value_lofi(12);
-    RendererClearDrawFlags(Lb_SPRITE_OUTLINE);
-    int32_t fill_inset = scale_ui_value_lofi(4);
-    /* Keep the fill out of the rounded outer edge, but cover the transparent
-       interior of the larger corner and button sprites. */
-    int32_t corner_width = scale_ui_value_lofi(12);
-    int32_t corner_height = scale_ui_value_lofi(12);
-    RendererClearDrawFlags(Lb_SPRITE_OUTLINE);
+    RendererClearDrawFlags(Lb_SPRITE_OUTLINE);  
     if (style_type == ROUNDSLAB64K_LIGHT) {
         RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
         LbDrawBox(pos_x + scale_ui_value_lofi(4), pos_y + scale_ui_value_lofi(4), width - scale_ui_value_lofi(8), height - scale_ui_value_lofi(8), 1);

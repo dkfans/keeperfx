@@ -107,27 +107,21 @@ static struct LandViewTextBox landview_textbox;
 /******************************************************************************/
 static LevelNumber landview_textbox_lvnum;
 
+static void make_palette_remap(unsigned char *remap, const unsigned char *source_palette, const unsigned char *destination_palette)
+{
+    for (int i = 0; i < PALETTE_COLORS; i++)
+    {
+        remap[i] = LbPaletteFindColour(
+            destination_palette,
+            source_palette[i * 3 + 0],
+            source_palette[i * 3 + 1],
+            source_palette[i * 3 + 2]);
+    }
+}
+
 void landview_set_text(const char *text)
 {
     landview_textbox_show(&landview_textbox, text);
-}
-
-static void landview_build_text_remap(void)
-{
-    for (int i = 0; i < PALETTE_COLORS; i++)
-    {
-        const unsigned char *colour = &frontend_backup_palette[3 * i];
-        landview_text_remap[i] = LbPaletteFindColour(frontend_palette, colour[0], colour[1], colour[2]);
-    }
-}
-
-static void landview_build_gui_remap(void)
-{
-    for (int i = 0; i < PALETTE_COLORS; i++)
-    {
-        const unsigned char *colour = &engine_palette[3 * i];
-        landview_gui_remap[i] = LbPaletteFindColour(frontend_palette, colour[0], colour[1], colour[2]);
-    }
 }
 
 static void landview_build_glass_map(void)
@@ -205,18 +199,6 @@ TbBool init_netfont_palette_remap(void)
         return false;
     }
     return true;
-}
-
-static void make_palette_remap(unsigned char *remap, const unsigned char *source_palette, const unsigned char *destination_palette)
-{
-    for (int i = 0; i < PALETTE_COLORS; i++)
-    {
-        remap[i] = LbPaletteFindColour(
-            destination_palette,
-            source_palette[i * 3 + 0],
-            source_palette[i * 3 + 1],
-            source_palette[i * 3 + 2]);
-    }
 }
 
 void pop_palette_remap(void){
@@ -1088,9 +1070,9 @@ TbBool frontmap_update_zoom(void)
 
 static void landview_textbox_setup(void){
     landview_textbox_init(&landview_textbox);
-    landview_build_text_remap();
+    make_palette_remap(landview_text_remap, frontend_backup_palette, frontend_palette);    
+    make_palette_remap(landview_gui_remap, engine_palette, frontend_palette);
     landview_build_glass_map();
-    landview_build_gui_remap();
     /* Match the objective panel's front-end glyphs and palette remap. */
     landview_textbox_set_text_rendering(&landview_textbox, frontend_font[1], landview_text_remap);
     landview_textbox_set_gui_remap(&landview_textbox, landview_gui_remap);
