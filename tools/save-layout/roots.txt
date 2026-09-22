@@ -1,0 +1,25 @@
+# Types written to files or sent over the network as raw memory.
+# The save-format check compares the layout of every type listed here.
+#
+#   include <header>             header the probe includes (relative to src/)
+#   root <type> <file>...        a saved type and the files or streams that contain it
+#
+# <type> is a struct name, or a typedef name prefixed with "typedef:".
+# To cover a new saved file, add its root line here.
+
+include game_saves.h
+include game_legacy.h
+include game_merge.h
+include packets.h
+include config_campaigns.h
+include front_network.h
+
+root Game                  savegame replay resync
+root CatalogueEntry        savegame replay
+root FileChunkHeader       savegame replay
+root IntralevelData        savegame continue
+root typedef:LevelNumber   continue
+root PacketSaveHead        replay
+root Packet                replay
+root HighScore             highscores
+root ConfigInfo            netconfig

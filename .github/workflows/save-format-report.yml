@@ -1,0 +1,151 @@
+name: Save format report
+
+# Posts the result of "Save format check" on the pull request: one comment,
+# kept up to date, and the breaks-saves label.
+#
+# Pull requests from forks get a read-only token, so the check itself can't
+# comment. This workflow runs from the default branch with write access, never
+# checks out or runs PR code, and treats the check's artifact as untrusted:
+# the comment is built here from validated values only.
+
+on:
+  workflow_run:
+    workflows: ["Save format check"]
+    types: [completed]
+
+permissions:
+  actions: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  report:
+    name: "Report save format result"
+    runs-on: ubuntu-24.04
+    if: github.event.workflow_run.event == 'pull_request'
+    steps:
+    - name: Download result
+      uses: actions/download-artifact@v4
+      with:
+        name: save-format-result
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ github.token }}
+        path: ${{ runner.temp }}/save-format
+
+    - name: Comment and label
+      uses: actions/github-script@v7
+      env:
+        RESULT_DIR: ${{ runner.temp }}/save-format
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          const dir = process.env.RESULT_DIR;
+          const MARKER = '<!-- save-format-check -->';
+          const LABEL = 'breaks-saves';
+          const { owner, repo } = context.repo;
+
+          const prText = fs.readFileSync(path.join(dir, 'pr_number'), 'utf8').trim();
+          if (!/^[0-9]{1,7}$/.test(prText)) {
+            core.setFailed(`Invalid PR number in artifact: ${JSON.stringify(prText.slice(0, 20))}`);
+            return;
+          }
+          const prNumber = Number(prText);
+          // The artifact comes from PR code: only act on the PR the run was for.
+          const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+          if (pr.head.sha !== context.payload.workflow_run.head_sha) {
+            core.info(`PR #${prNumber} head moved on or doesn't match this run; skipping.`);
+            return;
+          }
+
+          const r = JSON.parse(fs.readFileSync(path.join(dir, 'result.json'), 'utf8'));
+          const STATES = ['identical', 'compatible', 'refused', 'silent'];
+          const safe = s => typeof s === 'string' && /^[A-Za-z0-9_.\[\]<>:\- ()]{1,200}$/.test(s);
+          const verdict = STATES.includes(r.verdict) ? r.verdict : null;
+          if (!verdict) {
+            core.setFailed('Invalid verdict in artifact');
+            return;
+          }
+          const lua = r.lua_changed === true;
+          const flagFields = (Array.isArray(r.flag_dependent_fields) ? r.flag_dependent_fields : []).filter(safe);
+
+          const FILES = {
+            savegame: 'Saved games (fx1g*.sav)', continue: 'Continue file (fx1contn.sav)',
+            replay: 'Replays (*.pck)', resync: 'Multiplayer resync',
+            highscores: 'High scores', netconfig: 'Network config (fxconfig.net)',
+          };
+          const LABELS = { identical: 'unchanged', compatible: 'compatible',
+                           refused: "**won't load**", silent: '**loads wrong data**' };
+
+          const L = [MARKER, '## Save format check', ''];
+          if (verdict === 'identical') {
+            L.push('No change to the layout of saved data.');
+          } else if (verdict === 'compatible') {
+            L.push('The layout of saved data changed, but old files still load correctly (union members only).');
+          } else if (verdict === 'refused') {
+            L.push("**This PR changes the save format.** Saves, and the other files listed below, made by earlier builds will **not load** after it.");
+          } else {
+            L.push('**This PR changes the save format without changing its size.** Files made by earlier builds will **load with wrong values, with no error**. Avoid this: keep existing fields where they are, or change the size so the loader refuses old files.');
+          }
+          if (lua) {
+            L.push('', "The Lua serialiser changed (`serialisation.lua` / `binser.lua`). Data saved by Lua scripts can't be checked automatically; review it for compatibility.");
+          }
+          if (flagFields.length) {
+            L.push('', "**The saved layout depends on build flags** (`BFDEBUG_LEVEL`, `FUNCTESTING`): the heavy-logging build would write files the normal build can't read. Fields:", '');
+            flagFields.slice(0, 20).forEach(f => L.push('- `' + f + '`'));
+          }
+          const changed = verdict !== 'identical';
+          if (changed) {
+            L.push('', '| File | Result |', '|---|---|');
+            for (const [k, name] of Object.entries(FILES)) {
+              const s = r.files && r.files[k];
+              if (STATES.includes(s)) L.push(`| ${name} | ${LABELS[s]} |`);
+            }
+            const titles = [['added', 'Added'], ['removed', 'Removed'], ['renamed', 'Renamed'],
+                            ['moved', 'Moved to another struct'], ['resized_arrays', 'Array resized'],
+                            ['type_changes', 'Type changed']];
+            L.push('', '### What changed', '');
+            for (const [k, t] of titles) {
+              const items = ((r.changes && Array.isArray(r.changes[k])) ? r.changes[k] : []).filter(safe);
+              if (!items.length) continue;
+              L.push(`**${t}** (${items.length})`, '');
+              items.slice(0, 40).forEach(i => L.push('- `' + i + '`'));
+              if (items.length > 40) L.push(`- … and ${items.length - 40} more (see the check's job summary)`);
+              L.push('');
+            }
+          }
+          const breaks = verdict === 'refused' || verdict === 'silent';
+          if (breaks) {
+            L.push("If this break is intended, a maintainer can accept it with the `save-break-accepted` label.");
+            const others = await github.paginate(github.rest.issues.listForRepo,
+              { owner, repo, state: 'open', labels: LABEL, per_page: 100 });
+            const list = others.filter(i => i.pull_request && i.number !== prNumber).map(i => `#${i.number}`);
+            if (list.length) {
+              L.push('', `Other open PRs that also break saves: ${list.join(', ')}. Merging them together means players lose their saves once.`);
+            }
+          }
+          L.push('', `<sub>Checked at ${context.payload.workflow_run.head_sha.slice(0, 9)}. [Details](${context.payload.workflow_run.html_url})</sub>`);
+          const body = L.join('\n');
+
+          const comments = await github.paginate(github.rest.issues.listComments,
+            { owner, repo, issue_number: prNumber, per_page: 100 });
+          const mine = comments.find(c => c.user && c.user.type === 'Bot' && c.body && c.body.startsWith(MARKER));
+          const worthSaying = changed || lua || flagFields.length > 0;
+
+          if (worthSaying) {
+            if (mine) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number: prNumber, body });
+            }
+          } else if (mine) {
+            await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id,
+              body: `${MARKER}\n## Save format check\n\nThis PR no longer changes the save format.` });
+          }
+
+          const labels = pr.labels.map(l => l.name);
+          if (breaks && !labels.includes(LABEL)) {
+            await github.rest.issues.addLabels({ owner, repo, issue_number: prNumber, labels: [LABEL] });
+          } else if (!breaks && labels.includes(LABEL)) {
+            await github.rest.issues.removeLabel({ owner, repo, issue_number: prNumber, name: LABEL });
+          }

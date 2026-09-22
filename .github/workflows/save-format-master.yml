@@ -1,0 +1,83 @@
+name: Save format (master)
+
+# Every push to master is an alpha build. This compares its saved-data layout
+# with the previous alpha (the commit master pointed to before the push),
+# reports whether it breaks saves, and keeps the build's layout as an artifact.
+#
+# The alpha workflow can call this (workflow_call) and read `save-breaking`,
+# for example to mark the build. When it does, remove the push trigger here so
+# it doesn't run twice.
+
+on:
+  push:
+    branches: [master]
+  workflow_call:
+    outputs:
+      save-breaking:
+        description: "'true' if saves from the previous build won't load, or load wrong values"
+        value: ${{ jobs.layout.outputs.save-breaking }}
+      verdict:
+        description: "identical, compatible, refused or silent"
+        value: ${{ jobs.layout.outputs.verdict }}
+
+permissions:
+  contents: read
+
+jobs:
+  layout:
+    name: "Save format of this build"
+    runs-on: ubuntu-24.04
+    outputs:
+      save-breaking: ${{ steps.compare.outputs.save-breaking }}
+      verdict: ${{ steps.compare.outputs.verdict }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install tools
+      run: |
+        set -eux
+        sudo apt-get update
+        sudo apt-get install -y gcc-mingw-w64-i686 binutils-mingw-w64-i686 gdb-multiarch python3
+
+    - name: Compare with previous build
+      id: compare
+      env:
+        BEFORE: ${{ github.event.before }}
+      run: |
+        set -eu
+        # The previous alpha is what master pointed to before this push.
+        if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] \
+            && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+          base="$BEFORE"
+        else
+          base=$(git rev-parse HEAD^1)
+        fi
+        verdict=$(bash tools/save-layout/check_pr.sh "$base" save-format build)
+        breaking=false
+        case "$verdict" in refused|silent) breaking=true ;; esac
+        echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+        echo "save-breaking=$breaking" >> "$GITHUB_OUTPUT"
+        build=$(git rev-list --count HEAD)
+        echo "build=$build" >> "$GITHUB_OUTPUT"
+        echo "sha=$(git rev-parse --short=9 HEAD)" >> "$GITHUB_OUTPUT"
+        cp save-format/head.tsv save-format/layout.tsv
+        {
+          echo "Build $build ($(git rev-parse --short=9 HEAD)), compared with $(git rev-parse --short=9 "$base")."
+          echo
+          cat save-format/summary.md
+        } >> "$GITHUB_STEP_SUMMARY"
+        if [ "$breaking" = "true" ]; then
+          echo "::warning::Alpha build $build breaks saves from the previous build ($verdict)."
+        fi
+
+    - name: Keep this build's layout
+      uses: actions/upload-artifact@v4
+      with:
+        name: save-layout-${{ steps.compare.outputs.build }}-${{ steps.compare.outputs.sha }}
+        retention-days: 90
+        path: |
+          save-format/layout.tsv
+          save-format/result.json
+          save-format/summary.md
