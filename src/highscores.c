@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "config.h"
 #include "config_campaigns.h"
+#include "game_saves.h"
 
 
 #include "post_inc.h"
@@ -86,6 +87,7 @@ void load_or_create_high_score_table(void)
   if (!load_high_score_table())
   {
      SYNCMSG("High scores table bad; creating new one.");
+     keep_unreadable_file(prepare_file_path(FGrp_Save, campaign.hiscore_fname));
      create_empty_high_score_table();
      save_high_score_table();
   }

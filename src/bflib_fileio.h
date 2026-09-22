@@ -60,6 +60,7 @@ struct TbFileFind * LbFileFindFirst(const char * filespec, struct TbFileEntry * 
 int LbFileFindNext(struct TbFileFind * ffind, struct TbFileEntry * fentry);
 void LbFileFindEnd(struct TbFileFind * ffind);
 int LbFileDelete(const char *filename);
+int LbFileRename(const char *oldname, const char *newname);
 short LbFileFlush(TbFileHandle handle);
 int LbFileMakeFullPath(const short append_cur_dir,
   const char *directory, const char *filename, char *buf, const unsigned long len);

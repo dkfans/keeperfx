@@ -39,6 +39,7 @@
 #include "creature_states_hero.h"
 #include "dungeon_data.h"
 #include "frontend.h"
+#include "game_saves.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_tabs.h"
 #include "game_legacy.h"
@@ -641,16 +642,18 @@ TbBool cmd_game_load(PlayerNumber plyr_idx, char * args)
     }
     char * pr2str = strsep_param_with_space(&args);
     TbBool Pause = (pr2str != NULL) ? atoi(pr2str) : false;
-    if (is_save_game_loadable(slot_num)) {
-        if (load_game(slot_num)) {
-            set_flag_value(game.operation_flags, GOF_Paused, Pause); // unpause, because games are saved whilst paused
-            return true;
-        } else {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unable to load game %d", slot_num);
-        }
-    } else {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unable to load game %d", slot_num);
+    enum SaveCheckResult chk = check_save_game(slot_num);
+    if (chk != SvChk_Loadable) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s", get_string(save_check_message(chk)));
+        return false;
     }
+    if (load_game(slot_num)) {
+        set_flag_value(game.operation_flags, GOF_Paused, Pause); // unpause, because games are saved whilst paused
+        return true;
+    }
+    // Part of the save was already applied, so the current game can't carry on
+    frontend_load_game_failed(GUIStr_SaveLoadFailed);
+    quit_game = 1;
     return false;
 }
 

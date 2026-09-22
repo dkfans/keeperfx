@@ -38,6 +38,7 @@
 #include "moonphase.h"
 #include "vidmode.h"
 #include "frontend.h"
+#include "game_saves.h"
 #include "bflib_mouse.h"
 #include "front_simple.h"
 #include "bflib_datetm.h"
@@ -1020,10 +1021,15 @@ static TbBool wait_at_frontend(void)
           RendererClearScreen(0);
           RendererPresentFrame();
           level_load_time_phase(LevelLoadTime_Data);
-          if (!load_game(game.save_game_slot))
           {
-              ERRORLOG("Loading game %d failed; quitting.",(int)game.save_game_slot);
-              quit_game = 1;
+              enum SaveCheckResult chk = check_save_game(game.save_game_slot);
+              if ((chk != SvChk_Loadable) || !load_game(game.save_game_slot))
+              {
+                  ERRORLOG("Loading game %d failed; back to the menu.",(int)game.save_game_slot);
+                  frontend_load_game_failed(save_check_message(chk));
+                  game.save_game_slot = flgmem;
+                  return false;
+              }
           }
           level_load_time_phase(LevelLoadTime_GameSetup);
           game.save_game_slot = flgmem;

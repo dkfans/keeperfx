@@ -405,21 +405,111 @@ TbBool save_game(long slot_num)
 
 TbBool is_save_game_loadable(long slot_num)
 {
-    // Prepare filename and open the file
+    return (check_save_game(slot_num) == SvChk_Loadable);
+}
+
+/**
+ * Walks the chunk headers of a savegame and checks that load_game() would accept
+ * every chunk it needs. Reads no chunk data and changes no game state, so a failed
+ * check can be reported without touching the running game or the frontend.
+ */
+enum SaveCheckResult check_save_game(long slot_num)
+{
+    if ((slot_num < 0) || (slot_num >= SAVE_SLOTS_LIMIT))
+        return SvChk_Missing;
     char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
     TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (fh)
+    if (!fh)
+        return SvChk_Missing;
+    int32_t file_len = LbFileLengthHandle(fh);
+    if (is_primitive_save_version(file_len))
     {
-        // Let's try to read the file, just to be sure
-        struct FileChunkHeader hdr;
-        if (LbFileRead(fh, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
-        {
-            LbFileClose(fh);
-            return true;
-        }
         LbFileClose(fh);
+        return SvChk_Incompatible;
     }
-    return false;
+    enum SaveCheckResult result = SvChk_Loadable;
+    uint32_t chunks_done = 0;
+    int32_t pos = 0;
+    while ((result == SvChk_Loadable) && (pos < file_len))
+    {
+        struct FileChunkHeader hdr;
+        if ((file_len - pos < (int32_t)sizeof(hdr)) ||
+            (LbFileRead(fh, &hdr, sizeof(hdr)) != sizeof(hdr)))
+        {
+            result = SvChk_Damaged;
+            break;
+        }
+        pos += sizeof(hdr);
+        if (hdr.len > (uint32_t)(file_len - pos))
+        {
+            result = SvChk_Damaged;
+            break;
+        }
+        switch (hdr.id)
+        {
+        case SGC_InfoBlock:
+            if ((hdr.ver != CATALOGUE_ENTRY_VER) || (hdr.len != sizeof(struct CatalogueEntry)))
+                result = SvChk_Incompatible;
+            chunks_done |= SGF_InfoBlock;
+            break;
+        case SGC_GameOrig:
+            if (hdr.len != sizeof(struct Game))
+                result = SvChk_Incompatible;
+            chunks_done |= SGF_GameOrig;
+            break;
+        case SGC_IntralevelData:
+            if (hdr.len != sizeof(struct IntralevelData))
+                result = SvChk_Incompatible;
+            chunks_done |= SGF_IntralevelData;
+            break;
+        case SGC_LuaData:
+            chunks_done |= SGF_LuaData;
+            break;
+        default:
+            break;
+        }
+        pos += hdr.len;
+        if (LbFileSeek(fh, pos, Lb_FILE_SEEK_BEGINNING) < 0)
+            result = SvChk_Damaged;
+    }
+    LbFileClose(fh);
+    if ((result == SvChk_Loadable) && ((chunks_done & SGF_SavedGame) != SGF_SavedGame))
+        result = SvChk_Damaged;
+    if (result != SvChk_Loadable)
+        WARNLOG("Saved game in slot %d can't be loaded (check result %d)", (int)slot_num, (int)result);
+    return result;
+}
+
+TextStringId save_check_message(enum SaveCheckResult result)
+{
+    switch (result)
+    {
+    case SvChk_Incompatible:
+        return GUIStr_SaveIncompatible;
+    case SvChk_Damaged:
+        return GUIStr_SaveDamaged;
+    default:
+        return GUIStr_SaveLoadFailed;
+    }
+}
+
+/**
+ * Renames a file the game can't read to "<name>.bak", so that writing a fresh
+ * one doesn't destroy the player's data.
+ */
+TbBool keep_unreadable_file(const char *fname)
+{
+    if (!LbFileExists(fname))
+        return false;
+    char bak_fname[4096];
+    snprintf(bak_fname, sizeof(bak_fname), "%s.bak", fname);
+    if (LbFileRename(fname, bak_fname) < 0)
+    {
+        WARNLOG("Can't keep unreadable file \"%s\" as \"%s\"", fname, bak_fname);
+        return false;
+    }
+    JUSTLOG("Kept unreadable file \"%s\" as \"%s\"", fname, bak_fname);
+    return true;
 }
 
 TbBool load_game(long slot_num)
@@ -430,9 +520,11 @@ TbBool load_game(long slot_num)
         return false;
     }
     TbFileHandle fh;
-//  unsigned char buf[14];
-//  char cmpgn_fname[CAMPAIGN_FNAME_LEN];
     SYNCDBG(6,"Starting");
+    // Nothing may change before this check passes: a refused save leaves the
+    // frontend or the running game as it was.
+    if (check_save_game(slot_num) != SvChk_Loadable)
+        return false;
     reset_eye_lenses();
     {
         // Use fname only here - it is overwritten by next use of prepare_file_fmtpath()
@@ -441,15 +533,6 @@ TbBool load_game(long slot_num)
         if (!fh)
         {
           WARNMSG("Cannot open saved game file \"%s\".",fname);
-          save_catalogue_slot_disable(slot_num);
-          return false;
-        }
-    }
-    long file_len = LbFileLengthHandle(fh);
-    if (is_primitive_save_version(file_len))
-    {
-        {
-          LbFileClose(fh);
           save_catalogue_slot_disable(slot_num);
           return false;
         }
@@ -561,6 +644,7 @@ TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textn
     snprintf(centry->campaign_fname, DISKPATH_SIZE, "%s%s", cmpgn_pfx, campaign.fname);
     snprintf(centry->player_name, PLAYER_NAME_LENGTH, "%s", high_score_entry);
     set_flag(centry->flags, CEF_InUse);
+    clear_flag(centry->flags, CEF_Incompatible);
     centry->game_ver_major = VER_MAJOR;
     centry->game_ver_minor = VER_MINOR;
     centry->game_ver_release = VER_RELEASE;
@@ -654,6 +738,8 @@ TbBool load_game_save_catalogue(void)
                 saves_found++;
         }
         LbFileClose(fh);
+        if (((centry->flags & CEF_InUse) != 0) && (check_save_game(slot_num) != SvChk_Loadable))
+            set_flag(centry->flags, CEF_Incompatible);
     }
     return (saves_found > 0);
 }
