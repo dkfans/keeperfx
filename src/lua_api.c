@@ -124,19 +124,27 @@ static int lua_Ally_players(lua_State *L)
 static int lua_Start_money(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    GoldAmount gold_val = luaL_checkinteger(L, 2);
-
+    GoldAmount gold_base = luaL_checkinteger(L, 2);
+    if (gold_base > SENSIBLE_GOLD)
+    {
+        gold_base = SENSIBLE_GOLD;
+        SCRPTWRNLOG("Gold added to players reduced to %d", SENSIBLE_GOLD);
+    }
+    GoldAmount gold_val = 0;
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
-        if (gold_val > SENSIBLE_GOLD)
-        {
-            gold_val = SENSIBLE_GOLD;
-            SCRPTWRNLOG("Gold added to player reduced to %d", SENSIBLE_GOLD);
+
+        struct Dungeon* dungeon = get_dungeon(i);
+        if (dungeon_invalid(dungeon)) {
+            continue;
         }
-        player_add_offmap_gold(i, gold_val);
+        gold_val = gold_base-dungeon->offmap_money_owned;
+        if (gold_val != 0)
+        {
+            player_add_offmap_gold(i, gold_val);
+        }
     }
     return 0;
-
 }
 
 static int lua_Max_creatures(lua_State *L)
