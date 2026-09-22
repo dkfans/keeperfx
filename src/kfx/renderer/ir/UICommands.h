@@ -1,7 +1,6 @@
 #ifndef RENDERER_IR_UICOMMANDS_H
 #define RENDERER_IR_UICOMMANDS_H
 
-#include <array>
 #include <cstdint>
 #include <utility>
 #include "kfx/renderer/SpriteHandle.h"
@@ -67,9 +66,7 @@ struct IRUISpriteScaledRemapCmd {
     IRUIClip clip;
     int32_t x = 0, y = 0, w = 0, h = 0;
     SpriteHandle sprite = kInvalidSpriteHandle;
-    // A deferred command must own its mapping: callers are allowed to use a
-    // table outside pixmap.fade_tables (and may replace it before replay).
-    std::array<unsigned char, 256> cmap{};
+    const unsigned char* cmap = nullptr;
     TbDrawFlagsMask draw_flags = 0;
     IRUILayer layer = IRUILayer::GameUI;
     float ndc_z = 0.5f;

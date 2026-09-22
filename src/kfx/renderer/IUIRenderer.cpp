@@ -15,7 +15,6 @@
 #include "bflib_video.h"    // Lb_SPRITE_* draw flags
 #include "gui_draw.h"       // draw_slab64k_background_immediate
 #include <algorithm>        // std::fill, std::copy (AcquireMinimapBuffer)
-#include <cstring>
 #include <functional>       // std::less (ForgetSprites)
 #include "post_inc.h"
 
@@ -190,7 +189,7 @@ int IUIRenderer::SubmitRawSpriteScaledRemap(int32_t x, int32_t y, const struct T
         ApplyGraphicsWindow(x, y, cmd.clip);
         cmd.x = x; cmd.y = y; cmd.w = w; cmd.h = h;
         cmd.sprite = ResolveSprite(spr);
-        std::memcpy(cmd.cmap.data(), cmap, cmd.cmap.size());
+        cmd.cmap = cmap;
         cmd.draw_flags = state.flags;
         cmd.ndc_z = ComputeCurrentNdcZ();
         cmd.seq = m_ui_write_cmds->NextSeq();

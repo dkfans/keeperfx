@@ -13,7 +13,6 @@
 #include "kfx/renderer/ir/TextCommands.h"
 #include "kfx/renderer/RendererManager.h"
 #include "bflib_sprfnt.h"   // LbTextDrawResizedImmediate, window/font accessors
-#include <cstring>
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -39,10 +38,6 @@ IRTextDrawCmd* ITextRenderer::AppendTextCommand(int32_t x, int32_t y, int32_t un
     cmd.dbc_font    = cmd.dbc_enabled ? (const void*)active_dbcfont : nullptr;
     cmd.dbc_colour0 = dbc_colour0;
     cmd.dbc_colour1 = dbc_colour1;
-    const unsigned char* remap = LbTextGetRemap();
-    cmd.has_remap = (remap != nullptr);
-    if (remap != nullptr)
-        std::memcpy(cmd.remap.data(), remap, cmd.remap.size());
     cmd.seq = m_text_write_cmds->NextSeq();
     return &m_text_write_cmds->draws.Append(cmd);
 }
