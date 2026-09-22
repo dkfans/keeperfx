@@ -85,6 +85,7 @@ const struct NamedCommand cmpgn_common_commands[] = {
   {"ASSIGN_CPU_KEEPERS", 21},
   {"SOUNDTRACK",         22},
   {"SHOW_DESCRIPTION",   23},
+  {"DESCRIPTION_GEO",    24},
   {NULL,                  0},
   };
 
@@ -165,7 +166,9 @@ TbBool free_campaign(struct GameCampaign *campgn)
 {
   campgn->fgroup = FGrp_None;
   KfxFree(campgn->lvinfos);
-  KfxFree(campgn->hiscore_table);
+  KfxFree(campgn->hiscore_table);  
+  KfxFree(campgn->level_description_geo);
+  
   for (int i=0; i<campgn->strings_data_count; i++)
   {
     KfxFree(campgn->strings_data_list[i]);
@@ -254,6 +257,7 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   memset(campgn->hiscore_fname,0,DISKPATH_SIZE);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = 0;
+  campgn->level_description_geo = NULL;
   memset(campgn->credits_fname,0,DISKPATH_SIZE);
   campgn->credits_data = NULL;
   reset_credits(campgn->credits);
@@ -430,6 +434,9 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = VISIBLE_HIGH_SCORES_COUNT;
   campgn->human_player = 0;
+  
+  KfxFree(campgn->level_description_geo);
+  campgn->level_description_geo = NULL;
   // Find the block
   const char * block_name = "common";
   int32_t pos = 0;
@@ -706,6 +713,49 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
       case 23: // SHOW_DESCRIPTION
           i = get_conf_parameter_whole(buf,&pos,len,word_buf,sizeof(word_buf));          
           campgn->show_level_description = i == 1;
+          break;
+      case 24: // DESCRIPTION_GEO
+          campgn->level_description_geo = malloc(sizeof(struct LevelDescriptionGeo));
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              campgn->level_description_geo->pos_x = k;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              campgn->level_description_geo->pos_y = k;
+              n++;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              campgn->level_description_geo->width = k;
+              n++;
+            }
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+              campgn->level_description_geo->height = k;
+              n++;
+            }
+          }
+          if (n > 4)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of '%s' file.",
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
+          }
           break;
       case ccr_comment:
           break;

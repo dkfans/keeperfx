@@ -95,6 +95,7 @@ unsigned char *map_screen;
 
 static unsigned char netfont_palette_remap[PALETTE_COLORS];
 static unsigned char netfont_source_palette[PALETTE_SIZE];
+static unsigned char landview_text_remap[PALETTE_COLORS];
 static unsigned char landview_gui_remap[PALETTE_COLORS];
 /* The land view has its own palette, so it cannot use pixmap.ghost. */
 static unsigned char landview_glass_map[PALETTE_COLORS * PALETTE_COLORS];
@@ -111,11 +112,20 @@ void landview_set_text(const char *text)
     landview_textbox_show(&landview_textbox, text);
 }
 
-static void landview_build_gui_remap(void)
+static void landview_build_text_remap(void)
 {
     for (int i = 0; i < PALETTE_COLORS; i++)
     {
         const unsigned char *colour = &frontend_backup_palette[3 * i];
+        landview_text_remap[i] = LbPaletteFindColour(frontend_palette, colour[0], colour[1], colour[2]);
+    }
+}
+
+static void landview_build_gui_remap(void)
+{
+    for (int i = 0; i < PALETTE_COLORS; i++)
+    {
+        const unsigned char *colour = &engine_palette[3 * i];
         landview_gui_remap[i] = LbPaletteFindColour(frontend_palette, colour[0], colour[1], colour[2]);
     }
 }
@@ -1077,6 +1087,18 @@ TbBool frontmap_update_zoom(void)
     return false;
 }
 
+static void landview_textbox_setup(void){
+    landview_textbox_init(&landview_textbox);
+    landview_build_text_remap();
+    landview_build_glass_map();
+    landview_build_gui_remap();
+    /* Match the objective panel's front-end glyphs and palette remap. */
+    landview_textbox_set_text_rendering(&landview_textbox, frontend_font[1], landview_text_remap);
+    landview_textbox_set_gui_remap(&landview_textbox, landview_gui_remap);
+    landview_textbox_set_glass_map(&landview_textbox, landview_glass_map);
+    landview_textbox_lvnum = SINGLEPLAYER_NOTSTARTED;
+}
+
 TbBool frontmap_load(void)
 {
     SYNCDBG(4,"Starting");
@@ -1149,19 +1171,13 @@ TbBool frontmap_load(void)
     frontmap_start_music();
     fe_computer_players = 0;
     update_ensigns_visibility();
-    landview_textbox_init(&landview_textbox);
-    landview_build_gui_remap();
-    landview_build_glass_map();
-    /* Match the objective panel's front-end glyphs and palette remap. */
-    landview_textbox_set_text_rendering(&landview_textbox, frontend_font[1], landview_gui_remap);
-    landview_textbox_set_gui_remap(&landview_textbox, landview_gui_remap);
-    landview_textbox_set_glass_map(&landview_textbox, landview_glass_map);
-    landview_textbox_lvnum = SINGLEPLAYER_NOTSTARTED;
+    landview_textbox_setup();
     // landview_set_text(get_string(GUIStr_MnuLevel));
     SYNCDBG(7,"Finished");
     api_event("CAMPAIGN_LOADED");
     return true;
 }
+
 
 void frontmap_draw(void)
 {
@@ -1180,7 +1196,11 @@ void frontmap_draw(void)
         set_pointer_graphic_spland(0);
         compressed_window_draw();
     }
-    landview_textbox_set_geometry(&landview_textbox, ((RendererPhysicalWidth()*16/units_per_pixel_landview)-480) / 2, (RendererPhysicalHeight()*16/units_per_pixel_landview) - 86 - 24, 480, 86);
+    int32_t width = campaign.level_description_geo != NULL ? campaign.level_description_geo->width : 480;
+    int32_t pos_x = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_x : ((RendererPhysicalWidth()*16/units_per_pixel_landview)-480) / 2;
+    int32_t pos_y = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_y : (RendererPhysicalHeight()*16/units_per_pixel_landview) - 86 - 24;
+    int32_t height = campaign.level_description_geo != NULL ? campaign.level_description_geo->height : 86;
+    landview_textbox_set_geometry(&landview_textbox, pos_x,  pos_y, width, height);
     landview_textbox_draw(&landview_textbox);
 }
 

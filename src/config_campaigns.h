@@ -73,6 +73,13 @@ struct CreditsItem {
   };
 };
 
+struct LevelDescriptionGeo {
+  int32_t pos_x;
+  int32_t pos_y;  
+  int32_t width;
+  int32_t height;
+};
+
 /*
  * Structure for storing campaign configuration.
  */
@@ -132,6 +139,7 @@ struct GameCampaign {
   unsigned char default_language;
   char soundtrack_fname[DISKPATH_SIZE];
   TbBool show_level_description;
+  struct LevelDescriptionGeo *level_description_geo;
 };
 
 struct HighScore {
