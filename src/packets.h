@@ -195,15 +195,15 @@ enum TbPacketAction {
         PckA_CheatGiveDoorTrap,
         PckA_RoomspaceHighlightToggle,
         PckA_ApplyRoomspaceDigTag,
-		PckA_CheatWinLevel,
-		PckA_CheatLoseLevel,
-		PckA_CheatLevelUp,
-		PckA_CheatLevelDown,
-		PckA_CheatApplySpell,
-		PckA_CheatKillCreature,
+        PckA_CheatWinLevel,
+        PckA_CheatLoseLevel,
+        PckA_CheatLevelUp,
+        PckA_CheatLevelDown,
+        PckA_CheatApplySpell,
+        PckA_CheatKillCreature,
 };
 
-/** Packet flags for non-action player operation. */
+/** Packet flags for non-action player operation. **/
 enum TbPacketControl {
         PCtr_None           = 0x0000,
         PCtr_ViewRotateCW   = 0x0001,
@@ -273,8 +273,6 @@ struct CatalogueEntry;
 extern unsigned long initial_replay_seed;
 extern TbBool unpausing_in_progress;
 
-extern float camera_movement_x;
-extern float camera_movement_y;
 
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
@@ -354,6 +352,9 @@ void process_user_creature_control_packet_action(NetUserId user);
 void process_map_packet_clicks(NetUserId user);
 void process_pause_packet(long a1, long a2);
 void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
+void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
+int32_t camera_move_rate(const struct Camera* cam, const struct PlayerInfo* player, TbBool speedup);
+#define CAMERA_AXIS_FAST_MULT 3
 void process_camera_action(struct Camera cams[], const struct Packet* pckt);
 void process_first_person_look(struct Thing *thing, const struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
 TbBool can_process_creature_input(struct Thing *thing);

@@ -42,7 +42,7 @@ void move_local_camera_to_position(MapCoord x, MapCoord y);
 void update_local_view_prediction(const struct Packet *pckt);
 unsigned char get_local_view_type(const struct PlayerInfo *player);
 struct Camera* get_local_active_camera(struct PlayerInfo *player);
-void send_camera_catchup_packets(void);
+void camera_packet_plan_motion(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

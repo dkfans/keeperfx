@@ -54,16 +54,72 @@ static MapCoordDelta local_camera_move_delta[2];
 static struct Camera *local_camera_move_cam;
 /******************************************************************************/
 
-void send_camera_catchup_packets(void)
+static void forget_camera_plan(void)
 {
-    // Threshold distance before sending catchup packets (in map coordinates)
-    #define CAMERA_DESYNC_THRESHOLD 512
+    local_state.camera_plan_dir_x = 0;
+    local_state.camera_plan_dir_y = 0;
+    local_state.camera_plan_cam_idx = -1;
+}
+
+static int32_t error_after_brake(int32_t err, int32_t vel, int32_t prev, int32_t accel)
+{
+    if (accel <= 0)
+        return err;
+    while (vel != 0) {
+        const int32_t dir = (vel > 0) ? -1 : 1;
+        int32_t brake = (prev == dir) ? CAMERA_AXIS_FAST_MULT * accel : accel;
+        if (brake > abs(vel))
+            brake = accel;
+        if (brake > abs(vel))
+            break;
+        vel += dir * brake;
+        prev = dir;
+        err -= vel;
+    }
+    return err;
+}
+
+static int32_t plan_camera_axis(int32_t err, int32_t vel, int32_t prev, int32_t accel, TbBool *fast)
+{
+    static const signed char dirs[] = {1, 1, 0, -1, -1};
+    static const signed char mults[] = {CAMERA_AXIS_FAST_MULT, 1, 0, 1, CAMERA_AXIS_FAST_MULT};
+    const int32_t toward = (err >= 0) ? 1 : -1;
+    int32_t best_dir = 0;
+    int64_t best_cost = INT64_MAX;
+    *fast = false;
+    for (int i = 0; i < (int)(sizeof(dirs) / sizeof(dirs[0])); i++) {
+        const int32_t dir = toward * dirs[i];
+        const TbBool is_fast = (mults[i] == CAMERA_AXIS_FAST_MULT);
+        if (is_fast && (prev != dir))
+            continue;
+        const int32_t new_vel = vel + dir * mults[i] * accel;
+        const int32_t left = error_after_brake(err - new_vel, new_vel, dir, accel);
+        const int64_t cost = (left * toward < 0) ? 2 * (int64_t)abs(left) : abs(left);
+        if (cost < best_cost) {
+            best_cost = cost;
+            best_dir = dir;
+            *fast = is_fast;
+        }
+    }
+    return best_dir;
+}
+
+void camera_packet_plan_motion(void)
+{
+    // The local camera can flit about with alacrity, but we only get 4 bits
+    // per turn to convey this position approximately over the network.
+    //
+    // The camera position only really matters for replays and a few other things.
+    // 
+    // We use a simple momentum-based approach and some math to prevent overshooting.
 
     if (!local_camera_ready) {
+        forget_camera_plan();
         return;
     }
     struct PlayerInfo* player = get_my_player();
     if (get_local_view_type(player) != player->view_type) {
+        forget_camera_plan();
         return;
     }
 
@@ -80,33 +136,63 @@ void send_camera_catchup_packets(void)
         break;
 
     default:
+        forget_camera_plan();
         return;
+    }
+
+    if (local_state.camera_plan_cam_idx != cam_idx) {
+        forget_camera_plan();
     }
 
     struct Camera* local_cam = &destination_local_cameras[cam_idx];
     struct Camera* packet_cam = &player->cameras[cam_idx];
     struct Packet* pckt = get_local_packet();
 
-    long diff_map_x = local_cam->mappos.x.val - packet_cam->mappos.x.val;
-    long diff_map_y = local_cam->mappos.y.val - packet_cam->mappos.y.val;
+    // if local camera has a move-destination, aim for that instead
+    MapCoord aimx = local_cam->mappos.x.val;
+    MapCoord aimy = local_cam->mappos.y.val;
+    if (local_camera_move_cam == local_cam) {
+        aimx = local_camera_move_target[0];
+        aimy = local_camera_move_target[1];
+    }
 
-    long angle = local_cam->rotation_angle_x;
-    long cos_angle = LbCosL(angle);
-    long sin_angle = LbSinL(angle);
-    long diff_cam_right = (diff_map_x * cos_angle + diff_map_y * sin_angle) >> 16;
-    long diff_cam_forward = (-diff_map_x * sin_angle + diff_map_y * cos_angle) >> 16;
+    int32_t dmx = aimx - packet_cam->mappos.x.val;
+    int32_t dmy = aimy - packet_cam->mappos.y.val;
 
-    // Send catchup packets if position has drifted too far in camera space
-    if (diff_cam_right > CAMERA_DESYNC_THRESHOLD) {
+    int32_t angle = local_cam->rotation_angle_x;
+    int32_t cos_angle = LbCosL(angle);
+    int32_t sin_angle = LbSinL(angle);
+    int32_t dcr = ((int64_t)dmx * cos_angle + (int64_t)dmy * sin_angle) >> 16;
+    int32_t dcf = (-(int64_t)dmx * sin_angle + (int64_t)dmy * cos_angle) >> 16;
+
+    const int32_t rate = camera_move_rate(packet_cam, player, false);
+
+    TbBool fast_r;
+    TbBool fast_f;
+
+    // if there's a mismatch here, play it safe and use 1x
+    const int32_t prev_r = (local_state.camera_plan_dir_x == packet_cam->last_move_dir_x) ? local_state.camera_plan_dir_x : 0;
+    const int32_t prev_f = (local_state.camera_plan_dir_y == packet_cam->last_move_dir_y) ? local_state.camera_plan_dir_y : 0;
+    const int32_t dir_r = plan_camera_axis(dcr, packet_cam->velocity_x, prev_r, rate / 4, &fast_r);
+    const int32_t dir_f = plan_camera_axis(dcf, packet_cam->velocity_y, prev_f, rate / 4, &fast_f);
+
+    if (fast_r) {
+        set_packet_control(pckt, PCtr_MoveLeft | PCtr_MoveRight);
+    } else if (dir_r > 0) {
         set_packet_control(pckt, PCtr_MoveRight);
-    } else if (diff_cam_right < -CAMERA_DESYNC_THRESHOLD) {
+    } else if (dir_r < 0) {
         set_packet_control(pckt, PCtr_MoveLeft);
     }
-    if (diff_cam_forward > CAMERA_DESYNC_THRESHOLD) {
+    if (fast_f) {
+        set_packet_control(pckt, PCtr_MoveUp | PCtr_MoveDown);
+    } else if (dir_f > 0) {
         set_packet_control(pckt, PCtr_MoveDown);
-    } else if (diff_cam_forward < -CAMERA_DESYNC_THRESHOLD) {
+    } else if (dir_f < 0) {
         set_packet_control(pckt, PCtr_MoveUp);
     }
+    local_state.camera_plan_dir_x = dir_r;
+    local_state.camera_plan_dir_y = dir_f;
+    local_state.camera_plan_cam_idx = cam_idx;
 }
 
 static void sync_camera_state(int cam_idx, struct Camera *cam)
@@ -156,6 +242,17 @@ void move_local_camera_to_position(MapCoord x, MapCoord y)
     local_camera_move_target[0] = x;
     local_camera_move_target[1] = y;
     view_set_camera_move_to_position(cam, x, y, &local_camera_move_delta[0], &local_camera_move_delta[1]);
+}
+
+static void process_local_camera_movement(struct Camera *cam, const struct PlayerInfo *player)
+{
+    const int32_t rate = camera_move_rate(cam, player, local_state.camera_speedup_pressed);
+    if (local_state.camera_movement_y != 0.0f) {
+        view_set_camera_y_velocity(cam, (int32_t)(local_state.camera_movement_y * rate / 4.0f), (int32_t)(local_state.camera_movement_y * rate));
+    }
+    if (local_state.camera_movement_x != 0.0f) {
+        view_set_camera_x_velocity(cam, (int32_t)(local_state.camera_movement_x * rate / 4.0f), (int32_t)(local_state.camera_movement_x * rate));
+    }
 }
 
 static void update_local_first_person_camera(struct Thing *ctrltng, const struct Packet *pckt)
@@ -230,9 +327,17 @@ void update_local_cameras(void)
     }
     if (local_camera_move_cam != cam) {
         // Same as the packet camera: a parchment map jump ignores the packet's camera controls.
-        if (pckt->action != PckA_ZoomFromMap)
-            process_camera_controls(cam, pckt, player);
-        view_process_camera_inertia(cam);
+        if (pckt->action != PckA_ZoomFromMap) {
+            if (!game.packet_load_enable && cam->view_mode != PVM_ParchmentView) {
+                process_local_camera_movement(cam, player);
+                process_camera_view_controls(cam, pckt, player);
+            } else {
+                process_camera_controls(cam, pckt, player);
+            }
+            local_state.camera_movement_x = 0.0f;
+            local_state.camera_movement_y = 0.0f;
+        }
+        view_process_camera_velocity(cam);
     }
 
     if (active_cam_idx == CamIV_Isometric) {

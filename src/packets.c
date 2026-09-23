@@ -119,8 +119,6 @@ extern TbBool process_user_global_cheats_packet_action(NetUserId user, struct Pa
 extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 /******************************************************************************/
 TbBool unpausing_in_progress = 0;
-float camera_movement_x = 0.0f;
-float camera_movement_y = 0.0f;
 /******************************************************************************/
 #define RESYNC_LIMIT_BEFORE_COOLDOWN 5
 #define RESYNC_COOLDOWN_MS (5 * 60 * 1000)
@@ -377,13 +375,9 @@ void process_pause_packet(long curr_pause, long new_pause)
   }
 }
 
-void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player)
+int32_t camera_move_rate(const struct Camera* cam, const struct PlayerInfo* player, TbBool speedup)
 {
-    if (cam == NULL) {
-        return;
-    }
-    const TbBool is_local_camera = cam != get_player_active_camera(player);
-    long inter_val;
+    int32_t inter_val;
     int scroll_speed = cam->zoom;
     if (scroll_speed <= 0)
         scroll_speed = 1;
@@ -414,43 +408,59 @@ void process_camera_controls(struct Camera* cam, const struct Packet* pckt, stru
         inter_val = 256;
         break;
     }
-    if (pckt->additional_packet_values & PCAdV_SpeedupPressed)
+    if (speedup)
       inter_val *= 3;
+    return inter_val;
+}
 
-    if (is_local_camera && !game.packet_load_enable && cam->view_mode != PVM_ParchmentView)
-    {        
-        // Apply same scaling as packet-based movement for consistency
-        if (camera_movement_y != 0.0f) {
-            long delta = (long)(camera_movement_y * inter_val / 4.0f);
-            long limit = (long)(camera_movement_y * inter_val);
-            view_set_camera_y_inertia(cam, delta, limit);
-        }
-        if (camera_movement_x != 0.0f) {
-            long delta = (long)(camera_movement_x * inter_val / 4.0f);
-            long limit = (long)(camera_movement_x * inter_val);
-            view_set_camera_x_inertia(cam, delta, limit);
-        }
-    }
-    else
+static int32_t resolve_camera_axis(uint32_t flags, uint32_t neg_flag, uint32_t pos_flag, int32_t prev_dir, TbBool *fast)
+{
+    const TbBool neg = (flags & neg_flag) != 0;
+    const TbBool pos = (flags & pos_flag) != 0;
+    *fast = neg && pos;
+    if (*fast)
+        return prev_dir;
+    if (neg)
+        return -1;
+    if (pos)
+        return 1;
+    return 0;
+}
+
+static void process_camera_move_flags(struct Camera* cam, const struct Packet* pckt, const struct PlayerInfo* player)
+{
+    const int32_t rate = camera_move_rate(cam, player, false);
+    TbBool fast_y;
+    TbBool fast_x;
+    const int32_t dir_y = resolve_camera_axis(pckt->control_flags, PCtr_MoveUp, PCtr_MoveDown, cam->last_move_dir_y, &fast_y);
+    const int32_t dir_x = resolve_camera_axis(pckt->control_flags, PCtr_MoveLeft, PCtr_MoveRight, cam->last_move_dir_x, &fast_x);
+    const int32_t mult_y = fast_y ? CAMERA_AXIS_FAST_MULT : 1;
+    const int32_t mult_x = fast_x ? CAMERA_AXIS_FAST_MULT : 1;
+    cam->last_move_dir_y = dir_y;
+    cam->last_move_dir_x = dir_x;
+    if (cam->view_mode == PVM_ParchmentView)
     {
-        if ((pckt->control_flags & PCtr_MoveUp) != 0) {
-            view_set_camera_y_inertia(cam, -inter_val/4, -inter_val);
-        }
-        if ((pckt->control_flags & PCtr_MoveDown) != 0) {
-            view_set_camera_y_inertia(cam, inter_val/4, inter_val);
-        }
-        if ((pckt->control_flags & PCtr_MoveLeft) != 0) {
-            view_set_camera_x_inertia(cam, -inter_val/4, -inter_val);
-        }
-        if ((pckt->control_flags & PCtr_MoveRight) != 0) {
-            view_set_camera_x_inertia(cam, inter_val/4, inter_val);
-        }
+        if (dir_y != 0)
+            view_set_camera_y_velocity(cam, dir_y * mult_y * (rate / 4), dir_y * mult_y * rate);
+        if (dir_x != 0)
+            view_set_camera_x_velocity(cam, dir_x * mult_x * (rate / 4), dir_x * mult_x * rate);
+        return;
     }
-    if (is_local_camera) {
-        camera_movement_x = 0.0f;
-        camera_movement_y = 0.0f;
-    }
+    view_set_camera_y_velocity(cam, dir_y * mult_y * (rate / 4), (int32_t)game.map_subtiles_y * COORD_PER_STL);
+    view_set_camera_x_velocity(cam, dir_x * mult_x * (rate / 4), (int32_t)game.map_subtiles_x * COORD_PER_STL);
+}
 
+void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player)
+{
+    if (cam == NULL) {
+        return;
+    }
+    process_camera_move_flags(cam, pckt, player);
+    process_camera_view_controls(cam, pckt, player);
+}
+
+void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player)
+{
     const TbBool use_rotate_pos = flag_is_set(pckt->control_flags, PCtr_ViewRotatePos | PCtr_MapCoordsValid);
     const MapCoord rot_x = use_rotate_pos ? pckt->pos_x : -1;
     const MapCoord rot_y = use_rotate_pos ? pckt->pos_y : -1;
@@ -460,7 +470,7 @@ void process_camera_controls(struct Camera* cam, const struct Packet* pckt, stru
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-             view_set_camera_rotation_inertia_around(cam, 16, 64, rot_x, rot_y);
+             view_set_camera_rotation_velocity_around(cam, 16, 64, rot_x, rot_y);
             break;
         case PVM_FrontView:
             cam->rotation_angle_x = (cam->rotation_angle_x + DEGREES_90) & ANGLE_MASK;
@@ -473,7 +483,7 @@ void process_camera_controls(struct Camera* cam, const struct Packet* pckt, stru
         {
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
-            view_set_camera_rotation_inertia_around(cam, -16, -64, rot_x, rot_y);
+            view_set_camera_rotation_velocity_around(cam, -16, -64, rot_x, rot_y);
             break;
         case PVM_FrontView:
             cam->rotation_angle_x = (cam->rotation_angle_x - DEGREES_90) & ANGLE_MASK;
@@ -614,7 +624,7 @@ static void set_all_cameras_rotation(struct Camera cams[], int32_t angle)
     cams[CamIV_Parchment].rotation_angle_x = angle;
     cams[CamIV_FrontView].rotation_angle_x = angle;
     cams[CamIV_Isometric].rotation_angle_x = angle;
-    cams[CamIV_Isometric].inertia_rotation = 0;
+    cams[CamIV_Isometric].velocity_rotation = 0;
 }
 
 void process_camera_action(struct Camera cams[], const struct Packet *pckt)
@@ -633,9 +643,9 @@ void process_camera_action(struct Camera cams[], const struct Packet *pckt)
         set_all_cameras_position(cams, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
         set_all_cameras_rotation(cams, 0);
         for (int i = 0; i < CamIV_EndList; i++) {
-            cams[i].inertia_x = 0;
-            cams[i].inertia_y = 0;
-            cams[i].inertia_rotation = 0;
+            cams[i].velocity_x = 0;
+            cams[i].velocity_y = 0;
+            cams[i].velocity_rotation = 0;
         }
         break;
     }

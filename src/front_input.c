@@ -572,8 +572,26 @@ static short get_speed_control_inputs(void)
 /**
  * Handles control inputs in PacketLoad mode.
  */
+static void cycle_replay_player(int step)
+{
+    for (int i = 1; i < PLAYERS_COUNT; i++) {
+        const PlayerNumber plyr_idx = (my_player_number + step * i + PLAYERS_COUNT) % PLAYERS_COUNT;
+        if (!flag_is_set(game.packet_save_head.players_exist, to_flag(plyr_idx))
+         || flag_is_set(game.packet_save_head.players_comp, to_flag(plyr_idx)))
+            continue;
+        my_player_number = plyr_idx;
+        init_local_cameras(get_my_player());
+        return;
+    }
+}
+
 static short get_packet_load_game_control_inputs(void)
 {
+  if (is_game_key_pressed(Gkey_ToggleGui, true, true))
+  {
+    cycle_replay_player(is_game_key_pressed(Gkey_SpeedMod, false, true) ? -1 : 1);
+    return true;
+  }
   if (is_game_key_pressed(Gkey_ExitGame, true, false))
   {
     if (network_is_active())
@@ -2191,7 +2209,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            camera_movement_x = -1.0f;
+            local_state.camera_movement_x = -1.0f;
         }
         if (mx >= MyScreenWidth-edge_scrolling_border)
         {
@@ -2200,7 +2218,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            camera_movement_x = 1.0f;
+            local_state.camera_movement_x = 1.0f;
         }
         if (my <= edge_scrolling_border)
         {
@@ -2209,7 +2227,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            camera_movement_y = -1.0f;
+            local_state.camera_movement_y = -1.0f;
         }
         if (my >= MyScreenHeight-edge_scrolling_border)
         {
@@ -2218,7 +2236,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
               if (!rotate_pressed)
                 pckt->additional_packet_values |= PCAdV_SpeedupPressed;
             }
-            camera_movement_y = 1.0f;
+            local_state.camera_movement_y = 1.0f;
         }
     }
 }
@@ -2229,7 +2247,11 @@ static void get_isometric_view_nonaction_inputs(void)
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, false, true);
     if ((get_local_user_state()->init_flags & UsrIF_KeyboardInputDisabled) != 0)
+    {
+      local_state.camera_speedup_pressed = false;
       return;
+    }
+    local_state.camera_speedup_pressed = (speed_pressed != 0);
     if (speed_pressed != 0)
         packet->additional_packet_values |= PCAdV_SpeedupPressed;
     TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
@@ -2289,7 +2311,7 @@ static void get_isometric_view_nonaction_inputs(void)
             if (is_game_key_pressed(Gkey_TiltReset, false, false))
                 set_packet_control(packet, PCtr_ViewTiltReset);
 
-            get_movement_inputs(&camera_movement_x, &camera_movement_y, no_mods);
+            get_movement_inputs(&local_state.camera_movement_x, &local_state.camera_movement_y, no_mods);
         }
         if (! set_rotate_pos)
             unset_packet_control(packet, PCtr_ViewRotatePos);
@@ -2304,8 +2326,10 @@ static void get_overhead_view_nonaction_inputs(void)
     long mx = my_mouse_x;
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, false, true);
+    local_state.camera_speedup_pressed = false;
     if ((get_local_user_state()->init_flags & UsrIF_KeyboardInputDisabled) == 0)
     {
+        local_state.camera_speedup_pressed = (speed_pressed != 0);
         if (speed_pressed)
           pckt->additional_packet_values |= PCAdV_SpeedupPressed;
         if (rotate_pressed)
@@ -2336,7 +2360,11 @@ static void get_front_view_nonaction_inputs(void)
     TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
 
     if ((get_local_user_state()->init_flags & UsrIF_KeyboardInputDisabled) != 0)
+    {
+      local_state.camera_speedup_pressed = false;
       return;
+    }
+    local_state.camera_speedup_pressed = (speed_pressed != 0);
     if (speed_pressed != 0)
       pckt->additional_packet_values |= PCAdV_SpeedupPressed;
 
@@ -2386,7 +2414,7 @@ static void get_front_view_nonaction_inputs(void)
                 }
             }
 
-            get_movement_inputs(&camera_movement_x, &camera_movement_y, no_mods);
+            get_movement_inputs(&local_state.camera_movement_x, &local_state.camera_movement_y, no_mods);
         }
         if (is_game_key_pressed(Gkey_ZoomIn, false, false))
             set_packet_control(pckt, PCtr_ViewZoomIn);

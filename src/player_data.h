@@ -300,6 +300,14 @@ extern struct LocalState {
     short minimap_pos_y;
     unsigned short minimap_zoom;
     int roomspace_size;
+    // FIXME: use fixed-point precision instead
+    float camera_movement_x;
+    float camera_movement_y;
+    TbBool camera_speedup_pressed;
+    // what the motion planner sent last turn
+    signed char camera_plan_dir_x;
+    signed char camera_plan_dir_y;
+    signed char camera_plan_cam_idx;
 } local_state;
 
 extern unsigned short player_colors_map[];
