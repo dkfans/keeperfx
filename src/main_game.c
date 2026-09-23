@@ -362,7 +362,7 @@ TbBool startup_saved_packet_game(void)
     frontend_alliances = game.packet_save_head.frontend_alliances;
     setup_alliances();
     are_disconnect_victories_allowed();
-    if (game.active_players_count == 1)
+    if (game.human_players_count == 1)
         game.game_kind = GKind_LocalGame;
     if (game.turns_stored < game.turns_fastforward)
         game.turns_fastforward = game.turns_stored;

@@ -157,7 +157,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         struct PlayerInfo *player = get_player(k);
         player->id_number = k;
         player->user_id = i;
-        player->allocflags |= PlaF_Allocated;
+        player->allocflags |= PlaF_Allocated | PlaF_OriginallyHuman;
         switch (sync->video_rotate_mode) {
             case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
             case 1: player->view_mode_restore = PVM_IsoStraightView; break;
@@ -341,14 +341,14 @@ void setup_count_players(void)
 {
   if (game.game_kind == GKind_LocalGame)
   {
-    game.active_players_count = 1;
+    game.human_players_count = 1;
   } else
   {
-    game.active_players_count = 0;
+    game.human_players_count = 0;
     for (int i = 0; i < MAX_NET_USERS; i++)
     {
       if (net_user_info[i].network_user_active)
-        game.active_players_count++;
+        game.human_players_count++;
     }
   }
 }
@@ -397,9 +397,10 @@ void are_disconnect_victories_allowed(void)
         if (!player_exists(get_player(plyr_idx))) {
             continue;
         }
-        for (int other_idx = 0; other_idx < game.active_players_count; other_idx++) {
+        for (PlayerNumber other_idx = 0; other_idx < PLAYERS_COUNT; other_idx++) {
             struct PlayerInfo *other = get_player(other_idx);
-            if (player_exists(other) && (other_idx != plyr_idx) && players_are_enemies(plyr_idx, other->id_number)) {
+            if (player_exists(other) && flag_is_set(other->allocflags, PlaF_OriginallyHuman)
+                && (other_idx != plyr_idx) && players_are_enemies(plyr_idx, other->id_number)) {
                 disconnect_victory_enabled[plyr_idx] = true;
                 break;
             }
@@ -436,21 +437,6 @@ static void resolve_network_quit_outcome(struct PlayerInfo *player)
         return;
     }
     set_player_as_won_level(player);
-}
-
-TbBool player_has_enemies_to_defeat(const struct PlayerInfo *player)
-{
-    for (int i = 0; i < PLAYERS_COUNT; i++) {
-        struct PlayerInfo *other = get_player(i);
-        TbBool players_at_war = players_are_enemies(player->id_number, other->id_number) || players_are_enemies(other->id_number, player->id_number);
-        TbBool is_active_enemy = player_exists(other) && (other != player) && other->is_active == 1 && !player_cannot_win(other->id_number) && players_at_war;
-        TbBool is_human_driven = (other->allocflags & PlaF_CompCtrl) == 0 && user_present(other->user_id);
-        TbBool is_initial_computer_player = (other->allocflags & PlaF_CompCtrl) != 0 && i >= game.active_players_count;
-        if (is_active_enemy && (is_human_driven || is_initial_computer_player)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 TbBool network_human_contenders_remain(void)
@@ -583,7 +569,7 @@ static void resolve_disconnect_victories(struct PlayerInfo *departed)
         if (!disconnect_victory_enabled[plyr_idx] || !players_are_enemies(plyr_idx, departed->id_number)) {
             continue;
         }
-        if (player_has_enemies_to_defeat(player)) {
+        if (!victory_candidates_fully_allied(false)) {
             continue;
         }
         int32_t plyr_count = 0;

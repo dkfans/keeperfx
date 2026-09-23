@@ -40,6 +40,8 @@ struct PlayerInfo;
 /******************************************************************************/
 TbBool player_has_lost(PlayerNumber plyr_idx);
 TbBool player_cannot_win(PlayerNumber plyr_idx);
+TbBool player_is_victory_candidate(const struct PlayerInfo *player);
+TbBool victory_candidates_fully_allied(TbBool humans_only);
 void set_player_as_won_level(struct PlayerInfo *player);
 void set_player_as_lost_level(struct PlayerInfo *player);
 

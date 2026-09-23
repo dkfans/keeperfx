@@ -76,18 +76,14 @@ static void check_players_won(void)
     if (!network_is_active())
         return;
 
-    struct PlayerInfo* curPlayer;
+    if (!victory_candidates_fully_allied(false))
+        return;
+
     for (PlayerNumber playerIdx = 0; playerIdx < PLAYERS_COUNT; ++playerIdx)
     {
-        curPlayer = get_player(playerIdx);
-        if (!player_exists(curPlayer) || (curPlayer->is_active != 1) || (curPlayer->victory_state != VicS_Undecided))
-            continue;
-
-        if (player_has_enemies_to_defeat(curPlayer))
-            continue;
-
-        set_player_as_won_level(curPlayer);
-        return;
+        struct PlayerInfo* curPlayer = get_player(playerIdx);
+        if (player_is_victory_candidate(curPlayer) && (curPlayer->victory_state == VicS_Undecided))
+            set_player_as_won_level(curPlayer);
     }
 }
 

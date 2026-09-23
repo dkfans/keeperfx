@@ -91,6 +91,42 @@ TbBool player_cannot_win(PlayerNumber plyr_idx)
     return false;
 }
 
+// player dropped and is computer-controlled
+static TbBool player_is_ai_standin(const struct PlayerInfo *player)
+{
+    return flag_is_set(player->allocflags, PlaF_CompCtrl) && flag_is_set(player->allocflags, PlaF_OriginallyHuman);
+}
+
+TbBool player_is_victory_candidate(const struct PlayerInfo *player)
+{
+    return player_exists(player)
+        && player->is_active == 1
+        && player->id_number != game.neutral_player_num
+        && !player_is_ai_standin(player)
+        && !player_cannot_win(player->id_number);
+}
+
+static TbBool counts_for_alliance_graph(const struct PlayerInfo *player, TbBool humans_only)
+{
+    return player_is_victory_candidate(player) && (!humans_only || ((player->allocflags & PlaF_CompCtrl) == 0));
+}
+
+// check that the graph of alliances among remaining (human/all) players is transitive and reflexive.
+TbBool victory_candidates_fully_allied(TbBool humans_only)
+{
+    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
+        if (!counts_for_alliance_graph(get_player(i), humans_only)) {
+            continue;
+        }
+        for (PlayerNumber j = i + 1; j < PLAYERS_COUNT; j++) {
+            if (counts_for_alliance_graph(get_player(j), humans_only) && !players_are_mutual_allies(i, j)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void set_player_as_won_level(struct PlayerInfo *player)
 {
   if (player->victory_state != VicS_Undecided)
@@ -897,7 +933,8 @@ void init_players(void)
                 player->allocflags &= ~PlaF_CompCtrl;
             if ((player->allocflags & PlaF_CompCtrl) == 0)
             {
-              game.active_players_count++;
+              player->allocflags |= PlaF_OriginallyHuman;
+              game.human_players_count++;
               player->is_active = 1;
               game.game_kind = GKind_MultiGame;
               init_player(player, 0);
@@ -1127,7 +1164,7 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->user_id = SOLO_HUMAN_ID;
-    player->allocflags |= PlaF_Allocated;
+    player->allocflags |= PlaF_Allocated | PlaF_OriginallyHuman;
 
     if( player->id_number == PLAYER_GOOD)
     {

@@ -242,6 +242,19 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
       if (!player_is_friendly_or_defeated(i,win_plyr_idx))
         return false;
     }
+    
+    // KeeperFX behaviour on skirmish maps diverges from original in
+    // order to be more intuitive on existing multiplayer maps.
+    //
+    // This is to ensure that in competitive multiplayer, so long as
+    // two unallied humans can both plausibly win, the game will go on.
+    //
+    // (The unintuitive behaviour of the original is preserved for non-skirmish maps
+    // so that custom campaign levels built for the original behave faithfully.)
+    TbBool legacy_behaviour = !is_multiplayer_level(get_loaded_level_number());
+    
+    if (!victory_candidates_fully_allied(legacy_behaviour))
+        return false;
     SYNCDBG(1,"Returning true for player %ld",win_plyr_idx);
     return true;
 }
