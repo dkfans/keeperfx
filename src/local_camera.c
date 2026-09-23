@@ -52,7 +52,13 @@ static TbBool local_camera_ready;
 static MapCoord local_camera_move_target[2];
 static MapCoordDelta local_camera_move_delta[2];
 static struct Camera *local_camera_move_cam;
+static struct Packet freecam_packet;
 /******************************************************************************/
+
+static TbBool replay_is_detached(void)
+{
+    return game.packet_load_enable && local_state.replay_detached;
+}
 
 static void forget_camera_plan(void)
 {
@@ -113,6 +119,9 @@ void camera_packet_plan_motion(void)
     // 
     // We use a simple momentum-based approach and some math to prevent overshooting.
 
+    if (game.packet_load_enable) {
+        return;
+    }
     if (!local_camera_ready) {
         forget_camera_plan();
         return;
@@ -298,6 +307,18 @@ void update_local_cameras(void)
     destination_deviation_y = 0;
 
     memcpy(previous_local_cameras, destination_local_cameras, sizeof(previous_local_cameras));
+    if (replay_is_detached()) {
+        if (local_state.replay_view_type == PVT_DungeonTop) {
+            struct Camera *cam = &destination_local_cameras[local_state.replay_cam_idx];
+            process_local_camera_movement(cam, player);
+            process_camera_view_controls(cam, &freecam_packet, player);
+            view_process_camera_velocity(cam);
+        }
+        local_state.camera_movement_x = 0.0f;
+        local_state.camera_movement_y = 0.0f;
+        memset(&freecam_packet, 0, sizeof(freecam_packet));
+        return;
+    }
     if (pckt != NULL) {
         process_camera_action(destination_local_cameras, pckt);
         // Skip interpolation for parchment jumps, while retaining it for minimap dragging.
@@ -452,8 +473,76 @@ void update_local_view_prediction(const struct Packet *pckt)
     }
 }
 
+struct Packet *get_freecam_packet(void)
+{
+    return &freecam_packet;
+}
+
+TbBool replay_camera_detached(void)
+{
+    return replay_is_detached();
+}
+
+void replay_detach(void)
+{
+    if (replay_is_detached() || !local_camera_ready) {
+        return;
+    }
+    struct PlayerInfo *player = get_my_player();
+    int cam_idx = get_player_active_camera(player) - player->cameras;
+    if ((cam_idx != CamIV_Isometric) && (cam_idx != CamIV_FrontView)) {
+        cam_idx = (player->view_mode_restore == PVM_FrontView) ? CamIV_FrontView : CamIV_Isometric;
+    }
+    sync_camera_state(cam_idx, &player->cameras[cam_idx]);
+    local_camera_move_cam = NULL;
+    memset(&freecam_packet, 0, sizeof(freecam_packet));
+    local_state.replay_detached = true;
+    local_state.replay_view_type = PVT_DungeonTop;
+    local_state.replay_cam_idx = cam_idx;
+}
+
+void replay_attach(void)
+{
+    if (!local_state.replay_detached) {
+        return;
+    }
+    if (local_state.replay_view_type == PVT_MapScreen) {
+        replay_freecam_set_map(false);
+    }
+    local_state.replay_detached = false;
+    init_local_cameras(get_my_player());
+}
+
+void replay_freecam_set_map(TbBool on)
+{
+    if (!replay_is_detached()) {
+        return;
+    }
+    local_state.replay_view_type = on ? PVT_MapScreen : PVT_DungeonTop;
+    toggle_status_menu(on ? 0 : ((game.operation_flags & GOF_ShowPanel) != 0));
+}
+
+void replay_freecam_jump(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    if (!replay_is_detached()) {
+        return;
+    }
+    struct Packet jump;
+    memset(&jump, 0, sizeof(jump));
+    jump.action = PckA_ZoomFromMap;
+    jump.actn_par1 = stl_x;
+    jump.actn_par2 = stl_y;
+    process_camera_action(destination_local_cameras, &jump);
+    memcpy(previous_local_cameras, destination_local_cameras, sizeof(previous_local_cameras));
+    memcpy(local_cameras, destination_local_cameras, sizeof(local_cameras));
+    replay_freecam_set_map(false);
+}
+
 unsigned char get_local_view_type(const struct PlayerInfo *player)
 {
+    if (replay_is_detached() && is_my_player(player)) {
+        return local_state.replay_view_type;
+    }
     if (!is_my_player(player) || local_state.view_type == PVT_None) {
         return player->view_type;
     }
@@ -468,6 +557,12 @@ struct Camera* get_local_active_camera(struct PlayerInfo *player)
     struct Camera *camera = get_player_active_camera(player);
     if (camera == NULL || !is_my_player(player) || !local_camera_ready) {
         return camera;
+    }
+    if (replay_is_detached()) {
+        if (local_state.replay_view_type == PVT_MapScreen) {
+            return &local_cameras[CamIV_Parchment];
+        }
+        return &local_cameras[local_state.replay_cam_idx];
     }
     unsigned char view_type = get_local_view_type(player);
     if (view_type == PVT_MapScreen) {

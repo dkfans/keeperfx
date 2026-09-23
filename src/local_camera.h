@@ -43,6 +43,12 @@ void update_local_view_prediction(const struct Packet *pckt);
 unsigned char get_local_view_type(const struct PlayerInfo *player);
 struct Camera* get_local_active_camera(struct PlayerInfo *player);
 void camera_packet_plan_motion(void);
+struct Packet *get_freecam_packet(void);
+TbBool replay_camera_detached(void);
+void replay_detach(void);
+void replay_attach(void);
+void replay_freecam_set_map(TbBool on);
+void replay_freecam_jump(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

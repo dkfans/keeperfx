@@ -569,7 +569,7 @@ static void draw_bottom_right_text(const char *text, int line)
 // name of user to display during replay
 static const char *replay_get_displayed_user_name(void)
 {
-    if (!game.packet_load_enable)
+    if (!game.packet_load_enable || replay_camera_detached())
         return NULL;
     int users = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {

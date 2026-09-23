@@ -308,6 +308,10 @@ extern struct LocalState {
     signed char camera_plan_dir_x;
     signed char camera_plan_dir_y;
     signed char camera_plan_cam_idx;
+    // freecam. TODO: use spectator implementation instead, once that is implemented
+    TbBool replay_detached;
+    unsigned char replay_view_type;
+    unsigned char replay_cam_idx;
 } local_state;
 
 extern unsigned short player_colors_map[];
