@@ -233,44 +233,63 @@ void GLUIRenderer::ensure_clut_valid()
     m_clut_used = 1;
 }
 
-float GLUIRenderer::resolve_clut_v(const unsigned char* cmap)
+int GLUIRenderer::resolve_clut_row(const unsigned char* cmap)
 {
-    const float identity_v = 0.5f / (float)k_clut_rows;
-    if (!cmap || !m_resource_mapper) return identity_v;
-    const GLTexture* clut_tex = m_resource_mapper->ResolveTexture(m_clut_tex_handle);
-    if (!clut_tex) return identity_v;
+    if (!cmap || !m_resource_mapper)
+        return 0; // identity row
+
+    const GLTexture* clut_tex =
+        m_resource_mapper->ResolveTexture(m_clut_tex_handle);
+
+    if (!clut_tex)
+        return 0;
 
     ensure_clut_valid();
+
     for (size_t i = 0; i < m_clut_remaps.size(); ++i)
     {
         if (std::memcmp(m_clut_remaps[i].data(), cmap, 256) == 0)
-            return (float(i + 1) + 0.5f) / (float)k_clut_rows;
+            return (int)i + 1;
     }
 
     if (m_clut_used >= k_clut_rows)
-        return identity_v;
+        return 0; // identity fallback
 
     const int row_idx = m_clut_used++;
+
     uint8_t row[256 * 4];
+
     for (int i = 0; i < 256; ++i)
     {
         const unsigned int palette_index = cmap[i];
-        row[i * 4 + 0] = m_frame_palette ? m_frame_palette[palette_index * 4 + 0] : 255;
-        row[i * 4 + 1] = m_frame_palette ? m_frame_palette[palette_index * 4 + 1] : 255;
-        row[i * 4 + 2] = m_frame_palette ? m_frame_palette[palette_index * 4 + 2] : 255;
+
+        row[i * 4 + 0] =
+            m_frame_palette ? m_frame_palette[palette_index * 4 + 0] : 255;
+        row[i * 4 + 1] =
+            m_frame_palette ? m_frame_palette[palette_index * 4 + 1] : 255;
+        row[i * 4 + 2] =
+            m_frame_palette ? m_frame_palette[palette_index * 4 + 2] : 255;
         row[i * 4 + 3] = 255;
     }
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, clut_tex->id);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, row_idx, 256, 1, GL_RGBA, GL_UNSIGNED_BYTE, row);
+
+    glTexSubImage2D(
+        GL_TEXTURE_2D, 0,
+        0, row_idx,
+        256, 1,
+        GL_RGBA, GL_UNSIGNED_BYTE,
+        row);
+
     glBindTexture(GL_TEXTURE_2D, 0);
     glActiveTexture(GL_TEXTURE0);
 
     std::array<uint8_t, 256> copy;
     std::memcpy(copy.data(), cmap, copy.size());
     m_clut_remaps.push_back(copy);
-    return (float(row_idx) + 0.5f) / (float)k_clut_rows;
+
+    return row_idx;
 }
 
 void GLUIRenderer::draw_solid_quad(float x, float y, float w, float h, float r, float g, float b, float a)
@@ -314,7 +333,8 @@ void GLUIRenderer::DrawGlyphQuad(SpriteHandle glyph, float x, float y, int units
     float h = uv.pixel_h * units_per_px / 16.0f;
     if (sample_palette && cmap != nullptr)
     {
-        const float clut_v = resolve_clut_v(cmap);
+        const int clut_row = resolve_clut_row(cmap);
+        const float clut_v = ((float)clut_row + 0.5f) / (float)k_clut_rows;
         draw_textured_quad(m_shader_clut_handle, x, y, w, h, uv.u0, uv.v0, uv.u1, uv.v1, r, g, b, a, clut_v);
     }
     else
@@ -656,7 +676,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
                 q.remap_row = (float)(offset / 256);
             } else {
                 q.mode = (float)PASS_CLUT;
-                q.remap_row = resolve_clut_v(c.cmap);
+                q.remap_row = resolve_clut_row(c.cmap);
             }
             q.seq = c.seq;
             push_clipped(c.layer, q, c.clip);
@@ -749,7 +769,7 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
     }
 }
 
-void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, float remap_row)
+void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, int remap_row)
 {
     if (run.empty()) return;
     if (!m_resource_mapper) return;
@@ -834,7 +854,8 @@ void GLUIRenderer::FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, f
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, clut_tex ? clut_tex->id : 0);
         glUniform1i(glGetUniformLocation(shader, "u_clut"), 1);
-        glUniform1f(glGetUniformLocation(shader, "u_clut_v"), remap_row);
+        const float clut_v = ((float)remap_row + 0.5f) / (float)k_clut_rows;
+        glUniform1f(glGetUniformLocation(shader, "u_clut_v"), clut_v);
     }
     const GLGeometryBuffer* batch_geom = m_resource_mapper->ResolveGeometryBuffer(m_batch_geom_handle);
     if (!batch_geom) return;
@@ -860,7 +881,7 @@ void GLUIRenderer::FlushQuadLayer(std::vector<UIQuad>& quads, bool depth_test)
 
     std::vector<UIQuad> run;
     PassType run_pass = PASS_SPRITE;
-    float run_remap_row = -1.0f;
+    int run_remap_row = -1;
     for (const UIQuad& q : quads)
     {
         PassType p = classify(q.mode);
@@ -939,7 +960,7 @@ void GLUIRenderer::DrawGameUIQuadsInterleaved(std::vector<UIQuad>& quads,
     size_t qi = 0, ti = 0;
     std::vector<UIQuad> run;
     PassType run_pass = PASS_SPRITE;
-    float run_remap_row = -1.0f;
+    int run_remap_row = -1;
 
     auto flush_run = [&]() {
         if (!run.empty()) { FlushQuadRun(run, run_pass, run_remap_row); run.clear(); }

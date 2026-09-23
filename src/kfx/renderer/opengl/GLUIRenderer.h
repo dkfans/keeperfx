@@ -135,7 +135,7 @@ private:
                             float remap_row = -1.0f);
     void draw_solid_quad(float x, float y, float w, float h, float r, float g, float b, float a);
     void ensure_clut_valid();
-    float resolve_clut_v(const unsigned char* cmap);
+    int resolve_clut_row(const unsigned char* cmap);
 
     static constexpr SpriteHandle kDbcHandleBase = 0x80000000u;
     std::unordered_map<uint64_t, SpriteHandle> m_dbc_glyph_handles;
@@ -147,7 +147,7 @@ private:
         float r = 1, g = 1, b = 1, a = 1;
         float ndc_z = 0.5f;
         float mode = 0.0f;
-        float   remap_row = -1.0f;
+        int   remap_row = -1;
         uint32_t seq = 0;
     };
 
@@ -179,7 +179,7 @@ private:
      *  the actual GL work (bind program/textures, build the shared scratch
      *  vertex buffer, glDrawArrays). Shared by FlushQuadLayer() and
      *  DrawGameUIQuadsInterleaved()'s text-interleaved walk. */
-    void FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, float remap_row);
+    void FlushQuadRun(const std::vector<UIQuad>& run, PassType pass, int remap_row);
 
     /** Merge+batch+draw one GameUI-shaped quad vector interleaved with text
      *  by seq -- shared by DrawGameUILayerRT() (the real per-frame path) and
