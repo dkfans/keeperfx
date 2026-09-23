@@ -748,6 +748,24 @@ static short get_packet_load_game_control_inputs(void)
     disable_packet_mode();
     return true;
   }
+  if (is_game_key_pressed(Gkey_ToggleConsole, true, false)) 
+  {
+      debug_display_consolelog = !debug_display_consolelog;
+      return true;
+  }
+  struct UserState* ustate = get_local_user_state();
+  if ((ustate->init_flags & UsrIF_NewMPMessage) != 0)
+  {
+      get_players_message_inputs();
+      return true;
+  }
+  if (is_key_pressed(KC_RETURN, KMod_NONE))
+  {
+      ustate->init_flags |= UsrIF_NewMPMessage;
+      LbStartTextInput();
+      clear_key_pressed(KC_RETURN);
+      return true;
+  }
   return false;
 }
 

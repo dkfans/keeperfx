@@ -281,13 +281,25 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
 {
     unsigned short drwflags_mem = RendererGetDrawFlags();
     RendererClearDrawFlags(Lb_SPRITE_OUTLINE);
+    int32_t fill_inset = scale_ui_value_lofi(4);
+    /* Keep the fill out of the rounded outer edge, but cover the transparent
+       interior of the larger corner and button sprites. */
+    int32_t corner_width = scale_ui_value_lofi(12);
+    int32_t corner_height = scale_ui_value_lofi(12);
+    RendererClearDrawFlags(Lb_SPRITE_OUTLINE);
     if (style_type == ROUNDSLAB64K_LIGHT) {
         RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
         LbDrawBox(pos_x + scale_ui_value_lofi(4), pos_y + scale_ui_value_lofi(4), width - scale_ui_value_lofi(8), height - scale_ui_value_lofi(8), 1);
+        LbDrawBox(pos_x + fill_inset, pos_y + fill_inset, width - 2 * fill_inset, height - 2 * fill_inset, 1);
+        LbDrawBox(pos_x + width - fill_inset, pos_y + corner_height, fill_inset, height - 2 * corner_height, 1);
+        LbDrawBox(pos_x + corner_width, pos_y + height - fill_inset, width - 2 * corner_width, fill_inset, 1);
         RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
     } else {
         RendererAddDrawFlags(Lb_SPRITE_TRANSPAR8);
         LbDrawBox(pos_x + scale_ui_value_lofi(4), pos_y + scale_ui_value_lofi(4), width - scale_ui_value_lofi(8), height - scale_ui_value_lofi(8), 1);
+        LbDrawBox(pos_x + fill_inset, pos_y + fill_inset, width - 2 * fill_inset, height - 2 * fill_inset, 1);
+        LbDrawBox(pos_x + width - fill_inset, pos_y + corner_height, fill_inset, height - 2 * corner_height, 1);
+        LbDrawBox(pos_x + corner_width, pos_y + height - fill_inset, width - 2 * corner_width, fill_inset, 1);
         RendererClearDrawFlags(Lb_SPRITE_TRANSPAR8);
     }
     int x;
