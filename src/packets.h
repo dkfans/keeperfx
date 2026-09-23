@@ -284,14 +284,26 @@ struct Packet {
     TbBigChecksum checksum; //! Checksum of the entire game state of the previous turn, used solely for desync detection
     int8_t input_lag_turns;
     uint8_t action; //! Action kind performed by the player which owns this packet
-    int32_t actn_par1; //! Players action parameter #1
-    int32_t actn_par2; //! Players action parameter #2
+    int32_t actn_par1; //! action parameter #1
+    int32_t actn_par2; //! action parameter #2
     int32_t pos_x; //! Mouse Cursor Position X
     int32_t pos_y; //! Mouse Cursor Position Y
     uint32_t control_flags;
     uint8_t additional_packet_values; // uses the flags and values from TbPacketAddValues
-    int16_t actn_par3; //! Players action parameter #3
-    int16_t actn_par4; //! Players action parameter #4
+    
+    // union on packet_action_has_camera_position()
+    union
+    {
+        int16_t cam_x;
+        int16_t actn_par3; //! action parameter #3
+    };
+    
+    // union on packet_action_has_camera_position()
+    union
+    {
+        int16_t cam_y;
+        int16_t actn_par4; //! action parameter #4
+    };
 };
 
 // save file header for .pck files.
@@ -353,8 +365,11 @@ void process_map_packet_clicks(NetUserId user);
 void process_pause_packet(long a1, long a2);
 void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
 void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
+TbBool packet_action_has_camera_position(enum TbPacketAction action);
+void packet_set_camera_position(struct Packet *pckt, MapCoord x, MapCoord y);
+void packet_clear_camera_position(struct Packet *pckt);
+TbBool packet_get_camera_position(const struct Packet *pckt, MapCoord *x, MapCoord *y);
 int32_t camera_move_rate(const struct Camera* cam, const struct PlayerInfo* player, TbBool speedup);
-#define CAMERA_AXIS_FAST_MULT 3
 void process_camera_action(struct Camera cams[], const struct Packet* pckt);
 void process_first_person_look(struct Thing *thing, const struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
 TbBool can_process_creature_input(struct Thing *thing);

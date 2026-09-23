@@ -304,10 +304,6 @@ extern struct LocalState {
     float camera_movement_x;
     float camera_movement_y;
     TbBool camera_speedup_pressed;
-    // what the motion planner sent last turn
-    signed char camera_plan_dir_x;
-    signed char camera_plan_dir_y;
-    signed char camera_plan_cam_idx;
     // freecam. TODO: use spectator implementation instead, once that is implemented
     TbBool replay_detached;
     unsigned char replay_view_type;

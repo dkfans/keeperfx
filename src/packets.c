@@ -413,41 +413,71 @@ int32_t camera_move_rate(const struct Camera* cam, const struct PlayerInfo* play
     return inter_val;
 }
 
-static int32_t resolve_camera_axis(uint32_t flags, uint32_t neg_flag, uint32_t pos_flag, int32_t prev_dir, TbBool *fast)
+TbBool packet_action_has_camera_position(enum TbPacketAction action)
 {
-    const TbBool neg = (flags & neg_flag) != 0;
-    const TbBool pos = (flags & pos_flag) != 0;
-    *fast = neg && pos;
-    if (*fast)
-        return prev_dir;
-    if (neg)
-        return -1;
-    if (pos)
-        return 1;
-    return 0;
+    // Some packets require an additional par3 or par4, replacing the usual camera coordinates sent on that turn.
+    // (This is fine so long as such packets are occasional, the camera coordinates don't need to be exact.)
+    
+    switch (action)
+    {
+    case PckA_ApplyRoomspaceDigTag:
+        return false;
+    default:
+        return true;
+    }
 }
 
-static void process_camera_move_flags(struct Camera* cam, const struct Packet* pckt, const struct PlayerInfo* player)
+// shift that fits camera position in 16 bits.
+static int camera_position_shift(void)
 {
-    const int32_t rate = camera_move_rate(cam, player, false);
-    TbBool fast_y;
-    TbBool fast_x;
-    const int32_t dir_y = resolve_camera_axis(pckt->control_flags, PCtr_MoveUp, PCtr_MoveDown, cam->last_move_dir_y, &fast_y);
-    const int32_t dir_x = resolve_camera_axis(pckt->control_flags, PCtr_MoveLeft, PCtr_MoveRight, cam->last_move_dir_x, &fast_x);
-    const int32_t mult_y = fast_y ? CAMERA_AXIS_FAST_MULT : 1;
-    const int32_t mult_x = fast_x ? CAMERA_AXIS_FAST_MULT : 1;
-    cam->last_move_dir_y = dir_y;
-    cam->last_move_dir_x = dir_x;
-    if (cam->view_mode == PVM_ParchmentView)
-    {
-        if (dir_y != 0)
-            view_set_camera_y_velocity(cam, dir_y * mult_y * (rate / 4), dir_y * mult_y * rate);
-        if (dir_x != 0)
-            view_set_camera_x_velocity(cam, dir_x * mult_x * (rate / 4), dir_x * mult_x * rate);
+    const int32_t max_coord = max(MAX_SUBTILES_X, MAX_SUBTILES_Y) * COORD_PER_STL - 1;
+    int shift = 0;
+    while ((max_coord >> shift) >= UINT16_MAX)
+        shift++;
+    return shift;
+}
+
+void packet_set_camera_position(struct Packet *pckt, MapCoord x, MapCoord y)
+{
+    if (!packet_action_has_camera_position(pckt->action))
         return;
-    }
-    view_set_camera_y_velocity(cam, dir_y * mult_y * (rate / 4), (int32_t)game.map_subtiles_y * COORD_PER_STL);
-    view_set_camera_x_velocity(cam, dir_x * mult_x * (rate / 4), (int32_t)game.map_subtiles_x * COORD_PER_STL);
+    const int shift = camera_position_shift();
+    pckt->cam_x = (int16_t)(uint16_t)((max(x, 0) >> shift) + 1);
+    pckt->cam_y = (int16_t)(uint16_t)((max(y, 0) >> shift) + 1);
+}
+
+void packet_clear_camera_position(struct Packet *pckt)
+{
+    if (!packet_action_has_camera_position(pckt->action))
+        return;
+    pckt->cam_x = 0;
+    pckt->cam_y = 0;
+}
+
+TbBool packet_get_camera_position(const struct Packet *pckt, MapCoord *x, MapCoord *y)
+{
+    if (!packet_action_has_camera_position(pckt->action))
+        return false;
+    if (pckt->cam_x == 0 || pckt->cam_y == 0)
+        return false;
+    const int shift = camera_position_shift();
+    const MapCoord half = (1 << shift) >> 1;
+    *x = (((MapCoord)(uint16_t)pckt->cam_x - 1) << shift) + half;
+    *y = (((MapCoord)(uint16_t)pckt->cam_y - 1) << shift) + half;
+    return true;
+}
+
+static void process_camera_position(struct Camera* cam, const struct Packet* pckt)
+{
+    if ((cam->view_mode != PVM_IsoWibbleView) && (cam->view_mode != PVM_IsoStraightView) && (cam->view_mode != PVM_FrontView))
+        return;
+    MapCoord x;
+    MapCoord y;
+    if (!packet_get_camera_position(pckt, &x, &y))
+        return;
+    view_set_camera_position(cam, x, y);
+    cam->velocity_x = 0;
+    cam->velocity_y = 0;
 }
 
 void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player)
@@ -455,7 +485,7 @@ void process_camera_controls(struct Camera* cam, const struct Packet* pckt, stru
     if (cam == NULL) {
         return;
     }
-    process_camera_move_flags(cam, pckt, player);
+    process_camera_position(cam, pckt);
     process_camera_view_controls(cam, pckt, player);
 }
 
@@ -1058,7 +1088,7 @@ TbBool process_user_global_packet_action(NetUserId user)
     }
     case PckA_PlyrQueryCreature:
     {
-        query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
+        query_creature(player, pckt->actn_par1, (pckt->actn_par2 & 0x01) != 0, (pckt->actn_par2 & 0x02) != 0);
         return false;
     }
     default:
@@ -1150,7 +1180,6 @@ void process_user_creature_passenger_packet_action(NetUserId user)
     {
         player->influenced_thing_idx = pckt->actn_par1;
         player->influenced_thing_creation = pckt->actn_par2;
-        stop_player_cameras(player);
         set_player_instance(player, PI_PsngrCtLeave, 0);
     }
     SYNCDBG(8,"Finished");
@@ -1472,7 +1501,6 @@ void process_user_creature_control_packet_action(NetUserId user)
       {
           creature_drop_dragged_object(thing, dragtng);
       }
-      stop_player_cameras(player);
       set_player_instance(player, PI_DirctCtLeave, 0);
       break;
   case PckA_CtrlCrtrSetInstnc:
@@ -1610,6 +1638,8 @@ void exchange_packets(void)
     set_local_packet_turn();
     update_turn_checksums();
     update_local_dig_tag_prediction();
+    if (!game.packet_load_enable)
+        camera_packet_set_position(get_local_packet());
     store_packet_history(local_user, get_local_packet());
     host_spoof_dropped_user_packets();
     if (game.game_kind != GKind_LocalGame)

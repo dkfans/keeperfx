@@ -42,7 +42,7 @@ void move_local_camera_to_position(MapCoord x, MapCoord y);
 void update_local_view_prediction(const struct Packet *pckt);
 unsigned char get_local_view_type(const struct PlayerInfo *player);
 struct Camera* get_local_active_camera(struct PlayerInfo *player);
-void camera_packet_plan_motion(void);
+void camera_packet_set_position(struct Packet *pckt);
 struct Packet *get_freecam_packet(void);
 TbBool replay_camera_detached(void);
 void replay_detach(void);

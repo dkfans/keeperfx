@@ -41,6 +41,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+// TODO -- move these to LocalState
 static struct Camera local_cameras[CamIV_EndList];
 static struct Camera previous_local_cameras[CamIV_EndList];
 static struct Camera destination_local_cameras[CamIV_EndList];
@@ -60,148 +61,21 @@ static TbBool replay_is_detached(void)
     return game.packet_load_enable && local_state.replay_detached;
 }
 
-static void forget_camera_plan(void)
+void camera_packet_set_position(struct Packet *pckt)
 {
-    local_state.camera_plan_dir_x = 0;
-    local_state.camera_plan_dir_y = 0;
-    local_state.camera_plan_cam_idx = -1;
-}
-
-static int32_t error_after_brake(int32_t err, int32_t vel, int32_t prev, int32_t accel)
-{
-    if (accel <= 0)
-        return err;
-    while (vel != 0) {
-        const int32_t dir = (vel > 0) ? -1 : 1;
-        int32_t brake = (prev == dir) ? CAMERA_AXIS_FAST_MULT * accel : accel;
-        if (brake > abs(vel))
-            brake = accel;
-        if (brake > abs(vel))
-            break;
-        vel += dir * brake;
-        prev = dir;
-        err -= vel;
-    }
-    return err;
-}
-
-static int32_t plan_camera_axis(int32_t err, int32_t vel, int32_t prev, int32_t accel, TbBool *fast)
-{
-    static const signed char dirs[] = {1, 1, 0, -1, -1};
-    static const signed char mults[] = {CAMERA_AXIS_FAST_MULT, 1, 0, 1, CAMERA_AXIS_FAST_MULT};
-    const int32_t toward = (err >= 0) ? 1 : -1;
-    int32_t best_dir = 0;
-    int64_t best_cost = INT64_MAX;
-    *fast = false;
-    for (int i = 0; i < (int)(sizeof(dirs) / sizeof(dirs[0])); i++) {
-        const int32_t dir = toward * dirs[i];
-        const TbBool is_fast = (mults[i] == CAMERA_AXIS_FAST_MULT);
-        if (is_fast && (prev != dir))
-            continue;
-        const int32_t new_vel = vel + dir * mults[i] * accel;
-        const int32_t left = error_after_brake(err - new_vel, new_vel, dir, accel);
-        const int64_t cost = (left * toward < 0) ? 2 * (int64_t)abs(left) : abs(left);
-        if (cost < best_cost) {
-            best_cost = cost;
-            best_dir = dir;
-            *fast = is_fast;
-        }
-    }
-    return best_dir;
-}
-
-void camera_packet_plan_motion(void)
-{
-    // The local camera can flit about with alacrity, but we only get 4 bits
-    // per turn to convey this position approximately over the network.
-    //
-    // The camera position only really matters for replays and a few other things.
-    // 
-    // We use a simple momentum-based approach and some math to prevent overshooting.
-
-    if (game.packet_load_enable) {
-        return;
-    }
-    if (!local_camera_ready) {
-        forget_camera_plan();
-        return;
-    }
     struct PlayerInfo* player = get_my_player();
-    if (get_local_view_type(player) != player->view_type) {
-        forget_camera_plan();
+    if (!local_camera_ready || (get_local_view_type(player) != PVT_DungeonTop) || (player->view_type != PVT_DungeonTop)) {
+        // senseless to transmit camera coords during these times
+        packet_clear_camera_position(pckt);
         return;
     }
-
-    int cam_idx;
-    switch (get_local_active_camera(player)->view_mode)
-    {
-    case PVM_FrontView:
-        cam_idx = CamIV_FrontView;
-        break;
-
-    case PVM_IsoStraightView:
-    case PVM_IsoWibbleView:
-        cam_idx = CamIV_Isometric;
-        break;
-
-    default:
-        forget_camera_plan();
+    const int cam_idx = get_local_active_camera(player) - local_cameras;
+    if ((cam_idx != CamIV_Isometric) && (cam_idx != CamIV_FrontView)) {
+        packet_clear_camera_position(pckt);
         return;
     }
-
-    if (local_state.camera_plan_cam_idx != cam_idx) {
-        forget_camera_plan();
-    }
-
-    struct Camera* local_cam = &destination_local_cameras[cam_idx];
-    struct Camera* packet_cam = &player->cameras[cam_idx];
-    struct Packet* pckt = get_local_packet();
-
-    // if local camera has a move-destination, aim for that instead
-    MapCoord aimx = local_cam->mappos.x.val;
-    MapCoord aimy = local_cam->mappos.y.val;
-    if (local_camera_move_cam == local_cam) {
-        aimx = local_camera_move_target[0];
-        aimy = local_camera_move_target[1];
-    }
-
-    int32_t dmx = aimx - packet_cam->mappos.x.val;
-    int32_t dmy = aimy - packet_cam->mappos.y.val;
-
-    int32_t angle = local_cam->rotation_angle_x;
-    int32_t cos_angle = LbCosL(angle);
-    int32_t sin_angle = LbSinL(angle);
-    int32_t dcr = ((int64_t)dmx * cos_angle + (int64_t)dmy * sin_angle) >> 16;
-    int32_t dcf = (-(int64_t)dmx * sin_angle + (int64_t)dmy * cos_angle) >> 16;
-
-    const int32_t rate = camera_move_rate(packet_cam, player, false);
-
-    TbBool fast_r;
-    TbBool fast_f;
-
-    // if there's a mismatch here, play it safe and use 1x
-    const int32_t prev_r = (local_state.camera_plan_dir_x == packet_cam->last_move_dir_x) ? local_state.camera_plan_dir_x : 0;
-    const int32_t prev_f = (local_state.camera_plan_dir_y == packet_cam->last_move_dir_y) ? local_state.camera_plan_dir_y : 0;
-    const int32_t dir_r = plan_camera_axis(dcr, packet_cam->velocity_x, prev_r, rate / 4, &fast_r);
-    const int32_t dir_f = plan_camera_axis(dcf, packet_cam->velocity_y, prev_f, rate / 4, &fast_f);
-
-    if (fast_r) {
-        set_packet_control(pckt, PCtr_MoveLeft | PCtr_MoveRight);
-    } else if (dir_r > 0) {
-        set_packet_control(pckt, PCtr_MoveRight);
-    } else if (dir_r < 0) {
-        set_packet_control(pckt, PCtr_MoveLeft);
-    }
-    if (fast_f) {
-        set_packet_control(pckt, PCtr_MoveUp | PCtr_MoveDown);
-    } else if (dir_f > 0) {
-        set_packet_control(pckt, PCtr_MoveDown);
-    } else if (dir_f < 0) {
-        set_packet_control(pckt, PCtr_MoveUp);
-    }
-    local_state.camera_plan_dir_x = dir_r;
-    local_state.camera_plan_dir_y = dir_f;
-    local_state.camera_plan_cam_idx = cam_idx;
+    const struct Camera *cam = &destination_local_cameras[cam_idx];
+    packet_set_camera_position(pckt, cam->mappos.x.val, cam->mappos.y.val);
 }
 
 static void sync_camera_state(int cam_idx, struct Camera *cam)
@@ -309,6 +183,7 @@ void update_local_cameras(void)
     memcpy(previous_local_cameras, destination_local_cameras, sizeof(previous_local_cameras));
     if (replay_is_detached()) {
         if (local_state.replay_view_type == PVT_DungeonTop) {
+            process_camera_action(destination_local_cameras, &freecam_packet);
             struct Camera *cam = &destination_local_cameras[local_state.replay_cam_idx];
             process_local_camera_movement(cam, player);
             process_camera_view_controls(cam, &freecam_packet, player);

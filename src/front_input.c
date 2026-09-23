@@ -200,6 +200,8 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
 /******************************************************************************/
 static void get_dungeon_control_nonaction_inputs(void);
 static void get_isometric_view_nonaction_inputs(struct Packet* packet);
+static void get_dungeon_small_map_placement(long *x, long *y, long *zoom);
+static long get_dungeon_small_map_inputs(struct Packet *pckt);
 static void get_front_view_nonaction_inputs(struct Packet* pckt);
 static void get_creature_control_nonaction_inputs(void);
 static short zoom_shortcuts(void);
@@ -587,6 +589,50 @@ static void cycle_replay_player(int step)
     }
 }
 
+static void get_snap_camera_inputs(const struct Camera *cam, struct Packet *pckt)
+{
+    int angle = cam->rotation_angle_x;
+    if (cam->view_mode == PVM_FrontView)
+    {
+        if (key_modifiers & KMod_CONTROL)
+        {
+            set_packet_control(pckt, PCtr_ViewRotateCW);
+            return;
+        }
+        if (key_modifiers & KMod_SHIFT)
+        {
+            set_packet_control(pckt, PCtr_ViewRotateCCW);
+            return;
+        }
+        angle = ((angle == ANGLE_NORTH) || (angle == DEGREES_360)) ? ANGLE_SOUTH : ANGLE_NORTH;
+    }
+    else if (key_modifiers & KMod_CONTROL)
+    {
+        angle = (angle + DEGREES_45) & -DEGREES_45 & ANGLE_MASK;
+    }
+    else if (key_modifiers & KMod_SHIFT)
+    {
+        angle = (angle - 1) & -DEGREES_45 & ANGLE_MASK;
+    }
+    else if (angle == ANGLE_NORTH || angle == DEGREES_360)
+    {
+        angle = ANGLE_SOUTH;
+    }
+    else if (angle == ANGLE_EAST)
+    {
+        angle = ANGLE_WEST;
+    }
+    else if (angle == ANGLE_WEST)
+    {
+        angle = ANGLE_EAST;
+    }
+    else
+    {
+        angle = ANGLE_NORTH;
+    }
+    set_packet_action(pckt, PckA_SetMapRotation, angle, 0, 0, 0);
+}
+
 static TbBool replay_camera_keys_pressed(void)
 {
     static const long keys[] = {Gkey_RotateCW, Gkey_RotateCCW, Gkey_ZoomIn, Gkey_ZoomOut, Gkey_TiltUp, Gkey_TiltDown, Gkey_TiltReset};
@@ -597,7 +643,18 @@ static TbBool replay_camera_keys_pressed(void)
         if (is_game_key_pressed(keys[i], false, false))
             return true;
     }
-    return wheel_scrolled_up || wheel_scrolled_down;
+    if (is_game_key_pressed(Gkey_SnapCamera, false, true))
+        return true;
+    if (left_button_clicked && ((game.operation_flags & GOF_ShowGui) != 0))
+    {
+        long x;
+        long y;
+        long zoom;
+        get_dungeon_small_map_placement(&x, &y, &zoom);
+        if (mouse_is_over_panel_map(x, y))
+            return true;
+    }
+    return false;
 }
 
 static void get_replay_freecam_inputs(void)
@@ -649,6 +706,13 @@ static void get_replay_freecam_inputs(void)
         replay_freecam_set_map(true);
         return;
     }
+    if (get_dungeon_small_map_inputs(get_freecam_packet()))
+        return;
+    if (is_game_key_pressed(Gkey_SnapCamera, true, true))
+    {
+        get_snap_camera_inputs(camera, get_freecam_packet());
+        return;
+    }
     switch (camera->view_mode)
     {
     case PVM_IsoWibbleView:
@@ -687,7 +751,7 @@ static short get_packet_load_game_control_inputs(void)
   return false;
 }
 
-static long get_small_map_inputs(long x, long y, long zoom)
+static long get_small_map_inputs(long x, long y, long zoom, struct Packet *pckt)
 {
   SYNCDBG(7,"Starting");
   short result = 0;
@@ -702,9 +766,9 @@ static long get_small_map_inputs(long x, long y, long zoom)
       clicked_on_small_map = 1;
       left_button_clicked = 0;
     }
-    if ( do_left_map_click(x, y, curr_mx, curr_my, zoom)
-      || do_right_map_click(x, y, curr_mx, curr_my, zoom)
-      || do_left_map_drag(curr_mx, curr_my, zoom) )
+    if ( do_left_map_click(x, y, curr_mx, curr_my, zoom, pckt)
+      || do_right_map_click(x, y, curr_mx, curr_my, zoom, pckt)
+      || do_left_map_drag(curr_mx, curr_my, zoom, pckt) )
       result = 1;
   } else
   {
@@ -1075,7 +1139,7 @@ static TbBool get_level_lost_inputs(void)
                   mmzoom = (local_state.minimap_zoom) / (3-16/mm_units_per_px);
               else
                   mmzoom = (local_state.minimap_zoom);
-              inp_done = get_small_map_inputs(local_state.minimap_pos_x*mm_units_per_px/16, local_state.minimap_pos_y*mm_units_per_px/16, mmzoom);
+              inp_done = get_small_map_inputs(local_state.minimap_pos_x*mm_units_per_px/16, local_state.minimap_pos_y*mm_units_per_px/16, mmzoom, get_local_packet());
               if ( !inp_done )
                 get_bookmark_inputs();
               get_dungeon_control_nonaction_inputs();
@@ -1335,34 +1399,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
         // Middle mouse camera actions for IsometricView
         if (is_game_key_pressed(Gkey_SnapCamera, true, true))
         {
-            struct Camera* cam = &player->cameras[CamIV_Isometric];
-            struct Packet* pckt = get_local_packet();
-            int angle = cam->rotation_angle_x;
-            if (key_modifiers & KMod_CONTROL)
-            {
-                angle = (angle + DEGREES_45) & -DEGREES_45 & ANGLE_MASK;
-            }
-            else if (key_modifiers & KMod_SHIFT)
-            {
-                angle = (angle - 1) & -DEGREES_45 & ANGLE_MASK;
-            }
-            else if (angle == ANGLE_NORTH || angle == DEGREES_360)
-            {
-                angle = ANGLE_SOUTH;
-            }
-            else if (angle == ANGLE_EAST)
-            {
-                angle = ANGLE_WEST;
-            }
-            else if (angle == ANGLE_WEST)
-            {
-                angle = ANGLE_EAST;
-            }
-            else
-            {
-                angle = ANGLE_NORTH;
-            }
-            set_packet_action(pckt, PckA_SetMapRotation, angle, 0, 0, 0);
+            get_snap_camera_inputs(&player->cameras[CamIV_Isometric], get_local_packet());
             return true;
         }
     }
@@ -1375,29 +1412,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
         // Middle mouse camera actions for FrontView
         if (is_game_key_pressed(Gkey_SnapCamera, true, true))
         {
-            struct Camera* cam = &player->cameras[CamIV_FrontView];
-            struct Packet* pckt = get_local_packet();
-            int angle = cam->rotation_angle_x;
-            if (key_modifiers & KMod_CONTROL)
-            {
-                set_packet_control(pckt, PCtr_ViewRotateCW);
-            }
-            else if (key_modifiers & KMod_SHIFT)
-            {
-                set_packet_control(pckt, PCtr_ViewRotateCCW);
-            }
-            else
-            {
-                if (angle == ANGLE_NORTH || angle == DEGREES_360)
-                {
-                    angle = ANGLE_SOUTH;
-                }
-                else
-                {
-                    angle = ANGLE_NORTH;
-                }
-                set_packet_action(pckt, PckA_SetMapRotation, angle, 0, 0, 0);
-            }
+            get_snap_camera_inputs(&player->cameras[CamIV_FrontView], get_local_packet());
             return true;
         }
     }
@@ -1435,12 +1450,8 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     return false;
 }
 
-static TbBool get_dungeon_control_action_inputs(void)
+static void get_dungeon_small_map_placement(long *x, long *y, long *zoom)
 {
-    struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_local_user_state();
-    if (get_players_packet_action(player) != PckA_None)
-        return true;
     int mm_units_per_px;
     {
         int mnu_num = menu_id_to_number(GMnu_MAIN);
@@ -1451,14 +1462,32 @@ static TbBool get_dungeon_control_action_inputs(void)
             mm_units_per_px = 1;
         }
     }
-    long mmzoom;
     if (16 / mm_units_per_px < 3)
     {
-        mmzoom = (local_state.minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
+        *zoom = (local_state.minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
     }
     else
-        mmzoom = (local_state.minimap_zoom);
-    if (get_small_map_inputs(local_state.minimap_pos_x * mm_units_per_px / 16, local_state.minimap_pos_y * mm_units_per_px / 16, mmzoom))
+        *zoom = (local_state.minimap_zoom);
+    *x = local_state.minimap_pos_x * mm_units_per_px / 16;
+    *y = local_state.minimap_pos_y * mm_units_per_px / 16;
+}
+
+static long get_dungeon_small_map_inputs(struct Packet *pckt)
+{
+    long x;
+    long y;
+    long zoom;
+    get_dungeon_small_map_placement(&x, &y, &zoom);
+    return get_small_map_inputs(x, y, zoom, pckt);
+}
+
+static TbBool get_dungeon_control_action_inputs(void)
+{
+    struct PlayerInfo* player = get_my_player();
+    struct UserState* ustate = get_local_user_state();
+    if (get_players_packet_action(player) != PckA_None)
+        return true;
+    if (get_dungeon_small_map_inputs(get_local_packet()))
         return 1;
 
     if (player->work_state == PSt_CtrlDungeon)
@@ -2400,8 +2429,6 @@ static void get_overhead_view_nonaction_inputs(void)
 {
     SYNCDBG(19,"Starting");
     struct Packet* pckt = get_local_packet();
-    long my = my_mouse_y;
-    long mx = my_mouse_x;
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, false, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, false, true);
     local_state.camera_speedup_pressed = false;
@@ -2417,14 +2444,6 @@ static void get_overhead_view_nonaction_inputs(void)
           if ( is_game_key_pressed(Gkey_MoveDown, false, speed_pressed!=0) )
             set_packet_control(pckt, PCtr_ViewZoomOut);
         }
-        if (my <= 4)
-          set_packet_control(pckt, PCtr_MoveUp);
-        if (my >= MyScreenHeight-4)
-          set_packet_control(pckt, PCtr_MoveDown);
-        if (mx <= 4)
-          set_packet_control(pckt, PCtr_MoveLeft);
-        if (mx >= MyScreenWidth-4)
-          set_packet_control(pckt, PCtr_MoveRight);
     }
 }
 

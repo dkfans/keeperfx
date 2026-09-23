@@ -92,9 +92,9 @@ struct CatalogueEntry {
 };
 
 struct FileChunkHeader {
-    unsigned long len;
-    unsigned long id;
-    unsigned long ver;
+    uint32_t len;
+    uint32_t id;
+    uint32_t ver;
 };
 
 /******************************************************************************/

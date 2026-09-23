@@ -589,11 +589,10 @@ static void do_map_rotate_stuff_subtile(float relpos_x, float relpos_y, MapSubtl
     *stl_y = lroundf(tmp_y) / COORD_PER_STL;
 }
 
-short do_left_map_drag(int32_t curr_x, int32_t curr_y, int32_t zoom)
+short do_left_map_drag(int32_t curr_x, int32_t curr_y, int32_t zoom, struct Packet *pckt)
 {
   SYNCDBG(17,"Starting");
   static float frac_x, frac_y;
-  struct PlayerInfo *player;
   if (!clicked_on_small_map)
   {
     grabbed_small_map = 0;
@@ -621,23 +620,20 @@ short do_left_map_drag(int32_t curr_x, int32_t curr_y, int32_t zoom)
   const MapSubtlCoord stl_y = coord_y / COORD_PER_STL;
   frac_x = exact_x - coord_x;
   frac_y = exact_y - coord_y;
-  player = get_my_player();
   game.hand_over_subtile_x = stl_x;
   game.hand_over_subtile_y = stl_y;
   if (subtile_has_slab(stl_x, stl_y))
   {
-    set_players_packet_action(player, PckA_BookmarkLoad, coord_x, coord_y, 0, 0);
+    set_packet_action(pckt, PckA_BookmarkLoad, coord_x, coord_y, 0, 0);
   }
   return 1;
 }
 
-short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom)
+short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom, struct Packet *pckt)
 {
   SYNCDBG(17,"Starting");
-  struct PlayerInfo *player;
   short result;
   result = 0;
-  player = get_my_player();
   if ((left_button_released) && (clicked_on_small_map))
   {
       if (grabbed_small_map)
@@ -653,7 +649,7 @@ short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr
         {
           const MapCoord x = subtile_coord_center(curr_x);
           const MapCoord y = subtile_coord_center(curr_y);
-          set_players_packet_action(player, PckA_BookmarkLoad, x, y, 0, 0);
+          set_packet_action(pckt, PckA_BookmarkLoad, x, y, 0, 0);
           result = 1;
         }
       }
@@ -664,7 +660,7 @@ short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr
   return result;
 }
 
-short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my, long zoom)
+short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my, long zoom, struct Packet *pckt)
 {
     int32_t x;
     int32_t y;
@@ -688,7 +684,7 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
         right_button_released = 0;
         if (subtile_has_slab(x, y))
         {
-            set_players_packet_action(player, PckA_UsePwrHandDrop, x, y, 0, 0);
+            set_packet_action(pckt, PckA_UsePwrHandDrop, x, y, 0, 0);
             return 1;
         }
     }

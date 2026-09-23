@@ -129,7 +129,7 @@ void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *
     pos2->z.val = pos.z.val;
 }
 
-static void view_set_camera_position(struct Camera *cam, MapCoord x, MapCoord y)
+void view_set_camera_position(struct Camera *cam, MapCoord x, MapCoord y)
 {
     cam->mappos.x.val = clamp(x, 0, game.map_subtiles_x * COORD_PER_STL - 1);
     cam->mappos.y.val = clamp(y, 0, game.map_subtiles_y * COORD_PER_STL - 1);
@@ -645,14 +645,6 @@ void view_process_camera_velocity(struct Camera *cam)
     cam->in_active_movement_rotation = false;
 }
 
-void stop_player_cameras(struct PlayerInfo *player)
-{
-    for (int i = 0; i < CamIV_EndList; i++) {
-        player->cameras[i].velocity_x = 0;
-        player->cameras[i].velocity_y = 0;
-    }
-}
-
 void view_set_camera_move_to_position(struct Camera *cam, MapCoord x, MapCoord y, MapCoordDelta *move_x, MapCoordDelta *move_y)
 {
     MapCoord positions[] = {cam->mappos.x.val, cam->mappos.y.val};
@@ -734,8 +726,5 @@ void update_all_players_cameras(void)
           update_player_camera(player);
     }
   }
-
-  // Send catchup packets if local camera has drifted too far from packet-based camera
-  camera_packet_plan_motion();
 }
 /******************************************************************************/

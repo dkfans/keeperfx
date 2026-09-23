@@ -85,9 +85,6 @@ struct Camera {
     TbBool in_active_movement_y;
     TbBool use_rotation_pivot;
     struct Coord2d rotation_pivot;
-    // last applied direction per axis
-    signed char last_move_dir_x;
-    signed char last_move_dir_y;
 };
 
 
@@ -123,7 +120,7 @@ void view_set_camera_rotation_velocity(struct Camera *cam, int32_t delta, int32_
 void view_set_camera_rotation_velocity_around(struct Camera *cam, int32_t delta, int32_t ilimit, MapCoord x, MapCoord y);
 void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
 void view_process_camera_velocity(struct Camera *cam);
-void stop_player_cameras(struct PlayerInfo *player);
+void view_set_camera_position(struct Camera *cam, MapCoord x, MapCoord y);
 void view_set_camera_move_to_position(struct Camera *cam, MapCoord x, MapCoord y, MapCoordDelta *move_x, MapCoordDelta *move_y);
 TbBool view_move_camera_to_position(struct Camera *cam, MapCoord x, MapCoord y, MapCoordDelta move_x, MapCoordDelta move_y);
 
