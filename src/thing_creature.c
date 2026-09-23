@@ -8038,10 +8038,7 @@ void script_move_creature(struct Thing* thing, TbMapLocation location, ThingMode
         clear_thing_velocity(thing);
     }
     reset_interpolation_of_thing(thing);
-    if (!is_thing_some_way_controlled(thing))
-    {
-        initialise_thing_state(thing, CrSt_CreatureDoingNothing);
-    }
+    set_start_state(thing);
     cctrl->turns_at_job = -1;
     check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
