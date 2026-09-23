@@ -1150,6 +1150,7 @@ void process_user_creature_passenger_packet_action(NetUserId user)
     {
         player->influenced_thing_idx = pckt->actn_par1;
         player->influenced_thing_creation = pckt->actn_par2;
+        stop_player_cameras(player);
         set_player_instance(player, PI_PsngrCtLeave, 0);
     }
     SYNCDBG(8,"Finished");
@@ -1471,6 +1472,7 @@ void process_user_creature_control_packet_action(NetUserId user)
       {
           creature_drop_dragged_object(thing, dragtng);
       }
+      stop_player_cameras(player);
       set_player_instance(player, PI_DirctCtLeave, 0);
       break;
   case PckA_CtrlCrtrSetInstnc:

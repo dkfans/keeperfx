@@ -645,6 +645,14 @@ void view_process_camera_velocity(struct Camera *cam)
     cam->in_active_movement_rotation = false;
 }
 
+void stop_player_cameras(struct PlayerInfo *player)
+{
+    for (int i = 0; i < CamIV_EndList; i++) {
+        player->cameras[i].velocity_x = 0;
+        player->cameras[i].velocity_y = 0;
+    }
+}
+
 void view_set_camera_move_to_position(struct Camera *cam, MapCoord x, MapCoord y, MapCoordDelta *move_x, MapCoordDelta *move_y)
 {
     MapCoord positions[] = {cam->mappos.x.val, cam->mappos.y.val};
