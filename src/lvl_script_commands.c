@@ -1174,6 +1174,7 @@ static void quick_player_information_check(const struct ScriptLine* scline)
     value->ulongs[1] = location;
     value->shorts[4] = x;
     value->shorts[5] = y;
+    value->shorts[6] = -1;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
