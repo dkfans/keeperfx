@@ -1,0 +1,272 @@
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Level Cosyton
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM            KeeperFX CCP Team
+REM  Date:     17 Aug 1997 - 06 Feb 2011
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
+LEVEL_VERSION(1)
+
+REM New rooms for the player:
+REM   TRAINING - when basic 3 are built
+REM New creatures for the player:
+REM   DEMON_SPAWN - from start (but needs TRAINING for attraction)
+REM There are two ways of triggering the heroes:
+REM - Way of reaching far AP - the player reaches AP on the right
+REM - Way of two DEMONSPAWNs - two of these have to be attracted
+
+REM Flags used:
+REM   PLAYER0,FLAG0 - Level State; 0-waiting for basic rooms; 1-waiting for TRAINING; 2-waiting for final trigger; 3,4,5-phases of final trigger.
+REM   PLAYER0,FLAG1 - State of TREASURE+LAIR+GARDEN+ENTRANCE acquiring; 0-not built/claimed; 1-all four built/claimed.
+REM   PLAYER0,FLAG2 - State of TRAINING building; 0-not built yet; 1-built.
+
+REM   PLAYER2,FLAG0 - Way of reaching far AP; 0-enabled; 1-disabled.
+REM   PLAYER2,FLAG1 - Way of two DEMONSPAWNs; 0-enabled; 1-disabled.
+
+REM   PLAYER0,FLAG3 - State of LOTL trigger, DEMONSPAWNs way, wave 1; 0-not spawned; 1-heroes spawned.
+REM   PLAYER0,FLAG4 - State of LOTL trigger, DEMONSPAWNs way, wave 2; 0-not spawned; 1-heroes spawned.
+REM   PLAYER0,FLAG5 - State of LOTL trigger, DEMONSPAWNs way, wave 3; 0-not spawned; 1-heroes spawned and can win game.
+
+REM   PLAYER2,FLAG3 - State of LOTL trigger, AP reach way, wave 1; 0-not spawned; 1-heroes spawned.
+REM   PLAYER2,FLAG4 - State of LOTL trigger, AP reach way, wave 2; 0-not spawned; 1-heroes spawned.
+REM   PLAYER2,FLAG5 - State of LOTL trigger, AP reach way, wave 3; 0-not spawned; 1-heroes spawned and can win game.
+
+REM Timers used:
+REM   PLAYER0,TIMER0
+REM   PLAYER0,TIMER1
+REM   PLAYER0,TIMER2
+
+SET_GENERATE_SPEED(350)
+
+START_MONEY(PLAYER0,2500)
+
+MAX_CREATURES(PLAYER0,14)
+
+ADD_CREATURE_TO_POOL(BUG,3)
+ADD_CREATURE_TO_POOL(FLY,3)
+ADD_CREATURE_TO_POOL(DEMONSPAWN,24)
+
+CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,0,0)
+
+SET_CREATURE_MAX_LEVEL(PLAYER0,DEMONSPAWN,10)
+SET_CREATURE_MAX_LEVEL(PLAYER_GOOD,KNIGHT,2)
+SET_CREATURE_MAX_LEVEL(PLAYER_GOOD,THIEF,2)
+SET_CREATURE_MAX_LEVEL(PLAYER_GOOD,DWARFA,2)
+SET_CREATURE_MAX_LEVEL(PLAYER_GOOD,TUNNELLER,2)
+
+SET_CREATURE_STRENGTH(KNIGHT,40)
+SET_CREATURE_ARMOUR(KNIGHT,50)
+
+ROOM_AVAILABLE(PLAYER0,TREASURE,1,1)
+ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
+ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
+ROOM_AVAILABLE(PLAYER0,TRAINING,1,0)
+
+MAGIC_AVAILABLE(PLAYER0,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_HAND,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
+
+CREATE_PARTY(THIEVES)
+	ADD_TO_PARTY(THIEVES,THIEF,1,200,STEAL_GOLD,0)
+
+CREATE_PARTY(DWARVES)
+	ADD_TO_PARTY(DWARVES,DWARFA,1,200,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(ELITE)
+	ADD_TO_PARTY(ELITE,DWARFA,1,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(ELITE,THIEF,1,200,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(LANDLORD)
+	ADD_TO_PARTY(LANDLORD,KNIGHT,1,2000,ATTACK_ENEMIES,0)
+
+REM ****************************************************************************
+
+REM "First of all, establish a basic dungeon. Remember, you will need to build a treasure room, a lair and a hatchery and you will also need to claim a creature entrance."
+DISPLAY_OBJECTIVE(24,PLAYER0)
+
+IF(PLAYER0,GAME_TURN >= 100)
+REM "Possess creatures by choosing the possess spell from the spells menu and left-click on the creature you want to control. Right-click to get back to normal view."
+	DISPLAY_INFORMATION(23,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER0,GAME_TURN >= 1000)
+REM "When your imps have no active tasks, they will run around reinforcing your dungeon. Rooms with reinforced walls are more efficient."
+	DISPLAY_INFORMATION(22,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER0,FLAG0 < 1)
+	REM Allow to pass further when player gets all basic rooms in proper size
+	IF(PLAYER0,TREASURE >= 9)
+		IF(PLAYER0,LAIR >= 9)
+			IF(PLAYER0,GARDEN >= 9)
+				IF(PLAYER0,ENTRANCE > 0)
+					SET_FLAG(PLAYER0,FLAG1,1)
+				ENDIF
+			ENDIF
+		ENDIF
+	ENDIF
+	REM Alternatively, allow to pass further when player gets all rooms in any size, if it takes too long
+	IF(PLAYER0,GAME_TURN > 10000)
+		IF(PLAYER0,LAIR > 0)
+			IF(PLAYER0,TREASURE > 0)
+				IF(PLAYER0,GARDEN > 0)
+					IF(PLAYER0,ENTRANCE > 0)
+						SET_FLAG(PLAYER0,FLAG1,1)
+					ENDIF
+				ENDIF
+			ENDIF
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER0,FLAG1 == 1)
+	ROOM_AVAILABLE(PLAYER0,TRAINING,1,1)
+	TUTORIAL_FLASH_BUTTON(10,-1)
+	REM "You will need stronger creatures. Build a 3x3 training room to make your creatures stronger, and to give them new spells and abilities."
+	DISPLAY_OBJECTIVE(25,PLAYER0)
+	SET_TIMER(PLAYER0,TIMER2)
+	SET_FLAG(PLAYER0,FLAG0,1)
+ENDIF
+
+IF(PLAYER0,FLAG0 < 2)
+	REM Allow to pass further when player gets TRAINING in proper size
+	IF(PLAYER0,TRAINING >= 9)
+		SET_FLAG(PLAYER0,FLAG2,1)
+	ENDIF
+	REM Alternatively, allow to pass further when player gets TRAINING in any size, if it takes too long
+	IF(PLAYER0,TIMER2 > 7000)
+		IF(PLAYER0,TRAINING > 0)
+			SET_FLAG(PLAYER0,FLAG2,1)
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER0,FLAG2 == 1)
+	REM "Good. Now get your imps to fortify the walls in your rooms. This will increase the efficiency of the rooms and repel invaders."
+	DISPLAY_OBJECTIVE(26,PLAYER0)
+	CREATURE_AVAILABLE(PLAYER0,FLY,0,0)
+	CREATURE_AVAILABLE(PLAYER0,BUG,0,0)
+	SET_TIMER(PLAYER0,TIMER0)
+	SET_FLAG(PLAYER0,FLAG0,2)
+ENDIF
+
+IF(PLAYER0,FLAG0 >= 2)
+	CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
+	IF(PLAYER0,TRAINING == 0)
+		ROOM_AVAILABLE(PLAYER0,TRAINING,1,1)
+		TUTORIAL_FLASH_BUTTON(10,-1)
+	ENDIF
+	IF(PLAYER0,TRAINING > 0)
+		REM "A training room will attract fighters, especially demon spawn. Fighters are good for training."
+		DISPLAY_INFORMATION(27,ALL_PLAYERS)
+	ENDIF
+
+	IF(PLAYER0,DEMONSPAWN > 0)
+		REM "To train creatures, put them in the training room. The number that you will see coming out is the amount it costs a creature to train."
+		DISPLAY_INFORMATION(28,ALL_PLAYERS)
+	ENDIF
+ENDIF
+
+REM Info to tell player to slap creatures
+IF(PLAYER0,DEMONSPAWN > 0)
+	SET_TIMER(PLAYER0,TIMER1)
+	IF(PLAYER0,TIMER1 >= 500)
+		REM "Remember, you can speed up the creatures training by slapping them while they're in the training room."
+		DISPLAY_INFORMATION(29,ALL_PLAYERS)
+	ENDIF
+ENDIF
+
+IF(PLAYER0,DEMONSPAWN >= 2)
+	CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+	CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+	IF(PLAYER2,FLAG1 == 0)
+		SET_FLAG(PLAYER2,FLAG0,1)
+		IF(PLAYER0,TIMER0 >= 4000)
+			ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,1,DUNGEON,0,1,500)
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DWARVES,1,1)
+			REM "The heroes are on their way. Make sure your creatures are well trained and ready for the attack."
+			DISPLAY_OBJECTIVE(30,PLAYER0)
+			SET_FLAG(PLAYER0,FLAG3,1)
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER0,FLAG3 == 1)
+	SET_FLAG(PLAYER0,FLAG0,3)
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
+		IF(PLAYER0,TOTAL_CREATURES >= 8)
+			ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE,-1,DUNGEON,0,1,500)
+			SET_FLAG(PLAYER0,FLAG4,1)
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER0,FLAG4 == 1)
+	SET_FLAG(PLAYER0,FLAG0,4)
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
+		IF(PLAYER0,TOTAL_CREATURES >= 8)
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,-1,1)
+			SET_FLAG(PLAYER0,FLAG5,1)
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER0,FLAG5 == 1)
+	SET_FLAG(PLAYER0,FLAG0,5)
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
+		REM "Congratulations. You have conquered the enemy hordes."
+		DISPLAY_OBJECTIVE(31,PLAYER0)
+		WIN_GAME
+	ENDIF
+ENDIF
+
+IF_ACTION_POINT(2,PLAYER0)
+	IF(PLAYER2,FLAG0 == 0)
+		SET_FLAG(PLAYER2,FLAG1,1)
+		ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,1,DUNGEON,0,1,500)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DWARVES,1,1)
+		REM "The heroes are on their way. Make sure your creatures are well trained and ready for the attack."
+		DISPLAY_OBJECTIVE(32,PLAYER0)
+		SET_FLAG(PLAYER2,FLAG3,1)
+	ENDIF
+ENDIF
+
+IF(PLAYER2,FLAG3 == 1)
+	SET_FLAG(PLAYER0,FLAG0,3)
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
+		IF(PLAYER0,TOTAL_CREATURES >= 8)
+			ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE,-1,DUNGEON,0,1,500)
+			SET_FLAG(PLAYER2,FLAG4,1)
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER2,FLAG4 == 1)
+	SET_FLAG(PLAYER0,FLAG0,4)
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
+		IF(PLAYER0,TOTAL_CREATURES >= 8)
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,-1,1)
+			SET_FLAG(PLAYER2,FLAG5,1)
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER2,FLAG5 == 1)
+	SET_FLAG(PLAYER0,FLAG0,5)
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
+		REM "Congratulations. You have conquered the enemy hordes."
+		DISPLAY_OBJECTIVE(33,PLAYER0)
+		WIN_GAME
+	ENDIF
+ENDIF
+
+REM ****************************************************************************
