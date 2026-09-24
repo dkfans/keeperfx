@@ -602,11 +602,16 @@ TbBool setup_auto_replay_save(void)
     time_t now = time(NULL);
     struct tm *lt = localtime(&now);
     char fname[sizeof(game.packet_fname)];
-    snprintf(fname, sizeof(fname), "replays/%c%dp_%04d%02d%02dT%02d%02d%02d_v%d%d%d",
-        replay_type_chars[type], humans,
+    snprintf(fname, sizeof(fname), "replays/%c%dp", replay_type_chars[type], humans);
+    size_t len = strlen(fname);
+    if (humans > 1)
+    {
+        snprintf(fname + len, sizeof(fname) - len, "%d", (int)get_local_user() + 1);
+        len = strlen(fname);
+    }
+    snprintf(fname + len, sizeof(fname) - len, "_%04d%02d%02dT%02d%02d%02d_v%d%d%d",
         lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min, lt->tm_sec,
         VER_MAJOR, VER_MINOR, VER_RELEASE);
-    size_t len;
     if (VER_BUILD != 0)
     {
         len = strlen(fname);
