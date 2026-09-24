@@ -61,7 +61,7 @@ static TbBool replay_is_detached(void)
     return game.packet_load_enable && local_state.replay_detached;
 }
 
-void camera_packet_set_position(struct Packet *pckt)
+void camera_packet_set_state(struct Packet *pckt)
 {
     struct PlayerInfo* player = get_my_player();
     if (!local_camera_ready || (get_local_view_type(player) != PVT_DungeonTop) || (player->view_type != PVT_DungeonTop)) {
@@ -75,6 +75,11 @@ void camera_packet_set_position(struct Packet *pckt)
         return;
     }
     const struct Camera *cam = &destination_local_cameras[cam_idx];
+    // correct the camera rotation if nothing else to do (very low priority, could do this every n frames even...)
+    if ((pckt->action == PckA_None) && (cam->velocity_rotation == 0)
+     && ((pckt->control_flags & (PCtr_ViewRotateCW | PCtr_ViewRotateCCW)) == 0)
+     && (cam->rotation_angle_x != player->cameras[cam_idx].rotation_angle_x))
+        set_packet_action(pckt, PckA_SetMapRotation, cam->rotation_angle_x, 0, 0, 0);
     packet_set_camera_position(pckt, cam->mappos.x.val, cam->mappos.y.val);
 }
 

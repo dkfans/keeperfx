@@ -44,7 +44,7 @@ unsigned char get_local_view_type(const struct PlayerInfo *player);
 struct Camera* get_local_active_camera(struct PlayerInfo *player);
 int get_local_active_camera_index(struct PlayerInfo *player);
 void set_packet_power_on_thing(struct Packet *pckt, PowerKind pwkind, ThingIndex thing_idx);
-void camera_packet_set_position(struct Packet *pckt);
+void camera_packet_set_state(struct Packet *pckt);
 struct Packet *get_freecam_packet(void);
 TbBool replay_camera_detached(void);
 void replay_detach(void);

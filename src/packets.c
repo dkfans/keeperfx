@@ -1650,7 +1650,7 @@ void exchange_packets(void)
     update_turn_checksums();
     update_local_dig_tag_prediction();
     if (!game.packet_load_enable)
-        camera_packet_set_position(get_local_packet());
+        camera_packet_set_state(get_local_packet());
     store_packet_history(local_user, get_local_packet());
     host_spoof_dropped_user_packets();
     if (game.game_kind != GKind_LocalGame)

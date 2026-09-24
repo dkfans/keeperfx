@@ -637,7 +637,7 @@ static void get_snap_camera_inputs(const struct Camera *cam, struct Packet *pckt
 
 static TbBool replay_camera_keys_pressed(void)
 {
-    static const long keys[] = {Gkey_RotateCW, Gkey_RotateCCW, Gkey_ZoomIn, Gkey_ZoomOut, Gkey_TiltUp, Gkey_TiltDown, Gkey_TiltReset};
+    static const long keys[] = {Gkey_ZoomIn, Gkey_ZoomOut, Gkey_TiltUp, Gkey_TiltDown, Gkey_TiltReset};
     if ((get_game_key_axis_value(Gkey_MoveLeft, true) != 0.0f) || (get_game_key_axis_value(Gkey_MoveRight, true) != 0.0f)
      || (get_game_key_axis_value(Gkey_MoveUp, true) != 0.0f) || (get_game_key_axis_value(Gkey_MoveDown, true) != 0.0f))
         return true;
@@ -645,8 +645,6 @@ static TbBool replay_camera_keys_pressed(void)
         if (is_game_key_pressed(keys[i], false, false))
             return true;
     }
-    if (is_game_key_pressed(Gkey_SnapCamera, false, true))
-        return true;
     if (left_button_clicked && ((game.operation_flags & GOF_ShowGui) != 0))
     {
         long x;
