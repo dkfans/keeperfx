@@ -3787,15 +3787,15 @@ static void hide_variable_check(const struct ScriptLine *scline)
 
     value->longs[0] = player_idx;
     value->longs[1] = varib_id;
-    value->bytes[2] = varib_type;
+    value->longs[2] = varib_type;
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void hide_variable_process(struct ScriptContext *context)
 {
-    short varib_id, varib_type, player_idx;
-    varib_type = context->value->bytes[2];
+    int32_t varib_id, varib_type, player_idx;
+    varib_type = context->value->longs[2];
     varib_id = context->value->longs[1];
     player_idx = context->value->longs[0];
     if(varib_id > -1 && varib_type > -1)
