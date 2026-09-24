@@ -309,7 +309,7 @@ void clear_players(void)
     memset(game.user_states, 0, sizeof(game.user_states));
     memset(&local_state, 0, sizeof(local_state));
     memset(&bad_user_state, 0, sizeof(bad_user_state));
-    game.active_players_count = 0;
+    game.human_players_count = 0;
     //game.game_kind = GKind_LocalGame;
 }
 

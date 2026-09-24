@@ -42,7 +42,7 @@ extern "C" {
 
 enum PlayerInitFlags {
     PlaF_Allocated               = 0x01,
-    PlaF_unusedparam             = 0x02,
+    PlaF_OriginallyHuman         = 0x02, /**< Was controlled by a human user when match started > */
     PlaF_CompCtrl                = 0x40,
 };
 

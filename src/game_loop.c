@@ -427,7 +427,7 @@ static long double get_turn_start()
     // Aim to exchange network packets before the turn ends.  If drawing
     // another frame could miss this deadline, skip it.
     // In a 3-4 player game, clients must be 2 frames early.
-    const int frames = 1 + (netstate.my_id != SERVER_ID && game.active_players_count > 2);
+    const int frames = 1 + (netstate.my_id != SERVER_ID && game.human_players_count > 2);
     return 1.0 - frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.frame_skip, 1);
 }
 
