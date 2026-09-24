@@ -5054,7 +5054,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     }
     value->shorts[0] = (short)gen_id;
     value->ulongs[1] = location;
-    value->shorts[5] = range * COORD_PER_STL;
+    value->shorts[4] = range * COORD_PER_STL;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5062,7 +5062,7 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
 {
     ThingModel gen_id = context->value->shorts[0];
     TbMapLocation location = context->value->ulongs[1];
-    short range = context->value->shorts[5];
+    short range = context->value->shorts[4];
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
         script_process_new_effectgen(gen_id, location, range);
