@@ -585,6 +585,8 @@ static void cycle_replay_player(int step)
             continue;
         my_player_number = plyr_idx;
         init_local_cameras(get_my_player());
+        reinit_tagged_blocks_for_player(plyr_idx);
+        panel_map_update(0, 0, game.map_subtiles_x, game.map_subtiles_y);
         return;
     }
 }
