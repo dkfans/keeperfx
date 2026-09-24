@@ -566,7 +566,7 @@ static void resolve_disconnect_victories(struct PlayerInfo *departed)
         if (!player_exists(player) || (player == departed) || (player->is_active != 1) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
             continue;
         }
-        if (!disconnect_victory_enabled[plyr_idx] || !players_are_enemies(plyr_idx, departed->id_number)) {
+        if (!disconnect_victory_enabled[plyr_idx] || players_are_mutual_allies(plyr_idx, departed->id_number)) {
             continue;
         }
         if (!victory_candidates_fully_allied(false)) {
