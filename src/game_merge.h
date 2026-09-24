@@ -26,6 +26,7 @@
 #include "globals.h"
 
 #include "actionpt.h"
+#include "config_campaigns.h"
 #include "creature_control.h"
 #include "dungeon_data.h"
 #include "gui_msgs.h"
@@ -45,6 +46,9 @@ extern "C" {
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
 #define TRANSFER_CREATURE_STORAGE_COUNT     255
 #define ENSIGN_OVERRIDES_COUNT       64
+
+// enough to store all campaign levels and all secret levels
+#define LEVELS_COMPLETED_COUNT       (2 * CAMPAIGN_LEVELS_COUNT + EXTRA_LEVELS_COUNT)
 
 #define AROUND_MAP_LENGTH 9
 #define AROUND_SLAB_LENGTH 9
@@ -130,16 +134,25 @@ struct LevelEnsignOverride {
     TbBool active;
     unsigned short ensign_type;
 };
+
 /**
  * Structure which stores data copied between levels.
  * This data is not lost between levels of a campaign.
  */
+#define INTRALEVEL_DATA_VER 1
 struct IntralevelData {
     unsigned char bonuses_found[BONUS_LEVEL_STORAGE_COUNT];
     struct CreatureStorage transferred_creatures[PLAYERS_COUNT][TRANSFER_CREATURE_STORAGE_COUNT];
-    long campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
+    int32_t campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
     LevelNumber next_level;
     struct LevelEnsignOverride ensign_overrides[ENSIGN_OVERRIDES_COUNT];
+    
+    // 1 + level to continue campaign from
+    // TODO -- multiple options if there's a fork?
+    uint32_t continue_level;
+    
+    // list of (1 + levelnum) for all completed levels
+    uint32_t levels_completed[LEVELS_COMPLETED_COUNT];
 };
 
 

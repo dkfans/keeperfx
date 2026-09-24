@@ -7602,3 +7602,20 @@ msgstr "Connexion au serveur perdue."
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "La partie multijoueur n'est plus synchronisée."
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaign"
+msgstr "Campaign"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Erase Progress"
+msgstr "Erase Progress"
+
+#: guitext:1126
+msgctxt "Menu interface message"
+msgid "Are you sure?"
+msgstr "Vous confirmez ?"

@@ -755,6 +755,7 @@ static TbBool should_use_delta_time_on_menu()
         case FeSt_FEOPTIONS:
         case FeSt_LEVEL_SELECT:
         case FeSt_CAMPAIGN_SELECT:
+        case FeSt_ERASE_PROGRESS:
         case FeSt_MAPPACK_SELECT:
         case FeSt_MP_MAPPACK_SELECT:
         case FeSt_LAND_VIEW:
@@ -1007,6 +1008,7 @@ static TbBool wait_at_frontend(void)
           startup_network_game(&loop, true);
           break;
     case FeSt_START_MPLEVEL:
+          memset(&intralvl, 0, sizeof(struct IntralevelData));
           set_flag(game.system_flags, GSF_NetworkActive);
           skip_high_score_screen = 1;
           game.game_kind = GKind_MultiGame;

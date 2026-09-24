@@ -40,6 +40,7 @@ extern struct GuiMenu frontend_select_campaign_menu;
 extern struct GuiMenu frontend_select_mappack_menu;
 #define frontend_select_mp_mappack_items_max_visible  7
 extern struct GuiMenu frontend_select_mp_mappack_menu;
+extern struct GuiMenu frontend_erase_progress_menu;
 
 /******************************************************************************/
 // Level list selection screen
@@ -69,6 +70,12 @@ void frontend_campaign_select(struct GuiButton *gbtn);
 void frontend_campaign_select_update(void);
 void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn);
 void frontend_campaign_list_load(void);
+void frontend_erase_progress_button_maintain(struct GuiButton *gbtn);
+
+// Erase progress screen
+void frontend_erase_progress_back_maintain(struct GuiButton *gbtn);
+void frontend_erase_progress_select(struct GuiButton *gbtn);
+void frontend_erase_progress_list_load(void);
 
 // Map pack selection screen
 void frontend_mappack_select_up(struct GuiButton *gbtn);

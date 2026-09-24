@@ -108,7 +108,7 @@ unsigned char default_tag_mode = 1;
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {2},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_campaign_menu_button,  0, GUIStr_Empty,  0,       {2},            0, frontend_campaign_menu_button_maintain },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 138, 999, 138, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {8},            0, frontend_continue_game_maintain },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_load_mappacks,NULL,frontend_over_button,     34, 999, 184, 999, 184, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,     {106},            0, frontend_mappacks_maintain },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230,   999, 230, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {3},            0, frontend_main_menu_load_game_maintain },
@@ -145,6 +145,16 @@ struct GuiButtonInit frontend_error_box_buttons[] = {
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
+
+struct GuiButtonInit frontend_confirm_box_buttons[] = {
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 203, 150, 203, 150,234,138, frontend_draw_confirm_box,         0, GUIStr_Empty,  0,       {0},            0, frontend_confirm_box_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_confirm_box_no, NULL, frontend_over_button,   0, 237, 199, 237, 199,165, 40, frontend_draw_compact_menu_button, 0, GUIStr_Empty,  0,     {118},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_confirm_box_yes,NULL, frontend_over_button,   0, 237, 239, 237, 239,165, 40, frontend_draw_compact_menu_button, 0, GUIStr_Empty,  0,     {117},            0, NULL },
+  {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
+};
+
+struct GuiMenu frontend_confirm_box =
+ { GMnu_FECONFIRM,          0, 1, frontend_confirm_box_buttons,POS_SCRCTR,POS_SCRCTR, 640, 480, NULL,                        0, NULL,    NULL,                    0, 1, 0,};
 
 struct GuiMenu frontend_main_menu =
  { GMnu_FEMAIN,             0, 1, frontend_main_menu_buttons, POS_SCRCTR,POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
@@ -207,6 +217,8 @@ struct GuiMenu *menu_list[] = {
     &room_menu2,
     &trap_menu2,
     &frontend_select_mp_mappack_menu,
+    &frontend_erase_progress_menu,//50
+    &frontend_confirm_box,
     NULL,
 };
 
@@ -330,6 +342,10 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuMapPacks, 2},
     {GUIStr_MnuMpMapPacks, 2},
     {GUIStr_MnuReturnToLobby, 1},
+    {GUIStr_MnuEraseProgress, 1}, // [115]
+    {GUIStr_MnuEraseProgress, 0},
+    {GUIStr_ConfirmYes, 1},
+    {GUIStr_ConfirmNo, 1},
 };
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
@@ -1514,13 +1530,31 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
     return true;
 }
 
+void frontend_draw_campaign_menu_button(struct GuiButton *gbtn)
+{
+    const char *text;
+    if (campaigns_list.items_num == 1)
+        text = frontend_button_caption_text(gbtn);
+    else
+        text = get_string(GUIStr_MnuCampaign);
+    frontend_draw_button(gbtn, 1, text, Lb_TEXT_HALIGN_CENTER);
+}
+
+void frontend_campaign_menu_button_maintain(struct GuiButton *gbtn)
+{
+    if (campaigns_list.items_num > 0)
+        gbtn->flags |= LbBtnF_Enabled;
+    else
+        gbtn->flags &= ~LbBtnF_Enabled;
+}
+
 void frontend_start_new_game(struct GuiButton *gbtn)
 {
     const char *cmpgn_fname;
     SYNCDBG(6,"Clicked");
     // Check if we can just start the game without campaign selection screen
     if (campaigns_list.items_num < 1)
-      cmpgn_fname = "";
+      return;
     else
     if (campaigns_list.items_num == 1)
       cmpgn_fname = campaigns_list.items[0].fname;
@@ -1572,12 +1606,6 @@ void frontend_load_mp_mappacks(struct GuiButton *gbtn)
     frontend_set_state(FeSt_MP_MAPPACK_SELECT);
 }
 
-/**
- * Writes the continue game file.
- * If allow_lvnum_grow is true and my_player has won the singleplayer level,
- * then next level is written into continue file. This should be the case
- * if complete_level() wasn't called yet.
- */
 short frontend_save_continue_game(short allow_lvnum_grow)
 {
     struct PlayerInfo *player;
@@ -1604,33 +1632,36 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
     set_flag_value(ustate->additional_flags, UsrAF_UnlockedLordTorture, flg_mem);
-    // Only save continue if level was won, not a free play level, not a multiplayer level and not in packet mode
+    // Only save progress if level was won, not a free play level, not a multiplayer level and not in packet mode
     if (network_is_active()
      || ((game.operation_flags & GOF_SingleLevel) != 0)
      || (game.packet_load_enable)
      || (is_freeplay_level(lvnum))
-     || (is_multiplayer_level(lvnum)))
+     || (is_multiplayer_level(lvnum))
+     || (player->victory_state != VicS_WonLevel))
         return false;
     // Select the continue level (move the campaign forward)
-    if ((allow_lvnum_grow) && (player->victory_state == VicS_WonLevel)) {
-        // If level number growth makes sense, do it
+    if (allow_lvnum_grow) {
         SYNCDBG(7,"Progressing the campaign");
-        lvnum = move_campaign_to_next_level();
-    } else {
-        SYNCDBG(7,"No change in campaign position, victory state %d",(int)player->victory_state);
-        lvnum = get_continue_level_number();
+        move_campaign_to_next_level();
     }
-    return save_continue_game(lvnum);
+    return save_level_progress(lvnum);
 }
 
 void frontend_load_continue_game(struct GuiButton *gbtn)
 {
-  if (!load_continue_game())
-  {
-    continue_game_option_available = 0;
-    return;
-  }
-  frontend_set_state(FeSt_LAND_VIEW);
+    switch (load_continue_game())
+    {
+    case CntT_SavedGame:
+        frontend_set_state(FeSt_LOAD_GAME);
+        break;
+    case CntT_CampaignProgress:
+        frontend_set_state(FeSt_LAND_VIEW);
+        break;
+    default:
+        continue_game_option_available = 0;
+        break;
+    }
 }
 
 void frontend_load_game_maintain(struct GuiButton *gbtn)
@@ -1886,6 +1917,8 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_FECAMPAIGN_SELECT:
   case GMnu_FEERROR_BOX:
   case GMnu_MP_MAPPACK_SELECT:
+  case GMnu_FEERASE_PROGRESS:
+  case GMnu_FECONFIRM:
       return false;
   default:
       return true;
@@ -2595,6 +2628,10 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_CAMPAIGN_SELECT:
         turn_off_menu(GMnu_FECAMPAIGN_SELECT);
         break;
+    case FeSt_ERASE_PROGRESS:
+        frontend_cancel_confirm_box();
+        turn_off_menu(GMnu_FEERASE_PROGRESS);
+        break;
     case FeSt_MP_MAPPACK_SELECT:
         turn_off_menu(GMnu_MP_MAPPACK_SELECT);
         break;
@@ -2639,11 +2676,6 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_MAIN_MENU:
           stop_music(true);
           continue_game_option_available = continue_game_available();
-          if (!continue_game_option_available)
-          {
-              char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
-              LbFileDelete(fname);
-          }
           if (!is_campaign_loaded()) {
               change_campaign(CampgnT_Default,"");
           }
@@ -2759,8 +2791,13 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
         set_pointer_graphic_menu();
         break;
     case FeSt_CAMPAIGN_SELECT:
-        turn_on_menu(GMnu_FECAMPAIGN_SELECT);
         frontend_campaign_list_load();
+        turn_on_menu(GMnu_FECAMPAIGN_SELECT);
+        set_pointer_graphic_menu();
+        break;
+    case FeSt_ERASE_PROGRESS:
+        frontend_erase_progress_list_load();
+        turn_on_menu(GMnu_FEERASE_PROGRESS);
         set_pointer_graphic_menu();
         break;
     case FeSt_MP_MAPPACK_SELECT:
@@ -2821,6 +2858,7 @@ static const char * menu_state_str(FrontendMenuState state)
         case FeSt_CAMPAIGN_INTRO: return "FeSt_CAMPAIGN_INTRO";
         case FeSt_MAPPACK_SELECT: return "FeSt_MAPPACK_SELECT";
         case FeSt_MP_MAPPACK_SELECT: return "FeSt_MP_MAPPACK_SELECT";
+        case FeSt_ERASE_PROGRESS: return "FeSt_ERASE_PROGRESS";
         case FeSt_FONT_TEST: return "FeSt_FONT_TEST";
     }
     return "unknown";
@@ -3318,6 +3356,7 @@ short frontend_draw(void)
     case FeSt_LEVEL_SELECT:
     case FeSt_MAPPACK_SELECT:
     case FeSt_CAMPAIGN_SELECT:
+    case FeSt_ERASE_PROGRESS:
     case FeSt_MP_MAPPACK_SELECT:
         frontend_copy_background();
         draw_gui();
@@ -3560,6 +3599,7 @@ void frontend_update(short *finish_menu)
         frontend_level_select_update();
         break;
     case FeSt_CAMPAIGN_SELECT:
+    case FeSt_ERASE_PROGRESS:
         frontend_campaign_select_update();
         break;
     case FeSt_MAPPACK_SELECT:
@@ -3823,6 +3863,70 @@ void create_frontend_error_box(long showTime, const char * text)
 void frontend_draw_error_text_box(struct GuiButton *gbtn)
 {
     draw_text_box(gbtn->content.str);
+}
+
+static TextStringId confirm_box_text_id = GUIStr_Empty;
+static void (*confirm_box_on_close)(int result) = NULL;
+
+// modal dialogue with callback: 1 = yes, 0 = no, -1 = cancelled.
+void create_frontend_confirm_box(TextStringId text_id, void (*on_close)(int result))
+{
+    confirm_box_text_id = text_id;
+    confirm_box_on_close = on_close;
+    turn_on_menu(GMnu_FECONFIRM);
+}
+
+TbBool frontend_confirm_box_is_open(void)
+{
+    return menu_is_active(GMnu_FECONFIRM);
+}
+
+static void close_frontend_confirm_box(int result)
+{
+    if (!frontend_confirm_box_is_open())
+        return;
+    void (*callback)(int) = confirm_box_on_close;
+    confirm_box_on_close = NULL;
+    turn_off_menu(GMnu_FECONFIRM);
+    if (callback != NULL)
+        callback(result);
+}
+
+void frontend_cancel_confirm_box(void)
+{
+    close_frontend_confirm_box(-1);
+}
+
+void frontend_draw_confirm_box(struct GuiButton *gbtn)
+{
+    frontend_draw_frame_box(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->height, 2);
+    const char *text = get_string(confirm_box_text_id);
+    LbTextSetFont(frontend_font[1]);
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
+    int tx_units_per_px = ((92 * units_per_pixel / 16 / 4) * 13 / 11) * 16 / LbTextLineHeight();
+    long line_h = LbTextLineHeight() * tx_units_per_px / 16;
+    long text_center_y = gbtn->height * 5 / 24;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y + text_center_y - line_h / 2, gbtn->width, line_h);
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+}
+
+void frontend_confirm_box_maintain(struct GuiButton *gbtn)
+{
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+    {
+        clear_key_pressed(KC_ESCAPE);
+        close_frontend_confirm_box(-1);
+    }
+}
+
+void frontend_confirm_box_yes(struct GuiButton *gbtn)
+{
+    close_frontend_confirm_box(1);
+}
+
+void frontend_confirm_box_no(struct GuiButton *gbtn)
+{
+    close_frontend_confirm_box(0);
 }
 
 void frontend_maintain_error_text_box(struct GuiButton *gbtn)
