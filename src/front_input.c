@@ -2141,7 +2141,7 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
     }
     int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
     if (right_button_released && (player->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && power_hand_is_empty(player) && !ustate->one_click_lock_cursor && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
-        set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_SLAP, local_state.local_thing_under_hand, 0, 0);
+        set_packet_power_on_thing(pckt, PwrK_SLAP, local_state.local_thing_under_hand);
         return;
     }
     if (!left_button_released) {
@@ -2160,21 +2160,21 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
     switch (work_state) {
         case PSt_CtrlDungeon:
             if ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0) {
-                set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_POSSESS, local_state.local_thing_under_hand, 0, 0);
+                set_packet_power_on_thing(pckt, PwrK_POSSESS, local_state.local_thing_under_hand);
             } else if (((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) == 0) && (cursor_state == CSt_PowerHand)) {
                 set_packet_action(pckt, PckA_UsePwrHandPick, local_state.local_thing_under_hand, 0, 0, 0);
                 hand_pick_pending_turn = get_gameturn();
             }
             break;
         case PSt_Slap:
-            set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_SLAP, local_state.local_thing_under_hand, 0, 0);
+            set_packet_power_on_thing(pckt, PwrK_SLAP, local_state.local_thing_under_hand);
             break;
         case PSt_CtrlDirect:
         case PSt_FreeCtrlDirect:
-            set_packet_action(pckt, PckA_UsePwrOnThing, PwrK_POSSESS, local_state.local_thing_under_hand, 0, 0);
+            set_packet_power_on_thing(pckt, PwrK_POSSESS, local_state.local_thing_under_hand);
             break;
         case PST_CastPowerOnTarget:
-            set_packet_action(pckt, PckA_UsePwrOnThing, pwkind, local_state.local_thing_under_hand, 0, 0);
+            set_packet_power_on_thing(pckt, pwkind, local_state.local_thing_under_hand);
             break;
     }
 }

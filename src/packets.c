@@ -421,10 +421,18 @@ TbBool packet_action_has_camera_position(enum TbPacketAction action)
     switch (action)
     {
     case PckA_ApplyRoomspaceDigTag:
+    case PckA_UsePwrOnThing:
         return false;
     default:
         return true;
     }
+}
+
+// Some packets set the user's camera angle directly in par3.
+// (Used where the action's effect depends on camera angle, e.g. power slap)
+TbBool packet_action_has_camera_angle(const struct Packet *pckt)
+{
+    return (pckt->action == PckA_UsePwrOnThing) && (pckt->actn_par4 == CamIV_Isometric);
 }
 
 // shift that fits camera position in 16 bits.
@@ -442,8 +450,8 @@ void packet_set_camera_position(struct Packet *pckt, MapCoord x, MapCoord y)
     if (!packet_action_has_camera_position(pckt->action))
         return;
     const int shift = camera_position_shift();
-    pckt->cam_x = (int16_t)(uint16_t)((max(x, 0) >> shift) + 1);
-    pckt->cam_y = (int16_t)(uint16_t)((max(y, 0) >> shift) + 1);
+    pckt->cam_x = (uint16_t)((max(x, 0) >> shift) + 1);
+    pckt->cam_y = (uint16_t)((max(y, 0) >> shift) + 1);
 }
 
 void packet_clear_camera_position(struct Packet *pckt)
@@ -462,8 +470,8 @@ TbBool packet_get_camera_position(const struct Packet *pckt, MapCoord *x, MapCoo
         return false;
     const int shift = camera_position_shift();
     const MapCoord half = (1 << shift) >> 1;
-    *x = (((MapCoord)(uint16_t)pckt->cam_x - 1) << shift) + half;
-    *y = (((MapCoord)(uint16_t)pckt->cam_y - 1) << shift) + half;
+    *x = (((MapCoord)pckt->cam_x - 1) << shift) + half;
+    *y = (((MapCoord)pckt->cam_y - 1) << shift) + half;
     return true;
 }
 
@@ -486,6 +494,9 @@ void process_camera_controls(struct Camera* cam, const struct Packet* pckt, stru
         return;
     }
     process_camera_position(cam, pckt);
+    if (packet_action_has_camera_angle(pckt)
+     && ((cam->view_mode == PVM_IsoWibbleView) || (cam->view_mode == PVM_IsoStraightView)))
+        cam->rotation_angle_x = pckt->actn_par3 & ANGLE_MASK;
     process_camera_view_controls(cam, pckt, player);
 }
 

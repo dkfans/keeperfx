@@ -78,6 +78,15 @@ void camera_packet_set_position(struct Packet *pckt)
     packet_set_camera_position(pckt, cam->mappos.x.val, cam->mappos.y.val);
 }
 
+void set_packet_power_on_thing(struct Packet *pckt, PowerKind pwkind, ThingIndex thing_idx)
+{
+    struct PlayerInfo* player = get_my_player();
+    
+    // transmit the local camera angle to ensure slap direction looks right
+    set_packet_action(pckt, PckA_UsePwrOnThing, pwkind, thing_idx,
+        get_local_active_camera(player)->rotation_angle_x, get_local_active_camera_index(player));
+}
+
 static void sync_camera_state(int cam_idx, struct Camera *cam)
 {
     local_cameras[cam_idx] = *cam;
@@ -425,6 +434,13 @@ unsigned char get_local_view_type(const struct PlayerInfo *player)
         return local_state.view_type;
     }
     return player->view_type;
+}
+
+int get_local_active_camera_index(struct PlayerInfo *player)
+{
+    if (!is_my_player(player) || !local_camera_ready)
+        return player->active_camera_idx;
+    return get_local_active_camera(player) - local_cameras;
 }
 
 struct Camera* get_local_active_camera(struct PlayerInfo *player)

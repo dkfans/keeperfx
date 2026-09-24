@@ -294,14 +294,14 @@ struct Packet {
     // union on packet_action_has_camera_position()
     union
     {
-        int16_t cam_x;
+        uint16_t cam_x;
         int16_t actn_par3; //! action parameter #3
     };
     
     // union on packet_action_has_camera_position()
     union
     {
-        int16_t cam_y;
+        uint16_t cam_y;
         int16_t actn_par4; //! action parameter #4
     };
 };
@@ -366,6 +366,7 @@ void process_pause_packet(long a1, long a2);
 void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
 void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
 TbBool packet_action_has_camera_position(enum TbPacketAction action);
+TbBool packet_action_has_camera_angle(const struct Packet *pckt);
 void packet_set_camera_position(struct Packet *pckt, MapCoord x, MapCoord y);
 void packet_clear_camera_position(struct Packet *pckt);
 TbBool packet_get_camera_position(const struct Packet *pckt, MapCoord *x, MapCoord *y);
