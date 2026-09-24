@@ -31,6 +31,8 @@
 #include "gui_topmsg.h"
 #include "config_settings.h"
 #include "config_keeperfx.h"
+#include "config_campaigns.h"
+#include "version.h"
 #include "player_utils.h"
 #include "slab_data.h"
 #include "dungeon_data.h"
@@ -509,6 +511,119 @@ TbBool reinit_packets_after_load(void)
     game.packet_load_enable = false;
     game.packet_save_fp = NULL;
     game.packet_fopened = 0;
+    return true;
+}
+
+static const char replay_type_chars[ReplTyp_Count] = {'c', 'f', 'm'};
+
+static int compare_replay_age(const void *a, const void *b)
+{
+    const char *sa = strchr(*(char *const *)a, '_');
+    const char *sb = strchr(*(char *const *)b, '_');
+    return strcmp(sa ? sa : "", sb ? sb : "");
+}
+
+static void evict_old_replays(char type_chr, uint32_t keep)
+{
+    char spec[32];
+    snprintf(spec, sizeof(spec), "replays/%c*.pck", type_chr);
+    char **names = NULL;
+    size_t count = 0;
+    size_t cap = 0;
+    struct TbFileEntry fe;
+    struct TbFileFind *ff = LbFileFindFirst(spec, &fe);
+    if (ff != NULL)
+    {
+        do {
+            if (count == cap)
+            {
+                cap = cap ? cap * 2 : 16;
+                char **grown = realloc(names, cap * sizeof(char *));
+                if (grown == NULL)
+                    break;
+                names = grown;
+            }
+            names[count] = strdup(fe.Filename);
+            if (names[count] != NULL)
+                count++;
+        } while (LbFileFindNext(ff, &fe) >= 0);
+        LbFileFindEnd(ff);
+    }
+    if (count > 0)
+        qsort(names, count, sizeof(char *), compare_replay_age);
+    for (size_t i = 0; i + keep < count; i++)
+    {
+        char fname[DISKPATH_SIZE];
+        snprintf(fname, sizeof(fname), "replays/%s", names[i]);
+        LbFileDelete(fname);
+    }
+    for (size_t i = 0; i < count; i++)
+        free(names[i]);
+    free(names);
+}
+
+static void append_git_sha(char *buf, size_t buflen)
+{
+    const char *sha = GIT_REVISION;
+    const char *g = strstr(sha, "-g");
+    while (g != NULL)
+    {
+        sha = g + 2;
+        g = strstr(sha, "-g");
+    }
+    size_t n = strspn(sha, "0123456789abcdef");
+    if ((n < 6) || (sha[n] != '\0'))
+        return;
+    size_t len = strlen(buf);
+    snprintf(buf + len, buflen - len, "_%.6s", sha);
+}
+
+TbBool setup_auto_replay_save(void)
+{
+    LevelNumber lvnum = get_loaded_level_number();
+    int type;
+    if (is_multiplayer_level(lvnum))
+        type = ReplTyp_Multiplayer;
+    else if (is_freeplay_level(lvnum))
+        type = ReplTyp_Freeplay;
+    else
+        type = ReplTyp_Campaign;
+    if (max_replays[type] == 0)
+        return false;
+    evict_old_replays(replay_type_chars[type], max_replays[type] - 1);
+
+    int humans = 0;
+    for (int i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo* player = get_player(i);
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+            humans++;
+    }
+    time_t now = time(NULL);
+    struct tm *lt = localtime(&now);
+    char fname[sizeof(game.packet_fname)];
+    snprintf(fname, sizeof(fname), "replays/%c%dp_%04d%02d%02dT%02d%02d%02d_v%d%d%d",
+        replay_type_chars[type], humans,
+        lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min, lt->tm_sec,
+        VER_MAJOR, VER_MINOR, VER_RELEASE);
+    size_t len;
+    if (VER_BUILD != 0)
+    {
+        len = strlen(fname);
+        snprintf(fname + len, sizeof(fname) - len, "_b%d", VER_BUILD);
+    }
+    append_git_sha(fname, sizeof(fname));
+    if (campaign.fname[0] != '\0')
+    {
+        char cmpgn_id[64];
+        get_campaign_sanitized_id(campaign.fname, cmpgn_id, sizeof(cmpgn_id));
+        len = strlen(fname);
+        snprintf(fname + len, sizeof(fname) - len, "_%s", cmpgn_id);
+    }
+    len = strlen(fname);
+    snprintf(fname + len, sizeof(fname) - len, "_map%05d.pck", (int)lvnum);
+    snprintf(game.packet_fname, sizeof(game.packet_fname), "%s", fname);
+    game.packet_save_enable = true;
     return true;
 }
 

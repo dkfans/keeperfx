@@ -272,6 +272,8 @@ static TbBool init_level(void)
 static void post_init_level(void)
 {
     SYNCDBG(8,"Starting");
+    if (!game.packet_save_enable && !game.packet_load_enable)
+        setup_auto_replay_save();
     if (game.packet_save_enable)
         open_new_packet_file_for_save();
     calculate_dungeon_area_scores();
