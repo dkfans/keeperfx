@@ -59,6 +59,13 @@ extern TbBool keeper_screen_redraw(void);
 
 NetUserId get_local_user(void)
 {
+    if (game.packet_load_enable)
+    {
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+            if (get_net_user_player_number(user) == my_player_number)
+                return user;
+        }
+    }
     if (game.packet_load_enable && !force_player_num)
     {
         NetUserId rec_user = game.packet_save_head.recording_user;

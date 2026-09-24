@@ -355,7 +355,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             }
             break;
         default:
-            WARNLOG("Unrecognized chunk, ID = %08lx", hdr.id);
+            WARNLOG("Unrecognized chunk, ID = %08x", (unsigned)hdr.id);
             if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
                 LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
             break;
