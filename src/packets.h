@@ -309,6 +309,12 @@ struct Packet {
 // save file header for .pck files.
 // (Bump the version if this struct or the .pck format changes.)
 #define PACKET_SAVE_HEAD_VER 1
+
+enum PacketSaveHeadFlags {
+    PSHF_Checksum   = 0x01,
+    PSHF_Compressed = 0x02,
+};
+
 struct PacketSaveHead {
     unsigned short game_ver_major;
     unsigned short game_ver_minor;
@@ -321,7 +327,7 @@ struct PacketSaveHead {
     uint32_t frontview_zoom_level;
     int isometric_tilt;
     unsigned char video_rotate_mode;
-    TbBool chksum_available; // if needed, this can be replaced with flags
+    uint8_t flags; // PacketSaveHeadFlags
     uint32_t action_seed;
     TbBool default_imprison_tendency;
     TbBool default_flee_tendency;
