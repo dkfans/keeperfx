@@ -136,7 +136,7 @@ static int save_slot_index_from_filename(const char *fname)
 
 static struct IntralevelData progress_scratch;
 
-static void update_last_file_after_save(long slot_num);
+static void update_last_file_after_save(int32_t slot_num);
 
 /******************************************************************************/
 TbBool is_primitive_save_version(long filesize)
@@ -286,46 +286,10 @@ static TbBool read_intralevel_chunk(TbFileHandle fhandle, const struct FileChunk
     return (LbFileRead(fhandle, ilvl, len) == (int)len);
 }
 
-static int single_level_position(const struct GameCampaign *campgn, LevelNumber lvnum)
-{
-    if (lvnum < 1)
-        return -1;
-    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
-    {
-        if (campgn->single_levels[i] == lvnum)
-            return i;
-    }
-    return -1;
-}
-
-static int bonus_level_position(const struct GameCampaign *campgn, LevelNumber lvnum)
-{
-    if (lvnum < 1)
-        return -1;
-    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
-    {
-        if (campgn->bonus_levels[i] == lvnum)
-            return i;
-    }
-    return -1;
-}
-
-static int extra_level_position(const struct GameCampaign *campgn, LevelNumber lvnum)
-{
-    if (lvnum < 1)
-        return -1;
-    for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
-    {
-        if (campgn->extra_levels[i] == lvnum)
-            return i;
-    }
-    return -1;
-}
-
 static TbBool is_campaign_progress_level(const struct GameCampaign *campgn, LevelNumber lvnum)
 {
-    return (single_level_position(campgn, lvnum) >= 0) || (bonus_level_position(campgn, lvnum) >= 0)
-        || (extra_level_position(campgn, lvnum) >= 0);
+    return (campaign_singleplayer_level_index(campgn, lvnum) >= 0) || (campaign_bonus_level_index(campgn, lvnum) >= 0)
+        || (campaign_extra_level_index(campgn, lvnum) >= 0);
 }
 
 static TbBool is_level_completed(const struct IntralevelData *ilvl, LevelNumber lvnum)
@@ -367,9 +331,9 @@ static void fill_missing_levels_completed(struct IntralevelData *ilvl, const str
         limit = CAMPAIGN_LEVELS_COUNT;
     } else
     {
-        limit = single_level_position(campgn, ref_lvnum);
+        limit = campaign_singleplayer_level_index(campgn, ref_lvnum);
         if (limit < 0)
-            limit = bonus_level_position(campgn, ref_lvnum);
+            limit = campaign_bonus_level_index(campgn, ref_lvnum);
     }
     for (int i = 0; i < limit; i++)
         mark_level_completed(ilvl, campgn->single_levels[i]);
@@ -396,7 +360,7 @@ static LevelNumber stored_continue_level(const struct IntralevelData *ilvl)
 static LevelNumber resolve_continue_level(const struct IntralevelData *ilvl, const struct GameCampaign *campgn)
 {
     LevelNumber lvnum = stored_continue_level(ilvl);
-    if ((lvnum == SINGLEPLAYER_FINISHED) || (lvnum == SINGLEPLAYER_NOTSTARTED) || (single_level_position(campgn, lvnum) >= 0))
+    if ((lvnum == SINGLEPLAYER_FINISHED) || (lvnum == SINGLEPLAYER_NOTSTARTED) || (campaign_singleplayer_level_index(campgn, lvnum) >= 0))
         return lvnum;
     for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
     {
@@ -430,15 +394,15 @@ static short campaign_progress_percent(const struct GameCampaign *campgn, const 
     for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
     {
         LevelNumber lvnum = campgn->bonus_levels[i];
-        if ((bonus_level_position(campgn, lvnum) == i) && (single_level_position(campgn, lvnum) < 0)
+        if ((campaign_bonus_level_index(campgn, lvnum) == i) && (campaign_singleplayer_level_index(campgn, lvnum) < 0)
           && is_level_completed(ilvl, lvnum))
             secret++;
     }
     for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
     {
         LevelNumber lvnum = campgn->extra_levels[i];
-        if ((extra_level_position(campgn, lvnum) == i) && (single_level_position(campgn, lvnum) < 0)
-          && (bonus_level_position(campgn, lvnum) < 0) && is_level_completed(ilvl, lvnum))
+        if ((campaign_extra_level_index(campgn, lvnum) == i) && (campaign_singleplayer_level_index(campgn, lvnum) < 0)
+          && (campaign_bonus_level_index(campgn, lvnum) < 0) && is_level_completed(ilvl, lvnum))
             secret++;
     }
     TbBool finished = (continue_lvnum == SINGLEPLAYER_FINISHED) || (done == total);
@@ -1029,15 +993,21 @@ static void delete_last_file_link(void)
     LbFileDelete(prepare_file_path(FGrp_Save, continue_filename));
 }
 
-static void update_last_file_after_save(long slot_num)
+static void update_last_file_after_save(int32_t slot_num)
 {
     int humans = 0;
+    int non_computer = 0;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
         if (flag_is_set(player->allocflags, PlaF_OriginallyHuman))
             humans++;
+        if (flag_is_set(player->allocflags, PlaF_Allocated) && !flag_is_set(player->allocflags, PlaF_CompCtrl))
+            non_computer++;
     }
+    // saves from before PlaF_OriginallyHuman existed have no flagged player
+    if (humans == 0)
+        humans = non_computer;
     char link[SAVE_FILENAME_MAX];
     snprintf(link, sizeof(link), saved_game_filename, (int)slot_num);
     if (humans == 1)
@@ -1050,7 +1020,7 @@ static void update_last_file_after_save(long slot_num)
         delete_last_file_link();
 }
 
-static TbBool read_saved_game_catalogue_entry(long slot_num, struct CatalogueEntry *centry)
+static TbBool read_saved_game_catalogue_entry(int32_t slot_num, struct CatalogueEntry *centry)
 {
     memset(centry, 0, sizeof(struct CatalogueEntry));
     char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
@@ -1064,7 +1034,7 @@ static TbBool read_saved_game_catalogue_entry(long slot_num, struct CatalogueEnt
     return loaded;
 }
 
-static enum ContinueTargets find_continue_target(long *slot_num, char *cmpgn_fname, size_t fnamelen)
+static enum ContinueTargets find_continue_target(int32_t *slot_num, char *cmpgn_fname, size_t fnamelen)
 {
     if (campaigns_list.items_num == 1)
     {
@@ -1115,14 +1085,14 @@ static enum ContinueTargets find_continue_target(long *slot_num, char *cmpgn_fna
  */
 TbBool continue_game_available(void)
 {
-    long slot_num = -1;
+    int32_t slot_num = -1;
     char cmpgn_fname[DISKPATH_SIZE];
     return (find_continue_target(&slot_num, cmpgn_fname, sizeof(cmpgn_fname)) != CntT_None);
 }
 
 enum ContinueTargets load_continue_game(void)
 {
-    long slot_num = -1;
+    int32_t slot_num = -1;
     char cmpgn_fname[DISKPATH_SIZE];
     switch (find_continue_target(&slot_num, cmpgn_fname, sizeof(cmpgn_fname)))
     {
@@ -1197,20 +1167,21 @@ TbBool resume_campaign_progress(const char *cmpgn_fname)
     return true;
 }
 
-// writes campaign progress file and continue file
-TbBool save_level_progress(LevelNumber won_lvnum)
+// writes campaign progress file; on a win also records the level and updates the continue file
+TbBool save_level_progress(LevelNumber lvnum, TbBool won)
 {
-    if (is_campaign_progress_level(&campaign, won_lvnum))
-        mark_level_completed(&intralvl, won_lvnum);
+    if (won && is_campaign_progress_level(&campaign, lvnum))
+        mark_level_completed(&intralvl, lvnum);
     intralvl.continue_level = encode_continue_level(get_continue_level_number());
     char progress_fname[DISKPATH_SIZE];
     get_progress_filename(campaign.fname, progress_fname, sizeof(progress_fname));
     if (!write_progress_file(progress_fname, &intralvl))
         return false;
-    
+
     // continue
-    write_last_file_link(progress_fname);
-    
+    if (won)
+        write_last_file_link(progress_fname);
+
     // clean up legacy file if this is a replacement
     if (legacy_progress_matches(campaign.fname))
         delete_legacy_progress();
@@ -1218,7 +1189,7 @@ TbBool save_level_progress(LevelNumber won_lvnum)
 }
 
 // check if saved game is for the given campaign
-static TbBool saved_game_belongs_to(long slot_num, const struct GameCampaign *campgn)
+static TbBool saved_game_belongs_to(int32_t slot_num, const struct GameCampaign *campgn)
 {
     struct CatalogueEntry centry;
     if (!read_saved_game_catalogue_entry(slot_num, &centry))

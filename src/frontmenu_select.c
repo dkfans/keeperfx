@@ -51,9 +51,9 @@ int frontend_select_campaign_items_visible = 0;
 int frontend_select_mappack_items_visible = 0;
 int frontend_select_mp_mappack_items_visible = 0;
 static TbBool campaign_select_has_progress = false;
-static unsigned long *erase_campaign_idx = NULL;
-static long erase_campaign_count = 0;
-static long erase_confirm_idx = -1;
+static uint32_t *erase_campaign_idx = NULL;
+static int32_t erase_campaign_count = 0;
+static int32_t erase_confirm_idx = -1;
 /******************************************************************************/
 void frontend_level_select_up(struct GuiButton *gbtn)
 {
@@ -335,7 +335,9 @@ void frontend_campaign_select(struct GuiButton *gbtn)
 
 void frontend_campaign_select_update(void)
 {
-    long count = campaign_select_count();
+    if (first_monopoly_menu() >= 0)
+        return;
+    int32_t count = campaign_select_count();
     if (count <= 0)
     {
         select_campaign_scroll_offset = 0;
@@ -413,11 +415,11 @@ void frontend_erase_progress_list_load(void)
     erase_campaign_count = 0;
     erase_confirm_idx = -1;
     select_campaign_scroll_offset = 0;
-    unsigned long *idx = (unsigned long *)realloc(erase_campaign_idx, (campaigns_list.items_num + 1) * sizeof(unsigned long));
+    uint32_t *idx = (uint32_t *)realloc(erase_campaign_idx, (campaigns_list.items_num + 1) * sizeof(uint32_t));
     if (idx != NULL)
     {
         erase_campaign_idx = idx;
-        for (unsigned long i = 0; i < campaigns_list.items_num; i++)
+        for (uint32_t i = 0; i < campaigns_list.items_num; i++)
         {
             if (campaign_progress_exists(&campaigns_list.items[i]))
                 erase_campaign_idx[erase_campaign_count++] = i;

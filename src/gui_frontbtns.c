@@ -841,7 +841,7 @@ void frontend_draw_compact_menu_button(struct GuiButton *gbtn)
     }
     int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_largebutton_a05l, 100);
     const struct TbSprite *spr = get_frontend_sprite(spridx);
-    long x = gbtn->scr_pos_x;
+    int32_t x = gbtn->scr_pos_x;
     LbSpriteDrawResized(x, gbtn->scr_pos_y, units_per_px, spr);
     x += spr->SWidth * units_per_px / 16;
     LbSpriteDrawResized(x, gbtn->scr_pos_y, units_per_px, get_frontend_sprite(spridx + 1));
@@ -853,11 +853,11 @@ void frontend_draw_compact_menu_button(struct GuiButton *gbtn)
     LbTextDrawResized(0, 0, units_per_px, text);
 }
 
-static long draw_frame_row(long x, long y, short left, short tile, short right, int tiles)
+static int32_t draw_frame_row(int32_t x, int32_t y, short left, short tile, short right, int tiles)
 {
     const struct TbSprite *spr = get_frontend_sprite(left);
     LbSpriteDrawResized(x, y, units_per_pixel, spr);
-    long h = spr->SHeight * units_per_pixel / 16;
+    int32_t h = spr->SHeight * units_per_pixel / 16;
     x += spr->SWidth * units_per_pixel / 16;
     for (int n = 0; n < tiles; n++)
     {
@@ -869,11 +869,11 @@ static long draw_frame_row(long x, long y, short left, short tile, short right, 
     return h;
 }
 
-void frontend_draw_frame_box(long x, long y, long height, int tiles)
+void frontend_draw_frame_box(int32_t x, int32_t y, int32_t height, int tiles)
 {
-    long bottom_h = get_frontend_sprite(GFS_hugearea_thn_cor_bl)->SHeight * units_per_pixel / 16;
-    long mid_h = get_frontend_sprite(GFS_hugearea_thc_cor_ml)->SHeight * units_per_pixel / 16;
-    long bottom_y = y + height - bottom_h;
+    int32_t bottom_h = get_frontend_sprite(GFS_hugearea_thn_cor_bl)->SHeight * units_per_pixel / 16;
+    int32_t mid_h = get_frontend_sprite(GFS_hugearea_thc_cor_ml)->SHeight * units_per_pixel / 16;
+    int32_t bottom_y = y + height - bottom_h;
     y += draw_frame_row(x, y, GFS_hugearea_thn_cor_tl, GFS_hugearea_thn_tx1_tc, GFS_hugearea_thn_cor_tr, tiles);
     while (y < bottom_y)
     {

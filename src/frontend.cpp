@@ -1632,20 +1632,20 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
     set_flag_value(ustate->additional_flags, UsrAF_UnlockedLordTorture, flg_mem);
-    // Only save progress if level was won, not a free play level, not a multiplayer level and not in packet mode
+    // Only save progress if not a free play level, not a multiplayer level and not in packet mode
     if (network_is_active()
      || ((game.operation_flags & GOF_SingleLevel) != 0)
      || (game.packet_load_enable)
      || (is_freeplay_level(lvnum))
-     || (is_multiplayer_level(lvnum))
-     || (player->victory_state != VicS_WonLevel))
+     || (is_multiplayer_level(lvnum)))
         return false;
+    TbBool won = (player->victory_state == VicS_WonLevel);
     // Select the continue level (move the campaign forward)
-    if (allow_lvnum_grow) {
+    if (allow_lvnum_grow && won) {
         SYNCDBG(7,"Progressing the campaign");
         move_campaign_to_next_level();
     }
-    return save_level_progress(lvnum);
+    return save_level_progress(lvnum, won);
 }
 
 void frontend_load_continue_game(struct GuiButton *gbtn)
@@ -3904,8 +3904,8 @@ void frontend_draw_confirm_box(struct GuiButton *gbtn)
     LbTextSetFont(frontend_font[1]);
     RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     int tx_units_per_px = ((92 * units_per_pixel / 16 / 4) * 13 / 11) * 16 / LbTextLineHeight();
-    long line_h = LbTextLineHeight() * tx_units_per_px / 16;
-    long text_center_y = gbtn->height * 5 / 24;
+    int line_h = LbTextLineHeight() * tx_units_per_px / 16;
+    int text_center_y = gbtn->height * 5 / 24;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y + text_center_y - line_h / 2, gbtn->width, line_h);
     LbTextDrawResized(0, 0, tx_units_per_px, text);
 }
