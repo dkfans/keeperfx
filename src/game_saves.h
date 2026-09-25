@@ -37,14 +37,20 @@ extern "C" {
 #define SAVE_SLOTS_MIN           8
 #define SAVE_TEXTNAME_LEN        30
 #define PLAYER_NAME_LENGTH       64
+#define SAVE_FILENAME_MAX        64
+
+#define MAKE_CHUNK_ID(char1, char2, char3, char4) \
+    ((uint32_t)(unsigned char)(char1)         | ((uint32_t)(unsigned char)(char2) << 8) \
+   | ((uint32_t)(unsigned char)(char3) << 16) | ((uint32_t)(unsigned char)(char4) << 24))
 
 enum SaveGameChunks {
-     SGC_InfoBlock      = 0x4F464E49, //"INFO"
-     SGC_GameOrig       = 0x53444C4F, //"OLDS"
-     SGC_PacketHeader   = 0x52444850, //"PHDR"
-     SGC_PacketData     = 0x544B4350, //"PCKT"
-     SGC_IntralevelData = 0x4C564C49, //"ILVL"
-     SGC_LuaData        = 0x2041554C  //"LUA "
+     SGC_InfoBlock        = MAKE_CHUNK_ID('I', 'N', 'F', 'O'),
+     SGC_GameOrig         = MAKE_CHUNK_ID('O', 'L', 'D', 'S'),
+     SGC_PacketHeader     = MAKE_CHUNK_ID('P', 'H', 'D', 'R'),
+     SGC_PacketData       = MAKE_CHUNK_ID('P', 'C', 'K', 'T'),
+     SGC_IntralevelData   = MAKE_CHUNK_ID('I', 'L', 'V', 'L'),
+     SGC_LuaData          = MAKE_CHUNK_ID('L', 'U', 'A', ' '),
+     SGC_Continue         = MAKE_CHUNK_ID('C', 'O', 'N', 'T'),
 };
 
 enum SaveGameChunkFlags {
@@ -58,6 +64,12 @@ enum SaveGameChunkFlags {
 #define SGF_SavedGame      (SGF_InfoBlock|SGF_GameOrig|SGF_IntralevelData|SGF_LuaData)
 #define SGF_PacketStart    (SGF_PacketHeader|SGF_PacketData|SGF_InfoBlock)
 #define SGF_PacketContinue (SGF_PacketHeader|SGF_PacketData|SGF_InfoBlock|SGF_GameOrig)
+
+enum ContinueTargets {
+    CntT_None = 0,
+    CntT_SavedGame,
+    CntT_CampaignProgress,
+};
 
 enum GameLoadStatus {
     GLoad_Failed = 0,
@@ -91,6 +103,13 @@ struct CatalogueEntry {
     unsigned short game_ver_build;
 };
 
+struct ContinueData {
+    uint32_t reserved;
+    
+    // point to a save game file or a campaign progress file
+    char link_fname[SAVE_FILENAME_MAX];
+};
+
 struct FileChunkHeader {
     uint32_t len;
     uint32_t id;
@@ -99,7 +118,6 @@ struct FileChunkHeader {
 
 /******************************************************************************/
 extern int number_of_saved_games;
-extern const char* continue_game_filename;
 
 #pragma pack()
 /******************************************************************************/
@@ -132,8 +150,17 @@ LevelNumber move_campaign_to_next_level(void);
 LevelNumber move_campaign_to_prev_level(void);
 /******************************************************************************/
 TbBool continue_game_available(void);
-short load_continue_game(void);
-short save_continue_game(LevelNumber lv_num);
+enum ContinueTargets load_continue_game(void);
+TbBool save_level_progress(LevelNumber lvnum, TbBool won);
+void delete_continue_link(void);
+/******************************************************************************/
+struct GameCampaign;
+struct CampaignsList;
+TbBool campaign_progress_exists(const struct GameCampaign *campgn);
+TbBool any_campaign_progress_exists(void);
+void update_campaigns_progress_percent(struct CampaignsList *clist);
+TbBool resume_campaign_progress(const char *cmpgn_fname);
+TbBool erase_progress(const struct GameCampaign *campgn);
 /******************************************************************************/
 #ifdef __cplusplus
 }

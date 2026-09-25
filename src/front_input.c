@@ -3247,7 +3247,7 @@ short get_gui_inputs(short gameplay_on)
       {
           gbtn->flags &= ~LbBtnF_MouseOver;
       }
-      if (gbtn->gbtype == LbBtnT_HorizSlider)
+      if ((gbtn->gbtype == LbBtnT_HorizSlider) && ((fmmenu_idx == -1) || (gbtn->gmenu_idx == fmmenu_idx)))
       {
           if (gui_slider_button_mouse_over_slider_tracker(gidx))
           {

@@ -48,6 +48,7 @@
 #include "gui_boxmenu.h"
 #include "net_exchange_gameplay.h"
 #include "packets.h"
+#include "player_data.h"
 #include "roomspace.h"
 #include "keeperfx.hpp"
 #include "api.h"
@@ -69,7 +70,8 @@ const short VersionMinor    = VER_MINOR;
 short const VersionRelease  = VER_RELEASE;
 short const VersionBuild    = VER_BUILD;
 
-const char *continue_game_filename="fx1contn.sav";
+const char *legacy_campaign_progress="fx1contn.sav";
+const char *continue_filename="fx1lastf.sav"; // (merely points to another save file)
 const char *saved_game_filename="fx1g%04d.sav";
 const char *packet_filename="fx1rp%04d.pck";
 
@@ -128,7 +130,14 @@ static int save_slot_index_from_filename(const char *fname)
     return (int)idx;
 }
 
-#define CONTINUE_GAME_FILE_SIZE (CAMPAIGN_FNAME_LEN + sizeof(LevelNumber) + sizeof(struct IntralevelData))
+#define INTRALEVEL_DATA_V0_SIZE      offsetof(struct IntralevelData, continue_level)
+#define LEGACY_PROGRESS_FILE_SIZE (CAMPAIGN_FNAME_LEN + sizeof(LevelNumber) + INTRALEVEL_DATA_V0_SIZE)
+#define CONTINUE_DATA_VER 0
+
+static struct IntralevelData progress_scratch;
+
+static void update_last_file_after_save(int32_t slot_num);
+
 /******************************************************************************/
 TbBool is_primitive_save_version(long filesize)
 {
@@ -163,7 +172,7 @@ TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
     }
     { // IntralevelData data chunk
         hdr.id = SGC_IntralevelData;
-        hdr.ver = 0;
+        hdr.ver = INTRALEVEL_DATA_VER;
         hdr.len = sizeof(struct IntralevelData);
         if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
         if (LbFileWrite(fhandle, &intralvl, sizeof(struct IntralevelData)) == sizeof(struct IntralevelData))
@@ -244,6 +253,172 @@ static TbBool chunk_version_ok(TbFileHandle fhandle, const struct FileChunkHeade
     return false;
 }
 
+static TbBool write_chunk(TbFileHandle fhandle, uint32_t id, uint32_t ver, const void *data, uint32_t len)
+{
+    struct FileChunkHeader hdr;
+    hdr.id = id;
+    hdr.ver = ver;
+    hdr.len = len;
+    return (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+        && (LbFileWrite(fhandle, data, len) == len);
+}
+
+static void skip_chunk(TbFileHandle fhandle, const struct FileChunkHeader *hdr)
+{
+    if (LbFileSeek(fhandle, hdr->len, Lb_FILE_SEEK_CURRENT) < 0)
+        LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
+}
+
+static TbBool read_intralevel_chunk(TbFileHandle fhandle, const struct FileChunkHeader *hdr, struct IntralevelData *ilvl)
+{
+    uint32_t len = 0;
+    if ((hdr->ver == INTRALEVEL_DATA_VER) && (hdr->len == sizeof(struct IntralevelData)))
+        len = sizeof(struct IntralevelData);
+    else if ((hdr->ver == 0) && (hdr->len == INTRALEVEL_DATA_V0_SIZE))
+        len = INTRALEVEL_DATA_V0_SIZE;
+    if (len == 0)
+    {
+        WARNLOG("Incompatible IntralevelData chunk, version %" PRIu32 ", length %" PRIu32, hdr->ver, hdr->len);
+        skip_chunk(fhandle, hdr);
+        return false;
+    }
+    memset(ilvl, 0, sizeof(struct IntralevelData));
+    return (LbFileRead(fhandle, ilvl, len) == (int)len);
+}
+
+static TbBool is_campaign_progress_level(const struct GameCampaign *campgn, LevelNumber lvnum)
+{
+    return (campaign_singleplayer_level_index(campgn, lvnum) >= 0) || (campaign_bonus_level_index(campgn, lvnum) >= 0)
+        || (campaign_extra_level_index(campgn, lvnum) >= 0);
+}
+
+static TbBool is_level_completed(const struct IntralevelData *ilvl, LevelNumber lvnum)
+{
+    if (lvnum < 1)
+        return false;
+    for (int i = 0; i < LEVELS_COMPLETED_COUNT; i++)
+    {
+        if (ilvl->levels_completed[i] == (uint32_t)lvnum + 1)
+            return true;
+    }
+    return false;
+}
+
+static void mark_level_completed(struct IntralevelData *ilvl, LevelNumber lvnum)
+{
+    if ((lvnum < 1) || is_level_completed(ilvl, lvnum))
+        return;
+    for (int i = 0; i < LEVELS_COMPLETED_COUNT; i++)
+    {
+        if (ilvl->levels_completed[i] == 0)
+        {
+            ilvl->levels_completed[i] = (uint32_t)lvnum + 1;
+            return;
+        }
+    }
+}
+
+static void fill_missing_levels_completed(struct IntralevelData *ilvl, const struct GameCampaign *campgn, LevelNumber ref_lvnum)
+{
+    for (int i = 0; i < LEVELS_COMPLETED_COUNT; i++)
+    {
+        if (ilvl->levels_completed[i] != 0)
+            return;
+    }
+    int limit;
+    if (ref_lvnum == SINGLEPLAYER_FINISHED)
+    {
+        limit = CAMPAIGN_LEVELS_COUNT;
+    } else
+    {
+        limit = campaign_singleplayer_level_index(campgn, ref_lvnum);
+        if (limit < 0)
+            limit = campaign_bonus_level_index(campgn, ref_lvnum);
+    }
+    for (int i = 0; i < limit; i++)
+        mark_level_completed(ilvl, campgn->single_levels[i]);
+}
+
+static uint32_t encode_continue_level(LevelNumber lvnum)
+{
+    if (lvnum == SINGLEPLAYER_FINISHED)
+        return UINT32_MAX;
+    if (lvnum < 0)
+        return 0;
+    return (uint32_t)lvnum + 1;
+}
+
+static LevelNumber stored_continue_level(const struct IntralevelData *ilvl)
+{
+    if (ilvl->continue_level == 0)
+        return LEVELNUMBER_ERROR;
+    if (ilvl->continue_level == UINT32_MAX)
+        return SINGLEPLAYER_FINISHED;
+    return (LevelNumber)(ilvl->continue_level - 1);
+}
+
+static LevelNumber resolve_continue_level(const struct IntralevelData *ilvl, const struct GameCampaign *campgn)
+{
+    LevelNumber lvnum = stored_continue_level(ilvl);
+    if ((lvnum == SINGLEPLAYER_FINISHED) || (lvnum == SINGLEPLAYER_NOTSTARTED) || (campaign_singleplayer_level_index(campgn, lvnum) >= 0))
+        return lvnum;
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        if ((campgn->single_levels[i] > 0) && !is_level_completed(ilvl, campgn->single_levels[i]))
+            return campgn->single_levels[i];
+    }
+    return SINGLEPLAYER_FINISHED;
+}
+
+static LevelNumber resolve_campaign_progress(struct IntralevelData *ilvl, const struct GameCampaign *campgn)
+{
+    fill_missing_levels_completed(ilvl, campgn, stored_continue_level(ilvl));
+    LevelNumber lvnum = resolve_continue_level(ilvl, campgn);
+    ilvl->continue_level = encode_continue_level(lvnum);
+    return lvnum;
+}
+
+static short campaign_progress_percent(const struct GameCampaign *campgn, const struct IntralevelData *ilvl, LevelNumber continue_lvnum)
+{
+    int total = 0;
+    int done = 0;
+    int secret = 0;
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        if (campgn->single_levels[i] <= 0)
+            continue;
+        total++;
+        if (is_level_completed(ilvl, campgn->single_levels[i]))
+            done++;
+    }
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        LevelNumber lvnum = campgn->bonus_levels[i];
+        if ((campaign_bonus_level_index(campgn, lvnum) == i) && (campaign_singleplayer_level_index(campgn, lvnum) < 0)
+          && is_level_completed(ilvl, lvnum))
+            secret++;
+    }
+    for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
+    {
+        LevelNumber lvnum = campgn->extra_levels[i];
+        if ((campaign_extra_level_index(campgn, lvnum) == i) && (campaign_singleplayer_level_index(campgn, lvnum) < 0)
+          && (campaign_bonus_level_index(campgn, lvnum) < 0) && is_level_completed(ilvl, lvnum))
+            secret++;
+    }
+    TbBool finished = (continue_lvnum == SINGLEPLAYER_FINISHED) || (done == total);
+    int percent;
+    if (finished)
+        percent = 100;
+    else if ((done == 0) || (total <= 0))
+        percent = 0;
+    else
+        percent = (99 * done + total - 1) / total;
+    percent += secret;
+    if (!finished && (percent > 99))
+        percent = 99;
+    return percent;
+}
+
 int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 {
     long chunks_done = 0;
@@ -322,14 +497,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 return GLoad_PacketStart;
             return GLoad_Failed;
         case SGC_IntralevelData:
-            if (hdr.len != sizeof(struct IntralevelData))
-            {
-                if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
-                    LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
-                WARNLOG("Incompatible IntralevelData chunk");
-                break;
-            }
-            if (LbFileRead(fhandle, &intralvl, sizeof(struct IntralevelData)) == sizeof(struct IntralevelData)) {
+            if (read_intralevel_chunk(fhandle, &hdr, &intralvl)) {
                 chunks_done |= SGF_IntralevelData;
             } else {
                 WARNLOG("Could not read IntralevelData chunk");
@@ -363,6 +531,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
     }
     if ((chunks_done & SGF_SavedGame) == SGF_SavedGame)
     {
+        fill_missing_levels_completed(&intralvl, &campaign, get_loaded_level_number());
         // Update interface items
         update_trap_tab_to_config();
         update_room_tab_to_config();
@@ -399,6 +568,7 @@ TbBool save_game(long slot_num)
         return false;
     }
     LbFileClose(handle);
+    update_last_file_after_save(slot_num);
     api_event("GAME_SAVED");
     return true;
 }
@@ -664,117 +834,393 @@ TbBool initialise_load_game_slots(void)
     return (count_valid_saved_games() > 0);
 }
 
-short save_continue_game(LevelNumber lvnum)
+static void get_progress_filename(const char *cmpgn_fname, char *out, size_t outlen)
 {
-    // Update continue level number
-    if (is_singleplayer_like_level(lvnum))
-      set_continue_level_number(lvnum);
-    SYNCDBG(6,"Continue set to level %d (loaded is %d)",(int)get_continue_level_number(),(int)get_loaded_level_number());
-    char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
-    TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_NEW);
+    char name[CAMPAIGN_FNAME_LEN];
+    get_campaign_sanitized_id(cmpgn_fname, name, sizeof(name));
+    snprintf(out, outlen, "%s.cid", name);
+}
+
+
+static TbBool read_progress_file(const char *progress_fname, struct IntralevelData *ilvl)
+{
+    char* fname = prepare_file_path(FGrp_Save, progress_fname);
+    TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (!fh)
-    {
-        WARNMSG("Cannot open continue game file \"%s\".", fname);
         return false;
+    TbBool result = false;
+    while (!LbFileEof(fh))
+    {
+        struct FileChunkHeader hdr;
+        if (LbFileRead(fh, &hdr, sizeof(struct FileChunkHeader)) != sizeof(struct FileChunkHeader))
+            break;
+        if (hdr.id == SGC_IntralevelData)
+        {
+            result = read_intralevel_chunk(fh, &hdr, ilvl);
+            break;
+        }
+        WARNLOG("Unrecognized chunk in \"%s\", ID = %08" PRIx32, progress_fname, hdr.id);
+        skip_chunk(fh, &hdr);
     }
-    char cmpgn_fname[CAMPAIGN_FNAME_LEN];
-    memset(cmpgn_fname, 0, sizeof(cmpgn_fname));
-    snprintf(cmpgn_fname, sizeof(cmpgn_fname), "%s", campaign.fname);
-    LevelNumber continue_level_number = get_continue_level_number();
-    short result = false;
-    if (LbFileWrite(fh, cmpgn_fname, sizeof(cmpgn_fname)) == sizeof(cmpgn_fname))
-    if (LbFileWrite(fh, &continue_level_number, sizeof(continue_level_number)) == sizeof(continue_level_number))
-    // Appending IntralevelData
-    if (LbFileWrite(fh, &intralvl, sizeof(struct IntralevelData)) == sizeof(struct IntralevelData))
-        result = true;
     LbFileClose(fh);
     return result;
 }
 
-static short read_continue_game_progress(char *cmpgn_fname, LevelNumber *lvnum, struct IntralevelData *intralevel)
+static TbBool write_progress_file(const char *progress_fname, const struct IntralevelData *ilvl)
 {
-    char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
-    int32_t fsize = LbFileLength(fname);
-    if (fsize != (int32_t)CONTINUE_GAME_FILE_SIZE)
-    {
-        SYNCDBG(7, "No correct .SAV file; there's no continue");
-        return false;
-    }
-    TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    char* fname = prepare_file_path(FGrp_Save, progress_fname);
+    TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
     if (!fh)
     {
-        SYNCDBG(7,"Can't open .SAV file; there's no continue");
+        WARNMSG("Cannot open progress file \"%s\".", fname);
         return false;
     }
-    short result = false;
-    if (LbFileRead(fh, cmpgn_fname, CAMPAIGN_FNAME_LEN) == CAMPAIGN_FNAME_LEN)
-    if (LbFileRead(fh, lvnum, sizeof(*lvnum)) == sizeof(*lvnum))
-    if (LbFileRead(fh, intralevel, sizeof(struct IntralevelData)) == sizeof(struct IntralevelData))
-        result = true;
+    TbBool result = write_chunk(fh, SGC_IntralevelData, INTRALEVEL_DATA_VER, ilvl, sizeof(struct IntralevelData));
     LbFileClose(fh);
-    if (!result)
+    return result;
+}
+
+static TbFileHandle open_legacy_progress(void)
+{
+    char* fname = prepare_file_path(FGrp_Save, legacy_campaign_progress);
+    if (LbFileLength(fname) != (long)LEGACY_PROGRESS_FILE_SIZE)
+        return NULL;
+    return LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+}
+
+static TbBool read_legacy_progress_fname(char *cmpgn_fname)
+{
+    TbFileHandle fh = open_legacy_progress();
+    if (!fh)
+        return false;
+    TbBool result = (LbFileRead(fh, cmpgn_fname, CAMPAIGN_FNAME_LEN) == CAMPAIGN_FNAME_LEN);
+    LbFileClose(fh);
+    cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
+    return result;
+}
+
+static TbBool legacy_progress_matches(const char *cmpgn_fname)
+{
+    char legacy_fname[CAMPAIGN_FNAME_LEN];
+    return read_legacy_progress_fname(legacy_fname) && (strcasecmp(legacy_fname, cmpgn_fname) == 0);
+}
+
+static TbBool read_legacy_progress(const char *cmpgn_fname, struct IntralevelData *ilvl)
+{
+    TbFileHandle fh = open_legacy_progress();
+    if (!fh)
+        return false;
+    char legacy_fname[CAMPAIGN_FNAME_LEN];
+    LevelNumber lvnum = 0;
+    memset(ilvl, 0, sizeof(struct IntralevelData));
+    TbBool result = (LbFileRead(fh, legacy_fname, CAMPAIGN_FNAME_LEN) == CAMPAIGN_FNAME_LEN)
+        && (LbFileRead(fh, &lvnum, sizeof(lvnum)) == sizeof(lvnum))
+        && (LbFileRead(fh, ilvl, INTRALEVEL_DATA_V0_SIZE) == (int)INTRALEVEL_DATA_V0_SIZE);
+    LbFileClose(fh);
+    legacy_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
+    if (!result || (strcasecmp(legacy_fname, cmpgn_fname) != 0))
+        return false;
+    ilvl->continue_level = encode_continue_level(lvnum);
+    return true;
+}
+
+static void delete_legacy_progress(void)
+{
+    LbFileDelete(prepare_file_path(FGrp_Save, legacy_campaign_progress));
+}
+
+static TbBool load_campaign_progress(const struct GameCampaign *campgn, struct IntralevelData *ilvl, LevelNumber *continue_lvnum)
+{
+    char progress_fname[DISKPATH_SIZE];
+    get_progress_filename(campgn->fname, progress_fname, sizeof(progress_fname));
+    TbBool found = read_progress_file(progress_fname, ilvl);
+    if (!found)
+        found = read_legacy_progress(campgn->fname, ilvl);
+    if (!found)
+        return false;
+    *continue_lvnum = resolve_campaign_progress(ilvl, campgn);
+    return true;
+}
+
+static TbBool read_last_file_link(char *link, size_t linklen)
+{
+    char* fname = prepare_file_path(FGrp_Save, continue_filename);
+    TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    if (!fh)
+        return false;
+    TbBool result = false;
+    while (!LbFileEof(fh))
     {
-        SYNCDBG(7, "No correct .SAV file; there's no continue");
+        struct FileChunkHeader hdr;
+        if (LbFileRead(fh, &hdr, sizeof(struct FileChunkHeader)) != sizeof(struct FileChunkHeader))
+            break;
+        if ((hdr.id == SGC_Continue) && (hdr.ver == CONTINUE_DATA_VER) && (hdr.len == sizeof(struct ContinueData)))
+        {
+            struct ContinueData cdata;
+            if (LbFileRead(fh, &cdata, sizeof(cdata)) == sizeof(cdata))
+            {
+                cdata.link_fname[SAVE_FILENAME_MAX-1] = '\0';
+                snprintf(link, linklen, "%s", cdata.link_fname);
+                result = (link[0] != '\0');
+            }
+            break;
+        }
+        skip_chunk(fh, &hdr);
+    }
+    LbFileClose(fh);
+    return result;
+}
+
+static TbBool write_last_file_link(const char *link)
+{
+    struct ContinueData cdata;
+    memset(&cdata, 0, sizeof(cdata));
+    snprintf(cdata.link_fname, sizeof(cdata.link_fname), "%s", link);
+    char* fname = prepare_file_path(FGrp_Save, continue_filename);
+    TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
+    if (!fh)
+    {
+        WARNMSG("Cannot open continue file \"%s\".", fname);
         return false;
     }
-    cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
-    return true;
+    TbBool result = write_chunk(fh, SGC_Continue, CONTINUE_DATA_VER, &cdata, sizeof(cdata));
+    LbFileClose(fh);
+    return result;
+}
+
+static void delete_last_file_link(void)
+{
+    LbFileDelete(prepare_file_path(FGrp_Save, continue_filename));
+}
+
+void delete_continue_link(void)
+{
+    delete_last_file_link();
+}
+
+static void update_last_file_after_save(int32_t slot_num)
+{
+    int humans = 0;
+    int non_computer = 0;
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        struct PlayerInfo* player = get_player(plyr_idx);
+        if (flag_is_set(player->allocflags, PlaF_OriginallyHuman))
+            humans++;
+        if (flag_is_set(player->allocflags, PlaF_Allocated) && !flag_is_set(player->allocflags, PlaF_CompCtrl))
+            non_computer++;
+    }
+    // saves from before PlaF_OriginallyHuman existed have no flagged player
+    if (humans == 0)
+        humans = non_computer;
+    char link[SAVE_FILENAME_MAX];
+    snprintf(link, sizeof(link), saved_game_filename, (int)slot_num);
+    if (humans == 1)
+    {
+        write_last_file_link(link);
+        return;
+    }
+    char current[SAVE_FILENAME_MAX];
+    if (read_last_file_link(current, sizeof(current)) && (strcasecmp(current, link) == 0))
+        delete_last_file_link();
+}
+
+static TbBool read_saved_game_catalogue_entry(int32_t slot_num, struct CatalogueEntry *centry)
+{
+    memset(centry, 0, sizeof(struct CatalogueEntry));
+    char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
+    TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    if (!fh)
+        return false;
+    struct FileChunkHeader hdr;
+    TbBool loaded = (LbFileRead(fh, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+        && load_catalogue_entry(fh, &hdr, centry);
+    LbFileClose(fh);
+    return loaded;
+}
+
+static enum ContinueTargets find_continue_target(int32_t *slot_num, char *cmpgn_fname, size_t fnamelen)
+{
+    if (campaigns_list.items_num == 1)
+    {
+        struct GameCampaign* campgn = &campaigns_list.items[0];
+        if (!campaign_progress_exists(campgn))
+            return CntT_None;
+        snprintf(cmpgn_fname, fnamelen, "%s", campgn->fname);
+        return CntT_CampaignProgress;
+    }
+    char link[SAVE_FILENAME_MAX];
+    if (read_last_file_link(link, sizeof(link)))
+    {
+        int slot = save_slot_index_from_filename(link);
+        if (slot >= 0)
+        {
+            struct CatalogueEntry centry;
+            if (read_saved_game_catalogue_entry(slot, &centry))
+            {
+                *slot_num = slot;
+                return CntT_SavedGame;
+            }
+        } else
+        {
+            for (unsigned long i = 0; i < campaigns_list.items_num; i++)
+            {
+                struct GameCampaign* campgn = &campaigns_list.items[i];
+                char progress_fname[DISKPATH_SIZE];
+                get_progress_filename(campgn->fname, progress_fname, sizeof(progress_fname));
+                if ((strcasecmp(link, progress_fname) == 0) && LbFileExists(prepare_file_path(FGrp_Save, progress_fname)))
+                {
+                    snprintf(cmpgn_fname, fnamelen, "%s", campgn->fname);
+                    return CntT_CampaignProgress;
+                }
+            }
+        }
+    }
+    char legacy_fname[CAMPAIGN_FNAME_LEN];
+    if (read_legacy_progress_fname(legacy_fname) && is_campaign_in_list(legacy_fname, &campaigns_list))
+    {
+        snprintf(cmpgn_fname, fnamelen, "%s", legacy_fname);
+        return CntT_CampaignProgress;
+    }
+    return CntT_None;
 }
 
 /**
  * Indicates whether continue game option is available.
- * @return
  */
 TbBool continue_game_available(void)
 {
-    LevelNumber lvnum;
-    SYNCDBG(6,"Starting");
-    char cmpgn_fname[CAMPAIGN_FNAME_LEN];
-    struct IntralevelData intralevel;
-    if (!read_continue_game_progress(cmpgn_fname, &lvnum, &intralevel)) {
-        WARNLOG("Can't read continue game file head");
-        return false;
+    int32_t slot_num = -1;
+    char cmpgn_fname[DISKPATH_SIZE];
+    return (find_continue_target(&slot_num, cmpgn_fname, sizeof(cmpgn_fname)) != CntT_None);
+}
+
+enum ContinueTargets load_continue_game(void)
+{
+    int32_t slot_num = -1;
+    char cmpgn_fname[DISKPATH_SIZE];
+    switch (find_continue_target(&slot_num, cmpgn_fname, sizeof(cmpgn_fname)))
+    {
+    case CntT_SavedGame:
+        load_game_save_catalogue();
+        if ((slot_num >= save_game_catalogue_count) || ((save_game_catalogue[slot_num].flags & CEF_InUse) == 0))
+            break;
+        game.save_game_slot = slot_num;
+        return CntT_SavedGame;
+    case CntT_CampaignProgress:
+        if (resume_campaign_progress(cmpgn_fname))
+            return CntT_CampaignProgress;
+        break;
+    default:
+        break;
     }
+    return CntT_None;
+}
+
+TbBool campaign_progress_exists(const struct GameCampaign *campgn)
+{
+    char progress_fname[DISKPATH_SIZE];
+    get_progress_filename(campgn->fname, progress_fname, sizeof(progress_fname));
+    if (LbFileExists(prepare_file_path(FGrp_Save, progress_fname)))
+        return true;
+    return legacy_progress_matches(campgn->fname);
+}
+
+TbBool any_campaign_progress_exists(void)
+{
+    for (unsigned long i = 0; i < campaigns_list.items_num; i++)
+    {
+        if (campaign_progress_exists(&campaigns_list.items[i]))
+            return true;
+    }
+    return false;
+}
+
+void update_campaigns_progress_percent(struct CampaignsList *clist)
+{
+    for (unsigned long i = 0; i < clist->items_num; i++)
+    {
+        struct GameCampaign* campgn = &clist->items[i];
+        LevelNumber continue_lvnum;
+        if (load_campaign_progress(campgn, &progress_scratch, &continue_lvnum))
+            campgn->progress_percent = campaign_progress_percent(campgn, &progress_scratch, continue_lvnum);
+        else
+            campgn->progress_percent = -1;
+    }
+}
+
+TbBool resume_campaign_progress(const char *cmpgn_fname)
+{
     if (!change_campaign(CampgnT_Campaign, cmpgn_fname))
     {
-        ERRORLOG("Unable to load campaign");
+        ERRORLOG("Unable to load campaign \"%s\"", cmpgn_fname);
         return false;
     }
+    LevelNumber lvnum;
+    if (!load_campaign_progress(&campaign, &progress_scratch, &lvnum))
+        return false;
     if (!is_singleplayer_like_level(lvnum))
     {
-        SYNCDBG(7,"Level %d from continue file is not single player",(int)lvnum);
+        WARNLOG("Continue level %d of \"%s\" is incorrect", (int)lvnum, cmpgn_fname);
         return false;
     }
+    memcpy(&intralvl, &progress_scratch, sizeof(struct IntralevelData));
     set_continue_level_number(lvnum);
-    SYNCDBG(7,"Continue to level %d is available",(int)lvnum);
+    snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
+    update_extra_levels_visibility();
+    JUSTMSG("Continued level %d from %s", (int)lvnum, campaign.name);
     return true;
 }
 
-short load_continue_game(void)
+// writes campaign progress file; on a win also records the level and updates the continue file
+TbBool save_level_progress(LevelNumber lvnum, TbBool won)
 {
-    LevelNumber lvnum;
-    char cmpgn_fname[CAMPAIGN_FNAME_LEN];
-    struct IntralevelData intralevel;
-    if (!read_continue_game_progress(cmpgn_fname, &lvnum, &intralevel)) {
-        WARNLOG("Can't read continue game file head");
+    if (won && is_campaign_progress_level(&campaign, lvnum))
+        mark_level_completed(&intralvl, lvnum);
+    intralvl.continue_level = encode_continue_level(get_continue_level_number());
+    char progress_fname[DISKPATH_SIZE];
+    get_progress_filename(campaign.fname, progress_fname, sizeof(progress_fname));
+    if (!write_progress_file(progress_fname, &intralvl))
         return false;
-    }
-    if (!change_campaign(CampgnT_Campaign, cmpgn_fname))
-    {
-        ERRORLOG("Unable to load campaign");
+
+    // continue
+    if (won)
+        write_last_file_link(progress_fname);
+
+    // clean up legacy file if this is a replacement
+    if (legacy_progress_matches(campaign.fname))
+        delete_legacy_progress();
+    return true;
+}
+
+// check if saved game is for the given campaign
+static TbBool saved_game_belongs_to(int32_t slot_num, const struct GameCampaign *campgn)
+{
+    struct CatalogueEntry centry;
+    if (!read_saved_game_catalogue_entry(slot_num, &centry))
         return false;
-    }
-    if (!is_singleplayer_like_level(lvnum))
+    char centry_fname[DISKPATH_SIZE];
+    prepare_campaign_file_name(centry.campaign_fname, centry_fname, sizeof(centry_fname));
+    if (strcasecmp(centry_fname, campgn->fname) != 0)
+        return false;
+    return is_campaign_progress_level(campgn, centry.level_num);
+}
+
+TbBool erase_progress(const struct GameCampaign *campgn)
+{
+    char progress_fname[DISKPATH_SIZE];
+    get_progress_filename(campgn->fname, progress_fname, sizeof(progress_fname));
+    LbFileDelete(prepare_file_path(FGrp_Save, progress_fname));
+    if (legacy_progress_matches(campgn->fname))
+        delete_legacy_progress();
+    char link[SAVE_FILENAME_MAX];
+    if (read_last_file_link(link, sizeof(link)))
     {
-      WARNLOG("Level number in continue file is incorrect");
-      return false;
+        int slot = save_slot_index_from_filename(link);
+        if ((strcasecmp(link, progress_fname) == 0) || ((slot >= 0) && saved_game_belongs_to(slot, campgn)))
+            delete_last_file_link();
     }
-    set_continue_level_number(lvnum);
-    // Restoring intralevel data
-    memcpy(&intralvl, &intralevel, sizeof(struct IntralevelData));
-    snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
-    update_extra_levels_visibility();
-    JUSTMSG("Continued level %d from %s", lvnum, campaign.name);
+    JUSTMSG("Erased progress of %s", campgn->fname);
     return true;
 }
 

@@ -101,7 +101,7 @@ void reset_script_timers_and_flags(void)
         for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
         {
             dungeon->script_flags[k] = 0;
-            if (freeplay)
+            if (freeplay && (plyr_idx < PLAYERS_FOR_CAMPAIGN_FLAGS) && (k < CAMPAIGN_FLAGS_PER_PLAYER))
             {
                 intralvl.campaign_flags[plyr_idx][k] = 0;
             }

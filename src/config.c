@@ -1845,16 +1845,54 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
   return result;
 }
 
-short is_bonus_level(LevelNumber lvnum)
+/**
+ * Returns index of given level in the campaign's single_levels, or -1.
+ */
+int campaign_singleplayer_level_index(const struct GameCampaign *campgn, LevelNumber lvnum)
 {
-  if (lvnum < 1) return false;
+  if (lvnum < 1) return -1;
   for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
-    if (campaign.bonus_levels[i] == lvnum)
-    {
-        SYNCDBG(7,"Level %d identified as bonus",lvnum);
-        return true;
-    }
+    if (campgn->single_levels[i] == lvnum)
+        return i;
+  }
+  return -1;
+}
+
+/**
+ * Returns first index of given level in the campaign's bonus_levels, or -1.
+ */
+int campaign_bonus_level_index(const struct GameCampaign *campgn, LevelNumber lvnum)
+{
+  if (lvnum < 1) return -1;
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campgn->bonus_levels[i] == lvnum)
+        return i;
+  }
+  return -1;
+}
+
+/**
+ * Returns index of given level in the campaign's extra_levels, or -1.
+ */
+int campaign_extra_level_index(const struct GameCampaign *campgn, LevelNumber lvnum)
+{
+  if (lvnum < 1) return -1;
+  for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
+  {
+    if (campgn->extra_levels[i] == lvnum)
+        return i;
+  }
+  return -1;
+}
+
+short is_bonus_level(LevelNumber lvnum)
+{
+  if (campaign_bonus_level_index(&campaign, lvnum) >= 0)
+  {
+      SYNCDBG(7,"Level %d identified as bonus",lvnum);
+      return true;
   }
   SYNCDBG(7,"Level %d not recognized as bonus",lvnum);
   return false;
@@ -1862,14 +1900,10 @@ short is_bonus_level(LevelNumber lvnum)
 
 short is_extra_level(LevelNumber lvnum)
 {
-  if (lvnum < 1) return false;
-  for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
+  if (campaign_extra_level_index(&campaign, lvnum) >= 0)
   {
-      if (campaign.extra_levels[i] == lvnum)
-      {
-          SYNCDBG(7,"Level %d identified as extra",lvnum);
-          return true;
-      }
+      SYNCDBG(7,"Level %d identified as extra",lvnum);
+      return true;
   }
   SYNCDBG(7,"Level %d not recognized as extra",lvnum);
   return false;
@@ -1900,13 +1934,7 @@ int storage_index_for_bonus_level(LevelNumber bn_lvnum)
  */
 int array_index_for_singleplayer_level(LevelNumber sp_lvnum)
 {
-  if (sp_lvnum < 1) return -1;
-  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
-  {
-    if (campaign.single_levels[i] == sp_lvnum)
-        return i;
-  }
-  return -1;
+  return campaign_singleplayer_level_index(&campaign, sp_lvnum);
 }
 
 /**

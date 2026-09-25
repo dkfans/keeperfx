@@ -6971,3 +6971,20 @@ msgstr "與伺服器的連線已中斷。"
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "多人遊戲不同步。"
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaign"
+msgstr "Campaign"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Erase Progress"
+msgstr "Erase Progress"
+
+#: guitext:1126
+msgctxt "Menu interface message"
+msgid "Are you sure?"
+msgstr "你确定吗？"
