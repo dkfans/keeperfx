@@ -1123,16 +1123,18 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           break;
       case 53: // MAX_REPLAYS
-          for (int k = 0; k < ReplTyp_Count; k++)
+          i = 0;
+          for (int typ = 0; typ < ReplTyp_Count; typ++)
           {
-              i = 0;
               if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+              {
                   i = atoi(word_buf);
-              if (i < 0) {
-                  CONFWRNLOG("Invalid \"%s\" value in %s file.",COMMAND_TEXT(cmd_num),config_textname);
-                  i = 0;
+                  if (i < 0) {
+                      CONFWRNLOG("Invalid \"%s\" value in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+                      i = 0;
+                  }
               }
-              max_replays[k] = i;
+              max_replays[typ] = i;
           }
           break;
       case ccr_comment:

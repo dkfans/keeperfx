@@ -34,6 +34,7 @@
 #include "frontmenu_ingame_map.h"
 #include "game_heap.h"
 #include "game_legacy.h"
+#include "replay.h"
 #include "game_merge.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
