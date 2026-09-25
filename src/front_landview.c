@@ -1070,11 +1070,11 @@ TbBool frontmap_update_zoom(void)
 
 static void landview_textbox_setup(void){
     landview_textbox_init(&landview_textbox);
-    make_palette_remap(landview_text_remap, frontend_backup_palette, frontend_palette);    
+    make_palette_remap(landview_text_remap, engine_palette, frontend_palette);
     make_palette_remap(landview_gui_remap, engine_palette, frontend_palette);
     landview_build_glass_map();
     /* Match the objective panel's front-end glyphs and palette remap. */
-    landview_textbox_set_text_rendering(&landview_textbox, frontend_font[1], landview_text_remap);
+    landview_textbox_set_text_rendering(&landview_textbox, winfont, landview_text_remap);
     landview_textbox_set_gui_remap(&landview_textbox, landview_gui_remap);
     landview_textbox_set_glass_map(&landview_textbox, landview_glass_map);
     landview_textbox_lvnum = SINGLEPLAYER_NOTSTARTED;
@@ -1110,6 +1110,7 @@ TbBool frontmap_load(void)
     init_netfont_palette_remap();  
     pop_palette_remap();
     map_font = load_spritesheet("ldata/netfont.dat", "ldata/netfont.tab");
+    winfont = load_font("data/font2-64.dat", "data/font2-64.tab");
     if (!map_flag)
     {
         ERRORLOG("Unable to load Land View Screen sprites");
