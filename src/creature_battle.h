@@ -29,6 +29,8 @@ extern "C" {
 /** Max amount of battles supported on any map. */
 #define BATTLES_COUNT          192
 #define MESSAGE_BATTLERS_COUNT   8
+/** Amount of battles the battle panel can show at the same time. */
+#define VISIBLE_BATTLES_COUNT    3 //TODO: Keep at 3 for now until the battle panel is made dynamic (allowing more battles to be shown at once, more creatures/heroes on each of them, etc) and really scalable
 /******************************************************************************/
 #pragma pack(1)
 
@@ -39,14 +41,21 @@ struct CreatureBattle {
   unsigned long fighters_num;
   unsigned short first_creatr;
   unsigned short last_creatr;
+  /** Turn on which the battle started, ie. on which its first fighter was added. */
+  GameTurn start_turn;
 };
 
 #pragma pack()
 /******************************************************************************/
 #define INVALID_CRTR_BATTLE (&game.battles[0])
 /******************************************************************************/
-extern unsigned short friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
-extern unsigned short enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
+/** Battles shown in the battle panel, newest first, and the creatures listed on each of its
+ * rows. This is interface state of the local client alone, no part of the game state; it is
+ * derived from game.battles[] by maintain_my_battle_list(), which runs every frame and builds
+ * it again whenever battle_lists_changed() has been called or the alliances differ. */
+extern BattleIndex visible_battles[VISIBLE_BATTLES_COUNT];
+extern unsigned short friendly_battler_list[VISIBLE_BATTLES_COUNT*MESSAGE_BATTLERS_COUNT];
+extern unsigned short enemy_battler_list[VISIBLE_BATTLES_COUNT*MESSAGE_BATTLERS_COUNT];
 /******************************************************************************/
 
 struct CreatureBattle *creature_battle_get(BattleIndex battle_id);
@@ -55,11 +64,6 @@ TbBool creature_battle_invalid(const struct CreatureBattle *battle);
 TbBool creature_battle_exists(BattleIndex battle_idx);
 
 BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx);
-BattleIndex find_last_battle_of_mine(PlayerNumber plyr_idx);
-BattleIndex find_next_battle_of_mine(PlayerNumber plyr_idx, BattleIndex prev_idx);
-BattleIndex find_previous_battle_of_mine(PlayerNumber plyr_idx, BattleIndex next_idx);
-BattleIndex find_next_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex prev_idx);
-BattleIndex find_previous_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex next_idx);
 unsigned long count_active_battles(PlayerNumber plyr_idx);
 
 TbBool has_melee_combat_attackers(struct Thing *victim);
@@ -72,9 +76,14 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos);
 void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType attack_type);
 long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType attack_pref);
 
-TbBool active_battle_exists(PlayerNumber plyr_idx);
+TbBool active_battle_exists(void);
+void battle_lists_changed(void);
 void maintain_my_battle_list(void);
-TbBool step_battles_forward(PlayerNumber plyr_idx);
+void reset_visible_battles(void);
+TbBool step_battles_forward(void);
+TbBool step_battles_backward(void);
+TbBool cycle_to_next_battle(void);
+TbBool battle_panel_can_scroll(void);
 long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex battle_id);
 void battle_initialise(void);
 /******************************************************************************/
