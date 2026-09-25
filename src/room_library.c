@@ -474,7 +474,7 @@ void update_research(void)
     for (i = 0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
-        if (player_exists(player) && (player->is_active == 1))
+        if (is_active_keeper(player))
         {
             process_player_research(i);
         }

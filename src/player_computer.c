@@ -1328,7 +1328,6 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyr_idx, lon
     }
     player->allocflags |= PlaF_Allocated;
     player->id_number = plyr_idx;
-    player->is_active = 1;
     player->allocflags |= PlaF_CompCtrl;
     init_player_start(player, false);
     if (!setup_a_computer_player(plyr_idx, comp_model)) {
@@ -1559,7 +1558,7 @@ void process_computer_players2(void)
             continue;
         if (((player->allocflags & PlaF_CompCtrl) != 0) || ((dungeon->computer_enabled & 0x01) != 0))
         {
-          if (player->is_active == 1)
+          if (is_active_keeper(player))
           {
             process_computer_player2(i);
             if (computer_player_demands_gold_check(i))
@@ -1597,7 +1596,7 @@ void setup_computer_players2(void)
   for (i=0; i < PLAYERS_COUNT; i++)
   {
       player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
+      if (is_active_keeper(player))
       {
         // The range from which the computer model is selected
         // is between minSkirmishAI and maxSkirmishAI, inclusive of both. User defined in keepcompp.cfg
@@ -1638,7 +1637,7 @@ void restore_computer_player_after_load(void)
             comp->dungeon = INVALID_DUNGEON;
             continue;
         }
-        if (player->is_active != 1)
+        if (!is_active_keeper(player))
         {
             memset(comp, 0, sizeof(struct Computer2));
             comp->dungeon = get_players_dungeon(player);

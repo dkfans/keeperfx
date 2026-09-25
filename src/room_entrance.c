@@ -395,7 +395,7 @@ void process_entrance_generation(void)
             if (generation_due_for_dungeon(dungeon))
             {
                 due = true;
-                if ((plyr->is_active) && (plyr->victory_state != VicS_LostLevel) )
+                if (is_active_keeper(plyr) && (plyr->victory_state != VicS_LostLevel) )
                 {
                     if (generation_available_to_dungeon(dungeon)) {
                         generate_creature_for_dungeon(dungeon);
