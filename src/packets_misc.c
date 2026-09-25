@@ -269,11 +269,13 @@ static GameTurn count_stored_turns(void)
         TbBigChecksum chksum = llong(&pckt_buf[nusers * sizeof(struct Packet)]);
         if ((chksum == LONG_TURN_MARKER) && !read_long_turn_data(&chksum, false, &consumed))
             break;
-        pos += consumed;
-        if (pos > file_len)
+        if (pos + consumed > file_len)
             break;
+        pos += consumed;
         turns++;
     }
+    if (pos != file_len)
+        ERRORLOG("Packet File unreadable at offset %d of %d; replay ends after %u turns", (int)pos, (int)file_len, (unsigned)turns);
     LbFileSeek(game.packet_save_fp, game.packet_file_pos, Lb_FILE_SEEK_BEGINNING);
     return turns;
 }
@@ -611,7 +613,7 @@ void load_packets_for_turn(GameTurn nturn)
         return;
     }
 
-    if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
+    if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) != turn_data_size)
     {
         ERRORDBG(18,"Cannot read turn data from Packet File");
         erstat_inc(ESE_CantReadPackets);
@@ -629,7 +631,7 @@ void load_packets_for_turn(GameTurn nturn)
     {
         int32_t consumed = 0;
         if (!read_long_turn_data(&tot_chksum, true, &consumed)) {
-            ERRORLOG("Cannot read long turn data from Packet File; replay aborted at turn %u", get_gameturn());
+            ERRORLOG("Cannot read long turn data from Packet File; replay aborted at turn %u", (unsigned)get_gameturn());
             erstat_inc(ESE_CantReadPackets);
             disable_packet_mode();
             return;
