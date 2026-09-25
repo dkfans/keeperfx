@@ -1624,6 +1624,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     }
     // Save some of the data from clearing
     victory_state = player->victory_state;
+    GameTurn play_turns = game.play_gameturn;
     memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
     flg_mem = ((ustate->additional_flags & UsrAF_UnlockedLordTorture) != 0);
     // clear all data
@@ -1632,6 +1633,14 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
     set_flag_value(ustate->additional_flags, UsrAF_UnlockedLordTorture, flg_mem);
+    TbBool won = (player->victory_state == VicS_WonLevel);
+    
+    // If we win a mappack file, 'Continue Game' button should not return to that map
+    // (Instead of deleting continue file, maybe record the mappack itself as the place to return to?)
+    if (won && is_freeplay_level(lvnum) && !network_is_active() && !game.packet_load_enable
+     && (play_turns >= 30 * start_params.num_fps /* prevent broken maps from deleting a perfectly good continue */))
+        delete_continue_link();
+        
     // Only save progress if not a free play level, not a multiplayer level and not in packet mode
     if (network_is_active()
      || ((game.operation_flags & GOF_SingleLevel) != 0)
@@ -1639,7 +1648,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
      || (is_freeplay_level(lvnum))
      || (is_multiplayer_level(lvnum)))
         return false;
-    TbBool won = (player->victory_state == VicS_WonLevel);
+    
     // Select the continue level (move the campaign forward)
     if (allow_lvnum_grow && won) {
         SYNCDBG(7,"Progressing the campaign");

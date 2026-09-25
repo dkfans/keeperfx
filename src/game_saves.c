@@ -993,6 +993,11 @@ static void delete_last_file_link(void)
     LbFileDelete(prepare_file_path(FGrp_Save, continue_filename));
 }
 
+void delete_continue_link(void)
+{
+    delete_last_file_link();
+}
+
 static void update_last_file_after_save(int32_t slot_num)
 {
     int humans = 0;

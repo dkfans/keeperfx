@@ -152,6 +152,7 @@ LevelNumber move_campaign_to_prev_level(void);
 TbBool continue_game_available(void);
 enum ContinueTargets load_continue_game(void);
 TbBool save_level_progress(LevelNumber lvnum, TbBool won);
+void delete_continue_link(void);
 /******************************************************************************/
 struct GameCampaign;
 struct CampaignsList;
