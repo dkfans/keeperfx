@@ -495,6 +495,15 @@ static TbBool read_long_turn_data(TbBigChecksum *chksum, TbBool apply, int32_t *
         if (!read_packet_bytes(&len, sizeof(len)))
             return false;
         *consumed += sizeof(len);
+        if (!packet_file_compressed())
+        {
+            const int32_t remaining = LbFileLengthHandle(game.packet_save_fp) - LbFilePosition(game.packet_save_fp);
+            if ((remaining < 0) || (len > (uint32_t)remaining))
+            {
+                ERRORLOG("Long turn record kind %u length %u exceeds Packet File (%d bytes left)", (unsigned)kind, (unsigned)len, (int)remaining);
+                return false;
+            }
+        }
         uint32_t used = 0;
         if (apply && (kind == LTK_ChatMessage) && (len >= sizeof(uint16_t)))
         {
@@ -543,12 +552,19 @@ static GameTurn count_stored_turns(void)
     const int nusers = packet_saved_users(users);
     unsigned char pckt_buf[PACKET_TURN_MAX_SIZE+4];
     const unsigned int start_pos = game.packet_file_pos;
+    const int32_t file_len = LbFileLengthHandle(game.packet_save_fp);
     GameTurn turns = 0;
     TbBigChecksum chksum;
     LbFileSeek(game.packet_save_fp, start_pos, Lb_FILE_SEEK_BEGINNING);
+    int32_t end_pos = start_pos;
     while (read_turn(pckt_buf, nusers, false, &chksum))
+    {
         turns++;
+        end_pos = LbFilePosition(game.packet_save_fp);
+    }
     packet_file_ends_in_reserved = packet_dec_reserved;
+    if ((end_pos != file_len) && !packet_file_ends_in_reserved)
+        ERRORLOG("Packet File unreadable at offset %d of %d; replay ends after %u turns", (int)end_pos, (int)file_len, (unsigned)turns);
     LbFileSeek(game.packet_save_fp, start_pos, Lb_FILE_SEEK_BEGINNING);
     game.packet_file_pos = start_pos;
     reset_packet_codec();
@@ -1010,7 +1026,10 @@ void load_packets_for_turn(GameTurn nturn)
     {
         int32_t consumed = 0;
         if (!read_long_turn_data(&tot_chksum, true, &consumed)) {
-            ERRORDBG(18,"Cannot read long turn data from Packet File");
+            ERRORLOG("Cannot read long turn data from Packet File; replay aborted at turn %u", (unsigned)get_gameturn());
+            erstat_inc(ESE_CantReadPackets);
+            disable_packet_mode();
+            return;
         }
         if (!packet_file_compressed())
             game.packet_file_pos += consumed;
