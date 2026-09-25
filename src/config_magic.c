@@ -78,6 +78,7 @@ const struct NamedCommand magic_spell_commands[] = {
     {"AURAFREQUENCY",   17},
     {"CLEANSEFLAGS",    18},
     {"PROPERTIES",      19},
+    {"USEFUNCTION",     20},
     {NULL,               0},
 };
 
@@ -681,6 +682,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       spconf->healing_recovery = 0;
       spconf->damage = 0;
       spconf->damage_frequency = 0;
+      spconf->magic_use_func_idx = 0;
     }
   }
   spell_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
@@ -1103,6 +1105,9 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
+      case 20:
+          spconf->magic_use_func_idx = get_function_idx(word_buf,magic_use_func_commands);
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
