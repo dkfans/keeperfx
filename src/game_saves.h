@@ -104,6 +104,8 @@ struct CatalogueEntry {
 };
 
 struct ContinueData {
+    uint32_t reserved;
+    
     // point to a save game file or a campaign progress file
     char link_fname[SAVE_FILENAME_MAX];
 };
