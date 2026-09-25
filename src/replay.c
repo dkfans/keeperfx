@@ -72,7 +72,6 @@ static TbBool packet_file_ends_in_reserved;
 
 // special RLEs for encoding long sequences of zeros
 static const unsigned char packet_zero_runs[8] = {1, 3, 5, 7, 11, 15, 20, 40};
-#define PACKET_LONG_ZERO_RUN 256
 
 static int packet_saved_users(NetUserId *users)
 {
@@ -167,12 +166,8 @@ static TbBool get_bits(uint32_t *value, int nbits)
 // encoding scheme:
 // '0': 2 zeroes;
 // '10xxx': packet_zero_runs[x] zeroes
-// '11bb'<bb+1 bytes, not all zero...>: 1~4 bytes verbatim
-// '11zz'<zz+1 zero-bytes>: 
-//    zz == 0: reserved
-//    zz == 1: 256 zeroes
-//    zz == 2: reserved
-//    zz == 3: reserved
+// '11bb'<bb+1 bytes, not all zero>: 1~4 bytes verbatim
+// '11bb'<bb+1 zero-bytes>: reserved
 static TbBool encode_packet_bits(const unsigned char *buf, size_t len)
 {
     uint32_t zeros_small[PACKET_TURN_MAX_SIZE + 1];
@@ -217,11 +212,6 @@ static TbBool encode_packet_bits(const unsigned char *buf, size_t len)
                 arg[i] = x;
             }
         }
-        if ((zeros[i] >= PACKET_LONG_ZERO_RUN) && (20 + cost[i + PACKET_LONG_ZERO_RUN] < cost[i]))
-        {
-            cost[i] = 20 + cost[i + PACKET_LONG_ZERO_RUN];
-            code[i] = 3;
-        }
         for (uint32_t n = 1; (n <= 4) && (i + n <= len); n++)
         {
             if (zeros[i] >= n)
@@ -246,18 +236,12 @@ static TbBool encode_packet_bits(const unsigned char *buf, size_t len)
             put_bits(0x10 | arg[i], 5);
             i += packet_zero_runs[arg[i]];
             break;
-        case 2:
-            if (zeros[i] >= arg[i])
-                assert(false);
+        default:
+            assert(zeros[i] < arg[i]);
             put_bits(0xC | (arg[i] - 1), 4);
             for (int k = 0; k < arg[i]; k++)
                 put_bits(buf[i + k], 8);
             i += arg[i];
-            break;
-        default:
-            put_bits(0xD, 4);
-            put_bits(0, 16);
-            i += PACKET_LONG_ZERO_RUN;
             break;
         }
     }
@@ -300,18 +284,13 @@ static TbBool decode_packet_byte(unsigned char *out)
                     packet_dec_lit[k] = v;
                     all_zero &= (v == 0);
                 }
-                packet_dec_lit_pos = 0;
-                packet_dec_lit_len = bb + 1;
                 if (all_zero)
                 {
-                    if (bb != 1)
-                    {
-                        packet_dec_reserved = true;
-                        return false;
-                    }
-                    packet_dec_lit_len = 0;
-                    packet_dec_zeros = PACKET_LONG_ZERO_RUN;
+                    packet_dec_reserved = true;
+                    return false;
                 }
+                packet_dec_lit_pos = 0;
+                packet_dec_lit_len = bb + 1;
             }
         }
     }
