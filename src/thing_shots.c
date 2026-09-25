@@ -784,7 +784,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
         if (is_my_player_number(shotng->owner))
         {
             struct PlayerInfo* player = get_player(target->owner);
-            if (player_exists(player) && (player->is_active == 1) && (shotng->owner != target->owner))
+            if (is_active_keeper(player) && (shotng->owner != target->owner))
             {
                 output_message(SMsg_DefeatedKeeper, 0);
             }

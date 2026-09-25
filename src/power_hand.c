@@ -1144,7 +1144,7 @@ void process_things_in_dungeon_hand(void)
         player = get_player(plyr_idx);
         struct Dungeon *dungeon;
         dungeon = get_players_dungeon(player);
-        if (player_exists(player) && (player->is_active == 1) && !dungeon_invalid(dungeon))
+        if (is_active_keeper(player) && !dungeon_invalid(dungeon))
         {
             int i;
             for (i = 0; i < dungeon->num_things_in_hand; i++)

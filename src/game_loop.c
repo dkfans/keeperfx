@@ -1002,16 +1002,12 @@ static TbBool wait_at_frontend(void)
           my_player_number = default_loc_player;
           game.game_kind = GKind_LocalGame;
           clear_flag(game.system_flags, GSF_NetworkActive);
-          player = get_my_player();
-          player->is_active = 1;
           startup_network_game(&loop, true);
           break;
     case FeSt_START_MPLEVEL:
           set_flag(game.system_flags, GSF_NetworkActive);
           skip_high_score_screen = 1;
           game.game_kind = GKind_MultiGame;
-          player = get_my_player();
-          player->is_active = 1;
           startup_network_game(&loop, false);
           break;
     case FeSt_LOAD_GAME:
