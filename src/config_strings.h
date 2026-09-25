@@ -476,6 +476,9 @@ enum GUIStrings {
     GUIStr_FxdataZipInstallAsMod,
     GUIStr_NetLobbyConnectionLost,
     GUIStr_NetOutOfSync,
+    GUIStr_SaveIncompatible,
+    GUIStr_SaveDamaged,
+    GUIStr_SaveLoadFailed,
     GuiStrEnd
 };
 
