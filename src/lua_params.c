@@ -132,7 +132,7 @@ long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * co
 
 struct Thing *luaL_optCheckThing(lua_State* L, int index)
 {
-    if (lua_isnone(L, index))
+    if (lua_isnoneornil(L, index))
         return 0;
     return luaL_checkThing(L, index);
 }
