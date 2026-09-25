@@ -420,7 +420,7 @@ void frontend_update(short *finish_menu);
 short frontend_draw(void);
 void create_frontend_error_box(long showTime, const char * text);
 void create_frontend_confirm_box(TextStringId text_id, void (*on_close)(int result));
-void frontend_cancel_confirm_box(void);
+void frontend_avoid_confirm_box(void);
 TbBool frontend_confirm_box_is_open(void);
 void frontend_draw_confirm_box(struct GuiButton *gbtn);
 void frontend_confirm_box_maintain(struct GuiButton *gbtn);

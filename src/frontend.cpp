@@ -2629,7 +2629,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         turn_off_menu(GMnu_FECAMPAIGN_SELECT);
         break;
     case FeSt_ERASE_PROGRESS:
-        frontend_cancel_confirm_box();
+        frontend_avoid_confirm_box();
         turn_off_menu(GMnu_FEERASE_PROGRESS);
         break;
     case FeSt_MP_MAPPACK_SELECT:
@@ -3868,7 +3868,7 @@ void frontend_draw_error_text_box(struct GuiButton *gbtn)
 static TextStringId confirm_box_text_id = GUIStr_Empty;
 static void (*confirm_box_on_close)(int result) = NULL;
 
-// modal dialogue with callback: 1 = yes, 0 = no, -1 = cancelled.
+// modal dialogue with callback: 1 = yes, 0 = no, -1 = dismissed (pressed ESC), -2 = circumvented (screen exited before modal closed).
 void create_frontend_confirm_box(TextStringId text_id, void (*on_close)(int result))
 {
     confirm_box_text_id = text_id;
@@ -3892,9 +3892,9 @@ static void close_frontend_confirm_box(int result)
         callback(result);
 }
 
-void frontend_cancel_confirm_box(void)
+void frontend_avoid_confirm_box(void)
 {
-    close_frontend_confirm_box(-1);
+    close_frontend_confirm_box(-2);
 }
 
 void frontend_draw_confirm_box(struct GuiButton *gbtn)
