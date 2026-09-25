@@ -40,6 +40,7 @@ TbBool luaL_isThing(lua_State *L, int index)
     // Get idx field
     lua_getfield(L, index, "ThingIndex");
     if (!lua_isnumber(L, -1)) {
+        lua_pop(L, 1);
         return false;
     }
     int idx = lua_tointeger(L, -1);
@@ -47,7 +48,9 @@ TbBool luaL_isThing(lua_State *L, int index)
 
     // Get creation_turn field
     lua_getfield(L, index, "creation_turn");
+
     if (!lua_isnumber(L, -1)) {
+        lua_pop(L, 1);
         return false;
     }
     int creation_turn = lua_tointeger(L, -1);
@@ -85,8 +88,10 @@ TbBool luaL_isPlayer(lua_State *L, int index)
     {
         lua_getfield(L, index, "playerId");
         if (lua_isnumber(L, -1)) {
+            lua_pop(L, 1);
             return true;
         }
+        lua_pop(L, 1);
         return false;
     }
 
@@ -204,6 +209,7 @@ TbMapLocation luaL_checkLocation(lua_State *L, int index)
         int stl_x = lua_tointeger(L, -1);
         lua_getfield(L, index, "stl_y");
         int stl_y = lua_tointeger(L, -1);
+        lua_pop(L,2);
 
         return get_coord_encoded_location(stl_x,stl_y);
     }
@@ -247,6 +253,7 @@ PlayerNumber luaL_checkPlayerRangeId(lua_State *L, int index)
         lua_getfield(L, index, "playerId");
         if (lua_isnumber(L, -1)) {
             int i = lua_tointeger(L, -1);
+            lua_pop(L, 1);
             return i;
         }
         luaL_argerror(L,index, "Expected table to be of class Player");
@@ -517,10 +524,13 @@ void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos)
 
         lua_getfield(L, index, "val_x");
         pos->x.val = lua_tointeger(L, -1);
+        lua_pop(L, 1);
         lua_getfield(L, index, "val_y");
         pos->y.val = lua_tointeger(L, -1);
+        lua_pop(L, 1);
         lua_getfield(L, index, "val_z");
         pos->z.val = lua_tointeger(L, -1);
+        lua_pop(L, 1);
 
         return;
     }
