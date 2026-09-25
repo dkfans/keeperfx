@@ -220,6 +220,12 @@ static TbBool read_long_turn_data(TbBigChecksum *chksum, TbBool apply, int32_t *
         if (LbFileRead(fh, &len, sizeof(len)) != sizeof(len))
             return false;
         *consumed += sizeof(len);
+        const int32_t remaining = LbFileLengthHandle(fh) - LbFilePosition(fh);
+        if ((remaining < 0) || (len > (uint32_t)remaining))
+        {
+            ERRORLOG("Long turn record kind %u length %u exceeds Packet File (%d bytes left)", (unsigned)kind, (unsigned)len, (int)remaining);
+            return false;
+        }
         uint32_t used = 0;
         if (apply && (kind == LTK_ChatMessage) && (len >= sizeof(uint16_t)))
         {
@@ -623,7 +629,10 @@ void load_packets_for_turn(GameTurn nturn)
     {
         int32_t consumed = 0;
         if (!read_long_turn_data(&tot_chksum, true, &consumed)) {
-            ERRORDBG(18,"Cannot read long turn data from Packet File");
+            ERRORLOG("Cannot read long turn data from Packet File; replay aborted at turn %u", get_gameturn());
+            erstat_inc(ESE_CantReadPackets);
+            disable_packet_mode();
+            return;
         }
         game.packet_file_pos += consumed;
     }
