@@ -1488,6 +1488,32 @@ TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
     return false;
 }
 
+// pure [a-z0-9_]+ id for campaign
+void get_campaign_sanitized_id(const char *cmpgn_fname, char *out, size_t outlen)
+{
+    const char *base = cmpgn_fname;
+    for (const char *p = cmpgn_fname; *p != '\0'; p++)
+    {
+        if ((*p == '/') || (*p == '\\'))
+            base = p + 1;
+    }
+    const char *ext = strrchr(base, '.');
+    size_t n = 0;
+    for (const char *p = base; (*p != '\0') && (p != ext) && (n + 1 < outlen); p++)
+    {
+        char c = *p;
+        
+        // to lowercase, ignore if non-_alphanumeric
+        if ((c >= 'A') && (c <= 'Z'))
+            c = c - 'A' + 'a';
+        if (((c >= 'a') && (c <= 'z')) || ((c >= '0') && (c <= '9')) || (c == '_'))
+            out[n++] = c;
+    }
+    out[n] = '\0';
+    if (n == 0)
+        snprintf(out, outlen, "%s", "unknown");
+}
+
 static TbBool check_lif_files_in_mappack(struct GameCampaign *campgn,unsigned long * out_count)
 {
     struct GameCampaign campbuf;

@@ -74,6 +74,7 @@
 #include "map_blocks.h"
 #include "local_camera.h"
 #include "packets.h"
+#include "replay.h"
 #include "console_cmd.h"
 #include "engine_redraw.h"
 #include "timer.h"
