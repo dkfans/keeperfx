@@ -7319,13 +7319,13 @@ msgstr "Multiplayer loopt niet synchroon."
 #, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
-msgstr "Campaign"
+msgstr "Campagne"
 
 #: guitext:1125
 #, fuzzy
 msgctxt "Menu interface item"
 msgid "Erase Progress"
-msgstr "Erase Progress"
+msgstr "Voortgang wissen"
 
 #: guitext:1126
 msgctxt "Menu interface message"

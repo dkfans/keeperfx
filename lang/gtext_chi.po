@@ -6982,13 +6982,13 @@ msgstr "多人游戏不同步。"
 #, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
-msgstr "Campaign"
+msgstr "战役"
 
 #: guitext:1125
 #, fuzzy
 msgctxt "Menu interface item"
 msgid "Erase Progress"
-msgstr "Erase Progress"
+msgstr "清除进度"
 
 #: guitext:1126
 msgctxt "Menu interface message"

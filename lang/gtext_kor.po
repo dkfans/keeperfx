@@ -7366,13 +7366,13 @@ msgstr "멀티플레이가 동기화되지 않았습니다."
 #, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
-msgstr "Campaign"
+msgstr "캠페인"
 
 #: guitext:1125
 #, fuzzy
 msgctxt "Menu interface item"
 msgid "Erase Progress"
-msgstr "Erase Progress"
+msgstr "진행 상황 삭제"
 
 #: guitext:1126
 msgctxt "Menu interface message"
