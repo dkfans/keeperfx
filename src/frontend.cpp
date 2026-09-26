@@ -147,9 +147,9 @@ struct GuiButtonInit frontend_error_box_buttons[] = {
 
 
 struct GuiButtonInit frontend_confirm_box_buttons[] = {
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 203, 150, 203, 150,234,138, frontend_draw_confirm_box,         0, GUIStr_Empty,  0,       {0},            0, frontend_confirm_box_maintain },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_confirm_box_no, NULL, frontend_over_button,   0, 237, 199, 237, 199,165, 40, frontend_draw_compact_menu_button, 0, GUIStr_Empty,  0,     {118},            0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_confirm_box_yes,NULL, frontend_over_button,   0, 237, 239, 237, 239,165, 40, frontend_draw_compact_menu_button, 0, GUIStr_Empty,  0,     {117},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 188, 182, 188, 182,264,116, frontend_draw_confirm_box,         0, GUIStr_Empty,  0,       {0},            0, frontend_confirm_box_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_confirm_box_no, NULL, frontend_over_button,   0, 257, 252, 257, 252, 52, 34, frontend_draw_symbol_button, GFS_options_button_smd_no,  GUIStr_Empty,  0, {118},   0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_confirm_box_yes,NULL, frontend_over_button,   0, 323, 252, 323, 252, 52, 34, frontend_draw_symbol_button, GFS_options_button_smd_yes, GUIStr_Empty,  0, {117},   0, NULL },
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
@@ -3908,13 +3908,14 @@ void frontend_avoid_confirm_box(void)
 
 void frontend_draw_confirm_box(struct GuiButton *gbtn)
 {
-    frontend_draw_frame_box(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->height, 2);
+    frontend_draw_ornate_box(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     const char *text = get_string(confirm_box_text_id);
     LbTextSetFont(frontend_font[1]);
     RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     int tx_units_per_px = ((92 * units_per_pixel / 16 / 4) * 13 / 11) * 16 / LbTextLineHeight();
     int line_h = LbTextLineHeight() * tx_units_per_px / 16;
-    int text_center_y = gbtn->height * 5 / 24;
+    // like the in-game quit box: a 32 high text line starting 10 below the top
+    int text_center_y = (10 + 16) * units_per_pixel / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y + text_center_y - line_h / 2, gbtn->width, line_h);
     LbTextDrawResized(0, 0, tx_units_per_px, text);
 }

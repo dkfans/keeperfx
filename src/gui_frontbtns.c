@@ -819,68 +819,54 @@ void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
     frontend_draw_button(gbtn, 2, text, Lb_TEXT_HALIGN_CENTER);
 }
 
-void frontend_draw_compact_menu_button(struct GuiButton *gbtn)
+// frontend counterpart of gui_area_normal_button: sprite_idx is the idle sprite, the next one is the pressed one.
+// The sprite is bottom-aligned, since its visible part sits at the bottom with transparency above.
+void frontend_draw_symbol_button(struct GuiButton *gbtn)
 {
-    static const short compact_button_sprite_anims[] = {
-        GFS_largebutton_a01l, GFS_largebutton_a02l, GFS_largebutton_a03l, GFS_largebutton_a04l,
-        GFS_largebutton_a05l, GFS_largebutton_a04l, GFS_largebutton_a03l, GFS_largebutton_a02l,
-    };
-    int fntidx;
-    short spridx;
-    if ((gbtn->flags & LbBtnF_Enabled) == 0)
-    {
-        fntidx = 3;
-        spridx = GFS_largebutton_a05l;
-    } else
-    {
-        fntidx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
-        if ((gbtn->content.lval > 0) && (frontend_mouse_over_button == gbtn->content.lval))
-            spridx = compact_button_sprite_anims[((LbTimerClock() - frontend_mouse_over_button_start_time) / 100) & 7];
-        else
-            spridx = GFS_largebutton_a05l;
-    }
-    int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_largebutton_a05l, 100);
+    short spridx = gbtn->sprite_idx;
+    if ((gbtn->button_state_left_pressed != 0) || (gbtn->button_state_right_pressed != 0))
+        spridx++;
+    int units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
     const struct TbSprite *spr = get_frontend_sprite(spridx);
-    int32_t x = gbtn->scr_pos_x;
-    LbSpriteDrawResized(x, gbtn->scr_pos_y, units_per_px, spr);
-    x += spr->SWidth * units_per_px / 16;
-    LbSpriteDrawResized(x, gbtn->scr_pos_y, units_per_px, get_frontend_sprite(spridx + 1));
-    const char *text = frontend_button_caption_text(gbtn);
-    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
-    LbTextSetFont(frontend_font[fntidx]);
-    int h = LbTextHeight(text) * units_per_px / 16;
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y + ((spr->SHeight * units_per_px / 16 - h) >> 1), gbtn->width, h);
-    LbTextDrawResized(0, 0, units_per_px, text);
+    int32_t y = gbtn->scr_pos_y + gbtn->height - spr->SHeight * units_per_px / 16;
+    LbSpriteDrawResized(gbtn->scr_pos_x, y, units_per_px, spr);
 }
 
-static int32_t draw_frame_row(int32_t x, int32_t y, short left, short tile, short right, int tiles)
+static int32_t draw_frame_row(int32_t x, int32_t y, int32_t width, short left, short tile, short right)
 {
     const struct TbSprite *spr = get_frontend_sprite(left);
     LbSpriteDrawResized(x, y, units_per_pixel, spr);
     int32_t h = spr->SHeight * units_per_pixel / 16;
+    int32_t right_x = x + width - get_frontend_sprite(right)->SWidth * units_per_pixel / 16;
     x += spr->SWidth * units_per_pixel / 16;
-    for (int n = 0; n < tiles; n++)
+    for (int n = 0; x < right_x; n++)
     {
         spr = get_frontend_sprite(tile + (n % 4));
-        LbSpriteDrawResized(x, y, units_per_pixel, spr);
-        x += spr->SWidth * units_per_pixel / 16;
+        int32_t tile_w = spr->SWidth * units_per_pixel / 16;
+        LbSpriteDrawResized(min(x, right_x - tile_w), y, units_per_pixel, spr);
+        x += tile_w;
     }
-    LbSpriteDrawResized(x, y, units_per_pixel, get_frontend_sprite(right));
+    LbSpriteDrawResized(right_x, y, units_per_pixel, get_frontend_sprite(right));
     return h;
 }
 
-void frontend_draw_frame_box(int32_t x, int32_t y, int32_t height, int tiles)
+// frontend stone frame with the ornaments of the in-game quit box
+void frontend_draw_ornate_box(int32_t x, int32_t y, int32_t width, int32_t height)
 {
-    int32_t bottom_h = get_frontend_sprite(GFS_hugearea_thn_cor_bl)->SHeight * units_per_pixel / 16;
-    int32_t mid_h = get_frontend_sprite(GFS_hugearea_thc_cor_ml)->SHeight * units_per_pixel / 16;
-    int32_t bottom_y = y + height - bottom_h;
-    y += draw_frame_row(x, y, GFS_hugearea_thn_cor_tl, GFS_hugearea_thn_tx1_tc, GFS_hugearea_thn_cor_tr, tiles);
-    while (y < bottom_y)
-    {
-        draw_frame_row(x, min(y, bottom_y - mid_h), GFS_hugearea_thc_cor_ml, GFS_hugearea_thc_tx1_mc, GFS_hugearea_thc_cor_mr, tiles);
-        y += mid_h;
-    }
-    draw_frame_row(x, bottom_y, GFS_hugearea_thn_cor_bl, GFS_hugearea_thn_tx1_bc, GFS_hugearea_thn_cor_br, tiles);
+#define S(v) ((v) * units_per_pixel / 16)
+    int32_t bottom_y = y + height - S(get_frontend_sprite(GFS_hugearea_thn_cor_bl)->SHeight);
+    int32_t mid_h = S(get_frontend_sprite(GFS_hugearea_thc_cor_ml)->SHeight);
+    int32_t row_y = y + draw_frame_row(x, y, width, GFS_hugearea_thn_cor_tl, GFS_hugearea_thn_tx1_tc, GFS_hugearea_thn_cor_tr);
+    for (; row_y < bottom_y; row_y += mid_h)
+        draw_frame_row(x, min(row_y, bottom_y - mid_h), width, GFS_hugearea_thc_cor_ml, GFS_hugearea_thc_tx1_mc, GFS_hugearea_thc_cor_mr);
+    draw_frame_row(x, bottom_y, width, GFS_hugearea_thn_cor_bl, GFS_hugearea_thn_tx1_bc, GFS_hugearea_thn_cor_br);
+    LbSpriteDrawResized(x - S(28), y - S(10), units_per_pixel, get_frontend_sprite(GFS_parchment_map_frame_deco_tl));
+    LbSpriteDrawResized(x - S(30), y + height - S(82), units_per_pixel, get_frontend_sprite(GFS_parchment_map_frame_deco_bl));
+    RendererAddDrawFlags(Lb_SPRITE_FLIP_HORIZ);
+    LbSpriteDrawResized(x + width - S(100), y - S(10), units_per_pixel, get_frontend_sprite(GFS_parchment_map_frame_deco_tl));
+    LbSpriteDrawResized(x + width - S(96), y + height - S(82), units_per_pixel, get_frontend_sprite(GFS_parchment_map_frame_deco_bl));
+    RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
+#undef S
 }
 
 void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)

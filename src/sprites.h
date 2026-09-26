@@ -865,6 +865,12 @@ enum GUIFrontendSprite {
     GFS_slider_horiz_c = 93,
     GFS_slider_horiz_r = 94,
     GFS_specicon_voice = 95,
+    GFS_options_button_smd_no = 104,
+    GFS_options_button_sma_no,
+    GFS_options_button_smd_yes,
+    GFS_options_button_sma_yes,
+    GFS_parchment_map_frame_deco_tl,
+    GFS_parchment_map_frame_deco_bl,
 };
 
 #endif

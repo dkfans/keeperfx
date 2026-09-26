@@ -1183,9 +1183,7 @@ TbBool save_level_progress(LevelNumber lvnum, TbBool won)
     if (!write_progress_file(progress_fname, &intralvl))
         return false;
 
-    // continue
-    if (won)
-        write_last_file_link(progress_fname);
+    write_last_file_link(progress_fname);
 
     // clean up legacy file if this is a replacement
     if (legacy_progress_matches(campaign.fname))
