@@ -153,15 +153,12 @@ static void landview_update_textbox_text(void)
     if (lvinfo == NULL)
         return;
 
-    const TextStringId lv_intro_desc_key = get_string_id_by_alias(lvinfo->intro_desc_key);    
-    const TextStringId lv_summary_desc_key = get_string_id_by_alias(lvinfo->summary_desc_key);    
+    const TextStringId lv_intro_desc_key = get_string_id_by_alias(lvinfo->intro_desc_key);
     const char* lv_name = (lvinfo->name_stridx > 0) ? get_string(lvinfo->name_stridx) : lvinfo->name;
     const char* lv_description;
 
     const TbBool beaten = get_continue_level_number() > mouse_over_lvnum;
-    if(beaten && lv_summary_desc_key >= 0)
-        lv_description = get_string(lv_summary_desc_key);    
-    else if(lv_intro_desc_key >= 0)
+    if(lv_intro_desc_key >= 0)
         lv_description = get_string(lv_intro_desc_key);
     else 
         lv_description = lv_name;
