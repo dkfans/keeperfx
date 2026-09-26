@@ -27,6 +27,7 @@
 #include "gui_topmsg.h"
 #include "config_settings.h"
 #include "config_keeperfx.h"
+#include "config.h"
 #include "config_campaigns.h"
 #include "version.h"
 #include "player_utils.h"
@@ -739,7 +740,12 @@ short save_packets(void)
     }
     ok &= finish_turn_write();
     if (!ok)
-        ERRORLOG("Packet file write error");
+    {
+        ERRORLOG("Packet file write error at turn %u; recording stopped", (unsigned)get_gameturn());
+        close_packet_file();
+        game.packet_save_enable = false;
+        return false;
+    }
     if ( !LbFileFlush(game.packet_save_fp) )
     {
         ERRORLOG("Unable to flush PacketSave File");
@@ -794,7 +800,10 @@ static void evict_old_replays(char type_chr, uint32_t keep)
     size_t count = 0;
     size_t cap = 0;
     struct TbFileEntry fe;
-    struct TbFileFind *ff = LbFileFindFirst("replays/*.pck", &fe);
+    char spec[DISKPATH_SIZE];
+    if (prepare_file_path_buf(spec, sizeof(spec), FGrp_Replays, "*.pck") == NULL)
+        return;
+    struct TbFileFind *ff = LbFileFindFirst(spec, &fe);
     if (ff != NULL)
     {
         do {
@@ -820,8 +829,8 @@ static void evict_old_replays(char type_chr, uint32_t keep)
     for (size_t i = 0; i + keep < count; i++)
     {
         char fname[DISKPATH_SIZE];
-        snprintf(fname, sizeof(fname), "replays/%s", names[i]);
-        LbFileDelete(fname);
+        if (prepare_file_path_buf(fname, sizeof(fname), FGrp_Replays, names[i]) != NULL)
+            LbFileDelete(fname);
     }
     for (size_t i = 0; i < count; i++)
         free(names[i]);
@@ -876,7 +885,7 @@ TbBool setup_auto_replay_save(void)
         return false;
     int year = ((lt->tm_year + 1900) % 10000 + 10000) % 10000;
     char fname[sizeof(game.packet_fname)];
-    snprintf(fname, sizeof(fname), "replays/%04d%02d%02dT%02d%02d%02d_%c%d",
+    snprintf(fname, sizeof(fname), "%04d%02d%02dT%02d%02d%02d_%c%d",
         year, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min, lt->tm_sec,
         replay_type_chars[type], humans);
     size_t len = strlen(fname);
@@ -902,7 +911,11 @@ TbBool setup_auto_replay_save(void)
     append_git_sha(fname, sizeof(fname));
     len = strlen(fname);
     snprintf(fname + len, sizeof(fname) - len, ".pck");
-    snprintf(game.packet_fname, sizeof(game.packet_fname), "%s", fname);
+    if (prepare_file_path_buf(game.packet_fname, sizeof(game.packet_fname), FGrp_Replays, fname) == NULL)
+    {
+        ERRORLOG("Replay path for \"%s\" is too long; not recording", fname);
+        return false;
+    }
     game.packet_save_enable = true;
     return true;
 }
