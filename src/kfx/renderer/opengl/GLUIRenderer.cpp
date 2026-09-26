@@ -689,7 +689,10 @@ void GLUIRenderer::AppendQuadsFromIR(const UICommandBuffers& ui, std::vector<UIQ
             const float a = draw_flags_source_weight(c.draw_flags);
             if ((c.draw_flags & Lb_SPRITE_TRANSPAR4) || (c.draw_flags & Lb_SPRITE_TRANSPAR8))
             {
-                r = 0.0f; g = 0.0f; b = 0.0f;
+                // try to match software transparency
+                r = 60.0f / 255.0f;
+                g = 54.0f / 255.0f;
+                b = 15.0f / 255.0f;
             }
             if (c.draw_flags & Lb_SPRITE_OUTLINE)
             {
