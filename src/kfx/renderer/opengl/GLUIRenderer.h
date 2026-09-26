@@ -7,6 +7,7 @@
 #include <atomic>
 #include <mutex>
 #include <vector>
+#include <array>
 #include <unordered_map>
 #include <cstdint>
 
@@ -90,7 +91,8 @@ public:
                        const int32_t* shape_start, const int32_t* shape_end) override;
 
     void DrawGlyphQuad(SpriteHandle glyph, float x, float y, int units_per_px,
-                       float r, float g, float b, float a, bool sample_palette = true);
+                       float r, float g, float b, float a, bool sample_palette = true,
+                       const unsigned char* cmap = nullptr);
 
     SpriteHandle ResolveDbcGlyph(const struct AsianFont* font, uint32_t codepoint);
 
@@ -106,6 +108,11 @@ private:
     GLResourceMapper* m_resource_mapper = nullptr;
     GpuResourceHandle m_palette_tex_handle = kInvalidGpuResource;
     GpuResourceHandle m_fade_table_tex_handle = kInvalidGpuResource;
+    GpuResourceHandle m_clut_tex_handle = kInvalidGpuResource;
+    static constexpr int k_clut_rows = 128;
+    int m_clut_used = 1;
+    std::vector<std::array<uint8_t, 256>> m_clut_remaps;
+    uint8_t m_clut_palette_snap[256 * 4] = {};
     const unsigned char* m_frame_palette = nullptr;
     int m_screen_w = 0;
     int m_screen_h = 0;
@@ -113,6 +120,7 @@ private:
     GpuResourceHandle m_shader_sprite_handle         = kInvalidGpuResource;
     GpuResourceHandle m_shader_sprite_colored_handle = kInvalidGpuResource;
     GpuResourceHandle m_shader_remap_handle          = kInvalidGpuResource;
+    GpuResourceHandle m_shader_clut_handle            = kInvalidGpuResource;
     GpuResourceHandle m_shader_solid_handle          = kInvalidGpuResource;
     // Single-quad immediate path (text glyphs, cursor). One GpuGeometryBuffer
     // handle bundles the VAO+VBO pair the mapper realizes together.
@@ -126,6 +134,8 @@ private:
                             float r, float g, float b, float a,
                             float remap_row = -1.0f);
     void draw_solid_quad(float x, float y, float w, float h, float r, float g, float b, float a);
+    void ensure_clut_valid();
+    int resolve_clut_row(const unsigned char* cmap);
 
     static constexpr SpriteHandle kDbcHandleBase = 0x80000000u;
     std::unordered_map<uint64_t, SpriteHandle> m_dbc_glyph_handles;
@@ -141,7 +151,7 @@ private:
         uint32_t seq = 0;
     };
 
-    enum PassType { PASS_SPRITE, PASS_SOLID, PASS_SLAB, PASS_COLORED, PASS_REMAP, PASS_MINIMAP };
+    enum PassType { PASS_SPRITE, PASS_SOLID, PASS_SLAB, PASS_COLORED, PASS_REMAP, PASS_MINIMAP, PASS_CLUT };
     static PassType classify(float mode);
 
     // WorldOverlay=0, WorldOverlayFlat=1, GameUI=2, Overlay=3 (matches IRUILayer).

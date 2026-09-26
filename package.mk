@@ -156,6 +156,9 @@ pkg/levels/%.cfg: levels/%.cfg | $(PKG_MAPPACK_DIRS)
 pkg/levels/%.txt: levels/%.txt | $(PKG_MAPPACK_DIRS)
 	$(CP) $^ $@
 
+pkg/levels/%.toml: levels/%.toml | $(PKG_MAPPACK_DIRS)
+	$(CP) $^ $@
+
 pkg/multiplayer/%: multiplayer/% | $(PKG_MP_MAPPACK_DIRS)
 	$(CP) $< $@
 

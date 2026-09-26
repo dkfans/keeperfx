@@ -233,6 +233,7 @@ enum IngameButtonDesignationIDs {
 struct GuiMenu;
 struct GuiButton;
 struct TbLoadFiles;
+struct TextScrollWindow;
 
 struct DemoItem { //sizeof = 5
     uint8_t kind;
@@ -369,6 +370,7 @@ void frontend_draw_computer_players(struct GuiButton *gbtn);
 void frontend_draw_mp_mappack(struct GuiButton *gbtn);
 void set_packet_start(struct GuiButton *gbtn);
 void gui_area_scroll_window(struct GuiButton *gbtn);
+void draw_scrolling_text_at(long pos_x, long pos_y, long width, long height, struct TextScrollWindow *scrollwnd, const char *text);
 void gui_go_to_event(struct GuiButton *gbtn);
 void maintain_zoom_to_event(struct GuiButton *gbtn);
 void gui_close_objective(struct GuiButton *gbtn);
