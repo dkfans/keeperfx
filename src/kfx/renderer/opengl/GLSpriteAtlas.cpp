@@ -4,9 +4,16 @@
 #include "bflib_basics.h"
 #include "bflib_sprite.h"
 #include "kfx/renderer/opengl/GLFunctions.h"
+#include <algorithm>
 #include <unordered_set>
 #include <cstring>
 #include "post_inc.h"
+
+void GLSpriteAtlas::SetLivenessQuery(std::function<bool(SpriteHandle)> is_live)
+{
+    std::lock_guard<std::mutex> guard(m_mutex);
+    m_is_live = std::move(is_live);
+}
 
 bool GLSpriteAtlas::Init()
 {
@@ -16,7 +23,7 @@ bool GLSpriteAtlas::Init()
     m_shelf_h  = 0;
     m_dirty_y_min = k_atlas_h;
     m_dirty_y_max = -1;
-    m_uvs.clear();
+    m_entries.clear();
 
     if (m_resource_mapper != nullptr)
     {
@@ -52,7 +59,7 @@ void GLSpriteAtlas::PackSprite(SpriteHandle handle, const struct TbSprite* spr)
 
     std::lock_guard<std::mutex> guard(m_mutex);
 
-    if (m_uvs.find(handle) != m_uvs.end()) return; // already packed
+    if (m_entries.find(handle) != m_entries.end()) return; // already packed
 
     const int w = spr->SWidth;
     const int h = spr->SHeight;
@@ -69,7 +76,11 @@ void GLSpriteAtlas::PackSprite(SpriteHandle handle, const struct TbSprite* spr)
     uint8_t* dst = m_pixels.data() + (size_t)y * k_atlas_w + x;
     LbSpriteDecode(dst, k_atlas_w, spr->Data, w, h);
 
-    m_uvs[handle] = make_sprite_uv(x, y, w, h);
+    AtlasEntry entry;
+    entry.uv = make_sprite_uv(x, y, w, h);
+    entry.x = x;
+    entry.y = y;
+    m_entries[handle] = entry;
 
     if (y < m_dirty_y_min) m_dirty_y_min = y;
     if (y + h > m_dirty_y_max) m_dirty_y_max = y + h;
@@ -81,7 +92,7 @@ void GLSpriteAtlas::PackRaw(SpriteHandle handle, const uint8_t* pixels, int w, i
 
     std::lock_guard<std::mutex> guard(m_mutex);
 
-    if (m_uvs.find(handle) != m_uvs.end()) return; // already packed
+    if (m_entries.find(handle) != m_entries.end()) return; // already packed
 
     int x, y;
     if (!alloc_shelf_rect(w, h, &x, &y, "raw glyph")) return;
@@ -92,15 +103,16 @@ void GLSpriteAtlas::PackRaw(SpriteHandle handle, const uint8_t* pixels, int w, i
         std::memcpy(dst, pixels + (size_t)row * w, (size_t)w);
     }
 
-    m_uvs[handle] = make_sprite_uv(x, y, w, h);
+    AtlasEntry entry;
+    entry.uv = make_sprite_uv(x, y, w, h);
+    entry.x = x;
+    entry.y = y;
+    m_entries[handle] = entry;
 
     if (y < m_dirty_y_min) m_dirty_y_min = y;
     if (y + h > m_dirty_y_max) m_dirty_y_max = y + h;
 }
 
-// Insets the rect by a fraction of a texel on every side. A quad edge that
-// sits exactly on a pixel centre would otherwise put the fragment's UV on the
-// texel boundary, and GL_NEAREST can round it into the neighbouring entry.
 SpriteUV GLSpriteAtlas::make_sprite_uv(int x, int y, int w, int h)
 {
     constexpr float k_inset = 1.0f / 32.0f;
@@ -146,30 +158,86 @@ bool GLSpriteAtlas::alloc_shelf_rect(int w, int h, int* out_x, int* out_y, const
     if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
         return true;
 
-    WARNLOG("GLSpriteAtlas: atlas full -- emptying it, %d sprites will re-pack as they are drawn", (int)m_uvs.size());
-    m_uvs.clear();
+    compact();
+
+    if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
+        return true;
+    ERRORLOG("GLSpriteAtlas: cannot pack %dx%d %s, the atlas is full of live sprites", w, h, what);
+    return false;
+}
+
+// Caller already holds m_mutex.
+void GLSpriteAtlas::compact()
+{
+    struct Live { SpriteHandle handle; AtlasEntry entry; };
+    std::vector<Live> live;
+    live.reserve(m_entries.size());
+    for (const auto& kv : m_entries)
+    {
+        if (!m_is_live || m_is_live(kv.first))
+            live.push_back({ kv.first, kv.second });
+    }
+    const size_t dropped = m_entries.size() - live.size();
+
+    // Tallest first packs shelves tightly; the handle breaks ties so the layout is repeatable.
+    std::sort(live.begin(), live.end(), [](const Live& a, const Live& b) {
+        if (a.entry.uv.pixel_h != b.entry.uv.pixel_h) return a.entry.uv.pixel_h > b.entry.uv.pixel_h;
+        if (a.entry.uv.pixel_w != b.entry.uv.pixel_w) return a.entry.uv.pixel_w > b.entry.uv.pixel_w;
+        return a.handle < b.handle;
+    });
+
+    std::vector<uint8_t> old_pixels;
+    old_pixels.swap(m_pixels);
+    m_pixels.assign((size_t)k_atlas_w * k_atlas_h, 0u);
+    m_entries.clear();
     m_cursor_x = 1; // reserve (0,0) as a safe fallback UV
     m_shelf_y  = 0;
     m_shelf_h  = 0;
 
-    if (try_alloc_shelf_rect(alloc_w, alloc_h, out_x, out_y))
-        return true;
-    ERRORLOG("GLSpriteAtlas: cannot pack %dx%d %s, larger than the atlas", w, h, what);
-    return false;
+    size_t lost = 0;
+    for (const Live& item : live)
+    {
+        const int w = item.entry.uv.pixel_w;
+        const int h = item.entry.uv.pixel_h;
+        int x, y;
+        if (!try_alloc_shelf_rect(w + 1, h + 1, &x, &y))
+        {
+            ++lost; // its next draw fails to find it and logs
+            continue;
+        }
+        for (int row = 0; row < h; ++row)
+        {
+            std::memcpy(m_pixels.data() + (size_t)(y + row) * k_atlas_w + x,
+                        old_pixels.data() + (size_t)(item.entry.y + row) * k_atlas_w + item.entry.x,
+                        (size_t)w);
+        }
+        AtlasEntry entry;
+        entry.uv = make_sprite_uv(x, y, w, h);
+        entry.x = x;
+        entry.y = y;
+        m_entries[item.handle] = entry;
+    }
+
+    m_dirty_y_min = 0;
+    m_dirty_y_max = k_atlas_h;
+    WARNLOG("GLSpriteAtlas: atlas full -- compacted, kept %d sprites, dropped %d unused",
+            (int)m_entries.size(), (int)dropped);
+    if (lost > 0)
+        ERRORLOG("GLSpriteAtlas: %d live sprites no longer fit after compacting", (int)lost);
 }
 
 bool GLSpriteAtlas::Contains(SpriteHandle handle) const
 {
     std::lock_guard<std::mutex> guard(m_mutex);
-    return m_uvs.find(handle) != m_uvs.end();
+    return m_entries.find(handle) != m_entries.end();
 }
 
 bool GLSpriteAtlas::GetUV(SpriteHandle handle, SpriteUV& out) const
 {
     std::lock_guard<std::mutex> guard(m_mutex);
-    auto it = m_uvs.find(handle);
-    if (it == m_uvs.end()) return false;
-    out = it->second;
+    auto it = m_entries.find(handle);
+    if (it == m_entries.end()) return false;
+    out = it->second.uv;
     return true;
 }
 

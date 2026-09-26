@@ -120,7 +120,26 @@ bool GLUIRenderer::Init()
     return true;
 }
 
-void GLUIRenderer::Shutdown() { }
+void GLUIRenderer::Shutdown()
+{
+    if (m_atlas)
+        m_atlas->SetLivenessQuery(nullptr);
+}
+
+void GLUIRenderer::SetAtlas(GLSpriteAtlas* atlas)
+{
+    m_atlas = atlas;
+    if (m_atlas)
+        m_atlas->SetLivenessQuery([this](SpriteHandle handle) { return IsSpriteHandleLive(handle); });
+}
+
+bool GLUIRenderer::IsSpriteHandleLive(SpriteHandle handle) const
+{
+    if (handle >= kDbcHandleBase)
+        return true;
+    std::lock_guard<std::mutex> guard(m_handle_mutex);
+    return m_handle_to_sprite.find(handle) != m_handle_to_sprite.end();
+}
 
 SpriteHandle GLUIRenderer::ResolveSprite(const struct TbSprite* spr)
 {
