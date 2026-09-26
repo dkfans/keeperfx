@@ -165,7 +165,6 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
             case 2: player->view_mode_restore = PVM_FrontView; break;
             default: player->view_mode_restore = PVM_IsoWibbleView; break;
         }
-        player->is_active = 1;
         init_player(player, 0);
         init_user_state(player->user_id);
         player->isometric_view_zoom_level = sync->isometric_view_zoom_level;
@@ -413,7 +412,7 @@ TbBool network_human_contenders_remain(void)
 {
     for (PlayerNumber player_idx = 0; player_idx < PLAYERS_COUNT; player_idx++) {
         struct PlayerInfo *player = get_player(player_idx);
-        if (player_exists(player) && (player->is_active == 1) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_cannot_win(player_idx)) {
+        if (is_active_keeper(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_cannot_win(player_idx)) {
             return true;
         }
     }
@@ -533,7 +532,7 @@ static TbBool standin_has_loadbearing_ally(const struct PlayerInfo *standin)
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
         struct PlayerInfo *other = get_player(plyr_idx);
-        if ((other == standin) || !player_exists(other) || (other->is_active != 1)
+        if ((other == standin) || !is_active_keeper(other)
             || flag_is_set(other->allocflags, PlaF_CompCtrl) || player_defeat_settled(plyr_idx)) {
             continue;
         }

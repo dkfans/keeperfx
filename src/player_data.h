@@ -106,8 +106,13 @@ enum UserAdditionalFlags {
 };
 
 enum PlayerTypes {
+    // a proper player with room flames, payday, captures neutrals
     PT_Keeper,
+    
+    // hero-style player: lacks room flames, sees whole map, can't capture neutral, no economy.
     PT_Roaming,
+    
+    // capturable by nearby keepers
     PT_Neutral
 };
 
@@ -166,7 +171,7 @@ struct PlayerInfo {
     PlayerBitFlags allied_players;
     PlayerBitFlags players_with_locked_ally_status;
     unsigned char id_number;
-    TbBool is_active;
+    TbBool unused;
     short controlled_thing_idx;
     GameTurn controlled_thing_creatrn;
     short thing_under_hand;
@@ -325,6 +330,7 @@ struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name);
 #define get_my_player() get_player_f(my_player_number,__func__)
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
+TbBool is_active_keeper(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
 struct UserState *get_user_state(NetUserId user);
 struct UserState *get_player_user_state(const struct PlayerInfo *player);
