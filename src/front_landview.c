@@ -138,20 +138,14 @@ static void landview_build_glass_map(void)
     }
 }
 
-/**
- * Fills the text box with a description of the level the mouse hovers over.
- * This is just the default content - call landview_set_text() from anywhere to replace it.
- */
-static void landview_update_textbox_text(void)
-{
+
+static void landview_populate_textbox_values(LevelNumber lvnum){
     if(!campaign.show_level_description)
         return;
-    if ((mouse_over_lvnum <= 0) || (mouse_over_lvnum == landview_textbox_lvnum))
-        return;
-    landview_textbox_lvnum = mouse_over_lvnum;
-    struct LevelInformation* lvinfo = get_level_info(mouse_over_lvnum);
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
     if (lvinfo == NULL)
         return;
+    landview_textbox_lvnum = lvnum;
 
     const TextStringId lv_intro_desc_key = get_string_id_by_alias(lvinfo->intro_desc_key);
     const char* lv_name = (lvinfo->name_stridx > 0) ? get_string(lvinfo->name_stridx) : lvinfo->name;
@@ -180,6 +174,17 @@ static void landview_update_textbox_text(void)
         height = campaign.level_description_geo != NULL ? campaign.level_description_geo->height : 86;
     }    
     landview_textbox_set_geometry(&landview_textbox, pos_x,  pos_y, width, height);
+}
+
+/**
+ * Fills the text box with a description of the level the mouse hovers over.
+ * This is just the default content - call landview_set_text() from anywhere to replace it.
+ */
+static void landview_update_textbox_text(void)
+{   
+    if ((mouse_over_lvnum <= 0) || (mouse_over_lvnum == landview_textbox_lvnum))
+        return;
+    landview_populate_textbox_values(mouse_over_lvnum);
 }
 
 
@@ -1167,6 +1172,7 @@ TbBool frontmap_load(void)
     fe_computer_players = 0;
     update_ensigns_visibility();
     landview_textbox_setup();
+    landview_populate_textbox_values(lvnum);
     SYNCDBG(7,"Finished");
     api_event("CAMPAIGN_LOADED");
     return true;
