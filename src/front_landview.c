@@ -157,7 +157,6 @@ static void landview_update_textbox_text(void)
     const char* lv_name = (lvinfo->name_stridx > 0) ? get_string(lvinfo->name_stridx) : lvinfo->name;
     const char* lv_description;
 
-    const TbBool beaten = get_continue_level_number() > mouse_over_lvnum;
     if(lv_intro_desc_key >= 0)
         lv_description = get_string(lv_intro_desc_key);
     else 
