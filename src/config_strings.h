@@ -477,8 +477,6 @@ enum GUIStrings {
     GUIStr_NetLobbyConnectionLost,
     GUIStr_NetOutOfSync,
     GUIStr_MnuCampaign,
-    GUIStr_MnuEraseProgress,
-    GUIStr_MnuConfirmYouSure,
     GuiStrEnd
 };
 

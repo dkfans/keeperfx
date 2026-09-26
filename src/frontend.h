@@ -31,8 +31,8 @@ extern "C" {
 /******************************************************************************/
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        100
-#define MENU_LIST_ITEMS_COUNT       54
-#define FRONTEND_BUTTON_INFO_COUNT 119
+#define MENU_LIST_ITEMS_COUNT       53
+#define FRONTEND_BUTTON_INFO_COUNT 116
 #define NET_MESSAGES_COUNT           8
 #define NET_MESSAGE_LEN             64
 // Sprite limits
@@ -87,7 +87,7 @@ enum FrontendMenuStates {
   FeSt_CAMPAIGN_INTRO,
   FeSt_MAPPACK_SELECT,
   FeSt_MP_MAPPACK_SELECT,
-  FeSt_ERASE_PROGRESS,
+  FeSt_CAMPAIGN_START,
   // Special testing states
   FeSt_FONT_TEST          = 255,
 };
@@ -307,7 +307,6 @@ extern long frontend_mouse_over_button;
 extern struct GuiMenu frontend_main_menu;
 extern struct GuiMenu frontend_statistics_menu;
 extern struct GuiMenu frontend_high_score_table_menu;
-extern struct GuiMenu frontend_confirm_box;
 extern struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT];
 extern char gui_message_text[];
 extern TbClockMSec gui_message_timeout;
@@ -419,13 +418,6 @@ void frontend_input(void);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);
 void create_frontend_error_box(long showTime, const char * text);
-void create_frontend_confirm_box(TextStringId text_id, void (*on_close)(int result));
-void frontend_avoid_confirm_box(void);
-TbBool frontend_confirm_box_is_open(void);
-void frontend_draw_confirm_box(struct GuiButton *gbtn);
-void frontend_confirm_box_maintain(struct GuiButton *gbtn);
-void frontend_confirm_box_yes(struct GuiButton *gbtn);
-void frontend_confirm_box_no(struct GuiButton *gbtn);
 void try_restore_frontend_error_box(); // Restore error box if frontend state was switched
 
 short menu_is_active(short idx);

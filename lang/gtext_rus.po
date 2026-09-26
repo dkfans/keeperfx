@@ -6753,14 +6753,3 @@ msgstr "Сетевая игра рассинхронизирована."
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "Кампания"
-
-#: guitext:1125
-#, fuzzy
-msgctxt "Menu interface item"
-msgid "Erase Progress"
-msgstr "Стереть прогресс"
-
-#: guitext:1126
-msgctxt "Menu interface message"
-msgid "Are you sure?"
-msgstr "Вы уверены?"

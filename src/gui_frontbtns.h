@@ -63,8 +63,6 @@ void frontend_over_button(struct GuiButton *gbtn);
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags);
 void frontend_draw_large_menu_button(struct GuiButton *gbtn);
 void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn);
-void frontend_draw_symbol_button(struct GuiButton *gbtn);
-void frontend_draw_ornate_box(int32_t x, int32_t y, int32_t width, int32_t height);
 void frontend_draw_scroll_box_tab(struct GuiButton *gbtn);
 void frontend_draw_scroll_box(struct GuiButton *gbtn);
 

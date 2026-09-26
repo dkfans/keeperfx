@@ -5946,13 +5946,3 @@ msgstr ""
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr ""
-
-#: guitext:1125
-msgctxt "Menu interface item"
-msgid "Erase Progress"
-msgstr ""
-
-#: guitext:1126
-msgctxt "Menu interface message"
-msgid "Are you sure?"
-msgstr ""

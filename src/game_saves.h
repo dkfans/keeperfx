@@ -151,16 +151,14 @@ LevelNumber move_campaign_to_prev_level(void);
 /******************************************************************************/
 TbBool continue_game_available(void);
 enum ContinueTargets load_continue_game(void);
-TbBool save_level_progress(LevelNumber lvnum, TbBool won);
+TbBool save_level_progress(LevelNumber lvnum, unsigned char victory_state);
 void delete_continue_link(void);
 /******************************************************************************/
 struct GameCampaign;
 struct CampaignsList;
 TbBool campaign_progress_exists(const struct GameCampaign *campgn);
-TbBool any_campaign_progress_exists(void);
 void update_campaigns_progress_percent(struct CampaignsList *clist);
 TbBool resume_campaign_progress(const char *cmpgn_fname);
-TbBool erase_progress(const struct GameCampaign *campgn);
 /******************************************************************************/
 #ifdef __cplusplus
 }

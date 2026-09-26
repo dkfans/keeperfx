@@ -1126,16 +1126,6 @@ TbBool campaign_progress_exists(const struct GameCampaign *campgn)
     return legacy_progress_matches(campgn->fname);
 }
 
-TbBool any_campaign_progress_exists(void)
-{
-    for (unsigned long i = 0; i < campaigns_list.items_num; i++)
-    {
-        if (campaign_progress_exists(&campaigns_list.items[i]))
-            return true;
-    }
-    return false;
-}
-
 void update_campaigns_progress_percent(struct CampaignsList *clist)
 {
     for (unsigned long i = 0; i < clist->items_num; i++)
@@ -1173,9 +1163,9 @@ TbBool resume_campaign_progress(const char *cmpgn_fname)
 }
 
 // writes campaign progress file; on a win also records the level and updates the continue file
-TbBool save_level_progress(LevelNumber lvnum, TbBool won)
+TbBool save_level_progress(LevelNumber lvnum, unsigned char victory_state)
 {
-    if (won && is_campaign_progress_level(&campaign, lvnum))
+    if ((victory_state == VicS_WonLevel) && is_campaign_progress_level(&campaign, lvnum))
         mark_level_completed(&intralvl, lvnum);
     intralvl.continue_level = encode_continue_level(get_continue_level_number());
     char progress_fname[DISKPATH_SIZE];
@@ -1183,7 +1173,9 @@ TbBool save_level_progress(LevelNumber lvnum, TbBool won)
     if (!write_progress_file(progress_fname, &intralvl))
         return false;
 
-    write_last_file_link(progress_fname);
+    // quitting an undecided level keeps the link, so a saved game can still be continued
+    if (victory_state != VicS_Undecided)
+        write_last_file_link(progress_fname);
 
     // clean up legacy file if this is a replacement
     if (legacy_progress_matches(campaign.fname))
@@ -1192,36 +1184,6 @@ TbBool save_level_progress(LevelNumber lvnum, TbBool won)
 }
 
 // check if saved game is for the given campaign
-static TbBool saved_game_belongs_to(int32_t slot_num, const struct GameCampaign *campgn)
-{
-    struct CatalogueEntry centry;
-    if (!read_saved_game_catalogue_entry(slot_num, &centry))
-        return false;
-    char centry_fname[DISKPATH_SIZE];
-    prepare_campaign_file_name(centry.campaign_fname, centry_fname, sizeof(centry_fname));
-    if (strcasecmp(centry_fname, campgn->fname) != 0)
-        return false;
-    return is_campaign_progress_level(campgn, centry.level_num);
-}
-
-TbBool erase_progress(const struct GameCampaign *campgn)
-{
-    char progress_fname[DISKPATH_SIZE];
-    get_progress_filename(campgn->fname, progress_fname, sizeof(progress_fname));
-    LbFileDelete(prepare_file_path(FGrp_Save, progress_fname));
-    if (legacy_progress_matches(campgn->fname))
-        delete_legacy_progress();
-    char link[SAVE_FILENAME_MAX];
-    if (read_last_file_link(link, sizeof(link)))
-    {
-        int slot = save_slot_index_from_filename(link);
-        if ((strcasecmp(link, progress_fname) == 0) || ((slot >= 0) && saved_game_belongs_to(slot, campgn)))
-            delete_last_file_link();
-    }
-    JUSTMSG("Erased progress of %s", campgn->fname);
-    return true;
-}
-
 TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, CrtrExpLevel exp_level, char *name)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);

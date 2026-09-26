@@ -7383,14 +7383,3 @@ msgstr "Multiplayer spēle nav sinhronizēta."
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "Expeditio"
-
-#: guitext:1125
-#, fuzzy
-msgctxt "Menu interface item"
-msgid "Erase Progress"
-msgstr "Progressum dele"
-
-#: guitext:1126
-msgctxt "Menu interface message"
-msgid "Are you sure?"
-msgstr "Esne certus?"

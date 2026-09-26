@@ -7636,14 +7636,3 @@ msgstr "Das Mehrspielerspiel ist nicht mehr synchron."
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "Kampagne"
-
-#: guitext:1125
-#, fuzzy
-msgctxt "Menu interface item"
-msgid "Erase Progress"
-msgstr "Fortschritt löschen"
-
-#: guitext:1126
-msgctxt "Menu interface message"
-msgid "Are you sure?"
-msgstr "Seid Ihr sicher?"

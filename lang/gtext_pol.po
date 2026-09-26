@@ -7470,14 +7470,3 @@ msgstr "Gra wieloosobowa nie jest zsynchronizowana."
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "Kampania"
-
-#: guitext:1125
-#, fuzzy
-msgctxt "Menu interface item"
-msgid "Erase Progress"
-msgstr "Usuń postęp"
-
-#: guitext:1126
-msgctxt "Menu interface message"
-msgid "Are you sure?"
-msgstr "Czy jesteś pewny?"
