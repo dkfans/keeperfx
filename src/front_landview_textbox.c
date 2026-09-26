@@ -20,6 +20,7 @@
 #include "kjm_input.h"
 #include "kfx/renderer/RendererManager.h"
 #include "sprites.h"
+#include "front_input.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -185,7 +186,11 @@ TbBool landview_textbox_input(struct LandViewTextBox *box)
 {
     if (!box->active)
         return false;
-
+    if (is_game_key_pressed(Gkey_ToggleMessage, true, false))
+    {
+        landview_textbox_hide(box);
+        return true;
+    }
     struct LandViewTextBoxGeometry geo;
     struct TbRect panel;
     landview_textbox_geometry(box, &geo);
