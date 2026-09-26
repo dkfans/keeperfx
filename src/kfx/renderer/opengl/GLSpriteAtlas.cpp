@@ -69,14 +69,7 @@ void GLSpriteAtlas::PackSprite(SpriteHandle handle, const struct TbSprite* spr)
     uint8_t* dst = m_pixels.data() + (size_t)y * k_atlas_w + x;
     LbSpriteDecode(dst, k_atlas_w, spr->Data, w, h);
 
-    SpriteUV uv;
-    uv.u0 = (float)x / (float)k_atlas_w;
-    uv.v0 = (float)y / (float)k_atlas_h;
-    uv.u1 = (float)(x + w) / (float)k_atlas_w;
-    uv.v1 = (float)(y + h) / (float)k_atlas_h;
-    uv.pixel_w = (uint16_t)w;
-    uv.pixel_h = (uint16_t)h;
-    m_uvs[handle] = uv;
+    m_uvs[handle] = make_sprite_uv(x, y, w, h);
 
     if (y < m_dirty_y_min) m_dirty_y_min = y;
     if (y + h > m_dirty_y_max) m_dirty_y_max = y + h;
@@ -99,17 +92,26 @@ void GLSpriteAtlas::PackRaw(SpriteHandle handle, const uint8_t* pixels, int w, i
         std::memcpy(dst, pixels + (size_t)row * w, (size_t)w);
     }
 
-    SpriteUV uv;
-    uv.u0 = (float)x / (float)k_atlas_w;
-    uv.v0 = (float)y / (float)k_atlas_h;
-    uv.u1 = (float)(x + w) / (float)k_atlas_w;
-    uv.v1 = (float)(y + h) / (float)k_atlas_h;
-    uv.pixel_w = (uint16_t)w;
-    uv.pixel_h = (uint16_t)h;
-    m_uvs[handle] = uv;
+    m_uvs[handle] = make_sprite_uv(x, y, w, h);
 
     if (y < m_dirty_y_min) m_dirty_y_min = y;
     if (y + h > m_dirty_y_max) m_dirty_y_max = y + h;
+}
+
+// Insets the rect by a fraction of a texel on every side. A quad edge that
+// sits exactly on a pixel centre would otherwise put the fragment's UV on the
+// texel boundary, and GL_NEAREST can round it into the neighbouring entry.
+SpriteUV GLSpriteAtlas::make_sprite_uv(int x, int y, int w, int h)
+{
+    constexpr float k_inset = 1.0f / 32.0f;
+    SpriteUV uv;
+    uv.u0 = ((float)x + k_inset) / (float)k_atlas_w;
+    uv.v0 = ((float)y + k_inset) / (float)k_atlas_h;
+    uv.u1 = ((float)(x + w) - k_inset) / (float)k_atlas_w;
+    uv.v1 = ((float)(y + h) - k_inset) / (float)k_atlas_h;
+    uv.pixel_w = (uint16_t)w;
+    uv.pixel_h = (uint16_t)h;
+    return uv;
 }
 
 // Caller already holds m_mutex.

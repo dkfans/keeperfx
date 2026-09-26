@@ -68,6 +68,7 @@ private:
      *  Caller already holds m_mutex. */
     bool alloc_shelf_rect(int w, int h, int* out_x, int* out_y, const char* what);
     bool try_alloc_shelf_rect(int alloc_w, int alloc_h, int* out_x, int* out_y);
+    static SpriteUV make_sprite_uv(int x, int y, int w, int h);
 
     /** Uploads the dirty region into the given (already-resolved) texture
      *  id. Caller already holds m_mutex. */
