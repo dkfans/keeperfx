@@ -2749,6 +2749,7 @@ void GLWorldViewRenderer::DrawFrontView(struct Camera* cam)
     for (long bucket_num = BUCKETS_COUNT - 1; bucket_num >= 0; bucket_num--)
     {
         m_current_bucket = (int)bucket_num;
+        const float ndc_z = 2.0f * ((float)m_current_bucket - 0.5f) / (float)(BUCKETS_COUNT - 1) - 1.0f;
         for (struct BasicQ* b = buckets[bucket_num]; b != NULL; b = b->next)
         {
             if (b->kind == QK_TextureQuad)
@@ -2770,10 +2771,34 @@ void GLWorldViewRenderer::DrawFrontView(struct Camera* cam)
             else if (b->kind == QK_SlabSelector) // Selection outline box for placing/digging slabs
             {
                 const struct BucketKindSlabSelector* p = (const struct BucketKindSlabSelector*)b;
-                const float ndc_z = 2.0f * ((float)m_current_bucket - 0.5f) / (float)(BUCKETS_COUNT - 1) - 1.0f;
                 RendererSetWorldOverlay(ndc_z);
                 draw_clipped_line(p->p.X, p->p.Y, p->p.U, p->p.V, p->p.S);
                 RendererClearWorldOverlay();
+            }
+            else if (b->kind == QK_CreatureStatus) // Health-flower/anger/state icon above a creature
+            {
+                const struct BucketKindCreatureStatus* p = (const struct BucketKindCreatureStatus*)b;
+                RendererSetWorldOverlayFlat(ndc_z);
+                draw_status_sprites(p->x, p->y, p->thing);
+                RendererClearWorldOverlayFlat();
+            }
+            else if (b->kind == QK_FloatingGoldText) // Floating gold/damage/experience numbers
+            {
+                RendererSetWorldOverlayFlat(ndc_z);
+                draw_engine_number((struct BucketKindFloatingGoldText*)b);
+                RendererClearWorldOverlayFlat();
+            }
+            else if (b->kind == QK_RoomFlagBottomPole) // Room-flag pole
+            {
+                RendererSetWorldOverlayFlat(ndc_z);
+                draw_engine_room_flagpole((struct BucketKindRoomFlag*)b);
+                RendererClearWorldOverlayFlat();
+            }
+            else if (b->kind == QK_RoomFlagStatusBox) // Room-flag top status box
+            {
+                RendererSetWorldOverlayFlat(ndc_z);
+                draw_engine_room_flag_top((struct BucketKindRoomFlag*)b);
+                RendererClearWorldOverlayFlat();
             }
         }
     }
