@@ -22,7 +22,9 @@ public:
     bool Init();
     void Shutdown();
 
-    void SetAtlas(GLSpriteAtlas* atlas) { m_atlas = atlas; }
+    /** Also gives the atlas its liveness query, so a full atlas keeps the
+     *  handles this renderer still holds. */
+    void SetAtlas(GLSpriteAtlas* atlas);
     // Palette/fade-table textures: only the handle is stored, resolved fresh
     // at each point of use rather than cached as a raw GLuint, so it stays
     // valid across a reload of the underlying texture.
@@ -120,6 +122,10 @@ private:
 
     /** Resolves a program handle to its raw GL id, or 0 if unresolved. */
     unsigned int ResolveShaderId(GpuResourceHandle handle) const;
+
+    /** True for a handle whose sprite is still registered, and for every DBC
+     *  glyph handle (those are never forgotten). */
+    bool IsSpriteHandleLive(SpriteHandle handle) const;
 
     void draw_textured_quad(GpuResourceHandle shader_handle, float x, float y, float w, float h,
                             float u0, float v0, float u1, float v1,
