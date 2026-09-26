@@ -100,8 +100,7 @@ static TbBool player_is_ai_standin(const struct PlayerInfo *player)
 
 TbBool player_is_victory_candidate(const struct PlayerInfo *player)
 {
-    return player_exists(player)
-        && player->is_active == 1
+    return is_active_keeper(player)
         && player->id_number != game.neutral_player_num
         && !player_is_ai_standin(player)
         && !player_cannot_win(player->id_number);
@@ -471,7 +470,7 @@ long update_dungeon_generation_speeds(void)
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (player_exists(player) && (player->is_active))
+        if (is_active_keeper(player))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->total_score > max_manage_score)
@@ -887,7 +886,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         {
             player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
         }
-        if (player->is_active != 1)
+        if (!is_active_keeper(player))
         {
           ERRORLOG("Non Keeper in Keeper game");
           break;
@@ -936,7 +935,6 @@ void init_players(void)
             {
               player->allocflags |= PlaF_OriginallyHuman;
               game.human_players_count++;
-              player->is_active = 1;
               game.game_kind = GKind_MultiGame;
               init_player(player, 0);
             }
@@ -1218,7 +1216,7 @@ void process_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if (player_exists(player) && (player->is_active == 1))
+        if (is_active_keeper(player))
         {
             SYNCDBG(6,"Doing updates for player %d",i);
             wander_point_update(&player->wandr_within);

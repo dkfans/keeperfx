@@ -3051,7 +3051,7 @@ static short get_inputs(void)
     gui_process_inputs();
     if (player->victory_state == VicS_LostLevel)
     {
-        if (player->is_active != 1)
+        if (!is_active_keeper(player))
         {
             get_level_lost_inputs();
             return true;

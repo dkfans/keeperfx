@@ -982,7 +982,7 @@ void clear_players_for_save(void)
 {
     struct PlayerInfo *player;
     unsigned short saved_player_id;
-    unsigned short saved_is_active;
+    unsigned char saved_player_type;
     unsigned short saved_allocation_flags;
     struct Camera cammem;
     int i;
@@ -990,13 +990,13 @@ void clear_players_for_save(void)
     {
       player = get_player(i);
       saved_player_id = player->id_number;
-      saved_is_active = player->is_active;
+      saved_player_type = player->player_type;
       saved_allocation_flags = player->allocflags;
       memcpy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = saved_player_id;
       player->user_id = -1;
-      player->is_active = saved_is_active;
+      player->player_type = saved_player_type;
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
       memcpy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
@@ -1316,14 +1316,11 @@ short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       swplyr = get_player(i);
-      if (player_exists(swplyr))
+      if (is_active_keeper(swplyr))
       {
-        if (swplyr->is_active == 1)
-        {
-          k++;
-          if (swplyr->victory_state == VicS_LostLevel)
-            n++;
-        }
+        k++;
+        if (swplyr->victory_state == VicS_LostLevel)
+          n++;
       }
     }
     *plyr_count = k;

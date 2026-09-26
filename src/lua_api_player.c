@@ -230,7 +230,7 @@ static int player_get_field(lua_State *L) {
             lua_pushstring(L, "Neutral");
         } else if (player->allocflags & PlaF_CompCtrl) {
             lua_pushstring(L, "Computer");
-        } else if (player->is_active) {
+        } else if (is_active_keeper(player)) {
             lua_pushstring(L, "Human");
         } else {
             lua_pushstring(L, "Inactive");

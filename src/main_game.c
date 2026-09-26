@@ -140,7 +140,7 @@ static void init_keepers_map_exploration(void)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if ((player_exists(player) && (player->is_active == 1)) || player_is_roaming(i))
+      if (is_active_keeper(player) || player_is_roaming(i))
       {
           // Additional init - the main one is in init_player()
           if ((player->allocflags & PlaF_CompCtrl) != 0) {
@@ -380,11 +380,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
     stop_streamed_samples();
-    unsigned int flgmem;
-    struct PlayerInfo *player;
     setup_count_players();
-    player = get_my_player();
-    flgmem = player->is_active;
     if (local && (campaign.human_player >= 0) && (!force_player_num))
     {
         default_loc_player = campaign.human_player;
@@ -395,8 +391,6 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
         coroutine_clear(context, true);
         return;
     }
-    player = get_my_player();
-    player->is_active = flgmem;
     //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
     TbBool ShouldAssignCpuKeepers = 0;
     if (local)
@@ -451,7 +445,6 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
 
 void faststartup_network_game(CoroutineLoop *context)
 {
-    struct PlayerInfo *player;
     SYNCDBG(3,"Starting");
     reenter_video_mode();
     my_player_number = default_loc_player;
@@ -461,8 +454,6 @@ void faststartup_network_game(CoroutineLoop *context)
         if (!change_campaign(CampgnT_Default,""))
             ERRORLOG("Unable to load campaign");
     }
-    player = get_my_player();
-    player->is_active = 1;
     startup_network_game(context, true);
     if (!context->error)
         coroutine_add(context, &set_not_has_quit);
