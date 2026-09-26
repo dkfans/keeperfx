@@ -1516,7 +1516,6 @@ TbBool script_support_setup_player_as_zombie_keeper(PlayerNumber plyr_idx)
     }
     player->allocflags &= ~PlaF_Allocated; // mark as non-existing
     player->id_number = plyr_idx;
-    player->is_active = 0;
     player->allocflags &= ~PlaF_CompCtrl;
     init_player_start(player, false);
     return true;

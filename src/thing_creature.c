@@ -6802,7 +6802,7 @@ TbBool change_creature_owner_if_near_dungeon_heart(struct Thing *creatng)
         if (player_is_neutral(plyr_idx))
             continue;
         struct PlayerInfo* player = get_player(plyr_idx);
-        if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->is_active == 1) && (player->victory_state != VicS_LostLevel) )
+        if (is_active_keeper(player) && (player->victory_state != VicS_LostLevel) )
         {
             struct Thing* heartng = get_player_soul_container(plyr_idx);
             if (thing_exists(heartng) && (get_chessboard_distance(&creatng->mappos, &heartng->mappos) < subtile_coord(6,0)))

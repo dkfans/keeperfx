@@ -164,7 +164,6 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
             case 2: player->view_mode_restore = PVM_FrontView; break;
             default: player->view_mode_restore = PVM_IsoWibbleView; break;
         }
-        player->is_active = 1;
         init_player(player, 0);
         init_user_state(player->user_id);
         player->isometric_view_zoom_level = sync->isometric_view_zoom_level;
@@ -443,7 +442,7 @@ TbBool network_human_contenders_remain(void)
 {
     for (PlayerNumber player_idx = 0; player_idx < PLAYERS_COUNT; player_idx++) {
         struct PlayerInfo *player = get_player(player_idx);
-        if (player_exists(player) && (player->is_active == 1) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_cannot_win(player_idx)) {
+        if (is_active_keeper(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_cannot_win(player_idx)) {
             return true;
         }
     }
@@ -563,7 +562,7 @@ static void resolve_disconnect_victories(struct PlayerInfo *departed)
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
         struct PlayerInfo *player = get_player(plyr_idx);
-        if (!player_exists(player) || (player == departed) || (player->is_active != 1) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
+        if (!is_active_keeper(player) || (player == departed) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
             continue;
         }
         if (!disconnect_victory_enabled[plyr_idx] || players_are_mutual_allies(plyr_idx, departed->id_number)) {
@@ -577,7 +576,7 @@ static void resolve_disconnect_victories(struct PlayerInfo *departed)
         if (winning_quit) {
             for (int i = 0; i < PLAYERS_COUNT; i++) {
                 struct PlayerInfo *swplyr = get_player(i);
-                if (player_exists(swplyr) && (swplyr->is_active == 1)) {
+                if (is_active_keeper(swplyr)) {
                     resolve_network_quit_outcome(swplyr);
                 }
             }

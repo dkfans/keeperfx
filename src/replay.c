@@ -785,6 +785,7 @@ TbBool reinit_packets_after_load(void)
 }
 
 static const char replay_type_chars[ReplTyp_Count] = {'c', 'f', 'm'};
+static const char *const replay_type_dirs[ReplTyp_Count] = {"campaign", "freeplay", "multiplayer"};
 
 static int compare_replay_names(const void *a, const void *b)
 {
@@ -794,14 +795,18 @@ static int compare_replay_names(const void *a, const void *b)
 // names start with a 15-char timestamp, then '_' and the map type char [cfm]
 #define REPLAY_TYPE_CHAR_POS 16
 
-static void evict_old_replays(char type_chr, uint32_t keep)
+static void evict_old_replays(int type, uint32_t keep)
 {
+    const char type_chr = replay_type_chars[type];
     char **names = NULL;
     size_t count = 0;
     size_t cap = 0;
     struct TbFileEntry fe;
     char spec[DISKPATH_SIZE];
-    if (prepare_file_path_buf(spec, sizeof(spec), FGrp_Replays, "*.pck") == NULL)
+    char rel[DISKPATH_SIZE];
+    snprintf(rel, sizeof(rel), "%s/*.pck", replay_type_dirs[type]);
+    prepare_file_path_buf(spec, sizeof(spec), FGrp_Replays, rel);
+    if (spec[0] == '\0')
         return;
     struct TbFileFind *ff = LbFileFindFirst(spec, &fe);
     if (ff != NULL)
@@ -829,7 +834,9 @@ static void evict_old_replays(char type_chr, uint32_t keep)
     for (size_t i = 0; i + keep < count; i++)
     {
         char fname[DISKPATH_SIZE];
-        if (prepare_file_path_buf(fname, sizeof(fname), FGrp_Replays, names[i]) != NULL)
+        snprintf(rel, sizeof(rel), "%s/%s", replay_type_dirs[type], names[i]);
+        prepare_file_path_buf(fname, sizeof(fname), FGrp_Replays, rel);
+        if (fname[0] != '\0')
             LbFileDelete(fname);
     }
     for (size_t i = 0; i < count; i++)
@@ -870,7 +877,7 @@ TbBool setup_auto_replay_save(void)
         type = ReplTyp_Campaign;
     if (max_replays[type] == 0)
         return false;
-    evict_old_replays(replay_type_chars[type], max_replays[type] - 1);
+    evict_old_replays(type, max_replays[type] - 1);
 
     int humans = 0;
     for (int i = 0; i < PLAYERS_COUNT; i++)
@@ -885,8 +892,8 @@ TbBool setup_auto_replay_save(void)
         return false;
     int year = ((lt->tm_year + 1900) % 10000 + 10000) % 10000;
     char fname[sizeof(game.packet_fname)];
-    snprintf(fname, sizeof(fname), "%04d%02d%02dT%02d%02d%02d_%c%d",
-        year, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min, lt->tm_sec,
+    snprintf(fname, sizeof(fname), "%s/%04d%02d%02dT%02d%02d%02d_%c%d",
+        replay_type_dirs[type], year, lt->tm_mon + 1, lt->tm_mday, lt->tm_hour, lt->tm_min, lt->tm_sec,
         replay_type_chars[type], humans);
     size_t len = strlen(fname);
     if (humans > 1)
@@ -911,7 +918,8 @@ TbBool setup_auto_replay_save(void)
     append_git_sha(fname, sizeof(fname));
     len = strlen(fname);
     snprintf(fname + len, sizeof(fname) - len, ".pck");
-    if (prepare_file_path_buf(game.packet_fname, sizeof(game.packet_fname), FGrp_Replays, fname) == NULL)
+    prepare_file_path_buf(game.packet_fname, sizeof(game.packet_fname), FGrp_Replays, fname);
+    if (game.packet_fname[0] == '\0')
     {
         ERRORLOG("Replay path for \"%s\" is too long; not recording", fname);
         return false;
