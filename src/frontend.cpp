@@ -332,6 +332,8 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuMpMapPacks, 2},
     {GUIStr_MnuReturnToLobby, 1},
     {GUIStr_Empty, 0}, // [115] campaign name title
+    {GUIStr_MnuContinueCampaign, 1},
+    {GUIStr_MnuStartNewGame, 1},
 };
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;

@@ -7636,3 +7636,9 @@ msgstr "Das Mehrspielerspiel ist nicht mehr synchron."
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "Kampagne"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Kampagne fortsetzen"

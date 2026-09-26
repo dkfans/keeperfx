@@ -7381,3 +7381,9 @@ msgstr "Flerspelarläget är osynkroniserat."
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "Kampanj"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Fortsätt kampanj"

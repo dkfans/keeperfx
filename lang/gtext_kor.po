@@ -7367,3 +7367,9 @@ msgstr "멀티플레이가 동기화되지 않았습니다."
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "캠페인"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "캠페인 계속하기"

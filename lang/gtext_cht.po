@@ -6977,3 +6977,9 @@ msgstr "多人遊戲不同步。"
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "戰役"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "繼續戰役"

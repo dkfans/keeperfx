@@ -7584,3 +7584,9 @@ msgstr "O jogo multijogador está fora de sincronia."
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "Campanha"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Continuar campanha"

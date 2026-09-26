@@ -7614,3 +7614,9 @@ msgstr "La partida multijugador no está sincronizada."
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "Campaña"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Continuar campaña"

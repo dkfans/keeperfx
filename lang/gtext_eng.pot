@@ -5946,3 +5946,8 @@ msgstr ""
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr ""
+
+#: guitext:1125
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr ""

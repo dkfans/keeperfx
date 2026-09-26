@@ -7316,3 +7316,9 @@ msgstr "マルチプレイが同期していません。"
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "キャンペーン"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "キャンペーンを続ける"

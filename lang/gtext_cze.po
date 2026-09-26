@@ -7354,3 +7354,9 @@ msgstr "Hra pro více hráčů není synchronizovaná."
 msgctxt "Menu interface, Main Menu item"
 msgid "Campaign"
 msgstr "Kampaň"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Pokračovat v kampani"
