@@ -106,6 +106,7 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"MAPSIZE",            13},
   {"MAP_FORMAT_VERSION", 14},
   {"INTRO_DESC_KEY",     15},
+  {"DESCRIPTION_GEO",    16},  
   {NULL,                  0},
   };
 
@@ -196,7 +197,9 @@ void clear_level_info(struct LevelInformation *lvinfo)
   lvinfo->state = LvSt_Hidden;
   lvinfo->location = LvLc_VarLevels;
   lvinfo->mapsize_x = DEFAULT_MAP_SIZE;
-  lvinfo->mapsize_y = DEFAULT_MAP_SIZE;
+  lvinfo->mapsize_y = DEFAULT_MAP_SIZE;  
+  KfxFree(lvinfo->level_description_geo);
+  lvinfo->level_description_geo = NULL;
 }
 
 /**
@@ -1093,6 +1096,49 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             break;            
         case 15: // INTRO_DESC_KEY
             if (get_conf_parameter_whole(buf,&pos,len,lvinfo->intro_desc_key,LINEMSG_SIZE) <= 0)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of '%s' file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 16: // DESCRIPTION_GEO
+            lvinfo->level_description_geo = malloc(sizeof(struct LevelDescriptionGeo));
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                lvinfo->level_description_geo->pos_x = k;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                lvinfo->level_description_geo->pos_y = k;
+                n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                lvinfo->level_description_geo->width = k;
+                n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                lvinfo->level_description_geo->height = k;
+                n++;
+                }
+            }
+            if (n > 4)
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);

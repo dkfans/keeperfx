@@ -163,8 +163,25 @@ static void landview_update_textbox_text(void)
         lv_description = lv_name;
     landview_set_text(lv_description);
     
-    set_level_name_text(mouse_over_lvnum, lv_name);
+    set_level_name_text(mouse_over_lvnum, lv_name);  
+    int32_t width;
+    int32_t pos_x;
+    int32_t pos_y;
+    int32_t height;
+    if(lvinfo->level_description_geo != NULL){
+        width = lvinfo->level_description_geo->width;
+        pos_x = lvinfo->level_description_geo->pos_x;
+        pos_y = lvinfo->level_description_geo->pos_y;
+        height = lvinfo->level_description_geo->height;
+    } else {
+        width = campaign.level_description_geo != NULL ? campaign.level_description_geo->width : 480;
+        pos_x = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_x : ((RendererPhysicalWidth()*16/units_per_pixel_landview)-480) / 2;
+        pos_y = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_y : (RendererPhysicalHeight()*16/units_per_pixel_landview) - 86 - 24;
+        height = campaign.level_description_geo != NULL ? campaign.level_description_geo->height : 86;
+    }    
+    landview_textbox_set_geometry(&landview_textbox, pos_x,  pos_y, width, height);
 }
+
 
 /******************************************************************************/
 void draw_map_screen(void)
@@ -1173,11 +1190,6 @@ void frontmap_draw(void)
         set_pointer_graphic_spland(0);
         compressed_window_draw();
     }
-    int32_t width = campaign.level_description_geo != NULL ? campaign.level_description_geo->width : 480;
-    int32_t pos_x = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_x : ((RendererPhysicalWidth()*16/units_per_pixel_landview)-480) / 2;
-    int32_t pos_y = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_y : (RendererPhysicalHeight()*16/units_per_pixel_landview) - 86 - 24;
-    int32_t height = campaign.level_description_geo != NULL ? campaign.level_description_geo->height : 86;
-    landview_textbox_set_geometry(&landview_textbox, pos_x,  pos_y, width, height);
     landview_textbox_draw(&landview_textbox);
 }
 
