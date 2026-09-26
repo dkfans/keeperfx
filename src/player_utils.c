@@ -105,7 +105,7 @@ TbBool player_defeat_settled(PlayerNumber plyr_idx)
 // player dropped and is computer-controlled
 TbBool player_is_ai_standin(const struct PlayerInfo *player)
 {
-    return flag_is_set(player->allocflags, PlaF_CompCtrl) && flag_is_set(player->allocflags, PlaF_OriginallyHuman);
+    return flag_is_set(player->allocflags, PlaF_StandIn);
 }
 
 static TbBool player_belongs_in_victory_kernel(const struct PlayerInfo *player)
@@ -942,7 +942,6 @@ void init_players(void)
                 player->allocflags &= ~PlaF_CompCtrl;
             if ((player->allocflags & PlaF_CompCtrl) == 0)
             {
-              player->allocflags |= PlaF_OriginallyHuman;
               game.human_players_count++;
               player->is_active = 1;
               game.game_kind = GKind_MultiGame;
@@ -1173,7 +1172,7 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->user_id = SOLO_HUMAN_ID;
-    player->allocflags |= PlaF_Allocated | PlaF_OriginallyHuman;
+    player->allocflags |= PlaF_Allocated;
 
     if( player->id_number == PLAYER_GOOD)
     {

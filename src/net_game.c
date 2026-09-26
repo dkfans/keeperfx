@@ -158,7 +158,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         struct PlayerInfo *player = get_player(k);
         player->id_number = k;
         player->user_id = i;
-        player->allocflags |= PlaF_Allocated | PlaF_OriginallyHuman;
+        player->allocflags |= PlaF_Allocated;
         switch (sync->video_rotate_mode) {
             case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
             case 1: player->view_mode_restore = PVM_IsoStraightView; break;
@@ -441,7 +441,7 @@ static TbBool network_has_remote_users_remaining(void)
 
 static void replace_network_player_with_ai(struct PlayerInfo *player)
 {
-    player->allocflags |= PlaF_CompCtrl;
+    player->allocflags |= PlaF_CompCtrl | PlaF_StandIn;
     toggle_computer_player(player->id_number);
     message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
     JUSTLOG("p:%d computer took over", player->id_number);
