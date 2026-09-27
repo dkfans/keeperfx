@@ -50,7 +50,7 @@ long network_session_join(void);
 TbBool network_user_active(NetUserId);
 const char *network_user_name(NetUserId);
 TbBool network_human_contenders_remain(void);
-void resolve_standins(void);
+void resolve_placeholders(void);
 void process_player_leave_game_packet(struct PlayerInfo *player);
 void process_disconnected_network_players(void);
 TbBool user_present(NetUserId user);

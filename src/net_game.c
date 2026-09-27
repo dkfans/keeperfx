@@ -440,7 +440,7 @@ static TbBool network_has_remote_users_remaining(void)
 
 static void replace_network_player_with_ai(struct PlayerInfo *player)
 {
-    player->allocflags |= PlaF_CompCtrl | PlaF_StandIn;
+    player->allocflags |= PlaF_CompCtrl | PlaF_Placeholder;
     toggle_computer_player(player->id_number);
     message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
     JUSTLOG("p:%d computer took over", player->id_number);
@@ -528,31 +528,31 @@ static TbBool host_already_won_level(void)
     return false;
 }
 
-static TbBool standin_has_loadbearing_ally(const struct PlayerInfo *standin)
+static TbBool placeholder_has_loadbearing_ally(const struct PlayerInfo *placeholder)
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
         struct PlayerInfo *other = get_player(plyr_idx);
-        if ((other == standin) || !is_active_keeper(other)
+        if ((other == placeholder) || !is_active_keeper(other)
             || flag_is_set(other->allocflags, PlaF_CompCtrl) || player_defeat_settled(plyr_idx)) {
             continue;
         }
-        if (players_are_mutual_allies(standin->id_number, plyr_idx)) {
+        if (players_are_mutual_allies(placeholder->id_number, plyr_idx)) {
             return true;
         }
     }
     return false;
 }
 
-// stand-ins with no human still propping them up are marked as defeated;
-// stand-ins whose outcome is settled are deallocated
-void resolve_standins(void)
+// placeholders with no human still propping them up are marked as defeated;
+// placeholders whose outcome is settled are deallocated
+void resolve_placeholders(void)
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
         struct PlayerInfo *player = get_player(plyr_idx);
-        if (!player_exists(player) || !player_is_ai_standin(player)) {
+        if (!player_exists(player) || !player_is_placeholder(player)) {
             continue;
         }
-        if ((player->victory_state == VicS_Undecided) && !standin_has_loadbearing_ally(player)) {
+        if ((player->victory_state == VicS_Undecided) && !placeholder_has_loadbearing_ally(player)) {
             JUSTLOG("p:%d defeated, no human allies remain", (int)plyr_idx);
             event_kill_all_players_events(plyr_idx);
             set_player_as_lost_level(player);
@@ -579,7 +579,7 @@ static void abandon_network_player(struct PlayerInfo *player, TbBool announce)
             replace_network_player_with_ai(player);
         }
     }
-    resolve_standins();
+    resolve_placeholders();
     if (player->victory_state != VicS_Undecided) {
         player->allocflags &= ~PlaF_Allocated;
     }

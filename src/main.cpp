@@ -992,7 +992,7 @@ void clear_players_for_save(void)
       player->player_type = saved_player_type;
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
-      set_flag_value(player->allocflags, PlaF_StandIn, ((saved_allocation_flags & PlaF_StandIn) != 0));
+      set_flag_value(player->allocflags, PlaF_Placeholder, ((saved_allocation_flags & PlaF_Placeholder) != 0));
       memcpy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
       set_player_active_camera(player, CamIV_FirstPerson);
     }
