@@ -6197,9 +6197,10 @@ msgid "Moo4"
 msgstr "Му4"
 
 #: guitext:1011
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Dungeon Keeper - Original Campaign"
-msgstr "Dungeon Keeper - Оригинальная кампания"
+msgstr "Dungeon Keeper - Оригинал"
 
 #: guitext:1012
 msgctxt "Menu interface item"
@@ -6287,9 +6288,10 @@ msgid "Post Ancient Keeper"
 msgstr "Древний Хранитель - Послесловие"
 
 #: guitext:1029
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Post Undead Keeper"
-msgstr "Неупокоенный Хранитель - Продолжение"
+msgstr "Пост-Неупокоенный Хранитель"
 
 #: guitext:1030
 msgctxt "Menu interface item"

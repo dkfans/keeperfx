@@ -6935,9 +6935,10 @@ msgid "Dungeon Keeper - NG+"
 msgstr "Dungeon Keeper - NG+"
 
 #: guitext:1028
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Post Ancient Keeper"
-msgstr "Кампанія Пост-Стародавнього Хранителя"
+msgstr "Пост-Стародавній Хранитель"
 
 #: guitext:1029
 msgctxt "Menu interface item"
