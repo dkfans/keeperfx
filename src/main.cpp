@@ -240,21 +240,14 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
     {
       if (i == win_plyr_idx)
         continue;
+      if (player_defeat_settled(i))
+        continue;
       if (!player_is_friendly_or_defeated(i,win_plyr_idx))
         return false;
     }
     
-    // KeeperFX behaviour on skirmish maps diverges from original in
-    // order to be more intuitive on existing multiplayer maps.
-    //
-    // This is to ensure that in competitive multiplayer, so long as
-    // two unallied humans can both plausibly win, the game will go on.
-    //
-    // (The unintuitive behaviour of the original is preserved for non-skirmish maps
-    // so that custom campaign levels built for the original behave faithfully.)
-    TbBool legacy_behaviour = !is_multiplayer_level(get_loaded_level_number());
-    
-    if (!victory_candidates_fully_allied(legacy_behaviour))
+    // So long as two unallied humans can both plausibly win, the game goes on.
+    if (!human_victory_kernel_exists())
         return false;
     SYNCDBG(1,"Returning true for player %ld",win_plyr_idx);
     return true;
@@ -1000,6 +993,7 @@ void clear_players_for_save(void)
       player->player_type = saved_player_type;
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
+      set_flag_value(player->allocflags, PlaF_Placeholder, ((saved_allocation_flags & PlaF_Placeholder) != 0));
       memcpy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
       set_player_active_camera(player, CamIV_FirstPerson);
     }
@@ -1300,32 +1294,6 @@ void process_objective_with_icon(const char *msg_text, PlayerNumber plyr_idx, Tb
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     set_level_objective(player->id_number, msg_text);
     display_objectives_with_icon(player->id_number, x, y, icon_idx);
-}
-
-short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count)
-{
-    struct PlayerInfo *swplyr;
-    int i;
-    int k;
-    int n;
-    if (player->victory_state == VicS_LostLevel)
-    {
-      return 0;
-    }
-    k = 0;
-    n = 0;
-    for (i=0; i < PLAYERS_COUNT; i++)
-    {
-      swplyr = get_player(i);
-      if (is_active_keeper(swplyr))
-      {
-        k++;
-        if (swplyr->victory_state == VicS_LostLevel)
-          n++;
-      }
-    }
-    *plyr_count = k;
-    return ((k - n) == 1);
 }
 
 short lose_level(struct PlayerInfo *player)

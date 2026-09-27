@@ -27,6 +27,7 @@
 #include "keeperfx.hpp"
 #include "bflib_math.h"
 #include "lvl_script_lib.h"
+#include "player_utils.h"
 #include "sprites.h"
 #include "post_inc.h"
 
@@ -281,7 +282,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short val
         else
           return 0;
     case SVar_DUNGEON_DESTROYED:
-        return !player_has_heart(plyr_idx);
+        return !player_has_heart(plyr_idx) || player_defeat_settled(plyr_idx);
     case SVar_TOTAL_GOLD_MINED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->lvstats.gold_mined;
