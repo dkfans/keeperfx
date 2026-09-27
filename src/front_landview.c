@@ -167,7 +167,7 @@ static void landview_populate_textbox_values(LevelNumber lvnum){
         } else {
             width = campaign.level_description_geo != NULL ? campaign.level_description_geo->width : 480;
             pos_x = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_x : ((RendererPhysicalWidth()*16/units_per_pixel_landview)-480) / 2;
-            pos_y = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_y : (RendererPhysicalHeight()*16/units_per_pixel_landview) - 86 - 24;
+            pos_y = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_y : (RendererPhysicalHeight()*16/units_per_pixel_landview) - 86 - 96;
             height = campaign.level_description_geo != NULL ? campaign.level_description_geo->height : 86;
         }    
         landview_textbox_set_geometry(&landview_textbox, pos_x,  pos_y, width, height);
