@@ -270,7 +270,6 @@ enum ChecksumKind {
 struct PlayerInfo;
 struct CatalogueEntry;
 
-extern unsigned long initial_replay_seed;
 extern TbBool unpausing_in_progress;
 
 
@@ -304,33 +303,6 @@ struct Packet {
         uint16_t cam_y;
         int16_t actn_par4; //! action parameter #4
     };
-};
-
-// save file header for .pck files.
-// (Bump the version if this struct or the .pck format changes.)
-#define PACKET_SAVE_HEAD_VER 1
-struct PacketSaveHead {
-    unsigned short game_ver_major;
-    unsigned short game_ver_minor;
-    unsigned short game_ver_release;
-    unsigned short game_ver_build;
-    uint32_t level_num;
-    PlayerBitFlags players_exist;
-    PlayerBitFlags players_comp;
-    uint32_t isometric_view_zoom_level;
-    uint32_t frontview_zoom_level;
-    int isometric_tilt;
-    unsigned char video_rotate_mode;
-    TbBool chksum_available; // if needed, this can be replaced with flags
-    uint32_t action_seed;
-    TbBool default_imprison_tendency;
-    TbBool default_flee_tendency;
-    TbBool skip_heart_zoom;
-    TbBool highlight_mode;
-    signed char user_players[MAX_NET_USERS];
-    signed char recording_user;
-    char frontend_alliances;
-    char user_names[MAX_NET_USERS][20];
 };
 
 struct PacketEx
@@ -379,21 +351,11 @@ void process_packets(void);
 TbBool is_desync_warning_active(void);
 void set_local_packet_turn(void);
 void clear_packets(void);
-TbBigChecksum compute_replay_integrity(void);
 void post_init_packets(void);
-void restore_users_from_packet_save(void);
-
-TbBool open_new_packet_file_for_save(void);
-void load_packets_for_turn(GameTurn nturn);
-TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
-short save_packets(void);
-void close_packet_file(void);
-TbBool reinit_packets_after_load(void);
 struct Room *keeper_build_room(NetUserId user,long stl_x,long stl_y,long plyr_idx,long rkind);
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
 TbBool packets_process_cheats(NetUserId user, PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
-void disable_packet_mode(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

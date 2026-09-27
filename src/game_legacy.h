@@ -61,6 +61,7 @@
 #include "power_process.h"
 #include "net_game.h"
 #include "packets.h"
+#include "replay.h"
 #include "sounds.h"
 #include "game_lghtshdw.h"
 #include "game_merge.h"

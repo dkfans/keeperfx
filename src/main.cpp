@@ -60,6 +60,7 @@
 #include "vidmode.h"
 #include "kjm_input.h"
 #include "packets.h"
+#include "replay.h"
 #include "config.h"
 #include "config_slabsets.h"
 #include "config_strings.h"

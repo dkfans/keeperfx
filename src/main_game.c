@@ -34,6 +34,7 @@
 #include "frontmenu_ingame_map.h"
 #include "game_heap.h"
 #include "game_legacy.h"
+#include "replay.h"
 #include "game_merge.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -272,6 +273,8 @@ static TbBool init_level(void)
 static void post_init_level(void)
 {
     SYNCDBG(8,"Starting");
+    if (!game.packet_save_enable && !game.packet_load_enable)
+        setup_auto_replay_save();
     if (game.packet_save_enable)
         open_new_packet_file_for_save();
     calculate_dungeon_area_scores();

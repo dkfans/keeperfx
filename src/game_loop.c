@@ -30,6 +30,7 @@
 #include "game_merge.h"
 #include "sounds.h"
 #include "game_legacy.h"
+#include "replay.h"
 #include "game_loop.h"
 #include "lua_triggers.h"
 
