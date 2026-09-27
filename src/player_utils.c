@@ -103,9 +103,9 @@ TbBool player_defeat_settled(PlayerNumber plyr_idx)
 }
 
 // player dropped and is computer-controlled
-TbBool player_is_ai_standin(const struct PlayerInfo *player)
+TbBool player_is_placeholder(const struct PlayerInfo *player)
 {
-    return flag_is_set(player->allocflags, PlaF_StandIn);
+    return flag_is_set(player->allocflags, PlaF_Placeholder);
 }
 
 static TbBool player_belongs_in_victory_kernel(const struct PlayerInfo *player)
