@@ -452,9 +452,6 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               install_info.inst_path[sizeof(install_info.inst_path)-1] = '\0';
           }
           break;
-      case 2: // INSTALL_TYPE
-          // This command is just skipped...
-          break;
       case 3: // LANGUAGE
           i = recognize_conf_parameter(buf,&pos,len,lang_type);
           if (i <= 0)
@@ -464,9 +461,6 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             break;
           }
           install_info.lang_id = i;
-          break;
-      case 4: // KEYBOARD
-          // Works only in DK Premium
           break;
       case 5: // SCREENSHOT
           i = recognize_conf_parameter(buf,&pos,len,scrshot_type);
@@ -759,9 +753,6 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               }
           }
           break;
-        case 23: //SKIP_HEART_ZOOM
-          CONFLOG("The \"%s\" setting is unused. Use the -skipheartzoom command line option instead.", COMMAND_TEXT(cmd_num));
-          break;
         case 24: //CURSOR_EDGE_CAMERA_PANNING
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
@@ -856,12 +847,6 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               line_box_size = i;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
-          }
-          break;
-      case 32: // COMMAND_CHAR
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              cmd_char = word_buf[0];
           }
           break;
       case 33: // API_ENABLED
@@ -1123,6 +1108,12 @@ static void load_file_configuration(const char *fname, const char *sname, const 
       case ccr_comment:
           break;
       case ccr_endOfFile:
+          break;
+      case 2: // INSTALL_TYPE
+      case 4: // KEYBOARD
+      case 23: //SKIP_HEART_ZOOM
+      case 32: // COMMAND_CHAR
+          CONFLOG("The \"%s\" setting is depricated.", COMMAND_TEXT(cmd_num));
           break;
       default:
           CONFWRNLOG("Unrecognized command in %s file.",config_textname);
