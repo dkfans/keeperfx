@@ -175,7 +175,7 @@ const struct NamedCommand conf_commands[] = {
   {"RENDERER"                      , 49},
   {"VIEWPORT_MODE"                 , 50},
   {"PARCHMENT_MAP_FADE"            , 51},
-  {"PACKETSAVE_MAX_SIZE"           , 52},
+  {"REPLAY_MAX_SIZE"               , 52},
   {"MAX_REPLAYS"                   , 53},
   {NULL,                   0},
   };
@@ -1095,7 +1095,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_ParchmentFade;
           break;
-      case 52: // PACKETSAVE_MAX_SIZE
+      case 52: // REPLAY_MAX_SIZE
           i = -1;
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {

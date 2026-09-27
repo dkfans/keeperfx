@@ -756,7 +756,7 @@ short save_packets(void)
         int pos = LbFilePosition(game.packet_save_fp);
         if ((pos >= 0) && ((uint32_t)pos >= packetsave_max_kb * 1024))
         {
-            WARNLOG("PacketSave reached the %u KB limit at turn %u; recording stopped",
+            WARNLOG("Replay reached the %u KB limit at turn %u; recording stopped",
                 packetsave_max_kb, get_gameturn());
             close_packet_file();
             game.packet_save_enable = false;
