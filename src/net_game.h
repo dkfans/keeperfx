@@ -44,13 +44,13 @@ short setup_network_service(enum FrontendNetService service);
 int setup_old_network_service(void);
 TbBool init_players_network_game(void);
 void setup_count_players(void);
-void are_disconnect_victories_allowed(void);
 
 long network_session_join(void);
 
 TbBool network_user_active(NetUserId);
 const char *network_user_name(NetUserId);
 TbBool network_human_contenders_remain(void);
+void resolve_standins(void);
 void process_player_leave_game_packet(struct PlayerInfo *player);
 void process_disconnected_network_players(void);
 TbBool user_present(NetUserId user);

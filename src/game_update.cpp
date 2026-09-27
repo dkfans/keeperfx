@@ -69,24 +69,6 @@
 extern "C" {
 #endif
 
-static void check_players_won(void)
-{
-  SYNCDBG(8,"Starting");
-
-    if (!network_is_active())
-        return;
-
-    if (!victory_candidates_fully_allied(false))
-        return;
-
-    for (PlayerNumber playerIdx = 0; playerIdx < PLAYERS_COUNT; ++playerIdx)
-    {
-        struct PlayerInfo* curPlayer = get_player(playerIdx);
-        if (player_is_victory_candidate(curPlayer) && (curPlayer->victory_state == VicS_Undecided))
-            set_player_as_won_level(curPlayer);
-    }
-}
-
 static void check_players_lost(void)
 {
   long i;
@@ -287,8 +269,8 @@ static void process_payday(void)
 static void process_dungeons(void)
 {
   SYNCDBG(7,"Starting");
-  check_players_won();
   check_players_lost();
+  resolve_standins();
   process_dungeon_power_magic();
   process_dungeon_devastation_effects();
   process_entrance_generation();

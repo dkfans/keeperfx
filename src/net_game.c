@@ -44,6 +44,7 @@
 #include "dungeon_data.h"
 #include "game_legacy.h"
 #include "gui_msgs.h"
+#include "map_events.h"
 #include "net_exchange_gameplay.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
@@ -157,7 +158,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         struct PlayerInfo *player = get_player(k);
         player->id_number = k;
         player->user_id = i;
-        player->allocflags |= PlaF_Allocated | PlaF_OriginallyHuman;
+        player->allocflags |= PlaF_Allocated;
         switch (sync->video_rotate_mode) {
             case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
             case 1: player->view_mode_restore = PVM_IsoStraightView; break;
@@ -231,7 +232,6 @@ static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket
 
 static struct StartupSyncPacket s_local_startup_sync;
 static struct StartupSyncPacket s_startup_sync_packets[MAX_NET_USERS];
-static TbBool disconnect_victory_enabled[PLAYERS_COUNT];
 
 static uint8_t calculate_initial_input_lag(void)
 {
@@ -389,24 +389,6 @@ TbBool init_players_network_game(void)
     return initialized;
 }
 
-void are_disconnect_victories_allowed(void)
-{
-    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
-        disconnect_victory_enabled[plyr_idx] = false;
-        if (!player_exists(get_player(plyr_idx))) {
-            continue;
-        }
-        for (PlayerNumber other_idx = 0; other_idx < PLAYERS_COUNT; other_idx++) {
-            struct PlayerInfo *other = get_player(other_idx);
-            if (player_exists(other) && flag_is_set(other->allocflags, PlaF_OriginallyHuman)
-                && (other_idx != plyr_idx) && players_are_enemies(plyr_idx, other->id_number)) {
-                disconnect_victory_enabled[plyr_idx] = true;
-                break;
-            }
-        }
-    }
-}
-
 /** Check whether a network user is active.
  *
  * @param user
@@ -424,18 +406,6 @@ const char *network_user_name(NetUserId user)
     if ((user < 0) || (user >= MAX_NET_USERS))
         return NULL;
     return net_user_info[user].name;
-}
-
-static void resolve_network_quit_outcome(struct PlayerInfo *player)
-{
-    if (player->victory_state != VicS_Undecided) {
-        return;
-    }
-    if (player_cannot_win(player->id_number)) {
-        set_player_as_lost_level(player);
-        return;
-    }
-    set_player_as_won_level(player);
 }
 
 TbBool network_human_contenders_remain(void)
@@ -470,7 +440,7 @@ static TbBool network_has_remote_users_remaining(void)
 
 static void replace_network_player_with_ai(struct PlayerInfo *player)
 {
-    player->allocflags |= PlaF_CompCtrl;
+    player->allocflags |= PlaF_CompCtrl | PlaF_StandIn;
     toggle_computer_player(player->id_number);
     message_add(MsgType_Player, player->id_number, get_string(GUIStr_NetAiTookOver));
     JUSTLOG("p:%d computer took over", player->id_number);
@@ -558,37 +528,37 @@ static TbBool host_already_won_level(void)
     return false;
 }
 
-static void resolve_disconnect_victories(struct PlayerInfo *departed)
+static TbBool standin_has_loadbearing_ally(const struct PlayerInfo *standin)
+{
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        struct PlayerInfo *other = get_player(plyr_idx);
+        if ((other == standin) || !is_active_keeper(other)
+            || flag_is_set(other->allocflags, PlaF_CompCtrl) || player_defeat_settled(plyr_idx)) {
+            continue;
+        }
+        if (players_are_mutual_allies(standin->id_number, plyr_idx)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// stand-ins with no human still propping them up are marked as defeated;
+// stand-ins whose outcome is settled are deallocated
+void resolve_standins(void)
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
         struct PlayerInfo *player = get_player(plyr_idx);
-        if (!is_active_keeper(player) || (player == departed) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
+        if (!player_exists(player) || !player_is_ai_standin(player)) {
             continue;
         }
-        if (!disconnect_victory_enabled[plyr_idx] || players_are_mutual_allies(plyr_idx, departed->id_number)) {
-            continue;
+        if ((player->victory_state == VicS_Undecided) && !standin_has_loadbearing_ally(player)) {
+            JUSTLOG("p:%d defeated, no human allies remain", (int)plyr_idx);
+            event_kill_all_players_events(plyr_idx);
+            set_player_as_lost_level(player);
         }
-        if (!victory_candidates_fully_allied(false)) {
-            continue;
-        }
-        int32_t plyr_count = 0;
-        TbBool winning_quit = winning_player_quitting(departed, &plyr_count);
-        if (winning_quit) {
-            for (int i = 0; i < PLAYERS_COUNT; i++) {
-                struct PlayerInfo *swplyr = get_player(i);
-                if (is_active_keeper(swplyr)) {
-                    resolve_network_quit_outcome(swplyr);
-                }
-            }
-        }
-        resolve_network_quit_outcome(player);
-        if (winning_quit && (plyr_count > 1) && is_my_player(player)) {
-            struct UserState *ustate = get_local_user_state();
-            if (game.conf.rules[plyr_idx].gameplay.winner_tortures_loser) {
-                ustate->additional_flags |= UsrAF_UnlockedLordTorture;
-            } else {
-                ustate->additional_flags &= ~UsrAF_UnlockedLordTorture;
-            }
+        if ((player->victory_state == VicS_WonLevel) || player_defeat_settled(plyr_idx)) {
+            player->allocflags &= ~PlaF_Allocated;
         }
     }
 }
@@ -609,7 +579,7 @@ static void abandon_network_player(struct PlayerInfo *player, TbBool announce)
             replace_network_player_with_ai(player);
         }
     }
-    resolve_disconnect_victories(player);
+    resolve_standins();
     if (player->victory_state != VicS_Undecided) {
         player->allocflags &= ~PlaF_Allocated;
     }

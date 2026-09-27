@@ -361,7 +361,6 @@ TbBool startup_saved_packet_game(void)
     restore_users_from_packet_save();
     frontend_alliances = game.packet_save_head.frontend_alliances;
     setup_alliances();
-    are_disconnect_victories_allowed();
     if (game.human_players_count == 1)
         game.game_kind = GKind_LocalGame;
     if (game.turns_stored < game.turns_fastforward)
@@ -418,7 +417,6 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     TbBool ShouldAssignCpuKeepers = coroutine_args(context)[0];
     if (game.game_kind == GKind_MultiGame) {
         setup_alliances();
-        are_disconnect_victories_allowed();
     }
     if (fe_computer_players || ShouldAssignCpuKeepers)
     {
