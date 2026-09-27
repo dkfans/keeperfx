@@ -38,6 +38,8 @@
 #include "kjm_input.h"
 #include "keeperfx.hpp"
 #include "highscores.h"
+#include "custom_sprites.h"
+#include "sprites.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -361,7 +363,26 @@ void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn)
 void frontend_draw_campaign_start_title(struct GuiButton *gbtn)
 {
     struct GameCampaign *campgn = campaign_select_item(campaign_start_idx);
-    frontend_draw_button(gbtn, 1, (campgn != NULL) ? campgn->display_name : "", Lb_TEXT_HALIGN_CENTER);
+    const char *text = (campgn != NULL) ? campgn->display_name : "";
+    int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
+    LbTextSetFont(frontend_font[frontend_button_caption_font(gbtn, frontend_mouse_over_button)]);
+    // use the normal size title when the text fits in it
+    struct GuiButton btn = *gbtn;
+    int32_t narrow_w = gbtn->width * 371 / 495;
+    int btntype = 2;
+    if (LbTextStringWidthM(text, units_per_px) <= narrow_w - 40 * units_per_px / 16)
+    {
+        btn.scr_pos_x += (gbtn->width - narrow_w) / 2;
+        btn.width = narrow_w;
+        btntype = 1;
+    }
+    frontend_draw_button(&btn, btntype, NULL, Lb_TEXT_HALIGN_CENTER);
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
+    int h = LbTextHeight(text) * units_per_px / 16;
+    int x = btn.scr_pos_x + 20 * units_per_px / 16;
+    int y = btn.scr_pos_y + (get_frontend_sprite(GFS_hugebutton_a05l)->SHeight * units_per_px / 16 - h) / 2 - units_per_px / 16;
+    LbTextSetWindow(x, y, btn.width - 40 * units_per_px / 16, h);
+    LbTextDrawResized(0, 0, units_per_px, text);
 }
 
 void frontend_campaign_start_continue(struct GuiButton *gbtn)

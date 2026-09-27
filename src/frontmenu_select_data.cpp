@@ -78,9 +78,9 @@ struct GuiButtonInit frontend_select_campaign_buttons[] = {
 };
 
 struct GuiButtonInit frontend_campaign_start_buttons[] = {
-  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_campaign_start_title,0, GUIStr_Empty,  0,     {115},            0, NULL},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_start_continue,NULL,frontend_over_button,0,999,150,999, 150,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {116},            0, NULL},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_start_new,NULL,frontend_over_button,  0, 999, 204, 999, 204,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {117},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,495, 46, frontend_draw_campaign_start_title,0, GUIStr_Empty,  0,     {115},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_start_continue,NULL,frontend_over_button,0,999,117,999, 117,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {116},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_start_new,NULL,frontend_over_button,  0, 999, 171, 999, 171,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {117},            0, NULL},
   // TODO: High Scores
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL,frontend_over_button,     FeSt_MAIN_MENU, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {6},            0, NULL},
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
