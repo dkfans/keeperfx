@@ -151,29 +151,29 @@ static void landview_populate_textbox_values(LevelNumber lvnum){
     const char* lv_name = (lvinfo->name_stridx > 0) ? get_string(lvinfo->name_stridx) : lvinfo->name;
     const char* lv_description;
 
-    if(lv_intro_desc_key >= 0)
+    if(lv_intro_desc_key >= 0){
         lv_description = get_string(lv_intro_desc_key);
-    else 
-        lv_description = lv_name;
-    landview_set_text(lv_description);
+        landview_set_text(lv_description);        
+        
+        int32_t width;
+        int32_t pos_x;
+        int32_t pos_y;
+        int32_t height;
+        if(lvinfo->level_description_geo != NULL){
+            width = lvinfo->level_description_geo->width;
+            pos_x = lvinfo->level_description_geo->pos_x;
+            pos_y = lvinfo->level_description_geo->pos_y;
+            height = lvinfo->level_description_geo->height;
+        } else {
+            width = campaign.level_description_geo != NULL ? campaign.level_description_geo->width : 480;
+            pos_x = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_x : ((RendererPhysicalWidth()*16/units_per_pixel_landview)-480) / 2;
+            pos_y = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_y : (RendererPhysicalHeight()*16/units_per_pixel_landview) - 86 - 24;
+            height = campaign.level_description_geo != NULL ? campaign.level_description_geo->height : 86;
+        }    
+        landview_textbox_set_geometry(&landview_textbox, pos_x,  pos_y, width, height);
+    }
     
     set_level_name_text(mouse_over_lvnum, lv_name);  
-    int32_t width;
-    int32_t pos_x;
-    int32_t pos_y;
-    int32_t height;
-    if(lvinfo->level_description_geo != NULL){
-        width = lvinfo->level_description_geo->width;
-        pos_x = lvinfo->level_description_geo->pos_x;
-        pos_y = lvinfo->level_description_geo->pos_y;
-        height = lvinfo->level_description_geo->height;
-    } else {
-        width = campaign.level_description_geo != NULL ? campaign.level_description_geo->width : 480;
-        pos_x = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_x : ((RendererPhysicalWidth()*16/units_per_pixel_landview)-480) / 2;
-        pos_y = campaign.level_description_geo != NULL ? campaign.level_description_geo->pos_y : (RendererPhysicalHeight()*16/units_per_pixel_landview) - 86 - 24;
-        height = campaign.level_description_geo != NULL ? campaign.level_description_geo->height : 86;
-    }    
-    landview_textbox_set_geometry(&landview_textbox, pos_x,  pos_y, width, height);
 }
 
 /**
