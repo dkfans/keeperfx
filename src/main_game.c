@@ -34,6 +34,7 @@
 #include "frontmenu_ingame_map.h"
 #include "game_heap.h"
 #include "game_legacy.h"
+#include "replay.h"
 #include "game_merge.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -101,7 +102,7 @@ void reset_script_timers_and_flags(void)
         for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
         {
             dungeon->script_flags[k] = 0;
-            if (freeplay)
+            if (freeplay && (plyr_idx < PLAYERS_FOR_CAMPAIGN_FLAGS) && (k < CAMPAIGN_FLAGS_PER_PLAYER))
             {
                 intralvl.campaign_flags[plyr_idx][k] = 0;
             }
@@ -140,7 +141,7 @@ static void init_keepers_map_exploration(void)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if ((player_exists(player) && (player->is_active == 1)) || player_is_roaming(i))
+      if (is_active_keeper(player) || player_is_roaming(i))
       {
           // Additional init - the main one is in init_player()
           if ((player->allocflags & PlaF_CompCtrl) != 0) {
@@ -272,6 +273,8 @@ static TbBool init_level(void)
 static void post_init_level(void)
 {
     SYNCDBG(8,"Starting");
+    if (!game.packet_save_enable && !game.packet_load_enable)
+        setup_auto_replay_save();
     if (game.packet_save_enable)
         open_new_packet_file_for_save();
     calculate_dungeon_area_scores();
@@ -361,8 +364,7 @@ TbBool startup_saved_packet_game(void)
     restore_users_from_packet_save();
     frontend_alliances = game.packet_save_head.frontend_alliances;
     setup_alliances();
-    are_disconnect_victories_allowed();
-    if (game.active_players_count == 1)
+    if (game.human_players_count == 1)
         game.game_kind = GKind_LocalGame;
     if (game.turns_stored < game.turns_fastforward)
         game.turns_fastforward = game.turns_stored;
@@ -380,11 +382,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
     stop_streamed_samples();
-    unsigned int flgmem;
-    struct PlayerInfo *player;
     setup_count_players();
-    player = get_my_player();
-    flgmem = player->is_active;
     if (local && (campaign.human_player >= 0) && (!force_player_num))
     {
         default_loc_player = campaign.human_player;
@@ -395,8 +393,6 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
         coroutine_clear(context, true);
         return;
     }
-    player = get_my_player();
-    player->is_active = flgmem;
     //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
     TbBool ShouldAssignCpuKeepers = 0;
     if (local)
@@ -424,7 +420,6 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     TbBool ShouldAssignCpuKeepers = coroutine_args(context)[0];
     if (game.game_kind == GKind_MultiGame) {
         setup_alliances();
-        are_disconnect_victories_allowed();
     }
     if (fe_computer_players || ShouldAssignCpuKeepers)
     {
@@ -451,7 +446,6 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
 
 void faststartup_network_game(CoroutineLoop *context)
 {
-    struct PlayerInfo *player;
     SYNCDBG(3,"Starting");
     reenter_video_mode();
     my_player_number = default_loc_player;
@@ -461,8 +455,6 @@ void faststartup_network_game(CoroutineLoop *context)
         if (!change_campaign(CampgnT_Default,""))
             ERRORLOG("Unable to load campaign");
     }
-    player = get_my_player();
-    player->is_active = 1;
     startup_network_game(context, true);
     if (!context->error)
         coroutine_add(context, &set_not_has_quit);

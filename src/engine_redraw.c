@@ -1009,7 +1009,7 @@ void redraw_display(void)
       process_pointer_graphic();
     interpolate_local_cameras();
     int32_t view_mode = get_local_active_camera(player)->view_mode;
-    if ((player->view_mode == PVM_ParchFadeIn) || (player->view_mode == PVM_ParchFadeOut))
+    if (((player->view_mode == PVM_ParchFadeIn) || (player->view_mode == PVM_ParchFadeOut)) && !replay_camera_detached())
         view_mode = player->view_mode;
     switch (view_mode)
     {

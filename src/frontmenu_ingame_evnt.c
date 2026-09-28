@@ -165,8 +165,7 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     if (pwkind > 0)
     {
         if (can_cast_spell(my_player_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
-            struct Packet* pckt = get_local_packet();
-            set_packet_action(pckt, PckA_UsePwrOnThing, pwkind, battle_creature_over, 0, 0);
+            set_packet_power_on_thing(get_local_packet(), pwkind, battle_creature_over);
         }
     } else
     {
@@ -518,17 +517,8 @@ void draw_timer(void)
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
-void draw_gameturn_timer(void)
+static void draw_bottom_right_text(const char *text, int line)
 {
-    int nturns = get_gameturn();
-    char text[32];
-    {
-        if (nturns < 0)
-        {
-            nturns = 0;
-        }
-        snprintf(text, sizeof(text), "GameTurn %u", get_gameturn());
-    }
     LbTextSetFont(winfont);
     int textLength = strlen(text);
     int textCharWidth = 0;
@@ -550,7 +540,7 @@ void draw_gameturn_timer(void)
     }
     RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
-    long scr_y = MyScreenHeight - height - 16 * units_per_pixel / 16;
+    long scr_y = MyScreenHeight - (line + 1) * height - 16 * units_per_pixel / 16;
 
     LbTextSetWindow(scr_x, scr_y, width, height);
     //draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
@@ -573,6 +563,34 @@ void draw_gameturn_timer(void)
     }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+// name of user to display during replay
+static const char *replay_get_displayed_user_name(void)
+{
+    if (!game.packet_load_enable || replay_camera_detached())
+        return NULL;
+    int users = 0;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (game.packet_save_head.user_players[user] >= 0)
+            users++;
+    }
+    const NetUserId user = get_local_user();
+    if ((users < 2) || (user < 0) || (user >= MAX_NET_USERS))
+        return NULL;
+    return game.packet_save_head.user_names[user];
+}
+
+void draw_gameturn_timer(void)
+{
+    char text[32];
+    snprintf(text, sizeof(text), "GameTurn %u", get_gameturn());
+    draw_bottom_right_text(text, 0);
+    const char *name = replay_get_displayed_user_name();
+    if (name != NULL) {
+        snprintf(text, sizeof(text), "%.*s", (int)sizeof(game.packet_save_head.user_names[0]), name);
+        draw_bottom_right_text(text, 1);
+    }
 }
 
 TbBool timer_enabled(void)

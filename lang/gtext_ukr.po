@@ -6462,12 +6462,12 @@ msgstr "Ворог помітив твої секретні двері"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Рівні вільної гри"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Вибір землі"
 
 #: guitext:943
@@ -7428,3 +7428,14 @@ msgstr "З’єднання із сервером втрачено."
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "Мережева гра розсинхронізована."
+
+#: guitext:1124
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "Кампанії"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Продовжити кампанію"

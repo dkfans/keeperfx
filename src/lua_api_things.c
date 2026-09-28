@@ -357,6 +357,7 @@ static int thing_set_field(lua_State *L) {
         struct Coord3d pos;
         luaL_checkCoord3d(L, 3, &pos);
         move_thing_in_map(thing, &pos);
+        reset_interpolation_of_thing(thing);
     } else if (strcmp(key, "anim_sprite") == 0)
     {
         set_thing_animation(thing, luaL_checkAnimationId(L, 3), -1);

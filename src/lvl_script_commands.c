@@ -832,13 +832,13 @@ static void display_objective_check(const struct ScriptLine *scline)
     }
     value->shorts[0] = msg_num;
     value->ulongs[1] = location;
-    value->shorts[3] = x;
-    value->shorts[4] = y;
-    value->shorts[5] = -1;
+    value->shorts[4] = x;
+    value->shorts[5] = y;
+    value->shorts[6] = -1;
 
     const char *icon = (scline->command == Cmd_DISPLAY_OBJECTIVE)
         ? scline->tp[2] : scline->tp[3];
-    if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[5]))
+    if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[6]))
     {
         SCRPTERRLOG("Invalid custom icon (%s)", icon);
         DEALLOCATE_SCRIPT_VALUE
@@ -853,9 +853,9 @@ static void display_objective_process(struct ScriptContext *context)
     set_general_objective_with_icon(context->value->shorts[0],
         context->player_idx,
         context->value->ulongs[1],
-        context->value->shorts[3],
         context->value->shorts[4],
-        context->value->shorts[5]);
+        context->value->shorts[5],
+        context->value->shorts[6]);
 }
 
 static void display_player_objective_check(const struct ScriptLine* scline)
@@ -886,13 +886,13 @@ static void display_player_objective_check(const struct ScriptLine* scline)
     }
     value->shorts[0] = msg_num;
     value->ulongs[1] = location;
-    value->shorts[3] = x;
-    value->shorts[4] = y;
-    value->shorts[5] = -1;
+    value->shorts[4] = x;
+    value->shorts[5] = y;
+    value->shorts[6] = -1;
 
     const char *icon = (scline->command == Cmd_DISPLAY_PLAYER_OBJECTIVE)
         ? scline->tp[3] : scline->tp[4];
-    if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[5]))
+    if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[6]))
     {
         SCRPTERRLOG("Invalid custom icon (%s)", icon);
         DEALLOCATE_SCRIPT_VALUE
@@ -948,13 +948,13 @@ static void quick_objective_check(const struct ScriptLine* scline)
 
     value->shorts[0] = idx;
     value->ulongs[1] = location;
-    value->shorts[3] = x;
-    value->shorts[4] = y;
-    value->shorts[5] = -1;
+    value->shorts[4] = x;
+    value->shorts[5] = y;
+    value->shorts[6] = -1;
 
     const char *icon = (scline->command == Cmd_QUICK_OBJECTIVE)
         ? scline->tp[3] : scline->tp[4];
-    if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[5]))
+    if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[6]))
     {
         SCRPTERRLOG("Invalid custom icon (%s)", icon);
         DEALLOCATE_SCRIPT_VALUE
@@ -970,9 +970,9 @@ static void quick_objective_process(struct ScriptContext* context)
         game.quick_messages[context->value->shorts[0] % QUICK_MESSAGES_COUNT],
         context->player_idx,
         context->value->ulongs[1],
-        context->value->shorts[3],
         context->value->shorts[4],
-        context->value->shorts[5]);
+        context->value->shorts[5],
+        context->value->shorts[6]);
 }
 
 static void quick_player_objective_check(const struct ScriptLine* scline)
@@ -1021,13 +1021,13 @@ static void quick_player_objective_check(const struct ScriptLine* scline)
 
     value->shorts[0] = idx;
     value->ulongs[1] = location;
-    value->shorts[3] = x;
-    value->shorts[4] = y;
-    value->shorts[5] = -1;
+    value->shorts[4] = x;
+    value->shorts[5] = y;
+    value->shorts[6] = -1;
 
     const char *icon = (scline->command == Cmd_QUICK_PLAYER_OBJECTIVE)
         ? scline->tp[4] : scline->tp[5];
-    if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[5]))
+    if (icon[0] != '\0' && !get_custom_icon_from_value(icon, &value->shorts[6]))
     {
         SCRPTERRLOG("Invalid custom icon (%s)", icon);
         DEALLOCATE_SCRIPT_VALUE
@@ -1106,12 +1106,12 @@ static void quick_information_check(const struct ScriptLine* scline)
 
     value->shorts[0] = idx;
     value->ulongs[1] = location;
-    value->shorts[3] = x;
-    value->shorts[4] = y;
-    value->shorts[5] = -1;
+    value->shorts[4] = x;
+    value->shorts[5] = y;
+    value->shorts[6] = -1;
     if (scline->command == Cmd_QUICK_INFORMATION)
     {
-        if (scline->tp[3][0] != '\0' && !get_custom_icon_from_value(scline->tp[3], &value->shorts[5]))
+        if (scline->tp[3][0] != '\0' && !get_custom_icon_from_value(scline->tp[3], &value->shorts[6]))
         {
             SCRPTERRLOG("Invalid custom icon (%s)", scline->tp[3]);
             DEALLOCATE_SCRIPT_VALUE
@@ -1123,7 +1123,7 @@ static void quick_information_check(const struct ScriptLine* scline)
 
 static void quick_information_process(struct ScriptContext* context)
 {
-    set_quick_information_with_icon(context->value->shorts[0], context->player_idx, context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4], context->value->shorts[5]);
+    set_quick_information_with_icon(context->value->shorts[0], context->player_idx, context->value->ulongs[1], context->value->shorts[4], context->value->shorts[5], context->value->shorts[6]);
 }
 
 static void quick_player_information_check(const struct ScriptLine* scline)
@@ -1172,8 +1172,9 @@ static void quick_player_information_check(const struct ScriptLine* scline)
 
     value->shorts[0] = idx;
     value->ulongs[1] = location;
-    value->shorts[3] = x;
-    value->shorts[4] = y;
+    value->shorts[4] = x;
+    value->shorts[5] = y;
+    value->shorts[6] = -1;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -1214,10 +1215,10 @@ static void display_information_check(const struct ScriptLine* scline)
 
     value->shorts[0] = msg_num;
     value->ulongs[1] = location;
-    value->shorts[3] = x;
-    value->shorts[4] = y;
-    value->shorts[5] = -1;
-    if (scline->tp[2][0] != '\0' && !get_custom_icon_from_value(scline->tp[2], &value->shorts[5]))
+    value->shorts[4] = x;
+    value->shorts[5] = y;
+    value->shorts[6] = -1;
+    if (scline->tp[2][0] != '\0' && !get_custom_icon_from_value(scline->tp[2], &value->shorts[6]))
     {
         SCRPTERRLOG("Invalid custom icon (%s)", scline->tp[2]);
         DEALLOCATE_SCRIPT_VALUE
@@ -1229,7 +1230,7 @@ static void display_information_check(const struct ScriptLine* scline)
 static void display_information_process(struct ScriptContext* context)
 {
     set_general_information_with_icon(context->value->shorts[0], context->player_idx,
-        context->value->ulongs[1], context->value->shorts[3], context->value->shorts[4], context->value->shorts[5]);
+        context->value->ulongs[1], context->value->shorts[4], context->value->shorts[5], context->value->shorts[6]);
 }
 
 static void display_player_information_check(const struct ScriptLine* scline)
@@ -1269,9 +1270,9 @@ static void display_player_information_check(const struct ScriptLine* scline)
 
     value->shorts[0] = msg_num;
     value->ulongs[1] = location;
-    value->shorts[3] = x;
-    value->shorts[4] = y;
-    value->shorts[5] = -1;
+    value->shorts[4] = x;
+    value->shorts[5] = y;
+    value->shorts[6] = -1;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3786,15 +3787,15 @@ static void hide_variable_check(const struct ScriptLine *scline)
 
     value->longs[0] = player_idx;
     value->longs[1] = varib_id;
-    value->bytes[2] = varib_type;
+    value->longs[2] = varib_type;
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void hide_variable_process(struct ScriptContext *context)
 {
-    short varib_id, varib_type, player_idx;
-    varib_type = context->value->bytes[2];
+    int32_t varib_id, varib_type, player_idx;
+    varib_type = context->value->longs[2];
     varib_id = context->value->longs[1];
     player_idx = context->value->longs[0];
     if(varib_id > -1 && varib_type > -1)
@@ -5053,7 +5054,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     }
     value->shorts[0] = (short)gen_id;
     value->ulongs[1] = location;
-    value->shorts[3] = range * COORD_PER_STL;
+    value->shorts[4] = range * COORD_PER_STL;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5061,7 +5062,7 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
 {
     ThingModel gen_id = context->value->shorts[0];
     TbMapLocation location = context->value->ulongs[1];
-    short range = context->value->shorts[3];
+    short range = context->value->shorts[4];
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
         script_process_new_effectgen(gen_id, location, range);

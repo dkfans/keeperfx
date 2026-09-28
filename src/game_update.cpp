@@ -69,28 +69,6 @@
 extern "C" {
 #endif
 
-static void check_players_won(void)
-{
-  SYNCDBG(8,"Starting");
-
-    if (!network_is_active())
-        return;
-
-    struct PlayerInfo* curPlayer;
-    for (PlayerNumber playerIdx = 0; playerIdx < PLAYERS_COUNT; ++playerIdx)
-    {
-        curPlayer = get_player(playerIdx);
-        if (!player_exists(curPlayer) || (curPlayer->is_active != 1) || (curPlayer->victory_state != VicS_Undecided))
-            continue;
-
-        if (player_has_enemies_to_defeat(curPlayer))
-            continue;
-
-        set_player_as_won_level(curPlayer);
-        return;
-    }
-}
-
 static void check_players_lost(void)
 {
   long i;
@@ -101,7 +79,7 @@ static void check_players_lost(void)
   {
       player = get_player(i);
       dungeon = get_players_dungeon(player);
-      if (player_exists(player) && (player->is_active == 1))
+      if (is_active_keeper(player))
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
@@ -118,7 +96,7 @@ static void check_players_lost(void)
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
             //this would easily prevent computer player activities on dead player, but it also makes dead player unable to use
-            //floating spirit, so it can't be done this way: player->is_active = 0;
+            //floating spirit, so defeated keepers must stay active keepers
             if (is_my_player_number(i)) {
                 RendererPaletteSet(engine_palette);
             }
@@ -264,7 +242,7 @@ static void process_payday(void)
         }
         struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if (player_exists(player) && (player->is_active == 1))
+        if (is_active_keeper(player))
         {
             compute_and_update_player_payday_total(plyr_idx);
             compute_and_update_player_backpay_total(plyr_idx);
@@ -291,8 +269,8 @@ static void process_payday(void)
 static void process_dungeons(void)
 {
   SYNCDBG(7,"Starting");
-  check_players_won();
   check_players_lost();
+  resolve_placeholders();
   process_dungeon_power_magic();
   process_dungeon_devastation_effects();
   process_entrance_generation();

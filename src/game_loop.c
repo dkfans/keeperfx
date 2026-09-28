@@ -30,6 +30,7 @@
 #include "game_merge.h"
 #include "sounds.h"
 #include "game_legacy.h"
+#include "replay.h"
 #include "game_loop.h"
 #include "lua_triggers.h"
 
@@ -427,7 +428,7 @@ static long double get_turn_start()
     // Aim to exchange network packets before the turn ends.  If drawing
     // another frame could miss this deadline, skip it.
     // In a 3-4 player game, clients must be 2 frames early.
-    const int frames = 1 + (netstate.my_id != SERVER_ID && game.active_players_count > 2);
+    const int frames = 1 + (netstate.my_id != SERVER_ID && game.human_players_count > 2);
     return 1.0 - frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.frame_skip, 1);
 }
 
@@ -1002,16 +1003,13 @@ static TbBool wait_at_frontend(void)
           my_player_number = default_loc_player;
           game.game_kind = GKind_LocalGame;
           clear_flag(game.system_flags, GSF_NetworkActive);
-          player = get_my_player();
-          player->is_active = 1;
           startup_network_game(&loop, true);
           break;
     case FeSt_START_MPLEVEL:
+          memset(&intralvl, 0, sizeof(struct IntralevelData));
           set_flag(game.system_flags, GSF_NetworkActive);
           skip_high_score_screen = 1;
           game.game_kind = GKind_MultiGame;
-          player = get_my_player();
-          player->is_active = 1;
           startup_network_game(&loop, false);
           break;
     case FeSt_LOAD_GAME:

@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <cstdint>
+#include <functional>
 #include <mutex>
 #include "kfx/renderer/SpriteHandle.h"
 #include "kfx/renderer/GpuResourceHandle.h"
@@ -25,6 +26,12 @@ public:
 
     /** Must be called before Init(). Not owned; must outlive this. */
     void SetResourceMapper(GLResourceMapper* mapper) { m_resource_mapper = mapper; }
+
+    /** Tells the atlas which handles are still in use. When it fills up it
+     *  keeps those and drops the rest. Without one, every packed handle is
+     *  treated as live. Called with a lock held by the atlas, so the query
+     *  must not call back into it. */
+    void SetLivenessQuery(std::function<bool(SpriteHandle)> is_live);
 
     bool Init();
     void Free();
@@ -57,17 +64,28 @@ private:
     int m_dirty_y_min = k_atlas_h;
     int m_dirty_y_max = -1;
 
-    std::unordered_map<SpriteHandle, SpriteUV> m_uvs;
+    struct AtlasEntry {
+        SpriteUV uv;
+        int x = 0, y = 0; // top-left texel of the sprite's pixels
+    };
+    std::unordered_map<SpriteHandle, AtlasEntry> m_entries;
+    std::function<bool(SpriteHandle)> m_is_live;
 
     mutable std::mutex m_mutex;
 
     /** Shelf-allocate a w x h (+1px margin) rect, advancing the packer
-     *  cursor. When the atlas is full it is emptied first, so everything
-     *  packed so far re-packs the next time it is drawn. Returns false
-     *  (logging via `what`) only if the rect can't fit an empty atlas.
+     *  cursor. When the atlas is full it is compacted first: live entries
+     *  are repacked into a cleared buffer and dead ones dropped, so a live
+     *  handle never loses its pixels. Returns false (logging via `what`)
+     *  only if the rect still doesn't fit.
      *  Caller already holds m_mutex. */
     bool alloc_shelf_rect(int w, int h, int* out_x, int* out_y, const char* what);
     bool try_alloc_shelf_rect(int alloc_w, int alloc_h, int* out_x, int* out_y);
+    static SpriteUV make_sprite_uv(int x, int y, int w, int h);
+
+    /** Repacks the live entries into a zeroed buffer, dropping the rest.
+     *  Caller already holds m_mutex. */
+    void compact();
 
     /** Uploads the dirty region into the given (already-resolved) texture
      *  id. Caller already holds m_mutex. */

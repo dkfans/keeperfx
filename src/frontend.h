@@ -31,8 +31,9 @@ extern "C" {
 /******************************************************************************/
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        100
+#define DOUBLE_CLICK_MS 250
 #define MENU_LIST_ITEMS_COUNT       52
-#define FRONTEND_BUTTON_INFO_COUNT 115
+#define FRONTEND_BUTTON_INFO_COUNT 117
 #define NET_MESSAGES_COUNT           8
 #define NET_MESSAGE_LEN             64
 // Sprite limits
@@ -382,6 +383,9 @@ void gui_scroll_text_down(struct GuiButton *gbtn);
 void frontend_ldcampaign_change_state(struct GuiButton *gbtn);
 void frontend_netservice_change_state(struct GuiButton *gbtn);
 void frontend_start_new_game(struct GuiButton *gbtn);
+void frontend_draw_campaign_menu_button(struct GuiButton *gbtn);
+TbBool frontend_register_click(void);
+void frontend_campaign_menu_button_maintain(struct GuiButton *gbtn);
 void frontend_load_mappacks(struct GuiButton *gbtn);
 void frontend_load_mp_mappacks(struct GuiButton *gbtn);
 void frontend_load_continue_game(struct GuiButton *gbtn);

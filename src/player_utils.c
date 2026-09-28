@@ -86,9 +86,53 @@ TbBool player_cannot_win(PlayerNumber plyr_idx)
     if (player->victory_state == VicS_LostLevel)
         return true;
     struct Thing* heartng = get_player_soul_container(player->id_number);
-    if (!thing_exists(heartng) || (heartng->active_state == ObSt_BeingDestroyed))
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    if ((!thing_exists(heartng) || (heartng->active_state == ObSt_BeingDestroyed)) && (dungeon->backup_heart_idx <= 0))
         return true;
     return false;
+}
+
+// lost, and not still in the middle of the heart exploding
+TbBool player_defeat_settled(PlayerNumber plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player->victory_state != VicS_LostLevel)
+        return false;
+    struct Thing* heartng = get_player_soul_container(plyr_idx);
+    return !(thing_exists(heartng) && (heartng->active_state == ObSt_BeingDestroyed));
+}
+
+// player dropped and is computer-controlled
+TbBool player_is_placeholder(const struct PlayerInfo *player)
+{
+    return flag_is_set(player->allocflags, PlaF_Placeholder);
+}
+
+static TbBool player_belongs_in_victory_kernel(const struct PlayerInfo *player)
+{
+    // is an undefeated human 
+    return is_active_keeper(player)
+        && player->id_number != game.neutral_player_num
+        && (player->victory_state != VicS_LostLevel)
+        && !flag_is_set(player->allocflags, PlaF_CompCtrl);
+}
+
+// check if all undefeated human players form a "kernel"
+// of complete and fully-connected mutual alliances.
+// (On non-network games this is necessarily always true.)
+TbBool human_victory_kernel_exists(void)
+{
+    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
+        if (!player_belongs_in_victory_kernel(get_player(i))) {
+            continue;
+        }
+        for (PlayerNumber j = i + 1; j < PLAYERS_COUNT; j++) {
+            if (player_belongs_in_victory_kernel(get_player(j)) && !players_are_mutual_allies(i, j)) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 void set_player_as_won_level(struct PlayerInfo *player)
@@ -434,7 +478,7 @@ long update_dungeon_generation_speeds(void)
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (player_exists(player) && (player->is_active))
+        if (is_active_keeper(player))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->total_score > max_manage_score)
@@ -850,7 +894,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         {
             player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
         }
-        if (player->is_active != 1)
+        if (!is_active_keeper(player))
         {
           ERRORLOG("Non Keeper in Keeper game");
           break;
@@ -897,8 +941,7 @@ void init_players(void)
                 player->allocflags &= ~PlaF_CompCtrl;
             if ((player->allocflags & PlaF_CompCtrl) == 0)
             {
-              game.active_players_count++;
-              player->is_active = 1;
+              game.human_players_count++;
               game.game_kind = GKind_MultiGame;
               init_player(player, 0);
             }
@@ -1180,7 +1223,7 @@ void process_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if (player_exists(player) && (player->is_active == 1))
+        if (is_active_keeper(player))
         {
             SYNCDBG(6,"Doing updates for player %d",i);
             wander_point_update(&player->wandr_within);

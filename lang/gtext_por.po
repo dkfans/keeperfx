@@ -6612,12 +6612,12 @@ msgstr "Inimigo avistou sua porta secreta"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Níveis de Jogo Livre"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Seleção de terra"
 
 #: guitext:943
@@ -7578,3 +7578,14 @@ msgstr "Conexão com o servidor perdida."
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "O jogo multijogador está fora de sincronia."
+
+#: guitext:1124
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "Campanhas"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Continuar campanha"

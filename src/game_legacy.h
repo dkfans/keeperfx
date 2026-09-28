@@ -61,6 +61,7 @@
 #include "power_process.h"
 #include "net_game.h"
 #include "packets.h"
+#include "replay.h"
 #include "sounds.h"
 #include "game_lghtshdw.h"
 #include "game_merge.h"
@@ -307,7 +308,7 @@ struct Game {
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
     int input_lag_turns;
-    char active_players_count;
+    char human_players_count;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;

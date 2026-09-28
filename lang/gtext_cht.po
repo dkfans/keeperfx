@@ -6043,15 +6043,16 @@ msgstr "敵人發現了你的秘密門"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "地城守护者"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "土地选择"
 
 #: guitext:943
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Campaigns"
 msgstr "中文版改版"
@@ -6971,3 +6972,15 @@ msgstr "與伺服器的連線已中斷。"
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "多人遊戲不同步。"
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "戰役"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "繼續戰役"

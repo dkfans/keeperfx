@@ -69,6 +69,10 @@ void frontend_campaign_select(struct GuiButton *gbtn);
 void frontend_campaign_select_update(void);
 void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn);
 void frontend_campaign_list_load(void);
+void frontend_campaign_continue_maintain(struct GuiButton *gbtn);
+void frontend_campaign_start_new_maintain(struct GuiButton *gbtn);
+void frontend_campaign_continue(struct GuiButton *gbtn);
+void frontend_campaign_start_new(struct GuiButton *gbtn);
 
 // Map pack selection screen
 void frontend_mappack_select_up(struct GuiButton *gbtn);
