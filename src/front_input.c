@@ -74,6 +74,7 @@
 #include "map_blocks.h"
 #include "local_camera.h"
 #include "packets.h"
+#include "replay.h"
 #include "console_cmd.h"
 #include "engine_redraw.h"
 #include "timer.h"
@@ -1417,7 +1418,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
         // Middle mouse camera actions for IsometricView
         if (is_game_key_pressed(Gkey_SnapCamera, true, true))
         {
-            get_snap_camera_inputs(&player->cameras[CamIV_Isometric], get_local_packet());
+            get_snap_camera_inputs(camera, get_local_packet());
             return true;
         }
     }
@@ -1430,7 +1431,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
         // Middle mouse camera actions for FrontView
         if (is_game_key_pressed(Gkey_SnapCamera, true, true))
         {
-            get_snap_camera_inputs(&player->cameras[CamIV_FrontView], get_local_packet());
+            get_snap_camera_inputs(camera, get_local_packet());
             return true;
         }
     }
@@ -3051,7 +3052,7 @@ static short get_inputs(void)
     gui_process_inputs();
     if (player->victory_state == VicS_LostLevel)
     {
-        if (player->is_active != 1)
+        if (!is_active_keeper(player))
         {
             get_level_lost_inputs();
             return true;

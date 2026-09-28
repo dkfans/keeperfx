@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "packets.h"
+#include "replay.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
 #include "net_lobby.h"
@@ -323,7 +324,7 @@ void process_pause_packet(long curr_pause, long new_pause)
   for (long i = 0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (player_exists(player) && (player->is_active == 1))
+    if (is_active_keeper(player))
     {
         if ((player->allocflags & PlaF_CompCtrl) == 0)
         {

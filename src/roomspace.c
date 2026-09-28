@@ -1374,7 +1374,7 @@ void update_roomspaces()
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < DUNGEONS_COUNT; plyr_idx++)
     {
-        if (get_player(plyr_idx)->is_active)
+        if (is_active_keeper(get_player(plyr_idx)))
         {
             keeper_update_roomspace(&get_player(plyr_idx)->roomspace);
         }

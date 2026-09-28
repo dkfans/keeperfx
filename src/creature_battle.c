@@ -196,7 +196,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
     } else
     {
         struct PlayerInfo* player = get_player(creatng->owner);
-        if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->is_active == 1) && (player->victory_state != VicS_LostLevel) )
+        if (is_active_keeper(player) && (player->victory_state != VicS_LostLevel) )
         {
             if (!is_hero_thing(creatng))
             {

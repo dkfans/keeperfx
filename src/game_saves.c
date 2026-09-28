@@ -464,8 +464,11 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             }
             break;
         case SGC_PacketHeader:
-            if (!chunk_version_ok(fhandle, &hdr, PACKET_SAVE_HEAD_VER))
-                break;
+            if (hdr.ver != PACKET_SAVE_HEAD_VER)
+            {
+                ERRORLOG("Packet file header is version %u, expected %u", (unsigned)hdr.ver, (unsigned)PACKET_SAVE_HEAD_VER);
+                return GLoad_Failed;
+            }
             if (hdr.len != sizeof(struct PacketSaveHead))
             {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
@@ -481,8 +484,11 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             }
             break;
         case SGC_PacketData:
-            if (!chunk_version_ok(fhandle, &hdr, PACKET_VER))
-                break;
+            if (hdr.ver != PACKET_VER)
+            {
+                ERRORLOG("Packet file data is version %u, expected %u", (unsigned)hdr.ver, (unsigned)PACKET_VER);
+                return GLoad_Failed;
+            }
             if (hdr.len != 0)
             {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
@@ -1001,18 +1007,13 @@ void delete_continue_link(void)
 static void update_last_file_after_save(int32_t slot_num)
 {
     int humans = 0;
-    int non_computer = 0;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (flag_is_set(player->allocflags, PlaF_OriginallyHuman))
+        if (flag_is_set(player->allocflags, PlaF_Allocated)
+          && (!flag_is_set(player->allocflags, PlaF_CompCtrl) || flag_is_set(player->allocflags, PlaF_Placeholder)))
             humans++;
-        if (flag_is_set(player->allocflags, PlaF_Allocated) && !flag_is_set(player->allocflags, PlaF_CompCtrl))
-            non_computer++;
     }
-    // saves from before PlaF_OriginallyHuman existed have no flagged player
-    if (humans == 0)
-        humans = non_computer;
     char link[SAVE_FILENAME_MAX];
     snprintf(link, sizeof(link), saved_game_filename, (int)slot_num);
     if (humans == 1)
