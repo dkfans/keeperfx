@@ -6378,12 +6378,12 @@ msgstr "Vijand heeft je geheime deur gezien"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Losse levels"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Wereld keuze"
 
 #: guitext:943
@@ -7314,3 +7314,14 @@ msgstr "Verbinding met de server verloren."
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "Multiplayer loopt niet synchroon."
+
+#: guitext:1124
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "Campagnes"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Campagne voortzetten"

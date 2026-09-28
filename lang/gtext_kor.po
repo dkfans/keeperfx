@@ -6404,15 +6404,16 @@ msgstr "적이 비밀 문을 발견했습니다."
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "레벨 자유 탐험"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "지역 선택"
 
 #: guitext:943
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Campaigns"
 msgstr "캠패인"
@@ -7361,3 +7362,15 @@ msgstr "서버 연결이 끊어졌습니다."
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "멀티플레이가 동기화되지 않았습니다."
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "캠페인"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "캠페인 계속하기"

@@ -1006,6 +1006,7 @@ static TbBool wait_at_frontend(void)
           startup_network_game(&loop, true);
           break;
     case FeSt_START_MPLEVEL:
+          memset(&intralvl, 0, sizeof(struct IntralevelData));
           set_flag(game.system_flags, GSF_NetworkActive);
           skip_high_score_screen = 1;
           game.game_kind = GKind_MultiGame;

@@ -6364,15 +6364,16 @@ msgstr "敵が秘密のドアを見つけた"
 #: guitext:941
 #, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "自由遊びのレベル"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "キャンペーン選択"
 
 #: guitext:943
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Campaigns"
 msgstr "マップ名"
@@ -7310,3 +7311,15 @@ msgstr "サーバーへの接続が失われました。"
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "マルチプレイが同期していません。"
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "キャンペーン"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "キャンペーンを続ける"

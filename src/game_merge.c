@@ -212,7 +212,7 @@ void update_extra_levels_visibility(void)
 
 struct LevelEnsignOverride *get_level_ensign_override(LevelNumber lvnum)
 {
-    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    for (int i = 0; i < ENSIGN_OVERRIDES_COUNT; i++)
     {
         struct LevelEnsignOverride *override = &intralvl.ensign_overrides[i];
         if (override->lvnum == lvnum)

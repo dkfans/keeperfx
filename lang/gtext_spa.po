@@ -6648,12 +6648,12 @@ msgstr "El enemigo descubrió tu puerta secreta"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Niveles sueltos"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Selección de campaña"
 
 #: guitext:943
@@ -7058,6 +7058,7 @@ msgid "Ancient Keeper"
 msgstr "El Guardián Antiguo"
 
 #: guitext:1014
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Burdened Imps"
 msgstr "Los Diablillos agobiados, paquete de niveles"
@@ -7608,3 +7609,14 @@ msgstr "Conexión con el servidor perdida."
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "La partida multijugador no está sincronizada."
+
+#: guitext:1124
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "Campañas"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Continuar campaña"

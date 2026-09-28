@@ -1472,20 +1472,25 @@ void set_default_mp_mappack(void)
     change_campaign(CampgnT_MultiplayerMappack, mp_mappacks_list.items[0].fname);
 }
 
-TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
+struct GameCampaign *find_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
 {
     if (clist->items == NULL || clist->items_num < 1)
     {
-        return false;
+        return NULL;
     }
     for (unsigned long i = 0; i < clist->items_num; i++)
     {
         if (strcasecmp(clist->items[i].fname,cmpgn_fname) == 0)
         {
-            return true;
+            return &clist->items[i];
         }
     }
-    return false;
+    return NULL;
+}
+
+TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
+{
+    return (find_campaign_in_list(cmpgn_fname, clist) != NULL);
 }
 
 // pure [a-z0-9_]+ id for campaign

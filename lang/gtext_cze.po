@@ -6391,12 +6391,12 @@ msgstr "Nepřítel si všiml vašich tajných dveří"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Hrát volné kola"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Volba země"
 
 #: guitext:943
@@ -7348,3 +7348,14 @@ msgstr "Připojení k serveru bylo ztraceno."
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "Hra pro více hráčů není synchronizovaná."
+
+#: guitext:1124
+msgctxt "Menu interface, Main Menu item"
+msgid "Campaigns"
+msgstr "Kampaně"
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface item"
+msgid "Continue Campaign"
+msgstr "Pokračovat v kampani"
