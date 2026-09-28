@@ -66,6 +66,14 @@ enum GameLoadStatus {
     GLoad_PacketStart,
     GLoad_PacketContinue,
 };
+
+/** Result of checking a savegame file without loading it. */
+enum SaveCheckResult {
+    SvChk_Loadable = 0,
+    SvChk_Missing,      // no file, or it can't be opened
+    SvChk_Damaged,      // truncated, or a required chunk is missing
+    SvChk_Incompatible, // made by a build with a different saved layout
+};
 /******************************************************************************/
 #pragma pack(1)
 
@@ -73,6 +81,7 @@ struct Game;
 
 enum CatalogueEntryFlags {
     CEF_InUse       = 0x0001,
+    CEF_Incompatible = 0x0002, // runtime only: set by load_game_save_catalogue()
 };
 
 // file header for game saves. Also used in packet recordings.
@@ -120,6 +129,9 @@ TbBool save_game(long slot_idx);
 TbBool initialise_load_game_slots(void);
 int count_valid_saved_games(void);
 TbBool is_save_game_loadable(long slot_num);
+enum SaveCheckResult check_save_game(long slot_num);
+TextStringId save_check_message(enum SaveCheckResult result);
+TbBool keep_unreadable_file(const char *fname);
 /******************************************************************************/
 TbBool save_catalogue_slot_disable(unsigned int slot_idx);
 TbBool load_game_save_catalogue(void);

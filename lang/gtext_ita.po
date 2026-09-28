@@ -7477,3 +7477,21 @@ msgstr "Connessione al server persa."
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "La partita multigiocatore non è sincronizzata."
+
+#: guitext:1124
+#, fuzzy
+msgctxt "Menu interface message"
+msgid "This save was made by an incompatible version and can't be loaded."
+msgstr "Questo salvataggio è stato creato da una versione incompatibile e non può essere caricato."
+
+#: guitext:1125
+#, fuzzy
+msgctxt "Menu interface message"
+msgid "This save is damaged and can't be loaded."
+msgstr "Questo salvataggio è danneggiato e non può essere caricato."
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Menu interface message"
+msgid "The save couldn't be loaded."
+msgstr "Impossibile caricare il salvataggio."

@@ -28,6 +28,7 @@
 #include "net_game.h"
 #include "game_legacy.h"
 #include "lens_api.h"
+#include "light_data.h"
 #include "lua_base.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
@@ -359,6 +360,8 @@ TbBool send_resync_game(void)
     }
 
     uint32_t lua_data_len32 = (uint32_t)lua_data_len;
+    // Light system state lives outside Game; the same as for a savegame
+    light_export_system_state(&game.lightst);
     memcpy(full_resync_data, &game, sizeof(game));
     memcpy(full_resync_data + sizeof(game), &lua_data_len32, sizeof(lua_data_len32));
     memcpy(full_resync_data + lua_data_offset, lua_data, lua_data_len);
@@ -446,6 +449,7 @@ void resync_game(void)
     }
     recall_localised_game_structure();
     reinit_level_after_load();
+    light_import_system_state(&game.lightst);
 
     game.skip_initial_input_turns = calculate_skip_input();
     initialize_packet_history();

@@ -7314,3 +7314,18 @@ msgstr "Verbinding met de server verloren."
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "Multiplayer loopt niet synchroon."
+
+#: guitext:1124
+msgctxt "Menu interface message"
+msgid "This save was made by an incompatible version and can't be loaded."
+msgstr "Dit opgeslagen spel is gemaakt met een niet-compatibele versie en kan niet worden geladen."
+
+#: guitext:1125
+msgctxt "Menu interface message"
+msgid "This save is damaged and can't be loaded."
+msgstr "Dit opgeslagen spel is beschadigd en kan niet worden geladen."
+
+#: guitext:1126
+msgctxt "Menu interface message"
+msgid "The save couldn't be loaded."
+msgstr "Het opgeslagen spel kon niet worden geladen."

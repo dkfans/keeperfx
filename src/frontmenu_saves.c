@@ -82,11 +82,20 @@ void gui_load_game(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     long slot_num = loadsave_row_slot(gbtn);
+    enum SaveCheckResult chk = check_save_game(slot_num);
+    if (chk != SvChk_Loadable)
+    {
+        // Nothing has been changed yet, so the current game carries on
+        set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
+        create_error_box(save_check_message(chk));
+        return;
+    }
     if (!load_game(slot_num))
     {
-        ERRORLOG("Loading game %d failed; quitting.", (int)slot_num);
-        // Even on quit, we still should unpause the game
+        // Part of the save was already applied, so the current game can't carry on
+        ERRORLOG("Loading game %d failed; back to the menu.", (int)slot_num);
         set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
+        frontend_load_game_failed(GUIStr_SaveLoadFailed);
         quit_game = 1;
         return;
     }
@@ -162,16 +171,21 @@ void frontend_load_game(struct GuiButton *gbtn)
     int i = frontend_load_game_button_to_index(gbtn);
     if (i < 0)
         return;
-    game.save_game_slot = i;
-    if (is_save_game_loadable(i))
+    enum SaveCheckResult chk = check_save_game(i);
+    if (chk == SvChk_Loadable)
     {
-        frontend_set_state(FeSt_LOAD_GAME);
-  } else
-  {
-    save_catalogue_slot_disable(i);
-    if (!initialise_load_game_slots())
-      frontend_set_state(FeSt_MAIN_MENU);
-  }
+        frontend_start_load_game(i);
+    } else
+    if (chk == SvChk_Missing)
+    {
+        save_catalogue_slot_disable(i);
+        if (!initialise_load_game_slots())
+            frontend_set_state(FeSt_MAIN_MENU);
+    } else
+    {
+        set_flag(save_game_catalogue[i].flags, CEF_Incompatible);
+        create_frontend_error_box(0, get_string(save_check_message(chk)));
+    }
 }
 
 void frontend_draw_load_game_button(struct GuiButton *gbtn)
@@ -181,6 +195,8 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
         return;
     // Select font to draw
     int font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
+    if ((save_game_catalogue[i].flags & CEF_Incompatible) != 0)
+        font_idx = 3;
     LbTextSetFont(frontend_font[font_idx]);
     RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     // Set drawing window and draw the text

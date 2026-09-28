@@ -416,6 +416,9 @@ short old_menu_mouse_y;
 unsigned char menu_ids[3];
 unsigned char new_objective;
 int frontend_menu_state;
+/** Menu the player was in when they started loading a saved game. */
+static FrontendMenuState load_game_menu_state = FeSt_FELOAD_GAME;
+static TbBool load_game_failed = false;
 int skip_high_score_screen;
 int load_game_scroll_offset;
 unsigned char video_gamma_correction;
@@ -2642,7 +2645,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           if (!continue_game_option_available)
           {
               char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
-              LbFileDelete(fname);
+              keep_unreadable_file(fname);
           }
           if (!is_campaign_loaded()) {
               change_campaign(CampgnT_Default,"");
@@ -3676,6 +3679,12 @@ FrontendMenuState get_startup_menu_state(void)
   struct PlayerInfo *player;
   struct UserState *ustate = get_user_state(get_local_user());
   LevelNumber lvnum;
+  if (load_game_failed)
+  {
+      load_game_failed = false;
+      SYNCLOG("Failed load; back to the menu it started from");
+      return load_game_menu_state;
+  }
   if (game_flags2 & GF2_Server)
   {
       game_flags2 &= ~GF2_Server;
@@ -3801,6 +3810,25 @@ FrontendMenuState get_startup_menu_state(void)
   }
   ERRORLOG("Unresolved menu state");
   return FeSt_MAIN_MENU;
+}
+
+void frontend_start_load_game(long slot_num)
+{
+    game.save_game_slot = slot_num;
+    load_game_menu_state = frontend_menu_state;
+    frontend_set_state(FeSt_LOAD_GAME);
+}
+
+/**
+ * Called when a load has failed, before the frontend is entered again: the
+ * frontend opens on the menu the load started from, showing the message.
+ */
+void frontend_load_game_failed(TextStringId msg_idx)
+{
+    load_game_failed = true;
+    // Shown by try_restore_frontend_error_box() once the frontend is up
+    snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", get_string(msg_idx));
+    gui_message_timeout = -1;
 }
 
 void try_restore_frontend_error_box()
