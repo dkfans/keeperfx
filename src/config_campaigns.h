@@ -167,7 +167,7 @@ struct LevelInformation {
   unsigned short location;
   int mapsize_x;
   int mapsize_y;  
-  char intro_desc_key[LINEMSG_SIZE];  
+  char intro_desc_id[LINEMSG_SIZE];  
   struct LevelDescriptionGeo *level_description_geo;
 };
 

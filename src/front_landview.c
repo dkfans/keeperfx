@@ -147,12 +147,12 @@ static void landview_populate_textbox_values(LevelNumber lvnum){
         return;
     landview_textbox_lvnum = lvnum;
 
-    const TextStringId lv_intro_desc_key = get_string_id_by_alias(lvinfo->intro_desc_key);
+    const TextStringId lv_intro_desc_id = get_string_id_by_alias(lvinfo->intro_desc_id);
     const char* lv_name = (lvinfo->name_stridx > 0) ? get_string(lvinfo->name_stridx) : lvinfo->name;
     const char* lv_description;
 
-    if(lv_intro_desc_key >= 0){
-        lv_description = get_string(lv_intro_desc_key);
+    if(lv_intro_desc_id >= 0){
+        lv_description = get_string(lv_intro_desc_id);
         landview_set_text(lv_description);        
         
         int32_t width;

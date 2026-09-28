@@ -105,7 +105,7 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"DATE",               12},
   {"MAPSIZE",            13},
   {"MAP_FORMAT_VERSION", 14},
-  {"INTRO_DESC_KEY",     15},
+  {"INTRO_DESC_ID",     15},
   {"DESCRIPTION_GEO",    16},  
   {NULL,                  0},
   };
@@ -713,8 +713,11 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           }
           break;
       case 23: // SHOW_DESCRIPTION
-          i = get_conf_parameter_whole(buf,&pos,len,word_buf,sizeof(word_buf));          
-          campgn->show_level_description = i == 1;
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);          
+            campgn->show_level_description = k == 1;
+          }
           break;
       case 24: // DESCRIPTION_GEO
           campgn->level_description_geo = malloc(sizeof(struct LevelDescriptionGeo));
@@ -1094,8 +1097,8 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;            
-        case 15: // INTRO_DESC_KEY
-            if (get_conf_parameter_whole(buf,&pos,len,lvinfo->intro_desc_key,LINEMSG_SIZE) <= 0)
+        case 15: // INTRO_DESC_ID
+            if (get_conf_parameter_whole(buf,&pos,len,lvinfo->intro_desc_id,LINEMSG_SIZE) <= 0)
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
