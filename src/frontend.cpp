@@ -3846,6 +3846,23 @@ void frontend_draw_error_text_box(struct GuiButton *gbtn)
     draw_text_box(gbtn->content.str);
 }
 
+static TbClockMSec last_click_time = 0;
+static int32_t last_click_x = -1;
+static int32_t last_click_y = -1;
+
+// returns true if this click is the second of a double-click (same mouse position)
+TbBool frontend_register_click(void)
+{
+    TbClockMSec now = LbTimerClock();
+    int32_t x = GetMouseX();
+    int32_t y = GetMouseY();
+    TbBool double_click = (last_click_x == x) && (last_click_y == y) && (now - last_click_time <= DOUBLE_CLICK_MS);
+    last_click_x = x;
+    last_click_y = y;
+    last_click_time = double_click ? 0 : now;
+    return double_click;
+}
+
 void frontend_maintain_error_text_box(struct GuiButton *gbtn)
 {
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {

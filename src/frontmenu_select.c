@@ -320,6 +320,12 @@ void frontend_campaign_select(struct GuiButton *gbtn)
         return;
     campaign_selected_idx = i;
     campaign_selected_has_progress = campaign_progress_exists(campgn);
+    if (!frontend_register_click())
+        return;
+    if (campaign_selected_has_progress)
+        frontend_campaign_continue(gbtn);
+    else
+        frontend_campaign_start_new(gbtn);
 }
 
 void frontend_campaign_select_update(void)
