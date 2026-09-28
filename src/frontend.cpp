@@ -314,8 +314,8 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuOptions, 0},
     {GUIStr_MnuOptions, 1},
     {GUIStr_MnuRetToOptions, 1},
-    {GUIStr_MnuSoundOptions, 1},
-    {GUIStr_MouseOptions, 1}, // [100]
+    {GUIStr_MnuSoundOptions, 2},
+    {GUIStr_MouseOptions, 2}, // [100]
     {GUIStr_Sensitivity, 1},
     {GUIStr_MnuInvertMouse, 1},
     {GUIStr_MnuComputer, 1},
@@ -332,6 +332,7 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuReturnToLobby, 1},
     {GUIStr_MnuContinueCampaign, 1}, // [115]
     {GUIStr_MnuStartNewGame, 1},
+    {GUIStr_NetConfirm, 1},
 };
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
@@ -586,7 +587,9 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
         if ((str[0] != '\0') || (modifiers == -3))
         {
             gbtn->button_state_left_pressed = 0;
-            (gbtn->click_event)(gbtn);
+            if (gbtn->click_event != NULL) {
+                gbtn->click_event(gbtn);
+            }
             input_button = 0;
             LbStopTextInput();
             if ((gbtn->flags & LbBtnF_Clickable) != 0)
@@ -1180,14 +1183,11 @@ void frontend_set_player_number(long plr_num)
 
 const char *frontend_button_caption_text(const struct GuiButton *gbtn)
 {
-    unsigned long febtn_idx;
-    int text_idx;
-    febtn_idx = gbtn->content.lval;
-    if (febtn_idx < FRONTEND_BUTTON_INFO_COUNT)
-        text_idx = frontend_button_info[febtn_idx].capstr_idx;
-    else
-        text_idx = GUIStr_Empty;
-    return get_string(text_idx);
+    int32_t index = gbtn->content.lval;
+    if (index < 0 || index >= FRONTEND_BUTTON_INFO_COUNT) {
+        return get_string(GUIStr_Empty);
+    }
+    return get_string(frontend_button_info[index].capstr_idx);
 }
 
 int frontend_button_caption_font(const struct GuiButton *gbtn, long mouse_over_btn_idx)
@@ -1302,8 +1302,10 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
 
 void frontend_draw_mp_mappack(struct GuiButton *gbtn)
 {
-    int font_idx;
-    font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
+    int font_idx = 1;
+    if (frontend_mouse_over_button == gbtn->content.lval) {
+        font_idx = 2;
+    }
     LbTextSetFont(frontend_font[font_idx]);
     const char *text;
     text = campaign.display_name;
@@ -2858,6 +2860,11 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
         frontend_menu_state, menu_state_str(frontend_menu_state),
         nstate, menu_state_str(nstate));
     frontend_menu_state = frontend_setup_state(nstate);
+    if (frontend_menu_state == FeSt_NETLAND_VIEW) {
+        net_lobby_set_phase(NetPhase_InLandview);
+    } else if (frontend_menu_state == FeSt_NET_START) {
+        net_lobby_set_phase(NetPhase_Lobby);
+    }
     return frontend_menu_state;
 }
 

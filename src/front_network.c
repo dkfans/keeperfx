@@ -66,6 +66,7 @@ const char *keeper_netconf_file = "fxconfig.net";
 const struct ConfigInfo default_net_config_info = {
     "",
     "Player",
+    "",
 };
 
 int fe_network_active;
@@ -140,6 +141,7 @@ TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
         return false;
     }
     set_selected_level_number(lvnum);
+    LbNetwork_EnableNewPlayers(0);
     fe_network_active = 1;
     frontend_set_state(FeSt_START_MPLEVEL);
     return true;
@@ -302,94 +304,60 @@ void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
     }
 }
 
+static int compare_lobbies(const void *left, const void *right)
+{
+    const struct TbNetworkSessionNameEntry *a = *(const struct TbNetworkSessionNameEntry *const *)left;
+    const struct TbNetworkSessionNameEntry *b = *(const struct TbNetworkSessionNameEntry *const *)right;
+    int incompatible = net_session_incompatible(a) - net_session_incompatible(b);
+    if (incompatible) {
+        return incompatible;
+    }
+    int phase = (a->phase == NetPhase_InGame) - (b->phase == NetPhase_InGame);
+    if (phase) {
+        return phase;
+    }
+    int name = strcmp(a->text, b->text);
+    if (name) {
+        return name;
+    }
+    return strcmp(a->join_address, b->join_address);
+}
+
 void frontnet_session_update(void)
 {
-    static long last_enum_players = 0;
-    static long last_enum_sessions = 0;
-
-    if (LbTimerClock() >= last_enum_sessions)
-    {
-      net_number_of_sessions = 0;
-      memset(net_session, 0, sizeof(net_session));
-      if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
-        ERRORLOG("LbNetwork_EnumerateSessions() failed");
-      if (frontnet_service_selected(FrontendNetSvc_LAN))
-      {
-          lan_refresh_sessions();
-          for (int i = 0; i < lan_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++)
-              net_session[net_number_of_sessions++] = &lan_sessions[i];
-      }
-      if (frontnet_service_selected(FrontendNetSvc_Online))
-      {
-          matchmaking_refresh_sessions();
-          for (int i = 0; i < matchmaking_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++)
-              net_session[net_number_of_sessions++] = &matchmaking_sessions[i];
-      }
-      last_enum_sessions = LbTimerClock();
-
-      if (net_number_of_sessions == 0)
-      {
-        net_session_index_active = -1;
-        net_session_index_active_id = -1;
-      } else
-      if (net_session_index_active != -1)
-      {
-          if ((net_session_index_active >= net_number_of_sessions)
-            || (!net_session[net_session_index_active]->joinable))
-          {
-            net_session_index_active = -1;
-            for (long i = 0; i < net_number_of_sessions; i++)
-            {
-              if (net_session[i]->joinable)
-              {
-                net_session_index_active = i;
-                break;
-              }
-            }
-          }
-          if (net_session_index_active == -1)
-            net_session_index_active_id = -1;
-      }
+    char selected[SESSION_LOBBY_ID_MAX_LEN] = "";
+    char selected_name[SESSION_NAME_MAX_LEN] = "";
+    if (net_session_index_active >= 0 && net_session_index_active < net_number_of_sessions) {
+        snprintf(selected, sizeof(selected), "%s", net_session[net_session_index_active]->join_address);
+        snprintf(selected_name, sizeof(selected_name), "%s", net_session[net_session_index_active]->text);
     }
-
-    if ((net_number_of_sessions == 0) || (net_session_scroll_offset < 0))
-    {
-      net_session_scroll_offset = 0;
-    } else
-    if (net_session_scroll_offset > net_number_of_sessions-1)
-    {
-      net_session_scroll_offset = net_number_of_sessions-1;
+    net_number_of_sessions = 0;
+    memset(net_session, 0, sizeof(net_session));
+    LbNetwork_EnumerateSessions(enum_sessions_callback, NULL);
+    if (frontnet_service_selected(FrontendNetSvc_LAN)) {
+        lan_refresh_sessions();
+        for (int i = 0; i < lan_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++) {
+            net_session[net_number_of_sessions++] = &lan_sessions[i];
+        }
     }
-
-    if (net_session_index_active == -1)
-    {
-      net_number_of_enum_players = 0;
-    } else
-    if (LbTimerClock() >= last_enum_players)
-    {
-      net_number_of_enum_players = 0;
-      memset(net_player, 0, sizeof(net_player));
-      if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
-      {
-        net_session_index_active = -1;
-        net_session_index_active_id = -1;
-        return;
-      }
-      last_enum_players = LbTimerClock();
+    if (frontnet_service_selected(FrontendNetSvc_Online)) {
+        matchmaking_service();
+        matchmaking_refresh_sessions();
+        for (int i = 0; i < matchmaking_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++) {
+            net_session[net_number_of_sessions++] = &matchmaking_sessions[i];
+        }
     }
-
-    if (net_number_of_enum_players == 0)
-    {
-      net_player_scroll_offset = 0;
-    } else
-    if (net_player_scroll_offset < 0)
-    {
-      net_player_scroll_offset = 0;
-    } else
-    if (net_player_scroll_offset > net_number_of_enum_players-1)
-    {
-      net_player_scroll_offset = net_number_of_enum_players-1;
+    qsort(net_session, net_number_of_sessions, sizeof(net_session[0]), compare_lobbies);
+    net_session_index_active = -1;
+    net_session_index_active_id = -1;
+    for (int i = 0; i < net_number_of_sessions; i++) {
+        if ((selected[0] && strcmp(selected, net_session[i]->join_address) == 0) || (!selected[0] && selected_name[0] && strcmp(selected_name, net_session[i]->text) == 0)) {
+            net_session_index_active = i;
+            net_session_index_active_id = net_session[i]->id;
+            break;
+        }
     }
+    net_session_scroll_offset = max(0, min(net_session_scroll_offset, net_number_of_sessions - frontend_sessions_menu_items_visible));
 }
 
 static TbBool check_frontend_version_mismatch(void)
@@ -603,9 +571,7 @@ void frontnet_start_update(void)
     }
     process_frontend_packets();
 
-    if (frontnet_service_selected(FrontendNetSvc_LAN)) {
-        lan_host_update();
-    }
+
 }
 
 void display_attempting_to_join_message(int remaining_s)
@@ -642,14 +608,15 @@ void net_load_config_file(void)
     // Try to load the config file
     char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (handle)
-    {
-      if (LbFileRead(handle, &net_config_info, sizeof(net_config_info)) == sizeof(net_config_info))
-      {
+    if (handle) {
+        memset(&net_config_info, 0, sizeof(net_config_info));
+        int32_t read_size = LbFileRead(handle, &net_config_info, sizeof(net_config_info));
         LbFileClose(handle);
-        return;
-      }
-      LbFileClose(handle);
+        if (read_size == sizeof(net_config_info) || read_size == sizeof(net_config_info) - sizeof(net_config_info.net_lobby_name)) {
+            net_config_info.net_player_name[sizeof(net_config_info.net_player_name) - 1] = '\0';
+            net_config_info.net_lobby_name[sizeof(net_config_info.net_lobby_name) - 1] = '\0';
+            return;
+        }
     }
     // If can't load, then use default config
     memcpy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
