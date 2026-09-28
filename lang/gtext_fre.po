@@ -6631,12 +6631,12 @@ msgstr "L'ennemi a repéré votre porte secrète"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Jeu Libre"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Sélection de Cartes"
 
 #: guitext:943
@@ -7604,10 +7604,9 @@ msgid "Multiplayer is out of sync."
 msgstr "La partie multijoueur n'est plus synchronisée."
 
 #: guitext:1124
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Campaign"
-msgstr "Campagne"
+msgid "Campaigns"
+msgstr "Campagnes"
 
 #: guitext:1125
 #, fuzzy

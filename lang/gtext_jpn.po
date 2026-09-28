@@ -6364,15 +6364,16 @@ msgstr "敵が秘密のドアを見つけた"
 #: guitext:941
 #, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "自由遊びのレベル"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "キャンペーン選択"
 
 #: guitext:943
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Campaigns"
 msgstr "マップ名"
@@ -7314,7 +7315,7 @@ msgstr "マルチプレイが同期していません。"
 #: guitext:1124
 #, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Campaign"
+msgid "Campaigns"
 msgstr "キャンペーン"
 
 #: guitext:1125

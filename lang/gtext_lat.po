@@ -6422,12 +6422,12 @@ msgstr "Hostis ostium secretum tuum conspexit"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Libellae independentes"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Selectio terrae"
 
 #: guitext:943
@@ -7379,10 +7379,9 @@ msgid "Multiplayer is out of sync."
 msgstr "Multiplayer spēle nav sinhronizēta."
 
 #: guitext:1124
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Campaign"
-msgstr "Expeditio"
+msgid "Campaigns"
+msgstr "Expeditiones"
 
 #: guitext:1125
 #, fuzzy

@@ -5832,12 +5832,12 @@ msgstr "Враг заметил Вашу потайную дверь"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Одиночные карты"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Выбор уровня"
 
 #: guitext:943
@@ -6749,10 +6749,9 @@ msgid "Multiplayer is out of sync."
 msgstr "Сетевая игра рассинхронизирована."
 
 #: guitext:1124
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Campaign"
-msgstr "Кампания"
+msgid "Campaigns"
+msgstr "Кампании"
 
 #: guitext:1125
 #, fuzzy

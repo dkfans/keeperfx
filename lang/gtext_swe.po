@@ -6420,12 +6420,12 @@ msgstr "Fienden har upptäckt din hemliga dörr"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Fria Spel-världar"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Landsval"
 
 #: guitext:943
@@ -7377,10 +7377,9 @@ msgid "Multiplayer is out of sync."
 msgstr "Flerspelarläget är osynkroniserat."
 
 #: guitext:1124
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Campaign"
-msgstr "Kampanj"
+msgid "Campaigns"
+msgstr "Kampanjer"
 
 #: guitext:1125
 #, fuzzy

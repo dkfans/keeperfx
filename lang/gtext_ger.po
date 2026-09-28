@@ -6666,12 +6666,12 @@ msgstr "Der Feind hat Eure Geheimtür entdeckt"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Levels zum freien Spielen"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Karten-Auswahl"
 
 #: guitext:943
@@ -7632,10 +7632,9 @@ msgid "Multiplayer is out of sync."
 msgstr "Das Mehrspielerspiel ist nicht mehr synchron."
 
 #: guitext:1124
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Campaign"
-msgstr "Kampagne"
+msgid "Campaigns"
+msgstr "Kampagnen"
 
 #: guitext:1125
 #, fuzzy

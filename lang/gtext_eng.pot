@@ -5059,12 +5059,12 @@ msgstr ""
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr ""
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr ""
 
 #: guitext:943
@@ -5944,7 +5944,7 @@ msgstr ""
 
 #: guitext:1124
 msgctxt "Menu interface, Main Menu item"
-msgid "Campaign"
+msgid "Campaigns"
 msgstr ""
 
 #: guitext:1125

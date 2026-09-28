@@ -6494,16 +6494,17 @@ msgstr "Il nemico ha individuato la vostra porta segreta"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr ""
 
 #: guitext:942
 #, fuzzy
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Selezione terra"
 
 #: guitext:943
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Campaigns"
 msgstr "Campaigne"
@@ -7481,8 +7482,8 @@ msgstr "La partita multigiocatore non è sincronizzata."
 #: guitext:1124
 #, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Campaign"
-msgstr "Campagna"
+msgid "Campaigns"
+msgstr "Campagne"
 
 #: guitext:1125
 #, fuzzy

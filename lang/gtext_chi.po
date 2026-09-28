@@ -6047,12 +6047,12 @@ msgstr "敌人发现了你的暗门"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "更深的地下城"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "选择关卡"
 
 #: guitext:943
@@ -6979,9 +6979,8 @@ msgid "Multiplayer is out of sync."
 msgstr "多人游戏不同步。"
 
 #: guitext:1124
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Campaign"
+msgid "Campaigns"
 msgstr "战役"
 
 #: guitext:1125

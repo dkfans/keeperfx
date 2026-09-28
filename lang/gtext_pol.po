@@ -6508,12 +6508,12 @@ msgstr "Wróg wykrył twoje tajne drzwi"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
-msgid "Free Play levels"
+msgid "Free Play Levels"
 msgstr "Odrębne poziomy"
 
 #: guitext:942
 msgctxt "Menu interface item"
-msgid "Land selection"
+msgid "Land Selection"
 msgstr "Lista krain"
 
 #: guitext:943
@@ -7466,10 +7466,9 @@ msgid "Multiplayer is out of sync."
 msgstr "Gra wieloosobowa nie jest zsynchronizowana."
 
 #: guitext:1124
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
-msgid "Campaign"
-msgstr "Kampania"
+msgid "Campaigns"
+msgstr "Kampanie"
 
 #: guitext:1125
 #, fuzzy
