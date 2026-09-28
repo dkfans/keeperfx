@@ -43,6 +43,7 @@ extern "C" {
 /******************************************************************************/
 #define PACKET_TURN_MAX_SIZE (MAX_NET_USERS*sizeof(struct Packet) + sizeof(TbBigChecksum))
 unsigned long initial_replay_seed;
+static TbBool replay_playback_paused;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool get_skip_heart_zoom_feature(void);
@@ -596,6 +597,7 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
     game.packet_file_pos = LbFilePosition(game.packet_save_fp);
     reset_packet_codec();
     game.turns_stored = count_stored_turns();
+    replay_playback_paused = false;
     if ((game.packet_checksum_verify) && !flag_is_set(game.packet_save_head.flags, PSHF_Checksum))
     {
         WARNMSG("PacketSave checksum not available, checking disabled.");
@@ -764,6 +766,20 @@ short save_packets(void)
         }
     }
     return true;
+}
+
+TbBool replay_playback_is_paused(void)
+{
+    return game.packet_load_enable && replay_playback_paused;
+}
+
+void set_replay_playback_paused(TbBool paused)
+{
+    if (paused == replay_playback_paused)
+        return;
+    replay_playback_paused = paused;
+    process_pause_packet(paused, 0);
+    set_flag_value(game.operation_flags, GOF_Paused, paused);
 }
 
 void stop_replay_recording(const char *reason)

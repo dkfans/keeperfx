@@ -77,6 +77,8 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
 void close_packet_file(void);
 void stop_replay_recording(const char *reason);
+TbBool replay_playback_is_paused(void);
+void set_replay_playback_paused(TbBool paused);
 TbBool reinit_packets_after_load(void);
 void disable_packet_mode(void);
 /******************************************************************************/

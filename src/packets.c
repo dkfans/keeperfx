@@ -802,7 +802,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       }
       return 1;
   case PckA_SwitchScrnRes:
-      if (is_my_player(player))
+      if (is_my_player(player) && !game.packet_load_enable)
       {
           switch_to_next_video_mode_wrapper();
       }
@@ -818,14 +818,14 @@ TbBool process_user_global_packet_action(NetUserId user)
       }
       return 0;
   case PckA_ChangeWindowSize:
-      if (is_my_player(player))
+      if (is_my_player(player) && !game.packet_load_enable)
       {
         change_engine_window_relative_size(pckt->actn_par1, pckt->actn_par2);
         centre_engine_window();
       }
       return 0;
   case PckA_SetGammaLevel:
-      if (is_my_player(player))
+      if (is_my_player(player) && !game.packet_load_enable)
       {
         set_gamma(pckt->actn_par1, 1);
         save_settings();
@@ -1696,7 +1696,8 @@ void exchange_packets(void)
 void process_packets(void)
 {
     // Write packets into file, if requested
-    if ((game.packet_save_enable) && (game.packet_fopened)) {
+    // Paused frames don't advance the world; the replay unpauses itself on the next saved frame.
+    if ((game.packet_save_enable) && (game.packet_fopened) && !flag_is_set(game.operation_flags, GOF_Paused)) {
         save_packets();
     }
     //Debug code, to find packet errors

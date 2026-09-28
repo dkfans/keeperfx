@@ -744,6 +744,28 @@ static void get_replay_freecam_inputs(void)
 
 static short get_packet_load_game_control_inputs(void)
 {
+  if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+  {
+    const unsigned char view_type = get_local_view_type(get_my_player());
+    const TbBool possessed = (view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr);
+    if (a_menu_window_is_active())
+    {
+      clear_key_pressed(KC_ESCAPE);
+      turn_off_all_window_menus();
+      return true;
+    }
+    if (replay_camera_detached() || !possessed)
+    {
+      clear_key_pressed(KC_ESCAPE);
+      turn_on_menu(GMnu_QUIT);
+      return true;
+    }
+  }
+  if (a_menu_window_is_active())
+  {
+    get_gui_inputs(1);
+    return true;
+  }
   if (is_game_key_pressed(Gkey_ToggleGui, true, true))
   {
     if (replay_camera_detached())
@@ -2748,8 +2770,18 @@ static void get_map_nonaction_inputs(void)
 
 static short get_packet_load_game_inputs(void)
 {
-    load_packets_for_turn(game.pckt_gameturn);
-    game.pckt_gameturn++;
+    set_replay_playback_paused(a_menu_window_is_active());
+    if (replay_playback_is_paused())
+    {
+        clear_packets();
+    } else
+    {
+        if (flag_is_set(game.operation_flags, GOF_Paused))
+            process_pause_packet(0, 0);
+        clear_flag(game.operation_flags, GOF_Paused);
+        load_packets_for_turn(game.pckt_gameturn);
+        game.pckt_gameturn++;
+    }
     if (!get_packet_load_game_control_inputs())
         get_replay_freecam_inputs();
     if (get_speed_control_inputs())
