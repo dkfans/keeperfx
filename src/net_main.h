@@ -20,6 +20,7 @@
 #define DK_NET_MAIN_H
 
 #include "bflib_basics.h"
+#include "bflib_netsession.h"
 #include "ver_defs.h"
 
 #ifdef __cplusplus
@@ -66,7 +67,7 @@ enum NetMessageType {
     NETMSG_GAMEPLAY_TURN_SYNC,
 };
 
-typedef TbBool (*NetNewUserCallback)(NetUserId *assigned_id);
+typedef enum NetJoinRejection (*NetNewUserCallback)(NetUserId *assigned_id);
 typedef void (*NetDropCallback)(NetUserId id, enum NetDropReason reason);
 
 struct NetSP
@@ -81,7 +82,7 @@ struct NetSP
     void (*sendmsg_all)(const char *buffer, size_t size);
     size_t (*msgready)(NetUserId source, unsigned timeout);
     size_t (*readmsg)(NetUserId source, char *buffer, size_t max_size);
-    void (*drop_user)(NetUserId id);
+    void (*drop_user)(NetUserId id, enum NetJoinRejection reason);
 };
 
 enum NetUserProgress {
@@ -123,6 +124,7 @@ struct NetState {
     char msg_buffer[NET_MSG_BUFFER_SIZE];
     char msg_buffer_null;
     TbBool locked;
+    enum NetSessionPhase phase;
 };
 
 struct TbNetworkUserInfo {
@@ -155,7 +157,7 @@ static inline TbBool net_versions_match(const struct GameVersionPacket *version_
 }
 
 TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkUserInfo *locplayr, struct ServiceInitData *init_data);
-TbBool OnNewUser(NetUserId *assigned_id);
+enum NetJoinRejection OnNewUser(NetUserId *assigned_id);
 void OnDroppedUser(NetUserId id, enum NetDropReason reason);
 TbBool IsUserActive(NetUserId id);
 int32_t GetRemoteUserCount(void);

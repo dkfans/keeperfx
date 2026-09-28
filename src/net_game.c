@@ -371,6 +371,9 @@ TbBool init_players_network_game(void)
         build_local_startup_sync();
         initialized = net_startup_sync_exchange_and_apply();
     }
+    if (initialized) {
+        net_lobby_set_phase(NetPhase_InGame);
+    }
     if (initialized && netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
         LevelNumber map_number = get_level_number();
         struct LevelInformation *level_info = get_level_info(map_number);
@@ -381,7 +384,7 @@ TbBool init_players_network_game(void)
                 map_name = get_string(level_info->name_stridx);
             }
         }
-        matchmaking_finish_lobby(MMLobbyResult_Started, (int)map_number, map_name);
+        matchmaking_start_game((int)map_number, map_name);
     }
     if (!initialized) {
         LbNetwork_Stop();
@@ -681,6 +684,7 @@ void process_disconnected_network_players(void)
 long network_session_join(void)
 {
     int32_t plyr_num;
+    net_join_rejection = NetJoin_Accepted;
     reset_attempting_to_join_cancel();
     display_attempting_to_join_message(-1);
     if (attempting_to_join_cancel_requested())
@@ -695,7 +699,12 @@ long network_session_join(void)
             net_session_index_active_id = -1;
             matchmaking_request_list();
         }
-        process_network_error(-802);
+        const char *error = net_join_error_text(net_join_rejection);
+        if (error) {
+            create_frontend_error_box(5000, error);
+        } else {
+            process_network_error(-802);
+        }
     }
     return -1;
 }
