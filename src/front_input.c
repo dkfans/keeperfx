@@ -636,9 +636,17 @@ static void get_snap_camera_inputs(const struct Camera *cam, struct Packet *pckt
     set_packet_action(pckt, PckA_SetMapRotation, angle, 0, 0, 0);
 }
 
+static TbBool wheel_reserved_by_menu(void)
+{
+    return menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE)
+        || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE);
+}
+
 static TbBool replay_camera_keys_pressed(void)
 {
     static const long keys[] = {Gkey_ZoomIn, Gkey_ZoomOut, Gkey_TiltUp, Gkey_TiltDown, Gkey_TiltReset};
+    if ((wheel_scrolled_up || wheel_scrolled_down) && !wheel_reserved_by_menu())
+        return true;
     if ((get_game_key_axis_value(Gkey_MoveLeft, true) != 0.0f) || (get_game_key_axis_value(Gkey_MoveRight, true) != 0.0f)
      || (get_game_key_axis_value(Gkey_MoveUp, true) != 0.0f) || (get_game_key_axis_value(Gkey_MoveDown, true) != 0.0f))
         return true;
@@ -707,21 +715,29 @@ static void get_replay_freecam_inputs(void)
         replay_freecam_set_map(true);
         return;
     }
-    if (get_dungeon_small_map_inputs(get_freecam_packet()))
+    struct Packet* fpckt = get_freecam_packet();
+    struct Coord3d pos;
+    if (screen_to_map(camera, my_mouse_x, my_mouse_y, &pos))
+        set_players_packet_position(fpckt, pos.x.val, pos.y.val, 0);
+    if (zoom_to_mouse_option == ZoomToMouse_Always)
+        set_packet_control(fpckt, PCtr_ViewZoomPos);
+    if (rotate_around_mouse_option == RotateAroundMouse_Always)
+        set_packet_control(fpckt, PCtr_ViewRotatePos);
+    if (get_dungeon_small_map_inputs(fpckt))
         return;
     if (is_game_key_pressed(Gkey_SnapCamera, true, true))
     {
-        get_snap_camera_inputs(camera, get_freecam_packet());
+        get_snap_camera_inputs(camera, fpckt);
         return;
     }
     switch (camera->view_mode)
     {
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
-        get_isometric_view_nonaction_inputs(get_freecam_packet());
+        get_isometric_view_nonaction_inputs(fpckt);
         break;
     case PVM_FrontView:
-        get_front_view_nonaction_inputs(get_freecam_packet());
+        get_front_view_nonaction_inputs(fpckt);
         break;
     }
 }
@@ -2281,8 +2297,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials, and
     // for the in-game Load/Save menus (there the wheel scrolls the savegame list).
-    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE)
-        || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE) || rotate_pressed || mods_used) == 0)
+    if (!wheel_reserved_by_menu() && !rotate_pressed && !mods_used)
     {
         // mouse scroll zoom unaffected by frameskip
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
