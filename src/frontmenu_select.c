@@ -38,8 +38,6 @@
 #include "kjm_input.h"
 #include "keeperfx.hpp"
 #include "highscores.h"
-#include "custom_sprites.h"
-#include "sprites.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -52,7 +50,8 @@ int frontend_select_level_items_visible = 0;
 int frontend_select_campaign_items_visible = 0;
 int frontend_select_mappack_items_visible = 0;
 int frontend_select_mp_mappack_items_visible = 0;
-static int32_t campaign_start_idx = -1;
+static int32_t campaign_selected_idx = -1;
+static TbBool campaign_selected_has_progress = false;
 /******************************************************************************/
 void frontend_level_select_up(struct GuiButton *gbtn)
 {
@@ -280,12 +279,9 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
     struct GameCampaign* campgn = campaign_select_item(i);
     if (campgn == NULL)
       return;
-    if ((btn_idx > 0) && (frontend_mouse_over_button == btn_idx))
+    if (((btn_idx > 0) && (frontend_mouse_over_button == btn_idx)) || (i == campaign_selected_idx))
       i = 2;
     else
-/*    if (campaign has been passed)
-      i = 3;
-    else*/
       i = 1;
     RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     LbTextSetFont(frontend_font[i]);
@@ -310,18 +306,8 @@ void frontend_campaign_select(struct GuiButton *gbtn)
     struct GameCampaign* campgn = campaign_select_item(i);
     if (campgn == NULL)
         return;
-    if (campaign_progress_exists(campgn))
-    {
-        campaign_start_idx = i;
-        frontend_set_state(FeSt_CAMPAIGN_START);
-        return;
-    }
-    if (!frontend_start_new_campaign(campgn->fname))
-    {
-        ERRORLOG("Unable to start new campaign");
-        return;
-    }
-    frontend_set_state(FeSt_CAMPAIGN_INTRO);
+    campaign_selected_idx = i;
+    campaign_selected_has_progress = campaign_progress_exists(campgn);
 }
 
 void frontend_campaign_select_update(void)
@@ -360,41 +346,32 @@ void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn)
     frontend_draw_scroll_tab(gbtn, select_campaign_scroll_offset, frontend_select_campaign_items_visible-2, campaign_select_count());
 }
 
-void frontend_draw_campaign_start_title(struct GuiButton *gbtn)
+void frontend_campaign_continue_maintain(struct GuiButton *gbtn)
 {
-    struct GameCampaign *campgn = campaign_select_item(campaign_start_idx);
-    const char *text = (campgn != NULL) ? campgn->display_name : "";
-    int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
-    LbTextSetFont(frontend_font[frontend_button_caption_font(gbtn, frontend_mouse_over_button)]);
-    // use the normal size title when the text fits in it
-    struct GuiButton btn = *gbtn;
-    int32_t narrow_w = gbtn->width * 371 / 495;
-    int btntype = 2;
-    if (LbTextStringWidthM(text, units_per_px) <= narrow_w - 40 * units_per_px / 16)
-    {
-        btn.scr_pos_x += (gbtn->width - narrow_w) / 2;
-        btn.width = narrow_w;
-        btntype = 1;
-    }
-    frontend_draw_button(&btn, btntype, NULL, Lb_TEXT_HALIGN_CENTER);
-    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
-    int h = LbTextHeight(text) * units_per_px / 16;
-    int x = btn.scr_pos_x + 20 * units_per_px / 16;
-    int y = btn.scr_pos_y + (get_frontend_sprite(GFS_hugebutton_a05l)->SHeight * units_per_px / 16 - h) / 2 - units_per_px / 16;
-    LbTextSetWindow(x, y, btn.width - 40 * units_per_px / 16, h);
-    LbTextDrawResized(0, 0, units_per_px, text);
+    if ((campaign_select_item(campaign_selected_idx) != NULL) && campaign_selected_has_progress)
+        gbtn->flags |= LbBtnF_Enabled;
+    else
+        gbtn->flags &= ~LbBtnF_Enabled;
 }
 
-void frontend_campaign_start_continue(struct GuiButton *gbtn)
+void frontend_campaign_start_new_maintain(struct GuiButton *gbtn)
 {
-    struct GameCampaign *campgn = campaign_select_item(campaign_start_idx);
-    if ((campgn != NULL) && resume_campaign_progress(campgn->fname))
+    if (campaign_select_item(campaign_selected_idx) != NULL)
+        gbtn->flags |= LbBtnF_Enabled;
+    else
+        gbtn->flags &= ~LbBtnF_Enabled;
+}
+
+void frontend_campaign_continue(struct GuiButton *gbtn)
+{
+    struct GameCampaign *campgn = campaign_select_item(campaign_selected_idx);
+    if ((campgn != NULL) && campaign_selected_has_progress && resume_campaign_progress(campgn->fname))
         frontend_set_state(FeSt_LAND_VIEW);
 }
 
 void frontend_campaign_start_new(struct GuiButton *gbtn)
 {
-    struct GameCampaign *campgn = campaign_select_item(campaign_start_idx);
+    struct GameCampaign *campgn = campaign_select_item(campaign_selected_idx);
     if ((campgn == NULL) || !frontend_start_new_campaign(campgn->fname))
     {
         ERRORLOG("Unable to start new campaign");
@@ -706,6 +683,8 @@ void frontend_campaign_list_load(void)
 {
     update_campaigns_progress_percent(&campaigns_list);
     select_campaign_scroll_offset = 0;
+    campaign_selected_idx = -1;
+    campaign_selected_has_progress = false;
     frontend_select_campaign_items_visible = (campaigns_list.items_num < frontend_select_campaign_items_max_visible)?campaigns_list.items_num+1:frontend_select_campaign_items_max_visible;
 }
 void frontend_draw_variable_mappack_exit_button(struct GuiButton *gbtn)

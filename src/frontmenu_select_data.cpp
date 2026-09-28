@@ -60,28 +60,21 @@ struct GuiButtonInit frontend_select_level_buttons[] = {
 
 struct GuiButtonInit frontend_select_campaign_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {108},            0, NULL},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82, 128,  82, 128,220, 26, frontend_draw_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, NULL},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82, 154,  82, 154,450,180, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {26},            0, NULL},
-  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontend_campaign_select_up,NULL,frontend_over_button,0, 532,153, 532, 153, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, frontend_campaign_select_up_maintain},
-  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontend_campaign_select_down,NULL,frontend_over_button,0,532,321,532, 321, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, frontend_campaign_select_down_maintain},
-  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontend_campaign_select_scroll,NULL,NULL,           0, 536, 167, 536, 167, 20,154, frontend_draw_campaign_scroll_tab, 0, GUIStr_Empty,  0,      {40},            0, NULL},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 102, 129, 102, 129,220, 26, frontend_draw_text,                0, GUIStr_Empty,  0,     {109},            0, NULL},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 167,  95, 169,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {45},            0, frontend_campaign_select_maintain},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 189,  95, 191,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {46},            0, frontend_campaign_select_maintain},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 211,  95, 213,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {47},            0, frontend_campaign_select_maintain},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 233,  95, 235,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {48},            0, frontend_campaign_select_maintain},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 255,  95, 257,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {49},            0, frontend_campaign_select_maintain},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 277,  95, 279,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {50},            0, frontend_campaign_select_maintain},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 299,  95, 301,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {51},            0, frontend_campaign_select_maintain},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL,frontend_over_button,     FeSt_MAIN_MENU, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {6},            0, NULL},
-  {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
-};
-
-struct GuiButtonInit frontend_campaign_start_buttons[] = {
-  { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,495, 46, frontend_draw_campaign_start_title,0, GUIStr_Empty,  0,     {115},            0, NULL},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_start_continue,NULL,frontend_over_button,0,999,117,999, 117,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {116},            0, NULL},
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_start_new,NULL,frontend_over_button,  0, 999, 171, 999, 171,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {117},            0, NULL},
-  // TODO: High Scores
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  84,  82,  84,220, 26, frontend_draw_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82, 110,  82, 110,450,180, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {26},            0, NULL},
+  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontend_campaign_select_up,NULL,frontend_over_button,0, 532,109, 532, 109, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, frontend_campaign_select_up_maintain},
+  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontend_campaign_select_down,NULL,frontend_over_button,0,532,277,532, 277, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, frontend_campaign_select_down_maintain},
+  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontend_campaign_select_scroll,NULL,NULL,           0, 536, 123, 536, 123, 20,154, frontend_draw_campaign_scroll_tab, 0, GUIStr_Empty,  0,      {40},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 102,  85, 102,  85,220, 26, frontend_draw_text,                0, GUIStr_Empty,  0,     {109},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 123,  95, 125,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {45},            0, frontend_campaign_select_maintain},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 145,  95, 147,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {46},            0, frontend_campaign_select_maintain},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 167,  95, 169,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {47},            0, frontend_campaign_select_maintain},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 189,  95, 191,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {48},            0, frontend_campaign_select_maintain},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 211,  95, 213,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {49},            0, frontend_campaign_select_maintain},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 233,  95, 235,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {50},            0, frontend_campaign_select_maintain},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_select,NULL,frontend_over_button,  0,  95, 255,  95, 257,424, 22, frontend_draw_campaign_select_button,0,GUIStr_Empty, 0,      {51},            0, frontend_campaign_select_maintain},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_continue,NULL,frontend_over_button, 0, 999, 312, 999, 312,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {115},            0, frontend_campaign_continue_maintain},
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_campaign_start_new,NULL,frontend_over_button,0, 999, 358, 999, 358,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,     {116},            0, frontend_campaign_start_new_maintain},
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL,frontend_over_button,     FeSt_MAIN_MENU, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {6},            0, NULL},
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
@@ -132,8 +125,6 @@ struct GuiMenu frontend_select_campaign_menu =
  { GMnu_FECAMPAIGN_SELECT,  0, 1, frontend_select_campaign_buttons,POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_select_mp_mappack_menu =
  { GMnu_MP_MAPPACK_SELECT,     0, 1, frontend_select_mp_mappack_buttons,   POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
-struct GuiMenu frontend_campaign_start_menu =
- { GMnu_FECAMPAIGN_START,   0, 1, frontend_campaign_start_buttons,POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
 
 
  

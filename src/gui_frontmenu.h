@@ -77,7 +77,6 @@ enum GUI_Menus {
   GMnu_ROOM2              = 47,
   GMnu_TRAP2              = 48,
   GMnu_MP_MAPPACK_SELECT  = 49,
-  GMnu_FECAMPAIGN_START   = 50,
 };
 
 #define MENU_INVALID_ID -1

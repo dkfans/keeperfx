@@ -207,7 +207,6 @@ struct GuiMenu *menu_list[] = {
     &room_menu2,
     &trap_menu2,
     &frontend_select_mp_mappack_menu,
-    &frontend_campaign_start_menu,//50
     NULL,
 };
 
@@ -331,8 +330,7 @@ struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {GUIStr_MnuMapPacks, 2},
     {GUIStr_MnuMpMapPacks, 2},
     {GUIStr_MnuReturnToLobby, 1},
-    {GUIStr_Empty, 0}, // [115] campaign name title
-    {GUIStr_MnuContinueCampaign, 1},
+    {GUIStr_MnuContinueCampaign, 1}, // [115]
     {GUIStr_MnuStartNewGame, 1},
 };
 
@@ -1914,7 +1912,6 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_FECAMPAIGN_SELECT:
   case GMnu_FEERROR_BOX:
   case GMnu_MP_MAPPACK_SELECT:
-  case GMnu_FECAMPAIGN_START:
       return false;
   default:
       return true;
@@ -2624,9 +2621,6 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_CAMPAIGN_SELECT:
         turn_off_menu(GMnu_FECAMPAIGN_SELECT);
         break;
-    case FeSt_CAMPAIGN_START:
-        turn_off_menu(GMnu_FECAMPAIGN_START);
-        break;
     case FeSt_MP_MAPPACK_SELECT:
         turn_off_menu(GMnu_MP_MAPPACK_SELECT);
         break;
@@ -2790,10 +2784,6 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
         turn_on_menu(GMnu_FECAMPAIGN_SELECT);
         set_pointer_graphic_menu();
         break;
-    case FeSt_CAMPAIGN_START:
-        turn_on_menu(GMnu_FECAMPAIGN_START);
-        set_pointer_graphic_menu();
-        break;
     case FeSt_MP_MAPPACK_SELECT:
         turn_on_menu(GMnu_MP_MAPPACK_SELECT);
         frontend_mp_mappack_list_load();
@@ -2852,7 +2842,6 @@ static const char * menu_state_str(FrontendMenuState state)
         case FeSt_CAMPAIGN_INTRO: return "FeSt_CAMPAIGN_INTRO";
         case FeSt_MAPPACK_SELECT: return "FeSt_MAPPACK_SELECT";
         case FeSt_MP_MAPPACK_SELECT: return "FeSt_MP_MAPPACK_SELECT";
-        case FeSt_CAMPAIGN_START: return "FeSt_CAMPAIGN_START";
         case FeSt_FONT_TEST: return "FeSt_FONT_TEST";
     }
     return "unknown";
@@ -3350,7 +3339,6 @@ short frontend_draw(void)
     case FeSt_LEVEL_SELECT:
     case FeSt_MAPPACK_SELECT:
     case FeSt_CAMPAIGN_SELECT:
-    case FeSt_CAMPAIGN_START:
     case FeSt_MP_MAPPACK_SELECT:
         frontend_copy_background();
         draw_gui();

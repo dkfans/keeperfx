@@ -31,8 +31,8 @@ extern "C" {
 /******************************************************************************/
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        100
-#define MENU_LIST_ITEMS_COUNT       53
-#define FRONTEND_BUTTON_INFO_COUNT 118
+#define MENU_LIST_ITEMS_COUNT       52
+#define FRONTEND_BUTTON_INFO_COUNT 117
 #define NET_MESSAGES_COUNT           8
 #define NET_MESSAGE_LEN             64
 // Sprite limits
@@ -87,7 +87,6 @@ enum FrontendMenuStates {
   FeSt_CAMPAIGN_INTRO,
   FeSt_MAPPACK_SELECT,
   FeSt_MP_MAPPACK_SELECT,
-  FeSt_CAMPAIGN_START,
   // Special testing states
   FeSt_FONT_TEST          = 255,
 };

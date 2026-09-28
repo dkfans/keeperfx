@@ -756,7 +756,6 @@ static TbBool should_use_delta_time_on_menu()
         case FeSt_FEOPTIONS:
         case FeSt_LEVEL_SELECT:
         case FeSt_CAMPAIGN_SELECT:
-        case FeSt_CAMPAIGN_START:
         case FeSt_MAPPACK_SELECT:
         case FeSt_MP_MAPPACK_SELECT:
         case FeSt_LAND_VIEW:

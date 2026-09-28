@@ -7061,7 +7061,7 @@ msgstr "El Guardián Antiguo"
 #, fuzzy
 msgctxt "Menu interface item"
 msgid "Burdened Imps"
-msgstr "Los Diablillos Agobiados"
+msgstr "Los Diablillos agobiados, paquete de niveles"
 
 #: guitext:1015
 msgctxt "Menu interface item"
