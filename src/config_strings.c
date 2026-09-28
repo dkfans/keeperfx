@@ -27,7 +27,6 @@
 #include "bflib_guibtns.h"
 #include "bflib_text.h"
 
-#include "config_mods.h"
 #include "config_keeperfx.h"
 #include "config_campaigns.h"
 #include "config_translation.h"
@@ -39,8 +38,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-char *gui_strings_data_list[MOD_ITEM_MAX*MOD_ITEM_TYPE_CNT+1] = {0};
-int gui_strings_data_count = 0;
+
 char *gui_strings[GUI_STRINGS_COUNT];
 /******************************************************************************/
 TbBool reset_strings(char **strings, int max)
@@ -84,162 +82,12 @@ TbBool fill_strings_list(char **strings,char *strings_data,char *strings_data_en
   return (text_idx < max);
 }
 
-static TbBool load_gui_strings_data_from_file(const char *fname, unsigned short flags)
-{
-  if (gui_strings_data_count >= sizeof(gui_strings_data_list)/sizeof(gui_strings_data_list[0]))
-    return false;
-
-  long filelen = LbFileLengthRnc(fname);
-  if (filelen <= 0)
-  {
-    if ((flags & CnfLd_IgnoreErrors) == 0)
-    {
-      ERRORLOG("GUI Strings file does not exist or can't be opened");
-      SYNCLOG("Strings file name is \"%s\"",fname);
-    }
-    return false;
-  }
-  char *raw_data = (char *)KfxCalloc(filelen + 1, 1);
-  if (raw_data == NULL)
-  {
-    if ((flags & CnfLd_IgnoreErrors) == 0)
-    {
-      ERRORLOG("Can't allocate memory for GUI Strings data");
-      SYNCLOG("Strings file name is \"%s\"",fname);
-    }
-    return false;
-  }
-  long loaded_size = LbFileLoadAt(fname, raw_data);
-  if (loaded_size < 16)
-  {
-    KfxFree(raw_data);
-    if ((flags & CnfLd_IgnoreErrors) == 0)
-    {
-      ERRORLOG("GUI Strings file couldn't be loaded or is too small");
-    }
-    return false;
-  }
-
-  size_t out_buf_size = (size_t)loaded_size * 4 + 1;
-  char *gui_strings_data = (char *)calloc(out_buf_size, 1);
-  if (gui_strings_data == NULL)
-  {
-    free(raw_data);
-    if ((flags & CnfLd_IgnoreErrors) == 0)
-    {
-      ERRORLOG("Can't allocate memory for UTF-8 GUI Strings data");
-      SYNCLOG("Strings file name is \"%s\"",fname);
-    }
-    return false;
-  }
-
-  size_t utf8_size = convert_codepage_to_utf8_buffer(raw_data, (size_t)loaded_size, gui_strings_data, out_buf_size, install_info.lang_id);
-  free(raw_data);
-  if (utf8_size == 0)
-  {
-    free(gui_strings_data);
-    if ((flags & CnfLd_IgnoreErrors) == 0)
-    {
-      ERRORLOG("GUI Strings file couldn't be converted to UTF-8");
-      SYNCLOG("Strings file name is \"%s\"",fname);
-    }
-    return false;
-  }
-
-  char* strings_data_end = gui_strings_data + utf8_size;
-
-  gui_strings_data_list[gui_strings_data_count] = gui_strings_data;
-  gui_strings_data_count++;
-
-  // Analyzing strings data and filling correct values
-  fill_strings_list(gui_strings, gui_strings_data, strings_data_end, GUI_STRINGS_COUNT-1);
-
-  return true;
-}
-
-static void load_gui_strings_data_for_mod(const struct ModConfigItem *mod_item)
-{
-  char mod_dir[256] = {0};
-  sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
-
-  const struct ModExistState *mod_state = &mod_item->state;
-  if (mod_state->fx_data)
-  {
-    char *fname = get_mod_file_path_fmt(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
-    if (!fname || !load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors))
-    {
-      // if the current language of mod is not translated, then try eng for mod.
-      if (install_info.lang_id != Lang_English)
-      {
-        fname = get_mod_file_path_fmt(mod_dir, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(Lang_English));
-        if (fname) load_gui_strings_data_from_file(fname, CnfLd_IgnoreErrors);
-      }
-    }
-  }
-}
-
-static void load_gui_strings_data_for_mod_list(const struct ModConfigItem *mod_items, long mod_cnt)
-{
-  for (long i=0; i<mod_cnt; i++)
-  {
-    const struct ModConfigItem *mod_item = mod_items + i;
-    if (mod_item->state.mod_dir == 0)
-      continue;
-
-    load_gui_strings_data_for_mod(mod_item);
-  }
-}
-
-/**
- * Loads the language-specific strings data for game interface.
- */
-TbBool setup_gui_strings_data(void)
-{
-  SYNCDBG(8,"Starting");
-
-  // Resetting all values to empty strings
-  reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
-
-  char* fname = get_game_file_path_fmt(FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
-  if (!fname || !load_gui_strings_data_from_file(fname, 0))
-    return false;
-
-  // Default only one dat file as base and must exist.
-  // So for mods, ignore mod section stage, keep only the mod order.
-
-  if (mods_conf.after_base_cnt > 0)
-  {
-    load_gui_strings_data_for_mod_list(mods_conf.after_base_item, mods_conf.after_base_cnt);
-  }
-
-  if (mods_conf.after_campaign_cnt > 0)
-  {
-    load_gui_strings_data_for_mod_list(mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
-  }
-
-  if (mods_conf.after_map_cnt > 0)
-  {
-    load_gui_strings_data_for_mod_list(mods_conf.after_map_item, mods_conf.after_map_cnt);
-  }
-
-  SYNCDBG(19,"Finished");
-  return true;
-}
-
 TbBool free_gui_strings_data(void)
 {
   // Resetting all values to empty strings
   reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
-  // Freeing memory
-  for (int i=0; i<gui_strings_data_count; i++)
-  {
-    KfxFree(gui_strings_data_list[i]);
-    gui_strings_data_list[i] = NULL;
-  }
-  gui_strings_data_count = 0;
   return true;
 }
-
 
 TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short flags, struct GameCampaign *campgn, uint8_t lang_id)
 {
@@ -310,35 +158,6 @@ TbBool load_campaign_strings_data_from_file(const char *fname, unsigned short fl
   return true;
 }
 
-static void load_campaign_strings_data_for_mod(struct GameCampaign *campgn, const struct ModConfigItem *mod_item)
-{
-  char mod_dir[256] = {0};
-  sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
-
-  char *fname = prepare_file_path_mod(mod_dir, FGrp_Main, campgn->strings_fname);
-  if (!load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn, install_info.lang_id))
-  {
-    // if the current language of mod is not translated, then try eng.
-    if (campgn->strings_fname_eng[0] != 0 && strcmp(campgn->strings_fname_eng, campgn->strings_fname) != 0)
-    {
-      fname = prepare_file_path_mod(mod_dir, FGrp_Main, campgn->strings_fname_eng);
-      load_campaign_strings_data_from_file(fname, CnfLd_IgnoreErrors, campgn, Lang_English);
-    }
-  }
-}
-
-static void load_campaign_strings_data_for_mod_list(struct GameCampaign *campgn, const struct ModConfigItem *mod_items, long mod_cnt)
-{
-  for (long i=0; i<mod_cnt; i++)
-  {
-    const struct ModConfigItem *mod_item = mod_items + i;
-    if (mod_item->state.mod_dir == 0)
-      continue;
-
-    load_campaign_strings_data_for_mod(campgn, mod_item);
-  }
-}
-
 /**
  * Loads the language-specific strings data for the current campaign.
  */
@@ -361,24 +180,6 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
       return false;
   }
 
-  // Default only one dat file as base and must exist.
-  // So for mods, ignore mod section stage, keep only the mod order.
-
-  if (mods_conf.after_base_cnt > 0)
-  {
-    load_campaign_strings_data_for_mod_list(campgn, mods_conf.after_base_item, mods_conf.after_base_cnt);
-  }
-
-  if (mods_conf.after_campaign_cnt > 0)
-  {
-    load_campaign_strings_data_for_mod_list(campgn, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
-  }
-
-  if (mods_conf.after_map_cnt > 0)
-  {
-    load_campaign_strings_data_for_mod_list(campgn, mods_conf.after_map_item, mods_conf.after_map_cnt);
-  }
-
   SYNCDBG(19,"Finished");
   return true;
 }
@@ -387,7 +188,7 @@ const char * gui_string(unsigned int index)
 {
     static char string_invalid[64];
 
-    if (index >= GUI_STRINGS_COUNT)
+    if (index >= GUI_STRINGS_COUNT || gui_strings[index] == NULL)
     {
         snprintf(string_invalid, sizeof(string_invalid), "untranslated <%d>", index);
         return string_invalid;

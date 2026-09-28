@@ -28,6 +28,7 @@ extern TextStringId get_string_id_by_alias(const char* alias);
 extern const char* get_translation_file_string(TextStringId string_id);
 
 extern const struct ConfigFileData keeper_translation_file_data;
+extern const struct ConfigFileData keeper_gui_translation_file_data;
 
 /******************************************************************************/
 #ifdef __cplusplus
