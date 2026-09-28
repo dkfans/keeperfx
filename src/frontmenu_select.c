@@ -279,22 +279,34 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
     struct GameCampaign* campgn = campaign_select_item(i);
     if (campgn == NULL)
       return;
+    TbBool completed = (campgn->progress_percent >= 100);
     if (((btn_idx > 0) && (frontend_mouse_over_button == btn_idx)) || (i == campaign_selected_idx))
       i = 2;
+    else if (completed)
+      i = 3;
     else
       i = 1;
     RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     LbTextSetFont(frontend_font[i]);
     // This text is a bit condensed - button size is smaller than text height
     int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
-    i = LbTextLineHeight() * tx_units_per_px / 16;
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-    char text[LINEMSG_SIZE + 16];
-    if (campgn->progress_percent >= 0)
-        snprintf(text, sizeof(text), "%s (%d%%)", campgn->display_name, (int)campgn->progress_percent);
-    else
-        snprintf(text, sizeof(text), "%s", campgn->display_name);
+    int height = LbTextLineHeight() * tx_units_per_px / 16;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
+    const char *stars = "";
+    if ((campgn->progress_percent >= 0) && !completed)
+        stars = (campgn->progress_percent < 26) ? "*" : (campgn->progress_percent < 72) ? "**" : "***";
+    if (stars[0] == '\0')
+    {
+        LbTextDrawResized(0, 0, tx_units_per_px, campgn->display_name);
+        return;
+    }
+    char text[LINEMSG_SIZE + 2];
+    snprintf(text, sizeof(text), "%s ", campgn->display_name);
     LbTextDrawResized(0, 0, tx_units_per_px, text);
+    // asterisks sit very high in the font; compensate
+    int stars_x = LbTextStringWidthM(text, tx_units_per_px);
+    LbTextSetWindow(gbtn->scr_pos_x + stars_x, gbtn->scr_pos_y + 6 * tx_units_per_px / 16, gbtn->width - stars_x, height);
+    LbTextDrawResized(0, 0, tx_units_per_px, stars);
 }
 
 void frontend_campaign_select(struct GuiButton *gbtn)
