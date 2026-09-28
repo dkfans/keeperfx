@@ -462,6 +462,7 @@ enum LongTurnReplayRecordKind {
     LTK_End = 0,
     LTK_ChatMessage = 1, // payload: uint16_t user, char message[PLAYER_MP_MESSAGE_LEN]
     // TODO: resyncs / state transfers?
+    // Could also carry cheat menu buttons, API actions, etc.
 };
 
 static TbBool chat_messages_recorded(void)
@@ -763,6 +764,15 @@ short save_packets(void)
         }
     }
     return true;
+}
+
+void stop_replay_recording(const char *reason)
+{
+    if (!game.packet_save_enable || !game.packet_fopened)
+        return;
+    WARNLOG("Replay recording stopped: %s", reason);
+    close_packet_file();
+    game.packet_save_enable = false;
 }
 
 void close_packet_file(void)
