@@ -779,6 +779,7 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, int32_t *n)
     local_state.palette_fade_step_map = 32;
   }
   set_player_mode(player, PVT_DungeonTop);
+  sync_local_camera(player);
   return 0;
 }
 
@@ -790,7 +791,7 @@ long pinstfm_fade_from_map(struct PlayerInfo *player, int32_t *n)
 long pinstfe_fade_from_map(struct PlayerInfo *player, int32_t *n)
 {
     struct PlayerInfo* myplyr = get_player(my_player_number);
-    update_engine_view(player, false);
+    update_engine_view(player, true);
     if (player->id_number == myplyr->id_number) {
         set_map_ui_hidden(false, false);
     }

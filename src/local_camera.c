@@ -619,8 +619,22 @@ void set_local_camera_destination(struct PlayerInfo *player)
     }
 }
 
+static void sync_local_camera_leaving_map(struct PlayerInfo *player, const struct Packet *pckt)
+{
+    struct DungeonCamera pose = get_player_user_state(player)->dungeon_camera;
+    if (pckt->action == PckA_ZoomFromMap)
+    {
+        set_view_position(&pose.x, &pose.y, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
+        pose.yaw[false] = 0;
+        pose.yaw[true] = 0;
+    }
+    sync_local_camera_pose(player, &pose);
+}
+
 void update_local_view_prediction(const struct Packet *pckt)
 {
+    struct PlayerInfo *player = get_my_player();
+    const TbBool on_map = (get_local_view_type(player) == PVT_MapScreen);
     if (pckt->action == PckA_ZoomFromMap) {
         local_state.camera.move_cam = NULL;
     }
@@ -628,9 +642,11 @@ void update_local_view_prediction(const struct Packet *pckt)
         local_state.view_type = PVT_MapScreen;
         toggle_status_menu(0);
     } else if ((pckt->action == PckA_LoadViewType && pckt->actn_par1 == PVT_DungeonTop)
-            || (pckt->action == PckA_ZoomFromMap && !parchment_map_fade_enabled())) {
+            || (pckt->action == PckA_ZoomFromMap && !parchment_map_fade_enabled(player))) {
         local_state.view_type = PVT_DungeonTop;
         toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
+        if (on_map)
+            sync_local_camera_leaving_map(player, pckt);
     }
 }
 

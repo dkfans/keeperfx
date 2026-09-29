@@ -1200,6 +1200,7 @@ TbBool open_new_packet_file_for_save(void)
         game.packet_save_head.dungeon_pitches[user] = ustate->dungeon_camera.pitch;
         memcpy(game.packet_save_head.dungeon_zooms[user], ustate->dungeon_camera.zoom, sizeof(ustate->dungeon_camera.zoom));
         game.packet_save_head.highlight_modes[user] = ustate->highlight_mode;
+        game.packet_save_head.map_fade_turns[user] = ustate->map_fade_turns;
     }
     game.packet_save_head.recording_user = get_local_user();
     game.packet_save_head.frontend_alliances = frontend_alliances;

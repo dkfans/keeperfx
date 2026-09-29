@@ -998,6 +998,7 @@ uniform sampler2D u_parchment;
 uniform sampler2D u_world;
 uniform sampler2D u_ghost;
 uniform float u_step;        // 0.0..32.0
+uniform float u_warp_scale;  // pinch strength, 1.0 for the original 8-turn fade
 out vec4 fragColor;
 
 vec3 fetch_nearest(sampler2D tex, vec2 uv)
@@ -1012,10 +1013,10 @@ void main()
     float fx = v_uv.x;
     float fy = 1.0 - v_uv.y;
     const float xmax = 320.0;
-    float wp = 32.0 - a6;
+    float wp = (32.0 - a6) * u_warp_scale;
     float uv_px = clamp(fx + wp * (4.0 - 8.0 * fx) / xmax, 0.0, 1.0);
     float uv_py = clamp(fy + wp * 4.0 * (1.0 - 2.0 * fy) / xmax, 0.0, 1.0);
-    float ww = a6;
+    float ww = a6 * u_warp_scale;
     float uv_wx = clamp(fx + ww * (4.0 - 8.0 * fx) / xmax, 0.0, 1.0);
     float uv_wy = clamp(fy + ww * 4.0 * (1.0 - 2.0 * fy) / xmax, 0.0, 1.0);
 

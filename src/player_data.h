@@ -210,10 +210,10 @@ struct PlayerInfo {
 };
 
 /* Game state that exists per human user. Computer-controlled
- * players are not users.
+ * players do not have users.
  *
  * Local games only have a single user. Networked games have one
- * user per client, including the host.
+ * user per client including the host.
  */
 struct UserState {
     unsigned char init_flags; // Uses UserInitFlags
@@ -252,11 +252,10 @@ struct UserState {
     ThingModel chosen_door_kind;
     PowerKind chosen_power_kind;
     TbBool pickup_all_gold;
-    /** What the user is doing, from enum PlayerViewType. */
     unsigned char view_type;
-    /** Remembered in front view too, for the return to iso. */
     TbBool dungeon_wibble;
     TbBool highlight_mode;
+    unsigned char map_fade_turns; // Length of the parchment map fade in turns; 0=disabled
     struct DungeonCamera dungeon_camera;
 };
 

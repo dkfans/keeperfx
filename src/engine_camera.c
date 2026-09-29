@@ -253,7 +253,7 @@ void view_set_camera_x_velocity(struct Camera *cam, long delta, long ilimit)
     cam->in_active_movement_x = true;
 }
 
-void view_set_camera_rotation_velocity(struct Camera *cam, int32_t delta, int32_t ilimit)
+static void view_set_camera_rotation_velocity(struct Camera *cam, int32_t delta, int32_t ilimit)
 {
     const int32_t limit_val = abs(ilimit);
     const int32_t new_val = delta + cam->velocity_rotation;
@@ -493,7 +493,7 @@ TbBool view_move_camera_to_position(MapCoord *pos_x, MapCoord *pos_y, MapCoord x
     return (*positions[0] == targets[0]) && (*positions[1] == targets[1]);
 }
 
-void update_player_camera(struct PlayerInfo *player)
+static void update_player_camera_shake(struct PlayerInfo *player)
 {
     struct Dungeon *dungeon = get_players_dungeon(player);
 
@@ -510,7 +510,7 @@ void update_player_camera(struct PlayerInfo *player)
     }
 }
 
-void update_all_players_cameras(void)
+void update_camera_shake(void)
 {
   int i;
   struct PlayerInfo *player;
@@ -520,7 +520,7 @@ void update_all_players_cameras(void)
     player = get_player(i);
     if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
     {
-          update_player_camera(player);
+          update_player_camera_shake(player);
     }
   }
 }

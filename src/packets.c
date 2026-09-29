@@ -390,32 +390,16 @@ int32_t camera_move_rate(const struct Camera* cam, const struct PlayerInfo* play
     int scroll_speed = cam->zoom;
     if (scroll_speed <= 0)
         scroll_speed = 1;
-    switch (cam->view_mode)
+    if (cam->view_mode == PVM_FrontView)
     {
-    case PVM_IsoWibbleView:
-    case PVM_IsoStraightView:
-        if (player->roomspace_drag_paint_mode == 1)
-        {
-            if (scroll_speed < 4100)
-            {
-                scroll_speed = 4100;
-            }
-        }
-        inter_val = 2560000 / scroll_speed;
-        break;
-    case PVM_FrontView:
-        if (player->roomspace_drag_paint_mode == 1)
-        {
-            if (scroll_speed < 16384)
-            {
-                scroll_speed = 16384;
-            }
-        }
+        if ((player->roomspace_drag_paint_mode == 1) && (scroll_speed < 16384))
+            scroll_speed = 16384;
         inter_val = 12800000 / scroll_speed;
-        break;
-    default:
-        inter_val = 256;
-        break;
+    } else
+    {
+        if ((player->roomspace_drag_paint_mode == 1) && (scroll_speed < 4100))
+            scroll_speed = 4100;
+        inter_val = 2560000 / scroll_speed;
     }
     if (speedup)
       inter_val *= 3;
@@ -894,7 +878,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       set_player_mode(player, pckt->actn_par1);
       return 0;
   case PckA_ZoomFromMap:
-      if (parchment_map_fade_enabled())
+      if (parchment_map_fade_enabled(player))
       {
         set_player_mode(player, PVT_MapFadeOut);
       } else

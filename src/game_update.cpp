@@ -542,7 +542,7 @@ void update(void)
     }
 
     message_update();
-    update_all_players_cameras();
+    update_camera_shake();
     update_player_sounds();
     SYNCDBG(6,"Finished");
 }

@@ -578,9 +578,13 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
       break;
   case PVT_MapFadeIn:
       set_player_instance(player, PI_MapFadeTo, 0);
+      if (player->instance_num == PI_MapFadeTo)
+          player->instance_remain_turns = max(ustate->map_fade_turns, 1);
       break;
   case PVT_MapFadeOut:
       set_player_instance(player, PI_MapFadeFrom, 0);
+      if (player->instance_num == PI_MapFadeFrom)
+          player->instance_remain_turns = max(ustate->map_fade_turns, 1);
       break;
   }
 }

@@ -129,7 +129,6 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
 
 void view_set_camera_y_velocity(struct Camera *cam, long delta, long ilimit);
 void view_set_camera_x_velocity(struct Camera *cam, long delta, long ilimit);
-void view_set_camera_rotation_velocity(struct Camera *cam, int32_t delta, int32_t ilimit);
 void view_set_camera_rotation_velocity_around(struct Camera *cam, int32_t delta, int32_t ilimit, MapCoord x, MapCoord y);
 void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
 void view_process_camera_velocity(struct Camera *cam);
@@ -137,7 +136,7 @@ void view_set_camera_position(struct Camera *cam, MapCoord x, MapCoord y);
 void view_set_camera_move_to_position(MapCoord from_x, MapCoord from_y, MapCoord x, MapCoord y, MapCoordDelta *move_x, MapCoordDelta *move_y);
 TbBool view_move_camera_to_position(MapCoord *pos_x, MapCoord *pos_y, MapCoord x, MapCoord y, MapCoordDelta move_x, MapCoordDelta move_y);
 
-void update_all_players_cameras(void);
+void update_camera_shake(void);
 void init_player_cameras(struct PlayerInfo *player);
 void update_first_person_position(struct Camera *cam, struct Thing *thing, int eye_height);
 

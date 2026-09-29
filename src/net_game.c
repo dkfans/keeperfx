@@ -65,6 +65,7 @@ struct StartupSyncPacket {
     int32_t video_rotate_mode;
     int32_t isometric_tilt;
     uint8_t highlight_mode;
+    uint8_t map_fade_turns;
     TbBigChecksum map_checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
     TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
     uint16_t initial_tendencies;
@@ -169,6 +170,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         get_user_state(i)->dungeon_camera.zoom[false] = (sync->isometric_view_zoom_level != 0) ? sync->isometric_view_zoom_level : CAMERA_ZOOM_MAX;
         get_user_state(i)->dungeon_camera.zoom[true] =(sync->frontview_zoom_level != 0) ? sync->frontview_zoom_level : FRONTVIEW_CAMERA_ZOOM_MAX;
         get_user_state(i)->highlight_mode = sync->highlight_mode;
+        get_user_state(i)->map_fade_turns = sync->map_fade_turns;
         init_player(player, 0);
         TbBool imprison = (sync->initial_tendencies & CrTend_Imprison) != 0;
         TbBool flee = (sync->initial_tendencies & CrTend_Flee) != 0;
@@ -268,6 +270,7 @@ static void build_local_startup_sync(void)
     s_local_startup_sync.video_rotate_mode = settings.video_rotate_mode;
     s_local_startup_sync.isometric_tilt = settings.isometric_tilt;
     s_local_startup_sync.highlight_mode = get_starting_highlight_mode();
+    s_local_startup_sync.map_fade_turns = get_parchment_map_fade_turns();
     calculate_network_startup_map_checksums(s_local_startup_sync.map_checksums);
     memcpy(s_local_startup_sync.required_sprite_zip_checksums, required_sprite_zip_checksums, sizeof(s_local_startup_sync.required_sprite_zip_checksums));
     uint16_t initial_tendencies = 0;
