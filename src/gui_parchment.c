@@ -1060,7 +1060,8 @@ void redraw_parchment_view(void)
   draw_gui();
   gui_draw_all_boxes();
   // Put zoom box, map name and tooltips
-  draw_zoom_box();
+  if (!a_menu_window_is_active())
+      draw_zoom_box();
   draw_map_level_name();
   draw_tooltip();
 }

@@ -65,6 +65,7 @@
 #include "frontmenu_ingame_tabs.h"
 
 #include "keeperfx.hpp"
+#include "local_camera.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -547,6 +548,8 @@ void draw_power_hand(void)
     if (local_state.display_needs_update)
         return;
     if (game.small_map_state == 2)
+        return;
+    if (replay_camera_detached())
         return;
     RendererSetDrawFlags(0x00);
     if (player->view_type != PVT_DungeonTop)

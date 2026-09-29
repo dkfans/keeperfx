@@ -790,6 +790,11 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         set_pointer_graphic(MousePG_Invisible);
         return;
     }
+    if (replay_camera_detached())
+    {
+        set_pointer_graphic(MousePG_Arrow);
+        return;
+    }
     // During fade
     if (player->instance_num == PI_MapFadeFrom)
     {

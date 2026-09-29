@@ -787,8 +787,6 @@ TbBool process_user_global_packet_action(NetUserId user)
       return 0;
       }
   case PckA_PlyrMsgEnd:
-      process_gameplay_chat_message(player->user_id, player->mp_pending_message);
-      player->mp_pending_message[0] = '\0';
       return 0;
   case PckA_PlyrMsgClear:
       get_user_state(user)->init_flags &= ~UsrIF_NewMPMessage;
@@ -802,7 +800,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       }
       return 1;
   case PckA_SwitchScrnRes:
-      if (is_my_player(player))
+      if (is_my_player(player) && !game.packet_load_enable)
       {
           switch_to_next_video_mode_wrapper();
       }
@@ -818,14 +816,14 @@ TbBool process_user_global_packet_action(NetUserId user)
       }
       return 0;
   case PckA_ChangeWindowSize:
-      if (is_my_player(player))
+      if (is_my_player(player) && !game.packet_load_enable)
       {
         change_engine_window_relative_size(pckt->actn_par1, pckt->actn_par2);
         centre_engine_window();
       }
       return 0;
   case PckA_SetGammaLevel:
-      if (is_my_player(player))
+      if (is_my_player(player) && !game.packet_load_enable)
       {
         set_gamma(pckt->actn_par1, 1);
         save_settings();
@@ -1148,6 +1146,8 @@ void process_user_packet(NetUserId user)
         return;
     }
     SYNCDBG(6, "Processing user %d packet of type %d.", user, (int)pckt->action);
+    if (flag_is_set(game.operation_flags, GOF_Paused))
+        replay_record_paused_action(user, pckt);
     struct UserState* ustate = get_user_state(user);
     ustate->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     ustate->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
@@ -1646,9 +1646,12 @@ void exchange_packets(void)
 
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
     const NetUserId local_user = get_local_user();
-    input_lag_update(get_local_packet());
-    set_local_packet_turn();
-    update_turn_checksums();
+    if (!game.packet_load_enable)
+    {
+        input_lag_update(get_local_packet());
+        set_local_packet_turn();
+        update_turn_checksums();
+    }
     update_local_dig_tag_prediction();
     if (!game.packet_load_enable)
         camera_packet_set_state(get_local_packet());
@@ -1693,10 +1696,27 @@ void exchange_packets(void)
 /**
  * Process all packets influencing local game state.
  */
+void clear_users_button_state(void)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        struct UserState *ustate = get_user_state(user);
+        if (user_state_invalid(ustate))
+            continue;
+        ustate->cursor_button_down = 0;
+        ustate->interpolated_tagging = false;
+    }
+}
+
 void process_packets(void)
 {
     // Write packets into file, if requested
-    if ((game.packet_save_enable) && (game.packet_fopened)) {
+    if (!game.packet_load_enable && flag_is_set(game.operation_flags, GOF_Paused))
+        clear_users_button_state();
+    process_queued_chat_messages();
+    if (game.packet_load_enable)
+        verify_replay_checksum();
+    if ((game.packet_save_enable) && (game.packet_fopened) && !flag_is_set(game.operation_flags, GOF_Paused)) {
         save_packets();
     }
     //Debug code, to find packet errors
@@ -1704,7 +1724,7 @@ void process_packets(void)
     write_debug_packets();
     #endif
     // Process the packets
-    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
+    for (NetUserId user = 0; (user < PACKETS_COUNT) && !replay_playback_is_paused(); user++)
     {
         const PlayerNumber plyr_idx = get_net_user_player_number(user);
         if (plyr_idx < 0) {

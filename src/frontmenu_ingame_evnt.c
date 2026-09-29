@@ -568,7 +568,7 @@ static void draw_bottom_right_text(const char *text, int line)
 // name of user to display during replay
 static const char *replay_get_displayed_user_name(void)
 {
-    if (!game.packet_load_enable || replay_camera_detached())
+    if (!game.packet_load_enable)
         return NULL;
     int users = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
@@ -587,8 +587,8 @@ void draw_gameturn_timer(void)
     snprintf(text, sizeof(text), "GameTurn %u", get_gameturn());
     draw_bottom_right_text(text, 0);
     const char *name = replay_get_displayed_user_name();
-    if (name != NULL) {
-        snprintf(text, sizeof(text), "%.*s", (int)sizeof(game.packet_save_head.user_names[0]), name);
+    if ((name != NULL) || replay_camera_detached()) {
+        snprintf(text, sizeof(text), "%s%.*s", replay_camera_detached() ? "*" : "", (int)sizeof(game.packet_save_head.user_names[0]), (name != NULL) ? name : "");
         draw_bottom_right_text(text, 1);
     }
 }

@@ -71,6 +71,7 @@ struct StartupSyncPacket {
     uint32_t zoom_distance_setting;
     uint32_t frontview_zoom_distance_setting;
     uint8_t initial_input_lag_turns;
+    uint32_t initial_action_seed;
     // TODO: also record alliance matrix.
 };
 #pragma pack()
@@ -276,6 +277,7 @@ static void build_local_startup_sync(void)
     s_local_startup_sync.zoom_distance_setting = zoom_distance_setting;
     s_local_startup_sync.frontview_zoom_distance_setting = frontview_zoom_distance_setting;
     s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
+    s_local_startup_sync.initial_action_seed = (uint32_t)initial_replay_seed;
 }
 
 static TbBool net_startup_sync_exchange_and_apply(void)
@@ -308,6 +310,11 @@ static TbBool net_startup_sync_exchange_and_apply(void)
     NETLOG("Startup input lag: %d", game.input_lag_turns);
     zoom_distance_setting = host_sync->zoom_distance_setting;
     frontview_zoom_distance_setting = host_sync->frontview_zoom_distance_setting;
+    if (host_sync->initial_action_seed != (uint32_t)initial_replay_seed)
+    {
+        ERRORLOG("Initial action seed %u differs from host's %u", (unsigned)initial_replay_seed, (unsigned)host_sync->initial_action_seed);
+        initial_replay_seed = host_sync->initial_action_seed;
+    }
     setup_players_from_startup_packets(s_startup_sync_packets);
     return true;
 }
@@ -720,6 +727,7 @@ void sync_initial_network_seed(void)
    }
    game.ai_random_seed = game.action_random_seed * 9377 + 9391;
    game.player_random_seed = game.action_random_seed * 9473 + 9479;
+   initial_replay_seed = game.action_random_seed;
    NETLOG("Initial network seed synced: action_seed=%u", game.action_random_seed);
 }
 /******************************************************************************/
