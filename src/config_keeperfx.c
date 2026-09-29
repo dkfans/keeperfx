@@ -64,6 +64,7 @@ char keeper_runtime_directory[152];
 short api_enabled = false;
 uint16_t api_port = 5599;
 uint32_t packetsave_max_kb = 0;
+TbBool replays_enabled = true;
 uint32_t max_replays[ReplTyp_Count] = {5, 5, 10};
 unsigned long features_enabled = 0;
 unsigned char viewport_mode = VpMode_Original;
@@ -175,8 +176,9 @@ const struct NamedCommand conf_commands[] = {
   {"RENDERER"                      , 49},
   {"VIEWPORT_MODE"                 , 50},
   {"PARCHMENT_MAP_FADE"            , 51},
-  {"REPLAY_MAX_SIZE"               , 52},
+  {"AUTOMATIC_REPLAYS"             , 52},
   {"MAX_REPLAYS"                   , 53},
+  {"REPLAY_MAX_SIZE"               , 54},
   {NULL,                   0},
   };
 
@@ -1095,17 +1097,15 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_ParchmentFade;
           break;
-      case 52: // REPLAY_MAX_SIZE
-          i = -1;
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+      case 52: // AUTOMATIC_REPLAYS
+          i = recognize_conf_parameter(buf, &pos, len, logicval_type);
+          if (i <= 0)
           {
-            i = atoi(word_buf);
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                  COMMAND_TEXT(cmd_num), config_textname);
+              break;
           }
-          if (i >= 0) {
-              packetsave_max_kb = i;
-          } else {
-              CONFWRNLOG("Invalid \"%s\" value in %s file.",COMMAND_TEXT(cmd_num),config_textname);
-          }
+          replays_enabled = (i == 1);
           break;
       case 53: // MAX_REPLAYS
           i = 0;
@@ -1120,6 +1120,19 @@ static void load_file_configuration(const char *fname, const char *sname, const 
                   }
               }
               max_replays[typ] = i;
+          }
+          break;
+      case 54: // REPLAY_MAX_SIZE
+          i = -1;
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              i = atoi(word_buf);
+          }
+          if (i >= 0) {
+              packetsave_max_kb = i;
+          }
+          else {
+              CONFWRNLOG("Invalid \"%s\" value in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
       case ccr_comment:
