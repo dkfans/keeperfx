@@ -610,7 +610,7 @@ static void process_dungeon_camera_controls(const struct PlayerInfo *player, str
     MapCoord y;
     // Iso and front share a position; any other camera's position isn't the dungeon camera's.
     if (is_dungeon_camera_index(packet_camera_context(pckt)) && is_dungeon_camera_index(get_player_active_camera_index(player))
-     && packet_get_camera_position(pckt, &x, &y))
+     && !player_instance_controls_camera(player->instance_num) && packet_get_camera_position(pckt, &x, &y))
         set_view_position(&dcam->x, &dcam->y, x, y);
     if (!front_view)
     {

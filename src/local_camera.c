@@ -312,23 +312,12 @@ void look_local_first_person_camera(struct Thing *ctrltng, int32_t turn_x, int32
 
 // when not canonically able to adjust camera (e.g. frozen),
 // rotate camera quickly (but smoothly) back to canonical facing
-#define FIRST_PERSON_SNAP_BACK_DEGREES_PER_SECOND 400
-
 static void snap_back_first_person_look(struct Camera *cam, const struct Thing *ctrltng)
 {
-    const float max_step = (float)FIRST_PERSON_SNAP_BACK_DEGREES_PER_SECOND * DEGREES_360 / 360 / max(turns_per_second, 1);
     const int32_t delta_yaw = get_angle_signed_difference(cam->rotation_angle_x, ctrltng->move_angle_xy);
     const int32_t delta_pitch = get_angle_signed_difference(cam->rotation_angle_y, ctrltng->move_angle_z);
-    const float distance = sqrtf((float)delta_yaw * delta_yaw + (float)delta_pitch * delta_pitch);
-    if (distance <= max_step)
-    {
-        cam->rotation_angle_x = ctrltng->move_angle_xy;
-        cam->rotation_angle_y = ctrltng->move_angle_z;
-        return;
-    }
-    const float scale = max_step / distance;
-    cam->rotation_angle_x = (cam->rotation_angle_x + lroundf(delta_yaw * scale)) & ANGLE_MASK;
-    cam->rotation_angle_y = (cam->rotation_angle_y + lroundf(delta_pitch * scale)) & ANGLE_MASK;
+    cam->rotation_angle_x = (cam->rotation_angle_x + delta_yaw / 2) & ANGLE_MASK;
+    cam->rotation_angle_y = (cam->rotation_angle_y + delta_pitch / 2) & ANGLE_MASK;
 }
 
 static void update_local_first_person_camera(struct Thing *ctrltng)
