@@ -126,12 +126,14 @@ TbBool unpausing_in_progress = 0;
 
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
-    if (par3 != 0 || par4 != 0)
+    // only packets with no camera position are able to use par3/par4.
+    if (((par3 != 0) || (par4 != 0)) && packet_action_has_camera_position(pcktype))
     {
-        // only packets with no camera position are able to use par3/par4.
-        assert(!packet_action_has_camera_position(pcktype));
+        ERRORLOG("Packet action %d carries a camera position, so it can't use par3/par4; dropping them", (int)pcktype);
+        par3 = 0;
+        par4 = 0;
     }
-    
+
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
     pckt->actn_par3 = par3;
@@ -1435,7 +1437,8 @@ void process_user_creature_control_packet_control(NetUserId user)
             }
         }
         // Discard inputs for frozen creature
-        if ((packet_camera_context(pckt) == CamIV_FirstPerson) && !creature_control_invalid(ccctrl))
+        if ((packet_camera_context(pckt) == CamIV_FirstPerson) && !creature_control_invalid(ccctrl)
+         && !flag_is_set(game.operation_flags, GOF_Paused))
             apply_first_person_look(cctng, ccctrl, pckt);
     }
 

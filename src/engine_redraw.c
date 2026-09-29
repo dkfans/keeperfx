@@ -524,6 +524,8 @@ long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long
 void set_engine_view(struct PlayerInfo *player, TbBool front_view, TbBool wibble)
 {
     struct UserState *ustate = get_player_user_state(player);
+    if (ustate->dungeon_camera.use_front_view != front_view)
+        carry_local_dungeon_position(player, ustate->dungeon_camera.use_front_view);
     ustate->dungeon_camera.use_front_view = front_view;
     ustate->dungeon_wibble = wibble;
     update_engine_view(player, true);

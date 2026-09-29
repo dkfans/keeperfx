@@ -716,8 +716,7 @@ struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, 
         ERRORLOG("Invalid wibble table index %ld", table_index);
         return &blank_wibble_table[0];
     }
-    const unsigned char view_type = get_local_view_type(get_my_player());
-    if ((cam->view_mode == PVM_IsoWibbleView) || (view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr))
+    if ((cam->view_mode != PVM_IsoStraightView) && (cam->view_mode != PVM_FrontView))
     {
         return &wibble_table[table_index];
     }

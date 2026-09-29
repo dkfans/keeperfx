@@ -64,18 +64,24 @@ enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate)
 int32_t get_player_dungeon_yaw(const struct PlayerInfo *player)
 {
     const struct UserState *ustate = get_player_user_state(player);
+    if (user_state_invalid(ustate))
+        return 0;
     return ustate->dungeon_camera.yaw[ustate->dungeon_camera.use_front_view];
 }
 
 int32_t get_player_dungeon_zoom(const struct PlayerInfo *player)
 {
     const struct UserState *ustate = get_player_user_state(player);
+    if (user_state_invalid(ustate))
+        return 0;
     return ustate->dungeon_camera.zoom[ustate->dungeon_camera.use_front_view];
 }
 
 void set_player_dungeon_zoom(struct PlayerInfo *player, int32_t zoom)
 {
     struct UserState *ustate = get_player_user_state(player);
+    if (user_state_invalid(ustate))
+        return;
     ustate->dungeon_camera.zoom[ustate->dungeon_camera.use_front_view] = zoom;
 }
 

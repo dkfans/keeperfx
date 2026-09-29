@@ -172,7 +172,7 @@ static void set_local_leave_creature_camera(struct PlayerInfo *player, unsigned 
         return;
     struct DungeonCamera pose = ustate->dungeon_camera;
     const int32_t dungeon_zoom = pose.zoom[false];
-    int32_t zoom = dungeon_zoom;
+    int32_t zoom = get_local_possession_start_zoom(player);
     for (int32_t i = 0; i < player_instance_info[PI_DirctCtrl].length_turns; i++)
         zoom = zoom_in_step(zoom, 30000, 0);
     const int32_t elapsed = instance_elapsed_turns(player, inum);
@@ -403,6 +403,7 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
   }
   ustate->init_flags |= UsrIF_KeyboardInputDisabled;
   player->dungeon_camera_zoom = get_player_dungeon_zoom(player);
+  record_local_possession_start(player);
   const struct Thing* thing = thing_get(player->influenced_thing_idx);
   if (thing_exists(thing))
   {

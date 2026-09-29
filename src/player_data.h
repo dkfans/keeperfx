@@ -270,6 +270,30 @@ extern unsigned char my_player_number;
 #pragma pack()
 /******************************************************************************/
 
+struct LocalCameraState {
+    struct Camera current[CamIV_EndList];
+    struct Camera previous[CamIV_EndList];
+    struct Camera destination[CamIV_EndList];
+    float previous_deviation_x;
+    float previous_deviation_y;
+    float destination_deviation_x;
+    float destination_deviation_y;
+    TbBool ready;
+    MapCoord move_target[2];
+    MapCoordDelta move_delta[2];
+    struct Camera *move_cam;
+    TbBool rotation_pending;
+    int32_t rotation_angle;
+    TbBool has_rotation_pivot;
+    MapCoord rotation_pivot_x;
+    MapCoord rotation_pivot_y;
+    TbBool first_person_look_pending;
+    int32_t first_person_look_yaw;
+    int32_t first_person_look_pitch;
+    int32_t first_person_look_roll;
+    int32_t possession_start_zoom;
+};
+
 /* Miscellaneous state relating to this device and
  * the local human player.
  *
@@ -309,6 +333,7 @@ extern struct LocalState {
     TbBool replay_detached;
     unsigned char replay_view_type;
     unsigned char replay_cam_idx;
+    struct LocalCameraState camera;
 } local_state;
 
 extern unsigned short player_colors_map[];

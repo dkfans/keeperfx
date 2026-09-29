@@ -15,6 +15,7 @@
 #include "../frontend.h"
 #include "../bflib_mouse.h"
 #include "../bflib_planar.h"
+#include "../local_camera.h"
 
 #include "../post_inc.h"
 
@@ -196,6 +197,7 @@ TbBool ftest_util_move_camera(long x, long y, PlayerNumber plyr_idx)
 
     get_player_user_state(player)->dungeon_camera.x = x;
     get_player_user_state(player)->dungeon_camera.y = y;
+    sync_local_camera(player);
 
     return true;
 }

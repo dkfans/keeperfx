@@ -117,9 +117,10 @@ static TbBigChecksum compute_player_checksum(struct PlayerInfo *player) {
     TbBigChecksum checksum = 0;
     CHECKSUM_ADD(checksum, player->instance_remain_turns);
     CHECKSUM_ADD(checksum, player->instance_num);
-    if (player->victory_state == VicS_Undecided) {
-        CHECKSUM_ADD(checksum, get_player_user_state(player)->dungeon_camera.x);
-        CHECKSUM_ADD(checksum, get_player_user_state(player)->dungeon_camera.y);
+    const struct UserState *ustate = get_player_user_state(player);
+    if ((player->victory_state == VicS_Undecided) && !user_state_invalid(ustate)) {
+        CHECKSUM_ADD(checksum, ustate->dungeon_camera.x);
+        CHECKSUM_ADD(checksum, ustate->dungeon_camera.y);
     }
     return checksum;
 }
@@ -342,9 +343,10 @@ void update_turn_checksums(void) {
             player_snapshot->instance_num = player->instance_num;
             player_snapshot->instance_remain_turns = player->instance_remain_turns;
             memset(&player_snapshot->mappos, 0, sizeof(player_snapshot->mappos));
-            if (player->victory_state == VicS_Undecided) {
-                player_snapshot->mappos.x.val = get_player_user_state(player)->dungeon_camera.x;
-                player_snapshot->mappos.y.val = get_player_user_state(player)->dungeon_camera.y;
+            const struct UserState *ustate = get_player_user_state(player);
+            if ((player->victory_state == VicS_Undecided) && !user_state_invalid(ustate)) {
+                player_snapshot->mappos.x.val = ustate->dungeon_camera.x;
+                player_snapshot->mappos.y.val = ustate->dungeon_camera.y;
             }
             player_snapshot->checksum = compute_player_checksum(player);
         }
