@@ -328,10 +328,7 @@ void update_first_person_position(struct Camera *cam, struct Thing *thing, int e
     if ( thing_is_creature(thing) )
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-        if (cctrl->move_speed && thing_touching_floor(thing))
-            cctrl->head_bob = 16 * get_walking_bob_direction(thing);
-        else
-            cctrl->head_bob = 0;
+        const int32_t head_bob = (cctrl->move_speed && thing_touching_floor(thing)) ? 16 * get_walking_bob_direction(thing) : 0;
 
         int pos_x = move_coord_with_angle_x(thing->mappos.x.val,-90,thing->move_angle_xy);
         int pos_y = move_coord_with_angle_y(thing->mappos.y.val,-90,thing->move_angle_xy);
@@ -345,17 +342,17 @@ void update_first_person_position(struct Camera *cam, struct Thing *thing, int e
         }
         else
         {
-            cam->mappos.z.val = cam->mappos.z.val + ((int64_t)thing->mappos.z.val + cctrl->head_bob - cam->mappos.z.val + eye_height) / 2;
+            cam->mappos.z.val = cam->mappos.z.val + ((int64_t)thing->mappos.z.val + head_bob - cam->mappos.z.val + eye_height) / 2;
             cam->rotation_angle_z = 0;
             if ( eye_height + thing->mappos.z.val <= cam->mappos.z.val )
             {
-                if ( eye_height + thing->mappos.z.val + cctrl->head_bob > cam->mappos.z.val )
-                    cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->head_bob;
+                if ( eye_height + thing->mappos.z.val + head_bob > cam->mappos.z.val )
+                    cam->mappos.z.val = eye_height + thing->mappos.z.val + head_bob;
             }
             else
             {
-                if ( eye_height + thing->mappos.z.val + cctrl->head_bob < cam->mappos.z.val )
-                    cam->mappos.z.val = eye_height + thing->mappos.z.val + cctrl->head_bob;
+                if ( eye_height + thing->mappos.z.val + head_bob < cam->mappos.z.val )
+                    cam->mappos.z.val = eye_height + thing->mappos.z.val + head_bob;
             }
         }
 
