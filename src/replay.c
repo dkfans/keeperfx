@@ -531,7 +531,9 @@ static TbBool read_turn_packets(unsigned char *pckt_buf, int nusers)
 #define LONG_TURN_MARKER ((TbBigChecksum)0x80000000)
 enum LongTurnReplayRecordKind {
     LTK_End = 0,
-    LTK_ChatMessage = 1, // payload: uint16_t user, char message[PLAYER_MP_MESSAGE_LEN]
+    LTK_ChatMessage = 1, // payload: uint16_t user, message text
+    LTK_ChatCommand = 2, // payload: uint16_t user, int32_t cursor_x, int32_t cursor_y, command text
+    LTK_PausedAction = 3, // payload: uint16_t user, uint8_t action, int32_t par1, int32_t par2, int16_t par3, int16_t par4
     // TODO: resyncs / state transfers?
     // Could also carry cheat menu buttons, API actions, etc.
 };
@@ -627,12 +629,20 @@ static TbBool read_long_turn_records(TbBool apply)
             return false;
         }
         uint32_t used = 0;
-        if (apply && (kind == LTK_ChatMessage) && (len >= sizeof(uint16_t)))
+        const TbBool is_command = (kind == LTK_ChatCommand);
+        if (apply && ((kind == LTK_ChatMessage) || is_command) && (len >= sizeof(uint16_t) + (is_command ? 2 * sizeof(int32_t) : 0)))
         {
             uint16_t user;
             if (!read_packet_bytes(&user, sizeof(user)))
                 return false;
             used += sizeof(user);
+            int32_t pos[2] = {-1, -1};
+            if (is_command)
+            {
+                if (!read_packet_bytes(pos, sizeof(pos)))
+                    return false;
+                used += sizeof(pos);
+            }
             char message[PLAYER_MP_MESSAGE_LEN] = {0};
             const uint32_t msg_len = min(len - used, (uint32_t)PLAYER_MP_MESSAGE_LEN - 1);
             if (!read_packet_bytes(message, msg_len))
@@ -640,9 +650,29 @@ static TbBool read_long_turn_records(TbBool apply)
             used += msg_len;
             PlayerNumber plyr_idx = (user < MAX_NET_USERS) ? get_net_user_player_number(user) : -1;
             if (plyr_idx >= 0)
-                process_gameplay_chat_message(user, message);
+                process_gameplay_chat_message(user, message, pos[0], pos[1]);
             else
                 WARNLOG("Chat message for invalid user %u in Packet File", (unsigned)user);
+        } else
+        if (apply && (kind == LTK_PausedAction) && (len >= sizeof(uint16_t) + sizeof(uint8_t) + 2 * sizeof(int32_t) + 2 * sizeof(int16_t)))
+        {
+            uint16_t user;
+            uint8_t action;
+            int32_t par12[2];
+            int16_t par34[2];
+            if (!read_packet_bytes(&user, sizeof(user)) || !read_packet_bytes(&action, sizeof(action))
+             || !read_packet_bytes(par12, sizeof(par12)) || !read_packet_bytes(par34, sizeof(par34)))
+                return false;
+            used += sizeof(user) + sizeof(action) + sizeof(par12) + sizeof(par34);
+            if ((user < MAX_NET_USERS) && (get_net_user_player_number(user) >= 0))
+            {
+                struct Packet saved = game.packets[user];
+                memset(&game.packets[user], 0, sizeof(struct Packet));
+                set_packet_action(&game.packets[user], action, par12[0], par12[1], par34[0], par34[1]);
+                process_user_global_packet_action(user);
+                game.packets[user] = saved;
+            } else
+                WARNLOG("Paused action for invalid user %u in Packet File", (unsigned)user);
         }
         if ((len > used) && !skip_packet_bytes(len - used))
             return false;
@@ -832,21 +862,13 @@ TbBigChecksum compute_replay_integrity(void)
     return sum;
 }
 
-void replay_record_chat_message(NetUserId user, const char *message)
+static void replay_write_record(unsigned char kind, const void *payload, uint32_t payload_len)
 {
-    if (!game.packet_save_enable || !game.packet_fopened || !chat_message_recorded(message))
-        return;
-    unsigned char payload[sizeof(uint16_t) + PLAYER_MP_MESSAGE_LEN];
-    const uint16_t user16 = user;
-    const size_t msg_len = strnlen(message, PLAYER_MP_MESSAGE_LEN - 1);
-    memcpy(payload, &user16, sizeof(user16));
-    memcpy(payload + sizeof(user16), message, msg_len);
-    const uint32_t payload_len = sizeof(user16) + msg_len;
     LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
     const size_t raw_len = (replay_long_turn_open ? 0 : sizeof(TbBigChecksum)) + 5 + sizeof(uint32_t) + sizeof(unsigned char) + sizeof(uint32_t) + payload_len;
     if (!replay_write_fits(raw_len))
         return;
-    if (!begin_long_turn() || !write_long_turn_record(LTK_ChatMessage, payload_len, payload))
+    if (!begin_long_turn() || !write_long_turn_record(kind, payload_len, payload))
     {
         ERRORLOG("Packet file write error at turn %u; recording stopped", (unsigned)get_gameturn());
         close_packet_file();
@@ -854,6 +876,65 @@ void replay_record_chat_message(NetUserId user, const char *message)
         return;
     }
     LbFileFlush(game.packet_save_fp);
+}
+
+void replay_record_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y)
+{
+    if (!game.packet_save_enable || !game.packet_fopened || !chat_message_recorded(message))
+        return;
+    unsigned char payload[sizeof(uint16_t) + 2 * sizeof(int32_t) + PLAYER_MP_MESSAGE_LEN];
+    uint32_t len = 0;
+    const uint16_t user16 = user;
+    memcpy(payload + len, &user16, sizeof(user16));
+    len += sizeof(user16);
+    const TbBool is_command = (message[0] == cmd_char);
+    if (is_command)
+    {
+        const int32_t pos[2] = {cursor_x, cursor_y};
+        memcpy(payload + len, pos, sizeof(pos));
+        len += sizeof(pos);
+    }
+    const size_t msg_len = strnlen(message, PLAYER_MP_MESSAGE_LEN - 1);
+    memcpy(payload + len, message, msg_len);
+    len += msg_len;
+    replay_write_record(is_command ? LTK_ChatCommand : LTK_ChatMessage, payload, len);
+}
+
+static TbBool packet_recorded_while_paused(const struct Packet *pckt)
+{
+    switch (pckt->action)
+    {
+    case PckA_SetViewType:
+    case PckA_SaveViewType:
+    case PckA_LoadViewType:
+    case PckA_SwitchView:
+    case PckA_ZoomFromMap:
+    case PckA_SetComputerKind:
+        return true;
+    default:
+        return false;
+    }
+}
+
+void replay_record_paused_action(NetUserId user, const struct Packet *pckt)
+{
+    if (!game.packet_save_enable || !game.packet_fopened || network_is_active())
+        return;
+    if (!packet_recorded_while_paused(pckt))
+        return;
+    unsigned char payload[sizeof(uint16_t) + sizeof(uint8_t) + 2 * sizeof(int32_t) + 2 * sizeof(int16_t)];
+    uint32_t len = 0;
+    const uint16_t user16 = user;
+    const int32_t par12[2] = {pckt->actn_par1, pckt->actn_par2};
+    const int16_t par34[2] = {pckt->actn_par3, pckt->actn_par4};
+    memcpy(payload + len, &user16, sizeof(user16));
+    len += sizeof(user16);
+    payload[len++] = pckt->action;
+    memcpy(payload + len, par12, sizeof(par12));
+    len += sizeof(par12);
+    memcpy(payload + len, par34, sizeof(par34));
+    len += sizeof(par34);
+    replay_write_record(LTK_PausedAction, payload, len);
 }
 
 short save_packets(void)

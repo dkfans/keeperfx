@@ -1146,6 +1146,8 @@ void process_user_packet(NetUserId user)
         return;
     }
     SYNCDBG(6, "Processing user %d packet of type %d.", user, (int)pckt->action);
+    if (flag_is_set(game.operation_flags, GOF_Paused))
+        replay_record_paused_action(user, pckt);
     struct UserState* ustate = get_user_state(user);
     ustate->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     ustate->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
@@ -1694,9 +1696,23 @@ void exchange_packets(void)
 /**
  * Process all packets influencing local game state.
  */
+void clear_users_button_state(void)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        struct UserState *ustate = get_user_state(user);
+        if (user_state_invalid(ustate))
+            continue;
+        ustate->cursor_button_down = 0;
+        ustate->interpolated_tagging = false;
+    }
+}
+
 void process_packets(void)
 {
     // Write packets into file, if requested
+    if (!game.packet_load_enable && flag_is_set(game.operation_flags, GOF_Paused))
+        clear_users_button_state();
     process_queued_chat_messages();
     if (game.packet_load_enable)
         verify_replay_checksum();

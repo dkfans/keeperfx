@@ -437,9 +437,20 @@ static short get_players_message_inputs(void)
             if (text[0] != '\0')
                 message_add(MsgType_Player, player->id_number, text);
         } else {
+            MapCoord cursor_x;
+            MapCoord cursor_y;
+            struct Coord3d pos;
+            if ((get_local_view_type(player) == PVT_DungeonTop) && screen_to_map(get_local_active_camera(player), GetMouseX(), GetMouseY(), &pos))
+            {
+                cursor_x = pos.x.val;
+                cursor_y = pos.y.val;
+            } else
+            {
+                console_cmd_default_cursor(player->id_number, &cursor_x, &cursor_y);
+            }
             if (network_is_active())
-                send_network_chat_message(get_local_user(), text);
-            queue_gameplay_chat_message(get_local_user(), text);
+                send_network_chat_message_at(get_local_user(), text, cursor_x, cursor_y);
+            queue_gameplay_chat_message(get_local_user(), text, cursor_x, cursor_y);
         }
         ustate->init_flags &= ~UsrIF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
@@ -2783,7 +2794,10 @@ static short get_packet_load_game_inputs(void)
     } else
     {
         if (flag_is_set(game.operation_flags, GOF_Paused))
+        {
+            clear_users_button_state();
             process_pause_packet(0, 0);
+        }
         clear_flag(game.operation_flags, GOF_Paused);
         load_packets_for_turn(game.pckt_gameturn);
         game.pckt_gameturn++;

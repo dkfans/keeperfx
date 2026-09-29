@@ -31,6 +31,7 @@
 #include "packets.h"
 #include "player_data.h"
 #include <SDL3/SDL.h>
+#include "config_keeperfx.h"
 #include "post_inc.h"
 /******************************************************************************/
 
@@ -159,7 +160,10 @@ static TbError handle_chat_message(NetUserId source, char *read_pos, size_t mess
         return Lb_OK;
     }
     if (expected_frame_type == NETMSG_GAMEPLAY_UNSEQUENCED) {
-        queue_gameplay_chat_message(sender, message);
+        int32_t pos[2] = {-1, -1};
+        if ((size_t)(read_pos - netstate.msg_buffer) + sizeof(pos) <= message_size)
+            memcpy(pos, read_pos, sizeof(pos));
+        queue_gameplay_chat_message(sender, message, pos[0], pos[1]);
     } else {
         process_frontend_chat_message(sender, message);
     }
@@ -183,11 +187,22 @@ TbBool read_network_message_text(char **read_pos, const char **text, size_t max_
 
 void send_network_chat_message(NetUserId sender, const char *message)
 {
+    send_network_chat_message_at(sender, message, -1, -1);
+}
+
+void send_network_chat_message_at(NetUserId sender, const char *message, int32_t cursor_x, int32_t cursor_y)
+{
     char *write_pos = begin_net_message(NETMSG_CHATMESSAGE);
     *write_pos = sender;
     write_pos += 1;
     strcpy(write_pos, message);
     write_pos += strlen(message) + 1;
+    if (message[0] == cmd_char)
+    {
+        const int32_t pos[2] = {cursor_x, cursor_y};
+        memcpy(write_pos, pos, sizeof(pos));
+        write_pos += sizeof(pos);
+    }
     send_remote_buffer(write_pos);
 }
 

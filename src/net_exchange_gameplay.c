@@ -157,12 +157,14 @@ TbError process_network_unpause_message(void)
 #define GAMEPLAY_CHAT_QUEUE_LEN 16
 struct QueuedGameplayChat {
     NetUserId user;
+    MapCoord cursor_x;
+    MapCoord cursor_y;
     char message[PLAYER_MP_MESSAGE_LEN];
 };
 static struct QueuedGameplayChat gameplay_chat_queue[GAMEPLAY_CHAT_QUEUE_LEN];
 static int gameplay_chat_queue_count;
 
-void queue_gameplay_chat_message(NetUserId user, const char *message)
+void queue_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y)
 {
     if (gameplay_chat_queue_count >= GAMEPLAY_CHAT_QUEUE_LEN)
     {
@@ -172,26 +174,30 @@ void queue_gameplay_chat_message(NetUserId user, const char *message)
     }
     struct QueuedGameplayChat *queued = &gameplay_chat_queue[gameplay_chat_queue_count++];
     queued->user = user;
+    queued->cursor_x = cursor_x;
+    queued->cursor_y = cursor_y;
     snprintf(queued->message, sizeof(queued->message), "%s", message);
 }
 
 void process_queued_chat_messages(void)
 {
     for (int i = 0; i < gameplay_chat_queue_count; i++)
-        process_gameplay_chat_message(gameplay_chat_queue[i].user, gameplay_chat_queue[i].message);
+        process_gameplay_chat_message(gameplay_chat_queue[i].user, gameplay_chat_queue[i].message,
+            gameplay_chat_queue[i].cursor_x, gameplay_chat_queue[i].cursor_y);
     gameplay_chat_queue_count = 0;
 }
 
-void process_gameplay_chat_message(NetUserId user, const char *message)
+void process_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y)
 {
     if (message[0] != '\0')
-        replay_record_chat_message(user, message);
+        replay_record_chat_message(user, message, cursor_x, cursor_y);
     PlayerNumber plyr_idx = get_net_user_player_number(user);
     struct PlayerInfo *player = prepare_network_chat_message(plyr_idx, message);
     if (message[0] != '\0') {
         SYNCLOG("Gameplay chat from user %d (player %d): %s", (int)user, (int)plyr_idx, message);
         lua_on_chatmsg(plyr_idx, player->mp_message_text);
-        if (player->mp_message_text[0] != cmd_char || !cmd_exec(plyr_idx, player->mp_message_text + 1) || network_is_active()) {
+        const TbBool shown = (player->mp_message_text[0] != cmd_char) || !cmd_exec(plyr_idx, player->mp_message_text + 1, cursor_x, cursor_y) || network_is_active();
+        if (shown) {
             message_add(MsgType_Player, plyr_idx, player->mp_message_text);
             play_non_3d_sample(snd_chat_message[user == get_local_user()]);
         }
