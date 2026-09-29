@@ -338,10 +338,7 @@ TbError LbNetwork_Create(char *lobby_name, char *plyr_name, uint32_t *plyr_num, 
     netstate.users[SERVER_ID].progress = USER_LOGGEDIN;
     netstate.locked = 0;
     net_lobby_refresh_metadata();
-    uint16_t local_port = enet_port;
-    if (server_port > 0) {
-        local_port = (uint16_t)server_port;
-    }
+    const uint16_t local_port = enet_get_bound_port();
     uint16_t ipv4_port = local_port;
     if (external_ipv4_port != 0) {
         ipv4_port = external_ipv4_port;

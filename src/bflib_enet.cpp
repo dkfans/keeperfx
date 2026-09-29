@@ -233,6 +233,9 @@ namespace
         enet_uint16 actual_port = enet_port;
         if (port > 0)
             actual_port = (enet_uint16)port;
+        if (*session == ':' && (frontnet_service_selected(FrontendNetSvc_LAN) || frontnet_service_selected(FrontendNetSvc_Online))) {
+            actual_port = ENET_PORT_ANY;
+        }
         ENetAddress address;
         enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV6);
         address.port = actual_port;
@@ -1077,6 +1080,14 @@ unsigned int GetDownloadRateBytesPerSecond()
         return 0;
     }
     return sample_transfer_bytes_per_second(&download_rate_tracker, &host->totalReceivedData);
+}
+
+uint16_t enet_get_bound_port(void)
+{
+    if (!host) {
+        return 0;
+    }
+    return host->address.port;
 }
 
 uint16_t enet_get_bound_ipv6_port(void)
