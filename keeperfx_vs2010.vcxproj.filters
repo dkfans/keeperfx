@@ -322,6 +322,7 @@
     <ClCompile Include="src\net_checksums.c" />
     <ClCompile Include="src\net_input_lag.c" />
     <ClCompile Include="src\value_util.c" />
+    <ClCompile Include="src\replay.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h" />
@@ -652,6 +653,8 @@
     <ClInclude Include="src\pre_inc.h" />
     <ClInclude Include="src\thread.hpp" />
     <ClInclude Include="src\value_util.h" />
+    <ClInclude Include="src\ver_defs.h" />
+    <ClInclude Include="src\replay.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />

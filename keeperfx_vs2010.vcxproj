@@ -254,6 +254,7 @@
     <ClCompile Include="src\power_hand.c" />
     <ClCompile Include="src\power_process.c" />
     <ClCompile Include="src\power_specials.c" />
+    <ClCompile Include="src\replay.c" />
     <ClCompile Include="src\roomspace.c" />
     <ClCompile Include="src\roomspace_detection.c" />
     <ClCompile Include="src\roomspace_prediction.c" />
@@ -562,6 +563,7 @@
     <ClInclude Include="src\power_process.h" />
     <ClInclude Include="src\power_specials.h" />
     <ClInclude Include="src\pre_inc.h" />
+    <ClInclude Include="src\replay.h" />
     <ClInclude Include="src\roomspace.h" />
     <ClInclude Include="src\roomspace_detection.h" />
     <ClInclude Include="src\roomspace_prediction.h" />
