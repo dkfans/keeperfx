@@ -54,6 +54,7 @@ struct UserStartSettings {
     uint8_t flags; // UserStartFlags
     uint16_t tendencies; // CrTend_* flags
     uint8_t highlight_mode;
+    uint8_t map_fade_turns;
     int32_t isometric_tilt;
     uint32_t isometric_view_zoom_level;
     uint32_t frontview_zoom_level;

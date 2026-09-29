@@ -158,6 +158,7 @@ void build_local_user_start_settings(struct UserStartSettings *us)
         us->flags |= USF_SkipHeartZoom;
     us->highlight_mode = (default_tag_mode != 3) ? default_tag_mode - 1 : settings.highlight_mode;
     us->isometric_tilt = settings.isometric_tilt;
+    us->map_fade_turns = get_parchment_map_fade_turns();
 }
 
 /** Before init_player(), which builds the local camera from these. */
@@ -172,6 +173,7 @@ void apply_user_start_camera_settings(NetUserId user, const struct UserStartSett
     ustate->dungeon_camera.zoom[false] = (us->isometric_view_zoom_level != 0) ? us->isometric_view_zoom_level : CAMERA_ZOOM_MAX;
     ustate->dungeon_camera.zoom[true] = (us->frontview_zoom_level != 0) ? us->frontview_zoom_level : FRONTVIEW_CAMERA_ZOOM_MAX;
     ustate->highlight_mode = us->highlight_mode;
+    ustate->map_fade_turns = us->map_fade_turns;
 }
 
 void apply_user_start_settings(struct PlayerInfo *player, const struct UserStartSettings *us, const struct UserStartSettings *host)
