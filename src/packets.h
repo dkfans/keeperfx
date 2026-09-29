@@ -335,7 +335,6 @@ void process_map_packet_clicks(NetUserId user);
 void process_pause_packet(long a1, long a2);
 TbBool process_user_global_packet_action(NetUserId user);
 void clear_users_button_state(void);
-void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
 void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
 TbBool packet_action_has_camera_position(enum TbPacketAction action);
 unsigned char packet_camera_context(const struct Packet *pckt);

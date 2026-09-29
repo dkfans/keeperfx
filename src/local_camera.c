@@ -45,6 +45,8 @@ extern "C" {
 /******************************************************************************/
 static struct Packet freecam_packet;
 /******************************************************************************/
+static int get_local_active_camera_index(struct PlayerInfo *player);
+static struct Camera *get_local_dungeon_camera(struct PlayerInfo *player);
 
 static TbBool replay_is_detached(void)
 {
@@ -262,6 +264,20 @@ static struct LocalCameraRotation take_local_camera_rotation(void)
     return rotation;
 }
 
+static void process_local_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player)
+{
+    MapCoord x;
+    MapCoord y;
+    const TbBool dungeon_view = (cam->view_mode == PVM_IsoWibbleView) || (cam->view_mode == PVM_IsoStraightView) || (cam->view_mode == PVM_FrontView);
+    if (dungeon_view && packet_get_camera_position(pckt, &x, &y))
+    {
+        view_set_camera_position(cam, x, y);
+        cam->velocity_x = 0;
+        cam->velocity_y = 0;
+    }
+    process_camera_view_controls(cam, pckt, player);
+}
+
 static void process_local_camera_rotation(struct Camera *cam, TbBool has_pivot, MapCoord pivot_x, MapCoord pivot_y, const struct LocalCameraRotation *rotation)
 {
     const TbBool use_pivot = rotation->around_cursor && has_pivot;
@@ -430,7 +446,7 @@ void update_local_cameras(void)
                     local_state.camera.rotation_pivot_x, local_state.camera.rotation_pivot_y, &rotation);
                 process_camera_view_controls(cam, pckt, player);
             } else {
-                process_camera_controls(cam, pckt, player);
+                process_local_camera_controls(cam, pckt, player);
             }
             local_state.camera_movement_x = 0.0f;
             local_state.camera_movement_y = 0.0f;
@@ -697,7 +713,7 @@ unsigned char get_local_view_type(const struct PlayerInfo *player)
     return get_player_view_type(player);
 }
 
-int get_local_active_camera_index(struct PlayerInfo *player)
+static int get_local_active_camera_index(struct PlayerInfo *player)
 {
     if (!is_my_player(player) || !local_state.camera.ready)
         return get_player_active_camera_index(player);
@@ -725,7 +741,7 @@ struct Camera* get_local_active_camera(struct PlayerInfo *player)
     return &local_state.camera.current[get_player_active_camera_index(player)];
 }
 
-struct Camera *get_local_dungeon_camera(struct PlayerInfo *player)
+static struct Camera *get_local_dungeon_camera(struct PlayerInfo *player)
 {
     return &local_state.camera.current[get_player_user_state(player)->dungeon_camera.use_front_view ? CamIV_FrontView : CamIV_Isometric];
 }

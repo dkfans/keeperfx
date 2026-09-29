@@ -487,28 +487,6 @@ TbBool packet_get_camera_position(const struct Packet *pckt, MapCoord *x, MapCoo
     return true;
 }
 
-static void process_camera_position(struct Camera* cam, const struct Packet* pckt)
-{
-    if ((cam->view_mode != PVM_IsoWibbleView) && (cam->view_mode != PVM_IsoStraightView) && (cam->view_mode != PVM_FrontView))
-        return;
-    MapCoord x;
-    MapCoord y;
-    if (!packet_get_camera_position(pckt, &x, &y))
-        return;
-    view_set_camera_position(cam, x, y);
-    cam->velocity_x = 0;
-    cam->velocity_y = 0;
-}
-
-void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player)
-{
-    if (cam == NULL) {
-        return;
-    }
-    process_camera_position(cam, pckt);
-    process_camera_view_controls(cam, pckt, player);
-}
-
 void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player)
 {
     if ((pckt->control_flags & PCtr_ViewTiltUp) != 0)
@@ -553,7 +531,7 @@ void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt,
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             view_zoom_camera_in_to(cam, zoom_max, zoom_min, zoom_x, zoom_y);
-            update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            cam->zoom = clamp(cam->zoom, zoom_min, zoom_max);
             break;
         default:
             view_zoom_camera_in_to(cam, zoom_max, zoom_min, zoom_x, zoom_y);
@@ -567,7 +545,7 @@ void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt,
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             view_zoom_camera_out_from(cam, zoom_max, zoom_min, zoom_x, zoom_y);
-            update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            cam->zoom = clamp(cam->zoom, zoom_min, zoom_max);
             break;
         default:
             view_zoom_camera_out_from(cam, zoom_max, zoom_min, zoom_x, zoom_y);

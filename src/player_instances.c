@@ -137,18 +137,16 @@ struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
 #endif
 /******************************************************************************/
 
-static TbBool zoom_to_position_camera_step(const struct PlayerInfo *player, struct DungeonCamera *dcam)
-{
-    return view_move_camera_to_position(&dcam->x, &dcam->y, player->zoom_to_pos_x, player->zoom_to_pos_y,
-        player->zoom_to_movement_x, player->zoom_to_movement_y);
-}
-
 /** How many turns the zoom to position takes to arrive. */
 static int32_t zoom_to_position_turns(const struct PlayerInfo *player)
 {
     struct DungeonCamera dcam = get_player_user_state(player)->dungeon_camera;
+    MapCoordDelta move_x;
+    MapCoordDelta move_y;
+    view_set_camera_move_to_position(dcam.x, dcam.y, player->zoom_to_pos_x, player->zoom_to_pos_y, &move_x, &move_y);
     int32_t turns = 1;
-    while (!zoom_to_position_camera_step(player, &dcam) && (turns < 64))
+    while (!view_move_camera_to_position(&dcam.x, &dcam.y, player->zoom_to_pos_x, player->zoom_to_pos_y, move_x, move_y)
+        && (turns < 64))
         turns++;
     return turns;
 }
@@ -402,7 +400,6 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
     turn_off_menu(GMnu_CREATURE_QUERY2);
   }
   ustate->init_flags |= UsrIF_KeyboardInputDisabled;
-  player->dungeon_camera_zoom = get_player_dungeon_zoom(player);
   record_local_possession_start(player);
   const struct Thing* thing = thing_get(player->influenced_thing_idx);
   if (thing_exists(thing))
@@ -464,7 +461,6 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
     }
     if (!thing_exists(thing))
     {
-        set_player_dungeon_zoom(player, player->dungeon_camera_zoom);
         if (is_my_player(player)) {
             PaletteSetUserPalette(player->user_id, engine_palette);
         }
@@ -583,7 +579,6 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
 long pinstfe_leave_creature(struct PlayerInfo *player, int32_t *n)
 {
     struct UserState* ustate = get_player_user_state(player);
-    set_player_dungeon_zoom(player, player->dungeon_camera_zoom);
   if (is_my_player(player)) {
     PaletteSetUserPalette(player->user_id, engine_palette);
   }
@@ -595,7 +590,6 @@ long pinstfe_leave_creature(struct PlayerInfo *player, int32_t *n)
 long pinstfs_query_creature(struct PlayerInfo *player, int32_t *n)
 {
     struct Thing* thing = thing_get(player->influenced_thing_idx);
-    player->dungeon_camera_zoom = get_player_dungeon_zoom(player);
     set_selected_creature(player, thing);
     unsigned char state = ( (player->work_state == PSt_QueryAll) || (player->work_state == PSt_CreatrInfoAll) ) ? PSt_CreatrInfoAll : PSt_CreatrInfo;
     set_player_state(player, state, 0);
@@ -838,8 +832,6 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, int32_t *n)
     player->controlled_thing_creatrn = 0;
     ustate->init_flags |= UsrIF_MouseInputDisabled;
     ustate->init_flags |= UsrIF_KeyboardInputDisabled;
-    view_set_camera_move_to_position(ustate->dungeon_camera.x, ustate->dungeon_camera.y, player->zoom_to_pos_x, player->zoom_to_pos_y,
-        &player->zoom_to_movement_x, &player->zoom_to_movement_y);
     player->instance_remain_turns = zoom_to_position_turns(player);
     set_view_position(&ustate->dungeon_camera.x, &ustate->dungeon_camera.y, player->zoom_to_pos_x, player->zoom_to_pos_y);
     if (is_my_player(player))

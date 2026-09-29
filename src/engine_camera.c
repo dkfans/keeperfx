@@ -185,30 +185,6 @@ int32_t zoom_out_for_view(int32_t old_zoom, unsigned char view_mode, int32_t lim
     }
 }
 
-void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
-{
-    set_camera_zoom(cam, zoom_in_for_view(get_camera_zoom(cam), cam->view_mode, limit_max, limit_min));
-}
-
-void set_camera_zoom(struct Camera *cam, long new_zoom)
-{
-    if (cam == NULL)
-      return;
-    switch (cam->view_mode)
-    {
-    case PVM_IsoWibbleView:
-    case PVM_FrontView:
-    case PVM_IsoStraightView:
-        cam->zoom = new_zoom;
-        break;
-    }
-}
-
-void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
-{
-    set_camera_zoom(cam, zoom_out_for_view(get_camera_zoom(cam), cam->view_mode, limit_max, limit_min));
-}
-
 void shift_view_position_for_zoom(MapCoord *pos_x, MapCoord *pos_y, int32_t old_zoom, int32_t new_zoom, MapCoord x, MapCoord y)
 {
     if ((x | y) < 0 || new_zoom == 0)
@@ -228,51 +204,16 @@ static void view_move_camera_on_zoom(struct Camera *cam, int32_t a, int32_t b, M
 
 void view_zoom_camera_in_to(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y)
 {
-    const int32_t old_zoom = get_camera_zoom(cam);
-    view_zoom_camera_in(cam, limit_max, limit_min);
-    const int32_t new_zoom = get_camera_zoom(cam);
-    view_move_camera_on_zoom(cam, old_zoom, new_zoom, x, y);
+    const int32_t old_zoom = cam->zoom;
+    cam->zoom = zoom_in_for_view(old_zoom, cam->view_mode, limit_max, limit_min);
+    view_move_camera_on_zoom(cam, old_zoom, cam->zoom, x, y);
 }
 
 void view_zoom_camera_out_from(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y)
 {
-    const int32_t old_zoom = get_camera_zoom(cam);
-    view_zoom_camera_out(cam, limit_max, limit_min);
-    const int32_t new_zoom = get_camera_zoom(cam);
-    view_move_camera_on_zoom(cam, old_zoom, new_zoom, x, y);
-}
-
-/**
- * Conducts clipping to zoom level of given camera, based on current screen mode.
- */
-void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min)
-{
-    SYNCDBG(7,"Starting");
-    long zoom_val = get_camera_zoom(cam);
-    if (zoom_val < zoom_min)
-    {
-      zoom_val = zoom_min;
-    } else
-    if (zoom_val > zoom_max)
-    {
-      zoom_val = zoom_max;
-    }
-    set_camera_zoom(cam, zoom_val);
-}
-
-long get_camera_zoom(struct Camera *cam)
-{
-    if (cam == NULL)
-      return 0;
-    switch (cam->view_mode)
-    {
-    case PVM_IsoWibbleView:
-    case PVM_FrontView:
-    case PVM_IsoStraightView:
-        return cam->zoom;
-    default:
-        return 0;
-    }
+    const int32_t old_zoom = cam->zoom;
+    cam->zoom = zoom_out_for_view(old_zoom, cam->view_mode, limit_max, limit_min);
+    view_move_camera_on_zoom(cam, old_zoom, cam->zoom, x, y);
 }
 
 
@@ -469,48 +410,20 @@ void update_first_person_position(struct Camera *cam, struct Thing *thing, int e
     }
 }
 
-void update_first_person_camera(struct Camera *cam, struct Thing *thing)
-{
-    int eye_height = get_creature_eye_height(thing);
-    update_first_person_position(cam, thing, eye_height);
-    cam->rotation_angle_x = thing->move_angle_xy;
-    cam->rotation_angle_y = thing->move_angle_z;
-}
-
 // Positive distance moves rightwards
 static void view_move_camera_x(struct Camera *cam, int32_t distance)
 {
-    MapCoord pos_x;
-    MapCoord pos_y;
-
-    switch (cam->view_mode)
-    {
-    case PVM_IsoWibbleView:
-    case PVM_FrontView:
-    case PVM_IsoStraightView:
-        pos_x = move_coord_with_angle_x(cam->mappos.x.val, distance, cam->rotation_angle_x + DEGREES_90);
-        pos_y = move_coord_with_angle_y(cam->mappos.y.val, distance, cam->rotation_angle_x + DEGREES_90);
-        view_set_camera_position(cam, pos_x, pos_y);
-        break;
-    }
+    const MapCoord pos_x = move_coord_with_angle_x(cam->mappos.x.val, distance, cam->rotation_angle_x + DEGREES_90);
+    const MapCoord pos_y = move_coord_with_angle_y(cam->mappos.y.val, distance, cam->rotation_angle_x + DEGREES_90);
+    view_set_camera_position(cam, pos_x, pos_y);
 }
 
 // Positive distance moves downwards
 static void view_move_camera_y(struct Camera *cam, int32_t distance)
 {
-    MapCoord pos_x;
-    MapCoord pos_y;
-
-    switch (cam->view_mode)
-    {
-    case PVM_IsoWibbleView:
-    case PVM_FrontView:
-    case PVM_IsoStraightView:
-        pos_x = move_coord_with_angle_x(cam->mappos.x.val, distance, cam->rotation_angle_x + DEGREES_180);
-        pos_y = move_coord_with_angle_y(cam->mappos.y.val, distance, cam->rotation_angle_x + DEGREES_180);
-        view_set_camera_position(cam, pos_x, pos_y);
-        break;
-    }
+    const MapCoord pos_x = move_coord_with_angle_x(cam->mappos.x.val, distance, cam->rotation_angle_x + DEGREES_180);
+    const MapCoord pos_y = move_coord_with_angle_y(cam->mappos.y.val, distance, cam->rotation_angle_x + DEGREES_180);
+    view_set_camera_position(cam, pos_x, pos_y);
 }
 
 void view_process_camera_velocity(struct Camera *cam)
@@ -587,16 +500,10 @@ void update_player_camera(struct PlayerInfo *player)
 {
     struct Dungeon *dungeon = get_players_dungeon(player);
 
-    if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
+    if (((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
+     && (player->controlled_thing_idx <= 0) && (player->instance_num != PI_HeartZoom))
     {
-        if (player->controlled_thing_idx > 0) {
-            struct Camera cam;
-            memset(&cam, 0, sizeof(cam));
-            update_first_person_camera(&cam, thing_get(player->controlled_thing_idx));
-        } else
-        if (player->instance_num != PI_HeartZoom) {
-            ERRORLOG("Cannot go first person without controlling creature");
-        }
+        ERRORLOG("Cannot go first person without controlling creature");
     }
     if (dungeon->camera_deviate_quake) {
         dungeon->camera_deviate_quake--;

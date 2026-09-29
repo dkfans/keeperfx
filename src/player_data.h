@@ -188,11 +188,8 @@ struct PlayerInfo {
     /** An "instance" is a short, scripted animation. See: enum PlayerInstanceNum */
     unsigned char instance_num;
     unsigned long instance_remain_turns;
-    int32_t dungeon_camera_zoom;
     /** Overcharge level while casting keeper powers. */
     int32_t cast_expand_level;
-    MapCoordDelta zoom_to_movement_x;
-    MapCoordDelta zoom_to_movement_y;
     GameTurn power_of_cooldown_turn;
     int32_t game_version;
     GameTurn display_objective_turn;
@@ -381,8 +378,6 @@ void clear_players(void);
 unsigned char get_player_view_type(const struct PlayerInfo *player);
 unsigned char get_player_active_camera_index(const struct PlayerInfo *player);
 int32_t get_player_dungeon_yaw(const struct PlayerInfo *player);
-int32_t get_player_dungeon_zoom(const struct PlayerInfo *player);
-void set_player_dungeon_zoom(struct PlayerInfo *player, int32_t zoom);
 enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate);
 void rotate_mode_to_dungeon_view(unsigned char mode, TbBool *front_view, TbBool *wibble);
 

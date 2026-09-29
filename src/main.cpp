@@ -1184,7 +1184,6 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
         return;
     }
     spectator_breed = get_players_spectator_model(plyr_idx);
-    player->dungeon_camera_zoom = get_player_dungeon_zoom(player);
     struct CompoundTngFilterParam param = {};
     param.class_id = TCls_Creature;
     struct Thing *spawn_creatng = get_random_thing_of_class_with_filter(filter_creatures_owned_by_keepers, &param, plyr_idx);

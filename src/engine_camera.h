@@ -123,14 +123,9 @@ int32_t zoom_out_for_view(int32_t old_zoom, unsigned char view_mode, int32_t lim
 int32_t tilt_step(int32_t tilt, unsigned char mode);
 void set_view_position(MapCoord *pos_x, MapCoord *pos_y, MapCoord x, MapCoord y);
 void shift_view_position_for_zoom(MapCoord *pos_x, MapCoord *pos_y, int32_t old_zoom, int32_t new_zoom, MapCoord x, MapCoord y);
-void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min);
 void view_zoom_camera_in_to(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y);
-void set_camera_zoom(struct Camera *cam, long val);
-void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min);
 void view_zoom_camera_out_from(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y);
-long get_camera_zoom(struct Camera *cam);
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
-void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
 
 void view_set_camera_y_velocity(struct Camera *cam, long delta, long ilimit);
 void view_set_camera_x_velocity(struct Camera *cam, long delta, long ilimit);

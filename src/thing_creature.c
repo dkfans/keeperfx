@@ -3357,7 +3357,6 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
     player->influenced_thing_creation = 0;
-    set_player_dungeon_zoom(player, player->dungeon_camera_zoom);
     sync_local_camera(player);
     if (is_my_player(player)) {
         turn_off_all_window_menus();
