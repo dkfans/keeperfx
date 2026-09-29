@@ -5969,17 +5969,17 @@ msgstr ""
 
 #: guitext:1129
 msgctxt "Network game interface"
-msgid "In-Lobby"
+msgid "Lobby"
 msgstr ""
 
 #: guitext:1130
 msgctxt "Network game interface"
-msgid "In-Game"
+msgid "In-game"
 msgstr ""
 
 #: guitext:1131
 msgctxt "Network game interface"
-msgid "In-Landview"
+msgid "Map"
 msgstr ""
 
 #: guitext:1132
