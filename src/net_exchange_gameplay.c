@@ -154,8 +154,38 @@ TbError process_network_unpause_message(void)
     return Lb_OK;
 }
 
+#define GAMEPLAY_CHAT_QUEUE_LEN 16
+struct QueuedGameplayChat {
+    NetUserId user;
+    char message[PLAYER_MP_MESSAGE_LEN];
+};
+static struct QueuedGameplayChat gameplay_chat_queue[GAMEPLAY_CHAT_QUEUE_LEN];
+static int gameplay_chat_queue_count;
+
+void queue_gameplay_chat_message(NetUserId user, const char *message)
+{
+    if (gameplay_chat_queue_count >= GAMEPLAY_CHAT_QUEUE_LEN)
+    {
+        ERRORLOG("Chat message queue overflow (%d messages); clearing it", gameplay_chat_queue_count);
+        stop_replay_recording("chat message queue overflow");
+        gameplay_chat_queue_count = 0;
+    }
+    struct QueuedGameplayChat *queued = &gameplay_chat_queue[gameplay_chat_queue_count++];
+    queued->user = user;
+    snprintf(queued->message, sizeof(queued->message), "%s", message);
+}
+
+void process_queued_chat_messages(void)
+{
+    for (int i = 0; i < gameplay_chat_queue_count; i++)
+        process_gameplay_chat_message(gameplay_chat_queue[i].user, gameplay_chat_queue[i].message);
+    gameplay_chat_queue_count = 0;
+}
+
 void process_gameplay_chat_message(NetUserId user, const char *message)
 {
+    if (message[0] != '\0')
+        replay_record_chat_message(user, message);
     PlayerNumber plyr_idx = get_net_user_player_number(user);
     struct PlayerInfo *player = prepare_network_chat_message(plyr_idx, message);
     if (message[0] != '\0') {

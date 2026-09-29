@@ -42,6 +42,8 @@ void LbNetwork_BroadcastUnpause(void);
 TbError process_network_unpause_message(void);
 TbError process_network_turn_sync_message(NetUserId source, const char *buffer, size_t buffer_size);
 void process_gameplay_chat_message(NetUserId user, const char *message);
+void queue_gameplay_chat_message(NetUserId user, const char *message);
+void process_queued_chat_messages(void);
 
 #ifdef __cplusplus
 }

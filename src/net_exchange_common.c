@@ -159,7 +159,7 @@ static TbError handle_chat_message(NetUserId source, char *read_pos, size_t mess
         return Lb_OK;
     }
     if (expected_frame_type == NETMSG_GAMEPLAY_UNSEQUENCED) {
-        process_gameplay_chat_message(sender, message);
+        queue_gameplay_chat_message(sender, message);
     } else {
         process_frontend_chat_message(sender, message);
     }

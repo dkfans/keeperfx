@@ -33,7 +33,7 @@ struct CatalogueEntry;
 
 // save file header for .pck files.
 // (Bump the version if this struct or the .pck format changes.)
-#define PACKET_SAVE_HEAD_VER 2
+#define PACKET_SAVE_HEAD_VER 3
 
 enum PacketSaveHeadFlags {
     PSHF_Checksum   = 0x01,
@@ -73,10 +73,12 @@ void restore_users_from_packet_save(void);
 TbBool setup_auto_replay_save(void);
 TbBool open_new_packet_file_for_save(void);
 void load_packets_for_turn(GameTurn nturn);
+void verify_replay_checksum(void);
 TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
 void close_packet_file(void);
 void stop_replay_recording(const char *reason);
+void replay_record_chat_message(NetUserId user, const char *message);
 TbBool replay_playback_is_paused(void);
 void set_replay_playback_paused(TbBool paused);
 TbBool reinit_packets_after_load(void);

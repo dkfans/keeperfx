@@ -430,10 +430,16 @@ static short get_players_message_inputs(void)
     struct UserState* ustate = get_local_user_state();
 
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
-        memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
-        set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
-        if (network_is_active()) {
-            send_network_chat_message(get_local_user(), player->mp_message_text);
+        char text[PLAYER_MP_MESSAGE_LEN];
+        memcpy(text, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
+        text[PLAYER_MP_MESSAGE_LEN - 1] = '\0';
+        if (game.packet_load_enable) {
+            if (text[0] != '\0')
+                message_add(MsgType_Player, player->id_number, text);
+        } else {
+            if (network_is_active())
+                send_network_chat_message(get_local_user(), text);
+            queue_gameplay_chat_message(get_local_user(), text);
         }
         ustate->init_flags &= ~UsrIF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);

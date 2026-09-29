@@ -787,8 +787,6 @@ TbBool process_user_global_packet_action(NetUserId user)
       return 0;
       }
   case PckA_PlyrMsgEnd:
-      process_gameplay_chat_message(player->user_id, player->mp_pending_message);
-      player->mp_pending_message[0] = '\0';
       return 0;
   case PckA_PlyrMsgClear:
       get_user_state(user)->init_flags &= ~UsrIF_NewMPMessage;
@@ -1646,9 +1644,12 @@ void exchange_packets(void)
 
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
     const NetUserId local_user = get_local_user();
-    input_lag_update(get_local_packet());
-    set_local_packet_turn();
-    update_turn_checksums();
+    if (!game.packet_load_enable)
+    {
+        input_lag_update(get_local_packet());
+        set_local_packet_turn();
+        update_turn_checksums();
+    }
     update_local_dig_tag_prediction();
     if (!game.packet_load_enable)
         camera_packet_set_state(get_local_packet());
@@ -1696,7 +1697,9 @@ void exchange_packets(void)
 void process_packets(void)
 {
     // Write packets into file, if requested
-    // Paused frames don't advance the world; the replay unpauses itself on the next saved frame.
+    process_queued_chat_messages();
+    if (game.packet_load_enable)
+        verify_replay_checksum();
     if ((game.packet_save_enable) && (game.packet_fopened) && !flag_is_set(game.operation_flags, GOF_Paused)) {
         save_packets();
     }
@@ -1705,7 +1708,7 @@ void process_packets(void)
     write_debug_packets();
     #endif
     // Process the packets
-    for (NetUserId user = 0; user < PACKETS_COUNT; user++)
+    for (NetUserId user = 0; (user < PACKETS_COUNT) && !replay_playback_is_paused(); user++)
     {
         const PlayerNumber plyr_idx = get_net_user_player_number(user);
         if (plyr_idx < 0) {

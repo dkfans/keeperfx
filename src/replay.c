@@ -19,6 +19,7 @@
 #include "replay.h"
 #include "packets.h"
 #include "net_game.h"
+#include "net_exchange_gameplay.h"
 #include "bflib_fileio.h"
 #include "bflib_datetm.h"
 #include "frontend.h"
@@ -44,6 +45,8 @@ extern "C" {
 #define PACKET_TURN_MAX_SIZE (MAX_NET_USERS*sizeof(struct Packet) + sizeof(TbBigChecksum))
 unsigned long initial_replay_seed;
 static TbBool replay_playback_paused;
+static TbBigChecksum replay_expected_checksum;
+static TbBool replay_checksum_pending;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool get_skip_heart_zoom_feature(void);
@@ -69,6 +72,7 @@ static uint32_t packet_dec_zeros;
 static unsigned char packet_dec_lit[4];
 static int packet_dec_lit_pos;
 static int packet_dec_lit_len;
+static uint32_t packet_dec_raw_left;
 static TbBool packet_dec_reserved;
 static TbBool packet_file_ends_in_reserved;
 
@@ -111,6 +115,7 @@ static void reset_packet_codec(void)
     packet_dec_zeros = 0;
     packet_dec_lit_pos = 0;
     packet_dec_lit_len = 0;
+    packet_dec_raw_left = 0;
     packet_dec_reserved = false;
 }
 
@@ -169,7 +174,8 @@ static TbBool get_bits(uint32_t *value, int nbits)
 // '0': 2 zeroes;
 // '10xxx': packet_zero_runs[x] zeroes
 // '11bb'<bb+1 bytes, not all zero>: 1~4 bytes verbatim
-// '11bb'<bb+1 zero-bytes>: reserved
+// '1110'<3 zero-bytes>: pad to a byte boundary, then uint32 len, then len uncompressed bytes
+// '11bb'<bb+1 zero-bytes> otherwise: reserved
 static TbBool encode_packet_bits(const unsigned char *buf, size_t len)
 {
     uint32_t zeros_small[PACKET_TURN_MAX_SIZE + 1];
@@ -254,9 +260,11 @@ static TbBool encode_packet_bits(const unsigned char *buf, size_t len)
     return true;
 }
 
+#define PACKET_RAW_BLOCK_BB 2
+
 static TbBool decode_packet_byte(unsigned char *out)
 {
-    if (packet_dec_zeros == 0 && packet_dec_lit_pos >= packet_dec_lit_len)
+    while ((packet_dec_raw_left == 0) && (packet_dec_zeros == 0) && (packet_dec_lit_pos >= packet_dec_lit_len))
     {
         uint32_t v;
         if (!get_bits(&v, 1))
@@ -288,13 +296,31 @@ static TbBool decode_packet_byte(unsigned char *out)
                 }
                 if (all_zero)
                 {
-                    packet_dec_reserved = true;
-                    return false;
+                    if (bb != PACKET_RAW_BLOCK_BB)
+                    {
+                        packet_dec_reserved = true;
+                        return false;
+                    }
+                    packet_bits_count = 0;
+                    uint32_t raw_len;
+                    if (LbFileRead(game.packet_save_fp, &raw_len, sizeof(raw_len)) != sizeof(raw_len))
+                        return false;
+                    game.packet_file_pos += sizeof(raw_len);
+                    packet_dec_raw_left = raw_len;
+                    continue;
                 }
                 packet_dec_lit_pos = 0;
                 packet_dec_lit_len = bb + 1;
             }
         }
+    }
+    if (packet_dec_raw_left > 0)
+    {
+        if (LbFileRead(game.packet_save_fp, out, 1) != 1)
+            return false;
+        game.packet_file_pos++;
+        packet_dec_raw_left--;
+        return true;
     }
     if (packet_dec_zeros > 0)
     {
@@ -320,7 +346,66 @@ static TbBool decode_packet_bytes(void *buf, size_t len)
 
 static TbBool packet_codec_at_code_boundary(void)
 {
-    return (packet_dec_zeros == 0) && (packet_dec_lit_pos >= packet_dec_lit_len);
+    return (packet_dec_zeros == 0) && (packet_dec_lit_pos >= packet_dec_lit_len) && (packet_dec_raw_left == 0);
+}
+
+static TbBool skip_packet_bytes(size_t len)
+{
+    if (!packet_file_compressed())
+        return (LbFileSeek(game.packet_save_fp, len, Lb_FILE_SEEK_CURRENT) >= 0);
+    while (len > 0)
+    {
+        if (packet_dec_raw_left > 0)
+        {
+            const uint32_t n = min((uint32_t)len, packet_dec_raw_left);
+            if (LbFileSeek(game.packet_save_fp, n, Lb_FILE_SEEK_CURRENT) < 0)
+                return false;
+            game.packet_file_pos += n;
+            packet_dec_raw_left -= n;
+            len -= n;
+            continue;
+        }
+        unsigned char c;
+        if (!decode_packet_byte(&c))
+            return false;
+        len--;
+    }
+    return true;
+}
+
+struct PacketDecoderState {
+    int32_t file_pos;
+    uint32_t bits_acc;
+    int bits_count;
+    uint32_t dec_zeros;
+    unsigned char dec_lit[4];
+    int dec_lit_pos;
+    int dec_lit_len;
+    uint32_t dec_raw_left;
+};
+
+static void save_packet_decoder_state(struct PacketDecoderState *st)
+{
+    st->file_pos = LbFilePosition(game.packet_save_fp);
+    st->bits_acc = packet_bits_acc;
+    st->bits_count = packet_bits_count;
+    st->dec_zeros = packet_dec_zeros;
+    memcpy(st->dec_lit, packet_dec_lit, sizeof(st->dec_lit));
+    st->dec_lit_pos = packet_dec_lit_pos;
+    st->dec_lit_len = packet_dec_lit_len;
+    st->dec_raw_left = packet_dec_raw_left;
+}
+
+static TbBool restore_packet_decoder_state(const struct PacketDecoderState *st)
+{
+    packet_bits_acc = st->bits_acc;
+    packet_bits_count = st->bits_count;
+    packet_dec_zeros = st->dec_zeros;
+    memcpy(packet_dec_lit, st->dec_lit, sizeof(packet_dec_lit));
+    packet_dec_lit_pos = st->dec_lit_pos;
+    packet_dec_lit_len = st->dec_lit_len;
+    packet_dec_raw_left = st->dec_raw_left;
+    return (LbFileSeek(game.packet_save_fp, st->file_pos, Lb_FILE_SEEK_BEGINNING) >= 0);
 }
 
 static TbBool write_packet_bytes(const void *buf, size_t len)
@@ -339,19 +424,6 @@ static TbBool read_packet_bytes(void *buf, size_t len)
     if (!packet_file_compressed())
         return (LbFileRead(game.packet_save_fp, buf, len) == (int)len);
     return decode_packet_bytes(buf, len);
-}
-
-static TbBool skip_packet_bytes(size_t len)
-{
-    if (!packet_file_compressed())
-        return (LbFileSeek(game.packet_save_fp, len, Lb_FILE_SEEK_CURRENT) >= 0);
-    unsigned char c;
-    for (size_t i = 0; i < len; i++)
-    {
-        if (!decode_packet_byte(&c))
-            return false;
-    }
-    return true;
 }
 
 static void xor_bytes(void *dst, const void *src, size_t len)
@@ -395,15 +467,13 @@ static void packet_from_residual(struct Packet *raw, const struct Packet *res, c
 
 static TbBool write_turn_packets(const unsigned char *pckt_buf, int nusers)
 {
-    const size_t turn_data_size = nusers * sizeof(struct Packet) + sizeof(TbBigChecksum);
+    const size_t turn_data_size = nusers * sizeof(struct Packet);
     if (!packet_file_compressed())
         return write_packet_bytes(pckt_buf, turn_data_size);
     unsigned char res_buf[PACKET_TURN_MAX_SIZE];
     const struct Packet *raw = (const struct Packet *)pckt_buf;
     for (int i = 0; i < nusers; i++)
         packet_to_residual((struct Packet *)&res_buf[i * sizeof(struct Packet)], &raw[i], &raw[0], i);
-    memcpy(&res_buf[nusers * sizeof(struct Packet)], &pckt_buf[nusers * sizeof(struct Packet)], sizeof(TbBigChecksum));
-    release_turn_buffer();
     return write_packet_bytes(res_buf, turn_data_size);
 }
 
@@ -438,7 +508,7 @@ static TbBool finish_turn_write(void)
 
 static TbBool read_turn_packets(unsigned char *pckt_buf, int nusers)
 {
-    const size_t turn_data_size = nusers * sizeof(struct Packet) + sizeof(TbBigChecksum);
+    const size_t turn_data_size = nusers * sizeof(struct Packet);
     if (!packet_file_compressed())
     {
         if (LbFileRead(game.packet_save_fp, pckt_buf, turn_data_size) != (int)turn_data_size)
@@ -452,12 +522,12 @@ static TbBool read_turn_packets(unsigned char *pckt_buf, int nusers)
     struct Packet *raw = (struct Packet *)pckt_buf;
     for (int i = 0; i < nusers; i++)
         packet_from_residual(&raw[i], (const struct Packet *)&res_buf[i * sizeof(struct Packet)], &raw[0], i);
-    memcpy(&pckt_buf[nusers * sizeof(struct Packet)], &res_buf[nusers * sizeof(struct Packet)], sizeof(TbBigChecksum));
     return true;
 }
 
-// If the turn-end checksum is LONG_TURN_MARKER, additional data follows, for what can't
-// be expressed just in regular packets. (The real checksum comes right after the long turn marker.)
+// Each turn starts with its checksum, then the packets. A checksum of LONG_TURN_MARKER means
+// records follow first, for what can't be expressed just in regular packets, terminated by LTK_End;
+// then come the real checksum and the packets.
 #define LONG_TURN_MARKER ((TbBigChecksum)0x80000000)
 enum LongTurnReplayRecordKind {
     LTK_End = 0,
@@ -466,46 +536,95 @@ enum LongTurnReplayRecordKind {
     // Could also carry cheat menu buttons, API actions, etc.
 };
 
-static TbBool chat_messages_recorded(void)
+static TbBool chat_message_recorded(const char *message)
 {
-    // Chat messages are sent out-of-band, so they break the requirements
-    // for determinism if they don't arrive the same turn they are sent.
-    // (Also, it's nice to preserve privacy too, in case any couples send a bug report...)
+    // for privacy, on multiplayer, only record messages if they are commands
+    if (message[0] == cmd_char)
+        return true;
     return !network_is_active() && (game.input_lag_turns == 0);
+}
+
+static TbBool replay_long_turn_open;
+
+static TbBool write_raw_bytes(const void *buf, size_t len)
+{
+    return (LbFileWrite(game.packet_save_fp, buf, len) == (long)len);
+}
+
+static TbBool begin_raw_block(uint32_t len)
+{
+    if (!packet_file_compressed())
+        return true;
+    if (!finish_turn_write())
+        return false;
+    unsigned char out[8];
+    packet_bits_out = out;
+    packet_bits_out_len = 0;
+    put_bits(0xC | PACKET_RAW_BLOCK_BB, 4);
+    put_bits(0, 24);
+    if (packet_bits_count > 0)
+        packet_bits_out[packet_bits_out_len++] = (packet_bits_acc << (8 - packet_bits_count)) & 0xFF;
+    packet_bits_out = NULL;
+    TbBool ok = !(packet_bits_pending && (LbFileSeek(game.packet_save_fp, -1, Lb_FILE_SEEK_CURRENT) < 0));
+    ok = ok && write_raw_bytes(out, packet_bits_out_len);
+    packet_bits_pending = false;
+    packet_bits_acc = 0;
+    packet_bits_count = 0;
+    return ok && write_raw_bytes(&len, sizeof(len));
 }
 
 static TbBool write_long_turn_record(unsigned char kind, uint32_t len, const void *payload)
 {
-    return write_packet_bytes(&kind, sizeof(kind))
-        && write_packet_bytes(&len, sizeof(len))
-        && write_packet_bytes(payload, len);
+    return begin_raw_block(sizeof(kind) + sizeof(len) + len)
+        && write_raw_bytes(&kind, sizeof(kind))
+        && write_raw_bytes(&len, sizeof(len))
+        && write_raw_bytes(payload, len);
 }
 
-static TbBool read_long_turn_data(TbBigChecksum *chksum, TbBool apply, int32_t *consumed)
+static TbBool replay_write_fits(size_t raw_len)
 {
-    if (!read_packet_bytes(chksum, sizeof(*chksum)))
-        return false;
-    *consumed += sizeof(*chksum);
+    if (packetsave_max_kb == 0)
+        return true;
+    const int pos = LbFilePosition(game.packet_save_fp);
+    if (pos < 0)
+        return true;
+    const size_t bound = packet_file_compressed() ? (packet_turn_len + raw_len) * 3 / 2 + 2 : raw_len;
+    if ((uint32_t)pos + bound <= packetsave_max_kb * 1024)
+        return true;
+    WARNLOG("Replay reached the %u KB limit at turn %u; recording stopped", packetsave_max_kb, (unsigned)get_gameturn());
+    close_packet_file();
+    game.packet_save_enable = false;
+    return false;
+}
+
+static TbBool begin_long_turn(void)
+{
+    if (replay_long_turn_open)
+        return true;
+    const TbBigChecksum marker = LONG_TURN_MARKER;
+    replay_long_turn_open = write_packet_bytes(&marker, sizeof(marker));
+    return replay_long_turn_open;
+}
+
+#define LONG_TURN_RECORD_MAX_LEN (1 << 20)
+
+static TbBool read_long_turn_records(TbBool apply)
+{
     while (true)
     {
         unsigned char kind;
         if (!read_packet_bytes(&kind, sizeof(kind)))
             return false;
-        *consumed += sizeof(kind);
         if (kind == LTK_End)
             return true;
         uint32_t len;
         if (!read_packet_bytes(&len, sizeof(len)))
             return false;
-        *consumed += sizeof(len);
-        if (!packet_file_compressed())
+        const int32_t remaining = LbFileLengthHandle(game.packet_save_fp) - LbFilePosition(game.packet_save_fp);
+        if ((len > LONG_TURN_RECORD_MAX_LEN) || (!packet_file_compressed() && ((remaining < 0) || (len > (uint32_t)remaining))))
         {
-            const int32_t remaining = LbFileLengthHandle(game.packet_save_fp) - LbFilePosition(game.packet_save_fp);
-            if ((remaining < 0) || (len > (uint32_t)remaining))
-            {
-                ERRORLOG("Long turn record kind %u length %u exceeds Packet File (%d bytes left)", (unsigned)kind, (unsigned)len, (int)remaining);
-                return false;
-            }
+            ERRORLOG("Long turn record kind %u length %u is invalid (%d bytes left)", (unsigned)kind, (unsigned)len, (int)remaining);
+            return false;
         }
         uint32_t used = 0;
         if (apply && (kind == LTK_ChatMessage) && (len >= sizeof(uint16_t)))
@@ -514,39 +633,50 @@ static TbBool read_long_turn_data(TbBigChecksum *chksum, TbBool apply, int32_t *
             if (!read_packet_bytes(&user, sizeof(user)))
                 return false;
             used += sizeof(user);
-            const uint32_t msg_len = min(len - used, (uint32_t)PLAYER_MP_MESSAGE_LEN);
             char message[PLAYER_MP_MESSAGE_LEN] = {0};
+            const uint32_t msg_len = min(len - used, (uint32_t)PLAYER_MP_MESSAGE_LEN - 1);
             if (!read_packet_bytes(message, msg_len))
                 return false;
             used += msg_len;
-            message[PLAYER_MP_MESSAGE_LEN - 1] = '\0';
             PlayerNumber plyr_idx = (user < MAX_NET_USERS) ? get_net_user_player_number(user) : -1;
             if (plyr_idx >= 0)
-                memcpy(get_player(plyr_idx)->mp_pending_message, message, PLAYER_MP_MESSAGE_LEN);
+                process_gameplay_chat_message(user, message);
             else
                 WARNLOG("Chat message for invalid user %u in Packet File", (unsigned)user);
         }
         if ((len > used) && !skip_packet_bytes(len - used))
             return false;
-        *consumed += len;
     }
 }
 
 // reads one whole turn from replay data
-static TbBool read_turn(unsigned char *pckt_buf, int nusers, TbBool apply, TbBigChecksum *chksum)
+static TbBool read_turn(unsigned char *pckt_buf, int nusers, TbBigChecksum *chksum, TbBool *has_records, struct PacketDecoderState *records_state)
 {
-    if (!read_turn_packets(pckt_buf, nusers))
+    *has_records = false;
+    if (!read_packet_bytes(chksum, sizeof(*chksum)))
         return false;
-    *chksum = llong(&pckt_buf[nusers * sizeof(struct Packet)]);
     if (*chksum == LONG_TURN_MARKER)
     {
-        int32_t consumed = 0;
-        if (!read_long_turn_data(chksum, apply, &consumed))
+        *has_records = true;
+        save_packet_decoder_state(records_state);
+        if (!read_long_turn_records(false))
             return false;
-        if (!packet_file_compressed())
-            game.packet_file_pos += consumed;
+        if (!read_packet_bytes(chksum, sizeof(*chksum)))
+            return false;
     }
+    if (!read_turn_packets(pckt_buf, nusers))
+        return false;
     return !packet_file_compressed() || packet_codec_at_code_boundary();
+}
+
+static TbBool apply_long_turn_records(const struct PacketDecoderState *records_state)
+{
+    struct PacketDecoderState resume;
+    save_packet_decoder_state(&resume);
+    TbBool ok = restore_packet_decoder_state(records_state) && read_long_turn_records(true);
+    if (!restore_packet_decoder_state(&resume))
+        ok = false;
+    return ok;
 }
 
 static GameTurn count_stored_turns(void)
@@ -558,9 +688,11 @@ static GameTurn count_stored_turns(void)
     const int32_t file_len = LbFileLengthHandle(game.packet_save_fp);
     GameTurn turns = 0;
     TbBigChecksum chksum;
+    TbBool has_records;
+    struct PacketDecoderState records_state;
     LbFileSeek(game.packet_save_fp, start_pos, Lb_FILE_SEEK_BEGINNING);
     int32_t end_pos = start_pos;
-    while (read_turn(pckt_buf, nusers, false, &chksum))
+    while (read_turn(pckt_buf, nusers, &chksum, &has_records, &records_state))
     {
         turns++;
         end_pos = LbFilePosition(game.packet_save_fp);
@@ -700,6 +832,30 @@ TbBigChecksum compute_replay_integrity(void)
     return sum;
 }
 
+void replay_record_chat_message(NetUserId user, const char *message)
+{
+    if (!game.packet_save_enable || !game.packet_fopened || !chat_message_recorded(message))
+        return;
+    unsigned char payload[sizeof(uint16_t) + PLAYER_MP_MESSAGE_LEN];
+    const uint16_t user16 = user;
+    const size_t msg_len = strnlen(message, PLAYER_MP_MESSAGE_LEN - 1);
+    memcpy(payload, &user16, sizeof(user16));
+    memcpy(payload + sizeof(user16), message, msg_len);
+    const uint32_t payload_len = sizeof(user16) + msg_len;
+    LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
+    const size_t raw_len = (replay_long_turn_open ? 0 : sizeof(TbBigChecksum)) + 5 + sizeof(uint32_t) + sizeof(unsigned char) + sizeof(uint32_t) + payload_len;
+    if (!replay_write_fits(raw_len))
+        return;
+    if (!begin_long_turn() || !write_long_turn_record(LTK_ChatMessage, payload_len, payload))
+    {
+        ERRORLOG("Packet file write error at turn %u; recording stopped", (unsigned)get_gameturn());
+        close_packet_file();
+        game.packet_save_enable = false;
+        return;
+    }
+    LbFileFlush(game.packet_save_fp);
+}
+
 short save_packets(void)
 {
     NetUserId users[MAX_NET_USERS];
@@ -715,32 +871,21 @@ short save_packets(void)
     // Prepare data in the buffer
     for (int i = 0; i < nusers; i++)
         memcpy(&pckt_buf[i*sizeof(struct Packet)], &game.packets[users[i]], sizeof(struct Packet));
-    TbBool has_chat = false;
-    if (chat_messages_recorded()) {
-        for (int i = 0; i < nusers; i++)
-            has_chat |= (game.packets[users[i]].action == PckA_PlyrMsgEnd);
-    }
-    const TbBool long_turn = has_chat || (chksum == LONG_TURN_MARKER);
-    const TbBigChecksum chksum_slot = long_turn ? LONG_TURN_MARKER : chksum;
-    memcpy(&pckt_buf[nusers*sizeof(struct Packet)], &chksum_slot, sizeof(TbBigChecksum));
-    // Write buffer into file
-    TbBool ok = write_turn_packets(pckt_buf, nusers);
-    if (long_turn)
+    const TbBool close_long_turn = replay_long_turn_open || (chksum == LONG_TURN_MARKER);
+    const size_t raw_len = (close_long_turn ? ((replay_long_turn_open ? 0 : sizeof(TbBigChecksum)) + sizeof(unsigned char)) : 0)
+        + sizeof(TbBigChecksum) + nusers * sizeof(struct Packet);
+    if (!replay_write_fits(raw_len))
+        return true;
+    TbBool ok = true;
+    if (close_long_turn)
     {
-        ok &= write_packet_bytes(&chksum, sizeof(chksum));
-        // write a null-terminated sequence of additional records
-        for (int i = 0; has_chat && (i < nusers); i++) {
-            if (game.packets[users[i]].action != PckA_PlyrMsgEnd)
-                continue;
-            unsigned char payload[sizeof(uint16_t) + PLAYER_MP_MESSAGE_LEN];
-            const uint16_t user = users[i];
-            memcpy(payload, &user, sizeof(user));
-            memcpy(payload + sizeof(user), get_player(get_net_user_player_number(users[i]))->mp_pending_message, PLAYER_MP_MESSAGE_LEN);
-            ok &= write_long_turn_record(LTK_ChatMessage, sizeof(payload), payload);
-        }
+        ok &= begin_long_turn();
         const unsigned char end = LTK_End;
         ok &= write_packet_bytes(&end, sizeof(end));
+        replay_long_turn_open = false;
     }
+    ok &= write_packet_bytes(&chksum, sizeof(chksum));
+    ok &= write_turn_packets(pckt_buf, nusers);
     ok &= finish_turn_write();
     if (!ok)
     {
@@ -753,17 +898,6 @@ short save_packets(void)
     {
         ERRORLOG("Unable to flush PacketSave File");
         return false;
-    }
-    if (packetsave_max_kb > 0)
-    {
-        int pos = LbFilePosition(game.packet_save_fp);
-        if ((pos >= 0) && ((uint32_t)pos >= packetsave_max_kb * 1024))
-        {
-            WARNLOG("Replay reached the %u KB limit at turn %u; recording stopped",
-                packetsave_max_kb, get_gameturn());
-            close_packet_file();
-            game.packet_save_enable = false;
-        }
     }
     return true;
 }
@@ -965,6 +1099,7 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.level_num = get_loaded_level_number();
     game.packet_save_head.players_exist = 0;
     game.packet_save_head.players_comp = 0;
+    replay_long_turn_open = false;
     reset_packet_codec();
     game.packet_save_head.flags = PSHF_Compressed;
     if (game.packet_checksum_verify)
@@ -1056,44 +1191,41 @@ void load_packets_for_turn(GameTurn nturn)
         return;
     }
 
-    if (!read_turn_packets(pckt_buf, nusers))
+    TbBigChecksum tot_chksum;
+    TbBool has_records;
+    struct PacketDecoderState records_state;
+    if (!read_turn(pckt_buf, nusers, &tot_chksum, &has_records, &records_state))
     {
-        ERRORDBG(18,"Cannot read turn data from Packet File");
+        ERRORLOG("Cannot read turn data from Packet File; replay aborted at turn %u", (unsigned)get_gameturn());
         erstat_inc(ESE_CantReadPackets);
+        disable_packet_mode();
         return;
     }
     for (int i = 0; i < nusers; i++)
         memcpy(&game.packets[users[i]], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
-    for (int i = 0; i < nusers; i++) {
-        if (game.packets[users[i]].action == PckA_PlyrMsgEnd)
-            memset(get_player(get_net_user_player_number(users[i]))->mp_pending_message, 0, PLAYER_MP_MESSAGE_LEN);
-    }
-    TbBigChecksum tot_chksum = llong(&pckt_buf[nusers * sizeof(struct Packet)]);
-    if (tot_chksum == LONG_TURN_MARKER)
+    if (has_records && !apply_long_turn_records(&records_state))
     {
-        int32_t consumed = 0;
-        if (!read_long_turn_data(&tot_chksum, true, &consumed)) {
-            ERRORLOG("Cannot read long turn data from Packet File; replay aborted at turn %u", (unsigned)get_gameturn());
-            erstat_inc(ESE_CantReadPackets);
-            disable_packet_mode();
-            return;
-        }
-        if (!packet_file_compressed())
-            game.packet_file_pos += consumed;
-    }
-    if (packet_file_compressed() && !packet_codec_at_code_boundary()) {
-        ERRORDBG(18,"Packet File turn does not end on a code boundary");
+        ERRORLOG("Cannot read long turn records from Packet File; replay aborted at turn %u", (unsigned)get_gameturn());
+        erstat_inc(ESE_CantReadPackets);
+        disable_packet_mode();
+        return;
     }
     if (game.turns_fastforward > 0)
         game.turns_fastforward--;
-    if (game.packet_checksum_verify && !turn_has_quit_packet())
+    replay_expected_checksum = tot_chksum;
+    replay_checksum_pending = game.packet_checksum_verify && !turn_has_quit_packet();
+}
+
+void verify_replay_checksum(void)
+{
+    if (!replay_checksum_pending)
+        return;
+    replay_checksum_pending = false;
+    if (compute_replay_integrity() != replay_expected_checksum)
     {
-        if (compute_replay_integrity() != tot_chksum)
-        {
-            ERRORLOG("PacketSave checksum - Out of sync (GameTurn %u)", get_gameturn());
-            if (!is_onscreen_msg_visible())
-                show_onscreen_msg(turns_per_second, "Out of sync");
-        }
+        ERRORLOG("PacketSave checksum - Out of sync (GameTurn %u)", get_gameturn());
+        if (!is_onscreen_msg_visible())
+            show_onscreen_msg(turns_per_second, "Out of sync");
     }
 }
 
