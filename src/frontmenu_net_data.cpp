@@ -234,7 +234,7 @@ static void draw_lobby_text(int x, int y, int width, int height, int font, const
     LbTextDrawResized(-offset, 0, scale, text);
 }
 
-static const int lobby_columns[] = {10, 184, 274, 364, 434};
+static const int lobby_columns[] = {10, 179, 249, 324, 434};
 static int lobby_tooltip_index = -1;
 
 static unsigned char *get_frontend_lobby_glass_map(void)
@@ -253,29 +253,30 @@ static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *con
         lbDisplay.GlassMap = get_frontend_lobby_glass_map();
     }
     int thickness = max(1, gbtn->width / lobby_columns[4]);
-    int highlight_height = 2 * thickness;
-    int separator_height = highlight_height + thickness;
-    int shadow_height = 2 * thickness;
     int height = 26 * gbtn->width / lobby_columns[4];
     int y = gbtn->scr_pos_y + (gbtn->height - height) / 2;
-    int separator_y = gbtn->scr_pos_y + gbtn->height - separator_height - thickness;
+    int separator_y = gbtn->scr_pos_y + gbtn->height - thickness;
     int border_inset = 2 * gbtn->width / lobby_columns[4];
     int separator_x = gbtn->scr_pos_x - 9 * gbtn->width / lobby_columns[4] + border_inset;
     int separator_width = 450 * gbtn->width / lobby_columns[4] - 2 * border_inset;
+    int panel_y = gbtn->scr_pos_y + 2 * thickness;
+    if (gbtn->content.lval == 45) {
+        panel_y -= 3 * thickness;
+    }
     RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8);
-    LbDrawBox(separator_x, gbtn->scr_pos_y + thickness, separator_width, separator_y - gbtn->scr_pos_y - thickness, 37);
+    LbDrawBox(separator_x, panel_y, separator_width, separator_y - panel_y, 37);
     RendererSetDrawFlags(0);
     for (int i = 0; i < 4; i++) {
         int x = gbtn->scr_pos_x + lobby_columns[i] * gbtn->width / lobby_columns[4];
-        int width = (lobby_columns[i + 1] - lobby_columns[i] - 4) * gbtn->width / lobby_columns[4];
+        int width = (lobby_columns[i + 1] - lobby_columns[i] - 12) * gbtn->width / lobby_columns[4];
         draw_lobby_text(x, y, width, height, font, text[i]);
     }
     RendererSetDrawFlags(0);
-    LbDrawBox(separator_x, separator_y + separator_height, separator_width, shadow_height, 6);
-    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8);
-    LbDrawBox(separator_x, separator_y + highlight_height, separator_width, thickness, 37);
-    LbDrawBox(separator_x, separator_y, separator_width, thickness, 37);
+    LbDrawBox(separator_x, separator_y, separator_width, thickness, 6);
     LbDrawBox(separator_x, separator_y + thickness, separator_width, thickness, 105);
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8);
+    LbDrawBox(separator_x, separator_y + 2 * thickness, separator_width, thickness, 37);
+    LbDrawBox(separator_x, separator_y + 3 * thickness, separator_width, thickness, 0);
     RendererSetDrawFlags(0);
     lbDisplay.GlassMap = pixmap.ghost;
 }
@@ -296,15 +297,16 @@ void frontnet_draw_lobby_columns(struct GuiButton *gbtn)
         int x = gbtn->scr_pos_x + lobby_columns[i] * gbtn->width / lobby_columns[4];
         int width = gbtn->scr_pos_x + lobby_columns[i + 1] * gbtn->width / lobby_columns[4] - x;
         int tab_width = width;
+        int tab_x = x - padding;
         if (i == 3) {
             tab_width += 20 * gbtn->width / lobby_columns[4];
         } else {
             tab_width += left_width - right_width + 2 * scale / 16;
         }
-        LbSpriteDrawResized(x - padding, gbtn->scr_pos_y, scale, left);
-        LbSpriteDrawScaled(x - padding + left_width, gbtn->scr_pos_y, middle, tab_width - left_width - right_width, gbtn->height);
-        LbSpriteDrawResized(x - padding + tab_width - right_width, gbtn->scr_pos_y, scale, right);
-        draw_lobby_text(x, gbtn->scr_pos_y + scale / 16, tab_width - padding - right_width, gbtn->height, 2, text[i]);
+        LbSpriteDrawResized(tab_x, gbtn->scr_pos_y, scale, left);
+        LbSpriteDrawScaled(tab_x + left_width, gbtn->scr_pos_y, middle, tab_width - left_width - right_width, gbtn->height);
+        LbSpriteDrawResized(tab_x + tab_width - right_width, gbtn->scr_pos_y, scale, right);
+        draw_lobby_text(x, gbtn->scr_pos_y + scale / 16, width - 12 * gbtn->width / lobby_columns[4], gbtn->height, 2, text[i]);
     }
 }
 
