@@ -220,7 +220,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
     else
     {
         struct PlayerInfo* player = get_my_player();
-        if (player->view_type == PVT_CreatureContrl)
+        if (get_player_view_type(player) == PVT_CreatureContrl)
         {
             if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
             {
@@ -414,10 +414,10 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
 {
     struct PlayerInfo* player = get_my_player();
     // render the 3D screen
-    if (player->view_mode_restore == PVM_IsoWibbleView || player->view_mode_restore == PVM_IsoStraightView)
-      redraw_isometric_view();
-    else
+    if (get_player_user_state(player)->dungeon_camera.use_front_view)
       redraw_frontview();
+    else
+      redraw_isometric_view();
     // Copy the screen to fade source temp buffer. Software-only
     int i;
     int fadebuf_pos = 0;
@@ -521,70 +521,40 @@ long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long
     return 1;
 }
 
-void set_engine_view(struct PlayerInfo *player, long val)
+void set_engine_view(struct PlayerInfo *player, TbBool front_view, TbBool wibble)
 {
-    switch ( val )
-    {
-    case PVM_EmptyView:
-        set_player_active_camera(player, CamIV_Isometric);
-        // Allow view mode 0 only for non-local-human players
-        if (!is_my_player(player))
-            break;
-        // If it's local human player, then setting this mode is an error
-        // fall through
-    default:
-        ERRORLOG("Invalid view mode %d",(int)val);
-        val = PVM_CreatureView;
-        // fall through
-    case PVM_CreatureView:
-        set_player_active_camera(player, CamIV_FirstPerson);
+    struct UserState *ustate = get_player_user_state(player);
+    ustate->dungeon_camera.use_front_view = front_view;
+    ustate->dungeon_wibble = wibble;
+    update_engine_view(player, true);
+}
+
+void update_engine_view(struct PlayerInfo *player, TbBool keep_local_camera)
+{
+    if ((get_player_view_type(player) == PVT_MapFadeIn) || (get_player_view_type(player) == PVT_MapFadeOut))
+        return;
+    const TbBool first_person = (get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr);
+    update_local_dungeon_view_mode(player);
+    if (!keep_local_camera)
         sync_local_camera(player);
-        if (!is_my_player(player))
-            break;
+    if (!is_my_player(player))
+        return;
+    if (first_person)
+    {
         lens_mode = 2;
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(0);
         LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
-        break;
-    case PVM_IsoWibbleView:
-    case PVM_IsoStraightView:
+        return;
+    }
+    if (get_player_view_type(player) != PVT_MapScreen)
     {
-        struct Camera *camera = &player->cameras[CamIV_Isometric];
-        set_player_active_camera(player, CamIV_Isometric);
-        camera->view_mode = val;
-        sync_local_camera(player);
-        if (!is_my_player(player))
-            break;
         lens_mode = 0;
-        // no need to set temp_cluedo_mode here; it's done in update_engine_settings
-        S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
-        S3DSetDeadzoneRadius(1280);
-        break;
+        if (get_player_user_state(player)->dungeon_camera.use_front_view)
+            temp_cluedo_mode = 0;
     }
-    case PVM_ParchmentView:
-        set_player_active_camera(player, CamIV_Parchment);
-        sync_local_camera(player);
-        if (!is_my_player(player))
-            break;
-        S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
-        S3DSetDeadzoneRadius(1280);
-        break;
-    case PVM_ParchFadeIn:
-    case PVM_ParchFadeOut:
-        // In fade states, keep the settings unchanged
-        break;
-    case PVM_FrontView:
-        set_player_active_camera(player, CamIV_FrontView);
-        sync_local_camera(player);
-        if (!is_my_player(player))
-            break;
-        lens_mode = 0;
-        temp_cluedo_mode = 0;
-        S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
-        S3DSetDeadzoneRadius(1280);
-        break;
-    }
-    player->view_mode = val;
+    S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
+    S3DSetDeadzoneRadius(1280);
 }
 
 void draw_overlay_compass(long base_x, long base_y)
@@ -682,7 +652,7 @@ void redraw_isometric_view(void)
     SYNCDBG(6,"Starting");
 
     struct PlayerInfo* player = get_my_player();
-    if (player_invalid(player) || (get_player_active_camera(player) == NULL))
+    if (player_invalid(player))
         return;
     TbGraphicsWindow ewnd;
     memset(&ewnd, 0, sizeof(TbGraphicsWindow));
@@ -972,7 +942,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
 void process_pointer_graphic(void)
 {
     struct PlayerInfo* player = get_my_player();
-    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)player->view_type,player_state_code_name(player->work_state),(int)player->instance_num);
+    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(player->work_state),(int)player->instance_num);
     switch (get_local_view_type(player))
     {
     case PVT_DungeonTop:
@@ -1013,40 +983,32 @@ void redraw_display(void)
     else
       process_pointer_graphic();
     interpolate_local_cameras();
-    int32_t view_mode = get_local_active_camera(player)->view_mode;
-    if (((player->view_mode == PVM_ParchFadeIn) || (player->view_mode == PVM_ParchFadeOut)) && !replay_camera_detached())
-        view_mode = player->view_mode;
-    switch (view_mode)
+    const unsigned char view_type = get_local_view_type(player);
+    if ((player->instance_num == PI_MapFadeTo) && !replay_camera_detached())
     {
-    case PVM_EmptyView:
-        break;
-    case PVM_CreatureView:
-        redraw_creature_view();
-        parchment_loaded = 0;
-        break;
-    case PVM_IsoWibbleView:
-    case PVM_IsoStraightView:
-        redraw_isometric_view();
-        parchment_loaded = 0;
-        break;
-    case PVM_ParchmentView:
-        redraw_parchment_view();
-        break;
-    case PVM_FrontView:
-        redraw_frontview();
-        parchment_loaded = 0;
-        break;
-    case PVM_ParchFadeIn:
         parchment_loaded = 0;
         local_state.palette_fade_step_map = map_fade_in(local_state.palette_fade_step_map);
-        break;
-    case PVM_ParchFadeOut:
+    } else
+    if ((player->instance_num == PI_MapFadeFrom) && !replay_camera_detached())
+    {
         parchment_loaded = 0;
         local_state.palette_fade_step_map = map_fade_out(local_state.palette_fade_step_map);
-        break;
-    default:
-        ERRORLOG("Unsupported drawing state, %d",(int)player->view_mode);
-        break;
+    } else
+    if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr))
+    {
+        redraw_creature_view();
+        parchment_loaded = 0;
+    } else
+    if (view_type == PVT_MapScreen)
+    {
+        redraw_parchment_view();
+    } else
+    {
+        if (get_local_active_camera(player)->view_mode == PVM_FrontView)
+            redraw_frontview();
+        else
+            redraw_isometric_view();
+        parchment_loaded = 0;
     }
     //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     LbTextSetFont(winfont);
@@ -1125,8 +1087,7 @@ void redraw_display(void)
           const char * text = get_string(GUIStr_PausedMsg);
           long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16));
           long pos_x;
-          struct Camera *camera = get_local_active_camera(player);
-          if (camera->view_mode == PVM_IsoWibbleView || camera->view_mode == PVM_FrontView || camera->view_mode == PVM_IsoStraightView || camera->view_mode == PVM_CreatureView) {
+          if (get_local_view_type(player) != PVT_MapScreen) {
               pos_x = local_state.engine_window_x + (MyScreenWidth - w - local_state.engine_window_x) / 2;
           } else {
               pos_x = (MyScreenWidth-w)/2;

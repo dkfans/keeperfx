@@ -153,13 +153,15 @@ static void console_cmd_cursor(MapCoord *x, MapCoord *y)
 
 void console_cmd_default_cursor(PlayerNumber plyr_idx, MapCoord *x, MapCoord *y)
 {
-    const struct PlayerInfo *player = get_player(plyr_idx);
-    TbBool front_view = (player->view_mode == PVM_FrontView);
-    if ((player->view_mode != PVM_IsoWibbleView) && (player->view_mode != PVM_IsoStraightView) && !front_view)
-        front_view = (player->view_mode_restore == PVM_FrontView);
-    const struct Camera *cam = &player->cameras[front_view ? CamIV_FrontView : CamIV_Isometric];
-    *x = cam->mappos.x.val;
-    *y = cam->mappos.y.val;
+    const struct UserState *ustate = get_player_user_state(get_player(plyr_idx));
+    if (user_state_invalid(ustate))
+    {
+        *x = 0;
+        *y = 0;
+        return;
+    }
+    *x = ustate->dungeon_camera.x;
+    *y = ustate->dungeon_camera.y;
 }
 
 static struct GuiBoxOption cmd_comp_procs_data[COMPUTER_PROCESSES_COUNT + 3] = {

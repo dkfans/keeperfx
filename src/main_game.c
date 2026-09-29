@@ -350,18 +350,23 @@ TbBool startup_saved_packet_game(void)
         else
             my_player_number = view_plyr;
     }
-    settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
-    settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
-    settings.isometric_tilt = game.packet_save_head.isometric_tilt;
-    settings.highlight_mode = game.packet_save_head.highlight_mode;
     IMPRISON_BUTTON_DEFAULT = game.packet_save_head.default_imprison_tendency;
     FLEE_BUTTON_DEFAULT = game.packet_save_head.default_flee_tendency;
     set_skip_heart_zoom_feature(game.packet_save_head.skip_heart_zoom);
     if (!init_level())
         return false;
     setup_zombie_players();
-    init_players();
     restore_users_from_packet_save();
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        struct UserState *ustate = &game.user_states[user];
+        ustate->dungeon_camera.use_front_view = game.packet_save_head.dungeon_front_views[user];
+        ustate->dungeon_wibble = game.packet_save_head.dungeon_wibbles[user];
+        ustate->dungeon_camera.pitch = game.packet_save_head.dungeon_pitches[user];
+        memcpy(ustate->dungeon_camera.zoom, game.packet_save_head.dungeon_zooms[user], sizeof(ustate->dungeon_camera.zoom));
+        ustate->highlight_mode = game.packet_save_head.highlight_modes[user];
+    }
+    init_players();
     frontend_alliances = game.packet_save_head.frontend_alliances;
     setup_alliances();
     if (game.human_players_count == 1)
@@ -371,8 +376,7 @@ TbBool startup_saved_packet_game(void)
     post_init_level();
     post_init_players();
     set_selected_level_number(0);
-    struct PlayerInfo* player = get_my_player();
-    set_engine_view(player, rotate_mode_to_view_mode(game.packet_save_head.video_rotate_mode));
+    update_engine_view(get_my_player(), false);
     return true;
 }
 

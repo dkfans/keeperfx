@@ -63,6 +63,8 @@ extern int32_t multiplayer_speed_adjustment_ns;
 struct StartupSyncPacket {
     uint8_t startup_sync_packet_valid;
     int32_t video_rotate_mode;
+    int32_t isometric_tilt;
+    uint8_t highlight_mode;
     TbBigChecksum map_checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
     TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
     uint16_t initial_tendencies;
@@ -160,16 +162,14 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         player->id_number = k;
         player->user_id = i;
         player->allocflags |= PlaF_Allocated;
-        switch (sync->video_rotate_mode) {
-            case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
-            case 1: player->view_mode_restore = PVM_IsoStraightView; break;
-            case 2: player->view_mode_restore = PVM_FrontView; break;
-            default: player->view_mode_restore = PVM_IsoWibbleView; break;
-        }
-        init_player(player, 0);
         init_user_state(player->user_id);
-        player->isometric_view_zoom_level = sync->isometric_view_zoom_level;
-        player->frontview_zoom_level = sync->frontview_zoom_level;
+        get_user_state(i)->dungeon_wibble = true;
+        rotate_mode_to_dungeon_view(sync->video_rotate_mode, &get_user_state(i)->dungeon_camera.use_front_view, &get_user_state(i)->dungeon_wibble);
+        get_user_state(i)->dungeon_camera.pitch = clamp(sync->isometric_tilt, CAMERA_TILT_MIN, CAMERA_TILT_MAX);
+        get_user_state(i)->dungeon_camera.zoom[false] = (sync->isometric_view_zoom_level != 0) ? sync->isometric_view_zoom_level : CAMERA_ZOOM_MAX;
+        get_user_state(i)->dungeon_camera.zoom[true] =(sync->frontview_zoom_level != 0) ? sync->frontview_zoom_level : FRONTVIEW_CAMERA_ZOOM_MAX;
+        get_user_state(i)->highlight_mode = sync->highlight_mode;
+        init_player(player, 0);
         TbBool imprison = (sync->initial_tendencies & CrTend_Imprison) != 0;
         TbBool flee = (sync->initial_tendencies & CrTend_Flee) != 0;
         set_creature_tendencies(player, CrTend_Imprison, imprison);
@@ -266,6 +266,8 @@ static void build_local_startup_sync(void)
     memset(&s_local_startup_sync, 0, sizeof(s_local_startup_sync));
     s_local_startup_sync.startup_sync_packet_valid = 1;
     s_local_startup_sync.video_rotate_mode = settings.video_rotate_mode;
+    s_local_startup_sync.isometric_tilt = settings.isometric_tilt;
+    s_local_startup_sync.highlight_mode = get_starting_highlight_mode();
     calculate_network_startup_map_checksums(s_local_startup_sync.map_checksums);
     memcpy(s_local_startup_sync.required_sprite_zip_checksums, required_sprite_zip_checksums, sizeof(s_local_startup_sync.required_sprite_zip_checksums));
     uint16_t initial_tendencies = 0;

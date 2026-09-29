@@ -87,6 +87,17 @@ struct Camera {
     struct Coord2d rotation_pivot;
 };
 
+// Canonical record of user's camera position
+struct DungeonCamera {
+    MapCoord x;
+    MapCoord y;
+    
+    TbBool use_front_view; // the dungeon view the user returns to; indexes zoom and yaw
+    int32_t zoom[2]; // separate entries for iso and front view
+    int32_t yaw[2]; // separate entries for iso and front view
+    int32_t pitch; // iso only
+};
+
 
 /******************************************************************************/
 
@@ -105,6 +116,13 @@ long get_angle_xy_to_vec(const struct CoordDelta3d *vec);
 long get_angle_yz_to_vec(const struct CoordDelta3d *vec);
 void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, long angle_xy, long angle_z, long distance, long num_steps);
 
+int32_t zoom_in_step(int32_t old_zoom, int32_t limit_max, int32_t limit_min);
+int32_t zoom_out_step(int32_t old_zoom, int32_t limit_max, int32_t limit_min);
+int32_t zoom_in_for_view(int32_t old_zoom, unsigned char view_mode, int32_t limit_max, int32_t limit_min);
+int32_t zoom_out_for_view(int32_t old_zoom, unsigned char view_mode, int32_t limit_max, int32_t limit_min);
+int32_t tilt_step(int32_t tilt, unsigned char mode);
+void set_view_position(MapCoord *pos_x, MapCoord *pos_y, MapCoord x, MapCoord y);
+void shift_view_position_for_zoom(MapCoord *pos_x, MapCoord *pos_y, int32_t old_zoom, int32_t new_zoom, MapCoord x, MapCoord y);
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min);
 void view_zoom_camera_in_to(struct Camera *cam, int32_t limit_max, int32_t limit_min, MapCoord x, MapCoord y);
 void set_camera_zoom(struct Camera *cam, long val);
@@ -121,8 +139,8 @@ void view_set_camera_rotation_velocity_around(struct Camera *cam, int32_t delta,
 void view_set_camera_tilt(struct Camera *cam, unsigned char mode);
 void view_process_camera_velocity(struct Camera *cam);
 void view_set_camera_position(struct Camera *cam, MapCoord x, MapCoord y);
-void view_set_camera_move_to_position(struct Camera *cam, MapCoord x, MapCoord y, MapCoordDelta *move_x, MapCoordDelta *move_y);
-TbBool view_move_camera_to_position(struct Camera *cam, MapCoord x, MapCoord y, MapCoordDelta move_x, MapCoordDelta move_y);
+void view_set_camera_move_to_position(MapCoord from_x, MapCoord from_y, MapCoord x, MapCoord y, MapCoordDelta *move_x, MapCoordDelta *move_y);
+TbBool view_move_camera_to_position(MapCoord *pos_x, MapCoord *pos_y, MapCoord x, MapCoord y, MapCoordDelta move_x, MapCoordDelta move_y);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);

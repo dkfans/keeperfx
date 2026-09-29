@@ -111,17 +111,15 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing) {
 }
 
 static TbBigChecksum compute_player_checksum(struct PlayerInfo *player) {
-    struct Camera* camera = get_player_active_camera(player);
-    if ((player->allocflags & PlaF_CompCtrl) != 0 || camera == NULL) {
+    if ((player->allocflags & PlaF_CompCtrl) != 0) {
         return 0;
     }
     TbBigChecksum checksum = 0;
     CHECKSUM_ADD(checksum, player->instance_remain_turns);
     CHECKSUM_ADD(checksum, player->instance_num);
     if (player->victory_state == VicS_Undecided) {
-        CHECKSUM_ADD(checksum, camera->mappos.x.val);
-        CHECKSUM_ADD(checksum, camera->mappos.y.val);
-        CHECKSUM_ADD(checksum, camera->mappos.z.val);
+        CHECKSUM_ADD(checksum, get_player_user_state(player)->dungeon_camera.x);
+        CHECKSUM_ADD(checksum, get_player_user_state(player)->dungeon_camera.y);
     }
     return checksum;
 }
@@ -336,18 +334,17 @@ void update_turn_checksums(void) {
         }
         for (int i = 0; i < PLAYERS_COUNT; i++) {
             struct PlayerInfo* player = get_player(i);
-            struct Camera* camera = get_player_active_camera(player);
-            if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0) || camera == NULL) {
+            if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
                 continue;
             }
             struct LogPlayerDesyncInfo* player_snapshot = &snapshot_info->players[snapshot_info->player_count++];
             player_snapshot->id = i;
             player_snapshot->instance_num = player->instance_num;
             player_snapshot->instance_remain_turns = player->instance_remain_turns;
+            memset(&player_snapshot->mappos, 0, sizeof(player_snapshot->mappos));
             if (player->victory_state == VicS_Undecided) {
-                player_snapshot->mappos = camera->mappos;
-            } else {
-                memset(&player_snapshot->mappos, 0, sizeof(player_snapshot->mappos));
+                player_snapshot->mappos.x.val = get_player_user_state(player)->dungeon_camera.x;
+                player_snapshot->mappos.y.val = get_player_user_state(player)->dungeon_camera.y;
             }
             player_snapshot->checksum = compute_player_checksum(player);
         }

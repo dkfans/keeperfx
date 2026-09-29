@@ -16,6 +16,7 @@
 #include "power_hand.h"            /* draw_power_hand */
 #include "gui_boxmenu.h"           /* gui_draw_all_boxes */
 #include "player_data.h"           /* struct PlayerInfo, PVT_MapScreen/MapFadeIn/MapFadeOut */
+#include "player_instances.h"      /* PI_MapFadeTo, PI_MapFadeFrom */
 #include "game_legacy.h"           /* game, GOF_ShowGui */
 #include "bflib_basics.h"          /* flag_is_set, TbBool */
 
@@ -33,12 +34,12 @@ bool GameUI::IsActiveForCurrentView(const struct PlayerInfo* player) const
 {
     if (!player)
         return false;
-    if (player->view_type == PVT_MapScreen
-        || player->view_type == PVT_MapFadeIn
-        || player->view_type == PVT_MapFadeOut)
+    if (get_player_view_type(player) == PVT_MapScreen
+        || get_player_view_type(player) == PVT_MapFadeIn
+        || get_player_view_type(player) == PVT_MapFadeOut)
         return false;
 
-    if (player->view_mode == PVM_ParchFadeIn || player->view_mode == PVM_ParchFadeOut)
+    if (player->instance_num == PI_MapFadeTo || player->instance_num == PI_MapFadeFrom)
         return false;
     return true;
 }

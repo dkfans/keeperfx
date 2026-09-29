@@ -34,7 +34,7 @@ struct Packet;
 
 // save file header for .pck files.
 // (Bump the version if this struct or the .pck format changes.)
-#define PACKET_SAVE_HEAD_VER 3
+#define PACKET_SAVE_HEAD_VER 4
 
 enum PacketSaveHeadFlags {
     PSHF_Checksum   = 0x01,
@@ -49,16 +49,16 @@ struct PacketSaveHead {
     uint32_t level_num;
     PlayerBitFlags players_exist;
     PlayerBitFlags players_comp;
-    uint32_t isometric_view_zoom_level;
-    uint32_t frontview_zoom_level;
-    int isometric_tilt;
-    unsigned char video_rotate_mode;
+    int32_t dungeon_zooms[MAX_NET_USERS][2];
+    TbBool highlight_modes[MAX_NET_USERS];
+    int32_t dungeon_pitches[MAX_NET_USERS];
+    TbBool dungeon_front_views[MAX_NET_USERS];
+    TbBool dungeon_wibbles[MAX_NET_USERS];
     uint8_t flags; // PacketSaveHeadFlags
     uint32_t action_seed;
     TbBool default_imprison_tendency;
     TbBool default_flee_tendency;
     TbBool skip_heart_zoom;
-    TbBool highlight_mode;
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
     char frontend_alliances;

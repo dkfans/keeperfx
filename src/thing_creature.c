@@ -237,16 +237,12 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
 {
     struct CreatureModelConfig *crconf;
-    struct Camera *cam;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect))
       || !thing_can_be_controlled_as_controller(thing))
     {
       if (!control_creature_as_passenger(player, thing))
         return false;
-            cam = get_player_active_camera(player);
-      crconf = creature_stats_get(get_players_special_digger_model(player->id_number));
-      cam->mappos.z.val += get_creature_eye_height(thing);
       return true;
     }
     TbBool chicken = (creature_under_spell_effect(thing, CSAfF_Chicken));
@@ -262,9 +258,6 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       turn_off_roaming_menus();
     }
     set_selected_creature(player, thing);
-        cam = get_player_active_camera(player);
-    if (cam != NULL)
-      player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
     thing->rendering_flags |= TRF_Invisible;
     if (!chicken)
@@ -316,9 +309,6 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
         turn_off_roaming_menus();
     }
     set_selected_thing(player, thing);
-        struct Camera* cam = get_player_active_camera(player);
-    if (cam != NULL)
-      player->view_mode_restore = cam->view_mode;
     set_player_mode(player, PVT_CreaturePasngr);
     thing->rendering_flags |= TRF_Invisible;
     return true;
@@ -3367,7 +3357,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
     player->influenced_thing_creation = 0;
-    set_camera_zoom(get_player_active_camera(player), player->dungeon_camera_zoom);
+    set_player_dungeon_zoom(player, player->dungeon_camera_zoom);
     sync_local_camera(player);
     if (is_my_player(player)) {
         turn_off_all_window_menus();

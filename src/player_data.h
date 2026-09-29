@@ -50,16 +50,10 @@ enum PlayerField6Flags {
     PlaF6_PlyrHasQuit       = 0x02,
 };
 
-enum PlayerViewModes {
-    PVM_EmptyView = 0,
-    PVM_CreatureView, /**< View from a creature perspective, first person. */
-    PVM_IsoWibbleView, /**< Dungeon overview from isometric front perspective, simplified version - only 4 angles. */
-    PVM_ParchmentView, /**< Full screen parchment map view, showing dungeon schematic from top. */
-    PVM_unusedparam,
-    PVM_FrontView, /**< Dungeon overview from isometric front perspective, advanced version - fluent rotation. */
-    PVM_ParchFadeIn, /**< Transitional view when fading from Isometric view to Parchment map. */
-    PVM_ParchFadeOut, /**< Transitional view when fading from Parchment map back to Isometric view. */
-    PVM_IsoStraightView, /**< Same as PVM_IsoWibbleView, but without wibble. */
+enum LocalViewMode {
+    PVM_IsoWibbleView = 2, /**< Isometric dungeon view, freely rotating, with wibble. */
+    PVM_FrontView = 5, /**< Front dungeon view, four orientations. */
+    PVM_IsoStraightView = 8, /**< Same as PVM_IsoWibbleView, but without wibble. */
 };
 
 enum PlayerViewType {
@@ -155,7 +149,9 @@ struct CheatSelection
 /*
  * Per-player game data.
  *
- * Players can be human-controlled, AI controlled, etc. (See player_instances.h)
+ * Players present in a game can be human-controlled keepers, Computer-controlled keepers,
+ * "Placeholder" keepers (humans who have dropped and are replaced by a computer),
+ * "Roaming" (the hero team), or neutral (capturable by keepers).
  * 
  * Note: for legacy reasons, this struct currently contains some fields that
  * should eventually be ported to UserState or LocalState.
@@ -176,9 +172,6 @@ struct PlayerInfo {
     GameTurn controlled_thing_creatrn;
     short thing_under_hand;
     TbBool possession_lock;
-    unsigned char view_mode;
-    unsigned char active_camera_idx;
-    struct Camera cameras[4];
     MapCoord zoom_to_pos_x;
     MapCoord zoom_to_pos_y;
     struct Wander wandr_within;
@@ -187,17 +180,14 @@ struct PlayerInfo {
     short cta_flag_idx;
     short influenced_thing_idx;
     GameTurn influenced_thing_creation;
-    unsigned char view_type;
     PlayerState work_state;
     PlayerState continue_work_state;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
     char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
-    /** Player instance, from PlayerInstanceNum enum. */
+    /** An "instance" is a short, scripted animation. See: enum PlayerInstanceNum */
     unsigned char instance_num;
     unsigned long instance_remain_turns;
-    /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
-    char view_mode_restore;
     int32_t dungeon_camera_zoom;
     /** Overcharge level while casting keeper powers. */
     int32_t cast_expand_level;
@@ -206,8 +196,6 @@ struct PlayerInfo {
     GameTurn power_of_cooldown_turn;
     int32_t game_version;
     GameTurn display_objective_turn;
-    uint32_t isometric_view_zoom_level;
-    uint32_t frontview_zoom_level;
     unsigned char hand_idx;
     struct RoomSpace render_roomspace;
     struct RoomSpace roomspace;
@@ -255,7 +243,6 @@ struct UserState {
     TbBool interpolated_tagging;
     /** First person (possession) controls. */
     TbBool first_person_dig_claim_mode;
-    int first_person_unfreeze_delay;
     unsigned short selected_fp_thing_pickup;
     unsigned char teleport_destination;
     TbBool nearest_teleport;
@@ -268,6 +255,12 @@ struct UserState {
     ThingModel chosen_door_kind;
     PowerKind chosen_power_kind;
     TbBool pickup_all_gold;
+    /** What the user is doing, from enum PlayerViewType. */
+    unsigned char view_type;
+    /** Remembered in front view too, for the return to iso. */
+    TbBool dungeon_wibble;
+    TbBool highlight_mode;
+    struct DungeonCamera dungeon_camera;
 };
 
 /******************************************************************************/
@@ -309,6 +302,9 @@ extern struct LocalState {
     float camera_movement_x;
     float camera_movement_y;
     TbBool camera_speedup_pressed;
+    TbBool camera_rotate_cw;
+    TbBool camera_rotate_ccw;
+    TbBool camera_rotate_around_cursor;
     // freecam. TODO: use spectator implementation instead, once that is implemented
     TbBool replay_detached;
     unsigned char replay_view_type;
@@ -357,9 +353,13 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 
 void clear_players(void);
 
-struct Camera *get_player_active_camera(const struct PlayerInfo *player);
-void set_player_active_camera(struct PlayerInfo *player, unsigned char cam_idx);
-unsigned char rotate_mode_to_view_mode(unsigned char mode);
+unsigned char get_player_view_type(const struct PlayerInfo *player);
+unsigned char get_player_active_camera_index(const struct PlayerInfo *player);
+int32_t get_player_dungeon_yaw(const struct PlayerInfo *player);
+int32_t get_player_dungeon_zoom(const struct PlayerInfo *player);
+void set_player_dungeon_zoom(struct PlayerInfo *player, int32_t zoom);
+enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate);
+void rotate_mode_to_dungeon_view(unsigned char mode, TbBool *front_view, TbBool *wibble);
 
 unsigned char get_player_color_idx(PlayerNumber plyr_idx);
 /******************************************************************************/

@@ -278,7 +278,7 @@ void lightning_modify_palette(struct Thing *thing)
         }
         return;
     }
-    if ((camera->view_mode != PVM_ParchFadeIn) && (camera->view_mode != PVM_ParchFadeOut) && (camera->view_mode != PVM_ParchmentView))
+    if (get_local_view_type(myplyr) != PVT_MapScreen)
     {
         if ((ustate->additional_flags & UsrAF_LightningPaletteIsActive) == 0)
         {

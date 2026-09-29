@@ -566,22 +566,10 @@ TbBool screen_to_map(struct Camera *camera, int32_t screen_x, int32_t screen_y, 
     result = false;
     if (camera != NULL)
     {
-      switch (camera->view_mode)
-      {
-        case PVM_CreatureView:
-        case PVM_IsoWibbleView:
-        case PVM_FrontView:
-        case PVM_IsoStraightView:
-          // 3D view mode
-          result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
-          break;
-        case PVM_ParchmentView: //map mode
+      if (get_local_view_type(get_my_player()) == PVT_MapScreen)
           result = point_to_overhead_map(camera,screen_x/pixel_size,screen_y/pixel_size,&x,&y);
-          break;
-        default:
-          result = false;
-          break;
-      }
+      else
+          result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
     }
     if ( result )
     {
@@ -688,7 +676,7 @@ void toggle_hero_health_flowers(void)
 void reset_gui_based_on_player_mode(void)
 {
     struct PlayerInfo *player = get_my_player();
-    if (player->view_type == PVT_CreatureContrl)
+    if (get_player_view_type(player) == PVT_CreatureContrl)
     {
         turn_on_menu(vid_change_query_menu);
         if (player->victory_state == VicS_LostLevel)
@@ -696,7 +684,7 @@ void reset_gui_based_on_player_mode(void)
             turn_off_query_menus();
         }
     }
-    else if (player->view_type == PVT_CreaturePasngr)
+    else if (get_player_view_type(player) == PVT_CreaturePasngr)
     {
         turn_on_menu(vid_change_query_menu);
         turn_off_query_menus();
@@ -871,7 +859,7 @@ void reinit_level_after_load(void)
         player = get_player(i);
         if (player_exists(player))
         {
-            set_engine_view(player, player->view_mode);
+            update_engine_view(player, false);
             update_panel_color_player_color(player->id_number, get_dungeon(i)->color_idx);
         }
     }
@@ -978,7 +966,6 @@ void clear_players_for_save(void)
     unsigned short saved_player_id;
     unsigned char saved_player_type;
     unsigned short saved_allocation_flags;
-    struct Camera cammem;
     int i;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
@@ -986,7 +973,6 @@ void clear_players_for_save(void)
       saved_player_id = player->id_number;
       saved_player_type = player->player_type;
       saved_allocation_flags = player->allocflags;
-      memcpy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = saved_player_id;
       player->user_id = -1;
@@ -994,8 +980,6 @@ void clear_players_for_save(void)
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
       set_flag_value(player->allocflags, PlaF_Placeholder, ((saved_allocation_flags & PlaF_Placeholder) != 0));
-      memcpy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
-      set_player_active_camera(player, CamIV_FirstPerson);
     }
 }
 
@@ -1200,7 +1184,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
         return;
     }
     spectator_breed = get_players_spectator_model(plyr_idx);
-    player->dungeon_camera_zoom = get_camera_zoom(get_player_active_camera(player));
+    player->dungeon_camera_zoom = get_player_dungeon_zoom(player);
     struct CompoundTngFilterParam param = {};
     param.class_id = TCls_Creature;
     struct Thing *spawn_creatng = get_random_thing_of_class_with_filter(filter_creatures_owned_by_keepers, &param, plyr_idx);

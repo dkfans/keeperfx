@@ -1187,17 +1187,20 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.flags = PSHF_Compressed;
     if (game.packet_checksum_verify)
         set_flag(game.packet_save_head.flags, PSHF_Checksum);
-    game.packet_save_head.isometric_view_zoom_level = settings.isometric_view_zoom_level;
-    game.packet_save_head.frontview_zoom_level = settings.frontview_zoom_level;
-    game.packet_save_head.isometric_tilt = settings.isometric_tilt;
-    game.packet_save_head.video_rotate_mode = settings.video_rotate_mode;
     game.packet_save_head.action_seed = initial_replay_seed;
     game.packet_save_head.skip_heart_zoom = get_skip_heart_zoom_feature();
     game.packet_save_head.default_imprison_tendency = IMPRISON_BUTTON_DEFAULT;
     game.packet_save_head.default_flee_tendency = FLEE_BUTTON_DEFAULT;
-    game.packet_save_head.highlight_mode = settings.highlight_mode;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        const struct UserState *ustate = &game.user_states[user];
         game.packet_save_head.user_players[user] = get_net_user_player_number(user);
+        game.packet_save_head.dungeon_front_views[user] = ustate->dungeon_camera.use_front_view;
+        game.packet_save_head.dungeon_wibbles[user] = ustate->dungeon_wibble;
+        game.packet_save_head.dungeon_pitches[user] = ustate->dungeon_camera.pitch;
+        memcpy(game.packet_save_head.dungeon_zooms[user], ustate->dungeon_camera.zoom, sizeof(ustate->dungeon_camera.zoom));
+        game.packet_save_head.highlight_modes[user] = ustate->highlight_mode;
+    }
     game.packet_save_head.recording_user = get_local_user();
     game.packet_save_head.frontend_alliances = frontend_alliances;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)

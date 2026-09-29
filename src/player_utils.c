@@ -59,6 +59,8 @@
 #include "keeperfx.hpp"
 #include "kjm_input.h"
 #include "timer.h"
+#include "packets.h"
+#include "net_game.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -226,12 +228,12 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (is_my_player(player))
         gui_set_button_flashing(0, 0);
-    if (player->view_type == PVT_CreatureContrl)
+    if (get_player_view_type(player) == PVT_CreatureContrl)
     {
         struct Thing *thing = thing_get(player->controlled_thing_idx);
         leave_creature_as_controller(player, thing);
     }
-    else if (player->view_type == PVT_CreaturePasngr)
+    else if (get_player_view_type(player) == PVT_CreaturePasngr)
     {
         struct Thing *thing = thing_get(player->controlled_thing_idx);
         leave_creature_as_passenger(player, thing);
@@ -853,16 +855,18 @@ void init_player(struct PlayerInfo *player, short no_explore)
     }
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
-    player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
-    player->frontview_zoom_level = settings.frontview_zoom_level;
+    struct UserState *ustate = get_player_user_state(player);
+    if (!user_state_invalid(ustate))
+    {
+        player->roomspace_highlight_mode = ustate->highlight_mode;
+        player->roomspace_mode = ustate->highlight_mode;
+    }
     if (is_my_player(player))
     {
         if (default_tag_mode != 3)
         {
             settings.highlight_mode = default_tag_mode - 1;
         }
-        player->roomspace_highlight_mode = settings.highlight_mode;
-        player->roomspace_mode = settings.highlight_mode;
         set_flag(game.operation_flags, GOF_ShowPanel);
         set_gui_visible(true);
         init_gui();
@@ -886,14 +890,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
         //workaround until settings are synced through multiplayer
         if (is_my_player(player))
             local_state.minimap_zoom = 256;
-        if (game.packet_save_head.isometric_view_zoom_level == 0)
-        {
-            player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
-        }
-        if (game.packet_save_head.frontview_zoom_level == 0)
-        {
-            player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
-        }
         if (!is_active_keeper(player))
         {
           ERRORLOG("Non Keeper in Keeper game");
@@ -920,6 +916,49 @@ void init_player(struct PlayerInfo *player, short no_explore)
         LevelNumber lvnum = get_loaded_level_number();
         long safe_lvnum = (lvnum > 0) ? lvnum : 1; // guard against (lvnum - 1) % 4 going negative
         play_music_track(3 + (int)((safe_lvnum - 1) % 4)); // tracks 3..6
+    }
+}
+
+// What the user can (canonically) see
+int32_t user_get_visibility_bounds(NetUserId user, MapCoord *x, MapCoord *y)
+{
+    const int32_t default_radius = 24 * COORD_PER_STL;
+    struct PlayerInfo *player = get_player(get_net_user_player_number(user));
+    const struct UserState *ustate = get_user_state(user);
+    if (!player_exists(player) || user_state_invalid(ustate))
+        return -1;
+    // TODO: interpolate during an instance?
+    const struct DungeonCamera dcam = ustate->dungeon_camera;
+    *x = dcam.x;
+    *y = dcam.y;
+    switch (get_player_view_type(player))
+    {
+    case PVT_CreatureContrl:
+    case PVT_CreaturePasngr:
+    {
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        if (thing_exists(thing))
+        {
+            *x = thing->mappos.x.val;
+            *y = thing->mappos.y.val;
+        }
+        return default_radius;
+    }
+    case PVT_MapScreen:
+    case PVT_MapFadeOut:
+    {
+        const struct Packet *pckt = get_packet(user);
+        if (packet_camera_context(pckt) == CamIV_Parchment)
+        {
+            *x = pckt->pos_x;
+            *y = pckt->pos_y;
+        }
+        return default_radius;
+    }
+    default:
+        if (ustate->dungeon_camera.use_front_view)
+            return SHRT_MAX - (clamp(dcam.zoom[true], FRONTVIEW_CAMERA_ZOOM_MIN, FRONTVIEW_CAMERA_ZOOM_MAX) / 3);
+        return SHRT_MAX - (2 * clamp(dcam.zoom[false], CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX));
     }
 }
 
@@ -1164,6 +1203,24 @@ void post_init_players(void)
     }
 }
 
+TbBool get_starting_highlight_mode(void)
+{
+    if (default_tag_mode != 3)
+        return (default_tag_mode - 1) != 0;
+    return settings.highlight_mode;
+}
+
+static void init_user_preferences_from_settings(NetUserId user)
+{
+    struct UserState *ustate = get_user_state(user);
+    ustate->dungeon_wibble = true;
+    rotate_mode_to_dungeon_view(settings.video_rotate_mode, &ustate->dungeon_camera.use_front_view, &ustate->dungeon_wibble);
+    ustate->dungeon_camera.pitch = settings.isometric_tilt;
+    ustate->dungeon_camera.zoom[false] = settings.isometric_view_zoom_level;
+    ustate->dungeon_camera.zoom[true] = settings.frontview_zoom_level;
+    ustate->highlight_mode = get_starting_highlight_mode();
+}
+
 void init_players_local_game(void)
 {
     SYNCDBG(4,"Starting");
@@ -1178,14 +1235,9 @@ void init_players_local_game(void)
         player->player_type = PT_Keeper;
     }
 
-    switch (settings.video_rotate_mode) {
-        case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
-        case 1: player->view_mode_restore = PVM_IsoStraightView; break;
-        case 2: player->view_mode_restore = PVM_FrontView; break;
-        default: player->view_mode_restore = PVM_IsoWibbleView; break;
-    }
-    init_player(player, 0);
     init_user_state(player->user_id);
+    init_user_preferences_from_settings(player->user_id);
+    init_player(player, 0);
     set_creature_tendencies(player, CrTend_Imprison, IMPRISON_BUTTON_DEFAULT);
     set_creature_tendencies(player, CrTend_Flee, FLEE_BUTTON_DEFAULT);
     game.creatures_tend_imprison = IMPRISON_BUTTON_DEFAULT;
@@ -1203,10 +1255,9 @@ void process_player_states(void)
             if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
             {
                 struct Thing* thing = thing_get(player->controlled_thing_idx);
-                struct Camera* cam = get_player_active_camera(player);
-                if ((cam != NULL) && thing_exists(thing)) {
-                    cam->mappos.x.val = thing->mappos.x.val;
-                    cam->mappos.y.val = thing->mappos.y.val;
+                if (thing_exists(thing)) {
+                    get_player_user_state(player)->dungeon_camera.x = thing->mappos.x.val;
+                    get_player_user_state(player)->dungeon_camera.y = thing->mappos.y.val;
                     set_local_camera_destination(player);
                 }
             }
