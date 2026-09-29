@@ -253,7 +253,7 @@ void frontnet_session_add(struct GuiButton *gbtn)
     if (net_config_info.net_lobby_name[0] != '\0') {
         snprintf(net_lobby_name, sizeof(net_lobby_name), "%s", net_config_info.net_lobby_name);
     } else {
-        snprintf(net_lobby_name, sizeof(net_lobby_name), "%s's Lobby", net_player_name);
+        snprintf(net_lobby_name, sizeof(net_lobby_name), "Dungeon%03d", rand() % 1000);
     }
     turn_on_menu(GMnu_FEADD_SESSION);
     set_menu_visible_off(GMnu_FENET_SESSION);
