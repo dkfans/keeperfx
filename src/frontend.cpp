@@ -965,6 +965,12 @@ long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long fi
 
 void gui_quit_game(struct GuiButton *gbtn)
 {
+    if (game.packet_load_enable)
+    {
+        turn_off_all_menus();
+        quit_game = 1;
+        return;
+    }
     struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_QuitToMainMenu, 0, 0, 0, 0);
 }

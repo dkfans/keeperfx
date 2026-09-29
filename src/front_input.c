@@ -430,10 +430,27 @@ static short get_players_message_inputs(void)
     struct UserState* ustate = get_local_user_state();
 
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
-        memcpy(player->mp_pending_message, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
-        set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
-        if (network_is_active()) {
-            send_network_chat_message(get_local_user(), player->mp_message_text);
+        char text[PLAYER_MP_MESSAGE_LEN];
+        memcpy(text, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
+        text[PLAYER_MP_MESSAGE_LEN - 1] = '\0';
+        if (game.packet_load_enable) {
+            if (text[0] != '\0')
+                message_add(MsgType_Player, player->id_number, text);
+        } else {
+            MapCoord cursor_x;
+            MapCoord cursor_y;
+            struct Coord3d pos;
+            if ((get_local_view_type(player) == PVT_DungeonTop) && screen_to_map(get_local_active_camera(player), GetMouseX(), GetMouseY(), &pos))
+            {
+                cursor_x = pos.x.val;
+                cursor_y = pos.y.val;
+            } else
+            {
+                console_cmd_default_cursor(player->id_number, &cursor_x, &cursor_y);
+            }
+            if (network_is_active())
+                send_network_chat_message_at(get_local_user(), text, cursor_x, cursor_y);
+            queue_gameplay_chat_message(get_local_user(), text, cursor_x, cursor_y);
         }
         ustate->init_flags &= ~UsrIF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
@@ -636,9 +653,17 @@ static void get_snap_camera_inputs(const struct Camera *cam, struct Packet *pckt
     set_packet_action(pckt, PckA_SetMapRotation, angle, 0, 0, 0);
 }
 
+static TbBool wheel_reserved_by_menu(void)
+{
+    return menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE)
+        || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE);
+}
+
 static TbBool replay_camera_keys_pressed(void)
 {
     static const long keys[] = {Gkey_ZoomIn, Gkey_ZoomOut, Gkey_TiltUp, Gkey_TiltDown, Gkey_TiltReset};
+    if ((wheel_scrolled_up || wheel_scrolled_down) && !wheel_reserved_by_menu())
+        return true;
     if ((get_game_key_axis_value(Gkey_MoveLeft, true) != 0.0f) || (get_game_key_axis_value(Gkey_MoveRight, true) != 0.0f)
      || (get_game_key_axis_value(Gkey_MoveUp, true) != 0.0f) || (get_game_key_axis_value(Gkey_MoveDown, true) != 0.0f))
         return true;
@@ -707,27 +732,57 @@ static void get_replay_freecam_inputs(void)
         replay_freecam_set_map(true);
         return;
     }
-    if (get_dungeon_small_map_inputs(get_freecam_packet()))
+    struct Packet* fpckt = get_freecam_packet();
+    struct Coord3d pos;
+    if (screen_to_map(camera, my_mouse_x, my_mouse_y, &pos))
+        set_players_packet_position(fpckt, pos.x.val, pos.y.val, 0);
+    if (zoom_to_mouse_option == ZoomToMouse_Always)
+        set_packet_control(fpckt, PCtr_ViewZoomPos);
+    if (rotate_around_mouse_option == RotateAroundMouse_Always)
+        set_packet_control(fpckt, PCtr_ViewRotatePos);
+    if (get_dungeon_small_map_inputs(fpckt))
         return;
     if (is_game_key_pressed(Gkey_SnapCamera, true, true))
     {
-        get_snap_camera_inputs(camera, get_freecam_packet());
+        get_snap_camera_inputs(camera, fpckt);
         return;
     }
     switch (camera->view_mode)
     {
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
-        get_isometric_view_nonaction_inputs(get_freecam_packet());
+        get_isometric_view_nonaction_inputs(fpckt);
         break;
     case PVM_FrontView:
-        get_front_view_nonaction_inputs(get_freecam_packet());
+        get_front_view_nonaction_inputs(fpckt);
         break;
     }
 }
 
 static short get_packet_load_game_control_inputs(void)
 {
+  if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+  {
+    const unsigned char view_type = get_local_view_type(get_my_player());
+    const TbBool possessed = (view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr);
+    if (a_menu_window_is_active())
+    {
+      clear_key_pressed(KC_ESCAPE);
+      turn_off_all_window_menus();
+      return true;
+    }
+    if (replay_camera_detached() || !possessed)
+    {
+      clear_key_pressed(KC_ESCAPE);
+      turn_on_menu(GMnu_QUIT);
+      return true;
+    }
+  }
+  if (a_menu_window_is_active())
+  {
+    get_gui_inputs(1);
+    return true;
+  }
   if (is_game_key_pressed(Gkey_ToggleGui, true, true))
   {
     if (replay_camera_detached())
@@ -2281,8 +2336,7 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials, and
     // for the in-game Load/Save menus (there the wheel scrolls the savegame list).
-    if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE)
-        || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE) || rotate_pressed || mods_used) == 0)
+    if (!wheel_reserved_by_menu() && !rotate_pressed && !mods_used)
     {
         // mouse scroll zoom unaffected by frameskip
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
@@ -2733,8 +2787,21 @@ static void get_map_nonaction_inputs(void)
 
 static short get_packet_load_game_inputs(void)
 {
-    load_packets_for_turn(game.pckt_gameturn);
-    game.pckt_gameturn++;
+    set_replay_playback_paused(a_menu_window_is_active());
+    if (replay_playback_is_paused())
+    {
+        clear_packets();
+    } else
+    {
+        if (flag_is_set(game.operation_flags, GOF_Paused))
+        {
+            clear_users_button_state();
+            process_pause_packet(0, 0);
+        }
+        clear_flag(game.operation_flags, GOF_Paused);
+        load_packets_for_turn(game.pckt_gameturn);
+        game.pckt_gameturn++;
+    }
     if (!get_packet_load_game_control_inputs())
         get_replay_freecam_inputs();
     if (get_speed_control_inputs())

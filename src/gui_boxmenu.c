@@ -874,7 +874,10 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
     if (goptn->is_enabled == 1)
     {
       if (goptn->callback != NULL)
+      {
+        stop_replay_recording("cheat menu used");
         goptn->callback(gbox, goptn, button_num, &goptn->cb_param1);
+      }
     }
     return true;
   }

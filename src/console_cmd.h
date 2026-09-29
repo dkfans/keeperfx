@@ -27,7 +27,8 @@ extern "C" {
 #endif
 
 void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size);
-TbBool cmd_exec(PlayerNumber plyr_idx, char *msg);
+TbBool cmd_exec(PlayerNumber plyr_idx, char *msg, MapCoord cursor_x, MapCoord cursor_y);
+void console_cmd_default_cursor(PlayerNumber plyr_idx, MapCoord *x, MapCoord *y);
 
 #ifdef __cplusplus
 }

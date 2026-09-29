@@ -208,6 +208,9 @@ void update_local_cameras(void)
         memset(&freecam_packet, 0, sizeof(freecam_packet));
         return;
     }
+    if (replay_playback_is_paused()) {
+        pckt = NULL;
+    }
     if (pckt != NULL) {
         process_camera_action(destination_local_cameras, pckt);
         // Skip interpolation for parchment jumps, while retaining it for minimap dragging.
