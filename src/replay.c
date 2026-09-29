@@ -1108,6 +1108,8 @@ static void append_git_sha(char *buf, size_t buflen)
 
 TbBool setup_auto_replay_save(void)
 {
+    if (replays_enabled == false)
+        return false;
     LevelNumber lvnum = get_loaded_level_number();
     int type;
     if (is_multiplayer_level(lvnum))
