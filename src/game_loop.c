@@ -1161,6 +1161,7 @@ void game_loop(void)
       close_packet_file();
       game.packet_load_enable = false;
       game.packet_save_enable = false;
+      game.easter_eggs_enabled = start_params.easter_egg;
     } // end while
 
     // Stop the movie recording if it's on

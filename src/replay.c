@@ -36,6 +36,7 @@
 #include "dungeon_data.h"
 #include "tasks_list.h"
 #include "spdigger_stack.h"
+#include "keeperfx.hpp"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -759,6 +760,8 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
     game.packet_file_pos = LbFilePosition(game.packet_save_fp);
     reset_packet_codec();
     game.turns_stored = count_stored_turns();
+    if (flag_is_set(game.packet_save_head.flags, PSHF_Alex))
+        game.easter_eggs_enabled = true;
     replay_playback_paused = false;
     if ((game.packet_checksum_verify) && !flag_is_set(game.packet_save_head.flags, PSHF_Checksum))
     {
@@ -1187,6 +1190,8 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.flags = PSHF_Compressed;
     if (game.packet_checksum_verify)
         set_flag(game.packet_save_head.flags, PSHF_Checksum);
+    if (game.easter_eggs_enabled)
+        set_flag(game.packet_save_head.flags, PSHF_Alex);
     game.packet_save_head.isometric_view_zoom_level = settings.isometric_view_zoom_level;
     game.packet_save_head.frontview_zoom_level = settings.frontview_zoom_level;
     game.packet_save_head.isometric_tilt = settings.isometric_tilt;
@@ -1317,6 +1322,7 @@ void disable_packet_mode(void)
     close_packet_file();
     game.packet_load_enable = false;
     game.packet_save_enable = false;
+    game.easter_eggs_enabled = start_params.easter_egg;
     remap_local_user_to_solo();
     show_onscreen_msg(2*turns_per_second, "Packet mode disabled");
     set_gui_visible(true);
