@@ -515,7 +515,7 @@ void add_message(long plyr_idx, char *msg)
  */
 void create_error_box(TextStringId msg_idx)
 {
-    if (!game.packet_load_enable)
+    if (!replay.load_enable)
     {
         //change the length into  when gui_error_text will not be exported
         snprintf(gui_error_text, sizeof(gui_error_text), "%s", get_string(msg_idx));
@@ -965,7 +965,7 @@ long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long fi
 
 void gui_quit_game(struct GuiButton *gbtn)
 {
-    if (game.packet_load_enable)
+    if (replay.load_enable)
     {
         turn_off_all_menus();
         quit_game = 1;
@@ -1629,14 +1629,14 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     
     // If we win a mappack file, 'Continue Game' button should not return to that map
     // (Instead of deleting continue file, maybe record the mappack itself as the place to return to?)
-    if (won && is_freeplay_level(lvnum) && !network_is_active() && !game.packet_load_enable
+    if (won && is_freeplay_level(lvnum) && !network_is_active() && !replay.load_enable
      && (play_turns >= 30 * start_params.num_fps /* prevent broken maps from deleting a perfectly good continue */))
         delete_continue_link();
         
     // Only save progress if not a free play level, not a multiplayer level and not in packet mode
     if (network_is_active()
      || ((game.operation_flags & GOF_SingleLevel) != 0)
-     || (game.packet_load_enable)
+     || (replay.load_enable)
      || (is_freeplay_level(lvnum))
      || (is_multiplayer_level(lvnum)))
         return false;

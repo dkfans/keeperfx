@@ -405,14 +405,14 @@ static short display_should_be_updated_this_turn(void)
 {
     if ((game.operation_flags & GOF_Paused) != 0)
       return true;
-    if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) )
+    if ( (replay.turns_fastforward == 0) && (!replay.loading_in_progress) )
     {
       find_frame_rate();
       if ( (game.frame_skip == 0) || ((get_gameturn() % game.frame_skip) == 0) )
         return true;
     } else
     if ( ((get_gameturn() & 0x3F)==0) ||
-         ((game.packet_loading_in_progress) && ((get_gameturn() & 7)==0)) )
+         ((replay.loading_in_progress) && ((get_gameturn() & 7)==0)) )
     {
       packet_load_find_frame_rate(64);
       return true;
@@ -546,7 +546,7 @@ static void gameplay_loop_logic()
                 game.paused_at_gameturn = true;
 
                 game.frame_skip = 0;
-                if(game.packet_load_enable)
+                if(replay.load_enable)
                 {
                     disable_packet_mode();
                 }
@@ -698,7 +698,7 @@ static void gameplay_loop_timestep()
     if (! use_delta_time()) {
         frametime_start_measurement(Frametime_Sleep);
         // Make delay if the machine is too fast
-        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
+        if ( (!replay.load_enable) || (replay.turns_fastforward == 0) ) {
             keeper_wait_for_next_turn();
         }
         frametime_end_measurement(Frametime_Sleep);
@@ -797,7 +797,7 @@ static TbBool wait_at_frontend(void)
     if (game.mode_flags & MFlg_IsDemoMode)
     {
       close_packet_file();
-      game.packet_load_enable = 0;
+      replay.load_enable = 0;
     }
     game.save_game_slot = -1;
     // Make sure campaigns are loaded
@@ -872,7 +872,7 @@ static TbBool wait_at_frontend(void)
     #endif
 
     // Prepare to enter PacketLoad game
-    if (game.packet_load_enable)
+    if (replay.load_enable)
     {
       if (!faststartup_saved_packet_game())
           exit_keeper = true;
@@ -1081,7 +1081,7 @@ void game_loop(void)
                     }
                 }
             } else {
-                if (!game.packet_load_enable) {
+                if (!replay.load_enable) {
                     toggle_status_menu(1); // Required when skipping PI_HeartZoom
                 }
             }
@@ -1159,8 +1159,8 @@ void game_loop(void)
       SYNCDBG(0,"Play time is %lu seconds",playtime>>10);
       reset_eye_lenses();
       close_packet_file();
-      game.packet_load_enable = false;
-      game.packet_save_enable = false;
+      replay.load_enable = false;
+      replay.save_enable = false;
       game.easter_eggs_enabled = start_params.easter_egg;
     } // end while
 

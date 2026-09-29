@@ -189,9 +189,9 @@ void demo(void)
         fname = prepare_file_path(FGrp_FxData,demo_item[index].fname);
         if ( LbFileExists(fname) )
         {
-          strcpy(game.packet_fname, fname);
-          game.packet_load_enable = 1;
-          game.turns_fastforward = 0;
+          strcpy(replay.fname, fname);
+          replay.load_enable = 1;
+          replay.turns_fastforward = 0;
           frontend_set_state(FeSt_PACKET_DEMO);
         }
         break;

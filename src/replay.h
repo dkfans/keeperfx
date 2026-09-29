@@ -68,6 +68,32 @@ struct PacketSaveHead {
 
 #pragma pack()
 /******************************************************************************/
+
+/*
+ * State relating to watching and saving replays, including whether replay mode is enabled.
+ * Not stored in the main game struct, since resyncs shouldn't overwrite this, and shouldn't
+ * be part of game saves.
+ */
+struct ReplayState {
+    unsigned char save_enable;
+    unsigned char load_enable;
+    char fname[150];
+    char fopened;
+    TbFileHandle fp;
+    unsigned int file_pos;
+    struct PacketSaveHead head;
+    uint32_t turns_stored;
+    uint32_t turns_fastforward;
+    unsigned char loading_in_progress;
+    unsigned char checksum_verify;
+    uint32_t log_things_start_turn;
+    uint32_t log_things_end_turn;
+    uint32_t turns_packetoff;
+    GameTurn pckt_gameturn;
+};
+
+extern struct ReplayState replay;
+
 extern unsigned long initial_replay_seed;
 
 TbBigChecksum compute_replay_integrity(void);
@@ -78,10 +104,14 @@ void load_packets_for_turn(GameTurn nturn);
 void verify_replay_checksum(void);
 TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
+void replay_forget_saved_turn(void);
+void replay_apply_pending_resync(void);
 void close_packet_file(void);
 void stop_replay_recording(const char *reason);
 void replay_record_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y);
 void replay_record_paused_action(NetUserId user, const struct Packet *pckt);
+void replay_record_resync(const void *message, size_t message_size);
+TbBool replay_easter_eggs_setting(void);
 TbBool replay_playback_is_paused(void);
 void set_replay_playback_paused(TbBool paused);
 TbBool reinit_packets_after_load(void);

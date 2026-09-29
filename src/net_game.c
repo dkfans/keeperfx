@@ -123,7 +123,7 @@ PlayerNumber get_net_user_player_number(NetUserId user)
     if ((user < 0) || (user >= MAX_NET_USERS)) {
         return -1;
     }
-    if (!network_is_active() && !game.packet_load_enable) {
+    if (!network_is_active() && !replay.load_enable) {
         return (user == SOLO_HUMAN_ID) ? my_player_number : -1;
     }
     return net_user_player_number[user];
@@ -617,7 +617,7 @@ static void leave_network_if_alone(void)
 void process_player_leave_game_packet(struct PlayerInfo *player)
 {
     if (player != get_my_player()) {
-        if (network_is_active() || game.packet_load_enable /* handle replays */) {
+        if (network_is_active() || replay.load_enable /* handle replays */) {
             NetUserId user = player->user_id;
             if (network_is_active()) {
                 OnDroppedUser(user, NETDROP_MANUAL);

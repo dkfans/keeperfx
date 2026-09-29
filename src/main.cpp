@@ -863,8 +863,7 @@ void reinit_level_after_load(void)
     local_state.lens_palette = 0;
     local_state.main_palette = engine_palette;
     init_navigation();
-    reinit_packets_after_load();
-    game.easter_eggs_enabled = start_params.easter_egg;
+    game.easter_eggs_enabled = replay_easter_eggs_setting();
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
@@ -1372,7 +1371,7 @@ void update_local_mouse_light(void)
     if (player->instance_num != PI_Unset)
         return;
     // ... or when watching a replay
-    if (game.packet_load_enable)
+    if (replay.load_enable)
         return;
     // ... or during text input (save menu)
     if (game_is_busy_doing_gui_string_input())

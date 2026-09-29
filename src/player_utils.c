@@ -886,11 +886,11 @@ void init_player(struct PlayerInfo *player, short no_explore)
         //workaround until settings are synced through multiplayer
         if (is_my_player(player))
             local_state.minimap_zoom = 256;
-        if (game.packet_save_head.isometric_view_zoom_level == 0)
+        if (replay.head.isometric_view_zoom_level == 0)
         {
             player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
         }
-        if (game.packet_save_head.frontview_zoom_level == 0)
+        if (replay.head.frontview_zoom_level == 0)
         {
             player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
         }
@@ -928,14 +928,14 @@ void init_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if (flag_is_set(game.packet_save_head.players_exist, to_flag(i)))
+        if (flag_is_set(replay.head.players_exist, to_flag(i)))
             player->allocflags |= PlaF_Allocated;
         else
             player->allocflags &= ~PlaF_Allocated;
         if (player_exists(player))
         {
             player->id_number = i;
-            if (flag_is_set(game.packet_save_head.players_comp, to_flag(i)))
+            if (flag_is_set(replay.head.players_comp, to_flag(i)))
                 player->allocflags |= PlaF_CompCtrl;
             else
                 player->allocflags &= ~PlaF_CompCtrl;

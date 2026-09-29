@@ -800,7 +800,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       }
       return 1;
   case PckA_SwitchScrnRes:
-      if (is_my_player(player) && !game.packet_load_enable)
+      if (is_my_player(player) && !replay.load_enable)
       {
           switch_to_next_video_mode_wrapper();
       }
@@ -816,14 +816,14 @@ TbBool process_user_global_packet_action(NetUserId user)
       }
       return 0;
   case PckA_ChangeWindowSize:
-      if (is_my_player(player) && !game.packet_load_enable)
+      if (is_my_player(player) && !replay.load_enable)
       {
         change_engine_window_relative_size(pckt->actn_par1, pckt->actn_par2);
         centre_engine_window();
       }
       return 0;
   case PckA_SetGammaLevel:
-      if (is_my_player(player) && !game.packet_load_enable)
+      if (is_my_player(player) && !replay.load_enable)
       {
         set_gamma(pckt->actn_par1, 1);
         save_settings();
@@ -1646,20 +1646,20 @@ void exchange_packets(void)
 
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
     const NetUserId local_user = get_local_user();
-    if (!game.packet_load_enable)
+    if (!replay.load_enable)
     {
         input_lag_update(get_local_packet());
         set_local_packet_turn();
         update_turn_checksums();
     }
     update_local_dig_tag_prediction();
-    if (!game.packet_load_enable)
+    if (!replay.load_enable)
         camera_packet_set_state(get_local_packet());
     store_packet_history(local_user, get_local_packet());
     host_spoof_dropped_user_packets();
     if (game.game_kind != GKind_LocalGame)
     {
-        if (!game.packet_load_enable)
+        if (!replay.load_enable)
         {
             struct Packet* my_packet = get_local_packet();
             const char* player_name = (local_user == SERVER_ID) ? "Host" : "Client";
@@ -1710,14 +1710,16 @@ void clear_users_button_state(void)
 
 void process_packets(void)
 {
-    // Write packets into file, if requested
-    if (!game.packet_load_enable && flag_is_set(game.operation_flags, GOF_Paused))
+    if (!replay.load_enable && flag_is_set(game.operation_flags, GOF_Paused))
         clear_users_button_state();
     process_queued_chat_messages();
-    if (game.packet_load_enable)
+    if (replay.load_enable)
         verify_replay_checksum();
-    if ((game.packet_save_enable) && (game.packet_fopened) && !flag_is_set(game.operation_flags, GOF_Paused)) {
+    // Write packets into file, if requested
+    if ((replay.save_enable) && (replay.fopened) && !flag_is_set(game.operation_flags, GOF_Paused)) {
         save_packets();
+    } else {
+        replay_forget_saved_turn();
     }
     //Debug code, to find packet errors
     #if DEBUG_NETWORK_PACKETS
@@ -1749,6 +1751,8 @@ void process_packets(void)
             resync_game();
         }
     }
+    if (replay.load_enable)
+        replay_apply_pending_resync();
     get_current_stutter_milliseconds();
     MULTIPLAYER_LOG("process_packets: === END turn=%lu ===", (unsigned long)get_gameturn());
     SYNCDBG(7,"Finished");

@@ -273,9 +273,9 @@ static TbBool init_level(void)
 static void post_init_level(void)
 {
     SYNCDBG(8,"Starting");
-    if (!game.packet_save_enable && !game.packet_load_enable)
+    if (!replay.save_enable && !replay.load_enable)
         setup_auto_replay_save();
-    if (game.packet_save_enable)
+    if (replay.save_enable)
         open_new_packet_file_for_save();
     calculate_dungeon_area_scores();
     init_animating_texture_maps();
@@ -304,75 +304,75 @@ TbBool startup_saved_packet_game(void)
 {
     struct CatalogueEntry centry;
     clear_packets();
-    if (!open_packet_file_for_load(game.packet_fname,&centry))
+    if (!open_packet_file_for_load(replay.fname,&centry))
     {
         ERRORLOG("Cannot replay \"%s\": unreadable, or written by an incompatible version",
-            game.packet_fname);
+            replay.fname);
         return false;
     }
     if (!change_campaign(CampgnT_Default, centry.campaign_fname))
     {
         ERRORLOG("Unable to load campaign associated with packet file");
     }
-    set_selected_level_number(game.packet_save_head.level_num);
+    set_selected_level_number(replay.head.level_num);
     RendererSetDrawColour(colours[15][15][15]);
-    game.pckt_gameturn = 0;
+    replay.pckt_gameturn = 0;
 #if (BFDEBUG_LEVEL > 0)
     SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
-    SYNCMSG("Packet Loading Active (File contains %u turns)", game.turns_stored);
-    SYNCMSG("Packet Checksum Verification %s",game.packet_checksum_verify ? "Enabled" : "Disabled");
-    SYNCMSG("Fast Forward through %u game turns", game.turns_fastforward);
-    if (game.turns_packetoff != -1)
-        SYNCMSG("Packet Quit at %u", game.turns_packetoff);
-    if (game.packet_load_enable)
+    SYNCMSG("Packet Loading Active (File contains %u turns)", replay.turns_stored);
+    SYNCMSG("Packet Checksum Verification %s",replay.checksum_verify ? "Enabled" : "Disabled");
+    SYNCMSG("Fast Forward through %u game turns", replay.turns_fastforward);
+    if (replay.turns_packetoff != -1)
+        SYNCMSG("Packet Quit at %u", replay.turns_packetoff);
+    if (replay.load_enable)
     {
-      if (game.log_things_end_turn != game.log_things_start_turn)
-        SYNCMSG("Logging things, game turns %u -> %u", game.log_things_start_turn, game.log_things_end_turn);
+      if (replay.log_things_end_turn != replay.log_things_start_turn)
+        SYNCMSG("Logging things, game turns %u -> %u", replay.log_things_start_turn, replay.log_things_end_turn);
     }
-    SYNCMSG("Packet file prepared on KeeperFX %d.%d.%d.%d",(int)game.packet_save_head.game_ver_major,(int)game.packet_save_head.game_ver_minor,
-        (int)game.packet_save_head.game_ver_release,(int)game.packet_save_head.game_ver_build);
+    SYNCMSG("Packet file prepared on KeeperFX %d.%d.%d.%d",(int)replay.head.game_ver_major,(int)replay.head.game_ver_minor,
+        (int)replay.head.game_ver_release,(int)replay.head.game_ver_build);
 #endif
-    if ((game.packet_save_head.game_ver_major != VER_MAJOR) || (game.packet_save_head.game_ver_minor != VER_MINOR)
-        || (game.packet_save_head.game_ver_release != VER_RELEASE) || (game.packet_save_head.game_ver_build != VER_BUILD)) {
+    if ((replay.head.game_ver_major != VER_MAJOR) || (replay.head.game_ver_minor != VER_MINOR)
+        || (replay.head.game_ver_release != VER_RELEASE) || (replay.head.game_ver_build != VER_BUILD)) {
         WARNLOG("Packet file was created with different version of the game; this rarely works");
     }
     game.game_kind = GKind_LocalGame;
     {
         PlayerNumber view_plyr = -1;
-        NetUserId rec_user = game.packet_save_head.recording_user;
+        NetUserId rec_user = replay.head.recording_user;
         if (!force_player_num && (rec_user >= 0) && (rec_user < MAX_NET_USERS))
-            view_plyr = game.packet_save_head.user_players[rec_user];
+            view_plyr = replay.head.user_players[rec_user];
         if (view_plyr < 0)
             view_plyr = game.local_plyr_idx;
-        if (!flag_is_set(game.packet_save_head.players_exist, to_flag(view_plyr))
-            || flag_is_set(game.packet_save_head.players_comp, to_flag(view_plyr)))
+        if (!flag_is_set(replay.head.players_exist, to_flag(view_plyr))
+            || flag_is_set(replay.head.players_comp, to_flag(view_plyr)))
             my_player_number = 0;
         else
             my_player_number = view_plyr;
     }
-    settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
-    settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
-    settings.isometric_tilt = game.packet_save_head.isometric_tilt;
-    settings.highlight_mode = game.packet_save_head.highlight_mode;
-    IMPRISON_BUTTON_DEFAULT = game.packet_save_head.default_imprison_tendency;
-    FLEE_BUTTON_DEFAULT = game.packet_save_head.default_flee_tendency;
-    set_skip_heart_zoom_feature(game.packet_save_head.skip_heart_zoom);
+    settings.isometric_view_zoom_level = replay.head.isometric_view_zoom_level;
+    settings.frontview_zoom_level = replay.head.frontview_zoom_level;
+    settings.isometric_tilt = replay.head.isometric_tilt;
+    settings.highlight_mode = replay.head.highlight_mode;
+    IMPRISON_BUTTON_DEFAULT = replay.head.default_imprison_tendency;
+    FLEE_BUTTON_DEFAULT = replay.head.default_flee_tendency;
+    set_skip_heart_zoom_feature(replay.head.skip_heart_zoom);
     if (!init_level())
         return false;
     setup_zombie_players();
     init_players();
     restore_users_from_packet_save();
-    frontend_alliances = game.packet_save_head.frontend_alliances;
+    frontend_alliances = replay.head.frontend_alliances;
     setup_alliances();
     if (game.human_players_count == 1)
         game.game_kind = GKind_LocalGame;
-    if (game.turns_stored < game.turns_fastforward)
-        game.turns_fastforward = game.turns_stored;
+    if (replay.turns_stored < replay.turns_fastforward)
+        replay.turns_fastforward = replay.turns_stored;
     post_init_level();
     post_init_players();
     set_selected_level_number(0);
     struct PlayerInfo* player = get_my_player();
-    set_engine_view(player, rotate_mode_to_view_mode(game.packet_save_head.video_rotate_mode));
+    set_engine_view(player, rotate_mode_to_view_mode(replay.head.video_rotate_mode));
     return true;
 }
 
@@ -477,9 +477,9 @@ void clear_complete_game(void)
 {
     memset(&game, 0, sizeof(struct Game));
     memset(&intralvl, 0, sizeof(struct IntralevelData));
-    game.turns_packetoff = -1;
+    replay.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
-    game.packet_checksum_verify = start_params.packet_checksum_verify;
+    replay.checksum_verify = start_params.packet_checksum_verify;
     // Set levels to 0, as we may not have the campaign loaded yet
     set_continue_level_number(first_singleplayer_level());
     if ((start_params.operation_flags & GOF_SingleLevel) != 0)
@@ -495,9 +495,9 @@ void clear_complete_game(void)
     set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);
     game.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
-    snprintf(game.packet_fname,150, "%s", start_params.packet_fname);
-    game.packet_save_enable = start_params.packet_save_enable;
-    game.packet_load_enable = start_params.packet_load_enable;
+    snprintf(replay.fname,150, "%s", start_params.packet_fname);
+    replay.save_enable = start_params.packet_save_enable;
+    replay.load_enable = start_params.packet_load_enable;
     my_player_number = default_loc_player;
 }
 
@@ -517,8 +517,8 @@ void init_seeds()
         game.sound_random_seed = calender_time * 7919 + 7927;
 
         // If doing -packetload then use the replay's stored seed
-        if ((game.packet_save_head.action_seed != 0) && (game.packet_load_enable == true)) {
-            game.action_random_seed = game.packet_save_head.action_seed;
+        if ((replay.head.action_seed != 0) && (replay.load_enable == true)) {
+            game.action_random_seed = replay.head.action_seed;
         } else {
             game.action_random_seed = calender_time * 9311 + 9319;
         }

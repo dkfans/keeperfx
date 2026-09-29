@@ -568,17 +568,17 @@ static void draw_bottom_right_text(const char *text, int line)
 // name of user to display during replay
 static const char *replay_get_displayed_user_name(void)
 {
-    if (!game.packet_load_enable)
+    if (!replay.load_enable)
         return NULL;
     int users = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (game.packet_save_head.user_players[user] >= 0)
+        if (replay.head.user_players[user] >= 0)
             users++;
     }
     const NetUserId user = get_local_user();
     if ((users < 2) || (user < 0) || (user >= MAX_NET_USERS))
         return NULL;
-    return game.packet_save_head.user_names[user];
+    return replay.head.user_names[user];
 }
 
 void draw_gameturn_timer(void)
@@ -588,7 +588,7 @@ void draw_gameturn_timer(void)
     draw_bottom_right_text(text, 0);
     const char *name = replay_get_displayed_user_name();
     if ((name != NULL) || replay_camera_detached()) {
-        snprintf(text, sizeof(text), "%s%.*s", replay_camera_detached() ? "*" : "", (int)sizeof(game.packet_save_head.user_names[0]), (name != NULL) ? name : "");
+        snprintf(text, sizeof(text), "%s%.*s", replay_camera_detached() ? "*" : "", (int)sizeof(replay.head.user_names[0]), (name != NULL) ? name : "");
         draw_bottom_right_text(text, 1);
     }
 }

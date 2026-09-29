@@ -58,7 +58,7 @@ static struct Packet freecam_packet;
 
 static TbBool replay_is_detached(void)
 {
-    return game.packet_load_enable && local_state.replay_detached;
+    return replay.load_enable && local_state.replay_detached;
 }
 
 void camera_packet_set_state(struct Packet *pckt)
@@ -241,7 +241,7 @@ void update_local_cameras(void)
     if (local_camera_move_cam != cam) {
         // Same as the packet camera: a parchment map jump ignores the packet's camera controls.
         if (pckt->action != PckA_ZoomFromMap) {
-            if (!game.packet_load_enable && cam->view_mode != PVM_ParchmentView) {
+            if (!replay.load_enable && cam->view_mode != PVM_ParchmentView) {
                 process_local_camera_movement(cam, player);
                 process_camera_view_controls(cam, pckt, player);
             } else {

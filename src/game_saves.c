@@ -207,7 +207,7 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         hdr.ver = PACKET_SAVE_HEAD_VER;
         hdr.len = sizeof(struct PacketSaveHead);
         if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
-        if (LbFileWrite(fhandle, &game.packet_save_head, sizeof(struct PacketSaveHead)) == sizeof(struct PacketSaveHead))
+        if (LbFileWrite(fhandle, &replay.head, sizeof(struct PacketSaveHead)) == sizeof(struct PacketSaveHead))
             chunks_done |= SGF_PacketHeader;
     }
     { // Info chunk
@@ -476,7 +476,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 WARNLOG("Incompatible PacketHeader chunk");
                 break;
             }
-            if (LbFileRead(fhandle, &game.packet_save_head, sizeof(struct PacketSaveHead))
+            if (LbFileRead(fhandle, &replay.head, sizeof(struct PacketSaveHead))
                 == sizeof(struct PacketSaveHead)) {
                 chunks_done |= SGF_PacketHeader;
             } else {
@@ -662,6 +662,7 @@ TbBool load_game(long slot_num)
     sound_manager_reapply_creature_sounds();
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     reinit_level_after_load();
+    reinit_packets_after_load();
     initialize_packet_history();
     clear_packets();
     process_pause_packet(0, 0);
