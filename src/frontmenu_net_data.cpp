@@ -74,25 +74,25 @@ struct GuiButtonInit frontend_net_service_buttons[] = {
 
 struct GuiButtonInit frontend_net_session_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,               0, 999,  12, 999,  12,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,      {12},            0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82,  61,  82,  61,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  95,  63,  91,  63,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {19},            0, NULL },
-  { 5, -1,-1, 0, frontnet_session_set_player_name,NULL,frontend_over_button,19,200,63,95,63,432, 26, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = tmp_net_player_name}, 20, NULL },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0, 91, 128, 91, 128,434,26, frontnet_draw_lobby_columns, 0, GUIStr_Empty, 0, {0}, 0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  82, 154,  82, 154,450,180, frontnet_draw_scroll_box,          0, GUIStr_Empty, 0,      {26},            0, NULL },
-  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontnet_session_up,NULL,       frontend_over_button,0, 532, 153, 532, 153, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,      {17},            0, frontnet_session_up_maintain },
-  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontnet_session_down,NULL,     frontend_over_button,0, 532, 321, 532, 321, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,      {18},            0, frontnet_session_down_maintain },
-  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 536, 167, 536, 167, 20,154, frontnet_draw_sessions_scroll_tab, 0, GUIStr_Empty, 0,      {40},            0, NULL },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 91,158,91,158,434,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {45}, 0, frontnet_session_maintain },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 91,182,91,182,434,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {46}, 0, frontnet_session_maintain },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 91,206,91,206,434,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {47}, 0, frontnet_session_maintain },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 91,230,91,230,434,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {48}, 0, frontnet_session_maintain },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 91,254,91,254,434,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {49}, 0, frontnet_session_maintain },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 91,278,91,278,434,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {50}, 0, frontnet_session_maintain },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 91,302,91,302,434,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {51}, 0, frontnet_session_maintain },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  61, 999,  61,371, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 147,  63, 147,  63, 83, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {19},            0, NULL },
+  { 5, -1,-1, 0, frontnet_session_set_player_name,NULL,frontend_over_button,19,243,63,147,63,345, 26, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{.str = tmp_net_player_name}, 20, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0, 19, 128, 19, 128,578,26, frontnet_draw_lobby_columns, 0, GUIStr_Empty, 0, {0}, 0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  10, 154,  10, 154,594,180, frontnet_draw_lobby_panel,         0, GUIStr_Empty, 0,      {26},            0, NULL },
+  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontnet_session_up,NULL,       frontend_over_button,0, 604, 153, 604, 153, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,      {17},            0, frontnet_session_up_maintain },
+  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontnet_session_down,NULL,     frontend_over_button,0, 604, 321, 604, 321, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,      {18},            0, frontnet_session_down_maintain },
+  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 608, 167, 608, 167, 20,154, frontnet_draw_sessions_scroll_tab, 0, GUIStr_Empty, 0,      {40},            0, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 19,158,19,158,578,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {45}, 0, frontnet_session_maintain },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 19,182,19,182,578,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {46}, 0, frontnet_session_maintain },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 19,206,19,206,578,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {47}, 0, frontnet_session_maintain },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 19,230,19,230,578,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {48}, 0, frontnet_session_maintain },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 19,254,19,254,578,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {49}, 0, frontnet_session_maintain },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 19,278,19,278,578,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {50}, 0, frontnet_session_maintain },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_join, NULL, frontend_over_button, 0, 19,302,19,302,578,24, frontnet_draw_session_button, 0, GUIStr_Empty, 0, {51}, 0, frontnet_session_maintain },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_session_add,NULL,   frontend_over_button,0,999,358,999,358,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,      {14},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontnet_return_to_main_menu,NULL,frontend_over_button,0,999,404,999,404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,       {6},            0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0, 0, 455, 0, 455,371,46, frontend_draw_product_version, 0, GUIStr_Empty, 0, {0}, 0, NULL },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, LbBFeF_NoMouseOver, 91, 158, 91, 158,434,168, frontnet_draw_lobby_tooltip, 0, GUIStr_Empty, 0, {0}, 0, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, LbBFeF_NoMouseOver, 19, 158, 19, 158,578,168, frontnet_draw_lobby_tooltip, 0, GUIStr_Empty, 0, {0}, 0, NULL },
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,           0,  0,       {0},            0, NULL },
 };
 
@@ -234,7 +234,7 @@ static void draw_lobby_text(int x, int y, int width, int height, int font, const
     LbTextDrawResized(-offset, 0, scale, text);
 }
 
-static const int lobby_columns[] = {10, 179, 249, 324, 434};
+static const int lobby_columns[] = {10, 277, 378, 494, 578};
 static int lobby_tooltip_index = -1;
 
 static unsigned char *get_frontend_lobby_glass_map(void)
@@ -258,7 +258,7 @@ static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *con
     int separator_y = gbtn->scr_pos_y + gbtn->height - thickness;
     int border_inset = 2 * gbtn->width / lobby_columns[4];
     int separator_x = gbtn->scr_pos_x - 9 * gbtn->width / lobby_columns[4] + border_inset;
-    int separator_width = 450 * gbtn->width / lobby_columns[4] - 2 * border_inset;
+    int separator_width = 594 * gbtn->width / lobby_columns[4] - 2 * border_inset;
     int panel_y = gbtn->scr_pos_y + 2 * thickness;
     if (gbtn->content.lval == 45) {
         panel_y -= 3 * thickness;
@@ -353,27 +353,71 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     draw_lobby_columns(gbtn, font, text);
 }
 
-static void draw_lobby_tooltip_panel(int x, int y, int width, int height, int scale)
+static void draw_lobby_panel_row(int x, int y, int width, int height, int scale, int sprite_index)
 {
-    const int sprites[3][3] = {
-        {GFS_hugearea_thn_cor_tl, GFS_hugearea_thn_tx1_tc, GFS_hugearea_thn_cor_tr},
-        {GFS_hugearea_thc_cor_ml, GFS_hugearea_thc_tx1_mc, GFS_hugearea_thc_cor_mr},
-        {GFS_hugearea_thn_cor_bl, GFS_hugearea_thn_tx1_bc, GFS_hugearea_thn_cor_br},
-    };
-    const struct TbSprite *corner = get_frontend_sprite(sprites[0][0]);
-    int edge_x = corner->SWidth * scale / 16;
-    int edge_y = corner->SHeight * scale / 16;
-    const int widths[] = {edge_x, width - 2 * edge_x, edge_x};
-    const int heights[] = {edge_y, height - 2 * edge_y, edge_y};
-    RendererSetDrawFlags(0);
-    for (int row = 0; row < 3; row++) {
-        int column_x = x;
-        for (int column = 0; column < 3; column++) {
-            LbSpriteDrawScaled(column_x, y, get_frontend_sprite(sprites[row][column]), widths[column], heights[row]);
-            column_x += widths[column];
+    const struct TbSprite *left = get_frontend_sprite(sprite_index);
+    const struct TbSprite *right = get_frontend_sprite(sprite_index + 5);
+    int left_width = left->SWidth * scale / 16;
+    int right_width = right->SWidth * scale / 16;
+    int middle_width = width - left_width - right_width;
+    struct GraphicsWindow window;
+    LbScreenStoreGraphicsWindow(&window);
+    LbScreenSetGraphicsWindow(x, y, width, height);
+    LbSpriteDrawResized(0, 0, scale, left);
+    LbSpriteDrawResized(width - right_width, 0, scale, right);
+    LbScreenSetGraphicsWindow(x + left_width, y, middle_width, height);
+    int column = 1;
+    for (int tile_x = 0; tile_x < middle_width; ) {
+        const struct TbSprite *tile = get_frontend_sprite(sprite_index + column);
+        LbSpriteDrawResized(tile_x, 0, scale, tile);
+        tile_x += max(1, tile->SWidth * scale / 16);
+        column++;
+        if (column == 5) {
+            column = 1;
         }
-        y += heights[row];
     }
+    LbScreenLoadGraphicsWindow(&window);
+}
+
+static void draw_lobby_panel(int x, int y, int width, int height, int scale)
+{
+    const struct TbSprite *top = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
+    const struct TbSprite *bottom = get_frontend_sprite(GFS_hugearea_thn_cor_bl);
+    int top_height = top->SHeight * scale / 16;
+    int bottom_height = bottom->SHeight * scale / 16;
+    RendererSetDrawFlags(0);
+    draw_lobby_panel_row(x, y, width, top_height, scale, GFS_hugearea_thn_cor_tl);
+    draw_lobby_panel_row(x, y + height - bottom_height, width, bottom_height, scale, GFS_hugearea_thn_cor_bl);
+    y += top_height;
+    int remaining = height - top_height - bottom_height;
+    while (remaining > 0) {
+        int sprite_index = GFS_hugearea_thc_cor_ml;
+        const struct TbSprite *sprite = get_frontend_sprite(sprite_index);
+        if (remaining < sprite->SHeight * scale / 16) {
+            sprite_index = GFS_hugearea_thn_cor_ml;
+            sprite = get_frontend_sprite(sprite_index);
+        }
+        int row_height = min(remaining, max(1, sprite->SHeight * scale / 16));
+        draw_lobby_panel_row(x, y, width, row_height, scale, sprite_index);
+        y += row_height;
+        remaining -= row_height;
+    }
+}
+
+void frontnet_draw_lobby_panel(struct GuiButton *gbtn)
+{
+    int scale = gbtn->height * 16 / 180;
+    draw_lobby_panel(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height, scale);
+    const struct TbSprite *top = get_frontend_sprite(GFS_scrollbar_toparrow_std);
+    const struct TbSprite *middle = get_frontend_sprite(GFS_scrollbar_vert_ct_long);
+    const struct TbSprite *bottom = get_frontend_sprite(GFS_scrollbar_btmarrow_std);
+    int x = gbtn->scr_pos_x + gbtn->width;
+    int top_y = gbtn->scr_pos_y - scale / 16;
+    int middle_y = top_y + top->SHeight * scale / 16;
+    int bottom_y = gbtn->scr_pos_y + gbtn->height - bottom->SHeight * scale / 16 + scale / 16;
+    LbSpriteDrawResized(x, top_y, scale, top);
+    LbSpriteDrawScaled(x, middle_y, middle, middle->SWidth * scale / 16, bottom_y - middle_y);
+    LbSpriteDrawResized(x, bottom_y, scale, bottom);
 }
 
 void frontnet_draw_lobby_tooltip(struct GuiButton *gbtn)
@@ -423,7 +467,7 @@ void frontnet_draw_lobby_tooltip(struct GuiButton *gbtn)
     int y = min(mouse_y + padding, (int)lbDisplay.GraphicsScreenHeight - height);
     x = max(0, x);
     y = max(0, y);
-    draw_lobby_tooltip_panel(x, y, width, height, scale);
+    draw_lobby_panel(x, y, width, height, scale);
     draw_lobby_text(x + padding, y + padding, width - padding * 2, line_height, 2, get_string(GUIStr_MnuPlayers));
     if (!session->roster_known) {
         draw_lobby_text(x + padding, y + padding + line_height, width - padding * 2, line_height, 1, get_string(GUIStr_NetPlayerListUnavailable));

@@ -159,25 +159,23 @@ void frontnet_session_set_player_name(struct GuiButton *gbtn)
 
 void frontnet_draw_text_bar(struct GuiButton *gbtn)
 {
-    const struct TbSprite *spr;
-    int i;
-    long pos_x;
-    long pos_y;
-    pos_x = gbtn->scr_pos_x;
-    pos_y = gbtn->scr_pos_y;
-    int fs_units_per_px;
-    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_largearea_nx1_tx5_c, 100);
-    spr = get_frontend_sprite(GFS_largearea_nx1_cor_l);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = get_frontend_sprite(GFS_largearea_nx1_tx5_c);
-    for (i=0; i < 4; i++)
-    {
-        LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-        pos_x += spr->SWidth * fs_units_per_px / 16;
+    int scale = simple_frontend_sprite_height_units_per_px(gbtn, GFS_largearea_nx1_tx5_c, 100);
+    const struct TbSprite *left = get_frontend_sprite(GFS_largearea_nx1_cor_l);
+    const struct TbSprite *middle = get_frontend_sprite(GFS_largearea_nx1_tx5_c);
+    const struct TbSprite *right = get_frontend_sprite(GFS_largearea_nx1_cor_r);
+    int left_width = left->SWidth * scale / 16;
+    int right_width = right->SWidth * scale / 16;
+    int middle_width = gbtn->width - left_width - right_width;
+    LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, scale, left);
+    LbSpriteDrawResized(gbtn->scr_pos_x + gbtn->width - right_width, gbtn->scr_pos_y, scale, right);
+    struct GraphicsWindow window;
+    LbScreenStoreGraphicsWindow(&window);
+    LbScreenSetGraphicsWindow(gbtn->scr_pos_x + left_width, gbtn->scr_pos_y, middle_width, gbtn->height);
+    int tile_width = max(1, middle->SWidth * scale / 16);
+    for (int x = 0; x < middle_width; x += tile_width) {
+        LbSpriteDrawResized(x, 0, scale, middle);
     }
-    spr = get_frontend_sprite(GFS_largearea_nx1_cor_r);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
+    LbScreenLoadGraphicsWindow(&window);
 }
 
 void frontnet_session_up(struct GuiButton *gbtn)
