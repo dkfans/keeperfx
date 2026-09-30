@@ -316,6 +316,17 @@ static int compare_lobbies(const void *left, const void *right)
     if (phase) {
         return phase;
     }
+    int a_full = a->roster_known && a->max_players && a->player_count >= a->max_players;
+    int b_full = b->roster_known && b->max_players && b->player_count >= b->max_players;
+    if (a_full != b_full) {
+        return a_full - b_full;
+    }
+    if (!a_full && a->player_count != b->player_count) {
+        return b->player_count - a->player_count;
+    }
+    if (a->created_at != b->created_at) {
+        return (a->created_at < b->created_at) - (a->created_at > b->created_at);
+    }
     int name = strcmp(a->text, b->text);
     if (name) {
         return name;

@@ -108,10 +108,15 @@ void net_session_parse_metadata(struct TbNetworkSessionNameEntry *session, const
     session->roster_known = 0;
     session->player_count = 0;
     session->max_players = 0;
+    session->created_at = 0;
     session->version[0] = '\0';
     memset(session->players, 0, sizeof(session->players));
     if (value_type(root) != VALUE_DICT) {
         return;
+    }
+    VALUE *created_at = value_dict_get(root, "createdAt");
+    if (value_is_compatible(created_at, VALUE_INT64) && value_int64(created_at) > 0) {
+        session->created_at = value_int64(created_at);
     }
     const char *version = value_string(value_dict_get(root, "version"));
     if (version) {

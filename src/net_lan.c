@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "post_inc.h"
 
@@ -36,6 +37,7 @@ static ENetSocket joiner_socket = ENET_SOCKET_NULL;
 static int joiner_socket_failed = 0;
 static char lan_hosted_name[SESSION_NAME_MAX_LEN] = {0};
 static uint16_t lan_hosted_port = 0;
+static SDL_Time lan_hosted_created_at = 0;
 static Uint32 last_broadcast_milliseconds = 0;
 
 static void socket_close(ENetSocket *socket)
@@ -89,6 +91,9 @@ void lan_host_start(const char *name, uint16_t port)
     }
     snprintf(lan_hosted_name, SESSION_NAME_MAX_LEN, "%s", name);
     lan_hosted_port = port;
+    lan_hosted_created_at = 0;
+    SDL_GetCurrentTime(&lan_hosted_created_at);
+    lan_hosted_created_at = SDL_NS_TO_MS(lan_hosted_created_at);
     LbNetLog("LAN: host discovery socket ready, discovery_port=%d game_port=%d\n", LAN_DISCOVERY_PORT, port);
 }
 
@@ -109,7 +114,10 @@ void lan_host_update(void)
             continue;
         }
         reply_length++;
-        reply_length += snprintf(reply + reply_length, sizeof(reply) - reply_length, "{%s}", metadata);
+        reply_length += snprintf(reply + reply_length, sizeof(reply) - reply_length, "{\"createdAt\":%" PRId64 ",%s}", lan_hosted_created_at, metadata);
+        if (reply_length >= sizeof(reply)) {
+            continue;
+        }
         ENetBuffer send_buffer = {.data = reply, .dataLength = (size_t)reply_length};
         enet_socket_send(host_socket, &sender, &send_buffer, 1);
     }

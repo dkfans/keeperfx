@@ -76,6 +76,7 @@ struct TbNetworkSessionNameEntry {
     unsigned char roster_known;
     unsigned char player_count;
     unsigned char max_players;
+    int64_t created_at;
     char version[32];
     char players[SESSION_HUMANS_MAX][NETSP_PLAYER_NAME_MAX_LEN];
 };
