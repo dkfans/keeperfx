@@ -2,198 +2,267 @@
 ENG = "Eversmile. Set in the realm of joy, the people of Eversmile are plagued only by aching facial muscles, and not anthrax as we had hoped. Eversmile is a disgusting land of good humour and polite frivolity."
 POR = "Sorrisempre. Situado no reino da alegria, o povo de Sorrisempre é atormentado apenas por dores nos músculos faciais, e não por antraz, como esperávamos. Sorrisempre é uma terra repugnante de bom humor e frivolidade polida."
 RUS = "Эверсмайл. Жителей Эверсмайла, населяющих царство радости, одолевает только боль в лицевых мышцах от необходимости беспрестанно улыбаться, а не приличествующие им фурункулы. Эверсмайл - это отвратительное обиталище хорошего настроения и вежливого легкомыслия."
+KOR = "에버스마일. 기쁨이 자리잡은 땅인 에버스마일 사람들은 미소짓느라 얼굴 근육통에 시달리고 있을뿐이고 우리가 기대하는 것처럼 그들은 탄저균같은 사람들이 아니였습니다. 에버스마일은 웃기게도 공손하게 욕먹이는 역겨운 땅입니다."
+POL = "Śmiechowice. Żyjący w królestwie radości mieszkańcy Śmiechowic, cierpią jedynie na kurcze mięśni twarzy, a nie na wrzody, jak przypuszczaliśmy. Śmiechowice to obrzydliwa kraina dobrego humoru i przyzwoitej frywolności."
 
 [landview_11_summary]
 ENG = "Brana Hauk. War and anthrax have taken to this land likes fleas to a rat. The region is, thanks to your unstinting efforts, now a major eyesore."
 POR = "Brana Hauk. A guerra e o antraz tomaram esta terra como pulgas a um rato. A região, graças aos seus esforços incansáveis, é agora uma grande monstruosidade."
 RUS = "Брана-Хаук. Война и язвы покрыли эту страну, словно блохи крысу. Благодаря Вашим безграничным усилиям это королевство стало огромным бельмом на глазу."
+KOR = "브라나 호크. 전쟁과 전염병이 쥐새끼에 기생하는 벼룩처럼 이 땅을 차지했습니다. 이 지역은 여러분의 아낌없는 노력 덕분에 이제 커다란 눈엣가시입니다."
+POL = "Wyrzynowo. Wojna i wrzody nawiedziły ten kraj niczym pchły szczura. Obrzydliwość, dzięki twoim nieustannym wysiłkom, panuje tu niepodzielnie."
 
 [landview_20_introduction]
 ENG = "Cosyton. A hideous sham of a town, in which the prosperous citizens have no gripes or moans. Sadly, even the children are happy and secure. This is because they aren't punished for non-existent crimes.."
 POR = "Vilaconchego. Uma farsa horrenda de cidade, na qual os cidadãos prósperos não têm queixas nem lamentos. Infelizmente, até as crianças são felizes e seguras. Isso porque não são punidas por crimes inexistentes..."
 RUS = "Козитон. Отвратительная подделка, а не город, где благополучным гражданам буквально не на что жаловаться. Что еще печальнее, даже дети тут счастливы и живут в абсолютной безопасности. А все потому, что их некому наказывать за несуществующие преступления..."
+KOR = "코지톤. 번창하는 시민들이 불평 불만을 내지 않는, 흉측한 마을의 모습입니다. 슬프게도, 아이들조차도 행복하고 안전합니다. 왜냐하면 존재하지 않는 범죄로 처벌받지 않기 때문입니다."
+POL = "Przytulice. Odrażająca imitacja miasta, w którym pracowicy i zamożni obywatele nie mają zmartwień ani niestrawności. Z ubolewaniem należy zaznaczyć, iż nawet dzieci są tu szczęśliwe i bezpieczne. Z pewnością dlatego, że nie karze się ich za wydumane przewiny."
 
 [landview_21_summary]
 ENG = "Darkanna. The surviving citizens have more on their plates than a Demon Spawn with three dead adventurers to munch. Not that many citizens have survived, as such."
 POR = "Darkanna. Os cidadãos sobreviventes têm mais problemas do que uma Cria Demoníaca com três aventureiros mortos para devorar. Não que muitos cidadãos tenham sobrevivido, de fato."
 RUS = "Дарканна. Выжившим гражданам на тарелку жратвы наваливают чуть больше, чем перепадает отродью демонов с трех мертвых искателей приключений. Собственно, все дело в том, что тех выживших и осталось-то всего ничего."
+KOR = "다크하나. 살아남은 시민들은 그들의 접시에 세 명의 죽은 모험가를 먹고있는 데몬스폰보다 더 많은 것을 가지고 있습니다. 그렇게 많은 시민들이 살아남지 못했습니다."
+POL = "Ciemnogród. Niedobitki zamieszkujące tę mieścinę, mają nieco więcej zajęcia niż demoni pomiot przy pochłanianiu trzech martwych poszukiwaczy przygód. Cóż, nawet tylu nie przeżyło."
 
 [landview_30_introduction]
 ENG = "Waterdream Warm. A region of pointless frolicking and endless pleasure. No one here understands the true meaning of suffering and RANDOM SHOCKING VIOLENCE METED OUT ARBITRARILY."
 POR = "Sonhod'água Morno. Uma região de brincadeiras inúteis e prazer sem fim. Ninguém aqui entende o verdadeiro significado do sofrimento e da VIOLÊNCIA CHOCANTE E ALEATÓRIA APLICADA ARBITRARIAMENTE."
 RUS = "Уотердрим-Ворм. Королевство бессмысленных утех и бесконечного удовольствия. Никто здесь не понимает, что такое настоящее страдание и ЧУДОВИЩНАЯ БЕСПРИЧИННАЯ ЖЕСТОКОСТЬ."
+KOR = "워터드림 웜. 무의미한 장난과 끝없는 즐거움의 영역입니다. 여기 있는 누구도 고통과 묻지마 폭력의 진정한 의미를 이해하지 못합니다."
+POL = "Cieplice Letnie. Rejon bezsensownych figli i nieustających przyjemności. Nikt tu nie jest w stanie pojąć prawdziwego sensu cierpienia i przypadkowych aktów wstrząsającej, nieuzasadnionej przemocy."
 
 [landview_31_summary]
 ENG = "Withersdread. This place now has a proper name, because of what you did here. There is a healthy disrespect for life, and you will be amused to hear that cannibalism has gained a strong foothold amongst the ragged inhabitants."
 POR = "Passo da Ruína. Este lugar agora tem um nome adequado, por causa do que você fez aqui. Há um saudável desrespeito pela vida, e você se divertirá ao saber que o canibalismo ganhou força entre os habitantes esfarrapados."
 RUS = "Уитерсдред. Теперь это местечко носит приличествующее ему название - всё благодаря тому, что Вы здесь учинили. Теперь тут царит здоровое пренебрежение к жизни, и Вы будете рады услышать, что каннибализм прочно укоренился среди местных аборигенов-оборванцев."
+KOR = "위더스 트레드. 당신이 여기서 한 일 때문에 이곳은 이제 제대로 된 이름을 갖게 되었습니다. 삶에 대한 건전한 무례함이 있고, 피폐한 주민들 사이에 식인 풍습이 튼튼한 발판을 마련했다는 소식을 들으면 즐거울 것입니다."
+POL = "Wredniewo. Obecna nazwa miejscowoości dobrze odpowiada temu, czego tam dokonałeś. Z pewnością ucieszy cię wiadomość, że obdartych mieszkańców cechuje zdrowy brak szacunku dla życia i łaknienie drugiego człowieka, przez intelektualistów nazywane kanibalizmem."
 
 [landview_40_introduction]
 ENG = "Flowerhat. Polite bartering has lead to extreme compassion and a surfeit of contentment in this area. Not even a thick skinned troll could survive the understanding and help these scummy people could provide."
 POR = "Chapéu-de-flor. A troca educada levou a uma compaixão extrema e a um contentamento servil nesta área. Nem mesmo um troll de pele grossa poderia sobreviver à compreensão e ajuda que essa gente desprezível poderia oferecer."
 RUS = "Флауэрхат. Культурный бартерный обмен привел к формированию атмосферы чрезвычайной отзывчивости и переизбытку удовлетворенности в этих краях. Даже толстокожий тролль не смог бы выдержать той терпимости и услужливости, какие выказывает это отребье."
+KOR = "플라워햇. 정중한 물물 교환은 이 분야에서 극도의 동정심과 봉사적인 만족감을 이끌어 냈습니다. 껍질이 두꺼운 트롤도 이 비열한 사람들이 제공할 수 있는 이해와 도움에서 살아남을 수 없습니다."
+POL = "Kwiatowice. Przykładny handel wymienny pociągnął tu za sobą niebywałe rozplenienie się poczucia wspólnoty i nadmiaru zadowolenia. Nawet gruboskórny Troll nie wytrzymał by takiego współczującego i ofiarnego sąsiedztwa dłużej niż cztery i pół minuty."
 
 [landview_41_summary]
 ENG = "Firemoor. There's a burning mess where once a pretty village stood. Truly you have achieved a significant improvement in the area. Even the poisonous smoke smells sweet."
 POR = "Fogaréu. Há uma bagunça em chamas onde antes havia uma vila bonita. Verdadeiramente, você alcançou uma melhoria significativa na área. Até a fumaça venenosa tem um cheiro doce."
 RUS = "Файрмур. На месте милой деревеньки теперь остались только горящие руины. Вам удалось добиться значительных улучшений на этих землях. И дым отравленный нам сладок и приятен..."
+KOR = "파이어모어. 한때 예쁜 마을이 서 있던 불타는 아수라장이 있습니다. 정말로 당신은 그 분야에서 상당한 발전을 이루었습니다. 유독한 연기조차 달콤하군요."
+POL = "Pogorzelice. Tam gdzie niegdyś stała wioska, rozlewa się morze ognia. doprawdy, udało ci się nadać tej krainie nowe walory krajobrazowe. I ten słodki zapach duszącego dymu."
 
 [landview_50_introduction]
 ENG = "Lushmeadow-on-Down. The bloody axes of war and famine have so far bypassed this quiet backwater, leaving the inhabitants totally unaware of the purpose of real agony and loss. Unbearably most die of old age."
 POR = "Prado Verdejante. Os machados sangrentos da guerra e da fome até agora ignoraram este lugar tranquilo, deixando os habitantes totalmente inconscientes do propósito da agonia e perda reais. Insuportavelmente, a maioria morre de velhice."
 RUS = "Лашмедоу-он-Даун. Обагренные кровью косы войны и голода до сих пор обходили стороной эту тихую заводь, благодаря чему её обитатели остаются в полном неведении относительно ощущения истинной агонии и утраты. Невыносимо, что практически все тут помирают только от старости."
+KOR = "러쉬매도우 온 다운. 전쟁과 기근의 피비린내 나는 도끼는 지금까지 이 여기를 피해 조용해 움직였고, 주민들은 진정한 고통과 상실의 목적을 전혀 알지 못하고 있습니다. 참을 수 없을 정도로 대부분은 노환으로 죽습니다."
+POL = "Spokojowo Niżne. Zakrwawione topory wojenne i głód omijały jak dotąd ten cichy zakątek, utrzymując mieszkańców w całkowitej nieświadomości piękna, jakie niesie ze sobą przedwczesna agonia i zatrata. To nie do zniesienia że większość z nich umiera ze starości."
 
 [landview_51_summary]
 ENG = "Knife. The streets run with the blood of the slain. Screams of pain and howls of anguish rip the night air like a vengeful siren song. This really is somewhere you can take the kids for a weekend."
 POR = "Faca. As ruas correm com o sangue dos mortos. Gritos de dor e uivos de angústia rasgam o ar da noite como uma canção de sereia vingativa. Este é realmente um lugar onde você pode levar as crianças para um fim de semana."
 RUS = "Найф. Улицы утопают в крови павших. Крики боли и вопли отчаяния разрывают ночь, точно зловещая песнь сирен. Отличное место для семейного уикенда с детьми."
+KOR = "나이프. 거리는 살해당한 자의 피를 흘리며 달립니다. 고통의 비명소리와 고뇌의 울부짖음이 밤공기를 복수심에 찬 사이렌 노래처럼 찢깁니니다. 이곳은 정말 주말 동안 아이들을 데리고 갈 수 있는 곳이에요."
+POL = "Śmierdnica. Ulice zamienione w rzeki krwi. Powietrze przepełnione wrzaskiem katowanych i jękiem udręczonych, niby nocną pieśnią mściwych syren. Każdy chętnie urządził by tu piknik dzieciakom."
 
 [landview_60_introduction]
 ENG = "Snuggledell. The folk of Snuggledell worship the common rabbit. Floppy eared bunnies are encouraged to hop around the fields surrounding the hamlet, bringing happiness, love, and more bunnies to the entire area."
 POR = "Vale Aconchego. O povo de Vale Aconchego venera o coelho comum. Coelhinhos de orelhas caídas são encorajados a pular pelos campos ao redor da aldeia, trazendo felicidade, amor e mais coelhos para toda a área."
 RUS = "Снагглделл. Жители Снагглделла души не чают в диких кроликах. Ушастым пушистикам позволяют скакать по полям вокруг деревни и нести радость, любовь и новых заек в эти края."
+KOR = "스너글벨. 스너글벨의 사람들은 평범한 토끼를 숭배합니다. 쫑긋솟은 귀를 가진 토끼들은 마을 주변의 들판을 뛰어다니며 행복, 사랑, 그리고 더 많은 토끼들을 온 지역에 가져다주도록 권장됩니다."
+POL = "Pieszczochów. Lud z pieszczochowa otacza kultem króliki. Zacheca te przebrzydłe uszate potwory do baraszkowania po otaczajace wioskę polach, co zapewnia całej okolicy szczęście, miłość i więcej królików."
 
 [landview_61_summary]
 ENG = "Steepscythe. Everyone has been put to the sword, and we've made an enormous magic carpet out of the thousands of bunnies that swarmed here. Your minions will feast on their tiny remains for weeks. Truly a majestic victory."
 POR = "Foice Íngreme. Todos foram passados a fio de espada, e fizemos um enorme tapete mágico com os milhares de coelhos que infestavam o lugar. Seus lacaios se banquetearão com seus pequenos restos por semanas. Uma vitória verdadeiramente majestosa."
 RUS = "Стипскайт. Все жители были преданы мечу, а потом мы изготовили гигантский ковер-самолет из шкурок тысяч зайчишек, кишевших вокруг. Ваши прислужники будут неделями пировать на их крохотных останках. Воистину грандиозная победа!"
+KOR = "스팁사이드. 모두들 칼에 찔려 죽었고, 우리는 이곳에 몰려든 수천 마리의 토끼들로 거대한 마법의 카펫을 만들었습니다. 당신의 하수인들에겐 몇 주 동안 그 작은 잔해를 먹일 것입니다. 정말 장엄한 승리입니다."
+POL = "Cioskosowo. Wszyscy mieszkańcy podłożyli gardła pod miecz, lub inny ostry przedmiot. Z rojących się wszędzie królików zdarliśmy skórki, żeby wykonać ogromny latający dywan. To co z nich zostało zapewni twoim oddziałom zaprowiantowanie na długi czas. Oto smak zwycięstwa!"
 
 [landview_70_introduction]
 ENG = "Wishvale. This region of dreaming underlings is ruled by the Lady Catherine. She is kind, and fair, and doesn't imprison or torture her subjects, for some reason."
 POR = "Valedesejo. Esta região de subordinados sonhadores é governada pela Dama Catherine. Ela é gentil e justa, e não aprisiona ou tortura seus súditos, por algum motivo."
 RUS = "Вишвейл. Королевство сонных холуев, которым правит Леди Катрина. Она добра, и справедлива, и почему-то не кидает в тюрьму и не подвергает пыткам своих вассалов."
+KOR = "위시베일. 신하들이 꿈꾸는 이 지역은 캐서린 부인의 지배를 받고 있습니다. 그녀는 친절하고, 공정하며, 어떤 이유로든 신하들을 감금하거나 고문하지 않습니다."
+POL = "Wymarzenice. Region zamieszkany przez niepoprawnych marzycieli, zarządzany przez piękną Kasię. Jest dobra i sprawiedliwa, nie więzi i nie torturuje swoich poddanych. Nie zmusza ich też do płacenia coraz większych podatków na utrzymanie wojska."
 
 [landview_71_summary]
 ENG = "Panic Intrisica. A weeping, wizened crone presides over this ruined empty land now. Once she was beautiful, now she's one to make you vomit. The improvement is impressive."
 POR = "Panic Intrisica. Uma velha enrugada e chorosa preside agora esta terra vazia e arruinada. Antes ela era linda, agora ela é de fazer vomitar. A melhoria é impressionante."
 RUS = "Паник-Интрисика. Плаксивая иссохшая старуха властвует теперь над этой опустошенной и разоренной землей. Когда-то она была прекрасна, теперь же от её вида Вас тошнит. Благотворный эффект впечатляет."
+KOR = "패닉칸트리즈카. 지금 이 폐허가 된 빈 땅 위에 울고 있는 쪼글쪼글한 노파가 있습니다. 한때는 그녀가 아름다웠지만, 이제는 그녀가 당신을 토하게 만드는 군요. 개선 효과가 인상적입니다."
+POL = "Straszno. Zawodząca, pomarszczona starucha panuje nad tym co pozostało z tego spustoszonego kraju. Kiedyś była piękna, teraz robi się niedobrze na jej widok. Prawdziwy cud chirurgii kosmetycznej!"
 
 [landview_80_introduction]
 ENG = "Blissfully unaware of the damage protracted war can wreak on their idyllic cluster of homesteads, the villagers of Tickle are pure of heart, and unblemished of face and neck."
 POR = "Felizmente inconscientes do dano que uma guerra prolongada pode causar em seu idílico aglomerado de propriedades, os aldeões de Cócega são puros de coração e imaculados de rosto e pescoço."
 RUS = "К счастью своему не подозревающие о разрушениях, которые может причинить их пасторальному сельскому поселению затяжная война, обитатели Тикла безукоризненно чисты сердцем, душой и телом."
+KOR = "전쟁이 길어지면, 목가적인 농지 모임에 피해가 갈 것을 모르는 행복이 가득한 티클 마을 사람들은 순수한 마음을 가지며 얼굴과 목에 아무런 흠도 없습니다."
+POL = "Łaskotniki. Rozkosznie nieświadomi zniszczeń, jakie przewlekła wojna może wywrześ na ich beztroskiej egzystencji, mieszkańcy Łaskotnik mają czyste serca i nieskazitelne oblicza."
 
 [landview_81_summary]
 ENG = "Neverdorf. Once a flourishing homestead, now it's a stinking hole in the ground. It will be years before even the hardiest weed grows here again. War, on the other hand, is in full blossom."
 POR = "Nunca-anão. Antes uma propriedade florescente, agora é um buraco fedorento no chão. Levará anos até que a erva daninha mais resistente cresça aqui novamente. A guerra, por outro lado, está em pleno florescimento."
 RUS = "Невердорф. Когда-то цветущее сельское поселение стало теперь вонючей дырой в земле. Пройдут годы, прежде чем самый неприхотливый сорняк сможет здесь прижиться. Война при этом цветет и пахнет."
+KOR = "네버드워프. 한때 번창하던 목장은 지금은 땅속에 악취가 진동하는 구멍입니다. 이곳에선 가장 억센 잡초도 다시 자라려면 몇 년이 걸릴 것입니다. 반면 전쟁은 한창입니다."
+POL = "Niewieńców. Niegdyś kwitnąca mieścina, obecnie nie więcej niż cuchnąca dzióra w ziemii. Miną wieki nim popioły porosną trawą. Jak to mówią, wojna w pełnym rozkwicie."
 
 [landview_90_introduction]
 ENG = "Moonbrush Wood. A forest town with a welcoming population. Demons and the legions of Hell could ride in, and would probably be offered cheap lodgings and a night of good cheer in a warm cozy tavern."
 POR = "Bosque Lunar. Uma cidade florestal com uma população acolhedora. Demônios e as legiões do Inferno poderiam chegar e provavelmente lhes seria oferecida hospedagem barata e uma noite de boa alegria em uma taverna quente e aconchegante."
 RUS = "Мунбраш-Вуд. Городок в лесу с гостеприимным населением. Вьедь сюда демоны и легионы исчадий ада - им бы наверняка предложили дешевое съемное жилье и ночь на теплом и уютном постоялом дворе с пожеланием сладких снов."
+KOR = "문브러쉬 우드. 환영 할만한 사람들이 모이는 숲의 마을입니다. 악마와 지옥의 군단도 갈 수 있고, 아마도 저렴한 숙소와 따뜻하고 아늑한 선술집에서 좋은 밤을 보낼 수 있을 것입니다."
+POL = "Księżylas. Leśne miasto zamieszkałe przez niezwykle gościnnych ludzi. Legiony piekieł które napadły by na tę miejscowość, zapewne otrzymały by tani nocleg ze smacznym posiłkiem, w czystym, przytulnym zajeździe."
 
 [landview_91_summary]
 ENG = "Grimsforth. The legions of hell have been through here at your bidding. They've altered the appearance of the place as you would wish Master. Now we breath the heady perfumes of toxins wherever we wander."
 POR = "Grimsforth. As legiões do inferno passaram por aqui a seu comando. Elas alteraram a aparência do lugar como você desejaria, Mestre. Agora respiramos os perfumes inebriantes de toxinas por onde quer que andemos."
 RUS = "Гримсфорт. По Вашему велению здесь прошли легионы ада. Они изменили внешний вид этого места в соответствии с Вашими представлениями о прекрасном, Повелитель. Теперь мы вдыхаем тяжелый запах отравляющих веществ, куда бы мы ни пошли."
+KOR = "그림스포스. 지옥의 군단은 당신이 원하는 대로 이곳을 통과했습니다. 주인님이 원하시는 대로 그 장소의 외관을 바꿨어요 이제 우리는 어디서나 독 향기를 내뿜습니다."
+POL = "Pomurzyce. Legiony piekieł pojawiły się niczym z podziemii. Wygląd tego miejsca został zmieniony zgodnie z twoimi planami, panie. Teraz pełbymi płucami można wdychać aromat trujących wyziewów."
 
 [landview_100_introduction]
 ENG = "Nevergrim. Unable to see the bad side of anyone, these folk could benefit from a swinging sword to the back of the neck, or possibly a lightning spell to the throat. Such possibilities never cross their happy minds..."
 POR = "Nuncatriste. Incapazes de ver o lado ruim de ninguém, este povo poderia se beneficiar de uma espada balançando na nuca, ou possivelmente de um feitiço de raio na garganta. Tais possibilidades nunca passam por suas mentes felizes..."
 RUS = "Невергрим. Местным, не способным замечать чьих-либо дурных сторон, точно пошло бы на пользу знакомство с мечом, сносящим им башку, или уж как минимум с заклинанием молнии, шарашащим прямо в горло. Подобные перспективы совершенно не приходят в их забитые счастливыми мыслями мозги..."
+KOR = "네버그림. 어떤 나쁜 면도 볼 수 없는 이 사람들의 목덜미에 칼을 휘두르거나 목에 라이트닝 주문을 꽂음오 이득을 얻을 수도 있습니다. 그런 가능성은 결코 그들의 행복한 마음을 가로막을 수 없습니다..."
+POL = "Niesmuta. Mieszkańcy tej wiochy w nikim nie potrafią dostrzec wad, więc klinga na gardle lub rażenie piorunem mogło by ich czegoś nauczyć. Tym bardziej że myśl o takich zdarzeniach nigdy nie kala ich szczęśliwych łbów."
 
 [landview_101_summary]
 ENG = "Rivalmark. A Kingdom fit for a Dungeon Keeper of your standard, Sire. The blackened hulks of the houses welcome you, and the overgrounders prostrate themselves; mainly because we've killed them..."
 POR = "Marca do Rival. Um Reino adequado para um Guardião da Masmorra do seu calibre, Senhor. As carcaças enegrecidas das casas o recebem, e os habitantes da superfície se prostram; principalmente porque nós os matamos..."
 RUS = "Райвалмарк. Королевство, подходящее Хранителю подземелья Вашего масштаба, Сир. Почерневшие развалины домов гостеприимно ждут Вас, а жители поверхностного мира лежат ниц - главным образом потому, что мы прирезали их..."
+KOR = "라이벌마크. 던전 키퍼에 적합한 왕국입니다. 폐하. 검게 그을린 집들이 여러분을 환영하고, 땅 위에 있는 사람들이 스스로 엎드렸습니다. 주로 우리가 그들을 죽였기 때문입니다."
 
 [landview_110_introduction]
 ENG = "Hearth. Family life is the reason these serfs feel so confident and cheerful. Their unruffled existence would make even a terror dog throw up it's breakfast of half-chewed champions."
 POR = "Lareira. A vida familiar é a razão pela qual estes servos se sentem tão confiantes e alegres. Sua existência tranquila faria até um cão do terror vomitar seu café da manhã de campeões meio mastigados."
 RUS = "Харт. Семейная жизнь делает этих холопов такими доверчивыми и жизнерадостными. От их безмятежного существования даже адскую гончую стошнило бы завтраком из полупрожеванных поборников добра."
+KOR = "하스. 가족의 생활이 있기 때문에, 농노들은 자신감을 가지고 즐겁게 살고있습니다. 그 담담한 존재들은 공포의 개조차 아침식사로 먹은 반쯤 씹은 챔피언을 토해 버릴 것입니다."
+POL = "Zacisze. Życie rodzinne leży u podstaw szczęścia i ufności tych prymitywów. Ich niezmącony spokój ducha może spowodować, że nawet najzagorzalszy pies wojny straci apetyt i porzuci na wpół przeżute ciała boraterów."
 
 [landview_111_summary]
 ENG = "Dragon Tyne. We've set fire to this place. It's still burning with a fierce unnatural intensity, so we can't get anywhere near it. But we're sure you'll love it... Once it's cooled down a bit."
 POR = "Dragontino. Nós incendiamos este lugar. Ainda está queimando com uma intensidade feroz e sobrenatural, então não podemos chegar perto. Mas temos certeza de que você vai adorar... Assim que esfriar um pouco."
 RUS = "Дрэгон-Тайн. Мы предали это место огню. Беспощадное пламя все еще полыхает с неестественной силой, так что мы даже не можем подойти ближе. Но мы уверены, что Вы оцените результат... когда головешки немного остынут."
+KOR = "드래곤틴. 이곳에 불을 지폈습니다. 여전히 심한 부자연스러울 정도로 활활 불타고 있어 근처는 어디에도 접근할 수 없습니다. 하지만 우린 당신이 좋아할 거라고 확신해요... 일단 좀 식으면요."
 
 [landview_120_introduction]
 ENG = "Elf's Dance. A village set inside a giant fairy ring. A weak kind of magic provides the dwellers with all their hearts could desire. Embarrassingly, most simply wish for peace, happiness, and a long untroubled life."
 POR = "Dança dos Elfos. Uma aldeia situada dentro de um anel de fadas gigante. Um tipo fraco de magia fornece aos habitantes tudo o que seus corações poderiam desejar. Vergonhosamente, a maioria simplesmente deseja paz, felicidade e uma vida longa e sem problemas."
 RUS = "Элфс-Дэнс. Деревня, стоящая прямо посреди гигантского круга фей. Слабая магия обеспечивает местным жителям все, чего они ни пожелают. Ошеломительно, что большинство жаждет только мира, счастья и долгой безмятежной жизни."
+KOR = "엘프스 댄스. 거대한 요정 반지 안에 자리잡은 마을입니다. 간단한 마술이 거주자들이 원하는 것을 제공합니다. 당황스럽게도, 대부분의 사람들은 그저 평화와 행복, 그리고 오랫동안 고민하지 않은 삶을 소망합니다."
+POL = "Elfitan. Mieścina zbudowana w olbrzymim magicznym kregu. Rodzaj słabej magii zapewnia wieśniakom wszystko czego zapragną. Co wręcz żenujace, w większości pragną oni po prostu pokoju, szczęścia i długiego, spokojnego życia."
 
 [landview_121_summary]
 ENG = "Carnforge. The Fairy ring lies smashed, and the folk have fled to the hills. Our vampires are out hunting them down as we speak. Rest assured, we will be dragging them back soon, my lord."
 POR = "Forja da Carnificina. O anel de fadas jaz esmagado, e o povo fugiu para as colinas. Nossos vampiros estão caçando-os enquanto falamos. Fique tranquilo, nós os arrastaremos de volta em breve, meu senhor."
 RUS = "Карнфордж. Круг фей разрушен, а жители бежали в возвышенности. Наши вампиры ведут на них охоту, пока мы тут беседуем. Будьте покойны, скоро мы притащим их обратно, Милорд."
+KOR = "카른 포지입니다. 요정 반지는 산산조각이 나고, 민중은 산으로 도망쳤습니다. 지금 뱀파이어들이 그들을 사냥하고 있습니다. 안심하세요, 곧 다시 끌고 갈 겁니다, 주인님."
 
 [landview_130_introduction]
 ENG = "Buffy Oak. A small location, where the people just sit around all day and enjoy each other's company. They talk, laugh, and sing without ever arguing, drawing daggers, and dying in a gurgling rush of blood! A truly bizarre place..."
 POR = "Carvalho Forte. Um lugar pequeno, onde as pessoas apenas sentam o dia todo e desfrutam da companhia umas das outras. Elas conversam, riem e cantam sem nunca discutir, sacar punhais e morrer em um jorro de sangue gorgolejante! Um lugar verdadeiramente bizarro..."
 RUS = "Баффи-Оук. Крохотное местечко, где люди просто целыми днями бьют баклуши и наслаждаются обществом друг друга. Они разговаривают, смеются и поют, никогда не ссорясь, не выхватывая кинжалы и не подыхая в журчащем фонтане крови! Поистине странное место..."
+KOR = "버피 오크. 사람들이 하루 종일 둘러앉아 서로의 즐겁게 어울리는 작은 장소입니다. 말다춤 없이 이야기하거나 웃거나 노래하거나 단검을 긋거나 피가 뿜어 죽거나. 바로 괴상한 장소 ......."
+POL = "Dąbrowa Imprezowa. Niewielka miejscowość, której mieszkańcy doskonale się bawią we własnym towarzystwie. Rozmawiają, zartują, śpiewają sobie - bez kłutni, machania sztyletami i krwawego bulgotu agonii. Zaprawdę, niesamowite miejsce."
 
 [landview_131_summary]
 ENG = "Herelyn's Down. The people enjoyed each other's company so much, that they'll be together forever now. We've thrown them all into a big pit and piled tons of rocks onto them. A fitting end, we trust you'll agree."
 POR = "Queda de Herelyn. As pessoas gostavam tanto da companhia umas das outras que agora ficarão juntas para sempre. Nós as jogamos todas em um grande poço e empilhamos toneladas de pedras sobre elas. Um final apropriado, confiamos que você concordará."
 RUS = "Херелинс-Даун. Местные жители так наслаждались обществом друг друга, что теперь останутся вместе на веки вечные. Мы швырнули их в огромную яму и засыпали её тоннами булыжников. Достойный конец. Полагаем, Вы с этим согласитесь."
+KOR = "애릴린즈 다운. 사람들은 서로의 친목을 너무 즐겼기 때문에, 이제 영원히 함께 할 것입니다. 우리는 그것들을 모두 큰 구덩이에 던져넣고 수 톤의 돌을 쌓아올렸습니다. 적당한 끝이죠, 우리는 당신이 동의할 것이라고 믿습니다."
 
 [landview_140_introduction]
 ENG = "Sleepiburgh. A settlement in the fertile farmland near the mountains. Nothing ever happens here, apart from some good deeds and the odd exchange of kind-hearted greetings. A disgusting pit of Hades in other words."
 POR = "Vilasono. Um assentamento nas terras férteis perto das montanhas. Nada nunca acontece aqui, exceto algumas boas ações e a troca ocasional de saudações bondosas. Um poço nojento do Hades, em outras palavras."
 RUS = "Слипибёрг. Поселение на плодородных сельскохозяйственных землях невдалеке от гор. Тут никогда ничего не происходит, кроме благодеяний да диковинного обмена добросердечными приветствиями. Другими словами, отвратительная бездна ада."
+KOR = "슬리피버그. 산 근처의 비옥한 농지에 있는 정착지입니다. 선행과 따듯한 인사를 주고받는 것 말고는 이곳에서는 아무 일도 일어나지 않습니다. 말하자면 하데스의 구멍 같이 역겹군요."
+POL = "Śpiochowice. Osiedle położone wśród pól, niedaleko gór. Nic tu się nigdy nie dzieje, może z wyjątkiem kilku dobrych uczynków dziennie i wymiany uprzejmych pozdrowień. Innymi słowy - paskudna i obrzydliwa nora."
 
 [landview_141_summary]
 ENG = "Mormondflach. We have developed this area. It is now a breeding ground for our legions of beetles and flies. To think it was once pointless farmland, providing food for the weak population that lived there in so-called peace..."
 POR = "Mormondflach. Nós desenvolvemos esta área. Agora é um criadouro para nossas legiões de besouros e moscas. E pensar que antes era uma terra agrícola inútil, fornecendo comida para a população fraca que vivia lá em suposta paz..."
 RUS = "Мормондфлак. Мы осуществили программу реновации этой местности. Теперь мы разводим здесь легионы жуков и мух. Подумать только: раньше это был бесполезный сельскохозяйственный район, кормивший хиленьких обитателей, живших здесь в так называемом мире..."
+KOR = "모르몬플락. 우리는 이 지역을 발전시켰습니다. 이곳은 이제 우리 군단의 비틀와 플라이의 번식지입니다. 한때는 무의미한 농경지나 이른바 평화 속에 살았던 연약한 사람들에게 식량을 제공하는 곳 이라 생각했는데 말이죠..."
 
 [landview_150_introduction]
 ENG = "Woodly Rhyme. A place of such obscene contentment, it's criminal that a horde of undead vigilantes haven't massacred every soul in the place. If there is any justice, that will soon happen, my lord."
 POR = "Rima da Mata. Um lugar de contentamento tão obsceno que é criminoso que uma horda de vigilantes mortos-vivos não tenha massacrado todas as almas do lugar. Se houver alguma justiça, isso acontecerá em breve, meu senhor."
 RUS = "Вудли-Райм. Обиталище столь непристойной неги, что преступен сам тот факт, что полчища неупокоенных вершителей правосудия не вырезали каждую живую душу в этом местечке. Если в мире есть справедливость, это вскорости произойдет, мой Повелитель."
+KOR = "우들리 라임. 추잡한 만족감의 장소, 언데드 자경단 무리들이 그 곳의 모든 영혼을 학살하지 않은 것은 범죄입니다. 정의가 있다면 곧 그렇게 될 것입니다, 전하."
+POL = "Sielanków. To zbrodnia, że wiochy w której panuje tak nieprzyzwoite zadowolenie, nie nawiedziła jeszcze żadna chorda głodnych potworów, by wyciąć w pień mieszkańców. To musi się stać, mój Panie, jeśli tylko jest jakaś sprawiedliwość na tym świecie."
 
 [landview_151_summary]
 ENG = "Hassomloch. Vampires have sucked the life out of everyone here. They’ve poisoned the well, and smeared dung on all the door handles, as a joke. Not a sophisticated sense of humour, these undead blood suckers..."
 POR = "Hassomloch. Vampiros sugaram a vida de todos aqui. Eles envenenaram o poço e lambuzaram esterco em todas as maçanetas, como uma piada. Não é um senso de humor sofisticado, esses sugadores de sangue mortos-vivos..."
 RUS = "Хассомлох. Вампиры высосали жизнь из каждого обитателя этих мест. Они отравили колодец и в шутку измазали навозом ручки всех дверей. Чувство юмора у этих неупокоенных кровососов не самое утонченное..."
+KOR = "하심락. 흡혈귀들은 여기 있는 모든 사람들의 생명력을 빨아먹었습니다. 우물에 독을 타고, 모든 문 손잡이에 똥을 묻혔어요, 농단 처럼 말이죠. 세련된 유머감각이 아니라 그건 언데드의 피라고 어리버리들..."
 
 [landview_160_introduction]
 ENG = "Tulipscent. Flowers are on display in every building in this area. The poisonous stink of these fetid blooms will stick in the throats and noses of every right-thinking villains that comes within four leagues of the place."
 POR = "Aroma de Tulipa. Flores estão em exibição em todos os edifícios desta área. O fedor venenoso dessas flores fétidas ficará preso nas gargantas e narizes de todos os vilões de bom senso que se aproximarem a quatro léguas do lugar."
 RUS = "Тьюлипсент. Цветы здесь торчат на виду на каждом здании. Ядовитое зловоние этих противных растений будет еще долго раздражать нос и горло любого здравомыслящего злодея, случись тому пройти в четырех лигах от этого места."
+KOR = "튤립센트. 이 지역의 모든 건물에는 꽃들이 전시되어 있습니다. 이 악취가 진동하는 꽃은 거기 4 리그 이내에 있는 모든 바른 생각을 하는 악당들의 목과 코에 쳐박을거에요."
+POL = "Ogrodowo. W tym miasteczku widać doniczki w oknach każdego domostwa. Ochydny odór tych wszystkich pąków i kwiatów zakręci w nosie i zwali z nóg każdego prawdziwego potwora w promieniu czterech mil."
 
 [landview_161_summary]
 ENG = "Demon's Dearth. The flowers lie trampled in the dirt. Their disgusting pong has been replaced by the smell of soiled armour, and the internal juices of those sliced to pieces by your servants. Quite an improvement, you'll agree."
 POR = "Imundície Demoníaca. As flores jazem pisoteadas na terra. Seu fedor repugnante foi substituído pelo cheiro de armaduras sujas e pelos sucos internos daqueles fatiados em pedaços por seus servos. Uma grande melhoria, você concordará."
 RUS = "Димонс-Дирт. Цветы втоптаны в грязь. Их отвратительный смрад уступил место запаху перепачканных доспехов и жизненных соков тех, кого изрубили в капусту Ваши прислужники. Согласитесь, заметное улучшение."
+KOR = "데몬스더트. 꽃이 흙 속에 짓밟혀 있습니다. 그 역겨운 악취는 더럽운 갑옷 냄새와 당신의 하인들이 조각조각 잘라낸 내장의 즙으로 대체되어 상당히 개선되었습니다. 동의하실 겁니다."
 
 [landview_170_introduction]
 ENG = "Mirthshire. Industrious citizens go about their daily business with care, enthusiasm, and diligence. There is no crime, and everybody is working for the common good. It's a disaster of a place and deserves razing."
 POR = "Condado Feliz. Cidadãos industriosos realizam seus afazeres diários com cuidado, entusiasmo e diligência. Não há crime, e todos trabalham para o bem comum. É um desastre de lugar e merece ser arrasado."
 RUS = "Миртшайр. Трудолюбивые граждане занимаются своими ежедневными делами добросовестно, усердно и с энтузиазмом. Здесь никто не совершает преступлений и каждый трудится на общее благо. Это место - настоящая катастрофа и заслуживает того, чтобы его сравняли с землей."
+KOR = "미쓰샤이어. 근면한 시민들은 세심한 배려와 열정, 그리고 근면함을 가지고 일상의 업무를 수행합니다. 범죄는 없으며, 모두가 공익을 위해 일하고 있습니다. 그곳은 장소가 곧 재앙이고 밀어버리는게 당연합니다."
+POL = "Uciechów. Pracowici obywatele uwijają się raźnie, pieczołowicie i entuzjastycznie wokół swoich drobnych spraw. Nie ma tu zbrodni i przestępstw, każdy działa na rzecZ wspólnego dobra. To miejsce jest kompletną katastrofą i zasługuje na splądrowanie."
 
 [landview_171_summary]
 ENG = "Valianor. Nothing is left of this settlement apart from a stubborn stain on the ground. Our trolls are hard at work trying to erase this at the moment. Then we'll spray acid over the entire locale."
 POR = "Condado Feliz. Cidadãos industriosos realizam seus afazeres diários com cuidado, entusiasmo e diligência. Não há crime, e todos trabalham para o bem comum. É um desastre de lugar e merece ser arrasado."
 RUS = "Валианор. От этого поселения осталось одно только трудновыводимое пятно на земле. Наши тролли прямо сейчас неустанно трудятся, чтобы избавиться и от него. А потом мы распылим кислоту над этим жалким клочком земли."
+KOR = "벨리노어. 이 정착지에는 땅 위의 고집스러운 얼룩 말고는 아무것도 남아 있지 않습니다. 우리의 트롤들은 현재 이 얼룩을을 지우기 위해 열심히 일하고 있습니다. 그리고 나서 우리는 전체 지역에 산성 물질을 뿌릴 것입니다."
 
 [landview_180_introduction]
 ENG = "Blaise End. A place of joy and love. Nothing, the legends say, has ever spoiled the calm of Blaise End. So, when something does, it will be long overdue, and the inhabitants will thoroughly deserved it."
 POR = "Fim da Chama. Um lugar de alegria e amor. Nada, dizem as lendas, jamais perturbou a calma de Fim da Chama. Então, quando algo acontecer, será muito tardio, e os habitantes o terão merecido completamente."
 RUS = "Блейз-Энд. Место, где царят любовь и радость. По легенде, ничто никогда не нарушало спокойствия Блейз-Энда. Что ж, когда это, наконец, случится, это будет уместное событие, которое жители этого королевства всецело заслужили."
+KOR = "블레이즈 엔드. 기쁨과 사랑의 장소입니다. 전설에 따르면, 그 어떤 것도 블래이즈 엔드의 고요함을 망친 적이 없다고 합니다. 그래서, 뭔가 일어난다면, 이미 너무 지채된 것이고, 주민들은 철저하게 그 뭔가를 받아야 할것입니다."
+POL = "Młoda Miłosna. Zacisze miłości i radości. Nic, jak mówią legendy, nie zakłóciło tu nigdy spokoju. Zatem gdy w końcu coś zakłóci, będzie to wyraz sprawiedliwości dziejowej. W każdym razie mieszkańcy już dawno sobie na to zasłużyli."
 
 [landview_181_summary]
 ENG = "Ruiniana. Not a soul stirs here now, even the rats are afraid to come out of the drains to feast on the dead. You really outdid yourself here master, it's a pity the destruction was so easy."
 POR = "Ruiniana. Nenhuma alma se move aqui agora, até os ratos têm medo de sair dos esgotos para se banquetear com os mortos. Você realmente se superou aqui, mestre, é uma pena que a destruição tenha sido tão fácil."
 RUS = "Руиниана. Здесь не осталось ни единой живой души. Даже крысы боятся выползать из водосточных труб, чтобы закусить трупами мертвецов. Воистину, тут Вы превзошли самого себя, Повелитель. Даже жаль, что разорить всё было так легко."
+KOR = "루이니에나. 지금은 여기서 한 영혼도 미동도 없고, 쥐들도 죽은 사람으로 잔치하려 배수구 밖으로 나오는 것을 두려워하고 있습니다. 주인은 스스로를 훨씬 뛰어넘으신것 같군요, 파괴가 너무 쉬워서 유감이에요."
 
 [landview_190_introduction]
 ENG = "Mistle. Light and Airy. Mistle is a haven for those that love the peaceful countryside. The sort of people that won't like miles of sulphurous stinking wasteland. And the screams of the damned, of course."
 POR = "Visco. Leve e Arejado. Visco é um refúgio para aqueles que amam o campo pacífico. O tipo de pessoa que não gostaria de quilômetros de terreno baldio sulfuroso e fedorento. E os gritos dos condenados, é claro."
 RUS = "Мисл. Легкий и воздушный Мисл - это уголок для тех, кто любит мирную глубинку. То есть для тех, кому не понравятся километры зловонных пустощей, от которых за версту несет серой. И вопли обреченных, разумеется."
+KOR = "미슬. 밝고 통풍이 잘되는 곳 입니다. 미슬은 평화로운 시골을 사랑하는 사람들을 위한 안식처입니다. 수마일의 황무지를 좋아하지 않는 사람들은 악취를 풍기는 황무지 역시 좋아하지 않습니다. 그리고 물론 저주받은 자들의 비명소리도요."
+POL = "Miłościn. Położony w pięknej okolicy miłościn, jest rajem dla miłośników ładnych widoków. Ludzi którzy raczej nie docenili by uroku rozległych, cuchnących siarką pustkowii, że nie wspomnę o wrzasku potępionych."
 
 [landview_191_summary]
 ENG = "Darksword. A great battle has been won here. It was a bit one-sided, granted, but our minions performed valiantly, and now the day is ours. We've dealt with the survivors by the way, properly."
 POR = "Espada Negra. Uma grande batalha foi vencida aqui. Foi um pouco unilateral, admito, mas nossos lacaios se saíram valentemente, e agora o dia é nosso. Nós lidamos com os sobreviventes, a propósito, apropriadamente."
 RUS = "Дарксворд. Здесь было выиграна великая битва. Положим, она была не совсем равной, но Ваши прислужники действовали храбро, и теперь победа наша. Мы также обошлись с выжившими как подобает."
+KOR = "다크소드. 이곳의 대전이 승리했습니다. 그건 약간 일방적이고, 당연했지만, 우리의 하수인들은 용감하게 활약했고, 이제는 우리의 날입니다. 우리는 생존자들을 재대로 처리했습니다."
 
 [landview_200_introduction]
 ENG = "Skybird Trill. The Ultimate in cute. A frown in Skybird Trill brings all the townspeople to the sufferer's door with gifts of love, fine cheer, and eternal friendship. A place where nothing can ever go wrong, or so they fondly believe."
 POR = "Canto do Pássaro-do-céu. O máximo em fofura. Uma carranca em Canto do Pássaro-do-céu traz todos os habitantes da cidade à porta do sofredor com presentes de amor, boa alegria e amizade eterna. Um lugar onde nada pode dar errado, ou assim eles acreditam carinhosamente."
 RUS = "Скайбёрд-Трилл. Предельно умильное местечко. Любой хмурый взгляд в Скайбёрд-Трилле приводит к дверям страдальца жителей городка, выражающих ему свою любовь, всемерную поддержку и заверяющих в вечной дружбе. Место, где ничто и никогда не может пойти не так. По крайней мере, так они безрассудно полагают."
+KOR = "스카이버드 트릴. 아~ 귀여움에 홍갑니다. 스카이버드 트릴이 눈살을 찌푸리면 모든 마을 사람들이 사랑, 쾌활함, 영원한 우정의 선물을 가지고 문으로 옵니다. 어떤 것도 잘못될 수 없는 곳이며, 혹은 그렇게 애타게 믿습니다."
+POL = "Ptaszkoćwierkowo. Kwintesencja cukierkowości. Skrzywiona mina powoduje, że całe miasto gromadzi się u drzwi cierpiętnika, wznosząc okrzyki sympatii, niosac dary miłości i wieczystą przyjkaźń. Miejsce gdzie wszystko dobrze się kończy - a przynajmiej, tak im się zdaje."
 
 [landview_201_summary]
 ENG = "Longterror. The world of Skybird Trill is nothing more than a charred wreck of a nightmare. We have won a furious, vital victory, and you are ruler supreme over the whole world! What next, Master?"
 POR = "Terrorprolongado. O mundo de Canto do Pássaro-do-céu não passa de um destroço carbonizado de um pesadelo. Nós conquistamos uma vitória furiosa e vital, e você é o governante supremo de todo o mundo! O que vem a seguir, Mestre?"
 RUS = "Лонгтеррор. От Скайбёрд-Трилла и окрестностей остались только жуткие обгорелые развалины. Мы одержали безумную, жизненно важную победу, и теперь Вы стали Верховным правителем всего мира! Что дальше, Повелитель?"
+KOR = "돈테러. 스카이버드 트릴의 세계는 새까맣게 타버린 악몽의 난파선에 지나지 않습니다. 우리는 격노하였고 중요한 승리를 거두었습니다. 당신은 전 세계의 최고 통치자입니다! 다음은 뭔가요, 주인님?"
