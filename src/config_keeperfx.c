@@ -67,7 +67,6 @@ uint32_t packetsave_max_kb = 0;
 TbBool replays_enabled = true;
 uint32_t max_replays[ReplTyp_Count] = {5, 5, 10};
 unsigned long features_enabled = 0;
-static unsigned char parchment_map_fade_turns = 0;
 unsigned char viewport_mode = VpMode_Original;
 TbBool exit_on_lua_error = false;
 TbBool FLEE_BUTTON_DEFAULT = false;
@@ -315,10 +314,12 @@ TbBool use_relative_mouse_mode(void)
   return ((features_enabled & Ft_RelativeMouseMode) != 0);
 }
 
-/** This machine's map fade length in turns, from keeperfx.cfg; 0 means no fade. */
-unsigned char get_parchment_map_fade_turns(void)
+/**
+ * Returns if the mouse should use SDL relative ("raw") mode instead of the grab-and-warp scheme.
+ */
+TbBool use_parchment_fade(void)
 {
-    return parchment_map_fade_turns;
+    return ((features_enabled & Ft_ParchmentFade) != 0);
 }
 /**
  * Returns if we should pause the music, if the user pauses the game.
@@ -1084,29 +1085,18 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           viewport_mode = i;
           break;
       case 51: // PARCHMENT_MAP_FADE
-      {
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) <= 0)
+          i = recognize_conf_parameter(buf, &pos, len, logicval_type);
+          if (i <= 0)
           {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                   COMMAND_TEXT(cmd_num), config_textname);
               break;
           }
-          if (strcasecmp(word_buf, "OFF") == 0) {
-              parchment_map_fade_turns = 0;
-              break;
-          }
-          if (strcasecmp(word_buf, "ON") == 0) {
-              parchment_map_fade_turns = PARCHMENT_MAP_FADE_DEFAULT_TURNS;
-              break;
-          }
-          if (strcasecmp(word_buf, "FAST") == 0) {
-              parchment_map_fade_turns = PARCHMENT_MAP_FADE_FAST_TURNS;
-              break;
-          }
-          CONFWRNLOG("Incorrect value of \"%s\" parameter in %s file; expected OFF, ON or FAST.",
-              COMMAND_TEXT(cmd_num), config_textname);
+          if (i == 1)
+              features_enabled |= Ft_ParchmentFade;
+          else
+              features_enabled &= ~Ft_ParchmentFade;
           break;
-      }
       case 52: // AUTOMATIC_REPLAYS
           i = recognize_conf_parameter(buf, &pos, len, logicval_type);
           if (i <= 0)

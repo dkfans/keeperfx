@@ -1219,7 +1219,6 @@ static void init_user_preferences_from_settings(NetUserId user)
     ustate->dungeon_camera.zoom[false] = settings.isometric_view_zoom_level;
     ustate->dungeon_camera.zoom[true] = settings.frontview_zoom_level;
     ustate->highlight_mode = get_starting_highlight_mode();
-    ustate->map_fade_turns = get_parchment_map_fade_turns();
 }
 
 void init_players_local_game(void)

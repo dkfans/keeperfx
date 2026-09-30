@@ -51,7 +51,6 @@ struct PacketSaveHead {
     PlayerBitFlags players_comp;
     int32_t dungeon_zooms[MAX_NET_USERS][2];
     TbBool highlight_modes[MAX_NET_USERS];
-    uint8_t map_fade_turns[MAX_NET_USERS];
     int32_t dungeon_pitches[MAX_NET_USERS];
     TbBool dungeon_front_views[MAX_NET_USERS];
     TbBool dungeon_wibbles[MAX_NET_USERS];

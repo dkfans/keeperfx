@@ -365,7 +365,6 @@ TbBool startup_saved_packet_game(void)
         ustate->dungeon_camera.pitch = game.packet_save_head.dungeon_pitches[user];
         memcpy(ustate->dungeon_camera.zoom, game.packet_save_head.dungeon_zooms[user], sizeof(ustate->dungeon_camera.zoom));
         ustate->highlight_mode = game.packet_save_head.highlight_modes[user];
-        ustate->map_fade_turns = game.packet_save_head.map_fade_turns[user];
     }
     init_players();
     frontend_alliances = game.packet_save_head.frontend_alliances;

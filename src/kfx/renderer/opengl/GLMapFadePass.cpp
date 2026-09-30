@@ -48,7 +48,6 @@ bool GLMapFadePass::CompileShaders()
     glUniform1i(glGetUniformLocation(prog->id, "u_fade_table"), 4);
     glUniform1i(glGetUniformLocation(prog->id, "u_ghost"), 5);
     m_loc_step = glGetUniformLocation(prog->id, "u_step");
-    m_loc_warp_scale = glGetUniformLocation(prog->id, "u_warp_scale");
     glUseProgram(0);
 
     GpuTextureDesc ghost_desc;
@@ -103,13 +102,12 @@ void GLMapFadePass::Shutdown()
     m_was_active_gt = false;
 }
 
-void GLMapFadePass::SubmitStep(int tick_step, float display_step, float warp_scale, bool fading_in, const unsigned char* ghost_table)
+void GLMapFadePass::SubmitStep(int tick_step, float display_step, bool fading_in, const unsigned char* ghost_table)
 {
     ASSERT_GAME_THREAD();
     const bool is_start = (fading_in && tick_step == 0) || (!fading_in && tick_step == 32);
     m_cmd.active = true;
     m_cmd.step = display_step;
-    m_cmd.warp_scale = warp_scale;
     m_cmd.capture_pending = is_start && !m_was_active_gt;
     if (m_cmd.capture_pending && ghost_table != nullptr)
         m_cmd.ghost_table.assign(ghost_table, ghost_table + 256 * 256);
@@ -257,7 +255,6 @@ void GLMapFadePass::ResolveComposite(int screen_w, int screen_h)
     glBindTexture(GL_TEXTURE_2D, ghost_tex->id);
 
     glUniform1f(m_loc_step, m_rt_cmd.step);
-    glUniform1f(m_loc_warp_scale, m_rt_cmd.warp_scale);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glUseProgram(0);

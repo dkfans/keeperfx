@@ -290,17 +290,15 @@ void load_engine_window(TbGraphicsWindow *ewnd)
     local_state.engine_window_height = ewnd->height;
 }
 
-void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, long a6, long const xmax, long const ymax, long a9, int32_t warp_turns)
+void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, long a6, long const xmax, long const ymax, long a9)
 {
     long ix;
     long iy;
     ensure_map_fade_tables(xmax, ymax);
     if ((xtab == NULL) || (ytab == NULL))
         return;
-    const long warp1 = a6 * warp_turns / PARCHMENT_MAP_FADE_DEFAULT_TURNS;
-    const long warp0 = (32 - a6) * warp_turns / PARCHMENT_MAP_FADE_DEFAULT_TURNS;
-    long x1base = 4 * warp1 * xmax / 320;
-    long x0base = 4 * warp0 * xmax / 320;
+    long x1base = 4 * a6;
+    long x0base = 4 * (32 - a6);
     int32_t * xt = xtab;
     int vx0 = 0;
     int vx1 = 0;
@@ -325,12 +323,12 @@ void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcb
         }
         xt[0] = m;
         xt += 2;
-        vx0 += xmax - 2 * x0base;
-        vx1 += xmax - 2 * x1base;
+        vx0 += xmax - 8 * (32 - a6);
+        vx1 += xmax - 8 * a6;
     }
 
-    long y1base = 4 * warp1 * ymax / 320;
-    long y0base = 4 * warp0 * ymax / 320;
+    long y1base = 8 * ymax / xmax * x1base / 8;
+    long y0base = 8 * ymax / xmax * x0base / 8;
     int32_t * yt = ytab;
     int vy1 = 0;
     int vy0 = 0;
@@ -452,16 +450,10 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
     }
 }
 
-static int32_t my_map_fade_turns(void)
-{
-    const struct UserState *ustate = get_player_user_state(get_my_player());
-    return user_state_invalid(ustate) ? 1 : max((int32_t)ustate->map_fade_turns, 1);
-}
-
-static float map_fade_progress(void)
+static float map_fade_progress(long instance)
 {
     struct PlayerInfo* player = get_my_player();
-    const float turns = (float)(my_map_fade_turns() - 1);
+    const float turns = (float)(player_instance_info[instance].length_turns - 1);
     if (turns <= 0.0f)
         return 1.0f;
     float frac = is_feature_on(Ft_DeltaTime) ? (float)game.process_turn_time : 0.0f;
@@ -489,16 +481,13 @@ long map_fade_in(long palette_fade_step)
         prepare_map_fade_buffers(map_fade_src, map_fade_dest, real_w, real_h);
         generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
-    const int32_t turns = my_map_fade_turns();
-    const float display_step = 32.0f * map_fade_progress();
-    RendererSubmitMapFadeStep((int)palette_fade_step, display_step,
-        (float)turns / PARCHMENT_MAP_FADE_DEFAULT_TURNS, 1, map_fade_ghost_table);
+    RendererSubmitMapFadeStep((int)palette_fade_step, 32.0f * map_fade_progress(PI_MapFadeTo), 1, map_fade_ghost_table);
     if (lbDisplay.WScreen != NULL)
     {
         map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
-            (long)(display_step + 0.5f), real_w, real_h, RendererScreenWidth(), turns);
+            palette_fade_step, real_w, real_h, RendererScreenWidth());
     }
-    return (turns - (int32_t)get_my_player()->instance_remain_turns) * 32 / turns;
+    return (8 - get_my_player()->instance_remain_turns) * 4;
 }
 
 long map_fade_out(long palette_fade_step)
@@ -517,17 +506,14 @@ long map_fade_out(long palette_fade_step)
         prepare_map_fade_buffers(map_fade_src, map_fade_dest, real_w, real_h);
         generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
-    const int32_t turns = my_map_fade_turns();
-    const float display_step = 32.0f * (1.0f - map_fade_progress());
-    RendererSubmitMapFadeStep((int)palette_fade_step, display_step,
-        (float)turns / PARCHMENT_MAP_FADE_DEFAULT_TURNS, 0, map_fade_ghost_table);
+    RendererSubmitMapFadeStep((int)palette_fade_step, 32.0f * (1.0f - map_fade_progress(PI_MapFadeFrom)), 0, map_fade_ghost_table);
     // Software-only CPU blend
     if (lbDisplay.WScreen != NULL)
     {
         map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
-          (long)(display_step + 0.5f), real_w, real_h, RendererScreenWidth(), turns);
+          palette_fade_step, real_w, real_h, RendererScreenWidth());
     }
-    return (int32_t)get_my_player()->instance_remain_turns * 32 / turns;
+    return get_my_player()->instance_remain_turns * 4;
 }
 
 long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long a6)

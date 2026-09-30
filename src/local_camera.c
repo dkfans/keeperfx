@@ -642,7 +642,7 @@ void update_local_view_prediction(const struct Packet *pckt)
         local_state.view_type = PVT_MapScreen;
         toggle_status_menu(0);
     } else if ((pckt->action == PckA_LoadViewType && pckt->actn_par1 == PVT_DungeonTop)
-            || (pckt->action == PckA_ZoomFromMap && !parchment_map_fade_enabled(get_local_user()))) {
+            || (pckt->action == PckA_ZoomFromMap && !parchment_map_fade_enabled())) {
         local_state.view_type = PVT_DungeonTop;
         toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
         if (on_map)

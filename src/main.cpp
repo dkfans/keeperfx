@@ -1532,7 +1532,6 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     view_height_over_2 = ewnd.height/2;
     view_width_over_2 = ewnd.width/2;
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, RendererScreenWidth(), ewnd.width, ewnd.height);
     WorldViewRenderer_BeginWorldPass(ewnd.width, ewnd.height, ewnd.x, ewnd.y);
     RendererSetGameViewport(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
@@ -2043,6 +2042,7 @@ static short resolve_startup_config(void)
     features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
     features_enabled |= Ft_DeltaTime; // enable delta time
     features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
+    features_enabled &= ~Ft_ParchmentFade; // do not fade into and out of the parchment map
     if (!load_configuration())
     {
         ERRORLOG("Configuration load error.");

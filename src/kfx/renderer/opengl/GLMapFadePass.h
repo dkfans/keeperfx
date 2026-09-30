@@ -50,7 +50,7 @@ public:
 
     /** @p ghost_table is the 256x256 map-fade ghost table; it's copied on the
      *  transition's first frame. */
-    void SubmitStep(int tick_step, float display_step, float warp_scale, bool fading_in, const unsigned char* ghost_table);
+    void SubmitStep(int tick_step, float display_step, bool fading_in, const unsigned char* ghost_table);
 
     void FlipBuffers();
 
@@ -83,7 +83,6 @@ private:
 
     GpuResourceHandle m_shader_handle = kInvalidGpuResource;
     GLint  m_loc_step = -1;
-    GLint  m_loc_warp_scale = -1;
     GpuResourceHandle m_quad_geom_handle = kInvalidGpuResource;
 
     GpuResourceHandle m_parchment_rt_handle = kInvalidGpuResource;

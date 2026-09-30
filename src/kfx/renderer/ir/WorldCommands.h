@@ -208,7 +208,6 @@ struct IRMapFadeCmd
 {
     bool  active = false;           /**< False on any frame SubmitStep() wasn't called this transition. */
     float step = 0.0f;              /**< 0..32, matches software's palette_fade_step_map exactly (no interpolation). */
-    float warp_scale = 1.0f;        /**< zoom strength multiplier. */
     bool  capture_pending = false;  /**< True only on the one frame the transition just started. */
     std::vector<uint8_t> ghost_table; /**< 256x256 map-fade ghost table, only on the capture frame. */
 };

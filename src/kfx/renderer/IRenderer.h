@@ -80,7 +80,7 @@ public:
     virtual class ICursorLayer*       GetCursorLayer()       = 0;
     virtual class IWorldViewRenderer* GetWorldViewRenderer() = 0;
 
-    virtual void SubmitMapFadeStep(int tick_step, float display_step, float warp_scale, bool fading_in,
+    virtual void SubmitMapFadeStep(int tick_step, float display_step, bool fading_in,
                                    const unsigned char* ghost_table)
         { (void)tick_step; (void)display_step; (void)fading_in; (void)ghost_table; }
     virtual bool MapFadeSupportsNativeResolution() const { return false; }
