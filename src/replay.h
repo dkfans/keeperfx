@@ -34,13 +34,33 @@ struct Packet;
 
 // save file header for .pck files.
 // (Bump the version if this struct or the .pck format changes.)
-#define PACKET_SAVE_HEAD_VER 3
+#define PACKET_SAVE_HEAD_VER 4
 
 enum PacketSaveHeadFlags {
     PSHF_Checksum   = 0x01,
     PSHF_Compressed = 0x02,
+    PSHF_MultiGame  = 0x04,
 };
 
+enum UserStartFlags {
+    USF_CheatsEnabled = 0x01,
+    USF_SkipHeartZoom = 0x02,
+};
+
+// a user's settings as they were at the start of a game.
+struct UserStartSettings {
+    uint8_t video_rotate_mode;
+    uint8_t flags; // UserStartFlags
+    uint16_t tendencies; // CrTend_* flags
+    uint8_t highlight_mode;
+    int32_t isometric_tilt;
+    uint32_t isometric_view_zoom_level;
+    uint32_t frontview_zoom_level;
+    uint32_t zoom_distance;
+    uint32_t frontview_zoom_distance;
+};
+
+// Replay file header.
 struct PacketSaveHead {
     unsigned short game_ver_major;
     unsigned short game_ver_minor;
@@ -49,16 +69,9 @@ struct PacketSaveHead {
     uint32_t level_num;
     PlayerBitFlags players_exist;
     PlayerBitFlags players_comp;
-    uint32_t isometric_view_zoom_level;
-    uint32_t frontview_zoom_level;
-    int isometric_tilt;
-    unsigned char video_rotate_mode;
     uint8_t flags; // PacketSaveHeadFlags
     uint32_t action_seed;
-    TbBool default_imprison_tendency;
-    TbBool default_flee_tendency;
-    TbBool skip_heart_zoom;
-    TbBool highlight_mode;
+    struct UserStartSettings user_start[MAX_NET_USERS];
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
     char frontend_alliances;
@@ -67,6 +80,32 @@ struct PacketSaveHead {
 
 #pragma pack()
 /******************************************************************************/
+
+/*
+ * State relating to watching and saving replays, including whether replay mode is enabled.
+ * Not stored in the main game struct, since resyncs shouldn't overwrite this, and shouldn't
+ * be part of game saves.
+ */
+struct ReplayState {
+    unsigned char save_enable;
+    unsigned char load_enable;
+    char fname[150];
+    char fopened;
+    TbFileHandle fp;
+    unsigned int file_pos;
+    struct PacketSaveHead head;
+    uint32_t turns_stored;
+    uint32_t turns_fastforward;
+    unsigned char loading_in_progress;
+    unsigned char checksum_verify;
+    uint32_t log_things_start_turn;
+    uint32_t log_things_end_turn;
+    uint32_t turns_packetoff;
+    GameTurn pckt_gameturn;
+};
+
+extern struct ReplayState replay;
+
 extern unsigned long initial_replay_seed;
 
 TbBigChecksum compute_replay_integrity(void);
@@ -77,10 +116,14 @@ void load_packets_for_turn(GameTurn nturn);
 void verify_replay_checksum(void);
 TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
+void replay_forget_saved_turn(void);
+void replay_apply_pending_resync(void);
 void close_packet_file(void);
 void stop_replay_recording(const char *reason);
 void replay_record_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y);
 void replay_record_paused_action(NetUserId user, const struct Packet *pckt);
+void replay_record_resync(const void *message, size_t message_size);
+void replay_record_network_stopped(void);
 TbBool replay_playback_is_paused(void);
 void set_replay_playback_paused(TbBool paused);
 TbBool reinit_packets_after_load(void);

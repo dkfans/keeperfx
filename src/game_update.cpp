@@ -537,7 +537,7 @@ void update(void)
         creature_stats_debug_dump();
 #endif
         game.play_gameturn++;
-        if (game.turns_packetoff == game.play_gameturn)
+        if (replay.turns_packetoff == game.play_gameturn)
             exit_keeper = 1;
     }
 

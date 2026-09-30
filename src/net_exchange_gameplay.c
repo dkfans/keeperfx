@@ -484,8 +484,8 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
             break;
         }
         if (LbTimerClock() - wait_start_time >= FINAL_RESORT_RESYNC_RECOVERY) {
-            set_flag(game.system_flags, GSF_NetGameNoSync);
-            clear_flag(game.system_flags, GSF_NetSeedNoSync);
+            set_flag(local_system_flags, GSF_NetGameNoSync);
+            clear_flag(local_system_flags, GSF_NetSeedNoSync);
             wait_timed_out = true;
             break;
         }

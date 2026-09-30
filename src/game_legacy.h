@@ -220,7 +220,7 @@ struct LogDetailedSnapshot {
 
 struct Game {
     LevelNumber continue_level_number;
-    unsigned char system_flags;
+    TbBool run_after_victory;
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
     unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
@@ -256,20 +256,6 @@ struct Game {
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
     ColumnIndex unrevealed_column_idx;
-    unsigned char packet_save_enable;
-    unsigned char packet_load_enable;
-    char packet_fname[150];
-    char packet_fopened;
-    TbFileHandle packet_save_fp;
-    unsigned int packet_file_pos;
-    struct PacketSaveHead packet_save_head;
-    uint32_t turns_stored;
-    uint32_t turns_fastforward;
-    unsigned char packet_loading_in_progress;
-    unsigned char packet_checksum_verify;
-    uint32_t log_things_start_turn;
-    uint32_t log_things_end_turn;
-    uint32_t turns_packetoff;
     PlayerNumber local_plyr_idx;
     // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
@@ -291,7 +277,6 @@ struct Game {
     /** Number of available thing indices stored in unsynced_free_things array. When count is 0, no free things available. */
     ThingIndex unsynced_free_things_count;
     GameTurn play_gameturn;
-    GameTurn pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
     uint32_t action_random_seed;
     uint32_t ai_random_seed;
@@ -415,6 +400,12 @@ extern int32_t fps_limit_current;
 extern int32_t fps_limit_main;
 extern int32_t fps_limit_secondary;
 
+extern unsigned char local_system_flags;
+
+// True if this is an active multiplayer session.
+// Note that this is always false when watching a replay.
+// To determine canonical multiplayer game status in a way compatible with replay playback,
+// check game.game_kind instead.
 TbBool network_is_active(void);
 
 /******************************************************************************/

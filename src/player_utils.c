@@ -171,7 +171,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   dungeon->lvstats.allow_save_score = 1;
-  if (!network_is_active())
+  if (game.game_kind != GKind_MultiGame)
     player->display_objective_turn = get_gameturn() + 300;
   if (my_player)
   {
@@ -189,7 +189,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     if (player->victory_state != VicS_Undecided)
     {
         // Suppress redundant warnings
-        if ((game.system_flags & GSF_RunAfterVictory) == 0)
+        if (!game.run_after_victory)
         {
             WARNLOG("Victory state already set to %d",(int)player->victory_state);
         }
@@ -244,9 +244,9 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         }
     }
     set_player_state(player, PSt_CtrlDungeon, 0);
-    if (!network_is_active())
+    if (game.game_kind != GKind_MultiGame)
         player->display_objective_turn = get_gameturn() + 300;
-    if (network_is_active())
+    if (game.game_kind == GKind_MultiGame)
         reveal_whole_map(player);
     if ((dungeon->computer_enabled & 0x01) != 0)
         toggle_computer_player(player->id_number);
@@ -255,7 +255,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
 long compute_player_final_score(struct PlayerInfo *player, long gameplay_score)
 {
     long i;
-    if (network_is_active()
+    if ((game.game_kind == GKind_MultiGame)
       || !is_singleplayer_level(game.loaded_level_number)) {
         i = 2 * gameplay_score;
     } else {
@@ -855,12 +855,17 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->work_state = PSt_CtrlDungeon;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
+    player->zoom_distance = zoom_distance_setting;
+    player->frontview_zoom_distance = frontview_zoom_distance_setting;
+    player->cheats_allowed = game.easter_eggs_enabled;
+    player->skip_heart_zoom = get_skip_heart_zoom_feature();
     if (is_my_player(player))
     {
         if (default_tag_mode != 3)
         {
             settings.highlight_mode = default_tag_mode - 1;
         }
+        player->highlight_mode = settings.highlight_mode;
         player->roomspace_highlight_mode = settings.highlight_mode;
         player->roomspace_mode = settings.highlight_mode;
         set_flag(game.operation_flags, GOF_ShowPanel);
@@ -886,11 +891,11 @@ void init_player(struct PlayerInfo *player, short no_explore)
         //workaround until settings are synced through multiplayer
         if (is_my_player(player))
             local_state.minimap_zoom = 256;
-        if (game.packet_save_head.isometric_view_zoom_level == 0)
+        if (player->isometric_view_zoom_level == 0)
         {
             player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
         }
-        if (game.packet_save_head.frontview_zoom_level == 0)
+        if (player->frontview_zoom_level == 0)
         {
             player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
         }
@@ -928,21 +933,20 @@ void init_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if (flag_is_set(game.packet_save_head.players_exist, to_flag(i)))
+        if (flag_is_set(replay.head.players_exist, to_flag(i)))
             player->allocflags |= PlaF_Allocated;
         else
             player->allocflags &= ~PlaF_Allocated;
         if (player_exists(player))
         {
             player->id_number = i;
-            if (flag_is_set(game.packet_save_head.players_comp, to_flag(i)))
+            if (flag_is_set(replay.head.players_comp, to_flag(i)))
                 player->allocflags |= PlaF_CompCtrl;
             else
                 player->allocflags &= ~PlaF_CompCtrl;
             if ((player->allocflags & PlaF_CompCtrl) == 0)
             {
               game.human_players_count++;
-              game.game_kind = GKind_MultiGame;
               init_player(player, 0);
             }
         }

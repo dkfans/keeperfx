@@ -147,7 +147,7 @@ TbBool draw_onscreen_direct_messages(void)
         LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, get_string(GUIStr_NetOutOfSync));
     }
     unsigned int msg_pos = scale_value_by_vertical_resolution(200);
-    if ((game.system_flags & GSF_NetGameNoSync) != 0)
+    if ((local_system_flags & GSF_NetGameNoSync) != 0)
     {
         if (RendererCanDraw())
         {
@@ -155,7 +155,7 @@ TbBool draw_onscreen_direct_messages(void)
         }
         msg_pos += scale_value_by_horizontal_resolution(20);
     }
-    if ((game.system_flags & GSF_NetSeedNoSync) != 0)
+    if ((local_system_flags & GSF_NetSeedNoSync) != 0)
     {
         if (RendererCanDraw())
         {

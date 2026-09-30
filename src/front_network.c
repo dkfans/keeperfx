@@ -675,7 +675,7 @@ void frontnet_service_setup(void)
     snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetOnline));
     snprintf(net_service[net_number_of_services++], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetLan));
     // Create skirmish option if it should be enabled
-    if ((game.system_flags & GSF_AllowOnePlayer) != 0)
+    if ((local_system_flags & GSF_AllowOnePlayer) != 0)
     {
         snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", get_string(GUIStr_NetServiceSkirmish));
         net_number_of_services++;

@@ -515,7 +515,7 @@ void add_message(long plyr_idx, char *msg)
  */
 void create_error_box(TextStringId msg_idx)
 {
-    if (!game.packet_load_enable)
+    if (!replay.load_enable)
     {
         //change the length into  when gui_error_text will not be exported
         snprintf(gui_error_text, sizeof(gui_error_text), "%s", get_string(msg_idx));
@@ -965,7 +965,7 @@ long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long fi
 
 void gui_quit_game(struct GuiButton *gbtn)
 {
-    if (game.packet_load_enable)
+    if (replay.load_enable)
     {
         turn_off_all_menus();
         quit_game = 1;
@@ -1641,14 +1641,14 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     
     // If we win a mappack file, 'Continue Game' button should not return to that map
     // (Instead of deleting continue file, maybe record the mappack itself as the place to return to?)
-    if (won && is_freeplay_level(lvnum) && !network_is_active() && !game.packet_load_enable
+    if (won && is_freeplay_level(lvnum) && !network_is_active() && !replay.load_enable
      && (play_turns >= 30 * start_params.num_fps /* prevent broken maps from deleting a perfectly good continue */))
         delete_continue_link();
         
     // Only save progress if not a free play level, not a multiplayer level and not in packet mode
     if (network_is_active()
      || ((game.operation_flags & GOF_SingleLevel) != 0)
-     || (game.packet_load_enable)
+     || (replay.load_enable)
      || (is_freeplay_level(lvnum))
      || (is_multiplayer_level(lvnum)))
         return false;
@@ -2691,7 +2691,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           last_mouse_y = GetMouseY();
           time_last_played_demo = LbTimerClock();
           fe_high_score_table_from_main_menu = true;
-          clear_flag(game.system_flags, GSF_NetworkActive);
+          clear_flag(local_system_flags, GSF_NetworkActive);
           skip_high_score_screen = 0;
           set_pointer_graphic_menu();
           break;
@@ -2716,7 +2716,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_NET_SESSION:
           turn_on_menu(GMnu_FENET_SESSION);
           frontnet_session_setup();
-          clear_flag(game.system_flags, GSF_NetworkActive);
+          clear_flag(local_system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_NET_START:
@@ -2724,7 +2724,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           if (frontend_menu_state != FeSt_MP_MAPPACK_SELECT)
             frontnet_start_setup();
           LbStartTextInput();
-          set_flag(game.system_flags, GSF_NetworkActive);
+          set_flag(local_system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_START_KPRLEVEL:
@@ -3458,7 +3458,7 @@ void update_player_objectives(PlayerNumber plyr_idx)
     struct PlayerInfo *player;
     SYNCDBG(6,"Starting for player %d",(int)plyr_idx);
     player = get_player(plyr_idx);
-    if (network_is_active())
+    if (game.game_kind == GKind_MultiGame)
     {
       if ((!player->display_objective_turn) && (player->victory_state != VicS_Undecided))
         player->display_objective_turn = get_gameturn()+1;
@@ -3473,7 +3473,7 @@ void update_player_objectives(PlayerNumber plyr_idx)
           break;
       case VicS_LostLevel:
           TextStringId msg_idx = CpgStr_LevelLost;
-          if (network_is_active() && (player->id_number == get_net_user_player_number(SERVER_ID)) && network_human_contenders_remain()) {
+          if ((game.game_kind == GKind_MultiGame) && (player->id_number == get_net_user_player_number(SERVER_ID)) && network_human_contenders_remain()) {
               msg_idx = GUIStr_NetHostLostWaitingForPlayers;
           }
           set_level_objective(player->id_number, get_string(msg_idx));

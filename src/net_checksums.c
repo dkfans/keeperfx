@@ -209,7 +209,7 @@ short checksums_different(void)
     struct Packet* host_packet = get_packet(host_user_id);
     TbBigChecksum host_checksum = host_packet->checksum;
     TbBool mismatch = false;
-    TbBool already_desynced = (game.system_flags & GSF_NetGameNoSync) != 0;
+    TbBool already_desynced = (local_system_flags & GSF_NetGameNoSync) != 0;
 
     for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
         if (i == host_user_id) {
