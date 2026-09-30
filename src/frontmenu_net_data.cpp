@@ -215,23 +215,8 @@ static void draw_lobby_text(int x, int y, int width, int height, int font, const
     LbTextSetFont(frontend_font[font]);
     RendererSetDrawFlags(0);
     int scale = height * 16 / LbTextLineHeight();
-    int text_width = LbTextStringWidthM(text, scale);
-    int offset = 0;
-    if (text_width > width) {
-        static TbClockMSec started = LbTimerClock();
-        int overflow = text_width - width;
-        int speed = max(1, 24 * scale / 16);
-        int travel_time = max(1, overflow * 1000 / speed);
-        int elapsed = (LbTimerClock() - started) % (2 * travel_time + 2000);
-        if (elapsed > travel_time + 1000) {
-            offset = overflow - min(overflow, max(0, elapsed - travel_time - 2000) * speed / 1000);
-        } else if (elapsed > 1000) {
-            offset = min(overflow, (elapsed - 1000) * speed / 1000);
-        }
-    }
     LbTextSetWindow(x, y, width, height);
-    LbTextSetJustifyWindow(x, y, max(width, text_width));
-    LbTextDrawResized(-offset, 0, scale, text);
+    LbTextDrawResized(0, (height - LbTextLineHeight() * scale / 16) / 2, scale, text);
 }
 
 static const int lobby_columns[] = {10, 277, 378, 494, 578};
