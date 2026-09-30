@@ -476,7 +476,7 @@ static TbBool network_has_remote_users_remaining(void)
 
 static TbBool replay_has_remote_humans(void)
 {
-    const NetUserId local_user = get_local_user();
+    const NetUserId local_user = replay.head.recording_user;
     for (NetUserId user_id = 0; user_id < MAX_NET_USERS; user_id++) {
         const PlayerNumber plyr_idx = get_net_user_player_number(user_id);
         if ((user_id == local_user) || (plyr_idx < 0)) {
@@ -745,7 +745,7 @@ void process_disconnected_network_players(void)
 void apply_recorded_network_stop(void)
 {
     message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
-    const NetUserId local_user = get_local_user();
+    const NetUserId local_user = replay.head.recording_user;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (user != local_user) {
             remove_user_from_game(user, false);
