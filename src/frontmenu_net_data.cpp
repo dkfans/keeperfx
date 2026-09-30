@@ -210,10 +210,10 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
     }
 }
 
-static void draw_lobby_text(int x, int y, int width, int height, int font, const char *text)
+static void draw_lobby_text(int x, int y, int width, int height, int font, const char *text, int draw_flags = 0)
 {
     LbTextSetFont(frontend_font[font]);
-    RendererSetDrawFlags(0);
+    RendererSetDrawFlags(draw_flags);
     int scale = height * 16 / LbTextLineHeight();
     LbTextSetWindow(x, y, width, height);
     LbTextDrawResized(0, (height - LbTextLineHeight() * scale / 16) / 2, scale, text);
@@ -232,7 +232,7 @@ static unsigned char *get_frontend_lobby_glass_map(void)
     return glass_map;
 }
 
-static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *const text[4])
+static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *const text[4], int version_draw_flags)
 {
     if (RendererGetActiveType() == RENDERER_SOFTWARE) {
         lbDisplay.GlassMap = get_frontend_lobby_glass_map();
@@ -254,7 +254,11 @@ static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *con
     for (int i = 0; i < 4; i++) {
         int x = gbtn->scr_pos_x + lobby_columns[i] * gbtn->width / lobby_columns[4];
         int width = (lobby_columns[i + 1] - lobby_columns[i] - 12) * gbtn->width / lobby_columns[4];
-        draw_lobby_text(x, y, width, height, font, text[i]);
+        int draw_flags = 0;
+        if (i == 3) {
+            draw_flags = version_draw_flags;
+        }
+        draw_lobby_text(x, y, width, height, font, text[i], draw_flags);
     }
     RendererSetDrawFlags(0);
     LbDrawBox(separator_x, separator_y, separator_width, thickness, 6);
@@ -306,11 +310,13 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     }
     const struct TbNetworkSessionNameEntry *session = net_session[index];
     int font = 1;
+    int version_draw_flags = 0;
     if (frontend_mouse_over_button == gbtn->content.lval) {
         font = 2;
     }
     if (net_session_incompatible(session)) {
         font = 3;
+        version_draw_flags = Lb_SPRITE_TRANSPAR4;
     }
     const char *phase = get_string(GUIStr_NetUnknown);
     if (session->phase == NetPhase_Lobby) {
@@ -335,7 +341,7 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
         version = get_string(GUIStr_NetUnknown);
     }
     const char *text[] = {session->text, phase, players, version};
-    draw_lobby_columns(gbtn, font, text);
+    draw_lobby_columns(gbtn, font, text, version_draw_flags);
 }
 
 static void draw_lobby_panel_row(int x, int y, int width, int height, int scale, int sprite_index)
