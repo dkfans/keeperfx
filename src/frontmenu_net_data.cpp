@@ -219,7 +219,7 @@ static void draw_lobby_text(int x, int y, int width, int height, int font, const
     LbTextDrawResized(0, (height - LbTextLineHeight() * scale / 16) / 2, scale, text);
 }
 
-static const int lobby_columns[] = {10, 277, 378, 494, 578};
+static const int lobby_columns[] = {10, 277, 377, 478, 578};
 static int lobby_tooltip_index = -1;
 
 static unsigned char *get_frontend_lobby_glass_map(void)
