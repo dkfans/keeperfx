@@ -52,6 +52,8 @@
 #include "config_campaigns.h"
 #include "post_inc.h"
 
+#define SESSION_LIST_MOUSE_IDLE_TIMEOUT_MS 1000
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -334,8 +336,33 @@ static int compare_lobbies(const void *left, const void *right)
     return strcmp(a->join_address, b->join_address);
 }
 
+static TbBool frontnet_session_list_in_use(void)
+{
+    static int32_t last_mouse_x = -1;
+    static int32_t last_mouse_y = -1;
+    static uint32_t last_mouse_move;
+    int32_t mouse_x = GetMouseX();
+    int32_t mouse_y = GetMouseY();
+    uint32_t now = LbTimerClock();
+    if (mouse_x != last_mouse_x || mouse_y != last_mouse_y || left_button_held) {
+        last_mouse_x = mouse_x;
+        last_mouse_y = mouse_y;
+        last_mouse_move = now;
+    }
+    return net_number_of_sessions > 0 && frontend_mouse_over_button >= 45 && frontend_mouse_over_button < 45 + frontend_sessions_menu_items_visible && now - last_mouse_move < SESSION_LIST_MOUSE_IDLE_TIMEOUT_MS;
+}
+
 void frontnet_session_update(void)
 {
+    if (frontnet_service_selected(FrontendNetSvc_LAN)) {
+        lan_service();
+    }
+    if (frontnet_service_selected(FrontendNetSvc_Online)) {
+        matchmaking_service();
+    }
+    if (frontnet_session_list_in_use()) {
+        return;
+    }
     char selected[SESSION_LOBBY_ID_MAX_LEN] = "";
     char selected_name[SESSION_NAME_MAX_LEN] = "";
     if (net_session_index_active >= 0 && net_session_index_active < net_number_of_sessions) {
@@ -352,7 +379,6 @@ void frontnet_session_update(void)
         }
     }
     if (frontnet_service_selected(FrontendNetSvc_Online)) {
-        matchmaking_service();
         matchmaking_refresh_sessions();
         for (int i = 0; i < matchmaking_session_count && net_number_of_sessions < SESSION_ENTRIES_COUNT; i++) {
             net_session[net_number_of_sessions++] = &matchmaking_sessions[i];
@@ -663,8 +689,8 @@ void frontnet_service_setup(void)
 
 void frontnet_session_setup(void)
 {
-    if (net_player_name[0] == '\0')
-    {
+    net_number_of_sessions = 0;
+    if (net_player_name[0] == '\0') {
         snprintf(net_player_name, sizeof(net_player_name), "%s", net_config_info.net_player_name);
         strcpy(tmp_net_player_name, net_config_info.net_player_name);
     }

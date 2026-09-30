@@ -123,7 +123,7 @@ void lan_host_update(void)
     }
 }
 
-void lan_refresh_sessions(void)
+void lan_service(void)
 {
     if (joiner_socket == ENET_SOCKET_NULL) {
         if (joiner_socket_failed)
@@ -215,6 +215,11 @@ void lan_refresh_sessions(void)
             entry->last_seen_milliseconds = now;
         }
     }
+}
+
+void lan_refresh_sessions(void)
+{
+    Uint32 now = (Uint32)SDL_GetTicks();
     lan_session_count = 0;
     int write_index = 0;
     for (int i = 0; i < session_cache_count; i++) {
