@@ -217,7 +217,7 @@ static TbBool init_level(void)
     level_load_time_phase(LevelLoadTime_Data);
     TbBool script_preloaded = preload_script(level);
     if (!load_map_file(level)) {
-        create_frontend_error_box(15000, "Map content is missing or incompatible.");
+        create_frontend_error_box("Map content is missing or incompatible.");
         JUSTMSG("Unable to load level %d from %s", level, campaign.name);
         return false;
     }

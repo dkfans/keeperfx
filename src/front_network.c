@@ -201,7 +201,7 @@ void process_network_error(long errcode)
       ERRORLOG("Unknown modem error code %ld",errcode);
       return;
   }
-  create_frontend_error_box(3000, text);
+  create_frontend_error_box(text);
 }
 
 void draw_out_of_sync_box(long a1, long a2, long box_width)
@@ -394,7 +394,7 @@ static TbBool check_frontend_version_mismatch(void)
       get_string(GUIStr_VersionMismatch),
       network_user_name(SERVER_ID), (int)host_user->version.major, (int)host_user->version.minor, (int)host_user->version.release, (int)host_user->version.build,
       network_user_name(remote_id), (int)remote_user->version.major, (int)remote_user->version.minor, (int)remote_user->version.release, (int)remote_user->version.build);
-  create_frontend_error_box(10000, text);
+  create_frontend_error_box(text);
   return true;
 }
 
@@ -487,7 +487,7 @@ TbBool frontnet_matchmaking_update(void)
 {
     if (network_is_host() && frontnet_service_selected(FrontendNetSvc_Online) && enet_matchmaking_host_update() < 0) {
         frontnet_return_to_session_menu(NULL);
-        create_frontend_error_box(0, get_string(GUIStr_NetLobbyConnectionLost));
+        create_frontend_error_box(get_string(GUIStr_NetLobbyConnectionLost));
         return false;
     }
     return true;

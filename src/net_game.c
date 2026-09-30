@@ -295,12 +295,12 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         }
     }
     if (!verify_map_checksums(s_startup_sync_packets)) {
-        create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
+        create_frontend_error_box(get_string(GUIStr_NetUnsyncedMap));
         return false;
     }
 
     if (!verify_startup_sprite_zip_checksums(s_startup_sync_packets)) {
-        create_frontend_error_box(5000, get_string(GUIStr_NetVerifyFxdataSame));
+        create_frontend_error_box(get_string(GUIStr_NetVerifyFxdataSame));
         return false;
     }
     const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[SERVER_ID];
@@ -370,7 +370,7 @@ TbBool init_players_network_game(void)
         }
         WARNLOG("Required custom sprite zip missing: %s", required_sprite_zips[zip_idx]);
         message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s missing", required_sprite_zips[zip_idx]);
-        create_frontend_error_box(5000, get_string(GUIStr_NetVerifyFxdataSame));
+        create_frontend_error_box(get_string(GUIStr_NetVerifyFxdataSame));
         initialized = false;
         break;
     }
@@ -708,7 +708,7 @@ long network_session_join(void)
         }
         const char *error = net_join_error_text(net_join_rejection);
         if (error) {
-            create_frontend_error_box(5000, error);
+            create_frontend_error_box(error);
         } else {
             process_network_error(-802);
         }

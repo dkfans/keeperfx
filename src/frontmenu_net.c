@@ -274,7 +274,7 @@ void frontnet_session_join(struct GuiButton *gbtn)
     }
     const char *error = net_join_error_text(net_session_join_rejection(net_session[net_session_index_active]));
     if (error) {
-        create_frontend_error_box(5000, error);
+        create_frontend_error_box(error);
         return;
     }
     int32_t plyr_num = network_session_join();
