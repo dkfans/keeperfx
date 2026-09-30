@@ -1163,7 +1163,7 @@ static TbBool get_level_lost_inputs(void)
         {
           turn_off_all_window_menus();
           set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-          if (parchment_map_fade_enabled(player))
+          if (parchment_map_fade_enabled(get_local_user()))
           {
                 set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0,0,0);
           } else

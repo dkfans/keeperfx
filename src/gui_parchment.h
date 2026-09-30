@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "net_main.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +32,6 @@ extern "C" {
 
 struct TbRect;
 struct Camera;
-struct PlayerInfo;
 
 /******************************************************************************/
 extern int parchment_loaded;
@@ -52,7 +52,7 @@ long get_parchment_map_area_rect(struct TbRect *map_area);
 TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, const long screen_y, int32_t *map_x, int32_t *map_y);
 
 void zoom_from_parchment_map(void);
-TbBool parchment_map_fade_enabled(const struct PlayerInfo *player);
+TbBool parchment_map_fade_enabled(NetUserId user);
 void zoom_to_parchment_map(void);
 /******************************************************************************/
 #ifdef __cplusplus
