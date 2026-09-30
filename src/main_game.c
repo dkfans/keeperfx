@@ -335,7 +335,7 @@ TbBool startup_saved_packet_game(void)
         || (replay.head.game_ver_release != VER_RELEASE) || (replay.head.game_ver_build != VER_BUILD)) {
         WARNLOG("Packet file was created with different version of the game; this rarely works");
     }
-    game.game_kind = GKind_LocalGame;
+    game.game_kind = flag_is_set(replay.head.flags, PSHF_MultiGame) ? GKind_MultiGame : GKind_LocalGame;
     {
         PlayerNumber view_plyr = -1;
         NetUserId rec_user = replay.head.recording_user;
@@ -362,8 +362,6 @@ TbBool startup_saved_packet_game(void)
     }
     frontend_alliances = replay.head.frontend_alliances;
     setup_alliances();
-    if (game.human_players_count == 1)
-        game.game_kind = GKind_LocalGame;
     if (replay.turns_stored < replay.turns_fastforward)
         replay.turns_fastforward = replay.turns_stored;
     post_init_level();

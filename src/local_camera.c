@@ -158,7 +158,7 @@ static void update_local_first_person_camera(struct Thing *ctrltng, const struct
     int eye_height = get_creature_eye_height(ctrltng);
     update_first_person_position(cam, ctrltng, eye_height);
 
-    if ((flag_is_set(game.operation_flags, GOF_Paused) && game.game_kind != GKind_LocalGame)
+    if ((flag_is_set(game.operation_flags, GOF_Paused) && network_is_active())
         || ! can_process_creature_input(ctrltng))
     {
         cam->rotation_angle_x = ctrltng->move_angle_xy;

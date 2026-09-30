@@ -1077,7 +1077,7 @@ void redraw_minimal_overhead_view(void)
 /** Whether entering or leaving the parchment map plays the fade instead of cutting. */
 TbBool parchment_map_fade_enabled(void)
 {
-    if (network_is_active())
+    if (game.game_kind == GKind_MultiGame)
         return false;
     return use_parchment_fade();
 }

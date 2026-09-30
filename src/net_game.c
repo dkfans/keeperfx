@@ -527,7 +527,6 @@ static void stop_network_game_state(void)
     clear_flag(local_system_flags, GSF_NetGameNoSync);
     clear_flag(local_system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;
-    game.game_kind = GKind_LocalGame;
     game.input_lag_turns = 0;
     game.skip_initial_input_turns = 0;
     input_lag_reset();
@@ -646,7 +645,7 @@ static void leave_network_if_alone(void)
 void process_player_leave_game_packet(struct PlayerInfo *player)
 {
     if (player != get_my_player()) {
-        if (network_is_active() || replay.load_enable /* handle replays */) {
+        if (game.game_kind == GKind_MultiGame) {
             NetUserId user = player->user_id;
             if (network_is_active()) {
                 OnDroppedUser(user, NETDROP_MANUAL);

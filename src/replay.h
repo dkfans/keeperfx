@@ -39,6 +39,7 @@ struct Packet;
 enum PacketSaveHeadFlags {
     PSHF_Checksum   = 0x01,
     PSHF_Compressed = 0x02,
+    PSHF_MultiGame  = 0x04,
 };
 
 enum UserStartFlags {

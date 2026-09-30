@@ -182,7 +182,7 @@ void set_packet_pause_toggle()
         return;
     if (player->user_id >= PACKETS_COUNT)
         return;
-    if (game.game_kind != GKind_LocalGame) {
+    if (network_is_active()) {
         unsigned long current_time = LbTimerClock();
         if (current_time - last_pause_toggle_time < MULTIPLAYER_PAUSE_COOLDOWN_MS) {
             MULTIPLAYER_LOG("set_packet_pause_toggle: cooldown active, ignoring");
@@ -194,7 +194,7 @@ void set_packet_pause_toggle()
         set_players_packet_action(player, PckA_TogglePause, 1, 0, 0, 0);
         return;
     }
-    if (game.game_kind != GKind_LocalGame) {
+    if (network_is_active()) {
         MULTIPLAYER_LOG("set_packet_pause_toggle: broadcasting unpause");
         unpausing_in_progress = 1;
         keeper_screen_redraw();

@@ -23,7 +23,7 @@ static struct ModsConfig stored_mods_conf = {0};
 const struct ModsConfig *get_loaded_mods_conf(void)
 {
     static const struct ModsConfig empty_mods_conf = {0};
-    if (network_is_active())
+    if (network_is_active() || (game.game_kind == GKind_MultiGame))
         return &empty_mods_conf;
     return &stored_mods_conf;
 }

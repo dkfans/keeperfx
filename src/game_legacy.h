@@ -401,6 +401,11 @@ extern int32_t fps_limit_main;
 extern int32_t fps_limit_secondary;
 
 extern unsigned char local_system_flags;
+
+// True if this is an active multiplayer session.
+// Note that this is always false when watching a replay.
+// To determine canonical multiplayer game status in a way compatible with replay playback,
+// check game.game_kind instead.
 TbBool network_is_active(void);
 
 /******************************************************************************/

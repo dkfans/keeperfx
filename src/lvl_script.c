@@ -1148,7 +1148,7 @@ void process_level_script(void)
   struct PlayerInfo *player;
   player = get_my_player();
   TbBool process_script = false;
-  if (network_is_active()) {
+  if (game.game_kind == GKind_MultiGame) {
       process_script = true;
   }
   if (player->victory_state == VicS_Undecided) {

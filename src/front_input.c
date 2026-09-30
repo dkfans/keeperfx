@@ -1506,7 +1506,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     }
     if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
     {
-      if (((game.operation_flags & GOF_Paused) != 0) && (game.game_kind != GKind_LocalGame))
+      if (((game.operation_flags & GOF_Paused) != 0) && network_is_active())
       {
           return true;
       }

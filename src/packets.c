@@ -746,7 +746,7 @@ TbBool process_user_global_packet_action(NetUserId user)
         turn_off_all_menus();
         free_swipe_graphic();
       }
-      if (network_is_active()) {
+      if (game.game_kind == GKind_MultiGame) {
         if (victory_state == VicS_WonLevel) {
           player->victory_state = VicS_WonLevel;
           if (game.conf.rules[player->id_number].gameplay.winner_tortures_loser) {
@@ -1658,7 +1658,7 @@ void exchange_packets(void)
         camera_packet_set_state(get_local_packet());
     store_packet_history(local_user, get_local_packet());
     host_spoof_dropped_user_packets();
-    if (game.game_kind != GKind_LocalGame)
+    if (network_is_active())
     {
         if (!replay.load_enable)
         {

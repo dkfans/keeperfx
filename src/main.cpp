@@ -1326,9 +1326,10 @@ short complete_level(struct PlayerInfo *player)
     SYNCDBG(6,"Starting");
     if (!is_my_player(player))
         return false;
-    if (network_is_active())
+    if (game.game_kind == GKind_MultiGame)
     {
-        LbNetwork_Stop();
+        if (network_is_active())
+            LbNetwork_Stop();
         quit_game = 1;
         return true;
     }
