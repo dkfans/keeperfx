@@ -56,10 +56,12 @@ static char hosted_lobby_id[MATCHMAKING_ID_MAX] = {0};
 char join_lobby_id[MATCHMAKING_ID_MAX] = {0};
 static SDL_Mutex *mutex = NULL;
 static SDL_Thread *connection_thread;
+static SDL_Thread *create_thread;
 static SDL_Thread *resolve_thread;
 static char local_ipv4[MATCHMAKING_IP_MAX] = {0};
 static char local_ipv6[MATCHMAKING_IP_MAX] = {0};
-static char create_request[SEND_BUFFER_SIZE];
+static char create_name[MATCHMAKING_NAME_MAX * 6];
+static PunchAddresses create_addresses;
 static const char list_request[] = "{\"action\":\"list\",\"version\":\"" VER_STRING "\"}";
 static Uint32 heartbeat_time;
 static int heartbeat_attempts;
@@ -421,7 +423,7 @@ void matchmaking_connect_async(void)
         return;
     }
     matchmaking_init();
-    if (!mutex || SDL_GetThreadState(connection_thread) == SDL_THREAD_ALIVE) {
+    if (!mutex || SDL_GetThreadState(create_thread) == SDL_THREAD_ALIVE || SDL_GetThreadState(connection_thread) == SDL_THREAD_ALIVE) {
         return;
     }
     SDL_WaitThread(connection_thread, NULL);
@@ -436,6 +438,8 @@ void matchmaking_disconnect(enum NetSessionPhase phase)
     if (!mutex) {
         return;
     }
+    SDL_WaitThread(create_thread, NULL);
+    create_thread = NULL;
     SDL_WaitThread(connection_thread, NULL);
     connection_thread = NULL;
     SDL_WaitThread(resolve_thread, NULL);
@@ -495,41 +499,47 @@ static void read_lobbies(const VALUE *message)
     }
 }
 
-int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, int direct_ipv4_port)
+static int matchmaking_create_thread(void *previous_thread)
 {
-    if (!matchmaking_enabled) {
-        return 0;
-    }
-    matchmaking_init();
-    if (!mutex) {
-        return -1;
-    }
-    SDL_WaitThread(connection_thread, NULL);
-    connection_thread = NULL;
-    char escaped_name[MATCHMAKING_NAME_MAX * 6];
-    net_json_escape(escaped_name, sizeof(escaped_name), name);
-    PunchAddresses published_addresses;
-    load_published_public_ips(udp_ipv4, udp_ipv4_port, udp_ipv6_port, &published_addresses);
+    SDL_WaitThread(previous_thread, NULL);
     char metadata[SESSION_METADATA_MAX];
     net_lobby_metadata(metadata);
-    if (!metadata[0]) {
+    PunchAddresses published_addresses;
+    load_published_public_ips(create_addresses.ipv4, create_addresses.ipv4_port, create_addresses.ipv6_port, &published_addresses);
+    char request[SEND_BUFFER_SIZE];
+    int used = snprintf(request, sizeof(request), "{\"action\":\"create\",\"name\":\"%s\",\"ipv4Port\":%d,\"ipv6Port\":%d,\"directIpv4Port\":%d,%s,\"ipv4\":\"%s\",\"ipv6\":\"%s\",\"resultActions\":true}", create_name, create_addresses.ipv4_port, create_addresses.ipv6_port, create_addresses.direct_ipv4_port, metadata, published_addresses.ipv4, published_addresses.ipv6);
+    if (!metadata[0] || used < 0 || used >= sizeof(request)) {
         return -1;
     }
     SDL_LockMutex(mutex);
     start_metadata[0] = '\0';
     queued_punch_read = 0;
     queued_punch_count = 0;
-    int used = snprintf(create_request, sizeof(create_request), "{\"action\":\"create\",\"name\":\"%s\",\"ipv4Port\":%d,\"ipv6Port\":%d,\"directIpv4Port\":%d,%s,\"ipv4\":\"%s\",\"ipv6\":\"%s\",\"resultActions\":true}", escaped_name, udp_ipv4_port, udp_ipv6_port, direct_ipv4_port, metadata, published_addresses.ipv4, published_addresses.ipv6);
-    if (used < 0 || used >= sizeof(create_request)) {
-        SDL_UnlockMutex(mutex);
-        return -1;
-    }
     snprintf(last_metadata, sizeof(last_metadata), "%s", metadata);
-    connection_thread = SDL_CreateThread(matchmaking_connect_thread, "matchmaking_host", create_request);
     SDL_UnlockMutex(mutex);
-    if (!connection_thread) {
+    return matchmaking_connect_thread(request);
+}
+
+int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, int direct_ipv4_port)
+{
+    if (!matchmaking_enabled) {
+        return 0;
+    }
+    matchmaking_init();
+    if (!mutex || SDL_GetThreadState(create_thread) == SDL_THREAD_ALIVE) {
         return -1;
     }
+    SDL_WaitThread(create_thread, NULL);
+    net_json_escape(create_name, sizeof(create_name), name);
+    snprintf(create_addresses.ipv4, sizeof(create_addresses.ipv4), "%s", udp_ipv4);
+    create_addresses.ipv4_port = udp_ipv4_port;
+    create_addresses.ipv6_port = udp_ipv6_port;
+    create_addresses.direct_ipv4_port = direct_ipv4_port;
+    create_thread = SDL_CreateThread(matchmaking_create_thread, "matchmaking_host", connection_thread);
+    if (!create_thread) {
+        return -1;
+    }
+    connection_thread = NULL;
     return 0;
 }
 
@@ -628,7 +638,7 @@ int matchmaking_poll_punch(PunchAddresses *output)
         return 0;
     }
     int result = 0;
-    if (!hosted_lobby_id[0] && SDL_GetThreadState(connection_thread) != SDL_THREAD_ALIVE) {
+    if (!hosted_lobby_id[0] && SDL_GetThreadState(create_thread) != SDL_THREAD_ALIVE) {
         result = -1;
     }
     if (queued_punch_count > 0) {
