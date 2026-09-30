@@ -142,7 +142,9 @@ const struct NamedCommand conf_commands[] = {
   {NULL, 0},
   };
 
-__attribute__((used)) const char kfx_config_x[] = "\x01" "KEEPERFX_CONFIG_X" "\x02" "\n"
+// tracking string, can be used by external tools to read the list of config options this binary takes.
+__attribute__((used)) const char kfx_config_x[] = "\x01" "KEEPERFX_CONFIG_X" "\x02"
+ "v" VER_STRING "b" PACKAGE_SUFFIX " " GIT_REVISION "\x02" "\n"
 #define KFXCFG(name, values, cfg_default, absent_default) "KFXCFG(" #name ", " #values ", " #cfg_default ", " #absent_default ")\n"
 #define KFXCFG_DEPRECATED(name) "KFXCFG_DEPRECATED(" #name ")\n"
 #include "config.x"
