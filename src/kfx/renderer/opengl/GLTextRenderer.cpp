@@ -70,7 +70,7 @@ void GLTextRenderer::DrawGlyphs(const IRTextDrawCmd& cmd, const TextCommandBuffe
         switch (glyph.kind)
         {
         case IRTextGlyphKind::PaletteSprite:
-            m_ui->DrawGlyphQuad(glyph.sprite, glyph.x, glyph.y, glyph.units_per_px, 1.0f, 1.0f, 1.0f, glyph.alpha, /*sample_palette=*/true);
+            m_ui->DrawGlyphQuad(glyph.sprite, glyph.x, glyph.y, glyph.units_per_px, 1.0f, 1.0f, 1.0f, glyph.alpha, /*sample_palette=*/true, cmd.cmap);
             break;
         case IRTextGlyphKind::ColourSprite:
             m_ui->DrawGlyphQuad(glyph.sprite, glyph.x, glyph.y, glyph.units_per_px, r, g, b, glyph.alpha, /*sample_palette=*/false);
