@@ -1080,11 +1080,15 @@ void replay_apply_pending_resync(void)
 {
     if (pending_resync == NULL)
         return;
-    if (!apply_recorded_resync(pending_resync, pending_resync_len))
-        WARNLOG("Recorded resync could not be applied");
+    const TbBool applied = apply_recorded_resync(pending_resync, pending_resync_len);
     free(pending_resync);
     pending_resync = NULL;
     pending_resync_len = 0;
+    if (!applied)
+    {
+        WARNLOG("Recorded resync could not be applied; stopping replay");
+        disable_packet_mode();
+    }
 }
 
 

@@ -465,9 +465,10 @@ TbBool receive_resync_game(void)
     if (!receive_resync_message(&message_buffer, &message_size)) {
         return false;
     }
-    // recorded before applying, while the game struct still holds this machine's replay state
-    replay_record_resync(message_buffer, message_size);
     TbBool result = apply_resync_game_message(message_buffer, message_size);
+    if (result) {
+        replay_record_resync(message_buffer, message_size);
+    }
     free(message_buffer);
     if (!result) {
         return false;

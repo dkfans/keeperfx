@@ -950,6 +950,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
     MapSubtlCoord stl_x, stl_y;
     MapSlabCoord slb_x, slb_y;
     struct Coord3d pos;
+    if (!player->cheats_allowed)
+        return false;
     switch (pckt->action)
     {
         case PckA_CheatPlaceTerrain:

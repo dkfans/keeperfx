@@ -1565,6 +1565,8 @@ void process_user_creature_control_packet_action(NetUserId user)
       }
       break;
   case PckA_CheatCtrlCrtrSetInstnc:
+      if (!player->cheats_allowed)
+        break;
       thing = thing_get(player->controlled_thing_idx);
       if (!thing_exists(thing))
         break;
