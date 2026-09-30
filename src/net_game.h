@@ -65,7 +65,7 @@ TbBool get_startup_user_settings(NetUserId user, struct UserStartSettings *us);
 TbBool network_is_host(void);
 PlayerNumber get_net_user_player_number(NetUserId user);
 void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx);
-void remap_local_user_to_solo(void);
+void remap_user_to_solo(struct PlayerInfo *myplyr);
 /******************************************************************************/
 #ifdef __cplusplus
 }

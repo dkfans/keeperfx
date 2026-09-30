@@ -1465,7 +1465,7 @@ void disable_packet_mode(void)
     replay.load_enable = false;
     replay.save_enable = false;
     get_my_player()->cheats_allowed = game.easter_eggs_enabled;
-    remap_local_user_to_solo();
+    remap_user_to_solo(get_my_player());
     show_onscreen_msg(2*turns_per_second, "Packet mode disabled");
     set_gui_visible(true);
 }

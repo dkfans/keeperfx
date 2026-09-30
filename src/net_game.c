@@ -500,7 +500,7 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
 
 // used when ending a netplay game or recording.
 // local single-player must have the local user in slot 0.
-static void remap_user_to_solo(struct PlayerInfo *myplyr)
+void remap_user_to_solo(struct PlayerInfo *myplyr)
 {
     NetUserId old_user = myplyr->user_id;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
