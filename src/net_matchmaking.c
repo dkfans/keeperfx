@@ -512,7 +512,6 @@ static int matchmaking_create_thread(void *previous_thread)
         return -1;
     }
     SDL_LockMutex(mutex);
-    start_metadata[0] = '\0';
     queued_punch_read = 0;
     queued_punch_count = 0;
     snprintf(last_metadata, sizeof(last_metadata), "%s", metadata);
