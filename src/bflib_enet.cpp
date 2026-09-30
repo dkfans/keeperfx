@@ -233,9 +233,6 @@ namespace
         enet_uint16 actual_port = enet_port;
         if (port > 0)
             actual_port = (enet_uint16)port;
-        if (*session == ':' && (frontnet_service_selected(FrontendNetSvc_LAN) || frontnet_service_selected(FrontendNetSvc_Online))) {
-            actual_port = ENET_PORT_ANY;
-        }
         ENetAddress address;
         enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV6);
         address.port = actual_port;

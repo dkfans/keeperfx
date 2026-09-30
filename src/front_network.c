@@ -351,7 +351,7 @@ void frontnet_session_update(void)
     net_session_index_active = -1;
     net_session_index_active_id = -1;
     for (int i = 0; i < net_number_of_sessions; i++) {
-        if ((selected[0] && strcmp(selected, net_session[i]->join_address) == 0) || (!selected[0] && selected_name[0] && strcmp(selected_name, net_session[i]->text) == 0)) {
+        if (selected_name[0] && strcmp(selected_name, net_session[i]->text) == 0 && (!selected[0] || strcmp(selected, net_session[i]->join_address) == 0)) {
             net_session_index_active = i;
             net_session_index_active_id = net_session[i]->id;
             break;

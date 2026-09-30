@@ -187,7 +187,7 @@ void lan_refresh_sessions(void)
         snprintf(join_address, sizeof(join_address), "LAN:%s:%d", sender_ip, game_port);
         struct LanSessionCache *entry = NULL;
         for (int i = 0; i < session_cache_count; i++) {
-            if (strcmp(session_cache[i].session.join_address, join_address) == 0) {
+            if (strcmp(session_cache[i].session.join_address, join_address) == 0 && strcmp(session_cache[i].session.text, payload) == 0) {
                 entry = &session_cache[i];
                 break;
             }
