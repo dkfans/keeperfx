@@ -172,7 +172,11 @@ void apply_user_start_settings(struct PlayerInfo *player, const struct UserStart
     player->highlight_mode = us->highlight_mode;
     player->roomspace_highlight_mode = us->highlight_mode;
     player->roomspace_mode = us->highlight_mode;
-    player->cameras[CamIV_Isometric].rotation_angle_y = us->isometric_tilt;
+    struct Camera *iso_cam = &player->cameras[CamIV_Isometric];
+    iso_cam->rotation_angle_y = us->isometric_tilt;
+    iso_cam->view_mode = (us->video_rotate_mode == 1) ? PVM_IsoStraightView : PVM_IsoWibbleView;
+    iso_cam->zoom = us->isometric_view_zoom_level;
+    player->cameras[CamIV_FrontView].zoom = us->frontview_zoom_level;
     TbBool imprison = (us->tendencies & CrTend_Imprison) != 0;
     TbBool flee = (us->tendencies & CrTend_Flee) != 0;
     set_creature_tendencies(player, CrTend_Imprison, imprison);

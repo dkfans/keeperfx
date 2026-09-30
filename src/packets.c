@@ -864,7 +864,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       set_player_mode(player, pckt->actn_par1);
       return 0;
   case PckA_ZoomFromMap:
-      if (parchment_map_fade_enabled(user))
+      if (parchment_map_fade_enabled())
       {
         set_player_mode(player, PVT_MapFadeOut);
       } else
