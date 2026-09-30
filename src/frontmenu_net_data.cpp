@@ -435,18 +435,20 @@ void frontnet_draw_lobby_tooltip(struct GuiButton *gbtn)
         lines = 1 + session->player_count;
     }
     int scale = gbtn->width * 16 / lobby_columns[4];
-    int line_height = 16 * scale / 16;
+    int line_height = 26 * gbtn->width / lobby_columns[4];
     int padding = 7 * scale / 16;
-    LbTextSetFont(frontend_font[1]);
+    LbTextSetFont(frontend_font[2]);
     int text_scale = line_height * 16 / LbTextLineHeight();
-    int width = 70 * scale / 16;
+    int width = LbTextStringWidth(get_string(GUIStr_MnuPlayers)) * text_scale / 16;
+    LbTextSetFont(frontend_font[1]);
+    text_scale = line_height * 16 / LbTextLineHeight();
     if (!session->roster_known) {
-        width = LbTextStringWidth("Player list unavailable") * text_scale / 16 + padding * 2;
+        width = max(width, LbTextStringWidth(get_string(GUIStr_NetPlayerListUnavailable)) * text_scale / 16);
     }
-    for (int i = 0; i < session->player_count; i++) {
-        width = max(width, LbTextStringWidth(session->players[i]) * text_scale / 16 + padding * 2);
+    for (int i = 0; i < session->player_count && session->roster_known; i++) {
+        width = max(width, LbTextStringWidth(session->players[i]) * text_scale / 16);
     }
-    width = min(width, (int)lbDisplay.GraphicsScreenWidth - padding * 2);
+    width = min(width + padding * 2, (int)lbDisplay.GraphicsScreenWidth - padding * 2);
     int height = lines * line_height + padding * 2;
     int x = min(mouse_x + padding, (int)lbDisplay.GraphicsScreenWidth - width);
     int y = min(mouse_y + padding, (int)lbDisplay.GraphicsScreenHeight - height);
