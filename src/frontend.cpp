@@ -1245,8 +1245,6 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     }
     char *srctext;
     srctext = gbtn->content.str;
-    while (LbTextStringWidth(srctext) > 240)
-        srctext[strlen(srctext)-2] = 0;
     char text[2048];
     // Prepare text buffer
     TbBool print_with_cursor = 0;
@@ -1257,10 +1255,10 @@ void frontend_draw_enter_text(struct GuiButton *gbtn)
     }
     snprintf(text, sizeof(text), "%s%s", srctext, print_with_cursor?"_":"");
     LbTextSetFont(frontend_font[font_idx]);
-    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
+    RendererSetDrawFlags(0);
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, (240 + LbTextCharWidth('_')) * tx_units_per_px / 16, gbtn->height);
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     LbTextDrawResized(0, 0, tx_units_per_px, text);
 }
 
