@@ -478,10 +478,11 @@ static TbBool replay_has_remote_humans(void)
 {
     const NetUserId local_user = get_local_user();
     for (NetUserId user_id = 0; user_id < MAX_NET_USERS; user_id++) {
-        if (user_id == local_user) {
+        const PlayerNumber plyr_idx = get_net_user_player_number(user_id);
+        if ((user_id == local_user) || (plyr_idx < 0)) {
             continue;
         }
-        const struct PlayerInfo *player = get_player(get_net_user_player_number(user_id));
+        const struct PlayerInfo *player = get_player(plyr_idx);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0)) {
             return true;
         }
@@ -499,9 +500,8 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
 
 // used when ending a netplay game or recording.
 // local single-player must have the local user in slot 0.
-void remap_local_user_to_solo(void)
+static void remap_user_to_solo(struct PlayerInfo *myplyr)
 {
-    struct PlayerInfo *myplyr = get_my_player();
     NetUserId old_user = myplyr->user_id;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (user == old_user) {
@@ -538,7 +538,7 @@ static void stop_network_game_state(void)
 {
     memset(net_user_info, 0, sizeof(net_user_info));
     clear_flag(local_system_flags, GSF_NetworkActive);
-    remap_local_user_to_solo();
+    remap_user_to_solo(get_my_player());
     clear_flag(local_system_flags, GSF_NetGameNoSync);
     clear_flag(local_system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;
@@ -559,13 +559,19 @@ static void stop_network_game_and_quit_to_main_menu(void)
 
 static void stop_network_game_and_continue_locally(void)
 {
+    struct PlayerInfo *survivor;
     if (network_is_active()) {
         LbNetwork_Stop();
         stop_network_game_state();
+        survivor = get_my_player();
     } else {
+        const PlayerNumber plyr_idx = get_net_user_player_number(replay.head.recording_user);
+        survivor = (plyr_idx >= 0) ? get_player(plyr_idx) : get_my_player();
+        remap_user_to_solo(survivor);
         game.game_kind = GKind_LocalGame;
+        setup_count_players();
     }
-    get_my_player()->display_objective_turn = get_gameturn() + 1;
+    survivor->display_objective_turn = get_gameturn() + 1;
 }
 
 static TbBool host_already_won_level(void)
