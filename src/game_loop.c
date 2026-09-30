@@ -1048,6 +1048,11 @@ static TbBool wait_at_frontend(void)
     return true;
 }
 
+static TbBool player_skips_heart_zoom(const struct PlayerInfo *player)
+{
+    return (game.game_kind == GKind_LocalGame) && player->skip_heart_zoom;
+}
+
 void game_loop(void)
 {
 #if (BFDEBUG_LEVEL > 0)
@@ -1073,11 +1078,11 @@ void game_loop(void)
       {
           for (int i = 0; i < PLAYERS_COUNT; i++) {
               struct PlayerInfo *player = get_player(i);
-              if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player->skip_heart_zoom) {
+              if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_skips_heart_zoom(player)) {
                   set_player_instance(player, PI_HeartZoom, 0);
               }
           }
-          if (get_my_player()->skip_heart_zoom && !replay.load_enable) {
+          if (player_skips_heart_zoom(get_my_player()) && !replay.load_enable) {
               toggle_status_menu(1); // Required when skipping PI_HeartZoom
           }
       } else
@@ -1107,7 +1112,7 @@ void game_loop(void)
       GameT.Hours = 0;
       if (!TimerNoReset)
       {
-          if (get_my_player()->skip_heart_zoom)
+          if (player_skips_heart_zoom(get_my_player()))
           {
               timerstarttime = starttime;
           }
