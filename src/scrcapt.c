@@ -104,7 +104,7 @@ TbBool movie_record_start(void)
 {
   if ( anim_record() )
   {
-      set_flag(game.system_flags, GSF_CaptureMovie);
+      set_flag(local_system_flags, GSF_CaptureMovie);
       return true;
   }
   return false;
@@ -112,7 +112,7 @@ TbBool movie_record_start(void)
 
 TbBool movie_record_stop(void)
 {
-    clear_flag(game.system_flags, GSF_CaptureMovie);
+    clear_flag(local_system_flags, GSF_CaptureMovie);
     anim_stop();
     return true;
 }
@@ -144,12 +144,12 @@ TbBool movie_record_frame(void)
 TbBool perform_any_screen_capturing(void)
 {
     TbBool captured=0;
-    if ((game.system_flags & GSF_CaptureSShot) != 0)
+    if ((local_system_flags & GSF_CaptureSShot) != 0)
     {
       captured |= cumulative_screen_shot();
-      clear_flag(game.system_flags, GSF_CaptureSShot);
+      clear_flag(local_system_flags, GSF_CaptureSShot);
     }
-    if ((game.system_flags & GSF_CaptureMovie) != 0)
+    if ((local_system_flags & GSF_CaptureMovie) != 0)
     {
       captured |= movie_record_frame();
     }

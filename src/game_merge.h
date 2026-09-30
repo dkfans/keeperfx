@@ -77,7 +77,6 @@ enum GameSystemFlags {
     GSF_CaptureMovie     = 0x0008,
     GSF_CaptureSShot     = 0x0010,
     GSF_AllowOnePlayer   = 0x0040,
-    GSF_RunAfterVictory  = 0x0080,
 };
 
 enum GameGUIFlags {

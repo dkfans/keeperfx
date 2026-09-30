@@ -54,7 +54,6 @@ static TbBigChecksum replay_expected_checksum;
 static TbBool replay_checksum_pending;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
-extern TbBool get_skip_heart_zoom_feature(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -796,7 +795,6 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
     replay.file_pos = LbFilePosition(replay.fp);
     reset_packet_codec();
     replay.turns_stored = count_stored_turns();
-    game.easter_eggs_enabled = replay_easter_eggs_setting();
     replay_playback_paused = false;
     if ((replay.checksum_verify) && !flag_is_set(replay.head.flags, PSHF_Checksum))
     {
@@ -1076,12 +1074,6 @@ void replay_apply_pending_resync(void)
     pending_resync_len = 0;
 }
 
-TbBool replay_easter_eggs_setting(void)
-{
-    if (replay.load_enable && flag_is_set(replay.head.flags, PSHF_Alex))
-        return true;
-    return start_params.easter_egg;
-}
 
 void replay_forget_saved_turn(void)
 {
@@ -1325,17 +1317,13 @@ TbBool open_new_packet_file_for_save(void)
     replay.head.flags = PSHF_Compressed;
     if (replay.checksum_verify)
         set_flag(replay.head.flags, PSHF_Checksum);
-    if (game.easter_eggs_enabled)
-        set_flag(replay.head.flags, PSHF_Alex);
-    replay.head.isometric_view_zoom_level = settings.isometric_view_zoom_level;
-    replay.head.frontview_zoom_level = settings.frontview_zoom_level;
-    replay.head.isometric_tilt = settings.isometric_tilt;
-    replay.head.video_rotate_mode = settings.video_rotate_mode;
     replay.head.action_seed = initial_replay_seed;
-    replay.head.skip_heart_zoom = get_skip_heart_zoom_feature();
-    replay.head.default_imprison_tendency = IMPRISON_BUTTON_DEFAULT;
-    replay.head.default_flee_tendency = FLEE_BUTTON_DEFAULT;
-    replay.head.highlight_mode = settings.highlight_mode;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        struct UserStartSettings *us = &replay.head.user_start[user];
+        if (!get_startup_user_settings(user, us))
+            build_local_user_start_settings(us);
+    }
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
         replay.head.user_players[user] = get_net_user_player_number(user);
     replay.head.recording_user = get_local_user();
@@ -1457,7 +1445,7 @@ void disable_packet_mode(void)
     close_packet_file();
     replay.load_enable = false;
     replay.save_enable = false;
-    game.easter_eggs_enabled = start_params.easter_egg;
+    get_my_player()->cheats_allowed = game.easter_eggs_enabled;
     remap_local_user_to_solo();
     show_onscreen_msg(2*turns_per_second, "Packet mode disabled");
     set_gui_visible(true);

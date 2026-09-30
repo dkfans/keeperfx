@@ -719,7 +719,7 @@ void frontnet_service_select(struct GuiButton *gbtn)
 {
   int srvidx;
   srvidx = gbtn->content.lval + net_service_scroll_offset - 45;
-  if ( ((game.system_flags & GSF_AllowOnePlayer) != 0)
+  if ( ((local_system_flags & GSF_AllowOnePlayer) != 0)
      && (srvidx+1 >= net_number_of_services) )
   {
       frontend_set_player_number(default_loc_player);

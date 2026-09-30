@@ -2679,7 +2679,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           last_mouse_y = GetMouseY();
           time_last_played_demo = LbTimerClock();
           fe_high_score_table_from_main_menu = true;
-          clear_flag(game.system_flags, GSF_NetworkActive);
+          clear_flag(local_system_flags, GSF_NetworkActive);
           skip_high_score_screen = 0;
           set_pointer_graphic_menu();
           break;
@@ -2704,7 +2704,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_NET_SESSION:
           turn_on_menu(GMnu_FENET_SESSION);
           frontnet_session_setup();
-          clear_flag(game.system_flags, GSF_NetworkActive);
+          clear_flag(local_system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_NET_START:
@@ -2712,7 +2712,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           if (frontend_menu_state != FeSt_MP_MAPPACK_SELECT)
             frontnet_start_setup();
           LbStartTextInput();
-          set_flag(game.system_flags, GSF_NetworkActive);
+          set_flag(local_system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_START_KPRLEVEL:

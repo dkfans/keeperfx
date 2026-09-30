@@ -74,7 +74,6 @@ extern TbBool FLEE_BUTTON_DEFAULT;
 extern unsigned long features_enabled;
 
 extern void setup_players_count();
-extern void set_skip_heart_zoom_feature(TbBool enable);
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 TbBool luascript_loaded = false;
@@ -161,7 +160,7 @@ static TbBool init_level(void)
     //memcpy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
     memcpy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
-    clear_flag(game.system_flags, GSF_RunAfterVictory);
+    game.run_after_victory = false;
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
@@ -350,18 +349,17 @@ TbBool startup_saved_packet_game(void)
         else
             my_player_number = view_plyr;
     }
-    settings.isometric_view_zoom_level = replay.head.isometric_view_zoom_level;
-    settings.frontview_zoom_level = replay.head.frontview_zoom_level;
-    settings.isometric_tilt = replay.head.isometric_tilt;
-    settings.highlight_mode = replay.head.highlight_mode;
-    IMPRISON_BUTTON_DEFAULT = replay.head.default_imprison_tendency;
-    FLEE_BUTTON_DEFAULT = replay.head.default_flee_tendency;
-    set_skip_heart_zoom_feature(replay.head.skip_heart_zoom);
     if (!init_level())
         return false;
     setup_zombie_players();
     init_players();
     restore_users_from_packet_save();
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        const PlayerNumber plyr_idx = get_net_user_player_number(user);
+        if ((plyr_idx >= 0) && (replay.head.user_players[user] >= 0))
+            apply_user_start_settings(get_player(plyr_idx), &replay.head.user_start[user], &replay.head.user_start[SERVER_ID]);
+    }
     frontend_alliances = replay.head.frontend_alliances;
     setup_alliances();
     if (game.human_players_count == 1)
@@ -372,7 +370,7 @@ TbBool startup_saved_packet_game(void)
     post_init_players();
     set_selected_level_number(0);
     struct PlayerInfo* player = get_my_player();
-    set_engine_view(player, rotate_mode_to_view_mode(replay.head.video_rotate_mode));
+    set_engine_view(player, player->view_mode_restore);
     return true;
 }
 
@@ -492,7 +490,7 @@ void clear_complete_game(void)
     fps_limit_secondary = start_params.num_fps_draw_secondary;
     game.mode_flags = start_params.mode_flags;
     game.easter_eggs_enabled = start_params.easter_egg;
-    set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);
+    set_flag_value(local_system_flags, GSF_AllowOnePlayer, start_params.one_player);
     game.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
     snprintf(replay.fname,150, "%s", start_params.packet_fname);

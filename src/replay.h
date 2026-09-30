@@ -34,14 +34,32 @@ struct Packet;
 
 // save file header for .pck files.
 // (Bump the version if this struct or the .pck format changes.)
-#define PACKET_SAVE_HEAD_VER 3
+#define PACKET_SAVE_HEAD_VER 4
 
 enum PacketSaveHeadFlags {
     PSHF_Checksum   = 0x01,
     PSHF_Compressed = 0x02,
-    PSHF_Alex = 0x04,
 };
 
+enum UserStartFlags {
+    USF_CheatsEnabled = 0x01,
+    USF_SkipHeartZoom = 0x02,
+};
+
+// a user's settings as they were at the start of a game.
+struct UserStartSettings {
+    uint8_t video_rotate_mode;
+    uint8_t flags; // UserStartFlags
+    uint16_t tendencies; // CrTend_* flags
+    uint8_t highlight_mode;
+    int32_t isometric_tilt;
+    uint32_t isometric_view_zoom_level;
+    uint32_t frontview_zoom_level;
+    uint32_t zoom_distance;
+    uint32_t frontview_zoom_distance;
+};
+
+// Replay file header.
 struct PacketSaveHead {
     unsigned short game_ver_major;
     unsigned short game_ver_minor;
@@ -50,16 +68,9 @@ struct PacketSaveHead {
     uint32_t level_num;
     PlayerBitFlags players_exist;
     PlayerBitFlags players_comp;
-    uint32_t isometric_view_zoom_level;
-    uint32_t frontview_zoom_level;
-    int isometric_tilt;
-    unsigned char video_rotate_mode;
     uint8_t flags; // PacketSaveHeadFlags
     uint32_t action_seed;
-    TbBool default_imprison_tendency;
-    TbBool default_flee_tendency;
-    TbBool skip_heart_zoom;
-    TbBool highlight_mode;
+    struct UserStartSettings user_start[MAX_NET_USERS];
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
     char frontend_alliances;
@@ -111,7 +122,6 @@ void stop_replay_recording(const char *reason);
 void replay_record_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y);
 void replay_record_paused_action(NetUserId user, const struct Packet *pckt);
 void replay_record_resync(const void *message, size_t message_size);
-TbBool replay_easter_eggs_setting(void);
 TbBool replay_playback_is_paused(void);
 void set_replay_playback_paused(TbBool paused);
 TbBool reinit_packets_after_load(void);

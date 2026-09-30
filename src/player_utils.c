@@ -189,7 +189,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     if (player->victory_state != VicS_Undecided)
     {
         // Suppress redundant warnings
-        if ((game.system_flags & GSF_RunAfterVictory) == 0)
+        if (!game.run_after_victory)
         {
             WARNLOG("Victory state already set to %d",(int)player->victory_state);
         }
@@ -855,12 +855,17 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->work_state = PSt_CtrlDungeon;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
+    player->zoom_distance = zoom_distance_setting;
+    player->frontview_zoom_distance = frontview_zoom_distance_setting;
+    player->cheats_allowed = game.easter_eggs_enabled;
+    player->skip_heart_zoom = get_skip_heart_zoom_feature();
     if (is_my_player(player))
     {
         if (default_tag_mode != 3)
         {
             settings.highlight_mode = default_tag_mode - 1;
         }
+        player->highlight_mode = settings.highlight_mode;
         player->roomspace_highlight_mode = settings.highlight_mode;
         player->roomspace_mode = settings.highlight_mode;
         set_flag(game.operation_flags, GOF_ShowPanel);
@@ -886,11 +891,11 @@ void init_player(struct PlayerInfo *player, short no_explore)
         //workaround until settings are synced through multiplayer
         if (is_my_player(player))
             local_state.minimap_zoom = 256;
-        if (replay.head.isometric_view_zoom_level == 0)
+        if (player->isometric_view_zoom_level == 0)
         {
             player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
         }
-        if (replay.head.frontview_zoom_level == 0)
+        if (player->frontview_zoom_level == 0)
         {
             player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
         }

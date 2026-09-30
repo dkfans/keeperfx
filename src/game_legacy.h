@@ -220,7 +220,7 @@ struct LogDetailedSnapshot {
 
 struct Game {
     LevelNumber continue_level_number;
-    unsigned char system_flags;
+    TbBool run_after_victory;
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
     unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
@@ -400,6 +400,7 @@ extern int32_t fps_limit_current;
 extern int32_t fps_limit_main;
 extern int32_t fps_limit_secondary;
 
+extern unsigned char local_system_flags;
 TbBool network_is_active(void);
 
 /******************************************************************************/

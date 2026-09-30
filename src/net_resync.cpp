@@ -495,8 +495,8 @@ static void finish_resync(const struct Packet *saved_packets)
     initialize_packet_history();
     NETLOG("Input lag after resync: %d turns", game.input_lag_turns);
 
-    clear_flag(game.system_flags, GSF_NetGameNoSync);
-    clear_flag(game.system_flags, GSF_NetSeedNoSync);
+    clear_flag(local_system_flags, GSF_NetGameNoSync);
+    clear_flag(local_system_flags, GSF_NetSeedNoSync);
 }
 
 void resync_game(void)

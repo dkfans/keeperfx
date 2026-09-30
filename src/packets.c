@@ -260,7 +260,7 @@ static int32_t resync_attempt_count = 0;
 
 TbBool is_desync_warning_active(void)
 {
-    return resync_attempt_count >= RESYNC_LIMIT_BEFORE_COOLDOWN && (game.system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0;
+    return resync_attempt_count >= RESYNC_LIMIT_BEFORE_COOLDOWN && (local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0;
 }
 
 static TbBool resync_game_allowed(void)
@@ -562,7 +562,7 @@ void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt,
             break;
         }
     }
-    const int32_t zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
+    const int32_t zoom_min = (cam->view_mode == PVM_FrontView) ? player->frontview_zoom_distance : max(CAMERA_ZOOM_MIN, player->zoom_distance);
     const int32_t zoom_max = CAMERA_ZOOM_MAX;
     const TbBool use_zoom_pos = flag_is_set(pckt->control_flags, PCtr_ViewZoomPos | PCtr_MapCoordsValid);
     const MapCoord zoom_x = use_zoom_pos ? pckt->pos_x : -1;
@@ -626,7 +626,7 @@ void process_user_dungeon_control_packet_control(NetUserId user)
     // A parchment map jump's controls were made on the parchment, not for the dungeon camera it jumps.
     if (pckt->action != PckA_ZoomFromMap)
         process_camera_controls(cam, pckt, player);
-    if (is_my_player(player)) {
+    if (is_my_player(player) && !replay.load_enable) {
         TbBool settings_changed = false;
         if ((pckt->control_flags & (PCtr_ViewTiltUp | PCtr_ViewTiltDown | PCtr_ViewTiltReset)) != 0) {
             settings.isometric_tilt = cam->rotation_angle_y;
@@ -864,7 +864,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       set_player_mode(player, pckt->actn_par1);
       return 0;
   case PckA_ZoomFromMap:
-      if (parchment_map_fade_enabled())
+      if (parchment_map_fade_enabled(user))
       {
         set_player_mode(player, PVT_MapFadeOut);
       } else
@@ -1059,7 +1059,8 @@ TbBool process_user_global_packet_action(NetUserId user)
     }
     case PckA_RoomspaceHighlightToggle:
     {
-        if (is_my_player(player))
+        player->highlight_mode = pckt->actn_par1;
+        if (is_my_player(player) && !replay.load_enable)
         {
             settings.highlight_mode = pckt->actn_par1;
             if (default_tag_mode == 3)
@@ -1685,11 +1686,11 @@ void exchange_packets(void)
     }
 
     if (network_is_active() && checksums_different()) {
-        set_flag(game.system_flags, GSF_NetGameNoSync);
-        clear_flag(game.system_flags, GSF_NetSeedNoSync);
+        set_flag(local_system_flags, GSF_NetGameNoSync);
+        clear_flag(local_system_flags, GSF_NetSeedNoSync);
     } else {
-        clear_flag(game.system_flags, GSF_NetGameNoSync);
-        clear_flag(game.system_flags, GSF_NetSeedNoSync);
+        clear_flag(local_system_flags, GSF_NetGameNoSync);
+        clear_flag(local_system_flags, GSF_NetSeedNoSync);
     }
 }
 
@@ -1744,7 +1745,7 @@ void process_packets(void)
         return;
     }
     if (network_is_active()
-     && ((game.system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0))
+     && ((local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0))
     {
         if (resync_game_allowed()) {
             SYNCDBG(0,"Resyncing");

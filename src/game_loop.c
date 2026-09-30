@@ -1002,19 +1002,19 @@ static TbBool wait_at_frontend(void)
     case FeSt_START_KPRLEVEL:
           my_player_number = default_loc_player;
           game.game_kind = GKind_LocalGame;
-          clear_flag(game.system_flags, GSF_NetworkActive);
+          clear_flag(local_system_flags, GSF_NetworkActive);
           startup_network_game(&loop, true);
           break;
     case FeSt_START_MPLEVEL:
           memset(&intralvl, 0, sizeof(struct IntralevelData));
-          set_flag(game.system_flags, GSF_NetworkActive);
+          set_flag(local_system_flags, GSF_NetworkActive);
           skip_high_score_screen = 1;
           game.game_kind = GKind_MultiGame;
           startup_network_game(&loop, false);
           break;
     case FeSt_LOAD_GAME:
           flgmem = game.save_game_slot;
-          clear_flag(game.system_flags, GSF_NetworkActive);
+          clear_flag(local_system_flags, GSF_NetworkActive);
           RendererClearScreen(0);
           RendererPresentFrame();
           level_load_time_phase(LevelLoadTime_Data);
@@ -1069,33 +1069,20 @@ void game_loop(void)
       int32_t mspos_x_bak = lbDisplay.MMouseX;
       int32_t mspos_y_bak = lbDisplay.MMouseY;
 
-      if (game.game_kind == GKind_LocalGame)
+      if ((game.game_kind != GKind_LocalGame) || (game.save_game_slot == -1))
       {
-        if (game.save_game_slot == -1)
-        {
-            if (is_feature_on(Ft_SkipHeartZoom) == false) {
-                for (int i = 0; i < PLAYERS_COUNT; i++) {
-                    struct PlayerInfo *player = get_player(i);
-                    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0)) {
-                        set_player_instance(player, PI_HeartZoom, 0);
-                    }
-                }
-            } else {
-                if (!replay.load_enable) {
-                    toggle_status_menu(1); // Required when skipping PI_HeartZoom
-                }
-            }
-        } else
-        {
-          game.save_game_slot = -1;
-        }
-      } else {
           for (int i = 0; i < PLAYERS_COUNT; i++) {
               struct PlayerInfo *player = get_player(i);
-              if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0)) {
+              if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player->skip_heart_zoom) {
                   set_player_instance(player, PI_HeartZoom, 0);
               }
           }
+          if (get_my_player()->skip_heart_zoom && !replay.load_enable) {
+              toggle_status_menu(1); // Required when skipping PI_HeartZoom
+          }
+      } else
+      {
+          game.save_game_slot = -1;
       }
 
       // Try to keep the mouse position unchanged when entering the level.
@@ -1120,7 +1107,7 @@ void game_loop(void)
       GameT.Hours = 0;
       if (!TimerNoReset)
       {
-          if (is_feature_on(Ft_SkipHeartZoom))
+          if (get_my_player()->skip_heart_zoom)
           {
               timerstarttime = starttime;
           }
@@ -1161,11 +1148,10 @@ void game_loop(void)
       close_packet_file();
       replay.load_enable = false;
       replay.save_enable = false;
-      game.easter_eggs_enabled = start_params.easter_egg;
     } // end while
 
     // Stop the movie recording if it's on
-    if ((game.system_flags & GSF_CaptureMovie) != 0) {
+    if ((local_system_flags & GSF_CaptureMovie) != 0) {
         movie_record_stop();
     }
     ShutDownSDLAudio();

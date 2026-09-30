@@ -510,14 +510,14 @@ short get_screen_capture_inputs(void)
 {
   if (is_game_key_pressed(Gkey_ScreenRecord, true, false))
   {
-      if ((game.system_flags & GSF_CaptureMovie) != 0)
+      if ((local_system_flags & GSF_CaptureMovie) != 0)
         movie_record_stop();
       else
         movie_record_start();
   }
   if (is_game_key_pressed(Gkey_ScreenShot, true, false))
   {
-      set_flag(game.system_flags, GSF_CaptureSShot);
+      set_flag(local_system_flags, GSF_CaptureSShot);
   }
   return false;
 }
@@ -1163,7 +1163,7 @@ static TbBool get_level_lost_inputs(void)
         {
           turn_off_all_window_menus();
           set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-          if (parchment_map_fade_enabled())
+          if (parchment_map_fade_enabled(get_local_user()))
           {
                 set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0,0,0);
           } else

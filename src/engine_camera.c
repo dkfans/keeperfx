@@ -231,8 +231,8 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
         new_zoom = (85 * old_zoom) / 100;
         if (new_zoom == old_zoom)
             new_zoom--;
-        if (new_zoom < max(FRONTVIEW_CAMERA_ZOOM_MIN, frontview_zoom_distance_setting)) {
-            new_zoom = max(FRONTVIEW_CAMERA_ZOOM_MIN, frontview_zoom_distance_setting);
+        if (new_zoom < max(FRONTVIEW_CAMERA_ZOOM_MIN, limit_min)) {
+            new_zoom = max(FRONTVIEW_CAMERA_ZOOM_MIN, limit_min);
         } else
         if (new_zoom > FRONTVIEW_CAMERA_ZOOM_MAX) {
             new_zoom = FRONTVIEW_CAMERA_ZOOM_MAX;

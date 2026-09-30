@@ -305,7 +305,7 @@ TbError LbNetwork_Stop(void)
     if (netstate.sp) {
         netstate.sp->exit();
     }
-    clear_flag(game.system_flags, GSF_NetworkActive);
+    clear_flag(local_system_flags, GSF_NetworkActive);
     memset(&netstate, 0, sizeof(netstate));
     netstate.my_id = INVALID_USER_ID;
     return Lb_OK;
