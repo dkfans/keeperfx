@@ -60,6 +60,7 @@ struct UserStartSettings;
 struct PlayerInfo;
 void build_local_user_start_settings(struct UserStartSettings *us);
 void apply_user_start_settings(struct PlayerInfo *player, const struct UserStartSettings *us, const struct UserStartSettings *host);
+void apply_recorded_network_stop(void);
 TbBool get_startup_user_settings(NetUserId user, struct UserStartSettings *us);
 TbBool network_is_host(void);
 PlayerNumber get_net_user_player_number(NetUserId user);

@@ -551,6 +551,7 @@ enum LongTurnReplayRecordKind {
     LTK_ChatCommand = 2, // payload: uint16_t user, int32_t cursor_x, int32_t cursor_y, command text
     LTK_PausedAction = 3, // payload: uint16_t user, uint8_t action, int32_t par1, int32_t par2, int16_t par3, int16_t par4
     LTK_Resync = 4, // payload: the resync message as sent by the host (its header, then zlib-compressed data)
+    LTK_NetworkStopped = 5, // no payload: lost the host, continued locally
     // TODO: resyncs / state transfers?
     // Could also carry cheat menu buttons, API actions, etc.
 };
@@ -709,6 +710,10 @@ static TbBool read_long_turn_records(TbBool apply)
                 game.packets[user] = saved;
             } else
                 WARNLOG("Paused action for invalid user %u in Packet File", (unsigned)user);
+        } else
+        if (apply && (kind == LTK_NetworkStopped))
+        {
+            apply_recorded_network_stop();
         }
         if ((len > used) && !skip_packet_bytes(len - used))
             return false;
@@ -1026,6 +1031,14 @@ void replay_record_paused_action(NetUserId user, const struct Packet *pckt)
     memcpy(payload + len, par34, sizeof(par34));
     len += sizeof(par34);
     replay_write_record(LTK_PausedAction, payload, len);
+}
+
+void replay_record_network_stopped(void)
+{
+    if (!replay.save_enable || !replay.fopened)
+        return;
+    static const unsigned char no_payload = 0;
+    replay_write_record(LTK_NetworkStopped, &no_payload, 0);
 }
 
 void replay_record_resync(const void *message, size_t message_size)

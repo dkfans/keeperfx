@@ -474,6 +474,21 @@ static TbBool network_has_remote_users_remaining(void)
     return false;
 }
 
+static TbBool replay_has_remote_humans(void)
+{
+    const NetUserId local_user = get_local_user();
+    for (NetUserId user_id = 0; user_id < MAX_NET_USERS; user_id++) {
+        if (user_id == local_user) {
+            continue;
+        }
+        const struct PlayerInfo *player = get_player(get_net_user_player_number(user_id));
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static void replace_network_player_with_ai(struct PlayerInfo *player)
 {
     player->allocflags |= PlaF_CompCtrl | PlaF_Placeholder;
@@ -527,6 +542,7 @@ static void stop_network_game_state(void)
     clear_flag(local_system_flags, GSF_NetGameNoSync);
     clear_flag(local_system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;
+    game.game_kind = GKind_LocalGame;
     game.input_lag_turns = 0;
     game.skip_initial_input_turns = 0;
     input_lag_reset();
@@ -543,8 +559,12 @@ static void stop_network_game_and_quit_to_main_menu(void)
 
 static void stop_network_game_and_continue_locally(void)
 {
-    LbNetwork_Stop();
-    stop_network_game_state();
+    if (network_is_active()) {
+        LbNetwork_Stop();
+        stop_network_game_state();
+    } else {
+        game.game_kind = GKind_LocalGame;
+    }
     get_my_player()->display_objective_turn = get_gameturn() + 1;
 }
 
@@ -653,6 +673,8 @@ void process_player_leave_game_packet(struct PlayerInfo *player)
             remove_user_from_game(user, user != SERVER_ID);
             if (network_is_active()) {
                 leave_network_if_alone();
+            } else if (replay.load_enable && !replay_has_remote_humans()) {
+                stop_network_game_and_continue_locally();
             }
             return;
         }
@@ -707,6 +729,19 @@ void process_disconnected_network_players(void)
     message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (user != netstate.my_id) {
+            remove_user_from_game(user, false);
+        }
+    }
+    replay_record_network_stopped();
+    stop_network_game_and_continue_locally();
+}
+
+void apply_recorded_network_stop(void)
+{
+    message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
+    const NetUserId local_user = get_local_user();
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (user != local_user) {
             remove_user_from_game(user, false);
         }
     }

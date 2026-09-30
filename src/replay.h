@@ -123,6 +123,7 @@ void stop_replay_recording(const char *reason);
 void replay_record_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y);
 void replay_record_paused_action(NetUserId user, const struct Packet *pckt);
 void replay_record_resync(const void *message, size_t message_size);
+void replay_record_network_stopped(void);
 TbBool replay_playback_is_paused(void);
 void set_replay_playback_paused(TbBool paused);
 TbBool reinit_packets_after_load(void);
