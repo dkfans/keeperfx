@@ -124,63 +124,31 @@ const struct NamedCommand atmos_freq[] = {
   {NULL,  0},
   };
 
+enum KeeperFXConfigCommand {
+  KfxCfg_None = 0,
+#define KFXCFG(name, values, cfg_default, absent_default) KfxCfg_##name,
+#define KFXCFG_DEPRECATED(name) KfxCfg_##name,
+#include "config.x"
+#undef KFXCFG
+#undef KFXCFG_DEPRECATED
+};
+
 const struct NamedCommand conf_commands[] = {
-  {"INSTALL_PATH",         1},
-  {"INSTALL_TYPE",         2},
-  {"LANGUAGE",             3},
-  {"KEYBOARD",             4},
-  {"SCREENSHOT",           5},
-  {"FRONTEND_RES",         6},
-  {"INGAME_RES",           7},
-  {"CENSORSHIP",           8},
-  {"POINTER_SENSITIVITY",  9},
-  {"ATMOSPHERIC_SOUNDS",  10},
-  {"ATMOS_VOLUME",        11},
-  {"ATMOS_FREQUENCY",     12},
-  {"ATMOS_SAMPLES",       13},
-  {"RESIZE_MOVIES",       14},
-  {"GUI_BLINK_RATE",      15},
-  {"NEUTRAL_FLASH_RATE",  16},
-  {"FREEZE_GAME_ON_FOCUS_LOST"     , 17},
-  {"UNLOCK_CURSOR_WHEN_GAME_PAUSED", 18},
-  {"LOCK_CURSOR_IN_POSSESSION"     , 19},
-  {"PAUSE_MUSIC_WHEN_GAME_PAUSED"  , 20},
-  {"MUTE_AUDIO_ON_FOCUS_LOST"      , 21},
-  {"STARTUP"                       , 22},
-  {"SKIP_HEART_ZOOM"               , 23},
-  {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
-  {"DELTA_TIME"                    , 25},
-  {"CREATURE_STATUS_SIZE"          , 26},
-  {"MAX_ZOOM_DISTANCE"             , 27},
-  {"DISPLAY_NUMBER"                , 28},
-  {"MUSIC_FROM_DISK"               , 29},
-  {"HAND_SIZE"                     , 30},
-  {"LINE_BOX_SIZE"                 , 31},
-  {"COMMAND_CHAR"                  , 32},
-  {"API_ENABLED"                   , 33},
-  {"API_PORT"                      , 34},
-  {"EXIT_ON_LUA_ERROR"             , 35},
-  {"TURNS_PER_SECOND"              , 36},
-  {"FLEE_BUTTON_DEFAULT"           , 37},
-  {"IMPRISON_BUTTON_DEFAULT"       , 38},
-  {"FRAMES_PER_SECOND"             , 39},
-  {"TAG_MODE_TOGGLING"             , 40},
-  {"DEFAULT_TAG_MODE"              , 41},
-  {"ZOOM_TO_MOUSE"                 , 42},
-  {"ROTATE_AROUND_MOUSE"           , 43},
-  {"VSYNC"                         , 44},
-  {"RELATIVE_MOUSE_MODE"           , 45},
-  {"CAPTURE_CURSOR"                , 46},
-  {"MATCHMAKING_SERVER"            , 47},
-  {"MULTIPLAYER_PORT"              , 48},
-  {"RENDERER"                      , 49},
-  {"VIEWPORT_MODE"                 , 50},
-  {"PARCHMENT_MAP_FADE"            , 51},
-  {"AUTOMATIC_REPLAYS"             , 52},
-  {"MAX_REPLAYS"                   , 53},
-  {"REPLAY_MAX_SIZE"               , 54},
-  {NULL,                   0},
+#define KFXCFG(name, values, cfg_default, absent_default) {#name, KfxCfg_##name},
+#define KFXCFG_DEPRECATED(name) {#name, KfxCfg_##name},
+#include "config.x"
+#undef KFXCFG
+#undef KFXCFG_DEPRECATED
+  {NULL, 0},
   };
+
+__attribute__((used)) const char kfx_config_x[] = "\x01" "KEEPERFX_CONFIG_X" "\x02" "\n"
+#define KFXCFG(name, values, cfg_default, absent_default) "KFXCFG(" #name ", " #values ", " #cfg_default ", " #absent_default ")\n"
+#define KFXCFG_DEPRECATED(name) "KFXCFG_DEPRECATED(" #name ")\n"
+#include "config.x"
+#undef KFXCFG
+#undef KFXCFG_DEPRECATED
+  ;
 
   const struct NamedCommand viewport_mode_desc[] = {
   {"ORIGINAL",       VpMode_Original},
@@ -437,7 +405,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
       char word_buf[128];
       switch (cmd_num)
       {
-      case 1: // INSTALL_PATH
+      case KfxCfg_INSTALL_PATH:
           i = get_conf_parameter_whole(buf,&pos,len,install_info.inst_path,sizeof(install_info.inst_path));
           if (i <= 0)
           {
@@ -456,7 +424,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               install_info.inst_path[sizeof(install_info.inst_path)-1] = '\0';
           }
           break;
-      case 3: // LANGUAGE
+      case KfxCfg_LANGUAGE:
           i = recognize_conf_parameter(buf,&pos,len,lang_type);
           if (i <= 0)
           {
@@ -466,7 +434,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           install_info.lang_id = i;
           break;
-      case 5: // SCREENSHOT
+      case KfxCfg_SCREENSHOT:
           i = recognize_conf_parameter(buf,&pos,len,scrshot_type);
           if (i <= 0)
           {
@@ -476,7 +444,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           screenshot_format = i;
           break;
-      case 6: // FRONTEND_RES
+      case KfxCfg_FRONTEND_RES:
           for (i=0; i<3; i++)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -503,7 +471,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             }
           }
           break;
-      case 7: // INGAME_RES
+      case KfxCfg_INGAME_RES:
           for (i=0; i<MAX_GAME_VIDMODE_COUNT; i++)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -525,7 +493,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             }
           }
           break;
-      case 8: // CENSORSHIP
+      case KfxCfg_CENSORSHIP:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -538,7 +506,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_Censorship;
           break;
-      case 9: // POINTER_SENSITIVITY
+      case KfxCfg_POINTER_SENSITIVITY:
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
@@ -550,7 +518,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
                 COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 10: // Atmospheric sound
+      case KfxCfg_ATMOSPHERIC_SOUNDS:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -563,7 +531,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_Atmossounds;
           break;
-      case 11: // Atmospheric Sound Volume
+      case KfxCfg_ATMOS_VOLUME:
           i = recognize_conf_parameter(buf,&pos,len,atmos_volume);
           if (i <= 0)
           {
@@ -575,7 +543,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             atmos_sound_volume = i;
             break;
           }
-      case 12: // Atmospheric Sound Frequency - Chance of 1 in X
+      case KfxCfg_ATMOS_FREQUENCY: // Chance of 1 in X
           i = recognize_conf_parameter(buf,&pos,len,atmos_freq);
           if (i <= 0)
           {
@@ -587,7 +555,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             atmos_sound_frequency = i;
             break;
           }
-      case 13: // Atmos_samples
+      case KfxCfg_ATMOS_SAMPLES:
           for (i=0; i<3; i++)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -614,7 +582,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             }
           }
           break;
-      case 14: // Resize Movies
+      case KfxCfg_RESIZE_MOVIES:
           i = recognize_conf_parameter(buf,&pos,len,vidscale_type);
           if (i < 0)
           {
@@ -629,7 +597,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             features_enabled &= ~Ft_Resizemovies;
           }
           break;
-      case 15: // GUI_BLINK_RATE
+      case KfxCfg_GUI_BLINK_RATE:
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               i = atoi(word_buf);
@@ -646,7 +614,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           gui_blink_rate = i;
           break;
-      case 16: // NEUTRAL_FLASH_RATE
+      case KfxCfg_NEUTRAL_FLASH_RATE:
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               i = atoi(word_buf);
@@ -663,7 +631,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           neutral_flash_rate = i;
           break;
-      case 17: // FREEZE_GAME_ON_FOCUS_LOST
+      case KfxCfg_FREEZE_GAME_ON_FOCUS_LOST:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -676,7 +644,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_FreezeOnLoseFocus;
           break;
-      case 18: // UNLOCK_CURSOR_WHEN_GAME_PAUSED
+      case KfxCfg_UNLOCK_CURSOR_WHEN_GAME_PAUSED:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -689,7 +657,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_UnlockCursorOnPause;
           break;
-      case 19: // LOCK_CURSOR_IN_POSSESSION
+      case KfxCfg_LOCK_CURSOR_IN_POSSESSION:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -702,7 +670,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_LockCursorInPossession;
           break;
-      case 20: // PAUSE_MUSIC_WHEN_GAME_PAUSED
+      case KfxCfg_PAUSE_MUSIC_WHEN_GAME_PAUSED:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -715,7 +683,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_PauseMusicOnGamePause;
           break;
-      case 21: // MUTE_AUDIO_ON_FOCUS_LOST
+      case KfxCfg_MUTE_AUDIO_ON_FOCUS_LOST:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -728,7 +696,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_MuteAudioOnLoseFocus;
           break;
-        case 22: // STARTUP
+        case KfxCfg_STARTUP:
           start_params.startup_flags = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
@@ -757,7 +725,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               }
           }
           break;
-        case 24: //CURSOR_EDGE_CAMERA_PANNING
+        case KfxCfg_CURSOR_EDGE_CAMERA_PANNING:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -770,7 +738,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled |= Ft_DisableCursorCameraPanning;
           break;
-        case 25: //DELTA_TIME
+        case KfxCfg_DELTA_TIME:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -783,7 +751,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_DeltaTime;
           break;
-      case 26: // CREATURE_STATUS_SIZE
+      case KfxCfg_CREATURE_STATUS_SIZE:
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
@@ -794,7 +762,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 27: // MAX_ZOOM_DISTANCE
+      case KfxCfg_MAX_ZOOM_DISTANCE:
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
@@ -807,7 +775,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 28: // DISPLAY_NUMBER
+      case KfxCfg_DISPLAY_NUMBER:
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
@@ -818,7 +786,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 29: // MUSIC_FROM_DISK
+      case KfxCfg_MUSIC_FROM_DISK:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -831,7 +799,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_NoCdMusic;
           break;
-      case 30: // HAND_SIZE
+      case KfxCfg_HAND_SIZE:
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
@@ -842,7 +810,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 31: // LINE_BOX_SIZE
+      case KfxCfg_LINE_BOX_SIZE:
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
@@ -853,7 +821,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 33: // API_ENABLED
+      case KfxCfg_API_ENABLED:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -863,7 +831,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           api_enabled = (i == 1);
           break;
-      case 34: // API_PORT
+      case KfxCfg_API_PORT:
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
@@ -874,7 +842,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               CONFWRNLOG("Invalid API port '%s' in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 35: // EXIT_ON_LUA_ERROR
+      case KfxCfg_EXIT_ON_LUA_ERROR:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -884,7 +852,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           exit_on_lua_error = (i == 1);
           break;
-      case 36: // TURNS_PER_SECOND
+      case KfxCfg_TURNS_PER_SECOND:
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               i = atoi(word_buf);
@@ -900,7 +868,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
-      case 37: // FLEE_BUTTON_DEFAULT
+      case KfxCfg_FLEE_BUTTON_DEFAULT:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -914,7 +882,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               FLEE_BUTTON_DEFAULT = false;
           }
           break;
-      case 38: // IMPRISON_BUTTON_DEFAULT
+      case KfxCfg_IMPRISON_BUTTON_DEFAULT:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -928,7 +896,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               IMPRISON_BUTTON_DEFAULT = false;
           }
           break;
-      case 39: // FRAMES_PER_SECOND
+      case KfxCfg_FRAMES_PER_SECOND:
           if (!start_params.overrides[Clo_FramesPerSecond] && get_conf_parameter_whole(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               i = parse_draw_fps_config_val(word_buf, &start_params.num_fps_draw_main, &start_params.num_fps_draw_secondary);
@@ -936,7 +904,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
                   CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
-      case 40: // TAG_MODE_TOGGLING
+      case KfxCfg_TAG_MODE_TOGGLING:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -946,7 +914,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           right_click_tag_mode_toggle = (i == 1);
           break;
-      case 41: // DEFAULT_TAG_MODE
+      case KfxCfg_DEFAULT_TAG_MODE:
           i = recognize_conf_parameter(buf,&pos,len,tag_modes);
           if (i <= 0)
           {
@@ -957,7 +925,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             default_tag_mode = i;
           }
           break;
-      case 42: // ZOOM_TO_MOUSE
+      case KfxCfg_ZOOM_TO_MOUSE:
           i = recognize_conf_parameter(buf, &pos, len, logicval_type);
           if (i == 1)
           {
@@ -981,7 +949,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                      COMMAND_TEXT(cmd_num), config_textname);
           break;
-      case 43: // ROTATE_AROUND_MOUSE
+      case KfxCfg_ROTATE_AROUND_MOUSE:
           i = recognize_conf_parameter(buf, &pos, len, logicval_type);
           if (i == 1)
           {
@@ -1005,7 +973,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                      COMMAND_TEXT(cmd_num), config_textname);
           break;
-      case 44: // VSYNC
+      case KfxCfg_VSYNC:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -1015,7 +983,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           vsync_enabled = (i == 1);
           break;
-      case 45: // RELATIVE_MOUSE_MODE
+      case KfxCfg_RELATIVE_MOUSE_MODE:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -1028,7 +996,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_RelativeMouseMode;
           break;
-      case 46: // CAPTURE_CURSOR
+      case KfxCfg_CAPTURE_CURSOR:
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -1038,7 +1006,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           if (i!=1) lbMouseGrab = false;
           break;
-      case 47: // MATCHMAKING_SERVER
+      case KfxCfg_MATCHMAKING_SERVER:
           get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf));
           if (get_id(logicval_type, word_buf) == 2)
           {
@@ -1053,7 +1021,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
               SYNCLOG("Matchmaking server: %s", matchmaking_ws_url);
           }
           break;
-      case 48: // MULTIPLAYER_PORT
+      case KfxCfg_MULTIPLAYER_PORT:
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
             i = atoi(word_buf);
@@ -1064,7 +1032,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
             CONFWRNLOG("Invalid MULTIPLAYER_PORT '%s' in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
-      case 49: // RENDERER
+      case KfxCfg_RENDERER:
           i = recognize_conf_parameter(buf,&pos,len,renderer_type_desc);
           if (i <= 0)
           {
@@ -1074,7 +1042,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           requested_renderer_type = i;
           break;
-      case 50: // VIEWPORT_MODE
+      case KfxCfg_VIEWPORT_MODE:
           i = recognize_conf_parameter(buf,&pos,len,viewport_mode_desc);
           if (i <= 0)
           {
@@ -1084,7 +1052,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           viewport_mode = i;
           break;
-      case 51: // PARCHMENT_MAP_FADE
+      case KfxCfg_PARCHMENT_MAP_FADE:
           i = recognize_conf_parameter(buf, &pos, len, logicval_type);
           if (i <= 0)
           {
@@ -1097,7 +1065,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           else
               features_enabled &= ~Ft_ParchmentFade;
           break;
-      case 52: // AUTOMATIC_REPLAYS
+      case KfxCfg_AUTOMATIC_REPLAYS:
           i = recognize_conf_parameter(buf, &pos, len, logicval_type);
           if (i <= 0)
           {
@@ -1107,22 +1075,27 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           replays_enabled = (i == 1);
           break;
-      case 53: // MAX_REPLAYS
-          i = 0;
-          for (int typ = 0; typ < ReplTyp_Count; typ++)
+      case KfxCfg_MAX_REPLAYS_CAMPAIGN:
+      case KfxCfg_MAX_REPLAYS_FREEPLAY:
+      case KfxCfg_MAX_REPLAYS_MULTIPLAYER:
+          i = -1;
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-              {
-                  i = atoi(word_buf);
-                  if (i < 0) {
-                      CONFWRNLOG("Invalid \"%s\" value in %s file.",COMMAND_TEXT(cmd_num),config_textname);
-                      i = 0;
-                  }
-              }
-              max_replays[typ] = i;
+              i = atoi(word_buf);
           }
+          if (i < 0)
+          {
+              CONFWRNLOG("Invalid \"%s\" value in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+              break;
+          }
+          if (cmd_num == KfxCfg_MAX_REPLAYS_CAMPAIGN)
+              max_replays[ReplTyp_Campaign] = i;
+          else if (cmd_num == KfxCfg_MAX_REPLAYS_FREEPLAY)
+              max_replays[ReplTyp_Freeplay] = i;
+          else
+              max_replays[ReplTyp_Multiplayer] = i;
           break;
-      case 54: // REPLAY_MAX_SIZE
+      case KfxCfg_REPLAY_MAX_SIZE:
           i = -1;
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
@@ -1139,10 +1112,10 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           break;
       case ccr_endOfFile:
           break;
-      case 2: // INSTALL_TYPE
-      case 4: // KEYBOARD
-      case 23: //SKIP_HEART_ZOOM
-      case 32: // COMMAND_CHAR
+      case KfxCfg_INSTALL_TYPE:
+      case KfxCfg_KEYBOARD:
+      case KfxCfg_SKIP_HEART_ZOOM:
+      case KfxCfg_COMMAND_CHAR:
           CONFLOG("The \"%s\" setting is depricated.", COMMAND_TEXT(cmd_num));
           break;
       default:
