@@ -386,31 +386,10 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
 const char * gui_string(unsigned int index)
 {
     static char string_invalid[64];
-    static const char *lobby_defaults[] = {
-        "State",
-        "Version",
-        "Unknown",
-        "Lobby",
-        "In-game",
-        "Map",
-        "Player list unavailable",
-        "Maximum players",
-        "Allow observers",
-        "Settings",
-        "Confirm",
-        "Game has already started.",
-        "Joining is temporarily locked.",
-        "Lobby is full.",
-        "The host is using a different game version.",
-        "Lobby Name",
-    };
 
     if (index >= GUI_STRINGS_COUNT) {
         snprintf(string_invalid, sizeof(string_invalid), "untranslated <%d>", index);
         return string_invalid;
-    }
-    if (index >= GUIStr_NetState - GUI_STRINGS_START && index <= GUIStr_NetLobbyName - GUI_STRINGS_START && (!gui_strings[index] || !*gui_strings[index])) {
-        return lobby_defaults[index - (GUIStr_NetState - GUI_STRINGS_START)];
     }
     return gui_strings[index];
 }
