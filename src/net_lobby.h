@@ -27,6 +27,12 @@ extern "C" {
 #endif
 
 extern uint32_t network_lobby_ping;
+extern int32_t net_lobby_max_players;
+
+void net_lobby_refresh_metadata(void);
+void net_lobby_metadata(char *metadata);
+void net_lobby_set_phase(enum NetSessionPhase phase);
+enum NetJoinRejection net_lobby_join_rejection(void);
 
 TbError LbNetwork_ExchangeLogin(char *player_name);
 TbError LbNetwork_ExchangeFrontend(void *send_buf, void *server_buf, size_t frame_size);

@@ -179,7 +179,7 @@ int32_t zoom_out_for_view(int32_t old_zoom, unsigned char view_mode, int32_t lim
     case PVM_IsoStraightView:
         return zoom_out_step(old_zoom, limit_max, limit_min);
     case PVM_FrontView:
-        return zoom_out_step(old_zoom, FRONTVIEW_CAMERA_ZOOM_MAX, max(FRONTVIEW_CAMERA_ZOOM_MIN, frontview_zoom_distance_setting));
+        return zoom_out_step(old_zoom, FRONTVIEW_CAMERA_ZOOM_MAX, max(FRONTVIEW_CAMERA_ZOOM_MIN, limit_min));
     default:
         return old_zoom;
     }

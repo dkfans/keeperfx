@@ -49,6 +49,22 @@
 #include "packets.h"
 #include "post_inc.h"
 
+const char *net_join_error_text(enum NetJoinRejection reason)
+{
+    switch (reason) {
+    case NetJoin_InGame:
+        return get_string(GUIStr_NetGameStarted);
+    case NetJoin_Locked:
+        return get_string(GUIStr_NetJoiningLocked);
+    case NetJoin_Full:
+        return get_string(GUIStr_NetLobbyFull);
+    case NetJoin_Version:
+        return get_string(GUIStr_NetDifferentVersion);
+    default:
+        return NULL;
+    }
+}
+
 /******************************************************************************/
 void frontnet_session_up_maintain(struct GuiButton *gbtn)
 {
@@ -57,7 +73,7 @@ void frontnet_session_up_maintain(struct GuiButton *gbtn)
 
 void frontnet_session_down_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_sessions - 1 > net_session_scroll_offset)) & LbBtnF_Enabled;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_sessions - frontend_sessions_menu_items_visible > net_session_scroll_offset)) & LbBtnF_Enabled;
 }
 
 void frontnet_session_maintain(struct GuiButton *gbtn)
@@ -73,18 +89,6 @@ void frontnet_players_up_maintain(struct GuiButton *gbtn)
 void frontnet_players_down_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_enum_players - 1 > net_player_scroll_offset)) & LbBtnF_Enabled;
-}
-
-static TbBool frontnet_can_join_session(void)
-{
-    return (net_session_index_active >= 0)
-        && (net_session_index_active < net_number_of_sessions)
-        && (net_session[net_session_index_active] != NULL);
-}
-
-void frontnet_join_game_maintain(struct GuiButton *gbtn)
-{
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * frontnet_can_join_session()) & LbBtnF_Enabled;
 }
 
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
@@ -155,25 +159,23 @@ void frontnet_session_set_player_name(struct GuiButton *gbtn)
 
 void frontnet_draw_text_bar(struct GuiButton *gbtn)
 {
-    const struct TbSprite *spr;
-    int i;
-    long pos_x;
-    long pos_y;
-    pos_x = gbtn->scr_pos_x;
-    pos_y = gbtn->scr_pos_y;
-    int fs_units_per_px;
-    fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_largearea_nx1_tx5_c, 100);
-    spr = get_frontend_sprite(GFS_largearea_nx1_cor_l);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = get_frontend_sprite(GFS_largearea_nx1_tx5_c);
-    for (i=0; i < 4; i++)
-    {
-        LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-        pos_x += spr->SWidth * fs_units_per_px / 16;
+    int scale = simple_frontend_sprite_height_units_per_px(gbtn, GFS_largearea_nx1_tx5_c, 100);
+    const struct TbSprite *left = get_frontend_sprite(GFS_largearea_nx1_cor_l);
+    const struct TbSprite *middle = get_frontend_sprite(GFS_largearea_nx1_tx5_c);
+    const struct TbSprite *right = get_frontend_sprite(GFS_largearea_nx1_cor_r);
+    int left_width = left->SWidth * scale / 16;
+    int right_width = right->SWidth * scale / 16;
+    int middle_width = gbtn->width - left_width - right_width;
+    LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, scale, left);
+    LbSpriteDrawResized(gbtn->scr_pos_x + gbtn->width - right_width, gbtn->scr_pos_y, scale, right);
+    struct GraphicsWindow window;
+    LbScreenStoreGraphicsWindow(&window);
+    LbScreenSetGraphicsWindow(gbtn->scr_pos_x + left_width, gbtn->scr_pos_y, middle_width, gbtn->height);
+    int tile_width = max(1, middle->SWidth * scale / 16);
+    for (int x = 0; x < middle_width; x += tile_width) {
+        LbSpriteDrawResized(x, 0, scale, middle);
     }
-    spr = get_frontend_sprite(GFS_largearea_nx1_cor_r);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
+    LbScreenLoadGraphicsWindow(&window);
 }
 
 void frontnet_session_up(struct GuiButton *gbtn)
@@ -184,13 +186,14 @@ void frontnet_session_up(struct GuiButton *gbtn)
 
 void frontnet_session_down(struct GuiButton *gbtn)
 {
-    if (net_session_scroll_offset < net_number_of_sessions - 1)
-      net_session_scroll_offset++;
+    if (net_session_scroll_offset < net_number_of_sessions - frontend_sessions_menu_items_visible) {
+        net_session_scroll_offset++;
+    }
 }
 
 void frontnet_draw_sessions_scroll_tab(struct GuiButton *gbtn)
 {
-    frontend_draw_scroll_tab(gbtn, net_session_scroll_offset, 0, net_number_of_sessions);
+    frontend_draw_scroll_tab(gbtn, net_session_scroll_offset, frontend_sessions_menu_items_visible, net_number_of_sessions);
 }
 
 void frontnet_players_up(struct GuiButton *gbtn)
@@ -243,19 +246,41 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
 
 void frontnet_session_add(struct GuiButton *gbtn)
 {
+    fade_out();
+    net_lobby_max_players = MAX_NET_USERS;
+    if (net_config_info.net_lobby_name[0] != '\0') {
+        snprintf(net_lobby_name, sizeof(net_lobby_name), "%s", net_config_info.net_lobby_name);
+    } else {
+        snprintf(net_lobby_name, sizeof(net_lobby_name), "Dungeon%03d", rand() % 1000);
+    }
     turn_on_menu(GMnu_FEADD_SESSION);
-    //TODO NET When clicked, it should display a modal text field (for IP address) and OK/Cancel buttons.
+    set_menu_visible_off(GMnu_FENET_SESSION);
     set_menu_visible_on(GMnu_FEADD_SESSION);
+    fade_palette_in = 1;
 }
 
 void frontnet_session_join(struct GuiButton *gbtn)
 {
-    long plyr_num;
-    if (!frontnet_can_join_session())
+    if (gbtn != NULL) {
+        int index = gbtn->content.lval + net_session_scroll_offset - 45;
+        if (index < 0 || index >= net_number_of_sessions || net_session[index] == NULL) {
+            return;
+        }
+        net_session_index_active = index;
+        net_session_index_active_id = net_session[index]->id;
+    }
+    if (net_session_index_active < 0 || net_session_index_active >= net_number_of_sessions || net_session[net_session_index_active] == NULL) {
         return;
-    plyr_num = network_session_join();
-    if (plyr_num < 0)
+    }
+    const char *error = net_join_error_text(net_session_join_rejection(net_session[net_session_index_active]));
+    if (error) {
+        create_frontend_error_box(error);
         return;
+    }
+    int32_t plyr_num = network_session_join();
+    if (plyr_num < 0) {
+        return;
+    }
     frontend_set_player_number(plyr_num);
     frontend_set_state(FeSt_NET_START);
 }
@@ -272,14 +297,10 @@ void frontnet_return_to_main_menu(struct GuiButton *gbtn)
 
 void frontnet_add_session_back(struct GuiButton *gbtn)
 {
-    //TODO NET Finish session add menu
+    fade_out();
     turn_off_menu(GMnu_FEADD_SESSION);
-}
-
-void frontnet_add_session_done(struct GuiButton *gbtn)
-{
-    //TODO NET Finish session add menu
-    turn_off_menu(GMnu_FEADD_SESSION);
+    set_menu_visible_on(GMnu_FENET_SESSION);
+    fade_palette_in = 1;
 }
 
 void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
@@ -719,7 +740,7 @@ void frontnet_service_select(struct GuiButton *gbtn)
 {
   int srvidx;
   srvidx = gbtn->content.lval + net_service_scroll_offset - 45;
-  if ( ((game.system_flags & GSF_AllowOnePlayer) != 0)
+  if ( ((local_system_flags & GSF_AllowOnePlayer) != 0)
      && (srvidx+1 >= net_number_of_services) )
   {
       frontend_set_player_number(default_loc_player);

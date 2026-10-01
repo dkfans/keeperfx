@@ -433,7 +433,7 @@ static short get_players_message_inputs(void)
         char text[PLAYER_MP_MESSAGE_LEN];
         memcpy(text, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
         text[PLAYER_MP_MESSAGE_LEN - 1] = '\0';
-        if (game.packet_load_enable) {
+        if (replay.load_enable) {
             if (text[0] != '\0')
                 message_add(MsgType_Player, player->id_number, text);
         } else {
@@ -510,14 +510,14 @@ short get_screen_capture_inputs(void)
 {
   if (is_game_key_pressed(Gkey_ScreenRecord, true, false))
   {
-      if ((game.system_flags & GSF_CaptureMovie) != 0)
+      if ((local_system_flags & GSF_CaptureMovie) != 0)
         movie_record_stop();
       else
         movie_record_start();
   }
   if (is_game_key_pressed(Gkey_ScreenShot, true, false))
   {
-      set_flag(game.system_flags, GSF_CaptureSShot);
+      set_flag(local_system_flags, GSF_CaptureSShot);
   }
   return false;
 }
@@ -598,8 +598,8 @@ static void cycle_replay_player(int step)
 {
     for (int i = 1; i < PLAYERS_COUNT; i++) {
         const PlayerNumber plyr_idx = (my_player_number + step * i + PLAYERS_COUNT) % PLAYERS_COUNT;
-        if (!flag_is_set(game.packet_save_head.players_exist, to_flag(plyr_idx))
-         || flag_is_set(game.packet_save_head.players_comp, to_flag(plyr_idx)))
+        if (!flag_is_set(replay.head.players_exist, to_flag(plyr_idx))
+         || flag_is_set(replay.head.players_comp, to_flag(plyr_idx)))
             continue;
         my_player_number = plyr_idx;
         init_local_cameras(get_my_player());
@@ -1506,7 +1506,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     }
     if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
     {
-      if (((game.operation_flags & GOF_Paused) != 0) && (game.game_kind != GKind_LocalGame))
+      if (((game.operation_flags & GOF_Paused) != 0) && network_is_active())
       {
           return true;
       }
@@ -2799,8 +2799,8 @@ static short get_packet_load_game_inputs(void)
             process_pause_packet(0, 0);
         }
         clear_flag(game.operation_flags, GOF_Paused);
-        load_packets_for_turn(game.pckt_gameturn);
-        game.pckt_gameturn++;
+        load_packets_for_turn(replay.pckt_gameturn);
+        replay.pckt_gameturn++;
     }
     if (!get_packet_load_game_control_inputs())
         get_replay_freecam_inputs();
@@ -3086,12 +3086,12 @@ static short get_inputs(void)
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {
         SYNCDBG(5,"Starting for demo mode");
-        load_packets_for_turn(game.pckt_gameturn);
-        game.pckt_gameturn++;
+        load_packets_for_turn(replay.pckt_gameturn);
+        replay.pckt_gameturn++;
         get_packet_load_demo_inputs();
         return false;
     }
-    if (game.packet_load_enable)
+    if (replay.load_enable)
     {
         SYNCDBG(5,"Loading packet inputs");
         return get_packet_load_game_inputs();
@@ -3233,7 +3233,7 @@ void input(void)
         pckt->additional_packet_values &= ~PCAdV_RotatePressed;
 
     get_inputs();
-    if ((game.mode_flags & MFlg_IsDemoMode) == 0 && !game.packet_load_enable) {
+    if ((game.mode_flags & MFlg_IsDemoMode) == 0 && !replay.load_enable) {
         update_local_view_prediction(pckt);
     }
 

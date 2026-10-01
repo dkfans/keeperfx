@@ -193,6 +193,10 @@ struct PlayerInfo {
     GameTurn power_of_cooldown_turn;
     int32_t game_version;
     GameTurn display_objective_turn;
+    int32_t zoom_distance;
+    int32_t frontview_zoom_distance;
+    TbBool cheats_allowed;
+    TbBool skip_heart_zoom;
     unsigned char hand_idx;
     struct RoomSpace render_roomspace;
     struct RoomSpace roomspace;

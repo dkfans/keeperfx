@@ -68,6 +68,26 @@ void main()
 }
 )glsl";
 
+// Unit 0 = sprite atlas. Unit 1 = CLUT (256xN RGBA8).
+// The CLUT row already contains the final current-palette colour for each
+// source palette index, so this supports arbitrary 256-byte cmap tables.
+constexpr const char* UI_CLUT_FRAGMENT_SHADER = R"glsl(
+#version 330 core
+in vec2 v_uv;
+in vec4 v_color;
+uniform sampler2D u_sprite_atlas;
+uniform sampler2D u_clut;
+uniform float u_clut_v;
+out vec4 fragColor;
+void main()
+{
+    float idx = texture(u_sprite_atlas, v_uv).r;
+    if (idx < (0.5 / 255.0)) discard;
+    vec4 color = texture(u_clut, vec2(idx, u_clut_v));
+    fragColor = vec4(color.rgb * v_color.rgb, color.a * v_color.a);
+}
+)glsl";
+
 // Unit 0 = sprite atlas. Unit 1 = palette. Unit 2 = fade table.
 // pixmap.fade_tables is 64 rows x 256 columns (not 256 rows, unlike develop's
 // table) -- u_remap_row indexes one of those 64 rows.

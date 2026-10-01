@@ -54,6 +54,8 @@ struct IRTextDrawCmd
     long        dbc_colour0 = 0; // DBC face colour (palette index)
     long        dbc_colour1 = 0; // DBC shadow colour (palette index)
 
+    const unsigned char* cmap = nullptr; // 256-entry palette remap from LbTextGetRemap()
+
     uint32_t seq = 0; // shared with UICommandBuffers so a merged replay
                        // recovers true UI+text submission order
 

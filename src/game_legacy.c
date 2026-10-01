@@ -28,6 +28,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct Game game;
+unsigned char local_system_flags;
 
 GameTurn get_gameturn()
 {
@@ -36,7 +37,7 @@ GameTurn get_gameturn()
 
 TbBool network_is_active(void)
 {
-    return flag_is_set(game.system_flags, GSF_NetworkActive);
+    return flag_is_set(local_system_flags, GSF_NetworkActive);
 }
 /******************************************************************************/
 #ifdef __cplusplus

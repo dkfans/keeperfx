@@ -478,6 +478,22 @@ enum GUIStrings {
     GUIStr_NetOutOfSync,
     GUIStr_MnuCampaign,
     GUIStr_MnuContinueCampaign,
+    GUIStr_NetState,
+    GUIStr_NetVersion,
+    GUIStr_NetUnknown,
+    GUIStr_NetInLobby,
+    GUIStr_NetInGame,
+    GUIStr_NetInLandview,
+    GUIStr_NetPlayerListUnavailable,
+    GUIStr_NetMaximumPlayers,
+    GUIStr_NetAllowObservers,
+    GUIStr_NetSettings,
+    GUIStr_NetConfirm,
+    GUIStr_NetGameStarted,
+    GUIStr_NetJoiningLocked,
+    GUIStr_NetLobbyFull,
+    GUIStr_NetDifferentVersion,
+    GUIStr_NetLobbyName,
     GuiStrEnd
 };
 

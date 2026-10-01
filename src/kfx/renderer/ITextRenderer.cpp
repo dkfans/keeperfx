@@ -30,6 +30,7 @@ IRTextDrawCmd* ITextRenderer::AppendTextCommand(int32_t x, int32_t y, int32_t un
     cmd.pos_x = x; cmd.pos_y = y; cmd.units_per_px = units_per_px;
     cmd.draw_colour = RendererGetDrawColour();
     cmd.draw_flags  = RendererGetDrawFlags();
+    cmd.cmap = LbTextGetRemap();
     LbTextGetJustifyWindow(&cmd.justify_x, &cmd.justify_y, &cmd.justify_w);
     LbTextGetClipWindow(&cmd.clip_x, &cmd.clip_y, &cmd.clip_w, &cmd.clip_h);
     cmd.font = lbFontPtr;

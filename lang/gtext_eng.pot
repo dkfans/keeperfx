@@ -5951,3 +5951,83 @@ msgstr ""
 msgctxt "Menu interface item"
 msgid "Continue Campaign"
 msgstr ""
+
+#: guitext:1126
+msgctxt "Network game interface"
+msgid "State"
+msgstr ""
+
+#: guitext:1127
+msgctxt "Network game interface"
+msgid "Version"
+msgstr ""
+
+#: guitext:1128
+msgctxt "Network game interface"
+msgid "Unknown"
+msgstr ""
+
+#: guitext:1129
+msgctxt "Network game interface"
+msgid "Lobby"
+msgstr ""
+
+#: guitext:1130
+msgctxt "Network game interface"
+msgid "In-game"
+msgstr ""
+
+#: guitext:1131
+msgctxt "Network game interface"
+msgid "Map"
+msgstr ""
+
+#: guitext:1132
+msgctxt "Network game interface"
+msgid "Player list unavailable"
+msgstr ""
+
+#: guitext:1133
+msgctxt "Network game interface"
+msgid "Maximum players"
+msgstr ""
+
+#: guitext:1134
+msgctxt "Network game interface"
+msgid "Allow observers"
+msgstr ""
+
+#: guitext:1135
+msgctxt "Network game interface"
+msgid "Settings"
+msgstr ""
+
+#: guitext:1136
+msgctxt "Network game interface"
+msgid "Confirm"
+msgstr ""
+
+#: guitext:1137
+msgctxt "Network game interface"
+msgid "Game has already started."
+msgstr ""
+
+#: guitext:1138
+msgctxt "Network game interface"
+msgid "Joining is temporarily locked."
+msgstr ""
+
+#: guitext:1139
+msgctxt "Network game interface"
+msgid "Lobby is full."
+msgstr ""
+
+#: guitext:1140
+msgctxt "Network game interface"
+msgid "The host is using a different game version."
+msgstr ""
+
+#: guitext:1141
+msgctxt "Network game interface"
+msgid "Lobby Name"
+msgstr ""

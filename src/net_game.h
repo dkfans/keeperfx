@@ -56,10 +56,17 @@ void process_disconnected_network_players(void);
 TbBool user_present(NetUserId user);
 void host_spoof_dropped_user_packets(void);
 void sync_initial_network_seed(void);
+struct UserStartSettings;
+struct PlayerInfo;
+void build_local_user_start_settings(struct UserStartSettings *us);
+void apply_user_start_camera_settings(NetUserId user, const struct UserStartSettings *us);
+void apply_user_start_settings(struct PlayerInfo *player, const struct UserStartSettings *us, const struct UserStartSettings *host);
+void apply_recorded_network_stop(void);
+TbBool get_startup_user_settings(NetUserId user, struct UserStartSettings *us);
 TbBool network_is_host(void);
 PlayerNumber get_net_user_player_number(NetUserId user);
 void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx);
-void remap_local_user_to_solo(void);
+void remap_user_to_solo(struct PlayerInfo *myplyr);
 /******************************************************************************/
 #ifdef __cplusplus
 }

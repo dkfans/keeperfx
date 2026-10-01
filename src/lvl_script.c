@@ -1148,13 +1148,13 @@ void process_level_script(void)
   struct PlayerInfo *player;
   player = get_my_player();
   TbBool process_script = false;
-  if (network_is_active()) {
+  if (game.game_kind == GKind_MultiGame) {
       process_script = true;
   }
   if (player->victory_state == VicS_Undecided) {
       process_script = true;
   }
-  if ((game.system_flags & GSF_RunAfterVictory) != 0) {
+  if (game.run_after_victory) {
       process_script = true;
   }
   // In network games every peer must keep executing scripts after the local player's defeat.

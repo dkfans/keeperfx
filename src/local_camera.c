@@ -50,7 +50,7 @@ static struct Camera *get_local_dungeon_camera(struct PlayerInfo *player);
 
 static TbBool replay_is_detached(void)
 {
-    return game.packet_load_enable && local_state.replay_detached;
+    return replay.load_enable && local_state.replay_detached;
 }
 
 static TbBool get_packet_rotation_pivot(const struct Packet *pckt, MapCoord *x, MapCoord *y)
@@ -343,7 +343,7 @@ static void update_local_first_person_camera(struct Thing *ctrltng)
     update_first_person_position(cam, ctrltng, eye_height);
 
     // A replay shows the recorded look as the creature took it.
-    if (game.packet_load_enable)
+    if (replay.load_enable)
     {
         local_state.camera.first_person_look_pending = false;
         cam->rotation_angle_x = ctrltng->move_angle_xy;
@@ -405,7 +405,7 @@ void update_local_cameras(void)
     }
     if (pckt != NULL) {
         // Absolute camera rotation doesn't overwrite local camera except on replays
-        if ((pckt->action != PckA_SetMapRotation) || game.packet_load_enable) {
+        if ((pckt->action != PckA_SetMapRotation) || replay.load_enable) {
             process_camera_action(local_state.camera.destination, pckt);
         }
         // Skip interpolation for parchment jumps, while retaining it for minimap dragging.
@@ -440,7 +440,7 @@ void update_local_cameras(void)
     if (local_state.camera.move_cam != cam) {
         // Same as the packet camera: a parchment map jump ignores the packet's camera controls.
         if (pckt->action != PckA_ZoomFromMap) {
-            if (!game.packet_load_enable && get_local_view_type(player) != PVT_MapScreen) {
+            if (!replay.load_enable && get_local_view_type(player) != PVT_MapScreen) {
                 process_local_camera_movement(cam, player);
                 process_local_camera_rotation(cam, local_state.camera.has_rotation_pivot,
                     local_state.camera.rotation_pivot_x, local_state.camera.rotation_pivot_y, &rotation);

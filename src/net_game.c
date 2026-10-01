@@ -62,16 +62,9 @@ extern int32_t multiplayer_speed_adjustment_ns;
 #pragma pack(1)
 struct StartupSyncPacket {
     uint8_t startup_sync_packet_valid;
-    int32_t video_rotate_mode;
-    int32_t isometric_tilt;
-    uint8_t highlight_mode;
     TbBigChecksum map_checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
     TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
-    uint16_t initial_tendencies;
-    uint32_t isometric_view_zoom_level;
-    uint32_t frontview_zoom_level;
-    uint32_t zoom_distance_setting;
-    uint32_t frontview_zoom_distance_setting;
+    struct UserStartSettings user_start;
     uint8_t initial_input_lag_turns;
     uint32_t initial_action_seed;
     // TODO: also record alliance matrix.
@@ -125,7 +118,7 @@ PlayerNumber get_net_user_player_number(NetUserId user)
     if ((user < 0) || (user >= MAX_NET_USERS)) {
         return -1;
     }
-    if (!network_is_active() && !game.packet_load_enable) {
+    if (!network_is_active() && !replay.load_enable) {
         return (user == SOLO_HUMAN_ID) ? my_player_number : -1;
     }
     return net_user_player_number[user];
@@ -147,6 +140,58 @@ void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx)
     net_user_player_number[user] = plyr_idx;
 }
 
+void build_local_user_start_settings(struct UserStartSettings *us)
+{
+    memset(us, 0, sizeof(*us));
+    us->video_rotate_mode = settings.video_rotate_mode;
+    if (IMPRISON_BUTTON_DEFAULT)
+        us->tendencies |= CrTend_Imprison;
+    if (FLEE_BUTTON_DEFAULT)
+        us->tendencies |= CrTend_Flee;
+    us->isometric_view_zoom_level = settings.isometric_view_zoom_level;
+    us->frontview_zoom_level = settings.frontview_zoom_level;
+    us->zoom_distance = zoom_distance_setting;
+    us->frontview_zoom_distance = frontview_zoom_distance_setting;
+    if (game.easter_eggs_enabled)
+        us->flags |= USF_CheatsEnabled;
+    if (get_skip_heart_zoom_feature())
+        us->flags |= USF_SkipHeartZoom;
+    us->highlight_mode = (default_tag_mode != 3) ? default_tag_mode - 1 : settings.highlight_mode;
+    us->isometric_tilt = settings.isometric_tilt;
+}
+
+/** Before init_player(), which builds the local camera from these. */
+void apply_user_start_camera_settings(NetUserId user, const struct UserStartSettings *us)
+{
+    struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate))
+        return;
+    ustate->dungeon_wibble = true;
+    rotate_mode_to_dungeon_view(us->video_rotate_mode, &ustate->dungeon_camera.use_front_view, &ustate->dungeon_wibble);
+    ustate->dungeon_camera.pitch = clamp(us->isometric_tilt, CAMERA_TILT_MIN, CAMERA_TILT_MAX);
+    ustate->dungeon_camera.zoom[false] = (us->isometric_view_zoom_level != 0) ? us->isometric_view_zoom_level : CAMERA_ZOOM_MAX;
+    ustate->dungeon_camera.zoom[true] = (us->frontview_zoom_level != 0) ? us->frontview_zoom_level : FRONTVIEW_CAMERA_ZOOM_MAX;
+    ustate->highlight_mode = us->highlight_mode;
+}
+
+void apply_user_start_settings(struct PlayerInfo *player, const struct UserStartSettings *us, const struct UserStartSettings *host)
+{
+    player->zoom_distance = us->zoom_distance;
+    player->frontview_zoom_distance = us->frontview_zoom_distance;
+    player->cheats_allowed = ((us->flags & USF_CheatsEnabled) != 0) && ((host->flags & USF_CheatsEnabled) != 0);
+    player->skip_heart_zoom = ((us->flags & USF_SkipHeartZoom) != 0) && ((host->flags & USF_SkipHeartZoom) != 0);
+    player->roomspace_highlight_mode = us->highlight_mode;
+    player->roomspace_mode = us->highlight_mode;
+    TbBool imprison = (us->tendencies & CrTend_Imprison) != 0;
+    TbBool flee = (us->tendencies & CrTend_Flee) != 0;
+    set_creature_tendencies(player, CrTend_Imprison, imprison);
+    set_creature_tendencies(player, CrTend_Flee, flee);
+    if (player->id_number == my_player_number) {
+        game.creatures_tend_imprison = imprison;
+        game.creatures_tend_flee = flee;
+    }
+}
+
 static void setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
     for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
@@ -163,21 +208,9 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         player->user_id = i;
         player->allocflags |= PlaF_Allocated;
         init_user_state(player->user_id);
-        get_user_state(i)->dungeon_wibble = true;
-        rotate_mode_to_dungeon_view(sync->video_rotate_mode, &get_user_state(i)->dungeon_camera.use_front_view, &get_user_state(i)->dungeon_wibble);
-        get_user_state(i)->dungeon_camera.pitch = clamp(sync->isometric_tilt, CAMERA_TILT_MIN, CAMERA_TILT_MAX);
-        get_user_state(i)->dungeon_camera.zoom[false] = (sync->isometric_view_zoom_level != 0) ? sync->isometric_view_zoom_level : CAMERA_ZOOM_MAX;
-        get_user_state(i)->dungeon_camera.zoom[true] =(sync->frontview_zoom_level != 0) ? sync->frontview_zoom_level : FRONTVIEW_CAMERA_ZOOM_MAX;
-        get_user_state(i)->highlight_mode = sync->highlight_mode;
+        apply_user_start_camera_settings(i, &sync->user_start);
         init_player(player, 0);
-        TbBool imprison = (sync->initial_tendencies & CrTend_Imprison) != 0;
-        TbBool flee = (sync->initial_tendencies & CrTend_Flee) != 0;
-        set_creature_tendencies(player, CrTend_Imprison, imprison);
-        set_creature_tendencies(player, CrTend_Flee, flee);
-        if (player->id_number == my_player_number) {
-            game.creatures_tend_imprison = imprison;
-            game.creatures_tend_flee = flee;
-        }
+        apply_user_start_settings(player, &sync->user_start, &startup_sync_packets[SERVER_ID].user_start);
         snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", network_user_name(i));
     }
 }
@@ -234,6 +267,17 @@ static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket
 static struct StartupSyncPacket s_local_startup_sync;
 static struct StartupSyncPacket s_startup_sync_packets[MAX_NET_USERS];
 
+// the settings a user sent in the startup sync, for network games
+TbBool get_startup_user_settings(NetUserId user, struct UserStartSettings *us)
+{
+    if (!network_is_active() || (user < 0) || (user >= MAX_NET_USERS) || !s_startup_sync_packets[user].startup_sync_packet_valid)
+        return false;
+    *us = s_startup_sync_packets[user].user_start;
+    return true;
+}
+
+
+
 static uint8_t calculate_initial_input_lag(void)
 {
     int32_t player_count = 0;
@@ -265,19 +309,9 @@ static void build_local_startup_sync(void)
 {
     memset(&s_local_startup_sync, 0, sizeof(s_local_startup_sync));
     s_local_startup_sync.startup_sync_packet_valid = 1;
-    s_local_startup_sync.video_rotate_mode = settings.video_rotate_mode;
-    s_local_startup_sync.isometric_tilt = settings.isometric_tilt;
-    s_local_startup_sync.highlight_mode = get_starting_highlight_mode();
     calculate_network_startup_map_checksums(s_local_startup_sync.map_checksums);
     memcpy(s_local_startup_sync.required_sprite_zip_checksums, required_sprite_zip_checksums, sizeof(s_local_startup_sync.required_sprite_zip_checksums));
-    uint16_t initial_tendencies = 0;
-    if (IMPRISON_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Imprison;}
-    if (FLEE_BUTTON_DEFAULT) {initial_tendencies |= CrTend_Flee;}
-    s_local_startup_sync.initial_tendencies = initial_tendencies;
-    s_local_startup_sync.isometric_view_zoom_level = settings.isometric_view_zoom_level;
-    s_local_startup_sync.frontview_zoom_level = settings.frontview_zoom_level;
-    s_local_startup_sync.zoom_distance_setting = zoom_distance_setting;
-    s_local_startup_sync.frontview_zoom_distance_setting = frontview_zoom_distance_setting;
+    build_local_user_start_settings(&s_local_startup_sync.user_start);
     s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
     s_local_startup_sync.initial_action_seed = (uint32_t)initial_replay_seed;
 }
@@ -297,12 +331,12 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         }
     }
     if (!verify_map_checksums(s_startup_sync_packets)) {
-        create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
+        create_frontend_error_box(get_string(GUIStr_NetUnsyncedMap));
         return false;
     }
 
     if (!verify_startup_sprite_zip_checksums(s_startup_sync_packets)) {
-        create_frontend_error_box(5000, get_string(GUIStr_NetVerifyFxdataSame));
+        create_frontend_error_box(get_string(GUIStr_NetVerifyFxdataSame));
         return false;
     }
     const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[SERVER_ID];
@@ -310,8 +344,6 @@ static TbBool net_startup_sync_exchange_and_apply(void)
     input_lag_reset();
     game.skip_initial_input_turns = calculate_skip_input();
     NETLOG("Startup input lag: %d", game.input_lag_turns);
-    zoom_distance_setting = host_sync->zoom_distance_setting;
-    frontview_zoom_distance_setting = host_sync->frontview_zoom_distance_setting;
     if (host_sync->initial_action_seed != (uint32_t)initial_replay_seed)
     {
         ERRORLOG("Initial action seed %u differs from host's %u", (unsigned)initial_replay_seed, (unsigned)host_sync->initial_action_seed);
@@ -372,13 +404,16 @@ TbBool init_players_network_game(void)
         }
         WARNLOG("Required custom sprite zip missing: %s", required_sprite_zips[zip_idx]);
         message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s missing", required_sprite_zips[zip_idx]);
-        create_frontend_error_box(5000, get_string(GUIStr_NetVerifyFxdataSame));
+        create_frontend_error_box(get_string(GUIStr_NetVerifyFxdataSame));
         initialized = false;
         break;
     }
     if (initialized) {
         build_local_startup_sync();
         initialized = net_startup_sync_exchange_and_apply();
+    }
+    if (initialized) {
+        net_lobby_set_phase(NetPhase_InGame);
     }
     if (initialized && netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
         LevelNumber map_number = get_level_number();
@@ -390,7 +425,7 @@ TbBool init_players_network_game(void)
                 map_name = get_string(level_info->name_stridx);
             }
         }
-        matchmaking_finish_lobby(MMLobbyResult_Started, (int)map_number, map_name);
+        matchmaking_start_game((int)map_number, map_name);
     }
     if (!initialized) {
         LbNetwork_Stop();
@@ -447,6 +482,22 @@ static TbBool network_has_remote_users_remaining(void)
     return false;
 }
 
+static TbBool replay_has_remote_humans(void)
+{
+    const NetUserId local_user = replay.head.recording_user;
+    for (NetUserId user_id = 0; user_id < MAX_NET_USERS; user_id++) {
+        const PlayerNumber plyr_idx = get_net_user_player_number(user_id);
+        if ((user_id == local_user) || (plyr_idx < 0)) {
+            continue;
+        }
+        const struct PlayerInfo *player = get_player(plyr_idx);
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static void replace_network_player_with_ai(struct PlayerInfo *player)
 {
     player->allocflags |= PlaF_CompCtrl | PlaF_Placeholder;
@@ -457,9 +508,8 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
 
 // used when ending a netplay game or recording.
 // local single-player must have the local user in slot 0.
-void remap_local_user_to_solo(void)
+void remap_user_to_solo(struct PlayerInfo *myplyr)
 {
-    struct PlayerInfo *myplyr = get_my_player();
     NetUserId old_user = myplyr->user_id;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (user == old_user) {
@@ -495,10 +545,10 @@ void remap_local_user_to_solo(void)
 static void stop_network_game_state(void)
 {
     memset(net_user_info, 0, sizeof(net_user_info));
-    clear_flag(game.system_flags, GSF_NetworkActive);
-    remap_local_user_to_solo();
-    clear_flag(game.system_flags, GSF_NetGameNoSync);
-    clear_flag(game.system_flags, GSF_NetSeedNoSync);
+    clear_flag(local_system_flags, GSF_NetworkActive);
+    remap_user_to_solo(get_my_player());
+    clear_flag(local_system_flags, GSF_NetGameNoSync);
+    clear_flag(local_system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;
     game.game_kind = GKind_LocalGame;
     game.input_lag_turns = 0;
@@ -517,9 +567,19 @@ static void stop_network_game_and_quit_to_main_menu(void)
 
 static void stop_network_game_and_continue_locally(void)
 {
-    LbNetwork_Stop();
-    stop_network_game_state();
-    get_my_player()->display_objective_turn = get_gameturn() + 1;
+    struct PlayerInfo *survivor;
+    if (network_is_active()) {
+        LbNetwork_Stop();
+        stop_network_game_state();
+        survivor = get_my_player();
+    } else {
+        const PlayerNumber plyr_idx = get_net_user_player_number(replay.head.recording_user);
+        survivor = (plyr_idx >= 0) ? get_player(plyr_idx) : get_my_player();
+        remap_user_to_solo(survivor);
+        game.game_kind = GKind_LocalGame;
+        setup_count_players();
+    }
+    survivor->display_objective_turn = get_gameturn() + 1;
 }
 
 static TbBool host_already_won_level(void)
@@ -619,7 +679,7 @@ static void leave_network_if_alone(void)
 void process_player_leave_game_packet(struct PlayerInfo *player)
 {
     if (player != get_my_player()) {
-        if (network_is_active() || game.packet_load_enable /* handle replays */) {
+        if (game.game_kind == GKind_MultiGame) {
             NetUserId user = player->user_id;
             if (network_is_active()) {
                 OnDroppedUser(user, NETDROP_MANUAL);
@@ -627,6 +687,8 @@ void process_player_leave_game_packet(struct PlayerInfo *player)
             remove_user_from_game(user, user != SERVER_ID);
             if (network_is_active()) {
                 leave_network_if_alone();
+            } else if (replay.load_enable && !replay_has_remote_humans()) {
+                stop_network_game_and_continue_locally();
             }
             return;
         }
@@ -684,12 +746,26 @@ void process_disconnected_network_players(void)
             remove_user_from_game(user, false);
         }
     }
+    replay_record_network_stopped();
+    stop_network_game_and_continue_locally();
+}
+
+void apply_recorded_network_stop(void)
+{
+    message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
+    const NetUserId local_user = replay.head.recording_user;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (user != local_user) {
+            remove_user_from_game(user, false);
+        }
+    }
     stop_network_game_and_continue_locally();
 }
 
 long network_session_join(void)
 {
     int32_t plyr_num;
+    net_join_rejection = NetJoin_Accepted;
     reset_attempting_to_join_cancel();
     display_attempting_to_join_message(-1);
     if (attempting_to_join_cancel_requested())
@@ -704,7 +780,12 @@ long network_session_join(void)
             net_session_index_active_id = -1;
             matchmaking_request_list();
         }
-        process_network_error(-802);
+        const char *error = net_join_error_text(net_join_rejection);
+        if (error) {
+            create_frontend_error_box(error);
+        } else {
+            process_network_error(-802);
+        }
     }
     return -1;
 }

@@ -675,7 +675,7 @@ void LbGrabMouseCheck(long grab_event)
     // ASSUMPTION: SDL3 auto-suspends/resumes relative mode on focus; grab is driven
     // by game intent only, never forced off by focus loss.
     {
-        if (!game.packet_load_enable)
+        if (!replay.load_enable)
         {
             switch (grab_event)
             {

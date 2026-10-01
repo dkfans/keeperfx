@@ -74,6 +74,7 @@ void draw_slab64k(long pos_x, long pos_y, int units_per_px, long width, long hei
 void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type);
+void draw_round_slab64k_remap(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type, const unsigned char *cmap);
 void draw_string64k(long x, long y, int units_per_px, const char * text);
 
 void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text);

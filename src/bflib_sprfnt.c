@@ -84,6 +84,8 @@ long dbc_colour1 = 0;
 TbBool dbc_initialized = false;
 TbBool dbc_enabled = true;
 const struct TbSpriteSheet *lbFontPtr;
+/** Colour remap table applied to font sprites, or NULL to draw them unchanged. */
+static const unsigned char *lbTextRemap = NULL;
 
 #define UNIFONT_INDEX_COUNT 65536
 #define UNIFONT_INDEX_SIZE 6
@@ -586,6 +588,9 @@ static int8_t draw_simpletext_char(uint32_t chr, long *pos_x, long pos_y, int un
         else if ((RendererGetDrawFlags() & Lb_TEXT_REMAP) != 0) {
             LbSpriteDrawResizedRemap(*pos_x, pos_y, units_per_px, spr, lbSpriteReMapPtr);
         }
+        else if (lbTextRemap != NULL) {
+            LbSpriteDrawResizedRemap(*pos_x, pos_y, units_per_px, spr, lbTextRemap);
+        }
         else {
             LbSpriteDrawResizedImmediate(*pos_x, pos_y, units_per_px, spr);
         }
@@ -1072,6 +1077,23 @@ int LbTextSetWindow(int posx, int posy, int width, int height)
     lbTextJustifyWindow.width = width;
     LbTextSetClipWindow(posx, posy, width, height);
     return 1;
+}
+
+/**
+ * Sets a colour remap table for the font sprites, allowing to draw a font under a palette
+ * other than the one it was made for. Has no effect when Lb_TEXT_ONE_COLOR is used.
+ * @param cmap Table of 256 palette indexes, or NULL to disable remapping.
+ */
+void LbTextSetRemap(const unsigned char *cmap)
+{
+    lbTextRemap = cmap;
+}
+
+const unsigned char *LbTextGetRemap(void)
+{
+    if ((RendererGetDrawFlags() & Lb_TEXT_REMAP) != 0)
+        return lbSpriteReMapPtr;
+    return lbTextRemap;
 }
 
 static unsigned int lbTextFontGeneration = 0;
