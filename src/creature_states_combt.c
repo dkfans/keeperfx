@@ -1470,7 +1470,7 @@ short creature_door_combat(struct Thing *creatng)
     struct Thing* doortng = thing_get(cctrl->combat.battle_enemy_idx);
     if ((cctrl->combat_flags & CmbtF_DoorFight) == 0)
     {
-        ERRORLOG("The %s index %d is not in door combat but should be", thing_model_name(creatng), (int)creatng->index);
+        ERRORLOG("The %s index %d at %d,%d is not in door combat but should be", thing_model_name(creatng), creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, (int)creatng->index);
         set_start_state(creatng);
         return 0;
     }

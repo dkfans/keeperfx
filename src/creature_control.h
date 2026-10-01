@@ -227,7 +227,7 @@ struct CreatureControl {
   struct {
       unsigned char objective;
       unsigned char original_objective;
-      char target_plyr_idx;
+      PlayerNumber target_plyr_idx;
       PlayerBitFlags player_broken_into_flags;
       int32_t tunnel_steps_counter;
       unsigned char tunnel_dig_direction;
