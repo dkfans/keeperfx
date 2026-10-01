@@ -10,6 +10,9 @@
 				"request": "launch",
 				"program": "${workspaceFolder}/.vscode/game/keeperfx.exe",
 				"cwd": "${workspaceFolder}/.vscode/game",
+				"sourceFileMap": {
+					"/mnt/c/": "C:/"
+				},
 				"args": [
 					"-level", "00001",
 					"-campaign", "keeporig",
