@@ -22,7 +22,6 @@
 
 #include <time.h>
 #include "bflib_basics.h"
-#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,21 +40,8 @@ TbBool LbSleepDelayExt(long double tick_ns_delay);
 TbResult LbTime(struct TbTime *curr_time);
 TbTimeSec LbTimeSec(void);
     
-// local time in one integer; year 0 means error/unknown, otherwise year N is year N A.D. of the
-// Gregorian calendar
-#define BPT_SEC_SHIFT 0
-#define BPT_SEC_MASK 0x3F
-#define BPT_MIN_SHIFT 6
-#define BPT_MIN_MASK 0x3F
-#define BPT_HOUR_SHIFT 12
-#define BPT_HOUR_MASK 0x1F
-#define BPT_DAY_SHIFT 17
-#define BPT_DAY_MASK 0x1F
-#define BPT_MON_SHIFT 22
-#define BPT_MON_MASK 0xF
-#define BPT_YEAR_SHIFT 26
 TbBool get_local_timezone(int32_t *utc_offset, int *isdst);
-BitpackedTimestamp get_bitpacked_time(int32_t utc_offset);
+TbBool decode_posix_time(int64_t posix_time, int32_t utc_offset, struct TbDate *date, struct TbTime *time);
     
 uint64_t LbSystemClockMilliseconds(void);
 TbResult LbDate(struct TbDate *curr_date);

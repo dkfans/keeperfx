@@ -279,7 +279,7 @@ struct Game {
     GameTurn play_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
     uint32_t action_random_seed;
-    BitpackedTimestamp timestamp; // (host's) local time at most recent timestamp. Allows peers and replays to agree about current time.
+    int64_t timestamp; // posix time of most recent timestamp (host's), 0 if unknown. Allows peers and replays to agree about current time.
     int32_t timestamp_tz; // seconds east of UTC (host)
     GameTurn timestamp_turn; // the game turn the timestamp was taken on
     uint32_t ai_random_seed;

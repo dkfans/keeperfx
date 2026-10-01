@@ -71,7 +71,7 @@ struct PacketSaveHead {
     PlayerBitFlags players_comp;
     uint8_t flags; // PacketSaveHeadFlags
     uint32_t action_seed;
-    BitpackedTimestamp timestamp;
+    int64_t timestamp;
     int32_t timestamp_tz;
     GameTurn timestamp_turn;
     struct UserStartSettings user_start[MAX_NET_USERS];

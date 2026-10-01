@@ -852,7 +852,7 @@ TbBool process_user_global_packet_action(NetUserId user)
           WARNLOG("Ignoring timestamp from user %d; only the host may set it", (int)user);
           return 0;
       }
-      game.timestamp = ((uint64_t)((uint32_t)pckt->actn_par2 & 0x1FFFFF) << 32) | (uint32_t)pckt->actn_par1;
+      game.timestamp = (int64_t)(((uint64_t)((uint32_t)pckt->actn_par2 & 0x1FFFFF) << 32) | (uint32_t)pckt->actn_par1);
       const int32_t tz_minutes = (int32_t)((uint32_t)pckt->actn_par2 >> 21);
       game.timestamp_tz = ((tz_minutes >= 1024) ? tz_minutes - 2048 : tz_minutes) * 60;
       game.timestamp_turn = ((GameTurn)(uint16_t)pckt->actn_par4 << 16) | (uint16_t)pckt->actn_par3;

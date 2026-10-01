@@ -40,7 +40,8 @@ void take_game_timestamp(void)
 {
     if (!get_local_timezone(&game.timestamp_tz, NULL))
         game.timestamp_tz = 0;
-    game.timestamp = get_bitpacked_time(game.timestamp_tz);
+    const TbTimeSec now = LbTimeSec();
+    game.timestamp = (now == (TbTimeSec)-1) ? 0 : (int64_t)now;
     game.timestamp_turn = get_gameturn();
 }
 

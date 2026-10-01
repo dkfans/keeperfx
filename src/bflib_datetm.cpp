@@ -264,22 +264,26 @@ TbBool get_local_timezone(int32_t *utc_offset, int *isdst)
 #endif
 }
 
-/** Returns the current time in given tz, bitpacked */
-BitpackedTimestamp get_bitpacked_time(int32_t utc_offset)
+/** Splits a posix time into calendar fields as seen utc_offset seconds east of UTC. */
+TbBool decode_posix_time(int64_t posix_time, int32_t utc_offset, struct TbDate *date, struct TbTime *time)
 {
-    const time_t now = time(NULL);
-    if (now == (time_t)-1)
-        return 0;
-    const time_t shifted = now + utc_offset;
+    const time_t shifted = (time_t)(posix_time + utc_offset);
     const struct tm *t = gmtime(&shifted);
     if (t == NULL)
-        return 0;
-    const int64_t year = (int64_t)t->tm_year + 1900;
-    if (year < 1)
-        return 0;
-    return ((uint64_t)year << BPT_YEAR_SHIFT) | ((uint64_t)(t->tm_mon + 1) << BPT_MON_SHIFT)
-        | ((uint64_t)t->tm_mday << BPT_DAY_SHIFT) | ((uint64_t)t->tm_hour << BPT_HOUR_SHIFT)
-        | ((uint64_t)t->tm_min << BPT_MIN_SHIFT) | ((uint64_t)t->tm_sec << BPT_SEC_SHIFT);
+        return false;
+    if (date != NULL) {
+        date->Day = t->tm_mday;
+        date->Month = t->tm_mon + 1;
+        date->Year = 1900 + t->tm_year;
+        date->DayOfWeek = t->tm_wday;
+    }
+    if (time != NULL) {
+        time->Hour = t->tm_hour;
+        time->Minute = t->tm_min;
+        time->Second = t->tm_sec;
+        time->HSecond = 0;
+    }
+    return true;
 }
 
 extern "C" uint64_t LbSystemClockMilliseconds(void)

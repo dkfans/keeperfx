@@ -781,7 +781,7 @@ void sync_initial_network_seed(void)
    if (!network_is_active()) {
       return;
    }
-   struct { uint32_t action_seed; int32_t timestamp_tz; BitpackedTimestamp timestamp; } initial = { game.action_random_seed, game.timestamp_tz, game.timestamp };
+   struct { uint32_t action_seed; int32_t timestamp_tz; int64_t timestamp; } initial = { game.action_random_seed, game.timestamp_tz, game.timestamp };
    if (!LbNetwork_Resync(&initial, sizeof(initial))) {
       ERRORLOG("Initial sync failed");
       return;

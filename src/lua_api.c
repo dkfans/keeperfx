@@ -760,13 +760,16 @@ static int lua_Display_message(lua_State *L)
 
 static int lua_get_game_timestamp(lua_State *L)
 {
-    const BitpackedTimestamp t = game.timestamp;
-    lua_pushinteger(L, (lua_Integer)(t >> BPT_YEAR_SHIFT));
-    lua_pushinteger(L, (lua_Integer)((t >> BPT_MON_SHIFT) & BPT_MON_MASK));
-    lua_pushinteger(L, (lua_Integer)((t >> BPT_DAY_SHIFT) & BPT_DAY_MASK));
-    lua_pushinteger(L, (lua_Integer)((t >> BPT_HOUR_SHIFT) & BPT_HOUR_MASK));
-    lua_pushinteger(L, (lua_Integer)((t >> BPT_MIN_SHIFT) & BPT_MIN_MASK));
-    lua_pushinteger(L, (lua_Integer)((t >> BPT_SEC_SHIFT) & BPT_SEC_MASK));
+    struct TbDate date = {0};
+    struct TbTime time = {0};
+    if (game.timestamp != 0)
+        decode_posix_time(game.timestamp, game.timestamp_tz, &date, &time);
+    lua_pushinteger(L, date.Year);
+    lua_pushinteger(L, date.Month);
+    lua_pushinteger(L, date.Day);
+    lua_pushinteger(L, time.Hour);
+    lua_pushinteger(L, time.Minute);
+    lua_pushinteger(L, time.Second);
     lua_pushinteger(L, game.timestamp_tz);
     lua_pushinteger(L, game.timestamp_turn);
     return 8;

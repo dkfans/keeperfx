@@ -266,8 +266,6 @@ typedef int32_t LevelNumber;
 typedef uint32_t GameTurn;
 /** Game turns difference, used for in-game time computations. */
 typedef int32_t GameTurnDelta;
-/** Date and time packed into bits. s:6 m:6 h:5 d:5 M:4 Y:remainder. */
-typedef uint64_t BitpackedTimestamp;
 /** Identifier of a national text string. */
 typedef int32_t TextStringId;
 /** Map coordinate in full resolution. Position within subtile is scaled 0..255. */

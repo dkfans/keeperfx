@@ -97,7 +97,8 @@ void set_pending_timestamp_packet_action(struct Packet *pckt)
     
     // 11 bits for tz (in minutes).
     const int32_t tz_minutes = max(-1024, min(1023, tz / 60));
-    const BitpackedTimestamp timestamp = get_bitpacked_time(tz_minutes * 60);
+    const TbTimeSec now = LbTimeSec();
+    const uint64_t timestamp = (now == (TbTimeSec)-1) ? 0 : (uint64_t)now;
     
     // par2: upper 21 bits of the timestamp, then tz
     const uint32_t par2 = ((uint32_t)(timestamp >> 32) & 0x1FFFFF) | ((uint32_t)tz_minutes << 21);
