@@ -56,6 +56,7 @@ namespace
     NetDropCallback g_drop_callback = nullptr;
     ENetHost *host = nullptr;
     ENetPeer *client_peer = nullptr;
+    enet_uint32 connection_ids[MAX_NET_USERS] = {0};
     int host_is_dual_stack = 0;
     TransferRateTracker download_rate_tracker = {0, 0};
     TransferRateTracker upload_rate_tracker = {0, 0};
@@ -68,9 +69,18 @@ namespace
 
     void log_peer_connection(const ENetPeer *peer, NetUserId user_id, const char *status)
     {
+        enet_uint32 connection_id = peer->connectID;
+        if (user_id >= 0 && user_id < MAX_NET_USERS) {
+            if (peer->state == ENET_PEER_STATE_DISCONNECTED) {
+                connection_id = connection_ids[user_id];
+                connection_ids[user_id] = 0;
+            } else {
+                connection_ids[user_id] = connection_id;
+            }
+        }
         char address[ENET_ADDRESS_BUFFER_SIZE] = {0};
         enet_address_get_host_ip(&peer->address, address, sizeof(address));
-        LbNetLog("ENet: user %d connection %08x at %s %s\n", (int)user_id, (unsigned)peer->connectID, address, status);
+        LbNetLog("ENet: user %d connection %08x at %s %s\n", (int)user_id, (unsigned)connection_id, address, status);
     }
 
     void reset_punch_addresses()
@@ -199,6 +209,7 @@ namespace
         download_rate_tracker = TransferRateTracker();
         upload_rate_tracker = TransferRateTracker();
         client_peer = nullptr;
+        memset(connection_ids, 0, sizeof(connection_ids));
         if (host) {
             for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
                 if (peer->state == ENET_PEER_STATE_CONNECTED) {
@@ -340,11 +351,11 @@ namespace
         const char *join_type, const char *ip_version)
     {
         LbNetLog("Join: connected successfully via %s (%s)\n", join_type, ip_version);
-        log_peer_connection(next_peer, SERVER_ID, "connected");
         net_join_rejection = NetJoin_Accepted;
         punch_phase_active = 0;
         enet_peer_timeout(next_peer, PEER_TIMEOUT_LIMIT, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
         cleanup_join_host(old_host, old_peer);
+        log_peer_connection(next_peer, SERVER_ID, "connected");
         enet_host_set_intercept_callback(next_host, nullptr);
         host = next_host;
         client_peer = next_peer;
