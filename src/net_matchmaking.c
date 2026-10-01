@@ -452,9 +452,7 @@ void matchmaking_disconnect(enum NetSessionPhase phase)
         }
         char request[SEND_BUFFER_SIZE];
         snprintf(request, sizeof(request), "{\"action\":\"%s\",\"id\":\"%s\"}", action, hosted_lobby_id);
-        VALUE response = {0};
-        websocket_exchange(request, "deleted", &response);
-        value_fini(&response);
+        websocket_send(request);
     }
     websocket_cleanup();
     matchmaking_session_count = 0;

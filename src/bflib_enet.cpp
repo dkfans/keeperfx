@@ -185,7 +185,7 @@ namespace
 
     void host_destroy()
     {
-        port_forward_remove_mapping();
+        port_forward_set_mapping(0);
         destroy_incoming_queue();
         download_rate_tracker = TransferRateTracker();
         upload_rate_tracker = TransferRateTracker();
@@ -253,7 +253,7 @@ namespace
             LbNetLog("ENet: host created (IPv4) on port %d\n", (int)address.port);
         }
         enet_host_compress_with_range_coder(host);
-        port_forward_add_mapping(address.port);
+        port_forward_set_mapping(address.port);
         external_ipv4_port = holepunch_stun_query(host, external_ipv4_address, sizeof(external_ipv4_address));
         enet_host_set_intercept_callback(host, intercept_punch);
         return Lb_OK;
@@ -495,7 +495,7 @@ namespace
         LbNetLog("Join: connecting via matchmaking server (UDP hole punching)\n");
         if (create_join_host(ENET_ADDRESS_TYPE_IPV4) != Lb_OK)
             return Lb_FAIL;
-        port_forward_add_mapping(host->address.port);
+        port_forward_set_mapping(host->address.port);
         uint16_t my_external_ipv4_port = holepunch_stun_query(host, external_ipv4_address, sizeof(external_ipv4_address));
         if (my_external_ipv4_port == 0) {
             my_external_ipv4_port = host->address.port;
