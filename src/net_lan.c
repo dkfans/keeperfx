@@ -212,6 +212,9 @@ void lan_service(void)
             json_dom_parse(metadata, strlen(metadata), NULL, 0, &root, NULL);
             net_session_parse_metadata(&entry->session, &root);
             value_fini(&root);
+            if (legacy_length + 1 >= packet_length) {
+                snprintf(entry->session.version, sizeof(entry->session.version), "%s", "1.4.0");
+            }
             entry->last_seen_milliseconds = now;
         }
     }

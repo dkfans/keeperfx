@@ -167,8 +167,8 @@ int net_session_incompatible(const struct TbNetworkSessionNameEntry *session)
     int32_t major;
     int32_t minor;
     int32_t release;
-    int32_t build;
-    if (sscanf(session->version, "%d.%d.%d.%d", &major, &minor, &release, &build) != 4) {
+    int32_t build = 0;
+    if (sscanf(session->version, "%d.%d.%d.%d", &major, &minor, &release, &build) < 3) {
         return 0;
     }
     return major != VER_MAJOR || minor != VER_MINOR || release != VER_RELEASE || build != VER_BUILD;
