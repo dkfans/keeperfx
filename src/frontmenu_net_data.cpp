@@ -210,10 +210,10 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
     }
 }
 
-static void draw_lobby_text(int x, int y, int width, int height, int font, const char *text, int draw_flags = 0)
+static void draw_lobby_text(int x, int y, int width, int height, int font, const char *text)
 {
     LbTextSetFont(frontend_font[font]);
-    RendererSetDrawFlags(draw_flags);
+    RendererSetDrawFlags(0);
     int scale = height * 16 / LbTextLineHeight();
     LbTextSetWindow(x, y, width, height);
     LbTextDrawResized(0, (height - LbTextLineHeight() * scale / 16) / 2, scale, text);
@@ -232,8 +232,9 @@ static unsigned char *get_frontend_lobby_glass_map(void)
     return glass_map;
 }
 
-static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *const text[4], int version_draw_flags)
+static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *const text[4])
 {
+    unsigned char *previous_glass_map = lbDisplay.GlassMap;
     if (RendererGetActiveType() == RENDERER_SOFTWARE) {
         lbDisplay.GlassMap = get_frontend_lobby_glass_map();
     }
@@ -248,26 +249,22 @@ static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *con
     if (gbtn->content.lval == 45) {
         panel_y -= 3 * thickness;
     }
-    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8);
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8 | Lb_DRAW_BLEND_COLOUR);
     LbDrawBox(separator_x, panel_y, separator_width, separator_y - panel_y, 37);
     RendererSetDrawFlags(0);
     for (int i = 0; i < 4; i++) {
         int x = gbtn->scr_pos_x + lobby_columns[i] * gbtn->width / lobby_columns[4];
         int width = (lobby_columns[i + 1] - lobby_columns[i] - 12) * gbtn->width / lobby_columns[4];
-        int draw_flags = 0;
-        if (i == 3) {
-            draw_flags = version_draw_flags;
-        }
-        draw_lobby_text(x, y, width, height, font, text[i], draw_flags);
+        draw_lobby_text(x, y, width, height, font, text[i]);
     }
     RendererSetDrawFlags(0);
     LbDrawBox(separator_x, separator_y, separator_width, thickness, 6);
     LbDrawBox(separator_x, separator_y + thickness, separator_width, thickness, 105);
-    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8);
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8 | Lb_DRAW_BLEND_COLOUR);
     LbDrawBox(separator_x, separator_y + 2 * thickness, separator_width, thickness, 37);
     LbDrawBox(separator_x, separator_y + 3 * thickness, separator_width, thickness, 0);
     RendererSetDrawFlags(0);
-    lbDisplay.GlassMap = pixmap.ghost;
+    lbDisplay.GlassMap = previous_glass_map;
 }
 
 void frontnet_draw_lobby_columns(struct GuiButton *gbtn)
@@ -310,13 +307,8 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     }
     const struct TbNetworkSessionNameEntry *session = net_session[index];
     int font = 1;
-    int version_draw_flags = 0;
     if (frontend_mouse_over_button == gbtn->content.lval) {
         font = 2;
-    }
-    if (net_session_incompatible(session)) {
-        font = 3;
-        version_draw_flags = Lb_SPRITE_TRANSPAR4;
     }
     const char *phase = get_string(GUIStr_NetUnknown);
     if (session->phase == NetPhase_Lobby) {
@@ -336,12 +328,14 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     }
     char players[20];
     snprintf(players, sizeof(players), "%s/%s", count, capacity);
-    const char *version = session->version;
+    char version_number[sizeof(session->version)];
+    snprintf(version_number, sizeof(version_number), "%.*s", (int)strspn(session->version, "0123456789."), session->version);
+    const char *version = version_number;
     if (!*version) {
         version = get_string(GUIStr_NetUnknown);
     }
     const char *text[] = {session->text, phase, players, version};
-    draw_lobby_columns(gbtn, font, text, version_draw_flags);
+    draw_lobby_columns(gbtn, font, text);
 }
 
 static void draw_lobby_panel_row(int x, int y, int width, int height, int scale, int sprite_index)
