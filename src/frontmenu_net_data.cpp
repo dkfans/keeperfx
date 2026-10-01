@@ -26,6 +26,7 @@
 #include "bflib_datetm.h"
 #include "bflib_guibtns.h"
 #include "bflib_video.h"
+#include "bflib_render.h"
 #include "vidmode.h"
 #include "vidfade.h"
 #include "bflib_vidraw.h"
@@ -234,8 +235,11 @@ static unsigned char *get_frontend_lobby_glass_map(void)
 
 static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *const text[4], int version_draw_flags)
 {
+    unsigned char *previous_glass_map = lbDisplay.GlassMap;
+    unsigned char *previous_render_ghost = render_ghost;
     if (RendererGetActiveType() == RENDERER_SOFTWARE) {
         lbDisplay.GlassMap = get_frontend_lobby_glass_map();
+        render_ghost = lbDisplay.GlassMap;
     }
     int thickness = max(1, gbtn->width / lobby_columns[4]);
     int height = 26 * gbtn->width / lobby_columns[4];
@@ -248,7 +252,7 @@ static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *con
     if (gbtn->content.lval == 45) {
         panel_y -= 3 * thickness;
     }
-    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8);
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8 | Lb_DRAW_BLEND_COLOUR);
     LbDrawBox(separator_x, panel_y, separator_width, separator_y - panel_y, 37);
     RendererSetDrawFlags(0);
     for (int i = 0; i < 4; i++) {
@@ -263,11 +267,12 @@ static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *con
     RendererSetDrawFlags(0);
     LbDrawBox(separator_x, separator_y, separator_width, thickness, 6);
     LbDrawBox(separator_x, separator_y + thickness, separator_width, thickness, 105);
-    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8);
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8 | Lb_DRAW_BLEND_COLOUR);
     LbDrawBox(separator_x, separator_y + 2 * thickness, separator_width, thickness, 37);
     LbDrawBox(separator_x, separator_y + 3 * thickness, separator_width, thickness, 0);
     RendererSetDrawFlags(0);
-    lbDisplay.GlassMap = pixmap.ghost;
+    lbDisplay.GlassMap = previous_glass_map;
+    render_ghost = previous_render_ghost;
 }
 
 void frontnet_draw_lobby_columns(struct GuiButton *gbtn)
