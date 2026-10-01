@@ -1,0 +1,62 @@
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Bonus Level - Imp frying Hidden Realm
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM		 KeeperFX CCP Team
+REM  Date:   17 Aug 1997 - 02 Nov 2013
+REM  Copying and copyrights:
+REM This program is free software; you can redistribute it and/or modify
+REM it under the terms of the GNU General Public License as published by
+REM the Free Software Foundation; either version 2 of the License, or
+REM (at your option) any later version.
+REM ****************************************************************************
+
+START_MONEY(PLAYER0,120000)
+
+MAGIC_AVAILABLE(PLAYER0,POWER_LIGHTNING,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_CAVE_IN,1,1)
+
+REM "You must have lightning reflexes to complete the task ahead of you. Kill these Imps as quickly as you can."
+DISPLAY_OBJECTIVE(144,PLAYER0)
+
+SET_TIMER(PLAYER0,TIMER0)
+BONUS_LEVEL_TIME(4400)
+
+IF(PLAYER0,TIMER0 == 2200)
+	IF(PLAYER0,FLAG1 == 0)
+		REM "Half your allotted time has elapsed."
+		DISPLAY_INFORMATION(145)
+	ENDIF
+ENDIF
+
+IF(PLAYER0,IMP == 0)
+	SET_FLAG(PLAYER0,FLAG1,1)
+	REM "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time."
+	DISPLAY_OBJECTIVE(147,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,HELL_HOUND,PLAYER0,1,6,10000)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,PLAYER0,1,3,10000)
+	ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
+	REM Using a timer to make sure add creature command will be executed
+	SET_TIMER(PLAYER0,TIMER1)
+	BONUS_LEVEL_TIME(0)
+ENDIF
+
+IF(PLAYER0,TIMER0 >= 4400)
+	IF(PLAYER0,FLAG1 == 0)
+		REM "You are out of time. That was a shocking performance."
+		DISPLAY_OBJECTIVE(146,PLAYER0)
+		LOSE_GAME 
+	ENDIF
+ENDIF
+
+IF(PLAYER0,MONEY < 600)
+	REM "You have no gold left. It pays to keep your head in such a charged environment."
+	DISPLAY_OBJECTIVE(148,PLAYER0)
+	LOSE_GAME
+ENDIF
+
+IF(PLAYER0,TIMER1 >= 100)
+	WIN_GAME
+ENDIF

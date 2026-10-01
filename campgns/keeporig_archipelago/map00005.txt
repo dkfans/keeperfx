@@ -1,0 +1,123 @@
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Level Lushmeadow-on-Down
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM            KeeperFX CCP Team
+REM  Date:     17 Dec 1996 - 08 Sep 2014
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
+LEVEL_VERSION(1)
+
+REM Computer player for first time
+REM New rooms for the player:
+REM   GUARD_POST - Researchable
+REM   PRISON - When claimed on map
+REM New creatures for the player:
+REM   SPIDER - From start
+REM   BILE_DEMON - When found on the map
+REM   SKELETON - To find on the map
+REM New powers for the player:
+REM   POWER_SIGHT - Researchable
+
+SET_GENERATE_SPEED(500)
+
+REM Computer Player stuff
+COMPUTER_PLAYER(PLAYER1,4)
+
+START_MONEY(PLAYER0,3000)
+START_MONEY(PLAYER1,3000)
+
+MAX_CREATURES(PLAYER0,25)
+MAX_CREATURES(PLAYER1,25)
+
+ADD_CREATURE_TO_POOL(BUG,15)
+ADD_CREATURE_TO_POOL(FLY,15)
+ADD_CREATURE_TO_POOL(SPIDER,15)
+ADD_CREATURE_TO_POOL(TROLL,20)
+ADD_CREATURE_TO_POOL(DEMONSPAWN,20)
+ADD_CREATURE_TO_POOL(SORCEROR,8)
+ADD_CREATURE_TO_POOL(BILE_DEMON,3)
+
+SET_CREATURE_MAX_LEVEL(PLAYER0,DEMONSPAWN,10)
+
+REM	Creature availability
+CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DEMONSPAWN,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SORCEROR,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BUG,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SPIDER,1,0)
+	
+REM	Room availability
+ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)
+ROOM_AVAILABLE(PLAYER0,GUARD_POST,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+
+REM	Spells availability
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,1,0)
+
+REM	Doors and traps availability
+DOOR_AVAILABLE(ALL_PLAYERS,WOOD,1,0)
+TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+
+REM ****************************************************************************
+
+REM "Another Keeper controls this underworld realm. His dungeon lies to the north. If you are to entice creatures to work for you instead of him, you will have to build a more magnificent dungeon. Get on with it then."
+DISPLAY_OBJECTIVE(57,PLAYER0)
+
+IF(PLAYER0,BILE_DEMON > 0)
+	CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,0)
+	REM "A bile demon has joined you. To tempt in more of these creatures, you will need to build expansive lairs and hatcheries."
+	DISPLAY_INFORMATION(59,ALL_PLAYERS)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POWER_SIGHT == 1)
+	REM "You have researched the sight of evil spell. Cast it on an area hidden to you and you will be able to reveal what lies underneath, but this will last only a short time."
+	DISPLAY_INFORMATION(60,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER0,PRISON > 0)
+	REM "You have claimed a prison. You can now command your creatures to imprison the enemy, rather than kill them using the tend to imprison toggle."
+	DISPLAY_INFORMATION(61,ALL_PLAYERS)
+	ROOM_AVAILABLE(PLAYER0,PRISON,1,1)
+	TUTORIAL_FLASH_BUTTON(69,-1)
+ENDIF
+
+IF(PLAYER1,PRISON > 0)
+	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,GUARD_POST == 1)
+	REM "you have researched a guard post. Place them down at areas you wish to defend and place creatures on top. They will then stay and guard that area."
+	DISPLAY_INFORMATION(62,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER0,SPIDER > 0)
+	REM "A spider has joined your dungeon. They are natural enemies of flies so try to keep them apart. There will be other animosites that you need to spot and deal with."
+	DISPLAY_INFORMATION(63,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER1,DUNGEON_DESTROYED >= 1)
+	REM "The enemy keeper crumbles under your power. Congratulations."
+	DISPLAY_OBJECTIVE(58,ALL_PLAYERS)
+	WIN_GAME
+ENDIF
+
+REM ****************************************************************************

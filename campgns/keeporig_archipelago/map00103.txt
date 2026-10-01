@@ -1,0 +1,50 @@
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Bonus Level - Witch Hidden Realm
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM         KeeperFX CCP Team
+REM  Date:   17 Aug 1997 - 02 Nov 2013
+REM  Copying and copyrights:
+REM This program is free software; you can redistribute it and/or modify
+REM it under the terms of the GNU General Public License as published by
+REM the Free Software Foundation; either version 2 of the License, or
+REM (at your option) any later version.
+REM ****************************************************************************
+
+START_MONEY(PLAYER0,12000)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_DESTROY_WALLS,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,1)
+
+REM "This region of the underworld will test your ability to traverse the network of caverns. Indeed, time is your enemy here. Defeat it and you will find where a legendary warrior is imprisoned. That warrior will serve you well in the future."
+DISPLAY_OBJECTIVE(153,PLAYER0)
+
+BONUS_LEVEL_TIME(4000)
+
+SET_TIMER(PLAYER0,TIMER1)
+
+IF(PLAYER0,TIMER1 >= 2000)
+	DISPLAY_OBJECTIVE(150,PLAYER0)
+ENDIF					   
+
+IF(PLAYER0,TIMER1 >= 4000)
+    REM "Your time is up. You have failed. I'm embarrassed to come from the same inter-dimensional void as you."
+	DISPLAY_OBJECTIVE(151,PLAYER0)
+	LOSE_GAME
+ENDIF				
+	   
+IF(PLAYER0,TOTAL_CREATURES == 0)
+	DISPLAY_OBJECTIVE(151,PLAYER0)
+	LOSE_GAME
+ENDIF
+
+IF(PLAYER0,WITCH > 0)
+    REM "Well done. You have excelled in your use of large balls of stone for which the dark gods will repay you, by allowing you to use the warrior you found when you reach the next realm."
+	DISPLAY_OBJECTIVE(152,PLAYER0)
+	BONUS_LEVEL_TIME(0)
+	WIN_GAME
+ENDIF
