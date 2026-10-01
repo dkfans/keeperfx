@@ -88,6 +88,8 @@ static int32_t previous_active_players = 0;
 }
 #endif
 /******************************************************************************/
+static TbBool check_frontend_version_mismatch(void);
+
 static TbBool try_starting_level_from_chat(const char *message, NetUserId user_id)
 {
     const char *separator_pos = strchr(message, ':');
@@ -123,6 +125,9 @@ static TbBool try_starting_level_from_chat(const char *message, NetUserId user_i
 TbBool frontnet_start_level(const char *campaign_fname, LevelNumber lvnum)
 {
     if (campaign_fname == NULL || campaign_fname[0] == '\0') {
+        return false;
+    }
+    if (lvnum > 0 && check_frontend_version_mismatch()) {
         return false;
     }
     char campaign_file[DISKPATH_SIZE];

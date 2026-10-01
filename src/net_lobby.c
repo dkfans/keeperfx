@@ -183,7 +183,8 @@ TbError process_login_message(NetUserId source, char *read_pos)
     }
     const struct GameVersionPacket *user_version = (const struct GameVersionPacket *)read_pos;
     user->version = *user_version;
-    if (!net_versions_match(&user->version, &net_current_version)) {
+    const struct GameVersionPacket stable_version = {1, 4, 0, 5136};
+    if (!net_versions_match(&user->version, &net_current_version) && !net_versions_match(&user->version, &stable_version)) {
         netstate.sp->drop_user(source, NetJoin_Version);
         return Lb_OK;
     }
