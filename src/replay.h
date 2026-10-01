@@ -21,6 +21,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "net_main.h"
+#include "net_checksums.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -34,7 +35,7 @@ struct Packet;
 
 // save file header for .pck files.
 // (Bump the version if this struct or the .pck format changes.)
-#define PACKET_SAVE_HEAD_VER 4
+#define PACKET_SAVE_HEAD_VER 5
 
 enum PacketSaveHeadFlags {
     PSHF_Checksum   = 0x01,
@@ -71,6 +72,7 @@ struct PacketSaveHead {
     PlayerBitFlags players_comp;
     uint8_t flags; // PacketSaveHeadFlags
     uint32_t action_seed;
+    TbBigChecksum map_checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
     struct UserStartSettings user_start[MAX_NET_USERS];
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
@@ -128,6 +130,7 @@ TbBool replay_playback_is_paused(void);
 void set_replay_playback_paused(TbBool paused);
 TbBool reinit_packets_after_load(void);
 void disable_packet_mode(void);
+TbBool verify_replay_map_checksums(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

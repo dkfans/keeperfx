@@ -777,6 +777,21 @@ static GameTurn count_stored_turns(void)
     return turns;
 }
 
+TbBool verify_replay_map_checksums(void)
+{
+    TbBigChecksum local[NETWORK_STARTUP_MAP_FILE_COUNT];
+    calculate_network_startup_map_checksums(local);
+    int diff_count = 0;
+    for (int i = 0; i < NETWORK_STARTUP_MAP_FILE_COUNT; i++) {
+        if (local[i] == replay.head.map_checksums[i])
+            continue;
+        ERRORLOG("Level file map%05u.%s on disk differs from replay's",
+            get_loaded_level_number(), network_startup_compare_files[i]);
+        diff_count++;
+    }
+    return (diff_count == 0);
+}
+
 TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 {
     memset(centry, 0, sizeof(struct CatalogueEntry));
@@ -1337,6 +1352,7 @@ TbBool open_new_packet_file_for_save(void)
     if (game.game_kind == GKind_MultiGame)
         set_flag(replay.head.flags, PSHF_MultiGame);
     replay.head.action_seed = initial_replay_seed;
+    calculate_network_startup_map_checksums(replay.head.map_checksums);
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
         struct UserStartSettings *us = &replay.head.user_start[user];
