@@ -177,6 +177,13 @@ static TbBool init_level(void)
 
     wait_for_all_players();
     init_seeds();
+    if (replay.load_enable) {
+        game.timestamp = replay.head.timestamp;
+        game.timestamp_tz = replay.head.timestamp_tz;
+        game.timestamp_turn = replay.head.timestamp_turn;
+    } else {
+        take_game_timestamp();
+    }
     sync_initial_network_seed();
 
     recheck_all_mod_exist();

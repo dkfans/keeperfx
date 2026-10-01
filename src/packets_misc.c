@@ -76,6 +76,36 @@ struct Packet *get_local_packet(void)
     return get_packet(get_local_user());
 }
 
+static TbBool timestamp_packet_pending;
+
+void request_timestamp_packet(void)
+{
+    timestamp_packet_pending = true;
+}
+
+// sends the host's current time (not the time zone) as a packet, occasionally.
+void set_pending_timestamp_packet_action(struct Packet *pckt)
+{
+    const GameTurn turn = get_gameturn();
+    if ((get_local_user() == SERVER_ID) && (turn % 256 == 128))
+        timestamp_packet_pending = true;
+    if (!timestamp_packet_pending || (pckt->action != PckA_None) || flag_is_set(game.operation_flags, GOF_Paused))
+        return;
+    int32_t tz = game.timestamp_tz;
+    if (!get_local_timezone(&tz, NULL))
+        tz = game.timestamp_tz;
+    
+    // 11 bits for tz (in minutes).
+    const int32_t tz_minutes = max(-1024, min(1023, tz / 60));
+    const BitpackedTimestamp timestamp = get_bitpacked_time(tz_minutes * 60);
+    
+    // par2: upper 21 bits of the timestamp, then tz
+    const uint32_t par2 = ((uint32_t)(timestamp >> 32) & 0x1FFFFF) | ((uint32_t)tz_minutes << 21);
+    set_packet_action(pckt, PckA_SetTimestamp, (uint32_t)timestamp, par2,
+        (uint16_t)turn, (uint16_t)(turn >> 16));
+    timestamp_packet_pending = false;
+}
+
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
         unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4)
 {

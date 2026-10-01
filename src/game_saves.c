@@ -662,6 +662,7 @@ TbBool load_game(long slot_num)
     sound_manager_reapply_creature_sounds();
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     reinit_level_after_load();
+    take_game_timestamp();
     reinit_packets_after_load();
     initialize_packet_history();
     clear_packets();

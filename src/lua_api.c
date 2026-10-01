@@ -17,6 +17,7 @@
 #include "thing_navigate.h"
 #include "map_data.h"
 #include "game_legacy.h"
+#include "bflib_datetm.h"
 #include "player_utils.h"
 #include "lvl_script_lib.h"
 #include "room_library.h"
@@ -755,6 +756,20 @@ static int lua_Display_message(lua_State *L)
     message_add(type,id, msg);
 
     return 0;
+}
+
+static int lua_get_game_timestamp(lua_State *L)
+{
+    const BitpackedTimestamp t = game.timestamp;
+    lua_pushinteger(L, (lua_Integer)(t >> BPT_YEAR_SHIFT));
+    lua_pushinteger(L, (lua_Integer)((t >> BPT_MON_SHIFT) & BPT_MON_MASK));
+    lua_pushinteger(L, (lua_Integer)((t >> BPT_DAY_SHIFT) & BPT_DAY_MASK));
+    lua_pushinteger(L, (lua_Integer)((t >> BPT_HOUR_SHIFT) & BPT_HOUR_MASK));
+    lua_pushinteger(L, (lua_Integer)((t >> BPT_MIN_SHIFT) & BPT_MIN_MASK));
+    lua_pushinteger(L, (lua_Integer)((t >> BPT_SEC_SHIFT) & BPT_SEC_MASK));
+    lua_pushinteger(L, game.timestamp_tz);
+    lua_pushinteger(L, game.timestamp_turn);
+    return 8;
 }
 
 static int lua_Quick_message(lua_State *L)
@@ -2546,6 +2561,7 @@ static const luaL_Reg global_methods[] = {
    {"QuickPlayerInformationWithPos"         ,lua_Quick_player_information_with_pos      },
    {"DisplayMessage"                        ,lua_Display_message                 },
    {"QuickMessage"                          ,lua_Quick_message                   },
+   {"GetGameTimestamp"                      ,lua_get_game_timestamp              },
    {"ClearMessage"                          ,lua_Clear_message                   },
    {"HeartLostObjective"                    ,lua_Heart_lost_objective            },
    {"HeartLostQuickObjective"               ,lua_Heart_lost_quick_objective      },

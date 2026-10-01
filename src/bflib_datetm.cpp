@@ -26,6 +26,11 @@
 #include "game_legacy.h"
 
 #include <SDL3/SDL.h>
+#if defined(_WIN32)
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -224,6 +229,57 @@ TbTimeSec LbTimeSec(void)
   time_t dtime;
   time(&dtime);
   return dtime;
+}
+
+/** Gets local timezone in seconds east
+ * of UTC, and current daylight savings. Returns false on failure. */
+TbBool get_local_timezone(int32_t *utc_offset, int *isdst)
+{
+#if defined(_WIN32)
+    TIME_ZONE_INFORMATION tzi;
+    const DWORD id = GetTimeZoneInformation(&tzi);
+    if (id == TIME_ZONE_ID_INVALID)
+        return false;
+    const TbBool dst = (id == TIME_ZONE_ID_DAYLIGHT);
+    if (utc_offset != NULL)
+        *utc_offset = -(int32_t)(tzi.Bias + (dst ? tzi.DaylightBias : (id == TIME_ZONE_ID_STANDARD ? tzi.StandardBias : 0))) * 60;
+    if (isdst != NULL)
+        *isdst = dst ? 1 : 0;
+    return true;
+#elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
+    // POSIX
+    const time_t now = time(NULL);
+    struct tm local;
+    if ((now == (time_t)-1) || (localtime_r(&now, &local) == NULL))
+        return false;
+    if (utc_offset != NULL)
+        *utc_offset = (int32_t)local.tm_gmtoff;
+    if (isdst != NULL)
+        *isdst = (local.tm_isdst > 0) ? 1 : 0;
+    return true;
+#else
+    (void)utc_offset;
+    (void)isdst;
+    return false;
+#endif
+}
+
+/** Returns the current time in given tz, bitpacked */
+BitpackedTimestamp get_bitpacked_time(int32_t utc_offset)
+{
+    const time_t now = time(NULL);
+    if (now == (time_t)-1)
+        return 0;
+    const time_t shifted = now + utc_offset;
+    const struct tm *t = gmtime(&shifted);
+    if (t == NULL)
+        return 0;
+    const int64_t year = (int64_t)t->tm_year + 1900;
+    if (year < 1)
+        return 0;
+    return ((uint64_t)year << BPT_YEAR_SHIFT) | ((uint64_t)(t->tm_mon + 1) << BPT_MON_SHIFT)
+        | ((uint64_t)t->tm_mday << BPT_DAY_SHIFT) | ((uint64_t)t->tm_hour << BPT_HOUR_SHIFT)
+        | ((uint64_t)t->tm_min << BPT_MIN_SHIFT) | ((uint64_t)t->tm_sec << BPT_SEC_SHIFT);
 }
 
 extern "C" uint64_t LbSystemClockMilliseconds(void)

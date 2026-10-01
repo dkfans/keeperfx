@@ -19,6 +19,7 @@
 #include "net_exchange_gameplay.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
+#include "game_legacy.h"
 #include "bflib_sound.h"
 #include "bflib_video.h"
 #include "config_sounds.h"

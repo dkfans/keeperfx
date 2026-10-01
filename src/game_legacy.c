@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_datetm.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -33,6 +34,14 @@ unsigned char local_system_flags;
 GameTurn get_gameturn()
 {
     return game.play_gameturn;
+}
+
+void take_game_timestamp(void)
+{
+    if (!get_local_timezone(&game.timestamp_tz, NULL))
+        game.timestamp_tz = 0;
+    game.timestamp = get_bitpacked_time(game.timestamp_tz);
+    game.timestamp_turn = get_gameturn();
 }
 
 TbBool network_is_active(void)

@@ -34,7 +34,7 @@ struct Packet;
 
 // save file header for .pck files.
 // (Bump the version if this struct or the .pck format changes.)
-#define PACKET_SAVE_HEAD_VER 4
+#define PACKET_SAVE_HEAD_VER 5
 
 enum PacketSaveHeadFlags {
     PSHF_Checksum   = 0x01,
@@ -71,6 +71,9 @@ struct PacketSaveHead {
     PlayerBitFlags players_comp;
     uint8_t flags; // PacketSaveHeadFlags
     uint32_t action_seed;
+    BitpackedTimestamp timestamp;
+    int32_t timestamp_tz;
+    GameTurn timestamp_turn;
     struct UserStartSettings user_start[MAX_NET_USERS];
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
