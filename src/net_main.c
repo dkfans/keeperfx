@@ -14,6 +14,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "net_main.h"
+#include "net_lobby.h"
 
 #include "bflib_enet.h"
 #include "keeperfx.hpp"
@@ -41,6 +42,7 @@ int32_t GetRemoteUserCount(void)
 
 void UpdateLocalPlayerInfo(NetUserId id)
 {
+    net_lobby_refresh_metadata();
     TbBool active = netstate.users[id].progress != USER_UNUSED;
     if (local_user_info[id].network_user_active && !active) {
         local_user_info[id].connection_id++;
@@ -117,10 +119,11 @@ TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkU
     return netstate.sp->init(OnDroppedUser);
 }
 
-TbBool OnNewUser(NetUserId *assigned_id)
+enum NetJoinRejection OnNewUser(NetUserId *assigned_id)
 {
-    if (netstate.locked) {
-        return false;
+    enum NetJoinRejection reason = net_lobby_join_rejection();
+    if (reason != NetJoin_Accepted) {
+        return reason;
     }
     for (NetUserId id = 0; id < (NetUserId)netstate.max_users; id += 1) {
         if (netstate.users[id].progress == USER_UNUSED) {
@@ -128,10 +131,10 @@ TbBool OnNewUser(NetUserId *assigned_id)
             netstate.users[id].progress = USER_CONNECTED;
             netstate.users[id].ack = -1;
             NETLOG("Assigning new user to ID %u", id);
-            return true;
+            return NetJoin_Accepted;
         }
     }
-    return false;
+    return NetJoin_Full;
 }
 
 void OnDroppedUser(NetUserId id, enum NetDropReason reason)

@@ -326,12 +326,12 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         }
     }
     if (!verify_map_checksums(s_startup_sync_packets)) {
-        create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
+        create_frontend_error_box(get_string(GUIStr_NetUnsyncedMap));
         return false;
     }
 
     if (!verify_startup_sprite_zip_checksums(s_startup_sync_packets)) {
-        create_frontend_error_box(5000, get_string(GUIStr_NetVerifyFxdataSame));
+        create_frontend_error_box(get_string(GUIStr_NetVerifyFxdataSame));
         return false;
     }
     const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[SERVER_ID];
@@ -399,13 +399,16 @@ TbBool init_players_network_game(void)
         }
         WARNLOG("Required custom sprite zip missing: %s", required_sprite_zips[zip_idx]);
         message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s missing", required_sprite_zips[zip_idx]);
-        create_frontend_error_box(5000, get_string(GUIStr_NetVerifyFxdataSame));
+        create_frontend_error_box(get_string(GUIStr_NetVerifyFxdataSame));
         initialized = false;
         break;
     }
     if (initialized) {
         build_local_startup_sync();
         initialized = net_startup_sync_exchange_and_apply();
+    }
+    if (initialized) {
+        net_lobby_set_phase(NetPhase_InGame);
     }
     if (initialized && netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
         LevelNumber map_number = get_level_number();
@@ -417,7 +420,7 @@ TbBool init_players_network_game(void)
                 map_name = get_string(level_info->name_stridx);
             }
         }
-        matchmaking_finish_lobby(MMLobbyResult_Started, (int)map_number, map_name);
+        matchmaking_start_game((int)map_number, map_name);
     }
     if (!initialized) {
         LbNetwork_Stop();
@@ -757,6 +760,7 @@ void apply_recorded_network_stop(void)
 long network_session_join(void)
 {
     int32_t plyr_num;
+    net_join_rejection = NetJoin_Accepted;
     reset_attempting_to_join_cancel();
     display_attempting_to_join_message(-1);
     if (attempting_to_join_cancel_requested())
@@ -771,7 +775,12 @@ long network_session_join(void)
             net_session_index_active_id = -1;
             matchmaking_request_list();
         }
-        process_network_error(-802);
+        const char *error = net_join_error_text(net_join_rejection);
+        if (error) {
+            create_frontend_error_box(error);
+        } else {
+            process_network_error(-802);
+        }
     }
     return -1;
 }

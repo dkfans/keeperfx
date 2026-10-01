@@ -45,6 +45,7 @@ enum FrontendNetService {
 struct ConfigInfo {
     char str_join[20];
     char net_player_name[20];
+    char net_lobby_name[64];
 };
 
 struct TbNetworkPlayerName {

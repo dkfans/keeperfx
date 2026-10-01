@@ -34,11 +34,6 @@ extern "C" {
 #define MATCHMAKING_NAME_MAX SESSION_NAME_MAX_LEN
 #define MATCHMAKING_SESSIONS_MAX 32
 
-enum MatchmakingLobbyResult {
-    MMLobbyResult_Closed,
-    MMLobbyResult_Started,
-};
-
 typedef struct {
     char ipv4[MATCHMAKING_IP_MAX];
     char ipv6[MATCHMAKING_IP_MAX];
@@ -56,10 +51,10 @@ extern char join_lobby_id[MATCHMAKING_ID_MAX];
 
 void matchmaking_set_server(const char* host);
 void matchmaking_connect_async(void);
-int matchmaking_connect(void);
 int matchmaking_request_list(void);
-void matchmaking_disconnect(void);
-void matchmaking_finish_lobby(enum MatchmakingLobbyResult result, int map_number, const char *map_name);
+void matchmaking_disconnect(enum NetSessionPhase phase);
+void matchmaking_start_game(int map_number, const char *map_name);
+void matchmaking_service(void);
 void matchmaking_refresh_sessions(void);
 int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, int direct_ipv4_port);
 int matchmaking_punch(const char *lobby_id, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output);

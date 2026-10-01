@@ -7323,3 +7323,99 @@ msgstr "キャンペーン"
 msgctxt "Menu interface item"
 msgid "Continue Campaign"
 msgstr "キャンペーンを続ける"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Network game interface"
+msgid "State"
+msgstr "状態"
+
+#: guitext:1127
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Version"
+msgstr "版"
+
+#: guitext:1128
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Unknown"
+msgstr "不明"
+
+#: guitext:1129
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby"
+msgstr "ロビー"
+
+#: guitext:1130
+#, fuzzy
+msgctxt "Network game interface"
+msgid "In-game"
+msgstr "プレイ中"
+
+#: guitext:1131
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Map"
+msgstr "マップ"
+
+#: guitext:1132
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Player list unavailable"
+msgstr "プレイヤー一覧を取得できません"
+
+#: guitext:1133
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Maximum players"
+msgstr "最大人数"
+
+#: guitext:1134
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow observers"
+msgstr "観戦を許可"
+
+#: guitext:1135
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Settings"
+msgstr "設定"
+
+#: guitext:1136
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Confirm"
+msgstr "決定"
+
+#: guitext:1137
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Game has already started."
+msgstr "ゲームはすでに始まっています。"
+
+#: guitext:1138
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Joining is temporarily locked."
+msgstr "参加は一時的に制限されています。"
+
+#: guitext:1139
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby is full."
+msgstr "ロビーは満員です。"
+
+#: guitext:1140
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host is using a different game version."
+msgstr "ホストのゲームバージョンが異なります。"
+
+#: guitext:1141
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby Name"
+msgstr "ロビー名"

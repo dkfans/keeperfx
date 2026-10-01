@@ -7359,3 +7359,99 @@ msgstr "Kampaně"
 msgctxt "Menu interface item"
 msgid "Continue Campaign"
 msgstr "Pokračovat v kampani"
+
+#: guitext:1126
+#, fuzzy
+msgctxt "Network game interface"
+msgid "State"
+msgstr "Stav"
+
+#: guitext:1127
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Version"
+msgstr "Verze"
+
+#: guitext:1128
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Unknown"
+msgstr "Neznámý"
+
+#: guitext:1129
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby"
+msgstr "Lobby"
+
+#: guitext:1130
+#, fuzzy
+msgctxt "Network game interface"
+msgid "In-game"
+msgstr "Ve hře"
+
+#: guitext:1131
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Map"
+msgstr "Mapa"
+
+#: guitext:1132
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Player list unavailable"
+msgstr "Seznam hráčů není dostupný"
+
+#: guitext:1133
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Maximum players"
+msgstr "Maximum hráčů"
+
+#: guitext:1134
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Allow observers"
+msgstr "Povolit diváky"
+
+#: guitext:1135
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Settings"
+msgstr "Nastavení"
+
+#: guitext:1136
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Confirm"
+msgstr "Potvrdit"
+
+#: guitext:1137
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Game has already started."
+msgstr "Hra již začala."
+
+#: guitext:1138
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Joining is temporarily locked."
+msgstr "Připojení je dočasně uzamčeno."
+
+#: guitext:1139
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby is full."
+msgstr "Lobby je plné."
+
+#: guitext:1140
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host is using a different game version."
+msgstr "Hostitel používá jinou verzi hry."
+
+#: guitext:1141
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Lobby Name"
+msgstr "Název lobby"

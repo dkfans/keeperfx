@@ -597,6 +597,7 @@ static LevelNumber frontnetmap_update_players(void)
     }
     if (can_start_level && (selected_level_number > SINGLEPLAYER_NOTSTARTED)) {
         set_selected_level_number(selected_level_number);
+        net_lobby_refresh_metadata();
     }
     return SINGLEPLAYER_NOTSTARTED;
 }
@@ -623,6 +624,7 @@ TbBool frontnetmap_update(void)
     }
     if (selected_level_number > 0) {
         set_selected_level_number(selected_level_number);
+        net_lobby_refresh_metadata();
         set_level_name_text(selected_level_number, NULL);
         if (fe_network_active < 1) {
             map_info.state_trigger = FeSt_START_KPRLEVEL;
