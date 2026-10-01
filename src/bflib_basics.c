@@ -334,21 +334,16 @@ int LbErrorLogClose(void)
 
 FILE *file = NULL;
 
-void write_log_to_array_for_live_viewing(const char* fmt_str, va_list args, const char* add_log_prefix) {
+void write_log_to_array_for_live_viewing(const char *message, const char *add_log_prefix)
+{
     if (consoleLogArraySize >= MAX_CONSOLE_LOG_COUNT) {
         // Array is full - so clear it. This is a bit of a stopgap solution, it will lose us the older entries.
         memset(consoleLogArray, 0, sizeof(consoleLogArray));
         consoleLogArraySize = 0;
     }
 
-    char formattedString[MAX_TEXT_LENGTH];
-    va_list copy;
-    va_copy(copy, args);
-    vsnprintf(formattedString, sizeof(formattedString), fmt_str, copy);
-    va_end(copy);
-
     char buffer[MAX_TEXT_LENGTH];
-    snprintf(buffer, sizeof(buffer), "%s%s", add_log_prefix, formattedString); // merge prefix and formatted string
+    snprintf(buffer, sizeof(buffer), "%s%s", add_log_prefix, message);
 
     // Add the combined message to the array
     strncpy(consoleLogArray[consoleLogArraySize], buffer, MAX_TEXT_LENGTH);
@@ -463,10 +458,18 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       fputs(log->prefix, file);
   }
 
-  // Write formatted message to the array
-  write_log_to_array_for_live_viewing(fmt_str, arg, log->prefix);
-
-  vfprintf(file, fmt_str, arg);
+  char *message = NULL;
+  if (SDL_vasprintf(&message, fmt_str, arg) < 0) {
+      return -1;
+  }
+  char *sanitized = LbLogSanitizeAddresses(message);
+  SDL_free(message);
+  if (!sanitized) {
+      return -1;
+  }
+  write_log_to_array_for_live_viewing(sanitized, log->prefix);
+  fputs(sanitized, file);
+  SDL_free(sanitized);
   log->position = ftell(file);
   // fclose is slow and automatically happens on normal program exit.
   // Opening/closing every time we log something hits performance hard.

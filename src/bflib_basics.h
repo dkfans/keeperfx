@@ -140,6 +140,7 @@ int LbErrorLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), no
 int LbWarnLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 int LbSyncLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 int LbNetLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
+char *LbLogSanitizeAddresses(const char *message);
 int LbJustLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 int LbNaviLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 
