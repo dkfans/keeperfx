@@ -1664,8 +1664,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
 
 void frontend_load_continue_game(struct GuiButton *gbtn)
 {
-    switch (load_continue_game())
-    {
+    switch (load_continue_game()) {
     case CntT_SavedGame:
         frontend_set_state(FeSt_LOAD_GAME);
         break;
