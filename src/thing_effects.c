@@ -144,10 +144,9 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     thing->solid_size_xy = 1;
     thing->solid_size_z = 1;
 
-    if (eestat->sprite_idx != -1)
-    {
+    if (eestat->sprite_idx != -1) {
         i = UNSYNC_RANDOM(eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
-        long n = UNSYNC_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
+        int32_t n = UNSYNC_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
         set_flag_value(thing->rendering_flags, TRF_Unshaded, eestat->unshaded);
         thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparent)) & (TRF_Transpar_Flags);

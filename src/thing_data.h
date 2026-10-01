@@ -278,7 +278,7 @@ struct Thing {
     // Push when moving; needs to be signed
     short anim_speed;
     int32_t anim_time; // animation time (measured in 1/256 of a frame)
-    unsigned short anim_sprite;
+    int32_t anim_sprite;
     unsigned short sprite_size;
     unsigned char current_frame;
     unsigned char max_frames;

@@ -164,7 +164,7 @@ TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
     }
     { // Game data chunk
         hdr.id = SGC_GameOrig;
-        hdr.ver = 0;
+        hdr.ver = GAME_DATA_VER;
         hdr.len = sizeof(struct Game);
         if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
         if (LbFileWrite(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game))
@@ -223,7 +223,7 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
     {
         { // Game data chunk
             hdr.id = SGC_GameOrig;
-            hdr.ver = 0;
+            hdr.ver = GAME_DATA_VER;
             hdr.len = sizeof(struct Game);
             if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
             if (LbFileWrite(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game))
@@ -450,8 +450,10 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             }
             break;
         case SGC_GameOrig:
-            if (hdr.len != sizeof(struct Game))
-            {
+            if (!chunk_version_ok(fhandle, &hdr, GAME_DATA_VER)) {
+                break;
+            }
+            if (hdr.len != sizeof(struct Game)) {
                 if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
                     LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
                 WARNLOG("Incompatible GameOrig chunk");

@@ -23,7 +23,7 @@
 #include "engine_buckets.h"   // QKinds enum, BasicQ, BucketKind* structs, buckets[]
 #include "engine_render.h"    // BUCKETS_COUNT, orient_to_mapU/V tables
 #include "engine_textures.h"  // TEXTURE_BLOCKS_COUNT, TEXTURE_LAND_MARKED_*, block_ptrs[]
-#include "creature_graphics.h" // struct KeeperSprite, creature_table[], creature_table_add[]
+#include "creature_graphics.h"
 #include "bflib_render.h"     // struct PolyPoint, render_fade_tables/render_ghost/render_alpha
 #include "bflib_vidraw.h"     // vec_window_width/height
 #include "bflib_video.h"      // LbPaletteGetReadonly(), pixel_size, Lb_SPRITE_* flags
@@ -1604,13 +1604,13 @@ void GLWorldViewRenderer::execute_preload_atlas()
     }
 
     // Custom sprites: fully in RAM after init_custom_sprites().
-    for (int i = 0; i < KEEPERSPRITE_ADD_NUM && m_kspr_atlas_used < k_kspr_atlas_preload_max; i++)
+    for (int i = 0; i < custom_keeper_sprite_count && m_kspr_atlas_used < k_kspr_atlas_preload_max; i++)
     {
-        if (!keepersprite_add[i]) continue;
-        const struct KeeperSprite& ks = creature_table_add[i];
+        if (!custom_keeper_sprites[i].data) continue;
+        const struct KeeperSprite& ks = custom_keeper_sprites[i].sprite;
         if (ks.SWidth <= 0 || ks.SHeight <= 0 ||
             ks.SWidth > k_kspr_decode_dim || ks.SHeight > k_kspr_decode_dim) continue;
-        const uint8_t* data = keepersprite_add[i];
+        const uint8_t* data = custom_keeper_sprites[i].data;
         const int32_t sprite_id = KEEPERSPRITE_ADD_OFFSET + i;
         if (m_kspr_atlas_map.count(sprite_id)) continue;
 

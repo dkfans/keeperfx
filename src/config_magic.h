@@ -292,7 +292,7 @@ struct ShotConfigStats {
     short sound_priority;
     unsigned char firing_sound_variants;
     short max_range;
-    unsigned short sprite_anim_idx;
+    int32_t sprite_anim_idx;
     unsigned short sprite_size_max;
     short size_xy;
     short size_z;
