@@ -109,17 +109,17 @@ static char *LbLogSanitizeAddresses(const char *message)
 
 static short error_log_initialised = 0;
 static struct TbLog error_log;
-static int LbLog(struct TbLog *log, const char *fmt_str, va_list arg);
+static SDL_Mutex *log_mutex = NULL;
+static int LbLog(struct TbLog *log, const char *prefix, const char *fmt_str, va_list arg);
 
 int LbErrorLog(const char *format, ...)
 {
     if (!error_log_initialised) {
         return -1;
     }
-    LbLogSetPrefix(&error_log, "Error: ");
     va_list val;
     va_start(val, format);
-    int result = LbLog(&error_log, format, val);
+    int result = LbLog(&error_log, "Error: ", format, val);
     va_end(val);
     return result;
 }
@@ -129,10 +129,9 @@ int LbWarnLog(const char *format, ...)
     if (!error_log_initialised) {
         return -1;
     }
-    LbLogSetPrefix(&error_log, "Warning: ");
     va_list val;
     va_start(val, format);
-    int result = LbLog(&error_log, format, val);
+    int result = LbLog(&error_log, "Warning: ", format, val);
     va_end(val);
     return result;
 }
@@ -142,10 +141,9 @@ int LbNetLog(const char *format, ...)
     if (!error_log_initialised) {
         return -1;
     }
-    LbLogSetPrefix(&error_log, "Net: ");
     va_list val;
     va_start(val, format);
-    int result = LbLog(&error_log, format, val);
+    int result = LbLog(&error_log, "Net: ", format, val);
     va_end(val);
     return result;
 }
@@ -155,10 +153,9 @@ int LbSyncLog(const char *format, ...)
     if (!error_log_initialised) {
         return -1;
     }
-    LbLogSetPrefix(&error_log, "Sync: ");
     va_list val;
     va_start(val, format);
-    int result = LbLog(&error_log, format, val);
+    int result = LbLog(&error_log, "Sync: ", format, val);
     va_end(val);
     return result;
 }
@@ -168,10 +165,9 @@ int LbNaviLog(const char *format, ...)
     if (!error_log_initialised) {
         return -1;
     }
-    LbLogSetPrefix(&error_log, "Navi: ");
     va_list val;
     va_start(val, format);
-    int result = LbLog(&error_log, format, val);
+    int result = LbLog(&error_log, "Navi: ", format, val);
     va_end(val);
     return result;
 }
@@ -182,10 +178,9 @@ int LbFTestLog(const char *format, ...)
     if (!error_log_initialised) {
         return -1;
     }
-    LbLogSetPrefix(&error_log, "FTest: ");
     va_list val;
     va_start(val, format);
-    int result = LbLog(&error_log, format, val);
+    int result = LbLog(&error_log, "FTest: ", format, val);
     va_end(val);
     return result;
 }
@@ -199,10 +194,11 @@ int LbScriptLog(int32_t line, const char *format, ...)
     if (!error_log_initialised) {
         return -1;
     }
-    LbLogSetPrefixFmt(&error_log, "Script(line %" PRId32 "): ", line);
+    char prefix[LOG_PREFIX_LEN];
+    snprintf(prefix, sizeof(prefix), "Script(line %" PRId32 "): ", line);
     va_list val;
     va_start(val, format);
-    int result = LbLog(&error_log, format, val);
+    int result = LbLog(&error_log, prefix, format, val);
     va_end(val);
     return result;
 }
@@ -215,10 +211,11 @@ int LbConfigLog(int32_t line, const char *format, ...)
     if (!error_log_initialised) {
         return -1;
     }
-    LbLogSetPrefixFmt(&error_log, "Config(line %" PRId32 "): ", line);
+    char prefix[LOG_PREFIX_LEN];
+    snprintf(prefix, sizeof(prefix), "Config(line %" PRId32 "): ", line);
     va_list val;
     va_start(val, format);
-    int result = LbLog(&error_log, format, val);
+    int result = LbLog(&error_log, prefix, format, val);
     va_end(val);
     return result;
 }
@@ -228,10 +225,9 @@ int LbJustLog(const char *format, ...)
     if (!error_log_initialised) {
         return -1;
     }
-    LbLogSetPrefix(&error_log, "");
     va_list val;
     va_start(val, format);
-    int result = LbLog(&error_log, format, val);
+    int result = LbLog(&error_log, "", format, val);
     va_end(val);
     return result;
 }
@@ -250,6 +246,12 @@ int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
     }
     ulong flags = (flag == 0) + 1;
     flags |= LbLog_TimeInHeader | LbLog_DateInHeader | 0x04;
+    if (!log_mutex) {
+        log_mutex = SDL_CreateMutex();
+        if (!log_mutex) {
+            return -1;
+        }
+    }
     if (LbLogSetup(&error_log, log_filename, flags) != 1) {
         return -1;
     }
@@ -284,18 +286,31 @@ static void write_log_to_array_for_live_viewing(const char *message, const char 
     consoleLogArraySize++;
 }
 
-static int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
+static int LbLog(struct TbLog *log, const char *prefix, const char *fmt_str, va_list arg)
 {
     enum Header {
         NONE = 0,
         CREATE = 1,
         APPEND = 2,
     };
-    if (!log->Initialised) {
+    char *message = NULL;
+    if (SDL_vasprintf(&message, fmt_str, arg) < 0) {
         return -1;
     }
-    if (log->Suspended) {
-        return 1;
+    char *sanitized = LbLogSanitizeAddresses(message);
+    SDL_free(message);
+    if (!sanitized) {
+        return -1;
+    }
+    SDL_LockMutex(log_mutex);
+    if (!log->Initialised || log->Suspended) {
+        int result = -1;
+        if (log->Initialised) {
+            result = 1;
+        }
+        SDL_UnlockMutex(log_mutex);
+        SDL_free(sanitized);
+        return result;
     }
     char header = NONE;
     short need_initial_newline = false;
@@ -320,6 +335,8 @@ static int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
     if (log_file == NULL) {
         log_file = fopen(log->filename, accmode);
         if (log_file == NULL) {
+            SDL_UnlockMutex(log_mutex);
+            SDL_free(sanitized);
             return -1;
         }
     }
@@ -374,24 +391,16 @@ static int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
             fprintf(log_file, "%02u:%02u:%02u ", curr_time.Hour, curr_time.Minute, curr_time.Second);
         }
     }
-    if (log->prefix[0] != '\0') {
-        fputs(log->prefix, log_file);
+    if (prefix[0] != '\0') {
+        fputs(prefix, log_file);
     }
 
-    char *message = NULL;
-    if (SDL_vasprintf(&message, fmt_str, arg) < 0) {
-        return -1;
-    }
-    char *sanitized = LbLogSanitizeAddresses(message);
-    SDL_free(message);
-    if (!sanitized) {
-        return -1;
-    }
-    write_log_to_array_for_live_viewing(sanitized, log->prefix);
+    write_log_to_array_for_live_viewing(sanitized, prefix);
     fputs(sanitized, log_file);
     SDL_free(sanitized);
     log->position = ftell(log_file);
     fflush(log_file);
+    SDL_UnlockMutex(log_mutex);
     return 1;
 }
 
@@ -435,7 +444,9 @@ int LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
 
 int LbLogClose(struct TbLog *log)
 {
+    SDL_LockMutex(log_mutex);
     if (!log->Initialised) {
+        SDL_UnlockMutex(log_mutex);
         return -1;
     }
     memset(log->filename, 0, DISKPATH_SIZE);
@@ -445,5 +456,6 @@ int LbLogClose(struct TbLog *log)
     log->Created = false;
     log->Suspended = false;
     log->position = 0;
+    SDL_UnlockMutex(log_mutex);
     return 1;
 }
