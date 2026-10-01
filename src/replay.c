@@ -49,6 +49,7 @@ struct ReplayState replay;
 unsigned long initial_replay_seed;
 static TbBool replay_playback_paused;
 static char *pending_resync;
+static TbBool replay_map_mismatch;
 static size_t pending_resync_len;
 static TbBigChecksum replay_expected_checksum;
 static TbBool replay_checksum_pending;
@@ -789,11 +790,13 @@ TbBool verify_replay_map_checksums(void)
             get_loaded_level_number(), network_startup_compare_files[i]);
         diff_count++;
     }
-    return (diff_count == 0);
+    replay_map_mismatch = (diff_count != 0);
+    return !replay_map_mismatch;
 }
 
 TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 {
+    replay_map_mismatch = false;
     memset(centry, 0, sizeof(struct CatalogueEntry));
     strcpy(replay.fname, fname);
     replay.fp = LbFileOpen(replay.fname, Lb_FILE_MODE_READ_ONLY);
@@ -1464,15 +1467,18 @@ void load_packets_for_turn(GameTurn nturn)
 
 void verify_replay_checksum(void)
 {
-    if (!replay_checksum_pending)
-        return;
-    replay_checksum_pending = false;
-    if (compute_replay_integrity() != replay_expected_checksum)
+    if (replay_checksum_pending)
     {
-        ERRORLOG("PacketSave checksum - Out of sync (GameTurn %u)", get_gameturn());
-        if (!is_onscreen_msg_visible())
-            show_onscreen_msg(turns_per_second, "Out of sync");
+        replay_checksum_pending = false;
+        if (compute_replay_integrity() != replay_expected_checksum)
+        {
+            ERRORLOG("PacketSave checksum - Out of sync (GameTurn %u)", get_gameturn());
+            if (!is_onscreen_msg_visible())
+                show_onscreen_msg(turns_per_second, "Out of sync");
+        }
     }
+    if (replay_map_mismatch && !is_onscreen_msg_visible())
+        show_onscreen_msg(turns_per_second, "Map data mismatch");
 }
 
 void disable_packet_mode(void)
