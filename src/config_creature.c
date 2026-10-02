@@ -430,6 +430,9 @@ void init_creature_model_stats(ThingModel crmodel)
     crconf->damage_to_boulder = 4;
     crconf->thing_size_xy = 128;
     crconf->thing_size_z = 64;
+    crconf->fall_acceleration = 32;
+    crconf->inertia_floor = 32;
+    crconf->inertia_air = 8;
     crconf->bleeds = true;
     crconf->humanoid_creature = true;
     crconf->piss_on_dead = false;

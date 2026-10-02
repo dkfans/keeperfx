@@ -4953,10 +4953,10 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->clipbox_size_z = crconf->size_z;
     crtng->solid_size_xy = crconf->thing_size_xy;
     crtng->solid_size_z = crconf->thing_size_z;
-    crtng->fall_acceleration = CREATURE_FALL_ACCELERATION;
+    crtng->fall_acceleration = crconf->fall_acceleration;
     crtng->bounce_angle = 0;
-    crtng->inertia_floor = 32;
-    crtng->inertia_air = 8;
+    crtng->inertia_floor = crconf->inertia_floor;
+    crtng->inertia_air = crconf->inertia_air;
     crtng->movement_flags |= TMvF_ZeroVerticalVelocity;
     crtng->owner = owner;
     crtng->move_angle_xy = ANGLE_NORTH;
