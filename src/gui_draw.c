@@ -285,7 +285,7 @@ static void draw_round_slab_sprite(long pos_x, long pos_y, int units_per_px, con
         LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
 }
 
-void draw_round_slab64k_remap(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type, const unsigned char *cmap)
+void draw_round_slab64k_remap(int32_t pos_x, int32_t pos_y, int units_per_px, int32_t width, int32_t height, int32_t style_type, const unsigned char *cmap, TbPixel fill_colour)
 {
     unsigned short drwflags_mem = RendererGetDrawFlags();
     int32_t fill_inset = scale_ui_value_lofi(4);
@@ -294,21 +294,15 @@ void draw_round_slab64k_remap(long pos_x, long pos_y, int units_per_px, long wid
     int32_t corner_width = scale_ui_value_lofi(12);
     int32_t corner_height = scale_ui_value_lofi(12);
     RendererClearDrawFlags(Lb_SPRITE_OUTLINE);  
+    TbDrawFlagsMask fill_flags = Lb_SPRITE_TRANSPAR8;
     if (style_type == ROUNDSLAB64K_LIGHT) {
-        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR4);
-        LbDrawBox(pos_x + scale_ui_value_lofi(4), pos_y + scale_ui_value_lofi(4), width - scale_ui_value_lofi(8), height - scale_ui_value_lofi(8), 1);
-        LbDrawBox(pos_x + fill_inset, pos_y + fill_inset, width - 2 * fill_inset, height - 2 * fill_inset, 1);
-        LbDrawBox(pos_x + width - fill_inset, pos_y + corner_height, fill_inset, height - 2 * corner_height, 1);
-        LbDrawBox(pos_x + corner_width, pos_y + height - fill_inset, width - 2 * corner_width, fill_inset, 1);
-        RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
-    } else {
-        RendererAddDrawFlags(Lb_SPRITE_TRANSPAR8);
-        LbDrawBox(pos_x + scale_ui_value_lofi(4), pos_y + scale_ui_value_lofi(4), width - scale_ui_value_lofi(8), height - scale_ui_value_lofi(8), 1);
-        LbDrawBox(pos_x + fill_inset, pos_y + fill_inset, width - 2 * fill_inset, height - 2 * fill_inset, 1);
-        LbDrawBox(pos_x + width - fill_inset, pos_y + corner_height, fill_inset, height - 2 * corner_height, 1);
-        LbDrawBox(pos_x + corner_width, pos_y + height - fill_inset, width - 2 * corner_width, fill_inset, 1);
-        RendererClearDrawFlags(Lb_SPRITE_TRANSPAR8);
+        fill_flags = Lb_SPRITE_TRANSPAR4;
     }
+    RendererAddDrawFlags(fill_flags);
+    LbDrawBox(pos_x + fill_inset, pos_y + fill_inset, width - 2 * fill_inset, height - 2 * fill_inset, fill_colour);
+    LbDrawBox(pos_x + width - fill_inset, pos_y + corner_height, fill_inset, height - 2 * corner_height, fill_colour);
+    LbDrawBox(pos_x + corner_width, pos_y + height - fill_inset, width - 2 * corner_width, fill_inset, fill_colour);
+    RendererClearDrawFlags(fill_flags);
     int x;
     int y;
     const struct TbSprite* spr = get_panel_sprite(GPS_message_frame_thin_hex_ct);
@@ -349,7 +343,7 @@ void draw_round_slab64k_remap(long pos_x, long pos_y, int units_per_px, long wid
 
 void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type)
 {
-    draw_round_slab64k_remap(pos_x, pos_y, units_per_px, width, height, style_type, NULL);
+    draw_round_slab64k_remap(pos_x, pos_y, units_per_px, width, height, style_type, NULL, 1);
 }
 
 /**

@@ -115,7 +115,6 @@ enum TbDrawFlags {
     Lb_TEXT_REMAP          = 0x2000,
     // GPU additive (glow/fire) blend for keeper sprites, only used by gl fragmnt shader.
     Lb_SPRITE_ALPHA_ADDITIVE = 0x4000,
-    Lb_DRAW_BLEND_COLOUR = 0x8000,
 };
 
 enum TbVideoModeFlags {
