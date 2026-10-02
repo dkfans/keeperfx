@@ -39,6 +39,7 @@
 #define POS_GAMECTR  999
 #define ROUNDSLAB64K_LIGHT 0
 #define ROUNDSLAB64K_DARK 1
+#define ROUNDSLAB64K_DARKER 2
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -128,7 +128,7 @@ static void landview_build_glass_map(void)
 {
     for (int screen_colour = 0; screen_colour < PALETTE_COLORS; screen_colour++) {
         const unsigned char *colour = &frontend_palette[3 * screen_colour];
-        unsigned char darkened = LbPaletteFindColour(frontend_palette, colour[0] / 3, colour[1] / 3, colour[2] / 3);
+        unsigned char darkened = LbPaletteFindColour(frontend_palette, colour[0] / 4, colour[1] / 4, colour[2] / 4);
 
         for (int drawn_colour = 0; drawn_colour < PALETTE_COLORS; drawn_colour++) {
             landview_glass_map[screen_colour * PALETTE_COLORS + drawn_colour] = darkened;

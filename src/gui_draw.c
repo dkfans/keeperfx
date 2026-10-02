@@ -297,6 +297,8 @@ void draw_round_slab64k_remap(int32_t pos_x, int32_t pos_y, int units_per_px, in
     TbDrawFlagsMask fill_flags = Lb_SPRITE_TRANSPAR8;
     if (style_type == ROUNDSLAB64K_LIGHT) {
         fill_flags = Lb_SPRITE_TRANSPAR4;
+    } else if (style_type == ROUNDSLAB64K_DARKER) {
+        fill_flags = Lb_SPRITE_ALPHA_75;
     }
     RendererAddDrawFlags(fill_flags);
     LbDrawBox(pos_x + fill_inset, pos_y + fill_inset, width - 2 * fill_inset, height - 2 * fill_inset, fill_colour);
