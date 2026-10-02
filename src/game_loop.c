@@ -784,7 +784,7 @@ static TbBool faststartup_saved_packet_game(void)
 
 static TbBool wait_at_frontend(void)
 {
-    static char failed_load_campaign[CAMPAIGN_FNAME_LEN];
+    static char failed_load_campaign[DISKPATH_SIZE];
     struct PlayerInfo *player;
     // This is an improvised coroutine-like stuff
     CoroutineLoop loop;
