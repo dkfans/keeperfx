@@ -249,7 +249,7 @@ static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *con
     if (gbtn->content.lval == 45) {
         panel_y -= 3 * thickness;
     }
-    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8 | Lb_DRAW_BLEND_COLOUR);
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8);
     LbDrawBox(separator_x, panel_y, separator_width, separator_y - panel_y, 37);
     RendererSetDrawFlags(0);
     for (int i = 0; i < 4; i++) {
@@ -260,7 +260,7 @@ static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *con
     RendererSetDrawFlags(0);
     LbDrawBox(separator_x, separator_y, separator_width, thickness, 6);
     LbDrawBox(separator_x, separator_y + thickness, separator_width, thickness, 105);
-    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8 | Lb_DRAW_BLEND_COLOUR);
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8);
     LbDrawBox(separator_x, separator_y + 2 * thickness, separator_width, thickness, 37);
     LbDrawBox(separator_x, separator_y + 3 * thickness, separator_width, thickness, 0);
     RendererSetDrawFlags(0);

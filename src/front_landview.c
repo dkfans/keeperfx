@@ -126,15 +126,13 @@ void landview_set_text(const char *text)
 
 static void landview_build_glass_map(void)
 {
-    for (int screen_colour = 0; screen_colour < PALETTE_COLORS; screen_colour++)
-    {
+    for (int screen_colour = 0; screen_colour < PALETTE_COLORS; screen_colour++) {
         const unsigned char *colour = &frontend_palette[3 * screen_colour];
-        unsigned char darkened = LbPaletteFindColour(frontend_palette,
-            colour[0] * 96 / 256, colour[1] * 96 / 256, colour[2] * 96 / 256);
+        unsigned char darkened = LbPaletteFindColour(frontend_palette, colour[0] / 4, colour[1] / 4, colour[2] / 4);
 
-        /* TRANSPAR4 indexes the table as [drawn colour][screen colour]. */
-        for (int drawn_colour = 0; drawn_colour < PALETTE_COLORS; drawn_colour++)
-            landview_glass_map[drawn_colour * PALETTE_COLORS + screen_colour] = darkened;
+        for (int drawn_colour = 0; drawn_colour < PALETTE_COLORS; drawn_colour++) {
+            landview_glass_map[screen_colour * PALETTE_COLORS + drawn_colour] = darkened;
+        }
     }
 }
 
