@@ -83,6 +83,14 @@ void GLTileAtlas::Free()
     m_initialized = false;
 }
 
+void GLTileAtlas::Rebuild()
+{
+    if (!m_initialized || block_ptrs[0] == nullptr) return;
+    for (int v = 0; v < TEXTURE_VARIATIONS_COUNT; v++)
+        BuildVariation(v);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
 void GLTileAtlas::UpdateAnimatedTiles()
 {
     if (!m_initialized) return;

@@ -108,6 +108,7 @@ struct RendererOpenGL::Impl {
     GLPaletteIndexLookup palette_index_lookup;
 
     bool fade_tables_refreshed = false;
+    unsigned int world_atlas_generation = 0;
 
     RenderThreadManager thread_mgr;
     GLFrameData frames[2];
@@ -479,6 +480,9 @@ void RendererOpenGL::render_thread_work()
 
         if (!m_impl->world_atlas.IsInitialized() && block_ptrs[0] != nullptr)
             m_impl->world_atlas.Init();
+        else if (m_impl->world_atlas_generation != level_textures_generation)
+            m_impl->world_atlas.Rebuild();
+        m_impl->world_atlas_generation = level_textures_generation;
 
         if (!m_impl->fade_tables_refreshed && fade_tables_ready)
         {
