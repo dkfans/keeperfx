@@ -83,13 +83,32 @@ TbBool has_available_enemy_dungeon_heart(struct Thing *thing, PlayerNumber plyr_
     return false;
 }
 
-long good_find_best_enemy_dungeon(struct Thing* creatng)
+TbBool has_available_rooms_to_attack(struct Thing* thing, PlayerNumber plyr_idx)
+{
+    SYNCDBG(18, "Starting");
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->hero.ready_for_attack_flag != 0) || (cctrl->hero.hero_state_reset_flag != 0))
+    {
+        cctrl->hero.ready_for_attack_flag = 0;
+        cctrl->hero.hero_state_reset_flag = 0;
+    }
+    if (players_are_enemies(thing->owner, plyr_idx) && creature_can_get_to_any_of_players_rooms(thing, plyr_idx))
+    {
+        return true;
+    }
+    return false;
+}
+
+PlayerNumber good_find_best_enemy_dungeon(struct Thing* creatng)
 {
     PlayerNumber best_plyr_idx = -1;
     PlayerNumber backup_plyr_idx = -1;
     struct PlayerInfo* player;
     struct Dungeon* dungeon;
-    long best_score = INT32_MIN;
+    int best_score = INT32_MIN;
+    int best_backup_score = INT32_MIN;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
@@ -121,6 +140,17 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
                     {
                         best_score = score;
                         best_plyr_idx = plyr_idx;
+                    }
+                }
+                else
+                {
+                    if (((cctrl->party.objective == CHeroTsk_AttackRooms) || (cctrl->party.objective == CHeroTsk_SabotageRooms)) && (best_plyr_idx == -1) && (has_available_rooms_to_attack(creatng, plyr_idx)))
+                    {
+                        if (best_backup_score < score)
+                        {
+                            best_backup_score = score;
+                            backup_plyr_idx = plyr_idx;
+                        }
                     }
                 }
             }
@@ -929,7 +959,7 @@ short good_doing_nothing(struct Thing *creatng)
                 // Go to the previously chosen dungeon
                 if (!creature_can_get_to_dungeon_heart(creatng,target_plyr_idx))
                 {
-                    if (!creature_can_get_to_any_of_players_rooms(creatng, target_plyr_idx) || (cctrl->party.objective != CHeroTsk_AttackRooms))
+                    if (((cctrl->party.objective != CHeroTsk_AttackRooms) && (cctrl->party.objective != CHeroTsk_SabotageRooms)) || !creature_can_get_to_any_of_players_rooms(creatng, target_plyr_idx))
                     {
                         // Cannot get to the originally selected dungeon - reset it
                         cctrl->party.target_plyr_idx = -1;
