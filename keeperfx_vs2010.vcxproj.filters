@@ -323,6 +323,7 @@
     <ClCompile Include="src\net_input_lag.c" />
     <ClCompile Include="src\value_util.c" />
     <ClCompile Include="src\replay.c" />
+    <ClCompile Include="src\logging.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h" />

@@ -69,6 +69,7 @@
     <ClCompile Include="src\kfx\renderer\software\SwDrawTarget.c" />
     <ClCompile Include="src\kfx\renderer\software\SwZoomBoxTiles.c" />
     <ClCompile Include="src\kfx_memory.c" />
+    <ClCompile Include="src\logging.c" />
     <ClCompile Include="src\lua_api_lens.c" />
     <ClCompile Include="src\lua_api_room.c" />
     <ClCompile Include="src\bflib_planar.c" />

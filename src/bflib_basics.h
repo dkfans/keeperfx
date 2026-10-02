@@ -146,8 +146,8 @@ int LbNaviLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), non
 #ifdef FUNCTESTING
 int LbFTestLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 #endif
-int LbScriptLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
-int LbConfigLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
+int LbScriptLog(int32_t line, const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
+int LbConfigLog(int32_t line, const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
 
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
 int LbErrorLogClose(void);

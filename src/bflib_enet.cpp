@@ -56,6 +56,7 @@ namespace
     NetDropCallback g_drop_callback = nullptr;
     ENetHost *host = nullptr;
     ENetPeer *client_peer = nullptr;
+    enet_uint32 connection_ids[MAX_NET_USERS] = {0};
     int host_is_dual_stack = 0;
     TransferRateTracker download_rate_tracker = {0, 0};
     TransferRateTracker upload_rate_tracker = {0, 0};
@@ -65,6 +66,22 @@ namespace
     TbClockMSec host_punch_deadline = 0;
     int peer_punch_reported = 0;
     int punch_phase_active = 0;
+
+    void log_peer_connection(const ENetPeer *peer, NetUserId user_id, const char *status)
+    {
+        enet_uint32 connection_id = peer->connectID;
+        if (user_id >= 0 && user_id < MAX_NET_USERS) {
+            if (peer->state == ENET_PEER_STATE_DISCONNECTED) {
+                connection_id = connection_ids[user_id];
+                connection_ids[user_id] = 0;
+            } else {
+                connection_ids[user_id] = connection_id;
+            }
+        }
+        char address[ENET_ADDRESS_BUFFER_SIZE] = {0};
+        enet_address_get_host_ip(&peer->address, address, sizeof(address));
+        LbNetLog("ENet: user %d connection %08x at %s %s\n", (int)user_id, (unsigned)connection_id, address, status);
+    }
 
     void reset_punch_addresses()
     {
@@ -89,11 +106,13 @@ namespace
         if (host_punch_deadline) {
             role = "Host";
         }
-        if ((received_mask & 1) && !(peer_punch_reported & 1)) {
-            LbNetLog("%s: peer punch received via IPv4\n", role);
-        }
-        if ((received_mask & 2) && !(peer_punch_reported & 2)) {
-            LbNetLog("%s: peer punch received via IPv6\n", role);
+        for (int i = 0; i < 2; i++) {
+            if (!(received_mask & (1 << i)) || (peer_punch_reported & (1 << i))) {
+                continue;
+            }
+            char address[ENET_ADDRESS_BUFFER_SIZE] = {0};
+            enet_address_get_host_ip(&pending_punches[i], address, sizeof(address));
+            LbNetLog("%s: peer punch received at %s\n", role, address);
         }
         peer_punch_reported |= received_mask;
         if (!enet_address_equal(&pending_punches[0], &pending_punch_ipv4)) {
@@ -190,6 +209,7 @@ namespace
         download_rate_tracker = TransferRateTracker();
         upload_rate_tracker = TransferRateTracker();
         client_peer = nullptr;
+        memset(connection_ids, 0, sizeof(connection_ids));
         if (host) {
             for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
                 if (peer->state == ENET_PEER_STATE_CONNECTED) {
@@ -335,6 +355,7 @@ namespace
         punch_phase_active = 0;
         enet_peer_timeout(next_peer, PEER_TIMEOUT_LIMIT, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
         cleanup_join_host(old_host, old_peer);
+        log_peer_connection(next_peer, SERVER_ID, "connected");
         enet_host_set_intercept_callback(next_host, nullptr);
         host = next_host;
         client_peer = next_peer;
@@ -373,6 +394,7 @@ namespace
             int service_result = enet_host_service(host, &enet_event, 0);
             if (service_result > 0 && enet_event.type == ENET_EVENT_TYPE_CONNECT) {
                 LbNetLog("Join: connected successfully via %s\n", join_type);
+                log_peer_connection(client_peer, SERVER_ID, "connected");
                 net_join_rejection = NetJoin_Accepted;
                 enet_peer_timeout(client_peer, PEER_TIMEOUT_LIMIT, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
                 return Lb_OK;
@@ -686,7 +708,6 @@ namespace
         switch (enet_event.type)
         {
             case ENET_EVENT_TYPE_CONNECT: {
-                LbNetLog("ENet: incoming connection accepted\n");
                 enum NetJoinRejection reason = NetJoin_Locked;
                 if (!client_peer) {
                     if (!new_user) {
@@ -695,9 +716,11 @@ namespace
                     reason = new_user(&user_id);
                 }
                 if (reason == NetJoin_Accepted) {
+                    log_peer_connection(enet_event.peer, user_id, "accepted");
                     enet_peer_timeout(enet_event.peer, PEER_TIMEOUT_LIMIT, PEER_TIMEOUT_MIN_MS, PEER_TIMEOUT_MAX_MS);
                     enet_event.peer->data = reinterpret_cast<void *>(user_id);
                 } else {
+                    log_peer_connection(enet_event.peer, INVALID_USER_ID, "rejected");
                     LbNetLog("ENet: rejecting peer, reason %d\n", (int)reason);
                     enet_peer_disconnect_now(enet_event.peer, reason);
                 }
@@ -717,7 +740,7 @@ namespace
                 if (enet_event.type == ENET_EVENT_TYPE_DISCONNECT)
                     disconnect_reason = "disconnected (clean)";
                 destroy_incoming_queue(user_id);
-                LbNetLog("ENet: peer %d %s\n", (int)user_id, disconnect_reason);
+                log_peer_connection(enet_event.peer, user_id, disconnect_reason);
                 g_drop_callback(user_id, NETDROP_ERROR);
                 break;
             }

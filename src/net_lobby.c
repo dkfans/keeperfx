@@ -142,6 +142,7 @@ TbError process_login_message(NetUserId source, char *read_pos)
 {
     if (source == SERVER_ID) {
         netstate.my_id = (NetUserId)read_pos[0];
+        LbNetLog("Login: assigned local user ID %d\n", (int)netstate.my_id);
         read_pos += 1;
         netstate.users[netstate.my_id].version = net_current_version;
         const struct GameVersionPacket *server_version = (const struct GameVersionPacket *)read_pos;
@@ -188,7 +189,7 @@ TbError process_login_message(NetUserId source, char *read_pos)
         netstate.sp->drop_user(source, NetJoin_Version);
         return Lb_OK;
     }
-    NETMSG("User %s successfully logged in", user->name);
+    NETMSG("User %d (%s) successfully logged in", (int)source, user->name);
     user->progress = USER_LOGGEDIN;
     play_non_3d_sample(snd_spell_stars);
     char *reply_pos = begin_net_message(NETMSG_LOGIN);
