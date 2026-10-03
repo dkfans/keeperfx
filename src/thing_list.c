@@ -3495,6 +3495,11 @@ TbBool update_thing(struct Thing *thing)
                 kill_creature(thing, INVALID_THING, thing->pushed_by_player, CrDed_DiedInBattle);
                 output_message_far_from_thing(thing, SMsg_BattleDeath, MESSAGE_DURATION_BATTLE);
             }
+            else if (flag_is_set(thing->movement_flags, TMvF_Grounded))
+            {
+                kill_creature(thing, INVALID_THING, -1, CrDed_DiedInBattle);
+                output_message_far_from_thing(thing, SMsg_BattleDeath, MESSAGE_DURATION_BATTLE);
+            }
             else
             {
                 kill_creature(thing, INVALID_THING, -1, CrDed_Default);
