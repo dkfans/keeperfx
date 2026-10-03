@@ -471,7 +471,7 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
         {
             if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
             {
-                if (camera->view_mode != PVM_CreatureView)
+                if ((get_local_view_type(player) != PVT_CreatureContrl) && (get_local_view_type(player) != PVT_CreaturePasngr))
                     shown = setup_scrolling_tooltips(&mappos);
             }
         }

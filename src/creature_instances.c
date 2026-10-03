@@ -718,7 +718,7 @@ long instf_destroy(struct Thing *creatng, int32_t *param)
         if (room->health > 1)
         {
             room->health--;
-            if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+            if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
             {
                 volume = FULL_LOUDNESS;
             }
@@ -744,7 +744,7 @@ long instf_destroy(struct Thing *creatng, int32_t *param)
     if (slb->health > 1)
     {
         slb->health--;
-        if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+        if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
         {
             volume = FULL_LOUDNESS;
         }
@@ -755,7 +755,7 @@ long instf_destroy(struct Thing *creatng, int32_t *param)
         struct Dungeon* prev_dungeon = get_dungeon(prev_owner);
         prev_dungeon->lvstats.territory_lost++;
     }
-    if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+    if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
     {
         volume = FULL_LOUDNESS;
     }
@@ -1069,7 +1069,7 @@ long instf_reinforce(struct Thing *creatng, int32_t *param)
             struct PlayerInfo* player;
             player = get_my_player();
             int volume = 32;
-            if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+            if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
             {
                 volume = FULL_LOUDNESS;
             }

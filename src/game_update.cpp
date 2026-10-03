@@ -522,12 +522,12 @@ void update(void)
         process_players();
         process_action_points();
         player = get_my_player();
-        if (player->view_mode == PVM_CreatureView)
+        if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
         {
             struct Thing *thing = thing_get(player->controlled_thing_idx);
             update_first_person_object_ambience(thing);
         }
-        update_footsteps_nearest_camera(get_player_active_camera(player));
+        update_footsteps_nearest_camera(get_local_active_camera(player));
         PaletteFadePlayer(player);
         process_armageddon();
         update_global_lighting();
@@ -542,7 +542,7 @@ void update(void)
     }
 
     message_update();
-    update_all_players_cameras();
+    update_camera_shake();
     update_player_sounds();
     SYNCDBG(6,"Finished");
 }

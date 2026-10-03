@@ -352,7 +352,7 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
                 if (is_my_player_number(dungeon->owner))
                 {
                     struct PlayerInfo* player = get_player(dungeon->owner);
-                    if ( (get_gameturn() > 10) && (player->view_type != PVT_DungeonTop || (game.operation_flags & GOF_ShowGui)) )
+                    if ( (get_gameturn() > 10) && (get_player_view_type(player) != PVT_DungeonTop || (game.operation_flags & GOF_ShowGui)) )
                     {
                         play_non_3d_sample(snd_tab_fall);
                     }
@@ -712,7 +712,7 @@ void event_process_events(void)
             continue;
         }
         struct PlayerInfo*player = get_player(event->owner);
-        if (player->view_type <= PVT_DungeonTop) //Freeze lifespan of events of human player on map or possession
+        if (get_player_view_type(player) <= PVT_DungeonTop) //Freeze lifespan of events of human player on map or possession
         {
             if (event->lifespan_turns > 0) {
                 event->lifespan_turns--;

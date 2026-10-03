@@ -55,6 +55,7 @@
 #include "engine_lenses.h"
 #include "room_util.h"
 #include "player_instances.h"
+#include "local_camera.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1634,10 +1635,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
 
 static TbBool lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    struct Camera *camera = get_player_active_camera(player);
-    if (camera == NULL)
-        return false;
-    return get_chessboard_distance(&camera->mappos, pos) < subtile_coord(45,0);
+    return get_chessboard_distance(&get_local_active_camera(player)->mappos, pos) < subtile_coord(45,0);
 }
 
 static void affect_nearby_friends_with_alarm(struct Thing *traptng)

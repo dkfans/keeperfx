@@ -54,24 +54,46 @@ struct UserState bad_user_state;
 unsigned char my_player_number;
 /******************************************************************************/
 
-struct Camera *get_player_active_camera(const struct PlayerInfo *player)
+enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate)
 {
-    if (player == NULL)
-        return NULL;
-    unsigned char cam_idx = player->active_camera_idx;
-    if (cam_idx >= 4)
-        cam_idx = CamIV_Isometric;
-    return &((struct PlayerInfo *)player)->cameras[cam_idx];
+    if (ustate->dungeon_camera.use_front_view)
+        return PVM_FrontView;
+    return ustate->dungeon_wibble ? PVM_IsoWibbleView : PVM_IsoStraightView;
 }
 
-void set_player_active_camera(struct PlayerInfo *player, unsigned char cam_idx)
+int32_t get_player_dungeon_yaw(const struct PlayerInfo *player)
 {
-    if (player == NULL)
-        return;
-    if (cam_idx >= 4)
-        cam_idx = CamIV_Isometric;
-    player->active_camera_idx = cam_idx;
+    const struct UserState *ustate = get_player_user_state(player);
+    if (user_state_invalid(ustate))
+        return 0;
+    return ustate->dungeon_camera.yaw[ustate->dungeon_camera.use_front_view];
 }
+
+
+unsigned char get_player_view_type(const struct PlayerInfo *player)
+{
+    const struct UserState *ustate = get_player_user_state(player);
+    if (user_state_invalid(ustate))
+        return PVT_DungeonTop;
+    return ustate->view_type;
+}
+
+/** Which of a user's local cameras shows this player's view. */
+unsigned char get_player_active_camera_index(const struct PlayerInfo *player)
+{
+    switch (get_player_view_type(player))
+    {
+    case PVT_CreatureContrl:
+    case PVT_CreaturePasngr:
+        return CamIV_FirstPerson;
+    case PVT_MapScreen:
+    case PVT_MapFadeOut:
+        return CamIV_Parchment;
+    default:
+        return get_player_user_state(player)->dungeon_camera.use_front_view ? CamIV_FrontView : CamIV_Isometric;
+    }
+}
+
 
 struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name)
 {
@@ -505,12 +527,12 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
 {
   if (is_my_player(player) && local_state.view_type == nview)
     local_state.view_type = PVT_None;
-  if (player->view_type == nview)
-    return;
-  player->view_type = nview;
   struct UserState* ustate = get_player_user_state(player);
+  if (user_state_invalid(ustate) || (ustate->view_type == nview))
+    return;
+  const TbBool leaving_map = (ustate->view_type == PVT_MapScreen) || (ustate->view_type == PVT_MapFadeOut);
+  ustate->view_type = nview;
   ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
-  ustate->first_person_unfreeze_delay = 0;
   if (is_my_player(player))
   {
     // GameUI::IsActiveForCurrentView() decides fresh each frame whether to
@@ -525,17 +547,11 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
     game.view_mode_flags |= GNFldD_CreatureViewMode;
     stop_all_things_playing_samples();
   }
-  switch (player->view_type)
+  switch (nview)
   {
   case PVT_DungeonTop:
   {
-      if (player->view_mode_restore == PVM_FrontView) {
-        set_engine_view(player, PVM_FrontView);
-      } else if (player->view_mode_restore == PVM_IsoStraightView) {
-        set_engine_view(player, PVM_IsoStraightView);
-      } else {
-        set_engine_view(player, PVM_IsoWibbleView);
-      }
+      update_engine_view(player, leaving_map);
       if (is_my_player(player)) {
         if (local_state.view_type == PVT_None) {
           toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
@@ -546,7 +562,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   }
   case PVT_CreatureContrl:
   case PVT_CreaturePasngr:
-      set_engine_view(player, PVM_CreatureView);
+      update_engine_view(player, leaving_map);
       if (is_my_player(player))
       {
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
@@ -558,7 +574,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
         toggle_status_menu(0);
       }
       player->continue_work_state = player->work_state;
-      set_engine_view(player, PVM_ParchmentView);
+      update_engine_view(player, leaving_map);
       break;
   case PVT_MapFadeIn:
       set_player_instance(player, PI_MapFadeTo, 0);
@@ -572,32 +588,27 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
 void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
 {
   struct UserState* ustate = get_player_user_state(player);
-  player->view_type = nview;
-  ustate->first_person_unfreeze_delay = 0;
+  const TbBool leaving_map = (ustate->view_type == PVT_MapScreen) || (ustate->view_type == PVT_MapFadeOut);
+  if (!user_state_invalid(ustate))
+    ustate->view_type = nview;
   switch (nview)
   {
     case PVT_DungeonTop:
       player->work_state = player->continue_work_state;
-      if (player->view_mode_restore == PVM_FrontView) {
-        set_engine_view(player, PVM_FrontView);
-      } else if (player->view_mode_restore == PVM_IsoStraightView) {
-        set_engine_view(player, PVM_IsoStraightView);
-      } else {
-        set_engine_view(player, PVM_IsoWibbleView);
-      }
+      update_engine_view(player, leaving_map);
       if (is_my_player(player))
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
       player->work_state = player->continue_work_state;
-      set_engine_view(player, PVM_CreatureView);
+      update_engine_view(player, leaving_map);
       if (is_my_player(player))
         game.view_mode_flags |= GNFldD_CreatureViewMode;
       break;
     case PVT_MapScreen:
       player->work_state = player->continue_work_state;
-      set_engine_view(player, PVM_ParchmentView);
+      update_engine_view(player, leaving_map);
       if (is_my_player(player))
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       break;
@@ -606,14 +617,17 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
   }
 }
 
-unsigned char rotate_mode_to_view_mode(unsigned char mode)
+/** Front view leaves the wibble preference as given, for when the user returns to iso. */
+void rotate_mode_to_dungeon_view(unsigned char mode, TbBool *front_view, TbBool *wibble)
 {
-    switch (mode) {
-        case 0: return PVM_IsoWibbleView;
-        case 1: return PVM_IsoStraightView;
-        case 2: return PVM_FrontView;
-        default: ERRORLOG("Unrecognised video rotate mode: %u", mode); return PVM_IsoWibbleView;
+    if (mode > 2)
+    {
+        ERRORLOG("Unrecognised video rotate mode: %u", mode);
+        mode = 0;
     }
+    *front_view = (mode == 2);
+    if (mode != 2)
+        *wibble = (mode == 0);
 }
 
 unsigned char get_player_color_idx(PlayerNumber plyr_idx)

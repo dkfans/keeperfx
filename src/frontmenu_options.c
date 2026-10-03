@@ -37,6 +37,7 @@
 #include "kjm_input.h"
 #include "packets.h"
 #include "config_settings.h"
+#include "local_camera.h"
 #include "keeperfx.hpp"
 #include "gui_topmsg.h"
 #include "lvl_script_commands.h"
@@ -240,7 +241,10 @@ void gui_video_view_distance_level(struct GuiButton *gbtn)
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
     struct Packet* pckt = get_local_packet();
-    set_packet_action(pckt, PckA_SwitchView, rotate_mode_to_view_mode(settings.video_rotate_mode), 0, 0, 0);
+    TbBool front_view;
+    TbBool wibble = get_player_user_state(get_my_player())->dungeon_wibble;
+    rotate_mode_to_dungeon_view(settings.video_rotate_mode, &front_view, &wibble);
+    set_packet_action(pckt, PckA_SwitchView, front_view, wibble, 0, 0);
     save_settings();
 }
 
@@ -302,7 +306,7 @@ void gui_set_mentor_volume(struct GuiButton *gbtn)
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (player->view_mode == PVM_FrontView)
+    if ((get_local_view_type(player) == PVT_DungeonTop) && get_player_user_state(player)->dungeon_camera.use_front_view)
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;

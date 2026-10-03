@@ -65,6 +65,7 @@ void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBo
 
 long get_angle_difference(long angle_a, long angle_b);
 long get_angle_sign(long angle_a, long angle_b);
+int32_t get_angle_signed_difference(int32_t angle_from, int32_t angle_to);
 
 long distance_with_angle_to_coord_x(long distance, long angle);
 long distance_with_angle_to_coord_y(long distance, long angle);

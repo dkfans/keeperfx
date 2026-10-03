@@ -126,6 +126,14 @@ TbBool unpausing_in_progress = 0;
 
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
+    // only packets with no camera position are able to use par3/par4.
+    if (((par3 != 0) || (par4 != 0)) && packet_action_has_camera_position(pcktype))
+    {
+        ERRORLOG("Packet action %d carries a camera position, so it can't use par3/par4; dropping them", (int)pcktype);
+        par3 = 0;
+        par4 = 0;
+    }
+
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
     pckt->actn_par3 = par3;
@@ -205,7 +213,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     struct Packet* pckt = get_packet(user);
 
-    while (game.conf.rules[plyr_idx].magic.allow_instant_charge_up && (pckt->additional_packet_values & PCAdV_SpeedupPressed))
+    while (game.conf.rules[plyr_idx].magic.allow_instant_charge_up && (pckt->additional_packet_values & PCAdV_AlternatePressed))
     {
         struct PowerConfigStats *powerst = get_power_model_stats(ustate->chosen_power_kind);
 
@@ -382,36 +390,30 @@ int32_t camera_move_rate(const struct Camera* cam, const struct PlayerInfo* play
     int scroll_speed = cam->zoom;
     if (scroll_speed <= 0)
         scroll_speed = 1;
-    switch (cam->view_mode)
+    if (cam->view_mode == PVM_FrontView)
     {
-    case PVM_IsoWibbleView:
-    case PVM_IsoStraightView:
-        if (player->roomspace_drag_paint_mode == 1)
-        {
-            if (scroll_speed < 4100)
-            {
-                scroll_speed = 4100;
-            }
-        }
-        inter_val = 2560000 / scroll_speed;
-        break;
-    case PVM_FrontView:
-        if (player->roomspace_drag_paint_mode == 1)
-        {
-            if (scroll_speed < 16384)
-            {
-                scroll_speed = 16384;
-            }
-        }
+        if ((player->roomspace_drag_paint_mode == 1) && (scroll_speed < 16384))
+            scroll_speed = 16384;
         inter_val = 12800000 / scroll_speed;
-        break;
-    default:
-        inter_val = 256;
-        break;
+    } else
+    {
+        if ((player->roomspace_drag_paint_mode == 1) && (scroll_speed < 4100))
+            scroll_speed = 4100;
+        inter_val = 2560000 / scroll_speed;
     }
     if (speedup)
       inter_val *= 3;
     return inter_val;
+}
+
+unsigned char packet_camera_context(const struct Packet *pckt)
+{
+    return pckt->control_flags & PCtr_CameraContext;
+}
+
+void packet_set_camera_context(struct Packet *pckt, unsigned char cam_idx)
+{
+    pckt->control_flags = (pckt->control_flags & ~PCtr_CameraContext) | (cam_idx & PCtr_CameraContext);
 }
 
 TbBool packet_action_has_camera_position(enum TbPacketAction action)
@@ -422,19 +424,12 @@ TbBool packet_action_has_camera_position(enum TbPacketAction action)
     switch (action)
     {
     case PckA_ApplyRoomspaceDigTag:
-    case PckA_UsePwrOnThing:
         return false;
     default:
         return true;
     }
 }
 
-// Some packets set the user's camera angle directly in par3.
-// (Used where the action's effect depends on camera angle, e.g. power slap)
-TbBool packet_action_has_camera_angle(const struct Packet *pckt)
-{
-    return (pckt->action == PckA_UsePwrOnThing) && (pckt->actn_par4 == CamIV_Isometric);
-}
 
 // shift that fits camera position in 16 bits.
 static int camera_position_shift(void)
@@ -476,62 +471,8 @@ TbBool packet_get_camera_position(const struct Packet *pckt, MapCoord *x, MapCoo
     return true;
 }
 
-static void process_camera_position(struct Camera* cam, const struct Packet* pckt)
-{
-    if ((cam->view_mode != PVM_IsoWibbleView) && (cam->view_mode != PVM_IsoStraightView) && (cam->view_mode != PVM_FrontView))
-        return;
-    MapCoord x;
-    MapCoord y;
-    if (!packet_get_camera_position(pckt, &x, &y))
-        return;
-    view_set_camera_position(cam, x, y);
-    cam->velocity_x = 0;
-    cam->velocity_y = 0;
-}
-
-void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player)
-{
-    if (cam == NULL) {
-        return;
-    }
-    process_camera_position(cam, pckt);
-    if (packet_action_has_camera_angle(pckt)
-     && ((cam->view_mode == PVM_IsoWibbleView) || (cam->view_mode == PVM_IsoStraightView)))
-        cam->rotation_angle_x = pckt->actn_par3 & ANGLE_MASK;
-    process_camera_view_controls(cam, pckt, player);
-}
-
 void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player)
 {
-    const TbBool use_rotate_pos = flag_is_set(pckt->control_flags, PCtr_ViewRotatePos | PCtr_MapCoordsValid);
-    const MapCoord rot_x = use_rotate_pos ? pckt->pos_x : -1;
-    const MapCoord rot_y = use_rotate_pos ? pckt->pos_y : -1;
-    if ((pckt->control_flags & PCtr_ViewRotateCCW) != 0)
-    {
-        switch (cam->view_mode)
-        {
-        case PVM_IsoWibbleView:
-        case PVM_IsoStraightView:
-             view_set_camera_rotation_velocity_around(cam, 16, 64, rot_x, rot_y);
-            break;
-        case PVM_FrontView:
-            cam->rotation_angle_x = (cam->rotation_angle_x + DEGREES_90) & ANGLE_MASK;
-            break;
-        }
-    }
-    if ((pckt->control_flags & PCtr_ViewRotateCW) != 0)
-    {
-        switch (cam->view_mode)
-        {
-        case PVM_IsoWibbleView:
-        case PVM_IsoStraightView:
-            view_set_camera_rotation_velocity_around(cam, -16, -64, rot_x, rot_y);
-            break;
-        case PVM_FrontView:
-            cam->rotation_angle_x = (cam->rotation_angle_x - DEGREES_90) & ANGLE_MASK;
-            break;
-        }
-    }
     if ((pckt->control_flags & PCtr_ViewTiltUp) != 0)
     {
         switch (cam->view_mode)
@@ -574,7 +515,7 @@ void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt,
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             view_zoom_camera_in_to(cam, zoom_max, zoom_min, zoom_x, zoom_y);
-            update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            cam->zoom = clamp(cam->zoom, zoom_min, zoom_max);
             break;
         default:
             view_zoom_camera_in_to(cam, zoom_max, zoom_min, zoom_x, zoom_y);
@@ -588,7 +529,7 @@ void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt,
         case PVM_IsoWibbleView:
         case PVM_IsoStraightView:
             view_zoom_camera_out_from(cam, zoom_max, zoom_min, zoom_x, zoom_y);
-            update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            cam->zoom = clamp(cam->zoom, zoom_min, zoom_max);
             break;
         default:
             view_zoom_camera_out_from(cam, zoom_max, zoom_min, zoom_x, zoom_y);
@@ -612,31 +553,77 @@ void update_box_lag_compensation(struct PlayerInfo* player) {
     }
 }
 
+/**
+ * Applies a packet's camera controls to the user's dungeon camera.
+ * Rotation is local-only; the dungeon camera's angle catches up through PckA_SetMapRotation.
+ * Everything applies to the user's current dungeon view, even with a view switch in flight.
+ */
+static TbBool is_dungeon_camera_index(unsigned char cam_idx)
+{
+    return (cam_idx == CamIV_Isometric) || (cam_idx == CamIV_FrontView);
+}
+
+static void process_dungeon_camera_controls(const struct PlayerInfo *player, struct UserState *ustate, const struct Packet *pckt)
+{
+    struct DungeonCamera *dcam = &ustate->dungeon_camera;
+    const unsigned char view_mode = get_dungeon_view_mode(ustate);
+    const TbBool front_view = ustate->dungeon_camera.use_front_view;
+    MapCoord x;
+    MapCoord y;
+    // Iso and front share a position; any other camera's position isn't the dungeon camera's.
+    if (is_dungeon_camera_index(packet_camera_context(pckt)) && is_dungeon_camera_index(get_player_active_camera_index(player))
+     && !player_instance_controls_camera(player->instance_num) && packet_get_camera_position(pckt, &x, &y))
+        set_view_position(&dcam->x, &dcam->y, x, y);
+    if (!front_view)
+    {
+        if ((pckt->control_flags & PCtr_ViewTiltUp) != 0)
+            dcam->pitch = tilt_step(dcam->pitch, 1);
+        if ((pckt->control_flags & PCtr_ViewTiltDown) != 0)
+            dcam->pitch = tilt_step(dcam->pitch, 2);
+        if ((pckt->control_flags & PCtr_ViewTiltReset) != 0)
+            dcam->pitch = tilt_step(dcam->pitch, 0);
+    }
+    const int32_t zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
+    const int32_t zoom_max = CAMERA_ZOOM_MAX;
+    const TbBool use_zoom_pos = flag_is_set(pckt->control_flags, PCtr_ViewZoomPos | PCtr_MapCoordsValid);
+    const MapCoord zoom_x = use_zoom_pos ? pckt->pos_x : -1;
+    const MapCoord zoom_y = use_zoom_pos ? pckt->pos_y : -1;
+    if ((pckt->control_flags & PCtr_ViewZoomIn) != 0)
+    {
+        const int32_t old_zoom = dcam->zoom[front_view];
+        dcam->zoom[front_view] = zoom_in_for_view(old_zoom, view_mode, zoom_max, zoom_min);
+        shift_view_position_for_zoom(&dcam->x, &dcam->y, old_zoom, dcam->zoom[front_view], zoom_x, zoom_y);
+    }
+    if ((pckt->control_flags & PCtr_ViewZoomOut) != 0)
+    {
+        const int32_t old_zoom = dcam->zoom[front_view];
+        dcam->zoom[front_view] = zoom_out_for_view(old_zoom, view_mode, zoom_max, zoom_min);
+        shift_view_position_for_zoom(&dcam->x, &dcam->y, old_zoom, dcam->zoom[front_view], zoom_x, zoom_y);
+    }
+}
+
 void process_user_dungeon_control_packet_control(NetUserId user)
 {
     const PlayerNumber plyr_idx = get_net_user_player_number(user);
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet(user);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
-    struct Camera* cam = get_player_active_camera(player);
-    if (cam == NULL) {
-        ERRORLOG("No active camera");
-        return;
-    }
     // A parchment map jump's controls were made on the parchment, not for the dungeon camera it jumps.
     if (pckt->action != PckA_ZoomFromMap)
-        process_camera_controls(cam, pckt, player);
+        process_dungeon_camera_controls(player, get_user_state(user), pckt);
+    // update settings (unless replay)
     if (is_my_player(player) && !replay.load_enable) {
+        const struct UserState *ustate = get_user_state(user);
         TbBool settings_changed = false;
         if ((pckt->control_flags & (PCtr_ViewTiltUp | PCtr_ViewTiltDown | PCtr_ViewTiltReset)) != 0) {
-            settings.isometric_tilt = cam->rotation_angle_y;
+            settings.isometric_tilt = ustate->dungeon_camera.pitch;
             settings_changed = true;
         }
         if ((pckt->control_flags & (PCtr_ViewZoomIn | PCtr_ViewZoomOut)) != 0) {
-            if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
-                settings.isometric_view_zoom_level = cam->zoom;
+            if (ustate->dungeon_camera.use_front_view) {
+                settings.frontview_zoom_level = ustate->dungeon_camera.zoom[true];
             } else {
-                settings.frontview_zoom_level = cam->zoom;
+                settings.isometric_view_zoom_level = ustate->dungeon_camera.zoom[false];
             }
             settings_changed = true;
         }
@@ -678,7 +665,12 @@ void process_camera_action(struct Camera cams[], const struct Packet *pckt)
         break;
 
     case PckA_SetMapRotation:
-        set_all_cameras_rotation(cams, pckt->actn_par1);
+        if (packet_camera_context(pckt) == CamIV_FrontView) {
+            cams[CamIV_FrontView].rotation_angle_x = pckt->actn_par1 & ANGLE_MASK;
+        } else if (packet_camera_context(pckt) == CamIV_Isometric) {
+            cams[CamIV_Isometric].rotation_angle_x = pckt->actn_par1 & ANGLE_MASK;
+            cams[CamIV_Isometric].velocity_rotation = 0;
+        }
         break;
 
     case PckA_ZoomFromMap:
@@ -689,6 +681,28 @@ void process_camera_action(struct Camera cams[], const struct Packet *pckt)
             cams[i].velocity_y = 0;
             cams[i].velocity_rotation = 0;
         }
+        break;
+    }
+}
+
+static void process_dungeon_camera_action(NetUserId user, const struct Packet *pckt)
+{
+    struct DungeonCamera *dcam = &get_user_state(user)->dungeon_camera;
+    switch (pckt->action)
+    {
+    case PckA_BookmarkLoad:
+        dcam->x = pckt->actn_par1;
+        dcam->y = pckt->actn_par2;
+        break;
+    case PckA_SetMapRotation:
+        if (is_dungeon_camera_index(packet_camera_context(pckt)))
+            dcam->yaw[packet_camera_context(pckt) == CamIV_FrontView] = pckt->actn_par1 & ANGLE_MASK;
+        break;
+    case PckA_ZoomFromMap:
+        dcam->x = subtile_coord_center(pckt->actn_par1);
+        dcam->y = subtile_coord_center(pckt->actn_par2);
+        dcam->yaw[false] = 0;
+        dcam->yaw[true] = 0;
         break;
     }
 }
@@ -706,7 +720,7 @@ TbBool process_user_global_packet_action(NetUserId user)
   struct Thing *thing;
   int i;
 
-  process_camera_action(player->cameras, pckt);
+  process_dungeon_camera_action(user, pckt);
 
   switch (pckt->action)
   {
@@ -841,7 +855,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);
       return 0;
   case PckA_SwitchView:
-      set_engine_view(player, pckt->actn_par1);
+      set_engine_view(player, pckt->actn_par1 != 0, pckt->actn_par2 != 0);
       return 0;
   case PckA_ToggleTendency:
       toggle_creature_tendencies(player, pckt->actn_par1);
@@ -1036,13 +1050,8 @@ TbBool process_user_global_packet_action(NetUserId user)
       }
       return false;
   case PckA_SaveViewType:
-    {
-            struct Camera* camera = get_player_active_camera(player);
-            if (camera != NULL && player->view_type != pckt->actn_par1)
-                player->view_mode_restore = camera->view_mode;
       set_player_mode(player, pckt->actn_par1);
       return false;
-    }
   case PckA_LoadViewType:
       set_player_mode(player, pckt->actn_par1);
       return false;
@@ -1059,7 +1068,7 @@ TbBool process_user_global_packet_action(NetUserId user)
     }
     case PckA_RoomspaceHighlightToggle:
     {
-        player->highlight_mode = pckt->actn_par1;
+        get_user_state(user)->highlight_mode = pckt->actn_par1;
         if (is_my_player(player) && !replay.load_enable)
         {
             settings.highlight_mode = pckt->actn_par1;
@@ -1109,14 +1118,8 @@ TbBool process_user_global_packet_action(NetUserId user)
 
 void process_user_map_packet_control(NetUserId user)
 {
-    const PlayerNumber plyr_idx = get_net_user_player_number(user);
     SYNCDBG(6,"Starting");
-    struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet(user);
-    // Get map coordinates
     process_map_packet_clicks(user);
-    player->cameras[CamIV_Parchment].mappos.x.val = pckt->pos_x;
-    player->cameras[CamIV_Parchment].mappos.y.val = pckt->pos_y;
     update_mouse_light(user);
     SYNCDBG(8,"Finished");
 }
@@ -1158,7 +1161,7 @@ void process_user_packet(NetUserId user)
       // Different changes to the game are possible for different views.
       // For each there can be a control change (which is view change or mouse event not translated to action),
       // and action perform (which does specific action set in packet).
-      switch (player->view_type)
+      switch (get_player_view_type(player))
       {
           case PVT_DungeonTop:
             process_user_dungeon_control_packet_control(user);
@@ -1228,38 +1231,47 @@ TbBool process_user_dungeon_control_packet_action(NetUserId user)
     return true;
 }
 
-void process_first_person_look(struct Thing *thing, const struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll)
+static int32_t first_person_max_turn(const struct Thing *thing)
 {
-    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-    long maxTurnSpeed = crconf->max_turning_speed;
-    if (maxTurnSpeed < 1) {
-        maxTurnSpeed = 1;
-    }
-    long horizontalTurnSpeed = pckt->pos_x;
-    if (horizontalTurnSpeed < -maxTurnSpeed) {
-        horizontalTurnSpeed = -maxTurnSpeed;
-    } else if (horizontalTurnSpeed > maxTurnSpeed) {
-        horizontalTurnSpeed = maxTurnSpeed;
-    }
-    long verticalTurnSpeed = pckt->pos_y;
-    if (verticalTurnSpeed < -maxTurnSpeed) {
-        verticalTurnSpeed = -maxTurnSpeed;
-    } else if (verticalTurnSpeed > maxTurnSpeed) {
-        verticalTurnSpeed = maxTurnSpeed;
-    }
-    long verticalPos = (current_vertical + verticalTurnSpeed) & ANGLE_MASK;
-    long lowerLimit = ANGLE_MASK - 227;
-    long upperLimit = 227;
-    if (verticalPos > upperLimit && verticalPos < lowerLimit) {
-        if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
-            verticalPos = upperLimit;
+    const struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    return max((int32_t)crconf->max_turning_speed, 1);
+}
+
+static int32_t clamp_first_person_pitch(int32_t pitch)
+{
+    pitch &= ANGLE_MASK;
+    const int32_t lower_limit = ANGLE_MASK - 227;
+    const int32_t upper_limit = 227;
+    if (pitch > upper_limit && pitch < lower_limit) {
+        if (abs(pitch - upper_limit) < abs(pitch - lower_limit)) {
+            pitch = upper_limit;
         } else {
-            verticalPos = lowerLimit;
+            pitch = lower_limit;
         }
     }
-    *out_vertical = verticalPos;
-    *out_horizontal = (current_horizontal + horizontalTurnSpeed) & ANGLE_MASK;
-    *out_roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
+    return pitch;
+}
+
+void process_first_person_look(struct Thing *thing, int32_t turn_x, int32_t turn_y, int32_t current_horizontal, int32_t current_vertical, int32_t *out_horizontal, int32_t *out_vertical, int32_t *out_roll)
+{
+    const int32_t max_turn = first_person_max_turn(thing);
+    turn_x = clamp(turn_x, -max_turn, max_turn);
+    turn_y = clamp(turn_y, -max_turn, max_turn);
+    *out_vertical = clamp_first_person_pitch(current_vertical + turn_y);
+    *out_horizontal = (current_horizontal + turn_x) & ANGLE_MASK;
+    *out_roll = 170 * turn_x / max_turn;
+}
+
+// creature looks in the direction that the packet indicates
+// (sanitized to clamp turn rate to creature's max turn rate)
+static void apply_first_person_look(struct Thing *thing, struct CreatureControl *cctrl, const struct Packet *pckt)
+{
+    const int32_t max_turn = first_person_max_turn(thing);
+    const int32_t turn_x = clamp(get_angle_signed_difference(thing->move_angle_xy, pckt->pos_x & ANGLE_MASK), -max_turn, max_turn);
+    const int32_t turn_y = clamp(get_angle_signed_difference(thing->move_angle_z, clamp_first_person_pitch(pckt->pos_y)), -max_turn, max_turn);
+    thing->move_angle_xy = (thing->move_angle_xy + turn_x) & ANGLE_MASK;
+    thing->move_angle_z = clamp_first_person_pitch(thing->move_angle_z + turn_y);
+    cctrl->roll = 170 * turn_x / max_turn;
 }
 
 TbBool can_process_creature_input(struct Thing *thing)
@@ -1279,7 +1291,6 @@ TbBool can_process_creature_input(struct Thing *thing)
 
 void process_user_creature_control_packet_control(NetUserId user)
 {
-    struct UserState* ustate = get_user_state(user);
     const PlayerNumber plyr_idx = get_net_user_player_number(user);
     SYNCDBG(6,"Starting");
     struct InstanceInfo *inst_inf;
@@ -1387,23 +1398,10 @@ void process_user_creature_control_packet_control(NetUserId user)
                 }
             }
         }
-        if (ustate->first_person_unfreeze_delay <= 0)
-        {
-            long new_horizontal, new_vertical, new_roll;
-            process_first_person_look(cctng, pckt, cctng->move_angle_xy, cctng->move_angle_z, &new_horizontal, &new_vertical, &new_roll);
-            cctng->move_angle_xy = new_horizontal;
-            cctng->move_angle_z = new_vertical;
-            ccctrl->roll = new_roll;
-        }
-        else --ustate->first_person_unfreeze_delay;
-    }
-    else
-    {
-        // The local_camera is delayed by input_lag_turns, and will remain
-        // frozen for this duration after the creature is allowed to move again.
-        // Apply this same delay to the creature's move_angle_{xy,z}, to keep it
-        // synchronized.
-        ustate->first_person_unfreeze_delay = game.input_lag_turns;
+        // Discard inputs for frozen creature
+        if ((packet_camera_context(pckt) == CamIV_FirstPerson) && !creature_control_invalid(ccctrl)
+         && !flag_is_set(game.operation_flags, GOF_Paused))
+            apply_first_person_look(cctng, ccctrl, pckt);
     }
 
     if ((thing_is_creature(cctng) && !creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))

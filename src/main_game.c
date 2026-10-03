@@ -354,8 +354,13 @@ TbBool startup_saved_packet_game(void)
     if (!verify_replay_map_checksums())
         ERRORLOG("Replay \"%s\": level on disk differs from original", replay.fname);
     setup_zombie_players();
-    init_players();
     restore_users_from_packet_save();
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        if ((get_net_user_player_number(user) >= 0) && (replay.head.user_players[user] >= 0))
+            apply_user_start_camera_settings(user, &replay.head.user_start[user]);
+    }
+    init_players();
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
         const PlayerNumber plyr_idx = get_net_user_player_number(user);
@@ -369,8 +374,7 @@ TbBool startup_saved_packet_game(void)
     post_init_level();
     post_init_players();
     set_selected_level_number(0);
-    struct PlayerInfo* player = get_my_player();
-    set_engine_view(player, player->view_mode_restore);
+    update_engine_view(get_my_player(), false);
     return true;
 }
 

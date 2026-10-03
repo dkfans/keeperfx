@@ -325,7 +325,7 @@ static void draw_overlay_spell_or_box(struct Thing *thing, const struct MinimapO
 
 static void draw_overlay_possessed_thing(const struct MinimapOverlay *ov, int32_t x, int32_t y, TbPixel col)
 {
-    if (ov->cam->view_mode != PVM_CreatureView)
+    if ((get_local_view_type(ov->player) != PVT_CreatureContrl) && (get_local_view_type(ov->player) != PVT_CreaturePasngr))
         return;
     if ((get_gameturn() % (8 * gui_blink_rate)) >= 4 * gui_blink_rate)
     {

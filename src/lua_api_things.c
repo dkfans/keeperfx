@@ -321,7 +321,7 @@ static int thing_set_field(lua_State *L) {
         struct PlayerInfo* player = get_my_player();
         if (!player_invalid(player)
             && player->controlled_thing_idx == thing->index
-            && player->view_mode == PVM_CreatureView)
+            && ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr)))
         {
             set_local_camera_destination(player);
         }        
