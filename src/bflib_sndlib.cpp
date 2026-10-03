@@ -3,6 +3,7 @@
 #include "cdrom.h"
 #include "bflib_sndlib.h"
 #include "bflib_datetm.h"
+#include "game_legacy.h"
 #include "bflib_sound.h"
 #include "bflib_fileio.h"
 #include <AL/al.h>

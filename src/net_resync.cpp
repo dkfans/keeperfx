@@ -434,6 +434,7 @@ TbBool send_resync_game(void)
     clear_flag(game.operation_flags, GOF_Paused);
     animate_resync_progress_bar(0, 6);
     NETLOG("Initiating re-synchronization of network game");
+    take_game_timestamp();
 
     size_t full_resync_len = 0;
     char * full_resync_data = build_resync_game_data(&full_resync_len);
