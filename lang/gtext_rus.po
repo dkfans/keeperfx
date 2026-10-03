@@ -2472,7 +2472,7 @@ msgstr "Лава: Причиняет ожоги любым ступившим н
 #: guitext:328
 msgctxt "Slab description"
 msgid "Water: Creatures move freely through water. Build a Bridge to connect to remote territory."
-msgstr "Вода: Существа свободно передвигаются по воде. Постройте мост, чтобы соединить отдалённые территории."
+msgstr "Вода: Создания ходят по воде аки посуху. Постройте мост, чтобы захватить дальние земли."
 
 #: guitext:329
 msgctxt "Slab description"
@@ -2592,7 +2592,6 @@ msgid "Speed"
 msgstr "Скорость"
 
 #: guitext:353
-#, fuzzy
 msgctxt "Slab description"
 msgid "Abyss: A bottomless pit your creatures would do well to avoid."
 msgstr "Бездна: Бездонная пропасть, которую Вашим созданиям лучше обходить стороной."
@@ -6264,7 +6263,7 @@ msgstr "Уровни KDK"
 #: guitext:1024
 msgctxt "Menu interface item"
 msgid "The Good Guys"
-msgstr "Кампания героев"
+msgstr "Славные парни"
 
 #: guitext:1025
 msgctxt "Menu interface item"
@@ -6811,7 +6810,7 @@ msgstr "Макс. игроков"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Allow observers"
-msgstr "Разрешить зрителей"
+msgstr "Зрители"
 
 #: guitext:1135
 #, fuzzy
@@ -6835,7 +6834,7 @@ msgstr "Игра уже началась."
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Joining is temporarily locked."
-msgstr "Вход временно заблокирован."
+msgstr "Присоединиться временно невозможно."
 
 #: guitext:1139
 #, fuzzy
@@ -6854,3 +6853,4 @@ msgstr "У хоста другая версия игры."
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Название лобби"
+
