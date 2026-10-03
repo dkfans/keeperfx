@@ -126,15 +126,13 @@ void landview_set_text(const char *text)
 
 static void landview_build_glass_map(void)
 {
-    for (int screen_colour = 0; screen_colour < PALETTE_COLORS; screen_colour++)
-    {
+    for (int screen_colour = 0; screen_colour < PALETTE_COLORS; screen_colour++) {
         const unsigned char *colour = &frontend_palette[3 * screen_colour];
-        unsigned char darkened = LbPaletteFindColour(frontend_palette,
-            colour[0] * 96 / 256, colour[1] * 96 / 256, colour[2] * 96 / 256);
+        unsigned char darkened = LbPaletteFindColour(frontend_palette, colour[0] / 4, colour[1] / 4, colour[2] / 4);
 
-        /* TRANSPAR4 indexes the table as [drawn colour][screen colour]. */
-        for (int drawn_colour = 0; drawn_colour < PALETTE_COLORS; drawn_colour++)
-            landview_glass_map[drawn_colour * PALETTE_COLORS + screen_colour] = darkened;
+        for (int drawn_colour = 0; drawn_colour < PALETTE_COLORS; drawn_colour++) {
+            landview_glass_map[screen_colour * PALETTE_COLORS + drawn_colour] = darkened;
+        }
     }
 }
 
@@ -207,9 +205,9 @@ void draw_map_screen(void)
     RendererPresentImage(&desc);
 }
 
-TbBool init_netfont_palette_remap(void)
+TbBool init_netfont_palette_remap(char* land_view)
 {
-    const char *fname = prepare_file_path(FGrp_LandView, "rgmap00.pal");
+    const char *fname  = prepare_file_fmtpath(FGrp_LandView, "%s.pal", land_view);
 
     if (LbFileLoadAt(fname, netfont_source_palette) != PALETTE_SIZE)
     {
@@ -1011,6 +1009,8 @@ TbBool load_map_and_window(LevelNumber lvnum)
         unload_map_and_window();
         return false;
     }
+    
+    init_netfont_palette_remap(land_view);  
     SYNCDBG(9,"Finished");
     return true;
 }
@@ -1125,7 +1125,6 @@ TbBool frontmap_load(void)
     }
     // append any custom ensigns to the sheet
     map_flag = load_custom_ensigns_into_sheet(map_flag, frontend_palette);      
-    init_netfont_palette_remap();  
     pop_palette_remap();
     map_font = load_spritesheet("ldata/netfont.dat", "ldata/netfont.tab");
     winfont = load_font("data/font2-64.dat", "data/font2-64.tab");

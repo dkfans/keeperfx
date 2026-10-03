@@ -21,6 +21,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "net_main.h"
+#include "net_checksums.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -74,6 +75,7 @@ struct PacketSaveHead {
     int64_t timestamp;
     int32_t timestamp_tz;
     GameTurn timestamp_turn;
+    TbBigChecksum map_checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
     struct UserStartSettings user_start[MAX_NET_USERS];
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
@@ -131,6 +133,7 @@ TbBool replay_playback_is_paused(void);
 void set_replay_playback_paused(TbBool paused);
 TbBool reinit_packets_after_load(void);
 void disable_packet_mode(void);
+TbBool verify_replay_map_checksums(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

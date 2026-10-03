@@ -39,6 +39,7 @@
 #define POS_GAMECTR  999
 #define ROUNDSLAB64K_LIGHT 0
 #define ROUNDSLAB64K_DARK 1
+#define ROUNDSLAB64K_DARKER 2
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -74,7 +75,7 @@ void draw_slab64k(long pos_x, long pos_y, int units_per_px, long width, long hei
 void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type);
-void draw_round_slab64k_remap(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type, const unsigned char *cmap);
+void draw_round_slab64k_remap(int32_t pos_x, int32_t pos_y, int units_per_px, int32_t width, int32_t height, int32_t style_type, const unsigned char *cmap, TbPixel fill_colour);
 void draw_string64k(long x, long y, int units_per_px, const char * text);
 
 void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text);

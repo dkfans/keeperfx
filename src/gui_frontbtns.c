@@ -60,6 +60,14 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
     }
 }
 
+static TbBool button_accepts_left_click(const struct GuiButton *gbtn)
+{
+    if (gbtn->gbtype == LbBtnT_RadioBtn || gbtn->gbtype == LbBtnT_EditBox) {
+        return true;
+    }
+    return gbtn->click_event != NULL || (gbtn->flags & LbBtnF_Clickable) != 0 || gbtn->parent_menu != NULL;
+}
+
 void fake_button_click(int gmbtn_idx)
 {
     int i;
@@ -71,10 +79,8 @@ void fake_button_click(int gmbtn_idx)
         gmnu = &active_menus[(unsigned)gbtn->gmenu_idx];
         if (((gbtn->flags & LbBtnF_Active) != 0) && (gmnu->is_turned_on != 0) && (gbtn->id_num == gmbtn_idx))
         {
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
+            if (button_accepts_left_click(gbtn)) {
                 do_button_press_actions(gbtn, &gbtn->button_state_left_pressed, gbtn->click_event);
-            }
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
                 do_button_click_actions(gbtn, &gbtn->button_state_left_pressed, gbtn->click_event);
             }
         }
@@ -92,9 +98,7 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
     if ((gbtn->button_state_left_pressed) && (left_button_released))
     {
         callback = gbtn->click_event;
-        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) ||
-            (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
-        {
+        if (button_accepts_left_click(gbtn)) {
             left_button_released = 0;
             do_button_release_actions(gbtn, &gbtn->button_state_left_pressed, callback);
         }
@@ -226,9 +230,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         SYNCDBG(8,"Left down for button %d",(int)gmbtn_idx);
         result = true;
         callback = gbtn->click_event;
-        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) ||
-           (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
-        {
+        if (button_accepts_left_click(gbtn)) {
             if ((gbtn->flags & LbBtnF_Enabled) != 0)
             {
                 SYNCDBG(18,"Left down action for type %d",(int)gbtn->gbtype);
@@ -285,9 +287,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
             game.flash_button_index = 0;
         }
         callback = gbtn->click_event;
-        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) ||
-           (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
-        {
+        if (button_accepts_left_click(gbtn)) {
           left_button_clicked = 0;
           gui_last_left_button_pressed_id = gbtn->id_num;
           do_button_click_actions(gbtn, &gbtn->button_state_left_pressed, callback);
@@ -847,8 +847,7 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
 {
     int height_lines;
     TbBool draw_scrollbar;
-    switch (gbtn->content.lval)
-    {
+    switch (gbtn->content.lval) {
       case 24:
         height_lines = 2;
         draw_scrollbar = true;

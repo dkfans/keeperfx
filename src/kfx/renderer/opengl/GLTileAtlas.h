@@ -38,6 +38,7 @@ public:
     // ITileAtlas
     bool              Init() override;
     void              Free() override;
+    void              Rebuild();
     void              UpdateAnimatedTiles() override;
     GpuResourceHandle GetAtlasTextureArray() const override;
 

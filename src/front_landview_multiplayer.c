@@ -430,7 +430,6 @@ TbBool frontnetmap_load(void)
     }
     
     map_flag = load_custom_ensigns_into_sheet(map_flag, frontend_palette); 
-    init_netfont_palette_remap();
     pop_palette_remap();
     map_font = load_spritesheet("ldata/netfont.dat", "ldata/netfont.tab");
     prepare_file_path_buf(hand_data_path, sizeof(hand_data_path), FGrp_LandView, "maphand.dat");
@@ -597,6 +596,7 @@ static LevelNumber frontnetmap_update_players(void)
     }
     if (can_start_level && (selected_level_number > SINGLEPLAYER_NOTSTARTED)) {
         set_selected_level_number(selected_level_number);
+        net_lobby_refresh_metadata();
     }
     return SINGLEPLAYER_NOTSTARTED;
 }
@@ -623,6 +623,7 @@ TbBool frontnetmap_update(void)
     }
     if (selected_level_number > 0) {
         set_selected_level_number(selected_level_number);
+        net_lobby_refresh_metadata();
         set_level_name_text(selected_level_number, NULL);
         if (fe_network_active < 1) {
             map_info.state_trigger = FeSt_START_KPRLEVEL;

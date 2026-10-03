@@ -165,9 +165,17 @@ void landview_textbox_draw(struct LandViewTextBox *box)
     landview_textbox_geometry(box, &geo);
     unsigned short flags = RendererGetDrawFlags();
     unsigned char *glass_map = lbDisplay.GlassMap;
-    if (box->glass_map != NULL)
+    int32_t style = ROUNDSLAB64K_LIGHT;
+    TbPixel fill_colour = 1;
+    if (box->glass_map != NULL) {
         lbDisplay.GlassMap = (unsigned char *)box->glass_map;
-    draw_round_slab64k_remap(geo.pos_x, geo.pos_y, units_per_pixel_landview, geo.width, geo.height, ROUNDSLAB64K_LIGHT, box->gui_remap);
+        style = ROUNDSLAB64K_DARK;
+        if (RendererGetActiveType() == RENDERER_OPENGL) {
+            style = ROUNDSLAB64K_DARKER;
+        }
+        fill_colour = LbPaletteFindColour(RendererGetActivePalette(), 0, 0, 0);
+    }
+    draw_round_slab64k_remap(geo.pos_x, geo.pos_y, units_per_pixel_landview, geo.width, geo.height, style, box->gui_remap, fill_colour);
     lbDisplay.GlassMap = glass_map;
     textbox_draw_button(box, &geo.close, GPS_message_message_btn_accept_act, true);
     textbox_draw_button(box, &geo.up, GPS_message_message_btn_up_act, textbox_can_scroll_up(box));

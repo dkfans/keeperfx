@@ -9,7 +9,6 @@
  *     ENet host's own socket.  This serves two purposes:
  *       1. Creates a NAT table entry so incoming ENet connections reach us even
  *          when UPnP/NAT-PMP is unavailable.
- *       2. Logs our external IP:port so the host can share it with others.
  *
  *     holepunch_punch_to() sends a burst of small UDP datagrams to the server
  *     before enet_host_connect() is called.  This opens a mapping in the
@@ -280,6 +279,6 @@ void holepunch_punch_to(ENetHost *host, const ENetAddress *target)
         if (target->type == ENET_ADDRESS_TYPE_IPV6)
             family = "IPv6";
         enet_address_get_host_ip(target, address, sizeof(address));
-        LbNetLog("Holepunch: send failed to %s:%u (%s)\n", address, (unsigned)target->port, family);
+        LbNetLog("Holepunch: send failed to %s (%s)\n", address, family);
     }
 }

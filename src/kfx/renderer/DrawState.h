@@ -50,6 +50,9 @@ static inline KfxDrawState draw_state_make(TbDrawFlagsMask flags, unsigned char 
 static inline float draw_flags_source_weight(TbDrawFlagsMask flags)
 {
     // TODO : These could be configurable
+    if (flags & Lb_SPRITE_ALPHA_75) {
+        return 0.75f;
+    }
     if (flags & Lb_SPRITE_TRANSPAR4)
         return 1.0f / 3.0f;
     if (flags & Lb_SPRITE_TRANSPAR8)
