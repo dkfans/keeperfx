@@ -205,9 +205,9 @@ void draw_map_screen(void)
     RendererPresentImage(&desc);
 }
 
-TbBool init_netfont_palette_remap(void)
+TbBool init_netfont_palette_remap(char* land_view)
 {
-    const char *fname = prepare_file_path(FGrp_LandView, "rgmap00.pal");
+    const char *fname  = prepare_file_fmtpath(FGrp_LandView, "%s.pal", land_view);
 
     if (LbFileLoadAt(fname, netfont_source_palette) != PALETTE_SIZE)
     {
@@ -1009,6 +1009,8 @@ TbBool load_map_and_window(LevelNumber lvnum)
         unload_map_and_window();
         return false;
     }
+    
+    init_netfont_palette_remap(land_view);  
     SYNCDBG(9,"Finished");
     return true;
 }
@@ -1123,7 +1125,6 @@ TbBool frontmap_load(void)
     }
     // append any custom ensigns to the sheet
     map_flag = load_custom_ensigns_into_sheet(map_flag, frontend_palette);      
-    init_netfont_palette_remap();  
     pop_palette_remap();
     map_font = load_spritesheet("ldata/netfont.dat", "ldata/netfont.tab");
     winfont = load_font("data/font2-64.dat", "data/font2-64.tab");

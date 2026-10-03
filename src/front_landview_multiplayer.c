@@ -430,7 +430,6 @@ TbBool frontnetmap_load(void)
     }
     
     map_flag = load_custom_ensigns_into_sheet(map_flag, frontend_palette); 
-    init_netfont_palette_remap();
     pop_palette_remap();
     map_font = load_spritesheet("ldata/netfont.dat", "ldata/netfont.tab");
     prepare_file_path_buf(hand_data_path, sizeof(hand_data_path), FGrp_LandView, "maphand.dat");
