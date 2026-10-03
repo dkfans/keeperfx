@@ -3483,12 +3483,22 @@ TbBool update_thing(struct Thing *thing)
         }
     }
     if (falling && (thing->mappos.z.val <= -subtile_coord(ABYSS_DEPTH, 0))) {
-        if (thing_is_creature(thing)) {
+        if (thing_is_creature(thing)) 
+        {
             lua_on_creature_fell_into_abyss(thing);
             if (!flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
                 return true;
             }
-            kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+            thing->last_turn_pushed = get_gameturn();
+            if ((get_gameturn() - thing->last_turn_pushed) < 15)
+            {
+                kill_creature(thing, INVALID_THING, thing->pushed_by_player, CrDed_DiedInBattle);
+                output_message_far_from_thing(thing, SMsg_BattleDeath, MESSAGE_DURATION_BATTLE);
+            }
+            else
+            {
+                kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+            }
         } else {
             destroy_thing(thing);
         }

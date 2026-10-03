@@ -305,6 +305,8 @@ struct Thing {
     uint32_t flags; //ThingAddFlags
     GameTurn last_turn_drawn;
     GameTurn last_turn_damaged;
+    GameTurn last_turn_pushed;
+    PlayerNumber pushed_by_player;
     unsigned short previous_floor_height;
     struct Coord3d previous_mappos;
     uint32_t random_seed;

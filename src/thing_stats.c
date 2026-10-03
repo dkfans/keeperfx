@@ -988,7 +988,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
       cdamage = 1;
     // Apply damage to the thing.
     thing->health -= cdamage;
-    thing->last_turn_damaged = game.play_gameturn + 1;
+    thing->last_turn_damaged = get_gameturn() + 1;
     // Red palette if the possessed creature is hit very strong.
     if (is_thing_some_way_controlled(thing))
     {
@@ -1017,7 +1017,7 @@ static HitPoints apply_damage_to_object(struct Thing *thing, HitPoints dmg)
 {
     HitPoints cdamage = dmg;
     thing->health -= cdamage;
-    thing->last_turn_damaged = game.play_gameturn + 1;
+    thing->last_turn_damaged = get_gameturn() + 1;
     return cdamage;
 }
 
