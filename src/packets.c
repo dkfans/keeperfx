@@ -583,7 +583,7 @@ static void process_dungeon_camera_controls(const struct PlayerInfo *player, str
         if ((pckt->control_flags & PCtr_ViewTiltReset) != 0)
             dcam->pitch = tilt_step(dcam->pitch, 0);
     }
-    const int32_t zoom_min = max(CAMERA_ZOOM_MIN, zoom_distance_setting);
+    const int32_t zoom_min = front_view ? player->frontview_zoom_distance : max(CAMERA_ZOOM_MIN, player->zoom_distance);
     const int32_t zoom_max = CAMERA_ZOOM_MAX;
     const TbBool use_zoom_pos = flag_is_set(pckt->control_flags, PCtr_ViewZoomPos | PCtr_MapCoordsValid);
     const MapCoord zoom_x = use_zoom_pos ? pckt->pos_x : -1;
