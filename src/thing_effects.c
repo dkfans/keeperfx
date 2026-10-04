@@ -1139,6 +1139,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
                     tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
+                    tngdst->pushed_by_player = owner;
+                    tngdst->last_turn_pushed = get_gameturn();
                 }
             }
         }
