@@ -10,7 +10,7 @@ function GetGameTimestamp() end
 ---@field year integer
 ---@field month integer 1-12
 ---@field day integer 1-31
----@field dow integer day of week, 0-6 where 0 is Sunday
+---@field dow integer day of week, 0-6 where 0 is Sunday (Bullfrog's convention)
 ---@field hour integer 0-23
 ---@field min integer 0-59
 ---@field sec integer 0-59
