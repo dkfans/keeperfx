@@ -760,19 +760,33 @@ static int lua_Display_message(lua_State *L)
 
 static int lua_get_game_timestamp(lua_State *L)
 {
-    struct TbDate date = {0};
-    struct TbTime time = {0};
-    if (game.timestamp != 0)
-        decode_posix_time(game.timestamp, game.timestamp_tz, &date, &time);
+    struct TbDate date;
+    struct TbTime time;
+    if (game.timestamp == 0 || !decode_posix_time(game.timestamp, game.timestamp_tz, &date, &time))
+    {
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_createtable(L, 0, 9);
     lua_pushinteger(L, date.Year);
+    lua_setfield(L, -2, "year");
     lua_pushinteger(L, date.Month);
+    lua_setfield(L, -2, "month");
     lua_pushinteger(L, date.Day);
+    lua_setfield(L, -2, "day");
+    lua_pushinteger(L, date.DayOfWeek);
+    lua_setfield(L, -2, "dow");
     lua_pushinteger(L, time.Hour);
+    lua_setfield(L, -2, "hour");
     lua_pushinteger(L, time.Minute);
+    lua_setfield(L, -2, "min");
     lua_pushinteger(L, time.Second);
+    lua_setfield(L, -2, "sec");
     lua_pushinteger(L, game.timestamp_tz);
+    lua_setfield(L, -2, "tz");
     lua_pushinteger(L, game.timestamp_turn);
-    return 8;
+    lua_setfield(L, -2, "turn");
+    return 1;
 }
 
 static int lua_Quick_message(lua_State *L)

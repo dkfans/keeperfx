@@ -3,15 +3,19 @@
 ---Returns the game's timestamp, in host's local time.
 ---This timestamp is guaranteed to be set on game start and load. It is also set at other times, "occasionally."
 -- Together with the turn number, you can get an estimate of the (host's) *current* time in a way that is consistent on multiplayer and on replays.
----@return integer year 0 if the host couldn't read its clock
----@return integer month 1-12
----@return integer day 1-31
----@return integer hour 0-23
----@return integer min 0-59
----@return integer sec 0-59
----@return integer tz seconds east of UTC
----@return integer turn the game turn the timestamp was taken on
+---@return GameTimestamp|nil timestamp nil if the host couldn't read its clock
 function GetGameTimestamp() end
+
+---@class GameTimestamp
+---@field year integer
+---@field month integer 1-12
+---@field day integer 1-31
+---@field dow integer day of week, 0-6 where 0 is Sunday
+---@field hour integer 0-23
+---@field min integer 0-59
+---@field sec integer 0-59
+---@field tz integer seconds east of UTC
+---@field turn integer the game turn the timestamp was taken on
 
 ---Once an Action Point has been triggered, it cannot be triggered again unless it has been reset by this command.
 ---@param action_point actionpoint Action Point number
