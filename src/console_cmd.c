@@ -2667,7 +2667,7 @@ TbBool cmd_toggle_lights(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_lua(PlayerNumber plyr_idx, char * args)
 {
-    if (!console_cmd_cheats_allowed(plyr_idx)) {
+    if (!console_cmd_cheats_allowed(plyr_idx) || network_is_active()) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
