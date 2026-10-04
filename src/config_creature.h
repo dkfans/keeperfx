@@ -299,6 +299,9 @@ struct CreatureModelConfig {
     short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
     short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
     short shot_shift_z; /**< Initial position of shot created by the creature relative to creature position, Z coord. */
+    unsigned char fall_acceleration;
+    short inertia_floor;
+    short inertia_air;
     unsigned short walking_anim_speed;
     TbBool flying;
     TbBool fixed_anim_speed;

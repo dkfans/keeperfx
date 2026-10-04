@@ -93,6 +93,8 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"TORTUREKIND",        36},
   {"SPELLIMMUNITY",      37},
   {"HOSTILETOWARDS",     38},
+  {"INERTIA",            39},
+  {"FALLACCELERATION",   40},
   {NULL,                  0},
   };
 
@@ -947,6 +949,38 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
                     COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
+            }
+            break;
+        case 39: // INERTIA
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crconf->inertia_floor = k;
+                n++;
+            }
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crconf->inertia_air = k;
+                n++;
+            }
+            if (n < 2)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                    COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
+            }
+            break;
+        case 40: // FALLACCELERATION
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crconf->fall_acceleration = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
       case ccr_comment:

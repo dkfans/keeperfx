@@ -3070,6 +3070,13 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                 crconf->hostile_towards[0] = value; // Then apply the change on the first only.
             }
             break;
+        case 39: // INERTIA
+            crconf->inertia_floor = value;
+            crconf->inertia_air = config_value_secondary;
+            break;
+        case 40: // FALLACCELERATION
+            crconf->fall_acceleration = value;
+            break;
         case ccr_comment:
             break;
         case ccr_endOfFile:
