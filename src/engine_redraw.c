@@ -617,25 +617,14 @@ void draw_overlay_compass(long base_x, long base_y)
             break;
         }
     }
-    int shift_x = (-radius * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    int shift_y = (-radius * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    int dx = (radius * LbSinL(cam->rotation_angle_x) + (1 << (LbFPMath_TrigmBits - 1))) >> LbFPMath_TrigmBits;
+    int dy = (radius * LbCosL(cam->rotation_angle_x) + (1 << (LbFPMath_TrigmBits - 1))) >> LbFPMath_TrigmBits;
+    center_y -= h;
     if (RendererCanDraw()) {
-        draw_compass_label(center_x + shift_x, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapN));
-    }
-    shift_x = ( radius * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = ( radius * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    if (RendererCanDraw()) {
-        draw_compass_label(center_x + shift_x, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapS));
-    }
-    shift_x = ( radius * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = (-radius * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    if (RendererCanDraw()) {
-        draw_compass_label(center_x + shift_x, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapE));
-    }
-    shift_x = (-radius * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = ( radius * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    if (RendererCanDraw()) {
-        draw_compass_label(center_x + shift_x, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapW));
+        draw_compass_label(center_x - dx, center_y - dy, tx_units_per_px, get_string(GUIStr_MapN));
+        draw_compass_label(center_x + dx, center_y + dy, tx_units_per_px, get_string(GUIStr_MapS));
+        draw_compass_label(center_x + dy, center_y - dx, tx_units_per_px, get_string(GUIStr_MapE));
+        draw_compass_label(center_x - dy, center_y + dx, tx_units_per_px, get_string(GUIStr_MapW));
     }
     RendererSetDrawFlags(flg_mem);
 }
