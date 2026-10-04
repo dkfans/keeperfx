@@ -248,7 +248,13 @@ void update_all_objects_of_model(ThingModel model)
                 }
             }
         }
-
+        thing->clipbox_size_xy = objst->size_xy;
+        thing->clipbox_size_z = objst->size_z;
+        thing->solid_size_xy = objst->size_xy;
+        thing->solid_size_z = objst->size_z;
+        thing->fall_acceleration = objst->fall_acceleration;
+        thing->inertia_floor = objst->inertia_floor;
+        thing->inertia_air = objst->inertia_air;
 
         if (thing->light_id != 0)
         {
