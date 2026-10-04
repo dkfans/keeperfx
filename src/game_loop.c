@@ -784,6 +784,7 @@ static TbBool faststartup_saved_packet_game(void)
 
 static TbBool wait_at_frontend(void)
 {
+    static char failed_load_campaign[DISKPATH_SIZE];
     struct PlayerInfo *player;
     // This is an improvised coroutine-like stuff
     CoroutineLoop loop;
@@ -904,7 +905,14 @@ static TbBool wait_at_frontend(void)
     }
     memset(scratch, 0, PALETTE_SIZE);
     RendererPaletteSet(scratch);
-    frontend_set_state(get_startup_menu_state());
+    FrontendMenuState startup_state = get_startup_menu_state();
+    if (failed_load_campaign[0] != '\0') {
+        if (resume_campaign_progress(failed_load_campaign)) {
+            startup_state = FeSt_LAND_VIEW;
+        }
+        failed_load_campaign[0] = '\0';
+    }
+    frontend_set_state(startup_state);
 
     // Once the Mouse Sprite initialization is complete, the sprite's position needs to be reset because it defaults to (0, 0).
     // Note that we cannot use LbMoveGameCursorToHostCursor for this, because the buffer position may remain unchanged.
@@ -1018,8 +1026,8 @@ static TbBool wait_at_frontend(void)
           RendererClearScreen(0);
           RendererPresentFrame();
           level_load_time_phase(LevelLoadTime_Data);
-          if (!load_game(game.save_game_slot))
-          {
+          if (!load_game(game.save_game_slot)) {
+              snprintf(failed_load_campaign, sizeof(failed_load_campaign), "%s", save_game_catalogue[flgmem].campaign_fname);
               ERRORLOG("Loading game %d failed; quitting.",(int)game.save_game_slot);
               quit_game = 1;
           }
