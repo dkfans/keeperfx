@@ -33,13 +33,16 @@ struct lua_State *Lvl_script = NULL;
 static int lua_disabled_os_function(lua_State *L)
 {
     const char *func_name = lua_tostring(L, lua_upvalueindex(1));
-    WARNLOG("os.%s is disabled because it would desync multiplayer and replays; use GetGameTimestamp", func_name);
-    return luaL_error(L, "os.%s is disabled because it would desync multiplayer and replays; use GetGameTimestamp", func_name);
+    WARNLOG("os.%s is disabled because it is not synchronized in multiplayer; use GetGameTimestamp", func_name);
+    return luaL_error(L, "os.%s is disabled because it is not synchronized in multiplayer; use GetGameTimestamp", func_name);
 }
 
 
 static void disable_lua_functions(lua_State *L)
 {
+    if (game.game_kind != GKind_MultiGame) {
+        return;
+    }
     const char *disabled_os_functions[] = {"time", "date", "clock"};
 
     lua_getglobal(L, "os");
