@@ -1318,6 +1318,8 @@ static int lua_Set_door_configuration(lua_State *L)
 static int lua_Set_object_configuration(lua_State *L)
 {
     set_configuration(L, &objects_named_fields_set, "SET_OBJECT_CONFIGURATION");
+    ThingModel model = luaL_checkNamedCommand(L, 1, object_desc);
+    update_all_objects_of_model(model);
     return 0;
 }
 
