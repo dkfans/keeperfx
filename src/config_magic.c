@@ -1434,7 +1434,7 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
         break;
     case PwrK_POSSESS:
         player = get_player(plyr_idx);
-        if (player->view_type == PVT_CreatureContrl)
+        if (get_player_view_type(player) == PVT_CreatureContrl)
         {
             thing = thing_get(player->controlled_thing_idx);
             prepare_to_controlled_creature_death(thing);

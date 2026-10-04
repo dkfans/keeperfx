@@ -670,7 +670,7 @@ void LbGrabMouseInit(void)
 void LbGrabMouseCheck(long grab_event)
 {
     TbBool paused = ((game.operation_flags & GOF_Paused) != 0);
-    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl) && ((game.view_mode_flags & GNFldD_CreaturePasngr) == 0);
+    TbBool possession_mode = (get_player_view_type(get_my_player()) == PVT_CreatureContrl) && ((game.view_mode_flags & GNFldD_CreaturePasngr) == 0);
     TbBool grab_cursor = lbMouseGrabbed;
     // ASSUMPTION: SDL3 auto-suspends/resumes relative mode on focus; grab is driven
     // by game intent only, never forced off by focus loss.

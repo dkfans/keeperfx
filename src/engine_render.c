@@ -716,7 +716,7 @@ struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, 
         ERRORLOG("Invalid wibble table index %ld", table_index);
         return &blank_wibble_table[0];
     }
-    if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_CreatureView)
+    if ((cam->view_mode != PVM_IsoStraightView) && (cam->view_mode != PVM_FrontView))
     {
         return &wibble_table[table_index];
     }
@@ -2229,12 +2229,15 @@ static void fiddle_gamut(long pos_x, long pos_y)
     long ewzoom;
     int32_t floor_x[4];
     int32_t floor_y[4];
-    switch (camera->view_mode)
+    const unsigned char view_type = get_local_view_type(player);
+    if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr))
     {
-    case PVM_CreatureView:
         fiddle_half_gamut(pos_x, pos_y, 1, cells_away);
         fiddle_half_gamut(pos_x, pos_y, -1, cells_away + 2);
-        break;
+        return;
+    }
+    switch (camera->view_mode)
+    {
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
         // Retrieve coordinates on limiting map points
@@ -5008,7 +5011,7 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
     }
     {
         int wants_outline = (g_renderer_settings.creature_outline_class_mask >> thing->class_id) & 1u;
-        if (player->view_mode == PVM_CreatureView)
+        if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
             wants_outline = 0;
         RendererSetCurrentSpriteContext((int)thing->owner, wants_outline);
     }
@@ -5282,21 +5285,18 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     float scale_by_zoom;
     int base_size = creature_status_size * 256;
-    switch (cam->view_mode)
+    const unsigned char view_type = get_local_view_type(player);
+    if (view_type == PVT_MapScreen)
     {
-    case PVM_IsoWibbleView:
-    case PVM_IsoStraightView:
+        scale_by_zoom = 1;
+    } else
+    if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr))
+    {
+        return;
+    } else
+    {
         // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom.
         scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
-        break;
-    case PVM_FrontView:
-        scale_by_zoom = LbLerp(0.15, 1.00, hud_scale);
-        break;
-    case PVM_ParchmentView:
-        scale_by_zoom = 1;
-        break;
-    default:
-        return; // Do not draw if camera is 1st person.
     }
 
     unsigned short flg_mem;
@@ -5331,7 +5331,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     state_spridx = 0;
 
     CrtrExpLevel exp_level = min(cctrl->exp_level, 9);
-    if (cam->view_mode != PVM_ParchmentView)
+    if (view_type != PVT_MapScreen)
     {
         fill_status_sprite_indexes(thing, cctrl, &health_spridx, &state_spridx, &anger_spridx);
     }
@@ -5419,7 +5419,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         // Check if the creature has a lair.
         TbBool has_lair = (thing->lair.spr_size > 0);
         // Determine if the current view is the schematic top-down map view.
-        TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
+        TbBool is_parchment_map_view = (view_type == PVT_MapScreen);
         if ((forced_visible)
         || (is_thing_under_hand)
         || (is_enemy_and_visible)
@@ -7855,7 +7855,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
             lltemp = dim_oh * (48 - (long)cctrl->sacrifice.animation_counter);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
         }
-        if (get_local_active_camera(player)->view_mode == PVM_CreatureView)
+        if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
         {
             water_source_cutoff = cutoff;
             water_y_offset = (2 * scale * cutoff) >> 5;
@@ -7962,7 +7962,7 @@ static void draw_mapwho_ariadne_path(struct Thing *thing)
 {
     // Don't draw debug pathfinding lines in Possession to avoid crash
     struct PlayerInfo *player = get_my_player();
-    if (get_local_active_camera(player)->view_mode == PVM_CreatureView)
+    if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
         return;
 
     struct Ariadne *arid;
@@ -8044,7 +8044,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
               RendererAddDrawFlags(Lb_SPRITE_REMAP);
               lbSpriteReMapPtr = white_pal;
           }
-          else if ((active_cam != NULL) && (active_cam->view_mode == PVM_CreatureView))
+          else if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
           {
               struct Thing *creatng = thing_get(player->influenced_thing_idx);
               if (thing_is_creature(creatng))
@@ -8086,7 +8086,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     }
     {
         int wants_outline = (g_renderer_settings.creature_outline_class_mask >> thing->class_id) & 1u;
-        if (player->view_mode == PVM_CreatureView)
+        if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
             wants_outline = 0;
         RendererSetCurrentSpriteContext((int)thing->owner, wants_outline);
     }

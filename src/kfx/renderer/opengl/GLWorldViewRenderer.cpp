@@ -29,7 +29,7 @@
 #include "bflib_video.h"      // LbPaletteGetReadonly(), pixel_size, Lb_SPRITE_* flags
 #include "bflib_basics.h"     // ERRORLOG / SYNCLOG / WARNLOG
 #include "vidmode.h"          // pixmap, alpha_sprite_table
-#include "player_data.h"      // get_my_player(), get_player_active_camera(), PVM_*
+#include "player_data.h"      // get_my_player(), PVM_*
 #include "local_camera.h"     // get_local_active_camera() (spinning-key gate)
 #include "game_legacy.h"      // game.lish.subtile_lightness (lightmap snapshot in FlipBuffers)
 

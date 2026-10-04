@@ -5487,7 +5487,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
     }
     update_powers_tab_to_config();
     struct PlayerInfo *player = get_my_player();
-    if (player->view_type == PVT_DungeonTop)
+    if (get_player_view_type(player) == PVT_DungeonTop)
     {
         if (menu_is_active(GMnu_SPELL))
         {

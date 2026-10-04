@@ -2439,7 +2439,7 @@ void set_gui_visible(TbBool visible)
   set_flag_value(game.operation_flags, GOF_ShowGui, visible);
   struct PlayerInfo *player=get_my_player();
   unsigned char is_visbl = ((game.operation_flags & GOF_ShowGui) != 0);
-  switch (player->view_type)
+  switch (get_player_view_type(player))
   {
   case PVT_CreatureContrl:
   case PVT_CreaturePasngr:

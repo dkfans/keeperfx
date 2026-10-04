@@ -15,6 +15,7 @@
 #include "../frontend.h"
 #include "../bflib_mouse.h"
 #include "../bflib_planar.h"
+#include "../local_camera.h"
 
 #include "../post_inc.h"
 
@@ -194,15 +195,9 @@ TbBool ftest_util_move_camera(long x, long y, PlayerNumber plyr_idx)
         return false;
     }
 
-    struct Camera* camera = &player->cameras[CamIV_Isometric];
-    if(camera == NULL)
-    {
-        LbErrorLog("Could not find camera %d", CamIV_Isometric);
-        return false;
-    }
-
-    camera->mappos.x.val = x;
-    camera->mappos.y.val = y;
+    get_player_user_state(player)->dungeon_camera.x = x;
+    get_player_user_state(player)->dungeon_camera.y = y;
+    sync_local_camera(player);
 
     return true;
 }
