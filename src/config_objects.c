@@ -255,6 +255,7 @@ void update_all_objects_of_model(ThingModel model)
         thing->fall_acceleration = objst->fall_acceleration;
         thing->inertia_floor = objst->inertia_floor;
         thing->inertia_air = objst->inertia_air;
+        set_flag_value(thing->movement_flags, TMvF_Immobile, objst->immobile);
 
         if (thing->light_id != 0)
         {
