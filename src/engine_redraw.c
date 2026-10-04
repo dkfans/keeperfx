@@ -613,7 +613,7 @@ void draw_overlay_compass(long base_x, long base_y)
     {
         if (LbTextStringWidthM(get_string(labels[i]), 16) >= COMPASS_WIDE_LABEL_WIDTH)
         {
-            radius -= 3 * units_per_px / 16;
+            radius -= 2 * units_per_px / 16;
             break;
         }
     }
