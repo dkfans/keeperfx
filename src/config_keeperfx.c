@@ -63,7 +63,7 @@ struct InstallInfo install_info;
 char keeper_runtime_directory[152];
 short api_enabled = false;
 uint16_t api_port = 5599;
-uint32_t packetsave_max_kb = 0;
+uint32_t packetsave_max_kb = 32768;
 TbBool replays_enabled = true;
 uint32_t max_replays[ReplTyp_Count] = {5, 5, 10};
 unsigned long features_enabled = 0;
