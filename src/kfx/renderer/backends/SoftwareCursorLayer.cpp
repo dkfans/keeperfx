@@ -86,7 +86,7 @@ void SoftwareCursorLayer::SubmitPointerSprite(const TbSprite* /*spr*/, int32_t /
 }
 
 void SoftwareCursorLayer::SubmitKeeperHandSprite(short x, short y,
-                                                unsigned short kspr_base,
+                                                int32_t kspr_base,
                                                 short angle,
                                                 unsigned char sprgroup,
                                                 int32_t scale,

@@ -169,13 +169,13 @@ struct PickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
     return &crconf->creature_picked_up_offset;
 }
 
-unsigned char keepersprite_frames(unsigned short n)
+unsigned char keepersprite_frames(int32_t n)
 {
-    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + custom_keeper_sprite_count)
     {
-        return creature_table_add[n - KEEPERSPRITE_ADD_OFFSET].FramesCount;
+        return custom_keeper_sprites[n - KEEPERSPRITE_ADD_OFFSET].sprite.FramesCount;
     }
-    if (n < CREATURE_FRAMELIST_LENGTH)
+    if (n >= 0 && n < CREATURE_FRAMELIST_LENGTH)
     {
         const unsigned short i = creature_list[n];
         if (i < creature_table_length)
@@ -187,13 +187,13 @@ unsigned char keepersprite_frames(unsigned short n)
     return 0;
 }
 
-unsigned char keepersprite_rotable(unsigned short n)
+unsigned char keepersprite_rotable(int32_t n)
 {
-    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + custom_keeper_sprite_count)
     {
-        return creature_table_add[n - KEEPERSPRITE_ADD_OFFSET].Rotable;
+        return custom_keeper_sprites[n - KEEPERSPRITE_ADD_OFFSET].sprite.Rotable;
     }
-    if (n < CREATURE_FRAMELIST_LENGTH)
+    if (n >= 0 && n < CREATURE_FRAMELIST_LENGTH)
     {
         const unsigned short i = creature_list[n];
         if (i < creature_table_length)
@@ -205,13 +205,13 @@ unsigned char keepersprite_rotable(unsigned short n)
     return 0;
 }
 
-struct KeeperSprite * keepersprite_array(unsigned short n)
+struct KeeperSprite * keepersprite_array(int32_t n)
 {
-    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + custom_keeper_sprite_count)
     {
-        return &creature_table_add[n - KEEPERSPRITE_ADD_OFFSET];
+        return &custom_keeper_sprites[n - KEEPERSPRITE_ADD_OFFSET].sprite;
     }
-    if (n < CREATURE_FRAMELIST_LENGTH)
+    if (n >= 0 && n < CREATURE_FRAMELIST_LENGTH)
     {
         const unsigned short i = creature_list[n];
         if (i < creature_table_length)
@@ -223,13 +223,13 @@ struct KeeperSprite * keepersprite_array(unsigned short n)
     return NULL;
 }
 
-unsigned long keepersprite_index(unsigned short n)
+int32_t keepersprite_index(int32_t n)
 {
-    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + custom_keeper_sprite_count)
     {
         return n;
     }
-    if (n < CREATURE_FRAMELIST_LENGTH)
+    if (n >= 0 && n < CREATURE_FRAMELIST_LENGTH)
     {
         return creature_list[n];
     }
@@ -247,27 +247,22 @@ long get_lifespan_of_animation(long ani, long speed)
     return (keepersprite_frames(ani) << 8) / speed;
 }
 
-static struct KeeperSprite* sprite_by_frame(long kspr_frame)
+struct KeeperSprite *keepersprite_frame(int32_t n)
 {
-    if (kspr_frame >= KEEPERSPRITE_ADD_OFFSET &&  kspr_frame < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
-    {
-        return &creature_table_add[kspr_frame - KEEPERSPRITE_ADD_OFFSET];
+    if (n >= KEEPERSPRITE_ADD_OFFSET && n < KEEPERSPRITE_ADD_OFFSET + custom_keeper_sprite_count) {
+        return &custom_keeper_sprites[n - KEEPERSPRITE_ADD_OFFSET].sprite;
     }
-    if (kspr_frame >= 0 && kspr_frame < CREATURE_FRAMELIST_LENGTH)
-    {
-        const unsigned short i = creature_list[kspr_frame];
-        if (i < creature_table_length) {
-            return &creature_table[i];
-        }
+    if (n >= 0 && (size_t)n < creature_table_length) {
+        return &creature_table[n];
     }
-    ERRORLOG("Frame %ld out of range", kspr_frame);
+    ERRORLOG("Frame %d out of range", n);
     return NULL;
 }
 
 void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h)
 {
     TbBool val_in_range;
-    struct KeeperSprite* kspr = sprite_by_frame(kspr_anim);
+    struct KeeperSprite* kspr = keepersprite_array(kspr_anim);
     if (kspr == NULL)
     {
         ERRORLOG("[md10 crash investigation] NULL sprite returned for anim=%ld angle=%ld frame=%ld", kspr_anim, angle, frame);
@@ -298,9 +293,19 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
       RendererAddDrawFlags(Lb_SPRITE_FLIP_HORIZ);
     else
       RendererClearDrawFlags(Lb_SPRITE_FLIP_HORIZ);
-    if (kspr->Rotable == 0)
-    {
-        kspr += frame;
+    int32_t sprite_frame = keepersprite_index(kspr_anim) + frame;
+    if (kspr->Rotable == 2) {
+        sprite_frame += abs(4 - (((angle + DEGREES_22_5) & ANGLE_MASK) >> 8)) * kspr->FramesCount;
+    }
+    kspr = keepersprite_frame(sprite_frame);
+    if (kspr == NULL) {
+        *orig_w = 0;
+        *orig_h = 0;
+        *unsc_w = 0;
+        *unsc_h = 0;
+        return;
+    }
+    if (kspr->Rotable == 0) {
         *orig_w = kspr->FrameWidth;
         *orig_h = kspr->FrameHeight;
         if ( val_in_range )
@@ -316,7 +321,6 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
     }
     else if (kspr->Rotable == 2)
     {
-        kspr += frame + abs(4 - (((angle + DEGREES_22_5) & ANGLE_MASK) >> 8)) * kspr->FramesCount;
         *orig_w = kspr->SWidth;
         *orig_h = kspr->SHeight;
         if ( val_in_range )
@@ -334,23 +338,19 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
     *unsc_h += kspr->offset_y;
 }
 
-short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
+int32_t get_creature_model_graphics(int32_t crmodel, unsigned short seq_idx)
 {
-    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
-    {
-        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
+    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
+        ERRORLOG("Invalid model %d graphics sequence %u", crmodel, seq_idx);
         seq_idx = 0;
     }
-    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
-    {
-        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
+    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
+        ERRORLOG("Invalid model %d graphics sequence %u", crmodel, seq_idx);
         crmodel = 0;
     }
     // Backward compatibility for custom creatures. Use the attack animation if the extra animation is undefined, return 0 if the attack animation is also undefined.
-    if (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] < 0)
-    {
-        if ((seq_idx >= CGI_CastSpell) && (game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack] > 0))
-        {
+    if (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] < 0) {
+        if ((seq_idx >= CGI_CastSpell) && (game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack] > 0)) {
             return game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack];
         }
         return 0;
@@ -358,24 +358,22 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
     return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
 }
 
-void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned long val)
+void set_creature_model_graphics(int32_t crmodel, unsigned short seq_idx, int32_t val)
 {
-    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
-    {
-        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
+    if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
+        ERRORLOG("Invalid model %d graphics sequence %u", crmodel, seq_idx);
         return;
     }
-    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count))
-    {
-        ERRORLOG("Invalid model %ld graphics sequence %u", crmodel, seq_idx);
+    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
+        ERRORLOG("Invalid model %d graphics sequence %u", crmodel, seq_idx);
         return;
     }
     game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] = val;
 }
 
-short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
+int32_t get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 {
-    short idx = get_creature_model_graphics(thing->model, seq_idx);
+    int32_t idx = get_creature_model_graphics(thing->model, seq_idx);
     return get_td_animation_sprite(idx);
 }
 
@@ -410,7 +408,7 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 
 TbBool update_creature_animation_by_sprite(struct Thing *thing, long speed, long anim_idx)
 {
-    unsigned long i = get_td_animation_sprite(anim_idx);
+    int32_t i = get_td_animation_sprite(anim_idx);
     // Only update when it's a different sprite, or a different animation speed.
     if ((i != thing->anim_sprite) || ((speed != thing->anim_speed) && (speed != -1)))
     {

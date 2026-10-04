@@ -88,6 +88,13 @@ struct KeeperSprite {
   short frame_flags;
 };
 
+struct CustomSprite {
+    struct KeeperSprite sprite;
+    unsigned char *data;
+    int32_t td_anim;
+    int32_t fp_anim;
+};
+
 struct KeeperSpriteDisk {
     uint32_t DataOffset;
     unsigned char SWidth;
@@ -105,7 +112,8 @@ struct KeeperSpriteDisk {
 /******************************************************************************/
 //extern unsigned short creature_graphics[][22];
 extern struct KeeperSprite *creature_table;
-extern struct KeeperSprite creature_table_add[];
+extern struct CustomSprite *custom_keeper_sprites;
+extern int32_t custom_keeper_sprite_count;
 extern size_t creature_table_length;
 /******************************************************************************/
 
@@ -113,15 +121,16 @@ extern size_t creature_table_length;
 /******************************************************************************/
 struct PickedUpOffset *get_creature_picked_up_offset(struct Thing *thing);
 
-unsigned long keepersprite_index(unsigned short n);
-struct KeeperSprite * keepersprite_array(unsigned short n);
-unsigned char keepersprite_frames(unsigned short n); // This returns number of frames in animation
-unsigned char keepersprite_rotable(unsigned short n);
+int32_t keepersprite_index(int32_t n);
+struct KeeperSprite * keepersprite_array(int32_t n);
+struct KeeperSprite *keepersprite_frame(int32_t n);
+unsigned char keepersprite_frames(int32_t n); // This returns number of frames in animation
+unsigned char keepersprite_rotable(int32_t n);
 void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h);
 long get_lifespan_of_animation(long ani, long speed);
-short get_creature_anim(struct Thing *thing, unsigned short frame);
-short get_creature_model_graphics(long crmodel, unsigned short frame);
-void set_creature_model_graphics(long crmodel, unsigned short frame, unsigned long val);
+int32_t get_creature_anim(struct Thing *thing, unsigned short frame);
+int32_t get_creature_model_graphics(int32_t crmodel, unsigned short frame);
+void set_creature_model_graphics(int32_t crmodel, unsigned short frame, int32_t val);
 void set_creature_graphic(struct Thing *thing);
 void update_creature_rendering_flags(struct Thing *thing);
 

@@ -27,6 +27,7 @@
 #include "config.h"
 #include "front_simple.h"
 #include "engine_render.h"
+#include "creature_graphics.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -48,13 +49,13 @@ long lintel_bottom_height[256];
 }
 #endif
 /******************************************************************************/
-short get_td_animation_sprite(short animation_sprite)
+int32_t get_td_animation_sprite(int32_t animation_sprite)
 {
     if ((animation_sprite >= 0) && (animation_sprite < FP_TD_ANIMATION_COUNT) && (fp_to_td_animation[animation_sprite] >= 0)) {
         return fp_to_td_animation[animation_sprite];
     }
-    if ((animation_sprite >= KEEPERSPRITE_ADD_OFFSET) && (animation_sprite < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)) {
-        short td_sprite = fp_to_td_sprite_add[animation_sprite - KEEPERSPRITE_ADD_OFFSET];
+    if ((animation_sprite >= KEEPERSPRITE_ADD_OFFSET) && (animation_sprite < KEEPERSPRITE_ADD_OFFSET + custom_keeper_sprite_count)) {
+        int32_t td_sprite = custom_keeper_sprites[animation_sprite - KEEPERSPRITE_ADD_OFFSET].td_anim;
         if (td_sprite > 0) {
             return td_sprite;
         }
@@ -62,19 +63,19 @@ short get_td_animation_sprite(short animation_sprite)
     return animation_sprite;
 }
 
-unsigned short get_render_animation_sprite(unsigned short animation_sprite)
+int32_t get_render_animation_sprite(int32_t animation_sprite)
 {
     if ((lens_mode == 2) || (lens_mode == 3)) {
-        if (animation_sprite < FP_TD_ANIMATION_COUNT) {
+        if (animation_sprite >= 0 && animation_sprite < FP_TD_ANIMATION_COUNT) {
             short fp_sprite = td_to_fp_animation[animation_sprite];
             if (fp_sprite >= 0) {
-                return (unsigned short)fp_sprite;
+                return fp_sprite;
             }
         }
-        if ((animation_sprite >= KEEPERSPRITE_ADD_OFFSET) && (animation_sprite < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)) {
-            short fp_sprite = td_to_fp_sprite_add[animation_sprite - KEEPERSPRITE_ADD_OFFSET];
+        if ((animation_sprite >= KEEPERSPRITE_ADD_OFFSET) && (animation_sprite < KEEPERSPRITE_ADD_OFFSET + custom_keeper_sprite_count)) {
+            int32_t fp_sprite = custom_keeper_sprites[animation_sprite - KEEPERSPRITE_ADD_OFFSET].fp_anim;
             if (fp_sprite > 0) {
-                return (unsigned short)fp_sprite;
+                return fp_sprite;
             }
         }
     }

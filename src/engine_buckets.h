@@ -81,7 +81,7 @@ struct BucketKindCreatureShadow {
     struct PolyPoint vertex_third;
     struct PolyPoint vertex_fourth;
     long angle;
-    unsigned short anim_sprite;
+    int32_t anim_sprite;
     unsigned char current_frame;
     long bucket_idx;
 };

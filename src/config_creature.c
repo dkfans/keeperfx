@@ -548,10 +548,8 @@ void init_all_creature_model_stats(void)
 
 void init_creature_model_graphics(void)
 {
-    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
-    {
-        for (int k = 0; k < CREATURE_GRAPHICS_INSTANCES; k++)
-        {
+    for (int i = 0; i < CREATURE_TYPES_MAX; i++) {
+        for (int k = 0; k < CREATURE_GRAPHICS_INSTANCES; k++) {
             game.conf.crtr_conf.creature_graphics[i][k] = -1;
         }
     }

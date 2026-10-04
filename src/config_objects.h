@@ -74,7 +74,7 @@ struct Effects {
 };
 
 struct FlameProperties {
-    unsigned short animation_id;
+    int32_t animation_id;
     short anim_speed;
     int sprite_size;
     int td_add_x;
@@ -98,8 +98,8 @@ struct ObjectConfigStats {
     char light_unaffected;
     char immobile;
     struct InitLight ilght;
-    short sprite_anim_idx;
-    short sprite_anim_idx_in_hand;
+    int32_t sprite_anim_idx;
+    int32_t sprite_anim_idx_in_hand;
     short anim_speed;
     short size_xy;
     short size_z;
