@@ -33,8 +33,8 @@ struct Packet;
 
 #pragma pack(1)
 
-// save file header for .pck files.
-// (Bump the version if this struct or the .pck format changes.)
+// save file header for .fxpkt files.
+// (Bump the version if this struct or the .fxpkt format changes.)
 #define PACKET_SAVE_HEAD_VER 5
 
 enum PacketSaveHeadFlags {
@@ -91,7 +91,7 @@ struct PacketSaveHead {
 struct ReplayState {
     unsigned char save_enable;
     unsigned char load_enable;
-    char fname[150];
+    char fname[OS_ABSPATH_SIZE];
     char fopened;
     TbFileHandle fp;
     unsigned int file_pos;
@@ -107,6 +107,9 @@ struct ReplayState {
 };
 
 extern struct ReplayState replay;
+extern char replay_crashlog_fname[OS_ABSPATH_SIZE];
+extern volatile uint8_t replay_crashlog_state;
+extern volatile GameTurn replay_crashlog_turn;
 
 extern unsigned long initial_replay_seed;
 

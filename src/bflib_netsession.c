@@ -20,6 +20,7 @@
 #include "pre_inc.h"
 #include "bflib_netsession.h"
 #include "bflib_basics.h"
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 #include <json-dom.h>
@@ -41,10 +42,10 @@ void net_copy_name_string(char *dst, const char *src, int32_t max_len)
 }
 /******************************************************************************/
 
-void net_json_escape(char *output, size_t output_size, const char *input)
+TbBool net_json_escape(char *output, size_t output_size, const char *input)
 {
     if (output_size == 0) {
-        return;
+        return false;
     }
     size_t used = 0;
     for (const unsigned char *c = (const unsigned char *)input; *c; c++) {
@@ -55,7 +56,8 @@ void net_json_escape(char *output, size_t output_size, const char *input)
             needed = 2;
         }
         if (used + needed >= output_size) {
-            break;
+            output[used] = '\0';
+            return false;
         }
         if (*c < 32) {
             used += snprintf(output + used, output_size - used, "\\u%04x", *c);
@@ -67,6 +69,7 @@ void net_json_escape(char *output, size_t output_size, const char *input)
         }
     }
     output[used] = '\0';
+    return true;
 }
 
 int net_session_metadata_json(const struct TbNetworkSessionNameEntry *session, char *output, size_t size)

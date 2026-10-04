@@ -4,7 +4,7 @@
 /** @file replay.c
  *     Replay recording and playback.
  * @par Purpose:
- *     Creating, compressing, and loading replay (.pck) files.
+ *     Creating, compressing, and loading replay (.fxpkt) files.
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
@@ -28,6 +28,8 @@
 #include "gui_topmsg.h"
 #include "config_settings.h"
 #include "config_keeperfx.h"
+#include "bflib_netsession.h"
+#include <stdatomic.h>
 #include "config.h"
 #include "config_campaigns.h"
 #include "version.h"
@@ -48,6 +50,9 @@ extern "C" {
 struct ReplayState replay;
 unsigned long initial_replay_seed;
 static TbBool replay_playback_paused;
+char replay_crashlog_fname[OS_ABSPATH_SIZE];
+volatile uint8_t replay_crashlog_state;
+volatile GameTurn replay_crashlog_turn;
 static char *pending_resync;
 static TbBool replay_map_mismatch;
 static size_t pending_resync_len;
@@ -794,14 +799,31 @@ TbBool verify_replay_map_checksums(void)
     return !replay_map_mismatch;
 }
 
+static void set_replay_crashlog(uint8_t state, GameTurn turn)
+{
+    replay_crashlog_state = 0;
+    atomic_signal_fence(memory_order_seq_cst);
+    if (state != 0)
+    {
+        if (!net_json_escape(replay_crashlog_fname, sizeof(replay_crashlog_fname), replay.fname))
+            replay_crashlog_fname[0] = '\0';
+        replay_crashlog_turn = turn;
+        atomic_signal_fence(memory_order_seq_cst);
+        replay_crashlog_state = state;
+    }
+}
+
 TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 {
     replay_map_mismatch = false;
     memset(centry, 0, sizeof(struct CatalogueEntry));
-    strcpy(replay.fname, fname);
+    if (fname != replay.fname)
+        snprintf(replay.fname, sizeof(replay.fname), "%s", fname);
+    set_replay_crashlog(2, get_gameturn());
     replay.fp = LbFileOpen(replay.fname, Lb_FILE_MODE_READ_ONLY);
     if (!replay.fp)
     {
+        set_replay_crashlog(0, 0);
         ERRORLOG("Cannot open keeper packet file for load");
         replay.fopened = 0;
         return false;
@@ -809,6 +831,7 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
     int i = load_game_chunks(replay.fp, centry);
     if ((i != GLoad_PacketStart) && (i != GLoad_PacketContinue))
     {
+        set_replay_crashlog(0, 0);
         LbFileClose(replay.fp);
         replay.fp = NULL;
         replay.fopened = 0;
@@ -978,6 +1001,7 @@ static TbBool write_turn_end(TbBigChecksum chksum, const unsigned char *pckt_buf
 static void replay_write_record(unsigned char kind, const void *payload, uint32_t payload_len)
 {
     turn_rewrite.valid = false;
+    replay_crashlog_turn = get_gameturn();
     LbFileSeek(replay.fp, 0, Lb_FILE_SEEK_END);
     const size_t raw_len = (replay_long_turn_open ? 0 : sizeof(TbBigChecksum)) + 5 + sizeof(uint32_t) + sizeof(unsigned char) + sizeof(uint32_t) + payload_len;
     if (!replay_write_fits(raw_len))
@@ -1075,6 +1099,7 @@ void replay_record_resync(const void *message, size_t message_size)
     }
     const size_t raw_len = sizeof(TbBigChecksum) + 5 + 2 * sizeof(uint32_t) + sizeof(unsigned char) + message_size
         + sizeof(unsigned char) + sizeof(TbBigChecksum) + turn_rewrite.nusers * sizeof(struct Packet);
+    replay_crashlog_turn = get_gameturn();
     TbBool ok = rewind_to_turn_rewrite_point();
     if (ok && !replay_write_fits(raw_len))
         return;
@@ -1121,6 +1146,7 @@ short save_packets(void)
     const int nusers = packet_saved_users(users);
     SYNCDBG(6,"Starting");
     const TbBigChecksum chksum = replay.checksum_verify ? compute_replay_integrity() : 0;
+    replay_crashlog_turn = get_gameturn();
     LbFileSeek(replay.fp, 0, Lb_FILE_SEEK_END);
     for (int i = 0; i < nusers; i++)
         memcpy(&turn_rewrite.pckt_buf[i*sizeof(struct Packet)], &game.packets[users[i]], sizeof(struct Packet));
@@ -1174,6 +1200,7 @@ void stop_replay_recording(const char *reason)
 
 void close_packet_file(void)
 {
+    set_replay_crashlog(0, 0);
     if ( replay.fopened )
     {
         LbFileClose(replay.fp);
@@ -1210,7 +1237,7 @@ static void evict_old_replays(int type, uint32_t keep)
     struct TbFileEntry fe;
     char spec[DISKPATH_SIZE];
     char rel[DISKPATH_SIZE];
-    snprintf(rel, sizeof(rel), "%s/*.pck", replay_type_dirs[type]);
+    snprintf(rel, sizeof(rel), "%s/*", replay_type_dirs[type]);
     prepare_file_path_buf(spec, sizeof(spec), FGrp_Replays, rel);
     if (spec[0] == '\0')
         return;
@@ -1220,6 +1247,9 @@ static void evict_old_replays(int type, uint32_t keep)
         do {
             if ((strlen(fe.Filename) <= REPLAY_TYPE_CHAR_POS) || (fe.Filename[REPLAY_TYPE_CHAR_POS - 1] != '_')
                 || (fe.Filename[REPLAY_TYPE_CHAR_POS] != type_chr))
+                continue;
+            const char *ext = strrchr(fe.Filename, '.');
+            if (ext == NULL || (strcasecmp(ext, ".fxpkt") != 0 && strcasecmp(ext, ".pck") != 0))
                 continue;
             if (count == cap)
             {
@@ -1325,7 +1355,7 @@ TbBool setup_auto_replay_save(void)
     }
     append_git_sha(fname, sizeof(fname));
     len = strlen(fname);
-    snprintf(fname + len, sizeof(fname) - len, ".pck");
+    snprintf(fname + len, sizeof(fname) - len, ".fxpkt");
     prepare_file_path_buf(replay.fname, sizeof(replay.fname), FGrp_Replays, fname);
     if (replay.fname[0] == '\0')
     {
@@ -1382,10 +1412,12 @@ TbBool open_new_packet_file_for_save(void)
               set_flag(replay.head.players_comp, to_flag(i));
         }
     }
+    set_replay_crashlog(1, get_gameturn());
     LbFileDelete(replay.fname);
     replay.fp = LbFileOpen(replay.fname, Lb_FILE_MODE_NEW);
     if (!replay.fp)
     {
+        set_replay_crashlog(0, 0);
         ERRORLOG("Cannot open keeper packet file for save, \"%s\".",replay.fname);
         replay.fopened = 0;
         return false;
@@ -1395,6 +1427,7 @@ TbBool open_new_packet_file_for_save(void)
     if (!save_packet_chunks(replay.fp,&centry))
     {
         WARNMSG("Cannot write to packet file, \"%s\".",replay.fname);
+        set_replay_crashlog(0, 0);
         LbFileClose(replay.fp);
         replay.fopened = 0;
         replay.fp = NULL;
@@ -1426,6 +1459,7 @@ void load_packets_for_turn(GameTurn nturn)
     NetUserId users[MAX_NET_USERS];
     const int nusers = packet_saved_users(users);
     unsigned char pckt_buf[PACKET_TURN_MAX_SIZE+4];
+    replay_crashlog_turn = nturn;
     if ((nturn >= replay.turns_stored) && packet_file_ends_in_reserved)
     {
         ERRORLOG("Packet File uses an unrecognized encoding at turn %u; stopping replay", (unsigned)nturn);

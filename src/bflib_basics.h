@@ -30,8 +30,19 @@ extern "C" {
 #endif
 /******************************************************************************/
 // Buffer sizes
-// Disk path max length
+// Legacy path max length
 #define DISKPATH_SIZE    144
+
+// Maximum disk path size OS can handle
+#if defined(_WIN32)
+#define OS_ABSPATH_SIZE  260 /* ANSI */
+#elif defined(__linux__)
+#define OS_ABSPATH_SIZE  4096
+#else
+// arbitrary fallback
+#define OS_ABSPATH_SIZE  512
+#endif
+
 #define LINEMSG_SIZE     160
 #define READ_BUFSIZE     256
 #define LOOPED_FILE_LEN 4096
