@@ -31,6 +31,7 @@
 #include "lua_base.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
+#include "ariadne_update.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -357,7 +358,6 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length)
     return true;
 }
 
-// game struct, then uint32 Lua data length, then the Lua data
 static char *build_resync_game_data(size_t *full_resync_len)
 {
     const char * lua_data = "";
@@ -489,6 +489,7 @@ static void finish_resync(const struct Packet *saved_packets)
         lua_set_random_seed(game.action_random_seed);
     }
     recall_localised_game_structure();
+    rebuild_navigation();
     reinit_level_after_load();
     memcpy(game.packets, saved_packets, sizeof(game.packets));
 
