@@ -90,8 +90,8 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
     peer_id = (NetUserId)(uint8_t)read_pos[0];
     read_pos += 1;
     if (peer_id >= netstate.max_users) {
-        ERRORLOG("Critical error: Out of range peer ID %i received, could be used for buffer overflow attack", peer_id);
-        abort();
+        WARNLOG("Ignoring message type %d with invalid peer ID %i from peer %i", (int)message_type, peer_id, source);
+        return Lb_OK;
     }
     memcpy(&seq_nbr, read_pos, sizeof(seq_nbr));
     read_pos += sizeof(seq_nbr);
@@ -263,7 +263,7 @@ TbError exchange_frame_message(void *send_buf, void *server_buf, size_t frame_si
         write_pos += 1;
         memcpy(write_pos, current_packet, sizeof(struct Packet));
         write_pos += sizeof(struct Packet);
-        for (GameTurnDelta offset = 1; *packet_count < REDUNDANT_PACKET_BUNDLE; offset += 1) {
+        for (GameTurnDelta offset = 1; offset < PACKET_HISTORY_SIZE && *packet_count < REDUNDANT_PACKET_BUNDLE; offset += 1) {
             if ((GameTurn)offset > current_packet->turn) {
                 break;
             }

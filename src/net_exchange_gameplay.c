@@ -46,9 +46,7 @@ int32_t multiplayer_speed_adjustment_ns;
 
 /******************************************************************************/
 
-// PACKET_HISTORY_SIZE affects how far apart two users' turns can be (if they divert too far then there's no easy recovering). It should be set as high as possible while still being safe to send, so less than 1300 bytes at once.
 // TURN_SYNC_MAX_ADJUSTMENT_NS being set too high causes stutters.
-#define PACKET_HISTORY_SIZE 40
 #define REPAIR_HISTORY_RESEND_INTERVAL 200
 #define REPAIR_HISTORY_RECOVERY_INTERVAL 50
 #define FINAL_RESORT_RESYNC_RECOVERY 10000
