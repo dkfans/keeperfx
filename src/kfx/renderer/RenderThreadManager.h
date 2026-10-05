@@ -23,9 +23,8 @@ public:
      *  already active. */
     void Start(Fn init_fn, Fn work_fn, Fn cleanup_fn);
 
-    /** Block until the render thread finishes work_fn(). First call returns
-     *  immediately (nothing to wait for yet). */
     void WaitForCompletion();
+    bool IsWorkDone() const;
 
     /** Wake the render thread to run work_fn() for this frame. */
     void Signal();
@@ -39,7 +38,7 @@ private:
     void ThreadProc(Fn init_fn, Fn work_fn, Fn cleanup_fn);
 
     std::thread             m_thread;
-    std::mutex              m_mutex;
+    mutable std::mutex      m_mutex;
     std::condition_variable m_cv;
     bool m_work_ready  = false;
     bool m_work_done   = true;

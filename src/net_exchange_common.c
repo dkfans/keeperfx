@@ -90,8 +90,8 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
     peer_id = (NetUserId)(uint8_t)read_pos[0];
     read_pos += 1;
     if (peer_id >= netstate.max_users) {
-        ERRORLOG("Critical error: Out of range peer ID %i received, could be used for buffer overflow attack", peer_id);
-        abort();
+        WARNLOG("Ignoring message type %d with invalid peer ID %i from peer %i", (int)message_type, peer_id, source);
+        return Lb_OK;
     }
     memcpy(&seq_nbr, read_pos, sizeof(seq_nbr));
     read_pos += sizeof(seq_nbr);
@@ -107,14 +107,20 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
             WARNLOG("Gameplay frame size mismatch (%u != %u)", (unsigned)frame_size, (unsigned)sizeof(struct Packet));
             return Lb_OK;
         }
-        if (payload_size < sizeof(unsigned char)) {
+        if (payload_size < sizeof(uint32_t) + sizeof(unsigned char)) {
             WARNLOG("Invalid gameplay packet bundle from peer %i (%u bytes)", peer_id, (unsigned)payload_size);
+            return Lb_OK;
+        }
+        uint32_t gameplay_generation;
+        memcpy(&gameplay_generation, read_pos, sizeof(gameplay_generation));
+        read_pos += sizeof(gameplay_generation);
+        payload_size -= sizeof(gameplay_generation);
+        if (gameplay_generation != netstate.gameplay_generation) {
             return Lb_OK;
         }
         unsigned char packet_count = (unsigned char)read_pos[0];
         read_pos += 1;
-        if (packet_count < 1 || packet_count > REDUNDANT_PACKET_BUNDLE
-         || payload_size != sizeof(unsigned char) + packet_count * sizeof(struct Packet)) {
+        if (packet_count < 1 || packet_count > REDUNDANT_PACKET_BUNDLE || payload_size != sizeof(unsigned char) + packet_count * sizeof(struct Packet)) {
             WARNLOG("Invalid gameplay packet bundle from peer %i (%u bytes)", peer_id, (unsigned)payload_size);
             return Lb_OK;
         }
@@ -257,13 +263,15 @@ TbError exchange_frame_message(void *send_buf, void *server_buf, size_t frame_si
     memcpy(write_pos, &netstate.seq_nbr, sizeof(netstate.seq_nbr));
     write_pos += sizeof(netstate.seq_nbr);
     if (msg_type == NETMSG_GAMEPLAY_UNSEQUENCED) {
+        memcpy(write_pos, &netstate.gameplay_generation, sizeof(netstate.gameplay_generation));
+        write_pos += sizeof(netstate.gameplay_generation);
         const struct Packet *current_packet = (const struct Packet *)send_buf;
         unsigned char *packet_count = (unsigned char *)write_pos;
         *packet_count = 1;
         write_pos += 1;
         memcpy(write_pos, current_packet, sizeof(struct Packet));
         write_pos += sizeof(struct Packet);
-        for (GameTurnDelta offset = 1; *packet_count < REDUNDANT_PACKET_BUNDLE; offset += 1) {
+        for (GameTurnDelta offset = 1; offset < PACKET_HISTORY_SIZE && *packet_count < REDUNDANT_PACKET_BUNDLE; offset += 1) {
             if ((GameTurn)offset > current_packet->turn) {
                 break;
             }
@@ -289,11 +297,25 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
     if (frame_peer_id != NULL) {
         *frame_peer_id = INVALID_USER_ID;
     }
-    size_t message_size = netstate.sp->readmsg(source, netstate.msg_buffer, sizeof(netstate.msg_buffer));
+    const char *message_buffer;
+    size_t message_size = netstate.sp->peekmsg(source, &message_buffer);
     if (message_size == 0) {
         ERRORLOG("Problem reading message from %u", source);
         return Lb_FAIL;
     }
+    if (source == SERVER_ID && !network_is_host() && expected_frame_type == NETMSG_GAMEPLAY_UNSEQUENCED && message_buffer[0] == NETMSG_RESYNC_DATA) {
+        netstate.resync_pending = true;
+        return Lb_OK;
+    }
+    size_t read_size = netstate.sp->readmsg(source, netstate.msg_buffer, sizeof(netstate.msg_buffer));
+    if (read_size == 0) {
+        ERRORLOG("Problem reading message from %u", source);
+        return Lb_FAIL;
+    }
+    if (message_size > sizeof(netstate.msg_buffer)) {
+        return Lb_OK;
+    }
+    message_size = read_size;
     char *read_pos = netstate.msg_buffer;
     enum NetMessageType message_type = (enum NetMessageType)read_pos[0];
     read_pos += 1;
@@ -311,7 +333,9 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
     case NETMSG_CHATMESSAGE:
         return handle_chat_message(source, read_pos, message_size, expected_frame_type);
     case NETMSG_GAMEPLAY_REPAIR:
-        read_repair_packet_history(source, read_pos, message_size - (read_pos - netstate.msg_buffer));
+        if (read_repair_packet_history(source, read_pos, message_size - (read_pos - netstate.msg_buffer)) && netstate.my_id == SERVER_ID && source != SERVER_ID) {
+            send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, source, netstate.my_id);
+        }
         return Lb_OK;
     case NETMSG_GAMEPLAY_TURN_SYNC:
         return process_network_turn_sync_message(source, read_pos, message_size - (read_pos - netstate.msg_buffer));
@@ -406,7 +430,7 @@ TbError exchange_frame_block(enum NetMessageType msg_type, void *send_buf, void 
 
 void process_peer_msgs(NetUserId peer_id, void *server_buf, size_t frame_size)
 {
-    while (netstate.sp->msgready(peer_id, 0)) {
+    while (!netstate.resync_pending && netstate.sp->msgready(peer_id, 0)) {
         process_network_message(peer_id, server_buf, frame_size, NETMSG_GAMEPLAY_UNSEQUENCED, NULL);
     }
 }
@@ -418,6 +442,7 @@ void wait_for_all_players(void)
     }
 
     const TbClockMSec resend_interval = 50;
+    uint32_t sync_generation = netstate.gameplay_generation;
     TbBool has_received_frame[MAX_NET_USERS] = {false};
     TbBool is_host = network_is_host();
     enum NetMessageType send_message_type;
@@ -437,14 +462,15 @@ void wait_for_all_players(void)
         if (now - last_send_time >= resend_interval) {
             if (!is_host || all_expected_exchange_frames_received(has_received_frame, is_host)) {
                 netstate.msg_buffer[0] = send_message_type;
+                memcpy(netstate.msg_buffer + 1, &sync_generation, sizeof(sync_generation));
                 if (!is_host) {
                     if (!can_send_to_peer(SERVER_ID)) {
-                        ERRORLOG("Initial startup wait failed: could not send NETMSG_CLIENT_IS_READY packet");
+                        ERRORLOG("Network synchronization wait failed: could not send NETMSG_CLIENT_IS_READY packet");
                         return;
                     }
-                    netstate.sp->sendmsg_single_unsequenced(SERVER_ID, netstate.msg_buffer, 1);
+                    netstate.sp->sendmsg_single_unsequenced(SERVER_ID, netstate.msg_buffer, 1 + sizeof(sync_generation));
                 } else {
-                    send_to_active_peers(1, NetSend_Reliable, netstate.msg_buffer, 1, netstate.my_id, INVALID_USER_ID);
+                    send_to_active_peers(1, NetSend_Reliable, netstate.msg_buffer, 1 + sizeof(sync_generation), netstate.my_id, INVALID_USER_ID);
                     result = Lb_OK;
                 }
             }
@@ -456,12 +482,18 @@ void wait_for_all_players(void)
                 continue;
             }
             while (result != Lb_OK && netstate.sp->msgready(peer_id, 0)) {
+                size_t message_size = netstate.sp->msgready(peer_id, 0);
                 if (process_network_message(peer_id, NULL, 0, expected_message_type, NULL) != Lb_OK) {
-                    ERRORLOG("Initial startup wait failed: could not process startup wait packet from peer %d", (int)peer_id);
+                    ERRORLOG("Network synchronization wait failed: could not process wait packet from peer %d", (int)peer_id);
                     return;
                 }
                 enum NetMessageType message_type = (enum NetMessageType)netstate.msg_buffer[0];
-                if (message_type != expected_message_type) {
+                if (message_type != expected_message_type || message_size != 1 + sizeof(sync_generation)) {
+                    continue;
+                }
+                uint32_t received_generation;
+                memcpy(&received_generation, netstate.msg_buffer + 1, sizeof(received_generation));
+                if (received_generation != sync_generation) {
                     continue;
                 }
                 if (is_host) {
@@ -485,6 +517,6 @@ void wait_for_all_players(void)
     }
     netstate.seq_nbr += 1;
     if (result != Lb_OK) {
-        ERRORLOG("Initial startup wait failed: TIMEOUT_WAIT_FOR_ALL_PLAYERS expired after %d ms", TIMEOUT_WAIT_FOR_ALL_PLAYERS);
+        ERRORLOG("Network synchronization wait failed: TIMEOUT_WAIT_FOR_ALL_PLAYERS expired after %d ms", TIMEOUT_WAIT_FOR_ALL_PLAYERS);
     }
 }

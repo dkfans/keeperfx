@@ -468,21 +468,19 @@ void gameplay_loop_draw()
     if (game.process_turn_time > 1.0 && time_since_last_draw < 1.0)
         do_draw = false;
 
-    // Frame rate limiter
-    if (fps_limit_current > 0)
-    {
+    if ((fps_limit_current > 0 && process_frame_time < 1.0) || (do_draw && !RendererCanPresent())) {
+        do_draw = false;
         frametime_start_measurement(Frametime_Sleep);
-        if (process_frame_time < 1.0)
-        {
-            if (game.process_turn_time < 1.0)
-                SDL_Delay(1);
-            do_draw = false;
-        }
-        else
-        {
-            process_frame_time = min(1.L, process_frame_time - 1.L);
+        if (game.process_turn_time < 1.0) {
+            SDL_Delay(1);
         }
         frametime_end_measurement(Frametime_Sleep);
+        return;
+    }
+
+    // Frame rate limiter
+    if (fps_limit_current > 0) {
+        process_frame_time = min(1.L, process_frame_time - 1.L);
     }
 
     // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
@@ -526,7 +524,9 @@ void gameplay_loop_draw()
 
 void network_yield_waiting_gameplay_packets()
 {
+    lbBufferKeyPresses = true;
     poll_inputs();
+    lbBufferKeyPresses = false;
     gameplay_loop_draw();
     update_gameplay_delta_time();
     // Reduce game speed during lag spikes.
@@ -920,6 +920,7 @@ static TbBool wait_at_frontend(void)
 
     try_restore_frontend_error_box();
 
+    memset(lbKeyPressed, 0, sizeof(lbKeyPressed));
     poll_inputs();
     clear_mouse_pressed_lrbutton();
 

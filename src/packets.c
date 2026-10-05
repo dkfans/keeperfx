@@ -428,6 +428,7 @@ TbBool packet_action_has_camera_position(enum TbPacketAction action)
     {
     case PckA_ApplyRoomspaceDigTag:
     case PckA_SetTimestamp:
+    case PckA_ZoomFromMap:
         return false;
     default:
         return true;
@@ -889,11 +890,14 @@ TbBool process_user_global_packet_action(NetUserId user)
       //TODO: remake from beta
       return 0;
   case PckA_SetViewType:
+      if (pckt->actn_par1 == PVT_MapFadeIn || pckt->actn_par1 == PVT_MapFadeOut)
+          ustate->map_fade_turns = min(pckt->actn_par2, PARCHMENT_MAP_FADE_MAX_TURNS);
       set_player_mode(player, pckt->actn_par1);
       return 0;
   case PckA_ZoomFromMap:
-      if (parchment_map_fade_enabled())
+      if (pckt->actn_par3 > 0)
       {
+        ustate->map_fade_turns = min(pckt->actn_par3, PARCHMENT_MAP_FADE_MAX_TURNS);
         set_player_mode(player, PVT_MapFadeOut);
       } else
       {
@@ -1761,10 +1765,8 @@ void process_packets(void)
     if (quit_game || exit_keeper) {
         return;
     }
-    if (network_is_active()
-     && ((local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0))
-    {
-        if (resync_game_allowed()) {
+    if (network_is_active() && (netstate.resync_pending || (local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0)) {
+        if (netstate.resync_pending || (network_is_host() && resync_game_allowed())) {
             SYNCDBG(0,"Resyncing");
             resync_game();
         }

@@ -36,10 +36,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-long free_Triangles = 0;
+static int32_t free_Triangles = 0;
 struct Triangle Triangles[TRIANLGLES_COUNT];
-long count_Triangles = 0;
-long ix_Triangles = 0;
+int32_t count_Triangles = 0;
+int32_t ix_Triangles = 0;
 
 /******************************************************************************/
 struct Triangle bad_triangle;

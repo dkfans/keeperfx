@@ -804,6 +804,11 @@ bool RendererOpenGL::BeginFrame()
     return m_impl != nullptr && m_impl->init_ok;
 }
 
+bool RendererOpenGL::CanPresent() const
+{
+    return m_impl != nullptr && m_impl->thread_mgr.IsWorkDone();
+}
+
 void RendererOpenGL::EndFrame()
 {
     // No-op: the real flip/signal work is PresentFrame() below, called
@@ -882,11 +887,11 @@ class IUIRenderer* RendererOpenGL::GetUIRenderer()
     return m_impl ? &m_impl->ui : nullptr;
 }
 
-void RendererOpenGL::SubmitMapFadeStep(int tick_step, float display_step, bool fading_in,
+void RendererOpenGL::SubmitMapFadeStep(int tick_step, float display_step, float warp_scale, bool fading_in,
                                        const unsigned char* ghost_table)
 {
     if (m_impl == nullptr) return;
-    m_impl->mapfade.SubmitStep(tick_step, display_step, fading_in, ghost_table);
+    m_impl->mapfade.SubmitStep(tick_step, display_step, warp_scale, fading_in, ghost_table);
 }
 
 void RendererOpenGL::BeginOverlayCapture(OverlayCaptureKind kind)

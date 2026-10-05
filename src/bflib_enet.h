@@ -34,6 +34,7 @@ struct NetSP* InitEnetSP();
 unsigned long GetPing(int id);
 unsigned int GetPacketLoss(int id);
 unsigned int GetClientDataInTransit();
+int32_t GetResyncProgress(void);
 unsigned int GetClientPacketsLost();
 unsigned int GetUploadRateBytesPerSecond();
 unsigned int GetDownloadRateBytesPerSecond();

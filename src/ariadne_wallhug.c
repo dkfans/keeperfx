@@ -1539,15 +1539,10 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
         creatng->mappos = orig_creat_pos;
         return stl_num;
     }
-    if (endpos->x.val <= creature_pos.x.val)
-    {
-        pos.x.stl.num = creature_pos.x.stl.num - 1;
-        pos.x.stl.pos = COORD_PER_STL - 1;
-    }
-    else
-    {
-        pos.x.stl.num = creature_pos.x.stl.num + 1;
-        pos.x.stl.pos = 0;
+    if (endpos->x.val <= creature_pos.x.val) {
+        pos.x.val = subtile_coord(creature_pos.x.stl.num - 1, COORD_PER_STL - 1);
+    } else {
+        pos.x.val = subtile_coord(creature_pos.x.stl.num + 1, 0);
     }
     pos.y.val = (int)(delta_y * abs(pos.x.val - reference_y)) / delta_x + reference_x;
     pos.z.val = creature_pos.z.val;

@@ -81,6 +81,7 @@ struct NetSP
     void (*sendmsg_single_unsequenced)(NetUserId destination, const char *buffer, size_t size);
     void (*sendmsg_all)(const char *buffer, size_t size);
     size_t (*msgready)(NetUserId source, unsigned timeout);
+    size_t (*peekmsg)(NetUserId source, const char **buffer);
     size_t (*readmsg)(NetUserId source, char *buffer, size_t max_size);
     void (*drop_user)(NetUserId id, enum NetJoinRejection reason);
 };
@@ -121,8 +122,10 @@ struct NetState {
     NetUserId my_id;
     int seq_nbr;
     unsigned max_users;
+    uint32_t gameplay_generation;
     char msg_buffer[NET_MSG_BUFFER_SIZE];
     char msg_buffer_null;
+    TbBool resync_pending;
     TbBool locked;
     enum NetSessionPhase phase;
 };

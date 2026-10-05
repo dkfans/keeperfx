@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "game_saves.h"
+#include "ariadne_update.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -661,6 +662,7 @@ TbBool load_game(long slot_num)
     // the current session's custom bank layout.
     sound_manager_reapply_creature_sounds();
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
+    init_navigation();
     reinit_level_after_load();
     take_game_timestamp();
     reinit_packets_after_load();

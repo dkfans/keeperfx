@@ -53,8 +53,11 @@ enum TbFeature {
     Ft_DeltaTime                    = 0x40000,
     Ft_NoCdMusic                    = 0x80000,
     Ft_RelativeMouseMode            = 0x100000,
-    Ft_ParchmentFade                = 0x200000,
 };
+
+#define PARCHMENT_MAP_FADE_ORIGINAL_TURNS 8
+#define PARCHMENT_MAP_FADE_FAST_TURNS 3
+#define PARCHMENT_MAP_FADE_MAX_TURNS 20
 
 enum TbLanguage {
     Lang_Unset    =  0,
@@ -158,7 +161,7 @@ TbBool lock_cursor_in_possession(void);
 TbBool use_relative_mouse_mode(void);
 TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
-TbBool use_parchment_fade(void);
+unsigned char get_parchment_map_fade_turns(void);
 /******************************************************************************/
 const char *get_language_lwrstr(int lang_id);
 /******************************************************************************/

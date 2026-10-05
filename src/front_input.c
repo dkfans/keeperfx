@@ -349,14 +349,12 @@ int is_game_key_pressed(long key_id, TbBool clear_pressed, TbBool ignore_mods)
           result = lbKeyOn[i];
           break;
       }
-  } else
-  {
-      if ((ignore_mods) || (key_modifiers == settings.kbkeys[key_id].mods)) {
-          i = settings.kbkeys[key_id].code;
-          result = lbKeyOn[i];
-      } else {
-          result = 0;
+  } else {
+      TbKeyMods modifiers = settings.kbkeys[key_id].mods;
+      if (ignore_mods) {
+          modifiers = KMod_DONTCARE;
       }
+      result = is_key_pressed(val, modifiers);
 
       //hardcoded alternative keys
       if (!result)
@@ -428,6 +426,7 @@ static short get_players_message_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     struct UserState* ustate = get_local_user_state();
+    short result = true;
 
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         char text[PLAYER_MP_MESSAGE_LEN];
@@ -477,9 +476,10 @@ static short get_players_message_inputs(void)
             player->mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);
     } else {
-        return add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
+        result = add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
     }
-    return true;
+    memset(lbKeyPressed, 0, sizeof(lbKeyPressed));
+    return result;
 }
 
 static void get_options_menu_inputs(void)
@@ -974,6 +974,7 @@ static short get_global_inputs(void)
         ustate->init_flags |= UsrIF_NewMPMessage;
         LbStartTextInput();
         clear_key_pressed(KC_RETURN);
+        memset(lbKeyPressed, 0, sizeof(lbKeyPressed));
         return true;
       }
   }
@@ -1143,7 +1144,7 @@ static TbBool get_level_lost_inputs(void)
             if  ( map_valid ) {
                 MapSubtlCoord stl_x = coord_subtile(map_x);
                 MapSubtlCoord stl_y = coord_subtile(map_y);
-                set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
+                set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, get_parchment_map_fade_turns(), 0);
                 left_button_released = 0;
             }
         }
@@ -1165,7 +1166,7 @@ static TbBool get_level_lost_inputs(void)
           set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
           if (parchment_map_fade_enabled())
           {
-                set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0,0,0);
+                set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, get_parchment_map_fade_turns(), 0, 0);
           } else
           {
                 set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
@@ -2298,7 +2299,7 @@ static short get_map_action_inputs(void)
         }
         if (left_button_released) {
             left_button_released = 0;
-            set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
+            set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, get_parchment_map_fade_turns(), 0);
             return true;
         }
     }
@@ -3236,6 +3237,7 @@ void input(void)
     if ((game.mode_flags & MFlg_IsDemoMode) == 0 && !replay.load_enable) {
         update_local_view_prediction(pckt);
     }
+    memset(lbKeyPressed, 0, sizeof(lbKeyPressed));
 
     SYNCDBG(7,"Finished");
 }

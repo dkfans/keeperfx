@@ -16,6 +16,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "ariadne.h"
+#include "ariadne_update.h"
 #include "ariadne_tringls.h"
 #include "ariadne_findcache.h"
 #include "ariadne_points.h"
@@ -1515,7 +1516,7 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
     long i;
     triangulation_successful = true;
     LastTriangulatedMap = imap;
-    NAVIDBG(9,"Area from (%03ld,%03ld) to (%03ld,%03ld) with %04ld triangles",start_x,start_y,end_x,end_y,count_Triangles);
+    NAVIDBG(9,"Area from (%03ld,%03ld) to (%03ld,%03ld) with %04d triangles",start_x,start_y,end_x,end_y,count_Triangles);
     // Switch coords to make end_x larger than start_x
     if (end_x < start_x)
     {
@@ -1548,9 +1549,8 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
         start_y = 0;
         end_y = game.map_subtiles_y + 1;
     }
-    triangulation_init();
-    if ( not_whole_map )
-    {
+    if (not_whole_map) {
+        triangulation_init();
         triangulation_successful &= border_clip_horizontal(imap, start_x, end_x, start_y, 0);
         triangulation_successful &= border_clip_horizontal(imap, start_x, end_x, end_y, -1);
         triangulation_successful &= border_clip_vertical(imap, start_x, -1, start_y, end_y);
@@ -1559,8 +1559,7 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
         if ( !one_tile ) {
             border_internal_points_delete(start_x, start_y, end_x, end_y);
         }
-    } else
-    {
+    } else {
         triangulation_initxy(-(game.map_subtiles_x + 1), -(game.map_subtiles_y + 1), (game.map_subtiles_x + 1) * 2, (game.map_subtiles_y + 1) * 2);
         tri_set_rectangle(start_x, start_y, end_x, end_y, 0);
     }
@@ -1674,20 +1673,20 @@ static void init_navigation_map(void)
     nav_map_initialised = 1;
 }
 
-static void triangulate_map(NavColour *imap)
+void rebuild_navigation(void)
 {
-    triangulate_area(imap, 0, 0, game.navigation_map_size_x, game.navigation_map_size_y);
+    ix_Border = 0;
+    navitree_reset();
+    triangulate_area(game.navigation_map, 0, 0, game.navigation_map_size_x, game.navigation_map_size_y);
+    nav_map_initialised = 1;
+    set_nav_rule_default();
+    game.map_changed_for_navigation = 1;
 }
 
-long init_navigation(void)
+int32_t init_navigation(void)
 {
-    
-    NavColour *IanMap = (NavColour *)&game.navigation_map;
     init_navigation_map();
-    triangulate_map(IanMap);
-    set_nav_rule_default();
-    
-    game.map_changed_for_navigation = 1;
+    rebuild_navigation();
     return 1;
 }
 

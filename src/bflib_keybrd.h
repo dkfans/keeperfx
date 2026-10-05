@@ -207,6 +207,8 @@ typedef short TbKeyMods;
 /******************************************************************************/
 
 extern unsigned char lbKeyOn[KC_LIST_END];
+extern unsigned char lbKeyPressed[KC_LIST_END];
+extern TbBool lbBufferKeyPresses;
 extern TbKeyCode lbInkey;
 
 /******************************************************************************/
