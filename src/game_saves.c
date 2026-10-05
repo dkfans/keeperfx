@@ -73,7 +73,7 @@ short const VersionBuild    = VER_BUILD;
 const char *legacy_campaign_progress="fx1contn.sav";
 const char *continue_filename="fx1lastf.sav"; // (merely points to another save file)
 const char *saved_game_filename="fx1g%04d.sav";
-const char *packet_filename="fx1rp%04d.pck";
+const char *packet_filename="fx1rp%04d.fxpkt";
 
 /* Dynamically-grown savegame catalogue (see game_saves.h): holds one CatalogueEntry per
  * reachable save slot. It is sized on load to (highest existing slot + 2), min

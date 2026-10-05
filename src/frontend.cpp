@@ -1664,8 +1664,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
 
 void frontend_load_continue_game(struct GuiButton *gbtn)
 {
-    switch (load_continue_game())
-    {
+    switch (load_continue_game()) {
     case CntT_SavedGame:
         frontend_set_state(FeSt_LOAD_GAME);
         break;
@@ -2440,7 +2439,7 @@ void set_gui_visible(TbBool visible)
   set_flag_value(game.operation_flags, GOF_ShowGui, visible);
   struct PlayerInfo *player=get_my_player();
   unsigned char is_visbl = ((game.operation_flags & GOF_ShowGui) != 0);
-  switch (player->view_type)
+  switch (get_player_view_type(player))
   {
   case PVT_CreatureContrl:
   case PVT_CreaturePasngr:

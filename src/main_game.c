@@ -361,8 +361,13 @@ TbBool startup_saved_packet_game(void)
     if (!verify_replay_map_checksums())
         ERRORLOG("Replay \"%s\": level on disk differs from original", replay.fname);
     setup_zombie_players();
-    init_players();
     restore_users_from_packet_save();
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        if ((get_net_user_player_number(user) >= 0) && (replay.head.user_players[user] >= 0))
+            apply_user_start_camera_settings(user, &replay.head.user_start[user]);
+    }
+    init_players();
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
         const PlayerNumber plyr_idx = get_net_user_player_number(user);
@@ -376,8 +381,7 @@ TbBool startup_saved_packet_game(void)
     post_init_level();
     post_init_players();
     set_selected_level_number(0);
-    struct PlayerInfo* player = get_my_player();
-    set_engine_view(player, player->view_mode_restore);
+    update_engine_view(get_my_player(), false);
     return true;
 }
 
@@ -500,7 +504,7 @@ void clear_complete_game(void)
     set_flag_value(local_system_flags, GSF_AllowOnePlayer, start_params.one_player);
     game.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
-    snprintf(replay.fname,150, "%s", start_params.packet_fname);
+    snprintf(replay.fname, sizeof(replay.fname), "%s", start_params.packet_fname);
     replay.save_enable = start_params.packet_save_enable;
     replay.load_enable = start_params.packet_load_enable;
     my_player_number = default_loc_player;

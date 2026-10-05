@@ -207,8 +207,7 @@ enum TbPacketAction {
 /** Packet flags for non-action player operation. **/
 enum TbPacketControl {
         PCtr_None           = 0x0000,
-        PCtr_ViewRotateCW   = 0x0001,
-        PCtr_ViewRotateCCW  = 0x0002,
+        PCtr_CameraContext  = 0x0003, //!< how to interpret packet's pos_x/pos_y
         PCtr_MoveUp         = 0x0004,
         PCtr_MoveDown       = 0x0008,
         PCtr_MoveLeft       = 0x0010,
@@ -229,7 +228,6 @@ enum TbPacketControl {
         PCtr_Ascend         = 0x80000,
         PCtr_Descend        = 0x100000,
         PCtr_ViewZoomPos    = 0x200000,
-        PCtr_ViewRotatePos  = 0x400000
 };
 
 /**
@@ -237,7 +235,7 @@ enum TbPacketControl {
  */
 enum TbPacketAddValues {
     PCAdV_None              = 0x00, //!< Dummy flag
-    PCAdV_SpeedupPressed    = 0x01, //!< The keyboard modified used for speeding up camera movement is pressed.
+    PCAdV_AlternatePressed  = 0x01, //!< The alternate modifier (speed-up key) is pressed. 
     PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-bit integer; stores context of map coordinates. The context is used to set the Cursor State.
     PCAdV_CrtrContrlPressed = 0x20, //!< The keyboard modified used for creature control is pressed.
     PCAdV_CrtrQueryPressed  = 0x40, //!< The keyboard modified used for querying creatures is pressed.
@@ -286,8 +284,8 @@ struct Packet {
     uint8_t action; //! Action kind performed by the player which owns this packet
     int32_t actn_par1; //! action parameter #1
     int32_t actn_par2; //! action parameter #2
-    int32_t pos_x; //! Mouse Cursor Position X
-    int32_t pos_y; //! Mouse Cursor Position Y
+    int32_t pos_x; //! Map cursor X / Possession yaw (based on PCtr_CameraContext)
+    int32_t pos_y; //! Map cursor Y / Possession pitch (based on PCtr_CameraContext)
     uint32_t control_flags;
     uint8_t additional_packet_values; // uses the flags and values from TbPacketAddValues
     
@@ -340,16 +338,16 @@ void process_map_packet_clicks(NetUserId user);
 void process_pause_packet(long a1, long a2);
 TbBool process_user_global_packet_action(NetUserId user);
 void clear_users_button_state(void);
-void process_camera_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
 void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
 TbBool packet_action_has_camera_position(enum TbPacketAction action);
-TbBool packet_action_has_camera_angle(const struct Packet *pckt);
+unsigned char packet_camera_context(const struct Packet *pckt);
+void packet_set_camera_context(struct Packet *pckt, unsigned char cam_idx);
 void packet_set_camera_position(struct Packet *pckt, MapCoord x, MapCoord y);
 void packet_clear_camera_position(struct Packet *pckt);
 TbBool packet_get_camera_position(const struct Packet *pckt, MapCoord *x, MapCoord *y);
 int32_t camera_move_rate(const struct Camera* cam, const struct PlayerInfo* player, TbBool speedup);
 void process_camera_action(struct Camera cams[], const struct Packet* pckt);
-void process_first_person_look(struct Thing *thing, const struct Packet *pckt, long current_horizontal, long current_vertical, long *out_horizontal, long *out_vertical, long *out_roll);
+void process_first_person_look(struct Thing *thing, int32_t turn_x, int32_t turn_y, int32_t current_horizontal, int32_t current_vertical, int32_t *out_horizontal, int32_t *out_vertical, int32_t *out_roll);
 TbBool can_process_creature_input(struct Thing *thing);
 void exchange_packets(void);
 void process_packets(void);

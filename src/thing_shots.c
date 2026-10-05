@@ -55,6 +55,7 @@
 #include "engine_lenses.h"
 #include "room_util.h"
 #include "player_instances.h"
+#include "local_camera.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1360,6 +1361,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         i = adjusted_push_strength * shotng->velocity.y.val;
         trgtng->veloc_push_add.y.val += i / 16;
         trgtng->state_flags |= TF1_PushAdd;
+        trgtng->pushed_by_player = shotng->owner;
+        trgtng->last_turn_pushed = get_gameturn();
     }
 
     if (creature_is_being_unconscious(trgtng))
@@ -1634,10 +1637,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
 
 static TbBool lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    struct Camera *camera = get_player_active_camera(player);
-    if (camera == NULL)
-        return false;
-    return get_chessboard_distance(&camera->mappos, pos) < subtile_coord(45,0);
+    return get_chessboard_distance(&get_local_active_camera(player)->mappos, pos) < subtile_coord(45,0);
 }
 
 static void affect_nearby_friends_with_alarm(struct Thing *traptng)
@@ -2049,6 +2049,8 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         wind_push.z = (shotng->veloc_base.z.val * blow_distance) / creature_distance;
         SYNCDBG(8,"Applying (%d,%d,%d) to %s index %d",(int)wind_push.x,(int)wind_push.y,(int)wind_push.z,thing_model_name(thing),(int)thing->index);
         apply_transitive_velocity_to_thing(thing, &wind_push);
+        thing->pushed_by_player = shotng->owner;
+        thing->last_turn_pushed = get_gameturn();
         return TUFRet_Modified;
     }
     return TUFRet_Unchanged;
@@ -2113,8 +2115,9 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   {
     if ( thing_touching_floor(thing) )
     {
-      long top_cube = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num, NULL);
-      if ( ((top_cube & 0xFFFFFFFE) != 0x28) && (top_cube != 39) )
+      if (!(subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num) || 
+            subtile_has_water_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num) ||
+            subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)))
       {
         thing->veloc_push_add.z.val += 48;
         thing->state_flags |= TF1_PushAdd;

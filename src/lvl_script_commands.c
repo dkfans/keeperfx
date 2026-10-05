@@ -3070,6 +3070,13 @@ static void set_creature_configuration_process(struct ScriptContext* context)
                 crconf->hostile_towards[0] = value; // Then apply the change on the first only.
             }
             break;
+        case 39: // INERTIA
+            crconf->inertia_floor = value;
+            crconf->inertia_air = config_value_secondary;
+            break;
+        case 40: // FALLACCELERATION
+            crconf->fall_acceleration = value;
+            break;
         case ccr_comment:
             break;
         case ccr_endOfFile:
@@ -5480,7 +5487,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
     }
     update_powers_tab_to_config();
     struct PlayerInfo *player = get_my_player();
-    if (player->view_type == PVT_DungeonTop)
+    if (get_player_view_type(player) == PVT_DungeonTop)
     {
         if (menu_is_active(GMnu_SPELL))
         {

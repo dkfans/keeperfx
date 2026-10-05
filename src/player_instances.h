@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+struct DungeonCamera;
+
 enum PlayerNames {
     PLAYER0          =  0,//red
     PLAYER1          =  1,//blue
@@ -90,6 +92,7 @@ struct PlayerInstanceInfo { // sizeof = 44
 extern struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT];
 /******************************************************************************/
 void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force);
+TbBool player_instance_controls_camera(unsigned char inum);
 void process_player_instance(struct PlayerInfo *player);
 void process_player_instances(void);
 

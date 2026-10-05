@@ -80,32 +80,15 @@ struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmo
 
 static TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
 {
-    struct PlayerInfo *player;
-    int i;
-    short limit = 24 * COORD_PER_STL;
-    for (i=0; i < PLAYERS_COUNT; i++)
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        player = get_player(i);
+        struct PlayerInfo *player = get_player(plyr_idx);
         if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
-            struct Camera *camera = get_player_active_camera(player);
-            if (camera == NULL)
-                continue;
-            if (camera->view_mode != PVM_FrontView)
-            {
-                if (camera->zoom >= CAMERA_ZOOM_MIN)
-                {
-                    limit = SHRT_MAX - (2 * camera->zoom);
-                }
-            }
-            else
-            {
-                if (camera->zoom >= FRONTVIEW_CAMERA_ZOOM_MIN)
-                {
-                    limit = SHRT_MAX - (camera->zoom / 3);
-                }
-            }
-            if (get_chessboard_distance(&camera->mappos, pos) <= limit)
+            MapCoord x = 0;
+            MapCoord y = 0;
+            const int32_t radius = user_get_visibility_bounds(player->user_id, &x, &y);
+            if (chessboard_distance(x, y, (MapCoord)pos->x.val, (MapCoord)pos->y.val) <= radius)
             {
                 return true;
             }
@@ -1139,6 +1122,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
                     tngdst->state_flags |= TF1_PushAdd;
                     affected = true;
+                    tngdst->pushed_by_player = owner;
+                    tngdst->last_turn_pushed = get_gameturn();
                 }
             }
         }

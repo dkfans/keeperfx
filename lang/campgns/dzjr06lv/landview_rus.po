@@ -1,0 +1,94 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file landview_rus.po
+#      KeeperFX Speeches translation file
+#  @par Purpose:
+#      Contains translation of the national speeches in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: DzjeeAr's 6-level campaign for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: rus\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.9\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "DzjeeAr's 6-level campaign"
+msgstr "6-уровневая кампания DzjeeAr'а"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Pile of its own good. This land has never gained pain or the beauty of WAR. Everyone here is happy. You must change it immediately, my lord."
+msgstr "Добро в изобилии. Эта никогда не знала боли и красоты ВОЙНЫ. Все тут сияют от счастья. Нужно срочно это изменить, Милорд."
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Handful of stones. Now, this land has tasted all the wonders of pain and war. Recently, its inhabitants were happy. Now we are happy. Great job, my lord!"
+msgstr "Груда камней. Эта страна наконец узрела чудеса боли и войны. Раньше её жители были счастливы, теперь счастливы мы. Прекрасная работа, Милорд!"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Ancient Fortress. This is a splendid fortress. Many keepers tried to conquer it, but no one done it at last. It is time to change this place into ruins!"
+msgstr "Древняя крепость. Перед нами восхитительная крепость. Многие хранители пытались её покорить, но никому это не удалось. Пора превратить её в руины!"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Splendid ruins. In my whole poor life I haven't seen stones crushed so wonderfully, and ugly humans cut in half as you did it... Now I can see scenes from my best dreams! Good work!"
+msgstr "Восхитительные руины. За всю мою убогую жизнь мне не доводилось видеть такого великолепного обрушения камней и падения рассеченных надвое тел к стенам рассыпающихся башен... Вы смогли воплотить в реальность мои самые прекрасные сны! Прекрасная работа!"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "The Necromancer. This land is under rule of one Vampire, who is master in his worship.. Unfortunately, this ignorant fool refused to join our forces.. Now, it's time to show him, who will be master of this sad land."
+msgstr "Некромант. Этой страной правит вампир - повелитель местного культа. К величайшему прискорбию, этот глупец отказался вступить в наше войско... Пришло время продемонстрировать ему, кто станет настоящим правителем этого жалкого куска земли."
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Valley of Vampires. The defeated vampire refused to acknowledge your rule.. But a few troll's hammer hits in his mutt, was enough for change his mind. I ordered him to change all local humans into vampires.. Now even children are on the DARK SIDE!"
+msgstr "Долина вампиров. Побежденный вампир отказался признать Вас своим сюзереном. Но всего несколько взмахов тролльской кувалды - и он передумал. Я приказал ему превратить местных в вампиров. Так что теперь даже дети на ТЕМНОЙ стороне!"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Frozen Plains. Even the humans have left this land, in arachnophobia. They feared that giant spiders could come to their houses thru windows and eat them on dinner. Now we will bake those arthropods on supper!"
+msgstr "Морозные долы. Люди - и те сбежали отсюда, мучимые арахнофобией. Они извелись от страха, что гигантские пауки заползут к ним в дом через окна и пообедают ими. Ну что ж, теперь мы зажарим этих членистоногих и с аппетитом отужинаем ими."
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Warm plains. Now we can in calmness admire the sights this land, with its stirring lava drift. Spiders are crunchy, when we bake them in this hot lava long enough."
+msgstr "Лавовые поля. Теперь мы можем предаться созерцанию этих земель, по которым протекают, постоянно перемешиваясь, реки лавы. А если пауков опустить в лаву на строго отведенное время, у них появляется аппетитная хрустящая корочка."
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Barbarian Stronghold. Barbarians are horrible human nation. Before centuries, they were afraid of attacks from underground so much, that they have built this impressive stronghold. We must conquer it at all costs!"
+msgstr "Варварская крепость. Варвары - отвратительные представители человеческой расы. Веками они столь сильно опасались вторжения из подземного мира, что возвели эту впечатляющую крепость. Мы обязаны покорить её любой ценой!"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Keepers Stronghold. Barbarians switched to our side without any complications. Now we've got there even a circus :O My favorite trick is throwing knifes to barbarians! You should try it some day, my lord!"
+msgstr "Крепость хранителей. Варвары перешли на нашу сторону без каких-либо затруднений. Теперь у нас даже есть цирк! Мой любимая забава - метание ножей в варваров! Вы обязательно должны попробовать, Милорд!"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Final Countdown. One last step separates us from final victory. None of the keepers went to those lands before. We only know, that all the people which survived, have regrouped there. They are awaiting you.."
+msgstr "Последний отсчет. Лишь один шаг отделяет нас от полной победы. По сей день ни один хранитель не ступал на эти земли. Нам известно лишь одно: все, кто выжил, нашли себе тут убежище и перегруппировались, поджидая Вас..."
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Magmaland. Finally, we won! Now with the whole world conquered, at last we can go rest and relax, watching how blood and lava joyfully flows through all the plains, meadows and mountains!"
+msgstr "Страна магмы. Долгожданная победа! Теперь, когда весь мир лежит у наших ног, мы наконец-то можем упокоиться и предаться неге, созерцая, как кровь и лава струятся по равнинам, лугам и горам."

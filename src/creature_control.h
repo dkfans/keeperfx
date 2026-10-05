@@ -354,7 +354,6 @@ struct CreatureControl {
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
     CrInstance active_instance_id;
-    char head_bob;
     struct Navigation navi;
     /* Creature movement path data. */
     struct Ariadne arid;

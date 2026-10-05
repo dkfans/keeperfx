@@ -160,23 +160,28 @@ void build_local_user_start_settings(struct UserStartSettings *us)
     us->isometric_tilt = settings.isometric_tilt;
 }
 
+/** Before init_player(), which builds the local camera from these. */
+void apply_user_start_camera_settings(NetUserId user, const struct UserStartSettings *us)
+{
+    struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate))
+        return;
+    ustate->dungeon_wibble = true;
+    rotate_mode_to_dungeon_view(us->video_rotate_mode, &ustate->dungeon_camera.use_front_view, &ustate->dungeon_wibble);
+    ustate->dungeon_camera.pitch = clamp(us->isometric_tilt, CAMERA_TILT_MIN, CAMERA_TILT_MAX);
+    ustate->dungeon_camera.zoom[false] = (us->isometric_view_zoom_level != 0) ? us->isometric_view_zoom_level : CAMERA_ZOOM_MAX;
+    ustate->dungeon_camera.zoom[true] = (us->frontview_zoom_level != 0) ? us->frontview_zoom_level : FRONTVIEW_CAMERA_ZOOM_MAX;
+    ustate->highlight_mode = us->highlight_mode;
+}
+
 void apply_user_start_settings(struct PlayerInfo *player, const struct UserStartSettings *us, const struct UserStartSettings *host)
 {
-    player->view_mode_restore = rotate_mode_to_view_mode(us->video_rotate_mode);
-    player->isometric_view_zoom_level = us->isometric_view_zoom_level;
-    player->frontview_zoom_level = us->frontview_zoom_level;
     player->zoom_distance = us->zoom_distance;
     player->frontview_zoom_distance = us->frontview_zoom_distance;
     player->cheats_allowed = ((us->flags & USF_CheatsEnabled) != 0) && ((host->flags & USF_CheatsEnabled) != 0);
     player->skip_heart_zoom = ((us->flags & USF_SkipHeartZoom) != 0) && ((host->flags & USF_SkipHeartZoom) != 0);
-    player->highlight_mode = us->highlight_mode;
     player->roomspace_highlight_mode = us->highlight_mode;
     player->roomspace_mode = us->highlight_mode;
-    struct Camera *iso_cam = &player->cameras[CamIV_Isometric];
-    iso_cam->rotation_angle_y = us->isometric_tilt;
-    iso_cam->view_mode = (us->video_rotate_mode == 1) ? PVM_IsoStraightView : PVM_IsoWibbleView;
-    iso_cam->zoom = us->isometric_view_zoom_level;
-    player->cameras[CamIV_FrontView].zoom = us->frontview_zoom_level;
     TbBool imprison = (us->tendencies & CrTend_Imprison) != 0;
     TbBool flee = (us->tendencies & CrTend_Flee) != 0;
     set_creature_tendencies(player, CrTend_Imprison, imprison);
@@ -202,9 +207,9 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         player->id_number = k;
         player->user_id = i;
         player->allocflags |= PlaF_Allocated;
-        player->view_mode_restore = rotate_mode_to_view_mode(sync->user_start.video_rotate_mode);
-        init_player(player, 0);
         init_user_state(player->user_id);
+        apply_user_start_camera_settings(i, &sync->user_start);
+        init_player(player, 0);
         apply_user_start_settings(player, &sync->user_start, &startup_sync_packets[SERVER_ID].user_start);
         snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", network_user_name(i));
     }

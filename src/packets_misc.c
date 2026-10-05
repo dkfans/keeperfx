@@ -110,12 +110,7 @@ void set_pending_timestamp_packet_action(struct Packet *pckt)
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
         unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4)
 {
-    struct Packet* pckt = get_packet(player->user_id);
-    pckt->actn_par1 = par1;
-    pckt->actn_par2 = par2;
-    pckt->actn_par3 = par3;
-    pckt->actn_par4 = par4;
-    pckt->action = pcktype;
+    set_packet_action(get_packet(player->user_id), pcktype, par1, par2, par3, par4);
 }
 
 unsigned char get_players_packet_action(struct PlayerInfo *player)
