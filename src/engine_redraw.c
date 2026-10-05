@@ -297,8 +297,8 @@ void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcb
     ensure_map_fade_tables(xmax, ymax);
     if ((xtab == NULL) || (ytab == NULL))
         return;
-    const long warp1 = a6 * warp_turns / PARCHMENT_MAP_FADE_DEFAULT_TURNS;
-    const long warp0 = (32 - a6) * warp_turns / PARCHMENT_MAP_FADE_DEFAULT_TURNS;
+    const long warp1 = a6 * warp_turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS;
+    const long warp0 = (32 - a6) * warp_turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS;
     long x1base = 4 * warp1 * xmax / 320;
     long x0base = 4 * warp0 * xmax / 320;
     int32_t * xt = xtab;
@@ -492,7 +492,7 @@ long map_fade_in(long palette_fade_step)
     const int32_t turns = my_map_fade_turns();
     const float display_step = 32.0f * map_fade_progress();
     RendererSubmitMapFadeStep((int)palette_fade_step, display_step,
-        (float)turns / PARCHMENT_MAP_FADE_DEFAULT_TURNS, 1, map_fade_ghost_table);
+        (float)turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, 1, map_fade_ghost_table);
     if (lbDisplay.WScreen != NULL)
     {
         map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
@@ -520,7 +520,7 @@ long map_fade_out(long palette_fade_step)
     const int32_t turns = my_map_fade_turns();
     const float display_step = 32.0f * (1.0f - map_fade_progress());
     RendererSubmitMapFadeStep((int)palette_fade_step, display_step,
-        (float)turns / PARCHMENT_MAP_FADE_DEFAULT_TURNS, 0, map_fade_ghost_table);
+        (float)turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, 0, map_fade_ghost_table);
     // Software-only CPU blend
     if (lbDisplay.WScreen != NULL)
     {

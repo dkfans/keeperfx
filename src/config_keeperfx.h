@@ -55,7 +55,8 @@ enum TbFeature {
     Ft_RelativeMouseMode            = 0x100000,
 };
 
-#define PARCHMENT_MAP_FADE_DEFAULT_TURNS 8
+#define PARCHMENT_MAP_FADE_ORIGINAL_TURNS 8
+#define PARCHMENT_MAP_FADE_FAST_TURNS 3
 #define PARCHMENT_MAP_FADE_MAX_TURNS 20
 
 enum TbLanguage {
