@@ -75,8 +75,9 @@ struct ResyncHeader {
 
 
 // function to intentionally desync the game state for testing purposes
-void intentional_desync() {
-    if (!is_my_player_number(0)) {
+void intentional_desync()
+{
+    if (!network_is_active() || network_is_host()) {
         return;
     }
     struct Room* start_rooms = &game.rooms[1];
