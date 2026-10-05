@@ -2115,8 +2115,9 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   {
     if ( thing_touching_floor(thing) )
     {
-      long top_cube = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num, NULL);
-      if ( ((top_cube & 0xFFFFFFFE) != 0x28) && (top_cube != 39) )
+      if (!(subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num) || 
+            subtile_has_water_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num) ||
+            subtile_has_abyss_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)))
       {
         thing->veloc_push_add.z.val += 48;
         thing->state_flags |= TF1_PushAdd;
