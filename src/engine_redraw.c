@@ -559,6 +559,13 @@ void update_engine_view(struct PlayerInfo *player, TbBool keep_local_camera)
     S3DSetDeadzoneRadius(1280);
 }
 
+#define COMPASS_WIDE_LABEL_WIDTH 14
+
+static void draw_compass_label(int x, int y, int units_per_px, const char *text)
+{
+    LbTextDrawResized(x - LbTextStringWidthM(text, units_per_px) / 2, y, units_per_px, text);
+}
+
 void draw_overlay_compass(long base_x, long base_y)
 {
     struct PlayerInfo* player = get_my_player();
@@ -569,29 +576,27 @@ void draw_overlay_compass(long base_x, long base_y)
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     int units_per_px = (16 * status_panel_width + 140 / 2) / 140;
     int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
-    int w = (LbSprFontCharWidth(lbFontPtr, '/') * tx_units_per_px / 16) / 2;
     int h = (LbSprFontCharHeight(lbFontPtr, '/') * tx_units_per_px / 16) / 2 + 2 * units_per_px / 16;
     int center_x = base_x * units_per_px / 16 + MapDiagonalLength / 2;
     int center_y = base_y * units_per_px / 16 + MapDiagonalLength / 2;
-    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    if (RendererCanDraw()) {
-        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapN));
+    int radius = MapDiagonalLength * 7 / 16;
+    const TextStringId labels[] = {GUIStr_MapN, GUIStr_MapE, GUIStr_MapS, GUIStr_MapW};
+    for (size_t i = 0; i < sizeof(labels) / sizeof(labels[0]); i++)
+    {
+        if (LbTextStringWidthM(get_string(labels[i]), 16) >= COMPASS_WIDE_LABEL_WIDTH)
+        {
+            radius -= 2 * units_per_px / 16;
+            break;
+        }
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
+    int dx = (radius * LbSinL(cam->rotation_angle_x) + (1 << (LbFPMath_TrigmBits - 1))) >> LbFPMath_TrigmBits;
+    int dy = (radius * LbCosL(cam->rotation_angle_x) + (1 << (LbFPMath_TrigmBits - 1))) >> LbFPMath_TrigmBits;
+    center_y -= h;
     if (RendererCanDraw()) {
-        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapS));
-    }
-    shift_x = ( (MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = (-(MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    if (RendererCanDraw()) {
-        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapE));
-    }
-    shift_x = (-(MapDiagonalLength*7/16) * LbCosL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbSinL(cam->rotation_angle_x)) >> LbFPMath_TrigmBits;
-    if (RendererCanDraw()) {
-        LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapW));
+        draw_compass_label(center_x - dx, center_y - dy, tx_units_per_px, get_string(GUIStr_MapN));
+        draw_compass_label(center_x + dx, center_y + dy, tx_units_per_px, get_string(GUIStr_MapS));
+        draw_compass_label(center_x + dy, center_y - dx, tx_units_per_px, get_string(GUIStr_MapE));
+        draw_compass_label(center_x - dy, center_y + dx, tx_units_per_px, get_string(GUIStr_MapW));
     }
     RendererSetDrawFlags(flg_mem);
 }

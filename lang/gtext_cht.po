@@ -5534,22 +5534,22 @@ msgstr "遭遇戰"
 #: guitext:877
 msgctxt "World direction"
 msgid "N"
-msgstr "N"
+msgstr "北"
 
 #: guitext:878
 msgctxt "World direction"
 msgid "E"
-msgstr "E"
+msgstr "東"
 
 #: guitext:879
 msgctxt "World direction"
 msgid "S"
-msgstr "S"
+msgstr "南"
 
 #: guitext:880
 msgctxt "World direction"
 msgid "W"
-msgstr "W"
+msgstr "西"
 
 #: guitext:881
 msgctxt "Menu interface item"

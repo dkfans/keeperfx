@@ -5815,22 +5815,22 @@ msgstr "遭遇戦"
 #: guitext:877
 msgctxt "World direction"
 msgid "N"
-msgstr "北"
+msgstr "N"
 
 #: guitext:878
 msgctxt "World direction"
 msgid "E"
-msgstr "東"
+msgstr "E"
 
 #: guitext:879
 msgctxt "World direction"
 msgid "S"
-msgstr "南"
+msgstr "S"
 
 #: guitext:880
 msgctxt "World direction"
 msgid "W"
-msgstr "西"
+msgstr "W"
 
 #: guitext:881
 msgctxt "Menu interface item"
