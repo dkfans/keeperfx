@@ -979,6 +979,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             y = (pckt->pos_y);
             pos.x.val = x;
             pos.y.val = y;
+            pos.z.val = 0;
             PlayerNumber id = pckt->actn_par2;
             unsigned char exp = pckt->actn_par2 >> 8;
             thing = create_creature(&pos, pckt->actn_par1, id);
