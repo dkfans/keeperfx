@@ -468,7 +468,7 @@ void gameplay_loop_draw()
     if (game.process_turn_time > 1.0 && time_since_last_draw < 1.0)
         do_draw = false;
 
-    if ((fps_limit_current > 0 && process_frame_time < 1.0) || (do_draw && network_is_active() && !RendererCanPresent())) {
+    if ((fps_limit_current > 0 && process_frame_time < 1.0) || (do_draw && !RendererCanPresent())) {
         do_draw = false;
         frametime_start_measurement(Frametime_Sleep);
         if (game.process_turn_time < 1.0) {
