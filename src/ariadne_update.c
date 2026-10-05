@@ -1516,7 +1516,7 @@ static TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long
     long i;
     triangulation_successful = true;
     LastTriangulatedMap = imap;
-    NAVIDBG(9,"Area from (%03ld,%03ld) to (%03ld,%03ld) with %04ld triangles",start_x,start_y,end_x,end_y,count_Triangles);
+    NAVIDBG(9,"Area from (%03ld,%03ld) to (%03ld,%03ld) with %04d triangles",start_x,start_y,end_x,end_y,count_Triangles);
     // Switch coords to make end_x larger than start_x
     if (end_x < start_x)
     {
