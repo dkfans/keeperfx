@@ -311,7 +311,9 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
     case NETMSG_CHATMESSAGE:
         return handle_chat_message(source, read_pos, message_size, expected_frame_type);
     case NETMSG_GAMEPLAY_REPAIR:
-        read_repair_packet_history(source, read_pos, message_size - (read_pos - netstate.msg_buffer));
+        if (read_repair_packet_history(source, read_pos, message_size - (read_pos - netstate.msg_buffer)) && netstate.my_id == SERVER_ID && source != SERVER_ID) {
+            send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, source, netstate.my_id);
+        }
         return Lb_OK;
     case NETMSG_GAMEPLAY_TURN_SYNC:
         return process_network_turn_sync_message(source, read_pos, message_size - (read_pos - netstate.msg_buffer));

@@ -50,6 +50,7 @@ int32_t multiplayer_speed_adjustment_ns;
 // TURN_SYNC_MAX_ADJUSTMENT_NS being set too high causes stutters.
 #define PACKET_HISTORY_SIZE 40
 #define REPAIR_HISTORY_RESEND_INTERVAL 200
+#define REPAIR_HISTORY_RECOVERY_INTERVAL 50
 #define FINAL_RESORT_RESYNC_RECOVERY 10000
 #define TURN_SYNC_INTERVAL_MS 250
 #define TURN_SYNC_MAX_ADJUSTMENT_NS 1000000
@@ -428,7 +429,7 @@ static void send_user_repair_history(NetUserId user)
     send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, skip_peer_id, INVALID_USER_ID);
 }
 
-static void send_repair_history_if_due(void)
+static void send_repair_history_if_due(int32_t resend_interval)
 {
     TbClockMSec current_time = LbTimerClock();
     NetUserId user = netstate.my_id;
@@ -436,7 +437,7 @@ static void send_repair_history_if_due(void)
         PlayerNumber offset;
         for (offset = 0; offset < netstate.max_users; offset += 1) {
             user = (next_repair_history_user + offset) % netstate.max_users;
-            if (user_has_relayable_history(user) && (last_repair_history_send[user] == 0 || current_time - last_repair_history_send[user] >= REPAIR_HISTORY_RESEND_INTERVAL)) {
+            if (user_has_relayable_history(user) && (last_repair_history_send[user] == 0 || current_time - last_repair_history_send[user] >= resend_interval)) {
                 break;
             }
         }
@@ -444,7 +445,7 @@ static void send_repair_history_if_due(void)
             return;
         }
         next_repair_history_user = (user + 1) % netstate.max_users;
-    } else if (last_repair_history_send[user] != 0 && current_time - last_repair_history_send[user] < REPAIR_HISTORY_RESEND_INTERVAL) {
+    } else if (last_repair_history_send[user] != 0 && current_time - last_repair_history_send[user] < resend_interval) {
         return;
     }
     last_repair_history_send[user] = current_time;
@@ -460,7 +461,7 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
     MULTIPLAYER_LOG("LbNetwork_ExchangeGameplay: Missing packets for turn=%lu, collecting...", (unsigned long)expected_turn);
     while (!turn_complete) {
         send_turn_sync_if_due();
-        send_repair_history_if_due();
+        send_repair_history_if_due(REPAIR_HISTORY_RECOVERY_INTERVAL);
         netstate.sp->update(OnNewUser);
         host_spoof_dropped_user_packets();
         if (host_lost(expected_turn, "waiting for")) {
@@ -469,9 +470,6 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
         turn_complete = have_all_turn_packets(local_user);
         for (NetUserId peer_id = 0; peer_id < netstate.max_users && !turn_complete; peer_id += 1) {
             if (!can_send_to_peer(peer_id)) {
-                continue;
-            }
-            if (netstate.my_id == SERVER_ID && user_has_required_turn_packets(peer_id)) {
                 continue;
             }
             process_peer_msgs(peer_id, server_buf, frame_size);
@@ -527,7 +525,11 @@ TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t fram
         return Lb_FAIL;
     }
     send_turn_sync_if_due();
-    send_repair_history_if_due();
+    int32_t repair_interval = REPAIR_HISTORY_RESEND_INTERVAL;
+    if (game.skip_initial_input_turns > 0) {
+        repair_interval = REPAIR_HISTORY_RECOVERY_INTERVAL;
+    }
+    send_repair_history_if_due(repair_interval);
     network_update(server_buf, frame_size);
     update_turn_speed_adjustment();
     if (game.skip_initial_input_turns <= 0) {
