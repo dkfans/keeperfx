@@ -56,7 +56,7 @@ enum TbFeature {
 };
 
 #define PARCHMENT_MAP_FADE_DEFAULT_TURNS 8
-#define PARCHMENT_MAP_FADE_FAST_TURNS 3
+#define PARCHMENT_MAP_FADE_MAX_TURNS 20
 
 enum TbLanguage {
     Lang_Unset    =  0,

@@ -1084,29 +1084,23 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           viewport_mode = i;
           break;
       case 51: // PARCHMENT_MAP_FADE
-      {
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) <= 0)
+          i = -1;
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                  COMMAND_TEXT(cmd_num), config_textname);
+              if (strcasecmp(word_buf, "OFF") == 0)
+                  i = 0;
+              else if (strcasecmp(word_buf, "ON") == 0)
+                  i = PARCHMENT_MAP_FADE_DEFAULT_TURNS;
+              else
+                  i = atoi(word_buf);
+          }
+          if (i < 0 || i > PARCHMENT_MAP_FADE_MAX_TURNS)
+          {
+              CONFWRNLOG("Invalid \"%s\" value in %s file.", COMMAND_TEXT(cmd_num), config_textname);
               break;
           }
-          if (strcasecmp(word_buf, "OFF") == 0) {
-              parchment_map_fade_turns = 0;
-              break;
-          }
-          if (strcasecmp(word_buf, "ON") == 0) {
-              parchment_map_fade_turns = PARCHMENT_MAP_FADE_DEFAULT_TURNS;
-              break;
-          }
-          if (strcasecmp(word_buf, "FAST") == 0) {
-              parchment_map_fade_turns = PARCHMENT_MAP_FADE_FAST_TURNS;
-              break;
-          }
-          CONFWRNLOG("Incorrect value of \"%s\" parameter in %s file; expected OFF, ON or FAST.",
-              COMMAND_TEXT(cmd_num), config_textname);
+          parchment_map_fade_turns = i;
           break;
-      }
       case 52: // AUTOMATIC_REPLAYS
           i = recognize_conf_parameter(buf, &pos, len, logicval_type);
           if (i <= 0)
