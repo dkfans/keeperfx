@@ -46,6 +46,10 @@ public:
 
     // True when draws made now reach the current frame.
     virtual bool CanDraw() const = 0;
+    virtual bool CanPresent() const
+    {
+        return true;
+    }
 
     // Present a raw indexed8 image (FMV frame, splash bitmap) at a
     // destination rect. Returns false if the image couldn't be drawn.

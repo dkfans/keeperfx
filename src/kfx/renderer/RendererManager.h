@@ -153,6 +153,7 @@ TbBool RendererCompositesMinimapBackground(void);
 /** True when draws made now reach the current frame: the software framebuffer
  *  is locked, or the backend records draws to render later. */
 TbBool RendererCanDraw(void);
+TbBool RendererCanPresent(void);
 
 /** Tell the GPU renderer to preserve the last real frame's content across
  *  PresentFrame() (world/UI/image-present buffers not flipped, only the

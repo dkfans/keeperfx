@@ -804,6 +804,11 @@ bool RendererOpenGL::BeginFrame()
     return m_impl != nullptr && m_impl->init_ok;
 }
 
+bool RendererOpenGL::CanPresent() const
+{
+    return m_impl != nullptr && m_impl->thread_mgr.IsWorkDone();
+}
+
 void RendererOpenGL::EndFrame()
 {
     // No-op: the real flip/signal work is PresentFrame() below, called
