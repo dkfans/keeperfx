@@ -33,8 +33,8 @@ struct lua_State *Lvl_script = NULL;
 static int lua_disabled_os_function(lua_State *L)
 {
     const char *func_name = lua_tostring(L, lua_upvalueindex(1));
-    WARNLOG("os.%s is disabled because it is not synchronized in multiplayer", func_name);
-    return luaL_error(L, "os.%s is disabled because it is not synchronized in multiplayer", func_name);
+    WARNLOG("os.%s is disabled because it is not synchronized in multiplayer; use GetGameTimestamp", func_name);
+    return luaL_error(L, "os.%s is disabled because it is not synchronized in multiplayer; use GetGameTimestamp", func_name);
 }
 
 

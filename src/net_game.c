@@ -795,10 +795,14 @@ void sync_initial_network_seed(void)
    if (!network_is_active()) {
       return;
    }
-   if (!LbNetwork_Resync(&game.action_random_seed, sizeof(game.action_random_seed))) {
+   struct { uint32_t action_seed; int32_t timestamp_tz; int64_t timestamp; } initial = { game.action_random_seed, game.timestamp_tz, game.timestamp };
+   if (!LbNetwork_Resync(&initial, sizeof(initial))) {
       ERRORLOG("Initial sync failed");
       return;
    }
+   game.action_random_seed = initial.action_seed;
+   game.timestamp = initial.timestamp;
+   game.timestamp_tz = initial.timestamp_tz;
    game.ai_random_seed = game.action_random_seed * 9377 + 9391;
    game.player_random_seed = game.action_random_seed * 9473 + 9479;
    initial_replay_seed = game.action_random_seed;

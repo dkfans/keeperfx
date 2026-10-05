@@ -1385,6 +1385,9 @@ TbBool open_new_packet_file_for_save(void)
     if (game.game_kind == GKind_MultiGame)
         set_flag(replay.head.flags, PSHF_MultiGame);
     replay.head.action_seed = initial_replay_seed;
+    replay.head.timestamp = game.timestamp;
+    replay.head.timestamp_tz = game.timestamp_tz;
+    replay.head.timestamp_turn = game.timestamp_turn;
     calculate_network_startup_map_checksums(replay.head.map_checksums);
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {

@@ -354,7 +354,10 @@ void process_pause_packet(long curr_pause, long new_pause)
   {
       player = get_my_player();
       struct UserState* ustate = get_user_state(get_local_user());
+      const TbBool was_paused = flag_is_set(game.operation_flags, GOF_Paused);
       set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
+      if (was_paused && !curr_pause && (get_local_user() == SERVER_ID) && !replay.load_enable)
+          request_timestamp_packet();
       if ((game.operation_flags & GOF_Paused) != 0) {
           set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
           if (network_is_active()) {
@@ -424,6 +427,7 @@ TbBool packet_action_has_camera_position(enum TbPacketAction action)
     switch (action)
     {
     case PckA_ApplyRoomspaceDigTag:
+    case PckA_SetTimestamp:
     case PckA_ZoomFromMap:
         return false;
     default:
@@ -857,6 +861,16 @@ TbBool process_user_global_packet_action(NetUserId user)
       return 0;
   case PckA_SwitchView:
       set_engine_view(player, pckt->actn_par1 != 0, pckt->actn_par2 != 0);
+      return 0;
+  case PckA_SetTimestamp:
+      if (user != SERVER_ID) {
+          WARNLOG("Ignoring timestamp from user %d; only the host may set it", (int)user);
+          return 0;
+      }
+      game.timestamp = (int64_t)(((uint64_t)((uint32_t)pckt->actn_par2 & 0x1FFFFF) << 32) | (uint32_t)pckt->actn_par1);
+      const int32_t tz_minutes = (int32_t)((uint32_t)pckt->actn_par2 >> 21);
+      game.timestamp_tz = ((tz_minutes >= 1024) ? tz_minutes - 2048 : tz_minutes) * 60;
+      game.timestamp_turn = ((GameTurn)(uint16_t)pckt->actn_par4 << 16) | (uint16_t)pckt->actn_par3;
       return 0;
   case PckA_ToggleTendency:
       toggle_creature_tendencies(player, pckt->actn_par1);
@@ -1659,7 +1673,10 @@ void exchange_packets(void)
     }
     update_local_dig_tag_prediction();
     if (!replay.load_enable)
+    {
+        set_pending_timestamp_packet_action(get_local_packet());
         camera_packet_set_state(get_local_packet());
+    }
     store_packet_history(local_user, get_local_packet());
     host_spoof_dropped_user_packets();
     if (network_is_active())
