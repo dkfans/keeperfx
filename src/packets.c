@@ -424,6 +424,7 @@ TbBool packet_action_has_camera_position(enum TbPacketAction action)
     switch (action)
     {
     case PckA_ApplyRoomspaceDigTag:
+    case PckA_ZoomFromMap:
         return false;
     default:
         return true;
@@ -875,11 +876,14 @@ TbBool process_user_global_packet_action(NetUserId user)
       //TODO: remake from beta
       return 0;
   case PckA_SetViewType:
+      if (pckt->actn_par1 == PVT_MapFadeIn || pckt->actn_par1 == PVT_MapFadeOut)
+          ustate->map_fade_turns = min(pckt->actn_par2, PARCHMENT_MAP_FADE_MAX_TURNS);
       set_player_mode(player, pckt->actn_par1);
       return 0;
   case PckA_ZoomFromMap:
-      if (parchment_map_fade_enabled())
+      if (pckt->actn_par3 > 0)
       {
+        ustate->map_fade_turns = min(pckt->actn_par3, PARCHMENT_MAP_FADE_MAX_TURNS);
         set_player_mode(player, PVT_MapFadeOut);
       } else
       {
