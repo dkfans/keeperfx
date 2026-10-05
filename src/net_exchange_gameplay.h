@@ -29,6 +29,9 @@ extern "C" {
 
 extern int32_t multiplayer_speed_adjustment_ns;
 
+// PACKET_HISTORY_SIZE affects how far apart two users' turns can be (if they divert too far then there's no easy recovering). It should be set as high as possible while still being safe to send, so less than 1300 bytes at once.
+#define PACKET_HISTORY_SIZE 40
+
 struct Packet;
 
 void initialize_packet_history(void);

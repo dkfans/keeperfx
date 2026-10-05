@@ -850,7 +850,6 @@ void reinit_level_after_load(void)
     player = get_my_player();
     local_state.lens_palette = 0;
     local_state.main_palette = engine_palette;
-    init_navigation();
     game.easter_eggs_enabled = start_params.easter_egg;
     if (!network_is_active() && !replay.load_enable)
         get_my_player()->cheats_allowed = game.easter_eggs_enabled;

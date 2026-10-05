@@ -979,6 +979,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             y = (pckt->pos_y);
             pos.x.val = x;
             pos.y.val = y;
+            pos.z.val = 0;
             PlayerNumber id = pckt->actn_par2;
             unsigned char exp = pckt->actn_par2 >> 8;
             thing = create_creature(&pos, pckt->actn_par1, id);
@@ -1030,11 +1031,8 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                     }
                     for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
                     {
-                        pos.x.stl.pos = 128;
-                        pos.y.stl.pos = 128;
-                        pos.z.stl.pos = 128;
-                        pos.x.stl.num = stl_x + 2 * small_around[n].delta_x;
-                        pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;
+                        pos.x.val = subtile_coord_center(stl_x + 2 * small_around[n].delta_x);
+                        pos.y.val = subtile_coord_center(stl_y + 2 * small_around[n].delta_y);
                         struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
                         if (map_block_revealed(mapblk, id) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
                         {

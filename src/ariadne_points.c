@@ -30,9 +30,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-static long count_Points;
-static long ix_Points;
-static long free_Points;
+static int32_t count_Points;
+static int32_t ix_Points;
+static int32_t free_Points;
 
 struct Point ari_Points[POINTS_COUNT];
 /******************************************************************************/

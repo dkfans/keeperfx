@@ -1744,10 +1744,8 @@ void process_packets(void)
     if (quit_game || exit_keeper) {
         return;
     }
-    if (network_is_active()
-     && ((local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0))
-    {
-        if (resync_game_allowed()) {
+    if (network_is_active() && (netstate.resync_pending || (local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0)) {
+        if (netstate.resync_pending || (network_is_host() && resync_game_allowed())) {
             SYNCDBG(0,"Resyncing");
             resync_game();
         }
