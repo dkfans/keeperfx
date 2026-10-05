@@ -208,6 +208,11 @@ TbBool RendererCanDraw(void)
     return (s_active_renderer != nullptr && s_active_renderer->CanDraw()) ? 1 : 0;
 }
 
+TbBool RendererCanPresent(void)
+{
+    return s_active_renderer != nullptr && s_active_renderer->CanPresent();
+}
+
 TbBool RendererScheduleScreenshot(const char* path, int fmt)
 {
     return (s_active_renderer != nullptr) ? s_active_renderer->ScheduleScreenshot(path, fmt) : 0;

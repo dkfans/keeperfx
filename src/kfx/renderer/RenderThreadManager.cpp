@@ -38,6 +38,12 @@ void RenderThreadManager::WaitForCompletion()
     m_cv.wait(lock, [this]{ return m_work_done; });
 }
 
+bool RenderThreadManager::IsWorkDone() const
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return m_work_done;
+}
+
 void RenderThreadManager::Signal()
 {
     {
