@@ -40,6 +40,7 @@
 #define ENET_ADDRESS_BUFFER_SIZE 128
 #define INCOMING_QUEUE_WARNING_THRESHOLD 200
 #define INCOMING_QUEUE_WARNING_INTERVAL 100
+#define RESYNC_WINDOW_SIZE (128 * 1024)
 
 uint16_t external_ipv4_port = 0;
 char external_ipv4_address[64] = {0};
@@ -57,6 +58,7 @@ namespace
     ENetHost *host = nullptr;
     ENetPeer *client_peer = nullptr;
     enet_uint32 connection_ids[MAX_NET_USERS] = {0};
+    enet_uint32 resync_saved_window[MAX_NET_USERS] = {0};
     int host_is_dual_stack = 0;
     TransferRateTracker download_rate_tracker = {0, 0};
     TransferRateTracker upload_rate_tracker = {0, 0};
@@ -210,6 +212,7 @@ namespace
         upload_rate_tracker = TransferRateTracker();
         client_peer = nullptr;
         memset(connection_ids, 0, sizeof(connection_ids));
+        memset(resync_saved_window, 0, sizeof(resync_saved_window));
         if (host) {
             for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
                 if (peer->state == ENET_PEER_STATE_CONNECTED) {
@@ -693,8 +696,34 @@ namespace
      */
     int bf_enet_read_event(NetNewUserCallback new_user, uint timeout)
     {
-        if (!host)
+        if (!host) {
             return -1;
+        }
+        for (size_t peer_index = 0; peer_index < host->peerCount; peer_index++) {
+            ENetPeer *peer = &host->peers[peer_index];
+            if (resync_saved_window[peer_index] == 0) {
+                continue;
+            }
+            if (peer->state == ENET_PEER_STATE_DISCONNECTED) {
+                resync_saved_window[peer_index] = 0;
+            } else if (peer->reliableDataInTransit == 0 && enet_list_empty(&peer->outgoingSendReliableCommands) && enet_list_empty(&peer->outgoingCommands)) {
+                peer->windowSize = resync_saved_window[peer_index];
+                resync_saved_window[peer_index] = 0;
+            } else {
+                enet_uint32 retry_interval = max(peer->roundTripTime + 4 * peer->roundTripTimeVariance, 100U) * 2;
+                ENetList *commands = &peer->sentReliableCommands;
+                for (ENetListIterator current = enet_list_begin(commands); current != enet_list_end(commands); current = enet_list_next(current)) {
+                    ENetOutgoingCommand *command = reinterpret_cast<ENetOutgoingCommand *>(current);
+                    if (command->packet != nullptr && command->packet->dataLength > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE && command->packet->data[0] == NETMSG_RESYNC_DATA) {
+                        command->roundTripTimeout = min(command->roundTripTimeout, retry_interval);
+                    }
+                }
+                if (!enet_list_empty(commands)) {
+                    ENetOutgoingCommand *command = reinterpret_cast<ENetOutgoingCommand *>(enet_list_front(commands));
+                    peer->nextTimeout = command->sentTime + command->roundTripTimeout;
+                }
+            }
+        }
         ENetEvent enet_event;
         NetUserId user_id;
         int service_result = enet_host_service(host, &enet_event, timeout);
@@ -780,22 +809,39 @@ namespace
      */
     void bf_enet_sendmsg_single(NetUserId destination, const char *buffer, size_t size)
     {
-        ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
-        if (client_peer) // Just send to server
-        {
-            enet_peer_send(client_peer, ENET_CHANNEL_RELIABLE, packet);
+        if (!host) {
+            return;
         }
-        else
-        {
-            for (ENetPeer *currentPeer = host->peers; currentPeer < &host->peers[host -> peerCount]; ++currentPeer)
-            {
-                if (currentPeer->state != ENET_PEER_STATE_CONNECTED)
-                    continue;
-                if (NetUserId(reinterpret_cast<ptrdiff_t>(currentPeer->data)) == destination)
-                {
-                    enet_peer_send(currentPeer, ENET_CHANNEL_RELIABLE, packet);
-                }
+        ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
+        if (packet == nullptr) {
+            ERRORLOG("Failed to allocate reliable network packet");
+            return;
+        }
+        for (size_t peer_index = 0; peer_index < host->peerCount; peer_index++) {
+            ENetPeer *peer = &host->peers[peer_index];
+            if (peer->state != ENET_PEER_STATE_CONNECTED) {
+                continue;
             }
+            if (client_peer != nullptr && client_peer != peer) {
+                continue;
+            }
+            if (client_peer == nullptr && NetUserId(reinterpret_cast<ptrdiff_t>(peer->data)) != destination) {
+                continue;
+            }
+            if (enet_peer_send(peer, ENET_CHANNEL_RELIABLE, packet) < 0) {
+                ERRORLOG("Failed to queue reliable network packet for user %d", destination);
+                break;
+            }
+            if (size > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE && buffer[0] == NETMSG_RESYNC_DATA && peer->windowSize < RESYNC_WINDOW_SIZE) {
+                if (resync_saved_window[peer_index] == 0) {
+                    resync_saved_window[peer_index] = peer->windowSize;
+                }
+                peer->windowSize = RESYNC_WINDOW_SIZE;
+            }
+            break;
+        }
+        if (packet->referenceCount == 0) {
+            enet_packet_destroy(packet);
         }
         enet_host_flush(host);
     }
@@ -1040,6 +1086,24 @@ unsigned int GetPacketLoss(NetUserId id) {
         return best_value;
     }
 
+    return 0;
+}
+
+int32_t GetResyncProgress(void)
+{
+    if (!IsPeerConnected(client_peer)) {
+        return 0;
+    }
+    ENetList *commands = &client_peer->channels[ENET_CHANNEL_RELIABLE].incomingReliableCommands;
+    for (ENetListIterator current = enet_list_begin(commands); current != enet_list_end(commands); current = enet_list_next(current)) {
+        ENetIncomingCommand *command = reinterpret_cast<ENetIncomingCommand *>(current);
+        if (command->fragmentCount == 0 || command->fragments == nullptr || (command->fragments[0] & 1) == 0) {
+            continue;
+        }
+        if (command->packet->dataLength > 0 && command->packet->data[0] == NETMSG_RESYNC_DATA) {
+            return static_cast<int32_t>((uint64_t)(command->fragmentCount - command->fragmentsRemaining) * 100 / command->fragmentCount);
+        }
+    }
     return 0;
 }
 
