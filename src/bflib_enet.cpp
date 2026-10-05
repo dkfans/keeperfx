@@ -917,6 +917,16 @@ namespace
         }
     }
 
+    size_t bf_enet_peekmsg(NetUserId source, const char **buffer)
+    {
+        *buffer = nullptr;
+        if (!wait_for_incoming_packet(source, 0)) {
+            return 0;
+        }
+        *buffer = reinterpret_cast<const char *>(oldest_packet[source]->data);
+        return oldest_packet[source]->dataLength;
+    }
+
     /**
      * Reads and removes the oldest queued message from a user.
      * @param source The source user.
@@ -1244,6 +1254,7 @@ struct NetSP *InitEnetSP()
             .sendmsg_single_unsequenced = &bf_enet_sendmsg_single_unsequenced,
             .sendmsg_all = &bf_enet_sendmsg_all,
             .msgready = &bf_enet_msgready,
+            .peekmsg = &bf_enet_peekmsg,
             .readmsg = &bf_enet_readmsg,
             .drop_user = &bf_enet_drop_user,
     };

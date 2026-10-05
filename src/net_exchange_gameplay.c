@@ -68,6 +68,7 @@ struct PacketHistoryHeader {
     unsigned char /*NetUserId*/ user;
     unsigned int compressed_length;
     unsigned int original_length;
+    uint32_t gameplay_generation;
 };
 #pragma pack()
 
@@ -273,6 +274,9 @@ TbBool read_repair_packet_history(NetUserId source, const char *buffer, size_t b
     }
     struct PacketHistoryHeader header;
     memcpy(&header, buffer, sizeof(header));
+    if (header.gameplay_generation != netstate.gameplay_generation) {
+        return false;
+    }
     if (header.user >= netstate.max_users) {
         WARNLOG("Gameplay repair history from peer %i had invalid user %d", source, (int)header.user);
         return false;
@@ -408,6 +412,7 @@ static void send_user_repair_history(NetUserId user)
     header.user = user;
     header.compressed_length = (unsigned int)compressed_size;
     header.original_length = (unsigned int)packet_history_size;
+    header.gameplay_generation = netstate.gameplay_generation;
     memcpy(header_pos, &header, sizeof(header));
     size_t message_size = (write_pos - netstate.msg_buffer) + compressed_size;
     if (netstate.my_id != SERVER_ID) {
@@ -476,7 +481,7 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
             }
             turn_complete = have_all_turn_packets(local_user);
         }
-        if (turn_complete) {
+        if (turn_complete || netstate.resync_pending) {
             break;
         }
         if (LbTimerClock() - wait_start_time >= FINAL_RESORT_RESYNC_RECOVERY) {
@@ -530,7 +535,7 @@ TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t fram
     send_repair_history_if_due(repair_interval);
     network_update(server_buf, frame_size);
     update_turn_speed_adjustment();
-    if (game.skip_initial_input_turns <= 0) {
+    if (game.skip_initial_input_turns <= 0 && !netstate.resync_pending) {
         struct PlayerInfo *my_player = get_my_player();
         if (player_exists(my_player)) {
             NetUserId local_user = netstate.my_id;
