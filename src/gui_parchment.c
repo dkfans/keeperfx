@@ -1074,11 +1074,10 @@ void redraw_minimal_overhead_view(void)
     draw_tooltip();
 }
 
-/** Whether the user fades into and out of the parchment map instead of cutting. */
-TbBool parchment_map_fade_enabled(NetUserId user)
+/** Whether this machine fades into and out of the parchment map instead of cutting. */
+TbBool parchment_map_fade_enabled(void)
 {
-    const struct UserState *ustate = get_user_state(user);
-    return !user_state_invalid(ustate) && (ustate->map_fade_turns > 0);
+    return get_parchment_map_fade_turns() > 0;
 }
 
 void zoom_to_parchment_map(void)
@@ -1089,9 +1088,9 @@ void zoom_to_parchment_map(void)
     else
       set_flag(game.operation_flags, GOF_ShowPanel);
     struct PlayerInfo* player = get_my_player();
-    if (parchment_map_fade_enabled(get_local_user()))
+    if (parchment_map_fade_enabled())
     {
-      set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
+      set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, get_parchment_map_fade_turns(), 0, 0);
       turn_off_roaming_menus();
     } else
     {
@@ -1103,9 +1102,9 @@ void zoom_to_parchment_map(void)
 void zoom_from_parchment_map(void)
 {
     struct PlayerInfo* player = get_my_player();
-    if (parchment_map_fade_enabled(get_local_user()))
+    if (parchment_map_fade_enabled())
     {
-        set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeOut, 0,0,0);
+        set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeOut, get_parchment_map_fade_turns(), 0, 0);
     } else
     {
         set_players_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0,0,0);

@@ -1096,8 +1096,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           if (i < 0 || i > PARCHMENT_MAP_FADE_MAX_TURNS)
           {
-              CONFWRNLOG("Invalid \"%s\" value in %s file.", COMMAND_TEXT(cmd_num), config_textname);
-              break;
+              i = PARCHMENT_MAP_FADE_MAX_TURNS;
           }
           parchment_map_fade_turns = i;
           break;

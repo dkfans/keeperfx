@@ -259,7 +259,7 @@ struct UserState {
     unsigned char view_type;
     TbBool dungeon_wibble;
     TbBool highlight_mode;
-    unsigned char map_fade_turns; // Length of the parchment map fade in turns; 0=disabled
+    unsigned char map_fade_turns; // Length of the current parchment map fade in turns, from the packet that started it
     struct DungeonCamera dungeon_camera;
 };
 
