@@ -526,7 +526,9 @@ void gameplay_loop_draw()
 
 void network_yield_waiting_gameplay_packets()
 {
+    lbBufferKeyPresses = true;
     poll_inputs();
+    lbBufferKeyPresses = false;
     gameplay_loop_draw();
     update_gameplay_delta_time();
     // Reduce game speed during lag spikes.
@@ -920,6 +922,7 @@ static TbBool wait_at_frontend(void)
 
     try_restore_frontend_error_box();
 
+    memset(lbKeyPressed, 0, sizeof(lbKeyPressed));
     poll_inputs();
     clear_mouse_pressed_lrbutton();
 

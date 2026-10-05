@@ -457,9 +457,13 @@ void update_mouse(void)
  */
 short is_key_pressed(TbKeyCode key, TbKeyMods kmodif)
 {
-  if ((kmodif == KMod_DONTCARE) || (kmodif == key_modifiers))
-    return lbKeyOn[key];
-  return 0;
+    if (((kmodif == KMod_DONTCARE) || (kmodif == key_modifiers)) && lbKeyOn[key] != 0) {
+        return lbKeyOn[key];
+    }
+    if ((kmodif == KMod_DONTCARE) || (kmodif == (lbKeyPressed[key] & (KMod_SHIFT | KMod_CONTROL | KMod_ALT)))) {
+        return lbKeyPressed[key];
+    }
+    return 0;
 }
 
 /**
@@ -479,6 +483,7 @@ void clear_key_pressed(long key)
         }
     }
     lbKeyOn[key] = 0;
+    lbKeyPressed[key] = 0;
     if (key == lbInkey)
     {
         lbInkey = KC_UNASSIGNED;
