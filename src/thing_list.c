@@ -3489,21 +3489,26 @@ TbBool update_thing(struct Thing *thing)
             if (!flag_is_set(thing->state_flags, TF1_FallingIntoAbyss)) {
                 return true;
             }
-            thing->last_turn_pushed = get_gameturn();
+            PlayerNumber killer = -1;
+            CrDeathFlags flags = CrDed_Default;
             if ((get_gameturn() - thing->last_turn_pushed) < 15)
             {
-                kill_creature(thing, INVALID_THING, thing->pushed_by_player, CrDed_DiedInBattle);
-                output_message_far_from_thing(thing, SMsg_BattleDeath, MESSAGE_DURATION_BATTLE);
+                flags = CrDed_DiedInBattle;
+                killer = thing->pushed_by_player;
+                if (is_my_player_number(thing->owner))
+                {
+                    output_message_far_from_thing(thing, SMsg_BattleDeath, MESSAGE_DURATION_BATTLE);
+                }
             }
             else if (flag_is_set(thing->movement_flags, TMvF_Grounded))
             {
-                kill_creature(thing, INVALID_THING, -1, CrDed_DiedInBattle);
-                output_message_far_from_thing(thing, SMsg_BattleDeath, MESSAGE_DURATION_BATTLE);
+                flags = CrDed_DiedInBattle;
+                if (is_my_player_number(thing->owner))
+                {
+                    output_message_far_from_thing(thing, SMsg_BattleDeath, MESSAGE_DURATION_BATTLE);
+                }
             }
-            else
-            {
-                kill_creature(thing, INVALID_THING, -1, CrDed_Default);
-            }
+            kill_creature(thing, INVALID_THING, killer, flags);
         } else {
             destroy_thing(thing);
         }
