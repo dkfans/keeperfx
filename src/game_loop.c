@@ -468,10 +468,11 @@ void gameplay_loop_draw()
     if (game.process_turn_time > 1.0 && time_since_last_draw < 1.0)
         do_draw = false;
 
-    if ((fps_limit_current > 0 && process_frame_time < 1.0) || (do_draw && !RendererCanPresent())) {
+    const TbBool renderer_busy = do_draw && !RendererCanPresent();
+    if ((fps_limit_current > 0 && process_frame_time < 1.0) || renderer_busy) {
         do_draw = false;
         frametime_start_measurement(Frametime_Sleep);
-        if (game.process_turn_time < 1.0) {
+        if (game.process_turn_time < 1.0 || renderer_busy) {
             SDL_Delay(1);
         }
         frametime_end_measurement(Frametime_Sleep);
@@ -502,10 +503,8 @@ void gameplay_loop_draw()
     }
     keeper_wait_for_screen_focus();
     // Direct information/error messages
-    if (RendererBeginFrame()) {
-        if ( do_draw ) {
-            perform_any_screen_capturing();
-        }
+    if (do_draw && RendererBeginFrame()) {
+        perform_any_screen_capturing();
         draw_onscreen_direct_messages();
         RendererEndFrame();
     }
