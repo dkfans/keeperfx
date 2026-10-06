@@ -1144,7 +1144,7 @@ static TbBool get_level_lost_inputs(void)
             if  ( map_valid ) {
                 MapSubtlCoord stl_x = coord_subtile(map_x);
                 MapSubtlCoord stl_y = coord_subtile(map_y);
-                set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, get_parchment_map_fade_turns(), 0);
+                set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
                 left_button_released = 0;
             }
         }
@@ -1166,7 +1166,7 @@ static TbBool get_level_lost_inputs(void)
           set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
           if (parchment_map_fade_enabled())
           {
-                set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, get_parchment_map_fade_turns(), 0, 0);
+                set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
           } else
           {
                 set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
@@ -2299,7 +2299,7 @@ static short get_map_action_inputs(void)
         }
         if (left_button_released) {
             left_button_released = 0;
-            set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, get_parchment_map_fade_turns(), 0);
+            set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
             return true;
         }
     }

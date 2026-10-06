@@ -508,7 +508,7 @@ void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt,
             break;
         }
     }
-    const int32_t zoom_min = (cam->view_mode == PVM_FrontView) ? player->frontview_zoom_distance : max(CAMERA_ZOOM_MIN, player->zoom_distance);
+    const int32_t zoom_min = user_zoom_min(get_player_user_state(player), cam->view_mode == PVM_FrontView);
     const int32_t zoom_max = CAMERA_ZOOM_MAX;
     const TbBool use_zoom_pos = flag_is_set(pckt->control_flags, PCtr_ViewZoomPos | PCtr_MapCoordsValid);
     const MapCoord zoom_x = use_zoom_pos ? pckt->pos_x : -1;
@@ -572,7 +572,7 @@ static void process_dungeon_camera_controls(const struct PlayerInfo *player, str
 {
     struct DungeonCamera *dcam = &ustate->dungeon_camera;
     const unsigned char view_mode = get_dungeon_view_mode(ustate);
-    const TbBool front_view = ustate->dungeon_camera.use_front_view;
+    const TbBool front_view = ustate->prefs[UPref_FrontView] != 0;
     MapCoord x;
     MapCoord y;
     // Iso and front share a position; any other camera's position isn't the dungeon camera's.
@@ -588,7 +588,7 @@ static void process_dungeon_camera_controls(const struct PlayerInfo *player, str
         if ((pckt->control_flags & PCtr_ViewTiltReset) != 0)
             dcam->pitch = tilt_step(dcam->pitch, 0);
     }
-    const int32_t zoom_min = front_view ? player->frontview_zoom_distance : max(CAMERA_ZOOM_MIN, player->zoom_distance);
+    const int32_t zoom_min = user_zoom_min(ustate, front_view);
     const int32_t zoom_max = CAMERA_ZOOM_MAX;
     const TbBool use_zoom_pos = flag_is_set(pckt->control_flags, PCtr_ViewZoomPos | PCtr_MapCoordsValid);
     const MapCoord zoom_x = use_zoom_pos ? pckt->pos_x : -1;
@@ -625,7 +625,7 @@ void process_user_dungeon_control_packet_control(NetUserId user)
             settings_changed = true;
         }
         if ((pckt->control_flags & (PCtr_ViewZoomIn | PCtr_ViewZoomOut)) != 0) {
-            if (ustate->dungeon_camera.use_front_view) {
+            if (ustate->prefs[UPref_FrontView] != 0) {
                 settings.frontview_zoom_level = ustate->dungeon_camera.zoom[true];
             } else {
                 settings.isometric_view_zoom_level = ustate->dungeon_camera.zoom[false];
@@ -827,12 +827,10 @@ TbBool process_user_global_packet_action(NetUserId user)
   case PckA_TogglePause:
       process_pause_packet(pckt->actn_par1, 0);
       return 1;
-  case PckA_SetCluedo:
-      if (is_my_player(player))
-      {
-        settings.video_cluedo_mode = pckt->actn_par1;
-        save_settings();
-      }
+  case PckA_SetUserPref:
+      if ((pckt->actn_par1 < 0) || (pckt->actn_par1 >= UPref_Count))
+          return 0;
+      get_user_state(user)->prefs[pckt->actn_par1] = pckt->actn_par2;
       return 0;
   case PckA_ChangeWindowSize:
       if (is_my_player(player) && !replay.load_enable)
@@ -874,8 +872,10 @@ TbBool process_user_global_packet_action(NetUserId user)
       return 0;
   case PckA_ToggleTendency:
       toggle_creature_tendencies(player, pckt->actn_par1);
+      dungeon = get_players_dungeon(player);
+      if (!user_state_invalid(ustate) && !dungeon_invalid(dungeon))
+          ustate->prefs[UPref_StartingTendencies] = dungeon->creature_tendencies & (CrTend_Imprison | CrTend_Flee);
       if (is_my_player(player)) {
-          dungeon = get_players_dungeon(player);
           game.creatures_tend_imprison = ((dungeon->creature_tendencies & CrTend_Imprison) != 0);
           game.creatures_tend_flee = ((dungeon->creature_tendencies & CrTend_Flee) != 0);
       }
@@ -890,14 +890,11 @@ TbBool process_user_global_packet_action(NetUserId user)
       //TODO: remake from beta
       return 0;
   case PckA_SetViewType:
-      if (pckt->actn_par1 == PVT_MapFadeIn || pckt->actn_par1 == PVT_MapFadeOut)
-          ustate->map_fade_turns = min(pckt->actn_par2, PARCHMENT_MAP_FADE_MAX_TURNS);
       set_player_mode(player, pckt->actn_par1);
       return 0;
   case PckA_ZoomFromMap:
-      if (pckt->actn_par3 > 0)
+      if (ustate->prefs[UPref_MapFade] > 0)
       {
-        ustate->map_fade_turns = min(pckt->actn_par3, PARCHMENT_MAP_FADE_MAX_TURNS);
         set_player_mode(player, PVT_MapFadeOut);
       } else
       {
@@ -1086,8 +1083,8 @@ TbBool process_user_global_packet_action(NetUserId user)
     }
     case PckA_RoomspaceHighlightToggle:
     {
-        get_user_state(user)->highlight_mode = pckt->actn_par1;
-        if (is_my_player(player) && !replay.load_enable)
+        get_user_state(user)->prefs[UPref_HighlightMode] = pckt->actn_par1;
+        if ((user == get_local_user()) && !replay.load_enable)
         {
             settings.highlight_mode = pckt->actn_par1;
             if (default_tag_mode == 3)
@@ -1581,7 +1578,7 @@ void process_user_creature_control_packet_action(NetUserId user)
       }
       break;
   case PckA_CheatCtrlCrtrSetInstnc:
-      if (!player->cheats_allowed)
+      if (!user_cheats_allowed(user))
         break;
       thing = thing_get(player->controlled_thing_idx);
       if (!thing_exists(thing))

@@ -1391,9 +1391,8 @@ TbBool open_new_packet_file_for_save(void)
     calculate_network_startup_map_checksums(replay.head.map_checksums);
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        struct UserStartSettings *us = &replay.head.user_start[user];
-        if (!get_startup_user_settings(user, us))
-            build_local_user_start_settings(us);
+        if (!get_startup_user_preferences(user, replay.head.user_prefs[user]))
+            build_local_user_preferences(replay.head.user_prefs[user]);
     }
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
         replay.head.user_players[user] = get_net_user_player_number(user);
@@ -1523,8 +1522,8 @@ void disable_packet_mode(void)
     close_packet_file();
     replay.load_enable = false;
     replay.save_enable = false;
-    get_my_player()->cheats_allowed = game.easter_eggs_enabled;
     remap_user_to_solo(get_my_player());
+    apply_local_user_preferences(SOLO_HUMAN_ID, UPF_ApplyOnTakeover);
     show_onscreen_msg(2*turns_per_second, "Packet mode disabled");
     set_gui_visible(true);
 }

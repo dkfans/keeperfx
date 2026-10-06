@@ -32,6 +32,7 @@
 #include <atomic>
 #include <cmath>
 
+#include "keeperfx.hpp"
 #include "post_inc.h"
 
 namespace {
@@ -961,7 +962,7 @@ extern "C" void StopAllSamples() {
 
 extern "C" TbBool InitAudio(const SoundSettings * settings) {
 	try {
-		if (game.easter_eggs_enabled == true) {
+		if (start_params.easter_egg == true) {
 			TbDate date;
 			LbDate(&date);
 			g_bb_king_mode |= ((date.Day == 1) && (date.Month == 2));

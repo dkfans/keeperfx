@@ -416,7 +416,7 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
 {
     struct PlayerInfo* player = get_my_player();
     // render the 3D screen
-    if (get_player_user_state(player)->dungeon_camera.use_front_view)
+    if (get_player_user_state(player)->prefs[UPref_FrontView] != 0)
       redraw_frontview();
     else
       redraw_isometric_view();
@@ -455,7 +455,7 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
 static int32_t my_map_fade_turns(void)
 {
     const struct UserState *ustate = get_player_user_state(get_my_player());
-    return user_state_invalid(ustate) ? 1 : max((int32_t)ustate->map_fade_turns, 1);
+    return user_state_invalid(ustate) ? 1 : max((int32_t)ustate->prefs[UPref_MapFade], 1);
 }
 
 static float map_fade_progress(void)
@@ -538,10 +538,10 @@ long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long
 void set_engine_view(struct PlayerInfo *player, TbBool front_view, TbBool wibble)
 {
     struct UserState *ustate = get_player_user_state(player);
-    if (ustate->dungeon_camera.use_front_view != front_view)
-        carry_local_dungeon_position(player, ustate->dungeon_camera.use_front_view);
-    ustate->dungeon_camera.use_front_view = front_view;
-    ustate->dungeon_wibble = wibble;
+    if ((ustate->prefs[UPref_FrontView] != 0) != front_view)
+        carry_local_dungeon_position(player, ustate->prefs[UPref_FrontView] != 0);
+    ustate->prefs[UPref_FrontView] = front_view;
+    ustate->prefs[UPref_Wibble] = wibble;
     update_engine_view(player, true);
 }
 
@@ -566,7 +566,7 @@ void update_engine_view(struct PlayerInfo *player, TbBool keep_local_camera)
     if (get_player_view_type(player) != PVT_MapScreen)
     {
         lens_mode = 0;
-        if (get_player_user_state(player)->dungeon_camera.use_front_view)
+        if (get_player_user_state(player)->prefs[UPref_FrontView] != 0)
             temp_cluedo_mode = 0;
     }
     S3DSetLineOfSightFunction(dummy_sound_line_of_sight);

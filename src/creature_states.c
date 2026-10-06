@@ -33,6 +33,7 @@
 #include "config_effects.h"
 #include "config_crtrstates.h"
 #include "config_keeperfx.h"
+#include "net_game.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_objects.h"
@@ -613,7 +614,7 @@ TbBool state_info_invalid(struct CreatureStateConfig *stati)
 TbBool creature_model_bleeds(unsigned long crmodel)
 {
     struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
-    if (censorship_enabled())
+    if (game_censorship_enabled())
     {
         // If censorship is on, only evil creatures can have blood
         if (!crconf->bleeds)

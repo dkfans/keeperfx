@@ -25,6 +25,7 @@
 #include "bflib_video.h"
 #include "roomspace.h"
 #include "net_main.h"
+#include "user_prefs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -193,10 +194,6 @@ struct PlayerInfo {
     GameTurn power_of_cooldown_turn;
     int32_t game_version;
     GameTurn display_objective_turn;
-    int32_t zoom_distance;
-    int32_t frontview_zoom_distance;
-    TbBool cheats_allowed;
-    TbBool skip_heart_zoom;
     unsigned char hand_idx;
     struct RoomSpace render_roomspace;
     struct RoomSpace roomspace;
@@ -257,10 +254,8 @@ struct UserState {
     PowerKind chosen_power_kind;
     TbBool pickup_all_gold;
     unsigned char view_type;
-    TbBool dungeon_wibble;
-    TbBool highlight_mode;
-    unsigned char map_fade_turns; // Length of the current parchment map fade in turns, from the packet that started it
     struct DungeonCamera dungeon_camera;
+    UserPreferences prefs;
 };
 
 /******************************************************************************/
@@ -357,6 +352,7 @@ struct UserState *get_user_state(NetUserId user);
 struct UserState *get_player_user_state(const struct PlayerInfo *player);
 struct UserState *get_local_user_state(void);
 TbBool user_state_invalid(const struct UserState *ustate);
+int32_t user_zoom_min(const struct UserState *ustate, TbBool front_view);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
 TbBool players_are_enemies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);

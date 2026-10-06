@@ -522,10 +522,11 @@ void update_engine_settings(struct PlayerInfo *player)
     me_pointed_at = NULL;
     me_distance = 100000000;
     max_i_can_see = get_max_i_can_see_from_settings();
-    if (lens_mode != 0)
+    const struct UserState *ustate = get_local_user_state();
+    if ((lens_mode != 0) || user_state_invalid(ustate))
       temp_cluedo_mode = 0;
     else
-      temp_cluedo_mode = settings.video_cluedo_mode;
+      temp_cluedo_mode = (ustate->prefs[UPref_WallHeight] != 0);
     thing_pointed_at = NULL;
 }
 

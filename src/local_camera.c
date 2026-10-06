@@ -162,7 +162,7 @@ void update_local_dungeon_view_mode(struct PlayerInfo *player)
 {
     if (!is_my_player(player))
         return;
-    const unsigned char view_mode = get_player_user_state(player)->dungeon_wibble ? PVM_IsoWibbleView : PVM_IsoStraightView;
+    const unsigned char view_mode = (get_player_user_state(player)->prefs[UPref_Wibble] != 0) ? PVM_IsoWibbleView : PVM_IsoStraightView;
     local_state.camera.current[CamIV_Isometric].view_mode = view_mode;
     local_state.camera.previous[CamIV_Isometric].view_mode = view_mode;
     local_state.camera.destination[CamIV_Isometric].view_mode = view_mode;
@@ -203,7 +203,7 @@ void init_local_cameras(struct PlayerInfo *player)
     cam = &cams[CamIV_Isometric];
     cam->horizontal_fov = 94;
     cam->rotation_angle_x = DEGREES_45;
-    cam->view_mode = get_player_user_state(player)->dungeon_wibble ? PVM_IsoWibbleView : PVM_IsoStraightView;
+    cam->view_mode = (get_player_user_state(player)->prefs[UPref_Wibble] != 0) ? PVM_IsoWibbleView : PVM_IsoStraightView;
 
     cam = &cams[CamIV_Parchment];
     cam->mappos.z.val = 32;
@@ -666,7 +666,7 @@ void replay_detach(void)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const int cam_idx = get_player_user_state(player)->dungeon_camera.use_front_view ? CamIV_FrontView : CamIV_Isometric;
+    const int cam_idx = (get_player_user_state(player)->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric;
     struct Camera cams[CamIV_EndList];
     memcpy(cams, local_state.camera.destination, sizeof(cams));
     apply_dungeon_camera(cams, player);
@@ -759,7 +759,7 @@ struct Camera* get_local_active_camera(struct PlayerInfo *player)
 
 static struct Camera *get_local_dungeon_camera(struct PlayerInfo *player)
 {
-    return &local_state.camera.current[get_player_user_state(player)->dungeon_camera.use_front_view ? CamIV_FrontView : CamIV_Isometric];
+    return &local_state.camera.current[(get_player_user_state(player)->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric];
 }
 /******************************************************************************/
 #ifdef __cplusplus

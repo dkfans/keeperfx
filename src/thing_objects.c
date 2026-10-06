@@ -57,6 +57,7 @@
 #include "thing_physics.h"
 #include "thing_stats.h"
 
+#include "net_game.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -976,7 +977,7 @@ long process_temple_special(struct Thing *thing, long sacowner)
     if (object_is_mature_food(thing))
     {
         dungeon->chickens_sacrificed++;
-        if (game.easter_eggs_enabled && temple_check_for_arachnid_join_dungeon(dungeon))
+        if (user_cheats_allowed(get_player(sacowner)->user_id) && temple_check_for_arachnid_join_dungeon(dungeon))
             return true;
     } else
     {

@@ -41,9 +41,9 @@ static void get_lua_camera_view(const struct PlayerInfo *player, const struct Us
     memset(view, 0, sizeof(*view));
     view->pos.x.val = dcam.x;
     view->pos.y.val = dcam.y;
-    view->yaw = dcam.yaw[ustate->dungeon_camera.use_front_view];
-    view->pitch = dcam.use_front_view ? 0 : dcam.pitch;
-    view->zoom = dcam.zoom[ustate->dungeon_camera.use_front_view];
+    view->yaw = dcam.yaw[ustate->prefs[UPref_FrontView] != 0];
+    view->pitch = (ustate->prefs[UPref_FrontView] != 0) ? 0 : dcam.pitch;
+    view->zoom = dcam.zoom[ustate->prefs[UPref_FrontView] != 0];
     view->view_mode = get_dungeon_view_mode(ustate);
     switch (ustate->view_type)
     {

@@ -92,7 +92,6 @@ struct DungeonCamera {
     MapCoord x;
     MapCoord y;
     
-    TbBool use_front_view; // the dungeon view the user returns to; indexes zoom and yaw
     int32_t zoom[2]; // separate entries for iso and front view
     int32_t yaw[2]; // separate entries for iso and front view
     int32_t pitch; // iso only

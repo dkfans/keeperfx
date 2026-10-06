@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "front_network.h"
+#include "user_prefs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,13 +57,14 @@ void process_disconnected_network_players(void);
 TbBool user_present(NetUserId user);
 void host_spoof_dropped_user_packets(void);
 void sync_initial_network_seed(void);
-struct UserStartSettings;
-struct PlayerInfo;
-void build_local_user_start_settings(struct UserStartSettings *us);
-void apply_user_start_camera_settings(NetUserId user, const struct UserStartSettings *us);
-void apply_user_start_settings(struct PlayerInfo *player, const struct UserStartSettings *us, const struct UserStartSettings *host);
+void build_local_user_preferences(UserPreferences prefs);
+void apply_user_preferences(NetUserId user, const UserPreferences prefs, unsigned char flags);
+void apply_local_user_preferences(NetUserId user, unsigned char flags);
+void apply_user_start_tendencies(struct PlayerInfo *player);
+TbBool user_cheats_allowed(NetUserId user);
+TbBool game_censorship_enabled(void);
 void apply_recorded_network_stop(void);
-TbBool get_startup_user_settings(NetUserId user, struct UserStartSettings *us);
+TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs);
 TbBool network_is_host(void);
 PlayerNumber get_net_user_player_number(NetUserId user);
 void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx);

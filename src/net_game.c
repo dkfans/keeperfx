@@ -64,7 +64,7 @@ struct StartupSyncPacket {
     uint8_t startup_sync_packet_valid;
     TbBigChecksum map_checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
     TbBigChecksum required_sprite_zip_checksums[REQUIRED_SPRITE_ZIP_COUNT];
-    struct UserStartSettings user_start;
+    UserPreferences user_prefs;
     uint8_t initial_input_lag_turns;
     uint32_t initial_action_seed;
     // TODO: also record alliance matrix.
@@ -140,56 +140,111 @@ void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx)
     net_user_player_number[user] = plyr_idx;
 }
 
-void build_local_user_start_settings(struct UserStartSettings *us)
+static const unsigned char user_preference_flags[UPref_Count] = {
+    [UPref_FrontView]             = 0,
+    [UPref_Wibble]                = UPF_ApplyOnLoad,
+    [UPref_Cheats]                = UPF_ApplyOnLoad | UPF_ApplyOnTakeover,
+    [UPref_SkipHeartZoom]         = UPF_ApplyOnLoad,
+    [UPref_HighlightMode]         = UPF_ApplyOnLoad | UPF_ApplyOnTakeover,
+    [UPref_StartingIsometricTilt] = UPF_ApplyOnLoad,
+    [UPref_MaxZoomIso]            = UPF_ApplyOnLoad,
+    [UPref_MaxZoomFrontview]      = UPF_ApplyOnLoad,
+    [UPref_Censorship]            = UPF_ApplyOnLoad | UPF_ApplyOnTakeover,
+    [UPref_WallHeight]            = UPF_ApplyOnLoad,
+    [UPref_MapFade]               = UPF_ApplyOnLoad | UPF_ApplyOnTakeover,
+    [UPref_StartingIsometricZoom] = 0,
+    [UPref_StartingFrontviewZoom] = 0,
+    [UPref_StartingTendencies]    = 0,
+};
+
+void build_local_user_preferences(UserPreferences prefs)
 {
-    memset(us, 0, sizeof(*us));
-    us->video_rotate_mode = settings.video_rotate_mode;
+    memset(prefs, 0, sizeof(UserPreferences));
+    TbBool front_view = false;
+    TbBool wibble = true;
+    rotate_mode_to_dungeon_view(settings.video_rotate_mode, &front_view, &wibble);
+    prefs[UPref_FrontView] = front_view;
+    prefs[UPref_Wibble] = wibble;
+    prefs[UPref_Cheats] = start_params.easter_egg;
+    prefs[UPref_SkipHeartZoom] = get_skip_heart_zoom_feature();
+    prefs[UPref_HighlightMode] = get_starting_highlight_mode();
+    prefs[UPref_StartingIsometricTilt] = settings.isometric_tilt;
+    prefs[UPref_MaxZoomIso] = zoom_distance_setting;
+    prefs[UPref_MaxZoomFrontview] = frontview_zoom_distance_setting;
+    prefs[UPref_Censorship] = local_censorship_enabled();
+    prefs[UPref_WallHeight] = settings.video_cluedo_mode;
+    prefs[UPref_MapFade] = min(get_parchment_map_fade_turns(), PARCHMENT_MAP_FADE_MAX_TURNS);
+    prefs[UPref_StartingIsometricZoom] = settings.isometric_view_zoom_level;
+    prefs[UPref_StartingFrontviewZoom] = settings.frontview_zoom_level;
     if (IMPRISON_BUTTON_DEFAULT)
-        us->tendencies |= CrTend_Imprison;
+        prefs[UPref_StartingTendencies] |= CrTend_Imprison;
     if (FLEE_BUTTON_DEFAULT)
-        us->tendencies |= CrTend_Flee;
-    us->isometric_view_zoom_level = settings.isometric_view_zoom_level;
-    us->frontview_zoom_level = settings.frontview_zoom_level;
-    us->zoom_distance = zoom_distance_setting;
-    us->frontview_zoom_distance = frontview_zoom_distance_setting;
-    if (game.easter_eggs_enabled)
-        us->flags |= USF_CheatsEnabled;
-    if (get_skip_heart_zoom_feature())
-        us->flags |= USF_SkipHeartZoom;
-    us->highlight_mode = (default_tag_mode != 3) ? default_tag_mode - 1 : settings.highlight_mode;
-    us->isometric_tilt = settings.isometric_tilt;
+        prefs[UPref_StartingTendencies] |= CrTend_Flee;
 }
 
-/** Before init_player(), which builds the local camera from these. */
-void apply_user_start_camera_settings(NetUserId user, const struct UserStartSettings *us)
+static void apply_user_starting_preferences(struct UserState *ustate, unsigned char flags)
+{
+    const uint32_t *prefs = ustate->prefs;
+    if (flags != UPF_ApplyOnTakeover)
+        ustate->dungeon_camera.pitch = clamp((int32_t)prefs[UPref_StartingIsometricTilt], CAMERA_TILT_MIN, CAMERA_TILT_MAX);
+    if (flags != UPF_NewGame)
+        return;
+    ustate->dungeon_camera.zoom[false] = (prefs[UPref_StartingIsometricZoom] != 0) ? (int32_t)prefs[UPref_StartingIsometricZoom] : CAMERA_ZOOM_MAX;
+    ustate->dungeon_camera.zoom[true] = (prefs[UPref_StartingFrontviewZoom] != 0) ? (int32_t)prefs[UPref_StartingFrontviewZoom] : FRONTVIEW_CAMERA_ZOOM_MAX;
+}
+
+void apply_user_preferences(NetUserId user, const UserPreferences prefs, unsigned char flags)
 {
     struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate))
         return;
-    ustate->dungeon_wibble = true;
-    rotate_mode_to_dungeon_view(us->video_rotate_mode, &ustate->dungeon_camera.use_front_view, &ustate->dungeon_wibble);
-    ustate->dungeon_camera.pitch = clamp(us->isometric_tilt, CAMERA_TILT_MIN, CAMERA_TILT_MAX);
-    ustate->dungeon_camera.zoom[false] = (us->isometric_view_zoom_level != 0) ? us->isometric_view_zoom_level : CAMERA_ZOOM_MAX;
-    ustate->dungeon_camera.zoom[true] = (us->frontview_zoom_level != 0) ? us->frontview_zoom_level : FRONTVIEW_CAMERA_ZOOM_MAX;
-    ustate->highlight_mode = us->highlight_mode;
+    for (int pref = 0; pref < UPref_Count; pref++)
+    {
+        if ((flags == UPF_NewGame) || ((user_preference_flags[pref] & flags) != 0))
+            ustate->prefs[pref] = prefs[pref];
+    }
+    apply_user_starting_preferences(ustate, flags);
 }
 
-void apply_user_start_settings(struct PlayerInfo *player, const struct UserStartSettings *us, const struct UserStartSettings *host)
+void apply_local_user_preferences(NetUserId user, unsigned char flags)
 {
-    player->zoom_distance = us->zoom_distance;
-    player->frontview_zoom_distance = us->frontview_zoom_distance;
-    player->cheats_allowed = ((us->flags & USF_CheatsEnabled) != 0) && ((host->flags & USF_CheatsEnabled) != 0);
-    player->skip_heart_zoom = ((us->flags & USF_SkipHeartZoom) != 0) && ((host->flags & USF_SkipHeartZoom) != 0);
-    player->roomspace_highlight_mode = us->highlight_mode;
-    player->roomspace_mode = us->highlight_mode;
-    TbBool imprison = (us->tendencies & CrTend_Imprison) != 0;
-    TbBool flee = (us->tendencies & CrTend_Flee) != 0;
+    UserPreferences prefs;
+    build_local_user_preferences(prefs);
+    apply_user_preferences(user, prefs, flags);
+}
+
+void apply_user_start_tendencies(struct PlayerInfo *player)
+{
+    const struct UserState *ustate = get_player_user_state(player);
+    if (user_state_invalid(ustate))
+        return;
+    TbBool imprison = (ustate->prefs[UPref_StartingTendencies] & CrTend_Imprison) != 0;
+    TbBool flee = (ustate->prefs[UPref_StartingTendencies] & CrTend_Flee) != 0;
     set_creature_tendencies(player, CrTend_Imprison, imprison);
     set_creature_tendencies(player, CrTend_Flee, flee);
     if (player->id_number == my_player_number) {
         game.creatures_tend_imprison = imprison;
         game.creatures_tend_flee = flee;
     }
+}
+
+TbBool user_cheats_allowed(NetUserId user)
+{
+    if (get_user_state(SERVER_ID)->prefs[UPref_Cheats] == 0)
+        return false;
+    if (!user_present(user))
+        return true;
+    return get_user_state(user)->prefs[UPref_Cheats] != 0;
+}
+
+TbBool game_censorship_enabled(void)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        if (user_present(user) && (get_user_state(user)->prefs[UPref_Censorship] != 0))
+            return true;
+    }
+    return false;
 }
 
 static void setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
@@ -208,9 +263,9 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         player->user_id = i;
         player->allocflags |= PlaF_Allocated;
         init_user_state(player->user_id);
-        apply_user_start_camera_settings(i, &sync->user_start);
+        apply_user_preferences(i, sync->user_prefs, UPF_NewGame);
         init_player(player, 0);
-        apply_user_start_settings(player, &sync->user_start, &startup_sync_packets[SERVER_ID].user_start);
+        apply_user_start_tendencies(player);
         snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", network_user_name(i));
     }
 }
@@ -267,12 +322,12 @@ static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket
 static struct StartupSyncPacket s_local_startup_sync;
 static struct StartupSyncPacket s_startup_sync_packets[MAX_NET_USERS];
 
-// the settings a user sent in the startup sync, for network games
-TbBool get_startup_user_settings(NetUserId user, struct UserStartSettings *us)
+// the preferences a user sent in the startup sync, for network games
+TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs)
 {
     if (!network_is_active() || (user < 0) || (user >= MAX_NET_USERS) || !s_startup_sync_packets[user].startup_sync_packet_valid)
         return false;
-    *us = s_startup_sync_packets[user].user_start;
+    memcpy(prefs, s_startup_sync_packets[user].user_prefs, sizeof(UserPreferences));
     return true;
 }
 
@@ -311,7 +366,7 @@ static void build_local_startup_sync(void)
     s_local_startup_sync.startup_sync_packet_valid = 1;
     calculate_network_startup_map_checksums(s_local_startup_sync.map_checksums);
     memcpy(s_local_startup_sync.required_sprite_zip_checksums, required_sprite_zip_checksums, sizeof(s_local_startup_sync.required_sprite_zip_checksums));
-    build_local_user_start_settings(&s_local_startup_sync.user_start);
+    build_local_user_preferences(s_local_startup_sync.user_prefs);
     s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
     s_local_startup_sync.initial_action_seed = (uint32_t)initial_replay_seed;
 }

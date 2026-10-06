@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "net_main.h"
 #include "net_checksums.h"
+#include "user_prefs.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -35,30 +36,12 @@ struct Packet;
 
 // save file header for .fxpkt files.
 // (Bump the version if this struct or the .fxpkt format changes.)
-#define PACKET_SAVE_HEAD_VER 5
+#define PACKET_SAVE_HEAD_VER 6
 
 enum PacketSaveHeadFlags {
     PSHF_Checksum   = 0x01,
     PSHF_Compressed = 0x02,
     PSHF_MultiGame  = 0x04,
-};
-
-enum UserStartFlags {
-    USF_CheatsEnabled = 0x01,
-    USF_SkipHeartZoom = 0x02,
-};
-
-// a user's settings as they were at the start of a game.
-struct UserStartSettings {
-    uint8_t video_rotate_mode;
-    uint8_t flags; // UserStartFlags
-    uint16_t tendencies; // CrTend_* flags
-    uint8_t highlight_mode;
-    int32_t isometric_tilt;
-    uint32_t isometric_view_zoom_level;
-    uint32_t frontview_zoom_level;
-    uint32_t zoom_distance;
-    uint32_t frontview_zoom_distance;
 };
 
 // Replay file header.
@@ -76,7 +59,7 @@ struct PacketSaveHead {
     int32_t timestamp_tz;
     GameTurn timestamp_turn;
     TbBigChecksum map_checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
-    struct UserStartSettings user_start[MAX_NET_USERS];
+    UserPreferences user_prefs[MAX_NET_USERS];
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
     char frontend_alliances;
