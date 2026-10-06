@@ -181,7 +181,9 @@ void reposition_all_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl
                 if (!store_reposition_entry(rrepos, objkind)) {
                     WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
                 }
-                destroy_object(thing);
+                else {
+                    destroy_object(thing);
+                }
             }
         }
         // Per thing code ends
@@ -222,10 +224,10 @@ int check_food_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoor
             if (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing))
             {
                 // If exceeded capacity of the room
-                if (room->used_capacity >= room->total_capacity)
+                if (room->used_capacity > room->total_capacity)
                 {
                     WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
-                    return -1; // re-create all (this could save the object if there are duplicates)
+                    return -1; // re-create all 
                 } else
                 // If the thing is in wall, remove it but store to re-create later
                 if (thing_in_wall_at(thing, &thing->mappos))

@@ -233,6 +233,7 @@ struct Room *pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel);
+TbBool store_unique_reposition_entry(struct RoomReposition* rrepos, ThingModel tngmodel);
 void init_reposition_struct(struct RoomReposition * rrepos);
 TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel exp_level);
 /******************************************************************************/

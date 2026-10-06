@@ -527,7 +527,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
                     dungeon = get_players_num_dungeon(room->owner);
                     if (dungeon->magic_level[spl_idx] < 2)
                     {
-                        if (!store_reposition_entry(rrepos, objkind)) {
+                        if (!store_unique_reposition_entry(rrepos, objkind)) {
                             WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
                         }
                     }
@@ -540,7 +540,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
                 }
                 else
                 {
-                    if (!store_reposition_entry(rrepos, objkind))
+                    if (!store_unique_reposition_entry(rrepos, objkind))
                     {
                         WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
                     }
