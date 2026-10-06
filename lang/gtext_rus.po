@@ -6866,3 +6866,44 @@ msgctxt "Game speed"
 msgid "normal"
 msgstr "обычное"
 
+#: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "Загрузка"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "Показывать чат зрителей"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "Зрители могут присоединиться только к уже идущей игре."
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectator joins."
+msgstr "Хост запретил подключение зрителей."
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "Все подключения для зрителей заняты."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game interface"
+msgid "This host does not support joining spectators."
+msgstr "Этот хост не поддерживает подключение зрителей."
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "Spectator chat is currently disabled"
+msgstr "Чат зрителей сейчас отключён"

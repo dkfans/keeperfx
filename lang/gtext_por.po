@@ -7697,3 +7697,45 @@ msgstr "Avanço rápido %s"
 msgctxt "Game speed"
 msgid "normal"
 msgstr "normal"
+
+#: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "A carregar"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "Mostrar chat dos espectadores"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "Os espectadores só podem entrar numa partida em curso."
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectator joins."
+msgstr "O anfitrião desativou a entrada de espectadores."
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "Todas as ligações para espectadores estão ocupadas."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game interface"
+msgid "This host does not support joining spectators."
+msgstr "Este anfitrião não suporta a entrada de espectadores."
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "Spectator chat is currently disabled"
+msgstr "O chat dos espectadores está atualmente desativado"

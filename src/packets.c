@@ -97,6 +97,7 @@
 #include "gui_msgs.h"
 #include "net_game.h"
 #include "net_resync.h"
+#include "net_spectator.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
@@ -268,6 +269,9 @@ static int32_t resync_attempt_count = 0;
 
 TbBool is_desync_warning_active(void)
 {
+    if (network_is_active() && network_user_is_spectator(netstate.my_id) && network_spectator_desynced) {
+        return true;
+    }
     return resync_attempt_count >= RESYNC_LIMIT_BEFORE_COOLDOWN && (local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0;
 }
 
@@ -289,7 +293,7 @@ static TbBool resync_game_allowed(void)
     }
 
     if (resync_attempt_count < RESYNC_LIMIT_BEFORE_COOLDOWN) {
-        resync_attempt_count++;
+        resync_attempt_count += 1;
     }
     resync_cooldown_end = now + RESYNC_COOLDOWN_MS;
     return true;
@@ -716,10 +720,32 @@ TbBool process_user_global_packet_action(NetUserId user)
 {
   //TODO PACKET add commands from beta
   PlayerNumber plyr_idx = get_net_user_player_number(user);
-  struct PlayerInfo* player = get_player(plyr_idx);
+  struct PlayerInfo* player;
+  if (user == netstate.my_id && user >= MAX_NET_USERS && user < MAX_NET_CONNECTIONS) {
+      player = get_my_player();
+      plyr_idx = player->id_number;
+  } else {
+      player = get_player(plyr_idx);
+  }
   struct Packet* pckt = get_packet(user);
   struct UserState* ustate = get_user_state(user);
   struct UserState* local_ustate = get_local_user_state();
+  if (user >= MAX_NET_USERS) {
+      switch (pckt->action) {
+      case PckA_QuitToMainMenu:
+      case PckA_ForceApplicationClose:
+      case PckA_FinishGame:
+      case PckA_PlyrMsgEnd:
+      case PckA_PlyrMsgClear:
+      case PckA_SwitchScrnRes:
+      case PckA_ChangeWindowSize:
+      case PckA_SetGammaLevel:
+      case PckA_SetMinimapConf:
+          break;
+      default:
+          return true;
+      }
+  }
   SYNCDBG(6,"Processing user %d action %d",(int)user,(int)pckt->action);
   struct Dungeon *dungeon;
   struct Thing *thing;
@@ -727,8 +753,7 @@ TbBool process_user_global_packet_action(NetUserId user)
 
   process_dungeon_camera_action(user, pckt);
 
-  switch (pckt->action)
-  {
+  switch (pckt->action) {
   case PckA_QuitToMainMenu:
       if (is_my_player(player))
       {
@@ -1163,8 +1188,7 @@ void process_user_packet(NetUserId user)
     ustate->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     ustate->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
 
-  if (!process_user_global_packet_action(user))
-  {
+  if (!process_user_global_packet_action(user) && !network_user_is_spectator(user)) {
       // Different changes to the game are possible for different views.
       // For each there can be a control change (which is view change or mouse event not translated to action),
       // and action perform (which does specific action set in packet).
@@ -1648,32 +1672,43 @@ void set_local_packet_turn(void) {
 /**
  * Exchange packets if MP game
  */
-void exchange_packets(void)
+enum PacketExchangeResult exchange_packets(void)
 {
     SYNCDBG(5, "Starting");
+    if (network_is_active() && network_spectator_resync_pending) {
+        return network_spectator_load_turn(0);
+    }
 
     MULTIPLAYER_LOG("process_packets: === BEGIN turn=%lu ===", (unsigned long)get_gameturn());
     const NetUserId local_user = get_local_user();
-    if (!replay.load_enable)
-    {
-        input_lag_update(get_local_packet());
+    TbBool spectator = network_user_is_spectator(local_user);
+    struct Packet *my_packet = get_local_packet();
+    if (!replay.load_enable) {
+        if (!spectator) {
+            input_lag_update(my_packet);
+        }
         set_local_packet_turn();
         update_turn_checksums();
     }
     update_local_dig_tag_prediction();
-    if (!replay.load_enable)
-    {
+    if (!replay.load_enable && !spectator) {
         set_pending_timestamp_packet_action(get_local_packet());
         camera_packet_set_state(get_local_packet());
     }
-    store_packet_history(local_user, get_local_packet());
+    if (!spectator) {
+        store_packet_history(local_user, my_packet);
+    }
     host_spoof_dropped_user_packets();
-    if (network_is_active())
-    {
-        if (!replay.load_enable)
-        {
-            struct Packet* my_packet = get_local_packet();
-            const char* player_name = (local_user == SERVER_ID) ? "Host" : "Client";
+    TbBigChecksum packet_checksum = my_packet->checksum;
+    if (network_is_active()) {
+        if (spectator && my_packet->action != PckA_TogglePause && my_packet->action != PckA_UpdatePause) {
+            process_user_global_packet_action(local_user);
+        }
+        if (!replay.load_enable) {
+            const char *player_name = "Client";
+            if (local_user == SERVER_ID) {
+                player_name = "Host";
+            }
             MULTIPLAYER_LOG("process_packets: SENDING packet[%s] turn=%lu checksum=%08lx", player_name, (unsigned long)my_packet->turn, (unsigned long)my_packet->checksum);
             if (LbNetwork_ExchangeGameplay(my_packet, game.packets, sizeof(struct Packet)) != Lb_OK) {
                 ERRORLOG("LbNetwork_ExchangeGameplay failed");
@@ -1682,26 +1717,38 @@ void exchange_packets(void)
         process_disconnected_network_players();
         if (quit_game || exit_keeper) {
             clear_packets();
-            return;
+            return PExR_Advance;
+        }
+        if (spectator && network_is_active()) {
+            enum PacketExchangeResult result = network_spectator_load_turn(packet_checksum);
+            if (result == PExR_Wait) {
+                game.process_turn_time = 0;
+                update_local_cameras();
+                clear_packets();
+            }
+            return result;
         }
     }
     if (input_lag_skips_processing()) {
         clear_packets();
-        return;
+    } else {
+        if (network_is_active()) {
+            MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
+            load_old_packets();
+        }
+        if (network_is_active() && checksums_different()) {
+            set_flag(local_system_flags, GSF_NetGameNoSync);
+            clear_flag(local_system_flags, GSF_NetSeedNoSync);
+        } else {
+            clear_flag(local_system_flags, GSF_NetGameNoSync);
+            clear_flag(local_system_flags, GSF_NetSeedNoSync);
+        }
     }
 
     if (network_is_active()) {
-        MULTIPLAYER_LOG("process_packets: Loading packets from packet history");
-        load_old_packets();
+        network_spectator_send_turn(packet_checksum);
     }
-
-    if (network_is_active() && checksums_different()) {
-        set_flag(local_system_flags, GSF_NetGameNoSync);
-        clear_flag(local_system_flags, GSF_NetSeedNoSync);
-    } else {
-        clear_flag(local_system_flags, GSF_NetGameNoSync);
-        clear_flag(local_system_flags, GSF_NetSeedNoSync);
-    }
+    return PExR_Advance;
 }
 
 /**
@@ -1751,10 +1798,18 @@ void process_packets(void)
     update_local_dig_prediction_cursor_preview();
     // Clear all packets
     clear_packets();
+    if (network_is_active()) {
+        int32_t minimum_turn_count = SPECTATOR_TURN_BUNDLE_SIZE;
+        if (quit_game || exit_keeper || (game.operation_flags & GOF_Paused) != 0) {
+            minimum_turn_count = 1;
+        }
+        network_spectator_flush_turns(minimum_turn_count);
+        network_spectator_send_snapshots();
+    }
     if (quit_game || exit_keeper) {
         return;
     }
-    if (network_is_active() && (netstate.resync_pending || (local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0)) {
+    if (network_is_active() && !network_user_is_spectator(netstate.my_id) && (netstate.resync_pending || (local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0)) {
         if (netstate.resync_pending || (network_is_host() && resync_game_allowed())) {
             SYNCDBG(0,"Resyncing");
             resync_game();

@@ -841,14 +841,22 @@ void init_user_state(NetUserId user)
     }
 }
 
+void init_local_player_state(void)
+{
+    local_state.minimap_pos_x = 11;
+    local_state.minimap_pos_y = 11;
+    local_state.minimap_zoom = settings.minimap_zoom;
+    if (game.game_kind == GKind_MultiGame) {
+        local_state.minimap_zoom = 256;
+    }
+    local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
+}
+
 void init_player(struct PlayerInfo *player, short no_explore)
 {
     SYNCDBG(5,"Starting");
-    if (is_my_player(player))
-    {
-        local_state.minimap_pos_x = 11;
-        local_state.minimap_pos_y = 11;
-        local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
+    if (is_my_player(player)) {
+        init_local_player_state();
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
         local_state.main_palette = engine_palette;
     }

@@ -192,6 +192,7 @@
     <ClCompile Include="src\moonphase.c" />
     <ClCompile Include="src\net_exchange_common.c" />
     <ClCompile Include="src\net_exchange_gameplay.c" />
+    <ClCompile Include="src\net_spectator.c" />
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_holepunch.c" />
     <ClCompile Include="src\net_lan.c" />
@@ -363,6 +364,7 @@
     <ClInclude Include="src\lua_api_sound.h" />
     <ClInclude Include="src\net_exchange_common.h" />
     <ClInclude Include="src\net_exchange_gameplay.h" />
+    <ClInclude Include="src\net_spectator.h" />
     <ClInclude Include="src\bflib_planar.h" />
     <ClInclude Include="src\bflib_render.h" />
     <ClInclude Include="src\bflib_sndlib.h" />

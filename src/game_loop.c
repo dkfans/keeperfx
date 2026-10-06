@@ -59,6 +59,8 @@
 #include "front_easter.h"
 #include "front_input.h"
 #include "net_exchange_gameplay.h"
+#include "net_spectator.h"
+#include "packets.h"
 #include "timer.h"
 
 #include "post_inc.h"
@@ -432,11 +434,18 @@ static long double get_turn_start()
     return 1.0 - frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.fast_forward, 1);
 }
 
-static void update_multiplayer_clock_adjust()
+static void update_multiplayer_clock_adjust(void)
 {
     multiplayer_clock_adjust = 1.0;
-    if (netstate.my_id == SERVER_ID || ! network_is_active())
+    if (network_is_active() && network_user_is_spectator(netstate.my_id)) {
+        if (network_spectator_turn_count > SPECTATOR_TURN_BUNDLE_SIZE) {
+            multiplayer_clock_adjust = 4.0;
+        }
         return;
+    }
+    if (netstate.my_id == SERVER_ID || !network_is_active()) {
+        return;
+    }
 
     if (game.input_lag_turns == 0)
     {
@@ -562,10 +571,6 @@ static void gameplay_loop_logic()
             return;
     }
 
-    frametime_start_measurement(Frametime_Logic);
-    if (frametime_enabled())
-        framerate_measurement_capture(Framerate_Logic);
-
 #ifdef FUNCTESTING
     if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
@@ -582,7 +587,13 @@ static void gameplay_loop_logic()
     poll_inputs();
     input_eastegg();
     input();
-    exchange_packets();
+    if (exchange_packets() == PExR_Wait) {
+        return;
+    }
+    frametime_start_measurement(Frametime_Logic);
+    if (frametime_enabled()) {
+        framerate_measurement_capture(Framerate_Logic);
+    }
     update_multiplayer_clock_adjust();
     update_gameplay_delta_time();
     if (timer_enabled())
@@ -674,7 +685,7 @@ static TbBool keeper_wait_for_next_turn(void)
         long double tick_ns_cur = get_time_tick_ns();
         long double tick_ns_used = tick_ns_cur - tick_ns_last_turn;
         long double tick_ns_delay = tick_ns_one_frame - tick_ns_used;
-        if (multiplayer_speed_adjustment_ns != 0) {
+        if (multiplayer_speed_adjustment_ns != 0 && !network_user_is_spectator(netstate.my_id)) {
             tick_ns_delay += multiplayer_speed_adjustment_ns;
         }
 
@@ -693,6 +704,9 @@ static TbBool keeper_wait_for_next_turn(void)
 
 static void gameplay_loop_timestep()
 {
+    if (network_is_active() && network_user_is_spectator(netstate.my_id) && network_spectator_turn_count > SPECTATOR_TURN_BUNDLE_SIZE) {
+        return;
+    }
     if (! use_delta_time()) {
         frametime_start_measurement(Frametime_Sleep);
         // Make delay if the machine is too fast
@@ -1085,8 +1099,7 @@ void game_loop(void)
       int32_t mspos_x_bak = lbDisplay.MMouseX;
       int32_t mspos_y_bak = lbDisplay.MMouseY;
 
-      if ((game.game_kind != GKind_LocalGame) || (game.save_game_slot == -1))
-      {
+      if (((game.game_kind != GKind_LocalGame) || (game.save_game_slot == -1)) && (!network_is_active() || net_join_role != NetRole_Spectator)) {
           for (int i = 0; i < PLAYERS_COUNT; i++) {
               struct PlayerInfo *player = get_player(i);
               if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_skips_heart_zoom(player)) {
@@ -1115,8 +1128,10 @@ void game_loop(void)
       // get_my_dungeon() can't be used here because players are not initialized yet
       dungeon = get_dungeon(my_player_number);
       starttime = LbTimerClock();
-      dungeon->lvstats.start_time = starttime;
-      dungeon->lvstats.end_time = starttime;
+      if (!network_is_active() || net_join_role != NetRole_Spectator) {
+          dungeon->lvstats.start_time = starttime;
+          dungeon->lvstats.end_time = starttime;
+      }
       GameSeconds = 0;
       GameT.Seconds = 0;
       GameT.Minutes = 0;

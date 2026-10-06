@@ -57,8 +57,8 @@ namespace
     NetDropCallback g_drop_callback = nullptr;
     ENetHost *host = nullptr;
     ENetPeer *client_peer = nullptr;
-    enet_uint32 connection_ids[MAX_NET_USERS] = {0};
-    enet_uint32 resync_saved_window[MAX_NET_USERS] = {0};
+    enet_uint32 connection_ids[MAX_NET_CONNECTIONS] = {0};
+    enet_uint32 resync_saved_window[MAX_NET_CONNECTIONS] = {0};
     int host_is_dual_stack = 0;
     TransferRateTracker download_rate_tracker = {0, 0};
     TransferRateTracker upload_rate_tracker = {0, 0};
@@ -72,7 +72,7 @@ namespace
     void log_peer_connection(const ENetPeer *peer, NetUserId user_id, const char *status)
     {
         enet_uint32 connection_id = peer->connectID;
-        if (user_id >= 0 && user_id < MAX_NET_USERS) {
+        if (user_id >= 0 && user_id < MAX_NET_CONNECTIONS) {
             if (peer->state == ENET_PEER_STATE_DISCONNECTED) {
                 connection_id = connection_ids[user_id];
                 connection_ids[user_id] = 0;
@@ -92,9 +92,13 @@ namespace
     }
 
     // List
-    ENetPacket *oldest_packet[MAX_NET_USERS] = {nullptr};
-    ENetPacket *newest_packet[MAX_NET_USERS] = {nullptr};
+    ENetPacket *oldest_packet[MAX_NET_CONNECTIONS] = {nullptr};
+    ENetPacket *newest_packet[MAX_NET_CONNECTIONS] = {nullptr};
+    uint32_t queued_packets[MAX_NET_CONNECTIONS] = {0};
+    size_t queued_bytes[MAX_NET_CONNECTIONS] = {0};
+    size_t spectator_outgoing_bytes[MAX_NET_CONNECTIONS] = {0};
     int incoming_queue_size = 0;
+    void bf_enet_drop_user(NetUserId id, enum NetJoinRejection reason);
 
     int ENET_CALLBACK intercept_punch(ENetHost *network_host, ENetEvent *)
     {
@@ -151,6 +155,17 @@ namespace
 
     void enqueue_incoming_packet(ENetPacket *packet, NetUserId source)
     {
+        if (source < 0 || source >= MAX_NET_CONNECTIONS) {
+            enet_packet_destroy(packet);
+            return;
+        }
+        if ((source >= MAX_NET_USERS && (packet->dataLength > NET_MSG_BUFFER_SIZE || queued_packets[source] >= 32)) || (client_peer && net_join_role == NetRole_Spectator && (packet->dataLength > 16 * 1024 * 1024 || queued_bytes[source] + packet->dataLength > 32 * 1024 * 1024))) {
+            enet_packet_destroy(packet);
+            netstate.sp->drop_user(source, NetJoin_Locked);
+            return;
+        }
+        queued_packets[source]++;
+        queued_bytes[source] += packet->dataLength;
         packet->userData = nullptr;
         if (oldest_packet[source] == nullptr) {
             newest_packet[source] = packet;
@@ -179,11 +194,13 @@ namespace
         }
         oldest_packet[source] = nullptr;
         newest_packet[source] = nullptr;
+        queued_packets[source] = 0;
+        queued_bytes[source] = 0;
     }
 
     void destroy_incoming_queue()
     {
-        for (NetUserId source = 0; source < MAX_NET_USERS; source++) {
+        for (NetUserId source = 0; source < MAX_NET_CONNECTIONS; source++) {
             destroy_incoming_queue(source);
         }
     }
@@ -259,7 +276,7 @@ namespace
         ENetAddress address;
         enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV6);
         address.port = actual_port;
-        host = enet_host_create(ENET_ADDRESS_TYPE_ANY, &address, MAX_NET_USERS, NUM_CHANNELS, 0, 0);
+        host = enet_host_create(ENET_ADDRESS_TYPE_ANY, &address, MAX_NET_CONNECTIONS, NUM_CHANNELS, 0, 0);
         if (host) {
             host_is_dual_stack = 1;
             address = host->address;
@@ -268,7 +285,7 @@ namespace
             LbNetLog("ENet: dual-stack host creation failed, falling back to IPv4-only\n");
             enet_address_build_any(&address, ENET_ADDRESS_TYPE_IPV4);
             address.port = actual_port;
-            host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, &address, MAX_NET_USERS, NUM_CHANNELS, 0, 0);
+            host = enet_host_create(ENET_ADDRESS_TYPE_IPV4, &address, MAX_NET_CONNECTIONS, NUM_CHANNELS, 0, 0);
             if (!host)
                 return Lb_FAIL;
             host_is_dual_stack = 0;
@@ -385,7 +402,7 @@ namespace
         if (timeout_ms <= 0)
             return Lb_FAIL;
         enet_host_compress_with_range_coder(host);
-        client_peer = enet_host_connect(host, connect_address, NUM_CHANNELS, 0);
+        client_peer = enet_host_connect(host, connect_address, NUM_CHANNELS, net_join_role * SPECTATOR_CONNECT_DATA);
         if (!client_peer) {
             LbNetLog("Join: enet_host_connect returned NULL\n");
             host_destroy();
@@ -403,7 +420,7 @@ namespace
                 return Lb_OK;
             }
             if (service_result > 0 && (enet_event.type == ENET_EVENT_TYPE_DISCONNECT || enet_event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT)) {
-                if (enet_event.data >= NetJoin_InGame && enet_event.data <= NetJoin_Version) {
+                if (enet_event.data >= NetJoin_InGame && enet_event.data <= NetJoin_SpectatorsUnsupported) {
                     net_join_rejection = (enum NetJoinRejection)enet_event.data;
                 }
                 LbNetLog("Join: connection rejected by host\n");
@@ -496,7 +513,7 @@ namespace
             enet_packet_destroy(event.packet);
         }
         if (result > 0 && event.peer == peer && (event.type == ENET_EVENT_TYPE_DISCONNECT || event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT)) {
-            if (event.data >= NetJoin_InGame && event.data <= NetJoin_Version) {
+            if (event.data >= NetJoin_InGame && event.data <= NetJoin_SpectatorsUnsupported) {
                 net_join_rejection = (enum NetJoinRejection)event.data;
             }
         }
@@ -509,7 +526,7 @@ namespace
             enet_address_get_host_ip(address, learned_address, sizeof(learned_address));
             LbNetLog("Join: restarting connection on learned address %s\n", learned_address);
             enet_peer_reset(peer);
-            peer = enet_host_connect(network_host, address, NUM_CHANNELS, 0);
+            peer = enet_host_connect(network_host, address, NUM_CHANNELS, net_join_role * SPECTATOR_CONNECT_DATA);
             enet_host_flush(network_host);
         }
         return result > 0 && event.type == ENET_EVENT_TYPE_CONNECT && event.peer == peer;
@@ -590,9 +607,9 @@ namespace
         ENetPeer *ipv4_peer = nullptr;
         ENetPeer *ipv6_peer = nullptr;
         if (has_ipv6) {
-            ipv6_peer = enet_host_connect(ipv6_host, &ipv6_address, NUM_CHANNELS, 0);
+            ipv6_peer = enet_host_connect(ipv6_host, &ipv6_address, NUM_CHANNELS, net_join_role * SPECTATOR_CONNECT_DATA);
         } else if (has_ipv4) {
-            ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
+            ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, net_join_role * SPECTATOR_CONNECT_DATA);
         }
         TbClockMSec connection_start = LbTimerClock();
         TbClockMSec connection_deadline = connection_start + TIMEOUT_CONNECT_HOLEPUNCH;
@@ -607,12 +624,12 @@ namespace
         while (LbTimerClock() < connection_deadline) {
             holepunch_stun_keepalive(host);
             if (direct_host && !direct_peer)
-                direct_peer = enet_host_connect(direct_host, &direct_address, NUM_CHANNELS, 0);
+                direct_peer = enet_host_connect(direct_host, &direct_address, NUM_CHANNELS, net_join_role * SPECTATOR_CONNECT_DATA);
             if (ipv4_peer == nullptr && ipv4_address.port && LbTimerClock() >= ipv4_delay_end) {
-                ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, 0);
+                ipv4_peer = enet_host_connect(host, &ipv4_address, NUM_CHANNELS, net_join_role * SPECTATOR_CONNECT_DATA);
             }
             if (ipv6_peer == nullptr && ipv6_host && ipv6_address.port) {
-                ipv6_peer = enet_host_connect(ipv6_host, &ipv6_address, NUM_CHANNELS, 0);
+                ipv6_peer = enet_host_connect(ipv6_host, &ipv6_address, NUM_CHANNELS, net_join_role * SPECTATOR_CONNECT_DATA);
             }
             if (ipv6_peer && service_join_peer(ipv6_host, ipv6_peer, &ipv6_address)) {
                 LbNetLog("Join: matchmaking connection took %d ms (connected)\n", (int)(LbTimerClock() - connection_start));
@@ -694,7 +711,7 @@ namespace
     /*
      * @returns -1 if error, +1 if there is a packet, 0 if timeoout or no events
      */
-    int bf_enet_read_event(NetNewUserCallback new_user, uint timeout)
+    int bf_enet_read_event(enum NetJoinRejection (*new_user)(NetUserId *assigned_id, enum NetConnectionRole role), uint timeout)
     {
         if (!host) {
             return -1;
@@ -742,7 +759,13 @@ namespace
                     if (!new_user) {
                         new_user = OnNewUser;
                     }
-                    reason = new_user(&user_id);
+                    enum NetConnectionRole role = NetRole_Player;
+                    if (enet_event.data == SPECTATOR_CONNECT_DATA) {
+                        role = NetRole_Spectator;
+                    }
+                    if (enet_event.data == 0 || enet_event.data == SPECTATOR_CONNECT_DATA) {
+                        reason = new_user(&user_id, role);
+                    }
                 }
                 if (reason == NetJoin_Accepted) {
                     log_peer_connection(enet_event.peer, user_id, "accepted");
@@ -759,7 +782,7 @@ namespace
             case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT: {
                 if (client_peer && client_peer == enet_event.peer) {
                     user_id = SERVER_ID;
-                    if (enet_event.data >= NetJoin_InGame && enet_event.data <= NetJoin_Version) {
+                    if (enet_event.data >= NetJoin_InGame && enet_event.data <= NetJoin_SpectatorsUnsupported) {
                         net_join_rejection = (enum NetJoinRejection)enet_event.data;
                     }
                 } else {
@@ -791,8 +814,11 @@ namespace
      * Checks for new connections.
      * @param new_user Call back if a new user has connected.
      */
-    void bf_enet_update(NetNewUserCallback new_user)
+    void bf_enet_update(enum NetJoinRejection (*new_user)(NetUserId *assigned_id, enum NetConnectionRole role))
     {
+        if (!client_peer && netstate.phase == NetPhase_InGame && frontnet_service_selected(FrontendNetSvc_Online)) {
+            enet_matchmaking_host_update();
+        }
         int packets_read = 0;
         const int MAX_PACKETS_PER_UPDATE = 100;
         while (packets_read < MAX_PACKETS_PER_UPDATE && bf_enet_read_event(new_user, 0))
@@ -801,12 +827,12 @@ namespace
         }
     }
 
-    /**
-     * Sends a message buffer to a certain user.
-     * @param destination Destination user.
-     * @param buffer
-     * @param size Must be > 0
-     */
+    void ENET_CALLBACK release_spectator_packet(ENetPacket *packet)
+    {
+        size_t *queued = static_cast<size_t *>(packet->userData);
+        *queued -= packet->dataLength;
+    }
+
     void bf_enet_sendmsg_single(NetUserId destination, const char *buffer, size_t size)
     {
         if (!host) {
@@ -828,6 +854,20 @@ namespace
             if (client_peer == nullptr && NetUserId(reinterpret_cast<ptrdiff_t>(peer->data)) != destination) {
                 continue;
             }
+            if (client_peer == nullptr && destination >= MAX_NET_USERS) {
+                size_t *queued = &spectator_outgoing_bytes[destination];
+                if (*queued + size > 16 * 1024 * 1024) {
+                    enet_packet_destroy(packet);
+                    char saved_message[sizeof(netstate.msg_buffer)];
+                    memcpy(saved_message, netstate.msg_buffer, sizeof(saved_message));
+                    bf_enet_drop_user(destination, NetJoin_Locked);
+                    memcpy(netstate.msg_buffer, saved_message, sizeof(saved_message));
+                    return;
+                }
+                *queued += size;
+                packet->userData = queued;
+                packet->freeCallback = release_spectator_packet;
+            }
             if (enet_peer_send(peer, ENET_CHANNEL_RELIABLE, packet) < 0) {
                 ERRORLOG("Failed to queue reliable network packet for user %d", destination);
                 break;
@@ -843,7 +883,9 @@ namespace
         if (packet->referenceCount == 0) {
             enet_packet_destroy(packet);
         }
-        enet_host_flush(host);
+        if (client_peer || destination < MAX_NET_USERS) {
+            enet_host_flush(host);
+        }
     }
 
     /**
@@ -947,6 +989,8 @@ namespace
             newest_packet[source] = nullptr;
         }
         incoming_queue_size--;
+        queued_packets[source]--;
+        queued_bytes[source] -= packet->dataLength;
 
         size_t copy_size = min(packet->dataLength, max_size);
         memcpy(buffer, packet->data, copy_size);
@@ -1004,54 +1048,49 @@ static bool IsLocalPeer(NetUserId id) {
     return id == SERVER_ID || id == my_player_number;
 }
 
-unsigned long GetPing(NetUserId id) {
-    const bool requesting_local_peer = IsLocalPeer(id);
-
-    if (IsPeerConnected(client_peer)) {
-        if (!requesting_local_peer) {
+uint32_t GetPing(NetUserId id)
+{
+    ENetPeer *peer = client_peer;
+    if (peer != nullptr) {
+        if (id != SERVER_ID) {
             return 0;
         }
-        enet_uint32 value = client_peer->roundTripTime;
-        if (value == 0) {
-            value = client_peer->lastRoundTripTime;
+    } else if (host != nullptr) {
+        for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
+            ENetPeer *candidate = &host->peers[peer_index];
+            NetUserId peer_id = NetUserId(reinterpret_cast<ptrdiff_t>(candidate->data));
+            if (peer_id == id && IsPeerConnected(candidate)) {
+                peer = candidate;
+                break;
+            }
         }
-        return static_cast<unsigned long>(value);
     }
-
-    if (!host) {
+    if (!IsPeerConnected(peer)) {
         return 0;
     }
+    uint32_t ping = peer->roundTripTime;
+    if (ping == 0) {
+        ping = peer->lastRoundTripTime;
+    }
+    return ping;
+}
 
-    unsigned long best_value = 0;
-
-    for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
-        ENetPeer *peer = &host->peers[peer_index];
-        if (!IsPeerConnected(peer)) {
+uint32_t GetPlayersPing(void)
+{
+    if (client_peer != nullptr) {
+        return GetPing(SERVER_ID);
+    }
+    uint32_t highest_ping = 0;
+    for (NetUserId id = SERVER_ID + 1; id < MAX_NET_USERS; id++) {
+        if (netstate.users[id].progress == USER_UNUSED) {
             continue;
         }
-
-        enet_uint32 peer_round_trip = peer->roundTripTime;
-        if (peer_round_trip == 0) {
-            peer_round_trip = peer->lastRoundTripTime;
-        }
-        unsigned long value = static_cast<unsigned long>(peer_round_trip);
-        if (!requesting_local_peer) {
-            NetUserId peer_id = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
-            if (peer_id == id) {
-                return value;
-            }
-            continue;
-        }
-        if (value > best_value) {
-            best_value = value;
+        uint32_t ping = GetPing(id);
+        if (ping > highest_ping) {
+            highest_ping = ping;
         }
     }
-
-    if (requesting_local_peer) {
-        return best_value;
-    }
-
-    return 0;
+    return highest_ping;
 }
 
 unsigned int GetPacketLoss(NetUserId id) {

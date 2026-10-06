@@ -542,6 +542,10 @@ int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port
 
 int matchmaking_punch(const char *lobby_id, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output)
 {
+    const char *role = "player";
+    if (net_join_role == NetRole_Spectator) {
+        role = "spectator";
+    }
     if (!matchmaking_enabled || !mutex) {
         return -1;
     }
@@ -553,7 +557,7 @@ int matchmaking_punch(const char *lobby_id, const char *udp_ipv4, int udp_ipv4_p
         SDL_UnlockMutex(mutex);
         return -1;
     }
-    snprintf(request, sizeof(request), "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"myIpv4Port\":%d,\"myIpv6Port\":%d,\"myIpv4\":\"%s\",\"myIpv6\":\"%s\",\"version\":\"%d.%d.%d.%d\"}", lobby_id, udp_ipv4_port, udp_ipv6_port, published_addresses.ipv4, published_addresses.ipv6, VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
+    snprintf(request, sizeof(request), "{\"action\":\"punch\",\"lobbyId\":\"%s\",\"myIpv4Port\":%d,\"myIpv6Port\":%d,\"myIpv4\":\"%s\",\"myIpv6\":\"%s\",\"version\":\"%d.%d.%d.%d\",\"role\":\"%s\",\"spectatorSupport\":1}", lobby_id, udp_ipv4_port, udp_ipv6_port, published_addresses.ipv4, published_addresses.ipv6, VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD, role);
     VALUE response = {0};
     int received = websocket_exchange(request, "punch", &response);
     int result = -1;
@@ -563,7 +567,7 @@ int matchmaking_punch(const char *lobby_id, const char *udp_ipv4, int udp_ipv4_p
         }
     } else {
         VALUE *reason = value_dict_get(&response, "reason");
-        if (value_type(reason) == VALUE_INT32 && value_int32(reason) >= NetJoin_InGame && value_int32(reason) <= NetJoin_Version) {
+        if (value_type(reason) == VALUE_INT32 && value_int32(reason) >= NetJoin_InGame && value_int32(reason) <= NetJoin_SpectatorsUnsupported) {
             net_join_rejection = value_int32(reason);
         }
     }

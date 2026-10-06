@@ -49,6 +49,9 @@ struct PlayerInfo bad_player;
 
 struct LocalState local_state;
 struct UserState bad_user_state;
+struct PlayerInfo local_observer_player;
+struct UserState local_observer_user_state;
+TbBool local_observer_rendering;
 
 /** The current player's number. */
 unsigned char my_player_number;
@@ -114,6 +117,9 @@ struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name)
 
 TbBool player_invalid(const struct PlayerInfo *player)
 {
+    if (player == &local_observer_player) {
+        return false;
+    }
     if (player == INVALID_PLAYER)
         return true;
     return (player < &game.players[0]);
@@ -140,19 +146,29 @@ TbBool is_active_keeper(const struct PlayerInfo *player)
 
 TbBool is_my_player(const struct PlayerInfo *player)
 {
-    struct PlayerInfo* myplyr = &game.players[my_player_number % PLAYERS_COUNT];
-    return (player == myplyr);
+    return player == get_my_player();
+}
+
+struct PlayerInfo *get_my_player(void)
+{
+    if (network_is_active() && netstate.my_id >= MAX_NET_USERS && netstate.my_id < MAX_NET_CONNECTIONS) {
+        return &local_observer_player;
+    }
+    return get_player(my_player_number);
 }
 
 TbBool is_my_player_number(PlayerNumber plyr_num)
 {
-    struct PlayerInfo* myplyr = &game.players[my_player_number % PLAYERS_COUNT];
-    return (plyr_num == myplyr->id_number);
+    struct PlayerInfo *player = &game.players[my_player_number % PLAYERS_COUNT];
+    return plyr_num == player->id_number && is_my_player(player);
 }
 
 // returns user's UserState, or INVALID_USER_STATE.
 struct UserState *get_user_state(NetUserId user)
 {
+    if (network_is_active() && user == netstate.my_id && user >= MAX_NET_USERS && user < MAX_NET_CONNECTIONS) {
+        return &local_observer_user_state;
+    }
     if ((user < 0) || (user >= MAX_NET_USERS))
         return INVALID_USER_STATE;
     return &game.user_states[user];
@@ -160,6 +176,9 @@ struct UserState *get_user_state(NetUserId user)
 
 struct UserState *get_player_user_state(const struct PlayerInfo *player)
 {
+    if (player == &local_observer_player) {
+        return &local_observer_user_state;
+    }
     if ((player == NULL) || player_invalid(player))
         return INVALID_USER_STATE;
     // get state for lowest-id connected user that has this player

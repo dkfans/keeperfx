@@ -32,6 +32,7 @@
 #include "net_exchange_common.h"
 #include "net_exchange_gameplay.h"
 #include "net_game.h"
+#include "net_spectator.h"
 #include "net_lobby.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
@@ -439,17 +440,23 @@ static short get_players_message_inputs(void)
             MapCoord cursor_x;
             MapCoord cursor_y;
             struct Coord3d pos;
-            if ((get_local_view_type(player) == PVT_DungeonTop) && screen_to_map(get_local_active_camera(player), GetMouseX(), GetMouseY(), &pos))
-            {
+            if ((get_local_view_type(player) == PVT_DungeonTop) && screen_to_map(get_local_active_camera(player), GetMouseX(), GetMouseY(), &pos)) {
                 cursor_x = pos.x.val;
                 cursor_y = pos.y.val;
-            } else
-            {
+            } else {
                 console_cmd_default_cursor(player->id_number, &cursor_x, &cursor_y);
             }
-            if (network_is_active())
-                send_network_chat_message_at(get_local_user(), text, cursor_x, cursor_y);
-            queue_gameplay_chat_message(get_local_user(), text, cursor_x, cursor_y);
+            if (network_user_is_spectator(netstate.my_id) && text[0] == cmd_char) {
+                memcpy(player->mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
+                cmd_exec(player->id_number, text + 1, cursor_x, cursor_y);
+            } else {
+                if (network_is_active()) {
+                    send_network_chat_message_at(get_local_user(), text, cursor_x, cursor_y);
+                }
+                if (!network_user_is_spectator(netstate.my_id)) {
+                    queue_gameplay_chat_message(get_local_user(), text, cursor_x, cursor_y);
+                }
+            }
         }
         ustate->init_flags &= ~UsrIF_NewMPMessage;
         memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
@@ -571,6 +578,9 @@ static void change_frameskip(int32_t direction)
  */
 static short get_speed_control_inputs(void)
 {
+  if (network_user_is_spectator(netstate.my_id)) {
+      return false;
+  }
   if (is_game_key_pressed(Gkey_FrameSkipIncrease, true, false)) {
       change_frameskip(1);
   }
@@ -672,56 +682,49 @@ static TbBool replay_camera_keys_pressed(void)
     return false;
 }
 
-static void get_replay_freecam_inputs(void)
+static void get_observer_camera_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    if (!replay_camera_detached())
-    {
+    if (!is_observer_camera_active()) {
         const unsigned char view_type = get_local_view_type(player);
         const TbBool possessed = (view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr);
-        if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
-        {
-            replay_detach();
-            replay_freecam_set_map(true);
+        if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
+            enter_observer_camera();
+            set_observer_camera_view(PVT_MapScreen);
             return;
         }
-        if (possessed && (right_button_released || is_key_pressed(KC_ESCAPE, KMod_DONTCARE)))
-        {
+        if (possessed && (right_button_released || is_key_pressed(KC_ESCAPE, KMod_DONTCARE))) {
             right_button_released = 0;
             clear_key_pressed(KC_ESCAPE);
-            replay_detach();
+            enter_observer_camera();
             return;
         }
         if (!replay_camera_keys_pressed())
             return;
-        replay_detach();
+        enter_observer_camera();
     }
     my_mouse_x = GetMouseX();
     my_mouse_y = GetMouseY();
     struct Camera* camera = get_local_active_camera(player);
-    if (get_local_view_type(player) == PVT_MapScreen)
-    {
-        if (right_button_released || is_game_key_pressed(Gkey_SwitchToMap, true, false))
-        {
+    if (get_local_view_type(player) == PVT_MapScreen) {
+        if (right_button_released || is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
             right_button_released = 0;
-            replay_freecam_set_map(false);
+            set_observer_camera_view(PVT_DungeonTop);
             return;
         }
         int32_t map_x;
         int32_t map_y;
-        if (left_button_released && point_to_overhead_map(camera, my_mouse_x / pixel_size, my_mouse_y / pixel_size, &map_x, &map_y))
-        {
+        if (left_button_released && point_to_overhead_map(camera, my_mouse_x / pixel_size, my_mouse_y / pixel_size, &map_x, &map_y)) {
             left_button_released = 0;
-            replay_freecam_jump(coord_subtile(map_x), coord_subtile(map_y));
+            observer_camera_jump(coord_subtile(map_x), coord_subtile(map_y));
         }
         return;
     }
-    if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
-    {
-        replay_freecam_set_map(true);
+    if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
+        set_observer_camera_view(PVT_MapScreen);
         return;
     }
-    struct Packet* fpckt = get_freecam_packet();
+    struct Packet* fpckt = get_observer_camera_packet();
     struct Coord3d pos;
     if (screen_to_map(camera, my_mouse_x, my_mouse_y, &pos))
         set_players_packet_position(fpckt, pos.x.val, pos.y.val, 0);
@@ -731,13 +734,11 @@ static void get_replay_freecam_inputs(void)
         local_state.camera_rotate_around_cursor = true;
     if (get_dungeon_small_map_inputs(fpckt))
         return;
-    if (is_game_key_pressed(Gkey_SnapCamera, true, true))
-    {
+    if (is_game_key_pressed(Gkey_SnapCamera, true, true)) {
         get_snap_camera_inputs(camera, fpckt);
         return;
     }
-    switch (camera->view_mode)
-    {
+    switch (camera->view_mode) {
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
         get_isometric_view_nonaction_inputs(fpckt);
@@ -760,7 +761,7 @@ static short get_packet_load_game_control_inputs(void)
       turn_off_all_window_menus();
       return true;
     }
-    if (replay_camera_detached() || !possessed)
+    if (is_observer_camera_active() || !possessed)
     {
       clear_key_pressed(KC_ESCAPE);
       turn_on_menu(GMnu_QUIT);
@@ -774,10 +775,15 @@ static short get_packet_load_game_control_inputs(void)
   }
   if (is_game_key_pressed(Gkey_ToggleGui, true, true))
   {
-    if (replay_camera_detached())
-      replay_attach();
-    else
-      cycle_replay_player(is_game_key_pressed(Gkey_SpeedMod, false, true) ? -1 : 1);
+    if (is_observer_camera_active()) {
+      return_to_player_camera();
+    } else {
+      int32_t direction = 1;
+      if (is_game_key_pressed(Gkey_SpeedMod, false, true)) {
+        direction = -1;
+      }
+      cycle_replay_player(direction);
+    }
     return true;
   }
   if (is_game_key_pressed(Gkey_ExitGame, true, false))
@@ -2793,7 +2799,7 @@ static short get_packet_load_game_inputs(void)
         replay.pckt_gameturn++;
     }
     if (!get_packet_load_game_control_inputs())
-        get_replay_freecam_inputs();
+        get_observer_camera_inputs();
     if (get_speed_control_inputs())
         return false;
     if (get_screen_control_inputs())
@@ -3111,6 +3117,34 @@ static short get_inputs(void)
     }
     SYNCDBG(5,"Starting");
     gui_process_inputs();
+    if (network_is_active() && network_user_is_spectator(netstate.my_id)) {
+        struct UserState *ustate = get_local_user_state();
+        if ((ustate->init_flags & UsrIF_NewMPMessage) != 0) {
+            get_players_message_inputs();
+            return true;
+        }
+        if (is_key_pressed(KC_RETURN, KMod_NONE)) {
+            ustate->init_flags |= UsrIF_NewMPMessage;
+            LbStartTextInput();
+            clear_key_pressed(KC_RETURN);
+            return true;
+        }
+        get_options_menu_inputs();
+        if (get_local_view_type(player) == PVT_DungeonTop) {
+            if (is_game_key_pressed(Gkey_ToggleGui, true, true)) {
+                toggle_gui();
+            }
+            if ((game.operation_flags & GOF_ShowGui) != 0 && !menu_is_active(GMnu_SPELL_LOST)) {
+                initialise_tab_tags_and_menu(GMnu_SPELL);
+                turn_off_all_panel_menus();
+                turn_on_menu(GMnu_SPELL_LOST);
+            }
+        }
+        if (!get_gui_inputs(1) && !a_menu_window_is_active()) {
+            get_observer_camera_inputs();
+        }
+        return true;
+    }
     if (player->victory_state == VicS_LostLevel)
     {
         if (!is_active_keeper(player))

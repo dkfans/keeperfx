@@ -91,6 +91,7 @@ TbBool slabs_change_owner(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilt
 TbBool slabs_change_type(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param);
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx);
+TbBool map_block_revealed_to_players(const struct Map *mapblk, PlayerBitFlags players);
 TbBool map_block_revealed_directly(const struct Map* mapblk, PlayerNumber plyr_idx);
 
 TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y);

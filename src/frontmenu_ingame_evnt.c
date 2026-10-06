@@ -587,8 +587,15 @@ void draw_gameturn_timer(void)
     snprintf(text, sizeof(text), "GameTurn %u", get_gameturn());
     draw_bottom_right_text(text, 0);
     const char *name = replay_get_displayed_user_name();
-    if ((name != NULL) || replay_camera_detached()) {
-        snprintf(text, sizeof(text), "%s%.*s", replay_camera_detached() ? "*" : "", (int)sizeof(replay.head.user_names[0]), (name != NULL) ? name : "");
+    if (name != NULL || (replay.load_enable && is_observer_camera_active())) {
+        const char *marker = "";
+        if (is_observer_camera_active()) {
+            marker = "*";
+        }
+        if (name == NULL) {
+            name = "";
+        }
+        snprintf(text, sizeof(text), "%s%.*s", marker, (int32_t)sizeof(replay.head.user_names[0]), name);
         draw_bottom_right_text(text, 1);
     }
 }
@@ -1013,8 +1020,8 @@ void draw_network_stats()
     if (tx_units_per_px < 16)
         tx_units_per_px = 16;
 
-    unsigned long ping = GetPing(my_player_number);
-    unsigned long half_ping = ping / 2;
+    uint32_t ping = GetPlayersPing();
+    uint32_t half_ping = ping / 2;
     unsigned int packet_loss_percent = GetPacketLoss(my_player_number);
     unsigned int transit = GetClientDataInTransit();
     unsigned int lost_packet_count = GetClientPacketsLost();
@@ -1034,9 +1041,9 @@ void draw_network_stats()
         }
     }
 
-    snprintf(text, sizeof(text), "Full ping: %lums", ping);
+    snprintf(text, sizeof(text), "Full ping: %ums", ping);
     LbTextDrawResized(0, 0, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Half ping: %lums", half_ping);
+    snprintf(text, sizeof(text), "Half ping: %ums", half_ping);
     LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Input lag: %d", game.input_lag_turns);
     LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);

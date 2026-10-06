@@ -295,6 +295,9 @@ TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilt
 
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
+    if (local_observer_rendering) {
+        return map_block_revealed_directly(mapblk, plyr_idx);
+    }
     if (map_block_invalid(mapblk))
         return false;
     if (game.conf.rules[plyr_idx].gameplay.allies_share_vision)
@@ -317,13 +320,20 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 }
 
 
+TbBool map_block_revealed_to_players(const struct Map *mapblk, PlayerBitFlags players)
+{
+    if (map_block_invalid(mapblk)) {
+        return false;
+    }
+    return (mapblk->revealed & players) != 0;
+}
+
 TbBool map_block_revealed_directly(const struct Map* mapblk, PlayerNumber plyr_idx)
 {
-    if (map_block_invalid(mapblk))
-        return false;
-    if (flag_is_set(mapblk->revealed, to_flag(plyr_idx)))
-        return true;
-    return false;
+    if (local_observer_rendering) {
+        return map_block_revealed_to_players(mapblk, local_observer_player.allied_players);
+    }
+    return map_block_revealed_to_players(mapblk, to_flag(plyr_idx));
 }
 
 

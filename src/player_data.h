@@ -327,11 +327,10 @@ extern struct LocalState {
     TbBool camera_rotate_cw;
     TbBool camera_rotate_ccw;
     TbBool camera_rotate_around_cursor;
-    // freecam. TODO: use spectator implementation instead, once that is implemented
-    TbBool replay_detached;
-    unsigned char replay_view_type;
-    unsigned char replay_cam_idx;
     struct LocalCameraState camera;
+    TbBool observer_camera_active;
+    unsigned char observer_camera_view_type;
+    unsigned char observer_camera_idx;
 } local_state;
 
 extern unsigned short player_colors_map[];
@@ -346,7 +345,10 @@ extern struct UserState bad_user_state;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
-#define get_my_player() get_player_f(my_player_number,__func__)
+struct PlayerInfo *get_my_player(void);
+extern struct PlayerInfo local_observer_player;
+extern struct UserState local_observer_user_state;
+extern TbBool local_observer_rendering;
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_active_keeper(const struct PlayerInfo *player);

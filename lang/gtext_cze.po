@@ -7467,3 +7467,45 @@ msgstr "Zrychlení %s"
 msgctxt "Game speed"
 msgid "normal"
 msgstr "normální"
+
+#: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "Načítání"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "Zobrazit chat diváků"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "Diváci se mohou připojit pouze k probíhající hře."
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectator joins."
+msgstr "Hostitel zakázal připojování diváků."
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "Všechna připojení pro diváky jsou obsazena."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game interface"
+msgid "This host does not support joining spectators."
+msgstr "Tento hostitel nepodporuje připojování diváků."
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "Spectator chat is currently disabled"
+msgstr "Chat diváků je nyní vypnutý"

@@ -1683,6 +1683,39 @@ void rebuild_navigation(void)
     game.map_changed_for_navigation = 1;
 }
 
+size_t transfer_navigation_state(void *buffer, enum NavigationStateOperation operation)
+{
+    struct NavigationStateField {
+        void *data;
+        size_t size;
+    };
+    const struct NavigationStateField fields[] = {
+        {ari_Points, sizeof(struct Point) * POINTS_COUNT},
+        {&count_Points, sizeof(count_Points)},
+        {&ix_Points, sizeof(ix_Points)},
+        {&free_Points, sizeof(free_Points)},
+        {Triangles, sizeof(Triangles)},
+        {&count_Triangles, sizeof(count_Triangles)},
+        {&ix_Triangles, sizeof(ix_Triangles)},
+        {&free_Triangles, sizeof(free_Triangles)},
+        {Regions, sizeof(Regions)},
+        {find_cache, sizeof(find_cache)},
+    };
+    size_t offset = 0;
+    for (size_t i = 0; i < sizeof(fields) / sizeof(fields[0]); i++) {
+        if (buffer != NULL) {
+            char *position = (char *)buffer + offset;
+            if (operation == NavigationState_Restore) {
+                memcpy(fields[i].data, position, fields[i].size);
+            } else {
+                memcpy(position, fields[i].data, fields[i].size);
+            }
+        }
+        offset += fields[i].size;
+    }
+    return offset;
+}
+
 int32_t init_navigation(void)
 {
     init_navigation_map();

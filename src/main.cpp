@@ -1850,6 +1850,9 @@ static short process_command_line(unsigned short argc, char *argv[])
       {
          start_params.easter_egg = true;
       }
+      else if (strcasecmp(parstr, "spectate") == 0) {
+          net_join_role = NetRole_Spectator;
+      }
       else if (strcasecmp(parstr,"connect") == 0)
       {
           narg++;

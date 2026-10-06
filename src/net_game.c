@@ -40,6 +40,7 @@
 #include "config_settings.h"
 #include "config_keeperfx.h"
 #include "config_strings.h"
+#include "config_campaigns.h"
 #include "custom_sprites.h"
 #include "dungeon_data.h"
 #include "game_legacy.h"
@@ -48,6 +49,7 @@
 #include "net_exchange_gameplay.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
+#include "net_spectator.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -138,6 +140,19 @@ void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx)
         return;
     }
     net_user_player_number[user] = plyr_idx;
+}
+
+void rebuild_net_user_player_numbers(void)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        net_user_player_number[user] = -1;
+    }
+    for (PlayerNumber id = 0; id < PLAYERS_COUNT; id++) {
+        const struct PlayerInfo *player = get_player(id);
+        if (player_exists(player) && player->user_id >= 0 && player->user_id < MAX_NET_USERS) {
+            net_user_player_number[player->user_id] = id;
+        }
+    }
 }
 
 static const unsigned char user_preference_flags[UPref_Count] = {
@@ -452,6 +467,17 @@ void setup_count_players(void)
 
 TbBool init_players_network_game(void)
 {
+    if (net_join_role == NetRole_Spectator) {
+        TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
+        calculate_network_startup_map_checksums(checksums);
+        if (memcmp(checksums, s_startup_sync_packets[SERVER_ID].map_checksums, sizeof(checksums)) != 0 || memcmp(required_sprite_zip_checksums, s_startup_sync_packets[SERVER_ID].required_sprite_zip_checksums, sizeof(required_sprite_zip_checksums)) != 0) {
+            create_frontend_error_box(get_string(GUIStr_NetUnsyncedMap));
+            LbNetwork_Stop();
+            return false;
+        }
+        setup_players_from_startup_packets(s_startup_sync_packets);
+        return true;
+    }
     SYNCDBG(4,"Starting");
     TbBool initialized = true;
     setup_network_player_numbers();
@@ -469,10 +495,16 @@ TbBool init_players_network_game(void)
         build_local_startup_sync();
         initialized = net_startup_sync_exchange_and_apply();
     }
-    if (initialized) {
-        net_lobby_set_phase(NetPhase_InGame);
+    if (!initialized) {
+        LbNetwork_Stop();
     }
-    if (initialized && netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
+    return initialized;
+}
+
+void network_game_started(void)
+{
+    net_lobby_set_phase(NetPhase_InGame);
+    if (netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
         LevelNumber map_number = get_level_number();
         struct LevelInformation *level_info = get_level_info(map_number);
         const char *map_name = "";
@@ -484,10 +516,6 @@ TbBool init_players_network_game(void)
         }
         matchmaking_start_game((int)map_number, map_name);
     }
-    if (!initialized) {
-        LbNetwork_Stop();
-    }
-    return initialized;
 }
 
 /** Check whether a network user is active.
@@ -601,6 +629,7 @@ void remap_user_to_solo(struct PlayerInfo *myplyr)
 
 static void stop_network_game_state(void)
 {
+    network_spectator_clear_roles();
     memset(net_user_info, 0, sizeof(net_user_info));
     clear_flag(local_system_flags, GSF_NetworkActive);
     remap_user_to_solo(get_my_player());
@@ -694,7 +723,7 @@ static void abandon_network_player(struct PlayerInfo *player, TbBool announce)
     if ((player->allocflags & PlaF_CompCtrl) == 0) {
         if (network_is_active()) {
             // re-negotiate input latency
-            network_lobby_ping = GetPing(my_player_number);
+            network_lobby_ping = GetPlayersPing();
             input_lag_reset_request(calculate_initial_input_lag());
         }
         if (announce && player->player_name[0] != '\0') {
@@ -728,6 +757,9 @@ static void remove_user_from_game(NetUserId user, TbBool announce)
 
 static void leave_network_if_alone(void)
 {
+    if (network_is_host() && net_config_info.spectators_enabled) {
+        return;
+    }
     if (!network_has_remote_users_remaining()) {
         stop_network_game_and_continue_locally();
     }
@@ -735,6 +767,10 @@ static void leave_network_if_alone(void)
 
 void process_player_leave_game_packet(struct PlayerInfo *player)
 {
+    if (network_is_active() && network_user_is_spectator(netstate.my_id) && player->user_id == SERVER_ID) {
+        stop_network_game_and_quit_to_main_menu();
+        return;
+    }
     if (player != get_my_player()) {
         if (game.game_kind == GKind_MultiGame) {
             NetUserId user = player->user_id;
@@ -798,6 +834,10 @@ void process_disconnected_network_players(void)
         return;
     }
     message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
+    if (netstate.my_id >= MAX_NET_USERS) {
+        stop_network_game_and_quit_to_main_menu();
+        return;
+    }
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (user != netstate.my_id) {
             remove_user_from_game(user, false);
@@ -849,6 +889,13 @@ long network_session_join(void)
 
 void sync_initial_network_seed(void)
 {
+   if (net_join_role == NetRole_Spectator) {
+       game.action_random_seed = s_startup_sync_packets[SERVER_ID].initial_action_seed;
+       game.ai_random_seed = game.action_random_seed * 9377 + 9391;
+       game.player_random_seed = game.action_random_seed * 9473 + 9479;
+       initial_replay_seed = game.action_random_seed;
+       return;
+   }
    if (!network_is_active()) {
       return;
    }
@@ -865,6 +912,56 @@ void sync_initial_network_seed(void)
    initial_replay_seed = game.action_random_seed;
    NETLOG("Initial network seed synced: action_seed=%u", game.action_random_seed);
 }
+void network_spectator_send_bootstrap(NetUserId user_id)
+{
+    char *write_pos = begin_net_message(NETMSG_SPECTATOR_BOOTSTRAP);
+    int32_t level = get_loaded_level_number();
+    memcpy(write_pos, &level, sizeof(level));
+    write_pos += sizeof(level);
+    snprintf(write_pos, DISKPATH_SIZE, "%s", campaign.fname);
+    write_pos += strlen(write_pos) + 1;
+    memcpy(write_pos, net_user_player_number, sizeof(net_user_player_number));
+    write_pos += sizeof(net_user_player_number);
+    memcpy(write_pos, s_startup_sync_packets, sizeof(s_startup_sync_packets));
+    write_pos += sizeof(s_startup_sync_packets);
+    send_message_buffer(user_id, write_pos);
+}
+
+TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer, size_t size)
+{
+    if (source != SERVER_ID || net_join_role != NetRole_Spectator || size < sizeof(int32_t) + 1 + sizeof(net_user_player_number) + sizeof(s_startup_sync_packets)) {
+        return Lb_FAIL;
+    }
+    int32_t level;
+    memcpy(&level, buffer, sizeof(level));
+    buffer += sizeof(level);
+    size -= sizeof(level);
+    size_t name_length = strnlen(buffer, min(size, (size_t)DISKPATH_SIZE));
+    if (name_length == 0 || name_length >= DISKPATH_SIZE || name_length + 1 + sizeof(net_user_player_number) + sizeof(s_startup_sync_packets) != size || strchr(buffer, '/') || strchr(buffer, '\\') || strstr(buffer, "..")) {
+        return Lb_FAIL;
+    }
+    char campaign_file[DISKPATH_SIZE];
+    uint8_t pack = prepare_campaign_file_name(buffer, campaign_file, sizeof(campaign_file));
+    if (pack == CampgnT_Default && is_campaign_in_list(campaign_file, &mp_mappacks_list)) {
+        pack = CampgnT_MultiplayerMappack;
+    }
+    if (!change_campaign(pack, campaign_file) || strcasecmp(campaign.fname, campaign_file) != 0 || level <= 0 || get_level_info(level) == NULL) {
+        return Lb_FAIL;
+    }
+    buffer += name_length + 1;
+    memcpy(net_user_player_number, buffer, sizeof(net_user_player_number));
+    buffer += sizeof(net_user_player_number);
+    memcpy(s_startup_sync_packets, buffer, sizeof(s_startup_sync_packets));
+    for (NetUserId id = 0; id < MAX_NET_USERS; id++) {
+        if (net_user_player_number[id] < -1 || net_user_player_number[id] >= PLAYERS_COUNT) {
+            return Lb_FAIL;
+        }
+    }
+    set_selected_level_number(level);
+    netstate.phase = NetPhase_InGame;
+    return Lb_OK;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

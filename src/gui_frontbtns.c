@@ -869,6 +869,10 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
         height_lines = 4;
         draw_scrollbar = true;
         break;
+      case 92:
+        height_lines = 6;
+        draw_scrollbar = false;
+        break;
       case 94:
         height_lines = 10;
         draw_scrollbar = true;

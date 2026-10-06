@@ -40,6 +40,7 @@
 #include "spdigger_stack.h"
 #include "keeperfx.hpp"
 #include "net_resync.h"
+#include "local_camera.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1524,6 +1525,7 @@ void disable_packet_mode(void)
     replay.save_enable = false;
     remap_user_to_solo(get_my_player());
     apply_local_user_preferences(SOLO_HUMAN_ID, UPF_ApplyOnTakeover);
+    return_to_player_camera();
     show_onscreen_msg(2*turns_per_second, "Packet mode disabled");
     set_gui_visible(true);
 }

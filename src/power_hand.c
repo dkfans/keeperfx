@@ -549,7 +549,7 @@ void draw_power_hand(void)
         return;
     if (game.small_map_state == 2)
         return;
-    if (replay_camera_detached())
+    if (is_observer_camera_active())
         return;
     RendererSetDrawFlags(0x00);
     if (get_player_view_type(player) != PVT_DungeonTop)

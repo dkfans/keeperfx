@@ -60,6 +60,14 @@ const char *net_join_error_text(enum NetJoinRejection reason)
         return get_string(GUIStr_NetLobbyFull);
     case NetJoin_Version:
         return get_string(GUIStr_NetDifferentVersion);
+    case NetJoin_SpectatorState:
+        return get_string(GUIStr_NetSpectatorGameNotRunning);
+    case NetJoin_SpectatorsDisabled:
+        return get_string(GUIStr_NetSpectatorsDisabled);
+    case NetJoin_SpectatorsFull:
+        return get_string(GUIStr_NetSpectatorsFull);
+    case NetJoin_SpectatorsUnsupported:
+        return get_string(GUIStr_NetSpectatorsUnsupported);
     default:
         return NULL;
     }
@@ -247,7 +255,6 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
 void frontnet_session_add(struct GuiButton *gbtn)
 {
     fade_out();
-    net_lobby_max_players = MAX_NET_USERS;
     if (net_config_info.net_lobby_name[0] != '\0') {
         snprintf(net_lobby_name, sizeof(net_lobby_name), "%s", net_config_info.net_lobby_name);
     } else {
@@ -272,13 +279,30 @@ void frontnet_session_join(struct GuiButton *gbtn)
     if (net_session_index_active < 0 || net_session_index_active >= net_number_of_sessions || net_session[net_session_index_active] == NULL) {
         return;
     }
-    const char *error = net_join_error_text(net_session_join_rejection(net_session[net_session_index_active]));
+    struct TbNetworkSessionNameEntry *session = net_session[net_session_index_active];
+    enum NetConnectionRole requested_role = net_join_role;
+    net_join_role = NetRole_Player;
+    enum NetJoinRejection reason = net_session_join_rejection(session);
+    if (session->phase == NetPhase_InGame) {
+        net_join_role = NetRole_Spectator;
+        reason = net_session_spectator_rejection(session);
+    } else if (gbtn == NULL && requested_role == NetRole_Spectator && session->phase == NetPhase_Unknown) {
+        net_join_role = NetRole_Spectator;
+        reason = NetJoin_Accepted;
+    }
+    const char *error = net_join_error_text(reason);
     if (error) {
         create_frontend_error_box(error);
         return;
     }
     int32_t plyr_num = network_session_join();
     if (plyr_num < 0) {
+        return;
+    }
+    if (net_join_role == NetRole_Spectator) {
+        frontend_set_player_number(0);
+        fe_computer_players = 0;
+        frontend_set_state(FeSt_START_MPLEVEL);
         return;
     }
     frontend_set_player_number(plyr_num);

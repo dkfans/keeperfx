@@ -7092,3 +7092,45 @@ msgstr "快轉 %s"
 msgctxt "Game speed"
 msgid "normal"
 msgstr "正常"
+
+#: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "載入中"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "顯示觀戰聊天"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "觀戰者只能加入正在進行的遊戲。"
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectator joins."
+msgstr "房主已禁止觀戰者加入。"
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "所有觀戰連線均已佔用。"
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game interface"
+msgid "This host does not support joining spectators."
+msgstr "此房主不支援觀戰者加入。"
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "Spectator chat is currently disabled"
+msgstr "觀戰聊天目前已停用"

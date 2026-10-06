@@ -68,6 +68,7 @@
 #include "front_input.h"
 #include "game_legacy.h"
 #include "local_camera.h"
+#include "net_spectator.h"
 #include "keeperfx.hpp"
 #include "vidfade.h"
 #include "config_keeperfx.h"
@@ -1291,9 +1292,8 @@ void maintain_big_room(struct GuiButton *gbtn)
 void maintain_spell(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    long i = gbtn->content.lval;
-    if (!is_power_available(player->id_number, i))
-    {
+    int32_t i = gbtn->content.lval;
+    if (network_user_is_spectator(player->user_id) || !is_power_available(player->id_number, i)) {
         gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
   } else

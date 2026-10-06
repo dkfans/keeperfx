@@ -45,6 +45,8 @@
 #include "lua_triggers.h"
 #include "net_exchange_common.h"
 #include "net_game.h"
+#include "net_lobby.h"
+#include "net_spectator.h"
 #include "frontmenu_ingame_evnt.h"
 #include "net_resync.h"
 #include "room_library.h"
@@ -155,6 +157,9 @@ static void init_keepers_map_exploration(void)
 
 static TbBool init_level(void)
 {
+    if (network_is_active() && net_join_role == NetRole_Player) {
+        net_lobby_set_phase(NetPhase_Loading);
+    }
     SYNCDBG(6,"Starting");
     struct IntralevelData transfer_mem;
     //memcpy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
@@ -185,6 +190,7 @@ static TbBool init_level(void)
         take_game_timestamp();
     }
     sync_initial_network_seed();
+    network_spectator_init_icons(initial_replay_seed);
 
     recheck_all_mod_exist();
 
@@ -279,8 +285,9 @@ static TbBool init_level(void)
 static void post_init_level(void)
 {
     SYNCDBG(8,"Starting");
-    if (!replay.save_enable && !replay.load_enable)
+    if (!replay.save_enable && !replay.load_enable && (!network_is_active() || net_join_role != NetRole_Spectator)) {
         setup_auto_replay_save();
+    }
     if (replay.save_enable)
         open_new_packet_file_for_save();
     calculate_dungeon_area_scores();
@@ -426,6 +433,17 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
 
 static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
 {
+    if (net_join_role == NetRole_Spectator && network_is_active()) {
+        setup_zombie_players();
+        post_init_level();
+        if (!network_spectator_start()) {
+            LbNetwork_Stop();
+            coroutine_clear(context, true);
+            return CLS_CONTINUE;
+        }
+        set_selected_level_number(0);
+        return CLS_CONTINUE;
+    }
     TbBool ShouldAssignCpuKeepers = coroutine_args(context)[0];
     if (game.game_kind == GKind_MultiGame) {
         setup_alliances();
@@ -442,6 +460,9 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     post_init_level();
     post_init_players();
     post_init_packets();
+    if (game.game_kind == GKind_MultiGame && network_is_active()) {
+        network_game_started();
+    }
     set_selected_level_number(0);
 
 #ifdef FUNCTESTING

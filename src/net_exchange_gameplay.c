@@ -31,6 +31,7 @@
 #include "net_exchange_common.h"
 #include "net_input_lag.h"
 #include "net_main.h"
+#include "net_spectator.h"
 #include "player_data.h"
 #include "net_game.h"
 #include "packets.h"
@@ -127,18 +128,28 @@ static void send_turn_sync_if_due(void)
     memcpy(write_pos, &position_ns, sizeof(position_ns));
     write_pos += sizeof(position_ns);
     size_t message_size = write_pos - netstate.msg_buffer;
-    send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, INVALID_USER_ID, INVALID_USER_ID);
+    send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, ALL_NET_USERS_MASK);
 }
 
 void LbNetwork_BroadcastUnpause(void)
 {
+    if (network_user_is_spectator(netstate.my_id)) {
+        return;
+    }
     MULTIPLAYER_LOG("LbNetwork_BroadcastUnpause");
     char *write_pos = begin_net_message(NETMSG_UNPAUSE);
     send_remote_buffer(write_pos);
 }
 
-TbError process_network_unpause_message(void)
+TbError process_network_unpause_message(NetUserId source, size_t buffer_size)
 {
+    if (buffer_size != 0) {
+        WARNLOG("Invalid unpause message from peer %d", source);
+        return Lb_OK;
+    }
+    if (network_user_is_spectator(netstate.my_id)) {
+        return Lb_OK;
+    }
     if ((game.operation_flags & GOF_Paused) == 0) {
         MULTIPLAYER_LOG("ProcessMessage NETMSG_UNPAUSE: ignoring, not paused");
         return Lb_OK;
@@ -155,15 +166,8 @@ TbError process_network_unpause_message(void)
     return Lb_OK;
 }
 
-#define GAMEPLAY_CHAT_QUEUE_LEN 16
-struct QueuedGameplayChat {
-    NetUserId user;
-    MapCoord cursor_x;
-    MapCoord cursor_y;
-    char message[PLAYER_MP_MESSAGE_LEN];
-};
 static struct QueuedGameplayChat gameplay_chat_queue[GAMEPLAY_CHAT_QUEUE_LEN];
-static int gameplay_chat_queue_count;
+static int32_t gameplay_chat_queue_count;
 
 void queue_gameplay_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y)
 {
@@ -180,8 +184,15 @@ void queue_gameplay_chat_message(NetUserId user, const char *message, MapCoord c
     snprintf(queued->message, sizeof(queued->message), "%s", message);
 }
 
+void load_gameplay_chat_messages(const struct QueuedGameplayChat *messages, int32_t count)
+{
+    memcpy(gameplay_chat_queue, messages, count * sizeof(messages[0]));
+    gameplay_chat_queue_count = count;
+}
+
 void process_queued_chat_messages(void)
 {
+    network_spectator_store_chat_messages(gameplay_chat_queue, gameplay_chat_queue_count);
     for (int i = 0; i < gameplay_chat_queue_count; i++)
         process_gameplay_chat_message(gameplay_chat_queue[i].user, gameplay_chat_queue[i].message,
             gameplay_chat_queue[i].cursor_x, gameplay_chat_queue[i].cursor_y);
@@ -326,6 +337,7 @@ TbBool read_repair_packet_history(NetUserId source, const char *buffer, size_t b
 
 void initialize_packet_history(void)
 {
+    gameplay_chat_queue_count = 0;
     memset(packet_history, 0, sizeof(packet_history));
     server_turn_received_at = 0;
     server_turn_position_ns = 0;
@@ -333,6 +345,7 @@ void initialize_packet_history(void)
     memset(last_repair_history_send, 0, sizeof(last_repair_history_send));
     last_turn_sync_send = 0;
     next_repair_history_user = 0;
+    network_spectator_reset();
     input_lag_reset();
 }
 
@@ -424,13 +437,8 @@ static void send_user_repair_history(NetUserId user)
         }
         return;
     }
-    NetUserId skip_peer_id = INVALID_USER_ID;
-    if (user != SERVER_ID) {
-        skip_peer_id = user;
-    }
-    MULTIPLAYER_LOG("Sending unreliable compressed gameplay repair history for user=%d to clients (skip=%d) (%lu -> %lu bytes)",
-        (int)user, (int)skip_peer_id, (unsigned long)packet_history_size, (unsigned long)compressed_size);
-    send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, skip_peer_id, INVALID_USER_ID);
+    MULTIPLAYER_LOG("Sending unreliable compressed gameplay repair history for user=%d to clients (%u -> %u bytes)", (int32_t)user, (uint32_t)packet_history_size, (uint32_t)compressed_size);
+    send_to_active_peers(1, NetSend_Unsequenced, netstate.msg_buffer, message_size, ALL_NET_USERS_MASK & ~(1 << user));
 }
 
 static void send_repair_history_if_due(int32_t resend_interval)
@@ -516,7 +524,8 @@ void network_update(void *server_buf, size_t frame_size)
         return;
     }
     netstate.sp->update(OnNewUser);
-    for (NetUserId peer_id = 0; peer_id < netstate.max_users; peer_id += 1) {
+    network_spectator_service();
+    for (NetUserId peer_id = 0; peer_id < MAX_NET_CONNECTIONS; peer_id += 1) {
         if (can_send_to_peer(peer_id)) {
             process_peer_msgs(peer_id, server_buf, frame_size);
         }
@@ -525,6 +534,10 @@ void network_update(void *server_buf, size_t frame_size)
 
 TbError LbNetwork_ExchangeGameplay(void *send_buf, void *server_buf, size_t frame_size)
 {
+    if (network_user_is_spectator(netstate.my_id)) {
+        network_update(server_buf, frame_size);
+        return Lb_OK;
+    }
     if (exchange_frame_message(send_buf, server_buf, frame_size, NETMSG_GAMEPLAY_UNSEQUENCED) != Lb_OK) {
         return Lb_FAIL;
     }

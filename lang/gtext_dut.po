@@ -7433,3 +7433,45 @@ msgstr "Vooruitspoelen %s"
 msgctxt "Game speed"
 msgid "normal"
 msgstr "normaal"
+
+#: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "Laden"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "Toeschouwerschat tonen"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "Toeschouwers kunnen alleen aan een lopend spel deelnemen."
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectator joins."
+msgstr "De host heeft deelname van toeschouwers uitgeschakeld."
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "Alle verbindingen voor toeschouwers zijn bezet."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game interface"
+msgid "This host does not support joining spectators."
+msgstr "Deze host ondersteunt geen deelname van toeschouwers."
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "Spectator chat is currently disabled"
+msgstr "Toeschouwerschat is momenteel uitgeschakeld"

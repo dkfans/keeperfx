@@ -782,7 +782,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         set_pointer_graphic(MousePG_Invisible);
         return;
     }
-    if (replay_camera_detached())
+    if (is_observer_camera_active())
     {
         set_pointer_graphic(MousePG_Arrow);
         return;
@@ -1006,13 +1006,16 @@ void redraw_display(void)
       process_pointer_graphic();
     interpolate_local_cameras();
     const unsigned char view_type = get_local_view_type(player);
-    lens_mode = ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr)) ? 2 : 0;
-    if ((player->instance_num == PI_MapFadeTo) && !replay_camera_detached())
-    {
+    if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr)) {
+        lens_mode = 2;
+    } else {
+        lens_mode = 0;
+    }
+    if ((player->instance_num == PI_MapFadeTo) && !is_observer_camera_active()) {
         parchment_loaded = 0;
         local_state.palette_fade_step_map = map_fade_in(local_state.palette_fade_step_map);
     } else
-    if ((player->instance_num == PI_MapFadeFrom) && !replay_camera_detached())
+    if ((player->instance_num == PI_MapFadeFrom) && !is_observer_camera_active())
     {
         parchment_loaded = 0;
         local_state.palette_fade_step_map = map_fade_out(local_state.palette_fade_step_map);
@@ -1186,7 +1189,9 @@ TbBool keeper_screen_redraw(void)
         }
         setup_engine_window(local_state.engine_window_x, local_state.engine_window_y,
             local_state.engine_window_width, local_state.engine_window_height);
+        local_observer_rendering = get_my_player() == &local_observer_player;
         redraw_display();
+        local_observer_rendering = false;
         RendererEndFrame();
         return true;
     }

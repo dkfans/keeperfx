@@ -130,6 +130,7 @@ void message_draw(void)
                     break;
                 }
                 case MsgType_Custom:
+                case MsgType_Spectator:
                 {
                     spr_idx = game.messages[i].plyr_idx;
                     break;
@@ -154,6 +155,12 @@ void message_draw(void)
             }
             switch (game.messages[i].type)
             {
+                case MsgType_Spectator: {
+                    spr = get_panel_sprite(spr_idx);
+                    int32_t creature_units_per_px = spr->SHeight * ps_units_per_px / 50;
+                    LbSpriteDrawResized(x - 4 * creature_units_per_px / 16, y - creature_units_per_px, ps_units_per_px * 18 / 21, spr);
+                    break;
+                }
                 case MsgType_Player:
                 {
                     draw_gui_panel_sprite_left_player(x, y, ps_units_per_px, spr_idx, plyr_idx);
@@ -172,7 +179,7 @@ void message_draw(void)
                 case MsgType_CreatureInstance:
                 case MsgType_Custom:
                 {
-                    spr = get_panel_sprite(spr_idx);                    
+                    spr = get_panel_sprite(spr_idx);
                     LbSpriteDrawResized(x, y, ps_units_per_px, spr);
                     break;
                 }

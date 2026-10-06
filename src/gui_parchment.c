@@ -57,6 +57,7 @@
 #include "vidfade.h"
 #include "sprites.h"
 #include "player_instances.h"
+#include "local_camera.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1085,30 +1086,35 @@ TbBool parchment_map_fade_enabled(void)
 void zoom_to_parchment_map(void)
 {
     turn_off_all_window_menus();
-    if ((game.operation_flags & GOF_ShowGui) == 0)
-      clear_flag(game.operation_flags, GOF_ShowPanel);
-    else
-      set_flag(game.operation_flags, GOF_ShowPanel);
-    struct PlayerInfo* player = get_my_player();
-    if (parchment_map_fade_enabled())
-    {
-      set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
-      turn_off_roaming_menus();
-    } else
-    {
-      set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
-      turn_off_roaming_menus();
+    if ((game.operation_flags & GOF_ShowGui) == 0) {
+        clear_flag(game.operation_flags, GOF_ShowPanel);
+    } else {
+        set_flag(game.operation_flags, GOF_ShowPanel);
     }
+    if (is_observer_camera_active()) {
+        turn_off_roaming_menus();
+        set_observer_camera_view(PVT_MapScreen);
+        return;
+    }
+    struct PlayerInfo* player = get_my_player();
+    if (parchment_map_fade_enabled()) {
+        set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
+    } else {
+        set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
+    }
+    turn_off_roaming_menus();
 }
 
 void zoom_from_parchment_map(void)
 {
+    if (is_observer_camera_active()) {
+        set_observer_camera_view(PVT_DungeonTop);
+        return;
+    }
     struct PlayerInfo* player = get_my_player();
-    if (parchment_map_fade_enabled())
-    {
+    if (parchment_map_fade_enabled()) {
         set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeOut, 0, 0, 0);
-    } else
-    {
+    } else {
         set_players_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0,0,0);
     }
 }
