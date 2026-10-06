@@ -1254,8 +1254,8 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
   }
   if (strcasecmp("RANDOM", itmname) == 0)
   {
-      i = (rand() % i);
-      return desc[i].num;
+      int32_t idx = (int32_t)LbRandomSeries((uint32_t)i, &game.action_random_seed, __func__, __LINE__);
+      return desc[idx].num;
   }
   return -1;
 }
