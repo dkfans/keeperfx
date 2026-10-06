@@ -32,6 +32,7 @@
 #include "front_simple.h"
 #include "player_data.h"
 #include "player_instances.h"
+#include "local_camera.h"
 #include "keeperfx.hpp"
 #include "config_keeperfx.h"
 #include "post_inc.h"
@@ -326,6 +327,8 @@ long PaletteFadePlayer(struct PlayerInfo *player)
     if (local_state.palette_fade_step_possession > 0)
       local_state.palette_fade_step_possession--;
   }
+  if (replay_camera_detached())
+    step = 120;
   RendererApplyPossessionPalette(step, local_state.main_palette);
   return step;
 }

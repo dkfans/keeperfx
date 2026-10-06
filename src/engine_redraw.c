@@ -1005,6 +1005,7 @@ void redraw_display(void)
       process_pointer_graphic();
     interpolate_local_cameras();
     const unsigned char view_type = get_local_view_type(player);
+    lens_mode = ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr)) ? 2 : 0;
     if ((player->instance_num == PI_MapFadeTo) && !replay_camera_detached())
     {
         parchment_loaded = 0;

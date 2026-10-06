@@ -53,6 +53,11 @@ static TbBool replay_is_detached(void)
     return replay.load_enable && local_state.replay_detached;
 }
 
+static TbBool local_camera_follows_player(const struct PlayerInfo *player)
+{
+    return is_my_player(player) && local_state.camera.ready && !replay_is_detached();
+}
+
 static TbBool get_packet_rotation_pivot(const struct Packet *pckt, MapCoord *x, MapCoord *y)
 {
     if (!flag_is_set(pckt->control_flags, PCtr_MapCoordsValid))
@@ -151,7 +156,7 @@ static void apply_dungeon_camera(struct Camera cams[], const struct PlayerInfo *
 /** local camera <- given dungeon camera */
 void set_local_camera_destination_pose(struct PlayerInfo *player, const struct DungeonCamera *pose)
 {
-    if (!is_my_player(player) || !local_state.camera.ready || get_local_view_type(player) == PVT_MapScreen) {
+    if (!local_camera_follows_player(player) || get_local_view_type(player) == PVT_MapScreen) {
         return;
     }
     apply_dungeon_camera_pose(local_state.camera.destination, pose);
@@ -522,7 +527,7 @@ void interpolate_local_cameras(void)
 
 void sync_local_camera(struct PlayerInfo *player)
 {
-    if (!is_my_player(player) || !local_state.camera.ready) {
+    if (!local_camera_follows_player(player)) {
         return;
     }
     const unsigned char cam_idx = get_player_active_camera_index(player);
@@ -539,7 +544,7 @@ void sync_local_camera(struct PlayerInfo *player)
 /** Snaps the local dungeon cameras to a pose without any interpolation */
 void sync_local_camera_pose(struct PlayerInfo *player, const struct DungeonCamera *pose)
 {
-    if (!is_my_player(player) || !local_state.camera.ready || get_local_view_type(player) == PVT_MapScreen) {
+    if (!local_camera_follows_player(player) || get_local_view_type(player) == PVT_MapScreen) {
         return;
     }
     struct Camera cams[CamIV_EndList];
@@ -552,7 +557,7 @@ void sync_local_camera_pose(struct PlayerInfo *player, const struct DungeonCamer
 
 void carry_local_dungeon_position(struct PlayerInfo *player, TbBool from_front_view)
 {
-    if (!is_my_player(player) || !local_state.camera.ready)
+    if (!local_camera_follows_player(player))
         return;
     const int from_idx = from_front_view ? CamIV_FrontView : CamIV_Isometric;
     const int to_idx = from_front_view ? CamIV_Isometric : CamIV_FrontView;
@@ -571,7 +576,7 @@ void record_local_possession_start(struct PlayerInfo *player)
 {
     if (!is_my_player(player) || !local_state.camera.ready)
         return;
-    local_state.camera.possession_start_zoom = local_state.camera.destination[CamIV_Isometric].zoom;
+    local_state.camera.possession_start_zoom = replay_is_detached() ? 0 : local_state.camera.destination[CamIV_Isometric].zoom;
 }
 
 int32_t get_local_possession_start_zoom(struct PlayerInfo *player)
@@ -584,7 +589,7 @@ int32_t get_local_possession_start_zoom(struct PlayerInfo *player)
 /** possession zoom applies to local camera only */
 void step_local_possession_camera(struct PlayerInfo *player, const struct Thing *thing)
 {
-    if (!is_my_player(player) || !local_state.camera.ready || get_local_view_type(player) == PVT_MapScreen) {
+    if (!local_camera_follows_player(player) || get_local_view_type(player) == PVT_MapScreen) {
         return;
     }
     struct Camera *cam = &local_state.camera.destination[CamIV_Isometric];
@@ -608,7 +613,7 @@ void step_local_possession_camera(struct PlayerInfo *player, const struct Thing 
 
 void set_local_camera_destination(struct PlayerInfo *player)
 {
-    if (!is_my_player(player) || !local_state.camera.ready || get_local_view_type(player) == PVT_MapScreen) {
+    if (!local_camera_follows_player(player) || get_local_view_type(player) == PVT_MapScreen) {
         return;
     }
     apply_dungeon_camera(local_state.camera.destination, player);

@@ -835,7 +835,7 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, int32_t *n)
     ustate->init_flags |= UsrIF_KeyboardInputDisabled;
     player->instance_remain_turns = zoom_to_position_turns(player);
     set_view_position(&ustate->dungeon_camera.x, &ustate->dungeon_camera.y, player->zoom_to_pos_x, player->zoom_to_pos_y);
-    if (is_my_player(player))
+    if (is_my_player(player) && !replay_camera_detached())
         move_local_camera_to_position(player->zoom_to_pos_x, player->zoom_to_pos_y);
     return 0;
 }
