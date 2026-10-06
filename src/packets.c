@@ -1083,7 +1083,7 @@ TbBool process_user_global_packet_action(NetUserId user)
     }
     case PckA_RoomspaceHighlightToggle:
     {
-        get_user_state(user)->prefs[UPref_HighlightMode] = pckt->actn_par1;
+        get_user_state(user)->prefs[UPref_StartingHighlightMode] = pckt->actn_par1;
         if ((user == get_local_user()) && !replay.load_enable)
         {
             settings.highlight_mode = pckt->actn_par1;

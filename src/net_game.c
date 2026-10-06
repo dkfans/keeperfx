@@ -145,7 +145,7 @@ static const unsigned char user_preference_flags[UPref_Count] = {
     [UPref_Wibble]                = UPF_ApplyOnLoad,
     [UPref_Cheats]                = UPF_ApplyOnLoad | UPF_ApplyOnTakeover,
     [UPref_SkipHeartZoom]         = UPF_ApplyOnLoad,
-    [UPref_HighlightMode]         = UPF_ApplyOnLoad | UPF_ApplyOnTakeover,
+    [UPref_StartingHighlightMode] = 0,
     [UPref_StartingIsometricTilt] = UPF_ApplyOnLoad,
     [UPref_MaxZoomIso]            = UPF_ApplyOnLoad,
     [UPref_MaxZoomFrontview]      = UPF_ApplyOnLoad,
@@ -167,7 +167,7 @@ void build_local_user_preferences(UserPreferences prefs)
     prefs[UPref_Wibble] = wibble;
     prefs[UPref_Cheats] = start_params.easter_egg;
     prefs[UPref_SkipHeartZoom] = get_skip_heart_zoom_feature();
-    prefs[UPref_HighlightMode] = get_starting_highlight_mode();
+    prefs[UPref_StartingHighlightMode] = get_starting_highlight_mode();
     prefs[UPref_StartingIsometricTilt] = settings.isometric_tilt;
     prefs[UPref_MaxZoomIso] = zoom_distance_setting;
     prefs[UPref_MaxZoomFrontview] = frontview_zoom_distance_setting;

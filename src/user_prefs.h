@@ -28,7 +28,7 @@ enum UserPreference {
     UPref_Wibble,
     UPref_Cheats,
     UPref_SkipHeartZoom,
-    UPref_HighlightMode,
+    UPref_StartingHighlightMode,
     UPref_StartingIsometricTilt,
     UPref_MaxZoomIso,
     UPref_MaxZoomFrontview,

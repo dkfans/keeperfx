@@ -858,8 +858,8 @@ void init_player(struct PlayerInfo *player, short no_explore)
     struct UserState *ustate = get_player_user_state(player);
     if (!user_state_invalid(ustate))
     {
-        player->roomspace_highlight_mode = ustate->prefs[UPref_HighlightMode];
-        player->roomspace_mode = ustate->prefs[UPref_HighlightMode];
+        player->roomspace_highlight_mode = ustate->prefs[UPref_StartingHighlightMode];
+        player->roomspace_mode = ustate->prefs[UPref_StartingHighlightMode];
     }
     if (is_my_player(player))
     {

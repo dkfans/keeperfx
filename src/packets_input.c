@@ -293,7 +293,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
     unsigned char box_colour;
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
         ustate->secondary_cursor_state = CSt_DefaultArrow;
-    player->render_roomspace.highlight_mode = (ustate->prefs[UPref_HighlightMode] != 0);
+    player->render_roomspace.highlight_mode = (ustate->prefs[UPref_StartingHighlightMode] != 0);
     player->render_roomspace.drag_mode = ustate->one_click_lock_cursor;
     ustate->pickup_all_gold = (pckt->additional_packet_values & PCAdV_RotatePressed);
     process_dungeon_power_hand_state(user);
