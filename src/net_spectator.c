@@ -44,9 +44,8 @@ struct SpectatorTurn {
 static struct SpectatorTurn spectator_turns[PACKET_HISTORY_SIZE];
 static int32_t spectator_turn_index;
 int32_t network_spectator_turn_count;
-static struct SpectatorTurn spectator_send_turns[SPECTATOR_TURN_BUNDLE_SIZE];
-static int32_t spectator_send_turn_index;
-static int32_t spectator_send_turn_count[MAX_NET_SPECTATORS];
+static struct SpectatorTurn spectator_send_turn;
+static int32_t spectator_send_turn_pending;
 TbBool network_spectator_desynced;
 static uint64_t network_spectators;
 TbBool network_spectator_resync_pending;
@@ -150,8 +149,6 @@ void network_spectator_update_roles(void)
     for (NetUserId id = MAX_NET_USERS; id < MAX_NET_CONNECTIONS; id++) {
         if (IsUserActive(id) && netstate.users[id].spectator_state == NetSpectator_Streaming) {
             network_spectators |= UINT64_C(1) << id;
-        } else {
-            spectator_send_turn_count[id - MAX_NET_USERS] = 0;
         }
     }
 }
@@ -162,7 +159,7 @@ void network_spectator_clear_roles(void)
         return_to_player_camera();
     }
     network_spectators = 0;
-    memset(spectator_send_turn_count, 0, sizeof(spectator_send_turn_count));
+    spectator_send_turn_pending = 0;
 }
 
 void network_spectator_reset(void)
@@ -171,8 +168,7 @@ void network_spectator_reset(void)
     network_spectator_resync_pending = false;
     spectator_turn_index = 0;
     network_spectator_turn_count = 0;
-    spectator_send_turn_index = 0;
-    memset(spectator_send_turn_count, 0, sizeof(spectator_send_turn_count));
+    spectator_send_turn_pending = 0;
 }
 
 TbError process_network_spectator_ready(NetUserId source, size_t size)
@@ -350,54 +346,28 @@ enum PacketExchangeResult network_spectator_load_turn(TbBigChecksum checksum)
     return PExR_Advance;
 }
 
-void network_spectator_store_chat_messages(const struct QueuedGameplayChat *messages, int32_t count)
+void network_spectator_send_pending_turn(const struct QueuedGameplayChat *messages, int32_t count)
 {
-    if (netstate.my_id != SERVER_ID || network_spectators == 0) {
+    if (netstate.my_id != SERVER_ID || spectator_send_turn_pending == 0) {
         return;
     }
-    int32_t index = (spectator_send_turn_index + SPECTATOR_TURN_BUNDLE_SIZE - 1) % SPECTATOR_TURN_BUNDLE_SIZE;
-    struct SpectatorTurn *snapshot = &spectator_send_turns[index];
+    struct SpectatorTurn *snapshot = &spectator_send_turn;
     snapshot->chat_count = count;
     memcpy(snapshot->chat, messages, count * sizeof(messages[0]));
+    char *write_pos = begin_net_message(NETMSG_SPECTATOR_TURN);
+    size_t snapshot_size = offsetof(struct SpectatorTurn, chat) + snapshot->chat_count * sizeof(snapshot->chat[0]);
+    memcpy(write_pos, snapshot, snapshot_size);
+    write_pos += snapshot_size;
+    send_to_active_peers(1, NetSend_Reliable, netstate.msg_buffer, write_pos - netstate.msg_buffer, network_spectators);
+    spectator_send_turn_pending = 0;
 }
 
-void network_spectator_flush_turns(int32_t minimum_turn_count)
+void network_spectator_prepare_turn(TbBigChecksum checksum)
 {
     if (netstate.my_id != SERVER_ID || network_spectators == 0) {
         return;
     }
-    for (int32_t spectator = 0; spectator < MAX_NET_SPECTATORS; spectator += 1) {
-        uint64_t recipient = UINT64_C(1) << (MAX_NET_USERS + spectator);
-        int32_t turn_count = spectator_send_turn_count[spectator];
-        if ((network_spectators & recipient) == 0 || turn_count == 0) {
-            continue;
-        }
-        if (minimum_turn_count > 1 && spectator % SPECTATOR_TURN_BUNDLE_SIZE != spectator_send_turn_index) {
-            continue;
-        }
-        char *write_pos = begin_net_message(NETMSG_SPECTATOR_TURN_BUNDLE);
-        for (int32_t i = 0; i < turn_count; i += 1) {
-            int32_t index = (spectator_send_turn_index + SPECTATOR_TURN_BUNDLE_SIZE - turn_count + i) % SPECTATOR_TURN_BUNDLE_SIZE;
-            const struct SpectatorTurn *snapshot = &spectator_send_turns[index];
-            size_t snapshot_size = offsetof(struct SpectatorTurn, chat) + snapshot->chat_count * sizeof(snapshot->chat[0]);
-            if ((size_t)(write_pos - netstate.msg_buffer) + snapshot_size > sizeof(netstate.msg_buffer)) {
-                send_to_active_peers(1, NetSend_Reliable, netstate.msg_buffer, write_pos - netstate.msg_buffer, recipient);
-                write_pos = begin_net_message(NETMSG_SPECTATOR_TURN_BUNDLE);
-            }
-            memcpy(write_pos, snapshot, snapshot_size);
-            write_pos += snapshot_size;
-        }
-        send_to_active_peers(1, NetSend_Reliable, netstate.msg_buffer, write_pos - netstate.msg_buffer, recipient);
-        spectator_send_turn_count[spectator] = 0;
-    }
-}
-
-void network_spectator_send_turn(TbBigChecksum checksum)
-{
-    if (netstate.my_id != SERVER_ID || network_spectators == 0) {
-        return;
-    }
-    struct SpectatorTurn *snapshot = &spectator_send_turns[spectator_send_turn_index];
+    struct SpectatorTurn *snapshot = &spectator_send_turn;
     memset(snapshot, 0, sizeof(*snapshot));
     snapshot->turn = get_gameturn();
     snapshot->checksum = checksum;
@@ -405,12 +375,7 @@ void network_spectator_send_turn(TbBigChecksum checksum)
     snapshot->skip_initial_input_turns = game.skip_initial_input_turns;
     snapshot->operation_flags = game.operation_flags;
     memcpy(snapshot->packets, game.packets, sizeof(snapshot->packets));
-    spectator_send_turn_index = (spectator_send_turn_index + 1) % SPECTATOR_TURN_BUNDLE_SIZE;
-    for (int32_t spectator = 0; spectator < MAX_NET_SPECTATORS; spectator += 1) {
-        if (network_spectators & (UINT64_C(1) << (MAX_NET_USERS + spectator))) {
-            spectator_send_turn_count[spectator] += 1;
-        }
-    }
+    spectator_send_turn_pending = 1;
 }
 
 void network_spectator_send_snapshots(void)
@@ -427,7 +392,6 @@ void network_spectator_send_snapshots(void)
     if (resync_recipients == 0) {
         return;
     }
-    network_spectator_flush_turns(1);
     if (send_spectator_resync(resync_recipients)) {
         for (NetUserId id = MAX_NET_USERS; id < MAX_NET_CONNECTIONS; id++) {
             if (resync_recipients & (UINT64_C(1) << id)) {
@@ -446,7 +410,7 @@ void network_spectator_receive_turns(void *server_buf, size_t frame_size)
         if (message_size == 0) {
             break;
         }
-        if (message_buffer[0] == NETMSG_SPECTATOR_TURN_BUNDLE && network_spectator_turn_count > PACKET_HISTORY_SIZE - SPECTATOR_TURN_BUNDLE_SIZE) {
+        if (message_buffer[0] == NETMSG_SPECTATOR_TURN && network_spectator_turn_count >= PACKET_HISTORY_SIZE) {
             break;
         }
         if (process_network_message(SERVER_ID, server_buf, frame_size, NETMSG_GAMEPLAY_UNSEQUENCED, NULL) != Lb_OK) {
@@ -458,48 +422,37 @@ void network_spectator_receive_turns(void *server_buf, size_t frame_size)
     }
 }
 
-TbError process_network_spectator_turn_bundle_message(NetUserId source, const char *buffer, size_t buffer_size)
+TbError process_network_spectator_turn_message(NetUserId source, const char *buffer, size_t buffer_size)
 {
     if (source != SERVER_ID || netstate.phase != NetPhase_InGame || buffer_size == 0 || buffer_size >= sizeof(netstate.msg_buffer) || network_spectator_desynced) {
         return Lb_OK;
     }
-    size_t offset = 0;
-    int32_t turn_count = 0;
-    struct SpectatorTurn bundle[SPECTATOR_TURN_BUNDLE_SIZE] = {0};
-    while (offset < buffer_size) {
-        size_t header_size = offsetof(struct SpectatorTurn, chat);
-        if (turn_count >= SPECTATOR_TURN_BUNDLE_SIZE || buffer_size - offset < header_size) {
-            return Lb_OK;
-        }
-        struct SpectatorTurn *snapshot = &bundle[turn_count];
-        memcpy(snapshot, buffer + offset, header_size);
-        size_t snapshot_size = header_size + snapshot->chat_count * sizeof(snapshot->chat[0]);
-        if (snapshot->input_lag_turns > MAXIMUM_INPUT_LAG_TURNS || snapshot->chat_count > GAMEPLAY_CHAT_QUEUE_LEN || snapshot_size > buffer_size - offset) {
-            return Lb_OK;
-        }
-        memcpy(snapshot->chat, buffer + offset + header_size, snapshot_size - header_size);
-        for (int32_t i = 0; i < snapshot->chat_count; i += 1) {
-            const struct QueuedGameplayChat *chat = &snapshot->chat[i];
-            if (chat->user < 0 || chat->user >= MAX_NET_USERS || memchr(chat->message, '\0', sizeof(chat->message)) == NULL) {
-                return Lb_OK;
-            }
-        }
-        offset += snapshot_size;
-        turn_count += 1;
+    size_t header_size = offsetof(struct SpectatorTurn, chat);
+    struct SpectatorTurn snapshot = {0};
+    if (buffer_size < header_size || buffer_size > sizeof(snapshot)) {
+        return Lb_OK;
     }
-    if (turn_count > PACKET_HISTORY_SIZE - network_spectator_turn_count) {
+    memcpy(&snapshot, buffer, buffer_size);
+    size_t snapshot_size = header_size + snapshot.chat_count * sizeof(snapshot.chat[0]);
+    if (snapshot.input_lag_turns > MAXIMUM_INPUT_LAG_TURNS || snapshot.chat_count > GAMEPLAY_CHAT_QUEUE_LEN || snapshot_size != buffer_size) {
+        return Lb_OK;
+    }
+    for (int32_t i = 0; i < snapshot.chat_count; i += 1) {
+        const struct QueuedGameplayChat *chat = &snapshot.chat[i];
+        if (chat->user < 0 || chat->user >= MAX_NET_USERS || memchr(chat->message, '\0', sizeof(chat->message)) == NULL) {
+            return Lb_OK;
+        }
+    }
+    if (network_spectator_turn_count >= PACKET_HISTORY_SIZE) {
         network_spectator_desynced = true;
         network_spectator_turn_count = 0;
         return Lb_OK;
     }
-    for (int32_t turn_index = 0; turn_index < turn_count; turn_index += 1) {
-        const struct SpectatorTurn *snapshot = &bundle[turn_index];
-        int32_t index = (spectator_turn_index + network_spectator_turn_count) % PACKET_HISTORY_SIZE;
-        spectator_turns[index] = *snapshot;
-        network_spectator_turn_count += 1;
-        for (NetUserId user = 0; user < MAX_NET_USERS; user += 1) {
-            store_packet_history(user, &snapshot->packets[user]);
-        }
+    int32_t index = (spectator_turn_index + network_spectator_turn_count) % PACKET_HISTORY_SIZE;
+    spectator_turns[index] = snapshot;
+    network_spectator_turn_count += 1;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user += 1) {
+        store_packet_history(user, &snapshot.packets[user]);
     }
     return Lb_OK;
 }

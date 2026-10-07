@@ -387,8 +387,8 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
             return Lb_OK;
         }
         return process_network_turn_sync_message(source, read_pos, payload_size);
-    case NETMSG_SPECTATOR_TURN_BUNDLE:
-        return process_network_spectator_turn_bundle_message(source, read_pos, payload_size);
+    case NETMSG_SPECTATOR_TURN:
+        return process_network_spectator_turn_message(source, read_pos, payload_size);
     case NETMSG_SPECTATOR_BOOTSTRAP:
         return process_network_spectator_bootstrap(source, read_pos, payload_size);
     case NETMSG_SPECTATOR_READY:

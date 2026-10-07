@@ -522,7 +522,6 @@ TbBool send_spectator_resync(uint64_t user_mask)
 
 TbBool send_resync_game(void)
 {
-    network_spectator_flush_turns(1);
     pack_desync_history_for_resync();
     clear_flag(game.operation_flags, GOF_Paused);
     animate_resync_progress_bar(0, 100);

@@ -1746,7 +1746,7 @@ enum PacketExchangeResult exchange_packets(void)
     }
 
     if (network_is_active()) {
-        network_spectator_send_turn(packet_checksum);
+        network_spectator_prepare_turn(packet_checksum);
     }
     return PExR_Advance;
 }
@@ -1799,11 +1799,6 @@ void process_packets(void)
     // Clear all packets
     clear_packets();
     if (network_is_active()) {
-        int32_t minimum_turn_count = SPECTATOR_TURN_BUNDLE_SIZE;
-        if (quit_game || exit_keeper || (game.operation_flags & GOF_Paused) != 0) {
-            minimum_turn_count = 1;
-        }
-        network_spectator_flush_turns(minimum_turn_count);
         network_spectator_send_snapshots();
     }
     if (quit_game || exit_keeper) {

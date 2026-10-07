@@ -192,7 +192,7 @@ void load_gameplay_chat_messages(const struct QueuedGameplayChat *messages, int3
 
 void process_queued_chat_messages(void)
 {
-    network_spectator_store_chat_messages(gameplay_chat_queue, gameplay_chat_queue_count);
+    network_spectator_send_pending_turn(gameplay_chat_queue, gameplay_chat_queue_count);
     for (int i = 0; i < gameplay_chat_queue_count; i++)
         process_gameplay_chat_message(gameplay_chat_queue[i].user, gameplay_chat_queue[i].message,
             gameplay_chat_queue[i].cursor_x, gameplay_chat_queue[i].cursor_y);
