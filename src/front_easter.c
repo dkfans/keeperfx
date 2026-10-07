@@ -153,7 +153,7 @@ void input_eastegg(void)
       play_non_3d_sample(snd_tab_click);
     }
     // Maintain the JLW cheat
-    if (game.easter_eggs_enabled == true)
+    if (start_params.easter_egg == true)
     {
       allow = (lbKeyOn[KC_LSHIFT]) && (lbKeyOn[KC_RSHIFT]);
       state = input_eastegg_keycodes(&game.eastegg02_cntr,allow,&eastegg_jlw_codes);
@@ -162,7 +162,7 @@ void input_eastegg(void)
       }
     }
     // Maintain the BBKING cheat
-    if (game.easter_eggs_enabled == true)
+    if (start_params.easter_egg == true)
     {
       allow = lbKeyOn[KC_RSHIFT];
       static unsigned char length = 0;
@@ -278,7 +278,7 @@ void draw_eastegg(void)
   {
     draw_bouncing_eastegg_message(0, "Simon says Hi to everyone he knows...", width, height, ee_units_per_px);
   }
-  if (game.easter_eggs_enabled == false)
+  if (start_params.easter_egg == false)
     return;
 
   if (game.eastegg02_cntr >= eastegg_jlw_codes.length)

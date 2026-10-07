@@ -255,7 +255,7 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
 
 void init_censorship(void)
 {
-  if ( censorship_enabled() )
+  if ( local_censorship_enabled() )
   {
     // Modification for Dark Mistress
       set_creature_model_graphics(20, 14, 48);
@@ -850,9 +850,7 @@ void reinit_level_after_load(void)
     player = get_my_player();
     local_state.lens_palette = 0;
     local_state.main_palette = engine_palette;
-    game.easter_eggs_enabled = start_params.easter_egg;
-    if (!network_is_active() && !replay.load_enable)
-        get_my_player()->cheats_allowed = game.easter_eggs_enabled;
+    init_navigation();
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {

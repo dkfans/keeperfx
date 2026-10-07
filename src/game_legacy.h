@@ -226,7 +226,6 @@ struct Game {
     unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
     unsigned char flags_gui;
     unsigned char mode_flags;
-    TbBool easter_eggs_enabled;
     unsigned char eastegg01_cntr;
     unsigned char eastegg02_cntr;
     char music_track; // cdrom / default music track to resume after load

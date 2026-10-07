@@ -966,27 +966,28 @@ void draw_zoom_box(void)
 
     long draw_tiles = 13;
     long subtile_unscaled = 8;
-    if (local_state.minimap_zoom == 128)
+    const uint32_t minimap_zoom = get_local_minimap_zoom();
+    if (minimap_zoom == 128)
     {
         draw_tiles = 6;
         subtile_unscaled = 18;
     } else
-    if (local_state.minimap_zoom == 256)
+    if (minimap_zoom == 256)
     {
         draw_tiles = 9;
         subtile_unscaled = 12;
     } else
-    if (local_state.minimap_zoom == 512)
+    if (minimap_zoom == 512)
     {
         draw_tiles = 12;
         subtile_unscaled = 9;
     } else
-    if (local_state.minimap_zoom == 1024)
+    if (minimap_zoom == 1024)
     {
         draw_tiles = 18;
         subtile_unscaled = 6;
     } else
-    if (local_state.minimap_zoom == 2048)
+    if (minimap_zoom == 2048)
     {
         draw_tiles = 36;
         subtile_unscaled = 3;
@@ -1074,10 +1075,11 @@ void redraw_minimal_overhead_view(void)
     draw_tooltip();
 }
 
-/** Whether this machine fades into and out of the parchment map instead of cutting. */
+/** Whether the local user fades into and out of the parchment map instead of cutting. */
 TbBool parchment_map_fade_enabled(void)
 {
-    return get_parchment_map_fade_turns() > 0;
+    const struct UserState *ustate = get_local_user_state();
+    return !user_state_invalid(ustate) && (ustate->prefs[UPref_MapFade] > 0);
 }
 
 void zoom_to_parchment_map(void)
@@ -1090,7 +1092,7 @@ void zoom_to_parchment_map(void)
     struct PlayerInfo* player = get_my_player();
     if (parchment_map_fade_enabled())
     {
-      set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, get_parchment_map_fade_turns(), 0, 0);
+      set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
       turn_off_roaming_menus();
     } else
     {
@@ -1104,7 +1106,7 @@ void zoom_from_parchment_map(void)
     struct PlayerInfo* player = get_my_player();
     if (parchment_map_fade_enabled())
     {
-        set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeOut, get_parchment_map_fade_turns(), 0, 0);
+        set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeOut, 0, 0, 0);
     } else
     {
         set_players_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0,0,0);

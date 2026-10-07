@@ -1389,7 +1389,7 @@ void frontmap_input(void)
       check_mouse_scroll();
       if (is_game_key_pressed(Gkey_LVShowAllEnsigns, true, false))
       {
-        if (game.easter_eggs_enabled == true)
+        if (start_params.easter_egg == true)
         {
           set_all_ensigns_state(LvSt_Visible);
           return;
@@ -1397,7 +1397,7 @@ void frontmap_input(void)
       }
       if (is_game_key_pressed(Gkey_LVNextLevel, true, false))
       {
-        if (game.easter_eggs_enabled == true)
+        if (start_params.easter_egg == true)
         {
           move_campaign_to_next_level();
           frontmap_unload();
@@ -1408,7 +1408,7 @@ void frontmap_input(void)
       }
       if (is_game_key_pressed(Gkey_LVPrevLevel, true, false))
       {
-        if (game.easter_eggs_enabled == true)
+        if (start_params.easter_egg == true)
         {
           move_campaign_to_prev_level();
           frontmap_unload();

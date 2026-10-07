@@ -1144,7 +1144,7 @@ static TbBool get_level_lost_inputs(void)
             if  ( map_valid ) {
                 MapSubtlCoord stl_x = coord_subtile(map_x);
                 MapSubtlCoord stl_y = coord_subtile(map_y);
-                set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, get_parchment_map_fade_turns(), 0);
+                set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
                 left_button_released = 0;
             }
         }
@@ -1166,7 +1166,7 @@ static TbBool get_level_lost_inputs(void)
           set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
           if (parchment_map_fade_enabled())
           {
-                set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, get_parchment_map_fade_turns(), 0, 0);
+                set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
           } else
           {
                 set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
@@ -1211,9 +1211,9 @@ static TbBool get_level_lost_inputs(void)
               }
               long mmzoom;
               if (16/mm_units_per_px < 3)
-                  mmzoom = (local_state.minimap_zoom) / (3-16/mm_units_per_px);
+                  mmzoom = get_local_minimap_zoom() / (3-16/mm_units_per_px);
               else
-                  mmzoom = (local_state.minimap_zoom);
+                  mmzoom = get_local_minimap_zoom();
               inp_done = get_small_map_inputs(local_state.minimap_pos_x*mm_units_per_px/16, local_state.minimap_pos_y*mm_units_per_px/16, mmzoom, get_local_packet());
               if ( !inp_done )
                 get_bookmark_inputs();
@@ -1539,10 +1539,10 @@ static void get_dungeon_small_map_placement(long *x, long *y, long *zoom)
     }
     if (16 / mm_units_per_px < 3)
     {
-        *zoom = (local_state.minimap_zoom) / scale_value_for_resolution_with_upp(2, mm_units_per_px);
+        *zoom = get_local_minimap_zoom() / scale_value_for_resolution_with_upp(2, mm_units_per_px);
     }
     else
-        *zoom = (local_state.minimap_zoom);
+        *zoom = get_local_minimap_zoom();
     *x = local_state.minimap_pos_x * mm_units_per_px / 16;
     *y = local_state.minimap_pos_y * mm_units_per_px / 16;
 }
@@ -2299,7 +2299,7 @@ static short get_map_action_inputs(void)
         }
         if (left_button_released) {
             left_button_released = 0;
-            set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, get_parchment_map_fade_turns(), 0);
+            set_players_packet_action(player, PckA_ZoomFromMap, stl_x, stl_y, 0, 0);
             return true;
         }
     }

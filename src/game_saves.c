@@ -57,6 +57,7 @@
 #include "lua_base.h"
 #include "lua_triggers.h"
 #include "moonphase.h"
+#include "net_game.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -689,12 +690,12 @@ TbBool load_game(long slot_num)
     local_state.lens_palette = 0;
     local_state.minimap_pos_x = 11;
     local_state.minimap_pos_y = 11;
-    local_state.minimap_zoom = settings.minimap_zoom;
     local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
     // Reinitialize lens first (restores lens_palette pointer from config)
     reinitialise_eye_lens(game.applied_lens_type);
     // Apply the appropriate palette (lens palette if active, otherwise engine default)
     PaletteSetUserPalette(player->user_id, local_state.lens_palette ? local_state.lens_palette : engine_palette);
+    apply_local_user_preferences(get_local_user(), UPF_ApplyOnLoad);
     init_local_cameras(player);
     // Update the lights system state
     light_import_system_state(&game.lightst);

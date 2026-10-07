@@ -365,14 +365,14 @@ TbBool startup_saved_packet_game(void)
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
         if ((get_net_user_player_number(user) >= 0) && (replay.head.user_players[user] >= 0))
-            apply_user_start_camera_settings(user, &replay.head.user_start[user]);
+            apply_user_preferences(user, replay.head.user_prefs[user], UPF_NewGame);
     }
     init_players();
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
         const PlayerNumber plyr_idx = get_net_user_player_number(user);
         if ((plyr_idx >= 0) && (replay.head.user_players[user] >= 0))
-            apply_user_start_settings(get_player(plyr_idx), &replay.head.user_start[user], &replay.head.user_start[SERVER_ID]);
+            apply_user_start_tendencies(get_player(plyr_idx));
     }
     frontend_alliances = replay.head.frontend_alliances;
     setup_alliances();
@@ -500,7 +500,6 @@ void clear_complete_game(void)
     fps_limit_main = start_params.num_fps_draw_main;
     fps_limit_secondary = start_params.num_fps_draw_secondary;
     game.mode_flags = start_params.mode_flags;
-    game.easter_eggs_enabled = start_params.easter_egg;
     set_flag_value(local_system_flags, GSF_AllowOnePlayer, start_params.one_player);
     game.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;

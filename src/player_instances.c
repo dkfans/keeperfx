@@ -166,7 +166,7 @@ static int32_t instance_elapsed_turns(const struct PlayerInfo *player, unsigned 
 static void set_local_leave_creature_camera(struct PlayerInfo *player, unsigned char inum, TbBool snap)
 {
     const struct UserState *ustate = get_player_user_state(player);
-    if (ustate->dungeon_camera.use_front_view)
+    if (ustate->prefs[UPref_FrontView] != 0)
         return;
     struct DungeonCamera pose = ustate->dungeon_camera;
     const int32_t dungeon_zoom = pose.zoom[false];
@@ -190,7 +190,7 @@ static void set_local_heart_zoom_out_camera(struct PlayerInfo *player, TbBool sn
     struct DungeonCamera pose = ustate->dungeon_camera;
     const int32_t total_turns = player_instance_info[PI_HeartZoomOut].length_turns;
     const int32_t elapsed = instance_elapsed_turns(player, PI_HeartZoomOut);
-    if (!ustate->dungeon_camera.use_front_view && thing_exists(heart) && (elapsed < total_turns))
+    if (ustate->prefs[UPref_FrontView] == 0 && thing_exists(heart) && (elapsed < total_turns))
     {
         const int32_t start_zoom = 24000;
         pose.zoom[false] = start_zoom - elapsed * ((start_zoom - pose.zoom[false]) / total_turns);
@@ -444,7 +444,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
         set_player_instance(player, PI_Unset, true);
         return 0;
     }
-    if (!ustate->dungeon_camera.use_front_view)
+    if (ustate->prefs[UPref_FrontView] == 0)
         step_local_possession_camera(player, thing);
     return 0;
 }
@@ -666,7 +666,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
     set_player_mode(player, PVT_DungeonTop);
     struct UserState* ustate = get_player_user_state(player);
     struct DungeonCamera* cam = &ustate->dungeon_camera;
-    const TbBool front_view = ustate->dungeon_camera.use_front_view;
+    const TbBool front_view = ustate->prefs[UPref_FrontView] != 0;
     thing = get_player_soul_container(player->id_number);
     if (!thing_exists(thing))
     {
@@ -709,7 +709,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
   if (is_my_player(player)) {
     LbPaletteStopOpenFade();
   }
-  if (!ustate->dungeon_camera.use_front_view)
+  if (ustate->prefs[UPref_FrontView] == 0)
     set_local_camera_destination(player);
   turn_user_cursor_light(player->user_id, true);
   ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;

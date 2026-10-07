@@ -152,7 +152,7 @@ int parse_draw_fps_config_val(const char *arg, int32_t *fps_draw_main, int32_t *
 TbBool is_feature_on(unsigned long feature);
 void set_skip_heart_zoom_feature(TbBool enable);
 TbBool get_skip_heart_zoom_feature(void);
-TbBool censorship_enabled(void);
+TbBool local_censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);
 TbBool resize_movies_enabled(void);
 TbBool freeze_game_on_focus_lost(void);

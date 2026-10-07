@@ -1058,7 +1058,11 @@ static TbBool wait_at_frontend(void)
 
 static TbBool player_skips_heart_zoom(const struct PlayerInfo *player)
 {
-    return (game.game_kind == GKind_LocalGame) && player->skip_heart_zoom;
+    const struct UserState *host = get_user_state(SERVER_ID);
+    const struct UserState *ustate = get_player_user_state(player);
+    if (user_state_invalid(ustate))
+        ustate = host;
+    return (game.game_kind == GKind_LocalGame) && (host->prefs[UPref_SkipHeartZoom] != 0) && (ustate->prefs[UPref_SkipHeartZoom] != 0);
 }
 
 void game_loop(void)

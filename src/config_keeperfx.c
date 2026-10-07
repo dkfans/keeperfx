@@ -257,7 +257,7 @@ unsigned int vid_scale_flags = SMK_FullscreenFit;
  * Returns if the censorship is on. This mostly affects blood.
  * Originally, censorship was on for german language.
  */
-TbBool censorship_enabled(void)
+TbBool local_censorship_enabled(void)
 {
   return ((features_enabled & Ft_Censorship) != 0);
 }

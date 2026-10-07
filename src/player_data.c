@@ -56,9 +56,9 @@ unsigned char my_player_number;
 
 enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate)
 {
-    if (ustate->dungeon_camera.use_front_view)
+    if (ustate->prefs[UPref_FrontView] != 0)
         return PVM_FrontView;
-    return ustate->dungeon_wibble ? PVM_IsoWibbleView : PVM_IsoStraightView;
+    return (ustate->prefs[UPref_Wibble] != 0) ? PVM_IsoWibbleView : PVM_IsoStraightView;
 }
 
 int32_t get_player_dungeon_yaw(const struct PlayerInfo *player)
@@ -66,7 +66,7 @@ int32_t get_player_dungeon_yaw(const struct PlayerInfo *player)
     const struct UserState *ustate = get_player_user_state(player);
     if (user_state_invalid(ustate))
         return 0;
-    return ustate->dungeon_camera.yaw[ustate->dungeon_camera.use_front_view];
+    return ustate->dungeon_camera.yaw[ustate->prefs[UPref_FrontView] != 0];
 }
 
 
@@ -90,7 +90,7 @@ unsigned char get_player_active_camera_index(const struct PlayerInfo *player)
     case PVT_MapFadeOut:
         return CamIV_Parchment;
     default:
-        return get_player_user_state(player)->dungeon_camera.use_front_view ? CamIV_FrontView : CamIV_Isometric;
+        return (get_player_user_state(player)->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric;
     }
 }
 
@@ -177,11 +177,28 @@ struct UserState *get_local_user_state(void)
     return get_user_state(get_local_user());
 }
 
+uint32_t get_local_minimap_zoom(void)
+{
+    const struct UserState *ustate = get_local_user_state();
+    if (user_state_invalid(ustate))
+        return MINIMAP_ZOOM_DEFAULT;
+    return clamp(ustate->prefs[UPref_MinimapZoom], MINIMAP_ZOOM_MIN, MINIMAP_ZOOM_MAX);
+}
+
 TbBool user_state_invalid(const struct UserState *ustate)
 {
     if (ustate == INVALID_USER_STATE)
         return true;
     return (ustate == NULL);
+}
+
+int32_t user_zoom_min(const struct UserState *ustate, TbBool front_view)
+{
+    if (user_state_invalid(ustate))
+        return front_view ? frontview_zoom_distance_setting : max(CAMERA_ZOOM_MIN, zoom_distance_setting);
+    if (front_view)
+        return ustate->prefs[UPref_MaxZoomFrontview];
+    return max(CAMERA_ZOOM_MIN, (int32_t)ustate->prefs[UPref_MaxZoomIso]);
 }
 
 TbBool player_is_roaming(PlayerNumber plyr_num)
@@ -579,12 +596,12 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   case PVT_MapFadeIn:
       set_player_instance(player, PI_MapFadeTo, 0);
       if (player->instance_num == PI_MapFadeTo)
-          player->instance_remain_turns = max(ustate->map_fade_turns, 1);
+          player->instance_remain_turns = max((int32_t)ustate->prefs[UPref_MapFade], 1);
       break;
   case PVT_MapFadeOut:
       set_player_instance(player, PI_MapFadeFrom, 0);
       if (player->instance_num == PI_MapFadeFrom)
-          player->instance_remain_turns = max(ustate->map_fade_turns, 1);
+          player->instance_remain_turns = max((int32_t)ustate->prefs[UPref_MapFade], 1);
       break;
   }
 }

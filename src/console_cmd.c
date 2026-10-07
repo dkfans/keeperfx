@@ -144,8 +144,7 @@ static NetUserId console_cmd_user(PlayerNumber plyr_idx)
 
 static TbBool console_cmd_cheats_allowed(PlayerNumber plyr_idx)
 {
-    const struct PlayerInfo *player = get_player(plyr_idx);
-    return !player_invalid(player) && player->cheats_allowed;
+    return user_cheats_allowed(console_cmd_user(plyr_idx));
 }
 
 static MapCoord console_cmd_cursor_x;

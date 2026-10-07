@@ -48,6 +48,7 @@
 #include "gui_msgs.h"
 #include "frontmenu_ingame_tabs.h"
 #include "room_treasure.h"
+#include "net_game.h"
 #include "post_inc.h"
 
 extern void clear_input(struct Packet* packet);
@@ -73,7 +74,7 @@ TbBool packets_process_cheats(
     struct UserState* ustate = get_user_state(user);
     TbBool allowed;
     char str[255] = "";
-    if (!player->cheats_allowed)
+    if (!user_cheats_allowed(user))
     {
         set_player_state(player, PSt_CtrlDungeon, 0);
         return true;
@@ -778,7 +779,7 @@ TbBool process_user_global_cheats_packet_action(NetUserId user, struct Packet* p
   struct PlayerInfo* player = get_player(get_net_user_player_number(user));
   PlayerNumber plyr_idx = player->id_number;
   struct UserState* ustate = get_user_state(user);
-  if (!player->cheats_allowed)
+  if (!user_cheats_allowed(user))
       return false;
   switch (pckt->action)
   {
@@ -950,7 +951,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
     MapSubtlCoord stl_x, stl_y;
     MapSlabCoord slb_x, slb_y;
     struct Coord3d pos;
-    if (!player->cheats_allowed)
+    if (!user_cheats_allowed(player->user_id))
         return false;
     switch (pckt->action)
     {

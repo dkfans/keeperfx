@@ -61,11 +61,11 @@ enum TbPacketAction {
         PckA_SwitchScrnRes,
         PckA_TogglePause,
         PckA_UnusedSlot023,
-        PckA_SetCluedo,
+        PckA_SetUserPref,
         PckA_ChangeWindowSize,//25
         PckA_BookmarkLoad,
         PckA_SetGammaLevel,
-        PckA_SetMinimapConf,
+        PckA_UnusedSlot028,
         PckA_SetMapRotation,
         PckA_UnusedSlot030,//30
         PckA_UnusedSlot031,
