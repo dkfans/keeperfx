@@ -190,22 +190,23 @@ short get_pixels_scaled_and_zoomed(long basic_zoom)
     return pixels_needed[draw_pixels];
 }
 
+static void set_minimap_zoom(uint32_t zoom)
+{
+    if ((zoom < MINIMAP_ZOOM_MIN) || (zoom > MINIMAP_ZOOM_MAX))
+        return;
+    settings.minimap_zoom = zoom;
+    save_settings();
+    set_packet_action(get_local_packet(), PckA_SetUserPref, UPref_MinimapZoom, zoom, 0, 0);
+}
+
 void gui_zoom_in(struct GuiButton *gbtn)
 {
-    if (local_state.minimap_zoom > 128) {
-        local_state.minimap_zoom >>= 1;
-        settings.minimap_zoom = local_state.minimap_zoom;
-        save_settings();
-    }
+    set_minimap_zoom(get_local_minimap_zoom() >> 1);
 }
 
 void gui_zoom_out(struct GuiButton *gbtn)
 {
-    if (local_state.minimap_zoom < 2048) {
-        local_state.minimap_zoom <<= 1;
-        settings.minimap_zoom = local_state.minimap_zoom;
-        save_settings();
-    }
+    set_minimap_zoom(get_local_minimap_zoom() << 1);
 }
 
 void gui_go_to_map(struct GuiButton *gbtn)
@@ -2655,12 +2656,12 @@ void draw_whole_status_panel(void)
     LbTiledSpriteDraw(0, 0, fs_units_per_px, &status_panel);
     // Draws gold amount; note that button_sprite[] is used instead of full font
     draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, fs_units_per_px, dungeon->total_money_owned);
+    int32_t basic_zoom = get_local_minimap_zoom();
     if (16/mm_units_per_px < 3)
-        mmzoom = (local_state.minimap_zoom) / scale_value_for_resolution_with_upp(2,mm_units_per_px);
+        mmzoom = basic_zoom / scale_value_for_resolution_with_upp(2,mm_units_per_px);
     else
-        mmzoom = local_state.minimap_zoom;
+        mmzoom = basic_zoom;
     panel_map_draw_slabs(local_state.minimap_pos_x, local_state.minimap_pos_y, mm_units_per_px, mmzoom);
-    long basic_zoom = local_state.minimap_zoom;
     panel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
     panel_map_submit_to_renderer();
     unsigned char placefill_threshold = (RendererPhysicalHeight() >= 400) ? 80 : 40;

@@ -177,6 +177,14 @@ struct UserState *get_local_user_state(void)
     return get_user_state(get_local_user());
 }
 
+uint32_t get_local_minimap_zoom(void)
+{
+    const struct UserState *ustate = get_local_user_state();
+    if (user_state_invalid(ustate))
+        return MINIMAP_ZOOM_DEFAULT;
+    return clamp(ustate->prefs[UPref_MinimapZoom], MINIMAP_ZOOM_MIN, MINIMAP_ZOOM_MAX);
+}
+
 TbBool user_state_invalid(const struct UserState *ustate)
 {
     if (ustate == INVALID_USER_STATE)

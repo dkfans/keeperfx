@@ -848,7 +848,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
     {
         local_state.minimap_pos_x = 11;
         local_state.minimap_pos_y = 11;
-        local_state.minimap_zoom = settings.minimap_zoom;
         local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
         local_state.main_palette = engine_palette;
@@ -887,9 +886,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
         }
         break;
     case GKind_MultiGame:
-        //workaround until settings are synced through multiplayer
-        if (is_my_player(player))
-            local_state.minimap_zoom = 256;
         if (!is_active_keeper(player))
         {
           ERRORLOG("Non Keeper in Keeper game");

@@ -155,6 +155,7 @@ static const unsigned char user_preference_flags[UPref_Count] = {
     [UPref_StartingIsometricZoom] = 0,
     [UPref_StartingFrontviewZoom] = 0,
     [UPref_StartingTendencies]    = 0,
+    [UPref_MinimapZoom]           = 0,
 };
 
 void build_local_user_preferences(UserPreferences prefs)
@@ -180,6 +181,7 @@ void build_local_user_preferences(UserPreferences prefs)
         prefs[UPref_StartingTendencies] |= CrTend_Imprison;
     if (FLEE_BUTTON_DEFAULT)
         prefs[UPref_StartingTendencies] |= CrTend_Flee;
+    prefs[UPref_MinimapZoom] = settings.minimap_zoom;
 }
 
 static void apply_user_starting_preferences(struct UserState *ustate, unsigned char flags)

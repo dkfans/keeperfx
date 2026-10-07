@@ -39,6 +39,10 @@ extern "C" {
 
 #define PLAYER_MP_MESSAGE_LEN  64
 
+#define MINIMAP_ZOOM_MIN       128
+#define MINIMAP_ZOOM_DEFAULT   256
+#define MINIMAP_ZOOM_MAX       2048
+
 #define WANDER_POINTS_COUNT    200
 
 enum PlayerInitFlags {
@@ -315,7 +319,6 @@ extern struct LocalState {
     short engine_window_y;
     short minimap_pos_x;
     short minimap_pos_y;
-    unsigned short minimap_zoom;
     int roomspace_size;
     // FIXME: use fixed-point precision instead
     float camera_movement_x;
@@ -351,6 +354,7 @@ TbBool is_my_player(const struct PlayerInfo *player);
 struct UserState *get_user_state(NetUserId user);
 struct UserState *get_player_user_state(const struct PlayerInfo *player);
 struct UserState *get_local_user_state(void);
+uint32_t get_local_minimap_zoom(void);
 TbBool user_state_invalid(const struct UserState *ustate);
 int32_t user_zoom_min(const struct UserState *ustate, TbBool front_view);
 TbBool is_my_player_number(PlayerNumber plyr_num);

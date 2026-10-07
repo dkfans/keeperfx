@@ -690,7 +690,6 @@ TbBool load_game(long slot_num)
     local_state.lens_palette = 0;
     local_state.minimap_pos_x = 11;
     local_state.minimap_pos_y = 11;
-    local_state.minimap_zoom = settings.minimap_zoom;
     local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
     // Reinitialize lens first (restores lens_palette pointer from config)
     reinitialise_eye_lens(game.applied_lens_type);

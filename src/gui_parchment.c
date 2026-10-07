@@ -966,27 +966,28 @@ void draw_zoom_box(void)
 
     long draw_tiles = 13;
     long subtile_unscaled = 8;
-    if (local_state.minimap_zoom == 128)
+    const uint32_t minimap_zoom = get_local_minimap_zoom();
+    if (minimap_zoom == 128)
     {
         draw_tiles = 6;
         subtile_unscaled = 18;
     } else
-    if (local_state.minimap_zoom == 256)
+    if (minimap_zoom == 256)
     {
         draw_tiles = 9;
         subtile_unscaled = 12;
     } else
-    if (local_state.minimap_zoom == 512)
+    if (minimap_zoom == 512)
     {
         draw_tiles = 12;
         subtile_unscaled = 9;
     } else
-    if (local_state.minimap_zoom == 1024)
+    if (minimap_zoom == 1024)
     {
         draw_tiles = 18;
         subtile_unscaled = 6;
     } else
-    if (local_state.minimap_zoom == 2048)
+    if (minimap_zoom == 2048)
     {
         draw_tiles = 36;
         subtile_unscaled = 3;
