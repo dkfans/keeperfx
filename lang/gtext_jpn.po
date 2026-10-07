@@ -7419,3 +7419,15 @@ msgstr "ホストのゲームバージョンが異なります。"
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "ロビー名"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "早送り %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "通常"

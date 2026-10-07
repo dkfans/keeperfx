@@ -494,6 +494,8 @@ enum GUIStrings {
     GUIStr_NetLobbyFull,
     GUIStr_NetDifferentVersion,
     GUIStr_NetLobbyName,
+    GUIStr_FastForward,
+    GUIStr_FastForwardNormal,
     GuiStrEnd
 };
 

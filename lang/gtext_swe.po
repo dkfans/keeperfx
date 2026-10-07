@@ -7482,3 +7482,15 @@ msgstr "Värden använder en annan spelversion."
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Lobbynamn"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Snabbspolning %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "normal"

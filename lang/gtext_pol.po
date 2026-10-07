@@ -7571,3 +7571,15 @@ msgstr "Host używa innej wersji gry."
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Nazwa lobby"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Przewijanie do przodu %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "normalne"

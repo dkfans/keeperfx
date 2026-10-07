@@ -542,36 +542,27 @@ static void clip_frame_skip(void)
     game.frame_skip = 0;
 }
 
-static void increaseFrameskip(void)
+static void change_frameskip(int32_t direction)
 {
-    // Default no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
-
-    if (game.frame_skip <= 1)
-        game.frame_skip = 2;
-    else
-        game.frame_skip <<= 1;
-
-    clip_frame_skip();
-    char speed_txt[256] = "normal";
-    if (game.frame_skip > 0)
-        sprintf(speed_txt, "x%d", game.frame_skip);
-    show_onscreen_msg(turns_per_second*(game.frame_skip+1), "Fast Forward %s", speed_txt);
-}
-
-static void decreaseFrameskip(void)
-{
-    // Defaul no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
-    if (game.frame_skip <= 2)
+    if (direction > 0) {
+        if (game.frame_skip <= 1) {
+            game.frame_skip = 2;
+        } else {
+            game.frame_skip <<= 1;
+        }
+    } else if (game.frame_skip <= 2) {
         game.frame_skip = 0;
-    else
+    } else {
         game.frame_skip >>= 1;
-
-
+    }
     clip_frame_skip();
-    char speed_txt[256] = "normal";
-    if (game.frame_skip > 0)
-        sprintf(speed_txt, "x%d", game.frame_skip);
-    show_onscreen_msg(turns_per_second*(game.frame_skip+1), "Fast Forward %s", speed_txt);
+    char speed_txt[256];
+    if (game.frame_skip > 0) {
+        snprintf(speed_txt, sizeof(speed_txt), "x%d", game.frame_skip);
+    } else {
+        snprintf(speed_txt, sizeof(speed_txt), "%s", get_string(GUIStr_FastForwardNormal));
+    }
+    show_onscreen_msg(turns_per_second*(game.frame_skip+1), get_string(GUIStr_FastForward), speed_txt);
 }
 
 /**
@@ -580,13 +571,11 @@ static void decreaseFrameskip(void)
  */
 static short get_speed_control_inputs(void)
 {
-  if (is_game_key_pressed(Gkey_FrameSkipIncrease, true, false))
-  {
-      increaseFrameskip();
+  if (is_game_key_pressed(Gkey_FrameSkipIncrease, true, false)) {
+      change_frameskip(1);
   }
-  if (is_game_key_pressed(Gkey_FrameSkipDecrease, true, false))
-  {
-      decreaseFrameskip();
+  if (is_game_key_pressed(Gkey_FrameSkipDecrease, true, false)) {
+      change_frameskip(-1);
   }
   return false;
 }
