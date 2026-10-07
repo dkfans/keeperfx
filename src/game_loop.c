@@ -469,6 +469,9 @@ static void update_multiplayer_clock_adjust(void)
 // if networking had its own thread, it wouldn't need the yield that calls this function, but for now it does
 void gameplay_loop_draw()
 {
+    if (network_is_active()) {
+        netstate.sp->update(NULL);
+    }
     if (use_delta_time())
         do_draw = true;
 
