@@ -69,6 +69,7 @@
 #include "engine_textures.h"
 
 #define BOOKMARKS_COUNT               5
+#define GAME_FAST_FORWARD_MAX           512
 
 #ifdef __cplusplus
 extern "C" {

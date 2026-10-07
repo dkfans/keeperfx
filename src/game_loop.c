@@ -465,35 +465,34 @@ void gameplay_loop_draw()
 
     update_gameplay_delta_time();
 
-    if (game.process_turn_time > 1.0 && time_since_last_draw < 1.0)
+    if ((game.process_turn_time > 1.0 || game.fast_forward >= GAME_FAST_FORWARD_MAX) && time_since_last_draw < 1.0)
         do_draw = false;
 
     const TbBool renderer_busy = do_draw && !RendererCanPresent();
     if ((fps_limit_current > 0 && process_frame_time < 1.0) || renderer_busy) {
         do_draw = false;
         frametime_start_measurement(Frametime_Sleep);
-        if (game.process_turn_time < 1.0 || renderer_busy) {
+        const long double turns_per_millisecond = turns_per_second * multiplayer_clock_adjust * max(game.fast_forward, 1) / 1000.L;
+        if (game.process_turn_time + turns_per_millisecond < 1.0) {
             SDL_Delay(1);
         }
         frametime_end_measurement(Frametime_Sleep);
         return;
     }
 
-    // Frame rate limiter
-    if (fps_limit_current > 0) {
-        process_frame_time = min(1.L, process_frame_time - 1.L);
-    }
-
     // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
     frametime_start_measurement(Frametime_Draw);
-
-    // Update lights
-    update_light_render_area();
 
     if (quit_game || exit_keeper) {
         do_draw = false;
     }
     if ( do_draw ) {
+        // Frame rate limiter
+        if (fps_limit_current > 0) {
+            process_frame_time = min(1.L, process_frame_time - 1.L);
+        }
+        // Update lights
+        update_light_render_area();
         if (frametime_enabled())
             framerate_measurement_capture(Framerate_Draw);
         game.delta_time = min(time_since_last_draw, 1.L);

@@ -1587,7 +1587,11 @@ void update_gameplay_delta_time()
         const long double turns = seconds * turns_per_second;
         const long double frames = seconds * fps_limit_current;
 
-        game.process_turn_time += turns * multiplayer_clock_adjust * max(game.fast_forward, 1);
+        if (game.fast_forward >= GAME_FAST_FORWARD_MAX && !network_is_active()) {
+            game.process_turn_time = 1;
+        } else {
+            game.process_turn_time += turns * multiplayer_clock_adjust * max(game.fast_forward, 1);
+        }
 
         // This sets game.delta_time, which is used to pace locally-displayed
         // things (eg. tooltip scroll speed).  It should not be affected by

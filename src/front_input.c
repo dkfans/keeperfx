@@ -536,8 +536,8 @@ static TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
 
 static void clip_frame_skip(void)
 {
-  if (game.fast_forward > 512)
-    game.fast_forward = 512;
+  if (game.fast_forward > GAME_FAST_FORWARD_MAX)
+    game.fast_forward = GAME_FAST_FORWARD_MAX;
   if (game.fast_forward < 0)
     game.fast_forward = 0;
 }
