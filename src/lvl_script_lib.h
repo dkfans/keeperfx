@@ -130,7 +130,7 @@ enum TbScriptCommands {
     Cmd_MAKE_SAFE                          = 117,
     Cmd_LOCATE_HIDDEN_WORLD                = 118,
     Cmd_USE_SPECIAL_TRANSFER_CREATURE      = 119,
-    Cmd_CHANGE_CREATURES_ANNOYANCE         = 120,
+    Cmd_USE_SPECIAL_STEAL_HERO             = 120,
     Cmd_COMPUTER_DIG_TO_LOCATION           = 121,
     Cmd_DELETE_FROM_PARTY                  = 122,
     Cmd_SET_SACRIFICE_RECIPE               = 123,
@@ -210,6 +210,7 @@ enum TbScriptCommands {
     Cmd_TRIGGER_ACTION_POINT               = 197,
     Cmd_SET_LEVEL_ENSIGN                   = 198,
     Cmd_DISPLAY_VARIABLE_WITH_LABEL        = 199,
+    Cmd_CHANGE_CREATURES_ANNOYANCE         = 200,
 };
 
 struct ScriptLine {

@@ -1539,17 +1539,40 @@ static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, l
 
 static void special_transfer_creature_process(struct ScriptContext* context)
 {
-    if (my_player_number == context->player_idx)
-    {
-        struct Thing *heartng = get_player_soul_container(context->player_idx);
-        struct PlayerInfo* player = get_my_player();
-        start_transfer_creature(player, heartng);
-    }
+    struct Thing* heartng = get_player_soul_container(context->player_idx);
+    struct PlayerInfo* player = get_player(context->player_idx);
+    start_transfer_creature(player, heartng);
 }
 
 static void special_transfer_creature_check(const struct ScriptLine* scline)
 {
-    command_add_value(Cmd_USE_SPECIAL_TRANSFER_CREATURE, scline->np[0],0,0,0);
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void special_steal_hero_process(struct ScriptContext* context)
+{
+    struct PlayerInfo* player = get_player(context->player_idx);
+    TbMapLocation location = context->value->ulongs[0];
+    struct Coord3d pos;
+    if (get_coords_at_location(&pos, location, false))
+    {
+        steal_hero(player, &pos);
+    }
+}
+
+static void special_steal_hero_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    TbMapLocation location;
+    if (!get_map_location_id(scline->tp[1], &location))
+    {
+        SCRPTWRNLOG("Invalid location: %s", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->ulongs[0] = location;
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void script_transfer_creature_check(const struct ScriptLine* scline)
@@ -7052,6 +7075,7 @@ const struct CommandDesc command_desc[] = {
   {"LOCATE_HIDDEN_WORLD",               "        ", Cmd_LOCATE_HIDDEN_WORLD, NULL, NULL},
   {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_LOCATE_HIDDEN_WORLD, NULL, NULL}, // Legacy command
   {"USE_SPECIAL_TRANSFER_CREATURE",     "P       ", Cmd_USE_SPECIAL_TRANSFER_CREATURE, &special_transfer_creature_check, &special_transfer_creature_process},
+  {"USE_SPECIAL_STEAL_HERO",            "PL      ", Cmd_USE_SPECIAL_STEAL_HERO, &special_steal_hero_check, &special_steal_hero_process},
   {"TRANSFER_CREATURE",                 "PC!An   ", Cmd_TRANSFER_CREATURE, &script_transfer_creature_check, &script_transfer_creature_process},
   {"CHANGE_CREATURES_ANNOYANCE",        "PC!AN   ", Cmd_CHANGE_CREATURES_ANNOYANCE, &change_creatures_annoyance_check, &change_creatures_annoyance_process},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG, NULL, NULL},
