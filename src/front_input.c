@@ -536,33 +536,33 @@ static TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
 
 static void clip_frame_skip(void)
 {
-  if (game.frame_skip > 512)
-    game.frame_skip = 512;
-  if (game.frame_skip < 0)
-    game.frame_skip = 0;
+  if (game.fast_forward > 512)
+    game.fast_forward = 512;
+  if (game.fast_forward < 0)
+    game.fast_forward = 0;
 }
 
 static void change_frameskip(int32_t direction)
 {
     if (direction > 0) {
-        if (game.frame_skip <= 1) {
-            game.frame_skip = 2;
+        if (game.fast_forward <= 1) {
+            game.fast_forward = 2;
         } else {
-            game.frame_skip <<= 1;
+            game.fast_forward <<= 1;
         }
-    } else if (game.frame_skip <= 2) {
-        game.frame_skip = 0;
+    } else if (game.fast_forward <= 2) {
+        game.fast_forward = 0;
     } else {
-        game.frame_skip >>= 1;
+        game.fast_forward >>= 1;
     }
     clip_frame_skip();
     char speed_txt[256];
-    if (game.frame_skip > 0) {
-        snprintf(speed_txt, sizeof(speed_txt), "x%d", game.frame_skip);
+    if (game.fast_forward > 0) {
+        snprintf(speed_txt, sizeof(speed_txt), "x%d", game.fast_forward);
     } else {
         snprintf(speed_txt, sizeof(speed_txt), "%s", get_string(GUIStr_FastForwardNormal));
     }
-    show_onscreen_msg(turns_per_second*(game.frame_skip+1), get_string(GUIStr_FastForward), speed_txt);
+    show_onscreen_msg(turns_per_second*(game.fast_forward+1), get_string(GUIStr_FastForward), speed_txt);
 }
 
 /**
@@ -3071,7 +3071,7 @@ static TbBool active_menu_functions_while_paused(void)
  */
 static short get_inputs(void)
 {
-    move_camera_this_turn = game.frame_skip == 0 || game.play_gameturn % game.frame_skip == 0;
+    move_camera_this_turn = game.fast_forward == 0 || game.play_gameturn % game.fast_forward == 0;
 
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {

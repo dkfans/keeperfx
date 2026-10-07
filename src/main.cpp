@@ -436,7 +436,7 @@ short setup_game(void)
       }
   }
 
-  game.frame_skip = start_params.frame_skip;
+  game.fast_forward = start_params.fast_forward;
   redetect_screen_refresh_rate_for_draw();
 
   // Intro problems shouldn't force the game to quit,
@@ -1587,7 +1587,7 @@ void update_gameplay_delta_time()
         const long double turns = seconds * turns_per_second;
         const long double frames = seconds * fps_limit_current;
 
-        game.process_turn_time += turns * multiplayer_clock_adjust * max(game.frame_skip, 1);
+        game.process_turn_time += turns * multiplayer_clock_adjust * max(game.fast_forward, 1);
 
         // This sets game.delta_time, which is used to pace locally-displayed
         // things (eg. tooltip scroll speed).  It should not be affected by
@@ -1882,7 +1882,7 @@ static short process_command_line(unsigned short argc, char *argv[])
       }
       else if (strcasecmp(parstr,"frameskip") == 0)
       {
-         start_params.frame_skip = atoi(pr2str);
+         start_params.fast_forward = atoi(pr2str);
          narg++;
       } else
       if (strcasecmp(parstr,"framestep") == 0)

@@ -408,7 +408,7 @@ static short display_should_be_updated_this_turn(void)
     if ( (replay.turns_fastforward == 0) && (!replay.loading_in_progress) )
     {
       find_frame_rate();
-      if ( (game.frame_skip == 0) || ((get_gameturn() % game.frame_skip) == 0) )
+      if ( (game.fast_forward == 0) || ((get_gameturn() % game.fast_forward) == 0) )
         return true;
     } else
     if ( ((get_gameturn() & 0x3F)==0) ||
@@ -429,7 +429,7 @@ static long double get_turn_start()
     // another frame could miss this deadline, skip it.
     // In a 3-4 player game, clients must be 2 frames early.
     const int frames = 1 + (netstate.my_id != SERVER_ID && game.human_players_count > 2);
-    return 1.0 - frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.frame_skip, 1);
+    return 1.0 - frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.fast_forward, 1);
 }
 
 static void update_multiplayer_clock_adjust()
@@ -544,7 +544,7 @@ static void gameplay_loop_logic()
             {
                 game.paused_at_gameturn = true;
 
-                game.frame_skip = 0;
+                game.fast_forward = 0;
                 if(replay.load_enable)
                 {
                     disable_packet_mode();
@@ -602,9 +602,9 @@ static void gameplay_loop_logic()
                     if (TimerTurns != 0)
                     {
                         uint32_t turns = turns_per_second;
-                        if (game.frame_skip > 0)
+                        if (game.fast_forward > 0)
                         {
-                            turns *= game.frame_skip;
+                            turns *= game.fast_forward;
                         }
                         if (TimerTurns % turns == 0)
                         {
@@ -659,12 +659,12 @@ static TbBool keeper_wait_for_next_turn(void)
         // No idea when such situation occurs
         tick_ns_one_frame = tick_ns_one_sec;
     }
-    if (game.frame_skip >= 0)
+    if (game.fast_forward >= 0)
     {
         // Standard delaying system
         int32_t num_fps = turns_per_second;
-        if (game.frame_skip > 0)
-            num_fps *= game.frame_skip;
+        if (game.fast_forward > 0)
+            num_fps *= game.fast_forward;
 
         tick_ns_one_frame = tick_ns_one_sec/num_fps;
     }
@@ -1136,7 +1136,7 @@ void game_loop(void)
       }
       RendererClearScreen(0);
       RendererPresentFrame();
-      game.frame_skip = 0;
+      game.fast_forward = 0;
       keeper_gameplay_loop();
       set_pointer_graphic_none();
       RendererClearScreen(0);
