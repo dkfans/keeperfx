@@ -369,7 +369,7 @@ TbBool store_unique_reposition_entry(struct RoomReposition* rrepos, ThingModel t
             return true;
         }
     }
-    if (rrepos->used > ROOM_REPOSITION_COUNT)
+    if (rrepos->used >= ROOM_REPOSITION_COUNT)
     {
         ERRORLOG("Reposition entries to store (%d) exceed maximum %d", rrepos->used, ROOM_REPOSITION_COUNT);
         rrepos->used = ROOM_REPOSITION_COUNT;
