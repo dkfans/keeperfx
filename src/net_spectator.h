@@ -19,6 +19,7 @@ extern int32_t network_spectator_turn_count;
 void network_spectator_send_bootstrap(NetUserId user_id);
 TbBool network_spectator_wait(enum NetMessageType message_type);
 TbBool network_spectator_start(void);
+TbBool network_spectator_is_catching_up(void);
 TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer, size_t size);
 TbError process_network_spectator_ready(NetUserId source, size_t size);
 TbError process_network_spectator_chat(NetUserId source, const char *buffer, size_t size);

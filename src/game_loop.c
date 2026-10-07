@@ -438,6 +438,9 @@ static void update_multiplayer_clock_adjust(void)
 {
     multiplayer_clock_adjust = 1.0;
     if (network_is_active() && network_user_is_spectator(netstate.my_id)) {
+        if (network_spectator_is_catching_up()) {
+            multiplayer_clock_adjust = 10.0;
+        }
         return;
     }
     if (netstate.my_id == SERVER_ID || !network_is_active()) {

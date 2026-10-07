@@ -41,8 +41,11 @@ struct SpectatorTurn {
     struct QueuedGameplayChat chat[GAMEPLAY_CHAT_QUEUE_LEN];
 };
 
-static struct SpectatorTurn spectator_turns[PACKET_HISTORY_SIZE];
+#define SPECTATOR_TURN_BUFFER_SIZE 256
+
+static struct SpectatorTurn spectator_turns[SPECTATOR_TURN_BUFFER_SIZE];
 static int32_t spectator_turn_index;
+static TbBool spectator_catching_up;
 int32_t network_spectator_turn_count;
 static struct SpectatorTurn spectator_send_turn;
 static int32_t spectator_send_turn_pending;
@@ -167,6 +170,7 @@ void network_spectator_reset(void)
     network_spectator_desynced = false;
     network_spectator_resync_pending = false;
     spectator_turn_index = 0;
+    spectator_catching_up = false;
     network_spectator_turn_count = 0;
     spectator_send_turn_pending = 0;
 }
@@ -203,7 +207,7 @@ void network_spectator_service(void)
 
 static void remove_spectator_turn(void)
 {
-    spectator_turn_index = (spectator_turn_index + 1) % PACKET_HISTORY_SIZE;
+    spectator_turn_index = (spectator_turn_index + 1) % SPECTATOR_TURN_BUFFER_SIZE;
     network_spectator_turn_count -= 1;
 }
 
@@ -261,6 +265,7 @@ TbBool network_spectator_start(void)
     if (!network_spectator_wait(NETMSG_GAMEPLAY_UNSEQUENCED)) {
         return false;
     }
+    spectator_catching_up = true;
     local_observer_player = *get_player(camera_player_number);
     const struct UserState *camera_state = get_player_user_state(get_player(camera_player_number));
     if (!user_state_invalid(camera_state)) {
@@ -312,6 +317,16 @@ TbBool network_spectator_wait(enum NetMessageType message_type)
         }
     }
     return false;
+}
+
+TbBool network_spectator_is_catching_up(void)
+{
+    if (network_spectator_turn_count > 100) {
+        spectator_catching_up = true;
+    } else if (network_spectator_turn_count == 0 && !network_spectator_resync_pending && !netstate.sp->msgready(SERVER_ID, 0)) {
+        spectator_catching_up = false;
+    }
+    return spectator_catching_up;
 }
 
 enum PacketExchangeResult network_spectator_load_turn(TbBigChecksum checksum)
@@ -410,7 +425,7 @@ void network_spectator_receive_turns(void *server_buf, size_t frame_size)
         if (message_size == 0) {
             break;
         }
-        if (message_buffer[0] == NETMSG_SPECTATOR_TURN && network_spectator_turn_count >= PACKET_HISTORY_SIZE) {
+        if (message_buffer[0] == NETMSG_SPECTATOR_TURN && network_spectator_turn_count >= SPECTATOR_TURN_BUFFER_SIZE) {
             break;
         }
         if (process_network_message(SERVER_ID, server_buf, frame_size, NETMSG_GAMEPLAY_UNSEQUENCED, NULL) != Lb_OK) {
@@ -443,12 +458,12 @@ TbError process_network_spectator_turn_message(NetUserId source, const char *buf
             return Lb_OK;
         }
     }
-    if (network_spectator_turn_count >= PACKET_HISTORY_SIZE) {
+    if (network_spectator_turn_count >= SPECTATOR_TURN_BUFFER_SIZE) {
         network_spectator_desynced = true;
         network_spectator_turn_count = 0;
         return Lb_OK;
     }
-    int32_t index = (spectator_turn_index + network_spectator_turn_count) % PACKET_HISTORY_SIZE;
+    int32_t index = (spectator_turn_index + network_spectator_turn_count) % SPECTATOR_TURN_BUFFER_SIZE;
     spectator_turns[index] = snapshot;
     network_spectator_turn_count += 1;
     for (NetUserId user = 0; user < MAX_NET_USERS; user += 1) {
