@@ -41,7 +41,7 @@
 #define ENET_ADDRESS_BUFFER_SIZE 128
 #define INCOMING_QUEUE_WARNING_THRESHOLD 200
 #define INCOMING_QUEUE_WARNING_INTERVAL 100
-#define RESYNC_WINDOW_SIZE (128 * 1024)
+#define RESYNC_WINDOW_SIZE (256 * 1024)
 
 uint16_t external_ipv4_port = 0;
 char external_ipv4_address[64] = {0};
@@ -726,6 +726,9 @@ namespace
             if (resync_saved_window[peer_index] != 0 && peer->reliableDataInTransit == 0 && enet_list_empty(&peer->outgoingSendReliableCommands) && enet_list_empty(&peer->outgoingCommands)) {
                 peer->windowSize = resync_saved_window[peer_index];
                 resync_saved_window[peer_index] = 0;
+            } else if (resync_saved_window[peer_index] != 0) {
+                peer->windowSize = RESYNC_WINDOW_SIZE;
+                peer->packetThrottle = max(peer->packetThrottle, ENET_PEER_PACKET_THROTTLE_SCALE / 2U);
             }
             NetUserId destination = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
             bool spectator_peer = client_peer == nullptr && destination >= MAX_NET_USERS;
