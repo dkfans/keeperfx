@@ -28,6 +28,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <enet6/enet.h>
+#include <enet6/time.h>
 #include <cstddef>
 #include <climits>
 
@@ -718,26 +719,35 @@ namespace
         }
         for (size_t peer_index = 0; peer_index < host->peerCount; peer_index++) {
             ENetPeer *peer = &host->peers[peer_index];
-            if (resync_saved_window[peer_index] == 0) {
-                continue;
-            }
             if (peer->state == ENET_PEER_STATE_DISCONNECTED) {
                 resync_saved_window[peer_index] = 0;
-            } else if (peer->reliableDataInTransit == 0 && enet_list_empty(&peer->outgoingSendReliableCommands) && enet_list_empty(&peer->outgoingCommands)) {
+                continue;
+            }
+            if (resync_saved_window[peer_index] != 0 && peer->reliableDataInTransit == 0 && enet_list_empty(&peer->outgoingSendReliableCommands) && enet_list_empty(&peer->outgoingCommands)) {
                 peer->windowSize = resync_saved_window[peer_index];
                 resync_saved_window[peer_index] = 0;
-            } else {
-                enet_uint32 retry_interval = max(peer->roundTripTime + 4 * peer->roundTripTimeVariance, 100U) * 2;
-                ENetList *commands = &peer->sentReliableCommands;
-                for (ENetListIterator current = enet_list_begin(commands); current != enet_list_end(commands); current = enet_list_next(current)) {
-                    ENetOutgoingCommand *command = reinterpret_cast<ENetOutgoingCommand *>(current);
-                    if (command->packet != nullptr && command->packet->dataLength > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE && command->packet->data[0] == NETMSG_RESYNC_DATA) {
-                        command->roundTripTimeout = min(command->roundTripTimeout, retry_interval);
-                    }
+            }
+            NetUserId destination = NetUserId(reinterpret_cast<ptrdiff_t>(peer->data));
+            bool spectator_peer = client_peer == nullptr && destination >= MAX_NET_USERS;
+            if (resync_saved_window[peer_index] == 0 && !spectator_peer) {
+                continue;
+            }
+            enet_uint32 retry_interval = max(peer->roundTripTime + 4 * peer->roundTripTimeVariance, 100U) * 2;
+            ENetList *commands = &peer->sentReliableCommands;
+            for (ENetListIterator current = enet_list_begin(commands); current != enet_list_end(commands); current = enet_list_next(current)) {
+                ENetOutgoingCommand *command = reinterpret_cast<ENetOutgoingCommand *>(current);
+                if (command->packet == nullptr || command->packet->dataLength == 0) {
+                    continue;
                 }
-                if (!enet_list_empty(commands)) {
-                    ENetOutgoingCommand *command = reinterpret_cast<ENetOutgoingCommand *>(enet_list_front(commands));
-                    peer->nextTimeout = command->sentTime + command->roundTripTimeout;
+                bool spectator_command = spectator_peer && command->packet->data[0] == NETMSG_SPECTATOR_TURN;
+                bool resync_command = resync_saved_window[peer_index] != 0 && command->packet->dataLength > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE && command->packet->data[0] == NETMSG_RESYNC_DATA;
+                if (!spectator_command && !resync_command) {
+                    continue;
+                }
+                command->roundTripTimeout = min(command->roundTripTimeout, retry_interval);
+                enet_uint32 command_timeout = command->sentTime + command->roundTripTimeout;
+                if (ENET_TIME_LESS(command_timeout, peer->nextTimeout)) {
+                    peer->nextTimeout = command_timeout;
                 }
             }
         }
