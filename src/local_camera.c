@@ -25,6 +25,7 @@
 #include "packets.h"
 #include "player_data.h"
 #include "config_creature.h"
+#include "config_keeperfx.h"
 #include "thing_creature.h"
 #include "game_legacy.h"
 #include "dungeon_data.h"
@@ -35,6 +36,7 @@
 #include "frontend.h"
 #include "gui_parchment.h"
 #include "player_instances.h"
+#include "bflib_datetm.h"
 
 #include <math.h>
 #include "post_inc.h"
@@ -44,6 +46,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 static struct Packet freecam_packet;
+static int64_t camera_update_time;
+static TbBool camera_step_due = true;
+extern float interpolate_time;
 /******************************************************************************/
 static int get_local_active_camera_index(struct PlayerInfo *player);
 static struct Camera *get_local_dungeon_camera(struct PlayerInfo *player);
@@ -197,6 +202,8 @@ void init_local_cameras(struct PlayerInfo *player)
         return;
     }
     local_state.camera.first_person_look_pending = false;
+    camera_update_time = get_time_tick_ns();
+    camera_step_due = true;
     struct Camera cams[CamIV_EndList];
     memset(cams, 0, sizeof(cams));
 
@@ -372,6 +379,23 @@ static void update_local_first_person_camera(struct Thing *ctrltng)
     }
 }
 
+TbBool update_local_camera_time(void)
+{
+    const int64_t now = get_time_tick_ns();
+    const int64_t interval = 1000000000 / turns_per_second;
+    if (game.fast_forward <= 1 || now < camera_update_time) {
+        camera_update_time = now;
+        camera_step_due = true;
+    } else {
+        const int64_t elapsed = now - camera_update_time;
+        camera_step_due = elapsed >= interval;
+        if (camera_step_due) {
+            camera_update_time = now - min(elapsed - interval, interval);
+        }
+    }
+    return camera_step_due;
+}
+
 void update_local_cameras(void)
 {
     if (!local_state.camera.ready) {
@@ -380,13 +404,17 @@ void update_local_cameras(void)
     struct PlayerInfo *player = get_my_player();
     struct Thing *ctrltng = thing_get(player->controlled_thing_idx);
     const struct Packet *pckt = get_history_packet(get_local_user(), get_gameturn());
+    const int active_cam_idx = get_local_active_camera(player) - local_state.camera.current;
+    const TbBool move_camera = camera_step_due || (replay.load_enable && !replay_is_detached());
     const struct LocalCameraRotation rotation = take_local_camera_rotation();
     local_state.camera.previous_deviation_x = local_state.camera.destination_deviation_x;
     local_state.camera.previous_deviation_y = local_state.camera.destination_deviation_y;
     local_state.camera.destination_deviation_x = 0;
     local_state.camera.destination_deviation_y = 0;
 
-    memcpy(local_state.camera.previous, local_state.camera.destination, sizeof(local_state.camera.previous));
+    if (move_camera || active_cam_idx == CamIV_FirstPerson || player_instance_controls_camera(player->instance_num)) {
+        memcpy(local_state.camera.previous, local_state.camera.destination, sizeof(local_state.camera.previous));
+    }
     if (replay_is_detached()) {
         if (local_state.replay_view_type == PVT_DungeonTop) {
             process_camera_action(local_state.camera.destination, &freecam_packet);
@@ -398,7 +426,9 @@ void update_local_cameras(void)
             const TbBool has_pivot = get_packet_rotation_pivot(&freecam_packet, &pivot_x, &pivot_y);
             process_local_camera_rotation(cam, has_pivot, pivot_x, pivot_y, &rotation);
             process_camera_view_controls(cam, &freecam_packet, player);
-            view_process_camera_velocity(cam);
+            if (move_camera) {
+                view_process_camera_velocity(cam);
+            }
         }
         local_state.camera_movement_x = 0.0f;
         local_state.camera_movement_y = 0.0f;
@@ -420,7 +450,6 @@ void update_local_cameras(void)
     }
     apply_local_camera_rotation();
 
-    int active_cam_idx = get_local_active_camera(player) - local_state.camera.current;
     if (active_cam_idx == CamIV_FirstPerson && thing_exists(ctrltng)) {
         update_local_first_person_camera(ctrltng);
         return;
@@ -434,7 +463,7 @@ void update_local_cameras(void)
         cam->mappos.x.val = pckt->pos_x;
         cam->mappos.y.val = pckt->pos_y;
     }
-    if (local_state.camera.move_cam != NULL) {
+    if (move_camera && local_state.camera.move_cam != NULL) {
         local_state.camera.move_cam->velocity_x = 0;
         local_state.camera.move_cam->velocity_y = 0;
         if (view_move_camera_to_position(&local_state.camera.move_cam->mappos.x.val, &local_state.camera.move_cam->mappos.y.val,
@@ -456,7 +485,9 @@ void update_local_cameras(void)
             local_state.camera_movement_x = 0.0f;
             local_state.camera_movement_y = 0.0f;
         }
-        view_process_camera_velocity(cam);
+        if (move_camera) {
+            view_process_camera_velocity(cam);
+        }
     }
 
     if (active_cam_idx == CamIV_Isometric) {
@@ -503,17 +534,27 @@ void interpolate_local_cameras(void)
     if (!local_state.camera.ready) {
         return;
     }
+    float camera_fraction = 1.0f;
+    if (is_feature_on(Ft_DeltaTime)) {
+        camera_fraction = interpolate_time;
+    }
+    struct PlayerInfo *player = get_my_player();
+    const int camera_idx = get_local_active_camera(player) - local_state.camera.current;
+    if (game.fast_forward > 1 && (!replay.load_enable || replay_is_detached()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(player->instance_num)) {
+        const float elapsed = (get_time_tick_ns() - camera_update_time) / 1e9f * turns_per_second;
+        camera_fraction = clamp(elapsed, 0.0f, 1.0f);
+    }
     for (int i = 0; i < CamIV_EndList; i++) {
         struct Camera* prev = &local_state.camera.previous[i];
         struct Camera* desired = &local_state.camera.destination[i];
         struct Camera* out = &local_state.camera.current[i];
-        const float mappos_x = interpolate(prev->mappos.x.val, desired->mappos.x.val);
-        const float mappos_y = interpolate(prev->mappos.y.val, desired->mappos.y.val);
-        const float mappos_z = interpolate(prev->mappos.z.val, desired->mappos.z.val);
-        const float angle_x = interpolate_angle(prev->rotation_angle_x, desired->rotation_angle_x);
-        const float angle_y = interpolate_angle(prev->rotation_angle_y, desired->rotation_angle_y);
-        const float angle_z = interpolate_angle(prev->rotation_angle_z, desired->rotation_angle_z);
-        const float zoom = interpolate(prev->zoom, desired->zoom);
+        const float mappos_x = LbLerp(prev->mappos.x.val, desired->mappos.x.val, camera_fraction);
+        const float mappos_y = LbLerp(prev->mappos.y.val, desired->mappos.y.val, camera_fraction);
+        const float mappos_z = LbLerp(prev->mappos.z.val, desired->mappos.z.val, camera_fraction);
+        const float angle_x = lerp_angle(prev->rotation_angle_x, desired->rotation_angle_x, camera_fraction);
+        const float angle_y = lerp_angle(prev->rotation_angle_y, desired->rotation_angle_y, camera_fraction);
+        const float angle_z = lerp_angle(prev->rotation_angle_z, desired->rotation_angle_z, camera_fraction);
+        const float zoom = LbLerp(prev->zoom, desired->zoom, camera_fraction);
         out->mappos.x.val = lroundf(mappos_x);
         out->mappos.y.val = lroundf(mappos_y);
         out->mappos.z.val = lroundf(mappos_z);

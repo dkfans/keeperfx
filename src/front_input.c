@@ -3071,7 +3071,7 @@ static TbBool active_menu_functions_while_paused(void)
  */
 static short get_inputs(void)
 {
-    move_camera_this_turn = game.fast_forward == 0 || game.play_gameturn % game.fast_forward == 0;
+    move_camera_this_turn = update_local_camera_time();
 
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {

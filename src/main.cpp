@@ -1562,7 +1562,7 @@ void redetect_screen_refresh_rate_for_draw()
 bool use_delta_time()
 {
     // Always enable interpolation in multiplayer games.
-    return is_feature_on(Ft_DeltaTime) || network_is_active();
+    return is_feature_on(Ft_DeltaTime) || network_is_active() || game.fast_forward > 1;
 }
 
 void update_frontend_delta_time()
@@ -1577,12 +1577,12 @@ void update_frontend_delta_time()
 
 void update_gameplay_delta_time()
 {
-    if (use_delta_time()) {
-        static int64_t prev = 0;
-        const int64_t now = get_time_tick_ns();
-        const int64_t ns = now - prev;
-        prev = now;
+    static int64_t prev = 0;
+    const int64_t now = get_time_tick_ns();
+    const int64_t ns = now - prev;
+    prev = now;
 
+    if (use_delta_time()) {
         const long double seconds = max(ns / 1e9L, 0.L);
         const long double turns = seconds * turns_per_second;
         const long double frames = seconds * fps_limit_current;
