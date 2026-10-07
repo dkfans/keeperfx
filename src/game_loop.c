@@ -438,9 +438,6 @@ static void update_multiplayer_clock_adjust(void)
 {
     multiplayer_clock_adjust = 1.0;
     if (network_is_active() && network_user_is_spectator(netstate.my_id)) {
-        if (network_spectator_turn_count > SPECTATOR_TURN_BUNDLE_SIZE) {
-            multiplayer_clock_adjust = 4.0;
-        }
         return;
     }
     if (netstate.my_id == SERVER_ID || !network_is_active()) {
@@ -707,9 +704,6 @@ static TbBool keeper_wait_for_next_turn(void)
 
 static void gameplay_loop_timestep()
 {
-    if (network_is_active() && network_user_is_spectator(netstate.my_id) && network_spectator_turn_count > SPECTATOR_TURN_BUNDLE_SIZE) {
-        return;
-    }
     if (! use_delta_time()) {
         frametime_start_measurement(Frametime_Sleep);
         // Make delay if the machine is too fast
