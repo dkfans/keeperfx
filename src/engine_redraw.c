@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include "kfx/renderer/RendererManager.h"
 #include "engine_redraw.h"
+#include "engine_textures.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -1180,6 +1181,9 @@ TbBool keeper_screen_redraw(void)
     RendererClearScreen(144);
     if (RendererBeginFrame())
     {
+        if (update_animating_texture_maps()) {
+            RendererUpdateAnimatedTiles();
+        }
         setup_engine_window(local_state.engine_window_x, local_state.engine_window_y,
             local_state.engine_window_width, local_state.engine_window_height);
         redraw_display();

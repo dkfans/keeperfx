@@ -34,7 +34,7 @@ public:
     virtual void Free() = 0;
 
     /** Re-upload only the animated tile rows for all variations.
-     *  Call once per game tick after update_animating_texture_maps(). */
+     *  Call before drawing, after update_animating_texture_maps() reports changes. */
     virtual void UpdateAnimatedTiles() = 0;
 
     /** Return a GPU resource handle for a GL_TEXTURE_2D_ARRAY covering all
