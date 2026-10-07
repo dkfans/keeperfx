@@ -143,9 +143,12 @@ TbBool recreate_repositioned_food_in_room_on_subtile(struct Room *room, MapSubtl
             pos.x.val = subtile_coord_center(stl_x);
             pos.y.val = subtile_coord_center(stl_y);
             pos.z.val = 0;
-            struct Thing* foodtng = create_object(&pos, rrepos->models[ri], room->owner, -1);
+            struct Thing* foodtng = create_object(&pos, rrepos->models[ri], room->owner, room->index);
             if (!thing_is_invalid(foodtng))
             {
+                if (object_is_mature_food(foodtng)) {
+                    foodtng->food.life_remaining = -1;
+                }
                 rrepos->used--;
                 rrepos->models[ri] = 0;
                 rrepos->exp_level[ri] = 0;
