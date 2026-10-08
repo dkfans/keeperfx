@@ -850,7 +850,6 @@ void reinit_level_after_load(void)
     player = get_my_player();
     local_state.lens_palette = 0;
     local_state.main_palette = engine_palette;
-    init_navigation();
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
