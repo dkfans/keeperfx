@@ -1,0 +1,41 @@
+name: Save format policy
+
+# Compares the save schema of a pull request with its base and writes what the PR still has to do
+# (raise the minor version, add an alias or a migration, accept a break) to result.json. This job runs
+# PR code, so it has read-only permissions and posts nothing; save-format-policy-report.yml does.
+# No paths filter: a PR that no longer changes the format has to re-run to clear an old comment.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+jobs:
+  policy:
+    name: "Save format policy"
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install tools
+      run: |
+        set -eux
+        sudo apt-get update
+        sudo apt-get install -y gcc g++ zlib1g-dev curl python3
+
+    - name: Compare with the base
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PR: ${{ github.event.pull_request.number }}
+        LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+      run: bash tools/save-tool/policy_run.sh
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: save-format-policy
+        path: policy-out/result.json

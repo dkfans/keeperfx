@@ -28,7 +28,7 @@ jobs:
       run: |
         set -eux
         sudo apt update
-        sudo apt install -y build-essential g++-mingw-w64-i686 cmake ninja-build libpng16-16t64 7zip
+        sudo apt install -y build-essential g++-mingw-w64-i686 cmake ninja-build libpng16-16t64 7zip gdb-multiarch python3
 
     - name: Build gfx
       run: |

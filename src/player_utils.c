@@ -163,7 +163,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
         }
         struct GameTime GT;
         get_game_time(&GT, dungeon->lvstats.hopes_dashed, turns_per_second);
-        SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
+        SYNCMSG("Won level %u. Total turns taken: %" PRIu32 " (%02u:%02u:%02u at %d fps). Real time elapsed: %02u:%02u:%02u:%03u.",
             game.loaded_level_number, dungeon->lvstats.hopes_dashed,
             GT.Hours, GT.Minutes, GT.Seconds, turns_per_second,
             Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);

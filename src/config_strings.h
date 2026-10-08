@@ -494,6 +494,9 @@ enum GUIStrings {
     GUIStr_NetLobbyFull,
     GUIStr_NetDifferentVersion,
     GUIStr_NetLobbyName,
+    GUIStr_SaveIncompatible,
+    GUIStr_SaveDamaged,
+    GUIStr_SaveLoadFailed,
     GuiStrEnd
 };
 

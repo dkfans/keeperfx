@@ -53,9 +53,9 @@ unsigned long expiration_turn;
 struct GuiMessage {
     char text[64];
     short plyr_idx; //not playernumber because it is abused for other icons too
-    unsigned long expiration_turn;
+    uint32_t expiration_turn;
     short target_idx;
-    char type;
+    int8_t type;
     short icon_idx;
 };
 

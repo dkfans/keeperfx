@@ -94,11 +94,11 @@ struct ObjectConfigStats {
     short tooltip_stridx;
     TbBool tooltip_optional;
     HitPoints health;
-    char fall_acceleration;
-    short inertia_floor;
-    short inertia_air;
-    char light_unaffected;
-    char immobile;
+    int8_t fall_acceleration;
+    int16_t inertia_floor;
+    int16_t inertia_air;
+    int8_t light_unaffected;
+    int8_t immobile;
     struct InitLight ilght;
     short sprite_anim_idx;
     short sprite_anim_idx_in_hand;

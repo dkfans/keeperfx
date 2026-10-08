@@ -1,0 +1,41 @@
+# clang-tidy settings for the save code. Run with tools/save-check/check.sh.
+#
+# Everything is on except what is switched off below, each for a reason:
+#   bugprone-easily-swappable-parameters, readability-identifier-length, readability-magic-numbers,
+#   readability-function-cognitive-complexity, readability-braces-around-statements:
+#       style choices this code doesn't follow
+#   misc-no-recursion:                      the structs nest, so reading and writing them recurses
+#   misc-use-anonymous-namespace:           static functions are fine
+#   performance-enum-size, modernize-use-trailing-return-type, modernize-use-nodiscard,
+#   modernize-macro-to-enum, readability-uppercase-literal-suffix:
+#       the headers are shared with C, and this is about the style of the rest of the game
+#   readability-implicit-bool-conversion, cert-err33-c, readability-avoid-unconditional-preprocessor-if,
+#   misc-include-cleaner:                   too noisy for what they find
+Checks: >
+  -*,
+  bugprone-*,
+  performance-*,
+  readability-*,
+  modernize-*,
+  misc-*,
+  cert-*,
+  clang-analyzer-*,
+  google-readability-casting,
+  -bugprone-easily-swappable-parameters,
+  -cert-err33-c,
+  -misc-include-cleaner,
+  -misc-no-recursion,
+  -misc-use-anonymous-namespace,
+  -modernize-macro-to-enum,
+  -modernize-use-nodiscard,
+  -modernize-use-trailing-return-type,
+  -performance-enum-size,
+  -readability-avoid-unconditional-preprocessor-if,
+  -readability-braces-around-statements,
+  -readability-function-cognitive-complexity,
+  -readability-identifier-length,
+  -readability-implicit-bool-conversion,
+  -readability-magic-numbers,
+  -readability-uppercase-literal-suffix
+# Only the headers that are C++ only. The others are read by C code too, and have to stay C.
+HeaderFilterRegex: 'kfx/save/(core/save_bytes|core/save_internal|SaveManager_Internal)\.h'

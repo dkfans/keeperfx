@@ -1070,7 +1070,7 @@ void process_check_new_tunneller_parties(void)
                 }
                 else
                 {
-                    SCRIPTDBG(6, "Adding tunneler, heading %lu", tn_trig->heading);
+                    SCRIPTDBG(6, "Adding tunneler, heading %" PRIu32 "", tn_trig->heading);
                     script_process_new_tunneler(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
                         tn_trig->exp_level, tn_trig->carried_gold);
                 }

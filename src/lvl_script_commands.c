@@ -1995,7 +1995,7 @@ static void create_effect_process(struct ScriptContext *context)
     struct Coord3d pos;
     if (!get_coords_at_location(&pos, context->value->ulongs[1],true))
     {
-        SCRPTWRNLOG("Could not find location %lu to create effect", context->value->ulongs[1]);
+        SCRPTWRNLOG("Could not find location %" PRIu32 " to create effect", context->value->ulongs[1]);
         return;
     }
     script_create_effect(&pos,context->value->shorts[0],context->value->longs[2]);

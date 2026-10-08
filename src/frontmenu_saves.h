@@ -42,7 +42,7 @@ void gui_load_game(struct GuiButton *gbtn);
 void gui_load_game_maintain(struct GuiButton *gbtn);
 void draw_load_button(struct GuiButton *gbtn);
 void gui_save_game(struct GuiButton *gbtn);
-void update_loadsave_input_strings(struct CatalogueEntry *game_catalg);
+void update_loadsave_input_strings(void);
 void frontend_load_game(struct GuiButton *gbtn);
 void frontend_draw_load_game_button(struct GuiButton *gbtn);
 void frontend_load_game_up(struct GuiButton *gbtn);

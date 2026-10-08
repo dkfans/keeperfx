@@ -453,7 +453,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
 {
   if ( list->count == 0 )
   {
-      ERRORLOG("List %lu has no structures", list->index);
+      ERRORLOG("List %" PRIu32 " has no structures", list->index);
       return;
   }
   TbBool Removed = false;
@@ -1509,6 +1509,27 @@ void light_stat_refresh() {
     // Enable lights on all but bounding subtiles
     light_stat_light_map_clear_area(0, 0, game.map_subtiles_x, game.map_subtiles_y);
     light_signal_stat_light_update_in_area(1, 1, game.map_subtiles_x, game.map_subtiles_y);
+}
+
+/** Rebuilds what a save doesn't carry: the lighting tables, the shadow cache slots the saved lights use, and the
+ *  static light map. Every light is flagged to be rendered again. */
+void light_rebuild_after_load(void)
+{
+    if (!game.lish.lighting_tables_initialised)
+    {
+        light_initialise_lighting_tables();
+        game.lish.lighting_tables_initialised = true;
+    }
+    for (int i = 0; i < LIGHTS_COUNT; i++)
+    {
+        struct Light* lgt = &game.lish.lights[i];
+        if ((lgt->flags & LgtF_Allocated) == 0)
+            continue;
+        if ((lgt->shadow_index > 0) && (lgt->shadow_index < SHADOW_CACHE_COUNT))
+            game.lish.shadow_cache[lgt->shadow_index].flags |= ShCF_Allocated;
+        lgt->flags |= LgtF_NeedUpdate;
+    }
+    light_stat_refresh();
 }
 
 void light_set_lights_on(char state)

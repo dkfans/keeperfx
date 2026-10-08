@@ -199,6 +199,10 @@ static TbBool init_level(void)
     load_stats_files();
     level_load_time_phase(LevelLoadTime_GameSetup);
     check_and_auto_fix_stats();
+    // Config is fully loaded and fixed up here, and the level script hasn't run
+    // any commands yet: this is the baseline the save-time config overlay diffs
+    // against (save-format spec 5.3/13.1 P5.3).
+    take_conf_baseline();
 
     // We should do this after 'load stats'
     update_room_tab_to_config();

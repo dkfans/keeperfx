@@ -71,7 +71,7 @@ struct PartyMember {
   unsigned char flags;
   ThingModel crtr_kind;
   unsigned char objectv;
-  long countdown;
+  int32_t countdown;
   CrtrExpLevel exp_level;
   unsigned short carried_gold;
   unsigned short is_active;
@@ -81,7 +81,7 @@ struct PartyMember {
 struct Party {
   char prtname[100];
   struct PartyMember members[GROUP_MEMBERS_COUNT];
-  unsigned long members_num;
+  uint32_t members_num;
 };
 
 #pragma pack()

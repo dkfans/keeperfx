@@ -16,14 +16,18 @@
 #include "pre_inc.h"
 
 #include "bflib_dernc.h"
+#include "bflib_fileio.h"
 
 #include "highscores.h"
 #include "globals.h"
 #include "config.h"
 #include "config_campaigns.h"
-
+#include "game_saves.h"
+#include "kfx/save/SaveManager.h"
 
 #include "post_inc.h"
+
+#include <string.h>
 
 /******************************************************************************/
 
@@ -31,22 +35,48 @@
 static TbBool load_high_score_table(void)
 {
     char* fname = prepare_file_path(FGrp_Save, campaign.hiscore_fname);
-    long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
-    if (arr_size <= 0)
+    if (campaign.hiscore_count <= 0)
     {
         free(campaign.hiscore_table);
         campaign.hiscore_table = NULL;
         return true;
     }
-    if (campaign.hiscore_table == NULL)
-        campaign.hiscore_table = (struct HighScore *)calloc(arr_size, 1);
+    char magic[4];
+    TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    if (!fh)
+        return false;
+    TbBool is_kfxs = (LbFileRead(fh, magic, sizeof(magic)) == sizeof(magic)) && (memcmp(magic, "KFXS", sizeof(magic)) == 0);
+    LbFileClose(fh);
+    if (is_kfxs)
+    {
+        struct HighScore* table = NULL;
+        uint32_t count = 0;
+        struct SaveError err;
+        if ((SaveManager_ReadHighScores(fname, &table, &count, &err) != SVR_Ok) || (count != (uint32_t)campaign.hiscore_count))
+        {
+            free(table);
+            return false;
+        }
+        free(campaign.hiscore_table);
+        campaign.hiscore_table = table;
+        return true;
+    }
+    // Old raw-array format: import once, then rewrite in the new format immediately.
+    long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
     if (LbFileLengthRnc(fname) != arr_size)
         return false;
-    if (campaign.hiscore_table == NULL)
+    struct HighScore* legacy = (struct HighScore *)calloc(campaign.hiscore_count, sizeof(struct HighScore));
+    if (legacy == NULL)
         return false;
-    if (LbFileLoadAt(fname, campaign.hiscore_table) == arr_size)
-        return true;
-    return false;
+    if (LbFileLoadAt(fname, legacy) != arr_size)
+    {
+        free(legacy);
+        return false;
+    }
+    free(campaign.hiscore_table);
+    campaign.hiscore_table = legacy;
+    save_high_score_table();
+    return true;
 }
 
 /**
@@ -86,6 +116,7 @@ void load_or_create_high_score_table(void)
   if (!load_high_score_table())
   {
      SYNCMSG("High scores table bad; creating new one.");
+     SaveManager_KeepUnreadableFile(prepare_file_path(FGrp_Save, campaign.hiscore_fname));
      create_empty_high_score_table();
      save_high_score_table();
   }
@@ -94,15 +125,11 @@ void load_or_create_high_score_table(void)
 TbBool save_high_score_table(void)
 {
     char* fname = prepare_file_path(FGrp_Save, campaign.hiscore_fname);
-    long fsize = campaign.hiscore_count * sizeof(struct HighScore);
-    if (fsize <= 0)
+    if (campaign.hiscore_count <= 0)
         return true;
     if (campaign.hiscore_table == NULL)
         return false;
-    // Save the file
-    if (LbFileSaveAt(fname, campaign.hiscore_table, fsize) == fsize)
-        return true;
-    return false;
+    return SaveManager_WriteHighScores(fname, campaign.hiscore_table, (uint32_t)campaign.hiscore_count) != 0;
 }
 
 

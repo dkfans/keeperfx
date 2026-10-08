@@ -38,7 +38,7 @@ extern "C" {
 struct LightingTable { // sizeof = 8
   TbBool is_populated;
   unsigned char distance; // 2 - 15
-  char delta_x; // signed
+  int8_t delta_x; // signed
   char delta_y; // signed
   uint32_t diagonal_length;
 };

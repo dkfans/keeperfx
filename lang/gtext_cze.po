@@ -7455,3 +7455,20 @@ msgstr "Hostitel používá jinou verzi hry."
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Název lobby"
+
+#: guitext:1142
+msgctxt "Menu interface message"
+msgid "This save was made by an incompatible version and can't be loaded."
+msgstr "Tato uložená hra byla vytvořena nekompatibilní verzí a nelze ji načíst."
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Menu interface message"
+msgid "This save is damaged and can't be loaded."
+msgstr "Tato uložená hra je poškozená a nelze ji načíst."
+
+#: guitext:1144
+#, fuzzy
+msgctxt "Menu interface message"
+msgid "The save couldn't be loaded."
+msgstr "Uloženou hru se nepodařilo načíst."
