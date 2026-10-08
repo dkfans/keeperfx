@@ -6905,5 +6905,5 @@ msgstr "Этот хост не поддерживает подключение �
 #: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
-msgid "Spectator chat is currently disabled"
-msgstr "Чат зрителей сейчас отключён"
+msgid "Players cannot see the spectator chat."
+msgstr "Игроки не видят чат зрителей."

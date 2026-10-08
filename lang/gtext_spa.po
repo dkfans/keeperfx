@@ -7768,5 +7768,5 @@ msgstr "Este anfitrión no admite el acceso de espectadores."
 #: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
-msgid "Spectator chat is currently disabled"
-msgstr "El chat de espectadores está desactivado actualmente"
+msgid "Players cannot see the spectator chat."
+msgstr "Los jugadores no pueden ver el chat de los espectadores."

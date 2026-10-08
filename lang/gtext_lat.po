@@ -7536,5 +7536,5 @@ msgstr "Hic hospes spectatoribus se adiungere non permittit."
 #: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
-msgid "Spectator chat is currently disabled"
-msgstr "Colloquia spectatorum nunc prohibita sunt"
+msgid "Players cannot see the spectator chat."
+msgstr "Lusores colloquium spectatorum videre non possunt."

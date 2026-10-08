@@ -7534,5 +7534,5 @@ msgstr "Den här värden stöder inte anslutning för åskådare."
 #: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
-msgid "Spectator chat is currently disabled"
-msgstr "Åskådarchatten är för närvarande inaktiverad"
+msgid "Players cannot see the spectator chat."
+msgstr "Spelare kan inte se åskådarchatten."

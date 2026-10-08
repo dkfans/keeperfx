@@ -6075,5 +6075,5 @@ msgstr ""
 
 #: guitext:1150
 msgctxt "Network game message"
-msgid "Spectator chat is currently disabled"
+msgid "Players cannot see the spectator chat."
 msgstr ""

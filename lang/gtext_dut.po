@@ -7473,5 +7473,5 @@ msgstr "Deze host ondersteunt geen deelname van toeschouwers."
 #: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
-msgid "Spectator chat is currently disabled"
-msgstr "Toeschouwerschat is momenteel uitgeschakeld"
+msgid "Players cannot see the spectator chat."
+msgstr "Spelers kunnen de toeschouwerschat niet zien."

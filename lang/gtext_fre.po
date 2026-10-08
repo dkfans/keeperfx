@@ -7761,5 +7761,5 @@ msgstr "Cet hôte ne prend pas en charge l'accès des spectateurs."
 #: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
-msgid "Spectator chat is currently disabled"
-msgstr "Le chat des spectateurs est actuellement désactivé"
+msgid "Players cannot see the spectator chat."
+msgstr "Les joueurs ne peuvent pas voir le chat des spectateurs."
