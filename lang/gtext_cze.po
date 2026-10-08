@@ -7455,3 +7455,15 @@ msgstr "Hostitel používá jinou verzi hry."
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Název lobby"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Zrychlení %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "normální"

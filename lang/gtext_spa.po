@@ -7716,3 +7716,15 @@ msgstr "El anfitrión usa otra versión del juego."
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Nombre de sala"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Avance rápido %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "normal"

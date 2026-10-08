@@ -7084,3 +7084,15 @@ msgstr "主机使用的游戏版本不同。"
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "大厅名称"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "快进 %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "正常"

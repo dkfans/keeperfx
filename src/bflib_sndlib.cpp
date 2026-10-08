@@ -1187,7 +1187,7 @@ extern "C" SoundMilesID play_sample(
 				return source.mss_id;
 			}
 		}
-		if (game.frame_skip < 2) {
+		if (game.fast_forward < 2) {
 			ERRORLOG("Can't play sample %d, too many samples playing at once", smptbl_id);
 		}
 		return 0;

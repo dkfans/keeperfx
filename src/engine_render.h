@@ -155,7 +155,6 @@ extern unsigned char temp_cluedo_mode;
 extern TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM];
 /*****************************************************************************/
 float interpolate(float previous, float current);
-float interpolate_angle(float previous, float current);
 float interpolate_synced(float previous, float current);
 struct ThingInterpolateResult interpolate_thing(struct Thing *thing);
 

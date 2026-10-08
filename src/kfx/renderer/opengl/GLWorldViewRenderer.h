@@ -91,7 +91,7 @@ public:
     void SetAtlas(ITileAtlas* atlas) { m_atlas = atlas; }
     /** Re-upload the animated tile rows of the tile atlas. Queued as a
      *  render-thread command, same shape as ClearKeeperSpriteAtlas() below --
-     *  call once per game tick, right after update_animating_texture_maps(). */
+     *  call before drawing, after update_animating_texture_maps() reports changes. */
     void UpdateAnimatedTiles() override;
     // Palette/fade textures: only the handle is stored, resolved fresh at
     // each point of use rather than cached as a raw GLuint, so it stays

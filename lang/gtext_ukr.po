@@ -7535,3 +7535,15 @@ msgstr "У хоста інша версія гри."
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Назва лобі"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Прискорення %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "звичайне"

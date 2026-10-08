@@ -3102,7 +3102,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
             gmnu->visual_state = 2;
             return 0;
         }
-        if (game.frame_skip == 0)
+        if (game.fast_forward == 0)
         {
             gmnu->fade_time -= game.delta_time;
         } else {
@@ -3115,7 +3115,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
             gmnu->fade_time = 0.0;
             return -1; // Kill menu
         }
-        if (game.frame_skip == 0)
+        if (game.fast_forward == 0)
         {
             gmnu->fade_time -= game.delta_time;
         } else {

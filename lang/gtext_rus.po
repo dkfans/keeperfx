@@ -6854,3 +6854,15 @@ msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Название лобби"
 
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Ускорение %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "обычное"
+

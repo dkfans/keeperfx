@@ -7421,3 +7421,15 @@ msgstr "De host gebruikt een andere spelversie."
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Lobbynaam"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Vooruitspoelen %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "normaal"

@@ -7484,3 +7484,15 @@ msgstr "Hospes alia versione ludi utitur."
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Nomen atrii"
+
+#: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Acceleratio %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "normalis"
