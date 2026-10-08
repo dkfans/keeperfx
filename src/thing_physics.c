@@ -50,6 +50,9 @@ extern "C" {
 
 void destroy_thing(struct Thing* thing)
 {
+    if ((thing->class_id == TCls_DeadCreature) && flag_is_set(thing->alloc_flags, TAlF_IsControlled)) {
+        prepare_to_controlled_creature_death(thing);
+    }
     switch (thing->class_id)
     {
         case TCls_Door:

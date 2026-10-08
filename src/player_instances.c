@@ -917,10 +917,8 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
 {
     struct UserState* ustate = get_player_user_state(player);
     SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
-    if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect))
-      || (thing->index != player->controlled_thing_idx))
-    {
-        set_player_instance(player, PI_Unset, 1);
+    if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect)) || (thing->index != player->controlled_thing_idx)) {
+        set_player_instance(player, PI_Unset, false);
         set_player_mode(player, PVT_DungeonTop);
         ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
         update_engine_view(player, false);
@@ -967,10 +965,8 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
 {
   struct UserState* ustate = get_player_user_state(player);
   SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
-  if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlPassngr))
-    || (thing->index != player->controlled_thing_idx))
-  {
-    set_player_instance(player, PI_Unset, 1);
+  if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlPassngr)) || (thing->index != player->controlled_thing_idx)) {
+    set_player_instance(player, PI_Unset, false);
     set_player_mode(player, PVT_DungeonTop);
     ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
     update_engine_view(player, false);
