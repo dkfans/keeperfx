@@ -20,6 +20,7 @@
 #include "game_legacy.h"           /* game, GOF_ShowGui */
 #include "bflib_basics.h"          /* flag_is_set, TbBool */
 #include "local_camera.h"
+#include "observer.h"
 
 #include "post_inc.h"
 
@@ -48,6 +49,7 @@ bool GameUI::IsActiveForCurrentView(const struct PlayerInfo* player) const
 
 void GameUI::DrawFrame(struct PlayerInfo* player)
 {
+    observer_update_cursor();
     if (!IsActiveForCurrentView(player)) {
         return;
     }

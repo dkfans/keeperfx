@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "kfx/renderer/RendererManager.h"
 #include "frontmenu_options.h"
 #include "globals.h"
@@ -240,11 +241,15 @@ void gui_video_view_distance_level(struct GuiButton *gbtn)
 
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
-    struct Packet* pckt = get_local_packet();
-    TbBool front_view;
-    TbBool wibble = get_player_user_state(get_my_player())->prefs[UPref_Wibble] != 0;
-    rotate_mode_to_dungeon_view(settings.video_rotate_mode, &front_view, &wibble);
-    set_packet_action(pckt, PckA_SwitchView, front_view, wibble, 0, 0);
+    if (observer_is_active()) {
+        observer_set_view_mode(settings.video_rotate_mode);
+    } else {
+        struct Packet* pckt = get_local_packet();
+        TbBool front_view;
+        TbBool wibble = get_player_user_state(get_my_player())->prefs[UPref_Wibble] != 0;
+        rotate_mode_to_dungeon_view(settings.video_rotate_mode, &front_view, &wibble);
+        set_packet_action(pckt, PckA_SwitchView, front_view, wibble, 0, 0);
+    }
     save_settings();
 }
 
@@ -253,7 +258,11 @@ void gui_video_cluedo_mode(struct GuiButton *gbtn)
     struct Packet* pckt = get_local_packet();
     settings.video_cluedo_mode = video_cluedo_mode;
     save_settings();
-    set_packet_action(pckt, PckA_SetUserPref, UPref_WallHeight, video_cluedo_mode, 0, 0);
+    if (observer_is_active()) {
+        local_observer_user_state.prefs[UPref_WallHeight] = video_cluedo_mode;
+    } else {
+        set_packet_action(pckt, PckA_SetUserPref, UPref_WallHeight, video_cluedo_mode, 0, 0);
+    }
 }
 
 void gui_video_gamma_correction(struct GuiButton *gbtn)

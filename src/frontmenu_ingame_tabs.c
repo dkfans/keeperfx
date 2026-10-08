@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "kfx/renderer/RendererManager.h"
 #include "frontmenu_ingame_tabs.h"
 #include "globals.h"
@@ -227,10 +228,11 @@ void gui_turn_on_autopilot(struct GuiButton *gbtn)
 void menu_tab_maintain(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (player->victory_state != VicS_LostLevel)
+    if (player->victory_state != VicS_LostLevel || observer_is_active()) {
         gbtn->flags |= LbBtnF_Enabled;
-    else
+    } else {
         gbtn->flags &= ~LbBtnF_Enabled;
+    }
 }
 
 /**
@@ -604,8 +606,8 @@ long find_room_type_capacity_total_percentage(PlayerNumber plyr_idx, RoomKind rk
 void gui_area_big_room_button(struct GuiButton *gbtn)
 {
     RoomKind rkind = gbtn->content.lval;
-    struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_local_user_state();
+    const struct PlayerInfo *player = get_displayed_player();
+    const struct UserState *ustate = get_player_user_state(player);
 
     struct Dungeon* dungeon = get_players_dungeon(player);
 
@@ -818,7 +820,7 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
         RendererSetDrawFlags(flg_mem);
         return;
     }
-    struct PlayerInfo* player = get_my_player();
+    const struct PlayerInfo *player = get_displayed_player();
     struct Dungeon* dungeon = get_players_dungeon(player);
 
     RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4);
@@ -1160,8 +1162,8 @@ void gui_area_trap_build_info_button(struct GuiButton* gbtn)
 void gui_area_big_trap_button(struct GuiButton *gbtn)
 {
     int manufctr_idx = gbtn->content.lval;
-    struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_local_user_state();
+    const struct PlayerInfo *player = get_displayed_player();
+    const struct UserState *ustate = get_player_user_state(player);
 
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
@@ -1293,38 +1295,15 @@ void maintain_spell(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     int32_t i = gbtn->content.lval;
-    if (network_user_is_spectator(player->user_id) || !is_power_available(player->id_number, i)) {
+    if (!is_power_available(player->id_number, i)
+     || (i == PwrK_ARMAGEDDON && game.armageddon_cast_turn != 0)
+     || (i == PwrK_HOLDAUDNC && player_uses_power_hold_audience(my_player_number))) {
         gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
-  } else
-  if (i == PwrK_ARMAGEDDON)
-  {
-      if (game.armageddon_cast_turn != 0)
-      {
-        gbtn->btype_value |= LbBFeF_NoTooltip;
-        gbtn->flags &= ~LbBtnF_Enabled;
-      } else
-      {
+    } else {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
-      }
-  } else
-  if (i == PwrK_HOLDAUDNC)
-  {
-      if (player_uses_power_hold_audience(my_player_number))
-      {
-        gbtn->btype_value |= LbBFeF_NoTooltip;
-        gbtn->flags &= ~LbBtnF_Enabled;
-      } else
-      {
-        gbtn->btype_value &= LbBFeF_IntValueMask;
-        gbtn->flags |= LbBtnF_Enabled;
-      }
-  } else
-  {
-    gbtn->btype_value &= LbBFeF_IntValueMask;
-    gbtn->flags |= LbBtnF_Enabled;
-  }
+    }
 }
 
 void maintain_trap(struct GuiButton *gbtn)
@@ -1506,7 +1485,7 @@ void draw_name_box(long x, long y, int width, struct Thing *thing)
     if (thing_is_creature(thing) && (thing->ccontrol_idx > 0))
     {
         // Draw health bar
-        struct PlayerInfo* player = get_my_player();
+        const struct PlayerInfo *player = get_displayed_player();
         struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
         struct CreatureControl* cctrl = creature_control_get_from_thing(ctrltng);
         HitPoints maxhealth = cctrl->max_health;
@@ -1539,7 +1518,7 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
 {
     SYNCDBG(19,"Starting");
     int units_per_px = (gmnu->width * 16 + 140 / 2) / 140;
-    struct PlayerInfo* player = get_my_player();
+    const struct PlayerInfo *player = get_displayed_player();
     struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
     draw_name_box(gmnu->pos_x + 4*units_per_px/16, gmnu->pos_y + 262*units_per_px/16, gmnu->width, ctrltng);
     int portrt_x = gmnu->pos_x + (4 * units_per_px + 8) / 16;
@@ -1565,7 +1544,7 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
 {
     SYNCDBG(19,"Starting");
     int units_per_px = (gmnu->width * 16 + 140 / 2) / 140;
-    struct PlayerInfo* player = get_my_player();
+    const struct PlayerInfo *player = get_displayed_player();
     struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
     int nambox_x = gmnu->pos_x + 4 * units_per_px / 16;
     int nambox_y = gmnu->pos_y + 200 * units_per_px / 16;
@@ -1839,7 +1818,7 @@ long anger_get_creature_highest_anger_type_and_byte_percentage(struct Thing *cre
 
 void gui_area_smiley_anger_button(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
+    const struct PlayerInfo *player = get_displayed_player();
     // Get scale factor
     int units_per_px = (gbtn->width * 16 + 56 / 2) / 56;
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
@@ -1872,7 +1851,7 @@ void gui_area_smiley_anger_button(struct GuiButton *gbtn)
 
 void gui_area_experience_button(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
+    const struct PlayerInfo *player = get_displayed_player();
     int units_per_px = (gbtn->width * 16 + 56 / 2) / 56;
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
     struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
@@ -1900,7 +1879,7 @@ void gui_area_experience_button(struct GuiButton *gbtn)
 
 void gui_area_instance_button(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
+    const struct PlayerInfo *player = get_displayed_player();
     int units_per_px = (gbtn->width * 16 + 60 / 2) / 60;
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_bar_with_pic_full_blue_down, 100);
     struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
@@ -1987,7 +1966,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
 /** Callback function of maintaining creature skill button. */
 void maintain_instance(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
+    const struct PlayerInfo *player = get_displayed_player();
     struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
     TRACE_THING(ctrltng);
     if (!thing_is_creature(ctrltng))
@@ -2191,7 +2170,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
 {
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_rect_wide_up, 100);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_rect_wide_up);
-    struct PlayerInfo* player = get_my_player();
+    const struct PlayerInfo *player = get_displayed_player();
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     if (!thing_exists(thing))
         return;

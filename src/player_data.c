@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "player_data.h"
 
 #include "globals.h"
@@ -27,6 +28,7 @@
 #include "player_instances.h"
 #include "config_players.h"
 #include "game_legacy.h"
+#include "local_camera.h"
 #include "net_game.h"
 #include "engine_redraw.h"
 #include "frontend.h"
@@ -49,9 +51,6 @@ struct PlayerInfo bad_player;
 
 struct LocalState local_state;
 struct UserState bad_user_state;
-struct PlayerInfo local_observer_player;
-struct UserState local_observer_user_state;
-TbBool local_observer_rendering;
 
 /** The current player's number. */
 unsigned char my_player_number;
@@ -151,16 +150,32 @@ TbBool is_my_player(const struct PlayerInfo *player)
 
 struct PlayerInfo *get_my_player(void)
 {
-    if (network_is_active() && netstate.my_id >= MAX_NET_USERS && netstate.my_id < MAX_NET_CONNECTIONS) {
+    if (observer_is_active()) {
         return &local_observer_player;
     }
     return get_player(my_player_number);
+}
+
+const struct PlayerInfo *get_displayed_player(void)
+{
+    if (observer_is_active() && !is_observer_camera_active()) {
+        return get_player(my_player_number);
+    }
+    return get_my_player();
 }
 
 TbBool is_my_player_number(PlayerNumber plyr_num)
 {
     struct PlayerInfo *player = &game.players[my_player_number % PLAYERS_COUNT];
     return plyr_num == player->id_number && is_my_player(player);
+}
+
+TbBool is_player_displayed(PlayerNumber plyr_num)
+{
+    if (get_my_player() == &local_observer_player) {
+        return plyr_num == my_player_number;
+    }
+    return is_my_player_number(plyr_num);
 }
 
 // returns user's UserState, or INVALID_USER_STATE.
@@ -193,6 +208,9 @@ struct UserState *get_player_user_state(const struct PlayerInfo *player)
 
 struct UserState *get_local_user_state(void)
 {
+    if (observer_is_active()) {
+        return &local_observer_user_state;
+    }
     return get_user_state(get_local_user());
 }
 
@@ -349,6 +367,7 @@ TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber 
 
 void clear_players(void)
 {
+    observer_reset();
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = &game.players[i];

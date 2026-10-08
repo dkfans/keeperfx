@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "kfx/renderer/RendererManager.h"
 #include "frontmenu_ingame_map.h"
 

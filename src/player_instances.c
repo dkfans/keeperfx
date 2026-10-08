@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "player_instances.h"
 
 #include "globals.h"

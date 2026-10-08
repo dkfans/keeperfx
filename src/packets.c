@@ -98,6 +98,7 @@
 #include "net_game.h"
 #include "net_resync.h"
 #include "net_spectator.h"
+#include "observer.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
@@ -716,40 +717,84 @@ static void process_dungeon_camera_action(NetUserId user, const struct Packet *p
     }
 }
 
+static TbBool process_local_packet_action(struct PlayerInfo *player, struct UserState *ustate, const struct Packet *pckt)
+{
+    const TbBool local_action = is_my_player(player) && (!replay.load_enable || observer_is_active());
+    switch (pckt->action) {
+    case PckA_PlyrMsgEnd:
+        return false;
+    case PckA_PlyrMsgClear:
+        ustate->init_flags &= ~UsrIF_NewMPMessage;
+        LbStopTextInput();
+        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+        return false;
+    case PckA_SwitchScrnRes:
+        if (local_action) {
+            switch_to_next_video_mode_wrapper();
+        }
+        return true;
+    case PckA_ChangeWindowSize:
+        if (local_action) {
+            change_engine_window_relative_size(pckt->actn_par1, pckt->actn_par2);
+            centre_engine_window();
+        }
+        return false;
+    case PckA_SetGammaLevel:
+        if (local_action) {
+            set_gamma(pckt->actn_par1, 1);
+            save_settings();
+        }
+        return false;
+    case PckA_SetUserPref:
+        if (pckt->actn_par1 >= 0 && pckt->actn_par1 < UPref_Count) {
+            ustate->prefs[pckt->actn_par1] = pckt->actn_par2;
+        }
+        return false;
+    default:
+        return true;
+    }
+}
+
+static TbBool process_observer_global_packet_action(void)
+{
+    const struct Packet *pckt = get_local_packet();
+    switch (pckt->action) {
+    case PckA_QuitToMainMenu:
+    case PckA_ForceApplicationClose:
+    case PckA_FinishGame:
+        turn_off_all_menus();
+        free_swipe_graphic();
+        if (pckt->action == PckA_ForceApplicationClose) {
+            exit_keeper = 1;
+        }
+        process_player_leave_game_packet(get_my_player());
+        return true;
+    default:
+        return process_local_packet_action(get_my_player(), get_local_user_state(), pckt);
+    }
+}
+
 TbBool process_user_global_packet_action(NetUserId user)
 {
+  if (network_is_active() && user == netstate.my_id && network_user_is_spectator(user)) {
+      return process_observer_global_packet_action();
+  }
   //TODO PACKET add commands from beta
   PlayerNumber plyr_idx = get_net_user_player_number(user);
-  struct PlayerInfo* player;
-  if (user == netstate.my_id && user >= MAX_NET_USERS && user < MAX_NET_CONNECTIONS) {
-      player = get_my_player();
-      plyr_idx = player->id_number;
-  } else {
-      player = get_player(plyr_idx);
-  }
-  struct Packet* pckt = get_packet(user);
-  struct UserState* ustate = get_user_state(user);
+  struct PlayerInfo *player = get_player(plyr_idx);
+  struct UserState *ustate = get_user_state(user);
+  struct Packet *pckt = get_packet(user);
   struct UserState* local_ustate = get_local_user_state();
-  if (user >= MAX_NET_USERS) {
-      switch (pckt->action) {
-      case PckA_QuitToMainMenu:
-      case PckA_ForceApplicationClose:
-      case PckA_FinishGame:
-      case PckA_PlyrMsgEnd:
-      case PckA_PlyrMsgClear:
-      case PckA_SwitchScrnRes:
-      case PckA_ChangeWindowSize:
-      case PckA_SetGammaLevel:
-      case PckA_SetMinimapConf:
-          break;
-      default:
-          return true;
-      }
-  }
   SYNCDBG(6,"Processing user %d action %d",(int)user,(int)pckt->action);
   struct Dungeon *dungeon;
   struct Thing *thing;
   int i;
+
+  if (replay.load_enable && user == replay.head.recording_user
+   && (pckt->action == PckA_QuitToMainMenu || pckt->action == PckA_ForceApplicationClose)) {
+      quit_game = 1;
+      return 1;
+  }
 
   process_dungeon_camera_action(user, pckt);
 
@@ -831,46 +876,21 @@ TbBool process_user_global_packet_action(NetUserId user)
       return 0;
       }
   case PckA_PlyrMsgEnd:
-      return 0;
   case PckA_PlyrMsgClear:
-      get_user_state(user)->init_flags &= ~UsrIF_NewMPMessage;
-      LbStopTextInput();
-      memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
-      return 0;
+  case PckA_SwitchScrnRes:
+  case PckA_ChangeWindowSize:
+  case PckA_SetGammaLevel:
+  case PckA_SetUserPref:
+      return process_local_packet_action(player, ustate, pckt);
   case PckA_ToggleLights:
       if (is_my_player(player))
       {
           light_set_lights_on(game.lish.light_enabled == 0);
       }
       return 1;
-  case PckA_SwitchScrnRes:
-      if (is_my_player(player) && !replay.load_enable)
-      {
-          switch_to_next_video_mode_wrapper();
-      }
-      return 1;
   case PckA_TogglePause:
       process_pause_packet(pckt->actn_par1, 0);
       return 1;
-  case PckA_SetUserPref:
-      if ((pckt->actn_par1 < 0) || (pckt->actn_par1 >= UPref_Count))
-          return 0;
-      get_user_state(user)->prefs[pckt->actn_par1] = pckt->actn_par2;
-      return 0;
-  case PckA_ChangeWindowSize:
-      if (is_my_player(player) && !replay.load_enable)
-      {
-        change_engine_window_relative_size(pckt->actn_par1, pckt->actn_par2);
-        centre_engine_window();
-      }
-      return 0;
-  case PckA_SetGammaLevel:
-      if (is_my_player(player) && !replay.load_enable)
-      {
-        set_gamma(pckt->actn_par1, 1);
-        save_settings();
-      }
-      return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->actn_par1, pckt->actn_par2);
       return 0;
@@ -1683,6 +1703,13 @@ enum PacketExchangeResult exchange_packets(void)
     const NetUserId local_user = get_local_user();
     TbBool spectator = network_user_is_spectator(local_user);
     struct Packet *my_packet = get_local_packet();
+    if (observer_is_active()) {
+        process_observer_global_packet_action();
+        if (quit_game || exit_keeper) {
+            clear_packets();
+            return PExR_Advance;
+        }
+    }
     if (!replay.load_enable) {
         if (!spectator) {
             input_lag_update(my_packet);
@@ -1694,6 +1721,7 @@ enum PacketExchangeResult exchange_packets(void)
     if (!replay.load_enable && !spectator) {
         set_pending_timestamp_packet_action(get_local_packet());
         camera_packet_set_state(get_local_packet());
+        observer_set_packet_cursor(get_local_packet());
     }
     if (!spectator) {
         store_packet_history(local_user, my_packet);
@@ -1701,9 +1729,6 @@ enum PacketExchangeResult exchange_packets(void)
     host_spoof_dropped_user_packets();
     TbBigChecksum packet_checksum = my_packet->checksum;
     if (network_is_active()) {
-        if (spectator && my_packet->action != PckA_TogglePause && my_packet->action != PckA_UpdatePause) {
-            process_user_global_packet_action(local_user);
-        }
         if (!replay.load_enable) {
             const char *player_name = "Client";
             if (local_user == SERVER_ID) {
@@ -1723,6 +1748,7 @@ enum PacketExchangeResult exchange_packets(void)
             enum PacketExchangeResult result = network_spectator_load_turn(packet_checksum);
             if (result == PExR_Wait) {
                 game.process_turn_time = 0;
+                observer_store_packets(NULL);
                 update_local_cameras();
                 clear_packets();
             }
@@ -1768,6 +1794,7 @@ void clear_users_button_state(void)
 
 void process_packets(void)
 {
+    observer_store_packets(game.packets);
     if (!replay.load_enable && flag_is_set(game.operation_flags, GOF_Paused))
         clear_users_button_state();
     process_queued_chat_messages();

@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "kfx/renderer/RendererManager.h"
 #include "frontend.h"
 
@@ -1686,8 +1687,28 @@ void frontend_load_game_maintain(struct GuiButton *gbtn)
         gbtn->flags &= ~LbBtnF_Enabled;
 }
 
+static TbBool observer_panel_button_blocked(const struct GuiButton *gbtn, Gf_Btn_Callback callback)
+{
+    if (!observer_is_active() || !is_toggleable_menu(get_active_menu(gbtn->gmenu_idx)->ident)) {
+        return false;
+    }
+    if (callback == NULL && gbtn->gbtype == LbBtnT_NormalBtn && gbtn->parent_menu != NULL) {
+        return false;
+    }
+    if (callback == gui_set_menu_mode || callback == gui_set_page
+     || callback == gui_zoom_in || callback == gui_zoom_out || callback == gui_go_to_map
+     || callback == gui_scroll_activity_up
+     || callback == gui_scroll_activity_down || callback == gui_switch_players_visible) {
+        return false;
+    }
+    return true;
+}
+
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
+    if (observer_panel_button_blocked(gbtn, callback)) {
+        return;
+    }
     SYNCDBG(9,"Starting for button type %d",(int)gbtn->gbtype);
     if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
@@ -1728,6 +1749,9 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
 
 void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
+    if (observer_panel_button_blocked(gbtn, callback)) {
+        return;
+    }
     SYNCDBG(9,"Starting for button type %d",(int)gbtn->gbtype);
     if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
@@ -1814,6 +1838,10 @@ static void autofill_savegame_name(struct GuiButton *gbtn)
 
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
+    if (observer_panel_button_blocked(gbtn, callback)) {
+        *s = 0;
+        return;
+    }
   SYNCDBG(17,"Starting");
   int i;
   struct GuiMenu *gmnu;

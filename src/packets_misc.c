@@ -16,8 +16,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "net_game.h"
 #include "pre_inc.h"
+#include "observer.h"
+#include "net_game.h"
 #include "kfx/renderer/RendererManager.h"
 #include "packets.h"
 #include "net_exchange_gameplay.h"
@@ -74,6 +75,9 @@ NetUserId get_local_user(void)
 
 struct Packet *get_local_packet(void)
 {
+    if (observer_is_active()) {
+        return &local_observer_packet;
+    }
     return get_packet(get_local_user());
 }
 
@@ -108,15 +112,26 @@ void set_pending_timestamp_packet_action(struct Packet *pckt)
     timestamp_packet_pending = false;
 }
 
+static struct Packet *get_player_packet(const struct PlayerInfo *player)
+{
+    if (player == &local_observer_player) {
+        return get_local_packet();
+    }
+    return get_packet(player->user_id);
+}
+
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
         unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4)
 {
-    set_packet_action(get_packet(player->user_id), pcktype, par1, par2, par3, par4);
+    if (observer_is_active() && player != &local_observer_player) {
+        return;
+    }
+    set_packet_action(get_player_packet(player), pcktype, par1, par2, par3, par4);
 }
 
 unsigned char get_players_packet_action(struct PlayerInfo *player)
 {
-    struct Packet* pckt = get_packet(player->user_id);
+    struct Packet* pckt = get_player_packet(player);
     return pckt->action;
 }
 
@@ -127,7 +142,7 @@ void set_packet_control(struct Packet *pckt, unsigned long flag)
 
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 {
-    struct Packet* pckt = get_packet(player->user_id);
+    struct Packet* pckt = get_player_packet(player);
     pckt->control_flags |= flag;
 }
 
@@ -138,7 +153,7 @@ void unset_packet_control(struct Packet *pckt, unsigned long flag)
 
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 {
-    struct Packet* pckt = get_packet(player->user_id);
+    struct Packet* pckt = get_player_packet(player);
     pckt->control_flags &= ~flag;
 }
 

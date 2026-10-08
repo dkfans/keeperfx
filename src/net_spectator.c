@@ -1,14 +1,14 @@
 #include "pre_inc.h"
 #include "net_spectator.h"
+#include "observer.h"
 
 #include "bflib_datetm.h"
-#include "bflib_math.h"
-#include "dungeon_data.h"
-#include "engine_render.h"
+#include "config_strings.h"
 #include "game_legacy.h"
 #include "front_network.h"
-#include "frontmenu_ingame_map.h"
+#include "frontend.h"
 #include "gui_msgs.h"
+#include "gui_topmsg.h"
 #include "local_camera.h"
 #include "net_exchange_common.h"
 #include "net_exchange_gameplay.h"
@@ -211,41 +211,6 @@ static void remove_spectator_turn(void)
     network_spectator_turn_count -= 1;
 }
 
-static void share_human_player_vision_with_spectator(void)
-{
-    local_observer_player.allied_players = 0;
-    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i += 1) {
-        const struct PlayerInfo *player = get_player(i);
-        if (is_active_keeper(player) && !flag_is_set(player->allocflags, PlaF_CompCtrl)) {
-            set_flag(local_observer_player.allied_players, to_flag(i));
-        }
-    }
-    panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
-}
-
-static void position_spectator_camera_at_random_heart(void)
-{
-    struct Thing *starting_heart = NULL;
-    int32_t heart_count = 0;
-    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i += 1) {
-        if (!flag_is_set(local_observer_player.allied_players, to_flag(i))) {
-            continue;
-        }
-        struct Thing *heart = get_player_soul_container(i);
-        if (!thing_exists(heart)) {
-            continue;
-        }
-        heart_count += 1;
-        if (UNSYNC_RANDOM(heart_count) == 0) {
-            starting_heart = heart;
-        }
-    }
-    if (starting_heart != NULL) {
-        local_observer_user_state.dungeon_camera.x = starting_heart->mappos.x.val;
-        local_observer_user_state.dungeon_camera.y = starting_heart->mappos.y.val;
-    }
-}
-
 TbBool network_spectator_start(void)
 {
     PlayerNumber camera_player_number = my_player_number;
@@ -266,29 +231,8 @@ TbBool network_spectator_start(void)
         return false;
     }
     spectator_catching_up = true;
-    local_observer_player = *get_player(camera_player_number);
-    const struct UserState *camera_state = get_player_user_state(get_player(camera_player_number));
-    if (!user_state_invalid(camera_state)) {
-        local_observer_user_state.dungeon_camera = camera_state->dungeon_camera;
-        local_observer_user_state.dungeon_wibble = camera_state->dungeon_wibble;
-    }
-    local_observer_player.id_number = my_player_number;
-    local_observer_player.user_id = netstate.my_id;
-    local_observer_player.allocflags = PlaF_Allocated;
-    local_observer_player.cheats_allowed = true;
-    local_observer_player.victory_state = VicS_LostLevel;
-    local_observer_user_state.view_type = PVT_DungeonTop;
-    local_observer_player.controlled_thing_idx = 0;
-    local_observer_player.influenced_thing_idx = 0;
-    local_observer_player.instance_num = 0;
-    local_observer_player.instance_remain_turns = 0;
-    share_human_player_vision_with_spectator();
-    memset(local_observer_player.mp_pending_message, 0, sizeof(local_observer_player.mp_pending_message));
-    memset(local_observer_player.mp_message_text, 0, sizeof(local_observer_player.mp_message_text));
-    memset(local_observer_player.mp_message_text_last, 0, sizeof(local_observer_player.mp_message_text_last));
-    position_spectator_camera_at_random_heart();
-    init_local_cameras(&local_observer_player);
-    enter_observer_camera();
+    observer_init(camera_player_number);
+    show_onscreen_msg(10 * turns_per_second, "%s", get_string(GUIStr_NetYouAreSpectating));
     return true;
 }
 

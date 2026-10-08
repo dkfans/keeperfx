@@ -36,6 +36,8 @@
 #include "custom_sprites.h"
 #include "keeperfx.hpp"
 #include "timer.h"
+#include "observer.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -64,8 +66,8 @@ void message_draw(void)
     }
     for (int i = 0; i < game.active_messages_count; i++)
     {
-        if ( (game.messages[i].target_idx == my_player_number) || (game.messages[i].target_idx == -1) )
-        {
+        if (game.messages[i].target_idx == my_player_number || game.messages[i].target_idx == -1
+         || (observer_is_active() && game.messages[i].target_idx == PLAYER_NEUTRAL)) {
             long x = 148 * units_per_pixel / 16;
             LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
             RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);

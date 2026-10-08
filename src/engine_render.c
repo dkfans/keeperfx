@@ -47,6 +47,7 @@
 #include "creature_states_lair.h"
 #include "creature_states_mood.h"
 #include "custom_sprites.h"
+#include "cursor_tag.h"
 #include "engine_arrays.h"
 #include "engine_camera.h"
 #include "engine_lenses.h"
@@ -4910,7 +4911,7 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
-    struct PlayerInfo *player = get_my_player();
+    const struct PlayerInfo *player = get_displayed_player();
     struct ObjectConfigStats* objst;
     struct Thing *thing = jspr->thing;
     unsigned short animation_sprite;
@@ -6811,8 +6812,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
 
     draw_view_map_plane(cam, aposc, bposc, xcell, ycell);
 
-    if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) && !is_observer_camera_active() )
-    {
+    if (map_volume_box.visible && should_draw_cursor_box(my_player_number)) {
         poly_pool_end_reserve(0);
         process_isometric_map_volume_box(x, y, z, my_player_number);
     }
@@ -7022,6 +7022,30 @@ static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos
     }
 
     return result;
+}
+
+TbBool map_to_screen(struct Coord3d *pos, int32_t *screen_x, int32_t *screen_y)
+{
+    struct Camera *cam = get_local_active_camera(get_my_player());
+    int32_t x;
+    int32_t y;
+    if (cam->view_mode == PVM_FrontView) {
+        int32_t z;
+        if (!convert_world_coord_to_front_view_screen_coord(pos, cam, &x, &y, &z)) {
+            return false;
+        }
+    } else {
+        struct EngineCoord coord = {0};
+        coord.x = pos->x.val - map_x_pos;
+        coord.y = pos->z.val - map_z_pos;
+        coord.z = map_y_pos - pos->y.val;
+        rotpers(&coord, &camera_matrix);
+        x = coord.view_width * pixel_size;
+        y = coord.view_height * pixel_size;
+    }
+    *screen_x = local_state.engine_window_x + x;
+    *screen_y = local_state.engine_window_y + y;
+    return x >= 0 && y >= 0 && x < local_state.engine_window_width && y < local_state.engine_window_height;
 }
 
 static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
@@ -7990,7 +8014,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
-    struct PlayerInfo *player = get_my_player();
+    const struct PlayerInfo *player = get_displayed_player();
     struct Thing *thing = jspr->thing;
     unsigned short animation_sprite;
     unsigned char current_frame;
@@ -8031,7 +8055,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     if (!thing_is_invalid(thing))
     {
         if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
-          struct Camera *active_cam = get_local_active_camera(player);
+          struct Camera *active_cam = get_local_active_camera(get_my_player());
           if ((active_cam != NULL) && (active_cam->view_mode == PVM_IsoWibbleView || active_cam->view_mode == PVM_IsoStraightView))
           {
               RendererAddDrawFlags(Lb_SPRITE_REMAP);
@@ -8733,7 +8757,7 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
 
 TbBool cursor_on_room(RoomIndex room_index)
 {
-    struct UserState* ustate = get_local_user_state();
+    const struct UserState *ustate = get_player_user_state(get_displayed_player());
     struct SlabMap* slb = get_slabmap_for_subtile(ustate->cursor_subtile_x, ustate->cursor_subtile_y);
     if (slabmap_block_invalid(slb)) {
         return false;
@@ -8753,7 +8777,7 @@ TbBool room_is_damaged(RoomIndex room_index)
 }
 TbBool placing_same_room_type(RoomIndex room_index)
 {
-    struct UserState* ustate = get_local_user_state();
+    const struct UserState *ustate = get_player_user_state(get_displayed_player());
     if (map_volume_box.visible == 0) {
         return false;
     }
@@ -9132,8 +9156,7 @@ void draw_frontview_engine(struct Camera *cam)
 
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
     update_local_mouse_light();
-    if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) && !is_observer_camera_active() )
-    {
+    if (map_volume_box.visible && should_draw_cursor_box(my_player_number)) {
         process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
     }
 

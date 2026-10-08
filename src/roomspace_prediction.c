@@ -6,6 +6,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "game_legacy.h"
 #include "config_sounds.h"
 #include "map_data.h"
@@ -90,7 +91,7 @@ static TbBool prevent_local_dig_prediction(const struct Packet *pckt)
 
 static TbBool local_dig_prediction_is_enabled(void)
 {
-    return network_is_active() && !replay.load_enable && (game.input_lag_turns > 0);
+    return network_is_active() && !replay.load_enable && get_my_player() != &local_observer_player && (game.input_lag_turns > 0);
 }
 
 struct RoomSpace *get_local_dig_prediction_render_roomspace(struct RoomSpace *roomspace)

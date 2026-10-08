@@ -346,9 +346,7 @@ extern struct UserState bad_user_state;
 struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
 struct PlayerInfo *get_my_player(void);
-extern struct PlayerInfo local_observer_player;
-extern struct UserState local_observer_user_state;
-extern TbBool local_observer_rendering;
+const struct PlayerInfo *get_displayed_player(void);
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_active_keeper(const struct PlayerInfo *player);
@@ -360,6 +358,7 @@ uint32_t get_local_minimap_zoom(void);
 TbBool user_state_invalid(const struct UserState *ustate);
 int32_t user_zoom_min(const struct UserState *ustate, TbBool front_view);
 TbBool is_my_player_number(PlayerNumber plyr_num);
+TbBool is_player_displayed(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
 TbBool players_are_enemies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);

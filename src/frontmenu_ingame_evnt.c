@@ -40,6 +40,8 @@
 #include "gui_frontmenu.h"
 #include "packets.h"
 #include "net_input_lag.h"
+#include "net_game.h"
+#include "net_spectator.h"
 #include "frontend.h"
 #include "front_input.h"
 #include "vidfade.h"
@@ -565,11 +567,20 @@ static void draw_bottom_right_text(const char *text, int line)
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
-// name of user to display during replay
-static const char *replay_get_displayed_user_name(void)
+// name of user to display while watching a game
+static const char *get_displayed_user_name(void)
 {
-    if (!replay.load_enable)
+    if (network_is_active() && network_user_is_spectator(netstate.my_id)) {
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+            if (get_net_user_player_number(user) == my_player_number) {
+                return netstate.users[user].name;
+            }
+        }
         return NULL;
+    }
+    if (!replay.load_enable) {
+        return NULL;
+    }
     int users = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (replay.head.user_players[user] >= 0)
@@ -586,7 +597,12 @@ void draw_gameturn_timer(void)
     char text[32];
     snprintf(text, sizeof(text), "GameTurn %u", get_gameturn());
     draw_bottom_right_text(text, 0);
-    const char *name = replay_get_displayed_user_name();
+}
+
+void draw_watched_player_name(void)
+{
+    char text[sizeof(netstate.users[0].name) + 2];
+    const char *name = get_displayed_user_name();
     if (name != NULL || (replay.load_enable && is_observer_camera_active())) {
         const char *marker = "";
         if (is_observer_camera_active()) {
@@ -596,7 +612,11 @@ void draw_gameturn_timer(void)
             name = "";
         }
         snprintf(text, sizeof(text), "%s%.*s", marker, (int32_t)sizeof(replay.head.user_names[0]), name);
-        draw_bottom_right_text(text, 1);
+        int32_t line = 0;
+        if (gameturn_timer_enabled()) {
+            line = 1;
+        }
+        draw_bottom_right_text(text, line);
     }
 }
 

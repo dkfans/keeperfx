@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "front_input.h"
 
 #include "globals.h"
@@ -433,29 +434,28 @@ static short get_players_message_inputs(void)
         char text[PLAYER_MP_MESSAGE_LEN];
         memcpy(text, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
         text[PLAYER_MP_MESSAGE_LEN - 1] = '\0';
-        if (replay.load_enable) {
-            if (text[0] != '\0')
-                message_add(MsgType_Player, player->id_number, text);
+        MapCoord cursor_x;
+        MapCoord cursor_y;
+        struct Coord3d pos;
+        if ((get_local_view_type(player) == PVT_DungeonTop) && screen_to_map(get_local_active_camera(player), GetMouseX(), GetMouseY(), &pos)) {
+            cursor_x = pos.x.val;
+            cursor_y = pos.y.val;
         } else {
-            MapCoord cursor_x;
-            MapCoord cursor_y;
-            struct Coord3d pos;
-            if ((get_local_view_type(player) == PVT_DungeonTop) && screen_to_map(get_local_active_camera(player), GetMouseX(), GetMouseY(), &pos)) {
-                cursor_x = pos.x.val;
-                cursor_y = pos.y.val;
-            } else {
-                console_cmd_default_cursor(player->id_number, &cursor_x, &cursor_y);
+            console_cmd_default_cursor(player->id_number, &cursor_x, &cursor_y);
+        }
+        if (observer_is_active() && text[0] == cmd_char) {
+            memcpy(player->mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
+            cmd_exec_observer(text + 1, cursor_x, cursor_y);
+        } else if (replay.load_enable) {
+            if (text[0] != '\0') {
+                message_add(MsgType_Player, player->id_number, text);
             }
-            if (network_user_is_spectator(netstate.my_id) && text[0] == cmd_char) {
-                memcpy(player->mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
-                cmd_exec(player->id_number, text + 1, cursor_x, cursor_y);
-            } else {
-                if (network_is_active()) {
-                    send_network_chat_message_at(get_local_user(), text, cursor_x, cursor_y);
-                }
-                if (!network_user_is_spectator(netstate.my_id)) {
-                    queue_gameplay_chat_message(get_local_user(), text, cursor_x, cursor_y);
-                }
+        } else {
+            if (network_is_active()) {
+                send_network_chat_message_at(get_local_user(), text, cursor_x, cursor_y);
+            }
+            if (!observer_is_active()) {
+                queue_gameplay_chat_message(get_local_user(), text, cursor_x, cursor_y);
             }
         }
         ustate->init_flags &= ~UsrIF_NewMPMessage;
@@ -590,24 +590,6 @@ static short get_speed_control_inputs(void)
   return false;
 }
 
-/**
- * Handles control inputs in PacketLoad mode.
- */
-static void cycle_replay_player(int step)
-{
-    for (int i = 1; i < PLAYERS_COUNT; i++) {
-        const PlayerNumber plyr_idx = (my_player_number + step * i + PLAYERS_COUNT) % PLAYERS_COUNT;
-        if (!flag_is_set(replay.head.players_exist, to_flag(plyr_idx))
-         || flag_is_set(replay.head.players_comp, to_flag(plyr_idx)))
-            continue;
-        my_player_number = plyr_idx;
-        init_local_cameras(get_my_player());
-        reinit_tagged_blocks_for_player(plyr_idx);
-        panel_map_update(0, 0, game.map_subtiles_x, game.map_subtiles_y);
-        return;
-    }
-}
-
 static void get_snap_camera_inputs(const struct Camera *cam, struct Packet *pckt)
 {
     int angle = cam->rotation_angle_x;
@@ -658,65 +640,59 @@ static TbBool wheel_reserved_by_menu(void)
         || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE);
 }
 
-static TbBool replay_camera_keys_pressed(void)
+static TbBool observer_camera_input_pressed(void)
 {
-    static const long keys[] = {Gkey_ZoomIn, Gkey_ZoomOut, Gkey_TiltUp, Gkey_TiltDown, Gkey_TiltReset};
-    if ((wheel_scrolled_up || wheel_scrolled_down) && !wheel_reserved_by_menu())
+    if ((wheel_scrolled_up || wheel_scrolled_down) && !wheel_reserved_by_menu()) {
         return true;
-    if ((get_game_key_axis_value(Gkey_MoveLeft, true) != 0.0f) || (get_game_key_axis_value(Gkey_MoveRight, true) != 0.0f)
-     || (get_game_key_axis_value(Gkey_MoveUp, true) != 0.0f) || (get_game_key_axis_value(Gkey_MoveDown, true) != 0.0f))
-        return true;
-    for (int i = 0; i < (int)(sizeof(keys) / sizeof(keys[0])); i++) {
-        if (is_game_key_pressed(keys[i], false, false))
-            return true;
     }
-    if (left_button_clicked && ((game.operation_flags & GOF_ShowGui) != 0))
-    {
+    if ((get_game_key_axis_value(Gkey_MoveLeft, true) != 0.0f) || (get_game_key_axis_value(Gkey_MoveRight, true) != 0.0f)
+     || (get_game_key_axis_value(Gkey_MoveUp, true) != 0.0f) || (get_game_key_axis_value(Gkey_MoveDown, true) != 0.0f)) {
+        return true;
+    }
+    for (int32_t key = KC_ESCAPE; key < KC_MOUSE2; key++) {
+        if (key != KC_SPACE && key != KC_TAB && is_key_pressed(key, KMod_DONTCARE)) {
+            return true;
+        }
+    }
+    if (controller_button_state != 0) {
+        return true;
+    }
+    if (left_button_clicked && ((game.operation_flags & GOF_ShowGui) != 0)) {
         long x;
         long y;
         long zoom;
         get_dungeon_small_map_placement(&x, &y, &zoom);
-        if (mouse_is_over_panel_map(x, y))
+        if (mouse_is_over_panel_map(x, y)) {
             return true;
+        }
     }
     return false;
+}
+
+static void detach_observer_camera(void)
+{
+    if (is_observer_camera_active()) {
+        return;
+    }
+    const unsigned char view_type = get_local_view_type(get_my_player());
+    enter_observer_camera();
+    if (view_type == PVT_MapScreen) {
+        set_observer_camera_view(PVT_MapScreen);
+    }
 }
 
 static void get_observer_camera_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
     if (!is_observer_camera_active()) {
-        const unsigned char view_type = get_local_view_type(player);
-        const TbBool possessed = (view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr);
-        if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
-            enter_observer_camera();
-            set_observer_camera_view(PVT_MapScreen);
-            return;
-        }
-        if (possessed && (right_button_released || is_key_pressed(KC_ESCAPE, KMod_DONTCARE))) {
-            right_button_released = 0;
-            clear_key_pressed(KC_ESCAPE);
-            enter_observer_camera();
-            return;
-        }
-        if (!replay_camera_keys_pressed())
-            return;
-        enter_observer_camera();
+        return;
     }
     my_mouse_x = GetMouseX();
     my_mouse_y = GetMouseY();
     struct Camera* camera = get_local_active_camera(player);
     if (get_local_view_type(player) == PVT_MapScreen) {
-        if (right_button_released || is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
-            right_button_released = 0;
+        if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
             set_observer_camera_view(PVT_DungeonTop);
-            return;
-        }
-        int32_t map_x;
-        int32_t map_y;
-        if (left_button_released && point_to_overhead_map(camera, my_mouse_x / pixel_size, my_mouse_y / pixel_size, &map_x, &map_y)) {
-            left_button_released = 0;
-            observer_camera_jump(coord_subtile(map_x), coord_subtile(map_y));
         }
         return;
     }
@@ -751,127 +727,78 @@ static void get_observer_camera_inputs(void)
 
 static short get_packet_load_game_control_inputs(void)
 {
-  if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
-  {
-    const unsigned char view_type = get_local_view_type(get_my_player());
-    const TbBool possessed = (view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr);
-    if (a_menu_window_is_active())
-    {
-      clear_key_pressed(KC_ESCAPE);
-      turn_off_all_window_menus();
-      return true;
+    if (a_menu_window_is_active() || (get_local_user_state()->init_flags & UsrIF_NewMPMessage) != 0) {
+        return false;
     }
-    if (is_observer_camera_active() || !possessed)
-    {
-      clear_key_pressed(KC_ESCAPE);
-      turn_on_menu(GMnu_QUIT);
-      return true;
+    if (is_game_key_pressed(Gkey_ExitGame, true, false)) {
+        if (network_is_active()) {
+            LbNetwork_Stop();
+        }
+        quit_game = 1;
+        exit_keeper = 1;
+        return true;
     }
-  }
-  if (a_menu_window_is_active())
-  {
-    get_gui_inputs(1);
-    return true;
-  }
-  if (is_game_key_pressed(Gkey_ToggleGui, true, true))
-  {
-    if (is_observer_camera_active()) {
-      return_to_player_camera();
-    } else {
-      int32_t direction = 1;
-      if (is_game_key_pressed(Gkey_SpeedMod, false, true)) {
-        direction = -1;
-      }
-      cycle_replay_player(direction);
+    if (is_game_key_pressed(Gkey_DisablePacketMode, true, false)) {
+        disable_packet_mode();
+        return true;
     }
-    return true;
-  }
-  if (is_game_key_pressed(Gkey_ExitGame, true, false))
-  {
-    if (network_is_active())
-      LbNetwork_Stop();
-    quit_game = 1;
-    exit_keeper = 1;
-    return true;
-  }
-  if (is_game_key_pressed(Gkey_DisablePacketMode, true, false))
-  {
-    disable_packet_mode();
-    return true;
-  }
-  if (is_game_key_pressed(Gkey_ToggleConsole, true, false)) 
-  {
-      debug_display_consolelog = !debug_display_consolelog;
-      return true;
-  }
-  struct UserState* ustate = get_local_user_state();
-  if ((ustate->init_flags & UsrIF_NewMPMessage) != 0)
-  {
-      get_players_message_inputs();
-      return true;
-  }
-  if (is_key_pressed(KC_RETURN, KMod_NONE))
-  {
-      ustate->init_flags |= UsrIF_NewMPMessage;
-      LbStartTextInput();
-      clear_key_pressed(KC_RETURN);
-      return true;
-  }
-  return false;
+    if (is_game_key_pressed(Gkey_ToggleConsole, true, false)) {
+        debug_display_consolelog = !debug_display_consolelog;
+        return true;
+    }
+    return false;
 }
 
-static long get_small_map_inputs(long x, long y, long zoom, struct Packet *pckt)
+static int32_t get_small_map_inputs(int32_t x, int32_t y, int32_t zoom, struct Packet *pckt)
 {
-  SYNCDBG(7,"Starting");
-  short result = 0;
-  long curr_mx = GetMouseX();
-  long curr_my = GetMouseY();
-  if (!grabbed_small_map)
-    game.small_map_state = 0;
-  if (((game.operation_flags & GOF_ShowGui) != 0) && (mouse_is_over_panel_map(x,y) || grabbed_small_map))
-  {
-    if (left_button_clicked)
-    {
-      clicked_on_small_map = 1;
-      left_button_clicked = 0;
+    SYNCDBG(7,"Starting");
+    short result = 0;
+    int32_t curr_mx = GetMouseX();
+    int32_t curr_my = GetMouseY();
+    if (!grabbed_small_map) {
+        game.small_map_state = 0;
     }
-    if ( do_left_map_click(x, y, curr_mx, curr_my, zoom, pckt)
-      || do_right_map_click(x, y, curr_mx, curr_my, zoom, pckt)
-      || do_left_map_drag(curr_mx, curr_my, zoom, pckt) )
-      result = 1;
-  } else
-  {
-    clicked_on_small_map = 0;
-  }
-  if (grabbed_small_map)
-  {
-    TbGraphicsWindow ewnd;
-    store_engine_window(&ewnd, 1);
-    LbMouseSetPosition(ewnd.x + (ewnd.width  >> 1),
-                       ewnd.y + (ewnd.height >> 1));
-  }
-  old_mx = curr_mx;
-  old_my = curr_my;
-  if (grabbed_small_map)
-    game.small_map_state = 2;
-  SYNCDBG(8,"Finished");
-  return result;
+    if (((game.operation_flags & GOF_ShowGui) != 0 && mouse_is_over_panel_map(x, y))
+     || clicked_on_small_map || grabbed_small_map) {
+        if (left_button_clicked) {
+            clicked_on_small_map = 1;
+            left_button_clicked = 0;
+            old_mx = curr_mx;
+            old_my = curr_my;
+        }
+        if (do_left_map_click(x, y, curr_mx, curr_my, zoom, pckt)
+         || do_right_map_click(x, y, curr_mx, curr_my, zoom, pckt)
+         || do_left_map_drag(curr_mx, curr_my, zoom, pckt)) {
+            result = 1;
+        }
+    } else {
+        clicked_on_small_map = 0;
+    }
+    if (grabbed_small_map) {
+        TbGraphicsWindow ewnd;
+        store_engine_window(&ewnd, 1);
+        LbMouseSetPosition(ewnd.x + (ewnd.width >> 1), ewnd.y + (ewnd.height >> 1));
+    }
+    old_mx = curr_mx;
+    old_my = curr_my;
+    if (grabbed_small_map) {
+        game.small_map_state = 2;
+    }
+    SYNCDBG(8,"Finished");
+    return result;
 }
 
 static short get_bookmark_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    for (int i = 0; i < BOOKMARKS_COUNT; i++)
-    {
+    for (int i = 0; i < BOOKMARKS_COUNT; i++) {
         struct Bookmark* bmark = &game.bookmark[i];
         int kcode = KC_1 + i;
         // Store bookmark check
-        if (is_key_pressed(kcode, KMod_CONTROL))
-        {
+        if (is_key_pressed(kcode, KMod_CONTROL)) {
             clear_key_pressed(kcode);
             struct Camera* camera = get_local_active_camera(player);
-            if (camera != NULL)
-            {
+            if (camera != NULL) {
                 bmark->x = camera->mappos.x.stl.num;
                 bmark->y = camera->mappos.y.stl.num;
                 bmark->flags |= 0x01;
@@ -880,19 +807,22 @@ static short get_bookmark_inputs(void)
             return true;
         }
         // Load bookmark check
-        if (is_key_pressed(kcode, KMod_SHIFT))
-        {
+        if (is_key_pressed(kcode, KMod_SHIFT)) {
             clear_key_pressed(kcode);
-            if ((bmark->flags & 0x01) != 0)
-            {
+            if ((bmark->flags & 0x01) != 0) {
                 const MapCoord x = subtile_coord_center(bmark->x);
                 const MapCoord y = subtile_coord_center(bmark->y);
-                set_players_packet_action(player, PckA_BookmarkLoad, x, y, 0, 0);
+                if (observer_is_active()) {
+                    enter_observer_camera();
+                    set_packet_action(get_observer_camera_packet(), PckA_BookmarkLoad, x, y, 0, 0);
+                } else {
+                    set_players_packet_action(player, PckA_BookmarkLoad, x, y, 0, 0);
+                }
                 return true;
             }
         }
-  }
-  return false;
+    }
+    return false;
 }
 
 static short zoom_shortcuts(void)
@@ -2781,6 +2711,86 @@ static void get_map_nonaction_inputs(void)
     }
 }
 
+static short get_observer_inputs(void)
+{
+    struct PlayerInfo *player = get_my_player();
+    struct UserState *ustate = get_local_user_state();
+    if ((ustate->init_flags & UsrIF_NewMPMessage) != 0) {
+        get_players_message_inputs();
+        return true;
+    }
+    if (!a_menu_window_is_active() && !game_is_busy_doing_gui_string_input()) {
+        if (is_key_pressed(KC_SPACE, KMod_DONTCARE)) {
+            clear_key_pressed(KC_SPACE);
+            toggle_gui();
+            return true;
+        }
+        if (is_key_pressed(KC_TAB, KMod_DONTCARE)) {
+            clear_key_pressed(KC_TAB);
+            observer_cycle_player(1);
+            return true;
+        }
+    }
+    if (replay.load_enable && get_packet_load_game_control_inputs()) {
+        return true;
+    }
+    if (is_key_pressed(KC_RETURN, KMod_NONE)) {
+        ustate->init_flags |= UsrIF_NewMPMessage;
+        LbStartTextInput();
+        clear_key_pressed(KC_RETURN);
+        return true;
+    }
+    get_options_menu_inputs();
+    if (!a_menu_window_is_active() && !game_is_busy_doing_gui_string_input() && observer_camera_input_pressed()) {
+        detach_observer_camera();
+    }
+    const unsigned char view_type = get_local_view_type(player);
+    if (view_type == PVT_DungeonTop) {
+        if ((game.operation_flags & GOF_ShowGui) != 0 && menu_is_active(GMnu_SPELL_LOST)) {
+            initialise_tab_tags_and_menu(GMnu_QUERY);
+            turn_off_all_panel_menus();
+            turn_on_menu(GMnu_QUERY);
+        }
+    }
+    if (!get_gui_inputs(1) && !a_menu_window_is_active()) {
+        if (view_type == PVT_DungeonTop && get_bookmark_inputs()) {
+            return true;
+        }
+        if (clicked_on_small_map || grabbed_small_map) {
+            get_observer_camera_inputs();
+            return true;
+        }
+        if (view_type == PVT_MapScreen && !game_is_busy_doing_gui() && left_button_released) {
+            int32_t map_x;
+            int32_t map_y;
+            TbBool map_valid = point_to_overhead_map(get_local_active_camera(player), GetMouseX() / pixel_size, GetMouseY() / pixel_size, &map_x, &map_y);
+            left_button_clicked = 0;
+            left_button_released = 0;
+            if (map_valid) {
+                detach_observer_camera();
+                observer_camera_jump(coord_subtile(map_x), coord_subtile(map_y));
+            }
+            return true;
+        }
+        if (!game_is_busy_doing_gui() && (left_button_released || right_button_released)) {
+            if (right_button_released) {
+                observer_cycle_player(-1);
+            } else if (is_observer_camera_active()) {
+                return_to_player_camera();
+            } else {
+                detach_observer_camera();
+            }
+            left_button_clicked = 0;
+            left_button_released = 0;
+            right_button_clicked = 0;
+            right_button_released = 0;
+            return true;
+        }
+        get_observer_camera_inputs();
+    }
+    return true;
+}
+
 static short get_packet_load_game_inputs(void)
 {
     set_replay_playback_paused(a_menu_window_is_active());
@@ -2789,8 +2799,7 @@ static short get_packet_load_game_inputs(void)
         clear_packets();
     } else
     {
-        if (flag_is_set(game.operation_flags, GOF_Paused))
-        {
+        if (flag_is_set(game.operation_flags, GOF_Paused)) {
             clear_users_button_state();
             process_pause_packet(0, 0);
         }
@@ -2798,8 +2807,8 @@ static short get_packet_load_game_inputs(void)
         load_packets_for_turn(replay.pckt_gameturn);
         replay.pckt_gameturn++;
     }
-    if (!get_packet_load_game_control_inputs())
-        get_observer_camera_inputs();
+    gui_process_inputs();
+    get_observer_inputs();
     if (get_speed_control_inputs())
         return false;
     if (get_screen_control_inputs())
@@ -3117,33 +3126,8 @@ static short get_inputs(void)
     }
     SYNCDBG(5,"Starting");
     gui_process_inputs();
-    if (network_is_active() && network_user_is_spectator(netstate.my_id)) {
-        struct UserState *ustate = get_local_user_state();
-        if ((ustate->init_flags & UsrIF_NewMPMessage) != 0) {
-            get_players_message_inputs();
-            return true;
-        }
-        if (is_key_pressed(KC_RETURN, KMod_NONE)) {
-            ustate->init_flags |= UsrIF_NewMPMessage;
-            LbStartTextInput();
-            clear_key_pressed(KC_RETURN);
-            return true;
-        }
-        get_options_menu_inputs();
-        if (get_local_view_type(player) == PVT_DungeonTop) {
-            if (is_game_key_pressed(Gkey_ToggleGui, true, true)) {
-                toggle_gui();
-            }
-            if ((game.operation_flags & GOF_ShowGui) != 0 && !menu_is_active(GMnu_SPELL_LOST)) {
-                initialise_tab_tags_and_menu(GMnu_SPELL);
-                turn_off_all_panel_menus();
-                turn_on_menu(GMnu_SPELL_LOST);
-            }
-        }
-        if (!get_gui_inputs(1) && !a_menu_window_is_active()) {
-            get_observer_camera_inputs();
-        }
-        return true;
+    if (observer_is_active()) {
+        return get_observer_inputs();
     }
     if (player->victory_state == VicS_LostLevel)
     {
@@ -3387,6 +3371,15 @@ short get_gui_inputs(short gameplay_on)
   result |= gui_button_click_inputs(gmbtn_idx);
   gui_clear_buttons_not_over_mouse(gmbtn_idx);
   result |= gui_button_release_inputs(gmbtn_idx);
+  if (gameplay_on && observer_is_active() && a_menu_window_is_active()
+   && !game_is_busy_doing_gui() && (left_button_released || right_button_released)) {
+      turn_off_all_window_menus();
+      left_button_clicked = 0;
+      left_button_released = 0;
+      right_button_clicked = 0;
+      right_button_released = 0;
+      result = true;
+  }
   input_gameplay_tooltips(gameplay_on);
   SYNCDBG(8,"Finished");
   return result;

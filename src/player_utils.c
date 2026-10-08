@@ -845,10 +845,6 @@ void init_local_player_state(void)
 {
     local_state.minimap_pos_x = 11;
     local_state.minimap_pos_y = 11;
-    local_state.minimap_zoom = settings.minimap_zoom;
-    if (game.game_kind == GKind_MultiGame) {
-        local_state.minimap_zoom = 256;
-    }
     local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
 }
 
@@ -1434,18 +1430,8 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
                     break;
                 }
             }
-            // Refresh GUI panel button sprites for local player. Workaround for multiplayer.
             if (plyr_idx == my_player_number) {
-                for (int btn_idx = 0; btn_idx < ACTIVE_BUTTONS_COUNT; btn_idx++) {
-                    struct GuiButton *gbtn = &active_buttons[btn_idx];
-                    if ((gbtn->flags & LbBtnF_Active) == 0) {continue;}
-                    struct GuiMenu *gmnu = get_active_menu(gbtn->gmenu_idx);
-                    if (gmnu == NULL) {continue;}
-                    struct GuiButtonInit *gbinit = get_gui_button_init(gmnu, gbtn->id_num);
-                    if (gbinit != NULL && gbinit->sprite_idx != 0) {
-                        gbtn->sprite_idx = get_player_colored_icon_idx(gbinit->sprite_idx, my_player_number);
-                    }
-                }
+                update_gui_button_player_colors();
             }
         }
     }

@@ -4,6 +4,7 @@
 #include "kfx/renderer/RendererSoftware.h"
 #include "kfx/renderer/RendererOpenGL.h"
 #include "bflib_basics.h"
+#include "bflib_mouse.h"
 #include "bflib_video.h"
 #include "kfx/renderer/ITextRenderer.h"
 #include "kfx/renderer/IUIRenderer.h"
@@ -139,8 +140,10 @@ void RendererClearScreen(unsigned char colour)
 
 void RendererPresentFrame(void)
 {
-    if (s_active_renderer != nullptr)
+    if (s_active_renderer != nullptr) {
         s_active_renderer->PresentFrame();
+    }
+    LbMouseSetDrawPosition(nullptr);
 }
 
 TbBool RendererBeginFrame(void)

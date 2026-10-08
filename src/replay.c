@@ -1470,10 +1470,8 @@ void load_packets_for_turn(GameTurn nturn)
         disable_packet_mode();
         return;
     }
-    if (nturn >= replay.turns_stored)
-    {
-        ERRORDBG(18,"Out of turns to load from Packet File");
-        erstat_inc(ESE_CantReadPackets);
+    if (nturn >= replay.turns_stored) {
+        quit_game = 1;
         return;
     }
 
@@ -1525,6 +1523,7 @@ void disable_packet_mode(void)
     replay.save_enable = false;
     remap_user_to_solo(get_my_player());
     apply_local_user_preferences(SOLO_HUMAN_ID, UPF_ApplyOnTakeover);
+    local_state.view_type = PVT_None;
     return_to_player_camera();
     show_onscreen_msg(2*turns_per_second, "Packet mode disabled");
     set_gui_visible(true);

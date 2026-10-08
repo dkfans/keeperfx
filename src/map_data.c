@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "map_data.h"
 #include "globals.h"
 #include "map_columns.h"

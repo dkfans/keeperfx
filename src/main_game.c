@@ -47,6 +47,7 @@
 #include "net_game.h"
 #include "net_lobby.h"
 #include "net_spectator.h"
+#include "observer.h"
 #include "frontmenu_ingame_evnt.h"
 #include "net_resync.h"
 #include "room_library.h"
@@ -388,6 +389,9 @@ TbBool startup_saved_packet_game(void)
     post_init_level();
     post_init_players();
     set_selected_level_number(0);
+    if ((game.mode_flags & MFlg_IsDemoMode) == 0) {
+        observer_init(my_player_number);
+    }
     update_engine_view(get_my_player(), false);
     return true;
 }

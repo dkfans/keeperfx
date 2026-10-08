@@ -58,6 +58,7 @@
 #include "sprites.h"
 #include "player_instances.h"
 #include "local_camera.h"
+#include "observer.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1090,6 +1091,9 @@ void zoom_to_parchment_map(void)
         clear_flag(game.operation_flags, GOF_ShowPanel);
     } else {
         set_flag(game.operation_flags, GOF_ShowPanel);
+    }
+    if (observer_is_active()) {
+        enter_observer_camera();
     }
     if (is_observer_camera_active()) {
         turn_off_roaming_menus();

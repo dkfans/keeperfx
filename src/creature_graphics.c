@@ -427,42 +427,33 @@ void update_creature_rendering_flags(struct Thing *thing)
     thing->rendering_flags &= ~TRF_Transpar_Flags;
     thing->rendering_flags &= ~TRF_AnimateOnce;
     // Now set only those that should be
-    if ( (is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
-    {
+    if (is_thing_directly_controlled_by_player(thing, my_player_number) || is_thing_passenger_controlled_by_player(thing, my_player_number)) {
         thing->rendering_flags |= TRF_Invisible;
     }
-    if (thing_is_creature(thing))
-    {
+    if (thing_is_creature(thing)) {
         struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-        if (crconf->transparency_flags != 0)
-        {
+        if (crconf->transparency_flags != 0) {
             set_flag(thing->rendering_flags, crconf->transparency_flags);
         }
     }
-    if (creature_is_invisible(thing))
-    {
-      if (is_my_player_number(thing->owner))
-      {
-          thing->rendering_flags &= ~TRF_Transpar_Flags;
-          thing->rendering_flags |= TRF_Transpar_4;
-      } else
-      {
+    if (creature_is_invisible(thing)) {
+        if (is_player_displayed(thing->owner)) {
+            thing->rendering_flags &= ~TRF_Transpar_Flags;
+            thing->rendering_flags |= TRF_Transpar_4;
+        } else {
             thing->rendering_flags |= TRF_Invisible;
-            struct PlayerInfo* player = get_my_player();
+            const struct PlayerInfo *player = get_displayed_player();
             struct Thing* creatng = thing_get(player->influenced_thing_idx);
-            if ((creatng != thing) && (thing_is_creature(creatng)))
-            {
-                if ( (is_thing_directly_controlled_by_player(creatng, player->id_number)) || (is_thing_passenger_controlled_by_player(creatng, player->id_number)) )
-                {
-                    if (creature_can_see_invisible(creatng))
-                    {
+            if ((creatng != thing) && (thing_is_creature(creatng))) {
+                if (is_thing_directly_controlled_by_player(creatng, player->id_number) || is_thing_passenger_controlled_by_player(creatng, player->id_number)) {
+                    if (creature_can_see_invisible(creatng)) {
                         thing->rendering_flags &= ~TRF_Invisible;
                         thing->rendering_flags &= ~TRF_Transpar_Flags;
                         thing->rendering_flags |= TRF_Transpar_4;
                     }
                 }
             }
-      }
+        }
     }
 }
 
