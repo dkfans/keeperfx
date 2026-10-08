@@ -6077,3 +6077,8 @@ msgstr ""
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr ""
+
+#: guitext:1149
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr ""

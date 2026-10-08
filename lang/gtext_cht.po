@@ -7134,3 +7134,9 @@ msgstr "此房主不支援觀戰者加入。"
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "玩家無法看到觀戰者聊天。"
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "您正在觀戰"

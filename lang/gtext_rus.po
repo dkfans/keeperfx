@@ -6907,3 +6907,9 @@ msgstr "Этот хост не поддерживает подключение �
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "Игроки не видят чат зрителей."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "Вы наблюдаете за игрой"

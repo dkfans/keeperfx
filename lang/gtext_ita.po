@@ -7640,3 +7640,9 @@ msgstr "Questo host non supporta l'accesso degli spettatori."
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "I giocatori non possono vedere la chat degli spettatori."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "Stai assistendo alla partita"

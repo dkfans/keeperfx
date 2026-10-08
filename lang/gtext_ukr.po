@@ -7589,3 +7589,9 @@ msgstr "Цей хост не підтримує підключення гляд�
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "Гравці не бачать чат глядачів."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "Ви спостерігаєте за грою"

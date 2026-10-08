@@ -7524,3 +7524,9 @@ msgstr "이 호스트는 관전자 참가를 지원하지 않습니다."
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "플레이어는 관전자 채팅을 볼 수 없습니다."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "관전 중입니다"

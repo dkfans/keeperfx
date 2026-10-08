@@ -7509,3 +7509,9 @@ msgstr "Tento hostitel nepodporuje připojování diváků."
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "Hráči nemohou vidět chat diváků."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "Sledujete hru"

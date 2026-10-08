@@ -7473,3 +7473,9 @@ msgstr "このホストは観戦者の参加に対応していません。"
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "プレイヤーには観戦者のチャットは表示されません。"
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "観戦中です"
