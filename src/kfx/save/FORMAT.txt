@@ -1,0 +1,458 @@
+KFXS FILE FORMAT                                                 format 1.0
+================================================================================
+
+CONTENTS
+  1  Conventions
+  2  File header
+  3  Chunk
+  4  File kinds and their chunks
+  5  SCHM chunk (schema)
+  6  Record encoding
+  7  Unions
+  8  Reading a record: matching, defaults, conversion
+  9  NAMS chunk
+ 10  CONF chunk
+ 11  RECS chunk
+ 12  Replay file
+ 13  Limits
+ 14  Results
+ 15  Source files
+
+
+1  CONVENTIONS
+--------------------------------------------------------------------------------
+  u8 u16 u32 u64     unsigned integer, little endian, 1 2 4 8 bytes
+  i8 i16 i32 i64     two's complement, little endian
+  f32 f64            IEEE 754, little endian
+  bool8              1 byte, 0 or 1
+  str                u16 length, then length bytes, no terminator
+  fourcc             4 bytes, the characters in file order
+  crc32              zlib crc32 (polynomial 0xEDB88320, init 0)
+  offsets            decimal, from the start of the structure shown
+  Every number in a file is little endian, on every machine.
+  Exception: raw memory in unions without a table (7.3, 7.4), which is stored
+  as it is in memory of the machine that wrote it.
+
+
+2  FILE HEADER                                                     16 bytes
+--------------------------------------------------------------------------------
+  off  size  type    name     value
+    0     4  fourcc  magic    "KFXS"
+    4     2  u16     major    1
+    6     2  u16     minor    0
+    8     4  u32     kind     see 4
+   12     4  u32     crc      crc32 of bytes 0..11
+
+  Chunks follow the header, back to back, up to the end of the file.
+
+  Read rules
+    file shorter than 16, or magic is not "KFXS"      too old
+    crc does not match                                damaged
+    major > 1                                         too new
+    major < 1                                         too old
+    kind is not the one the reader expects            refused
+
+
+3  CHUNK                                                   20 bytes + body
+--------------------------------------------------------------------------------
+  off  size  type    name        value
+    0     4  fourcc  id          see 4
+    4     4  u32     flags       see below
+    8     4  u32     stored_len  bytes of body in the file
+   12     4  u32     raw_len     bytes of body after unpacking
+   16     4  u32     crc         crc32 of the unpacked body (raw_len bytes)
+   20     -  bytes   body        stored_len bytes
+
+  flags
+    0x01  ZLIB       body is a zlib stream; set only when it is smaller
+    0x02  REQUIRED   a reader that does not know the id refuses the file
+    0x04  -          reserved, never set, never read
+    0x08  RAWBYTES   body holds raw memory (7.3, 7.4)
+    0x10  RAWBIG     with RAWBYTES: the writer was big endian
+
+  Read rules
+    stored_len > bytes left in the file               damaged
+    raw_len > 268435456                               damaged
+    no ZLIB and raw_len != stored_len                 damaged
+    unknown id and REQUIRED                           too new
+    unknown id and not REQUIRED                       skipped
+    unpacked length != raw_len, or crc mismatch       damaged
+    RAWBYTES, byte order of the writer differs from the reader's
+                                                      the raw bytes are refused (7.4)
+
+  Write rules
+    zlib level 1, kept only when the result is smaller than raw_len
+    RAWBYTES is set when the body contains a non-zero raw byte
+    RAWBIG is set when RAWBYTES is set and the writer is big endian
+    all-zero raw memory reads the same on both and sets no flag
+
+
+4  FILE KINDS AND THEIR CHUNKS
+--------------------------------------------------------------------------------
+  kind  name        holds
+     1  Save        a saved game                      fx1gNNNN.sav
+     2  Continue    continue link, campaign progress  fx1lastf.sav, progress
+     3  Replay      a replay header, then packets     .pck
+     4  HighScore   high score table of a campaign
+     5  NetConfig   network config
+     6  Resync      reserved, never written
+
+  chunk ids
+    META   title record                         CatalogueEntry
+    SCHM   schema                               5
+    NAMS   config table names                   9
+    CONF   config changed by the level          10
+    GAME   whole game state                     struct Game
+    ILVL   campaign progress                    struct IntralevelData
+    LUA    Lua state                            opaque bytes
+    RECS   run of records of one struct         11
+    PHDR   replay header record                 struct PacketSaveHead
+    TURN   marker, zero length                  12
+
+  Save                                      flags   zlib
+    META                                    REQ     no
+    SCHM                                    REQ     yes
+    NAMS                                    REQ     yes
+    CONF                                    REQ     yes
+    GAME                                    REQ     yes
+    ILVL                                    REQ     yes
+    LUA                                     -       yes   only when Lua has state
+
+  Record file (Continue, HighScore, NetConfig)
+    SCHM                                    REQ     yes
+    RECS                                    REQ     yes
+
+  Replay                                    see 12
+
+  To load a Save: META, SCHM, GAME and ILVL must all be present.
+  Chunks may be in any order. A writer writes each chunk once.
+  NAMS and CONF are optional on read: without them nothing is checked and
+  no config changes are applied.
+  Chunks with an unknown id are skipped (3).
+  META is read without the rest of the file, to list saves in the menus.
+
+
+5  SCHM CHUNK (SCHEMA)
+--------------------------------------------------------------------------------
+  Describes every struct and field of the records in the file.
+  The writer lists the structs reachable from the roots of the file.
+  Structs are sorted by name (strcmp). No two structs share a name.
+
+  schema
+    u32      struct_count
+    struct   x struct_count
+
+  struct
+    str      name
+    u16      field_count
+    field    x field_count
+
+  field
+    str      name
+    u8       type            see 5.1
+    u8       flags           see 5.2
+    u8       dim_count       0..3
+    u32      x dim_count     dimensions, outermost first
+    str      sub_type        struct name; empty unless type is STRUCT
+    -- only when type is UNION:
+    str      selector        discriminator field name, or selector function name
+    u16      member_count    0..254
+    member   x member_count
+
+  member
+    str      name
+    str      sub_type        struct name; empty when the member is raw memory
+    u32      raw_size        bytes of raw memory; 0 for a struct member
+
+  Fields are listed in the order of the writer's table, and records store
+  them in the same order. A field that is not stored in the file's mode
+  (5.2) is not listed.
+
+  Read limits
+    type > 14, dim_count > 3, member_count > 254          damaged
+    counts larger than the bytes that remain              damaged
+    bytes left over after the last struct                 damaged
+    union field with dimensions                           damaged
+
+5.1  Stored types
+  id  name    size  notes
+   0  -       -     invalid
+   1  u8      1
+   2  i8      1
+   3  u16     2
+   4  i16     2
+   5  u32     4
+   6  i32     4
+   7  u64     8
+   8  i64     8
+   9  f32     4
+  10  f64     8
+  11  bool8   1
+  12  str     1     char array; the array length is the capacity (6.3)
+  13  struct  -     fields of sub_type
+  14  union   -     see 7
+
+5.2  Field flags in the schema
+  0x01  SAVE   stored in a Save
+  0x02  SYNC   stored in a network resync record
+  A Save lists the fields with SAVE. A resync record lists the fields with SYNC.
+  Fields that are derived or runtime only (rebuilt, or kept from the running
+  game) are not listed in either.
+
+
+6  RECORD ENCODING
+--------------------------------------------------------------------------------
+  A record is the fields of its struct, in schema order, with no padding,
+  no tags and no lengths. Its length comes from its schema.
+
+6.1  Count of elements
+  count = product of dims, or 1 when dim_count is 0.
+  Arrays are stored row major: the last dimension changes fastest.
+
+6.2  Scalars (u8 .. f64, bool8)
+  count elements, size bytes each (5.1).
+  bool8 is written 0 or 1.
+  A value is converted from the memory type to the stored type when written.
+  A value that does not fit the stored type fails the write.
+  A field flagged CLAMP in the table is cut to the nearest value that fits.
+
+6.3  Strings (str)
+  The char array as it is in memory: count bytes, the last dimension being
+  the capacity. Unused bytes after the end of the string are zero.
+
+6.4  Structs
+  count times: the fields of sub_type, in order.
+
+6.5  Unions
+  see 7
+
+
+7  UNIONS
+--------------------------------------------------------------------------------
+  A union field holds one of several members, all at the same place in memory.
+
+  union value
+    u8       code            0: nothing stored; n: member n-1 of the schema
+    -- code > 0, member has a sub_type (a table):
+    fields   of sub_type, in order
+    u16      tail_len        0 when the bytes past the table are all zero
+    u16      tail_off        only when tail_len > 0: from the start of the union
+    bytes    x tail_len      only when tail_len > 0; raw memory
+    -- code > 0, member has no sub_type (raw):
+    bytes    x raw_size      raw memory
+
+7.1  Choosing the member when writing
+  By a field of the same struct: its value is looked up in the values listed
+  for each member of the table. A value that none lists picks the default
+  member, or none.
+  By a selector function: a function registered by name, which is given the
+  whole struct. Without a function by that name the default member is used.
+  A member without a table and with raw_size 0 is written as code 0.
+
+7.2  Selector "thing_arm" (struct Thing, field valuable)
+  By the class of the thing and, for objects, its model and config genre.
+  Members: unknown (stored raw), none, small object, gold, food, lair or
+  torture device, spell object, room status flag, shot, lizard shot, corpse,
+  creature, shot effect, price tag, effect generator, trap, door, cave-in.
+
+7.3  Raw members
+  Bytes of the union in memory. They are in the byte order of the writer.
+  The chunk gets RAWBYTES (3).
+  Used by unions whose members have no field table: parts of CreatureControl
+  and ScriptValue, and a thing whose class the selector does not know.
+
+7.4  Tail bytes
+  Bytes of the union beyond what the chosen member covers. Stored only when
+  one of them is not zero, so that a member picked wrongly loses nothing.
+  They are raw memory, flagged as in 7.3.
+
+7.5  Byte order of raw memory
+  Same byte order as the writer: copied back as they are.
+  Other byte order: a record that has non-zero raw memory is refused.
+  All-zero raw memory is accepted.
+
+
+8  READING A RECORD
+--------------------------------------------------------------------------------
+  The schema of the file is matched to the tables of the build.
+
+  structs      matched by name
+  fields       matched by name, or by one of the aliases (earlier names)
+               listed for the field in the build's table
+  union members  matched by name
+
+  situation                                      action
+  field in file and in build                     read, converted (8.1)
+  field in file, not in build                    skipped
+                                                 bytes kept for migrations
+                                                 (fields of top-level structs)
+  field in build, not in file                    default value of the field
+                                                 (an integer in the table), or 0
+  struct in build, not in file                   zero
+  union member in file, not in build             refused
+  union member in build, not in file             not used
+
+8.1  Conversion
+  integer to integer        stored value must fit; else refused, or cut
+                            to the nearest value when the field has CLAMP
+  f32, f64                  converted between the two
+  integer to float, float to integer
+                            refused
+  bool8                     any non-zero value is 1
+  str                       copied up to the capacity of the build; the
+                            result is always terminated
+
+8.2  Arrays of a different size
+  Elements are matched by index in each dimension.
+  Elements of the build with none in the file: default value, or zero.
+  Elements of the file past the end of the build's array: must be zero
+  (a struct element: every byte it stores is zero), else refused.
+
+8.3  Migrations
+  A migration is a function for a change of meaning that matching cannot
+  express. It runs for a file whose minor is <= from_minor of the migration,
+  after the record is read, and can use the kept bytes of dropped fields.
+  Order: by from_minor, then table order. The table is empty at format 1.0.
+
+8.4  Versions
+  major   changed for a change that readers of an older major cannot follow.
+          Reader refuses a larger major, and one below the oldest it reads (1).
+  minor   changed when fields are added, removed or widened in a way that
+          matching handles. A reader accepts any minor of its major.
+
+
+9  NAMS CHUNK
+--------------------------------------------------------------------------------
+  Code names of the entries of the config tables, in the order of the writer.
+  A load compares them with its own, to see that the stored indices still
+  mean the same thing.
+
+  nams
+    u16      domain_count
+    domain   x domain_count
+
+  domain
+    u16      domain id
+    u32      count
+    str      x count      code name of entry 0 .. count-1
+
+  domain ids
+     1  creature model     2  room          3  trap        4  door
+     5  object             6  spell         7  power       8  shot
+     9  effect            10  effect element 11 effect generator
+    12  instance
+    13  by thing class         the domain of Thing.model follows the class
+    14  by manufacture class   the domain of Dungeon.manufacture_kind follows
+                               the manufacture class
+    13 and 14 are not written in NAMS; they pick one of 1..12 when checking.
+
+  Check after GAME is read
+    For every field the tables mark with a domain, with the value as index:
+      index negative, a float, or not below the build's table size
+                                       not checked
+      domain has no table in the file  not checked
+      index beyond the file's table    refused
+      names differ at that index       refused
+    A domain id above 14 in the file is ignored.
+  Nothing is remapped.
+
+  Read limits: count larger than half the bytes that remain, or bytes
+  left inside the chunk after a name, is damaged.
+
+
+10  CONF CHUNK
+--------------------------------------------------------------------------------
+  The config values a level changed from what the config files give.
+  The writer compares struct Configs with the baseline loaded at level start.
+
+  conf
+    u32      entry_count
+    entry    x entry_count
+
+  entry
+    str      path
+    u8       type            stored type (5.1)
+    value    type str:       str, the whole char array up to its first zero
+             other:          size bytes of the type (5.1)
+
+  path
+    names of fields joined by '.', an index as [n] after a field that is
+    an array:      slab_conf.room_cfgstats[2].msg_needed.id
+    Strings are leaves: the whole char array is one entry.
+    Unions are not written. Longest path 255 characters.
+
+  On load: the build's config is loaded from files first, then each entry
+  is applied by path. A path or type the build does not have is skipped.
+  Values are converted as in 8.1, and cut to fit.
+
+
+11  RECS CHUNK
+--------------------------------------------------------------------------------
+  records   a record (6) after a record, up to the end of the chunk
+  The count is not stored: the length of each record comes from the schema.
+  A record that uses 0 bytes is damaged.
+  A file of this kind that holds exactly one record has one in RECS.
+
+
+12  REPLAY FILE
+--------------------------------------------------------------------------------
+  header   kind 3
+  chunks   in this order
+    SCHM   REQ  zlib   roots: CatalogueEntry, PacketSaveHead, Packet,
+                              and Game when the file has GAME
+    META   REQ  raw    CatalogueEntry
+    PHDR   REQ  raw    PacketSaveHead
+    GAME   REQ  zlib   optional, the game at the start of the replay
+    TURN   REQ  raw    raw_len 0, stored_len 0
+  after TURN: packets of the turns, until the end of the file.
+  They are not chunks. They are written and read one turn at a time, so a
+  replay is never held in memory whole.
+
+
+13  LIMITS
+--------------------------------------------------------------------------------
+  chunk raw_len           268435456  (256 MiB)
+  chunk stored_len        bytes remaining in the file
+  string length           65535
+  dimensions of a field   3
+  union members           254
+  struct nesting          16
+  union tail              65535 bytes
+  config path             255 characters
+
+
+14  RESULTS
+--------------------------------------------------------------------------------
+  Ok            read or written
+  NotFound      no file, or the end of the chunks
+  Damaged       truncated, a crc or length fails, or it breaks the format
+  TooNew        made by a newer build
+  TooOld        not KFXS, or a major below the oldest readable
+  Unsupported   well formed, but this build cannot take it
+                (a value that does not fit, a union member it lacks,
+                 raw memory of the other byte order, a name that changed)
+  NoMemory      allocation failed
+
+  Menus show:   TooNew, TooOld, Unsupported    incompatible
+                NotFound, Damaged, NoMemory    damaged
+                no file for the slot           could not be loaded
+
+
+15  SOURCE FILES                                                src/kfx/save
+--------------------------------------------------------------------------------
+  core/save_codec.[ch]            file header, chunks, crc, zlib       2, 3
+  core/save_schema.[ch]           tables, stored types, flags          5
+  core/save_schema_file.cpp       SCHM chunk                           5
+  core/save_encode.cpp            record encoding                      6, 7
+  core/save_decode.cpp            record decoding                      8
+  core/save_convert.cpp           integer and float conversion         6.2, 8.1
+  core/save_migrate.[ch]          migrations                           8.3
+  core/save_names.[ch]            NAMS chunk                           9
+  core/save_config_overlay.[ch]   CONF chunk                           10
+  core/save_recfile.[ch]          RECS files                           11
+  core/save_inspect.[ch]          reading META without the rest        4
+  core/schema/schema_*.c          field tables, one per area
+  SaveGameFile.cpp                the Save file                        4
+  SaveReplayHeader.cpp            the replay header                    12
+  SaveUnionArms.h                 thing_arm selector                   7.2
+  SaveManager.cpp                 slots, load, save
