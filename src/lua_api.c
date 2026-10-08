@@ -2043,6 +2043,19 @@ static int lua_Use_special_Transfer_creature(lua_State *L)
     return 0;
 }
 
+static int lua_Use_special_Steal_hero(lua_State* L)
+{
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
+    TbMapLocation location = luaL_checkLocation(L, 2);
+
+    struct Coord3d pos;
+    if (get_coords_at_location(&pos, location, false))
+    {
+        steal_hero(get_player(plyr_idx), &pos);
+    }
+    return 0;
+}
+
 static int lua_Change_slab_owner(lua_State *L)
 {
     MapSlabCoord slb_x = luaL_checkslb_x(L, 1);
@@ -2651,6 +2664,7 @@ static const luaL_Reg global_methods[] = {
    {"UseSpecialIncreaseLevel"           ,lua_Use_special_increase_level      },
    {"UseSpecialMultiplyCreatures"       ,lua_Use_special_multiply_creatures  },
    {"UseSpecialTransferCreature"        ,lua_Use_special_Transfer_creature   },
+   {"UseSpecialStealHero"               ,lua_Use_special_Steal_hero          },
    {"SetBoxTooltip"                     ,lua_Set_box_tooltip                 },
    {"SetBoxTooltipId"                   ,lua_Set_box_tooltip_id              },
    {"MakeSafe"                          ,lua_Make_safe                       },
