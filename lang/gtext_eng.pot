@@ -6060,7 +6060,7 @@ msgstr ""
 
 #: guitext:1147
 msgctxt "Network game interface"
-msgid "The host has disabled spectator joins."
+msgid "The host has disabled spectating."
 msgstr ""
 
 #: guitext:1148
@@ -6078,7 +6078,7 @@ msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr ""
 
-#: guitext:1149
+#: guitext:1151
 msgctxt "Network game message"
 msgid "You are spectating"
 msgstr ""

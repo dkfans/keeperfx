@@ -7516,7 +7516,7 @@ msgstr "Åskådare kan bara ansluta till ett pågående spel."
 #: guitext:1147
 #, fuzzy
 msgctxt "Network game interface"
-msgid "The host has disabled spectator joins."
+msgid "The host has disabled spectating."
 msgstr "Värden har inaktiverat anslutning för åskådare."
 
 #: guitext:1148
@@ -7537,7 +7537,7 @@ msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "Spelare kan inte se åskådarchatten."
 
-#: guitext:1149
+#: guitext:1151
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"

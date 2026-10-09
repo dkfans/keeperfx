@@ -7771,7 +7771,7 @@ msgstr "Zuschauer können nur einem laufenden Spiel beitreten."
 #: guitext:1147
 #, fuzzy
 msgctxt "Network game interface"
-msgid "The host has disabled spectator joins."
+msgid "The host has disabled spectating."
 msgstr "Der Host hat den Beitritt von Zuschauern deaktiviert."
 
 #: guitext:1148
@@ -7792,7 +7792,7 @@ msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "Spieler können den Zuschauerchat nicht sehen."
 
-#: guitext:1149
+#: guitext:1151
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"

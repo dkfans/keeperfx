@@ -7489,7 +7489,7 @@ msgstr "Diváci se mohou připojit pouze k probíhající hře."
 #: guitext:1147
 #, fuzzy
 msgctxt "Network game interface"
-msgid "The host has disabled spectator joins."
+msgid "The host has disabled spectating."
 msgstr "Hostitel zakázal připojování diváků."
 
 #: guitext:1148
@@ -7510,7 +7510,7 @@ msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "Hráči nemohou vidět chat diváků."
 
-#: guitext:1149
+#: guitext:1151
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"

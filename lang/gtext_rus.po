@@ -6887,7 +6887,7 @@ msgstr "Зрители могут присоединиться только к �
 #: guitext:1147
 #, fuzzy
 msgctxt "Network game interface"
-msgid "The host has disabled spectator joins."
+msgid "The host has disabled spectating."
 msgstr "Хост запретил подключение зрителей."
 
 #: guitext:1148
@@ -6908,7 +6908,7 @@ msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "Игроки не видят чат зрителей."
 
-#: guitext:1149
+#: guitext:1151
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"

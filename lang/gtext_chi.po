@@ -7118,7 +7118,7 @@ msgstr "观战者只能加入正在进行的游戏。"
 #: guitext:1147
 #, fuzzy
 msgctxt "Network game interface"
-msgid "The host has disabled spectator joins."
+msgid "The host has disabled spectating."
 msgstr "房主已禁止观战者加入。"
 
 #: guitext:1148
@@ -7139,7 +7139,7 @@ msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "玩家无法看到观战者聊天。"
 
-#: guitext:1149
+#: guitext:1151
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"
