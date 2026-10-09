@@ -7711,17 +7711,29 @@ msgid "Lobby Name"
 msgstr "Nom du salon"
 
 #: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Avance rapide %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "normale"
+
+#: guitext:1144
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "Cette sauvegarde a été créée par une version incompatible et ne peut pas être chargée."
 
-#: guitext:1143
+#: guitext:1145
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "Cette sauvegarde est endommagée et ne peut pas être chargée."
 
-#: guitext:1144
+#: guitext:1146
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

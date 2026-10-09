@@ -7421,17 +7421,29 @@ msgid "Lobby Name"
 msgstr "ロビー名"
 
 #: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "早送り %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "通常"
+
+#: guitext:1144
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "このセーブデータは互換性のないバージョンで作成されたため、ロードできません。"
 
-#: guitext:1143
+#: guitext:1145
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "このセーブデータは破損しているため、ロードできません。"
 
-#: guitext:1144
+#: guitext:1146
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

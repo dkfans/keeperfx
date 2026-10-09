@@ -536,42 +536,33 @@ static TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
 
 static void clip_frame_skip(void)
 {
-  if (game.frame_skip > 512)
-    game.frame_skip = 512;
-  if (game.frame_skip < 0)
-    game.frame_skip = 0;
+  if (game.fast_forward > GAME_FAST_FORWARD_MAX)
+    game.fast_forward = GAME_FAST_FORWARD_MAX;
+  if (game.fast_forward < 0)
+    game.fast_forward = 0;
 }
 
-static void increaseFrameskip(void)
+static void change_frameskip(int32_t direction)
 {
-    // Default no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
-
-    if (game.frame_skip <= 1)
-        game.frame_skip = 2;
-    else
-        game.frame_skip <<= 1;
-
+    if (direction > 0) {
+        if (game.fast_forward <= 1) {
+            game.fast_forward = 2;
+        } else {
+            game.fast_forward <<= 1;
+        }
+    } else if (game.fast_forward <= 2) {
+        game.fast_forward = 0;
+    } else {
+        game.fast_forward >>= 1;
+    }
     clip_frame_skip();
-    char speed_txt[256] = "normal";
-    if (game.frame_skip > 0)
-        sprintf(speed_txt, "x%d", game.frame_skip);
-    show_onscreen_msg(turns_per_second*(game.frame_skip+1), "Fast Forward %s", speed_txt);
-}
-
-static void decreaseFrameskip(void)
-{
-    // Defaul no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
-    if (game.frame_skip <= 2)
-        game.frame_skip = 0;
-    else
-        game.frame_skip >>= 1;
-
-
-    clip_frame_skip();
-    char speed_txt[256] = "normal";
-    if (game.frame_skip > 0)
-        sprintf(speed_txt, "x%d", game.frame_skip);
-    show_onscreen_msg(turns_per_second*(game.frame_skip+1), "Fast Forward %s", speed_txt);
+    char speed_txt[256];
+    if (game.fast_forward > 0) {
+        snprintf(speed_txt, sizeof(speed_txt), "x%d", game.fast_forward);
+    } else {
+        snprintf(speed_txt, sizeof(speed_txt), "%s", get_string(GUIStr_FastForwardNormal));
+    }
+    show_onscreen_msg(turns_per_second*(game.fast_forward+1), get_string(GUIStr_FastForward), speed_txt);
 }
 
 /**
@@ -580,13 +571,11 @@ static void decreaseFrameskip(void)
  */
 static short get_speed_control_inputs(void)
 {
-  if (is_game_key_pressed(Gkey_FrameSkipIncrease, true, false))
-  {
-      increaseFrameskip();
+  if (is_game_key_pressed(Gkey_FrameSkipIncrease, true, false)) {
+      change_frameskip(1);
   }
-  if (is_game_key_pressed(Gkey_FrameSkipDecrease, true, false))
-  {
-      decreaseFrameskip();
+  if (is_game_key_pressed(Gkey_FrameSkipDecrease, true, false)) {
+      change_frameskip(-1);
   }
   return false;
 }
@@ -3082,7 +3071,7 @@ static TbBool active_menu_functions_while_paused(void)
  */
 static short get_inputs(void)
 {
-    move_camera_this_turn = game.frame_skip == 0 || game.play_gameturn % game.frame_skip == 0;
+    move_camera_this_turn = update_local_camera_time();
 
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {

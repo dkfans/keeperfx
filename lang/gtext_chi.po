@@ -7086,17 +7086,29 @@ msgid "Lobby Name"
 msgstr "大厅名称"
 
 #: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "快进 %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "正常"
+
+#: guitext:1144
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "此存档由不兼容的版本创建，无法载入。"
 
-#: guitext:1143
+#: guitext:1145
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "此存档已损坏，无法载入。"
 
-#: guitext:1144
+#: guitext:1146
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

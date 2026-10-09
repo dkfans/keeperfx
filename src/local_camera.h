@@ -34,6 +34,7 @@ struct PlayerInfo;
 
 /******************************************************************************/
 void init_local_cameras(struct PlayerInfo *player);
+TbBool update_local_camera_time(void);
 void update_local_cameras(void);
 void interpolate_local_cameras(void);
 void sync_local_camera(struct PlayerInfo *player);

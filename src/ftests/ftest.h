@@ -115,7 +115,7 @@ struct FTestConfig {
      * @brief Override frameskip for your test (optional)
      * 
      */
-    int frame_skip;
+    int fast_forward;
 
     /**
      * @brief Override seed for your test (optional)

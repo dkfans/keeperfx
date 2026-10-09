@@ -7573,17 +7573,29 @@ msgid "Lobby Name"
 msgstr "Nazwa lobby"
 
 #: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Przewijanie do przodu %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "normalne"
+
+#: guitext:1144
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "Ten zapis gry został utworzony w niezgodnej wersji i nie można go wczytać."
 
-#: guitext:1143
+#: guitext:1145
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "Ten zapis gry jest uszkodzony i nie można go wczytać."
 
-#: guitext:1144
+#: guitext:1146
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

@@ -6854,19 +6854,31 @@ msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Название лобби"
 
-
 #: guitext:1142
+#, fuzzy, c-format
+msgctxt "In-game message"
+msgid "Fast Forward %s"
+msgstr "Ускорение %s"
+
+#: guitext:1143
+#, fuzzy
+msgctxt "Game speed"
+msgid "normal"
+msgstr "обычное"
+
+
+#: guitext:1144
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "Это сохранение создано несовместимой версией и не может быть загружено."
 
-#: guitext:1143
+#: guitext:1145
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "Это сохранение повреждено и не может быть загружено."
 
-#: guitext:1144
+#: guitext:1146
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

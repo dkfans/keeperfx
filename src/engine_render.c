@@ -328,14 +328,6 @@ float interpolate(float previous, float current)
     return LbLerp(previous, current, interpolate_time);
 }
 
-float interpolate_angle(float previous, float current)
-{
-    if (! is_feature_on(Ft_DeltaTime))
-        return current;
-
-    return lerp_angle(previous, current, interpolate_time);
-}
-
 // For things that stop moving when the game is paused.
 float interpolate_synced(float previous, float current)
 {
