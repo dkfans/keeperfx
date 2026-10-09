@@ -14,7 +14,6 @@
 #include "creature_states_pray.h"
 #include "gui_msgs.h"
 #include "gui_soundmsgs.h"
-#include "thing_navigate.h"
 #include "map_data.h"
 #include "game_legacy.h"
 #include "bflib_datetm.h"
@@ -31,7 +30,6 @@
 
 #include "lua_base.h"
 #include "lua_params.h"
-#include "lua_api_lens.h"
 #include "lua_api_sound.h"
 
 
@@ -2047,11 +2045,16 @@ static int lua_Use_special_Steal_hero(lua_State* L)
 {
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
     TbMapLocation location = luaL_checkLocation(L, 2);
+    EffectOrEffElModel effect_id = luaL_checkEffectOrEffElModel(L, 3);
 
     struct Coord3d pos;
     if (get_coords_at_location(&pos, location, false))
     {
         steal_hero(get_player(plyr_idx), &pos);
+        if (effect_id != 0)
+        {
+            create_used_effect_or_element(&pos, effect_id, plyr_idx, 0);
+        }
     }
     return 0;
 }

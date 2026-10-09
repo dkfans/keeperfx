@@ -20,6 +20,7 @@ function UseSpecialTransferCreature(player) end
 ---Activates the effect of an 'Steak hero' dungeon special.
 ---@param player Player
 ---@param spawn_location location
+---@param effect? effect_or_effelem_type
 function UseSpecialTransferCreature(player) end
 
 ---Creates a custom tooltip for Custom special boxes.
