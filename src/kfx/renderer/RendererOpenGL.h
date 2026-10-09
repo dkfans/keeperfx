@@ -80,6 +80,7 @@ private:
 
     void render_thread_init();
     void render_thread_work();
+    void render_thread_present();
     void render_thread_cleanup();
 };
 

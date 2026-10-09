@@ -519,7 +519,7 @@ void update(void)
         player = get_my_player();
         if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
         {
-            struct Thing *thing = thing_get(player->controlled_thing_idx);
+            struct Thing *thing = thing_get(get_displayed_player()->controlled_thing_idx);
             update_first_person_object_ambience(thing);
         }
         update_footsteps_nearest_camera(get_local_active_camera(player));

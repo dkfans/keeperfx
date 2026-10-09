@@ -273,6 +273,7 @@ bool RendererOpenGL::Init()
     m_impl->thread_mgr.Start(
         [this]{ render_thread_init(); },
         [this]{ render_thread_work(); },
+        [this]{ render_thread_present(); },
         [this]{ render_thread_cleanup(); });
 
     if (!m_impl->init_ok)
@@ -499,7 +500,10 @@ void RendererOpenGL::render_thread_work()
         KFX_ZONE_COLOR("RendererOpenGL::PresentScreenTarget", KFX_COLOR_RENDER_GPU);
         m_impl->PresentScreenTarget(fd);
     }
+}
 
+void RendererOpenGL::render_thread_present()
+{
     const int want_interval = vsync_enabled ? 1 : 0;
     if (want_interval != m_impl->swap_interval)
     {

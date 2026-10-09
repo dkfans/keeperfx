@@ -62,9 +62,9 @@ TbBool player_uses_power_obey(PlayerNumber plyr_idx);
 
 TbBool player_uses_power_hold_audience(PlayerNumber plyr_idx);
 
-unsigned char general_expand_check(void);
-unsigned char sight_of_evil_expand_check(void);
-unsigned char call_to_arms_expand_check(void);
+unsigned char general_expand_check(const struct PlayerInfo *player);
+unsigned char sight_of_evil_expand_check(const struct PlayerInfo *player);
+unsigned char call_to_arms_expand_check(const struct PlayerInfo *player);
 /******************************************************************************/
 #ifdef __cplusplus
 }

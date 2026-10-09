@@ -6884,8 +6884,11 @@ msgctxt "Network game interface"
 msgid "The host has disabled spectating."
 msgstr "Хост запретил зрительский режим."
 
+
 #: guitext:1148
 #, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
 msgctxt "Network game interface"
 msgid "All spectator connections are occupied."
 msgstr "Все зрительские места заняты."
@@ -6899,3 +6902,4 @@ msgstr "Игроки не могут читать зрительский чат.
 msgctxt "Network game message"
 msgid "You are spectating"
 msgstr "Вы смотрите игру."
+

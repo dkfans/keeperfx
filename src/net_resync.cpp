@@ -26,13 +26,16 @@
 #include <zlib.h>
 #include "globals.h"
 #include "frontend.h"
+#include "frontmenu_ingame_map.h"
 #include "player_data.h"
 #include "net_game.h"
+#include "net_lobby.h"
 #include "game_legacy.h"
 #include "lens_api.h"
 #include "lua_base.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
+#include "net_spectator.h"
 #include "ariadne_update.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -60,6 +63,8 @@ struct Boing {
   unsigned long manufactr_element;
   unsigned long manufactr_spridx;
   unsigned long manufactr_tooltip;
+  struct GuiMessage messages[GUI_MESSAGES_COUNT];
+  unsigned char active_messages_count;
 };
 
 static struct Boing boing;
@@ -114,7 +119,8 @@ void animate_resync_progress_bar(int current_phase, int total_phases)
     draw_out_of_sync_box(progress_pixels, max_progress, status_panel_width);
 }
 
-void store_localised_game_structure(void) {
+void store_localised_game_structure(void)
+{
     boing.active_panel_menu_index = game.active_panel_mnu_idx;
     boing.comp_player_aggressive = game.comp_player_aggressive;
     boing.comp_player_defensive = game.comp_player_defensive;
@@ -133,9 +139,12 @@ void store_localised_game_structure(void) {
     boing.manufactr_element = game.manufactr_element;
     boing.manufactr_spridx = game.manufactr_spridx;
     boing.manufactr_tooltip = game.manufactr_tooltip;
+    memcpy(boing.messages, game.messages, sizeof(boing.messages));
+    boing.active_messages_count = game.active_messages_count;
 }
 
-void recall_localised_game_structure(void) {
+void recall_localised_game_structure(void)
+{
     game.active_panel_mnu_idx = boing.active_panel_menu_index;
     game.comp_player_aggressive = boing.comp_player_aggressive;
     game.comp_player_defensive = boing.comp_player_defensive;
@@ -154,6 +163,8 @@ void recall_localised_game_structure(void) {
     game.manufactr_element = boing.manufactr_element;
     game.manufactr_spridx = boing.manufactr_spridx;
     game.manufactr_tooltip = boing.manufactr_tooltip;
+    memcpy(game.messages, boing.messages, sizeof(game.messages));
+    game.active_messages_count = boing.active_messages_count;
 }
 
 // resync message: ResyncHeader, then the zlib-compressed data
@@ -177,7 +188,7 @@ static char *encode_resync_message(const void * buffer, size_t total_length, siz
         return NULL;
     }
 
-    int compress_result = compress((Bytef *)(message_buffer + sizeof(ResyncHeader)), &compressed_size, (const Bytef *)buffer, total_length);
+    int compress_result = compress2((Bytef *)(message_buffer + sizeof(ResyncHeader)), &compressed_size, (const Bytef *)buffer, total_length, Z_BEST_SPEED);
     if (compress_result != Z_OK) {
         ERRORLOG("Compression failed: zlib error %d", compress_result);
         free(message_buffer);
@@ -203,8 +214,8 @@ static char *encode_resync_message(const void * buffer, size_t total_length, siz
 static void send_resync_message(const char * message_buffer, size_t message_size)
 {
     NETLOG("Host: Sending resync data to all clients");
-    for (NetUserId user_index = 0; user_index < MAX_NET_USERS; ++user_index) {
-        if (netstate.users[user_index].progress != USER_LOGGEDIN) {
+    for (NetUserId user_index = 0; user_index < MAX_NET_CONNECTIONS; ++user_index) {
+        if (user_index == SERVER_ID || netstate.users[user_index].progress != USER_LOGGEDIN || (user_index >= MAX_NET_USERS && netstate.users[user_index].spectator_state != NetSpectator_Streaming)) {
             continue;
         }
         netstate.sp->sendmsg_single(netstate.users[user_index].id, message_buffer, message_size);
@@ -246,6 +257,9 @@ static TbBool decode_resync_message(const char * message_buffer, size_t message_
     }
 
     size_t output_size = header.original_length;
+    if (output_size > sizeof(game) + 16 * 1024 * 1024) {
+        return false;
+    }
     if (output_size == 0) {
         output_size = 1;
     }
@@ -278,7 +292,7 @@ static TbBool decode_resync_message(const char * message_buffer, size_t message_
     return true;
 }
 
-static TbBool receive_resync_message(char ** message_out, size_t * message_size_out)
+static TbBool receive_resync_message(char **message_out, size_t *message_size_out)
 {
     netstate.resync_pending = false;
     NETLOG("Starting to receive resync data");
@@ -299,13 +313,31 @@ static TbBool receive_resync_message(char ** message_out, size_t * message_size_
             continue;
         }
 
-        char * message_buffer = (char *) malloc(received_size);
+        if (received_size > 16 * 1024 * 1024) {
+            return false;
+        }
+        size_t expected_size = received_size;
+        char *message_buffer = (char *)malloc(received_size);
         if (message_buffer == NULL) {
             ERRORLOG("Failed to allocate message buffer");
             return false;
         }
 
         received_size = netstate.sp->readmsg(SERVER_ID, message_buffer, received_size);
+        if (received_size != expected_size) {
+            free(message_buffer);
+            return false;
+        }
+        if (received_size > 0 && received_size <= sizeof(netstate.msg_buffer) && message_buffer[0] == NETMSG_USERUPDATE) {
+            memcpy(netstate.msg_buffer, message_buffer, received_size);
+            netstate.msg_buffer_null = '\0';
+            if (received_size < sizeof(netstate.msg_buffer)) {
+                netstate.msg_buffer[received_size] = '\0';
+            }
+            process_user_update_message(SERVER_ID, netstate.msg_buffer + 1, netstate.msg_buffer + received_size);
+            free(message_buffer);
+            continue;
+        }
         if (received_size < sizeof(ResyncHeader)) {
             if (received_size > 0 && message_buffer[0] == NETMSG_RESYNC_DATA) {
                 ERRORLOG("Received incomplete resync data: %u bytes", (uint32_t)received_size);
@@ -387,13 +419,14 @@ static char *build_resync_game_data(size_t *full_resync_len)
         }
     }
     size_t lua_data_offset = sizeof(game) + sizeof(uint32_t);
-    if (lua_data_len > UINT32_MAX - lua_data_offset) {
+    size_t navigation_size = transfer_navigation_state(NULL, NavigationState_Store);
+    if (lua_data_len > UINT32_MAX - lua_data_offset - navigation_size) {
         ERRORLOG("Full resync data too large");
         cleanup_serialized_data();
         return NULL;
     }
 
-    *full_resync_len = lua_data_offset + lua_data_len;
+    *full_resync_len = lua_data_offset + lua_data_len + navigation_size;
     char * full_resync_data = (char *) malloc(*full_resync_len);
     if (full_resync_data == NULL) {
         ERRORLOG("Failed to allocate full resync buffer");
@@ -405,6 +438,7 @@ static char *build_resync_game_data(size_t *full_resync_len)
     memcpy(full_resync_data, &game, sizeof(game));
     memcpy(full_resync_data + sizeof(game), &lua_data_len32, sizeof(lua_data_len32));
     memcpy(full_resync_data + lua_data_offset, lua_data, lua_data_len);
+    transfer_navigation_state(full_resync_data + lua_data_offset + lua_data_len, NavigationState_Store);
     cleanup_serialized_data();
     return full_resync_data;
 }
@@ -418,8 +452,13 @@ static TbBool apply_resync_game_data(const char * full_resync_data, size_t full_
         return false;
     }
     memcpy(&lua_data_len, full_resync_data + sizeof(game), sizeof(lua_data_len));
-    if (lua_data_len != full_resync_len - lua_data_offset) {
+    if (lua_data_len > full_resync_len - lua_data_offset) {
         ERRORLOG("Received lua data with wrong size: %u != %u", lua_data_len, (uint32_t)(full_resync_len - lua_data_offset));
+        return false;
+    }
+    size_t navigation_size = full_resync_len - lua_data_offset - lua_data_len;
+    if (navigation_size != 0 && navigation_size != transfer_navigation_state(NULL, NavigationState_Store)) {
+        ERRORLOG("Received navigation data with wrong size: %u", (uint32_t)navigation_size);
         return false;
     }
     if (Lvl_script == NULL && lua_data_len > 0) {
@@ -430,6 +469,11 @@ static TbBool apply_resync_game_data(const char * full_resync_data, size_t full_
         return false;
     }
     memcpy(&game, full_resync_data, sizeof(game));
+    if (navigation_size != 0) {
+        transfer_navigation_state((char *)full_resync_data + lua_data_offset + lua_data_len, NavigationState_Restore);
+    } else {
+        init_navigation();
+    }
     return true;
 }
 
@@ -452,6 +496,30 @@ static TbBool apply_resync_game_message(const char * message_buffer, size_t mess
     return result;
 }
 
+static char *create_resync_game_message(size_t *message_size)
+{
+    size_t full_resync_len = 0;
+    char * full_resync_data = build_resync_game_data(&full_resync_len);
+    if (full_resync_data == NULL) {
+        return NULL;
+    }
+    char *message_buffer = encode_resync_message(full_resync_data, full_resync_len, message_size);
+    free(full_resync_data);
+    return message_buffer;
+}
+
+TbBool send_spectator_resync(uint64_t user_mask)
+{
+    size_t message_size = 0;
+    char *message_buffer = create_resync_game_message(&message_size);
+    if (message_buffer == NULL) {
+        return false;
+    }
+    send_to_active_peers(1, NetSend_Reliable, message_buffer, message_size, user_mask);
+    free(message_buffer);
+    return true;
+}
+
 TbBool send_resync_game(void)
 {
     pack_desync_history_for_resync();
@@ -460,15 +528,9 @@ TbBool send_resync_game(void)
     NETLOG("Initiating re-synchronization of network game");
     take_game_timestamp();
 
-    size_t full_resync_len = 0;
-    char * full_resync_data = build_resync_game_data(&full_resync_len);
-    if (full_resync_data == NULL) {
-        return false;
-    }
     size_t message_size = 0;
     netstate.gameplay_generation += 1;
-    char * message_buffer = encode_resync_message(full_resync_data, full_resync_len, &message_size);
-    free(full_resync_data);
+    char *message_buffer = create_resync_game_message(&message_size);
     if (message_buffer == NULL) {
         netstate.gameplay_generation -= 1;
         return false;
@@ -513,18 +575,22 @@ static void finish_resync(const struct Packet *saved_packets)
         lua_set_random_seed(game.action_random_seed);
     }
     recall_localised_game_structure();
-    TbClockMSec start_time = LbTimerClock();
-    rebuild_navigation();
-    NETLOG("Resync navigation rebuild took %u ms", (uint32_t)(LbTimerClock() - start_time));
+    rebuild_net_user_player_numbers();
     reinit_level_after_load();
+    if (network_is_active() && net_join_role == NetRole_Spectator) {
+        reinitialise_eye_lens(game.applied_lens_type);
+    }
     memcpy(game.packets, saved_packets, sizeof(game.packets));
 
-    game.skip_initial_input_turns = calculate_skip_input();
+    if (!network_is_active() || !network_user_is_spectator(netstate.my_id)) {
+        game.skip_initial_input_turns = calculate_skip_input();
+    }
     initialize_packet_history();
     NETLOG("Input lag after resync: %d turns", game.input_lag_turns);
 
     clear_flag(local_system_flags, GSF_NetGameNoSync);
     clear_flag(local_system_flags, GSF_NetSeedNoSync);
+    panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
 }
 
 void resync_game(void)
@@ -563,6 +629,10 @@ TbBool apply_recorded_resync(const char * message_buffer, size_t message_size)
         return false;
     }
     finish_resync(saved_packets);
+    if (network_is_active() && network_user_is_spectator(netstate.my_id)) {
+        network_spectator_reset();
+        network_spectator_resync_pending = true;
+    }
     return true;
 }
 

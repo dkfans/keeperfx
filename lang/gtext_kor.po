@@ -7482,3 +7482,45 @@ msgstr "빨리 감기 %s"
 msgctxt "Game speed"
 msgid "normal"
 msgstr "일반"
+
+#: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "불러오는 중"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "관전자 채팅 표시"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "관전자는 진행 중인 게임에만 참가할 수 있습니다."
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectating."
+msgstr "호스트가 관전자 참가를 비활성화했습니다."
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "모든 관전자 연결이 사용 중입니다."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "Players cannot see the spectator chat."
+msgstr "플레이어는 관전자 채팅을 볼 수 없습니다."
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "관전 중입니다"

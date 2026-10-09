@@ -36,6 +36,17 @@
 
 // Methods
 
+static struct TbPoint pointer_draw_position;
+static bool pointer_draw_position_enabled;
+
+void LbMouseSetDrawPosition(const struct TbPoint *position)
+{
+    pointer_draw_position_enabled = position != NULL;
+    if (position != NULL) {
+        pointer_draw_position = *position;
+    }
+}
+
 LbI_PointerHandler::LbI_PointerHandler(void)
 {
     this->is_active = false;
@@ -182,11 +193,16 @@ bool LbI_PointerHandler::OnMove(void)
 
 void LbI_PointerHandler::ComputeDrawParams(int32_t *out_x, int32_t *out_y, int *out_units_per_px)
 {
-    *out_x = position->x - scale_ui_value_lofi(spr_offset->x);
-    *out_y = position->y - scale_ui_value_lofi(spr_offset->y);
-    *out_units_per_px = (sprite->SWidth > 0)
-        ? (int)(scale_ui_value_lofi(sprite->SWidth) * 16 / sprite->SWidth)
-        : 16;
+    const struct TbPoint *draw_position = position;
+    if (pointer_draw_position_enabled) {
+        draw_position = &pointer_draw_position;
+    }
+    *out_x = draw_position->x - scale_ui_value_lofi(spr_offset->x);
+    *out_y = draw_position->y - scale_ui_value_lofi(spr_offset->y);
+    *out_units_per_px = 16;
+    if (sprite->SWidth > 0) {
+        *out_units_per_px = (int)(scale_ui_value_lofi(sprite->SWidth) * 16 / sprite->SWidth);
+    }
 }
 
 void LbI_PointerHandler::OnBeginSwap(void)

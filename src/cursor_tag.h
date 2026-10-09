@@ -32,6 +32,7 @@ extern "C" {
 struct PlayerInfo;
 struct Packet;
 struct RoomSpace;
+TbBool should_draw_cursor_box(PlayerNumber plyr_idx);
 unsigned char tag_cursor_blocks_dig(struct PlayerInfo *player, NetUserId user, const struct Packet *pckt, struct RoomSpace *render_roomspace, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab);
 void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool allow_unclaimed_path, TbBool full_slab);
 TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab);

@@ -25,6 +25,7 @@
 #include "bflib_planar.h"
 
 #include "engine_render.h"
+#include "local_camera.h"
 #include "player_data.h"
 #include "player_instances.h"
 #include "local_camera.h"
@@ -2278,11 +2279,8 @@ void update_light_render_area(void)
     int starty;
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
-    if ((
-        get_player_view_type(player) == PVT_DungeonTop ||
-        get_player_view_type(player) == PVT_CreatureContrl ||
-        get_player_view_type(player) == PVT_CreaturePasngr
-    ) && (player->instance_num != PI_MapFadeFrom)) {
+    const unsigned char view_type = get_local_view_type(player);
+    if ((view_type == PVT_DungeonTop || view_type == PVT_CreatureContrl || view_type == PVT_CreaturePasngr) && (is_observer_camera_active() || player->instance_num != PI_MapFadeFrom)) {
         game.something_light_y = LIGHT_MAX_RANGE;
         game.something_light_x = LIGHT_MAX_RANGE;
     }

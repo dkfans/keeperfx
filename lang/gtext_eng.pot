@@ -6042,3 +6042,38 @@ msgstr ""
 msgctxt "Game speed"
 msgid "normal"
 msgstr ""
+
+#: guitext:1144
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr ""
+
+#: guitext:1145
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr ""
+
+#: guitext:1146
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr ""
+
+#: guitext:1147
+msgctxt "Network game interface"
+msgid "The host has disabled spectating."
+msgstr ""
+
+#: guitext:1148
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr ""
+
+#: guitext:1149
+msgctxt "Network game message"
+msgid "Players cannot see the spectator chat."
+msgstr ""
+
+#: guitext:1150
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr ""

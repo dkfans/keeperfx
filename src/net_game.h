@@ -44,6 +44,7 @@ extern struct TbNetworkUserInfo net_user_info[MAX_NET_USERS];
 short setup_network_service(enum FrontendNetService service);
 int setup_old_network_service(void);
 TbBool init_players_network_game(void);
+void network_game_started(void);
 void setup_count_players(void);
 
 long network_session_join(void);
@@ -68,6 +69,7 @@ TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs);
 TbBool network_is_host(void);
 PlayerNumber get_net_user_player_number(NetUserId user);
 void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx);
+void rebuild_net_user_player_numbers(void);
 void remap_user_to_solo(struct PlayerInfo *myplyr);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -388,7 +388,7 @@ void update_query_menu()
 {
     if(!(menu_is_active(GMnu_CREATURE_QUERY1) || menu_is_active(GMnu_CREATURE_QUERY2) || menu_is_active(GMnu_CREATURE_QUERY3) || menu_is_active(GMnu_CREATURE_QUERY4)))
         return;
-    struct Thing* thing = thing_get(get_my_player()->influenced_thing_idx);
+    struct Thing* thing = thing_get(get_displayed_player()->influenced_thing_idx);
 
     if (menu_is_active(GMnu_CREATURE_QUERY1))
     {

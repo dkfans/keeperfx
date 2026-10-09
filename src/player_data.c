@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "player_data.h"
 
 #include "globals.h"
@@ -27,6 +28,7 @@
 #include "player_instances.h"
 #include "config_players.h"
 #include "game_legacy.h"
+#include "local_camera.h"
 #include "net_game.h"
 #include "engine_redraw.h"
 #include "frontend.h"
@@ -114,6 +116,9 @@ struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name)
 
 TbBool player_invalid(const struct PlayerInfo *player)
 {
+    if (player == &local_observer_player) {
+        return false;
+    }
     if (player == INVALID_PLAYER)
         return true;
     return (player < &game.players[0]);
@@ -140,19 +145,45 @@ TbBool is_active_keeper(const struct PlayerInfo *player)
 
 TbBool is_my_player(const struct PlayerInfo *player)
 {
-    struct PlayerInfo* myplyr = &game.players[my_player_number % PLAYERS_COUNT];
-    return (player == myplyr);
+    return player == get_my_player();
+}
+
+struct PlayerInfo *get_my_player(void)
+{
+    if (observer_is_active()) {
+        return &local_observer_player;
+    }
+    return get_player(my_player_number);
+}
+
+const struct PlayerInfo *get_displayed_player(void)
+{
+    if (observer_is_active() && !is_observer_camera_active()) {
+        return get_player(my_player_number);
+    }
+    return get_my_player();
 }
 
 TbBool is_my_player_number(PlayerNumber plyr_num)
 {
-    struct PlayerInfo* myplyr = &game.players[my_player_number % PLAYERS_COUNT];
-    return (plyr_num == myplyr->id_number);
+    struct PlayerInfo *player = &game.players[my_player_number % PLAYERS_COUNT];
+    return plyr_num == player->id_number && is_my_player(player);
+}
+
+TbBool is_player_displayed(PlayerNumber plyr_num)
+{
+    if (get_my_player() == &local_observer_player) {
+        return plyr_num == my_player_number;
+    }
+    return is_my_player_number(plyr_num);
 }
 
 // returns user's UserState, or INVALID_USER_STATE.
 struct UserState *get_user_state(NetUserId user)
 {
+    if (network_is_active() && user == netstate.my_id && user >= MAX_NET_USERS && user < MAX_NET_CONNECTIONS) {
+        return &local_observer_user_state;
+    }
     if ((user < 0) || (user >= MAX_NET_USERS))
         return INVALID_USER_STATE;
     return &game.user_states[user];
@@ -160,6 +191,9 @@ struct UserState *get_user_state(NetUserId user)
 
 struct UserState *get_player_user_state(const struct PlayerInfo *player)
 {
+    if (player == &local_observer_player) {
+        return &local_observer_user_state;
+    }
     if ((player == NULL) || player_invalid(player))
         return INVALID_USER_STATE;
     // get state for lowest-id connected user that has this player
@@ -174,6 +208,9 @@ struct UserState *get_player_user_state(const struct PlayerInfo *player)
 
 struct UserState *get_local_user_state(void)
 {
+    if (observer_is_active()) {
+        return &local_observer_user_state;
+    }
     return get_user_state(get_local_user());
 }
 
@@ -330,6 +367,7 @@ TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber 
 
 void clear_players(void)
 {
+    observer_reset();
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = &game.players[i];
