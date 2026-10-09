@@ -841,14 +841,18 @@ void init_user_state(NetUserId user)
     }
 }
 
+void init_local_player_state(void)
+{
+    local_state.minimap_pos_x = 11;
+    local_state.minimap_pos_y = 11;
+    local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
+}
+
 void init_player(struct PlayerInfo *player, short no_explore)
 {
     SYNCDBG(5,"Starting");
-    if (is_my_player(player))
-    {
-        local_state.minimap_pos_x = 11;
-        local_state.minimap_pos_y = 11;
-        local_state.roomspace_size = DEFAULT_USER_ROOMSPACE_WIDTH;
+    if (is_my_player(player)) {
+        init_local_player_state();
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
         local_state.main_palette = engine_palette;
     }
@@ -1426,18 +1430,8 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
                     break;
                 }
             }
-            // Refresh GUI panel button sprites for local player. Workaround for multiplayer.
             if (plyr_idx == my_player_number) {
-                for (int btn_idx = 0; btn_idx < ACTIVE_BUTTONS_COUNT; btn_idx++) {
-                    struct GuiButton *gbtn = &active_buttons[btn_idx];
-                    if ((gbtn->flags & LbBtnF_Active) == 0) {continue;}
-                    struct GuiMenu *gmnu = get_active_menu(gbtn->gmenu_idx);
-                    if (gmnu == NULL) {continue;}
-                    struct GuiButtonInit *gbinit = get_gui_button_init(gmnu, gbtn->id_num);
-                    if (gbinit != NULL && gbinit->sprite_idx != 0) {
-                        gbtn->sprite_idx = get_player_colored_icon_idx(gbinit->sprite_idx, my_player_number);
-                    }
-                }
+                update_gui_button_player_colors();
             }
         }
     }

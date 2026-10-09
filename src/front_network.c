@@ -52,6 +52,7 @@
 #include "net_lan.h"
 #include "config_campaigns.h"
 #include "kfx/save/SaveManager.h"
+#include <stddef.h>
 #include "post_inc.h"
 
 #include <string.h>
@@ -72,6 +73,9 @@ const struct ConfigInfo default_net_config_info = {
     "",
     "Player",
     "",
+    MAX_NET_USERS,
+    1,
+    1,
 };
 
 int fe_network_active;
@@ -649,6 +653,17 @@ TbBool attempting_to_join_cancel_requested(void)
     return attempting_to_join_cancelled;
 }
 
+/** Makes a config read from a file safe to use: strings terminated, the player limit in range, flags 0 or 1. */
+static void net_config_sanitise(void)
+{
+    net_config_info.net_player_name[sizeof(net_config_info.net_player_name) - 1] = '\0';
+    net_config_info.net_lobby_name[sizeof(net_config_info.net_lobby_name) - 1] = '\0';
+    if (net_config_info.max_players < MIN_NET_USERS || net_config_info.max_players > MAX_NET_USERS)
+        net_config_info.max_players = MAX_NET_USERS;
+    net_config_info.spectators_enabled = net_config_info.spectators_enabled != 0;
+    net_config_info.spectator_chat = net_config_info.spectator_chat != 0;
+}
+
 void net_load_config_file(void)
 {
     // Try to load the config file
@@ -663,7 +678,10 @@ void net_load_config_file(void)
         {
             struct SaveError err;
             if (SaveManager_ReadNetConfig(fname, &net_config_info, &err) == SVR_Ok)
+            {
+                net_config_sanitise();
                 return;
+            }
         }
         else
         {
@@ -671,14 +689,17 @@ void net_load_config_file(void)
             handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
             if (handle)
             {
-                memset(&net_config_info, 0, sizeof(net_config_info));
-                int32_t read_size = LbFileRead(handle, &net_config_info, sizeof(net_config_info));
+                net_config_info = default_net_config_info;
+                unsigned char config_data[sizeof(net_config_info) + 1];
+                int32_t read_size = LbFileRead(handle, config_data, sizeof(config_data));
                 LbFileClose(handle);
-                // A file written before the lobby name was added is shorter by that field
-                if (read_size == sizeof(net_config_info) || read_size == sizeof(net_config_info) - sizeof(net_config_info.net_lobby_name))
+                // Files written by older builds are shorter by the fields added since, or one byte longer
+                if (read_size == sizeof(net_config_info) + 1 || read_size == sizeof(net_config_info) || read_size == offsetof(struct ConfigInfo, max_players) || read_size == offsetof(struct ConfigInfo, net_lobby_name))
                 {
-                    net_config_info.net_player_name[sizeof(net_config_info.net_player_name) - 1] = '\0';
-                    net_config_info.net_lobby_name[sizeof(net_config_info.net_lobby_name) - 1] = '\0';
+                    memcpy(&net_config_info, config_data, min((size_t)read_size, sizeof(net_config_info)));
+                    if (read_size == sizeof(net_config_info) + 1)
+                        net_config_info.spectator_chat = config_data[sizeof(net_config_info)];
+                    net_config_sanitise();
                     net_write_config_file();
                     return;
                 }

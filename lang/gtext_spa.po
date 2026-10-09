@@ -7730,17 +7730,59 @@ msgid "normal"
 msgstr "normal"
 
 #: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "Cargando"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "Mostrar chat de espectadores"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "Los espectadores solo pueden unirse a una partida en curso."
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectating."
+msgstr "El anfitrión ha desactivado el acceso de espectadores."
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "Todas las conexiones para espectadores están ocupadas."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "Players cannot see the spectator chat."
+msgstr "Los jugadores no pueden ver el chat de los espectadores."
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "Estás observando la partida"
+
+#: guitext:1151
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "Esta partida guardada se creó con una versión incompatible y no se puede cargar."
 
-#: guitext:1145
+#: guitext:1152
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "Esta partida guardada está dañada y no se puede cargar."
 
-#: guitext:1146
+#: guitext:1153
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

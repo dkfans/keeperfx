@@ -725,6 +725,9 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
     ustate->mouse_on_map = is_mouse_on_map(pckt);
     remember_cursor_subtile(user);
     process_dungeon_control_packet_spell_overcharge(user);
+    if (is_player_displayed(plyr_idx)) {
+        map_volume_box.visible = 0;
+    }
     if (flag_is_set(pckt->control_flags,PCtr_Gui))
         return false;
     TbBool ret = true;
@@ -735,11 +738,6 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
     {
         ustate->boxsize = 1;
     }
-    if (player->id_number == my_player_number)
-    {
-        map_volume_box.visible = 0;
-    }
-
     update_double_click_detection(user);
     player->thing_under_hand = 0;
     MapCoord x = (pckt->pos_x);

@@ -327,11 +327,10 @@ extern struct LocalState {
     TbBool camera_rotate_cw;
     TbBool camera_rotate_ccw;
     TbBool camera_rotate_around_cursor;
-    // freecam. TODO: use spectator implementation instead, once that is implemented
-    TbBool replay_detached;
-    unsigned char replay_view_type;
-    unsigned char replay_cam_idx;
     struct LocalCameraState camera;
+    TbBool observer_camera_active;
+    unsigned char observer_camera_view_type;
+    unsigned char observer_camera_idx;
 } local_state;
 
 extern unsigned short player_colors_map[];
@@ -346,7 +345,8 @@ extern struct UserState bad_user_state;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(PlayerNumber plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
-#define get_my_player() get_player_f(my_player_number,__func__)
+struct PlayerInfo *get_my_player(void);
+const struct PlayerInfo *get_displayed_player(void);
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_active_keeper(const struct PlayerInfo *player);
@@ -358,6 +358,7 @@ uint32_t get_local_minimap_zoom(void);
 TbBool user_state_invalid(const struct UserState *ustate);
 int32_t user_zoom_min(const struct UserState *ustate, TbBool front_view);
 TbBool is_my_player_number(PlayerNumber plyr_num);
+TbBool is_player_displayed(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
 TbBool players_are_enemies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);

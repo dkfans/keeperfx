@@ -7498,17 +7498,59 @@ msgid "normal"
 msgstr "normalis"
 
 #: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "Oneratio"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "Colloquia spectatorum ostendere"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "Spectatores tantum ludo iam incepto se adiungere possunt."
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectating."
+msgstr "Hospes spectare vetuit."
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "Omnes nexus spectatorum occupati sunt."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "Players cannot see the spectator chat."
+msgstr "Lusores colloquium spectatorum videre non possunt."
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "Spectator es"
+
+#: guitext:1151
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "Šī saglabātā spēle ir izveidota ar nesaderīgu versiju, un to nevar ielādēt."
 
-#: guitext:1145
+#: guitext:1152
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "Šī saglabātā spēle ir bojāta, un to nevar ielādēt."
 
-#: guitext:1146
+#: guitext:1153
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

@@ -7549,17 +7549,59 @@ msgid "normal"
 msgstr "звичайне"
 
 #: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "Завантаження"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "Показувати чат глядачів"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "Глядачі можуть приєднатися лише до гри, що вже триває."
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectating."
+msgstr "Хост заборонив підключення глядачів."
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "Усі підключення для глядачів зайняті."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "Players cannot see the spectator chat."
+msgstr "Гравці не бачать чат глядачів."
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "Ви спостерігаєте за грою"
+
+#: guitext:1151
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "Це збереження створено несумісною версією, і його неможливо завантажити."
 
-#: guitext:1145
+#: guitext:1152
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "Це збереження пошкоджене, і його неможливо завантажити."
 
-#: guitext:1146
+#: guitext:1153
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

@@ -31,7 +31,8 @@ enum {
 
 struct NetSP;
 struct NetSP* InitEnetSP();
-unsigned long GetPing(int id);
+uint32_t GetPing(int id);
+uint32_t GetPlayersPing(void);
 unsigned int GetPacketLoss(int id);
 unsigned int GetClientDataInTransit();
 int32_t GetResyncProgress(void);

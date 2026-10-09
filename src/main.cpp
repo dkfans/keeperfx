@@ -490,8 +490,8 @@ short setup_game(void)
  */
 static bool players_cursor_is_at_top_of_view()
 {
-    const struct PlayerInfo *const player = get_my_player();
-    const struct UserState *const ustate = get_local_user_state();
+    const struct PlayerInfo *const player = get_displayed_player();
+    const struct UserState *const ustate = get_player_user_state(player);
     switch (player->work_state)
     {
     case PSt_BuildRoom:
@@ -850,7 +850,6 @@ void reinit_level_after_load(void)
     player = get_my_player();
     local_state.lens_palette = 0;
     local_state.main_palette = engine_palette;
-    init_navigation();
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
@@ -1849,6 +1848,9 @@ static short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr,"alex") == 0)
       {
          start_params.easter_egg = true;
+      }
+      else if (strcasecmp(parstr, "spectate") == 0) {
+          net_join_role = NetRole_Spectator;
       }
       else if (strcasecmp(parstr,"connect") == 0)
       {

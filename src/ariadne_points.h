@@ -40,6 +40,9 @@ struct Point { // sizeof = 4
 
 /******************************************************************************/
 extern struct Point ari_Points[];
+extern int32_t count_Points;
+extern int32_t ix_Points;
+extern int32_t free_Points;
 
 #pragma pack()
 /******************************************************************************/

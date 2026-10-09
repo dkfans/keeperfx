@@ -7469,17 +7469,59 @@ msgid "normal"
 msgstr "normální"
 
 #: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "Načítání"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "Zobrazit chat diváků"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "Diváci se mohou připojit pouze k probíhající hře."
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectating."
+msgstr "Hostitel zakázal připojování diváků."
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "Všechna připojení pro diváky jsou obsazena."
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "Players cannot see the spectator chat."
+msgstr "Hráči nemohou vidět chat diváků."
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "Sledujete hru"
+
+#: guitext:1151
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "Tato uložená hra byla vytvořena nekompatibilní verzí a nelze ji načíst."
 
-#: guitext:1145
+#: guitext:1152
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "Tato uložená hra je poškozená a nelze ji načíst."
 
-#: guitext:1146
+#: guitext:1153
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

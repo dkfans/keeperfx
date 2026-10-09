@@ -46,6 +46,9 @@ struct ConfigInfo {
     char str_join[20];
     char net_player_name[20];
     char net_lobby_name[64];
+    uint8_t max_players;
+    uint8_t spectators_enabled;
+    uint8_t spectator_chat;
 };
 
 struct TbNetworkPlayerName {

@@ -2288,7 +2288,7 @@ TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, KeepPwr
     return magic_use_power_direct(caster,pwkind,power_level,stl_x,stl_y,thing,mod_flags);
 }
 
-int get_power_overcharge_level(struct PlayerInfo *player)
+int get_power_overcharge_level(const struct PlayerInfo *player)
 {
     int i;
     i = (player->cast_expand_level >> 2);

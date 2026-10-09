@@ -38,6 +38,9 @@ SAVE_STRUCT(ConfigInfo, struct ConfigInfo,
     SAVE_STRING(struct ConfigInfo, str_join),  /* plain-char */
     SAVE_STRING(struct ConfigInfo, net_player_name),  /* plain-char */
     SAVE_STRING(struct ConfigInfo, net_lobby_name),  /* plain-char */
+    SAVE_FIELD(struct ConfigInfo, max_players, SV_U8),
+    SAVE_FIELD(struct ConfigInfo, spectators_enabled, SV_U8),
+    SAVE_FIELD(struct ConfigInfo, spectator_chat, SV_U8),
 );
 
 SAVE_STRUCT(ContinueData, struct ContinueData,

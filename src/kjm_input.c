@@ -41,6 +41,7 @@
 #include "front_input.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
+#include "player_data.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -316,19 +317,17 @@ TbBool poll_inputs(void)
 /**
  * Returns X position of mouse cursor on screen.
  */
-long GetMouseX(void)
+int32_t GetMouseX(void)
 {
-    long result = lbDisplay.MMouseX * (long)pixel_size;
-    return result;
+    return lbDisplay.MMouseX * pixel_size;
 }
 
 /**
  * Returns Y position of mouse cursor on screen.
  */
-long GetMouseY(void)
+int32_t GetMouseY(void)
 {
-    long result = lbDisplay.MMouseY * (long)pixel_size;
-    return result;
+    return lbDisplay.MMouseY * pixel_size;
 }
 
 short is_mouse_pressed_lrbutton(void)

@@ -7098,17 +7098,59 @@ msgid "normal"
 msgstr "正常"
 
 #: guitext:1144
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Loading"
+msgstr "加载中"
+
+#: guitext:1145
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Show spectator chat"
+msgstr "显示观战聊天"
+
+#: guitext:1146
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Spectators can only join a running game."
+msgstr "观战者只能加入正在进行的游戏。"
+
+#: guitext:1147
+#, fuzzy
+msgctxt "Network game interface"
+msgid "The host has disabled spectating."
+msgstr "房主已禁止观战者加入。"
+
+#: guitext:1148
+#, fuzzy
+msgctxt "Network game interface"
+msgid "All spectator connections are occupied."
+msgstr "所有观战连接均已占用。"
+
+#: guitext:1149
+#, fuzzy
+msgctxt "Network game message"
+msgid "Players cannot see the spectator chat."
+msgstr "玩家无法看到观战者聊天。"
+
+#: guitext:1150
+#, fuzzy
+msgctxt "Network game message"
+msgid "You are spectating"
+msgstr "您正在观战"
+
+#: guitext:1151
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "此存档由不兼容的版本创建，无法载入。"
 
-#: guitext:1145
+#: guitext:1152
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "此存档已损坏，无法载入。"
 
-#: guitext:1146
+#: guitext:1153
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

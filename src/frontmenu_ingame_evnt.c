@@ -40,6 +40,8 @@
 #include "gui_frontmenu.h"
 #include "packets.h"
 #include "net_input_lag.h"
+#include "net_game.h"
+#include "net_spectator.h"
 #include "frontend.h"
 #include "front_input.h"
 #include "vidfade.h"
@@ -565,11 +567,20 @@ static void draw_bottom_right_text(const char *text, int line)
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
-// name of user to display during replay
-static const char *replay_get_displayed_user_name(void)
+// name of user to display while watching a game
+static const char *get_displayed_user_name(void)
 {
-    if (!replay.load_enable)
+    if (network_is_active() && network_user_is_spectator(netstate.my_id)) {
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+            if (get_net_user_player_number(user) == my_player_number) {
+                return netstate.users[user].name;
+            }
+        }
         return NULL;
+    }
+    if (!replay.load_enable) {
+        return NULL;
+    }
     int users = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (replay.head.user_players[user] >= 0)
@@ -586,10 +597,26 @@ void draw_gameturn_timer(void)
     char text[32];
     snprintf(text, sizeof(text), "GameTurn %u", get_gameturn());
     draw_bottom_right_text(text, 0);
-    const char *name = replay_get_displayed_user_name();
-    if ((name != NULL) || replay_camera_detached()) {
-        snprintf(text, sizeof(text), "%s%.*s", replay_camera_detached() ? "*" : "", (int)sizeof(replay.head.user_names[0]), (name != NULL) ? name : "");
-        draw_bottom_right_text(text, 1);
+}
+
+void draw_watched_player_name(void)
+{
+    char text[sizeof(netstate.users[0].name) + 2];
+    const char *name = get_displayed_user_name();
+    if (name != NULL || (replay.load_enable && is_observer_camera_active())) {
+        const char *marker = "";
+        if (is_observer_camera_active()) {
+            marker = "*";
+        }
+        if (name == NULL) {
+            name = "";
+        }
+        snprintf(text, sizeof(text), "%s%.*s", marker, (int32_t)sizeof(replay.head.user_names[0]), name);
+        int32_t line = 0;
+        if (gameturn_timer_enabled()) {
+            line = 1;
+        }
+        draw_bottom_right_text(text, line);
     }
 }
 
@@ -1013,8 +1040,8 @@ void draw_network_stats()
     if (tx_units_per_px < 16)
         tx_units_per_px = 16;
 
-    unsigned long ping = GetPing(my_player_number);
-    unsigned long half_ping = ping / 2;
+    uint32_t ping = GetPlayersPing();
+    uint32_t half_ping = ping / 2;
     unsigned int packet_loss_percent = GetPacketLoss(my_player_number);
     unsigned int transit = GetClientDataInTransit();
     unsigned int lost_packet_count = GetClientPacketsLost();
@@ -1034,9 +1061,9 @@ void draw_network_stats()
         }
     }
 
-    snprintf(text, sizeof(text), "Full ping: %lums", ping);
+    snprintf(text, sizeof(text), "Full ping: %ums", ping);
     LbTextDrawResized(0, 0, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Half ping: %lums", half_ping);
+    snprintf(text, sizeof(text), "Half ping: %ums", half_ping);
     LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Input lag: %d", game.input_lag_turns);
     LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
