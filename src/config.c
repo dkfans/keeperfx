@@ -625,13 +625,10 @@ void assign_icon(const struct NamedField* named_field, int64_t value, const stru
 
 void assign_animid(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    if (flag_is_set(flags,ccf_SplitExecution))
-    {
-        short anim_id = get_anim_id_(script_strval(value));
+    if (flag_is_set(flags,ccf_SplitExecution)) {
+        int32_t anim_id = get_anim_id_(script_strval(value));
         assign_default(named_field,anim_id,named_fields_set,idx,src_str,flags);
-    }
-    else
-    {
+    } else {
         assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     }
 }

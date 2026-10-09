@@ -37,7 +37,7 @@ extern "C" {
 
 #define KEEPSPRITE_LENGTH 9149
 #define KEEPERSPRITE_ADD_OFFSET 16384
-#define KEEPERSPRITE_ADD_NUM 16383
+#define KEEPERSPRITE_ADD_MAX (INT32_MAX - KEEPERSPRITE_ADD_OFFSET)
 
 struct EngineCoord { // sizeof = 28
   long view_width; // X screen position, probably not a width
@@ -152,7 +152,6 @@ extern struct Thing *thing_being_displayed;
 extern unsigned char temp_cluedo_mode;
 /******************************************************************************/
 
-extern TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM];
 /*****************************************************************************/
 float interpolate(float previous, float current);
 float interpolate_synced(float previous, float current);
@@ -162,7 +161,7 @@ int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
 void frame_wibble_generate(void);
 void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
 
-void process_keeper_sprite(short x, short y, unsigned short a3, short kspr_angle, unsigned char a5, long a6);
+void process_keeper_sprite(short x, short y, int32_t a3, short kspr_angle, unsigned char a5, long a6);
 void draw_status_sprites(long a1, long a2, struct Thing *thing);
 
 // Room-flag pole/top and floating gold/damage text raster. No longer static:
@@ -201,7 +200,7 @@ void draw_iso_only_fastview_mapwho(struct Camera *cam, struct BucketKindJontySpr
 // resolve_keepersprite_cursor_geometry() (below) needs it for FrameOffsW/H.
 struct KeeperSprite;
 struct SpriteScale;
-TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
+TbBool resolve_keepersprite_draw_data(int32_t anim_sprite, short angle,
     unsigned char current_frame, int32_t *out_draw_idx,
     const unsigned char **out_data, int *out_src_w, int *out_src_h,
     const struct KeeperSprite **out_kspr);
@@ -215,7 +214,7 @@ TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
 // SubmitKeeperSprite()/EndCursorCapture(), so the render thread
 // never touches game-thread-only state (keepersprite_array(), the sprite
 // heap) directly.
-TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short kspr_base,
+TbBool resolve_keepersprite_cursor_geometry(short x, short y, int32_t kspr_base,
     short kspr_angle, unsigned char sprgroup, long scale,
     struct SpriteScale *out_scale,
     int32_t *out_draw_idx, const unsigned char **out_data, int *out_src_w, int *out_src_h);

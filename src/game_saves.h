@@ -38,6 +38,7 @@ extern "C" {
 #define SAVE_TEXTNAME_LEN        30
 #define PLAYER_NAME_LENGTH       64
 #define SAVE_FILENAME_MAX        64
+#define GAME_DATA_VER            1
 
 #define MAKE_CHUNK_ID(char1, char2, char3, char4) \
     ((uint32_t)(unsigned char)(char1)         | ((uint32_t)(unsigned char)(char2) << 8) \

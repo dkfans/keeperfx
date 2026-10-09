@@ -280,13 +280,12 @@ static const char splittypes[64] = {
 static void do_map_who(short tnglist_idx);
 static void (*render_sprite_debug_fn) (struct Thing*, long scrpos_x, long scrpos_y) = NULL;
 static int render_sprite_debug_level = 0;
-static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf);
+static void draw_keepsprite_unscaled_in_buffer(int32_t kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf);
 void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
 
-static TbBool animation_sprite_id_invalid(unsigned short animation_sprite)
+static TbBool animation_sprite_id_invalid(int32_t animation_sprite)
 {
-    return ((animation_sprite >= CREATURE_FRAMELIST_LENGTH) && (animation_sprite < KEEPERSPRITE_ADD_OFFSET))
-        || (animation_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM);
+    return (animation_sprite < 0) || ((animation_sprite >= CREATURE_FRAMELIST_LENGTH) && (animation_sprite < KEEPERSPRITE_ADD_OFFSET)) || (animation_sprite >= KEEPERSPRITE_ADD_OFFSET + custom_keeper_sprite_count);
 }
 /******************************************************************************/
 
@@ -3781,7 +3780,7 @@ static long find_fade_S(struct EngineCoord *ecor)
 
 static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos)
 {
-    unsigned short animation_sprite;
+    int32_t animation_sprite;
     unsigned char current_frame;
     short mv_angle;
     short sh_angle;
@@ -4830,7 +4829,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
     struct ObjectConfigStats* objst;
     struct TrapConfigStats* trapst;
     struct FlameProperties flame;
-    unsigned short animation_sprite;
+    int32_t animation_sprite;
     unsigned char current_frame;
     unsigned long nframe;
     long add_x, add_y;
@@ -4897,7 +4896,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite* jspr, l
         EngineSpriteDrawUsingAlpha = 1;
         RendererAddDrawFlags(Lb_SPRITE_ALPHA_ADDITIVE);
     }
-    unsigned short flame_sprite = get_render_animation_sprite(flame.animation_id);
+    int32_t flame_sprite = get_render_animation_sprite(flame.animation_id);
     unsigned char flame_frames = keepersprite_frames(flame_sprite);
     if (flame_frames > 0) {
         nframe = (thing->index + get_gameturn() * flame.anim_speed / 256) % flame_frames;
@@ -4913,7 +4912,7 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
     struct PlayerInfo *player = get_my_player();
     struct ObjectConfigStats* objst;
     struct Thing *thing = jspr->thing;
-    unsigned short animation_sprite;
+    int32_t animation_sprite;
     unsigned char current_frame;
     short angle;
     RendererBeginWorldSpriteCapture((int32_t)jspr->bucket_idx);
@@ -7451,7 +7450,7 @@ static unsigned short get_thing_shade(struct Thing* thing)
     return shval;
 }
 
-static long load_single_frame(TbSpriteData *data_ptr, unsigned short kspr_idx)
+static long load_single_frame(TbSpriteData *data_ptr, int32_t kspr_idx)
 {
     long nlength;
     nlength = creature_table[kspr_idx+1].DataOffset - creature_table[kspr_idx].DataOffset;
@@ -7464,7 +7463,7 @@ static long load_single_frame(TbSpriteData *data_ptr, unsigned short kspr_idx)
     return 1;
 }
 
-static long load_keepersprite_if_needed(unsigned short kspr_idx)
+static long load_keepersprite_if_needed(int32_t kspr_idx)
 {
     int frame_num;
     int frame_count;
@@ -7489,7 +7488,7 @@ static long load_keepersprite_if_needed(unsigned short kspr_idx)
     return 1;
 }
 
-static long heap_manage_keepersprite(unsigned short kspr_idx)
+static long heap_manage_keepersprite(int32_t kspr_idx)
 {
     long result;
     if (kspr_idx >= KEEPERSPRITE_ADD_OFFSET)
@@ -7513,7 +7512,7 @@ static void set_sprite_scale(struct SpriteScale *out, long frame_x, long frame_y
     out->window_h = (int32_t)lbDisplay.GraphicsWindowHeight;
 }
 
-TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
+TbBool resolve_keepersprite_draw_data(int32_t anim_sprite, short angle,
     unsigned char current_frame, int32_t *out_draw_idx,
     const unsigned char **out_data, int *out_src_w, int *out_src_h,
     const struct KeeperSprite **out_kspr)
@@ -7534,26 +7533,28 @@ TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
     long draw_idx;
     if (creature_sprites->Rotable == 0)
     {
-        kspr = &creature_sprites[current_frame];
         draw_idx = current_frame + kspr_idx;
     }
     else if (creature_sprites->Rotable == 2)
     {
         int i = ((angle + DEGREES_22_5) & ANGLE_MASK);
         long quarter = llabs(4 - (i >> 8));
-        kspr = &creature_sprites[current_frame + quarter * creature_sprites->FramesCount];
-        draw_idx = current_frame + quarter * (long)kspr->FramesCount + kspr_idx;
+        draw_idx = current_frame + quarter * creature_sprites->FramesCount + kspr_idx;
     }
     else
     {
         return false;
     }
 
+    kspr = keepersprite_frame(draw_idx);
+    if (kspr == NULL) {
+        return false;
+    }
     const TbSpriteData *sprite_data_ptr = NULL;
     if (draw_idx >= 0) {
         if (draw_idx >= KEEPERSPRITE_ADD_OFFSET) {
-            if (draw_idx - KEEPERSPRITE_ADD_OFFSET < KEEPERSPRITE_ADD_NUM) {
-                sprite_data_ptr = &keepersprite_add[draw_idx - KEEPERSPRITE_ADD_OFFSET];
+            if (draw_idx - KEEPERSPRITE_ADD_OFFSET < custom_keeper_sprite_count) {
+                sprite_data_ptr = &custom_keeper_sprites[draw_idx - KEEPERSPRITE_ADD_OFFSET].data;
             }
         } else if (draw_idx < KEEPSPRITE_LENGTH) {
             sprite_data_ptr = keepsprite[draw_idx];
@@ -7572,7 +7573,7 @@ TbBool resolve_keepersprite_draw_data(unsigned short anim_sprite, short angle,
     return true;
 }
 
-TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short kspr_base,
+TbBool resolve_keepersprite_cursor_geometry(short x, short y, int32_t kspr_base,
     short kspr_angle, unsigned char sprgroup, long scale,
     struct SpriteScale *out_scale,
     int32_t *out_draw_idx, const unsigned char **out_data, int *out_src_w, int *out_src_h)
@@ -7626,9 +7627,7 @@ TbBool resolve_keepersprite_cursor_geometry(short x, short y, unsigned short ksp
 
 static void draw_keepersprite(const struct SpriteScale *sprite_scale, const struct KeeperSprite * kspr, long kspr_idx)
 {
-    if ((kspr_idx < 0)
-        || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET))
-        || (kspr_idx > (KEEPERSPRITE_ADD_NUM + KEEPERSPRITE_ADD_OFFSET))) {
+    if ((kspr_idx < 0) || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET)) || (kspr_idx >= (custom_keeper_sprite_count + KEEPERSPRITE_ADD_OFFSET))) {
         WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%u,%u) alpha %d",
             kspr_idx, (long)sprite_scale->content_x, (long)sprite_scale->content_y, kspr->SWidth, kspr->SHeight, (int)EngineSpriteDrawUsingAlpha);
         return;
@@ -7642,8 +7641,8 @@ static void draw_keepersprite(const struct SpriteScale *sprite_scale, const stru
     const TbSpriteData * sprite_data_ptr = NULL;
     if (kspr_idx >= 0) {
         if (kspr_idx >= KEEPERSPRITE_ADD_OFFSET) {
-            if (kspr_idx - KEEPERSPRITE_ADD_OFFSET < KEEPERSPRITE_ADD_NUM) {
-                sprite_data_ptr = &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
+            if (kspr_idx - KEEPERSPRITE_ADD_OFFSET < custom_keeper_sprite_count) {
+                sprite_data_ptr = &custom_keeper_sprites[kspr_idx - KEEPERSPRITE_ADD_OFFSET].data;
             }
         } else if (kspr_idx < KEEPSPRITE_LENGTH) {
             sprite_data_ptr = keepsprite[kspr_idx];
@@ -7769,7 +7768,7 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
     SYNCDBG(18,"Finished");
 }
 
-void process_keeper_sprite(short x, short y, unsigned short kspr_base, short kspr_angle, unsigned char sprgroup, long scale)
+void process_keeper_sprite(short x, short y, int32_t kspr_base, short kspr_angle, unsigned char sprgroup, long scale)
 {
     struct KeeperSprite *creature_sprites;
     struct PlayerInfo *player;
@@ -7865,8 +7864,11 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         {
             return;
         }
-        kspr = &creature_sprites[sprite_group];
         draw_idx = sprite_group + kspr_idx;
+        kspr = keepersprite_frame(draw_idx);
+        if (kspr == NULL) {
+            return;
+        }
         if ( needs_xflip )
         {
             draw_single_keepersprite_omni_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
@@ -7881,8 +7883,11 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         {
             return;
         }
-        kspr = &creature_sprites[sprite_group + sprite_rot * (long)creature_sprites->FramesCount];
-        draw_idx = sprite_group + sprite_rot * (long)kspr->FramesCount + kspr_idx;
+        draw_idx = sprite_group + sprite_rot * creature_sprites->FramesCount + kspr_idx;
+        kspr = keepersprite_frame(draw_idx);
+        if (kspr == NULL) {
+            return;
+        }
         if ( needs_xflip )
         {
             draw_single_keepersprite_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
@@ -7992,7 +7997,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     unsigned char alpha_mem;
     struct PlayerInfo *player = get_my_player();
     struct Thing *thing = jspr->thing;
-    unsigned short animation_sprite;
+    int32_t animation_sprite;
     unsigned char current_frame;
     long angle;
     int32_t scaled_size;
@@ -8260,7 +8265,7 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
     }
 }
 
-static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf)
+static void draw_keepsprite_unscaled_in_buffer(int32_t kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf)
 {
     struct KeeperSprite *kspr_arr;
     unsigned long kspr_idx;
@@ -8300,9 +8305,13 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
             return;
         }
         keepsprite_id = current_frame + kspr_idx;
+        kspr = keepersprite_frame(keepsprite_id);
+        if (kspr == NULL) {
+            return;
+        }
         if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
         {
-            sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
+            sprite_data = custom_keeper_sprites[keepsprite_id - KEEPERSPRITE_ADD_OFFSET].data;
         }
         else if (keepsprite_id >= KEEPSPRITE_LENGTH)
         {
@@ -8313,7 +8322,6 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         {
             sprite_data = *keepsprite[keepsprite_id];
         }
-        kspr = &kspr_arr[current_frame];
         fill_w = kspr->FrameWidth;
         fill_h = kspr->FrameHeight;
         if ( flip_range )
@@ -8348,13 +8356,16 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         {
             return;
         }
-        kspr = &kspr_arr[current_frame + quarter * kspr_arr->FramesCount];
+        keepsprite_id = current_frame + quarter * kspr_arr->FramesCount + kspr_idx;
+        kspr = keepersprite_frame(keepsprite_id);
+        if (kspr == NULL) {
+            return;
+        }
         fill_w = kspr->SWidth;
         fill_h = kspr->SHeight;
-        keepsprite_id = current_frame + quarter * kspr->FramesCount + kspr_idx;
         if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
         {
-            sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
+            sprite_data = custom_keeper_sprites[keepsprite_id - KEEPERSPRITE_ADD_OFFSET].data;
         }
         else if (keepsprite_id >= KEEPSPRITE_LENGTH)
         {
@@ -8790,7 +8801,7 @@ static void do_map_who_for_thing(struct Thing *thing)
             int count;
             int i;
 
-            unsigned short animation_sprite = get_render_animation_sprite(thing->anim_sprite);
+            int32_t animation_sprite = get_render_animation_sprite(thing->anim_sprite);
             struct KeeperSprite *spr = keepersprite_array(animation_sprite);
             if ((spr != NULL) && ((spr->frame_flags & FFL_NoShadows) == 0))
             {

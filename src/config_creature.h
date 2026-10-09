@@ -418,7 +418,7 @@ struct CreatureConfig {
     ThingModel special_digger_good;
     ThingModel special_digger_evil;
     ThingModel spectator_breed;
-    short creature_graphics[CREATURE_TYPES_MAX][CREATURE_GRAPHICS_INSTANCES];
+    int32_t creature_graphics[CREATURE_TYPES_MAX][CREATURE_GRAPHICS_INSTANCES];
     int32_t sprite_size;
     struct CreatureSounds creature_sounds[CREATURE_TYPES_MAX];
 };

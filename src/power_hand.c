@@ -345,7 +345,7 @@ void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
         {
             player->hand_animationId = HandAnimationID;
             struct Thing *thing = thing_get(player->hand_thing_idx);
-            short anim_idx   = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
+            int32_t anim_idx = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
             short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
             if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
             {

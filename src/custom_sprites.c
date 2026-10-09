@@ -49,40 +49,30 @@
 // Each part of RGB tuple of palette file is 1-63 actually
 #define MAX_COLOR_VALUE 64
 static uint8_t * rgb_to_pal_table = NULL;
-static short next_free_sprite = 0;
+static int32_t custom_sprite_capacity = 0;
 static short next_free_icon = 0;
 
 struct TbSpriteSheet * gui_panel_sprites = NULL;
 struct TbSpriteSheet * custom_sprites = NULL;
+struct CustomSprite *custom_keeper_sprites = NULL;
+int32_t custom_keeper_sprite_count = 0;
 
-short td_to_fp_sprite_add[KEEPERSPRITE_ADD_NUM];
-short fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
-
-TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM] = {
-        0
-};
-
-struct KeeperSprite creature_table_add[KEEPERSPRITE_ADD_NUM] = {
-        {0}
-};
-
-struct SpriteContext
-{
+struct SpriteContext {
     struct TbHugeSprite sprite;
 
     unsigned long x, y;
-    struct KeeperSprite *ksp_first;
+    int32_t first_sprite;
 
-    short *id_ptr; // First person / Top down
-    short *id_sz_ptr; // First person / Top down
+    int32_t *id_ptr; // First person / Top down
+    int32_t *id_sz_ptr; // First person / Top down
 
-    short td_id, td_sz;
-    short fp_id, fp_sz;
+    int32_t td_id, td_sz;
+    int32_t fp_id, fp_sz;
 
     TbBool rotatable;
 };
 
-static struct NamedCommand added_sprites[KEEPERSPRITE_ADD_NUM];
+static struct NamedCommand *added_sprites = NULL;
 static struct NamedCommand added_icons[GUI_PANEL_SPRITES_NEW];
 static unsigned char added_icon_frame_count[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
@@ -338,7 +328,7 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc, unsigne
         LbFileFindEnd(ff);
 
         if (dir_desc != NULL) {
-            LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations, %d with icons and %d with ensigns. Used %d/%d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, cnt_ensign, next_free_sprite, KEEPERSPRITE_ADD_NUM);
+            LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations, %d with icons and %d with ensigns. Used %d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, cnt_ensign, custom_keeper_sprite_count);
         }
     }
 }
@@ -487,12 +477,11 @@ void init_custom_sprites(LevelNumber lvnum)
         ERRORLOG("Invalid level number %d for loading custom sprites", lvnum);
     }
     // Clear sprite data
-    for (int i = 0; i < KEEPERSPRITE_ADD_NUM; i++)
-    {
-        if (keepersprite_add[i] != NULL)
+    for (int i = 0; i < custom_keeper_sprite_count; i++) {
+        if (custom_keeper_sprites[i].data != NULL)
         {
-            free(keepersprite_add[i]);
-            keepersprite_add[i] = NULL;
+            free(custom_keeper_sprites[i].data);
+            custom_keeper_sprites[i].data = NULL;
         }
     }
     // Clear added sprites
@@ -504,7 +493,8 @@ void init_custom_sprites(LevelNumber lvnum)
         }
     }
     num_added_sprite = 0;
-    memset(added_sprites, 0, sizeof(added_sprites));
+    free(added_sprites);
+    added_sprites = NULL;
 
     // Clear added icons
     for (int i = 0; i < num_added_icons; i++)
@@ -521,11 +511,10 @@ void init_custom_sprites(LevelNumber lvnum)
 
     clear_lens_assets();
 
-    // Clear creature table (there sprites live)
-    memset(creature_table_add, 0, sizeof(creature_table_add));
-    memset(td_to_fp_sprite_add, 0, sizeof(td_to_fp_sprite_add));
-    memset(fp_to_td_sprite_add, 0, sizeof(fp_to_td_sprite_add));
-    next_free_sprite = 0;
+    free(custom_keeper_sprites);
+    custom_keeper_sprites = NULL;
+    custom_keeper_sprite_count = 0;
+    custom_sprite_capacity = 0;
 
 
     char *dname = prepare_file_path(FGrp_FxData, NULL);
@@ -556,7 +545,7 @@ void init_custom_sprites(LevelNumber lvnum)
             }
             loaded_zip_name_sep = ", ";
         }
-        LbJustLog("Loaded /fxdata/ sprite zips: %s, sprite slots: %d/%d, animations: %d, icons: %d.\n", loaded_zip_names, next_free_sprite, KEEPERSPRITE_ADD_NUM, cnt_sprite, cnt_icon);
+        LbJustLog("Loaded /fxdata/ sprite zips: %s, sprite slots: %d, animations: %d, icons: %d.\n", loaded_zip_names, custom_keeper_sprite_count, cnt_sprite, cnt_icon);
     }
 
     if (mods_conf.after_base_cnt > 0)
@@ -984,6 +973,42 @@ static int read_png_to_sheet(unzFile zip, const char *path, const char *subpath,
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-branch-clone"
+static TbBool grow_custom_sprites(void)
+{
+    if (custom_keeper_sprite_count < custom_sprite_capacity) {
+        return true;
+    }
+    if (custom_sprite_capacity >= KEEPERSPRITE_ADD_MAX) {
+        ERRORLOG("Too many custom sprites allocated");
+        return false;
+    }
+    int32_t capacity = 4096;
+    if (custom_sprite_capacity > KEEPERSPRITE_ADD_MAX / 2) {
+        capacity = KEEPERSPRITE_ADD_MAX;
+    } else if (custom_sprite_capacity > 0) {
+        capacity = custom_sprite_capacity * 2;
+    }
+    if ((size_t)capacity > SIZE_MAX / sizeof(*custom_keeper_sprites)) {
+        ERRORLOG("Custom sprite table is too large");
+        return false;
+    }
+    struct NamedCommand *names = realloc(added_sprites, capacity * sizeof(*added_sprites));
+    if (names == NULL) {
+        ERRORLOG("Unable to grow custom sprite names");
+        return false;
+    }
+    added_sprites = names;
+    struct CustomSprite *sprites = realloc(custom_keeper_sprites, capacity * sizeof(*custom_keeper_sprites));
+    if (sprites == NULL) {
+        ERRORLOG("Unable to grow custom sprite table");
+        return false;
+    }
+    custom_keeper_sprites = sprites;
+    memset(&custom_keeper_sprites[custom_sprite_capacity], 0, (capacity - custom_sprite_capacity) * sizeof(*custom_keeper_sprites));
+    custom_sprite_capacity = capacity;
+    return true;
+}
+
 static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath,
                          int is_fp, VALUE *def, VALUE *itm)
 {
@@ -1051,30 +1076,34 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
         return 0;
     }
 
-    if (next_free_sprite >= KEEPERSPRITE_ADD_NUM)
-    {
-        ERRORLOG("Too many custom sprites allocated");
+    if (!grow_custom_sprites()) {
+        spng_ctx_free(ctx);
         return 0;
     }
-    short sprite_idx = next_free_sprite;
-    next_free_sprite++;
+    size_t sz = (dst_w + 2) * (dst_h + 3);
+    unsigned char *data = malloc(sz);
+    if (data == NULL) {
+        ERRORLOG("Unable to allocate custom sprite data");
+        spng_ctx_free(ctx);
+        return 0;
+    }
+    int32_t sprite_idx = custom_keeper_sprite_count;
+    custom_keeper_sprite_count++;
     if (*context->id_ptr == 0) // First sprite for current view (FP/TD)
         *context->id_ptr = sprite_idx + KEEPERSPRITE_ADD_OFFSET;
     (*context->id_sz_ptr)++; // Add new sprite for current view (FP/TD)
 
-    size_t sz = (dst_w + 2) * (dst_h + 3);
-    keepersprite_add[sprite_idx] = malloc(sz);
-    context->sprite.Data = keepersprite_add[sprite_idx];
+    custom_keeper_sprites[sprite_idx].data = data;
+    context->sprite.Data = custom_keeper_sprites[sprite_idx].data;
     compress_raw(&context->sprite, dst_buf, context->x, context->y, dst_w, dst_h, NULL);
-    struct KeeperSprite *ksprite = &creature_table_add[sprite_idx];
+    struct KeeperSprite *ksprite = &custom_keeper_sprites[sprite_idx].sprite;
 
-    if (context->ksp_first == NULL)
-    {
-        context->ksp_first = ksprite;
+    if (context->first_sprite < 0) {
+        context->first_sprite = sprite_idx;
     }
     else
     {
-        context->ksp_first->FramesCount++;
+        custom_keeper_sprites[context->first_sprite].sprite.FramesCount++;
     }
 
     ksprite->DataOffset = 0;
@@ -1367,14 +1396,12 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         {
             VALUE *lr_list = value_array_get(ud_lst, lr);
             // Each frame should keep valid frames count
-            if (context->ksp_first != NULL)
-            {
-                for (int i = 1; i < context->ksp_first->FramesCount; i++)
-                {
-                    context->ksp_first[i].FramesCount = context->ksp_first->FramesCount;
+            if (context->first_sprite >= 0) {
+                for (int i = 1; i < custom_keeper_sprites[context->first_sprite].sprite.FramesCount; i++) {
+                    custom_keeper_sprites[context->first_sprite + i].sprite.FramesCount = custom_keeper_sprites[context->first_sprite].sprite.FramesCount;
                 }
             }
-            context->ksp_first = NULL;
+            context->first_sprite = -1;
 
             for (int frame = 0; frame < value_array_size(lr_list); frame++)
             {
@@ -1395,12 +1422,12 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                     WARNLOG("Unable to open '%s/%s'", path, name);
                     return 1;
                 }
-                short store_p = *context->id_ptr;
-                short store_sz = *context->id_sz_ptr;
-                struct KeeperSprite *store_ksp = context->ksp_first;
+                int32_t store_p = *context->id_ptr;
+                int32_t store_sz = *context->id_sz_ptr;
+                int32_t store_first_sprite = context->first_sprite;
                 unsigned char store_ksp_fc = 0;
-                if (store_ksp)
-                    store_ksp_fc = context->ksp_first->FramesCount;
+                if (store_first_sprite >= 0)
+                    store_ksp_fc = custom_keeper_sprites[context->first_sprite].sprite.FramesCount;
 #ifdef INNER
                 fprintf(stderr, "F:%s/%s\n", path, name);
                 fprintf(stderr, "A:%u\n", (unsigned)SDL_GetTicks());
@@ -1410,9 +1437,9 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                     // Reverting possible changes
                     *context->id_ptr = store_p;
                     *context->id_sz_ptr = store_sz;
-                    context->ksp_first = store_ksp;
-                    if (store_ksp)
-                        context->ksp_first->FramesCount = store_ksp_fc;
+                    context->first_sprite = store_first_sprite;
+                    if (store_first_sprite >= 0)
+                        custom_keeper_sprites[context->first_sprite].sprite.FramesCount = store_ksp_fc;
 
                     unzCloseCurrentFile(zip);
                     WARNLOG("Unable to read '%s/%s'", path, name);
@@ -1429,11 +1456,9 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         }
     }
     // Each frame should keep valid frames count
-    if (context->ksp_first != NULL)
-    {
-        for (int i = 1; i < context->ksp_first->FramesCount; i++)
-        {
-            context->ksp_first[i].FramesCount = context->ksp_first->FramesCount;
+    if (context->first_sprite >= 0) {
+        for (int i = 1; i < custom_keeper_sprites[context->first_sprite].sprite.FramesCount; i++) {
+            custom_keeper_sprites[context->first_sprite + i].sprite.FramesCount = custom_keeper_sprites[context->first_sprite].sprite.FramesCount;
         }
     }
 
@@ -1448,14 +1473,13 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         return 1;
     }
     // Installing frames into arrays ()
-    for (int i = context->td_sz - 1; i >= 0; i--)
-    {
-        short fp_id = context->fp_id + i;
-        short td_id = context->td_id + i;
-        fp_to_td_sprite_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
-        td_to_fp_sprite_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
-        td_to_fp_sprite_add[td_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
-        fp_to_td_sprite_add[td_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
+    for (int i = context->td_sz - 1; i >= 0; i--) {
+        int32_t fp_id = context->fp_id + i;
+        int32_t td_id = context->td_id + i;
+        custom_keeper_sprites[fp_id - KEEPERSPRITE_ADD_OFFSET].td_anim = td_id;
+        custom_keeper_sprites[fp_id - KEEPERSPRITE_ADD_OFFSET].fp_anim = fp_id;
+        custom_keeper_sprites[td_id - KEEPERSPRITE_ADD_OFFSET].fp_anim = fp_id;
+        custom_keeper_sprites[td_id - KEEPERSPRITE_ADD_OFFSET].td_anim = td_id;
     }
     return context->td_sz <= 0;
 }
@@ -1463,7 +1487,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
 static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALUE *root)
 {
     VALUE *val;
-    struct SpriteContext context = {0};
+    struct SpriteContext context = {.first_sprite = -1};
 
     val = value_dict_get(root, "name");
     if (val == NULL)
@@ -1497,11 +1521,6 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     }
     else
     {
-        if (num_added_sprite >= KEEPERSPRITE_ADD_NUM)
-        {
-            ERRORLOG("Too many custom sprites");
-            return 0;
-        }
         spr = &added_sprites[num_added_sprite++];
         spr->name = strdup(name);
         spr->num = context.td_id;
@@ -2784,7 +2803,7 @@ static TbBool add_custom_sprite(const char *path)
     return add_custom_json(path, "sprites.json", &process_sprite);
 }
 
-short get_icon_id(const char *name)
+int32_t get_icon_id(const char *name)
 {
     short ret = atoi(name);
     struct NamedCommand key = {name, 0};
@@ -2803,24 +2822,23 @@ short get_icon_id(const char *name)
     return bad_icon_id; // -1 is used by SPELLBOOK_POSS etc
 }
 
-short get_anim_id(const char *name, struct ObjectConfigStats *objst)
+int32_t get_anim_id(const char *name, struct ObjectConfigStats *objst)
 {
-    short ret = atoi(name);
+    int64_t ret = strtoll(name, NULL, 10);
     struct NamedCommand key = {name, 0};
 
-    if (ret > 0)
+    if (ret > 0 && ret < INT32_MAX)
         return ret;
 
     struct NamedCommand *val = bsearch(&key, added_sprites, num_added_sprite, sizeof(added_sprites[0]),
                                        &cmp_named_command);
     if (val)
-        return (short) val->num;
+        return val->num;
 
     if (0 == strcmp(name, "0"))
         return 0;
 
-    if (strrchr(name, ':') != NULL)
-    {
+    if (strrchr(name, ':') != NULL) {
         char *name2 = strdup(name);
         char *P = strchr(name2, ':');
         *P = 0; // removing :
@@ -2829,56 +2847,46 @@ short get_anim_id(const char *name, struct ObjectConfigStats *objst)
 
         val = bsearch(&key, added_sprites, num_added_sprite, sizeof(added_sprites[0]),
                       &cmp_named_command);
-        if (!val)
-        {
+        if (!val) {
             ERRORLOG("Unable to find sprite %s", name);
             free(name2);
             return 0;
         }
-        if (0 == strcmp(P, "NORTH"))
-        {
+        if (0 == strcmp(P, "NORTH")) {
             objst->rotation_flag = 0;
         }
-        else if (0 == strcmp(P, "NORTHEAST"))
-        {
+        else if (0 == strcmp(P, "NORTHEAST")) {
             objst->rotation_flag = 1;
         }
-        else if (0 == strcmp(P, "EAST"))
-        {
+        else if (0 == strcmp(P, "EAST")) {
             objst->rotation_flag = 2;
         }
-        else if (0 == strcmp(P, "SOUTHEAST"))
-        {
+        else if (0 == strcmp(P, "SOUTHEAST")) {
             objst->rotation_flag = 3;
         }
-        else if (0 == strcmp(P, "SOUTH"))
-        {
+        else if (0 == strcmp(P, "SOUTH")) {
             objst->rotation_flag = 4;
         }
-        else if (0 == strcmp(P, "SOUTHWEST"))
-        {
+        else if (0 == strcmp(P, "SOUTHWEST")) {
             objst->rotation_flag = 5;
         }
-        else if (0 == strcmp(P, "WEST"))
-        {
+        else if (0 == strcmp(P, "WEST")) {
             objst->rotation_flag = 6;
         }
-        else if (0 == strcmp(P, "NORTHWEST"))
-        {
+        else if (0 == strcmp(P, "NORTHWEST")) {
             objst->rotation_flag = 7;
         }
-        else
-        {
+        else {
             ERRORLOG("Unexpected Anim direction: %s", P);
         }
 
         free(name2);
-        return (short) val->num;
+        return val->num;
     }
     return 0;
 }
 
-short get_anim_id_(const char* word_buf)
+int32_t get_anim_id_(const char* word_buf)
 {
     struct ObjectConfigStats obj_tmp;
     return get_anim_id(word_buf, &obj_tmp);

@@ -101,7 +101,7 @@ struct IRWorldKeeperSpriteCmd
     uint32_t              draw_flags    = 0;   /**< Sprite draw flags (Lb_SPRITE_*). */
     /** RLE-compressed pixel data (keepersprite_array — stable for level lifetime). */
     const unsigned char*  data          = nullptr;
-    /** Frame-resolved global sprite index (keepsprite[] / keepersprite_add[]).
+    /** Frame-resolved global sprite index (keepsprite[] / custom_keeper_sprites[]).
      *  Atlas cache key — stable across sprite-heap eviction, unlike @p data.
      *  -1 = unknown (submit path without an id); such sprites bypass the atlas. */
     int32_t               sprite_id     = -1;
@@ -123,7 +123,7 @@ struct IRWorldShadowCmd
 {
     WorldCmdLayer    layer         = WorldCmdLayer::Shadows;
     EnginePolyVertex verts[4]      = {};  /**< Screen-px coords + fixed-point UV. */
-    unsigned short   anim_sprite   = 0;
+    int32_t   anim_sprite   = 0;
     short            angle         = 0;
     unsigned char    current_frame = 0;
     int              tex_w         = 0;
