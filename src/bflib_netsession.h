@@ -42,6 +42,10 @@ enum NetJoinRejection {
     NetJoin_Locked = 2,
     NetJoin_Full = 3,
     NetJoin_Version = 4,
+    NetJoin_SpectatorState = 5,
+    NetJoin_SpectatorsDisabled = 6,
+    NetJoin_SpectatorsFull = 7,
+    NetJoin_SpectatorsUnsupported = 8,
 };
 
 extern enum NetJoinRejection net_join_rejection;
@@ -51,6 +55,7 @@ enum NetSessionPhase {
     NetPhase_Lobby,
     NetPhase_InGame,
     NetPhase_InLandview,
+    NetPhase_Loading,
 };
 
 enum NetMsgType
@@ -80,6 +85,10 @@ struct TbNetworkSessionNameEntry {
     int64_t created_at;
     char version[32];
     char players[SESSION_HUMANS_MAX][NETSP_PLAYER_NAME_MAX_LEN];
+    uint8_t spectator_support;
+    uint8_t spectators_enabled;
+    uint8_t max_spectators;
+    uint8_t spectator_count;
 };
 
 struct TbNetworkPlayerEntry {
@@ -116,6 +125,7 @@ struct VALUE;
 void net_session_parse_metadata(struct TbNetworkSessionNameEntry *session, const struct VALUE *root);
 int net_session_incompatible(const struct TbNetworkSessionNameEntry *session);
 enum NetJoinRejection net_session_join_rejection(const struct TbNetworkSessionNameEntry *session);
+enum NetJoinRejection net_session_spectator_rejection(const struct TbNetworkSessionNameEntry *session);
 const char *net_join_error_text(enum NetJoinRejection reason);
 /******************************************************************************/
 #ifdef __cplusplus

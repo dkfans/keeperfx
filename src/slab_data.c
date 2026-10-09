@@ -560,8 +560,8 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
  */
 void reveal_whole_map(struct PlayerInfo *player)
 {
-    clear_dig_for_map_rect(player->id_number,0,game.map_tiles_x,0,game.map_tiles_y);
-    reveal_map_rect(player->id_number,1,game.map_subtiles_x,1,game.map_subtiles_y);
+    clear_dig_for_map_rect(player->id_number, 0, game.map_tiles_x, 0, game.map_tiles_y);
+    reveal_map_rect(player->id_number, 1, game.map_subtiles_x, 1, game.map_subtiles_y);
     panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
 }
 

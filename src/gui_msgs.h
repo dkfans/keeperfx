@@ -40,6 +40,7 @@ enum MessageTypes {
     MsgType_Blank,
     MsgType_CreatureInstance,
     MsgType_Custom,
+    MsgType_Spectator,
 };
 /******************************************************************************/
 #pragma pack(1)

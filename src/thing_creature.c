@@ -112,6 +112,7 @@ extern "C" {
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_MAX];
 struct TbSpriteSheet * swipe_sprites = NULL;
+static int32_t swipe_sprites_idx = -1;
 /******************************************************************************/
 /**
  * Returns creature health scaled 0..1000.
@@ -318,6 +319,7 @@ void free_swipe_graphic(void)
 {
     SYNCDBG(6,"Starting");
     free_spritesheet(&swipe_sprites);
+    swipe_sprites_idx = -1;
     game.loaded_swipe_idx = -1;
 }
 
@@ -325,8 +327,10 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
 {
     SYNCDBG(6,"Starting for %s",thing_model_name(thing));
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-    if ((crconf->swipe_idx == 0) || (game.loaded_swipe_idx == crconf->swipe_idx))
+    if (crconf->swipe_idx == 0
+     || (game.loaded_swipe_idx == crconf->swipe_idx && swipe_sprites_idx == crconf->swipe_idx)) {
         return true;
+    }
     free_swipe_graphic();
     int swpe_idx = crconf->swipe_idx;
     char dat_fname[2048];
@@ -352,6 +356,7 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
         ERRORLOG("Unable to load swipe graphics for %s",thing_model_name(thing));
         return false;
     }
+    swipe_sprites_idx = swpe_idx;
     game.loaded_swipe_idx = swpe_idx;
     return true;
 }
@@ -370,13 +375,14 @@ void randomise_swipe_graphic_direction()
 
 void draw_swipe_graphic(void)
 {
-    struct PlayerInfo* myplyr = get_my_player();
+    const struct PlayerInfo *myplyr = get_displayed_player();
     struct Thing* thing = thing_get(myplyr->controlled_thing_idx);
-    if (thing_is_creature(thing))
-    {
+    if (thing_is_creature(thing)) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (instance_draws_possession_swipe(cctrl->instance_id))
-        {
+        if (instance_draws_possession_swipe(cctrl->instance_id)) {
+            if (!load_swipe_graphic_for_creature(thing)) {
+                return;
+            }
             // Redirect this call's sprite submissions into the dedicated
             // swipe-overlay buffer instead of the general UI one -- see
             // IRenderer::BeginOverlayCapture()'s own comment for why (lets GL

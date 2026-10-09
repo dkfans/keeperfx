@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "player_instances.h"
 
 #include "globals.h"
@@ -835,8 +836,9 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, int32_t *n)
     ustate->init_flags |= UsrIF_KeyboardInputDisabled;
     player->instance_remain_turns = zoom_to_position_turns(player);
     set_view_position(&ustate->dungeon_camera.x, &ustate->dungeon_camera.y, player->zoom_to_pos_x, player->zoom_to_pos_y);
-    if (is_my_player(player) && !replay_camera_detached())
+    if (is_my_player(player) && !is_observer_camera_active()) {
         move_local_camera_to_position(player->zoom_to_pos_x, player->zoom_to_pos_y);
+    }
     return 0;
 }
 
@@ -862,8 +864,11 @@ void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force)
     long inum = player->instance_num;
     if (inum >= PLAYER_INSTANCES_COUNT)
         inum = 0;
-    if ((inum == 0) || (player_instance_info[inum].instance_state != 1) || (force))
-    {
+    if ((inum == 0) || (player_instance_info[inum].instance_state != 1) || (force)) {
+        if (player == &local_observer_player && ninum == PI_ZoomToPos) {
+            observer_camera_jump(coord_subtile(player->zoom_to_pos_x), coord_subtile(player->zoom_to_pos_y));
+            return;
+        }
         player->instance_num = ninum%PLAYER_INSTANCES_COUNT;
         struct PlayerInstanceInfo* inst_info = &player_instance_info[player->instance_num];
         player->instance_remain_turns = inst_info->length_turns;

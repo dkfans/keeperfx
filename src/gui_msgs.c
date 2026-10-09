@@ -36,6 +36,8 @@
 #include "custom_sprites.h"
 #include "keeperfx.hpp"
 #include "timer.h"
+#include "observer.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -64,8 +66,8 @@ void message_draw(void)
     }
     for (int i = 0; i < game.active_messages_count; i++)
     {
-        if ( (game.messages[i].target_idx == my_player_number) || (game.messages[i].target_idx == -1) )
-        {
+        if (game.messages[i].target_idx == my_player_number || game.messages[i].target_idx == -1
+         || (observer_is_active() && game.messages[i].target_idx == PLAYER_NEUTRAL)) {
             long x = 148 * units_per_pixel / 16;
             LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
             RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
@@ -130,6 +132,7 @@ void message_draw(void)
                     break;
                 }
                 case MsgType_Custom:
+                case MsgType_Spectator:
                 {
                     spr_idx = game.messages[i].plyr_idx;
                     break;
@@ -154,6 +157,12 @@ void message_draw(void)
             }
             switch (game.messages[i].type)
             {
+                case MsgType_Spectator: {
+                    spr = get_panel_sprite(spr_idx);
+                    int32_t creature_units_per_px = spr->SHeight * ps_units_per_px / 50;
+                    LbSpriteDrawResized(x - 4 * creature_units_per_px / 16, y - creature_units_per_px, ps_units_per_px * 18 / 21, spr);
+                    break;
+                }
                 case MsgType_Player:
                 {
                     draw_gui_panel_sprite_left_player(x, y, ps_units_per_px, spr_idx, plyr_idx);
@@ -172,7 +181,7 @@ void message_draw(void)
                 case MsgType_CreatureInstance:
                 case MsgType_Custom:
                 {
-                    spr = get_panel_sprite(spr_idx);                    
+                    spr = get_panel_sprite(spr_idx);
                     LbSpriteDrawResized(x, y, ps_units_per_px, spr);
                     break;
                 }

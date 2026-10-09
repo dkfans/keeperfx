@@ -18,9 +18,11 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "local_camera.h"
 #include "engine_camera.h"
 #include "engine_render.h"
+#include "engine_redraw.h"
 #include "net_exchange_gameplay.h"
 #include "packets.h"
 #include "player_data.h"
@@ -45,7 +47,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static struct Packet freecam_packet;
+static struct Packet observer_camera_packet;
 static int64_t camera_update_time;
 static TbBool camera_step_due = true;
 extern float interpolate_time;
@@ -53,14 +55,12 @@ extern float interpolate_time;
 static int get_local_active_camera_index(struct PlayerInfo *player);
 static struct Camera *get_local_dungeon_camera(struct PlayerInfo *player);
 
-static TbBool replay_is_detached(void)
-{
-    return replay.load_enable && local_state.replay_detached;
-}
-
 static TbBool local_camera_follows_player(const struct PlayerInfo *player)
 {
-    return is_my_player(player) && local_state.camera.ready && !replay_is_detached();
+    if (!is_my_player(player) || !local_state.camera.ready || is_observer_camera_active()) {
+        return false;
+    }
+    return true;
 }
 
 static TbBool get_packet_rotation_pivot(const struct Packet *pckt, MapCoord *x, MapCoord *y)
@@ -77,7 +77,7 @@ void camera_packet_set_state(struct Packet *pckt)
     struct PlayerInfo* player = get_my_player();
     packet_set_camera_context(pckt, get_local_active_camera_index(player));
     local_state.camera.has_rotation_pivot = get_packet_rotation_pivot(pckt, &local_state.camera.rotation_pivot_x, &local_state.camera.rotation_pivot_y);
-    if (!local_state.camera.ready || (get_local_view_type(player) != PVT_DungeonTop) || (get_player_view_type(player) != PVT_DungeonTop)
+    if (!local_state.camera.ready || is_observer_camera_active() || (get_local_view_type(player) != PVT_DungeonTop) || (get_player_view_type(player) != PVT_DungeonTop)
      || player_instance_controls_camera(player->instance_num)) {
         // senseless to transmit camera coords during these times, and a camera instance is computed from the dungeon camera it started with
         packet_clear_camera_position(pckt);
@@ -178,7 +178,7 @@ void update_local_dungeon_view_mode(struct PlayerInfo *player)
     local_state.camera.destination[CamIV_Isometric].view_mode = view_mode;
 }
 
-static void sync_first_person_camera(struct Camera *cam, struct PlayerInfo *player)
+static void update_first_person_camera(struct Camera *cam, const struct PlayerInfo *player, TbBool snap)
 {
     if (player->controlled_thing_idx <= 0) {
         return;
@@ -187,18 +187,19 @@ static void sync_first_person_camera(struct Camera *cam, struct PlayerInfo *play
     if (!thing_exists(ctrltng)) {
         return;
     }
-    struct Camera corrected_cam = *cam;
     int eye_height = get_creature_eye_height(ctrltng);
-    update_first_person_position(&corrected_cam, ctrltng, eye_height);
-    corrected_cam.rotation_angle_x = ctrltng->move_angle_xy;
-    corrected_cam.rotation_angle_y = ctrltng->move_angle_z;
-    sync_camera_state(CamIV_FirstPerson, &corrected_cam);
+    update_first_person_position(cam, ctrltng, eye_height);
+    cam->rotation_angle_x = ctrltng->move_angle_xy;
+    cam->rotation_angle_y = ctrltng->move_angle_z;
+    if (snap) {
+        sync_camera_state(CamIV_FirstPerson, cam);
+    }
     local_state.camera.first_person_look_pending = false;
 }
 
 void init_local_cameras(struct PlayerInfo *player)
 {
-    if (!is_my_player(player)) {
+    if (!is_my_player(player) || (local_state.camera.ready && is_observer_camera_active())) {
         return;
     }
     local_state.camera.first_person_look_pending = false;
@@ -227,6 +228,9 @@ void init_local_cameras(struct PlayerInfo *player)
     cam->view_mode = PVM_FrontView;
 
     apply_dungeon_camera(cams, player);
+    if (player == &local_observer_player && get_player_active_camera_index(player) == CamIV_FirstPerson) {
+        update_first_person_camera(&cams[CamIV_FirstPerson], get_displayed_player(), false);
+    }
     for (int i = 0; i < CamIV_EndList; i++) {
         sync_camera_state(i, &cams[i]);
     }
@@ -237,6 +241,11 @@ void init_local_cameras(struct PlayerInfo *player)
 void move_local_camera_to_position(MapCoord x, MapCoord y)
 {
     if (!local_state.camera.ready) {
+        return;
+    }
+    if (observer_is_active()) {
+        enter_observer_camera();
+        observer_camera_jump(coord_subtile(x), coord_subtile(y));
         return;
     }
     int cam_idx = get_local_active_camera(get_my_player()) - local_state.camera.current;
@@ -402,10 +411,15 @@ void update_local_cameras(void)
         return;
     }
     struct PlayerInfo *player = get_my_player();
+    const unsigned char previous_camera_idx = get_player_active_camera_index(player);
+    if (player == &local_observer_player) {
+        observer_update_view();
+    }
     struct Thing *ctrltng = thing_get(player->controlled_thing_idx);
     const struct Packet *pckt = get_history_packet(get_local_user(), get_gameturn());
     const int active_cam_idx = get_local_active_camera(player) - local_state.camera.current;
-    const TbBool move_camera = camera_step_due || (replay.load_enable && !replay_is_detached());
+    const TbBool following_player = observer_is_active() && !is_observer_camera_active();
+    const TbBool move_camera = camera_step_due || following_player;
     const struct LocalCameraRotation rotation = take_local_camera_rotation();
     local_state.camera.previous_deviation_x = local_state.camera.destination_deviation_x;
     local_state.camera.previous_deviation_y = local_state.camera.destination_deviation_y;
@@ -415,24 +429,33 @@ void update_local_cameras(void)
     if (move_camera || active_cam_idx == CamIV_FirstPerson || player_instance_controls_camera(player->instance_num)) {
         memcpy(local_state.camera.previous, local_state.camera.destination, sizeof(local_state.camera.previous));
     }
-    if (replay_is_detached()) {
-        if (local_state.replay_view_type == PVT_DungeonTop) {
-            process_camera_action(local_state.camera.destination, &freecam_packet);
+    if (is_observer_camera_active()) {
+        if (local_state.observer_camera_view_type == PVT_DungeonTop) {
+            process_camera_action(local_state.camera.destination, &observer_camera_packet);
             apply_local_camera_rotation();
-            struct Camera *cam = &local_state.camera.destination[local_state.replay_cam_idx];
+            struct Camera *cam = &local_state.camera.destination[local_state.observer_camera_idx];
             process_local_camera_movement(cam, player);
             MapCoord pivot_x = 0;
             MapCoord pivot_y = 0;
-            const TbBool has_pivot = get_packet_rotation_pivot(&freecam_packet, &pivot_x, &pivot_y);
+            const TbBool has_pivot = get_packet_rotation_pivot(&observer_camera_packet, &pivot_x, &pivot_y);
             process_local_camera_rotation(cam, has_pivot, pivot_x, pivot_y, &rotation);
-            process_camera_view_controls(cam, &freecam_packet, player);
+            process_camera_view_controls(cam, &observer_camera_packet, player);
             if (move_camera) {
                 view_process_camera_velocity(cam);
             }
         }
         local_state.camera_movement_x = 0.0f;
         local_state.camera_movement_y = 0.0f;
-        memset(&freecam_packet, 0, sizeof(freecam_packet));
+        memset(&observer_camera_packet, 0, sizeof(observer_camera_packet));
+        return;
+    }
+    if (player == &local_observer_player) {
+        apply_dungeon_camera(local_state.camera.destination, player);
+        update_local_dungeon_view_mode(player);
+        if (get_player_active_camera_index(player) == CamIV_FirstPerson) {
+            update_first_person_camera(&local_state.camera.destination[CamIV_FirstPerson], get_displayed_player(),
+                previous_camera_idx != CamIV_FirstPerson);
+        }
         return;
     }
     if (replay_playback_is_paused()) {
@@ -489,7 +512,6 @@ void update_local_cameras(void)
             view_process_camera_velocity(cam);
         }
     }
-
     if (active_cam_idx == CamIV_Isometric) {
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
         if (dungeon->camera_deviate_jump != 0) {
@@ -540,7 +562,7 @@ void interpolate_local_cameras(void)
     }
     struct PlayerInfo *player = get_my_player();
     const int camera_idx = get_local_active_camera(player) - local_state.camera.current;
-    if (game.fast_forward > 1 && (!replay.load_enable || replay_is_detached()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(player->instance_num)) {
+    if (game.fast_forward > 1 && (!observer_is_active() || is_observer_camera_active()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(player->instance_num)) {
         const float elapsed = (get_time_tick_ns() - camera_update_time) / 1e9f * turns_per_second;
         camera_fraction = clamp(elapsed, 0.0f, 1.0f);
     }
@@ -576,7 +598,7 @@ void sync_local_camera(struct PlayerInfo *player)
         return;
     }
     if (cam_idx == CamIV_FirstPerson) {
-        sync_first_person_camera(&local_state.camera.destination[CamIV_FirstPerson], player);
+        update_first_person_camera(&local_state.camera.destination[CamIV_FirstPerson], player, true);
         return;
     }
     sync_local_camera_pose(player, &get_player_user_state(player)->dungeon_camera);
@@ -598,13 +620,17 @@ void sync_local_camera_pose(struct PlayerInfo *player, const struct DungeonCamer
 
 void carry_local_dungeon_position(struct PlayerInfo *player, TbBool from_front_view)
 {
-    if (!local_camera_follows_player(player))
+    if (!is_my_player(player) || !local_state.camera.ready) {
         return;
-    const int from_idx = from_front_view ? CamIV_FrontView : CamIV_Isometric;
-    const int to_idx = from_front_view ? CamIV_Isometric : CamIV_FrontView;
+    }
+    int from_idx = CamIV_Isometric;
+    int to_idx = CamIV_FrontView;
+    if (from_front_view) {
+        from_idx = CamIV_FrontView;
+        to_idx = CamIV_Isometric;
+    }
     struct Camera *camera_sets[] = {local_state.camera.current, local_state.camera.previous, local_state.camera.destination};
-    for (int i = 0; i < 3; i++)
-    {
+    for (int i = 0; i < 3; i++) {
         struct Camera *cams = camera_sets[i];
         cams[to_idx].mappos.x.val = cams[from_idx].mappos.x.val;
         cams[to_idx].mappos.y.val = cams[from_idx].mappos.y.val;
@@ -617,7 +643,11 @@ void record_local_possession_start(struct PlayerInfo *player)
 {
     if (!is_my_player(player) || !local_state.camera.ready)
         return;
-    local_state.camera.possession_start_zoom = replay_is_detached() ? 0 : local_state.camera.destination[CamIV_Isometric].zoom;
+    if (is_observer_camera_active()) {
+        local_state.camera.possession_start_zoom = 0;
+    } else {
+        local_state.camera.possession_start_zoom = local_state.camera.destination[CamIV_Isometric].zoom;
+    }
 }
 
 int32_t get_local_possession_start_zoom(struct PlayerInfo *player)
@@ -696,58 +726,74 @@ void update_local_view_prediction(const struct Packet *pckt)
     }
 }
 
-struct Packet *get_freecam_packet(void)
+struct Packet *get_observer_camera_packet(void)
 {
-    return &freecam_packet;
+    return &observer_camera_packet;
 }
 
-TbBool replay_camera_detached(void)
+TbBool is_observer_camera_active(void)
 {
-    return replay_is_detached();
+    return local_state.observer_camera_active;
 }
 
-void replay_detach(void)
+void enter_observer_camera(void)
 {
-    if (replay_is_detached() || !local_state.camera.ready) {
+    if (is_observer_camera_active() || !local_state.camera.ready) {
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const int cam_idx = (get_player_user_state(player)->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric;
+    int32_t cam_idx = CamIV_Isometric;
+    if (get_player_user_state(player)->prefs[UPref_FrontView] != 0) {
+        cam_idx = CamIV_FrontView;
+    }
     struct Camera cams[CamIV_EndList];
     memcpy(cams, local_state.camera.destination, sizeof(cams));
     apply_dungeon_camera(cams, player);
     sync_camera_state(cam_idx, &cams[cam_idx]);
     local_state.camera.move_cam = NULL;
-    memset(&freecam_packet, 0, sizeof(freecam_packet));
-    local_state.replay_detached = true;
-    local_state.replay_view_type = PVT_DungeonTop;
-    local_state.replay_cam_idx = cam_idx;
+    memset(&observer_camera_packet, 0, sizeof(observer_camera_packet));
+    local_state.observer_camera_active = true;
+    local_state.observer_camera_view_type = PVT_DungeonTop;
+    local_state.observer_camera_idx = cam_idx;
+    observer_update_vision();
 }
 
-void replay_attach(void)
+void return_to_player_camera(void)
 {
-    if (!local_state.replay_detached) {
-        return;
+    clicked_on_small_map = 0;
+    grabbed_small_map = 0;
+    if (local_state.observer_camera_active && local_state.observer_camera_view_type != PVT_DungeonTop) {
+        set_observer_camera_view(PVT_DungeonTop);
     }
-    if (local_state.replay_view_type == PVT_MapScreen) {
-        replay_freecam_set_map(false);
+    local_state.observer_camera_active = false;
+    if (observer_is_active()) {
+        local_observer_user_state.view_type = PVT_None;
+        observer_update_view();
+        observer_store_packets(NULL);
     }
-    local_state.replay_detached = false;
     init_local_cameras(get_my_player());
 }
 
-void replay_freecam_set_map(TbBool on)
+void set_observer_camera_view(unsigned char view_type)
 {
-    if (!replay_is_detached()) {
+    if (!is_observer_camera_active()) {
         return;
     }
-    local_state.replay_view_type = on ? PVT_MapScreen : PVT_DungeonTop;
-    toggle_status_menu(on ? 0 : ((game.operation_flags & GOF_ShowPanel) != 0));
+    if (view_type != PVT_DungeonTop && view_type != PVT_MapScreen) {
+        return;
+    }
+    local_state.camera.move_cam = NULL;
+    memset(&observer_camera_packet, 0, sizeof(observer_camera_packet));
+    local_state.camera_movement_x = 0.0f;
+    local_state.camera_movement_y = 0.0f;
+    local_state.observer_camera_view_type = view_type;
+    toggle_status_menu(view_type == PVT_DungeonTop && (game.operation_flags & GOF_ShowGui) != 0);
+    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
 }
 
-void replay_freecam_jump(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+void observer_camera_jump(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if (!replay_is_detached()) {
+    if (!is_observer_camera_active()) {
         return;
     }
     struct Packet jump;
@@ -758,13 +804,13 @@ void replay_freecam_jump(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     process_camera_action(local_state.camera.destination, &jump);
     memcpy(local_state.camera.previous, local_state.camera.destination, sizeof(local_state.camera.previous));
     memcpy(local_state.camera.current, local_state.camera.destination, sizeof(local_state.camera.current));
-    replay_freecam_set_map(false);
+    set_observer_camera_view(PVT_DungeonTop);
 }
 
 unsigned char get_local_view_type(const struct PlayerInfo *player)
 {
-    if (replay_is_detached() && is_my_player(player)) {
-        return local_state.replay_view_type;
+    if (is_observer_camera_active() && is_my_player(player)) {
+        return local_state.observer_camera_view_type;
     }
     if (!is_my_player(player) || local_state.view_type == PVT_None) {
         return get_player_view_type(player);
@@ -787,11 +833,11 @@ struct Camera* get_local_active_camera(struct PlayerInfo *player)
     if (!is_my_player(player) || !local_state.camera.ready) {
         return &local_state.camera.current[get_player_active_camera_index(player)];
     }
-    if (replay_is_detached()) {
-        if (local_state.replay_view_type == PVT_MapScreen) {
+    if (is_observer_camera_active()) {
+        if (local_state.observer_camera_view_type == PVT_MapScreen) {
             return &local_state.camera.current[CamIV_Parchment];
         }
-        return &local_state.camera.current[local_state.replay_cam_idx];
+        return &local_state.camera.current[local_state.observer_camera_idx];
     }
     unsigned char view_type = get_local_view_type(player);
     if (view_type == PVT_MapScreen) {
