@@ -52,7 +52,6 @@ enum SaveResult save_schema_encode(struct SaveBuffer *out, const struct SaveStru
             failed |= put_str(out, (field->sub != nullptr) ? field->sub->name : "");
             if (field->stored_type == SV_UNION)
             {
-                failed |= put_str(out, (field->uni->selector != nullptr) ? field->uni->selector : field->uni->disc);
                 failed |= save_buf_u16(out, static_cast<uint16_t>(field->uni->member_count));
                 for (uint32_t member_index = 0; member_index < field->uni->member_count; member_index++)
                 {
@@ -77,7 +76,6 @@ void save_schema_free(struct SaveFileSchema *schema)
             SaveFileField *file_field = &file_struct->fields[field_index];
             free(file_field->name);
             free(file_field->sub_type);
-            free(file_field->disc);
             for (uint32_t member_index = 0; member_index < file_field->member_count; member_index++)
             {
                 free(file_field->members[member_index].name);
@@ -129,7 +127,6 @@ static void read_field(ByteReader &reader, bool &oom, SaveFileField *file_field)
     if ((file_field->stored_type != SV_UNION) || !reader.ok())
         return;
 
-    file_field->disc = read_string(reader, oom);
     const uint32_t member_count = reader.Get<uint16_t>();
     if (!reader.ok() || (file_field->dim_count != 0) || (member_count > SAVE_UNION_MAX_MEMBERS) || (member_count > reader.left() / 8))
     {

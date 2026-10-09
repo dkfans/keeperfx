@@ -14,7 +14,7 @@
 #include <vector>
 
 /******************************************************************************/
-int save_fast_copy_ok(uint8_t type, uint32_t elem)
+bool save_fast_copy_ok(uint8_t type, uint32_t elem)
 {
     return save_host_is_little_endian() && (type != SV_BOOL8) && (type != SV_STRUCT) && (elem == save_stored_size(type));
 }
@@ -134,11 +134,11 @@ uint8_t save_field_flags(const struct SaveFieldDesc *field)
     return field->flags;
 }
 
-int save_field_included(const struct SaveFieldDesc *field, enum SaveMode mode)
+bool save_field_included(const struct SaveFieldDesc *field, enum SaveMode mode)
 {
     const uint8_t flags = save_field_flags(field);
     if (flags & (SVF_DERIVED | SVF_RUNTIME))
-        return 0;
+        return false;
     return (flags & ((mode == SVM_Save) ? SVF_SAVE : SVF_SYNC)) != 0;
 }
 

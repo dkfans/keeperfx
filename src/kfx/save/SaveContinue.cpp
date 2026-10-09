@@ -61,8 +61,8 @@ void get_progress_filename(const char *cmpgn_fname, char *out, size_t outlen)
 bool is_kfxs_file(IFileSystem &filesystem, const char *fname)
 {
     std::unique_ptr<IFileReader> reader = filesystem.OpenReader(fname);
-    char magic[4];
-    return reader && reader->ReadAt(0, magic, sizeof(magic)) && (memcmp(magic, "KFXS", sizeof(magic)) == 0);
+    char magic[SAVE_MAGIC_SIZE];
+    return reader && reader->ReadAt(0, magic, sizeof(magic)) && save_magic_matches(magic, sizeof(magic));
 }
 
 /** Next chunk header of a file in the raw chunk format, with pos moved past it. */

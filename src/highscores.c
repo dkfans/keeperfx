@@ -41,11 +41,11 @@ static TbBool load_high_score_table(void)
         campaign.hiscore_table = NULL;
         return true;
     }
-    char magic[4];
+    char magic[SAVE_MAGIC_SIZE];
     TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (!fh)
         return false;
-    TbBool is_kfxs = (LbFileRead(fh, magic, sizeof(magic)) == sizeof(magic)) && (memcmp(magic, "KFXS", sizeof(magic)) == 0);
+    TbBool is_kfxs = (LbFileRead(fh, magic, sizeof(magic)) == sizeof(magic)) && save_magic_matches(magic, sizeof(magic));
     LbFileClose(fh);
     if (is_kfxs)
     {

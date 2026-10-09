@@ -18,7 +18,7 @@ static void note_raw_bytes(struct SaveBuffer *out, const uint8_t *bytes, uint32_
     {
         if (bytes[index] != 0)
         {
-            out->has_raw_bytes = 1;
+            out->has_raw_bytes = true;
             return;
         }
     }
@@ -49,7 +49,7 @@ static enum SaveResult encode_member_tail(struct SaveBuffer *out, const struct S
     {
         failed |= save_buf_u16(out, static_cast<uint16_t>(tail_start - field->offset));
         failed |= save_buf_append(out, src + tail_start, tail_length);
-        out->has_raw_bytes = 1;
+        out->has_raw_bytes = true;
     }
     return failed ? save_fail(err, SVR_NoMemory, "out of memory") : SVR_Ok;
 }

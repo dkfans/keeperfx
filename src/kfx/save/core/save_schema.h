@@ -6,6 +6,7 @@
 #ifndef KFX_SAVE_SCHEMA_H
 #define KFX_SAVE_SCHEMA_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -96,7 +97,7 @@ struct SaveUnionMember {
     const char *name;
     const struct SaveStructDesc *sub;
     uint32_t raw_size;
-    uint8_t is_default;
+    bool is_default;
     uint8_t nvalues;
     int32_t values[SAVE_UNION_MAX_VALUES]; 
 };
@@ -115,7 +116,7 @@ struct SaveFieldDesc {
     const char *name;
     uint32_t offset;
     uint32_t mem_size;            /* sizeof the whole member */
-    uint32_t dims[3];             /* 0 = unused; none means a single element */
+    uint32_t dims[3];             /* unused entries are 0; a field with no dimensions is a single element */
     uint8_t stored_type;
     uint8_t flags;                /* no save/sync/derived/runtime bit means save + sync */
     const struct SaveStructDesc *sub;
@@ -214,7 +215,7 @@ const char *save_stored_name(uint8_t type);
 uint32_t save_field_count(const struct SaveFieldDesc *field);
 uint32_t save_field_dim_count(const struct SaveFieldDesc *field);
 uint8_t save_field_flags(const struct SaveFieldDesc *field);
-int save_field_included(const struct SaveFieldDesc *field, enum SaveMode mode);
+bool save_field_included(const struct SaveFieldDesc *field, enum SaveMode mode);
 
 void save_copy_runtime(const struct SaveStructDesc *desc, void *dst, const void *src);
 
@@ -235,7 +236,6 @@ struct SaveFileMember {
 };
 
 struct SaveFileField {
-    char *disc;
     uint32_t member_count;
     struct SaveFileMember *members;
     char *name;
@@ -277,7 +277,7 @@ struct SaveDecoder {
     uint32_t stash_count;
     void *priv;
     /** The record being decoded has raw memory made by a machine with the other byte order. */
-    int foreign_raw_bytes;
+    bool foreign_raw_bytes;
 };
 
 enum SaveResult save_encode_record(struct SaveBuffer *out, const struct SaveStructDesc *desc, const void *src,
@@ -293,8 +293,8 @@ enum SaveResult save_decode_record(struct SaveDecoder *decoder, const struct Sav
     const uint8_t *data, uint32_t len, uint32_t *used, void *dst, struct SaveError *err);
 
 struct SaveValue {
-    int is_float;
-    int neg;
+    bool is_float;
+    bool neg;
     uint64_t mag;
     double real;
 };
@@ -303,7 +303,7 @@ int save_value_load_le(const uint8_t *bytes, uint8_t type, struct SaveValue *val
 int save_value_load_mem(const void *memory, uint32_t size, uint8_t type, struct SaveValue *value);
 int save_value_store_le(uint8_t *bytes, uint8_t type, const struct SaveValue *value, int clamp);
 int save_value_store_mem(void *memory, uint32_t size, uint8_t type, const struct SaveValue *value, int clamp);
-int save_value_is_zero(const struct SaveValue *value);
+bool save_value_is_zero(const struct SaveValue *value);
 /******************************************************************************/
 #ifdef __cplusplus
 }

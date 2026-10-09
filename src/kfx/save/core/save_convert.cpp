@@ -47,11 +47,11 @@ static void raw_store(uint8_t *bytes, uint32_t size, uint64_t value, int little)
 
 static void value_from_raw(struct SaveValue *value, uint64_t raw, const struct IntKind *kind)
 {
-    value->is_float = 0;
+    value->is_float = false;
     value->real = 0;
     if (kind->is_bool)
     {
-        value->neg = 0;
+        value->neg = false;
         value->mag = (raw != 0);
         return;
     }
@@ -63,11 +63,11 @@ static void value_from_raw(struct SaveValue *value, uint64_t raw, const struct I
     }
     if (kind->is_signed && (raw >> 63))
     {
-        value->neg = 1;
+        value->neg = true;
         value->mag = (~raw) + 1;
     } else
     {
-        value->neg = 0;
+        value->neg = false;
         value->mag = raw;
     }
 }
@@ -91,7 +91,7 @@ static int value_to_raw(const struct SaveValue *value, const struct IntKind *kin
     } else
     {
         max_pos = (kind->bits == 64) ? UINT64_MAX : ((static_cast<uint64_t>(1) << kind->bits) - 1);
-        max_neg = 0;
+        max_neg = false;
     }
     uint64_t mag = value->mag;
     const int neg = value->neg && (mag != 0);
@@ -115,7 +115,7 @@ static int value_to_raw(const struct SaveValue *value, const struct IntKind *kin
     return clamped;
 }
 
-int save_value_is_zero(const struct SaveValue *value)
+bool save_value_is_zero(const struct SaveValue *value)
 {
     return value->is_float ? (value->real == 0.0) : (value->mag == 0);
 }
@@ -127,7 +127,7 @@ static int load_generic(const uint8_t *bytes, uint32_t size, uint8_t type, int l
     {
         if ((size != 4) && (size != 8))
             return -1;
-        value->is_float = 1;
+        value->is_float = true;
         if (size == 4)
         {
             auto bits = static_cast<uint32_t>(raw_load(bytes, 4, little));

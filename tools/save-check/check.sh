@@ -37,7 +37,8 @@ if [ "$what" = lint ] || [ "$what" = all ]; then
         -Isrc -Itools/save-layout/stub -DBFDEBUG_LEVEL=0 -DDEBUG=0 src/kfx/save || status=1
 
     echo "== clang-tidy (the portable core; the settings are in src/kfx/save/.clang-tidy)"
-    clang-tidy -quiet --warnings-as-errors="*" $CORE -- -std=c++17 -x c++ $INC 2>&1 | grep -E ": (warning|error):" && status=1
+    tidy_output="$(clang-tidy -quiet --warnings-as-errors="*" $CORE -- -std=c++17 -x c++ $INC 2>&1)"
+    if echo "$tidy_output" | grep -E ": (warning|error):"; then status=1; fi
 fi
 
 if [ "$what" = valgrind ] || [ "$what" = all ]; then

@@ -234,7 +234,7 @@ enum SaveResult save_config_overlay_apply(const uint8_t *conf_data, uint32_t con
             uint8_t *dst = resolve_path(&save_desc_Configs, reinterpret_cast<uint8_t *>(current), path, &out_type, &out_size);
             if ((dst == nullptr) || (out_type != SV_STR))
                 continue;
-            const uint32_t copy_len = (slen < out_size) ? slen : out_size;
+            const uint32_t copy_len = (slen < out_size) ? slen : (out_size - 1);   // the last byte stays the terminator
             memset(dst, 0, out_size);
             memcpy(dst, sbytes, copy_len);
             continue;

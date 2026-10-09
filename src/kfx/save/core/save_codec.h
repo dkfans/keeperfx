@@ -6,6 +6,7 @@
 #ifndef KFX_SAVE_CODEC_H
 #define KFX_SAVE_CODEC_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 
@@ -16,7 +17,8 @@ extern "C" {
 #define SAVE_FORMAT_MAJOR 1
 #define SAVE_FORMAT_MINOR 0
 #define SAVE_MIN_READABLE_MAJOR 1
-#define SAVE_HEADER_SIZE 16
+#define SAVE_MAGIC_SIZE 8
+#define SAVE_HEADER_SIZE 20
 #define SAVE_CHUNK_HEADER_SIZE 20
 #define SAVE_MAX_RAW_LEN (256u << 20)
 
@@ -50,20 +52,20 @@ enum SaveChunkId {
     SCID_TurnData = SAVE_FOURCC('T','U','R','N')
 };
 
-/** What a KFXS file holds, stored in its header. A reader refuses a file of another kind. */
+/** What a KFXS file holds, stored in its header as four characters. A reader refuses a file of another kind. */
 enum SaveFileKind {
     /** A savegame. */
-    SFK_Save = 1,
+    SFK_Save = SAVE_FOURCC('S','A','V','E'),
     /** A continue file: the link to the last save, or the progress of a campaign. */
-    SFK_Continue,
+    SFK_Continue = SAVE_FOURCC('C','O','N','T'),
     /** A replay (.pck). */
-    SFK_Replay,
+    SFK_Replay = SAVE_FOURCC('R','E','P','L'),
     /** The high score table of a campaign. */
-    SFK_HighScore,
+    SFK_HighScore = SAVE_FOURCC('H','S','C','R'),
     /** The network config. */
-    SFK_NetConfig,
+    SFK_NetConfig = SAVE_FOURCC('N','C','F','G'),
     /** Reserved for the game state sent to a player that fell out of sync. Nothing writes a file of this kind. BUT HEY, WE'LL SEE */
-    SFK_Resync
+    SFK_Resync = SAVE_FOURCC('R','S','Y','N')
 };
 
 /** Flags of a chunk, stored in its header. */
@@ -109,7 +111,7 @@ struct SaveBuffer {
     uint32_t len;
     uint32_t cap;
     /** Set by the encoder when the bytes hold raw memory (see SCF_RawBytes). */
-    uint8_t has_raw_bytes;
+    bool has_raw_bytes;
 };
 
 struct SaveChunk {
@@ -132,6 +134,10 @@ struct SaveReader {
 /******************************************************************************/
 enum SaveResult save_fail(struct SaveError *err, enum SaveResult result, const char *fmt, ...);
 
+/** Whether the first SAVE_MAGIC_SIZE bytes (len of them are available) are the magic of a KFXS file. The magic
+ *  has a zero byte and bytes that are not valid UTF-8, so that a KFXS file is never taken for text. */
+bool save_magic_matches(const void *bytes, uint32_t len);
+
 void save_buf_free(struct SaveBuffer *buffer);
 int save_buf_append(struct SaveBuffer *buffer, const void *data, uint32_t len);
 int save_buf_u8(struct SaveBuffer *buffer, uint8_t value);
@@ -147,7 +153,7 @@ int save_chunk_add(struct SaveBuffer *buffer, uint32_t id, uint32_t flags, const
 int save_chunk_add_buffer(struct SaveBuffer *buffer, uint32_t id, uint32_t flags, const struct SaveBuffer *payload,
     int compress);
 /** Whether this machine stores the low byte of a number first. */
-int save_host_is_little_endian(void);
+bool save_host_is_little_endian(void);
 
 enum SaveResult save_reader_open(struct SaveReader *reader, const void *data, uint32_t len, struct SaveError *err);
 /** Parses the 20 bytes of a chunk header at p and checks them against the bytes left in the file after

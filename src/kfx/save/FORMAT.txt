@@ -34,19 +34,23 @@ CONTENTS
   as it is in memory of the machine that wrote it.
 
 
-2  FILE HEADER                                                     16 bytes
+2  FILE HEADER                                                     20 bytes
 --------------------------------------------------------------------------------
   off  size  type    name     value
-    0     4  fourcc  magic    "KFXS"
-    4     2  u16     major    1
-    6     2  u16     minor    0
-    8     4  u32     kind     see 4
-   12     4  u32     crc      crc32 of bytes 0..11
+    0     8  bytes   magic    4B 46 58 53 00 FF 1A 0A     "KFXS", 00, FF, 1A, 0A
+    8     2  u16     major    1
+   10     2  u16     minor    0
+   12     4  fourcc  kind     see 4
+   16     4  u32     crc      crc32 of bytes 0..15
+
+  The magic has a zero byte and a byte that is not valid UTF-8, so a KFXS file
+  is never taken for text. 1A stops a DOS type, and 0A turns into 0D 0A in a
+  text mode transfer, which then no longer matches.
 
   Chunks follow the header, back to back, up to the end of the file.
 
   Read rules
-    file shorter than 16, or magic is not "KFXS"      too old
+    file shorter than 20, or the magic does not match  too old
     crc does not match                                damaged
     major > 1                                         too new
     major < 1                                         too old
@@ -90,12 +94,12 @@ CONTENTS
 4  FILE KINDS AND THEIR CHUNKS
 --------------------------------------------------------------------------------
   kind  name        holds
-     1  Save        a saved game                      fx1gNNNN.sav
-     2  Continue    continue link, campaign progress  fx1lastf.sav, progress
-     3  Replay      a replay header, then packets     .pck
-     4  HighScore   high score table of a campaign
-     5  NetConfig   network config
-     6  Resync      reserved, never written
+  SAVE  Save        a saved game                      fx1gNNNN.sav
+  CONT  Continue    continue link, campaign progress  fx1lastf.sav, progress
+  REPL  Replay      a replay header, then packets     .pck
+  HSCR  HighScore   high score table of a campaign
+  NCFG  NetConfig   network config
+  RSYN  Resync      reserved, never written
 
   chunk ids
     META   title record                         CatalogueEntry
@@ -137,6 +141,10 @@ CONTENTS
   Describes every struct and field of the records in the file.
   The writer lists the structs reachable from the roots of the file.
   Structs are sorted by name (strcmp). No two structs share a name.
+  The order is not significant: a reader finds a struct by its name.
+  Every field has a fixed size. There are no variable-length fields; the
+  dimensions of an array are fixed per field. Only the number of records in a
+  RECS chunk (11) varies.
 
   schema
     u32      struct_count
@@ -152,10 +160,10 @@ CONTENTS
     u8       type            see 5.1
     u8       flags           see 5.2
     u8       dim_count       0..3
-    u32      x dim_count     dimensions, outermost first
+    u32      x dim_count     dimensions, outermost first; with dim_count 0
+                             the field is a single element
     str      sub_type        struct name; empty unless type is STRUCT
     -- only when type is UNION:
-    str      selector        discriminator field name, or selector function name
     u16      member_count    0..254
     member   x member_count
 
@@ -167,6 +175,8 @@ CONTENTS
   Fields are listed in the order of the writer's table, and records store
   them in the same order. A field that is not stored in the file's mode
   (5.2) is not listed.
+  What picks the member of a union when writing (a field of the struct, or a
+  selector function, 7.1) is not stored: a record holds the member's number.
 
   Read limits
     type > 14, dim_count > 3, member_count > 254          damaged
@@ -219,6 +229,9 @@ CONTENTS
 6.3  Strings (str)
   The char array as it is in memory: count bytes, the last dimension being
   the capacity. Unused bytes after the end of the string are zero.
+  A reader sets the last byte of every string to zero (8.1), so the string it
+  gets is always terminated, whatever the file holds.
+  A string field can't have a default value (8).
 
 6.4  Structs
   count times: the fields of sub_type, in order.
@@ -287,7 +300,8 @@ CONTENTS
                                                  bytes kept for migrations
                                                  (fields of top-level structs)
   field in build, not in file                    default value of the field
-                                                 (an integer in the table), or 0
+                                                 (an integer in the table; not
+                                                 for a str), or 0
   struct in build, not in file                   zero
   union member in file, not in build             refused
   union member in build, not in file             not used
@@ -300,7 +314,9 @@ CONTENTS
                             refused
   bool8                     any non-zero value is 1
   str                       copied up to the capacity of the build; the
-                            result is always terminated
+                            last byte of every string is then set to zero,
+                            at the same capacity too, so the result is
+                            always terminated
 
 8.2  Arrays of a different size
   Elements are matched by index in each dimension.
@@ -315,10 +331,16 @@ CONTENTS
   Order: by from_minor, then table order. The table is empty at format 1.0.
 
 8.4  Versions
-  major   changed for a change that readers of an older major cannot follow.
-          Reader refuses a larger major, and one below the oldest it reads (1).
-  minor   changed when fields are added, removed or widened in a way that
-          matching handles. A reader accepts any minor of its major.
+  major   the container and the chunk rules: this document apart from the
+          structs. Changed for a change that readers of an older major cannot
+          follow. A reader refuses a larger major, and one below the oldest it
+          reads (1).
+  minor   the structs' content: fields added, removed or widened in a way that
+          matching handles, and the migrations (8.3) for a change of meaning.
+          A reader accepts any minor of its major.
+  A new chunk id or file kind is not a major change. A reader skips a chunk it
+  does not know unless the chunk is flagged REQUIRED (3), and refuses a file
+  whose kind it does not expect.
 
 
 9  NAMS CHUNK
@@ -388,7 +410,7 @@ CONTENTS
 
 11  RECS CHUNK
 --------------------------------------------------------------------------------
-  records   a record (6) after a record, up to the end of the chunk
+  records   the records, one after another, up to the end of the chunk
   The count is not stored: the length of each record comes from the schema.
   A record that uses 0 bytes is damaged.
   A file of this kind that holds exactly one record has one in RECS.
@@ -396,7 +418,7 @@ CONTENTS
 
 12  REPLAY FILE
 --------------------------------------------------------------------------------
-  header   kind 3
+  header   kind REPL
   chunks   in this order
     SCHM   REQ  zlib   roots: CatalogueEntry, PacketSaveHead, Packet,
                               and Game when the file has GAME
@@ -404,9 +426,7 @@ CONTENTS
     PHDR   REQ  raw    PacketSaveHead
     GAME   REQ  zlib   optional, the game at the start of the replay
     TURN   REQ  raw    raw_len 0, stored_len 0
-  after TURN: packets of the turns, until the end of the file.
-  They are not chunks. They are written and read one turn at a time, so a
-  replay is never held in memory whole.
+  Everything after TURN belongs to the replay codec and is not described here.
 
 
 13  LIMITS
@@ -418,7 +438,7 @@ CONTENTS
   union members           254
   struct nesting          16
   union tail              65535 bytes
-  config path             255 characters
+  config field path       255 characters (10), not a file path
 
 
 14  RESULTS

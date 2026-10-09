@@ -295,7 +295,7 @@ static enum SaveResult fill_plan(SaveDecoder *decoder, Plan &plan, SaveError *er
     {
         const SaveFieldDesc *build_field = &build_struct->fields[build_field_index];
         if (matched[build_field_index] || !save_field_included(build_field, decoder->mode) ||
-            (build_field->stored_type == SV_STRUCT) || (build_field->default_value == 0))
+            (build_field->stored_type == SV_STRUCT) || (build_field->stored_type == SV_STR) || (build_field->default_value == 0))
             continue;
         const uint32_t count = save_field_count(build_field);
         plan.ops.emplace_back(DefaultOp{ build_field, count, build_field->mem_size / count });
@@ -417,13 +417,14 @@ static bool build_index(const FileShape &file, const BuildShape &build, uint32_t
     return in_range;
 }
 
-/** A string array whose last dimension got shorter lost its terminators: put them back. */
-static void terminate_strings(const FileShape &file, const BuildShape &build, uint8_t *base)
+/** Makes the last byte of every string of a string field zero, whatever the file held, so a string read from a
+ *  file is always terminated. */
+static void terminate_strings(const BuildShape &build, uint8_t *base)
 {
-    if ((build.field->stored_type != SV_STR) || build.same_dims || (file.dim_count == 0) ||
-        (file.dims[file.dim_count - 1] <= build.dims[file.dim_count - 1]))
+    const uint32_t dim_count = save_field_dim_count(build.field);
+    if ((build.field->stored_type != SV_STR) || (dim_count == 0))
         return;
-    const uint32_t row = build.dims[file.dim_count - 1];
+    const uint32_t row = build.dims[dim_count - 1];
     for (uint32_t row_index = 0; row_index < build.count / row; row_index++)
         base[(static_cast<size_t>(row_index) * row) + row - 1] = 0;
 }
@@ -526,9 +527,10 @@ private:
             if (bytes == nullptr)
                 return save_fail(err_, SVR_Damaged, "record ends inside %s.%s", StructName(target), op.file.field->name);
             memcpy(base, bytes, static_cast<size_t>(total));
+            terminate_strings(op.build, base);
             return SVR_Ok;
         }
-        if (!op.build.same_dims && (build_field->default_value != 0))
+        if (!op.build.same_dims && (build_field->stored_type != SV_STR) && (build_field->default_value != 0))
         {
             const enum SaveResult result = apply_default(DefaultOp{ build_field, op.build.count, op.build.elem }, base, err_);
             if (result != SVR_Ok)
@@ -542,7 +544,7 @@ private:
             if (result != SVR_Ok)
                 return result;
         }
-        terminate_strings(op.file, op.build, base);
+        terminate_strings(op.build, base);
         return SVR_Ok;
     }
 

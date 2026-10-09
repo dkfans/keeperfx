@@ -384,6 +384,15 @@ static void test_arrays(void)
         CHECK(strcmp(n.s, "hel") == 0, "truncated string is \"%.4s\", wanted \"hel\" with a terminator", n.s);
     }
     {
+        /* A string that fills its array in the file is terminated when it is read, even at the same capacity. */
+        struct S8 o;
+        struct S8 n;
+        memset(&o, 'x', sizeof(o));
+        memset(&n, 'y', sizeof(n));
+        CHECK(convert1(&s8, &o, &s8, &n, &err) == SVR_Ok, "a full string was refused");
+        CHECK((n.s[6] == 'x') && (n.s[7] == 0), "a full string read back with last byte %d", (int)n.s[7]);
+    }
+    {
         struct Sa3 live = { { { 1 }, { 2 }, { 3 } } };
         struct Sa3 spare = { { { 1 }, { 2 }, { 0 } } };
         struct Sa2 n;
@@ -769,7 +778,7 @@ static uint32_t chunk_offsets(const struct SaveBuffer *f, uint32_t *offs, uint32
 
 static void fix_header_crc(uint8_t *f)
 {
-    wr32(f + 12, (uint32_t)crc32(0, f, 12));
+    wr32(f + 16, (uint32_t)crc32(0, f, 16));
 }
 
 static uint64_t g_rng = 0x2545F4914F6CDD1DULL;
@@ -828,17 +837,22 @@ static void test_container(void)
         w.data[0] = 0;
         CHECK(load_small(w.data, w.len, &m, &g, &err) == SVR_TooOld, "a file without the magic gave %d", (int)err.result);
         memcpy(w.data, f.data, f.len);
-        w.data[12] ^= 0xFF;
+        w.data[16] ^= 0xFF;
         CHECK(load_small(w.data, w.len, &m, &g, &err) == SVR_Damaged, "a bad header checksum wasn't Damaged");
         memcpy(w.data, f.data, f.len);
-        w.data[4] = (uint8_t)(SAVE_FORMAT_MAJOR + 1);
+        w.data[8] = (uint8_t)(SAVE_FORMAT_MAJOR + 1);
         fix_header_crc(w.data);
         CHECK(load_small(w.data, w.len, &m, &g, &err) == SVR_TooNew, "a newer major version wasn't TooNew");
         memcpy(w.data, f.data, f.len);
-        w.data[4] = 0;
-        w.data[5] = 0;
+        w.data[8] = 0;
+        w.data[9] = 0;
         fix_header_crc(w.data);
         CHECK(load_small(w.data, w.len, &m, &g, &err) == SVR_TooOld, "major version 0 wasn't TooOld");
+        /* The magic has a zero byte and bytes that aren't UTF-8, and a text transfer breaks it. */
+        memcpy(w.data, f.data, f.len);
+        CHECK((w.data[4] == 0) && (w.data[5] >= 0x80), "the magic should have a zero byte and a byte that isn't UTF-8");
+        w.data[7] = 0x0D;
+        CHECK(load_small(w.data, w.len, &m, &g, &err) == SVR_TooOld, "a magic with a changed line feed gave %d", (int)err.result);
 
         /* Lengths. */
         for (uint32_t c = 0; c < n; c++)
@@ -1141,6 +1155,7 @@ TDESC(bad_offset, "Bd", struct Bd, SAVE_FIELD(struct Bd, a, SV_U32), { .name = "
 TDESC(bad_type, "Bd", struct Bd, SAVE_FIELD(struct Bd, a, SV_U32), { .name = "x", .offset = 4, .mem_size = 4, .stored_type = SV_INVALID });
 TDESC(bad_width, "Bd", struct Bd, SAVE_FIELD(struct Bd, a, SV_U32), { .name = "x", .offset = 4, .mem_size = 3, .stored_type = SV_U16 });
 SAVE_UNION_DEF(UtNoDisc, "nope", SAVE_UNION_MEMBER_SUB("m1", Um1, .nvalues = 1, .values = { 1 }));
+TDESC(bad_str_default, "S", struct S8, SAVE_FIELD_EX(struct S8, s, SV_STR, .dims = { 8 }, .default_value = 1));
 TDESC(bad_union, "Ut", struct Ut, SAVE_FIELD(struct Ut, kind, SV_U8),
     SAVE_UNION(struct Ut, u, "u", sizeof(((struct Ut *)0)->u), UtNoDisc));
 
@@ -1150,7 +1165,7 @@ static void test_tables(void)
     uint32_t count;
     const struct SaveStructDesc *const *roots = save_root_structs(&count);
     const struct SaveStructDesc *good[] = { &cv_old, &cv_new, &cv_clamp, &f_old, &f_new, &nm_old, &nm_new, &ar4, &ar2, &ar8d, &g23, &g34, &s8, &s4, &sa3, &sa2, &ut_both, &ut_one, &sy, &rec_desc };
-    const struct SaveStructDesc *bad[] = { &bad_dup, &bad_offset, &bad_type, &bad_width, &bad_union };
+    const struct SaveStructDesc *bad[] = { &bad_dup, &bad_offset, &bad_type, &bad_width, &bad_union, &bad_str_default };
 
     section("table validation");
     for (uint32_t i = 0; i < count; i++)
@@ -1253,7 +1268,8 @@ static void fill_struct(const struct SaveStructDesc *d, uint8_t *base, char *pat
                 for (uint32_t k = 0; k < count; k++)
                 {
                     uint64_t x = mix64(h + k);
-                    base[f->offset + k] = ((x & 3) == 0) ? 0 : (uint8_t)('a' + (x >> 8) % 26);
+                    const uint32_t row = f->dims[save_field_dim_count(f) - 1];
+                    base[f->offset + k] = (((k + 1) % row == 0) || ((x & 3) == 0)) ? 0 : (uint8_t)('a' + (x >> 8) % 26);
                 }
             } else
             {

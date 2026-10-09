@@ -83,7 +83,7 @@ int save_buf_u8(struct SaveBuffer *buffer, uint8_t value) { return buf_put<uint8
 int save_buf_u16(struct SaveBuffer *buffer, uint16_t value) { return buf_put<uint16_t>(buffer, value); }
 int save_buf_u32(struct SaveBuffer *buffer, uint32_t value) { return buf_put<uint32_t>(buffer, value); }
 
-int save_host_is_little_endian(void)
+bool save_host_is_little_endian(void)
 {
     const uint16_t one = 1;
     return *reinterpret_cast<const uint8_t *>(&one) == 1;
@@ -101,13 +101,20 @@ int save_chunk_add_buffer(struct SaveBuffer *buffer, uint32_t id, uint32_t flags
     return save_chunk_add(buffer, id, flags, payload->data, payload->len, compress);
 }
 
+static constexpr std::array<uint8_t, SAVE_MAGIC_SIZE> save_magic = { 'K', 'F', 'X', 'S', 0x00, 0xFF, 0x1A, 0x0A };
+
+bool save_magic_matches(const void *bytes, uint32_t len)
+{
+    return (len >= SAVE_MAGIC_SIZE) && (memcmp(bytes, save_magic.data(), SAVE_MAGIC_SIZE) == 0);
+}
+
 int save_file_begin(struct SaveBuffer *buffer, uint32_t kind)
 {
-    uint8_t head[12];
-    memcpy(head, "KFXS", 4);
-    StoreLE<uint16_t>(head + 4, SAVE_FORMAT_MAJOR);
-    StoreLE<uint16_t>(head + 6, SAVE_FORMAT_MINOR);
-    StoreLE<uint32_t>(head + 8, kind);
+    uint8_t head[SAVE_HEADER_SIZE - 4];
+    memcpy(head, save_magic.data(), SAVE_MAGIC_SIZE);
+    StoreLE<uint16_t>(head + 8, SAVE_FORMAT_MAJOR);
+    StoreLE<uint16_t>(head + 10, SAVE_FORMAT_MINOR);
+    StoreLE<uint32_t>(head + 12, kind);
     if (save_buf_append(buffer, head, sizeof(head)) != 0)
         return -1;
     return save_buf_u32(buffer, static_cast<uint32_t>(crc32(0, head, sizeof(head))));
@@ -143,15 +150,15 @@ enum SaveResult save_reader_open(struct SaveReader *reader, const void *data, ui
 {
     const auto *bytes = static_cast<const uint8_t *>(data);
     memset(reader, 0, sizeof(*reader));
-    if ((len < SAVE_HEADER_SIZE) || (memcmp(bytes, "KFXS", 4) != 0)) {
+    if ((len < SAVE_HEADER_SIZE) || !save_magic_matches(bytes, len)) {
         // And let us never return to this place again, lest we be cursed with the wrath of the ancient save gods.
         return save_fail(err, SVR_TooOld, "not a KFXS file; it was made before the save format changed");
     }
-    if (LoadLE<uint32_t>(bytes + 12) != static_cast<uint32_t>(crc32(0, bytes, 12)))
+    if (LoadLE<uint32_t>(bytes + 16) != static_cast<uint32_t>(crc32(0, bytes, 16)))
         return save_fail(err, SVR_Damaged, "file header is damaged");
-    reader->major = LoadLE<uint16_t>(bytes + 4);
-    reader->minor = LoadLE<uint16_t>(bytes + 6);
-    reader->kind = LoadLE<uint32_t>(bytes + 8);
+    reader->major = LoadLE<uint16_t>(bytes + 8);
+    reader->minor = LoadLE<uint16_t>(bytes + 10);
+    reader->kind = LoadLE<uint32_t>(bytes + 12);
     if (reader->major > SAVE_FORMAT_MAJOR)
         return save_fail(err, SVR_TooNew, "made by a newer build (save format %u)", static_cast<unsigned>(reader->major));
     if (reader->major < SAVE_MIN_READABLE_MAJOR)

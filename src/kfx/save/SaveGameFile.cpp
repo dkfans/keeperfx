@@ -287,8 +287,8 @@ enum SaveCheckResult CheckFile(IFileSystem &filesystem, const char *fname, Catal
         set_detail(detail, detail_len, "no such file");
         return SvChk_Missing;
     }
-    char magic[4];
-    bool is_kfxs = reader->ReadAt(0, magic, sizeof(magic)) && (memcmp(magic, "KFXS", sizeof(magic)) == 0);
+    char magic[SAVE_MAGIC_SIZE];
+    bool is_kfxs = reader->ReadAt(0, magic, sizeof(magic)) && save_magic_matches(magic, sizeof(magic));
     reader.reset();
     if (!is_kfxs)
     {

@@ -653,11 +653,11 @@ void net_load_config_file(void)
 {
     // Try to load the config file
     char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
-    char magic[4];
+    char magic[SAVE_MAGIC_SIZE];
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (handle)
     {
-        TbBool is_kfxs = (LbFileRead(handle, magic, sizeof(magic)) == sizeof(magic)) && (memcmp(magic, "KFXS", sizeof(magic)) == 0);
+        TbBool is_kfxs = (LbFileRead(handle, magic, sizeof(magic)) == sizeof(magic)) && save_magic_matches(magic, sizeof(magic));
         LbFileClose(handle);
         if (is_kfxs)
         {

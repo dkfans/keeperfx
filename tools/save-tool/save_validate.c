@@ -110,6 +110,8 @@ static enum SaveResult validate(const struct SaveStructDesc *d, struct SaveError
         case SV_STR:
             if (elem != 1)
                 return save_fail(err, SVR_Unsupported, "%s.%s: string must be a char array", d->name, f->name);
+            if (f->default_value != 0)
+                return save_fail(err, SVR_Unsupported, "%s.%s: a string can't have a default", d->name, f->name);
             break;
         case SV_UNION:
             {
