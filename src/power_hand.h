@@ -116,10 +116,10 @@ enum HandRuleAction {
 };
 
 struct HandRule {
-    char type;
-    char enabled;
-    char allow; // allow: 1, deny: 0
-    long param;
+    int8_t type;
+    int8_t enabled;
+    int8_t allow; // allow: 1, deny: 0
+    int32_t param;
 };
 
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick);

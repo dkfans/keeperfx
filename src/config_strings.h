@@ -503,6 +503,9 @@ enum GUIStrings {
     GUIStr_NetSpectatorsFull,
     GUIStr_NetSpectatorChatDisabled,
     GUIStr_NetYouAreSpectating,
+    GUIStr_SaveIncompatible,
+    GUIStr_SaveDamaged,
+    GUIStr_SaveLoadFailed,
     GuiStrEnd
 };
 

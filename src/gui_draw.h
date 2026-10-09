@@ -79,6 +79,7 @@ void draw_round_slab64k_remap(int32_t pos_x, int32_t pos_y, int units_per_px, in
 void draw_string64k(long x, long y, int units_per_px, const char * text);
 
 void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text);
+void draw_message_box_at(long startx, long starty, long box_width, long box_height, long spritesx, long spritesy);
 TbBool draw_text_box(const char *text);
 TbBool draw_text_box_top(const char* text, ushort drawflags);
 void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows);

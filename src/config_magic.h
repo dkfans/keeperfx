@@ -298,7 +298,7 @@ struct ShotConfigStats {
     short size_z;
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
-    char push_on_hit;
+    int8_t push_on_hit;
     unsigned char destroy_on_first_hit;
     short experience_given_to_shooter;
     short inertia_floor;

@@ -33,7 +33,7 @@ extern const struct ConfigFileData keeper_slabset_file_data;
 extern const struct ConfigFileData keeper_columns_file_data;
 
 struct ColumnConfig {
-    long columns_count;
+    int32_t columns_count;
     struct Column cols[COLUMNS_COUNT];
 };
 

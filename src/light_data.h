@@ -125,6 +125,7 @@ long light_is_light_allocated(long lgt_id);
 void light_set_light_position(long lgt_id, struct Coord3d *pos);
 void light_reset_interpolation(long lgt_id);
 void light_stat_refresh();
+void light_rebuild_after_load(void);
 void light_set_lights_on(char state);
 void light_init_dungeon_heart(long lgt_id, long radius, long intensity);
 void light_signal_update_in_area(long sx, long sy, long ex, long ey);

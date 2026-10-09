@@ -192,7 +192,7 @@ struct PlayerInfo {
     char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
     /** An "instance" is a short, scripted animation. See: enum PlayerInstanceNum */
     unsigned char instance_num;
-    unsigned long instance_remain_turns;
+    uint32_t instance_remain_turns;
     /** Overcharge level while casting keeper powers. */
     int32_t cast_expand_level;
     GameTurn power_of_cooldown_turn;
@@ -241,7 +241,7 @@ struct UserState {
     TbBool one_click_lock_cursor;
     TbBool ignore_next_PCtr_RBtnRelease;
     TbBool ignore_next_PCtr_LBtnRelease;
-    char swap_to_untag_mode;
+    int8_t swap_to_untag_mode;
     TbBool interpolated_tagging;
     /** First person (possession) controls. */
     TbBool first_person_dig_claim_mode;

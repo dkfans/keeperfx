@@ -20,8 +20,11 @@ find_package(OpenGL REQUIRED)
 add_library(glad STATIC "${CMAKE_SOURCE_DIR}/deps/glad/src/glad.c")
 target_include_directories(glad PUBLIC "${CMAKE_SOURCE_DIR}/deps/glad/include")
 
-# kfx_fetch(<dir> <url>): download + extract into <builddir>/deps/<dir>/ once.
+# kfx_fetch(<dir> <url> [SKIP_EXAMPLES]): download + extract into <builddir>/deps/<dir>/ once.
+# SKIP_EXAMPLES leaves out libexec/, where the SDL dev packages put their example programs. The
+# build doesn't use them, and Windows Defender reports some of them as malware (a false positive).
 function(kfx_fetch dir url)
+    cmake_parse_arguments(F "SKIP_EXAMPLES" "" "" ${ARGN})
     set(_tgz "${D}/${dir}.tar.gz")
     set(_dest "${D}/${dir}")
     if(NOT EXISTS "${_dest}")
@@ -34,12 +37,18 @@ function(kfx_fetch dir url)
                 message(FATAL_ERROR "Failed to download ${url}: ${_st}")
             endif()
         endif()
-        execute_process(
-            COMMAND ${CMAKE_COMMAND} -E tar xzf "${_tgz}"
-            WORKING_DIRECTORY "${_dest}"
-            RESULT_VARIABLE _rc)
-        if(NOT _rc EQUAL 0)
-            message(FATAL_ERROR "Failed to extract ${_tgz}")
+        if(F_SKIP_EXAMPLES)
+            file(ARCHIVE_EXTRACT INPUT "${_tgz}" DESTINATION "${_dest}"
+                PATTERNS "*/bin/*" "*/include/*" "*/lib/*" "*/share/*" "*/cmake/*"
+                         "*/.git-hash" "*/INSTALL.md" "*/LICENSE.txt" "*/Makefile" "*/README.md")
+        else()
+            execute_process(
+                COMMAND ${CMAKE_COMMAND} -E tar xzf "${_tgz}"
+                WORKING_DIRECTORY "${_dest}"
+                RESULT_VARIABLE _rc)
+            if(NOT _rc EQUAL 0)
+                message(FATAL_ERROR "Failed to extract ${_tgz}")
+            endif()
         endif()
     endif()
 endfunction()
@@ -55,13 +64,13 @@ if(WIN32)
     # --- SDL3 (prebuilt MinGW dev tarballs; each wraps <name>-<ver>/i686-w64-mingw32/*)
     # SDL_net is intentionally absent: api.c now uses a native Winsock socket
     # layer (SDL3_net is not reliably packaged). See docs SDL3-MIGRATION notes.
-    set(SDL3_VER      3.4.12)
+    set(SDL3_VER      3.4.18)
     set(SDL3_MIX_VER  3.2.4)
-    set(SDL3_IMG_VER  3.4.4)
+    set(SDL3_IMG_VER  3.4.6)
 
-    kfx_fetch(sdl3       "https://github.com/libsdl-org/SDL/releases/download/release-${SDL3_VER}/SDL3-devel-${SDL3_VER}-mingw.tar.gz")
-    kfx_fetch(sdl3_mixer "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${SDL3_MIX_VER}/SDL3_mixer-devel-${SDL3_MIX_VER}-mingw.tar.gz")
-    kfx_fetch(sdl3_image "https://github.com/libsdl-org/SDL_image/releases/download/release-${SDL3_IMG_VER}/SDL3_image-devel-${SDL3_IMG_VER}-mingw.tar.gz")
+    kfx_fetch(sdl3       "https://github.com/libsdl-org/SDL/releases/download/release-${SDL3_VER}/SDL3-devel-${SDL3_VER}-mingw.tar.gz" SKIP_EXAMPLES)
+    kfx_fetch(sdl3_mixer "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${SDL3_MIX_VER}/SDL3_mixer-devel-${SDL3_MIX_VER}-mingw.tar.gz" SKIP_EXAMPLES)
+    kfx_fetch(sdl3_image "https://github.com/libsdl-org/SDL_image/releases/download/release-${SDL3_IMG_VER}/SDL3_image-devel-${SDL3_IMG_VER}-mingw.tar.gz" SKIP_EXAMPLES)
 
     set(SDL3_PREFIX      "${D}/sdl3/SDL3-${SDL3_VER}/i686-w64-mingw32")
     set(SDL3_MIX_PREFIX  "${D}/sdl3_mixer/SDL3_mixer-${SDL3_MIX_VER}/i686-w64-mingw32")
@@ -160,9 +169,9 @@ else()
     else()
         message(STATUS "SDL3: system libraries not found; building from source (FetchContent)")
         include(FetchContent)
-        set(SDL3_VER      3.4.12)
+        set(SDL3_VER      3.4.18)
         set(SDL3_MIX_VER  3.2.4)
-        set(SDL3_IMG_VER  3.4.4)
+        set(SDL3_IMG_VER  3.4.6)
         # Shared libs, no tests/examples. Use system decoder libraries rather than
         # vendored ones: the release source tarballs do not bundle the external/
         # decoder submodules, so VENDORED would fail. Distros that hit this path

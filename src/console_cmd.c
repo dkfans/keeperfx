@@ -40,6 +40,7 @@
 #include "creature_states_hero.h"
 #include "dungeon_data.h"
 #include "frontend.h"
+#include "game_saves.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_tabs.h"
 #include "game_legacy.h"
@@ -77,6 +78,7 @@
 #include "local_camera.h"
 #include "kjm_input.h"
 #include "timer.h"
+#include "kfx/save/SaveManager.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -280,7 +282,7 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
         if (cproc != NULL)
         {
             char *label = (char*)goptn[i].label;
-            sprintf(label, "%02lx", cproc->flags);
+            sprintf(label, "%02" PRIx32, cproc->flags);
             label[2] = ' ';
         }
     }
@@ -667,14 +669,13 @@ TbBool cmd_game_save(PlayerNumber plyr_idx, char * args)
     }
     char * pr2str = strsep_param_with_space(&args);
     if (pr2str != NULL) {
-        fill_game_catalogue_slot(slot_num, pr2str);
+        SaveManager_FillSlot((int)slot_num, pr2str);
     }
     set_flag(game.operation_flags, GOF_Paused); // games are saved in a paused state
-    TbBool result = save_game(slot_num);
+    TbBool result = SaveManager_Save((int)slot_num);
     if (result) {
         output_message(SMsg_GameSaved, 0);
     } else {
-        ERRORLOG("Error in save!");
         create_error_box(GUIStr_ErrorSaving);
     }
     clear_flag(game.operation_flags, GOF_Paused); // unpause after save attempt
@@ -692,17 +693,67 @@ TbBool cmd_game_load(PlayerNumber plyr_idx, char * args)
     }
     char * pr2str = strsep_param_with_space(&args);
     TbBool Pause = (pr2str != NULL) ? atoi(pr2str) : false;
-    if (is_save_game_loadable(slot_num)) {
-        if (load_game(slot_num)) {
-            set_flag_value(game.operation_flags, GOF_Paused, Pause); // unpause, because games are saved whilst paused
-            return true;
-        } else {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unable to load game %d", slot_num);
-        }
-    } else {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unable to load game %d", slot_num);
+    enum SaveCheckResult why;
+    enum SaveLoadOutcome outcome = SaveManager_Load((int)slot_num, &why);
+    if (outcome == SvLoad_Done) {
+        set_flag_value(game.operation_flags, GOF_Paused, Pause); // unpause, because games are saved whilst paused
+        return true;
     }
+    if (outcome == SvLoad_Refused) {
+        // Nothing has been changed, so the current game carries on
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s", get_string(SaveManager_CheckMessage(why)));
+        return false;
+    }
+    // Part of the save was already applied, so the current game can't carry on.
+    // frontend_queue_message, not frontend_load_game_failed: this command runs
+    // in-game, so the usual post-game menu logic should still pick the
+    // destination (e.g. the landview mid-campaign).
+    frontend_queue_message(GUIStr_SaveLoadFailed);
+    quit_game = 1;
     return false;
+}
+
+/** game.check [slot]: with a slot, reads and decodes that save in full; without, lists the saves that can't be loaded. */
+TbBool cmd_game_check(PlayerNumber plyr_idx, char * args)
+{
+    char detail[256];
+    char * pr1str = strsep_param_with_space(&args);
+    if (pr1str != NULL)
+    {
+        long slot_num = atoi(pr1str);
+        if (slot_num < 0 || slot_num >= SAVE_SLOTS_LIMIT)
+        {
+            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot_num [%d] exceeds [%d,%d)", slot_num, 0, SAVE_SLOTS_LIMIT);
+            return false;
+        }
+        enum SaveCheckResult chk = SaveManager_Verify((int)slot_num, detail, sizeof(detail));
+        if (chk == SvChk_Loadable)
+        {
+            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot %d is fine", (int)slot_num);
+            return true;
+        }
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot %d: %s (%s)", (int)slot_num,
+            get_string(SaveManager_CheckMessage(chk)), detail);
+        return false;
+    }
+    SaveManager_LoadCatalogue();
+    int checked = 0;
+    int problems = 0;
+    for (long slot_num = 0; slot_num < SaveManager_SlotCount(); slot_num++)
+    {
+        if ((SaveManager_Entry((int)slot_num)->flags & CEF_InUse) == 0)
+            continue;
+        checked++;
+        enum SaveCheckResult chk = SaveManager_Check((int)slot_num, detail, sizeof(detail));
+        if (chk == SvChk_Loadable)
+            continue;
+        problems++;
+        if (problems <= 5) // the rest is in the log
+            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "slot %d: %s (%s)", (int)slot_num,
+                get_string(SaveManager_CheckMessage(chk)), detail);
+    }
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%d saves, %d can't be loaded", checked, problems);
+    return (problems == 0);
 }
 
 TbBool cmd_cls(PlayerNumber plyr_idx, char * args)
@@ -2867,6 +2918,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "step", cmd_step, NULL },
     { "game.save", cmd_game_save, NULL },
     { "game.load", cmd_game_load, NULL },
+    { "game.check", cmd_game_check, NULL },
     { "cls", cmd_cls, NULL },
     { "ver", cmd_ver, NULL },
     { "volume", cmd_volume, NULL },

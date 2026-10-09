@@ -1130,7 +1130,7 @@ TbBool attempt_job_in_state_internal_near_pos(struct Thing *creatng, MapSubtlCoo
  * @param creatng The creature to assign a job to.
  * @param jobpref Job preference flags.
  */
-TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
+TbBool attempt_job_preference(struct Thing *creatng, CreatureJob jobpref)
 {
     // Start checking at random job
     if (game.conf.crtr_conf.jobs_count < 1) {
@@ -1156,11 +1156,11 @@ TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
     return false;
 }
 
-TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
+TbBool attempt_job_secondary_preference(struct Thing *creatng, CreatureJob jobpref)
 {
     // Count the amount of jobs set
-    long i = 0;
-    unsigned long k = jobpref;
+    int i = 0;
+    uint64_t k = jobpref;
     while (k)
     {
         k >>= 1;

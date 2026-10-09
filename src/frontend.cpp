@@ -54,6 +54,7 @@
 #include "front_input.h"
 #include "front_fmvids.h"
 #include "game_saves.h"
+#include "kfx/save/SaveManager.h"
 #include "engine_render.h"
 #include "engine_redraw.h"
 #include "front_landview.h"
@@ -421,6 +422,12 @@ short old_menu_mouse_y;
 unsigned char menu_ids[3];
 unsigned char new_objective;
 int frontend_menu_state;
+/** Menu the player was in when they started loading a saved game. */
+static FrontendMenuState load_game_menu_state = FeSt_FELOAD_GAME;
+static TbBool load_game_failed = false;
+/** Scroll offset (px) for the in-game error box's message, when it's too tall
+ *  for the box; see gui_area_error_message. */
+static long error_box_scroll_y = 0;
 int skip_high_score_screen;
 int load_game_scroll_offset;
 unsigned char video_gamma_correction;
@@ -522,8 +529,69 @@ void create_error_box(TextStringId msg_idx)
     {
         //change the length into  when gui_error_text will not be exported
         snprintf(gui_error_text, sizeof(gui_error_text), "%s", get_string(msg_idx));
+        error_box_scroll_y = 0;
         turn_on_menu(GMnu_ERROR_BOX);
     }
+}
+
+void gui_close_error_box(struct GuiButton *gbtn)
+{
+    turn_off_menu(GMnu_ERROR_BOX);
+}
+
+/** Sets the font and the text-drawing window for the error box message row, and returns the
+ *  text scale. The frontend fonts are not loaded in a running game, so this uses the in-game font. */
+static int error_message_prepare(struct GuiButton *gbtn)
+{
+    LbTextSetFont(winfont);
+    LbTextSetJustifyWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
+    LbTextSetClipWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    const int line_height = LbTextLineHeight();
+    return (line_height > 0) ? (units_per_pixel * 18 / line_height) : units_per_pixel;
+}
+
+/** How many pixels of the wrapped message don't fit in the button (0 if it all fits). */
+static long error_message_overflow(struct GuiButton *gbtn, int text_units_per_px)
+{
+    long overflow = text_string_height(text_units_per_px, gbtn->content.str) - gbtn->height;
+    return (overflow > 0) ? overflow : 0;
+}
+
+/** Scrolls the error box message with the mouse wheel once its wrapped text no
+ *  longer fits the button; otherwise keeps it reset so a shorter message that
+ *  follows a scrolled one always starts at the top. */
+void maintain_error_message(struct GuiButton *gbtn)
+{
+    const int text_units_per_px = error_message_prepare(gbtn);
+    long overflow = error_message_overflow(gbtn, text_units_per_px);
+    if (overflow <= 0)
+    {
+        error_box_scroll_y = 0;
+        return;
+    }
+    if (wheel_scrolled_up)
+        error_box_scroll_y -= LbTextLineHeight() * text_units_per_px / 16;
+    if (wheel_scrolled_down)
+        error_box_scroll_y += LbTextLineHeight() * text_units_per_px / 16;
+    if (error_box_scroll_y < 0)
+        error_box_scroll_y = 0;
+    else if (error_box_scroll_y > overflow)
+        error_box_scroll_y = overflow;
+}
+
+/** Draws the in-game error box's message, word-wrapped and centred within its
+ *  button; text too tall for the button is clipped and scrolled with the mouse
+ *  wheel (see maintain_error_message) instead of spilling out of the box. */
+void gui_area_error_message(struct GuiButton *gbtn)
+{
+    if ((gbtn->flags & LbBtnF_Enabled) == 0)
+        return;
+    const int text_units_per_px = error_message_prepare(gbtn);
+    long overflow = error_message_overflow(gbtn, text_units_per_px);
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
+    long y = (overflow > 0) ? -error_box_scroll_y
+        : (gbtn->height - text_string_height(text_units_per_px, gbtn->content.str)) / 2;
+    LbTextDrawResized(0, y, text_units_per_px, gbtn->content.str);
 }
 
 
@@ -720,7 +788,7 @@ void frontend_continue_game_maintain(struct GuiButton *gbtn)
 
 void frontend_main_menu_load_game_maintain(struct GuiButton *gbtn)
 {
-    if (number_of_saved_games > 0)
+    if (SaveManager_SavedGamesCount() > 0)
         gbtn->flags |= LbBtnF_Enabled;
     else
         gbtn->flags &= ~LbBtnF_Enabled;
@@ -1645,7 +1713,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     // (Instead of deleting continue file, maybe record the mappack itself as the place to return to?)
     if (won && is_freeplay_level(lvnum) && !network_is_active() && !replay.load_enable
      && (play_turns >= 30 * start_params.num_fps /* prevent broken maps from deleting a perfectly good continue */))
-        delete_continue_link();
+        SaveManager_DeleteContinueLink();
         
     // Only save progress if not a free play level, not a multiplayer level and not in packet mode
     if (network_is_active()
@@ -1660,12 +1728,13 @@ short frontend_save_continue_game(short allow_lvnum_grow)
         SYNCDBG(7,"Progressing the campaign");
         move_campaign_to_next_level();
     }
-    return save_level_progress(lvnum, player->victory_state);
+    return SaveManager_SaveLevelProgress(lvnum, player->victory_state);
 }
 
 void frontend_load_continue_game(struct GuiButton *gbtn)
 {
-    switch (load_continue_game()) {
+    switch (SaveManager_LoadContinue())
+    {
     case CntT_SavedGame:
         frontend_set_state(FeSt_LOAD_GAME);
         break;
@@ -1681,7 +1750,7 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
 void frontend_load_game_maintain(struct GuiButton *gbtn)
 {
     int32_t game_index=load_game_scroll_offset+(gbtn->content.lval)-45;
-    if (game_index < number_of_saved_games)
+    if (game_index < SaveManager_SavedGamesCount())
         gbtn->flags |= LbBtnF_Enabled;
     else
         gbtn->flags &= ~LbBtnF_Enabled;
@@ -2710,7 +2779,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_MAIN_MENU:
           stop_music(true);
-          continue_game_option_available = continue_game_available();
+          continue_game_option_available = SaveManager_ContinueAvailable();
           if (!is_campaign_loaded()) {
               change_campaign(CampgnT_Default,"");
           }
@@ -3448,10 +3517,10 @@ short frontend_draw(void)
 
 void load_game_update(void)
 {
-    if ((number_of_saved_games>0) && (load_game_scroll_offset>=0))
+    if ((SaveManager_SavedGamesCount()>0) && (load_game_scroll_offset>=0))
     {
-        if ( load_game_scroll_offset > number_of_saved_games-1 )
-          load_game_scroll_offset = number_of_saved_games-1;
+        if ( load_game_scroll_offset > SaveManager_SavedGamesCount()-1 )
+          load_game_scroll_offset = SaveManager_SavedGamesCount()-1;
     } else
     {
         load_game_scroll_offset = 0;
@@ -3762,6 +3831,12 @@ FrontendMenuState get_startup_menu_state(void)
   struct PlayerInfo *player;
   struct UserState *ustate = get_user_state(get_local_user());
   LevelNumber lvnum;
+  if (load_game_failed)
+  {
+      load_game_failed = false;
+      SYNCLOG("Failed load; back to the menu it started from");
+      return load_game_menu_state;
+  }
   if (game_flags2 & GF2_Server)
   {
       game_flags2 &= ~GF2_Server;
@@ -3889,6 +3964,40 @@ FrontendMenuState get_startup_menu_state(void)
   return FeSt_MAIN_MENU;
 }
 
+void frontend_start_load_game(long slot_num)
+{
+    game.save_game_slot = slot_num;
+    load_game_menu_state = frontend_menu_state;
+    frontend_set_state(FeSt_LOAD_GAME);
+}
+
+/**
+ * Queues a message to show the next time the frontend is entered, without
+ * forcing which menu it lands on. Use this for a failure that ends a running
+ * game (in-game load, console load): the usual victory/campaign logic still
+ * decides the destination screen, e.g. the landview mid-campaign.
+ */
+void frontend_queue_message(TextStringId msg_idx)
+{
+    snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", get_string(msg_idx));
+    frontend_error_pending = true;
+}
+
+/**
+ * Called when a load has failed, before the frontend is entered again: the
+ * frontend opens on the menu the load started from, showing the message.
+ * Only for a load that starts from the frontend itself, before any game is
+ * running (frontend_start_load_game's FeSt_LOAD_GAME) -- an in-game failure
+ * should use frontend_queue_message instead, so it doesn't hijack the normal
+ * post-game menu (see get_startup_menu_state).
+ */
+void frontend_load_game_failed(TextStringId msg_idx)
+{
+    load_game_failed = true;
+    // Shown by try_restore_frontend_error_box() once the frontend is up
+    frontend_queue_message(msg_idx);
+}
+
 void try_restore_frontend_error_box()
 {
     if (frontend_error_pending) {
@@ -3904,6 +4013,12 @@ void create_frontend_error_box(const char *text)
     snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", text);
     frontend_error_pending = true;
     turn_on_menu(GMnu_FEERROR_BOX);
+}
+
+void frontend_close_error_box(struct GuiButton *gbtn)
+{
+    frontend_error_pending = false;
+    turn_off_menu(GMnu_FEERROR_BOX);
 }
 
 void frontend_draw_error_text_box(struct GuiButton *gbtn)
@@ -3939,12 +4054,6 @@ TbBool frontend_register_click(void)
     last_click_y = y;
     last_click_time = double_click ? 0 : now;
     return double_click;
-}
-
-void frontend_close_error_box(struct GuiButton *gbtn)
-{
-    frontend_error_pending = false;
-    turn_off_menu(GMnu_FEERROR_BOX);
 }
 
 void frontend_draw_product_version(struct GuiButton *gbtn)

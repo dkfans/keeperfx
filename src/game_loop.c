@@ -39,6 +39,7 @@
 #include "moonphase.h"
 #include "vidmode.h"
 #include "frontend.h"
+#include "game_saves.h"
 #include "bflib_mouse.h"
 #include "front_simple.h"
 #include "bflib_datetm.h"
@@ -63,6 +64,7 @@
 #include "packets.h"
 #include "timer.h"
 
+#include "kfx/save/SaveManager.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -856,7 +858,7 @@ static TbBool wait_at_frontend(void)
         set_selected_level_number(first_singleplayer_level());
     }
     // Init load/save catalogue
-    initialise_load_game_slots();
+    SaveManager_InitialiseSlots();
 
     #ifdef FUNCTESTING
     if(flag_is_set(start_params.functest_flags, FTF_Enabled)) //override for functional tests
@@ -919,7 +921,7 @@ static TbBool wait_at_frontend(void)
     RendererPaletteSet(scratch);
     FrontendMenuState startup_state = get_startup_menu_state();
     if (failed_load_campaign[0] != '\0') {
-        if (resume_campaign_progress(failed_load_campaign)) {
+        if (SaveManager_ResumeCampaign(failed_load_campaign)) {
             startup_state = FeSt_LAND_VIEW;
         }
         failed_load_campaign[0] = '\0';
@@ -1039,10 +1041,14 @@ static TbBool wait_at_frontend(void)
           RendererClearScreen(0);
           RendererPresentFrame();
           level_load_time_phase(LevelLoadTime_Data);
-          if (!load_game(game.save_game_slot)) {
-              snprintf(failed_load_campaign, sizeof(failed_load_campaign), "%s", save_game_catalogue[flgmem].campaign_fname);
-              ERRORLOG("Loading game %d failed; quitting.",(int)game.save_game_slot);
-              quit_game = 1;
+          {
+              enum SaveCheckResult why;
+              if (SaveManager_Load(game.save_game_slot, &why) != SvLoad_Done)
+              {
+                  frontend_load_game_failed(SaveManager_CheckMessage(why));
+                  game.save_game_slot = flgmem;
+                  return false;
+              }
           }
           level_load_time_phase(LevelLoadTime_GameSetup);
           game.save_game_slot = flgmem;

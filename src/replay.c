@@ -25,6 +25,9 @@
 #include "frontend.h"
 #include "game_legacy.h"
 #include "game_saves.h"
+#include "kfx/save/SaveManager.h"
+#include "kfx/save/core/save_schema.h"
+#include "kfx/save/core/schema/save_tables_decl.h"
 #include "gui_topmsg.h"
 #include "config_settings.h"
 #include "config_keeperfx.h"
@@ -87,6 +90,13 @@ static uint32_t packet_dec_raw_left;
 static TbBool packet_dec_reserved;
 static TbBool packet_file_ends_in_reserved;
 
+// wire-format state for the schema-encoded per-turn packet codec
+#define PACKET_WIRE_MAX (sizeof(struct Packet))
+static uint32_t packet_wire_size;
+static struct SaveFileSchema packet_load_schema;
+static struct SaveDecoder packet_load_dec;
+static TbBool packet_load_dec_ready;
+
 // special RLEs for encoding long sequences of zeros
 static const unsigned char packet_zero_runs[8] = {1, 3, 5, 7, 11, 15, 20, 40};
 
@@ -116,6 +126,61 @@ static void release_turn_buffer(void)
     packet_turn_len = 0;
 }
 
+/* One struct Packet, schema-encoded (save_desc_Packet, schema_misc.c), is a fixed
+   number of bytes for a given build -- every field is a plain scalar, so nothing
+   about the encoding depends on the packet's actual values. Computed once per file
+   open (not cached across opens) rather than assumed equal to sizeof(struct Packet):
+   the two happen to match today (Packet is #pragma pack(1) and the schema table
+   lists fields in the struct's own declared order) but nothing enforces that if
+   either ever changes, so the buffer strides below always go through this value,
+   never sizeof(struct Packet) directly. */
+static TbBool compute_packet_wire_size(void)
+{
+    struct Packet dummy;
+    memset(&dummy, 0, sizeof(dummy));
+    struct SaveBuffer buf = { 0 };
+    struct SaveError err;
+    enum SaveResult r = save_encode_record(&buf, &save_desc_Packet, &dummy, SVM_Save, &err);
+    TbBool ok = (r == SVR_Ok) && (buf.len > 0) && (buf.len <= sizeof(struct Packet));
+    if (!ok)
+        ERRORLOG("Packet schema encode failed or produced an unexpected size (got %u, expected 1..%u)",
+            (unsigned)buf.len, (unsigned)sizeof(struct Packet));
+    packet_wire_size = ok ? buf.len : 0;
+    save_buf_free(&buf);
+    return ok;
+}
+
+static TbBool encode_packet_slot(unsigned char *dst, const struct Packet *pkt, struct SaveError *err)
+{
+    struct SaveBuffer buf = { 0 };
+    enum SaveResult r = save_encode_record(&buf, &save_desc_Packet, pkt, SVM_Save, err);
+    if ((r == SVR_Ok) && (buf.len != packet_wire_size))
+        r = save_fail(err, SVR_Damaged, "packet record encoded to %u bytes, expected %u",
+            (unsigned)buf.len, (unsigned)packet_wire_size);
+    if (r == SVR_Ok)
+        memcpy(dst, buf.data, buf.len);
+    save_buf_free(&buf);
+    return (r == SVR_Ok);
+}
+
+static TbBool decode_packet_slot(struct Packet *pkt, const unsigned char *src, struct SaveError *err)
+{
+    uint32_t used = 0;
+    memset(pkt, 0, sizeof(*pkt));
+    enum SaveResult r = save_decode_record(&packet_load_dec, &save_desc_Packet, src, packet_wire_size, &used, pkt, err);
+    return (r == SVR_Ok) && (used == packet_wire_size);
+}
+
+static void free_packet_load_decoder(void)
+{
+    if (packet_load_dec_ready)
+    {
+        save_decoder_free(&packet_load_dec);
+        save_schema_free(&packet_load_schema);
+        packet_load_dec_ready = false;
+    }
+}
+
 static void reset_packet_codec(void)
 {
     memset(packet_codec_prev, 0, sizeof(packet_codec_prev));
@@ -128,6 +193,7 @@ static void reset_packet_codec(void)
     packet_dec_lit_len = 0;
     packet_dec_raw_left = 0;
     packet_dec_reserved = false;
+    compute_packet_wire_size();
 }
 
 static TbBool reserve_turn_buffer(size_t needed)
@@ -457,47 +523,92 @@ static void xor_bytes(void *dst, const void *src, size_t len)
         d[i] ^= s[i];
 }
 
+/* turn and checksum are always the first two fields save_desc_Packet's schema table
+   declares (schema_misc.c), matching struct Packet's own declared field order, so
+   they land at wire offset 0 and 4 (4 bytes each, SV_U32) in every encoded record.
+   This codec reads/writes them directly at those offsets since it operates on the
+   encoded (wire) bytes, not the live struct -- if a future field ever gets inserted
+   before turn/checksum in schema_misc.c's SAVE_STRUCT(Packet, ...) table, these
+   offsets need to move with it. */
+#define PACKET_WIRE_TURN_OFFSET     0
+#define PACKET_WIRE_CHECKSUM_OFFSET 4
+
+static uint32_t wire_get_u32(const unsigned char *p)
+{
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+
+static void wire_put_u32(unsigned char *p, uint32_t v)
+{
+    p[0] = (uint8_t)v; p[1] = (uint8_t)(v >> 8); p[2] = (uint8_t)(v >> 16); p[3] = (uint8_t)(v >> 24);
+}
+
 // turn and checksum are shared by all users, so later users' are xor'd against the first's
-static void packet_to_residual(struct Packet *res, const struct Packet *raw, const struct Packet *first, int idx)
+static TbBool packet_to_residual(unsigned char *res, const struct Packet *raw, const struct Packet *first,
+    int idx, struct SaveError *err)
 {
-    *res = *raw;
-    xor_bytes(res, &packet_codec_prev[idx], sizeof(struct Packet));
+    unsigned char prev_wire[PACKET_WIRE_MAX];
+    if (!encode_packet_slot(res, raw, err))
+        return false;
+    if (!encode_packet_slot(prev_wire, &packet_codec_prev[idx], err))
+        return false;
+    xor_bytes(res, prev_wire, packet_wire_size);
     if (idx == 0)
     {
-        res->turn = raw->turn - packet_codec_prev[idx].turn - 1;
+        wire_put_u32(res + PACKET_WIRE_TURN_OFFSET, raw->turn - packet_codec_prev[idx].turn - 1);
     } else
     {
-        res->turn = raw->turn ^ first->turn;
-        res->checksum = raw->checksum ^ first->checksum;
+        wire_put_u32(res + PACKET_WIRE_TURN_OFFSET, raw->turn ^ first->turn);
+        wire_put_u32(res + PACKET_WIRE_CHECKSUM_OFFSET, raw->checksum ^ first->checksum);
     }
     packet_codec_prev[idx] = *raw;
+    return true;
 }
 
-static void packet_from_residual(struct Packet *raw, const struct Packet *res, const struct Packet *first, int idx)
+static TbBool packet_from_residual(struct Packet *raw, const unsigned char *res, const struct Packet *first,
+    int idx, struct SaveError *err)
 {
-    *raw = *res;
-    xor_bytes(raw, &packet_codec_prev[idx], sizeof(struct Packet));
+    unsigned char raw_wire[PACKET_WIRE_MAX];
+    unsigned char prev_wire[PACKET_WIRE_MAX];
+    if (!encode_packet_slot(prev_wire, &packet_codec_prev[idx], err))
+        return false;
+    memcpy(raw_wire, res, packet_wire_size);
+    xor_bytes(raw_wire, prev_wire, packet_wire_size);
+    uint32_t res_turn = wire_get_u32(res + PACKET_WIRE_TURN_OFFSET);
+    uint32_t res_chksum = wire_get_u32(res + PACKET_WIRE_CHECKSUM_OFFSET);
+    if (!decode_packet_slot(raw, raw_wire, err))
+        return false;
     if (idx == 0)
     {
-        raw->turn = res->turn + packet_codec_prev[idx].turn + 1;
+        raw->turn = res_turn + packet_codec_prev[idx].turn + 1;
     } else
     {
-        raw->turn = res->turn ^ first->turn;
-        raw->checksum = res->checksum ^ first->checksum;
+        raw->turn = res_turn ^ first->turn;
+        raw->checksum = res_chksum ^ first->checksum;
     }
     packet_codec_prev[idx] = *raw;
+    return true;
 }
 
+// pckt_buf holds nusers struct Packet as they are in memory; the file holds them schema-encoded
 static TbBool write_turn_packets(const unsigned char *pckt_buf, int nusers)
 {
-    const size_t turn_data_size = nusers * sizeof(struct Packet);
-    if (!packet_file_compressed())
-        return write_packet_bytes(pckt_buf, turn_data_size);
-    unsigned char res_buf[PACKET_TURN_MAX_SIZE];
     const struct Packet *raw = (const struct Packet *)pckt_buf;
+    const size_t turn_data_size = (size_t)nusers * packet_wire_size;
+    unsigned char wire_buf[PACKET_TURN_MAX_SIZE];
+    struct SaveError err;
     for (int i = 0; i < nusers; i++)
-        packet_to_residual((struct Packet *)&res_buf[i * sizeof(struct Packet)], &raw[i], &raw[0], i);
-    return write_packet_bytes(res_buf, turn_data_size);
+    {
+        const TbBool ok = packet_file_compressed()
+            ? packet_to_residual(&wire_buf[i * packet_wire_size], &raw[i], &raw[0], i, &err)
+            : encode_packet_slot(&wire_buf[i * packet_wire_size], &raw[i], &err);
+        if (!ok)
+        {
+            ERRORLOG("Packet turn encode failed at turn %u: %s", (unsigned)get_gameturn(), err.message);
+            return false;
+        }
+    }
+    return write_packet_bytes(wire_buf, turn_data_size);
 }
 
 static TbBool finish_turn_write(void)
@@ -529,22 +640,32 @@ static TbBool finish_turn_write(void)
     return ok;
 }
 
+// pckt_buf receives nusers struct Packet as they are in memory; the file holds them schema-encoded
 static TbBool read_turn_packets(unsigned char *pckt_buf, int nusers)
 {
-    const size_t turn_data_size = nusers * sizeof(struct Packet);
+    struct Packet *raw = (struct Packet *)pckt_buf;
+    const size_t turn_data_size = (size_t)nusers * packet_wire_size;
+    unsigned char wire_buf[PACKET_TURN_MAX_SIZE];
+    struct SaveError err;
     if (!packet_file_compressed())
     {
-        if (LbFileRead(replay.fp, pckt_buf, turn_data_size) != (int)turn_data_size)
+        if (LbFileRead(replay.fp, wire_buf, turn_data_size) != (int)turn_data_size)
             return false;
         replay.file_pos += turn_data_size;
+        for (int i = 0; i < nusers; i++)
+        {
+            if (!decode_packet_slot(&raw[i], &wire_buf[i * packet_wire_size], &err))
+                return false;
+        }
         return true;
     }
-    unsigned char res_buf[PACKET_TURN_MAX_SIZE];
-    if (!decode_packet_bytes(res_buf, turn_data_size))
+    if (!decode_packet_bytes(wire_buf, turn_data_size))
         return false;
-    struct Packet *raw = (struct Packet *)pckt_buf;
     for (int i = 0; i < nusers; i++)
-        packet_from_residual(&raw[i], (const struct Packet *)&res_buf[i * sizeof(struct Packet)], &raw[0], i);
+    {
+        if (!packet_from_residual(&raw[i], &wire_buf[i * packet_wire_size], &raw[0], i, &err))
+            return false;
+    }
     return true;
 }
 
@@ -829,18 +950,28 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
         replay.fopened = 0;
         return false;
     }
-    int i = load_game_chunks(replay.fp, centry);
-    if ((i != GLoad_PacketStart) && (i != GLoad_PacketContinue))
+    TbBool g_present = false;
+    struct SaveError err;
+    enum SaveResult r = SaveManager_ReadReplayHeader(replay.fp, centry, &replay.head,
+        &game, &g_present, &packet_load_schema, &packet_load_dec, &err);
+    if (r != SVR_Ok)
     {
         set_replay_crashlog(0, 0);
         LbFileClose(replay.fp);
         replay.fp = NULL;
         replay.fopened = 0;
-        WARNMSG("Couldn't correctly read packet file \"%s\" header.",fname);
+        WARNMSG("Couldn't correctly read packet file \"%s\" header: %s", fname, err.message);
         return false;
     }
+    packet_load_dec_ready = true;
     replay.file_pos = LbFilePosition(replay.fp);
     reset_packet_codec();
+    if (packet_wire_size == 0)
+    {
+        ERRORLOG("Cannot determine the packet wire format size");
+        close_packet_file();
+        return false;
+    }
     replay.turns_stored = count_stored_turns();
     replay_playback_paused = false;
     if ((replay.checksum_verify) && !flag_is_set(replay.head.flags, PSHF_Checksum))
@@ -1208,6 +1339,7 @@ void close_packet_file(void)
         replay.fopened = 0;
         replay.fp = NULL;
     }
+    free_packet_load_decoder();
 }
 
 TbBool reinit_packets_after_load(void)
@@ -1380,6 +1512,11 @@ TbBool open_new_packet_file_for_save(void)
     replay.head.players_comp = 0;
     replay_long_turn_open = false;
     reset_packet_codec();
+    if (packet_wire_size == 0)
+    {
+        ERRORLOG("Cannot determine the packet wire format size");
+        return false;
+    }
     replay.head.flags = PSHF_Compressed;
     if (replay.checksum_verify)
         set_flag(replay.head.flags, PSHF_Checksum);
@@ -1426,10 +1563,13 @@ TbBool open_new_packet_file_for_save(void)
         return false;
     }
     struct CatalogueEntry centry;
-    fill_game_catalogue_entry(&centry, "Packet file");
-    if (!save_packet_chunks(replay.fp,&centry))
+    SaveManager_FillEntry(&centry, "Packet file");
+    struct SaveError err;
+    enum SaveResult r = SaveManager_WriteReplayHeader(replay.fp, &centry, &replay.head,
+        (get_gameturn() != 0) ? &game : NULL, &err);
+    if (r != SVR_Ok)
     {
-        WARNMSG("Cannot write to packet file, \"%s\".",replay.fname);
+        WARNMSG("Cannot write to packet file, \"%s\": %s", replay.fname, err.message);
         set_replay_crashlog(0, 0);
         LbFileClose(replay.fp);
         replay.fopened = 0;

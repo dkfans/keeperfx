@@ -229,11 +229,11 @@ struct Game {
     unsigned char mode_flags;
     unsigned char eastegg01_cntr;
     unsigned char eastegg02_cntr;
-    char music_track; // cdrom / default music track to resume after load
+    int8_t music_track; // cdrom / default music track to resume after load
     char music_fname[DISKPATH_SIZE]; // custom music file to resume after load
-    char save_game_slot;
+    int8_t save_game_slot;
     LevelNumber selected_level_number;
-    char active_lens_type;
+    int8_t active_lens_type;
     unsigned char applied_lens_type;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct UserState user_states[MAX_NET_USERS];
@@ -296,7 +296,7 @@ struct Game {
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
     int input_lag_turns;
-    char human_players_count;
+    int8_t human_players_count;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
@@ -319,7 +319,7 @@ struct Game {
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
     int32_t flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
-    char loaded_swipe_idx;
+    int8_t loaded_swipe_idx;
     unsigned char active_messages_count;
     unsigned char active_script_var_count;
     int32_t bonus_time;
@@ -327,11 +327,11 @@ struct Game {
     GameTurn armageddon_cast_turn;
     GameTurn armageddon_over_turn;
     PlayerNumber armageddon_caster_idx;
-    char active_panel_mnu_idx; /**< The MenuID of currently active panel menu, or 0 if none. */
-    char comp_player_aggressive;
-    char comp_player_defensive;
-    char comp_player_construct;
-    char comp_player_creatrsonly;
+    int8_t active_panel_mnu_idx; /**< The MenuID of currently active panel menu, or 0 if none. */
+    int8_t comp_player_aggressive;
+    int8_t comp_player_defensive;
+    int8_t comp_player_construct;
+    int8_t comp_player_creatrsonly;
     /** Imprisonment tendency variable. Used for GUI only; the real tendency is a flag inside Dungeon. */
     TbBool creatures_tend_imprison;
     /** Flee tendency variable. Used for GUI only; the real tendency is a flag inside Dungeon. */
@@ -397,6 +397,11 @@ struct Game {
 #pragma pack()
 /******************************************************************************/
 extern struct Game game;
+/** Heap copy of game.conf taken once per level, right after config files are
+ *  loaded and fixed up and before the level script can change anything
+ *  (save-format spec 5.3/13.1 P5.3): the config overlay diffs against this. */
+extern struct Configs *conf_baseline;
+void take_conf_baseline(void);
 extern int32_t turns_per_second;
 
 extern int32_t fps_limit_current;

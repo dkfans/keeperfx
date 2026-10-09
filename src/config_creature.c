@@ -2216,8 +2216,8 @@ const char *creature_instance_code_name(CrInstance inst_id)
 
 struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
 {
-    long i = 0;
-    unsigned long k = job_flags;
+    int i = 0;
+    uint64_t k = job_flags;
     while (k)
     {
         k >>= 1;

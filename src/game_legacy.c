@@ -24,11 +24,23 @@
 #include "bflib_datetm.h"
 #include "post_inc.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 struct Game game;
+struct Configs *conf_baseline = NULL;
+
+void take_conf_baseline(void)
+{
+    if (conf_baseline == NULL)
+        conf_baseline = (struct Configs *)malloc(sizeof(struct Configs));
+    if (conf_baseline != NULL)
+        memcpy(conf_baseline, &game.conf, sizeof(struct Configs));
+}
 unsigned char local_system_flags;
 
 GameTurn get_gameturn()

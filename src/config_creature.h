@@ -247,7 +247,7 @@ struct CreatureJobConfig {
     CrtrStateId initial_crstate;
     /** The state creature should back to after job is interrupted. */
     CrtrStateId continue_crstate;
-    unsigned long job_flags;
+    uint32_t job_flags;
 };
 
 struct CreatureAngerJobConfig {
@@ -256,8 +256,8 @@ struct CreatureAngerJobConfig {
 
 struct CreatureModelConfig {
     char name[COMMAND_WORD_LEN];
-    long namestr_idx;
-    unsigned long model_flags;
+    int32_t namestr_idx;
+    uint32_t model_flags;
     unsigned short job_primary;
     unsigned short job_secondary;
     unsigned short jobs_not_do;
@@ -285,7 +285,7 @@ struct CreatureModelConfig {
     short scavenger_cost;
     short scavenge_require;
     unsigned char scavenge_value;
-    unsigned long to_level[CREATURE_MAX_LEVEL];
+    uint32_t to_level[CREATURE_MAX_LEVEL];
     unsigned char base_speed;
     ThingModel grow_up;
     CrtrExpLevel grow_up_level;
@@ -366,7 +366,7 @@ struct CreatureModelConfig {
     short toking_recovery;
     TbBool illuminated;
     unsigned char transparency_flags;
-    char corpse_vanish_effect;
+    int8_t corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;
     short status_offset;
