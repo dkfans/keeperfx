@@ -21,6 +21,7 @@ void observer_reset(void);
 void observer_init(PlayerNumber camera_player_number);
 void observer_set_packet_cursor(struct Packet *pckt);
 void observer_store_packets(const struct Packet *packets);
+void observer_update_vision(void);
 void observer_update_view(void);
 void observer_set_view_mode(unsigned char mode);
 const struct Packet *observer_get_view_packet(void);

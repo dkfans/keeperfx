@@ -118,23 +118,42 @@ void observer_store_packets(const struct Packet *packets)
     }
 }
 
-static void share_human_player_vision_with_observer(void)
+static PlayerBitFlags get_observer_starting_players(void)
 {
-    local_observer_player.allied_players = 0;
-    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i += 1) {
+    PlayerBitFlags players = 0;
+    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
         const struct PlayerInfo *player = get_player(i);
         if (is_active_keeper(player) && !flag_is_set(player->allocflags, PlaF_CompCtrl)) {
-            set_flag(local_observer_player.allied_players, to_flag(i));
+            set_flag(players, to_flag(i));
         }
+    }
+    return players;
+}
+
+void observer_update_vision(void)
+{
+    PlayerBitFlags players = 0;
+    if (is_observer_camera_active()) {
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
+            if (player_has_heart(i)) {
+                set_flag(players, to_flag(i));
+            }
+        }
+    } else {
+        players = get_player_vision_mask(my_player_number);
+    }
+    if (local_observer_player.allied_players != players) {
+        local_observer_player.allied_players = players;
+        panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
     }
 }
 
-static PlayerNumber position_observer_camera_at_random_heart(PlayerNumber fallback_player)
+static PlayerNumber position_observer_camera_at_random_heart(PlayerNumber fallback_player, PlayerBitFlags players)
 {
     struct Thing *starting_heart = NULL;
     int32_t heart_count = 0;
-    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i += 1) {
-        if (!flag_is_set(local_observer_player.allied_players, to_flag(i))) {
+    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
+        if (!flag_is_set(players, to_flag(i))) {
             continue;
         }
         struct Thing *heart = get_player_soul_container(i);
@@ -246,6 +265,7 @@ TbBool get_gameplay_cursor_position(int32_t *screen_x, int32_t *screen_y)
 
 void observer_update_view(void)
 {
+    observer_update_vision();
     const struct PlayerInfo *player = get_player(my_player_number);
     const struct Dungeon *dungeon = get_players_dungeon(player);
     if (dungeon_invalid(dungeon)) {
@@ -338,18 +358,18 @@ void observer_init(PlayerNumber camera_player_number)
     local_observer_user_state.view_type = PVT_DungeonTop;
     local_observer_user_state.teleport_destination = 19;
     local_observer_user_state.battleid = 1;
-    share_human_player_vision_with_observer();
+    const PlayerBitFlags starting_players = get_observer_starting_players();
     PlayerNumber watched_player = my_player_number;
     if (watched_player == PLAYER_NEUTRAL) {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
-            if (flag_is_set(local_observer_player.allied_players, to_flag(i))) {
+            if (flag_is_set(starting_players, to_flag(i))) {
                 watched_player = i;
                 break;
             }
         }
     }
     if (!replay.load_enable) {
-        watched_player = position_observer_camera_at_random_heart(watched_player);
+        watched_player = position_observer_camera_at_random_heart(watched_player, starting_players);
     }
     observer_initialized = true;
     observer_select_player(watched_player);

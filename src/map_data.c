@@ -294,30 +294,28 @@ TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilt
     return false;
 }
 
+PlayerBitFlags get_player_vision_mask(PlayerNumber plyr_idx)
+{
+    PlayerBitFlags players = to_flag(plyr_idx);
+    if (game.conf.rules[plyr_idx].gameplay.allies_share_vision) {
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
+            if (players_are_mutual_allies(plyr_idx, i)) {
+                set_flag(players, to_flag(i));
+            }
+        }
+    }
+    return players;
+}
+
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     if (local_observer_rendering) {
         return map_block_revealed_directly(mapblk, plyr_idx);
     }
-    if (map_block_invalid(mapblk))
+    if (map_block_invalid(mapblk)) {
         return false;
-    if (game.conf.rules[plyr_idx].gameplay.allies_share_vision)
-    {
-        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
-        {
-            if (players_are_mutual_allies(plyr_idx, i))
-            {
-                if (flag_is_set(mapblk->revealed, to_flag(i)))
-                    return true;
-            }
-        }
     }
-    else
-    {
-        if (flag_is_set(mapblk->revealed, to_flag(plyr_idx)))
-            return true;
-    }
-    return false;
+    return map_block_revealed_to_players(mapblk, get_player_vision_mask(plyr_idx));
 }
 
 

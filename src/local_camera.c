@@ -418,7 +418,7 @@ void update_local_cameras(void)
     struct Thing *ctrltng = thing_get(player->controlled_thing_idx);
     const struct Packet *pckt = get_history_packet(get_local_user(), get_gameturn());
     const int active_cam_idx = get_local_active_camera(player) - local_state.camera.current;
-    const TbBool move_camera = camera_step_due || (replay.load_enable && !replay_is_detached());
+    const TbBool move_camera = camera_step_due || (replay.load_enable && !is_observer_camera_active());
     const struct LocalCameraRotation rotation = take_local_camera_rotation();
     local_state.camera.previous_deviation_x = local_state.camera.destination_deviation_x;
     local_state.camera.previous_deviation_y = local_state.camera.destination_deviation_y;
@@ -561,7 +561,7 @@ void interpolate_local_cameras(void)
     }
     struct PlayerInfo *player = get_my_player();
     const int camera_idx = get_local_active_camera(player) - local_state.camera.current;
-    if (game.fast_forward > 1 && (!replay.load_enable || replay_is_detached()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(player->instance_num)) {
+    if (game.fast_forward > 1 && (!replay.load_enable || is_observer_camera_active()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(player->instance_num)) {
         const float elapsed = (get_time_tick_ns() - camera_update_time) / 1e9f * turns_per_second;
         camera_fraction = clamp(elapsed, 0.0f, 1.0f);
     }
@@ -754,6 +754,7 @@ void enter_observer_camera(void)
     local_state.observer_camera_active = true;
     local_state.observer_camera_view_type = PVT_DungeonTop;
     local_state.observer_camera_idx = cam_idx;
+    observer_update_vision();
 }
 
 void return_to_player_camera(void)
