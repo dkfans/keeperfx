@@ -789,9 +789,8 @@ static TbBool faststartup_saved_packet_game(void)
         player = get_my_player();
         player->display_flags &= ~PlaF6_PlyrHasQuit;
     }
-    const TbBool visible = (game.mode_flags & MFlg_IsDemoMode) == 0;
-    set_gui_visible(visible);
-    set_flag_value(game.operation_flags, GOF_ShowPanel, visible);
+    set_gui_visible(false);
+    clear_flag(game.operation_flags, GOF_ShowPanel);
     return true;
 }
 

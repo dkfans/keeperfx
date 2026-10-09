@@ -353,7 +353,8 @@ void observer_init(PlayerNumber camera_player_number)
     }
     observer_initialized = true;
     observer_select_player(watched_player);
-    set_gui_visible(true);
+    set_gui_visible(false);
+    clear_flag(game.operation_flags, GOF_ShowPanel);
 }
 
 /**
