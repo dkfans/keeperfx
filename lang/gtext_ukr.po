@@ -7580,17 +7580,11 @@ msgstr "Усі підключення для глядачів зайняті."
 
 #: guitext:1149
 #, fuzzy
-msgctxt "Network game interface"
-msgid "This host does not support joining spectators."
-msgstr "Цей хост не підтримує підключення глядачів."
-
-#: guitext:1150
-#, fuzzy
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "Гравці не бачать чат глядачів."
 
-#: guitext:1151
+#: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"

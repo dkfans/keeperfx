@@ -7527,17 +7527,11 @@ msgstr "Alla åskådaranslutningar är upptagna."
 
 #: guitext:1149
 #, fuzzy
-msgctxt "Network game interface"
-msgid "This host does not support joining spectators."
-msgstr "Den här värden stöder inte anslutning för åskådare."
-
-#: guitext:1150
-#, fuzzy
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "Spelare kan inte se åskådarchatten."
 
-#: guitext:1151
+#: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"

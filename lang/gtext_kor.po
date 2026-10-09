@@ -7515,17 +7515,11 @@ msgstr "모든 관전자 연결이 사용 중입니다."
 
 #: guitext:1149
 #, fuzzy
-msgctxt "Network game interface"
-msgid "This host does not support joining spectators."
-msgstr "이 호스트는 관전자 참가를 지원하지 않습니다."
-
-#: guitext:1150
-#, fuzzy
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "플레이어는 관전자 채팅을 볼 수 없습니다."
 
-#: guitext:1151
+#: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"

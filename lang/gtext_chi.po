@@ -7129,17 +7129,11 @@ msgstr "所有观战连接均已占用。"
 
 #: guitext:1149
 #, fuzzy
-msgctxt "Network game interface"
-msgid "This host does not support joining spectators."
-msgstr "此房主不支持观战者加入。"
-
-#: guitext:1150
-#, fuzzy
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "玩家无法看到观战者聊天。"
 
-#: guitext:1151
+#: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"

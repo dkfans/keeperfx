@@ -501,7 +501,6 @@ enum GUIStrings {
     GUIStr_NetSpectatorGameNotRunning,
     GUIStr_NetSpectatorsDisabled,
     GUIStr_NetSpectatorsFull,
-    GUIStr_NetSpectatorsUnsupported,
     GUIStr_NetSpectatorChatDisabled,
     GUIStr_NetYouAreSpectating,
     GuiStrEnd

@@ -6898,17 +6898,11 @@ msgstr "Все подключения для зрителей заняты."
 
 #: guitext:1149
 #, fuzzy
-msgctxt "Network game interface"
-msgid "This host does not support joining spectators."
-msgstr "Этот хост не поддерживает подключение зрителей."
-
-#: guitext:1150
-#, fuzzy
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "Игроки не видят чат зрителей."
 
-#: guitext:1151
+#: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"

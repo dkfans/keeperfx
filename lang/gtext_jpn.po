@@ -7464,17 +7464,11 @@ msgstr "観戦者用の接続がすべて使用中です。"
 
 #: guitext:1149
 #, fuzzy
-msgctxt "Network game interface"
-msgid "This host does not support joining spectators."
-msgstr "このホストは観戦者の参加に対応していません。"
-
-#: guitext:1150
-#, fuzzy
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "プレイヤーには観戦者のチャットは表示されません。"
 
-#: guitext:1151
+#: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"

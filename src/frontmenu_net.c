@@ -59,6 +59,7 @@ const char *net_join_error_text(enum NetJoinRejection reason)
     case NetJoin_Full:
         return get_string(GUIStr_NetLobbyFull);
     case NetJoin_Version:
+    case NetJoin_SpectatorsUnsupported:
         return get_string(GUIStr_NetDifferentVersion);
     case NetJoin_SpectatorState:
         return get_string(GUIStr_NetSpectatorGameNotRunning);
@@ -66,8 +67,6 @@ const char *net_join_error_text(enum NetJoinRejection reason)
         return get_string(GUIStr_NetSpectatorsDisabled);
     case NetJoin_SpectatorsFull:
         return get_string(GUIStr_NetSpectatorsFull);
-    case NetJoin_SpectatorsUnsupported:
-        return get_string(GUIStr_NetSpectatorsUnsupported);
     default:
         return NULL;
     }

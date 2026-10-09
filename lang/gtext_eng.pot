@@ -6069,16 +6069,11 @@ msgid "All spectator connections are occupied."
 msgstr ""
 
 #: guitext:1149
-msgctxt "Network game interface"
-msgid "This host does not support joining spectators."
-msgstr ""
-
-#: guitext:1150
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr ""
 
-#: guitext:1151
+#: guitext:1150
 msgctxt "Network game message"
 msgid "You are spectating"
 msgstr ""

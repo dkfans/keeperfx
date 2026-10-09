@@ -7466,17 +7466,11 @@ msgstr "Alle verbindingen voor toeschouwers zijn bezet."
 
 #: guitext:1149
 #, fuzzy
-msgctxt "Network game interface"
-msgid "This host does not support joining spectators."
-msgstr "Deze host ondersteunt geen deelname van toeschouwers."
-
-#: guitext:1150
-#, fuzzy
 msgctxt "Network game message"
 msgid "Players cannot see the spectator chat."
 msgstr "Spelers kunnen de toeschouwerschat niet zien."
 
-#: guitext:1151
+#: guitext:1150
 #, fuzzy
 msgctxt "Network game message"
 msgid "You are spectating"
