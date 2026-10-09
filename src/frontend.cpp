@@ -2463,27 +2463,27 @@ TbBool toggle_first_person_menu(TbBool visible)
 
 void set_gui_visible(TbBool visible)
 {
-  SYNCDBG(6,"Starting");
-  set_flag_value(game.operation_flags, GOF_ShowGui, visible);
-  struct PlayerInfo *player=get_my_player();
-  unsigned char is_visbl = ((game.operation_flags & GOF_ShowGui) != 0);
-  switch (get_player_view_type(player))
-  {
-  case PVT_CreatureContrl:
-  case PVT_CreaturePasngr:
-      toggle_first_person_menu(is_visbl);
-      break;
-  case PVT_MapScreen:
-  case PVT_MapFadeIn:
-  case PVT_MapFadeOut:
-      toggle_status_menu(0);
-      break;
-  case PVT_DungeonTop:
-  default:
-      toggle_status_menu(is_visbl);
-      break;
-  }
-  setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+    SYNCDBG(6,"Starting");
+    set_flag_value(game.operation_flags, GOF_ShowGui, visible);
+    struct PlayerInfo* player = get_my_player();
+    switch (get_local_view_type(player)) {
+    case PVT_CreatureContrl:
+    case PVT_CreaturePasngr:
+        toggle_first_person_menu(visible);
+        break;
+    case PVT_MapScreen:
+    case PVT_MapFadeIn:
+    case PVT_MapFadeOut:
+        set_flag_value(game.operation_flags, GOF_ShowPanel, visible);
+        local_state.status_menu_restore = visible;
+        toggle_status_menu(false);
+        break;
+    case PVT_DungeonTop:
+    default:
+        toggle_status_menu(visible);
+        break;
+    }
+    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
 }
 
 void toggle_gui(void)

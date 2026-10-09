@@ -166,7 +166,7 @@ const struct GamekeySettings game_key_settings[GAME_KEYS_COUNT] = {
     {"FrameSkipDecrease",     GUIStr_FrameSkipDecrease,       KC_SUBTRACT, KMod_CONTROL,     CBtn_NONE,                BMV_Visible,        },       // Gkey_FrameSkipDecrease,
     {"ZoomMinimapIn",         GUIStr_ZoomMinimapIn,           KC_ADD, KMod_NONE,             CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomMinimapIn,
     {"ZoomMinimapOut",        GUIStr_ZoomMinimapOut,          KC_SUBTRACT, KMod_NONE,        CBtn_NONE,                BMV_Visible,        },       // Gkey_ZoomMinimapOut,
-    {"ToggleGui",             GUIStr_ToggleGui,               KC_TAB, KMod_CONTROL,          CBtn_NONE,                BMV_Visible,        },       // Gkey_ToggleGui,
+    {"ToggleGui",             GUIStr_ToggleGui,               KC_TAB, KMod_NONE,             CBtn_NONE,                BMV_Visible,        },       // Gkey_ToggleGui,
     {"ToggleTooltips",        GUIStr_ToggleTooltips,          KC_F8, KMod_NONE,              CBtn_NONE,                BMV_Visible,        },       // Gkey_ToggleTooltips,
     {"ExitGame",              GUIStr_ExitGame,                KC_X,   KMod_ALT,              CBtn_START|CBtn_BACK,     BMV_Visible,        },       // Gkey_ExitGame,
     {"DisablePacketMode",     GUIStr_DisablePacketMode,       KC_T,   KMod_ALT,              CBtn_NONE,                BMV_Visible,        },       // Gkey_DisablePacketMode,
@@ -489,23 +489,28 @@ static short get_players_message_inputs(void)
     return result;
 }
 
-static void get_options_menu_inputs(void)
+static void get_interface_inputs(void)
 {
-    if (is_key_pressed(KC_ESCAPE,KMod_DONTCARE))
-    {
-        clear_key_pressed(KC_ESCAPE);
-        if ( a_menu_window_is_active() )
-        {
-            turn_off_all_window_menus();
+    if (game_is_busy_doing_gui_string_input() || (get_local_user_state()->init_flags & UsrIF_NewMPMessage) != 0) {
+        return;
+    }
+    if (!a_menu_window_is_active() && is_game_key_pressed(Gkey_ToggleGui, true, false)) {
+        toggle_gui();
+        return;
+    }
+    if (!is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
+        return;
+    }
+    clear_key_pressed(KC_ESCAPE);
+    if (a_menu_window_is_active()) {
+        turn_off_all_window_menus();
+    } else if ((game.operation_flags & GOF_ShowGui) == 0) {
+        set_gui_visible(true);
+    } else {
+        if (menu_is_active(GMnu_MAIN)) {
+            fake_button_click(BID_OPTIONS);
         }
-        else
-        {
-            if (menu_is_active(GMnu_MAIN))
-            {
-                fake_button_click(BID_OPTIONS);
-            }
-            turn_on_menu(GMnu_OPTIONS);
-        }
+        turn_on_menu(GMnu_OPTIONS);
     }
 }
 
@@ -650,7 +655,7 @@ static TbBool observer_camera_input_pressed(void)
         return true;
     }
     for (int32_t key = KC_ESCAPE; key < KC_MOUSE2; key++) {
-        if (key != KC_SPACE && key != KC_TAB && is_key_pressed(key, KMod_DONTCARE)) {
+        if (key != KC_TAB && is_key_pressed(key, KMod_DONTCARE)) {
             return true;
         }
     }
@@ -1076,15 +1081,7 @@ static TbBool get_level_lost_inputs(void)
     } else
     if (view_type == PVT_DungeonTop)
     {
-      if (is_key_pressed(KC_TAB,KMod_DONTCARE))
-      {
-          if (camera->view_mode == PVM_IsoWibbleView || camera->view_mode == PVM_FrontView || camera->view_mode == PVM_IsoStraightView) {
-            clear_key_pressed(KC_TAB);
-            toggle_gui();
-          }
-      } else
-      if (is_game_key_pressed(Gkey_SwitchToMap, true, false))
-      {
+      if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
         if (player->instance_num != PI_MapFadeFrom)
         {
           turn_off_all_window_menus();
@@ -1100,8 +1097,6 @@ static TbBool get_level_lost_inputs(void)
         }
       }
     }
-    get_options_menu_inputs();
-
     TbBool inp_done=false;
     switch (view_type)
     {
@@ -1385,33 +1380,9 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
             }
         }
     }
-    if (camera->view_mode == PVM_IsoWibbleView || camera->view_mode == PVM_IsoStraightView)
-    {
-        if (is_key_pressed(KC_TAB, !KMod_CONTROL))
-        {
-            clear_key_pressed(KC_TAB);
-        }
-        if (is_key_pressed(KC_TAB, KMod_CONTROL))
-        {
-            clear_key_pressed(KC_TAB);
-            toggle_gui();
-        }
-        // Middle mouse camera actions for IsometricView
-        if (is_game_key_pressed(Gkey_SnapCamera, true, true))
-        {
-            get_snap_camera_inputs(camera, get_local_packet());
-            return true;
-        }
-    }
-    if (camera->view_mode == PVM_FrontView)
-    {
-        if (is_game_key_pressed(Gkey_ToggleGui, true, false))
-        {
-            toggle_gui();
-        }
-        // Middle mouse camera actions for FrontView
-        if (is_game_key_pressed(Gkey_SnapCamera, true, true))
-        {
+    if (camera->view_mode == PVM_IsoWibbleView || camera->view_mode == PVM_IsoStraightView || camera->view_mode == PVM_FrontView) {
+        // Middle mouse camera actions
+        if (is_game_key_pressed(Gkey_SnapCamera, true, true)) {
             get_snap_camera_inputs(camera, get_local_packet());
             return true;
         }
@@ -1617,10 +1588,6 @@ static short get_creature_passenger_action_inputs(void)
         set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
         return true;
     }
-    if (is_game_key_pressed(Gkey_ToggleGui, true, false))
-    {
-        toggle_gui();
-    }
     return false;
 }
 
@@ -1705,26 +1672,9 @@ static short get_creature_control_action_inputs(void)
             toggle_creature_cheat_menu();
         }
     }
-    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
-    {
-        if (a_menu_window_is_active())
-        {
-            clear_key_pressed(KC_ESCAPE);
-            turn_off_all_window_menus();
-        }
-    }
-    if (is_key_pressed(KC_ESCAPE, KMod_SHIFT))
-    {
-        clear_key_pressed(KC_ESCAPE);
-        if (menu_is_active(GMnu_MAIN))
-        {
-            fake_button_click(BID_OPTIONS);
-        }
-        turn_on_menu(GMnu_OPTIONS);
-    }
     if (player->controlled_thing_idx != 0)
     {
-        short make_packet = right_button_released || is_key_pressed(KC_ESCAPE, KMod_DONTCARE);
+        short make_packet = right_button_released;
         struct Thing* thing = thing_get(player->controlled_thing_idx);
         if (!make_packet)
         {
@@ -1737,7 +1687,6 @@ static short get_creature_control_action_inputs(void)
         if (make_packet)
         {
             right_button_released = 0;
-            clear_key_pressed(KC_ESCAPE);
             if ((player->possession_lock == true) && thing_is_creature(thing))
             {
                 if (is_my_player(player))
@@ -1884,10 +1833,6 @@ static short get_creature_control_action_inputs(void)
       }
     }
 
-    if (is_game_key_pressed(Gkey_ToggleGui, true, false))
-    {
-        toggle_gui();
-    }
     int numkey = -1;
     for (int32_t keycode=KC_1; keycode <= KC_0; keycode++)
     {
@@ -2665,7 +2610,6 @@ static void get_dungeon_control_nonaction_inputs(void)
   {
     turn_on_menu(GMnu_QUIT);
   }
-  get_options_menu_inputs();
   if (zoom_to_mouse_option == ZoomToMouse_Always)
       set_packet_control(pckt, PCtr_ViewZoomPos);
   if (rotate_around_mouse_option == RotateAroundMouse_Always)
@@ -2719,18 +2663,6 @@ static short get_observer_inputs(void)
         get_players_message_inputs();
         return true;
     }
-    if (!a_menu_window_is_active() && !game_is_busy_doing_gui_string_input()) {
-        if (is_key_pressed(KC_SPACE, KMod_DONTCARE)) {
-            clear_key_pressed(KC_SPACE);
-            toggle_gui();
-            return true;
-        }
-        if (is_key_pressed(KC_TAB, KMod_DONTCARE)) {
-            clear_key_pressed(KC_TAB);
-            observer_cycle_player(1);
-            return true;
-        }
-    }
     if (replay.load_enable && get_packet_load_game_control_inputs()) {
         return true;
     }
@@ -2740,7 +2672,6 @@ static short get_observer_inputs(void)
         clear_key_pressed(KC_RETURN);
         return true;
     }
-    get_options_menu_inputs();
     if (!a_menu_window_is_active() && !game_is_busy_doing_gui_string_input() && observer_camera_input_pressed()) {
         detach_observer_camera();
     }
@@ -2808,6 +2739,7 @@ static short get_packet_load_game_inputs(void)
         replay.pckt_gameturn++;
     }
     gui_process_inputs();
+    get_interface_inputs();
     get_observer_inputs();
     if (get_speed_control_inputs())
         return false;
@@ -2954,7 +2886,6 @@ static void get_creature_control_nonaction_inputs(void)
                 set_packet_control(pckt, PCtr_Descend);
         }
     }
-    get_options_menu_inputs();
 }
 
 static void get_player_gui_clicks(void)
@@ -3065,8 +2996,7 @@ static void get_player_gui_clicks(void)
             }
           }
         }
-      } else
-        get_options_menu_inputs();
+      }
       break;
   }
 
@@ -3126,6 +3056,7 @@ static short get_inputs(void)
     }
     SYNCDBG(5,"Starting");
     gui_process_inputs();
+    get_interface_inputs();
     if (observer_is_active()) {
         return get_observer_inputs();
     }
