@@ -25,6 +25,11 @@
 #define REGIONS_COUNT        300
 #define REGION_QUEUE_LEN     200
 
+struct RegionT {
+    unsigned short num_triangles;
+    unsigned char is_connected;
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -32,6 +37,7 @@ extern "C" {
 
 /******************************************************************************/
 TbBool regions_connected(long first_tree_region, long second_tree_region);
+extern struct RegionT Regions[REGIONS_COUNT];
 void region_store_init(void);
 long region_get(void);
 void region_put(long nreg);

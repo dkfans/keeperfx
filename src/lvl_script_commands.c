@@ -1736,14 +1736,14 @@ static void move_creature_check(const struct ScriptLine* scline)
     long effct_id = 0;
     if (scline->tp[5][0] != '\0')
     {
-        effct_id = get_rid(effect_desc, effect_name);
-        if (effct_id == -1)
+        if (parameter_is_number(effect_name) && atoi(effect_name) == 0)
         {
-            if (parameter_is_number(effect_name))
-            {
-                effct_id = atoi(effect_name);
-            }
-            else
+            effct_id = 0;
+        }
+        else
+        {
+            effct_id = effect_or_effect_element_id(effect_name);
+            if (effct_id == 0)
             {
                 SCRPTERRLOG("Unrecognised effect: %s", effect_name);
                 return;
@@ -1752,13 +1752,14 @@ static void move_creature_check(const struct ScriptLine* scline)
     }
     else
     {
-        effct_id = -1;
+        effct_id = ball_puff_effects[scline->np[0]];
     }
+
     value->ulongs[0] = location;
     value->longs[1] = select_id;
-    value->shorts[4] = effct_id;
-    value->bytes[10] = count;
-    value->bytes[11] = crmodel;
+    value->shorts[5] = effct_id;
+    value->bytes[12] = count;
+    value->bytes[13] = crmodel;
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1960,9 +1961,9 @@ static void move_creature_process(struct ScriptContext* context)
 {
     TbMapLocation location = context->value->ulongs[0];
     long select_id = context->value->longs[1];
-    long effect_id = context->value->shorts[4];
-    long count = context->value->bytes[10];
-    long crmodel = context->value->bytes[11];
+    EffectOrEffElModel effect_id = context->value->shorts[5];
+    long count = context->value->bytes[12];
+    long crmodel = context->value->bytes[13];
     PlayerNumber plyr_idx = context->player_idx;
 
     script_move_creature_with_criteria(plyr_idx, crmodel, select_id, location, effect_id, count);

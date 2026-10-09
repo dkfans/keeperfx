@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "console_cmd.h"
 #include "globals.h"
 
@@ -73,6 +74,7 @@
 #include "lua_base.h"
 #include "net_resync.h"
 #include "net_game.h"
+#include "local_camera.h"
 #include "kjm_input.h"
 #include "timer.h"
 #include "post_inc.h"
@@ -132,10 +134,23 @@ void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str
 extern void render_set_sprite_debug(int level);
 extern TbBool process_user_global_packet_action(NetUserId user);
 
+static struct PlayerInfo *console_cmd_observer;
+
+static struct PlayerInfo *console_cmd_player(PlayerNumber plyr_idx)
+{
+    if (console_cmd_observer != NULL && plyr_idx == PLAYER_NEUTRAL) {
+        return console_cmd_observer;
+    }
+    if (plyr_idx == my_player_number) {
+        return get_my_player();
+    }
+    return get_player(plyr_idx);
+}
+
 // player's user, or if that's invalid then the local user
 static NetUserId console_cmd_user(PlayerNumber plyr_idx)
 {
-    NetUserId user = get_player(plyr_idx)->user_id;
+    NetUserId user = console_cmd_player(plyr_idx)->user_id;
     if (user < 0) {
         user = get_local_user();
     }
@@ -144,6 +159,9 @@ static NetUserId console_cmd_user(PlayerNumber plyr_idx)
 
 static TbBool console_cmd_cheats_allowed(PlayerNumber plyr_idx)
 {
+    if (console_cmd_player(plyr_idx) == &local_observer_player) {
+        return true;
+    }
     return user_cheats_allowed(console_cmd_user(plyr_idx));
 }
 
@@ -158,9 +176,15 @@ static void console_cmd_cursor(MapCoord *x, MapCoord *y)
 
 void console_cmd_default_cursor(PlayerNumber plyr_idx, MapCoord *x, MapCoord *y)
 {
-    const struct UserState *ustate = get_player_user_state(get_player(plyr_idx));
-    if (user_state_invalid(ustate))
-    {
+    const struct PlayerInfo *player = console_cmd_player(plyr_idx);
+    if (player == &local_observer_player) {
+        const struct Camera *cam = get_local_active_camera(&local_observer_player);
+        *x = cam->mappos.x.val;
+        *y = cam->mappos.y.val;
+        return;
+    }
+    const struct UserState *ustate = get_player_user_state(player);
+    if (user_state_invalid(ustate)) {
         *x = 0;
         *y = 0;
         return;
@@ -594,7 +618,7 @@ TbBool cmd_time(PlayerNumber plyr_idx, char * args)
 TbBool cmd_timer_toggle(PlayerNumber plyr_idx, char * args)
 {
     game_flags2 ^= GF2_Timer;
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     if ( (player->victory_state == VicS_WonLevel) && (timer_enabled()) && (TimerGame) ) {
         struct Dungeon * dungeon = get_my_dungeon();
         TimerTurns = dungeon->lvstats.hopes_dashed;
@@ -605,7 +629,7 @@ TbBool cmd_timer_toggle(PlayerNumber plyr_idx, char * args)
 TbBool cmd_timer_switch(PlayerNumber plyr_idx, char * args)
 {
     TimerGame ^= 1;
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     if ( (player->victory_state == VicS_WonLevel) && (timer_enabled()) && (TimerGame) ) {
         struct Dungeon * dungeon = get_my_dungeon();
         TimerTurns = dungeon->lvstats.hopes_dashed;
@@ -849,13 +873,32 @@ TbBool cmd_comp_checks(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+static void console_cmd_prepare_vision(struct PlayerInfo *player, PlayerNumber plyr_idx)
+{
+    if (player != &local_observer_player || player->allied_players == to_flag(plyr_idx)) {
+        return;
+    }
+    for (MapSubtlCoord y = 0; y <= game.map_subtiles_y; y++) {
+        for (MapSubtlCoord x = 0; x <= game.map_subtiles_x; x++) {
+            struct Map *mapblk = get_map_block_at(x, y);
+            if ((mapblk->revealed & player->allied_players) != 0) {
+                reveal_map_block(mapblk, plyr_idx);
+            } else {
+                conceal_map_block(mapblk, plyr_idx);
+            }
+        }
+    }
+    player->allied_players = to_flag(plyr_idx);
+}
+
 TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
 {
     if (!console_cmd_cheats_allowed(plyr_idx)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
+    console_cmd_prepare_vision(player, plyr_idx);
     int r = 0;
     char * pr1str = strsep_param_with_space(&args);
     if (pr1str != NULL) {
@@ -868,16 +911,16 @@ TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
         console_cmd_cursor(&cursor_x, &cursor_y);
         MapSubtlCoord stl_x = coord_subtile(cursor_x);
         MapSubtlCoord stl_y = coord_subtile(cursor_y);
-        clear_dig_for_map_rect(player->id_number,
+        clear_dig_for_map_rect(plyr_idx,
                                 subtile_slab(stl_x - radius_offset),
                                 subtile_slab(stl_x + r - radius_offset),
                                 subtile_slab(stl_y - radius_offset),
                                 subtile_slab(stl_y + r - radius_offset)
         );
-        reveal_map_rect(player->id_number, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset);
+        reveal_map_rect(plyr_idx, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset);
         panel_map_update(stl_x - radius_offset, stl_y - radius_offset, r, r);
     } else {
-        reveal_whole_map(player);
+        reveal_whole_map(get_player(plyr_idx));
     }
     return true;
 }
@@ -888,7 +931,8 @@ TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
+    console_cmd_prepare_vision(player, plyr_idx);
     int r = 0;
     char * pr1str = strsep_param_with_space(&args);
     if (pr1str != NULL) {
@@ -901,9 +945,9 @@ TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
         console_cmd_cursor(&cursor_x, &cursor_y);
         MapSubtlCoord stl_x = coord_subtile((cursor_x));
         MapSubtlCoord stl_y = coord_subtile((cursor_y));
-        conceal_map_area(player->id_number, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset, false);
+        conceal_map_area(plyr_idx, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset, false);
     } else {
-        conceal_map_area(player->id_number, 0, game.map_subtiles_x - 1, 0, game.map_subtiles_y - 1, false);
+        conceal_map_area(plyr_idx, 0, game.map_subtiles_x - 1, 0, game.map_subtiles_y - 1, false);
     }
     return true;
 }
@@ -1119,24 +1163,23 @@ TbBool cmd_look(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    if (pr1str == NULL || plyr_idx != my_player_number) {
-        if (plyr_idx != my_player_number)
+    if (pr1str == NULL || !is_my_player(console_cmd_player(plyr_idx))) {
+        if (!is_my_player(console_cmd_player(plyr_idx))) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "unknown error");
-        else
+        } else {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1");
+        }
         return false;
     }
     make_uppercase(pr1str);
-    long room_id = get_id(room_desc, pr1str);
+    int32_t room_id = get_id(room_desc, pr1str);
     if (room_id != -1) {
         go_to_my_next_room_of_type(room_id);
-        process_user_global_packet_action(console_cmd_user(plyr_idx)); // Dirty hack
         return true;
     }
-    long crmodel = get_id(creature_desc, pr1str);
-    if(crmodel != -1) {
+    int32_t crmodel = get_id(creature_desc, pr1str);
+    if (crmodel != -1) {
         go_to_next_creature_of_model_and_gui_job(crmodel, CrGUIJob_Any, TPF_OrderedPick);
-        process_user_global_packet_action(console_cmd_user(plyr_idx)); // Dirty hack
         return true;
     }
     TbMapLocation loc = {0};
@@ -1149,6 +1192,10 @@ TbBool cmd_look(PlayerNumber plyr_idx, char * args)
     if (stl_x == 0 && stl_y == 0) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "subtile coord is invalid");
         return false;
+    }
+    if (observer_is_active()) {
+        move_local_camera_to_position(subtile_coord_center(stl_x), subtile_coord_center(stl_y));
+        return true;
     }
     set_packet_action(get_packet(console_cmd_user(plyr_idx)), PckA_ZoomToPosition, subtile_coord_center(stl_x), subtile_coord_center(stl_y), 0, 0);
     process_user_global_packet_action(console_cmd_user(plyr_idx)); // Dirty hack
@@ -1794,7 +1841,7 @@ TbBool cmd_creature_add_health(PlayerNumber plyr_idx, char * args)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "parameter 1 requires a number");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
@@ -1818,7 +1865,7 @@ TbBool cmd_creature_sub_health(PlayerNumber plyr_idx, char * args)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "parameter 1 requires a number");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
@@ -1835,7 +1882,7 @@ TbBool cmd_send_digger_to(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    struct PlayerInfo * player = get_player(plyr_idx); // requesting player
+    struct PlayerInfo * player = console_cmd_player(plyr_idx); // requesting player
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     ThingModel model = get_players_special_digger_model(thing->owner);
     PlayerNumber id = get_player_number_for_command(plyr_idx, pr1str);
@@ -1876,7 +1923,7 @@ TbBool cmd_set_creature_instance(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as instance");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
@@ -1898,7 +1945,7 @@ TbBool cmd_set_creature_state(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as state");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
@@ -1924,7 +1971,7 @@ TbBool cmd_set_creature_job(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as job");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
@@ -1985,7 +2032,7 @@ TbBool cmd_thing_info(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or thing is invalid");
@@ -2013,7 +2060,7 @@ TbBool cmd_creature_attack_heart(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as player number");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
@@ -2072,7 +2119,7 @@ TbBool cmd_cursor_pos(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_get_thing(PlayerNumber plyr_idx, char * args)
 {
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     if (!console_cmd_cheats_allowed(plyr_idx)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
@@ -2114,7 +2161,7 @@ TbBool cmd_thing_health(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or thing is invalid");
@@ -2135,7 +2182,7 @@ TbBool cmd_move_thing(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or thing is invalid");
@@ -2174,7 +2221,7 @@ TbBool cmd_destroy_thing(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or thing is invalid");
@@ -2186,7 +2233,7 @@ TbBool cmd_destroy_thing(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_get_room(PlayerNumber plyr_idx, char * args)
 {
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     if (!console_cmd_cheats_allowed(plyr_idx)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
@@ -2215,7 +2262,7 @@ TbBool cmd_room_health(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Room * room = room_get(player->influenced_thing_idx);
     if (room_is_invalid(room)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not room");
@@ -2311,7 +2358,7 @@ TbBool cmd_creature_level(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as creature level");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
@@ -2327,7 +2374,7 @@ TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
@@ -2345,7 +2392,7 @@ TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
@@ -2400,7 +2447,7 @@ TbBool cmd_zoom_to_slabcoord(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Slab coordinates specified are invalid");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     player->zoom_to_pos_x = subtile_coord_center(stl_x);
     player->zoom_to_pos_y = subtile_coord_center(stl_y);
     set_player_instance(player, PI_ZoomToPos, 0);
@@ -2429,7 +2476,7 @@ TbBool cmd_zoom_to_subtilecoord(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Subtile coordinates specified are invalid");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     player->zoom_to_pos_x = subtile_coord_center(stl_x);
     player->zoom_to_pos_y = subtile_coord_center(stl_y);
     set_player_instance(player, PI_ZoomToPos, 0);
@@ -2497,7 +2544,7 @@ TbBool cmd_zoom_to_action_point(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct ActionPoint * actionpt = action_point_get(idx);
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     player->zoom_to_pos_x = subtile_coord_center(actionpt->mappos.x.stl.num);
     player->zoom_to_pos_y = subtile_coord_center(actionpt->mappos.y.stl.num);
     set_player_instance(player, PI_ZoomToPos, 0);
@@ -2546,7 +2593,7 @@ TbBool cmd_zoom_to_hero_gate(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "thing is not hero gate");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     player->zoom_to_pos_x = subtile_coord_center(thing->mappos.x.stl.num);
     player->zoom_to_pos_y = subtile_coord_center(thing->mappos.y.stl.num);
     set_player_instance(player, PI_ZoomToPos, 0);
@@ -2619,14 +2666,14 @@ TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_possession_lock(PlayerNumber plyr_idx, char * args)
 {
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     player->possession_lock = true;
     return true;
 }
 
 TbBool cmd_possession_unlock(PlayerNumber plyr_idx, char * args)
 {
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     player->possession_lock = false;
     return true;
 }
@@ -2758,7 +2805,7 @@ TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = get_player(plyr_idx);
+    struct PlayerInfo * player = console_cmd_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
@@ -3205,7 +3252,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord 
     SYNCDBG(2, "Command (player %d): %s",(int)plyr_idx, args);
     console_cmd_cursor_x = cursor_x;
     console_cmd_cursor_y = cursor_y;
-    if (!player_exists(get_player(plyr_idx))) {
+    if (!player_exists(console_cmd_player(plyr_idx))) {
         WARNLOG("Command for non-existent player %d ignored: %s", (int)plyr_idx, args);
         return false;
     }
@@ -3226,6 +3273,15 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord 
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "unsupported command");
     }
     return false;
+}
+
+TbBool cmd_exec_observer(char *args, MapCoord cursor_x, MapCoord cursor_y)
+{
+    struct PlayerInfo *previous_observer = console_cmd_observer;
+    console_cmd_observer = &local_observer_player;
+    TbBool result = cmd_exec(PLAYER_NEUTRAL, args, cursor_x, cursor_y);
+    console_cmd_observer = previous_observer;
+    return result;
 }
 
 static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const char *str_num)

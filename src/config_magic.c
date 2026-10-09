@@ -448,7 +448,7 @@ const struct NamedCommand magic_use_func_commands[] = {
 };
 
 
-const Expand_Check_Func powermodel_expand_check_func_list[] = {
+unsigned char (*const powermodel_expand_check_func_list[])(const struct PlayerInfo *player) = {
   NULL,
   general_expand_check,
   sight_of_evil_expand_check,

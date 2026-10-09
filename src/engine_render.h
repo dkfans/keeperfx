@@ -155,7 +155,6 @@ extern unsigned char temp_cluedo_mode;
 extern TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM];
 /*****************************************************************************/
 float interpolate(float previous, float current);
-float interpolate_angle(float previous, float current);
 float interpolate_synced(float previous, float current);
 struct ThingInterpolateResult interpolate_thing(struct Thing *thing);
 
@@ -225,6 +224,7 @@ void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, lon
 void update_engine_settings(struct PlayerInfo *player);
 void draw_view(struct Camera *cam, unsigned char a2);
 void draw_frontview_engine(struct Camera *cam);
+TbBool map_to_screen(struct Coord3d *pos, int32_t *screen_x, int32_t *screen_y);
 
 // Rasterize the bucket list built by the most recent draw_view()/
 // draw_frontview_engine() walk. Called (via SoftwareWorldViewRenderer) at

@@ -59,6 +59,8 @@
 #include "front_easter.h"
 #include "front_input.h"
 #include "net_exchange_gameplay.h"
+#include "net_spectator.h"
+#include "packets.h"
 #include "timer.h"
 
 #include "post_inc.h"
@@ -408,7 +410,7 @@ static short display_should_be_updated_this_turn(void)
     if ( (replay.turns_fastforward == 0) && (!replay.loading_in_progress) )
     {
       find_frame_rate();
-      if ( (game.frame_skip == 0) || ((get_gameturn() % game.frame_skip) == 0) )
+      if ( (game.fast_forward == 0) || ((get_gameturn() % game.fast_forward) == 0) )
         return true;
     } else
     if ( ((get_gameturn() & 0x3F)==0) ||
@@ -429,14 +431,21 @@ static long double get_turn_start()
     // another frame could miss this deadline, skip it.
     // In a 3-4 player game, clients must be 2 frames early.
     const int frames = 1 + (netstate.my_id != SERVER_ID && game.human_players_count > 2);
-    return 1.0 - frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.frame_skip, 1);
+    return 1.0 - frames * average_frame_draw_time * multiplayer_clock_adjust * max(game.fast_forward, 1);
 }
 
-static void update_multiplayer_clock_adjust()
+static void update_multiplayer_clock_adjust(void)
 {
     multiplayer_clock_adjust = 1.0;
-    if (netstate.my_id == SERVER_ID || ! network_is_active())
+    if (network_is_active() && network_user_is_spectator(netstate.my_id)) {
+        if (network_spectator_is_catching_up()) {
+            multiplayer_clock_adjust = 10.0;
+        }
         return;
+    }
+    if (netstate.my_id == SERVER_ID || !network_is_active()) {
+        return;
+    }
 
     if (game.input_lag_turns == 0)
     {
@@ -460,40 +469,42 @@ static void update_multiplayer_clock_adjust()
 // if networking had its own thread, it wouldn't need the yield that calls this function, but for now it does
 void gameplay_loop_draw()
 {
+    if (network_is_active()) {
+        netstate.sp->update(NULL);
+    }
     if (use_delta_time())
         do_draw = true;
 
     update_gameplay_delta_time();
 
-    if (game.process_turn_time > 1.0 && time_since_last_draw < 1.0)
+    if ((game.process_turn_time > 1.0 || game.fast_forward >= GAME_FAST_FORWARD_MAX) && time_since_last_draw < 1.0)
         do_draw = false;
 
     const TbBool renderer_busy = do_draw && !RendererCanPresent();
     if ((fps_limit_current > 0 && process_frame_time < 1.0) || renderer_busy) {
         do_draw = false;
         frametime_start_measurement(Frametime_Sleep);
-        if (game.process_turn_time < 1.0 || renderer_busy) {
+        const long double turns_per_millisecond = turns_per_second * multiplayer_clock_adjust * max(game.fast_forward, 1) / 1000.L;
+        if (game.process_turn_time + turns_per_millisecond < 1.0) {
             SDL_Delay(1);
         }
         frametime_end_measurement(Frametime_Sleep);
         return;
     }
 
-    // Frame rate limiter
-    if (fps_limit_current > 0) {
-        process_frame_time = min(1.L, process_frame_time - 1.L);
-    }
-
     // Floats are used a lot in the drawing related functions. But keep in mind integers are typically preferred for logic related functions.
     frametime_start_measurement(Frametime_Draw);
-
-    // Update lights
-    update_light_render_area();
 
     if (quit_game || exit_keeper) {
         do_draw = false;
     }
     if ( do_draw ) {
+        // Frame rate limiter
+        if (fps_limit_current > 0) {
+            process_frame_time = min(1.L, process_frame_time - 1.L);
+        }
+        // Update lights
+        update_light_render_area();
         if (frametime_enabled())
             framerate_measurement_capture(Framerate_Draw);
         game.delta_time = min(time_since_last_draw, 1.L);
@@ -544,7 +555,7 @@ static void gameplay_loop_logic()
             {
                 game.paused_at_gameturn = true;
 
-                game.frame_skip = 0;
+                game.fast_forward = 0;
                 if(replay.load_enable)
                 {
                     disable_packet_mode();
@@ -563,10 +574,6 @@ static void gameplay_loop_logic()
             return;
     }
 
-    frametime_start_measurement(Frametime_Logic);
-    if (frametime_enabled())
-        framerate_measurement_capture(Framerate_Logic);
-
 #ifdef FUNCTESTING
     if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
@@ -583,7 +590,13 @@ static void gameplay_loop_logic()
     poll_inputs();
     input_eastegg();
     input();
-    exchange_packets();
+    if (exchange_packets() == PExR_Wait) {
+        return;
+    }
+    frametime_start_measurement(Frametime_Logic);
+    if (frametime_enabled()) {
+        framerate_measurement_capture(Framerate_Logic);
+    }
     update_multiplayer_clock_adjust();
     update_gameplay_delta_time();
     if (timer_enabled())
@@ -602,9 +615,9 @@ static void gameplay_loop_logic()
                     if (TimerTurns != 0)
                     {
                         uint32_t turns = turns_per_second;
-                        if (game.frame_skip > 0)
+                        if (game.fast_forward > 0)
                         {
-                            turns *= game.frame_skip;
+                            turns *= game.fast_forward;
                         }
                         if (TimerTurns % turns == 0)
                         {
@@ -659,12 +672,12 @@ static TbBool keeper_wait_for_next_turn(void)
         // No idea when such situation occurs
         tick_ns_one_frame = tick_ns_one_sec;
     }
-    if (game.frame_skip >= 0)
+    if (game.fast_forward >= 0)
     {
         // Standard delaying system
         int32_t num_fps = turns_per_second;
-        if (game.frame_skip > 0)
-            num_fps *= game.frame_skip;
+        if (game.fast_forward > 0)
+            num_fps *= game.fast_forward;
 
         tick_ns_one_frame = tick_ns_one_sec/num_fps;
     }
@@ -675,7 +688,7 @@ static TbBool keeper_wait_for_next_turn(void)
         long double tick_ns_cur = get_time_tick_ns();
         long double tick_ns_used = tick_ns_cur - tick_ns_last_turn;
         long double tick_ns_delay = tick_ns_one_frame - tick_ns_used;
-        if (multiplayer_speed_adjustment_ns != 0) {
+        if (multiplayer_speed_adjustment_ns != 0 && !network_user_is_spectator(netstate.my_id)) {
             tick_ns_delay += multiplayer_speed_adjustment_ns;
         }
 
@@ -1086,8 +1099,7 @@ void game_loop(void)
       int32_t mspos_x_bak = lbDisplay.MMouseX;
       int32_t mspos_y_bak = lbDisplay.MMouseY;
 
-      if ((game.game_kind != GKind_LocalGame) || (game.save_game_slot == -1))
-      {
+      if (((game.game_kind != GKind_LocalGame) || (game.save_game_slot == -1)) && (!network_is_active() || net_join_role != NetRole_Spectator)) {
           for (int i = 0; i < PLAYERS_COUNT; i++) {
               struct PlayerInfo *player = get_player(i);
               if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_skips_heart_zoom(player)) {
@@ -1116,8 +1128,10 @@ void game_loop(void)
       // get_my_dungeon() can't be used here because players are not initialized yet
       dungeon = get_dungeon(my_player_number);
       starttime = LbTimerClock();
-      dungeon->lvstats.start_time = starttime;
-      dungeon->lvstats.end_time = starttime;
+      if (!network_is_active() || net_join_role != NetRole_Spectator) {
+          dungeon->lvstats.start_time = starttime;
+          dungeon->lvstats.end_time = starttime;
+      }
       GameSeconds = 0;
       GameT.Seconds = 0;
       GameT.Minutes = 0;
@@ -1136,7 +1150,7 @@ void game_loop(void)
       }
       RendererClearScreen(0);
       RendererPresentFrame();
-      game.frame_skip = 0;
+      game.fast_forward = 0;
       keeper_gameplay_loop();
       set_pointer_graphic_none();
       RendererClearScreen(0);

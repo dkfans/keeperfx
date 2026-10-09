@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "kfx/renderer/RendererManager.h"
 #include "frontmenu_ingame_map.h"
 
@@ -409,6 +410,9 @@ static void draw_overlay_creature(struct Thing *thing, const struct MinimapOverl
 /** Draws the animated arrow from the minimap centre towards the player's own dungeon heart. */
 static void draw_line_to_heart(const struct MinimapOverlay *ov)
 {
+    if (ov->player == &local_observer_player) {
+        return;
+    }
     struct Thing *thing = get_player_soul_container(ov->player->id_number);
     if (!thing_exists(thing)) {
         return;
@@ -465,12 +469,17 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     int col = 0;
     int owner_col = slabmap_owner(slb);
+    TbBool revealed;
+    if (get_my_player() == &local_observer_player) {
+        revealed = map_block_revealed_to_players(mapblk, local_observer_player.allied_players);
+    } else {
+        revealed = map_block_revealed(mapblk, plyr_idx);
+    }
     if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
     {
         col = PnC_Unexplored;
     }
-    else if (map_block_revealed(mapblk, plyr_idx))
-    {
+    else if (revealed) {
         if ((slb->kind == SlbT_GOLD) || (slb->kind == SlbT_DENSEGOLD))
         {
             col = PnC_Gold;

@@ -34,6 +34,7 @@ extern "C" {
 /******************************************************************************/
 
 void triangulation_init_cache(long tri_idx);
+extern int32_t find_cache[4][4];
 
 long triangle_find8(long pt_x, long pt_y);
 TbBool point_find(long pt_x, long pt_y, int32_t *out_tri_idx, int32_t *out_cor_idx);

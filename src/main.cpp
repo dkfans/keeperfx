@@ -436,7 +436,7 @@ short setup_game(void)
       }
   }
 
-  game.frame_skip = start_params.frame_skip;
+  game.fast_forward = start_params.fast_forward;
   redetect_screen_refresh_rate_for_draw();
 
   // Intro problems shouldn't force the game to quit,
@@ -490,8 +490,8 @@ short setup_game(void)
  */
 static bool players_cursor_is_at_top_of_view()
 {
-    const struct PlayerInfo *const player = get_my_player();
-    const struct UserState *const ustate = get_local_user_state();
+    const struct PlayerInfo *const player = get_displayed_player();
+    const struct UserState *const ustate = get_player_user_state(player);
     switch (player->work_state)
     {
     case PSt_BuildRoom:
@@ -850,7 +850,6 @@ void reinit_level_after_load(void)
     player = get_my_player();
     local_state.lens_palette = 0;
     local_state.main_palette = engine_palette;
-    init_navigation();
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
@@ -1562,7 +1561,7 @@ void redetect_screen_refresh_rate_for_draw()
 bool use_delta_time()
 {
     // Always enable interpolation in multiplayer games.
-    return is_feature_on(Ft_DeltaTime) || network_is_active();
+    return is_feature_on(Ft_DeltaTime) || network_is_active() || game.fast_forward > 1;
 }
 
 void update_frontend_delta_time()
@@ -1577,17 +1576,21 @@ void update_frontend_delta_time()
 
 void update_gameplay_delta_time()
 {
-    if (use_delta_time()) {
-        static int64_t prev = 0;
-        const int64_t now = get_time_tick_ns();
-        const int64_t ns = now - prev;
-        prev = now;
+    static int64_t prev = 0;
+    const int64_t now = get_time_tick_ns();
+    const int64_t ns = now - prev;
+    prev = now;
 
+    if (use_delta_time()) {
         const long double seconds = max(ns / 1e9L, 0.L);
         const long double turns = seconds * turns_per_second;
         const long double frames = seconds * fps_limit_current;
 
-        game.process_turn_time += turns * multiplayer_clock_adjust * max(game.frame_skip, 1);
+        if (game.fast_forward >= GAME_FAST_FORWARD_MAX && !network_is_active()) {
+            game.process_turn_time = 1;
+        } else {
+            game.process_turn_time += turns * multiplayer_clock_adjust * max(game.fast_forward, 1);
+        }
 
         // This sets game.delta_time, which is used to pace locally-displayed
         // things (eg. tooltip scroll speed).  It should not be affected by
@@ -1846,6 +1849,9 @@ static short process_command_line(unsigned short argc, char *argv[])
       {
          start_params.easter_egg = true;
       }
+      else if (strcasecmp(parstr, "spectate") == 0) {
+          net_join_role = NetRole_Spectator;
+      }
       else if (strcasecmp(parstr,"connect") == 0)
       {
           narg++;
@@ -1882,7 +1888,7 @@ static short process_command_line(unsigned short argc, char *argv[])
       }
       else if (strcasecmp(parstr,"frameskip") == 0)
       {
-         start_params.frame_skip = atoi(pr2str);
+         start_params.fast_forward = atoi(pr2str);
          narg++;
       } else
       if (strcasecmp(parstr,"framestep") == 0)

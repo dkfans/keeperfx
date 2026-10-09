@@ -247,7 +247,7 @@ struct GuiButtonInit spell_menu2_buttons[] = {
 };
 
 struct GuiButtonInit spell_lost_menu_buttons[] = {
-  {LbBtnT_NormalBtn, BID_POWER_TD16, 0, 0, spell_lost_first_person,NULL,    NULL,               0,   2, 238,   8, 250, 32, 36, gui_area_new_null_button, GPS_keepower_possess_std_s, CpgStr_PowerDesc1+0,  0,      {18},               0, maintain_spell },
+  {LbBtnT_NormalBtn, BID_POWER_TD16, 0, 0, spell_lost_first_person,NULL,    NULL,               0,   2, 238,   8, 250, 32, 36, gui_area_new_no_anim_button, GPS_keepower_possess_std_s, CpgStr_PowerDesc1+0,  0,      {18},               0, maintain_spell },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  34, 238,  40, 250, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,         0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  66, 238,  72, 250, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,         0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  98, 238, 104, 250, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,         0,       {0},               0, NULL },

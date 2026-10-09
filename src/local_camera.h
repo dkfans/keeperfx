@@ -34,6 +34,7 @@ struct PlayerInfo;
 
 /******************************************************************************/
 void init_local_cameras(struct PlayerInfo *player);
+TbBool update_local_camera_time(void);
 void update_local_cameras(void);
 void interpolate_local_cameras(void);
 void sync_local_camera(struct PlayerInfo *player);
@@ -53,12 +54,12 @@ unsigned char get_local_view_type(const struct PlayerInfo *player);
 struct Camera* get_local_active_camera(struct PlayerInfo *player);
 void set_packet_power_on_thing(struct Packet *pckt, PowerKind pwkind, ThingIndex thing_idx);
 void camera_packet_set_state(struct Packet *pckt);
-struct Packet *get_freecam_packet(void);
-TbBool replay_camera_detached(void);
-void replay_detach(void);
-void replay_attach(void);
-void replay_freecam_set_map(TbBool on);
-void replay_freecam_jump(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct Packet *get_observer_camera_packet(void);
+TbBool is_observer_camera_active(void);
+void enter_observer_camera(void);
+void return_to_player_camera(void);
+void set_observer_camera_view(unsigned char view_type);
+void observer_camera_jump(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -486,7 +486,7 @@ enum GUIStrings {
     GUIStr_NetInLandview,
     GUIStr_NetPlayerListUnavailable,
     GUIStr_NetMaximumPlayers,
-    GUIStr_NetAllowObservers,
+    GUIStr_NetOpenToSpectators,
     GUIStr_NetSettings,
     GUIStr_NetConfirm,
     GUIStr_NetGameStarted,
@@ -494,6 +494,15 @@ enum GUIStrings {
     GUIStr_NetLobbyFull,
     GUIStr_NetDifferentVersion,
     GUIStr_NetLobbyName,
+    GUIStr_FastForward,
+    GUIStr_FastForwardNormal,
+    GUIStr_NetLoading,
+    GUIStr_NetShowSpectatorChat,
+    GUIStr_NetSpectatorGameNotRunning,
+    GUIStr_NetSpectatorsDisabled,
+    GUIStr_NetSpectatorsFull,
+    GUIStr_NetSpectatorChatDisabled,
+    GUIStr_NetYouAreSpectating,
     GuiStrEnd
 };
 

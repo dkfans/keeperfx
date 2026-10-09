@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "kfx/renderer/RendererManager.h"
 #include "frontend.h"
 
@@ -1686,8 +1687,28 @@ void frontend_load_game_maintain(struct GuiButton *gbtn)
         gbtn->flags &= ~LbBtnF_Enabled;
 }
 
+static TbBool observer_panel_button_blocked(const struct GuiButton *gbtn, Gf_Btn_Callback callback)
+{
+    if (!observer_is_active() || !is_toggleable_menu(get_active_menu(gbtn->gmenu_idx)->ident)) {
+        return false;
+    }
+    if (callback == NULL && gbtn->gbtype == LbBtnT_NormalBtn && gbtn->parent_menu != NULL) {
+        return false;
+    }
+    if (callback == gui_set_menu_mode || callback == gui_set_page
+     || callback == gui_zoom_in || callback == gui_zoom_out || callback == gui_go_to_map
+     || callback == gui_scroll_activity_up
+     || callback == gui_scroll_activity_down || callback == gui_switch_players_visible) {
+        return false;
+    }
+    return true;
+}
+
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
+    if (observer_panel_button_blocked(gbtn, callback)) {
+        return;
+    }
     SYNCDBG(9,"Starting for button type %d",(int)gbtn->gbtype);
     if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
@@ -1728,6 +1749,9 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
 
 void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
+    if (observer_panel_button_blocked(gbtn, callback)) {
+        return;
+    }
     SYNCDBG(9,"Starting for button type %d",(int)gbtn->gbtype);
     if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
@@ -1814,6 +1838,10 @@ static void autofill_savegame_name(struct GuiButton *gbtn)
 
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
 {
+    if (observer_panel_button_blocked(gbtn, callback)) {
+        *s = 0;
+        return;
+    }
   SYNCDBG(17,"Starting");
   int i;
   struct GuiMenu *gmnu;
@@ -2435,27 +2463,27 @@ TbBool toggle_first_person_menu(TbBool visible)
 
 void set_gui_visible(TbBool visible)
 {
-  SYNCDBG(6,"Starting");
-  set_flag_value(game.operation_flags, GOF_ShowGui, visible);
-  struct PlayerInfo *player=get_my_player();
-  unsigned char is_visbl = ((game.operation_flags & GOF_ShowGui) != 0);
-  switch (get_player_view_type(player))
-  {
-  case PVT_CreatureContrl:
-  case PVT_CreaturePasngr:
-      toggle_first_person_menu(is_visbl);
-      break;
-  case PVT_MapScreen:
-  case PVT_MapFadeIn:
-  case PVT_MapFadeOut:
-      toggle_status_menu(0);
-      break;
-  case PVT_DungeonTop:
-  default:
-      toggle_status_menu(is_visbl);
-      break;
-  }
-  setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+    SYNCDBG(6,"Starting");
+    set_flag_value(game.operation_flags, GOF_ShowGui, visible);
+    struct PlayerInfo* player = get_my_player();
+    switch (get_local_view_type(player)) {
+    case PVT_CreatureContrl:
+    case PVT_CreaturePasngr:
+        toggle_first_person_menu(visible);
+        break;
+    case PVT_MapScreen:
+    case PVT_MapFadeIn:
+    case PVT_MapFadeOut:
+        set_flag_value(game.operation_flags, GOF_ShowPanel, visible);
+        local_state.status_menu_restore = visible;
+        toggle_status_menu(false);
+        break;
+    case PVT_DungeonTop:
+    default:
+        toggle_status_menu(visible);
+        break;
+    }
+    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
 }
 
 void toggle_gui(void)
@@ -3102,7 +3130,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
             gmnu->visual_state = 2;
             return 0;
         }
-        if (game.frame_skip == 0)
+        if (game.fast_forward == 0)
         {
             gmnu->fade_time -= game.delta_time;
         } else {
@@ -3115,7 +3143,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
             gmnu->fade_time = 0.0;
             return -1; // Kill menu
         }
-        if (game.frame_skip == 0)
+        if (game.fast_forward == 0)
         {
             gmnu->fade_time -= game.delta_time;
         } else {

@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include "map_data.h"
 #include "globals.h"
 #include "map_columns.h"
@@ -293,37 +294,45 @@ TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilt
     return false;
 }
 
-TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
+PlayerBitFlags get_player_vision_mask(PlayerNumber plyr_idx)
 {
-    if (map_block_invalid(mapblk))
-        return false;
-    if (game.conf.rules[plyr_idx].gameplay.allies_share_vision)
-    {
-        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
-        {
-            if (players_are_mutual_allies(plyr_idx, i))
-            {
-                if (flag_is_set(mapblk->revealed, to_flag(i)))
-                    return true;
+    PlayerBitFlags players = to_flag(plyr_idx);
+    if (game.conf.rules[plyr_idx].gameplay.allies_share_vision) {
+        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
+            if (players_are_mutual_allies(plyr_idx, i)) {
+                set_flag(players, to_flag(i));
             }
         }
     }
-    else
-    {
-        if (flag_is_set(mapblk->revealed, to_flag(plyr_idx)))
-            return true;
+    return players;
+}
+
+TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
+{
+    if (local_observer_rendering) {
+        return map_block_revealed_directly(mapblk, plyr_idx);
     }
-    return false;
+    if (map_block_invalid(mapblk)) {
+        return false;
+    }
+    return map_block_revealed_to_players(mapblk, get_player_vision_mask(plyr_idx));
 }
 
 
+TbBool map_block_revealed_to_players(const struct Map *mapblk, PlayerBitFlags players)
+{
+    if (map_block_invalid(mapblk)) {
+        return false;
+    }
+    return (mapblk->revealed & players) != 0;
+}
+
 TbBool map_block_revealed_directly(const struct Map* mapblk, PlayerNumber plyr_idx)
 {
-    if (map_block_invalid(mapblk))
-        return false;
-    if (flag_is_set(mapblk->revealed, to_flag(plyr_idx)))
-        return true;
-    return false;
+    if (local_observer_rendering) {
+        return map_block_revealed_to_players(mapblk, local_observer_player.allied_players);
+    }
+    return map_block_revealed_to_players(mapblk, to_flag(plyr_idx));
 }
 
 

@@ -16,11 +16,13 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "net_game.h"
 #include "pre_inc.h"
+#include "observer.h"
+#include "net_game.h"
 #include "kfx/renderer/RendererManager.h"
 #include "packets.h"
 #include "net_exchange_gameplay.h"
+#include "net_spectator.h"
 #include "bflib_datetm.h"
 #include "front_landview.h"
 #include "game_legacy.h"
@@ -32,6 +34,7 @@ extern "C" {
 /******************************************************************************/
 #define MULTIPLAYER_PAUSE_COOLDOWN_MS 500
 struct Packet bad_packet;
+static struct Packet local_observer_packet;
 unsigned long last_pause_toggle_time = 0;
 extern TbBool force_player_num;
 extern TbBool keeper_screen_redraw(void);
@@ -62,8 +65,7 @@ NetUserId get_local_user(void)
         return SOLO_HUMAN_ID;
     }
 
-    if (netstate.my_id >= 0 && netstate.my_id < MAX_NET_USERS)
-    {
+    if (netstate.my_id >= 0 && netstate.my_id < MAX_NET_CONNECTIONS) {
         return netstate.my_id;
     }
 
@@ -73,6 +75,9 @@ NetUserId get_local_user(void)
 
 struct Packet *get_local_packet(void)
 {
+    if (observer_is_active()) {
+        return &local_observer_packet;
+    }
     return get_packet(get_local_user());
 }
 
@@ -107,15 +112,26 @@ void set_pending_timestamp_packet_action(struct Packet *pckt)
     timestamp_packet_pending = false;
 }
 
+static struct Packet *get_player_packet(const struct PlayerInfo *player)
+{
+    if (player == &local_observer_player) {
+        return get_local_packet();
+    }
+    return get_packet(player->user_id);
+}
+
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
         unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4)
 {
-    set_packet_action(get_packet(player->user_id), pcktype, par1, par2, par3, par4);
+    if (observer_is_active() && player != &local_observer_player) {
+        return;
+    }
+    set_packet_action(get_player_packet(player), pcktype, par1, par2, par3, par4);
 }
 
 unsigned char get_players_packet_action(struct PlayerInfo *player)
 {
-    struct Packet* pckt = get_packet(player->user_id);
+    struct Packet* pckt = get_player_packet(player);
     return pckt->action;
 }
 
@@ -126,7 +142,7 @@ void set_packet_control(struct Packet *pckt, unsigned long flag)
 
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 {
-    struct Packet* pckt = get_packet(player->user_id);
+    struct Packet* pckt = get_player_packet(player);
     pckt->control_flags |= flag;
 }
 
@@ -137,7 +153,7 @@ void unset_packet_control(struct Packet *pckt, unsigned long flag)
 
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 {
-    struct Packet* pckt = get_packet(player->user_id);
+    struct Packet* pckt = get_player_packet(player);
     pckt->control_flags &= ~flag;
 }
 
@@ -157,6 +173,9 @@ void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned c
  */
 struct Packet *get_packet(NetUserId user)
 {
+    if (network_is_active() && user == netstate.my_id && user >= MAX_NET_USERS && user < MAX_NET_CONNECTIONS) {
+        return &local_observer_packet;
+    }
     if ((user < 0) || (user >= PACKETS_COUNT))
         return INVALID_PACKET;
     return &game.packets[user];
@@ -164,10 +183,10 @@ struct Packet *get_packet(NetUserId user)
 
 void clear_packets(void)
 {
-    for (int i = 0; i < PACKETS_COUNT; i++)
-    {
+    for (int i = 0; i < PACKETS_COUNT; i++) {
         memset(&game.packets[i], 0, sizeof(struct Packet));
     }
+    memset(&local_observer_packet, 0, sizeof(local_observer_packet));
 }
 
 void post_init_packets(void)
@@ -208,6 +227,9 @@ void set_packet_pause_toggle()
         return;
     if (player->user_id >= PACKETS_COUNT)
         return;
+    if (network_user_is_spectator(netstate.my_id)) {
+        return;
+    }
     if (network_is_active()) {
         unsigned long current_time = LbTimerClock();
         if (current_time - last_pause_toggle_time < MULTIPLAYER_PAUSE_COOLDOWN_MS) {

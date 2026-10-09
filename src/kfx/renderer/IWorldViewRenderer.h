@@ -140,8 +140,8 @@ public:
     virtual void PreloadKeeperSpriteAtlas() {}
 
     /** Re-upload the tile atlas's animated rows (lava, water, dig-tag
-     *  cross-hatch, etc.).  Call once per game tick, right after
-     *  update_animating_texture_maps().  Default: no-op. */
+     *  cross-hatch, etc.). Call before drawing, after
+     *  update_animating_texture_maps() reports changes. Default: no-op. */
     virtual void UpdateAnimatedTiles() {}
 
     /** Notify the renderer of the current OS-window dimensions.

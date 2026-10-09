@@ -41,7 +41,8 @@ long block_count_per_row = 8;
 TbBool level_textures_ready = 0;
 volatile unsigned int level_textures_generation = 0;
 
-static long anim_counter;
+static int32_t anim_counter;
+static int32_t anim_start_frame;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -86,35 +87,34 @@ void setup_texture_block_mem(void)
 short init_animating_texture_maps(void)
 {
     SYNCDBG(8,"Starting");
-    anim_counter = TEXTURE_BLOCKS_ANIM_FRAMES-1;
+    anim_start_frame = (get_gameturn() / 2) % TEXTURE_BLOCKS_ANIM_FRAMES;
+    anim_counter = -1;
     return update_animating_texture_maps();
 }
 
 short update_animating_texture_maps(void)
 {
+  int32_t frame = (get_gameturn() / 2 + TEXTURE_BLOCKS_ANIM_FRAMES - anim_start_frame) % TEXTURE_BLOCKS_ANIM_FRAMES;
+  if (frame == anim_counter) {
+      return false;
+  }
   SYNCDBG(18,"Starting");
   unsigned char** dst = block_ptrs;
-  short result=true;
-
-  anim_counter = (anim_counter+1) % TEXTURE_BLOCKS_ANIM_FRAMES;
   for (int f = 0; f < TEXTURE_VARIATIONS_COUNT; f++)
   {
       for (int i = 0; i < TEXTURE_BLOCKS_ANIM_COUNT; i++)
       {
-          short j = game.texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*i+anim_counter];
+          short j = game.texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*i+frame];
           if (((j>=0) && (j<TEXTURE_BLOCKS_STAT_COUNT_A)) ||
               ((j>=TEX_B_START_POINT) && (j<(TEX_B_START_POINT + TEXTURE_BLOCKS_STAT_COUNT_B))))
           {
             dst[TEXTURE_BLOCKS_STAT_COUNT_A + i] = dst[j];
           }
-          else
-          {
-            result=false;
-          }
       }
       dst += TEXTURE_BLOCKS_COUNT;
   }
-  return result;
+  anim_counter = frame;
+  return true;
 }
 
 static char *prepare_letter_one_file_path_for_mod(unsigned long tmapidx, char letter, LevelNumber lvnum, short fgroup, const struct ModConfigItem *mod_item)

@@ -17,9 +17,11 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "observer.h"
 #include <stdlib.h>
 #include "kfx/renderer/RendererManager.h"
 #include "engine_redraw.h"
+#include "engine_textures.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -620,13 +622,12 @@ void redraw_creature_view(void)
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     update_explored_flags_for_power_sight(player);
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_displayed_player()->controlled_thing_idx);
     TRACE_THING(thing);
     if (thing_exists(thing))
       draw_creature_view(thing);
     // Todo : De-global.
-    if (smooth_on && (lbDisplay.WScreen != NULL))
-    {
+    if (smooth_on && (lbDisplay.WScreen != NULL)) {
         TbGraphicsWindow ewnd;
         store_engine_window(&ewnd, pixel_size);
         smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
@@ -635,14 +636,11 @@ void redraw_creature_view(void)
     remove_explored_flags_for_power_sight(player);
     GameUI_DrawFrame(player);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (!creature_control_invalid(cctrl))
-    {
+    if (!creature_control_invalid(cctrl)) {
         draw_creature_view_icons(thing);
-        if (!gui_box_is_not_valid(gui_cheat_box_3))
-        {
+        if (!gui_box_is_not_valid(gui_cheat_box_3)) {
             struct GuiBoxOption* guop = gui_cheat_box_3->optn_list;
-            while (guop->label[0] != '!')
-            {
+            while (guop->label[0] != '!') {
               guop->active = (cctrl->active_instance_id == guop->cb_param1);
               guop++;
             }
@@ -726,16 +724,11 @@ int get_place_door_pointer_graphics(ThingModel drmodel)
  *
  * @return Gives true if cursor spell was drawn, false if the spell wasn't available and either no cursor or block cursor was drawn.
  */
-TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+static TbBool draw_spell_cursor(const struct PlayerInfo *player, PowerKind pwkind, ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    long i;
-    long pwkind = -1;
-    struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_local_user_state();
-    pwkind = ustate->chosen_power_kind;
+    int32_t i;
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
-    if (pwkind <= 0)
-    {
+    if (pwkind <= 0) {
         set_pointer_graphic(MousePG_Invisible);
         return false;
     }
@@ -744,16 +737,13 @@ TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord 
     TbBool allow_cast = false;
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     allow_cast = can_cast_spell(player->id_number, pwkind, stl_x, stl_y, thing, CastChk_SkipThing);
-    if (!allow_cast)
-    {
+    if (!allow_cast) {
         set_pointer_graphic(MousePG_DenyMark);
         return false;
     }
-    Expand_Check_Func chkfunc = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
-    if (chkfunc != NULL)
-    {
-        if (chkfunc())
-        {
+    unsigned char (*chkfunc)(const struct PlayerInfo *) = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
+    if (chkfunc != NULL) {
+        if (chkfunc(player)) {
             i = get_power_overcharge_level(player);
             set_pointer_graphic(MousePG_SpellCharge0+i);
             draw_spell_cost = compute_power_price(player->id_number, pwkind, i);
@@ -765,36 +755,33 @@ TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord 
             return true;
         }
     }
-    i = get_player_colored_pointer_icon_idx(powerst->pointer_sprite_idx,my_player_number);
+    i = get_player_colored_pointer_icon_idx(powerst->pointer_sprite_idx, player->id_number);
     set_pointer_graphic_spell(i, get_gameturn());
     return true;
 }
 
-void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
+static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
 {
     struct Thing *thing;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
-    struct UserState* ustate = get_user_state(player->user_id);
-    if (dungeon_invalid(dungeon))
-    {
+    const struct UserState *ustate = get_player_user_state(player);
+    if (dungeon_invalid(dungeon) || user_state_invalid(ustate)) {
         set_pointer_graphic(MousePG_Invisible);
         return;
     }
-    if (replay_camera_detached())
-    {
+    if (is_observer_camera_active()) {
         set_pointer_graphic(MousePG_Arrow);
         return;
     }
     // During fade
-    if (player->instance_num == PI_MapFadeFrom)
-    {
+    if (player->instance_num == PI_MapFadeFrom) {
         set_pointer_graphic(MousePG_Invisible);
         return;
     }
     // Mouse over panel map
-    if (((game.operation_flags & GOF_ShowGui) != 0) && mouse_is_over_panel_map(local_state.minimap_pos_x, local_state.minimap_pos_y))
-    {
+    if (is_my_player(player) && ((game.operation_flags & GOF_ShowGui) != 0)
+     && mouse_is_over_panel_map(local_state.minimap_pos_x, local_state.minimap_pos_y)) {
         if (game.small_map_state == 2) {
             set_pointer_graphic(MousePG_Invisible);
         } else {
@@ -803,47 +790,47 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         return;
     }
     // Mouse over battle message box
-    if (battle_creature_over > 0)
-    {
+    if (is_my_player(player) && battle_creature_over > 0) {
         PowerKind pwkind = ustate->chosen_power_kind;
         thing = thing_get(battle_creature_over);
         TRACE_THING(thing);
-        if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
-        {
-            draw_spell_cursor(battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-        } else
-        {
+        if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+            draw_spell_cursor(player, pwkind, battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        } else {
             set_pointer_graphic(MousePG_Arrow);
         }
         return;
     }
     // GUI action being processed
-    if (game_is_busy_doing_gui())
-    {
-        set_pointer_graphic(MousePG_Arrow);
+    if (gameplay_cursor_is_over_gui()) {
+        if (is_my_player(player) || a_menu_window_is_active()) {
+            set_pointer_graphic(MousePG_Arrow);
+        } else {
+            set_pointer_graphic(MousePG_Invisible);
+        }
         return;
     }
-    long i;
+    int32_t i;
+    int32_t dig_graphic = MousePG_Pickaxe;
+    if (player->roomspace_highlight_mode == drag_placement_mode) {
+        dig_graphic = MousePG_Pickaxe2;
+    }
     short thing_under_hand;
-    switch (plrst_cfg_stat->pointer_group)
-    {
+    switch (plrst_cfg_stat->pointer_group) {
     case PsPg_CtrlDungeon:
         if (ustate->secondary_cursor_state)
           i = ustate->secondary_cursor_state;
         else
           i = ustate->primary_cursor_state;
-        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || (local_state.local_thing_under_hand > 0) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
+        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || (is_my_player(player) && local_state.local_thing_under_hand > 0) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
             i = CSt_PowerHand;
         } else
-        if ((i == CSt_PowerHand) && power_hand_is_empty(player))
-        {
+        if ((i == CSt_PowerHand) && power_hand_is_empty(player)) {
             i = CSt_DefaultArrow;
         }
-        switch (i)
-        {
-        case CSt_PickAxe:
-        {
-            set_pointer_graphic((player->roomspace_highlight_mode == drag_placement_mode) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
+        switch (i) {
+        case CSt_PickAxe: {
+            set_pointer_graphic(dig_graphic);
             break;
         }
         case CSt_DoorKey:
@@ -851,37 +838,27 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             break;
         case CSt_PowerHand:
             thing_under_hand = player->thing_under_hand;
-            if (local_state.local_thing_under_hand > 0) {
+            if (is_my_player(player) && local_state.local_thing_under_hand > 0) {
                 thing_under_hand = local_state.local_thing_under_hand;
             }
             thing = thing_get(thing_under_hand);
             TRACE_THING(thing);
             TbBool can_cast = false;
-            if ((ustate->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != thing_under_hand))
-            {
+            if ((ustate->input_crtr_control) && (thing_exists(thing)) && (dungeon->things_in_hand[0] != thing_under_hand)) {
                 PowerKind pwkind = PwrK_POSSESS;
-                if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
-                {
+                if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
                     can_cast = true;
-                }
-                else
-                {
+                } else {
                     thing = get_creature_near_for_controlling(player->id_number, thing->mappos.x.val, thing->mappos.y.val);
-                    if (!thing_is_invalid(thing))
-                    {
-                        if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
-                        {
+                    if (!thing_is_invalid(thing)) {
+                        if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
                             can_cast = true;
                         }
                     }
                 }
-                if (can_cast)
-                {
-                    ustate->chosen_power_kind = pwkind;
-                    draw_spell_cursor(0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-                    ustate->chosen_power_kind = 0;
-                    player->thing_under_hand = thing->index;
+                if (can_cast) {
+                    draw_spell_cursor(player, pwkind, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                 } else {
                     set_pointer_graphic(MousePG_Arrow);
                 }
@@ -889,14 +866,12 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 local_state.display_needs_update = true;
             } else
             if (((ustate->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != thing_under_hand)
-                && can_thing_be_queried(thing, player->id_number))
-            {
+                && can_thing_be_queried(thing, player->id_number)) {
                 set_pointer_graphic(MousePG_Query);
                 local_state.display_needs_update = true;
-            } else
-            {
+            } else {
                 if ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0) {
-                  set_pointer_graphic((player->roomspace_highlight_mode == drag_placement_mode) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
+                  set_pointer_graphic(dig_graphic);
                 } else {
                   set_pointer_graphic(MousePG_Invisible);
                 }
@@ -917,9 +892,17 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PsPg_Invisible:
         set_pointer_graphic(MousePG_Invisible);
         break;
-    case PsPg_Spell:
-        draw_spell_cursor(0, game.mouse_light_pos.x.stl.num, game.mouse_light_pos.y.stl.num);
+    case PsPg_Spell: {
+        MapSubtlCoord stl_x = game.mouse_light_pos.x.stl.num;
+        MapSubtlCoord stl_y = game.mouse_light_pos.y.stl.num;
+        const struct Packet *pckt = observer_get_view_packet();
+        if (pckt != NULL) {
+            stl_x = coord_subtile(pckt->pos_x);
+            stl_y = coord_subtile(pckt->pos_y);
+        }
+        draw_spell_cursor(player, ustate->chosen_power_kind, 0, stl_x, stl_y);
         break;
+    }
     case PsPg_Query:
         set_pointer_graphic(MousePG_Query);
         break;
@@ -934,8 +917,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PsPg_Sell:
         set_pointer_graphic(MousePG_Sell);
         break;
-    case PsPg_PlaceTerrain:
-    {
+    case PsPg_PlaceTerrain: {
         i = get_place_terrain_pointer_graphics(ustate->cheatselection.chosen_terrain_kind);
         set_pointer_graphic(i);
         break;
@@ -946,10 +928,12 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PsPg_MkCreatr:
         set_pointer_graphic(MousePG_MkCreature);
         break;
-    case PsPg_OrderCreatr:
-    {
+    case PsPg_OrderCreatr: {
         struct Thing* creatng = thing_get(player->controlled_thing_idx);
-        i = (thing_is_creature(creatng)) ? MousePG_MvCreature : MousePG_Arrow;
+        i = MousePG_Arrow;
+        if (thing_is_creature(creatng)) {
+            i = MousePG_MvCreature;
+        }
         set_pointer_graphic(i);
         break;
     }
@@ -964,11 +948,10 @@ void process_pointer_graphic(void)
 {
     struct PlayerInfo* player = get_my_player();
     SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(player->work_state),(int)player->instance_num);
-    switch (get_local_view_type(player))
-    {
+    switch (get_local_view_type(player)) {
     case PVT_DungeonTop:
         // This case is complicated
-        process_dungeon_top_pointer_graphic(player);
+        process_dungeon_top_pointer_graphic(get_displayed_player());
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
@@ -1005,13 +988,19 @@ void redraw_display(void)
       process_pointer_graphic();
     interpolate_local_cameras();
     const unsigned char view_type = get_local_view_type(player);
-    lens_mode = ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr)) ? 2 : 0;
-    if ((player->instance_num == PI_MapFadeTo) && !replay_camera_detached())
-    {
+    if (view_type != PVT_DungeonTop) {
+        observer_update_cursor();
+    }
+    if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr)) {
+        lens_mode = 2;
+    } else {
+        lens_mode = 0;
+    }
+    if ((player->instance_num == PI_MapFadeTo) && !is_observer_camera_active()) {
         parchment_loaded = 0;
         local_state.palette_fade_step_map = map_fade_in(local_state.palette_fade_step_map);
     } else
-    if ((player->instance_num == PI_MapFadeFrom) && !replay_camera_detached())
+    if ((player->instance_num == PI_MapFadeFrom) && !is_observer_camera_active())
     {
         parchment_loaded = 0;
         local_state.palette_fade_step_map = map_fade_out(local_state.palette_fade_step_map);
@@ -1052,21 +1041,25 @@ void redraw_display(void)
         }
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
     }
-    if ( draw_spell_cost )
-    {
-        unsigned short drwflags_mem = RendererGetDrawFlags();
-        LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-        RendererSetDrawFlags(0);
-        LbTextSetFont(winfont);
-        char text[16];
-        if (draw_spell_cost > 0)
-            snprintf(text, sizeof(text), "%ld", draw_spell_cost);
-	else
-            snprintf(text, sizeof(text), "lv%ld", (-draw_spell_cost));
-        long pos_y = GetMouseY() - (LbTextStringHeight(text) * units_per_pixel / 16) / 2 - 2 * units_per_pixel / 16;
-        long pos_x = GetMouseX() - (LbTextStringWidth(text) * units_per_pixel / 16) / 2;
-        LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
-        RendererSetDrawFlags(drwflags_mem);
+    if (draw_spell_cost) {
+        int32_t cursor_x;
+        int32_t cursor_y;
+        if (get_gameplay_cursor_position(&cursor_x, &cursor_y)) {
+            unsigned short drwflags_mem = RendererGetDrawFlags();
+            LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+            RendererSetDrawFlags(0);
+            LbTextSetFont(winfont);
+            char text[16];
+            if (draw_spell_cost > 0) {
+                snprintf(text, sizeof(text), "%ld", draw_spell_cost);
+            } else {
+                snprintf(text, sizeof(text), "lv%ld", (-draw_spell_cost));
+            }
+            int32_t pos_y = cursor_y - (LbTextStringHeight(text) * units_per_pixel / 16) / 2 - 2 * units_per_pixel / 16;
+            int32_t pos_x = cursor_x - (LbTextStringWidth(text) * units_per_pixel / 16) / 2;
+            LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
+            RendererSetDrawFlags(drwflags_mem);
+        }
         draw_spell_cost = 0;
     }
     if (bonus_timer_enabled())
@@ -1081,6 +1074,7 @@ void redraw_display(void)
     {
         draw_gameturn_timer();
     }
+    draw_watched_player_name();
     if (display_variable_enabled())
     {
         draw_script_variable_list();
@@ -1180,9 +1174,14 @@ TbBool keeper_screen_redraw(void)
     RendererClearScreen(144);
     if (RendererBeginFrame())
     {
+        if (update_animating_texture_maps()) {
+            RendererUpdateAnimatedTiles();
+        }
         setup_engine_window(local_state.engine_window_x, local_state.engine_window_y,
             local_state.engine_window_width, local_state.engine_window_height);
+        local_observer_rendering = get_my_player() == &local_observer_player;
         redraw_display();
+        local_observer_rendering = false;
         RendererEndFrame();
         return true;
     }
