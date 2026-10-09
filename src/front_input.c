@@ -654,13 +654,14 @@ static TbBool observer_camera_input_pressed(void)
      || (get_game_key_axis_value(Gkey_MoveUp, true) != 0.0f) || (get_game_key_axis_value(Gkey_MoveDown, true) != 0.0f)) {
         return true;
     }
-    for (int32_t key = KC_ESCAPE; key < KC_MOUSE2; key++) {
-        if (key != KC_TAB && is_key_pressed(key, KMod_DONTCARE)) {
+    const int32_t camera_keys[] = {
+        Gkey_RotateCW, Gkey_RotateCCW, Gkey_ZoomIn, Gkey_ZoomOut,
+        Gkey_TiltUp, Gkey_TiltDown, Gkey_TiltReset, Gkey_SnapCamera, Gkey_SwitchToMap,
+    };
+    for (int32_t i = 0; i < sizeof(camera_keys) / sizeof(camera_keys[0]); i++) {
+        if (is_game_key_pressed(camera_keys[i], false, false)) {
             return true;
         }
-    }
-    if (controller_button_state != 0) {
-        return true;
     }
     if (left_button_clicked && ((game.operation_flags & GOF_ShowGui) != 0)) {
         long x;
