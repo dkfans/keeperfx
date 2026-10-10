@@ -103,17 +103,13 @@ static void disable_lua_functions(lua_State *L)
 TbBool CheckLua(lua_State *L, int result, const char* func)
 {
     if (result != LUA_OK) {
-        // Coerce error to string using tostring()
-        if (!lua_isstring(L, -1)) {
-            lua_getglobal(L, "tostring"); // push tostring
-            lua_pushvalue(L, -2);         // push error object
-            lua_call(L, 1, 1);            // call tostring(err)
-            lua_remove(L, -2);            // remove original error
+        int error_type = lua_type(L, -1);
+        const char *message = lua_typename(L, error_type);
+        if (error_type == LUA_TSTRING) {
+            message = lua_tostring(L, -1);
         }
-
-        const char *message = lua_tostring(L, -1);
-        ERRORLOG("Lua error in %s: %s", func, message ? message : "Unknown error");
-        lua_pop(L, 1); // pop error string
+        ERRORLOG("Lua error in %s: %s", func, message);
+        lua_pop(L, 1); // pop error object
 
         if (exit_on_lua_error) {
             ERRORLOG("Exiting due to Lua error");
@@ -361,7 +357,12 @@ static void open_lua_standard_libraries(lua_State *L)
 
 TbBool open_lua_script(LevelNumber lvnum)
 {
+    close_lua_script();
     Lvl_script = luaL_newstate();
+    if (Lvl_script == NULL) {
+        ERRORLOG("Failed to allocate Lua state");
+        return false;
+    }
 
     open_lua_standard_libraries(Lvl_script);
     disable_lua_functions(Lvl_script);
@@ -375,13 +376,12 @@ TbBool open_lua_script(LevelNumber lvnum)
     char* fname = prepare_file_fmtpath(FGrp_FxData, "lua/init.lua");
 
     // Load and parse the Lua File
-    if ( !LbFileExists(fname) )
-    {
+    if (!LbFileExists(fname)) {
         ERRORLOG("file %s missing",fname);
+        close_lua_script();
         return false;
     }
-    if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname), "global_lua_file"))
-    {
+    if (!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname), "global_lua_file")) {
         ERRORLOG("failed to load global lua script");
         close_lua_script();
         return false;
@@ -399,10 +399,8 @@ TbBool open_lua_script(LevelNumber lvnum)
     short fgroup = get_level_fgroup(lvnum);
     fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
     // Load and parse the Lua File
-    if (LbFileExists(fname) )
-    {
-        if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname), "level_script_loading"))
-        {
+    if (LbFileExists(fname)) {
+        if (!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname), "level_script_loading")) {
             ERRORLOG("failed to load level lua script");
         }
     }
@@ -413,68 +411,71 @@ TbBool open_lua_script(LevelNumber lvnum)
 }
 
 
-static char* lua_serialized_data = NULL;
+struct LuaSerialization {
+    const char *function_name;
+    const char *input;
+    char *output;
+    size_t length;
+};
 
-const char* lua_get_serialised_data(size_t *len)
+static int process_lua_serialization(lua_State *L)
 {
-    lua_getglobal(Lvl_script, "GetSerializedData");
-	if (lua_isfunction(Lvl_script, -1))
-	{
-        JUSTLOG("calling GetSerializedData");
-        int result = lua_pcall(Lvl_script, 0, 1, 0);
-        JUSTLOG("lua_pcall result: %d", result);
-        if (!CheckLua(Lvl_script, result, "GetSerializedData")) {
-            ERRORLOG("Failed to call GetSerializedData");
-            return NULL;
-        }
-
-        JUSTLOG("called GetSerializedData");
-        if (!lua_isstring(Lvl_script, -1)) {
-            ERRORLOG("Expected 'GetSerializedData' to return a string");
-            lua_pop(Lvl_script, 1);
-            return NULL;
-        }
-		const char *data = lua_tolstring(Lvl_script, -1, len);  // Get the result
-        if (data) {
-            lua_serialized_data = (char*)malloc(*len);
-            memcpy(lua_serialized_data, data, *len);
-            lua_pop(Lvl_script, 1);  // Pop the result
-            return lua_serialized_data;
-        }
-		return NULL;
-	}
-	else
-	{
-		ERRORLOG("failed to find GetSerializedData lua function");
-        lua_pop(Lvl_script, 1);  // Pop nil
-		return NULL;
-	}
+    struct LuaSerialization *operation = lua_touserdata(L, 1);
+    lua_getglobal(L, operation->function_name);
+    if (!lua_isfunction(L, -1)) {
+        return luaL_error(L, "%s is not a function", operation->function_name);
+    }
+    if (operation->input != NULL) {
+        lua_pushlstring(L, operation->input, operation->length);
+        lua_call(L, 1, 0);
+        return 0;
+    }
+    lua_call(L, 0, 1);
+    if (lua_type(L, -1) != LUA_TSTRING) {
+        return luaL_error(L, "%s must return a string", operation->function_name);
+    }
+    const char *data = lua_tolstring(L, -1, &operation->length);
+    size_t buffer_size = operation->length;
+    if (buffer_size == 0) {
+        buffer_size = 1;
+    }
+    operation->output = malloc(buffer_size);
+    if (operation->output == NULL) {
+        return luaL_error(L, "Failed to allocate Lua serialized data buffer");
+    }
+    memcpy(operation->output, data, operation->length);
+    return 0;
 }
 
+static TbBool call_lua_serialization(struct LuaSerialization *operation)
+{
+    if (Lvl_script == NULL) {
+        ERRORLOG("Lua state is not initialized");
+        return false;
+    }
+    return CheckLua(Lvl_script, lua_cpcall(Lvl_script, process_lua_serialization, operation), operation->function_name);
+}
+
+char *lua_get_serialised_data(size_t *len)
+{
+    *len = 0;
+    struct LuaSerialization operation = {"GetSerializedData", NULL, NULL, 0};
+    if (!call_lua_serialization(&operation)) {
+        free(operation.output);
+        return NULL;
+    }
+    *len = operation.length;
+    return operation.output;
+}
 
 TbBool lua_set_serialised_data(const char *data, size_t len)
 {
-    if (Lvl_script == NULL) {
-        ERRORLOG("Lvl_script not initialised");
+    if (data == NULL) {
+        ERRORLOG("Missing serialized Lua data");
         return false;
     }
-
-    lua_getglobal(Lvl_script, "SetSerializedData");
-    if (!lua_isfunction(Lvl_script, -1)) {
-        ERRORLOG("failed to find SetSerializedData lua function");
-        lua_pop(Lvl_script, 1);
-        return false;
-    }
-
-    lua_pushlstring(Lvl_script, data, len);
-    return CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "SetSerializedData");
-}
-
-void cleanup_serialized_data() {
-    if (lua_serialized_data != NULL) {
-        free(lua_serialized_data);
-        lua_serialized_data = NULL;
-    }
+    struct LuaSerialization operation = {"SetSerializedData", data, NULL, len};
+    return call_lua_serialization(&operation);
 }
 
 void generate_lua_types_file()

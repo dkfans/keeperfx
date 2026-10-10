@@ -28,6 +28,7 @@ local pairs = pairs
 local getmetatable = getmetatable
 local setmetatable = setmetatable
 local type = type
+local load = load
 local loadstring = loadstring or load
 local concat = table.concat
 local char = string.char
@@ -193,7 +194,7 @@ local function number_from_str(str, index)
         if m == 0 then
             n = sign * huge
         else
-            n = 0
+            n = 0 / 0
         end
     else
         n = sign * (1.0 + m / 2 ^ 52) * 2 ^ (e - 0x3FF)
@@ -201,6 +202,13 @@ local function number_from_str(str, index)
     return n, index + 9
 end
 
+local function read_size(str, index)
+    local size, nextindex = number_from_str(str, index)
+    if not (size >= 0 and size == floor(size) and size <= #str - nextindex + 1) then
+        error("Invalid serialized size")
+    end
+    return size, nextindex
+end
 
 local function newbinser()
 
@@ -353,7 +361,7 @@ local function newbinser()
             accum[#accum + 1] = "\208"
             accum[#accum + 1] = number_to_str(visited[x])
         else
-            if check_custom_type(x, visited, #accum) then return end
+            if check_custom_type(x, visited, accum) then return end
             error("Cannot serialize this cdata.")
         end
     end
@@ -362,7 +370,9 @@ local function newbinser()
 
     local function deserialize_value(str, index, visited)
         local t = byte(str, index)
-        if not t then return nil, index end
+        if not t then
+            error("Expected more bytes of input.")
+        end
         if t < 128 then
             return t - 27, index + 1
         elseif t < 192 then
@@ -377,14 +387,19 @@ local function newbinser()
             return true, index + 1
         elseif t == 205 then
             return false, index + 1
-        elseif t == 206 then
-            local length, dataindex = number_from_str(str, index + 1)
+        elseif t == 206 or t == 210 then
+            local length, dataindex = read_size(str, index + 1)
             local nextindex = dataindex + length
-            if not (length >= 0) then error("Bad string length") end
-            if #str < nextindex - 1 then error("Expected more bytes of string") end
-            local substr = sub(str, dataindex, nextindex - 1)
-            visited[#visited + 1] = substr
-            return substr, nextindex
+            local ret = sub(str, dataindex, nextindex - 1)
+            if t == 210 then
+                local err
+                ret, err = load(ret, nil, "b")
+                if not ret then
+                    error("Invalid serialized function: " .. tostring(err))
+                end
+            end
+            visited[#visited + 1] = ret
+            return ret, nextindex
         elseif t == 207 or t == 213 then
             local mt, count, nextindex
             local ret = {}
@@ -394,21 +409,15 @@ local function newbinser()
                 mt, nextindex = deserialize_value(str, nextindex, visited)
                 if type(mt) ~= "table" then error("Expected table metatable") end
             end
-            count, nextindex = number_from_str(str, nextindex)
+            count, nextindex = read_size(str, nextindex)
             for i = 1, count do
-                local oldindex = nextindex
                 ret[i], nextindex = deserialize_value(str, nextindex, visited)
-                if nextindex == oldindex then error("Expected more bytes of input.") end
             end
-            count, nextindex = number_from_str(str, nextindex)
+            count, nextindex = read_size(str, nextindex)
             for i = 1, count do
                 local k, v
-                local oldindex = nextindex
                 k, nextindex = deserialize_value(str, nextindex, visited)
-                if nextindex == oldindex then error("Expected more bytes of input.") end
-                oldindex = nextindex
                 v, nextindex = deserialize_value(str, nextindex, visited)
-                if nextindex == oldindex then error("Expected more bytes of input.") end
                 if k == nil then error("Can't have nil table keys") end
                 ret[k] = v
             end
@@ -416,29 +425,22 @@ local function newbinser()
             return ret, nextindex
         elseif t == 208 then
             local ref, nextindex = number_from_str(str, index + 1)
+            if ref ~= floor(ref) or ref < 1 or visited[ref] == nil then
+                error("Invalid serialized reference")
+            end
             return visited[ref], nextindex
         elseif t == 209 then
             local count
             local name, nextindex = deserialize_value(str, index + 1, visited)
-            count, nextindex = number_from_str(str, nextindex)
+            count, nextindex = read_size(str, nextindex)
             local args = {}
             for i = 1, count do
-                local oldindex = nextindex
                 args[i], nextindex = deserialize_value(str, nextindex, visited)
-                if nextindex == oldindex then error("Expected more bytes of input.") end
             end
             if not name or not deserializers[name] then
                 error(("Cannot deserialize class '%s'"):format(tostring(name)))
             end
             local ret = deserializers[name](unpack(args))
-            visited[#visited + 1] = ret
-            return ret, nextindex
-        elseif t == 210 then
-            local length, dataindex = number_from_str(str, index + 1)
-            local nextindex = dataindex + length
-            if not (length >= 0) then error("Bad string length") end
-            if #str < nextindex - 1 then error("Expected more bytes of string") end
-            local ret = loadstring(sub(str, dataindex, nextindex - 1))
             visited[#visited + 1] = ret
             return ret, nextindex
         elseif t == 211 then
@@ -500,17 +502,9 @@ local function newbinser()
         index = index or 1
         local visited = {}
         local len = 0
-        local val
-        while true do
-            local nextindex
-            val, nextindex = deserialize_value(str, index, visited)
-            if nextindex > index then
-                len = len + 1
-                vals[len] = val
-                index = nextindex
-            else
-                break
-            end
+        while index <= #str do
+            len = len + 1
+            vals[len], index = deserialize_value(str, index, visited)
         end
         return vals, len
     end
@@ -524,17 +518,9 @@ local function newbinser()
         index = index or 1
         local visited = {}
         local len = 0
-        local val
-        while len < n do
-            local nextindex
-            val, nextindex = deserialize_value(str, index, visited)
-            if nextindex > index then
-                len = len + 1
-                vals[len] = val
-                index = nextindex
-            else
-                break
-            end
+        while len < n and index <= #str do
+            len = len + 1
+            vals[len], index = deserialize_value(str, index, visited)
         end
         vals[len + 1] = index
         return unpack(vals, 1, n + 1)

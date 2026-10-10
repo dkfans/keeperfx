@@ -153,7 +153,7 @@ TbBool is_primitive_save_version(long filesize)
 TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 {
     struct FileChunkHeader hdr;
-    long chunks_done = 0;
+    int32_t chunks_done = 0;
     // Currently there is some game data outside of structs - make sure it is updated
     light_export_system_state(&game.lightst);
     { // Info chunk
@@ -183,16 +183,25 @@ TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 
     // Adding Lua serialized data chunk
     {
-        size_t lua_data_len;
-        const char* lua_data = lua_get_serialised_data(&lua_data_len);
+        size_t lua_data_len = 0;
+        char *lua_data = lua_get_serialised_data(&lua_data_len);
+        if (lua_data == NULL) {
+            return false;
+        }
+        if (lua_data_len > INT32_MAX) {
+            ERRORLOG("Lua serialized data too large");
+            free(lua_data);
+            return false;
+        }
 
         hdr.id = SGC_LuaData;
         hdr.ver = 0;
         hdr.len = lua_data_len;
-        if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
-        if (LbFileWrite(fhandle, lua_data, lua_data_len) == lua_data_len)
+        if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader)
+          && LbFileWrite(fhandle, lua_data, lua_data_len) == lua_data_len) {
             chunks_done |= SGF_LuaData;
-        cleanup_serialized_data();
+        }
+        free(lua_data);
     }
 
     if (chunks_done != SGF_SavedGame)
@@ -423,7 +432,7 @@ static short campaign_progress_percent(const struct GameCampaign *campgn, const 
 
 int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 {
-    long chunks_done = 0;
+    int32_t chunks_done = 0;
     while (!LbFileEof(fhandle))
     {
         struct FileChunkHeader hdr;
@@ -513,21 +522,29 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
             break;
         case SGC_LuaData:
             {
-                char* lua_data = (char*)malloc(hdr.len);
-                if (lua_data == NULL) {
-                    WARNLOG("Could not allocate memory for LuaData chunk");
+                if (!chunk_version_ok(fhandle, &hdr, 0)) {
                     break;
                 }
-                if (LbFileRead(fhandle, lua_data, hdr.len) == hdr.len) {
-                    //has to be loaded here as level num only filled while gamestruct loaded, and need it for setting serialised_data
-                    open_lua_script(get_loaded_level_number());
-
-                    lua_set_serialised_data(lua_data, hdr.len);
-                    chunks_done |= SGF_LuaData;
-                } else {
-                    WARNLOG("Could not read LuaData chunk");
-                    free(lua_data);
+                if (hdr.len == 0 || hdr.len > INT32_MAX) {
+                    WARNLOG("Invalid LuaData chunk size");
+                    return GLoad_Failed;
                 }
+                char *lua_data = malloc(hdr.len);
+                if (lua_data == NULL) {
+                    WARNLOG("Could not allocate memory for LuaData chunk");
+                    return GLoad_Failed;
+                }
+                TbBool loaded = false;
+                if (LbFileRead(fhandle, lua_data, hdr.len) == hdr.len) {
+                    // Lua needs the level number from the loaded game structure.
+                    loaded = open_lua_script(get_loaded_level_number()) && lua_set_serialised_data(lua_data, hdr.len);
+                }
+                free(lua_data);
+                if (!loaded) {
+                    WARNLOG("Could not restore LuaData chunk");
+                    return GLoad_Failed;
+                }
+                chunks_done |= SGF_LuaData;
             }
             break;
         default:

@@ -409,12 +409,11 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length)
 
 static char *build_resync_game_data(size_t *full_resync_len)
 {
-    const char * lua_data = "";
+    char *lua_data = NULL;
     size_t lua_data_len = 0;
     if (Lvl_script != NULL) {
         lua_data = lua_get_serialised_data(&lua_data_len);
         if (lua_data == NULL) {
-            cleanup_serialized_data();
             return NULL;
         }
     }
@@ -422,7 +421,7 @@ static char *build_resync_game_data(size_t *full_resync_len)
     size_t navigation_size = transfer_navigation_state(NULL, NavigationState_Store);
     if (lua_data_len > UINT32_MAX - lua_data_offset - navigation_size) {
         ERRORLOG("Full resync data too large");
-        cleanup_serialized_data();
+        free(lua_data);
         return NULL;
     }
 
@@ -430,16 +429,18 @@ static char *build_resync_game_data(size_t *full_resync_len)
     char * full_resync_data = (char *) malloc(*full_resync_len);
     if (full_resync_data == NULL) {
         ERRORLOG("Failed to allocate full resync buffer");
-        cleanup_serialized_data();
+        free(lua_data);
         return NULL;
     }
 
     uint32_t lua_data_len32 = (uint32_t)lua_data_len;
     memcpy(full_resync_data, &game, sizeof(game));
     memcpy(full_resync_data + sizeof(game), &lua_data_len32, sizeof(lua_data_len32));
-    memcpy(full_resync_data + lua_data_offset, lua_data, lua_data_len);
+    if (lua_data_len > 0) {
+        memcpy(full_resync_data + lua_data_offset, lua_data, lua_data_len);
+    }
     transfer_navigation_state(full_resync_data + lua_data_offset + lua_data_len, NavigationState_Store);
-    cleanup_serialized_data();
+    free(lua_data);
     return full_resync_data;
 }
 
