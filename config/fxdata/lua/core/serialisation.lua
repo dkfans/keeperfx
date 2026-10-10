@@ -74,26 +74,19 @@ local function restore_legacy_data(value, seen)
 end
 
 function GetSerializedData()
-    local ok, result = pcall(function()
-        return binser.serialize(Game, serialization_version)
-    end)
-    print("GetSerializedData ok: " .. tostring(ok))
-    if not ok then
-        error("binser failed: " .. result)
-    end
-    return result
+    assert(type(Game) == "table", "Game state must be a table")
+    return binser.serialize(Game, serialization_version)
 end
 
 function SetSerializedData(serialized_data)
-    local ok, result = pcall(function()
-        local values = binser.deserialize(serialized_data)
-        if values[2] == serialization_version then
-            return values[1]
-        end
-        return restore_legacy_data(values[1], {})
-    end)
-    if not ok then
-        error("binser load failed: " .. result)
+    local values, count = binser.deserialize(serialized_data)
+    local restored = values[1]
+    assert(type(restored) == "table", "Serialized game state must be a table")
+    if count == 1 then
+        restored = restore_legacy_data(restored, {})
+    elseif count ~= 2 or values[2] ~= serialization_version then
+        error("Unsupported serialized game state version")
     end
-    Game = result
+    assert(type(restored) == "table", "Restored game state must be a table")
+    Game = restored
 end
