@@ -76,13 +76,13 @@ TbBool packets_process_cheats(
     char str[255] = "";
     if (!user_cheats_allowed(user))
     {
-        set_player_state(player, PSt_CtrlDungeon, 0);
+        set_user_work_state(user, PSt_CtrlDungeon, 0);
         return true;
     }
-    switch (player->work_state)
+    switch (ustate->work_state)
     {
         case PSt_MkDigger:
-        player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, "%d", ustate->cheatselection.chosen_experience_level + 1);
@@ -103,7 +103,7 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_MkGoodCreatr:
-        player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         if (ustate->cheatselection.chosen_hero_kind == 0)
@@ -162,7 +162,7 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_MkGoldPot:
-        player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
@@ -198,13 +198,13 @@ TbBool packets_process_cheats(
         case PSt_OrderCreatr:
         thing = get_creature_near(x, y);
         if (!thing_is_creature(thing))
-            player->thing_under_hand = 0;
+            ustate->thing_under_hand = 0;
         else
-            player->thing_under_hand = thing->index;
+            ustate->thing_under_hand = thing->index;
         thing = thing_get(player->controlled_thing_idx);
         if (thing_is_creature(thing))
         {
-            player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
+            ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
             allowed = tag_cursor_blocks_order_creature(plyr_idx, stl_x, stl_y, thing);
         }
         else
@@ -213,11 +213,11 @@ TbBool packets_process_cheats(
         }
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          if (player->thing_under_hand > 0)
+          if (ustate->thing_under_hand > 0)
           {
-            if (player->controlled_thing_idx != player->thing_under_hand)
+            if (player->controlled_thing_idx != ustate->thing_under_hand)
             {
-                player->influenced_thing_idx = player->thing_under_hand;
+                player->influenced_thing_idx = ustate->thing_under_hand;
                 player->influenced_thing_creation = thing->creation_turn;
             }
           }
@@ -260,7 +260,7 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_MkBadCreatr:
-        player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         if (ustate->cheatselection.chosen_creature_kind == 0)
@@ -328,10 +328,10 @@ TbBool packets_process_cheats(
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
             if (thing_is_invalid(thing))
             {
-                player->thing_under_hand = 0;
+                ustate->thing_under_hand = 0;
                 break;
             }
-            player->thing_under_hand = thing->index;
+            ustate->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
                 KeepPwrLevel power_level = get_power_overcharge_level(player);
@@ -382,15 +382,15 @@ TbBool packets_process_cheats(
             thing = get_creature_near(x, y);
             if (!thing_is_creature(thing))
             {
-                player->thing_under_hand = 0;
+                ustate->thing_under_hand = 0;
             }
             else
             {
-                player->thing_under_hand = thing->index;
+                ustate->thing_under_hand = thing->index;
             }
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                if (player->thing_under_hand > 0)
+                if (ustate->thing_under_hand > 0)
                 {
                     kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
                 }
@@ -403,11 +403,11 @@ TbBool packets_process_cheats(
         thing = get_creature_near(x, y);
         if ((!thing_is_creature(thing)) || (thing->owner == ustate->cheatselection.chosen_player))
         {
-            player->thing_under_hand = 0;
+            ustate->thing_under_hand = 0;
         }
         else
         {
-            player->thing_under_hand = thing->index;
+            ustate->thing_under_hand = thing->index;
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
@@ -416,7 +416,7 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_StealSlab:
-        player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
+        ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
         allowed = tag_cursor_blocks_steal_slab(user, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, str);
@@ -493,17 +493,17 @@ TbBool packets_process_cheats(
             thing = get_creature_near(x, y);
             if (!thing_is_creature(thing))
             {
-                player->thing_under_hand = 0;
+                ustate->thing_under_hand = 0;
             }
             else
             {
-                player->thing_under_hand = thing->index;
+                ustate->thing_under_hand = thing->index;
             }
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                if (player->thing_under_hand > 0)
+                if (ustate->thing_under_hand > 0)
                 {
-                    switch (player->work_state)
+                    switch (ustate->work_state)
                     {
                         case PSt_LevelCreatureUp:
                         {
@@ -574,21 +574,21 @@ TbBool packets_process_cheats(
             }
             if (!CanQuery)
             {
-                player->thing_under_hand = 0;
+                ustate->thing_under_hand = 0;
             }
             else
             {
-                player->thing_under_hand = thing->index;
+                ustate->thing_under_hand = thing->index;
             }
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                if (player->thing_under_hand > 0)
+                if (ustate->thing_under_hand > 0)
                 {
                     if (thing->class_id == TCls_Creature)
                     {
-                        if (player->controlled_thing_idx != player->thing_under_hand)
+                        if (player->controlled_thing_idx != ustate->thing_under_hand)
                         {
-                            query_creature(player, player->thing_under_hand, true, false);
+                            query_creature(player, ustate->thing_under_hand, true, false);
                         }
                     }
                     query_thing(thing);
@@ -599,7 +599,7 @@ TbBool packets_process_cheats(
                     query_room(room);
                 }
             }
-            if ( player->work_state == PSt_CreatrInfoAll )
+            if ( ustate->work_state == PSt_CreatrInfoAll )
             {
                 thing = thing_get(player->controlled_thing_idx);
                 if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
@@ -628,21 +628,21 @@ TbBool packets_process_cheats(
             thing = get_creature_near(x, y);
             if (!thing_is_creature(thing))
             {
-                player->thing_under_hand = 0;
+                ustate->thing_under_hand = 0;
             }
             else
             {
-                player->thing_under_hand = thing->index;
+                ustate->thing_under_hand = thing->index;
             }
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                if (player->thing_under_hand > 0)
+                if (ustate->thing_under_hand > 0)
                 {
-                    if (player->work_state == PSt_MkHappy)
+                    if (ustate->work_state == PSt_MkHappy)
                     {
                         anger_set_creature_anger_all_types(thing, 0);
                     }
-                    else if (player->work_state == PSt_MkAngry)
+                    else if (ustate->work_state == PSt_MkAngry)
                     {
                         anger_set_creature_anger_all_types(thing, 10000);
                     }
@@ -652,7 +652,7 @@ TbBool packets_process_cheats(
             break;
         case PSt_PlaceTerrain:
         {
-            player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
+            ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
             tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
             struct SlabConfigStats* slab_cfgstats;
             clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
@@ -710,15 +710,15 @@ TbBool packets_process_cheats(
             thing = get_nearest_thing_at_position(stl_x, stl_y);
             if (thing_is_invalid(thing))
             {
-                player->thing_under_hand = 0;
+                ustate->thing_under_hand = 0;
             }
             else
             {
-                player->thing_under_hand = thing->index;
+                ustate->thing_under_hand = thing->index;
             }
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                if (player->thing_under_hand > 0)
+                if (ustate->thing_under_hand > 0)
                 {
                     room = get_room_thing_is_on(thing);
                     TbBool IsRoom = (!room_is_invalid(room));
@@ -946,12 +946,13 @@ TbBool process_user_global_cheats_packet_action(NetUserId user, struct Packet* p
 TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct UserState* ustate = get_player_user_state(player);
     MapCoord x, y;
     struct Thing* thing;
     MapSubtlCoord stl_x, stl_y;
     MapSlabCoord slb_x, slb_y;
     struct Coord3d pos;
-    if (!user_cheats_allowed(player->user_id))
+    if (!user_cheats_allowed(get_player_primary_user(player)))
         return false;
     switch (pckt->action)
     {
@@ -1112,7 +1113,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
         }
         case PckA_CheatConvertCreature:
         {
-            thing = thing_get(player->thing_under_hand);
+            thing = thing_get(ustate->thing_under_hand);
             if (thing_is_creature(thing))
             {
                 change_creature_owner(thing, pckt->actn_par1);

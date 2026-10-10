@@ -2731,10 +2731,11 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&current_player->render_roomspace);
+    struct UserState* ustate = get_local_user_state();
+    struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&ustate->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((current_player->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    if ((current_player->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
@@ -4912,6 +4913,7 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
     unsigned short flg_mem;
     unsigned char alpha_mem;
     const struct PlayerInfo *player = get_displayed_player();
+    const struct UserState *ustate = get_player_user_state(player);
     struct ObjectConfigStats* objst;
     struct Thing *thing = jspr->thing;
     unsigned short animation_sprite;
@@ -4984,7 +4986,7 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
     if ((thing->class_id == TCls_Creature)
         || (thing->class_id == TCls_Object)
         || (thing->class_id == TCls_DeadCreature)
-        || (player->work_state == PSt_QueryAll))
+        || (ustate->work_state == PSt_QueryAll))
     {
         if ((local_state.local_thing_under_hand == thing->index) && ((get_gameturn() % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
             RendererAddDrawFlags(Lb_SPRITE_REMAP);
@@ -5005,7 +5007,7 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
     }
     {
         int wants_outline = (g_renderer_settings.creature_outline_class_mask >> thing->class_id) & 1u;
-        if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
+        if ((ustate->view_type == PVT_CreatureContrl) || (ustate->view_type == PVT_CreaturePasngr))
             wants_outline = 0;
         RendererSetCurrentSpriteContext((int)thing->owner, wants_outline);
     }
@@ -8012,6 +8014,7 @@ static void draw_mapwho_ariadne_path(struct Thing *thing)
 
 void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 {
+    struct UserState* ustate = get_local_user_state();
     unsigned short flg_mem;
     unsigned char alpha_mem;
     const struct PlayerInfo *player = get_displayed_player();
@@ -8103,7 +8106,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     }
     {
         int wants_outline = (g_renderer_settings.creature_outline_class_mask >> thing->class_id) & 1u;
-        if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
+        if ((ustate->view_type == PVT_CreatureContrl) || (ustate->view_type == PVT_CreaturePasngr))
             wants_outline = 0;
         RendererSetCurrentSpriteContext((int)thing->owner, wants_outline);
     }
@@ -8725,10 +8728,11 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&current_player->render_roomspace);
+    struct UserState* ustate = get_local_user_state();
+    struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&ustate->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((current_player->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    if ((current_player->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }

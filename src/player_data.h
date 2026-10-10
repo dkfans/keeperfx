@@ -164,8 +164,6 @@ struct CheatSelection
 struct PlayerInfo {
     unsigned char allocflags;
     unsigned char display_flags;
-    NetUserId user_id; // -1 if no user
-    int32_t hand_animationId;
     unsigned int hand_busy_until_turn;
     char player_name[20];
     unsigned char victory_state;
@@ -175,18 +173,14 @@ struct PlayerInfo {
     TbBool unused;
     short controlled_thing_idx;
     GameTurn controlled_thing_creatrn;
-    short thing_under_hand;
     TbBool possession_lock;
     MapCoord zoom_to_pos_x;
     MapCoord zoom_to_pos_y;
     struct Wander wandr_within;
     struct Wander wandr_outside;
-    short hand_thing_idx;
     short cta_flag_idx;
     short influenced_thing_idx;
     GameTurn influenced_thing_creation;
-    PlayerState work_state;
-    PlayerState continue_work_state;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
     char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
@@ -199,20 +193,13 @@ struct PlayerInfo {
     int32_t game_version;
     GameTurn display_objective_turn;
     unsigned char hand_idx;
-    struct RoomSpace render_roomspace;
     struct RoomSpace roomspace;
-    unsigned char roomspace_mode;
-    int roomspace_detection_looseness;
-    int roomspace_width;
-    int roomspace_height;
-    unsigned char roomspace_highlight_mode;
-    TbBool roomspace_drag_paint_mode;
-    unsigned char roomspace_l_shape;
-    TbBool roomspace_horizontal_first;
     unsigned char player_type; //enum PlayerTypes
     ThingModel special_digger;
     unsigned short generate_speed;
 };
+
+#define PLAYER_NONE (-1)
 
 /* Game state that exists per human user. Computer-controlled
  * players do not have users.
@@ -221,6 +208,7 @@ struct PlayerInfo {
  * user per client including the host.
  */
 struct UserState {
+    PlayerNumber player_id;
     unsigned char init_flags; // Uses UserInitFlags
     unsigned char additional_flags; // Uses UserAdditionalFlags
     unsigned char input_crtr_control;
@@ -260,6 +248,20 @@ struct UserState {
     unsigned char view_type;
     struct DungeonCamera dungeon_camera;
     UserPreferences prefs;
+    PlayerState work_state;
+    PlayerState continue_work_state;
+    short thing_under_hand;
+    short hand_thing_idx;
+    int32_t hand_animationId;
+    struct RoomSpace render_roomspace;
+    unsigned char roomspace_mode;
+    int roomspace_detection_looseness;
+    int roomspace_width;
+    int roomspace_height;
+    unsigned char roomspace_highlight_mode;
+    TbBool roomspace_drag_paint_mode;
+    unsigned char roomspace_l_shape;
+    TbBool roomspace_horizontal_first;
 };
 
 /******************************************************************************/
@@ -373,9 +375,9 @@ TbBool player_is_roaming(PlayerNumber plyr_num);
 TbBool player_is_keeper(PlayerNumber plyr_num);
 TbBool player_is_neutral(PlayerNumber plyr_num);
 
-void set_player_state(struct PlayerInfo *player, short a1, int32_t a2);
-void set_player_mode(struct PlayerInfo *player, unsigned short nview);
-void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
+void set_user_work_state(NetUserId user, short nwrk_state, int32_t chosen_kind);
+void set_user_view_type(NetUserId user, unsigned short nview);
+void reset_user_view_type(NetUserId user, unsigned short nview);
 
 void clear_players(void);
 
@@ -384,6 +386,8 @@ unsigned char get_player_active_camera_index(const struct PlayerInfo *player);
 int32_t get_player_dungeon_yaw(const struct PlayerInfo *player);
 enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate);
 void rotate_mode_to_dungeon_view(unsigned char mode, TbBool *front_view, TbBool *wibble);
+NetUserId get_player_primary_user(const struct PlayerInfo *player);
+struct PlayerInfo *get_user_player(NetUserId user);
 
 unsigned char get_player_color_idx(PlayerNumber plyr_idx);
 /******************************************************************************/

@@ -46,6 +46,7 @@ extern "C" {
 #define MAX_NET_PEERS (MAX_NET_USERS - 1)
 #define SERVER_ID 0
 #define SOLO_HUMAN_ID 0 /* human player's user id in non-multiplayer, when relevant */
+#define OBSERVER_USER MAX_NET_CONNECTIONS /* dummy user for observers */
 #define NET_MSG_BUFFER_SIZE 5000
 #define INVALID_USER_ID 23456
 

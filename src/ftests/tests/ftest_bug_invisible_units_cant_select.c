@@ -169,6 +169,7 @@ FTestActionResult ftest_bug_invisible_units_cant_select_action002__zoom_to_unit_
 
 FTestActionResult ftest_bug_invisible_units_cant_select_action003__pickup_unit(struct FTestActionArgs* const args)
 {
+    struct UserState* ustate = get_local_user_state();
     struct ftest_bug_invisible_units_cant_select__variables* const vars = args->data;
 
     //center cursor/camera on unit pos (using slight offset for better results)
@@ -184,7 +185,7 @@ FTestActionResult ftest_bug_invisible_units_cant_select_action003__pickup_unit(s
 
     // check if creature is under cursor
     struct PlayerInfo* player = get_my_player();
-    if(player->thing_under_hand == vars->unit->index)
+    if(ustate->thing_under_hand == vars->unit->index)
     {
         // FTEST_FAIL_TEST("Did not find %s index %d under mouse cursor", thing_model_name(vars->unit), (int)vars->unit->index);
         // return FTRs_Go_To_Next_Action;

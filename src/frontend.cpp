@@ -854,12 +854,13 @@ long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool alr
 
 TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkind)
 {
+    struct UserState* ustate = get_player_user_state(player);
     if (power_is_instinctive(game.chosen_spell_type) && (game.chosen_spell_type != 0))
         return false;
     const struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
     TbBool already_in;
-    already_in = (powerst->work_state != PSt_None) && (player->work_state == powerst->work_state);
+    already_in = (powerst->work_state != PSt_None) && (ustate->work_state == powerst->work_state);
     int pcktype;
     pcktype = player_state_to_packet(powerst->work_state, pwkind, already_in);
     if (pcktype != PckA_None)

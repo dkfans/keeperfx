@@ -112,12 +112,13 @@ void set_pending_timestamp_packet_action(struct Packet *pckt)
     timestamp_packet_pending = false;
 }
 
+// my keeper's packet is the local user's, not whichever user is listed first
 static struct Packet *get_player_packet(const struct PlayerInfo *player)
 {
     if (player == &local_observer_player) {
         return get_local_packet();
     }
-    return get_packet(player->user_id);
+    return get_packet(is_my_player(player) ? get_local_user() : get_player_primary_user(player));
 }
 
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
@@ -173,6 +174,9 @@ void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned c
  */
 struct Packet *get_packet(NetUserId user)
 {
+    if (user == OBSERVER_USER) {
+        return &local_observer_packet;
+    }
     if (network_is_active() && user == netstate.my_id && user >= MAX_NET_USERS && user < MAX_NET_CONNECTIONS) {
         return &local_observer_packet;
     }
@@ -225,7 +229,7 @@ void set_packet_pause_toggle()
     struct PlayerInfo* player = get_my_player();
     if (player_invalid(player))
         return;
-    if (player->user_id >= PACKETS_COUNT)
+    if (get_local_user() >= PACKETS_COUNT)
         return;
     if (network_user_is_spectator(netstate.my_id)) {
         return;
