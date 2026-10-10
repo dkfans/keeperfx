@@ -1299,11 +1299,11 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 void set_call_to_arms_as_birthing(struct Thing *objtng)
 {
     int frame;
-    switch (objtng->call_to_arms_flag.state)
-    {
+    switch (objtng->call_to_arms_flag.state) {
     case CTAOL_Birthing:
         frame = objtng->current_frame;
         break;
+    case CTAOL_Unset:
     case CTAOL_Alive:
         frame = 0;
         break;

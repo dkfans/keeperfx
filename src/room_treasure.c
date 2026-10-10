@@ -151,54 +151,34 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
 
 void count_gold_hoardes_in_room(struct Room *room)
 {
-    GoldAmount all_gold_amount = 0;
-    int all_wealth_size = 0;
-    long wealth_size_holds = game.conf.rules[room->owner].gameplay.gold_per_hoard / get_wealth_size_types_count();
+    int32_t wealth_size_holds = game.conf.rules[room->owner].gameplay.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
-    // First, set the values to something big; this will prevent logging warnings on add/remove_gold_from_hoarde()
-    room->used_capacity = room->total_capacity;
-    room->capacity_used_for_storage = room->used_capacity * wealth_size_holds;
-    unsigned long k = 0;
-    long i = room->slabs_list;
-    while (i > 0)
-    {
+    room->used_capacity = 0;
+    room->capacity_used_for_storage = 0;
+    uint32_t k = 0;
+    int32_t i = room->slabs_list;
+    while (i > 0) {
         MapSlabCoord slb_x = slb_num_decode_x(i);
         MapSlabCoord slb_y = slb_num_decode_y(i);
         struct Thing* gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        GoldAmount gold_amount;
-        if (!thing_is_invalid(gldtng) && (gldtng->valuable.gold_stored > max_hoard_size_in_room))
-        {
-            struct Coord3d pos;
-            pos.x.val = gldtng->mappos.x.val;
-            pos.y.val = gldtng->mappos.y.val;
-            pos.z.val = gldtng->mappos.z.val;
-            long drop_amount = remove_gold_from_hoarde(gldtng, room, gldtng->valuable.gold_stored - max_hoard_size_in_room);
-            drop_gold_pile(drop_amount, &pos);
-            gold_amount = gldtng->valuable.gold_stored;
-        } else
-        {
-            gldtng = treasure_room_eats_gold_piles(room, slb_x, slb_y, gldtng);
-            if (!thing_is_invalid(gldtng))
-            {
-                gold_amount = gldtng->valuable.gold_stored;
-            } else {
-                gold_amount = 0;
-            }
+        if (!thing_is_invalid(gldtng)) {
+            room->used_capacity += get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
+            room->capacity_used_for_storage += gldtng->valuable.gold_stored;
         }
-        if (gold_amount > 0) {
-            all_gold_amount += gold_amount;
-            all_wealth_size += get_wealth_size_of_gold_amount(gold_amount);
+        if (!thing_is_invalid(gldtng) && (gldtng->valuable.gold_stored > max_hoard_size_in_room)) {
+            struct Coord3d pos = gldtng->mappos;
+            GoldAmount drop_amount = remove_gold_from_hoarde(gldtng, room, gldtng->valuable.gold_stored - max_hoard_size_in_room);
+            drop_gold_pile(drop_amount, &pos);
+        } else {
+            treasure_room_eats_gold_piles(room, slb_x, slb_y, gldtng);
         }
 
         i = get_next_slab_number_in_room(i);
         k++;
-        if (k > game.map_tiles_x * game.map_tiles_y)
-        {
+        if (k > game.map_tiles_x * game.map_tiles_y) {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
         }
     }
-    room->capacity_used_for_storage = all_gold_amount;
-    room->used_capacity = all_wealth_size;
 }
 /******************************************************************************/
