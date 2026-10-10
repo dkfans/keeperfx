@@ -768,7 +768,7 @@ static TbBool process_observer_global_packet_action(void)
         if (pckt->action == PckA_ForceApplicationClose) {
             exit_keeper = 1;
         }
-        process_player_leave_game_packet(get_my_player());
+        process_user_leave_game_packet(get_local_user());
         return true;
     default:
         return process_local_packet_action(get_my_player(), get_local_user_state(), pckt);

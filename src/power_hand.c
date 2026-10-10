@@ -339,7 +339,7 @@ void set_power_hand_graphic(NetUserId user, long HandAnimationID)
         // (computer keepers have no hand animation)
         return;
     }
-    struct PlayerInfo *player = get_player(get_net_user_player_number(user));
+    struct PlayerInfo *player = get_user_player(user);
     if (player->hand_busy_until_turn >= get_gameturn())
     {
         if ((HandAnimationID == HndA_Slap) || (HandAnimationID == HndA_SideSlap))
@@ -1327,6 +1327,9 @@ struct Thing *create_power_hand(NetUserId user)
         return INVALID_THING;
     }
     PlayerNumber owner = get_net_user_player_number(user);
+    if (owner < 0) {
+        return INVALID_THING;
+    }
     struct PlayerInfo *player;
     struct Thing *thing;
     struct Thing *grabtng;

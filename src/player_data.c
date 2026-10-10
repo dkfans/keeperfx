@@ -181,6 +181,9 @@ TbBool is_player_displayed(PlayerNumber plyr_num)
 // returns user's UserState, or INVALID_USER_STATE.
 struct UserState *get_user_state(NetUserId user)
 {
+    if (user == OBSERVER_USER) {
+        return &local_observer_user_state;
+    }
     if (network_is_active() && user == netstate.my_id && user >= MAX_NET_USERS && user < MAX_NET_CONNECTIONS) {
         return &local_observer_user_state;
     }
@@ -189,10 +192,18 @@ struct UserState *get_user_state(NetUserId user)
     return &game.user_states[user];
 }
 
+struct PlayerInfo *get_user_player(NetUserId user)
+{
+    if (user == OBSERVER_USER) {
+        return &local_observer_player;
+    }
+    return get_player(get_net_user_player_number(user));
+}
+
 NetUserId get_player_primary_user(const struct PlayerInfo *player)
 {
     if (player == &local_observer_player) {
-        return get_local_user();
+        return OBSERVER_USER;
     }
     if ((player == NULL) || player_invalid(player))
         return -1;
@@ -206,9 +217,6 @@ NetUserId get_player_primary_user(const struct PlayerInfo *player)
 
 struct UserState *get_player_user_state(const struct PlayerInfo *player)
 {
-    if (player == &local_observer_player) {
-        return &local_observer_user_state;
-    }
     return get_user_state(get_player_primary_user(player));
 }
 
@@ -460,7 +468,7 @@ void set_user_work_state(NetUserId user, short nwrk_state, int32_t chosen_kind)
   struct UserState* ustate = get_user_state(user);
   if (user_state_invalid(ustate))
     return;
-  struct PlayerInfo* player = get_player(get_net_user_player_number(user));
+  struct PlayerInfo* player = get_user_player(user);
   SYNCDBG(6,"User %d (player %d) state %s to %s",(int)user,(int)player->id_number,player_state_code_name(ustate->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter
   if (ustate->work_state == nwrk_state)
@@ -594,7 +602,7 @@ void set_user_view_type(NetUserId user, unsigned short nview)
   struct UserState* ustate = get_user_state(user);
   if (user_state_invalid(ustate))
     return;
-  struct PlayerInfo* player = get_player(get_net_user_player_number(user));
+  struct PlayerInfo* player = get_user_player(user);
   const TbBool is_local = (user == get_local_user());
   if (is_local && local_state.view_type == nview)
     local_state.view_type = PVT_None;
@@ -667,7 +675,7 @@ void reset_user_view_type(NetUserId user, unsigned short nview)
   struct UserState* ustate = get_user_state(user);
   if (user_state_invalid(ustate))
     return;
-  struct PlayerInfo* player = get_player(get_net_user_player_number(user));
+  struct PlayerInfo* player = get_user_player(user);
   const TbBool is_local = (user == get_local_user());
   const TbBool leaving_map = ustate->view_type == PVT_MapScreen || ustate->view_type == PVT_MapFadeOut;
   ustate->view_type = nview;

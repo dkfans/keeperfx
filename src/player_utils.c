@@ -914,6 +914,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         ERRORLOG("How do I set up this player?");
         break;
     }
+    init_player_cameras(player);
     player->mp_message_text[0] = '\0';
     // By default, player is his own ally
     player->allied_players = to_flag(player->id_number);
@@ -932,7 +933,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
 int32_t user_get_visibility_bounds(NetUserId user, MapCoord *x, MapCoord *y)
 {
     const int32_t default_radius = 24 * COORD_PER_STL;
-    struct PlayerInfo *player = get_player(get_net_user_player_number(user));
+    struct PlayerInfo *player = get_user_player(user);
     const struct UserState *ustate = get_user_state(user);
     if (!player_exists(player) || user_state_invalid(ustate))
         return -1;

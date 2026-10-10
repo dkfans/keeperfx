@@ -174,6 +174,9 @@ void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned c
  */
 struct Packet *get_packet(NetUserId user)
 {
+    if (user == OBSERVER_USER) {
+        return &local_observer_packet;
+    }
     if (network_is_active() && user == netstate.my_id && user >= MAX_NET_USERS && user < MAX_NET_CONNECTIONS) {
         return &local_observer_packet;
     }

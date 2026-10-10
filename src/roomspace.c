@@ -888,7 +888,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, NetUserId use
 
 TbBool update_dungeon_build_roomspace_preview(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct PlayerInfo *player = get_player(get_net_user_player_number(user));
+    struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
     ustate->full_slab_cursor = 1;
     if (is_my_player(player)) {
@@ -1166,7 +1166,7 @@ void keeper_highlight_roomspace(NetUserId user, struct RoomSpace *roomspace)
 
 void keeper_sell_roomspace(NetUserId user, struct RoomSpace *roomspace)
 {
-    struct PlayerInfo *player = get_player(get_net_user_player_number(user));
+    struct PlayerInfo *player = get_user_player(user);
     if (player->roomspace.is_active)
     {
         ERRORLOG("Selling roomspace while it is still in progress plyr:%d", roomspace->plyr_idx);
@@ -1197,7 +1197,7 @@ void keeper_sell_roomspace(NetUserId user, struct RoomSpace *roomspace)
 
 void keeper_build_roomspace(NetUserId user, struct RoomSpace *roomspace)
 {
-    struct PlayerInfo *player = get_player(get_net_user_player_number(user));
+    struct PlayerInfo *player = get_user_player(user);
     if (player->roomspace.is_active)
     {
         ERRORLOG("Building roomspace while it is still in progress plyr:%d", roomspace->plyr_idx);
