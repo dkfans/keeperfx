@@ -112,12 +112,13 @@ void set_pending_timestamp_packet_action(struct Packet *pckt)
     timestamp_packet_pending = false;
 }
 
+// my keeper's packet is the local user's, not whichever user is listed first
 static struct Packet *get_player_packet(const struct PlayerInfo *player)
 {
     if (player == &local_observer_player) {
         return get_local_packet();
     }
-    return get_packet(get_player_primary_user(player));
+    return get_packet(is_my_player(player) ? get_local_user() : get_player_primary_user(player));
 }
 
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,

@@ -151,7 +151,6 @@ static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace 
     }
     struct Packet *direct_packet = get_local_packet();
     struct UserState *ustate = get_user_state(get_local_user());
-    struct PlayerInfo saved_player = *player;
     struct UserState saved_ustate = *ustate;
     struct Packet saved_packet = *direct_packet;
     *direct_packet = *pckt;
@@ -164,7 +163,6 @@ static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace 
         update_dungeon_sell_roomspace_preview(get_local_user(), stl_x, stl_y);
     }
     *roomspace = ustate->render_roomspace;
-    *player = saved_player;
     *ustate = saved_ustate;
     *direct_packet = saved_packet;
     return true;

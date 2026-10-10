@@ -394,19 +394,19 @@ void process_pause_packet(long curr_pause, long new_pause)
 
 int32_t camera_move_rate(const struct Camera* cam, const struct PlayerInfo* player, TbBool speedup)
 {
-    const struct UserState* ustate = get_player_user_state(player);
     int32_t inter_val;
+    const TbBool drag_paint = get_player_user_state(player)->roomspace_drag_paint_mode == 1;
     int scroll_speed = cam->zoom;
     if (scroll_speed <= 0)
         scroll_speed = 1;
     if (cam->view_mode == PVM_FrontView)
     {
-        if ((get_player_user_state(player)->roomspace_drag_paint_mode == 1) && (scroll_speed < 16384))
+        if (drag_paint && scroll_speed < 16384)
             scroll_speed = 16384;
         inter_val = 12800000 / scroll_speed;
     } else
     {
-        if ((get_player_user_state(player)->roomspace_drag_paint_mode == 1) && (scroll_speed < 4100))
+        if (drag_paint && scroll_speed < 4100)
             scroll_speed = 4100;
         inter_val = 2560000 / scroll_speed;
     }

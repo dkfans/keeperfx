@@ -188,7 +188,6 @@ void set_player_as_won_level(struct PlayerInfo *player)
 
 void set_player_as_lost_level(struct PlayerInfo *player)
 {
-    struct UserState* ustate = get_player_user_state(player);
     if (player->victory_state != VicS_Undecided)
     {
         // Suppress redundant warnings
@@ -858,19 +857,25 @@ void init_local_player_state(void)
 
 void init_player(struct PlayerInfo *player, short no_explore)
 {
-    struct UserState* ustate = get_player_user_state(player);
     SYNCDBG(5,"Starting");
     if (is_my_player(player)) {
         init_local_player_state();
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
         local_state.main_palette = engine_palette;
     }
-    ustate->continue_work_state = PSt_CtrlDungeon;
-    ustate->work_state = PSt_CtrlDungeon;
-    if (!user_state_invalid(ustate))
+    // computer keepers have no users, so nothing to set up for them here
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
+        struct UserState *ustate = get_user_state(user);
+        if (ustate->player_id != player->id_number)
+            continue;
+        ustate->continue_work_state = PSt_CtrlDungeon;
+        ustate->work_state = PSt_CtrlDungeon;
         ustate->roomspace_highlight_mode = ustate->prefs[UPref_StartingHighlightMode];
         ustate->roomspace_mode = ustate->prefs[UPref_StartingHighlightMode];
+        ustate->roomspace_width = 1;
+        ustate->roomspace_height = 1;
+        ustate->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
     }
     if (is_my_player(player))
     {
@@ -884,9 +889,6 @@ void init_player(struct PlayerInfo *player, short no_explore)
         turn_on_menu(GMnu_MAIN);
         turn_on_menu(GMnu_ROOM);
     }
-    ustate->roomspace_width = 1;
-    ustate->roomspace_height = 1;
-    ustate->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
     switch (game.game_kind)
     {
     case GKind_LocalGame:
@@ -1218,7 +1220,6 @@ TbBool get_starting_highlight_mode(void)
 
 void init_players_local_game(void)
 {
-    struct UserState* ustate = get_local_user_state();
     SYNCDBG(4,"Starting");
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;

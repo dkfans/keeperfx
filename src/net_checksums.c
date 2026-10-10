@@ -120,8 +120,6 @@ static TbBigChecksum compute_player_checksum(struct PlayerInfo *player) {
     return checksum;
 }
 
-// The camera belongs to the user, not the keeper, so it is hashed per user.
-// Once a player's fate is decided their camera stops following synced input.
 static TbBigChecksum compute_user_checksum(NetUserId user) {
     struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate) || (ustate->player_id == PLAYER_NONE)) {

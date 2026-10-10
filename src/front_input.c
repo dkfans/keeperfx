@@ -3019,7 +3019,6 @@ static TbBool active_menu_functions_while_paused(void)
  */
 static short get_inputs(void)
 {
-    struct UserState* ustate = get_local_user_state();
     move_camera_this_turn = update_local_camera_time();
 
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)

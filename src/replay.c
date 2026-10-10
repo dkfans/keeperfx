@@ -1516,10 +1516,11 @@ void verify_replay_checksum(void)
 
 void disable_packet_mode(void)
 {
+    const NetUserId local_user = get_local_user();
     close_packet_file();
     replay.load_enable = false;
     replay.save_enable = false;
-    remap_user_to_solo(get_my_player());
+    remap_user_to_solo(get_my_player(), local_user);
     apply_local_user_preferences(SOLO_HUMAN_ID, UPF_ApplyOnTakeover);
     local_state.view_type = PVT_None;
     return_to_player_camera();

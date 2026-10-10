@@ -443,7 +443,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
     if (!thing_exists(thing) || (thing->class_id == TCls_DeadCreature) || creature_is_dying(thing))
     {
         if (is_my_player(player))
-            PaletteSetUserPalette(get_player_primary_user(player), engine_palette);
+            PaletteSetPlayerPalette(player,engine_palette);
         player->influenced_thing_idx = 0;
         player->influenced_thing_creation = 0;
         ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
@@ -469,7 +469,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
     if (!thing_exists(thing))
     {
         if (is_my_player(player)) {
-            PaletteSetUserPalette(get_player_primary_user(player), engine_palette);
+            PaletteSetPlayerPalette(player,engine_palette);
         }
         ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
         ustate->init_flags &= ~UsrIF_MouseInputDisabled;
@@ -485,7 +485,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
         if (my_player) {
             if (creature_under_spell_effect(thing, CSAfF_Freeze))
             {
-                PaletteSetUserPalette(get_player_primary_user(player), blue_palette);
+                PaletteSetPlayerPalette(player,blue_palette);
             }
         }
         creature_choose_first_available_instance(thing);
@@ -530,7 +530,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   struct Thing* thing = thing_get(player->influenced_thing_idx);
   if (is_my_player(player))
   {
-      PaletteSetUserPalette(get_player_primary_user(player), engine_palette);
+      PaletteSetPlayerPalette(player,engine_palette);
       local_state.palette_fade_step_possession = 11;
       turn_off_all_window_menus();
       turn_off_query_menus();
@@ -566,7 +566,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   struct Thing* thing = thing_get(player->influenced_thing_idx);
   if (is_my_player(player))
   {
-    PaletteSetUserPalette(get_player_primary_user(player), engine_palette);
+    PaletteSetPlayerPalette(player,engine_palette);
     local_state.palette_fade_step_possession = 11;
     turn_off_all_window_menus();
     turn_off_query_menus();
@@ -587,7 +587,7 @@ long pinstfe_leave_creature(struct PlayerInfo *player, int32_t *n)
 {
     struct UserState* ustate = get_player_user_state(player);
   if (is_my_player(player)) {
-    PaletteSetUserPalette(get_player_primary_user(player), engine_palette);
+    PaletteSetPlayerPalette(player,engine_palette);
   }
   ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
   ustate->init_flags &= ~UsrIF_MouseInputDisabled;
@@ -724,7 +724,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
   ustate->init_flags &= ~UsrIF_MouseInputDisabled;
   game.view_mode_flags &= ~GNFldD_CreaturePasngr;
   if (is_my_player(player)) {
-    PaletteSetUserPalette(get_player_primary_user(player), engine_palette);
+    PaletteSetPlayerPalette(player,engine_palette);
   }
   return 0;
 }
@@ -741,9 +741,9 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, int32_t *n)
   if (is_my_player(player))
   {
     if ((ustate->additional_flags & UsrAF_FreezePaletteIsActive) != 0)
-      PaletteSetUserPalette(get_player_primary_user(player), blue_palette);
+      PaletteSetPlayerPalette(player,blue_palette);
     else
-      PaletteSetUserPalette(get_player_primary_user(player), engine_palette);
+      PaletteSetPlayerPalette(player,engine_palette);
   }
   ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
   turn_user_cursor_light(get_player_primary_user(player), false);
@@ -798,7 +798,6 @@ long pinstfm_fade_from_map(struct PlayerInfo *player, int32_t *n)
 
 long pinstfe_fade_from_map(struct PlayerInfo *player, int32_t *n)
 {
-    struct UserState* ustate = get_player_user_state(player);
     struct PlayerInfo* myplyr = get_player(my_player_number);
     update_engine_view(player, true);
     if (player->id_number == myplyr->id_number) {
@@ -810,7 +809,6 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, int32_t *n)
 
 void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
 {
-    struct UserState* ustate = get_player_user_state(player);
     // Make sure we are in the normal Dungeon Top view
     if(get_player_view_type(player) != PVT_DungeonTop)
         return;

@@ -68,8 +68,8 @@ enum DigTagMode {
     DigTagMode_Untag = 2,
 };
 
-// RoomSpace describes a space or "roomspace" - i.e. a collection of slabs that are a valid
-// location from the currently selected room type (when placing rooms).
+// RoomSpace describes a collection of slabs that are a valid
+// location for the currently selected room type (when placing rooms).
 // The 2D array of booleans, slab_grid[][] describes each of the slabs within
 // the roomspace's extents. A value of 1 indicates a slab that is part of the roomspace,
 // a value of 0 indicates a slab that is not part of the roomspace.

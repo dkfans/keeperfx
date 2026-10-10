@@ -258,7 +258,6 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
             continue;
         }
         struct PlayerInfo *player = get_player(k);
-        struct UserState* ustate = get_user_state(i);
         player->id_number = k;
         player->allocflags |= PlaF_Allocated;
         init_user_state(i, k);
@@ -578,19 +577,32 @@ static void replace_network_player_with_ai(struct PlayerInfo *player)
 
 // used when ending a netplay game or recording.
 // local single-player must have the local user in slot 0.
-void remap_user_to_solo(struct PlayerInfo *myplyr)
+static void forget_user(NetUserId user)
 {
-    NetUserId old_user = get_player_primary_user(myplyr);
+    struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate)) {
+        return;
+    }
+    delete_power_hand(user);
+    if (ustate->cursor_light_idx != 0) {
+        light_delete_light(ustate->cursor_light_idx);
+    }
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        struct PlayerInfo *player = get_player(plyr_idx);
+        if (player->roomspace.is_active && player->roomspace.user == user) {
+            player->roomspace.is_active = false;
+        }
+    }
+    memset(ustate, 0, sizeof(*ustate));
+    ustate->player_id = PLAYER_NONE;
+}
+
+void remap_user_to_solo(struct PlayerInfo *myplyr, NetUserId old_user)
+{
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (user == old_user) {
-            continue;
+        if (user != old_user) {
+            forget_user(user);
         }
-        struct UserState *ustate = get_user_state(user);
-        if (ustate->cursor_light_idx != 0) {
-            light_delete_light(ustate->cursor_light_idx);
-        }
-        memset(ustate, 0, sizeof(*ustate));
-        ustate->player_id = PLAYER_NONE;
     }
     struct UserState *old_state = get_user_state(old_user);
     if ((old_user != SOLO_HUMAN_ID) && !user_state_invalid(old_state)) {
@@ -606,10 +618,11 @@ void remap_user_to_solo(struct PlayerInfo *myplyr)
 
 static void stop_network_game_state(void)
 {
+    const NetUserId local_user = get_local_user();
     network_spectator_clear_roles();
     memset(net_user_info, 0, sizeof(net_user_info));
     clear_flag(local_system_flags, GSF_NetworkActive);
-    remap_user_to_solo(get_my_player());
+    remap_user_to_solo(get_my_player(), local_user);
     clear_flag(local_system_flags, GSF_NetGameNoSync);
     clear_flag(local_system_flags, GSF_NetSeedNoSync);
     fe_network_active = 0;
@@ -638,7 +651,7 @@ static void stop_network_game_and_continue_locally(void)
     } else {
         const PlayerNumber plyr_idx = get_net_user_player_number(replay.head.recording_user);
         survivor = (plyr_idx >= 0) ? get_player(plyr_idx) : get_my_player();
-        remap_user_to_solo(survivor);
+        remap_user_to_solo(survivor, get_local_user());
         game.game_kind = GKind_LocalGame;
         setup_count_players();
     }
@@ -727,13 +740,9 @@ static void remove_user_from_game(NetUserId user, TbBool announce)
     }
     struct PlayerInfo *player = get_player(ustate->player_id);
     JUSTLOG("u:%d user left the game (player %d)", (int)user, (int)ustate->player_id);
-    if (ustate->cursor_light_idx != 0) {
-        light_delete_light(ustate->cursor_light_idx);
-    }
-    memset(ustate, 0, sizeof(*ustate));
-    ustate->player_id = PLAYER_NONE;
+    forget_user(user);
     // another user may still be driving this keeper
-    if (!player_exists(player) || (get_player_primary_user(player) >= 0)) {
+    if (!player_exists(player) || get_player_primary_user(player) >= 0) {
         return;
     }
     abandon_network_player(player, announce);

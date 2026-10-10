@@ -2659,7 +2659,6 @@ void gui_set_button_flashing(long btn_idx, long gameturns)
 
 void update_room_tab_to_config(void)
 {
-    struct UserState* ustate = get_local_user_state();
     SYNCDBG(8, "Starting");
     int i;
     struct GuiButtonInit* ibtn;
@@ -2740,7 +2739,6 @@ void update_room_tab_to_config(void)
 
 void update_trap_tab_to_config(void)
 {
-    struct UserState* ustate = get_local_user_state();
     SYNCDBG(8, "Starting");
     int i;
     struct GuiButtonInit* ibtn;

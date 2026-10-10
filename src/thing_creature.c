@@ -3362,7 +3362,6 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 void prepare_to_controlled_creature_death(struct Thing *thing)
 {
     struct PlayerInfo* player = get_player(thing->owner);
-    struct UserState* ustate = get_player_user_state(player);
     leave_creature_as_controller(player, thing);
     player->influenced_thing_idx = 0;
     player->influenced_thing_creation = 0;
@@ -3372,7 +3371,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_off_query_menus();
         turn_on_main_panel_menu();
         set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
-        PaletteSetUserPalette(get_player_primary_user(player), engine_palette);
+        PaletteSetPlayerPalette(player, engine_palette);
         local_state.palette_fade_step_possession = 11;
     }
     turn_user_cursor_light(get_player_primary_user(player), true);
@@ -6574,14 +6573,14 @@ TngUpdateRet update_creature(struct Thing *thing)
         {
             if (!flag_is_set(ustate->additional_flags, UsrAF_FreezePaletteIsActive))
             {
-                PaletteSetUserPalette(get_player_primary_user(player), blue_palette);
+                PaletteSetPlayerPalette(player, blue_palette);
             }
         }
         else
         {
             if (flag_is_set(ustate->additional_flags, UsrAF_FreezePaletteIsActive))
             {
-                PaletteSetUserPalette(get_player_primary_user(player), engine_palette);
+                PaletteSetPlayerPalette(player, engine_palette);
             }
         }
     } else

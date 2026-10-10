@@ -621,7 +621,8 @@ void set_user_view_type(NetUserId user, unsigned short nview)
   {
   case PVT_DungeonTop:
   {
-      update_engine_view(player, leaving_map);
+      if (is_local)
+        update_engine_view(player, leaving_map);
       if (is_local) {
         if (local_state.view_type == PVT_None) {
           toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
@@ -632,7 +633,8 @@ void set_user_view_type(NetUserId user, unsigned short nview)
   }
   case PVT_CreatureContrl:
   case PVT_CreaturePasngr:
-      update_engine_view(player, leaving_map);
+      if (is_local)
+        update_engine_view(player, leaving_map);
       if (is_local)
       {
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
@@ -644,7 +646,8 @@ void set_user_view_type(NetUserId user, unsigned short nview)
         toggle_status_menu(0);
       }
       ustate->continue_work_state = ustate->work_state;
-      update_engine_view(player, leaving_map);
+      if (is_local)
+        update_engine_view(player, leaving_map);
       break;
   case PVT_MapFadeIn:
       set_player_instance(player, PI_MapFadeTo, 0);
@@ -666,27 +669,29 @@ void reset_user_view_type(NetUserId user, unsigned short nview)
     return;
   struct PlayerInfo* player = get_player(get_net_user_player_number(user));
   const TbBool is_local = (user == get_local_user());
-  const TbBool leaving_map = (ustate->view_type == PVT_MapScreen) || (ustate->view_type == PVT_MapFadeOut);
-  if (!user_state_invalid(ustate))
-    ustate->view_type = nview;
+  const TbBool leaving_map = ustate->view_type == PVT_MapScreen || ustate->view_type == PVT_MapFadeOut;
+  ustate->view_type = nview;
   switch (nview)
   {
     case PVT_DungeonTop:
       ustate->work_state = ustate->continue_work_state;
-      update_engine_view(player, leaving_map);
+      if (is_local)
+        update_engine_view(player, leaving_map);
       if (is_local)
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
       ustate->work_state = ustate->continue_work_state;
-      update_engine_view(player, leaving_map);
+      if (is_local)
+        update_engine_view(player, leaving_map);
       if (is_local)
         game.view_mode_flags |= GNFldD_CreatureViewMode;
       break;
     case PVT_MapScreen:
       ustate->work_state = ustate->continue_work_state;
-      update_engine_view(player, leaving_map);
+      if (is_local)
+        update_engine_view(player, leaving_map);
       if (is_local)
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       break;

@@ -1497,8 +1497,9 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     }
     if (thing_is_invalid(thing))
     {
-        if (get_player_user_state(player)->thing_under_hand > 0)
-            thing = thing_get(get_player_user_state(player)->thing_under_hand);
+        const short under_hand = get_player_user_state(player)->thing_under_hand;
+        if (under_hand > 0)
+            thing = thing_get(under_hand);
     }
     if (!thing_exists(thing)) {
         return Lb_FAIL;

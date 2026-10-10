@@ -69,7 +69,7 @@ TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs);
 TbBool network_is_host(void);
 PlayerNumber get_net_user_player_number(NetUserId user);
 void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx);
-void remap_user_to_solo(struct PlayerInfo *myplyr);
+void remap_user_to_solo(struct PlayerInfo *myplyr, NetUserId old_user);
 /******************************************************************************/
 #ifdef __cplusplus
 }

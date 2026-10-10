@@ -5007,7 +5007,7 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
     }
     {
         int wants_outline = (g_renderer_settings.creature_outline_class_mask >> thing->class_id) & 1u;
-        if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
+        if ((ustate->view_type == PVT_CreatureContrl) || (ustate->view_type == PVT_CreaturePasngr))
             wants_outline = 0;
         RendererSetCurrentSpriteContext((int)thing->owner, wants_outline);
     }
@@ -8106,7 +8106,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     }
     {
         int wants_outline = (g_renderer_settings.creature_outline_class_mask >> thing->class_id) & 1u;
-        if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
+        if ((ustate->view_type == PVT_CreatureContrl) || (ustate->view_type == PVT_CreaturePasngr))
             wants_outline = 0;
         RendererSetCurrentSpriteContext((int)thing->owner, wants_outline);
     }

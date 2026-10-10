@@ -127,7 +127,6 @@ static void ensure_map_fade_buffers(int width, int height)
 /******************************************************************************/
 static void draw_creature_view_icons(struct Thing* creatng)
 {
-    struct UserState* ustate = get_local_user_state();
     struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
     ScreenCoord x = gmnu->width + scale_value_by_horizontal_resolution(5);
     ScreenCoord y;
@@ -978,7 +977,6 @@ void process_pointer_graphic(void)
 
 void redraw_display(void)
 {
-    struct UserState* ustate = get_local_user_state();
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
     local_state.display_needs_update = false;
