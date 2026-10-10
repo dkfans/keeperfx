@@ -187,7 +187,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
     }
     if (ustate->boxsize > 0)
     {
-        keeper_build_roomspace(user, &player->render_roomspace);
+        keeper_start_roomspace(user, &player->render_roomspace, ustate->chosen_room_kind);
     }
     else
     {
@@ -601,7 +601,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
         //Slab Mode
         if (player->render_roomspace.slab_count > 0)
         {
-            keeper_sell_roomspace(user, &player->render_roomspace);
+            keeper_start_roomspace(user, &player->render_roomspace, RoK_SELL);
         }
         else
         {

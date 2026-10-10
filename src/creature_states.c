@@ -5063,64 +5063,34 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
 
 short set_start_state_f(struct Thing *thing,const char *func_name)
 {
-    long i;
-    struct CreatureModelConfig* crconf;
     SYNCDBG(8,"%s: Starting for %s index %d, owner %d, last state %s, stacked %s",func_name,thing_model_name(thing),
         (int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state),creature_state_code_name(thing->continue_state));
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
-    {
-        cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, CrSt_ManualControl);
-        return thing->active_state;
-    }
-    if (creature_under_spell_effect(thing, CSAfF_Chicken))
-    {
-        cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
-        return thing->active_state;
-    }
-    if (creature_under_spell_effect(thing, CSAfF_Timebomb))
-    {
-        cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, CrSt_Timebomb);
-        return thing->active_state;
-    }
-    if (is_neutral_thing(thing))
-    {
-        cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, CrSt_CreatureDormant);
-        return thing->active_state;
-    }
-    if (is_hero_thing(thing))
-    {
-        crconf = creature_stats_get_from_thing(thing);
-        i = crconf->good_start_state;
-        cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, i);
-        return thing->active_state;
-    }
-    struct PlayerInfo* player = get_player(thing->owner);
-    // For creatures which do not have corresponding player
-    if (!player_exists(player))
-    {
-        cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, CrSt_CreatureDormant);
-        return thing->active_state;
-    }
-    if (player->victory_state == VicS_LostLevel)
-    {
-        // TODO: Correctly deal with possession of creatures not owned by the player
-        if (!creature_is_for_dungeon_diggers_list(thing))
-        {
-            cleanup_current_thing_state(thing);
-            initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
-            return thing->active_state;
+    CrtrStateId state;
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0) {
+        state = CrSt_ManualControl;
+    } else if (creature_under_spell_effect(thing, CSAfF_Chicken)) {
+        state = CrSt_CreaturePretendChickenSetupMove;
+    } else if (creature_under_spell_effect(thing, CSAfF_Timebomb)) {
+        state = CrSt_Timebomb;
+    } else if (is_neutral_thing(thing)) {
+        state = CrSt_CreatureDormant;
+    } else if (is_hero_thing(thing)) {
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+        state = crconf->good_start_state;
+    } else {
+        struct PlayerInfo* player = get_player(thing->owner);
+        // For creatures which do not have corresponding player
+        if (!player_exists(player)) {
+            state = CrSt_CreatureDormant;
+        } else if ((player->victory_state == VicS_LostLevel) && !creature_is_for_dungeon_diggers_list(thing)) {
+            // TODO: Correctly deal with possession of creatures not owned by the player
+            state = CrSt_LeavesBecauseOwnerLost;
+        } else {
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+            state = crconf->evil_start_state;
         }
     }
-    crconf = creature_stats_get_from_thing(thing);
-    i = crconf->evil_start_state;
-    cleanup_current_thing_state(thing);
-    initialise_thing_state(thing, i);
+    initialise_thing_state(thing, state);
     return thing->active_state;
 }
 
