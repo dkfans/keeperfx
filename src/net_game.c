@@ -776,7 +776,8 @@ void process_user_leave_game_packet(NetUserId user)
     if (game.game_kind != GKind_MultiGame) {
         // the user's keeper simply vanishes
         struct PlayerInfo *player = get_player(get_net_user_player_number(user));
-        if (player_exists(player)) {
+        forget_user(user);
+        if (player_exists(player) && get_player_primary_user(player) < 0) {
             player->allocflags &= ~PlaF_Allocated;
         }
         return;

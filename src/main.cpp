@@ -985,6 +985,17 @@ void clear_players_for_save(void)
       ustate->hand_animationId = 0;
       ustate->thing_under_hand = 0;
       ustate->cursor_light_idx = 0;
+      ustate->work_state = 0;
+      ustate->continue_work_state = 0;
+      memset(&ustate->render_roomspace, 0, sizeof(ustate->render_roomspace));
+      ustate->roomspace_mode = 0;
+      ustate->roomspace_detection_looseness = 0;
+      ustate->roomspace_width = 0;
+      ustate->roomspace_height = 0;
+      ustate->roomspace_highlight_mode = 0;
+      ustate->roomspace_drag_paint_mode = 0;
+      ustate->roomspace_l_shape = 0;
+      ustate->roomspace_horizontal_first = 0;
     }
 }
 

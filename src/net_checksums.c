@@ -580,8 +580,7 @@ void compare_desync_history_from_host(void) {
             }
         }
     }
-    ERRORLOG("  Users %s - Host: %08lx, Client: %08lx", (client->users == host->users) ? "match" : "MISMATCH", (unsigned long)host->users, (unsigned long)client->users);
-    if (client->users != host->users) {
+    if (log_checksum_mismatch("Users", client->users, host->users)) {
         for (int i = 0; i < client_snapshot->user_count; i++) {
             struct LogUserDesyncInfo* client_user = &client_snapshot->users[i];
             struct LogUserDesyncInfo* host_user = NULL;

@@ -102,12 +102,11 @@ struct RoomSpace *get_local_dig_prediction_render_roomspace(struct RoomSpace *ro
     return roomspace;
 }
 
-static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, struct PlayerInfo *predicted_player, struct UserState *predicted_ustate, struct RoomSpace *roomspace)
+static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, struct UserState *predicted_ustate, struct RoomSpace *roomspace)
 {
     if (!local_dig_prediction_is_enabled() || prevent_local_dig_prediction(pckt)) {
         return false;
     }
-    *predicted_player = *get_my_player();
     struct UserState *ustate = get_user_state(get_local_user());
     struct UserState saved_ustate = *ustate;
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
@@ -134,7 +133,7 @@ static TbBool get_local_dig_prediction_roomspace(const struct Packet *pckt, stru
         ustate->render_roomspace.drag_start_y = local_dig_tag_prediction.drag_start_slb_y;
         ustate->render_roomspace.untag_mode = local_dig_tag_prediction.untag_mode;
     }
-    get_dungeon_highlight_user_roomspace(roomspace, predicted_player, get_local_user(), pckt, stl_x, stl_y, local_dig_tag_prediction.slab_tag_modes);
+    get_dungeon_highlight_user_roomspace(roomspace, get_my_player(), get_local_user(), pckt, stl_x, stl_y, local_dig_tag_prediction.slab_tag_modes);
     *predicted_ustate = *ustate;
     *ustate = saved_ustate;
     return true;
@@ -146,11 +145,11 @@ static TbBool update_predicted_build_or_sell_roomspace_preview(struct RoomSpace 
         return false;
     }
     struct PlayerInfo *player = get_player(plyr_idx);
-    if ((get_local_user_state()->work_state != PSt_BuildRoom) && (get_local_user_state()->work_state != PSt_Sell)) {
+    struct UserState *ustate = get_user_state(get_local_user());
+    if (ustate->work_state != PSt_BuildRoom && ustate->work_state != PSt_Sell) {
         return false;
     }
     struct Packet *direct_packet = get_local_packet();
-    struct UserState *ustate = get_user_state(get_local_user());
     struct UserState saved_ustate = *ustate;
     struct Packet saved_packet = *direct_packet;
     *direct_packet = *pckt;
@@ -208,9 +207,8 @@ void update_local_dig_tag_prediction(void)
         local_dig_tag_prediction.cursor_button_down = true;
     }
     struct RoomSpace roomspace;
-    struct PlayerInfo predicted_player;
     struct UserState predicted_ustate;
-    if (!get_local_dig_prediction_roomspace(pckt, &predicted_player, &predicted_ustate, &roomspace)) {
+    if (!get_local_dig_prediction_roomspace(pckt, &predicted_ustate, &roomspace)) {
         memset(&local_dig_tag_prediction, 0, sizeof(local_dig_tag_prediction));
         return;
     }
@@ -267,9 +265,8 @@ void update_local_dig_prediction_cursor_preview(void)
         memset(&local_dig_roomspace_prediction, 0, sizeof(local_dig_roomspace_prediction));
     }
     struct RoomSpace roomspace;
-    struct PlayerInfo predicted_player;
     struct UserState predicted_ustate;
-    TbBool has_roomspace = get_local_dig_prediction_roomspace(pckt, &predicted_player, &predicted_ustate, &roomspace);
+    TbBool has_roomspace = get_local_dig_prediction_roomspace(pckt, &predicted_ustate, &roomspace);
     if ((pckt != NULL) && ((pckt->control_flags & PCtr_LBtnRelease) != 0)) {
         local_dig_tag_prediction.cursor_button_down = false;
     }
@@ -301,7 +298,7 @@ void update_local_dig_prediction_cursor_preview(void)
     MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
     local_dig_render_roomspace = roomspace;
     local_dig_render_roomspace_active = true;
-    tag_cursor_blocks_dig(&predicted_player, get_local_user(), pckt, &local_dig_render_roomspace, stl_x, stl_y, true);
+    tag_cursor_blocks_dig(get_my_player(), get_local_user(), pckt, &local_dig_render_roomspace, stl_x, stl_y, true);
     box_lag_compensation_x = 0;
     box_lag_compensation_y = 0;
 }

@@ -8014,10 +8014,10 @@ static void draw_mapwho_ariadne_path(struct Thing *thing)
 
 void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 {
-    struct UserState* ustate = get_local_user_state();
     unsigned short flg_mem;
     unsigned char alpha_mem;
     const struct PlayerInfo *player = get_displayed_player();
+    const struct UserState *ustate = get_player_user_state(player);
     struct Thing *thing = jspr->thing;
     unsigned short animation_sprite;
     unsigned char current_frame;

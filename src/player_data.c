@@ -606,7 +606,7 @@ void set_user_view_type(NetUserId user, unsigned short nview)
   const TbBool is_local = (user == get_local_user());
   if (is_local && local_state.view_type == nview)
     local_state.view_type = PVT_None;
-  if (user_state_invalid(ustate) || (ustate->view_type == nview))
+  if (ustate->view_type == nview)
     return;
   const TbBool leaving_map = (ustate->view_type == PVT_MapScreen) || (ustate->view_type == PVT_MapFadeOut);
   ustate->view_type = nview;
@@ -629,9 +629,8 @@ void set_user_view_type(NetUserId user, unsigned short nview)
   {
   case PVT_DungeonTop:
   {
-      if (is_local)
-        update_engine_view(player, leaving_map);
       if (is_local) {
+        update_engine_view(player, leaving_map);
         if (local_state.view_type == PVT_None) {
           toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
         }
@@ -642,9 +641,8 @@ void set_user_view_type(NetUserId user, unsigned short nview)
   case PVT_CreatureContrl:
   case PVT_CreaturePasngr:
       if (is_local)
-        update_engine_view(player, leaving_map);
-      if (is_local)
       {
+        update_engine_view(player, leaving_map);
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       }
@@ -683,25 +681,25 @@ void reset_user_view_type(NetUserId user, unsigned short nview)
   {
     case PVT_DungeonTop:
       ustate->work_state = ustate->continue_work_state;
-      if (is_local)
+      if (is_local) {
         update_engine_view(player, leaving_map);
-      if (is_local)
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
+      }
       break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
       ustate->work_state = ustate->continue_work_state;
-      if (is_local)
+      if (is_local) {
         update_engine_view(player, leaving_map);
-      if (is_local)
         game.view_mode_flags |= GNFldD_CreatureViewMode;
+      }
       break;
     case PVT_MapScreen:
       ustate->work_state = ustate->continue_work_state;
-      if (is_local)
+      if (is_local) {
         update_engine_view(player, leaving_map);
-      if (is_local)
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
+      }
       break;
     default:
       break;
