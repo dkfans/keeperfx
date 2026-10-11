@@ -7524,3 +7524,27 @@ msgstr "플레이어는 관전자 채팅을 볼 수 없습니다."
 msgctxt "Network game message"
 msgid "You are spectating"
 msgstr "관전 중입니다"
+
+#: guitext:1151
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s 님이 관전자로 참가했습니다."
+
+#: guitext:1152
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s 님이 관전을 종료했습니다."
+
+#: guitext:1153
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "필요한 맵 팩 \"%s\"가 없습니다."
+
+#: guitext:1154
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "맵 팩 \"%s\"에 레벨 %d이(가) 없습니다."

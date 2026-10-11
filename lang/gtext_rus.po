@@ -6899,3 +6899,27 @@ msgstr "Игроки не могут читать зрительский чат.
 msgctxt "Network game message"
 msgid "You are spectating"
 msgstr "Вы смотрите игру."
+
+#: guitext:1151
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s присоединился в качестве наблюдателя."
+
+#: guitext:1152
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s прекратил наблюдение."
+
+#: guitext:1153
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "Необходимый набор карт «%s» отсутствует."
+
+#: guitext:1154
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "В вашем наборе карт «%s» отсутствует уровень %d."

@@ -7475,3 +7475,27 @@ msgstr "Spelers kunnen de toeschouwerschat niet zien."
 msgctxt "Network game message"
 msgid "You are spectating"
 msgstr "Je kijkt mee"
+
+#: guitext:1151
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s kijkt nu mee als toeschouwer."
+
+#: guitext:1152
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s kijkt niet meer mee."
+
+#: guitext:1153
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "Het vereiste kaartenpakket \"%s\" ontbreekt."
+
+#: guitext:1154
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "Je kaartenpakket \"%s\" mist level %d."
