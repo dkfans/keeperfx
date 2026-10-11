@@ -532,11 +532,20 @@ extern "C" void clear_messages()
 	g_recent_filenames.clear();
 }
 
+extern "C" TbBool output_player_message(PlayerNumber plyr_idx, SoundSmplTblID msg_idx, int32_t duration)
+{
+	if (!is_my_player_number(plyr_idx)) {
+		return false;
+	}
+	return output_message(msg_idx, duration);
+}
+
 extern "C" TbBool output_room_message(
 	PlayerNumber plyr_idx,
 	RoomKind rkind,
 	OutputMessageKind msg_kind
-) {
+)
+{
 	if (!is_my_player_number(plyr_idx)) {
 		return false;
 	}

@@ -1691,8 +1691,7 @@ static short get_creature_control_action_inputs(void)
             right_button_released = 0;
             if ((player->possession_lock == true) && thing_is_creature(thing))
             {
-                if (is_my_player(player))
-                    play_non_3d_sample(snd_refusal); //refusal
+                play_player_sample(player->id_number, snd_refusal); //refusal
             }
             else
             {

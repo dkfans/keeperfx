@@ -954,8 +954,7 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, KeepPwrLevel power
         return true;
     }
     // If failed, say "you do not have enough gold"
-    if (is_my_player_number(plyr_idx))
-        output_message(SMsg_GoldNotEnough, 0);
+    output_player_message(plyr_idx, SMsg_GoldNotEnough, 0);
     return false;
 }
 
@@ -1003,8 +1002,7 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
     {
         // If we can't afford the power, fail
         if (!pay_for_spell(plyr_idx, power_kind, 0)) {
-            if (is_my_player_number(plyr_idx))
-                output_message(SMsg_GoldNotEnough, 0);
+            output_player_message(plyr_idx, SMsg_GoldNotEnough, 0);
             return Lb_OK;
         }
     }
@@ -1273,11 +1271,7 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
             }
         }
     }
-    if (is_my_player_number(plyr_idx))
-    {
-        struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
-        play_non_3d_sample(powerst->select_sound_idx);
-    }
+    play_player_sample(plyr_idx, get_power_model_stats(power_kind)->select_sound_idx);
     return Lb_SUCCESS;
 }
 
@@ -1562,8 +1556,7 @@ static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_id
     {
         // If we can't afford the power, fail
         if (!pay_for_spell(plyr_idx, PwrK_SIGHT, power_level)) {
-            if (is_my_player_number(plyr_idx))
-                output_message(SMsg_GoldNotEnough, 0);
+            output_player_message(plyr_idx, SMsg_GoldNotEnough, 0);
             return Lb_FAIL;
         }
     }
@@ -1834,8 +1827,7 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
     {
         // If we can't afford the power, fail
         if (!pay_for_spell(plyr_idx, power_kind, 0)) {
-            if (is_my_player_number(plyr_idx))
-                output_message(SMsg_GoldNotEnough, 0);
+            output_player_message(plyr_idx, SMsg_GoldNotEnough, 0);
             return Lb_OK;
         }
     }
@@ -2070,10 +2062,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
     }
     if (ret == Lb_FAIL) {
         // Make a rejection sound
-        if (is_my_player_number(plyr_idx))
-        {
-            play_non_3d_sample(snd_refusal);
-        }
+        play_player_sample(plyr_idx, snd_refusal);
     }
     return ret;
 }
@@ -2179,8 +2168,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
     }
     if (ret == Lb_FAIL) {
         // Make a rejection sound
-        if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(snd_refusal);
+        play_player_sample(plyr_idx, snd_refusal);
     }
     return ret;
 }

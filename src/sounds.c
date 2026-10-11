@@ -31,6 +31,7 @@
 #include "engine_camera.h"
 #include "local_camera.h"
 #include "gui_soundmsgs.h"
+#include "player_data.h"
 #include "gui_topmsg.h"
 #include "front_landview.h"
 #include "frontmenu_ingame_evnt.h"
@@ -110,6 +111,14 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
            thing->snd_emitter_id = eidx;
         }
     }
+}
+
+void play_player_sample(PlayerNumber plyr_idx, SoundSmplTblID smptbl_idx)
+{
+    if (!is_my_player_number(plyr_idx)) {
+        return;
+    }
+    play_non_3d_sample(smptbl_idx);
 }
 
 void play_sound_if_close_to_receiver(struct Coord3d *soundpos, SoundSmplTblID smptbl_idx)

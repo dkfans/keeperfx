@@ -15,6 +15,7 @@
 #include "game_legacy.h"
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
+#include "gui_soundmsgs.h"
 #include "kjm_input.h"
 #include "local_camera.h"
 #include "map_columns.h"
@@ -325,6 +326,7 @@ void observer_set_view_mode(unsigned char mode)
 
 static void observer_select_player(PlayerNumber plyr_idx)
 {
+    clear_messages();
     my_player_number = plyr_idx;
     local_observer_player.id_number = plyr_idx;
     update_gui_button_player_colors();
