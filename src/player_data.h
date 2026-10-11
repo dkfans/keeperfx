@@ -331,6 +331,12 @@ extern struct LocalState {
     TbBool observer_camera_active;
     unsigned char observer_camera_view_type;
     unsigned char observer_camera_idx;
+    int32_t fast_forward;
+    long double process_turn_time;
+    float delta_time;
+    uint32_t time_delta;
+    TbBool show_gui;
+    TbBool show_panel;
 } local_state;
 
 extern unsigned short player_colors_map[];

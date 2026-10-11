@@ -392,7 +392,7 @@ TbBool update_local_camera_time(void)
 {
     const int64_t now = get_time_tick_ns();
     const int64_t interval = 1000000000 / turns_per_second;
-    if (game.fast_forward <= 1 || now < camera_update_time) {
+    if (local_state.fast_forward <= 1 || now < camera_update_time) {
         camera_update_time = now;
         camera_step_due = true;
     } else {
@@ -562,7 +562,7 @@ void interpolate_local_cameras(void)
     }
     struct PlayerInfo *player = get_my_player();
     const int camera_idx = get_local_active_camera(player) - local_state.camera.current;
-    if (game.fast_forward > 1 && (!observer_is_active() || is_observer_camera_active()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(player->instance_num)) {
+    if (local_state.fast_forward > 1 && (!observer_is_active() || is_observer_camera_active()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(player->instance_num)) {
         const float elapsed = (get_time_tick_ns() - camera_update_time) / 1e9f * turns_per_second;
         camera_fraction = clamp(elapsed, 0.0f, 1.0f);
     }
@@ -720,7 +720,7 @@ void update_local_view_prediction(const struct Packet *pckt)
     } else if ((pckt->action == PckA_LoadViewType && pckt->actn_par1 == PVT_DungeonTop)
             || (pckt->action == PckA_ZoomFromMap && pckt->actn_par3 == 0)) {
         local_state.view_type = PVT_DungeonTop;
-        toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
+        toggle_status_menu(local_state.show_panel);
         if (on_map)
             sync_local_camera_leaving_map(player, pckt);
     }
@@ -787,7 +787,7 @@ void set_observer_camera_view(unsigned char view_type)
     local_state.camera_movement_x = 0.0f;
     local_state.camera_movement_y = 0.0f;
     local_state.observer_camera_view_type = view_type;
-    toggle_status_menu(view_type == PVT_DungeonTop && (game.operation_flags & GOF_ShowGui) != 0);
+    toggle_status_menu(view_type == PVT_DungeonTop && local_state.show_gui);
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
 }
 

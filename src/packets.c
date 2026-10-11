@@ -936,7 +936,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       } else
       {
         if (get_local_user() == user)
-          toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
+          toggle_status_menu(local_state.show_panel);
         set_player_mode(player, PVT_DungeonTop);
       }
       return 0;
@@ -1747,7 +1747,7 @@ enum PacketExchangeResult exchange_packets(void)
         if (spectator && network_is_active()) {
             enum PacketExchangeResult result = network_spectator_load_turn(packet_checksum);
             if (result == PExR_Wait) {
-                game.process_turn_time = 0;
+                local_state.process_turn_time = 0;
                 observer_store_packets(NULL);
                 update_local_cameras();
                 clear_packets();

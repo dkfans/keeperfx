@@ -529,7 +529,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
       turn_off_all_window_menus();
       turn_off_query_menus();
       turn_on_main_panel_menu();
-      set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+      local_state.show_panel = local_state.show_gui;
       LbGrabMouseCheck(MG_OnPossessionLeave);
   }
   thing = thing_get(player->influenced_thing_idx);
@@ -566,7 +566,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
     turn_off_query_menus();
     turn_off_all_panel_menus();
     turn_on_main_panel_menu();
-    set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+    local_state.show_panel = local_state.show_gui;
   }
   leave_creature_as_passenger(player, thing);
   ustate->init_flags |= UsrIF_KeyboardInputDisabled;
@@ -776,7 +776,7 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, int32_t *n)
   if (is_my_player(player))
   {
     set_map_ui_hidden(true, true);
-    game.operation_flags &= ~GOF_ShowPanel;
+    local_state.show_panel = false;
     local_state.palette_fade_step_map = 32;
   }
   set_player_mode(player, PVT_DungeonTop);

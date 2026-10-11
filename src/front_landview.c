@@ -1067,7 +1067,7 @@ TbBool frontmap_update_zoom(void)
     {
         process_map_zoom_out();
     }
-    map_info.fade_pos += map_info.fade_step * game.delta_time;
+    map_info.fade_pos += map_info.fade_step * local_state.delta_time;
     if (map_info.fade_pos < 0 || map_info.fade_pos >= FRONTMAP_ZOOM_LENGTH)
     {
         SYNCDBG(8,"Stopping fade");
@@ -1203,7 +1203,7 @@ void check_mouse_scroll(void)
     long mx = GetMouseX();
     if ( (mx < 8) || ( (is_game_key_pressed(Gkey_MoveLeft, false, false)) || (is_key_pressed(KC_LEFT,KMod_DONTCARE)) ) )
     {
-        map_info.velocity_x -= LANDVIEW_PAN_ACCEL * game.delta_time;
+        map_info.velocity_x -= LANDVIEW_PAN_ACCEL * local_state.delta_time;
         if (map_info.velocity_x < -LANDVIEW_PAN_MAX_SPEED)
             map_info.velocity_x = -LANDVIEW_PAN_MAX_SPEED;
         if (map_info.velocity_x > LANDVIEW_PAN_MAX_SPEED)
@@ -1211,7 +1211,7 @@ void check_mouse_scroll(void)
   } else
   if ( (mx >= RendererPhysicalWidth()-8) || ( (is_game_key_pressed(Gkey_MoveRight, false, false)) || (is_key_pressed(KC_RIGHT,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_x += LANDVIEW_PAN_ACCEL * game.delta_time;
+    map_info.velocity_x += LANDVIEW_PAN_ACCEL * local_state.delta_time;
     if (map_info.velocity_x < -LANDVIEW_PAN_MAX_SPEED)
       map_info.velocity_x = -LANDVIEW_PAN_MAX_SPEED;
     if (map_info.velocity_x > LANDVIEW_PAN_MAX_SPEED)
@@ -1220,7 +1220,7 @@ void check_mouse_scroll(void)
   long my = GetMouseY();
   if ( (my < 8) || ( (is_game_key_pressed(Gkey_MoveUp, false, false)) || (is_key_pressed(KC_UP,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_y -= LANDVIEW_PAN_ACCEL * game.delta_time;
+    map_info.velocity_y -= LANDVIEW_PAN_ACCEL * local_state.delta_time;
     if (map_info.velocity_y < -LANDVIEW_PAN_MAX_SPEED)
       map_info.velocity_y = -LANDVIEW_PAN_MAX_SPEED;
     if (map_info.velocity_y > LANDVIEW_PAN_MAX_SPEED)
@@ -1228,7 +1228,7 @@ void check_mouse_scroll(void)
   } else
   if ( (my >= lbDisplay.PhysicalScreenHeight-8) || ( (is_game_key_pressed(Gkey_MoveDown, false, false)) || (is_key_pressed(KC_DOWN,KMod_DONTCARE)) ) )
   {
-    map_info.velocity_y += LANDVIEW_PAN_ACCEL * game.delta_time;
+    map_info.velocity_y += LANDVIEW_PAN_ACCEL * local_state.delta_time;
     if (map_info.velocity_y < -LANDVIEW_PAN_MAX_SPEED)
       map_info.velocity_y = -LANDVIEW_PAN_MAX_SPEED;
     if (map_info.velocity_y > LANDVIEW_PAN_MAX_SPEED)
@@ -1240,34 +1240,34 @@ void update_velocity(void)
 {
     if (map_info.velocity_x != 0)
     {
-      map_info.screen_shift_x += (map_info.velocity_x / 4) * game.delta_time;
+      map_info.screen_shift_x += (map_info.velocity_x / 4) * local_state.delta_time;
       if (map_info.screen_shift_x > LANDVIEW_MAP_WIDTH - RendererPhysicalWidth()*16/units_per_pixel_landview)
         map_info.screen_shift_x = LANDVIEW_MAP_WIDTH - RendererPhysicalWidth()*16/units_per_pixel_landview;
       if (map_info.screen_shift_x < 0)
         map_info.screen_shift_x = 0;
       if (map_info.velocity_x < 0) {
-        map_info.velocity_x += LANDVIEW_PAN_DECEL * game.delta_time;
+        map_info.velocity_x += LANDVIEW_PAN_DECEL * local_state.delta_time;
         if (map_info.velocity_x > 0)
           map_info.velocity_x = 0;
       } else {
-        map_info.velocity_x -= LANDVIEW_PAN_DECEL * game.delta_time;
+        map_info.velocity_x -= LANDVIEW_PAN_DECEL * local_state.delta_time;
         if (map_info.velocity_x < 0)
           map_info.velocity_x = 0;
       }
     }
     if (map_info.velocity_y != 0)
     {
-      map_info.screen_shift_y += (map_info.velocity_y / 4) * game.delta_time;
+      map_info.screen_shift_y += (map_info.velocity_y / 4) * local_state.delta_time;
       if (map_info.screen_shift_y > LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview)
         map_info.screen_shift_y = LANDVIEW_MAP_HEIGHT - lbDisplay.PhysicalScreenHeight*16/units_per_pixel_landview;
       if (map_info.screen_shift_y < 0)
         map_info.screen_shift_y = 0;
       if (map_info.velocity_y < 0) {
-        map_info.velocity_y += LANDVIEW_PAN_DECEL * game.delta_time;
+        map_info.velocity_y += LANDVIEW_PAN_DECEL * local_state.delta_time;
         if (map_info.velocity_y > 0)
           map_info.velocity_y = 0;
       } else {
-        map_info.velocity_y -= LANDVIEW_PAN_DECEL * game.delta_time;
+        map_info.velocity_y -= LANDVIEW_PAN_DECEL * local_state.delta_time;
         if (map_info.velocity_y < 0)
           map_info.velocity_y = 0;
       }

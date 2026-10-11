@@ -736,7 +736,7 @@ TbBool mouse_is_over_panel_map(ScreenCoord x, ScreenCoord y)
  */
 TbBool mouse_is_over_side_panel_bottom()
 {
-    if (!flag_is_set(game.operation_flags, GOF_ShowGui))
+    if (!local_state.show_gui)
         return false;
     struct GuiMenu* gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
     return ((GetMouseX() < status_panel_width) && (GetMouseY() > scale_ui_value(185)) && (GetMouseY() < gmnu->height));

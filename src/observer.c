@@ -301,11 +301,11 @@ void observer_update_view(void)
         local_observer_user_state.view_type = view_type;
         local_state.view_type = view_type;
         turn_off_query_menus();
-        toggle_status_menu(view_type == PVT_DungeonTop && (game.operation_flags & GOF_ShowGui) != 0);
+        toggle_status_menu(view_type == PVT_DungeonTop && local_state.show_gui);
         if (view_type == PVT_CreatureContrl || view_type == PVT_CreaturePasngr) {
             turn_on_menu(GMnu_CREATURE_QUERY1);
             toggle_first_person_menu(false);
-            toggle_first_person_menu((game.operation_flags & GOF_ShowGui) != 0);
+            toggle_first_person_menu(local_state.show_gui);
         }
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     }
@@ -374,7 +374,7 @@ void observer_init(PlayerNumber camera_player_number)
     observer_initialized = true;
     observer_select_player(watched_player);
     set_gui_visible(false);
-    clear_flag(game.operation_flags, GOF_ShowPanel);
+    local_state.show_panel = false;
 }
 
 /**

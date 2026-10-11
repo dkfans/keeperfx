@@ -510,6 +510,12 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 void clear_complete_game(void)
 {
     memset(&game, 0, sizeof(struct Game));
+    local_state.fast_forward = 0;
+    local_state.process_turn_time = 0;
+    local_state.delta_time = 0;
+    local_state.time_delta = 0;
+    local_state.show_gui = false;
+    local_state.show_panel = false;
     memset(&intralvl, 0, sizeof(struct IntralevelData));
     replay.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;

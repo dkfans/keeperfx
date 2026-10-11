@@ -236,7 +236,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
 
 int32_t engine_window_reserved_left(void)
 {
-    if ((game.operation_flags & GOF_ShowGui) == 0)
+    if (!local_state.show_gui)
         return 0;
     return (viewport_mode == VpMode_Original) ? status_panel_width : 0;
 }
@@ -466,7 +466,7 @@ static float map_fade_progress(void)
     const float turns = (float)(my_map_fade_turns() - 1);
     if (turns <= 0.0f)
         return 1.0f;
-    float frac = is_feature_on(Ft_DeltaTime) ? (float)game.process_turn_time : 0.0f;
+    float frac = is_feature_on(Ft_DeltaTime) ? (float)local_state.process_turn_time : 0.0f;
     if (frac < 0.0f) frac = 0.0f;
     if (frac > 1.0f) frac = 1.0f;
     float progress = (turns - (float)player->instance_remain_turns + frac) / turns;
@@ -780,7 +780,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
         return;
     }
     // Mouse over panel map
-    if (is_my_player(player) && ((game.operation_flags & GOF_ShowGui) != 0)
+    if (is_my_player(player) && local_state.show_gui
      && mouse_is_over_panel_map(local_state.minimap_pos_x, local_state.minimap_pos_y)) {
         if (game.small_map_state == 2) {
             set_pointer_graphic(MousePG_Invisible);
