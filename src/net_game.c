@@ -871,10 +871,13 @@ void apply_recorded_network_stop(void)
     stop_network_game_and_continue_locally();
 }
 
-long network_session_join(void)
+static char spectator_join_error[TEXT_BUFFER_LENGTH];
+
+int32_t network_session_join(void)
 {
     int32_t plyr_num;
     net_join_rejection = NetJoin_Accepted;
+    spectator_join_error[0] = '\0';
     reset_attempting_to_join_cancel();
     display_attempting_to_join_message(-1);
     if (attempting_to_join_cancel_requested())
@@ -890,6 +893,9 @@ long network_session_join(void)
             matchmaking_request_list();
         }
         const char *error = net_join_error_text(net_join_rejection);
+        if (spectator_join_error[0] != '\0') {
+            error = spectator_join_error;
+        }
         if (error) {
             create_frontend_error_box(error);
         } else {
@@ -961,7 +967,12 @@ TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer
     if (pack == CampgnT_Default && is_campaign_in_list(campaign_file, &mp_mappacks_list)) {
         pack = CampgnT_MultiplayerMappack;
     }
-    if (!change_campaign(pack, campaign_file) || strcasecmp(campaign.fname, campaign_file) != 0 || level <= 0 || get_level_info(level) == NULL) {
+    if (!change_campaign(pack, campaign_file) || strcasecmp(campaign.fname, campaign_file) != 0) {
+        snprintf(spectator_join_error, sizeof(spectator_join_error), get_string(GUIStr_NetMissingMapPack), campaign_file);
+        return Lb_FAIL;
+    }
+    if (level <= 0 || get_level_info(level) == NULL) {
+        snprintf(spectator_join_error, sizeof(spectator_join_error), get_string(GUIStr_NetMapPackMissingLevel), campaign_file, level);
         return Lb_FAIL;
     }
     buffer += name_length + 1;
