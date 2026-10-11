@@ -23,6 +23,8 @@ TbBool network_spectator_is_catching_up(void);
 TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer, size_t size);
 TbError process_network_spectator_ready(NetUserId source, size_t size);
 TbError process_network_spectator_chat(NetUserId source, const char *buffer, size_t size);
+TbError process_network_spectator_notice(NetUserId source, const char *buffer, size_t size);
+void network_spectator_notify(NetUserId user, TbBool joined);
 void network_spectator_service(void);
 
 TbBool network_user_is_spectator(NetUserId user_id);
