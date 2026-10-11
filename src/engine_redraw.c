@@ -1030,16 +1030,18 @@ void redraw_display(void)
     {
         char text[sizeof(player->mp_message_text) + 4];
         snprintf(text, sizeof(text), ">%s_", player->mp_message_text);
+        int chat_units_per_px = font_size_units_per_px(chat_font_size);
+        int chat_line_spacing = chat_units_per_px * CHAT_LINE_SPACING_PERCENT / 100;
         long pos_x = 148*units_per_pixel/16;
-        long pos_y = 8*units_per_pixel/16;
+        long pos_y = 28*units_per_pixel/16 - chat_line_spacing;
         if (game.armageddon_cast_turn != 0)
         {
             if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
             {
-                pos_y = ((pos_y << 3) + ((LbTextLineHeight()*units_per_pixel/16) * (game.active_messages_count << (MyScreenHeight < 400))));
+                pos_y = (8*units_per_pixel/16 << 3) + chat_line_spacing * game.active_messages_count;
             }
         }
-        LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
+        LbTextDrawResized(pos_x, pos_y, chat_units_per_px, text);
     }
     if (draw_spell_cost) {
         int32_t cursor_x;

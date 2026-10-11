@@ -62,6 +62,10 @@ struct GuiMessage {
 
 #pragma pack()
 /******************************************************************************/
+#define CHAT_LINE_SPACING_PERCENT 125
+
+extern int chat_font_size;
+
 void message_update(void);
 void message_draw(void);
 void zero_messages(void);

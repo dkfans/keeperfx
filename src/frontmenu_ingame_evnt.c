@@ -899,6 +899,8 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
+#define DEBUG_TEXT_FONT_SIZE 11
+
 int consolelog_font_size = 11;
 int consolelog_simultaneous_message_count = 21;
 int consolelog_max_line_width = 1250; // Maximum line width
@@ -952,14 +954,21 @@ void draw_consolelog()
     RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
 }
 
+int font_size_units_per_px(int font_size)
+{
+    int tx_units_per_px = (font_size * units_per_pixel) / LbTextLineHeight();
+    if (tx_units_per_px < 16) {
+        return 16;
+    }
+    return tx_units_per_px;
+}
+
 void draw_frametime()
 {
     char text[64];
     LbTextSetFont(winfont);
     RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
-    int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
-    if (tx_units_per_px < 16)
-        tx_units_per_px = 16;
+    int tx_units_per_px = font_size_units_per_px(DEBUG_TEXT_FONT_SIZE);
 
     int iStartLine = (MyScreenHeight / tx_units_per_px) / 2 + 1;
     memset(text, 0, sizeof(text));
@@ -1036,9 +1045,7 @@ void draw_network_stats()
     char text[128];
     LbTextSetFont(winfont);
     RendererSetDrawFlags(Lb_TEXT_HALIGN_RIGHT);
-    int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
-    if (tx_units_per_px < 16)
-        tx_units_per_px = 16;
+    int tx_units_per_px = font_size_units_per_px(DEBUG_TEXT_FONT_SIZE);
 
     uint32_t ping = GetPlayersPing();
     uint32_t half_ping = ping / 2;

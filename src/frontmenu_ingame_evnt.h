@@ -65,6 +65,7 @@ void draw_gameturn_timer(void);
 void draw_watched_player_name(void);
 void draw_consolelog(void);
 void draw_network_stats(void);
+int font_size_units_per_px(int font_size);
 extern int debug_display_network_stats;
 TbBool timer_enabled(void);
 TbBool frametime_enabled(void);
