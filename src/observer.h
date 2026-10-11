@@ -29,6 +29,9 @@ void observer_update_cursor(void);
 TbBool gameplay_cursor_is_over_gui(void);
 TbBool get_gameplay_cursor_position(int32_t *screen_x, int32_t *screen_y);
 void observer_cycle_player(int step);
+TbBool observer_process_packet_action(const struct Packet *pckt);
+void observer_update_query(void);
+TbBool observer_query_input(void);
 
 #ifdef __cplusplus
 }

@@ -27,6 +27,8 @@
 #include "player_utils.h"
 #include "replay.h"
 #include "thing_objects.h"
+#include "thing_creature.h"
+#include "thing_list.h"
 #include "vidmode.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -382,9 +384,22 @@ void observer_set_view_mode(unsigned char mode)
     }
 }
 
+static void observer_clear_query(unsigned char state)
+{
+    turn_off_query_menus();
+    if ((game.operation_flags & GOF_ShowGui) != 0) {
+        turn_on_main_panel_menu();
+    }
+    local_observer_player.instance_num = PI_Unset;
+    set_user_work_state(OBSERVER_USER, state, 0);
+    clear_selected_thing(&local_observer_player);
+}
+
 static void observer_select_player(PlayerNumber plyr_idx)
 {
     clear_messages();
+    observer_clear_query(PSt_CtrlDungeon);
+    local_state.local_thing_under_hand = 0;
     my_player_number = plyr_idx;
     local_observer_player.id_number = plyr_idx;
     update_gui_button_player_colors();
@@ -392,6 +407,83 @@ static void observer_select_player(PlayerNumber plyr_idx)
     return_to_player_camera();
     reinit_tagged_blocks_for_player(plyr_idx);
     panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
+}
+
+static void observer_query_creature(ThingIndex index, TbBool reset, TbBool zoom)
+{
+    enter_observer_camera();
+    query_creature(&local_observer_player, index, reset, zoom);
+    process_player_instance(&local_observer_player);
+}
+
+TbBool observer_process_packet_action(const struct Packet *pckt)
+{
+    switch (pckt->action) {
+    case PckA_SetPlyrState:
+        if (pckt->actn_par1 == PSt_CreatrQuery || pckt->actn_par1 == PSt_CtrlDungeon) {
+            enter_observer_camera();
+            observer_clear_query(pckt->actn_par1);
+        }
+        return true;
+    case PckA_PlyrQueryCreature: {
+        struct Thing *thing = thing_get(pckt->actn_par1);
+        if (thing_is_creature(thing)) {
+            observer_query_creature(thing->index, (pckt->actn_par2 & 0x01) != 0, (pckt->actn_par2 & 0x02) != 0);
+        }
+        return true;
+    }
+    case PckA_TurnOffQuery:
+        observer_clear_query(PSt_CreatrQuery);
+        return true;
+    default:
+        return false;
+    }
+}
+
+void observer_update_query(void)
+{
+    if (!is_observer_camera_active()) {
+        local_state.local_thing_under_hand = get_player_user_state(get_displayed_player())->thing_under_hand;
+        return;
+    }
+    local_state.local_thing_under_hand = 0;
+    if (local_observer_user_state.work_state == PSt_CreatrInfo) {
+        const struct Thing *selected = thing_get(local_observer_player.influenced_thing_idx);
+        if (!thing_is_creature(selected) || selected->creation_turn != local_observer_player.influenced_thing_creation) {
+            observer_clear_query(PSt_CreatrQuery);
+        }
+    }
+    struct PlayerInfo *player = get_my_player();
+    if (get_local_view_type(player) != PVT_DungeonTop || game_is_busy_doing_gui()) {
+        return;
+    }
+    struct Coord3d pos = {0};
+    if (screen_to_map(get_local_active_camera(player), GetMouseX(), GetMouseY(), &pos)) {
+        struct Thing *thing = get_creature_near(pos.x.val, pos.y.val);
+        if (thing_is_creature(thing)) {
+            local_state.local_thing_under_hand = thing->index;
+        }
+    }
+}
+
+TbBool observer_query_input(void)
+{
+    PlayerState work_state = local_observer_user_state.work_state;
+    if (get_local_view_type(&local_observer_player) != PVT_DungeonTop || (work_state != PSt_CreatrQuery && work_state != PSt_CreatrInfo)) {
+        return false;
+    }
+    if (right_button_released) {
+        observer_clear_query(PSt_CtrlDungeon);
+        return true;
+    }
+    if (left_button_released) {
+        struct Thing *thing = thing_get(local_state.local_thing_under_hand);
+        if (thing_is_creature(thing)) {
+            observer_query_creature(thing->index, true, false);
+        }
+        return true;
+    }
+    return false;
 }
 
 void observer_init(PlayerNumber camera_player_number)

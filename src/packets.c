@@ -770,6 +770,9 @@ static TbBool process_observer_global_packet_action(void)
         process_user_leave_game_packet(get_local_user());
         return true;
     default:
+        if (observer_process_packet_action(pckt)) {
+            return true;
+        }
         return process_local_packet_action(get_my_player(), get_local_user_state(), pckt);
     }
 }

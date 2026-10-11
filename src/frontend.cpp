@@ -1688,6 +1688,24 @@ void frontend_load_game_maintain(struct GuiButton *gbtn)
         gbtn->flags &= ~LbBtnF_Enabled;
 }
 
+struct ObserverButtonCallback {
+    Gf_Btn_Callback callback;
+    TbBool camera_only;
+};
+
+static const struct ObserverButtonCallback observer_button_callbacks[] = {
+    {gui_set_menu_mode, false}, {gui_set_page, false}, {gui_zoom_in, false}, {gui_zoom_out, false},
+    {gui_go_to_map, false}, {gui_scroll_activity_up, false}, {gui_scroll_activity_down, false},
+    {gui_switch_players_visible, false},
+    {gui_set_query, true}, {gui_open_event, true}, {gui_kill_event, true},
+    {gui_go_to_next_creature, true}, {gui_go_to_next_creature_activity, true},
+    {gui_go_to_next_wanderer, true}, {gui_go_to_next_worker, true}, {gui_go_to_next_fighter, true},
+    {gui_go_to_next_room, true}, {gui_go_to_next_trap, true}, {gui_go_to_next_door, true},
+    {gui_go_to_next_spell, true}, {gui_go_to_person_in_battle, true},
+    {gui_query_next_creature_of_owner, true}, {gui_query_next_creature_of_owner_and_model, true},
+};
+#define OBSERVER_BUTTON_CALLBACK_COUNT (sizeof(observer_button_callbacks) / sizeof(observer_button_callbacks[0]))
+
 static TbBool observer_panel_button_blocked(const struct GuiButton *gbtn, Gf_Btn_Callback callback)
 {
     if (!observer_is_active() || !is_toggleable_menu(get_active_menu(gbtn->gmenu_idx)->ident)) {
@@ -1696,11 +1714,11 @@ static TbBool observer_panel_button_blocked(const struct GuiButton *gbtn, Gf_Btn
     if (callback == NULL && gbtn->gbtype == LbBtnT_NormalBtn && gbtn->parent_menu != NULL) {
         return false;
     }
-    if (callback == gui_set_menu_mode || callback == gui_set_page
-     || callback == gui_zoom_in || callback == gui_zoom_out || callback == gui_go_to_map
-     || callback == gui_scroll_activity_up
-     || callback == gui_scroll_activity_down || callback == gui_switch_players_visible) {
-        return false;
+    for (size_t i = 0; i < OBSERVER_BUTTON_CALLBACK_COUNT; i++) {
+        const struct ObserverButtonCallback *allowed = &observer_button_callbacks[i];
+        if (allowed->callback == callback && (!allowed->camera_only || is_observer_camera_active())) {
+            return false;
+        }
     }
     return true;
 }

@@ -720,7 +720,11 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
         return;
     }
     if (is_observer_camera_active()) {
-        set_pointer_graphic(MousePG_Arrow);
+        if (ustate->work_state == PSt_CreatrQuery || ustate->work_state == PSt_CreatrInfo) {
+            set_pointer_graphic(MousePG_Query);
+        } else {
+            set_pointer_graphic(MousePG_Arrow);
+        }
         return;
     }
     // During fade
