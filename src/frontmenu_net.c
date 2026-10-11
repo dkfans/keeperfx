@@ -392,7 +392,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         int icon_y = gbtn->scr_pos_y + shift_y + abs(height - spr->SHeight * fs_units_per_px / 16) / 2;
         NetUserId user = net_player_slot_user(slot);
         if (user < 0) {
-            LbSpriteDrawResizedRemap(icon_x, icon_y, fs_units_per_px, spr, shadow_remap);
+            LbSpriteDrawResizedRemap(icon_x, icon_y, fs_units_per_px, get_frontend_sprite(GFS_bullfrog_blue_med), shadow_remap);
             continue;
         }
         if (net_player_slots_random) {
