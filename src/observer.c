@@ -32,12 +32,16 @@
 #include "post_inc.h"
 
 #define OBSERVER_CURSOR_OFFSET_ORIGIN (UINT16_MAX + 2 - INT16_MIN)
+#define OBSERVER_CURSOR_SIDEBAR_SHIFT (UINT16_MAX + 1)
 #define OBSERVER_CURSOR_OFFSET_SCALE 256
+#define OBSERVER_VIEW_ZOOM_SCALE 65536
+#define OBSERVER_FRONT_VIEW_ZOOM_SCALE 8
 
 struct ObserverCursor {
     struct Packet packet;
-    struct TbPoint screen_center_offset;
-    TbBool has_screen_center_offset;
+    struct TbPoint viewport_center_offset;
+    TbBool has_viewport_center_offset;
+    TbBool sidebar_reserved;
 };
 
 struct PlayerInfo local_observer_player;
@@ -85,12 +89,17 @@ void observer_set_packet_cursor(struct Packet *pckt)
         return;
     }
     float screen_to_offset_scale = (float)OBSERVER_CURSOR_OFFSET_SCALE / units_per_pixel_best;
-    int32_t cursor_offset_x = lroundf((mouse_screen_x - MyScreenWidth / 2) * screen_to_offset_scale);
-    int32_t cursor_offset_y = lroundf((mouse_screen_y - MyScreenHeight / 2) * screen_to_offset_scale);
+    int32_t cursor_offset_x = lroundf((mouse_screen_x - local_state.engine_window_x - local_state.engine_window_width / 2) * screen_to_offset_scale);
+    int32_t cursor_offset_y = lroundf((mouse_screen_y - local_state.engine_window_y - local_state.engine_window_height / 2) * screen_to_offset_scale);
     if (cursor_offset_x < INT16_MIN || cursor_offset_x > INT16_MAX || cursor_offset_y < INT16_MIN || cursor_offset_y > INT16_MAX) {
         return;
     }
-    pckt->actn_par1 = -(cursor_offset_x + OBSERVER_CURSOR_OFFSET_ORIGIN);
+    // A shifted horizontal origin tells observers that the sidebar's column is excluded from the view.
+    int32_t origin_x = OBSERVER_CURSOR_OFFSET_ORIGIN;
+    if (engine_window_reserved_left() > 0) {
+        origin_x += OBSERVER_CURSOR_SIDEBAR_SHIFT;
+    }
+    pckt->actn_par1 = -(cursor_offset_x + origin_x);
     pckt->actn_par2 = -(cursor_offset_y + OBSERVER_CURSOR_OFFSET_ORIGIN);
 }
 
@@ -105,15 +114,20 @@ void observer_store_packets(const struct Packet *packets)
             const struct Packet *pckt = &packets[user];
             struct ObserverCursor *cursor = &observer_cursors[user];
             cursor->packet = *pckt;
-            cursor->has_screen_center_offset = false;
+            cursor->has_viewport_center_offset = false;
+            int32_t origin_x = OBSERVER_CURSOR_OFFSET_ORIGIN;
+            if (pckt->actn_par1 < -(OBSERVER_CURSOR_OFFSET_ORIGIN + INT16_MAX)) {
+                origin_x += OBSERVER_CURSOR_SIDEBAR_SHIFT;
+            }
             if (pckt->action == PckA_None
-             && pckt->actn_par1 <= -(OBSERVER_CURSOR_OFFSET_ORIGIN + INT16_MIN)
-             && pckt->actn_par1 >= -(OBSERVER_CURSOR_OFFSET_ORIGIN + INT16_MAX)
+             && pckt->actn_par1 <= -(origin_x + INT16_MIN)
+             && pckt->actn_par1 >= -(origin_x + INT16_MAX)
              && pckt->actn_par2 <= -(OBSERVER_CURSOR_OFFSET_ORIGIN + INT16_MIN)
              && pckt->actn_par2 >= -(OBSERVER_CURSOR_OFFSET_ORIGIN + INT16_MAX)) {
-                cursor->screen_center_offset.x = -pckt->actn_par1 - OBSERVER_CURSOR_OFFSET_ORIGIN;
-                cursor->screen_center_offset.y = -pckt->actn_par2 - OBSERVER_CURSOR_OFFSET_ORIGIN;
-                cursor->has_screen_center_offset = true;
+                cursor->viewport_center_offset.x = -pckt->actn_par1 - origin_x;
+                cursor->viewport_center_offset.y = -pckt->actn_par2 - OBSERVER_CURSOR_OFFSET_ORIGIN;
+                cursor->has_viewport_center_offset = true;
+                cursor->sidebar_reserved = origin_x != OBSERVER_CURSOR_OFFSET_ORIGIN;
             }
         }
     }
@@ -171,7 +185,7 @@ static PlayerNumber position_observer_camera_at_starting_dungeon(PlayerNumber fa
     return plyr_idx;
 }
 
-const struct Packet *observer_get_view_packet(void)
+static const struct ObserverCursor *observer_get_view_cursor(void)
 {
     if (!observer_is_active() || is_observer_camera_active()) {
         return NULL;
@@ -181,16 +195,56 @@ const struct Packet *observer_get_view_packet(void)
     if (user < 0 || user >= MAX_NET_USERS) {
         return NULL;
     }
-    return &observer_cursors[user].packet;
+    return &observer_cursors[user];
+}
+
+const struct Packet *observer_get_view_packet(void)
+{
+    const struct ObserverCursor *cursor = observer_get_view_cursor();
+    if (cursor == NULL) {
+        return NULL;
+    }
+    return &cursor->packet;
+}
+
+static int32_t observer_view_shift_x(void)
+{
+    const struct ObserverCursor *cursor = observer_get_view_cursor();
+    if (cursor == NULL) {
+        return 0;
+    }
+    int32_t player_reserved_left = 0;
+    if (cursor->sidebar_reserved) {
+        player_reserved_left = status_panel_width;
+    }
+    return (player_reserved_left - engine_window_reserved_left()) / 2;
+}
+
+static void observer_shift_view_camera(void)
+{
+    int32_t shift_x = observer_view_shift_x();
+    if (shift_x == 0) {
+        return;
+    }
+    // Moves the camera so the watched player's view center lands where their sidebar layout puts it.
+    struct DungeonCamera *dcam = &local_observer_user_state.dungeon_camera;
+    TbBool front_view = local_observer_user_state.prefs[UPref_FrontView] != 0;
+    int32_t world_per_pixel_scale = OBSERVER_VIEW_ZOOM_SCALE;
+    if (front_view) {
+        world_per_pixel_scale *= OBSERVER_FRONT_VIEW_ZOOM_SCALE;
+    }
+    int32_t distance = -shift_x * world_per_pixel_scale / (int32_t)scale_camera_zoom_to_screen(dcam->zoom[front_view]);
+    int32_t angle = dcam->yaw[front_view] + DEGREES_90;
+    set_view_position(&dcam->x, &dcam->y, move_coord_with_angle_x(dcam->x, distance, angle), move_coord_with_angle_y(dcam->y, distance, angle));
 }
 
 static TbBool observer_cursor_to_screen(const struct ObserverCursor *cursor, int32_t *screen_x, int32_t *screen_y)
 {
-    if (cursor->has_screen_center_offset) {
-        // Cursor positioning is correct and accounts for whether the sidebar is hidden or visible.
+    if (cursor->has_viewport_center_offset) {
+        // Cursor offsets are relative to the viewport center and use a resolution-independent scale.
         float offset_to_screen_scale = units_per_pixel_best / (float)OBSERVER_CURSOR_OFFSET_SCALE;
-        *screen_x = MyScreenWidth / 2 + lroundf(cursor->screen_center_offset.x * offset_to_screen_scale);
-        *screen_y = MyScreenHeight / 2 + lroundf(cursor->screen_center_offset.y * offset_to_screen_scale);
+        *screen_x = local_state.engine_window_x + local_state.engine_window_width / 2 + observer_view_shift_x() + lroundf(cursor->viewport_center_offset.x * offset_to_screen_scale);
+        *screen_y = local_state.engine_window_y + local_state.engine_window_height / 2 + lroundf(cursor->viewport_center_offset.y * offset_to_screen_scale);
         return *screen_x >= local_state.engine_window_x && *screen_y >= local_state.engine_window_y
             && *screen_x < local_state.engine_window_x + local_state.engine_window_width
             && *screen_y < local_state.engine_window_y + local_state.engine_window_height;
@@ -278,6 +332,7 @@ void observer_update_view(void)
             return;
         }
         local_observer_user_state.dungeon_camera = ustate->dungeon_camera;
+        local_observer_user_state.prefs[UPref_MinimapZoom] = ustate->prefs[UPref_MinimapZoom];
         local_observer_user_state.prefs[UPref_FrontView] = ustate->prefs[UPref_FrontView];
         if (observer_view_mode < 0) {
             local_observer_user_state.prefs[UPref_Wibble] = ustate->prefs[UPref_Wibble];
@@ -294,6 +349,9 @@ void observer_update_view(void)
         view_type = PVT_MapScreen;
     } else if (view_type == PVT_MapFadeOut) {
         view_type = PVT_DungeonTop;
+    }
+    if (view_type == PVT_DungeonTop) {
+        observer_shift_view_camera();
     }
     if (local_observer_user_state.view_type != view_type) {
         local_observer_user_state.view_type = view_type;
