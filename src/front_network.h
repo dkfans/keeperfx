@@ -65,9 +65,13 @@ extern struct ConfigInfo net_config_info;
 extern char net_service[16][NET_SERVICE_LEN];
 extern char net_player_name[20];
 extern char tmp_net_player_name[24];
+extern int8_t net_player_slot[MAX_NET_USERS];
+extern TbBool net_player_slots_random;
 
 #pragma pack()
 /******************************************************************************/
+NetUserId net_player_slot_user(PlayerNumber slot);
+void net_resolve_player_slots(PlayerNumber slots_count);
 void process_network_error(long errcode);
 void draw_out_of_sync_box(long a1, long a2, long box_width);
 void display_attempting_to_join_message(int remaining_s);

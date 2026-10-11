@@ -52,6 +52,7 @@
 #include "net_lan.h"
 #include "config_campaigns.h"
 #include <stddef.h>
+#include <SDL3/SDL.h>
 #include "post_inc.h"
 
 #define SESSION_LIST_MOUSE_IDLE_TIMEOUT_MS 1000
@@ -86,6 +87,8 @@ struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
 char tmp_net_player_name[24];
+int8_t net_player_slot[MAX_NET_USERS];
+TbBool net_player_slots_random;
 static TbBool attempting_to_join_cancelled = false;
 static int32_t previous_active_players = 0;
 /******************************************************************************/
@@ -93,7 +96,121 @@ static int32_t previous_active_players = 0;
 }
 #endif
 /******************************************************************************/
+#define PLAYER_SLOT_BITS 4
+#define PLAYER_SLOT_MASK 0xF
+
 static TbBool check_frontend_version_mismatch(void);
+
+NetUserId net_player_slot_user(PlayerNumber slot)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (net_player_slot[user] == slot) {
+            return user;
+        }
+    }
+    return -1;
+}
+
+static void host_swap_player_slot(NetUserId user, PlayerNumber slot)
+{
+    if (slot < 0 || slot >= MAX_NET_USERS) {
+        return;
+    }
+    if (net_player_slots_random || slot == net_player_slot[user]) {
+        net_player_slots_random = !net_player_slots_random;
+        return;
+    }
+    NetUserId occupant = net_player_slot_user(slot);
+    if (occupant >= 0) {
+        net_player_slot[occupant] = net_player_slot[user];
+    }
+    net_player_slot[user] = slot;
+}
+
+static void assign_free_player_slot(NetUserId user, PlayerNumber slots_count)
+{
+    net_player_slot[user] = -1;
+    for (PlayerNumber slot = 0; slot < slots_count; slot++) {
+        if (net_player_slot_user(slot) < 0) {
+            net_player_slot[user] = slot;
+            return;
+        }
+    }
+}
+
+void net_resolve_player_slots(PlayerNumber slots_count)
+{
+    int8_t lobby_slots[MAX_NET_USERS];
+    memcpy(lobby_slots, net_player_slot, sizeof(net_player_slot));
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (net_player_slot[user] >= slots_count) {
+            assign_free_player_slot(user, slots_count);
+        }
+    }
+    if (net_player_slots_random) {
+        PlayerNumber order[MAX_NET_USERS];
+        for (PlayerNumber i = 0; i < slots_count; i++) {
+            order[i] = i;
+        }
+        for (PlayerNumber i = slots_count - 1; i > 0; i--) {
+            PlayerNumber k = SDL_rand(i + 1);
+            PlayerNumber swapped = order[i];
+            order[i] = order[k];
+            order[k] = swapped;
+        }
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+            if (net_player_slot[user] >= 0) {
+                net_player_slot[user] = order[net_player_slot[user]];
+            }
+        }
+    }
+    char alliances = 0;
+    for (NetUserId user1 = 0; user1 < MAX_NET_USERS; user1++) {
+        for (NetUserId user2 = user1 + 1; user2 < MAX_NET_USERS; user2++) {
+            if (net_player_slot[user1] < 0 || net_player_slot[user2] < 0) {
+                continue;
+            }
+            if (frontend_is_player_allied(lobby_slots[user1], lobby_slots[user2])) {
+                alliances |= alliance_grid[net_player_slot[user1]][net_player_slot[user2]];
+            }
+        }
+    }
+    frontend_alliances = alliances;
+}
+
+static void host_update_player_slots(void)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (!network_user_active(user)) {
+            net_player_slot[user] = -1;
+        }
+    }
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (network_user_active(user) && net_player_slot[user] < 0) {
+            assign_free_player_slot(user, MAX_NET_USERS);
+        }
+    }
+}
+
+static short pack_player_slots(void)
+{
+    uint16_t packed = 0;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        packed |= ((net_player_slot[user] + 1) & PLAYER_SLOT_MASK) << (user * PLAYER_SLOT_BITS);
+    }
+    return (short)packed;
+}
+
+static void unpack_player_slots(short packed, short random)
+{
+    net_player_slots_random = random != 0;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        net_player_slot[user] = (((uint16_t)packed >> (user * PLAYER_SLOT_BITS)) & PLAYER_SLOT_MASK) - 1;
+        if (net_player_slot[user] >= MAX_NET_USERS) {
+            net_player_slot[user] = -1;
+        }
+    }
+}
 
 static TbBool try_starting_level_from_chat(const char *message, NetUserId user_id)
 {
@@ -460,6 +577,10 @@ static void process_frontend_packets(void)
   nspckt->frontend_alliances = frontend_alliances;
   nspckt->networkstatus_flags &= ~NetStat_ComputerPlayersMask;
   nspckt->networkstatus_flags |= (fe_computer_players << NetStat_ComputerPlayersShift) & NetStat_ComputerPlayersMask;
+  if (network_is_host()) {
+    nspckt->stored_data1 = pack_player_slots();
+    nspckt->stored_data2 = net_player_slots_random;
+  }
   if (LbNetwork_ExchangeFrontend(nspckt, &net_screen_packet, sizeof(struct ScreenPacket))) {
       ERRORLOG("LbNetwork_Exchange failed");
       net_service_index_selected = -1;
@@ -508,6 +629,11 @@ static void process_frontend_packets(void)
         case NetAct_SetComputerPlayers:
             fe_computer_players = nspckt->action_par1;
             break;
+        case NetAct_SetPlayerSlot:
+            if (network_is_host()) {
+                host_swap_player_slot(i, nspckt->action_par1);
+            }
+            break;
         default:
             break;
         }
@@ -520,11 +646,16 @@ static void process_frontend_packets(void)
     }
     screen_packet_set_action(nspckt, NetAct_None);
   }
+  if (network_is_host()) {
+    host_update_player_slots();
+  } else {
+    unpack_player_slots(net_screen_packet[SERVER_ID].stored_data1, net_screen_packet[SERVER_ID].stored_data2);
+  }
   if (frontend_alliances == -1) {
     frontend_alliances = 0;
   }
   for (i = 0; i < MAX_NET_USERS; i++) {
-    if (!network_user_active(i)) {
+    if (net_player_slot_user(i) < 0) {
       const int32_t alliances_to_clear = alliance_grid[i][0] | alliance_grid[i][1] | alliance_grid[i][2] | alliance_grid[i][3];
       frontend_alliances = frontend_alliances & ~alliances_to_clear;
     }
@@ -728,6 +859,8 @@ void frontnet_start_setup(void)
     set_selected_level_number(SINGLEPLAYER_NOTSTARTED);
     previous_active_players = 0;
     memset(net_screen_packet, 0, sizeof(net_screen_packet));
+    memset(net_player_slot, -1, sizeof(net_player_slot));
+    net_player_slots_random = false;
     frontend_alliances = -1;
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;

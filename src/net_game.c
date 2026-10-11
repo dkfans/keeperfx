@@ -69,7 +69,8 @@ struct StartupSyncPacket {
     UserPreferences user_prefs;
     uint8_t initial_input_lag_turns;
     uint32_t initial_action_seed;
-    // TODO: also record alliance matrix.
+    char frontend_alliances;
+    int8_t player_slots[MAX_NET_USERS];
 };
 #pragma pack()
 
@@ -358,6 +359,17 @@ static uint8_t calculate_initial_input_lag(void)
     return input_lag_turns;
 }
 
+static void resolve_startup_player_slots(int8_t player_slots[MAX_NET_USERS])
+{
+    PlayerNumber slots_count = MAX_NET_USERS;
+    struct LevelInformation *level = get_level_info(get_loaded_level_number());
+    if (level && level->players > 0) {
+        slots_count = min(level->players, slots_count);
+    }
+    net_resolve_player_slots(slots_count);
+    memcpy(player_slots, net_player_slot, sizeof(net_player_slot));
+}
+
 static void build_local_startup_sync(void)
 {
     memset(&s_local_startup_sync, 0, sizeof(s_local_startup_sync));
@@ -367,6 +379,26 @@ static void build_local_startup_sync(void)
     build_local_user_preferences(s_local_startup_sync.user_prefs);
     s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
     s_local_startup_sync.initial_action_seed = (uint32_t)initial_replay_seed;
+    resolve_startup_player_slots(s_local_startup_sync.player_slots);
+    s_local_startup_sync.frontend_alliances = frontend_alliances;
+}
+
+static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USERS])
+{
+    SYNCDBG(6, "Starting");
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        set_net_user_player_number(i, PLAYER_NONE);
+        if (!net_user_info[i].network_user_active) {
+            continue;
+        }
+        if (player_slots[i] < 0 || player_slots[i] >= MAX_NET_USERS) {
+            ERRORLOG("Network user %d has invalid player slot %d", (int)i, (int)player_slots[i]);
+            return false;
+        }
+        set_net_user_player_number(i, player_slots[i]);
+    }
+    my_player_number = get_net_user_player_number(netstate.my_id);
+    return true;
 }
 
 static TbBool net_startup_sync_exchange_and_apply(void)
@@ -402,32 +434,12 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         ERRORLOG("Initial action seed %u differs from host's %u", (unsigned)initial_replay_seed, (unsigned)host_sync->initial_action_seed);
         initial_replay_seed = host_sync->initial_action_seed;
     }
+    frontend_alliances = host_sync->frontend_alliances;
+    if (!setup_network_player_numbers(host_sync->player_slots)) {
+        return false;
+    }
     setup_players_from_startup_packets(s_startup_sync_packets);
     return true;
-}
-
-static void setup_network_player_numbers(void)
-{
-    TbBool is_set = false;
-    int k = 0;
-    SYNCDBG(6, "Starting");
-    for (NetUserId i = 0; i < MAX_NET_USERS; i++)
-    {
-        game.user_states[i].player_id = PLAYER_NONE;
-        if (net_user_info[i].network_user_active)
-        {
-            game.user_states[i].player_id = k;
-            if ((!is_set) && (my_player_number == i))
-            {
-                is_set = true;
-                my_player_number = k;
-            }
-            k++;
-        }
-    }
-    if (!is_set) {
-        ERRORLOG("Local player number %d not found among active network players", my_player_number);
-    }
 }
 
 void setup_count_players(void)
@@ -464,7 +476,6 @@ TbBool init_players_network_game(void)
     }
     SYNCDBG(4,"Starting");
     TbBool initialized = true;
-    setup_network_player_numbers();
     for (int zip_idx = 0; zip_idx < REQUIRED_SPRITE_ZIP_COUNT; zip_idx++) {
         if (required_sprite_zip_checksums[zip_idx] != 0) {
             continue;
