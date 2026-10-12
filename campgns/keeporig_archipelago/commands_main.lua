@@ -127,8 +127,6 @@ end
 
 -- Testing area, set these up to options in the future.
 
-
-
 --local shuffle_tilesets = true
 --local change_player_colour = "RANDOM"
 --local change_neutrals_option = "KILL"
