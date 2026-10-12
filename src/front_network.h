@@ -71,7 +71,6 @@ extern int32_t net_lobby_max_players;
 
 #pragma pack()
 /******************************************************************************/
-PlayerNumber net_player_display_colour(NetUserId user);
 void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colours[MAX_NET_USERS], char *alliances);
 void process_network_error(long errcode);
 void draw_out_of_sync_box(long a1, long a2, long box_width);

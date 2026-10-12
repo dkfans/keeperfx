@@ -121,14 +121,6 @@ static PlayerNumber first_free_player_colour(void)
     return NET_PLAYER_COLOUR_RANDOM;
 }
 
-PlayerNumber net_player_display_colour(NetUserId user)
-{
-    if (net_player_colour[user] == NET_PLAYER_COLOUR_RANDOM) {
-        return (LbTimerClock() * max(turns_per_second, 1) / 1000 / (2 * neutral_flash_rate) + user) % MAX_NET_USERS;
-    }
-    return max(net_player_colour[user], 0);
-}
-
 static void host_set_player_colour(NetUserId user, PlayerNumber colour)
 {
     if (colour < 0 || colour > NET_PLAYER_COLOUR_RANDOM) {
