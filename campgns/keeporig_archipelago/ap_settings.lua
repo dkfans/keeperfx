@@ -34,7 +34,7 @@ if slot_data ~= nil and type(slot_data) == "table" then
     APSettings.IncludeKnightsInPool = IsValueTrue(slot_data.IncludeKnightsInPool)
     print("IncludeKnightsInPool:     " .. tostring(APSettings.IncludeKnightsInPool))
     APSettings.IncludeAvatarsInPool = IsValueTrue(slot_data.IncludeAvatarsInPool)
-    print("IncludeAvatarsInPool:     " .. tostring(APSettings.IncludeKnightsInPool))
+    print("IncludeAvatarsInPool:     " .. tostring(APSettings.IncludeAvatarsInPool))
     APSettings.ShuffleTilesets = IsValueTrue(slot_data.ShuffleTilesets)
     print("ShuffleTilesets:          " .. tostring(APSettings.ShuffleTilesets))
     APSettings.ChangePlayerColour = slot_data.ChangePlayerColour or 0 -- "null" catch, shouldn't happen.
