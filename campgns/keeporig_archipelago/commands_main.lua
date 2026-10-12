@@ -126,12 +126,25 @@ end
 ------ Fun stuff --------------------------------------------------------------------------------------------------------
 
 -- Testing area, set these up to options in the future.
-local shuffle_tilesets = true
-local change_player_colour = "RANDOM"
-local change_neutrals_option = "KILL"
-local swap_water_and_lava = true
-local remove_neutral_rooms = true
-local cruelty_mode = true
+
+
+
+--local shuffle_tilesets = true
+--local change_player_colour = "RANDOM"
+--local change_neutrals_option = "KILL"
+--local swap_water_and_lava = true
+--local remove_neutral_rooms = true
+--local cruelty_mode = true
+
+local slot_data = GetAPSlotData()
+
+local shuffle_tilesets = slot_data.ShuffleTilesets
+local change_player_colour = slot_data.ChangePlayerColour
+local change_neutrals_option = slot_data.ChangeNeutrals
+local swap_water_and_lava = slot_data.SwapWaterAndLava
+local remove_neutral_rooms = slot_data.RemoveNeutralRooms
+local cruelty_mode = slot_data.CrueltyMode
+
 
 local map_tileset_shuffle_value = {
     [1]  = -1,
