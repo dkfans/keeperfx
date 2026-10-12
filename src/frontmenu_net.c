@@ -325,6 +325,29 @@ void frontnet_add_session_back(struct GuiButton *gbtn)
     fade_palette_in = 1;
 }
 
+static void build_frontend_dimmed_remap(unsigned char *remap, int red_sixteenths, int green_sixteenths, int blue_sixteenths)
+{
+    for (int i = 0; i < PALETTE_COLORS; i++) {
+        int intensity = max(frontend_palette[3*i], max(frontend_palette[3*i+1], frontend_palette[3*i+2]));
+        remap[i] = LbPaletteFindColour(frontend_palette, intensity * red_sixteenths / 16, intensity * green_sixteenths / 16, intensity * blue_sixteenths / 16);
+    }
+}
+
+static void draw_player_icon(NetUserId user, int pos_x, int pos_y, int units_per_px)
+{
+    static unsigned char shadow_remap[PALETTE_COLORS];
+    static TbBool shadow_remap_initialized;
+    if (!shadow_remap_initialized) {
+        build_frontend_dimmed_remap(shadow_remap, 3, 3, 3);
+        shadow_remap_initialized = true;
+    }
+    if (net_player_colour[user] < 0) {
+        LbSpriteDrawResizedRemap(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_bullfrog_blue_med), shadow_remap);
+        return;
+    }
+    LbSpriteDrawResized(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_bullfrog_red_med + net_player_display_colour(user)));
+}
+
 static int alliance_box_tab_layout(struct GuiButton *gbtn, int *first_icon_x, int *icon_step)
 {
     int units_per_px = (gbtn->width * 16 + 100/2) / 100;
@@ -371,29 +394,13 @@ void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
     spr = get_frontend_sprite(GFS_hugearea_thc_cor_tr);
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (net_player_colour[user] >= 0) {
-            LbSpriteDrawResized(first_icon_x + user * icon_step, pos_y + 5, fs_units_per_px, get_frontend_sprite(GFS_bullfrog_red_med + net_player_display_colour(user)));
-        }
-    }
-}
-
-static void build_frontend_dimmed_remap(unsigned char *remap, int red_sixteenths, int green_sixteenths, int blue_sixteenths)
-{
-    for (int i = 0; i < PALETTE_COLORS; i++) {
-        int intensity = max(frontend_palette[3*i], max(frontend_palette[3*i+1], frontend_palette[3*i+2]));
-        remap[i] = LbPaletteFindColour(frontend_palette, intensity * red_sixteenths / 16, intensity * green_sixteenths / 16, intensity * blue_sixteenths / 16);
+    for (NetUserId user = 0; user < net_lobby_max_players; user++) {
+        draw_player_icon(user, first_icon_x + user * icon_step, pos_y + 5, fs_units_per_px);
     }
 }
 
 void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 {
-    static unsigned char shadow_remap[PALETTE_COLORS];
-    static TbBool shadow_remap_initialized;
-    if (!shadow_remap_initialized) {
-        build_frontend_dimmed_remap(shadow_remap, 3, 3, 3);
-        shadow_remap_initialized = true;
-    }
     int font_idx = frontend_button_caption_font(gbtn, 0);
     RendererSetDrawFlags(0);
     LbTextSetFont(frontend_font[font_idx]);
@@ -401,15 +408,12 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
     const struct TbSprite *spr = get_frontend_sprite(GFS_bullfrog_red_med);
     int fs_units_per_px = gbtn->height * 16 / (MAX_NET_USERS * (spr->SHeight * 13 / 8));
     int height = gbtn->height / MAX_NET_USERS;
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+    for (NetUserId user = 0; user < net_lobby_max_players; user++) {
         int shift_y = user * height;
-        int icon_x = gbtn->scr_pos_x;
-        int icon_y = gbtn->scr_pos_y + shift_y + abs(height - spr->SHeight * fs_units_per_px / 16) / 2;
+        draw_player_icon(user, gbtn->scr_pos_x, gbtn->scr_pos_y + shift_y + abs(height - spr->SHeight * fs_units_per_px / 16) / 2, fs_units_per_px);
         if (net_player_colour[user] < 0) {
-            LbSpriteDrawResizedRemap(icon_x, icon_y, fs_units_per_px, get_frontend_sprite(GFS_bullfrog_blue_med), shadow_remap);
             continue;
         }
-        LbSpriteDrawResized(icon_x, icon_y, fs_units_per_px, get_frontend_sprite(GFS_bullfrog_red_med + net_player_display_colour(user)));
         char player_text[128];
         unsigned long ping = 0;
         if (user != my_player_number) {

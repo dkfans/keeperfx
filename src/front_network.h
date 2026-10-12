@@ -67,6 +67,7 @@ extern char net_service[16][NET_SERVICE_LEN];
 extern char net_player_name[20];
 extern char tmp_net_player_name[24];
 extern int8_t net_player_colour[MAX_NET_USERS];
+extern int32_t net_lobby_max_players;
 
 #pragma pack()
 /******************************************************************************/

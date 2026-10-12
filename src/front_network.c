@@ -88,6 +88,7 @@ char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
 char tmp_net_player_name[24];
 int8_t net_player_colour[MAX_NET_USERS];
+int32_t net_lobby_max_players;
 static TbBool attempting_to_join_cancelled = false;
 static int32_t previous_active_players = 0;
 /******************************************************************************/
@@ -574,6 +575,8 @@ static void process_frontend_packets(void)
   nspckt->networkstatus_flags |= (fe_computer_players << NetStat_ComputerPlayersShift) & NetStat_ComputerPlayersMask;
   if (network_is_host()) {
     nspckt->stored_data1 = pack_player_colours();
+    nspckt->stored_data2 = netstate.max_users;
+    net_lobby_max_players = netstate.max_users;
   }
   if (LbNetwork_ExchangeFrontend(nspckt, &net_screen_packet, sizeof(struct ScreenPacket))) {
       ERRORLOG("LbNetwork_Exchange failed");
@@ -644,6 +647,9 @@ static void process_frontend_packets(void)
     host_update_player_colours();
   } else {
     unpack_player_colours(net_screen_packet[SERVER_ID].stored_data1);
+    if (net_screen_packet[SERVER_ID].stored_data2 >= MIN_NET_USERS && net_screen_packet[SERVER_ID].stored_data2 <= MAX_NET_USERS) {
+      net_lobby_max_players = net_screen_packet[SERVER_ID].stored_data2;
+    }
   }
   if (frontend_alliances == -1) {
     frontend_alliances = 0;
@@ -854,6 +860,7 @@ void frontnet_start_setup(void)
     previous_active_players = 0;
     memset(net_screen_packet, 0, sizeof(net_screen_packet));
     memset(net_player_colour, -1, sizeof(net_player_colour));
+    net_lobby_max_players = MAX_NET_USERS;
     frontend_alliances = -1;
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;
