@@ -266,6 +266,30 @@ class DungeonKeeperWorld(World):
     def get_filler_item_name(self) -> str:
         return items.get_random_filler_item_name(self)
 
+    def fill_slot_data(self) -> dict[str, Any]:
+        return {
+            "KeeperFXCreatures": self.options.KeeperFXCreatures.value,
+            "KeeperFXDoors": self.options.KeeperFXDoors.value,
+            "KeeperFXSpells": self.options.KeeperFXSpells.value,
+            "KeeperFXTraps": self.options.KeeperFXTraps.value,
+            "NegativeRecipes": self.options.NegativeRecipes.value,
+            "KeeperFXRecipes": self.options.KeeperFXRecipes.value,
+            "AddHeroes": self.options.AddHeroes.value,
+            "KeeperFXHeroes": self.options.KeeperFXHeroes.value,
+            "IncludeImpsInPool": self.options.IncludeImpsInPool.value,
+            "IncludeTunnellersInPool": self.options.IncludeTunnellersInPool.value,
+            "IncludeKnightsInPool": self.options.IncludeKnightsInPool.value,
+            "IncludeAvatarsInPool": self.options.IncludeAvatarsInPool.value,
+            "ShuffleTilesets": self.options.shuffle_tilesets.value,
+            "ChangePlayerColour": self.options.change_player_colour.value,
+            "ChangeNeutrals": self.options.change_neutrals.value,
+            "SwapWaterAndLava": self.options.swap_water_and_lava.value,
+            "RemoveNeutralRooms": self.options.remove_neutral_rooms.value,
+            "CrueltyMode": self.options.cruelty_mode.value,
+            "SecretLevels": self.options.secret_levels.value,
+        }
+    
+
     # There may be data that the game client will need to modify the behavior of the game.
     # This is what slot_data exists for. Upon every client connection, the slot's slot_data is sent to the client.
     # slot_data is just a dictionary using basic types, that will be converted to json when sent to the client.

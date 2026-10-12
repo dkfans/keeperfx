@@ -4,6 +4,7 @@
 --
 -- ********************************************
 
+APSettings = require("ap_settings")
 BoxLocations = require("box_locations")
 SentLocations = require("sent_locations")
 CommandsMain = require("commands_main")
@@ -13,7 +14,7 @@ ReceivedLocations = require("received_locations")
 function OnGameStart()
 	CommandsMain.MainSetup()
       IncreaseStartingGold()
-      FunOptions()
+      FunOptions(APSettings)
 end
 
 --will get called when the game is loaded from the Save/Load menu

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from Options import OptionGroup, ItemDict, Toggle
+from Options import OptionGroup, ItemDict, Toggle, Choice
 from worlds.AutoWorld import PerGameCommonOptions
 from .items import CREATURES, ROOMS, SPELLS, LEVELS, RECIPES
 from .enums import KeeperLevelName, KeeperPowerName, KeeperRoomName, KeeperCreatureName, KeeperRecipe
@@ -62,6 +62,50 @@ class IncludeKnightsInPool(Toggle):
 class IncludeAvatarsInPool(Toggle):
     """Choose if you want to attract Avatars."""
     display_name = "Attract Avatars"
+
+class ShuffleTilesets(Toggle):
+    """Choose if you want to shuffle tilesets."""
+    display_name = "Shuffle Tilesets"
+
+class ChangePlayerColour(Choice):
+    """Choose if you want to change the player colour."""
+    display_name = "Change Player Colour"
+        
+    option_red = 0
+    option_blue = 1
+    option_green = 2
+    option_yellow = 3
+    option_white = 4
+    option_purple = 5
+    option_black = 6
+    option_orange = 7
+    option_random = 8
+    
+    default = 0
+
+
+class ChangeNeutrals(Choice):
+    """Choose if you want neutral creatures to be aggressive or removed"""
+    display_name = "Change Neutrals"
+
+    option_default = 0
+    option_remove = 1
+    option_kill = 2
+    option_hostile = 3
+
+    default = 0
+
+class SwapWaterAndLava(Toggle):
+    """Choose if you want to swap water and lava."""
+    display_name = "Swap Water and Lava"
+
+class RemoveNeutralRooms(Toggle):
+    """Choose if you want to remove neutral rooms."""
+    display_name = "Remove Neutral Rooms"
+
+class CrueltyMode(Toggle):
+    """Choose if you want to enable cruelty mode."""
+    display_name = "Cruelty Mode"        
 
 # option for temple recipes unlocked/unlockable/removed
 
@@ -145,6 +189,13 @@ class DungeonKeeperOptions(PerGameCommonOptions):
     IncludeTunnellersInPool: IncludeTunnellersInPool
     IncludeKnightsInPool: IncludeKnightsInPool
     IncludeAvatarsInPool: IncludeAvatarsInPool
+    shuffle_tilesets: ShuffleTilesets
+    change_player_colour: ChangePlayerColour
+    change_neutrals: ChangeNeutrals
+    swap_water_and_lava: SwapWaterAndLava
+    remove_neutral_rooms: RemoveNeutralRooms
+    cruelty_mode: CrueltyMode
+
 
 option_groups = [
     OptionGroup("Levels", [
@@ -174,5 +225,13 @@ option_groups = [
         StartingSpells,
         StartingRooms,
         StartingCreatures,
-    ])
+    ]),
+    OptionGroup("Fun", [
+        ShuffleTilesets,
+        ChangePlayerColour,
+        ChangeNeutrals,
+        SwapWaterAndLava,
+        RemoveNeutralRooms,
+        CrueltyMode,
+    ])    
 ]

@@ -3,8 +3,9 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import TYPE_CHECKING, Literal
 
-from .items import CREATURES, ROOMS, SPELLS, LEVELS
-from .enums import KeeperLevelName, KeeperPowerName, KeeperRoomName, KeeperCreatureName
+
+from .items import CREATURES, ROOMS, SPELLS, LEVELS, KEEPERFX_CREATURES
+from .enums import KeeperLevelName, KeeperPowerName, KeeperRoomName, KeeperCreatureName, KeeperFXCreatureName, KeeperFXCreature
 
 from rule_builder.rules import (Rule, CanReachEntrance, CanReachLocation, Has, HasAll, HasAny, HasFromListUnique, HasGroupUnique, HasGroup,
                                 OptionFilter, True_, HasFromList)
@@ -119,48 +120,48 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
         state.has_group("All Levels", world.player, count=5)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=4)
-    ) & Has("Training Room")
+    ) & state.has("Training Room", world.player)
     location_rules["Level 8 Beaten"] = lambda state: (
         state.has_group("All Levels", world.player, count=5)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=4)
-    ) & Has("Training Room")
+    ) & state.has("Training Room", world.player)
     location_rules["Level 9 Beaten"] = lambda state: (
         state.has_group("All Levels", world.player, count=5)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=4)
-    ) & Has("Training Room")
+    ) & state.has("Training Room", world.player)
 
     location_rules["Level 10 Beaten"] = lambda state: (
         state.has_group("All Levels", world.player, count=8)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=6)
-    ) & Has("Training Room")
+    ) & state.has("Training Room", world.player)
     location_rules["Level 11 Beaten"] = lambda state: (
         state.has_group("All Levels", world.player, count=8)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=6)
-    ) & Has("Training Room")
+    ) & state.has("Training Room", world.player)
     location_rules["Level 12 Beaten"] = lambda state: (
         state.has_group("All Levels", world.player, count=8)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=6)
-    ) & Has("Training Room")
+    ) & state.has("Training Room", world.player)
     location_rules["Level 13 Beaten"] = lambda state: (
         state.has_group("All Levels", world.player, count=8)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=6)
-    ) & Has("Training Room")
+    ) & state.has("Training Room", world.player)
     location_rules["Level 14 Beaten"] = lambda state: (
         state.has_group("All Levels", world.player, count=8)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=6)
-    ) & Has("Training Room")
+    ) & state.has("Training Room", world.player)
     location_rules["Level 15 Beaten"] = lambda state: (
         state.has_group("All Levels", world.player, count=8)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=6)
-    ) & HasAll("Training Room","Library")
+    ) & state.has("Training Room", world.player)
 
     location_rules["Level 16 Beaten"] = lambda state: (
         state.has_group("All Levels", world.player, count=11)
@@ -171,22 +172,25 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
         state.has_group("All Levels", world.player, count=11)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=8)
-    ) & Has("Training Room")
+    ) & state.has("Training Room", world.player)
     location_rules["Level 18 Beaten"] = lambda state: (
         state.has_group("All Levels", world.player, count=11)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=8)
-    ) & Has("Training Room")
+    ) & state.has("Training Room", world.player)
     location_rules["Level 19 Beaten"] = lambda state: (
         state.has_group("All Levels", world.player, count=11)
         if world.options.secret_levels.value
         else state.has_group("Levels", world.player, count=8)
     )
     location_rules["Level 20 Beaten"] = lambda state: (
-        state.has_group("All Levels", world.player, count=11)
-        if world.options.secret_levels.value
-        else state.has_group("Levels", world.player, count=8)
-    ) & Has("Training Room")
+        (
+            state.has_group("All Levels", world.player, count=11)
+            if world.options.secret_levels.value
+            else state.has_group("Levels", world.player, count=8)
+        )
+        & state.has("Training Room", world.player)
+    )
 
     location_rules["Level 105 Beaten"] = HasAny("Create Imp","Recruit Tunneller") #starts with no Imps.
     location_rules["Buffy Oak South Gold Seam"] = Has("Level 13 Beaten") #behind opponents, can't be expected to reach it without beating them.

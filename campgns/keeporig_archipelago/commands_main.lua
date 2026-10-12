@@ -125,23 +125,15 @@ end
 
 ------ Fun stuff --------------------------------------------------------------------------------------------------------
 
--- Testing area, set these up to options in the future.
-
+--TODO: Triple check these values are migrated properly, and tidy up.
+--[[
 --local shuffle_tilesets = true
 --local change_player_colour = "RANDOM"
 --local change_neutrals_option = "KILL"
 --local swap_water_and_lava = true
 --local remove_neutral_rooms = true
 --local cruelty_mode = true
-
-local slot_data = GetAPSlotData()
-
-local shuffle_tilesets = slot_data.ShuffleTilesets
-local change_player_colour = slot_data.ChangePlayerColour
-local change_neutrals_option = slot_data.ChangeNeutrals
-local swap_water_and_lava = slot_data.SwapWaterAndLava
-local remove_neutral_rooms = slot_data.RemoveNeutralRooms
-local cruelty_mode = slot_data.CrueltyMode
+]]
 
 
 local map_tileset_shuffle_value = {
@@ -229,10 +221,11 @@ function PlayerColour()
 end
 
 -- if "remove neutrals" is on
-function ChangeOnMapNeutrals()
+function ChangeOnMapNeutrals(setting)
       local neutral_creatures_table = GetCreaturesOfPlayer(PLAYER_NEUTRAL)
-      if change_neutrals_option == "REMOVE" then
+      if setting == "REMOVE" then
             local creature_count = #neutral_creatures_table
+
             for _, creature in ipairs(neutral_creatures_table) do
                   if creature then
                         creature:delete()
@@ -240,7 +233,7 @@ function ChangeOnMapNeutrals()
             end
             print(creature_count .. " neutrals removed!")
             QuickMessage(creature_count .. " neutrals removed!", "ARCHIPELAGO_ICON")
-      elseif change_neutrals_option == "KILL" then
+      elseif setting == "KILL" then
             local creature_count = #neutral_creatures_table
             for _, creature in ipairs(neutral_creatures_table) do
                   if creature then
@@ -249,7 +242,7 @@ function ChangeOnMapNeutrals()
             end
             print(creature_count .. " neutrals killed!")
             QuickMessage(creature_count .. " neutrals killed!", "ARCHIPELAGO_ICON")
-      elseif change_neutrals_option == "HOSTILE" then
+      elseif setting == "HOSTILE" then
             local creature_count = #neutral_creatures_table
             ComputerPlayer("PLAYER5","ROAMING")
             RunDKScriptCommand("ALLY_PLAYERS(PLAYER5, PLAYER1, 3)")
@@ -444,9 +437,9 @@ end
 
 
 
-function FunOptions()
+function FunOptions(settings)
       print("=== FUN OPTIONS ===")
-      if shuffle_tilesets then
+      if settings.ShuffleTilesets then
             for i = 1,26 do
                   map_tileset_shuffle_value[i] = math.random(0,13)
             end
@@ -455,27 +448,27 @@ function FunOptions()
             QuickMessage("Tileset changed to: " .. Map.default_texture, "ARCHIPELAGO_ICON")
       end
 
-      if change_player_colour ~= nil and change_player_colour ~= "RED" then
+      if settings.ChangePlayerColour ~= nil and settings.ChangePlayerColour ~= "RED" then
             if type(change_player_colour) == "number" then
                   if change_player_colour >= 8 then
                         PLAYER0.colour = player_colour_change_table[math.random(0,7)]
-                  elseif change_player_colour < 0 then
+                  elseif settings.ChangePlayerColour < 0 then
                         PLAYER0.colour = player_colour_change_table[0]
                   else
-                        PLAYER0.colour = player_colour_change_table[change_player_colour]
+                        PLAYER0.colour = player_colour_change_table[settings.ChangePlayerColour]
                   end
-            elseif type(change_player_colour) == "string" then
-                  if change_player_colour == "RANDOM" then
+            elseif type(settings.ChangePlayerColour) == "string" then
+                  if settings.ChangePlayerColour == "RANDOM" then
                         PLAYER0.colour = player_colour_change_table[math.random(0,7)]
-                  elseif change_player_colour == "red"
-                  or change_player_colour == "BLUE"
-                  or change_player_colour == "GREEN"
-                  or change_player_colour == "YELLOW"
-                  or change_player_colour == "WHITE"
-                  or change_player_colour == "PURPLE"
-                  or change_player_colour == "BLACK"
-                  or change_player_colour == "ORANGE" then
-                        PLAYER0.colour = change_player_colour
+                  elseif settings.ChangePlayerColour == "red"
+                  or settings.ChangePlayerColour == "BLUE"
+                  or settings.ChangePlayerColour == "GREEN"
+                  or settings.ChangePlayerColour == "YELLOW"
+                  or settings.ChangePlayerColour == "WHITE"
+                  or settings.ChangePlayerColour == "PURPLE"
+                  or settings.ChangePlayerColour == "BLACK"
+                  or settings.ChangePlayerColour == "ORANGE" then
+                        PLAYER0.colour = settings.ChangePlayerColour
                   end
             end
             PlayerColour()
@@ -483,15 +476,13 @@ function FunOptions()
             QuickMessage("Player colour changed to: " .. tostring(PLAYER0.colour), "ARCHIPELAGO_ICON")
       end
 
-      if change_neutrals_option then
-            ChangeOnMapNeutrals()
-      end
+      ChangeOnMapNeutrals(settings.ChangeNeutrals)
 
-      if swap_water_and_lava then
+      if settings.SwapWaterAndLava then
             SwapWaterAndLava()
       end
 
-      if remove_neutral_rooms then
+      if settings.RemoveNeutralRooms then
             RemoveNeutralRooms()
       end
 

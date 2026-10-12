@@ -215,7 +215,7 @@ KEEPERFX_SPELLS = {
     KeeperFXPowerName.POWER_FLIGHT: KeeperItem(KeeperFXPower.POWER_FLIGHT, ItemClassification.useful),
     KeeperFXPowerName.POWER_VISION: KeeperItem(KeeperFXPower.POWER_VISION, ItemClassification.useful),
     KeeperFXPowerName.POWER_TUNNELLER: KeeperItem(KeeperFXPower.POWER_TUNNELLER, ItemClassification.useful),
-    KeeperFXPowerName.POWER_CLEANSE: KeeperItem(KeeperFXPower.POWER_CLEANSE, ItemClassification.Useful),
+    KeeperFXPowerName.POWER_CLEANSE: KeeperItem(KeeperFXPower.POWER_CLEANSE, ItemClassification.useful),
 #   could optionally split POWER_HAND up into POWER_PICKUP_CREATURE, POWER_PICKUP_GOLD, POWER_PICKUP_FOOD
 }
 

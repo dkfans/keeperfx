@@ -134,14 +134,14 @@ struct ScriptVariableDetails get_condition_details(PlayerNumber plyr_idx, unsign
     struct ScriptVariableDetails details = {
         .value = get_condition_value(plyr_idx, valtype, validx),
         .icon_idx = -1,
-        .x_offset = 0,
+        .x_offset = 4 * units_per_pixel / 16,
         .y_offset = 2.5 * units_per_pixel / 16,
     };
 
     for (int i = 0; i < sizeof(variable_icon_mapping) / sizeof(variable_icon_mapping[0]); i++) {
         if (variable_icon_mapping[i].valtype == valtype) {
             details.icon_idx = variable_icon_mapping[i].icon_idx;
-            details.x_offset = variable_icon_mapping[i].x_offset * units_per_pixel / 16;
+            details.x_offset = (variable_icon_mapping[i].x_offset * units_per_pixel / 16) + 4 * units_per_pixel / 16;
             details.y_offset = variable_icon_mapping[i].y_offset * units_per_pixel / 16;
             
             // If a specialized resolver is needed, call it

@@ -259,6 +259,72 @@ static int lua_ap_get_items(lua_State *L)
     return 1; 
 }
 
+static int lua_ap_get_slot_data(lua_State *L)
+{
+    lua_newtable(L);
+
+    struct AP_SlotData slot_data = g_ap_state.slot_data;
+
+    lua_pushinteger(L, slot_data.KeeperFXCreatures);
+    lua_setfield(L, -2, "KeeperFXCreatures");
+
+    lua_pushinteger(L, slot_data.KeeperFXDoors);
+    lua_setfield(L, -2, "KeeperFXDoors");
+
+    lua_pushinteger(L, slot_data.KeeperFXSpells);
+    lua_setfield(L, -2, "KeeperFXSpells");
+
+    lua_pushinteger(L, slot_data.KeeperFXTraps);
+    lua_setfield(L, -2, "KeeperFXTraps");
+
+    lua_pushinteger(L, slot_data.NegativeRecipes);
+    lua_setfield(L, -2, "NegativeRecipes");
+
+    lua_pushinteger(L, slot_data.KeeperFXRecipes);
+    lua_setfield(L, -2, "KeeperFXRecipes");
+
+    lua_pushinteger(L, slot_data.AddHeroes);
+    lua_setfield(L, -2, "AddHeroes");
+
+    lua_pushinteger(L, slot_data.KeeperFXHeroes);
+    lua_setfield(L, -2, "KeeperFXHeroes");
+
+    lua_pushinteger(L, slot_data.IncludeImpsInPool);
+    lua_setfield(L, -2, "IncludeImpsInPool");
+
+    lua_pushinteger(L, slot_data.IncludeTunnellersInPool);
+    lua_setfield(L, -2, "IncludeTunnellersInPool");
+
+    lua_pushinteger(L, slot_data.IncludeKnightsInPool);
+    lua_setfield(L, -2, "IncludeKnightsInPool");
+
+    lua_pushinteger(L, slot_data.IncludeAvatarsInPool);
+    lua_setfield(L, -2, "IncludeAvatarsInPool");
+
+    lua_pushinteger(L, slot_data.ShuffleTilesets);
+    lua_setfield(L, -2, "ShuffleTilesets");
+
+    lua_pushinteger(L, slot_data.ChangePlayerColour);
+    lua_setfield(L, -2, "ChangePlayerColour");
+
+    lua_pushinteger(L, slot_data.ChangeNeutrals);
+    lua_setfield(L, -2, "ChangeNeutrals");
+
+    lua_pushinteger(L, slot_data.SwapWaterAndLava);
+    lua_setfield(L, -2, "SwapWaterAndLava");
+
+    lua_pushinteger(L, slot_data.RemoveNeutralRooms);
+    lua_setfield(L, -2, "RemoveNeutralRooms");
+
+    lua_pushinteger(L, slot_data.CrueltyMode);
+    lua_setfield(L, -2, "CrueltyMode");
+
+    lua_pushinteger(L, slot_data.SecretLevels);
+    lua_setfield(L, -2, "SecretLevels");
+
+    return 1;
+}
+
 static int lua_ap_checked_locations(lua_State *L)
 {
     int location_count = g_ap_state.locations_count;
@@ -2851,7 +2917,8 @@ static const luaL_Reg global_methods[] = {
     {"DecAPLvlBoxRemain",                lua_ap_decrease_level_box_remain},
     {"SendAPMessage",                    lua_ap_send_message},
     {"GetAPLastProcessedItemIndex",      lua_ap_get_last_processed_item_index},
-    {"SetAPLastProcessedItemIndex",      lua_ap_set_last_processed_item_index}
+    {"SetAPLastProcessedItemIndex",      lua_ap_set_last_processed_item_index},
+    {"GetAPSlotData",                    lua_ap_get_slot_data},
     
 };
 /*

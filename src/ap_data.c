@@ -171,7 +171,7 @@ const struct AP_LocationInfo *ap_location_info_get_by_name(const char* itm_name)
 {
     for (int i = 0; i < ap_location_info_count; i++)
     {
-        if (strcmp(ap_location_info[i].item_name,itm_name) == 0)
+        if (strcmp(ap_location_info[i].location_name,itm_name) == 0)
             return &ap_location_info[i];
     }
 

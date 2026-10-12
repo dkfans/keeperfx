@@ -690,7 +690,7 @@ void draw_script_variable_list(void)
         }
         RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
         long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
-        long scr_y = 16 * units_per_pixel / 16;
+        long scr_y = 12 * units_per_pixel / 16;
         if (game.armageddon_cast_turn != 0)
         {
             struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
@@ -709,7 +709,7 @@ void draw_script_variable_list(void)
         draw_round_slab64k(scr_x, scr_y, units_per_pixel, width, height + padding, ROUNDSLAB64K_DARK);
     
         scr_y += padding;
-        width -= 4 * units_per_pixel / 16;    
+        width -= 8 * units_per_pixel / 16;    
         LbTextSetWindow(scr_x, scr_y, width, height);  
         // draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
         int y;
