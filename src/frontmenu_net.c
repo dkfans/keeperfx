@@ -381,9 +381,9 @@ static void draw_player_icon(NetUserId user, int pos_x, int pos_y, int units_per
         struct TbRect bounds;
         get_sprite_visible_bounds(qmark, &bounds);
         int qmark_units_per_px = units_per_px * spr->SHeight / max(bounds.bottom - bounds.top, 1);
-        int offset_x = (spr->SWidth * units_per_px - (bounds.left + bounds.right) * qmark_units_per_px) / 32;
-        int offset_y = (spr->SHeight * units_per_px - (bounds.top + bounds.bottom) * qmark_units_per_px) / 32;
         int shadow_offset = max(units_per_px / 16, 1);
+        int offset_x = (spr->SWidth * units_per_px - (bounds.left + bounds.right) * qmark_units_per_px) / 32 - shadow_offset;
+        int offset_y = (spr->SHeight * units_per_px - (bounds.top + bounds.bottom) * qmark_units_per_px) / 32;
         LbSpriteDrawResizedRemap(pos_x + offset_x + shadow_offset, pos_y + offset_y + shadow_offset, qmark_units_per_px, qmark, random_shadow_remap);
         LbSpriteDrawResizedRemap(pos_x + offset_x, pos_y + offset_y, qmark_units_per_px, qmark, random_remap);
         return;
