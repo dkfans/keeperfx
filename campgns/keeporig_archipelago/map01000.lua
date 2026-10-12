@@ -4,6 +4,7 @@
 --
 -- ********************************************
 
+APSettings = require("ap_settings")
 BoxLocations = require("box_locations")
 SentLocations = require("sent_locations")
 CommandsMain = require("commands_main")
