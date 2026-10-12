@@ -77,6 +77,7 @@
 #include "local_camera.h"
 #include "packets.h"
 #include "replay.h"
+#include "replay_rewind.h"
 #include "console_cmd.h"
 #include "engine_redraw.h"
 #include "timer.h"
@@ -2738,6 +2739,7 @@ static short get_packet_load_game_inputs(void)
             process_pause_packet(0, 0);
         }
         clear_flag(game.operation_flags, GOF_Paused);
+        replay_rewind_capture();
         load_packets_for_turn(replay.pckt_gameturn);
         replay.pckt_gameturn++;
     }

@@ -38,6 +38,7 @@
 #include "map_utils.h"
 #include "game_legacy.h"
 #include "kfx/profiling/KfxProfilingC.h"
+#include "replay_rewind.h"
 #include "post_inc.h"
 
 #define EDGEFIT_LEN           64
@@ -109,8 +110,8 @@ static int32_t route_fwd[ROUTE_LENGTH];
 static int32_t route_bak[ROUTE_LENGTH];
 
 NavColour *LastTriangulatedMap;
-long ix_Border;
-int32_t Border[BORDER_LENGTH];
+kfx_rewindable long ix_Border;
+kfx_rewindable int32_t Border[BORDER_LENGTH];
 
 TbBool nav_map_initialised = 0;
 

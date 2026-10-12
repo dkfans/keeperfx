@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "gui_topmsg.h"
 #include "kfx/profiling/KfxProfilingC.h"
+#include "replay_rewind.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -30,11 +31,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-int32_t count_Points;
-int32_t ix_Points;
-int32_t free_Points;
+kfx_rewindable int32_t count_Points;
+kfx_rewindable int32_t ix_Points;
+kfx_rewindable int32_t free_Points;
 
-struct Point ari_Points[POINTS_COUNT];
+kfx_rewindable struct Point ari_Points[POINTS_COUNT];
 /******************************************************************************/
 
 static AridPointId point_new(void)
