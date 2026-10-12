@@ -102,37 +102,6 @@ end
 
 function OnChatMsg(plyr_idx, msg)
       SendAPMessage(msg)
-      local slot_data = GetAPSlotData()
-
-    if type(slot_data) == "table" then
-    print("--- Archipelago Slot Data ---")
-    
-    -- Print each field explicitly
-    print("KeeperFXCreatures:        " .. tostring(slot_data.KeeperFXCreatures))
-    print("KeeperFXDoors:            " .. tostring(slot_data.KeeperFXDoors))
-    print("KeeperFXSpells:           " .. tostring(slot_data.KeeperFXSpells))
-    print("KeeperFXTraps:            " .. tostring(slot_data.KeeperFXTraps))
-    print("NegativeRecipes:          " .. tostring(slot_data.NegativeRecipes))
-    print("KeeperFXRecipes:          " .. tostring(slot_data.KeeperFXRecipes))
-    print("AddHeroes:                " .. tostring(slot_data.AddHeroes))
-    print("KeeperFXHeroes:           " .. tostring(slot_data.KeeperFXHeroes))
-    print("IncludeImpsInPool:        " .. tostring(slot_data.IncludeImpsInPool))
-    print("IncludeTunnellersInPool:  " .. tostring(slot_data.IncludeTunnellersInPool))
-    print("IncludeKnightsInPool:     " .. tostring(slot_data.IncludeKnightsInPool))
-    print("ShuffleTilesets:          " .. tostring(slot_data.ShuffleTilesets))
-    print("ChangePlayerColour:       " .. tostring(slot_data.ChangePlayerColour))
-    print("ChangeNeutrals:           " .. tostring(slot_data.ChangeNeutrals))
-    print("SwapWaterAndLava:         " .. tostring(slot_data.SwapWaterAndLava))
-    print("RemoveNeutralRooms:       " .. tostring(slot_data.RemoveNeutralRooms))
-    print("CrueltyMode:              " .. tostring(slot_data.CrueltyMode))
-    print("SecretLevels:             " .. tostring(slot_data.SecretLevels))
-
-    
-    
-    print("------------------------------")
-    else
-    print("Error: Expected slot_data to be a table, got " .. type(slot_data))
-    end
 end
 
 function print_r(t, indent)
@@ -157,11 +126,15 @@ end
 ------ Fun stuff --------------------------------------------------------------------------------------------------------
 
 -- Testing area, set these up to options in the future.
+
+--TODO: Triple check these values are migrated properly, and tidy up.
+--[[
 local shuffle_tilesets = true
 local change_player_colour = "RANDOM"
 local change_neutrals_option = "KILL"
 local swap_water_and_lava = true
 local remove_neutral_rooms = true
+]]
 
 local map_tileset_shuffle_value = {
     [1]  = -1,
@@ -248,23 +221,23 @@ function PlayerColour()
 end
 
 -- if "remove neutrals" is on
-function ChangeOnMapNeutrals()
+function ChangeOnMapNeutrals(setting)
       local neutral_creatures_table = GetCreaturesOfPlayer(PLAYER_NEUTRAL)
-      if change_neutrals_option == "REMOVE" then
+      if setting == "REMOVE" then
             for _, creature in ipairs(neutral_creatures_table) do
                   if creature then
                         creature:delete()
                   end
             end
             print("Neutrals removed!")
-      elseif change_neutrals_option == "KILL" then
+      elseif setting == "KILL" then
             for _, creature in ipairs(neutral_creatures_table) do
                   if creature then
                         creature:kill()
                   end
             end
             print("Neutrals killed!")
-      elseif change_neutrals_option == "HOSTILE" then
+      elseif setting == "HOSTILE" then
             ComputerPlayer("PLAYER5","ROAMING")
             RunDKScriptCommand("ALLY_PLAYERS(PLAYER5, PLAYER1, 3)")
             RunDKScriptCommand("ALLY_PLAYERS(PLAYER5, PLAYER2, 3)")
@@ -383,9 +356,9 @@ function RemoveNeutralRooms()
 end
 
 
-function FunOptions()
+function FunOptions(settings)
       print("=== FUN OPTIONS ===")
-      if shuffle_tilesets then
+      if settings.ShuffleTilesets then
             for i = 1,26 do
                   map_tileset_shuffle_value[i] = math.random(0,13)
             end
@@ -393,42 +366,40 @@ function FunOptions()
             print("Tileset changed to: " .. Map.default_texture)
       end
 
-      if change_player_colour ~= nil then
-            if type(change_player_colour) == "number" then
-                  if change_player_colour >= 8 then
+      if settings.ChangePlayerColour ~= nil then
+            if type(settings.ChangePlayerColour) == "number" then
+                  if settings.ChangePlayerColour >= 8 then
                         PLAYER0.colour = player_colour_change_table[math.random(0,7)]
-                  elseif change_player_colour < 0 then
+                  elseif settings.ChangePlayerColour < 0 then
                         PLAYER0.colour = player_colour_change_table[0]
                   else
-                        PLAYER0.colour = player_colour_change_table[change_player_colour]
+                        PLAYER0.colour = player_colour_change_table[settings.ChangePlayerColour]
                   end
-            elseif type(change_player_colour) == "string" then
-                  if change_player_colour == "random" then
+            elseif type(settings.ChangePlayerColour) == "string" then
+                  if settings.ChangePlayerColour == "random" then
                         PLAYER0.colour = player_colour_change_table[math.random(0,7)]
-                  elseif change_player_colour == "red"
-                  or change_player_colour == "BLUE"
-                  or change_player_colour == "GREEN"
-                  or change_player_colour == "YELLOW"
-                  or change_player_colour == "WHITE"
-                  or change_player_colour == "PURPLE"
-                  or change_player_colour == "BLACK"
-                  or change_player_colour == "ORANGE" then
-                        PLAYER0.colour = change_player_colour
+                  elseif settings.ChangePlayerColour == "red"
+                  or settings.ChangePlayerColour == "BLUE"
+                  or settings.ChangePlayerColour == "GREEN"
+                  or settings.ChangePlayerColour == "YELLOW"
+                  or settings.ChangePlayerColour == "WHITE"
+                  or settings.ChangePlayerColour == "PURPLE"
+                  or settings.ChangePlayerColour == "BLACK"
+                  or settings.ChangePlayerColour == "ORANGE" then
+                        PLAYER0.colour = settings.ChangePlayerColour
                   end
             end
             PlayerColour()
             print("Player colour changed to: " .. PLAYER0.colour)
       end
 
-      if change_neutrals_option then
-            ChangeOnMapNeutrals()
-      end
+      ChangeOnMapNeutrals(settings.ChangeNeutrals)
 
-      if swap_water_and_lava then
+      if settings.SwapWaterAndLava then
             SwapWaterAndLava()
       end
 
-      if remove_neutral_rooms then
+      if settings.RemoveNeutralRooms then
             RemoveNeutralRooms()
       end
 end
