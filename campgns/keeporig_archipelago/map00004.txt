@@ -1,0 +1,232 @@
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Level Flowerhat
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM            KeeperFX CCP Team
+REM  Date:     17 Dec 1996 - 07 Sep 2014
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
+LEVEL_VERSION(1)
+
+REM New rooms for the player:
+REM   BRIDGE - Researchable
+REM   WORKSHOP - When other rooms are built
+REM New creatures for the player:
+REM   TROLL - Attracted by WORKSHOP
+REM New powers for the player:
+REM   POWER_CALL_TO_ARMS - Researchable
+REM   POWER_HEAL_CREATURE - Researchable
+REM New manufacture for the player:
+REM   DOOR_WOOD - Manufacture
+REM   TRAP_POISON_GAS - Manufacture
+
+SET_GENERATE_SPEED(400)
+
+START_MONEY(PLAYER0,3000)
+
+MAX_CREATURES(PLAYER0,20)
+
+ADD_CREATURE_TO_POOL(FLY,5)
+ADD_CREATURE_TO_POOL(BUG,10)
+ADD_CREATURE_TO_POOL(DEMONSPAWN,20)
+ADD_CREATURE_TO_POOL(TROLL,20)
+ADD_CREATURE_TO_POOL(SORCEROR,5)
+
+SET_CREATURE_MAX_LEVEL(PLAYER_GOOD,KNIGHT,3)
+SET_CREATURE_MAX_LEVEL(PLAYER_GOOD,THIEF,3)
+SET_CREATURE_MAX_LEVEL(PLAYER_GOOD,DWARFA,3)
+SET_CREATURE_MAX_LEVEL(PLAYER_GOOD,TUNNELLER,3)
+SET_CREATURE_MAX_LEVEL(PLAYER_GOOD,ARCHER,3)
+SET_CREATURE_MAX_LEVEL(PLAYER_GOOD,BARBARIAN,2)
+
+SET_CREATURE_MAX_LEVEL(PLAYER0,DEMONSPAWN,10)
+
+CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
+CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
+
+ROOM_AVAILABLE(PLAYER0,TREASURE,1,1)
+ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
+ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
+ROOM_AVAILABLE(PLAYER0,TRAINING,1,1)
+ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
+ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
+
+DOOR_AVAILABLE(PLAYER0,WOOD,1,0)
+TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+
+MAGIC_AVAILABLE(PLAYER0,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_HAND,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_HEAL_CREATURE,1,0)
+
+CREATE_PARTY(WEAKLINGS)
+	ADD_TO_PARTY(WEAKLINGS,ARCHER,1,100,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(WEAKLINGS,DWARFA,1,100,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(WEAKLINGS,ARCHER,1,100,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(WEAKLINGS,DWARFA,1,100,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(THIEVES)
+	ADD_TO_PARTY(THIEVES,THIEF,1,100,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(THIEVES,THIEF,1,100,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(BARBS)
+	ADD_TO_PARTY(BARBS,BARBARIAN,1,100,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(BARBS,BARBARIAN,1,100,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(HEROMIX)
+	ADD_TO_PARTY(HEROMIX,BARBARIAN,1,100,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(HEROMIX,ARCHER,2,100,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(LANDLORD)
+	ADD_TO_PARTY(LANDLORD,KNIGHT,3,20000,ATTACK_ENEMIES,0)
+
+REM ****************************************************************************
+
+REM "Build up a dungeon including a treasure room, a lair, a hatchery, a training room and a research room..."
+DISPLAY_OBJECTIVE(45,PLAYER0)
+
+IF_AVAILABLE(PLAYER0,BRIDGE == 1)
+	REM "Your researchers have given you the ability to lay down bridges. You will need them to cross over lava."
+	DISPLAY_INFORMATION(46,ALL_PLAYERS)
+ENDIF
+
+REM Let's use flags to support a situation when player builds a room and then sells it
+IF(PLAYER0,TREASURE > 0)
+	SET_FLAG(PLAYER0,FLAG0,1)
+ENDIF
+
+IF(PLAYER0,LAIR > 0)
+	SET_FLAG(PLAYER0,FLAG1,1)
+ENDIF
+
+IF(PLAYER0,GARDEN > 0)
+	SET_FLAG(PLAYER0,FLAG2,1)
+ENDIF
+
+IF(PLAYER0,TRAINING > 0)
+	SET_FLAG(PLAYER0,FLAG3,1)
+ENDIF
+
+IF(PLAYER0,RESEARCH > 0)
+	SET_FLAG(PLAYER0,FLAG4,1)
+ENDIF
+
+IF(PLAYER0,ENTRANCE > 0)
+	SET_FLAG(PLAYER0,FLAG6,1)
+ENDIF
+
+REM When all the available rooms are built, allow the player to build WORKSHOP
+IF(PLAYER0,FLAG0 == 1)
+	IF(PLAYER0,FLAG1 == 1)
+		IF(PLAYER0,FLAG2 == 1)
+			IF(PLAYER0,FLAG3 == 1)
+				IF(PLAYER0,FLAG4 == 1)
+					IF(PLAYER0,FLAG6 == 1)
+						REM "When you are happy with your dungeon, build a 3x3 workshop which is now available to you. There, your creatures will be able to build doors and traps."
+						DISPLAY_OBJECTIVE(47,PLAYER0)
+						ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,1)
+						TUTORIAL_FLASH_BUTTON(13,-1)
+					ENDIF
+				ENDIF
+			ENDIF
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER0,WORKSHOP >= 9)
+	REM "To manufacture Traps and Doors in your Workshop you will need to assign creatures to it, by dropping them into the room..."
+	DISPLAY_INFORMATION(48,ALL_PLAYERS)
+	SET_FLAG(PLAYER0,FLAG5,1)
+ENDIF
+
+IF(PLAYER0,FLAG5 == 1)
+	IF_AVAILABLE(PLAYER0,BRIDGE == 1)
+		IF_ACTION_POINT(2,PLAYER0)
+			REM "When your troops are sufficient in number and have had some training, lead them north and crush any who oppose you."
+			DISPLAY_OBJECTIVE(49,PLAYER0)
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER0,FLAG5 == 1)
+	IF_AVAILABLE(PLAYER0,BRIDGE == 0)
+		IF_ACTION_POINT(2,PLAYER0)
+			REM "You will have to find a way to cross the river of molten lava that bars your way."
+			DISPLAY_OBJECTIVE(50,PLAYER0)
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER0,FLAG5 == 1)
+	CREATURE_AVAILABLE(PLAYER0,BUG,0,0)
+	CREATURE_AVAILABLE(PLAYER0,FLY,0,0)
+	CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,0,0)
+	CREATURE_AVAILABLE(PLAYER0,SORCEROR,0,0)
+	CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
+ENDIF
+
+IF_ACTION_POINT(1,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WEAKLINGS,3,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,BARBS,7,1)
+ENDIF
+
+IF_ACTION_POINT(5,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,4,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,8,1)
+ENDIF
+
+IF_ACTION_POINT(6,PLAYER0)
+	REM "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby and administer the coup de grace."
+	DISPLAY_OBJECTIVE(51,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,-1,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,HEROMIX,-1,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,HEROMIX,-1,1)
+ENDIF
+
+IF_CONTROLS(PLAYER0,TROLL > 0)
+	CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+	CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+	CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
+	CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
+	CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
+	REM "A Troll has joined you. Skilled in the craft of manufacturing, trolls are best employed doing dark deeds in your Workshop..."
+	DISPLAY_INFORMATION(52,ALL_PLAYERS)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,WOOD == 1)
+	REM "Your engineers have come up with a wooden door. Place them down in corridors. They will keep out the enemy but allow your creatures to pass. You can lock doors by tagging them."
+	DISPLAY_INFORMATION(54,ALL_PLAYERS)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POISON_GAS == 1)
+	REM "Your engineers have manufactured a poison gas trap. Lay them down and when triggered, it will shroud that area in a deadly vapour."
+	DISPLAY_INFORMATION(55,ALL_PLAYERS)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS == 1)
+	REM "You have researched the call to arms spell. Cast it once to gather creatures into a group, then cast it again to where you want that group to go..."
+	DISPLAY_INFORMATION(56,ALL_PLAYERS)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POWER_HEAL_CREATURE == 1)
+	REM "Your researchers have discovered the HEAL CREATURE spell that allows to replenish the health of your creatures and keep them from dying for a while longer."
+	DISPLAY_INFORMATION(176,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+	REM "With the enemy Dungeon Heart in ruins, you have trounced the once proud opposition. Rule your new domain with terror and loathing, for a laugh."
+	DISPLAY_OBJECTIVE(53,PLAYER0)
+	WIN_GAME
+ENDIF
+
+REM ****************************************************************************
