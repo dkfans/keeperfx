@@ -313,7 +313,7 @@ static void draw_netmap_players_hands(void)
         }
         get_hand_packet(i, &nspck, slap_frame, now);
         plyr_nam = network_user_name(i);
-        colr = net_player_colours[max(net_player_slot[i], 0)];
+        colr = net_player_colours[net_player_display_colour(i)];
         spr = get_hand_sprite_for_packet(&nspck, anim_frame, &x, &y);
         x -= (long)map_info.screen_shift_x;
         y -= (long)map_info.screen_shift_y;

@@ -87,8 +87,7 @@ struct ConfigInfo net_config_info;
 char net_service[16][NET_SERVICE_LEN];
 char net_player_name[20];
 char tmp_net_player_name[24];
-int8_t net_player_slot[MAX_NET_USERS];
-TbBool net_player_slots_random;
+int8_t net_player_colour[MAX_NET_USERS];
 static TbBool attempting_to_join_cancelled = false;
 static int32_t previous_active_players = 0;
 /******************************************************************************/
@@ -96,118 +95,114 @@ static int32_t previous_active_players = 0;
 }
 #endif
 /******************************************************************************/
-#define PLAYER_SLOT_BITS 4
-#define PLAYER_SLOT_MASK 0xF
+#define PLAYER_COLOUR_BITS 4
+#define PLAYER_COLOUR_MASK 0xF
 
 static TbBool check_frontend_version_mismatch(void);
 
-NetUserId net_player_slot_user(PlayerNumber slot)
+static NetUserId net_player_colour_user(PlayerNumber colour)
 {
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (net_player_slot[user] == slot) {
+        if (net_player_colour[user] == colour) {
             return user;
         }
     }
     return -1;
 }
 
-static void host_swap_player_slot(NetUserId user, PlayerNumber slot)
+static PlayerNumber first_free_player_colour(void)
 {
-    if (slot < 0 || slot >= MAX_NET_USERS) {
-        return;
-    }
-    if (net_player_slots_random || slot == net_player_slot[user]) {
-        net_player_slots_random = !net_player_slots_random;
-        return;
-    }
-    NetUserId occupant = net_player_slot_user(slot);
-    if (occupant >= 0) {
-        net_player_slot[occupant] = net_player_slot[user];
-    }
-    net_player_slot[user] = slot;
-}
-
-static void assign_free_player_slot(NetUserId user, PlayerNumber slots_count)
-{
-    net_player_slot[user] = -1;
-    for (PlayerNumber slot = 0; slot < slots_count; slot++) {
-        if (net_player_slot_user(slot) < 0) {
-            net_player_slot[user] = slot;
-            return;
+    for (PlayerNumber colour = 0; colour < MAX_NET_USERS; colour++) {
+        if (net_player_colour_user(colour) < 0) {
+            return colour;
         }
     }
+    return NET_PLAYER_COLOUR_RANDOM;
 }
 
-void net_resolve_player_slots(PlayerNumber slots_count)
+PlayerNumber net_player_display_colour(NetUserId user)
 {
-    int8_t lobby_slots[MAX_NET_USERS];
-    memcpy(lobby_slots, net_player_slot, sizeof(net_player_slot));
+    if (net_player_colour[user] == NET_PLAYER_COLOUR_RANDOM) {
+        return (LbTimerClock() * max(turns_per_second, 1) / 1000 / (2 * neutral_flash_rate) + user) % MAX_NET_USERS;
+    }
+    return max(net_player_colour[user], 0);
+}
+
+static void host_set_player_colour(NetUserId user, PlayerNumber colour)
+{
+    if (colour < 0 || colour > NET_PLAYER_COLOUR_RANDOM) {
+        return;
+    }
+    net_player_colour[user] = colour;
+}
+
+void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colours[MAX_NET_USERS], char *alliances)
+{
+    PlayerNumber free_colours[MAX_NET_USERS];
+    PlayerNumber free_count = 0;
+    for (PlayerNumber colour = 0; colour < colours_count; colour++) {
+        if (net_player_colour_user(colour) < 0) {
+            free_colours[free_count] = colour;
+            free_count++;
+        }
+    }
+    for (PlayerNumber i = free_count - 1; i > 0; i--) {
+        PlayerNumber k = SDL_rand(i + 1);
+        PlayerNumber swapped = free_colours[i];
+        free_colours[i] = free_colours[k];
+        free_colours[k] = swapped;
+    }
+    PlayerNumber next_free = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (net_player_slot[user] >= slots_count) {
-            assign_free_player_slot(user, slots_count);
+        player_colours[user] = net_player_colour[user];
+        if (player_colours[user] < 0 || (player_colours[user] < colours_count && net_player_colour_user(player_colours[user]) == user)) {
+            continue;
+        }
+        player_colours[user] = -1;
+        if (next_free < free_count) {
+            player_colours[user] = free_colours[next_free];
+            next_free++;
         }
     }
-    if (net_player_slots_random) {
-        PlayerNumber order[MAX_NET_USERS];
-        for (PlayerNumber i = 0; i < slots_count; i++) {
-            order[i] = i;
-        }
-        for (PlayerNumber i = slots_count - 1; i > 0; i--) {
-            PlayerNumber k = SDL_rand(i + 1);
-            PlayerNumber swapped = order[i];
-            order[i] = order[k];
-            order[k] = swapped;
-        }
-        for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-            if (net_player_slot[user] >= 0) {
-                net_player_slot[user] = order[net_player_slot[user]];
-            }
-        }
-    }
-    char alliances = 0;
+    *alliances = 0;
     for (NetUserId user1 = 0; user1 < MAX_NET_USERS; user1++) {
         for (NetUserId user2 = user1 + 1; user2 < MAX_NET_USERS; user2++) {
-            if (net_player_slot[user1] < 0 || net_player_slot[user2] < 0) {
-                continue;
-            }
-            if (frontend_is_player_allied(lobby_slots[user1], lobby_slots[user2])) {
-                alliances |= alliance_grid[net_player_slot[user1]][net_player_slot[user2]];
+            if (player_colours[user1] >= 0 && player_colours[user2] >= 0 && frontend_is_player_allied(user1, user2)) {
+                *alliances |= alliance_grid[player_colours[user1]][player_colours[user2]];
             }
         }
     }
-    frontend_alliances = alliances;
 }
 
-static void host_update_player_slots(void)
+static void host_update_player_colours(void)
 {
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (!network_user_active(user)) {
-            net_player_slot[user] = -1;
+            net_player_colour[user] = -1;
         }
     }
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (network_user_active(user) && net_player_slot[user] < 0) {
-            assign_free_player_slot(user, MAX_NET_USERS);
+        if (network_user_active(user) && net_player_colour[user] < 0) {
+            net_player_colour[user] = first_free_player_colour();
         }
     }
 }
 
-static short pack_player_slots(void)
+static short pack_player_colours(void)
 {
     uint16_t packed = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        packed |= ((net_player_slot[user] + 1) & PLAYER_SLOT_MASK) << (user * PLAYER_SLOT_BITS);
+        packed |= ((net_player_colour[user] + 1) & PLAYER_COLOUR_MASK) << (user * PLAYER_COLOUR_BITS);
     }
     return (short)packed;
 }
 
-static void unpack_player_slots(short packed, short random)
+static void unpack_player_colours(short packed)
 {
-    net_player_slots_random = random != 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        net_player_slot[user] = (((uint16_t)packed >> (user * PLAYER_SLOT_BITS)) & PLAYER_SLOT_MASK) - 1;
-        if (net_player_slot[user] >= MAX_NET_USERS) {
-            net_player_slot[user] = -1;
+        net_player_colour[user] = (((uint16_t)packed >> (user * PLAYER_COLOUR_BITS)) & PLAYER_COLOUR_MASK) - 1;
+        if (net_player_colour[user] > NET_PLAYER_COLOUR_RANDOM) {
+            net_player_colour[user] = -1;
         }
     }
 }
@@ -578,8 +573,7 @@ static void process_frontend_packets(void)
   nspckt->networkstatus_flags &= ~NetStat_ComputerPlayersMask;
   nspckt->networkstatus_flags |= (fe_computer_players << NetStat_ComputerPlayersShift) & NetStat_ComputerPlayersMask;
   if (network_is_host()) {
-    nspckt->stored_data1 = pack_player_slots();
-    nspckt->stored_data2 = net_player_slots_random;
+    nspckt->stored_data1 = pack_player_colours();
   }
   if (LbNetwork_ExchangeFrontend(nspckt, &net_screen_packet, sizeof(struct ScreenPacket))) {
       ERRORLOG("LbNetwork_Exchange failed");
@@ -629,9 +623,9 @@ static void process_frontend_packets(void)
         case NetAct_SetComputerPlayers:
             fe_computer_players = nspckt->action_par1;
             break;
-        case NetAct_SetPlayerSlot:
+        case NetAct_SetPlayerColour:
             if (network_is_host()) {
-                host_swap_player_slot(i, nspckt->action_par1);
+                host_set_player_colour(i, nspckt->action_par1);
             }
             break;
         default:
@@ -647,15 +641,15 @@ static void process_frontend_packets(void)
     screen_packet_set_action(nspckt, NetAct_None);
   }
   if (network_is_host()) {
-    host_update_player_slots();
+    host_update_player_colours();
   } else {
-    unpack_player_slots(net_screen_packet[SERVER_ID].stored_data1, net_screen_packet[SERVER_ID].stored_data2);
+    unpack_player_colours(net_screen_packet[SERVER_ID].stored_data1);
   }
   if (frontend_alliances == -1) {
     frontend_alliances = 0;
   }
   for (i = 0; i < MAX_NET_USERS; i++) {
-    if (net_player_slot_user(i) < 0) {
+    if (!network_user_active(i)) {
       const int32_t alliances_to_clear = alliance_grid[i][0] | alliance_grid[i][1] | alliance_grid[i][2] | alliance_grid[i][3];
       frontend_alliances = frontend_alliances & ~alliances_to_clear;
     }
@@ -859,8 +853,7 @@ void frontnet_start_setup(void)
     set_selected_level_number(SINGLEPLAYER_NOTSTARTED);
     previous_active_players = 0;
     memset(net_screen_packet, 0, sizeof(net_screen_packet));
-    memset(net_player_slot, -1, sizeof(net_player_slot));
-    net_player_slots_random = false;
+    memset(net_player_colour, -1, sizeof(net_player_colour));
     frontend_alliances = -1;
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;
