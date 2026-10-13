@@ -205,7 +205,13 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
 #HasAll("Progressive Level Cap", "Progressive Creature Limit", "Progressive Starting Gold", "Progressive Portal Speed","Attract Mistress","Torture Chamber") | HasAll("Progressive Level Cap", "Progressive Creature Limit", "Progressive Starting Gold", "Progressive Portal Speed", "Temple", "Mistress Recipe")
 
 
-
+    location_rules["Blaise End NW Guard Room"] = Has("Level 18 Beaten")
+    location_rules["Blaise End Behind Wall NW"] = Has("Level 18 Beaten")
+    location_rules["Blaise End Behind Wall NE"] = Has("Level 18 Beaten")
+    location_rules["Blaise End Fortress Fairy Tunnel"] = Has("Level 18 Beaten")
+    location_rules["Blaise End NE Fairy Room"] = Has("Level 18 Beaten")
+    location_rules["Blaise End Fortress Barbarian Tunnel"] = Has("Level 18 Beaten")
+    location_rules["Sleepiburgh NW Cavern"] = Has("Level 18 Beaten")
 
 
 
