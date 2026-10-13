@@ -147,8 +147,7 @@ void apply_roomspace_packet_action(struct PlayerInfo *player, NetUserId user, co
 
 void keeper_highlight_roomspace(NetUserId user, struct RoomSpace *roomspace);
 int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, unsigned char *predicted_slab_tag_modes, SlabCodedCoords *predicted_slabs, int *predicted_slab_count, int *predicted_task_count);
-void keeper_sell_roomspace(NetUserId user, struct RoomSpace *roomspace);
-void keeper_build_roomspace(NetUserId user, struct RoomSpace *roomspace);
+void keeper_start_roomspace(NetUserId user, const struct RoomSpace *roomspace, RoomKind rkind);
 
 void update_roomspaces();
 

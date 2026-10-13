@@ -188,11 +188,9 @@ void set_player_as_won_level(struct PlayerInfo *player)
 
 void set_player_as_lost_level(struct PlayerInfo *player)
 {
-    if (player->victory_state != VicS_Undecided)
-    {
+    if (player->victory_state != VicS_Undecided) {
         // Suppress redundant warnings
-        if (!game.run_after_victory)
-        {
+        if (!game.run_after_victory && player->victory_state != VicS_LostLevel) {
             WARNLOG("Victory state already set to %d",(int)player->victory_state);
         }
         return;
