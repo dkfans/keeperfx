@@ -292,95 +292,69 @@ void load_engine_window(TbGraphicsWindow *ewnd)
     local_state.engine_window_height = ewnd->height;
 }
 
+static unsigned char map_fade_blend[PALETTE_COLORS * PALETTE_COLORS];
+
+static void map_fade_sample_table(int32_t *tab, int count, int blk, int size, int warp, int mult)
+{
+    const int base = 4 * warp * size / 320;
+    for (int i = 0; i < count; i++)
+    {
+        const int pos = min(i * blk + blk / 2, size - 1);
+        tab[i] = mult * min(base + pos * (size - 2 * base) / size, size - 1);
+    }
+}
+
 void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, long a6, long const xmax, long const ymax, long a9, int32_t warp_turns)
 {
-    long ix;
-    long iy;
     ensure_map_fade_tables(xmax, ymax);
     if ((xtab == NULL) || (ytab == NULL))
         return;
-    const long warp1 = a6 * warp_turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS;
-    const long warp0 = (32 - a6) * warp_turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS;
-    long x1base = 4 * warp1 * xmax / 320;
-    long x0base = 4 * warp0 * xmax / 320;
-    int32_t * xt = xtab;
-    int vx0 = 0;
-    int vx1 = 0;
-    for (ix = xmax; ix > 0; ix--)
+    const int blk = xmax >= 2560 && a6 > 0 && a6 < 32 ? 2 : 1;
+    const int cols = (xmax + blk - 1) / blk;
+    const int rows = (ymax + blk - 1) / blk;
+    int32_t *xs0 = xtab;
+    int32_t *xs1 = xtab + xmax;
+    int32_t *ys0 = ytab;
+    int32_t *ys1 = ytab + ymax;
+    map_fade_sample_table(xs0, cols, blk, xmax, (32 - a6) * warp_turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, 1);
+    map_fade_sample_table(xs1, cols, blk, xmax, a6 * warp_turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, 1);
+    map_fade_sample_table(ys0, rows, blk, ymax, (32 - a6) * warp_turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, xmax);
+    map_fade_sample_table(ys1, rows, blk, ymax, a6 * warp_turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, xmax);
+
+    const unsigned char *fade1 = &fade_tbl[a6 << 8];
+    const unsigned char *fade2 = &fade_tbl[(32 - a6) << 8];
+    for (int c2 = 0; c2 < PALETTE_COLORS; c2++)
     {
-        long val = x1base + vx1 / xmax;
-        long m;
-        if (val >= 0)
-        {
-            m = min(xmax,val);
-        }
-        else
-        {
-            m = 0;
-        }
-        xt[1] = m;
-        val = x0base + vx0 / xmax;
-        if (val >= 0) {
-            m = min(xmax,val);
-        } else {
-            m = 0;
-        }
-        xt[0] = m;
-        xt += 2;
-        vx0 += xmax - 2 * x0base;
-        vx1 += xmax - 2 * x1base;
+        const unsigned char *ghost = &ghost_tbl[PALETTE_COLORS * fade2[c2]];
+        unsigned char *blend = &map_fade_blend[PALETTE_COLORS * c2];
+        for (int c1 = 0; c1 < PALETTE_COLORS; c1++)
+            blend[c1] = ghost[fade1[c1]];
     }
 
-    long y1base = 4 * warp1 * ymax / 320;
-    long y0base = 4 * warp0 * ymax / 320;
-    int32_t * yt = ytab;
-    int vy1 = 0;
-    int vy0 = 0;
-    for (iy = ymax; iy > 0; iy--)
+    for (int r = 0; r < rows; r++)
     {
-        long val = y1base + vy1 / ymax;
-        long m;
-        if (val >= 0)
+        unsigned char *out = &outbuf[r * blk * a9];
+        if (r > 0 && ys0[r] == ys0[r - 1] && ys1[r] == ys1[r - 1])
         {
-            m = min(ymax,val);
-        }
-        else
+            memcpy(out, out - blk * a9, xmax);
+        } else
         {
-            m = 0;
+            const unsigned char *src1 = &srcbuf1[ys0[r]];
+            const unsigned char *src2 = &srcbuf2[ys1[r]];
+            if (blk == 1)
+            {
+                for (int x = 0; x < xmax; x++)
+                    out[x] = map_fade_blend[(src2[xs1[x]] << 8) | src1[xs0[x]]];
+            } else
+            {
+                for (int c = 0; c < xmax / 2; c++)
+                    out[2 * c] = out[2 * c + 1] = map_fade_blend[(src2[xs1[c]] << 8) | src1[xs0[c]]];
+                if (xmax & 1)
+                    out[xmax - 1] = map_fade_blend[(src2[xs1[cols - 1]] << 8) | src1[xs0[cols - 1]]];
+            }
         }
-        yt[1] = xmax * m;
-        val = y0base + vy0 / ymax;
-        if (val >= 0)
-        {
-            m = min(ymax,val);
-        } else {
-            m = 0;
-        }
-        yt[0] = xmax * m;
-        yt += 2;
-        vy0 += ymax - 2 * y0base;
-        vy1 += ymax - 2 * y1base;
-    }
-
-    x0base = a6 << 8;
-    y0base = (32 - a6) << 8;
-    unsigned char* out = outbuf;
-    yt = ytab;
-    for (iy = ymax; iy > 0; iy--)
-    {
-        unsigned char* sbuf2 = &srcbuf2[yt[1]];
-        unsigned char* sbuf1 = &srcbuf1[yt[0]];
-        xt = xtab;
-        for (ix = xmax; ix > 0; ix--)
-        {
-            int px1 = fade_tbl[x0base + sbuf1[xt[0]]];
-            int px2 = fade_tbl[y0base + sbuf2[xt[1]]];
-            *out = ghost_tbl[256 * px2 + px1];
-            out++;
-            xt += 2;
-        }
-        out += a9 - xmax;
-        yt += 2;
+        if (blk == 2 && r * 2 + 1 < ymax)
+            memcpy(out + a9, out, xmax);
     }
 }
 
