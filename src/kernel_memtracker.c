@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <string.h>
 #if defined(_WIN32)
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define KMT_WINDOWS 1
 #elif defined(__linux__)
@@ -31,6 +33,7 @@
 #define KMT_LINUX 1
 #endif
 #include "globals.h"
+#include "bflib_math.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -281,8 +284,6 @@ static void platform_clear(void)
             return;
         }
     }
-
-    memset(ranges, 0, sizeof(ranges));
 }
 
 static TbBool platform_collect(unsigned char *dirty)
@@ -320,7 +321,8 @@ size_t kernel_memtracker_chunk_size(void)
         while (size < platform_page_size())
             size *= 2;
 #endif
-        chunk_bitshift = __builtin_ctzll(size);
+        // size is a power of two, so the number of trailing zero bits is its base-2 logarithm
+        chunk_bitshift = (unsigned)LbCtz64((uint64_t)size);
     }
     return size;
 }

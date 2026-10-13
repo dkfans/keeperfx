@@ -20,6 +20,7 @@
 #include "replay_rewind.h"
 
 #include <zlib.h>
+#include "bflib_math.h"
 #include "bflib_sound.h"
 #include "ariadne.h"
 #include "ariadne_tringls.h"
@@ -330,7 +331,7 @@ static TbBool diff_page(uint32_t pg, unsigned char *old_page, const unsigned cha
     len += sizeof(line_mask);
     for (linebits_t lm = line_mask; lm != 0; lm &= lm - 1)
     {
-        const int ln = __builtin_ctzll(lm);
+        const int ln = LbCtz64(lm);
         unsigned char *word_mask = &out[len++];
         *word_mask = 0;
         for (int w = 0; w < 8; w++)
@@ -448,7 +449,7 @@ static TbBool restore_lua(const struct RewindKeyframe *kf)
     return true;
 }
 
-static TbBool apply_diff(unsigned char *snapshot, const struct RewindKeyframe *kf)
+static TbBool apply_diff(unsigned char *snap, const struct RewindKeyframe *kf)
 {
     const unsigned char *p = ring + kf->diff_start;
     const unsigned char *end = ring + kf->diff_end;
@@ -468,15 +469,15 @@ static TbBool apply_diff(unsigned char *snapshot, const struct RewindKeyframe *k
         p += sizeof(line_mask);
         if (pg >= pages)
             return false;
-        unsigned char *page = snapshot + (size_t)pg * REWIND_PAGE_SIZE;
+        unsigned char *page = snap + (size_t)pg * REWIND_PAGE_SIZE;
         for (; line_mask != 0; line_mask &= line_mask - 1)
         {
-            unsigned char *line = page + __builtin_ctzll(line_mask) * REWIND_LINE_SIZE;
+            unsigned char *line = page + LbCtz64(line_mask) * REWIND_LINE_SIZE;
             for (unsigned word_mask = *p++; word_mask != 0; word_mask &= word_mask - 1)
             {
-                unsigned char *word = line + __builtin_ctz(word_mask) * 8;
+                unsigned char *word = line + LbCtz32(word_mask) * 8;
                 for (unsigned byte_mask = *p++; byte_mask != 0; byte_mask &= byte_mask - 1)
-                    word[__builtin_ctz(byte_mask)] ^= *p++;
+                    word[LbCtz32(byte_mask)] ^= *p++;
             }
         }
     }
@@ -548,6 +549,8 @@ void replay_rewind_capture(void)
 
 void replay_rewind_step(void)
 {
+    if (keyframes_count == 0)
+        return;
     const GameTurn turn = get_gameturn();
     if (turn <= oldest_keyframe()->turn)
         return;
