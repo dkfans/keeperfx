@@ -878,18 +878,16 @@ void restore_users_from_packet_save(void)
         }
         set_net_user_player_number(user, plyr_idx);
         struct PlayerInfo *player = get_player(plyr_idx);
-        player->user_id = user;
         snprintf(player->player_name, sizeof(player->player_name), "%s",
             replay.head.user_names[user]);
-        init_user_state(user);
+        init_user_state(user, plyr_idx);
         local_mapped |= (plyr_idx == my_player_number);
         SYNCLOG("Replay user %d -> player %d", (int)user, (int)plyr_idx);
     }
     if (!local_mapped)
     {
         set_net_user_player_number(SOLO_HUMAN_ID, my_player_number);
-        get_player(my_player_number)->user_id = SOLO_HUMAN_ID;
-        init_user_state(SOLO_HUMAN_ID);
+        init_user_state(SOLO_HUMAN_ID, my_player_number);
         SYNCLOG("Replay local user %d -> player %d (not in the recorded map)",
             (int)SOLO_HUMAN_ID, (int)my_player_number);
     }
@@ -1518,10 +1516,11 @@ void verify_replay_checksum(void)
 
 void disable_packet_mode(void)
 {
+    const NetUserId local_user = get_local_user();
     close_packet_file();
     replay.load_enable = false;
     replay.save_enable = false;
-    remap_user_to_solo(get_my_player());
+    remap_user_to_solo(get_my_player(), local_user);
     apply_local_user_preferences(SOLO_HUMAN_ID, UPF_ApplyOnTakeover);
     local_state.view_type = PVT_None;
     return_to_player_camera();

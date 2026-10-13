@@ -38,6 +38,7 @@
 #include "front_simple.h"
 #include "front_input.h"
 #include "gui_draw.h"
+#include "gui_msgs.h"
 #include "scrcapt.h"
 #include "sounds.h"
 #include "vidmode.h"
@@ -180,6 +181,7 @@ const struct NamedCommand conf_commands[] = {
   {"AUTOMATIC_REPLAYS"             , 52},
   {"MAX_REPLAYS"                   , 53},
   {"REPLAY_MAX_SIZE"               , 54},
+  {"CHAT_FONT_SIZE"                , 55},
   {NULL,                   0},
   };
 
@@ -1143,6 +1145,19 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           }
           if (i >= 0) {
               packetsave_max_kb = i;
+          }
+          else {
+              CONFWRNLOG("Invalid \"%s\" value in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
+          break;
+      case 55: // CHAT_FONT_SIZE
+          i = -1;
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              i = atoi(word_buf);
+          }
+          if (i > 0) {
+              chat_font_size = i;
           }
           else {
               CONFWRNLOG("Invalid \"%s\" value in %s file.", COMMAND_TEXT(cmd_num), config_textname);

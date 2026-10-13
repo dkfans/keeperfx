@@ -68,8 +68,8 @@ enum DigTagMode {
     DigTagMode_Untag = 2,
 };
 
-// RoomSpace describes a space or "roomspace" - i.e. a collection of slabs that are a valid
-// location from the currently selected room type (when placing rooms).
+// RoomSpace describes a collection of slabs that are a valid
+// location for the currently selected room type (when placing rooms).
 // The 2D array of booleans, slab_grid[][] describes each of the slabs within
 // the roomspace's extents. A value of 1 indicates a slab that is part of the roomspace,
 // a value of 0 indicates a slab that is not part of the roomspace.
@@ -147,8 +147,7 @@ void apply_roomspace_packet_action(struct PlayerInfo *player, NetUserId user, co
 
 void keeper_highlight_roomspace(NetUserId user, struct RoomSpace *roomspace);
 int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *roomspace, MapSlabCoord previous_slb_x, MapSlabCoord previous_slb_y, unsigned char highlight_mode, unsigned char *predicted_slab_tag_modes, SlabCodedCoords *predicted_slabs, int *predicted_slab_count, int *predicted_task_count);
-void keeper_sell_roomspace(NetUserId user, struct RoomSpace *roomspace);
-void keeper_build_roomspace(NetUserId user, struct RoomSpace *roomspace);
+void keeper_start_roomspace(NetUserId user, const struct RoomSpace *roomspace, RoomKind rkind);
 
 void update_roomspaces();
 
@@ -156,7 +155,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx);
 void process_sell_roomspace_inputs(PlayerNumber plyr_idx);
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx);
 
-void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx);
+void reset_dungeon_build_room_ui_variables(NetUserId user);
 
 void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode);
 

@@ -977,7 +977,7 @@ long process_temple_special(struct Thing *thing, long sacowner)
     if (object_is_mature_food(thing))
     {
         dungeon->chickens_sacrificed++;
-        if (user_cheats_allowed(get_player(sacowner)->user_id) && temple_check_for_arachnid_join_dungeon(dungeon))
+        if (user_cheats_allowed(get_player_primary_user(get_player(sacowner))) && temple_check_for_arachnid_join_dungeon(dungeon))
             return true;
     } else
     {
@@ -1299,11 +1299,11 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 void set_call_to_arms_as_birthing(struct Thing *objtng)
 {
     int frame;
-    switch (objtng->call_to_arms_flag.state)
-    {
+    switch (objtng->call_to_arms_flag.state) {
     case CTAOL_Birthing:
         frame = objtng->current_frame;
         break;
+    case CTAOL_Unset:
     case CTAOL_Alive:
         frame = 0;
         break;
