@@ -312,7 +312,7 @@ extern struct LocalState {
     TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
     unsigned char *lens_palette;
     unsigned char *main_palette;
-    int32_t palette_fade_step_map;
+    TbBool map_fade_prepared;
     int32_t palette_fade_step_pain;
     int32_t palette_fade_step_possession;
     short engine_window_width;

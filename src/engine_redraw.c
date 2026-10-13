@@ -449,61 +449,36 @@ static float map_fade_progress(void)
     return progress;
 }
 
-long map_fade_in(long palette_fade_step)
+static void draw_map_fade(TbBool fading_in)
 {
     SYNCDBG(6,"Starting");
     int real_w = MyScreenWidth/pixel_size;
     int real_h = MyScreenHeight/pixel_size;
-    if (palette_fade_step == 0)
+    const TbBool starting = !local_state.map_fade_prepared;
+    if (starting)
     {
         ensure_map_fade_buffers(real_w, real_h);
         if ((map_fade_src == NULL) || (map_fade_dest == NULL) || (map_fade_ghost_table == NULL))
         {
             ERRORLOG("Failed to allocate map fade buffers for %dx%d", real_w, real_h);
-            return 32;
+            return;
         }
         prepare_map_fade_buffers(map_fade_src, map_fade_dest, real_w, real_h);
         generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
+        local_state.map_fade_prepared = true;
     }
+    // 0 shows the dungeon, 32 the parchment
     const int32_t turns = my_map_fade_turns();
-    const float display_step = 32.0f * map_fade_progress();
-    RendererSubmitMapFadeStep((int)palette_fade_step, display_step,
-        (float)turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, 1, map_fade_ghost_table);
+    const float progress = map_fade_progress();
+    const float display_step = 32.0f * (fading_in ? progress : 1.0f - progress);
+    RendererSubmitMapFadeStep(starting, display_step,
+        (float)turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, map_fade_ghost_table);
+    // Software-only CPU blend
     if (lbDisplay.WScreen != NULL)
     {
         map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
             (long)(display_step + 0.5f), real_w, real_h, RendererScreenWidth(), turns);
     }
-    return (turns - (int32_t)get_my_player()->instance_remain_turns) * 32 / turns;
-}
-
-long map_fade_out(long palette_fade_step)
-{
-    SYNCDBG(6,"Starting");
-    int real_w = MyScreenWidth/pixel_size;
-    int real_h = MyScreenHeight/pixel_size;
-    if (palette_fade_step == 32)
-    {
-        ensure_map_fade_buffers(real_w, real_h);
-        if ((map_fade_src == NULL) || (map_fade_dest == NULL) || (map_fade_ghost_table == NULL))
-        {
-            ERRORLOG("Failed to allocate map fade buffers for %dx%d", real_w, real_h);
-            return 0;
-        }
-        prepare_map_fade_buffers(map_fade_src, map_fade_dest, real_w, real_h);
-        generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
-    }
-    const int32_t turns = my_map_fade_turns();
-    const float display_step = 32.0f * (1.0f - map_fade_progress());
-    RendererSubmitMapFadeStep((int)palette_fade_step, display_step,
-        (float)turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, 0, map_fade_ghost_table);
-    // Software-only CPU blend
-    if (lbDisplay.WScreen != NULL)
-    {
-        map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
-          (long)(display_step + 0.5f), real_w, real_h, RendererScreenWidth(), turns);
-    }
-    return (int32_t)get_my_player()->instance_remain_turns * 32 / turns;
 }
 
 long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long a6)
@@ -970,14 +945,13 @@ void redraw_display(void)
     } else {
         lens_mode = 0;
     }
-    if ((player->instance_num == PI_MapFadeTo) && !is_observer_camera_active()) {
+    const TbBool map_fading = ((player->instance_num == PI_MapFadeTo) || (player->instance_num == PI_MapFadeFrom))
+        && !is_observer_camera_active();
+    if (!map_fading)
+        local_state.map_fade_prepared = false;
+    if (map_fading) {
         parchment_loaded = 0;
-        local_state.palette_fade_step_map = map_fade_in(local_state.palette_fade_step_map);
-    } else
-    if ((player->instance_num == PI_MapFadeFrom) && !is_observer_camera_active())
-    {
-        parchment_loaded = 0;
-        local_state.palette_fade_step_map = map_fade_out(local_state.palette_fade_step_map);
+        draw_map_fade(player->instance_num == PI_MapFadeTo);
     } else
     if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr))
     {

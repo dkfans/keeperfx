@@ -756,7 +756,6 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, int32_t *n)
     get_player_user_state(player)->init_flags |= UsrIF_MouseInputDisabled;
     if (is_my_player(player))
     {
-        local_state.palette_fade_step_map = 0;
         set_map_ui_hidden(true, true);
   }
   return 0;
@@ -784,7 +783,6 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, int32_t *n)
   {
     set_map_ui_hidden(true, true);
     local_state.show_panel = false;
-    local_state.palette_fade_step_map = 32;
   }
   set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
   sync_local_camera(player);
