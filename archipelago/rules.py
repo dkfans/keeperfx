@@ -20,66 +20,94 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
 
     location_rules: defaultdict[str, Rule] = defaultdict(True_)
 
-#Requires Bridge to get
+#Some require Bridge to get, one requires Destroy Walls, some aren't really possible to get to without having basically beaten the level anyway
 
     location_rules["Eversmile Water Patch"] = HasAll("Bridge", "Library")
+
     location_rules["Cosyton East Water"] = HasAll("Bridge", "Library")
     location_rules["Cosyton Hero Fortress"] = HasAll("Bridge", "Library")
+
     location_rules["Waterdream Warm South Water"] = HasAll("Bridge", "Library")  
     location_rules["Waterdream Warm Hero Fortress"] = HasAll("Bridge", "Library")
+
     location_rules["Flowerhat Hero Fortress NE"] = HasAll("Bridge", "Library")
     location_rules["Flowerhat Hero Fortress SE"] = HasAll("Bridge", "Library")
+
     location_rules["Flowerhat Lava Island"] = HasAll("Bridge", "Library")
-    location_rules["Flowerhat Spider Cave"] = HasAll("Bridge", "Library")
+    location_rules["Flowerhat Spider Cave"] = HasAll("Bridge", "Library") & CanReachLocation("Level 4 Beaten")
+
     location_rules["Lushmeadow-on-Down East Fort"] = HasAll("Bridge", "Library")
     location_rules["Lushmeadow-on-Down West Fort"] = HasAll("Bridge", "Library")
     location_rules["Lushmeadow-on-Down West Islet"] = HasAll("Bridge", "Library")
+
     location_rules["Snuggledell East Water"] = HasAll("Bridge", "Library")
     location_rules["Snuggledell West Water"] = HasAll("Bridge", "Library")
     location_rules["Snuggledell Southeast Water"] = HasAll("Bridge", "Library")
+
     location_rules["Wishvale NE Hero Fortress"] = HasAll("Bridge", "Library") #Technically Blue could bridge to you
     location_rules["Wishvale East Hero Fortress"] = HasAll("Bridge", "Library") #Technically Blue could bridge to you
     location_rules["Wishvale SE Hero Fortress"] = HasAll("Bridge", "Library") #Technically Blue could bridge to you
-    location_rules["Wishvale Blue Keeper"] = HasAll("Bridge", "Library") #Technically Blue could bridge to you
+    location_rules["Wishvale Blue Keeper"] = HasAll("Bridge", "Library") & CanReachLocation("Level 7 Beaten") #Technically Blue could bridge to you
+
     location_rules["Tickle Northeast Fortress"] = HasAll("Bridge", "Library")
+
     location_rules["Moonbrush Wood SW Library"] = HasAll("Bridge", "Library")
     location_rules["Moonbrush Wood SE Library"] = HasAll("Bridge", "Library")
     location_rules["Moonbrush Wood NE Library"] = HasAll("Bridge", "Library")
     location_rules["Moonbrush Wood NW Library"] = HasAll("Bridge", "Library")
     location_rules["Moonbrush Wood Neutral Fort"] = HasAll("Bridge", "Library")
+
     location_rules["Nevergrim East Island"] = HasAll("Bridge", "Library") #Technically Blue could bridge to you
     location_rules["Nevergrim West Island"] = HasAll("Bridge", "Library") #Technically Blue could bridge to you
-    location_rules["Nevergrim Blue Keeper"] = HasAll("Bridge", "Library") #Technically Blue could bridge to you
+    location_rules["Nevergrim Blue Keeper"] = HasAll("Bridge", "Library") & CanReachLocation("Level 10 Beaten") #Technically Blue could bridge to you
+
     location_rules["Hearth NE Water"] = Has("Bridge") #Have Library from beginning on non-cruelty mode
     location_rules["Hearth SE Water"] = Has("Bridge") #Have Library from beginning on non-cruelty mode
     location_rules["Hearth SW Water"] = Has("Bridge") #Have Library from beginning on non-cruelty mode
     location_rules["Hearth NW Water"] = Has("Bridge") #Have Library from beginning on non-cruelty mode
+
     location_rules["Buffy Oak Poison Cavern"] = HasAll("Bridge", "Library") #Technically Blue/Green could bridge to you
     location_rules["Buffy Oak Lava Cavern"] = HasAll("Bridge", "Library") #Technically Blue/Green could bridge to you
-    location_rules["Buffy Oak South Gold Seam"] = HasAll("Bridge", "Library") #Technically Blue/Green could bridge to you
-    location_rules["Sleepiburgh NW Cavern"] = HasAll("Bridge", "Library")
-    location_rules["Sleepiburgh NE Cavern"] = HasAll("Bridge", "Library")
+    location_rules["Buffy Oak South Gold Seam"] = HasAll("Bridge", "Library") & CanReachLocation("Level 13 Beaten") #Technically Blue/Green could bridge to you
+
+    location_rules["Sleepiburgh NW Cavern"] = HasAll("Bridge", "Library") & CanReachLocation("Level 14 Beaten")
+    location_rules["Sleepiburgh NE Cavern"] = HasAll("Bridge", "Library") & CanReachLocation("Level 14 Beaten")
+
     location_rules["Woodly Rhyme Hero Fortress North"] = HasAll("Bridge", "Library")
     location_rules["Woodly Rhyme Hero Fortress South"] = HasAll("Bridge", "Library")
     location_rules["Woodly Rhyme Checkerboard 1"] = HasAll("Bridge", "Library")
     location_rules["Woodly Rhyme Checkerboard 2"] = HasAll("Bridge", "Library")
     location_rules["Woodly Rhyme Southern Tunnel"] = HasAll("Bridge", "Library")
+
     location_rules["Tulipscent NW Hero Fortress 1"] = HasAll("Bridge", "Library")
     location_rules["Tulipscent NW Hero Fortress 2"] = HasAll("Bridge", "Library")
+
     location_rules["Blaise End NW Lava"] = HasAll("Bridge", "Library")
+    location_rules["Blaise End NW Guard Room"] = CanReachLocation("Level 18 Beaten")
+    location_rules["Blaise End Behind Wall NW"] = CanReachLocation("Level 18 Beaten")
+    location_rules["Blaise End Behind Wall NE"] = CanReachLocation("Level 18 Beaten")
+    location_rules["Blaise End Fortress Fairy Tunnel"] = CanReachLocation("Level 18 Beaten")
+    location_rules["Blaise End Fortress Barbarian Tunnel"] = CanReachLocation("Level 18 Beaten")
+    location_rules["Blaise End Central Portal"] = HasAll("Destroy Walls", "Library") | HasAll("Demolition Trap Manufacturable", "Workshop")
+
     location_rules["Mistle Central Water 1"] = Has("Bridge") #Have Library from beginning on non-cruelty mode
     location_rules["Mistle Central Water 2"] = Has("Bridge") #Have Library from beginning on non-cruelty mode
-    location_rules["Secret 2 In Water"] = Has("Bridge") #Have Library from beginning on non-cruelty mode
-    location_rules["Secret 4 Lava Pool"] = HasAll("Bridge", "Library")
-    location_rules["Secret 4 Next to Witch"] = HasAll("Bridge", "Library")
-    location_rules["Secret 4 Next to Boulder"] = HasAll("Bridge", "Library")
-    location_rules["Secret 5 Goal Area"] = HasAll("Bridge", "Library")
-
-    location_rules["Blaise End Central Portal"] = HasAll("Destroy Walls", "Library") | HasAll("Demolition Trap Manufacturable", "Workshop")
 
     location_rules["Skybird Trill Hero Fortress Centre"] = Has("Training Room") # would be awful having to fight level 10 Tentacles with level 1 creatures
     location_rules["Skybird Trill Hero Fortress West"] = Has("Training Room") # would be awful having to fight level 10 Tentacles with level 1 creatures
 
+    location_rules["Secret 2 In Water"] = Has("Bridge") & CanReachLocation("Level 101 Beaten") #Have Library from beginning on non-cruelty mode
+
+    location_rules["Secret 4 Lava Pool"] = HasAll("Bridge", "Library")
+    location_rules["Secret 4 Next to Witch"] = HasAll("Bridge", "Library")
+    location_rules["Secret 4 Next to Boulder"] = HasAll("Bridge", "Library")
+
+    location_rules["Secret 5 Goal Area"] = HasAll("Bridge", "Library")
+
+    #location_rules["Level 16 Beaten"] = Has("Progressive Level Cap",4)
+
+
+#HasAll("Progressive Level Cap", "Progressive Creature Limit", "Progressive Starting Gold", "Progressive Portal Speed","Attract Mistress","Torture Chamber") | HasAll("Progressive Level Cap", "Progressive Creature Limit", "Progressive Starting Gold", "Progressive Portal Speed", "Temple", "Mistress Recipe")
 
 
 #Scaling requirements for difficult levels
@@ -193,27 +221,6 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
     )
 
     location_rules["Level 105 Beaten"] = HasAny("Create Imp","Recruit Tunneller") #starts with no Imps.
-    location_rules["Buffy Oak South Gold Seam"] = Has("Level 13 Beaten") #behind opponents, can't be expected to reach it without beating them.
-
-
-    location_rules["Sleepiburgh NW Cavern"] = Has("Level 14 Beaten") #more doable, but still can't be expected to reach it without beating at least the other keepers.
-    location_rules["Sleepiburgh NE Cavern"] = Has("Level 14 Beaten") #more doable, but still can't be expected to reach it without beating at least the other keepers.
-
-    #location_rules["Level 16 Beaten"] = Has("Progressive Level Cap",4)
-
-
-#HasAll("Progressive Level Cap", "Progressive Creature Limit", "Progressive Starting Gold", "Progressive Portal Speed","Attract Mistress","Torture Chamber") | HasAll("Progressive Level Cap", "Progressive Creature Limit", "Progressive Starting Gold", "Progressive Portal Speed", "Temple", "Mistress Recipe")
-
-
-    location_rules["Blaise End NW Guard Room"] = Has("Level 18 Beaten")
-    location_rules["Blaise End Behind Wall NW"] = Has("Level 18 Beaten")
-    location_rules["Blaise End Behind Wall NE"] = Has("Level 18 Beaten")
-    location_rules["Blaise End Fortress Fairy Tunnel"] = Has("Level 18 Beaten")
-    location_rules["Blaise End NE Fairy Room"] = Has("Level 18 Beaten")
-    location_rules["Blaise End Fortress Barbarian Tunnel"] = Has("Level 18 Beaten")
-    location_rules["Sleepiburgh NW Cavern"] = Has("Level 18 Beaten")
-
-
 
 # temple recipes
     location_rules["Recipe Cheaper Imps"] = Has("Create Imp")
