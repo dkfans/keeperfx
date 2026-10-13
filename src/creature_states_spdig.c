@@ -1451,19 +1451,16 @@ short imp_reinforces(struct Thing *thing)
 
 short creature_going_to_safety_for_toking(struct Thing *thing)
 {
+    CrtrStateId continue_state = thing->continue_state;
     struct Coord3d locpos = {};
-    if (!get_flee_position(thing, &locpos))
-    {
+    if (!get_flee_position(thing, &locpos)) {
         ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
-        internal_set_thing_state(thing, CrSt_ImpToking);
-        return 1;
-    }
-    if (setup_person_move_close_to_position(thing, locpos.x.stl.num, locpos.y.stl.num, NavRtF_Default))
-    {
+    } else if (setup_person_move_close_to_position(thing, locpos.x.stl.num, locpos.y.stl.num, NavRtF_Default)) {
         thing->continue_state = CrSt_ImpToking;
         return 1;
     }
     internal_set_thing_state(thing, CrSt_ImpToking);
+    thing->continue_state = continue_state;
     return 1;
 }
 
@@ -1472,7 +1469,11 @@ short imp_toking(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (!creature_would_benefit_from_healing(creatng)) {
-        set_start_state(creatng);
+        if (creatng->continue_state != CrSt_Unused) {
+            internal_set_thing_state(creatng, creatng->continue_state);
+        } else {
+            set_start_state(creatng);
+        }
         return 0;
     }
     if (cctrl->instance_id == CrInst_NULL)
