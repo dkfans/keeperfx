@@ -746,7 +746,7 @@ void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
             turn_off_menu(GMnu_DUNGEON_SPECIAL);
             turn_on_menu(GMnu_TRANSFER_CREATURE);
         }
-  }
+    }
 }
 
 void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
