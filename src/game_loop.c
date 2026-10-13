@@ -307,6 +307,8 @@ void process_dungeon_destroy(struct Thing* heartng)
             // If this is the last heart the player had, finish him
             setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
             player->allied_players = to_flag(player->id_number);
+            if (game.game_kind == GKind_MultiGame)
+                reveal_whole_map(player);
         }
     }
     dungeon->heart_destroy_state = 0;
