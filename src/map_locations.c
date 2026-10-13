@@ -377,7 +377,12 @@ PlayerNumber get_player_name_from_location_string(const char* locname)
     // Extract the player number string
     strncpy(player_string, start, min(end - start, sizeof(player_string) - 1));
     player_string[end - start] = '\0';
-    return get_rid(player_desc, player_string);
+
+    PlayerNumber plyr_idx = get_rid(player_desc, player_string);
+    if (plyr_idx < 0)
+        plyr_idx = get_rid(cmpgn_human_player_options, player_string);
+
+    return plyr_idx;
 }
 
 /**
