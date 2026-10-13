@@ -135,7 +135,6 @@ end
 --local cruelty_mode = true
 ]]
 
-
 local map_tileset_shuffle_value = {
     [1]  = -1,
     [2]  = -1,
@@ -388,10 +387,13 @@ function GetForbiddenRooms()
     local forbidden_rooms = {}
     for id = 101, 200 do
         local check = ChecksTable[id]
-        if type(check) == "table"
-        and check.internal_name
-        and not ReceivedLocationsTable.Has(id) then
+        if type(check) == "table" and check.internal_name and not ReceivedLocationsTable.Has(id) then
             forbidden_rooms[check.internal_name] = true
+            if id == 107 then
+                  forbidden_rooms["GUARD_POST_FLAT"] = true
+            elseif id == 112 then
+                  forbidden_rooms["TEMPLE_FLAT"] = true
+            end
         end
     end
     return forbidden_rooms
@@ -491,6 +493,13 @@ function FunOptions(settings)
             function () return (cruelty_mode and HasForbiddenRoom()) end
       )
       trigger_remove_forbidden_rooms.triggerData.destroyAfterUse = false
+
+      if settings.FlatTempleGuardPost then
+            SetRoomConfiguration("GUARD_POST","PanelTabIndex",0)
+            SetRoomConfiguration("GUARD_POST_FLAT","PanelTabIndex",7)
+            SetRoomConfiguration("TEMPLE","PanelTabIndex",0)
+            SetRoomConfiguration("TEMPLE_FLAT","PanelTabIndex",12)
+      end
 end
 
 return CommandsMain

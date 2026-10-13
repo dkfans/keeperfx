@@ -47,6 +47,8 @@ if slot_data ~= nil and type(slot_data) == "table" then
     print("RemoveNeutralRooms:       " .. tostring(APSettings.RemoveNeutralRooms))
     APSettings.CrueltyMode = IsValueTrue(slot_data.CrueltyMode)
     print("CrueltyMode:              " .. tostring(APSettings.CrueltyMode))
+    APSettings.FlatTempleGuardPost = IsValueTrue(slot_data.FlatTempleGuardPost)
+    print("FlatTempleGuardPost:      " .. tostring(APSettings.FlatTempleGuardPost))
 end
 
 return APSettings

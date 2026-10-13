@@ -227,6 +227,7 @@ local IncludeTunnellersInPool = APSettings.IncludeTunnellersInPool
 local IncludeKnightsInPool = APSettings.IncludeKnightsInPool
 local IncludeAvatarsInPool = APSettings.IncludeAvatarsInPool
 local IncludeFXHeroes = APSettings.KeeperFXHeroes
+local FlatTempleGuardPost = APSettings.FlatTempleGuardPost
 
 if IncludeBonusLevels then
     for id, check in pairs(BonusLevelsTable) do
@@ -408,7 +409,11 @@ function UnlockRoom(itemid)
       print("Room " .. itemid .. " (" .. ChecksTable[itemid].name .. ") Unlocked")
       if itemid >= 101 and itemid <= 105 then
             RoomAvailable("PLAYER0", ChecksTable[itemid].internal_name,2,true) -- auto-unlock starting 5 rooms
-      else
+      elseif itemid == 107 and FlatTempleGuardPost then
+            RoomAvailable("PLAYER0","GUARD_POST_FLAT",2,false)
+      elseif itemid == 112 and FlatTempleGuardPost then
+            RoomAvailable("PLAYER0","TEMPLE_FLAT",2,false)
+        else
             RoomAvailable("PLAYER0",ChecksTable[itemid].internal_name,2,false) -- rest need to be researched
       end
 end

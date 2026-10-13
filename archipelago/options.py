@@ -29,6 +29,11 @@ class KeeperFXDoors(Toggle):
     """Choose if you want KeeperFX Doors to be available in the game."""
     display_name = "KeeperFX Doors"
 
+# want to extend this to Recipes: on (don't include in pool, just unlock them)/off (don't include in pool, remove locations)/unlock (same as current)
+#                NegativeRecipes: on (don't include in pool, just unlock them)/off (don't include in pool, remove locations)/unlock (same as current)
+#                KeeperFXRecipes: on (don't include in pool, just unlock them)/off (don't include in pool, remove locations)/unlock (same as current)
+# need some sort of safety here i.e. don't include locations if not in pool at all.
+
 class NegativeRecipes(Toggle):
     """Choose if you want negative Temple recipes to be available in the game."""
     display_name = "Negative Recipes"
@@ -37,7 +42,11 @@ class KeeperFXRecipes(Toggle):
     """Choose if you want KeeperFX Temple recipes to be available in the game."""
     display_name = "KeeperFX Recipes"
 
-# really want this to be "creature type evil/good/both"
+# really want this to be "creature type evil/good/both/mixed"
+# i.e. if "evil", get the 16 standard creatures.
+#      if "good", get the 10 standard heroes.
+#      if "both", get all 26.
+#      if "mixed",get 16 distinct creatures/heroes randomly from the entire list.
 
 class AddHeroes(Toggle):
     """Choose if you want to attract Heroes."""
@@ -85,7 +94,7 @@ class ChangePlayerColour(Choice):
 
 
 class ChangeNeutrals(Choice):
-    """Choose if you want neutral creatures to be aggressive or removed"""
+    """Choose if you want neutral creatures to be aggressive or removed."""
     display_name = "Change Neutrals"
 
     option_default = 0
@@ -96,7 +105,7 @@ class ChangeNeutrals(Choice):
     default = 0
 
 class SwapWaterAndLava(Toggle):
-    """Choose if you want to swap water and lava."""
+    """Choose if you want to swap water and lava on each map."""
     display_name = "Swap Water and Lava"
 
 class RemoveNeutralRooms(Toggle):
@@ -104,16 +113,15 @@ class RemoveNeutralRooms(Toggle):
     display_name = "Remove Neutral Rooms"
 
 class CrueltyMode(Toggle):
-    """Choose if you want to enable cruelty mode."""
+    """Choose if you want to enable cruelty mode (experimental). If you claim a room/creature/spell/trap/etc. you haven't unlocked, it's taken away from you."""
     display_name = "Cruelty Mode"        
 
+class FlatTempleGuardPost(Toggle):
+    """Choose if you want to flatten Guard Posts and Temples so you can't use them to block off water and lava."""
+    display_name = "FlatTempleGuardPost"        
+
+
 # option for temple recipes unlocked/unlockable/removed
-
-# cruelty mode yes/no
-
-
-
-# starting player colour
 
 # toggles for certain types of progressives (i.e. if off, you just set it to default values)
 
@@ -195,7 +203,7 @@ class DungeonKeeperOptions(PerGameCommonOptions):
     swap_water_and_lava: SwapWaterAndLava
     remove_neutral_rooms: RemoveNeutralRooms
     cruelty_mode: CrueltyMode
-
+    FlatTempleGuardPost: FlatTempleGuardPost
 
 option_groups = [
     OptionGroup("Levels", [
@@ -226,12 +234,15 @@ option_groups = [
         StartingRooms,
         StartingCreatures,
     ]),
-    OptionGroup("Fun", [
-        ShuffleTilesets,
-        ChangePlayerColour,
+    OptionGroup("Difficulty", [
         ChangeNeutrals,
         SwapWaterAndLava,
         RemoveNeutralRooms,
         CrueltyMode,
+        FlatTempleGuardPost,
+    ]),
+    OptionGroup("Fun", [
+        ShuffleTilesets,
+        ChangePlayerColour,
     ])    
 ]
