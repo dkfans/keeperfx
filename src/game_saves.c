@@ -694,7 +694,7 @@ TbBool load_game(long slot_num)
     // Reinitialize lens first (restores lens_palette pointer from config)
     reinitialise_eye_lens(game.applied_lens_type);
     // Apply the appropriate palette (lens palette if active, otherwise engine default)
-    PaletteSetUserPalette(player->user_id, local_state.lens_palette ? local_state.lens_palette : engine_palette);
+    PaletteSetUserPalette(get_local_user(), local_state.lens_palette ? local_state.lens_palette : engine_palette);
     apply_local_user_preferences(get_local_user(), UPF_ApplyOnLoad);
     init_local_cameras(player);
     // Update the lights system state

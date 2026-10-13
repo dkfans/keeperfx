@@ -510,6 +510,9 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 void clear_complete_game(void)
 {
     memset(&game, 0, sizeof(struct Game));
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        game.user_states[user].player_id = PLAYER_NONE;
+    }
     memset(&intralvl, 0, sizeof(struct IntralevelData));
     replay.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;

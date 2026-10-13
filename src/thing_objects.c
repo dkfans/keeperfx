@@ -977,7 +977,7 @@ long process_temple_special(struct Thing *thing, long sacowner)
     if (object_is_mature_food(thing))
     {
         dungeon->chickens_sacrificed++;
-        if (user_cheats_allowed(get_player(sacowner)->user_id) && temple_check_for_arachnid_join_dungeon(dungeon))
+        if (user_cheats_allowed(get_player_primary_user(get_player(sacowner))) && temple_check_for_arachnid_join_dungeon(dungeon))
             return true;
     } else
     {
