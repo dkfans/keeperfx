@@ -188,15 +188,15 @@ end
 -- if player changes colour to something other than red...
 function PlayerColour()
       if PLAYER0.colour == "BLUE" then
-            PLAYER1.colour = "PURPLE"
-            PLAYER2.colour = "GREEN"
-            PLAYER3.colour = "YELLOW"
+            PLAYER1.colour = "GREEN"
+            PLAYER2.colour = "YELLOW"
+            PLAYER3.colour = "PURPLE"
             PLAYER5.colour = "BLACK"
             PLAYER_GOOD.colour = "WHITE"
       elseif PLAYER0.colour == "GREEN" then
             PLAYER1.colour = "BLUE"
-            PLAYER2.colour = "PURPLE"
-            PLAYER3.colour = "YELLOW"
+            PLAYER2.colour = "YELLOW"
+            PLAYER3.colour = "PURPLE"
             PLAYER5.colour = "BLACK"
             PLAYER_GOOD.colour = "WHITE"
       elseif PLAYER0.colour == "YELLOW" then
@@ -223,7 +223,7 @@ end
 -- if "remove neutrals" is on
 function ChangeOnMapNeutrals(setting)
       local neutral_creatures_table = GetCreaturesOfPlayer(PLAYER_NEUTRAL)
-      if setting == "REMOVE" then
+      if (setting == "REMOVE" or setting == 1) then
             local creature_count = #neutral_creatures_table
 
             for _, creature in ipairs(neutral_creatures_table) do
@@ -233,7 +233,7 @@ function ChangeOnMapNeutrals(setting)
             end
             print(creature_count .. " neutrals removed!")
             QuickMessage(creature_count .. " neutrals removed!", "ARCHIPELAGO_ICON")
-      elseif setting == "KILL" then
+      elseif (setting == "KILL" or setting == 2) then
             local creature_count = #neutral_creatures_table
             for _, creature in ipairs(neutral_creatures_table) do
                   if creature then
@@ -242,7 +242,7 @@ function ChangeOnMapNeutrals(setting)
             end
             print(creature_count .. " neutrals killed!")
             QuickMessage(creature_count .. " neutrals killed!", "ARCHIPELAGO_ICON")
-      elseif setting == "HOSTILE" then
+      elseif (setting == "HOSTILE" or setting == 3) then
             local creature_count = #neutral_creatures_table
             ComputerPlayer("PLAYER5","ROAMING")
             RunDKScriptCommand("ALLY_PLAYERS(PLAYER5, PLAYER1, 3)")
@@ -448,19 +448,17 @@ function FunOptions(settings)
             QuickMessage("Tileset changed to: " .. Map.default_texture, "ARCHIPELAGO_ICON")
       end
 
-      if settings.ChangePlayerColour ~= nil and settings.ChangePlayerColour ~= "RED" then
-            if type(change_player_colour) == "number" then
-                  if change_player_colour >= 8 then
+      if settings.ChangePlayerColour ~= nil and settings.ChangePlayerColour ~= "RED" and settings.ChangePlayerColour > 0 then
+            if type(settings.ChangePlayerColour) == "number" then
+                  if settings.ChangePlayerColour >= 8 then
                         PLAYER0.colour = player_colour_change_table[math.random(0,7)]
-                  elseif settings.ChangePlayerColour < 0 then
-                        PLAYER0.colour = player_colour_change_table[0]
                   else
                         PLAYER0.colour = player_colour_change_table[settings.ChangePlayerColour]
                   end
             elseif type(settings.ChangePlayerColour) == "string" then
                   if settings.ChangePlayerColour == "RANDOM" then
                         PLAYER0.colour = player_colour_change_table[math.random(0,7)]
-                  elseif settings.ChangePlayerColour == "red"
+                  elseif settings.ChangePlayerColour == "RED"
                   or settings.ChangePlayerColour == "BLUE"
                   or settings.ChangePlayerColour == "GREEN"
                   or settings.ChangePlayerColour == "YELLOW"
@@ -485,6 +483,8 @@ function FunOptions(settings)
       if settings.RemoveNeutralRooms then
             RemoveNeutralRooms()
       end
+
+      local cruelty_mode = settings.CrueltyMode
 
       local trigger_remove_forbidden_rooms = RegisterOnConditionEvent(
             function () RemoveForbiddenPlayerRooms() end,
