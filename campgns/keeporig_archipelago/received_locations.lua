@@ -212,21 +212,21 @@ HeroesTable = {
     [810]  = {id=810,   internal_name="WITCH",                                        name="Priestess",                    string="",       text="Attract Priestess"},
 }
 
-local IncludeBonusLevels = true
-local IncludeRecipes = true
-local IncludeNegativeRecipes = true
-local IncludeFXCreatures = true
-local IncludeFXTraps = true
-local IncludeFXDoors = true
-local IncludeFXSpells = true
-local IncludeFXRecipes = true
-local IncludeImpsInPool = false
+local IncludeBonusLevels = APSettings.SecretLevels
+local IncludeRecipes = true --add functionality for recipes on (remove from pool, give access to them all)/off (remove from pool, don't)/unlock (normal)
+local IncludeNegativeRecipes = APSettings.NegativeRecipes
+local IncludeFXCreatures = APSettings.KeeperFXCreatures
+local IncludeFXTraps = APSettings.KeeperFXTraps
+local IncludeFXDoors = APSettings.KeeperFXDoors
+local IncludeFXSpells = APSettings.KeeperFXSpells
+local IncludeFXRecipes = APSettings.KeeperFXRecipes
+local IncludeImpsInPool = APSettings.IncludeImpsInPool
 local SplitHandPower = false
-local IncludeHeroes = true
-local IncludeTunnellersInPool = false
-local IncludeKnightsInPool = false
-local IncludeAvatarsInPool = false
-local IncludeFXHeroes = true
+local IncludeHeroes = APSettings.AddHeroes
+local IncludeTunnellersInPool = APSettings.IncludeTunnellersInPool
+local IncludeKnightsInPool = APSettings.IncludeKnightsInPool
+local IncludeAvatarsInPool = APSettings.IncludeAvatarsInPool
+local IncludeFXHeroes = APSettings.KeeperFXHeroes
 
 if IncludeBonusLevels then
     for id, check in pairs(BonusLevelsTable) do
