@@ -700,8 +700,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             EvKind_TrapCrateFound, creatng->owner, picktng->index);
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) ) {
                 output_message(SMsg_TrapStolen, 0);
-            }
-            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
+            } else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
                 if (picktng->owner != game.neutral_player_num)
                 {
                     player = get_my_player();
@@ -718,8 +717,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             EvKind_DoorCrateFound, creatng->owner, picktng->index);
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) ) {
                 output_message(SMsg_DoorStolen, 0);
-            }
-            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
+            } else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
                 if (picktng->owner != game.neutral_player_num)
                 {
                     player = get_my_player();

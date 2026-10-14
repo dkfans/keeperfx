@@ -3524,8 +3524,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         {
             output_message_far_from_thing(creatng, SMsg_BattleDeath, MESSAGE_DURATION_BATTLE);
         }
-    }
-    else if (is_my_player_number(killertng->owner)) {
+    } else if (is_my_player_number(killertng->owner)) {
         output_message_far_from_thing(creatng, SMsg_BattleWon, MESSAGE_DURATION_BATTLE);
     }
     SYNCDBG(18, "Almost finished");

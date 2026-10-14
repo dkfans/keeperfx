@@ -312,8 +312,7 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
 {
     if (is_my_player_number(new_owner)) {
         output_message(SMsg_TortureConverted, 0);
-    } else
-    if (is_my_player_number(creatng->owner)) {
+    } else if (is_my_player_number(creatng->owner)) {
         output_message(SMsg_CreatureJoinedEnemy, 0);
     }
     change_creature_owner(creatng, new_owner);

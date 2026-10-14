@@ -114,8 +114,7 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
         {
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) ) {
                 output_message(SMsg_SpellbookStolen, 0);
-            }
-            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
+            } else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
                 player = get_my_player();
                 if (picktng->owner == game.neutral_player_num)
                 {

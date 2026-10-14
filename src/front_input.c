@@ -2667,7 +2667,8 @@ static void clear_mouse_button_states(void)
 
 static TbBool get_observer_camera_click_inputs(void)
 {
-    if ((!left_button_released && !right_button_released) || game_is_busy_doing_gui()) {
+    TbBool camera_active = is_observer_camera_active();
+    if ((!left_button_released && !right_button_released) || (camera_active && game_is_busy_doing_gui())) {
         return false;
     }
     struct PlayerInfo *player = get_my_player();
@@ -2676,12 +2677,15 @@ static TbBool get_observer_camera_click_inputs(void)
             int32_t map_x;
             int32_t map_y;
             if (point_to_overhead_map(get_local_active_camera(player), GetMouseX() / pixel_size, GetMouseY() / pixel_size, &map_x, &map_y)) {
+                detach_observer_camera();
                 observer_camera_jump(coord_subtile(map_x), coord_subtile(map_y));
             }
         } else if (right_button_released) {
             observer_cycle_player(-1);
-        } else {
+        } else if (camera_active) {
             return_to_player_camera();
+        } else {
+            detach_observer_camera();
         }
     }
     clear_mouse_button_states();
@@ -2704,15 +2708,6 @@ static short get_observer_inputs(void)
         ustate->init_flags |= UsrIF_NewMPMessage;
         LbStartTextInput();
         clear_key_pressed(KC_RETURN);
-        return true;
-    }
-    if (!is_observer_camera_active() && (left_button_released || right_button_released) && !a_menu_window_is_active()) {
-        if (right_button_released) {
-            observer_cycle_player(-1);
-        } else {
-            detach_observer_camera();
-        }
-        clear_mouse_button_states();
         return true;
     }
     if (!a_menu_window_is_active() && !game_is_busy_doing_gui_string_input() && observer_camera_input_pressed()) {

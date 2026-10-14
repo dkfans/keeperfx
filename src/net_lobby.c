@@ -360,9 +360,7 @@ TbError LbNetwork_ExchangeLogin(char *player_name)
         return Lb_FAIL;
     }
     if (netstate.sp->msgready(SERVER_ID, TIMEOUT_JOIN_LOBBY)) {
-        if (process_network_message(SERVER_ID, &net_screen_packet, sizeof(struct ScreenPacket), NETMSG_FRONTEND, NULL) == Lb_FAIL) {
-            return Lb_FAIL;
-        }
+        process_network_message(SERVER_ID, &net_screen_packet, sizeof(struct ScreenPacket), NETMSG_FRONTEND, NULL);
     }
     return Lb_OK;
 }

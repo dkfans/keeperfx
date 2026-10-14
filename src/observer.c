@@ -96,7 +96,6 @@ void observer_set_packet_cursor(struct Packet *pckt)
     if (cursor_offset_x < INT16_MIN || cursor_offset_x > INT16_MAX || cursor_offset_y < INT16_MIN || cursor_offset_y > INT16_MAX) {
         return;
     }
-    // A shifted horizontal origin tells observers that the sidebar's column is excluded from the view.
     int32_t origin_x = OBSERVER_CURSOR_OFFSET_ORIGIN;
     if (engine_window_reserved_left() > 0) {
         origin_x += OBSERVER_CURSOR_SIDEBAR_SHIFT;
@@ -231,7 +230,6 @@ static void observer_shift_view_camera(void)
     if (shift_x == 0) {
         return;
     }
-    // Moves the camera so the watched player's view center lands where their sidebar layout puts it.
     struct DungeonCamera *dcam = &local_observer_user_state.dungeon_camera;
     TbBool front_view = local_observer_user_state.prefs[UPref_FrontView] != 0;
     int32_t world_per_pixel_scale = OBSERVER_VIEW_ZOOM_SCALE;
@@ -471,7 +469,7 @@ void observer_update_query(void)
 
 TbBool observer_query_input(void)
 {
-    if (get_local_view_type(&local_observer_player) != PVT_DungeonTop) {
+    if (!is_observer_camera_active() || get_local_view_type(&local_observer_player) != PVT_DungeonTop) {
         return false;
     }
     struct Thing *thing = thing_get(local_state.local_thing_under_hand);

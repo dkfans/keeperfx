@@ -5374,7 +5374,7 @@ int32_t anger_process_creature_anger(struct Thing *creatng, const struct Creatur
         return 0;
     }
     AnnoyMotive anger_motive = anger_get_creature_anger_type(creatng);
-    if (anger_motive == AngR_NotPaid && is_my_player(get_player(creatng->owner)) && cctrl->paydays_advanced < 0) {
+    if (anger_motive == AngR_NotPaid && cctrl->paydays_advanced < 0) {
         struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
         struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default);
         if ((dungeon->total_money_owned >= dungeon->creatures_total_backpay) && !room_is_invalid(room)) {

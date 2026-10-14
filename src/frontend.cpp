@@ -1694,10 +1694,10 @@ struct ObserverButtonCallback {
 };
 
 static const struct ObserverButtonCallback observer_button_callbacks[] = {
-    {gui_set_menu_mode, false}, {gui_set_page, false}, {gui_zoom_in, false}, {gui_zoom_out, false},
+    {gui_set_menu_mode, false}, {gui_set_page, false},
     {gui_go_to_map, false}, {gui_scroll_activity_up, false}, {gui_scroll_activity_down, false},
     {gui_switch_players_visible, false},
-    {gui_set_query, true}, {gui_open_event, true}, {gui_kill_event, true},
+    {gui_zoom_in, true}, {gui_zoom_out, true}, {gui_set_query, true}, {gui_open_event, true}, {gui_kill_event, true},
     {gui_go_to_next_creature, true}, {gui_go_to_next_creature_activity, true},
     {gui_go_to_next_wanderer, true}, {gui_go_to_next_worker, true}, {gui_go_to_next_fighter, true},
     {gui_go_to_next_room, true}, {gui_go_to_next_trap, true}, {gui_go_to_next_door, true},
