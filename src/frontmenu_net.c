@@ -399,7 +399,7 @@ void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 
     for (NetUserId user = 0; user < net_lobby_max_players; user++) {
-        draw_player_icon(user, first_icon_x + user * icon_step, pos_y + 5, fs_units_per_px);
+        draw_player_icon(user, first_icon_x + user * icon_step, pos_y + 5 * fs_units_per_px / 16, fs_units_per_px);
     }
 }
 
