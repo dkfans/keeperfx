@@ -341,16 +341,12 @@ static void draw_player_icon(NetUserId user, int pos_x, int pos_y, int units_per
         build_frontend_dimmed_remap(shadow_remap, 3, 3, 3);
         shadow_remap_initialized = true;
     }
-    const struct TbSprite *spr = get_frontend_sprite(GFS_bullfrog_blue_med);
     if (net_player_colour[user] < 0) {
-        LbSpriteDrawResizedRemap(pos_x, pos_y, units_per_px, spr, shadow_remap);
+        LbSpriteDrawResizedRemap(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_bullfrog_blue_med), shadow_remap);
         return;
     }
     if (net_player_colour[user] == NET_PLAYER_COLOUR_RANDOM) {
-        const struct TbSprite *random_spr = get_frontend_sprite(GFS_random_colour);
-        int random_units_per_px = units_per_px * spr->SHeight / random_spr->SHeight;
-        int offset_x = (spr->SWidth * units_per_px - random_spr->SWidth * random_units_per_px) / 32;
-        LbSpriteDrawResized(pos_x + offset_x, pos_y, random_units_per_px, random_spr);
+        LbSpriteDrawResized(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_random_colour));
         return;
     }
     LbSpriteDrawResized(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_bullfrog_red_med + net_player_colour[user]));
