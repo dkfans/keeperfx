@@ -83,12 +83,14 @@ C_SRCS := $(wildcard \
 	src/*.c \
 	src/kfx/*.c \
 	src/kfx/*/*.c \
-	src/kfx/*/*/*.c)
+	src/kfx/*/*/*.c \
+	src/kfx/*/*/*/*.c)
 CXX_SRCS := $(filter-out src/kfx/platform/PlatformLinux.cpp src/main.cpp,$(wildcard \
 	src/*.cpp \
 	src/kfx/*.cpp \
 	src/kfx/*/*.cpp \
-	src/kfx/*/*/*.cpp))
+	src/kfx/*/*/*.cpp \
+	src/kfx/*/*/*/*.cpp))
 OBJS_CORE := \
 	$(patsubst src/%.c,obj/%.o,$(C_SRCS)) \
 	$(patsubst src/%.cpp,obj/%.o,$(CXX_SRCS))
