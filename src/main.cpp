@@ -2023,6 +2023,14 @@ static short process_command_line(unsigned short argc, char *argv[])
   start_params.selected_level_number = level_num;
   my_player_number = default_loc_player;
 
+  // Flags which skip the main menu should also skip the intro
+  if (start_params.packet_load_enable
+      || flag_is_set(start_params.operation_flags, GOF_SingleLevel)
+      || (game_flags2 & (GF2_Connect | GF2_Server)))
+  {
+      start_params.no_intro = true;
+  }
+
 #ifdef FUNCTESTING
   ftest_init(); // initialise test framework on ftest build
 #endif
