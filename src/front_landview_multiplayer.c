@@ -93,6 +93,8 @@ void frontmap_zoom_in_init(LevelNumber lvnum);
 TbBool frontmap_input_active_ensign(long curr_mx, long curr_my);
 TbBool frontmap_update_zoom(void);
 
+#define RANDOM_PLAYER_GREY 40
+
 TbPixel net_player_colours[] = { 251, 58, 182, 11 };
 const int32_t hand_limp_xoffset[] = { 32, 31, 30, 29, 28, 27, 26, 24, 22, 19, 15, 9 };
 const int32_t hand_limp_yoffset[] = { -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0 };
@@ -313,7 +315,12 @@ static void draw_netmap_players_hands(void)
         }
         get_hand_packet(i, &nspck, slap_frame, now);
         plyr_nam = network_user_name(i);
-        colr = net_player_colours[i];
+        colr = net_player_colours[0];
+        if (net_player_colour[i] == NET_PLAYER_COLOUR_RANDOM) {
+            colr = LbPaletteFindColour(frontend_palette, RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY, RANDOM_PLAYER_GREY);
+        } else if (net_player_colour[i] >= 0) {
+            colr = net_player_colours[net_player_colour[i]];
+        }
         spr = get_hand_sprite_for_packet(&nspck, anim_frame, &x, &y);
         x -= (long)map_info.screen_shift_x;
         y -= (long)map_info.screen_shift_y;

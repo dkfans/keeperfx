@@ -31,6 +31,7 @@ extern "C" {
 
 /******************************************************************************/
 #define NET_SERVICE_LEN 64
+#define NET_PLAYER_COLOUR_RANDOM MAX_NET_USERS
 
 enum FrontendNetService {
     FrontendNetSvc_Skirmish = -1,
@@ -65,9 +66,13 @@ extern struct ConfigInfo net_config_info;
 extern char net_service[16][NET_SERVICE_LEN];
 extern char net_player_name[20];
 extern char tmp_net_player_name[24];
+extern int8_t net_player_colour[MAX_NET_USERS];
+extern int32_t net_lobby_max_players;
 
 #pragma pack()
 /******************************************************************************/
+TbBool net_player_colours_conflict(void);
+void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colours[MAX_NET_USERS], char *alliances);
 void process_network_error(long errcode);
 void draw_out_of_sync_box(long a1, long a2, long box_width);
 void display_attempting_to_join_message(int remaining_s);

@@ -77,6 +77,7 @@ enum NetAction {
     NetAct_HostStartLevel     = 0x18,
     NetAct_OpenLandView       = 0x20,
     NetAct_SetAlliance        = 0x28,
+    NetAct_SetPlayerColour      = 0x30,
     NetAct_SetComputerPlayers = 0x38,
 };
 
