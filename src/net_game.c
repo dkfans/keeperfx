@@ -259,7 +259,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         }
         struct PlayerInfo *player = get_player(k);
         player->id_number = k;
-        player->allocflags |= PlaF_Allocated;
+        player->allocflags |= PlaF_Allocated | PlaF_Seat;
         init_user_state(i, k);
         apply_user_preferences(i, sync->user_prefs, UPF_NewGame);
         init_player(player, 0);

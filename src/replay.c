@@ -1376,6 +1376,7 @@ TbBool open_new_packet_file_for_save(void)
     replay.head.level_num = get_loaded_level_number();
     replay.head.players_exist = 0;
     replay.head.players_comp = 0;
+    replay.head.players_seat = 0;
     replay_long_turn_open = false;
     reset_packet_codec();
     replay.head.flags = PSHF_Compressed;
@@ -1411,6 +1412,8 @@ TbBool open_new_packet_file_for_save(void)
             set_flag(replay.head.players_exist, to_flag(i));
             if ((player->allocflags & PlaF_CompCtrl) != 0)
               set_flag(replay.head.players_comp, to_flag(i));
+            if (player_is_seat(player))
+              set_flag(replay.head.players_seat, to_flag(i));
         }
     }
     set_replay_crashlog(1, get_gameturn());

@@ -595,7 +595,7 @@ void redraw_creature_view(void)
 {
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
-    update_explored_flags_for_power_sight(player);
+    update_explored_flags_for_viewed_power_sights(player);
     struct Thing* thing = thing_get(get_displayed_player()->controlled_thing_idx);
     TRACE_THING(thing);
     if (thing_exists(thing))
@@ -607,7 +607,7 @@ void redraw_creature_view(void)
         smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
             ewnd.width, ewnd.height, RendererScreenWidth());
     }
-    remove_explored_flags_for_power_sight(player);
+    remove_explored_flags_for_viewed_power_sights(player);
     GameUI_DrawFrame(player);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (!creature_control_invalid(cctrl)) {
@@ -650,7 +650,7 @@ void redraw_isometric_view(void)
     TbGraphicsWindow ewnd;
     memset(&ewnd, 0, sizeof(TbGraphicsWindow));
     struct Camera* render_cam = get_local_active_camera(player);
-    update_explored_flags_for_power_sight(player);
+    update_explored_flags_for_viewed_power_sights(player);
     engine(player,render_cam);
     // Todo : De-global.
     if (smooth_on && (lbDisplay.WScreen != NULL))
@@ -659,7 +659,7 @@ void redraw_isometric_view(void)
         smooth_screen_area(lbDisplay.WScreen, ewnd.x, ewnd.y,
             ewnd.width, ewnd.height, RendererScreenWidth());
     }
-    remove_explored_flags_for_power_sight(player);
+    remove_explored_flags_for_viewed_power_sights(player);
     GameUI_DrawFrame(player);
     SYNCDBG(8,"Finished");
 }
@@ -669,9 +669,9 @@ void redraw_frontview(void)
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     struct Camera* render_cam = get_local_active_camera(player);
-    update_explored_flags_for_power_sight(player);
+    update_explored_flags_for_viewed_power_sights(player);
     draw_frontview_engine(render_cam);
-     remove_explored_flags_for_power_sight(player);
+     remove_explored_flags_for_viewed_power_sights(player);
     GameUI_DrawFrame(player);
 }
 

@@ -1516,7 +1516,7 @@ TbBool script_support_setup_player_as_zombie_keeper(PlayerNumber plyr_idx)
     }
     player->allocflags &= ~PlaF_Allocated; // mark as non-existing
     player->id_number = plyr_idx;
-    player->allocflags &= ~(PlaF_CompCtrl | PlaF_Placeholder);
+    player->allocflags &= ~(PlaF_CompCtrl | PlaF_Placeholder | PlaF_Seat);
     player->victory_state = VicS_Undecided;
     init_player_start(player, false);
     return true;
@@ -1528,7 +1528,8 @@ void setup_computer_player(int plr_idx)
     struct Thing* thing = find_players_dungeon_heart(plr_idx); // cannot use player->id_number, as it isn't set yet
     if (thing_exists(thing))
     {
-        script_support_setup_player_as_computer_keeper(plr_idx, 0);
+        if (script_support_setup_player_as_computer_keeper(plr_idx, 0))
+            get_player(plr_idx)->allocflags |= PlaF_Seat;
     } else
     {
         script_support_setup_player_as_zombie_keeper(plr_idx);

@@ -48,6 +48,7 @@ extern "C" {
 enum PlayerInitFlags {
     PlaF_Allocated               = 0x01,
     PlaF_Placeholder             = 0x02, /**< Human user disconnected, replaced by a computer > */
+    PlaF_Seat                    = 0x04, /**< Playable by a human: includes humans (and placeholders), and lobby-assigned computers > */
     PlaF_CompCtrl                = 0x40,
 };
 

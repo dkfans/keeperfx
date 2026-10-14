@@ -110,6 +110,11 @@ TbBool player_is_placeholder(const struct PlayerInfo *player)
     return flag_is_set(player->allocflags, PlaF_Placeholder);
 }
 
+TbBool player_is_seat(const struct PlayerInfo *player)
+{
+    return flag_is_set(player->allocflags, PlaF_Seat);
+}
+
 static TbBool player_belongs_in_victory_kernel(const struct PlayerInfo *player)
 {
     // is an undefeated human 
@@ -986,6 +991,7 @@ void init_players(void)
                 player->allocflags |= PlaF_CompCtrl;
             else
                 player->allocflags &= ~PlaF_CompCtrl;
+            set_flag_value(player->allocflags, PlaF_Seat, flag_is_set(replay.head.players_seat, to_flag(i)));
             if ((player->allocflags & PlaF_CompCtrl) == 0)
             {
               game.human_players_count++;
@@ -1222,7 +1228,7 @@ void init_players_local_game(void)
     SYNCDBG(4,"Starting");
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
-    player->allocflags |= PlaF_Allocated;
+    player->allocflags |= PlaF_Allocated | PlaF_Seat;
     init_user_state(SOLO_HUMAN_ID, player->id_number);
 
     if( player->id_number == PLAYER_GOOD)
