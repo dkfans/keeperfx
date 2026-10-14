@@ -977,6 +977,7 @@ void clear_players_for_save(void)
       set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
       set_flag_value(player->allocflags, PlaF_Placeholder, ((saved_allocation_flags & PlaF_Placeholder) != 0));
+      set_flag_value(player->allocflags, PlaF_Seat, ((saved_allocation_flags & PlaF_Seat) != 0));
     }
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {

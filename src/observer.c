@@ -135,7 +135,8 @@ void observer_update_vision(void)
     PlayerBitFlags players = 0;
     if (is_observer_camera_active()) {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
-            if (player_has_heart(i)) {
+            const struct PlayerInfo *player = get_player(i);
+            if (player_exists(player) && player_is_seat(player)) {
                 set_flag(players, to_flag(i));
             }
         }

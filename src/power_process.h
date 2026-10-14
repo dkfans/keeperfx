@@ -52,6 +52,8 @@ void draw_god_lightning(struct Thing *thing);
 TbBool player_uses_power_sight(PlayerNumber plyr_idx);
 void update_explored_flags_for_power_sight(struct PlayerInfo *player);
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player);
+void update_explored_flags_for_viewed_power_sights(struct PlayerInfo *viewer);
+void remove_explored_flags_for_viewed_power_sights(struct PlayerInfo *viewer);
 
 TbBool player_uses_power_call_to_arms(PlayerNumber plyr_idx);
 void turn_off_power_call_to_arms(PlayerNumber plyr_idx);
