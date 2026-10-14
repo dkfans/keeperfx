@@ -471,22 +471,22 @@ void observer_update_query(void)
 
 TbBool observer_query_input(void)
 {
+    if (get_local_view_type(&local_observer_player) != PVT_DungeonTop) {
+        return false;
+    }
+    struct Thing *thing = thing_get(local_state.local_thing_under_hand);
+    if (left_button_released && thing_is_creature(thing) && (game.operation_flags & GOF_ShowGui) != 0) {
+        observer_query_creature(thing->index, true, false);
+        return true;
+    }
     PlayerState work_state = local_observer_user_state.work_state;
-    if (get_local_view_type(&local_observer_player) != PVT_DungeonTop || (work_state != PSt_CreatrQuery && work_state != PSt_CreatrInfo)) {
+    if (work_state != PSt_CreatrQuery && work_state != PSt_CreatrInfo) {
         return false;
     }
     if (right_button_released) {
         observer_clear_query(PSt_CtrlDungeon);
-        return true;
     }
-    if (left_button_released) {
-        struct Thing *thing = thing_get(local_state.local_thing_under_hand);
-        if (thing_is_creature(thing)) {
-            observer_query_creature(thing->index, true, false);
-        }
-        return true;
-    }
-    return false;
+    return true;
 }
 
 void observer_init(PlayerNumber camera_player_number)
