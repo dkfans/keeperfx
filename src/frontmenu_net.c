@@ -121,7 +121,7 @@ void frontnet_messages_down_maintain(struct GuiButton *gbtn)
 
 void frontnet_start_game_maintain(struct GuiButton *gbtn)
 {
-    TbBool enabled = net_number_of_enum_players > 1;
+    TbBool enabled = net_number_of_enum_players > 1 && !net_player_colours_conflict();
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * enabled) & LbBtnF_Enabled;
 }
 

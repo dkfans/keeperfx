@@ -121,6 +121,17 @@ static PlayerNumber first_free_player_colour(void)
     return NET_PLAYER_COLOUR_RANDOM;
 }
 
+TbBool net_player_colours_conflict(void)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        PlayerNumber colour = net_player_colour[user];
+        if (colour >= 0 && colour < NET_PLAYER_COLOUR_RANDOM && net_player_colour_user(colour) != user) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static void host_set_player_colour(NetUserId user, PlayerNumber colour)
 {
     if (colour < 0 || colour > NET_PLAYER_COLOUR_RANDOM) {
