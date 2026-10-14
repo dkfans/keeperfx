@@ -39,8 +39,8 @@ struct Navigation {
   unsigned char wallhug_retry_counter;
   unsigned char wallhug_state;
   unsigned char push_counter;
-  long dist_to_final_pos;
-  long distance_to_next_pos;
+  int32_t dist_to_final_pos;
+  int32_t distance_to_next_pos;
   int32_t angle;
   SubtlCodedCoords first_colliding_block;
   SubtlCodedCoords second_colliding_block;

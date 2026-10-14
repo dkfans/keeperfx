@@ -122,10 +122,10 @@ enum GameFlags2 {
  */
 struct TextScrollWindow {
     char text[MESSAGE_TEXT_LEN];
-    long start_y;
-    char action;
-    long text_height;
-    long window_height;
+    int32_t start_y;
+    int8_t action;
+    int32_t text_height;
+    int32_t window_height;
 };
 
 struct LevelEnsignOverride {

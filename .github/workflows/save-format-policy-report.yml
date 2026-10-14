@@ -1,0 +1,37 @@
+name: Save format policy report
+
+# Turns the result of "Save format policy" into one pull request comment: posted or updated when
+# there is something to do, removed when there isn't, otherwise nothing. Has write permission, so it
+# never runs PR code and builds the comment text itself (tools/save-tool/policy_comment.py).
+
+on:
+  workflow_run:
+    workflows: ["Save format policy"]
+    types: [completed]
+
+permissions:
+  pull-requests: write
+  actions: read
+  contents: read
+
+jobs:
+  report:
+    name: "Report"
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    steps:
+    # The default branch's script, not the PR's.
+    - uses: actions/checkout@v4
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: save-format-policy
+        path: result
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ github.token }}
+
+    - name: Comment
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+      run: python3 tools/save-tool/policy_comment.py result/result.json

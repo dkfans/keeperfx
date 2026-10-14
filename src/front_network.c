@@ -51,9 +51,11 @@
 #include "net_matchmaking.h"
 #include "net_lan.h"
 #include "config_campaigns.h"
+#include "kfx/save/SaveManager.h"
 #include <stddef.h>
 #include "post_inc.h"
 
+#include <string.h>
 #define SESSION_LIST_MOUSE_IDLE_TIMEOUT_MS 1000
 
 #ifdef __cplusplus
@@ -651,29 +653,57 @@ TbBool attempting_to_join_cancel_requested(void)
     return attempting_to_join_cancelled;
 }
 
+/** Makes a config read from a file safe to use: strings terminated, the player limit in range, flags 0 or 1. */
+static void net_config_sanitise(void)
+{
+    net_config_info.net_player_name[sizeof(net_config_info.net_player_name) - 1] = '\0';
+    net_config_info.net_lobby_name[sizeof(net_config_info.net_lobby_name) - 1] = '\0';
+    if (net_config_info.max_players < MIN_NET_USERS || net_config_info.max_players > MAX_NET_USERS)
+        net_config_info.max_players = MAX_NET_USERS;
+    net_config_info.spectators_enabled = net_config_info.spectators_enabled != 0;
+    net_config_info.spectator_chat = net_config_info.spectator_chat != 0;
+}
+
 void net_load_config_file(void)
 {
     // Try to load the config file
     char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
+    char magic[SAVE_MAGIC_SIZE];
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (handle) {
-        net_config_info = default_net_config_info;
-        unsigned char config_data[sizeof(net_config_info) + 1];
-        int32_t read_size = LbFileRead(handle, config_data, sizeof(config_data));
+    if (handle)
+    {
+        TbBool is_kfxs = (LbFileRead(handle, magic, sizeof(magic)) == sizeof(magic)) && save_magic_matches(magic, sizeof(magic));
         LbFileClose(handle);
-        if (read_size == sizeof(net_config_info) + 1 || read_size == sizeof(net_config_info) || read_size == offsetof(struct ConfigInfo, max_players) || read_size == offsetof(struct ConfigInfo, net_lobby_name)) {
-            memcpy(&net_config_info, config_data, min((size_t)read_size, sizeof(net_config_info)));
-            if (read_size == sizeof(net_config_info) + 1) {
-                net_config_info.spectator_chat = config_data[sizeof(net_config_info)];
+        if (is_kfxs)
+        {
+            struct SaveError err;
+            if (SaveManager_ReadNetConfig(fname, &net_config_info, &err) == SVR_Ok)
+            {
+                net_config_sanitise();
+                return;
             }
-            net_config_info.net_player_name[sizeof(net_config_info.net_player_name) - 1] = '\0';
-            net_config_info.net_lobby_name[sizeof(net_config_info.net_lobby_name) - 1] = '\0';
-            if (net_config_info.max_players < MIN_NET_USERS || net_config_info.max_players > MAX_NET_USERS) {
-                net_config_info.max_players = MAX_NET_USERS;
+        }
+        else
+        {
+            // Old raw-struct format: import once, then rewrite in the new format immediately.
+            handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+            if (handle)
+            {
+                net_config_info = default_net_config_info;
+                unsigned char config_data[sizeof(net_config_info) + 1];
+                int32_t read_size = LbFileRead(handle, config_data, sizeof(config_data));
+                LbFileClose(handle);
+                // Files written by older builds are shorter by the fields added since, or one byte longer
+                if (read_size == sizeof(net_config_info) + 1 || read_size == sizeof(net_config_info) || read_size == offsetof(struct ConfigInfo, max_players) || read_size == offsetof(struct ConfigInfo, net_lobby_name))
+                {
+                    memcpy(&net_config_info, config_data, min((size_t)read_size, sizeof(net_config_info)));
+                    if (read_size == sizeof(net_config_info) + 1)
+                        net_config_info.spectator_chat = config_data[sizeof(net_config_info)];
+                    net_config_sanitise();
+                    net_write_config_file();
+                    return;
+                }
             }
-            net_config_info.spectators_enabled = net_config_info.spectators_enabled != 0;
-            net_config_info.spectator_chat = net_config_info.spectator_chat != 0;
-            return;
         }
     }
     // If can't load, then use default config
@@ -684,11 +714,7 @@ void net_load_config_file(void)
 void net_write_config_file(void)
 {
     char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
-    TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-    if (handle) {
-        LbFileWrite(handle, &net_config_info, sizeof(net_config_info));
-        LbFileClose(handle);
-    }
+    SaveManager_WriteNetConfig(fname, &net_config_info);
 }
 
 void frontnet_service_setup(void)

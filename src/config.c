@@ -745,6 +745,9 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
             *(unsigned char*)field = (unsigned char)value;
         break;
     case dt_schar:
+        if (value < SCHAR_MIN || value > SCHAR_MAX)
+            NAMFIELDWRNLOG("Value out of range for signed char: %" PRId64, value);
+        else
             *(signed char*)field = (signed char)value;
         break;
     case dt_char:
@@ -778,13 +781,17 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
             *(unsigned int*)field = (unsigned int)value;
         break;
     case dt_long:
-        if (value < LONG_MIN || value > LONG_MAX)
+        /* Range-checked against 32 bits, not the local long's own width: Windows'
+         * long has always been 32 bits, so that's the reference width. Checking
+         * against the compiling platform's own LONG_MIN/LONG_MAX let Linux (64-bit
+         * long) accept config values Windows silently rejected. */
+        if (value < INT32_MIN || value > INT32_MAX)
             NAMFIELDWRNLOG("Value out of range for signed long: %" PRId64, value);
         else
             *(signed long *)field = (signed long)value;
         break;
     case dt_ulong:
-        if (value < 0 || value > ULONG_MAX)
+        if (value < 0 || value > UINT32_MAX)
             NAMFIELDWRNLOG("Value out of range for unsigned long: %" PRId64, value);
         else
             *(unsigned long *)field = (unsigned long)value;

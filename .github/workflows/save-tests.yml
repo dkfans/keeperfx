@@ -1,0 +1,249 @@
+name: Save tests
+
+# The save codec tests (tests/save) on every platform the game targets. Each platform builds the
+# tests, runs them, and writes a sample save from
+# the same deterministic state. Then each platform reads every sample and prints what it holds;
+# all of those outputs have to be identical, which checks that the format doesn't depend on the
+# compiler, word size or char signedness. Runs untrusted PR code, so read-only permissions.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**.h'
+      - 'src/**.hpp'
+      - 'src/kfx/save/**'
+      - 'tools/save-tool/**'
+      - 'tests/save/**'
+      - '.github/workflows/save-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  platforms:
+    name: "Platforms"
+    runs-on: ubuntu-24.04
+    outputs:
+      legs: ${{ steps.legs.outputs.legs }}
+    steps:
+    - id: legs
+      run: |
+        set -eu
+        # name: used in artifact names. i386: needs the 32-bit package architecture.
+        # wine: run the .exe under Wine. Linux x64 also runs ASan and UBSan.
+        cat > legs.json <<'EOF'
+        [
+          { "name": "linux-x64", "runner": "ubuntu-24.04", "cc": "gcc",
+            "cflags": "-fsanitize=address,undefined -fno-sanitize-recover=undefined", "ldflags": "",
+            "exe": "", "wine": false, "i386": false, "pkgs": "gcc g++ zlib1g-dev curl" },
+          { "name": "linux-i386", "runner": "ubuntu-24.04", "cc": "gcc",
+            "cflags": "-m32", "ldflags": "",
+            "exe": "", "wine": false, "i386": true, "pkgs": "gcc g++ gcc-multilib g++-multilib zlib1g-dev zlib1g-dev:i386 curl" },
+          { "name": "linux-arm64", "runner": "ubuntu-24.04-arm", "cc": "gcc",
+            "cflags": "", "ldflags": "",
+            "exe": "", "wine": false, "i386": false, "pkgs": "gcc g++ zlib1g-dev curl" },
+          { "name": "windows-i686", "runner": "ubuntu-24.04", "cc": "i686-w64-mingw32-gcc",
+            "cflags": "", "ldflags": "-static",
+            "exe": ".exe", "wine": true, "i386": true,
+            "pkgs": "gcc-mingw-w64-i686 g++-mingw-w64-i686 libz-mingw-w64-dev wine wine32:i386 wine64 curl" },
+          { "name": "windows-x86_64", "runner": "ubuntu-24.04", "cc": "x86_64-w64-mingw32-gcc",
+            "cflags": "", "ldflags": "-static",
+            "exe": ".exe", "wine": true, "i386": true,
+            "pkgs": "gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 libz-mingw-w64-dev wine wine32:i386 wine64 curl" }
+        ]
+        EOF
+        echo "legs=$(jq -c . legs.json)" >> "$GITHUB_OUTPUT"
+
+  emulated:
+    name: "Test (${{ matrix.name }}, ${{ matrix.note }})"
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # s390x: big endian. armv7: 32 bit ARM, which has the ABI of the handheld ports (64 bit values
+          # aligned to 8 bytes, where i386 aligns them to 4). Both run under qemu.
+          - { name: s390x, note: big endian, platform: linux/s390x, qemu: s390x, big_endian: true }
+          - { name: armv7, note: 32 bit ARM, platform: linux/arm/v7, qemu: arm, big_endian: false }
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: docker/setup-qemu-action@v3
+      with:
+        platforms: ${{ matrix.qemu }}
+
+    - name: Build the tests natively and write the file of things and the sample save
+      run: |
+        set -eux
+        sudo apt-get update
+        sudo apt-get install -y gcc g++ zlib1g-dev curl
+        bash tests/save/build.sh /tmp/kfx_save_tests_native
+        /tmp/kfx_save_tests_native --write-arms /tmp/arms_native.bin
+        /tmp/kfx_save_tests_native --write-sample /tmp/sample_native.kfxs
+
+    - name: Build and run the tests under qemu, and exchange files with the native build
+      run: |
+        docker run --rm --platform ${{ matrix.platform }} -v "$PWD:/src" -v /tmp:/tmp/host -w /src debian:trixie bash -c '
+          set -eux
+          apt-get update
+          apt-get install -y gcc g++ zlib1g-dev curl ca-certificates
+          export SDL_INCLUDES="$(bash tools/save-layout/fetch_sdl_headers.sh /src /tmp/sdl)"
+          bash tests/save/build.sh /tmp/kfx_save_tests
+          /tmp/kfx_save_tests
+          /tmp/kfx_save_tests_records
+          /tmp/kfx_save_tests --check-arms /tmp/host/arms_native.bin
+          /tmp/kfx_save_tests --write-arms /tmp/host/arms_${{ matrix.name }}.bin
+          /tmp/kfx_save_tests --write-sample /tmp/host/sample_${{ matrix.name }}.kfxs'
+
+    - name: Read the emulated file natively
+      run: |
+        set -eux
+        /tmp/kfx_save_tests_native --check-arms /tmp/arms_${{ matrix.name }}.bin
+        cmp /tmp/arms_native.bin /tmp/arms_${{ matrix.name }}.bin
+
+    # The sample holds raw memory, which differs between byte orders, so only a little endian machine has to
+    # write the same file as the native build.
+    - name: Same sample save as the native build
+      if: ${{ !matrix.big_endian }}
+      run: cmp /tmp/sample_native.kfxs /tmp/sample_${{ matrix.name }}.kfxs
+
+  checks:
+    name: "Static analysis and valgrind"
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: cppcheck, clang-tidy and valgrind
+      run: bash tools/save-check/check.sh all
+
+  policy-scripts:
+    name: "Format policy scripts"
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - run: python3 tests/save/policy_tests.py
+
+  test:
+    name: "Test (${{ matrix.name }})"
+    needs: platforms
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.platforms.outputs.legs) }}
+    env:
+      WINEDEBUG: "-all"
+      RUNNER: ${{ matrix.wine && 'wine' || '' }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install tools
+      run: |
+        set -eux
+        if [ "${{ matrix.i386 }}" = "true" ]; then sudo dpkg --add-architecture i386; fi
+        sudo apt-get update
+        sudo apt-get install -y ${{ matrix.pkgs }}
+
+    - name: Build
+      run: |
+        set -eux
+        mkdir -p out
+        CC="${{ matrix.cc }}" CFLAGS_EXTRA="${{ matrix.cflags }}" LDFLAGS_EXTRA="${{ matrix.ldflags }}" \
+          bash tests/save/build.sh "out/kfx_save_tests-${{ matrix.name }}${{ matrix.exe }}"
+
+    - name: Run the tests
+      run: $RUNNER "out/kfx_save_tests-${{ matrix.name }}${{ matrix.exe }}"
+
+    - name: Run the file tests
+      run: $RUNNER "out/kfx_save_tests-${{ matrix.name }}_records${{ matrix.exe }}"
+
+    - name: Write the sample save
+      run: $RUNNER "out/kfx_save_tests-${{ matrix.name }}${{ matrix.exe }}" --write-sample "out/sample-${{ matrix.name }}.kfxs"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: exe-${{ matrix.name }}
+        path: out/kfx_save_tests-${{ matrix.name }}${{ matrix.exe }}
+        retention-days: 1
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: sample-${{ matrix.name }}
+        path: out/sample-${{ matrix.name }}.kfxs
+        retention-days: 1
+
+  read-all:
+    name: "Read every sample (${{ matrix.name }})"
+    needs: [platforms, test]
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.platforms.outputs.legs) }}
+    env:
+      WINEDEBUG: "-all"
+      RUNNER: ${{ matrix.wine && 'wine' || '' }}
+    steps:
+    - name: Install runtime packages
+      run: |
+        set -eux
+        if [ "${{ matrix.i386 }}" = "true" ]; then sudo dpkg --add-architecture i386; fi
+        sudo apt-get update
+        sudo apt-get install -y ${{ matrix.pkgs }}
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: exe-${{ matrix.name }}
+        path: dl
+
+    - uses: actions/download-artifact@v4
+      with:
+        pattern: sample-*
+        merge-multiple: true
+        path: dl
+
+    - name: Read all the samples
+      run: |
+        set -eux
+        chmod +x "dl/kfx_save_tests-${{ matrix.name }}${{ matrix.exe }}" || true
+        mkdir digests
+        for sample in dl/sample-*.kfxs; do
+          from="$(basename "$sample" .kfxs)"
+          $RUNNER "dl/kfx_save_tests-${{ matrix.name }}${{ matrix.exe }}" --digest "$sample" > "digests/${{ matrix.name }}-reads-$from.txt"
+        done
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: digests-${{ matrix.name }}
+        path: digests
+        retention-days: 1
+
+  compare:
+    name: "Same everywhere"
+    needs: read-all
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        pattern: digests-*
+        merge-multiple: true
+        path: digests
+
+    - name: Compare
+      run: |
+        set -eu
+        cd digests
+        ls
+        first="$(ls | head -1)"
+        status=0
+        for f in *.txt; do
+          if ! cmp -s "$first" "$f"; then
+            echo "::error::$f differs from $first"
+            diff "$first" "$f" | head -20 || true
+            status=1
+          fi
+        done
+        [ "$status" -eq 0 ] && echo "$(ls | wc -l) digests, all identical"
+        exit "$status"

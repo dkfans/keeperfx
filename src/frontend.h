@@ -22,7 +22,7 @@
 #include "globals.h"
 #include "bflib_guibtns.h"
 #include "gui_frontmenu.h"
-#include "game_saves.h"
+#include "kfx/save/SaveTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -328,6 +328,9 @@ int frontend_font_char_width(int fnt_idx,char c);
 int frontend_font_string_width(int fnt_idx, const char *str);
 
 void create_error_box(TextStringId msg_idx);
+void gui_close_error_box(struct GuiButton *gbtn);
+void gui_area_error_message(struct GuiButton *gbtn);
+void maintain_error_message(struct GuiButton *gbtn);
 void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char *line4, const char* line5);
 void gui_area_text(struct GuiButton *gbtn);
 TbBool get_button_area_input(struct GuiButton *gbtn, int a2);
@@ -349,6 +352,7 @@ void gui_area_slider(struct GuiButton *gbtn);
 void frontend_draw_icon(struct GuiButton *gbtn);
 void frontend_draw_error_text_box(struct GuiButton *gbtn);
 void frontend_close_error_box(struct GuiButton *gbtn);
+void frontend_queue_message(TextStringId msg_idx);
 short is_toggleable_menu(short mnu_idx);
 
 void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id);
@@ -415,6 +419,8 @@ void gui_set_autopilot(struct GuiButton *gbtn);
 
 FrontendMenuState frontend_set_state(FrontendMenuState nstate);
 FrontendMenuState get_startup_menu_state(void);
+void frontend_start_load_game(long slot_num);
+void frontend_load_game_failed(TextStringId msg_idx);
 FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState substate);
 void frontend_input(void);
 void frontend_update(short *finish_menu);

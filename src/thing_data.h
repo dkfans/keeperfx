@@ -137,7 +137,7 @@ struct Thing {
       } valuable;
       struct {
         short life_remaining;
-        char freshness_state;
+        int8_t freshness_state;
         unsigned char possession_startup_timer;
         TbBool some_chicken_was_sacrificed;
         unsigned short angle;
@@ -282,7 +282,7 @@ struct Thing {
     unsigned short sprite_size;
     unsigned char current_frame;
     unsigned char max_frames;
-    char transformation_speed;
+    int8_t transformation_speed;
     unsigned short sprite_size_min;
     unsigned short sprite_size_max;
     unsigned char rendering_flags;

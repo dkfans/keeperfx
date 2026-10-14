@@ -35,7 +35,10 @@ struct Packet;
 #pragma pack(1)
 
 // save file header for .fxpkt files.
-// (Bump the version if this struct or the .fxpkt format changes.)
+// (Bump the version if PacketSaveHead, CatalogueEntry, Game or Packet's *set of
+// saved fields* changes in a way the schema decoder can't reconcile by name --
+// see SaveManager::ReadReplayHeader. A field rename/reorder/insertion
+// alone does NOT need a bump; the schema decode matches by name.)
 #define PACKET_SAVE_HEAD_VER 6
 
 enum PacketSaveHeadFlags {
@@ -62,7 +65,7 @@ struct PacketSaveHead {
     UserPreferences user_prefs[MAX_NET_USERS];
     signed char user_players[MAX_NET_USERS];
     signed char recording_user;
-    char frontend_alliances;
+    int8_t frontend_alliances;
     char user_names[MAX_NET_USERS][20];
 };
 

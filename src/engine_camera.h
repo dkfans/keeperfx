@@ -79,9 +79,9 @@ struct Camera {
     int zoom;
     int velocity_rotation;
     TbBool in_active_movement_rotation;
-    long velocity_x;
+    int32_t velocity_x;
     TbBool in_active_movement_x;
-    long velocity_y;
+    int32_t velocity_y;
     TbBool in_active_movement_y;
     TbBool use_rotation_pivot;
     struct Coord2d rotation_pivot;
