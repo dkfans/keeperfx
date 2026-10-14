@@ -88,8 +88,8 @@ static int64_t get_current_turn_position_ns(void)
     }
     int64_t nanoseconds_per_turn = (1000000000ULL + turns_per_second / 2) / turns_per_second;
     int64_t position_ns = (int64_t)get_gameturn() * (int64_t)nanoseconds_per_turn;
-    if (is_feature_on(Ft_DeltaTime) == true && game.process_turn_time > 0) {
-        int64_t turn_phase_ns = (int64_t)((game.process_turn_time - 1) * nanoseconds_per_turn + 0.5);
+    if (is_feature_on(Ft_DeltaTime) == true && local_state.process_turn_time > 0) {
+        int64_t turn_phase_ns = (int64_t)((local_state.process_turn_time - 1) * nanoseconds_per_turn + 0.5);
         if (turn_phase_ns >= nanoseconds_per_turn) {
             turn_phase_ns = nanoseconds_per_turn - 1;
         }
@@ -102,7 +102,7 @@ static void update_turn_speed_adjustment(void)
 {
     TbClockMSec sync_age_ms = LbTimerClock() - server_turn_received_at;
     multiplayer_speed_adjustment_ns = 0;
-    if (game.fast_forward > 0 || netstate.my_id == SERVER_ID || server_turn_received_at == 0 || turns_per_second <= 0
+    if (local_state.fast_forward > 0 || netstate.my_id == SERVER_ID || server_turn_received_at == 0 || turns_per_second <= 0
         || sync_age_ms > TURN_SYNC_INTERVAL_MS * 3) {
         return;
     }

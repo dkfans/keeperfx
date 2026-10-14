@@ -100,17 +100,15 @@ void GLMapFadePass::Shutdown()
     m_capture_gt_w = m_capture_gt_h = 0;
     m_cmd = IRMapFadeCmd{};
     m_rt_cmd = IRMapFadeCmd{};
-    m_was_active_gt = false;
 }
 
-void GLMapFadePass::SubmitStep(int tick_step, float display_step, float warp_scale, bool fading_in, const unsigned char* ghost_table)
+void GLMapFadePass::SubmitStep(bool starting, float display_step, float warp_scale, const unsigned char* ghost_table)
 {
     ASSERT_GAME_THREAD();
-    const bool is_start = (fading_in && tick_step == 0) || (!fading_in && tick_step == 32);
     m_cmd.active = true;
     m_cmd.step = display_step;
     m_cmd.warp_scale = warp_scale;
-    m_cmd.capture_pending = is_start && !m_was_active_gt;
+    m_cmd.capture_pending = starting;
     if (m_cmd.capture_pending && ghost_table != nullptr)
         m_cmd.ghost_table.assign(ghost_table, ghost_table + 256 * 256);
 
@@ -121,7 +119,6 @@ void GLMapFadePass::SubmitStep(int tick_step, float display_step, float warp_sca
 void GLMapFadePass::FlipBuffers()
 {
     ASSERT_GAME_THREAD();
-    m_was_active_gt = m_cmd.active;
     m_rt_cmd = std::move(m_cmd);
     m_cmd = IRMapFadeCmd{};
 }

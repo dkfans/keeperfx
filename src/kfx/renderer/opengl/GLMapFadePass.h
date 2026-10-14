@@ -50,7 +50,7 @@ public:
 
     /** @p ghost_table is the 256x256 map-fade ghost table; it's copied on the
      *  transition's first frame. */
-    void SubmitStep(int tick_step, float display_step, float warp_scale, bool fading_in, const unsigned char* ghost_table);
+    void SubmitStep(bool starting, float display_step, float warp_scale, const unsigned char* ghost_table);
 
     void FlipBuffers();
 
@@ -77,7 +77,6 @@ private:
 
     IRMapFadeCmd m_cmd;         // GT: written by SubmitStep(); reset after FlipBuffers()
     IRMapFadeCmd m_rt_cmd;      // RT: stable copy after FlipBuffers()
-    bool m_was_active_gt = false;  // GT: was a transition active as of the end of the previous frame
 
     GLResourceMapper* m_resource_mapper = nullptr;
 

@@ -1449,13 +1449,13 @@ void frame_wibble_generate(void)
         wibl->lightness_offset = osc >> 6;
         wibl++;
     }
-    render_water_wibble += DEGREES_8_18 * game.delta_time;
+    render_water_wibble += DEGREES_8_18 * local_state.delta_time;
     water_wibble_angle = (int)render_water_wibble & ANGLE_MASK;
-    render_abyss_lava_scroll += ABYSS_LAVA_SCROLL_SPEED * game.delta_time;
+    render_abyss_lava_scroll += ABYSS_LAVA_SCROLL_SPEED * local_state.delta_time;
     if (render_abyss_lava_scroll >= ABYSS_LIQUID_SCROLL_CYCLE) {
         render_abyss_lava_scroll -= ABYSS_LIQUID_SCROLL_CYCLE;
     }
-    render_abyss_water_scroll += ABYSS_WATER_SCROLL_SPEED * game.delta_time;
+    render_abyss_water_scroll += ABYSS_WATER_SCROLL_SPEED * local_state.delta_time;
     if (render_abyss_water_scroll >= ABYSS_LIQUID_SCROLL_CYCLE) {
         render_abyss_water_scroll -= ABYSS_LIQUID_SCROLL_CYCLE;
     }

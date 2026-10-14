@@ -3370,7 +3370,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_off_all_window_menus();
         turn_off_query_menus();
         turn_on_main_panel_menu();
-        set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+        local_state.show_panel = local_state.show_gui;
         PaletteSetPlayerPalette(player, engine_palette);
         local_state.palette_fade_step_possession = 11;
     }

@@ -299,7 +299,7 @@ TbBool MistEffect::Draw(LensRenderContext* ctx)
     renderer->SetOffsets((int)m_pos_x, (int)m_pos_y, (int)m_sec_x, (int)m_sec_y);
     renderer->Render(ctx->dstbuf, ctx->dstpitch, viewport_src, ctx->srcpitch,
                     ctx->width, ctx->height);
-    AdvanceAnimation(game.delta_time);
+    AdvanceAnimation(local_state.delta_time);
 
     ctx->buffer_copied = true;  // Mist writes to dstbuf
     return true;

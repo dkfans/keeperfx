@@ -141,7 +141,7 @@ TbBool draw_onscreen_direct_messages(void)
         {
             LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, onscreen_msg_text);
         }
-        render_onscreen_msg_time -= game.delta_time;
+        render_onscreen_msg_time -= local_state.delta_time;
     }
     if (is_desync_warning_active() && RendererCanDraw()) {
         LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, get_string(GUIStr_NetOutOfSync));

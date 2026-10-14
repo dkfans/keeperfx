@@ -134,7 +134,7 @@ static TbError handle_exchange_message(NetUserId source, void *server_buf, size_
         const struct Packet *packets = (const struct Packet *)read_pos;
         relay_message = netstate.users[peer_id].ack != seq_nbr;
         if (peer_id == SERVER_ID && packets[0].turn == get_gameturn() && get_history_packet((PlayerNumber)peer_id, packets[0].turn) == NULL) {
-            host_packet_received = game.process_turn_time;
+            host_packet_received = local_state.process_turn_time;
         }
         for (unsigned char i = 0; i < packet_count; i += 1) {
             if (is_packet_empty(&packets[i])) {

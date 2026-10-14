@@ -64,7 +64,7 @@ int debug_display_frametime = 0;
 void initial_time_point()
 {
   initialized_time_point = TimeNow;
-  game.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
+  local_state.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
 }
 
 int64_t get_time_tick_ns()
@@ -112,7 +112,7 @@ void frametime_set_all_measurements_to_be_displayed()
     if (debug_display_frametime == 2)
     {
         // Once per half-second set the display text to highest frametime of the past half-second
-        frametime_measurements.max_timer += game.delta_time;
+        frametime_measurements.max_timer += local_state.delta_time;
         if (frametime_measurements.max_timer > (turns_per_second/2)) {
             frametime_measurements.max_timer = 0;
             once_per_half_second = true;

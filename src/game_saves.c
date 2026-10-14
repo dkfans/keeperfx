@@ -685,6 +685,7 @@ TbBool load_game(long slot_num)
     clear_flag(ustate->additional_flags, UsrAF_LightningPaletteIsActive);
     clear_flag(ustate->additional_flags, UsrAF_FreezePaletteIsActive);
     local_state.view_type = PVT_None;
+    local_state.show_panel = true;
     local_state.palette_fade_step_pain = 0;
     local_state.palette_fade_step_possession = 0;
     local_state.lens_palette = 0;

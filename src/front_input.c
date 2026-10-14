@@ -504,7 +504,7 @@ static void get_interface_inputs(void)
     clear_key_pressed(KC_ESCAPE);
     if (a_menu_window_is_active()) {
         turn_off_all_window_menus();
-    } else if ((game.operation_flags & GOF_ShowGui) == 0) {
+    } else if (!local_state.show_gui) {
         set_gui_visible(true);
     } else {
         if (menu_is_active(GMnu_MAIN)) {
@@ -548,33 +548,33 @@ static TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
 
 static void clip_frame_skip(void)
 {
-  if (game.fast_forward > GAME_FAST_FORWARD_MAX)
-    game.fast_forward = GAME_FAST_FORWARD_MAX;
-  if (game.fast_forward < 0)
-    game.fast_forward = 0;
+  if (local_state.fast_forward > GAME_FAST_FORWARD_MAX)
+    local_state.fast_forward = GAME_FAST_FORWARD_MAX;
+  if (local_state.fast_forward < 0)
+    local_state.fast_forward = 0;
 }
 
 static void change_frameskip(int32_t direction)
 {
     if (direction > 0) {
-        if (game.fast_forward <= 1) {
-            game.fast_forward = 2;
+        if (local_state.fast_forward <= 1) {
+            local_state.fast_forward = 2;
         } else {
-            game.fast_forward <<= 1;
+            local_state.fast_forward <<= 1;
         }
-    } else if (game.fast_forward <= 2) {
-        game.fast_forward = 0;
+    } else if (local_state.fast_forward <= 2) {
+        local_state.fast_forward = 0;
     } else {
-        game.fast_forward >>= 1;
+        local_state.fast_forward >>= 1;
     }
     clip_frame_skip();
     char speed_txt[256];
-    if (game.fast_forward > 0) {
-        snprintf(speed_txt, sizeof(speed_txt), "x%d", game.fast_forward);
+    if (local_state.fast_forward > 0) {
+        snprintf(speed_txt, sizeof(speed_txt), "x%d", local_state.fast_forward);
     } else {
         snprintf(speed_txt, sizeof(speed_txt), "%s", get_string(GUIStr_FastForwardNormal));
     }
-    show_onscreen_msg(turns_per_second*(game.fast_forward+1), get_string(GUIStr_FastForward), speed_txt);
+    show_onscreen_msg(turns_per_second*(local_state.fast_forward+1), get_string(GUIStr_FastForward), speed_txt);
 }
 
 /**
@@ -663,7 +663,7 @@ static TbBool observer_camera_input_pressed(void)
             return true;
         }
     }
-    if (left_button_clicked && ((game.operation_flags & GOF_ShowGui) != 0)) {
+    if (left_button_clicked && local_state.show_gui) {
         long x;
         long y;
         long zoom;
@@ -764,7 +764,7 @@ static int32_t get_small_map_inputs(int32_t x, int32_t y, int32_t zoom, struct P
     if (!grabbed_small_map) {
         game.small_map_state = 0;
     }
-    if (((game.operation_flags & GOF_ShowGui) != 0 && mouse_is_over_panel_map(x, y))
+    if ((local_state.show_gui && mouse_is_over_panel_map(x, y))
      || clicked_on_small_map || grabbed_small_map) {
         if (left_button_clicked) {
             clicked_on_small_map = 1;
@@ -1086,7 +1086,7 @@ static TbBool get_level_lost_inputs(void)
         if (player->instance_num != PI_MapFadeFrom)
         {
           turn_off_all_window_menus();
-          set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+          local_state.show_panel = local_state.show_gui;
           if (parchment_map_fade_enabled())
           {
                 set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
@@ -1105,7 +1105,7 @@ static TbBool get_level_lost_inputs(void)
         inp_done = menu_is_active(GMnu_SPELL_LOST);
         if ( !inp_done )
         {
-          if ((game.operation_flags & GOF_ShowGui) != 0)
+          if (local_state.show_gui)
           {
             initialise_tab_tags_and_menu(GMnu_SPELL);
             turn_off_all_panel_menus();
@@ -1167,7 +1167,7 @@ static TbBool get_level_lost_inputs(void)
       case PVT_MapScreen:
         if (menu_is_active(GMnu_SPELL_LOST))
         {
-          if ((game.operation_flags & GOF_ShowGui) != 0)
+          if (local_state.show_gui)
             turn_off_menu(GMnu_SPELL_LOST);
         }
         break;
@@ -2680,7 +2680,7 @@ static short get_observer_inputs(void)
     }
     const unsigned char view_type = get_local_view_type(player);
     if (view_type == PVT_DungeonTop) {
-        if ((game.operation_flags & GOF_ShowGui) != 0 && menu_is_active(GMnu_SPELL_LOST)) {
+        if (local_state.show_gui && menu_is_active(GMnu_SPELL_LOST)) {
             initialise_tab_tags_and_menu(GMnu_QUERY);
             turn_off_all_panel_menus();
             turn_on_menu(GMnu_QUERY);

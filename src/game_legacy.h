@@ -87,8 +87,6 @@ enum GameKinds {
 enum GameOperationFlags {
     GOF_Paused           = 0x01,
     GOF_SingleLevel      = 0x02, /**< Play single level and then exit. */
-    GOF_ShowGui          = 0x20, /**< Showing main Gui. */
-    GOF_ShowPanel        = 0x40, /**< Showing the tabbed panel. */
     GOF_WorldInfluence   = 0x80, /**< Input to the in-game world is allowed. */
 };
 
@@ -299,7 +297,6 @@ struct Game {
     uint32_t sound_random_seed;
     int something_light_x;
     int something_light_y;
-    uint32_t time_delta;
     short top_cube[TEXTURE_BLOCKS_COUNT];// if you ask for top cube on a column without cubes, it'll return the first cube it finds with said texture at the top
     unsigned char small_map_state;
     struct Coord3d mouse_light_pos;
@@ -318,7 +315,6 @@ struct Game {
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
-    int32_t fast_forward;
     TbBool frame_step;
     TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress[PLAYERS_COUNT];
@@ -328,6 +324,7 @@ struct Game {
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
     int32_t flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
+    float flash_button_time;
     char loaded_swipe_idx;
     unsigned char active_messages_count;
     unsigned char active_script_var_count;
@@ -383,9 +380,6 @@ struct Game {
     int32_t heart_lost_message_target;
     unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
     unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
-    float delta_time;
-    long double process_turn_time;
-    float flash_button_time;
     MapSubtlCoord map_subtiles_x;
     MapSubtlCoord map_subtiles_y;
     MapSlabCoord map_tiles_x;

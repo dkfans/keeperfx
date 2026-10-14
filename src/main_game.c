@@ -510,6 +510,12 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 void clear_complete_game(void)
 {
     memset(&game, 0, sizeof(struct Game));
+    local_state.fast_forward = 0;
+    local_state.process_turn_time = 0;
+    local_state.delta_time = 0;
+    local_state.time_delta = 0;
+    local_state.show_gui = false;
+    local_state.show_panel = false;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         game.user_states[user].player_id = PLAYER_NONE;
     }

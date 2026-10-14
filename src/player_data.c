@@ -406,7 +406,14 @@ void clear_players(void)
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         game.user_states[user].player_id = PLAYER_NONE;
     }
+    struct LocalState prev_local_state = local_state;
     memset(&local_state, 0, sizeof(local_state));
+    local_state.fast_forward = prev_local_state.fast_forward;
+    local_state.process_turn_time = prev_local_state.process_turn_time;
+    local_state.delta_time = prev_local_state.delta_time;
+    local_state.time_delta = prev_local_state.time_delta;
+    local_state.show_gui = prev_local_state.show_gui;
+    local_state.show_panel = prev_local_state.show_panel;
     memset(&bad_user_state, 0, sizeof(bad_user_state));
     bad_user_state.player_id = PLAYER_NONE;
     game.human_players_count = 0;
@@ -632,7 +639,7 @@ void set_user_view_type(NetUserId user, unsigned short nview)
       if (is_local) {
         update_engine_view(player, leaving_map);
         if (local_state.view_type == PVT_None) {
-          toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
+          toggle_status_menu(local_state.show_panel);
         }
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       }

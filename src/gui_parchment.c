@@ -1087,11 +1087,7 @@ TbBool parchment_map_fade_enabled(void)
 void zoom_to_parchment_map(void)
 {
     turn_off_all_window_menus();
-    if ((game.operation_flags & GOF_ShowGui) == 0) {
-        clear_flag(game.operation_flags, GOF_ShowPanel);
-    } else {
-        set_flag(game.operation_flags, GOF_ShowPanel);
-    }
+    local_state.show_panel = local_state.show_gui;
     if (observer_is_active()) {
         enter_observer_camera();
     }

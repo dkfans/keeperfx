@@ -886,7 +886,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         {
             settings.highlight_mode = default_tag_mode - 1;
         }
-        set_flag(game.operation_flags, GOF_ShowPanel);
+        local_state.show_panel = true;
         set_gui_visible(true);
         init_gui();
         turn_on_menu(GMnu_MAIN);

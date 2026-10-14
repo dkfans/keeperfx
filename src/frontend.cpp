@@ -2145,7 +2145,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         amnu = get_active_menu(mnu_num);
         amnu->visual_state = 1;
         amnu->fade_time = gmnu->fade_time;
-        amnu->is_turned_on = ((game.operation_flags & GOF_ShowGui) != 0) || (!is_toggleable_menu(gmnu->ident));
+        amnu->is_turned_on = local_state.show_gui || !is_toggleable_menu(gmnu->ident);
         SYNCDBG(18,"Menu number %d already active",(int)mnu_num);
         return mnu_num;
     }
@@ -2191,7 +2191,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     amnu->create_cb = gmnu->create_cb;
     amnu->is_monopoly_menu = gmnu->is_monopoly_menu;
     amnu->is_active_panel = gmnu->is_active_panel;
-    amnu->is_turned_on = ((game.operation_flags & GOF_ShowGui) != 0) || (!is_toggleable_menu(gmnu->ident));
+    amnu->is_turned_on = local_state.show_gui || !is_toggleable_menu(gmnu->ident);
     callback = amnu->create_cb;
     if (callback != NULL)
         callback(amnu);
@@ -2465,7 +2465,7 @@ TbBool toggle_first_person_menu(TbBool visible)
 void set_gui_visible(TbBool visible)
 {
     SYNCDBG(6,"Starting");
-    set_flag_value(game.operation_flags, GOF_ShowGui, visible);
+    local_state.show_gui = visible;
     struct PlayerInfo* player = get_my_player();
     switch (get_local_view_type(player)) {
     case PVT_CreatureContrl:
@@ -2475,7 +2475,7 @@ void set_gui_visible(TbBool visible)
     case PVT_MapScreen:
     case PVT_MapFadeIn:
     case PVT_MapFadeOut:
-        set_flag_value(game.operation_flags, GOF_ShowPanel, visible);
+        local_state.show_panel = visible;
         local_state.status_menu_restore = visible;
         toggle_status_menu(false);
         break;
@@ -2489,13 +2489,13 @@ void set_gui_visible(TbBool visible)
 
 void toggle_gui(void)
 {
-    TbBool visible = ((game.operation_flags & GOF_ShowGui) == 0);
+    TbBool visible = !local_state.show_gui;
     set_gui_visible(visible);
 }
 
 void reinit_all_menus(void)
 {
-    TbBool visible = ((game.operation_flags & GOF_ShowGui) != 0);
+    TbBool visible = local_state.show_gui;
     init_gui();
     reset_gui_based_on_player_mode();
     set_gui_visible(visible);
@@ -3131,9 +3131,9 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
             gmnu->visual_state = 2;
             return 0;
         }
-        if (game.fast_forward == 0)
+        if (local_state.fast_forward == 0)
         {
-            gmnu->fade_time -= game.delta_time;
+            gmnu->fade_time -= local_state.delta_time;
         } else {
             gmnu->fade_time -= 1.0;
         }
@@ -3144,9 +3144,9 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
             gmnu->fade_time = 0.0;
             return -1; // Kill menu
         }
-        if (game.fast_forward == 0)
+        if (local_state.fast_forward == 0)
         {
-            gmnu->fade_time -= game.delta_time;
+            gmnu->fade_time -= local_state.delta_time;
         } else {
             gmnu->fade_time -= 1.0;
         }
@@ -3159,7 +3159,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 
 void toggle_gui_overlay_map(void)
 {
-    toggle_flag(game.operation_flags, GOF_ShowGui);
+    local_state.show_gui = !local_state.show_gui;
 }
 
 void draw_menu_buttons(struct GuiMenu *gmnu)
@@ -3330,7 +3330,7 @@ void draw_gui(void)
         draw_active_menus_highlights();
         if (game.flash_button_time > 0)
         {
-            game.flash_button_time -= game.delta_time;
+            game.flash_button_time -= local_state.delta_time;
             if (game.flash_button_time <= 0) {
                 game.flash_button_index = 0;
             }
