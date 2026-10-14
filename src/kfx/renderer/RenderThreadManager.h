@@ -21,12 +21,12 @@ public:
 
     /** Spawn the render thread and block until init_fn() completes. No-op if
      *  already active. */
-    void Start(Fn init_fn, Fn work_fn, Fn cleanup_fn);
+    void Start(Fn init_fn, Fn work_fn, Fn present_fn, Fn cleanup_fn);
 
     void WaitForCompletion();
     bool IsWorkDone() const;
 
-    /** Wake the render thread to run work_fn() for this frame. */
+    /** Wake the render thread to render and present this frame. */
     void Signal();
 
     /** Signal quit, join, and reset so a future Start() works again. */
@@ -35,7 +35,7 @@ public:
     bool IsActive() const { return m_active; }
 
 private:
-    void ThreadProc(Fn init_fn, Fn work_fn, Fn cleanup_fn);
+    void ThreadProc(Fn init_fn, Fn work_fn, Fn present_fn, Fn cleanup_fn);
 
     std::thread             m_thread;
     mutable std::mutex      m_mutex;

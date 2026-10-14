@@ -42,19 +42,23 @@
 
 /******************************************************************************/
 
+int chat_font_size = 20;
+
 void message_draw(void)
 {
     SYNCDBG(7,"Starting");
     LbTextSetFont(winfont);
     int ps_units_per_px;
+    int icon_units_per_px;
+    int tx_units_per_px = font_size_units_per_px(chat_font_size);
     const struct TbSprite* spr;
     {
         //just used for height, color irrelevant here
         spr = get_panel_sprite(GPS_plyrsym_symbol_player_red_std_b);
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+        icon_units_per_px = (LbTextLineHeight() * tx_units_per_px) / spr->SHeight;
     }
     TbBool low_res = (MyScreenHeight < 400);
-    int tx_units_per_px = ( (low_res) && (dbc_initialized && dbc_enabled) ) ? ps_units_per_px : (22 * units_per_pixel) / LbTextLineHeight();
     int h = LbTextLineHeight();
     long y = 28 * units_per_pixel / 16;
     if (game.armageddon_cast_turn != 0)
@@ -71,7 +75,11 @@ void message_draw(void)
             long x = 148 * units_per_pixel / 16;
             LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
             RendererClearDrawFlags(Lb_TEXT_ONE_COLOR);
-            LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, game.messages[i].text);
+            int text_offset = 32 * units_per_pixel / 16;
+            if ((game.messages[i].type == MsgType_Player) || (game.messages[i].type == MsgType_Spectator)) {
+                text_offset = text_offset * icon_units_per_px / ps_units_per_px;
+            }
+            LbTextDrawResized(x + text_offset, y, tx_units_per_px, game.messages[i].text);
             unsigned long spr_idx = 0;
             PlayerNumber plyr_idx = game.messages[i].plyr_idx;
             switch (game.messages[i].type)
@@ -159,13 +167,13 @@ void message_draw(void)
             {
                 case MsgType_Spectator: {
                     spr = get_panel_sprite(spr_idx);
-                    int32_t creature_units_per_px = spr->SHeight * ps_units_per_px / 50;
-                    LbSpriteDrawResized(x - 4 * creature_units_per_px / 16, y - creature_units_per_px, ps_units_per_px * 18 / 21, spr);
+                    int32_t creature_units_per_px = spr->SHeight * icon_units_per_px / 50;
+                    LbSpriteDrawResized(x - 4 * creature_units_per_px / 16, y - creature_units_per_px, icon_units_per_px * 18 / 21, spr);
                     break;
                 }
                 case MsgType_Player:
                 {
-                    draw_gui_panel_sprite_left_player(x, y, ps_units_per_px, spr_idx, plyr_idx);
+                    draw_gui_panel_sprite_left_player(x, y, icon_units_per_px, spr_idx, plyr_idx);
                     break;
                 }
                 case MsgType_Creature:
@@ -186,7 +194,7 @@ void message_draw(void)
                     break;
                 }
             }
-            y += (h*units_per_pixel/16) << (unsigned char)low_res;
+            y += tx_units_per_px * CHAT_LINE_SPACING_PERCENT / 100;
             switch (game.messages[i].type)
             {
                 case MsgType_Player:

@@ -12,7 +12,7 @@ RenderThreadManager::~RenderThreadManager()
         Stop();
 }
 
-void RenderThreadManager::Start(Fn init_fn, Fn work_fn, Fn cleanup_fn)
+void RenderThreadManager::Start(Fn init_fn, Fn work_fn, Fn present_fn, Fn cleanup_fn)
 {
     if (m_active)
         return;
@@ -25,7 +25,7 @@ void RenderThreadManager::Start(Fn init_fn, Fn work_fn, Fn cleanup_fn)
 
     m_thread = std::thread(
         &RenderThreadManager::ThreadProc, this,
-        std::move(init_fn), std::move(work_fn), std::move(cleanup_fn));
+        std::move(init_fn), std::move(work_fn), std::move(present_fn), std::move(cleanup_fn));
 
     std::unique_lock<std::mutex> lock(m_mutex);
     m_cv.wait(lock, [this]{ return m_initialized; });
@@ -65,7 +65,7 @@ void RenderThreadManager::Stop()
     m_active = false;
 }
 
-void RenderThreadManager::ThreadProc(Fn init_fn, Fn work_fn, Fn cleanup_fn)
+void RenderThreadManager::ThreadProc(Fn init_fn, Fn work_fn, Fn present_fn, Fn cleanup_fn)
 {
     g_on_render_thread = true;
     RendererThread_RegisterRenderThread();
@@ -96,6 +96,7 @@ void RenderThreadManager::ThreadProc(Fn init_fn, Fn work_fn, Fn cleanup_fn)
             m_work_done = true;
         }
         m_cv.notify_one();
+        present_fn();
     }
 
     cleanup_fn();

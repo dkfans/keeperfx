@@ -53,7 +53,7 @@ TbBool network_user_active(NetUserId);
 const char *network_user_name(NetUserId);
 TbBool network_human_contenders_remain(void);
 void resolve_placeholders(void);
-void process_player_leave_game_packet(struct PlayerInfo *player);
+void process_user_leave_game_packet(NetUserId user);
 void process_disconnected_network_players(void);
 TbBool user_present(NetUserId user);
 void host_spoof_dropped_user_packets(void);
@@ -69,8 +69,7 @@ TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs);
 TbBool network_is_host(void);
 PlayerNumber get_net_user_player_number(NetUserId user);
 void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx);
-void rebuild_net_user_player_numbers(void);
-void remap_user_to_solo(struct PlayerInfo *myplyr);
+void remap_user_to_solo(struct PlayerInfo *myplyr, NetUserId old_user);
 /******************************************************************************/
 #ifdef __cplusplus
 }
