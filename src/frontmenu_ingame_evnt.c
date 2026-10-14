@@ -539,6 +539,12 @@ static void draw_bottom_right_text(const char *text, int line, TbBool player_ico
     }
     RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
     int32_t scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    int32_t icon_scale = 0;
+    if (player_icon) {
+        const struct TbSprite *icon = get_panel_sprite(GPS_plyrsym_symbol_room_red_std_a);
+        icon_scale = calculate_relative_upp(22 * units_per_pixel / 16, 16, icon->SHeight);
+        scr_x -= icon->SWidth * icon_scale / 16 + 4 * units_per_pixel / 16;
+    }
     int32_t scr_y = MyScreenHeight - (line + 1) * height - 16 * units_per_pixel / 16;
 
     LbTextSetWindow(scr_x, scr_y, width, height);
@@ -557,10 +563,7 @@ static void draw_bottom_right_text(const char *text, int line, TbBool player_ico
     }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     if (player_icon) {
-        const struct TbSprite *icon = get_panel_sprite(GPS_plyrsym_symbol_room_red_std_a);
-        int32_t icon_scale = calculate_relative_upp(22 * units_per_pixel / 16, 16, icon->SHeight);
-        int32_t icon_width = icon->SWidth * icon_scale / 16;
-        draw_gui_panel_sprite_left_player(scr_x - icon_width - 4 * units_per_pixel / 16,
+        draw_gui_panel_sprite_left_player(scr_x + width + 4 * units_per_pixel / 16,
             scr_y + y, icon_scale, GPS_plyrsym_symbol_room_red_std_a, my_player_number);
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
