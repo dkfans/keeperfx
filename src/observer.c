@@ -41,7 +41,7 @@
 
 struct ObserverCursor {
     struct Packet packet;
-    struct TbPoint viewport_center_offset;
+    int32_t viewport_center_offset[2];
     TbBool has_viewport_center_offset;
     TbBool sidebar_reserved;
 };
@@ -105,6 +105,16 @@ void observer_set_packet_cursor(struct Packet *pckt)
     pckt->actn_par2 = -(cursor_offset_y + OBSERVER_CURSOR_OFFSET_ORIGIN);
 }
 
+static TbBool observer_decode_cursor_offset(int32_t par, int32_t origin, int32_t *offset)
+{
+    int64_t value = -((int64_t)par + origin);
+    if (value < INT16_MIN || value > INT16_MAX) {
+        return false;
+    }
+    *offset = value;
+    return true;
+}
+
 void observer_store_packets(const struct Packet *packets)
 {
     if (!observer_is_active() || (packets != NULL && replay_playback_is_paused())) {
@@ -116,20 +126,13 @@ void observer_store_packets(const struct Packet *packets)
             const struct Packet *pckt = &packets[user];
             struct ObserverCursor *cursor = &observer_cursors[user];
             cursor->packet = *pckt;
-            cursor->has_viewport_center_offset = false;
-            int32_t origin_x = OBSERVER_CURSOR_OFFSET_ORIGIN;
-            if (pckt->actn_par1 < -(OBSERVER_CURSOR_OFFSET_ORIGIN + INT16_MAX)) {
-                origin_x += OBSERVER_CURSOR_SIDEBAR_SHIFT;
-            }
-            if (pckt->action == PckA_None
-             && pckt->actn_par1 <= -(origin_x + INT16_MIN)
-             && pckt->actn_par1 >= -(origin_x + INT16_MAX)
-             && pckt->actn_par2 <= -(OBSERVER_CURSOR_OFFSET_ORIGIN + INT16_MIN)
-             && pckt->actn_par2 >= -(OBSERVER_CURSOR_OFFSET_ORIGIN + INT16_MAX)) {
-                cursor->viewport_center_offset.x = -pckt->actn_par1 - origin_x;
-                cursor->viewport_center_offset.y = -pckt->actn_par2 - OBSERVER_CURSOR_OFFSET_ORIGIN;
-                cursor->has_viewport_center_offset = true;
-                cursor->sidebar_reserved = origin_x != OBSERVER_CURSOR_OFFSET_ORIGIN;
+            int32_t *offset = cursor->viewport_center_offset;
+            TbBool sidebar_reserved = observer_decode_cursor_offset(pckt->actn_par1, OBSERVER_CURSOR_OFFSET_ORIGIN + OBSERVER_CURSOR_SIDEBAR_SHIFT, &offset[0]);
+            cursor->has_viewport_center_offset = pckt->action == PckA_None
+                && (sidebar_reserved || observer_decode_cursor_offset(pckt->actn_par1, OBSERVER_CURSOR_OFFSET_ORIGIN, &offset[0]))
+                && observer_decode_cursor_offset(pckt->actn_par2, OBSERVER_CURSOR_OFFSET_ORIGIN, &offset[1]);
+            if (cursor->has_viewport_center_offset) {
+                cursor->sidebar_reserved = sidebar_reserved;
             }
         }
     }
@@ -245,8 +248,8 @@ static TbBool observer_cursor_to_screen(const struct ObserverCursor *cursor, int
     if (cursor->has_viewport_center_offset) {
         // Cursor offsets are relative to the viewport center and use a resolution-independent scale.
         float offset_to_screen_scale = units_per_pixel_best / (float)OBSERVER_CURSOR_OFFSET_SCALE;
-        *screen_x = local_state.engine_window_x + local_state.engine_window_width / 2 + observer_view_shift_x() + lroundf(cursor->viewport_center_offset.x * offset_to_screen_scale);
-        *screen_y = local_state.engine_window_y + local_state.engine_window_height / 2 + lroundf(cursor->viewport_center_offset.y * offset_to_screen_scale);
+        *screen_x = local_state.engine_window_x + local_state.engine_window_width / 2 + observer_view_shift_x() + lroundf(cursor->viewport_center_offset[0] * offset_to_screen_scale);
+        *screen_y = local_state.engine_window_y + local_state.engine_window_height / 2 + lroundf(cursor->viewport_center_offset[1] * offset_to_screen_scale);
         return *screen_x >= local_state.engine_window_x && *screen_y >= local_state.engine_window_y
             && *screen_x < local_state.engine_window_x + local_state.engine_window_width
             && *screen_y < local_state.engine_window_y + local_state.engine_window_height;
@@ -265,13 +268,13 @@ void observer_update_cursor(void)
 {
     observer_cursor_visible = false;
     LbMouseSetDrawPosition(NULL);
-    const struct Packet *pckt = observer_get_view_packet();
-    if (pckt == NULL || gameplay_cursor_is_over_gui()) {
+    const struct ObserverCursor *cursor = observer_get_view_cursor();
+    if (cursor == NULL || gameplay_cursor_is_over_gui()) {
         return;
     }
-    NetUserId user = get_player_primary_user(get_player(my_player_number));
-    const struct ObserverCursor *previous = &observer_previous_cursors[user];
-    observer_cursor_visible = observer_cursor_to_screen(&observer_cursors[user], &observer_cursor_screen_position[0], &observer_cursor_screen_position[1]);
+    const struct Packet *pckt = &cursor->packet;
+    const struct ObserverCursor *previous = &observer_previous_cursors[cursor - observer_cursors];
+    observer_cursor_visible = observer_cursor_to_screen(cursor, &observer_cursor_screen_position[0], &observer_cursor_screen_position[1]);
     int32_t previous_screen_x;
     int32_t previous_screen_y;
     if (observer_cursor_visible && !flag_is_set(previous->packet.control_flags, PCtr_Gui)
