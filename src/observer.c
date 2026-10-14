@@ -527,7 +527,7 @@ void observer_init(PlayerNumber camera_player_number)
 }
 
 /**
- * Switches the player displayed while watching a game.
+ * Switches the player displayed while watching a game and returns to the player camera.
  */
 void observer_cycle_player(int step)
 {
@@ -546,5 +546,8 @@ void observer_cycle_player(int step)
         }
         observer_select_player(plyr_idx);
         return;
+    }
+    if (is_observer_camera_active()) {
+        return_to_player_camera();
     }
 }
