@@ -148,29 +148,25 @@ void observer_update_vision(void)
     }
 }
 
-static PlayerNumber position_observer_camera_at_random_heart(PlayerNumber fallback_player, PlayerBitFlags players)
+static PlayerNumber position_observer_camera_at_starting_dungeon(PlayerNumber fallback_player, PlayerBitFlags players)
 {
-    struct Thing *starting_heart = NULL;
-    int32_t heart_count = 0;
+    PlayerNumber candidates[PLAYERS_COUNT];
+    uint32_t candidate_count = 0;
     for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
-        if (!flag_is_set(players, to_flag(i))) {
-            continue;
-        }
-        struct Thing *heart = get_player_soul_container(i);
-        if (!thing_exists(heart)) {
-            continue;
-        }
-        heart_count += 1;
-        if (UNSYNC_RANDOM(heart_count) == 0) {
-            starting_heart = heart;
+        if (flag_is_set(players, to_flag(i)) && !dungeon_invalid(get_dungeon(i))) {
+            candidates[candidate_count++] = i;
         }
     }
-    if (starting_heart != NULL) {
-        local_observer_user_state.dungeon_camera.x = starting_heart->mappos.x.val;
-        local_observer_user_state.dungeon_camera.y = starting_heart->mappos.y.val;
-        return starting_heart->owner;
+    if (candidate_count == 0) {
+        return fallback_player;
     }
-    return fallback_player;
+    const uint32_t pick = game.player_random_seed + netstate.my_id;
+    const PlayerNumber plyr_idx = candidates[pick % candidate_count];
+    const struct Thing *heart = get_player_soul_container(plyr_idx);
+    const struct Coord3d *pos = thing_exists(heart) ? &heart->mappos : &get_dungeon(plyr_idx)->mappos;
+    local_observer_user_state.dungeon_camera.x = pos->x.val;
+    local_observer_user_state.dungeon_camera.y = pos->y.val;
+    return plyr_idx;
 }
 
 const struct Packet *observer_get_view_packet(void)
@@ -368,7 +364,7 @@ void observer_init(PlayerNumber camera_player_number)
         }
     }
     if (!replay.load_enable) {
-        watched_player = position_observer_camera_at_random_heart(watched_player, starting_players);
+        watched_player = position_observer_camera_at_starting_dungeon(watched_player, starting_players);
     }
     observer_initialized = true;
     observer_select_player(watched_player);
