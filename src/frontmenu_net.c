@@ -34,7 +34,6 @@
 #include "gui_draw.h"
 #include "frontend.h"
 #include "front_landview.h"
-#include "front_simple.h"
 #include "front_input.h"
 #include "net_game.h"
 #include "kjm_input.h"
@@ -48,7 +47,6 @@
 #include "net_exchange_common.h"
 #include "net_lobby.h"
 #include "packets.h"
-#include "bflib_planar.h"
 #include "post_inc.h"
 
 const char *net_join_error_text(enum NetJoinRejection reason)
@@ -327,49 +325,21 @@ void frontnet_add_session_back(struct GuiButton *gbtn)
     fade_palette_in = 1;
 }
 
-static void build_frontend_tinted_remap(unsigned char *remap, const unsigned char *source_palette, int red_sixteenths, int green_sixteenths, int blue_sixteenths)
+static void build_frontend_dimmed_remap(unsigned char *remap, int red_sixteenths, int green_sixteenths, int blue_sixteenths)
 {
     for (int i = 0; i < PALETTE_COLORS; i++) {
-        int intensity = max(source_palette[3*i], max(source_palette[3*i+1], source_palette[3*i+2]));
+        int intensity = max(frontend_palette[3*i], max(frontend_palette[3*i+1], frontend_palette[3*i+2]));
         remap[i] = LbPaletteFindColour(frontend_palette, intensity * red_sixteenths / 16, intensity * green_sixteenths / 16, intensity * blue_sixteenths / 16);
-    }
-}
-
-static void get_sprite_visible_bounds(const struct TbSprite *spr, struct TbRect *bounds)
-{
-    bounds->left = spr->SWidth;
-    bounds->top = spr->SHeight;
-    bounds->right = 0;
-    bounds->bottom = 0;
-    const signed char *data = (const signed char *)spr->Data;
-    for (int y = 0; y < spr->SHeight; y++) {
-        int x = 0;
-        for (signed char run = *data++; run != 0; run = *data++) {
-            if (run < 0) {
-                x -= run;
-                continue;
-            }
-            bounds->left = min(bounds->left, x);
-            bounds->right = max(bounds->right, x + run);
-            bounds->top = min(bounds->top, y);
-            bounds->bottom = y + 1;
-            x += run;
-            data += run;
-        }
     }
 }
 
 static void draw_player_icon(NetUserId user, int pos_x, int pos_y, int units_per_px)
 {
     static unsigned char shadow_remap[PALETTE_COLORS];
-    static unsigned char random_remap[PALETTE_COLORS];
-    static unsigned char random_shadow_remap[PALETTE_COLORS];
-    static TbBool remaps_initialized;
-    if (!remaps_initialized) {
-        build_frontend_tinted_remap(shadow_remap, frontend_palette, 3, 3, 3);
-        build_frontend_tinted_remap(random_remap, engine_palette, 44, 40, 30);
-        build_frontend_tinted_remap(random_shadow_remap, engine_palette, 3, 3, 3);
-        remaps_initialized = true;
+    static TbBool shadow_remap_initialized;
+    if (!shadow_remap_initialized) {
+        build_frontend_dimmed_remap(shadow_remap, 3, 3, 3);
+        shadow_remap_initialized = true;
     }
     const struct TbSprite *spr = get_frontend_sprite(GFS_bullfrog_blue_med);
     if (net_player_colour[user] < 0) {
@@ -377,15 +347,10 @@ static void draw_player_icon(NetUserId user, int pos_x, int pos_y, int units_per
         return;
     }
     if (net_player_colour[user] == NET_PLAYER_COLOUR_RANDOM) {
-        const struct TbSprite *qmark = get_panel_sprite(GPS_portrt_qmark);
-        struct TbRect bounds;
-        get_sprite_visible_bounds(qmark, &bounds);
-        int qmark_units_per_px = units_per_px * spr->SHeight / max(bounds.bottom - bounds.top, 1);
-        int shadow_offset = max(units_per_px / 16, 1);
-        int offset_x = (spr->SWidth * units_per_px - (bounds.left + bounds.right) * qmark_units_per_px) / 32 - shadow_offset;
-        int offset_y = (spr->SHeight * units_per_px - (bounds.top + bounds.bottom) * qmark_units_per_px) / 32;
-        LbSpriteDrawResizedRemap(pos_x + offset_x + shadow_offset, pos_y + offset_y + shadow_offset, qmark_units_per_px, qmark, random_shadow_remap);
-        LbSpriteDrawResizedRemap(pos_x + offset_x, pos_y + offset_y, qmark_units_per_px, qmark, random_remap);
+        const struct TbSprite *random_spr = get_frontend_sprite(GFS_random_colour);
+        int random_units_per_px = units_per_px * spr->SHeight / random_spr->SHeight;
+        int offset_x = (spr->SWidth * units_per_px - random_spr->SWidth * random_units_per_px) / 32;
+        LbSpriteDrawResized(pos_x + offset_x, pos_y, random_units_per_px, random_spr);
         return;
     }
     LbSpriteDrawResized(pos_x, pos_y, units_per_px, get_frontend_sprite(GFS_bullfrog_red_med + net_player_colour[user]));
@@ -631,7 +596,7 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
     static unsigned char player_left_remap[PALETTE_COLORS];
     static int player_left_remap_initialized;
     if (!player_left_remap_initialized) {
-        build_frontend_tinted_remap(player_left_remap, frontend_palette, 10, 6, 4);
+        build_frontend_dimmed_remap(player_left_remap, 10, 6, 4);
         player_left_remap_initialized = 1;
     }
     int font_idx;
