@@ -362,14 +362,19 @@ static int alliance_box_tab_layout(struct GuiButton *gbtn, int *first_icon_x, in
     return fs_units_per_px;
 }
 
-static void request_next_player_colour(NetUserId user)
+static void request_cycle_player_colour(struct GuiButton *gbtn, NetUserId user)
 {
     struct ScreenPacket *nspck = &net_screen_packet[my_player_number];
     if (user != my_player_number || screen_packet_action(nspck) != NetAct_None) {
         return;
     }
+    int colours_count = NET_PLAYER_COLOUR_RANDOM + 1;
+    int step = 1;
+    if (gbtn->button_state_right_pressed) {
+        step = colours_count - 1;
+    }
     screen_packet_set_action(nspck, NetAct_SetPlayerColour);
-    nspck->action_par1 = (net_player_colour[user] + 1) % (NET_PLAYER_COLOUR_RANDOM + 1);
+    nspck->action_par1 = (net_player_colour[user] + step) % colours_count;
 }
 
 void frontnet_select_alliance_box_tab(struct GuiButton *gbtn)
@@ -378,7 +383,7 @@ void frontnet_select_alliance_box_tab(struct GuiButton *gbtn)
     int icon_step;
     alliance_box_tab_layout(gbtn, &first_icon_x, &icon_step);
     if (GetMouseX() >= first_icon_x) {
-        request_next_player_colour((GetMouseX() - first_icon_x) / icon_step);
+        request_cycle_player_colour(gbtn, (GetMouseX() - first_icon_x) / icon_step);
     }
 }
 
@@ -435,7 +440,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 
 void frontnet_select_player_colour(struct GuiButton *gbtn)
 {
-    request_next_player_colour((GetMouseY() - gbtn->scr_pos_y) / (gbtn->height / MAX_NET_USERS));
+    request_cycle_player_colour(gbtn, (GetMouseY() - gbtn->scr_pos_y) / (gbtn->height / MAX_NET_USERS));
 }
 
 void frontnet_select_alliance(struct GuiButton *gbtn)
