@@ -645,8 +645,27 @@ static TbBool wheel_reserved_by_menu(void)
         || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE);
 }
 
+static TbBool cursor_entered_panning_edge(void)
+{
+    static TbBool cursor_was_at_edge = false;
+    TbBool cursor_at_edge = false;
+    if (get_local_view_type(get_my_player()) == PVT_DungeonTop && IsMouseInsideWindow() && !is_feature_on(Ft_DisableCursorCameraPanning)) {
+        const int32_t edge_scrolling_border = max(4, scale_fixed_DK_value(4));
+        const int32_t mouse_x = GetMouseX();
+        const int32_t mouse_y = GetMouseY();
+        cursor_at_edge = (mouse_x <= edge_scrolling_border) || (mouse_x >= MyScreenWidth - edge_scrolling_border)
+         || (mouse_y <= edge_scrolling_border) || (mouse_y >= MyScreenHeight - edge_scrolling_border);
+    }
+    const TbBool entered_edge = cursor_at_edge && !cursor_was_at_edge;
+    cursor_was_at_edge = cursor_at_edge;
+    return entered_edge;
+}
+
 static TbBool observer_camera_input_pressed(void)
 {
+    if (cursor_entered_panning_edge()) {
+        return true;
+    }
     if ((wheel_scrolled_up || wheel_scrolled_down) && !wheel_reserved_by_menu()) {
         return true;
     }
