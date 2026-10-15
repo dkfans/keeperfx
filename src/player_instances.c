@@ -710,17 +710,15 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 {
   struct UserState* ustate = get_player_user_state(player);
-  if (is_my_player(player)) {
-    LbPaletteStopOpenFade();
-  }
   if (ustate->prefs[UPref_FrontView] == 0)
     set_local_camera_destination(player);
   turn_user_cursor_light(get_player_primary_user(player), true);
   ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
   ustate->init_flags &= ~UsrIF_MouseInputDisabled;
   game.view_mode_flags &= ~GNFldD_CreaturePasngr;
-  if (is_my_player(player)) {
-    PaletteSetPlayerPalette(player,engine_palette);
+  if (is_my_player_number(player->id_number)) {
+    LbPaletteStopOpenFade();
+    PaletteSetUserPalette(get_local_user(), engine_palette);
   }
   return 0;
 }
