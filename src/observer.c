@@ -1,12 +1,17 @@
 #include "pre_inc.h"
+#include "kfx/renderer/RendererManager.h"
 #include "observer.h"
 
 #include <math.h>
 
+#include "bflib_datetm.h"
 #include "bflib_math.h"
 #include "bflib_mouse.h"
 #include "bflib_planar.h"
+#include "bflib_sprite.h"
+#include "bflib_vidraw.h"
 #include "bflib_video.h"
+#include "config_spritecolors.h"
 #include "dungeon_data.h"
 #include "engine_redraw.h"
 #include "engine_render.h"
@@ -38,6 +43,10 @@
 #define OBSERVER_CURSOR_OFFSET_SCALE 256
 #define OBSERVER_VIEW_ZOOM_SCALE 65536
 #define OBSERVER_FRONT_VIEW_ZOOM_SCALE 8
+#define OBSERVER_OWN_CURSOR_SOLID_TIME 100
+#define OBSERVER_OWN_CURSOR_HIDE_TIME 5000
+#define OBSERVER_OWN_CURSOR_HOTSPOT_X 12
+#define OBSERVER_OWN_CURSOR_HOTSPOT_Y 15
 
 struct ObserverCursor {
     struct Packet packet;
@@ -56,6 +65,11 @@ static struct ObserverCursor observer_cursors[MAX_NET_USERS];
 static struct ObserverCursor observer_previous_cursors[MAX_NET_USERS];
 static int32_t observer_cursor_screen_position[2];
 static TbBool observer_cursor_visible;
+static int32_t observer_mouse_position[2];
+static TbClockMSec observer_mouse_move_time;
+static TbBool observer_own_cursor_solid;
+static const struct TbSprite *observer_faded_cursor_sprite;
+static int32_t observer_faded_cursor_position[2];
 
 TbBool observer_is_active(void)
 {
@@ -71,6 +85,8 @@ void observer_reset(void)
     observer_view_mode = -1;
     local_observer_rendering = false;
     observer_cursor_visible = false;
+    observer_own_cursor_solid = false;
+    observer_faded_cursor_sprite = NULL;
     LbMouseSetDrawPosition(NULL);
     memset(&local_observer_player, 0, sizeof(local_observer_player));
     memset(&local_observer_user_state, 0, sizeof(local_observer_user_state));
@@ -262,12 +278,62 @@ static TbBool observer_cursor_to_screen(const struct ObserverCursor *cursor, int
     return map_to_screen(&cursor_map_position, screen_x, screen_y);
 }
 
+static void observer_set_faded_cursor(const struct TbSprite *spr, int32_t screen_x, int32_t screen_y, int32_t hot_x, int32_t hot_y)
+{
+    observer_faded_cursor_sprite = spr;
+    observer_faded_cursor_position[0] = screen_x - scale_ui_value_lofi(hot_x);
+    observer_faded_cursor_position[1] = screen_y - scale_ui_value_lofi(hot_y);
+}
+
+void observer_draw_faded_cursor(void)
+{
+    const struct TbSprite *spr = observer_faded_cursor_sprite;
+    if (spr == NULL) {
+        return;
+    }
+    observer_faded_cursor_sprite = NULL;
+    unsigned short draw_flags = RendererGetDrawFlags();
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR4);
+    LbSpriteDrawScaled(observer_faded_cursor_position[0], observer_faded_cursor_position[1], spr, scale_ui_value_lofi(spr->SWidth), scale_ui_value_lofi(spr->SHeight));
+    RendererSetDrawFlags(draw_flags);
+}
+
+unsigned short observer_watched_cursor_draw_flags(void)
+{
+    if (observer_own_cursor_solid) {
+        return Lb_SPRITE_TRANSPAR4;
+    }
+    return 0;
+}
+
 void observer_update_cursor(void)
 {
     observer_cursor_visible = false;
+    observer_own_cursor_solid = false;
+    observer_faded_cursor_sprite = NULL;
     LbMouseSetDrawPosition(NULL);
     const struct ObserverCursor *cursor = observer_get_view_cursor();
-    if (cursor == NULL || gameplay_cursor_is_over_gui()) {
+    if (cursor == NULL) {
+        return;
+    }
+    if (GetMouseX() != observer_mouse_position[0] || GetMouseY() != observer_mouse_position[1]) {
+        observer_mouse_position[0] = GetMouseX();
+        observer_mouse_position[1] = GetMouseY();
+        observer_mouse_move_time = LbTimerClock();
+    }
+    TbClockMSec idle_time = LbTimerClock() - observer_mouse_move_time;
+    observer_own_cursor_solid = idle_time <= OBSERVER_OWN_CURSOR_SOLID_TIME;
+    const struct TbSprite *watched_sprite = lbDisplay.MouseSprite;
+    int32_t hot_x = 0;
+    int32_t hot_y = 0;
+    GetPointerHotspot(&hot_x, &hot_y);
+    if (observer_own_cursor_solid) {
+        set_pointer_graphic(MousePG_Arrow);
+    } else if (idle_time <= OBSERVER_OWN_CURSOR_HIDE_TIME) {
+        const struct TbSprite *spr = get_sprite(pointer_sprites, get_player_colored_pointer_icon_idx(MousePG_Arrow, my_player_number));
+        observer_set_faded_cursor(spr, GetMouseX(), GetMouseY(), OBSERVER_OWN_CURSOR_HOTSPOT_X, OBSERVER_OWN_CURSOR_HOTSPOT_Y);
+    }
+    if (gameplay_cursor_is_over_gui()) {
         return;
     }
     const struct Packet *pckt = &cursor->packet;
@@ -282,7 +348,11 @@ void observer_update_cursor(void)
         observer_cursor_screen_position[0] = lroundf(interpolate(previous_screen_x, observer_cursor_screen_position[0]));
         observer_cursor_screen_position[1] = lroundf(interpolate(previous_screen_y, observer_cursor_screen_position[1]));
     }
-    if (observer_cursor_visible) {
+    if (observer_own_cursor_solid) {
+        if (observer_cursor_visible) {
+            observer_set_faded_cursor(watched_sprite, observer_cursor_screen_position[0], observer_cursor_screen_position[1], hot_x, hot_y);
+        }
+    } else if (observer_cursor_visible) {
         struct TbPoint cursor_draw_position;
         cursor_draw_position.x = observer_cursor_screen_position[0] / pixel_size;
         cursor_draw_position.y = observer_cursor_screen_position[1] / pixel_size;
