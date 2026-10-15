@@ -256,8 +256,6 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (game.game_kind != GKind_MultiGame)
         player->display_objective_turn = get_gameturn() + 300;
-    if (game.game_kind == GKind_MultiGame)
-        reveal_whole_map(player);
     if ((dungeon->computer_enabled & 0x01) != 0)
         toggle_computer_player(player->id_number);
 }
