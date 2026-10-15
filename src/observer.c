@@ -620,7 +620,4 @@ void observer_cycle_player(int step)
         observer_select_player(plyr_idx);
         return;
     }
-    if (is_observer_camera_active()) {
-        return_to_player_camera();
-    }
 }

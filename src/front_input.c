@@ -2699,6 +2699,8 @@ static TbBool get_observer_camera_click_inputs(void)
                 detach_observer_camera();
                 observer_camera_jump(coord_subtile(map_x), coord_subtile(map_y));
             }
+        } else if (camera_active) {
+            return_to_player_camera();
         } else if (right_button_released) {
             observer_cycle_player(-1);
         } else {
