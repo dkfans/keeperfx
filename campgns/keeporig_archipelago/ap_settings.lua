@@ -1,5 +1,26 @@
 --Fetch the APSlot's settings and retain them in a table that can be accessed from all other scripts
-APSettings = {}
+-- Populate with defaulted values.
+APSettings = {
+    SecretLevels = false,
+    KeeperFXCreatures = false,
+    KeeperFXSpells = false,
+    KeeperFXTraps = false,
+    KeeperFXDoors = false,
+    NegativeRecipes = false,
+    KeeperFXRecipes = false,
+    AddHeroes = false,
+    KeeperFXHeroes = false,
+    IncludeImpsInPool = false,
+    IncludeTunnellersInPool = false,
+    IncludeKnightsInPool = false,
+    IncludeAvatarsInPool = false,
+    SwappedTileset = 0,
+    ChangePlayerColour = 0,
+    ChangeNeutrals = "DEFAULT",
+    SwapWaterAndLava = false,
+    RemoveNeutralRooms = false,
+    CrueltyMode = false,
+}
 
 local function IsValueTrue(var)
     return var == true or var == 1 -- Because it was setup with 1/0, we'll check for that or true in case it gets swapped in the future
@@ -7,7 +28,11 @@ end
 
 local slot_data = GetAPSlotData()
 
-if slot_data ~= nil and type(slot_data) == "table" then
+if slot_data == nil then
+    QuickMessage("!WARNING! slot_data missing! Defaults are being used", "ARCHIPELAGO_ICON")
+elseif type(slot_data) ~= "table" then
+    QuickMessage("!WARNING! slot_data was not a table! Defaults are being used", "ARCHIPELAGO_ICON")
+else
     print("--- Archipelago Slot Data ---")
     APSettings.SecretLevels = IsValueTrue(slot_data.SecretLevels)
     print("SecretLevels:             " .. tostring(APSettings.SecretLevels) .. " (" .. tostring(slot_data.SecretLevels) .. ")")
@@ -35,9 +60,17 @@ if slot_data ~= nil and type(slot_data) == "table" then
     print("IncludeKnightsInPool:     " .. tostring(APSettings.IncludeKnightsInPool) .. " (" .. tostring(slot_data.IncludeKnightsInPool) .. ")")
     APSettings.IncludeAvatarsInPool = IsValueTrue(slot_data.IncludeAvatarsInPool)
     print("IncludeAvatarsInPool:     " .. tostring(APSettings.IncludeAvatarsInPool) .. " (" .. tostring(slot_data.IncludeAvatarsInPool) .. ")")
-    APSettings.ShuffleTilesets = IsValueTrue(slot_data.ShuffleTilesets)
-    print("ShuffleTilesets:          " .. tostring(APSettings.ShuffleTilesets) .. " (" .. tostring(slot_data.ShuffleTilesets) .. ")")
-    APSettings.ChangePlayerColour = slot_data.ChangePlayerColour or 0 -- "null" catch, shouldn't happen.
+    if slot_data.ShuffleTilesets then --TODO: Change this when the AP populates this information.
+        APSettings.SwappedTileset = math.random(0,13)
+    end
+    print("ShuffleTilesets:          " .. tostring(APSettings.ShuffleTilesets))
+    if slot_data.ChangePlayerColour >= 8 then
+        APSettings.ChangePlayerColour = math.random(0,7)
+    elseif slot_data.ChangePlayerColour < 0 then
+        --Should be impossible, archipelago enforces the setting number. But Spat had this check anyway so, this will leave it as default of 0 (red)
+    else
+        APSettings.ChangePlayerColour = slot_data.ChangePlayerColour or 0 -- assign 0 to catch null, shouldn't happen but just in case.
+    end
     print("ChangePlayerColour:       " .. tostring(APSettings.ChangePlayerColour) .. " (" .. tostring(slot_data.ChangePlayerColour) .. ")")
     APSettings.ChangeNeutrals = slot_data.ChangeNeutrals or "?DEFAULT?" -- "null" catch, shouldn't happen
     print("ChangeNeutrals:           " .. tostring(APSettings.ChangeNeutrals) .. " (" .. tostring(slot_data.ChangeNeutrals) .. ")")

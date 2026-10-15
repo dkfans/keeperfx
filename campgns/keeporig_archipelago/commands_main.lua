@@ -135,6 +135,8 @@ end
 --local cruelty_mode = true
 ]]
 
+--TODO: Review and remove if no longer needed
+--[[
 local map_tileset_shuffle_value = {
     [1]  = -1,
     [2]  = -1,
@@ -163,6 +165,7 @@ local map_tileset_shuffle_value = {
     [25] = -1,
     [26] = -1,
 }
+]]--
 
 local player_colour_change_table = {
     [0]  = "RED",
@@ -176,6 +179,8 @@ local player_colour_change_table = {
     [8]  = "RANDOM",
 }
 
+--[[
+This functionality was shifted into ap_settings
 -- randomly shuffle level tilesets (need to inherit from options and save those values? I.e. options will generate 26 random values from 0 to 13)
 function SetShuffledTileset()
       if (map_tileset_shuffle_value[(Map.map_number % 79)] or -1) ~= -1 then
@@ -183,6 +188,7 @@ function SetShuffledTileset()
             Map.default_texture = Game.swapped_texture
       end
 end
+]]
 
 -- if player changes colour to something other than red...
 function PlayerColour()
@@ -441,6 +447,8 @@ end
 
 function FunOptions(settings)
       print("=== FUN OPTIONS ===")
+      --[[
+      --This is now done in ap_settings
       if settings.ShuffleTilesets then
             for i = 1,26 do
                   map_tileset_shuffle_value[i] = math.random(0,13)
@@ -449,7 +457,9 @@ function FunOptions(settings)
             print("Tileset changed to: " .. Map.default_texture)
             QuickMessage("Tileset changed to: " .. Map.default_texture, "ARCHIPELAGO_ICON")
       end
-
+      ]]
+--[[
+    -- in ap_settings we set it as a number, specifically. And do the shuffle over there if we need to. All this shouldn't be needed now.
       if settings.ChangePlayerColour ~= nil and settings.ChangePlayerColour ~= "RED" and settings.ChangePlayerColour > 0 then
             if type(settings.ChangePlayerColour) == "number" then
                   if settings.ChangePlayerColour >= 8 then
@@ -471,6 +481,9 @@ function FunOptions(settings)
                         PLAYER0.colour = settings.ChangePlayerColour
                   end
             end
+]]
+      if settings.ChangePlayerColour > 0 then -- if greater than "RED", we have something to change.
+            PLAYER0.colour = player_colour_change_table[settings.ChangePlayerColour]
             PlayerColour()
             print("Player colour changed to: " .. tostring(PLAYER0.colour))
             QuickMessage("Player colour changed to: " .. tostring(PLAYER0.colour), "ARCHIPELAGO_ICON")
