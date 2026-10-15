@@ -647,15 +647,13 @@ static short process_player_manufacturing(PlayerNumber plyr_idx)
     {
         case TCls_Trap:
             dungeon->lvstats.manufactured_traps++;
-            // If that's local player - make a message
-            if (is_my_player_number(plyr_idx))
-                output_message(SMsg_ManufacturedTrap, 0);
+            // If that's the displayed player - make a message
+            output_player_message(plyr_idx, SMsg_ManufacturedTrap, 0);
             break;
         case TCls_Door:
             dungeon->lvstats.manufactured_doors++;
-            // If that's local player - make a message
-            if (is_my_player_number(plyr_idx))
-                output_message(SMsg_ManufacturedDoor, 0);
+            // If that's the displayed player - make a message
+            output_player_message(plyr_idx, SMsg_ManufacturedDoor, 0);
             break;
         default:
             ERRORLOG("Invalid type of new manufacture: %d (%s)",(int)dungeon->manufacture_class, thing_class_code_name(dungeon->manufacture_class));
@@ -700,12 +698,9 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
         evidx = event_create_event_or_update_nearby_existing_event(
             picktng->mappos.x.val, picktng->mappos.y.val,
             EvKind_TrapCrateFound, creatng->owner, picktng->index);
-            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
-            {
+            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) ) {
                 output_message(SMsg_TrapStolen, 0);
-            }
-            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
-            {
+            } else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
                 if (picktng->owner != game.neutral_player_num)
                 {
                     player = get_my_player();
@@ -720,12 +715,9 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
        evidx = event_create_event_or_update_nearby_existing_event(
             picktng->mappos.x.val, picktng->mappos.y.val,
             EvKind_DoorCrateFound, creatng->owner, picktng->index);
-            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
-            {
+            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) ) {
                 output_message(SMsg_DoorStolen, 0);
-            }
-            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
-            {
+            } else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
                 if (picktng->owner != game.neutral_player_num)
                 {
                     player = get_my_player();

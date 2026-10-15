@@ -7509,3 +7509,27 @@ msgstr "Hráči nemohou vidět chat diváků."
 msgctxt "Network game message"
 msgid "You are spectating"
 msgstr "Sledujete hru"
+
+#: guitext:1151
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s se připojil jako divák."
+
+#: guitext:1152
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s přestal sledovat hru."
+
+#: guitext:1153
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "Požadovaný balíček map „%s“ chybí."
+
+#: guitext:1154
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "Ve tvém balíčku map „%s“ chybí úroveň %d."

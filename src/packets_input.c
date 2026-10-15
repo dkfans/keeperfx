@@ -169,18 +169,12 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
             struct Dungeon* dungeon = get_dungeon(player->id_number);
             if (ustate->render_roomspace.total_roomspace_cost > dungeon->total_money_owned)
             {
-                if (is_my_player(player))
-                {
-                    output_message(SMsg_GoldNotEnough, 0);
-                }
+                output_player_message(player->id_number, SMsg_GoldNotEnough, 0);
             }
         }
         else
         {
-            if (is_my_player(player))
-            {
-                play_non_3d_sample(snd_refusal);
-            }
+            play_player_sample(player->id_number, snd_refusal);
         }
         unset_packet_control(pckt, PCtr_LBtnClick);
       return false;
@@ -191,10 +185,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
     }
     else
     {
-        if (is_my_player(player))
-        {
-            play_non_3d_sample(snd_refusal);
-        }
+        play_player_sample(player->id_number, snd_refusal);
     }
     unset_packet_control(pckt, PCtr_LBtnClick);
     return true;
@@ -328,11 +319,8 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                     {
                         if (at_limit)
                         {
-                            if (is_my_player(player))
-                            {
-                                play_non_3d_sample(snd_refusal);
-                                output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
-                            }
+                            play_player_sample(player->id_number, snd_refusal);
+                            output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                         }
                     }
                     break;
@@ -355,11 +343,8 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                         {
                             if (at_limit)
                             {
-                                if (is_my_player(player))
-                                {
-                                    play_non_3d_sample(snd_refusal);
-                                    output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
-                                }
+                                play_player_sample(player->id_number, snd_refusal);
+                                output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                             }
                         }
                         ustate->additional_flags |= UsrAF_NoThingUnderPowerHand;
@@ -472,11 +457,8 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                     {
                         if (at_limit)
                         {
-                            if (is_my_player(player))
-                            {
-                                play_non_3d_sample(snd_refusal);
-                                output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
-                            }
+                            play_player_sample(player->id_number, snd_refusal);
+                            output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                         }
                         else
                         {
@@ -695,8 +677,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(NetUserId user)
     }
     if (can_place == 0)
     {
-        if (is_my_player(player))
-            play_non_3d_sample(snd_refusal);
+        play_player_sample(player->id_number, snd_refusal);
         unset_packet_control(pckt, PCtr_LBtnClick);
         return false;
     }
@@ -725,7 +706,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
     ustate->mouse_on_map = is_mouse_on_map(pckt);
     remember_cursor_subtile(user);
     process_dungeon_control_packet_spell_overcharge(user);
-    if (is_player_displayed(plyr_idx)) {
+    if (is_my_player_number(plyr_idx)) {
         map_volume_box.visible = 0;
     }
     if (flag_is_set(pckt->control_flags,PCtr_Gui))

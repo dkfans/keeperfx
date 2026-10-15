@@ -253,8 +253,7 @@ static void process_payday(void)
     {
         if (game.conf.rules[plyr_idx].gameplay.pay_day_gap <= game.pay_day_progress[plyr_idx])
         {
-            if (is_my_player_number(plyr_idx))
-                output_message(SMsg_Payday, 0);
+            output_player_message(plyr_idx, SMsg_Payday, 0);
             game.pay_day_progress[plyr_idx] = 0;
             player_paid_creatures_count = set_players_creatures_to_get_paid(plyr_idx);
             if (player_paid_creatures_count > 0)

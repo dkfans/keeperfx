@@ -15,6 +15,7 @@
 #include "gui_tooltips.h"          /* draw_tooltip */
 #include "power_hand.h"            /* draw_power_hand */
 #include "gui_boxmenu.h"           /* gui_draw_all_boxes */
+#include "kfx/renderer/RendererManager.h"
 #include "player_data.h"           /* struct PlayerInfo, PVT_MapScreen/MapFadeIn/MapFadeOut, local_state */
 #include "player_instances.h"      /* PI_MapFadeTo, PI_MapFadeFrom */
 #include "bflib_basics.h"          /* TbBool */
@@ -64,8 +65,10 @@ void GameUI::DrawFrame(struct PlayerInfo* player)
     }
     
     message_draw();
-    draw_tooltip();
     draw_power_hand();
+    RendererBeginOverlayCapture(OVERLAY_CAPTURE_TOOLTIP);
+    draw_tooltip();
+    RendererEndOverlayCapture(OVERLAY_CAPTURE_TOOLTIP);
     gui_draw_all_boxes();
 }
 

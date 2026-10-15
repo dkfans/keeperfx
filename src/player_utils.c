@@ -211,9 +211,8 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     // Computing player score
     dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
-    if (is_my_player(player))
-    {
-        output_message(SMsg_LevelFailed, 0);
+    output_player_message(player->id_number, SMsg_LevelFailed, 0);
+    if (is_my_player(player)) {
         turn_off_all_menus();
         clear_transfered_creatures();
     }
@@ -257,8 +256,6 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (game.game_kind != GKind_MultiGame)
         player->display_objective_turn = get_gameturn() + 300;
-    if (game.game_kind == GKind_MultiGame)
-        reveal_whole_map(player);
     if ((dungeon->computer_enabled & 0x01) != 0)
         toggle_computer_player(player->id_number);
 }
@@ -456,8 +453,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
                     take_remain -= take_money_from_room(room, take_remain);
                     if (take_remain <= 0)
                     {
-                        if (is_my_player_number(plyr_idx))
-                        {
+                        if (is_my_player_number(plyr_idx)) {
                             if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
                                 output_message(SMsg_GoldLow, MESSAGE_DURATION_TREASURY);
                             }
@@ -1320,10 +1316,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     dungeon->traps_sold += traps_sold;
     dungeon->manufacture_gold += sell_value;
 
-    if (is_my_player_number(plyr_idx))
-    {
-        play_non_3d_sample(snd_tile_sell);
-    }
+    play_player_sample(plyr_idx, snd_tile_sell);
     dungeon->camera_deviate_jump = 192;
     if (sell_value != 0)
     {
@@ -1358,10 +1351,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     dungeon->doors_sold++;
     dungeon->manufacture_gold += sell_value;
     destroy_door(thing);
-    if (is_my_player_number(plyr_idx))
-    {
-        play_non_3d_sample(snd_tile_sell);
-    }
+    play_player_sample(plyr_idx, snd_tile_sell);
     struct Coord3d pos;
     set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     if (sell_value != 0)

@@ -94,10 +94,7 @@ TbBool packets_process_cheats(
             }
             else
             {
-                if (is_my_player(player))
-                {
-                    play_non_3d_sample(snd_refusal);
-                }
+                play_player_sample(player->id_number, snd_refusal);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -153,10 +150,7 @@ TbBool packets_process_cheats(
             }
             else
             {
-                if (is_my_player(player))
-                {
-                    play_non_3d_sample(snd_refusal);
-                }
+                play_player_sample(player->id_number, snd_refusal);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -187,10 +181,7 @@ TbBool packets_process_cheats(
             }
             else
             {
-                if (is_my_player(player))
-                {
-                    play_non_3d_sample(snd_refusal);
-                }
+                play_player_sample(player->id_number, snd_refusal);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -238,10 +229,7 @@ TbBool packets_process_cheats(
               }
               else
               {
-                if (is_my_player(player))
-                {
-                    play_non_3d_sample(snd_refusal);
-                }
+                play_player_sample(player->id_number, snd_refusal);
               }
             }
           } else
@@ -304,10 +292,7 @@ TbBool packets_process_cheats(
             }
             else
             {
-                if (is_my_player(player))
-                {
-                    play_non_3d_sample(snd_refusal);
-                }
+                play_player_sample(player->id_number, snd_refusal);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -480,10 +465,7 @@ TbBool packets_process_cheats(
             }
             else
             {
-                if (is_my_player(player))
-                {
-                    play_non_3d_sample(snd_refusal);
-                }
+                play_player_sample(player->id_number, snd_refusal);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1019,18 +1001,12 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                     pos.x.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_x)));
                     pos.y.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_y)));
                     pos.z.val = subtile_coord_center(1);
-                    if (is_my_player(player))
-                    {
-                        play_non_3d_sample(snd_spell_stars);
-                    }
+                    play_player_sample(player->id_number, snd_spell_stars);
                     create_effect(&pos, imp_spangle_effects[get_player_color_idx(id)], id);
                 }
                 else
                 {
-                    if (is_my_player(player))
-                    {
-                        play_non_3d_sample(snd_spell_wall);
-                    }
+                    play_player_sample(player->id_number, snd_spell_wall);
                     for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
                     {
                         pos.x.val = subtile_coord_center(stl_x + 2 * small_around[n].delta_x);
@@ -1067,10 +1043,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             {
                 if (pckt->actn_par2)
                 {
-                    if (is_my_player(player))
-                    {
-                        play_non_3d_sample(snd_room_claim);
-                    }
+                    play_player_sample(player->id_number, snd_room_claim);
                     create_effects_on_room_slabs(room, imp_spangle_effects[get_player_color_idx(pckt->actn_par1)], 0, pckt->actn_par1);
                 }
                 take_over_room(room, pckt->actn_par1);
