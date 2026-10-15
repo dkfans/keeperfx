@@ -19,6 +19,7 @@ typedef int RendererType;
 typedef int OverlayCaptureKind;
 #  define OVERLAY_CAPTURE_PARCHMENT 0
 #  define OVERLAY_CAPTURE_SWIPE     1
+#  define OVERLAY_CAPTURE_TOOLTIP   2
 #endif
 
 // UIRenderer_Submit*/Begin*/End* free-function wrappers, implemented in
