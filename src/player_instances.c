@@ -415,11 +415,7 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
       ustate->dungeon_camera.y = thing->mappos.y.val;
   }
   // Play possession sound
-  if (is_my_player(player))
-  {
-      struct PowerConfigStats* powerst = get_power_model_stats(PwrK_POSSESS);
-      play_non_3d_sample(powerst->select_sound_idx);
-  }
+  play_player_sample(player->id_number, get_power_model_stats(PwrK_POSSESS)->select_sound_idx);
   return 0;
 }
 
@@ -714,17 +710,15 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 {
   struct UserState* ustate = get_player_user_state(player);
-  if (is_my_player(player)) {
-    LbPaletteStopOpenFade();
-  }
   if (ustate->prefs[UPref_FrontView] == 0)
     set_local_camera_destination(player);
   turn_user_cursor_light(get_player_primary_user(player), true);
   ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
   ustate->init_flags &= ~UsrIF_MouseInputDisabled;
   game.view_mode_flags &= ~GNFldD_CreaturePasngr;
-  if (is_my_player(player)) {
-    PaletteSetPlayerPalette(player,engine_palette);
+  if (is_my_player_number(player->id_number)) {
+    LbPaletteStopOpenFade();
+    PaletteSetUserPalette(get_local_user(), engine_palette);
   }
   return 0;
 }
@@ -1125,16 +1119,14 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     if (!is_room_available(plyr_idx, rkind)) {
         // It shouldn't be possible to select unavailable room
         WARNLOG("Player %d tried to build %s which is unavailable at (%d,%d)",(int)plyr_idx,room_code_name(rkind),(int)stl_x,(int)stl_y);
-        if (is_my_player(player))
-            play_non_3d_sample(snd_refusal);
+        play_player_sample(player->id_number, snd_refusal);
         return INVALID_ROOM;
     }
     if (!can_build_room_at_slab(plyr_idx, rkind, subtile_slab(stl_x), subtile_slab(stl_y))) {
         // It shouldn't be possible to select unavailable room
         WARNLOG("Player %d tried to build %s on a forbidden subtile (%d,%d)",(int)plyr_idx,
             room_code_name(rkind),(int)stl_x,(int)stl_y);
-        if (is_my_player(player))
-        {
+        if (is_my_player_number(player->id_number)) {
             if (!player->roomspace.is_active)
             {
                 play_non_3d_sample(snd_refusal);
@@ -1145,8 +1137,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     // Check if there's a place for new room
     if (!i_can_allocate_free_room_structure())
     {
-      if (is_my_player(player))
-        play_non_3d_sample(snd_refusal);
+      play_player_sample(player->id_number, snd_refusal);
       return INVALID_ROOM;
     }
     if (slabs_left < 1)
@@ -1155,15 +1146,13 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     {
         if (take_money_from_dungeon(plyr_idx, roomst->cost, 1) < 0)
         {
-            if (is_my_player(player))
-                output_message(SMsg_GoldNotEnough, 0);
+            output_player_message(player->id_number, SMsg_GoldNotEnough, 0);
             return INVALID_ROOM;
         }
     }
     else
     {
-        if (is_my_player(player))
-            output_message(SMsg_GoldNotEnough, 0);
+        output_player_message(player->id_number, SMsg_GoldNotEnough, 0);
         return INVALID_ROOM;
     }
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);
@@ -1178,8 +1167,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
             }
             dungeon->lvstats.bridges_built++;
         }
-      if (is_my_player(player))
-      {
+      if (is_my_player_number(player->id_number)) {
           play_non_3d_sample(snd_tile_place);
           if (slabs_left > 2) // more slabs follow this one
           {
@@ -1239,10 +1227,7 @@ TbBool player_place_trap_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl
     }
     if (!dungeon_invalid(dungeon))
         dungeon->camera_deviate_jump = 192;
-    if (is_my_player_number(plyr_idx))
-    {
-        play_non_3d_sample(trap_cfg->place_sound_idx);
-    }
+    play_player_sample(plyr_idx, trap_cfg->place_sound_idx);
 
     lua_on_trap_placed(traptng);
     return true;
@@ -1293,11 +1278,7 @@ TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl
     }
     if (!dungeon_invalid(dungeon))
         dungeon->camera_deviate_jump = 192;
-    if (is_my_player_number(plyr_idx))
-    {
-        struct DoorConfigStats* door_cfg = get_door_model_stats(tngmodel);
-        play_non_3d_sample(door_cfg->place_sound_idx);
-    }
+    play_player_sample(plyr_idx, get_door_model_stats(tngmodel)->place_sound_idx);
     return true;
 }
 
@@ -1313,8 +1294,7 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool allowed)
 {
     if (!allowed) {
-        if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(snd_refusal);
+        play_player_sample(plyr_idx, snd_refusal);
         return 0;
     }
     if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {

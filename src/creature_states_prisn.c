@@ -376,10 +376,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
     }
     if (prison_convert_creature_to_skeleton(room, thing))
     {
-        if (is_my_player_number(room->owner))
-        {
-            output_message(SMsg_PrisonMadeSkeleton, 0);
-        }
+        output_player_message(room->owner, SMsg_PrisonMadeSkeleton, 0);
     }
     return true; // Return true even if no skeleton could be created due to creature limit. Otherwise there's a confusing sound message.
 }
@@ -477,10 +474,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
     }
     else if ((creatng->health < 0) && ((!crconf->humanoid_creature) && ((crconf->prison_kind > game.conf.crtr_conf.model_count) || (crconf->prison_kind <= 0))))
     {
-        if (is_my_player_number(room->owner))
-        {
-            output_message(SMsg_PrisonersStarving, MESSAGE_DURATION_STARVING);
-        }
+        output_player_message(room->owner, SMsg_PrisonersStarving, MESSAGE_DURATION_STARVING);
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room))
@@ -494,8 +488,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         {
             if (is_my_player_number(room->owner)) {
                 output_message(SMsg_PrisonersEscaping, 40);
-            }
-            else if (is_my_player_number(room->owner)) {
+            } else if (is_my_player_number(creatng->owner)) {
                 output_message(SMsg_CreatrFreedPrison, 40);
             }
             set_start_state(creatng);

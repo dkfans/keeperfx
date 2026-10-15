@@ -782,8 +782,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
     {
         target->active_state = ObSt_BeingDestroyed;
         target->health = -1;
-        if (is_my_player_number(shotng->owner))
-        {
+        if (is_my_player_number(shotng->owner)) {
             struct PlayerInfo* player = get_player(target->owner);
             if (is_active_keeper(player) && (shotng->owner != target->owner))
             {

@@ -645,8 +645,27 @@ static TbBool wheel_reserved_by_menu(void)
         || menu_is_active(GMnu_LOAD) || menu_is_active(GMnu_SAVE);
 }
 
+static TbBool cursor_entered_panning_edge(void)
+{
+    static TbBool cursor_was_at_edge = false;
+    TbBool cursor_at_edge = false;
+    if (get_local_view_type(get_my_player()) == PVT_DungeonTop && IsMouseInsideWindow() && !is_feature_on(Ft_DisableCursorCameraPanning)) {
+        const int32_t edge_scrolling_border = max(4, scale_fixed_DK_value(4));
+        const int32_t mouse_x = GetMouseX();
+        const int32_t mouse_y = GetMouseY();
+        cursor_at_edge = (mouse_x <= edge_scrolling_border) || (mouse_x >= MyScreenWidth - edge_scrolling_border)
+         || (mouse_y <= edge_scrolling_border) || (mouse_y >= MyScreenHeight - edge_scrolling_border);
+    }
+    const TbBool entered_edge = cursor_at_edge && !cursor_was_at_edge;
+    cursor_was_at_edge = cursor_at_edge;
+    return entered_edge;
+}
+
 static TbBool observer_camera_input_pressed(void)
 {
+    if (cursor_entered_panning_edge()) {
+        return true;
+    }
     if ((wheel_scrolled_up || wheel_scrolled_down) && !wheel_reserved_by_menu()) {
         return true;
     }
@@ -1691,8 +1710,7 @@ static short get_creature_control_action_inputs(void)
             right_button_released = 0;
             if ((player->possession_lock == true) && thing_is_creature(thing))
             {
-                if (is_my_player(player))
-                    play_non_3d_sample(snd_refusal); //refusal
+                play_player_sample(player->id_number, snd_refusal); //refusal
             }
             else
             {
@@ -2658,10 +2676,46 @@ static void get_map_nonaction_inputs(void)
     }
 }
 
+static void clear_mouse_button_states(void)
+{
+    left_button_clicked = 0;
+    left_button_released = 0;
+    right_button_clicked = 0;
+    right_button_released = 0;
+}
+
+static TbBool get_observer_camera_click_inputs(void)
+{
+    TbBool camera_active = is_observer_camera_active();
+    if ((!left_button_released && !right_button_released) || (camera_active && game_is_busy_doing_gui())) {
+        return false;
+    }
+    struct PlayerInfo *player = get_my_player();
+    if (!observer_query_input()) {
+        if (get_local_view_type(player) == PVT_MapScreen && left_button_released) {
+            int32_t map_x;
+            int32_t map_y;
+            if (point_to_overhead_map(get_local_active_camera(player), GetMouseX() / pixel_size, GetMouseY() / pixel_size, &map_x, &map_y)) {
+                detach_observer_camera();
+                observer_camera_jump(coord_subtile(map_x), coord_subtile(map_y));
+            }
+        } else if (camera_active) {
+            return_to_player_camera();
+        } else if (right_button_released) {
+            observer_cycle_player(-1);
+        } else {
+            observer_cycle_player(1);
+        }
+    }
+    clear_mouse_button_states();
+    return true;
+}
+
 static short get_observer_inputs(void)
 {
     struct PlayerInfo *player = get_my_player();
     struct UserState *ustate = get_local_user_state();
+    observer_update_query();
     if ((ustate->init_flags & UsrIF_NewMPMessage) != 0) {
         get_players_message_inputs();
         return true;
@@ -2694,30 +2748,7 @@ static short get_observer_inputs(void)
             get_observer_camera_inputs();
             return true;
         }
-        if (view_type == PVT_MapScreen && !game_is_busy_doing_gui() && left_button_released) {
-            int32_t map_x;
-            int32_t map_y;
-            TbBool map_valid = point_to_overhead_map(get_local_active_camera(player), GetMouseX() / pixel_size, GetMouseY() / pixel_size, &map_x, &map_y);
-            left_button_clicked = 0;
-            left_button_released = 0;
-            if (map_valid) {
-                detach_observer_camera();
-                observer_camera_jump(coord_subtile(map_x), coord_subtile(map_y));
-            }
-            return true;
-        }
-        if (!game_is_busy_doing_gui() && (left_button_released || right_button_released)) {
-            if (right_button_released) {
-                observer_cycle_player(-1);
-            } else if (is_observer_camera_active()) {
-                return_to_player_camera();
-            } else {
-                detach_observer_camera();
-            }
-            left_button_clicked = 0;
-            left_button_released = 0;
-            right_button_clicked = 0;
-            right_button_released = 0;
+        if (get_observer_camera_click_inputs()) {
             return true;
         }
         get_observer_camera_inputs();
@@ -3308,10 +3339,7 @@ short get_gui_inputs(short gameplay_on)
   if (gameplay_on && observer_is_active() && a_menu_window_is_active()
    && !game_is_busy_doing_gui() && (left_button_released || right_button_released)) {
       turn_off_all_window_menus();
-      left_button_clicked = 0;
-      left_button_released = 0;
-      right_button_clicked = 0;
-      right_button_released = 0;
+      clear_mouse_button_states();
       result = true;
   }
   input_gameplay_tooltips(gameplay_on);

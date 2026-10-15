@@ -372,6 +372,14 @@ TbBool power_hand_is_empty(const struct PlayerInfo *player)
     return (dungeon->num_things_in_hand <= 0);
 }
 
+TbBool power_hand_is_hovering(const struct PlayerInfo *player)
+{
+    if (is_my_player(player)) {
+        return local_state.local_thing_under_hand > 0;
+    }
+    return get_player_user_state(player)->thing_under_hand > 0;
+}
+
 TbBool power_hand_is_full(const struct PlayerInfo *player)
 {
     const struct Dungeon *dungeon;
@@ -477,7 +485,7 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     {
         powerst = get_power_model_stats(PwrK_PICKUPCRTR);
         thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        if (is_my_player_number(thing->owner)) {
+        if (is_my_player_number(plyr_idx)) {
             play_creature_sound(thing, CrSnd_Hang, 3, 1);
         }
     }
@@ -561,7 +569,7 @@ void draw_power_hand(void)
         return;
     if (is_observer_camera_active())
         return;
-    RendererSetDrawFlags(0x00);
+    RendererSetDrawFlags(observer_watched_cursor_draw_flags());
     if (get_player_view_type(player) != PVT_DungeonTop)
         return;
     // Color rendering array pointers used by draw_keepersprite()
@@ -600,10 +608,7 @@ void draw_power_hand(void)
         draw_mini_things_in_hand(cursor_x+scale_ui_value(10*global_hand_scale), cursor_y+scale_ui_value(10*global_hand_scale));
         return;
     }
-    TbBool hover_hand = ustate->thing_under_hand > 0;
-    if (is_my_player(player)) {
-        hover_hand = local_state.local_thing_under_hand > 0;
-    }
+    TbBool hover_hand = power_hand_is_hovering(player);
     thing = thing_get(ustate->hand_thing_idx);
     if (!thing_exists(thing)) {
         if (hover_hand && ustate->work_state == PSt_CtrlDungeon) {
@@ -685,7 +690,7 @@ void draw_power_hand(void)
 
                 RendererSubmitKeeperHandSprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
                         picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags());
-                RendererSetDrawFlags(0);
+                RendererSetDrawFlags(observer_watched_cursor_draw_flags());
                 EngineSpriteDrawUsingAlpha = 0;
             } else
             {
@@ -1021,10 +1026,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Thing *droptng = thing_get(dungeon->things_in_hand[0]);
     if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, is_creature_droppable_on_path(droptng))) {
         // Make a rejection sound
-        if (is_my_player_number(plyr_idx))
-        {
-            play_non_3d_sample(snd_refusal);
-        }
+        play_player_sample(plyr_idx, snd_refusal);
         return 0;
     }
     // Check if object will fit into that position
@@ -1044,9 +1046,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         } else
         {
             drop_gold_coins(&pos, droptng->valuable.gold_stored, plyr_idx);
-            if (is_my_player_number(plyr_idx)) {
-                play_non_3d_sample(snd_coin_drop);
-            }
+            play_player_sample(plyr_idx, snd_coin_drop);
         }
         destroy_object(droptng);
     } else

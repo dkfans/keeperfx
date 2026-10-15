@@ -208,6 +208,7 @@ TbBool output_custom_message(const char * fname, long duration);
 TbBool output_message_far_from_thing(const struct Thing*, SoundSmplTblID, long duration);
 void clear_messages(void);
 void process_messages(void);
+TbBool output_player_message(PlayerNumber plyr_idx, SoundSmplTblID msg_idx, int32_t duration);
 TbBool output_room_message(PlayerNumber, RoomKind, OutputMessageKind);
 void script_play_message(TbBool param_is_string, const char msgtype_id, const short msg_id, const char *filename);
 #ifdef __cplusplus

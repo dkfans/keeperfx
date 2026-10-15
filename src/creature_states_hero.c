@@ -549,8 +549,7 @@ short good_arrived_at_attack_room(struct Thing *thing)
         MapCoord ev_coord_x = subtile_coord_center(room->central_stl_x);
         MapCoord ev_coord_y = subtile_coord_center(room->central_stl_y);
         event_create_event_or_update_nearby_existing_event(ev_coord_x, ev_coord_y, EvKind_RoomUnderAttack, room->owner, 0);
-        if (is_my_player_number(room->owner))
-          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
+        output_player_message(room->owner, SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
         return 1;
     }
     set_start_state(thing);
@@ -579,8 +578,7 @@ short good_attack_room(struct Thing *thing)
             MapCoord ev_coord_x = subtile_coord_center(room->central_stl_x);
             MapCoord ev_coord_y = subtile_coord_center(room->central_stl_y);
             event_create_event_or_update_nearby_existing_event(ev_coord_x, ev_coord_y, EvKind_RoomUnderAttack, room->owner, 0);
-            if (is_my_player_number(room->owner))
-                output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
+            output_player_message(room->owner, SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
         }
         return 1;
     }

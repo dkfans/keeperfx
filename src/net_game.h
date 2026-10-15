@@ -47,7 +47,7 @@ TbBool init_players_network_game(void);
 void network_game_started(void);
 void setup_count_players(void);
 
-long network_session_join(void);
+int32_t network_session_join(void);
 
 TbBool network_user_active(NetUserId);
 const char *network_user_name(NetUserId);

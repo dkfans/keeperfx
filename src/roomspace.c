@@ -1066,7 +1066,7 @@ int apply_roomspace_dig_tag_selection(PlayerNumber plyr_idx, struct RoomSpace *r
                         dig_change_count += untag_blocks_for_digging_in_area(stl_x, stl_y, plyr_idx);
                     } else if (dungeon->task_count < MAPTASKS_COUNT) {
                         dig_change_count += tag_blocks_for_digging_in_area(stl_x, stl_y, plyr_idx);
-                    } else if (is_my_player(player)) {
+                    } else if (is_my_player_number(player->id_number)) {
                         if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) {
                             output_message(SMsg_WorkerJobsLimit, 500);
                         }
@@ -1101,11 +1101,8 @@ void keeper_highlight_roomspace(NetUserId user, struct RoomSpace *roomspace)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct UserState* ustate = get_user_state(user);
     int dig_change_count = apply_roomspace_dig_tag_selection(plyr_idx, roomspace, ustate->previous_cursor_subtile_x / STL_PER_SLB, ustate->previous_cursor_subtile_y / STL_PER_SLB, ustate->roomspace_highlight_mode, NULL, NULL, NULL, NULL);
-    if (is_my_player(player))
-    {
-        if (dig_change_count > 0) {
-                play_non_3d_sample(snd_tile_dig);
-        }
+    if (dig_change_count > 0) {
+        play_player_sample(player->id_number, snd_tile_dig);
     }
 }
 

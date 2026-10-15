@@ -437,7 +437,7 @@ void update_creature_rendering_flags(struct Thing *thing)
         }
     }
     if (creature_is_invisible(thing)) {
-        if (is_player_displayed(thing->owner)) {
+        if (is_my_player_number(thing->owner)) {
             thing->rendering_flags &= ~TRF_Transpar_Flags;
             thing->rendering_flags |= TRF_Transpar_4;
         } else {

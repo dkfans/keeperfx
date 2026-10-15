@@ -7536,3 +7536,27 @@ msgstr "Spelare kan inte se åskådarchatten."
 msgctxt "Network game message"
 msgid "You are spectating"
 msgstr "Du är åskådare"
+
+#: guitext:1151
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s har anslutit som åskådare."
+
+#: guitext:1152
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s har slutat titta."
+
+#: guitext:1153
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "Det nödvändiga kartpaketet \"%s\" saknas."
+
+#: guitext:1154
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "Ditt kartpaket \"%s\" saknar nivå %d."

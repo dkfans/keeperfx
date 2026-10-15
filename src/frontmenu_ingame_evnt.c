@@ -519,51 +519,53 @@ void draw_timer(void)
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
-static void draw_bottom_right_text(const char *text, int line)
+static void draw_bottom_right_text(const char *text, int line, TbBool player_icon)
 {
     LbTextSetFont(winfont);
     int textLength = strlen(text);
     int textCharWidth = 0;
-    for(int i = 0; i < textLength; ++i)
-    {
+    for (int i = 0; i < textLength; ++i) {
         textCharWidth += LbTextCharWidth(text[i]);
-    };
+    }
 
-    long width = textCharWidth * units_per_pixel / 16;
-    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
-    if (MyScreenHeight < 400)
-    {
+    int32_t width = textCharWidth * units_per_pixel / 16;
+    int32_t height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    if (MyScreenHeight < 400) {
         height *= 2;
         width *= 2;
-        if ((dbc_initialized && dbc_enabled) && (game.timer_real))
-        {
+        if ((dbc_initialized && dbc_enabled) && (game.timer_real)) {
             width += (width / 8);
         }
     }
     RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
-    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
-    long scr_y = MyScreenHeight - (line + 1) * height - 16 * units_per_pixel / 16;
+    int32_t scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    int32_t icon_scale = 0;
+    if (player_icon) {
+        const struct TbSprite *icon = get_panel_sprite(GPS_plyrsym_symbol_room_red_std_a);
+        icon_scale = calculate_relative_upp(22 * units_per_pixel / 16, 16, icon->SHeight);
+        scr_x -= icon->SWidth * icon_scale / 16 + 4 * units_per_pixel / 16;
+    }
+    int32_t scr_y = MyScreenHeight - (line + 1) * height - 16 * units_per_pixel / 16;
 
     LbTextSetWindow(scr_x, scr_y, width, height);
     //draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_initialized && dbc_enabled) )
-    {
+    if ((MyScreenHeight < 400) && (dbc_initialized && dbc_enabled)) {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
-    }
-    else if ( (MyScreenWidth > 1280) && (dbc_initialized && dbc_enabled) )
-    {
+    } else if ((MyScreenWidth > 1280) && (dbc_initialized && dbc_enabled)) {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
-    }
-    else
-    {
+    } else {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
     }
     LbTextDrawResized(0, y, tx_units_per_px, text);
+    if (player_icon) {
+        draw_gui_panel_sprite_left_player(scr_x + width + 4 * units_per_pixel / 16,
+            scr_y + y, icon_scale, GPS_plyrsym_symbol_room_red_std_a, my_player_number);
+    }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
@@ -587,7 +589,7 @@ static const char *get_displayed_user_name(void)
             users++;
     }
     const NetUserId user = get_local_user();
-    if ((users < 2) || (user < 0) || (user >= MAX_NET_USERS))
+    if ((users < 1) || (user < 0) || (user >= MAX_NET_USERS))
         return NULL;
     return replay.head.user_names[user];
 }
@@ -596,7 +598,7 @@ void draw_gameturn_timer(void)
 {
     char text[32];
     snprintf(text, sizeof(text), "GameTurn %u", get_gameturn());
-    draw_bottom_right_text(text, 0);
+    draw_bottom_right_text(text, 0, false);
 }
 
 void draw_watched_player_name(void)
@@ -616,7 +618,7 @@ void draw_watched_player_name(void)
         if (gameturn_timer_enabled()) {
             line = 1;
         }
-        draw_bottom_right_text(text, line);
+        draw_bottom_right_text(text, line, true);
     }
 }
 

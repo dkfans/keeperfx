@@ -6077,3 +6077,27 @@ msgstr ""
 msgctxt "Network game message"
 msgid "You are spectating"
 msgstr ""
+
+#: guitext:1151
+#, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s has joined as a spectator."
+
+#: guitext:1152
+#, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s has stopped spectating."
+
+#: guitext:1153
+#, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "Required map pack \"%s\" is missing."
+
+#: guitext:1154
+#, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "Your map pack \"%s\" is missing level %d."

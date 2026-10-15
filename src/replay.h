@@ -113,6 +113,7 @@ void replay_apply_pending_resync(void);
 void close_packet_file(void);
 void stop_replay_recording(const char *reason);
 void replay_record_chat_message(NetUserId user, const char *message, MapCoord cursor_x, MapCoord cursor_y);
+void replay_record_spectator_notice(const char *notice, size_t size);
 void replay_record_paused_action(NetUserId user, const struct Packet *pckt);
 void replay_record_resync(const void *message, size_t message_size);
 void replay_record_network_stopped(void);

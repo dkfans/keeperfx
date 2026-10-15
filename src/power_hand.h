@@ -48,6 +48,7 @@ TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *
 struct Thing *process_object_being_picked_up(struct Thing *thing, PlayerNumber plyr_idx);
 void set_power_hand_graphic(NetUserId user, long HandAnimationID);
 TbBool power_hand_is_empty(const struct PlayerInfo *player);
+TbBool power_hand_is_hovering(const struct PlayerInfo *player);
 TbBool power_hand_is_full(const struct PlayerInfo *player);
 struct Thing *get_first_thing_in_power_hand(const struct PlayerInfo *player);
 void draw_power_hand(void);

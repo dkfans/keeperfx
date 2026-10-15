@@ -720,7 +720,11 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
         return;
     }
     if (is_observer_camera_active()) {
-        set_pointer_graphic(MousePG_Arrow);
+        if (ustate->work_state == PSt_CreatrQuery || ustate->work_state == PSt_CreatrInfo) {
+            set_pointer_graphic(MousePG_Query);
+        } else {
+            set_pointer_graphic(MousePG_Arrow);
+        }
         return;
     }
     // During fade
@@ -771,7 +775,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
           i = ustate->secondary_cursor_state;
         else
           i = ustate->primary_cursor_state;
-        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || (is_my_player(player) && local_state.local_thing_under_hand > 0) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
+        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || power_hand_is_hovering(player) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
             i = CSt_PowerHand;
         } else
         if ((i == CSt_PowerHand) && power_hand_is_empty(player)) {
@@ -1111,6 +1115,7 @@ void redraw_display(void)
         LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
     draw_eastegg();
+    observer_draw_faded_cursor();
   //show_onscreen_msg(8, "Physical(%d,%d) Graphics(%d,%d) Lens(%d,%d)", (int)RendererPhysicalWidth(), (int)lbDisplay.PhysicalScreenHeight, (int)RendererScreenHeight(), (int)RendererScreenWidth(), (int)eye_lens_width, (int)eye_lens_height);
     SYNCDBG(7,"Finished");
 }
