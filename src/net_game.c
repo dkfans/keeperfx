@@ -625,9 +625,8 @@ void remap_user_to_solo(struct PlayerInfo *myplyr, NetUserId old_user)
     }
 }
 
-static void stop_network_game_state(void)
+static void stop_network_game_state(NetUserId local_user)
 {
-    const NetUserId local_user = get_local_user();
     network_spectator_clear_roles();
     memset(net_user_info, 0, sizeof(net_user_info));
     clear_flag(local_system_flags, GSF_NetworkActive);
@@ -645,8 +644,9 @@ static void stop_network_game_state(void)
 
 static void stop_network_game_and_quit_to_main_menu(void)
 {
+    const NetUserId local_user = get_local_user();
     LbNetwork_Stop();
-    stop_network_game_state();
+    stop_network_game_state(local_user);
     quit_game = 1;
 }
 
@@ -654,8 +654,9 @@ static void stop_network_game_and_continue_locally(void)
 {
     struct PlayerInfo *survivor;
     if (network_is_active()) {
+        const NetUserId local_user = get_local_user();
         LbNetwork_Stop();
-        stop_network_game_state();
+        stop_network_game_state(local_user);
         survivor = get_my_player();
     } else {
         const PlayerNumber plyr_idx = get_net_user_player_number(replay.head.recording_user);
