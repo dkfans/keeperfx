@@ -60,6 +60,7 @@
 #include "vidmode.h"
 #include "kjm_input.h"
 #include "packets.h"
+#include "observer.h"
 #include "replay.h"
 #include "config.h"
 #include "config_slabsets.h"
@@ -1120,7 +1121,9 @@ void PaletteSetUserPalette(NetUserId user, unsigned char *pal)
     {
       ustate->additional_flags &= ~UsrAF_FreezePaletteIsActive; // flag Freeze palette is not active
     }
-    if (user != get_local_user())
+    // an observer following a player sees that player's palette
+    if ((user != get_local_user())
+     && !(observer_is_active() && (get_player(get_net_user_player_number(user)) == get_displayed_player())))
         return;
     if ( (local_state.lens_palette == 0) || ((pal != local_state.main_palette) && (pal == local_state.lens_palette)) )
     {

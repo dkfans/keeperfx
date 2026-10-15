@@ -399,9 +399,10 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
 {
   struct UserState* ustate = get_player_user_state(player);
   ustate->init_flags |= UsrIF_MouseInputDisabled;
+  if (player == get_displayed_player())
+    local_state.palette_fade_step_possession = 1;
   if (is_my_player(player))
   {
-    local_state.palette_fade_step_possession = 1;
     turn_off_all_window_menus();
     turn_off_menu(GMnu_CREATURE_QUERY1);
     turn_off_menu(GMnu_CREATURE_QUERY2);
@@ -442,7 +443,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, int32_t *n)
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     if (!thing_exists(thing) || (thing->class_id == TCls_DeadCreature) || creature_is_dying(thing))
     {
-        if (is_my_player(player))
+        if (player == get_displayed_player())
             PaletteSetPlayerPalette(player,engine_palette);
         player->influenced_thing_idx = 0;
         player->influenced_thing_creation = 0;
@@ -468,7 +469,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
     }
     if (!thing_exists(thing))
     {
-        if (is_my_player(player)) {
+        if (player == get_displayed_player()) {
             PaletteSetPlayerPalette(player,engine_palette);
         }
         ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
@@ -482,7 +483,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, int32_t *n)
         if (my_player) {
             load_swipe_graphic_for_creature(thing);
         }
-        if (my_player) {
+        if (player == get_displayed_player()) {
             if (creature_under_spell_effect(thing, CSAfF_Freeze))
             {
                 PaletteSetPlayerPalette(player,blue_palette);
@@ -528,10 +529,13 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   }
   ustate->init_flags |= UsrIF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
-  if (is_my_player(player))
+  if (player == get_displayed_player())
   {
       PaletteSetPlayerPalette(player,engine_palette);
       local_state.palette_fade_step_possession = 11;
+  }
+  if (is_my_player(player))
+  {
       turn_off_all_window_menus();
       turn_off_query_menus();
       turn_on_main_panel_menu();
@@ -564,10 +568,13 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   }
   ustate->init_flags |= UsrIF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
-  if (is_my_player(player))
+  if (player == get_displayed_player())
   {
     PaletteSetPlayerPalette(player,engine_palette);
     local_state.palette_fade_step_possession = 11;
+  }
+  if (is_my_player(player))
+  {
     turn_off_all_window_menus();
     turn_off_query_menus();
     turn_off_all_panel_menus();
@@ -586,7 +593,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
 long pinstfe_leave_creature(struct PlayerInfo *player, int32_t *n)
 {
     struct UserState* ustate = get_player_user_state(player);
-  if (is_my_player(player)) {
+  if (player == get_displayed_player()) {
     PaletteSetPlayerPalette(player,engine_palette);
   }
   ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
@@ -615,7 +622,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 {
     struct UserState* ustate = get_player_user_state(player);
     SYNCDBG(6,"Starting for player %d",(int)player->id_number);
-    if (is_my_player_number(player->id_number)) {
+    if (player == get_displayed_player()) {
         LbPaletteDataFillWhite(zoom_to_heart_palette);
     }
     turn_user_cursor_light(get_player_primary_user(player), false);
@@ -648,7 +655,7 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
         pos.z.val = thing->mappos.z.val + (thing->solid_size_z / 2);
         move_thing_in_map(thing, &pos);
   }
-  if (is_my_player_number(player->id_number)) {
+  if (player == get_displayed_player()) {
       if (player->instance_remain_turns <= 8) {
         LbPaletteFade(zoom_to_heart_palette, 8, Lb_PALETTE_FADE_OPEN);
       }
@@ -660,7 +667,7 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 long pinstfe_zoom_to_heart(struct PlayerInfo *player, int32_t *n)
 {
     set_player_instance(player, PI_HeartZoomOut, false);
-    if (is_my_player_number(player->id_number)) {
+    if (player == get_displayed_player()) {
         LbPaletteStopOpenFade();
     }
     return 0;
@@ -705,7 +712,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 {
     set_local_heart_zoom_out_camera(player, false);
-    if (is_my_player_number(player->id_number) && (player->instance_remain_turns >= 8)) {
+    if ((player == get_displayed_player()) && (player->instance_remain_turns >= 8)) {
         LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
     }
     return 0;
@@ -714,7 +721,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
 {
   struct UserState* ustate = get_player_user_state(player);
-  if (is_my_player(player)) {
+  if (player == get_displayed_player()) {
     LbPaletteStopOpenFade();
   }
   if (ustate->prefs[UPref_FrontView] == 0)
@@ -723,7 +730,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n)
   ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
   ustate->init_flags &= ~UsrIF_MouseInputDisabled;
   game.view_mode_flags &= ~GNFldD_CreaturePasngr;
-  if (is_my_player(player)) {
+  if (player == get_displayed_player()) {
     PaletteSetPlayerPalette(player,engine_palette);
   }
   return 0;
@@ -738,7 +745,7 @@ long pinstfm_control_creature_fade(struct PlayerInfo *player, int32_t *n)
 long pinstfe_control_creature_fade(struct PlayerInfo *player, int32_t *n)
 {
   struct UserState* ustate = get_player_user_state(player);
-  if (is_my_player(player))
+  if (player == get_displayed_player())
   {
     if ((ustate->additional_flags & UsrAF_FreezePaletteIsActive) != 0)
       PaletteSetPlayerPalette(player,blue_palette);

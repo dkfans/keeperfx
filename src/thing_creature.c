@@ -3371,6 +3371,8 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_off_query_menus();
         turn_on_main_panel_menu();
         local_state.show_panel = local_state.show_gui;
+    }
+    if (player == get_displayed_player()) {
         PaletteSetPlayerPalette(player, engine_palette);
         local_state.palette_fade_step_possession = 11;
     }
