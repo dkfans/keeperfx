@@ -14,6 +14,7 @@ enum RendererType {
 enum OverlayCaptureKind {
     OVERLAY_CAPTURE_PARCHMENT = 0,
     OVERLAY_CAPTURE_SWIPE     = 1,
+    OVERLAY_CAPTURE_TOOLTIP   = 2,
 };
 
 // Backend-agnostic renderer interface. Grown as drawing migrates behind the seam.

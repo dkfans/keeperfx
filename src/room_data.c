@@ -3814,14 +3814,10 @@ void output_room_takeover_message(struct Room *room, PlayerNumber oldowner, Play
     {
         if (is_my_player_number(oldowner)) {
             output_message(SMsg_EntranceLost, 0);
-        } else
-        if (is_my_player_number(newowner))
-        {
+        } else if (is_my_player_number(newowner)) {
             output_message(SMsg_EntranceClaimed, 0);
         }
-    } else
-    if (is_my_player_number(newowner))
-    {
+    } else if (is_my_player_number(newowner)) {
         if (oldowner == game.neutral_player_num) {
             output_message(SMsg_NewRoomTakenOver, 0);
         } else {

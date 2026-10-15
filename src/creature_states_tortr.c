@@ -305,19 +305,14 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.ghosts_raised++;
     }
-    if (is_my_player_number(room->owner)) {
-        output_message(SMsg_TortureMadeGhost, 0);
-    }
+    output_player_message(room->owner, SMsg_TortureMadeGhost, 0);
 }
 
 void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_owner)
 {
-    if (is_my_player_number(new_owner))
-    {
+    if (is_my_player_number(new_owner)) {
         output_message(SMsg_TortureConverted, 0);
-    } else
-    if (is_my_player_number(creatng->owner))
-    {
+    } else if (is_my_player_number(creatng->owner)) {
         output_message(SMsg_CreatureJoinedEnemy, 0);
     }
     change_creature_owner(creatng, new_owner);

@@ -397,14 +397,12 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
     case 2:
         if (!attempt_anger_job_destroy_rooms(creatng))
             break;
-        if (is_my_player_number(creatng->owner))
-            output_message(SMsg_CreatrDestroyRooms, MESSAGE_DURATION_CRTR_MOOD);
+        output_player_message(creatng->owner, SMsg_CreatrDestroyRooms, MESSAGE_DURATION_CRTR_MOOD);
         return true;
     case 4:
         if (!attempt_anger_job_leave_dungeon(creatng))
             break;
-        if (is_my_player_number(creatng->owner))
-            output_message(SMsg_CreatureLeaving, MESSAGE_DURATION_CRTR_MOOD);
+        output_player_message(creatng->owner, SMsg_CreatureLeaving, MESSAGE_DURATION_CRTR_MOOD);
         return true;
     case 8:
         if (!attempt_anger_job_steal_gold(creatng))
@@ -413,8 +411,7 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
     case 16:
         if (!attempt_anger_job_damage_walls(creatng))
             break;
-        if (is_my_player_number(creatng->owner))
-            output_message(SMsg_CreatrDestroyRooms, MESSAGE_DURATION_CRTR_MOOD);
+        output_player_message(creatng->owner, SMsg_CreatrDestroyRooms, MESSAGE_DURATION_CRTR_MOOD);
         return true;
     case 32:
         if (!attempt_anger_job_mad_psycho(creatng))
@@ -425,8 +422,7 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
             // If can't init persuade, then leave alone
             if (!attempt_anger_job_leave_dungeon(creatng))
                 break;
-            if (is_my_player_number(creatng->owner))
-                output_message(SMsg_CreatureLeaving, MESSAGE_DURATION_CRTR_MOOD);
+            output_player_message(creatng->owner, SMsg_CreatureLeaving, MESSAGE_DURATION_CRTR_MOOD);
         }
         return true;
     case 128:
@@ -793,8 +789,8 @@ TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCo
         struct Dungeon* dungeon = get_dungeon(room->owner);
         if (!is_neutral_thing(creatng) && (dungeon->current_research_idx < 0))
         {
-            if (is_my_player_number(dungeon->owner) && ((flags & JobChk_PlayMsgOnFail) != 0)) {
-                output_message(SMsg_NoMoreReseach, MESSAGE_DURATION_KEEPR_TAUNT);
+            if ((flags & JobChk_PlayMsgOnFail) != 0) {
+                output_player_message(dungeon->owner, SMsg_NoMoreReseach, MESSAGE_DURATION_KEEPR_TAUNT);
             }
         }
         return false;

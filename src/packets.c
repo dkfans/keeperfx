@@ -317,8 +317,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         dungeon->camera_deviate_jump = 192;
     }
     delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0);
-    if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(snd_tile_sell);
+    play_player_sample(plyr_idx, snd_tile_sell);
     if (revenue != 0)
     {
         struct Coord3d pos;
@@ -771,6 +770,9 @@ static TbBool process_observer_global_packet_action(void)
         process_user_leave_game_packet(get_local_user());
         return true;
     default:
+        if (observer_process_packet_action(pckt)) {
+            return true;
+        }
         return process_local_packet_action(get_my_player(), get_local_user_state(), pckt);
     }
 }

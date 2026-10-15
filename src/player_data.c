@@ -166,16 +166,11 @@ const struct PlayerInfo *get_displayed_player(void)
 
 TbBool is_my_player_number(PlayerNumber plyr_num)
 {
-    struct PlayerInfo *player = &game.players[my_player_number % PLAYERS_COUNT];
-    return plyr_num == player->id_number && is_my_player(player);
-}
-
-TbBool is_player_displayed(PlayerNumber plyr_num)
-{
-    if (get_my_player() == &local_observer_player) {
+    if (observer_is_active()) {
         return plyr_num == my_player_number;
     }
-    return is_my_player_number(plyr_num);
+    struct PlayerInfo *player = &game.players[my_player_number % PLAYERS_COUNT];
+    return plyr_num == player->id_number && is_my_player(player);
 }
 
 // returns user's UserState, or INVALID_USER_STATE.

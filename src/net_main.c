@@ -170,6 +170,9 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     } else if (reason == NETDROP_MANUAL) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     }
+    if (netstate.users[id].spectator_state == NetSpectator_Streaming) {
+        network_spectator_notify(id, false);
+    }
     memset(&netstate.users[id], 0, sizeof(netstate.users[id]));
     netstate.users[id].id = id;
     network_spectator_update_roles();

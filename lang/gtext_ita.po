@@ -7640,3 +7640,27 @@ msgstr "I giocatori non possono vedere la chat degli spettatori."
 msgctxt "Network game message"
 msgid "You are spectating"
 msgstr "Stai assistendo alla partita"
+
+#: guitext:1151
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s si è unito come spettatore."
+
+#: guitext:1152
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s ha smesso di assistere."
+
+#: guitext:1153
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "Il pacchetto di mappe \"%s\" richiesto manca."
+
+#: guitext:1154
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "Al tuo pacchetto di mappe \"%s\" manca il livello %d."

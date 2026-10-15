@@ -111,6 +111,16 @@ RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind);
 
 void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn);
 void gui_query_next_creature_of_owner(struct GuiButton *gbtn);
+void gui_set_query(struct GuiButton *gbtn);
+void gui_go_to_next_creature(struct GuiButton *gbtn);
+void gui_go_to_next_creature_activity(struct GuiButton *gbtn);
+void gui_go_to_next_wanderer(struct GuiButton *gbtn);
+void gui_go_to_next_worker(struct GuiButton *gbtn);
+void gui_go_to_next_fighter(struct GuiButton *gbtn);
+void gui_go_to_next_room(struct GuiButton *gbtn);
+void gui_go_to_next_trap(struct GuiButton *gbtn);
+void gui_go_to_next_door(struct GuiButton *gbtn);
+void gui_go_to_next_spell(struct GuiButton *gbtn);
 
 void maintain_spell_next_page_button(struct GuiButton *gbtn);
 void maintain_room_next_page_button(struct GuiButton *gbtn);

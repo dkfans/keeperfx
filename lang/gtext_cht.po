@@ -7134,3 +7134,27 @@ msgstr "玩家無法看到觀戰者聊天。"
 msgctxt "Network game message"
 msgid "You are spectating"
 msgstr "您正在觀戰"
+
+#: guitext:1151
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s 已作為觀眾加入。"
+
+#: guitext:1152
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s 已停止觀戰。"
+
+#: guitext:1153
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "缺少所需的地圖包「%s」。"
+
+#: guitext:1154
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "你的地圖包「%s」缺少關卡 %d。"
