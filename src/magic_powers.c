@@ -169,26 +169,15 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
                 cast_on_tng = false;
             }
         }
-        if (flag_is_set(powerst->can_cast_flags,PwCast_ThingOrMap))
-        {
-            // Fail only if both functions have failed - one is enough
-            if (!cast_at_xy && !cast_on_tng) {
-                if ((flags & CastChk_Final) != 0) {
-                    WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                        power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
-                }
-                return false;
+        // ThingOrMap needs only one of the targets to be valid, otherwise both are required
+        TbBool can_target = flag_is_set(powerst->can_cast_flags,PwCast_ThingOrMap) ? (cast_at_xy || cast_on_tng) : (cast_at_xy && cast_on_tng);
+        if (!can_target) {
+            // Not a warning - with network input lag, the target may have changed since the player clicked it
+            if ((flags & CastChk_Final) != 0) {
+                SYNCDBG(7,"%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
+                    power_code_name(pwkind), (!cast_on_tng)?"a thing":"a subtile");
             }
-        } else
-        {
-            // Fail if any of the functions has failed - we need both
-            if (!cast_at_xy || !cast_on_tng) {
-                if ((flags & CastChk_Final) != 0) {
-                    WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                        power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
-                }
-                return false;
-            }
+            return false;
         }
         if ((powerst->config_flags & PwCF_IsParent) != 0)
         {

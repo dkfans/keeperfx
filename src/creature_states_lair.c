@@ -234,7 +234,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
  *     or the object could not be created.
  * @note The caller has to check that the room has enough free capacity
  *     (room_has_enough_free_capacity_for_creature_job()) and that no lair totem is
- *     standing at 'pos' yet (find_creature_lair_totem_at_subtile()).
+ *     standing at 'pos' yet (find_lair_totem_at()).
  */
 TbBool creature_place_lair_totem(struct Thing *creatng, struct Room *room, const struct Coord3d *pos)
 {
@@ -277,7 +277,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     if (!room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP))
         return CrStRet_ResetFail;
     // Make sure we don't already have a lair on that position
-    struct Thing* lairtng = find_creature_lair_totem_at_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0);
+    struct Thing* lairtng = find_lair_totem_at(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     if (!thing_is_invalid(lairtng))
         return CrStRet_Unchanged;
 
@@ -372,7 +372,7 @@ TbBool setup_head_for_random_unused_lair_subtile(struct Thing *creatng, struct R
         {
             MapSlabCoord slb_x = slb_num_decode_x(slbnum);
             MapSlabCoord slb_y = slb_num_decode_y(slbnum);
-            struct Thing* lairtng = find_creature_lair_totem_at_subtile(slab_subtile(slb_x, ssub_x), slab_subtile(slb_y, ssub_y), 0);
+            struct Thing* lairtng = find_lair_totem_at(slab_subtile(slb_x, ssub_x), slab_subtile(slb_y, ssub_y));
             if (thing_is_invalid(lairtng))
             {
                 if (setup_person_move_to_position(creatng, slab_subtile(slb_x, ssub_x), slab_subtile(slb_y, ssub_y), NavRtF_Default)) {

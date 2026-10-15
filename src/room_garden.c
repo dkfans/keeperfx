@@ -227,7 +227,7 @@ int check_food_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoor
                 // If exceeded capacity of the room
                 if (room->used_capacity >= room->total_capacity)
                 {
-                    WARNLOG("Trying to place %s back in room %s, that is already at %d/%d capacity",thing_model_name(thing), room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                    SYNCDBG(7,"Trying to place %s back in room %s, that is already at %d/%d capacity",thing_model_name(thing), room_code_name(room->kind),(int)room->used_capacity,(int)room->total_capacity);
                     return -1; // re-create all 
                 } else
                 // If the thing is in wall, remove it but store to re-create later
@@ -318,7 +318,7 @@ void count_food_in_room(struct Room *room)
     }
     SYNCDBG(7,"The %s index %d contains %d food",room_code_name(room->kind),(int)room->index,(int)room->used_capacity);
     if (rrepos.used > 0) {
-        ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
+        SYNCLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
           room_code_name(room->kind),(int)room->index,(int)room->total_capacity,(int)rrepos.used,(int)room->owner);
     }
     room->capacity_used_for_storage = room->used_capacity;
