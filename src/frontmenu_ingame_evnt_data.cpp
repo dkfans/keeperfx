@@ -43,6 +43,7 @@ extern "C" {
 /******************************************************************************/
 void gui_previous_battle(struct GuiButton *gbtn);
 void gui_next_battle(struct GuiButton *gbtn);
+void maintain_battle_scroll(struct GuiButton *gbtn);
 void gui_get_creature_in_battle(struct GuiButton *gbtn);
 void gui_go_to_person_in_battle(struct GuiButton *gbtn);
 void gui_setup_friend_over(struct GuiButton *gbtn);
@@ -61,8 +62,8 @@ struct GuiButtonInit text_info_buttons[] = {
 
 struct GuiButtonInit battle_buttons[] = {
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, gui_close_objective,NULL,        NULL,               0,   4,  72,   4,  72, 30, 24,                gui_area_new_normal_button, GPS_message_message_btn_accept_act, GUIStr_CloseWindow,  0,       {0},            0, NULL },
-  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, gui_previous_battle,NULL,        NULL,               0, 446,   4, 446,   4, 30, 24,                gui_area_new_normal_button, GPS_message_message_btn_up_act, GUIStr_KeyUp,        0,       {0},            0, NULL },
-  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, gui_next_battle    ,NULL,        NULL,               0, 446,  72, 446,  72, 30, 24,                gui_area_new_normal_button, GPS_message_message_btn_down_act, GUIStr_KeyDown,      0,       {0},            0, NULL },
+  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, gui_previous_battle,NULL,        NULL,               0, 446,   4, 446,   4, 30, 24,                gui_area_new_normal_button, GPS_message_message_btn_up_act, GUIStr_KeyUp,        0,       {0},            0, maintain_battle_scroll },
+  { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, gui_next_battle    ,NULL,        NULL,               0, 446,  72, 446,  72, 30, 24,                gui_area_new_normal_button, GPS_message_message_btn_down_act, GUIStr_KeyDown,      0,       {0},            0, maintain_battle_scroll },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_friend_over,0, 42,12, 42,12,160,24,gui_area_friendly_battlers,  0,GUIStr_Empty,        0,       {0},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_enemy_over, 0,260,12,260,12,160,24,gui_area_enemy_battlers,     0,GUIStr_Empty,        0,       {0},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_friend_over,1, 42,42, 42,42,160,24,gui_area_friendly_battlers,  0,GUIStr_Empty,        0,       {0},            0, NULL },
