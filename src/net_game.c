@@ -628,9 +628,8 @@ void remap_user_to_solo(struct PlayerInfo *myplyr, NetUserId old_user)
 static void stop_network_game_state(void)
 {
     const NetUserId local_user = get_local_user();
-    network_spectator_clear_roles();
+    LbNetwork_Stop();
     memset(net_user_info, 0, sizeof(net_user_info));
-    clear_flag(local_system_flags, GSF_NetworkActive);
     remap_user_to_solo(get_my_player(), local_user);
     clear_flag(local_system_flags, GSF_NetGameNoSync);
     clear_flag(local_system_flags, GSF_NetSeedNoSync);
@@ -645,7 +644,6 @@ static void stop_network_game_state(void)
 
 static void stop_network_game_and_quit_to_main_menu(void)
 {
-    LbNetwork_Stop();
     stop_network_game_state();
     quit_game = 1;
 }
@@ -654,7 +652,6 @@ static void stop_network_game_and_continue_locally(void)
 {
     struct PlayerInfo *survivor;
     if (network_is_active()) {
-        LbNetwork_Stop();
         stop_network_game_state();
         survivor = get_my_player();
     } else {
