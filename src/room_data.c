@@ -2914,6 +2914,21 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
     return 0;
 }
 
+static void remove_lair_totem_with_owner(struct Thing *lairtng, struct Room *room)
+{
+    if (lairtng->lair.belongs_to == 0) {
+        ERRORLOG("Lair totem %d has no owner!",(int)lairtng->index);
+        return;
+    }
+    struct Thing* creatng = thing_get(lairtng->lair.belongs_to);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->lairtng_idx == lairtng->index) {
+        creature_remove_lair_totem_from_room(creatng, room);
+    } else {
+        ERRORLOG("Lair totem %d thinks it belongs to a creature, but the creature disagrees.",(int)lairtng->index);
+    }
+}
+
 void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, SlabCodedCoords slbnum)
 {
     struct Thing *thing;
@@ -3127,23 +3142,8 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
     if (room_role_matches(room->kind, RoRoF_LairStorage))
     {
         thing = find_lair_totem_at(stl_x, stl_y);
-        if (!thing_is_invalid(thing))
-        {
-            if (thing->lair.belongs_to)
-            {
-                struct Thing *tmptng;
-                struct CreatureControl *cctrl;
-                tmptng = thing_get(thing->lair.belongs_to);
-                cctrl = creature_control_get_from_thing(tmptng);
-                if (cctrl->lairtng_idx == thing->index) {
-                    creature_remove_lair_totem_from_room(tmptng, room);
-                } else {
-                    ERRORLOG("Lair thing thinks it belongs to a creature, but the creature disagrees.");
-                }
-            } else
-            {
-                ERRORLOG("Lair thing %d has no owner!",(int)thing->index);
-            }
+        if (!thing_is_invalid(thing)) {
+            remove_lair_totem_with_owner(thing, room);
         }
     }
 }
@@ -3519,16 +3519,10 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     {
         thing->parent_idx = -1; // All chickens escape
     }
-    else if (room_role_matches(room->kind,RoRoF_LairStorage) && thing_is_lair_totem(thing) && (thing->lair.belongs_to != 0))
+    else if (room_role_matches(room->kind,RoRoF_LairStorage) && thing_is_lair_totem(thing))
     {
         // Lair - owns creature lairs; don't rely on RelatedCreature, it is unset for creature types added by scripts
-        struct Thing* creatng = thing_get(thing->lair.belongs_to);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        if (cctrl->lairtng_idx == thing->index) {
-            creature_remove_lair_totem_from_room(creatng, room);
-        } else {
-            ERRORLOG("Lair totem thinks it belongs to a creature, but the creature disagrees.");
-        }
+        remove_lair_totem_with_owner(thing, room);
         return;
     }
     else if (room_role_matches(room->kind, RoRoF_KeeperStorage) && thing_is_dungeon_heart(thing))
