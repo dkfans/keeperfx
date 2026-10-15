@@ -145,7 +145,7 @@ TextStringId SaveManager::CheckMessage(SaveCheckResult result)
 bool SaveManager::KeepUnreadableFile(const char *fname)
 {
     IFileSystem &filesystem = Fs();
-    if (!filesystem.Exists(fname))
+    if (!filesystem.Exists(fname) || filesystem.IsDirectory(fname))
         return false;
     char bak_fname[4096];
     snprintf(bak_fname, sizeof(bak_fname), "%s.bak", fname);

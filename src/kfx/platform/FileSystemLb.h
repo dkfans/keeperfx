@@ -7,6 +7,7 @@
 class FileSystemLb final : public IFileSystem {
 public:
     bool Exists(const char* path) override;
+    bool IsDirectory(const char* path) override;
     FsStatus ReadAll(const char* path, std::vector<uint8_t>& out) override;
     FsStatus WriteAll(const char* path, const void* data, size_t len) override;
     bool Delete(const char* path) override;

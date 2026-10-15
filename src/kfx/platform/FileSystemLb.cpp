@@ -11,6 +11,8 @@
 #include <cstdio>
 #include <string>
 
+#include <sys/stat.h>
+
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -49,6 +51,12 @@ private:
 } // namespace
 
 bool FileSystemLb::Exists(const char* path) { return LbFileExists(path) != 0; }
+
+bool FileSystemLb::IsDirectory(const char* path)
+{
+    struct stat info;
+    return (stat(path, &info) == 0) && S_ISDIR(info.st_mode);
+}
 
 FsStatus FileSystemLb::ReadAll(const char* path, std::vector<uint8_t>& out)
 {

@@ -31,6 +31,8 @@ class IFileSystem {
 public:
     virtual ~IFileSystem() = default;
     virtual bool Exists(const char* path) = 0;
+    /** True when path is an existing directory. */
+    virtual bool IsDirectory(const char* path) = 0;
     virtual FsStatus ReadAll(const char* path, std::vector<uint8_t>& out) = 0;
     /** Replaces any file at path. A failed write leaves the old file as it was. */
     virtual FsStatus WriteAll(const char* path, const void* data, size_t len) = 0;

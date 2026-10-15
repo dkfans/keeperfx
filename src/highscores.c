@@ -113,6 +113,12 @@ static TbBool create_empty_high_score_table(void)
 
 void load_or_create_high_score_table(void)
 {
+  if (campaign.hiscore_fname[0] == '\0')
+  {
+     // No file configured: the path would be the save folder itself. Keep the table in memory only.
+     create_empty_high_score_table();
+     return;
+  }
   if (!load_high_score_table())
   {
      SYNCMSG("High scores table bad; creating new one.");
@@ -124,6 +130,8 @@ void load_or_create_high_score_table(void)
 
 TbBool save_high_score_table(void)
 {
+    if (campaign.hiscore_fname[0] == '\0')
+        return true;
     char* fname = prepare_file_path(FGrp_Save, campaign.hiscore_fname);
     if (campaign.hiscore_count <= 0)
         return true;
