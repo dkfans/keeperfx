@@ -487,6 +487,7 @@ function FunOptions(settings)
       end
 
       local cruelty_mode = settings.CrueltyMode
+      print("cruelty_mode: " .. tostring(cruelty_mode))
 
       local trigger_remove_forbidden_rooms = RegisterOnConditionEvent(
             function () RemoveForbiddenPlayerRooms() end,

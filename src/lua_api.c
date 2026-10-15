@@ -322,6 +322,9 @@ static int lua_ap_get_slot_data(lua_State *L)
     lua_pushinteger(L, slot_data.SecretLevels);
     lua_setfield(L, -2, "SecretLevels");
 
+    lua_pushinteger(L, slot_data.FlatTempleGuardPost);
+    lua_setfield(L, -2, "FlatTempleGuardPost");
+
     return 1;
 }
 
