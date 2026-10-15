@@ -513,15 +513,18 @@ TbBool observer_process_packet_action(const struct Packet *pckt)
 
 void observer_update_query(void)
 {
-    if (!is_observer_camera_active()) {
-        local_state.local_thing_under_hand = get_player_user_state(get_displayed_player())->thing_under_hand;
-        return;
-    }
     local_state.local_thing_under_hand = 0;
-    if (local_observer_user_state.work_state == PSt_CreatrInfo) {
-        const struct Thing *selected = thing_get(local_observer_player.influenced_thing_idx);
-        if (!thing_is_creature(selected) || selected->creation_turn != local_observer_player.influenced_thing_creation) {
-            observer_clear_query(PSt_CreatrQuery);
+    if (is_observer_camera_active()) {
+        if (local_observer_user_state.work_state == PSt_CreatrInfo) {
+            const struct Thing *selected = thing_get(local_observer_player.influenced_thing_idx);
+            if (!thing_is_creature(selected) || selected->creation_turn != local_observer_player.influenced_thing_creation) {
+                observer_clear_query(PSt_CreatrQuery);
+            }
+        }
+    } else {
+        local_state.local_thing_under_hand = get_player_user_state(get_displayed_player())->thing_under_hand;
+        if (LbTimerClock() - observer_mouse_move_time > OBSERVER_OWN_CURSOR_HIDE_TIME) {
+            return;
         }
     }
     struct PlayerInfo *player = get_my_player();
