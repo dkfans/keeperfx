@@ -6724,25 +6724,21 @@ msgid "Network connection to host lost"
 msgstr "Соединение с хостом разорвано"
 
 #: guitext:1120
-#, fuzzy
 msgctxt "In-game message"
 msgid "/fxdata/%.39s was not loaded."
 msgstr "Не удалось загрузить файл /fxdata/%.39s."
 
 #: guitext:1121
-#, fuzzy
 msgctxt "In-game message"
 msgid "Please install it as a mod inside the /mods/ folder."
 msgstr "Распакуйте архив мода в папку /mods/."
 
 #: guitext:1122
-#, fuzzy
 msgctxt "Network game message"
 msgid "Lost connection to server"
 msgstr "Соединение с сервером потеряно."
 
 #: guitext:1123
-#, fuzzy
 msgctxt "Network game message"
 msgid "Multiplayer is out of sync."
 msgstr "Сетевая игра рассинхронизирована."
@@ -6753,103 +6749,86 @@ msgid "Campaigns"
 msgstr "Кампании"
 
 #: guitext:1125
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Continue Campaign"
 msgstr "Продолжить кампанию"
 
 #: guitext:1126
-#, fuzzy
 msgctxt "Network game interface"
 msgid "State"
 msgstr "Статус"
 
 #: guitext:1127
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Version"
 msgstr "Версия"
 
 #: guitext:1128
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Unknown"
-msgstr "Неизвестно"
+msgstr "Неизвест."
 
 #: guitext:1129
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Lobby"
 msgstr "Лобби"
 
 #: guitext:1130
-#, fuzzy
 msgctxt "Network game interface"
 msgid "In-game"
 msgstr "В игре"
 
 #: guitext:1131
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Map"
 msgstr "Карта"
 
 #: guitext:1132
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Player list unavailable"
 msgstr "Список игроков недоступен"
 
 #: guitext:1133
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Maximum players"
 msgstr "Макс. игроков"
 
 #: guitext:1134
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Allow observers"
 msgstr "Зрители"
 
 #: guitext:1135
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Settings"
 msgstr "Настройки"
 
 #: guitext:1136
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Confirm"
 msgstr "Подтвердить"
 
 #: guitext:1137
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Game has already started."
 msgstr "Игра уже началась."
 
 #: guitext:1138
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Joining is temporarily locked."
 msgstr "Присоединиться временно невозможно."
 
 #: guitext:1139
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Lobby is full."
 msgstr "Лобби заполнено."
 
 #: guitext:1140
-#, fuzzy
 msgctxt "Network game interface"
 msgid "The host is using a different game version."
 msgstr "У хоста другая версия игры."
 
 #: guitext:1141
-#, fuzzy
 msgctxt "Network game interface"
 msgid "Lobby Name"
 msgstr "Название лобби"
@@ -6884,7 +6863,6 @@ msgctxt "Network game interface"
 msgid "The host has disabled spectating."
 msgstr "Хост запретил зрительский режим."
 
-
 #: guitext:1148
 msgctxt "Network game interface"
 msgid "All spectator connections are occupied."
@@ -6901,25 +6879,21 @@ msgid "You are spectating"
 msgstr "Вы смотрите игру."
 
 #: guitext:1151
-#, fuzzy, c-format
 msgctxt "Network game message"
 msgid "%s has joined as a spectator."
-msgstr "%s присоединился в качестве наблюдателя."
+msgstr "%s присоединился как зритель."
 
 #: guitext:1152
-#, fuzzy, c-format
 msgctxt "Network game message"
 msgid "%s has stopped spectating."
-msgstr "%s прекратил наблюдение."
+msgstr "Зритель %s вышел."
 
 #: guitext:1153
-#, fuzzy, c-format
 msgctxt "Network game interface"
 msgid "Required map pack \"%s\" is missing."
-msgstr "Необходимый набор карт «%s» отсутствует."
+msgstr "Требуемый набор карт "%s" отсутствует."
 
 #: guitext:1154
-#, fuzzy, c-format
 msgctxt "Network game interface"
 msgid "Your map pack \"%s\" is missing level %d."
-msgstr "В вашем наборе карт «%s» отсутствует уровень %d."
+msgstr "В наборе карт "%s" отсутствует уровень %d."
