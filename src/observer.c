@@ -388,7 +388,7 @@ void observer_set_view_mode(unsigned char mode)
 static void observer_clear_query(unsigned char state)
 {
     turn_off_query_menus();
-    if ((game.operation_flags & GOF_ShowGui) != 0) {
+    if (local_state.show_gui) {
         turn_on_main_panel_menu();
     }
     local_observer_player.instance_num = PI_Unset;
@@ -473,7 +473,7 @@ TbBool observer_query_input(void)
         return false;
     }
     struct Thing *thing = thing_get(local_state.local_thing_under_hand);
-    if (left_button_released && thing_is_creature(thing) && (game.operation_flags & GOF_ShowGui) != 0) {
+    if (left_button_released && thing_is_creature(thing) && local_state.show_gui) {
         observer_query_creature(thing->index, true, false);
         return true;
     }
