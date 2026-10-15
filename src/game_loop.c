@@ -593,7 +593,7 @@ static void gameplay_loop_logic()
 #endif // FUNCTESTING
     do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
     poll_inputs();
-    const TbBool rewind_held = is_key_pressed(KC_BACK, KMod_DONTCARE) && !a_menu_window_is_active()
+    const TbBool rewind_held = is_game_key_pressed(Gkey_DumpToOldPos, false, true) && !a_menu_window_is_active()
         && !flag_is_set(get_local_user_state()->init_flags, UsrIF_NewMPMessage);
     local_state.rewinding = rewind_held && replay_rewind_available();
     if (local_state.rewinding)

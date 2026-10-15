@@ -30,6 +30,8 @@
 #include "keeperfx.hpp"
 #include "lua_base.h"
 #include "player_data.h"
+#include "observer.h"
+#include "engine_redraw.h"
 #include "replay.h"
 #include "thing_data.h"
 #include "thing_list.h"
@@ -40,6 +42,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define REWIND_KEYFRAME_INTERVAL 20
+#define REWIND_LOG_INTERVAL 1024
 #define REWIND_MAX_SECTIONS KMT_MAX_RANGES
 typedef uint64_t linebits_t;
 #define REWIND_LINE_SIZE 64
@@ -503,6 +506,12 @@ void replay_rewind_capture(void)
     if (!replay.load_enable || (replay_rewind_buffer_kb == 0))
         return;
     const GameTurn turn = get_gameturn();
+    if ((turn % REWIND_LOG_INTERVAL == 0) && (keyframes_count > 0))
+    {
+        JUSTLOG("Replay rewind buffer: %.1f/%.0f MB, %d keyframes back to turn %lu",
+            replay_rewind_buffer_used() / (1024.0 * 1024.0), replay_rewind_buffer_kb / 1024.0,
+            keyframes_count, (unsigned long)oldest_keyframe()->turn);
+    }
     if ((newest != NULL) && (turn < newest->turn + REWIND_KEYFRAME_INTERVAL))
         return;
     if (!init_buffers())
@@ -567,6 +576,10 @@ void replay_rewind_step(void)
         return;
     }
     restore_snapshot(snapshot);
+    observer_update_view();
+    local_state.view_type = PVT_None;
+    local_state.camera.move_cam = NULL;
+    update_engine_view(get_my_player(), false);
     if (!restore_lua(kf) || !replay_restore_reader_pos(&kf->reader_pos))
     {
         ERRORLOG("Cannot restore replay rewind keyframe; rewind disabled");
