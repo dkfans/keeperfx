@@ -351,7 +351,7 @@ void set_power_hand_graphic(NetUserId user, long HandAnimationID)
         {
             ustate->hand_animationId = HandAnimationID;
             struct Thing *thing = thing_get(ustate->hand_thing_idx);
-            short anim_idx   = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
+            int32_t anim_idx = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
             short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
             if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
             {
@@ -1422,7 +1422,7 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, CrtrExpLe
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    short i;
+    int32_t i;
     if (!thing_is_pickable_by_hand(player, thing)) {
         ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return false;

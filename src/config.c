@@ -627,7 +627,7 @@ void assign_animid(const struct NamedField* named_field, int64_t value, const st
 {
     if (flag_is_set(flags,ccf_SplitExecution))
     {
-        short anim_id = get_anim_id_(script_strval(value));
+        int32_t anim_id = get_anim_id_(script_strval(value));
         assign_default(named_field,anim_id,named_fields_set,idx,src_str,flags);
     }
     else

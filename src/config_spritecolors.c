@@ -47,16 +47,16 @@ const struct ConfigFileData keeper_spritecolors_file_data = {
 /******************************************************************************/
 #define MAX_COLORED_SPRITES 255
 #define PLAYER_COLORS_COUNT (COLOURS_COUNT + 2)
-static short gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
-static short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
-static short button_sprite_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
-static short animationIds_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
-static short objects_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static unsigned short gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static unsigned short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static unsigned short button_sprite_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static unsigned short animationIds_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static unsigned short objects_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 /******************************************************************************/
-static short get_player_colored_idx(short base_icon_idx,unsigned char color_idx,short *arr);
+static unsigned short get_player_colored_idx(unsigned short base_icon_idx,unsigned char color_idx,unsigned short *arr);
 /******************************************************************************/
 
-static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsigned short flags,short (*string_to_id_f)(const char *))
+static void load_array(VALUE* file_root, const char *arr_name,unsigned short *arr, unsigned short flags,int32_t (*string_to_id_f)(const char *))
 {
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -84,7 +84,7 @@ static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsign
             }
             else
             {
-                short icon_id = string_to_id_f(value_string(entry));
+                int32_t icon_id = string_to_id_f(value_string(entry));
                 if (icon_id == -2)
                 {
                     WARNLOG("unknown sprite %s",value_string(entry));
@@ -121,7 +121,7 @@ static TbBool load_spritecolors_config_file(const char *fname, unsigned short fl
     return true;
 }
 
-static short get_player_colored_idx(short base_icon_idx,unsigned char color_idx,short *arr)
+static unsigned short get_player_colored_idx(unsigned short base_icon_idx,unsigned char color_idx,unsigned short *arr)
 {
     if (color_idx >= PLAYER_COLORS_COUNT)
     {
