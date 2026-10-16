@@ -303,6 +303,11 @@ end
 
 
 
+--probably better to just include everything by default, and then either adjust the numbers based on what *isn't* on e.g subtracting that number from .Total
+--...or we just see if we can export the total number of items in from AP itself.
+
+
+
 
 --if _ then
 --    for id, check in pairs(_) do

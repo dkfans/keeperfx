@@ -55,6 +55,9 @@ function OnItemReceived(itemid)
           print("ERROR: Invalid item ID:" .. tostring(itemid))
           return
       end
+      if Game.APBoxMessage == nil then
+            print("Error: Game.APBoxMessage is nil! Setting to 1")
+      end
       local message_num = (Game.APBoxMessage or 1)
       print("message_num = " .. message_num)
       --print("Game.APBoxMessage: " .. Game.APBoxMessage)
@@ -65,8 +68,18 @@ function OnItemReceived(itemid)
       print("Game.APBoxMessage: " .. Game.APBoxMessage)
       -- Also if you receive items while outside a level and then join, will it send all of the new ones when you go into a level?
       ReceivedLocations.ReceivedItemCheck(itemid)
-      QuickMessage("Total AP Items Received: " .. ReceivedLocationsTable.Total() .. "/" .. ChecksTable.Total() .. ".", "ARCHIPELAGO_ICON")
-      print("QuickMessage: Total AP Items Received: " .. ReceivedLocationsTable.Total() .. "/" .. ChecksTable.Total())
+      if ReceivedLocationsTable == nil then
+            print("Error: ReceivedLocations blew up! (OnItemReceived)")
+            QuickMessage("Error: ReceivedLocations blew up! (OnItemReceived)", "ARCHIPELAGO_ICON")
+      elseif ChecksTable == nil then
+            print("Error: ChecksTable blew up! (OnItemReceived)")
+            QuickMessage("Error: ChecksTable blew up! (OnItemReceived)", "ARCHIPELAGO_ICON")
+      else
+            local rec_total = tostring(ReceivedLocationsTable.Total())
+            local check_total = tostring(ChecksTable.Total())
+            QuickMessage("Total AP Items Received: " .. rec_total .. "/" .. check_total .. ".", "ARCHIPELAGO_ICON")
+            print("QuickMessage: Total AP Items Received: " .. rec_total .. "/" .. check_total)
+      end
 end
 
 function ActivateItems()
@@ -97,7 +110,18 @@ function ActivateItems()
             SetAPLastProcessedItemIndex(lastProcessed)
       end
       CheckForMiscUnlocks()
-      QuickMessage("Total AP Items Received: " .. ReceivedLocationsTable.Total() .. "/" .. ChecksTable.Total() .. ".", "ARCHIPELAGO_ICON")
+      if ReceivedLocationsTable == nil then
+            print("Error: ReceivedLocations blew up! (ActivateItems)")
+            QuickMessage("Error: ReceivedLocations blew up! (ActivateItems)", "ARCHIPELAGO_ICON")
+      elseif ChecksTable == nil then
+            print("Error: ChecksTable blew up! (ActivateItems)")
+            QuickMessage("Error: ChecksTable blew up! (ActivateItems)", "ARCHIPELAGO_ICON")
+      else
+            local rec_total = tostring(ReceivedLocationsTable.Total())
+            local check_total = tostring(ChecksTable.Total())
+            QuickMessage("Total AP Items Received: " .. rec_total .. "/" .. check_total .. ".", "ARCHIPELAGO_ICON")
+            print("QuickMessage: Total AP Items Received: " .. rec_total .. "/" .. check_total)
+      end
 end
 
 function OnChatMsg(plyr_idx, msg)
