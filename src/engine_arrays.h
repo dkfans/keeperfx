@@ -55,8 +55,8 @@ extern long lintel_bottom_height[256];
 
 #pragma pack()
 
-extern int32_t td_to_fp_sprite_add[KEEPERSPRITE_ADD_NUM];
-extern int32_t fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
+extern unsigned short td_to_fp_sprite_add[KEEPERSPRITE_ADD_NUM];
+extern unsigned short fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
 /******************************************************************************/
 extern unsigned short floor_to_ceiling_map[TEXTURE_BLOCKS_COUNT];
 extern struct WibbleTable blank_wibble_table[WIBBLE_TABLE_SIZE];

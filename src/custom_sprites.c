@@ -55,8 +55,8 @@ static short next_free_icon = 0;
 struct TbSpriteSheet * gui_panel_sprites = NULL;
 struct TbSpriteSheet * custom_sprites = NULL;
 
-int32_t td_to_fp_sprite_add[KEEPERSPRITE_ADD_NUM];
-int32_t fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
+unsigned short td_to_fp_sprite_add[KEEPERSPRITE_ADD_NUM];
+unsigned short fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
 
 TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM] = {
         0

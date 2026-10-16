@@ -47,20 +47,20 @@ const struct ConfigFileData keeper_spritecolors_file_data = {
 /******************************************************************************/
 #define MAX_COLORED_SPRITES 255
 #define PLAYER_COLORS_COUNT (COLOURS_COUNT + 2)
-static int32_t gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
-static int32_t pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
-static int32_t button_sprite_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
-static int32_t animationIds_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
-static int32_t objects_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static unsigned short gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static unsigned short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static unsigned short button_sprite_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static unsigned short animationIds_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static unsigned short objects_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 /******************************************************************************/
-static int32_t get_player_colored_idx(int32_t base_icon_idx,unsigned char color_idx,int32_t *arr);
+static unsigned short get_player_colored_idx(unsigned short base_icon_idx,unsigned char color_idx,unsigned short *arr);
 /******************************************************************************/
 
-static void load_array(VALUE* file_root, const char *arr_name,int32_t *arr, unsigned short flags,int32_t (*string_to_id_f)(const char *))
+static void load_array(VALUE* file_root, const char *arr_name,unsigned short *arr, unsigned short flags,int32_t (*string_to_id_f)(const char *))
 {
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        memset(arr,0,sizeof(int32_t) * MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT );
+        memset(arr,0,sizeof(int16_t) * MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT );
     }
     VALUE *toml_arr = value_dict_get(file_root, arr_name);
     if (value_array_size(toml_arr) > MAX_COLORED_SPRITES)
@@ -121,7 +121,7 @@ static TbBool load_spritecolors_config_file(const char *fname, unsigned short fl
     return true;
 }
 
-static int32_t get_player_colored_idx(int32_t base_icon_idx,unsigned char color_idx,int32_t *arr)
+static unsigned short get_player_colored_idx(unsigned short base_icon_idx,unsigned char color_idx,unsigned short *arr)
 {
     if (color_idx >= PLAYER_COLORS_COUNT)
     {
