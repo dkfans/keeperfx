@@ -20,6 +20,7 @@
 #include "kfx/renderer/RendererManager.h"
 #include "scrcapt.h"
 #include "bflib_basics.h"
+#include "bflib_datetm.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_fmvids.h"
@@ -41,6 +42,7 @@
 
 unsigned char screenshot_format = 1;
 unsigned char cap_palette[768];
+static TbClockMSec movie_record_started_at;
 
 /******************************************************************************/
 TbBool take_screenshot(char *fname)
@@ -128,10 +130,16 @@ static void draw_movie_recording_indicator(void)
     const char *text = get_string(GUIStr_RecMovie);
     if ((text == NULL) || (text[0] == '\0'))
         return;
+    TbClockMSec elapsed_ms = LbTimerClock() - movie_record_started_at;
+    long secs = (long)(elapsed_ms / 1000);
+    if (secs < 0)
+        secs = 0;
+    char line[255];
+    snprintf(line, sizeof(line), "%s  %ld:%02ld", text, secs / 60, secs % 60);
     LbTextSetFont(winfont);
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, movie_message_scale(), text);
+    LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, movie_message_scale(), line);
 }
 
 TbBool movie_record_start(void)
@@ -139,6 +147,7 @@ TbBool movie_record_start(void)
   if ( anim_record() )
   {
       set_flag(local_system_flags, GSF_CaptureMovie);
+      movie_record_started_at = LbTimerClock();
       show_movie_onscreen_msg(GUIStr_RecMovie);
       return true;
   }
