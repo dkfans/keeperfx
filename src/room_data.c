@@ -33,7 +33,6 @@
 #include "room_treasure.h"
 #include "room_workshop.h"
 #include "thing_objects.h"
-#include "thing_creature.h"
 #include "thing_navigate.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -2915,15 +2914,21 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
     return 0;
 }
 
-static void remove_lair_totem_with_owner(struct Thing *lairtng)
+static void remove_lair_totem_with_owner(struct Room *room, struct Thing *lairtng)
 {
     struct Thing* creatng = thing_get(lairtng->lair.belongs_to);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (thing_is_creature(creatng) && (cctrl->lairtng_idx == lairtng->index) && remove_creature_lair(creatng)) {
+    if (!thing_is_creature(creatng) || (cctrl->lairtng_idx != lairtng->index)) {
+        ERRORLOG("Lair totem %d isn't the lair of the creature it belongs to, deleting it",(int)lairtng->index);
+        destroy_object(lairtng);
         return;
     }
-    ERRORLOG("Lair totem %d has no creature owning it, deleting it",(int)lairtng->index);
-    destroy_object(lairtng);
+    if (cctrl->lair_room_id != room->index) {
+        ERRORLOG("Lair totem %d is in %s index %d but its owner expects room index %d, deleting it",(int)lairtng->index,room_code_name(room->kind),(int)room->index,(int)cctrl->lair_room_id);
+        delete_lair_totem(lairtng);
+        return;
+    }
+    creature_remove_lair_totem_from_room(creatng, room);
 }
 
 void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, SlabCodedCoords slbnum)
@@ -3140,7 +3145,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
     {
         thing = find_lair_totem_at(stl_x, stl_y);
         if (!thing_is_invalid(thing)) {
-            remove_lair_totem_with_owner(thing);
+            remove_lair_totem_with_owner(room, thing);
         }
     }
 }
@@ -3518,8 +3523,8 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     }
     else if (room_role_matches(room->kind,RoRoF_LairStorage) && thing_is_lair_totem(thing))
     {
-        // Lair - owns creature lairs; don't rely on RelatedCreature, it is unset for creature types added by scripts
-        remove_lair_totem_with_owner(thing);
+        // Lair - owns creature lairs
+        remove_lair_totem_with_owner(room, thing);
         return;
     }
     else if (room_role_matches(room->kind, RoRoF_KeeperStorage) && thing_is_dungeon_heart(thing))

@@ -251,7 +251,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
             else
             {
                 ThingModel crmodel = objst->related_creatr_model;
-                if ((crmodel == 0) && thing_is_lair_totem(thing)) {
+                if (thing_is_lair_totem(thing)) {
                     struct Thing* creatng = thing_get(thing->lair.belongs_to);
                     if (thing_is_creature(creatng)) {
                         crmodel = creatng->model;

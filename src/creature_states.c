@@ -1811,7 +1811,7 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
         return false;
     }
     if ((!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP))) || (room->owner != creatng->owner)) {
-        ERRORLOG("The %s index %d has lair in invalid room, removing it",thing_model_name(creatng),(int)creatng->index);
+        WARNLOG("The %s index %d has lair in invalid room, removing it",thing_model_name(creatng),(int)creatng->index);
         remove_creature_lair(creatng);
         return false;
     }

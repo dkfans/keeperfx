@@ -174,8 +174,8 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
             can_target = cast_at_xy || cast_on_tng;
         }
         if (!can_target) {
-            if ((flags & CastChk_Final) != 0) {
-                SYNCDBG(7,"%s: Player %d tried to cast %s on a target which can't be targeted (thing %d, subtile %d)",func_name,(int)plyr_idx,
+            if (((flags & CastChk_Final) != 0) && flag_is_set(player->allocflags, PlaF_CompCtrl)) {
+                WARNLOG("%s: Player %d tried to cast %s on a target which can't be targeted (thing %d, subtile %d)",func_name,(int)plyr_idx,
                     power_code_name(pwkind), (int)cast_on_tng, (int)cast_at_xy);
             }
             return false;
