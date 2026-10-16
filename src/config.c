@@ -1478,7 +1478,7 @@ char *get_game_file_path_fmt(short fgroup, const char *fmt_str, ...)
   vsnprintf(fname, sizeof(fname), fmt_str, val);
   va_end(val);
   
-  static char ffullpath[2048];
+  static char ffullpath[FULLPATH_SIZE];
   return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
 }
 
@@ -1564,7 +1564,7 @@ unsigned char *load_data_file_to_buffer(int32_t *ldsize, short fgroup, const cha
   va_start(arg, fmt_str);
   char fname[255] = "";
   vsnprintf(fname, sizeof(fname), fmt_str, arg);
-  char ffullpath[2048];
+  char ffullpath[FULLPATH_SIZE];
   prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
   va_end(arg);
   // Load the file

@@ -1669,7 +1669,7 @@ short creature_save_unconscious_creature(struct Thing *thing)
             set_start_state(thing);
             return 0;
         }
-        if (!find_lair_totem_at(lairtng->mappos.x.stl.num,lairtng->mappos.y.stl.num))
+        if (thing_is_invalid(find_lair_totem_at(lairtng->mappos.x.stl.num,lairtng->mappos.y.stl.num)))
         {
             WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)thing->owner,thing_model_name(picktng),room_role_code_name(RoRoF_Prison));
             set_start_state(thing);

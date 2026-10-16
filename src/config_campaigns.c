@@ -1098,7 +1098,6 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             }
             break;            
         case 15: // INTRO_DESC_ID
-            // Empty value is allowed, it means the level has no description
             get_conf_parameter_whole(buf,&pos,len,lvinfo->intro_desc_id,LINEMSG_SIZE);
             break;
         case 16: // DESCRIPTION_GEO
@@ -1210,8 +1209,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
     snprintf(campgn->fname, DISKPATH_SIZE, "%s", cmpgn_fname);
     snprintf(campgn->name, DISKPATH_SIZE, "%s", cmpgn_fname);
     SYNCDBG(0,"%s campaign file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
-    // Own buffer, as prepare_file_path() result is overwritten by the nested config loads below
-    char fname[2048] = "";
+    char fname[FULLPATH_SIZE] = "";
     prepare_file_path_buf(fname, sizeof(fname), fgroup, cmpgn_fname);
     long len = LbFileLengthRnc(fname);
     if (len < 2)

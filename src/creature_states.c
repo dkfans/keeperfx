@@ -2230,7 +2230,6 @@ short creature_follow_leader(struct Thing *creatng)
         set_start_state(creatng);
         return 1;
     }
-    // Followers removed from group must leave this state too, otherwise they're left following nobody
     if (player_keeping_creature_in_custody(creatng) != player_keeping_creature_in_custody(leadtng))
     {
         remove_creature_from_group(creatng);
