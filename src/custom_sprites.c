@@ -281,7 +281,7 @@ static int load_file_sprites(const char *path, const char *file_desc, unsigned i
         }
         if (add_flag & CLF_Ensigns)
         {
-            JUSTLOG("Loaded custom ensign definitions from %s", file_desc);
+            SYNCDBG(8,"Loaded custom ensign definitions from %s", file_desc);
         }
         else
         {
