@@ -145,6 +145,7 @@ static TbBool load_slabset_config_file(const char *fname, unsigned short flags)
                         CONDITIONAL_ASSIGN_ARR3_INT(object,"RelativePosition",slabobj->offset_x,slabobj->offset_y,slabobj->offset_z)
                         CONDITIONAL_ASSIGN_INT(object, "EffectRange", slabobj->range);
                         CONDITIONAL_ASSIGN_INT(object, "Subtile",     slabobj->stl_id);
+                        CONDITIONAL_ASSIGN_INT(object, "Orientation", slabobj->orientation);
 
                         slabobj->slabset_id = slabset_no;
                         if (i == 0)

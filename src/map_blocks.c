@@ -929,6 +929,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                         ERRORLOG("Cannot create object type %d", tngmodel);
                         continue;
                     }
+                    objtng->move_angle_xy = sobj->orientation;
                     if (thing_is_dungeon_heart(objtng))
                     {
                         struct Dungeon* dungeon = get_dungeon(objtng->owner);
