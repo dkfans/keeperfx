@@ -263,6 +263,7 @@ static TbBool init_level(void)
     battle_initialise();
     ambient_sound_prepare();
     zero_messages();
+    render_onscreen_msg_time = 0;
     game.armageddon_cast_turn = 0;
     game.armageddon_over_turn = 0;
     clear_messages();
