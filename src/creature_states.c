@@ -1812,7 +1812,7 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
     }
     if ((!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP))) || (room->owner != creatng->owner)) {
         WARNLOG("The %s index %d has lair in invalid room, removing it",thing_model_name(creatng),(int)creatng->index);
-        remove_creature_lair(creatng);
+        delete_lair_totem(thing_get(cctrl->lairtng_idx));
         return false;
     }
     if (get_gameturn() - cctrl->tasks_check_turn <= 128) {

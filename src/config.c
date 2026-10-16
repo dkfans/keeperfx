@@ -2257,13 +2257,13 @@ static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned
 
     const char* conf_fname = file_data->filename;
     const struct ModExistState *mod_state = &mod_item->state;
-    char* fname = NULL;
+    char fname[FULLPATH_SIZE] = "";
     char mod_dir[256] = {0};
     sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
 
     if (mod_state->fx_data)
     {
-        fname = prepare_file_path_mod(mod_dir, FGrp_FxData, conf_fname);
+        prepare_file_path_buf_mod(fname, sizeof(fname), mod_dir, FGrp_FxData, conf_fname);
         if (strlen(fname) > 0)
         {
             file_data->load_func(fname, flags);
@@ -2272,7 +2272,7 @@ static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned
 
     if (mod_state->cmpg_config)
     {
-        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig, conf_fname);
+        prepare_file_path_buf_mod(fname, sizeof(fname), mod_dir, FGrp_CmpgConfig, conf_fname);
         if (strlen(fname) > 0)
         {
             file_data->load_func(fname,flags);
@@ -2281,8 +2281,10 @@ static void load_config_for_mod(const struct ConfigFileData* file_data, unsigned
 
     if (mod_state->cmpg_lvls)
     {
-        fname = get_mod_file_path_fmt(mod_dir, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-        if (fname && strlen(fname) > 0)
+        char map_fname[DISKPATH_SIZE] = "";
+        snprintf(map_fname, sizeof(map_fname), "map%05d.%s", (int)get_selected_level_number(), conf_fname);
+        prepare_file_path_buf_mod(fname, sizeof(fname), mod_dir, FGrp_CmpgLvls, map_fname);
+        if (strlen(fname) > 0)
         {
             file_data->load_func(fname,flags);
         }
@@ -2313,7 +2315,8 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 
     const char* conf_fname = file_data->filename;
 
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+    char fname[FULLPATH_SIZE] = "";
+    prepare_file_path_buf(fname, sizeof(fname), FGrp_FxData, conf_fname);
     TbBool result = file_data->load_func(fname, flags);
 
     if (mods_conf.after_base_cnt > 0)
@@ -2321,7 +2324,7 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
         load_config_for_mod_list(file_data, flags, mods_conf.after_base_item, mods_conf.after_base_cnt);
     }
 
-    fname = prepare_file_path(FGrp_CmpgConfig, conf_fname);
+    prepare_file_path_buf(fname, sizeof(fname), FGrp_CmpgConfig, conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
@@ -2332,8 +2335,10 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
         load_config_for_mod_list(file_data, flags, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
     }
 
-    fname = get_game_file_path_fmt(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (fname && strlen(fname) > 0)
+    char map_fname[DISKPATH_SIZE] = "";
+    snprintf(map_fname, sizeof(map_fname), "map%05d.%s", (int)get_selected_level_number(), conf_fname);
+    prepare_file_path_buf(fname, sizeof(fname), FGrp_CmpgLvls, map_fname);
+    if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
