@@ -288,9 +288,9 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
     }
 }
 
-long PaletteFadePlayer(struct PlayerInfo *player)
+long PaletteFadePlayer(const struct PlayerInfo *player)
 {
-    if (!is_my_player(player))
+    if (player != get_displayed_player())
         return 0;
     long i;
     // Find the fade step
@@ -336,7 +336,7 @@ long PaletteFadePlayer(struct PlayerInfo *player)
 
 void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense)
 {
-    if (!is_my_player(player))
+    if (player != get_displayed_player())
         return;
     long i = local_state.palette_fade_step_pain + intense;
     if (i < 1)

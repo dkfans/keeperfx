@@ -522,7 +522,7 @@ void update(void)
             update_first_person_object_ambience(thing);
         }
         update_footsteps_nearest_camera(get_local_active_camera(player));
-        PaletteFadePlayer(player);
+        PaletteFadePlayer(get_displayed_player());
         process_armageddon();
         update_global_lighting();
 #if (BFDEBUG_LEVEL > 9)
