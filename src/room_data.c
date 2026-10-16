@@ -33,6 +33,7 @@
 #include "room_treasure.h"
 #include "room_workshop.h"
 #include "thing_objects.h"
+#include "thing_creature.h"
 #include "thing_navigate.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -2919,16 +2920,16 @@ static void remove_lair_totem_with_owner(struct Room *room, struct Thing *lairtn
     struct Thing* creatng = thing_get(lairtng->lair.belongs_to);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (!thing_is_creature(creatng) || (cctrl->lairtng_idx != lairtng->index)) {
-        ERRORLOG("Lair totem %d isn't the lair of the creature it belongs to, deleting it",(int)lairtng->index);
+        ERRORLOG("Lair totem %d belongs to thing %d which doesn't have it as its lair, deleting it",(int)lairtng->index,(int)lairtng->lair.belongs_to);
         destroy_object(lairtng);
         return;
     }
     if (cctrl->lair_room_id != room->index) {
-        ERRORLOG("Lair totem %d is in %s index %d but its owner expects room index %d, deleting it",(int)lairtng->index,room_code_name(room->kind),(int)room->index,(int)cctrl->lair_room_id);
-        delete_lair_totem(lairtng);
-        return;
+        ERRORLOG("Lair totem %d is in %s index %d but its owner expects room index %d",(int)lairtng->index,room_code_name(room->kind),(int)room->index,(int)cctrl->lair_room_id);
     }
-    creature_remove_lair_totem_from_room(creatng, room);
+    if (!remove_creature_lair(creatng)) {
+        delete_lair_totem(lairtng);
+    }
 }
 
 void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, SlabCodedCoords slbnum)

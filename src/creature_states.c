@@ -2249,7 +2249,7 @@ short creature_follow_leader(struct Thing *creatng)
         }
         else
         {
-            SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
+            SYNCDBG(3,"The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
                 thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
             set_start_state(creatng);
             return 1;

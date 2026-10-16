@@ -1451,7 +1451,7 @@ static char *_resolve_file_path_internal(char *dst, size_t dst_size,
  */
 char *get_game_file_path(short fgroup, const char *fname)
 {
-  static char ffullpath[4096];
+  static char ffullpath[FULLPATH_SIZE];
   return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
 }
 
@@ -1462,7 +1462,7 @@ char *get_game_file_path(short fgroup, const char *fname)
  */
 char *get_mod_file_path(const char *mod_dir, short fgroup, const char *fname)
 {
-  static char ffullpath[4096];
+  static char ffullpath[FULLPATH_SIZE];
   return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
 }
 
@@ -1495,7 +1495,7 @@ char *get_mod_file_path_fmt(const char *mod_dir, short fgroup, const char *fmt_s
   vsnprintf(fname, sizeof(fname), fmt_str, val);
   va_end(val);
   
-  static char ffullpath[4096];
+  static char ffullpath[FULLPATH_SIZE];
   return _resolve_file_path_internal(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
 }
 
