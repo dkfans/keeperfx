@@ -31,6 +31,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "replay.h"
+#include "replay_rewind.h"
 #include "game_loop.h"
 #include "lua_triggers.h"
 
@@ -78,6 +79,8 @@ bool use_delta_time();
 
 /******************************************************************************/
 static short do_draw;
+#define REWIND_TURNS_PER_SECOND 60
+static int64_t next_rewind_step_ns;
 static long double average_frame_draw_time = 1;
 
 float interpolate_time = 0;
@@ -478,6 +481,8 @@ void gameplay_loop_draw()
         do_draw = true;
 
     update_gameplay_delta_time();
+    if (local_state.rewinding)
+        local_state.process_turn_time = 1.0;
 
     if ((local_state.process_turn_time > 1.0 || local_state.fast_forward >= GAME_FAST_FORWARD_MAX) && time_since_last_draw < 1.0)
         do_draw = false;
@@ -590,6 +595,21 @@ static void gameplay_loop_logic()
 #endif // FUNCTESTING
     do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
     poll_inputs();
+    const TbBool rewind_held = is_game_key_pressed(Gkey_DumpToOldPos, false, true) && !a_menu_window_is_active()
+        && !flag_is_set(get_local_user_state()->init_flags, UsrIF_NewMPMessage);
+    local_state.rewinding = rewind_held && replay_rewind_available();
+    if (local_state.rewinding)
+    {
+        const int64_t now = get_time_tick_ns();
+        if (now >= next_rewind_step_ns)
+        {
+            next_rewind_step_ns = now + 1000000000 / REWIND_TURNS_PER_SECOND;
+            replay_rewind_step();
+        } else
+            LbSleepFor(1);
+        do_draw = true;
+        return;
+    }
     input_eastegg();
     input();
     if (exchange_packets() == PExR_Wait) {
@@ -712,7 +732,7 @@ static void gameplay_loop_timestep()
     if (! use_delta_time()) {
         frametime_start_measurement(Frametime_Sleep);
         // Make delay if the machine is too fast
-        if ( (!replay.load_enable) || (replay.turns_fastforward == 0) ) {
+        if (((!replay.load_enable) || (replay.turns_fastforward == 0)) && !local_state.rewinding) {
             keeper_wait_for_next_turn();
         }
         frametime_end_measurement(Frametime_Sleep);

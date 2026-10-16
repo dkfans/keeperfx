@@ -321,11 +321,13 @@
     <ClCompile Include="src\kfx\renderer\software\bflib_vidraw_spr_remp.c" />
     <ClCompile Include="src\kfx\ui\GameUI.cpp" />
     <ClCompile Include="src\kfx_memory.c" />
+    <ClCompile Include="src\kernel_memtracker.c" />
     <ClCompile Include="src\net_checksums.c" />
     <ClCompile Include="src\net_input_lag.c" />
     <ClCompile Include="src\value_util.c" />
     <ClCompile Include="src\replay.c" />
     <ClCompile Include="src\logging.c" />
+    <ClCompile Include="src\replay_rewind.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h" />
@@ -650,6 +652,7 @@
     <ClInclude Include="src\kfx\renderer\software\SwZoomBoxTiles.h" />
     <ClInclude Include="src\kfx\ui\GameUI.h" />
     <ClInclude Include="src\kfx_memory.h" />
+    <ClInclude Include="src\kernel_memtracker.h" />
     <ClInclude Include="src\kfx_pch.h" />
     <ClInclude Include="src\net_checksums.h" />
     <ClInclude Include="src\net_input_lag.h" />
@@ -660,6 +663,7 @@
     <ClInclude Include="src\value_util.h" />
     <ClInclude Include="src\ver_defs.h" />
     <ClInclude Include="src\replay.h" />
+    <ClInclude Include="src\replay_rewind.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
