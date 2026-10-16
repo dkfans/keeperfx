@@ -32,6 +32,7 @@
 #include "game_legacy.h"
 #include "frontend.h"
 #include "config.h"
+#include "config_strings.h"
 
 #include <string.h>
 #include <ctype.h>
@@ -100,13 +101,48 @@ TbBool cumulative_screen_shot(void)
     return ret;
 }
 
+static int movie_message_scale(void)
+{
+    if (dbc_language > 0)
+        return scale_value_by_horizontal_resolution((MyScreenWidth >= 640) ? 16 : 32);
+    return scale_ui_value_lofi(16);
+}
+
+static void show_movie_onscreen_msg(TextStringId stridx)
+{
+    // The message timer only advances while gameplay is drawing.
+    if ((game.game_kind != GKind_LocalGame) && (game.game_kind != GKind_MultiGame))
+        return;
+    const char *text = get_string(stridx);
+    if ((text == NULL) || (text[0] == '\0'))
+        return;
+    show_onscreen_msg(2 * turns_per_second, "%s", text);
+}
+
+static void draw_movie_recording_indicator(void)
+{
+    if ((local_system_flags & GSF_CaptureMovie) == 0)
+        return;
+    if (!LbScreenIsLocked())
+        return;
+    const char *text = get_string(GUIStr_RecMovie);
+    if ((text == NULL) || (text[0] == '\0'))
+        return;
+    LbTextSetFont(winfont);
+    LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, movie_message_scale(), text);
+}
+
 TbBool movie_record_start(void)
 {
   if ( anim_record() )
   {
       set_flag(local_system_flags, GSF_CaptureMovie);
+      show_movie_onscreen_msg(GUIStr_RecMovie);
       return true;
   }
+  show_movie_onscreen_msg(GUIStr_RecMovieFail);
   return false;
 }
 
@@ -114,6 +150,7 @@ TbBool movie_record_stop(void)
 {
     clear_flag(local_system_flags, GSF_CaptureMovie);
     anim_stop();
+    show_movie_onscreen_msg(GUIStr_RecMovieDone);
     return true;
 }
 
@@ -153,12 +190,8 @@ TbBool perform_any_screen_capturing(void)
     {
       captured |= movie_record_frame();
     }
-    // Draw a text with bitmap font
-    if (captured) {
-        //Set font; if winfont isn't loaded, it should be NULL, so text will just be invisible
-        LbTextSetFont(winfont);
-        LbTextDraw(600*units_per_pixel/16, 4*units_per_pixel/16, "REC");
-    }
+    // Drawn after the frame is stored, so the warning stays on screen and out of the movie.
+    draw_movie_recording_indicator();
     return captured;
 }
 
