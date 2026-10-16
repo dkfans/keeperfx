@@ -37,7 +37,7 @@ extern "C" {
 
 #define KEEPSPRITE_LENGTH 9149
 #define KEEPERSPRITE_ADD_OFFSET 16384
-#define KEEPERSPRITE_ADD_NUM 16383
+#define KEEPERSPRITE_ADD_NUM (USHRT_MAX - KEEPERSPRITE_ADD_OFFSET)
 
 struct EngineCoord { // sizeof = 28
   long view_width; // X screen position, probably not a width

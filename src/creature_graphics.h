@@ -119,8 +119,8 @@ unsigned char keepersprite_frames(unsigned short n); // This returns number of f
 unsigned char keepersprite_rotable(unsigned short n);
 void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h);
 long get_lifespan_of_animation(long ani, long speed);
-short get_creature_anim(struct Thing *thing, unsigned short frame);
-short get_creature_model_graphics(long crmodel, unsigned short frame);
+int32_t get_creature_anim(struct Thing *thing, unsigned short frame);
+int32_t get_creature_model_graphics(long crmodel, unsigned short frame);
 void set_creature_model_graphics(long crmodel, unsigned short frame, unsigned long val);
 void set_creature_graphic(struct Thing *thing);
 void update_creature_rendering_flags(struct Thing *thing);
