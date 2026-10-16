@@ -73,12 +73,17 @@ TbBool fill_strings_list(char **strings,char *strings_data,char *strings_data_en
       *text_arr = text_ptr;
 
     text_arr++;
+    char* write_ptr = text_ptr;
     char chr_prev;
-    do
-    {
+    do {
+      if ((text_ptr[0] == '\\') && ((text_ptr[1] == '"') || (text_ptr[1] == '\\'))) {
+        text_ptr++;
+      }
       chr_prev = *text_ptr;
+      *write_ptr = chr_prev;
+      write_ptr++;
       text_ptr++;
-     } while ((chr_prev != '\0') && (text_ptr < strings_data_end));
+    } while ((chr_prev != '\0') && (text_ptr < strings_data_end));
      text_idx--;
   }
   return (text_idx < max);
