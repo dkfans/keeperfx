@@ -244,6 +244,11 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
         netstate.sp->drop_user(source, NetJoin_Version);
         return Lb_OK;
     }
+    // optional cosmetic byte after the role: the hand colour the user chose
+    user->hand_colour = (read_pos + 1 < end_pos) ? (uint8_t)read_pos[1] : 0;
+    if (user->hand_colour > HAND_COLOUR_COUNT) {
+        user->hand_colour = 0;
+    }
     NETMSG("User %d (%s) successfully logged in", (int)source, user->name);
     user->progress = USER_LOGGEDIN;
     play_non_3d_sample(snd_spell_stars);
@@ -298,11 +303,21 @@ TbError process_user_update_message(NetUserId source, char *read_pos, const char
         abort();
     }
     strcpy(user->name, name);
+    user->hand_colour = 0;
     if (read_pos + sizeof(user->version) <= end_pos) {
         memcpy(&user->version, read_pos, sizeof(user->version));
+        read_pos += sizeof(user->version);
+        if (read_pos < end_pos) {
+            user->hand_colour = ((uint8_t)*read_pos <= HAND_COLOUR_COUNT) ? (uint8_t)*read_pos : 0;
+        }
     }
     UpdateLocalPlayerInfo(user_id);
     return Lb_OK;
+}
+
+void LbNetwork_ClearCmdLineSessions(void)
+{
+    memset(sessions, 0, sizeof(sessions));
 }
 
 void LbNetwork_InitSessionsFromCmdLine(const char *str)
@@ -335,6 +350,7 @@ TbError LbNetwork_ExchangeLogin(char *player_name)
     memcpy(write_pos, &net_current_version, sizeof(net_current_version));
     write_pos += sizeof(net_current_version);
     *write_pos++ = net_join_role;
+    *write_pos++ = net_local_hand_colour();
     send_message_buffer(SERVER_ID, write_pos);
     TbClockMSec wait_start_time = LbTimerClock();
     while (net_join_rejection == NetJoin_Accepted && LbTimerClock() - wait_start_time < TIMEOUT_JOIN_LOBBY) {
@@ -408,6 +424,7 @@ TbError LbNetwork_Create(char *lobby_name, char *plyr_name, uint32_t *plyr_num, 
     netstate.max_users = net_config_info.max_players;
     netstate.my_id = SERVER_ID;
     snprintf(netstate.users[SERVER_ID].name, sizeof(netstate.users[SERVER_ID].name), "%s", plyr_name);
+    netstate.users[SERVER_ID].hand_colour = net_local_hand_colour();
     netstate.users[SERVER_ID].progress = USER_LOGGEDIN;
     netstate.locked = 0;
     net_lobby_refresh_metadata();

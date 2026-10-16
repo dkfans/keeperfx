@@ -82,6 +82,7 @@
 #include "timer.h"
 
 #include "keeperfx.hpp"
+#include "archon_test.h"
 
 #include <math.h>
 #include "post_inc.h"
@@ -432,7 +433,7 @@ static short get_players_message_inputs(void)
 
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         char text[PLAYER_MP_MESSAGE_LEN];
-        memcpy(text, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
+        memcpy(text, ustate->mp_message_text, PLAYER_MP_MESSAGE_LEN);
         text[PLAYER_MP_MESSAGE_LEN - 1] = '\0';
         MapCoord cursor_x;
         MapCoord cursor_y;
@@ -444,7 +445,7 @@ static short get_players_message_inputs(void)
             console_cmd_default_cursor(player->id_number, &cursor_x, &cursor_y);
         }
         if (observer_is_active() && text[0] == cmd_char) {
-            memcpy(player->mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
+            memcpy(ustate->mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
             cmd_exec_observer(text + 1, cursor_x, cursor_y);
         } else if (replay.load_enable) {
             if (text[0] != '\0') {
@@ -459,31 +460,31 @@ static short get_players_message_inputs(void)
             }
         }
         ustate->init_flags &= ~UsrIF_NewMPMessage;
-        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+        memset(ustate->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_RETURN);
         LbStopTextInput();
     } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
         set_players_packet_action(player, PckA_PlyrMsgClear, 0, 0, 0, 0);
         ustate->init_flags &= ~UsrIF_NewMPMessage;
-        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+        memset(ustate->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_ESCAPE);
         LbStopTextInput();
-    } else if (is_key_pressed(KC_TAB, KMod_NONE) && player->mp_message_text[0] == cmd_char) {
-        cmd_auto_completion(player->id_number, player->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
+    } else if (is_key_pressed(KC_TAB, KMod_NONE) && ustate->mp_message_text[0] == cmd_char) {
+        cmd_auto_completion(player->id_number, ustate->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
         clear_key_pressed(KC_TAB);
     } else if (is_key_pressed(KC_UP, KMod_NONE)) {
-        memcpy(player->mp_message_text, player->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
+        memcpy(ustate->mp_message_text, ustate->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_UP);
     } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
-        int chpos = strlen(player->mp_message_text);
+        int chpos = strlen(ustate->mp_message_text);
         // Skip UTF-8 continuation bytes so the whole last character is removed
-        while ((chpos > 0) && ((player->mp_message_text[chpos-1] & 0xc0) == 0x80))
+        while ((chpos > 0) && ((ustate->mp_message_text[chpos-1] & 0xc0) == 0x80))
             chpos--;
         if (chpos > 0)
-            player->mp_message_text[chpos-1] = '\0';
+            ustate->mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);
     } else {
-        result = add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
+        result = add_input_text_to_message(ustate->mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
     }
     memset(lbKeyPressed, 0, sizeof(lbKeyPressed));
     return result;
@@ -943,8 +944,8 @@ static short get_global_inputs(void)
         return true;
       }
   }
-  if ((player->instance_num != PI_MapFadeTo) &&
-      (player->instance_num != PI_MapFadeFrom) &&
+  if ((get_local_user_state()->instance_num != PI_MapFadeTo) &&
+      (get_local_user_state()->instance_num != PI_MapFadeFrom) &&
       (!game_is_busy_doing_gui_string_input()))
     {
 
@@ -1102,7 +1103,7 @@ static TbBool get_level_lost_inputs(void)
     if (view_type == PVT_DungeonTop)
     {
       if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
-        if (player->instance_num != PI_MapFadeFrom)
+        if (get_local_user_state()->instance_num != PI_MapFadeFrom)
         {
           turn_off_all_window_menus();
           local_state.show_panel = local_state.show_gui;
@@ -1136,7 +1137,7 @@ static TbBool get_level_lost_inputs(void)
         {
           if ( (ustate->work_state == PSt_CreatrInfo) || (ustate->work_state == PSt_CreatrInfoAll) )
           {
-              set_player_instance(player, PI_UnqueryCrtr, 0);
+              set_player_instance(get_local_user(), PI_UnqueryCrtr, 0);
           } else
           {
               int mm_units_per_px;
@@ -1163,25 +1164,25 @@ static TbBool get_level_lost_inputs(void)
         break;
       case PVT_CreatureContrl:
       {
-          struct Thing* thing = thing_get(player->controlled_thing_idx);
+          struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
           TRACE_THING(thing);
           if (thing->class_id == TCls_Creature)
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
               if ((cctrl->creature_state_flags & TF2_Spectator) == 0)
               {
-                  set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);
+                  set_players_packet_action(player, PckA_DirectCtrlExit, get_local_user_state()->controlled_thing_idx, 0, 0, 0);
                   inp_done = true;
               }
           } else
         {
-          set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx,0,0,0);
+          set_players_packet_action(player, PckA_DirectCtrlExit, get_local_user_state()->controlled_thing_idx,0,0,0);
           inp_done = true;
         }
         break;
       }
       case PVT_CreaturePasngr:
-        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+        set_players_packet_action(player, PckA_PasngrCtrlExit, get_local_user_state()->controlled_thing_idx,0,0,0);
         break;
       case PVT_MapScreen:
         if (menu_is_active(GMnu_SPELL_LOST))
@@ -1377,7 +1378,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
     {
         if ( (ustate->continue_work_state == PSt_CreatrQuery) || (ustate->continue_work_state == PSt_QueryAll) )
         {
-            struct Thing *creatng = thing_get(player->controlled_thing_idx);
+            struct Thing *creatng = thing_get(get_local_user_state()->controlled_thing_idx);
             if (thing_is_creature(creatng))
             {
                 if (!close_secondary_cheat_menu()) // Note that we're using "close", not "toggle". Menu can't be opened here.
@@ -1428,7 +1429,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
       {
           return true;
       }
-      if ((player->instance_num != PI_MapFadeFrom) && (game.small_map_state != 2))
+      if ((get_local_user_state()->instance_num != PI_MapFadeFrom) && (game.small_map_state != 2))
       {
           turn_off_all_window_menus();
           zoom_to_parchment_map();
@@ -1524,9 +1525,9 @@ static short get_creature_passenger_action_inputs(void)
         return 1;
     if (((game.operation_flags & GOF_Paused) == 0) || ((game.operation_flags & GOF_WorldInfluence) != 0))
         get_gui_inputs(1);
-    if (player->controlled_thing_idx == 0)
+    if (get_local_user_state()->controlled_thing_idx == 0)
         return false;
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
     TRACE_THING(thing);
     if (thing_is_creature(thing))
     {
@@ -1601,12 +1602,12 @@ static short get_creature_passenger_action_inputs(void)
     }
     if (right_button_released)
     {
-        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0, 0, 0);
+        set_players_packet_action(player, PckA_PasngrCtrlExit, get_local_user_state()->controlled_thing_idx, 0, 0, 0);
         return true;
     }
-    if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
+    if (!thing_exists(thing) || (get_local_user_state()->controlled_thing_creatrn != thing->creation_turn))
     {
-        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+        set_players_packet_action(player, PckA_PasngrCtrlExit, get_local_user_state()->controlled_thing_idx,0,0,0);
         return true;
     }
     return false;
@@ -1693,14 +1694,14 @@ static short get_creature_control_action_inputs(void)
             toggle_creature_cheat_menu();
         }
     }
-    if (player->controlled_thing_idx != 0)
+    if (get_local_user_state()->controlled_thing_idx != 0)
     {
         short make_packet = right_button_released;
-        struct Thing* thing = thing_get(player->controlled_thing_idx);
+        struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
         if (!make_packet)
         {
             TRACE_THING(thing);
-            if ((player->controlled_thing_creatrn != thing->creation_turn) || (!flag_is_set(thing->alloc_flags, TAlF_Exists)) || (thing->active_state == CrSt_CreatureUnconscious))
+            if ((get_local_user_state()->controlled_thing_creatrn != thing->creation_turn) || (!flag_is_set(thing->alloc_flags, TAlF_Exists)) || (thing->active_state == CrSt_CreatureUnconscious))
             {
                 make_packet = true;
             }
@@ -1708,18 +1709,18 @@ static short get_creature_control_action_inputs(void)
         if (make_packet)
         {
             right_button_released = 0;
-            if ((player->possession_lock == true) && thing_is_creature(thing))
+            if ((get_local_user_state()->possession_lock == true) && thing_is_creature(thing))
             {
                 play_player_sample(player->id_number, snd_refusal); //refusal
             }
             else
             {
-                set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);
+                set_players_packet_action(player, PckA_DirectCtrlExit, get_local_user_state()->controlled_thing_idx, 0, 0, 0);
             }
         }
     }
     // Use the Query/Message keys and mouse wheel to scroll through query pages and go to correct query page when selecting an instance.
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
     if (!thing_is_creature(thing))
     {
         return false;
@@ -1946,7 +1947,7 @@ static short get_creature_control_action_inputs(void)
             set_players_packet_action(player, PckA_SwitchTeleportDest, 19, 0, 0, 0); // default behaviour
             StrID = GUIStr_Lair;
         }
-        struct Thing* creatng = thing_get(player->controlled_thing_idx);
+        struct Thing* creatng = thing_get(get_local_user_state()->controlled_thing_idx);
         if ( (StrID != 0) && (creature_instance_is_available(creatng, CrInst_TELEPORT)) )
         {
             if (game.active_messages_count > 0)
@@ -2044,7 +2045,7 @@ static short get_creature_control_action_inputs(void)
             int num_avail = 0;
             for (int idx = 0; idx < LEARNED_INSTANCES_COUNT; idx++)
             {
-                struct Thing* cthing = thing_get(player->controlled_thing_idx);
+                struct Thing* cthing = thing_get(get_local_user_state()->controlled_thing_idx);
                 TRACE_THING(cthing);
                 struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cthing);
                 int inst_id = crconf->learned_instance_id[idx];
@@ -2063,7 +2064,7 @@ static short get_creature_control_action_inputs(void)
         // Next/Previous instance switching
         if (menu_is_active(GMnu_CREATURE_QUERY1) || menu_is_active(GMnu_CREATURE_QUERY2))
         {
-            struct Thing* cthing = thing_get(player->controlled_thing_idx);
+            struct Thing* cthing = thing_get(get_local_user_state()->controlled_thing_idx);
                 
             if (is_game_key_pressed(Gkey_NextInstance, true, false))
             {
@@ -2610,7 +2611,7 @@ static void get_dungeon_control_nonaction_inputs(void)
             }
             case PSt_OrderCreatr:
             {
-                if ( (player->controlled_thing_idx == 0) || (ustate->thing_under_hand == player->controlled_thing_idx) )
+                if ( (get_local_user_state()->controlled_thing_idx == 0) || (ustate->thing_under_hand == get_local_user_state()->controlled_thing_idx) )
                 {
                     local_state.local_thing_under_hand = ustate->thing_under_hand;
                 }
@@ -2808,7 +2809,6 @@ static TbBool get_packet_load_demo_inputs(void)
 
 static void get_creature_control_nonaction_inputs(void)
 {
-    struct PlayerInfo* player = get_my_player();
     if ((get_local_user_state()->init_flags & UsrIF_CreaturePassengerMode) != 0)
     {
         return;
@@ -2816,7 +2816,7 @@ static void get_creature_control_nonaction_inputs(void)
     struct Packet* pckt = get_local_packet();
     long x = GetMouseX();
     long y = GetMouseY();
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
     TRACE_THING(thing);
     TbBool cheat_menu_active = cheat_menu_is_active();
     if (((MyScreenWidth >> 1) != x) || ((MyScreenHeight >> 1) != y))
@@ -2933,7 +2933,7 @@ static void get_player_gui_clicks(void)
   case PVT_CreaturePasngr:
       if (right_button_released)
       {
-        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        struct Thing *thing = thing_get(get_local_user_state()->controlled_thing_idx);
         if (thing->class_id == TCls_Creature)
         {
           if (a_menu_window_is_active())
@@ -3101,7 +3101,7 @@ static short get_inputs(void)
             get_level_lost_inputs();
             return true;
         }
-        struct Thing* thing = thing_get(player->controlled_thing_idx);
+        struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
         TRACE_THING(thing);
         if (!thing_is_creature(thing))
         {
@@ -3159,7 +3159,7 @@ static short get_inputs(void)
             unset_players_packet_control(player, PCtr_LBtnRelease|PCtr_RBtnRelease);
         return inp_handled;
     case PVT_MapFadeIn:
-        if (player->instance_num != PI_MapFadeTo)
+        if (get_local_user_state()->instance_num != PI_MapFadeTo)
         {
           if (!network_is_active())
             game.operation_flags &= ~GOF_Paused;
@@ -3168,7 +3168,7 @@ static short get_inputs(void)
         }
         return false;
     case PVT_MapFadeOut:
-        if (player->instance_num != PI_MapFadeFrom)
+        if (get_local_user_state()->instance_num != PI_MapFadeFrom)
         {
           set_players_packet_action(player, PckA_SetViewType, PVT_DungeonTop, 0,0,0);
         }
@@ -3205,7 +3205,12 @@ void input(void)
     else
         pckt->additional_packet_values &= ~PCAdV_RotatePressed;
 
-    get_inputs();
+    if (archontest_active() && !replay.load_enable && ((game.mode_flags & MFlg_IsDemoMode) == 0)) {
+        update_local_camera_time();
+        archontest_get_inputs(pckt);
+    } else {
+        get_inputs();
+    }
     if ((game.mode_flags & MFlg_IsDemoMode) == 0 && !replay.load_enable) {
         update_local_view_prediction(pckt);
     }

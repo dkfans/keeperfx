@@ -23,6 +23,7 @@
 #include "game_legacy.h"
 #include "bflib_math.h"
 #include "player_instances.h"
+#include "net_game.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -441,7 +442,7 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
     {
         if (strcmp(locname, "COMBAT") == 0)
         {
-            if (game.game_kind == GKind_MultiGame)
+            if ((game.game_kind == GKind_MultiGame) && !archon_campaign_active())
             {
                 WARNLOG(" %s (line %lu) : LOCATION = '%s' cannot be used on Multiplayer maps", func_name, ln_num, locname);
                 i = PLAYER0;
@@ -470,7 +471,7 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
     {
         if (strcmp(locname, "LAST_DEATH_EVENT") == 0)
         {
-            if (game.game_kind == GKind_MultiGame)
+            if ((game.game_kind == GKind_MultiGame) && !archon_campaign_active())
             {
                 WARNLOG(" %s (line %lu) : LOCATION = '%s' cannot be used on Multiplayer maps", func_name, ln_num, locname);
                 i = PLAYER0;
@@ -499,7 +500,7 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
     {
         if (strcmp(locname, "LAST_TRAP_EVENT") == 0)
         {
-            if (game.game_kind == GKind_MultiGame)
+            if ((game.game_kind == GKind_MultiGame) && !archon_campaign_active())
             {
                 WARNLOG(" %s (line %lu) : LOCATION = '%s' cannot be used on Multiplayer maps", func_name, ln_num, locname);
                 i = PLAYER0;
@@ -528,7 +529,7 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
     {
         if (strcmp(locname, "CTA") == 0)
         {
-            if (game.game_kind == GKind_MultiGame)
+            if ((game.game_kind == GKind_MultiGame) && !archon_campaign_active())
             {
                 WARNLOG(" %s (line %lu) : LOCATION = '%s' cannot be used on Multiplayer maps", func_name, ln_num, locname);
                 i = PLAYER0;

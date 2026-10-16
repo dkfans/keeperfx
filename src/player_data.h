@@ -165,36 +165,20 @@ struct CheatSelection
 struct PlayerInfo {
     unsigned char allocflags;
     unsigned char display_flags;
-    unsigned int hand_busy_until_turn;
     char player_name[20];
     unsigned char victory_state;
     PlayerBitFlags allied_players;
     PlayerBitFlags players_with_locked_ally_status;
     unsigned char id_number;
     TbBool unused;
-    short controlled_thing_idx;
-    GameTurn controlled_thing_creatrn;
-    TbBool possession_lock;
-    MapCoord zoom_to_pos_x;
-    MapCoord zoom_to_pos_y;
     struct Wander wandr_within;
     struct Wander wandr_outside;
     short cta_flag_idx;
-    short influenced_thing_idx;
-    GameTurn influenced_thing_creation;
-    char mp_message_text[PLAYER_MP_MESSAGE_LEN];
-    char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
-    char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
-    /** An "instance" is a short, scripted animation. See: enum PlayerInstanceNum */
-    unsigned char instance_num;
-    unsigned long instance_remain_turns;
-    /** Overcharge level while casting keeper powers. */
-    int32_t cast_expand_level;
+    /** Hand style of this keeper; copied to users when they take control of the keeper. */
+    unsigned char default_hand_idx;
     GameTurn power_of_cooldown_turn;
     int32_t game_version;
     GameTurn display_objective_turn;
-    unsigned char hand_idx;
-    struct RoomSpace roomspace;
     unsigned char player_type; //enum PlayerTypes
     ThingModel special_digger;
     unsigned short generate_speed;
@@ -248,13 +232,31 @@ struct UserState {
     TbBool pickup_all_gold;
     unsigned char view_type;
     struct DungeonCamera dungeon_camera;
+    /** Target of the PI_ZoomToPos camera move. */
+    MapCoord zoom_to_pos_x;
+    MapCoord zoom_to_pos_y;
+    /** Chat message being typed, the last sent one (for recall), and a pending one. */
+    char mp_message_text[PLAYER_MP_MESSAGE_LEN];
+    char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
+    char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
     UserPreferences prefs;
     PlayerState work_state;
     PlayerState continue_work_state;
     short thing_under_hand;
     short hand_thing_idx;
+    /** Game turn until which this user's hand is busy (slap/pickup cooldown). */
+    unsigned int hand_busy_until_turn;
+    /** Hand style (index into power hand config). */
+    unsigned char hand_idx;
+    /** Target of the user's current instance (creature being possessed, thing being grabbed, etc), or room for console commands; with its creation turn for validation. */
+    short influenced_thing_idx;
+    GameTurn influenced_thing_creation;
+    /** Overcharge level while casting keeper powers. */
+    int32_t cast_expand_level;
     int32_t hand_animationId;
     struct RoomSpace render_roomspace;
+    /** In-progress room build/sell selection being applied over several turns. */
+    struct RoomSpace roomspace;
     unsigned char roomspace_mode;
     int roomspace_detection_looseness;
     int roomspace_width;
@@ -263,6 +265,13 @@ struct UserState {
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
+    /** Possession: the thing this user is currently controlling (direct control or passenger). */
+    short controlled_thing_idx;
+    GameTurn controlled_thing_creatrn;
+    TbBool possession_lock;
+    /** An "instance" is a short, scripted animation. See: enum PlayerInstanceNum */
+    unsigned char instance_num;
+    unsigned long instance_remain_turns;
 };
 
 /******************************************************************************/
@@ -387,12 +396,36 @@ void reset_user_view_type(NetUserId user, unsigned short nview);
 
 void clear_players(void);
 
+TbBool player_has_user_in_dungeon_view(const struct PlayerInfo *player);
+unsigned char get_player_script_view_type(const struct PlayerInfo *player);
+ThingIndex get_player_script_controlled_thing(const struct PlayerInfo *player);
 unsigned char get_player_view_type(const struct PlayerInfo *player);
+/** User state to use for LOCAL-ONLY presentation (camera, cursor, hand drawing): the local user's own state when the player is the one it drives. Never use in simulation. */
+struct UserState *get_player_local_user_state(const struct PlayerInfo *player);
+unsigned char get_player_local_view_type(const struct PlayerInfo *player);
 unsigned char get_player_active_camera_index(const struct PlayerInfo *player);
+unsigned char get_user_active_camera_index(const struct UserState *ustate);
 int32_t get_player_dungeon_yaw(const struct PlayerInfo *player);
 enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate);
 void rotate_mode_to_dungeon_view(unsigned char mode, TbBool *front_view, TbBool *wibble);
 NetUserId get_player_primary_user(const struct PlayerInfo *player);
+void set_player_users_hand_idx(PlayerNumber plyr_idx, unsigned char hand_idx);
+// Bitmask (1 << user) of every user driving this keeper; 0 if none. Use for effects that apply to all of a keeper's users.
+uint32_t get_player_user_mask(const struct PlayerInfo *player);
+// True if 'user' is one of the users driving 'player' (false for the observer and for invalid players).
+TbBool user_drives_player(NetUserId user, const struct PlayerInfo *player);
+// Runs the following statement for every user driving 'player'. Variable 'user' is declared by the macro.
+// The empty-if form keeps a following 'else' from binding to the macro's hidden condition.
+#define FOR_EACH_PLAYER_USER(user, player)     for (NetUserId user = 0; user < MAX_NET_USERS; ++user)         if (!user_drives_player(user, player)) {} else
+/** User whose packet is being processed right now, or -1. Set only by process_packets(), never from local state. */
+void set_acting_user(NetUserId user);
+/** Returns the acting user if it belongs to the given player, otherwise the player's primary user (script/AI callers). */
+NetUserId get_player_acting_user(const struct PlayerInfo *player);
+NetUserId get_thing_controlling_user(const struct Thing *thing);
+/** True if a user other than the given one possesses (or is about to possess) the thing. */
+TbBool is_thing_possessed_by_other_user(const struct Thing *thing, NetUserId user);
+/** Returns the user possessing the thing, or the player's first user if nobody is possessing it. */
+struct UserState *get_thing_user_state_or_primary(const struct Thing *thing, const struct PlayerInfo *player);
 struct PlayerInfo *get_user_player(NetUserId user);
 
 unsigned char get_player_color_idx(PlayerNumber plyr_idx);

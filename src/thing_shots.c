@@ -1798,7 +1798,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                 {
                   if (is_my_player_number(thing->owner))
                   {
-                      if ((thing->parent_idx > 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
+                      if ((thing->parent_idx > 0) && (get_local_user_state()->controlled_thing_idx == thing->parent_idx))
                       {
                           PaletteSetUserPalette(get_local_user(), lightning_palette);
                           get_user_state(get_local_user())->additional_flags |= UsrAF_LightningPaletteIsActive;

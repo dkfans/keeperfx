@@ -57,6 +57,8 @@ struct GameSettings {
     long mentor_volume;
     int isometric_tilt;
     TbBool highlight_mode;
+    TbBool show_partner_hand; /**< Archon co-op: draw the partner's hand and nickname on the map. */
+    unsigned char hand_colour; /**< Archon co-op: colour of this user's hand for the others: 0 = automatic (by user slot), 1..8 = palette entry. */
     };
 #pragma pack()
 /******************************************************************************/

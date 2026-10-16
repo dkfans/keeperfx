@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "net_main.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,7 +69,7 @@ enum PlayerInstanceNum {
 struct Thing;
 struct PlayerInfo;
 
-typedef long (*InstncInfo_Func)(struct PlayerInfo *player, int32_t *n);
+typedef long (*InstncInfo_Func)(NetUserId user, int32_t *n);
 
 struct PlayerInstanceInfo { // sizeof = 44
   long length_turns;
@@ -91,26 +92,30 @@ struct PlayerInstanceInfo { // sizeof = 44
 /******************************************************************************/
 extern struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT];
 /******************************************************************************/
-void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force);
+void set_player_instance(NetUserId user, long ninum, TbBool force);
 TbBool player_instance_controls_camera(unsigned char inum);
-void process_player_instance(struct PlayerInfo *player);
+void process_player_instance(NetUserId user);
 void process_player_instances(void);
+void player_slap_thing_now(struct PlayerInfo *player, struct Thing *thing);
+TbBool is_local_instance_user(NetUserId user);
 
-void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
-void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-#define set_selected_creature(player,thing) set_selected_creature_f(player, thing, __func__)
-TbBool set_selected_creature_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name);
-#define set_selected_thing(player,thing) set_selected_thing_f(player, thing, __func__)
-TbBool set_selected_thing_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name);
-TbBool clear_selected_thing(struct PlayerInfo *player);
+void leave_creature_as_passenger(NetUserId user, struct Thing *thing);
+void leave_creature_as_controller(NetUserId user, struct Thing *thing);
+#define set_selected_creature(user,thing) set_selected_creature_f(user, thing, __func__)
+TbBool set_selected_creature_f(NetUserId user, struct Thing *thing, const char *func_name);
+#define set_selected_thing(user,thing) set_selected_thing_f(user, thing, __func__)
+TbBool set_selected_thing_f(NetUserId user, struct Thing *thing, const char *func_name);
+TbBool clear_selected_thing(NetUserId user);
 
 TbBool is_thing_directly_controlled(const struct Thing *thing);
+TbBool is_thing_directly_controlled_by_user(NetUserId user, const struct Thing *thing);
+TbBool is_thing_passenger_controlled_by_user(NetUserId user, const struct Thing *thing);
 TbBool is_thing_passenger_controlled(const struct Thing *thing);
 TbBool is_thing_some_way_controlled(const struct Thing *thing);
 TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 
-void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos);
+void set_player_zoom_to_position(NetUserId user,struct Coord3d *pos);
 
 struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind, int slabs_left);
 TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel);

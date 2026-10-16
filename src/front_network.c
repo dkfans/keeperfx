@@ -44,6 +44,7 @@
 #include "player_data.h"
 #include "net_game.h"
 #include "config.h"
+#include "game_saves.h"
 #include "config_sounds.h"
 #include "config_strings.h"
 #include "game_merge.h"
@@ -51,6 +52,8 @@
 #include "net_matchmaking.h"
 #include "net_lan.h"
 #include "config_campaigns.h"
+#include "front_archon.h"
+#include "net_steam.h"
 #include <stddef.h>
 #include <SDL3/SDL.h>
 #include "post_inc.h"
@@ -282,6 +285,9 @@ void process_frontend_chat_message(NetUserId user, const char *message)
     }
     char text[PLAYER_MP_MESSAGE_LEN];
     snprintf(text, sizeof(text), "%s", message);
+    if (archon_process_map_message(user, text)) {
+        return;
+    }
     if (!try_starting_level_from_chat(text, user)) {
         add_message(user, text);
         play_non_3d_sample(snd_chat_message[user == netstate.my_id]);
@@ -712,16 +718,29 @@ void handle_autostart_multiplayer_messaging(void)
     if (autostart_multiplayer_campaign[0] == '\0' && autostart_multiplayer_level <= 0) {
         return;
     }
-    struct PlayerInfo *player = get_my_player();
+    struct UserState *ustate = get_local_user_state();
     const char* camp = "keeporig";
     int level = 1;
     if (autostart_multiplayer_campaign[0]) {
         camp = autostart_multiplayer_campaign;
     }
+    if (archon_requested && (archon_campaign_fname[0] == '\0') && (autostart_multiplayer_campaign[0] != '\0')) {
+        // archon co-op campaign: after each level the session continues on the shared campaign map
+        snprintf(archon_campaign_fname, sizeof(archon_campaign_fname), "%s", autostart_multiplayer_campaign);
+    }
     if (autostart_multiplayer_level > 0) {
         level = autostart_multiplayer_level;
+    } else if (archon_requested && (archon_campaign_fname[0] != '\0')) {
+        // archon co-op campaign without -level: everyone goes to the shared campaign map, where the host's progress decides
+        static TbBool archon_map_autostarted = false;
+        if (!archon_map_autostarted) {
+            archon_map_autostarted = true;
+            archon_host_open_campaign_map();
+        }
+        return;
     }
-    snprintf(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, "%s:%d", camp, level);
+    JUSTLOG("Autostart: campaign %s level %d", camp, level);
+    snprintf(ustate->mp_message_text, PLAYER_MP_MESSAGE_LEN, "%s:%d", camp, level);
     lbInkey = KC_RETURN;
 }
 
@@ -742,6 +761,18 @@ void frontnet_start_update(void)
     }
 
     handle_autostart_multiplayer_messaging();
+
+    static const char *steam_lobby_announced = NULL;
+    if (!network_is_host() || !frontnet_service_selected(FrontendNetSvc_Steam)) {
+        steam_lobby_announced = NULL;
+    } else if (steam_lobby_announced != steam_net_lobby_text()) {
+        // the host reads this to friends who join by hand
+        char notice[NET_MESSAGE_LEN];
+        steam_lobby_announced = steam_net_lobby_text();
+        snprintf(notice, sizeof(notice), "Steam lobby id: %s (copied)", steam_lobby_announced);
+        add_message(SERVER_ID, notice);
+        add_message(SERVER_ID, "Friends can join from the Steam overlay");
+    }
 
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
     {
@@ -842,6 +873,7 @@ void frontnet_service_setup(void)
 
 void frontnet_session_setup(void)
 {
+    archon_flow_reset();
     net_number_of_sessions = 0;
     if (net_player_name[0] == '\0') {
         snprintf(net_player_name, sizeof(net_player_name), "%s", net_config_info.net_player_name);
@@ -859,6 +891,7 @@ void frontnet_session_setup(void)
 
 void frontnet_start_setup(void)
 {
+    archon_flow_reset();
     set_selected_level_number(SINGLEPLAYER_NOTSTARTED);
     previous_active_players = 0;
     memset(net_screen_packet, 0, sizeof(net_screen_packet));
@@ -869,10 +902,9 @@ void frontnet_start_setup(void)
     net_player_scroll_offset = 0;
     net_message_scroll_offset = 0;
     //net_old_number_of_players = 0;
-    for (int i = 0; i < PLAYERS_COUNT; i++)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        struct PlayerInfo* player = get_player(i);
-        player->mp_message_text[0] = '\0';
+        get_user_state(user)->mp_message_text[0] = '\0';
     }
 }
 

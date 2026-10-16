@@ -108,6 +108,7 @@
 #include "lua_triggers.h"
 
 #include "keeperfx.hpp"
+#include "archon_test.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -119,7 +120,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 extern TbBool process_user_global_cheats_packet_action(NetUserId user, struct Packet* pckt);
-extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
+extern TbBool process_players_dungeon_control_cheats_packet_action(NetUserId user, PlayerNumber plyr_idx, struct Packet* pckt);
 /******************************************************************************/
 TbBool unpausing_in_progress = 0;
 /******************************************************************************/
@@ -226,7 +227,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
             if (powerst->overcharge_check_idx == OcC_CallToArms_expand && player_uses_power_call_to_arms(plyr_idx))
                 break;
 
-            while(update_power_overcharge(player, ustate->chosen_power_kind))
+            while(update_power_overcharge(user, ustate->chosen_power_kind))
             {}
 
             return true;
@@ -242,25 +243,25 @@ TbBool process_dungeon_control_packet_spell_overcharge(NetUserId user)
         {
             case OcC_CallToArms_expand:
                 if (player_uses_power_call_to_arms(plyr_idx))
-                    player->cast_expand_level = (dungeon->cta_power_level << 2);
+                    ustate->cast_expand_level = (dungeon->cta_power_level << 2);
                 else
-                    update_power_overcharge(player, ustate->chosen_power_kind);
+                    update_power_overcharge(user, ustate->chosen_power_kind);
                 break;
             case OcC_SightOfEvil_expand:
             case OcC_General_expand:
-                update_power_overcharge(player, ustate->chosen_power_kind);
+                update_power_overcharge(user, ustate->chosen_power_kind);
                 break;
             case OcC_do_not_expand:
             case OcC_Null:
             default:
-                player->cast_expand_level++;
+                ustate->cast_expand_level++;
                 break;
         }
         return true;
     }
     if ((pckt->control_flags & PCtr_LBtnRelease) == 0)
     {
-        player->cast_expand_level = 0;
+        ustate->cast_expand_level = 0;
         return false;
     }
     return false;
@@ -333,20 +334,23 @@ void process_pause_packet(long curr_pause, long new_pause)
 {
   struct PlayerInfo *player;
   TbBool can = true;
-  for (long i = 0; i < PLAYERS_COUNT; i++)
+  for (NetUserId user = 0; user < MAX_NET_USERS; user++)
   {
-    player = get_player(i);
+    const struct UserState *ustate = get_user_state(user);
+    if (ustate->player_id == PLAYER_NONE)
+      continue;
+    player = get_player(ustate->player_id);
     if (is_active_keeper(player))
     {
         if ((player->allocflags & PlaF_CompCtrl) == 0)
         {
-            if ((player->instance_num == PI_MapFadeTo)
-             || (player->instance_num == PI_MapFadeFrom)
-             || (player->instance_num == PI_CrCtrlFade)
-             || (player->instance_num == PI_DirctCtrl)
-             || (player->instance_num == PI_PsngrCtrl)
-             || (player->instance_num == PI_DirctCtLeave)
-             || (player->instance_num == PI_PsngrCtLeave))
+            if ((ustate->instance_num == PI_MapFadeTo)
+             || (ustate->instance_num == PI_MapFadeFrom)
+             || (ustate->instance_num == PI_CrCtrlFade)
+             || (ustate->instance_num == PI_DirctCtrl)
+             || (ustate->instance_num == PI_PsngrCtrl)
+             || (ustate->instance_num == PI_DirctCtLeave)
+             || (ustate->instance_num == PI_PsngrCtLeave))
             {
               can = false;
               break;
@@ -581,8 +585,8 @@ static void process_dungeon_camera_controls(const struct PlayerInfo *player, str
     MapCoord x;
     MapCoord y;
     // Iso and front share a position; any other camera's position isn't the dungeon camera's.
-    if (is_dungeon_camera_index(packet_camera_context(pckt)) && is_dungeon_camera_index(get_player_active_camera_index(player))
-     && !player_instance_controls_camera(player->instance_num) && packet_get_camera_position(pckt, &x, &y))
+    if (is_dungeon_camera_index(packet_camera_context(pckt)) && is_dungeon_camera_index(get_user_active_camera_index(ustate))
+     && !player_instance_controls_camera(ustate->instance_num) && packet_get_camera_position(pckt, &x, &y))
         set_view_position(&dcam->x, &dcam->y, x, y);
     if (!front_view)
     {
@@ -726,7 +730,7 @@ static TbBool process_local_packet_action(struct PlayerInfo *player, struct User
     case PckA_PlyrMsgClear:
         ustate->init_flags &= ~UsrIF_NewMPMessage;
         LbStopTextInput();
-        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+        memset(ustate->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         return false;
     case PckA_SwitchScrnRes:
         if (local_action) {
@@ -948,62 +952,62 @@ TbBool process_user_global_packet_action(NetUserId user)
       return 1;
   case PckA_ZoomToEvent:
       if (ustate->work_state == PSt_CreatrInfo)
-        turn_off_query(plyr_idx);
-      event_move_player_towards_event(player, pckt->actn_par1);
+        turn_off_query(user);
+      event_move_player_towards_event(user, pckt->actn_par1);
       return 0;
   case PckA_ZoomToRoom:
   {
-      if (player->instance_num == PI_ZoomToPos) {
+      if (get_user_state(user)->instance_num == PI_ZoomToPos) {
           return 0;
       }
       if (ustate->work_state == PSt_CreatrInfo)
-          turn_off_query(plyr_idx);
+          turn_off_query(user);
       struct Room* room = room_get(pckt->actn_par1);
-      player->zoom_to_pos_x = subtile_coord_center(room->central_stl_x);
-      player->zoom_to_pos_y = subtile_coord_center(room->central_stl_y);
-      set_player_instance(player, PI_ZoomToPos, 0);
+      get_user_state(user)->zoom_to_pos_x = subtile_coord_center(room->central_stl_x);
+      get_user_state(user)->zoom_to_pos_y = subtile_coord_center(room->central_stl_y);
+      set_player_instance(user, PI_ZoomToPos, 0);
       if (ustate->work_state == PSt_BuildRoom) {
           set_user_work_state(user, PSt_BuildRoom, room->kind);
       }
       return 0;
   }
   case PckA_ZoomToTrap:
-      if (player->instance_num == PI_ZoomToPos) {
+      if (get_user_state(user)->instance_num == PI_ZoomToPos) {
           return 0;
       }
       if (ustate->work_state == PSt_CreatrInfo)
-        turn_off_query(plyr_idx);
+        turn_off_query(user);
       thing = thing_get(pckt->actn_par1);
-      player->zoom_to_pos_x = thing->mappos.x.val;
-      player->zoom_to_pos_y = thing->mappos.y.val;
-      set_player_instance(player, PI_ZoomToPos, 0);
+      get_user_state(user)->zoom_to_pos_x = thing->mappos.x.val;
+      get_user_state(user)->zoom_to_pos_y = thing->mappos.y.val;
+      set_player_instance(user, PI_ZoomToPos, 0);
       if ((ustate->work_state == PSt_PlaceTrap) || (ustate->work_state == PSt_PlaceDoor)) {
           set_user_work_state(user, PSt_PlaceTrap, thing->model);
       }
       return 0;
   case PckA_ZoomToDoor:
-      if (player->instance_num == PI_ZoomToPos) {
+      if (get_user_state(user)->instance_num == PI_ZoomToPos) {
           return 0;
       }
       if (ustate->work_state == PSt_CreatrInfo)
-        turn_off_query(plyr_idx);
+        turn_off_query(user);
       thing = thing_get(pckt->actn_par1);
-      player->zoom_to_pos_x = thing->mappos.x.val;
-      player->zoom_to_pos_y = thing->mappos.y.val;
-      set_player_instance(player, PI_ZoomToPos, 0);
+      get_user_state(user)->zoom_to_pos_x = thing->mappos.x.val;
+      get_user_state(user)->zoom_to_pos_y = thing->mappos.y.val;
+      set_player_instance(user, PI_ZoomToPos, 0);
       if ((ustate->work_state == PSt_PlaceTrap) || (ustate->work_state == PSt_PlaceDoor)) {
           set_user_work_state(user, PSt_PlaceDoor, thing->model);
       }
       return 0;
   case PckA_ZoomToPosition:
-      if (player->instance_num == PI_ZoomToPos) {
+      if (get_user_state(user)->instance_num == PI_ZoomToPos) {
           return 0;
       }
       if (ustate->work_state == PSt_CreatrInfo)
-        turn_off_query(plyr_idx);
-      player->zoom_to_pos_x = pckt->actn_par1;
-      player->zoom_to_pos_y = pckt->actn_par2;
-      set_player_instance(player, PI_ZoomToPos, 0);
+        turn_off_query(user);
+      get_user_state(user)->zoom_to_pos_x = pckt->actn_par1;
+      get_user_state(user)->zoom_to_pos_y = pckt->actn_par2;
+      set_player_instance(user, PI_ZoomToPos, 0);
       return 0;
   case PckA_ToggleComputerProcessing:
       game.view_mode_flags ^= GNFldD_ComputerPlayerProcessing;
@@ -1016,7 +1020,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       if ((pckt->control_flags & PCtr_Gui) != 0) {
           magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
       } else {
-          use_power_hand(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, pckt->actn_par1);
+          use_power_hand(user, plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, pckt->actn_par1);
       }
       return 0;
   case PckA_UsePwrHandDrop:
@@ -1040,23 +1044,23 @@ TbBool process_user_global_packet_action(NetUserId user)
       magic_use_available_power_on_level(plyr_idx, PwrK_ARMAGEDDON, 0, PwMod_Default);
       return 0;
   case PckA_TurnOffQuery:
-      turn_off_query(plyr_idx);
+      turn_off_query(user);
       return 0;
   case PckA_ZoomToBattle:
       if (ustate->work_state == PSt_CreatrInfo)
-        turn_off_query(plyr_idx);
-      battle_move_player_towards_battle(player, pckt->actn_par1);
+        turn_off_query(user);
+      battle_move_player_towards_battle(user, pckt->actn_par1);
       return 0;
   case PckA_ZoomToSpell:
       if (ustate->work_state == PSt_CreatrInfo)
-        turn_off_query(plyr_idx);
+        turn_off_query(user);
       {
           struct Coord3d locpos;
           if (find_power_cast_place(plyr_idx, pckt->actn_par1, &locpos))
           {
-              player->zoom_to_pos_x = locpos.x.val;
-              player->zoom_to_pos_y = locpos.y.val;
-              set_player_instance(player, PI_ZoomToPos, 0);
+              get_user_state(user)->zoom_to_pos_x = locpos.x.val;
+              get_user_state(user)->zoom_to_pos_y = locpos.y.val;
+              set_player_instance(user, PI_ZoomToPos, 0);
           }
       }
       if (!power_is_instinctive(pckt->actn_par1))
@@ -1076,7 +1080,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       set_autopilot_type(plyr_idx, pckt->actn_par1);
       return 0;
   case PckA_GoSpectator:
-      level_lost_go_first_person(plyr_idx);
+      level_lost_go_first_person(user);
       return 0;
   case PckA_DumpHeldThingToOldPos:
       dungeon = get_players_num_dungeon(plyr_idx);
@@ -1090,7 +1094,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       turn_off_power_sight_of_evil(plyr_idx);
       return false;
   case PckA_UsePwrOnThing:
-      i = get_power_overcharge_level(player);
+      i = get_power_overcharge_level(ustate);
       directly_cast_spell_on_thing(plyr_idx, pckt->actn_par1, pckt->actn_par2, i);
       return 0;
   case PckA_PlyrToggleAlly:
@@ -1163,7 +1167,7 @@ TbBool process_user_global_packet_action(NetUserId user)
     }
     case PckA_PlyrQueryCreature:
     {
-        query_creature(player, pckt->actn_par1, (pckt->actn_par2 & 0x01) != 0, (pckt->actn_par2 & 0x02) != 0);
+        query_creature(user, pckt->actn_par1, (pckt->actn_par2 & 0x01) != 0, (pckt->actn_par2 & 0x02) != 0);
         return false;
     }
     default:
@@ -1241,15 +1245,13 @@ void process_user_packet(NetUserId user)
 
 void process_user_creature_passenger_packet_action(NetUserId user)
 {
-    const PlayerNumber plyr_idx = get_net_user_player_number(user);
-    struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet(user);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     if (pckt->action == PckA_PasngrCtrlExit)
     {
-        player->influenced_thing_idx = pckt->actn_par1;
-        player->influenced_thing_creation = pckt->actn_par2;
-        set_player_instance(player, PI_PsngrCtLeave, 0);
+        get_user_state(user)->influenced_thing_idx = pckt->actn_par1;
+        get_user_state(user)->influenced_thing_creation = pckt->actn_par2;
+        set_player_instance(user, PI_PsngrCtLeave, 0);
     }
     SYNCDBG(8,"Finished");
 }
@@ -1279,7 +1281,7 @@ TbBool process_user_dungeon_control_packet_action(NetUserId user)
         toggle_computer_player(plyr_idx);
         break;
     default:
-        return process_players_dungeon_control_cheats_packet_action(plyr_idx, pckt);
+        return process_players_dungeon_control_cheats_packet_action(user, plyr_idx, pckt);
     }
     return true;
 }
@@ -1344,12 +1346,10 @@ TbBool can_process_creature_input(struct Thing *thing)
 
 void process_user_creature_control_packet_control(NetUserId user)
 {
-    const PlayerNumber plyr_idx = get_net_user_player_number(user);
     SYNCDBG(6,"Starting");
     struct InstanceInfo *inst_inf;
     long i;
-    struct PlayerInfo* player = get_player(plyr_idx);
-    struct Thing* cctng = thing_get(player->controlled_thing_idx);
+    struct Thing* cctng = thing_get(get_user_state(user)->controlled_thing_idx);
     struct Packet* pckt = get_packet(user);
     struct CreatureControl* ccctrl = creature_control_get_from_thing(cctng);
     ThingIndex target_idx;
@@ -1545,30 +1545,28 @@ void process_user_creature_control_packet_action(NetUserId user)
   const PlayerNumber plyr_idx = get_net_user_player_number(user);
   struct CreatureControl *cctrl;
   struct InstanceInfo *inst_inf;
-  struct PlayerInfo *player;
   struct Thing *thing;
   struct Packet *pckt;
   long i;
-  player = get_player(plyr_idx);
   struct UserState* ustate = get_user_state(user);
   pckt = get_packet(user);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
   {
   case PckA_DirectCtrlExit:
-      player->influenced_thing_idx = pckt->actn_par1;
-      player->influenced_thing_creation = pckt->actn_par2;
-      thing = thing_get(player->controlled_thing_idx);
+      get_user_state(user)->influenced_thing_idx = pckt->actn_par1;
+      get_user_state(user)->influenced_thing_creation = pckt->actn_par2;
+      thing = thing_get(get_user_state(user)->controlled_thing_idx);
       cctrl = creature_control_get_from_thing(thing);
       struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
       if (!thing_is_invalid(dragtng))
       {
           creature_drop_dragged_object(thing, dragtng);
       }
-      set_player_instance(player, PI_DirctCtLeave, 0);
+      set_player_instance(user, PI_DirctCtLeave, 0);
       break;
   case PckA_CtrlCrtrSetInstnc:
-      thing = thing_get(player->controlled_thing_idx);
+      thing = thing_get(get_user_state(user)->controlled_thing_idx);
       if (!thing_exists(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);
@@ -1608,7 +1606,7 @@ void process_user_creature_control_packet_action(NetUserId user)
             {
               i = pckt->actn_par1;
               process_player_use_instance(thing, i, pckt);
-              if (plyr_idx == my_player_number) {
+              if (user == get_local_user()) {
                   instant_instance_selected(i);
               }
             }
@@ -1618,7 +1616,7 @@ void process_user_creature_control_packet_action(NetUserId user)
   case PckA_CheatCtrlCrtrSetInstnc:
       if (!user_cheats_allowed(user))
         break;
-      thing = thing_get(player->controlled_thing_idx);
+      thing = thing_get(get_user_state(user)->controlled_thing_idx);
       if (!thing_exists(thing))
         break;
       cctrl = creature_control_get_from_thing(thing);
@@ -1630,7 +1628,7 @@ void process_user_creature_control_packet_action(NetUserId user)
       break;
       case PckA_DirectCtrlDragDrop:
       {
-         thing = thing_get(player->controlled_thing_idx);
+         thing = thing_get(get_user_state(user)->controlled_thing_idx);
          direct_control_pick_up_or_drop(plyr_idx, thing);
          break;
       }
@@ -1718,6 +1716,7 @@ enum PacketExchangeResult exchange_packets(void)
         }
         set_local_packet_turn();
         update_turn_checksums();
+        archontest_note_checksum(my_packet->turn, my_packet->checksum);
     }
     update_local_dig_tag_prediction();
     if (!replay.load_enable && !spectator) {
@@ -1821,7 +1820,9 @@ void process_packets(void)
         }
         struct PlayerInfo* packet_player = get_player(plyr_idx);
         if (player_exists(packet_player) && ((packet_player->allocflags & PlaF_CompCtrl) == 0)) {
+            set_acting_user(user);
             process_user_packet(user);
+            set_acting_user(-1);
         }
     }
     update_local_dig_prediction_cursor_preview();
@@ -1834,6 +1835,7 @@ void process_packets(void)
         return;
     }
     if (network_is_active() && !network_user_is_spectator(netstate.my_id) && (netstate.resync_pending || (local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0)) {
+        archontest_note_desync(get_gameturn());
         if (netstate.resync_pending || (network_is_host() && resync_game_allowed())) {
             SYNCDBG(0,"Resyncing");
             resync_game();

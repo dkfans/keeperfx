@@ -5,6 +5,8 @@
 #include "bflib_sprite.h"
 #include "engine_render.h"  // resolve_keepersprite_cursor_geometry()
 #include "kfx/renderer/SpriteScale.h"
+#include "kfx/renderer/RendererManager.h"
+#include "bflib_video.h"
 #include "post_inc.h"
 
 void GLCursorLayer::SubmitPointerSprite(const struct TbSprite* spr, int32_t x, int32_t y, int units_per_px)
@@ -35,9 +37,14 @@ void GLCursorLayer::SubmitKeeperHandSprite(short x, short y, unsigned short kspr
     if (!m_world)
         return;
 
+    // a tinted hand (archon partner hands) goes through the palette remap path of the keeper sprites
+    const unsigned char* remap = RendererGetKeeperHandRemap();
+    unsigned int flags = (unsigned int)draw_flags;
+    if (remap != nullptr)
+        flags |= Lb_SPRITE_REMAP;
     m_world->BeginCursorCapture();
     m_world->SubmitKeeperSprite(&sprite_scale, data, src_w, src_h, src_h,
-                                (unsigned int)draw_flags, nullptr, draw_idx);
+                                flags, remap, draw_idx);
     m_world->EndCursorCapture();
 }
 

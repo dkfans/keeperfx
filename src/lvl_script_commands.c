@@ -2124,7 +2124,10 @@ static void lock_possession_process(struct ScriptContext* context)
     struct PlayerInfo *player = get_player(context->player_idx);
     if (player_exists(player))
     {
-        player->possession_lock = context->value->chars[1];
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+            if (get_net_user_player_number(user) == context->player_idx)
+                get_user_state(user)->possession_lock = context->value->chars[1];
+        }
     }
 }
 
@@ -3599,7 +3602,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 4: // EYEEFFECT
         {
             crconf->eye_effect = value;
-            struct Thing* thing = thing_get(get_my_player()->influenced_thing_idx);
+            struct Thing* thing = thing_get(get_local_user_state()->influenced_thing_idx);
             if(thing_exists(thing))
             {
                 if (thing->model == creatid)
@@ -4238,7 +4241,10 @@ static void player_zoom_to_process(struct ScriptContext *context)
     struct Coord3d pos;
 
     find_location_pos(target, context->player_idx, &pos, __func__);
-    set_player_zoom_to_position(get_player(context->player_idx),&pos);
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (get_net_user_player_number(user) == context->player_idx)
+            set_player_zoom_to_position(user,&pos);
+    }
 }
 
 static void level_up_players_creatures_check(const struct ScriptLine* scline)
@@ -5072,9 +5078,7 @@ static void set_power_hand_check(const struct ScriptLine *scline)
 static void set_power_hand_process(struct ScriptContext *context)
 {
     long hand_idx = context->value->shorts[0];
-    struct PlayerInfo * player;
-    player = get_player(context->player_idx);
-    player->hand_idx = hand_idx;
+    set_player_users_hand_idx(context->player_idx, hand_idx);
 }
 
 static void add_effectgen_to_level_check(const struct ScriptLine* scline)

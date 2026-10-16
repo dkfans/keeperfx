@@ -319,6 +319,7 @@ struct Packet *get_packet(NetUserId user);
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4);
 TbBool is_packet_empty(const struct Packet *pckt);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4);
+void set_user_packet_action(NetUserId user, unsigned char pcktype, unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4);
 void request_timestamp_packet(void);
 void set_pending_timestamp_packet_action(struct Packet *pckt);
 void set_packet_control(struct Packet *pckt, unsigned long flag);

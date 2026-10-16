@@ -31,6 +31,7 @@
 #include "creature_control.h"
 #include "thing_creature.h"
 #include "thing_list.h"
+#include "archon_test.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -114,9 +115,9 @@ static TbBigChecksum compute_player_checksum(struct PlayerInfo *player) {
     if ((player->allocflags & PlaF_CompCtrl) != 0) {
         return 0;
     }
+    // Instance and possession state now lives in UserState, see compute_user_checksum
     TbBigChecksum checksum = 0;
-    CHECKSUM_ADD(checksum, player->instance_remain_turns);
-    CHECKSUM_ADD(checksum, player->instance_num);
+    CHECKSUM_ADD(checksum, player->default_hand_idx);
     return checksum;
 }
 
@@ -126,12 +127,36 @@ static TbBigChecksum compute_user_checksum(NetUserId user) {
         return 0;
     }
     struct PlayerInfo *player = get_player(ustate->player_id);
-    if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0) || (player->victory_state != VicS_Undecided)) {
+    if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
         return 0;
     }
     TbBigChecksum checksum = 0;
+    CHECKSUM_ADD(checksum, ustate->view_type);
+    CHECKSUM_ADD(checksum, ustate->work_state);
+    CHECKSUM_ADD(checksum, ustate->continue_work_state);
+    CHECKSUM_ADD(checksum, ustate->instance_remain_turns);
+    CHECKSUM_ADD(checksum, ustate->instance_num);
+    CHECKSUM_ADD(checksum, ustate->controlled_thing_idx);
+    CHECKSUM_ADD(checksum, ustate->controlled_thing_creatrn);
+    CHECKSUM_ADD(checksum, ustate->possession_lock);
+    CHECKSUM_ADD(checksum, ustate->influenced_thing_idx);
+    CHECKSUM_ADD(checksum, ustate->influenced_thing_creation);
+    CHECKSUM_ADD(checksum, ustate->zoom_to_pos_x);
+    CHECKSUM_ADD(checksum, ustate->zoom_to_pos_y);
+    if (player->victory_state != VicS_Undecided) {
+        return checksum;
+    }
     CHECKSUM_ADD(checksum, ustate->dungeon_camera.x);
     CHECKSUM_ADD(checksum, ustate->dungeon_camera.y);
+    CHECKSUM_ADD(checksum, ustate->roomspace.is_active);
+    CHECKSUM_ADD(checksum, ustate->roomspace.buildx);
+    CHECKSUM_ADD(checksum, ustate->roomspace.buildy);
+    CHECKSUM_ADD(checksum, ustate->roomspace.rkind);
+    CHECKSUM_ADD(checksum, ustate->hand_busy_until_turn);
+    CHECKSUM_ADD(checksum, ustate->hand_idx);
+    CHECKSUM_ADD(checksum, ustate->hand_thing_idx);
+    CHECKSUM_ADD(checksum, ustate->thing_under_hand);
+    CHECKSUM_ADD(checksum, ustate->cast_expand_level);
     return checksum;
 }
 
@@ -257,6 +282,9 @@ short checksums_different(void)
             mismatch = true;
         }
     }
+    if (mismatch) {
+        archontest_note_desync(desync_turn);
+    }
     return mismatch;
 }
 
@@ -355,8 +383,6 @@ void update_turn_checksums(void) {
             }
             struct LogPlayerDesyncInfo* player_snapshot = &snapshot_info->players[snapshot_info->player_count++];
             player_snapshot->id = i;
-            player_snapshot->instance_num = player->instance_num;
-            player_snapshot->instance_remain_turns = player->instance_remain_turns;
             player_snapshot->checksum = compute_player_checksum(player);
         }
         for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
@@ -370,6 +396,14 @@ void update_turn_checksums(void) {
             memset(&user_snapshot->mappos, 0, sizeof(user_snapshot->mappos));
             user_snapshot->mappos.x.val = ustate->dungeon_camera.x;
             user_snapshot->mappos.y.val = ustate->dungeon_camera.y;
+            user_snapshot->instance_num = ustate->instance_num;
+            user_snapshot->instance_remain_turns = ustate->instance_remain_turns;
+            user_snapshot->controlled_thing_idx = ustate->controlled_thing_idx;
+            user_snapshot->view_type = ustate->view_type;
+            user_snapshot->work_state = ustate->work_state;
+            user_snapshot->continue_work_state = ustate->continue_work_state;
+            user_snapshot->hand_thing_idx = ustate->hand_thing_idx;
+            user_snapshot->thing_under_hand = ustate->thing_under_hand;
             user_snapshot->checksum = compute_user_checksum(user);
         }
         for (struct Room* room = start_rooms; room < end_rooms; room++) {
@@ -544,6 +578,10 @@ static void log_thing_differences(struct LogDetailedSnapshot* client, const char
 }
 
 void compare_desync_history_from_host(void) {
+    // Only the host detects the mismatch; a client compares at the turn of the host's snapshot
+    if (find_snapshot(desync_turn) == NULL) {
+        desync_turn = game.host_checksums.game_turn;
+    }
     struct ChecksumSnapshot* snapshot = find_snapshot(desync_turn);
     if (snapshot == NULL) {
         ERRORLOG("=== DESYNC: No client snapshot for turn %u ===", desync_turn);
@@ -574,9 +612,8 @@ void compare_desync_history_from_host(void) {
             if (host_player == NULL) {
                 ERRORLOG("    Player[%d] missing from host", client_player->id);
             } else if (client_player->checksum != host_player->checksum) {
-                ERRORLOG("    Player[%d] instance_num: Host=%u Client=%u, instance_remain_turns: Host=%lu Client=%lu", client_player->id,
-                    (unsigned)host_player->instance_num, (unsigned)client_player->instance_num,
-                    (unsigned long)host_player->instance_remain_turns, (unsigned long)client_player->instance_remain_turns);
+                ERRORLOG("    Player[%d] checksum: Host=%lu Client=%lu", client_player->id,
+                    (unsigned long)host_player->checksum, (unsigned long)client_player->checksum);
             }
         }
     }
@@ -597,6 +634,16 @@ void compare_desync_history_from_host(void) {
                     (int)host_user->player_id, (int)client_user->player_id,
                     (long)host_user->mappos.x.val, (long)host_user->mappos.y.val, (long)host_user->mappos.z.val,
                     (long)client_user->mappos.x.val, (long)client_user->mappos.y.val, (long)client_user->mappos.z.val);
+                ERRORLOG("    User[%d] instance_num: Host=%u Client=%u, instance_remain_turns: Host=%lu Client=%lu, controlled_thing_idx: Host=%d Client=%d", (int)client_user->user,
+                    (unsigned)host_user->instance_num, (unsigned)client_user->instance_num,
+                    (unsigned long)host_user->instance_remain_turns, (unsigned long)client_user->instance_remain_turns,
+                    (int)host_user->controlled_thing_idx, (int)client_user->controlled_thing_idx);
+                ERRORLOG("    User[%d] view_type: Host=%u Client=%u, work_state: Host=%d Client=%d, continue_work_state: Host=%d Client=%d, hand_thing_idx: Host=%d Client=%d, thing_under_hand: Host=%d Client=%d", (int)client_user->user,
+                    (unsigned)host_user->view_type, (unsigned)client_user->view_type,
+                    host_user->work_state, client_user->work_state,
+                    host_user->continue_work_state, client_user->continue_work_state,
+                    (int)host_user->hand_thing_idx, (int)client_user->hand_thing_idx,
+                    (int)host_user->thing_under_hand, (int)client_user->thing_under_hand);
             }
         }
     }

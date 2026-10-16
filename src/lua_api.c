@@ -1900,8 +1900,7 @@ static int lua_Set_hand_graphic(lua_State *L)
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
     long hand_idx = luaL_checkNamedCommand(L,2,powerhand_desc);
 
-    struct PlayerInfo * player = get_player(player_idx);
-    player->hand_idx = hand_idx;
+    set_player_users_hand_idx(player_idx, hand_idx);
     return 0;
 }
 
@@ -1912,7 +1911,10 @@ static int lua_Zoom_to_location(lua_State *L)
     struct Coord3d pos;
 
     find_location_pos(location, player_idx, &pos, __func__);
-    set_player_zoom_to_position(get_player(player_idx),&pos);
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (get_net_user_player_number(user) == player_idx)
+            set_player_zoom_to_position(user,&pos);
+    }
 
     return 0;
 }
@@ -1928,7 +1930,10 @@ static int lua_Lock_possession(lua_State *L)
         player = get_player(i);
         if (player_exists(player))
         {
-            player->possession_lock = locked;
+            for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+                if (get_net_user_player_number(user) == i)
+                    get_user_state(user)->possession_lock = locked;
+            }
         }
     }
 

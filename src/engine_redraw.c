@@ -436,14 +436,13 @@ static int32_t my_map_fade_turns(void)
 
 static float map_fade_progress(void)
 {
-    struct PlayerInfo* player = get_my_player();
     const float turns = (float)(my_map_fade_turns() - 1);
     if (turns <= 0.0f)
         return 1.0f;
     float frac = is_feature_on(Ft_DeltaTime) ? (float)local_state.process_turn_time : 0.0f;
     if (frac < 0.0f) frac = 0.0f;
     if (frac > 1.0f) frac = 1.0f;
-    float progress = (turns - (float)player->instance_remain_turns + frac) / turns;
+    float progress = (turns - (float)get_local_user_state()->instance_remain_turns + frac) / turns;
     if (progress < 0.0f) progress = 0.0f;
     if (progress > 1.0f) progress = 1.0f;
     return progress;
@@ -571,7 +570,7 @@ void redraw_creature_view(void)
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     update_explored_flags_for_viewed_power_sights(player);
-    struct Thing* thing = thing_get(get_displayed_player()->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
     TRACE_THING(thing);
     if (thing_exists(thing))
       draw_creature_view(thing);
@@ -690,10 +689,11 @@ static TbBool draw_spell_cursor(const struct PlayerInfo *player, PowerKind pwkin
         set_pointer_graphic(MousePG_DenyMark);
         return false;
     }
-    unsigned char (*chkfunc)(const struct PlayerInfo *) = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
+    unsigned char (*chkfunc)(const struct UserState *) = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
     if (chkfunc != NULL) {
-        if (chkfunc(player)) {
-            i = get_power_overcharge_level(player);
+        const struct UserState *pwr_ustate = get_local_user_state();
+        if (chkfunc(pwr_ustate)) {
+            i = get_power_overcharge_level(pwr_ustate);
             set_pointer_graphic(MousePG_SpellCharge0+i);
             draw_spell_cost = compute_power_price(player->id_number, pwkind, i);
 
@@ -728,7 +728,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
         return;
     }
     // During fade
-    if (player->instance_num == PI_MapFadeFrom) {
+    if (get_local_user_state()->instance_num == PI_MapFadeFrom) {
         set_pointer_graphic(MousePG_Invisible);
         return;
     }
@@ -775,7 +775,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
           i = ustate->secondary_cursor_state;
         else
           i = ustate->primary_cursor_state;
-        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || power_hand_is_hovering(player) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
+        if ((get_local_user_state()->instance_num == PI_Grab) || (get_local_user_state()->instance_num == PI_Drop) || (get_local_user_state()->instance_num == PI_Whip) || (get_local_user_state()->instance_num == PI_WhipEnd) || power_hand_is_hovering(player) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
             i = CSt_PowerHand;
         } else
         if ((i == CSt_PowerHand) && power_hand_is_empty(player)) {
@@ -831,7 +831,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
             }
             break;
         default:
-            if (player->hand_busy_until_turn <= get_gameturn())
+            if (get_local_user_state()->hand_busy_until_turn <= get_gameturn())
               set_pointer_graphic(MousePG_Arrow);
             else
               set_pointer_graphic(MousePG_Invisible);
@@ -882,7 +882,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
         set_pointer_graphic(MousePG_MkCreature);
         break;
     case PsPg_OrderCreatr: {
-        struct Thing* creatng = thing_get(player->controlled_thing_idx);
+        struct Thing* creatng = thing_get(get_local_user_state()->controlled_thing_idx);
         i = MousePG_Arrow;
         if (thing_is_creature(creatng)) {
             i = MousePG_MvCreature;
@@ -900,7 +900,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
 void process_pointer_graphic(void)
 {
     struct PlayerInfo* player = get_my_player();
-    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(get_player_user_state(player)->work_state),(int)player->instance_num);
+    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(get_player_user_state(player)->work_state),(int)get_local_user_state()->instance_num);
     switch (get_local_view_type(player)) {
     case PVT_DungeonTop:
         // This case is complicated
@@ -949,13 +949,13 @@ void redraw_display(void)
     } else {
         lens_mode = 0;
     }
-    const TbBool map_fading = ((player->instance_num == PI_MapFadeTo) || (player->instance_num == PI_MapFadeFrom))
+    const TbBool map_fading = ((get_local_user_state()->instance_num == PI_MapFadeTo) || (get_local_user_state()->instance_num == PI_MapFadeFrom))
         && !is_observer_camera_active();
     if (!map_fading)
         local_state.map_fade_prepared = false;
     if (map_fading) {
         parchment_loaded = 0;
-        draw_map_fade(player->instance_num == PI_MapFadeTo);
+        draw_map_fade(get_local_user_state()->instance_num == PI_MapFadeTo);
     } else
     if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr))
     {
@@ -980,8 +980,9 @@ void redraw_display(void)
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((get_local_user_state()->init_flags & UsrIF_NewMPMessage) != 0)
     {
-        char text[sizeof(player->mp_message_text) + 4];
-        snprintf(text, sizeof(text), ">%s_", player->mp_message_text);
+        const struct UserState *chat_ustate = get_local_user_state();
+        char text[sizeof(chat_ustate->mp_message_text) + 4];
+        snprintf(text, sizeof(text), ">%s_", chat_ustate->mp_message_text);
         int chat_units_per_px = font_size_units_per_px(chat_font_size);
         int chat_line_spacing = chat_units_per_px * CHAT_LINE_SPACING_PERCENT / 100;
         long pos_x = 148*units_per_pixel/16;

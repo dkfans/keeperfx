@@ -376,6 +376,8 @@ void setup_default_settings(void)
     settings.gamma_correction              = 0;
     settings.switching_vidmodes_index      = Lb_SCREEN_MODE_INVALID;
     settings.tooltips_on                   = true;
+    settings.show_partner_hand             = true;
+    settings.hand_colour                   = 0;
     settings.first_person_move_invert      = 0;
     settings.first_person_move_sensitivity = 6;
     settings.minimap_zoom                  = 256;
@@ -460,6 +462,13 @@ TbBool load_settings(void)
         if (val && value_type(val) == VALUE_INT32) settings.isometric_tilt = value_int32(val);
         val = value_dict_get(vsec, "tooltips_on");
         if (val) settings.tooltips_on = (TbBool)value_coerce_bool(val);
+        val = value_dict_get(vsec, "show_partner_hand");
+        if (val) settings.show_partner_hand = (TbBool)value_coerce_bool(val);
+        val = value_dict_get(vsec, "hand_colour");
+        if (val && value_type(val) == VALUE_INT32) {
+            const int32_t colour = value_int32(val);
+            settings.hand_colour = ((colour >= 0) && (colour <= 8)) ? (unsigned char)colour : 0;
+        }
         val = value_dict_get(vsec, "highlight_mode");
         if (val) settings.highlight_mode = (TbBool)value_coerce_bool(val);
     }
@@ -556,6 +565,8 @@ short save_settings(void)
     TOSAVE("frontview_zoom_level = %lu\n", settings.frontview_zoom_level);
     TOSAVE("isometric_tilt = %d\n", settings.isometric_tilt);
     TOSAVE("tooltips_on = %s\n", settings.tooltips_on ? "true" : "false");
+    TOSAVE("show_partner_hand = %s\n", settings.show_partner_hand ? "true" : "false");
+    TOSAVE("hand_colour = %d\n", (int)settings.hand_colour);
     TOSAVE("highlight_mode = %s\n", settings.highlight_mode ? "true" : "false");
     TOSAVE("\n[gameplay]\n");
     TOSAVE("first_person_move_invert = %d\n", (int)settings.first_person_move_invert);

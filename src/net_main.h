@@ -39,6 +39,8 @@ extern "C" {
 
 #define MIN_NET_USERS 2
 #define MAX_NET_USERS 4
+/** Cosmetic hand colours (archon co-op partner hands). Wire/storage value: 0 = automatic (by user slot), 1..HAND_COLOUR_COUNT = palette entry + 1. */
+#define HAND_COLOUR_COUNT 8
 #define MAX_NET_SPECTATORS 50
 #define MAX_NET_CONNECTIONS (MAX_NET_USERS + MAX_NET_SPECTATORS)
 #define SPECTATOR_CONNECT_DATA 0x53504543
@@ -128,6 +130,7 @@ struct NetUser {
     uint32_t connected_at;
     enum NetSpectatorState spectator_state;
     uint8_t spectator_icon;
+    uint8_t hand_colour; /**< cosmetic only (read by the renderer and lobby, never by the simulation or its checksums); 0 = automatic */
 };
 
 struct NetFrame {
@@ -168,6 +171,7 @@ struct ServiceInitData {
 
 enum TbNetworkService {
     NS_ENET_UDP,
+    NS_STEAM,
 };
 
 extern struct NetState netstate;
@@ -193,6 +197,8 @@ char *begin_net_message(enum NetMessageType msg_type);
 void send_message_buffer(NetUserId dest, const char *end_ptr);
 void send_remote_buffer(const char *end_ptr);
 void SendUserUpdate(NetUserId dest, NetUserId updated_user);
+/** The hand colour choice of this machine (settings), in the wire encoding: 0 automatic, 1..HAND_COLOUR_COUNT. */
+uint8_t net_local_hand_colour(void);
 
 #ifdef __cplusplus
 }

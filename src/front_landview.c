@@ -106,6 +106,7 @@ static struct LandViewTextBox landview_textbox;
 #endif
 /******************************************************************************/
 static LevelNumber landview_textbox_lvnum;
+const char* get_level_description(struct LevelInformation *lvinfo);
 
 static void make_palette_remap(unsigned char *remap, const unsigned char *source_palette, const unsigned char *destination_palette)
 {
@@ -1096,6 +1097,66 @@ static void landview_textbox_setup(void){
     landview_textbox_set_gui_remap(&landview_textbox, landview_gui_remap);
     landview_textbox_set_glass_map(&landview_textbox, landview_glass_map);
     landview_textbox_lvnum = SINGLEPLAYER_NOTSTARTED;
+}
+
+/**
+ * Prepares the land view text box for level briefings on a land view other than the campaign's own.
+ * Must be called after the land map palette was loaded.
+ */
+void frontmap_briefing_setup(void)
+{
+    if (winfont == NULL)
+        winfont = load_font("data/font2-64.dat", "data/font2-64.tab");
+    landview_textbox_setup();
+}
+
+/**
+ * Shows the briefing of a level in the land view text box: its name and, if the campaign has one, its description.
+ */
+void frontmap_briefing_show(LevelNumber lvnum)
+{
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
+    if (lvinfo == NULL)
+    {
+        frontmap_briefing_hide();
+        return;
+    }
+    landview_textbox_lvnum = lvnum;
+    const char* lv_name = get_level_description(lvinfo);
+    const TextStringId lv_intro_desc_id = get_string_id_by_alias(lvinfo->intro_desc_id);
+    char text[2048];
+    if (lv_intro_desc_id >= 0)
+        snprintf(text, sizeof(text), "%s\n\n%s", lv_name, get_string(lv_intro_desc_id));
+    else
+        snprintf(text, sizeof(text), "%s", lv_name);
+    landview_set_text(text);
+    // the campaign's description box layout is only made for campaigns which show their descriptions
+    const struct LevelDescriptionGeo *geo = (lvinfo->level_description_geo != NULL) ? lvinfo->level_description_geo : campaign.level_description_geo;
+    if ((geo != NULL) && campaign.show_level_description)
+        landview_textbox_set_geometry(&landview_textbox, geo->pos_x, geo->pos_y, geo->width, geo->height);
+    else // top left, where the land view window frame leaves the picture open
+        landview_textbox_set_geometry(&landview_textbox, 16, 16, 440, 100);
+}
+
+void frontmap_briefing_hide(void)
+{
+    landview_textbox_lvnum = SINGLEPLAYER_NOTSTARTED;
+    landview_textbox_hide(&landview_textbox);
+}
+
+void frontmap_briefing_draw(void)
+{
+    landview_textbox_draw(&landview_textbox);
+}
+
+LevelNumber frontmap_briefing_level(void)
+{
+    return landview_textbox.active ? landview_textbox_lvnum : SINGLEPLAYER_NOTSTARTED;
+}
+
+TbBool frontmap_briefing_input(void)
+{
+    return landview_textbox_input(&landview_textbox);
 }
 
 TbBool frontmap_load(void)

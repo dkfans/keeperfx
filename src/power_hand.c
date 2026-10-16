@@ -67,6 +67,17 @@
 #include "keeperfx.hpp"
 #include "local_camera.h"
 #include "observer.h"
+#include "net_game.h"
+#include "bflib_sprfnt.h"
+#include "engine_render.h"
+#include "packets.h"
+#include "config_settings.h"
+#include "front_simple.h"
+#include "vidfade.h"
+#include "bflib_video.h"
+#include "net_main.h"
+#include "gui_msgs.h"
+#include "frontmenu_ingame_evnt.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -339,20 +350,19 @@ void set_power_hand_graphic(NetUserId user, long HandAnimationID)
         // (computer keepers have no hand animation)
         return;
     }
-    struct PlayerInfo *player = get_user_player(user);
-    if (player->hand_busy_until_turn >= get_gameturn())
+    if (ustate->hand_busy_until_turn >= get_gameturn())
     {
         if ((HandAnimationID == HndA_Slap) || (HandAnimationID == HndA_SideSlap))
-          player->hand_busy_until_turn = 0;
+          ustate->hand_busy_until_turn = 0;
     }
-    if (player->hand_busy_until_turn < get_gameturn())
+    if (ustate->hand_busy_until_turn < get_gameturn())
     {
         if ((ustate->hand_animationId != HandAnimationID) || (HandAnimationID == HndA_Pickup))
         {
             ustate->hand_animationId = HandAnimationID;
             struct Thing *thing = thing_get(ustate->hand_thing_idx);
-            short anim_idx   = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
-            short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
+            short anim_idx   = game.conf.power_hand_conf.pwrhnd_cfg_stats[ustate->hand_idx].anim_idx[HandAnimationID];
+            short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[ustate->hand_idx].anim_speed[HandAnimationID];
             if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
             {
                 set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
@@ -548,76 +558,23 @@ void remove_thing_from_limbo(struct Thing *thing)
     place_thing_in_mapwho(thing);
 }
 
-void draw_power_hand(void)
+/** Draws one user's hand (its pose, the creature or object it holds) with the hand sprite's tip at the given screen position.
+ *  Rendering only: reads the synced user state and the keeper's shared hand contents, changes nothing in the game state. */
+static void draw_user_hand(const struct PlayerInfo *player, const struct UserState *ustate, TbBool hover_hand, int32_t cursor_x, int32_t cursor_y, unsigned short base_flags, TbBool always_show)
 {
-    SYNCDBG(17,"Starting");
-    const struct PlayerInfo *player = get_displayed_player();
     struct PickedUpOffset *pickoffs;
     struct Thing *thing;
     struct Thing *picktng;
-    struct Room *room;
-    struct RoomConfigStats* roomst;
-    const struct UserState *ustate = get_player_user_state(player);
-    int32_t cursor_x;
-    int32_t cursor_y;
-    if (!get_gameplay_cursor_position(&cursor_x, &cursor_y)) {
-        return;
-    }
-    if (local_state.display_needs_update)
-        return;
-    if (game.small_map_state == 2)
-        return;
-    if (is_observer_camera_active())
-        return;
-    RendererSetDrawFlags(observer_watched_cursor_draw_flags());
-    if (get_player_view_type(player) != PVT_DungeonTop)
-        return;
-    // Color rendering array pointers used by draw_keepersprite()
-    render_fade_tables = pixmap.fade_tables;
-    render_ghost = pixmap.ghost;
-    render_alpha = (unsigned char *)&alpha_sprite_table;
-    // Scale factor
-    int ps_units_per_px;
-    {
-        const struct TbSprite *spr = get_panel_sprite(GPS_trapdoor_bonus_box_std_s); // Use dungeon special box as reference
-        ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
-    }
-    // Now draw
-    if (is_my_player(player) && local_state.show_gui && game.small_map_state != 2
-     && mouse_is_over_panel_map(local_state.minimap_pos_x, local_state.minimap_pos_y)) {
-        MapSubtlCoord stl_x;
-        MapSubtlCoord stl_y;
-        stl_x = game.hand_over_subtile_x;
-        stl_y = game.hand_over_subtile_y;
-        SYNCDBG(7,"Drawing over pannel map");
-        room = subtile_room_get(stl_x,stl_y);
-        if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
-        {
-            roomst = get_room_kind_stats(room->kind);
-
-            draw_gui_panel_sprite_centered(cursor_x+scale_ui_value(24*global_hand_scale), cursor_y+scale_ui_value(32*global_hand_scale), ps_units_per_px, roomst->medsym_sprite_idx, 0);
-        }
-        if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
-        {
-            draw_mini_things_in_hand(cursor_x+scale_ui_value(10*global_hand_scale), cursor_y+scale_ui_value(10*global_hand_scale));
-        }
-        return;
-    }
-    if (gameplay_cursor_is_over_gui()) {
-        SYNCDBG(7,"Drawing while GUI busy");
-        draw_mini_things_in_hand(cursor_x+scale_ui_value(10*global_hand_scale), cursor_y+scale_ui_value(10*global_hand_scale));
-        return;
-    }
-    TbBool hover_hand = power_hand_is_hovering(player);
     thing = thing_get(ustate->hand_thing_idx);
     if (!thing_exists(thing)) {
-        if (hover_hand && ustate->work_state == PSt_CtrlDungeon) {
+        // always_show (a partner's hand): the own hand idles as the mouse arrow, which is not a hand sprite, so a partner's idle hand is drawn as the open hand
+        if ((hover_hand && ustate->work_state == PSt_CtrlDungeon) || always_show) {
             RendererSubmitKeeperHandSprite(cursor_x+scale_ui_value(60*global_hand_scale), cursor_y+scale_ui_value(40*global_hand_scale),
-                  game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HndA_Hover], 0, 0, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags());
+                  game.conf.power_hand_conf.pwrhnd_cfg_stats[ustate->hand_idx].anim_idx[HndA_Hover], 0, 0, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags());
         }
         return;
     }
-    if (player->hand_busy_until_turn > get_gameturn())
+    if (ustate->hand_busy_until_turn > get_gameturn())
     {
         SYNCDBG(7,"Drawing hand %s index %d, busy state", thing_model_name(thing), (int)thing->index);
         RendererSubmitKeeperHandSprite(cursor_x+scale_ui_value(60*global_hand_scale), cursor_y+scale_ui_value(40*global_hand_scale),
@@ -638,7 +595,7 @@ void draw_power_hand(void)
       }
       if ((ustate->work_state != PSt_CtrlDungeon) || !draw_hand)
       {
-        if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop) && (player->instance_num != PI_Whip) && (player->instance_num != PI_WhipEnd))
+        if ((ustate->instance_num != PI_Grab) && (ustate->instance_num != PI_Drop) && (ustate->instance_num != PI_Whip) && (ustate->instance_num != PI_WhipEnd))
         {
           if (ustate->work_state == PSt_Slap)
           {
@@ -650,7 +607,15 @@ void draw_power_hand(void)
             if ((ustate->secondary_cursor_state == CSt_DoorKey) || (ustate->primary_cursor_state == CSt_DoorKey))
             {
               draw_mini_things_in_hand(cursor_x+scale_ui_value(18*global_hand_scale), cursor_y);
+            } else if (always_show)
+            {
+              RendererSubmitKeeperHandSprite(cursor_x+scale_ui_value(60*global_hand_scale), cursor_y+scale_ui_value(40*global_hand_scale),
+                    game.conf.power_hand_conf.pwrhnd_cfg_stats[ustate->hand_idx].anim_idx[HndA_Hover], 0, 0, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags());
             }
+          } else if (always_show)
+          {
+            RendererSubmitKeeperHandSprite(cursor_x+scale_ui_value(60*global_hand_scale), cursor_y+scale_ui_value(40*global_hand_scale),
+                  game.conf.power_hand_conf.pwrhnd_cfg_stats[ustate->hand_idx].anim_idx[HndA_Hover], 0, 0, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags());
           }
           return;
         }
@@ -690,7 +655,7 @@ void draw_power_hand(void)
 
                 RendererSubmitKeeperHandSprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
                         picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags());
-                RendererSetDrawFlags(observer_watched_cursor_draw_flags());
+                RendererSetDrawFlags(base_flags);
                 EngineSpriteDrawUsingAlpha = 0;
             } else
             {
@@ -744,6 +709,339 @@ void draw_power_hand(void)
         RendererSubmitKeeperHandSprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
                 thing->anim_sprite, 0, thing->current_frame, scale_ui_value(64*global_hand_scale), RendererGetDrawFlags());
         draw_mini_things_in_hand(cursor_x+scale_ui_value(60*global_hand_scale), cursor_y);
+    }
+}
+
+
+void draw_power_hand(void)
+{
+    SYNCDBG(17,"Starting");
+    const struct PlayerInfo *player = get_displayed_player();
+    struct Room *room;
+    struct RoomConfigStats* roomst;
+    const struct UserState *ustate = get_player_local_user_state(player);
+    int32_t cursor_x;
+    int32_t cursor_y;
+    if (!get_gameplay_cursor_position(&cursor_x, &cursor_y)) {
+        return;
+    }
+    if (local_state.display_needs_update)
+        return;
+    if (game.small_map_state == 2)
+        return;
+    if (is_observer_camera_active())
+        return;
+    RendererSetDrawFlags(observer_watched_cursor_draw_flags());
+    if (get_player_local_view_type(player) != PVT_DungeonTop)
+        return;
+    // Color rendering array pointers used by draw_keepersprite()
+    render_fade_tables = pixmap.fade_tables;
+    render_ghost = pixmap.ghost;
+    render_alpha = (unsigned char *)&alpha_sprite_table;
+    // Scale factor
+    int ps_units_per_px;
+    {
+        const struct TbSprite *spr = get_panel_sprite(GPS_trapdoor_bonus_box_std_s); // Use dungeon special box as reference
+        ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
+    }
+    // Now draw
+    if (is_my_player(player) && local_state.show_gui && game.small_map_state != 2
+     && mouse_is_over_panel_map(local_state.minimap_pos_x, local_state.minimap_pos_y)) {
+        MapSubtlCoord stl_x;
+        MapSubtlCoord stl_y;
+        stl_x = game.hand_over_subtile_x;
+        stl_y = game.hand_over_subtile_y;
+        SYNCDBG(7,"Drawing over pannel map");
+        room = subtile_room_get(stl_x,stl_y);
+        if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
+        {
+            roomst = get_room_kind_stats(room->kind);
+
+            draw_gui_panel_sprite_centered(cursor_x+scale_ui_value(24*global_hand_scale), cursor_y+scale_ui_value(32*global_hand_scale), ps_units_per_px, roomst->medsym_sprite_idx, 0);
+        }
+        if ((!power_hand_is_empty(player)) && (game.small_map_state == 1))
+        {
+            draw_mini_things_in_hand(cursor_x+scale_ui_value(10*global_hand_scale), cursor_y+scale_ui_value(10*global_hand_scale));
+        }
+        return;
+    }
+    if (gameplay_cursor_is_over_gui()) {
+        SYNCDBG(7,"Drawing while GUI busy");
+        draw_mini_things_in_hand(cursor_x+scale_ui_value(10*global_hand_scale), cursor_y+scale_ui_value(10*global_hand_scale));
+        return;
+    }
+    draw_user_hand(player, ustate, power_hand_is_hovering(player), cursor_x, cursor_y, observer_watched_cursor_draw_flags(), false);
+}
+
+/** Command line -nopartnerhand: never draw the partner's hand, whatever the settings say. */
+TbBool partner_hand_cmdline_off = false;
+/** Command line -handcolour: overrides the hand colour of the settings for this run (wire encoding, -1 = not given). */
+int hand_colour_cmdline = -1;
+
+/** The hand colours a user can choose from (RGB in the 6 bit palette range); an index into this is stored in the settings
+ *  (+1, 0 meaning automatic) and sent to the other users. Purely cosmetic. */
+static const struct HandColourDef {
+    const char *name;
+    unsigned char r, g, b;
+} hand_colour_defs[HAND_COLOUR_COUNT] = {
+    {"Red",    63, 14, 14},
+    {"Blue",   20, 32, 63},
+    {"Green",  16, 56, 22},
+    {"Yellow", 63, 58, 12},
+    {"Purple", 48, 20, 63},
+    {"Orange", 63, 38,  8},
+    {"Cyan",   12, 56, 58},
+    {"White",  60, 60, 60},
+};
+
+const char *hand_colour_name(int colour)
+{
+    if ((colour < 0) || (colour >= HAND_COLOUR_COUNT)) {
+        return "Auto";
+    }
+    return hand_colour_defs[colour].name;
+}
+
+void hand_colour_rgb(int colour, unsigned char *r, unsigned char *g, unsigned char *b)
+{
+    if ((colour < 0) || (colour >= HAND_COLOUR_COUNT)) {
+        colour = 7;
+    }
+    *r = hand_colour_defs[colour].r;
+    *g = hand_colour_defs[colour].g;
+    *b = hand_colour_defs[colour].b;
+}
+
+int hand_colour_from_text(const char *text)
+{
+    if ((text == NULL) || (text[0] == '\0')) {
+        return -1;
+    }
+    if (strcasecmp(text, "auto") == 0) {
+        return 0;
+    }
+    for (int colour = 0; colour < HAND_COLOUR_COUNT; ++colour) {
+        if (strcasecmp(text, hand_colour_defs[colour].name) == 0) {
+            return colour + 1;
+        }
+    }
+    char *end = NULL;
+    const long index = strtol(text, &end, 10);
+    if ((end != NULL) && (*end == '\0') && (index >= 0) && (index <= HAND_COLOUR_COUNT)) {
+        return (int)index;
+    }
+    return -1;
+}
+
+/** The palette remap of the hand sprites for a hand colour: each palette entry becomes the entry nearest to the colour in the entry's own brightness.
+ *  Computed on first use for the current engine palette. */
+static const unsigned char *hand_colour_remap_table(int colour)
+{
+    static unsigned char tables[HAND_COLOUR_COUNT][256];
+    static const unsigned char *tables_palette = NULL;
+    static unsigned short tables_done = 0;
+    if ((colour < 0) || (colour >= HAND_COLOUR_COUNT) || (engine_palette == NULL)) {
+        return NULL;
+    }
+    if (tables_palette != engine_palette) {
+        tables_palette = engine_palette;
+        tables_done = 0;
+    }
+    if ((tables_done & (1u << colour)) == 0) {
+        for (int i = 0; i < 256; ++i) {
+            const int r = engine_palette[3*i+0];
+            const int g = engine_palette[3*i+1];
+            const int b = engine_palette[3*i+2];
+            if (i == 0) {
+                tables[colour][i] = 0;
+                continue;
+            }
+            const int lum = (30*r + 59*g + 11*b) / 100;
+            const int tr = min(63, hand_colour_defs[colour].r * lum / 34);
+            const int tg = min(63, hand_colour_defs[colour].g * lum / 34);
+            const int tb = min(63, hand_colour_defs[colour].b * lum / 34);
+            tables[colour][i] = LbPaletteFindColour(engine_palette, (3*tr + r) / 4, (3*tg + g) / 4, (3*tb + b) / 4);
+        }
+        tables_done |= (1u << colour);
+    }
+    return tables[colour];
+}
+
+/** The engine palette entry that shows a hand colour (for texts, minimap marks). */
+unsigned char hand_colour_palette_index(int colour)
+{
+    static TbPixel cache[HAND_COLOUR_COUNT];
+    static const unsigned char *cache_palette = NULL;
+    static unsigned short cache_done = 0;
+    if ((colour < 0) || (colour >= HAND_COLOUR_COUNT) || (engine_palette == NULL)) {
+        return colours[15][15][15];
+    }
+    if (cache_palette != engine_palette) {
+        cache_palette = engine_palette;
+        cache_done = 0;
+    }
+    if ((cache_done & (1u << colour)) == 0) {
+        cache[colour] = LbPaletteFindColour(engine_palette, hand_colour_defs[colour].r, hand_colour_defs[colour].g, hand_colour_defs[colour].b);
+        cache_done |= (1u << colour);
+    }
+    return cache[colour];
+}
+
+/** True if 'user' is a co-driver of the local keeper whom this machine shows markers for. Reads synced user state only. */
+static TbBool partner_user_shown(NetUserId user)
+{
+    if (!settings.show_partner_hand || partner_hand_cmdline_off || !network_is_active()) {
+        return false;
+    }
+    const struct PlayerInfo *player = get_my_player();
+    if (player_invalid(player) || (player == &local_observer_player) || (user == get_local_user())
+     || !network_user_active(user) || !user_drives_player(user, player)) {
+        return false;
+    }
+    return !user_state_invalid(get_user_state(user));
+}
+
+/** True if 'user' is a partner whose hand should be drawn on this machine, and gives the map position its cursor points at.
+ *  Rendering only: reads the synced user state and the last packet of the user, nothing here may touch the game state. */
+TbBool partner_hand_user_cursor(NetUserId user, MapCoord *pos_x, MapCoord *pos_y)
+{
+    if (!partner_user_shown(user)) {
+        return false;
+    }
+    const struct UserState *pstate = get_user_state(user);
+    // not when the partner is possessing a creature, on the map screen or otherwise away from the dungeon view
+    if ((pstate->view_type != PVT_DungeonTop) || (pstate->controlled_thing_idx != 0)) {
+        return false;
+    }
+    // the last valid cursor is remembered for a second, so a turn without map coordinates (cursor briefly over the panel,
+    // a packet without a position) does not make the hand flicker
+    static MapCoord last_x[MAX_NET_USERS];
+    static MapCoord last_y[MAX_NET_USERS];
+    static GameTurn last_turn[MAX_NET_USERS];
+    const struct Packet *pckt = get_packet(user);
+    const unsigned char cam_ctx = packet_camera_context(pckt);
+    if (flag_is_set(pckt->control_flags, PCtr_MapCoordsValid) && !flag_is_set(pckt->control_flags, PCtr_Gui)
+     && ((cam_ctx == CamIV_Isometric) || (cam_ctx == CamIV_FrontView)) && ((pckt->pos_x != 0) || (pckt->pos_y != 0))) {
+        last_x[user] = pckt->pos_x;
+        last_y[user] = pckt->pos_y;
+        last_turn[user] = get_gameturn();
+    }
+    if ((last_turn[user] == 0) || (get_gameturn() - last_turn[user] > 20)) {
+        return false;
+    }
+    *pos_x = last_x[user];
+    *pos_y = last_y[user];
+    return true;
+}
+
+/** The creature a partner is possessing (or riding as a passenger), or NULL. Never the creature this machine's user is in. */
+struct Thing *partner_possessed_thing(NetUserId user)
+{
+    if (!partner_user_shown(user)) {
+        return NULL;
+    }
+    const struct UserState *pstate = get_user_state(user);
+    if (((pstate->view_type != PVT_CreatureContrl) && (pstate->view_type != PVT_CreaturePasngr)) || (pstate->controlled_thing_idx <= 0)) {
+        return NULL;
+    }
+    if (pstate->controlled_thing_idx == get_local_user_state()->controlled_thing_idx) {
+        return NULL;
+    }
+    struct Thing *thing = thing_get(pstate->controlled_thing_idx);
+    if (!thing_exists(thing) || thing_is_picked_up(thing)) {
+        return NULL;
+    }
+    return thing;
+}
+
+/** Draws a text in a hand colour with a dark shadow, centered on x (or left aligned from x). */
+static void draw_partner_text(const char *text, int32_t x, int32_t y, TbBool centered, int colour)
+{
+    LbTextSetFont(winfont);
+    LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
+    // same size as the chat messages, which are drawn sharp at every resolution
+    const int tx_units_per_px = font_size_units_per_px(chat_font_size);
+    if (centered) {
+        x -= (LbTextStringWidth(text) * tx_units_per_px / 16) / 2;
+    }
+    RendererSetDrawFlags(Lb_TEXT_ONE_COLOR);
+    RendererSetDrawColour(hand_colour_palette_index(colour));
+    LbTextDrawResized(x / pixel_size, y / pixel_size, tx_units_per_px, text);
+    RendererSetDrawFlags(0);
+}
+
+/** Marks the creature a partner is possessing: the possession spell icon floating over it and the nickname above that. */
+static void draw_partner_possession_marker(NetUserId user, struct Thing *thing)
+{
+    struct ThingInterpolateResult interp = interpolate_thing(thing);
+    struct Coord3d pos = interp.mappos;
+    pos.z.val += thing->clipbox_size_z + 96;
+    int32_t screen_x;
+    int32_t screen_y;
+    if (!map_to_screen(&pos, &screen_x, &screen_y)) {
+        return;
+    }
+    int ps_units_per_px;
+    {
+        const struct TbSprite *spr = get_panel_sprite(GPS_trapdoor_bonus_box_std_s); // Use dungeon special box as reference
+        ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
+    }
+    const struct PowerConfigStats *powerst = get_power_model_stats(PwrK_POSSESS);
+    if (powerst->medsym_sprite_idx > 0) {
+        draw_gui_panel_sprite_centered(screen_x, screen_y - scale_ui_value(12), ps_units_per_px, powerst->medsym_sprite_idx, 0);
+    }
+    draw_partner_text(network_user_name(user), screen_x, screen_y - scale_ui_value(46), true, network_user_hand_colour(user));
+}
+
+/** Draws what shows the other users driving the same keeper (archon co-op): their hand, tinted in the colour they chose and with their nickname, at the map position
+ *  their cursor points at; a marker over the creature they possess. Works in the dungeon views and in first person, through the same projection.
+ *  Every other user is drawn, up to MAX_NET_USERS - 1 of them. Rendering only. */
+void draw_partner_hands(void)
+{
+    const struct PlayerInfo *player = get_my_player();
+    if (is_observer_camera_active() || (get_displayed_player() != player) || (game.small_map_state == 2)) {
+        return;
+    }
+    const unsigned char view_type = get_player_local_view_type(player);
+    if ((view_type != PVT_DungeonTop) && (view_type != PVT_CreatureContrl) && (view_type != PVT_CreaturePasngr)) {
+        return;
+    }
+    // Color rendering array pointers used by draw_keepersprite()
+    render_fade_tables = pixmap.fade_tables;
+    render_ghost = pixmap.ghost;
+    render_alpha = (unsigned char *)&alpha_sprite_table;
+    const unsigned short saved_flags = RendererGetDrawFlags();
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user)
+    {
+        const int colour = network_user_hand_colour(user);
+        struct Thing *possessed = partner_possessed_thing(user);
+        if (possessed != NULL) {
+            draw_partner_possession_marker(user, possessed);
+            RendererSetDrawFlags(saved_flags);
+            continue;
+        }
+        MapCoord pos_x;
+        MapCoord pos_y;
+        if (!partner_hand_user_cursor(user, &pos_x, &pos_y)) {
+            continue;
+        }
+        struct Coord3d pos;
+        pos.x.val = pos_x;
+        pos.y.val = pos_y;
+        pos.z.val = get_floor_height_at(&pos);
+        int32_t screen_x;
+        int32_t screen_y;
+        if (!map_to_screen(&pos, &screen_x, &screen_y)) {
+            continue;
+        }
+        const struct UserState *pstate = get_user_state(user);
+        RendererSetDrawFlags(0);
+        RendererSetKeeperHandRemap(hand_colour_remap_table(colour));
+        draw_user_hand(player, pstate, pstate->thing_under_hand > 0, screen_x, screen_y, 0, true);
+        RendererSetKeeperHandRemap(NULL);
+        // nickname below the hand
+        draw_partner_text(network_user_name(user), screen_x + scale_ui_value(24*global_hand_scale), screen_y + scale_ui_value(44*global_hand_scale), false, colour);
+        RendererSetDrawFlags(saved_flags);
     }
 }
 
@@ -884,8 +1182,14 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
     if (player_exists(player)) {
-        set_power_hand_graphic(get_player_primary_user(player), HndA_Hover);
-        player->hand_busy_until_turn = get_gameturn() + 16;
+        NetUserId user = get_player_acting_user(player);
+        set_power_hand_graphic(user, HndA_Hover);
+        // All users of the keeper share the hand contents, so every hand is busy
+        for (NetUserId u = 0; u < MAX_NET_USERS; ++u) {
+            if (game.user_states[u].player_id == player->id_number) {
+                game.user_states[u].hand_busy_until_turn = get_gameturn() + 16;
+            }
+        }
     }
 }
 
@@ -1016,7 +1320,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
 short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool update_hand)
 {
     struct PlayerInfo *player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(get_player_acting_user(player));
     struct Dungeon *dungeon = get_players_dungeon(player);
     // If nothing in hand - nothing to do
     if (dungeon->num_things_in_hand < 1) {
@@ -1064,7 +1368,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         drop_held_thing_on_ground(dungeon, droptng, &pos);
     }
     if (dungeon->num_things_in_hand == 1) {
-        set_player_instance(player, PI_Drop, 0);
+        set_player_instance(get_player_acting_user(player), PI_Drop, 0);
     }
     remove_first_thing_from_power_hand_list(plyr_idx);
     return 1;
@@ -1374,13 +1678,12 @@ void delete_power_hand(NetUserId user)
     delete_thing_structure(thing, 0);
 }
 
-long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
+long prepare_thing_for_power_hand(NetUserId user, unsigned short tng_idx, PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
-    NetUserId user = get_player_primary_user(player);
     struct UserState *ustate = get_user_state(user);
     if (!user_state_invalid(ustate) && (ustate->hand_thing_idx == 0)) {
         create_power_hand(user);
@@ -1390,9 +1693,11 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     }
     struct Thing *thing;
     thing = thing_get(tng_idx);
-    player->influenced_thing_idx = thing->index;
-    player->influenced_thing_creation = thing->creation_turn;
-    set_player_instance(player, PI_Grab, 0);
+    if (!user_state_invalid(ustate)) {
+        ustate->influenced_thing_idx = thing->index;
+        ustate->influenced_thing_creation = thing->creation_turn;
+    }
+    set_player_instance(user, PI_Grab, 0);
     if (thing_is_creature(thing)) {
         clear_creature_instance(thing);
     }
@@ -1481,7 +1786,7 @@ TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     return remove_thing_from_power_hand_list(thing, plyr_idx);;
 }
 
-TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
+TbResult use_power_hand(NetUserId user, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
 {
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -1500,7 +1805,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     }
     if (thing_is_invalid(thing))
     {
-        const short under_hand = get_player_user_state(player)->thing_under_hand;
+        const short under_hand = get_user_state(user)->thing_under_hand;
         if (under_hand > 0)
             thing = thing_get(under_hand);
     }
@@ -1519,7 +1824,7 @@ TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     if (!is_power_available(plyr_idx, PwrK_HAND)) {
         return Lb_FAIL;
     }
-    prepare_thing_for_power_hand(thing->index, plyr_idx);
+    prepare_thing_for_power_hand(user, thing->index, plyr_idx);
     return Lb_SUCCESS;
 }
 

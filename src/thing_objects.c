@@ -777,7 +777,7 @@ static long food_moves(struct Thing *objtng)
             dangle = 62;
         objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & ANGLE_MASK;
         struct PlayerInfo* my_player = get_my_player();
-        if (my_player->controlled_thing_idx == objtng->index && ((get_player_view_type(my_player) == PVT_CreatureContrl) || (get_player_view_type(my_player) == PVT_CreaturePasngr))) {
+        if (get_local_user_state()->controlled_thing_idx == objtng->index && ((get_local_user_state()->view_type == PVT_CreatureContrl) || (get_local_user_state()->view_type == PVT_CreaturePasngr))) {
             set_local_camera_destination(my_player);
         }
         if (get_angle_difference(objtng->move_angle_xy, objtng->food.angle) < DEGREES_50)
@@ -977,7 +977,7 @@ long process_temple_special(struct Thing *thing, long sacowner)
     if (object_is_mature_food(thing))
     {
         dungeon->chickens_sacrificed++;
-        if (user_cheats_allowed(get_player_primary_user(get_player(sacowner))) && temple_check_for_arachnid_join_dungeon(dungeon))
+        if (player_cheats_allowed(get_player(sacowner)) && temple_check_for_arachnid_join_dungeon(dungeon))
             return true;
     } else
     {

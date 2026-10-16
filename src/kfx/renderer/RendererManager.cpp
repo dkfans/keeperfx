@@ -341,6 +341,10 @@ void RendererUpdateSlabTexture(const unsigned char* data, int dim)
     if (ui != nullptr) ui->UpdateSlabTexture(data, dim);
 }
 
+static const unsigned char *s_keeper_hand_remap = nullptr;
+void RendererSetKeeperHandRemap(const unsigned char *table) { s_keeper_hand_remap = table; }
+const unsigned char *RendererGetKeeperHandRemap(void) { return s_keeper_hand_remap; }
+
 unsigned char RendererGetDrawColour(void) { return s_draw_colour; }
 void RendererSetDrawColour(unsigned char colour) { s_draw_colour = colour; }
 

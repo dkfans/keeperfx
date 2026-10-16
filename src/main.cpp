@@ -42,6 +42,7 @@
 #include "net_exchange_gameplay.h"
 #include "net_game.h"
 #include "net_lobby.h"
+#include "net_steam.h"
 #include "net_resync.h"
 #include "bflib_planar.h"
 
@@ -81,6 +82,7 @@
 #include "config_players.h"
 #include "player_computer.h"
 #include "timer.h"
+#include "archon_test.h"
 #include "game_heap.h"
 #include "game_saves.h"
 #include "engine_render.h"
@@ -504,7 +506,7 @@ static bool players_cursor_is_at_top_of_view()
         return true;
 
     case PSt_OrderCreatr:
-        return (player->controlled_thing_idx > 0);
+        return (get_local_user_state()->controlled_thing_idx > 0);
 
     case PSt_CtrlDungeon:
         switch (ustate->primary_cursor_state)
@@ -777,10 +779,8 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
 
 void instant_instance_selected(CrInstance check_inst_id)
 {
-    struct PlayerInfo *player;
-    player = get_player(my_player_number);
     struct Thing *ctrltng;
-    ctrltng = thing_get(player->controlled_thing_idx);
+    ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     struct CreatureModelConfig *crconf;
     crconf = creature_stats_get_from_thing(ctrltng);
     long i;
@@ -983,6 +983,11 @@ void clear_players_for_save(void)
     {
       struct UserState *ustate = get_user_state(user);
       ustate->hand_thing_idx = 0;
+      ustate->hand_busy_until_turn = 0;
+      ustate->hand_idx = 0;
+      ustate->influenced_thing_idx = 0;
+      ustate->influenced_thing_creation = 0;
+      ustate->cast_expand_level = 0;
       ustate->hand_animationId = 0;
       ustate->thing_under_hand = 0;
       ustate->cursor_light_idx = 0;
@@ -1180,11 +1185,9 @@ void centre_engine_window(void)
     setup_engine_window(window_center_x, window_center_y, local_state.engine_window_width, local_state.engine_window_height);
 }
 
-void turn_off_query(PlayerNumber plyr_idx)
+void turn_off_query(NetUserId user)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
-    set_player_instance(player, PI_UnqueryCrtr, 0);
+    set_player_instance(user, PI_UnqueryCrtr, 0);
 }
 
 long filter_creatures_owned_by_keepers(const struct Thing *thing, MaxTngFilterParam, long)
@@ -1195,8 +1198,9 @@ long filter_creatures_owned_by_keepers(const struct Thing *thing, MaxTngFilterPa
     return -1;
 }
 
-void level_lost_go_first_person(PlayerNumber plyr_idx)
+void level_lost_go_first_person(NetUserId user)
 {
+    const PlayerNumber plyr_idx = get_net_user_player_number(user);
     struct CreatureControl *cctrl;
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
@@ -1217,7 +1221,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
         return;
     }
     struct Coord3d mappos = spawn_creatng->mappos;
-    thing = create_and_control_creature_as_controller(player, spectator_breed, &mappos);
+    thing = create_and_control_creature_as_controller(user, spectator_breed, &mappos);
     if (thing_is_invalid(thing)) {
         ERRORLOG("Unable to create spectator creature");
         return;
@@ -1309,7 +1313,8 @@ short lose_level(struct PlayerInfo *player)
 {
     if (!is_my_player(player))
         return false;
-    if (network_is_active())
+    // an archon co-op campaign session stays together for the shared campaign map
+    if (network_is_active() && !archon_campaign_active())
     {
         LbNetwork_Stop();
     }
@@ -1321,7 +1326,7 @@ short resign_level(struct PlayerInfo *player)
 {
     if (!is_my_player(player))
         return false;
-    if (network_is_active())
+    if (network_is_active() && !archon_campaign_active())
     {
         LbNetwork_Stop();
     }
@@ -1379,7 +1384,7 @@ void update_local_mouse_light(void)
     struct PlayerInfo *player = get_my_player();
 
     // Avoid glitching during level intro or possess animation
-    if (player->instance_num != PI_Unset)
+    if (get_local_user_state()->instance_num != PI_Unset)
         return;
     // ... or when watching a replay
     if (replay.load_enable)
@@ -1707,6 +1712,17 @@ static short process_command_line(unsigned short argc, char *argv[])
   {
       char *par;
       par = argv[narg];
+      if ( (par != NULL) && (strcasecmp(par, "+connect_lobby") == 0) )
+      {
+          // Steam passes this when the game is started from an invite
+          if ((narg + 1 < argc) && steam_net_parse_lobby(argv[narg + 1], steam_join_lobby, sizeof(steam_join_lobby)))
+          {
+              steam_wait_for_invite = true;
+              game_flags2 |= GF2_Connect;
+              narg += 2;
+              continue;
+          }
+      }
       if ( (par == NULL) || ((par[0] != '-') && (par[0] != '/')) )
           return -1;
       char parstr[CMDLN_MAXLEN+1];
@@ -1886,6 +1902,57 @@ static short process_command_line(unsigned short argc, char *argv[])
           narg++;
           LbNetwork_InitSessionsFromCmdLine(pr2str);
           game_flags2 |= GF2_Connect;
+      }
+      else if (strcasecmp(parstr,"archon") == 0)
+      {
+          archon_requested = true;
+      }
+      else if (strcasecmp(parstr,"nopartnerhand") == 0)
+      {
+          partner_hand_cmdline_off = true;
+      }
+      else if (strcasecmp(parstr,"handcolour") == 0 || strcasecmp(parstr,"handcolor") == 0)
+      {
+          const int colour = hand_colour_from_text(pr2str);
+          if (colour >= 0)
+          {
+              hand_colour_cmdline = colour; // the settings file is loaded after the command line, so this is kept apart
+              narg++;
+          }
+          else
+          {
+              WARNMSG("Unknown hand colour '%s' after -handcolour (use a name like red, blue, green, yellow, purple, orange, cyan, white, or a number 0-8)", pr2str);
+          }
+      }
+      else if (strcasecmp(parstr,"steamhost") == 0)
+      {
+          // host through a Steam lobby; otherwise the same as -server
+          steam_host_requested = true;
+          game_flags2 |= GF2_Server;
+      }
+      else if (strcasecmp(parstr,"steamjoin") == 0)
+      {
+          // join a Steam lobby; without an id the game waits for an accepted invite
+          steam_wait_for_invite = true;
+          if (steam_net_parse_lobby(pr2str, steam_join_lobby, sizeof(steam_join_lobby)))
+          {
+              game_flags2 |= GF2_Connect;
+              narg++;
+          }
+      }
+      else if (strcasecmp(parstr,"archontestcampaign") == 0)
+      {
+          archontest_campaign = true;
+      }
+      else if (strcasecmp(parstr,"archontest") == 0)
+      {
+          archontest_seconds = max(atoi(pr2str), 1);
+          narg++;
+      }
+      else if (strcasecmp(parstr,"archonflow") == 0)
+      {
+          archontest_flow_levels = max(atoi(pr2str), 1);
+          narg++;
       }
       else if (strcasecmp(parstr,"waitusers") == 0)
       {

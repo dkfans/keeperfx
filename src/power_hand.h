@@ -52,8 +52,19 @@ TbBool power_hand_is_hovering(const struct PlayerInfo *player);
 TbBool power_hand_is_full(const struct PlayerInfo *player);
 struct Thing *get_first_thing_in_power_hand(const struct PlayerInfo *player);
 void draw_power_hand(void);
+void draw_partner_hands(void);
+TbBool partner_hand_user_cursor(NetUserId user, MapCoord *pos_x, MapCoord *pos_y);
+struct Thing *partner_possessed_thing(NetUserId user);
+extern TbBool partner_hand_cmdline_off;
+/** Hand colours of the users (archon co-op), index 0..HAND_COLOUR_COUNT-1; the settings and the network use index + 1 with 0 meaning automatic. */
+const char *hand_colour_name(int colour);
+void hand_colour_rgb(int colour, unsigned char *r, unsigned char *g, unsigned char *b);
+/** Parses a colour name or number: returns the settings value (0 automatic, 1..8), or -1 if the text is not a colour. */
+int hand_colour_from_text(const char *text);
+extern int hand_colour_cmdline;
+unsigned char hand_colour_palette_index(int colour);
 void clear_things_in_hand(struct PlayerInfo *player);
-TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx);
+TbResult use_power_hand(NetUserId user, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx);
 struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx);

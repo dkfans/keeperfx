@@ -77,8 +77,8 @@ void camera_packet_set_state(struct Packet *pckt)
     struct PlayerInfo* player = get_my_player();
     packet_set_camera_context(pckt, get_local_active_camera_index(player));
     local_state.camera.has_rotation_pivot = get_packet_rotation_pivot(pckt, &local_state.camera.rotation_pivot_x, &local_state.camera.rotation_pivot_y);
-    if (!local_state.camera.ready || is_observer_camera_active() || (get_local_view_type(player) != PVT_DungeonTop) || (get_player_view_type(player) != PVT_DungeonTop)
-     || player_instance_controls_camera(player->instance_num)) {
+    if (!local_state.camera.ready || is_observer_camera_active() || (get_local_view_type(player) != PVT_DungeonTop) || (get_player_local_view_type(player) != PVT_DungeonTop)
+     || player_instance_controls_camera(get_player_local_user_state(player)->instance_num)) {
         // senseless to transmit camera coords during these times, and a camera instance is computed from the dungeon camera it started with
         packet_clear_camera_position(pckt);
         return;
@@ -94,7 +94,7 @@ void camera_packet_set_state(struct Packet *pckt)
     // Correct the dungeon camera's angle whenever the action slot is free. The local camera ignores this correction,
     // so it's safe to send mid-rotation.
     if ((pckt->action == PckA_None)
-     && (cam->rotation_angle_x != get_player_user_state(player)->dungeon_camera.yaw[front_view]))
+     && (cam->rotation_angle_x != get_player_local_user_state(player)->dungeon_camera.yaw[front_view]))
     {
         set_packet_action(pckt, PckA_SetMapRotation, cam->rotation_angle_x, 0, 0, 0);
     }
@@ -155,7 +155,7 @@ static void apply_dungeon_camera_pose(struct Camera cams[], const struct Dungeon
 /** local camera <- canonical dungeon camera */
 static void apply_dungeon_camera(struct Camera cams[], const struct PlayerInfo *player)
 {
-    apply_dungeon_camera_pose(cams, &get_player_user_state(player)->dungeon_camera);
+    apply_dungeon_camera_pose(cams, &get_player_local_user_state(player)->dungeon_camera);
 }
 
 /** local camera <- given dungeon camera */
@@ -172,7 +172,7 @@ void update_local_dungeon_view_mode(struct PlayerInfo *player)
 {
     if (!is_my_player(player))
         return;
-    const unsigned char view_mode = (get_player_user_state(player)->prefs[UPref_Wibble] != 0) ? PVM_IsoWibbleView : PVM_IsoStraightView;
+    const unsigned char view_mode = (get_player_local_user_state(player)->prefs[UPref_Wibble] != 0) ? PVM_IsoWibbleView : PVM_IsoStraightView;
     local_state.camera.current[CamIV_Isometric].view_mode = view_mode;
     local_state.camera.previous[CamIV_Isometric].view_mode = view_mode;
     local_state.camera.destination[CamIV_Isometric].view_mode = view_mode;
@@ -180,10 +180,10 @@ void update_local_dungeon_view_mode(struct PlayerInfo *player)
 
 static void update_first_person_camera(struct Camera *cam, const struct PlayerInfo *player, TbBool snap)
 {
-    if (player->controlled_thing_idx <= 0) {
+    if (get_player_local_user_state(player)->controlled_thing_idx <= 0) {
         return;
     }
-    struct Thing *ctrltng = thing_get(player->controlled_thing_idx);
+    struct Thing *ctrltng = thing_get(get_player_local_user_state(player)->controlled_thing_idx);
     if (!thing_exists(ctrltng)) {
         return;
     }
@@ -216,7 +216,7 @@ void init_local_cameras(struct PlayerInfo *player)
     cam = &cams[CamIV_Isometric];
     cam->horizontal_fov = 94;
     cam->rotation_angle_x = DEGREES_45;
-    cam->view_mode = (get_player_user_state(player)->prefs[UPref_Wibble] != 0) ? PVM_IsoWibbleView : PVM_IsoStraightView;
+    cam->view_mode = (get_player_local_user_state(player)->prefs[UPref_Wibble] != 0) ? PVM_IsoWibbleView : PVM_IsoStraightView;
 
     cam = &cams[CamIV_Parchment];
     cam->mappos.z.val = 32;
@@ -415,7 +415,7 @@ void update_local_cameras(void)
     if (player == &local_observer_player) {
         observer_update_view();
     }
-    struct Thing *ctrltng = thing_get(player->controlled_thing_idx);
+    struct Thing *ctrltng = thing_get(get_player_local_user_state(player)->controlled_thing_idx);
     const struct Packet *pckt = get_history_packet(get_local_user(), get_gameturn());
     const int active_cam_idx = get_local_active_camera(player) - local_state.camera.current;
     const TbBool following_player = observer_is_active() && !is_observer_camera_active();
@@ -426,7 +426,7 @@ void update_local_cameras(void)
     local_state.camera.destination_deviation_x = 0;
     local_state.camera.destination_deviation_y = 0;
 
-    if (move_camera || active_cam_idx == CamIV_FirstPerson || player_instance_controls_camera(player->instance_num)) {
+    if (move_camera || active_cam_idx == CamIV_FirstPerson || player_instance_controls_camera(get_player_local_user_state(player)->instance_num)) {
         memcpy(local_state.camera.previous, local_state.camera.destination, sizeof(local_state.camera.previous));
     }
     if (is_observer_camera_active()) {
@@ -562,7 +562,7 @@ void interpolate_local_cameras(void)
     }
     struct PlayerInfo *player = get_my_player();
     const int camera_idx = get_local_active_camera(player) - local_state.camera.current;
-    if (local_state.fast_forward > 1 && (!observer_is_active() || is_observer_camera_active()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(player->instance_num)) {
+    if (local_state.fast_forward > 1 && (!observer_is_active() || is_observer_camera_active()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(get_player_local_user_state(player)->instance_num)) {
         const float elapsed = (get_time_tick_ns() - camera_update_time) / 1e9f * turns_per_second;
         camera_fraction = clamp(elapsed, 0.0f, 1.0f);
     }
@@ -601,7 +601,7 @@ void sync_local_camera(struct PlayerInfo *player)
         update_first_person_camera(&local_state.camera.destination[CamIV_FirstPerson], player, true);
         return;
     }
-    sync_local_camera_pose(player, &get_player_user_state(player)->dungeon_camera);
+    sync_local_camera_pose(player, &get_player_local_user_state(player)->dungeon_camera);
 }
 
 /** Snaps the local dungeon cameras to a pose without any interpolation */
@@ -653,7 +653,7 @@ void record_local_possession_start(struct PlayerInfo *player)
 int32_t get_local_possession_start_zoom(struct PlayerInfo *player)
 {
     if (!is_my_player(player) || (local_state.camera.possession_start_zoom <= 0))
-        return get_player_user_state(player)->dungeon_camera.zoom[false];
+        return get_player_local_user_state(player)->dungeon_camera.zoom[false];
     return local_state.camera.possession_start_zoom;
 }
 
@@ -688,7 +688,7 @@ void set_local_camera_destination(struct PlayerInfo *player)
         return;
     }
     apply_dungeon_camera(local_state.camera.destination, player);
-    struct Thing *ctrltng = thing_get(player->controlled_thing_idx);
+    struct Thing *ctrltng = thing_get(get_player_local_user_state(player)->controlled_thing_idx);
     if (thing_exists(ctrltng)) {
         local_state.camera.destination[CamIV_FirstPerson].rotation_angle_x = ctrltng->move_angle_xy;
         local_state.camera.destination[CamIV_FirstPerson].rotation_angle_y = ctrltng->move_angle_z;
@@ -697,7 +697,7 @@ void set_local_camera_destination(struct PlayerInfo *player)
 
 static void sync_local_camera_leaving_map(struct PlayerInfo *player, const struct Packet *pckt)
 {
-    struct DungeonCamera pose = get_player_user_state(player)->dungeon_camera;
+    struct DungeonCamera pose = get_player_local_user_state(player)->dungeon_camera;
     if (pckt->action == PckA_ZoomFromMap)
     {
         set_view_position(&pose.x, &pose.y, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
@@ -743,7 +743,7 @@ void enter_observer_camera(void)
     }
     struct PlayerInfo *player = get_my_player();
     int32_t cam_idx = CamIV_Isometric;
-    if (get_player_user_state(player)->prefs[UPref_FrontView] != 0) {
+    if (get_player_local_user_state(player)->prefs[UPref_FrontView] != 0) {
         cam_idx = CamIV_FrontView;
     }
     struct Camera cams[CamIV_EndList];
@@ -813,12 +813,12 @@ unsigned char get_local_view_type(const struct PlayerInfo *player)
         return local_state.observer_camera_view_type;
     }
     if (!is_my_player(player) || local_state.view_type == PVT_None) {
-        return get_player_view_type(player);
+        return get_player_local_view_type(player);
     }
-    if (local_state.view_type == PVT_MapScreen || get_player_view_type(player) == PVT_MapScreen) {
+    if (local_state.view_type == PVT_MapScreen || get_player_local_view_type(player) == PVT_MapScreen) {
         return local_state.view_type;
     }
-    return get_player_view_type(player);
+    return get_player_local_view_type(player);
 }
 
 static int get_local_active_camera_index(struct PlayerInfo *player)
@@ -843,7 +843,7 @@ struct Camera* get_local_active_camera(struct PlayerInfo *player)
     if (view_type == PVT_MapScreen) {
         return &local_state.camera.current[CamIV_Parchment];
     }
-    if (view_type == PVT_DungeonTop && get_player_view_type(player) == PVT_MapScreen) {
+    if (view_type == PVT_DungeonTop && get_player_local_view_type(player) == PVT_MapScreen) {
         return get_local_dungeon_camera(player);
     }
     return &local_state.camera.current[get_player_active_camera_index(player)];
@@ -851,7 +851,7 @@ struct Camera* get_local_active_camera(struct PlayerInfo *player)
 
 static struct Camera *get_local_dungeon_camera(struct PlayerInfo *player)
 {
-    return &local_state.camera.current[(get_player_user_state(player)->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric];
+    return &local_state.camera.current[(get_player_local_user_state(player)->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric];
 }
 /******************************************************************************/
 #ifdef __cplusplus

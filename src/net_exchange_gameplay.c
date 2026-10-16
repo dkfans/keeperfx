@@ -204,17 +204,17 @@ void process_gameplay_chat_message(NetUserId user, const char *message, MapCoord
     if (message[0] != '\0')
         replay_record_chat_message(user, message, cursor_x, cursor_y);
     PlayerNumber plyr_idx = get_net_user_player_number(user);
-    struct PlayerInfo *player = prepare_network_chat_message(plyr_idx, message);
+    struct UserState *ustate = prepare_network_chat_message(user, message);
     if (message[0] != '\0') {
         SYNCLOG("Gameplay chat from user %d (player %d): %s", (int)user, (int)plyr_idx, message);
-        lua_on_chatmsg(plyr_idx, player->mp_message_text);
-        const TbBool shown = (player->mp_message_text[0] != cmd_char) || !cmd_exec(plyr_idx, player->mp_message_text + 1, cursor_x, cursor_y) || network_is_active();
+        lua_on_chatmsg(plyr_idx, ustate->mp_message_text);
+        const TbBool shown = (ustate->mp_message_text[0] != cmd_char) || !cmd_exec(plyr_idx, ustate->mp_message_text + 1, cursor_x, cursor_y) || network_is_active();
         if (shown) {
-            message_add(MsgType_Player, plyr_idx, player->mp_message_text);
+            message_add(MsgType_Player, plyr_idx, ustate->mp_message_text);
             play_non_3d_sample(snd_chat_message[user == get_local_user()]);
         }
     }
-    memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+    memset(ustate->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
 }
 
 TbError process_network_turn_sync_message(NetUserId source, const char *buffer, size_t buffer_size)

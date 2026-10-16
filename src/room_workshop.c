@@ -691,7 +691,6 @@ void update_manufacturing(void)
 EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng)
 {
     EventIndex evidx;
-    struct PlayerInfo* player;
     ThingClass tngclass = crate_thing_to_workshop_item_class(picktng);
     if (tngclass == TCls_Trap)
     {
@@ -703,8 +702,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             } else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
                 if (picktng->owner != game.neutral_player_num)
                 {
-                    player = get_my_player();
-                    if (creatng->index != player->influenced_thing_idx)
+                    if (creatng->index != get_local_user_state()->influenced_thing_idx)
                     {
                         output_message(SMsg_TrapTaken, 0);
                     }
@@ -720,8 +718,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             } else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
                 if (picktng->owner != game.neutral_player_num)
                 {
-                    player = get_my_player();
-                    if (creatng->index != player->influenced_thing_idx)
+                    if (creatng->index != get_local_user_state()->influenced_thing_idx)
                     {
                         output_message(SMsg_DoorTaken, 0);
                     }

@@ -869,7 +869,11 @@ long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct PlayerInfo* player = get_player(get_appropriate_player_for_creature(creatng));
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_thing_user_state_or_primary(creatng, player);
+    // write into the possessing user's packet, identical on every client (never local-user dependent)
+    NetUserId ctrl_user = get_thing_controlling_user(creatng);
+    if (ctrl_user < 0)
+        ctrl_user = get_player_primary_user(player);
     TRACE_THING(creatng);
     struct SlabMap* slb;
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
@@ -908,7 +912,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param)
     }
     if ( (ustate->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
     {
-        set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
+        set_user_packet_action(ctrl_user, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
         return 1;
     }
     struct Room* room;
@@ -927,7 +931,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, int32_t *param)
                     {
                         if (creatng->creature.gold_carried > 0)
                         {
-                            set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
+                            set_user_packet_action(ctrl_user, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
                             return 1;
                         }
                     }

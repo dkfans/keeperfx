@@ -43,6 +43,7 @@ struct StatsData { // sizeof = 12
 void frontstats_draw_main_stats(struct GuiButton *gbtn);
 void frontstats_draw_scrolling_stats(struct GuiButton *gbtn);
 void frontstats_leave(struct GuiButton *gbtn);
+void frontstats_leave_maintain(struct GuiButton *gbtn);
 void frontstats_set_timer(void);
 void frontstats_update(void);
 void frontstats_initialise(void);

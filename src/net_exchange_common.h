@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "net_main.h"
 
+struct UserState;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,7 +36,7 @@ enum NetworkPeerSendMode {
 TbBool read_network_message_text(char **read_pos, const char **text, size_t max_len);
 void send_network_chat_message(NetUserId sender, const char *message);
 void send_network_chat_message_at(NetUserId sender, const char *message, int32_t cursor_x, int32_t cursor_y);
-struct PlayerInfo *prepare_network_chat_message(int player_id, const char *message);
+struct UserState *prepare_network_chat_message(NetUserId user, const char *message);
 TbBool can_send_to_peer(NetUserId peer_id);
 void send_to_active_peers(int send_count, enum NetworkPeerSendMode send_mode, const char *buffer, size_t msg_size, uint64_t user_mask);
 TbBool all_expected_exchange_frames_received(const TbBool has_received_frame[MAX_NET_USERS], TbBool is_host);

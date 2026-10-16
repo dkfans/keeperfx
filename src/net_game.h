@@ -50,7 +50,23 @@ void setup_count_players(void);
 int32_t network_session_join(void);
 
 TbBool network_user_active(NetUserId);
+TbBool archon_mode_active(void);
+/** Archon mode on a campaign level: every user shares the level's single-player keeper (synced). */
+TbBool archon_campaign_active(void);
+/** Host-synced: whether the agreed archon campaign level gets computer rivals. */
+TbBool archon_campaign_assign_cpu_keepers(void);
+void archon_campaign_restore_host_transfers(void);
+enum ArchonCampaignRole {
+    ArchonCampaign_None = 0,
+    ArchonCampaign_Host,   /**< this machine saves the campaign progress when the level ends */
+    ArchonCampaign_Client, /**< this machine must not touch its campaign progress */
+};
+/** Local only (never feeds the simulation): remembered from the startup sync until archon_campaign_role_reset(). */
+enum ArchonCampaignRole archon_campaign_role(void);
+void archon_campaign_role_reset(void);
+extern TbBool archon_requested;
 const char *network_user_name(NetUserId);
+uint8_t network_user_hand_colour(NetUserId);
 TbBool network_human_contenders_remain(void);
 void resolve_placeholders(void);
 void process_user_leave_game_packet(NetUserId user);
@@ -63,6 +79,7 @@ void apply_user_preferences(NetUserId user, const UserPreferences prefs, unsigne
 void apply_local_user_preferences(NetUserId user, unsigned char flags);
 void apply_user_start_tendencies(struct PlayerInfo *player);
 TbBool user_cheats_allowed(NetUserId user);
+TbBool player_cheats_allowed(const struct PlayerInfo *player);
 TbBool game_censorship_enabled(void);
 void apply_recorded_network_stop(void);
 TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs);

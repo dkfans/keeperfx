@@ -293,16 +293,25 @@ void view_set_camera_tilt(struct Camera *cam, unsigned char mode)
     cam->rotation_angle_y = tilt_step(cam->rotation_angle_y, mode);
 }
 
-void init_player_cameras(struct PlayerInfo *player)
+void init_user_camera(int user)
 {
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
     if (user_state_invalid(ustate))
         return;
-    struct Thing* heartng = get_player_soul_container(player->id_number);
+    struct Thing* heartng = get_player_soul_container(ustate->player_id);
     ustate->dungeon_camera.x = heartng->mappos.x.val;
     ustate->dungeon_camera.y = heartng->mappos.y.val;
     ustate->dungeon_camera.yaw[false] = DEGREES_45;
     ustate->dungeon_camera.yaw[true] = 0;
+}
+
+void init_player_cameras(struct PlayerInfo *player)
+{
+    if (user_state_invalid(get_player_user_state(player)))
+        return;
+    FOR_EACH_PLAYER_USER(user, player) {
+        init_user_camera(user);
+    }
     init_local_cameras(player);
 }
 
@@ -497,8 +506,8 @@ static void update_player_camera_shake(struct PlayerInfo *player)
 {
     struct Dungeon *dungeon = get_players_dungeon(player);
 
-    if (((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
-     && (player->controlled_thing_idx <= 0) && (player->instance_num != PI_HeartZoom))
+    if (((get_player_local_view_type(player) == PVT_CreatureContrl) || (get_player_local_view_type(player) == PVT_CreaturePasngr))
+     && (get_player_local_user_state(player)->controlled_thing_idx <= 0) && (get_player_local_user_state(player)->instance_num != PI_HeartZoom))
     {
         ERRORLOG("Cannot go first person without controlling creature");
     }

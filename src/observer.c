@@ -417,6 +417,13 @@ void observer_update_view(void)
             local_observer_user_state.prefs[UPref_Wibble] = wibble;
         }
         view_type = ustate->view_type;
+        // Mirror possession/instance state so first-person, query and swipe rendering follow the keeper.
+        local_observer_user_state.controlled_thing_idx = ustate->controlled_thing_idx;
+        local_observer_user_state.controlled_thing_creatrn = ustate->controlled_thing_creatrn;
+        local_observer_user_state.influenced_thing_idx = ustate->influenced_thing_idx;
+        local_observer_user_state.influenced_thing_creation = ustate->influenced_thing_creation;
+        local_observer_user_state.instance_num = ustate->instance_num;
+        local_observer_user_state.instance_remain_turns = ustate->instance_remain_turns;
     }
     if (view_type == PVT_MapFadeIn) {
         view_type = PVT_MapScreen;
@@ -461,9 +468,9 @@ static void observer_clear_query(unsigned char state)
     if (local_state.show_gui) {
         turn_on_main_panel_menu();
     }
-    local_observer_player.instance_num = PI_Unset;
+    local_observer_user_state.instance_num = PI_Unset;
     set_user_work_state(OBSERVER_USER, state, 0);
-    clear_selected_thing(&local_observer_player);
+    clear_selected_thing(OBSERVER_USER);
 }
 
 static void observer_select_player(PlayerNumber plyr_idx)
@@ -483,8 +490,8 @@ static void observer_select_player(PlayerNumber plyr_idx)
 static void observer_query_creature(ThingIndex index, TbBool reset, TbBool zoom)
 {
     enter_observer_camera();
-    query_creature(&local_observer_player, index, reset, zoom);
-    process_player_instance(&local_observer_player);
+    query_creature(OBSERVER_USER, index, reset, zoom);
+    process_player_instance(OBSERVER_USER);
 }
 
 TbBool observer_process_packet_action(const struct Packet *pckt)
@@ -516,8 +523,8 @@ void observer_update_query(void)
     local_state.local_thing_under_hand = 0;
     if (is_observer_camera_active()) {
         if (local_observer_user_state.work_state == PSt_CreatrInfo) {
-            const struct Thing *selected = thing_get(local_observer_player.influenced_thing_idx);
-            if (!thing_is_creature(selected) || selected->creation_turn != local_observer_player.influenced_thing_creation) {
+            const struct Thing *selected = thing_get(local_observer_user_state.influenced_thing_idx);
+            if (!thing_is_creature(selected) || selected->creation_turn != local_observer_user_state.influenced_thing_creation) {
                 observer_clear_query(PSt_CreatrQuery);
             }
         }

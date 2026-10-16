@@ -55,7 +55,7 @@ struct RoomQuery {
     int roomspace_discovery_looseness;
 };
 /******************************************************************************/
-struct RoomSpace get_biggest_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
+struct RoomSpace get_biggest_roomspace(NetUserId user, PlayerNumber plyr_idx, RoomKind rkind,
     MapSlabCoord cursor_x, MapSlabCoord cursor_y, short rkind_cost, 
     int total_player_money, int mode, int roomspace_discovery_looseness);
 /******************************************************************************/

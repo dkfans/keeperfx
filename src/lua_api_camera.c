@@ -35,7 +35,7 @@ struct LuaCameraView {
     int32_t view_mode;
 };
 
-static void get_lua_camera_view(const struct PlayerInfo *player, const struct UserState *ustate, struct LuaCameraView *view)
+static void get_lua_camera_view(const struct PlayerInfo *player, NetUserId user, const struct UserState *ustate, struct LuaCameraView *view)
 {
     const struct DungeonCamera dcam = ustate->dungeon_camera;
     memset(view, 0, sizeof(*view));
@@ -52,7 +52,7 @@ static void get_lua_camera_view(const struct PlayerInfo *player, const struct Us
     {
         view->zoom = 0;
         view->view_mode = LUA_CAMERA_VIEW_CREATURE;
-        const struct Thing *thing = thing_get(player->controlled_thing_idx);
+        const struct Thing *thing = thing_get(get_player_local_user_state(player)->controlled_thing_idx);
         if (!thing_exists(thing))
             break;
         view->pos = thing->mappos;
@@ -69,7 +69,7 @@ static void get_lua_camera_view(const struct PlayerInfo *player, const struct Us
     case PVT_MapScreen:
     case PVT_MapFadeOut:
     {
-        const struct Packet *pckt = get_packet(get_player_primary_user(player));
+        const struct Packet *pckt = get_packet(user);
         if (packet_camera_context(pckt) == CamIV_Parchment)
         {
             view->pos.x.val = pckt->pos_x;
@@ -133,13 +133,15 @@ static const struct luaL_Reg camera_methods[] = {
     }
 
     struct PlayerInfo *player = get_player(playerId);
-    const struct UserState *ustate = get_player_user_state(player);
-    if (user_state_invalid(ustate)) {
+    // the camera shown is the first user's of this keeper; the packet must come from that same user
+    const NetUserId user = get_player_primary_user(player);
+    const struct UserState *ustate = get_user_state(user);
+    if ((user < 0) || user_state_invalid(ustate)) {
         lua_pushnil(L);
         return 1;
     }
     struct LuaCameraView view;
-    get_lua_camera_view(player, ustate, &view);
+    get_lua_camera_view(player, user, ustate, &view);
 
     if (strcmp(key, "pos") == 0) {
         lua_pushPos(L, &view.pos);

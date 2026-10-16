@@ -137,6 +137,7 @@ TbBool view_move_camera_to_position(MapCoord *pos_x, MapCoord *pos_y, MapCoord x
 
 void update_camera_shake(void);
 void init_player_cameras(struct PlayerInfo *player);
+void init_user_camera(int user); // NetUserId
 void update_first_person_position(struct Camera *cam, struct Thing *thing, int eye_height);
 
 /******************************************************************************/

@@ -8,6 +8,7 @@
 #include "bflib_mouse.h"       // LbMouseGetActivePointerSprite
 #include "kfx/renderer/software/SwDrawTarget.h"
 #include "engine_render.h"     // process_keeper_sprite
+#include "kfx/renderer/RendererManager.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -93,6 +94,20 @@ void SoftwareCursorLayer::SubmitKeeperHandSprite(short x, short y,
                                                 TbDrawFlagsMask draw_flags)
 {
     (void)draw_flags; // no alpha-additive keeper path in this engine yet
+    const unsigned char* remap = RendererGetKeeperHandRemap();
+    if (remap != nullptr)
+    {
+        // a tinted hand (archon partner hands): the software sprite drawer remaps through lbSpriteReMapPtr, not together with transparency
+        const unsigned short saved_flags = RendererGetDrawFlags();
+        unsigned char* saved_remap = lbSpriteReMapPtr;
+        RendererClearDrawFlags(Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_TRANSPAR8);
+        RendererAddDrawFlags(Lb_SPRITE_REMAP);
+        lbSpriteReMapPtr = (unsigned char*)remap;
+        process_keeper_sprite(x, y, kspr_base, angle, sprgroup, (long)scale);
+        lbSpriteReMapPtr = saved_remap;
+        RendererSetDrawFlags(saved_flags);
+        return;
+    }
     process_keeper_sprite(x, y, kspr_base, angle, sprgroup, (long)scale);
 }
 

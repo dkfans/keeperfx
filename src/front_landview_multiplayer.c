@@ -45,6 +45,9 @@
 #include "vidfade.h"
 #include "vidmode.h"
 #include "custom_sprites.h"
+#include "front_archon.h"
+#include "net_main.h"
+#include "net_spectator.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -102,6 +105,8 @@ const int32_t hand_limp_yoffset[] = { -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, 
 long fe_net_level_selected;
 static struct NetLandLocalState net_map_local;
 static struct NetLandRemoteSlap net_map_remote_slap[MAX_NET_USERS];
+// shared campaign map: the host picked the selected level again to start it
+static TbBool archon_start_requested;
 struct ScreenPacket net_screen_packet[MAX_NET_USERS];
 /******************************************************************************/
 #ifdef __cplusplus
@@ -112,6 +117,16 @@ static void update_net_ensigns_visibility(void)
 {
     SYNCDBG(18, "Starting");
     set_all_ensigns_state(LvSt_Hidden);
+    if (archon_flow_active()) {
+        // shared campaign map: the levels the host's campaign progress shows
+        for (int i = 1; i < archon_map_levels_count(); i++) {
+            struct LevelInformation* lvinfo = get_level_info(archon_map_level(i));
+            if (lvinfo != NULL) {
+                lvinfo->state = LvSt_Visible;
+            }
+        }
+        return;
+    }
     LevelNumber lvnum = first_multiplayer_level();
     int32_t i = 0;
     while (lvnum > 0) {
@@ -153,6 +168,8 @@ static void set_packet_slap_frame(struct ScreenPacket *nspck, int32_t slap_frame
 
 void frontnetmap_unload(void)
 {
+    frontmap_briefing_hide();
+    stop_description_speech();
     unload_map_and_window();
     free_font(&map_font);
     free_spritesheet(&map_flag);
@@ -261,6 +278,9 @@ static void get_hand_packet(PlayerNumber plyr_idx, struct ScreenPacket *nspck, i
     memset(nspck, 0, sizeof(struct ScreenPacket));
     nspck->networkstatus_flags = NetStat_PlayerConnected;
     nspck->action_par1 = fe_net_level_selected;
+    if (archon_flow_active()) {
+        nspck->action_par2 = ArchonFe_OnMap;
+    }
     set_screen_packet_position(nspck, GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x, GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y);
     LevelNumber selected_level_number = get_selected_level_number();
     if (network_is_host() && (selected_level_number > SINGLEPLAYER_NOTSTARTED)) {
@@ -351,7 +371,74 @@ void frontnetmap_draw(void)
         draw_netmap_players_hands();
         draw_map_level_descriptions();
         compressed_window_draw();
+        if (archon_flow_active()) {
+            frontmap_briefing_draw();
+        }
     }
+}
+
+static void archon_show_briefing(LevelNumber lvnum)
+{
+    if (lvnum <= 0) {
+        frontmap_briefing_hide();
+        stop_description_speech();
+        return;
+    }
+    set_level_name_text(lvnum, NULL);
+    frontmap_briefing_show(lvnum);
+    play_description_speech(lvnum, 1);
+    SYNCLOG("Shared campaign map: briefing of level %d", (int)lvnum);
+}
+
+/**
+ * A user picks a level on the shared campaign map. Only the host can: picking a level selects it and
+ * shows its briefing to every user, picking the selected level again starts it, picking no level clears it.
+ * @return True if the pick was accepted.
+ */
+TbBool frontnetmap_archon_pick(LevelNumber lvnum)
+{
+    if (!archon_flow_active() || !network_is_host()) {
+        return false;
+    }
+    if (lvnum <= 0) {
+        archon_start_requested = false;
+        fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
+        archon_show_briefing(SINGLEPLAYER_NOTSTARTED);
+        return true;
+    }
+    if (!archon_map_level_visible(lvnum)) {
+        return false;
+    }
+    if (fe_net_level_selected == lvnum) {
+        archon_start_requested = true;
+        SYNCLOG("Shared campaign map: host starts level %d", (int)lvnum);
+        return true;
+    }
+    archon_start_requested = false;
+    fe_net_level_selected = lvnum;
+    archon_show_briefing(lvnum);
+    return true;
+}
+
+static void frontnetmap_archon_input(void)
+{
+    if (frontmap_briefing_input()) {
+        return;
+    }
+    net_level_highlighted = SINGLEPLAYER_NOTSTARTED;
+    frontmap_input_active_ensign(GetMouseX(), GetMouseY());
+    if (right_button_clicked) {
+        right_button_clicked = 0;
+        frontnetmap_archon_pick(SINGLEPLAYER_NOTSTARTED);
+    }
+    if (left_button_clicked) {
+        left_button_clicked = 0;
+        if (mouse_over_lvnum > 0) {
+            frontnetmap_archon_pick(mouse_over_lvnum);
+        }
+    }
+    check_mouse_scroll();
+    update_velocity();
 }
 
 void frontnetmap_input(void)
@@ -364,6 +451,10 @@ void frontnetmap_input(void)
         fe_net_level_selected = LEVELNUMBER_ERROR;
         lbKeyOn[KC_ESCAPE] = 0;
         SYNCLOG("Escaped from level selection");
+        return;
+    }
+    if (archon_flow_active()) {
+        frontnetmap_archon_input();
         return;
     }
 
@@ -418,21 +509,34 @@ TbBool frontnetmap_load(void)
             ERRORLOG("Unable to prohibit new players joining exchange");
         }
     }
+    const TbBool archon = archon_flow_active();
+    if (archon) {
+        // the frontend indexes screen packets by user, but after a shared keeper level my_player_number is the keeper
+        frontend_set_player_number(netstate.my_id);
+    }
     frontend_load_data_from_cd();
     game.selected_level_number = 0;
-    if (!load_map_and_window(0)) {
+    if (!load_map_and_window(archon ? archon_map_level(0) : 0)) {
         frontend_load_data_reset();
         return false;
     }
     switch (campaign.land_markers) {
     case LndMk_PINPOINTS:
-        map_flag = load_spritesheet("ldata/netflag_pin.dat", "ldata/netflag_pin.tab");
+        if (archon) {
+            map_flag = load_spritesheet("ldata/lndflag_pin.dat", "ldata/lndflag_pin.tab");
+        } else {
+            map_flag = load_spritesheet("ldata/netflag_pin.dat", "ldata/netflag_pin.tab");
+        }
         break;
     default:
         ERRORLOG("Unsupported land markers type %d",(int)campaign.land_markers);
         // Fall Through
     case LndMk_ENSIGNS:
-        map_flag = load_spritesheet("ldata/netflag_ens.dat", "ldata/netflag_ens.tab");
+        if (archon) {
+            map_flag = load_spritesheet("ldata/lndflag_ens.dat", "ldata/lndflag_ens.tab");
+        } else {
+            map_flag = load_spritesheet("ldata/netflag_ens.dat", "ldata/netflag_ens.tab");
+        }
         break;
     }
     
@@ -453,7 +557,18 @@ TbBool frontnetmap_load(void)
         return false;
     }
     frontend_load_data_reset();
-    frontmap_zoom_skip_init(SINGLEPLAYER_NOTSTARTED);
+    frontmap_zoom_skip_init(archon ? archon_map_level(0) : SINGLEPLAYER_NOTSTARTED);
+    if (archon) {
+        frontmap_briefing_setup();
+        initialize_description_speech();
+        // no selection or level start from before the last level may survive
+        for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+            screen_packet_set_action(&net_screen_packet[i], NetAct_None);
+            net_screen_packet[i].action_par1 = SINGLEPLAYER_NOTSTARTED;
+        }
+        SYNCLOG("Shared campaign map opened, land view of level %d", (int)archon_map_level(0));
+    }
+    archon_start_requested = false;
     fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
     net_level_highlighted = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
@@ -515,8 +630,65 @@ static TbBool hand_packet_overlaps_position(const struct ScreenPacket *hand_nspc
     return false;
 }
 
+static TbBool archon_users_selected(LevelNumber lvnum)
+{
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        if (!network_user_active(i) || network_user_is_spectator(i)) {
+            continue;
+        }
+        const struct ScreenPacket* nspck = &net_screen_packet[i];
+        if (!is_connected_screen_packet(nspck) || (nspck->action_par1 != lvnum)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static LevelNumber frontnetmap_archon_update_players(void)
+{
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        const struct ScreenPacket* nspck = &net_screen_packet[i];
+        if (!is_connected_screen_packet(nspck)) {
+            continue;
+        }
+        if (((i != my_player_number) && !network_user_active(i)) || (nspck->action_par1 == LEVELNUMBER_ERROR)) {
+            if (LbNetwork_EnableNewPlayers(1)) {
+                ERRORLOG("Unable to enable new players joining exchange");
+            }
+            frontend_set_state(FeSt_NET_START);
+            return SINGLEPLAYER_NOTSTARTED;
+        }
+    }
+    const struct ScreenPacket* host_nspck = &net_screen_packet[SERVER_ID];
+    if ((screen_packet_action(host_nspck) == NetAct_HostStartLevel) && (host_nspck->action_par1 > SINGLEPLAYER_NOTSTARTED)) {
+        return host_nspck->action_par1;
+    }
+    if (!network_is_host()) {
+        // joiners follow the host's selection; their own selection then tells the host they got the briefing
+        LevelNumber host_lvnum = SINGLEPLAYER_NOTSTARTED;
+        if (is_connected_screen_packet(host_nspck) && (host_nspck->action_par1 > SINGLEPLAYER_NOTSTARTED)) {
+            host_lvnum = host_nspck->action_par1;
+        }
+        if (host_lvnum != fe_net_level_selected) {
+            fe_net_level_selected = host_lvnum;
+            archon_show_briefing(host_lvnum);
+        }
+        return SINGLEPLAYER_NOTSTARTED;
+    }
+    // the host starts the selected level once every user has its briefing
+    if (archon_start_requested && (fe_net_level_selected > SINGLEPLAYER_NOTSTARTED)
+      && (get_selected_level_number() <= SINGLEPLAYER_NOTSTARTED) && archon_users_selected(fe_net_level_selected)) {
+        set_selected_level_number(fe_net_level_selected);
+        net_lobby_refresh_metadata();
+    }
+    return SINGLEPLAYER_NOTSTARTED;
+}
+
 static LevelNumber frontnetmap_update_players(void)
 {
+    if (archon_flow_active()) {
+        return frontnetmap_archon_update_players();
+    }
     if (!fe_network_active && (fe_net_level_selected > SINGLEPLAYER_NOTSTARTED)) {
         return fe_net_level_selected;
     }

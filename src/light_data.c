@@ -2280,7 +2280,7 @@ void update_light_render_area(void)
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     const unsigned char view_type = get_local_view_type(player);
-    if ((view_type == PVT_DungeonTop || view_type == PVT_CreatureContrl || view_type == PVT_CreaturePasngr) && (is_observer_camera_active() || player->instance_num != PI_MapFadeFrom)) {
+    if ((view_type == PVT_DungeonTop || view_type == PVT_CreatureContrl || view_type == PVT_CreaturePasngr) && (is_observer_camera_active() || get_local_user_state()->instance_num != PI_MapFadeFrom)) {
         game.something_light_y = LIGHT_MAX_RANGE;
         game.something_light_x = LIGHT_MAX_RANGE;
     }

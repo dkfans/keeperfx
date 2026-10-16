@@ -452,7 +452,12 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     if (game.game_kind == GKind_MultiGame) {
         setup_alliances();
     }
-    if (fe_computer_players || ShouldAssignCpuKeepers)
+    if (archon_campaign_active())
+    {
+        // a campaign level gets its rivals from its script, like in a local game (the lobby's setting is host-only)
+        ShouldAssignCpuKeepers = archon_campaign_assign_cpu_keepers();
+    }
+    if ((fe_computer_players && !archon_campaign_active()) || ShouldAssignCpuKeepers)
     {
         SYNCDBG(5,"Setting up uninitialized players as computer players");
         setup_computer_players();

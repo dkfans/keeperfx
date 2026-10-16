@@ -207,6 +207,11 @@ struct Camera;
 unsigned char RendererGetDrawColour(void);
 void RendererSetDrawColour(unsigned char colour);
 
+/** A 256 entry palette remap used for the keeper hand sprites submitted to the cursor layer (tints a partner's hand in archon co-op).
+ *  NULL (the default) draws them as they are. The table must stay valid while it is set. */
+void RendererSetKeeperHandRemap(const unsigned char *table);
+const unsigned char *RendererGetKeeperHandRemap(void);
+
 
 void CursorLayer_Draw(void);
 void CursorLayer_Clear(void);

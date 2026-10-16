@@ -235,15 +235,16 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
     return n;
 }
 
-TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
+TbBool control_creature_as_controller(NetUserId user, struct Thing *thing)
 {
-    struct UserState* ustate = get_player_user_state(player);
+    struct PlayerInfo *player = get_user_player(user);
+    struct UserState* ustate = get_user_state(user);
     struct CreatureModelConfig *crconf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (((thing->owner != player->id_number) && (ustate->work_state != PSt_FreeCtrlDirect))
       || !thing_can_be_controlled_as_controller(thing))
     {
-      if (!control_creature_as_passenger(player, thing))
+      if (!control_creature_as_passenger(user, thing))
         return false;
       return true;
     }
@@ -254,12 +255,12 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
         cctrl->moveto_pos.y.val = 0;
         cctrl->moveto_pos.z.val = 0;
     }
-    if (is_my_player(player))
+    if (is_local_instance_user(user))
     {
       toggle_status_menu(0);
       turn_off_roaming_menus();
     }
-    set_selected_creature(player, thing);
+    set_selected_creature(user, thing);
     thing->alloc_flags |= TAlF_IsControlled;
     thing->rendering_flags |= TRF_Invisible;
     if (!chicken)
@@ -270,7 +271,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         internal_set_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
     }
-    set_user_view_type(get_player_primary_user(player), PVT_CreatureContrl);
+    set_user_view_type(user, PVT_CreatureContrl);
     if (thing_is_creature(thing))
     {
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -284,7 +285,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         create_light_for_possession(thing);
     }
-    if ((thing->class_id == TCls_Creature) && is_my_player(player)) {
+    if ((thing->class_id == TCls_Creature) && is_local_instance_user(user)) {
         crconf = creature_stats_get_from_thing(thing);
         SYNCDBG(7,"Controlling creature '%s', eye_effect=%d", crconf->name, crconf->eye_effect);
         setup_eye_lens(crconf->eye_effect);
@@ -292,9 +293,15 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     return true;
 }
 
-TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
+TbBool control_creature_as_passenger(NetUserId user, struct Thing *thing)
 {
-    struct UserState* ustate = get_player_user_state(player);
+    struct PlayerInfo *player = get_user_player(user);
+    struct UserState* ustate = get_user_state(user);
+    if (is_thing_possessed_by_other_user(thing, user))
+    {
+        WARNLOG("The %s is already possessed by another user", thing_model_name(thing));
+        return false;
+    }
     if ((thing->owner != player->id_number) && (ustate->work_state != PSt_FreeCtrlPassngr))
     {
         ERRORLOG("Player %d cannot control as passenger thing owned by player %d",(int)player->id_number,(int)thing->owner);
@@ -306,13 +313,13 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
             thing_model_name(thing));
         return false;
     }
-    if (is_my_player(player))
+    if (is_local_instance_user(user))
     {
         toggle_status_menu(0);
         turn_off_roaming_menus();
     }
-    set_selected_thing(player, thing);
-    set_user_view_type(get_player_primary_user(player), PVT_CreaturePasngr);
+    set_selected_thing(user, thing);
+    set_user_view_type(user, PVT_CreaturePasngr);
     thing->rendering_flags |= TRF_Invisible;
     return true;
 }
@@ -377,8 +384,7 @@ void randomise_swipe_graphic_direction()
 
 void draw_swipe_graphic(void)
 {
-    const struct PlayerInfo *myplyr = get_displayed_player();
-    struct Thing* thing = thing_get(myplyr->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
     if (thing_is_creature(thing)) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (instance_draws_possession_swipe(cctrl->instance_id)) {
@@ -1133,15 +1139,16 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         {
             set_flag(cctrl->spell_flags, CSAfF_Fear);
             setup_combat_flee_position(thing);
-            if (is_thing_directly_controlled(thing))
+            for (NetUserId user = 0; user < MAX_NET_USERS; user++)
             {
-                struct PlayerInfo* player = get_player(thing->owner);
-                if (player->controlled_thing_idx == thing->index)
+                const struct UserState *ustate = get_user_state(user);
+                if ((ustate->controlled_thing_idx == thing->index) && (ustate->view_type == PVT_CreatureContrl)
+                    && is_thing_directly_controlled_by_user(user, thing))
                 {
                     char active_menu = game.active_panel_mnu_idx;
-                    leave_creature_as_controller(player, thing);
-                    control_creature_as_passenger(player, thing);
-                    if (is_my_player(player))
+                    leave_creature_as_controller(user, thing);
+                    control_creature_as_passenger(user, thing);
+                    if (is_local_instance_user(user))
                     {
                         turn_off_all_panel_menus();
                         turn_on_menu(active_menu);
@@ -1360,16 +1367,20 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_under_spell_effect(thing, CSAfF_Fear)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Fear);
-        if (is_thing_passenger_controlled_by_player(thing,thing->owner))
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++)
         {
-            struct PlayerInfo* player = get_player(thing->owner);
-            char active_menu = game.active_panel_mnu_idx;
-            leave_creature_as_passenger(player, thing);
-            control_creature_as_controller(player, thing);
-            if (is_my_player(player))
+            const struct UserState *ustate = get_user_state(user);
+            if ((ustate->controlled_thing_idx == thing->index) && (ustate->view_type == PVT_CreaturePasngr)
+                && is_thing_passenger_controlled_by_user(user, thing))
             {
-                turn_off_all_panel_menus();
-                turn_on_menu(active_menu);
+                char active_menu = game.active_panel_mnu_idx;
+                leave_creature_as_passenger(user, thing);
+                control_creature_as_controller(user, thing);
+                if (is_local_instance_user(user))
+                {
+                    turn_off_all_panel_menus();
+                    turn_on_menu(active_menu);
+                }
             }
         }
         cleared = true;
@@ -1662,7 +1673,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     if (cspell->duration == spconf->duration / 2)
     {
         PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
-        struct UserState* ustate = get_player_user_state(get_player(plyr_idx));
+        struct UserState* ustate = get_thing_user_state_or_primary(thing, get_player(plyr_idx));
         TbBool has_user = !user_state_invalid(ustate);
         unsigned char destination = has_user ? ustate->teleport_destination : 19;
         struct Coord3d pos;
@@ -3361,20 +3372,31 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 
 void prepare_to_controlled_creature_death(struct Thing *thing)
 {
-    struct PlayerInfo* player = get_player(thing->owner);
-    leave_creature_as_controller(player, thing);
-    player->influenced_thing_idx = 0;
-    player->influenced_thing_creation = 0;
-    sync_local_camera(player);
-    if (is_my_player(player)) {
-        turn_off_all_window_menus();
-        turn_off_query_menus();
-        turn_on_main_panel_menu();
-        local_state.show_panel = local_state.show_gui;
-        PaletteSetPlayerPalette(player, engine_palette);
-        local_state.palette_fade_step_possession = 11;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        struct UserState* ustate = get_user_state(user);
+        if (ustate->controlled_thing_idx != thing->index)
+            continue;
+        if (ustate->view_type != PVT_CreatureContrl && ustate->view_type != PVT_CreaturePasngr)
+            continue;
+        struct PlayerInfo* player = get_user_player(user);
+        if (ustate->view_type == PVT_CreaturePasngr)
+            leave_creature_as_passenger(user, thing);
+        else
+            leave_creature_as_controller(user, thing);
+        ustate->influenced_thing_idx = 0;
+        ustate->influenced_thing_creation = 0;
+        if (is_local_instance_user(user)) {
+            sync_local_camera(player);
+            turn_off_all_window_menus();
+            turn_off_query_menus();
+            turn_on_main_panel_menu();
+            local_state.show_panel = local_state.show_gui;
+            PaletteSetPlayerPalette(player, engine_palette);
+            local_state.palette_fade_step_possession = 11;
+        }
+        turn_user_cursor_light(user, true);
     }
-    turn_user_cursor_light(get_player_primary_user(player), true);
 }
 
 void delete_armour_effects_attached_to_creature(struct Thing *thing)
@@ -6565,7 +6587,7 @@ TngUpdateRet update_creature(struct Thing *thing)
             }
         }
         struct PlayerInfo* player = get_player(thing->owner);
-        struct UserState* ustate = get_player_user_state(player);
+        struct UserState* ustate = get_thing_user_state_or_primary(thing, player);
         if (creature_under_spell_effect(thing, CSAfF_Freeze))
         {
             if (!flag_is_set(ustate->additional_flags, UsrAF_FreezePaletteIsActive))
@@ -7230,7 +7252,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_thing_user_state_or_primary(creatng, player);
     if (!thing_is_invalid(dragtng))
     {
         if (thing_is_trap_crate(dragtng))
@@ -7381,8 +7403,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     }
     else if (object_is_gold_pile(picktng))
     {
-        struct PlayerInfo* player = get_my_player();
-        struct Thing* creatng = thing_get(player->influenced_thing_idx);
+        struct Thing* creatng = thing_get(get_local_user_state()->influenced_thing_idx);
         if (thing_is_creature(creatng))
         {
             struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
@@ -7681,9 +7702,10 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel 
     }
 }
 
-void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom)
+void query_creature(NetUserId user, ThingIndex index, TbBool reset, TbBool zoom)
 {
-    if (is_my_player(player))
+    struct UserState* ustate = get_user_state(user);
+    if (is_local_instance_user(user))
     {
         MenuID menu;
         if (reset)
@@ -7718,15 +7740,15 @@ void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, T
         turn_on_menu(menu);
     }
     struct Thing* creatng = thing_get(index);
-    player->influenced_thing_idx = index;
-    player->influenced_thing_creation = creatng->creation_turn;
+    ustate->influenced_thing_idx = index;
+    ustate->influenced_thing_creation = creatng->creation_turn;
     if (zoom)
     {
-        player->zoom_to_pos_x = creatng->mappos.x.val;
-        player->zoom_to_pos_y = creatng->mappos.y.val;
-        set_player_instance(player, PI_ZoomToPos, 0);
+        ustate->zoom_to_pos_x = creatng->mappos.x.val;
+        ustate->zoom_to_pos_y = creatng->mappos.y.val;
+        set_player_instance(user, PI_ZoomToPos, 0);
     }
-    set_player_instance(player, PI_QueryCrtr, 0);
+    set_player_instance(user, PI_QueryCrtr, 0);
 }
 
 TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
@@ -7886,22 +7908,24 @@ struct Thing *grow_up_creature(struct Thing *thing, ThingModel grow_up_model, Cr
     struct CreatureControl *cctrl = creature_control_get_from_thing(newtng);
     cctrl->countdown = 50;
     external_set_thing_state(newtng, CrSt_CreatureBeHappy);
-    struct PlayerInfo *player = get_player(thing->owner);
-    // Switch control if this creature is possessed.
-    if (is_thing_directly_controlled(thing))
+    // Switch control if this creature is possessed. Every user of the keeper is checked separately.
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        leave_creature_as_controller(player, thing);
-        control_creature_as_controller(player, newtng);
-    }
-    if (is_thing_passenger_controlled(thing))
-    {
-        leave_creature_as_passenger(player, thing);
-        control_creature_as_passenger(player, newtng);
-    }
-    // If not directly nor passenger controlled, but still player is doing something with it.
-    if (thing->index == player->controlled_thing_idx)
-    {
-        set_selected_creature(player, newtng);
+        if (is_thing_directly_controlled_by_user(user, thing))
+        {
+            leave_creature_as_controller(user, thing);
+            control_creature_as_controller(user, newtng);
+        }
+        if (is_thing_passenger_controlled_by_user(user, thing))
+        {
+            leave_creature_as_passenger(user, thing);
+            control_creature_as_passenger(user, newtng);
+        }
+        // If not directly nor passenger controlled, but still user is doing something with it.
+        if (thing->index == get_user_state(user)->controlled_thing_idx)
+        {
+            set_selected_creature(user, newtng);
+        }
     }
     remove_creature_score_from_owner(thing); // kill_creature() doesn't call this.
     // Handles picked up by player case.

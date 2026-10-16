@@ -438,6 +438,51 @@ static void draw_line_to_heart(const struct MinimapOverlay *ov)
     }
 }
 
+static void draw_overlay_partner_cross(const struct MinimapOverlay *ov, MapCoord x, MapCoord y)
+{
+    map_to_minimap(&x, &y, ov->cam, ov->zoom);
+    const TbPixel col = ((get_gameturn() % (4 * gui_blink_rate)) < 2 * gui_blink_rate) ? colours[15][15][15]
+        : player_room_colours[get_player_color_idx(ov->player->id_number)];
+    if (ov->is_low_res) {
+        panel_map_draw_pixel(x + ov->basepos, y + ov->basepos, col);
+    } else {
+        panel_map_draw_cross(x + ov->basepos, y + ov->basepos, col, ov->basic_zoom * 2);
+    }
+}
+
+/** Marks where the partner's hand points at (archon co-op) and the creature the partner possesses, with crosses in the keeper's color. */
+static void draw_overlay_partner_hands(const struct MinimapOverlay *ov)
+{
+    if (ov->player == &local_observer_player) {
+        return;
+    }
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user)
+    {
+        MapCoord x;
+        MapCoord y;
+        if (!partner_hand_user_cursor(user, &x, &y)) {
+            continue;
+        }
+        draw_overlay_partner_cross(ov, x, y);
+    }
+    // the creatures the partners are inside of
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user)
+    {
+        struct Thing *thing = partner_possessed_thing(user);
+        if (thing == NULL) {
+            continue;
+        }
+        const struct Coord2d pos = thing_minimap_position(thing, ov->cam, ov->zoom);
+        const TbPixel col = ((get_gameturn() % (4 * gui_blink_rate)) < 2 * gui_blink_rate) ? colours[15][15][15]
+            : player_room_colours[get_player_color_idx(ov->player->id_number)];
+        if (ov->is_low_res) {
+            panel_map_draw_pixel(pos.x.val + ov->basepos, pos.y.val + ov->basepos, col);
+        } else {
+            panel_map_draw_cross(pos.x.val + ov->basepos, pos.y.val + ov->basepos, col, ov->basic_zoom * 2);
+        }
+    }
+}
+
 void panel_map_draw_overlay_things(int32_t units_per_px, int32_t scaled_zoom, int32_t basic_zoom)
 {
     SYNCDBG(7,"Starting");
@@ -457,6 +502,7 @@ void panel_map_draw_overlay_things(int32_t units_per_px, int32_t scaled_zoom, in
     draw_overlay_things_of_class(TCls_Trap, draw_overlay_trap, &ov);
     draw_overlay_things_of_class(TCls_Creature, draw_overlay_creature, &ov);
     draw_overlay_things_of_class(TCls_Object, draw_overlay_spell_or_box, &ov);
+    draw_overlay_partner_hands(&ov);
     draw_line_to_heart(&ov);
 }
 

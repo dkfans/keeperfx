@@ -133,8 +133,9 @@ void delete_all_control_structures(void)
     }
 }
 
-struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, ThingModel crmodel, struct Coord3d *pos)
+struct Thing *create_and_control_creature_as_controller(NetUserId user, ThingModel crmodel, struct Coord3d *pos)
 {
+    struct PlayerInfo *player = get_user_player(user);
     SYNCDBG(6,"Request for model %d (%s) at (%d,%d,%d)",
         crmodel, creature_code_name(crmodel),(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
     struct Thing* thing = create_creature(pos, crmodel, player->id_number);
@@ -144,18 +145,18 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     dungeon->num_active_creatrs--;
     dungeon->owned_creatures_of_model[thing->model]--;
-    if (is_my_player(player))
+    if (is_local_instance_user(user))
     {
         toggle_status_menu(0);
         turn_off_roaming_menus();
     }
-    set_selected_creature(player, thing);
+    set_selected_creature(user, thing);
     thing->alloc_flags |= TAlF_IsControlled;
     thing->rendering_flags |= TRF_Invisible;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->creature_state_flags |= TF2_Spectator;
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-    set_user_view_type(get_player_primary_user(player), PVT_CreatureContrl);
+    set_user_view_type(user, PVT_CreatureContrl);
     set_start_state(thing);
     // Preparing light object
     struct InitLight ilght;
@@ -175,7 +176,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     {
         ERRORLOG("Cannot allocate light to new hero");
     }
-    if ((thing->class_id == TCls_Creature) && is_my_player(player)) {
+    if ((thing->class_id == TCls_Creature) && is_local_instance_user(user)) {
         struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
         SYNCDBG(7,"Possessing creature '%s', eye_effect=%d", crconf->name, crconf->eye_effect);
         setup_eye_lens(crconf->eye_effect);

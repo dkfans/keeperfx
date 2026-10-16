@@ -2730,12 +2730,11 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    struct PlayerInfo* current_player = get_player(plyr_idx);
     struct UserState* ustate = get_local_user_state();
     struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&ustate->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((current_player->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
+    if ((ustate->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
@@ -7042,6 +7041,9 @@ TbBool map_to_screen(struct Coord3d *pos, int32_t *screen_x, int32_t *screen_y)
         coord.y = pos->z.val - map_z_pos;
         coord.z = map_y_pos - pos->y.val;
         rotpers(&coord, &camera_matrix);
+        if ((coord.clip_flags & (0x0100 | 0x0080)) != 0) {
+            return false; // first person lenses: behind the camera or beyond the view distance
+        }
         x = coord.view_width * pixel_size;
         y = coord.view_height * pixel_size;
     }
@@ -8066,7 +8068,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
           }
           else if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
           {
-              struct Thing *creatng = thing_get(player->influenced_thing_idx);
+              struct Thing *creatng = thing_get(get_local_user_state()->influenced_thing_idx);
               if (thing_is_creature(creatng))
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -8727,12 +8729,11 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    struct PlayerInfo* current_player = get_player(plyr_idx);
     struct UserState* ustate = get_local_user_state();
     struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&ustate->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((current_player->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
+    if ((ustate->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }

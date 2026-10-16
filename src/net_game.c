@@ -21,6 +21,9 @@
 #include "net_game.h"
 
 #include "globals.h"
+#include "player_instances.h"
+#include "thing_creature.h"
+#include "creature_states.h"
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
 #include "bflib_datetm.h"
@@ -33,6 +36,7 @@
 #include "player_data.h"
 #include "front_landview.h"
 #include "player_utils.h"
+#include "player_instances.h"
 #include "light_data.h"
 #include "packets.h"
 #include "frontend.h"
@@ -49,7 +53,11 @@
 #include "net_exchange_gameplay.h"
 #include "net_input_lag.h"
 #include "net_checksums.h"
+#include "game_saves.h"
+#include "game_merge.h"
+#include "config.h"
 #include "net_spectator.h"
+#include "net_steam.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -61,6 +69,9 @@ struct TbNetworkUserInfo net_user_info[MAX_NET_USERS];
 extern int32_t multiplayer_speed_adjustment_ns;
 /******************************************************************************/
 
+// limited by the network message buffer; creatures beyond it stay with the host (see archon_campaign_restore_host_transfers)
+#define ARCHON_CARRY_TRANSFERS_MAX 64
+
 #pragma pack(1)
 struct StartupSyncPacket {
     uint8_t startup_sync_packet_valid;
@@ -71,6 +82,13 @@ struct StartupSyncPacket {
     uint32_t initial_action_seed;
     char frontend_alliances;
     int8_t player_slots[MAX_NET_USERS];
+    uint8_t archon_mode;
+    // archon co-op campaign: the host's campaign state that the simulation reads, so every peer starts from the same data
+    uint8_t campaign_mode;
+    uint8_t assign_cpu_keepers; // host's campaign.assignCpuKeepers, so every peer sets up rival keepers the same way
+    int32_t carry_campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
+    uint8_t carry_transfer_count;
+    struct CreatureStorage carry_transfers[ARCHON_CARRY_TRANSFERS_MAX];
 };
 #pragma pack()
 
@@ -80,13 +98,17 @@ short setup_network_service(enum FrontendNetService service)
   SYNCMSG("Initializing 4-players type %d network", service);
   memset(net_user_info, 0, sizeof(net_user_info));
   network_lobby_ping = 0;
-  if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN) {
+  if (service != FrontendNetSvc_Online && service != FrontendNetSvc_LAN && service != FrontendNetSvc_Steam) {
     process_network_error(-800);
     return 0;
   }
-  if ( LbNetwork_Init(NS_ENET_UDP, MAX_NET_USERS, &net_user_info[0], init_data) )
+  if ( LbNetwork_Init((service == FrontendNetSvc_Steam) ? NS_STEAM : NS_ENET_UDP, MAX_NET_USERS, &net_user_info[0], init_data) )
   {
-    process_network_error(-800);
+    if (service == FrontendNetSvc_Steam) {
+      create_frontend_error_box(steam_net_last_error());
+    } else {
+      process_network_error(-800);
+    }
     return 0;
   }
   net_service_index_selected = service;
@@ -113,6 +135,40 @@ TbBool network_is_host(void)
 
 // user->player map received with the spectator bootstrap, applied once the level is set up
 static PlayerNumber spectator_user_player_number[MAX_NET_USERS];
+// host's requested archon setting (command line); only the host's value is used
+TbBool archon_requested = false;
+// agreed archon setting, taken from the host's startup sync packet on every client
+static TbBool archon_mode_agreed = false;
+// agreed from the host's startup sync: the level is a campaign (non-multiplayer) level played in archon mode
+static TbBool archon_campaign_agreed = false;
+static TbBool archon_assign_cpu_keepers = false;
+// local only, not simulation state: what this machine does with campaign progress when the level ends
+static enum ArchonCampaignRole archon_campaign_role_state = ArchonCampaign_None;
+
+TbBool archon_mode_active(void)
+{
+    return archon_mode_agreed;
+}
+
+TbBool archon_campaign_active(void)
+{
+    return archon_mode_agreed && archon_campaign_agreed;
+}
+
+TbBool archon_campaign_assign_cpu_keepers(void)
+{
+    return archon_campaign_active() && archon_assign_cpu_keepers;
+}
+
+enum ArchonCampaignRole archon_campaign_role(void)
+{
+    return archon_campaign_role_state;
+}
+
+void archon_campaign_role_reset(void)
+{
+    archon_campaign_role_state = ArchonCampaign_None;
+}
 
 PlayerNumber get_net_user_player_number(NetUserId user)
 {
@@ -134,6 +190,12 @@ void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx)
 {
     if ((user < 0) || (user >= MAX_NET_USERS)) {
         return;
+    }
+    if (game.user_states[user].player_id != plyr_idx) {
+        const struct PlayerInfo *keeper = (plyr_idx >= 0) ? get_player(plyr_idx) : NULL;
+        if ((keeper != NULL) && !player_invalid(keeper)) {
+            game.user_states[user].hand_idx = keeper->default_hand_idx;
+        }
     }
     game.user_states[user].player_id = plyr_idx;
 }
@@ -237,6 +299,16 @@ TbBool user_cheats_allowed(NetUserId user)
     return get_user_state(user)->prefs[UPref_Cheats] != 0;
 }
 
+// true if any user driving this keeper has cheats enabled (for simulation effects with no acting user)
+TbBool player_cheats_allowed(const struct PlayerInfo *player)
+{
+    FOR_EACH_PLAYER_USER(user, player) {
+        if (user_cheats_allowed(user))
+            return true;
+    }
+    return false;
+}
+
 TbBool game_censorship_enabled(void)
 {
     for (NetUserId user = 0; user < MAX_NET_USERS; user++)
@@ -249,6 +321,7 @@ TbBool game_censorship_enabled(void)
 
 static void setup_players_from_startup_packets(const struct StartupSyncPacket startup_sync_packets[MAX_NET_USERS])
 {
+    TbBool player_seen[PLAYERS_COUNT] = {false};
     for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
         const struct StartupSyncPacket *sync = &startup_sync_packets[i];
         if (!net_user_info[i].network_user_active) {
@@ -259,13 +332,29 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
             continue;
         }
         struct PlayerInfo *player = get_player(k);
+        TbBool first_user = !player_seen[k];
+        player_seen[k] = true;
         player->id_number = k;
         player->allocflags |= PlaF_Allocated | PlaF_Seat;
         init_user_state(i, k);
         apply_user_preferences(i, sync->user_prefs, UPF_NewGame);
-        init_player(player, 0);
-        apply_user_start_tendencies(player);
-        snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", network_user_name(i));
+        if (first_user) {
+            if (archon_campaign_active() && (k == PLAYER_GOOD)) {
+                // same as a local game: the good player's seat is a keeper-like human
+                player->allocflags &= ~PlaF_CompCtrl;
+                player->player_type = PT_Keeper;
+            }
+            init_player(player, 0);
+            apply_user_start_tendencies(player);
+            snprintf(player->player_name, sizeof(player->player_name), "%s", network_user_name(i));
+        } else {
+            // archon: further users share this keeper, show all names
+            size_t len = strlen(player->player_name);
+            if (len + 1 < sizeof(player->player_name))
+            snprintf(player->player_name + len, sizeof(player->player_name) - len, " & %s", network_user_name(i));
+            // init_player() above only initialised the first user of this keeper
+            init_user_gameplay_state(i);
+        }
     }
 }
 
@@ -367,6 +456,123 @@ static void resolve_startup_player_slots(struct StartupSyncPacket *sync)
         slots_count = min(level->players, slots_count);
     }
     net_resolve_player_colours(slots_count, sync->player_slots, &sync->frontend_alliances);
+    sync->archon_mode = archon_requested;
+    // a level outside the multiplayer map list is a campaign level: the humans take over its hero keeper
+    sync->campaign_mode = sync->archon_mode && (level != NULL) && !is_multiplayer_level(get_loaded_level_number());
+    sync->assign_cpu_keepers = (sync->campaign_mode && campaign.assignCpuKeepers) ? 1 : 0;
+    if (sync->archon_mode) {
+        // every human controls the host's keeper
+        int8_t shared_slot = sync->player_slots[SERVER_ID];
+        if (sync->campaign_mode) {
+            shared_slot = (campaign.human_player >= 0) ? campaign.human_player : PLAYER0;
+        }
+        if (shared_slot < 0) {
+            shared_slot = 0;
+        }
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+            if (net_user_info[user].network_user_active) {
+                sync->player_slots[user] = shared_slot;
+            }
+        }
+        sync->frontend_alliances = 0;
+    }
+}
+
+// host-local copy of the progress' transferred creatures taken before the simulation's reduced copy replaced them
+static struct CreatureStorage s_host_transfers_backup[PLAYERS_COUNT][TRANSFER_CREATURE_STORAGE_COUNT];
+static TbBool s_host_transfers_backup_valid = false;
+static int8_t s_host_transfers_slot = -1;
+static int s_host_transfers_carried = 0; // entries of the shared slot (by index) that went into the simulation
+
+static void capture_archon_campaign_carry(struct StartupSyncPacket *sync)
+{
+    if (!sync->campaign_mode || !network_is_host()) {
+        return;
+    }
+    // the host's own campaign progress decides what the level starts with
+    load_host_campaign_progress();
+    memcpy(sync->carry_campaign_flags, intralvl.campaign_flags, sizeof(sync->carry_campaign_flags));
+    const int8_t shared_slot = sync->player_slots[SERVER_ID];
+    if ((shared_slot < 0) || (shared_slot >= PLAYERS_COUNT)) {
+        return;
+    }
+    // host-local: everything the simulation will not see, so that saving the progress later loses nothing
+    memcpy(s_host_transfers_backup, intralvl.transferred_creatures, sizeof(s_host_transfers_backup));
+    s_host_transfers_backup_valid = true;
+    s_host_transfers_slot = shared_slot;
+    for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++) {
+        const struct CreatureStorage *stored = &intralvl.transferred_creatures[shared_slot][i];
+        if (stored->model <= 0) {
+            continue;
+        }
+        if (sync->carry_transfer_count >= ARCHON_CARRY_TRANSFERS_MAX) {
+            WARNLOG("Only %d transferred creatures can be carried into a shared campaign level", (int)ARCHON_CARRY_TRANSFERS_MAX);
+            break;
+        }
+        sync->carry_transfers[sync->carry_transfer_count++] = *stored;
+        s_host_transfers_carried = i + 1;
+    }
+}
+
+// Every peer replaces the campaign data the simulation reads (script flags, transferred creatures) with the host's.
+// The remaining progress data (completed levels etc.) stays with the host, who is the only one to save it.
+static void apply_archon_campaign_carry(const struct StartupSyncPacket *host_sync)
+{
+    // every peer (host included) simulates from the same data: only the host's flags and the shared slot's creatures
+    memset(intralvl.transferred_creatures, 0, sizeof(intralvl.transferred_creatures));
+    intralvl.next_level = 0;
+    if (!network_is_host()) {
+        // clients never saw the host's progress; start from a clean, identical state
+        memset(&intralvl, 0, sizeof(intralvl));
+    }
+    memcpy(intralvl.campaign_flags, host_sync->carry_campaign_flags, sizeof(intralvl.campaign_flags));
+    const int8_t shared_slot = host_sync->player_slots[SERVER_ID];
+    if ((shared_slot < 0) || (shared_slot >= PLAYERS_COUNT)) {
+        return;
+    }
+    const int count = min((int)host_sync->carry_transfer_count, (int)ARCHON_CARRY_TRANSFERS_MAX);
+    for (int i = 0; i < count; i++) {
+        intralvl.transferred_creatures[shared_slot][i] = host_sync->carry_transfers[i];
+    }
+}
+
+// Host only, before writing the progress file: puts back the transferred creatures the simulation did not carry
+// (other keepers' slots and the shared slot's overflow), so the shared level cannot shrink the host's collection.
+void archon_campaign_restore_host_transfers(void)
+{
+    if ((archon_campaign_role_state != ArchonCampaign_Host) || !s_host_transfers_backup_valid) {
+        return;
+    }
+    const int8_t shared_slot = s_host_transfers_slot;
+    for (int p = 0; p < PLAYERS_COUNT; p++) {
+        if (p != shared_slot) {
+            memcpy(intralvl.transferred_creatures[p], s_host_transfers_backup[p], sizeof(intralvl.transferred_creatures[p]));
+        }
+    }
+    if ((shared_slot < 0) || (shared_slot >= PLAYERS_COUNT)) {
+        return;
+    }
+    // compact the simulation's current list, then append what it never received
+    struct CreatureStorage *dst = intralvl.transferred_creatures[shared_slot];
+    int n = 0;
+    for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++) {
+        if (dst[i].model > 0) {
+            if (n != i) {
+                dst[n] = dst[i];
+            }
+            n++;
+        }
+    }
+    for (int i = n; i < TRANSFER_CREATURE_STORAGE_COUNT; i++) {
+        memset(&dst[i], 0, sizeof(dst[i]));
+    }
+    for (int i = s_host_transfers_carried; (i < TRANSFER_CREATURE_STORAGE_COUNT) && (n < TRANSFER_CREATURE_STORAGE_COUNT); i++) {
+        const struct CreatureStorage *stored = &s_host_transfers_backup[shared_slot][i];
+        if (stored->model > 0) {
+            dst[n++] = *stored;
+        }
+    }
+    s_host_transfers_backup_valid = false;
 }
 
 static void build_local_startup_sync(void)
@@ -379,6 +585,7 @@ static void build_local_startup_sync(void)
     s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
     s_local_startup_sync.initial_action_seed = (uint32_t)initial_replay_seed;
     resolve_startup_player_slots(&s_local_startup_sync);
+    capture_archon_campaign_carry(&s_local_startup_sync);
 }
 
 static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USERS])
@@ -401,6 +608,10 @@ static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USE
 
 static TbBool net_startup_sync_exchange_and_apply(void)
 {
+    archon_mode_agreed = false;
+    archon_campaign_agreed = false;
+    archon_assign_cpu_keepers = false;
+    archon_campaign_role_state = ArchonCampaign_None;
     memset(s_startup_sync_packets, 0, sizeof(s_startup_sync_packets));
     if (exchange_frame_block(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket)) != Lb_OK) {
         ERRORLOG("Startup sync exchange failed");
@@ -433,6 +644,13 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         initial_replay_seed = host_sync->initial_action_seed;
     }
     frontend_alliances = host_sync->frontend_alliances;
+    archon_mode_agreed = (host_sync->archon_mode != 0);
+    archon_campaign_agreed = archon_mode_agreed && (host_sync->campaign_mode != 0);
+    archon_assign_cpu_keepers = archon_campaign_agreed && (host_sync->assign_cpu_keepers != 0);
+    if (archon_campaign_agreed) {
+        apply_archon_campaign_carry(host_sync);
+        archon_campaign_role_state = network_is_host() ? ArchonCampaign_Host : ArchonCampaign_Client;
+    }
     if (!setup_network_player_numbers(host_sync->player_slots)) {
         return false;
     }
@@ -466,6 +684,10 @@ TbBool init_players_network_game(void)
             LbNetwork_Stop();
             return false;
         }
+        archon_mode_agreed = (s_startup_sync_packets[SERVER_ID].archon_mode != 0);
+        archon_campaign_agreed = archon_mode_agreed && (s_startup_sync_packets[SERVER_ID].campaign_mode != 0);
+        archon_assign_cpu_keepers = archon_campaign_agreed && (s_startup_sync_packets[SERVER_ID].assign_cpu_keepers != 0);
+        archon_campaign_role_state = archon_campaign_agreed ? ArchonCampaign_Client : ArchonCampaign_None;
         for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
             set_net_user_player_number(user, spectator_user_player_number[user]);
         }
@@ -521,6 +743,18 @@ TbBool network_user_active(NetUserId user)
     if ((user < 0) || (user >= MAX_NET_USERS))
         return false;
     return (net_user_info[user].network_user_active != 0);
+}
+
+/** The palette entry (0..HAND_COLOUR_COUNT-1) the hand of this user is drawn in: its own choice, or one that depends on its slot.
+ *  Cosmetic: read by the renderer only. */
+uint8_t network_user_hand_colour(NetUserId user)
+{
+    if ((user < 0) || (user >= MAX_NET_USERS))
+        return 0;
+    const uint8_t chosen = netstate.users[user].hand_colour;
+    if ((chosen >= 1) && (chosen <= HAND_COLOUR_COUNT))
+        return chosen - 1;
+    return (uint8_t)(user % HAND_COLOUR_COUNT);
 }
 
 const char *network_user_name(NetUserId user)
@@ -596,14 +830,41 @@ static void forget_user(NetUserId user)
     if (ustate->cursor_light_idx != 0) {
         light_delete_light(ustate->cursor_light_idx);
     }
-    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
-        struct PlayerInfo *player = get_player(plyr_idx);
-        if (player->roomspace.is_active && player->roomspace.user == user) {
-            player->roomspace.is_active = false;
-        }
-    }
     memset(ustate, 0, sizeof(*ustate));
     ustate->player_id = PLAYER_NONE;
+}
+
+// A departing user must not leave their creature stuck in possession; this runs in sync with the simulation.
+static void release_user_possession(NetUserId user)
+{
+    struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate) || (ustate->player_id == PLAYER_NONE)) {
+        return;
+    }
+    if (ustate->view_type == PVT_CreatureContrl) {
+        struct Thing *thing = thing_get(ustate->controlled_thing_idx);
+        if (thing_exists(thing)) {
+            leave_creature_as_controller(user, thing);
+        }
+    } else if (ustate->view_type == PVT_CreaturePasngr) {
+        struct Thing *thing = thing_get(ustate->controlled_thing_idx);
+        if (thing_exists(thing)) {
+            leave_creature_as_passenger(user, thing);
+        }
+    } else if ((ustate->instance_num == PI_DirctCtrl) || (ustate->instance_num == PI_PsngrCtrl)) {
+        // possession was still starting up; the target was already switched to manual control
+        struct Thing *thing = thing_get(ustate->influenced_thing_idx);
+        if (thing_is_creature(thing) && (ustate->instance_num == PI_DirctCtrl)
+            && (thing->active_state == CrSt_ManualControl)) {
+            set_start_state(thing);
+        }
+    }
+    ustate->influenced_thing_idx = 0;
+    ustate->influenced_thing_creation = 0;
+    ustate->controlled_thing_idx = 0;
+    ustate->controlled_thing_creatrn = 0;
+    ustate->instance_num = PI_Unset;
+    ustate->instance_remain_turns = 0;
 }
 
 void remap_user_to_solo(struct PlayerInfo *myplyr, NetUserId old_user)
@@ -620,8 +881,9 @@ void remap_user_to_solo(struct PlayerInfo *myplyr, NetUserId old_user)
         old_state->player_id = PLAYER_NONE;
     }
     set_net_user_player_number(SOLO_HUMAN_ID, myplyr->id_number);
-    if (myplyr->roomspace.is_active && (myplyr->roomspace.user == old_user)) {
-        myplyr->roomspace.user = SOLO_HUMAN_ID;
+    struct UserState *solo_state = get_user_state(SOLO_HUMAN_ID);
+    if (solo_state->roomspace.is_active) {
+        solo_state->roomspace.user = SOLO_HUMAN_ID;
     }
 }
 
@@ -629,6 +891,9 @@ static void stop_network_game_state(void)
 {
     const NetUserId local_user = get_local_user();
     LbNetwork_Stop();
+    archon_mode_agreed = false;
+    archon_campaign_agreed = false;
+    archon_assign_cpu_keepers = false;
     memset(net_user_info, 0, sizeof(net_user_info));
     remap_user_to_solo(get_my_player(), local_user);
     clear_flag(local_system_flags, GSF_NetGameNoSync);
@@ -746,6 +1011,7 @@ static void remove_user_from_game(NetUserId user, TbBool announce)
     }
     struct PlayerInfo *player = get_player(ustate->player_id);
     JUSTLOG("u:%d user left the game (player %d)", (int)user, (int)ustate->player_id);
+    release_user_possession(user);
     forget_user(user);
     // another user may still be driving this keeper
     if (!player_exists(player) || get_player_primary_user(player) >= 0) {
@@ -782,6 +1048,7 @@ void process_user_leave_game_packet(NetUserId user)
     if (game.game_kind != GKind_MultiGame) {
         // the user's keeper simply vanishes
         struct PlayerInfo *player = get_player(get_net_user_player_number(user));
+        release_user_possession(user);
         forget_user(user);
         if (player_exists(player) && get_player_primary_user(player) < 0) {
             player->allocflags &= ~PlaF_Allocated;

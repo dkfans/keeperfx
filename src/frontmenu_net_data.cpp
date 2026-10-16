@@ -38,6 +38,9 @@
 #include "gui_frontbtns.h"
 #include "gui_draw.h"
 #include "frontend.h"
+#include "front_archon.h"
+#include "net_game.h"
+#include "config_campaigns.h"
 #include "front_landview.h"
 #include "net_game.h"
 #include "net_lobby.h"
@@ -153,9 +156,10 @@ struct GuiButtonInit frontend_add_session_buttons[] = {
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 3, 115,125,115,125,200,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {28}, 0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0, 115,164,115,164,187,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {19}, 0, NULL },
   { LbBtnT_EditBox, -1,-1, 0, frontnet_session_set_lobby_name, NULL, frontend_over_button, 19,320,164,320,164,211,26, frontend_draw_enter_text, 0, GUIStr_Empty, 0, {.str = net_lobby_name}, 63, NULL },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, frontnet_change_lobby_option, frontend_over_button, 1, 115,196,115,196,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {20}, 0, NULL },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, NULL, frontend_over_button, 2, 115,228,115,228,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {21}, 0, NULL },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, frontnet_change_lobby_option, frontend_over_button, 4, 115,260,115,260,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {23}, 0, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, frontnet_change_lobby_option, frontend_over_button, 1, 115,190,115,190,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {20}, 0, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, NULL, frontend_over_button, 2, 115,218,115,218,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {21}, 0, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, frontnet_change_lobby_option, frontend_over_button, 4, 115,246,115,246,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {23}, 0, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, frontnet_change_lobby_option, frontend_over_button, 5, 115,274,115,274,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {24}, 0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_create, NULL, frontend_over_button, 0,72,330,72,330,247,46, frontend_draw_small_menu_button, 0, GUIStr_Empty, 0, {117}, 0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_add_session_back, NULL, frontend_over_button, 0,321,330,321,330,247,46, frontend_draw_small_menu_button, 0, GUIStr_Empty, 0, {16}, 0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0, 0, 455, 0, 455,371,46, frontend_draw_product_version, 0, GUIStr_Empty, 0, {0}, 0, NULL },
@@ -472,6 +476,8 @@ void frontnet_draw_lobby_tooltip(struct GuiButton *gbtn)
     }
 }
 
+static long archon_session_campaign_index(void);
+
 void frontnet_draw_lobby_option(struct GuiButton *gbtn)
 {
     int font_index = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
@@ -485,6 +491,8 @@ void frontnet_draw_lobby_option(struct GuiButton *gbtn)
         font_index = 2;
     } else if (gbtn->btype_value == 4) {
         label = get_string(GUIStr_NetShowSpectatorChat);
+    } else if (gbtn->btype_value == 5) {
+        label = get_string(GUIStr_MnuCampaign);
     }
     int32_t value_offset = gbtn->width * 205 / 416;
     int32_t label_width = gbtn->width;
@@ -503,6 +511,13 @@ void frontnet_draw_lobby_option(struct GuiButton *gbtn)
         if (net_config_info.spectator_chat) {
             text = get_string(GUIStr_On);
         }
+    } else if (gbtn->btype_value == 5) {
+        // archon co-op campaign: every user plays the campaign as the same keeper
+        text = get_string(GUIStr_Off);
+        long idx = archon_session_campaign_index();
+        if (idx >= 0) {
+            text = campaigns_list.items[idx].display_name;
+        }
     }
     if (text != NULL) {
         label_width = value_offset;
@@ -510,6 +525,24 @@ void frontnet_draw_lobby_option(struct GuiButton *gbtn)
     }
     draw_lobby_text(gbtn->scr_pos_x, gbtn->scr_pos_y, label_width, gbtn->height, font_index, label);
     RendererSetDrawFlags(0);
+}
+
+/**
+ * Index in campaigns_list of the archon co-op campaign chosen for the session, or -1 when off.
+ */
+static long archon_session_campaign_index(void)
+{
+    if (!archon_requested || (archon_campaign_fname[0] == '\0')) {
+        return -1;
+    }
+    char campaign_file[DISKPATH_SIZE];
+    prepare_campaign_file_name(archon_campaign_fname, campaign_file, sizeof(campaign_file));
+    for (unsigned long i = 0; i < campaigns_list.items_num; i++) {
+        if (strcasecmp(campaigns_list.items[i].fname, campaign_file) == 0) {
+            return (long)i;
+        }
+    }
+    return -1;
 }
 
 void frontnet_change_lobby_option(struct GuiButton *gbtn)
@@ -529,6 +562,21 @@ void frontnet_change_lobby_option(struct GuiButton *gbtn)
         net_config_info.spectator_chat = !net_config_info.spectator_chat;
     } else if (gbtn->btype_value == 2) {
         net_config_info.spectators_enabled = !net_config_info.spectators_enabled;
+    } else if (gbtn->btype_value == 5) {
+        // cycle Off -> each campaign -> Off
+        long idx = archon_session_campaign_index();
+        if (gbtn->button_state_right_pressed) {
+            idx = (idx < 0) ? (long)campaigns_list.items_num - 1 : idx - 1;
+        } else {
+            idx = (idx + 1 >= (long)campaigns_list.items_num) ? -1 : idx + 1;
+        }
+        if (idx >= 0) {
+            snprintf(archon_campaign_fname, sizeof(archon_campaign_fname), "%s", campaigns_list.items[idx].fname);
+        } else {
+            archon_campaign_fname[0] = '\0';
+        }
+        archon_requested = (idx >= 0);
+        return;
     }
     net_write_config_file();
 }

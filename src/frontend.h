@@ -389,6 +389,7 @@ void frontend_load_mappacks(struct GuiButton *gbtn);
 void frontend_load_mp_mappacks(struct GuiButton *gbtn);
 void frontend_load_continue_game(struct GuiButton *gbtn);
 short frontend_save_continue_game(short allow_lvnum_grow);
+void frontend_save_archon_campaign_progress(void);
 void frontend_continue_game_maintain(struct GuiButton *gbtn);
 void frontend_main_menu_load_game_maintain(struct GuiButton *gbtn);
 void frontend_mappacks_maintain(struct GuiButton *gbtn);

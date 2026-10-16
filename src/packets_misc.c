@@ -121,6 +121,16 @@ static struct Packet *get_player_packet(const struct PlayerInfo *player)
     return get_packet(is_my_player(player) ? get_local_user() : get_player_primary_user(player));
 }
 
+// Sets the action in a specific user's packet; use when the acting user is known.
+void set_user_packet_action(NetUserId user, unsigned char pcktype,
+        unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4)
+{
+    if (user < 0) {
+        return;
+    }
+    set_packet_action(get_packet(user), pcktype, par1, par2, par3, par4);
+}
+
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
         unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4)
 {

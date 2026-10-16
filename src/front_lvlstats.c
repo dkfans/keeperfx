@@ -48,6 +48,7 @@
 #include "timer.h"
 
 #include "keeperfx.hpp"
+#include "front_archon.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -303,6 +304,8 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
 
 void init_menu_state_on_net_stats_exit(void)
 {
+    if (archon_flow_stats_leave())
+        return;
     FrontendMenuState nstate = get_menu_state_when_back_from_substate(FeSt_LEVEL_STATS);
     if (nstate == FeSt_NET_SESSION)
     {
@@ -321,6 +324,13 @@ void init_menu_state_on_net_stats_exit(void)
 void frontstats_leave(struct GuiButton *gbtn)
 {
     init_menu_state_on_net_stats_exit();
+}
+
+void frontstats_leave_maintain(struct GuiButton *gbtn)
+{
+    // archon co-op campaign: only the host continues, once every user has reached this screen
+    TbBool enabled = !archon_flow_active() || (network_is_host() && archon_flow_users_report(ArchonFe_InStats));
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * enabled) & LbBtnF_Enabled;
 }
 
 void frontstats_set_timer(void)

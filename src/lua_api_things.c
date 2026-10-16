@@ -320,8 +320,8 @@ static int thing_set_field(lua_State *L) {
         // Re-sync first-person camera with creature orientation
         struct PlayerInfo* player = get_my_player();
         if (!player_invalid(player)
-            && player->controlled_thing_idx == thing->index
-            && ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr)))
+            && get_player_local_user_state(player)->controlled_thing_idx == thing->index
+            && ((get_player_local_view_type(player) == PVT_CreatureContrl) || (get_player_local_view_type(player) == PVT_CreaturePasngr)))
         {
             set_local_camera_destination(player);
         }        

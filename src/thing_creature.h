@@ -91,10 +91,10 @@ void set_creature_level(struct Thing *thing, CrtrExpLevel exp_level);
 void init_creature_level(struct Thing *thing, CrtrExpLevel exp_level);
 long get_creature_speed(const struct Thing *thing);
 
-TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+TbBool control_creature_as_controller(NetUserId user, struct Thing *thing);
 TbBool thing_can_be_controlled_as_controller(struct Thing* thing);
-TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
-void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+TbBool control_creature_as_passenger(NetUserId user, struct Thing *thing);
+void leave_creature_as_controller(NetUserId user, struct Thing *thing);
 void prepare_to_controlled_creature_death(struct Thing* thing);
 ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
 ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
@@ -218,7 +218,7 @@ void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSu
 
 short get_creature_eye_height(const struct Thing *creatng);
 
-void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom);
+void query_creature(NetUserId user, ThingIndex index, TbBool reset, TbBool zoom);
 TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);

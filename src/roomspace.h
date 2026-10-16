@@ -110,6 +110,7 @@ struct PlayerInfo;
 struct Packet;
 /******************************************************************************/
 /******************************************************************************/
+TbBool player_has_active_roomspace(PlayerNumber plyr_idx);
 int calc_distance_from_roomspace_centre(int total_distance, TbBool offset);
 
 struct RoomSpace create_box_roomspace(struct RoomSpace roomspace, int width,
@@ -161,7 +162,7 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode);
 
 TbBool roomspace_can_build_room_at_slab(const struct RoomSpace *roomspace, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void detect_roomspace_direction(struct RoomSpace *roomspace);
-void detect_bridge_shape(PlayerNumber plyr_idx, const struct RoomSpace *roomspace);
+void detect_bridge_shape(const struct RoomSpace *roomspace);
 TbBool roomspace_liquid_path_is_blocked(PlayerNumber plyr_idx, MapSlabCoord start, MapSlabCoord end, MapSlabCoord other_axis, TbBool vertical);
 TbBool roomspace_slab_blocks_bridge(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 

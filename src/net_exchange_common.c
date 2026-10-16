@@ -231,17 +231,17 @@ void send_network_chat_message_at(NetUserId sender, const char *message, int32_t
     send_remote_buffer(write_pos);
 }
 
-struct PlayerInfo *prepare_network_chat_message(int player_id, const char *message)
+struct UserState *prepare_network_chat_message(NetUserId user, const char *message)
 {
-    struct PlayerInfo *player = get_player(player_id);
-    get_player_user_state(player)->init_flags &= ~UsrIF_NewMPMessage;
+    struct UserState *ustate = get_user_state(user);
+    ustate->init_flags &= ~UsrIF_NewMPMessage;
     if (message[0] != '\0') {
-        memcpy(player->mp_message_text, message, PLAYER_MP_MESSAGE_LEN);
-        memcpy(player->mp_message_text_last, message, PLAYER_MP_MESSAGE_LEN);
+        memcpy(ustate->mp_message_text, message, PLAYER_MP_MESSAGE_LEN);
+        memcpy(ustate->mp_message_text_last, message, PLAYER_MP_MESSAGE_LEN);
     } else {
-        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+        memset(ustate->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
     }
-    return player;
+    return ustate;
 }
 
 TbBool can_send_to_peer(NetUserId peer_id)

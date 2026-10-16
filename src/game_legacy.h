@@ -172,8 +172,6 @@ struct LogThingDesyncInfo {
 
 struct LogPlayerDesyncInfo {
     PlayerNumber id;
-    unsigned char instance_num;
-    uint32_t instance_remain_turns;
     TbBigChecksum checksum;
 };
 
@@ -181,6 +179,14 @@ struct LogUserDesyncInfo {
     NetUserId user;
     PlayerNumber player_id;
     struct Coord3d mappos;
+    unsigned char instance_num;
+    uint32_t instance_remain_turns;
+    short controlled_thing_idx;
+    unsigned char view_type;
+    int work_state;
+    int continue_work_state;
+    short hand_thing_idx;
+    short thing_under_hand;
     TbBigChecksum checksum;
 };
 

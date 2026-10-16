@@ -435,7 +435,7 @@ extern const struct NamedCommand powermodel_properties_commands[];
 extern const struct LongNamedCommand powermodel_castability_commands[];
 extern const struct NamedCommand powermodel_expand_check_func_type[];
 extern const struct NamedCommand magic_power_commands[];
-extern unsigned char (*const powermodel_expand_check_func_list[])(const struct PlayerInfo *player);
+extern unsigned char (*const powermodel_expand_check_func_list[])(const struct UserState *ustate);
 extern const struct NamedCommand magic_use_func_commands[];
 extern const struct NamedCommand magic_cost_formula_commands[];
 /******************************************************************************/

@@ -159,6 +159,9 @@ struct CampaignsList;
 TbBool campaign_progress_exists(const struct GameCampaign *campgn);
 void update_campaigns_progress_percent(struct CampaignsList *clist);
 TbBool resume_campaign_progress(const char *cmpgn_fname);
+TbBool load_host_campaign_progress(void);
+LevelNumber peek_campaign_continue_level(void);
+const char *get_campaign_progress_path(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

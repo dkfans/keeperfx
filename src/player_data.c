@@ -72,6 +72,22 @@ int32_t get_player_dungeon_yaw(const struct PlayerInfo *player)
 }
 
 
+struct UserState *get_player_local_user_state(const struct PlayerInfo *player)
+{
+    struct UserState *lstate = get_local_user_state();
+    if (!user_state_invalid(lstate) && (player != NULL) && (lstate->player_id == player->id_number))
+        return lstate;
+    return get_player_user_state(player);
+}
+
+unsigned char get_player_local_view_type(const struct PlayerInfo *player)
+{
+    const struct UserState *ustate = get_player_local_user_state(player);
+    if (user_state_invalid(ustate))
+        return PVT_DungeonTop;
+    return ustate->view_type;
+}
+
 unsigned char get_player_view_type(const struct PlayerInfo *player)
 {
     const struct UserState *ustate = get_player_user_state(player);
@@ -80,10 +96,49 @@ unsigned char get_player_view_type(const struct PlayerInfo *player)
     return ustate->view_type;
 }
 
-/** Which of a user's local cameras shows this player's view. */
-unsigned char get_player_active_camera_index(const struct PlayerInfo *player)
+/** True if any user of the keeper is looking at the dungeon (not map screen or first person), or the keeper has no users. Synced state only. */
+TbBool player_has_user_in_dungeon_view(const struct PlayerInfo *player)
 {
-    switch (get_player_view_type(player))
+    TbBool any_user = false;
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+        const struct UserState *ustate = &game.user_states[user];
+        if (ustate->player_id != player->id_number)
+            continue;
+        any_user = true;
+        if (ustate->view_type <= PVT_DungeonTop)
+            return true;
+    }
+    return !any_user;
+}
+
+/** View type of the keeper for scripts: a possessing user takes precedence over the first user. Synced state only. */
+unsigned char get_player_script_view_type(const struct PlayerInfo *player)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+        const struct UserState *ustate = &game.user_states[user];
+        if ((ustate->player_id == player->id_number)
+            && ((ustate->view_type == PVT_CreatureContrl) || (ustate->view_type == PVT_CreaturePasngr)))
+            return ustate->view_type;
+    }
+    return get_player_view_type(player);
+}
+
+/** Thing possessed by the keeper for scripts: same precedence as get_player_script_view_type. Synced state only. */
+ThingIndex get_player_script_controlled_thing(const struct PlayerInfo *player)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+        const struct UserState *ustate = &game.user_states[user];
+        if ((ustate->player_id == player->id_number)
+            && ((ustate->view_type == PVT_CreatureContrl) || (ustate->view_type == PVT_CreaturePasngr)))
+            return ustate->controlled_thing_idx;
+    }
+    return 0;
+}
+
+/** Which camera shows the given user's view. Synced state only. */
+unsigned char get_user_active_camera_index(const struct UserState *ustate)
+{
+    switch (ustate->view_type)
     {
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
@@ -92,8 +147,17 @@ unsigned char get_player_active_camera_index(const struct PlayerInfo *player)
     case PVT_MapFadeOut:
         return CamIV_Parchment;
     default:
-        return (get_player_user_state(player)->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric;
+        return (ustate->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric;
     }
+}
+
+/** Which of the local user's cameras shows this player's view. Local presentation only. */
+unsigned char get_player_active_camera_index(const struct PlayerInfo *player)
+{
+    const struct UserState *ustate = get_player_local_user_state(player);
+    if (user_state_invalid(ustate))
+        return CamIV_Isometric;
+    return get_user_active_camera_index(ustate);
 }
 
 
@@ -208,6 +272,106 @@ NetUserId get_player_primary_user(const struct PlayerInfo *player)
         }
     }
     return -1;
+}
+
+static NetUserId current_acting_user = -1;
+
+void set_acting_user(NetUserId user)
+{
+    current_acting_user = user;
+}
+
+NetUserId get_player_acting_user(const struct PlayerInfo *player)
+{
+    if ((current_acting_user >= 0) && (current_acting_user < MAX_NET_USERS) && (player != NULL)
+        && (game.user_states[current_acting_user].player_id == player->id_number)) {
+        return current_acting_user;
+    }
+    return get_player_primary_user(player);
+}
+
+/** Applies a hand style to every user controlling the given keeper. */
+void set_player_users_hand_idx(PlayerNumber plyr_idx, unsigned char hand_idx)
+{
+    struct PlayerInfo *player = get_player(plyr_idx);
+    if (!player_invalid(player)) {
+        player->default_hand_idx = hand_idx;
+    }
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+        if (game.user_states[user].player_id == plyr_idx) {
+            game.user_states[user].hand_idx = hand_idx;
+        }
+    }
+}
+
+TbBool user_drives_player(NetUserId user, const struct PlayerInfo *player)
+{
+    if ((player == NULL) || player_invalid(player) || (player == &local_observer_player))
+        return false;
+    if ((user < 0) || (user >= MAX_NET_USERS))
+        return false;
+    return game.user_states[user].player_id == player->id_number;
+}
+
+uint32_t get_player_user_mask(const struct PlayerInfo *player)
+{
+    uint32_t mask = 0;
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+        if (user_drives_player(user, player)) {
+            mask |= (1u << user);
+        }
+    }
+    return mask;
+}
+
+/** Finds the user who is currently possessing the given thing, or -1 if none. Scans synced user states only. */
+NetUserId get_thing_controlling_user(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return -1;
+    for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+        const struct UserState *ustate = &game.user_states[user];
+        // controlled_thing_idx doubles as the query selection slot, so require an actual possession view
+        if (ustate->view_type != PVT_CreatureContrl && ustate->view_type != PVT_CreaturePasngr) {
+            continue;
+        }
+        if (ustate->controlled_thing_idx == thing->index) {
+            return user;
+        }
+    }
+    return -1;
+}
+
+/** Checks whether a user other than the given one is possessing the thing, or is in the middle of starting to. Synced state only. */
+TbBool is_thing_possessed_by_other_user(const struct Thing *thing, NetUserId user)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    for (NetUserId other = 0; other < MAX_NET_USERS; ++other) {
+        if (other == user)
+            continue;
+        const struct UserState *ustate = &game.user_states[other];
+        if (ustate->player_id == PLAYER_NONE)
+            continue;
+        if ((ustate->view_type == PVT_CreatureContrl) || (ustate->view_type == PVT_CreaturePasngr)) {
+            if (ustate->controlled_thing_idx == thing->index)
+                return true;
+        }
+        if ((ustate->instance_num == PI_DirctCtrl) || (ustate->instance_num == PI_PsngrCtrl)) {
+            if (ustate->influenced_thing_idx == thing->index)
+                return true;
+        }
+    }
+    return false;
+}
+
+struct UserState *get_thing_user_state_or_primary(const struct Thing *thing, const struct PlayerInfo *player)
+{
+    NetUserId user = get_thing_controlling_user(thing);
+    if (user >= 0) {
+        return get_user_state(user);
+    }
+    return get_player_user_state(player);
 }
 
 struct UserState *get_player_user_state(const struct PlayerInfo *player)
@@ -518,7 +682,7 @@ void set_user_work_state(NetUserId user, short nwrk_state, int32_t chosen_kind)
      && (ustate->work_state != PSt_CtrlDirect) && (ustate->work_state != PSt_CtrlPassngr)
      && (ustate->work_state != PSt_FreeCtrlDirect) && (ustate->work_state != PSt_FreeCtrlPassngr))
   {
-      clear_selected_thing(player);
+      clear_selected_thing(user);
   }
   switch (ustate->work_state)
   {
@@ -658,14 +822,14 @@ void set_user_view_type(NetUserId user, unsigned short nview)
         update_engine_view(player, leaving_map);
       break;
   case PVT_MapFadeIn:
-      set_player_instance(player, PI_MapFadeTo, 0);
-      if (player->instance_num == PI_MapFadeTo)
-          player->instance_remain_turns = max((int32_t)ustate->prefs[UPref_MapFade], 1);
+      set_player_instance(user, PI_MapFadeTo, 0);
+      if (ustate->instance_num == PI_MapFadeTo)
+          ustate->instance_remain_turns = max((int32_t)ustate->prefs[UPref_MapFade], 1);
       break;
   case PVT_MapFadeOut:
-      set_player_instance(player, PI_MapFadeFrom, 0);
-      if (player->instance_num == PI_MapFadeFrom)
-          player->instance_remain_turns = max((int32_t)ustate->prefs[UPref_MapFade], 1);
+      set_player_instance(user, PI_MapFadeFrom, 0);
+      if (ustate->instance_num == PI_MapFadeFrom)
+          ustate->instance_remain_turns = max((int32_t)ustate->prefs[UPref_MapFade], 1);
       break;
   }
 }

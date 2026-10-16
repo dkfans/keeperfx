@@ -448,7 +448,7 @@ const struct NamedCommand magic_use_func_commands[] = {
 };
 
 
-unsigned char (*const powermodel_expand_check_func_list[])(const struct PlayerInfo *player) = {
+unsigned char (*const powermodel_expand_check_func_list[])(const struct UserState *ustate) = {
   NULL,
   general_expand_check,
   sight_of_evil_expand_check,
@@ -1403,7 +1403,6 @@ TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    struct PlayerInfo* player;
     struct Thing* thing;
     if (dungeon_invalid(dungeon))
     {
@@ -1433,11 +1432,14 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
             turn_off_power_call_to_arms(plyr_idx);
         break;
     case PwrK_POSSESS:
-        player = get_player(plyr_idx);
-        if (get_player_view_type(player) == PVT_CreatureContrl)
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++)
         {
-            thing = thing_get(player->controlled_thing_idx);
-            prepare_to_controlled_creature_death(thing);
+            const struct UserState *ustate = get_user_state(user);
+            if ((ustate->player_id == plyr_idx) && (ustate->view_type == PVT_CreatureContrl))
+            {
+                thing = thing_get(ustate->controlled_thing_idx);
+                prepare_to_controlled_creature_death(thing);
+            }
         }
         break;
     }

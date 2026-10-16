@@ -408,6 +408,10 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
             if (flag_is_set(get_creature_model_flags(thing), CMF_CannotPossess)) {
                 return false;
             }
+            // already possessed by one of this keeper's users
+            if (get_thing_controlling_user(thing) >= 0) {
+                return false;
+            }
         }
         if (creature_is_leaving_and_cannot_be_stopped(thing))
         {
@@ -1801,12 +1805,24 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
     }
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
-    if ((player->instance_num == PI_Whip) || (get_gameturn() - dungeon->last_creature_dropped_gameturn <= 10)) {
+    // The acting user is the one whose packet is being processed; script/AI callers fall back to the first user
+    const NetUserId user = get_player_acting_user(player);
+    struct UserState* ustate = get_user_state(user);
+    if (user_state_invalid(ustate)) {
+        // Players without a user (computer players) have nowhere to run the whip animation, so slap immediately
+        if (get_gameturn() - dungeon->last_creature_dropped_gameturn <= 10) {
+            return Lb_OK;
+        }
+        player_slap_thing_now(player, thing);
+        dungeon->lvstats.num_slaps++;
+        return Lb_SUCCESS;
+    }
+    if ((ustate->instance_num == PI_Whip) || (get_gameturn() - dungeon->last_creature_dropped_gameturn <= 10)) {
         return Lb_OK;
     }
-    player->influenced_thing_idx = thing->index;
-    player->influenced_thing_creation = thing->creation_turn;
-    set_player_instance(player, PI_Whip, 0);
+    ustate->influenced_thing_idx = thing->index;
+    ustate->influenced_thing_creation = thing->creation_turn;
+    set_player_instance(user, PI_Whip, 0);
     dungeon->lvstats.num_slaps++;
     return Lb_SUCCESS;
 }
@@ -1823,6 +1839,18 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
         }
     }
 
+    player = get_player(plyr_idx);
+    // The acting user is the one whose packet is being processed; script/AI callers fall back to the first user
+    const NetUserId user = get_player_acting_user(player);
+    struct UserState* ustate = get_user_state(user);
+    if (user_state_invalid(ustate)) {
+        return Lb_FAIL;
+    }
+    // A creature can only be possessed by one user of the keeper at a time
+    if (is_thing_possessed_by_other_user(thing, user)) {
+        return Lb_FAIL;
+    }
+
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the power, fail
@@ -1831,17 +1859,14 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
             return Lb_OK;
         }
     }
-
-    player = get_player(plyr_idx);
-    player->influenced_thing_idx = thing->index;
-    player->influenced_thing_creation = thing->creation_turn;
-    struct UserState* ustate = get_player_user_state(player);
+    ustate->influenced_thing_idx = thing->index;
+    ustate->influenced_thing_creation = thing->creation_turn;
     ustate->first_person_dig_claim_mode = false;
     ustate->teleport_destination = 19; // reset to default behaviour
     ustate->battleid = 1;
-    // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
-    set_player_instance(player, PI_DirctCtrl, 0);
-    if (is_my_player(player)) {
+    // Note that setting Direct Control player instance requires ustate->influenced_thing_idx to be set correctly
+    set_player_instance(user, PI_DirctCtrl, 0);
+    if (is_local_instance_user(user)) {
         clear_flag(tool_tip_box.flags, TTip_Visible);
     }
     return Lb_SUCCESS;
@@ -2277,10 +2302,10 @@ TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, KeepPwr
     return magic_use_power_direct(caster,pwkind,power_level,stl_x,stl_y,thing,mod_flags);
 }
 
-int get_power_overcharge_level(const struct PlayerInfo *player)
+int get_power_overcharge_level(const struct UserState *ustate)
 {
     int i;
-    i = (player->cast_expand_level >> 2);
+    i = (ustate->cast_expand_level >> 2);
     if (i > POWER_MAX_LEVEL)
         return POWER_MAX_LEVEL;
     return i;
@@ -2289,26 +2314,29 @@ int get_power_overcharge_level(const struct PlayerInfo *player)
 /**
  * @return Is it necessary to continue trying the operation of increasing spell level
  */
-TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
+TbBool update_power_overcharge(NetUserId user, int pwkind)
 {
   struct Dungeon *dungeon;
   int i;
+  struct UserState *ustate = get_user_state(user);
+  if (user_state_invalid(ustate))
+      return false;
   if (pwkind >= game.conf.magic_conf.power_types_count)
       return false;
-  dungeon = get_dungeon(player->id_number);
+  dungeon = get_dungeon(ustate->player_id);
   const struct PowerConfigStats *powerst;
   powerst = get_power_model_stats(pwkind);
-  i = (player->cast_expand_level+1) >> 2;
+  i = (ustate->cast_expand_level+1) >> 2;
   if (i > POWER_MAX_LEVEL)
     i = POWER_MAX_LEVEL;
   if (powerst->cost[i] <= dungeon->total_money_owned)
   {
     // If we have more money, increase overcharge
-    if (((player->cast_expand_level+1) >> 2) <= POWER_MAX_LEVEL)
+    if (((ustate->cast_expand_level+1) >> 2) <= POWER_MAX_LEVEL)
     {
-      player->cast_expand_level++;
+      ustate->cast_expand_level++;
     }
-    if (((player->cast_expand_level+1) >> 2) <= POWER_MAX_LEVEL)
+    if (((ustate->cast_expand_level+1) >> 2) <= POWER_MAX_LEVEL)
     {
       return true;
     }
@@ -2321,9 +2349,9 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
       if (i < 0) break;
     }
     if (i >= 0)
-      player->cast_expand_level = (i << 2) + 1;
+      ustate->cast_expand_level = (i << 2) + 1;
     else
-      player->cast_expand_level = 0;
+      ustate->cast_expand_level = 0;
   }
   return false;
 }

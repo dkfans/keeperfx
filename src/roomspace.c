@@ -297,8 +297,7 @@ struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace, short rkin
         roomspace.is_roomspace_a_box = (roomspace.slab_count == 0); // don't need a "fancy" roomspace for a room with no valid slabs
         roomspace.render_roomspace_as_box = roomspace.is_roomspace_a_box;
     }
-    struct PlayerInfo* player = get_player(roomspace.plyr_idx);
-    if (get_player_user_state(player)->roomspace_mode != drag_placement_mode) // don't alter the roomspace in drag mode
+    if (get_user_state(roomspace.user)->roomspace_mode != drag_placement_mode) // don't alter the roomspace in drag mode
     {
         if ((roomspace.slab_count == 0) || (roomspace.slab_count > MAX_USER_ROOMSPACE_WIDTH * MAX_USER_ROOMSPACE_WIDTH))
         {
@@ -811,7 +810,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, NetUserId use
     }
     if (mode == roomspace_detection_mode) // room auto-detection mode
     {
-        best_roomspace = get_biggest_roomspace(plyr_idx, rkind, slb_x, slb_y, roomst->cost, 0, 32, ustate->roomspace_detection_looseness);
+        best_roomspace = get_biggest_roomspace(user, plyr_idx, rkind, slb_x, slb_y, roomst->cost, 0, 32, ustate->roomspace_detection_looseness);
         best_roomspace.plyr_idx = plyr_idx;
         best_roomspace.user = user;
         slb_x = best_roomspace.centreX;
@@ -857,7 +856,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, NetUserId use
             temp_best_room = create_box_roomspace(best_roomspace, 1, 1, slb_x, slb_y);
         }
         if (temp_best_room.drag_mode && room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava|RoRoF_PassAbyss)) {
-            detect_bridge_shape(plyr_idx, &temp_best_room);
+            detect_bridge_shape(&temp_best_room);
         }
         temp_best_room = check_slabs_in_roomspace(temp_best_room, roomst->cost);
         best_roomspace = temp_best_room;
@@ -1108,22 +1107,22 @@ void keeper_highlight_roomspace(NetUserId user, struct RoomSpace *roomspace)
 
 void keeper_start_roomspace(NetUserId user, const struct RoomSpace *roomspace, RoomKind rkind)
 {
-    struct PlayerInfo *player = get_user_player(user);
-    if (player->roomspace.is_active) {
+    struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate) || ustate->roomspace.is_active) {
         return;
     }
-    player->roomspace = *roomspace;
-    player->roomspace.user = user;
-    player->roomspace.plyr_idx = player->id_number;
-    player->roomspace.rkind = rkind;
-    player->roomspace.is_active = true;
-    player->roomspace.buildx = roomspace->left;
-    player->roomspace.buildy = roomspace->top;
+    ustate->roomspace = *roomspace;
+    ustate->roomspace.user = user;
+    ustate->roomspace.plyr_idx = get_net_user_player_number(user);
+    ustate->roomspace.rkind = rkind;
+    ustate->roomspace.is_active = true;
+    ustate->roomspace.buildx = roomspace->left;
+    ustate->roomspace.buildy = roomspace->top;
     if (roomspace->drag_mode) {
-        player->roomspace.buildx = roomspace->drag_start_x;
-        player->roomspace.buildy = roomspace->drag_start_y;
+        ustate->roomspace.buildx = roomspace->drag_start_x;
+        ustate->roomspace.buildy = roomspace->drag_start_y;
     }
-    find_next_point(&player->roomspace, false);
+    find_next_point(&ustate->roomspace, false);
 }
 
 static void keeper_update_roomspace(struct RoomSpace *roomspace)
@@ -1147,13 +1146,30 @@ static void keeper_update_roomspace(struct RoomSpace *roomspace)
     find_next_point(roomspace, true);
 }
 
+TbBool player_has_active_roomspace(PlayerNumber plyr_idx)
+{
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        const struct UserState *ustate = get_user_state(user);
+        if (!user_state_invalid(ustate) && ustate->roomspace.is_active && (get_net_user_player_number(user) == plyr_idx)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void update_roomspaces()
 {
-    for (PlayerNumber plyr_idx = 0; plyr_idx < DUNGEONS_COUNT; plyr_idx++)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
+        struct UserState *ustate = get_user_state(user);
+        if (user_state_invalid(ustate) || !ustate->roomspace.is_active) {
+            continue;
+        }
+        PlayerNumber plyr_idx = get_net_user_player_number(user);
         if (is_active_keeper(get_player(plyr_idx)))
         {
-            keeper_update_roomspace(&get_player(plyr_idx)->roomspace);
+            keeper_update_roomspace(&ustate->roomspace);
         }
     }
 }
@@ -1311,7 +1327,7 @@ TbBool roomspace_can_build_room_at_slab(const struct RoomSpace *roomspace, MapSl
     if (!room_can_build_on_bridge_slab(rkind, slb->kind)) {
         return false;
     }
-    struct UserState* ustate = get_player_user_state(get_player(plyr_idx));
+    struct UserState* ustate = get_user_state(roomspace->user);
     if (ustate->roomspace_horizontal_first) {
         if (roomspace_liquid_path_is_blocked(plyr_idx, roomspace->drag_start_x, slb_x, roomspace->drag_start_y, 0)) {
             return false;
@@ -1370,9 +1386,9 @@ void detect_roomspace_direction(struct RoomSpace *roomspace)
     }
 }
 
-void detect_bridge_shape(PlayerNumber plyr_idx, const struct RoomSpace *roomspace)
+void detect_bridge_shape(const struct RoomSpace *roomspace)
 {
-    struct UserState *ustate = get_player_user_state(get_player(plyr_idx));
+    struct UserState *ustate = get_user_state(roomspace->user);
     if (roomspace->drag_end_x != roomspace->drag_start_x) {
         if (roomspace->drag_start_y == roomspace->drag_end_y) {
             ustate->roomspace_horizontal_first = true;

@@ -41,7 +41,7 @@ bool GameUI::IsActiveForCurrentView(const struct PlayerInfo* player) const
     if (view_type == PVT_MapScreen || view_type == PVT_MapFadeIn || view_type == PVT_MapFadeOut) {
         return false;
     }
-    if (!is_observer_camera_active() && (player->instance_num == PI_MapFadeTo || player->instance_num == PI_MapFadeFrom)) {
+    if (!is_observer_camera_active() && (get_local_user_state()->instance_num == PI_MapFadeTo || get_local_user_state()->instance_num == PI_MapFadeFrom)) {
         return false;
     }
     return true;
@@ -66,6 +66,7 @@ void GameUI::DrawFrame(struct PlayerInfo* player)
     
     message_draw();
     draw_power_hand();
+    draw_partner_hands();
     RendererBeginOverlayCapture(OVERLAY_CAPTURE_TOOLTIP);
     draw_tooltip();
     RendererEndOverlayCapture(OVERLAY_CAPTURE_TOOLTIP);

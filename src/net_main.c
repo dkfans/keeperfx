@@ -19,7 +19,10 @@
 #include "bflib_datetm.h"
 
 #include "bflib_enet.h"
+#include "net_steam.h"
 #include "keeperfx.hpp"
+#include "config_settings.h"
+#include "power_hand.h"
 #include "post_inc.h"
 
 static struct TbNetworkUserInfo *local_user_info;
@@ -91,6 +94,13 @@ void send_remote_buffer(const char *end_ptr)
     }
 }
 
+uint8_t net_local_hand_colour(void)
+{
+    if ((hand_colour_cmdline >= 0) && (hand_colour_cmdline <= HAND_COLOUR_COUNT))
+        return (uint8_t)hand_colour_cmdline;
+    return (settings.hand_colour <= HAND_COLOUR_COUNT) ? settings.hand_colour : 0;
+}
+
 void SendUserUpdate(NetUserId dest, NetUserId updated_user)
 {
     char *write_pos = begin_net_message(NETMSG_USERUPDATE);
@@ -102,6 +112,8 @@ void SendUserUpdate(NetUserId dest, NetUserId updated_user)
     write_pos += strlen(netstate.users[updated_user].name) + 1;
     memcpy(write_pos, &netstate.users[updated_user].version, sizeof(netstate.users[updated_user].version));
     write_pos += sizeof(netstate.users[updated_user].version);
+    *write_pos = netstate.users[updated_user].hand_colour;
+    write_pos += 1;
     send_message_buffer(dest, write_pos);
 }
 
@@ -116,6 +128,9 @@ TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkU
     if (srvcindex == NS_ENET_UDP) {
         netstate.sp = InitEnetSP();
         NETMSG("Selecting UDP");
+    } else if (srvcindex == NS_STEAM) {
+        netstate.sp = InitSteamSP();
+        NETMSG("Selecting Steam");
     } else {
         WARNLOG("The serviceIndex value of %u is out of range", srvcindex);
     }

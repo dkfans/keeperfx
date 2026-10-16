@@ -39,6 +39,7 @@
 #include "bflib_filelst.h"
 #include "bflib_sound.h"
 #include "net_lobby.h"
+#include "net_steam.h"
 #include "config.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
@@ -64,6 +65,8 @@
 #include "front_easter.h"
 #include "front_network.h"
 #include "net_game.h"
+#include "front_archon.h"
+#include "archon_test.h"
 #include "frontmenu_net.h"
 #include "frontmenu_options.h"
 #include "frontmenu_specials.h"
@@ -125,7 +128,7 @@ struct GuiButtonInit frontend_statistics_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {84},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999,  90, 999,  90,450,162, frontstats_draw_main_stats,        0, GUIStr_Empty,  0,       {0},            0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0, 999, 260, 999, 260,450,136, frontstats_draw_scrolling_stats,   0, GUIStr_Empty,  0,       {0},            0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontstats_leave,NULL,frontend_over_button,           18, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, NULL },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontstats_leave,NULL,frontend_over_button,           18, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, frontstats_leave_maintain },
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
 
@@ -1330,6 +1333,12 @@ void frontend_draw_mp_mappack(struct GuiButton *gbtn)
 
 void set_packet_start(struct GuiButton *gbtn)
 {
+    if (network_is_host() && archon_requested && (archon_campaign_fname[0] != '\0'))
+    {
+        // archon co-op campaign: everyone goes to the shared campaign map
+        archon_host_open_campaign_map();
+        return;
+    }
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
     if (screen_packet_action(nspck) == NetAct_None)
@@ -1621,6 +1630,9 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     short flg_mem;
     LevelNumber lvnum;
     struct UserState *ustate = get_user_state(get_local_user());
+    // Archon campaign levels save their progress in frontend_save_archon_campaign_progress, once the level has ended
+    if (archon_campaign_role() != ArchonCampaign_None)
+        return false;
     lvnum = get_loaded_level_number();
     SYNCDBG(6,"Starting");
     player = get_my_player();
@@ -1662,6 +1674,28 @@ short frontend_save_continue_game(short allow_lvnum_grow)
         move_campaign_to_next_level();
     }
     return save_level_progress(lvnum, player->victory_state);
+}
+
+/**
+ * Archon co-op campaign: after the level has ended, the host (and only the host) records the result
+ * in its own campaign progress. Clients' progress files are never touched.
+ */
+void frontend_save_archon_campaign_progress(void)
+{
+    const enum ArchonCampaignRole role = archon_campaign_role();
+    archon_campaign_role_reset();
+    if (role != ArchonCampaign_Host)
+        return;
+    LevelNumber lvnum = get_loaded_level_number();
+    struct PlayerInfo *player = get_my_player();
+    if (player_invalid(player) || (player->victory_state == VicS_Undecided) || replay.load_enable
+     || is_freeplay_level(lvnum) || is_multiplayer_level(lvnum))
+        return;
+    if ((player->victory_state == VicS_WonLevel) && (lvnum == get_continue_level_number())) {
+        SYNCDBG(7,"Progressing the campaign");
+        move_campaign_to_next_level();
+    }
+    save_level_progress(lvnum, player->victory_state);
 }
 
 void frontend_load_continue_game(struct GuiButton *gbtn)
@@ -2729,6 +2763,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_MAIN_MENU:
           stop_music(true);
+          archon_flow_reset();
           continue_game_option_available = continue_game_available();
           if (!is_campaign_loaded()) {
               change_campaign(CampgnT_Default,"");
@@ -3610,12 +3645,50 @@ void display_objectives_with_icon(PlayerNumber plyr_idx, MapSubtlCoord x, MapSub
     }
 }
 
+/**
+ * Main menu while started with -steamjoin/-steamhost: when a Steam invite is accepted
+ * (overlay "Join Game", friends list) start joining that lobby straight away.
+ */
+static void frontend_steam_invite_update(void)
+{
+    if (!steam_wait_for_invite)
+    {
+        const char *error = steam_net_take_error();
+        if (error != NULL)
+            create_frontend_error_box(error);
+        return;
+    }
+    char lobby[32];
+    if (!steam_net_poll_join_request(lobby, sizeof(lobby)))
+        return;
+    SYNCLOG("Steam invite for lobby %s", lobby);
+    time_last_played_demo = LbTimerClock(); // stay on the main menu instead of drifting to the demo
+    LbNetwork_ClearCmdLineSessions();
+    LbNetwork_InitSessionsFromCmdLine(lobby);
+    if (!setup_network_service(FrontendNetSvc_Steam))
+        return;
+    frontnet_service_setup();
+    frontnet_session_setup();
+    net_number_of_sessions = 0;
+    memset(net_session, 0, sizeof(net_session));
+    if (LbNetwork_EnumerateSessions(enum_sessions_callback, 0))
+    {
+        ERRORLOG("LbNetwork_EnumerateSessions() failed");
+        return;
+    }
+    net_session_index_active = 0;
+    frontnet_session_join(NULL);
+}
+
 void frontend_update(short *finish_menu)
 {
     SYNCDBG(18,"Starting for menu state %d", (int)frontend_menu_state);
+    archon_flow_update();
+    archontest_frontend_update();
     switch ( frontend_menu_state )
     {
     case FeSt_MAIN_MENU:
+        frontend_steam_invite_update();
         frontend_button_info[8].font_index = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
         if ( abs(LbTimerClock()-(long)time_last_played_demo) > MNU_DEMO_IDLE_TIME )
@@ -3748,6 +3821,10 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     case FeSt_DRAG:
         return FeSt_TORTURE;
     case FeSt_LEVEL_STATS:
+        if (archon_flow_active()) {
+            // archon co-op campaign: the host takes everyone on to the shared campaign map
+            return FeSt_LEVEL_STATS;
+        }
         if (network_is_active() || skip_high_score_screen) {
             return FeSt_NET_SESSION;
         }
@@ -3786,7 +3863,7 @@ FrontendMenuState get_startup_menu_state(void)
       game_flags2 &= ~GF2_Server;
       SYNCLOG("Setup server");
 
-      if (setup_network_service(FrontendNetSvc_Online))
+      if (setup_network_service(steam_host_requested ? FrontendNetSvc_Steam : FrontendNetSvc_Online))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3798,7 +3875,14 @@ FrontendMenuState get_startup_menu_state(void)
   {
       game_flags2 &= ~GF2_Connect;
       SYNCLOG("Setup client");
-      if (setup_network_service(FrontendNetSvc_Online))
+      TbBool steam_client = (steam_join_lobby[0] != '\0');
+      if (steam_client)
+      {
+          LbNetwork_ClearCmdLineSessions();
+          LbNetwork_InitSessionsFromCmdLine(steam_join_lobby);
+          steam_join_lobby[0] = '\0';
+      }
+      if (setup_network_service(steam_client ? FrontendNetSvc_Steam : FrontendNetSvc_Online))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3837,6 +3921,18 @@ FrontendMenuState get_startup_menu_state(void)
   {
     player = get_my_player();
     lvnum = get_loaded_level_number();
+    archon_flow_level_ended();
+    if (archon_flow_active() && ((player->display_flags & PlaF6_PlyrHasQuit) == 0))
+    { // Archon co-op campaign: every user goes through the statistics back to the shared campaign map
+        SYNCLOG("Shared campaign summary state selected");
+        ustate->additional_flags &= ~UsrAF_UnlockedLordTorture;
+        if ((player->victory_state == VicS_WonLevel) && is_singleplayer_level(lvnum)
+         && (next_singleplayer_level(lvnum, false) <= 0) && (campaign.movie_outro_fname[0] != '\0'))
+        {
+            return FeSt_OUTRO;
+        }
+        return FeSt_LEVEL_STATS;
+    } else
     if (network_is_active())
     { // If played real network game, then resulting screen isn't changed based on victory
         SYNCLOG("Network game summary state selected");

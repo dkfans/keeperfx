@@ -443,7 +443,7 @@ void update_creature_rendering_flags(struct Thing *thing)
         } else {
             thing->rendering_flags |= TRF_Invisible;
             const struct PlayerInfo *player = get_displayed_player();
-            struct Thing* creatng = thing_get(player->influenced_thing_idx);
+            struct Thing* creatng = thing_get(get_local_user_state()->influenced_thing_idx);
             if ((creatng != thing) && (thing_is_creature(creatng))) {
                 if (is_thing_directly_controlled_by_player(creatng, player->id_number) || is_thing_passenger_controlled_by_player(creatng, player->id_number)) {
                     if (creature_can_see_invisible(creatng)) {

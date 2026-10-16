@@ -62,6 +62,7 @@
 #include "net_spectator.h"
 #include "packets.h"
 #include "timer.h"
+#include "archon_test.h"
 
 #include "post_inc.h"
 
@@ -1069,10 +1070,10 @@ static TbBool wait_at_frontend(void)
     return true;
 }
 
-static TbBool player_skips_heart_zoom(const struct PlayerInfo *player)
+static TbBool user_skips_heart_zoom(NetUserId user)
 {
     const struct UserState *host = get_user_state(SERVER_ID);
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate))
         ustate = host;
     return (game.game_kind == GKind_LocalGame) && (host->prefs[UPref_SkipHeartZoom] != 0) && (ustate->prefs[UPref_SkipHeartZoom] != 0);
@@ -1100,13 +1101,16 @@ void game_loop(void)
       int32_t mspos_y_bak = lbDisplay.MMouseY;
 
       if (((game.game_kind != GKind_LocalGame) || (game.save_game_slot == -1)) && (!network_is_active() || net_join_role != NetRole_Spectator)) {
-          for (int i = 0; i < PLAYERS_COUNT; i++) {
-              struct PlayerInfo *player = get_player(i);
-              if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_skips_heart_zoom(player)) {
-                  set_player_instance(player, PI_HeartZoom, 0);
+          for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+              const struct UserState *ustate = get_user_state(user);
+              if (ustate->player_id == PLAYER_NONE)
+                  continue;
+              struct PlayerInfo *player = get_player(ustate->player_id);
+              if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !user_skips_heart_zoom(user)) {
+                  set_player_instance(user, PI_HeartZoom, 0);
               }
           }
-          if (player_skips_heart_zoom(get_my_player()) && !replay.load_enable) {
+          if (user_skips_heart_zoom(get_local_user()) && !replay.load_enable) {
               toggle_status_menu(1); // Required when skipping PI_HeartZoom
           }
       } else
@@ -1138,7 +1142,7 @@ void game_loop(void)
       GameT.Hours = 0;
       if (!TimerNoReset)
       {
-          if (player_skips_heart_zoom(get_my_player()))
+          if (user_skips_heart_zoom(get_local_user()))
           {
               timerstarttime = starttime;
           }
@@ -1152,6 +1156,8 @@ void game_loop(void)
       RendererPresentFrame();
       local_state.fast_forward = 0;
       keeper_gameplay_loop();
+      frontend_save_archon_campaign_progress();
+      archontest_level_ended();
       set_pointer_graphic_none();
       RendererClearScreen(0);
       RendererPresentFrame();
@@ -1170,7 +1176,13 @@ void game_loop(void)
 #endif
       quit_game = 0;
       if ((game.operation_flags & GOF_SingleLevel) != 0)
-          exit_keeper=true;
+      {
+          // an archon co-op campaign session goes on to the shared campaign map instead
+          if (archon_campaign_active() && network_is_active())
+              clear_flag(game.operation_flags, GOF_SingleLevel);
+          else
+              exit_keeper=true;
+      }
 #if (BFDEBUG_LEVEL > 0)
       playtime += endtime-starttime;
 #endif

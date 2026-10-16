@@ -1146,6 +1146,39 @@ void update_campaigns_progress_percent(struct CampaignsList *clist)
     }
 }
 
+// Archon co-op campaign: loads the host's own progress of the loaded campaign into intralvl.
+// A missing progress file starts the campaign from scratch.
+TbBool load_host_campaign_progress(void)
+{
+    LevelNumber lvnum;
+    if (load_campaign_progress(&campaign, &progress_scratch, &lvnum))
+    {
+        memcpy(&intralvl, &progress_scratch, sizeof(struct IntralevelData));
+        set_continue_level_number(lvnum);
+        return true;
+    }
+    memset(&intralvl, 0, sizeof(struct IntralevelData));
+    set_continue_level_number(first_singleplayer_level());
+    return false;
+}
+
+// Path of the loaded campaign's progress file (.cid) in the save folder.
+const char *get_campaign_progress_path(void)
+{
+    char progress_fname[DISKPATH_SIZE];
+    get_progress_filename(campaign.fname, progress_fname, sizeof(progress_fname));
+    return prepare_file_path(FGrp_Save, progress_fname);
+}
+
+// Archon co-op campaign: the level this machine's saved progress would continue from, or 0 if none.
+LevelNumber peek_campaign_continue_level(void)
+{
+    LevelNumber lvnum;
+    if (load_campaign_progress(&campaign, &progress_scratch, &lvnum) && is_singleplayer_like_level(lvnum))
+        return lvnum;
+    return 0;
+}
+
 TbBool resume_campaign_progress(const char *cmpgn_fname)
 {
     if (!change_campaign(CampgnT_Campaign, cmpgn_fname))
@@ -1172,6 +1205,7 @@ TbBool resume_campaign_progress(const char *cmpgn_fname)
 // writes campaign progress file; on a win also records the level and updates the continue file
 TbBool save_level_progress(LevelNumber lvnum, unsigned char victory_state)
 {
+    archon_campaign_restore_host_transfers();
     if ((victory_state == VicS_WonLevel) && is_campaign_progress_level(&campaign, lvnum))
         mark_level_completed(&intralvl, lvnum);
     intralvl.continue_level = encode_continue_level(get_continue_level_number());

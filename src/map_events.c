@@ -193,14 +193,14 @@ void event_initialise_all(void)
     }
 }
 
-long event_move_player_towards_event(struct PlayerInfo *player, long event_idx)
+long event_move_player_towards_event(NetUserId user, long event_idx)
 {
     struct Event* event = &game.event[event_idx];
 
-    player->zoom_to_pos_x = event->mappos_x;
-    player->zoom_to_pos_y = event->mappos_y;
+    get_user_state(user)->zoom_to_pos_x = event->mappos_x;
+    get_user_state(user)->zoom_to_pos_y = event->mappos_y;
 
-    set_player_instance(player, PI_ZoomToPos, 0);
+    set_player_instance(user, PI_ZoomToPos, 0);
     return 1;
 }
 
@@ -711,7 +711,7 @@ void event_process_events(void)
             continue;
         }
         struct PlayerInfo*player = get_player(event->owner);
-        if (get_player_view_type(player) <= PVT_DungeonTop) //Freeze lifespan of events of human player on map or possession
+        if (player_has_user_in_dungeon_view(player)) //Freeze lifespan of events of human player on map or possession
         {
             if (event->lifespan_turns > 0) {
                 event->lifespan_turns--;

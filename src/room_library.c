@@ -103,7 +103,6 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, Play
 EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thing *picktng)
 {
     EventIndex evidx;
-    struct PlayerInfo* player;
     if (thing_is_spellbook(picktng))
     {
         evidx = event_create_event_or_update_nearby_existing_event(
@@ -115,17 +114,16 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) ) {
                 output_message(SMsg_SpellbookStolen, 0);
             } else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
-                player = get_my_player();
                 if (picktng->owner == game.neutral_player_num)
                 {
-                   if (creatng->index != player->influenced_thing_idx)
+                   if (creatng->index != get_local_user_state()->influenced_thing_idx)
                    {
                         output_message(SMsg_DiscoveredSpell, 0);
                    }
                 }
                 else
                 {
-                   if (creatng->index != player->influenced_thing_idx)
+                   if (creatng->index != get_local_user_state()->influenced_thing_idx)
                    {
                         output_message(SMsg_SpellbookTaken, 0);
                    }
@@ -142,8 +140,7 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
         if (evidx > 0)
         {
           if (is_my_player_number(creatng->owner) && !is_my_player_number(picktng->owner)) {
-              player = get_my_player();
-              if (creatng->index != player->influenced_thing_idx)
+              if (creatng->index != get_local_user_state()->influenced_thing_idx)
               {
                 output_message(SMsg_DiscoveredSpecial, 0);
               }

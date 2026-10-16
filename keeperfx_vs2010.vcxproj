@@ -226,6 +226,7 @@
     <ClCompile Include="src\map_locations.c" />
     <ClCompile Include="src\map_utils.c" />
     <ClCompile Include="src\moonphase.c" />
+    <ClCompile Include="src\archon_test.c" />
     <ClCompile Include="src\net_checksums.c" />
     <ClCompile Include="src\net_exchange_common.c" />
     <ClCompile Include="src\net_exchange_gameplay.c" />
@@ -401,6 +402,7 @@
     <ClInclude Include="src\kfx_memory.h" />
     <ClInclude Include="src\lua_api_lens.h" />
     <ClInclude Include="src\lua_api_sound.h" />
+    <ClInclude Include="src\archon_test.h" />
     <ClInclude Include="src\net_checksums.h" />
     <ClInclude Include="src\net_exchange_common.h" />
     <ClInclude Include="src\net_exchange_gameplay.h" />

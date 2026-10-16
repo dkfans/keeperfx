@@ -205,7 +205,7 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
     ustate->additional_flags &= ~UsrAF_ChosenSubTileIsHigh;
     if ((ustate->secondary_cursor_state != CSt_DefaultArrow) && (ustate->secondary_cursor_state != CSt_PowerHand))
     {
-        if (player->instance_num != PI_Grab) {
+        if (get_user_state(user)->instance_num != PI_Grab) {
             delete_power_hand(user);
         }
         return false;
@@ -242,8 +242,8 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
     }
     if (ustate->hand_thing_idx != 0)
     {
-        if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop) &&
-            (player->instance_num != PI_Whip) && (player->instance_num != PI_WhipEnd))
+        if ((get_user_state(user)->instance_num != PI_Grab) && (get_user_state(user)->instance_num != PI_Drop) &&
+            (get_user_state(user)->instance_num != PI_Whip) && (get_user_state(user)->instance_num != PI_WhipEnd))
         {
             thing = get_first_thing_in_power_hand(player);
             if ((ustate->thing_under_hand != 0) || !thing_exists(thing))
@@ -431,17 +431,17 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                 }
                 if (ustate->thing_under_hand > 0)
                 {
-                    if (ustate->thing_under_hand != player->controlled_thing_idx)
+                    if (ustate->thing_under_hand != get_user_state(user)->controlled_thing_idx)
                     {
                         if (is_my_player(player))
                         {
                             turn_off_all_panel_menus();
                             turn_on_menu(GMnu_CREATURE_QUERY1);
                         }
-                        player->influenced_thing_idx = ustate->thing_under_hand;
-                        player->influenced_thing_creation = thing->creation_turn;
+                        get_user_state(user)->influenced_thing_idx = ustate->thing_under_hand;
+                        get_user_state(user)->influenced_thing_creation = thing->creation_turn;
                         set_user_work_state(user, PSt_CreatrQuery, 0);
-                        set_player_instance(player, PI_QueryCrtr, 0);
+                        set_player_instance(user, PI_QueryCrtr, 0);
                     }
                     unset_packet_control(pckt, PCtr_LBtnRelease);
                 }
@@ -451,7 +451,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                     if (ustate->thing_under_hand != 0) 
                     {
                         // TODO SPELLS it's not a good idea to use this directly; change to magic_use_available_power_on_*()
-                        use_power_hand(plyr_idx, stl_x, stl_y, 0);
+                        use_power_hand(user, plyr_idx, stl_x, stl_y, 0);
                     }
                     else if (ustate->render_roomspace.drag_mode)
                     {
@@ -749,7 +749,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
         case PSt_CastPowerOnSubtile:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                i = get_power_overcharge_level(player);
+                i = get_power_overcharge_level(ustate);
                 magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None, PwMod_Default);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
@@ -766,17 +766,17 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
         case PSt_FreeCtrlPassngr:
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                if (ustate->thing_under_hand > 0)
+                if ((ustate->thing_under_hand > 0) && !is_thing_possessed_by_other_user(thing_get(ustate->thing_under_hand), user))
                 {
-                    player->influenced_thing_idx = ustate->thing_under_hand;
-                    player->influenced_thing_creation = thing->creation_turn;
-                    set_player_instance(player, PI_PsngrCtrl, 0);
+                    get_user_state(user)->influenced_thing_idx = ustate->thing_under_hand;
+                    get_user_state(user)->influenced_thing_creation = thing->creation_turn;
+                    set_player_instance(user, PI_PsngrCtrl, 0);
                     unset_packet_control(pckt, PCtr_LBtnRelease);
                 }
             }
             if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
             {
-                if (player->instance_num != PI_PsngrCtrl)
+                if (get_user_state(user)->instance_num != PI_PsngrCtrl)
                 {
                     set_user_work_state(user, ustate->continue_work_state, 0);
                     unset_packet_control(pckt, PCtr_RBtnRelease);
@@ -796,7 +796,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
             }
             if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
             {
-                if (player->instance_num != PI_DirctCtrl)
+                if (get_user_state(user)->instance_num != PI_DirctCtrl)
                 {
                     set_user_work_state(user, ustate->continue_work_state, 0);
                     unset_packet_control(pckt, PCtr_RBtnRelease);
@@ -811,9 +811,9 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
                 {
                     if (thing->class_id == TCls_Creature)
                     {
-                        if (player->controlled_thing_idx != ustate->thing_under_hand)
+                        if (get_user_state(user)->controlled_thing_idx != ustate->thing_under_hand)
                         {
-                            query_creature(player, ustate->thing_under_hand, true, false);
+                            query_creature(user, ustate->thing_under_hand, true, false);
                         }
                     }
                     else
@@ -825,7 +825,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
             }
             if ( ustate->work_state == PSt_CreatrInfo )
             {
-                thing = thing_get(player->controlled_thing_idx);
+                thing = thing_get(get_user_state(user)->controlled_thing_idx);
                 if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
                 {
                     if (is_my_player(player))
@@ -833,12 +833,12 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
                         turn_off_query_menus();
                         turn_on_main_panel_menu();
                     }
-                    set_player_instance(player, PI_UnqueryCrtr, 0);
+                    set_player_instance(user, PI_UnqueryCrtr, 0);
                     unset_packet_control(pckt, PCtr_RBtnRelease);
                 } else
-                if (creature_is_dying(thing) || (thing->creation_turn != player->influenced_thing_creation))
+                if (creature_is_dying(thing) || (thing->creation_turn != get_user_state(user)->influenced_thing_creation))
                 {
-                    set_player_instance(player, PI_UnqueryCrtr, 0);
+                    set_player_instance(user, PI_UnqueryCrtr, 0);
                     if (is_my_player(player))
                     {
                         turn_off_query_menus();
@@ -880,7 +880,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
                     if (thing_is_invalid(thing)) {
                         break;
                     }
-                    i = get_power_overcharge_level(player);
+                    i = get_power_overcharge_level(ustate);
                     magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
                 }
                 unset_packet_control(pckt, PCtr_LBtnRelease);

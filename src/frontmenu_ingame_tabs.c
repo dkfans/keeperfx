@@ -1486,8 +1486,7 @@ void draw_name_box(long x, long y, int width, struct Thing *thing)
     if (thing_is_creature(thing) && (thing->ccontrol_idx > 0))
     {
         // Draw health bar
-        const struct PlayerInfo *player = get_displayed_player();
-        struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
+        struct Thing* ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
         struct CreatureControl* cctrl = creature_control_get_from_thing(ctrltng);
         HitPoints maxhealth = cctrl->max_health;
         HitPoints curhealth = ctrltng->health;
@@ -1519,8 +1518,7 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
 {
     SYNCDBG(19,"Starting");
     int units_per_px = (gmnu->width * 16 + 140 / 2) / 140;
-    const struct PlayerInfo *player = get_displayed_player();
-    struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
+    struct Thing* ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     draw_name_box(gmnu->pos_x + 4*units_per_px/16, gmnu->pos_y + 262*units_per_px/16, gmnu->width, ctrltng);
     int portrt_x = gmnu->pos_x + (4 * units_per_px + 8) / 16;
     int portrt_y = gmnu->pos_y + (188 * units_per_px + 8) / 16;
@@ -1545,8 +1543,7 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
 {
     SYNCDBG(19,"Starting");
     int units_per_px = (gmnu->width * 16 + 140 / 2) / 140;
-    const struct PlayerInfo *player = get_displayed_player();
-    struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
+    struct Thing* ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     int nambox_x = gmnu->pos_x + 4 * units_per_px / 16;
     int nambox_y = gmnu->pos_y + 200 * units_per_px / 16;
     draw_name_box(nambox_x, nambox_y, gmnu->width, ctrltng);
@@ -1819,12 +1816,11 @@ long anger_get_creature_highest_anger_type_and_byte_percentage(struct Thing *cre
 
 void gui_area_smiley_anger_button(struct GuiButton *gbtn)
 {
-    const struct PlayerInfo *player = get_displayed_player();
     // Get scale factor
     int units_per_px = (gbtn->width * 16 + 56 / 2) / 56;
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
-    struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
+    struct Thing* ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     TRACE_THING(ctrltng);
     if (thing_is_creature(ctrltng))
     {
@@ -1852,10 +1848,9 @@ void gui_area_smiley_anger_button(struct GuiButton *gbtn)
 
 void gui_area_experience_button(struct GuiButton *gbtn)
 {
-    const struct PlayerInfo *player = get_displayed_player();
     int units_per_px = (gbtn->width * 16 + 56 / 2) / 56;
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
-    struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
+    struct Thing* ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     TRACE_THING(ctrltng);
     if (thing_is_creature(ctrltng))
     {
@@ -1880,10 +1875,9 @@ void gui_area_experience_button(struct GuiButton *gbtn)
 
 void gui_area_instance_button(struct GuiButton *gbtn)
 {
-    const struct PlayerInfo *player = get_displayed_player();
     int units_per_px = (gbtn->width * 16 + 60 / 2) / 60;
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_bar_with_pic_full_blue_down, 100);
-    struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
+    struct Thing* ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     TRACE_THING(ctrltng);
     if (!thing_is_creature(ctrltng))
     {
@@ -1967,8 +1961,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
 /** Callback function of maintaining creature skill button. */
 void maintain_instance(struct GuiButton *gbtn)
 {
-    const struct PlayerInfo *player = get_displayed_player();
-    struct Thing* ctrltng = thing_get(player->controlled_thing_idx);
+    struct Thing* ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     TRACE_THING(ctrltng);
     if (!thing_is_creature(ctrltng))
     {
@@ -2171,8 +2164,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
 {
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_rect_wide_up, 100);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_rect_wide_up);
-    const struct PlayerInfo *player = get_displayed_player();
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
     if (!thing_exists(thing))
         return;
     if (thing->class_id == TCls_Creature)
@@ -2906,9 +2898,9 @@ void draw_placefiller(long scr_x, long scr_y, long units_per_px)
 void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player = get_my_player();
-    struct Thing *creatng = thing_get(player->influenced_thing_idx);
+    struct Thing *creatng = thing_get(get_local_user_state()->influenced_thing_idx);
     ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, creatng->model, player);
-    if (next_creature != player->influenced_thing_idx)
+    if (next_creature != get_local_user_state()->influenced_thing_idx)
     {
         struct Packet* pckt = get_local_packet();
         set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0x02, 0, 0);
@@ -2919,9 +2911,9 @@ void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
 void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player = get_my_player();
-    struct Thing *creatng = thing_get(player->influenced_thing_idx);
+    struct Thing *creatng = thing_get(get_local_user_state()->influenced_thing_idx);
     ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, 0, player);
-    if (next_creature != player->influenced_thing_idx)
+    if (next_creature != get_local_user_state()->influenced_thing_idx)
     {
         struct Packet* pckt = get_local_packet();
         set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0x02, 0, 0);
