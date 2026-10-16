@@ -2916,17 +2916,14 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
 
 static void remove_lair_totem_with_owner(struct Thing *lairtng, struct Room *room)
 {
-    if (lairtng->lair.belongs_to == 0) {
-        ERRORLOG("Lair totem %d has no owner!",(int)lairtng->index);
-        return;
-    }
     struct Thing* creatng = thing_get(lairtng->lair.belongs_to);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->lairtng_idx == lairtng->index) {
+    if (thing_is_creature(creatng) && (cctrl->lairtng_idx == lairtng->index)) {
         creature_remove_lair_totem_from_room(creatng, room);
-    } else {
-        ERRORLOG("Lair totem %d thinks it belongs to a creature, but the creature disagrees.",(int)lairtng->index);
+        return;
     }
+    ERRORLOG("Lair totem %d has no creature owning it, deleting it",(int)lairtng->index);
+    destroy_object(lairtng);
 }
 
 void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, SlabCodedCoords slbnum)
