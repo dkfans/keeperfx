@@ -3750,7 +3750,7 @@ void redraw_room_map_elements(struct Room *room)
             MapSlabCoord adjacent_slb_x = slb_x + my_around_eight[n].delta_x;
             MapSlabCoord adjacent_slb_y = slb_y + my_around_eight[n].delta_y;
             struct SlabMap* adjacent_slb = get_slabmap_block(adjacent_slb_x, adjacent_slb_y);
-            if ((adjacent_slb->kind == slb->kind) && (adjacent_slb->room_index != room->index) && !slab_kind_is_animated(slb->kind)) {
+            if ((adjacent_slb->kind == slb->kind) && (adjacent_slb->room_index != room->index)) {
                 place_single_slab_type_on_map(adjacent_slb->kind, adjacent_slb_x, adjacent_slb_y, slabmap_owner(adjacent_slb));
                 borders_same_kind = true;
             }
@@ -3798,13 +3798,13 @@ static void merge_adjacent_rooms_of_same_kind(struct Room *room)
     while (i > 0) {
         MapSlabCoord slb_x = slb_num_decode_x(i);
         MapSlabCoord slb_y = slb_num_decode_y(i);
-        i = get_next_slab_number_in_room(i);
         for (int n = 0; n < SMALL_AROUND_LENGTH; n++) {
             struct Room* adjacent_room = slab_room_get(slb_x + small_around[n].delta_x, slb_y + small_around[n].delta_y);
             if (!room_is_invalid(adjacent_room) && (adjacent_room != room) && (adjacent_room->owner == room->owner) && (adjacent_room->kind == room->kind)) {
                 merge_room_into(room, adjacent_room);
             }
         }
+        i = get_next_slab_number_in_room(i);
         k++;
         if (k > room->slabs_count) {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
