@@ -81,7 +81,7 @@
 #include "power_specials.h"
 #include "power_hand.h"
 #include "room_util.h"
-#include "roomspace_prediction.h"
+#include "roomspace_input.h"
 #include "room_workshop.h"
 #include "room_data.h"
 #include "thing_stats.h"
@@ -548,21 +548,6 @@ void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt,
     }
 }
 
-void update_box_lag_compensation(struct PlayerInfo* player) {
-    box_lag_compensation_x = 0;
-    box_lag_compensation_y = 0;
-    if (is_my_player(player)) {
-        struct Packet* auth_pckt = get_local_packet();
-        const struct Packet *visual_pckt = get_history_packet(get_local_user(), get_gameturn());
-        if (visual_pckt != NULL) {
-            box_lag_compensation_x = coord_slab(auth_pckt->pos_x) - coord_slab(visual_pckt->pos_x);
-            box_lag_compensation_y = coord_slab(auth_pckt->pos_y) - coord_slab(visual_pckt->pos_y);
-            box_lag_compensation_x = slab_coord(box_lag_compensation_x);
-            box_lag_compensation_y = slab_coord(box_lag_compensation_y);
-        }
-    }
-}
-
 /**
  * Applies a packet's camera controls to the user's dungeon camera.
  * Rotation is local-only; the dungeon camera's angle catches up through PckA_SetMapRotation.
@@ -640,9 +625,6 @@ void process_user_dungeon_control_packet_control(NetUserId user)
         if (settings_changed) {
             save_settings();
         }
-    }
-    if (is_my_player(player)) {
-        update_box_lag_compensation(player);
     }
     process_dungeon_control_packet_clicks(user);
     update_mouse_light(user);
@@ -1110,17 +1092,6 @@ TbBool process_user_global_packet_action(NetUserId user)
   case PckA_LoadViewType:
       set_user_view_type(user, pckt->actn_par1);
       return false;
-    case PckA_SetRoomspaceAuto:
-    case PckA_SetRoomspaceMan:
-    case PckA_SetRoomspaceDragPaint:
-    case PckA_SetRoomspaceDrag:
-    case PckA_SetRoomspaceDefault:
-    case PckA_SetRoomspaceWholeRoom:
-    case PckA_SetRoomspaceSubtile:
-    {
-        apply_roomspace_packet_action(player, user, pckt);
-        return false;
-    }
     case PckA_RoomspaceHighlightToggle:
     {
         get_user_state(user)->prefs[UPref_StartingHighlightMode] = pckt->actn_par1;
@@ -1136,31 +1107,15 @@ TbBool process_user_global_packet_action(NetUserId user)
     // fall through
     case PckA_ApplyRoomspaceDigTag:
     case PckA_SetRoomspaceHighlight:
-    {
-        ustate->roomspace_mode = pckt->actn_par1;
-        if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == roomspace_detection_mode) )
-        {
-            // exit out of click and drag mode
-            if (ustate->render_roomspace.drag_mode)
-            {
-                ustate->cursor_button_down = 0;
-                ustate->one_click_lock_cursor = false;
-                if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
-                {
-                    ustate->ignore_next_PCtr_LBtnRelease = true;
-                }
-            }
-            ustate->render_roomspace.drag_mode = false;
-        }
-        ustate->roomspace_highlight_mode = pckt->actn_par1;
-        if (pckt->actn_par1 == box_placement_mode) {
-            reset_dungeon_build_room_ui_variables(user);
-        }
-        if (pckt->actn_par1 == box_placement_mode || pckt->actn_par1 == roomspace_detection_mode || (pckt->actn_par1 == drag_placement_mode && pckt->actn_par2 == 1)) {
-            ustate->roomspace_width = ustate->roomspace_height = pckt->actn_par2;
-        }
+    case PckA_SetRoomspaceAuto:
+    case PckA_SetRoomspaceMan:
+    case PckA_SetRoomspaceDragPaint:
+    case PckA_SetRoomspaceDrag:
+    case PckA_SetRoomspaceDefault:
+    case PckA_SetRoomspaceWholeRoom:
+    case PckA_SetRoomspaceSubtile:
+        apply_roomspace_packet_action(user, pckt);
         return false;
-    }
     case PckA_PlyrQueryCreature:
     {
         query_creature(player, pckt->actn_par1, (pckt->actn_par2 & 0x01) != 0, (pckt->actn_par2 & 0x02) != 0);
@@ -1719,7 +1674,7 @@ enum PacketExchangeResult exchange_packets(void)
         set_local_packet_turn();
         update_turn_checksums();
     }
-    update_local_dig_tag_prediction();
+    update_dig_tag_input();
     if (!replay.load_enable && !spectator) {
         set_pending_timestamp_packet_action(get_local_packet());
         camera_packet_set_state(get_local_packet());
@@ -1790,7 +1745,6 @@ void clear_users_button_state(void)
         if (user_state_invalid(ustate))
             continue;
         ustate->cursor_button_down = 0;
-        ustate->interpolated_tagging = false;
     }
 }
 
@@ -1824,7 +1778,7 @@ void process_packets(void)
             process_user_packet(user);
         }
     }
-    update_local_dig_prediction_cursor_preview();
+    update_dig_prediction_cursor_preview();
     // Clear all packets
     clear_packets();
     if (network_is_active()) {

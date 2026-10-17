@@ -35,6 +35,7 @@
 #include "player_data.h"
 #include "net_game.h"
 #include "packets.h"
+#include "roomspace_input.h"
 #include "lua_triggers.h"
 #include "keeperfx.hpp"
 #include <zlib.h>
@@ -350,6 +351,7 @@ void initialize_packet_history(void)
     next_repair_history_user = 0;
     network_spectator_reset();
     input_lag_reset();
+    reset_dig_prediction();
 }
 
 static TbBool user_has_required_turn_packets(NetUserId user)

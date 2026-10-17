@@ -492,7 +492,7 @@ short setup_game(void)
 static bool players_cursor_is_at_top_of_view()
 {
     const struct PlayerInfo *const player = get_displayed_player();
-    const struct UserState *const ustate = get_player_user_state(player);
+    const struct UserState *const ustate = get_player_user_state_prediction(player);
     switch (ustate->work_state)
     {
     case PSt_BuildRoom:
@@ -1406,13 +1406,10 @@ void update_local_mouse_light(void)
 void update_mouse_light(NetUserId user)
 {
     SYNCDBG(6,"Starting");
-    const struct Packet *pckt = nullptr;
+    if (user == get_local_user() && !replay.load_enable)
+        return;
 
-    if (user == get_local_user())
-        pckt = get_history_packet(user, get_gameturn());
-    if (pckt == nullptr)
-        pckt = get_packet(user);
-
+    const struct Packet *pckt = get_packet(user);
     const TbBool valid = (pckt->control_flags & PCtr_MapCoordsValid) != 0;
     struct Coord3d pos;
     pos.x.val = pckt->pos_x;
