@@ -492,7 +492,7 @@ short setup_game(void)
 static bool players_cursor_is_at_top_of_view()
 {
     const struct PlayerInfo *const player = get_displayed_player();
-    const struct UserState *const ustate = get_player_user_state(player);
+    const struct UserState *const ustate = get_player_user_state_prediction(player);
     switch (ustate->work_state)
     {
     case PSt_BuildRoom:

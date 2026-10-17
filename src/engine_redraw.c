@@ -713,7 +713,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
 {
     struct Thing *thing;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_player_user_state_prediction(player);
     struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(ustate->work_state);
     if (dungeon_invalid(dungeon) || user_state_invalid(ustate)) {
         set_pointer_graphic(MousePG_Invisible);

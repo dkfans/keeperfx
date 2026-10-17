@@ -71,21 +71,10 @@ static void remember_cursor_subtile(NetUserId user)
 {
     struct Packet* pckt = get_packet(user);
     struct UserState* ustate = get_user_state(user);
-    MapSubtlCoord cursor_subtile_x = coord_subtile(pckt->pos_x);
-    MapSubtlCoord cursor_subtile_y = coord_subtile(pckt->pos_y);
     ustate->previous_cursor_subtile_x = ustate->cursor_subtile_x;
     ustate->previous_cursor_subtile_y = ustate->cursor_subtile_y;
-    if (!ustate->interpolated_tagging && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0)) {
-        ustate->previous_cursor_subtile_x = cursor_subtile_x;
-        ustate->previous_cursor_subtile_y = cursor_subtile_y;
-    }
-    ustate->cursor_subtile_x = cursor_subtile_x;
-    ustate->cursor_subtile_y = cursor_subtile_y;
-    if (ustate->mouse_on_map && ((pckt->control_flags & (PCtr_LBtnClick | PCtr_LBtnHeld)) != 0)) {
-        ustate->interpolated_tagging = true;
-    } else {
-        ustate->interpolated_tagging = false;
-    }
+    ustate->cursor_subtile_x = coord_subtile(pckt->pos_x);
+    ustate->cursor_subtile_y = coord_subtile(pckt->pos_y);
 }
 
 struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoord y)
@@ -235,8 +224,6 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
         } else
         {
             ustate->additional_flags |= UsrAF_ChosenSubTileIsHigh;
-            get_dungeon_highlight_user_roomspace(&ustate->render_roomspace, player, user, pckt, stl_x, stl_y, NULL);
-            tag_cursor_blocks_dig(player, user, pckt, &ustate->render_roomspace, stl_x, stl_y, ustate->full_slab_cursor);
             ustate->thing_under_hand = 0;
         }
     }
@@ -290,8 +277,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
     process_dungeon_power_hand_state(user);
     if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
     {
-        if ( (ustate->primary_cursor_state == CSt_PickAxe) || ( (ustate->primary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0) ) )
-        {
+        if (apply_roomspace_tag || (ustate->primary_cursor_state == CSt_PickAxe) || ((ustate->primary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0))) {
             ustate->thing_under_hand = 0;
             get_dungeon_highlight_user_roomspace(&ustate->render_roomspace, player, user, pckt, stl_x, stl_y, NULL);
             if (apply_roomspace_tag) {
@@ -303,7 +289,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
             if (apply_roomspace_tag) {
                 MapSlabCoord previous_slb_x = (uint16_t)pckt->actn_par3 & 0xFF;
                 MapSlabCoord previous_slb_y = (uint16_t)pckt->actn_par3 >> 8;
-                apply_roomspace_dig_tag_selection(plyr_idx, &ustate->render_roomspace, previous_slb_x, previous_slb_y, ustate->roomspace_highlight_mode, NULL, NULL, NULL, NULL);
+                apply_roomspace_dig_tag_selection(plyr_idx, &ustate->render_roomspace, previous_slb_x, previous_slb_y, ustate->roomspace_highlight_mode, NULL);
             }
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
@@ -314,14 +300,15 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
             ustate->secondary_cursor_state = ustate->primary_cursor_state;
             switch (ustate->primary_cursor_state)
             {
+                case CSt_PowerHand:
+                    if (ustate->thing_under_hand != 0) {
+                        break;
+                    }
+                    // fall through
                 case CSt_PickAxe:
-                    if (!ustate->render_roomspace.drag_mode)
-                    {
-                        if (at_limit)
-                        {
-                            play_player_sample(player->id_number, snd_refusal);
-                            output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
-                        }
+                    if (!ustate->render_roomspace.drag_mode && at_limit) {
+                        play_player_sample(player->id_number, snd_refusal);
+                        output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                     }
                     break;
                 case CSt_DoorKey:
@@ -335,20 +322,6 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                         unlock_door(thing);
                     else
                         lock_door(thing);
-                    break;
-                case CSt_PowerHand:
-                    if (ustate->thing_under_hand == 0)
-                    {
-                        if (!ustate->render_roomspace.drag_mode)
-                        {
-                            if (at_limit)
-                            {
-                                play_player_sample(player->id_number, snd_refusal);
-                                output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
-                            }
-                        }
-                        ustate->additional_flags |= UsrAF_NoThingUnderPowerHand;
-                    }
                     break;
             }
             unset_packet_control(pckt, PCtr_LBtnClick);
@@ -368,18 +341,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
         {
             ustate->secondary_cursor_state = ustate->primary_cursor_state;
         }
-        if (ustate->cursor_button_down != 0)
-        {
-            if (!ustate->render_roomspace.drag_mode) // allow drag and click to not place on LMB hold
-            {
-                if (ustate->primary_cursor_state == ustate->secondary_cursor_state)
-                {
-                    if (!apply_roomspace_tag && ((ustate->secondary_cursor_state == CSt_PickAxe) || ((ustate->secondary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_NoThingUnderPowerHand) != 0))))
-                    {
-                        keeper_highlight_roomspace(user, &ustate->render_roomspace);
-                    }
-                }
-            }
+        if (ustate->cursor_button_down != 0) {
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
     }
@@ -453,17 +415,9 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                         // TODO SPELLS it's not a good idea to use this directly; change to magic_use_available_power_on_*()
                         use_power_hand(plyr_idx, stl_x, stl_y, 0);
                     }
-                    else if (ustate->render_roomspace.drag_mode)
-                    {
-                        if (at_limit)
-                        {
-                            play_player_sample(player->id_number, snd_refusal);
-                            output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
-                        }
-                        else
-                        {
-                            keeper_highlight_roomspace(user, &ustate->render_roomspace);
-                        }
+                    else if (ustate->render_roomspace.drag_mode && at_limit) {
+                        play_player_sample(player->id_number, snd_refusal);
+                        output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                     }
                 }
             }
@@ -484,7 +438,6 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                 }
             }
             ustate->secondary_cursor_state = CSt_DefaultArrow;
-            ustate->additional_flags &= ~UsrAF_NoThingUnderPowerHand;
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
     }

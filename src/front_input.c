@@ -78,6 +78,7 @@
 #include "packets.h"
 #include "replay.h"
 #include "replay_rewind.h"
+#include "roomspace_input.h"
 #include "console_cmd.h"
 #include "engine_redraw.h"
 #include "timer.h"
@@ -282,7 +283,7 @@ TbBool check_current_gui_layer(long layer_id)
 
 static void update_gui_layer(void)
 {
-    struct UserState* ustate = get_local_user_state();
+    const struct UserState* ustate = get_player_user_state_prediction(get_my_player());
     // Determine the current/correct GUI Layer to use at this moment
 
     if ( ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom) || (ustate->render_roomspace.highlight_mode))  &&
@@ -1477,7 +1478,7 @@ static long get_dungeon_small_map_inputs(struct Packet *pckt)
 static TbBool get_dungeon_control_action_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_local_user_state();
+    const struct UserState* ustate = get_player_user_state_prediction(player);
     if (get_players_packet_action(player) != PckA_None)
         return true;
     if (get_dungeon_small_map_inputs(get_local_packet()))
@@ -2081,31 +2082,20 @@ static short get_creature_control_action_inputs(void)
 
 static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
 {
-    NetUserId user = get_local_user();
     struct PlayerInfo* player = get_my_player();
-    struct UserState* ustate = get_local_user_state();
+    const struct UserState* ustate = get_player_user_state_prediction(player);
     if ((get_local_view_type(player) != PVT_DungeonTop) || ((pckt->control_flags & PCtr_Gui) != 0) || (local_state.local_thing_under_hand <= 0) || (pckt->action != PckA_None) || (get_gameturn() - hand_pick_pending_turn <= game.input_lag_turns)) {
         return;
     }
     int32_t cursor_state = (pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
-    if (right_button_released && (ustate->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && power_hand_is_empty(player) && !ustate->one_click_lock_cursor && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
+    if (right_button_released && (ustate->work_state == PSt_CtrlDungeon) && (cursor_state == CSt_PowerHand) && power_hand_is_empty(player) && !local_cursor_is_locked() && thing_slappable(thing_get(local_state.local_thing_under_hand), player->id_number)) {
         set_packet_power_on_thing(pckt, PwrK_SLAP, local_state.local_thing_under_hand);
         return;
     }
     if (!left_button_released) {
         return;
     }
-    PowerKind pwkind = ustate->chosen_power_kind;
-    PlayerState work_state = ustate->work_state;
-    for (GameTurnDelta i = 1; i <= game.input_lag_turns; i += 1) {
-        const struct Packet* delayed_pckt = get_history_packet(user, get_gameturn() - i);
-        if ((delayed_pckt != NULL) && (delayed_pckt->action == PckA_SetPlyrState)) {
-            work_state = delayed_pckt->actn_par1;
-            pwkind = delayed_pckt->actn_par2;
-            break;
-        }
-    }
-    switch (work_state) {
+    switch (ustate->work_state) {
         case PSt_CtrlDungeon:
             if ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0) {
                 set_packet_power_on_thing(pckt, PwrK_POSSESS, local_state.local_thing_under_hand);
@@ -2122,7 +2112,7 @@ static void set_packet_action_for_thing_under_hand(struct Packet* pckt)
             set_packet_power_on_thing(pckt, PwrK_POSSESS, local_state.local_thing_under_hand);
             break;
         case PST_CastPowerOnTarget:
-            set_packet_power_on_thing(pckt, pwkind, local_state.local_thing_under_hand);
+            set_packet_power_on_thing(pckt, ustate->chosen_power_kind, local_state.local_thing_under_hand);
             break;
     }
 }
@@ -2493,7 +2483,7 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
   unsigned long x;
   unsigned long y;
   struct PlayerInfo* player = get_my_player();
-  struct UserState* ustate = get_local_user_state();
+  TbBool cursor_locked = local_cursor_is_locked();
   TbBool hand_is_empty = power_hand_is_empty(player);
   if ((pointer_x < 0) || (pointer_y < 0)
    || (pointer_x >= local_state.engine_window_width/pixel_size)
@@ -2512,7 +2502,7 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
 
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
   struct SlabConfigStats* slabst = get_slab_stats(slb);
-  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!ustate->one_click_lock_cursor))
+  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!cursor_locked))
   {
     *context = CSt_DoorKey;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -2530,13 +2520,13 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (((slb_x >= game.map_tiles_x) || (slb_y >= game.map_tiles_y)) && (!ustate->one_click_lock_cursor))
+  if (((slb_x >= game.map_tiles_x) || (slb_y >= game.map_tiles_y)) && (!cursor_locked))
   {
     *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
-  if (((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (ustate->one_click_lock_cursor))
+  if (((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (cursor_locked))
   {
     *context = CSt_PickAxe;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -2547,7 +2537,7 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
     *context = CSt_PowerHand;
   }
-  if ((*context == CSt_PowerHand) && (!ustate->one_click_lock_cursor))
+  if ((*context == CSt_PowerHand) && (!cursor_locked))
   {
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(player->id_number, pos->x.val, pos->y.val);
     if (!thing_is_invalid(thing)) {
@@ -2570,11 +2560,11 @@ static TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *
  */
 static void get_dungeon_control_nonaction_inputs(void)
 {
-  struct UserState* ustate = get_local_user_state();
+  struct PlayerInfo* player = get_my_player();
+  const struct UserState* ustate = get_player_user_state_prediction(player);
   struct Coord3d pos;
   my_mouse_x = GetMouseX();
   my_mouse_y = GetMouseY();
-  struct PlayerInfo* player = get_my_player();
   struct Camera* camera = get_local_active_camera(player);
   struct Packet* pckt = get_local_packet();
   if (get_gameturn() - hand_pick_pending_turn > game.input_lag_turns) {
@@ -2930,6 +2920,7 @@ static void get_player_gui_clicks(void)
     return;
   struct PlayerInfo *player = get_my_player();
   struct UserState *ustate = get_local_user_state();
+  const struct UserState *predicted_ustate = get_player_user_state_prediction(player);
   switch (get_local_view_type(player))
   {
   case PVT_CreaturePasngr:
@@ -2962,9 +2953,9 @@ static void get_player_gui_clicks(void)
       {
           if (right_click_tag_mode_toggle)
           {
-              if (ustate->work_state == PSt_CtrlDungeon)
+              if (predicted_ustate->work_state == PSt_CtrlDungeon)
               {
-                  switch (ustate->primary_cursor_state)
+                  switch (predicted_ustate->primary_cursor_state)
                   {
                       case CSt_PickAxe:
                       {
@@ -2986,11 +2977,11 @@ static void get_player_gui_clicks(void)
                       }
                       case CSt_PowerHand:
                       {
-                         if (ustate->thing_under_hand == 0)
+                         if (predicted_ustate->thing_under_hand == 0)
                          {
                              if (!a_menu_window_is_active())
                              {
-                                if (flag_is_set(ustate->additional_flags, UsrAF_ChosenSubTileIsHigh))
+                                if (flag_is_set(predicted_ustate->additional_flags, UsrAF_ChosenSubTileIsHigh))
                                 {
                                     if (!left_button_held)
                                     {
@@ -3015,17 +3006,17 @@ static void get_player_gui_clicks(void)
       }
       if (right_button_released)
       {
-        if ((ustate->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
+        if ((predicted_ustate->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
         {
           if ( !turn_off_all_window_menus() )
           {
-            if (ustate->work_state == PSt_CreatrQuery)
+            if (predicted_ustate->work_state == PSt_CreatrQuery)
             {
               turn_off_query_menus();
               set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
               right_button_released = 0;
             } else
-            if ((ustate->work_state != PSt_CreatrInfo) && (ustate->work_state != PSt_CreatrInfoAll) && (ustate->work_state != PSt_CtrlDungeon))
+            if ((predicted_ustate->work_state != PSt_CreatrInfo) && (predicted_ustate->work_state != PSt_CreatrInfoAll) && (predicted_ustate->work_state != PSt_CtrlDungeon))
             {
               set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
               right_button_released = 0;

@@ -81,6 +81,7 @@
 #include "local_camera.h"
 #include "player_utils.h"
 #include "config_players.h"
+#include "roomspace_input.h"
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
@@ -541,11 +542,10 @@ void create_message_box(const char *title, const char *line1, const char *line2,
 
 short game_is_busy_doing_gui(void)
 {
-    struct UserState *ustate = get_local_user_state();
     if (battle_creature_over > 0) {
         return true;
     }
-    if (ustate->one_click_lock_cursor) {
+    if (local_cursor_is_locked()) {
         return false;
     }
     if (!busy_doing_gui) {

@@ -95,7 +95,6 @@ enum UserInitFlags {
 
 enum UserAdditionalFlags {
     UsrAF_None                      = 0x00,
-    UsrAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
     UsrAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
     UsrAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell. TODO: move to LocalState
     UsrAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell. TODO: move to LocalState
@@ -231,7 +230,6 @@ struct UserState {
     TbBool ignore_next_PCtr_RBtnRelease;
     TbBool ignore_next_PCtr_LBtnRelease;
     char swap_to_untag_mode;
-    TbBool interpolated_tagging;
     /** First person (possession) controls. */
     TbBool first_person_dig_claim_mode;
     unsigned short selected_fp_thing_pickup;
@@ -364,6 +362,8 @@ TbBool is_my_player(const struct PlayerInfo *player);
 struct UserState *get_user_state(NetUserId user);
 struct UserState *get_player_user_state(const struct PlayerInfo *player);
 struct UserState *get_local_user_state(void);
+void set_local_user_state_prediction(const struct UserState *ustate);
+const struct UserState *get_player_user_state_prediction(const struct PlayerInfo *player);
 uint32_t get_local_minimap_zoom(void);
 TbBool user_state_invalid(const struct UserState *ustate);
 int32_t user_zoom_min(const struct UserState *ustate, TbBool front_view);
@@ -382,6 +382,7 @@ TbBool player_is_roaming(PlayerNumber plyr_num);
 TbBool player_is_keeper(PlayerNumber plyr_num);
 TbBool player_is_neutral(PlayerNumber plyr_num);
 
+void set_user_work_state_kind(struct UserState *ustate, int32_t chosen_kind);
 void set_user_work_state(NetUserId user, short nwrk_state, int32_t chosen_kind);
 void set_user_view_type(NetUserId user, unsigned short nview);
 void reset_user_view_type(NetUserId user, unsigned short nview);
