@@ -243,11 +243,13 @@ void update_dig_tag_input(void)
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
     TbBool click = (pckt->control_flags & PCtr_LBtnClick) != 0;
     if (click) {
-        dig_cursor.previous_slb_x = slb_x;
-        dig_cursor.previous_slb_y = slb_y;
         dig_cursor.cursor_button_down = !ignore_packet;
         dig_cursor.cursor_locked = false;
         dig_cursor.cursor_state = cursor_context;
+    }
+    if (click || dig_input_is_blocked(get_history_packet(get_local_user(), pckt->turn - 1))) {
+        dig_cursor.previous_slb_x = slb_x;
+        dig_cursor.previous_slb_y = slb_y;
     }
     if (ignore_packet || !dig_cursor.cursor_button_down) {
         return;
