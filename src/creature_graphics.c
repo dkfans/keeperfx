@@ -334,7 +334,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
     *unsc_h += kspr->offset_y;
 }
 
-short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
+int32_t get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 {
     if (seq_idx >= CREATURE_GRAPHICS_INSTANCES)
     {
@@ -347,9 +347,9 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
         crmodel = 0;
     }
     // Backward compatibility for custom creatures. Use the attack animation if the extra animation is undefined, return 0 if the attack animation is also undefined.
-    if (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] < 0)
+    if (game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] == ANIMATION_NONE)
     {
-        if ((seq_idx >= CGI_CastSpell) && (game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack] > 0))
+        if ((seq_idx >= CGI_CastSpell) && (game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack] != ANIMATION_NONE))
         {
             return game.conf.crtr_conf.creature_graphics[crmodel][CGI_Attack];
         }
@@ -373,9 +373,9 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
     game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] = val;
 }
 
-short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
+int32_t get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 {
-    short idx = get_creature_model_graphics(thing->model, seq_idx);
+    int32_t idx =get_creature_model_graphics(thing->model, seq_idx);
     return get_td_animation_sprite(idx);
 }
 

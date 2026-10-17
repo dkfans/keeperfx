@@ -629,6 +629,7 @@ static void stop_network_game_state(void)
 {
     const NetUserId local_user = get_local_user();
     LbNetwork_Stop();
+    network_spectator_clear_roles();
     memset(net_user_info, 0, sizeof(net_user_info));
     remap_user_to_solo(get_my_player(), local_user);
     clear_flag(local_system_flags, GSF_NetGameNoSync);

@@ -27,6 +27,7 @@
 #include "ariadne.h"
 #include "gui_topmsg.h"
 #include "kfx/profiling/KfxProfilingC.h"
+#include "replay_rewind.h"
 #include "post_inc.h"
 
 #define EDGELEN_BITS 6
@@ -36,10 +37,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-int32_t free_Triangles = 0;
+kfx_rewindable int32_t free_Triangles;
 struct Triangle Triangles[TRIANLGLES_COUNT];
-int32_t count_Triangles = 0;
-int32_t ix_Triangles = 0;
+kfx_rewindable int32_t count_Triangles;
+kfx_rewindable int32_t ix_Triangles;
 
 /******************************************************************************/
 struct Triangle bad_triangle;

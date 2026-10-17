@@ -58,7 +58,7 @@ void compute_shifted_palette_table(TbPixel *ocol, const unsigned char *spal,
     const unsigned char *dpal, int shiftR, int shiftG, int shiftB);
 
 
-long PaletteFadePlayer(struct PlayerInfo *player);
+long PaletteFadePlayer(const struct PlayerInfo *player);
 void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense);
 
 /******************************************************************************/

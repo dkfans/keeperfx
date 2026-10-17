@@ -24,6 +24,7 @@
 #include "bflib_basics.h"
 #include "ariadne_tringls.h"
 #include "kfx/profiling/KfxProfilingC.h"
+#include "replay_rewind.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -36,8 +37,8 @@ extern "C" {
  * Note that region[0] is used for storing unused triangles and shouldn't be
  * used for actual calculations.
  */
-struct RegionT Regions[REGIONS_COUNT];
-static int32_t max_RegionStore;
+kfx_rewindable struct RegionT Regions[REGIONS_COUNT];
+kfx_rewindable static int32_t max_RegionStore;
 static int32_t ix_RegionQput;
 static int32_t ix_RegionQget;
 static int32_t count_RegionQ;

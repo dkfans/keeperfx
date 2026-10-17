@@ -76,7 +76,7 @@ unsigned char get_player_view_type(const struct PlayerInfo *player)
 {
     const struct UserState *ustate = get_player_user_state(player);
     if (user_state_invalid(ustate))
-        return PVT_DungeonTop;
+        return PVT_None;
     return ustate->view_type;
 }
 

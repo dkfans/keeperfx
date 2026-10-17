@@ -49,14 +49,14 @@
 // Each part of RGB tuple of palette file is 1-63 actually
 #define MAX_COLOR_VALUE 64
 static uint8_t * rgb_to_pal_table = NULL;
-static short next_free_sprite = 0;
+static int32_t next_free_sprite = 0;
 static short next_free_icon = 0;
 
 struct TbSpriteSheet * gui_panel_sprites = NULL;
 struct TbSpriteSheet * custom_sprites = NULL;
 
-short td_to_fp_sprite_add[KEEPERSPRITE_ADD_NUM];
-short fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
+unsigned short td_to_fp_sprite_add[KEEPERSPRITE_ADD_NUM];
+unsigned short fp_to_td_sprite_add[KEEPERSPRITE_ADD_NUM];
 
 TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM] = {
         0
@@ -73,11 +73,11 @@ struct SpriteContext
     unsigned long x, y;
     struct KeeperSprite *ksp_first;
 
-    short *id_ptr; // First person / Top down
-    short *id_sz_ptr; // First person / Top down
+    int32_t *id_ptr; // First person / Top down
+    int32_t *id_sz_ptr; // First person / Top down
 
-    short td_id, td_sz;
-    short fp_id, fp_sz;
+    int32_t td_id, td_sz;
+    int32_t fp_id, fp_sz;
 
     TbBool rotatable;
 };
@@ -281,7 +281,7 @@ static int load_file_sprites(const char *path, const char *file_desc, unsigned i
         }
         if (add_flag & CLF_Ensigns)
         {
-            JUSTLOG("Loaded custom ensign definitions from %s", file_desc);
+            SYNCDBG(8,"Loaded custom ensign definitions from %s", file_desc);
         }
         else
         {
@@ -1056,7 +1056,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
         ERRORLOG("Too many custom sprites allocated");
         return 0;
     }
-    short sprite_idx = next_free_sprite;
+    int32_t sprite_idx = next_free_sprite;
     next_free_sprite++;
     if (*context->id_ptr == 0) // First sprite for current view (FP/TD)
         *context->id_ptr = sprite_idx + KEEPERSPRITE_ADD_OFFSET;
@@ -1395,8 +1395,8 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                     WARNLOG("Unable to open '%s/%s'", path, name);
                     return 1;
                 }
-                short store_p = *context->id_ptr;
-                short store_sz = *context->id_sz_ptr;
+                int32_t store_p = *context->id_ptr;
+                int32_t store_sz = *context->id_sz_ptr;
                 struct KeeperSprite *store_ksp = context->ksp_first;
                 unsigned char store_ksp_fc = 0;
                 if (store_ksp)
@@ -1450,8 +1450,8 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
     // Installing frames into arrays ()
     for (int i = context->td_sz - 1; i >= 0; i--)
     {
-        short fp_id = context->fp_id + i;
-        short td_id = context->td_id + i;
+        int32_t fp_id = context->fp_id + i;
+        int32_t td_id = context->td_id + i;
         fp_to_td_sprite_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
         td_to_fp_sprite_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
         td_to_fp_sprite_add[td_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
@@ -2784,9 +2784,9 @@ static TbBool add_custom_sprite(const char *path)
     return add_custom_json(path, "sprites.json", &process_sprite);
 }
 
-short get_icon_id(const char *name)
+int32_t get_icon_id(const char *name)
 {
-    short ret = atoi(name);
+    int32_t ret = atoi(name);
     struct NamedCommand key = {name, 0};
 
     if (ret != 0)
@@ -2795,7 +2795,7 @@ short get_icon_id(const char *name)
     struct NamedCommand *val = bsearch(&key, added_icons, num_added_icons, sizeof(added_icons[0]),
                                        &cmp_named_command);
     if (val)
-        return (short) val->num;
+        return val->num;
 
     if (0 == strcmp(name, "0"))
         return 0;
@@ -2803,9 +2803,9 @@ short get_icon_id(const char *name)
     return bad_icon_id; // -1 is used by SPELLBOOK_POSS etc
 }
 
-short get_anim_id(const char *name, struct ObjectConfigStats *objst)
+int32_t get_anim_id(const char *name, struct ObjectConfigStats *objst)
 {
-    short ret = atoi(name);
+    int32_t ret = atoi(name);
     struct NamedCommand key = {name, 0};
 
     if (ret > 0)
@@ -2814,7 +2814,7 @@ short get_anim_id(const char *name, struct ObjectConfigStats *objst)
     struct NamedCommand *val = bsearch(&key, added_sprites, num_added_sprite, sizeof(added_sprites[0]),
                                        &cmp_named_command);
     if (val)
-        return (short) val->num;
+        return val->num;
 
     if (0 == strcmp(name, "0"))
         return 0;
@@ -2873,12 +2873,12 @@ short get_anim_id(const char *name, struct ObjectConfigStats *objst)
         }
 
         free(name2);
-        return (short) val->num;
+        return val->num;
     }
     return 0;
 }
 
-short get_anim_id_(const char* word_buf)
+int32_t get_anim_id_(const char* word_buf)
 {
     struct ObjectConfigStats obj_tmp;
     return get_anim_id(word_buf, &obj_tmp);

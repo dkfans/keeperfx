@@ -590,7 +590,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
             struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (slabmap_owner(slb) != plyr_idx)
             {
-                WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)stl_x, (int)stl_y);
+                SYNCDBG(7,"Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)stl_x, (int)stl_y);
                 unset_packet_control(pckt, PCtr_LBtnClick);
                 return false;
             }
@@ -610,7 +610,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
                 // Nothing to do here - trap already sold
             } else
             {
-                WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
+                SYNCDBG(7,"Nothing to sell for player %d request",(int)plyr_idx);
             }
         }
     }
@@ -619,7 +619,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
         struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
         if (slabmap_owner(slb) != plyr_idx)
         {
-            WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)stl_x, (int)stl_y);
+            SYNCDBG(7,"Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)stl_x, (int)stl_y);
             unset_packet_control(pckt, PCtr_LBtnClick);
             return false;
         }
@@ -638,7 +638,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
         }
         else
         {
-            WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
+            SYNCDBG(7,"Nothing to sell for player %d request",(int)plyr_idx);
         }
     }
     unset_packet_control(pckt, PCtr_LBtnClick);

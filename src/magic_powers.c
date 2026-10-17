@@ -169,26 +169,21 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
                 cast_on_tng = false;
             }
         }
-        if (flag_is_set(powerst->can_cast_flags,PwCast_ThingOrMap))
-        {
-            // Fail only if both functions have failed - one is enough
-            if (!cast_at_xy && !cast_on_tng) {
-                if ((flags & CastChk_Final) != 0) {
-                    WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                        power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+        TbBool can_target = cast_at_xy && cast_on_tng;
+        if (flag_is_set(powerst->can_cast_flags,PwCast_ThingOrMap)) {
+            can_target = cast_at_xy || cast_on_tng;
+        }
+        if (!can_target) {
+            if ((flags & CastChk_Final) != 0) {
+                if (flag_is_set(player->allocflags, PlaF_CompCtrl)) {
+                    WARNLOG("%s: Player %d tried to cast %s on a target which can't be targeted (thing %d, subtile %d)",func_name,(int)plyr_idx,
+                        power_code_name(pwkind), (int)cast_on_tng, (int)cast_at_xy);
+                } else {
+                    SYNCDBG(7,"%s: Player %d tried to cast %s on a target which can't be targeted (thing %d, subtile %d)",func_name,(int)plyr_idx,
+                        power_code_name(pwkind), (int)cast_on_tng, (int)cast_at_xy);
                 }
-                return false;
             }
-        } else
-        {
-            // Fail if any of the functions has failed - we need both
-            if (!cast_at_xy || !cast_on_tng) {
-                if ((flags & CastChk_Final) != 0) {
-                    WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                        power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
-                }
-                return false;
-            }
+            return false;
         }
         if ((powerst->config_flags & PwCF_IsParent) != 0)
         {

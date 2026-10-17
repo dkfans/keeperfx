@@ -114,7 +114,7 @@ extern "C" void free_spritesheet(TbSpriteSheet ** sheet)
         // next sheet loaded can reuse this memory, so drop this sheet's entries.
         int32_t forgotten = RendererForgetSprites((*sheet)->sprites.data(), (long)(*sheet)->sprites.size());
         if (forgotten > 0) {
-            SYNCLOG("forgot %d cached UI sprite handle(s) before freeing a sprite sheet", (int)forgotten);
+            SYNCDBG(7,"forgot %d cached UI sprite handle(s) before freeing a sprite sheet", (int)forgotten);
         }
     }
     if (sheet) {

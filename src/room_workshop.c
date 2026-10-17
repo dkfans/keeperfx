@@ -783,7 +783,7 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
             // If exceeded capacity of the library
             if (room->used_capacity >= room->total_capacity)
             {
-                WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                SYNCDBG(7,"The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
                 return -1; // re-create all (this could save the object if there are duplicates)
             } else
             // If the thing is in wall, remove it but store to re-create later
@@ -928,7 +928,7 @@ void count_crates_in_room(struct Room *room)
         }
     }
     if (rrepos.used > 0) {
-        ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
+        SYNCLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
           room_code_name(room->kind),(int)room->index,(int)room->total_capacity,(int)rrepos.used,(int)room->owner);
     }
     room->capacity_used_for_storage = room->used_capacity;

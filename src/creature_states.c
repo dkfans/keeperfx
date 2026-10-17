@@ -1811,7 +1811,8 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
         return false;
     }
     if ((!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP))) || (room->owner != creatng->owner)) {
-        ERRORLOG("The %s index %d has lair in invalid room",thing_model_name(creatng),(int)creatng->index);
+        WARNLOG("The %s index %d has lair in invalid room, removing it",thing_model_name(creatng),(int)creatng->index);
+        delete_lair_totem(thing_get(cctrl->lairtng_idx));
         return false;
     }
     if (get_gameturn() - cctrl->tasks_check_turn <= 128) {
@@ -2208,7 +2209,7 @@ short creature_follow_leader(struct Thing *creatng)
     struct Thing* leadtng = get_group_leader(creatng);
     if (!thing_is_creature(leadtng))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid",
+        SYNCDBG(3,"The %s index %d owned by player %d can no longer follow leader - it's invalid",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
         return 1;
@@ -2232,7 +2233,8 @@ short creature_follow_leader(struct Thing *creatng)
     if (player_keeping_creature_in_custody(creatng) != player_keeping_creature_in_custody(leadtng))
     {
         remove_creature_from_group(creatng);
-        return 0;
+        set_start_state(creatng);
+        return 1;
     }
     struct Coord3d follwr_pos;
     if (!get_free_position_behind_leader(leadtng, &follwr_pos))
@@ -2242,11 +2244,12 @@ short creature_follow_leader(struct Thing *creatng)
             SYNCDBG(3,"The %s index %d owned by player %d can no longer follow %s - leader is picked up",
                 thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
             remove_creature_from_group(creatng);
-            return 0;
+            set_start_state(creatng);
+            return 1;
         }
         else
         {
-            SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
+            SYNCDBG(3,"The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
                 thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
             set_start_state(creatng);
             return 1;
@@ -2258,7 +2261,8 @@ short creature_follow_leader(struct Thing *creatng)
         SYNCDBG(3,"Removing %s index %d owned by player %d from group due to fails to follow",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         remove_creature_from_group(creatng);
-        return 0;
+        set_start_state(creatng);
+        return 1;
     }
     if ((fails_amount > 0) && (cctrl->following_leader_since + 16 > get_gameturn()))
     {
@@ -2777,7 +2781,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
     }
     if (room->used_capacity <= room->total_capacity)
     {
-        SYNCLOG("Could not find valid random point in %s %d for %s. Attempting thorough check.",room_code_name(room->kind),room->index,thing_model_name(thing));
+        SYNCDBG(7,"Could not find valid random point in %s %d for %s. Attempting thorough check.",room_code_name(room->kind),room->index,thing_model_name(thing));
         k = 0;
         for (i = room->slabs_list; (i != 0); i = get_next_slab_number_in_room(i))
         {

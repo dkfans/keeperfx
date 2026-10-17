@@ -249,20 +249,25 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
                 return true;
             }
             else
-            if (objst->related_creatr_model)
             {
-                update_gui_tooltip_target(thing);
-                if ((help_tip_time > 20) || (ustate->work_state == PSt_CreatrQuery))
-                {
-                    struct CreatureModelConfig* crconf = creature_stats_get(objst->related_creatr_model);
-                    const struct RoomConfigStats* roomst = get_room_kind_stats(RoK_LAIR);     //TODO use a separate string for creature lair object than for lair room
-                    set_gui_tooltip_box_fmt(5, "%s %s", get_string(crconf->namestr_idx), get_string(roomst->name_stridx)); // (creature) Lair
+                ThingModel crmodel = objst->related_creatr_model;
+                if (thing_is_lair_totem(thing)) {
+                    struct Thing* creatng = thing_get(thing->lair.belongs_to);
+                    if (thing_is_creature(creatng)) {
+                        crmodel = creatng->model;
+                    }
                 }
-                else
-                {
-                    help_tip_time++;
+                if (crmodel != 0) {
+                    update_gui_tooltip_target(thing);
+                    if ((help_tip_time > 20) || (ustate->work_state == PSt_CreatrQuery)) {
+                        struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
+                        const struct RoomConfigStats* roomst = get_room_kind_stats(RoK_LAIR);     //TODO use a separate string for creature lair object than for lair room
+                        set_gui_tooltip_box_fmt(5, "%s %s", get_string(crconf->namestr_idx), get_string(roomst->name_stridx)); // (creature) Lair
+                    } else {
+                        help_tip_time++;
+                    }
+                    return true;
                 }
-                return true;
             }
         }
     }

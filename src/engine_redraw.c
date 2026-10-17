@@ -430,13 +430,13 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
 
 static int32_t my_map_fade_turns(void)
 {
-    const struct UserState *ustate = get_player_user_state(get_my_player());
+    const struct UserState *ustate = get_player_user_state(get_displayed_player());
     return user_state_invalid(ustate) ? 1 : max((int32_t)ustate->prefs[UPref_MapFade], 1);
 }
 
 static float map_fade_progress(void)
 {
-    struct PlayerInfo* player = get_my_player();
+    const struct PlayerInfo* player = get_displayed_player();
     const float turns = (float)(my_map_fade_turns() - 1);
     if (turns <= 0.0f)
         return 1.0f;
@@ -949,13 +949,14 @@ void redraw_display(void)
     } else {
         lens_mode = 0;
     }
-    const TbBool map_fading = ((player->instance_num == PI_MapFadeTo) || (player->instance_num == PI_MapFadeFrom))
+    const unsigned char fade_inum = get_displayed_player()->instance_num;
+    const TbBool map_fading = ((fade_inum == PI_MapFadeTo) || (fade_inum == PI_MapFadeFrom))
         && !is_observer_camera_active();
     if (!map_fading)
         local_state.map_fade_prepared = false;
     if (map_fading) {
         parchment_loaded = 0;
-        draw_map_fade(player->instance_num == PI_MapFadeTo);
+        draw_map_fade(fade_inum == PI_MapFadeTo);
     } else
     if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr))
     {

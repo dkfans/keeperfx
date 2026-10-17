@@ -803,7 +803,7 @@ TbBool process_user_global_packet_action(NetUserId user)
 
   switch (pckt->action) {
   case PckA_QuitToMainMenu:
-      if (user == get_local_user())
+      if ((user == get_local_user()) && !replay.load_enable)
       {
         turn_off_all_menus();
         frontend_save_continue_game(true);
@@ -814,7 +814,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       return 1;
   case PckA_ForceApplicationClose:
       {
-        if (user == get_local_user())
+        if ((user == get_local_user()) && !replay.load_enable)
         {
           turn_off_all_menus();
           frontend_save_continue_game(true);

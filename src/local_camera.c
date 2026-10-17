@@ -55,9 +55,18 @@ extern float interpolate_time;
 static int get_local_active_camera_index(struct PlayerInfo *player);
 static struct Camera *get_local_dungeon_camera(struct PlayerInfo *player);
 
+// own player, or observed player
+static TbBool local_camera_shows_player(const struct PlayerInfo *player)
+{
+    if (is_my_player(player)) {
+        return true;
+    }
+    return observer_is_active() && !is_observer_camera_active() && (player == get_displayed_player());
+}
+
 static TbBool local_camera_follows_player(const struct PlayerInfo *player)
 {
-    if (!is_my_player(player) || !local_state.camera.ready || is_observer_camera_active()) {
+    if (!local_camera_shows_player(player) || !local_state.camera.ready || is_observer_camera_active()) {
         return false;
     }
     return true;
@@ -450,7 +459,10 @@ void update_local_cameras(void)
         return;
     }
     if (player == &local_observer_player) {
-        apply_dungeon_camera(local_state.camera.destination, player);
+        const unsigned char inum = get_displayed_player()->instance_num;
+        if (!player_instance_controls_camera(inum) || (inum == PI_ZoomToPos)) {
+            apply_dungeon_camera(local_state.camera.destination, player);
+        }
         update_local_dungeon_view_mode(player);
         if (get_player_active_camera_index(player) == CamIV_FirstPerson) {
             update_first_person_camera(&local_state.camera.destination[CamIV_FirstPerson], get_displayed_player(),
@@ -620,7 +632,7 @@ void sync_local_camera_pose(struct PlayerInfo *player, const struct DungeonCamer
 
 void carry_local_dungeon_position(struct PlayerInfo *player, TbBool from_front_view)
 {
-    if (!is_my_player(player) || !local_state.camera.ready) {
+    if (!local_camera_shows_player(player) || !local_state.camera.ready) {
         return;
     }
     int from_idx = CamIV_Isometric;
@@ -641,7 +653,7 @@ void carry_local_dungeon_position(struct PlayerInfo *player, TbBool from_front_v
 
 void record_local_possession_start(struct PlayerInfo *player)
 {
-    if (!is_my_player(player) || !local_state.camera.ready)
+    if (!local_camera_shows_player(player) || !local_state.camera.ready)
         return;
     if (is_observer_camera_active()) {
         local_state.camera.possession_start_zoom = 0;
@@ -652,7 +664,7 @@ void record_local_possession_start(struct PlayerInfo *player)
 
 int32_t get_local_possession_start_zoom(struct PlayerInfo *player)
 {
-    if (!is_my_player(player) || (local_state.camera.possession_start_zoom <= 0))
+    if (!local_camera_shows_player(player) || (local_state.camera.possession_start_zoom <= 0))
         return get_player_user_state(player)->dungeon_camera.zoom[false];
     return local_state.camera.possession_start_zoom;
 }
