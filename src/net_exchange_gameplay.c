@@ -207,7 +207,6 @@ void process_gameplay_chat_message(NetUserId user, const char *message, MapCoord
     PlayerNumber plyr_idx = get_net_user_player_number(user);
     struct PlayerInfo *player = prepare_network_chat_message(plyr_idx, message);
     if (message[0] != '\0') {
-        SYNCLOG("Gameplay chat from user %d (player %d): %s", (int)user, (int)plyr_idx, message);
         lua_on_chatmsg(plyr_idx, player->mp_message_text);
         const TbBool shown = (player->mp_message_text[0] != cmd_char) || !cmd_exec(plyr_idx, player->mp_message_text + 1, cursor_x, cursor_y) || network_is_active();
         if (shown) {
