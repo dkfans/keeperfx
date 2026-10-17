@@ -427,6 +427,9 @@ struct movie_t {
 			}
 			wait_for_pts();
 			output_video_frame();
+			if (fmv_frame_callback != nullptr) {
+				fmv_frame_callback();
+			}
 			if (!poll_inputs()) {
 				return false;
 			} else if (m_flags & SMK_NoStopOnUserInput) {
@@ -484,6 +487,10 @@ struct movie_t {
 };
 
 } // local
+
+/** Called on every movie frame while a movie plays, e.g. to keep a network session alive; NULL for none. */
+extern "C" void (*fmv_frame_callback)(void);
+void (*fmv_frame_callback)(void) = nullptr;
 
 extern "C" TbBool play_smk(const char * filename, const int flags) {
 	try {

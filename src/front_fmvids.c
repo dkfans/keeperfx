@@ -35,6 +35,8 @@
 #include "vidfade.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "net_main.h"
+#include "net_game.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -61,6 +63,15 @@ const struct DemoItem demo_item[] = {
  *    change screen mode.
  * @return Returns false if fatal error occurred and program execution should end.
  */
+/** Keeps a network session alive while a movie plays: services the connection (keep-alives, acknowledgements)
+ *  without taking in new users. Messages that arrive stay queued for after the movie. */
+static void movie_network_keepalive(void)
+{
+    if (network_is_active()) {
+        netstate.sp->update(NULL);
+    }
+}
+
 short play_smacker_file(char *filename, FrontendMenuState nstate)
 {
   unsigned int movie_flags = 0;
@@ -87,7 +98,11 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
   }
   if (result)
   {
-    if (!play_smk(filename, movie_flags))
+    // in a network session (archon co-op campaign movies) a long movie must not let the connection time out
+    fmv_frame_callback = movie_network_keepalive;
+    const TbBool played = play_smk(filename, movie_flags);
+    fmv_frame_callback = NULL;
+    if (!played)
     {
       ERRORLOG("Smacker play error");
       result=0;

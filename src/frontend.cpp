@@ -3925,11 +3925,18 @@ FrontendMenuState get_startup_menu_state(void)
     if (archon_flow_active() && ((player->display_flags & PlaF6_PlyrHasQuit) == 0))
     { // Archon co-op campaign: every user goes through the statistics back to the shared campaign map
         SYNCLOG("Shared campaign summary state selected");
+        // every user of the keeper gets the flag on the same turn (lockstep), so all machines take the same path
+        const TbBool torture = ((ustate->additional_flags & UsrAF_UnlockedLordTorture) != 0) || archontest_torture;
         ustate->additional_flags &= ~UsrAF_UnlockedLordTorture;
         if ((player->victory_state == VicS_WonLevel) && is_singleplayer_level(lvnum)
          && (next_singleplayer_level(lvnum, false) <= 0) && (campaign.movie_outro_fname[0] != '\0'))
         {
             return FeSt_OUTRO;
+        }
+        if ((player->victory_state == VicS_WonLevel) && torture)
+        {
+            // the dragging movie, then the shared torture screen, then the statistics
+            return FeSt_DRAG;
         }
         return FeSt_LEVEL_STATS;
     } else

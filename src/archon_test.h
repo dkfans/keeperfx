@@ -26,6 +26,8 @@ extern int32_t archontest_seconds;
 extern int32_t archontest_flow_levels;
 /** Campaign mode (-archontestcampaign): after the checks win the level and continue the campaign. */
 extern TbBool archontest_campaign;
+/** Test (-archontesttorture): every won level counts as one where the Lord of the Land was captured, so the shared torture screen follows. */
+extern TbBool archontest_torture;
 
 TbBool archontest_active(void);
 /** Replaces the human input for this frame: fills the local packet. */

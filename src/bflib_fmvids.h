@@ -39,6 +39,8 @@ enum SmackerPlayFlags {
 };
 
 TbBool play_smk(const char * filename, int flags);
+/** Called on every movie frame while a movie plays, e.g. to keep a network session alive; NULL for none. */
+extern void (*fmv_frame_callback)(void);
 short anim_stop(void);
 short anim_record(void);
 TbBool anim_record_frame(unsigned char * screenbuf, unsigned char * palette);

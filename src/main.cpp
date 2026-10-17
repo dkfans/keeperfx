@@ -1940,6 +1940,10 @@ static short process_command_line(unsigned short argc, char *argv[])
               narg++;
           }
       }
+      else if (strcasecmp(parstr,"archontesttorture") == 0)
+      {
+          archontest_torture = true;
+      }
       else if (strcasecmp(parstr,"archontestcampaign") == 0)
       {
           archontest_campaign = true;

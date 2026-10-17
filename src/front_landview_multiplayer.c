@@ -50,6 +50,8 @@
 #include "net_spectator.h"
 #include "post_inc.h"
 
+static void archon_map_escape_draw(void);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -373,6 +375,7 @@ void frontnetmap_draw(void)
         compressed_window_draw();
         if (archon_flow_active()) {
             frontmap_briefing_draw();
+            archon_map_escape_draw();
         }
     }
 }
@@ -420,6 +423,51 @@ TbBool frontnetmap_archon_pick(LevelNumber lvnum)
     return true;
 }
 
+/** When Escape was pressed once on the shared campaign map (0 = not); a second press within ARCHON_ESCAPE_CONFIRM_MS acts. */
+static TbClockMSec archon_escape_armed_at;
+#define ARCHON_ESCAPE_CONFIRM_MS 3000
+
+static TbBool archon_escape_armed(void)
+{
+    return (archon_escape_armed_at != 0) && (LbTimerClock() - archon_escape_armed_at <= ARCHON_ESCAPE_CONFIRM_MS);
+}
+
+/** Escape on the shared campaign map. It has to be pressed twice. The host then takes everyone back to the lobby;
+ *  a joiner leaves the game on its own and the others stay on the map. */
+static void archon_map_escape(void)
+{
+    if (!archon_escape_armed()) {
+        archon_escape_armed_at = LbTimerClock();
+        return;
+    }
+    archon_escape_armed_at = 0;
+    if (network_is_host()) {
+        fe_net_level_selected = LEVELNUMBER_ERROR;
+        SYNCLOG("Host escaped from the shared campaign map, everyone returns to the lobby");
+        return;
+    }
+    SYNCLOG("Left the shared campaign from its map");
+    stop_description_speech();
+    if (LbNetwork_Stop()) {
+        ERRORLOG("LbNetwork_Stop() failed");
+    }
+    archon_flow_reset();
+    frontend_set_state(FeSt_MAIN_MENU);
+}
+
+static void archon_map_escape_draw(void)
+{
+    if (!archon_escape_armed()) {
+        return;
+    }
+    const char *text = network_is_host() ? "Press Escape again to take everyone back to the lobby"
+                                         : "Press Escape again to leave the game";
+    LbTextSetFont(map_font);
+    LbTextSetWindow(0, 0, RendererPhysicalWidth(), lbDisplay.PhysicalScreenHeight);
+    const int w = LbTextStringWidth(text) * units_per_pixel_landview / 16;
+    LbTextDrawResized((RendererPhysicalWidth() - w) / 2, 24 * units_per_pixel_landview / 16, units_per_pixel_landview, text);
+}
+
 static void frontnetmap_archon_input(void)
 {
     if (frontmap_briefing_input()) {
@@ -447,6 +495,11 @@ void frontnetmap_input(void)
     TbClockMSec now;
     struct LevelInformation* lvinfo;
 
+    if (lbKeyOn[KC_ESCAPE] && archon_flow_active()) {
+        lbKeyOn[KC_ESCAPE] = 0;
+        archon_map_escape();
+        return;
+    }
     if (lbKeyOn[KC_ESCAPE]) {
         fe_net_level_selected = LEVELNUMBER_ERROR;
         lbKeyOn[KC_ESCAPE] = 0;
@@ -649,6 +702,10 @@ static LevelNumber frontnetmap_archon_update_players(void)
     for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
         const struct ScreenPacket* nspck = &net_screen_packet[i];
         if (!is_connected_screen_packet(nspck)) {
+            continue;
+        }
+        if ((i != SERVER_ID) && (i != my_player_number)) {
+            // a joiner that left (Escape on the map) or escaped with an older build: the others carry on
             continue;
         }
         if (((i != my_player_number) && !network_user_active(i)) || (nspck->action_par1 == LEVELNUMBER_ERROR)) {

@@ -64,6 +64,7 @@ extern "C" {
 /******************************************************************************/
 int32_t archontest_seconds = 0;
 int32_t archontest_flow_levels = 0;
+TbBool archontest_torture = false;
 TbBool archontest_campaign = false;
 
 #define AT_MAX_USERS 2

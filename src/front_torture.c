@@ -50,6 +50,7 @@
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
+#include "front_archon.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -287,7 +288,8 @@ void fronttorture_input(void)
     if ((pckt->action & 0x01) != 0)
     {
         frontend_set_state(FeSt_LEVEL_STATS);
-        if (network_is_active())
+        // archon co-op: the session goes on, everyone continues to the shared statistics and campaign map
+        if (network_is_active() && !archon_flow_active())
             LbNetwork_Stop();
         return;
     }
