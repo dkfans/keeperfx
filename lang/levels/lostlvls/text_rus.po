@@ -26,7 +26,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 3.9\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #. Generic victory message
@@ -143,7 +143,7 @@ msgstr "Теперь, когда у вас есть тренировочный �
 #: guitext:80 guitext:91
 msgctxt "In-game message"
 msgid "You may create more imps by choosing the Create Imp spell in the spell panel and then clicking with the left mouse button on a section of your dungeon floor."
-msgstr "Вы можете материализовать новых бесов, щелкнув по иконке заклинания "Призвать беса" на панели заклинаний и затем ЛКМ на любом тайле пола подземелья."
+msgstr "Вы можете материализовать новых бесов, щелкнув по иконке заклинания \"Призвать беса\" на панели заклинаний и затем ЛКМ на любом тайле пола подземелья."
 
 #: guitext:81
 msgctxt "In-game message"
@@ -163,7 +163,7 @@ msgstr "Крепость героев расположена на другом �
 #: guitext:84
 msgctxt "In-game message"
 msgid "You now have the ability to cast Heal on your creatures. Hold down the LMB for more power. The hero forces are sure to retaliate."
-msgstr "Теперь Вы можете использовать заклинание "Исцелить" на Своих созданиях. Удерживайте ЛКМ, чтобы усилить его эффект. Войско героев несомненно нанесет ответный удар."
+msgstr "Теперь Вы можете использовать заклинание \"Исцелить\" на Своих созданиях. Удерживайте ЛКМ, чтобы усилить его эффект. Войско героев несомненно нанесет ответный удар."
 
 #: guitext:85
 msgctxt "In-game message"
@@ -193,7 +193,7 @@ msgstr "Вы обнаружили замок героев. Снесите вор
 #: guitext:90
 msgctxt "In-game message"
 msgid "Congratulations. You have defeated the Lord of the Land and completed the Dungeon Keeper demo."
-msgstr "Поздравляем! Вы одолели лорда этой страны и прошли демо-версию игры "Хранитель подземелий"."
+msgstr "Поздравляем! Вы одолели лорда этой страны и прошли демо-версию игры \"Хранитель подземелий\"."
 
 #: guitext:92
 msgctxt "In-game message"
@@ -263,7 +263,7 @@ msgstr "Это священное место. Здесь исследовани�
 #: guitext:105
 msgctxt "In-game message"
 msgid "You have researched the evil audience; if you are powerful enough, victory is now yours for the taking."
-msgstr "Вы исследовали заклинание "Собрать публику". Если Ваша мощь достаточно велика, победа скоро будет за Вами."
+msgstr "Вы исследовали заклинание \"Собрать публику\". Если Ваша мощь достаточно велика, победа скоро будет за Вами."
 
 #: guitext:106
 msgctxt "In-game message"
@@ -331,7 +331,7 @@ msgstr "Му"
 #: guitext:202
 msgctxt "Level name"
 msgid "Dungeon Keeper Demo"
-msgstr "Карта из демо-версии "Хранителя подземелья""
+msgstr "Карта из демо-версии \"Хранителя подземелья\""
 
 #: guitext:203
 msgctxt "Level name"
