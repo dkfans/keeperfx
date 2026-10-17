@@ -1342,6 +1342,7 @@ static TbBool merge_room_into(struct Room *linkroom, struct Room *oldroom)
     }
     // Update slabs in the new list
     recount_and_reassociate_room_slabs(linkroom);
+    set_room_efficiency(linkroom);
     update_room_total_capacity(linkroom);
     link_room_health(linkroom, oldroom);
     // Make sure creatures working in the room won't leave
