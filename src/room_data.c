@@ -3891,7 +3891,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
         EvKind_RoomTakenOver, claimtng->owner, room->kind);
     room = merge_adjacent_rooms_of_same_kind(room);
-    do_room_integration(room);
+    do_room_recalculation(room);
     thing_play_sample(claimtng, snd_room_claim, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     output_room_takeover_message(room, oldowner, claimtng->owner);
     return 1;
@@ -3924,7 +3924,7 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
         EvKind_RoomTakenOver, claimtng->owner, room->kind);
     room = merge_adjacent_rooms_of_same_kind(room);
-    do_room_integration(room);
+    do_room_recalculation(room);
     output_room_takeover_message(room, oldowner, claimtng->owner);
     return 1;
 }
@@ -3958,7 +3958,7 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
         MapCoord ccor_y = subtile_coord_center(room->central_stl_y);
         event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, oldowner, room->kind);
         room = merge_adjacent_rooms_of_same_kind(room);
-        do_room_integration(room);
+        do_room_recalculation(room);
         return 1;
     }
     else
