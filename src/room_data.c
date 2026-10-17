@@ -3751,7 +3751,7 @@ void redraw_room_map_elements(struct Room *room)
             MapSlabCoord adjacent_slb_x = slb_x + my_around_eight[n].delta_x;
             MapSlabCoord adjacent_slb_y = slb_y + my_around_eight[n].delta_y;
             struct SlabMap* adjacent_slb = get_slabmap_block(adjacent_slb_x, adjacent_slb_y);
-            if ((adjacent_slb->kind == slb->kind) && (adjacent_slb->room_index != room->index)) {
+            if ((adjacent_slb->kind == slb->kind) && (adjacent_slb->room_index != room->index) && !slab_kind_is_animated(slb->kind)) {
                 place_single_slab_type_on_map(adjacent_slb->kind, adjacent_slb_x, adjacent_slb_y, slabmap_owner(adjacent_slb));
                 borders_same_kind = true;
             }
