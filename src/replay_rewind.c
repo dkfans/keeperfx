@@ -410,7 +410,7 @@ static TbBool capture_lua(struct RewindKeyframe *kf)
         return true;
     TbBool ok = true;
     size_t len = 0;
-    const char *data = lua_get_serialised_data(&len);
+    char *data = lua_get_serialised_data(&len);
     if ((data != NULL) && (len > 0))
     {
         ok = stage_reserve(compressBound(len));
@@ -428,7 +428,7 @@ static TbBool capture_lua(struct RewindKeyframe *kf)
             }
         }
     }
-    cleanup_serialized_data();
+    free(data);
     return ok;
 }
 
