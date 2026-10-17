@@ -1,7 +1,7 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file roomspace_prediction.c
+/** @file roomspace_input.c
  *     Client-side dig prediction overlay for roomspace highlighting.
  */
 /******************************************************************************/
@@ -20,7 +20,7 @@
 #include "packets.h"
 #include "net_exchange_gameplay.h"
 #include "roomspace.h"
-#include "roomspace_prediction.h"
+#include "roomspace_input.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"

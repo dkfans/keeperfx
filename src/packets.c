@@ -81,7 +81,7 @@
 #include "power_specials.h"
 #include "power_hand.h"
 #include "room_util.h"
-#include "roomspace_prediction.h"
+#include "roomspace_input.h"
 #include "room_workshop.h"
 #include "room_data.h"
 #include "thing_stats.h"

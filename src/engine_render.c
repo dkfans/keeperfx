@@ -63,7 +63,7 @@
 #include "keeperfx.hpp"
 #include "kjm_input.h"
 #include "player_instances.h"
-#include "roomspace_prediction.h"
+#include "roomspace_input.h"
 #include "slab_data.h"
 #include "sprites.h"
 #include "thing_stats.h"
