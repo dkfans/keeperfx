@@ -105,7 +105,7 @@ TbBool cumulative_screen_shot(void)
 
 static int movie_message_scale(void)
 {
-    if (dbc_language > 0)
+    if (dbc_initialized && dbc_enabled)
         return scale_value_by_horizontal_resolution((MyScreenWidth >= 640) ? 16 : 32);
     return scale_ui_value_lofi(16);
 }
@@ -125,7 +125,7 @@ static void draw_movie_recording_indicator(void)
 {
     if ((local_system_flags & GSF_CaptureMovie) == 0)
         return;
-    if (!LbScreenIsLocked())
+    if (!RendererIsFrameOpen())
         return;
     const char *text = get_string(GUIStr_RecMovie);
     if ((text == NULL) || (text[0] == '\0'))
@@ -138,7 +138,7 @@ static void draw_movie_recording_indicator(void)
     snprintf(line, sizeof(line), "%s  %ld:%02ld", text, secs / 60, secs % 60);
     LbTextSetFont(winfont);
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    RendererSetDrawFlags(Lb_TEXT_HALIGN_LEFT);
     LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, movie_message_scale(), line);
 }
 
