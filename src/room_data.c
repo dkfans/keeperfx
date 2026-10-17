@@ -3792,8 +3792,12 @@ void do_room_unprettying(struct Room *room, PlayerNumber plyr_idx)
     }
 }
 
-static void merge_adjacent_rooms_of_same_kind(struct Room *room)
+static struct Room *merge_adjacent_rooms_of_same_kind(struct Room *room)
 {
+    if (room_role_matches(room->kind, RoRoF_KeeperStorage | RoRoF_CrPoolSpawn)) {
+        return room;
+    }
+    struct Room* linkroom = room;
     int32_t k = 0;
     SlabCodedCoords i = room->slabs_list;
     while (i > 0) {
@@ -3801,18 +3805,27 @@ static void merge_adjacent_rooms_of_same_kind(struct Room *room)
         MapSlabCoord slb_y = slb_num_decode_y(i);
         for (int n = 0; n < SMALL_AROUND_LENGTH; n++) {
             struct Room* adjacent_room = slab_room_get(slb_x + small_around[n].delta_x, slb_y + small_around[n].delta_y);
-            if (!room_is_invalid(adjacent_room) && (adjacent_room != room) && (adjacent_room->owner == room->owner) && (adjacent_room->kind == room->kind)) {
-                merge_room_into(room, adjacent_room);
+            if (room_is_invalid(adjacent_room) || (adjacent_room == linkroom) || (adjacent_room->owner != linkroom->owner) || (adjacent_room->kind != linkroom->kind)) {
+                continue;
+            }
+            if (linkroom == room) {
+                if (!merge_room_into(adjacent_room, room)) {
+                    return room;
+                }
+                linkroom = adjacent_room;
+            } else if (!merge_room_into(linkroom, adjacent_room)) {
+                return linkroom;
             }
         }
         i = get_next_slab_number_in_room(i);
         k++;
-        if (k > room->slabs_count) {
+        if (k > linkroom->slabs_count) {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
         }
     }
-    update_room_central_tile_position(room);
+    update_room_central_tile_position(linkroom);
+    return linkroom;
 }
 
 void do_room_integration(struct Room *room)
@@ -3877,7 +3890,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     do_room_unprettying(room, claimtng->owner);
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
         EvKind_RoomTakenOver, claimtng->owner, room->kind);
-    merge_adjacent_rooms_of_same_kind(room);
+    room = merge_adjacent_rooms_of_same_kind(room);
     do_room_integration(room);
     thing_play_sample(claimtng, snd_room_claim, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     output_room_takeover_message(room, oldowner, claimtng->owner);
@@ -3910,7 +3923,7 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
     do_room_unprettying(room, claimtng->owner);
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
         EvKind_RoomTakenOver, claimtng->owner, room->kind);
-    merge_adjacent_rooms_of_same_kind(room);
+    room = merge_adjacent_rooms_of_same_kind(room);
     do_room_integration(room);
     output_room_takeover_message(room, oldowner, claimtng->owner);
     return 1;
@@ -3944,7 +3957,7 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
         MapCoord ccor_x = subtile_coord_center(room->central_stl_x);
         MapCoord ccor_y = subtile_coord_center(room->central_stl_y);
         event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, oldowner, room->kind);
-        merge_adjacent_rooms_of_same_kind(room);
+        room = merge_adjacent_rooms_of_same_kind(room);
         do_room_integration(room);
         return 1;
     }
