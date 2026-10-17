@@ -249,6 +249,9 @@ void store_packet_history(NetUserId user, const struct Packet *packet)
     if (!is_packet_empty(entry) && (GameTurnDelta)(entry->turn - packet->turn) > 0) {
         return;
     }
+    if (user != netstate.my_id && network_user_active(user) && (is_packet_empty(entry) || entry->turn != packet->turn)) {
+        input_lag_note_packet_arrival(packet->turn);
+    }
     *entry = *packet;
 }
 
@@ -507,7 +510,6 @@ static TbError wait_for_missing_packets(void *server_buf, size_t frame_size, Net
         }
     }
     TbClockMSec wait_time = LbTimerClock() - wait_start_time;
-    input_lag_note_packet_wait((int32_t)wait_time);
     if (wait_timed_out) {
         WARNLOG("LbNetwork_ExchangeGameplay: Timed out waiting for turn=%lu after %dms; continuing so resync can recover",
             (unsigned long)expected_turn, (int32_t)wait_time);

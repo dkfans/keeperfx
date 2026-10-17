@@ -1059,11 +1059,8 @@ void draw_network_stats()
     unsigned int lost_packet_count = GetClientPacketsLost();
     unsigned int outgoing_rate_kb10 = (GetUploadRateBytesPerSecond() * 10) / 1024;
     unsigned int incoming_rate_kb10 = (GetDownloadRateBytesPerSecond() * 10) / 1024;
-    int32_t increase_wait_time;
-    int32_t increase_turn_time;
-    int32_t decrease_wait_time;
-    int32_t decrease_sample_time;
-    input_lag_get_stats(&increase_wait_time, &increase_turn_time, &decrease_wait_time, &decrease_sample_time);
+    struct InputLagStats input_lag_stats;
+    input_lag_get_stats(&input_lag_stats);
     int64_t turn_length_ns = 0;
     if (turns_per_second > 0) {
         turn_length_ns = 1000000000 / turns_per_second;
@@ -1072,39 +1069,50 @@ void draw_network_stats()
             turn_length_ns = 0;
         }
     }
+    int32_t input_lag_ms = (int32_t)(game.input_lag_turns * turn_length_ns / 1000000);
+    int32_t line = 0;
 
     snprintf(text, sizeof(text), "Full ping: %ums", ping);
-    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Half ping: %ums", half_ping);
-    LbTextDrawResized(0, tx_units_per_px, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Input lag: %d", game.input_lag_turns);
-    LbTextDrawResized(0, tx_units_per_px * 2, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Packet wait increase: %d/%dms in %dms", increase_wait_time,
-        increase_turn_time, INPUT_LAG_INCREASE_SAMPLE_MS);
-    LbTextDrawResized(0, tx_units_per_px * 3, tx_units_per_px, text);
-    snprintf(text, sizeof(text), "Packet wait decrease: %d/%dms", decrease_wait_time, decrease_sample_time);
-    LbTextDrawResized(0, tx_units_per_px * 4, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
+    if (input_lag_stats.target != game.input_lag_turns) {
+        snprintf(text, sizeof(text), "Input lag: %d turns (%dms) -> %d", game.input_lag_turns, input_lag_ms, input_lag_stats.target);
+    } else {
+        snprintf(text, sizeof(text), "Input lag: %d turns (%dms)", game.input_lag_turns, input_lag_ms);
+    }
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Packets arrive in: %dms", input_lag_stats.packet_delay);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
+    snprintf(text, sizeof(text), "Raise lag to: %d turns", input_lag_stats.increase_level);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
+    if (input_lag_stats.sample_count >= INPUT_LAG_DECREASE_WINDOW_TURNS) {
+        snprintf(text, sizeof(text), "Lower lag to: %d turns", input_lag_stats.decrease_level);
+    } else {
+        snprintf(text, sizeof(text), "Lower lag to: collecting %d%%", input_lag_stats.sample_count * 100 / INPUT_LAG_DECREASE_WINDOW_TURNS);
+    }
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Download: %u.%u KB/s",
         incoming_rate_kb10 / 10, incoming_rate_kb10 % 10);
-    LbTextDrawResized(0, tx_units_per_px * 5, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Upload: %u.%u KB/s",
         outgoing_rate_kb10 / 10, outgoing_rate_kb10 % 10);
-    LbTextDrawResized(0, tx_units_per_px * 6, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Congestion: %u bytes", transit);
-    LbTextDrawResized(0, tx_units_per_px * 7, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Loss rate: %u%%", packet_loss_percent);
-    LbTextDrawResized(0, tx_units_per_px * 8, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Lost packets: %u", lost_packet_count);
-    LbTextDrawResized(0, tx_units_per_px * 9, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Stutter: %dms", stutter_detection_current);
-    LbTextDrawResized(0, tx_units_per_px * 10, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Average stutter: %dms", stutter_detection_average);
-    LbTextDrawResized(0, tx_units_per_px * 11, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Max stutter: %dms", stutter_detection_max);
-    LbTextDrawResized(0, tx_units_per_px * 12, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Turn length: %" PRId64, turn_length_ns);
-    LbTextDrawResized(0, tx_units_per_px * 13, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Gameturn: %u", get_gameturn());
-    LbTextDrawResized(0, tx_units_per_px * 14, tx_units_per_px, text);
+    LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
 }
 /******************************************************************************/
