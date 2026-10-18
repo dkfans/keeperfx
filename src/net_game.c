@@ -333,16 +333,21 @@ TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs)
 
 
 
-static uint8_t calculate_initial_input_lag(void)
+static int count_active_net_users(void)
 {
-    int32_t player_count = 0;
-    for (int32_t i = 0; i < MAX_NET_USERS; i++) {
+    int count = 0;
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
         if (net_user_info[i].network_user_active) {
-            player_count++;
+            count++;
         }
     }
+    return count;
+}
+
+static uint8_t calculate_initial_input_lag(void)
+{
     uint64_t ping = network_lobby_ping;
-    if (player_count == 2) {
+    if (count_active_net_users() == 2) {
         ping /= 2;
     }
     uint64_t input_lag_turns = 0;
@@ -362,12 +367,7 @@ static uint8_t calculate_initial_input_lag(void)
 
 static void resolve_startup_player_slots(struct StartupSyncPacket *sync)
 {
-    int active_users = 0;
-    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
-        if (net_user_info[i].network_user_active) {
-            active_users++;
-        }
-    }
+    int active_users = count_active_net_users();
     // Seat players only where the loaded map has a dungeon heart
     uint8_t heart_slots = 0;
     int heart_count = 0;
@@ -463,12 +463,7 @@ void setup_count_players(void)
     game.human_players_count = 1;
   } else
   {
-    game.human_players_count = 0;
-    for (int i = 0; i < MAX_NET_USERS; i++)
-    {
-      if (net_user_info[i].network_user_active)
-        game.human_players_count++;
-    }
+    game.human_players_count = count_active_net_users();
   }
 }
 
