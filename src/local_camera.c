@@ -683,7 +683,7 @@ void step_local_possession_camera(struct PlayerInfo *player, const struct Thing 
     const int64_t ax = hori_offset[0], ay = hori_offset[1];
     const int64_t bx = vert_offset[0], by = vert_offset[1];
     const int64_t det = ax * by - bx * ay;
-    const int64_t h = thing->mappos.z.val;
+    const int64_t h = (int64_t)thing->mappos.z.val + get_creature_eye_height(thing);
     MapCoord anchor_x = thing->mappos.x.val;
     MapCoord anchor_y = thing->mappos.y.val;
     if ((det != 0) && (h != 0)) {
@@ -691,6 +691,12 @@ void step_local_possession_camera(struct PlayerInfo *player, const struct Thing 
         anchor_y = (MapCoord)(anchor_y + h * (ax * high_offset[1] - ay * high_offset[0]) / det);
     }
     view_zoom_camera_in_to(cam, 30000, 0, anchor_x, anchor_y);
+    // turn toward creature's facing
+    int32_t mv_a = (thing->move_angle_xy - cam->rotation_angle_x) & ANGLE_MASK;
+    if (mv_a > DEGREES_180)
+        mv_a -= DEGREES_360;
+    mv_a = clamp(mv_a, -DEGREES_30, DEGREES_30);
+    cam->rotation_angle_x = (cam->rotation_angle_x + mv_a) & ANGLE_MASK;
     cam->velocity_x = 0;
     cam->velocity_y = 0;
     cam->velocity_rotation = 0;
