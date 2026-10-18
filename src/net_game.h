@@ -67,6 +67,7 @@ TbBool game_censorship_enabled(void);
 void apply_recorded_network_stop(void);
 TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs);
 TbBool network_is_host(void);
+int net_map_player_limit(void);
 PlayerNumber get_net_user_player_number(NetUserId user);
 void set_net_user_player_number(NetUserId user, PlayerNumber plyr_idx);
 void remap_user_to_solo(struct PlayerInfo *myplyr, NetUserId old_user);

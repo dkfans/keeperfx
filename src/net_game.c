@@ -323,6 +323,7 @@ static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket
 
 static struct StartupSyncPacket s_local_startup_sync;
 static struct StartupSyncPacket s_startup_sync_packets[MAX_NET_USERS];
+static int s_resolved_player_slots_count;
 
 // the preferences a user sent in the startup sync, for network games
 TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs)
@@ -439,7 +440,25 @@ static void resolve_startup_player_slots(struct StartupSyncPacket *sync)
         slots = add_player_slots(heart_slots, lof_slots & ~heart_slots, active_users);
         slots = add_player_slots(slots, ~heart_slots, active_users);
     }
+    s_resolved_player_slots_count = count_player_slots(slots);
     net_resolve_player_colours(slots, sync->player_slots, &sync->frontend_alliances);
+}
+
+int net_map_player_limit(void)
+{
+    TbBool in_game = (netstate.phase == NetPhase_InGame);
+    LevelNumber lvnum = get_selected_level_number();
+    if (in_game) {
+        lvnum = get_loaded_level_number();
+    }
+    struct LevelInformation *level = get_level_info(lvnum);
+    if (level && level->players > 0) {
+        return level->players;
+    }
+    if (!in_game) {
+        return 0;
+    }
+    return s_resolved_player_slots_count;
 }
 
 static void build_local_startup_sync(void)
