@@ -805,7 +805,7 @@ namespace
                 enum NetDropReason drop_reason = NETDROP_TIMEOUT;
                 if (enet_event.type == ENET_EVENT_TYPE_DISCONNECT) {
                     disconnect_reason = "disconnected (clean)";
-                    drop_reason = NETDROP_ERROR;
+                    drop_reason = NETDROP_DISCONNECT;
                 }
                 destroy_incoming_queue(user_id);
                 log_peer_connection(enet_event.peer, user_id, disconnect_reason);

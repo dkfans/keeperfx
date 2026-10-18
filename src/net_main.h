@@ -54,7 +54,7 @@ typedef int NetUserId;
 
 enum NetDropReason {
     NETDROP_MANUAL,
-    NETDROP_ERROR,
+    NETDROP_DISCONNECT,
     NETDROP_TIMEOUT,
 };
 

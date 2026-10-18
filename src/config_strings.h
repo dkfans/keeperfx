@@ -471,7 +471,7 @@ enum GUIStrings {
     GUIStr_NetPlayerLeftGame,
     GUIStr_NetUnused1,
     GUIStr_NetUnused2,
-    GUIStr_NetHostConnectionLost,
+    GUIStr_NetUnused3,
     GUIStr_FxdataZipNotLoaded,
     GUIStr_FxdataZipInstallAsMod,
     GUIStr_NetLobbyConnectionLost,

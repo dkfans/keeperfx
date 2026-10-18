@@ -5918,8 +5918,8 @@ msgid "unused"
 msgstr ""
 
 #: guitext:1119
-msgctxt "Network game message"
-msgid "Network connection to host lost"
+msgctxt "Unused"
+msgid "unused"
 msgstr ""
 
 #: guitext:1120

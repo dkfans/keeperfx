@@ -839,7 +839,17 @@ void host_spoof_dropped_user_packets(void)
         }
     }
 }
- 
+
+static void remove_remote_users_after_host_lost(NetUserId local_user)
+{
+    remove_user_from_game(SERVER_ID, get_string(GUIStr_NetPlayerTimedOut));
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (user != local_user) {
+            remove_user_from_game(user, NULL);
+        }
+    }
+}
+
 void process_disconnected_network_players(void)
 {
     if (!network_is_active() || network_is_host() || (netstate.users[SERVER_ID].progress != USER_UNUSED)) {
@@ -851,14 +861,6 @@ void process_disconnected_network_players(void)
         quit_game = 1;
         return;
     }
-    const PlayerNumber host_plyr_idx = get_net_user_player_number(SERVER_ID);
-    if (host_plyr_idx != PLAYER_NONE) {
-        if (netstate.users_timed_out[SERVER_ID]) {
-            message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerTimedOut), get_player(host_plyr_idx)->player_name);
-        } else {
-            message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
-        }
-    }
     if (netstate.my_id >= MAX_NET_USERS) {
         const char *error = net_join_error_text(net_join_rejection);
         if (error != NULL) {
@@ -867,26 +869,14 @@ void process_disconnected_network_players(void)
         stop_network_game_and_quit_to_main_menu();
         return;
     }
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (user != netstate.my_id) {
-            remove_user_from_game(user, NULL);
-        }
-    }
+    remove_remote_users_after_host_lost(netstate.my_id);
     replay_record_network_stopped();
     stop_network_game_and_continue_locally();
 }
 
 void apply_recorded_network_stop(void)
 {
-    if (get_net_user_player_number(SERVER_ID) != PLAYER_NONE) {
-        message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
-    }
-    const NetUserId local_user = replay.head.recording_user;
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        if (user != local_user) {
-            remove_user_from_game(user, NULL);
-        }
-    }
+    remove_remote_users_after_host_lost(replay.head.recording_user);
     stop_network_game_and_continue_locally();
 }
 
