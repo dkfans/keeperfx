@@ -319,6 +319,7 @@ enum SaveLoadOutcome SaveManager::Load(int slot_num, enum SaveCheckResult *why)
     // the current session's custom bank layout.
     sound_manager_reapply_creature_sounds();
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
+    local_state.show_gui = true;
     init_navigation();
     reinit_level_after_load();
     take_game_timestamp();
