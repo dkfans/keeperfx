@@ -719,12 +719,12 @@ static void get_observer_camera_inputs(void)
     struct Camera* camera = get_local_active_camera(player);
     if (get_local_view_type(player) == PVT_MapScreen) {
         if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
-            set_observer_camera_view(PVT_DungeonTop);
+            fade_observer_camera_view(PVT_DungeonTop);
         }
         return;
     }
     if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
-        set_observer_camera_view(PVT_MapScreen);
+        fade_observer_camera_view(PVT_MapScreen);
         return;
     }
     struct Packet* fpckt = get_observer_camera_packet();
@@ -945,9 +945,7 @@ static short get_global_inputs(void)
         return true;
       }
   }
-  if ((player->instance_num != PI_MapFadeTo) &&
-      (player->instance_num != PI_MapFadeFrom) &&
-      (!game_is_busy_doing_gui_string_input()))
+  if (!game_is_busy_doing_gui_string_input())
     {
 
         TbBool toggle_pause = is_game_key_pressed(Gkey_TogglePause, true, false);
@@ -1104,19 +1102,7 @@ static TbBool get_level_lost_inputs(void)
     if (view_type == PVT_DungeonTop)
     {
       if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
-        if (player->instance_num != PI_MapFadeFrom)
-        {
-          turn_off_all_window_menus();
-          local_state.show_panel = local_state.show_gui;
-          if (parchment_map_fade_enabled())
-          {
-                set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
-          } else
-          {
-                set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
-          }
-          turn_off_roaming_menus();
-        }
+        zoom_to_parchment_map();
       }
     }
     TbBool inp_done=false;
@@ -1430,7 +1416,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
       {
           return true;
       }
-      if ((player->instance_num != PI_MapFadeFrom) && (game.small_map_state != 2))
+      if (game.small_map_state != 2)
       {
           turn_off_all_window_menus();
           zoom_to_parchment_map();
@@ -3042,9 +3028,9 @@ static short get_inputs(void)
         return get_packet_load_game_inputs();
     }
     struct PlayerInfo* player = get_my_player();
-    if ((get_local_user_state()->init_flags & UsrIF_MouseInputDisabled) != 0)
+    if (((get_local_user_state()->init_flags & UsrIF_MouseInputDisabled) != 0) || (get_local_map_fade() != PVT_None))
     {
-        SYNCDBG(5,"Starting for creature fade");
+        SYNCDBG(5,"Starting for creature or map fade");
         // Store the creature's facing so possession does not send 0,0 and turn it north.
         struct Thing *thing = thing_get(player->controlled_thing_idx);
         if ((get_local_view_type(player) == PVT_CreatureContrl) && thing_exists(thing))
@@ -3139,21 +3125,6 @@ static short get_inputs(void)
         if (get_players_packet_action(player) != PckA_None)
             unset_players_packet_control(player, PCtr_LBtnRelease|PCtr_RBtnRelease);
         return inp_handled;
-    case PVT_MapFadeIn:
-        if (player->instance_num != PI_MapFadeTo)
-        {
-          if (!network_is_active())
-            game.operation_flags &= ~GOF_Paused;
-          set_map_ui_hidden(true, false);
-          set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
-        }
-        return false;
-    case PVT_MapFadeOut:
-        if (player->instance_num != PI_MapFadeFrom)
-        {
-          set_players_packet_action(player, PckA_SetViewType, PVT_DungeonTop, 0,0,0);
-        }
-        return false;
     default:
         SYNCDBG(7,"Default exit");
         return false;

@@ -20,6 +20,7 @@
 #include "game_legacy.h"
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
+#include "gui_parchment.h"
 #include "gui_soundmsgs.h"
 #include "kjm_input.h"
 #include "local_camera.h"
@@ -429,15 +430,15 @@ void observer_update_view(void)
         }
         view_type = ustate->view_type;
     }
-    if (view_type == PVT_MapFadeIn) {
-        view_type = PVT_MapScreen;
-    } else if (view_type == PVT_MapFadeOut) {
-        view_type = PVT_DungeonTop;
-    }
     if (view_type == PVT_DungeonTop) {
         observer_shift_view_camera();
     }
     if (local_observer_user_state.view_type != view_type) {
+        const TbBool map_toggled = (local_observer_user_state.view_type == PVT_MapScreen && view_type == PVT_DungeonTop)
+            || (local_observer_user_state.view_type == PVT_DungeonTop && view_type == PVT_MapScreen);
+        if (map_toggled && !is_observer_camera_active()) {
+            start_local_map_fade(view_type);
+        }
         local_observer_user_state.view_type = view_type;
         local_state.view_type = view_type;
         turn_off_query_menus();

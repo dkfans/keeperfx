@@ -428,27 +428,6 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
     }
 }
 
-static int32_t my_map_fade_turns(void)
-{
-    const struct UserState *ustate = get_player_user_state(get_displayed_player());
-    return user_state_invalid(ustate) ? 1 : max((int32_t)ustate->prefs[UPref_MapFade], 1);
-}
-
-static float map_fade_progress(void)
-{
-    const struct PlayerInfo* player = get_displayed_player();
-    const float turns = (float)(my_map_fade_turns() - 1);
-    if (turns <= 0.0f)
-        return 1.0f;
-    float frac = is_feature_on(Ft_DeltaTime) ? (float)local_state.process_turn_time : 0.0f;
-    if (frac < 0.0f) frac = 0.0f;
-    if (frac > 1.0f) frac = 1.0f;
-    float progress = (turns - (float)player->instance_remain_turns + frac) / turns;
-    if (progress < 0.0f) progress = 0.0f;
-    if (progress > 1.0f) progress = 1.0f;
-    return progress;
-}
-
 static void draw_map_fade(TbBool fading_in)
 {
     SYNCDBG(6,"Starting");
@@ -468,8 +447,8 @@ static void draw_map_fade(TbBool fading_in)
         local_state.map_fade_prepared = true;
     }
     // 0 shows the dungeon, 32 the parchment
-    const int32_t turns = my_map_fade_turns();
-    const float progress = map_fade_progress();
+    const int32_t turns = local_state.map_fade_turns;
+    const float progress = local_map_fade_progress();
     const float display_step = 32.0f * (fading_in ? progress : 1.0f - progress);
     RendererSubmitMapFadeStep(starting, display_step,
         (float)turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, map_fade_ghost_table);
@@ -728,7 +707,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
         return;
     }
     // During fade
-    if (player->instance_num == PI_MapFadeFrom) {
+    if (get_local_map_fade() != PVT_None) {
         set_pointer_graphic(MousePG_Invisible);
         return;
     }
@@ -949,14 +928,12 @@ void redraw_display(void)
     } else {
         lens_mode = 0;
     }
-    const unsigned char fade_inum = get_displayed_player()->instance_num;
-    const TbBool map_fading = ((fade_inum == PI_MapFadeTo) || (fade_inum == PI_MapFadeFrom))
-        && !is_observer_camera_active();
-    if (!map_fading)
+    const unsigned char map_fade = get_local_map_fade();
+    if (map_fade == PVT_None)
         local_state.map_fade_prepared = false;
-    if (map_fading) {
+    if (map_fade != PVT_None) {
         parchment_loaded = 0;
-        draw_map_fade(fade_inum == PI_MapFadeTo);
+        draw_map_fade(map_fade == PVT_MapFadeIn);
     } else
     if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr))
     {

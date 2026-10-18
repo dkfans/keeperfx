@@ -733,14 +733,17 @@ void update_local_view_prediction(const struct Packet *pckt)
         local_state.camera.move_cam = NULL;
     }
     if (pckt->action == PckA_SaveViewType && pckt->actn_par1 == PVT_MapScreen) {
+        start_local_map_fade(PVT_MapScreen);
         local_state.view_type = PVT_MapScreen;
         toggle_status_menu(0);
     } else if ((pckt->action == PckA_LoadViewType && pckt->actn_par1 == PVT_DungeonTop)
             || (pckt->action == PckA_ZoomFromMap && pckt->actn_par3 == 0)) {
         local_state.view_type = PVT_DungeonTop;
         toggle_status_menu(local_state.show_panel);
-        if (on_map)
+        if (on_map) {
             sync_local_camera_leaving_map(player, pckt);
+            start_local_map_fade(PVT_DungeonTop);
+        }
     }
 }
 
@@ -809,6 +812,14 @@ void set_observer_camera_view(unsigned char view_type)
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
 }
 
+void fade_observer_camera_view(unsigned char view_type)
+{
+    if (is_observer_camera_active() && (local_state.observer_camera_view_type != view_type)) {
+        start_local_map_fade(view_type);
+    }
+    set_observer_camera_view(view_type);
+}
+
 void observer_camera_jump(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     if (!is_observer_camera_active()) {
@@ -822,15 +833,21 @@ void observer_camera_jump(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     process_camera_action(local_state.camera.destination, &jump);
     memcpy(local_state.camera.previous, local_state.camera.destination, sizeof(local_state.camera.previous));
     memcpy(local_state.camera.current, local_state.camera.destination, sizeof(local_state.camera.current));
-    set_observer_camera_view(PVT_DungeonTop);
+    fade_observer_camera_view(PVT_DungeonTop);
 }
 
 unsigned char get_local_view_type(const struct PlayerInfo *player)
 {
-    if (is_observer_camera_active() && is_my_player(player)) {
+    if (!is_my_player(player)) {
+        return get_player_view_type(player);
+    }
+    if (get_local_map_fade() == PVT_MapFadeIn) {
+        return PVT_DungeonTop;
+    }
+    if (is_observer_camera_active()) {
         return local_state.observer_camera_view_type;
     }
-    if (!is_my_player(player) || local_state.view_type == PVT_None) {
+    if (local_state.view_type == PVT_None) {
         return get_player_view_type(player);
     }
     if (local_state.view_type == PVT_MapScreen || get_player_view_type(player) == PVT_MapScreen) {
@@ -851,15 +868,12 @@ struct Camera* get_local_active_camera(struct PlayerInfo *player)
     if (!is_my_player(player) || !local_state.camera.ready) {
         return &local_state.camera.current[get_player_active_camera_index(player)];
     }
-    if (is_observer_camera_active()) {
-        if (local_state.observer_camera_view_type == PVT_MapScreen) {
-            return &local_state.camera.current[CamIV_Parchment];
-        }
-        return &local_state.camera.current[local_state.observer_camera_idx];
-    }
-    unsigned char view_type = get_local_view_type(player);
+    const unsigned char view_type = get_local_view_type(player);
     if (view_type == PVT_MapScreen) {
         return &local_state.camera.current[CamIV_Parchment];
+    }
+    if (is_observer_camera_active()) {
+        return &local_state.camera.current[local_state.observer_camera_idx];
     }
     if (view_type == PVT_DungeonTop && get_player_view_type(player) == PVT_MapScreen) {
         return get_local_dungeon_camera(player);
