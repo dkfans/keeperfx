@@ -91,3 +91,28 @@ foreach(_t IN LISTS KFX_TARGETS)
 endforeach()
 
 kfx_status("BUILD" "${CMAKE_CXX_COMPILER_ID} -> keeperfx, keeperfx_hvlog")
+
+# Save format tests (tests/save): links only the save codec, the field tables and zlib, no game code.
+# Off by default. Build with -DKFX_SAVE_TESTS=ON, run with ctest.
+option(KFX_SAVE_TESTS "Build the save format tests (kfx_save_tests)" OFF)
+if(KFX_SAVE_TESTS)
+    enable_testing()
+    file(GLOB KFX_SAVE_SOURCES CONFIGURE_DEPENDS
+        "${CMAKE_SOURCE_DIR}/src/kfx/save/core/*.cpp" "${CMAKE_SOURCE_DIR}/src/kfx/save/core/schema/*.c")
+    add_executable(kfx_save_tests
+        "${CMAKE_SOURCE_DIR}/tests/save/kfx_save_tests.c"
+        "${CMAKE_SOURCE_DIR}/tools/save-tool/save_digest.c"
+        "${CMAKE_SOURCE_DIR}/tools/save-tool/save_validate.c"
+        ${KFX_SAVE_SOURCES})
+    target_include_directories(kfx_save_tests PRIVATE
+        "${CMAKE_SOURCE_DIR}/src" "${CMAKE_SOURCE_DIR}/tools/save-tool" "${KFX_CENTITOML_SRC}"
+        $<TARGET_PROPERTY:kfx_sdl3,INTERFACE_INCLUDE_DIRECTORIES>)
+    target_compile_definitions(kfx_save_tests PRIVATE BFDEBUG_LEVEL=0 DEBUG=0)
+    if(WIN32)
+        target_link_libraries(kfx_save_tests PRIVATE zlib_static)
+    else()
+        target_link_libraries(kfx_save_tests PRIVATE PkgConfig::ZLIB)
+    endif()
+    add_test(NAME kfx_save_tests COMMAND kfx_save_tests)
+    kfx_status("TESTS" "kfx_save_tests (ctest)")
+endif()

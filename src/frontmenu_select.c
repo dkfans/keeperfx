@@ -27,6 +27,7 @@
 #include "bflib_sprfnt.h"
 #include "config_strings.h"
 #include "game_saves.h"
+#include "kfx/save/SaveManager.h"
 #include "gui_draw.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
@@ -319,7 +320,7 @@ void frontend_campaign_select(struct GuiButton *gbtn)
     if (campgn == NULL)
         return;
     campaign_selected_idx = i;
-    campaign_selected_has_progress = campaign_progress_exists(campgn);
+    campaign_selected_has_progress = SaveManager_CampaignHasProgress(campgn);
     if (!frontend_register_click())
         return;
     if (campaign_selected_has_progress)
@@ -383,7 +384,7 @@ void frontend_campaign_start_new_maintain(struct GuiButton *gbtn)
 void frontend_campaign_continue(struct GuiButton *gbtn)
 {
     struct GameCampaign *campgn = campaign_select_item(campaign_selected_idx);
-    if ((campgn != NULL) && campaign_selected_has_progress && resume_campaign_progress(campgn->fname))
+    if ((campgn != NULL) && campaign_selected_has_progress && SaveManager_ResumeCampaign(campgn->fname))
         frontend_set_state(FeSt_LAND_VIEW);
 }
 
@@ -699,7 +700,7 @@ void frontend_draw_mp_mappack_scroll_tab(struct GuiButton *gbtn)
 
 void frontend_campaign_list_load(void)
 {
-    update_campaigns_progress_percent(&campaigns_list);
+    SaveManager_UpdateCampaignPercents(&campaigns_list);
     select_campaign_scroll_offset = 0;
     campaign_selected_idx = -1;
     campaign_selected_has_progress = false;

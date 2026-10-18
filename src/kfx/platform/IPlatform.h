@@ -5,6 +5,7 @@
 #include "bflib_sound.h"  // SoundVolume
 
 class IWindowSystem;
+class IFileSystem;
 struct SDL_Window;
 struct TbFileFind;
 struct TbFileEntry;
@@ -56,6 +57,9 @@ public:
 
     /** The window system backing this platform (SDL desktop backend). */
     virtual IWindowSystem* GetWindowSystem();
+
+    /** Whole-file storage backend for saves and other small data files. The default wraps LbFile*. */
+    virtual IFileSystem* GetFileSystem();
 
     /** Adjust a desktop-fullscreen window so the OS compositor keeps compositing
      *  it, rather than letting the driver present it straight to the display. */

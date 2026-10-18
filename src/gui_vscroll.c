@@ -38,6 +38,7 @@
 #include "sprites.h"
 #include "kjm_input.h"
 #include "game_saves.h"
+#include "kfx/save/SaveManager.h"
 #include "frontmenu_saves.h"
 #include "frontend.h"
 #include "gui_frontmenu.h"
@@ -120,9 +121,9 @@ static void scrl_draw_track(long ox, long y0, long y1, int upp)
 long gui_vscroll_total(void)
 {
     int last_used = -1;
-    for (int i = 0; i < save_game_catalogue_count; i++)
+    for (int i = 0; i < SaveManager_SlotCount(); i++)
     {
-        if ((save_game_catalogue[i].flags & CEF_InUse) != 0)
+        if ((SaveManager_Entry(i)->flags & CEF_InUse) != 0)
             last_used = i;
     }
     /* The Save menu reveals one free slot past the used ones (so a new game can be
@@ -131,8 +132,8 @@ long gui_vscroll_total(void)
     long total = last_used + (menu_is_active(GMnu_SAVE) ? 2 : 1);
     if (total < GUI_VSCROLL_VISIBLE)
         total = GUI_VSCROLL_VISIBLE;
-    if (total > save_game_catalogue_count)
-        total = save_game_catalogue_count;
+    if (total > SaveManager_SlotCount())
+        total = SaveManager_SlotCount();
     return total;
 }
 
@@ -280,7 +281,7 @@ static void vscroll_apply_offset(long new_off)
         sel_btn = input_button;
     }
     gui_vscroll_offset = new_off;
-    update_loadsave_input_strings(save_game_catalogue);   /* refill the visible rows */
+    update_loadsave_input_strings();   /* refill the visible rows */
     if (sel_row >= 0)
     {
         int new_row = (int)(sel_slot - new_off);

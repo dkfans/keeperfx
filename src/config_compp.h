@@ -45,12 +45,12 @@ extern "C" {
 struct ComputerProcess {
   char name[COMMAND_WORD_LEN];
   char mnemonic[COMMAND_WORD_LEN];
-  long priority;
+  int32_t priority;
   // Signed process config values
-  long process_configuration_value_2;
-  long process_configuration_value_3;
-  long process_configuration_value_4; /**< room kind or amount of creatures or gameturn or count of slabs */
-  long process_configuration_value_5;
+  int32_t process_configuration_value_2;
+  int32_t process_configuration_value_3;
+  int32_t process_configuration_value_4; /**< room kind or amount of creatures or gameturn or count of slabs */
+  int32_t process_configuration_value_5;
   FuncIdx func_check;
   FuncIdx func_setup;
   FuncIdx func_task;
@@ -58,25 +58,25 @@ struct ComputerProcess {
   FuncIdx func_pause;
   unsigned char parent;
   // Unsigned process parameters storage (stores gameturns)
-  unsigned long process_parameter_1;
-  unsigned long process_parameter_2;
-  unsigned long process_parameter_3;
-  unsigned long last_run_turn;
+  uint32_t process_parameter_1;
+  uint32_t process_parameter_2;
+  uint32_t process_parameter_3;
+  uint32_t last_run_turn;
   // Signed process parameters storage
-  long process_parameter_5;
-  unsigned long flags; /**< Values from ComProc_* enumeration. */
+  int32_t process_parameter_5;
+  uint32_t flags; /**< Values from ComProc_* enumeration. */
 };
 
 struct ComputerCheck {
   char name[COMMAND_WORD_LEN];
   char mnemonic[COMMAND_WORD_LEN];
-  unsigned long flags; /**< Values from ComChk_* enumeration. */
-  long turns_interval;
+  uint32_t flags; /**< Values from ComChk_* enumeration. */
+  int32_t turns_interval;
   FuncIdx func;
-  long primary_parameter;
-  long secondary_parameter;
-  long tertiary_parameter;
-  long last_run_turn;
+  int32_t primary_parameter;
+  int32_t secondary_parameter;
+  int32_t tertiary_parameter;
+  int32_t last_run_turn;
 };
 
 struct ComputerEvent {

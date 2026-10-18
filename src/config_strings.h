@@ -507,6 +507,9 @@ enum GUIStrings {
     GUIStr_NetSpectatorLeft,
     GUIStr_NetMissingMapPack,
     GUIStr_NetMapPackMissingLevel,
+    GUIStr_SaveIncompatible,
+    GUIStr_SaveDamaged,
+    GUIStr_SaveLoadFailed,
     GuiStrEnd
 };
 

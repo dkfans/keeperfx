@@ -1,0 +1,33 @@
+name: Save tables check
+
+# Every member of every saved struct must be listed in the field tables in
+# src/kfx/save/core/schema/. Runs untrusted PR code, so it has read-only permissions.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**.h'
+      - 'src/**.hpp'
+      - 'src/kfx/save/**'
+      - 'tools/save-layout/**'
+      - 'tools/save-tables/**'
+      - '.github/workflows/save-tables-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  save-tables:
+    name: "Save tables check"
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install tools
+      run: |
+        set -eux
+        sudo apt-get update
+        sudo apt-get install -y gcc-mingw-w64-i686 binutils-mingw-w64-i686 gdb-multiarch python3
+
+    - name: Check the tables
+      run: bash tools/save-tables/check_tables.sh

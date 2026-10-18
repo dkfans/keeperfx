@@ -36,7 +36,7 @@ struct Thing;
 struct PlayerInfo;
 
 struct CreatureBattle {
-  unsigned long fighters_num;
+  uint32_t fighters_num;
   unsigned short first_creatr;
   unsigned short last_creatr;
 };

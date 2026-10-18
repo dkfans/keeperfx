@@ -46,7 +46,7 @@ libsdl: $(SDL_MAIN_LIBRARY)
 $(SDL_MAIN_LIBRARY): sdl/$(SDL_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	cd "$(<D)"; \
-	tar --strip-components=2 -zxmUf "$(<F)" SDL3-3.4.12/i686-w64-mingw32/bin SDL3-3.4.12/i686-w64-mingw32/include SDL3-3.4.12/i686-w64-mingw32/lib SDL3-3.4.12/i686-w64-mingw32/share 2>&1 | \
+	tar --strip-components=2 -zxmUf "$(<F)" SDL3-3.4.18/i686-w64-mingw32/bin SDL3-3.4.18/i686-w64-mingw32/include SDL3-3.4.18/i686-w64-mingw32/lib SDL3-3.4.18/i686-w64-mingw32/share 2>&1 | \
 	sed '/^.*: Archive value .* is out of .* range.*$$/d'
 	$(CP) sdl/bin/SDL3.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'

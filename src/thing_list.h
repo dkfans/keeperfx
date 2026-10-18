@@ -175,8 +175,8 @@ struct CompoundTngFilterParam {
 };
 
 struct StructureList {
-     unsigned long count;
-     unsigned long index;
+     uint32_t count;
+     uint32_t index;
 };
 
 #pragma pack()

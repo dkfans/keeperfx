@@ -143,7 +143,7 @@ struct RoomConfigStats {
     int32_t creature_creation_model;
     SlabKind assigned_slab;
     short synergy_slab;
-    char storage_height;
+    int8_t storage_height;
     uint32_t flags;
     RoomRole roles;
     int32_t panel_tab_idx;

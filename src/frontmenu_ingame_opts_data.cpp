@@ -69,8 +69,11 @@ struct GuiButtonInit quit_menu_buttons[] = {
 
 struct GuiButtonInit error_box_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_Error,            0,       {0},            0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  65, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {.str = gui_error_text}, 0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0, 999, 100, 999, 132, 46, 34, gui_area_normal_button, GBS_options_button_smd_yes, GUIStr_CloseWindow,      0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, ERROR_BOX_INSET_X, ERROR_BOX_INSET_Y, ERROR_BOX_INSET_X, ERROR_BOX_INSET_Y, ERROR_BOX_INSET_WIDTH, ERROR_BOX_INSET_HEIGHT, gui_area_error_message, 0, GUIStr_Empty, 0, {.str = gui_error_text}, 0, maintain_error_message },
+  {LbBtnT_HoldableBtn, BID_DEFAULT, 0, 0, gui_error_message_scroll_up,NULL,NULL,               ERROR_BOX_ARROW_UP, ERROR_BOX_SCROLL_X, ERROR_BOX_INSET_Y, ERROR_BOX_SCROLL_X, ERROR_BOX_INSET_Y, ERROR_BOX_SCROLL_WIDTH, ERROR_BOX_ARROW_HEIGHT, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_up_act, GUIStr_Empty, 0, {0}, 0, maintain_error_message_scroll },
+  {LbBtnT_HoldableBtn, BID_DEFAULT, 0, 0, gui_error_message_scroll_down,NULL,NULL,             ERROR_BOX_ARROW_DOWN, ERROR_BOX_SCROLL_X, ERROR_BOX_ARROW_DOWN_Y, ERROR_BOX_SCROLL_X, ERROR_BOX_ARROW_DOWN_Y, ERROR_BOX_SCROLL_WIDTH, ERROR_BOX_ARROW_HEIGHT, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_down_act, GUIStr_Empty, 0, {0}, 0, maintain_error_message_scroll },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, ERROR_BOX_SCROLL_X, ERROR_BOX_TRACK_Y, ERROR_BOX_SCROLL_X, ERROR_BOX_TRACK_Y, ERROR_BOX_SCROLL_WIDTH, ERROR_BOX_TRACK_HEIGHT, gui_area_error_scrollbar, 0, GUIStr_Empty, 0, {0}, 0, maintain_error_message_scroll },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, gui_close_error_box,gui_close_error_box,NULL,        0, 999, ERROR_BOX_BUTTON_Y, 999, ERROR_BOX_BUTTON_HIT_Y, 46, 34, gui_area_normal_button, GBS_options_button_smd_yes, GUIStr_CloseWindow, 0, {0}, 0, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };
 
@@ -132,7 +135,7 @@ struct GuiMenu instance_menu =
 struct GuiMenu quit_menu =
  { GMnu_QUIT,         0, 1, quit_menu_buttons,          POS_GAMECTR,POS_GAMECTR,264, 116, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu error_box =
- { GMnu_ERROR_BOX,    0, 1, error_box_buttons,          POS_GAMECTR,POS_GAMECTR,280, 180, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
+ { GMnu_ERROR_BOX,    0, 1, error_box_buttons,          POS_GAMECTR,POS_GAMECTR,ERROR_BOX_WIDTH, ERROR_BOX_HEIGHT, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 struct GuiMenu autopilot_menu =
  { GMnu_AUTOPILOT,    0, 4, autopilot_menu_buttons,     POS_GAMECTR,POS_GAMECTR,224, 120, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 
