@@ -1340,20 +1340,15 @@ static TbBool merge_room_into(struct Room *linkroom, struct Room *oldroom)
     if (!add_slab_list_to_room_tiles_list(linkroom, oldroom->slabs_list)) {
         return false;
     }
-    // Update slabs in the new list
     recount_and_reassociate_room_slabs(linkroom);
     set_room_efficiency(linkroom);
     update_room_total_capacity(linkroom);
     link_room_health(linkroom, oldroom);
-    // Make sure creatures working in the room won't leave
     change_work_room_of_creatures_working_in_room(oldroom, linkroom);
-    // Get rid of the old room ensign
     delete_room_flag(oldroom);
-    // Clear list of slabs in the old room
     oldroom->slabs_count = 0;
     oldroom->slabs_list = 0;
     oldroom->slabs_list_tail = 0;
-    // Delete the old room
     free_room_structure(oldroom);
     return true;
 }
