@@ -365,24 +365,57 @@ static uint8_t calculate_initial_input_lag(void)
     return input_lag_turns;
 }
 
+static int count_player_slots(uint8_t slots)
+{
+    int count = 0;
+    for (PlayerNumber plyr_idx = 0; plyr_idx < MAX_NET_USERS; plyr_idx++) {
+        if (slots & (1 << plyr_idx)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+static uint8_t first_player_slots(int count)
+{
+    return (1 << clamp(count, 0, MAX_NET_USERS)) - 1;
+}
+
+static uint8_t dungeon_heart_player_slots(void)
+{
+    uint8_t slots = 0;
+    for (PlayerNumber plyr_idx = 0; plyr_idx < MAX_NET_USERS; plyr_idx++) {
+        if (thing_exists(find_players_dungeon_heart(plyr_idx))) {
+            slots |= 1 << plyr_idx;
+        }
+    }
+    return slots;
+}
+
+static uint8_t lof_human_player_slots(void)
+{
+    struct LevelInformation *level = get_level_info(get_loaded_level_number());
+    if (level == NULL) {
+        return 0;
+    }
+    return first_player_slots(level->players);
+}
+
 static void resolve_startup_player_slots(struct StartupSyncPacket *sync)
 {
     int active_users = count_active_net_users();
-    // Seat players only where the loaded map has a dungeon heart
-    uint8_t heart_slots = 0;
-    int heart_count = 0;
-    for (PlayerNumber plyr_idx = 0; plyr_idx < MAX_NET_USERS; plyr_idx++) {
-        if (thing_exists(find_players_dungeon_heart(plyr_idx))) {
-            heart_slots |= 1 << plyr_idx;
-            heart_count++;
-        }
+    uint8_t heart_slots = dungeon_heart_player_slots();
+    uint8_t human_heart_slots = heart_slots & lof_human_player_slots();
+    uint8_t slots;
+    if (count_player_slots(human_heart_slots) >= active_users) {
+        slots = human_heart_slots;
+    } else if (count_player_slots(heart_slots) >= active_users) {
+        slots = heart_slots;
+    } else {
+        WARNLOG("Map has %d dungeon hearts for %d players, allowing all player slots", count_player_slots(heart_slots), active_users);
+        slots = first_player_slots(MAX_NET_USERS);
     }
-    // Not enough hearts (heartless maps, or hearts added by script later), so allow every slot
-    if (heart_count < active_users) {
-        WARNLOG("Map has %d dungeon hearts for %d players, allowing all player slots", heart_count, active_users);
-        heart_slots = (1 << MAX_NET_USERS) - 1;
-    }
-    net_resolve_player_colours(heart_slots, sync->player_slots, &sync->frontend_alliances);
+    net_resolve_player_colours(slots, sync->player_slots, &sync->frontend_alliances);
 }
 
 static void build_local_startup_sync(void)
