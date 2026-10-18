@@ -182,6 +182,7 @@ SAVE_STRUCT(SlabObj, struct SlabObj,
     SAVE_FIELD(struct SlabObj, class_id, SV_U8),
     SAVE_FIELD(struct SlabObj, model, SV_I16),
     SAVE_FIELD(struct SlabObj, range, SV_U8),
+    SAVE_FIELD(struct SlabObj, orientation, SV_I16),
 );
 
 SAVE_STRUCT(SlabSet, struct SlabSet,

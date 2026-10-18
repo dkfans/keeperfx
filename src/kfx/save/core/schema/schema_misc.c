@@ -128,6 +128,7 @@ SAVE_STRUCT(PacketSaveHead, struct PacketSaveHead,
     SAVE_FIELD(struct PacketSaveHead, level_num, SV_U32),
     SAVE_FIELD(struct PacketSaveHead, players_exist, SV_U16),
     SAVE_FIELD(struct PacketSaveHead, players_comp, SV_U16),
+    SAVE_FIELD(struct PacketSaveHead, players_seat, SV_U16),
     SAVE_FIELD(struct PacketSaveHead, flags, SV_U8),  /* PacketSaveHeadFlags bitmask */
     SAVE_FIELD(struct PacketSaveHead, action_seed, SV_U32),
     SAVE_FIELD(struct PacketSaveHead, timestamp, SV_I64),
