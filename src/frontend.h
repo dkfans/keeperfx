@@ -327,10 +327,36 @@ const char * mdlf_default(const char *);
 int frontend_font_char_width(int fnt_idx,char c);
 int frontend_font_string_width(int fnt_idx, const char *str);
 
+/** Layout of the in-game error box, in menu units. */
+#define ERROR_BOX_WIDTH            300
+#define ERROR_BOX_HEIGHT           244
+#define ERROR_BOX_INSET_X          24
+#define ERROR_BOX_INSET_Y          46
+#define ERROR_BOX_INSET_WIDTH      226
+#define ERROR_BOX_INSET_HEIGHT     138
+#define ERROR_BOX_INSET_PADDING    6
+#define ERROR_BOX_SCROLL_X         (ERROR_BOX_INSET_X + ERROR_BOX_INSET_WIDTH + 4)
+#define ERROR_BOX_SCROLL_WIDTH     22
+#define ERROR_BOX_ARROW_HEIGHT     24
+#define ERROR_BOX_ARROW_GAP        2
+#define ERROR_BOX_ARROW_DOWN_Y     (ERROR_BOX_INSET_Y + ERROR_BOX_INSET_HEIGHT - ERROR_BOX_ARROW_HEIGHT)
+#define ERROR_BOX_TRACK_Y          (ERROR_BOX_INSET_Y + ERROR_BOX_ARROW_HEIGHT + ERROR_BOX_ARROW_GAP)
+#define ERROR_BOX_TRACK_HEIGHT     (ERROR_BOX_INSET_HEIGHT - 2 * (ERROR_BOX_ARROW_HEIGHT + ERROR_BOX_ARROW_GAP))
+/** btype_value of the scroll arrow buttons. */
+#define ERROR_BOX_ARROW_UP         1
+#define ERROR_BOX_ARROW_DOWN       2
+/** The close button's sprite has empty space above its artwork, so it is hit lower than it is drawn. */
+#define ERROR_BOX_BUTTON_Y         170
+#define ERROR_BOX_BUTTON_HIT_Y     200
+
 void create_error_box(TextStringId msg_idx);
 void gui_close_error_box(struct GuiButton *gbtn);
 void gui_area_error_message(struct GuiButton *gbtn);
 void maintain_error_message(struct GuiButton *gbtn);
+void gui_error_message_scroll_up(struct GuiButton *gbtn);
+void gui_error_message_scroll_down(struct GuiButton *gbtn);
+void maintain_error_message_scroll(struct GuiButton *gbtn);
+void gui_area_error_scrollbar(struct GuiButton *gbtn);
 void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char *line4, const char* line5);
 void gui_area_text(struct GuiButton *gbtn);
 TbBool get_button_area_input(struct GuiButton *gbtn, int a2);

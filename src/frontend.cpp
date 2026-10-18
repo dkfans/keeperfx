@@ -427,7 +427,20 @@ static FrontendMenuState load_game_menu_state = FeSt_FELOAD_GAME;
 static TbBool load_game_failed = false;
 /** Scroll offset (px) for the in-game error box's message, when it's too tall
  *  for the box; see gui_area_error_message. */
-static long error_box_scroll_y = 0;
+static int32_t error_box_scroll_y = 0;
+
+static int32_t error_box_overflow = 0;
+static int32_t error_box_visible_height = 0;
+static int32_t error_box_line_step = 0;
+
+/** Height in px of one line of error message text, before it is scaled. */
+#define ERROR_BOX_TEXT_LINE_HEIGHT 18
+#define ERROR_BOX_TRACK_WIDTH_DIVISOR 3
+#define ERROR_BOX_MIN_THUMB_DIVISOR 6
+/** Palette lookup of the scrollbar thumb colour. */
+#define ERROR_BOX_THUMB_RED 13
+#define ERROR_BOX_THUMB_GREEN 9
+#define ERROR_BOX_THUMB_BLUE 5
 int skip_high_score_screen;
 int load_game_scroll_offset;
 unsigned char video_gamma_correction;
@@ -539,59 +552,121 @@ void gui_close_error_box(struct GuiButton *gbtn)
     turn_off_menu(GMnu_ERROR_BOX);
 }
 
-/** Sets the font and the text-drawing window for the error box message row, and returns the
+static int error_message_padding(const struct GuiButton *gbtn)
+{
+    return (gbtn->height * ERROR_BOX_INSET_PADDING + ERROR_BOX_INSET_HEIGHT / 2) / ERROR_BOX_INSET_HEIGHT;
+}
+
+static int32_t error_message_inner_height(const struct GuiButton *gbtn)
+{
+    return gbtn->height - 2 * error_message_padding(gbtn);
+}
+
+/** Sets the font and the text-drawing window for the error box message inset, and returns the
  *  text scale. The frontend fonts are not loaded in a running game, so this uses the in-game font. */
 static int error_message_prepare(struct GuiButton *gbtn)
 {
+    const int pad = error_message_padding(gbtn);
     LbTextSetFont(winfont);
-    LbTextSetJustifyWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
-    LbTextSetClipWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    LbTextSetJustifyWindow(gbtn->scr_pos_x + pad, gbtn->scr_pos_y + pad, gbtn->width - 2 * pad);
+    LbTextSetClipWindow(gbtn->scr_pos_x + pad, gbtn->scr_pos_y + pad, gbtn->width - 2 * pad, error_message_inner_height(gbtn));
     const int line_height = LbTextLineHeight();
-    return (line_height > 0) ? (units_per_pixel * 18 / line_height) : units_per_pixel;
+    return (line_height > 0) ? (units_per_pixel * ERROR_BOX_TEXT_LINE_HEIGHT / line_height) : units_per_pixel;
 }
 
-/** How many pixels of the wrapped message don't fit in the button (0 if it all fits). */
-static long error_message_overflow(struct GuiButton *gbtn, int text_units_per_px)
+/** How many pixels of the wrapped message don't fit in the inset (0 if it all fits). */
+static int32_t error_message_overflow(struct GuiButton *gbtn, int text_units_per_px)
 {
-    long overflow = text_string_height(text_units_per_px, gbtn->content.str) - gbtn->height;
+    int32_t overflow = text_string_height(text_units_per_px, gbtn->content.str) - error_message_inner_height(gbtn);
     return (overflow > 0) ? overflow : 0;
 }
 
-/** Scrolls the error box message with the mouse wheel once its wrapped text no
- *  longer fits the button; otherwise keeps it reset so a shorter message that
- *  follows a scrolled one always starts at the top. */
+static void error_message_scroll_by(int32_t delta)
+{
+    error_box_scroll_y += delta;
+    if (error_box_scroll_y > error_box_overflow)
+        error_box_scroll_y = error_box_overflow;
+    if (error_box_scroll_y < 0)
+        error_box_scroll_y = 0;
+}
+
+/** Tracks how far the error box message overflows its inset and scrolls it with the
+ *  mouse wheel; otherwise keeps it reset so a shorter message that follows a
+ *  scrolled one always starts at the top. */
 void maintain_error_message(struct GuiButton *gbtn)
 {
     const int text_units_per_px = error_message_prepare(gbtn);
-    long overflow = error_message_overflow(gbtn, text_units_per_px);
-    if (overflow <= 0)
+    error_box_overflow = error_message_overflow(gbtn, text_units_per_px);
+    error_box_visible_height = error_message_inner_height(gbtn);
+    error_box_line_step = LbTextLineHeight() * text_units_per_px / 16;
+    if (error_box_overflow <= 0)
     {
         error_box_scroll_y = 0;
         return;
     }
     if (wheel_scrolled_up)
-        error_box_scroll_y -= LbTextLineHeight() * text_units_per_px / 16;
+        error_message_scroll_by(-error_box_line_step);
     if (wheel_scrolled_down)
-        error_box_scroll_y += LbTextLineHeight() * text_units_per_px / 16;
-    if (error_box_scroll_y < 0)
-        error_box_scroll_y = 0;
-    else if (error_box_scroll_y > overflow)
-        error_box_scroll_y = overflow;
+        error_message_scroll_by(error_box_line_step);
+    error_message_scroll_by(0);
 }
 
-/** Draws the in-game error box's message, word-wrapped and centred within its
- *  button; text too tall for the button is clipped and scrolled with the mouse
- *  wheel (see maintain_error_message) instead of spilling out of the box. */
+/** Draws the in-game error box's message in a dark inset, word-wrapped and centred;
+ *  text too tall for the inset is clipped and scrolled with the scrollbar beside it
+ *  (see maintain_error_message) instead of spilling out of the box. */
 void gui_area_error_message(struct GuiButton *gbtn)
 {
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
         return;
+    const unsigned short flg_mem = RendererGetDrawFlags();
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR4);
+    LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height, 0);
     const int text_units_per_px = error_message_prepare(gbtn);
-    long overflow = error_message_overflow(gbtn, text_units_per_px);
+    const int32_t overflow = error_message_overflow(gbtn, text_units_per_px);
     RendererSetDrawFlags(Lb_TEXT_HALIGN_CENTER);
-    long y = (overflow > 0) ? -error_box_scroll_y
-        : (gbtn->height - text_string_height(text_units_per_px, gbtn->content.str)) / 2;
+    int32_t y = (overflow > 0) ? -error_box_scroll_y
+        : (error_message_inner_height(gbtn) - text_string_height(text_units_per_px, gbtn->content.str)) / 2;
     LbTextDrawResized(0, y, text_units_per_px, gbtn->content.str);
+    RendererSetDrawFlags(flg_mem);
+}
+
+void gui_error_message_scroll_up(struct GuiButton *gbtn)
+{
+    error_message_scroll_by(-error_box_line_step);
+}
+
+void gui_error_message_scroll_down(struct GuiButton *gbtn)
+{
+    error_message_scroll_by(error_box_line_step);
+}
+
+void maintain_error_message_scroll(struct GuiButton *gbtn)
+{
+    const TbBool overflows = (error_box_overflow > 0);
+    const int arrow = gbtn->btype_value & LbBFeF_IntValueMask;
+    if (arrow == ERROR_BOX_ARROW_UP)
+        gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (overflows && (error_box_scroll_y > 0))) & LbBtnF_Enabled;
+    else if (arrow == ERROR_BOX_ARROW_DOWN)
+        gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (overflows && (error_box_scroll_y < error_box_overflow))) & LbBtnF_Enabled;
+}
+
+void gui_area_error_scrollbar(struct GuiButton *gbtn)
+{
+    const unsigned short flg_mem = RendererGetDrawFlags();
+    const int track_w = gbtn->width / ERROR_BOX_TRACK_WIDTH_DIVISOR;
+    const int track_x = gbtn->scr_pos_x + (gbtn->width - track_w) / 2;
+    RendererSetDrawFlags(Lb_SPRITE_TRANSPAR4);
+    LbDrawBox(track_x, gbtn->scr_pos_y, track_w, gbtn->height, 0);
+    if (error_box_overflow > 0)
+    {
+        int32_t thumb_h = gbtn->height * error_box_visible_height / (error_box_visible_height + error_box_overflow);
+        if (thumb_h < gbtn->height / ERROR_BOX_MIN_THUMB_DIVISOR)
+            thumb_h = gbtn->height / ERROR_BOX_MIN_THUMB_DIVISOR;
+        const int32_t thumb_y = gbtn->scr_pos_y + (gbtn->height - thumb_h) * error_box_scroll_y / error_box_overflow;
+        RendererSetDrawFlags(Lb_SPRITE_TRANSPAR8);
+        LbDrawBox(track_x, thumb_y, track_w, thumb_h, colours[ERROR_BOX_THUMB_RED][ERROR_BOX_THUMB_GREEN][ERROR_BOX_THUMB_BLUE]);
+    }
+    RendererSetDrawFlags(flg_mem);
 }
 
 
