@@ -728,6 +728,7 @@ long instf_destroy(struct Thing *creatng, int32_t *param)
             return 0;
         }
         clear_dig_on_room_slabs(room, creatng->owner);
+        create_effects_on_room_slabs(room, imp_spangle_effects[get_player_color_idx(creatng->owner)], 0, creatng->owner);
         if (room->owner == game.neutral_player_num)
         {
             remove_room_from_players_list(room, game.neutral_player_num);
@@ -740,7 +741,6 @@ long instf_destroy(struct Thing *creatng, int32_t *param)
             claim_enemy_room(room, creatng);
         }
         thing_play_sample(creatng, snd_spell_stars, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        create_effects_on_room_slabs(room, imp_spangle_effects[get_player_color_idx(creatng->owner)], 0, creatng->owner);
         return 0;
     }
     if (slb->health > 1)
