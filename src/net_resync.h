@@ -30,7 +30,8 @@ TbBool LbNetwork_Resync(void *data_buffer, size_t buffer_length);
 void animate_resync_progress_bar(int current_phase, int total_phases);
 void resync_game(void);
 TbBool apply_recorded_resync(const char *message_buffer, size_t message_size);
-TbBool send_spectator_resync(uint64_t user_mask);
+char *build_resync_game_data(size_t *full_resync_len);
+char *encode_resync_message(const void *buffer, size_t total_length, size_t *message_size);
 
 void intentional_desync();
 

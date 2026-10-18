@@ -67,6 +67,8 @@ const char *net_join_error_text(enum NetJoinRejection reason)
         return get_string(GUIStr_NetSpectatorsDisabled);
     case NetJoin_SpectatorsFull:
         return get_string(GUIStr_NetSpectatorsFull);
+    case NetJoin_SpectatorDesynced:
+        return get_string(GUIStr_NetSpectatorDesynced);
     default:
         return NULL;
     }

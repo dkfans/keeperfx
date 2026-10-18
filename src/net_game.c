@@ -845,6 +845,10 @@ void process_disconnected_network_players(void)
     }
     message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
     if (netstate.my_id >= MAX_NET_USERS) {
+        const char *error = net_join_error_text(net_join_rejection);
+        if (error != NULL) {
+            queue_frontend_error_box(error);
+        }
         stop_network_game_and_quit_to_main_menu();
         return;
     }

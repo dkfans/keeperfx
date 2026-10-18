@@ -7516,3 +7516,9 @@ msgstr "Dit opgeslagen spel is beschadigd en kan niet worden geladen."
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."
 msgstr "Het opgeslagen spel kon niet worden geladen."
+
+#: guitext:1158
+#, fuzzy
+msgctxt "Network game interface"
+msgid "You were disconnected because your game went out of sync."
+msgstr "Je verbinding is verbroken omdat je spel niet meer synchroon liep."

@@ -7681,3 +7681,9 @@ msgstr "Questo salvataggio è danneggiato e non può essere caricato."
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."
 msgstr "Impossibile caricare il salvataggio."
+
+#: guitext:1158
+#, fuzzy
+msgctxt "Network game interface"
+msgid "You were disconnected because your game went out of sync."
+msgstr "Sei stato disconnesso perché la tua partita non era più sincronizzata."

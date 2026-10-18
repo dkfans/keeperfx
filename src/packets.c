@@ -124,7 +124,6 @@ extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber 
 TbBool unpausing_in_progress = 0;
 /******************************************************************************/
 #define RESYNC_LIMIT_BEFORE_COOLDOWN 5
-#define RESYNC_COOLDOWN_MS (5 * 60 * 1000)
 
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
@@ -270,9 +269,6 @@ static int32_t resync_attempt_count = 0;
 
 TbBool is_desync_warning_active(void)
 {
-    if (network_is_active() && network_user_is_spectator(netstate.my_id) && network_spectator_desynced) {
-        return true;
-    }
     return resync_attempt_count >= RESYNC_LIMIT_BEFORE_COOLDOWN && (local_system_flags & (GSF_NetGameNoSync | GSF_NetSeedNoSync)) != 0;
 }
 
@@ -1703,6 +1699,9 @@ enum PacketExchangeResult exchange_packets(void)
         }
         if (spectator && network_is_active()) {
             enum PacketExchangeResult result = network_spectator_load_turn(packet_checksum);
+            if (network_spectator_desynced && !network_spectator_resync_requested) {
+                network_spectator_request_resync();
+            }
             if (result == PExR_Wait) {
                 local_state.process_turn_time = 0;
                 observer_store_packets(NULL);

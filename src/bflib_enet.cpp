@@ -421,7 +421,7 @@ namespace
                 return Lb_OK;
             }
             if (service_result > 0 && (enet_event.type == ENET_EVENT_TYPE_DISCONNECT || enet_event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT)) {
-                if (enet_event.data >= NetJoin_InGame && enet_event.data <= NetJoin_SpectatorsUnsupported) {
+                if (enet_event.data >= NetJoin_InGame && enet_event.data < NetJoin_Count) {
                     net_join_rejection = (enum NetJoinRejection)enet_event.data;
                 }
                 LbNetLog("Join: connection rejected by host\n");
@@ -514,7 +514,7 @@ namespace
             enet_packet_destroy(event.packet);
         }
         if (result > 0 && event.peer == peer && (event.type == ENET_EVENT_TYPE_DISCONNECT || event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT)) {
-            if (event.data >= NetJoin_InGame && event.data <= NetJoin_SpectatorsUnsupported) {
+            if (event.data >= NetJoin_InGame && event.data < NetJoin_Count) {
                 net_join_rejection = (enum NetJoinRejection)event.data;
             }
         }
@@ -795,7 +795,7 @@ namespace
             case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT: {
                 if (client_peer && client_peer == enet_event.peer) {
                     user_id = SERVER_ID;
-                    if (enet_event.data >= NetJoin_InGame && enet_event.data <= NetJoin_SpectatorsUnsupported) {
+                    if (enet_event.data >= NetJoin_InGame && enet_event.data < NetJoin_Count) {
                         net_join_rejection = (enum NetJoinRejection)enet_event.data;
                     }
                 } else {

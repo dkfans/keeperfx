@@ -4099,13 +4099,18 @@ void try_restore_frontend_error_box()
     }
 }
 
+void queue_frontend_error_box(const char *text)
+{
+    snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", text);
+    frontend_error_pending = true;
+}
+
 void create_frontend_error_box(const char *text)
 {
     if (game_is_busy_doing_gui_string_input()) {
         kill_button_area_input();
     }
-    snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", text);
-    frontend_error_pending = true;
+    queue_frontend_error_box(text);
     turn_on_menu(GMnu_FEERROR_BOX);
 }
 

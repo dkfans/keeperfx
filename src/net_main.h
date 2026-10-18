@@ -128,6 +128,8 @@ struct NetUser {
     uint32_t connected_at;
     enum NetSpectatorState spectator_state;
     uint8_t spectator_icon;
+    TbBool spectator_resync_requested;
+    uint32_t spectator_resync_requested_at;
 };
 
 struct NetFrame {
