@@ -170,7 +170,7 @@ void recall_localised_game_structure(void)
 }
 
 // resync message: ResyncHeader, then the zlib-compressed data
-static char *encode_resync_message(const void * buffer, size_t total_length, size_t *message_size)
+char *encode_resync_message(const void * buffer, size_t total_length, size_t *message_size)
 {
     TbClockMSec start_time = LbTimerClock();
     if (total_length > UINT32_MAX) {
@@ -410,7 +410,7 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length)
 }
 
 // The full resync data: [u32 game_len][game bytes][u32 lua_len][lua bytes]
-static char *build_resync_game_data(size_t *full_resync_len)
+char *build_resync_game_data(size_t *full_resync_len)
 {
     // Light system state lives outside Game; the same as for a savegame
     light_export_system_state(&game.lightst);
@@ -542,18 +542,6 @@ static char *create_resync_game_message(size_t *message_size)
     char *message_buffer = encode_resync_message(full_resync_data, full_resync_len, message_size);
     free(full_resync_data);
     return message_buffer;
-}
-
-TbBool send_spectator_resync(uint64_t user_mask)
-{
-    size_t message_size = 0;
-    char *message_buffer = create_resync_game_message(&message_size);
-    if (message_buffer == NULL) {
-        return false;
-    }
-    send_to_active_peers(1, NetSend_Reliable, message_buffer, message_size, user_mask);
-    free(message_buffer);
-    return true;
 }
 
 TbBool send_resync_game(void)
