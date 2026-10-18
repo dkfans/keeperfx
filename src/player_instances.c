@@ -399,6 +399,8 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
 {
   struct UserState* ustate = get_player_user_state(player);
   ustate->init_flags |= UsrIF_MouseInputDisabled;
+  // The cursor light stays where the hand was otherwise; the leave paths turn it back on.
+  turn_user_cursor_light(get_player_primary_user(player), false);
   if (player == get_displayed_player())
     local_state.palette_fade_step_possession = 1;
   if (is_my_player(player))
