@@ -74,7 +74,7 @@ void net_lobby_refresh_metadata(void)
     session.spectator_count = net_lobby_spectator_count();
     snprintf(session.version, sizeof(session.version), "%d.%d.%d.%d", VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
     struct LevelInformation *level = get_level_info(get_selected_level_number());
-    if (netstate.locked && level && level->players > 0) {
+    if (netstate.locked && level && level->players > 1) {
         session.max_players = min(session.max_players, level->players);
     }
     for (int i = 0; i < netstate.max_users && i < SESSION_HUMANS_MAX; i++) {

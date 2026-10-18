@@ -50,6 +50,7 @@
 #include "net_input_lag.h"
 #include "net_checksums.h"
 #include "net_spectator.h"
+#include "thing_list.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -361,12 +362,27 @@ static uint8_t calculate_initial_input_lag(void)
 
 static void resolve_startup_player_slots(struct StartupSyncPacket *sync)
 {
-    PlayerNumber slots_count = MAX_NET_USERS;
-    struct LevelInformation *level = get_level_info(get_loaded_level_number());
-    if (level && level->players > 0) {
-        slots_count = min(level->players, slots_count);
+    int active_users = 0;
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        if (net_user_info[i].network_user_active) {
+            active_users++;
+        }
     }
-    net_resolve_player_colours(slots_count, sync->player_slots, &sync->frontend_alliances);
+    // Seat players only where the loaded map has a dungeon heart
+    uint8_t heart_slots = 0;
+    int heart_count = 0;
+    for (PlayerNumber plyr_idx = 0; plyr_idx < MAX_NET_USERS; plyr_idx++) {
+        if (thing_exists(find_players_dungeon_heart(plyr_idx))) {
+            heart_slots |= 1 << plyr_idx;
+            heart_count++;
+        }
+    }
+    // Not enough hearts (heartless maps, or hearts added by script later), so allow every slot
+    if (heart_count < active_users) {
+        WARNLOG("Map has %d dungeon hearts for %d players, allowing all player slots", heart_count, active_users);
+        heart_slots = (1 << MAX_NET_USERS) - 1;
+    }
+    net_resolve_player_colours(heart_slots, sync->player_slots, &sync->frontend_alliances);
 }
 
 static void build_local_startup_sync(void)
