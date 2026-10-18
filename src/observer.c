@@ -257,6 +257,17 @@ static void observer_shift_view_camera(void)
     set_view_position(&dcam->x, &dcam->y, move_coord_with_angle_x(dcam->x, distance, angle), move_coord_with_angle_y(dcam->y, distance, angle));
 }
 
+void observer_snap_view_camera(void)
+{
+    struct PlayerInfo *player = get_my_player();
+    if ((observer_get_view_cursor() == NULL) || (get_local_view_type(player) != PVT_DungeonTop)) {
+        return;
+    }
+    observer_update_view();
+    set_local_camera_destination_pose(player, &local_observer_user_state.dungeon_camera);
+    snap_local_camera_to_destination();
+}
+
 static TbBool observer_cursor_to_screen(const struct ObserverCursor *cursor, int32_t *screen_x, int32_t *screen_y)
 {
     if (cursor->has_viewport_center_offset) {
