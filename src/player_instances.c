@@ -545,7 +545,6 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   ustate->init_flags |= UsrIF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
-  turn_user_cursor_light(get_player_primary_user(player), true);
   set_local_leave_creature_camera(player, PI_DirctCtLeave, true);
   return 0;
 }
@@ -583,7 +582,6 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   ustate->init_flags |= UsrIF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
-  turn_user_cursor_light(get_player_primary_user(player), true);
   set_local_leave_creature_camera(player, PI_PsngrCtLeave, true);
   return 0;
 }
@@ -596,6 +594,9 @@ long pinstfe_leave_creature(struct PlayerInfo *player, int32_t *n)
   }
   ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
   ustate->init_flags &= ~UsrIF_MouseInputDisabled;
+  // Back on once the zoom out is over: during it nothing moves the light, so it would show where the hand was
+  // before the possession.
+  turn_user_cursor_light(get_player_primary_user(player), true);
   return 0;
 }
 
