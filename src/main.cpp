@@ -42,6 +42,7 @@
 #include "net_exchange_gameplay.h"
 #include "net_game.h"
 #include "net_lobby.h"
+#include "net_steam.h"
 #include "net_resync.h"
 #include "bflib_planar.h"
 
@@ -1707,6 +1708,17 @@ static short process_command_line(unsigned short argc, char *argv[])
   {
       char *par;
       par = argv[narg];
+      if ( (par != NULL) && (strcasecmp(par, "+connect_lobby") == 0) )
+      {
+          // Steam passes this when the game is started from an invite
+          if ((narg + 1 < argc) && steam_net_parse_lobby(argv[narg + 1], steam_join_lobby, sizeof(steam_join_lobby)))
+          {
+              steam_wait_for_invite = true;
+              game_flags2 |= GF2_Connect;
+              narg += 2;
+              continue;
+          }
+      }
       if ( (par == NULL) || ((par[0] != '-') && (par[0] != '/')) )
           return -1;
       char parstr[CMDLN_MAXLEN+1];
@@ -1886,6 +1898,22 @@ static short process_command_line(unsigned short argc, char *argv[])
           narg++;
           LbNetwork_InitSessionsFromCmdLine(pr2str);
           game_flags2 |= GF2_Connect;
+      }
+      else if (strcasecmp(parstr,"steamhost") == 0)
+      {
+          // host through a Steam lobby; otherwise the same as -server
+          steam_host_requested = true;
+          game_flags2 |= GF2_Server;
+      }
+      else if (strcasecmp(parstr,"steamjoin") == 0)
+      {
+          // join a Steam lobby; without an id the game waits for an accepted invite
+          steam_wait_for_invite = true;
+          if (steam_net_parse_lobby(pr2str, steam_join_lobby, sizeof(steam_join_lobby)))
+          {
+              game_flags2 |= GF2_Connect;
+              narg++;
+          }
       }
       else if (strcasecmp(parstr,"waitusers") == 0)
       {

@@ -168,6 +168,7 @@ struct ServiceInitData {
 
 enum TbNetworkService {
     NS_ENET_UDP,
+    NS_STEAM,
 };
 
 extern struct NetState netstate;
