@@ -363,8 +363,8 @@ static void resolve_startup_player_slots(struct StartupSyncPacket *sync)
 {
     PlayerNumber slots_count = MAX_NET_USERS;
     struct LevelInformation *level = get_level_info(get_loaded_level_number());
-    if (level && level->players > 0) {
-        slots_count = min(level->players, slots_count);
+    if (level) {
+        slots_count = min(max(level->players, 2), slots_count);
     }
     net_resolve_player_colours(slots_count, sync->player_slots, &sync->frontend_alliances);
 }
