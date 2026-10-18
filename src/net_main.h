@@ -55,6 +55,7 @@ typedef int NetUserId;
 enum NetDropReason {
     NETDROP_MANUAL,
     NETDROP_ERROR,
+    NETDROP_TIMEOUT,
 };
 
 enum NetMessageType {
@@ -142,6 +143,7 @@ struct NetFrame {
 struct NetState {
     const struct NetSP *sp;
     struct NetUser users[MAX_NET_CONNECTIONS];
+    TbBool users_timed_out[MAX_NET_CONNECTIONS];
     struct NetFrame *exchg_queue;
     char password[32];
     NetUserId my_id;

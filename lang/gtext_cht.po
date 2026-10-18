@@ -6935,9 +6935,9 @@ msgid "%s has left the game."
 msgstr "%s 已離開遊戲。"
 
 #: guitext:1117
-msgctxt "Network game message"
-msgid "%s has disconnected."
-msgstr "%s 已中斷連線。"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1118
 msgctxt "Unused"
@@ -7181,3 +7181,9 @@ msgstr "無法載入存檔。"
 msgctxt "Network game interface"
 msgid "You were disconnected because your game went out of sync."
 msgstr "由於你的遊戲不同步，你已斷開連線。"
+
+#: guitext:1159
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s lost connection (timed out)."
+msgstr "%s 失去連線（逾時）。"

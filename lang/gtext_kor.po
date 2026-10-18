@@ -7325,9 +7325,9 @@ msgid "%s has left the game."
 msgstr "%s 님이 게임을 떠났습니다."
 
 #: guitext:1117
-msgctxt "Network game message"
-msgid "%s has disconnected."
-msgstr "%s 님의 연결이 끊겼습니다."
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1118
 msgctxt "Unused"
@@ -7571,3 +7571,9 @@ msgstr "저장 게임을 불러올 수 없습니다."
 msgctxt "Network game interface"
 msgid "You were disconnected because your game went out of sync."
 msgstr "게임 동기화가 맞지 않아 연결이 끊어졌습니다."
+
+#: guitext:1159
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s lost connection (timed out)."
+msgstr "%s 님의 연결이 끊어졌습니다 (시간 초과)."

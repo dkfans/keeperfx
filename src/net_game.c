@@ -715,7 +715,7 @@ void resolve_placeholders(void)
     }
 }
 
-static void abandon_network_player(struct PlayerInfo *player, TbBool announce)
+static void abandon_network_player(struct PlayerInfo *player, const char *announce_fmt)
 {
     if ((player->allocflags & PlaF_CompCtrl) == 0) {
         if (network_is_active()) {
@@ -723,8 +723,8 @@ static void abandon_network_player(struct PlayerInfo *player, TbBool announce)
             network_lobby_ping = GetPlayersPing();
             input_lag_reset_request(calculate_initial_input_lag());
         }
-        if (announce && player->player_name[0] != '\0') {
-            message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerDisconnected), player->player_name);
+        if (announce_fmt != NULL && player->player_name[0] != '\0') {
+            message_add_fmt(MsgType_Blank, 0, announce_fmt, player->player_name);
         }
         JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
         if (player->victory_state == VicS_Undecided) {
@@ -739,7 +739,7 @@ static void abandon_network_player(struct PlayerInfo *player, TbBool announce)
 
 // Take a user out of the game: their player is handed to the AI, or written
 // off if their fate was already decided. Nothing here touches the transport.
-static void remove_user_from_game(NetUserId user, TbBool announce)
+static void remove_user_from_game(NetUserId user, const char *announce_fmt)
 {
     struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate) || (ustate->player_id == PLAYER_NONE)) {
@@ -752,7 +752,7 @@ static void remove_user_from_game(NetUserId user, TbBool announce)
     if (!player_exists(player) || get_player_primary_user(player) >= 0) {
         return;
     }
-    abandon_network_player(player, announce);
+    abandon_network_player(player, announce_fmt);
 }
 
 static void leave_network_if_alone(void)
@@ -795,7 +795,11 @@ void process_user_leave_game_packet(NetUserId user)
     if (network_is_active()) {
         OnDroppedUser(user, NETDROP_MANUAL);
     }
-    remove_user_from_game(user, user != SERVER_ID);
+    const char *announce_fmt = get_string(GUIStr_NetPlayerLeftGame);
+    if (get_packet(user)->actn_par1 == NET_LEAVE_TIMED_OUT) {
+        announce_fmt = get_string(GUIStr_NetPlayerTimedOut);
+    }
+    remove_user_from_game(user, announce_fmt);
     if (network_is_active()) {
         leave_network_if_alone();
     } else if (replay.load_enable && !replay_has_remote_humans()) {
@@ -820,7 +824,11 @@ void host_spoof_dropped_user_packets(void)
         }
         struct Packet spoofed;
         memset(&spoofed, 0, sizeof(spoofed));
-        set_packet_action(&spoofed, PckA_ForceApplicationClose, 0, 0, 0, 0);
+        int32_t leave_reason = 0;
+        if (netstate.users_timed_out[user]) {
+            leave_reason = NET_LEAVE_TIMED_OUT;
+        }
+        set_packet_action(&spoofed, PckA_ForceApplicationClose, leave_reason, 0, 0, 0);
         // only the turns user_has_required_turn_packets expects
         for (GameTurn turn = first_turn; turn < first_turn + 2; turn++) {
             if (get_history_packet(user, turn) != NULL) {
@@ -843,7 +851,14 @@ void process_disconnected_network_players(void)
         quit_game = 1;
         return;
     }
-    message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
+    const PlayerNumber host_plyr_idx = get_net_user_player_number(SERVER_ID);
+    if (host_plyr_idx != PLAYER_NONE) {
+        if (netstate.users_timed_out[SERVER_ID]) {
+            message_add_fmt(MsgType_Blank, 0, get_string(GUIStr_NetPlayerTimedOut), get_player(host_plyr_idx)->player_name);
+        } else {
+            message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
+        }
+    }
     if (netstate.my_id >= MAX_NET_USERS) {
         const char *error = net_join_error_text(net_join_rejection);
         if (error != NULL) {
@@ -854,7 +869,7 @@ void process_disconnected_network_players(void)
     }
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (user != netstate.my_id) {
-            remove_user_from_game(user, false);
+            remove_user_from_game(user, NULL);
         }
     }
     replay_record_network_stopped();
@@ -863,11 +878,13 @@ void process_disconnected_network_players(void)
 
 void apply_recorded_network_stop(void)
 {
-    message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
+    if (get_net_user_player_number(SERVER_ID) != PLAYER_NONE) {
+        message_add(MsgType_Blank, 0, get_string(GUIStr_NetHostConnectionLost));
+    }
     const NetUserId local_user = replay.head.recording_user;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         if (user != local_user) {
-            remove_user_from_game(user, false);
+            remove_user_from_game(user, NULL);
         }
     }
     stop_network_game_and_continue_locally();

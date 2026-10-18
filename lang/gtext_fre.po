@@ -7565,9 +7565,9 @@ msgid "%s has left the game."
 msgstr "%s a quitté la partie."
 
 #: guitext:1117
-msgctxt "Network game message"
-msgid "%s has disconnected."
-msgstr "%s s'est déconnecté."
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1118
 msgctxt "Unused"
@@ -7810,3 +7810,9 @@ msgstr "Impossible de charger la sauvegarde."
 msgctxt "Network game interface"
 msgid "You were disconnected because your game went out of sync."
 msgstr "Vous avez été déconnecté car votre partie n'était plus synchronisée."
+
+#: guitext:1159
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s lost connection (timed out)."
+msgstr "%s a perdu la connexion (délai dépassé)."

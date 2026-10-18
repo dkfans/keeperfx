@@ -7338,9 +7338,9 @@ msgid "%s has left the game."
 msgstr "%s har lämnat spelet."
 
 #: guitext:1117
-msgctxt "Network game message"
-msgid "%s has disconnected."
-msgstr "%s har kopplats från."
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1118
 msgctxt "Unused"
@@ -7583,3 +7583,9 @@ msgstr "Det sparade spelet kunde inte läsas in."
 msgctxt "Network game interface"
 msgid "You were disconnected because your game went out of sync."
 msgstr "Du kopplades från eftersom ditt spel inte längre var synkroniserat."
+
+#: guitext:1159
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s lost connection (timed out)."
+msgstr "%s tappade anslutningen (tidsgräns överskreds)."

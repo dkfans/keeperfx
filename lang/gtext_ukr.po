@@ -7391,9 +7391,9 @@ msgid "%s has left the game."
 msgstr "%s залишив гру."
 
 #: guitext:1117
-msgctxt "Network game message"
-msgid "%s has disconnected."
-msgstr "%s від'єднався."
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1118
 msgctxt "Unused"
@@ -7636,3 +7636,9 @@ msgstr "Не вдалося завантажити збереження."
 msgctxt "Network game interface"
 msgid "You were disconnected because your game went out of sync."
 msgstr "Вас відключено, оскільки ваша гра втратила синхронізацію."
+
+#: guitext:1159
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s lost connection (timed out)."
+msgstr "%s втратив з'єднання (час очікування вичерпано)."
