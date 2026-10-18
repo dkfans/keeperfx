@@ -371,6 +371,9 @@ static void update_local_first_person_camera(struct Thing *ctrltng)
     struct Camera* cam = &local_state.camera.destination[CamIV_FirstPerson];
     int eye_height = get_creature_eye_height(ctrltng);
     update_first_person_position(cam, ctrltng, eye_height);
+    // The fade eases eye height for several turns. Sit at eye height immediately.
+    if ((get_my_player()->instance_num == PI_CrCtrlFade) && ((ctrltng->movement_flags & TMvF_Flying) == 0))
+        cam->mappos.z.val = ctrltng->mappos.z.val + eye_height;
 
     // A replay shows the recorded look as the creature took it.
     if (replay.load_enable)
@@ -676,19 +679,18 @@ void step_local_possession_camera(struct PlayerInfo *player, const struct Thing 
         return;
     }
     struct Camera *cam = &local_state.camera.destination[CamIV_Isometric];
-    cam->zoom = zoom_in_step(cam->zoom, 30000, 0);
-    // turn toward creature's facing
-    int32_t mv_a = (thing->move_angle_xy - cam->rotation_angle_x) & ANGLE_MASK;
-    if (mv_a > DEGREES_180)
-        mv_a -= DEGREES_360;
-    mv_a = clamp(mv_a, -DEGREES_30, DEGREES_30);
-    cam->rotation_angle_x = (cam->rotation_angle_x + mv_a) & ANGLE_MASK;
-    // move toward a point behind the creature's eyes
-    const int32_t radius = get_creature_eye_height(thing) + thing->mappos.z.val;
-    const MapCoordDelta mv_x = thing->mappos.x.val + distance_with_angle_to_coord_x(radius, cam->rotation_angle_x) - (MapCoordDelta)cam->mappos.x.val;
-    const MapCoordDelta mv_y = thing->mappos.y.val + distance_with_angle_to_coord_y(radius, cam->rotation_angle_x) - (MapCoordDelta)cam->mappos.y.val;
-    cam->mappos.x.val += clamp(mv_x, -128, 128);
-    cam->mappos.y.val += clamp(mv_y, -128, 128);
+    // Ground point that projects to the same pixel as the creature, height included.
+    const int64_t ax = hori_offset[0], ay = hori_offset[1];
+    const int64_t bx = vert_offset[0], by = vert_offset[1];
+    const int64_t det = ax * by - bx * ay;
+    const int64_t h = thing->mappos.z.val;
+    MapCoord anchor_x = thing->mappos.x.val;
+    MapCoord anchor_y = thing->mappos.y.val;
+    if ((det != 0) && (h != 0)) {
+        anchor_x = (MapCoord)(anchor_x + h * (by * high_offset[0] - bx * high_offset[1]) / det);
+        anchor_y = (MapCoord)(anchor_y + h * (ax * high_offset[1] - ay * high_offset[0]) / det);
+    }
+    view_zoom_camera_in_to(cam, 30000, 0, anchor_x, anchor_y);
     cam->velocity_x = 0;
     cam->velocity_y = 0;
     cam->velocity_rotation = 0;
