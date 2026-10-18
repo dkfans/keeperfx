@@ -7565,3 +7565,9 @@ msgstr "이 저장 게임은 손상되어 불러올 수 없습니다."
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."
 msgstr "저장 게임을 불러올 수 없습니다."
+
+#: guitext:1158
+#, fuzzy
+msgctxt "Network game interface"
+msgid "You were disconnected because your game went out of sync."
+msgstr "게임 동기화가 맞지 않아 연결이 끊어졌습니다."

@@ -261,8 +261,14 @@ TbError process_network_spectator_ready(NetUserId source, size_t size)
     }
     struct NetUser *user = &netstate.users[source];
     if (user->spectator_state == NetSpectator_Streaming) {
+        if (user->spectator_resync_requested_at != 0 && LbTimerClock() - user->spectator_resync_requested_at < RESYNC_COOLDOWN_MS) {
+            NETLOG("Spectator %d desynced again within the resync cooldown, dropping", source);
+            netstate.sp->drop_user(source, NetJoin_SpectatorDesynced);
+            return Lb_OK;
+        }
         NETLOG("Spectator %d requested a resync", source);
         user->spectator_resync_requested = true;
+        user->spectator_resync_requested_at = LbTimerClock();
     } else if (user->spectator_state == NetSpectator_Loading) {
         enum NetJoinRejection reason = net_lobby_spectator_rejection(source);
         if (reason != NetJoin_Accepted) {

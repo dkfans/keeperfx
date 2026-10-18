@@ -46,6 +46,8 @@ enum NetJoinRejection {
     NetJoin_SpectatorsDisabled = 6,
     NetJoin_SpectatorsFull = 7,
     NetJoin_SpectatorsUnsupported = 8,
+    NetJoin_SpectatorDesynced = 9,
+    NetJoin_Count,
 };
 
 extern enum NetJoinRejection net_join_rejection;

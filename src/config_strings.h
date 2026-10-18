@@ -510,6 +510,7 @@ enum GUIStrings {
     GUIStr_SaveIncompatible,
     GUIStr_SaveDamaged,
     GUIStr_SaveLoadFailed,
+    GUIStr_NetSpectatorDesynced,
     GuiStrEnd
 };
 

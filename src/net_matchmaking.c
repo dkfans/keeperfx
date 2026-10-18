@@ -567,7 +567,7 @@ int matchmaking_punch(const char *lobby_id, const char *udp_ipv4, int udp_ipv4_p
         }
     } else {
         VALUE *reason = value_dict_get(&response, "reason");
-        if (value_type(reason) == VALUE_INT32 && value_int32(reason) >= NetJoin_InGame && value_int32(reason) <= NetJoin_SpectatorsUnsupported) {
+        if (value_type(reason) == VALUE_INT32 && value_int32(reason) >= NetJoin_InGame && value_int32(reason) < NetJoin_Count) {
             net_join_rejection = value_int32(reason);
         }
     }

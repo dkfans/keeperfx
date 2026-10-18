@@ -7514,3 +7514,9 @@ msgstr "このセーブデータは破損しているため、ロードできま
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."
 msgstr "セーブデータをロードできませんでした。"
+
+#: guitext:1158
+#, fuzzy
+msgctxt "Network game interface"
+msgid "You were disconnected because your game went out of sync."
+msgstr "ゲームの同期が取れなくなったため、切断されました。"

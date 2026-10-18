@@ -262,6 +262,7 @@ enum ChecksumKind {
 #define PCtr_HeldAnyButton (PCtr_LBtnHeld | PCtr_RBtnHeld)
 
 #define INVALID_PACKET (&bad_packet)
+#define RESYNC_COOLDOWN_MS (5 * 60 * 1000)
 
 /******************************************************************************/
 #pragma pack(1)

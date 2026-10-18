@@ -7630,3 +7630,9 @@ msgstr "Це збереження пошкоджене, і його неможл
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."
 msgstr "Не вдалося завантажити збереження."
+
+#: guitext:1158
+#, fuzzy
+msgctxt "Network game interface"
+msgid "You were disconnected because your game went out of sync."
+msgstr "Вас відключено, оскільки ваша гра втратила синхронізацію."

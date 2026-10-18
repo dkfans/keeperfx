@@ -124,7 +124,6 @@ extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber 
 TbBool unpausing_in_progress = 0;
 /******************************************************************************/
 #define RESYNC_LIMIT_BEFORE_COOLDOWN 5
-#define RESYNC_COOLDOWN_MS (5 * 60 * 1000)
 
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
@@ -1700,7 +1699,7 @@ enum PacketExchangeResult exchange_packets(void)
         }
         if (spectator && network_is_active()) {
             enum PacketExchangeResult result = network_spectator_load_turn(packet_checksum);
-            if (network_spectator_desynced && !network_spectator_resync_requested && resync_game_allowed()) {
+            if (network_spectator_desynced && !network_spectator_resync_requested) {
                 network_spectator_request_resync();
             }
             if (result == PExR_Wait) {
