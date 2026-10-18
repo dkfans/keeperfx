@@ -250,30 +250,25 @@ local function restore_anon_functions(value, seen)
 end
 
 function GetSerializedData()
+    assert(type(Game) == "table", "Game state must be a table")
     local changes = {}
     local ok, result = pcall(function()
         collect_anon_functions(Game, {}, changes)
         return binser.serialize(Game, serialization_version)
     end)
     revert_anon_functions(changes)
-    print("GetSerializedData ok: " .. tostring(ok))
     if not ok then
-        error("binser failed: " .. result)
+        error("binser failed: " .. tostring(result))
     end
     return result
 end
 
 function SetSerializedData(serialized_data)
-    local ok, result = pcall(function()
-        local values = binser.deserialize(serialized_data)
-        assert(values[2] == serialization_version,
-            "Save was made with an incompatible Lua serialization version (" .. tostring(values[2]) .. ")")
-        local game_data = values[1]
-        restore_anon_functions(game_data, {})
-        return game_data
-    end)
-    if not ok then
-        error("binser load failed: " .. result)
-    end
-    Game = result
+    local values, count = binser.deserialize(serialized_data)
+    local restored = values[1]
+    assert(type(restored) == "table", "Serialized game state must be a table")
+    assert(count == 2 and values[2] == serialization_version,
+        "Save was made with an incompatible Lua serialization version (" .. tostring(values[2]) .. ")")
+    restore_anon_functions(restored, {})
+    Game = restored
 end

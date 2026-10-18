@@ -7511,17 +7511,41 @@ msgid "You are spectating"
 msgstr "Sledujete hru"
 
 #: guitext:1151
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s se připojil jako divák."
+
+#: guitext:1152
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s přestal sledovat hru."
+
+#: guitext:1153
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "Požadovaný balíček map „%s“ chybí."
+
+#: guitext:1154
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "Ve tvém balíčku map „%s“ chybí úroveň %d."
+
+#: guitext:1155
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "Tato uložená hra byla vytvořena nekompatibilní verzí a nelze ji načíst."
 
-#: guitext:1152
+#: guitext:1156
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "Tato uložená hra je poškozená a nelze ji načíst."
 
-#: guitext:1153
+#: guitext:1157
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

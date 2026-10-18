@@ -552,7 +552,7 @@ void init_creature_model_graphics(void)
     {
         for (int k = 0; k < CREATURE_GRAPHICS_INSTANCES; k++)
         {
-            game.conf.crtr_conf.creature_graphics[i][k] = -1;
+            game.conf.crtr_conf.creature_graphics[i][k] = ANIMATION_NONE;
         }
     }
 }

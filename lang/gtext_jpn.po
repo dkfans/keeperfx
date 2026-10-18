@@ -7475,17 +7475,41 @@ msgid "You are spectating"
 msgstr "観戦中です"
 
 #: guitext:1151
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s が観戦者として参加しました。"
+
+#: guitext:1152
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s が観戦を終了しました。"
+
+#: guitext:1153
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "必要なマップパック「%s」がありません。"
+
+#: guitext:1154
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "あなたのマップパック「%s」にはレベル %d がありません。"
+
+#: guitext:1155
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "このセーブデータは互換性のないバージョンで作成されたため、ロードできません。"
 
-#: guitext:1152
+#: guitext:1156
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "このセーブデータは破損しているため、ロードできません。"
 
-#: guitext:1153
+#: guitext:1157
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

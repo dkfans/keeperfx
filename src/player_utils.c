@@ -110,6 +110,11 @@ TbBool player_is_placeholder(const struct PlayerInfo *player)
     return flag_is_set(player->allocflags, PlaF_Placeholder);
 }
 
+TbBool player_is_seat(const struct PlayerInfo *player)
+{
+    return flag_is_set(player->allocflags, PlaF_Seat);
+}
+
 static TbBool player_belongs_in_victory_kernel(const struct PlayerInfo *player)
 {
     // is an undefeated human 
@@ -206,9 +211,8 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     // Computing player score
     dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
-    if (is_my_player(player))
-    {
-        output_message(SMsg_LevelFailed, 0);
+    output_player_message(player->id_number, SMsg_LevelFailed, 0);
+    if (is_my_player(player)) {
         turn_off_all_menus();
         clear_transfered_creatures();
     }
@@ -252,8 +256,6 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (game.game_kind != GKind_MultiGame)
         player->display_objective_turn = get_gameturn() + 300;
-    if (game.game_kind == GKind_MultiGame)
-        reveal_whole_map(player);
     if ((dungeon->computer_enabled & 0x01) != 0)
         toggle_computer_player(player->id_number);
 }
@@ -451,8 +453,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
                     take_remain -= take_money_from_room(room, take_remain);
                     if (take_remain <= 0)
                     {
-                        if (is_my_player_number(plyr_idx))
-                        {
+                        if (is_my_player_number(plyr_idx)) {
                             if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
                                 output_message(SMsg_GoldLow, MESSAGE_DURATION_TREASURY);
                             }
@@ -881,7 +882,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         {
             settings.highlight_mode = default_tag_mode - 1;
         }
-        set_flag(game.operation_flags, GOF_ShowPanel);
+        local_state.show_panel = true;
         set_gui_visible(true);
         init_gui();
         turn_on_menu(GMnu_MAIN);
@@ -986,6 +987,7 @@ void init_players(void)
                 player->allocflags |= PlaF_CompCtrl;
             else
                 player->allocflags &= ~PlaF_CompCtrl;
+            set_flag_value(player->allocflags, PlaF_Seat, flag_is_set(replay.head.players_seat, to_flag(i)));
             if ((player->allocflags & PlaF_CompCtrl) == 0)
             {
               game.human_players_count++;
@@ -1222,7 +1224,7 @@ void init_players_local_game(void)
     SYNCDBG(4,"Starting");
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
-    player->allocflags |= PlaF_Allocated;
+    player->allocflags |= PlaF_Allocated | PlaF_Seat;
     init_user_state(SOLO_HUMAN_ID, player->id_number);
 
     if( player->id_number == PLAYER_GOOD)
@@ -1314,10 +1316,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     dungeon->traps_sold += traps_sold;
     dungeon->manufacture_gold += sell_value;
 
-    if (is_my_player_number(plyr_idx))
-    {
-        play_non_3d_sample(snd_tile_sell);
-    }
+    play_player_sample(plyr_idx, snd_tile_sell);
     dungeon->camera_deviate_jump = 192;
     if (sell_value != 0)
     {
@@ -1352,10 +1351,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     dungeon->doors_sold++;
     dungeon->manufacture_gold += sell_value;
     destroy_door(thing);
-    if (is_my_player_number(plyr_idx))
-    {
-        play_non_3d_sample(snd_tile_sell);
-    }
+    play_player_sample(plyr_idx, snd_tile_sell);
     struct Coord3d pos;
     set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     if (sell_value != 0)

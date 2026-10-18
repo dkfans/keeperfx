@@ -22,7 +22,7 @@ msgstr ""
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
-"Language-Team: KeeperFX Team"
+"Language-Team: KeeperFX TeamLanguage: ru\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1244,7 +1244,7 @@ msgid ""
 "You are now able to cast Lightning Strike!"
 msgstr ""
 "Вы ощущаете, как сила бога грома Тора растекается по Вашим жилам. Теперь Вы "
-"можете использовать заклинание "Удар молнии"!"
+"можете использовать заклинание \"Удар молнии\"!"
 
 #. Eruption (lv1228)
 #: guitext:129

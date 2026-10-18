@@ -194,7 +194,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
           add_task_list_entry(plyr_idx, SDDigTask_DigEarth, i);
           task_added = true;
       }
-      if (is_player_displayed(plyr_idx)) {
+      if (is_my_player_number(plyr_idx)) {
           long dx;
           long dy;
           for (dy=0; dy < STL_PER_SLB; dy++)
@@ -246,7 +246,7 @@ TbBool untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y
         remove_from_task_list(plyr_idx, task_idx);
     }
     num_untagged = 0;
-    if (is_player_displayed(plyr_idx)) {
+    if (is_my_player_number(plyr_idx)) {
         long dx;
         long dy;
         for (dy=0; dy < STL_PER_SLB; dy++)
@@ -929,6 +929,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                         ERRORLOG("Cannot create object type %d", tngmodel);
                         continue;
                     }
+                    objtng->move_angle_xy = sobj->orientation;
                     if (thing_is_dungeon_heart(objtng))
                     {
                         struct Dungeon* dungeon = get_dungeon(objtng->owner);

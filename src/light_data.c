@@ -33,6 +33,7 @@
 
 #include "thing_stats.h"
 #include "game_legacy.h"
+#include "replay_rewind.h"
 #include "value_util.h"
 
 #include "post_inc.h"
@@ -45,14 +46,14 @@ static void light_stat_light_map_clear_area(MapSubtlCoord x1, MapSubtlCoord y1, 
 
 /******************************************************************************/
 
-static unsigned long light_bitmask[32];
-static long stat_light_needs_updating;
-static long light_total_dynamic_lights;
-static long light_total_stat_lights;
-static long light_rendered_dynamic_lights;
-static long light_rendered_optimised_dynamic_lights;
-static long light_updated_stat_lights;
-static long light_out_of_date_stat_lights;
+kfx_rewindable static unsigned long light_bitmask[32];
+kfx_rewindable static long stat_light_needs_updating;
+kfx_rewindable static long light_total_dynamic_lights;
+kfx_rewindable static long light_total_stat_lights;
+kfx_rewindable static long light_rendered_dynamic_lights;
+kfx_rewindable static long light_rendered_optimised_dynamic_lights;
+kfx_rewindable static long light_updated_stat_lights;
+kfx_rewindable static long light_out_of_date_stat_lights;
 /******************************************************************************/
 
 struct Light *light_allocate_light(void)

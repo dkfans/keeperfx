@@ -138,9 +138,7 @@ TbBool create_vampire_in_room(struct Room *room)
     struct Dungeon* dungeon = get_dungeon(room->owner);
     dungeon->lvstats.vamps_created++;
     create_effect(&pos, TngEff_Explosion3, thing->owner);
-    if (is_my_player_number(room->owner)) {
-        output_message(SMsg_GraveyardMadeVampire, 0);
-    }
+    output_player_message(room->owner, SMsg_GraveyardMadeVampire, 0);
     return true;
 }
 

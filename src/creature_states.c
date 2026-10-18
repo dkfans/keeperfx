@@ -1105,8 +1105,7 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, M
     event_create_event_or_update_nearby_existing_event(
         subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
         EvKind_RoomUnderAttack, room->owner, 0);
-    if (is_my_player_number(room->owner))
-        output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
+    output_player_message(room->owner, SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
     thing->continue_state = CrSt_CreatureAttackRooms;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (!creature_control_invalid(cctrl))
@@ -1812,7 +1811,8 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
         return false;
     }
     if ((!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP))) || (room->owner != creatng->owner)) {
-        ERRORLOG("The %s index %d has lair in invalid room",thing_model_name(creatng),(int)creatng->index);
+        WARNLOG("The %s index %d has lair in invalid room, removing it",thing_model_name(creatng),(int)creatng->index);
+        delete_lair_totem(thing_get(cctrl->lairtng_idx));
         return false;
     }
     if (get_gameturn() - cctrl->tasks_check_turn <= 128) {
@@ -2209,7 +2209,7 @@ short creature_follow_leader(struct Thing *creatng)
     struct Thing* leadtng = get_group_leader(creatng);
     if (!thing_is_creature(leadtng))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow leader - it's invalid",
+        SYNCDBG(3,"The %s index %d owned by player %d can no longer follow leader - it's invalid",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
         return 1;
@@ -2233,7 +2233,8 @@ short creature_follow_leader(struct Thing *creatng)
     if (player_keeping_creature_in_custody(creatng) != player_keeping_creature_in_custody(leadtng))
     {
         remove_creature_from_group(creatng);
-        return 0;
+        set_start_state(creatng);
+        return 1;
     }
     struct Coord3d follwr_pos;
     if (!get_free_position_behind_leader(leadtng, &follwr_pos))
@@ -2243,11 +2244,12 @@ short creature_follow_leader(struct Thing *creatng)
             SYNCDBG(3,"The %s index %d owned by player %d can no longer follow %s - leader is picked up",
                 thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
             remove_creature_from_group(creatng);
-            return 0;
+            set_start_state(creatng);
+            return 1;
         }
         else
         {
-            SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
+            SYNCDBG(3,"The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
                 thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
             set_start_state(creatng);
             return 1;
@@ -2259,7 +2261,8 @@ short creature_follow_leader(struct Thing *creatng)
         SYNCDBG(3,"Removing %s index %d owned by player %d from group due to fails to follow",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         remove_creature_from_group(creatng);
-        return 0;
+        set_start_state(creatng);
+        return 1;
     }
     if ((fails_amount > 0) && (cctrl->following_leader_since + 16 > get_gameturn()))
     {
@@ -2507,8 +2510,7 @@ short creature_leaving_dungeon(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    if (is_my_player_number(creatng->owner))
-        output_message(SMsg_CreatureLeaving, MESSAGE_DURATION_CRTR_MOOD);
+    output_player_message(creatng->owner, SMsg_CreatureLeaving, MESSAGE_DURATION_CRTR_MOOD);
     creatng->continue_state = CrSt_CreatureLeaves;
     return 1;
 }
@@ -2567,8 +2569,7 @@ TbBool make_creature_leave_dungeon(struct Thing *creatng)
         set_start_state(creatng);
         return false;
     }
-    if (is_my_player_number(creatng->owner))
-        output_message(SMsg_CreatureLeaving, MESSAGE_DURATION_CRTR_MOOD);
+    output_player_message(creatng->owner, SMsg_CreatureLeaving, MESSAGE_DURATION_CRTR_MOOD);
     creatng->continue_state = CrSt_CreatureLeaves;
     return true;
 }
@@ -2780,7 +2781,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
     }
     if (room->used_capacity <= room->total_capacity)
     {
-        SYNCLOG("Could not find valid random point in %s %d for %s. Attempting thorough check.",room_code_name(room->kind),room->index,thing_model_name(thing));
+        SYNCDBG(7,"Could not find valid random point in %s %d for %s. Attempting thorough check.",room_code_name(room->kind),room->index,thing_model_name(thing));
         k = 0;
         for (i = room->slabs_list; (i != 0); i = get_next_slab_number_in_room(i))
         {
@@ -3985,10 +3986,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
         set_flag(cctrl->party.player_broken_into_flags, to_flag(i));
         ++dgn->times_broken_into;
         event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_Breach, i, 0);
-        if (is_my_player_number(i))
-        {
-            output_message(SMsg_WallsBreach, 0);
-        }
+        output_player_message(i, SMsg_WallsBreach, 0);
     }
     return 0;
 }
@@ -5360,7 +5358,7 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureM
     return 1;
 }
 
-long anger_process_creature_anger(struct Thing *creatng, const struct CreatureModelConfig *crconf)
+int32_t anger_process_creature_anger(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     // Creatures with no annoyance level will never get angry
@@ -5379,60 +5377,40 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureMo
         }
         return 0;
     }
-    if (is_my_player_number(creatng->owner))
-    {
-        struct Dungeon* dungeon;
-        AnnoyMotive anger_motive = anger_get_creature_anger_type(creatng);
-        switch (anger_motive)
-        {
+    AnnoyMotive anger_motive = anger_get_creature_anger_type(creatng);
+    if (anger_motive == AngR_NotPaid && cctrl->paydays_advanced < 0) {
+        struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
+        struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default);
+        if ((dungeon->total_money_owned >= dungeon->creatures_total_backpay) && !room_is_invalid(room)) {
+            cctrl->paydays_advanced++;
+            if (cctrl->paydays_owed < SCHAR_MAX) {
+                cctrl->paydays_owed++; // if there's enough money to pay, go to treasure room now, instead of complaining
+            }
+        }
+    }
+    if (is_my_player_number(creatng->owner)) {
+        SoundSmplTblID message = SMsg_CreatrAngryAnyReason;
+        switch (anger_motive) {
         case AngR_NotPaid:
-            dungeon = get_players_num_dungeon(creatng->owner);
-            struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default);
-            if (cctrl->paydays_advanced < 0)
-            {
-                if ((dungeon->total_money_owned >= dungeon->creatures_total_backpay) && !room_is_invalid(room))
-                {
-                    cctrl->paydays_advanced++;
-                    if (cctrl->paydays_owed < SCHAR_MAX)
-                    {
-                        cctrl->paydays_owed++; // if there's enough money to pay, go to treasure room now, instead of complaining
-                    }
-                }
-                else
-                {
-                    output_message(SMsg_CreatrAngryNotPaid, MESSAGE_DURATION_CRTR_MOOD);
-                }
-            }
-            if (cctrl->paydays_advanced >= 0)
-            {
-                output_message(SMsg_CreatrAngryAnyReason, MESSAGE_DURATION_CRTR_MOOD);
-            }
-            else
-            {
-                output_message(SMsg_CreatrAngryNotPaid, MESSAGE_DURATION_CRTR_MOOD);
+            if (cctrl->paydays_advanced < 0) {
+                message = SMsg_CreatrAngryNotPaid;
             }
             break;
         case AngR_Hungry:
-            output_message(SMsg_CreatrAngryNoFood, MESSAGE_DURATION_CRTR_MOOD);
+            message = SMsg_CreatrAngryNoFood;
             break;
         case AngR_NoLair:
-            if (cctrl->lairtng_idx != 0)
-            {
-                output_message(SMsg_CreatrAngryAnyReason, MESSAGE_DURATION_CRTR_MOOD);
-            }
-            else
-            {
-                output_message(SMsg_CreatrAngryNoLair, MESSAGE_DURATION_CRTR_MOOD);
+            if (cctrl->lairtng_idx == 0) {
+                message = SMsg_CreatrAngryNoLair;
             }
             break;
         case AngR_Other:
-            output_message(SMsg_CreatrAngryAnyReason, MESSAGE_DURATION_CRTR_MOOD);
             break;
         default:
-            output_message(SMsg_CreatrAngryAnyReason, MESSAGE_DURATION_CRTR_MOOD);
             ERRORLOG("The %s owned by player %d is angry but has no motive (%d).",thing_model_name(creatng),(int)creatng->owner,(int)anger_motive);
             break;
         }
+        output_message(message, MESSAGE_DURATION_CRTR_MOOD);
     }
     if (creature_is_doing_anger_job(creatng)) {
         return 0;

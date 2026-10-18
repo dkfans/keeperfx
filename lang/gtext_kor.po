@@ -7526,17 +7526,41 @@ msgid "You are spectating"
 msgstr "관전 중입니다"
 
 #: guitext:1151
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s 님이 관전자로 참가했습니다."
+
+#: guitext:1152
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s 님이 관전을 종료했습니다."
+
+#: guitext:1153
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "필요한 맵 팩 \"%s\"가 없습니다."
+
+#: guitext:1154
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "맵 팩 \"%s\"에 레벨 %d이(가) 없습니다."
+
+#: guitext:1155
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "이 저장 게임은 호환되지 않는 버전에서 만들어져 불러올 수 없습니다."
 
-#: guitext:1152
+#: guitext:1156
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "이 저장 게임은 손상되어 불러올 수 없습니다."
 
-#: guitext:1153
+#: guitext:1157
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

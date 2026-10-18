@@ -16,6 +16,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#include "net_spectator.h"
 #include "replay.h"
 #include "packets.h"
 #include "net_game.h"
@@ -44,6 +45,7 @@
 #include "keeperfx.hpp"
 #include "net_resync.h"
 #include "local_camera.h"
+#include "replay_rewind.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -462,17 +464,6 @@ static TbBool skip_packet_bytes(size_t len)
     return true;
 }
 
-struct PacketDecoderState {
-    int32_t file_pos;
-    uint32_t bits_acc;
-    int bits_count;
-    uint32_t dec_zeros;
-    unsigned char dec_lit[4];
-    int dec_lit_pos;
-    int dec_lit_len;
-    uint32_t dec_raw_left;
-};
-
 static void save_packet_decoder_state(struct PacketDecoderState *st)
 {
     st->file_pos = LbFilePosition(replay.fp);
@@ -495,6 +486,24 @@ static TbBool restore_packet_decoder_state(const struct PacketDecoderState *st)
     packet_dec_lit_len = st->dec_lit_len;
     packet_dec_raw_left = st->dec_raw_left;
     return (LbFileSeek(replay.fp, st->file_pos, Lb_FILE_SEEK_BEGINNING) >= 0);
+}
+
+void replay_save_reader_pos(struct ReplayReaderPos *pos)
+{
+    save_packet_decoder_state(&pos->dec);
+    memcpy(pos->codec_prev, packet_codec_prev, sizeof(packet_codec_prev));
+    pos->pckt_gameturn = replay.pckt_gameturn;
+}
+
+TbBool replay_restore_reader_pos(const struct ReplayReaderPos *pos)
+{
+    memcpy(packet_codec_prev, pos->codec_prev, sizeof(packet_codec_prev));
+    replay.pckt_gameturn = pos->pckt_gameturn;
+    free(pending_resync);
+    pending_resync = NULL;
+    pending_resync_len = 0;
+    replay_checksum_pending = false;
+    return restore_packet_decoder_state(&pos->dec);
 }
 
 static TbBool write_packet_bytes(const void *buf, size_t len)
@@ -680,6 +689,7 @@ enum LongTurnReplayRecordKind {
     LTK_PausedAction = 3, // payload: uint16_t user, uint8_t action, int32_t par1, int32_t par2, int16_t par3, int16_t par4
     LTK_Resync = 4, // payload: the resync message as sent by the host (its header, then zlib-compressed data)
     LTK_NetworkStopped = 5, // no payload: lost the host, continued locally
+    LTK_SpectatorNotice = 6, // payload: uint8_t joined, uint8_t icon, spectator name (NUL-terminated)
     // TODO: resyncs / state transfers?
     // Could also carry cheat menu buttons, API actions, etc.
 };
@@ -775,6 +785,14 @@ static TbBool read_long_turn_records(TbBool apply)
             return false;
         }
         uint32_t used = 0;
+        if (apply && kind == LTK_SpectatorNotice) {
+            char notice[2 + sizeof(netstate.users[0].name)];
+            if (len > sizeof(notice) || !read_packet_bytes(notice, len)
+             || process_network_spectator_notice(SERVER_ID, notice, len) != Lb_OK) {
+                return false;
+            }
+            used = len;
+        }
         const TbBool is_command = (kind == LTK_ChatCommand);
         if (apply && ((kind == LTK_ChatMessage) || is_command) && (len >= sizeof(uint16_t) + (is_command ? 2 * sizeof(int32_t) : 0)))
         {
@@ -1168,6 +1186,13 @@ void replay_record_chat_message(NetUserId user, const char *message, MapCoord cu
     replay_write_record(is_command ? LTK_ChatCommand : LTK_ChatMessage, payload, len);
 }
 
+void replay_record_spectator_notice(const char *notice, size_t size)
+{
+    if (replay.save_enable && replay.fopened) {
+        replay_write_record(LTK_SpectatorNotice, notice, size);
+    }
+}
+
 static TbBool packet_recorded_while_paused(const struct Packet *pckt)
 {
     switch (pckt->action)
@@ -1508,6 +1533,7 @@ TbBool open_new_packet_file_for_save(void)
     replay.head.level_num = get_loaded_level_number();
     replay.head.players_exist = 0;
     replay.head.players_comp = 0;
+    replay.head.players_seat = 0;
     replay_long_turn_open = false;
     reset_packet_codec();
     if (packet_wire_size == 0)
@@ -1548,6 +1574,8 @@ TbBool open_new_packet_file_for_save(void)
             set_flag(replay.head.players_exist, to_flag(i));
             if ((player->allocflags & PlaF_CompCtrl) != 0)
               set_flag(replay.head.players_comp, to_flag(i));
+            if (player_is_seat(player))
+              set_flag(replay.head.players_seat, to_flag(i));
         }
     }
     set_replay_crashlog(1, get_gameturn());
@@ -1658,6 +1686,7 @@ void disable_packet_mode(void)
 {
     const NetUserId local_user = get_local_user();
     close_packet_file();
+    replay_rewind_reset();
     replay.load_enable = false;
     replay.save_enable = false;
     remap_user_to_solo(get_my_player(), local_user);

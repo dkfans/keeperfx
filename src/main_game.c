@@ -35,6 +35,7 @@
 #include "game_heap.h"
 #include "game_legacy.h"
 #include "replay.h"
+#include "replay_rewind.h"
 #include "game_merge.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -266,6 +267,7 @@ static TbBool init_level(void)
     battle_initialise();
     ambient_sound_prepare();
     zero_messages();
+    render_onscreen_msg_time = 0;
     game.armageddon_cast_turn = 0;
     game.armageddon_over_turn = 0;
     clear_messages();
@@ -322,6 +324,7 @@ TbBool startup_saved_packet_game(void)
 {
     struct CatalogueEntry centry;
     clear_packets();
+    replay_rewind_reset();
     if (!open_packet_file_for_load(replay.fname,&centry))
     {
         ERRORLOG("Cannot replay \"%s\": unreadable, or written by an incompatible version",
@@ -514,6 +517,12 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 void clear_complete_game(void)
 {
     memset(&game, 0, sizeof(struct Game));
+    local_state.fast_forward = 0;
+    local_state.process_turn_time = 0;
+    local_state.delta_time = 0;
+    local_state.time_delta = 0;
+    local_state.show_gui = false;
+    local_state.show_panel = false;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         game.user_states[user].player_id = PLAYER_NONE;
     }

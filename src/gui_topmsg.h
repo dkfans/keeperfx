@@ -50,6 +50,8 @@ struct ErrorStatistics {
 
 #pragma pack()
 /******************************************************************************/
+extern float render_onscreen_msg_time;
+
 void erstats_clear(void);
 long erstat_inc(int stat_num);
 

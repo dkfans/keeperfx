@@ -14,6 +14,7 @@ enum RendererType {
 enum OverlayCaptureKind {
     OVERLAY_CAPTURE_PARCHMENT = 0,
     OVERLAY_CAPTURE_SWIPE     = 1,
+    OVERLAY_CAPTURE_TOOLTIP   = 2,
 };
 
 // Backend-agnostic renderer interface. Grown as drawing migrates behind the seam.
@@ -84,9 +85,9 @@ public:
     virtual class ICursorLayer*       GetCursorLayer()       = 0;
     virtual class IWorldViewRenderer* GetWorldViewRenderer() = 0;
 
-    virtual void SubmitMapFadeStep(int tick_step, float display_step, float warp_scale, bool fading_in,
+    virtual void SubmitMapFadeStep(bool starting, float display_step, float warp_scale,
                                    const unsigned char* ghost_table)
-        { (void)tick_step; (void)display_step; (void)fading_in; (void)ghost_table; }
+        { (void)starting; (void)display_step; (void)warp_scale; (void)ghost_table; }
     virtual bool MapFadeSupportsNativeResolution() const { return false; }
 
     virtual void BeginOverlayCapture(OverlayCaptureKind kind) { (void)kind; }

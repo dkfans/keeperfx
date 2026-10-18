@@ -26,13 +26,14 @@
 #include "ariadne_points.h"
 #include "ariadne.h"
 #include "kfx/profiling/KfxProfilingC.h"
+#include "replay_rewind.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-int32_t find_cache[4][4];
+kfx_rewindable int32_t find_cache[4][4];
 
 /******************************************************************************/
 long triangle_brute_find8_near(long pos_x, long pos_y)

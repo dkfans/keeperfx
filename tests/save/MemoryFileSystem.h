@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -14,9 +15,13 @@
 class MemoryFileSystem final : public IFileSystem {
 public:
     std::map<std::string, std::vector<uint8_t>> files;
+    /** Folders; like on disk, a folder "exists" and is not a file. */
+    std::set<std::string> directories;
     bool fail_writes = false;
 
-    bool Exists(const char *path) override { return files.count(path) != 0; }
+    bool Exists(const char *path) override { return files.count(path) != 0 || directories.count(path) != 0; }
+
+    bool IsDirectory(const char *path) override { return directories.count(path) != 0; }
 
     FsStatus ReadAll(const char *path, std::vector<uint8_t> &out) override
     {

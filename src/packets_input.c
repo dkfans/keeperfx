@@ -71,21 +71,10 @@ static void remember_cursor_subtile(NetUserId user)
 {
     struct Packet* pckt = get_packet(user);
     struct UserState* ustate = get_user_state(user);
-    MapSubtlCoord cursor_subtile_x = coord_subtile(pckt->pos_x);
-    MapSubtlCoord cursor_subtile_y = coord_subtile(pckt->pos_y);
     ustate->previous_cursor_subtile_x = ustate->cursor_subtile_x;
     ustate->previous_cursor_subtile_y = ustate->cursor_subtile_y;
-    if (!ustate->interpolated_tagging && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0)) {
-        ustate->previous_cursor_subtile_x = cursor_subtile_x;
-        ustate->previous_cursor_subtile_y = cursor_subtile_y;
-    }
-    ustate->cursor_subtile_x = cursor_subtile_x;
-    ustate->cursor_subtile_y = cursor_subtile_y;
-    if (ustate->mouse_on_map && ((pckt->control_flags & (PCtr_LBtnClick | PCtr_LBtnHeld)) != 0)) {
-        ustate->interpolated_tagging = true;
-    } else {
-        ustate->interpolated_tagging = false;
-    }
+    ustate->cursor_subtile_x = coord_subtile(pckt->pos_x);
+    ustate->cursor_subtile_y = coord_subtile(pckt->pos_y);
 }
 
 struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoord y)
@@ -169,18 +158,12 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
             struct Dungeon* dungeon = get_dungeon(player->id_number);
             if (ustate->render_roomspace.total_roomspace_cost > dungeon->total_money_owned)
             {
-                if (is_my_player(player))
-                {
-                    output_message(SMsg_GoldNotEnough, 0);
-                }
+                output_player_message(player->id_number, SMsg_GoldNotEnough, 0);
             }
         }
         else
         {
-            if (is_my_player(player))
-            {
-                play_non_3d_sample(snd_refusal);
-            }
+            play_player_sample(player->id_number, snd_refusal);
         }
         unset_packet_control(pckt, PCtr_LBtnClick);
       return false;
@@ -191,10 +174,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(NetUserId user)
     }
     else
     {
-        if (is_my_player(player))
-        {
-            play_non_3d_sample(snd_refusal);
-        }
+        play_player_sample(player->id_number, snd_refusal);
     }
     unset_packet_control(pckt, PCtr_LBtnClick);
     return true;
@@ -244,8 +224,6 @@ TbBool process_dungeon_power_hand_state(NetUserId user)
         } else
         {
             ustate->additional_flags |= UsrAF_ChosenSubTileIsHigh;
-            get_dungeon_highlight_user_roomspace(&ustate->render_roomspace, player, user, pckt, stl_x, stl_y, NULL);
-            tag_cursor_blocks_dig(player, user, pckt, &ustate->render_roomspace, stl_x, stl_y, ustate->full_slab_cursor);
             ustate->thing_under_hand = 0;
         }
     }
@@ -299,8 +277,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
     process_dungeon_power_hand_state(user);
     if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
     {
-        if ( (ustate->primary_cursor_state == CSt_PickAxe) || ( (ustate->primary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0) ) )
-        {
+        if (apply_roomspace_tag || (ustate->primary_cursor_state == CSt_PickAxe) || ((ustate->primary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_ChosenSubTileIsHigh) != 0))) {
             ustate->thing_under_hand = 0;
             get_dungeon_highlight_user_roomspace(&ustate->render_roomspace, player, user, pckt, stl_x, stl_y, NULL);
             if (apply_roomspace_tag) {
@@ -312,7 +289,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
             if (apply_roomspace_tag) {
                 MapSlabCoord previous_slb_x = (uint16_t)pckt->actn_par3 & 0xFF;
                 MapSlabCoord previous_slb_y = (uint16_t)pckt->actn_par3 >> 8;
-                apply_roomspace_dig_tag_selection(plyr_idx, &ustate->render_roomspace, previous_slb_x, previous_slb_y, ustate->roomspace_highlight_mode, NULL, NULL, NULL, NULL);
+                apply_roomspace_dig_tag_selection(plyr_idx, &ustate->render_roomspace, previous_slb_x, previous_slb_y, ustate->roomspace_highlight_mode, NULL);
             }
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
@@ -323,17 +300,15 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
             ustate->secondary_cursor_state = ustate->primary_cursor_state;
             switch (ustate->primary_cursor_state)
             {
+                case CSt_PowerHand:
+                    if (ustate->thing_under_hand != 0) {
+                        break;
+                    }
+                    // fall through
                 case CSt_PickAxe:
-                    if (!ustate->render_roomspace.drag_mode)
-                    {
-                        if (at_limit)
-                        {
-                            if (is_my_player(player))
-                            {
-                                play_non_3d_sample(snd_refusal);
-                                output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
-                            }
-                        }
+                    if (!ustate->render_roomspace.drag_mode && at_limit) {
+                        play_player_sample(player->id_number, snd_refusal);
+                        output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                     }
                     break;
                 case CSt_DoorKey:
@@ -347,23 +322,6 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                         unlock_door(thing);
                     else
                         lock_door(thing);
-                    break;
-                case CSt_PowerHand:
-                    if (ustate->thing_under_hand == 0)
-                    {
-                        if (!ustate->render_roomspace.drag_mode)
-                        {
-                            if (at_limit)
-                            {
-                                if (is_my_player(player))
-                                {
-                                    play_non_3d_sample(snd_refusal);
-                                    output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
-                                }
-                            }
-                        }
-                        ustate->additional_flags |= UsrAF_NoThingUnderPowerHand;
-                    }
                     break;
             }
             unset_packet_control(pckt, PCtr_LBtnClick);
@@ -383,18 +341,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
         {
             ustate->secondary_cursor_state = ustate->primary_cursor_state;
         }
-        if (ustate->cursor_button_down != 0)
-        {
-            if (!ustate->render_roomspace.drag_mode) // allow drag and click to not place on LMB hold
-            {
-                if (ustate->primary_cursor_state == ustate->secondary_cursor_state)
-                {
-                    if (!apply_roomspace_tag && ((ustate->secondary_cursor_state == CSt_PickAxe) || ((ustate->secondary_cursor_state == CSt_PowerHand) && ((ustate->additional_flags & UsrAF_NoThingUnderPowerHand) != 0))))
-                    {
-                        keeper_highlight_roomspace(user, &ustate->render_roomspace);
-                    }
-                }
-            }
+        if (ustate->cursor_button_down != 0) {
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
     }
@@ -468,20 +415,9 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                         // TODO SPELLS it's not a good idea to use this directly; change to magic_use_available_power_on_*()
                         use_power_hand(plyr_idx, stl_x, stl_y, 0);
                     }
-                    else if (ustate->render_roomspace.drag_mode)
-                    {
-                        if (at_limit)
-                        {
-                            if (is_my_player(player))
-                            {
-                                play_non_3d_sample(snd_refusal);
-                                output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
-                            }
-                        }
-                        else
-                        {
-                            keeper_highlight_roomspace(user, &ustate->render_roomspace);
-                        }
+                    else if (ustate->render_roomspace.drag_mode && at_limit) {
+                        play_player_sample(player->id_number, snd_refusal);
+                        output_player_message(player->id_number, SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
                     }
                 }
             }
@@ -502,7 +438,6 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                 }
             }
             ustate->secondary_cursor_state = CSt_DefaultArrow;
-            ustate->additional_flags &= ~UsrAF_NoThingUnderPowerHand;
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
     }
@@ -608,7 +543,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
             struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (slabmap_owner(slb) != plyr_idx)
             {
-                WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)stl_x, (int)stl_y);
+                SYNCDBG(7,"Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)stl_x, (int)stl_y);
                 unset_packet_control(pckt, PCtr_LBtnClick);
                 return false;
             }
@@ -628,7 +563,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
                 // Nothing to do here - trap already sold
             } else
             {
-                WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
+                SYNCDBG(7,"Nothing to sell for player %d request",(int)plyr_idx);
             }
         }
     }
@@ -637,7 +572,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
         struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
         if (slabmap_owner(slb) != plyr_idx)
         {
-            WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)stl_x, (int)stl_y);
+            SYNCDBG(7,"Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)stl_x, (int)stl_y);
             unset_packet_control(pckt, PCtr_LBtnClick);
             return false;
         }
@@ -656,7 +591,7 @@ TbBool process_dungeon_control_packet_sell_operation(NetUserId user)
         }
         else
         {
-            WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
+            SYNCDBG(7,"Nothing to sell for player %d request",(int)plyr_idx);
         }
     }
     unset_packet_control(pckt, PCtr_LBtnClick);
@@ -695,8 +630,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(NetUserId user)
     }
     if (can_place == 0)
     {
-        if (is_my_player(player))
-            play_non_3d_sample(snd_refusal);
+        play_player_sample(player->id_number, snd_refusal);
         unset_packet_control(pckt, PCtr_LBtnClick);
         return false;
     }
@@ -725,7 +659,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
     ustate->mouse_on_map = is_mouse_on_map(pckt);
     remember_cursor_subtile(user);
     process_dungeon_control_packet_spell_overcharge(user);
-    if (is_player_displayed(plyr_idx)) {
+    if (is_my_player_number(plyr_idx)) {
         map_volume_box.visible = 0;
     }
     if (flag_is_set(pckt->control_flags,PCtr_Gui))

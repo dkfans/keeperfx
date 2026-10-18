@@ -145,12 +145,28 @@ static void test_whole_files()
     expect("whole file write failure reported", !savefile::WriteFile(fs, "b.bin", text, 3));
 }
 
+static void test_keep_unreadable()
+{
+    MemoryFileSystem fs;
+    fs.files["scr.dat"] = std::vector<uint8_t>{1, 2, 3};
+    expect("an unreadable file is kept", savefile::KeepUnreadable(fs, "scr.dat"));
+    expect("the unreadable file moved to .bak", !fs.Exists("scr.dat") && fs.Exists("scr.dat.bak"));
+    expect("a missing file is not kept", !savefile::KeepUnreadable(fs, "none.dat"));
+
+    // A campaign with no high score file configured resolves it to the save folder itself.
+    fs.directories.insert("save");
+    fs.files["save/fx1g0001.sav"] = std::vector<uint8_t>{4, 5, 6};
+    expect("a folder is never renamed", !savefile::KeepUnreadable(fs, "save"));
+    expect("the folder and its saves are untouched", fs.IsDirectory("save") && !fs.Exists("save.bak") && fs.Exists("save/fx1g0001.sav"));
+}
+
 int main()
 {
     test_net_config();
     test_high_scores();
     test_continue_files();
     test_whole_files();
+    test_keep_unreadable();
     printf("%d checks, %d failed\n", checks, fails);
     return fails != 0;
 }

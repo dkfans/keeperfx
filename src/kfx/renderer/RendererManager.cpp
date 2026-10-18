@@ -499,11 +499,11 @@ void RendererUpdateAnimatedTiles(void)
         world->UpdateAnimatedTiles();
 }
 
-void RendererSubmitMapFadeStep(int tick_step, float display_step, float warp_scale, TbBool fading_in,
+void RendererSubmitMapFadeStep(TbBool starting, float display_step, float warp_scale,
                                const unsigned char *ghost_table)
 {
     if (s_active_renderer != nullptr)
-        s_active_renderer->SubmitMapFadeStep(tick_step, display_step, warp_scale, fading_in != 0, ghost_table);
+        s_active_renderer->SubmitMapFadeStep(starting != 0, display_step, warp_scale, ghost_table);
 }
 
 void RendererBeginOverlayCapture(OverlayCaptureKind kind)

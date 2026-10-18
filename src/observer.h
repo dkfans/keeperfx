@@ -26,9 +26,14 @@ void observer_update_view(void);
 void observer_set_view_mode(unsigned char mode);
 const struct Packet *observer_get_view_packet(void);
 void observer_update_cursor(void);
+void observer_draw_faded_cursor(void);
+unsigned short observer_watched_cursor_draw_flags(void);
 TbBool gameplay_cursor_is_over_gui(void);
 TbBool get_gameplay_cursor_position(int32_t *screen_x, int32_t *screen_y);
 void observer_cycle_player(int step);
+TbBool observer_process_packet_action(const struct Packet *pckt);
+void observer_update_query(void);
+TbBool observer_query_input(void);
 
 #ifdef __cplusplus
 }

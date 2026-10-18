@@ -61,8 +61,7 @@ short at_research_room(struct Thing *thing)
     {
         if (!is_neutral_thing(thing) && (dungeon->current_research_idx < 0))
         {
-            if (is_my_player_number(dungeon->owner))
-                output_message(SMsg_NoMoreReseach, 500);
+            output_player_message(dungeon->owner, SMsg_NoMoreReseach, 500);
         }
         set_start_state(thing);
         return 0;
@@ -244,8 +243,7 @@ short researching(struct Thing *thing)
     {
         if (!is_neutral_thing(thing) && (dungeon->current_research_idx < 0))
         {
-            if (is_my_player_number(dungeon->owner))
-                output_message(SMsg_NoMoreReseach, 500);
+            output_player_message(dungeon->owner, SMsg_NoMoreReseach, 500);
         }
         remove_creature_from_work_room(thing);
         set_start_state(thing);

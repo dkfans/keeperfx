@@ -196,7 +196,7 @@ static void draw_call_to_arms_circle(unsigned char owner, int32_t pos_x, int32_t
     const int32_t center_y = i + pos_y;
     float circle_time;
     if ((game.operation_flags & GOF_Paused) == 0) {
-        circle_time = ((get_gameturn() + owner) & 7) + game.process_turn_time;
+        circle_time = ((get_gameturn() + owner) & 7) + local_state.process_turn_time;
     } else {
         circle_time = ((get_gameturn() + owner) & 7);
     }

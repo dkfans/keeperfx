@@ -27,7 +27,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 3.9\n"
 
 #. Syndika (lv206)
 #: guitext:1
@@ -189,7 +189,7 @@ msgstr "Берегитесь! Аватар удирает даже теперь.
 #: guitext:27
 msgctxt "In-game message"
 msgid "The door to the east bears a simple plaque which reads, Emergency Exit - Keep Clear at all Times - Offenders will be shot!"
-msgstr "Над восточными воротами висит простая табличка, которая гласит: "Пожарный выход. Не загораживать! Допустившие это будут расстреляны!"."
+msgstr "Над восточными воротами висит простая табличка, которая гласит: \"Пожарный выход. Не загораживать! Допустившие это будут расстреляны!\"."
 
 #. Midway (lv336)
 #: guitext:28
@@ -357,7 +357,7 @@ msgstr "Вы обрели новые силы! Пыточная позволяе
 #: guitext:55
 msgctxt "In-game message"
 msgid "And now to engage the Lava Fairy! Look at her abilities, and then look at her pitifulness in beseeching the great spirits to aid in her 'holy' quest. How brave, noble, and stupid! "
-msgstr "Пришло время заняться феей лавы! Посмотрите, какими способностями она обладает. А теперь взгляните, как жалко она умоляет великих духов помочь ей в её "священной миссии". Как смело, благородно и глупо!"
+msgstr "Пришло время заняться феей лавы! Посмотрите, какими способностями она обладает. А теперь взгляните, как жалко она умоляет великих духов помочь ей в её \"священной миссии\". Как смело, благородно и глупо!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:56

@@ -74,6 +74,7 @@ enum NetMessageType {
     NETMSG_SPECTATOR_BOOTSTRAP,
     NETMSG_SPECTATOR_READY,
     NETMSG_SPECTATOR_CHAT,
+    NETMSG_SPECTATOR_NOTICE,
 };
 
 enum NetConnectionRole {

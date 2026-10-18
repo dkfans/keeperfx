@@ -55,9 +55,18 @@ extern float interpolate_time;
 static int get_local_active_camera_index(struct PlayerInfo *player);
 static struct Camera *get_local_dungeon_camera(struct PlayerInfo *player);
 
+// own player, or observed player
+static TbBool local_camera_shows_player(const struct PlayerInfo *player)
+{
+    if (is_my_player(player)) {
+        return true;
+    }
+    return observer_is_active() && !is_observer_camera_active() && (player == get_displayed_player());
+}
+
 static TbBool local_camera_follows_player(const struct PlayerInfo *player)
 {
-    if (!is_my_player(player) || !local_state.camera.ready || is_observer_camera_active()) {
+    if (!local_camera_shows_player(player) || !local_state.camera.ready || is_observer_camera_active()) {
         return false;
     }
     return true;
@@ -392,7 +401,7 @@ TbBool update_local_camera_time(void)
 {
     const int64_t now = get_time_tick_ns();
     const int64_t interval = 1000000000 / turns_per_second;
-    if (game.fast_forward <= 1 || now < camera_update_time) {
+    if (local_state.fast_forward <= 1 || now < camera_update_time) {
         camera_update_time = now;
         camera_step_due = true;
     } else {
@@ -450,7 +459,10 @@ void update_local_cameras(void)
         return;
     }
     if (player == &local_observer_player) {
-        apply_dungeon_camera(local_state.camera.destination, player);
+        const unsigned char inum = get_displayed_player()->instance_num;
+        if (!player_instance_controls_camera(inum) || (inum == PI_ZoomToPos)) {
+            apply_dungeon_camera(local_state.camera.destination, player);
+        }
         update_local_dungeon_view_mode(player);
         if (get_player_active_camera_index(player) == CamIV_FirstPerson) {
             update_first_person_camera(&local_state.camera.destination[CamIV_FirstPerson], get_displayed_player(),
@@ -562,7 +574,7 @@ void interpolate_local_cameras(void)
     }
     struct PlayerInfo *player = get_my_player();
     const int camera_idx = get_local_active_camera(player) - local_state.camera.current;
-    if (game.fast_forward > 1 && (!observer_is_active() || is_observer_camera_active()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(player->instance_num)) {
+    if (local_state.fast_forward > 1 && (!observer_is_active() || is_observer_camera_active()) && camera_idx != CamIV_FirstPerson && !player_instance_controls_camera(player->instance_num)) {
         const float elapsed = (get_time_tick_ns() - camera_update_time) / 1e9f * turns_per_second;
         camera_fraction = clamp(elapsed, 0.0f, 1.0f);
     }
@@ -620,7 +632,7 @@ void sync_local_camera_pose(struct PlayerInfo *player, const struct DungeonCamer
 
 void carry_local_dungeon_position(struct PlayerInfo *player, TbBool from_front_view)
 {
-    if (!is_my_player(player) || !local_state.camera.ready) {
+    if (!local_camera_shows_player(player) || !local_state.camera.ready) {
         return;
     }
     int from_idx = CamIV_Isometric;
@@ -641,7 +653,7 @@ void carry_local_dungeon_position(struct PlayerInfo *player, TbBool from_front_v
 
 void record_local_possession_start(struct PlayerInfo *player)
 {
-    if (!is_my_player(player) || !local_state.camera.ready)
+    if (!local_camera_shows_player(player) || !local_state.camera.ready)
         return;
     if (is_observer_camera_active()) {
         local_state.camera.possession_start_zoom = 0;
@@ -652,7 +664,7 @@ void record_local_possession_start(struct PlayerInfo *player)
 
 int32_t get_local_possession_start_zoom(struct PlayerInfo *player)
 {
-    if (!is_my_player(player) || (local_state.camera.possession_start_zoom <= 0))
+    if (!local_camera_shows_player(player) || (local_state.camera.possession_start_zoom <= 0))
         return get_player_user_state(player)->dungeon_camera.zoom[false];
     return local_state.camera.possession_start_zoom;
 }
@@ -720,7 +732,7 @@ void update_local_view_prediction(const struct Packet *pckt)
     } else if ((pckt->action == PckA_LoadViewType && pckt->actn_par1 == PVT_DungeonTop)
             || (pckt->action == PckA_ZoomFromMap && pckt->actn_par3 == 0)) {
         local_state.view_type = PVT_DungeonTop;
-        toggle_status_menu((game.operation_flags & GOF_ShowPanel) != 0);
+        toggle_status_menu(local_state.show_panel);
         if (on_map)
             sync_local_camera_leaving_map(player, pckt);
     }
@@ -787,7 +799,7 @@ void set_observer_camera_view(unsigned char view_type)
     local_state.camera_movement_x = 0.0f;
     local_state.camera_movement_y = 0.0f;
     local_state.observer_camera_view_type = view_type;
-    toggle_status_menu(view_type == PVT_DungeonTop && (game.operation_flags & GOF_ShowGui) != 0);
+    toggle_status_menu(view_type == PVT_DungeonTop && local_state.show_gui);
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
 }
 

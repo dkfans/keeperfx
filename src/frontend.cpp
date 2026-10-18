@@ -82,6 +82,7 @@
 #include "local_camera.h"
 #include "player_utils.h"
 #include "config_players.h"
+#include "roomspace_input.h"
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
@@ -684,11 +685,10 @@ void create_message_box(const char *title, const char *line1, const char *line2,
 
 short game_is_busy_doing_gui(void)
 {
-    struct UserState *ustate = get_local_user_state();
     if (battle_creature_over > 0) {
         return true;
     }
-    if (ustate->one_click_lock_cursor) {
+    if (local_cursor_is_locked()) {
         return false;
     }
     if (!busy_doing_gui) {
@@ -1832,6 +1832,24 @@ void frontend_load_game_maintain(struct GuiButton *gbtn)
         gbtn->flags &= ~LbBtnF_Enabled;
 }
 
+struct ObserverButtonCallback {
+    Gf_Btn_Callback callback;
+    TbBool camera_only;
+};
+
+static const struct ObserverButtonCallback observer_button_callbacks[] = {
+    {gui_set_menu_mode, false}, {gui_set_page, false},
+    {gui_go_to_map, false}, {gui_scroll_activity_up, false}, {gui_scroll_activity_down, false},
+    {gui_switch_players_visible, false},
+    {gui_zoom_in, true}, {gui_zoom_out, true}, {gui_set_query, true}, {gui_open_event, true}, {gui_kill_event, true},
+    {gui_go_to_next_creature, true}, {gui_go_to_next_creature_activity, true},
+    {gui_go_to_next_wanderer, true}, {gui_go_to_next_worker, true}, {gui_go_to_next_fighter, true},
+    {gui_go_to_next_room, true}, {gui_go_to_next_trap, true}, {gui_go_to_next_door, true},
+    {gui_go_to_next_spell, true}, {gui_go_to_person_in_battle, true},
+    {gui_query_next_creature_of_owner, true}, {gui_query_next_creature_of_owner_and_model, true},
+};
+#define OBSERVER_BUTTON_CALLBACK_COUNT (sizeof(observer_button_callbacks) / sizeof(observer_button_callbacks[0]))
+
 static TbBool observer_panel_button_blocked(const struct GuiButton *gbtn, Gf_Btn_Callback callback)
 {
     if (!observer_is_active() || !is_toggleable_menu(get_active_menu(gbtn->gmenu_idx)->ident)) {
@@ -1840,11 +1858,11 @@ static TbBool observer_panel_button_blocked(const struct GuiButton *gbtn, Gf_Btn
     if (callback == NULL && gbtn->gbtype == LbBtnT_NormalBtn && gbtn->parent_menu != NULL) {
         return false;
     }
-    if (callback == gui_set_menu_mode || callback == gui_set_page
-     || callback == gui_zoom_in || callback == gui_zoom_out || callback == gui_go_to_map
-     || callback == gui_scroll_activity_up
-     || callback == gui_scroll_activity_down || callback == gui_switch_players_visible) {
-        return false;
+    for (size_t i = 0; i < OBSERVER_BUTTON_CALLBACK_COUNT; i++) {
+        const struct ObserverButtonCallback *allowed = &observer_button_callbacks[i];
+        if (allowed->callback == callback && (!allowed->camera_only || is_observer_camera_active())) {
+            return false;
+        }
     }
     return true;
 }
@@ -2289,7 +2307,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         amnu = get_active_menu(mnu_num);
         amnu->visual_state = 1;
         amnu->fade_time = gmnu->fade_time;
-        amnu->is_turned_on = ((game.operation_flags & GOF_ShowGui) != 0) || (!is_toggleable_menu(gmnu->ident));
+        amnu->is_turned_on = local_state.show_gui || !is_toggleable_menu(gmnu->ident);
         SYNCDBG(18,"Menu number %d already active",(int)mnu_num);
         return mnu_num;
     }
@@ -2335,7 +2353,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     amnu->create_cb = gmnu->create_cb;
     amnu->is_monopoly_menu = gmnu->is_monopoly_menu;
     amnu->is_active_panel = gmnu->is_active_panel;
-    amnu->is_turned_on = ((game.operation_flags & GOF_ShowGui) != 0) || (!is_toggleable_menu(gmnu->ident));
+    amnu->is_turned_on = local_state.show_gui || !is_toggleable_menu(gmnu->ident);
     callback = amnu->create_cb;
     if (callback != NULL)
         callback(amnu);
@@ -2609,7 +2627,7 @@ TbBool toggle_first_person_menu(TbBool visible)
 void set_gui_visible(TbBool visible)
 {
     SYNCDBG(6,"Starting");
-    set_flag_value(game.operation_flags, GOF_ShowGui, visible);
+    local_state.show_gui = visible;
     struct PlayerInfo* player = get_my_player();
     switch (get_local_view_type(player)) {
     case PVT_CreatureContrl:
@@ -2619,7 +2637,7 @@ void set_gui_visible(TbBool visible)
     case PVT_MapScreen:
     case PVT_MapFadeIn:
     case PVT_MapFadeOut:
-        set_flag_value(game.operation_flags, GOF_ShowPanel, visible);
+        local_state.show_panel = visible;
         local_state.status_menu_restore = visible;
         toggle_status_menu(false);
         break;
@@ -2633,13 +2651,13 @@ void set_gui_visible(TbBool visible)
 
 void toggle_gui(void)
 {
-    TbBool visible = ((game.operation_flags & GOF_ShowGui) == 0);
+    TbBool visible = !local_state.show_gui;
     set_gui_visible(visible);
 }
 
 void reinit_all_menus(void)
 {
-    TbBool visible = ((game.operation_flags & GOF_ShowGui) != 0);
+    TbBool visible = local_state.show_gui;
     init_gui();
     reset_gui_based_on_player_mode();
     set_gui_visible(visible);
@@ -3275,9 +3293,9 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
             gmnu->visual_state = 2;
             return 0;
         }
-        if (game.fast_forward == 0)
+        if (local_state.fast_forward == 0)
         {
-            gmnu->fade_time -= game.delta_time;
+            gmnu->fade_time -= local_state.delta_time;
         } else {
             gmnu->fade_time -= 1.0;
         }
@@ -3288,9 +3306,9 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
             gmnu->fade_time = 0.0;
             return -1; // Kill menu
         }
-        if (game.fast_forward == 0)
+        if (local_state.fast_forward == 0)
         {
-            gmnu->fade_time -= game.delta_time;
+            gmnu->fade_time -= local_state.delta_time;
         } else {
             gmnu->fade_time -= 1.0;
         }
@@ -3303,7 +3321,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 
 void toggle_gui_overlay_map(void)
 {
-    toggle_flag(game.operation_flags, GOF_ShowGui);
+    local_state.show_gui = !local_state.show_gui;
 }
 
 void draw_menu_buttons(struct GuiMenu *gmnu)
@@ -3474,7 +3492,7 @@ void draw_gui(void)
         draw_active_menus_highlights();
         if (game.flash_button_time > 0)
         {
-            game.flash_button_time -= game.delta_time;
+            game.flash_button_time -= local_state.delta_time;
             if (game.flash_button_time <= 0) {
                 game.flash_button_index = 0;
             }

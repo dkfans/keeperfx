@@ -47,6 +47,7 @@ extern "C" {
 #define READ_BUFSIZE     256
 #define LOOPED_FILE_LEN 4096
 #define COMMAND_WORD_LEN  64
+#define FULLPATH_SIZE   4096
 
 // Max length of any processed string
 #define MAX_TEXT_LENGTH 4096

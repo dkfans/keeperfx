@@ -144,18 +144,7 @@ TextStringId SaveManager::CheckMessage(SaveCheckResult result)
 
 bool SaveManager::KeepUnreadableFile(const char *fname)
 {
-    IFileSystem &filesystem = Fs();
-    if (!filesystem.Exists(fname) || filesystem.IsDirectory(fname))
-        return false;
-    char bak_fname[4096];
-    snprintf(bak_fname, sizeof(bak_fname), "%s.bak", fname);
-    if (!filesystem.Rename(fname, bak_fname))
-    {
-        SAVEWARN("can't keep unreadable file \"%s\" as \"%s\"", fname, bak_fname);
-        return false;
-    }
-    SAVELOG("kept unreadable file \"%s\" as \"%s\"", fname, bak_fname);
-    return true;
+    return savefile::KeepUnreadable(Fs(), fname);
 }
 
 /******************************************************************************/
@@ -256,8 +245,11 @@ static TbBool apply_game_kfxs(const char *fname, struct LoadedSave *loaded_save,
     if (read_result->lua_len > 0)
     {
         // has to be loaded here as level num only filled while gamestruct loaded, and need it for setting serialised_data
-        open_lua_script(get_loaded_level_number());
-        lua_set_serialised_data(read_result->lua_data, read_result->lua_len);
+        if (!open_lua_script(get_loaded_level_number()) || !lua_set_serialised_data(read_result->lua_data, read_result->lua_len))
+        {
+            SAVEWARN("can't restore the Lua state of \"%s\"", fname);
+            return false;
+        }
     }
     rebuild_derived_game_state();
     update_trap_tab_to_config();
@@ -349,6 +341,7 @@ enum SaveLoadOutcome SaveManager::Load(int slot_num, enum SaveCheckResult *why)
     clear_flag(ustate->additional_flags, UsrAF_LightningPaletteIsActive);
     clear_flag(ustate->additional_flags, UsrAF_FreezePaletteIsActive);
     local_state.view_type = PVT_None;
+    local_state.show_panel = true;
     local_state.palette_fade_step_pain = 0;
     local_state.palette_fade_step_possession = 0;
     local_state.lens_palette = 0;

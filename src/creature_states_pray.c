@@ -678,8 +678,7 @@ long process_sacrifice_award(struct Coord3d *pos, ThingModel model, PlayerNumber
 void process_sacrifice_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner, TbBool partial)
 {
     long award = process_sacrifice_award(pos, model, owner);
-    if (is_my_player_number(owner))
-    {
+    if (is_my_player_number(owner)) {
       switch (award)
       {
       case SacR_AngryWarn:

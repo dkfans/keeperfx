@@ -63,7 +63,7 @@
 #include "keeperfx.hpp"
 #include "kjm_input.h"
 #include "player_instances.h"
-#include "roomspace_prediction.h"
+#include "roomspace_input.h"
 #include "slab_data.h"
 #include "sprites.h"
 #include "thing_stats.h"
@@ -1449,13 +1449,13 @@ void frame_wibble_generate(void)
         wibl->lightness_offset = osc >> 6;
         wibl++;
     }
-    render_water_wibble += DEGREES_8_18 * game.delta_time;
+    render_water_wibble += DEGREES_8_18 * local_state.delta_time;
     water_wibble_angle = (int)render_water_wibble & ANGLE_MASK;
-    render_abyss_lava_scroll += ABYSS_LAVA_SCROLL_SPEED * game.delta_time;
+    render_abyss_lava_scroll += ABYSS_LAVA_SCROLL_SPEED * local_state.delta_time;
     if (render_abyss_lava_scroll >= ABYSS_LIQUID_SCROLL_CYCLE) {
         render_abyss_lava_scroll -= ABYSS_LIQUID_SCROLL_CYCLE;
     }
-    render_abyss_water_scroll += ABYSS_WATER_SCROLL_SPEED * game.delta_time;
+    render_abyss_water_scroll += ABYSS_WATER_SCROLL_SPEED * local_state.delta_time;
     if (render_abyss_water_scroll >= ABYSS_LIQUID_SCROLL_CYCLE) {
         render_abyss_water_scroll -= ABYSS_LIQUID_SCROLL_CYCLE;
     }
@@ -2732,7 +2732,7 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
     struct UserState* ustate = get_local_user_state();
-    struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&ustate->render_roomspace);
+    const struct RoomSpace *render_roomspace = get_dig_prediction_render_roomspace(&ustate->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
     if ((current_player->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))
@@ -4446,7 +4446,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
     {
         struct Map *cur_mapblk;
         cur_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y);
-        unsigned char render_map_flags = get_local_dig_prediction_render_flags(stl_x + xaval + xidx, stl_y, cur_mapblk->flags);
+        unsigned char render_map_flags = get_dig_prediction_render_flags(stl_x + xaval + xidx, stl_y, cur_mapblk->flags);
         // Get solidmasks of sibling columns
         unsigned short solidmsk_cur_raw;
         unsigned short solidmsk_cur;
@@ -4653,7 +4653,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
     {
         struct Map *cur_mapblk;
         cur_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y);
-        unsigned char render_map_flags = get_local_dig_prediction_render_flags(stl_x + xaval + xidx, stl_y, cur_mapblk->flags);
+        unsigned char render_map_flags = get_dig_prediction_render_flags(stl_x + xaval + xidx, stl_y, cur_mapblk->flags);
         // Get column to be drawn
         const struct Column *cur_colmn;
         cur_colmn = unrev_colmn;
@@ -8729,7 +8729,7 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
     struct UserState* ustate = get_local_user_state();
-    struct RoomSpace *render_roomspace = get_local_dig_prediction_render_roomspace(&ustate->render_roomspace);
+    const struct RoomSpace *render_roomspace = get_dig_prediction_render_roomspace(&ustate->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
     if ((current_player->roomspace.is_active) && ((ustate->work_state == PSt_Sell) || (ustate->work_state == PSt_BuildRoom)))

@@ -69,7 +69,8 @@ struct StartupSyncPacket {
     UserPreferences user_prefs;
     uint8_t initial_input_lag_turns;
     uint32_t initial_action_seed;
-    // TODO: also record alliance matrix.
+    char frontend_alliances;
+    int8_t player_slots[MAX_NET_USERS];
 };
 #pragma pack()
 
@@ -259,7 +260,7 @@ static void setup_players_from_startup_packets(const struct StartupSyncPacket st
         }
         struct PlayerInfo *player = get_player(k);
         player->id_number = k;
-        player->allocflags |= PlaF_Allocated;
+        player->allocflags |= PlaF_Allocated | PlaF_Seat;
         init_user_state(i, k);
         apply_user_preferences(i, sync->user_prefs, UPF_NewGame);
         init_player(player, 0);
@@ -358,6 +359,16 @@ static uint8_t calculate_initial_input_lag(void)
     return input_lag_turns;
 }
 
+static void resolve_startup_player_slots(struct StartupSyncPacket *sync)
+{
+    PlayerNumber slots_count = MAX_NET_USERS;
+    struct LevelInformation *level = get_level_info(get_loaded_level_number());
+    if (level && level->players > 0) {
+        slots_count = min(level->players, slots_count);
+    }
+    net_resolve_player_colours(slots_count, sync->player_slots, &sync->frontend_alliances);
+}
+
 static void build_local_startup_sync(void)
 {
     memset(&s_local_startup_sync, 0, sizeof(s_local_startup_sync));
@@ -367,6 +378,25 @@ static void build_local_startup_sync(void)
     build_local_user_preferences(s_local_startup_sync.user_prefs);
     s_local_startup_sync.initial_input_lag_turns = calculate_initial_input_lag();
     s_local_startup_sync.initial_action_seed = (uint32_t)initial_replay_seed;
+    resolve_startup_player_slots(&s_local_startup_sync);
+}
+
+static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USERS])
+{
+    SYNCDBG(6, "Starting");
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        set_net_user_player_number(i, PLAYER_NONE);
+        if (!net_user_info[i].network_user_active) {
+            continue;
+        }
+        if (player_slots[i] < 0 || player_slots[i] >= MAX_NET_USERS) {
+            ERRORLOG("Network user %d has invalid player slot %d", (int)i, (int)player_slots[i]);
+            return false;
+        }
+        set_net_user_player_number(i, player_slots[i]);
+    }
+    my_player_number = get_net_user_player_number(netstate.my_id);
+    return true;
 }
 
 static TbBool net_startup_sync_exchange_and_apply(void)
@@ -402,32 +432,12 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         ERRORLOG("Initial action seed %u differs from host's %u", (unsigned)initial_replay_seed, (unsigned)host_sync->initial_action_seed);
         initial_replay_seed = host_sync->initial_action_seed;
     }
+    frontend_alliances = host_sync->frontend_alliances;
+    if (!setup_network_player_numbers(host_sync->player_slots)) {
+        return false;
+    }
     setup_players_from_startup_packets(s_startup_sync_packets);
     return true;
-}
-
-static void setup_network_player_numbers(void)
-{
-    TbBool is_set = false;
-    int k = 0;
-    SYNCDBG(6, "Starting");
-    for (NetUserId i = 0; i < MAX_NET_USERS; i++)
-    {
-        game.user_states[i].player_id = PLAYER_NONE;
-        if (net_user_info[i].network_user_active)
-        {
-            game.user_states[i].player_id = k;
-            if ((!is_set) && (my_player_number == i))
-            {
-                is_set = true;
-                my_player_number = k;
-            }
-            k++;
-        }
-    }
-    if (!is_set) {
-        ERRORLOG("Local player number %d not found among active network players", my_player_number);
-    }
 }
 
 void setup_count_players(void)
@@ -464,7 +474,6 @@ TbBool init_players_network_game(void)
     }
     SYNCDBG(4,"Starting");
     TbBool initialized = true;
-    setup_network_player_numbers();
     for (int zip_idx = 0; zip_idx < REQUIRED_SPRITE_ZIP_COUNT; zip_idx++) {
         if (required_sprite_zip_checksums[zip_idx] != 0) {
             continue;
@@ -619,9 +628,9 @@ void remap_user_to_solo(struct PlayerInfo *myplyr, NetUserId old_user)
 static void stop_network_game_state(void)
 {
     const NetUserId local_user = get_local_user();
+    LbNetwork_Stop();
     network_spectator_clear_roles();
     memset(net_user_info, 0, sizeof(net_user_info));
-    clear_flag(local_system_flags, GSF_NetworkActive);
     remap_user_to_solo(get_my_player(), local_user);
     clear_flag(local_system_flags, GSF_NetGameNoSync);
     clear_flag(local_system_flags, GSF_NetSeedNoSync);
@@ -636,7 +645,6 @@ static void stop_network_game_state(void)
 
 static void stop_network_game_and_quit_to_main_menu(void)
 {
-    LbNetwork_Stop();
     stop_network_game_state();
     quit_game = 1;
 }
@@ -645,7 +653,6 @@ static void stop_network_game_and_continue_locally(void)
 {
     struct PlayerInfo *survivor;
     if (network_is_active()) {
-        LbNetwork_Stop();
         stop_network_game_state();
         survivor = get_my_player();
     } else {
@@ -862,10 +869,13 @@ void apply_recorded_network_stop(void)
     stop_network_game_and_continue_locally();
 }
 
-long network_session_join(void)
+static char spectator_join_error[TEXT_BUFFER_LENGTH];
+
+int32_t network_session_join(void)
 {
     int32_t plyr_num;
     net_join_rejection = NetJoin_Accepted;
+    spectator_join_error[0] = '\0';
     reset_attempting_to_join_cancel();
     display_attempting_to_join_message(-1);
     if (attempting_to_join_cancel_requested())
@@ -881,6 +891,9 @@ long network_session_join(void)
             matchmaking_request_list();
         }
         const char *error = net_join_error_text(net_join_rejection);
+        if (spectator_join_error[0] != '\0') {
+            error = spectator_join_error;
+        }
         if (error) {
             create_frontend_error_box(error);
         } else {
@@ -952,7 +965,12 @@ TbError process_network_spectator_bootstrap(NetUserId source, const char *buffer
     if (pack == CampgnT_Default && is_campaign_in_list(campaign_file, &mp_mappacks_list)) {
         pack = CampgnT_MultiplayerMappack;
     }
-    if (!change_campaign(pack, campaign_file) || strcasecmp(campaign.fname, campaign_file) != 0 || level <= 0 || get_level_info(level) == NULL) {
+    if (!change_campaign(pack, campaign_file) || strcasecmp(campaign.fname, campaign_file) != 0) {
+        snprintf(spectator_join_error, sizeof(spectator_join_error), get_string(GUIStr_NetMissingMapPack), campaign_file);
+        return Lb_FAIL;
+    }
+    if (level <= 0 || get_level_info(level) == NULL) {
+        snprintf(spectator_join_error, sizeof(spectator_join_error), get_string(GUIStr_NetMapPackMissingLevel), campaign_file, level);
         return Lb_FAIL;
     }
     buffer += name_length + 1;

@@ -7765,17 +7765,41 @@ msgid "You are spectating"
 msgstr "Vous êtes spectateur"
 
 #: guitext:1151
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has joined as a spectator."
+msgstr "%s a rejoint la partie en tant que spectateur."
+
+#: guitext:1152
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has stopped spectating."
+msgstr "%s ne regarde plus la partie."
+
+#: guitext:1153
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Required map pack \"%s\" is missing."
+msgstr "Le pack de cartes « %s » requis est manquant."
+
+#: guitext:1154
+#, fuzzy, c-format
+msgctxt "Network game interface"
+msgid "Your map pack \"%s\" is missing level %d."
+msgstr "Il manque à votre pack de cartes « %s » le niveau %d."
+
+#: guitext:1155
 msgctxt "Menu interface message"
 msgid "This save was made by an incompatible version and can't be loaded."
 msgstr "Cette sauvegarde a été créée par une version incompatible et ne peut pas être chargée."
 
-#: guitext:1152
+#: guitext:1156
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "This save is damaged and can't be loaded."
 msgstr "Cette sauvegarde est endommagée et ne peut pas être chargée."
 
-#: guitext:1153
+#: guitext:1157
 #, fuzzy
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."

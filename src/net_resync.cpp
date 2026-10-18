@@ -424,13 +424,12 @@ static char *build_resync_game_data(size_t *full_resync_len)
         return NULL;
     }
 
-    const char * lua_data = "";
+    char *lua_data = NULL;
     size_t lua_data_len = 0;
     if (Lvl_script != NULL) {
         lua_data = lua_get_serialised_data(&lua_data_len);
         if (lua_data == NULL) {
             save_buf_free(&game_buf);
-            cleanup_serialized_data();
             return NULL;
         }
     }
@@ -439,7 +438,7 @@ static char *build_resync_game_data(size_t *full_resync_len)
     if (lua_data_len > UINT32_MAX - lua_data_offset - navigation_size) {
         ERRORLOG("Full resync data too large");
         save_buf_free(&game_buf);
-        cleanup_serialized_data();
+        free(lua_data);
         return NULL;
     }
 
@@ -448,7 +447,7 @@ static char *build_resync_game_data(size_t *full_resync_len)
     if (full_resync_data == NULL) {
         ERRORLOG("Failed to allocate full resync buffer");
         save_buf_free(&game_buf);
-        cleanup_serialized_data();
+        free(lua_data);
         return NULL;
     }
 
@@ -457,10 +456,12 @@ static char *build_resync_game_data(size_t *full_resync_len)
     memcpy(full_resync_data, &game_len32, sizeof(game_len32));
     memcpy(full_resync_data + sizeof(game_len32), game_buf.data, game_buf.len);
     memcpy(full_resync_data + sizeof(game_len32) + game_buf.len, &lua_data_len32, sizeof(lua_data_len32));
-    memcpy(full_resync_data + lua_data_offset, lua_data, lua_data_len);
+    if (lua_data_len > 0) {
+        memcpy(full_resync_data + lua_data_offset, lua_data, lua_data_len);
+    }
     save_buf_free(&game_buf);
     transfer_navigation_state(full_resync_data + lua_data_offset + lua_data_len, NavigationState_Store);
-    cleanup_serialized_data();
+    free(lua_data);
     return full_resync_data;
 }
 

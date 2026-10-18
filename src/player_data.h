@@ -48,6 +48,7 @@ extern "C" {
 enum PlayerInitFlags {
     PlaF_Allocated               = 0x01,
     PlaF_Placeholder             = 0x02, /**< Human user disconnected, replaced by a computer > */
+    PlaF_Seat                    = 0x04, /**< Playable by a human: includes humans (and placeholders), and lobby-assigned computers > */
     PlaF_CompCtrl                = 0x40,
 };
 
@@ -94,7 +95,6 @@ enum UserInitFlags {
 
 enum UserAdditionalFlags {
     UsrAF_None                      = 0x00,
-    UsrAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
     UsrAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
     UsrAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell. TODO: move to LocalState
     UsrAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell. TODO: move to LocalState
@@ -230,7 +230,6 @@ struct UserState {
     TbBool ignore_next_PCtr_RBtnRelease;
     TbBool ignore_next_PCtr_LBtnRelease;
     int8_t swap_to_untag_mode;
-    TbBool interpolated_tagging;
     /** First person (possession) controls. */
     TbBool first_person_dig_claim_mode;
     unsigned short selected_fp_thing_pickup;
@@ -312,7 +311,7 @@ extern struct LocalState {
     TbBool swipe_sprite_drawLR; /**< Used to decide whether to draw the swipe sprite left to right (TRUE), or [default] right to left (FALSE). */
     unsigned char *lens_palette;
     unsigned char *main_palette;
-    int32_t palette_fade_step_map;
+    TbBool map_fade_prepared;
     int32_t palette_fade_step_pain;
     int32_t palette_fade_step_possession;
     short engine_window_width;
@@ -333,6 +332,13 @@ extern struct LocalState {
     TbBool observer_camera_active;
     unsigned char observer_camera_view_type;
     unsigned char observer_camera_idx;
+    int32_t fast_forward;
+    long double process_turn_time;
+    float delta_time;
+    uint32_t time_delta;
+    TbBool show_gui;
+    TbBool show_panel;
+    TbBool rewinding;
 } local_state;
 
 extern unsigned short player_colors_map[];
@@ -356,11 +362,12 @@ TbBool is_my_player(const struct PlayerInfo *player);
 struct UserState *get_user_state(NetUserId user);
 struct UserState *get_player_user_state(const struct PlayerInfo *player);
 struct UserState *get_local_user_state(void);
+void set_local_user_state_prediction(const struct UserState *ustate);
+const struct UserState *get_player_user_state_prediction(const struct PlayerInfo *player);
 uint32_t get_local_minimap_zoom(void);
 TbBool user_state_invalid(const struct UserState *ustate);
 int32_t user_zoom_min(const struct UserState *ustate, TbBool front_view);
 TbBool is_my_player_number(PlayerNumber plyr_num);
-TbBool is_player_displayed(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
 TbBool players_are_enemies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
@@ -375,6 +382,7 @@ TbBool player_is_roaming(PlayerNumber plyr_num);
 TbBool player_is_keeper(PlayerNumber plyr_num);
 TbBool player_is_neutral(PlayerNumber plyr_num);
 
+void set_user_work_state_kind(struct UserState *ustate, int32_t chosen_kind);
 void set_user_work_state(NetUserId user, short nwrk_state, int32_t chosen_kind);
 void set_user_view_type(NetUserId user, unsigned short nview);
 void reset_user_view_type(NetUserId user, unsigned short nview);

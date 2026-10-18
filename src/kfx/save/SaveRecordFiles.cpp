@@ -6,6 +6,7 @@
 /******************************************************************************/
 #include "kfx/save/SaveManager_Internal.h"
 
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
@@ -31,6 +32,21 @@ bool WriteFile(IFileSystem &filesystem, const char *fname, const void *data, siz
         return true;
     SAVEWARN("can't write \"%s\"", fname);
     return false;
+}
+
+bool KeepUnreadable(IFileSystem &filesystem, const char *fname)
+{
+    if (!filesystem.Exists(fname) || filesystem.IsDirectory(fname))
+        return false;
+    char bak_fname[4096];
+    snprintf(bak_fname, sizeof(bak_fname), "%s.bak", fname);
+    if (!filesystem.Rename(fname, bak_fname))
+    {
+        SAVEWARN("can't keep unreadable file \"%s\" as \"%s\"", fname, bak_fname);
+        return false;
+    }
+    SAVELOG("kept unreadable file \"%s\" as \"%s\"", fname, bak_fname);
+    return true;
 }
 
 namespace detail {

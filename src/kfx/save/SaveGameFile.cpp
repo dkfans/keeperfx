@@ -74,9 +74,20 @@ bool Write(IFileSystem &filesystem, const char *fname, const CatalogueEntry *cen
     SaveBufferOwner out;
     SaveError err;
     size_t lua_len = 0;
-    const char *lua_data = lua_get_serialised_data(&lua_len);
+    char *lua_data = lua_get_serialised_data(&lua_len);
+    if (lua_data == NULL)
+    {
+        SAVEWARN("can't build the save: the Lua state could not be serialised");
+        return false;
+    }
+    if (lua_len > INT32_MAX)
+    {
+        SAVEWARN("can't build the save: the Lua state is too large");
+        free(lua_data);
+        return false;
+    }
     enum SaveResult result = Build(&game, &intralvl, conf_baseline, lua_data, (uint32_t)lua_len, centry, &out, &err);
-    cleanup_serialized_data();
+    free(lua_data);
     if (result != SVR_Ok)
     {
         SAVEWARN("can't build the save: %s", err.message);

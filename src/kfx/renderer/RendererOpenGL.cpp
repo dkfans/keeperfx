@@ -53,6 +53,9 @@ struct GLFrameData {
 
     UICommandBuffers    swipe_cmds;
 
+    UICommandBuffers    tooltip_ui_cmds;
+    TextCommandBuffers  tooltip_text_cmds;
+
     int32_t screen_w = 0;
     int32_t screen_h = 0;
 
@@ -441,6 +444,8 @@ void RendererOpenGL::render_thread_init()
         fd.text_cmds.shared_seq = &fd.frame_seq;
         fd.parchment_ui_cmds.shared_seq   = &fd.frame_seq;
         fd.parchment_text_cmds.shared_seq = &fd.frame_seq;
+        fd.tooltip_ui_cmds.shared_seq   = &fd.frame_seq;
+        fd.tooltip_text_cmds.shared_seq = &fd.frame_seq;
     }
     m_impl->ui.SetUICommandBuffers(&m_impl->frames[0].ui_cmds);
     m_impl->text.SetTextCommandBuffers(&m_impl->frames[0].text_cmds);
@@ -676,8 +681,9 @@ void RendererOpenGL::FGCaptureScreenshot()
 void RendererOpenGL::FGExecuteCursor()
 {
     GLFrameData& fd = m_impl->frames[m_impl->render_idx];
-    m_impl->cursor.DrawSnapshot(fd.cursor_snapshot);
     m_impl->world.DrawCursorKeeperSprites();
+    m_impl->ui.DrawFromIR(fd.tooltip_ui_cmds, fd.tooltip_text_cmds, &m_impl->text);
+    m_impl->cursor.DrawSnapshot(fd.cursor_snapshot);
 }
 
 void RendererOpenGL::render_thread_cleanup()
@@ -756,6 +762,8 @@ void RendererOpenGL::PresentFrame()
     next_fd.parchment_ui_cmds.Reset();
     next_fd.parchment_text_cmds.Reset();
     next_fd.swipe_cmds.Reset();
+    next_fd.tooltip_ui_cmds.Reset();
+    next_fd.tooltip_text_cmds.Reset();
     next_fd.frame_seq = 0;
     next_fd.palette_dirty = false; // defensive; a real change always re-sets this itself
     // Both slots must hold the current palette, not the one last written into them.
@@ -891,11 +899,11 @@ class IUIRenderer* RendererOpenGL::GetUIRenderer()
     return m_impl ? &m_impl->ui : nullptr;
 }
 
-void RendererOpenGL::SubmitMapFadeStep(int tick_step, float display_step, float warp_scale, bool fading_in,
+void RendererOpenGL::SubmitMapFadeStep(bool starting, float display_step, float warp_scale,
                                        const unsigned char* ghost_table)
 {
     if (m_impl == nullptr) return;
-    m_impl->mapfade.SubmitStep(tick_step, display_step, warp_scale, fading_in, ghost_table);
+    m_impl->mapfade.SubmitStep(starting, display_step, warp_scale, ghost_table);
 }
 
 void RendererOpenGL::BeginOverlayCapture(OverlayCaptureKind kind)
@@ -912,6 +920,10 @@ void RendererOpenGL::BeginOverlayCapture(OverlayCaptureKind kind)
         // Text isn't redirected: the swipe overlay only ever submits sprites.
         m_impl->ui.SetUICommandBuffers(&fd.swipe_cmds);
         break;
+    case OVERLAY_CAPTURE_TOOLTIP:
+        m_impl->ui.SetUICommandBuffers(&fd.tooltip_ui_cmds);
+        m_impl->text.SetTextCommandBuffers(&fd.tooltip_text_cmds);
+        break;
     }
 }
 
@@ -920,7 +932,7 @@ void RendererOpenGL::EndOverlayCapture(OverlayCaptureKind kind)
     if (m_impl == nullptr) return;
     GLFrameData& fd = m_impl->frames[m_impl->write_idx];
     m_impl->ui.SetUICommandBuffers(&fd.ui_cmds);
-    if (kind == OVERLAY_CAPTURE_PARCHMENT)
+    if (kind == OVERLAY_CAPTURE_PARCHMENT || kind == OVERLAY_CAPTURE_TOOLTIP)
         m_impl->text.SetTextCommandBuffers(&fd.text_cmds);
 }
 

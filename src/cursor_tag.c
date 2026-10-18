@@ -48,7 +48,7 @@ extern "C" {
 /******************************************************************************/
 TbBool should_draw_cursor_box(PlayerNumber plyr_idx)
 {
-    if (!is_player_displayed(plyr_idx) || game.small_map_state == 2 || is_observer_camera_active()) {
+    if (!is_my_player_number(plyr_idx) || game.small_map_state == 2 || is_observer_camera_active()) {
         return false;
     }
     if (get_my_player() == &local_observer_player) {

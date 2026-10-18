@@ -1,12 +1,12 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file roomspace_prediction.h
- *     Client-side dig prediction overlay for roomspace highlighting.
+/** @file roomspace_input.h
+ *     Turns local mouse input into dig tag packet actions, and shows those tags and the cursor box before the game state catches up.
  */
 /******************************************************************************/
-#ifndef DK_ROOMSPACE_PREDICTION_H
-#define DK_ROOMSPACE_PREDICTION_H
+#ifndef DK_ROOMSPACE_INPUT_H
+#define DK_ROOMSPACE_INPUT_H
 
 #include "globals.h"
 
@@ -16,10 +16,12 @@ extern "C" {
 /******************************************************************************/
 struct RoomSpace;
 
-void update_local_dig_tag_prediction(void);
-unsigned char get_local_dig_prediction_render_flags(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char base_map_flags);
-void update_local_dig_prediction_cursor_preview(void);
-struct RoomSpace *get_local_dig_prediction_render_roomspace(struct RoomSpace *roomspace);
+void reset_dig_prediction(void);
+void update_dig_tag_input(void);
+void update_dig_prediction_cursor_preview(void);
+unsigned char get_dig_prediction_render_flags(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char base_map_flags);
+const struct RoomSpace *get_dig_prediction_render_roomspace(const struct RoomSpace *roomspace);
+TbBool local_cursor_is_locked(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

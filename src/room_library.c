@@ -112,12 +112,9 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
         // Only play speech message if new event was created
         if (evidx > 0)
         {
-            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
-            {
+            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) ) {
                 output_message(SMsg_SpellbookStolen, 0);
-            }
-            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
-            {
+            } else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) ) {
                 player = get_my_player();
                 if (picktng->owner == game.neutral_player_num)
                 {
@@ -144,8 +141,7 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
         // Only play speech message if new event was created
         if (evidx > 0)
         {
-          if (is_my_player_number(creatng->owner) && !is_my_player_number(picktng->owner))
-          {
+          if (is_my_player_number(creatng->owner) && !is_my_player_number(picktng->owner)) {
               player = get_my_player();
               if (creatng->index != player->influenced_thing_idx)
               {
@@ -372,10 +368,7 @@ static void process_player_research(PlayerNumber plyr_idx)
             {
                 dungeon->magic_level[pwkind]++;
             }
-            if (is_my_player_number(plyr_idx))
-            {
-                output_message(SMsg_ResearchedSpell, 0);
-            }
+            output_player_message(plyr_idx, SMsg_ResearchedSpell, 0);
             research_completed = true;
         }
         break;
@@ -387,8 +380,7 @@ static void process_player_research(PlayerNumber plyr_idx)
             rkind = rsrchval->rkind;
             event_create_event(0, 0, EvKind_NewRoomResrch, plyr_idx, rkind);
             dungeon->room_buildable[rkind] |= 3; // Player may build room and may research it again
-            if (is_my_player_number(plyr_idx))
-                output_message(SMsg_ResearchedRoom, 0);
+            output_player_message(plyr_idx, SMsg_ResearchedRoom, 0);
             room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
             if (!room_is_invalid(room))
             {

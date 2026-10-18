@@ -82,6 +82,7 @@
 #include "room_data.h"
 #include "room_graveyard.h"
 #include "room_jobs.h"
+#include "room_lair.h"
 #include "room_library.h"
 #include "room_list.h"
 #include "sounds.h"
@@ -3370,7 +3371,9 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_off_all_window_menus();
         turn_off_query_menus();
         turn_on_main_panel_menu();
-        set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+        local_state.show_panel = local_state.show_gui;
+    }
+    if (player == get_displayed_player()) {
         PaletteSetPlayerPalette(player, engine_palette);
         local_state.palette_fade_step_possession = 11;
     }
@@ -3519,15 +3522,12 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
             dungeon->lvstats.flies_killed_by_spiders++;
         }
     }
-    if (is_my_player_number(creatng->owner))
-    {
+    if (is_my_player_number(creatng->owner)) {
         if (flag_is_set(flags, CrDed_DiedInBattle))
         {
             output_message_far_from_thing(creatng, SMsg_BattleDeath, MESSAGE_DURATION_BATTLE);
         }
-    }
-    else if (is_my_player_number(killertng->owner))
-    {
+    } else if (is_my_player_number(killertng->owner)) {
         output_message_far_from_thing(creatng, SMsg_BattleWon, MESSAGE_DURATION_BATTLE);
     }
     SYNCDBG(18, "Almost finished");
@@ -6773,10 +6773,7 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, int can_see_slabs)
                 {
                     change_creature_owner(thing, creatng->owner);
                     mark_creature_joined_dungeon(thing);
-                    if (is_my_player_number(thing->owner))
-                    {
-                        output_message(SMsg_CreaturesJoinedYou, MESSAGE_DURATION_CRTR_JOINED);
-                    }
+                    output_player_message(thing->owner, SMsg_CreaturesJoinedYou, MESSAGE_DURATION_CRTR_JOINED);
                     n++;
                 }
             }
@@ -7139,10 +7136,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     else
                     {
                         WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_role_code_name(RoRoF_PowersStorage));
-                        if (is_my_player_number(plyr_idx))
-                        {
-                            output_message(SMsg_LibraryTooSmall, 0);
-                        }
+                        output_player_message(plyr_idx, SMsg_LibraryTooSmall, 0);
                     }
                 }
                 else if (thing_is_special_box(droptng))
@@ -7162,10 +7156,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     else
                     {
                         WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_role_code_name(RoRoF_CratesStorage));
-                        if (is_my_player_number(plyr_idx))
-                        {
-                            output_message(SMsg_WorkshopTooSmall, 0);
-                        }
+                        output_player_message(plyr_idx, SMsg_WorkshopTooSmall, 0);
                     }
                 }
             }
@@ -7179,10 +7170,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     }
                     else
                     {
-                        if (is_my_player_number(plyr_idx))
-                        {
-                            output_message(SMsg_GraveyardTooSmall, 0);
-                        }
+                        output_player_message(plyr_idx, SMsg_GraveyardTooSmall, 0);
                     }
                 }
             }
@@ -7201,10 +7189,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                         }
                         else
                         {
-                            if (is_my_player_number(plyr_idx))
-                            {
-                                output_message(SMsg_PrisonTooSmall, 0);
-                            }
+                            output_player_message(plyr_idx, SMsg_PrisonTooSmall, 0);
                         }
                     }
                 }
@@ -7285,10 +7270,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                 {
                     if (is_thing_directly_controlled_by_player(creatng, plyr_idx))
                     {
-                        if (is_my_player_number(plyr_idx))
-                        {
-                            play_non_3d_sample(snd_refusal);
-                        }
+                        play_player_sample(plyr_idx, snd_refusal);
                         return;
                     }
                 }
@@ -7316,10 +7298,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                     {
                         if (is_thing_directly_controlled_by_player(creatng, plyr_idx))
                         {
-                            if (is_my_player_number(plyr_idx))
-                            {
-                                play_non_3d_sample(snd_refusal);
-                            }
+                            play_player_sample(plyr_idx, snd_refusal);
                             return;
                         }
                     }
@@ -7952,7 +7931,7 @@ struct Thing *grow_up_creature(struct Thing *thing, ThingModel grow_up_model, Cr
          && (lairroom->owner == newtng->owner)
          && room_role_matches(lairroom->kind, get_room_role_for_job(Job_TAKE_SLEEP))
          && room_has_enough_free_capacity_for_creature_job(lairroom, newtng, Job_TAKE_SLEEP)
-         && thing_is_invalid(find_creature_lair_totem_at_subtile(lairpos.x.stl.num, lairpos.y.stl.num, 0)))
+         && thing_is_invalid(find_lair_totem_at(lairpos.x.stl.num, lairpos.y.stl.num)))
         {
             creature_place_lair_totem(newtng, lairroom, &lairpos);
         }

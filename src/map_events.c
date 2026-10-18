@@ -349,10 +349,9 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
         {
             evidx = dungeon->event_button_index[i];
             if (evidx == 0) {
-                if (is_my_player_number(dungeon->owner))
-                {
+                if (is_my_player_number(dungeon->owner)) {
                     struct PlayerInfo* player = get_player(dungeon->owner);
-                    if ( (get_gameturn() > 10) && (get_player_view_type(player) != PVT_DungeonTop || (game.operation_flags & GOF_ShowGui)) )
+                    if ( (get_gameturn() > 10) && (get_player_view_type(player) != PVT_DungeonTop || local_state.show_gui) )
                     {
                         play_non_3d_sample(snd_tab_fall);
                     }

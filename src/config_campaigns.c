@@ -1098,11 +1098,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             }
             break;            
         case 15: // INTRO_DESC_ID
-            if (get_conf_parameter_whole(buf,&pos,len,lvinfo->intro_desc_id,LINEMSG_SIZE) <= 0)
-            {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of '%s' file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
+            get_conf_parameter_whole(buf,&pos,len,lvinfo->intro_desc_id,LINEMSG_SIZE);
             break;
         case 16: // DESCRIPTION_GEO
             lvinfo->level_description_geo = malloc(sizeof(struct LevelDescriptionGeo));
@@ -1213,7 +1209,8 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
     snprintf(campgn->fname, DISKPATH_SIZE, "%s", cmpgn_fname);
     snprintf(campgn->name, DISKPATH_SIZE, "%s", cmpgn_fname);
     SYNCDBG(0,"%s campaign file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
-    char* fname = prepare_file_path(fgroup, cmpgn_fname);
+    char fname[FULLPATH_SIZE] = "";
+    prepare_file_path_buf(fname, sizeof(fname), fgroup, cmpgn_fname);
     long len = LbFileLengthRnc(fname);
     if (len < 2)
     {

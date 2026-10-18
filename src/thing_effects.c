@@ -31,6 +31,7 @@
 #include "creature_graphics.h"
 #include "creature_senses.h"
 #include "engine_redraw.h"
+#include "engine_render.h"
 #include "front_simple.h"
 #include "game_legacy.h"
 #include "globals.h"
@@ -130,7 +131,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     thing->solid_size_xy = 1;
     thing->solid_size_z = 1;
 
-    if (eestat->sprite_idx != -1)
+    if (eestat->sprite_idx != ANIMATION_NONE)
     {
         i = UNSYNC_RANDOM(eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
         long n = UNSYNC_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
@@ -1091,8 +1092,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 apply_damage_to_thing(tngdst, damage, -1);
                 affected = true;
                 event_create_event_or_update_nearby_existing_event(tngdst->mappos.x.val, tngdst->mappos.y.val,EvKind_HeartAttacked, tngdst->owner, 0);
-                if (is_my_player_number(tngdst->owner))
-                {
+                if (is_my_player_number(tngdst->owner)) {
                     output_message(SMsg_HeartUnderAttack, 400);
                     controller_rumble(50);
                 }

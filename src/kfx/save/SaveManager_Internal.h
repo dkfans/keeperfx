@@ -38,6 +38,10 @@ enum SaveResult ReadFile(IFileSystem &filesystem, const char *fname, std::vector
 /** Writes data as the whole file, replacing any file there. Failures are logged. */
 bool WriteFile(IFileSystem &filesystem, const char *fname, const void *data, size_t len);
 
+/** Renames a file to "<fname>.bak". A directory is never renamed (the path of a file can be a folder's, if it is
+ *  misconfigured), and nothing happens if there is no file. Returns true if the file was kept. */
+bool KeepUnreadable(IFileSystem &filesystem, const char *fname);
+
 /** The file kind and field table of each type kept in a file of records. */
 template <typename T> struct RecordTraits;
 template <> struct RecordTraits<ConfigInfo> {

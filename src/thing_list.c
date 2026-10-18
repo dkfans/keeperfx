@@ -1516,7 +1516,7 @@ TbBool script_support_setup_player_as_zombie_keeper(PlayerNumber plyr_idx)
     }
     player->allocflags &= ~PlaF_Allocated; // mark as non-existing
     player->id_number = plyr_idx;
-    player->allocflags &= ~(PlaF_CompCtrl | PlaF_Placeholder);
+    player->allocflags &= ~(PlaF_CompCtrl | PlaF_Placeholder | PlaF_Seat);
     player->victory_state = VicS_Undecided;
     init_player_start(player, false);
     return true;
@@ -1528,7 +1528,8 @@ void setup_computer_player(int plr_idx)
     struct Thing* thing = find_players_dungeon_heart(plr_idx); // cannot use player->id_number, as it isn't set yet
     if (thing_exists(thing))
     {
-        script_support_setup_player_as_computer_keeper(plr_idx, 0);
+        if (script_support_setup_player_as_computer_keeper(plr_idx, 0))
+            get_player(plr_idx)->allocflags |= PlaF_Seat;
     } else
     {
         script_support_setup_player_as_zombie_keeper(plr_idx);
@@ -1779,45 +1780,6 @@ struct Thing *find_hero_gate_of_number(long num)
         ERRORLOG("Infinite loop detected when sweeping things list");
         break;
       }
-    }
-    return INVALID_THING;
-}
-
-/**
- * Returns a creatures lair totem from given subtile.
- */
-struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel crmodel)
-{
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    long i = get_mapwho_thing_index(mapblk);
-    unsigned long k = 0;
-    while (i != 0)
-    {
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        i = thing->next_on_mapblk;
-        // Per-thing code
-        if (thing->class_id == TCls_Object)
-        {
-            struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-            if (objst->related_creatr_model > 0)
-            {
-                if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (objst->related_creatr_model == crmodel))
-                    return thing;
-            }
-        }
-        // Per-thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break_mapwho_infinite_chain(mapblk);
-            break;
-        }
     }
     return INVALID_THING;
 }

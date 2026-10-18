@@ -296,7 +296,7 @@ void LensManager::BuildActiveGPULensCmd(long viewport_w, long viewport_h, IRWorl
         {
             if (!effect->IsEnabled())
                 continue;
-            effect->AdvanceAnimation(game.delta_time);
+            effect->AdvanceAnimation(local_state.delta_time);
             effect->BuildGPUParams(out, viewport_w, viewport_h);
         }
     }
