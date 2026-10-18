@@ -95,6 +95,9 @@ void gui_kill_event(struct GuiButton *gbtn)
     struct PlayerInfo* player = get_my_player();
     EventIndex evidx = get_my_event_button_index(gbtn->content.lval);
     turn_off_event_box_if_necessary(player->id_number, evidx);
+    if (replay.load_enable || (network_is_active() && net_join_role == NetRole_Spectator)) {
+        return;
+    }
     if (game.event[evidx].kind != EvKind_Objective) {
         my_event_button_state[evidx] |= EvBtnS_Hidden;
         set_players_packet_action(player, PckA_EventBoxTurnOff, evidx, 0, 0, 0);
