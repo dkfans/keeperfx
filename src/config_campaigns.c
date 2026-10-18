@@ -188,7 +188,7 @@ void clear_level_info(struct LevelInformation *lvinfo)
   memset(lvinfo->land_view, 0, DISKPATH_SIZE);
   memset(lvinfo->land_window, 0, DISKPATH_SIZE);
   lvinfo->name_stridx = 0;
-  lvinfo->players = 0;
+  lvinfo->players = 1;
   lvinfo->ensign_x = (LANDVIEW_MAP_WIDTH>>1);
   lvinfo->ensign_y = (LANDVIEW_MAP_HEIGHT>>1);
   lvinfo->ensign_zoom_x = (LANDVIEW_MAP_WIDTH>>1);

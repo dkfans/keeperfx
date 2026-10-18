@@ -50,9 +50,6 @@
 #include "net_input_lag.h"
 #include "net_checksums.h"
 #include "net_spectator.h"
-#include "thing_data.h"
-#include "thing_list.h"
-#include "thing_objects.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -323,7 +320,6 @@ static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket
 
 static struct StartupSyncPacket s_local_startup_sync;
 static struct StartupSyncPacket s_startup_sync_packets[MAX_NET_USERS];
-static int s_resolved_player_slots_count;
 
 // the preferences a user sent in the startup sync, for network games
 TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs)
@@ -336,21 +332,16 @@ TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs)
 
 
 
-static int count_active_net_users(void)
-{
-    int count = 0;
-    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
-        if (net_user_info[i].network_user_active) {
-            count++;
-        }
-    }
-    return count;
-}
-
 static uint8_t calculate_initial_input_lag(void)
 {
+    int32_t player_count = 0;
+    for (int32_t i = 0; i < MAX_NET_USERS; i++) {
+        if (net_user_info[i].network_user_active) {
+            player_count++;
+        }
+    }
     uint64_t ping = network_lobby_ping;
-    if (count_active_net_users() == 2) {
+    if (player_count == 2) {
         ping /= 2;
     }
     uint64_t input_lag_turns = 0;
@@ -368,97 +359,14 @@ static uint8_t calculate_initial_input_lag(void)
     return input_lag_turns;
 }
 
-_Static_assert(MAX_NET_USERS <= 8, "player slot masks must fit in uint8_t");
-
-static int count_player_slots(uint8_t slots)
-{
-    int count = 0;
-    for (PlayerNumber plyr_idx = 0; plyr_idx < MAX_NET_USERS; plyr_idx++) {
-        if (slots & (1 << plyr_idx)) {
-            count++;
-        }
-    }
-    return count;
-}
-
-static uint8_t add_player_slots(uint8_t slots, uint8_t candidates, int needed)
-{
-    for (PlayerNumber plyr_idx = 0; plyr_idx < MAX_NET_USERS && count_player_slots(slots) < needed; plyr_idx++) {
-        if (candidates & (1 << plyr_idx)) {
-            slots |= 1 << plyr_idx;
-        }
-    }
-    return slots;
-}
-
-static uint8_t dungeon_heart_player_slots(void)
-{
-    uint8_t slots = 0;
-    int k = 0;
-    int i = game.thing_lists[TngList_Objects].index;
-    while (i != 0) {
-        struct Thing *thing = thing_get(i);
-        if (thing_is_invalid(thing)) {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        i = thing->next_of_class;
-        if (thing_is_dungeon_heart(thing) && (thing->owner < MAX_NET_USERS)) {
-            slots |= 1 << thing->owner;
-        }
-        k++;
-        if (k > THINGS_COUNT) {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-    }
-    return slots;
-}
-
-static uint8_t lof_human_player_slots(void)
-{
-    struct LevelInformation *level = get_level_info(get_loaded_level_number());
-    if (level == NULL) {
-        return 0;
-    }
-    return (1 << clamp(level->players, 0, MAX_NET_USERS)) - 1;
-}
-
 static void resolve_startup_player_slots(struct StartupSyncPacket *sync)
 {
-    int active_users = count_active_net_users();
-    uint8_t heart_slots = dungeon_heart_player_slots();
-    uint8_t lof_slots = lof_human_player_slots();
-    uint8_t human_heart_slots = heart_slots & lof_slots;
-    uint8_t slots;
-    if (count_player_slots(human_heart_slots) >= active_users) {
-        slots = human_heart_slots;
-    } else if (count_player_slots(heart_slots) >= active_users) {
-        slots = heart_slots;
-    } else {
-        WARNLOG("Map has %d dungeon hearts for %d players, seating extra players without a heart", count_player_slots(heart_slots), active_users);
-        slots = add_player_slots(heart_slots, lof_slots & ~heart_slots, active_users);
-        slots = add_player_slots(slots, ~heart_slots, active_users);
+    PlayerNumber slots_count = MAX_NET_USERS;
+    struct LevelInformation *level = get_level_info(get_loaded_level_number());
+    if (level) {
+        slots_count = min(max(level->players, 2), slots_count);
     }
-    s_resolved_player_slots_count = count_player_slots(slots);
-    net_resolve_player_colours(slots, sync->player_slots, &sync->frontend_alliances);
-}
-
-int net_map_player_limit(void)
-{
-    TbBool in_game = (netstate.phase == NetPhase_InGame);
-    LevelNumber lvnum = get_selected_level_number();
-    if (in_game) {
-        lvnum = get_loaded_level_number();
-    }
-    struct LevelInformation *level = get_level_info(lvnum);
-    if (level && level->players > 0) {
-        return level->players;
-    }
-    if (!in_game) {
-        return 0;
-    }
-    return s_resolved_player_slots_count;
+    net_resolve_player_colours(slots_count, sync->player_slots, &sync->frontend_alliances);
 }
 
 static void build_local_startup_sync(void)
@@ -539,7 +447,12 @@ void setup_count_players(void)
     game.human_players_count = 1;
   } else
   {
-    game.human_players_count = count_active_net_users();
+    game.human_players_count = 0;
+    for (int i = 0; i < MAX_NET_USERS; i++)
+    {
+      if (net_user_info[i].network_user_active)
+        game.human_players_count++;
+    }
   }
 }
 

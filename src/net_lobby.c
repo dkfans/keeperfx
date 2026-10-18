@@ -26,7 +26,6 @@
 #include "config_sounds.h"
 #include "front_landview.h"
 #include "front_network.h"
-#include "net_game.h"
 #include "net_lan.h"
 #include "net_matchmaking.h"
 #include "net_spectator.h"
@@ -74,9 +73,9 @@ void net_lobby_refresh_metadata(void)
     session.max_spectators = MAX_NET_SPECTATORS;
     session.spectator_count = net_lobby_spectator_count();
     snprintf(session.version, sizeof(session.version), "%d.%d.%d.%d", VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
-    int map_player_limit = net_map_player_limit();
-    if (netstate.locked && map_player_limit > 0) {
-        session.max_players = min(session.max_players, map_player_limit);
+    struct LevelInformation *level = get_level_info(get_selected_level_number());
+    if (netstate.locked && level) {
+        session.max_players = min(session.max_players, max(level->players, 2));
     }
     for (int i = 0; i < netstate.max_users && i < SESSION_HUMANS_MAX; i++) {
         if (netstate.users[i].progress == USER_LOGGEDIN) {

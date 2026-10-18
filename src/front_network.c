@@ -140,12 +140,12 @@ static void host_set_player_colour(NetUserId user, PlayerNumber colour)
     net_player_colour[user] = colour;
 }
 
-void net_resolve_player_colours(uint8_t available_colours_mask, int8_t player_colours[MAX_NET_USERS], char *alliances)
+void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colours[MAX_NET_USERS], char *alliances)
 {
     PlayerNumber free_colours[MAX_NET_USERS];
     PlayerNumber free_count = 0;
-    for (PlayerNumber colour = 0; colour < MAX_NET_USERS; colour++) {
-        if ((available_colours_mask & (1 << colour)) && net_player_colour_user(colour) < 0) {
+    for (PlayerNumber colour = 0; colour < colours_count; colour++) {
+        if (net_player_colour_user(colour) < 0) {
             free_colours[free_count] = colour;
             free_count++;
         }
@@ -159,7 +159,7 @@ void net_resolve_player_colours(uint8_t available_colours_mask, int8_t player_co
     PlayerNumber next_free = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         player_colours[user] = net_player_colour[user];
-        if (player_colours[user] < 0 || (player_colours[user] < MAX_NET_USERS && (available_colours_mask & (1 << player_colours[user])) && net_player_colour_user(player_colours[user]) == user)) {
+        if (player_colours[user] < 0 || (player_colours[user] < colours_count && net_player_colour_user(player_colours[user]) == user)) {
             continue;
         }
         player_colours[user] = -1;
