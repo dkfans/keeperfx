@@ -1469,14 +1469,20 @@ void process_user_creature_control_packet_control(NetUserId user)
                     {
                         if (creature_instance_has_reset(cctng, i))
                         {
-                            if (creature_under_spell_effect(cctng, CSAfF_Freeze))
+                            // Same rules as the button release above: a chicken or a frozen creature only self-casts.
+                            TbBool chicken = creature_under_spell_effect(cctng, CSAfF_Chicken);
+                            if (chicken || creature_under_spell_effect(cctng, CSAfF_Freeze))
                             {
                                 target_idx = get_human_controlled_creature_target(cctng, i, pckt);
-                                allowed = inst_inf->fp_allow_self_cast_while_frozen & (cctng->index == target_idx);
                             }
-                            else
+                            allowed = true;
+                            if (chicken)
                             {
-                                allowed = true;
+                                allowed = inst_inf->fp_allow_self_cast_when_chicken & (cctng->index == target_idx);
+                            }
+                            if (allowed && creature_under_spell_effect(cctng, CSAfF_Freeze))
+                            {
+                                allowed = inst_inf->fp_allow_self_cast_while_frozen & (cctng->index == target_idx);
                             }
                             if (allowed)
                             {
