@@ -50,7 +50,9 @@
 #include "net_input_lag.h"
 #include "net_checksums.h"
 #include "net_spectator.h"
+#include "thing_data.h"
 #include "thing_list.h"
+#include "thing_objects.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -365,6 +367,8 @@ static uint8_t calculate_initial_input_lag(void)
     return input_lag_turns;
 }
 
+_Static_assert(MAX_NET_USERS <= 8, "player slot masks must fit in uint8_t");
+
 static int count_player_slots(uint8_t slots)
 {
     int count = 0;
@@ -376,17 +380,35 @@ static int count_player_slots(uint8_t slots)
     return count;
 }
 
-static uint8_t first_player_slots(int count)
+static uint8_t add_player_slots(uint8_t slots, uint8_t candidates, int needed)
 {
-    return (1 << clamp(count, 0, MAX_NET_USERS)) - 1;
+    for (PlayerNumber plyr_idx = 0; plyr_idx < MAX_NET_USERS && count_player_slots(slots) < needed; plyr_idx++) {
+        if (candidates & (1 << plyr_idx)) {
+            slots |= 1 << plyr_idx;
+        }
+    }
+    return slots;
 }
 
 static uint8_t dungeon_heart_player_slots(void)
 {
     uint8_t slots = 0;
-    for (PlayerNumber plyr_idx = 0; plyr_idx < MAX_NET_USERS; plyr_idx++) {
-        if (thing_exists(find_players_dungeon_heart(plyr_idx))) {
-            slots |= 1 << plyr_idx;
+    int k = 0;
+    int i = game.thing_lists[TngList_Objects].index;
+    while (i != 0) {
+        struct Thing *thing = thing_get(i);
+        if (thing_is_invalid(thing)) {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        if (thing_is_dungeon_heart(thing) && (thing->owner < MAX_NET_USERS)) {
+            slots |= 1 << thing->owner;
+        }
+        k++;
+        if (k > THINGS_COUNT) {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
         }
     }
     return slots;
@@ -398,22 +420,24 @@ static uint8_t lof_human_player_slots(void)
     if (level == NULL) {
         return 0;
     }
-    return first_player_slots(level->players);
+    return (1 << clamp(level->players, 0, MAX_NET_USERS)) - 1;
 }
 
 static void resolve_startup_player_slots(struct StartupSyncPacket *sync)
 {
     int active_users = count_active_net_users();
     uint8_t heart_slots = dungeon_heart_player_slots();
-    uint8_t human_heart_slots = heart_slots & lof_human_player_slots();
+    uint8_t lof_slots = lof_human_player_slots();
+    uint8_t human_heart_slots = heart_slots & lof_slots;
     uint8_t slots;
     if (count_player_slots(human_heart_slots) >= active_users) {
         slots = human_heart_slots;
     } else if (count_player_slots(heart_slots) >= active_users) {
         slots = heart_slots;
     } else {
-        WARNLOG("Map has %d dungeon hearts for %d players, allowing all player slots", count_player_slots(heart_slots), active_users);
-        slots = first_player_slots(MAX_NET_USERS);
+        WARNLOG("Map has %d dungeon hearts for %d players, seating extra players without a heart", count_player_slots(heart_slots), active_users);
+        slots = add_player_slots(heart_slots, lof_slots & ~heart_slots, active_users);
+        slots = add_player_slots(slots, ~heart_slots, active_users);
     }
     net_resolve_player_colours(slots, sync->player_slots, &sync->frontend_alliances);
 }
