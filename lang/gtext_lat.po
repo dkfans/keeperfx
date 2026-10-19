@@ -7340,9 +7340,9 @@ msgid "%s has left the game."
 msgstr "%s ludum reliquit."
 
 #: guitext:1117
-msgctxt "Network game message"
-msgid "%s has disconnected."
-msgstr "%s disiunctus est."
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1118
 msgctxt "Unused"
@@ -7350,9 +7350,9 @@ msgid "unused"
 msgstr "unused"
 
 #: guitext:1119
-msgctxt "Network game message"
-msgid "Network connection to host lost"
-msgstr "Conexio retialis ad hospitem amissa est"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1120
 #, fuzzy
@@ -7585,3 +7585,9 @@ msgstr "Saglabāto spēli neizdevās ielādēt."
 msgctxt "Network game interface"
 msgid "You were disconnected because your game went out of sync."
 msgstr "Disiunctus es quod ludus tuus non iam congruebat."
+
+#: guitext:1159
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s lost connection (timed out)."
+msgstr "%s conexionem amisit (tempus excessit)."

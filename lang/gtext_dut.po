@@ -7280,9 +7280,9 @@ msgid "%s has left the game."
 msgstr "%s heeft het spel verlaten."
 
 #: guitext:1117
-msgctxt "Network game message"
-msgid "%s has disconnected."
-msgstr "%s is niet meer verbonden."
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1118
 msgctxt "Unused"
@@ -7290,9 +7290,9 @@ msgid "unused"
 msgstr "unused"
 
 #: guitext:1119
-msgctxt "Network game message"
-msgid "Network connection to host lost"
-msgstr "Netwerkverbinding met host verloren"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1120
 msgctxt "In-game message"
@@ -7522,3 +7522,9 @@ msgstr "Het opgeslagen spel kon niet worden geladen."
 msgctxt "Network game interface"
 msgid "You were disconnected because your game went out of sync."
 msgstr "Je verbinding is verbroken omdat je spel niet meer synchroon liep."
+
+#: guitext:1159
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s lost connection (timed out)."
+msgstr "%s heeft de verbinding verloren (time-out)."
