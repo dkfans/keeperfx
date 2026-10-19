@@ -2676,8 +2676,6 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
                     }
                 } else
                 {
-                    // Like find_creature_for_defend_pickup(): leave just-dropped units alone, else the units dropped
-                    // for the previous attack get picked up again once they have walked away from the drop spot.
                     if ((grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, stl_x, stl_y) >= 2)
                       && ((cctrl->dropped_turn + COMPUTER_REDROP_DELAY) < get_gameturn()))
                     {
