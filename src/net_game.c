@@ -321,6 +321,23 @@ static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket
 static struct StartupSyncPacket s_local_startup_sync;
 static struct StartupSyncPacket s_startup_sync_packets[MAX_NET_USERS];
 
+static TbBool reject_network_startup(enum NetJoinRejection reason)
+{
+    netstate.leave_reason = reason;
+    create_frontend_error_box(net_join_error_text(reason));
+    return false;
+}
+
+static TbBool startup_peers_accepted(void)
+{
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        if (netstate.users_leave_reason[i] != NetJoin_Accepted) {
+            return reject_network_startup(netstate.users_leave_reason[i]);
+        }
+    }
+    return true;
+}
+
 // the preferences a user sent in the startup sync, for network games
 TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs)
 {
@@ -406,6 +423,9 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         ERRORLOG("Startup sync exchange failed");
         return false;
     }
+    if (!startup_peers_accepted()) {
+        return false;
+    }
 
     for (int i = 0; i < MAX_NET_USERS; i++) {
         if (net_user_info[i].network_user_active && !s_startup_sync_packets[i].startup_sync_packet_valid) {
@@ -414,13 +434,11 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         }
     }
     if (!verify_map_checksums(s_startup_sync_packets)) {
-        create_frontend_error_box(get_string(GUIStr_NetUnsyncedMap));
-        return false;
+        return reject_network_startup(NetJoin_MapMismatch);
     }
 
     if (!verify_startup_sprite_zip_checksums(s_startup_sync_packets)) {
-        create_frontend_error_box(get_string(GUIStr_NetVerifyFxdataSame));
-        return false;
+        return reject_network_startup(NetJoin_FxdataMismatch);
     }
     const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[SERVER_ID];
     game.input_lag_turns = host_sync->initial_input_lag_turns;
@@ -480,8 +498,7 @@ TbBool init_players_network_game(void)
         }
         WARNLOG("Required custom sprite zip missing: %s", required_sprite_zips[zip_idx]);
         message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s missing", required_sprite_zips[zip_idx]);
-        create_frontend_error_box(get_string(GUIStr_NetVerifyFxdataSame));
-        initialized = false;
+        initialized = reject_network_startup(NetJoin_FxdataMismatch);
         break;
     }
     if (initialized) {
