@@ -865,12 +865,17 @@ long pinstfe_zoom_to_position(struct PlayerInfo *player, int32_t *n)
     return 0;
 }
 
-void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force)
+TbBool player_can_start_instance(const struct PlayerInfo *player)
 {
     long inum = player->instance_num;
     if (inum >= PLAYER_INSTANCES_COUNT)
         inum = 0;
-    if ((inum == 0) || (player_instance_info[inum].instance_state != 1) || (force)) {
+    return (inum == 0) || (player_instance_info[inum].instance_state != 1);
+}
+
+void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force)
+{
+    if (player_can_start_instance(player) || (force)) {
         if (player == &local_observer_player && ninum == PI_ZoomToPos) {
             observer_camera_jump(coord_subtile(player->zoom_to_pos_x), coord_subtile(player->zoom_to_pos_y));
             return;

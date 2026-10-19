@@ -91,6 +91,7 @@ struct PlayerInstanceInfo { // sizeof = 44
 /******************************************************************************/
 extern struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT];
 /******************************************************************************/
+TbBool player_can_start_instance(const struct PlayerInfo *player);
 void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force);
 TbBool player_instance_controls_camera(unsigned char inum);
 void process_player_instance(struct PlayerInfo *player);

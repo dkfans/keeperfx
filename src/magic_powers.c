@@ -1799,6 +1799,9 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
     if ((player->instance_num == PI_Whip) || (get_gameturn() - dungeon->last_creature_dropped_gameturn <= 10)) {
         return Lb_OK;
     }
+    if (!player_can_start_instance(player)) {
+        return Lb_OK;
+    }
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
     set_player_instance(player, PI_Whip, 0);
@@ -1818,6 +1821,11 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
         }
     }
 
+    player = get_player(plyr_idx);
+    if (!player_can_start_instance(player)) {
+        return Lb_FAIL;
+    }
+
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the power, fail
@@ -1827,7 +1835,6 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
         }
     }
 
-    player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
     struct UserState* ustate = get_player_user_state(player);
