@@ -338,6 +338,19 @@ static TbBool startup_peers_accepted(void)
     return true;
 }
 
+static enum NetJoinRejection spectator_startup_rejection(void)
+{
+    TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
+    calculate_network_startup_map_checksums(checksums);
+    if (memcmp(checksums, s_startup_sync_packets[SERVER_ID].map_checksums, sizeof(checksums)) != 0) {
+        return NetJoin_MapMismatch;
+    }
+    if (memcmp(required_sprite_zip_checksums, s_startup_sync_packets[SERVER_ID].required_sprite_zip_checksums, sizeof(required_sprite_zip_checksums)) != 0) {
+        return NetJoin_FxdataMismatch;
+    }
+    return NetJoin_Accepted;
+}
+
 // the preferences a user sent in the startup sync, for network games
 TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs)
 {
@@ -477,10 +490,9 @@ void setup_count_players(void)
 TbBool init_players_network_game(void)
 {
     if (net_join_role == NetRole_Spectator) {
-        TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
-        calculate_network_startup_map_checksums(checksums);
-        if (memcmp(checksums, s_startup_sync_packets[SERVER_ID].map_checksums, sizeof(checksums)) != 0 || memcmp(required_sprite_zip_checksums, s_startup_sync_packets[SERVER_ID].required_sprite_zip_checksums, sizeof(required_sprite_zip_checksums)) != 0) {
-            create_frontend_error_box(get_string(GUIStr_NetUnsyncedMap));
+        enum NetJoinRejection rejection = spectator_startup_rejection();
+        if (rejection != NetJoin_Accepted) {
+            reject_network_startup(rejection);
             LbNetwork_Stop();
             return false;
         }
