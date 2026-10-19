@@ -3062,7 +3062,12 @@ static short get_inputs(void)
     if ((get_local_user_state()->init_flags & UsrIF_MouseInputDisabled) != 0)
     {
         SYNCDBG(5,"Starting for creature fade");
-        set_players_packet_position(get_local_packet(), 0, 0 , 0);
+        // Store the creature's facing so possession does not send 0,0 and turn it north.
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        if ((get_local_view_type(player) == PVT_CreatureContrl) && thing_exists(thing))
+            set_players_packet_position(get_local_packet(), thing->move_angle_xy, thing->move_angle_z, 0);
+        else
+            set_players_packet_position(get_local_packet(), 0, 0 , 0);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
             if (is_game_key_pressed(Gkey_PauseMenu, true, false) || is_game_key_pressed(Gkey_TogglePause, true, false))
