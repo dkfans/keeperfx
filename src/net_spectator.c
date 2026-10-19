@@ -529,6 +529,7 @@ TbError process_network_spectator_turn_message(NetUserId source, const char *buf
         }
     }
     if (network_spectator_turn_count >= SPECTATOR_TURN_BUFFER_SIZE) {
+        ERRORLOG("Spectator fell %d turns behind the host", SPECTATOR_TURN_BUFFER_SIZE);
         spectator_mark_desynced();
         return Lb_OK;
     }
