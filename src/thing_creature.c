@@ -3377,7 +3377,6 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         PaletteSetPlayerPalette(player, engine_palette);
         local_state.palette_fade_step_possession = 11;
     }
-    turn_user_cursor_light(get_player_primary_user(player), true);
 }
 
 void delete_armour_effects_attached_to_creature(struct Thing *thing)
