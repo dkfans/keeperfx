@@ -29,6 +29,7 @@ extern "C" {
 #endif
 
 #define PACKETS_COUNT           9
+#define NET_LEAVE_TIMED_OUT     1
 
 /******************************************************************************/
 #pragma pack(1)

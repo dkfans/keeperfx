@@ -5908,8 +5908,8 @@ msgid "%s has left the game."
 msgstr ""
 
 #: guitext:1117
-msgctxt "Network game message"
-msgid "%s has disconnected."
+msgctxt "Unused"
+msgid "unused"
 msgstr ""
 
 #: guitext:1118
@@ -5918,8 +5918,8 @@ msgid "unused"
 msgstr ""
 
 #: guitext:1119
-msgctxt "Network game message"
-msgid "Network connection to host lost"
+msgctxt "Unused"
+msgid "unused"
 msgstr ""
 
 #: guitext:1120
@@ -6121,3 +6121,9 @@ msgstr ""
 msgctxt "Network game interface"
 msgid "You were disconnected because your game went out of sync."
 msgstr "You were disconnected because your game went out of sync."
+
+#: guitext:1159
+#, c-format
+msgctxt "Network game message"
+msgid "%s lost connection (timed out)."
+msgstr "%s lost connection (timed out)."

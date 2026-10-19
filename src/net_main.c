@@ -165,10 +165,11 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     if (netstate.users[id].progress == USER_UNUSED) {
         return;
     }
-    if (reason == NETDROP_ERROR) {
-        NETMSG("User left (or connection error): %i %s", id, netstate.users[id].name);
-    } else if (reason == NETDROP_MANUAL) {
+    netstate.users_timed_out[id] = (reason == NETDROP_TIMEOUT);
+    if (reason == NETDROP_MANUAL) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
+    } else {
+        NETMSG("User left (or timed out): %i %s", id, netstate.users[id].name);
     }
     if (netstate.users[id].spectator_state == NetSpectator_Streaming) {
         network_spectator_notify(id, false);

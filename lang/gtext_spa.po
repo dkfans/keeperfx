@@ -7572,9 +7572,9 @@ msgid "%s has left the game."
 msgstr "%s ha abandonado la partida."
 
 #: guitext:1117
-msgctxt "Network game message"
-msgid "%s has disconnected."
-msgstr "%s se ha desconectado."
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1118
 msgctxt "Unused"
@@ -7582,9 +7582,9 @@ msgid "unused"
 msgstr "unused"
 
 #: guitext:1119
-msgctxt "Network game message"
-msgid "Network connection to host lost"
-msgstr "Conexión de red con el anfitrión perdida"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1120
 #, fuzzy
@@ -7817,3 +7817,9 @@ msgstr "No se pudo cargar la partida guardada."
 msgctxt "Network game interface"
 msgid "You were disconnected because your game went out of sync."
 msgstr "Has sido desconectado porque tu partida perdió la sincronización."
+
+#: guitext:1159
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s lost connection (timed out)."
+msgstr "%s ha perdido la conexión (tiempo agotado)."
