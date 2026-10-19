@@ -336,9 +336,7 @@ void process_pause_packet(long curr_pause, long new_pause)
     {
         if ((player->allocflags & PlaF_CompCtrl) == 0)
         {
-            if ((player->instance_num == PI_MapFadeTo)
-             || (player->instance_num == PI_MapFadeFrom)
-             || (player->instance_num == PI_CrCtrlFade)
+            if ((player->instance_num == PI_CrCtrlFade)
              || (player->instance_num == PI_DirctCtrl)
              || (player->instance_num == PI_PsngrCtrl)
              || (player->instance_num == PI_DirctCtLeave)
@@ -911,15 +909,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       set_user_view_type(user, pckt->actn_par1);
       return 0;
   case PckA_ZoomFromMap:
-      if (ustate->prefs[UPref_MapFade] > 0)
-      {
-        set_user_view_type(user, PVT_MapFadeOut);
-      } else
-      {
-        if (get_local_user() == user)
-          toggle_status_menu(local_state.show_panel);
-        set_user_view_type(user, PVT_DungeonTop);
-      }
+      set_user_view_type(user, PVT_DungeonTop);
       return 0;
   case PckA_UpdatePause:
       process_pause_packet(pckt->actn_par1, pckt->actn_par2);

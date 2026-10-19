@@ -954,7 +954,6 @@ int32_t user_get_visibility_bounds(NetUserId user, MapCoord *x, MapCoord *y)
         return default_radius;
     }
     case PVT_MapScreen:
-    case PVT_MapFadeOut:
     {
         const struct Packet *pckt = get_packet(user);
         if (packet_camera_context(pckt) == CamIV_Parchment)

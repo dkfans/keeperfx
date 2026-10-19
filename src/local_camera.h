@@ -60,6 +60,7 @@ TbBool is_observer_camera_active(void);
 void enter_observer_camera(void);
 void return_to_player_camera(void);
 void set_observer_camera_view(unsigned char view_type);
+void fade_observer_camera_view(unsigned char view_type);
 void observer_camera_jump(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 /******************************************************************************/

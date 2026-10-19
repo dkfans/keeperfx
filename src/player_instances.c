@@ -100,12 +100,6 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n);
 long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, int32_t *n);
 long pinstfm_control_creature_fade(struct PlayerInfo *player, int32_t *n);
 long pinstfe_control_creature_fade(struct PlayerInfo *player, int32_t *n);
-long pinstfs_fade_to_map(struct PlayerInfo *player, int32_t *n);
-long pinstfm_fade_to_map(struct PlayerInfo *player, int32_t *n);
-long pinstfe_fade_to_map(struct PlayerInfo *player, int32_t *n);
-long pinstfs_fade_from_map(struct PlayerInfo *player, int32_t *n);
-long pinstfm_fade_from_map(struct PlayerInfo *player, int32_t *n);
-long pinstfe_fade_from_map(struct PlayerInfo *player, int32_t *n);
 long pinstfs_zoom_to_position(struct PlayerInfo *player, int32_t *n);
 long pinstfm_zoom_to_position(struct PlayerInfo *player, int32_t *n);
 long pinstfe_zoom_to_position(struct PlayerInfo *player, int32_t *n);
@@ -125,8 +119,8 @@ struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
   {16, 1, pinstfs_zoom_to_heart,                pinstfm_zoom_to_heart,          pinstfe_zoom_to_heart,               {0}, {0}, 0, 0}, // PI_HeartZoom
   {16, 1, pinstfs_zoom_out_of_heart,            pinstfm_zoom_out_of_heart,      pinstfe_zoom_out_of_heart,           {0}, {0}, 0, 0}, // PI_HeartZoomOut
   {12, 1, NULL,                                 pinstfm_control_creature_fade,  pinstfe_control_creature_fade,       {0}, {0}, 0, 0}, // PI_CrCtrlFade
-  { 8, 1, pinstfs_fade_to_map,                  pinstfm_fade_to_map,            pinstfe_fade_to_map,                 {0}, {0}, 0, 0}, // PI_MapFadeTo
-  { 8, 1, pinstfs_fade_from_map,                pinstfm_fade_from_map,          pinstfe_fade_from_map,               {0}, {0}, 0, 0}, // PI_MapFadeFrom
+  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_UnusedSlot14
+  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_UnusedSlot15
   {-1, 1, pinstfs_zoom_to_position,             pinstfm_zoom_to_position,       pinstfe_zoom_to_position,            {0}, {0}, 0, 0}, // PI_ZoomToPos
   { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_UnusedSlot17
   { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_UnusedSlot18
@@ -752,60 +746,6 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, int32_t *n)
   return 0;
 }
 
-long pinstfs_fade_to_map(struct PlayerInfo *player, int32_t *n)
-{
-    get_player_user_state(player)->init_flags |= UsrIF_MouseInputDisabled;
-    if (is_my_player(player))
-    {
-        set_map_ui_hidden(true, true);
-  }
-  return 0;
-
-}
-
-long pinstfm_fade_to_map(struct PlayerInfo *player, int32_t *n)
-{
-  return 0;
-}
-
-long pinstfe_fade_to_map(struct PlayerInfo *player, int32_t *n)
-{
-  set_user_view_type(get_player_primary_user(player), PVT_MapScreen);
-  if (is_my_player(player))
-    set_map_ui_hidden(true, false);
-  get_player_user_state(player)->init_flags &= ~UsrIF_MouseInputDisabled;
-  return 0;
-}
-
-long pinstfs_fade_from_map(struct PlayerInfo *player, int32_t *n)
-{
-  get_player_user_state(player)->init_flags |= UsrIF_MouseInputDisabled;
-  if (is_my_player(player))
-  {
-    set_map_ui_hidden(true, true);
-    local_state.show_panel = false;
-  }
-  set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
-  sync_local_camera(player);
-  return 0;
-}
-
-long pinstfm_fade_from_map(struct PlayerInfo *player, int32_t *n)
-{
-  return 0;
-}
-
-long pinstfe_fade_from_map(struct PlayerInfo *player, int32_t *n)
-{
-    struct PlayerInfo* myplyr = get_player(my_player_number);
-    update_engine_view(player, true);
-    if (player->id_number == myplyr->id_number) {
-        set_map_ui_hidden(false, false);
-    }
-    get_player_user_state(player)->init_flags &= ~UsrIF_MouseInputDisabled;
-    return 0;
-}
-
 void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
 {
     // Make sure we are in the normal Dungeon Top view
@@ -818,8 +758,6 @@ void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
        player->instance_num == PI_HeartZoom ||
        player->instance_num == PI_HeartZoomOut ||
        player->instance_num == PI_CrCtrlFade ||
-       player->instance_num == PI_MapFadeTo ||
-       player->instance_num == PI_MapFadeFrom ||
        player->instance_num == PI_ZoomToPos ||
        player->instance_num == PI_UnusedSlot17 ||
        player->instance_num == PI_UnusedSlot18)
