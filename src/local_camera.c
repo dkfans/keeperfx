@@ -176,6 +176,12 @@ void set_local_camera_destination_pose(struct PlayerInfo *player, const struct D
     apply_dungeon_camera_pose(local_state.camera.destination, pose);
 }
 
+void snap_local_camera_to_destination(void)
+{
+    memcpy(local_state.camera.previous, local_state.camera.destination, sizeof(local_state.camera.previous));
+    memcpy(local_state.camera.current, local_state.camera.destination, sizeof(local_state.camera.current));
+}
+
 /** local view mode from wibble bool */
 void update_local_dungeon_view_mode(struct PlayerInfo *player)
 {

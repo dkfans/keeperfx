@@ -23,6 +23,7 @@ void observer_set_packet_cursor(struct Packet *pckt);
 void observer_store_packets(const struct Packet *packets);
 void observer_update_vision(void);
 void observer_update_view(void);
+void observer_snap_view_camera(void);
 void observer_set_view_mode(unsigned char mode);
 const struct Packet *observer_get_view_packet(void);
 void observer_update_cursor(void);
