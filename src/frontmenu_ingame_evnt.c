@@ -667,8 +667,7 @@ void draw_watched_player_name(void)
     char text[sizeof(netstate.users[0].name) + 2];
     struct BottomRightTextLayout layout;
     if (get_watched_player_name_layout(text, sizeof(text), &layout)) {
-        TbBool flash_on = (get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate;
-        draw_bottom_right_text(text, &layout, flash_on && mouse_is_over_bottom_right_text(&layout));
+        draw_bottom_right_text(text, &layout, mouse_is_over_bottom_right_text(&layout));
     }
 }
 
