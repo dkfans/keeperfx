@@ -76,7 +76,6 @@ extern void startup_network_game(CoroutineLoop *context, TbBool local);
 extern void faststartup_network_game(CoroutineLoop *context);
 extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 void update_frontend_delta_time();
-void update_gameplay_delta_time();
 bool use_delta_time();
 
 /******************************************************************************/

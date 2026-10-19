@@ -639,6 +639,8 @@ void resync_game(void)
     finish_resync(saved_packets);
     wait_for_all_players();
     animate_resync_progress_bar(100, 100);
+    update_gameplay_delta_time();
+    local_state.process_turn_time = 1.0;
     NETLOG("Resync finished locally in %u ms", (uint32_t)(LbTimerClock() - start_time));
 }
 
