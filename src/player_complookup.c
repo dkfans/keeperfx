@@ -193,7 +193,9 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
             // Find nearest vein slab
             long best_dist = LONG_MAX;
 
-            for (long i = vein_total; i > 0; i--)
+            // vein_list holds vein_total entries (the first slab isn't in it);
+            // entries past those are left over from an earlier vein.
+            for (long i = vein_total - 1; i >= 0; i--)
             {
                 MapSlabCoord vein_x = slb_num_decode_x(vein_list[i]);
                 MapSlabCoord vein_y = slb_num_decode_y(vein_list[i]);
