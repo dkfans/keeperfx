@@ -432,11 +432,12 @@ static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USE
 static TbBool net_startup_sync_exchange_and_apply(void)
 {
     memset(s_startup_sync_packets, 0, sizeof(s_startup_sync_packets));
-    if (exchange_frame_block(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket)) != Lb_OK) {
-        ERRORLOG("Startup sync exchange failed");
+    TbError exchange_result = exchange_frame_block(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket));
+    if (!startup_peers_accepted()) {
         return false;
     }
-    if (!startup_peers_accepted()) {
+    if (exchange_result != Lb_OK) {
+        ERRORLOG("Startup sync exchange failed");
         return false;
     }
 

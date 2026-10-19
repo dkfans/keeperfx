@@ -800,9 +800,9 @@ namespace
                     }
                 } else {
                     user_id = NetUserId(reinterpret_cast<ptrdiff_t>(enet_event.peer->data));
-                    if (enet_event.data >= NetJoin_MapMismatch && enet_event.data < NetJoin_Count) {
-                        netstate.users_leave_reason[user_id] = (enum NetJoinRejection)enet_event.data;
-                    }
+                }
+                if (enet_event.data >= NetJoin_MapMismatch && enet_event.data < NetJoin_Count) {
+                    netstate.users_leave_reason[user_id] = (enum NetJoinRejection)enet_event.data;
                 }
                 const char *disconnect_reason = "timed out";
                 enum NetDropReason drop_reason = NETDROP_TIMEOUT;
