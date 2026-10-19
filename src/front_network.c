@@ -58,6 +58,7 @@
 
 #include <string.h>
 #define SESSION_LIST_MOUSE_IDLE_TIMEOUT_MS 1000
+#define LOBBY_SCREEN_PACKET_RESEND_INTERVAL_MS 100
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,6 +94,9 @@ int8_t net_player_colour[MAX_NET_USERS];
 int32_t net_lobby_max_players;
 static TbBool attempting_to_join_cancelled = false;
 static int32_t previous_active_players = 0;
+static PlayerNumber requested_player_colour = -1;
+static struct ScreenPacket last_sent_screen_packet;
+static TbClockMSec last_sent_screen_packet_time;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -564,14 +568,60 @@ static TbBool check_frontend_version_mismatch(void)
   return true;
 }
 
+static void process_frontend_packet(NetUserId user)
+{
+  struct ScreenPacket* nspckt = &net_screen_packet[user];
+  if ((frontend_alliances == -1) && (nspckt->frontend_alliances != -1)) {
+    frontend_alliances = nspckt->frontend_alliances;
+  }
+  switch (screen_packet_action(nspckt)) {
+  case NetAct_HostStartLevel:
+      if (check_frontend_version_mismatch()) {
+          break;
+      }
+      fe_network_active = 1;
+      if (game_flags2 & GF2_Connect) {
+          frontend_set_state(FeSt_START_MPLEVEL);
+      } else {
+          frontend_set_state(FeSt_NETLAND_VIEW);
+      }
+      break;
+  case NetAct_OpenLandView:
+      if (check_frontend_version_mismatch()) {
+          break;
+      }
+      fe_network_active = 1;
+      frontend_set_state(FeSt_NETLAND_VIEW);
+      break;
+  case NetAct_SetAlliance:
+      frontend_set_alliance(nspckt->action_par1, nspckt->action_par2);
+      break;
+  case NetAct_SetComputerPlayers:
+      fe_computer_players = nspckt->action_par1;
+      break;
+  case NetAct_SetPlayerColour:
+      if (network_is_host()) {
+          host_set_player_colour(user, nspckt->action_par1);
+      } else if (user == my_player_number) {
+          requested_player_colour = nspckt->action_par1;
+      }
+      break;
+  default:
+      break;
+  }
+  if (fe_computer_players == 2) {
+    int32_t k = (nspckt->networkstatus_flags & NetStat_ComputerPlayersMask) >> NetStat_ComputerPlayersShift;
+    if (k != 2) {
+      fe_computer_players = k;
+    }
+  }
+  screen_packet_set_action(nspckt, NetAct_None);
+}
+
 static void process_frontend_packets(void)
 {
   if (!frontnet_matchmaking_update()) {
     return;
-  }
-  NetUserId i;
-  for (i = 0; i < MAX_NET_USERS; i++) {
-    net_screen_packet[i].networkstatus_flags &= ~NetStat_PlayerConnected;
   }
   struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
   nspckt->networkstatus_flags |= NetStat_PlayerConnected;
@@ -583,7 +633,16 @@ static void process_frontend_packets(void)
     nspckt->stored_data2 = netstate.max_users;
     net_lobby_max_players = netstate.max_users;
   }
-  if (LbNetwork_ExchangeFrontend(nspckt, &net_screen_packet, sizeof(struct ScreenPacket))) {
+  TbClockMSec now = LbTimerClock();
+  TbBool send_frame = (screen_packet_action(nspckt) != NetAct_None)
+    || (memcmp(nspckt, &last_sent_screen_packet, sizeof(*nspckt)) != 0)
+    || (now - last_sent_screen_packet_time >= LOBBY_SCREEN_PACKET_RESEND_INTERVAL_MS);
+  if (send_frame) {
+    last_sent_screen_packet = *nspckt;
+    screen_packet_set_action(&last_sent_screen_packet, NetAct_None);
+    last_sent_screen_packet_time = now;
+  }
+  if (LbNetwork_ExchangeLobby(nspckt, &net_screen_packet, sizeof(struct ScreenPacket), send_frame, process_frontend_packet)) {
       ERRORLOG("LbNetwork_Exchange failed");
       net_service_index_selected = -1;
   }
@@ -597,70 +656,31 @@ static void process_frontend_packets(void)
 #if DEBUG_NETWORK_PACKETS
   write_debug_screenpackets();
 #endif
-  TbBool version_mismatch_found = check_frontend_version_mismatch();
-  for (i = 0; i < MAX_NET_USERS; i++) {
-    nspckt = &net_screen_packet[i];
-    if ((nspckt->networkstatus_flags & NetStat_PlayerConnected) != 0) {
-      if (frontend_alliances == -1) {
-        if (nspckt->frontend_alliances != -1) {
-          frontend_alliances = nspckt->frontend_alliances;
-        }
-      }
-        switch (screen_packet_action(nspckt)) {
-        case NetAct_HostStartLevel:
-            if (version_mismatch_found) {
-                break;
-            }
-            fe_network_active = 1;
-            if (game_flags2 & GF2_Connect) {
-                frontend_set_state(FeSt_START_MPLEVEL);
-            } else {
-                frontend_set_state(FeSt_NETLAND_VIEW);
-            }
-            break;
-        case NetAct_OpenLandView:
-            if (version_mismatch_found) {
-                break;
-            }
-            fe_network_active = 1;
-            frontend_set_state(FeSt_NETLAND_VIEW);
-            break;
-        case NetAct_SetAlliance:
-            frontend_set_alliance(nspckt->action_par1, nspckt->action_par2);
-            break;
-        case NetAct_SetComputerPlayers:
-            fe_computer_players = nspckt->action_par1;
-            break;
-        case NetAct_SetPlayerColour:
-            if (network_is_host()) {
-                host_set_player_colour(i, nspckt->action_par1);
-            }
-            break;
-        default:
-            break;
-        }
-      if (fe_computer_players == 2) {
-        int32_t k = (nspckt->networkstatus_flags & NetStat_ComputerPlayersMask) >> NetStat_ComputerPlayersShift;
-        if (k != 2) {
-          fe_computer_players = k;
-        }
-      }
-    }
-    screen_packet_set_action(nspckt, NetAct_None);
-  }
+  process_frontend_packet(my_player_number);
+  check_frontend_version_mismatch();
   if (network_is_host()) {
     host_update_player_colours();
   } else {
     unpack_player_colours(net_screen_packet[SERVER_ID].stored_data1);
+    if (net_player_colour[my_player_number] == requested_player_colour) {
+      requested_player_colour = -1;
+    }
+    if (requested_player_colour >= 0) {
+      net_player_colour[my_player_number] = requested_player_colour;
+    }
     if (net_screen_packet[SERVER_ID].stored_data2 >= MIN_NET_USERS && net_screen_packet[SERVER_ID].stored_data2 <= MAX_NET_USERS) {
       net_lobby_max_players = net_screen_packet[SERVER_ID].stored_data2;
     }
   }
-  if (frontend_alliances == -1) {
+  if ((frontend_alliances == -1) && (network_is_host() || is_connected_screen_packet(&net_screen_packet[SERVER_ID]))) {
     frontend_alliances = 0;
   }
-  for (i = 0; i < MAX_NET_USERS; i++) {
-    if (!network_user_active(i)) {
+  for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+    if (network_user_active(i)) {
+      continue;
+    }
+    net_screen_packet[i].networkstatus_flags &= ~NetStat_PlayerConnected;
+    if (frontend_alliances != -1) {
       const int32_t alliances_to_clear = alliance_grid[i][0] | alliance_grid[i][1] | alliance_grid[i][2] | alliance_grid[i][3];
       frontend_alliances = frontend_alliances & ~alliances_to_clear;
     }
@@ -887,7 +907,9 @@ void frontnet_start_setup(void)
 {
     set_selected_level_number(SINGLEPLAYER_NOTSTARTED);
     previous_active_players = 0;
+    requested_player_colour = -1;
     memset(net_screen_packet, 0, sizeof(net_screen_packet));
+    last_sent_screen_packet_time = 0;
     memset(net_player_colour, -1, sizeof(net_player_colour));
     net_lobby_max_players = MAX_NET_USERS;
     frontend_alliances = -1;

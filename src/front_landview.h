@@ -98,6 +98,10 @@ static inline void screen_packet_set_action(struct ScreenPacket *nspck, unsigned
     nspck->networkstatus_flags = (nspck->networkstatus_flags & NetStat_NonActionMask) | action;
 }
 
+static inline TbBool is_connected_screen_packet(const struct ScreenPacket *nspck) {
+    return (nspck->networkstatus_flags & NetStat_PlayerConnected) != 0;
+}
+
 /******************************************************************************/
 extern TbClockMSec play_desc_speech_time;
 extern unsigned long played_bad_descriptive_speech;

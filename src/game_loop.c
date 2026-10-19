@@ -989,7 +989,7 @@ static TbBool wait_at_frontend(void)
         break; // end while
       }
 
-      if ((!finish_menu) && (LbIsActive()))
+      if ((!finish_menu) && (LbIsActive() || !freeze_game_on_focus_lost()))
       {
         frontend_draw();
         RendererPresentFrame();
