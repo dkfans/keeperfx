@@ -2722,6 +2722,10 @@ static short get_observer_inputs(void)
         clear_key_pressed(KC_RETURN);
         return true;
     }
+    if (!a_menu_window_is_active() && is_game_key_pressed(Gkey_FinishLevel, true, false)) {
+        observer_cycle_player(1);
+        return true;
+    }
     if (!a_menu_window_is_active() && !game_is_busy_doing_gui_string_input() && observer_camera_input_pressed()) {
         detach_observer_camera();
     }
