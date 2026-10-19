@@ -242,6 +242,11 @@ TbBool creature_has_other_attackers(const struct Thing *fightng, ThingModel enmo
     return false;
 }
 
+TbBool creature_fears_timebomb(const struct Thing *creatng, const struct Thing *enmtng)
+{
+    return creature_under_spell_effect(enmtng, CSAfF_Timebomb) && !creature_has_ranged_weapon(creatng);
+}
+
 TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thing *enmtng)
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
@@ -249,13 +254,8 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
-    if (creature_under_spell_effect(enmtng, CSAfF_Timebomb))
-    {
-        if (creature_has_ranged_weapon(creatng) == false)
-        {
-            return true;
-        }
-    }
+    if (creature_fears_timebomb(creatng, enmtng))
+        return true;
     // Creature with fear 101 are scared of everything other that their own model
     if (crconf->fear_wounded >= 101)
     {
@@ -1417,7 +1417,7 @@ short creature_combat_flee(struct Thing *creatng)
         {
             struct Thing *fightng;
             CrAttackType attack_type = check_for_possible_combat_within_distance(creatng, &fightng, 2304);
-            if (attack_type > AttckT_Unset)
+            if ((attack_type > AttckT_Unset) && !creature_fears_timebomb(creatng, fightng))
             {
                 set_creature_in_combat_to_the_death(creatng, fightng, attack_type);
                 return 1;
@@ -2463,7 +2463,7 @@ TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enmtng)
     {
         return false;
     }
-    if (creature_in_flee_zone(thing))
+    if (creature_in_flee_zone(thing) && !creature_fears_timebomb(thing, enmtng))
     {
         return false;
     }
