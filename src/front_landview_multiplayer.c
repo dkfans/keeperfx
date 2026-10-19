@@ -128,11 +128,6 @@ static void update_net_ensigns_visibility(void)
     }
 }
 
-static TbBool is_connected_screen_packet(const struct ScreenPacket *nspck)
-{
-    return (nspck->networkstatus_flags & NetStat_PlayerConnected) != 0;
-}
-
 static void set_screen_packet_position(struct ScreenPacket *nspck, int32_t x, int32_t y)
 {
     nspck->stored_data1 = x;
