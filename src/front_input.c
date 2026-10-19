@@ -2260,46 +2260,29 @@ static void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rot
     {
         return; // don't pan the camera if the mouse has left the window
     }
-    if (is_feature_on(Ft_DisableCursorCameraPanning) == false)
-    {
-        long mx = my_mouse_x;
-        long my = my_mouse_y;
-        long edge_scrolling_border = max(4, scale_fixed_DK_value(4));
-        if (mx <= edge_scrolling_border)
-        {
-            if ( is_game_key_pressed(Gkey_MoveLeft, false, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
-            {
-              if (!rotate_pressed)
-                pckt->additional_packet_values |= PCAdV_AlternatePressed;
-            }
+    if (is_feature_on(Ft_DisableCursorCameraPanning) == false) {
+        int32_t mx = my_mouse_x;
+        int32_t my = my_mouse_y;
+        int32_t edge_scrolling_border = max(4, scale_fixed_DK_value(4));
+        TbBool movement_key_held = false;
+        if (mx <= edge_scrolling_border) {
+            movement_key_held |= is_game_key_pressed(Gkey_MoveLeft, false, false) || is_key_pressed(KC_LEFT, KMod_DONTCARE);
             local_state.camera_movement_x = -1.0f;
         }
-        if (mx >= MyScreenWidth-edge_scrolling_border)
-        {
-            if ( is_game_key_pressed(Gkey_MoveRight, false, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
-            {
-              if (!rotate_pressed)
-                pckt->additional_packet_values |= PCAdV_AlternatePressed;
-            }
+        if (mx >= MyScreenWidth - edge_scrolling_border) {
+            movement_key_held |= is_game_key_pressed(Gkey_MoveRight, false, false) || is_key_pressed(KC_RIGHT, KMod_DONTCARE);
             local_state.camera_movement_x = 1.0f;
         }
-        if (my <= edge_scrolling_border)
-        {
-            if ( is_game_key_pressed(Gkey_MoveUp, false, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
-            {
-              if (!rotate_pressed)
-                pckt->additional_packet_values |= PCAdV_AlternatePressed;
-            }
+        if (my <= edge_scrolling_border) {
+            movement_key_held |= is_game_key_pressed(Gkey_MoveUp, false, false) || is_key_pressed(KC_UP, KMod_DONTCARE);
             local_state.camera_movement_y = -1.0f;
         }
-        if (my >= MyScreenHeight-edge_scrolling_border)
-        {
-            if ( is_game_key_pressed(Gkey_MoveDown, false, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
-            {
-              if (!rotate_pressed)
-                pckt->additional_packet_values |= PCAdV_AlternatePressed;
-            }
+        if (my >= MyScreenHeight - edge_scrolling_border) {
+            movement_key_held |= is_game_key_pressed(Gkey_MoveDown, false, false) || is_key_pressed(KC_DOWN, KMod_DONTCARE);
             local_state.camera_movement_y = 1.0f;
+        }
+        if (movement_key_held && !rotate_pressed) {
+            local_state.camera_speedup_pressed = true;
         }
     }
 }
