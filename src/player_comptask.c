@@ -2676,7 +2676,8 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
                     }
                 } else
                 {
-                    if (grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, stl_x, stl_y) >= 2)
+                    if ((grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, stl_x, stl_y) >= 2)
+                      && ((cctrl->dropped_turn + COMPUTER_REDROP_DELAY) < get_gameturn()))
                     {
                         if (best_score) {
                             score = get_creature_thing_score(thing);
