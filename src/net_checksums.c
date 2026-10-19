@@ -244,16 +244,16 @@ short checksums_different(void)
         if (is_packet_empty(packet)) {
             if (!already_desynced) {
                 ERRORLOG("Missing checksum packet for user %d; host turn: %d", i, host_packet->turn);
+                desync_turn = host_packet->turn;
             }
-            desync_turn = host_packet->turn;
             mismatch = true;
             continue;
         }
         if (packet->checksum != host_checksum) {
             if (!already_desynced) {
                 ERRORLOG("Checksums %08x(Host) != %08x(Client) turn: %d vs %d", host_checksum, packet->checksum, host_packet->turn, packet->turn);
+                desync_turn = host_packet->turn;
             }
-            desync_turn = host_packet->turn;
             mismatch = true;
         }
     }
@@ -421,6 +421,9 @@ void update_turn_checksums(void) {
 void pack_desync_history_for_resync(void) {
     struct ChecksumSnapshot* snapshot = find_snapshot(desync_turn);
     if (snapshot == NULL) {
+        snapshot = &snapshot_buffer[(snapshot_head + SNAPSHOT_BUFFER_SIZE - 1) % SNAPSHOT_BUFFER_SIZE];
+    }
+    if (!snapshot->valid) {
         compute_checksums(&game.host_checksums);
         game.log_snapshot.thing_count = 0;
         game.log_snapshot.player_count = 0;
@@ -544,12 +547,12 @@ static void log_thing_differences(struct LogDetailedSnapshot* client, const char
 }
 
 void compare_desync_history_from_host(void) {
-    struct ChecksumSnapshot* snapshot = find_snapshot(desync_turn);
+    struct DesyncChecksums* host = &game.host_checksums;
+    struct ChecksumSnapshot* snapshot = find_snapshot(host->game_turn);
     if (snapshot == NULL) {
-        ERRORLOG("=== DESYNC: No client snapshot for turn %u ===", desync_turn);
+        ERRORLOG("=== DESYNC: No client snapshot for turn %u ===", host->game_turn);
         return;
     }
-    struct DesyncChecksums* host = &game.host_checksums;
     struct DesyncChecksums* client = &snapshot->checksums;
     struct LogDetailedSnapshot* host_snapshot = &game.log_snapshot;
     struct LogDetailedSnapshot* client_snapshot = &snapshot->log_details;

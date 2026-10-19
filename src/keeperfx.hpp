@@ -210,6 +210,7 @@ extern struct StartupParameters start_params;
 short setup_game(void);
 void game_loop(void);
 void update(void);
+void update_gameplay_delta_time(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
