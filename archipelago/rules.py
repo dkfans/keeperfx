@@ -104,6 +104,16 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
 
     location_rules["Secret 5 Goal Area"] = HasAll("Bridge", "Library")
 
+    location_rules["Level 4 Beaten"] = HasAll("Bridge", "Library")
+    location_rules["Level 5 Beaten"] = HasAll("Bridge", "Library")
+    location_rules["Level 6 Beaten"] = HasAll("Bridge", "Library")
+    location_rules["Level 7 Beaten"] = HasAll("Bridge", "Library")
+    location_rules["Level 9 Beaten"] = HasAll("Bridge", "Library")
+    location_rules["Level 10 Beaten"] = HasAll("Bridge", "Library")
+    location_rules["Level 13 Beaten"] = HasAll("Bridge", "Library")
+    location_rules["Level 14 Beaten"] = HasAll("Bridge", "Library")
+    location_rules["Level 15 Beaten"] = HasAll("Bridge", "Library")
+
     #location_rules["Level 16 Beaten"] = Has("Progressive Level Cap",4)
 
 
@@ -218,6 +228,8 @@ def set_all_rules(world: DungeonKeeperWorld) -> None:
             else state.has_group("Levels", world.player, count=8)
         )
         & state.has("Training Room", world.player)
+        & state.has_group("Rooms", world.player, count=11)
+        & (state.count("Progressive Creature Limit", world.player) >= 3)
     )
 
     location_rules["Level 105 Beaten"] = HasAny("Create Imp","Recruit Tunneller") #starts with no Imps.

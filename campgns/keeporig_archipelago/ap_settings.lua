@@ -84,4 +84,8 @@ else
     print("FlatTempleGuardPost:      " .. tostring(APSettings.FlatTempleGuardPost) .. " (" .. tostring(slot_data.FlatTempleGuardPost) .. ")")
 end
 
+--to do: unlocks rooms and spells (separate options for each):
+-- research (default), unlock after first research (not sure best way to do this, i guess we write to a table and set that to 1 or we stupidly use campaign flags or make them locations), always unlocked
+-- and options for "always unlocked in bonus levels (currently spells are already researched for bonus levels)"
+
 return APSettings

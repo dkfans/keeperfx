@@ -111,18 +111,18 @@ def connect_regions(world: DungeonKeeperWorld) -> None:
     overworld.connect(tickle, "Overworld to Tickle", lambda state: state.has("Level 8", world.player))
     overworld.connect(moonbrushwood, "Overworld to Moonbrush Wood", lambda state: state.has("Level 9", world.player))
     overworld.connect(nevergrim, "Overworld to Nevergrim", lambda state: state.has("Level 10", world.player))
-    overworld.connect(hearth, "Overworld to Hearth", lambda state: state.has("Level 11", world.player))
+    overworld.connect(hearth, "Overworld to Hearth", lambda state: state.has("Level 11", world.player) & (state.count("Progressive Level Cap", world.player) >= 2))
     overworld.connect(elfsdance, "Overworld to Elf's Dance", lambda state: state.has("Level 12", world.player))
     overworld.connect(buffyoak, "Overworld to Buffy Oak", lambda state: state.has("Level 13", world.player))
     overworld.connect(sleepiburgh, "Overworld to Sleepiburgh", lambda state: state.has("Level 14", world.player))
     overworld.connect(woodlyrhyme, "Overworld to Woodly Rhyme", lambda state: state.has("Level 15", world.player))
     overworld.connect(tulipscent, "Overworld to Tulipscent", lambda state: state.has("Level 16", world.player))
-    overworld.connect(mirthshire, "Overworld to Mirthshire", lambda state: state.has("Level 17", world.player))
-    overworld.connect(blaiseend, "Overworld to Blaise End", lambda state: state.has("Level 18", world.player))
+    overworld.connect(mirthshire, "Overworld to Mirthshire", lambda state: state.has("Level 17", world.player) & (state.count("Progressive Level Cap", world.player) >= 3))
+    overworld.connect(blaiseend, "Overworld to Blaise End", lambda state: state.has("Level 18", world.player) & (state.count("Progressive Level Cap", world.player) >= 5) & state.has_group("Creatures", world.player, count=10))
     overworld.connect(mistle, "Overworld to Mistle", lambda state: state.has("Level 19", world.player))
-    overworld.connect(skybirdtrill, "Overworld to Skybird Trill", lambda state: state.has("Level 20", world.player))
+    overworld.connect(skybirdtrill, "Overworld to Skybird Trill", lambda state: state.has("Level 20", world.player) & (state.count("Progressive Level Cap", world.player) >= 5) & state.has_group("Creatures", world.player, count=10))
 
-    overworld.connect(temple, "Overworld to Temple", lambda state: state.has_all({"Temple Researchable", "Library Researchable"}, world.player))
+    overworld.connect(temple, "Overworld to Temple", lambda state: state.has_all({"Temple", "Library"}, world.player))
 
     if world.options.secret_levels:
         secret1 = world.get_region("Secret 1")
