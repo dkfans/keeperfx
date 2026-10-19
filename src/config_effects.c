@@ -381,6 +381,17 @@ short effect_or_effect_element_id(const char *code_name)
     return 0;
 }
 
+short effect_or_effect_element_id_warn(const char *code_name, const char *key)
+{
+    short id = effect_or_effect_element_id(code_name);
+    if ((id == 0) && (code_name != NULL) && !parameter_is_number(code_name)
+        && (get_id(effect_desc, code_name) < 0) && (get_id(effectelem_desc, code_name) < 0))
+    {
+        WARNLOG("Unknown effect or effect element \"%s\" for %s", code_name, key);
+    }
+    return id;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

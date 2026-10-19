@@ -142,6 +142,7 @@ const char *effect_code_name(ThingModel tngmodel);
 const char* effect_element_code_name(ThingModel tngmodel);
 const char *effectgenerator_code_name(ThingModel tngmodel);
 short effect_or_effect_element_id(const char * code_name);
+short effect_or_effect_element_id_warn(const char *code_name, const char *key);
 /******************************************************************************/
 #ifdef __cplusplus
 }
