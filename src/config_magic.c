@@ -1402,22 +1402,33 @@ TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 
 void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
+    if (decrease_power_level_of_player(pwkind, plyr_idx))
+        power_lost_side_effects(pwkind, plyr_idx);
+}
+
+TbBool decrease_power_level_of_player(PowerKind pwkind, PlayerNumber plyr_idx)
+{
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    struct PlayerInfo* player;
-    struct Thing* thing;
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Cannot remove spell %s from invalid dungeon %d!",power_code_name(pwkind),(int)plyr_idx);
-        return;
+        return false;
     }
     long i = dungeon->magic_level[pwkind];
     if (i < 1)
     {
         ERRORLOG("Cannot remove spell %s (%d) from player %d as he doesn't have it!",power_code_name(pwkind),(int)pwkind,(int)plyr_idx);
-        return;
+        return false;
     }
     SYNCDBG(4,"Decreasing spell %s of player %d to level %d",power_code_name(pwkind),(int)plyr_idx,(int)i-1);
     dungeon->magic_level[pwkind] = i-1;
+    return true;
+}
+
+void power_lost_side_effects(PowerKind pwkind, PlayerNumber plyr_idx)
+{
+    struct PlayerInfo* player;
+    struct Thing* thing;
     switch (pwkind)
     {
     case PwrK_OBEY:

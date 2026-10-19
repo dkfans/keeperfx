@@ -517,15 +517,21 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
                 if (get_gameturn() > 10) //Function is used to place books in rooms before dungeons are intialized
                 {
                     dungeon = get_players_num_dungeon(room->owner);
+                    TbBool stored = false;
                     if (dungeon->magic_level[spl_idx] < 2)
                     {
-                        if (!store_unique_reposition_entry(rrepos, objkind)) {
+                        stored = store_unique_reposition_entry(rrepos, objkind);
+                        if (!stored) {
                             WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
                         }
                     }
                     if (!is_neutral_thing(thing))
                     {
-                        remove_power_from_player(spl_idx, room->owner);
+                        // A stored book comes back, so an active power stays on unless it ends up dropped
+                        if (stored)
+                            decrease_power_level_of_player(spl_idx, room->owner);
+                        else
+                            remove_power_from_player(spl_idx, room->owner);
                         dungeon = get_dungeon(room->owner);
                         dungeon->magic_resrchable[spl_idx] = 1;
                     }
@@ -824,7 +830,16 @@ void count_books_in_room(struct Room *room)
         {
             SYNCLOG("No %s capacity available to move, %d items belonging to player %d dropped",
                 room_code_name(room->kind), (int)rrepos.used, (int)room->owner);
-        }      
+        }
+        struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
+        for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
+        {
+            if ((rrepos.models[ri] == 0) || (rrepos.models[ri] >= game.conf.object_conf.object_types_count))
+                continue;
+            PowerKind pwkind = game.conf.object_conf.object_to_power_artifact[rrepos.models[ri]];
+            if ((pwkind > 0) && (dungeon->magic_level[pwkind] == 0))
+                power_lost_side_effects(pwkind, room->owner);
+        }
     }
     room->capacity_used_for_storage = room->used_capacity;
 }
