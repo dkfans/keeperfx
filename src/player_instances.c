@@ -393,6 +393,8 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, int32_t *n)
 {
   struct UserState* ustate = get_player_user_state(player);
   ustate->init_flags |= UsrIF_MouseInputDisabled;
+  // The cursor light stays where the hand was otherwise; the cursor update turns it back on.
+  turn_user_cursor_light(get_player_primary_user(player), false);
   if (player == get_displayed_player())
     local_state.palette_fade_step_possession = 1;
   if (is_my_player(player))
@@ -537,7 +539,6 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, int32_t *n)
   ustate->init_flags |= UsrIF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
-  turn_user_cursor_light(get_player_primary_user(player), true);
   set_local_leave_creature_camera(player, PI_DirctCtLeave, true);
   return 0;
 }
@@ -575,7 +576,6 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, int32_t *n)
   ustate->init_flags |= UsrIF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   player->influenced_thing_creation = 0;
-  turn_user_cursor_light(get_player_primary_user(player), true);
   set_local_leave_creature_camera(player, PI_PsngrCtLeave, true);
   return 0;
 }

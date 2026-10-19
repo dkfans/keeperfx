@@ -1390,6 +1390,9 @@ void update_local_mouse_light(void)
     // ... or during text input (save menu)
     if (game_is_busy_doing_gui_string_input())
         return;
+    // ... or in first person: there is no map under the mouse, and block_pointed_at is left from the dungeon view
+    if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
+        return;
 
     struct Camera *cam = get_local_active_camera(player);
     struct Coord3d pos;
