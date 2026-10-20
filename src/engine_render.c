@@ -54,6 +54,7 @@
 #include "engine_redraw.h"
 #include "engine_textures.h"
 #include "local_camera.h"
+#include "local_possession.h"
 #include "map_utils.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -368,6 +369,7 @@ struct ThingInterpolateResult interpolate_thing(struct Thing *thing)
         result.mappos = thing->mappos;
         result.floor_height = thing->floor_height;
     }
+    offset_local_possession_shot(thing, &result.mappos);
 
     return result;
 }

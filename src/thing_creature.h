@@ -46,6 +46,7 @@ extern "C" {
 #pragma pack(1)
 
 struct Thing;
+struct CreatureControl;
 
 enum ThingPickFlags {
     TPF_None             = 0x00,
@@ -78,6 +79,9 @@ extern unsigned long creature_create_errors;
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 TbBool creature_count_below_map_limit(TbBool temp_creature);
 long move_creature(struct Thing *thing);
+TbBool get_creature_move_position(struct Thing *thing, struct Coord3d *nxpos, TbBool collide_with_doors);
+TbBool update_controlled_creature_movement(const struct Thing *thing, struct CreatureControl *cctrl);
+void slow_down_controlled_creature(struct CreatureControl *cctrl);
 struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags);
 void update_creature_count(struct Thing *thing);
@@ -96,8 +100,10 @@ TbBool thing_can_be_controlled_as_controller(struct Thing* thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 void prepare_to_controlled_creature_death(struct Thing* thing);
-ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
-ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet);
+ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, const struct Packet *packet);
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, const struct Packet *packet);
+ThingIndex find_possession_target(struct Thing *caster, CrInstance inst_id, int32_t yaw);
+TbBool possession_instance_can_start(struct Thing *thing, const struct CreatureControl *cctrl, CrInstance inst_id, GameTurn turn, const struct Packet *pckt, TbBool allow_unavailable);
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing);
@@ -108,6 +114,7 @@ long creature_available_for_combat_this_turn(struct Thing *thing);
 TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 TbBool set_creature_object_snipe(struct Thing* crthing, struct Thing* obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
+void play_shot_firing_sound(struct Thing *firing, ThingModel shot_model);
 void thing_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, CrtrExpLevel shot_level, unsigned char hit_type);
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, SpellKind spl_idx, CrtrExpLevel shot_level);
 void creature_cast_spell(struct Thing *caster, SpellKind spl_idx, CrtrExpLevel shot_level, MapSubtlCoord trg_x, MapSubtlCoord trg_y);
@@ -128,6 +135,8 @@ void anger_apply_anger_to_creature_f(struct Thing *thing, long anger, AnnoyMotiv
 HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long creature_instance_has_reset(const struct Thing *thing, long a2);
+TbBool creature_instance_has_reset_at(const struct Thing *thing, const struct CreatureControl *cctrl, CrInstance inst_idx, GameTurn turn);
+void get_creature_instance_times(const struct Thing *thing, long inst_idx, int32_t *ritime, int32_t *raitime);
 void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtng_idx, const struct Coord3d *pos);
 unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short current_annoyed_creature_idx);
 void draw_creature_view(struct Thing *thing);

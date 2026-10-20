@@ -47,6 +47,7 @@
 #include "engine_lenses.h"
 #include "kfx/ui/GameUI.h"
 #include "local_camera.h"
+#include "local_possession.h"
 #include "front_simple.h"
 #include "front_easter.h"
 #include "frontend.h"
@@ -224,10 +225,11 @@ static void draw_creature_view_icons(struct Thing* creatng)
         struct PlayerInfo* player = get_my_player();
         if (get_player_view_type(player) == PVT_CreatureContrl)
         {
-            if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
+            const CrInstance active_inst_id = get_local_creature_control(creatng)->active_instance_id;
+            if (!creature_instance_is_available(creatng, active_inst_id))
             {
                 x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-                struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->active_instance_id % game.conf.crtr_conf.instances_count);
+                struct InstanceInfo* inst_inf = creature_instance_info_get(active_inst_id % game.conf.crtr_conf.instances_count);
                 draw_gui_panel_sprite_left(x, y, ps_units_per_px, inst_inf->symbol_spridx);
             }
         }
@@ -563,13 +565,13 @@ void redraw_creature_view(void)
     }
     remove_explored_flags_for_viewed_power_sights(player);
     GameUI_DrawFrame(player);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (!creature_control_invalid(cctrl)) {
+    if (!creature_control_invalid(creature_control_get_from_thing(thing))) {
         draw_creature_view_icons(thing);
         if (!gui_box_is_not_valid(gui_cheat_box_3)) {
+            const CrInstance active_inst_id = get_local_creature_control(thing)->active_instance_id;
             struct GuiBoxOption* guop = gui_cheat_box_3->optn_list;
             while (guop->label[0] != '!') {
-              guop->active = (cctrl->active_instance_id == guop->cb_param1);
+              guop->active = (active_inst_id == guop->cb_param1);
               guop++;
             }
         }
