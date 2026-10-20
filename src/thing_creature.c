@@ -3806,6 +3806,8 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         if (thing_is_invalid(shotng))
           return;
         draw_lightning(&pos1, &pos2, shotst->effect_spacing, shotst->effect_id);
+        shotng->move_angle_xy = angle_xy;
+        shotng->move_angle_z = angle_yz;
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
@@ -3818,6 +3820,8 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
           return;
 
         draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount,shotst->effect_id, shotng->index);
+        shotng->move_angle_xy = angle_xy;
+        shotng->move_angle_z = angle_yz;
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;

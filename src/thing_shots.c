@@ -1218,6 +1218,19 @@ TbBool shot_model_makes_flesh_explosion(long shot_model)
     return ((shotst->model_flags & ShMF_Exploding) != 0);
 }
 
+static void shot_push_velocity(const struct Thing *shotng, const struct ShotConfigStats *shotst, long *vx, long *vy)
+{
+    *vx = shotng->velocity.x.val;
+    *vy = shotng->velocity.y.val;
+    if ((shotst->fire_logic == ShFL_Beam) || (shotst->fire_logic == ShFL_Breathe))
+    {
+        struct ComponentVector cvect;
+        angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->speed, &cvect);
+        *vx = cvect.x;
+        *vy = cvect.y;
+    }
+}
+
 long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     long i;
@@ -1366,13 +1379,16 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
 
     if (creature_is_being_unconscious(trgtng))
     {
+        long veloc_x;
+        long veloc_y;
+        shot_push_velocity(shotng, shotst, &veloc_x, &veloc_y);
         if (push_strength == 0)
             push_strength++;
         if (game.conf.rules[trgtng->owner].gameplay.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
         {
         push_strength *= 5;
-        int move_x = push_strength * shotng->velocity.x.val / 16.0;
-        int move_y = push_strength * shotng->velocity.y.val / 16.0;
+        int move_x = push_strength * veloc_x / 16.0;
+        int move_y = push_strength * veloc_y / 16.0;
 
             trgtng->veloc_push_add.x.val += move_x;
             trgtng->veloc_push_add.y.val += move_y;
@@ -1406,9 +1422,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             else // Normal shots blast unconscious units out of the way
             {
                 push_strength *= 5;
-                i = push_strength * shotng->velocity.x.val;
+                i = push_strength * veloc_x;
                 trgtng->veloc_push_add.x.val += i / 16;
-                i = push_strength * shotng->velocity.y.val;
+                i = push_strength * veloc_y;
                 trgtng->veloc_push_add.y.val += i / 16;
                 trgtng->state_flags |= TF1_PushAdd;
             }

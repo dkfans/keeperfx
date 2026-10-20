@@ -1348,6 +1348,8 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
             if (thing_is_invalid(shotng))
               return;
             draw_lightning(&pos1, &pos2, shotst->effect_spacing, shotst->effect_id);
+            shotng->move_angle_xy = firing->move_angle_xy;
+            shotng->move_angle_z = firing->move_angle_z;
             shotng->health = shotst->health;
             shotng->shot.damage = damage;
             shotng->parent_idx = firing->index;
