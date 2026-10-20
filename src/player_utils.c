@@ -1257,6 +1257,15 @@ void process_player_states(void)
                     set_local_camera_destination(player);
                 }
             }
+            else if (get_player_view_type(player) == PVT_CreatureContrl || get_player_view_type(player) == PVT_CreaturePasngr)
+            {
+                struct Thing* thing = thing_get(player->controlled_thing_idx);
+                if (thing_exists(thing)) {
+                    ustate->dungeon_camera.x = thing->mappos.x.val;
+                    ustate->dungeon_camera.y = thing->mappos.y.val;
+                    ustate->dungeon_camera.yaw[false] = thing->move_angle_xy;
+                }
+            }
         }
     }
 }
