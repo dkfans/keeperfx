@@ -125,8 +125,7 @@ static TbBool update_dig_highlight(const struct Packet *pckt, MapSubtlCoord stl_
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
     TbBool cursor_is_locked = dig_cursor.cursor_button_down && dig_cursor.cursor_locked && ((pckt->control_flags & PCtr_LBtnClick) == 0) && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0);
     if ((cursor_context != CSt_PickAxe) && !cursor_is_locked) {
-        TbBool thing_under_empty_hand = (local_state.local_thing_under_hand != 0) && power_hand_is_empty(player);
-        if ((cursor_context != CSt_PowerHand) || thing_under_empty_hand || !can_dig_here(stl_x, stl_y, my_player_number, true)) {
+        if ((cursor_context != CSt_PowerHand) || power_hand_is_empty(player) || !can_dig_here(stl_x, stl_y, my_player_number, true)) {
             return false;
         }
     }
