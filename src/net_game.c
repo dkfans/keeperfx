@@ -321,6 +321,36 @@ static TbBool verify_startup_sprite_zip_checksums(const struct StartupSyncPacket
 static struct StartupSyncPacket s_local_startup_sync;
 static struct StartupSyncPacket s_startup_sync_packets[MAX_NET_USERS];
 
+static TbBool reject_network_startup(enum NetJoinRejection reason)
+{
+    netstate.leave_reason = reason;
+    create_frontend_error_box(net_join_error_text(reason));
+    return false;
+}
+
+static TbBool startup_peers_accepted(void)
+{
+    for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
+        if (netstate.users_leave_reason[i] != NetJoin_Accepted) {
+            return reject_network_startup(netstate.users_leave_reason[i]);
+        }
+    }
+    return true;
+}
+
+static enum NetJoinRejection spectator_startup_rejection(void)
+{
+    TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
+    calculate_network_startup_map_checksums(checksums);
+    if (memcmp(checksums, s_startup_sync_packets[SERVER_ID].map_checksums, sizeof(checksums)) != 0) {
+        return NetJoin_MapMismatch;
+    }
+    if (memcmp(required_sprite_zip_checksums, s_startup_sync_packets[SERVER_ID].required_sprite_zip_checksums, sizeof(required_sprite_zip_checksums)) != 0) {
+        return NetJoin_FxdataMismatch;
+    }
+    return NetJoin_Accepted;
+}
+
 // the preferences a user sent in the startup sync, for network games
 TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs)
 {
@@ -402,7 +432,11 @@ static TbBool setup_network_player_numbers(const int8_t player_slots[MAX_NET_USE
 static TbBool net_startup_sync_exchange_and_apply(void)
 {
     memset(s_startup_sync_packets, 0, sizeof(s_startup_sync_packets));
-    if (exchange_frame_block(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket)) != Lb_OK) {
+    TbError exchange_result = exchange_frame_block(NETMSG_STARTUP_SYNC, &s_local_startup_sync, s_startup_sync_packets, sizeof(struct StartupSyncPacket));
+    if (!startup_peers_accepted()) {
+        return false;
+    }
+    if (exchange_result != Lb_OK) {
         ERRORLOG("Startup sync exchange failed");
         return false;
     }
@@ -414,13 +448,11 @@ static TbBool net_startup_sync_exchange_and_apply(void)
         }
     }
     if (!verify_map_checksums(s_startup_sync_packets)) {
-        create_frontend_error_box(get_string(GUIStr_NetUnsyncedMap));
-        return false;
+        return reject_network_startup(NetJoin_MapMismatch);
     }
 
     if (!verify_startup_sprite_zip_checksums(s_startup_sync_packets)) {
-        create_frontend_error_box(get_string(GUIStr_NetVerifyFxdataSame));
-        return false;
+        return reject_network_startup(NetJoin_FxdataMismatch);
     }
     const struct StartupSyncPacket *host_sync = &s_startup_sync_packets[SERVER_ID];
     game.input_lag_turns = host_sync->initial_input_lag_turns;
@@ -459,10 +491,9 @@ void setup_count_players(void)
 TbBool init_players_network_game(void)
 {
     if (net_join_role == NetRole_Spectator) {
-        TbBigChecksum checksums[NETWORK_STARTUP_MAP_FILE_COUNT];
-        calculate_network_startup_map_checksums(checksums);
-        if (memcmp(checksums, s_startup_sync_packets[SERVER_ID].map_checksums, sizeof(checksums)) != 0 || memcmp(required_sprite_zip_checksums, s_startup_sync_packets[SERVER_ID].required_sprite_zip_checksums, sizeof(required_sprite_zip_checksums)) != 0) {
-            create_frontend_error_box(get_string(GUIStr_NetUnsyncedMap));
+        enum NetJoinRejection rejection = spectator_startup_rejection();
+        if (rejection != NetJoin_Accepted) {
+            reject_network_startup(rejection);
             LbNetwork_Stop();
             return false;
         }
@@ -480,8 +511,7 @@ TbBool init_players_network_game(void)
         }
         WARNLOG("Required custom sprite zip missing: %s", required_sprite_zips[zip_idx]);
         message_add_fmt(MsgType_Blank, 0, "/fxdata/%.30s missing", required_sprite_zips[zip_idx]);
-        create_frontend_error_box(get_string(GUIStr_NetVerifyFxdataSame));
-        initialized = false;
+        initialized = reject_network_startup(NetJoin_FxdataMismatch);
         break;
     }
     if (initialized) {

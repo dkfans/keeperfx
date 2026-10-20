@@ -1293,7 +1293,7 @@ void process_user_creature_control_packet_control(NetUserId user)
     struct Thing* cctng = thing_get(player->controlled_thing_idx);
     struct Packet* pckt = get_packet(user);
     struct CreatureControl* ccctrl = creature_control_get_from_thing(cctng);
-    ThingIndex target_idx;
+    ThingIndex target_idx = 0;
     if (can_process_creature_input(cctng))
     {
         long speed_limit = get_creature_speed(cctng);
