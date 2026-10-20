@@ -1125,7 +1125,7 @@ static TbBool get_level_lost_inputs(void)
         {
           if ( (ustate->work_state == PSt_CreatrInfo) || (ustate->work_state == PSt_CreatrInfoAll) )
           {
-              set_player_instance(player, PI_UnqueryCrtr, 0);
+              set_user_instance(get_local_user(), PI_UnqueryCrtr, 0);
           } else
           {
               int mm_units_per_px;
@@ -2654,9 +2654,9 @@ static TbBool get_observer_camera_click_inputs(void)
     struct PlayerInfo *player = get_my_player();
     if (mouse_is_over_watched_player_name()) {
         if (right_button_released) {
-            observer_cycle_player(-1);
+            observer_cycle_user(-1);
         } else {
-            observer_cycle_player(1);
+            observer_cycle_user(1);
         }
     } else if (!observer_query_input()) {
         if (get_local_view_type(player) == PVT_MapScreen && left_button_released) {
@@ -2693,7 +2693,7 @@ static short get_observer_inputs(void)
         return true;
     }
     if (!a_menu_window_is_active() && is_game_key_pressed(Gkey_FinishLevel, true, false)) {
-        observer_cycle_player(1);
+        observer_cycle_user(1);
         return true;
     }
     if (!a_menu_window_is_active() && !game_is_busy_doing_gui_string_input() && observer_camera_input_pressed()) {

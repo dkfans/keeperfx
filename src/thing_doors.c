@@ -804,7 +804,7 @@ void script_place_door(PlayerNumber plyridx, ThingModel doorkind, MapSlabCoord s
     MapSubtlCoord stl_y = slab_subtile_center(slb_y);
     TbBool success;
 
-    if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y))
+    if (tag_cursor_blocks_place_door(plyridx, -1, stl_x, stl_y))
     {
         if (!free)
         {

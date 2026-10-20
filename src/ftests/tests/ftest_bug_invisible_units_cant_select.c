@@ -157,9 +157,9 @@ FTestActionResult ftest_bug_invisible_units_cant_select_action002__zoom_to_unit_
 
     //center cursor on screen and move the camera using PI_ZoomToPos
     ftest_util_center_cursor_over_dungeon_view();
-    player->zoom_to_pos_x = vars->unit->mappos.x.val;
-    player->zoom_to_pos_y = vars->unit->mappos.y.val;
-    set_player_instance(player, PI_ZoomToPos, 0);
+    get_player_user_state(player)->zoom_to_pos_x = vars->unit->mappos.x.val;
+    get_player_user_state(player)->zoom_to_pos_y = vars->unit->mappos.y.val;
+    set_user_instance(get_player_primary_user(player), PI_ZoomToPos, 0);
 
     // slap the creature so the cursor counts as overtop during PI_ZoomToPos, which causes the invisibility bug
     game_action(PLAYER0, GA_UsePwrSlap, 0, 0, 0, vars->unit->index, 0);

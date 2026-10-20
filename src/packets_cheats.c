@@ -83,7 +83,7 @@ TbBool packets_process_cheats(
     {
         case PSt_MkDigger:
         ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-        allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
+        allowed = tag_cursor_blocks_place_thing(user, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         targeted_message_add(MsgType_Player, ustate->cheatselection.chosen_player, plyr_idx, 1, "%d", ustate->cheatselection.chosen_experience_level + 1);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -101,7 +101,7 @@ TbBool packets_process_cheats(
         break;
         case PSt_MkGoodCreatr:
         ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-        allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
+        allowed = tag_cursor_blocks_place_thing(user, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         if (ustate->cheatselection.chosen_hero_kind == 0)
         {
@@ -157,7 +157,7 @@ TbBool packets_process_cheats(
         break;
         case PSt_MkGoldPot:
         ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-        allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
+        allowed = tag_cursor_blocks_place_thing(user, stl_x, stl_y);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (allowed)
@@ -196,7 +196,7 @@ TbBool packets_process_cheats(
         if (thing_is_creature(thing))
         {
             ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-            allowed = tag_cursor_blocks_order_creature(plyr_idx, stl_x, stl_y, thing);
+            allowed = tag_cursor_blocks_order_creature(user, stl_x, stl_y, thing);
         }
         else
         {
@@ -249,7 +249,7 @@ TbBool packets_process_cheats(
         break;
         case PSt_MkBadCreatr:
         ustate->render_roomspace = create_box_roomspace(ustate->render_roomspace, 1, 1, slb_x, slb_y);
-        allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
+        allowed = tag_cursor_blocks_place_thing(user, stl_x, stl_y);
         clear_messages_from_player(MsgType_Player, ustate->cheatselection.chosen_player);
         if (ustate->cheatselection.chosen_creature_kind == 0)
         {
@@ -301,7 +301,7 @@ TbBool packets_process_cheats(
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
                 pwkind = ustate->chosen_power_kind;
-                i = get_power_overcharge_level(player);
+                i = get_power_overcharge_level(user);
                 magic_use_power_direct(plyr_idx,pwkind,i,stl_x, stl_y,INVALID_THING, PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
@@ -319,7 +319,7 @@ TbBool packets_process_cheats(
             ustate->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                KeepPwrLevel power_level = get_power_overcharge_level(player);
+                KeepPwrLevel power_level = get_power_overcharge_level(user);
                 magic_use_power_direct(plyr_idx,pwkind,power_level,stl_x,stl_y,thing,PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
@@ -570,7 +570,7 @@ TbBool packets_process_cheats(
                     {
                         if (player->controlled_thing_idx != ustate->thing_under_hand)
                         {
-                            query_creature(player, ustate->thing_under_hand, true, false);
+                            query_creature(user, ustate->thing_under_hand, true, false);
                         }
                     }
                     query_thing(thing);
@@ -591,12 +591,12 @@ TbBool packets_process_cheats(
                         turn_off_query_menus();
                         turn_on_main_panel_menu();
                     }
-                    set_player_instance(player, PI_UnqueryCrtr, 0);
+                    set_user_instance(user, PI_UnqueryCrtr, 0);
                     unset_packet_control(pckt, PCtr_RBtnRelease);
                 } else
                 if (creature_is_dying(thing))
                 {
-                    set_player_instance(player, PI_UnqueryCrtr, 0);
+                    set_user_instance(user, PI_UnqueryCrtr, 0);
                     if (is_my_player(player))
                     {
                         turn_off_query_menus();

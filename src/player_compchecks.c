@@ -1057,7 +1057,7 @@ static TbBool find_place_to_put_door_around_room(const struct Room *room, struct
                 i = 0;
                 break;
             }
-            if (tag_cursor_blocks_place_door(room->owner, slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
+            if (tag_cursor_blocks_place_door(room->owner, -1, slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
                 break;
             }
             if (!subtile_has_door_thing_on(slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {

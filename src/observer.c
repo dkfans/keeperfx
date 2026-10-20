@@ -61,6 +61,7 @@ struct UserState local_observer_user_state;
 TbBool local_observer_rendering;
 
 static TbBool observer_initialized;
+static NetUserId observed_user = -1;
 static int32_t observer_view_mode = -1;
 static struct ObserverCursor observer_cursors[MAX_NET_USERS];
 static struct ObserverCursor observer_previous_cursors[MAX_NET_USERS];
@@ -80,9 +81,15 @@ TbBool observer_is_active(void)
     return replay.load_enable && observer_initialized;
 }
 
+TbBool observer_is_following_user(void)
+{
+    return observer_is_active() && !is_observer_camera_active();
+}
+
 void observer_reset(void)
 {
     observer_initialized = false;
+    observed_user = -1;
     observer_view_mode = -1;
     local_observer_rendering = false;
     observer_cursor_visible = false;
@@ -206,13 +213,20 @@ static PlayerNumber position_observer_camera_at_starting_dungeon(PlayerNumber fa
     return plyr_idx;
 }
 
+NetUserId observer_get_watched_user(void)
+{
+    if (get_net_user_player_number(observed_user) == my_player_number) {
+        return observed_user;
+    }
+    return get_player_primary_user(get_player(my_player_number));
+}
+
 static const struct ObserverCursor *observer_get_view_cursor(void)
 {
     if (!observer_is_active() || is_observer_camera_active()) {
         return NULL;
     }
-    const struct PlayerInfo *player = get_player(my_player_number);
-    NetUserId user = get_player_primary_user(player);
+    NetUserId user = observer_get_watched_user();
     if (user < 0 || user >= MAX_NET_USERS) {
         return NULL;
     }
@@ -376,7 +390,7 @@ void observer_update_cursor(void)
 
 TbBool gameplay_cursor_is_over_gui(void)
 {
-    if (get_displayed_player() == get_my_player()) {
+    if (!observer_is_following_user()) {
         return game_is_busy_doing_gui();
     }
     const struct Packet *pckt = observer_get_view_packet();
@@ -387,7 +401,7 @@ TbBool gameplay_cursor_is_over_gui(void)
 
 TbBool get_gameplay_cursor_position(int32_t *screen_x, int32_t *screen_y)
 {
-    if (get_displayed_player() == get_my_player()) {
+    if (!observer_is_following_user()) {
         *screen_x = GetMouseX();
         *screen_y = GetMouseY();
         return true;
@@ -412,7 +426,7 @@ void observer_update_view(void)
     game.creatures_tend_flee = (dungeon->creature_tendencies & CrTend_Flee) != 0;
     unsigned char view_type = local_state.observer_camera_view_type;
     if (!is_observer_camera_active()) {
-        const struct UserState *ustate = get_player_user_state(player);
+        const struct UserState *ustate = get_user_state(observer_get_watched_user());
         if (user_state_invalid(ustate)) {
             return;
         }
@@ -473,16 +487,17 @@ static void observer_clear_query(unsigned char state)
     if (local_state.show_gui) {
         turn_on_main_panel_menu();
     }
-    local_observer_player.instance_num = PI_Unset;
+    local_observer_user_state.instance_num = PI_Unset;
     set_user_work_state(OBSERVER_USER, state, 0);
     clear_selected_thing(&local_observer_player);
 }
 
-static void observer_select_player(PlayerNumber plyr_idx)
+static void observer_select_user(NetUserId user, PlayerNumber plyr_idx)
 {
     clear_messages();
     observer_clear_query(PSt_CtrlDungeon);
     local_state.local_thing_under_hand = 0;
+    observed_user = user;
     my_player_number = plyr_idx;
     local_observer_player.id_number = plyr_idx;
     update_gui_button_player_colors();
@@ -495,8 +510,8 @@ static void observer_select_player(PlayerNumber plyr_idx)
 static void observer_query_creature(ThingIndex index, TbBool reset, TbBool zoom)
 {
     enter_observer_camera();
-    query_creature(&local_observer_player, index, reset, zoom);
-    process_player_instance(&local_observer_player);
+    query_creature(OBSERVER_USER, index, reset, zoom);
+    process_user_instance(OBSERVER_USER);
 }
 
 TbBool observer_process_packet_action(const struct Packet *pckt)
@@ -534,7 +549,7 @@ void observer_update_query(void)
             }
         }
     } else {
-        local_state.local_thing_under_hand = get_player_user_state(get_displayed_player())->thing_under_hand;
+        local_state.local_thing_under_hand = get_user_state(get_displayed_user())->thing_under_hand;
         if (LbTimerClock() - observer_mouse_move_time > OBSERVER_OWN_CURSOR_HIDE_TIME) {
             return;
         }
@@ -606,18 +621,26 @@ void observer_init(PlayerNumber camera_player_number)
         watched_player = position_observer_camera_at_starting_dungeon(watched_player, starting_players);
     }
     observer_initialized = true;
-    observer_select_player(watched_player);
+    observer_select_user(get_player_primary_user(get_player(watched_player)), watched_player);
     set_gui_visible(false);
     local_state.show_panel = false;
 }
 
 /**
- * Switches the player displayed while watching a game and returns to the player camera.
+ * Switches the user displayed while watching a game and returns to the player camera.
  */
-void observer_cycle_player(int step)
+void observer_cycle_user(int step)
 {
-    for (int i = 1; i < PLAYERS_COUNT; i++) {
-        const PlayerNumber plyr_idx = (my_player_number + step * i + PLAYERS_COUNT) % PLAYERS_COUNT;
+    NetUserId current = observer_get_watched_user();
+    if (current < 0) {
+        current = 0;
+    }
+    for (int i = 1; i < MAX_NET_USERS; i++) {
+        const NetUserId user = (current + step * i + MAX_NET_USERS) % MAX_NET_USERS;
+        const PlayerNumber plyr_idx = get_net_user_player_number(user);
+        if (plyr_idx < 0 || plyr_idx >= PLAYERS_COUNT) {
+            continue;
+        }
         if (replay.load_enable) {
             if (!flag_is_set(replay.head.players_exist, to_flag(plyr_idx))
              || flag_is_set(replay.head.players_comp, to_flag(plyr_idx))) {
@@ -629,7 +652,7 @@ void observer_cycle_player(int step)
                 continue;
             }
         }
-        observer_select_player(plyr_idx);
+        observer_select_user(user, plyr_idx);
         return;
     }
 }

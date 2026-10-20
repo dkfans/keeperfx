@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "net_main.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,9 +65,9 @@ TbBool player_uses_power_obey(PlayerNumber plyr_idx);
 
 TbBool player_uses_power_hold_audience(PlayerNumber plyr_idx);
 
-unsigned char general_expand_check(const struct PlayerInfo *player);
-unsigned char sight_of_evil_expand_check(const struct PlayerInfo *player);
-unsigned char call_to_arms_expand_check(const struct PlayerInfo *player);
+unsigned char general_expand_check(NetUserId user);
+unsigned char sight_of_evil_expand_check(NetUserId user);
+unsigned char call_to_arms_expand_check(NetUserId user);
 /******************************************************************************/
 #ifdef __cplusplus
 }

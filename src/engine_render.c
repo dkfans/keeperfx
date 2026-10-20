@@ -2733,7 +2733,7 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct UserState* ustate = get_local_user_state();
+    struct UserState* ustate = get_user_state(get_displayed_user());
     const struct RoomSpace *render_roomspace = get_dig_prediction_render_roomspace(&ustate->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
@@ -4914,8 +4914,7 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
-    const struct PlayerInfo *player = get_displayed_player();
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     struct ObjectConfigStats* objst;
     struct Thing *thing = jspr->thing;
     unsigned short animation_sprite;
@@ -8022,7 +8021,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     unsigned short flg_mem;
     unsigned char alpha_mem;
     const struct PlayerInfo *player = get_displayed_player();
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     struct Thing *thing = jspr->thing;
     unsigned short animation_sprite;
     unsigned char current_frame;
@@ -8733,7 +8732,7 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct UserState* ustate = get_local_user_state();
+    struct UserState* ustate = get_user_state(get_displayed_user());
     const struct RoomSpace *render_roomspace = get_dig_prediction_render_roomspace(&ustate->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
@@ -8766,7 +8765,7 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
 
 TbBool cursor_on_room(RoomIndex room_index)
 {
-    const struct UserState *ustate = get_player_user_state(get_displayed_player());
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     struct SlabMap* slb = get_slabmap_for_subtile(ustate->cursor_subtile_x, ustate->cursor_subtile_y);
     if (slabmap_block_invalid(slb)) {
         return false;
@@ -8786,7 +8785,7 @@ TbBool room_is_damaged(RoomIndex room_index)
 }
 TbBool placing_same_room_type(RoomIndex room_index)
 {
-    const struct UserState *ustate = get_player_user_state(get_displayed_player());
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     if (map_volume_box.visible == 0) {
         return false;
     }

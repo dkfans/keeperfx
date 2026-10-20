@@ -292,6 +292,7 @@ long PaletteFadePlayer(const struct PlayerInfo *player)
 {
     if (player != get_displayed_player())
         return 0;
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     long i;
     // Find the fade step
     if ((local_state.palette_fade_step_pain != 0) && (local_state.palette_fade_step_possession != 0))
@@ -315,10 +316,10 @@ long PaletteFadePlayer(const struct PlayerInfo *player)
   // Update the fade step
   if (local_state.palette_fade_step_pain > 0)
     local_state.palette_fade_step_pain--;
-  if ((local_state.palette_fade_step_possession == 0) || (player->instance_num == PI_UnusedSlot18) || (player->instance_num == PI_UnusedSlot17))
+  if (local_state.palette_fade_step_possession == 0 || ustate->instance_num == PI_UnusedSlot18 || ustate->instance_num == PI_UnusedSlot17)
   {
   } else
-  if ((player->instance_num == PI_DirctCtrl) || (player->instance_num == PI_PsngrCtrl))
+  if (ustate->instance_num == PI_DirctCtrl || ustate->instance_num == PI_PsngrCtrl)
   {
     if (local_state.palette_fade_step_possession <= 12)
       local_state.palette_fade_step_possession++;

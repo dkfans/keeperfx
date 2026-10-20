@@ -20,6 +20,7 @@
 #define DK_KEEPERFX_H
 
 #include "globals.h"
+#include "net_main.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_filelst.h"
@@ -249,7 +250,7 @@ void lightning_modify_palette(struct Thing *thing);
 
 unsigned long seed_check_random(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
-void turn_off_query(PlayerNumber plyr_idx);
+void turn_off_query(NetUserId user);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(PlayerNumber plyr_idx);
 short lose_level(struct PlayerInfo *player);

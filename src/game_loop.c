@@ -1128,7 +1128,7 @@ void game_loop(void)
           for (int i = 0; i < PLAYERS_COUNT; i++) {
               struct PlayerInfo *player = get_player(i);
               if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_skips_heart_zoom(player)) {
-                  set_player_instance(player, PI_HeartZoom, 0);
+                  set_user_instance(get_player_primary_user(player), PI_HeartZoom, 0);
               }
           }
           if (player_skips_heart_zoom(get_my_player()) && !replay.load_enable) {
