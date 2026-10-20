@@ -2868,6 +2868,15 @@ TbBool get_creature_move_position(struct Thing *thing, struct Coord3d *nxpos, Tb
     return true;
 }
 
+void update_creature_move_distance(const struct Thing *thing, struct CreatureControl *cctrl, const struct Coord3d *prevpos)
+{
+    const int32_t angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
+    cctrl->distance_to_destination = get_2d_distance(prevpos, &thing->mappos);
+    if (get_angle_difference(angle, thing->move_angle_xy) > DEGREES_90) {
+        cctrl->distance_to_destination = -cctrl->distance_to_destination;
+    }
+}
+
 long move_creature(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -2924,19 +2933,7 @@ long move_creature(struct Thing *thing)
         }
         move_thing_in_map(thing, &nxpos);
     }
-    {
-        long angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
-        long dist;
-        if (get_angle_difference(angle, thing->move_angle_xy) <= DEGREES_90)
-        {
-            dist = get_2d_distance(&pvpos, tngpos);
-        }
-        else
-        {
-            dist = -get_2d_distance(&pvpos, tngpos);
-        }
-        cctrl->distance_to_destination = dist;
-    }
+    update_creature_move_distance(thing, cctrl, &pvpos);
     return 1;
 }
 

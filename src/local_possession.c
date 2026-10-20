@@ -21,6 +21,7 @@
 #include "pre_inc.h"
 #include "local_possession.h"
 #include "creature_control.h"
+#include "creature_graphics.h"
 #include "creature_instances.h"
 #include "creature_states.h"
 #include "engine_render.h"
@@ -191,12 +192,15 @@ static TbBool step_possession_prediction(struct PossessionPrediction *pred, cons
     thing->velocity.x.val += cctrl->moveaccel.x.val;
     thing->velocity.y.val += cctrl->moveaccel.y.val;
     thing->velocity.z.val += cctrl->moveaccel.z.val;
+    const struct Coord3d prevpos = thing->mappos;
     struct Coord3d pos;
     if (get_creature_move_position(thing, &pos, false)) {
         thing->mappos = pos;
     }
+    update_creature_move_distance(thing, cctrl, &prevpos);
     slow_down_controlled_creature(cctrl);
     thing->floor_height = get_thing_height_at(thing, &thing->mappos);
+    update_creature_graphic_anim(thing, cctrl);
     memset(&cctrl->moveaccel, 0, sizeof(cctrl->moveaccel));
     clear_flag(cctrl->creature_control_flags, CCFlg_MoveX | CCFlg_MoveY | CCFlg_MoveZ);
     pred->turn++;
@@ -205,6 +209,7 @@ static TbBool step_possession_prediction(struct PossessionPrediction *pred, cons
         return false;
     }
     apply_thing_drag_and_gravity(thing);
+    advance_thing_animation(thing);
     return true;
 }
 

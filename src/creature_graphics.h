@@ -61,6 +61,7 @@ enum CreatureGraphicsInstances {
 #pragma pack(1)
 
 struct Thing;
+struct CreatureControl;
 
 /**
  * Enhanced TbSprite structure, with additional fields for thing animation sprites.
@@ -123,6 +124,7 @@ int32_t get_creature_anim(struct Thing *thing, unsigned short frame);
 int32_t get_creature_model_graphics(long crmodel, unsigned short frame);
 void set_creature_model_graphics(long crmodel, unsigned short frame, unsigned long val);
 void set_creature_graphic(struct Thing *thing);
+void update_creature_graphic_anim(struct Thing *thing, const struct CreatureControl *cctrl);
 void update_creature_rendering_flags(struct Thing *thing);
 
 size_t creature_table_load_get_size(size_t disk_size);

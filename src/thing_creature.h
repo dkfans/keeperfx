@@ -80,6 +80,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
 TbBool creature_count_below_map_limit(TbBool temp_creature);
 long move_creature(struct Thing *thing);
 TbBool get_creature_move_position(struct Thing *thing, struct Coord3d *nxpos, TbBool collide_with_doors);
+void update_creature_move_distance(const struct Thing *thing, struct CreatureControl *cctrl, const struct Coord3d *prevpos);
 TbBool update_controlled_creature_movement(const struct Thing *thing, struct CreatureControl *cctrl);
 void slow_down_controlled_creature(struct CreatureControl *cctrl);
 struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
