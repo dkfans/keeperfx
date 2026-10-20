@@ -161,6 +161,18 @@ enum InstancePropertiesFlags {
     InstPF_NeedsTarget        = 0x0800,
 };
 
+enum InstancePrimaryTargets {
+    InstPT_None = 0,
+    InstPT_CreaturesAndHearts,
+    InstPT_Creatures,
+    InstPT_NotOwnCreaturesAndHearts,
+    InstPT_NotOwnCreatures,
+    InstPT_OwnCreaturesAndHearts,
+    InstPT_OwnCreatures,
+    InstPT_CreaturesHeartsAndTraps,
+    InstPT_Anything,
+};
+
 enum CreatureDeathKind {
     Death_Unset = 0,
     Death_Normal,

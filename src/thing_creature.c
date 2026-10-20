@@ -3976,21 +3976,21 @@ static TbBool thing_is_possession_target(const struct Thing *caster, struct Thin
     const TbBool conscious_creature = thing_is_creature(target) && !creature_is_being_unconscious(target);
     const TbBool creature_or_heart = conscious_creature || thing_is_dungeon_heart(target);
     switch (primary_target) {
-    case 1:
+    case InstPT_CreaturesAndHearts:
         return creature_or_heart;
-    case 2:
+    case InstPT_Creatures:
         return conscious_creature;
-    case 3:
+    case InstPT_NotOwnCreaturesAndHearts:
         return creature_or_heart && (target->owner != caster->owner);
-    case 4:
+    case InstPT_NotOwnCreatures:
         return conscious_creature && (target->owner != caster->owner);
-    case 5:
+    case InstPT_OwnCreaturesAndHearts:
         return creature_or_heart && (target->owner == caster->owner);
-    case 6:
+    case InstPT_OwnCreatures:
         return conscious_creature && (target->owner == caster->owner);
-    case 7:
+    case InstPT_CreaturesHeartsAndTraps:
         return creature_or_heart || thing_is_deployed_trap(target);
-    case 8:
+    case InstPT_Anything:
         return true;
     default:
         ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
@@ -4061,12 +4061,9 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
             return thing->index;
         }
     }
-    if((inst_inf->instance_property_flags & InstPF_RangedBuff) != 0)
-    {
-        if(inst_inf->primary_target != 5 && inst_inf->primary_target != 6)
-        {
-            ERRORLOG("The instance %d has RANGED_BUFF property but has no valid primary target.", inst_id);
-        }
+    if (flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff)
+     && (inst_inf->primary_target != InstPT_OwnCreaturesAndHearts) && (inst_inf->primary_target != InstPT_OwnCreatures)) {
+        ERRORLOG("The instance %d has RANGED_BUFF property but has no valid primary target.", inst_id);
     }
 
     int32_t yaw = thing->move_angle_xy;
