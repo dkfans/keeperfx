@@ -38,6 +38,8 @@
 #include "frontend.h"
 #include "gui_parchment.h"
 #include "player_instances.h"
+#include "local_possession.h"
+#include "creature_control.h"
 #include "bflib_datetm.h"
 
 #include <math.h>
@@ -203,7 +205,7 @@ static void update_first_person_camera(struct Camera *cam, const struct PlayerIn
         return;
     }
     int eye_height = get_creature_eye_height(ctrltng);
-    update_first_person_position(cam, ctrltng, eye_height);
+    update_first_person_position(cam, ctrltng, creature_control_get_from_thing(ctrltng), eye_height);
     cam->rotation_angle_x = ctrltng->move_angle_xy;
     cam->rotation_angle_y = ctrltng->move_angle_z;
     if (snap) {
@@ -336,11 +338,6 @@ static void process_local_camera_rotation(struct Camera *cam, TbBool has_pivot, 
     }
 }
 
-static TbBool local_first_person_look_frozen(struct Thing *ctrltng)
-{
-    return flag_is_set(game.operation_flags, GOF_Paused) || !can_process_creature_input(ctrltng);
-}
-
 // applies mouse to local first-person camera
 void look_local_first_person_camera(struct Thing *ctrltng, int32_t turn_x, int32_t turn_y, int32_t *yaw, int32_t *pitch)
 {
@@ -350,9 +347,10 @@ void look_local_first_person_camera(struct Thing *ctrltng, int32_t turn_x, int32
         *pitch = cam->rotation_angle_y;
         return;
     }
-    if (!local_state.camera.ready || local_first_person_look_frozen(ctrltng)) {
-        *yaw = ctrltng->move_angle_xy;
-        *pitch = ctrltng->move_angle_z;
+    if (!local_state.camera.ready || local_possession_look_frozen(ctrltng)) {
+        const struct Thing *viewtng = get_local_possession_view(ctrltng);
+        *yaw = viewtng->move_angle_xy;
+        *pitch = viewtng->move_angle_z;
         return;
     }
     process_first_person_look(ctrltng, turn_x, turn_y, cam->rotation_angle_x, cam->rotation_angle_y,
@@ -363,7 +361,7 @@ void look_local_first_person_camera(struct Thing *ctrltng, int32_t turn_x, int32
 }
 
 // when not canonically able to adjust camera (e.g. frozen),
-// rotate camera quickly (but smoothly) back to canonical facing
+// rotate camera quickly (but smoothly) back to the facing the creature will have
 static void snap_back_first_person_look(struct Camera *cam, const struct Thing *ctrltng)
 {
     const int32_t delta_yaw = get_angle_signed_difference(cam->rotation_angle_x, ctrltng->move_angle_xy);
@@ -375,8 +373,9 @@ static void snap_back_first_person_look(struct Camera *cam, const struct Thing *
 static void update_local_first_person_camera(struct Thing *ctrltng)
 {
     struct Camera* cam = &local_state.camera.destination[CamIV_FirstPerson];
+    struct Thing *viewtng = get_local_possession_view(ctrltng);
     int eye_height = get_creature_eye_height(ctrltng);
-    update_first_person_position(cam, ctrltng, eye_height);
+    update_first_person_position(cam, viewtng, get_local_creature_control(ctrltng), eye_height);
 
     // A replay shows the recorded look as the creature took it.
     if (replay.load_enable)
@@ -386,10 +385,10 @@ static void update_local_first_person_camera(struct Thing *ctrltng)
         cam->rotation_angle_y = ctrltng->move_angle_z;
         return;
     }
-    if (local_first_person_look_frozen(ctrltng))
+    if (local_possession_look_frozen(ctrltng))
     {
         local_state.camera.first_person_look_pending = false;
-        snap_back_first_person_look(cam, ctrltng);
+        snap_back_first_person_look(cam, viewtng);
         return;
     }
     if (!local_state.camera.first_person_look_pending) {
@@ -492,7 +491,6 @@ void update_local_cameras(void)
     apply_local_camera_rotation();
 
     if (active_cam_idx == CamIV_FirstPerson && thing_exists(ctrltng)) {
-        update_local_first_person_camera(ctrltng);
         return;
     }
     if (pckt == NULL) {
@@ -538,6 +536,17 @@ void update_local_cameras(void)
             local_state.camera.destination_deviation_y += (-(dungeon->camera_deviate_jump * LbCosL(angle) >> 8) >> 8);
         }
     }
+}
+
+void update_local_first_person_view(void)
+{
+    struct PlayerInfo *player = get_my_player();
+    struct Thing *ctrltng = thing_get(player->controlled_thing_idx);
+    if (!local_state.camera.ready || is_observer_camera_active() || (player == &local_observer_player)
+     || (get_local_active_camera_index(player) != CamIV_FirstPerson) || !thing_exists(ctrltng)) {
+        return;
+    }
+    update_local_first_person_camera(ctrltng);
 }
 
 static void interpolate_camera_deviations(void)

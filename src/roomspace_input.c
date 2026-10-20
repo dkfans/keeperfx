@@ -14,6 +14,7 @@
 #include "engine_render.h"
 #include "frontmenu_ingame_evnt.h"
 #include "player_data.h"
+#include "power_hand.h"
 #include "slab_data.h"
 #include "tasks_list.h"
 #include "packets.h"
@@ -120,10 +121,11 @@ TbBool local_cursor_is_locked(void)
 static TbBool update_dig_highlight(const struct Packet *pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct UserState *ustate = get_local_user_state();
+    struct PlayerInfo *player = get_my_player();
     unsigned char cursor_context = (unsigned char)((pckt->additional_packet_values & PCAdV_ContextMask) >> 1);
     TbBool cursor_is_locked = dig_cursor.cursor_button_down && dig_cursor.cursor_locked && ((pckt->control_flags & PCtr_LBtnClick) == 0) && ((pckt->control_flags & (PCtr_LBtnHeld | PCtr_LBtnRelease)) != 0);
     if ((cursor_context != CSt_PickAxe) && !cursor_is_locked) {
-        if ((cursor_context != CSt_PowerHand) || !can_dig_here(stl_x, stl_y, my_player_number, true)) {
+        if ((cursor_context != CSt_PowerHand) || power_hand_is_empty(player) || !can_dig_here(stl_x, stl_y, my_player_number, true)) {
             return false;
         }
     }
@@ -137,7 +139,6 @@ static TbBool update_dig_highlight(const struct Packet *pckt, MapSubtlCoord stl_
         ustate->render_roomspace.drag_start_y = dig_cursor.drag_start_slb_y;
         ustate->render_roomspace.untag_mode = dig_cursor.untag_mode;
     }
-    struct PlayerInfo *player = get_my_player();
     get_dungeon_highlight_user_roomspace(&ustate->render_roomspace, player, get_local_user(), pckt, stl_x, stl_y, &dig_tags);
     tag_cursor_blocks_dig(player, get_local_user(), pckt, &ustate->render_roomspace, stl_x, stl_y, true);
     return true;

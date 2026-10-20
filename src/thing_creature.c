@@ -58,6 +58,7 @@
 #include "engine_arrays.h"
 #include "engine_lenses.h"
 #include "local_camera.h"
+#include "local_possession.h"
 #include "engine_redraw.h"
 #include "front_input.h"
 #include "front_simple.h"
@@ -110,6 +111,9 @@
 extern "C" {
 #endif
 
+#define POSSESSION_TARGET_RANGE 20
+#define POSSESSION_TARGET_MAX_ANGLE 39
+#define POSSESSION_TARGET_MAX_DRIFT_ANGLE DEGREES_90
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_MAX];
 struct TbSpriteSheet * swipe_sprites = NULL;
@@ -263,6 +267,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     set_selected_creature(player, thing);
     thing->alloc_flags |= TAlF_IsControlled;
     thing->rendering_flags |= TRF_Invisible;
+    thing->move_angle_z = 0;
     if (!chicken)
     {
         set_start_state(thing);
@@ -381,7 +386,7 @@ void draw_swipe_graphic(void)
     const struct PlayerInfo *myplyr = get_displayed_player();
     struct Thing* thing = thing_get(myplyr->controlled_thing_idx);
     if (thing_is_creature(thing)) {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        const struct CreatureControl* cctrl = get_local_creature_control(thing);
         if (instance_draws_possession_swipe(cctrl->instance_id)) {
             if (!load_swipe_graphic_for_creature(thing)) {
                 return;
@@ -2832,6 +2837,37 @@ void update_tunneller_trail(struct Thing *thing)
     cctrl->party.member_pos_stl[0] = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
 }
 
+TbBool get_creature_move_position(struct Thing *thing, struct Coord3d *nxpos, TbBool collide_with_doors)
+{
+    int32_t velo_x = thing->velocity.x.val;
+    int32_t velo_y = thing->velocity.y.val;
+    const int32_t velo_z = thing->velocity.z.val;
+    if (((get_creature_model_flags(thing) & CMF_Fat) != 0) && creature_is_ambulating(thing)
+     && (thing->current_frame > (keepersprite_frames(thing->anim_sprite)/2))) {
+        velo_y = 0;
+        velo_x = 0;
+    }
+    if ((velo_x == 0) && (velo_y == 0) && (velo_z == 0)) {
+        return false;
+    }
+    nxpos->x.val = clamp(velo_x, -MAX_VELOCITY, MAX_VELOCITY) + thing->mappos.x.val;
+    nxpos->y.val = clamp(velo_y, -MAX_VELOCITY, MAX_VELOCITY) + thing->mappos.y.val;
+    nxpos->z.val = clamp(velo_z, -MAX_VELOCITY, MAX_VELOCITY) + thing->mappos.z.val;
+    if (!thing_in_wall_at(thing, nxpos) || creature_can_pass_through_wall_at(thing, nxpos)) {
+        return true;
+    }
+    if (!creature_cannot_move_directly_to(thing, nxpos)) {
+        nxpos->z.val = thing->mappos.z.val;
+        return true;
+    }
+    const int32_t blocked_flags = get_creature_blocked_flags_at(thing, nxpos);
+    if (collide_with_doors && (creature_control_get_from_thing(thing)->collided_door_subtile == 0)) {
+        check_for_door_collision_at(thing, nxpos, blocked_flags);
+    }
+    slide_thing_against_wall_at(thing, nxpos, blocked_flags);
+    return true;
+}
+
 long move_creature(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -2840,9 +2876,6 @@ long move_creature(struct Thing *thing)
     pvpos.x.val = tngpos->x.val;
     pvpos.y.val = tngpos->y.val;
     pvpos.z.val = tngpos->z.val;
-    int velo_x = thing->velocity.x.val;
-    int velo_y = thing->velocity.y.val;
-    int velo_z = thing->velocity.z.val;
     cctrl->creature_control_flags &= ~CCFlg_RepositionedInWall;
     struct Coord3d nxpos;
     if (thing_in_wall_at(thing, &thing->mappos) && !creature_can_pass_through_wall_at(thing, &thing->mappos))
@@ -2855,73 +2888,8 @@ long move_creature(struct Thing *thing)
         }
         cctrl->creature_control_flags |= CCFlg_RepositionedInWall;
     }
-    if ((get_creature_model_flags(thing) & CMF_Fat) != 0)
+    if (get_creature_move_position(thing, &nxpos, true))
     {
-        if (creature_is_ambulating(thing))
-        {
-            if (thing->current_frame > (keepersprite_frames(thing->anim_sprite)/2))
-            {
-                velo_y = 0;
-                velo_x = 0;
-            }
-        }
-    }
-    if ((velo_x != 0) || (velo_y != 0) || (velo_z != 0))
-    {
-        if (velo_x < -256) {
-            velo_x = -256;
-        } else if (velo_x > 256) {
-            velo_x = 256;
-        }
-        if (velo_y < -256) {
-            velo_y = -256;
-        } else if (velo_y > 256) {
-            velo_y = 256;
-        }
-        if (velo_z < -256) {
-            velo_z = -256;
-        } else if (velo_z > 256) {
-            velo_z = 256;
-        }
-        nxpos.x.val = velo_x + tngpos->x.val;
-        nxpos.y.val = velo_y + tngpos->y.val;
-        nxpos.z.val = velo_z + tngpos->z.val;
-        if ((thing->movement_flags & TMvF_Flying) != 0)
-        {
-            if (thing_in_wall_at(thing, &nxpos) && !creature_can_pass_through_wall_at(thing, &nxpos))
-            {
-                if (creature_cannot_move_directly_to(thing, &nxpos))
-                {
-                    long blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
-                    if (cctrl->collided_door_subtile == 0) {
-                        check_for_door_collision_at(thing, &nxpos, blocked_flags);
-                    }
-                    slide_thing_against_wall_at(thing, &nxpos, blocked_flags);
-                }
-                else
-                {
-                    nxpos.z.val = tngpos->z.val;
-                }
-            }
-        }
-        else
-        {
-            if (thing_in_wall_at(thing, &nxpos) && !creature_can_pass_through_wall_at(thing, &nxpos))
-            {
-                if (creature_cannot_move_directly_to(thing, &nxpos))
-                {
-                    long blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
-                    if (cctrl->collided_door_subtile == 0) {
-                        check_for_door_collision_at(thing, &nxpos, blocked_flags);
-                    }
-                    slide_thing_against_wall_at(thing, &nxpos, blocked_flags);
-                }
-                else
-                {
-                    nxpos.z.val = tngpos->z.val;
-                }
-            }
-        }
         if ((cctrl->creature_control_flags & CCFlg_AvoidCreatureCollision) != 0)
         {
             struct Thing* collidtng = get_thing_collided_with_at_satisfying_filter(thing, &nxpos, collide_filter_thing_is_of_type, 5, -1);
@@ -3669,6 +3637,14 @@ static void shot_set_start_pos(const struct Thing *firing, const struct ShotConf
     }
 }
 
+void play_shot_firing_sound(struct Thing *firing, ThingModel shot_model)
+{
+    const struct ShotConfigStats *shotst = get_shot_model_stats(shot_model);
+    if (shotst->firing_sound > 0) {
+        thing_play_sample(firing, shotst->firing_sound + SOUND_RANDOM(shotst->firing_sound_variants), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+    }
+}
+
 void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, CrtrExpLevel shot_level, unsigned char hit_type)
 {
     struct Coord3d pos2;
@@ -3912,10 +3888,8 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
       }
 #endif
       shotng->shot.hit_type = hit_type;
-      if (shotst->firing_sound > 0)
-      {
-        thing_play_sample(firing, shotst->firing_sound + SOUND_RANDOM(shotst->firing_sound_variants),
-            100, 0, 3, 0, 3, FULL_LOUDNESS);
+      if (!local_possession_sounded_shot(firing)) {
+          play_shot_firing_sound(firing, shot_model);
       }
       if (shotst->shot_sound > 0)
       {
@@ -3995,17 +3969,87 @@ short get_creature_eye_height(const struct Thing *creatng)
     return 0;
 }
 
+static TbBool thing_is_possession_target(const struct Thing *caster, struct Thing *target, unsigned char primary_target)
+{
+    if ((target->index == caster->index) || is_non_synchronized_thing_class(target->class_id)) {
+        return false;
+    }
+    const TbBool conscious_creature = thing_is_creature(target) && !creature_is_being_unconscious(target);
+    const TbBool creature_or_heart = conscious_creature || thing_is_dungeon_heart(target);
+    switch (primary_target) {
+    case InstPT_CreaturesAndHearts:
+        return creature_or_heart;
+    case InstPT_Creatures:
+        return conscious_creature;
+    case InstPT_NotOwnCreaturesAndHearts:
+        return creature_or_heart && (target->owner != caster->owner);
+    case InstPT_NotOwnCreatures:
+        return conscious_creature && (target->owner != caster->owner);
+    case InstPT_OwnCreaturesAndHearts:
+        return creature_or_heart && (target->owner == caster->owner);
+    case InstPT_OwnCreatures:
+        return conscious_creature && (target->owner == caster->owner);
+    case InstPT_CreaturesHeartsAndTraps:
+        return creature_or_heart || thing_is_deployed_trap(target);
+    case InstPT_Anything:
+        return true;
+    default:
+        ERRORLOG("Illegal primary target type for shot: %d", (int)primary_target);
+        return false;
+    }
+}
+
+static TbBool possession_target_is_valid(struct Thing *caster, struct Thing *target, unsigned char primary_target, int32_t yaw)
+{
+    if (!thing_exists(target) || thing_is_in_limbo(target) || flag_is_set(target->state_flags, TF1_InCtrldLimbo)
+     || !thing_is_possession_target(caster, target, primary_target)) {
+        return false;
+    }
+    if ((abs(target->mappos.x.stl.num - caster->mappos.x.stl.num) > POSSESSION_TARGET_RANGE)
+     || (abs(target->mappos.y.stl.num - caster->mappos.y.stl.num) > POSSESSION_TARGET_RANGE)) {
+        return false;
+    }
+    const int32_t angle_diff = get_angle_difference(get_angle_xy_to(&caster->mappos, &target->mappos), yaw);
+    return (angle_diff < POSSESSION_TARGET_MAX_DRIFT_ANGLE) && creature_can_see_thing(caster, target);
+}
+
+ThingIndex find_possession_target(struct Thing *caster, CrInstance inst_id, int32_t yaw)
+{
+    const struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
+    const MapSubtlCoord stl_x_lower = max(caster->mappos.x.stl.num - POSSESSION_TARGET_RANGE, 0);
+    const MapSubtlCoord stl_x_upper = min(caster->mappos.x.stl.num + POSSESSION_TARGET_RANGE, game.map_subtiles_x);
+    const MapSubtlCoord stl_y_lower = max(caster->mappos.y.stl.num - POSSESSION_TARGET_RANGE, 0);
+    const MapSubtlCoord stl_y_upper = min(caster->mappos.y.stl.num + POSSESSION_TARGET_RANGE, game.map_subtiles_y);
+    ThingIndex index = 0;
+    int32_t smallest_angle_diff = POSSESSION_TARGET_MAX_ANGLE;
+    for (MapSubtlCoord stl_y = stl_y_lower; stl_y <= stl_y_upper; stl_y++) {
+        for (MapSubtlCoord stl_x = stl_x_lower; stl_x <= stl_x_upper; stl_x++) {
+            struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+            for (struct Thing *target = thing_get(get_mapwho_thing_index(mapblk)); !thing_is_invalid(target); target = thing_get(target->next_on_mapblk)) {
+                if (!thing_is_possession_target(caster, target, inst_inf->primary_target)) {
+                    continue;
+                }
+                const int32_t angle_diff = get_angle_difference(get_angle_xy_to(&caster->mappos, &target->mappos), yaw);
+                if ((angle_diff < smallest_angle_diff) && creature_can_see_thing(caster, target)) {
+                    smallest_angle_diff = angle_diff;
+                    index = target->index;
+                }
+            }
+        }
+    }
+    return index;
+}
+
 /**
  * @brief Get the target of the given instance in the Possession mode.
  *
  * @param thing The Thing object of the caster.
  * @param inst_id The index of the instance be used.
  * @param packet The caster's owner's control's or action's packet. This is optional.
- * @return ThingIndex The index of the target thing.
+ * @return ThingIndex The index of the target thing: the one the player aimed at, if the packet carries it and it can still be hit.
  */
-ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, struct Packet *packet)
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance inst_id, const struct Packet *packet)
 {
-    ThingIndex index = 0;
     struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
 
     if((inst_inf->instance_property_flags & InstPF_SelfBuff) != 0)
@@ -4018,108 +4062,21 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
             return thing->index;
         }
     }
-    if((inst_inf->instance_property_flags & InstPF_RangedBuff) != 0)
-    {
-        if(inst_inf->primary_target != 5 && inst_inf->primary_target != 6)
-        {
-            ERRORLOG("The instance %d has RANGED_BUFF property but has no valid primary target.", inst_id);
-        }
+    if (flag_is_set(inst_inf->instance_property_flags, InstPF_RangedBuff)
+     && (inst_inf->primary_target != InstPT_OwnCreaturesAndHearts) && (inst_inf->primary_target != InstPT_OwnCreatures)) {
+        ERRORLOG("The instance %d has RANGED_BUFF property but has no valid primary target.", inst_id);
     }
 
-    struct Thing *i;
-    long angle_xy_to;
-    long angle_difference;
-    int smallest_angle_diff = INT_MAX;
-    static const int range = 20;
-    static const int max_hit_angle = 39;
-    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
-    MapSubtlCoord stl_x_lower = stl_x - range;
-    MapSubtlCoord stl_x_upper = stl_x + range;
-    if ((stl_x - range) < 0)
-        stl_x_lower = 0;
-    if (stl_x_upper > game.map_subtiles_x)
-        stl_x_upper = game.map_subtiles_x;
-    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
-    MapSubtlCoord stl_y_lower = stl_y - range;
-    MapSubtlCoord stl_y_upper = stl_y + range;
-    if (stl_y + range > game.map_subtiles_y)
-        stl_y_upper = game.map_subtiles_y;
-    if (stl_y_lower < 0)
-        stl_y_lower = 0;
-
-    if (stl_y_upper < stl_y_lower)
-    {
-        return 0;
-    }
-    if (stl_y_upper >= stl_y_lower)
-    {
-        for (MapSubtlDelta y_step = ((stl_y_upper - stl_y_lower) + 1); y_step > 0; y_step--)
-        {
-            MapSubtlCoord x = stl_x_lower;
-            if (x <= stl_x_upper)
-            {
-                for (MapSubtlDelta x_step = ((stl_x_upper - stl_x_lower) + 1); x_step > 0; x_step--)
-                {
-                    struct Map *mapblk = get_map_block_at(x, stl_y_lower);
-                    for (i = thing_get(get_mapwho_thing_index(mapblk));
-                         !thing_is_invalid(i);
-                         i = thing_get(i->next_on_mapblk))
-                    {
-                        if (i != thing)
-                        {
-                            TbBool is_valid_target;
-                            switch (inst_inf->primary_target)
-                            {
-                                case 1:
-                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i));
-                                    break;
-                                case 2:
-                                    is_valid_target = (thing_is_creature(i) && !creature_is_being_unconscious(i));
-                                    break;
-                                case 3:
-                                    is_valid_target = (((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i)) && i->owner != thing->owner);
-                                    break;
-                                case 4:
-                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) && i->owner != thing->owner);
-                                    break;
-                                case 5:
-                                    is_valid_target = (((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i)) && i->owner == thing->owner);
-                                    break;
-                                case 6:
-                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) && i->owner == thing->owner);
-                                    break;
-                                case 7:
-                                    is_valid_target = ((thing_is_creature(i) && !creature_is_being_unconscious(i)) || thing_is_dungeon_heart(i) || thing_is_deployed_trap(i));
-                                    break;
-                                case 8:
-                                    is_valid_target = true;
-                                    break;
-                                default:
-                                    ERRORLOG("Illegal primary target type for shot: %d", (int)inst_inf->primary_target);
-                                    is_valid_target = false;
-                                    break;
-                            }
-                            if (is_valid_target)
-                            {
-                                angle_xy_to = get_angle_xy_to(&thing->mappos, &i->mappos);
-                                angle_difference = get_angle_difference(angle_xy_to, thing->move_angle_xy);
-                                if (angle_difference >= max_hit_angle || !creature_can_see_thing(thing, i))
-                                    angle_difference = INT32_MAX;
-                                if (smallest_angle_diff > angle_difference)
-                                {
-                                    smallest_angle_diff = angle_difference;
-                                    index = i->index;
-                                }
-                            }
-                        }
-                    }
-                    x++;
-                }
-            }
-            stl_y_lower++;
+    int32_t yaw = thing->move_angle_xy;
+    if ((packet != NULL) && (packet_camera_context(packet) == CamIV_FirstPerson)) {
+        yaw = packet->pos_x & ANGLE_MASK;
+        ThingIndex target_idx;
+        if (packet_get_possession_target(packet, &target_idx)
+         && ((target_idx == 0) || possession_target_is_valid(thing, thing_get(target_idx), inst_inf->primary_target, yaw))) {
+            return target_idx;
         }
     }
-    return index;
+    return find_possession_target(thing, inst_id, yaw);
 }
 
 /**
@@ -4130,7 +4087,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
  * @param packet The packet being processed.
  * @return ThingIndex The target's index.
  */
-ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, struct Packet *packet)
+ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, const struct Packet *packet)
 {
     ThingIndex target_idx = get_human_controlled_creature_target(thing, inst_id, packet);
     struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
@@ -4164,18 +4121,41 @@ ThingIndex process_player_use_instance(struct Thing *thing, CrInstance inst_id, 
 
 long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
 {
-    long ritime;
-    const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return creature_instance_has_reset_at(thing, creature_control_get_from_thing(thing), inst_idx, get_gameturn());
+}
+
+TbBool creature_instance_has_reset_at(const struct Thing *thing, const struct CreatureControl *cctrl, CrInstance inst_idx, GameTurn turn)
+{
     const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    long delta = (long)get_gameturn() - (long)cctrl->instance_use_turn[inst_idx];
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
-    {
-        ritime = inst_inf->fp_reset_time + cctrl->inst_total_turns - cctrl->inst_action_turns;
-    } else
-    {
-        ritime = inst_inf->reset_time + cctrl->inst_total_turns - cctrl->inst_action_turns;
+    int32_t ritime = inst_inf->reset_time;
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0) {
+        ritime = inst_inf->fp_reset_time;
     }
-    return (delta >= ritime);
+    ritime += cctrl->inst_total_turns - cctrl->inst_action_turns;
+    return (GameTurnDelta)(turn - cctrl->instance_use_turn[inst_idx]) >= ritime;
+}
+
+TbBool possession_instance_can_start(struct Thing *thing, const struct CreatureControl *cctrl, CrInstance inst_id, GameTurn turn, const struct Packet *pckt, TbBool allow_unavailable)
+{
+    if ((inst_id == CrInst_NULL) || (cctrl->instance_id != CrInst_NULL)) {
+        return false;
+    }
+    if (!cctrl->instance_available[inst_id]) {
+        return allow_unavailable;
+    }
+    if (!creature_instance_has_reset_at(thing, cctrl, inst_id, turn)) {
+        return false;
+    }
+    const TbBool chicken = creature_under_spell_effect(thing, CSAfF_Chicken);
+    const TbBool frozen = creature_under_spell_effect(thing, CSAfF_Freeze);
+    if (!chicken && !frozen) {
+        return true;
+    }
+    const struct InstanceInfo *inst_inf = creature_instance_info_get(inst_id);
+    if ((chicken && !inst_inf->fp_allow_self_cast_when_chicken) || (frozen && !inst_inf->fp_allow_self_cast_while_frozen)) {
+        return false;
+    }
+    return get_human_controlled_creature_target(thing, inst_id, pckt) == thing->index;
 }
 
 /**
@@ -5996,9 +5976,21 @@ void place_bloody_footprint(struct Thing *thing)
     }
 }
 
-TbBool update_controlled_creature_movement(struct Thing *thing)
+void slow_down_controlled_creature(struct CreatureControl *cctrl)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (!flag_is_set(cctrl->creature_control_flags, CCFlg_MoveY)) {
+        cctrl->move_speed /= 2;
+    }
+    if (!flag_is_set(cctrl->creature_control_flags, CCFlg_MoveX)) {
+        cctrl->orthogn_speed /= 2;
+    }
+    if (!flag_is_set(cctrl->creature_control_flags, CCFlg_MoveZ)) {
+        cctrl->vertical_speed /= 2;
+    }
+}
+
+TbBool update_controlled_creature_movement(const struct Thing *thing, struct CreatureControl *cctrl)
+{
     TbBool upd_done = false;
     if ((thing->movement_flags & TMvF_Flying) != 0)
     {
@@ -6093,7 +6085,7 @@ short update_creature_movements(struct Thing *thing)
     {
       if ((thing->alloc_flags & TAlF_IsControlled) != 0)
       {
-          if (update_controlled_creature_movement(thing)) {
+          if (update_controlled_creature_movement(thing, cctrl)) {
               upd_done = 1;
           }
       } else
@@ -6613,18 +6605,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     move_creature(thing);
     if (flag_is_set(thing->alloc_flags, TAlF_IsControlled))
     {
-        if (!flag_is_set(cctrl->creature_control_flags, CCFlg_MoveY))
-        {
-            cctrl->move_speed /= 2;
-        }
-        if (!flag_is_set(cctrl->creature_control_flags, CCFlg_MoveX))
-        {
-            cctrl->orthogn_speed /= 2;
-        }
-        if (!flag_is_set(cctrl->creature_control_flags, CCFlg_MoveZ))
-        {
-            cctrl->vertical_speed /= 2;
-        }
+        slow_down_controlled_creature(cctrl);
     }
     else
     {

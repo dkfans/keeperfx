@@ -219,6 +219,15 @@ void input_lag_observe_host_packet(const struct Packet *packet)
     MULTIPLAYER_LOG("Input lag target synchronized: current=%d target=%d", game.input_lag_turns, input_lag_target);
 }
 
+GameTurn input_lag_first_pending_turn(void)
+{
+    const GameTurn unskipped_turn = get_gameturn() + game.skip_initial_input_turns - game.input_lag_turns;
+    if ((GameTurnDelta)(unskipped_turn - input_lag_processed_turn) > 0) {
+        return unskipped_turn;
+    }
+    return input_lag_processed_turn + 1;
+}
+
 TbBool input_lag_needs_lookahead(void)
 {
     return network_is_active() && (game.operation_flags & GOF_Paused) == 0 && game.skip_initial_input_turns == 0 && input_lag_target < game.input_lag_turns && input_lag_turn_is_droppable(get_gameturn() - game.input_lag_turns);

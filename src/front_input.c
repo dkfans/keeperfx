@@ -75,6 +75,7 @@
 #include "room_data.h"
 #include "map_blocks.h"
 #include "local_camera.h"
+#include "local_possession.h"
 #include "packets.h"
 #include "replay.h"
 #include "replay_rewind.h"
@@ -1602,7 +1603,7 @@ static short get_creature_passenger_action_inputs(void)
 
 static void set_possession_instance(struct PlayerInfo* player, struct Thing* thing, int direction)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    const struct CreatureControl* cctrl = get_local_creature_control(thing);
 
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     int current_pos = 0;
@@ -1973,7 +1974,7 @@ static short get_creature_control_action_inputs(void)
         }
         ustate->thing_under_hand = 0;
         local_state.local_thing_under_hand = 0;
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        const struct CreatureControl* cctrl = get_local_creature_control(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
         {
             if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true))

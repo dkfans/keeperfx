@@ -160,6 +160,7 @@
     <ClCompile Include="src\kfx\lense\PaletteEffect.cpp" />
     <ClCompile Include="src\light_data.c" />
     <ClCompile Include="src\local_camera.c" />
+    <ClCompile Include="src\local_possession.c" />
     <ClCompile Include="src\lua_api.c" />
     <ClCompile Include="src\lua_api_camera.c" />
     <ClCompile Include="src\lua_api_player.c" />
@@ -514,6 +515,7 @@
     <ClInclude Include="src\kfx\lense\PaletteEffect.h" />
     <ClInclude Include="src\light_data.h" />
     <ClInclude Include="src\local_camera.h" />
+    <ClInclude Include="src\local_possession.h" />
     <ClInclude Include="src\lua_api.h" />
     <ClInclude Include="src\lua_base.h" />
     <ClInclude Include="src\lua_cfg_funcs.h" />
