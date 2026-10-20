@@ -36,6 +36,7 @@ struct PlayerInfo;
 void init_local_cameras(struct PlayerInfo *player);
 TbBool update_local_camera_time(void);
 void update_local_cameras(void);
+void update_local_first_person_view(void);
 void interpolate_local_cameras(void);
 void sync_local_camera(struct PlayerInfo *player);
 void sync_local_camera_pose(struct PlayerInfo *player, const struct DungeonCamera *pose);

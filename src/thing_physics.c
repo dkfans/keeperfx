@@ -574,16 +574,18 @@ TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
     return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, flags);
 }
 
+static int thing_collision_radius(const struct Thing *thing)
+{
+    if (thing->class_id == TCls_Creature) {
+        return thing_nav_sizexy(thing) / 2;
+    }
+    return thing->clipbox_size_xy / 2;
+}
+
 long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
 {
     SYNCDBG(18,"Starting");
-    int i;
-    if (thing_is_creature(thing)) {
-        i = thing_nav_sizexy(thing);
-    } else {
-        i = thing->clipbox_size_xy;
-    }
-    int radius = i >> 1;
+    int radius = thing_collision_radius(thing);
 
     return get_thing_height_at_with_radius(thing, pos, radius);
 
@@ -630,13 +632,7 @@ TbBool creature_can_pass_through_wall_at(const struct Thing *creatng, const stru
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     if (crconf->can_go_locked_doors)
     {
-        long i;
-        if (thing_is_creature(creatng)) {
-            i = thing_nav_sizexy(creatng);
-        } else {
-            i = creatng->clipbox_size_xy;
-        }
-        int radius = i / 2;
+        int radius = thing_collision_radius(creatng);
         // Base on the radius, determine bounds of the object
         MapCoord height_beg = pos->z.val;
         MapCoord height_end = height_beg + creatng->clipbox_size_z;
@@ -664,13 +660,7 @@ TbBool creature_can_pass_through_wall_at(const struct Thing *creatng, const stru
 
 long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-    long i;
-    if (thing_is_creature(thing)) {
-        i = thing_nav_sizexy(thing);
-    } else {
-        i = thing->clipbox_size_xy;
-    }
-    int radius = i / 2;
+    int radius = thing_collision_radius(thing);
     // Base on the radius, determine bounds of the object
     MapCoord height_beg = pos->z.val;
     MapCoord height_end = height_beg + thing->clipbox_size_z;
@@ -714,13 +704,7 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
 
 long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-    long i;
-    if (thing_is_creature(thing)) {
-        i = thing_nav_sizexy(thing);
-    } else {
-        i = thing->clipbox_size_xy;
-    }
-    int radius = i / 2;
+    int radius = thing_collision_radius(thing);
     // Get range of coords under thing
     MapCoord pos_x_beg = (pos->x.val - radius);
     if (pos_x_beg < 0)
@@ -744,13 +728,7 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
 
 long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-    long i;
-    if (thing_is_creature(thing)) {
-        i = thing_nav_sizexy(thing);
-    } else {
-        i = thing->clipbox_size_xy;
-    }
-    int radius = i / 2;
+    int radius = thing_collision_radius(thing);
     int pos_x_beg = (int)pos->x.val - radius;
     if (pos_x_beg < 0)
         pos_x_beg = 0;
@@ -777,13 +755,7 @@ long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct C
 void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor)
 {
-    long i;
-    if (thing_is_creature(thing)) {
-        i = thing_nav_sizexy(thing);
-    } else {
-        i = thing->clipbox_size_xy;
-    }
-    int radius = i / 2;
+    int radius = thing_collision_radius(thing);
     // Get range of coords under thing
     MapCoord pos_x_beg = (pos->x.val - radius);
     if (pos_x_beg < 0)
@@ -812,6 +784,70 @@ void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVec
     thing->veloc_push_once.y.val += veloc->y;
     thing->veloc_push_once.z.val += veloc->z;
     thing->state_flags |= TF1_PushOnce;
+}
+
+void apply_thing_pushes_to_velocity(struct Thing *thing)
+{
+    if ((thing->state_flags & TF1_PushAdd) != 0) {
+        thing->veloc_base.x.val += thing->veloc_push_add.x.val;
+        thing->veloc_base.y.val += thing->veloc_push_add.y.val;
+        thing->veloc_base.z.val += thing->veloc_push_add.z.val;
+        thing->veloc_push_add.x.val = 0;
+        thing->veloc_push_add.y.val = 0;
+        thing->veloc_push_add.z.val = 0;
+        thing->state_flags &= ~TF1_PushAdd;
+    }
+    thing->velocity.x.val = thing->veloc_base.x.val;
+    thing->velocity.y.val = thing->veloc_base.y.val;
+    thing->velocity.z.val = thing->veloc_base.z.val;
+    if ((thing->state_flags & TF1_PushOnce) != 0) {
+        thing->velocity.x.val += thing->veloc_push_once.x.val;
+        thing->velocity.y.val += thing->veloc_push_once.y.val;
+        thing->velocity.z.val += thing->veloc_push_once.z.val;
+        thing->veloc_push_once.x.val = 0;
+        thing->veloc_push_once.y.val = 0;
+        thing->veloc_push_once.z.val = 0;
+        thing->state_flags &= ~TF1_PushOnce;
+    }
+}
+
+void apply_thing_drag_and_gravity(struct Thing *thing)
+{
+    if ((thing->mappos.z.val > thing->floor_height) || !thing_can_traverse_abyss_at(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+        if (thing->veloc_base.x.val != 0) {
+            thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
+        }
+        if (thing->veloc_base.y.val != 0) {
+            thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
+        }
+        if ((thing->movement_flags & TMvF_Flying) == 0) {
+            thing->veloc_push_add.z.val -= thing->fall_acceleration;
+            thing->state_flags |= TF1_PushAdd;
+        } else if (thing->veloc_base.z.val != 0) {
+            // For flying creatures, the Z velocity should also decrease over time
+            thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - thing->inertia_air) / 256;
+        } else if (thing_above_flight_altitude(thing) && ((thing->alloc_flags & TAlF_IsControlled) == 0)) {
+            thing->veloc_push_add.z.val -= thing->fall_acceleration;
+            thing->state_flags |= TF1_PushAdd;
+        }
+    } else {
+        if (thing->veloc_base.x.val != 0) {
+            thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_floor) / 256;
+        }
+        if (thing->veloc_base.y.val != 0) {
+            thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_floor) / 256;
+        }
+        thing->mappos.z.val = thing->floor_height;
+        if ((thing->movement_flags & TMvF_ZeroVerticalVelocity) != 0) {
+            thing->veloc_base.z.val = 0;
+        }
+    }
+}
+
+TbBool thing_starts_falling_into_abyss(const struct Thing *thing)
+{
+    return (thing->class_id != TCls_EffectElem) && !flag_is_set(thing->movement_flags, TMvF_Immobile) && (thing->fall_acceleration != 0)
+        && (thing->mappos.z.val <= 0) && !thing_can_traverse_abyss_at(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
 void clear_thing_acceleration(struct Thing* thing)

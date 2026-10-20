@@ -66,6 +66,7 @@
 #include "engine_camera.h"
 #include "engine_render.h"
 #include "local_camera.h"
+#include "local_possession.h"
 #include "thing_physics.h"
 #include "thing_doors.h"
 #include "thing_effects.h"
@@ -124,6 +125,8 @@ extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber 
 TbBool unpausing_in_progress = 0;
 /******************************************************************************/
 #define RESYNC_LIMIT_BEFORE_COOLDOWN 5
+#define CREATURE_ASCEND_ANGLE 227
+#define CREATURE_DESCEND_ANGLE 1820
 
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
@@ -472,6 +475,25 @@ TbBool packet_get_camera_position(const struct Packet *pckt, MapCoord *x, MapCoo
     const MapCoord half = (1 << shift) >> 1;
     *x = (((MapCoord)pckt->cam_x - 1) << shift) + half;
     *y = (((MapCoord)pckt->cam_y - 1) << shift) + half;
+    return true;
+}
+
+void packet_set_possession_target(struct Packet *pckt, ThingIndex target_idx)
+{
+    if (!packet_action_has_camera_position(pckt->action)) {
+        return;
+    }
+    pckt->cam_x = target_idx + 1;
+    pckt->cam_y = 0;
+}
+
+TbBool packet_get_possession_target(const struct Packet *pckt, ThingIndex *target_idx)
+{
+    if ((packet_camera_context(pckt) != CamIV_FirstPerson) || !packet_action_has_camera_position(pckt->action)
+     || (pckt->cam_x == 0) || (pckt->cam_x > THINGS_COUNT)) {
+        return false;
+    }
+    *target_idx = pckt->cam_x - 1;
     return true;
 }
 
@@ -1283,207 +1305,102 @@ TbBool can_process_creature_input(struct Thing *thing)
     return true;
 }
 
+static void apply_creature_vertical_control(struct Thing *thing, struct CreatureControl *cctrl, int32_t speed_limit, int32_t angle)
+{
+    // We want increase here, not decrease, because we don't want it angle-dependent
+    cctrl->vertical_speed = compute_controlled_speed_increase(cctrl->vertical_speed, speed_limit);
+    cctrl->creature_control_flags |= CCFlg_MoveZ;
+    if (cctrl->vertical_speed == 0) {
+        return;
+    }
+    MapCoord floor_height;
+    MapCoord ceiling_height;
+    get_floor_and_ceiling_height_under_thing_at(thing, &thing->mappos, &floor_height, &ceiling_height);
+    if ((thing->mappos.z.val >= floor_height) && (thing->mappos.z.val <= ceiling_height)) {
+        cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->vertical_speed, angle);
+    } else {
+        cctrl->moveaccel.z.val = 0;
+    }
+}
+
+void apply_creature_movement_controls(struct Thing *thing, struct CreatureControl *cctrl, const struct Packet *pckt)
+{
+    if (!can_process_creature_input(thing)) {
+        return;
+    }
+    const int32_t speed_limit = get_creature_speed(thing);
+    if ((pckt->control_flags & PCtr_MoveUp) != 0) {
+        cctrl->move_speed = compute_controlled_speed_increase(cctrl->move_speed, speed_limit);
+        cctrl->creature_control_flags |= CCFlg_MoveY;
+    }
+    if ((pckt->control_flags & PCtr_MoveDown) != 0) {
+        cctrl->move_speed = compute_controlled_speed_decrease(cctrl->move_speed, speed_limit);
+        cctrl->creature_control_flags |= CCFlg_MoveY;
+    }
+    if ((pckt->control_flags & PCtr_MoveLeft) != 0) {
+        cctrl->orthogn_speed = compute_controlled_speed_increase(cctrl->orthogn_speed, speed_limit);
+        cctrl->creature_control_flags |= CCFlg_MoveX;
+    }
+    if ((pckt->control_flags & PCtr_MoveRight) != 0) {
+        cctrl->orthogn_speed = compute_controlled_speed_decrease(cctrl->orthogn_speed, speed_limit);
+        cctrl->creature_control_flags |= CCFlg_MoveX;
+    }
+    if (flag_is_set(thing->movement_flags, TMvF_Flying)) {
+        if ((pckt->control_flags & PCtr_Ascend) != 0) {
+            apply_creature_vertical_control(thing, cctrl, speed_limit, CREATURE_ASCEND_ANGLE);
+        }
+        if ((pckt->control_flags & PCtr_Descend) != 0) {
+            apply_creature_vertical_control(thing, cctrl, speed_limit, CREATURE_DESCEND_ANGLE);
+        }
+    }
+    // Discard inputs for frozen creature
+    if ((packet_camera_context(pckt) == CamIV_FirstPerson) && !flag_is_set(game.operation_flags, GOF_Paused)) {
+        apply_first_person_look(thing, cctrl, pckt);
+    }
+}
+
+CrInstance get_packet_triggered_instance(const struct Thing *thing, const struct CreatureControl *cctrl, const struct Packet *pckt)
+{
+    if (creature_is_dying(thing) || (thing->active_state == CrSt_CreatureUnconscious)) {
+        return CrInst_NULL;
+    }
+    if ((pckt->control_flags & PCtr_LBtnRelease) != 0) {
+        return cctrl->active_instance_id;
+    }
+    // Button is held down - check whether the instance has auto-repeat
+    const struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->active_instance_id);
+    if (((pckt->control_flags & PCtr_LBtnHeld) != 0) && ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)) {
+        return cctrl->active_instance_id;
+    }
+    return CrInst_NULL;
+}
+
+CrInstance get_packet_instant_instance(const struct Packet *pckt)
+{
+    if ((pckt->action != PckA_CtrlCrtrSetInstnc) || (pckt->actn_par2 != 0)) {
+        return CrInst_NULL;
+    }
+    const struct InstanceInfo *inst_inf = creature_instance_info_get(pckt->actn_par1);
+    if (!inst_inf->instant) {
+        return CrInst_NULL;
+    }
+    return pckt->actn_par1;
+}
+
 void process_user_creature_control_packet_control(NetUserId user)
 {
-    const PlayerNumber plyr_idx = get_net_user_player_number(user);
     SYNCDBG(6,"Starting");
-    struct InstanceInfo *inst_inf;
-    long i;
-    struct PlayerInfo* player = get_player(plyr_idx);
+    struct PlayerInfo* player = get_player(get_net_user_player_number(user));
     struct Thing* cctng = thing_get(player->controlled_thing_idx);
     struct Packet* pckt = get_packet(user);
     struct CreatureControl* ccctrl = creature_control_get_from_thing(cctng);
-    ThingIndex target_idx = 0;
-    if (can_process_creature_input(cctng))
-    {
-        long speed_limit = get_creature_speed(cctng);
-        if ((pckt->control_flags & PCtr_MoveUp) != 0)
-        {
-            if (!creature_control_invalid(ccctrl))
-            {
-                ccctrl->move_speed = compute_controlled_speed_increase(ccctrl->move_speed, speed_limit);
-                ccctrl->creature_control_flags |= CCFlg_MoveY;
-            } else
-            {
-                ERRORLOG("No creature to increase speed");
-            }
-        }
-        if ((pckt->control_flags & PCtr_MoveDown) != 0)
-        {
-            if (!creature_control_invalid(ccctrl))
-            {
-                ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
-                ccctrl->creature_control_flags |= CCFlg_MoveY;
-            } else
-            {
-                ERRORLOG("No creature to decrease speed");
-            }
-        }
-        if ((pckt->control_flags & PCtr_MoveLeft) != 0)
-        {
-            if (!creature_control_invalid(ccctrl))
-            {
-                ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
-                ccctrl->creature_control_flags |= CCFlg_MoveX;
-            } else
-            {
-                ERRORLOG("No creature to increase speed");
-            }
-        }
-        if ((pckt->control_flags & PCtr_MoveRight) != 0)
-        {
-            if (!creature_control_invalid(ccctrl))
-            {
-                ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
-                ccctrl->creature_control_flags |= CCFlg_MoveX;
-            } else
-            {
-                ERRORLOG("No creature to decrease speed");
-            }
-        }
-        if (flag_is_set(cctng->movement_flags, TMvF_Flying))
-        {
-            MapCoord floor_height, ceiling_height;
-            if ((pckt->control_flags & PCtr_Ascend) != 0)
-            {
-                if (!creature_control_invalid(ccctrl))
-                {
-                    ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
-                    ccctrl->creature_control_flags |= CCFlg_MoveZ;
-                    if (ccctrl->vertical_speed != 0)
-                    {
-                        get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
-                        if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
-                        {
-                            ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 227);
-                        }
-                        else
-                        {
-                            ccctrl->moveaccel.z.val = 0;
-                        }
-                    }
-                } else
-                {
-                    ERRORLOG("No creature to ascend");
-                }
-            }
-            if ((pckt->control_flags & PCtr_Descend) != 0)
-            {
-                if (!creature_control_invalid(ccctrl))
-                {
-                    // We want increase here, not decrease, because we don't want it angle-dependent
-                    ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
-                    ccctrl->creature_control_flags |= CCFlg_MoveZ;
-                    if (ccctrl->vertical_speed != 0)
-                    {
-                        get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
-                        if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
-                        {
-                            ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 1820);
-                        }
-                        else
-                        {
-                            ccctrl->moveaccel.z.val = 0;
-                        }
-                    }
-                } else
-                {
-                    ERRORLOG("No creature to descend");
-                }
-            }
-        }
-        // Discard inputs for frozen creature
-        if ((packet_camera_context(pckt) == CamIV_FirstPerson) && !creature_control_invalid(ccctrl)
-         && !flag_is_set(game.operation_flags, GOF_Paused))
-            apply_first_person_look(cctng, ccctrl, pckt);
+    if (!thing_is_creature(cctng) || creature_control_invalid(ccctrl)) {
+        return;
     }
-
-    if ((thing_is_creature(cctng) && !creature_is_dying(cctng)) && (cctng->active_state != CrSt_CreatureUnconscious))
-    {
-        TbBool allowed;
-        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
-        {
-            i = ccctrl->active_instance_id;
-            if (ccctrl->instance_id == CrInst_NULL)
-            {
-                if (creature_instance_is_available(cctng, i))
-                {
-                    if (creature_instance_has_reset(cctng, i))
-                    {
-                        target_idx = get_human_controlled_creature_target(cctng, i, pckt);
-                        if (creature_under_spell_effect(cctng, CSAfF_Chicken))
-                        {
-                            inst_inf = creature_instance_info_get(i);
-                            allowed = inst_inf->fp_allow_self_cast_when_chicken & (cctng->index == target_idx);
-                        }
-                        else
-                        {
-                            allowed = true;
-                        }
-                        if (allowed)
-                        {
-                            if (creature_under_spell_effect(cctng, CSAfF_Freeze))
-                            {
-                                inst_inf = creature_instance_info_get(i);
-                                allowed = inst_inf->fp_allow_self_cast_while_frozen & (cctng->index == target_idx);
-                            }
-                            if (allowed)
-                            {
-                                process_player_use_instance(cctng, i, pckt);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // cheat mode
-                    inst_inf = creature_instance_info_get(i);
-                    process_player_use_instance(cctng, i, pckt);
-                }
-            }
-        }
-        if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
-        {
-            // Button is held down - check whether the instance has auto-repeat
-            i = ccctrl->active_instance_id;
-            inst_inf = creature_instance_info_get(i);
-            if ((inst_inf->instance_property_flags & InstPF_RepeatTrigger) != 0)
-            {
-                if (ccctrl->instance_id == CrInst_NULL)
-                {
-                    if (creature_instance_is_available(cctng, i))
-                    {
-                        if (creature_instance_has_reset(cctng, i))
-                        {
-                            // Same rules as the button release above: a chicken or a frozen creature only self-casts.
-                            TbBool chicken = creature_under_spell_effect(cctng, CSAfF_Chicken);
-                            if (chicken || creature_under_spell_effect(cctng, CSAfF_Freeze))
-                            {
-                                target_idx = get_human_controlled_creature_target(cctng, i, pckt);
-                            }
-                            allowed = true;
-                            if (chicken)
-                            {
-                                allowed = inst_inf->fp_allow_self_cast_when_chicken & (cctng->index == target_idx);
-                            }
-                            if (allowed && creature_under_spell_effect(cctng, CSAfF_Freeze))
-                            {
-                                allowed = inst_inf->fp_allow_self_cast_while_frozen & (cctng->index == target_idx);
-                            }
-                            if (allowed)
-                            {
-                                process_player_use_instance(cctng, i, pckt);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // cheat mode
-                        process_player_use_instance(cctng, i, pckt);
-                    }
-                }
-            }
-        }
+    apply_creature_movement_controls(cctng, ccctrl, pckt);
+    const CrInstance inst_id = get_packet_triggered_instance(cctng, ccctrl, pckt);
+    if (possession_instance_can_start(cctng, ccctrl, inst_id, get_gameturn(), pckt, true)) {
+        process_player_use_instance(cctng, inst_id, pckt);
     }
 }
 
@@ -1491,11 +1408,10 @@ void process_user_creature_control_packet_action(NetUserId user)
 {
   const PlayerNumber plyr_idx = get_net_user_player_number(user);
   struct CreatureControl *cctrl;
-  struct InstanceInfo *inst_inf;
   struct PlayerInfo *player;
   struct Thing *thing;
   struct Packet *pckt;
-  long i;
+  CrInstance inst_id;
   player = get_player(plyr_idx);
   struct UserState* ustate = get_user_state(user);
   pckt = get_packet(user);
@@ -1521,44 +1437,13 @@ void process_user_creature_control_packet_action(NetUserId user)
       cctrl = creature_control_get_from_thing(thing);
       if (creature_control_invalid(cctrl))
         break;
-      i = pckt->actn_par1;
-      inst_inf = creature_instance_info_get(i);
-      if (!inst_inf->instant || pckt->actn_par2)
-      {
-        cctrl->active_instance_id = i;
-      } else
-      if (cctrl->instance_id == CrInst_NULL)
-      {
-        if (creature_instance_is_available(thing,i) && creature_instance_has_reset(thing, pckt->actn_par1))
-        {
-            TbBool allowed;
-            TbBool frozen = creature_under_spell_effect(thing, CSAfF_Freeze);
-            TbBool chicken = creature_under_spell_effect(thing, CSAfF_Chicken);
-            ThingIndex target_idx = get_human_controlled_creature_target(thing, i, pckt);
-            if (frozen && chicken)
-            {
-                allowed = (inst_inf->fp_allow_self_cast_while_frozen & inst_inf->fp_allow_self_cast_when_chicken) && (thing->index == target_idx);
-            }
-            else if (frozen)
-            {
-                allowed = inst_inf->fp_allow_self_cast_while_frozen & (thing->index == target_idx);
-            }
-            else if (chicken)
-            {
-                allowed = inst_inf->fp_allow_self_cast_when_chicken & (thing->index == target_idx);
-            }
-            else
-            {
-                allowed = true;
-            }
-            if (allowed)
-            {
-              i = pckt->actn_par1;
-              process_player_use_instance(thing, i, pckt);
-              if (plyr_idx == my_player_number) {
-                  instant_instance_selected(i);
-              }
-            }
+      inst_id = get_packet_instant_instance(pckt);
+      if (inst_id == CrInst_NULL) {
+        cctrl->active_instance_id = pckt->actn_par1;
+      } else if (possession_instance_can_start(thing, cctrl, inst_id, get_gameturn(), pckt, false)) {
+        process_player_use_instance(thing, inst_id, pckt);
+        if (plyr_idx == my_player_number) {
+            instant_instance_selected(inst_id);
         }
       }
       break;
@@ -1571,9 +1456,9 @@ void process_user_creature_control_packet_action(NetUserId user)
       cctrl = creature_control_get_from_thing(thing);
       if (creature_control_invalid(cctrl))
         break;
-      i = pckt->actn_par1;
+      inst_id = pckt->actn_par1;
       // Cheat mode no need check any, just do/select it.
-      cctrl->active_instance_id = i;
+      cctrl->active_instance_id = inst_id;
       break;
       case PckA_DirectCtrlDragDrop:
       {
@@ -1670,6 +1555,7 @@ enum PacketExchangeResult exchange_packets(void)
     if (!replay.load_enable && !spectator) {
         set_pending_timestamp_packet_action(get_local_packet());
         camera_packet_set_state(get_local_packet());
+        set_packet_possession_target(get_local_packet());
         observer_set_packet_cursor(get_local_packet());
     }
     if (!spectator) {

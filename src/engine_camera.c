@@ -323,11 +323,10 @@ static int get_walking_bob_direction(struct Thing *thing)
     }
 }
 
-void update_first_person_position(struct Camera *cam, struct Thing *thing, int eye_height)
+void update_first_person_position(struct Camera *cam, struct Thing *thing, const struct CreatureControl *cctrl, int eye_height)
 {
-    if ( thing_is_creature(thing) )
+    if (thing->class_id == TCls_Creature)
     {
-        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         const int32_t head_bob = (cctrl->move_speed && thing_touching_floor(thing)) ? 16 * get_walking_bob_direction(thing) : 0;
 
         int pos_x = move_coord_with_angle_x(thing->mappos.x.val,-90,thing->move_angle_xy);

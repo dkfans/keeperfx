@@ -3383,29 +3383,7 @@ TbBool update_thing(struct Thing *thing)
         set_flag(thing->state_flags, TF1_PushAdd);
     }
     if (falling || ((thing->movement_flags & TMvF_Immobile) == 0)) {
-        if ((thing->state_flags & TF1_PushAdd) != 0)
-        {
-            thing->veloc_base.x.val += thing->veloc_push_add.x.val;
-            thing->veloc_base.y.val += thing->veloc_push_add.y.val;
-            thing->veloc_base.z.val += thing->veloc_push_add.z.val;
-            thing->veloc_push_add.x.val = 0;
-            thing->veloc_push_add.y.val = 0;
-            thing->veloc_push_add.z.val = 0;
-            thing->state_flags &= ~TF1_PushAdd;
-        }
-        thing->velocity.x.val = thing->veloc_base.x.val;
-        thing->velocity.y.val = thing->veloc_base.y.val;
-        thing->velocity.z.val = thing->veloc_base.z.val;
-        if ((thing->state_flags & TF1_PushOnce) != 0)
-        {
-          thing->velocity.x.val += thing->veloc_push_once.x.val;
-          thing->velocity.y.val += thing->veloc_push_once.y.val;
-          thing->velocity.z.val += thing->veloc_push_once.z.val;
-          thing->veloc_push_once.x.val = 0;
-          thing->veloc_push_once.y.val = 0;
-          thing->veloc_push_once.z.val = 0;
-          thing->state_flags &= ~TF1_PushOnce;
-        }
+        apply_thing_pushes_to_velocity(thing);
     }
     if (thing->class_id < sizeof(class_functions)/sizeof(class_functions[0]))
         classfunc = class_functions[thing->class_id];
@@ -3435,7 +3413,7 @@ TbBool update_thing(struct Thing *thing)
         thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
     }
     else {
-        if ((thing->class_id != TCls_EffectElem) && !flag_is_set(thing->movement_flags, TMvF_Immobile) && (thing->fall_acceleration != 0) && (thing->mappos.z.val <= 0) && !thing_can_traverse_abyss_at(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+        if (thing_starts_falling_into_abyss(thing)) {
             set_flag(thing->state_flags, TF1_FallingIntoAbyss);
             falling = true;
             thing->veloc_base.x.val = thing->velocity.x.val;
@@ -3478,42 +3456,7 @@ TbBool update_thing(struct Thing *thing)
     }
     SYNCDBG(18,"Class function end ok");
     if (!falling && ((thing->movement_flags & TMvF_Immobile) == 0)) {
-        if ((thing->mappos.z.val > thing->floor_height) || !thing_can_traverse_abyss_at(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
-            if (thing->veloc_base.x.val != 0)
-                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
-            if (thing->veloc_base.y.val != 0)
-                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
-            if ((thing->movement_flags & TMvF_Flying) == 0) {
-                thing->veloc_push_add.z.val -= thing->fall_acceleration;
-                thing->state_flags |= TF1_PushAdd;
-            } else
-            {
-                // For flying creatures, the Z velocity should also decrease over time
-                if (thing->veloc_base.z.val != 0)
-                {
-                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - thing->inertia_air) / 256;
-                }
-                else
-                {
-                    if (thing_above_flight_altitude(thing) && ((thing->alloc_flags & TAlF_IsControlled) == 0))
-                    {
-                        thing->veloc_push_add.z.val -= thing->fall_acceleration;
-                        thing->state_flags |= TF1_PushAdd;
-                    }
-                }
-            }
-        } else
-        {
-            if (thing->veloc_base.x.val != 0)
-              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_floor) / 256;
-            if (thing->veloc_base.y.val != 0)
-              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_floor) / 256;
-            thing->mappos.z.val = thing->floor_height;
-            if ((thing->movement_flags & TMvF_ZeroVerticalVelocity) != 0)
-            {
-              thing->veloc_base.z.val = 0;
-            }
-        }
+        apply_thing_drag_and_gravity(thing);
     }
     update_thing_animation(thing);
     update_thing_sound(thing);

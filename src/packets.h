@@ -31,6 +31,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct Camera;
+struct CreatureControl;
 struct Packet;
 struct PlayerInfo;
 struct Thing;
@@ -288,7 +289,7 @@ struct Packet {
     uint32_t control_flags;
     uint8_t additional_packet_values; // uses the flags and values from TbPacketAddValues
     
-    // union on packet_action_has_camera_position()
+    // union on packet_action_has_camera_position(); in first person, cam_x holds the attack target
     union
     {
         uint16_t cam_x;
@@ -344,10 +345,15 @@ void packet_set_camera_context(struct Packet *pckt, unsigned char cam_idx);
 void packet_set_camera_position(struct Packet *pckt, MapCoord x, MapCoord y);
 void packet_clear_camera_position(struct Packet *pckt);
 TbBool packet_get_camera_position(const struct Packet *pckt, MapCoord *x, MapCoord *y);
+void packet_set_possession_target(struct Packet *pckt, ThingIndex target_idx);
+TbBool packet_get_possession_target(const struct Packet *pckt, ThingIndex *target_idx);
 int32_t camera_move_rate(const struct Camera* cam, const struct PlayerInfo* player, TbBool speedup);
 void process_camera_action(struct Camera cams[], const struct Packet* pckt);
 void process_first_person_look(struct Thing *thing, int32_t turn_x, int32_t turn_y, int32_t current_horizontal, int32_t current_vertical, int32_t *out_horizontal, int32_t *out_vertical, int32_t *out_roll);
 TbBool can_process_creature_input(struct Thing *thing);
+void apply_creature_movement_controls(struct Thing *thing, struct CreatureControl *cctrl, const struct Packet *pckt);
+CrInstance get_packet_triggered_instance(const struct Thing *thing, const struct CreatureControl *cctrl, const struct Packet *pckt);
+CrInstance get_packet_instant_instance(const struct Packet *pckt);
 enum PacketExchangeResult {
     PExR_Advance,
     PExR_Wait,
