@@ -263,6 +263,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     set_selected_creature(player, thing);
     thing->alloc_flags |= TAlF_IsControlled;
     thing->rendering_flags |= TRF_Invisible;
+    thing->move_angle_z = 0;
     if (!chicken)
     {
         set_start_state(thing);
