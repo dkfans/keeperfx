@@ -1003,6 +1003,7 @@ void clear_players_for_save(void)
       ustate->zoom_to_pos_x = 0;
       ustate->zoom_to_pos_y = 0;
       ustate->cast_expand_level = 0;
+      ustate->hand_animation_until_turn = 0;
     }
 }
 

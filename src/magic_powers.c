@@ -1798,11 +1798,11 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
     dungeon = get_dungeon(player->id_number);
     const NetUserId user = get_player_primary_user(player);
     const struct UserState *ustate = get_user_state(user);
-    const TbBool slapping = user_state_invalid(ustate) ? player->hand_busy_until_turn > get_gameturn() : ustate->instance_num == PI_Whip;
+    const TbBool slapping = user_state_invalid(ustate) ? player->slap_cooldown_until_turn > get_gameturn() : ustate->instance_num == PI_Whip;
     if (slapping || get_gameturn() - dungeon->last_creature_dropped_gameturn <= 10) {
         return Lb_OK;
     }
-    player->hand_busy_until_turn = get_gameturn() + player_instance_info[PI_Whip].length_turns;
+    player->slap_cooldown_until_turn = get_gameturn() + player_instance_info[PI_Whip].length_turns;
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
     if (user_state_invalid(ustate)) {

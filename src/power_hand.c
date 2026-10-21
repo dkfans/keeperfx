@@ -339,18 +339,18 @@ void set_power_hand_graphic(NetUserId user, long HandAnimationID)
         // (computer keepers have no hand animation)
         return;
     }
-    struct PlayerInfo *player = get_user_player(user);
-    if (player->hand_animation_until_turn >= get_gameturn())
+    if (ustate->hand_animation_until_turn >= get_gameturn())
     {
         if ((HandAnimationID == HndA_Slap) || (HandAnimationID == HndA_SideSlap))
-          player->hand_animation_until_turn = 0;
+          ustate->hand_animation_until_turn = 0;
     }
-    if (player->hand_animation_until_turn < get_gameturn())
+    if (ustate->hand_animation_until_turn < get_gameturn())
     {
         if ((ustate->hand_animationId != HandAnimationID) || (HandAnimationID == HndA_Pickup))
         {
             ustate->hand_animationId = HandAnimationID;
             struct Thing *thing = thing_get(ustate->hand_thing_idx);
+            const struct PlayerInfo *player = get_user_player(user);
             int32_t anim_idx = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
             short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
             if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
@@ -617,7 +617,7 @@ void draw_power_hand(void)
         }
         return;
     }
-    if (player->hand_animation_until_turn > get_gameturn())
+    if (ustate->hand_animation_until_turn > get_gameturn())
     {
         SYNCDBG(7,"Drawing hand %s index %d, busy state", thing_model_name(thing), (int)thing->index);
         RendererSubmitKeeperHandSprite(cursor_x+scale_ui_value(60*global_hand_scale), cursor_y+scale_ui_value(40*global_hand_scale),
@@ -884,8 +884,11 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
     if (player_exists(player)) {
-        set_power_hand_graphic(get_player_primary_user(player), HndA_Hover);
-        player->hand_animation_until_turn = get_gameturn() + 16;
+        const NetUserId user = get_player_primary_user(player);
+        set_power_hand_graphic(user, HndA_Hover);
+        struct UserState *ustate = get_user_state(user);
+        if (!user_state_invalid(ustate))
+            ustate->hand_animation_until_turn = get_gameturn() + 16;
     }
 }
 

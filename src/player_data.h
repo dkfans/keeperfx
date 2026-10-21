@@ -107,10 +107,10 @@ enum UserAdditionalFlags {
 enum PlayerTypes {
     // a proper player with room flames, payday, captures neutrals
     PT_Keeper,
-    
+
     // hero-style player: lacks room flames, sees whole map, can't capture neutral, no economy.
     PT_Roaming,
-    
+
     // capturable by nearby keepers
     PT_Neutral
 };
@@ -157,39 +157,36 @@ struct CheatSelection
  * Players present in a game can be human-controlled keepers, Computer-controlled keepers,
  * "Placeholder" keepers (humans who have dropped and are replaced by a computer),
  * "Roaming" (the hero team), or neutral (capturable by keepers).
- * 
+ *
  * Note: for legacy reasons, this struct currently contains some fields that
  * should eventually be ported to UserState or LocalState.
 */
 struct PlayerInfo {
-    unsigned char allocflags;
-    unsigned char display_flags;
-    GameTurn hand_animation_until_turn;
-    GameTurn hand_busy_until_turn;
+    unsigned char allocflags; /* enum PlayerInitFlags */
+    unsigned char player_type; /* enum PlayerTypes */
+    unsigned char display_flags; /* enum PlayerField6Flags -- TODO: make local state */
+    unsigned char id_number;
     char player_name[20];
     unsigned char victory_state;
     PlayerBitFlags allied_players;
     PlayerBitFlags players_with_locked_ally_status;
-    unsigned char id_number;
-    TbBool unused;
     short controlled_thing_idx;
     GameTurn controlled_thing_creatrn;
     TbBool possession_lock;
     struct Wander wandr_within;
     struct Wander wandr_outside;
-    short cta_flag_idx;
+    short cta_flag_idx; /* Call-to-Arms banner */
     short influenced_thing_idx;
     GameTurn influenced_thing_creation;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
     char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
     GameTurn power_of_cooldown_turn;
-    int32_t game_version;
     GameTurn display_objective_turn;
-    unsigned char hand_idx;
+    GameTurn slap_cooldown_until_turn; /* computer-only, prevents slapping too fast. */
+    unsigned char hand_idx; /* hand skin (powerhands.toml) */
     struct RoomSpace roomspace;
-    unsigned char player_type; //enum PlayerTypes
-    ThingModel special_digger;
+    ThingModel special_digger; /* which creatures are imp-like */
     unsigned short generate_speed;
 };
 
@@ -246,6 +243,7 @@ struct UserState {
     short thing_under_hand;
     short hand_thing_idx;
     int32_t hand_animationId;
+    GameTurn hand_animation_until_turn;
     struct RoomSpace render_roomspace;
     unsigned char roomspace_mode;
     int roomspace_detection_looseness;

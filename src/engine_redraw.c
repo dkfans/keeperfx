@@ -814,7 +814,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
             }
             break;
         default:
-            if (player->hand_animation_until_turn <= get_gameturn())
+            if (ustate->hand_animation_until_turn <= get_gameturn())
               set_pointer_graphic(MousePG_Arrow);
             else
               set_pointer_graphic(MousePG_Invisible);
