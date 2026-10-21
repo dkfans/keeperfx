@@ -20,6 +20,7 @@ extern TbBool local_observer_rendering;
 TbBool observer_is_active(void);
 TbBool observer_is_following_user(void);
 NetUserId observer_get_watched_user(void);
+void detach_observer_camera(void);
 void observer_reset(void);
 void observer_init(PlayerNumber camera_player_number);
 void observer_set_packet_cursor(struct Packet *pckt);

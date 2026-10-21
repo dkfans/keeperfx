@@ -405,7 +405,7 @@ int32_t pinstfs_passenger_control_creature(NetUserId user, int32_t *n)
     struct PlayerInfo *player = get_user_player(user);
     struct UserState *ustate = get_user_state(user);
     ustate->init_flags |= UsrIF_MouseInputDisabled;
-    turn_user_cursor_light(get_player_primary_user(player), false);
+    turn_user_cursor_light(user, false);
     if (user == get_displayed_user())
           local_state.palette_fade_step_possession = 1;
     if (is_my_player(player))

@@ -218,7 +218,19 @@ NetUserId observer_get_watched_user(void)
     if (get_net_user_player_number(observed_user) == my_player_number) {
         return observed_user;
     }
-    return get_player_primary_user(get_player(my_player_number));
+    return -1;
+}
+
+void detach_observer_camera(void)
+{
+    if (is_observer_camera_active()) {
+        return;
+    }
+    const unsigned char view_type = get_local_view_type(get_my_player());
+    enter_observer_camera();
+    if (view_type == PVT_MapScreen) {
+        set_observer_camera_view(PVT_MapScreen);
+    }
 }
 
 static const struct ObserverCursor *observer_get_view_cursor(void)
@@ -424,6 +436,9 @@ void observer_update_view(void)
     }
     game.creatures_tend_imprison = (dungeon->creature_tendencies & CrTend_Imprison) != 0;
     game.creatures_tend_flee = (dungeon->creature_tendencies & CrTend_Flee) != 0;
+    if (!is_observer_camera_active() && observer_get_watched_user() < 0) {
+        detach_observer_camera();
+    }
     unsigned char view_type = local_state.observer_camera_view_type;
     if (!is_observer_camera_active()) {
         const struct UserState *ustate = get_user_state(observer_get_watched_user());
@@ -632,10 +647,12 @@ void observer_init(PlayerNumber camera_player_number)
 void observer_cycle_user(int step)
 {
     NetUserId current = observer_get_watched_user();
+    int tries = MAX_NET_USERS - 1;
     if (current < 0) {
-        current = 0;
+        current = step > 0 ? MAX_NET_USERS - 1 : 0;
+        tries = MAX_NET_USERS;
     }
-    for (int i = 1; i < MAX_NET_USERS; i++) {
+    for (int i = 1; i <= tries; i++) {
         const NetUserId user = (current + step * i + MAX_NET_USERS) % MAX_NET_USERS;
         const PlayerNumber plyr_idx = get_net_user_player_number(user);
         if (plyr_idx < 0 || plyr_idx >= PLAYERS_COUNT) {

@@ -206,8 +206,8 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, NetUserId user, MapSu
             allowed = true;
         }
     }
-    if (should_draw_cursor_box(plyr_idx)) {
-        struct UserState* ustate = get_user_state(user);
+    struct UserState* ustate = get_user_state(user);
+    if (!user_state_invalid(ustate) && should_draw_cursor_box(plyr_idx)) {
         map_volume_box.visible = 1;
         map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
         map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);

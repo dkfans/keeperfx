@@ -697,18 +697,6 @@ static TbBool observer_camera_input_pressed(void)
     return false;
 }
 
-static void detach_observer_camera(void)
-{
-    if (is_observer_camera_active()) {
-        return;
-    }
-    const unsigned char view_type = get_local_view_type(get_my_player());
-    enter_observer_camera();
-    if (view_type == PVT_MapScreen) {
-        set_observer_camera_view(PVT_MapScreen);
-    }
-}
-
 static void get_observer_camera_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
