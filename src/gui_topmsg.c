@@ -82,8 +82,14 @@ TbBool show_onscreen_msg(int nturns, const char *fmt_str, ...)
 {
     va_list val;
     va_start(val, fmt_str);
-    vsnprintf(onscreen_msg_text, sizeof(onscreen_msg_text), fmt_str, val);
+    show_onscreen_msg_va(nturns, fmt_str, val);
     va_end(val);
+    return true;
+}
+
+TbBool show_onscreen_msg_va(int nturns, const char *fmt_str, va_list val)
+{
+    vsnprintf(onscreen_msg_text, sizeof(onscreen_msg_text), fmt_str, val);
     SYNCMSG("Onscreen message: %s",onscreen_msg_text);
     render_onscreen_msg_time = (float)nturns;
     return true;
