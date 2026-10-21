@@ -137,12 +137,10 @@ void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str
 
 extern void render_set_sprite_debug(int level);
 
-static struct PlayerInfo *console_cmd_observer;
-
 static struct PlayerInfo *console_cmd_player(PlayerNumber plyr_idx)
 {
-    if (console_cmd_observer != NULL && plyr_idx == PLAYER_NEUTRAL) {
-        return console_cmd_observer;
+    if ((plyr_idx == PLAYER_NEUTRAL) && observer_is_active()) {
+        return &local_observer_player;
     }
     return get_player(plyr_idx);
 }
@@ -160,7 +158,7 @@ static NetUserId console_cmd_user(PlayerNumber plyr_idx)
 static TbBool console_cmd_cheats_allowed(PlayerNumber plyr_idx)
 {
     if (console_cmd_player(plyr_idx) == &local_observer_player) {
-        return true;
+        return !network_is_active() || user_cheats_allowed(SERVER_ID);
     }
     return user_cheats_allowed(console_cmd_user(plyr_idx));
 }
@@ -935,28 +933,8 @@ TbBool cmd_comp_checks(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
-static void console_cmd_prepare_vision(struct PlayerInfo *player, PlayerNumber plyr_idx)
-{
-    if (player != &local_observer_player || player->allied_players == to_flag(plyr_idx)) {
-        return;
-    }
-    for (MapSubtlCoord y = 0; y <= game.map_subtiles_y; y++) {
-        for (MapSubtlCoord x = 0; x <= game.map_subtiles_x; x++) {
-            struct Map *mapblk = get_map_block_at(x, y);
-            if ((mapblk->revealed & player->allied_players) != 0) {
-                reveal_map_block(mapblk, plyr_idx);
-            } else {
-                conceal_map_block(mapblk, plyr_idx);
-            }
-        }
-    }
-    player->allied_players = to_flag(plyr_idx);
-}
-
 TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
 {
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    console_cmd_prepare_vision(player, plyr_idx);
     int r = 0;
     char * pr1str = strsep_param_with_space(&args);
     if (pr1str != NULL) {
@@ -985,8 +963,6 @@ TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
 {
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    console_cmd_prepare_vision(player, plyr_idx);
     int r = 0;
     char * pr1str = strsep_param_with_space(&args);
     if (pr1str != NULL) {
@@ -1127,7 +1103,7 @@ TbBool cmd_map_pool(PlayerNumber plyr_idx, char * args)
     char * pr1str = strsep_param_with_space(&args);
     if (pr1str == NULL) {
         show_command_failure("require parameter 1 as creature model");
-        return true;
+        return false;
     }
     long kind = get_id(creature_desc, pr1str);
     if (kind == -1) {
@@ -2312,10 +2288,7 @@ TbBool cmd_zoom_to_slabcoord(PlayerNumber plyr_idx, char * args)
         show_command_failure("Slab coordinates specified are invalid");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    get_player_user_state(player)->zoom_to_pos_x = subtile_coord_center(stl_x);
-    get_player_user_state(player)->zoom_to_pos_y = subtile_coord_center(stl_y);
-    set_user_instance(get_player_primary_user(player), PI_ZoomToPos, 0);
+    move_local_camera_to_position(subtile_coord_center(stl_x), subtile_coord_center(stl_y));
     return true;
 }
 
@@ -2337,10 +2310,7 @@ TbBool cmd_zoom_to_subtilecoord(PlayerNumber plyr_idx, char * args)
         show_command_failure("Subtile coordinates specified are invalid");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    get_player_user_state(player)->zoom_to_pos_x = subtile_coord_center(stl_x);
-    get_player_user_state(player)->zoom_to_pos_y = subtile_coord_center(stl_y);
-    set_user_instance(get_player_primary_user(player), PI_ZoomToPos, 0);
+    move_local_camera_to_position(subtile_coord_center(stl_x), subtile_coord_center(stl_y));
     return true;
 }
 
@@ -2393,10 +2363,7 @@ TbBool cmd_zoom_to_action_point(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct ActionPoint * actionpt = action_point_get(idx);
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    get_player_user_state(player)->zoom_to_pos_x = subtile_coord_center(actionpt->mappos.x.stl.num);
-    get_player_user_state(player)->zoom_to_pos_y = subtile_coord_center(actionpt->mappos.y.stl.num);
-    set_user_instance(get_player_primary_user(player), PI_ZoomToPos, 0);
+    move_local_camera_to_position(subtile_coord_center(actionpt->mappos.x.stl.num), subtile_coord_center(actionpt->mappos.y.stl.num));
     return true;
 }
 
@@ -2434,10 +2401,7 @@ TbBool cmd_zoom_to_hero_gate(PlayerNumber plyr_idx, char * args)
         show_command_failure("thing is not hero gate");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    get_player_user_state(player)->zoom_to_pos_x = subtile_coord_center(thing->mappos.x.stl.num);
-    get_player_user_state(player)->zoom_to_pos_y = subtile_coord_center(thing->mappos.y.stl.num);
-    set_user_instance(get_player_primary_user(player), PI_ZoomToPos, 0);
+    move_local_camera_to_position(subtile_coord_center(thing->mappos.x.stl.num), subtile_coord_center(thing->mappos.y.stl.num));
     return true;
 }
 
@@ -2653,7 +2617,8 @@ TbBool cmd_resync(PlayerNumber plyr_idx, char * args)
 
 enum ConsoleCommandScope {
     CmdS_Synced = 0,
-    CmdS_Personal = 1,
+    CmdS_SyncedOwnPlayer,
+    CmdS_Personal,
 };
 
 enum ConsoleCommandMode {
@@ -2693,7 +2658,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "pause", cmd_pause, NULL, CmdS_Synced, CmdM_SingleplayerOnly, CmdC_Unrestricted },
     { "step", cmd_step, NULL, CmdS_Synced, CmdM_SingleplayerOnly, CmdC_Unrestricted },
     { "game.save", cmd_game_save, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
-    { "game.load", cmd_game_load, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_Unrestricted },
+    { "game.load", cmd_game_load, NULL, CmdS_Synced, CmdM_SingleplayerOnly, CmdC_Unrestricted },
     { "game.check", cmd_game_check, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "cls", cmd_cls, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "ver", cmd_ver, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
@@ -2703,13 +2668,13 @@ static const struct ConsoleCommand console_commands[] = {
     { "volume.music", cmd_volume_music, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "volume.soundtrack", cmd_volume_music, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "compuchat", cmd_compuchat, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "comp.procs", cmd_comp_procs, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+    { "comp.procs", cmd_comp_procs, NULL, CmdS_Synced, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
     { "comp.events", cmd_comp_events, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "comp.checks", cmd_comp_checks, NULL, CmdS_Personal, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
+    { "comp.checks", cmd_comp_checks, NULL, CmdS_Synced, CmdM_SingleplayerOnly, CmdC_CheatsRequired },
     { "reveal", cmd_reveal, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "conceal", cmd_conceal, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "comp.kill", cmd_comp_kill, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "player.score", cmd_player_score, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "player.score", cmd_player_score, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "player.flag", cmd_player_flag, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "comp.me", cmd_comp_me, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "magic.instance", cmd_magic_instance, param_completion_for_magic_instance, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
@@ -2743,18 +2708,18 @@ static const struct ConsoleCommand console_commands[] = {
     { "creature.instance.set", cmd_set_creature_instance, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "creature.state.set", cmd_set_creature_state, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "creature.job.set", cmd_set_creature_job, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "mapwho.info", cmd_mapwho_info, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "thing.info", cmd_thing_info, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "mapwho.info", cmd_mapwho_info, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "thing.info", cmd_thing_info, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "creature.attackheart", cmd_creature_attack_heart, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "player.addgold", cmd_player_gold_add, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "player.gold.add", cmd_player_gold_add, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "cursor.pos", cmd_cursor_pos, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "thing.get", cmd_get_thing, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "cursor.pos", cmd_cursor_pos, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "thing.get", cmd_get_thing, NULL, CmdS_SyncedOwnPlayer, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "thing.show_id", cmd_thing_show_id, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "thing.health", cmd_thing_health, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "thing.move", cmd_move_thing, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "thing.destroy", cmd_destroy_thing, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "room.get", cmd_get_room, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "room.get", cmd_get_room, NULL, CmdS_SyncedOwnPlayer, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "room.health", cmd_room_health, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "slab.health", cmd_slab_health, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "creature.pool.add", cmd_creature_pool_add, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
@@ -2764,21 +2729,21 @@ static const struct ConsoleCommand console_commands[] = {
     { "creature.freeze", cmd_freeze_creature, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "creature.slow", cmd_slow_creature, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "music.set", cmd_set_music, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
-    { "zoomto.slabcoord", cmd_zoom_to_slabcoord, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "zoomto.subtilecoord", cmd_zoom_to_subtilecoord, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "zoomto.slabcoord", cmd_zoom_to_slabcoord, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "zoomto.subtilecoord", cmd_zoom_to_subtilecoord, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "bug.toggle", cmd_toggle_classic_bug, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "actionpoint.pos", cmd_get_action_point_pos, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "actionpoint.zoomto", cmd_zoom_to_action_point, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "zoomto.actionpoint", cmd_zoom_to_action_point, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "actionpoint.pos", cmd_get_action_point_pos, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "actionpoint.zoomto", cmd_zoom_to_action_point, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "zoomto.actionpoint", cmd_zoom_to_action_point, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "actionpoint.reset", cmd_reset_action_point, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "herogate.zoomto", cmd_zoom_to_hero_gate, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "zoomto.herogate", cmd_zoom_to_hero_gate, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "herogate.zoomto", cmd_zoom_to_hero_gate, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
+    { "zoomto.herogate", cmd_zoom_to_hero_gate, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "sound.test", cmd_sound_test, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "speech.test", cmd_speech_test, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "player.color", cmd_player_colour, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "player.colour", cmd_player_colour, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
-    { "possession.lock", cmd_possession_lock, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
-    { "possession.unlock", cmd_possession_unlock, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
+    { "possession.lock", cmd_possession_lock, NULL, CmdS_SyncedOwnPlayer, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
+    { "possession.unlock", cmd_possession_unlock, NULL, CmdS_SyncedOwnPlayer, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
     { "string.show", cmd_string_show, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "quick.show", cmd_quick_show, NULL, CmdS_Synced, CmdM_SingleplayerAndMultiplayer, CmdC_CheatsRequired },
     { "toggle.tooltip.land.coord", cmd_toggle_tooltip_land_coord, NULL, CmdS_Personal, CmdM_SingleplayerAndMultiplayer, CmdC_Unrestricted },
@@ -2801,7 +2766,7 @@ static const char *console_command_refusal(PlayerNumber plyr_idx, const struct C
     if ((entry->mode == CmdM_MultiplayerOnly) && !is_multiplayer) {
         return "not available in singleplayer";
     }
-    if ((entry->scope == CmdS_Synced) && (console_cmd_observer != NULL)) {
+    if ((entry->scope == CmdS_Synced) && (console_cmd_player(plyr_idx) == &local_observer_player)) {
         return "not available to observers";
     }
     if ((entry->cheats == CmdC_CheatsRequired) && !console_cmd_cheats_allowed(plyr_idx)) {
@@ -3129,23 +3094,6 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord 
     }
     show_command_failure("unsupported command");
     return false;
-}
-
-TbBool cmd_exec_observer(char *args, MapCoord cursor_x, MapCoord cursor_y)
-{
-    struct PlayerInfo *previous_observer = console_cmd_observer;
-    console_cmd_observer = &local_observer_player;
-    TbBool result = cmd_exec(PLAYER_NEUTRAL, args, cursor_x, cursor_y, true);
-    console_cmd_observer = previous_observer;
-    return result;
-}
-
-void cmd_auto_completion_observer(char *cmd_str, size_t cmd_size)
-{
-    struct PlayerInfo *previous_observer = console_cmd_observer;
-    console_cmd_observer = &local_observer_player;
-    cmd_auto_completion(PLAYER_NEUTRAL, cmd_str, cmd_size);
-    console_cmd_observer = previous_observer;
 }
 
 static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const char *str_num)

@@ -40,7 +40,7 @@ enum UserPreference {
     UPref_StartingTendencies, // CrTend_Imprison|CrTend_Flee; follows the user's in-game changes
     UPref_MinimapZoom, // also sets the parchment magnifier
     UPref_StartingComputerAssistantKind,
-    UPref_ComputerAssistant,
+    UPref_ComputerAssistantDisabled,
     UPref_Unused18,
     UPref_Unused19,
     UPref_Unused20,
