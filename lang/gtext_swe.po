@@ -7589,3 +7589,15 @@ msgstr "Du kopplades från eftersom ditt spel inte längre var synkroniserat."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s tappade anslutningen (tidsgräns överskreds)."
+
+#: guitext:1160
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "Fusk"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "Datorhjälp"

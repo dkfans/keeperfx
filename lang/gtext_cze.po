@@ -7562,3 +7562,15 @@ msgstr "Byl jsi odpojen, protože tvoje hra přestala být synchronizovaná."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s ztratil spojení (vypršel časový limit)."
+
+#: guitext:1160
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "Cheaty"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "Počítačový asistent"

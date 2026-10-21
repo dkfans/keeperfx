@@ -7526,3 +7526,15 @@ msgstr "ゲームの同期が取れなくなったため、切断されました
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%sの接続が切れました（タイムアウト）。"
+
+#: guitext:1160
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "チート"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "コンピューター補助"

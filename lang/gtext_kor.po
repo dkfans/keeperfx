@@ -7577,3 +7577,15 @@ msgstr "게임 동기화가 맞지 않아 연결이 끊어졌습니다."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s 님의 연결이 끊어졌습니다 (시간 초과)."
+
+#: guitext:1160
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "치트"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "컴퓨터 보조"

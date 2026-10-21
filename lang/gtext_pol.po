@@ -7678,3 +7678,15 @@ msgstr "Rozłączono Cię, ponieważ Twoja gra utraciła synchronizację."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s utracił połączenie (przekroczono limit czasu)."
+
+#: guitext:1160
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "Kody"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "Pomocnik komputerowy"
