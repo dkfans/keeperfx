@@ -7211,3 +7211,15 @@ msgstr "延遲"
 msgctxt "Network game interface"
 msgid "Add computer players"
 msgstr "新增電腦玩家"
+
+#: guitext:1164
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "作弊"
+
+#: guitext:1165
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "電腦輔助"

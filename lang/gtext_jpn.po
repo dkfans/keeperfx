@@ -7550,3 +7550,15 @@ msgstr "Ping"
 msgctxt "Network game interface"
 msgid "Add computer players"
 msgstr "コンピュータを追加"
+
+#: guitext:1164
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "チート"
+
+#: guitext:1165
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "コンピューター補助"

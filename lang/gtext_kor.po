@@ -7601,3 +7601,15 @@ msgstr "핑"
 msgctxt "Network game interface"
 msgid "Add computer players"
 msgstr "컴퓨터 플레이어 추가"
+
+#: guitext:1164
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "치트"
+
+#: guitext:1165
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "컴퓨터 보조"

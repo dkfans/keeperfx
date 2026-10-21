@@ -6148,3 +6148,13 @@ msgstr "Ping"
 msgctxt "Network game interface"
 msgid "Add computer players"
 msgstr "Add computer players"
+
+#: guitext:1164
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "Cheats"
+
+#: guitext:1165
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "Computer assistant"

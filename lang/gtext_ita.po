@@ -7717,3 +7717,15 @@ msgstr "Ping"
 msgctxt "Network game interface"
 msgid "Add computer players"
 msgstr "Aggiungi computer"
+
+#: guitext:1164
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "Trucchi"
+
+#: guitext:1165
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "Assistenza del Computer"
