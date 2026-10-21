@@ -2868,6 +2868,15 @@ TbBool get_creature_move_position(struct Thing *thing, struct Coord3d *nxpos, Tb
     return true;
 }
 
+void update_creature_move_distance(const struct Thing *thing, struct CreatureControl *cctrl, const struct Coord3d *prevpos)
+{
+    const int32_t angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
+    cctrl->distance_to_destination = get_2d_distance(prevpos, &thing->mappos);
+    if (get_angle_difference(angle, thing->move_angle_xy) > DEGREES_90) {
+        cctrl->distance_to_destination = -cctrl->distance_to_destination;
+    }
+}
+
 long move_creature(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -2924,19 +2933,7 @@ long move_creature(struct Thing *thing)
         }
         move_thing_in_map(thing, &nxpos);
     }
-    {
-        long angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
-        long dist;
-        if (get_angle_difference(angle, thing->move_angle_xy) <= DEGREES_90)
-        {
-            dist = get_2d_distance(&pvpos, tngpos);
-        }
-        else
-        {
-            dist = -get_2d_distance(&pvpos, tngpos);
-        }
-        cctrl->distance_to_destination = dist;
-    }
+    update_creature_move_distance(thing, cctrl, &pvpos);
     return 1;
 }
 
@@ -5938,13 +5935,11 @@ struct Thing *create_footprint_sine(struct Coord3d *crtr_pos, unsigned short pha
   return INVALID_THING;
 }
 
-long get_foot_creature_has_down(struct Thing *thing)
+int32_t get_foot_creature_has_down(const struct Thing *thing, const struct CreatureControl *cctrl)
 {
-    struct CreatureControl *cctrl;
     unsigned short val;
-    long i;
+    int32_t i;
     int n;
-    cctrl = creature_control_get_from_thing(thing);
     val = thing->current_frame;
     if (val == (cctrl->anim_time >> 8))
         return 0;
@@ -5968,7 +5963,7 @@ void place_bloody_footprint(struct Thing *thing)
         ERRORLOG("Invalid creature control; no action");
         return;
     }
-    short nfoot = get_foot_creature_has_down(thing);
+    short nfoot = get_foot_creature_has_down(thing, cctrl);
     struct Thing* footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_Blood4, thing->owner);
     if (!thing_is_invalid(footng))
     {
@@ -6179,7 +6174,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (flag_is_set(thing->movement_flags,TMvF_IsOnWater))
     {
-        nfoot = get_foot_creature_has_down(thing);
+        nfoot = get_foot_creature_has_down(thing, cctrl);
         if (nfoot)
         {
           create_effect(&thing->mappos, TngEff_Drip1, thing->owner);
@@ -6190,7 +6185,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     if (cctrl->bloody_footsteps_turns != 0)
     {
         place_bloody_footprint(thing);
-        nfoot = get_foot_creature_has_down(thing);
+        nfoot = get_foot_creature_has_down(thing, cctrl);
         footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_Blood4, thing->owner);
         if (!thing_is_invalid(footng)) {
             cctrl->bloody_footsteps_turns--;
@@ -6205,7 +6200,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
             if (slb->kind == SlbT_PATH)
             {
                 set_flag(thing->movement_flags,TMvF_IsOnSnow);
-                nfoot = get_foot_creature_has_down(thing);
+                nfoot = get_foot_creature_has_down(thing, cctrl);
                 footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, footprint, thing->owner);
             }
         }
