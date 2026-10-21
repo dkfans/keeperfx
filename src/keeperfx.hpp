@@ -278,7 +278,6 @@ void initialise_map_health(void);
 void setup_mesh_randomizers(void);
 void setup_stuff(void);
 void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta);
-long get_foot_creature_has_down(struct Thing *thing);
 void init_seeds();
 
 

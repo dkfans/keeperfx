@@ -31,6 +31,7 @@
 #include "observer.h"
 #include "packets.h"
 #include "player_data.h"
+#include "sounds.h"
 #include "thing_creature.h"
 #include "thing_data.h"
 #include "thing_physics.h"
@@ -51,6 +52,7 @@ struct PossessionPrediction {
     GameTurn turn;
     GameTurn applied_packet_turn;
     GameTurn shot_turn;
+    GameTurn footstep_turn;
     ThingModel shot_model;
     TbBool valid;
 };
@@ -75,6 +77,7 @@ static struct PossessionShotOffset shot_offsets[POSSESSION_SHOT_OFFSETS_COUNT];
 static struct Thing possession_view;
 static TbBool possession_pause_pending;
 static GameTurn sounded_shot_turn;
+static GameTurn sounded_footstep_turn;
 /******************************************************************************/
 static TbBool turn_pauses_game(GameTurn turn)
 {
@@ -201,6 +204,8 @@ static TbBool step_possession_prediction(struct PossessionPrediction *pred, cons
     slow_down_controlled_creature(cctrl);
     thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     update_creature_graphic_anim(thing, cctrl);
+    cctrl->anim_time = thing->anim_time;
+    advance_thing_animation(thing);
     memset(&cctrl->moveaccel, 0, sizeof(cctrl->moveaccel));
     clear_flag(cctrl->creature_control_flags, CCFlg_MoveX | CCFlg_MoveY | CCFlg_MoveZ);
     pred->turn++;
@@ -209,7 +214,9 @@ static TbBool step_possession_prediction(struct PossessionPrediction *pred, cons
         return false;
     }
     apply_thing_drag_and_gravity(thing);
-    advance_thing_animation(thing);
+    if (thing_touching_floor(thing) && (cctrl->distance_to_destination != 0) && (get_foot_creature_has_down(thing, cctrl) != 0)) {
+        pred->footstep_turn = pred->turn - 1;
+    }
     return true;
 }
 
@@ -270,13 +277,24 @@ static void record_possession_shot_offset(const struct Thing *thing, TbBool cont
     shot_offset->offset.z.val = possession_view.mappos.z.val - thing->mappos.z.val;
 }
 
-static void play_predicted_shot_sound(struct Thing *thing)
+static TbBool advance_sounded_turn(GameTurn *sounded_turn, GameTurn turn)
 {
-    if ((GameTurnDelta)(prediction.shot_turn - sounded_shot_turn) <= 0) {
-        return;
+    if ((GameTurnDelta)(turn - *sounded_turn) <= 0) {
+        return false;
     }
-    sounded_shot_turn = prediction.shot_turn;
-    play_shot_firing_sound(thing, prediction.shot_model);
+    *sounded_turn = turn;
+    return true;
+}
+
+static void play_predicted_sounds(struct Thing *thing)
+{
+    if (advance_sounded_turn(&sounded_shot_turn, prediction.shot_turn)) {
+        play_shot_firing_sound(thing, prediction.shot_model);
+    }
+    if (advance_sounded_turn(&sounded_footstep_turn, prediction.footstep_turn)) {
+        play_creature_footstep(thing, FULL_LOUDNESS);
+    }
+    advance_sounded_turn(&sounded_footstep_turn, prediction.turn - 1);
 }
 
 void update_local_possession(void)
@@ -297,15 +315,17 @@ void update_local_possession(void)
         advance_possession_prediction(&continuation, &schedule);
     } else {
         sounded_shot_turn = get_gameturn() - 1;
+        sounded_footstep_turn = get_gameturn() - 1;
     }
     prediction.thing = *thing;
     prediction.cctrl = *creature_control_get_from_thing(thing);
     prediction.turn = get_gameturn();
     prediction.applied_packet_turn = schedule.first_packet_turn - 1;
     prediction.shot_turn = sounded_shot_turn;
+    prediction.footstep_turn = sounded_footstep_turn;
     prediction.valid = true;
     advance_possession_prediction(&prediction, &schedule);
-    play_predicted_shot_sound(thing);
+    play_predicted_sounds(thing);
     update_possession_correction(continuing);
     possession_view = prediction.thing;
     possession_view.mappos.x.val += correction.x.val;
@@ -351,6 +371,14 @@ TbBool local_possession_sounded_shot(const struct Thing *firing)
     }
     const struct CreatureControl *cctrl = creature_control_get_from_thing(firing);
     return (get_instance_shot_model(cctrl->instance_id) != 0) && ((GameTurnDelta)(get_gameturn() - sounded_shot_turn) <= 0);
+}
+
+TbBool local_possession_sounded_footstep(const struct Thing *thing)
+{
+    if (!possession_is_predicted(thing)) {
+        return false;
+    }
+    return (GameTurnDelta)(get_gameturn() - sounded_footstep_turn) <= 0;
 }
 
 void offset_local_possession_shot(const struct Thing *shotng, struct Coord3d *pos)
