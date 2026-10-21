@@ -215,7 +215,7 @@ void process_gameplay_chat_message(NetUserId user, const char *message, MapCoord
         char text[PLAYER_MP_MESSAGE_LEN];
         copy_chat_message(text, message);
         lua_on_chatmsg(plyr_idx, text);
-        const TbBool shown = (text[0] != cmd_char) || !cmd_exec(plyr_idx, text + 1, cursor_x, cursor_y) || network_is_active();
+        const TbBool shown = (text[0] != cmd_char) || (cmd_exec(plyr_idx, text + 1, cursor_x, cursor_y) && network_is_active());
         if (shown) {
             message_add(MsgType_Player, plyr_idx, text);
             play_non_3d_sample(snd_chat_message[user == get_local_user()]);
