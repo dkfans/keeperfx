@@ -60,7 +60,6 @@
 #include "player_instances.h"
 #include "config_players.h"
 #include "player_utils.h"
-#include "replay.h"
 #include "room_data.h"
 #include "room_treasure.h"
 #include "room_util.h"
@@ -137,7 +136,6 @@ void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str
 
 
 extern void render_set_sprite_debug(int level);
-extern TbBool process_user_global_packet_action(NetUserId user);
 
 static struct PlayerInfo *console_cmd_observer;
 
@@ -1213,12 +1211,7 @@ TbBool cmd_look(PlayerNumber plyr_idx, char * args)
         show_command_failure("subtile coord is invalid");
         return false;
     }
-    if (observer_is_active()) {
-        move_local_camera_to_position(subtile_coord_center(stl_x), subtile_coord_center(stl_y));
-        return true;
-    }
-    set_packet_action(get_packet(console_cmd_user(plyr_idx)), PckA_ZoomToPosition, subtile_coord_center(stl_x), subtile_coord_center(stl_y), 0, 0);
-    process_user_global_packet_action(console_cmd_user(plyr_idx)); // Dirty hack
+    move_local_camera_to_position(subtile_coord_center(stl_x), subtile_coord_center(stl_y));
     return true;
 }
 
@@ -2218,7 +2211,7 @@ TbBool cmd_creature_pool_add(PlayerNumber plyr_idx, char * args)
     if (crmodel == -1) {
         crmodel = atoi(pr1str);
     }
-    if (crmodel == 0) {
+    if ((crmodel <= 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
         show_command_failure("invalid creature model");
         return false;
     }
@@ -2238,7 +2231,7 @@ TbBool cmd_creature_pool_sub(PlayerNumber plyr_idx, char * args)
     if (crmodel == -1) {
         crmodel = atoi(pr1str);
     }
-    if (crmodel == 0) {
+    if ((crmodel <= 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
         show_command_failure("invalid creature model");
         return false;
     }
@@ -2812,7 +2805,7 @@ static const char *console_command_refusal(PlayerNumber plyr_idx, const struct C
     if ((entry->mode == CmdM_MultiplayerOnly) && !is_multiplayer) {
         return "not available in singleplayer";
     }
-    if ((entry->scope == CmdS_Synced) && (console_cmd_observer != NULL) && network_is_active()) {
+    if ((entry->scope == CmdS_Synced) && (console_cmd_observer != NULL)) {
         return "not available to observers";
     }
     if ((entry->cheats == CmdC_CheatsRequired) && !console_cmd_cheats_allowed(plyr_idx)) {
@@ -3107,7 +3100,7 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
 
 
 
-TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord cursor_y)
+TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord cursor_y, TbBool issued_here)
 {
     SYNCDBG(2, "Command (player %d): %s",(int)plyr_idx, args);
     console_cmd_cursor_x = cursor_x;
@@ -3116,12 +3109,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord 
         WARNLOG("Command for non-existent player %d ignored: %s", (int)plyr_idx, args);
         return false;
     }
-    console_cmd_issued_here = (console_cmd_observer != NULL) || (!replay.load_enable && is_my_player(console_cmd_player(plyr_idx)));
+    console_cmd_issued_here = issued_here;
     const char * command = strsep_param_with_space(&args);
     if (command == NULL) {
-        if (console_cmd_cheats_allowed(plyr_idx)) {
-            show_command_failure("command is empty");
-        }
+        show_command_failure("command is empty");
         return false;
     }
     // NOTE: execution can be optimized by pre-sorting commands by name and performing binary search
@@ -3140,9 +3131,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord 
         }
         return entry->function(plyr_idx, args);
     }
-    if (console_cmd_cheats_allowed(plyr_idx)) {
-        show_command_failure("unsupported command");
-    }
+    show_command_failure("unsupported command");
     return false;
 }
 
@@ -3150,7 +3139,7 @@ TbBool cmd_exec_observer(char *args, MapCoord cursor_x, MapCoord cursor_y)
 {
     struct PlayerInfo *previous_observer = console_cmd_observer;
     console_cmd_observer = &local_observer_player;
-    TbBool result = cmd_exec(PLAYER_NEUTRAL, args, cursor_x, cursor_y);
+    TbBool result = cmd_exec(PLAYER_NEUTRAL, args, cursor_x, cursor_y, true);
     console_cmd_observer = previous_observer;
     return result;
 }
