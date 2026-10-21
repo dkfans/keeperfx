@@ -79,6 +79,8 @@ const struct ConfigInfo default_net_config_info = {
     1,
     1,
     0,
+    0,
+    0,
 };
 
 int fe_network_active;
@@ -911,6 +913,8 @@ static void net_config_sanitise(void)
     net_config_info.spectators_enabled = net_config_info.spectators_enabled != 0;
     net_config_info.spectator_chat = net_config_info.spectator_chat != 0;
     net_config_info.computer_players = net_config_info.computer_players != 0;
+    net_config_info.cheats_enabled = net_config_info.cheats_enabled != 0;
+    net_config_info.computer_assistant = net_config_info.computer_assistant != 0;
 }
 
 void net_load_config_file(void)

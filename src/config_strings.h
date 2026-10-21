@@ -516,6 +516,8 @@ enum GUIStrings {
     GUIStr_NetTeam,
     GUIStr_NetPing,
     GUIStr_NetFillEmptySlots,
+    GUIStr_NetCheats,
+    GUIStr_NetComputerAssistant,
     GuiStrEnd
 };
 
