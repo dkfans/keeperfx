@@ -1841,11 +1841,11 @@ static const struct ObserverButtonCallback observer_button_callbacks[] = {
     {gui_set_menu_mode, false}, {gui_set_page, false},
     {gui_go_to_map, false}, {gui_scroll_activity_up, false}, {gui_scroll_activity_down, false},
     {gui_switch_players_visible, false},
+    {gui_go_to_next_creature, false}, {gui_go_to_next_creature_activity, false},
+    {gui_go_to_next_wanderer, false}, {gui_go_to_next_worker, false}, {gui_go_to_next_fighter, false},
+    {gui_go_to_next_room, false}, {gui_go_to_next_trap, false}, {gui_go_to_next_door, false},
+    {gui_go_to_next_spell, false}, {gui_go_to_person_in_battle, false},
     {gui_zoom_in, true}, {gui_zoom_out, true}, {gui_set_query, true}, {gui_open_event, true}, {gui_kill_event, true},
-    {gui_go_to_next_creature, true}, {gui_go_to_next_creature_activity, true},
-    {gui_go_to_next_wanderer, true}, {gui_go_to_next_worker, true}, {gui_go_to_next_fighter, true},
-    {gui_go_to_next_room, true}, {gui_go_to_next_trap, true}, {gui_go_to_next_door, true},
-    {gui_go_to_next_spell, true}, {gui_go_to_person_in_battle, true},
     {gui_query_next_creature_of_owner, true}, {gui_query_next_creature_of_owner_and_model, true},
 };
 #define OBSERVER_BUTTON_CALLBACK_COUNT (sizeof(observer_button_callbacks) / sizeof(observer_button_callbacks[0]))
