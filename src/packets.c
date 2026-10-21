@@ -724,7 +724,8 @@ static TbBool process_local_packet_action(struct PlayerInfo *player, struct User
     case PckA_PlyrMsgClear:
         ustate->init_flags &= ~UsrIF_NewMPMessage;
         LbStopTextInput();
-        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+        if (ustate == get_local_user_state())
+            memset(local_state.mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         return false;
     case PckA_SwitchScrnRes:
         if (local_action) {

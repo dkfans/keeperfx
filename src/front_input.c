@@ -435,7 +435,7 @@ static short get_players_message_inputs(void)
 
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         char text[PLAYER_MP_MESSAGE_LEN];
-        memcpy(text, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
+        memcpy(text, local_state.mp_message_text, PLAYER_MP_MESSAGE_LEN);
         text[PLAYER_MP_MESSAGE_LEN - 1] = '\0';
         MapCoord cursor_x;
         MapCoord cursor_y;
@@ -447,7 +447,7 @@ static short get_players_message_inputs(void)
             console_cmd_default_cursor(player->id_number, &cursor_x, &cursor_y);
         }
         if (observer_is_active() && text[0] == cmd_char) {
-            memcpy(player->mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
+            memcpy(local_state.mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
             cmd_exec_observer(text + 1, cursor_x, cursor_y);
         } else if (replay.load_enable) {
             if (text[0] != '\0') {
@@ -462,31 +462,31 @@ static short get_players_message_inputs(void)
             }
         }
         ustate->init_flags &= ~UsrIF_NewMPMessage;
-        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+        memset(local_state.mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_RETURN);
         LbStopTextInput();
     } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
         set_players_packet_action(player, PckA_PlyrMsgClear, 0, 0, 0, 0);
         ustate->init_flags &= ~UsrIF_NewMPMessage;
-        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+        memset(local_state.mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_ESCAPE);
         LbStopTextInput();
-    } else if (is_key_pressed(KC_TAB, KMod_NONE) && player->mp_message_text[0] == cmd_char) {
-        cmd_auto_completion(player->id_number, player->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
+    } else if (is_key_pressed(KC_TAB, KMod_NONE) && local_state.mp_message_text[0] == cmd_char) {
+        cmd_auto_completion(player->id_number, local_state.mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
         clear_key_pressed(KC_TAB);
     } else if (is_key_pressed(KC_UP, KMod_NONE)) {
-        memcpy(player->mp_message_text, player->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
+        memcpy(local_state.mp_message_text, local_state.mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_UP);
     } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
-        int chpos = strlen(player->mp_message_text);
+        int chpos = strlen(local_state.mp_message_text);
         // Skip UTF-8 continuation bytes so the whole last character is removed
-        while ((chpos > 0) && ((player->mp_message_text[chpos-1] & 0xc0) == 0x80))
+        while ((chpos > 0) && ((local_state.mp_message_text[chpos-1] & 0xc0) == 0x80))
             chpos--;
         if (chpos > 0)
-            player->mp_message_text[chpos-1] = '\0';
+            local_state.mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);
     } else {
-        result = add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
+        result = add_input_text_to_message(local_state.mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
     }
     memset(lbKeyPressed, 0, sizeof(lbKeyPressed));
     return result;

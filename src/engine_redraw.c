@@ -962,8 +962,8 @@ void redraw_display(void)
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((get_local_user_state()->init_flags & UsrIF_NewMPMessage) != 0)
     {
-        char text[sizeof(player->mp_message_text) + 4];
-        snprintf(text, sizeof(text), ">%s_", player->mp_message_text);
+        char text[sizeof(local_state.mp_message_text) + 4];
+        snprintf(text, sizeof(text), ">%s_", local_state.mp_message_text);
         int chat_units_per_px = font_size_units_per_px(chat_font_size);
         int chat_line_spacing = chat_units_per_px * CHAT_LINE_SPACING_PERCENT / 100;
         long pos_x = 148*units_per_pixel/16;
