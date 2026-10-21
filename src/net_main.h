@@ -95,6 +95,7 @@ struct NetSP
 {
     TbError (*init)(NetDropCallback drop_callback);
     void (*exit)();
+    void (*disconnect)();
     TbError (*host)(const char *session, void *options);
     TbError (*join)(const char *session, void *options);
     void (*update)(enum NetJoinRejection (*new_user)(NetUserId *assigned_id, enum NetConnectionRole role));
