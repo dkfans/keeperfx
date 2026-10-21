@@ -107,6 +107,7 @@ long pos_move_in_direction_to_blocking_wall_or_lava(struct Coord3d *mvpos, unsig
 long pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
 
 long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilterParam param, long maximizer);
+long near_coord_filter_battle_drop_point_in_sight(const struct Coord3d *pos, MaxCoordFilterParam param, long maximizer);
 
 TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, MapCoord x, MapCoord y,
     long spiral_len, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
