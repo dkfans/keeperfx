@@ -110,16 +110,6 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing) {
     return checksum;
 }
 
-static TbBigChecksum compute_player_checksum(struct PlayerInfo *player) {
-    if ((player->allocflags & PlaF_CompCtrl) != 0) {
-        return 0;
-    }
-    TbBigChecksum checksum = 0;
-    CHECKSUM_ADD(checksum, player->instance_remain_turns);
-    CHECKSUM_ADD(checksum, player->instance_num);
-    return checksum;
-}
-
 static TbBigChecksum compute_user_checksum(NetUserId user) {
     struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate) || (ustate->player_id == PLAYER_NONE)) {
@@ -132,6 +122,8 @@ static TbBigChecksum compute_user_checksum(NetUserId user) {
     TbBigChecksum checksum = 0;
     CHECKSUM_ADD(checksum, ustate->dungeon_camera.x);
     CHECKSUM_ADD(checksum, ustate->dungeon_camera.y);
+    CHECKSUM_ADD(checksum, ustate->instance_remain_turns);
+    CHECKSUM_ADD(checksum, ustate->instance_num);
     return checksum;
 }
 
@@ -180,13 +172,6 @@ static void compute_checksums(struct DesyncChecksums* checksums) {
     for (struct Room* room = start_rooms; room < end_rooms; room++) {
         if (room_exists(room)) {
             CHECKSUM_ADD(checksums->rooms, get_room_checksum(room));
-        }
-    }
-    checksums->players = 0;
-    for (int i = 0; i < PLAYERS_COUNT; i++) {
-        struct PlayerInfo* player = get_player(i);
-        if (player_exists(player)) {
-            checksums->players += compute_player_checksum(player);
         }
     }
     checksums->dig_tasks = 0;
@@ -293,7 +278,6 @@ void update_turn_checksums(void) {
     snapshot->valid = true;
     compute_checksums(&snapshot->checksums);
     snapshot_info->thing_count = 0;
-    snapshot_info->player_count = 0;
     snapshot_info->user_count = 0;
     snapshot_info->room_count = 0;
     memset(snapshot_info->dig_task_counts, 0, sizeof(snapshot_info->dig_task_counts));
@@ -348,17 +332,6 @@ void update_turn_checksums(void) {
             }
             thing_snapshot->checksum = get_thing_checksum(thing);
         }
-        for (int i = 0; i < PLAYERS_COUNT; i++) {
-            struct PlayerInfo* player = get_player(i);
-            if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0)) {
-                continue;
-            }
-            struct LogPlayerDesyncInfo* player_snapshot = &snapshot_info->players[snapshot_info->player_count++];
-            player_snapshot->id = i;
-            player_snapshot->instance_num = player->instance_num;
-            player_snapshot->instance_remain_turns = player->instance_remain_turns;
-            player_snapshot->checksum = compute_player_checksum(player);
-        }
         for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
             struct UserState* ustate = get_user_state(user);
             if (user_state_invalid(ustate) || (ustate->player_id == PLAYER_NONE)) {
@@ -370,6 +343,8 @@ void update_turn_checksums(void) {
             memset(&user_snapshot->mappos, 0, sizeof(user_snapshot->mappos));
             user_snapshot->mappos.x.val = ustate->dungeon_camera.x;
             user_snapshot->mappos.y.val = ustate->dungeon_camera.y;
+            user_snapshot->instance_num = ustate->instance_num;
+            user_snapshot->instance_remain_turns = ustate->instance_remain_turns;
             user_snapshot->checksum = compute_user_checksum(user);
         }
         for (struct Room* room = start_rooms; room < end_rooms; room++) {
@@ -408,14 +383,13 @@ void update_turn_checksums(void) {
     packet->checksum = 0;
     packet->checksum += things_sum;
     packet->checksum += checksums->rooms;
-    packet->checksum += checksums->players;
     packet->checksum += checksums->dig_tasks;
     packet->checksum += checksums->users;
     packet->checksum += checksums->action_seed;
     packet->checksum += checksums->player_seed;
     packet->checksum += checksums->ai_seed;
 
-    MULTIPLAYER_LOG("update_turn_checksums: turn=%lu checksum=%08lx things=%08lx rooms=%08lx players=%08lx users=%08lx", (unsigned long)get_gameturn(), (unsigned long)packet->checksum, (unsigned long)things_sum, (unsigned long)checksums->rooms, (unsigned long)checksums->players, (unsigned long)checksums->users);
+    MULTIPLAYER_LOG("update_turn_checksums: turn=%lu checksum=%08lx things=%08lx rooms=%08lx users=%08lx", (unsigned long)get_gameturn(), (unsigned long)packet->checksum, (unsigned long)things_sum, (unsigned long)checksums->rooms, (unsigned long)checksums->users);
 }
 
 void pack_desync_history_for_resync(void) {
@@ -426,7 +400,6 @@ void pack_desync_history_for_resync(void) {
     if (!snapshot->valid) {
         compute_checksums(&game.host_checksums);
         game.log_snapshot.thing_count = 0;
-        game.log_snapshot.player_count = 0;
         game.log_snapshot.user_count = 0;
         game.log_snapshot.room_count = 0;
         memset(game.log_snapshot.dig_tasks, 0, sizeof(game.log_snapshot.dig_tasks));
@@ -564,25 +537,6 @@ void compare_desync_history_from_host(void) {
     log_checksum_mismatch("ACTION_SEED", client->action_seed, host->action_seed);
     log_checksum_mismatch("AI_SEED", client->ai_seed, host->ai_seed);
     log_checksum_mismatch("PLAYER_SEED", client->player_seed, host->player_seed);
-    if (log_checksum_mismatch("Players", client->players, host->players)) {
-        for (int i = 0; i < client_snapshot->player_count; i++) {
-            struct LogPlayerDesyncInfo* client_player = &client_snapshot->players[i];
-            struct LogPlayerDesyncInfo* host_player = NULL;
-            for (int j = 0; j < host_snapshot->player_count; j++) {
-                if (host_snapshot->players[j].id == client_player->id) {
-                    host_player = &host_snapshot->players[j];
-                    break;
-                }
-            }
-            if (host_player == NULL) {
-                ERRORLOG("    Player[%d] missing from host", client_player->id);
-            } else if (client_player->checksum != host_player->checksum) {
-                ERRORLOG("    Player[%d] instance_num: Host=%u Client=%u, instance_remain_turns: Host=%lu Client=%lu", client_player->id,
-                    (unsigned)host_player->instance_num, (unsigned)client_player->instance_num,
-                    (unsigned long)host_player->instance_remain_turns, (unsigned long)client_player->instance_remain_turns);
-            }
-        }
-    }
     if (log_checksum_mismatch("Users", client->users, host->users)) {
         for (int i = 0; i < client_snapshot->user_count; i++) {
             struct LogUserDesyncInfo* client_user = &client_snapshot->users[i];
@@ -600,6 +554,9 @@ void compare_desync_history_from_host(void) {
                     (int)host_user->player_id, (int)client_user->player_id,
                     (long)host_user->mappos.x.val, (long)host_user->mappos.y.val, (long)host_user->mappos.z.val,
                     (long)client_user->mappos.x.val, (long)client_user->mappos.y.val, (long)client_user->mappos.z.val);
+                ERRORLOG("    User[%d] instance_num: Host=%u Client=%u, instance_remain_turns: Host=%u Client=%u", (int)client_user->user,
+                    (unsigned)host_user->instance_num, (unsigned)client_user->instance_num,
+                    (unsigned)host_user->instance_remain_turns, (unsigned)client_user->instance_remain_turns);
             }
         }
     }

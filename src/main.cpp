@@ -492,7 +492,7 @@ short setup_game(void)
 static bool players_cursor_is_at_top_of_view()
 {
     const struct PlayerInfo *const player = get_displayed_player();
-    const struct UserState *const ustate = get_player_user_state_prediction(player);
+    const struct UserState *const ustate = get_user_state_prediction(get_displayed_user());
     switch (ustate->work_state)
     {
     case PSt_BuildRoom:
@@ -1014,6 +1014,12 @@ void clear_players_for_save(void)
       ustate->roomspace_drag_paint_mode = 0;
       ustate->roomspace_l_shape = 0;
       ustate->roomspace_horizontal_first = 0;
+      ustate->instance_num = 0;
+      ustate->instance_remain_turns = 0;
+      ustate->zoom_to_pos_x = 0;
+      ustate->zoom_to_pos_y = 0;
+      ustate->cast_expand_level = 0;
+      ustate->hand_animation_until_turn = 0;
     }
 }
 
@@ -1199,11 +1205,9 @@ void centre_engine_window(void)
     setup_engine_window(window_center_x, window_center_y, local_state.engine_window_width, local_state.engine_window_height);
 }
 
-void turn_off_query(PlayerNumber plyr_idx)
+void turn_off_query(NetUserId user)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
-    set_player_instance(player, PI_UnqueryCrtr, 0);
+    set_user_instance(user, PI_UnqueryCrtr, 0);
 }
 
 long filter_creatures_owned_by_keepers(const struct Thing *thing, MaxTngFilterParam, long)
@@ -1398,7 +1402,7 @@ void update_local_mouse_light(void)
     struct PlayerInfo *player = get_my_player();
 
     // Avoid glitching during level intro or possess animation
-    if (player->instance_num != PI_Unset)
+    if (get_local_user_state()->instance_num != PI_Unset)
         return;
     // ... or when watching a replay
     if (replay.load_enable)
@@ -1406,7 +1410,7 @@ void update_local_mouse_light(void)
     // ... or during text input (save menu)
     if (game_is_busy_doing_gui_string_input())
         return;
-    // ... or in first person: there is no map under the mouse, and block_pointed_at is left from the dungeon view
+    // ... or in first person
     if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
         return;
 

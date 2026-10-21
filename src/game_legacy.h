@@ -170,17 +170,12 @@ struct LogThingDesyncInfo {
     TbBigChecksum checksum;
 };
 
-struct LogPlayerDesyncInfo {
-    PlayerNumber id;
-    unsigned char instance_num;
-    uint32_t instance_remain_turns;
-    TbBigChecksum checksum;
-};
-
 struct LogUserDesyncInfo {
     NetUserId user;
     PlayerNumber player_id;
     struct Coord3d mappos;
+    unsigned char instance_num;
+    uint32_t instance_remain_turns;
     TbBigChecksum checksum;
 };
 
@@ -204,7 +199,6 @@ struct DesyncChecksums {
     TbBigChecksum effect_gens;
     TbBigChecksum doors;
     TbBigChecksum rooms;
-    TbBigChecksum players;
     TbBigChecksum dig_tasks;
     TbBigChecksum users;
     TbBigChecksum action_seed;
@@ -216,8 +210,6 @@ struct DesyncChecksums {
 struct LogDetailedSnapshot {
     struct LogThingDesyncInfo things[SYNCED_THINGS_COUNT];
     int thing_count;
-    struct LogPlayerDesyncInfo players[PLAYERS_COUNT];
-    int player_count;
     struct LogUserDesyncInfo users[MAX_NET_USERS];
     int user_count;
     struct LogRoomDesyncInfo rooms[ROOMS_COUNT];

@@ -105,7 +105,7 @@ void intentional_desync()
             thing->health += 1;
         }
     }
-    get_player(0)->instance_remain_turns += 1;
+    get_user_state(0)->instance_remain_turns += 1;
 }
 
 void animate_resync_progress_bar(int current_phase, int total_phases)

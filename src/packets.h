@@ -32,6 +32,7 @@ extern "C" {
 /******************************************************************************/
 struct Camera;
 struct CreatureControl;
+struct UserState;
 struct Packet;
 struct PlayerInfo;
 struct Thing;
@@ -338,7 +339,7 @@ void process_map_packet_clicks(NetUserId user);
 void process_pause_packet(long a1, long a2);
 TbBool process_user_global_packet_action(NetUserId user);
 void clear_users_button_state(void);
-void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, struct PlayerInfo* player);
+void process_camera_view_controls(struct Camera* cam, const struct Packet* pckt, const struct UserState *ustate);
 TbBool packet_action_has_camera_position(enum TbPacketAction action);
 unsigned char packet_camera_context(const struct Packet *pckt);
 void packet_set_camera_context(struct Packet *pckt, unsigned char cam_idx);
@@ -347,7 +348,7 @@ void packet_clear_camera_position(struct Packet *pckt);
 TbBool packet_get_camera_position(const struct Packet *pckt, MapCoord *x, MapCoord *y);
 void packet_set_possession_target(struct Packet *pckt, ThingIndex target_idx);
 TbBool packet_get_possession_target(const struct Packet *pckt, ThingIndex *target_idx);
-int32_t camera_move_rate(const struct Camera* cam, const struct PlayerInfo* player, TbBool speedup);
+int32_t camera_move_rate(const struct Camera* cam, const struct UserState *ustate, TbBool speedup);
 void process_camera_action(struct Camera cams[], const struct Packet* pckt);
 void process_first_person_look(struct Thing *thing, int32_t turn_x, int32_t turn_y, int32_t current_horizontal, int32_t current_vertical, int32_t *out_horizontal, int32_t *out_vertical, int32_t *out_roll);
 TbBool can_process_creature_input(struct Thing *thing);

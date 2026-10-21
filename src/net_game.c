@@ -686,9 +686,14 @@ static void stop_network_game_and_continue_locally(void)
         stop_network_game_state();
         survivor = get_my_player();
     } else {
-        const PlayerNumber plyr_idx = get_net_user_player_number(replay.head.recording_user);
-        survivor = (plyr_idx >= 0) ? get_player(plyr_idx) : get_my_player();
-        remap_user_to_solo(survivor, get_local_user());
+        NetUserId survivor_user = replay.head.recording_user;
+        PlayerNumber plyr_idx = get_net_user_player_number(survivor_user);
+        if (plyr_idx < 0) {
+            survivor_user = get_local_user();
+            plyr_idx = my_player_number;
+        }
+        survivor = get_player(plyr_idx);
+        remap_user_to_solo(survivor, survivor_user);
         game.game_kind = GKind_LocalGame;
         setup_count_players();
     }

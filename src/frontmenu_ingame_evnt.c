@@ -42,6 +42,7 @@
 #include "net_input_lag.h"
 #include "net_game.h"
 #include "net_spectator.h"
+#include "observer.h"
 #include "frontend.h"
 #include "front_input.h"
 #include "kjm_input.h"
@@ -595,13 +596,9 @@ static void draw_bottom_right_text(const char *text, const struct BottomRightTex
 // name of user to display while watching a game
 static const char *get_displayed_user_name(void)
 {
+    const NetUserId watched = observer_get_watched_user();
     if (network_is_active() && network_user_is_spectator(netstate.my_id)) {
-        for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-            if (get_net_user_player_number(user) == my_player_number) {
-                return netstate.users[user].name;
-            }
-        }
-        return NULL;
+        return watched >= 0 ? netstate.users[watched].name : NULL;
     }
     if (!replay.load_enable) {
         return NULL;
@@ -611,7 +608,7 @@ static const char *get_displayed_user_name(void)
         if (replay.head.user_players[user] >= 0)
             users++;
     }
-    const NetUserId user = get_local_user();
+    const NetUserId user = observer_is_active() ? watched : get_local_user();
     if ((users < 1) || (user < 0) || (user >= MAX_NET_USERS))
         return NULL;
     return replay.head.user_names[user];

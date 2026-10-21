@@ -7659,8 +7659,9 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel 
     }
 }
 
-void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom)
+void query_creature(NetUserId user, ThingIndex index, TbBool reset, TbBool zoom)
 {
+    struct PlayerInfo *player = get_user_player(user);
     if (is_my_player(player))
     {
         MenuID menu;
@@ -7700,11 +7701,12 @@ void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, T
     player->influenced_thing_creation = creatng->creation_turn;
     if (zoom)
     {
-        player->zoom_to_pos_x = creatng->mappos.x.val;
-        player->zoom_to_pos_y = creatng->mappos.y.val;
-        set_player_instance(player, PI_ZoomToPos, 0);
+        struct UserState *ustate = get_user_state(user);
+        ustate->zoom_to_pos_x = creatng->mappos.x.val;
+        ustate->zoom_to_pos_y = creatng->mappos.y.val;
+        set_user_instance(user, PI_ZoomToPos, 0);
     }
-    set_player_instance(player, PI_QueryCrtr, 0);
+    set_user_instance(user, PI_QueryCrtr, 0);
 }
 
 TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)

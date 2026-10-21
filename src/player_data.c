@@ -159,10 +159,21 @@ struct PlayerInfo *get_my_player(void)
 
 const struct PlayerInfo *get_displayed_player(void)
 {
-    if (observer_is_active() && !is_observer_camera_active()) {
+    if (observer_is_following_user()) {
         return get_player(my_player_number);
     }
     return get_my_player();
+}
+
+NetUserId get_displayed_user(void)
+{
+    if (observer_is_following_user()) {
+        return observer_get_watched_user();
+    }
+    if (observer_is_active()) {
+        return OBSERVER_USER;
+    }
+    return get_local_user();
 }
 
 TbBool is_my_player_number(PlayerNumber plyr_num)
@@ -227,12 +238,18 @@ void set_local_user_state_prediction(const struct UserState *ustate)
 /**
  * Returns the player's user state as it will be once the local user's pending packets are processed.
  */
-const struct UserState *get_player_user_state_prediction(const struct PlayerInfo *player)
+const struct UserState *get_user_state_prediction(NetUserId user)
 {
-    if (local_user_state_prediction_active && is_my_player(player)) {
+    const struct UserState *ustate = get_user_state(user);
+    if (local_user_state_prediction_active && !user_state_invalid(ustate) && ustate == get_local_user_state()) {
         return &local_user_state_prediction;
     }
-    return get_player_user_state(player);
+    return ustate;
+}
+
+const struct UserState *get_player_user_state_prediction(const struct PlayerInfo *player)
+{
+    return get_user_state_prediction(get_player_primary_user(player));
 }
 
 struct UserState *get_local_user_state(void)

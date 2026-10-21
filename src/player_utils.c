@@ -917,7 +917,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->mp_message_text[0] = '\0';
     // By default, player is his own ally
     player->allied_players = to_flag(player->id_number);
-    player->hand_busy_until_turn = 0;
+    player->slap_cooldown_until_turn = 0;
     if (player->generate_speed == 0)
       player->generate_speed = game.conf.rules[player->id_number].rooms.default_generate_speed;
     if (is_my_player(player)) {

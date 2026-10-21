@@ -654,8 +654,9 @@ int get_place_door_pointer_graphics(ThingModel drmodel)
  *
  * @return Gives true if cursor spell was drawn, false if the spell wasn't available and either no cursor or block cursor was drawn.
  */
-static TbBool draw_spell_cursor(const struct PlayerInfo *player, PowerKind pwkind, ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+static TbBool draw_spell_cursor(NetUserId user, PowerKind pwkind, ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
+    const struct PlayerInfo *player = get_user_player(user);
     int32_t i;
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0) {
@@ -671,10 +672,10 @@ static TbBool draw_spell_cursor(const struct PlayerInfo *player, PowerKind pwkin
         set_pointer_graphic(MousePG_DenyMark);
         return false;
     }
-    unsigned char (*chkfunc)(const struct PlayerInfo *) = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
+    unsigned char (*chkfunc)(NetUserId) = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
     if (chkfunc != NULL) {
-        if (chkfunc(player)) {
-            i = get_power_overcharge_level(player);
+        if (chkfunc(user)) {
+            i = get_power_overcharge_level(user);
             set_pointer_graphic(MousePG_SpellCharge0+i);
             draw_spell_cost = compute_power_price(player->id_number, pwkind, i);
 
@@ -690,11 +691,12 @@ static TbBool draw_spell_cursor(const struct PlayerInfo *player, PowerKind pwkin
     return true;
 }
 
-static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
+static void process_dungeon_top_pointer_graphic(NetUserId user)
 {
+    const struct PlayerInfo *player = get_user_player(user);
     struct Thing *thing;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
-    const struct UserState *ustate = get_player_user_state_prediction(player);
+    const struct UserState *ustate = get_user_state_prediction(user);
     struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(ustate->work_state);
     if (dungeon_invalid(dungeon) || user_state_invalid(ustate)) {
         set_pointer_graphic(MousePG_Invisible);
@@ -729,7 +731,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
         thing = thing_get(battle_creature_over);
         TRACE_THING(thing);
         if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
-            draw_spell_cursor(player, pwkind, battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            draw_spell_cursor(user, pwkind, battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         } else {
             set_pointer_graphic(MousePG_Arrow);
         }
@@ -756,7 +758,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
           i = ustate->secondary_cursor_state;
         else
           i = ustate->primary_cursor_state;
-        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || power_hand_is_hovering(player) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
+        if (ustate->instance_num == PI_Grab || ustate->instance_num == PI_Drop || ustate->instance_num == PI_Whip || ustate->instance_num == PI_WhipEnd || power_hand_is_hovering(player) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
             i = CSt_PowerHand;
         } else
         if ((i == CSt_PowerHand) && power_hand_is_empty(player)) {
@@ -792,7 +794,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
                     }
                 }
                 if (can_cast) {
-                    draw_spell_cursor(player, pwkind, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                    draw_spell_cursor(user, pwkind, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                 } else {
                     set_pointer_graphic(MousePG_Arrow);
                 }
@@ -812,7 +814,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
             }
             break;
         default:
-            if (player->hand_busy_until_turn <= get_gameturn())
+            if (ustate->hand_animation_until_turn <= get_gameturn())
               set_pointer_graphic(MousePG_Arrow);
             else
               set_pointer_graphic(MousePG_Invisible);
@@ -834,7 +836,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
             stl_x = coord_subtile(pckt->pos_x);
             stl_y = coord_subtile(pckt->pos_y);
         }
-        draw_spell_cursor(player, ustate->chosen_power_kind, 0, stl_x, stl_y);
+        draw_spell_cursor(user, ustate->chosen_power_kind, 0, stl_x, stl_y);
         break;
     }
     case PsPg_Query:
@@ -881,11 +883,11 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
 void process_pointer_graphic(void)
 {
     struct PlayerInfo* player = get_my_player();
-    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(get_player_user_state(player)->work_state),(int)player->instance_num);
+    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(get_local_user_state()->work_state),(int)get_local_user_state()->instance_num);
     switch (get_local_view_type(player)) {
     case PVT_DungeonTop:
         // This case is complicated
-        process_dungeon_top_pointer_graphic(get_displayed_player());
+        process_dungeon_top_pointer_graphic(get_displayed_user());
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:

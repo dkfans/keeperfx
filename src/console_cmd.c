@@ -2499,9 +2499,9 @@ TbBool cmd_zoom_to_slabcoord(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    player->zoom_to_pos_x = subtile_coord_center(stl_x);
-    player->zoom_to_pos_y = subtile_coord_center(stl_y);
-    set_player_instance(player, PI_ZoomToPos, 0);
+    get_player_user_state(player)->zoom_to_pos_x = subtile_coord_center(stl_x);
+    get_player_user_state(player)->zoom_to_pos_y = subtile_coord_center(stl_y);
+    set_user_instance(get_player_primary_user(player), PI_ZoomToPos, 0);
     return true;
 }
 
@@ -2528,9 +2528,9 @@ TbBool cmd_zoom_to_subtilecoord(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    player->zoom_to_pos_x = subtile_coord_center(stl_x);
-    player->zoom_to_pos_y = subtile_coord_center(stl_y);
-    set_player_instance(player, PI_ZoomToPos, 0);
+    get_player_user_state(player)->zoom_to_pos_x = subtile_coord_center(stl_x);
+    get_player_user_state(player)->zoom_to_pos_y = subtile_coord_center(stl_y);
+    set_user_instance(get_player_primary_user(player), PI_ZoomToPos, 0);
     return true;
 }
 
@@ -2596,9 +2596,9 @@ TbBool cmd_zoom_to_action_point(PlayerNumber plyr_idx, char * args)
     }
     struct ActionPoint * actionpt = action_point_get(idx);
     struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    player->zoom_to_pos_x = subtile_coord_center(actionpt->mappos.x.stl.num);
-    player->zoom_to_pos_y = subtile_coord_center(actionpt->mappos.y.stl.num);
-    set_player_instance(player, PI_ZoomToPos, 0);
+    get_player_user_state(player)->zoom_to_pos_x = subtile_coord_center(actionpt->mappos.x.stl.num);
+    get_player_user_state(player)->zoom_to_pos_y = subtile_coord_center(actionpt->mappos.y.stl.num);
+    set_user_instance(get_player_primary_user(player), PI_ZoomToPos, 0);
     return true;
 }
 
@@ -2645,9 +2645,9 @@ TbBool cmd_zoom_to_hero_gate(PlayerNumber plyr_idx, char * args)
         return false;
     }
     struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    player->zoom_to_pos_x = subtile_coord_center(thing->mappos.x.stl.num);
-    player->zoom_to_pos_y = subtile_coord_center(thing->mappos.y.stl.num);
-    set_player_instance(player, PI_ZoomToPos, 0);
+    get_player_user_state(player)->zoom_to_pos_x = subtile_coord_center(thing->mappos.x.stl.num);
+    get_player_user_state(player)->zoom_to_pos_y = subtile_coord_center(thing->mappos.y.stl.num);
+    set_user_instance(get_player_primary_user(player), PI_ZoomToPos, 0);
     return true;
 }
 
