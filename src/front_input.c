@@ -448,7 +448,7 @@ static short get_players_message_inputs(void)
         }
         if (observer_is_active() && text[0] == cmd_char) {
             memcpy(local_state.mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
-            cmd_exec_observer(text + 1, cursor_x, cursor_y);
+            cmd_exec(PLAYER_NEUTRAL, text + 1, cursor_x, cursor_y, true);
         } else if (replay.load_enable) {
             if (text[0] != '\0') {
                 message_add(MsgType_Player, player->id_number, text);
@@ -473,7 +473,7 @@ static short get_players_message_inputs(void)
         LbStopTextInput();
     } else if (is_key_pressed(KC_TAB, KMod_NONE) && local_state.mp_message_text[0] == cmd_char) {
         if (observer_is_active()) {
-            cmd_auto_completion_observer(local_state.mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
+            cmd_auto_completion(PLAYER_NEUTRAL, local_state.mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
         } else {
             cmd_auto_completion(player->id_number, local_state.mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
         }

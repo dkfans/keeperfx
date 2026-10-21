@@ -154,7 +154,7 @@ static const unsigned char user_preference_flags[UPref_Count] = {
     [UPref_StartingFrontviewZoom] = 0,
     [UPref_StartingTendencies]    = 0,
     [UPref_MinimapZoom]           = 0,
-    [UPref_ComputerAssistant]     = UPF_ApplyOnLoad | UPF_ApplyOnTakeover,
+    [UPref_ComputerAssistantDisabled] = UPF_ApplyOnLoad | UPF_ApplyOnTakeover,
 };
 
 void build_local_user_preferences(UserPreferences prefs)
@@ -166,10 +166,9 @@ void build_local_user_preferences(UserPreferences prefs)
     prefs[UPref_FrontView] = front_view;
     prefs[UPref_Wibble] = wibble;
     prefs[UPref_Cheats] = start_params.easter_egg;
-    prefs[UPref_ComputerAssistant] = true;
     if (network_is_active() && network_is_host()) {
         prefs[UPref_Cheats] = net_config_info.cheats_enabled;
-        prefs[UPref_ComputerAssistant] = net_config_info.computer_assistant;
+        prefs[UPref_ComputerAssistantDisabled] = !net_config_info.computer_assistant;
     }
     prefs[UPref_SkipHeartZoom] = get_skip_heart_zoom_feature();
     prefs[UPref_StartingHighlightMode] = get_starting_highlight_mode();
@@ -247,7 +246,7 @@ TbBool computer_assistant_allowed(void)
 {
     if (game.game_kind != GKind_MultiGame)
         return true;
-    return get_user_state(SERVER_ID)->prefs[UPref_ComputerAssistant] != 0;
+    return get_user_state(SERVER_ID)->prefs[UPref_ComputerAssistantDisabled] == 0;
 }
 
 TbBool game_censorship_enabled(void)
@@ -540,6 +539,9 @@ TbBool init_players_network_game(void)
 void network_game_started(void)
 {
     net_lobby_set_phase(NetPhase_InGame);
+    message_add_fmt(MsgType_Blank, 0, "%s: %s, %s: %s",
+        get_string(GUIStr_NetCheats), get_on_off_string(user_cheats_allowed(SERVER_ID)),
+        get_string(GUIStr_NetComputerAssistant), get_on_off_string(computer_assistant_allowed()));
     if (netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
         LevelNumber map_number = get_level_number();
         struct LevelInformation *level_info = get_level_info(map_number);
