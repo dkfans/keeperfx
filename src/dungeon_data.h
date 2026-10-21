@@ -349,6 +349,7 @@ TbBool restart_script_timer(PlayerNumber plyr_idx, int32_t timer_id);
 TbBool set_script_flag(PlayerNumber plyr_idx, int32_t flag_id, int32_t value);
 void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, int32_t value);
 
+void create_heart_attacked_event(const struct Thing *heartng, const struct Thing *attacker);
 void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on_damage);
 
 /******************************************************************************/
