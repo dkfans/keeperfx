@@ -48,6 +48,7 @@
 #include "gui_boxmenu.h"
 #include "gui_msgs.h"
 #include "gui_soundmsgs.h"
+#include "gui_topmsg.h"
 #include "gui_tooltips.h"
 #include "keeperfx.hpp"
 #include "lvl_script_lib.h"
@@ -129,6 +130,7 @@ enum AutoCompletionFlags {
 #define AUTO_COMP_RET_COMPLETE_UNIQUE -2
 #define AUTO_COMP_RET_NOT_FOUND -3 // zero possibility
 #define AUTO_COMP_RET_AMBIGUOUS -4 // multiple possibilities
+#define COMMAND_FAILURE_SECONDS 2
 int do_complete_from_candidates(const char *key_list[], int key_cnt, char *completion_str, size_t completion_len, size_t completion_size, enum AutoCompletionFlags check_flag, char **poss_str_ret);
 int do_complete_from_prioritized_candidates(const char *key_list[], int primary_cnt, int secondary_cnt, int prio_threshold_len, char *completion_str, size_t completion_len, size_t completion_size, char **poss_str_ret);
 void do_param1_completion_for_name_command(PlayerNumber plyr_idx, char *args_str, size_t args_size, const char *desc_str, struct NamedCommand *primary_name_desc, struct NamedCommand *secondary_name_desc, int prio_threshold_len, TbBool add_random);
@@ -3093,6 +3095,13 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
 
 
 
+static void show_command_failure(TbBool issued_here, const char *message)
+{
+    if (issued_here) {
+        show_onscreen_msg(COMMAND_FAILURE_SECONDS * turns_per_second, "%s", message);
+    }
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord cursor_y)
 {
     SYNCDBG(2, "Command (player %d): %s",(int)plyr_idx, args);
@@ -3102,10 +3111,11 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord 
         WARNLOG("Command for non-existent player %d ignored: %s", (int)plyr_idx, args);
         return false;
     }
+    TbBool issued_here = (console_cmd_observer != NULL) || (!replay.load_enable && is_my_player(console_cmd_player(plyr_idx)));
     const char * command = strsep_param_with_space(&args);
     if (command == NULL) {
         if (console_cmd_cheats_allowed(plyr_idx)) {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "command is empty");
+            show_command_failure(issued_here, "command is empty");
         }
         return false;
     }
@@ -3115,19 +3125,18 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args, MapCoord cursor_x, MapCoord 
         if (strcasecmp(command, entry->name) != 0) {
             continue;
         }
-        TbBool issued_here = (console_cmd_observer != NULL) || (!replay.load_enable && is_my_player(console_cmd_player(plyr_idx)));
         if ((entry->scope == CmdS_Personal) && !issued_here) {
             return false;
         }
         const char *refusal = console_command_refusal(plyr_idx, entry);
         if (refusal != NULL) {
-            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s", refusal);
+            show_command_failure(issued_here, refusal);
             return false;
         }
         return entry->function(plyr_idx, args);
     }
     if (console_cmd_cheats_allowed(plyr_idx)) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "unsupported command");
+        show_command_failure(issued_here, "unsupported command");
     }
     return false;
 }
