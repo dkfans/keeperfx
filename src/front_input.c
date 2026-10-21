@@ -444,7 +444,7 @@ static short get_players_message_inputs(void)
             cursor_x = pos.x.val;
             cursor_y = pos.y.val;
         } else {
-            console_cmd_default_cursor(player->id_number, &cursor_x, &cursor_y);
+            console_cmd_default_cursor(player, &cursor_x, &cursor_y);
         }
         if (text[0] != '\0')
             memcpy(local_state.mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
@@ -473,7 +473,11 @@ static short get_players_message_inputs(void)
         clear_key_pressed(KC_ESCAPE);
         LbStopTextInput();
     } else if (is_key_pressed(KC_TAB, KMod_NONE) && local_state.mp_message_text[0] == cmd_char) {
-        cmd_auto_completion(player->id_number, local_state.mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
+        if (observer_is_active()) {
+            cmd_auto_completion_observer(local_state.mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
+        } else {
+            cmd_auto_completion(player->id_number, local_state.mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
+        }
         clear_key_pressed(KC_TAB);
     } else if (is_key_pressed(KC_UP, KMod_NONE)) {
         memcpy(local_state.mp_message_text, local_state.mp_message_text_last, PLAYER_MP_MESSAGE_LEN);

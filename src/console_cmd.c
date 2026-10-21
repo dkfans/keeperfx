@@ -144,9 +144,6 @@ static struct PlayerInfo *console_cmd_player(PlayerNumber plyr_idx)
     if (console_cmd_observer != NULL && plyr_idx == PLAYER_NEUTRAL) {
         return console_cmd_observer;
     }
-    if (plyr_idx == my_player_number) {
-        return get_my_player();
-    }
     return get_player(plyr_idx);
 }
 
@@ -211,9 +208,8 @@ static void console_cmd_cursor(MapCoord *x, MapCoord *y)
     *y = console_cmd_cursor_y;
 }
 
-void console_cmd_default_cursor(PlayerNumber plyr_idx, MapCoord *x, MapCoord *y)
+void console_cmd_default_cursor(const struct PlayerInfo *player, MapCoord *x, MapCoord *y)
 {
-    const struct PlayerInfo *player = console_cmd_player(plyr_idx);
     if (player == &local_observer_player) {
         const struct Camera *cam = get_local_active_camera(&local_observer_player);
         *x = cam->mappos.x.val;
@@ -3142,6 +3138,14 @@ TbBool cmd_exec_observer(char *args, MapCoord cursor_x, MapCoord cursor_y)
     TbBool result = cmd_exec(PLAYER_NEUTRAL, args, cursor_x, cursor_y, true);
     console_cmd_observer = previous_observer;
     return result;
+}
+
+void cmd_auto_completion_observer(char *cmd_str, size_t cmd_size)
+{
+    struct PlayerInfo *previous_observer = console_cmd_observer;
+    console_cmd_observer = &local_observer_player;
+    cmd_auto_completion(PLAYER_NEUTRAL, cmd_str, cmd_size);
+    console_cmd_observer = previous_observer;
 }
 
 static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const char *str_num)
