@@ -512,6 +512,8 @@ enum GUIStrings {
     GUIStr_SaveLoadFailed,
     GUIStr_NetSpectatorDesynced,
     GUIStr_NetPlayerTimedOut,
+    GUIStr_NetCheats,
+    GUIStr_NetComputerAssistant,
     GuiStrEnd
 };
 

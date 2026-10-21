@@ -154,6 +154,7 @@ static const unsigned char user_preference_flags[UPref_Count] = {
     [UPref_StartingFrontviewZoom] = 0,
     [UPref_StartingTendencies]    = 0,
     [UPref_MinimapZoom]           = 0,
+    [UPref_ComputerAssistant]     = UPF_ApplyOnLoad | UPF_ApplyOnTakeover,
 };
 
 void build_local_user_preferences(UserPreferences prefs)
@@ -165,6 +166,11 @@ void build_local_user_preferences(UserPreferences prefs)
     prefs[UPref_FrontView] = front_view;
     prefs[UPref_Wibble] = wibble;
     prefs[UPref_Cheats] = start_params.easter_egg;
+    prefs[UPref_ComputerAssistant] = true;
+    if (network_is_active() && network_is_host()) {
+        prefs[UPref_Cheats] = net_config_info.cheats_enabled;
+        prefs[UPref_ComputerAssistant] = net_config_info.computer_assistant;
+    }
     prefs[UPref_SkipHeartZoom] = get_skip_heart_zoom_feature();
     prefs[UPref_StartingHighlightMode] = get_starting_highlight_mode();
     prefs[UPref_StartingIsometricTilt] = settings.isometric_tilt;
@@ -232,9 +238,16 @@ TbBool user_cheats_allowed(NetUserId user)
 {
     if (get_user_state(SERVER_ID)->prefs[UPref_Cheats] == 0)
         return false;
-    if (!user_present(user))
+    if ((game.game_kind == GKind_MultiGame) || !user_present(user))
         return true;
     return get_user_state(user)->prefs[UPref_Cheats] != 0;
+}
+
+TbBool computer_assistant_allowed(void)
+{
+    if (game.game_kind != GKind_MultiGame)
+        return true;
+    return get_user_state(SERVER_ID)->prefs[UPref_ComputerAssistant] != 0;
 }
 
 TbBool game_censorship_enabled(void)

@@ -58,6 +58,7 @@
 
 #include <string.h>
 #define SESSION_LIST_MOUSE_IDLE_TIMEOUT_MS 1000
+#define RAW_NET_CONFIG_SIZE offsetof(struct ConfigInfo, cheats_enabled)
 #define LOBBY_SCREEN_PACKET_RESEND_INTERVAL_MS 100
 
 #ifdef __cplusplus
@@ -78,6 +79,8 @@ const struct ConfigInfo default_net_config_info = {
     MAX_NET_USERS,
     1,
     1,
+    0,
+    0,
 };
 
 int fe_network_active;
@@ -815,6 +818,8 @@ static void net_config_sanitise(void)
         net_config_info.max_players = MAX_NET_USERS;
     net_config_info.spectators_enabled = net_config_info.spectators_enabled != 0;
     net_config_info.spectator_chat = net_config_info.spectator_chat != 0;
+    net_config_info.cheats_enabled = net_config_info.cheats_enabled != 0;
+    net_config_info.computer_assistant = net_config_info.computer_assistant != 0;
 }
 
 void net_load_config_file(void)
@@ -843,15 +848,15 @@ void net_load_config_file(void)
             if (handle)
             {
                 net_config_info = default_net_config_info;
-                unsigned char config_data[sizeof(net_config_info) + 1];
+                unsigned char config_data[RAW_NET_CONFIG_SIZE + 1];
                 int32_t read_size = LbFileRead(handle, config_data, sizeof(config_data));
                 LbFileClose(handle);
                 // Files written by older builds are shorter by the fields added since, or one byte longer
-                if (read_size == sizeof(net_config_info) + 1 || read_size == sizeof(net_config_info) || read_size == offsetof(struct ConfigInfo, max_players) || read_size == offsetof(struct ConfigInfo, net_lobby_name))
+                if (read_size == RAW_NET_CONFIG_SIZE + 1 || read_size == RAW_NET_CONFIG_SIZE || read_size == offsetof(struct ConfigInfo, max_players) || read_size == offsetof(struct ConfigInfo, net_lobby_name))
                 {
-                    memcpy(&net_config_info, config_data, min((size_t)read_size, sizeof(net_config_info)));
-                    if (read_size == sizeof(net_config_info) + 1)
-                        net_config_info.spectator_chat = config_data[sizeof(net_config_info)];
+                    memcpy(&net_config_info, config_data, min((size_t)read_size, RAW_NET_CONFIG_SIZE));
+                    if (read_size == RAW_NET_CONFIG_SIZE + 1)
+                        net_config_info.spectator_chat = config_data[RAW_NET_CONFIG_SIZE];
                     net_config_sanitise();
                     net_write_config_file();
                     return;

@@ -149,15 +149,17 @@ char net_lobby_name[64];
 struct GuiButtonInit frontend_add_session_buttons[] = {
   { LbBtnT_NormalBtn, BID_MENU_TITLE, 0, 0, NULL, NULL, NULL, 0, 999, 30, 999, 30,371,46, frontend_draw_large_menu_button, 0, GUIStr_Empty, 0, {14}, 0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0, 95,124,95,124,220,26, frontnet_draw_scroll_box_tab, 0, GUIStr_Empty, 0, {28}, 0, NULL },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0, 95,150,95,150,450,158, frontnet_draw_scroll_box, 0, GUIStr_Empty, 0, {92}, 0, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0, 95,150,95,150,450,224, frontnet_draw_scroll_box, 0, GUIStr_Empty, 0, {92}, 0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 3, 115,125,115,125,200,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {28}, 0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0, 115,164,115,164,187,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {19}, 0, NULL },
   { LbBtnT_EditBox, -1,-1, 0, frontnet_session_set_lobby_name, NULL, frontend_over_button, 19,320,164,320,164,211,26, frontend_draw_enter_text, 0, GUIStr_Empty, 0, {.str = net_lobby_name}, 63, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, frontnet_change_lobby_option, frontend_over_button, 1, 115,196,115,196,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {20}, 0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, NULL, frontend_over_button, 2, 115,228,115,228,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {21}, 0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, frontnet_change_lobby_option, frontend_over_button, 4, 115,260,115,260,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {23}, 0, NULL },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_create, NULL, frontend_over_button, 0,72,330,72,330,247,46, frontend_draw_small_menu_button, 0, GUIStr_Empty, 0, {117}, 0, NULL },
-  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_add_session_back, NULL, frontend_over_button, 0,321,330,321,330,247,46, frontend_draw_small_menu_button, 0, GUIStr_Empty, 0, {16}, 0, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, frontnet_change_lobby_option, frontend_over_button, 6, 115,292,115,292,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {24}, 0, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_change_lobby_option, frontnet_change_lobby_option, frontend_over_button, 5, 115,324,115,324,416,26, frontnet_draw_lobby_option, 0, GUIStr_Empty, 0, {25}, 0, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_session_create, NULL, frontend_over_button, 0,72,396,72,396,247,46, frontend_draw_small_menu_button, 0, GUIStr_Empty, 0, {117}, 0, NULL },
+  { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, frontnet_add_session_back, NULL, frontend_over_button, 0,321,396,321,396,247,46, frontend_draw_small_menu_button, 0, GUIStr_Empty, 0, {16}, 0, NULL },
   { LbBtnT_NormalBtn, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0, 0, 455, 0, 455,371,46, frontend_draw_product_version, 0, GUIStr_Empty, 0, {0}, 0, NULL },
   {-1, BID_DEFAULT, 0, 0, NULL, NULL, NULL, 0,0,0,0,0,0,0, NULL, 0,0,0,{0},0,NULL },
 };
@@ -472,35 +474,49 @@ void frontnet_draw_lobby_tooltip(struct GuiButton *gbtn)
     }
 }
 
+static const enum GUIStrings lobby_option_labels[] = {
+    GUIStr_NetLobbyName,
+    GUIStr_NetMaximumPlayers,
+    GUIStr_NetOpenToSpectators,
+    GUIStr_NetSettings,
+    GUIStr_NetShowSpectatorChat,
+    GUIStr_NetCheats,
+    GUIStr_NetComputerAssistant,
+};
+
+static uint8_t *lobby_option_toggle(int32_t option)
+{
+    switch (option) {
+    case 2:
+        return &net_config_info.spectators_enabled;
+    case 4:
+        return &net_config_info.spectator_chat;
+    case 5:
+        return &net_config_info.cheats_enabled;
+    case 6:
+        return &net_config_info.computer_assistant;
+    default:
+        return NULL;
+    }
+}
+
 void frontnet_draw_lobby_option(struct GuiButton *gbtn)
 {
     int font_index = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
-    const char *label = get_string(GUIStr_NetLobbyName);
-    if (gbtn->btype_value == 1) {
-        label = get_string(GUIStr_NetMaximumPlayers);
-    } else if (gbtn->btype_value == 2) {
-        label = get_string(GUIStr_NetOpenToSpectators);
-    } else if (gbtn->btype_value == 3) {
-        label = get_string(GUIStr_NetSettings);
+    if (gbtn->btype_value == 3) {
         font_index = 2;
-    } else if (gbtn->btype_value == 4) {
-        label = get_string(GUIStr_NetShowSpectatorChat);
     }
     int32_t value_offset = gbtn->width * 205 / 416;
     int32_t label_width = gbtn->width;
     char value[12];
     const char *text = NULL;
+    uint8_t *toggle = lobby_option_toggle(gbtn->btype_value);
     if (gbtn->btype_value == 1) {
         snprintf(value, sizeof(value), "%d", net_config_info.max_players);
         text = value;
-    } else if (gbtn->btype_value == 2) {
+    } else if (toggle != NULL) {
         text = get_string(GUIStr_Off);
-        if (net_config_info.spectators_enabled) {
-            text = get_string(GUIStr_On);
-        }
-    } else if (gbtn->btype_value == 4) {
-        text = get_string(GUIStr_Off);
-        if (net_config_info.spectator_chat) {
+        if (*toggle) {
             text = get_string(GUIStr_On);
         }
     }
@@ -508,12 +524,13 @@ void frontnet_draw_lobby_option(struct GuiButton *gbtn)
         label_width = value_offset;
         draw_lobby_text(gbtn->scr_pos_x + value_offset, gbtn->scr_pos_y, gbtn->width - value_offset, gbtn->height, font_index, text);
     }
-    draw_lobby_text(gbtn->scr_pos_x, gbtn->scr_pos_y, label_width, gbtn->height, font_index, label);
+    draw_lobby_text(gbtn->scr_pos_x, gbtn->scr_pos_y, label_width, gbtn->height, font_index, get_string(lobby_option_labels[gbtn->btype_value]));
     RendererSetDrawFlags(0);
 }
 
 void frontnet_change_lobby_option(struct GuiButton *gbtn)
 {
+    uint8_t *toggle = lobby_option_toggle(gbtn->btype_value);
     if (gbtn->btype_value == 1) {
         if (gbtn->button_state_right_pressed) {
             net_config_info.max_players--;
@@ -525,10 +542,8 @@ void frontnet_change_lobby_option(struct GuiButton *gbtn)
         } else if (net_config_info.max_players < MIN_NET_USERS) {
             net_config_info.max_players = MAX_NET_USERS;
         }
-    } else if (gbtn->btype_value == 4) {
-        net_config_info.spectator_chat = !net_config_info.spectator_chat;
-    } else if (gbtn->btype_value == 2) {
-        net_config_info.spectators_enabled = !net_config_info.spectators_enabled;
+    } else if (toggle != NULL) {
+        *toggle = !*toggle;
     }
     net_write_config_file();
 }
