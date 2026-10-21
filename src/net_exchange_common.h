@@ -32,6 +32,7 @@ enum NetworkPeerSendMode {
 };
 
 TbBool read_network_message_text(char **read_pos, const char **text, size_t max_len);
+void copy_chat_message(char *dst, const char *src);
 void send_network_chat_message(NetUserId sender, const char *message);
 void send_network_chat_message_at(NetUserId sender, const char *message, int32_t cursor_x, int32_t cursor_y);
 TbBool can_send_to_peer(NetUserId peer_id);

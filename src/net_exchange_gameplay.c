@@ -182,12 +182,15 @@ void queue_gameplay_chat_message(NetUserId user, const char *message, MapCoord c
     queued->user = user;
     queued->cursor_x = cursor_x;
     queued->cursor_y = cursor_y;
-    snprintf(queued->message, sizeof(queued->message), "%s", message);
+    copy_chat_message(queued->message, message);
 }
 
 void load_gameplay_chat_messages(const struct QueuedGameplayChat *messages, int32_t count)
 {
+    count = clamp(count, 0, GAMEPLAY_CHAT_QUEUE_LEN);
     memcpy(gameplay_chat_queue, messages, count * sizeof(messages[0]));
+    for (int32_t i = 0; i < count; i++)
+        gameplay_chat_queue[i].message[PLAYER_MP_MESSAGE_LEN - 1] = '\0';
     gameplay_chat_queue_count = count;
 }
 
@@ -205,10 +208,12 @@ void process_gameplay_chat_message(NetUserId user, const char *message, MapCoord
     if (message[0] != '\0')
         replay_record_chat_message(user, message, cursor_x, cursor_y);
     PlayerNumber plyr_idx = get_net_user_player_number(user);
-    get_user_state(user)->init_flags &= ~UsrIF_NewMPMessage;
+    struct UserState *ustate = get_user_state(user);
+    if (!user_state_invalid(ustate))
+        ustate->init_flags &= ~UsrIF_NewMPMessage;
     if (message[0] != '\0') {
         char text[PLAYER_MP_MESSAGE_LEN];
-        snprintf(text, sizeof(text), "%s", message);
+        copy_chat_message(text, message);
         lua_on_chatmsg(plyr_idx, text);
         const TbBool shown = (text[0] != cmd_char) || !cmd_exec(plyr_idx, text + 1, cursor_x, cursor_y) || network_is_active();
         if (shown) {

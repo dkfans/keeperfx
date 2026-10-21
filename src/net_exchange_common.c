@@ -198,6 +198,14 @@ TbBool read_network_message_text(char **read_pos, const char **text, size_t max_
     return true;
 }
 
+// safe copy + nul terminator
+void copy_chat_message(char *dst, const char *src)
+{
+    const size_t len = strnlen(src, PLAYER_MP_MESSAGE_LEN - 1);
+    memcpy(dst, src, len);
+    dst[len] = '\0';
+}
+
 void send_network_chat_message(NetUserId sender, const char *message)
 {
     send_network_chat_message_at(sender, message, -1, -1);

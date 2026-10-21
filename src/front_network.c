@@ -287,7 +287,7 @@ void process_frontend_chat_message(NetUserId user, const char *message)
         return;
     }
     char text[PLAYER_MP_MESSAGE_LEN];
-    snprintf(text, sizeof(text), "%s", message);
+    copy_chat_message(text, message);
     if (!try_starting_level_from_chat(text, user)) {
         add_message(user, text);
         play_non_3d_sample(snd_chat_message[user == netstate.my_id]);
