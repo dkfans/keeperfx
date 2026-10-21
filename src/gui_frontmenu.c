@@ -583,4 +583,22 @@ void turn_off_event_box_if_necessary(PlayerNumber plyr_idx, unsigned char event_
     turn_off_menu(GMnu_DUNGEON_SPECIAL);
 }
 
+void turn_off_event_box_if_stale(void)
+{
+    if (my_visible_event_idx == 0) {
+        return;
+    }
+    if (game.event[my_visible_event_idx].kind != 0)
+    {
+        const struct Dungeon *dungeon = get_my_dungeon();
+        for (int i = 0; i <= EVENT_BUTTONS_COUNT; i++)
+        {
+            if (dungeon->event_button_index[i] == my_visible_event_idx) {
+                return;
+            }
+        }
+    }
+    turn_off_event_box_if_necessary(my_player_number, my_visible_event_idx);
+}
+
 /******************************************************************************/

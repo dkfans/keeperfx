@@ -859,7 +859,6 @@ void reinit_level_after_load(void)
         if (player_exists(player))
         {
             update_engine_view(player, false);
-            update_panel_color_player_color(player->id_number, get_dungeon(i)->color_idx);
         }
     }
     start_rooms = &game.rooms[1];
@@ -876,8 +875,25 @@ void reinit_level_after_load(void)
     reinit_tagged_blocks_for_player(player->id_number);
     restore_computer_player_after_load();
     sound_reinit_after_load();
+    rederive_local_state();
     update_panel_colors();
     reset_postal_instance_cache();
+}
+
+// used on resync and on every rewind turn. Must be cheap!
+void rederive_local_state(void)
+{
+    // update minimap colours
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        if (player_exists(get_player(plyr_idx)))
+        {
+            update_panel_color_player_color(plyr_idx, get_dungeon(plyr_idx)->color_idx);
+        }
+    }
+    panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
+    turn_off_event_box_if_stale();
+    observer_validate_query();
 }
 
 /**

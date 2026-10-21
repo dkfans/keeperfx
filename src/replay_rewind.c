@@ -577,6 +577,7 @@ void replay_rewind_step(void)
     }
     restore_snapshot(snapshot);
     observer_update_view();
+    rederive_local_state();
     local_state.view_type = PVT_None;
     local_state.camera.move_cam = NULL;
     update_engine_view(get_my_player(), false);

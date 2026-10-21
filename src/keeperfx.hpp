@@ -285,6 +285,7 @@ void init_seeds();
 
 TbBool startup_saved_packet_game(void);
 void reinit_level_after_load(void);
+void rederive_local_state(void);
 void redetect_screen_refresh_rate_for_draw();
 
 

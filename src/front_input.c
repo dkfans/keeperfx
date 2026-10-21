@@ -843,15 +843,21 @@ static short get_bookmark_inputs(void)
 
 static short zoom_shortcuts(void)
 {
-    for (int i = 0; i <= ZOOM_KEY_ROOMS_COUNT; i++)
-    {
-        if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, true, false))
-        {
+    if (is_game_key_pressed(Gkey_ZoomToFight, true, false)) {
+        zoom_to_fight(my_player_number);
+        return true;
+    }
+    if (is_game_key_pressed(Gkey_ZoomCrAnnoyed, true, false)) {
+        zoom_to_next_annoyed_creature();
+        return true;
+    }
+    for (int i = 0; i <= ZOOM_KEY_ROOMS_COUNT; i++) {
+        if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, true, false)) {
             go_to_my_next_room_of_type(zoom_key_room_order[i]);
             return true;
         }
-  }
-  return false;
+    }
+    return false;
 }
 
 static short get_minimap_control_inputs(void)
@@ -1475,19 +1481,7 @@ static TbBool get_dungeon_control_action_inputs(void)
         process_sell_roomspace_inputs(player->id_number);
     }
 
-    // Zooming cannot be done paused because it's a player instance.
-    if (is_game_key_pressed(Gkey_ZoomToFight, true, false))
-    {
-        zoom_to_fight(player->id_number);
-        return true;
-    }
-    if (is_game_key_pressed(Gkey_ZoomCrAnnoyed, true, false))
-    {
-        zoom_to_next_annoyed_creature();
-        return true;
-    }
-    if (zoom_shortcuts())
-    {
+    if (zoom_shortcuts()) {
         return true;
     }
     get_status_panel_keyboard_action_inputs();
@@ -2696,8 +2690,11 @@ static short get_observer_inputs(void)
         }
     }
     if (!get_gui_inputs(1) && !a_menu_window_is_active()) {
-        if (view_type == PVT_DungeonTop && get_bookmark_inputs()) {
-            return true;
+        if (view_type == PVT_DungeonTop) {
+            if (get_bookmark_inputs() || zoom_shortcuts()) {
+                return true;
+            }
+            get_status_panel_keyboard_action_inputs();
         }
         if (clicked_on_small_map || grabbed_small_map) {
             get_observer_camera_inputs();
