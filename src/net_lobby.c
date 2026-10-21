@@ -432,7 +432,7 @@ TbError LbNetwork_Create(char *lobby_name, char *plyr_name, uint32_t *plyr_num, 
         advertisement_mutex = SDL_CreateMutex();
     }
     if (!advertisement_mutex) {
-        netstate.sp->exit();
+        netstate.sp->disconnect();
         return Lb_FAIL;
     }
     netstate.phase = NetPhase_Lobby;
@@ -479,12 +479,12 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     }
     netstate.my_id = INVALID_USER_ID;
     if (LbNetwork_ExchangeLogin(plyr_name) == Lb_FAIL) {
-        netstate.sp->exit();
+        netstate.sp->disconnect();
         return Lb_FAIL;
     }
     *plyr_num = netstate.my_id;
     if (net_join_role == NetRole_Spectator && !network_spectator_wait(NETMSG_SPECTATOR_BOOTSTRAP)) {
-        netstate.sp->exit();
+        netstate.sp->disconnect();
         return Lb_FAIL;
     }
     return Lb_OK;
