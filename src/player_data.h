@@ -178,16 +178,13 @@ struct PlayerInfo {
     short cta_flag_idx; /* Call-to-Arms banner */
     short influenced_thing_idx;
     GameTurn influenced_thing_creation;
-    char mp_message_text[PLAYER_MP_MESSAGE_LEN];
-    char mp_pending_message[PLAYER_MP_MESSAGE_LEN];
-    char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
     GameTurn power_of_cooldown_turn;
     GameTurn display_objective_turn;
     GameTurn slap_cooldown_until_turn; /* computer-only, prevents slapping too fast. */
     unsigned char hand_idx; /* hand skin (powerhands.toml) */
     struct RoomSpace roomspace;
     ThingModel special_digger; /* which creatures are imp-like */
-    unsigned short generate_speed;
+    unsigned short generate_speed; /* portal creature frequency */
 };
 
 #define PLAYER_NONE (-1)
@@ -337,6 +334,8 @@ extern struct LocalState {
     TbBool show_gui;
     TbBool show_panel;
     TbBool rewinding;
+    char mp_message_text[PLAYER_MP_MESSAGE_LEN];
+    char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
 } local_state;
 
 extern unsigned short player_colors_map[];

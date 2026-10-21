@@ -182,12 +182,15 @@ void queue_gameplay_chat_message(NetUserId user, const char *message, MapCoord c
     queued->user = user;
     queued->cursor_x = cursor_x;
     queued->cursor_y = cursor_y;
-    snprintf(queued->message, sizeof(queued->message), "%s", message);
+    copy_chat_message(queued->message, message);
 }
 
 void load_gameplay_chat_messages(const struct QueuedGameplayChat *messages, int32_t count)
 {
+    count = clamp(count, 0, GAMEPLAY_CHAT_QUEUE_LEN);
     memcpy(gameplay_chat_queue, messages, count * sizeof(messages[0]));
+    for (int32_t i = 0; i < count; i++)
+        gameplay_chat_queue[i].message[PLAYER_MP_MESSAGE_LEN - 1] = '\0';
     gameplay_chat_queue_count = count;
 }
 
@@ -205,16 +208,19 @@ void process_gameplay_chat_message(NetUserId user, const char *message, MapCoord
     if (message[0] != '\0')
         replay_record_chat_message(user, message, cursor_x, cursor_y);
     PlayerNumber plyr_idx = get_net_user_player_number(user);
-    struct PlayerInfo *player = prepare_network_chat_message(plyr_idx, message);
+    struct UserState *ustate = get_user_state(user);
+    if (!user_state_invalid(ustate))
+        ustate->init_flags &= ~UsrIF_NewMPMessage;
     if (message[0] != '\0') {
-        lua_on_chatmsg(plyr_idx, player->mp_message_text);
-        const TbBool shown = (player->mp_message_text[0] != cmd_char) || !cmd_exec(plyr_idx, player->mp_message_text + 1, cursor_x, cursor_y) || network_is_active();
+        char text[PLAYER_MP_MESSAGE_LEN];
+        copy_chat_message(text, message);
+        lua_on_chatmsg(plyr_idx, text);
+        const TbBool shown = (text[0] != cmd_char) || !cmd_exec(plyr_idx, text + 1, cursor_x, cursor_y) || network_is_active();
         if (shown) {
-            message_add(MsgType_Player, plyr_idx, player->mp_message_text);
+            message_add(MsgType_Player, plyr_idx, text);
             play_non_3d_sample(snd_chat_message[user == get_local_user()]);
         }
     }
-    memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
 }
 
 TbError process_network_turn_sync_message(NetUserId source, const char *buffer, size_t buffer_size)

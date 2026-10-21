@@ -287,7 +287,7 @@ void process_frontend_chat_message(NetUserId user, const char *message)
         return;
     }
     char text[PLAYER_MP_MESSAGE_LEN];
-    snprintf(text, sizeof(text), "%s", message);
+    copy_chat_message(text, message);
     if (!try_starting_level_from_chat(text, user)) {
         add_message(user, text);
         play_non_3d_sample(snd_chat_message[user == netstate.my_id]);
@@ -734,7 +734,6 @@ void handle_autostart_multiplayer_messaging(void)
     if (autostart_multiplayer_campaign[0] == '\0' && autostart_multiplayer_level <= 0) {
         return;
     }
-    struct PlayerInfo *player = get_my_player();
     const char* camp = "keeporig";
     int level = 1;
     if (autostart_multiplayer_campaign[0]) {
@@ -743,7 +742,7 @@ void handle_autostart_multiplayer_messaging(void)
     if (autostart_multiplayer_level > 0) {
         level = autostart_multiplayer_level;
     }
-    snprintf(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, "%s:%d", camp, level);
+    snprintf(local_state.mp_message_text, PLAYER_MP_MESSAGE_LEN, "%s:%d", camp, level);
     lbInkey = KC_RETURN;
 }
 
@@ -917,11 +916,7 @@ void frontnet_start_setup(void)
     net_player_scroll_offset = 0;
     net_message_scroll_offset = 0;
     //net_old_number_of_players = 0;
-    for (int i = 0; i < PLAYERS_COUNT; i++)
-    {
-        struct PlayerInfo* player = get_player(i);
-        player->mp_message_text[0] = '\0';
-    }
+    local_state.mp_message_text[0] = '\0';
 }
 
 /******************************************************************************/

@@ -133,25 +133,24 @@ void frontnet_start_game_maintain(struct GuiButton *gbtn)
 
 TbBool frontnet_start_input(void)
 {
-    struct PlayerInfo *player = get_my_player();
     if (lbInkey == KC_RETURN) {
-        if (player->mp_message_text[0] != '\0') {
-            send_network_chat_message(netstate.my_id, player->mp_message_text);
+        if (local_state.mp_message_text[0] != '\0') {
+            send_network_chat_message(netstate.my_id, local_state.mp_message_text);
         }
-        process_frontend_chat_message(netstate.my_id, player->mp_message_text);
-        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+        process_frontend_chat_message(netstate.my_id, local_state.mp_message_text);
+        memset(local_state.mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
     } else if (lbInkey == KC_ESCAPE) {
-        player->mp_message_text[0] = '\0';
+        local_state.mp_message_text[0] = '\0';
     } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
-        int chpos = strlen(player->mp_message_text);
+        int chpos = strlen(local_state.mp_message_text);
         // Skip UTF-8 continuation bytes so the whole last character is removed
-        while ((chpos > 0) && ((player->mp_message_text[chpos-1] & 0xc0) == 0x80))
+        while ((chpos > 0) && ((local_state.mp_message_text[chpos-1] & 0xc0) == 0x80))
             chpos--;
         if (chpos > 0)
-            player->mp_message_text[chpos-1] = '\0';
+            local_state.mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);
     } else {
-        add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, frontend_font[1] , 420);
+        add_input_text_to_message(local_state.mp_message_text, PLAYER_MP_MESSAGE_LEN, frontend_font[1] , 420);
     }
     lbInkey = KC_UNASSIGNED;
     return true;
@@ -597,7 +596,7 @@ void frontnet_draw_current_message(struct GuiButton *gbtn)
     }
 
     // Prepare text buffer and font
-    snprintf(text, sizeof(text), "%s%s", player->mp_message_text, print_with_cursor?"_":"");
+    snprintf(text, sizeof(text), "%s%s", local_state.mp_message_text, print_with_cursor?"_":"");
     font_idx = frontend_button_caption_font(gbtn, 0);
     // And draw the message
     frontnet_draw_scroll_selection_box(gbtn, font_idx, text);

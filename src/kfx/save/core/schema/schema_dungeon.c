@@ -531,9 +531,6 @@ SAVE_STRUCT(PlayerInfo, struct PlayerInfo,
     SAVE_FIELD(struct PlayerInfo, cta_flag_idx, SV_I16),
     SAVE_FIELD(struct PlayerInfo, influenced_thing_idx, SV_I16),
     SAVE_FIELD(struct PlayerInfo, influenced_thing_creation, SV_U32),
-    SAVE_ARRAY_EX(struct PlayerInfo, mp_message_text, SV_STR, .flags = SVF_SAVE),  /* plain-char */
-    SAVE_ARRAY_EX(struct PlayerInfo, mp_pending_message, SV_STR, .flags = SVF_SAVE),  /* plain-char */
-    SAVE_ARRAY_EX(struct PlayerInfo, mp_message_text_last, SV_STR, .flags = SVF_SAVE),  /* plain-char */
     SAVE_FIELD(struct PlayerInfo, power_of_cooldown_turn, SV_U32),
     SAVE_FIELD_EX(struct PlayerInfo, display_objective_turn, SV_U32, .flags = SVF_SAVE),
     SAVE_FIELD(struct PlayerInfo, hand_idx, SV_U8),
