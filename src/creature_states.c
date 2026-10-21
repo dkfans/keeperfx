@@ -4530,12 +4530,7 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
         && (!creature_under_spell_effect(fightng, CSAfF_MadKilling))
         && (!creature_under_spell_effect(enmtng, CSAfF_MadKilling)))
         {
-            struct Thing* tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
-            TRACE_THING(tmptng);
-            if ((fighctrl->combat_flags == 0) || (tmptng->index != enmtng->index))
-            {
-                return false;
-            }
+            return false;
         }
     }
     // No self fight.
