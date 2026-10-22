@@ -135,11 +135,11 @@ void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
     }
 }
 
-TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
+TbBool tag_cursor_blocks_sell_area(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
 {
     SYNCDBG(7,"Starting");
-    struct PlayerInfo* player = get_player(plyr_idx);
-    struct UserState* ustate = get_player_user_state(player);
+    PlayerNumber plyr_idx = get_net_user_player_number(user);
+    struct UserState* ustate = get_user_state(user);
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     struct SlabMap *slb;
@@ -172,7 +172,7 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     return (colour != SLC_RED);
 }
 
-TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(7,"Starting");
     MapSlabCoord slb_x = subtile_slab(stl_x);
@@ -206,9 +206,8 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
             allowed = true;
         }
     }
-    if (should_draw_cursor_box(plyr_idx)) {
-        struct PlayerInfo* player = get_player(plyr_idx);
-        struct UserState* ustate = get_player_user_state(player);
+    struct UserState* ustate = get_user_state(user);
+    if (!user_state_invalid(ustate) && should_draw_cursor_box(plyr_idx)) {
         map_volume_box.visible = 1;
         map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
         map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
@@ -275,9 +274,10 @@ void tag_cursor_blocks_place_terrain(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
     }
 }
 
-TbBool tag_cursor_blocks_place_thing(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool tag_cursor_blocks_place_thing(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(7,"Starting");
+    PlayerNumber plyr_idx = get_net_user_player_number(user);
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
@@ -296,8 +296,7 @@ TbBool tag_cursor_blocks_place_thing(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
         colour = SLC_GREEN;
     }
     if (should_draw_cursor_box(plyr_idx)) {
-        struct PlayerInfo* player = get_player(plyr_idx);
-        struct UserState* ustate = get_player_user_state(player);
+        struct UserState* ustate = get_user_state(user);
         map_volume_box.visible = true;
         map_volume_box.beg_x = subtile_coord(stl_x, 0);
         map_volume_box.beg_y = subtile_coord(stl_y, 0);
@@ -310,9 +309,10 @@ TbBool tag_cursor_blocks_place_thing(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
     return (colour != SLC_RED);
 }
 
-TbBool tag_cursor_blocks_order_creature(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing* creatng)
+TbBool tag_cursor_blocks_order_creature(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing* creatng)
 {
     SYNCDBG(7,"Starting");
+    PlayerNumber plyr_idx = get_net_user_player_number(user);
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
@@ -332,8 +332,7 @@ TbBool tag_cursor_blocks_order_creature(PlayerNumber plyr_idx, MapSubtlCoord stl
         colour = SLC_GREEN;
     }
     if (should_draw_cursor_box(plyr_idx)) {
-        struct PlayerInfo* player = get_player(plyr_idx);
-        struct UserState* ustate = get_player_user_state(player);
+        struct UserState* ustate = get_user_state(user);
         map_volume_box.visible = true;
         map_volume_box.beg_x = subtile_coord(stl_x, 0);
         map_volume_box.beg_y = subtile_coord(stl_y, 0);

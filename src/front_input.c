@@ -75,6 +75,7 @@
 #include "room_data.h"
 #include "map_blocks.h"
 #include "local_camera.h"
+#include "local_possession.h"
 #include "packets.h"
 #include "replay.h"
 #include "replay_rewind.h"
@@ -434,7 +435,7 @@ static short get_players_message_inputs(void)
 
     if (is_key_pressed(KC_RETURN, KMod_NONE)) {
         char text[PLAYER_MP_MESSAGE_LEN];
-        memcpy(text, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
+        memcpy(text, local_state.mp_message_text, PLAYER_MP_MESSAGE_LEN);
         text[PLAYER_MP_MESSAGE_LEN - 1] = '\0';
         MapCoord cursor_x;
         MapCoord cursor_y;
@@ -446,7 +447,7 @@ static short get_players_message_inputs(void)
             console_cmd_default_cursor(player->id_number, &cursor_x, &cursor_y);
         }
         if (observer_is_active() && text[0] == cmd_char) {
-            memcpy(player->mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
+            memcpy(local_state.mp_message_text_last, text, PLAYER_MP_MESSAGE_LEN);
             cmd_exec_observer(text + 1, cursor_x, cursor_y);
         } else if (replay.load_enable) {
             if (text[0] != '\0') {
@@ -461,31 +462,31 @@ static short get_players_message_inputs(void)
             }
         }
         ustate->init_flags &= ~UsrIF_NewMPMessage;
-        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+        memset(local_state.mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_RETURN);
         LbStopTextInput();
     } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE)) {
         set_players_packet_action(player, PckA_PlyrMsgClear, 0, 0, 0, 0);
         ustate->init_flags &= ~UsrIF_NewMPMessage;
-        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+        memset(local_state.mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_ESCAPE);
         LbStopTextInput();
-    } else if (is_key_pressed(KC_TAB, KMod_NONE) && player->mp_message_text[0] == cmd_char) {
-        cmd_auto_completion(player->id_number, player->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
+    } else if (is_key_pressed(KC_TAB, KMod_NONE) && local_state.mp_message_text[0] == cmd_char) {
+        cmd_auto_completion(player->id_number, local_state.mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
         clear_key_pressed(KC_TAB);
     } else if (is_key_pressed(KC_UP, KMod_NONE)) {
-        memcpy(player->mp_message_text, player->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
+        memcpy(local_state.mp_message_text, local_state.mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
         clear_key_pressed(KC_UP);
     } else if (is_key_pressed(KC_BACK,KMod_DONTCARE)){
-        int chpos = strlen(player->mp_message_text);
+        int chpos = strlen(local_state.mp_message_text);
         // Skip UTF-8 continuation bytes so the whole last character is removed
-        while ((chpos > 0) && ((player->mp_message_text[chpos-1] & 0xc0) == 0x80))
+        while ((chpos > 0) && ((local_state.mp_message_text[chpos-1] & 0xc0) == 0x80))
             chpos--;
         if (chpos > 0)
-            player->mp_message_text[chpos-1] = '\0';
+            local_state.mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);
     } else {
-        result = add_input_text_to_message(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
+        result = add_input_text_to_message(local_state.mp_message_text, PLAYER_MP_MESSAGE_LEN, winfont, 450);
     }
     memset(lbKeyPressed, 0, sizeof(lbKeyPressed));
     return result;
@@ -696,18 +697,6 @@ static TbBool observer_camera_input_pressed(void)
     return false;
 }
 
-static void detach_observer_camera(void)
-{
-    if (is_observer_camera_active()) {
-        return;
-    }
-    const unsigned char view_type = get_local_view_type(get_my_player());
-    enter_observer_camera();
-    if (view_type == PVT_MapScreen) {
-        set_observer_camera_view(PVT_MapScreen);
-    }
-}
-
 static void get_observer_camera_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
@@ -719,12 +708,12 @@ static void get_observer_camera_inputs(void)
     struct Camera* camera = get_local_active_camera(player);
     if (get_local_view_type(player) == PVT_MapScreen) {
         if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
-            set_observer_camera_view(PVT_DungeonTop);
+            fade_observer_camera_view(PVT_DungeonTop);
         }
         return;
     }
     if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
-        set_observer_camera_view(PVT_MapScreen);
+        fade_observer_camera_view(PVT_MapScreen);
         return;
     }
     struct Packet* fpckt = get_observer_camera_packet();
@@ -854,15 +843,21 @@ static short get_bookmark_inputs(void)
 
 static short zoom_shortcuts(void)
 {
-    for (int i = 0; i <= ZOOM_KEY_ROOMS_COUNT; i++)
-    {
-        if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, true, false))
-        {
+    if (is_game_key_pressed(Gkey_ZoomToFight, true, false)) {
+        zoom_to_fight(my_player_number);
+        return true;
+    }
+    if (is_game_key_pressed(Gkey_ZoomCrAnnoyed, true, false)) {
+        zoom_to_next_annoyed_creature();
+        return true;
+    }
+    for (int i = 0; i <= ZOOM_KEY_ROOMS_COUNT; i++) {
+        if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, true, false)) {
             go_to_my_next_room_of_type(zoom_key_room_order[i]);
             return true;
         }
-  }
-  return false;
+    }
+    return false;
 }
 
 static short get_minimap_control_inputs(void)
@@ -945,9 +940,7 @@ static short get_global_inputs(void)
         return true;
       }
   }
-  if ((player->instance_num != PI_MapFadeTo) &&
-      (player->instance_num != PI_MapFadeFrom) &&
-      (!game_is_busy_doing_gui_string_input()))
+  if (!game_is_busy_doing_gui_string_input())
     {
 
         TbBool toggle_pause = is_game_key_pressed(Gkey_TogglePause, true, false);
@@ -1104,19 +1097,7 @@ static TbBool get_level_lost_inputs(void)
     if (view_type == PVT_DungeonTop)
     {
       if (is_game_key_pressed(Gkey_SwitchToMap, true, false)) {
-        if (player->instance_num != PI_MapFadeFrom)
-        {
-          turn_off_all_window_menus();
-          local_state.show_panel = local_state.show_gui;
-          if (parchment_map_fade_enabled())
-          {
-                set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
-          } else
-          {
-                set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
-          }
-          turn_off_roaming_menus();
-        }
+        zoom_to_parchment_map();
       }
     }
     TbBool inp_done=false;
@@ -1138,7 +1119,7 @@ static TbBool get_level_lost_inputs(void)
         {
           if ( (ustate->work_state == PSt_CreatrInfo) || (ustate->work_state == PSt_CreatrInfoAll) )
           {
-              set_player_instance(player, PI_UnqueryCrtr, 0);
+              set_user_instance(get_local_user(), PI_UnqueryCrtr, 0);
           } else
           {
               int mm_units_per_px;
@@ -1430,7 +1411,7 @@ static TbBool get_dungeon_control_pausable_action_inputs(void)
       {
           return true;
       }
-      if ((player->instance_num != PI_MapFadeFrom) && (game.small_map_state != 2))
+      if (game.small_map_state != 2)
       {
           turn_off_all_window_menus();
           zoom_to_parchment_map();
@@ -1500,19 +1481,7 @@ static TbBool get_dungeon_control_action_inputs(void)
         process_sell_roomspace_inputs(player->id_number);
     }
 
-    // Zooming cannot be done paused because it's a player instance.
-    if (is_game_key_pressed(Gkey_ZoomToFight, true, false))
-    {
-        zoom_to_fight(player->id_number);
-        return true;
-    }
-    if (is_game_key_pressed(Gkey_ZoomCrAnnoyed, true, false))
-    {
-        zoom_to_next_annoyed_creature();
-        return true;
-    }
-    if (zoom_shortcuts())
-    {
+    if (zoom_shortcuts()) {
         return true;
     }
     get_status_panel_keyboard_action_inputs();
@@ -1616,7 +1585,7 @@ static short get_creature_passenger_action_inputs(void)
 
 static void set_possession_instance(struct PlayerInfo* player, struct Thing* thing, int direction)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    const struct CreatureControl* cctrl = get_local_creature_control(thing);
 
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     int current_pos = 0;
@@ -1987,7 +1956,7 @@ static short get_creature_control_action_inputs(void)
         }
         ustate->thing_under_hand = 0;
         local_state.local_thing_under_hand = 0;
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        const struct CreatureControl* cctrl = get_local_creature_control(thing);
         if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
         {
             if (is_game_key_pressed(Gkey_SellTrapOnSubtile, false, true))
@@ -2665,7 +2634,13 @@ static TbBool get_observer_camera_click_inputs(void)
         return false;
     }
     struct PlayerInfo *player = get_my_player();
-    if (!observer_query_input()) {
+    if (mouse_is_over_watched_player_name()) {
+        if (right_button_released) {
+            observer_cycle_user(-1);
+        } else {
+            observer_cycle_user(1);
+        }
+    } else if (!observer_query_input()) {
         if (get_local_view_type(player) == PVT_MapScreen && left_button_released) {
             int32_t map_x;
             int32_t map_y;
@@ -2675,10 +2650,6 @@ static TbBool get_observer_camera_click_inputs(void)
             }
         } else if (camera_active) {
             return_to_player_camera();
-        } else if (right_button_released) {
-            observer_cycle_player(-1);
-        } else {
-            observer_cycle_player(1);
         }
     }
     clear_mouse_button_states();
@@ -2703,6 +2674,10 @@ static short get_observer_inputs(void)
         clear_key_pressed(KC_RETURN);
         return true;
     }
+    if (!a_menu_window_is_active() && is_game_key_pressed(Gkey_FinishLevel, true, false)) {
+        observer_cycle_user(1);
+        return true;
+    }
     if (!a_menu_window_is_active() && !game_is_busy_doing_gui_string_input() && observer_camera_input_pressed()) {
         detach_observer_camera();
     }
@@ -2715,8 +2690,11 @@ static short get_observer_inputs(void)
         }
     }
     if (!get_gui_inputs(1) && !a_menu_window_is_active()) {
-        if (view_type == PVT_DungeonTop && get_bookmark_inputs()) {
-            return true;
+        if (view_type == PVT_DungeonTop) {
+            if (get_bookmark_inputs() || zoom_shortcuts()) {
+                return true;
+            }
+            get_status_panel_keyboard_action_inputs();
         }
         if (clicked_on_small_map || grabbed_small_map) {
             get_observer_camera_inputs();
@@ -3042,9 +3020,9 @@ static short get_inputs(void)
         return get_packet_load_game_inputs();
     }
     struct PlayerInfo* player = get_my_player();
-    if ((get_local_user_state()->init_flags & UsrIF_MouseInputDisabled) != 0)
+    if (((get_local_user_state()->init_flags & UsrIF_MouseInputDisabled) != 0) || (get_local_map_fade() != PVT_None))
     {
-        SYNCDBG(5,"Starting for creature fade");
+        SYNCDBG(5,"Starting for creature or map fade");
         // Store the creature's facing so possession does not send 0,0 and turn it north.
         struct Thing *thing = thing_get(player->controlled_thing_idx);
         if ((get_local_view_type(player) == PVT_CreatureContrl) && thing_exists(thing))
@@ -3139,21 +3117,6 @@ static short get_inputs(void)
         if (get_players_packet_action(player) != PckA_None)
             unset_players_packet_control(player, PCtr_LBtnRelease|PCtr_RBtnRelease);
         return inp_handled;
-    case PVT_MapFadeIn:
-        if (player->instance_num != PI_MapFadeTo)
-        {
-          if (!network_is_active())
-            game.operation_flags &= ~GOF_Paused;
-          set_map_ui_hidden(true, false);
-          set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
-        }
-        return false;
-    case PVT_MapFadeOut:
-        if (player->instance_num != PI_MapFadeFrom)
-        {
-          set_players_packet_action(player, PckA_SetViewType, PVT_DungeonTop, 0,0,0);
-        }
-        return false;
     default:
         SYNCDBG(7,"Default exit");
         return false;

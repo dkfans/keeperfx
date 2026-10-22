@@ -1700,6 +1700,9 @@ size_t transfer_navigation_state(void *buffer, enum NavigationStateOperation ope
         {&free_Triangles, sizeof(free_Triangles)},
         {Regions, sizeof(Regions)},
         {find_cache, sizeof(find_cache)},
+        {game.navigation_map, sizeof(game.navigation_map)},
+        {&ix_Border, sizeof(ix_Border)},
+        {Border, sizeof(Border)},
     };
     size_t offset = 0;
     for (size_t i = 0; i < sizeof(fields) / sizeof(fields[0]); i++) {

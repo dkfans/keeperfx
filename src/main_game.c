@@ -433,6 +433,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     {
         game.game_kind = GKind_MultiGame;
         if (!init_players_network_game()) {
+            clear_flag(game.operation_flags, GOF_SingleLevel);
             coroutine_clear(context, true);
             return;
         }

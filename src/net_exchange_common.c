@@ -198,6 +198,14 @@ TbBool read_network_message_text(char **read_pos, const char **text, size_t max_
     return true;
 }
 
+// safe copy + nul terminator
+void copy_chat_message(char *dst, const char *src)
+{
+    const size_t len = strnlen(src, PLAYER_MP_MESSAGE_LEN - 1);
+    memcpy(dst, src, len);
+    dst[len] = '\0';
+}
+
 void send_network_chat_message(NetUserId sender, const char *message)
 {
     send_network_chat_message_at(sender, message, -1, -1);
@@ -231,18 +239,6 @@ void send_network_chat_message_at(NetUserId sender, const char *message, int32_t
     send_remote_buffer(write_pos);
 }
 
-struct PlayerInfo *prepare_network_chat_message(int player_id, const char *message)
-{
-    struct PlayerInfo *player = get_player(player_id);
-    get_player_user_state(player)->init_flags &= ~UsrIF_NewMPMessage;
-    if (message[0] != '\0') {
-        memcpy(player->mp_message_text, message, PLAYER_MP_MESSAGE_LEN);
-        memcpy(player->mp_message_text_last, message, PLAYER_MP_MESSAGE_LEN);
-    } else {
-        memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
-    }
-    return player;
-}
 
 TbBool can_send_to_peer(NetUserId peer_id)
 {

@@ -91,7 +91,6 @@ unsigned char get_player_active_camera_index(const struct PlayerInfo *player)
     case PVT_CreaturePasngr:
         return CamIV_FirstPerson;
     case PVT_MapScreen:
-    case PVT_MapFadeOut:
         return CamIV_Parchment;
     default:
         return (get_player_user_state(player)->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric;
@@ -160,10 +159,21 @@ struct PlayerInfo *get_my_player(void)
 
 const struct PlayerInfo *get_displayed_player(void)
 {
-    if (observer_is_active() && !is_observer_camera_active()) {
+    if (observer_is_following_user()) {
         return get_player(my_player_number);
     }
     return get_my_player();
+}
+
+NetUserId get_displayed_user(void)
+{
+    if (observer_is_following_user()) {
+        return observer_get_watched_user();
+    }
+    if (observer_is_active()) {
+        return OBSERVER_USER;
+    }
+    return get_local_user();
 }
 
 TbBool is_my_player_number(PlayerNumber plyr_num)
@@ -228,12 +238,18 @@ void set_local_user_state_prediction(const struct UserState *ustate)
 /**
  * Returns the player's user state as it will be once the local user's pending packets are processed.
  */
-const struct UserState *get_player_user_state_prediction(const struct PlayerInfo *player)
+const struct UserState *get_user_state_prediction(NetUserId user)
 {
-    if (local_user_state_prediction_active && is_my_player(player)) {
+    const struct UserState *ustate = get_user_state(user);
+    if (local_user_state_prediction_active && !user_state_invalid(ustate) && ustate == get_local_user_state()) {
         return &local_user_state_prediction;
     }
-    return get_player_user_state(player);
+    return ustate;
+}
+
+const struct UserState *get_player_user_state_prediction(const struct PlayerInfo *player)
+{
+    return get_user_state_prediction(get_player_primary_user(player));
 }
 
 struct UserState *get_local_user_state(void)
@@ -604,7 +620,7 @@ void set_user_view_type(NetUserId user, unsigned short nview)
     local_state.view_type = PVT_None;
   if (ustate->view_type == nview)
     return;
-  const TbBool leaving_map = (ustate->view_type == PVT_MapScreen) || (ustate->view_type == PVT_MapFadeOut);
+  const TbBool leaving_map = (ustate->view_type == PVT_MapScreen);
   ustate->view_type = nview;
   ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
   if (is_local)
@@ -651,16 +667,6 @@ void set_user_view_type(NetUserId user, unsigned short nview)
       if (is_local)
         update_engine_view(player, leaving_map);
       break;
-  case PVT_MapFadeIn:
-      set_player_instance(player, PI_MapFadeTo, 0);
-      if (player->instance_num == PI_MapFadeTo)
-          player->instance_remain_turns = max((int32_t)ustate->prefs[UPref_MapFade], 1);
-      break;
-  case PVT_MapFadeOut:
-      set_player_instance(player, PI_MapFadeFrom, 0);
-      if (player->instance_num == PI_MapFadeFrom)
-          player->instance_remain_turns = max((int32_t)ustate->prefs[UPref_MapFade], 1);
-      break;
   }
 }
 
@@ -671,7 +677,7 @@ void reset_user_view_type(NetUserId user, unsigned short nview)
     return;
   struct PlayerInfo* player = get_user_player(user);
   const TbBool is_local = (user == get_local_user());
-  const TbBool leaving_map = ustate->view_type == PVT_MapScreen || ustate->view_type == PVT_MapFadeOut;
+  const TbBool leaving_map = ustate->view_type == PVT_MapScreen;
   ustate->view_type = nview;
   switch (nview)
   {

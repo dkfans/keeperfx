@@ -16,8 +16,8 @@
 #include "power_hand.h"            /* draw_power_hand */
 #include "gui_boxmenu.h"           /* gui_draw_all_boxes */
 #include "kfx/renderer/RendererManager.h"
-#include "player_data.h"           /* struct PlayerInfo, PVT_MapScreen/MapFadeIn/MapFadeOut, local_state */
-#include "player_instances.h"      /* PI_MapFadeTo, PI_MapFadeFrom */
+#include "player_data.h"           /* struct PlayerInfo, PVT_MapScreen, local_state */
+#include "gui_parchment.h"         /* get_local_map_fade */
 #include "bflib_basics.h"          /* TbBool */
 #include "local_camera.h"
 #include "observer.h"
@@ -37,14 +37,7 @@ bool GameUI::IsActiveForCurrentView(const struct PlayerInfo* player) const
     if (!player) {
         return false;
     }
-    unsigned char view_type = get_local_view_type(player);
-    if (view_type == PVT_MapScreen || view_type == PVT_MapFadeIn || view_type == PVT_MapFadeOut) {
-        return false;
-    }
-    if (!is_observer_camera_active() && (player->instance_num == PI_MapFadeTo || player->instance_num == PI_MapFadeFrom)) {
-        return false;
-    }
-    return true;
+    return (get_local_view_type(player) != PVT_MapScreen) && (get_local_map_fade() == PVT_None);
 }
 
 void GameUI::DrawFrame(struct PlayerInfo* player)

@@ -96,7 +96,6 @@ SAVE_DECLARE(LightSystemState);
 SAVE_DECLARE(LightingTable);
 SAVE_DECLARE(LightsShadows);
 SAVE_DECLARE(LogDetailedSnapshot);
-SAVE_DECLARE(LogPlayerDesyncInfo);
 SAVE_DECLARE(LogUserDesyncInfo);
 SAVE_DECLARE(LogRoomDesyncInfo);
 SAVE_DECLARE(LogThingDesyncInfo);
