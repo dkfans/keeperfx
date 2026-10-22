@@ -29,6 +29,7 @@
 #include "value_util.h"
 #include <toml.h>
 #include "config.h"
+#include "config_keeperfx.h"
 #include "config_sounds.h"
 #include "config_strings.h"
 #include "thing_effects.h"
@@ -156,7 +157,37 @@ static void load_effects(VALUE *value, unsigned short flags)
     }
 }
 
-static void load_effectsgenerators(VALUE *value, unsigned short flags)
+static const char *config_path_for_log(const char *fname)
+{
+    const char *game_dirs[] = { keeper_runtime_directory, install_info.inst_path };
+    for (int32_t i = 0; i < 2; i++)
+    {
+        const size_t len = strlen(game_dirs[i]);
+        if ((len > 0) && (strncmp(fname, game_dirs[i], len) == 0) && ((fname[len] == '/') || (fname[len] == '\\')))
+            return fname + len + 1;
+    }
+    const char *name = fname;
+    for (const char *p = fname; *p != '\0'; p++)
+    {
+        if ((*p == '/') || (*p == '\\'))
+            name = p + 1;
+    }
+    return name;
+}
+
+static void warn_unknown_effect_model(VALUE *section, const char *block_name, const char *fname)
+{
+    VALUE *val = value_dict_get(section, "EffectModel");
+    if (value_type(val) != VALUE_STRING)
+        return;
+    const char *code_name = value_string(val);
+    if (parameter_is_number(code_name) || (get_id(effect_desc, code_name) >= 0) || (get_id(effectelem_desc, code_name) >= 0))
+        return;
+    WARNLOG("Incorrect value \"%s\" of \"EffectModel\" parameter in [%s] block of %s file: no effect or effect element has that name.",
+        code_name, block_name, config_path_for_log(fname));
+}
+
+static void load_effectsgenerators(VALUE *value, const char *fname, unsigned short flags)
 {
     char key[KEY_SIZE];
     VALUE *section;
@@ -180,6 +211,7 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"GenerationAmount"  ,effgencst->generation_amount);
 
             CONDITIONAL_ASSIGN_EFFECT_OR_EL_MODEL(section,"EffectModel",effgencst->effect_model);
+            warn_unknown_effect_model(section, key, fname);
             CONDITIONAL_ASSIGN_INT(section,"IgnoreTerrain",effgencst->ignore_terrain);
             CONDITIONAL_ASSIGN_INT(section,"SpawnHeight",effgencst->spawn_height);
 
@@ -307,7 +339,7 @@ static TbBool load_effects_config_file(const char *fname, unsigned short flags)
         return false;
     load_effectelements(&file_root, flags);
     load_effects(&file_root,flags);
-    load_effectsgenerators(&file_root,flags);
+    load_effectsgenerators(&file_root,fname,flags);
 
     value_fini(&file_root);
 
