@@ -77,6 +77,7 @@ void thing_play_sample(struct Thing *, SoundSmplTblID, SoundPitch, char repeats,
 void play_player_sample(PlayerNumber plyr_idx, SoundSmplTblID smptbl_idx);
 void play_sound_if_close_to_receiver(struct Coord3d*, SoundSmplTblID);
 void stop_thing_playing_sample(struct Thing *, SoundSmplTblID smpl_idx);
+void play_creature_footstep(struct Thing *thing, SoundVolume loudness);
 void play_thing_walking(struct Thing *thing);
 
 TbBool ambient_sound_prepare(void);

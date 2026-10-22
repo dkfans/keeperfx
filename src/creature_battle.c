@@ -329,22 +329,23 @@ TbBool step_battles_forward(PlayerNumber plyr_idx)
     return active_battle_exists(plyr_idx);
 }
 
-long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex battle_idx)
+TbBool battle_move_user_towards_battle(NetUserId user, BattleIndex battle_idx)
 {
+    struct UserState *ustate = get_user_state(user);
     struct CreatureBattle* battle = creature_battle_get(battle_idx);
     struct Thing* thing = thing_get(battle->first_creatr);
     TRACE_THING(thing);
     if (!thing_exists(thing))
     {
         ERRORLOG("Jump to invalid thing detected");
-        player->zoom_to_pos_x = subtile_coord_center(game.map_subtiles_x/2);
-        player->zoom_to_pos_y = subtile_coord_center(game.map_subtiles_y/2);
-        return 0;
+        ustate->zoom_to_pos_x = subtile_coord_center(game.map_subtiles_x/2);
+        ustate->zoom_to_pos_y = subtile_coord_center(game.map_subtiles_y/2);
+        return false;
     }
-    player->zoom_to_pos_x = thing->mappos.x.val;
-    player->zoom_to_pos_y = thing->mappos.y.val;
-    set_player_instance(player, PI_ZoomToPos, 0);
-    return 1;
+    ustate->zoom_to_pos_x = thing->mappos.x.val;
+    ustate->zoom_to_pos_y = thing->mappos.y.val;
+    set_user_instance(user, PI_ZoomToPos, 0);
+    return true;
 }
 
 void battle_initialise(void)

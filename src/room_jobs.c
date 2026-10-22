@@ -235,7 +235,7 @@ TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *ro
             ERRORLOG("Linked list of rooms has invalid next element on thing %d",(int)creatng->index);
         }
     }
-    cctrl->last_work_room_id = cctrl->work_room_id;
+    cctrl->last_work_room_id = (cctrl->work_room_id > 0) ? cctrl->work_room_id : 0;
     cctrl->work_room_id = 0;
     cctrl->creature_control_flags &= ~CCFlg_IsInRoomList;
     cctrl->next_in_room = 0;

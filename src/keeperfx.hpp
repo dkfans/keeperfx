@@ -20,6 +20,7 @@
 #define DK_KEEPERFX_H
 
 #include "globals.h"
+#include "net_main.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_filelst.h"
@@ -210,6 +211,7 @@ extern struct StartupParameters start_params;
 short setup_game(void);
 void game_loop(void);
 void update(void);
+void update_gameplay_delta_time(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
@@ -248,7 +250,7 @@ void lightning_modify_palette(struct Thing *thing);
 
 unsigned long seed_check_random(unsigned long range, uint32_t *seed, const char *func_name, unsigned long place);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
-void turn_off_query(PlayerNumber plyr_idx);
+void turn_off_query(NetUserId user);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(PlayerNumber plyr_idx);
 short lose_level(struct PlayerInfo *player);
@@ -277,12 +279,12 @@ void initialise_map_health(void);
 void setup_mesh_randomizers(void);
 void setup_stuff(void);
 void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta);
-long get_foot_creature_has_down(struct Thing *thing);
 void init_seeds();
 
 
 TbBool startup_saved_packet_game(void);
 void reinit_level_after_load(void);
+void rederive_local_state(void);
 void redetect_screen_refresh_rate_for_draw();
 
 

@@ -105,7 +105,7 @@ void intentional_desync()
             thing->health += 1;
         }
     }
-    get_player(0)->instance_remain_turns += 1;
+    get_user_state(0)->instance_remain_turns += 1;
 }
 
 void animate_resync_progress_bar(int current_phase, int total_phases)
@@ -614,7 +614,6 @@ static void finish_resync(const struct Packet *saved_packets)
 
     clear_flag(local_system_flags, GSF_NetGameNoSync);
     clear_flag(local_system_flags, GSF_NetSeedNoSync);
-    panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
 }
 
 void resync_game(void)
@@ -639,6 +638,8 @@ void resync_game(void)
     finish_resync(saved_packets);
     wait_for_all_players();
     animate_resync_progress_bar(100, 100);
+    update_gameplay_delta_time();
+    local_state.process_turn_time = 1.0;
     NETLOG("Resync finished locally in %u ms", (uint32_t)(LbTimerClock() - start_time));
 }
 

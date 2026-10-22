@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "net_main.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,8 +57,8 @@ enum PlayerInstanceNum {
     PI_HeartZoom,
     PI_HeartZoomOut,
     PI_CrCtrlFade,
-    PI_MapFadeTo,
-    PI_MapFadeFrom,
+    PI_UnusedSlot14,
+    PI_UnusedSlot15,
     PI_ZoomToPos,
     PI_UnusedSlot17,
     PI_UnusedSlot18,
@@ -68,7 +69,7 @@ enum PlayerInstanceNum {
 struct Thing;
 struct PlayerInfo;
 
-typedef long (*InstncInfo_Func)(struct PlayerInfo *player, int32_t *n);
+typedef int32_t (*InstncInfo_Func)(NetUserId user, int32_t *n);
 
 struct PlayerInstanceInfo { // sizeof = 44
   long length_turns;
@@ -91,10 +92,11 @@ struct PlayerInstanceInfo { // sizeof = 44
 /******************************************************************************/
 extern struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT];
 /******************************************************************************/
-TbBool player_can_start_instance(const struct PlayerInfo *player);
-void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force);
+TbBool user_can_start_instance(NetUserId user);
+void set_user_instance(NetUserId user, int32_t ninum, TbBool force);
+TbBool slap_influenced_thing(struct PlayerInfo *player);
 TbBool player_instance_controls_camera(unsigned char inum);
-void process_player_instance(struct PlayerInfo *player);
+void process_user_instance(NetUserId user);
 void process_player_instances(void);
 
 void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);

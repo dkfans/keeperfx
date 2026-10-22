@@ -914,10 +914,9 @@ void init_player(struct PlayerInfo *player, short no_explore)
         break;
     }
     init_player_cameras(player);
-    player->mp_message_text[0] = '\0';
     // By default, player is his own ally
     player->allied_players = to_flag(player->id_number);
-    player->hand_busy_until_turn = 0;
+    player->slap_cooldown_until_turn = 0;
     if (player->generate_speed == 0)
       player->generate_speed = game.conf.rules[player->id_number].rooms.default_generate_speed;
     if (is_my_player(player)) {
@@ -954,7 +953,6 @@ int32_t user_get_visibility_bounds(NetUserId user, MapCoord *x, MapCoord *y)
         return default_radius;
     }
     case PVT_MapScreen:
-    case PVT_MapFadeOut:
     {
         const struct Packet *pckt = get_packet(user);
         if (packet_camera_context(pckt) == CamIV_Parchment)
@@ -1256,6 +1254,15 @@ void process_player_states(void)
                     get_player_user_state(player)->dungeon_camera.x = thing->mappos.x.val;
                     get_player_user_state(player)->dungeon_camera.y = thing->mappos.y.val;
                     set_local_camera_destination(player);
+                }
+            }
+            else if (get_player_view_type(player) == PVT_CreatureContrl || get_player_view_type(player) == PVT_CreaturePasngr)
+            {
+                struct Thing* thing = thing_get(player->controlled_thing_idx);
+                if (thing_exists(thing)) {
+                    ustate->dungeon_camera.x = thing->mappos.x.val;
+                    ustate->dungeon_camera.y = thing->mappos.y.val;
+                    ustate->dungeon_camera.yaw[false] = thing->move_angle_xy;
                 }
             }
         }

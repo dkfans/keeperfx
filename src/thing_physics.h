@@ -72,6 +72,9 @@ TbBool position_over_floor_level(const struct Thing* thing, const struct Coord3d
 TbBool thing_can_traverse_abyss_at(const struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord height_beg, MapCoord height_end);
 TbBool move_object_to_nearest_free_position(struct Thing *thing);
+void apply_thing_pushes_to_velocity(struct Thing *thing);
+void apply_thing_drag_and_gravity(struct Thing *thing);
+TbBool thing_starts_falling_into_abyss(const struct Thing *thing);
 void clear_thing_acceleration(struct Thing* thing);
 void clear_thing_velocity(struct Thing* thing);
 /******************************************************************************/

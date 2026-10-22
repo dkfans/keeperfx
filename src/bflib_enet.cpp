@@ -234,7 +234,7 @@ namespace
         if (host) {
             for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
                 if (peer->state == ENET_PEER_STATE_CONNECTED) {
-                    enet_peer_disconnect(peer, 0);
+                    enet_peer_disconnect(peer, netstate.leave_reason);
                 }
             }
             enet_host_flush(host);
@@ -801,6 +801,9 @@ namespace
                 } else {
                     user_id = NetUserId(reinterpret_cast<ptrdiff_t>(enet_event.peer->data));
                 }
+                if (enet_event.data >= NetJoin_MapMismatch && enet_event.data < NetJoin_Count) {
+                    netstate.users_leave_reason[user_id] = (enum NetJoinRejection)enet_event.data;
+                }
                 const char *disconnect_reason = "timed out";
                 enum NetDropReason drop_reason = NETDROP_TIMEOUT;
                 if (enet_event.type == ENET_EVENT_TYPE_DISCONNECT) {
@@ -1302,6 +1305,7 @@ struct NetSP *InitEnetSP()
     {
             .init = &bf_enet_init,
             .exit = &bf_enet_exit,
+            .disconnect = &host_destroy,
             .host = &bf_enet_host,
             .join = &bf_enet_join,
             .update = &bf_enet_update,

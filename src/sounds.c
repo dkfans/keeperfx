@@ -30,6 +30,7 @@
 #include "map_utils.h"
 #include "engine_camera.h"
 #include "local_camera.h"
+#include "local_possession.h"
 #include "gui_soundmsgs.h"
 #include "player_data.h"
 #include "gui_topmsg.h"
@@ -137,11 +138,36 @@ void play_sound_if_close_to_receiver(struct Coord3d *soundpos, SoundSmplTblID sm
     }
 }
 
+void play_creature_footstep(struct Thing *thing, SoundVolume loudness)
+{
+    struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);
+    if ((crsound->index == 0) || flag_is_set(get_creature_model_flags(thing), CMF_IsSpectator)) {
+        return;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    const int smpl_variant = foot_down_sound_sample_variant[4 * cctrl->footstep_variant + cctrl->footstep_counter];
+    SoundSmplTblID smpl_idx;
+    if (flag_is_set(thing->movement_flags, TMvF_IsOnSnow)) {
+        smpl_idx = snd_foot_snow + smpl_variant;
+    } else {
+        smpl_idx = creature_sound_unified_id(crsound, smpl_variant);
+    }
+    cctrl->footstep_counter++;
+    if (cctrl->footstep_counter >= 4) {
+        cctrl->footstep_variant = UNSYNC_RANDOM(4);
+        cctrl->footstep_counter = 0;
+    }
+    const struct CreatureModelConfig* crconf = creature_stats_get(thing->model);
+    thing_play_sample(thing, smpl_idx, crconf->footstep_pitch, 0, 3, 3, 1, loudness);
+    if (flag_is_set(thing->movement_flags, TMvF_IsOnWater)) {
+        thing_play_sample(thing, snd_foot_wet + SOUND_RANDOM(snd_foot_wet_count), 90 + SOUND_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
+    }
+}
+
 void play_thing_walking(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();
     struct Camera* cam = get_local_active_camera(myplyr);
-    struct CreatureModelConfig* crconf;
     { // Skip the thing if its distance to camera is too big
         MapSubtlDelta dist_x = coord_subtile(abs(cam->mappos.x.val - (MapCoordDelta)thing->mappos.x.val));
         MapSubtlDelta dist_y = coord_subtile(abs(cam->mappos.y.val - (MapCoordDelta)thing->mappos.y.val));
@@ -173,27 +199,8 @@ void play_thing_walking(struct Thing *thing)
             S3DDeleteSampleFromEmitter(thing->snd_emitter_id, snd_insect_fly);
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (thing_touching_floor(thing) && cctrl->distance_to_destination && get_foot_creature_has_down(thing))
-        {
-            int smpl_variant = foot_down_sound_sample_variant[4 * cctrl->footstep_variant + cctrl->footstep_counter];
-            long smpl_idx;
-            if ((thing->movement_flags & TMvF_IsOnSnow) != 0) {
-                smpl_idx = snd_foot_snow + smpl_variant;
-            } else {
-                struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);
-                smpl_idx = (long)creature_sound_unified_id(crsound, smpl_variant);
-            }
-            cctrl->footstep_counter++;
-            if (cctrl->footstep_counter >= 4)
-            {
-                cctrl->footstep_variant = UNSYNC_RANDOM(4);
-                cctrl->footstep_counter = 0;
-            }
-            crconf = creature_stats_get(thing->model);
-            thing_play_sample(thing, smpl_idx, crconf->footstep_pitch, 0, 3, 3, 1, loudness);
-            if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
-                thing_play_sample(thing, snd_foot_wet + SOUND_RANDOM(snd_foot_wet_count), 90 + SOUND_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
-            }
+        if (thing_touching_floor(thing) && (cctrl->distance_to_destination != 0) && (get_foot_creature_has_down(thing, cctrl) != 0) && !local_possession_sounded_footstep(thing)) {
+            play_creature_footstep(thing, loudness);
         }
     }
 }

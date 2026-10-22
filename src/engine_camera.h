@@ -35,6 +35,7 @@ struct EngineCol;
 struct PlayerInfo;
 struct Packet;
 struct Thing;
+struct CreatureControl;
 
 // Camera constants; zoom max is zoomed in (everything large), zoom min is zoomed out (everything small)
 #define CAMERA_ZOOM_MAX 12000
@@ -137,7 +138,7 @@ TbBool view_move_camera_to_position(MapCoord *pos_x, MapCoord *pos_y, MapCoord x
 
 void update_camera_shake(void);
 void init_player_cameras(struct PlayerInfo *player);
-void update_first_person_position(struct Camera *cam, struct Thing *thing, int eye_height);
+void update_first_person_position(struct Camera *cam, struct Thing *thing, const struct CreatureControl *cctrl, int eye_height);
 
 /******************************************************************************/
 #ifdef __cplusplus

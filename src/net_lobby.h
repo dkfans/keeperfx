@@ -36,6 +36,7 @@ int32_t net_lobby_spectator_count(void);
 
 TbError LbNetwork_ExchangeLogin(char *player_name);
 TbError LbNetwork_ExchangeFrontend(void *send_buf, void *server_buf, size_t frame_size);
+TbError LbNetwork_ExchangeLobby(void *send_buf, void *server_buf, size_t frame_size, TbBool send_frame, void (*process_frame)(NetUserId));
 TbError process_login_message(NetUserId source, char *read_pos, const char *end_pos);
 TbError process_user_update_message(NetUserId source, char *read_pos, const char *end_pos);
 

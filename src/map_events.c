@@ -193,15 +193,14 @@ void event_initialise_all(void)
     }
 }
 
-long event_move_player_towards_event(struct PlayerInfo *player, long event_idx)
+TbBool event_move_user_towards_event(NetUserId user, EventIndex event_idx)
 {
     struct Event* event = &game.event[event_idx];
-
-    player->zoom_to_pos_x = event->mappos_x;
-    player->zoom_to_pos_y = event->mappos_y;
-
-    set_player_instance(player, PI_ZoomToPos, 0);
-    return 1;
+    struct UserState *ustate = get_user_state(user);
+    ustate->zoom_to_pos_x = event->mappos_x;
+    ustate->zoom_to_pos_y = event->mappos_y;
+    set_user_instance(user, PI_ZoomToPos, 0);
+    return true;
 }
 
 struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, int32_t target)
