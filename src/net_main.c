@@ -115,6 +115,21 @@ void SendUserUpdate(NetUserId dest, NetUserId updated_user)
     send_message_buffer(dest, write_pos);
 }
 
+void SendNewUserUpdates(NetUserId new_user)
+{
+    for (NetUserId user_id = 0; user_id < MAX_NET_CONNECTIONS; user_id += 1) {
+        if (netstate.users[user_id].progress == USER_UNUSED) {
+            continue;
+        }
+        if (new_user >= MAX_NET_USERS || user_id < MAX_NET_USERS) {
+            SendUserUpdate(new_user, user_id);
+        }
+        if (user_id != netstate.my_id && user_id != new_user && (new_user < MAX_NET_USERS || user_id >= MAX_NET_USERS)) {
+            SendUserUpdate(user_id, new_user);
+        }
+    }
+}
+
 TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkUserInfo *locplayr, struct ServiceInitData *)
 {
     local_user_info = locplayr;

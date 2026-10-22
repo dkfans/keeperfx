@@ -204,6 +204,7 @@ char *begin_net_message(enum NetMessageType msg_type);
 void send_message_buffer(NetUserId dest, const char *end_ptr);
 void send_remote_buffer(const char *end_ptr);
 void SendUserUpdate(NetUserId dest, NetUserId updated_user);
+void SendNewUserUpdates(NetUserId new_user);
 
 #ifdef __cplusplus
 }

@@ -1076,6 +1076,7 @@ namespace
         ENetPeer *peer = find_user_peer(old_id);
         if (peer != nullptr) {
             peer->data = reinterpret_cast<void *>(new_id);
+            connection_ids[old_id] = 0;
             log_peer_connection(peer, new_id, "reassigned");
         }
     }

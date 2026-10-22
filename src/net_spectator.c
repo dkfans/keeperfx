@@ -421,6 +421,7 @@ void network_spectator_convert_defeated_users(void)
         *write_pos++ = net_config_info.spectator_chat;
         send_message_buffer(spectator_id, write_pos);
         OnDroppedUser(player_id, NETDROP_MANUAL);
+        SendNewUserUpdates(spectator_id);
     }
 }
 
