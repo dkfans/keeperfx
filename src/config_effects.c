@@ -29,6 +29,7 @@
 #include "value_util.h"
 #include <toml.h>
 #include "config.h"
+#include "config_keeperfx.h"
 #include "config_sounds.h"
 #include "config_strings.h"
 #include "thing_effects.h"
@@ -156,6 +157,24 @@ static void load_effects(VALUE *value, unsigned short flags)
     }
 }
 
+static const char *config_path_for_log(const char *fname)
+{
+    const char *game_dirs[] = { keeper_runtime_directory, install_info.inst_path };
+    for (int32_t i = 0; i < 2; i++)
+    {
+        const size_t len = strlen(game_dirs[i]);
+        if ((len > 0) && (strncmp(fname, game_dirs[i], len) == 0) && ((fname[len] == '/') || (fname[len] == '\\')))
+            return fname + len + 1;
+    }
+    const char *name = fname;
+    for (const char *p = fname; *p != '\0'; p++)
+    {
+        if ((*p == '/') || (*p == '\\'))
+            name = p + 1;
+    }
+    return name;
+}
+
 static void warn_unknown_effect_model(VALUE *section, const char *block_name, const char *fname)
 {
     VALUE *val = value_dict_get(section, "EffectModel");
@@ -165,7 +184,7 @@ static void warn_unknown_effect_model(VALUE *section, const char *block_name, co
     if (parameter_is_number(code_name) || (get_id(effect_desc, code_name) >= 0) || (get_id(effectelem_desc, code_name) >= 0))
         return;
     WARNLOG("Incorrect value \"%s\" of \"EffectModel\" parameter in [%s] block of %s file: no effect or effect element has that name.",
-        code_name, block_name, fname);
+        code_name, block_name, config_path_for_log(fname));
 }
 
 static void load_effectsgenerators(VALUE *value, const char *fname, unsigned short flags)
