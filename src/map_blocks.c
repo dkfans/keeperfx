@@ -24,6 +24,7 @@
 #include "bflib_sound.h"
 
 #include "slab_data.h"
+#include "ariadne_update.h"
 #include "room_data.h"
 #include "map_utils.h"
 #include "thing_effects.h"
@@ -1753,6 +1754,9 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
 
     if (!keep_blocks_around)
       update_blocks_around_slab(slb_x,slb_y);
+    else
+      update_navigation_triangulation(slab_subtile(slb_x,0) - STL_PER_SLB, slab_subtile(slb_y,0) - STL_PER_SLB,
+          slab_subtile(slb_x,0) + STL_PER_SLB + 2, slab_subtile(slb_y,0) + STL_PER_SLB + 2);
     switch (nslab)
     {
         case SlbT_ROCK:
