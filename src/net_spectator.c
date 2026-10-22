@@ -370,38 +370,35 @@ TbBool network_spectator_start(void)
     return true;
 }
 
-static TbBool user_will_become_spectator(NetUserId user)
+static TbBool user_can_become_spectator(NetUserId user)
 {
     return user_present(user) && player_has_lost(get_net_user_player_number(user)) && network_human_contenders_remain()
         && net_versions_match(&netstate.users[SERVER_ID].version, &net_current_version)
         && net_versions_match(&netstate.users[user].version, &net_current_version);
 }
 
-static TbBool user_may_become_spectator(NetUserId user)
+TbBool network_spectator_request_conversion(void)
 {
-    return user_will_become_spectator(user) && player_defeat_settled(get_net_user_player_number(user));
+    if (!network_is_active() || network_is_host() || !user_can_become_spectator(netstate.my_id)) {
+        return false;
+    }
+    struct NetUser *user = &netstate.users[netstate.my_id];
+    if (!user->spectator_conversion_requested) {
+        NETLOG("Asking the host to spectate the rest of the game");
+        send_message_buffer(SERVER_ID, begin_net_message(NETMSG_SPECTATOR_CONVERSION));
+        user->spectator_conversion_requested = true;
+    }
+    return true;
 }
 
 void network_spectator_convert_defeated_users(void)
 {
     if (!network_is_host()) {
-        if (!user_will_become_spectator(netstate.my_id)) {
-            return;
-        }
-        if (local_state.show_gui) {
-            set_gui_visible(false);
-            local_state.show_panel = false;
-        }
-        struct NetUser *user = &netstate.users[netstate.my_id];
-        if (!user->spectator_conversion_requested && !flag_is_set(get_local_user_state()->init_flags, UsrIF_NewMPMessage) && user_may_become_spectator(netstate.my_id)) {
-            NETLOG("Asking the host to spectate the rest of the game");
-            send_message_buffer(SERVER_ID, begin_net_message(NETMSG_SPECTATOR_CONVERSION));
-            user->spectator_conversion_requested = true;
-        }
         return;
     }
     for (NetUserId player_id = SERVER_ID + 1; player_id < MAX_NET_USERS; player_id++) {
-        if (!netstate.users[player_id].spectator_conversion_requested || !user_may_become_spectator(player_id)) {
+        if (!netstate.users[player_id].spectator_conversion_requested || !user_can_become_spectator(player_id)
+         || !player_defeat_settled(get_net_user_player_number(player_id))) {
             continue;
         }
         NetUserId spectator_id = find_unused_user_id(MAX_NET_USERS, MAX_NET_CONNECTIONS);
