@@ -7693,3 +7693,15 @@ msgstr "Sei stato disconnesso perché la tua partita non era più sincronizzata.
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s ha perso la connessione (timeout)."
+
+#: guitext:1160
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "Trucchi"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "Assistenza del Computer"

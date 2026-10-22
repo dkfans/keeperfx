@@ -7591,3 +7591,15 @@ msgstr "Disiunctus es quod ludus tuus non iam congruebat."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s conexionem amisit (tempus excessit)."
+
+#: guitext:1160
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "Fraudes"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "Adiumentum computarii"

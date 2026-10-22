@@ -7823,3 +7823,15 @@ msgstr "Has sido desconectado porque tu partida perdió la sincronización."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s ha perdido la conexión (tiempo agotado)."
+
+#: guitext:1160
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "Trucos"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "Asistencia por ordenador"

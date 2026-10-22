@@ -430,6 +430,14 @@ const char * get_string(TextStringId stridx)
         return gui_string(stridx - GUI_STRINGS_START);
 }
 
+const char * get_on_off_string(TbBool value)
+{
+    if (value) {
+        return get_string(GUIStr_On);
+    }
+    return get_string(GUIStr_Off);
+}
+
 TbBool string_idx_is_empty(TextStringId stridx)
 {
     return (stridx == CpgStr_Empty || stridx == GUIStr_Empty);

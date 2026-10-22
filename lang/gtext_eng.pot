@@ -6127,3 +6127,13 @@ msgstr "You were disconnected because your game went out of sync."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s lost connection (timed out)."
+
+#: guitext:1160
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "Cheats"
+
+#: guitext:1161
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "Computer assistant"

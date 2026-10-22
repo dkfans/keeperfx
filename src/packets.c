@@ -1240,7 +1240,9 @@ TbBool process_user_dungeon_control_packet_action(NetUserId user)
         transfer_creature(thing_get(pckt->actn_par1), thing_get(pckt->actn_par2), plyr_idx);
         break;
     case PckA_ToggleComputer:
-        toggle_computer_player(plyr_idx);
+        if (computer_assistant_allowed()) {
+            toggle_computer_player(plyr_idx);
+        }
         break;
     default:
         return process_players_dungeon_control_cheats_packet_action(plyr_idx, pckt);

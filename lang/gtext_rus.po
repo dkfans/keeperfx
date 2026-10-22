@@ -6925,3 +6925,15 @@ msgstr "Вы были отключены, так как ваша игра пот
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s потерял соединение (истекло время ожидания)."
+
+#: guitext:1160
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "Читы"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "ИИ-помощник"

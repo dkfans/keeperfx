@@ -512,6 +512,8 @@ enum GUIStrings {
     GUIStr_SaveLoadFailed,
     GUIStr_NetSpectatorDesynced,
     GUIStr_NetPlayerTimedOut,
+    GUIStr_NetCheats,
+    GUIStr_NetComputerAssistant,
     GuiStrEnd
 };
 
@@ -574,6 +576,7 @@ TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);
 TbBool reset_strings(char **strings, int max);
 const char * get_string(TextStringId stridx);
+const char * get_on_off_string(TbBool value);
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
 TbBool fill_strings_list(char **strings,char *strings_data,char *strings_data_end, int max);
 unsigned long count_strings(char *strings, int size);

@@ -64,6 +64,7 @@ void apply_user_preferences(NetUserId user, const UserPreferences prefs, unsigne
 void apply_local_user_preferences(NetUserId user, unsigned char flags);
 void apply_user_start_tendencies(struct PlayerInfo *player);
 TbBool user_cheats_allowed(NetUserId user);
+TbBool computer_assistant_allowed(void);
 TbBool game_censorship_enabled(void);
 void apply_recorded_network_stop(void);
 TbBool get_startup_user_preferences(NetUserId user, UserPreferences prefs);

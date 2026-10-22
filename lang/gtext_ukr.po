@@ -7642,3 +7642,15 @@ msgstr "Вас відключено, оскільки ваша гра втрат
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s втратив з'єднання (час очікування вичерпано)."
+
+#: guitext:1160
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "Чити"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "Комп'ютерний помічник"

@@ -7187,3 +7187,15 @@ msgstr "由於你的遊戲不同步，你已斷開連線。"
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s 失去連線（逾時）。"
+
+#: guitext:1160
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Cheats"
+msgstr "作弊"
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Computer assistant"
+msgstr "電腦輔助"
