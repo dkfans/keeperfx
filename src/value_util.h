@@ -129,7 +129,7 @@ int sound_id_from_text(const char* text);
     else\
     if (value_type(val) == VALUE_STRING)\
     {\
-        field = effect_or_effect_element_id_warn(value_string(val), name);\
+        field = effect_or_effect_element_id(value_string(val));\
     }\
 }
 
