@@ -7591,3 +7591,9 @@ msgstr "Disiunctus es quod ludus tuus non iam congruebat."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s conexionem amisit (tempus excessit)."
+
+#: guitext:1160
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s spectator factus est."

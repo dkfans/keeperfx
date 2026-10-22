@@ -6127,3 +6127,9 @@ msgstr "You were disconnected because your game went out of sync."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s lost connection (timed out)."
+
+#: guitext:1160
+#, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s has become a spectator."

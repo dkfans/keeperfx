@@ -7562,3 +7562,9 @@ msgstr "Byl jsi odpojen, protože tvoje hra přestala být synchronizovaná."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s ztratil spojení (vypršel časový limit)."
+
+#: guitext:1160
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s se stal divákem."

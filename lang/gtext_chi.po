@@ -7191,3 +7191,9 @@ msgstr "由于你的游戏不同步，你已断开连接。"
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s 失去连接（超时）。"
+
+#: guitext:1160
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s 已成为观众。"

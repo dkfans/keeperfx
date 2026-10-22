@@ -7816,3 +7816,9 @@ msgstr "Vous avez été déconnecté car votre partie n'était plus synchronisé
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s a perdu la connexion (délai dépassé)."
+
+#: guitext:1160
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s est devenu spectateur."

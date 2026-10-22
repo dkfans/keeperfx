@@ -7589,3 +7589,9 @@ msgstr "Du kopplades från eftersom ditt spel inte längre var synkroniserat."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s tappade anslutningen (tidsgräns överskreds)."
+
+#: guitext:1160
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s är nu åskådare."
