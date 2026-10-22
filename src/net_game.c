@@ -792,7 +792,7 @@ static void remove_user_from_game(NetUserId user, const char *announce_fmt)
 
 static void leave_network_if_alone(void)
 {
-    if (network_is_host() && net_config_info.spectators_enabled) {
+    if (network_is_host() && (net_config_info.spectators_enabled || net_lobby_spectator_count() > 0)) {
         return;
     }
     if (!network_has_remote_users_remaining()) {
@@ -830,9 +830,12 @@ void process_user_leave_game_packet(NetUserId user)
     if (network_is_active()) {
         OnDroppedUser(user, NETDROP_MANUAL);
     }
+    const int32_t leave_reason = get_packet(user)->actn_par1;
     const char *announce_fmt = get_string(GUIStr_NetPlayerLeftGame);
-    if (get_packet(user)->actn_par1 == NET_LEAVE_TIMED_OUT) {
+    if (leave_reason == NET_LEAVE_TIMED_OUT) {
         announce_fmt = get_string(GUIStr_NetPlayerTimedOut);
+    } else if (leave_reason == NET_LEAVE_SPECTATING) {
+        announce_fmt = NULL;
     }
     remove_user_from_game(user, announce_fmt);
     if (network_is_active()) {
@@ -860,8 +863,10 @@ void host_spoof_dropped_user_packets(void)
         struct Packet spoofed;
         memset(&spoofed, 0, sizeof(spoofed));
         int32_t leave_reason = 0;
-        if (netstate.users_timed_out[user]) {
+        if (netstate.users_drop_reason[user] == NETDROP_TIMEOUT) {
             leave_reason = NET_LEAVE_TIMED_OUT;
+        } else if (netstate.users_drop_reason[user] == NETDROP_SPECTATING) {
+            leave_reason = NET_LEAVE_SPECTATING;
         }
         set_packet_action(&spoofed, PckA_ForceApplicationClose, leave_reason, 0, 0, 0);
         // only the turns user_has_required_turn_packets expects

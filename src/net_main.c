@@ -32,6 +32,16 @@ TbBool IsUserActive(NetUserId id)
     return id >= 0 && id < MAX_NET_CONNECTIONS && netstate.users[id].progress == USER_LOGGEDIN;
 }
 
+NetUserId find_unused_user_id(NetUserId first_id, NetUserId last_id)
+{
+    for (NetUserId id = first_id; id < last_id; id += 1) {
+        if (netstate.users[id].progress == USER_UNUSED) {
+            return id;
+        }
+    }
+    return INVALID_USER_ID;
+}
+
 int32_t GetRemoteUserCount(void)
 {
     int32_t count = 0;
@@ -140,19 +150,18 @@ enum NetJoinRejection OnNewUser(NetUserId *assigned_id, enum NetConnectionRole r
     if (reason != NetJoin_Accepted) {
         return reason;
     }
-    for (NetUserId id = first_id; id < last_id; id += 1) {
-        if (netstate.users[id].progress == USER_UNUSED) {
-            *assigned_id = id;
-            netstate.users[id].progress = USER_CONNECTED;
-            netstate.users[id].ack = -1;
-            netstate.users_leave_reason[id] = NetJoin_Accepted;
-            netstate.users[id].connected_at = LbTimerClock();
-            net_lobby_refresh_metadata();
-            NETLOG("Assigning new user to ID %u", id);
-            return NetJoin_Accepted;
-        }
+    NetUserId id = find_unused_user_id(first_id, last_id);
+    if (id == INVALID_USER_ID) {
+        return NetJoin_Full;
     }
-    return NetJoin_Full;
+    *assigned_id = id;
+    netstate.users[id].progress = USER_CONNECTED;
+    netstate.users[id].ack = -1;
+    netstate.users_leave_reason[id] = NetJoin_Accepted;
+    netstate.users[id].connected_at = LbTimerClock();
+    net_lobby_refresh_metadata();
+    NETLOG("Assigning new user to ID %u", id);
+    return NetJoin_Accepted;
 }
 
 void OnDroppedUser(NetUserId id, enum NetDropReason reason)
@@ -166,8 +175,8 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     if (netstate.users[id].progress == USER_UNUSED) {
         return;
     }
-    netstate.users_timed_out[id] = (reason == NETDROP_TIMEOUT);
-    if (reason == NETDROP_MANUAL) {
+    netstate.users_drop_reason[id] = reason;
+    if (reason == NETDROP_MANUAL || reason == NETDROP_SPECTATING) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     } else {
         NETMSG("User left (or timed out): %i %s", id, netstate.users[id].name);

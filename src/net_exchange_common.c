@@ -397,6 +397,8 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
         return process_network_spectator_chat(source, read_pos, payload_size);
     case NETMSG_SPECTATOR_NOTICE:
         return process_network_spectator_notice(source, read_pos, payload_size);
+    case NETMSG_SPECTATOR_CONVERSION:
+        return process_network_spectator_conversion(source, read_pos, payload_size);
     default:
         return Lb_OK;
     }
@@ -486,13 +488,18 @@ TbError exchange_frame_block(enum NetMessageType msg_type, void *send_buf, void 
     return Lb_OK;
 }
 
+TbBool gameplay_exchange_suspended(void)
+{
+    return netstate.resync_pending || network_user_is_spectator(netstate.pending_spectator_id);
+}
+
 void process_peer_msgs(NetUserId peer_id, void *server_buf, size_t frame_size)
 {
     if (peer_id == SERVER_ID && network_user_is_spectator(netstate.my_id)) {
         network_spectator_receive_turns(server_buf, frame_size);
         return;
     }
-    while (!netstate.resync_pending && netstate.sp->msgready(peer_id, 0)) {
+    while (!gameplay_exchange_suspended() && netstate.sp->msgready(peer_id, 0)) {
         process_network_message(peer_id, server_buf, frame_size, NETMSG_GAMEPLAY_UNSEQUENCED, NULL);
     }
 }

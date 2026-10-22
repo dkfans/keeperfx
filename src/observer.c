@@ -166,7 +166,7 @@ static PlayerBitFlags get_observer_starting_players(void)
     PlayerBitFlags players = 0;
     for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++) {
         const struct PlayerInfo *player = get_player(i);
-        if (is_active_keeper(player) && !flag_is_set(player->allocflags, PlaF_CompCtrl)) {
+        if (is_active_keeper(player) && !flag_is_set(player->allocflags, PlaF_CompCtrl) && player->victory_state != VicS_LostLevel) {
             set_flag(players, to_flag(i));
         }
     }

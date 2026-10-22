@@ -41,6 +41,7 @@ TbBool all_expected_exchange_frames_received(const TbBool has_received_frame[MAX
 TbError exchange_frame_message(void *send_buf, void *server_buf, size_t frame_size, enum NetMessageType msg_type);
 TbError process_network_message(NetUserId source, void *server_buf, size_t frame_size, enum NetMessageType expected_frame_type, NetUserId *frame_peer_id);
 TbError exchange_frame_block(enum NetMessageType msg_type, void *send_buf, void *server_buf, size_t frame_size);
+TbBool gameplay_exchange_suspended(void);
 void process_peer_msgs(NetUserId peer_id, void *server_buf, size_t frame_size);
 void wait_for_all_players(void);
 
