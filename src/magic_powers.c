@@ -1797,17 +1797,17 @@ static TbResult magic_use_power_slap_thing(PowerKind power_kind, PlayerNumber pl
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
     const NetUserId user = get_player_primary_user(player);
-    const struct UserState *ustate = get_user_state(user);
+    struct UserState *ustate = get_user_state(user);
     const TbBool slapping = user_state_invalid(ustate) ? player->slap_cooldown_until_turn > get_gameturn() : ustate->instance_num == PI_Whip;
     if (slapping || get_gameturn() - dungeon->last_creature_dropped_gameturn <= 10) {
         return Lb_OK;
     }
     player->slap_cooldown_until_turn = get_gameturn() + player_instance_info[PI_Whip].length_turns;
-    player->influenced_thing_idx = thing->index;
-    player->influenced_thing_creation = thing->creation_turn;
     if (user_state_invalid(ustate)) {
-        slap_influenced_thing(player);
+        slap_thing(player, thing);
     } else {
+        ustate->influenced_thing_idx = thing->index;
+        ustate->influenced_thing_creation = thing->creation_turn;
         set_user_instance(user, PI_Whip, 0);
     }
     dungeon->lvstats.num_slaps++;
@@ -1836,13 +1836,13 @@ static TbResult magic_use_power_possess_thing(PowerKind power_kind, PlayerNumber
     }
 
     player = get_player(plyr_idx);
-    player->influenced_thing_idx = thing->index;
-    player->influenced_thing_creation = thing->creation_turn;
     struct UserState* ustate = get_player_user_state(player);
+    ustate->influenced_thing_idx = thing->index;
+    ustate->influenced_thing_creation = thing->creation_turn;
     ustate->first_person_dig_claim_mode = false;
     ustate->teleport_destination = 19; // reset to default behaviour
     ustate->battleid = 1;
-    // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
+    // Note that setting Direct Control player instance requires ustate->influenced_thing_idx to be set correctly
     set_user_instance(get_player_primary_user(player), PI_DirctCtrl, 0);
     if (is_my_player(player)) {
         clear_flag(tool_tip_box.flags, TTip_Visible);

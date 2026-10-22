@@ -231,16 +231,17 @@ int32_t pinstfs_hand_grab(NetUserId user, int32_t *n)
 int32_t pinstfe_hand_grab(NetUserId user, int32_t *n)
 {
     struct PlayerInfo *player = get_user_player(user);
+    struct UserState* ustate = get_user_state(user);
     SYNCDBG(8,"Starting");
-    struct Thing* dsttng = thing_get(player->influenced_thing_idx);
-    if (dsttng->creation_turn != player->influenced_thing_creation) {
-        WARNLOG("The thing index %d is no longer the same",(int)player->influenced_thing_idx);
-        player->influenced_thing_creation = 0;
-        player->influenced_thing_idx = 0;
+    struct Thing* dsttng = thing_get(ustate->influenced_thing_idx);
+    if (dsttng->creation_turn != ustate->influenced_thing_creation) {
+        WARNLOG("The thing index %d is no longer the same",(int)ustate->influenced_thing_idx);
+        ustate->influenced_thing_creation = 0;
+        ustate->influenced_thing_idx = 0;
         return 0;
     }
-    player->influenced_thing_creation = 0;
-    player->influenced_thing_idx = 0;
+    ustate->influenced_thing_creation = 0;
+    ustate->influenced_thing_idx = 0;
     if (magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng, PwMod_Default) == Lb_FAIL) {
         WARNLOG("Cannot pick up %s index %d",thing_model_name(dsttng),(int)dsttng->index);
         return 0;
@@ -254,8 +255,8 @@ int32_t pinstfs_hand_drop(NetUserId user, int32_t *n)
     struct UserState* ustate = get_user_state(user);
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(ustate->hand_thing_idx);
-    player->influenced_thing_idx = dungeon->things_in_hand[0];
-    player->influenced_thing_creation = thing->creation_turn;
+    ustate->influenced_thing_idx = dungeon->things_in_hand[0];
+    ustate->influenced_thing_creation = thing->creation_turn;
     if (thing_exists(thing))
     {
         set_power_hand_graphic(user, HndA_Pickup);
@@ -265,15 +266,14 @@ int32_t pinstfs_hand_drop(NetUserId user, int32_t *n)
 
 int32_t pinstfe_hand_drop(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
     struct Thing* thing = thing_get(ustate->hand_thing_idx);
     if (thing_exists(thing))
     {
         set_power_hand_graphic(user, HndA_Hover);
     }
-    player->influenced_thing_idx = 0;
-    player->influenced_thing_creation = 0;
+    ustate->influenced_thing_idx = 0;
+    ustate->influenced_thing_creation = 0;
     return 0;
 }
 
@@ -288,18 +288,13 @@ int32_t pinstfs_hand_whip(NetUserId user, int32_t *n)
     return 0;
 }
 
-TbBool slap_influenced_thing(struct PlayerInfo *player)
+TbBool slap_thing(struct PlayerInfo *player, struct Thing *thing)
 {
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SLAP);
-    struct Thing* thing = thing_get(player->influenced_thing_idx);
     struct TrapConfigStats *trapst;
     struct ShotConfigStats* shotst;
-    if (!thing_exists(thing) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
-    {
-        player->influenced_thing_creation = 0;
-        player->influenced_thing_idx = 0;
+    if (!thing_exists(thing) || !thing_slappable(thing, player->id_number))
         return false;
-  }
   switch (thing->class_id)
   {
   case TCls_Creature:
@@ -373,8 +368,15 @@ TbBool slap_influenced_thing(struct PlayerInfo *player)
 
 int32_t pinstfe_hand_whip(NetUserId user, int32_t *n)
 {
-    if (slap_influenced_thing(get_user_player(user)))
-        set_user_instance(user, PI_WhipEnd, false);
+    struct UserState* ustate = get_user_state(user);
+    struct Thing* thing = thing_get(ustate->influenced_thing_idx);
+    if (thing->creation_turn != ustate->influenced_thing_creation || !slap_thing(get_user_player(user), thing))
+    {
+        ustate->influenced_thing_creation = 0;
+        ustate->influenced_thing_idx = 0;
+        return 0;
+    }
+    set_user_instance(user, PI_WhipEnd, false);
     return 0;
 }
 
@@ -416,7 +418,7 @@ int32_t pinstfs_passenger_control_creature(NetUserId user, int32_t *n)
     }
     ustate->init_flags |= UsrIF_KeyboardInputDisabled;
     record_local_possession_start(player);
-    const struct Thing *thing = thing_get(player->influenced_thing_idx);
+    const struct Thing *thing = thing_get(ustate->influenced_thing_idx);
     if (thing_exists(thing))
     {
           ustate->dungeon_camera.x = thing->mappos.x.val;
@@ -429,9 +431,9 @@ int32_t pinstfs_passenger_control_creature(NetUserId user, int32_t *n)
 
 int32_t pinstfs_direct_control_creature(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
+    struct UserState* ustate = get_user_state(user);
     // Reset state of the thing being possessed
-    struct Thing* thing = thing_get(player->influenced_thing_idx);
+    struct Thing* thing = thing_get(ustate->influenced_thing_idx);
     if (thing_can_be_controlled_as_controller(thing))
     {
         SYNCDBG(8,"Cleaning up state %s of %s index %d",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
@@ -445,13 +447,13 @@ int32_t pinstfm_control_creature(NetUserId user, int32_t *n)
 {
     struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
-    struct Thing* thing = thing_get(player->influenced_thing_idx);
+    struct Thing* thing = thing_get(ustate->influenced_thing_idx);
     if (!thing_exists(thing) || (thing->class_id == TCls_DeadCreature) || creature_is_dying(thing))
     {
         if (user == get_displayed_user())
             PaletteSetPlayerPalette(player,engine_palette);
-        player->influenced_thing_idx = 0;
-        player->influenced_thing_creation = 0;
+        ustate->influenced_thing_idx = 0;
+        ustate->influenced_thing_creation = 0;
         ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
         ustate->init_flags &= ~UsrIF_MouseInputDisabled;
         set_user_instance(user, PI_Unset, true);
@@ -466,8 +468,8 @@ int32_t pinstfe_direct_control_creature(NetUserId user, int32_t *n)
 {
     struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
-    struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (thing_exists(thing) && (thing->creation_turn == player->influenced_thing_creation))
+    struct Thing* thing = thing_get(ustate->influenced_thing_idx);
+    if (thing_exists(thing) && (thing->creation_turn == ustate->influenced_thing_creation))
     {
         if (!control_creature_as_controller(player, thing)) {
             thing = INVALID_THING;
@@ -507,7 +509,8 @@ int32_t pinstfe_direct_control_creature(NetUserId user, int32_t *n)
 int32_t pinstfe_passenger_control_creature(NetUserId user, int32_t *n)
 {
     struct PlayerInfo *player = get_user_player(user);
-    struct Thing* thing = thing_get(player->influenced_thing_idx);
+    struct UserState* ustate = get_user_state(user);
+    struct Thing* thing = thing_get(ustate->influenced_thing_idx);
     if (thing_exists(thing))
     {
         if (is_my_player(player)) {
@@ -530,13 +533,13 @@ int32_t pinstfs_direct_leave_creature(NetUserId user, int32_t *n)
 {
     struct PlayerInfo *player = get_user_player(user);
   struct UserState* ustate = get_user_state(user);
-  if (player->influenced_thing_idx == 0)
+  if (ustate->influenced_thing_idx == 0)
   {
     set_user_instance(user, PI_Unset, true);
     return 0;
   }
   ustate->init_flags |= UsrIF_MouseInputDisabled;
-  struct Thing* thing = thing_get(player->influenced_thing_idx);
+  struct Thing* thing = thing_get(ustate->influenced_thing_idx);
   if (user == get_displayed_user())
   {
       PaletteSetPlayerPalette(player,engine_palette);
@@ -550,11 +553,11 @@ int32_t pinstfs_direct_leave_creature(NetUserId user, int32_t *n)
       local_state.show_panel = local_state.show_gui;
       LbGrabMouseCheck(MG_OnPossessionLeave);
   }
-  thing = thing_get(player->influenced_thing_idx);
+  thing = thing_get(ustate->influenced_thing_idx);
   leave_creature_as_controller(player, thing);
   ustate->init_flags |= UsrIF_KeyboardInputDisabled;
-  player->influenced_thing_idx = 0;
-  player->influenced_thing_creation = 0;
+  ustate->influenced_thing_idx = 0;
+  ustate->influenced_thing_creation = 0;
   set_local_leave_creature_camera(user, PI_DirctCtLeave, true);
   return 0;
 }
@@ -569,13 +572,13 @@ int32_t pinstfs_passenger_leave_creature(NetUserId user, int32_t *n)
 {
     struct PlayerInfo *player = get_user_player(user);
   struct UserState* ustate = get_user_state(user);
-  if (player->influenced_thing_idx == 0)
+  if (ustate->influenced_thing_idx == 0)
   {
       set_user_instance(user, PI_Unset, true);
       return 0;
   }
   ustate->init_flags |= UsrIF_MouseInputDisabled;
-  struct Thing* thing = thing_get(player->influenced_thing_idx);
+  struct Thing* thing = thing_get(ustate->influenced_thing_idx);
   if (user == get_displayed_user())
   {
     PaletteSetPlayerPalette(player,engine_palette);
@@ -591,8 +594,8 @@ int32_t pinstfs_passenger_leave_creature(NetUserId user, int32_t *n)
   }
   leave_creature_as_passenger(player, thing);
   ustate->init_flags |= UsrIF_KeyboardInputDisabled;
-  player->influenced_thing_idx = 0;
-  player->influenced_thing_creation = 0;
+  ustate->influenced_thing_idx = 0;
+  ustate->influenced_thing_creation = 0;
   set_local_leave_creature_camera(user, PI_PsngrCtLeave, true);
   return 0;
 }
@@ -613,7 +616,7 @@ int32_t pinstfs_query_creature(NetUserId user, int32_t *n)
 {
     struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
-    struct Thing* thing = thing_get(player->influenced_thing_idx);
+    struct Thing* thing = thing_get(ustate->influenced_thing_idx);
     set_selected_creature(player, thing);
     unsigned char state = ( (ustate->work_state == PSt_QueryAll) || (ustate->work_state == PSt_CreatrInfoAll) ) ? PSt_CreatrInfoAll : PSt_CreatrInfo;
     set_user_work_state(user, state, 0);
@@ -829,7 +832,7 @@ int32_t pinstfe_zoom_to_position(NetUserId user, int32_t *n)
     ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
     if ( (ustate->work_state == PSt_CreatrInfo) || (ustate->work_state == PSt_CreatrInfoAll) )
     {
-        player->controlled_thing_idx = player->influenced_thing_idx;
+        player->controlled_thing_idx = ustate->influenced_thing_idx;
     }
     return 0;
 }
@@ -988,11 +991,11 @@ TbBool is_thing_passenger_controlled(const struct Thing *thing)
     switch (get_player_user_state(player)->instance_num)
     {
     case PI_PsngrCtrl:
-        return (thing->index == player->influenced_thing_idx);
+        return (thing->index == ustate->influenced_thing_idx);
     case PI_CrCtrlFade:
         return (thing->index == player->controlled_thing_idx);
     case PI_PsngrCtLeave:
-        return (thing->index == player->influenced_thing_idx);
+        return (thing->index == ustate->influenced_thing_idx);
     case PI_Unset:
     case PI_Whip: // Whip can be used at any time by comp. assistant
     case PI_WhipEnd:
@@ -1019,11 +1022,11 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     switch (get_player_user_state(player)->instance_num)
     {
     case PI_DirctCtrl:
-        return (thing->index == player->influenced_thing_idx);
+        return (thing->index == ustate->influenced_thing_idx);
     case PI_CrCtrlFade:
         return (thing->index == player->controlled_thing_idx);
     case PI_DirctCtLeave:
-        return (thing->index == player->influenced_thing_idx);
+        return (thing->index == ustate->influenced_thing_idx);
     case PI_Unset:
     case PI_Whip: // Whip can be used at any time by comp. assistant
     case PI_WhipEnd:
@@ -1314,7 +1317,7 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
                 {
                     if (get_player_view_type(player) == PVT_CreatureContrl)
                     {
-                        return ( (thing->index == player->influenced_thing_idx) || (get_creature_model_flags(thing) & CMF_IsSpectator) );
+                        return ( (thing->index == ustate->influenced_thing_idx) || (get_creature_model_flags(thing) & CMF_IsSpectator) );
                     }
                 }
                 return false;
@@ -1322,7 +1325,7 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
             case PI_CrCtrlFade:
                 return (thing->index == player->controlled_thing_idx);
             case PI_DirctCtLeave:
-                return (thing->index == player->influenced_thing_idx);
+                return (thing->index == ustate->influenced_thing_idx);
             case PI_Unset:
             case PI_Whip: // Whip can be used at any time by comp. assistant
             case PI_WhipEnd:
@@ -1352,11 +1355,11 @@ TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, Player
         switch (get_player_user_state(player)->instance_num)
         {
         case PI_PsngrCtrl:
-            return ( (thing->index == player->influenced_thing_idx) && (get_player_view_type(player) == PVT_CreaturePasngr) );
+            return ( (thing->index == ustate->influenced_thing_idx) && (get_player_view_type(player) == PVT_CreaturePasngr) );
         case PI_CrCtrlFade:
             return (thing->index == player->controlled_thing_idx);
         case PI_PsngrCtLeave:
-            return (thing->index == player->influenced_thing_idx);
+            return (thing->index == ustate->influenced_thing_idx);
         case PI_Unset:
         case PI_Whip: // Whip can be used at any time by comp. assistant
         case PI_WhipEnd:

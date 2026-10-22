@@ -1393,9 +1393,11 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     }
     struct Thing *thing;
     thing = thing_get(tng_idx);
-    player->influenced_thing_idx = thing->index;
-    player->influenced_thing_creation = thing->creation_turn;
-    set_user_instance(get_player_primary_user(player), PI_Grab, 0);
+    if (!user_state_invalid(ustate)) {
+        ustate->influenced_thing_idx = thing->index;
+        ustate->influenced_thing_creation = thing->creation_turn;
+    }
+    set_user_instance(user, PI_Grab, 0);
     if (thing_is_creature(thing)) {
         clear_creature_instance(thing);
     }

@@ -2909,9 +2909,9 @@ void draw_placefiller(long scr_x, long scr_y, long units_per_px)
 void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player = get_my_player();
-    struct Thing *creatng = thing_get(player->influenced_thing_idx);
+    struct Thing *creatng = thing_get(get_local_user_state()->influenced_thing_idx);
     ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, creatng->model, player);
-    if (next_creature != player->influenced_thing_idx)
+    if (next_creature != get_local_user_state()->influenced_thing_idx)
     {
         struct Packet* pckt = get_local_packet();
         set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0x02, 0, 0);
@@ -2922,9 +2922,9 @@ void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
 void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player = get_my_player();
-    struct Thing *creatng = thing_get(player->influenced_thing_idx);
+    struct Thing *creatng = thing_get(get_local_user_state()->influenced_thing_idx);
     ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, 0, player);
-    if (next_creature != player->influenced_thing_idx)
+    if (next_creature != get_local_user_state()->influenced_thing_idx)
     {
         struct Packet* pckt = get_local_packet();
         set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0x02, 0, 0);
