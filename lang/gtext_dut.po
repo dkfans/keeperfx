@@ -7528,3 +7528,9 @@ msgstr "Je verbinding is verbroken omdat je spel niet meer synchroon liep."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s heeft de verbinding verloren (time-out)."
+
+#: guitext:1160
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s is nu toeschouwer."

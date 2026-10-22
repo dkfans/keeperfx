@@ -7577,3 +7577,9 @@ msgstr "게임 동기화가 맞지 않아 연결이 끊어졌습니다."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s 님의 연결이 끊어졌습니다 (시간 초과)."
+
+#: guitext:1160
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s 님이 관전자가 되었습니다."

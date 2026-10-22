@@ -257,17 +257,7 @@ TbError process_login_message(NetUserId source, char *read_pos, const char *end_
         *reply_pos++ = net_config_info.spectator_chat;
     }
     send_message_buffer(source, reply_pos);
-    for (NetUserId user_id = 0; user_id < MAX_NET_CONNECTIONS; user_id += 1) {
-        if (netstate.users[user_id].progress == USER_UNUSED) {
-            continue;
-        }
-        if (source >= MAX_NET_USERS || user_id < MAX_NET_USERS) {
-            SendUserUpdate(source, user_id);
-        }
-        if (user_id != netstate.my_id && user_id != source && (source < MAX_NET_USERS || user_id >= MAX_NET_USERS)) {
-            SendUserUpdate(user_id, source);
-        }
-    }
+    SendNewUserUpdates(source);
     UpdateLocalPlayerInfo(source);
     if (network_user_is_spectator(source)) {
         network_spectator_send_bootstrap(source);
@@ -526,6 +516,7 @@ TbError LbNetwork_Stop(void)
     network_spectator_clear_roles();
     memset(&netstate, 0, sizeof(netstate));
     netstate.my_id = INVALID_USER_ID;
+    netstate.pending_spectator_id = INVALID_USER_ID;
     net_join_role = NetRole_Player;
     return Lb_OK;
 }

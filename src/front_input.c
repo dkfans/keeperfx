@@ -1012,6 +1012,9 @@ static short get_global_inputs(void)
         {
             return true;
         }
+        if (network_spectator_request_conversion()) {
+            return true;
+        }
         if ( timer_enabled() )
         {
             update_time();
@@ -1063,8 +1066,7 @@ static TbBool get_level_lost_inputs(void)
         return true;
     if (get_screen_capture_inputs())
         return true;
-    if (is_game_key_pressed(Gkey_FinishLevel, true, false))
-    {
+    if (is_game_key_pressed(Gkey_FinishLevel, true, false) && !network_spectator_request_conversion()) {
         set_players_packet_action(player, PckA_FinishGame, player->victory_state, 0, 0, 0);
     }
     if (view_type == PVT_MapScreen)

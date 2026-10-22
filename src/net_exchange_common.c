@@ -393,6 +393,8 @@ TbError process_network_message(NetUserId source, void *server_buf, size_t frame
         return process_network_spectator_chat(source, read_pos, payload_size);
     case NETMSG_SPECTATOR_NOTICE:
         return process_network_spectator_notice(source, read_pos, payload_size);
+    case NETMSG_SPECTATOR_CONVERSION:
+        return process_network_spectator_conversion(source, read_pos, payload_size);
     default:
         return Lb_OK;
     }
@@ -488,7 +490,7 @@ void process_peer_msgs(NetUserId peer_id, void *server_buf, size_t frame_size)
         network_spectator_receive_turns(server_buf, frame_size);
         return;
     }
-    while (!netstate.resync_pending && netstate.sp->msgready(peer_id, 0)) {
+    while (!netstate.resync_pending && netstate.pending_spectator_id == INVALID_USER_ID && netstate.sp->msgready(peer_id, 0)) {
         process_network_message(peer_id, server_buf, frame_size, NETMSG_GAMEPLAY_UNSEQUENCED, NULL);
     }
 }

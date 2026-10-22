@@ -7526,3 +7526,9 @@ msgstr "ゲームの同期が取れなくなったため、切断されました
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%sの接続が切れました（タイムアウト）。"
+
+#: guitext:1160
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s は観戦者になりました。"

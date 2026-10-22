@@ -7642,3 +7642,9 @@ msgstr "Вас відключено, оскільки ваша гра втрат
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s втратив з'єднання (час очікування вичерпано)."
+
+#: guitext:1160
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s став спостерігачем."

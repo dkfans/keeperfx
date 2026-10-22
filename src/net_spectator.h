@@ -28,6 +28,10 @@ TbError process_network_spectator_chat(NetUserId source, const char *buffer, siz
 TbError process_network_spectator_notice(NetUserId source, const char *buffer, size_t size);
 void network_spectator_notify(NetUserId user, TbBool joined);
 void network_spectator_service(void);
+TbBool network_spectator_request_conversion(void);
+void network_spectator_convert_defeated_users(void);
+TbError process_network_spectator_conversion(NetUserId source, const char *buffer, size_t size);
+void network_spectator_finish_conversion(void);
 
 TbBool network_user_is_spectator(NetUserId user_id);
 void network_spectator_update_roles(void);

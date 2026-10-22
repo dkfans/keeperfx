@@ -32,6 +32,16 @@ TbBool IsUserActive(NetUserId id)
     return id >= 0 && id < MAX_NET_CONNECTIONS && netstate.users[id].progress == USER_LOGGEDIN;
 }
 
+NetUserId find_unused_user_id(NetUserId first_id, NetUserId last_id)
+{
+    for (NetUserId id = first_id; id < last_id; id += 1) {
+        if (netstate.users[id].progress == USER_UNUSED) {
+            return id;
+        }
+    }
+    return INVALID_USER_ID;
+}
+
 int32_t GetRemoteUserCount(void)
 {
     int32_t count = 0;
@@ -105,10 +115,26 @@ void SendUserUpdate(NetUserId dest, NetUserId updated_user)
     send_message_buffer(dest, write_pos);
 }
 
+void SendNewUserUpdates(NetUserId new_user)
+{
+    for (NetUserId user_id = 0; user_id < MAX_NET_CONNECTIONS; user_id += 1) {
+        if (netstate.users[user_id].progress == USER_UNUSED) {
+            continue;
+        }
+        if (new_user >= MAX_NET_USERS || user_id < MAX_NET_USERS) {
+            SendUserUpdate(new_user, user_id);
+        }
+        if (user_id != netstate.my_id && user_id != new_user && (new_user < MAX_NET_USERS || user_id >= MAX_NET_USERS)) {
+            SendUserUpdate(user_id, new_user);
+        }
+    }
+}
+
 TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkUserInfo *locplayr, struct ServiceInitData *)
 {
     local_user_info = locplayr;
     memset(&netstate, 0, sizeof(netstate));
+    netstate.pending_spectator_id = INVALID_USER_ID;
     netstate.max_users = maxplayrs;
     for (NetUserId user_id = 0; user_id < MAX_NET_CONNECTIONS; user_id += 1) {
         netstate.users[user_id].id = user_id;
@@ -140,19 +166,18 @@ enum NetJoinRejection OnNewUser(NetUserId *assigned_id, enum NetConnectionRole r
     if (reason != NetJoin_Accepted) {
         return reason;
     }
-    for (NetUserId id = first_id; id < last_id; id += 1) {
-        if (netstate.users[id].progress == USER_UNUSED) {
-            *assigned_id = id;
-            netstate.users[id].progress = USER_CONNECTED;
-            netstate.users[id].ack = -1;
-            netstate.users_leave_reason[id] = NetJoin_Accepted;
-            netstate.users[id].connected_at = LbTimerClock();
-            net_lobby_refresh_metadata();
-            NETLOG("Assigning new user to ID %u", id);
-            return NetJoin_Accepted;
-        }
+    NetUserId id = find_unused_user_id(first_id, last_id);
+    if (id == INVALID_USER_ID) {
+        return NetJoin_Full;
     }
-    return NetJoin_Full;
+    *assigned_id = id;
+    netstate.users[id].progress = USER_CONNECTED;
+    netstate.users[id].ack = -1;
+    netstate.users_leave_reason[id] = NetJoin_Accepted;
+    netstate.users[id].connected_at = LbTimerClock();
+    net_lobby_refresh_metadata();
+    NETLOG("Assigning new user to ID %u", id);
+    return NetJoin_Accepted;
 }
 
 void OnDroppedUser(NetUserId id, enum NetDropReason reason)

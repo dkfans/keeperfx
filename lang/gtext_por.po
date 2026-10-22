@@ -7792,3 +7792,9 @@ msgstr "Foste desligado porque o teu jogo perdeu a sincronização."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s perdeu a ligação (tempo esgotado)."
+
+#: guitext:1160
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s passou a ser espectador."

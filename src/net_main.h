@@ -76,6 +76,7 @@ enum NetMessageType {
     NETMSG_SPECTATOR_READY,
     NETMSG_SPECTATOR_CHAT,
     NETMSG_SPECTATOR_NOTICE,
+    NETMSG_SPECTATOR_CONVERSION,
 };
 
 enum NetConnectionRole {
@@ -106,6 +107,7 @@ struct NetSP
     size_t (*peekmsg)(NetUserId source, const char **buffer);
     size_t (*readmsg)(NetUserId source, char *buffer, size_t max_size);
     void (*drop_user)(NetUserId id, enum NetJoinRejection reason);
+    void (*reassign_user)(NetUserId old_id, NetUserId new_id);
 };
 
 enum NetUserProgress {
@@ -132,6 +134,7 @@ struct NetUser {
     uint8_t spectator_icon;
     TbBool spectator_resync_requested;
     uint32_t spectator_resync_requested_at;
+    TbBool spectator_conversion_requested;
 };
 
 struct NetFrame {
@@ -156,6 +159,7 @@ struct NetState {
     char msg_buffer[NET_MSG_BUFFER_SIZE];
     char msg_buffer_null;
     TbBool resync_pending;
+    NetUserId pending_spectator_id;
     TbBool locked;
     enum NetSessionPhase phase;
 };
@@ -194,12 +198,14 @@ TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkU
 enum NetJoinRejection OnNewUser(NetUserId *assigned_id, enum NetConnectionRole role);
 void OnDroppedUser(NetUserId id, enum NetDropReason reason);
 TbBool IsUserActive(NetUserId id);
+NetUserId find_unused_user_id(NetUserId first_id, NetUserId last_id);
 int32_t GetRemoteUserCount(void);
 void UpdateLocalPlayerInfo(NetUserId id);
 char *begin_net_message(enum NetMessageType msg_type);
 void send_message_buffer(NetUserId dest, const char *end_ptr);
 void send_remote_buffer(const char *end_ptr);
 void SendUserUpdate(NetUserId dest, NetUserId updated_user);
+void SendNewUserUpdates(NetUserId new_user);
 
 #ifdef __cplusplus
 }

@@ -3,10 +3,12 @@
 #include "observer.h"
 
 #include "bflib_datetm.h"
+#include "bflib_inputctrl.h"
 #include "config_strings.h"
 #include "game_legacy.h"
 #include "front_network.h"
 #include "frontend.h"
+#include "gui_frontmenu.h"
 #include "gui_msgs.h"
 #include "gui_topmsg.h"
 #include "local_camera.h"
@@ -21,6 +23,7 @@
 #include "player_instances.h"
 #include "player_utils.h"
 #include "replay.h"
+#include "roomspace_input.h"
 #include "sprites.h"
 #include "keeperfx.hpp"
 #include <stddef.h>
@@ -43,6 +46,20 @@ struct SpectatorTurn {
 };
 
 #define SPECTATOR_TURN_BUFFER_SIZE 256
+#define SPECTATOR_CONVERSION_REPLY_SIZE 2
+
+enum SpectatorNotice {
+    SpectatorNotice_Left,
+    SpectatorNotice_Joined,
+    SpectatorNotice_BecameSpectator,
+    SpectatorNotice_Count,
+};
+
+static const TextStringId spectator_notice_strings[SpectatorNotice_Count] = {
+    GUIStr_NetSpectatorLeft,
+    GUIStr_NetSpectatorJoined,
+    GUIStr_NetPlayerBecameSpectator,
+};
 
 static struct SpectatorTurn spectator_turns[SPECTATOR_TURN_BUFFER_SIZE];
 static int32_t spectator_turn_index;
@@ -123,17 +140,13 @@ static void spectator_message_add(int32_t icon, const char *text)
 TbError process_network_spectator_notice(NetUserId source, const char *buffer, size_t size)
 {
     if (source != SERVER_ID || size < 4 || size > 2 + sizeof(netstate.users[0].name)
-     || (uint8_t)buffer[0] > 1 || (uint8_t)buffer[1] > SPECTATOR_ICON_COUNT
+     || (uint8_t)buffer[0] >= SpectatorNotice_Count || (uint8_t)buffer[1] > SPECTATOR_ICON_COUNT
      || buffer[size - 1] != '\0' || memchr(buffer + 2, '\0', size - 3) != NULL) {
         return Lb_FAIL;
     }
     replay_record_spectator_notice(buffer, size);
-    TextStringId message = GUIStr_NetSpectatorLeft;
-    if (buffer[0] != 0) {
-        message = GUIStr_NetSpectatorJoined;
-    }
     char text[sizeof(game.messages[0].text)];
-    snprintf(text, sizeof(text), get_string(message), buffer + 2);
+    snprintf(text, sizeof(text), get_string(spectator_notice_strings[(uint8_t)buffer[0]]), buffer + 2);
     spectator_message_add((uint8_t)buffer[1], text);
     return Lb_OK;
 }
@@ -143,8 +156,14 @@ void network_spectator_notify(NetUserId user, TbBool joined)
     if (!network_is_host() || !network_user_is_spectator(user) || netstate.phase != NetPhase_InGame) {
         return;
     }
+    enum SpectatorNotice notice = SpectatorNotice_Left;
+    if (joined && netstate.users[user].spectator_conversion_requested) {
+        notice = SpectatorNotice_BecameSpectator;
+    } else if (joined) {
+        notice = SpectatorNotice_Joined;
+    }
     char *write_pos = begin_net_message(NETMSG_SPECTATOR_NOTICE);
-    *write_pos++ = joined;
+    *write_pos++ = notice;
     *write_pos++ = netstate.users[user].spectator_icon;
     snprintf(write_pos, sizeof(netstate.users[user].name), "%s", netstate.users[user].name);
     write_pos += strlen(write_pos) + 1;
@@ -319,9 +338,8 @@ static void remove_spectator_turn(void)
     network_spectator_turn_count -= 1;
 }
 
-TbBool network_spectator_start(void)
+static void reset_local_spectator(void)
 {
-    PlayerNumber camera_player_number = my_player_number;
     my_player_number = PLAYER_NEUTRAL;
     memset(&local_observer_player, 0, sizeof(local_observer_player));
     memset(&local_observer_user_state, 0, sizeof(local_observer_user_state));
@@ -332,14 +350,116 @@ TbBool network_spectator_start(void)
     local_observer_user_state.battleid = 1;
     memset(get_local_packet(), 0, sizeof(struct Packet));
     network_spectator_reset();
+}
+
+static void start_spectating(PlayerNumber camera_player_number)
+{
+    observer_init(camera_player_number);
+    show_onscreen_msg(10 * turns_per_second, "%s", get_string(GUIStr_NetYouAreSpectating));
+}
+
+TbBool network_spectator_start(void)
+{
+    PlayerNumber camera_player_number = my_player_number;
+    reset_local_spectator();
     network_spectator_request_resync();
     if (!network_spectator_wait(NETMSG_GAMEPLAY_UNSEQUENCED)) {
         return false;
     }
-    spectator_catching_up = true;
-    observer_init(camera_player_number);
-    show_onscreen_msg(10 * turns_per_second, "%s", get_string(GUIStr_NetYouAreSpectating));
+    start_spectating(camera_player_number);
     return true;
+}
+
+static TbBool user_can_become_spectator(NetUserId user)
+{
+    return user_present(user) && player_has_lost(get_net_user_player_number(user)) && network_human_contenders_remain()
+        && net_versions_match(&netstate.users[SERVER_ID].version, &net_current_version)
+        && net_versions_match(&netstate.users[user].version, &net_current_version);
+}
+
+TbBool network_spectator_request_conversion(void)
+{
+    if (!network_is_active() || network_is_host() || !user_can_become_spectator(netstate.my_id)) {
+        return false;
+    }
+    struct NetUser *user = &netstate.users[netstate.my_id];
+    if (!user->spectator_conversion_requested) {
+        NETLOG("Asking the host to spectate the rest of the game");
+        send_message_buffer(SERVER_ID, begin_net_message(NETMSG_SPECTATOR_CONVERSION));
+        user->spectator_conversion_requested = true;
+    }
+    return true;
+}
+
+void network_spectator_convert_defeated_users(void)
+{
+    if (!network_is_host()) {
+        return;
+    }
+    for (NetUserId player_id = SERVER_ID + 1; player_id < MAX_NET_USERS; player_id++) {
+        if (!netstate.users[player_id].spectator_conversion_requested || !user_can_become_spectator(player_id)
+         || !player_defeat_settled(get_net_user_player_number(player_id))) {
+            continue;
+        }
+        NetUserId spectator_id = find_unused_user_id(MAX_NET_USERS, MAX_NET_CONNECTIONS);
+        if (spectator_id == INVALID_USER_ID) {
+            return;
+        }
+        NETLOG("User %d is now spectator %d", player_id, spectator_id);
+        struct NetUser *spectator = &netstate.users[spectator_id];
+        *spectator = netstate.users[player_id];
+        spectator->id = spectator_id;
+        spectator->connected_at = LbTimerClock();
+        spectator->spectator_state = NetSpectator_SnapshotPending;
+        assign_spectator_icon(spectator_id);
+        netstate.sp->reassign_user(player_id, spectator_id);
+        char *write_pos = begin_net_message(NETMSG_SPECTATOR_CONVERSION);
+        *write_pos++ = spectator_id;
+        *write_pos++ = net_config_info.spectator_chat;
+        send_message_buffer(spectator_id, write_pos);
+        OnDroppedUser(player_id, NETDROP_MANUAL);
+        SendNewUserUpdates(spectator_id);
+    }
+}
+
+TbError process_network_spectator_conversion(NetUserId source, const char *buffer, size_t size)
+{
+    if (network_is_host()) {
+        if (size == 0) {
+            netstate.users[source].spectator_conversion_requested = true;
+        }
+        return Lb_OK;
+    }
+    if (source != SERVER_ID || size != SPECTATOR_CONVERSION_REPLY_SIZE || network_user_is_spectator(netstate.my_id)
+     || !netstate.users[netstate.my_id].spectator_conversion_requested || !network_user_is_spectator((uint8_t)buffer[0])) {
+        return Lb_OK;
+    }
+    netstate.pending_spectator_id = (uint8_t)buffer[0];
+    network_spectator_chat_visible = buffer[1] != 0;
+    return Lb_OK;
+}
+
+void network_spectator_finish_conversion(void)
+{
+    NetUserId spectator_id = netstate.pending_spectator_id;
+    if (spectator_id == INVALID_USER_ID) {
+        return;
+    }
+    NETLOG("Spectating the rest of the game as user %d", spectator_id);
+    PlayerNumber camera_player_number = my_player_number;
+    NetUserId player_id = netstate.my_id;
+    netstate.pending_spectator_id = INVALID_USER_ID;
+    netstate.users[spectator_id] = netstate.users[player_id];
+    netstate.users[spectator_id].id = spectator_id;
+    netstate.my_id = spectator_id;
+    OnDroppedUser(player_id, NETDROP_MANUAL);
+    net_join_role = NetRole_Spectator;
+    stop_replay_recording("spectating the rest of the game");
+    turn_off_all_menus();
+    LbStopTextInput();
+    reset_dig_prediction();
+    reset_local_spectator();
+    start_spectating(camera_player_number);
 }
 
 TbBool network_spectator_wait(enum NetMessageType message_type)
@@ -383,6 +503,7 @@ enum PacketExchangeResult network_spectator_load_turn(TbBigChecksum checksum)
 {
     if (network_spectator_resync_pending) {
         network_spectator_resync_pending = false;
+        spectator_catching_up = true;
         clear_packets();
         return PExR_Advance;
     }

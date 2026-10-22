@@ -1580,7 +1580,8 @@ enum PacketExchangeResult exchange_packets(void)
             clear_packets();
             return PExR_Advance;
         }
-        if (spectator && network_is_active()) {
+        network_spectator_finish_conversion();
+        if (network_user_is_spectator(netstate.my_id)) {
             enum PacketExchangeResult result = network_spectator_load_turn(packet_checksum);
             if (network_spectator_desynced && !network_spectator_resync_requested) {
                 network_spectator_request_resync();
@@ -1664,6 +1665,7 @@ void process_packets(void)
     // Clear all packets
     clear_packets();
     if (network_is_active()) {
+        network_spectator_convert_defeated_users();
         network_spectator_send_snapshots();
     }
     if (quit_game || exit_keeper) {

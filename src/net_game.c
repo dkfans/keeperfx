@@ -758,7 +758,7 @@ static void abandon_network_player(struct PlayerInfo *player, const char *announ
             network_lobby_ping = GetPlayersPing();
             input_lag_reset_request(calculate_initial_input_lag());
         }
-        if (announce_fmt != NULL && player->player_name[0] != '\0') {
+        if (announce_fmt != NULL && player->player_name[0] != '\0' && player->victory_state != VicS_LostLevel) {
             message_add_fmt(MsgType_Blank, 0, announce_fmt, player->player_name);
         }
         JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
@@ -792,7 +792,7 @@ static void remove_user_from_game(NetUserId user, const char *announce_fmt)
 
 static void leave_network_if_alone(void)
 {
-    if (network_is_host() && net_config_info.spectators_enabled) {
+    if (network_is_host() && (net_config_info.spectators_enabled || net_lobby_spectator_count() > 0)) {
         return;
     }
     if (!network_has_remote_users_remaining()) {

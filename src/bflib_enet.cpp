@@ -820,7 +820,11 @@ namespace
                 if (!client_peer) {
                     user_id = NetUserId(reinterpret_cast<ptrdiff_t>(enet_event.peer->data));
                 }
-                enqueue_incoming_packet(enet_event.packet, user_id);
+                if (user_id >= MAX_NET_USERS && enet_event.channelID == ENET_CHANNEL_UNSEQUENCED) {
+                    enet_packet_destroy(enet_event.packet);
+                } else {
+                    enqueue_incoming_packet(enet_event.packet, user_id);
+                }
                 return 1;
             }
             case ENET_EVENT_TYPE_NONE:
@@ -1036,6 +1040,19 @@ namespace
         return oldest_packet[source]->dataLength;
     }
 
+    ENetPeer *find_user_peer(NetUserId id)
+    {
+        if (!host) {
+            return nullptr;
+        }
+        for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer += 1) {
+            if (peer->state == ENET_PEER_STATE_CONNECTED && NetUserId(reinterpret_cast<ptrdiff_t>(peer->data)) == id) {
+                return peer;
+            }
+        }
+        return nullptr;
+    }
+
     /**
      * Disconnects a user.
      * @param id User to be dropped.
@@ -1044,16 +1061,23 @@ namespace
     {
         LbNetLog("ENet: dropping user %d\n", (int)id);
         destroy_incoming_queue(id);
-        if (host) {
-            for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer += 1) {
-                if (peer->state == ENET_PEER_STATE_CONNECTED && NetUserId(reinterpret_cast<ptrdiff_t>(peer->data)) == id) {
-                    enet_peer_disconnect_now(peer, reason);
-                    break;
-                }
-            }
+        ENetPeer *peer = find_user_peer(id);
+        if (peer != nullptr) {
+            enet_peer_disconnect_now(peer, reason);
         }
         if (g_drop_callback != nullptr) {
             g_drop_callback(id, NETDROP_MANUAL);
+        }
+    }
+
+    void bf_enet_reassign_user(NetUserId old_id, NetUserId new_id)
+    {
+        destroy_incoming_queue(old_id);
+        ENetPeer *peer = find_user_peer(old_id);
+        if (peer != nullptr) {
+            peer->data = reinterpret_cast<void *>(new_id);
+            connection_ids[old_id] = 0;
+            log_peer_connection(peer, new_id, "reassigned");
         }
     }
 
@@ -1074,15 +1098,8 @@ uint32_t GetPing(NetUserId id)
         if (id != SERVER_ID) {
             return 0;
         }
-    } else if (host != nullptr) {
-        for (size_t peer_index = 0; peer_index < host->peerCount; ++peer_index) {
-            ENetPeer *candidate = &host->peers[peer_index];
-            NetUserId peer_id = NetUserId(reinterpret_cast<ptrdiff_t>(candidate->data));
-            if (peer_id == id && IsPeerConnected(candidate)) {
-                peer = candidate;
-                break;
-            }
-        }
+    } else {
+        peer = find_user_peer(id);
     }
     if (!IsPeerConnected(peer)) {
         return 0;
@@ -1316,6 +1333,7 @@ struct NetSP *InitEnetSP()
             .peekmsg = &bf_enet_peekmsg,
             .readmsg = &bf_enet_readmsg,
             .drop_user = &bf_enet_drop_user,
+            .reassign_user = &bf_enet_reassign_user,
     };
     return &ret;
 }

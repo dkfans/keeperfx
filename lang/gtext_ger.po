@@ -7844,3 +7844,9 @@ msgstr "Du wurdest getrennt, weil dein Spiel nicht mehr synchron war."
 msgctxt "Network game message"
 msgid "%s lost connection (timed out)."
 msgstr "%s hat die Verbindung verloren (Zeitüberschreitung)."
+
+#: guitext:1160
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s has become a spectator."
+msgstr "%s ist jetzt Zuschauer."
