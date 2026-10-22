@@ -464,6 +464,8 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx);
 TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind);
 TbBool add_power_to_player(PowerKind spl_idx, PlayerNumber plyr_idx);
 void remove_power_from_player(PowerKind spl_idx, PlayerNumber plyr_idx);
+TbBool decrease_power_level_of_player(PowerKind pwkind, PlayerNumber plyr_idx);
+void power_lost_side_effects(PowerKind pwkind, PlayerNumber plyr_idx);
 TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
