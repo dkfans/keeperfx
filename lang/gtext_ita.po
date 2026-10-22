@@ -7441,9 +7441,9 @@ msgid "%s has left the game."
 msgstr "%s ha lasciato la partita."
 
 #: guitext:1117
-msgctxt "Network game message"
-msgid "%s has disconnected."
-msgstr "%s si è disconnesso."
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1118
 msgctxt "Unused"
@@ -7451,9 +7451,9 @@ msgid "unused"
 msgstr "unused"
 
 #: guitext:1119
-msgctxt "Network game message"
-msgid "Network connection to host lost"
-msgstr "Connessione di rete con l'host persa"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1120
 #, fuzzy
@@ -7681,3 +7681,15 @@ msgstr "Questo salvataggio è danneggiato e non può essere caricato."
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."
 msgstr "Impossibile caricare il salvataggio."
+
+#: guitext:1158
+#, fuzzy
+msgctxt "Network game interface"
+msgid "You were disconnected because your game went out of sync."
+msgstr "Sei stato disconnesso perché la tua partita non era più sincronizzata."
+
+#: guitext:1159
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s lost connection (timed out)."
+msgstr "%s ha perso la connessione (timeout)."

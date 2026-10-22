@@ -69,6 +69,7 @@
 #include "front_input.h"
 #include "game_legacy.h"
 #include "local_camera.h"
+#include "local_possession.h"
 #include "net_spectator.h"
 #include "keeperfx.hpp"
 #include "vidfade.h"
@@ -607,7 +608,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 {
     RoomKind rkind = gbtn->content.lval;
     const struct PlayerInfo *player = get_displayed_player();
-    const struct UserState *ustate = get_player_user_state_prediction(player);
+    const struct UserState *ustate = get_user_state_prediction(get_displayed_user());
 
     struct Dungeon* dungeon = get_players_dungeon(player);
 
@@ -807,7 +808,7 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
 {
-    const struct UserState* ustate = get_player_user_state_prediction(get_my_player());
+    const struct UserState *ustate = get_user_state_prediction(get_displayed_user());
     unsigned short flg_mem = RendererGetDrawFlags();
 
     int units_per_px = (gbtn->width * 16 + 126 / 2) / 126;
@@ -1164,7 +1165,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 {
     int manufctr_idx = gbtn->content.lval;
     const struct PlayerInfo *player = get_displayed_player();
-    const struct UserState *ustate = get_player_user_state_prediction(player);
+    const struct UserState *ustate = get_user_state_prediction(get_displayed_user());
 
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
@@ -1899,7 +1900,9 @@ void gui_area_instance_button(struct GuiButton *gbtn)
         gui_area_progress_bar_short(gbtn, units_per_px, 0, 32);
         return;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(ctrltng);
+    const struct CreatureControl* cctrl = get_local_creature_control(ctrltng);
+    const GameTurn turn = get_local_creature_turn(ctrltng);
+    const TbBool has_reset = creature_instance_has_reset_at(ctrltng, cctrl, curbtn_inst_id, turn);
     int spr_idx;
     if (cctrl->active_instance_id == curbtn_inst_id) {
       spr_idx = GPS_rpanel_bar_with_pic_full_blue_up;
@@ -1912,16 +1915,16 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     {
         gui_area_progress_bar_short(gbtn, units_per_px, 0, 32);
     } else
-    if (!creature_instance_has_reset(ctrltng, curbtn_inst_id))
+    if (!has_reset)
     {
-        long turns_progress;
-        long turns_required;
+        int32_t turns_progress;
+        int32_t turns_required;
         if ((ctrltng->alloc_flags & TAlF_IsControlled) != 0) {
             turns_required = inst_inf->fp_reset_time;
         } else {
             turns_required = inst_inf->reset_time;
         }
-        turns_progress = (long)get_gameturn() - (long)cctrl->instance_use_turn[curbtn_inst_id] + cctrl->inst_action_turns - cctrl->inst_total_turns;
+        turns_progress = (GameTurnDelta)(turn - cctrl->instance_use_turn[curbtn_inst_id]) + cctrl->inst_action_turns - cctrl->inst_total_turns;
         gui_area_progress_bar_short(gbtn, units_per_px, turns_progress, turns_required);
     } else
     {
@@ -1936,7 +1939,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     spr_idx = gbtn->sprite_idx;
     // Show disabled icon if instance is on cooldown or creature is frozen.
     TbBool disabled;
-    if (!creature_instance_has_reset(ctrltng, curbtn_inst_id))
+    if (!has_reset)
     {
         disabled = true;
     }

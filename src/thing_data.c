@@ -305,6 +305,27 @@ void set_thing_animation(struct Thing *thing, long animation_index, long speed)
     }
 }
 
+void advance_thing_animation(struct Thing *thing)
+{
+    if ((thing->anim_speed == 0) || (thing->max_frames == 0)) {
+        return;
+    }
+    const int32_t anim_length = (thing->max_frames << 8);
+    thing->anim_time += thing->anim_speed;
+    while (thing->anim_time < 0) {
+        thing->anim_time += anim_length;
+    }
+    if (thing->anim_time >= anim_length) {
+        if (flag_is_set(thing->rendering_flags, TRF_AnimateOnce)) {
+            thing->anim_speed = 0;
+            thing->anim_time = anim_length - 1;
+        } else {
+            thing->anim_time %= anim_length;
+        }
+    }
+    thing->current_frame = thing->anim_time >> 8;
+}
+
 void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class)
 {
     unsigned char current_frame;

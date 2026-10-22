@@ -105,7 +105,7 @@ void intentional_desync()
             thing->health += 1;
         }
     }
-    get_player(0)->instance_remain_turns += 1;
+    get_user_state(0)->instance_remain_turns += 1;
 }
 
 void animate_resync_progress_bar(int current_phase, int total_phases)
@@ -170,7 +170,7 @@ void recall_localised_game_structure(void)
 }
 
 // resync message: ResyncHeader, then the zlib-compressed data
-static char *encode_resync_message(const void * buffer, size_t total_length, size_t *message_size)
+char *encode_resync_message(const void * buffer, size_t total_length, size_t *message_size)
 {
     TbClockMSec start_time = LbTimerClock();
     if (total_length > UINT32_MAX) {
@@ -410,7 +410,7 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length)
 }
 
 // The full resync data: [u32 game_len][game bytes][u32 lua_len][lua bytes]
-static char *build_resync_game_data(size_t *full_resync_len)
+char *build_resync_game_data(size_t *full_resync_len)
 {
     // Light system state lives outside Game; the same as for a savegame
     light_export_system_state(&game.lightst);
@@ -544,18 +544,6 @@ static char *create_resync_game_message(size_t *message_size)
     return message_buffer;
 }
 
-TbBool send_spectator_resync(uint64_t user_mask)
-{
-    size_t message_size = 0;
-    char *message_buffer = create_resync_game_message(&message_size);
-    if (message_buffer == NULL) {
-        return false;
-    }
-    send_to_active_peers(1, NetSend_Reliable, message_buffer, message_size, user_mask);
-    free(message_buffer);
-    return true;
-}
-
 TbBool send_resync_game(void)
 {
     pack_desync_history_for_resync();
@@ -626,7 +614,6 @@ static void finish_resync(const struct Packet *saved_packets)
 
     clear_flag(local_system_flags, GSF_NetGameNoSync);
     clear_flag(local_system_flags, GSF_NetSeedNoSync);
-    panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
 }
 
 void resync_game(void)
@@ -651,6 +638,8 @@ void resync_game(void)
     finish_resync(saved_packets);
     wait_for_all_players();
     animate_resync_progress_bar(100, 100);
+    update_gameplay_delta_time();
+    local_state.process_turn_time = 1.0;
     NETLOG("Resync finished locally in %u ms", (uint32_t)(LbTimerClock() - start_time));
 }
 

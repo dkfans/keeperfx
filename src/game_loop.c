@@ -76,7 +76,6 @@ extern void startup_network_game(CoroutineLoop *context, TbBool local);
 extern void faststartup_network_game(CoroutineLoop *context);
 extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 void update_frontend_delta_time();
-void update_gameplay_delta_time();
 bool use_delta_time();
 
 /******************************************************************************/
@@ -990,7 +989,7 @@ static TbBool wait_at_frontend(void)
         break; // end while
       }
 
-      if ((!finish_menu) && (LbIsActive()))
+      if ((!finish_menu) && (LbIsActive() || !freeze_game_on_focus_lost()))
       {
         frontend_draw();
         RendererPresentFrame();
@@ -1129,7 +1128,7 @@ void game_loop(void)
           for (int i = 0; i < PLAYERS_COUNT; i++) {
               struct PlayerInfo *player = get_player(i);
               if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0) && !player_skips_heart_zoom(player)) {
-                  set_player_instance(player, PI_HeartZoom, 0);
+                  set_user_instance(get_player_primary_user(player), PI_HeartZoom, 0);
               }
           }
           if (player_skips_heart_zoom(get_my_player()) && !replay.load_enable) {

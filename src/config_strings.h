@@ -469,9 +469,9 @@ enum GUIStrings {
     GUIStr_NetCustomSpriteMismatch,
     GUIStr_NetAiTookOver,
     GUIStr_NetPlayerLeftGame,
-    GUIStr_NetPlayerDisconnected,
-    GUIStr_NetUnused,
-    GUIStr_NetHostConnectionLost,
+    GUIStr_NetUnused1,
+    GUIStr_NetUnused2,
+    GUIStr_NetUnused3,
     GUIStr_FxdataZipNotLoaded,
     GUIStr_FxdataZipInstallAsMod,
     GUIStr_NetLobbyConnectionLost,
@@ -510,6 +510,8 @@ enum GUIStrings {
     GUIStr_SaveIncompatible,
     GUIStr_SaveDamaged,
     GUIStr_SaveLoadFailed,
+    GUIStr_NetSpectatorDesynced,
+    GUIStr_NetPlayerTimedOut,
     GuiStrEnd
 };
 

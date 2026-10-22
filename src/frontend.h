@@ -451,6 +451,7 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
 void frontend_input(void);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);
+void queue_frontend_error_box(const char *text);
 void create_frontend_error_box(const char *text);
 void try_restore_frontend_error_box(); // Restore error box if frontend state was switched
 
@@ -461,7 +462,6 @@ void set_gui_visible(TbBool visible);
 void toggle_gui(void);
 void add_message(long plyr_idx, char *msg);
 unsigned long toggle_status_menu(short visib);
-void set_map_ui_hidden(TbBool status_menu, TbBool tooltips);
 TbBool toggle_first_person_menu(TbBool visible);
 void toggle_gui_overlay_map(void);
 

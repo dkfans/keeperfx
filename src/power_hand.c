@@ -339,18 +339,18 @@ void set_power_hand_graphic(NetUserId user, long HandAnimationID)
         // (computer keepers have no hand animation)
         return;
     }
-    struct PlayerInfo *player = get_user_player(user);
-    if (player->hand_busy_until_turn >= get_gameturn())
+    if (ustate->hand_animation_until_turn >= get_gameturn())
     {
         if ((HandAnimationID == HndA_Slap) || (HandAnimationID == HndA_SideSlap))
-          player->hand_busy_until_turn = 0;
+          ustate->hand_animation_until_turn = 0;
     }
-    if (player->hand_busy_until_turn < get_gameturn())
+    if (ustate->hand_animation_until_turn < get_gameturn())
     {
         if ((ustate->hand_animationId != HandAnimationID) || (HandAnimationID == HndA_Pickup))
         {
             ustate->hand_animationId = HandAnimationID;
             struct Thing *thing = thing_get(ustate->hand_thing_idx);
+            const struct PlayerInfo *player = get_user_player(user);
             int32_t anim_idx = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
             short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
             if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
@@ -557,7 +557,7 @@ void draw_power_hand(void)
     struct Thing *picktng;
     struct Room *room;
     struct RoomConfigStats* roomst;
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     int32_t cursor_x;
     int32_t cursor_y;
     if (!get_gameplay_cursor_position(&cursor_x, &cursor_y)) {
@@ -617,7 +617,7 @@ void draw_power_hand(void)
         }
         return;
     }
-    if (player->hand_busy_until_turn > get_gameturn())
+    if (ustate->hand_animation_until_turn > get_gameturn())
     {
         SYNCDBG(7,"Drawing hand %s index %d, busy state", thing_model_name(thing), (int)thing->index);
         RendererSubmitKeeperHandSprite(cursor_x+scale_ui_value(60*global_hand_scale), cursor_y+scale_ui_value(40*global_hand_scale),
@@ -638,7 +638,7 @@ void draw_power_hand(void)
       }
       if ((ustate->work_state != PSt_CtrlDungeon) || !draw_hand)
       {
-        if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop) && (player->instance_num != PI_Whip) && (player->instance_num != PI_WhipEnd))
+        if (ustate->instance_num != PI_Grab && ustate->instance_num != PI_Drop && ustate->instance_num != PI_Whip && ustate->instance_num != PI_WhipEnd)
         {
           if (ustate->work_state == PSt_Slap)
           {
@@ -884,8 +884,11 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
     if (player_exists(player)) {
-        set_power_hand_graphic(get_player_primary_user(player), HndA_Hover);
-        player->hand_busy_until_turn = get_gameturn() + 16;
+        const NetUserId user = get_player_primary_user(player);
+        set_power_hand_graphic(user, HndA_Hover);
+        struct UserState *ustate = get_user_state(user);
+        if (!user_state_invalid(ustate))
+            ustate->hand_animation_until_turn = get_gameturn() + 16;
     }
 }
 
@@ -1064,7 +1067,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         drop_held_thing_on_ground(dungeon, droptng, &pos);
     }
     if (dungeon->num_things_in_hand == 1) {
-        set_player_instance(player, PI_Drop, 0);
+        set_user_instance(get_player_primary_user(player), PI_Drop, 0);
     }
     remove_first_thing_from_power_hand_list(plyr_idx);
     return 1;
@@ -1392,7 +1395,7 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     thing = thing_get(tng_idx);
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
-    set_player_instance(player, PI_Grab, 0);
+    set_user_instance(get_player_primary_user(player), PI_Grab, 0);
     if (thing_is_creature(thing)) {
         clear_creature_instance(thing);
     }

@@ -1841,11 +1841,11 @@ static const struct ObserverButtonCallback observer_button_callbacks[] = {
     {gui_set_menu_mode, false}, {gui_set_page, false},
     {gui_go_to_map, false}, {gui_scroll_activity_up, false}, {gui_scroll_activity_down, false},
     {gui_switch_players_visible, false},
+    {gui_go_to_next_creature, false}, {gui_go_to_next_creature_activity, false},
+    {gui_go_to_next_wanderer, false}, {gui_go_to_next_worker, false}, {gui_go_to_next_fighter, false},
+    {gui_go_to_next_room, false}, {gui_go_to_next_trap, false}, {gui_go_to_next_door, false},
+    {gui_go_to_next_spell, false}, {gui_go_to_person_in_battle, false},
     {gui_zoom_in, true}, {gui_zoom_out, true}, {gui_set_query, true}, {gui_open_event, true}, {gui_kill_event, true},
-    {gui_go_to_next_creature, true}, {gui_go_to_next_creature_activity, true},
-    {gui_go_to_next_wanderer, true}, {gui_go_to_next_worker, true}, {gui_go_to_next_fighter, true},
-    {gui_go_to_next_room, true}, {gui_go_to_next_trap, true}, {gui_go_to_next_door, true},
-    {gui_go_to_next_spell, true}, {gui_go_to_person_in_battle, true},
     {gui_query_next_creature_of_owner, true}, {gui_query_next_creature_of_owner_and_model, true},
 };
 #define OBSERVER_BUTTON_CALLBACK_COUNT (sizeof(observer_button_callbacks) / sizeof(observer_button_callbacks[0]))
@@ -2374,42 +2374,6 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     return mnu_num;
 }
 
-/** Saves `current` as the value to put back when a hold ends. Holding again
- *  keeps the first saved value, unless the value was put back in between (an
- *  exit that skipped the restore). */
-static void begin_map_ui_hold(TbBool* held, TbBool* saved, TbBool current)
-{
-    if (current || !*held)
-        *saved = current;
-    *held = true;
-}
-
-/** Hides the status menu and turns tooltips off for the map and its fades, or
- *  puts them back. Each argument is the state wanted from this call on. */
-void set_map_ui_hidden(TbBool status_menu, TbBool tooltips)
-{
-    if (status_menu)
-    {
-        begin_map_ui_hold(&local_state.status_menu_hidden_for_map, &local_state.status_menu_restore, toggle_status_menu(0));
-    }
-    else if (local_state.status_menu_hidden_for_map)
-    {
-        toggle_status_menu(local_state.status_menu_restore);
-        local_state.status_menu_hidden_for_map = false;
-    }
-
-    if (tooltips)
-    {
-        begin_map_ui_hold(&local_state.tooltips_hidden_for_map, &local_state.tooltips_restore, settings.tooltips_on);
-        settings.tooltips_on = false;
-    }
-    else if (local_state.tooltips_hidden_for_map)
-    {
-        settings.tooltips_on = local_state.tooltips_restore;
-        local_state.tooltips_hidden_for_map = false;
-    }
-}
-
 /**
  * Sets the status menu visiblity.
  *
@@ -2638,7 +2602,6 @@ void set_gui_visible(TbBool visible)
     case PVT_MapFadeIn:
     case PVT_MapFadeOut:
         local_state.show_panel = visible;
-        local_state.status_menu_restore = visible;
         toggle_status_menu(false);
         break;
     case PVT_DungeonTop:
@@ -2647,6 +2610,7 @@ void set_gui_visible(TbBool visible)
         break;
     }
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+    observer_snap_view_camera();
 }
 
 void toggle_gui(void)
@@ -4099,13 +4063,18 @@ void try_restore_frontend_error_box()
     }
 }
 
+void queue_frontend_error_box(const char *text)
+{
+    snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", text);
+    frontend_error_pending = true;
+}
+
 void create_frontend_error_box(const char *text)
 {
     if (game_is_busy_doing_gui_string_input()) {
         kill_button_area_input();
     }
-    snprintf(gui_message_text, TEXT_BUFFER_LENGTH, "%s", text);
-    frontend_error_pending = true;
+    queue_frontend_error_box(text);
     turn_on_menu(GMnu_FEERROR_BOX);
 }
 

@@ -145,6 +145,7 @@ enum NetJoinRejection OnNewUser(NetUserId *assigned_id, enum NetConnectionRole r
             *assigned_id = id;
             netstate.users[id].progress = USER_CONNECTED;
             netstate.users[id].ack = -1;
+            netstate.users_leave_reason[id] = NetJoin_Accepted;
             netstate.users[id].connected_at = LbTimerClock();
             net_lobby_refresh_metadata();
             NETLOG("Assigning new user to ID %u", id);
@@ -165,10 +166,11 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     if (netstate.users[id].progress == USER_UNUSED) {
         return;
     }
-    if (reason == NETDROP_ERROR) {
-        NETMSG("User left (or connection error): %i %s", id, netstate.users[id].name);
-    } else if (reason == NETDROP_MANUAL) {
+    netstate.users_timed_out[id] = (reason == NETDROP_TIMEOUT);
+    if (reason == NETDROP_MANUAL) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
+    } else {
+        NETMSG("User left (or timed out): %i %s", id, netstate.users[id].name);
     }
     if (netstate.users[id].spectator_state == NetSpectator_Streaming) {
         network_spectator_notify(id, false);

@@ -110,7 +110,7 @@ static int32_t route_fwd[ROUTE_LENGTH];
 static int32_t route_bak[ROUTE_LENGTH];
 
 NavColour *LastTriangulatedMap;
-kfx_rewindable long ix_Border;
+kfx_rewindable int32_t ix_Border;
 kfx_rewindable int32_t Border[BORDER_LENGTH];
 
 TbBool nav_map_initialised = 0;

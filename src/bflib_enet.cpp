@@ -234,7 +234,7 @@ namespace
         if (host) {
             for (ENetPeer *peer = host->peers; peer < &host->peers[host->peerCount]; peer++) {
                 if (peer->state == ENET_PEER_STATE_CONNECTED) {
-                    enet_peer_disconnect(peer, 0);
+                    enet_peer_disconnect(peer, netstate.leave_reason);
                 }
             }
             enet_host_flush(host);
@@ -421,7 +421,7 @@ namespace
                 return Lb_OK;
             }
             if (service_result > 0 && (enet_event.type == ENET_EVENT_TYPE_DISCONNECT || enet_event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT)) {
-                if (enet_event.data >= NetJoin_InGame && enet_event.data <= NetJoin_SpectatorsUnsupported) {
+                if (enet_event.data >= NetJoin_InGame && enet_event.data < NetJoin_Count) {
                     net_join_rejection = (enum NetJoinRejection)enet_event.data;
                 }
                 LbNetLog("Join: connection rejected by host\n");
@@ -514,7 +514,7 @@ namespace
             enet_packet_destroy(event.packet);
         }
         if (result > 0 && event.peer == peer && (event.type == ENET_EVENT_TYPE_DISCONNECT || event.type == ENET_EVENT_TYPE_DISCONNECT_TIMEOUT)) {
-            if (event.data >= NetJoin_InGame && event.data <= NetJoin_SpectatorsUnsupported) {
+            if (event.data >= NetJoin_InGame && event.data < NetJoin_Count) {
                 net_join_rejection = (enum NetJoinRejection)event.data;
             }
         }
@@ -795,18 +795,24 @@ namespace
             case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT: {
                 if (client_peer && client_peer == enet_event.peer) {
                     user_id = SERVER_ID;
-                    if (enet_event.data >= NetJoin_InGame && enet_event.data <= NetJoin_SpectatorsUnsupported) {
+                    if (enet_event.data >= NetJoin_InGame && enet_event.data < NetJoin_Count) {
                         net_join_rejection = (enum NetJoinRejection)enet_event.data;
                     }
                 } else {
                     user_id = NetUserId(reinterpret_cast<ptrdiff_t>(enet_event.peer->data));
                 }
+                if (enet_event.data >= NetJoin_MapMismatch && enet_event.data < NetJoin_Count) {
+                    netstate.users_leave_reason[user_id] = (enum NetJoinRejection)enet_event.data;
+                }
                 const char *disconnect_reason = "timed out";
-                if (enet_event.type == ENET_EVENT_TYPE_DISCONNECT)
+                enum NetDropReason drop_reason = NETDROP_TIMEOUT;
+                if (enet_event.type == ENET_EVENT_TYPE_DISCONNECT) {
                     disconnect_reason = "disconnected (clean)";
+                    drop_reason = NETDROP_DISCONNECT;
+                }
                 destroy_incoming_queue(user_id);
                 log_peer_connection(enet_event.peer, user_id, disconnect_reason);
-                g_drop_callback(user_id, NETDROP_ERROR);
+                g_drop_callback(user_id, drop_reason);
                 break;
             }
             case ENET_EVENT_TYPE_RECEIVE: {
@@ -1299,6 +1305,7 @@ struct NetSP *InitEnetSP()
     {
             .init = &bf_enet_init,
             .exit = &bf_enet_exit,
+            .disconnect = &host_destroy,
             .host = &bf_enet_host,
             .join = &bf_enet_join,
             .update = &bf_enet_update,

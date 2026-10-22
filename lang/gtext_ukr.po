@@ -7391,9 +7391,9 @@ msgid "%s has left the game."
 msgstr "%s залишив гру."
 
 #: guitext:1117
-msgctxt "Network game message"
-msgid "%s has disconnected."
-msgstr "%s від'єднався."
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1118
 msgctxt "Unused"
@@ -7401,9 +7401,9 @@ msgid "unused"
 msgstr "unused"
 
 #: guitext:1119
-msgctxt "Network game message"
-msgid "Network connection to host lost"
-msgstr "Втрачено мережеве з'єднання з хостом"
+msgctxt "Unused"
+msgid "unused"
+msgstr "unused"
 
 #: guitext:1120
 #, fuzzy
@@ -7630,3 +7630,15 @@ msgstr "Це збереження пошкоджене, і його неможл
 msgctxt "Menu interface message"
 msgid "The save couldn't be loaded."
 msgstr "Не вдалося завантажити збереження."
+
+#: guitext:1158
+#, fuzzy
+msgctxt "Network game interface"
+msgid "You were disconnected because your game went out of sync."
+msgstr "Вас відключено, оскільки ваша гра втратила синхронізацію."
+
+#: guitext:1159
+#, fuzzy, c-format
+msgctxt "Network game message"
+msgid "%s lost connection (timed out)."
+msgstr "%s втратив з'єднання (час очікування вичерпано)."

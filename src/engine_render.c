@@ -54,6 +54,7 @@
 #include "engine_redraw.h"
 #include "engine_textures.h"
 #include "local_camera.h"
+#include "local_possession.h"
 #include "map_utils.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -368,6 +369,7 @@ struct ThingInterpolateResult interpolate_thing(struct Thing *thing)
         result.mappos = thing->mappos;
         result.floor_height = thing->floor_height;
     }
+    offset_local_possession_shot(thing, &result.mappos);
 
     return result;
 }
@@ -2731,7 +2733,7 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct UserState* ustate = get_local_user_state();
+    struct UserState* ustate = get_user_state(get_displayed_user());
     const struct RoomSpace *render_roomspace = get_dig_prediction_render_roomspace(&ustate->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
@@ -4912,8 +4914,7 @@ void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
-    const struct PlayerInfo *player = get_displayed_player();
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     struct ObjectConfigStats* objst;
     struct Thing *thing = jspr->thing;
     unsigned short animation_sprite;
@@ -5363,8 +5364,6 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
-        spr = get_button_sprite_for_player(state_spridx, thing->owner);
-        h_add += spr->SHeight * bs_units_per_px / 16;
     }
     else if (state_spridx)
     {
@@ -5372,7 +5371,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
-        h_add += h;
+    }
+    // The flower goes above the state icon whichever of the state and anger icons blinks in, so it doesn't jump
+    if (state_spridx || anger_spridx)
+    {
+        spr = state_spridx ? get_button_sprite_for_player(state_spridx, thing->owner) : get_button_sprite(anger_spridx);
+        h_add += (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
     }
 
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((get_gameturn() % (2 * gui_blink_rate)) >= gui_blink_rate))
@@ -8017,7 +8021,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     unsigned short flg_mem;
     unsigned char alpha_mem;
     const struct PlayerInfo *player = get_displayed_player();
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     struct Thing *thing = jspr->thing;
     unsigned short animation_sprite;
     unsigned char current_frame;
@@ -8728,7 +8732,7 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct UserState* ustate = get_local_user_state();
+    struct UserState* ustate = get_user_state(get_displayed_user());
     const struct RoomSpace *render_roomspace = get_dig_prediction_render_roomspace(&ustate->render_roomspace);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
@@ -8761,7 +8765,7 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
 
 TbBool cursor_on_room(RoomIndex room_index)
 {
-    const struct UserState *ustate = get_player_user_state(get_displayed_player());
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     struct SlabMap* slb = get_slabmap_for_subtile(ustate->cursor_subtile_x, ustate->cursor_subtile_y);
     if (slabmap_block_invalid(slb)) {
         return false;
@@ -8781,7 +8785,7 @@ TbBool room_is_damaged(RoomIndex room_index)
 }
 TbBool placing_same_room_type(RoomIndex room_index)
 {
-    const struct UserState *ustate = get_player_user_state(get_displayed_player());
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     if (map_volume_box.visible == 0) {
         return false;
     }

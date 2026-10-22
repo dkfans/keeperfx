@@ -30,6 +30,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_dernc.h"
 #include "bflib_planar.h"
+#include "bflib_datetm.h"
 #include "custom_sprites.h"
 #include "frontend.h"
 #include "config.h"
@@ -1073,15 +1074,35 @@ void redraw_minimal_overhead_view(void)
 {
     draw_map_parchment();
     draw_2d_map();
-    draw_gui();
-    draw_tooltip();
 }
 
-/** Whether the local user fades into and out of the parchment map instead of cutting. */
-TbBool parchment_map_fade_enabled(void)
+void start_local_map_fade(unsigned char view_type)
 {
-    const struct UserState *ustate = get_local_user_state();
-    return !user_state_invalid(ustate) && (ustate->prefs[UPref_MapFade] > 0);
+    local_state.map_fade_view_type = PVT_MapFadeOut;
+    if (view_type == PVT_MapScreen) {
+        local_state.map_fade_view_type = PVT_MapFadeIn;
+    }
+    local_state.map_fade_turns = min(get_parchment_map_fade_turns(), PARCHMENT_MAP_FADE_MAX_TURNS);
+    local_state.map_fade_start_time = get_time_tick_ns();
+    local_state.map_fade_prepared = false;
+}
+
+float local_map_fade_progress(void)
+{
+    const int64_t duration = (int64_t)local_state.map_fade_turns * 1000000000 / turns_per_second;
+    if (duration <= 0) {
+        return 1.0f;
+    }
+    const float progress = (float)(get_time_tick_ns() - local_state.map_fade_start_time) / duration;
+    return min(progress, 1.0f);
+}
+
+unsigned char get_local_map_fade(void)
+{
+    if ((local_state.map_fade_view_type != PVT_None) && (local_map_fade_progress() >= 1.0f)) {
+        local_state.map_fade_view_type = PVT_None;
+    }
+    return local_state.map_fade_view_type;
 }
 
 void zoom_to_parchment_map(void)
@@ -1091,31 +1112,20 @@ void zoom_to_parchment_map(void)
     if (observer_is_active()) {
         enter_observer_camera();
     }
+    turn_off_roaming_menus();
     if (is_observer_camera_active()) {
-        turn_off_roaming_menus();
-        set_observer_camera_view(PVT_MapScreen);
+        fade_observer_camera_view(PVT_MapScreen);
         return;
     }
-    struct PlayerInfo* player = get_my_player();
-    if (parchment_map_fade_enabled()) {
-        set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
-    } else {
-        set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
-    }
-    turn_off_roaming_menus();
+    set_players_packet_action(get_my_player(), PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
 }
 
 void zoom_from_parchment_map(void)
 {
     if (is_observer_camera_active()) {
-        set_observer_camera_view(PVT_DungeonTop);
+        fade_observer_camera_view(PVT_DungeonTop);
         return;
     }
-    struct PlayerInfo* player = get_my_player();
-    if (parchment_map_fade_enabled()) {
-        set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeOut, 0, 0, 0);
-    } else {
-        set_players_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0,0,0);
-    }
+    set_players_packet_action(get_my_player(), PckA_LoadViewType, PVT_DungeonTop, 0, 0, 0);
 }
 /******************************************************************************/

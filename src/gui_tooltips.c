@@ -145,7 +145,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     //thing = get_trap_for_slab_position(subtile_slab(pos->x.stl.num),subtile_slab(pos->y.stl.num));
     if (thing_is_invalid(thing)) return false;
     const struct PlayerInfo *player = get_displayed_player();
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     if ((thing->trap.revealed == 0) && (player->id_number != thing->owner))
         return false;
     update_gui_tooltip_target(thing);
@@ -164,8 +164,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
 {
     long i;
     SYNCDBG(18,"Starting");
-    const struct PlayerInfo *player = get_displayed_player();
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(get_displayed_user());
     struct Thing* thing = thing_get(ustate->thing_under_hand);
     if (!thing_is_object(thing))
     {
@@ -286,7 +285,7 @@ short setup_land_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target((void *)(uintptr_t)skind);
   const struct PlayerInfo *player = get_displayed_player();
-  const struct UserState *ustate = get_player_user_state(player);
+  const struct UserState *ustate = get_user_state(get_displayed_user());
   struct Thing *handthing = thing_get(ustate->thing_under_hand);
   TbBool in_query_mode = (ustate->work_state == PSt_CreatrQuery || ustate->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
@@ -322,7 +321,7 @@ short setup_room_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target(room);
   const struct PlayerInfo *player = get_displayed_player();
-  const struct UserState *ustate = get_player_user_state(player);
+  const struct UserState *ustate = get_user_state(get_displayed_user());
   struct Thing *handthing = thing_get(ustate->thing_under_hand);
 
   TbBool in_query_mode = (ustate->work_state == PSt_CreatrQuery || ustate->work_state == PSt_QueryAll);
@@ -418,7 +417,7 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
     return false;
   }
   int tooltip_delay;
-  const struct UserState *ustate = get_player_user_state(get_displayed_player());
+  const struct UserState *ustate = get_user_state(get_displayed_user());
   struct GuiButton* gbtn = &active_buttons[gbtn_idx];
   if ((get_active_menu(gbtn->gmenu_idx)->visual_state == 2) && ((gbtn->btype_value & LbBFeF_NoTooltip) == 0))
   {
