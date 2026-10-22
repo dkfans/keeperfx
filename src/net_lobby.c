@@ -526,6 +526,7 @@ TbError LbNetwork_Stop(void)
     network_spectator_clear_roles();
     memset(&netstate, 0, sizeof(netstate));
     netstate.my_id = INVALID_USER_ID;
+    netstate.pending_spectator_id = INVALID_USER_ID;
     net_join_role = NetRole_Player;
     return Lb_OK;
 }

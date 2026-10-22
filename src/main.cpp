@@ -715,7 +715,7 @@ void reset_gui_based_on_player_mode(void)
             turn_on_menu(GMnu_ROOM);
         }
     }
-    set_gui_visible(true);
+    set_gui_visible(local_state.show_gui || !observer_is_active());
 }
 
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)

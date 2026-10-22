@@ -56,7 +56,6 @@ enum NetDropReason {
     NETDROP_MANUAL,
     NETDROP_DISCONNECT,
     NETDROP_TIMEOUT,
-    NETDROP_SPECTATING,
 };
 
 enum NetMessageType {
@@ -147,7 +146,7 @@ struct NetFrame {
 struct NetState {
     const struct NetSP *sp;
     struct NetUser users[MAX_NET_CONNECTIONS];
-    enum NetDropReason users_drop_reason[MAX_NET_CONNECTIONS];
+    TbBool users_timed_out[MAX_NET_CONNECTIONS];
     enum NetJoinRejection users_leave_reason[MAX_NET_CONNECTIONS];
     enum NetJoinRejection leave_reason;
     struct NetFrame *exchg_queue;

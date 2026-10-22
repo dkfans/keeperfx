@@ -30,7 +30,6 @@ extern "C" {
 
 #define PACKETS_COUNT           9
 #define NET_LEAVE_TIMED_OUT     1
-#define NET_LEAVE_SPECTATING    2
 
 /******************************************************************************/
 #pragma pack(1)

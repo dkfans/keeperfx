@@ -758,7 +758,7 @@ static void abandon_network_player(struct PlayerInfo *player, const char *announ
             network_lobby_ping = GetPlayersPing();
             input_lag_reset_request(calculate_initial_input_lag());
         }
-        if (announce_fmt != NULL && player->player_name[0] != '\0') {
+        if (announce_fmt != NULL && player->player_name[0] != '\0' && player->victory_state == VicS_Undecided) {
             message_add_fmt(MsgType_Blank, 0, announce_fmt, player->player_name);
         }
         JUSTLOG("p:%d player %s departed", player->id_number, player->player_name);
@@ -830,12 +830,9 @@ void process_user_leave_game_packet(NetUserId user)
     if (network_is_active()) {
         OnDroppedUser(user, NETDROP_MANUAL);
     }
-    const int32_t leave_reason = get_packet(user)->actn_par1;
     const char *announce_fmt = get_string(GUIStr_NetPlayerLeftGame);
-    if (leave_reason == NET_LEAVE_TIMED_OUT) {
+    if (get_packet(user)->actn_par1 == NET_LEAVE_TIMED_OUT) {
         announce_fmt = get_string(GUIStr_NetPlayerTimedOut);
-    } else if (leave_reason == NET_LEAVE_SPECTATING) {
-        announce_fmt = NULL;
     }
     remove_user_from_game(user, announce_fmt);
     if (network_is_active()) {
@@ -863,10 +860,8 @@ void host_spoof_dropped_user_packets(void)
         struct Packet spoofed;
         memset(&spoofed, 0, sizeof(spoofed));
         int32_t leave_reason = 0;
-        if (netstate.users_drop_reason[user] == NETDROP_TIMEOUT) {
+        if (netstate.users_timed_out[user]) {
             leave_reason = NET_LEAVE_TIMED_OUT;
-        } else if (netstate.users_drop_reason[user] == NETDROP_SPECTATING) {
-            leave_reason = NET_LEAVE_SPECTATING;
         }
         set_packet_action(&spoofed, PckA_ForceApplicationClose, leave_reason, 0, 0, 0);
         // only the turns user_has_required_turn_packets expects

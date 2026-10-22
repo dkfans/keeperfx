@@ -119,6 +119,7 @@ TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkU
 {
     local_user_info = locplayr;
     memset(&netstate, 0, sizeof(netstate));
+    netstate.pending_spectator_id = INVALID_USER_ID;
     netstate.max_users = maxplayrs;
     for (NetUserId user_id = 0; user_id < MAX_NET_CONNECTIONS; user_id += 1) {
         netstate.users[user_id].id = user_id;
@@ -175,8 +176,8 @@ void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     if (netstate.users[id].progress == USER_UNUSED) {
         return;
     }
-    netstate.users_drop_reason[id] = reason;
-    if (reason == NETDROP_MANUAL || reason == NETDROP_SPECTATING) {
+    netstate.users_timed_out[id] = (reason == NETDROP_TIMEOUT);
+    if (reason == NETDROP_MANUAL) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     } else {
         NETMSG("User left (or timed out): %i %s", id, netstate.users[id].name);

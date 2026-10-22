@@ -1119,7 +1119,9 @@ void draw_network_stats()
     LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
     snprintf(text, sizeof(text), "Half ping: %ums", half_ping);
     LbTextDrawResized(0, tx_units_per_px * line++, tx_units_per_px, text);
-    if (input_lag_stats.target != game.input_lag_turns) {
+    if (network_user_is_spectator(netstate.my_id)) {
+        snprintf(text, sizeof(text), "Input lag: N/A");
+    } else if (input_lag_stats.target != game.input_lag_turns) {
         snprintf(text, sizeof(text), "Input lag: %d turns (%dms) -> %d", game.input_lag_turns, input_lag_ms, input_lag_stats.target);
     } else {
         snprintf(text, sizeof(text), "Input lag: %d turns (%dms)", game.input_lag_turns, input_lag_ms);

@@ -48,6 +48,19 @@ struct SpectatorTurn {
 #define SPECTATOR_TURN_BUFFER_SIZE 256
 #define SPECTATOR_CONVERSION_REPLY_SIZE 2
 
+enum SpectatorNotice {
+    SpectatorNotice_Left,
+    SpectatorNotice_Joined,
+    SpectatorNotice_BecameSpectator,
+    SpectatorNotice_Count,
+};
+
+static const TextStringId spectator_notice_strings[SpectatorNotice_Count] = {
+    GUIStr_NetSpectatorLeft,
+    GUIStr_NetSpectatorJoined,
+    GUIStr_NetPlayerBecameSpectator,
+};
+
 static struct SpectatorTurn spectator_turns[SPECTATOR_TURN_BUFFER_SIZE];
 static int32_t spectator_turn_index;
 static TbBool spectator_catching_up;
@@ -127,17 +140,13 @@ static void spectator_message_add(int32_t icon, const char *text)
 TbError process_network_spectator_notice(NetUserId source, const char *buffer, size_t size)
 {
     if (source != SERVER_ID || size < 4 || size > 2 + sizeof(netstate.users[0].name)
-     || (uint8_t)buffer[0] > 1 || (uint8_t)buffer[1] > SPECTATOR_ICON_COUNT
+     || (uint8_t)buffer[0] >= SpectatorNotice_Count || (uint8_t)buffer[1] > SPECTATOR_ICON_COUNT
      || buffer[size - 1] != '\0' || memchr(buffer + 2, '\0', size - 3) != NULL) {
         return Lb_FAIL;
     }
     replay_record_spectator_notice(buffer, size);
-    TextStringId message = GUIStr_NetSpectatorLeft;
-    if (buffer[0] != 0) {
-        message = GUIStr_NetSpectatorJoined;
-    }
     char text[sizeof(game.messages[0].text)];
-    snprintf(text, sizeof(text), get_string(message), buffer + 2);
+    snprintf(text, sizeof(text), get_string(spectator_notice_strings[(uint8_t)buffer[0]]), buffer + 2);
     spectator_message_add((uint8_t)buffer[1], text);
     return Lb_OK;
 }
@@ -147,8 +156,14 @@ void network_spectator_notify(NetUserId user, TbBool joined)
     if (!network_is_host() || !network_user_is_spectator(user) || netstate.phase != NetPhase_InGame) {
         return;
     }
+    enum SpectatorNotice notice = SpectatorNotice_Left;
+    if (joined && netstate.users[user].spectator_conversion_requested) {
+        notice = SpectatorNotice_BecameSpectator;
+    } else if (joined) {
+        notice = SpectatorNotice_Joined;
+    }
     char *write_pos = begin_net_message(NETMSG_SPECTATOR_NOTICE);
-    *write_pos++ = joined;
+    *write_pos++ = notice;
     *write_pos++ = netstate.users[user].spectator_icon;
     snprintf(write_pos, sizeof(netstate.users[user].name), "%s", netstate.users[user].name);
     write_pos += strlen(write_pos) + 1;
@@ -355,16 +370,28 @@ TbBool network_spectator_start(void)
     return true;
 }
 
-static TbBool user_may_become_spectator(NetUserId user)
+static TbBool user_will_become_spectator(NetUserId user)
 {
-    return user_present(user) && player_defeat_settled(get_net_user_player_number(user)) && network_human_contenders_remain()
+    return user_present(user) && player_has_lost(get_net_user_player_number(user)) && network_human_contenders_remain()
         && net_versions_match(&netstate.users[SERVER_ID].version, &net_current_version)
         && net_versions_match(&netstate.users[user].version, &net_current_version);
+}
+
+static TbBool user_may_become_spectator(NetUserId user)
+{
+    return user_will_become_spectator(user) && player_defeat_settled(get_net_user_player_number(user));
 }
 
 void network_spectator_convert_defeated_users(void)
 {
     if (!network_is_host()) {
+        if (!user_will_become_spectator(netstate.my_id)) {
+            return;
+        }
+        if (local_state.show_gui) {
+            set_gui_visible(false);
+            local_state.show_panel = false;
+        }
         struct NetUser *user = &netstate.users[netstate.my_id];
         if (!user->spectator_conversion_requested && !flag_is_set(get_local_user_state()->init_flags, UsrIF_NewMPMessage) && user_may_become_spectator(netstate.my_id)) {
             NETLOG("Asking the host to spectate the rest of the game");
@@ -393,7 +420,7 @@ void network_spectator_convert_defeated_users(void)
         *write_pos++ = spectator_id;
         *write_pos++ = net_config_info.spectator_chat;
         send_message_buffer(spectator_id, write_pos);
-        OnDroppedUser(player_id, NETDROP_SPECTATING);
+        OnDroppedUser(player_id, NETDROP_MANUAL);
     }
 }
 
@@ -417,15 +444,17 @@ TbError process_network_spectator_conversion(NetUserId source, const char *buffe
 void network_spectator_finish_conversion(void)
 {
     NetUserId spectator_id = netstate.pending_spectator_id;
-    if (!network_user_is_spectator(spectator_id)) {
+    if (spectator_id == INVALID_USER_ID) {
         return;
     }
     NETLOG("Spectating the rest of the game as user %d", spectator_id);
     PlayerNumber camera_player_number = my_player_number;
+    NetUserId player_id = netstate.my_id;
     netstate.pending_spectator_id = INVALID_USER_ID;
-    netstate.users[spectator_id] = netstate.users[netstate.my_id];
+    netstate.users[spectator_id] = netstate.users[player_id];
     netstate.users[spectator_id].id = spectator_id;
     netstate.my_id = spectator_id;
+    OnDroppedUser(player_id, NETDROP_MANUAL);
     net_join_role = NetRole_Spectator;
     stop_replay_recording("spectating the rest of the game");
     turn_off_all_menus();
