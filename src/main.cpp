@@ -246,7 +246,7 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
       if (!player_is_friendly_or_defeated(i,win_plyr_idx))
         return false;
     }
-    
+
     // So long as two unallied humans can both plausibly win, the game goes on.
     if (!human_victory_kernel_exists())
         return false;
@@ -492,7 +492,7 @@ short setup_game(void)
 static bool players_cursor_is_at_top_of_view()
 {
     const struct PlayerInfo *const player = get_displayed_player();
-    const struct UserState *const ustate = get_player_user_state_prediction(player);
+    const struct UserState *const ustate = get_user_state_prediction(get_displayed_user());
     switch (ustate->work_state)
     {
     case PSt_BuildRoom:
@@ -859,7 +859,6 @@ void reinit_level_after_load(void)
         if (player_exists(player))
         {
             update_engine_view(player, false);
-            update_panel_color_player_color(player->id_number, get_dungeon(i)->color_idx);
         }
     }
     start_rooms = &game.rooms[1];
@@ -876,8 +875,25 @@ void reinit_level_after_load(void)
     reinit_tagged_blocks_for_player(player->id_number);
     restore_computer_player_after_load();
     sound_reinit_after_load();
+    rederive_local_state();
     update_panel_colors();
     reset_postal_instance_cache();
+}
+
+// used on resync and on every rewind turn. Must be cheap!
+void rederive_local_state(void)
+{
+    // update minimap colours
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        if (player_exists(get_player(plyr_idx)))
+        {
+            update_panel_color_player_color(plyr_idx, get_dungeon(plyr_idx)->color_idx);
+        }
+    }
+    panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
+    turn_off_event_box_if_stale();
+    observer_validate_query();
 }
 
 /**
@@ -965,7 +981,7 @@ void clear_players_for_save(void)
     unsigned short saved_player_id;
     unsigned char saved_player_type;
     unsigned short saved_allocation_flags;
-    
+
     for (int i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
@@ -998,6 +1014,12 @@ void clear_players_for_save(void)
       ustate->roomspace_drag_paint_mode = 0;
       ustate->roomspace_l_shape = 0;
       ustate->roomspace_horizontal_first = 0;
+      ustate->instance_num = 0;
+      ustate->instance_remain_turns = 0;
+      ustate->zoom_to_pos_x = 0;
+      ustate->zoom_to_pos_y = 0;
+      ustate->cast_expand_level = 0;
+      ustate->hand_animation_until_turn = 0;
     }
 }
 
@@ -1183,11 +1205,9 @@ void centre_engine_window(void)
     setup_engine_window(window_center_x, window_center_y, local_state.engine_window_width, local_state.engine_window_height);
 }
 
-void turn_off_query(PlayerNumber plyr_idx)
+void turn_off_query(NetUserId user)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
-    set_player_instance(player, PI_UnqueryCrtr, 0);
+    set_user_instance(user, PI_UnqueryCrtr, 0);
 }
 
 long filter_creatures_owned_by_keepers(const struct Thing *thing, MaxTngFilterParam, long)
@@ -1382,13 +1402,16 @@ void update_local_mouse_light(void)
     struct PlayerInfo *player = get_my_player();
 
     // Avoid glitching during level intro or possess animation
-    if (player->instance_num != PI_Unset)
+    if (get_local_user_state()->instance_num != PI_Unset)
         return;
     // ... or when watching a replay
     if (replay.load_enable)
         return;
     // ... or during text input (save menu)
     if (game_is_busy_doing_gui_string_input())
+        return;
+    // ... or in first person
+    if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
         return;
 
     struct Camera *cam = get_local_active_camera(player);
@@ -2191,7 +2214,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     if (retval == 1)
     {
         if (is_dbc_language(install_info.lang_id))
-        {            
+        {
             dbc_initialized = 1;
         }
         load_unifont_files();

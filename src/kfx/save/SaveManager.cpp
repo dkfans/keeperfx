@@ -334,7 +334,6 @@ enum SaveLoadOutcome SaveManager::Load(int slot_num, enum SaveCheckResult *why)
     close_instance_cheat_menu();
     close_secondary_cheat_menu();
     output_message(SMsg_GameLoaded, 0);
-    panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
     struct PlayerInfo* player = get_my_player();

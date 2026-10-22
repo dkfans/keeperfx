@@ -64,6 +64,7 @@ void draw_timer(void);
 void draw_frametime(void);
 void draw_gameturn_timer(void);
 void draw_watched_player_name(void);
+TbBool mouse_is_over_watched_player_name(void);
 void draw_consolelog(void);
 void draw_network_stats(void);
 int font_size_units_per_px(int font_size);

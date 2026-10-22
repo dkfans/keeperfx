@@ -323,11 +323,10 @@ static int get_walking_bob_direction(struct Thing *thing)
     }
 }
 
-void update_first_person_position(struct Camera *cam, struct Thing *thing, int eye_height)
+void update_first_person_position(struct Camera *cam, struct Thing *thing, const struct CreatureControl *cctrl, int eye_height)
 {
-    if ( thing_is_creature(thing) )
+    if (thing->class_id == TCls_Creature)
     {
-        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         const int32_t head_bob = (cctrl->move_speed && thing_touching_floor(thing)) ? 16 * get_walking_bob_direction(thing) : 0;
 
         int pos_x = move_coord_with_angle_x(thing->mappos.x.val,-90,thing->move_angle_xy);
@@ -498,7 +497,7 @@ static void update_player_camera_shake(struct PlayerInfo *player)
     struct Dungeon *dungeon = get_players_dungeon(player);
 
     if (((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
-     && (player->controlled_thing_idx <= 0) && (player->instance_num != PI_HeartZoom))
+     && (player->controlled_thing_idx <= 0) && (get_player_user_state(player)->instance_num != PI_HeartZoom))
     {
         ERRORLOG("Cannot go first person without controlling creature");
     }

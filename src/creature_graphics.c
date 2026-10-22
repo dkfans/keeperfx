@@ -457,12 +457,11 @@ void update_creature_rendering_flags(struct Thing *thing)
     }
 }
 
-void update_creature_graphic_anim(struct Thing *thing)
+void update_creature_graphic_anim(struct Thing *thing, const struct CreatureControl *cctrl)
 {
     long i;
 
     TRACE_THING(thing);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct InstanceInfo* inst_inf;
     if ((thing->size_change & TSC_ChangeSize) != 0)
@@ -595,7 +594,7 @@ void update_creature_graphic_tint(struct Thing *thing)
 void set_creature_graphic(struct Thing *thing)
 {
     update_creature_rendering_flags(thing);
-    update_creature_graphic_anim(thing);
+    update_creature_graphic_anim(thing, creature_control_get_from_thing(thing));
     // Update tint
     update_creature_graphic_tint(thing);
 }

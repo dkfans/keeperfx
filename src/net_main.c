@@ -145,6 +145,7 @@ enum NetJoinRejection OnNewUser(NetUserId *assigned_id, enum NetConnectionRole r
             *assigned_id = id;
             netstate.users[id].progress = USER_CONNECTED;
             netstate.users[id].ack = -1;
+            netstate.users_leave_reason[id] = NetJoin_Accepted;
             netstate.users[id].connected_at = LbTimerClock();
             net_lobby_refresh_metadata();
             NETLOG("Assigning new user to ID %u", id);

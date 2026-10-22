@@ -200,7 +200,7 @@ extern const struct HugStart blocked_xy_hug_start[][2][2];
 extern TbBool nav_map_initialised;
 
 extern NavColour *LastTriangulatedMap;
-extern long ix_Border;
+extern int32_t ix_Border;
 extern int32_t Border[BORDER_LENGTH];
 
 /******************************************************************************/

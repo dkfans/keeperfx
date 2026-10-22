@@ -95,6 +95,7 @@ struct NetSP
 {
     TbError (*init)(NetDropCallback drop_callback);
     void (*exit)();
+    void (*disconnect)();
     TbError (*host)(const char *session, void *options);
     TbError (*join)(const char *session, void *options);
     void (*update)(enum NetJoinRejection (*new_user)(NetUserId *assigned_id, enum NetConnectionRole role));
@@ -144,6 +145,8 @@ struct NetState {
     const struct NetSP *sp;
     struct NetUser users[MAX_NET_CONNECTIONS];
     TbBool users_timed_out[MAX_NET_CONNECTIONS];
+    enum NetJoinRejection users_leave_reason[MAX_NET_CONNECTIONS];
+    enum NetJoinRejection leave_reason;
     struct NetFrame *exchg_queue;
     char password[32];
     NetUserId my_id;

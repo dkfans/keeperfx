@@ -47,6 +47,7 @@
 #include "engine_lenses.h"
 #include "kfx/ui/GameUI.h"
 #include "local_camera.h"
+#include "local_possession.h"
 #include "front_simple.h"
 #include "front_easter.h"
 #include "frontend.h"
@@ -224,10 +225,11 @@ static void draw_creature_view_icons(struct Thing* creatng)
         struct PlayerInfo* player = get_my_player();
         if (get_player_view_type(player) == PVT_CreatureContrl)
         {
-            if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
+            const CrInstance active_inst_id = get_local_creature_control(creatng)->active_instance_id;
+            if (!creature_instance_is_available(creatng, active_inst_id))
             {
                 x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-                struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->active_instance_id % game.conf.crtr_conf.instances_count);
+                struct InstanceInfo* inst_inf = creature_instance_info_get(active_inst_id % game.conf.crtr_conf.instances_count);
                 draw_gui_panel_sprite_left(x, y, ps_units_per_px, inst_inf->symbol_spridx);
             }
         }
@@ -428,27 +430,6 @@ void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest,
     }
 }
 
-static int32_t my_map_fade_turns(void)
-{
-    const struct UserState *ustate = get_player_user_state(get_displayed_player());
-    return user_state_invalid(ustate) ? 1 : max((int32_t)ustate->prefs[UPref_MapFade], 1);
-}
-
-static float map_fade_progress(void)
-{
-    const struct PlayerInfo* player = get_displayed_player();
-    const float turns = (float)(my_map_fade_turns() - 1);
-    if (turns <= 0.0f)
-        return 1.0f;
-    float frac = is_feature_on(Ft_DeltaTime) ? (float)local_state.process_turn_time : 0.0f;
-    if (frac < 0.0f) frac = 0.0f;
-    if (frac > 1.0f) frac = 1.0f;
-    float progress = (turns - (float)player->instance_remain_turns + frac) / turns;
-    if (progress < 0.0f) progress = 0.0f;
-    if (progress > 1.0f) progress = 1.0f;
-    return progress;
-}
-
 static void draw_map_fade(TbBool fading_in)
 {
     SYNCDBG(6,"Starting");
@@ -468,8 +449,8 @@ static void draw_map_fade(TbBool fading_in)
         local_state.map_fade_prepared = true;
     }
     // 0 shows the dungeon, 32 the parchment
-    const int32_t turns = my_map_fade_turns();
-    const float progress = map_fade_progress();
+    const int32_t turns = local_state.map_fade_turns;
+    const float progress = local_map_fade_progress();
     const float display_step = 32.0f * (fading_in ? progress : 1.0f - progress);
     RendererSubmitMapFadeStep(starting, display_step,
         (float)turns / PARCHMENT_MAP_FADE_ORIGINAL_TURNS, map_fade_ghost_table);
@@ -584,13 +565,13 @@ void redraw_creature_view(void)
     }
     remove_explored_flags_for_viewed_power_sights(player);
     GameUI_DrawFrame(player);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (!creature_control_invalid(cctrl)) {
+    if (!creature_control_invalid(creature_control_get_from_thing(thing))) {
         draw_creature_view_icons(thing);
         if (!gui_box_is_not_valid(gui_cheat_box_3)) {
+            const CrInstance active_inst_id = get_local_creature_control(thing)->active_instance_id;
             struct GuiBoxOption* guop = gui_cheat_box_3->optn_list;
             while (guop->label[0] != '!') {
-              guop->active = (cctrl->active_instance_id == guop->cb_param1);
+              guop->active = (active_inst_id == guop->cb_param1);
               guop++;
             }
         }
@@ -673,8 +654,9 @@ int get_place_door_pointer_graphics(ThingModel drmodel)
  *
  * @return Gives true if cursor spell was drawn, false if the spell wasn't available and either no cursor or block cursor was drawn.
  */
-static TbBool draw_spell_cursor(const struct PlayerInfo *player, PowerKind pwkind, ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+static TbBool draw_spell_cursor(NetUserId user, PowerKind pwkind, ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
+    const struct PlayerInfo *player = get_user_player(user);
     int32_t i;
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0) {
@@ -690,10 +672,10 @@ static TbBool draw_spell_cursor(const struct PlayerInfo *player, PowerKind pwkin
         set_pointer_graphic(MousePG_DenyMark);
         return false;
     }
-    unsigned char (*chkfunc)(const struct PlayerInfo *) = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
+    unsigned char (*chkfunc)(NetUserId) = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
     if (chkfunc != NULL) {
-        if (chkfunc(player)) {
-            i = get_power_overcharge_level(player);
+        if (chkfunc(user)) {
+            i = get_power_overcharge_level(user);
             set_pointer_graphic(MousePG_SpellCharge0+i);
             draw_spell_cost = compute_power_price(player->id_number, pwkind, i);
 
@@ -709,11 +691,12 @@ static TbBool draw_spell_cursor(const struct PlayerInfo *player, PowerKind pwkin
     return true;
 }
 
-static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
+static void process_dungeon_top_pointer_graphic(NetUserId user)
 {
+    const struct PlayerInfo *player = get_user_player(user);
     struct Thing *thing;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
-    const struct UserState *ustate = get_player_user_state_prediction(player);
+    const struct UserState *ustate = get_user_state_prediction(user);
     struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(ustate->work_state);
     if (dungeon_invalid(dungeon) || user_state_invalid(ustate)) {
         set_pointer_graphic(MousePG_Invisible);
@@ -728,7 +711,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
         return;
     }
     // During fade
-    if (player->instance_num == PI_MapFadeFrom) {
+    if (get_local_map_fade() != PVT_None) {
         set_pointer_graphic(MousePG_Invisible);
         return;
     }
@@ -748,7 +731,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
         thing = thing_get(battle_creature_over);
         TRACE_THING(thing);
         if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
-            draw_spell_cursor(player, pwkind, battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            draw_spell_cursor(user, pwkind, battle_creature_over, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         } else {
             set_pointer_graphic(MousePG_Arrow);
         }
@@ -775,7 +758,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
           i = ustate->secondary_cursor_state;
         else
           i = ustate->primary_cursor_state;
-        if ((player->instance_num == PI_Grab) || (player->instance_num == PI_Drop) || (player->instance_num == PI_Whip) || (player->instance_num == PI_WhipEnd) || power_hand_is_hovering(player) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
+        if (ustate->instance_num == PI_Grab || ustate->instance_num == PI_Drop || ustate->instance_num == PI_Whip || ustate->instance_num == PI_WhipEnd || power_hand_is_hovering(player) || (!power_hand_is_empty(player) && (i != CSt_DoorKey))) {
             i = CSt_PowerHand;
         } else
         if ((i == CSt_PowerHand) && power_hand_is_empty(player)) {
@@ -811,7 +794,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
                     }
                 }
                 if (can_cast) {
-                    draw_spell_cursor(player, pwkind, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                    draw_spell_cursor(user, pwkind, 0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                 } else {
                     set_pointer_graphic(MousePG_Arrow);
                 }
@@ -831,7 +814,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
             }
             break;
         default:
-            if (player->hand_busy_until_turn <= get_gameturn())
+            if (ustate->hand_animation_until_turn <= get_gameturn())
               set_pointer_graphic(MousePG_Arrow);
             else
               set_pointer_graphic(MousePG_Invisible);
@@ -853,7 +836,7 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
             stl_x = coord_subtile(pckt->pos_x);
             stl_y = coord_subtile(pckt->pos_y);
         }
-        draw_spell_cursor(player, ustate->chosen_power_kind, 0, stl_x, stl_y);
+        draw_spell_cursor(user, ustate->chosen_power_kind, 0, stl_x, stl_y);
         break;
     }
     case PsPg_Query:
@@ -900,11 +883,11 @@ static void process_dungeon_top_pointer_graphic(const struct PlayerInfo *player)
 void process_pointer_graphic(void)
 {
     struct PlayerInfo* player = get_my_player();
-    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(get_player_user_state(player)->work_state),(int)player->instance_num);
+    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(get_local_user_state()->work_state),(int)get_local_user_state()->instance_num);
     switch (get_local_view_type(player)) {
     case PVT_DungeonTop:
         // This case is complicated
-        process_dungeon_top_pointer_graphic(get_displayed_player());
+        process_dungeon_top_pointer_graphic(get_displayed_user());
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
@@ -949,14 +932,12 @@ void redraw_display(void)
     } else {
         lens_mode = 0;
     }
-    const unsigned char fade_inum = get_displayed_player()->instance_num;
-    const TbBool map_fading = ((fade_inum == PI_MapFadeTo) || (fade_inum == PI_MapFadeFrom))
-        && !is_observer_camera_active();
-    if (!map_fading)
+    const unsigned char map_fade = get_local_map_fade();
+    if (map_fade == PVT_None)
         local_state.map_fade_prepared = false;
-    if (map_fading) {
+    if (map_fade != PVT_None) {
         parchment_loaded = 0;
-        draw_map_fade(fade_inum == PI_MapFadeTo);
+        draw_map_fade(map_fade == PVT_MapFadeIn);
     } else
     if ((view_type == PVT_CreatureContrl) || (view_type == PVT_CreaturePasngr))
     {
@@ -981,8 +962,8 @@ void redraw_display(void)
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((get_local_user_state()->init_flags & UsrIF_NewMPMessage) != 0)
     {
-        char text[sizeof(player->mp_message_text) + 4];
-        snprintf(text, sizeof(text), ">%s_", player->mp_message_text);
+        char text[sizeof(local_state.mp_message_text) + 4];
+        snprintf(text, sizeof(text), ">%s_", local_state.mp_message_text);
         int chat_units_per_px = font_size_units_per_px(chat_font_size);
         int chat_line_spacing = chat_units_per_px * CHAT_LINE_SPACING_PERCENT / 100;
         long pos_x = 148*units_per_pixel/16;
