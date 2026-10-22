@@ -2637,8 +2637,9 @@ void pretty_map_remove_flags_and_update(MapSlabCoord slb_x, MapSlabCoord slb_y)
     long m;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    stl_x = slab_subtile_center(slb_x);
-    stl_y = slab_subtile_center(slb_y);
+    // The slab's first subtile: the loop below walks its 3x3 from there.
+    stl_x = slab_subtile(slb_x, 0);
+    stl_y = slab_subtile(slb_y, 0);
     for (m=0; m < STL_PER_SLB*STL_PER_SLB; m++)
     {
         MapSubtlCoord x;
