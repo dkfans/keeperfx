@@ -1402,7 +1402,7 @@ TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 
 void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
-    if (decrease_power_level_of_player(pwkind, plyr_idx))
+    if (decrease_power_level_of_player(pwkind, plyr_idx) && (get_dungeon(plyr_idx)->magic_level[pwkind] == 0))
         power_lost_side_effects(pwkind, plyr_idx);
 }
 
