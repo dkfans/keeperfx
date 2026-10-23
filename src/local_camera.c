@@ -54,25 +54,9 @@ static int64_t camera_update_time;
 static TbBool camera_step_due = true;
 extern float interpolate_time;
 /******************************************************************************/
+static unsigned char get_local_user_view_type(NetUserId user);
 static int get_local_active_camera_index(struct PlayerInfo *player);
-static struct Camera *get_local_dungeon_camera(struct PlayerInfo *player);
-
-// own player, or observed player
-static TbBool local_camera_shows_player(const struct PlayerInfo *player)
-{
-    if (is_my_player(player)) {
-        return true;
-    }
-    return observer_is_active() && !is_observer_camera_active() && (player == get_displayed_player());
-}
-
-static TbBool local_camera_follows_player(const struct PlayerInfo *player)
-{
-    if (!local_camera_shows_player(player) || !local_state.camera.ready || is_observer_camera_active()) {
-        return false;
-    }
-    return true;
-}
+static struct Camera *get_local_dungeon_camera(void);
 
 static TbBool local_camera_shows_user(NetUserId user)
 {
@@ -84,8 +68,12 @@ static TbBool local_camera_shows_user(NetUserId user)
 
 static TbBool local_camera_follows_user(NetUserId user)
 {
-    return local_camera_shows_user(user) && local_state.camera.ready && !is_observer_camera_active()
-        && get_local_view_type(get_user_player(user)) != PVT_MapScreen;
+    return local_camera_shows_user(user) && local_state.camera.ready && !is_observer_camera_active();
+}
+
+static TbBool local_camera_follows_user_dungeon(NetUserId user)
+{
+    return local_camera_follows_user(user) && get_local_user_view_type(user) != PVT_MapScreen;
 }
 
 static TbBool get_packet_rotation_pivot(const struct Packet *pckt, MapCoord *x, MapCoord *y)
@@ -196,16 +184,16 @@ static void apply_dungeon_camera(struct Camera cams[])
 /** local camera <- given dungeon camera */
 void set_local_camera_destination_pose(NetUserId user, const struct DungeonCamera *pose)
 {
-    if (!local_camera_follows_user(user)) {
+    if (!local_camera_follows_user_dungeon(user)) {
         return;
     }
     apply_dungeon_camera_pose(local_state.camera.destination, pose);
 }
 
 /** local view mode from wibble bool */
-void update_local_dungeon_view_mode(struct PlayerInfo *player)
+void update_local_dungeon_view_mode(NetUserId user)
 {
-    if (!is_my_player(player))
+    if (!is_local_user(user))
         return;
     const unsigned char view_mode = (get_local_user_state()->prefs[UPref_Wibble] != 0) ? PVM_IsoWibbleView : PVM_IsoStraightView;
     local_state.camera.current[CamIV_Isometric].view_mode = view_mode;
@@ -443,7 +431,7 @@ void update_local_cameras(void)
         return;
     }
     struct PlayerInfo *player = get_my_player();
-    const unsigned char previous_camera_idx = get_player_active_camera_index(player);
+    const unsigned char previous_camera_idx = get_user_active_camera_index(get_my_user());
     if (player == &local_observer_player) {
         observer_update_view();
     }
@@ -486,8 +474,8 @@ void update_local_cameras(void)
         if (!player_instance_controls_camera(inum) || (inum == PI_ZoomToPos)) {
             apply_dungeon_camera(local_state.camera.destination);
         }
-        update_local_dungeon_view_mode(player);
-        if (get_player_active_camera_index(player) == CamIV_FirstPerson) {
+        update_local_dungeon_view_mode(OBSERVER_USER);
+        if (get_user_active_camera_index(OBSERVER_USER) == CamIV_FirstPerson) {
             update_first_person_camera(&local_state.camera.destination[CamIV_FirstPerson], get_user_state(get_displayed_user()),
                 previous_camera_idx != CamIV_FirstPerson);
         }
@@ -643,20 +631,20 @@ static void snap_local_camera_pose(const struct DungeonCamera *pose)
     }
 }
 
-void sync_local_camera(struct PlayerInfo *player)
+void sync_local_camera(NetUserId user)
 {
-    if (!local_camera_follows_player(player)) {
+    if (!local_camera_follows_user(user)) {
         return;
     }
-    const unsigned char cam_idx = get_player_active_camera_index(player);
+    const unsigned char cam_idx = get_user_active_camera_index(user);
     if (cam_idx == CamIV_Parchment) {
         return;
     }
     if (cam_idx == CamIV_FirstPerson) {
-        update_first_person_camera(&local_state.camera.destination[CamIV_FirstPerson], get_player_user_state(player), true);
+        update_first_person_camera(&local_state.camera.destination[CamIV_FirstPerson], get_user_state(user), true);
         return;
     }
-    if (get_local_view_type(player) != PVT_MapScreen) {
+    if (get_local_user_view_type(user) != PVT_MapScreen) {
         snap_local_camera_pose(displayed_dungeon_camera());
     }
 }
@@ -664,7 +652,7 @@ void sync_local_camera(struct PlayerInfo *player)
 /** Snaps the local dungeon cameras to a pose without any interpolation */
 void sync_local_camera_pose(NetUserId user, const struct DungeonCamera *pose)
 {
-    if (local_camera_follows_user(user)) {
+    if (local_camera_follows_user_dungeon(user)) {
         snap_local_camera_pose(pose);
     }
 }
@@ -711,7 +699,7 @@ int32_t get_local_possession_start_zoom(NetUserId user)
 /** possession zoom applies to local camera only */
 void step_local_possession_camera(NetUserId user, const struct Thing *thing)
 {
-    if (!local_camera_follows_user(user)) {
+    if (!local_camera_follows_user_dungeon(user)) {
         return;
     }
     struct Camera *cam = &local_state.camera.destination[CamIV_Isometric];
@@ -733,20 +721,20 @@ void step_local_possession_camera(NetUserId user, const struct Thing *thing)
     cam->velocity_rotation = 0;
 }
 
-void set_local_camera_destination(struct PlayerInfo *player)
+void set_local_camera_destination(NetUserId user)
 {
-    if (!local_camera_follows_player(player) || get_local_view_type(player) == PVT_MapScreen) {
+    if (!local_camera_follows_user_dungeon(user)) {
         return;
     }
     apply_dungeon_camera(local_state.camera.destination);
-    struct Thing *ctrltng = thing_get(get_player_user_state(player)->controlled_thing_idx);
+    struct Thing *ctrltng = thing_get(get_user_state(user)->controlled_thing_idx);
     if (thing_exists(ctrltng)) {
         local_state.camera.destination[CamIV_FirstPerson].rotation_angle_x = ctrltng->move_angle_xy;
         local_state.camera.destination[CamIV_FirstPerson].rotation_angle_y = ctrltng->move_angle_z;
     }
 }
 
-static void sync_local_camera_leaving_map(struct PlayerInfo *player, const struct Packet *pckt)
+static void sync_local_camera_leaving_map(const struct Packet *pckt)
 {
     struct DungeonCamera pose = get_local_user_state()->dungeon_camera;
     if (pckt->action == PckA_ZoomFromMap)
@@ -755,9 +743,7 @@ static void sync_local_camera_leaving_map(struct PlayerInfo *player, const struc
         pose.yaw[false] = 0;
         pose.yaw[true] = 0;
     }
-    if (local_camera_follows_player(player) && get_local_view_type(player) != PVT_MapScreen) {
-        snap_local_camera_pose(&pose);
-    }
+    sync_local_camera_pose(get_my_user(), &pose);
 }
 
 void update_local_view_prediction(const struct Packet *pckt)
@@ -776,7 +762,7 @@ void update_local_view_prediction(const struct Packet *pckt)
         local_state.view_type = PVT_DungeonTop;
         toggle_status_menu(local_state.show_panel);
         if (on_map) {
-            sync_local_camera_leaving_map(player, pckt);
+            sync_local_camera_leaving_map(pckt);
             start_local_map_fade(PVT_DungeonTop);
         }
     }
@@ -870,10 +856,10 @@ void observer_camera_jump(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     fade_observer_camera_view(PVT_DungeonTop);
 }
 
-unsigned char get_local_view_type(const struct PlayerInfo *player)
+static unsigned char get_local_user_view_type(NetUserId user)
 {
-    if (!is_my_player(player)) {
-        return get_player_view_type(player);
+    if (!is_local_user(user)) {
+        return get_user_view_type(user);
     }
     if (get_local_map_fade() == PVT_MapFadeIn) {
         return PVT_DungeonTop;
@@ -882,40 +868,50 @@ unsigned char get_local_view_type(const struct PlayerInfo *player)
         return local_state.observer_camera_view_type;
     }
     if (local_state.view_type == PVT_None) {
-        return get_player_view_type(player);
+        return get_user_view_type(user);
     }
-    if (local_state.view_type == PVT_MapScreen || get_player_view_type(player) == PVT_MapScreen) {
+    if (local_state.view_type == PVT_MapScreen || get_user_view_type(user) == PVT_MapScreen) {
         return local_state.view_type;
     }
-    return get_player_view_type(player);
+    return get_user_view_type(user);
+}
+
+unsigned char get_local_view_type(const struct PlayerInfo *player)
+{
+    if (!is_my_player(player)) {
+        return get_player_view_type(player);
+    }
+    return get_local_user_view_type(get_my_user());
 }
 
 static int get_local_active_camera_index(struct PlayerInfo *player)
 {
-    if (!is_my_player(player) || !local_state.camera.ready)
-        return get_player_active_camera_index(player);
     return get_local_active_camera(player) - local_state.camera.current;
 }
 
 struct Camera* get_local_active_camera(struct PlayerInfo *player)
 {
-    if (!is_my_player(player) || !local_state.camera.ready) {
+    if (!is_my_player(player)) {
         return &local_state.camera.current[get_player_active_camera_index(player)];
     }
-    const unsigned char view_type = get_local_view_type(player);
+    const NetUserId user = get_my_user();
+    if (!local_state.camera.ready) {
+        return &local_state.camera.current[get_user_active_camera_index(user)];
+    }
+    const unsigned char view_type = get_local_user_view_type(user);
     if (view_type == PVT_MapScreen) {
         return &local_state.camera.current[CamIV_Parchment];
     }
     if (is_observer_camera_active()) {
         return &local_state.camera.current[local_state.observer_camera_idx];
     }
-    if (view_type == PVT_DungeonTop && get_player_view_type(player) == PVT_MapScreen) {
-        return get_local_dungeon_camera(player);
+    if (view_type == PVT_DungeonTop && get_user_view_type(user) == PVT_MapScreen) {
+        return get_local_dungeon_camera();
     }
-    return &local_state.camera.current[get_player_active_camera_index(player)];
+    return &local_state.camera.current[get_user_active_camera_index(user)];
 }
 
-static struct Camera *get_local_dungeon_camera(struct PlayerInfo *player)
+static struct Camera *get_local_dungeon_camera(void)
 {
     return &local_state.camera.current[(get_local_user_state()->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric];
 }

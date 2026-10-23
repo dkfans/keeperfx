@@ -396,7 +396,7 @@ TbBool startup_saved_packet_game(void)
     if ((game.mode_flags & MFlg_IsDemoMode) == 0) {
         observer_init(my_player_number);
     }
-    update_engine_view(get_my_player(), false);
+    update_local_view(get_my_user(), false);
     return true;
 }
 

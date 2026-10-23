@@ -517,7 +517,7 @@ void update(void)
         process_players();
         process_action_points();
         player = get_my_player();
-        if ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr))
+        if ((get_user_view_type(get_my_user()) == PVT_CreatureContrl) || (get_user_view_type(get_my_user()) == PVT_CreaturePasngr))
         {
             struct Thing *thing = thing_get(get_user_state(get_displayed_user())->controlled_thing_idx);
             update_first_person_object_ambience(thing);

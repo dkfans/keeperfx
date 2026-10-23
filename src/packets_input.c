@@ -77,9 +77,10 @@ static void remember_cursor_subtile(NetUserId user)
     ustate->cursor_subtile_y = coord_subtile(pckt->pos_y);
 }
 
-struct Thing *get_thing_under_hand(struct PlayerInfo *player, MapCoord x, MapCoord y)
+struct Thing *get_thing_under_hand(NetUserId user, MapCoord x, MapCoord y)
 {
-    struct UserState* ustate = get_player_user_state(player);
+    struct PlayerInfo *player = get_user_player(user);
+    struct UserState* ustate = get_user_state(user);
     struct Thing *thing;
 
     switch (ustate->work_state) {
@@ -676,7 +677,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     pwkind = ustate->chosen_power_kind;
-    thing = get_thing_under_hand(player, x, y);
+    thing = get_thing_under_hand(user, x, y);
     if (!thing_is_invalid(thing)) {
         ustate->thing_under_hand = thing->index;
     }

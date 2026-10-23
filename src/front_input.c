@@ -2576,7 +2576,7 @@ static void get_dungeon_control_nonaction_inputs(void)
             }
             default:
             {
-                struct Thing* thing = get_thing_under_hand(player, pos.x.val, pos.y.val);
+                struct Thing* thing = get_thing_under_hand(get_my_user(), pos.x.val, pos.y.val);
                 if (!thing_is_invalid(thing)) {
                     local_state.local_thing_under_hand = thing->index;
                 }

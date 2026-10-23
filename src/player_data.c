@@ -65,27 +65,37 @@ enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate)
     return (ustate->prefs[UPref_Wibble] != 0) ? PVM_IsoWibbleView : PVM_IsoStraightView;
 }
 
-int32_t get_player_dungeon_yaw(const struct PlayerInfo *player)
+int32_t get_user_dungeon_yaw(NetUserId user)
 {
-    const struct UserState *ustate = get_player_user_state(player);
+    const struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate))
         return 0;
     return ustate->dungeon_camera.yaw[ustate->prefs[UPref_FrontView] != 0];
 }
 
-
-unsigned char get_player_view_type(const struct PlayerInfo *player)
+int32_t get_player_dungeon_yaw(const struct PlayerInfo *player)
 {
-    const struct UserState *ustate = get_player_user_state(player);
+    return get_user_dungeon_yaw(get_player_primary_user(player));
+}
+
+
+unsigned char get_user_view_type(NetUserId user)
+{
+    const struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate))
         return PVT_None;
     return ustate->view_type;
 }
 
-/** Which of a user's local cameras shows this player's view. */
-unsigned char get_player_active_camera_index(const struct PlayerInfo *player)
+unsigned char get_player_view_type(const struct PlayerInfo *player)
 {
-    switch (get_player_view_type(player))
+    return get_user_view_type(get_player_primary_user(player));
+}
+
+/** Which of a user's local cameras shows this user's view. */
+unsigned char get_user_active_camera_index(NetUserId user)
+{
+    switch (get_user_view_type(user))
     {
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
@@ -93,8 +103,13 @@ unsigned char get_player_active_camera_index(const struct PlayerInfo *player)
     case PVT_MapScreen:
         return CamIV_Parchment;
     default:
-        return (get_player_user_state(player)->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric;
+        return (get_user_state(user)->prefs[UPref_FrontView] != 0) ? CamIV_FrontView : CamIV_Isometric;
     }
+}
+
+unsigned char get_player_active_camera_index(const struct PlayerInfo *player)
+{
+    return get_user_active_camera_index(get_player_primary_user(player));
 }
 
 
@@ -176,12 +191,17 @@ NetUserId get_displayed_user(void)
     return get_local_user();
 }
 
-TbBool is_local_user(NetUserId user)
+NetUserId get_my_user(void)
 {
     if (observer_is_active()) {
-        return user == OBSERVER_USER;
+        return OBSERVER_USER;
     }
-    return user == get_local_user();
+    return get_local_user();
+}
+
+TbBool is_local_user(NetUserId user)
+{
+    return user == get_my_user();
 }
 
 TbBool is_my_player_number(PlayerNumber plyr_num)
@@ -228,6 +248,21 @@ NetUserId get_player_primary_user(const struct PlayerInfo *player)
         }
     }
     return -1;
+}
+
+// the user in first person on this keeper's creature, or the primary user
+NetUserId get_player_possessing_user(const struct PlayerInfo *player)
+{
+    if (player != &local_observer_player && player != NULL && !player_invalid(player)) {
+        for (NetUserId user = 0; user < MAX_NET_USERS; ++user) {
+            const unsigned char view_type = game.user_states[user].view_type;
+            if (game.user_states[user].player_id == player->id_number
+             && (view_type == PVT_CreatureContrl || view_type == PVT_CreaturePasngr)) {
+                return user;
+            }
+        }
+    }
+    return get_player_primary_user(player);
 }
 
 struct UserState *get_player_user_state(const struct PlayerInfo *player)
@@ -639,7 +674,6 @@ void set_user_view_type(NetUserId user, unsigned short nview)
   struct UserState* ustate = get_user_state(user);
   if (user_state_invalid(ustate))
     return;
-  struct PlayerInfo* player = get_user_player(user);
   const TbBool is_local = (user == get_local_user());
   if (is_local && local_state.view_type == nview)
     local_state.view_type = PVT_None;
@@ -667,7 +701,7 @@ void set_user_view_type(NetUserId user, unsigned short nview)
   case PVT_DungeonTop:
   {
       if (is_local) {
-        update_engine_view(player, leaving_map);
+        update_local_view(user, leaving_map);
         if (local_state.view_type == PVT_None) {
           toggle_status_menu(local_state.show_panel);
         }
@@ -679,7 +713,7 @@ void set_user_view_type(NetUserId user, unsigned short nview)
   case PVT_CreaturePasngr:
       if (is_local)
       {
-        update_engine_view(player, leaving_map);
+        update_local_view(user, leaving_map);
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       }
@@ -690,7 +724,7 @@ void set_user_view_type(NetUserId user, unsigned short nview)
       }
       ustate->continue_work_state = ustate->work_state;
       if (is_local)
-        update_engine_view(player, leaving_map);
+        update_local_view(user, leaving_map);
       break;
   }
 }
@@ -700,7 +734,6 @@ void reset_user_view_type(NetUserId user, unsigned short nview)
   struct UserState* ustate = get_user_state(user);
   if (user_state_invalid(ustate))
     return;
-  struct PlayerInfo* player = get_user_player(user);
   const TbBool is_local = (user == get_local_user());
   const TbBool leaving_map = ustate->view_type == PVT_MapScreen;
   ustate->view_type = nview;
@@ -709,7 +742,7 @@ void reset_user_view_type(NetUserId user, unsigned short nview)
     case PVT_DungeonTop:
       ustate->work_state = ustate->continue_work_state;
       if (is_local) {
-        update_engine_view(player, leaving_map);
+        update_local_view(user, leaving_map);
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       }
       break;
@@ -717,14 +750,14 @@ void reset_user_view_type(NetUserId user, unsigned short nview)
     case PVT_CreaturePasngr:
       ustate->work_state = ustate->continue_work_state;
       if (is_local) {
-        update_engine_view(player, leaving_map);
+        update_local_view(user, leaving_map);
         game.view_mode_flags |= GNFldD_CreatureViewMode;
       }
       break;
     case PVT_MapScreen:
       ustate->work_state = ustate->continue_work_state;
       if (is_local) {
-        update_engine_view(player, leaving_map);
+        update_local_view(user, leaving_map);
         game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       }
       break;

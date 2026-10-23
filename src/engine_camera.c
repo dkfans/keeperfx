@@ -295,14 +295,17 @@ void view_set_camera_tilt(struct Camera *cam, unsigned char mode)
 
 void init_player_cameras(struct PlayerInfo *player)
 {
-    struct UserState* ustate = get_player_user_state(player);
-    if (user_state_invalid(ustate))
-        return;
     struct Thing* heartng = get_player_soul_container(player->id_number);
-    ustate->dungeon_camera.x = heartng->mappos.x.val;
-    ustate->dungeon_camera.y = heartng->mappos.y.val;
-    ustate->dungeon_camera.yaw[false] = DEGREES_45;
-    ustate->dungeon_camera.yaw[true] = 0;
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
+    {
+        struct UserState *ustate = get_user_state(user);
+        if (ustate->player_id != player->id_number)
+            continue;
+        ustate->dungeon_camera.x = heartng->mappos.x.val;
+        ustate->dungeon_camera.y = heartng->mappos.y.val;
+        ustate->dungeon_camera.yaw[false] = DEGREES_45;
+        ustate->dungeon_camera.yaw[true] = 0;
+    }
     init_local_cameras(player);
 }
 

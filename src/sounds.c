@@ -181,7 +181,7 @@ void play_thing_walking(struct Thing *thing)
         // Spectators don't do sounds
         return;
     }
-    long loudness = ((get_player_view_type(myplyr) == PVT_CreatureContrl) || (get_player_view_type(myplyr) == PVT_CreaturePasngr)) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
+    long loudness = ((get_user_view_type(get_my_user()) == PVT_CreatureContrl) || (get_user_view_type(get_my_user()) == PVT_CreaturePasngr)) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
     if (((thing->movement_flags & TMvF_Flying) != 0) && !thing_touching_floor(thing))
     {
         // Flying diptera has a buzzing noise sound

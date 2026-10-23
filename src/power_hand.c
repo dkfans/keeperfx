@@ -567,7 +567,7 @@ void draw_power_hand(void)
     if (is_observer_camera_active())
         return;
     RendererSetDrawFlags(observer_watched_cursor_draw_flags());
-    if (get_player_view_type(player) != PVT_DungeonTop)
+    if (get_user_view_type(get_displayed_user()) != PVT_DungeonTop)
         return;
     // Color rendering array pointers used by draw_keepersprite()
     render_fade_tables = pixmap.fade_tables;

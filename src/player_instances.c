@@ -471,7 +471,7 @@ int32_t pinstfe_direct_control_creature(NetUserId user, int32_t *n)
     struct Thing* thing = thing_get(ustate->influenced_thing_idx);
     if (thing_exists(thing) && (thing->creation_turn == ustate->influenced_thing_creation))
     {
-        if (!control_creature_as_controller(player, thing)) {
+        if (!control_creature_as_controller(user, thing)) {
             thing = INVALID_THING;
         }
     }
@@ -508,7 +508,6 @@ int32_t pinstfe_direct_control_creature(NetUserId user, int32_t *n)
 
 int32_t pinstfe_passenger_control_creature(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
     struct Thing* thing = thing_get(ustate->influenced_thing_idx);
     if (thing_exists(thing))
@@ -516,7 +515,7 @@ int32_t pinstfe_passenger_control_creature(NetUserId user, int32_t *n)
         if (is_local_user(user)) {
             load_swipe_graphic_for_creature(thing);
         }
-        control_creature_as_passenger(player, thing);
+        control_creature_as_passenger(user, thing);
     }
     set_user_instance(user, PI_CrCtrlFade, false);
     if (is_local_user(user))
@@ -554,7 +553,7 @@ int32_t pinstfs_direct_leave_creature(NetUserId user, int32_t *n)
       LbGrabMouseCheck(MG_OnPossessionLeave);
   }
   thing = thing_get(ustate->influenced_thing_idx);
-  leave_creature_as_controller(player, thing);
+  leave_creature_as_controller(user, thing);
   ustate->init_flags |= UsrIF_KeyboardInputDisabled;
   ustate->influenced_thing_idx = 0;
   ustate->influenced_thing_creation = 0;
@@ -592,7 +591,7 @@ int32_t pinstfs_passenger_leave_creature(NetUserId user, int32_t *n)
     turn_on_main_panel_menu();
     local_state.show_panel = local_state.show_gui;
   }
-  leave_creature_as_passenger(player, thing);
+  leave_creature_as_passenger(user, thing);
   ustate->init_flags |= UsrIF_KeyboardInputDisabled;
   ustate->influenced_thing_idx = 0;
   ustate->influenced_thing_creation = 0;
@@ -644,7 +643,7 @@ int32_t pinstfs_zoom_to_heart(NetUserId user, int32_t *n)
     mappos.x.val = thing->mappos.x.val;
     mappos.y.val = thing->mappos.y.val + subtile_coord(7,0);
     mappos.z.val = thing->mappos.z.val + subtile_coord(1,0);
-    thing = create_and_control_creature_as_controller(player, spectator_breed, &mappos);
+    thing = create_and_control_creature_as_controller(user, spectator_breed, &mappos);
     if (!thing_is_invalid(thing))
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -691,7 +690,7 @@ int32_t pinstfs_zoom_out_of_heart(NetUserId user, int32_t *n)
     struct UserState* ustate = get_user_state(user);
     struct Thing* thing = thing_get(get_user_state(user)->controlled_thing_idx);
     if (thing_exists(thing))
-        leave_creature_as_controller(player, thing);
+        leave_creature_as_controller(user, thing);
     set_user_view_type(user, PVT_DungeonTop);
     struct DungeonCamera* cam = &ustate->dungeon_camera;
     const TbBool front_view = ustate->prefs[UPref_FrontView] != 0;
@@ -895,38 +894,39 @@ void process_player_instances(void)
     SYNCDBG(9,"Finished");
 }
 
-void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
+void leave_creature_as_controller(NetUserId user, struct Thing *thing)
 {
-    struct UserState* ustate = get_player_user_state(player);
+    struct PlayerInfo *player = get_user_player(user);
+    struct UserState* ustate = get_user_state(user);
     SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
     if (((thing->owner != player->id_number) && (ustate->work_state != PSt_FreeCtrlDirect))
       || (thing->index != ustate->controlled_thing_idx))
     {
-        set_user_instance(get_player_primary_user(player), PI_Unset, false);
-        set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
+        set_user_instance(user, PI_Unset, false);
+        set_user_view_type(user, PVT_DungeonTop);
         set_player_lens(player->id_number, 0);
         ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
-        update_engine_view(player, false);
-        get_player_user_state(player)->dungeon_camera.x = subtile_coord_center(game.map_subtiles_x/2);
-        get_player_user_state(player)->dungeon_camera.y = subtile_coord_center(game.map_subtiles_y/2);
-        sync_local_camera(player);
+        update_local_view(user, false);
+        ustate->dungeon_camera.x = subtile_coord_center(game.map_subtiles_x/2);
+        ustate->dungeon_camera.y = subtile_coord_center(game.map_subtiles_y/2);
+        sync_local_camera(user);
         clear_selected_thing(ustate);
         return;
     }
     clear_selected_thing(ustate);
-    set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
+    set_user_view_type(user, PVT_DungeonTop);
     set_player_lens(player->id_number, 0);
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->rendering_flags &= ~TRF_Invisible;
     ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
-    update_engine_view(player, false);
-    long i = get_player_dungeon_yaw(player);
+    update_local_view(user, false);
+    int32_t i = get_user_dungeon_yaw(user);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     int32_t k = max(thing->mappos.z.val + get_creature_eye_height(thing), 0);
-    get_player_user_state(player)->dungeon_camera.x = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
-    get_player_user_state(player)->dungeon_camera.y = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
-    sync_local_camera(player);
+    ustate->dungeon_camera.x = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
+    ustate->dungeon_camera.y = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
+    sync_local_camera(user);
     if (thing->class_id == TCls_Creature)
     {
         set_start_state(thing);
@@ -944,32 +944,33 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     }
 }
 
-void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
+void leave_creature_as_passenger(NetUserId user, struct Thing *thing)
 {
-  struct UserState* ustate = get_player_user_state(player);
+  struct PlayerInfo *player = get_user_player(user);
+  struct UserState* ustate = get_user_state(user);
   SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
   if (((thing->owner != player->id_number) && (ustate->work_state != PSt_FreeCtrlPassngr))
     || (thing->index != ustate->controlled_thing_idx))
   {
-    set_user_instance(get_player_primary_user(player), PI_Unset, false);
-    set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
+    set_user_instance(user, PI_Unset, false);
+    set_user_view_type(user, PVT_DungeonTop);
     ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
-    update_engine_view(player, false);
-    get_player_user_state(player)->dungeon_camera.x = subtile_coord_center(game.map_subtiles_x/2);
-    get_player_user_state(player)->dungeon_camera.y = subtile_coord_center(game.map_subtiles_y/2);
-    sync_local_camera(player);
+    update_local_view(user, false);
+    ustate->dungeon_camera.x = subtile_coord_center(game.map_subtiles_x/2);
+    ustate->dungeon_camera.y = subtile_coord_center(game.map_subtiles_y/2);
+    sync_local_camera(user);
     clear_selected_thing(ustate);
     return;
   }
-  set_user_view_type(get_player_primary_user(player), PVT_DungeonTop);
+  set_user_view_type(user, PVT_DungeonTop);
   thing->rendering_flags &= ~TRF_Invisible;
   ustate->init_flags &= ~UsrIF_CreaturePassengerMode;
-  update_engine_view(player, false);
-  long i = get_player_dungeon_yaw(player);
+  update_local_view(user, false);
+  int32_t i = get_user_dungeon_yaw(user);
   long k = thing->mappos.z.val + get_creature_eye_height(thing);
-  get_player_user_state(player)->dungeon_camera.x = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
-  get_player_user_state(player)->dungeon_camera.y = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
-  sync_local_camera(player);
+  ustate->dungeon_camera.x = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
+  ustate->dungeon_camera.y = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
+  sync_local_camera(user);
   clear_selected_thing(ustate);
 }
 

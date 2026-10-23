@@ -109,8 +109,8 @@ TbBool player_instance_controls_camera(unsigned char inum);
 void process_user_instance(NetUserId user);
 void process_player_instances(void);
 
-void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
-void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+void leave_creature_as_passenger(NetUserId user, struct Thing *thing);
+void leave_creature_as_controller(NetUserId user, struct Thing *thing);
 #define set_selected_creature(ustate,thing) set_selected_creature_f(ustate, thing, __func__)
 TbBool set_selected_creature_f(struct UserState *ustate, struct Thing *thing, const char *func_name);
 #define set_selected_thing(ustate,thing) set_selected_thing_f(ustate, thing, __func__)

@@ -301,7 +301,7 @@ void update_local_possession(void)
 {
     struct PlayerInfo *player = get_my_player();
     struct Thing *thing = thing_get(get_local_user_state()->controlled_thing_idx);
-    if (!network_is_active() || observer_is_active() || (get_player_view_type(player) != PVT_CreatureContrl) || !thing_is_creature(thing)
+    if (!network_is_active() || observer_is_active() || (get_user_view_type(get_my_user()) != PVT_CreatureContrl) || !thing_is_creature(thing)
      || !flag_is_set(thing->alloc_flags, TAlF_IsControlled)) {
         prediction.valid = false;
         possession_pause_pending = false;

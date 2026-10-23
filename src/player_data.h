@@ -367,6 +367,7 @@ TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_active_keeper(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
+NetUserId get_my_user(void);
 TbBool is_local_user(NetUserId user);
 struct UserState *get_user_state(NetUserId user);
 struct UserState *get_player_user_state(const struct PlayerInfo *player);
@@ -401,12 +402,16 @@ void reset_user_view_type(NetUserId user, unsigned short nview);
 
 void clear_players(void);
 
+unsigned char get_user_view_type(NetUserId user);
 unsigned char get_player_view_type(const struct PlayerInfo *player);
+unsigned char get_user_active_camera_index(NetUserId user);
 unsigned char get_player_active_camera_index(const struct PlayerInfo *player);
+int32_t get_user_dungeon_yaw(NetUserId user);
 int32_t get_player_dungeon_yaw(const struct PlayerInfo *player);
 enum LocalViewMode get_dungeon_view_mode(const struct UserState *ustate);
 void rotate_mode_to_dungeon_view(unsigned char mode, TbBool *front_view, TbBool *wibble);
 NetUserId get_player_primary_user(const struct PlayerInfo *player);
+NetUserId get_player_possessing_user(const struct PlayerInfo *player);
 struct PlayerInfo *get_user_player(NetUserId user);
 
 unsigned char get_player_color_idx(PlayerNumber plyr_idx);

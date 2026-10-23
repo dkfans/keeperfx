@@ -675,7 +675,7 @@ void reset_gui_based_on_player_mode(void)
 {
     struct UserState* ustate = get_local_user_state();
     struct PlayerInfo *player = get_my_player();
-    if (get_player_view_type(player) == PVT_CreatureContrl)
+    if (get_user_view_type(get_my_user()) == PVT_CreatureContrl)
     {
         turn_on_menu(vid_change_query_menu);
         if (player->victory_state == VicS_LostLevel)
@@ -683,7 +683,7 @@ void reset_gui_based_on_player_mode(void)
             turn_off_query_menus();
         }
     }
-    else if (get_player_view_type(player) == PVT_CreaturePasngr)
+    else if (get_user_view_type(get_my_user()) == PVT_CreaturePasngr)
     {
         turn_on_menu(vid_change_query_menu);
         turn_off_query_menus();
@@ -841,19 +841,16 @@ TbBool toggle_computer_player(PlayerNumber plyr_idx)
 void reinit_level_after_load(void)
 {
     struct PlayerInfo *player;
-    int i;
     SYNCDBG(6,"Starting");
     // Reinit structures from within the game
-    player = get_my_player();
     local_state.lens_palette = 0;
     local_state.main_palette = engine_palette;
     parchment_loaded = 0;
-    for (i=0; i < PLAYERS_COUNT; i++)
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++)
     {
-        player = get_player(i);
-        if (player_exists(player))
+        if (user_present(user))
         {
-            update_engine_view(player, false);
+            update_local_view(user, false);
         }
     }
     start_rooms = &game.rooms[1];
@@ -1233,7 +1230,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
         return;
     }
     struct Coord3d mappos = spawn_creatng->mappos;
-    thing = create_and_control_creature_as_controller(player, spectator_breed, &mappos);
+    thing = create_and_control_creature_as_controller(get_player_primary_user(player), spectator_breed, &mappos);
     if (thing_is_invalid(thing)) {
         ERRORLOG("Unable to create spectator creature");
         return;

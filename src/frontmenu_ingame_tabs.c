@@ -2721,8 +2721,7 @@ void update_room_tab_to_config(void)
         ibtn->draw_call = gui_area_room_button;
     }
     // Update active menu
-    struct PlayerInfo *player = get_my_player();
-    if (get_player_view_type(player) == PVT_DungeonTop)
+    if (get_user_view_type(get_my_user()) == PVT_DungeonTop)
     {
         if (menu_is_active(GMnu_ROOM))
         {
@@ -2820,8 +2819,7 @@ void update_trap_tab_to_config(void)
         }
     }
     // Update active menu
-    struct PlayerInfo *player = get_my_player();
-    if (get_player_view_type(player) == PVT_DungeonTop)
+    if (get_user_view_type(get_my_user()) == PVT_DungeonTop)
     {
         if ( menu_is_active(GMnu_TRAP) )
         {

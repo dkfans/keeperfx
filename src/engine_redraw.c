@@ -221,8 +221,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
     }
     else
     {
-        struct PlayerInfo* player = get_my_player();
-        if (get_player_view_type(player) == PVT_CreatureContrl)
+        if (get_user_view_type(get_my_user()) == PVT_CreatureContrl)
         {
             const CrInstance active_inst_id = get_local_creature_control(creatng)->active_instance_id;
             if (!creature_instance_is_available(creatng, active_inst_id))
@@ -475,21 +474,20 @@ void set_engine_view(NetUserId user, TbBool front_view, TbBool wibble)
         carry_local_dungeon_position(user, ustate->prefs[UPref_FrontView] != 0);
     ustate->prefs[UPref_FrontView] = front_view;
     ustate->prefs[UPref_Wibble] = wibble;
-    if (is_local_user(user))
-        update_engine_view(get_user_player(user), true);
+    update_local_view(user, true);
 }
 
-void update_engine_view(struct PlayerInfo *player, TbBool keep_local_camera)
+void update_local_view(NetUserId user, TbBool keep_local_camera)
 {
-    if ((get_player_view_type(player) == PVT_MapFadeIn) || (get_player_view_type(player) == PVT_MapFadeOut))
+    const unsigned char view_type = get_user_view_type(user);
+    if (view_type == PVT_MapFadeIn || view_type == PVT_MapFadeOut)
         return;
-    const TbBool first_person = (get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr);
-    update_local_dungeon_view_mode(player);
+    update_local_dungeon_view_mode(user);
     if (!keep_local_camera)
-        sync_local_camera(player);
-    if (!is_my_player(player))
+        sync_local_camera(user);
+    if (!is_local_user(user))
         return;
-    if (first_person)
+    if (view_type == PVT_CreatureContrl || view_type == PVT_CreaturePasngr)
     {
         lens_mode = 2;
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
@@ -497,10 +495,10 @@ void update_engine_view(struct PlayerInfo *player, TbBool keep_local_camera)
         LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
         return;
     }
-    if (get_player_view_type(player) != PVT_MapScreen)
+    if (view_type != PVT_MapScreen)
     {
         lens_mode = 0;
-        if (get_player_user_state(player)->prefs[UPref_FrontView] != 0)
+        if (get_user_state(user)->prefs[UPref_FrontView] != 0)
             temp_cluedo_mode = 0;
     }
     S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
@@ -848,7 +846,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
 void process_pointer_graphic(void)
 {
     struct PlayerInfo* player = get_my_player();
-    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_player_view_type(player),player_state_code_name(get_local_user_state()->work_state),(int)get_local_user_state()->instance_num);
+    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)get_user_view_type(get_my_user()),player_state_code_name(get_local_user_state()->work_state),(int)get_local_user_state()->instance_num);
     switch (get_local_view_type(player)) {
     case PVT_DungeonTop:
         // This case is complicated
