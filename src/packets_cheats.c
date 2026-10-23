@@ -208,8 +208,8 @@ TbBool packets_process_cheats(
           {
             if (player->controlled_thing_idx != ustate->thing_under_hand)
             {
-                player->influenced_thing_idx = ustate->thing_under_hand;
-                player->influenced_thing_creation = thing->creation_turn;
+                ustate->influenced_thing_idx = ustate->thing_under_hand;
+                ustate->influenced_thing_creation = thing->creation_turn;
             }
           }
           if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))

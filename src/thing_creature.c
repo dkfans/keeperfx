@@ -3329,8 +3329,11 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
 {
     struct PlayerInfo* player = get_player(thing->owner);
     leave_creature_as_controller(player, thing);
-    player->influenced_thing_idx = 0;
-    player->influenced_thing_creation = 0;
+    struct UserState *ustate = get_player_user_state(player);
+    if (!user_state_invalid(ustate)) {
+        ustate->influenced_thing_idx = 0;
+        ustate->influenced_thing_creation = 0;
+    }
     sync_local_camera(player);
     if (is_my_player(player)) {
         turn_off_all_window_menus();
@@ -7359,8 +7362,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     }
     else if (object_is_gold_pile(picktng))
     {
-        struct PlayerInfo* player = get_my_player();
-        struct Thing* creatng = thing_get(player->influenced_thing_idx);
+        struct Thing* creatng = thing_get(get_local_user_state()->influenced_thing_idx);
         if (thing_is_creature(creatng))
         {
             struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
@@ -7697,11 +7699,11 @@ void query_creature(NetUserId user, ThingIndex index, TbBool reset, TbBool zoom)
         turn_on_menu(menu);
     }
     struct Thing* creatng = thing_get(index);
-    player->influenced_thing_idx = index;
-    player->influenced_thing_creation = creatng->creation_turn;
+    struct UserState *ustate = get_user_state(user);
+    ustate->influenced_thing_idx = index;
+    ustate->influenced_thing_creation = creatng->creation_turn;
     if (zoom)
     {
-        struct UserState *ustate = get_user_state(user);
         ustate->zoom_to_pos_x = creatng->mappos.x.val;
         ustate->zoom_to_pos_y = creatng->mappos.y.val;
         set_user_instance(user, PI_ZoomToPos, 0);

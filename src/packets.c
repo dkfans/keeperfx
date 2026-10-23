@@ -1205,14 +1205,13 @@ void process_user_packet(NetUserId user)
 
 void process_user_creature_passenger_packet_action(NetUserId user)
 {
-    const PlayerNumber plyr_idx = get_net_user_player_number(user);
-    struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet(user);
-    SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
+    SYNCDBG(6,"Processing user %d action %d",(int)user,(int)pckt->action);
     if (pckt->action == PckA_PasngrCtrlExit)
     {
-        player->influenced_thing_idx = pckt->actn_par1;
-        player->influenced_thing_creation = pckt->actn_par2;
+        struct UserState* ustate = get_user_state(user);
+        ustate->influenced_thing_idx = pckt->actn_par1;
+        ustate->influenced_thing_creation = pckt->actn_par2;
         set_user_instance(user, PI_PsngrCtLeave, 0);
     }
     SYNCDBG(8,"Finished");
@@ -1420,8 +1419,8 @@ void process_user_creature_control_packet_action(NetUserId user)
   switch (pckt->action)
   {
   case PckA_DirectCtrlExit:
-      player->influenced_thing_idx = pckt->actn_par1;
-      player->influenced_thing_creation = pckt->actn_par2;
+      ustate->influenced_thing_idx = pckt->actn_par1;
+      ustate->influenced_thing_creation = pckt->actn_par2;
       thing = thing_get(player->controlled_thing_idx);
       cctrl = creature_control_get_from_thing(thing);
       struct Thing* dragtng = thing_get(cctrl->dragtng_idx);

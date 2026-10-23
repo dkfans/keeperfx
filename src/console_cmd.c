@@ -167,6 +167,28 @@ static TbBool console_cmd_cheats_allowed(PlayerNumber plyr_idx)
     return user_cheats_allowed(console_cmd_user(plyr_idx));
 }
 
+static struct Thing *console_cmd_selected_thing(PlayerNumber plyr_idx)
+{
+    const struct UserState *ustate = get_player_user_state(console_cmd_player(plyr_idx));
+    if (user_state_invalid(ustate))
+        return INVALID_THING;
+    struct Thing *thing = thing_get(ustate->cheatselection.chosen_thing_idx);
+    if (!thing_exists(thing) || thing->creation_turn != ustate->cheatselection.chosen_thing_creation)
+        return INVALID_THING;
+    return thing;
+}
+
+static struct Room *console_cmd_selected_room(PlayerNumber plyr_idx)
+{
+    const struct UserState *ustate = get_player_user_state(console_cmd_player(plyr_idx));
+    if (user_state_invalid(ustate))
+        return INVALID_ROOM;
+    struct Room *room = room_get(ustate->cheatselection.chosen_room_idx);
+    if (!room_exists(room) || room->creation_turn != ustate->cheatselection.chosen_room_creation)
+        return INVALID_ROOM;
+    return room;
+}
+
 static MapCoord console_cmd_cursor_x;
 static MapCoord console_cmd_cursor_y;
 
@@ -1899,8 +1921,7 @@ TbBool cmd_creature_add_health(PlayerNumber plyr_idx, char * args)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "parameter 1 requires a number");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
@@ -1923,8 +1944,7 @@ TbBool cmd_creature_sub_health(PlayerNumber plyr_idx, char * args)
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "parameter 1 requires a number");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
@@ -1941,7 +1961,7 @@ TbBool cmd_send_digger_to(PlayerNumber plyr_idx, char * args)
     }
     char * pr1str = strsep_param_with_space(&args);
     struct PlayerInfo * player = console_cmd_player(plyr_idx); // requesting player
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     ThingModel model = get_players_special_digger_model(thing->owner);
     PlayerNumber id = get_player_number_for_command(plyr_idx, pr1str);
     player = get_player(id); // target player
@@ -1981,8 +2001,7 @@ TbBool cmd_set_creature_instance(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as instance");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
@@ -2003,8 +2022,7 @@ TbBool cmd_set_creature_state(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as state");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
@@ -2029,8 +2047,7 @@ TbBool cmd_set_creature_job(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as job");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
@@ -2090,8 +2107,7 @@ TbBool cmd_thing_info(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or thing is invalid");
         return false;
@@ -2118,8 +2134,7 @@ TbBool cmd_creature_attack_heart(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as player number");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
@@ -2196,8 +2211,11 @@ TbBool cmd_get_thing(PlayerNumber plyr_idx, char * args)
     targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got thing ID %d %s",
                             thing->index,
                             thing_class_and_model_name(thing->class_id, thing->model));
-    player->influenced_thing_idx = thing->index;
-    player->influenced_thing_creation = thing->creation_turn;
+    struct UserState *ustate = get_player_user_state(player);
+    if (user_state_invalid(ustate))
+        return false;
+    ustate->cheatselection.chosen_thing_idx = thing->index;
+    ustate->cheatselection.chosen_thing_creation = thing->creation_turn;
     return true;
 }
 
@@ -2219,8 +2237,7 @@ TbBool cmd_thing_health(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or thing is invalid");
         return false;
@@ -2240,8 +2257,7 @@ TbBool cmd_move_thing(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or thing is invalid");
         return false;
@@ -2279,8 +2295,7 @@ TbBool cmd_destroy_thing(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (thing_is_invalid(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or thing is invalid");
         return false;
@@ -2308,8 +2323,11 @@ TbBool cmd_get_room(PlayerNumber plyr_idx, char * args)
         return false;
     }
     targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Got room ID %d", room->index);
-    player->influenced_thing_idx = room->index;
-    player->influenced_thing_creation = room->creation_turn;
+    struct UserState *ustate = get_player_user_state(player);
+    if (user_state_invalid(ustate))
+        return false;
+    ustate->cheatselection.chosen_room_idx = room->index;
+    ustate->cheatselection.chosen_room_creation = room->creation_turn;
     return true;
 }
 
@@ -2320,8 +2338,7 @@ TbBool cmd_room_health(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr1str = strsep_param_with_space(&args);
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Room * room = room_get(player->influenced_thing_idx);
+    struct Room * room = console_cmd_selected_room(plyr_idx);
     if (room_is_invalid(room)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not room");
         return false;
@@ -2416,8 +2433,7 @@ TbBool cmd_creature_level(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as creature level");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
@@ -2432,8 +2448,7 @@ TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
@@ -2450,8 +2465,7 @@ TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
@@ -2863,8 +2877,7 @@ TbBool cmd_chicken_creature(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
         return false;
     }
-    struct PlayerInfo * player = console_cmd_player(plyr_idx);
-    struct Thing * thing = thing_get(player->influenced_thing_idx);
+    struct Thing * thing = console_cmd_selected_thing(plyr_idx);
     if (!thing_is_creature(thing)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "no thing selected or not creature");
         return false;
