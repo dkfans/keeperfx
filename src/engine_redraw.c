@@ -465,7 +465,7 @@ long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long
     return 1;
 }
 
-void set_engine_view(NetUserId user, TbBool front_view, TbBool wibble)
+void set_user_dungeon_view(NetUserId user, TbBool front_view, TbBool wibble)
 {
     struct UserState *ustate = get_user_state(user);
     if (user_state_invalid(ustate))

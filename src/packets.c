@@ -903,7 +903,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       set_user_work_state(user, pckt->actn_par1, pckt->actn_par2);
       return 0;
   case PckA_SwitchView:
-      set_engine_view(user, pckt->actn_par1 != 0, pckt->actn_par2 != 0);
+      set_user_dungeon_view(user, pckt->actn_par1 != 0, pckt->actn_par2 != 0);
       return 0;
   case PckA_SetTimestamp:
       if (user != SERVER_ID) {

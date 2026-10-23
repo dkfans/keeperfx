@@ -490,7 +490,7 @@ static void update_normal_shade(struct M33 *matx)
       normal_shade_right = 0;
 }
 
-void update_engine_settings(struct PlayerInfo *player)
+void update_engine_settings(void)
 {
     switch (settings.video_detail_level)
     {

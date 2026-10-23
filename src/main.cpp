@@ -1557,7 +1557,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     SYNCDBG(9,"Starting");
 
     flg_mem = RendererGetDrawFlags();
-    update_engine_settings(player);
+    update_engine_settings();
     mx = cam->mappos.x.val;
     my = cam->mappos.y.val;
     mz = cam->mappos.z.val;
