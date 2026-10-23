@@ -393,7 +393,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                 }
                 if (ustate->thing_under_hand > 0)
                 {
-                    if (ustate->thing_under_hand != player->controlled_thing_idx)
+                    if (ustate->thing_under_hand != get_user_state(user)->controlled_thing_idx)
                     {
                         if (is_my_player(player))
                         {
@@ -764,7 +764,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
                 {
                     if (thing->class_id == TCls_Creature)
                     {
-                        if (player->controlled_thing_idx != ustate->thing_under_hand)
+                        if (get_user_state(user)->controlled_thing_idx != ustate->thing_under_hand)
                         {
                             query_creature(user, ustate->thing_under_hand, true, false);
                         }
@@ -778,7 +778,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
             }
             if ( ustate->work_state == PSt_CreatrInfo )
             {
-                thing = thing_get(player->controlled_thing_idx);
+                thing = thing_get(get_user_state(user)->controlled_thing_idx);
                 if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
                 {
                     if (is_my_player(player))

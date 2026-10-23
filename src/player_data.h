@@ -174,8 +174,6 @@ struct PlayerInfo {
     unsigned char victory_state;
     PlayerBitFlags allied_players;
     PlayerBitFlags players_with_locked_ally_status;
-    short controlled_thing_idx;
-    GameTurn controlled_thing_creatrn;
     TbBool possession_lock;
     struct Wander wandr_within;
     struct Wander wandr_outside;
@@ -257,6 +255,8 @@ struct UserState {
     uint32_t instance_remain_turns;
     short influenced_thing_idx; /* thing the current instance/cheat applies to */
     GameTurn influenced_thing_creation;
+    short controlled_thing_idx;
+    GameTurn controlled_thing_creatrn;
     MapCoord zoom_to_pos_x;
     MapCoord zoom_to_pos_y;
     /** Overcharge level while casting keeper powers. */

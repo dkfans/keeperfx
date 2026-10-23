@@ -552,7 +552,7 @@ void redraw_creature_view(void)
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_my_player();
     update_explored_flags_for_viewed_power_sights(player);
-    struct Thing* thing = thing_get(get_displayed_player()->controlled_thing_idx);
+    struct Thing* thing = thing_get(get_user_state(get_displayed_user())->controlled_thing_idx);
     TRACE_THING(thing);
     if (thing_exists(thing))
       draw_creature_view(thing);
@@ -865,7 +865,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
         set_pointer_graphic(MousePG_MkCreature);
         break;
     case PsPg_OrderCreatr: {
-        struct Thing* creatng = thing_get(player->controlled_thing_idx);
+        struct Thing* creatng = thing_get(get_user_state(user)->controlled_thing_idx);
         i = MousePG_Arrow;
         if (thing_is_creature(creatng)) {
             i = MousePG_MvCreature;

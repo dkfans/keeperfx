@@ -84,7 +84,7 @@ TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, 
         SYNCDBG(5,"No matching player %d creature of model %d (%s) found to kill",(int)origin_plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
-    if (is_thing_some_way_controlled(thing))
+    if (user_controls_thing(ANY_USER, thing, UCT_Selected))
     {
         //does not kill the creature, but does the preparations needed for when it is possessed
         prepare_to_controlled_creature_death(thing);

@@ -427,7 +427,7 @@ void update_creature_rendering_flags(struct Thing *thing)
     thing->rendering_flags &= ~TRF_Transpar_Flags;
     thing->rendering_flags &= ~TRF_AnimateOnce;
     // Now set only those that should be
-    if (is_thing_directly_controlled_by_player(thing, my_player_number) || is_thing_passenger_controlled_by_player(thing, my_player_number)) {
+    if (user_controls_thing(get_displayed_user(), thing, UCT_Direct | UCT_Passenger | UCT_Other)) {
         thing->rendering_flags |= TRF_Invisible;
     }
     if (thing_is_creature(thing)) {
@@ -442,10 +442,10 @@ void update_creature_rendering_flags(struct Thing *thing)
             thing->rendering_flags |= TRF_Transpar_4;
         } else {
             thing->rendering_flags |= TRF_Invisible;
-            const struct PlayerInfo *player = get_displayed_player();
-            struct Thing* creatng = thing_get(get_user_state(get_displayed_user())->influenced_thing_idx);
+            const NetUserId user = get_displayed_user();
+            struct Thing* creatng = thing_get(get_user_state(user)->influenced_thing_idx);
             if ((creatng != thing) && (thing_is_creature(creatng))) {
-                if (is_thing_directly_controlled_by_player(creatng, player->id_number) || is_thing_passenger_controlled_by_player(creatng, player->id_number)) {
+                if (user_controls_thing(user, creatng, UCT_Direct | UCT_Passenger | UCT_Other)) {
                     if (creature_can_see_invisible(creatng)) {
                         thing->rendering_flags &= ~TRF_Invisible;
                         thing->rendering_flags &= ~TRF_Transpar_Flags;

@@ -262,7 +262,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             corpse_age = get_gameturn() - thing->creation_turn;
             #define VANISH_EFFECT_DELAY 60
             if (((corpse_age > game.conf.rules[thing->owner].creature.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
-                && !(is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing)))
+                && !(user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_Passenger | UCT_IncludeEntryZoom)))
             {
                 delete_corpse(thing);
                 return TUFRet_Deleted;
@@ -518,12 +518,14 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
     set_flag_value(deadtng->alloc_flags, TAlF_IsControlled, memf1);
     if (owner != game.neutral_player_num)
     {
-        // Update thing index inside player struct
-        player = get_player(owner);
-        if (player->controlled_thing_idx == prev_idx)
+        for (NetUserId user = 0; user < MAX_NET_USERS; user++)
         {
-            // we can't use set_selected_creature() as we're setting the target to dead body
-            set_selected_thing(player, deadtng);
+            struct UserState *ustate = get_user_state(user);
+            if (ustate->controlled_thing_idx == prev_idx)
+            {
+                // we can't use set_selected_creature() as we're setting the target to dead body
+                set_selected_thing(ustate, deadtng);
+            }
         }
     }
     return deadtng;

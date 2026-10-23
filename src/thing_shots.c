@@ -1665,7 +1665,7 @@ static void affect_nearby_friends_with_alarm(struct Thing *traptng)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (!thing_is_picked_up(thing) && !is_thing_directly_controlled(thing) &&
+        if (!thing_is_picked_up(thing) && !user_controls_thing(ANY_USER, thing, UCT_Direct | UCT_IncludeEntryZoom) &&
             !creature_is_being_unconscious(thing) && !creature_is_kept_in_custody(thing) &&
             (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
@@ -1798,7 +1798,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                 {
                   if (is_my_player_number(thing->owner))
                   {
-                      if ((thing->parent_idx > 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
+                      if ((thing->parent_idx > 0) && (get_local_user_state()->controlled_thing_idx == thing->parent_idx))
                       {
                           PaletteSetUserPalette(get_local_user(), lightning_palette);
                           get_user_state(get_local_user())->additional_flags |= UsrAF_LightningPaletteIsActive;

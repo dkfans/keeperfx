@@ -202,7 +202,7 @@ static int lua_remove_creature_from_play(lua_State *L)
     if (thing_is_picked_up(thing)) {
         return luaL_error(L, "creature is already out of play");
     }
-    if (is_thing_some_way_controlled(thing)) {
+    if (user_controls_thing(ANY_USER, thing, UCT_Selected)) {
         prepare_to_controlled_creature_death(thing);
     }
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -264,7 +264,7 @@ static int lua_Change_creature_owner(lua_State *L)
 {
     struct Thing* thing = luaL_checkThing(L, 1);
     PlayerNumber new_owner = luaL_checkPlayerSingle(L, 2);
-    if (is_thing_some_way_controlled(thing))
+    if (user_controls_thing(ANY_USER, thing, UCT_Selected))
     {
         //does not kill the creature, but does the preparations needed for when it is possessed
         prepare_to_controlled_creature_death(thing);
@@ -320,7 +320,7 @@ static int thing_set_field(lua_State *L) {
         // Re-sync first-person camera with creature orientation
         struct PlayerInfo* player = get_my_player();
         if (!player_invalid(player)
-            && player->controlled_thing_idx == thing->index
+            && get_local_user_state()->controlled_thing_idx == thing->index
             && ((get_player_view_type(player) == PVT_CreatureContrl) || (get_player_view_type(player) == PVT_CreaturePasngr)))
         {
             set_local_camera_destination(player);
@@ -330,7 +330,7 @@ static int thing_set_field(lua_State *L) {
         thing->move_angle_z = luaL_checkinteger(L, 3);
     } else if (strcmp(key, "owner") == 0) {
         PlayerNumber new_owner = luaL_checkPlayerSingle(L, 3);
-        if (is_thing_some_way_controlled(thing)) {
+        if (user_controls_thing(ANY_USER, thing, UCT_Selected)) {
             prepare_to_controlled_creature_death(thing);
         }
         change_creature_owner(thing, new_owner);

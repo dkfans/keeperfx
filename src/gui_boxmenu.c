@@ -290,7 +290,7 @@ long gfa_can_level_up(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *
 {
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-	struct Thing* thing = thing_get(player->controlled_thing_idx);
+	struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
 	if (thing_is_creature(thing))
 	{
 		struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -318,7 +318,7 @@ long gfa_can_level_down(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t
 {
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-	struct Thing* thing = thing_get(player->controlled_thing_idx);
+	struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
 	if (thing_is_creature(thing))
 	{
 		struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -362,7 +362,7 @@ long gfa_is_creature(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *t
 {
     struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-	struct Thing* thing = thing_get(player->controlled_thing_idx);
+	struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
 	return (thing_is_creature(thing));
 }
 
