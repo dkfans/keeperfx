@@ -7647,8 +7647,7 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel 
 
 void query_creature(NetUserId user, ThingIndex index, TbBool reset, TbBool zoom)
 {
-    struct PlayerInfo *player = get_user_player(user);
-    if (is_my_player(player))
+    if (is_local_user(user))
     {
         MenuID menu;
         if (reset)

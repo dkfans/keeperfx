@@ -367,6 +367,7 @@ TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_active_keeper(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);
+TbBool is_local_user(NetUserId user);
 struct UserState *get_user_state(NetUserId user);
 struct UserState *get_player_user_state(const struct PlayerInfo *player);
 struct UserState *get_local_user_state(void);

@@ -887,10 +887,9 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, NetUserId use
 
 TbBool update_dungeon_build_roomspace_preview(NetUserId user, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
     ustate->full_slab_cursor = 1;
-    if (is_my_player(player)) {
+    if (is_local_user(user)) {
         gui_room_type_highlighted = ustate->chosen_room_kind;
     }
     get_dungeon_build_user_roomspace(&ustate->render_roomspace, user, ustate->chosen_room_kind, stl_x, stl_y, ustate->roomspace_mode);

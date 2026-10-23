@@ -161,13 +161,12 @@ static int32_t instance_elapsed_turns(const struct UserState *ustate, unsigned c
 
 static void set_local_leave_creature_camera(NetUserId user, unsigned char inum, TbBool snap)
 {
-    struct PlayerInfo *player = get_user_player(user);
     const struct UserState *ustate = get_user_state(user);
     if (ustate->prefs[UPref_FrontView] != 0)
         return;
     struct DungeonCamera pose = ustate->dungeon_camera;
     const int32_t dungeon_zoom = pose.zoom[false];
-    int32_t zoom = get_local_possession_start_zoom(player);
+    int32_t zoom = get_local_possession_start_zoom(user);
     for (int32_t i = 0; i < player_instance_info[PI_DirctCtrl].length_turns; i++)
         zoom = zoom_in_step(zoom, 30000, 0);
     const int32_t elapsed = instance_elapsed_turns(ustate, inum);
@@ -175,9 +174,9 @@ static void set_local_leave_creature_camera(NetUserId user, unsigned char inum, 
         zoom = max(zoom_out_step(zoom, 30000, 0), dungeon_zoom);
     pose.zoom[false] = zoom;
     if (snap)
-        sync_local_camera_pose(player, &pose);
+        sync_local_camera_pose(user, &pose);
     else
-        set_local_camera_destination_pose(player, &pose);
+        set_local_camera_destination_pose(user, &pose);
 }
 
 static void set_local_heart_zoom_out_camera(NetUserId user, TbBool snap)
@@ -196,9 +195,9 @@ static void set_local_heart_zoom_out_camera(NetUserId user, TbBool snap)
         heart_zoom_out_position(heart, pose.yaw[false], &pose.x, &pose.y);
     }
     if (snap)
-        sync_local_camera_pose(player, &pose);
+        sync_local_camera_pose(user, &pose);
     else
-        set_local_camera_destination_pose(player, &pose);
+        set_local_camera_destination_pose(user, &pose);
 }
 
 TbBool player_instance_controls_camera(unsigned char inum)
@@ -411,14 +410,14 @@ int32_t pinstfs_passenger_control_creature(NetUserId user, int32_t *n)
     turn_user_cursor_light(user, false);
     if (user == get_displayed_user())
           local_state.palette_fade_step_possession = 1;
-    if (is_my_player(player))
+    if (is_local_user(user))
     {
           turn_off_all_window_menus();
           turn_off_menu(GMnu_CREATURE_QUERY1);
           turn_off_menu(GMnu_CREATURE_QUERY2);
     }
     ustate->init_flags |= UsrIF_KeyboardInputDisabled;
-    record_local_possession_start(player);
+    record_local_possession_start(user);
     const struct Thing *thing = thing_get(ustate->influenced_thing_idx);
     if (thing_exists(thing))
     {
@@ -461,7 +460,7 @@ int32_t pinstfm_control_creature(NetUserId user, int32_t *n)
         return 0;
     }
     if (ustate->prefs[UPref_FrontView] == 0)
-        step_local_possession_camera(player, thing);
+        step_local_possession_camera(user, thing);
     return 0;
 }
 
@@ -486,7 +485,7 @@ int32_t pinstfe_direct_control_creature(NetUserId user, int32_t *n)
         return 0;
     }
     set_user_instance(user, PI_CrCtrlFade, false);
-    TbBool my_player = (is_my_player(player));
+    TbBool my_player = is_local_user(user);
     if (thing->class_id == TCls_Creature)
     {
         if (my_player) {
@@ -514,13 +513,13 @@ int32_t pinstfe_passenger_control_creature(NetUserId user, int32_t *n)
     struct Thing* thing = thing_get(ustate->influenced_thing_idx);
     if (thing_exists(thing))
     {
-        if (is_my_player(player)) {
+        if (is_local_user(user)) {
             load_swipe_graphic_for_creature(thing);
         }
         control_creature_as_passenger(player, thing);
     }
     set_user_instance(user, PI_CrCtrlFade, false);
-    if (is_my_player(player))
+    if (is_local_user(user))
     {
         if (thing->class_id == TCls_Creature)
         {
@@ -546,7 +545,7 @@ int32_t pinstfs_direct_leave_creature(NetUserId user, int32_t *n)
       PaletteSetPlayerPalette(player,engine_palette);
       local_state.palette_fade_step_possession = 11;
   }
-  if (is_my_player(player))
+  if (is_local_user(user))
   {
       turn_off_all_window_menus();
       turn_off_query_menus();
@@ -585,7 +584,7 @@ int32_t pinstfs_passenger_leave_creature(NetUserId user, int32_t *n)
     PaletteSetPlayerPalette(player,engine_palette);
     local_state.palette_fade_step_possession = 11;
   }
-  if (is_my_player(player))
+  if (is_local_user(user))
   {
     turn_off_all_window_menus();
     turn_off_query_menus();
@@ -737,7 +736,7 @@ int32_t pinstfe_zoom_out_of_heart(NetUserId user, int32_t *n)
     struct PlayerInfo *player = get_user_player(user);
   struct UserState* ustate = get_user_state(user);
   if (ustate->prefs[UPref_FrontView] == 0)
-    set_local_camera_destination(player);
+    set_local_camera_destination_pose(user, &ustate->dungeon_camera);
   turn_user_cursor_light(user, true);
   ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;
   ustate->init_flags &= ~UsrIF_MouseInputDisabled;
@@ -811,7 +810,7 @@ int32_t pinstfs_zoom_to_position(NetUserId user, int32_t *n)
     ustate->init_flags |= UsrIF_KeyboardInputDisabled;
     ustate->instance_remain_turns = zoom_to_position_turns(get_user_state(user));
     set_view_position(&ustate->dungeon_camera.x, &ustate->dungeon_camera.y, ustate->zoom_to_pos_x, ustate->zoom_to_pos_y);
-    if (is_my_player(player) && !is_observer_camera_active()) {
+    if (is_local_user(user) && !is_observer_camera_active()) {
         move_local_camera_to_position(ustate->zoom_to_pos_x, ustate->zoom_to_pos_y);
     }
     return 0;

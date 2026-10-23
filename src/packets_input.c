@@ -388,7 +388,7 @@ TbBool process_dungeon_control_packet_dungeon_control(NetUserId user)
                 {
                     if (ustate->thing_under_hand != get_user_state(user)->controlled_thing_idx)
                     {
-                        if (is_my_player(player))
+                        if (is_local_user(user))
                         {
                             turn_off_all_panel_menus();
                             turn_on_menu(GMnu_CREATURE_QUERY1);
@@ -652,7 +652,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
     ustate->mouse_on_map = is_mouse_on_map(pckt);
     remember_cursor_subtile(user);
     process_dungeon_control_packet_spell_overcharge(user);
-    if (is_my_player_number(plyr_idx)) {
+    if (user == get_displayed_user()) {
         map_volume_box.visible = 0;
     }
     if (flag_is_set(pckt->control_flags,PCtr_Gui))
@@ -774,7 +774,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
                 thing = thing_get(get_user_state(user)->controlled_thing_idx);
                 if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
                 {
-                    if (is_my_player(player))
+                    if (is_local_user(user))
                     {
                         turn_off_query_menus();
                         turn_on_main_panel_menu();
@@ -785,7 +785,7 @@ TbBool process_dungeon_control_packet_clicks(NetUserId user)
                 if (creature_is_dying(thing) || (thing->creation_turn != ustate->influenced_thing_creation))
                 {
                     set_user_instance(user, PI_UnqueryCrtr, 0);
-                    if (is_my_player(player))
+                    if (is_local_user(user))
                     {
                         turn_off_query_menus();
                         turn_on_main_panel_menu();

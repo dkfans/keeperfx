@@ -891,7 +891,7 @@ TbBool process_user_global_packet_action(NetUserId user)
   case PckA_SetUserPref:
       return process_local_packet_action(ustate, pckt);
   case PckA_ToggleLights:
-      if (is_my_player(player))
+      if (is_local_user(user))
       {
           light_set_lights_on(game.lish.light_enabled == 0);
       }
@@ -903,7 +903,7 @@ TbBool process_user_global_packet_action(NetUserId user)
       set_user_work_state(user, pckt->actn_par1, pckt->actn_par2);
       return 0;
   case PckA_SwitchView:
-      set_engine_view(player, pckt->actn_par1 != 0, pckt->actn_par2 != 0);
+      set_engine_view(user, pckt->actn_par1 != 0, pckt->actn_par2 != 0);
       return 0;
   case PckA_SetTimestamp:
       if (user != SERVER_ID) {

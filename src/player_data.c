@@ -176,6 +176,14 @@ NetUserId get_displayed_user(void)
     return get_local_user();
 }
 
+TbBool is_local_user(NetUserId user)
+{
+    if (observer_is_active()) {
+        return user == OBSERVER_USER;
+    }
+    return user == get_local_user();
+}
+
 TbBool is_my_player_number(PlayerNumber plyr_num)
 {
     if (observer_is_active()) {
@@ -262,7 +270,7 @@ const struct UserState *get_local_user_state_prediction(void)
 
 ThingIndex get_user_thing_under_hand(NetUserId user)
 {
-    if (is_my_player(get_user_player(user))) {
+    if (is_local_user(user)) {
         return local_state.local_thing_under_hand;
     }
     return get_user_state(user)->thing_under_hand;

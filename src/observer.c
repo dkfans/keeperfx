@@ -434,7 +434,7 @@ void observer_set_view_mode(unsigned char mode)
     TbBool front_view;
     TbBool wibble = local_observer_user_state.prefs[UPref_Wibble] != 0;
     rotate_mode_to_dungeon_view(mode, &front_view, &wibble);
-    set_engine_view(&local_observer_player, front_view, wibble);
+    set_engine_view(OBSERVER_USER, front_view, wibble);
     if (is_observer_camera_active()) {
         local_state.observer_camera_idx = CamIV_Isometric;
         if (front_view) {

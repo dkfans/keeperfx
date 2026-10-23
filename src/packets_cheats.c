@@ -577,7 +577,7 @@ TbBool packets_process_cheats(
                 thing = thing_get(get_user_state(user)->controlled_thing_idx);
                 if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
                 {
-                    if (is_my_player(player))
+                    if (is_local_user(user))
                     {
                         turn_off_query_menus();
                         turn_on_main_panel_menu();
@@ -588,7 +588,7 @@ TbBool packets_process_cheats(
                 if (creature_is_dying(thing))
                 {
                     set_user_instance(user, PI_UnqueryCrtr, 0);
-                    if (is_my_player(player))
+                    if (is_local_user(user))
                     {
                         turn_off_query_menus();
                         turn_on_main_panel_menu();

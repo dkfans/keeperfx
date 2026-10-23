@@ -466,14 +466,17 @@ long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long
     return 1;
 }
 
-void set_engine_view(struct PlayerInfo *player, TbBool front_view, TbBool wibble)
+void set_engine_view(NetUserId user, TbBool front_view, TbBool wibble)
 {
-    struct UserState *ustate = get_player_user_state(player);
+    struct UserState *ustate = get_user_state(user);
+    if (user_state_invalid(ustate))
+        return;
     if ((ustate->prefs[UPref_FrontView] != 0) != front_view)
-        carry_local_dungeon_position(player, ustate->prefs[UPref_FrontView] != 0);
+        carry_local_dungeon_position(user, ustate->prefs[UPref_FrontView] != 0);
     ustate->prefs[UPref_FrontView] = front_view;
     ustate->prefs[UPref_Wibble] = wibble;
-    update_engine_view(player, true);
+    if (is_local_user(user))
+        update_engine_view(get_user_player(user), true);
 }
 
 void update_engine_view(struct PlayerInfo *player, TbBool keep_local_camera)
@@ -681,7 +684,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
         return;
     }
     // Mouse over panel map
-    if (is_my_player(player) && local_state.show_gui
+    if (is_local_user(user) && local_state.show_gui
      && mouse_is_over_panel_map(local_state.minimap_pos_x, local_state.minimap_pos_y)) {
         if (game.small_map_state == 2) {
             set_pointer_graphic(MousePG_Invisible);
@@ -691,7 +694,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
         return;
     }
     // Mouse over battle message box
-    if (is_my_player(player) && battle_creature_over > 0) {
+    if (is_local_user(user) && battle_creature_over > 0) {
         PowerKind pwkind = ustate->chosen_power_kind;
         thing = thing_get(battle_creature_over);
         TRACE_THING(thing);
@@ -704,7 +707,7 @@ static void process_dungeon_top_pointer_graphic(NetUserId user)
     }
     // GUI action being processed
     if (gameplay_cursor_is_over_gui()) {
-        if (is_my_player(player) || a_menu_window_is_active()) {
+        if (is_local_user(user) || a_menu_window_is_active()) {
             set_pointer_graphic(MousePG_Arrow);
         } else {
             set_pointer_graphic(MousePG_Invisible);
