@@ -378,19 +378,16 @@ void gui_area_autopilot_button(struct GuiButton *gbtn)
           spr_idx += 1;
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
     }
-    else
-    {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
-    }
 }
 
 void maintain_turn_on_autopilot(struct GuiButton *gbtn)
 {
-    if (computer_assistant_allowed()) {
-        gbtn->flags |= LbBtnF_Enabled;
-    } else {
+    if (!computer_assistant_allowed()) {
         gbtn->flags &= ~LbBtnF_Enabled;
+        gbtn->tooltip_stridx = GUIStr_Empty;
+        return;
     }
+    gbtn->flags |= LbBtnF_Enabled;
     struct PlayerInfo* player = get_my_player();
     struct Computer2* comp = get_computer_player(player->id_number);
     unsigned long cplr_model = comp->model;
