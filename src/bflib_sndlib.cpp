@@ -664,6 +664,7 @@ extern "C" void sound_restore_id_redirect_snapshot(void) {
 }
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
+	g_master_volume = volume;
 	try {
 		// Set OpenAL listener gain to maximum so we can split up the mentor speech volume slider from the sound effects volume slider
 		alListenerf(AL_GAIN, 1.0f);
@@ -671,7 +672,6 @@ extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot set master volume", errcode);
 		}
-		g_master_volume = volume;
 	} catch (const std::exception & e) {
 		ERRORLOG("%s", e.what());
 	}

@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
+#include "bflib_inputctrl.h"
 #include "config_sounds.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
@@ -545,23 +546,23 @@ void stop_thing_playing_sample(struct Thing *thing, SoundSmplTblID smpl_idx)
     }
 }
 
-void mute_audio(TbBool mute)
+void update_audio_volume(void)
 {
-    if (!SoundDisabled)
-    {
-        if (mute)
-        {
-            SetSoundMasterVolume(0);
-            set_music_volume(0);
-            pause_music(); // volume seems to have no effect on CD audio, so just pause/resume it
-        }
-        else
-        {
-            set_music_volume(settings.music_volume);
-            SetSoundMasterVolume(settings.sound_volume);
-            resume_music();
-        }
+    if (SoundDisabled) {
+        return;
     }
+    if (mute_audio_on_focus_lost() && !LbIsActive()) {
+        SetSoundMasterVolume(0);
+        set_music_volume(0);
+        return;
+    }
+    if (flag_is_set(game.operation_flags, GOF_Paused)) {
+        SetSoundMasterVolume(settings.sound_volume >> 1);
+        set_music_volume(settings.music_volume >> 1);
+        return;
+    }
+    SetSoundMasterVolume(settings.sound_volume);
+    set_music_volume(settings.music_volume);
 }
 
 void update_first_person_object_ambience(struct Thing *thing)

@@ -365,18 +365,7 @@ void process_pause_packet(long curr_pause, long new_pause)
               game.skip_initial_input_turns = game.input_lag_turns + 1;
           }
       }
-      if ( !SoundDisabled )
-      {
-        if ((game.operation_flags & GOF_Paused) != 0)
-        {
-          SetSoundMasterVolume(settings.sound_volume >> 1);
-          set_music_volume(settings.music_volume >> 1);
-        } else
-        {
-          SetSoundMasterVolume(settings.sound_volume);
-          set_music_volume(settings.music_volume);
-        }
-      }
+      update_audio_volume();
       if ((game.operation_flags & GOF_Paused) != 0)
       {
           if ((ustate->additional_flags & UsrAF_LightningPaletteIsActive) != 0)

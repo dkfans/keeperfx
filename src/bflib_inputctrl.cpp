@@ -449,13 +449,12 @@ static void process_event(const SDL_Event *ev)
         isMouseActive = true;
         isMouseActivated = true;
         LbGrabMouseCheck(MG_OnFocusGained);
-        if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
-        {
-            resume_music();
+        if (mute_audio_on_focus_lost()) {
+            update_audio_volume();
         }
-        if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
-        {
-            mute_audio(false);
+        TbBool game_pause_holds_music = flag_is_set(game.operation_flags, GOF_Paused) && pause_music_when_game_paused();
+        if ((freeze_game_on_focus_lost() || mute_audio_on_focus_lost()) && !game_pause_holds_music) {
+            resume_music();
         }
         redetect_screen_refresh_rate_for_draw();
         break;
@@ -466,13 +465,11 @@ static void process_event(const SDL_Event *ev)
         isMouseActive = false;
         isMouseActivated = false;
         LbGrabMouseCheck(MG_OnFocusLost);
-        if (freeze_game_on_focus_lost())
-        {
+        if (freeze_game_on_focus_lost() || mute_audio_on_focus_lost()) {
             pause_music();
         }
-        if (mute_audio_on_focus_lost())
-        {
-            mute_audio(true);
+        if (mute_audio_on_focus_lost()) {
+            update_audio_volume();
         }
         break;
     }
