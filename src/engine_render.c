@@ -8070,7 +8070,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
           }
           else if ((get_local_view_type(player) == PVT_CreatureContrl) || (get_local_view_type(player) == PVT_CreaturePasngr))
           {
-              struct Thing *creatng = thing_get(player->influenced_thing_idx);
+              struct Thing *creatng = thing_get(ustate->influenced_thing_idx);
               if (thing_is_creature(creatng))
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);

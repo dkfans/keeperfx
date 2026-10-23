@@ -556,8 +556,8 @@ TbBool observer_process_packet_action(const struct Packet *pckt)
 void observer_validate_query(void)
 {
     if (is_observer_camera_active() && local_observer_user_state.work_state == PSt_CreatrInfo) {
-        const struct Thing *selected = thing_get(local_observer_player.influenced_thing_idx);
-        if (!thing_is_creature(selected) || selected->creation_turn != local_observer_player.influenced_thing_creation) {
+        const struct Thing *selected = thing_get(local_observer_user_state.influenced_thing_idx);
+        if (!thing_is_creature(selected) || selected->creation_turn != local_observer_user_state.influenced_thing_creation) {
             observer_clear_query(PSt_CreatrQuery);
         }
     }

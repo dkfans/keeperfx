@@ -93,7 +93,7 @@ struct PlayerInstanceInfo { // sizeof = 44
 extern struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT];
 /******************************************************************************/
 void set_user_instance(NetUserId user, int32_t ninum, TbBool force);
-TbBool slap_influenced_thing(struct PlayerInfo *player);
+TbBool slap_thing(struct PlayerInfo *player, struct Thing *thing);
 TbBool player_instance_controls_camera(unsigned char inum);
 void process_user_instance(NetUserId user);
 void process_player_instances(void);

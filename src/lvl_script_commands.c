@@ -3599,7 +3599,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 4: // EYEEFFECT
         {
             crconf->eye_effect = value;
-            struct Thing* thing = thing_get(get_my_player()->influenced_thing_idx);
+            struct Thing* thing = thing_get(get_local_user_state()->influenced_thing_idx);
             if(thing_exists(thing))
             {
                 if (thing->model == creatid)
