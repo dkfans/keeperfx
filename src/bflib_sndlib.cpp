@@ -665,17 +665,21 @@ extern "C" void sound_restore_id_redirect_snapshot(void) {
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 	g_master_volume = volume;
+}
+
+extern "C" void SetSoundListenerMuted(TbBool muted) {
 	try {
 		// Keep OpenAL listener gain at maximum so we can split up the mentor speech volume slider from the sound effects volume slider,
-		// but silence it at zero volume so samples that are already playing (e.g. looping ambience) go quiet too
+		// only silence it for a full mute so samples that are already playing (e.g. looping ambience) go quiet too
 		float listener_gain = 1.0f;
-		if (volume <= 0) {
+		if (muted) {
 			listener_gain = 0.0f;
 		}
+		alGetError();
 		alListenerf(AL_GAIN, listener_gain);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
-			throw openal_error("Cannot set master volume", errcode);
+			throw openal_error("Cannot set listener gain", errcode);
 		}
 	} catch (const std::exception & e) {
 		ERRORLOG("%s", e.what());

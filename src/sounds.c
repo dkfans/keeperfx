@@ -552,10 +552,12 @@ void update_audio_volume(void)
         return;
     }
     if (mute_audio_on_focus_lost() && !LbIsActive()) {
+        SetSoundListenerMuted(true);
         SetSoundMasterVolume(0);
         set_music_volume(0);
         return;
     }
+    SetSoundListenerMuted(false);
     if (flag_is_set(game.operation_flags, GOF_Paused)) {
         SetSoundMasterVolume(settings.sound_volume >> 1);
         set_music_volume(settings.music_volume >> 1);

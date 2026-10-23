@@ -34,6 +34,7 @@ extern "C" {
 
 void FreeAudio(void);
 void SetSoundMasterVolume(SoundVolume);
+void SetSoundListenerMuted(TbBool);
 TbBool GetSoundInstalled(void);
 void MonitorStreamedSoundTrack(void);
 void * GetSoundDriver(void);
