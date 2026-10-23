@@ -541,9 +541,6 @@ TbBool init_players_network_game(void)
 void network_game_started(void)
 {
     net_lobby_set_phase(NetPhase_InGame);
-    message_add_fmt(MsgType_Blank, 0, "%s: %s, %s: %s",
-        get_string(GUIStr_NetCheats), get_on_off_string(user_cheats_allowed(SERVER_ID)),
-        get_string(GUIStr_NetComputerAssistant), get_on_off_string(computer_assistant_allowed()));
     if (netstate.my_id == SERVER_ID && frontnet_service_selected(FrontendNetSvc_Online)) {
         LevelNumber map_number = get_level_number();
         struct LevelInformation *level_info = get_level_info(map_number);
