@@ -351,7 +351,14 @@ static int LbLog(struct TbLog *log, const char *prefix, const char *fmt_str, va_
             if (BFDEBUG_LEVEL > 7) {
                 release = "heavylog";
             }
-            fprintf(log_file, PROGRAM_NAME " ver " VER_STRING " (%s release) git:%s\n", release, GIT_REVISION);
+            if (VER_BUILD != 0)
+            {
+                fprintf(log_file, PROGRAM_NAME " ver " VER_STRING " (%s release) git:%s\n", release, GIT_REVISION);
+            }
+            else
+            {
+                fprintf(log_file, PROGRAM_NAME " ver %d.%d.x-dev (%s release) git:%s\n", VER_MAJOR, VER_MINOR, release, GIT_REVISION);
+            }
             actn = "CREATED";
         } else {
             actn = "APPENDED";

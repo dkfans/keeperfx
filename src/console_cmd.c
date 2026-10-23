@@ -764,7 +764,14 @@ TbBool cmd_cls(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_ver(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, PRODUCT_VERSION);
+    if (VER_BUILD != 0)
+    {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, PRODUCT_VERSION);
+    }
+    else
+    {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%d.%d.x-dev", VER_MAJOR, VER_MINOR);
+    }
     return true;
 }
 
