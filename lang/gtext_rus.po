@@ -6794,7 +6794,7 @@ msgstr "Макс. игроков"
 
 #: guitext:1134
 msgctxt "Network game interface"
-msgid "Allow observers"
+msgid "Allow spectators"
 msgstr "Зрители"
 
 #: guitext:1135
@@ -6931,3 +6931,21 @@ msgstr "%s потерял соединение (истекло время ожи
 msgctxt "Network game message"
 msgid "%s has become a spectator."
 msgstr "%s стал зрителем."
+
+#: guitext:1161
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Team"
+msgstr "Команда"
+
+#: guitext:1162
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Ping"
+msgstr "Пинг"
+
+#: guitext:1163
+#, fuzzy
+msgctxt "Network game interface"
+msgid "Add computer players"
+msgstr "Добавить ИИ-игроков"
