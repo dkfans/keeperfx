@@ -296,6 +296,11 @@ TbError process_user_update_message(NetUserId source, char *read_pos, const char
     return Lb_OK;
 }
 
+void LbNetwork_ClearCmdLineSessions(void)
+{
+    memset(sessions, 0, sizeof(sessions));
+}
+
 void LbNetwork_InitSessionsFromCmdLine(const char *str)
 {
     NETMSG("Initializing sessions from command line: %s", str);

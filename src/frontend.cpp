@@ -39,6 +39,7 @@
 #include "bflib_filelst.h"
 #include "bflib_sound.h"
 #include "net_lobby.h"
+#include "net_steam.h"
 #include "config.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
@@ -3718,12 +3719,48 @@ void display_objectives_with_icon(PlayerNumber plyr_idx, MapSubtlCoord x, MapSub
     }
 }
 
+/**
+ * Main menu while started with -steamjoin/-steamhost: when a Steam invite is accepted
+ * (overlay "Join Game", friends list) start joining that lobby straight away.
+ */
+static void frontend_steam_invite_update(void)
+{
+    if (!steam_wait_for_invite)
+    {
+        const char *error = steam_net_take_error();
+        if (error != NULL)
+            create_frontend_error_box(error);
+        return;
+    }
+    char lobby[32];
+    if (!steam_net_poll_join_request(lobby, sizeof(lobby)))
+        return;
+    SYNCLOG("Steam invite for lobby %s", lobby);
+    time_last_played_demo = LbTimerClock(); // stay on the main menu instead of drifting to the demo
+    LbNetwork_ClearCmdLineSessions();
+    LbNetwork_InitSessionsFromCmdLine(lobby);
+    if (!setup_network_service(FrontendNetSvc_Steam))
+        return;
+    frontnet_service_setup();
+    frontnet_session_setup();
+    net_number_of_sessions = 0;
+    memset(net_session, 0, sizeof(net_session));
+    if (LbNetwork_EnumerateSessions(enum_sessions_callback, 0))
+    {
+        ERRORLOG("LbNetwork_EnumerateSessions() failed");
+        return;
+    }
+    net_session_index_active = 0;
+    frontnet_session_join(NULL);
+}
+
 void frontend_update(short *finish_menu)
 {
     SYNCDBG(18,"Starting for menu state %d", (int)frontend_menu_state);
     switch ( frontend_menu_state )
     {
     case FeSt_MAIN_MENU:
+        frontend_steam_invite_update();
         frontend_button_info[8].font_index = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
         if ( abs(LbTimerClock()-(long)time_last_played_demo) > MNU_DEMO_IDLE_TIME )
@@ -3900,7 +3937,7 @@ FrontendMenuState get_startup_menu_state(void)
       game_flags2 &= ~GF2_Server;
       SYNCLOG("Setup server");
 
-      if (setup_network_service(FrontendNetSvc_Online))
+      if (setup_network_service(steam_host_requested ? FrontendNetSvc_Steam : FrontendNetSvc_Online))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3912,7 +3949,14 @@ FrontendMenuState get_startup_menu_state(void)
   {
       game_flags2 &= ~GF2_Connect;
       SYNCLOG("Setup client");
-      if (setup_network_service(FrontendNetSvc_Online))
+      TbBool steam_client = (steam_join_lobby[0] != '\0');
+      if (steam_client)
+      {
+          LbNetwork_ClearCmdLineSessions();
+          LbNetwork_InitSessionsFromCmdLine(steam_join_lobby);
+          steam_join_lobby[0] = '\0';
+      }
+      if (setup_network_service(steam_client ? FrontendNetSvc_Steam : FrontendNetSvc_Online))
       {
           frontnet_service_setup();
           frontnet_session_setup();
