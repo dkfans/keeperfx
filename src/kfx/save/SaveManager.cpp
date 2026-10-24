@@ -242,6 +242,7 @@ static TbBool apply_game_kfxs(const char *fname, struct LoadedSave *loaded_save,
         SAVEWARN("\"%s\" refused: %s", fname, err.message);
         return false;
     }
+    creature_desc_rebuild_from_config();
     if (read_result->lua_len > 0)
     {
         // has to be loaded here as level num only filled while gamestruct loaded, and need it for setting serialised_data
