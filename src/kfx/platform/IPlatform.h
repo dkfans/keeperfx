@@ -61,6 +61,10 @@ public:
     /** Whole-file storage backend for saves and other small data files. The default wraps LbFile*. */
     virtual IFileSystem* GetFileSystem();
 
+    /** Size of the shared scratch allocation (bytes). Platforms with tight
+     *  RAM budgets (e.g. consoles) can return a smaller value. */
+    virtual size_t GetScratchSize() const { return 4 * 1024 * 1024; }
+
     /** Adjust a desktop-fullscreen window so the OS compositor keeps compositing
      *  it, rather than letting the driver present it straight to the display. */
     virtual void KeepFullscreenWindowComposited(SDL_Window* /*window*/) {}

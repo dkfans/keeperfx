@@ -17,7 +17,7 @@
 #include "bflib_fileio.h"
 #include "post_inc.h"
 
-char consoleLogArray[MAX_CONSOLE_LOG_COUNT][MAX_TEXT_LENGTH];
+char (*consoleLogArray)[MAX_TEXT_LENGTH] = NULL;
 size_t consoleLogArraySize = 0;
 int debug_display_consolelog = 0;
 const char *log_file_name = DEFAULT_LOG_FILENAME;
@@ -271,9 +271,16 @@ static FILE *log_file = NULL;
 
 static void write_log_to_array_for_live_viewing(const char *message, const char *add_log_prefix)
 {
+    if (consoleLogArray == NULL) {
+        // Heap-allocate on first use instead of a static 3.91MB BSS array.
+        consoleLogArray = calloc(MAX_CONSOLE_LOG_COUNT, MAX_TEXT_LENGTH);
+        if (consoleLogArray == NULL)
+            return;
+    }
+
     if (consoleLogArraySize >= MAX_CONSOLE_LOG_COUNT) {
         // Array is full - so clear it. This is a bit of a stopgap solution, it will lose us the older entries.
-        memset(consoleLogArray, 0, sizeof(consoleLogArray));
+        memset(consoleLogArray, 0, MAX_CONSOLE_LOG_COUNT * MAX_TEXT_LENGTH);
         consoleLogArraySize = 0;
     }
 

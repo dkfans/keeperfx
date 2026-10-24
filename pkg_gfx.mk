@@ -194,7 +194,7 @@ pkg/data/palette.dat: gfx/palettes/engine.pal
 pkg/ldata/front.pal pkg/data/palette.dat:
 	-$(ECHO) 'Building palette: $@'
 	@$(MKDIR) $(@D)
-	# Simplified, for now
+	$(RM) "$@"
 	$(CP) "$<" "$@"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
