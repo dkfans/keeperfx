@@ -31,7 +31,6 @@ extern "C" {
 #define MATCHMAKING_URL_MAX (MATCHMAKING_HOST_MAX + 16)
 #define MATCHMAKING_ID_MAX 64
 #define MATCHMAKING_IP_MAX 64
-#define MATCHMAKING_NAME_MAX SESSION_NAME_MAX_LEN
 #define MATCHMAKING_SESSIONS_MAX 32
 
 typedef struct {
@@ -56,7 +55,7 @@ void matchmaking_disconnect(enum NetSessionPhase phase);
 void matchmaking_start_game(int map_number, const char *map_name);
 void matchmaking_service(void);
 void matchmaking_refresh_sessions(void);
-int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, int direct_ipv4_port);
+int matchmaking_create(const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, int direct_ipv4_port);
 int matchmaking_punch(const char *lobby_id, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *output);
 int matchmaking_poll_punch(PunchAddresses *output);
 

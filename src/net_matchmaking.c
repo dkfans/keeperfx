@@ -60,7 +60,6 @@ static SDL_Thread *create_thread;
 static SDL_Thread *resolve_thread;
 static char local_ipv4[MATCHMAKING_IP_MAX] = {0};
 static char local_ipv6[MATCHMAKING_IP_MAX] = {0};
-static char create_name[MATCHMAKING_NAME_MAX * 6];
 static PunchAddresses create_addresses;
 static const char list_request[] = "{\"action\":\"list\",\"version\":\"" VER_STRING "\"}";
 static Uint32 heartbeat_time;
@@ -500,24 +499,24 @@ static void read_lobbies(const VALUE *message)
 static int matchmaking_create_thread(void *previous_thread)
 {
     SDL_WaitThread(previous_thread, NULL);
-    char metadata[SESSION_METADATA_MAX];
-    net_lobby_metadata(metadata);
+    struct LobbyAdvertisement advertisement;
+    net_lobby_advertisement(&advertisement);
     PunchAddresses published_addresses;
     load_published_public_ips(create_addresses.ipv4, create_addresses.ipv4_port, create_addresses.ipv6_port, &published_addresses);
     char request[SEND_BUFFER_SIZE];
-    int used = snprintf(request, sizeof(request), "{\"action\":\"create\",\"name\":\"%s\",\"ipv4Port\":%d,\"ipv6Port\":%d,\"directIpv4Port\":%d,%s,\"ipv4\":\"%s\",\"ipv6\":\"%s\",\"resultActions\":true}", create_name, create_addresses.ipv4_port, create_addresses.ipv6_port, create_addresses.direct_ipv4_port, metadata, published_addresses.ipv4, published_addresses.ipv6);
-    if (!metadata[0] || used < 0 || used >= sizeof(request)) {
+    int used = snprintf(request, sizeof(request), "{\"action\":\"create\",\"ipv4Port\":%d,\"ipv6Port\":%d,\"directIpv4Port\":%d,%s,\"ipv4\":\"%s\",\"ipv6\":\"%s\",\"resultActions\":true}", create_addresses.ipv4_port, create_addresses.ipv6_port, create_addresses.direct_ipv4_port, advertisement.metadata, published_addresses.ipv4, published_addresses.ipv6);
+    if (!advertisement.metadata[0] || used < 0 || used >= sizeof(request)) {
         return -1;
     }
     SDL_LockMutex(mutex);
     queued_punch_read = 0;
     queued_punch_count = 0;
-    snprintf(last_metadata, sizeof(last_metadata), "%s", metadata);
+    snprintf(last_metadata, sizeof(last_metadata), "%s", advertisement.metadata);
     SDL_UnlockMutex(mutex);
     return matchmaking_connect_thread(request);
 }
 
-int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, int direct_ipv4_port)
+int matchmaking_create(const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, int direct_ipv4_port)
 {
     if (!matchmaking_enabled) {
         return 0;
@@ -527,7 +526,6 @@ int matchmaking_create(const char *name, const char *udp_ipv4, int udp_ipv4_port
         return -1;
     }
     SDL_WaitThread(create_thread, NULL);
-    net_json_escape(create_name, sizeof(create_name), name);
     snprintf(create_addresses.ipv4, sizeof(create_addresses.ipv4), "%s", udp_ipv4);
     create_addresses.ipv4_port = udp_ipv4_port;
     create_addresses.ipv6_port = udp_ipv6_port;
@@ -581,8 +579,8 @@ void matchmaking_service(void)
     if (!matchmaking_enabled || !mutex) {
         return;
     }
-    char metadata[SESSION_METADATA_MAX];
-    net_lobby_metadata(metadata);
+    struct LobbyAdvertisement advertisement;
+    net_lobby_advertisement(&advertisement);
     if (!SDL_TryLockMutex(mutex)) {
         return;
     }
@@ -592,7 +590,7 @@ void matchmaking_service(void)
     }
     Uint32 now = (Uint32)SDL_GetTicks();
     int starting = start_metadata[0] && (int32_t)(now - host_retry_time) >= 0;
-    if (hosted_lobby_id[0] && metadata[0] && (starting || strcmp(metadata, last_metadata) != 0)) {
+    if (hosted_lobby_id[0] && advertisement.metadata[0] && (starting || strcmp(advertisement.metadata, last_metadata) != 0)) {
         char request[SEND_BUFFER_SIZE];
         const char *action = "update";
         const char *fields = "";
@@ -601,11 +599,11 @@ void matchmaking_service(void)
             fields = start_metadata;
             host_retry_time = now + HEARTBEAT_TIMEOUT_MS;
         }
-        int used = snprintf(request, sizeof(request), "{\"action\":\"%s\",\"id\":\"%s\",%s%s}", action, hosted_lobby_id, fields, metadata);
+        int used = snprintf(request, sizeof(request), "{\"action\":\"%s\",\"id\":\"%s\",%s%s}", action, hosted_lobby_id, fields, advertisement.metadata);
         if (used < 0 || used >= sizeof(request)) {
             websocket_cleanup();
         } else if (websocket_send(request) == 0) {
-            snprintf(last_metadata, sizeof(last_metadata), "%s", metadata);
+            snprintf(last_metadata, sizeof(last_metadata), "%s", advertisement.metadata);
         }
     }
     if (curl_handle) {

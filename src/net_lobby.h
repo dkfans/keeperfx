@@ -26,9 +26,16 @@
 extern "C" {
 #endif
 
+struct LobbyAdvertisement {
+    char name[SESSION_NAME_MAX_LEN];
+    char metadata[SESSION_METADATA_MAX];
+};
+
 extern uint32_t network_lobby_ping;
 void net_lobby_refresh_metadata(void);
-void net_lobby_metadata(char *metadata);
+void net_lobby_advertisement(struct LobbyAdvertisement *output);
+void net_lobby_apply_settings(void);
+int32_t net_lobby_min_players(void);
 void net_lobby_set_phase(enum NetSessionPhase phase);
 enum NetJoinRejection net_lobby_join_rejection(void);
 enum NetJoinRejection net_lobby_spectator_rejection(NetUserId reservation);
@@ -39,11 +46,12 @@ TbError LbNetwork_ExchangeFrontend(void *send_buf, void *server_buf, size_t fram
 TbError LbNetwork_ExchangeLobby(void *send_buf, void *server_buf, size_t frame_size, TbBool send_frame, void (*process_frame)(NetUserId));
 TbError process_login_message(NetUserId source, char *read_pos, const char *end_pos);
 TbError process_user_update_message(NetUserId source, char *read_pos, const char *end_pos);
+TbError process_lobby_settings_message(NetUserId source, const char *buffer, size_t size);
 
 void LbNetwork_SetServerPort(int port);
 void LbNetwork_InitSessionsFromCmdLine(const char *str);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, int32_t *playr_num, void *optns);
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, void *optns);
+TbError LbNetwork_Create(char *plyr_name, uint32_t *plyr_num, void *optns);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
