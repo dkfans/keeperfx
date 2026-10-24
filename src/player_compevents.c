@@ -43,6 +43,9 @@
 #include "map_data.h"
 #include "post_inc.h"
 
+#define BATTLE_DROP_SEARCH_STEPS 81
+#define BATTLE_ENEMY_SEARCH_RANGE 21
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -131,7 +134,7 @@ struct ComputerSpells computer_attack_spells[] = {
 }
 #endif
 /******************************************************************************/
-TbBool get_computer_drop_position_near_subtile(struct Coord3d *pos, struct Dungeon *dungeon, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool get_computer_drop_position_near_subtile(struct Coord3d *pos, struct Dungeon *dungeon, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t search_steps, Coord_Maximizer_Filter filter)
 {
     if ((stl_x <= 0) || (stl_y <= 0)) {
         return false;
@@ -139,12 +142,12 @@ TbBool get_computer_drop_position_near_subtile(struct Coord3d *pos, struct Dunge
     struct CompoundCoordFilterParam param;
     param.plyr_idx = dungeon->owner;
     param.slab_kind = -1;
-    param.primary_number = 0;
-    param.secondary_number = 0;
+    param.primary_number = subtile_coord_center(stl_x);
+    param.secondary_number = subtile_coord_center(stl_y);
     param.tertiary_number = 0;
     return get_position_spiral_near_map_block_with_filter(pos,
         subtile_coord_center(stl_x), subtile_coord_center(stl_y),
-        81, near_coord_filter_battle_drop_point, &param);
+        search_steps, filter, &param);
 }
 
 TbBool get_computer_drop_position_next_to_subtile(struct Coord3d* pos, struct Dungeon* dungeon, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -166,13 +169,27 @@ TbBool get_computer_drop_position_next_to_subtile(struct Coord3d* pos, struct Du
 long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
 {
     SYNCDBG(18,"Starting for %s",cevent->name);
+    TbBool heart_attacked = (event->kind == EvKind_HeartAttacked);
+    int32_t drop_search_steps = BATTLE_DROP_SEARCH_STEPS;
+    if (heart_attacked) {
+        drop_search_steps = SPIRAL_STEPS_COUNT;
+    }
+    MapSubtlCoord event_stl_x = coord_subtile(event->mappos_x);
+    MapSubtlCoord event_stl_y = coord_subtile(event->mappos_y);
     struct Coord3d pos;
-    if (!get_computer_drop_position_near_subtile(&pos, comp->dungeon, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y))) {
-        SYNCDBG(8,"No drop position near (%d,%d) for %s",(int)coord_subtile(event->mappos_x),(int)coord_subtile(event->mappos_y),cevent->name);
+    if (!get_computer_drop_position_near_subtile(&pos, comp->dungeon, event_stl_x, event_stl_y, drop_search_steps, near_coord_filter_battle_drop_point_in_sight)
+        && !get_computer_drop_position_near_subtile(&pos, comp->dungeon, event_stl_x, event_stl_y, drop_search_steps, near_coord_filter_battle_drop_point)) {
+        SYNCDBG(8,"No drop position near (%d,%d) for %s",(int)event_stl_x,(int)event_stl_y,cevent->name);
         return CTaskRet_Unk0;
     }
-    // Check if there are any enemies in the vicinity - no enemies, don't drop creatures
-    struct Thing* enmtng = get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(pos.x.val, pos.y.val, 21, comp->dungeon->owner);
+    MapCoord enemy_search_x = pos.x.val;
+    MapCoord enemy_search_y = pos.y.val;
+    if (heart_attacked) {
+        enemy_search_x = event->mappos_x;
+        enemy_search_y = event->mappos_y;
+    }
+    // Check if there are any enemies in the vicinity of the drop position, or of the attacker for heart attacks - no enemies, don't drop creatures
+    struct Thing* enmtng = get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(enemy_search_x, enemy_search_y, BATTLE_ENEMY_SEARCH_RANGE, comp->dungeon->owner);
     if (thing_is_invalid(enmtng))
     {
         SYNCDBG(8,"No enemies near %s",cevent->name);

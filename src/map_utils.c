@@ -23,7 +23,9 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 
+#include "creature_senses.h"
 #include "map_blocks.h"
+#include "map_columns.h"
 #include "map_data.h"
 #include "slab_data.h"
 #include "room_data.h"
@@ -190,6 +192,23 @@ long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilt
     }
     // If conditions are not met, return -1 to be sure the position will not be returned.
     return -1;
+}
+
+long near_coord_filter_battle_drop_point_in_sight(const struct Coord3d *pos, MaxCoordFilterParam param, long maximizer)
+{
+    if (near_coord_filter_battle_drop_point(pos, param, maximizer) < 0) {
+        return -1;
+    }
+    struct Coord3d drop_pos = *pos;
+    drop_pos.z.val = get_floor_height_at(&drop_pos) + COORD_PER_STL;
+    struct Coord3d target_pos = drop_pos;
+    target_pos.x.val = param->primary_number;
+    target_pos.y.val = param->secondary_number;
+    target_pos.z.val = get_floor_height_at(&target_pos) + COORD_PER_STL;
+    if (!line_of_sight_3d(&drop_pos, &target_pos)) {
+        return -1;
+    }
+    return INT32_MAX;
 }
 
 void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, MaxCoordFilterParam param)

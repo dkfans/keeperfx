@@ -208,6 +208,19 @@ TbBool player_has_heart(PlayerNumber plyr_idx)
     return thing_exists(get_player_soul_container(plyr_idx));
 }
 
+void create_heart_attacked_event(const struct Thing *heartng, const struct Thing *attacker)
+{
+    const struct Thing *event_thing = heartng;
+    if (thing_exists(attacker)) {
+        event_thing = attacker;
+    }
+    event_create_event_or_update_nearby_existing_event(event_thing->mappos.x.val, event_thing->mappos.y.val, EvKind_HeartAttacked, heartng->owner, event_thing->index);
+    if (is_my_player_number(heartng->owner)) {
+        output_message(SMsg_HeartUnderAttack, 400);
+        controller_rumble(50);
+    }
+}
+
 void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on_damage)
 {
     struct Thing* heartng = get_player_soul_container(plyr_idx);
@@ -226,11 +239,7 @@ void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on
         {
             if (heartng->health < old_health)
             {
-                event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
-                if (is_my_player_number(heartng->owner)) {
-                    output_message(SMsg_HeartUnderAttack, 400);
-                    controller_rumble(50);
-                }
+                create_heart_attacked_event(heartng, INVALID_THING);
             }
         }
     }

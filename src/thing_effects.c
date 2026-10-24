@@ -1091,11 +1091,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
                 apply_damage_to_thing(tngdst, damage, -1);
                 affected = true;
-                event_create_event_or_update_nearby_existing_event(tngdst->mappos.x.val, tngdst->mappos.y.val,EvKind_HeartAttacked, tngdst->owner, 0);
-                if (is_my_player_number(tngdst->owner)) {
-                    output_message(SMsg_HeartUnderAttack, 400);
-                    controller_rumble(50);
-                }
+                create_heart_attacked_event(tngdst, get_parent_thing(tngsrc));
             } else // Explosions move creatures and other things
             {
                 int adjusted_blow_strength = blow_strength;
