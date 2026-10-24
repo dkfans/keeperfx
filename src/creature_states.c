@@ -3602,6 +3602,12 @@ short move_backwards_to_position(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long speed = get_creature_speed(creatng);
+    if (speed <= 0)
+    {
+        internal_set_thing_state(creatng, creatng->continue_state);
+        creatng->continue_state = CrSt_Unused;
+        return 0;
+    }
     SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
     long move_result = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 1);
     if (move_result == 1)
