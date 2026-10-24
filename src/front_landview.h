@@ -76,8 +76,7 @@ enum NetAction {
     NetAct_Limping            = 0x10,
     NetAct_HostStartLevel     = 0x18,
     NetAct_OpenLandView       = 0x20,
-    NetAct_SetAlliance        = 0x28,
-    NetAct_SetPlayerColour      = 0x30,
+    NetAct_SetPlayerSetting   = 0x30,
     NetAct_SetComputerPlayers = 0x38,
 };
 
@@ -138,6 +137,7 @@ void set_level_name_text(LevelNumber lvnum, const char *lv_name);
 void draw_map_level_descriptions(void);
 TbBool init_netfont_palette_remap(char* land_view);
 void pop_palette_remap(void);
+void make_palette_remap(unsigned char *remap, const unsigned char *source_palette, const unsigned char *destination_palette);
 
 TbBool initialize_description_speech(void);
 TbBool play_current_description_speech(short play_good);

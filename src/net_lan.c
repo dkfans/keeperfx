@@ -35,7 +35,6 @@ static int session_cache_count = 0;
 static ENetSocket host_socket = ENET_SOCKET_NULL;
 static ENetSocket joiner_socket = ENET_SOCKET_NULL;
 static int joiner_socket_failed = 0;
-static char lan_hosted_name[SESSION_NAME_MAX_LEN] = {0};
 static uint16_t lan_hosted_port = 0;
 static SDL_Time lan_hosted_created_at = 0;
 static Uint32 last_broadcast_milliseconds = 0;
@@ -71,7 +70,7 @@ static void strip_port_from_lan_sender_ipv4_address(const ENetAddress *sender, c
     *port_separator = '\0';
 }
 
-void lan_host_start(const char *name, uint16_t port)
+void lan_host_start(uint16_t port)
 {
     socket_close(&host_socket);
     host_socket = enet_socket_create(ENET_ADDRESS_TYPE_IPV4, ENET_SOCKET_TYPE_DATAGRAM);
@@ -89,7 +88,6 @@ void lan_host_start(const char *name, uint16_t port)
         socket_close(&host_socket);
         return;
     }
-    snprintf(lan_hosted_name, SESSION_NAME_MAX_LEN, "%s", name);
     lan_hosted_port = port;
     lan_hosted_created_at = 0;
     SDL_GetCurrentTime(&lan_hosted_created_at);
@@ -106,15 +104,15 @@ void lan_host_update(void)
     while (receive_packet(host_socket, &sender, buffer, sizeof(buffer)) > 0) {
         if (strcmp(buffer, LAN_DISCOVER_MSG) != 0)
             continue;
-        char metadata[SESSION_METADATA_MAX];
-        net_lobby_metadata(metadata);
+        struct LobbyAdvertisement advertisement;
+        net_lobby_advertisement(&advertisement);
         char reply[LAN_MSG_MAX];
-        int reply_length = snprintf(reply, sizeof(reply), LAN_HOST_REPLY_PREFIX "|%s:%d", lan_hosted_name, (int)lan_hosted_port);
-        if (!metadata[0] || reply_length < 0 || reply_length + strlen(metadata) + 4 >= sizeof(reply)) {
+        int reply_length = snprintf(reply, sizeof(reply), LAN_HOST_REPLY_PREFIX "|%s:%d", advertisement.name, (int)lan_hosted_port);
+        if (!advertisement.metadata[0] || reply_length < 0 || reply_length + strlen(advertisement.metadata) + 4 >= sizeof(reply)) {
             continue;
         }
         reply_length++;
-        reply_length += snprintf(reply + reply_length, sizeof(reply) - reply_length, "{\"createdAt\":%" PRId64 ",%s}", lan_hosted_created_at, metadata);
+        reply_length += snprintf(reply + reply_length, sizeof(reply) - reply_length, "{\"createdAt\":%" PRId64 ",%s}", lan_hosted_created_at, advertisement.metadata);
         if (reply_length >= sizeof(reply)) {
             continue;
         }
@@ -189,13 +187,11 @@ void lan_service(void)
         if (enet_address_get_host_ip(&sender, sender_ip, sizeof(sender_ip)) < 0)
             continue;
         strip_port_from_lan_sender_ipv4_address(&sender, sender_ip);
-        if (host_socket != ENET_SOCKET_NULL && game_port == lan_hosted_port && strcmp(payload, lan_hosted_name) == 0)
-            continue;
         char join_address[SESSION_LOBBY_ID_MAX_LEN];
         snprintf(join_address, sizeof(join_address), "LAN:%s:%d", sender_ip, game_port);
         struct LanSessionCache *entry = NULL;
         for (int i = 0; i < session_cache_count; i++) {
-            if (strcmp(session_cache[i].session.join_address, join_address) == 0 && strcmp(session_cache[i].session.text, payload) == 0) {
+            if (strcmp(session_cache[i].session.join_address, join_address) == 0) {
                 entry = &session_cache[i];
                 break;
             }
@@ -241,7 +237,6 @@ void lan_shutdown(void)
     if (host_socket != ENET_SOCKET_NULL)
         LbNetLog("LAN: host discovery socket closed\n");
     socket_close(&host_socket);
-    lan_hosted_name[0] = '\0';
     lan_hosted_port = 0;
     socket_close(&joiner_socket);
     joiner_socket_failed = 0;

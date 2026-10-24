@@ -82,13 +82,15 @@ int net_session_metadata_json(const struct TbNetworkSessionNameEntry *session, c
     if (session->joinable) {
         joinable = "true";
     }
+    char lobby_name[sizeof(session->text) * 6];
+    net_json_escape(lobby_name, sizeof(lobby_name), session->text);
     char version[sizeof(session->version) * 6];
     net_json_escape(version, sizeof(version), session->version);
     const char *spectators_enabled = "false";
     if (session->spectators_enabled) {
         spectators_enabled = "true";
     }
-    int used = snprintf(output, size, "\"version\":\"%s\",\"phase\":\"%s\",\"joinable\":%s,\"maxPlayers\":%d,\"spectatorSupport\":%d,\"spectatorsEnabled\":%s,\"maxSpectators\":%d,\"spectatorCount\":%d,\"players\":[", version, session_phase_names[session->phase], joinable, session->max_players, session->spectator_support, spectators_enabled, session->max_spectators, session->spectator_count);
+    int used = snprintf(output, size, "\"name\":\"%s\",\"version\":\"%s\",\"phase\":\"%s\",\"joinable\":%s,\"maxPlayers\":%d,\"spectatorSupport\":%d,\"spectatorsEnabled\":%s,\"maxSpectators\":%d,\"spectatorCount\":%d,\"players\":[", lobby_name, version, session_phase_names[session->phase], joinable, session->max_players, session->spectator_support, spectators_enabled, session->max_spectators, session->spectator_count);
     for (int i = 0; i < session->player_count; i++) {
         if (used < 0 || used >= size) {
             return -1;
