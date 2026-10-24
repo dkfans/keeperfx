@@ -153,7 +153,7 @@ static const unsigned char user_preference_flags[UPref_Count] = {
     [UPref_StartingIsometricZoom] = 0,
     [UPref_StartingFrontviewZoom] = 0,
     [UPref_StartingTendencies]    = 0,
-    [UPref_MinimapZoom]           = 0,
+    [UPref_MinimapZoom]           = UPF_ApplyOnLoad,
 };
 
 void build_local_user_preferences(UserPreferences prefs)
