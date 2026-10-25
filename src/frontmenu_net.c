@@ -50,7 +50,7 @@
 #include "packets.h"
 #include "post_inc.h"
 
-#define LOBBY_CHAT_TEXT_WIDTH 300
+static int32_t lobby_chat_text_width;
 
 const char *net_join_error_text(enum NetJoinRejection reason)
 {
@@ -148,7 +148,7 @@ TbBool frontnet_start_input(void)
             local_state.mp_message_text[chpos-1] = '\0';
         clear_key_pressed(KC_BACK);
     } else {
-        add_input_text_to_message(local_state.mp_message_text, PLAYER_MP_MESSAGE_LEN, frontend_font[1], LOBBY_CHAT_TEXT_WIDTH);
+        add_input_text_to_message(local_state.mp_message_text, PLAYER_MP_MESSAGE_LEN, frontend_font[1], lobby_chat_text_width);
     }
     lbInkey = KC_UNASSIGNED;
     return true;
@@ -438,6 +438,10 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
     fs_units_per_px = gbtn->height * 16 / (frontend_messages_items_visible * (spr->SHeight*13/8));
     int font_height;
     font_height = LbTextLineHeight() * tx_units_per_px / 16;
+    int icon_width = spr->SWidth * fs_units_per_px / 16;
+    char sender_prefix[NET_MESSAGE_LEN];
+    snprintf(sender_prefix, sizeof(sender_prefix), "%s: ", net_user_info[netstate.my_id].name);
+    lobby_chat_text_width = (gbtn->width - icon_width) * 16 / tx_units_per_px - LbTextStringWidth(sender_prefix);
     int y;
     y = 0;
     int netmsg_id;
@@ -458,7 +462,7 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
         }
 
         LbTextSetWindow(gbtn->scr_pos_x, y + gbtn->scr_pos_y, gbtn->width, min(font_height, gbtn->height-y));
-        LbTextDrawResized(spr->SWidth * fs_units_per_px / 16, 0, tx_units_per_px, nmsg->text);
+        LbTextDrawResized(icon_width, 0, tx_units_per_px, nmsg->text);
         RendererSetDrawFlags(0);
 
         y += font_height;
