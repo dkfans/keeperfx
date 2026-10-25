@@ -866,6 +866,14 @@ enum GUIFrontendSprite {
     GFS_slider_horiz_r = 94,
     GFS_specicon_voice = 95,
     GFS_random_colour = 104,
+    GFS_team_1 = 105,
+    GFS_team_2 = 106,
+    GFS_team_3 = 107,
+    GFS_team_4 = 108,
+    GFS_team_5 = 109,
+    GFS_team_6 = 110,
+    GFS_team_7 = 111,
+    GFS_team_8 = 112,
 };
 
 #endif

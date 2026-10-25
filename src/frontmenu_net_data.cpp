@@ -645,16 +645,16 @@ void frontnet_draw_lobby_name(struct GuiButton *gbtn)
     draw_lobby_text_right_aligned(gbtn->scr_pos_x + gbtn->width, gbtn->scr_pos_y, gbtn->width, gbtn->height, font_index, gbtn == input_button, text);
 }
 
-static const unsigned char *lobby_panel_sprite_remap(TbBool highlighted)
+static const unsigned char *lobby_highlight_remap(TbBool highlighted)
 {
     static unsigned char remaps[2][PALETTE_COLORS];
     static TbBool remaps_initialized;
     if (!remaps_initialized) {
         unsigned char highlight_palette[PALETTE_SIZE];
         for (int i = 0; i < PALETTE_SIZE; i++) {
-            highlight_palette[i] = min(LOBBY_PALETTE_MAX_INTENSITY, engine_palette[i] * 5 / 4);
+            highlight_palette[i] = min(LOBBY_PALETTE_MAX_INTENSITY, frontend_palette[i] * 5 / 4);
         }
-        make_palette_remap(remaps[0], engine_palette, frontend_palette);
+        make_palette_remap(remaps[0], frontend_palette, frontend_palette);
         make_palette_remap(remaps[1], highlight_palette, frontend_palette);
         remaps_initialized = true;
     }
@@ -829,72 +829,13 @@ void frontnet_change_player_setting(struct GuiButton *gbtn)
     frontnet_cycle_player_setting(kind, user, gbtn->button_state_right_pressed);
 }
 
-static const short lobby_team_icons[NET_TEAM_COUNT] = {
-    GPS_creatr_icon_knght_std,
-    GPS_creatr_icon_warlk_std,
-    GPS_creatr_icon_fly_std,
-    GPS_creatr_icon_troll_std,
-    GPS_creatr_icon_dragn_std,
-    GPS_creatr_icon_vampr_std,
-    GPS_creatr_icon_tentc_std,
-    GPS_creatr_icon_dkmis_std,
-};
-
-struct SpriteBounds {
-    int32_t left;
-    int32_t top;
-    int32_t right;
-    int32_t bottom;
-};
-
-static void sprite_visible_bounds(const struct TbSprite *sprite, struct SpriteBounds *bounds)
-{
-    bounds->left = sprite->SWidth;
-    bounds->top = sprite->SHeight;
-    bounds->right = 0;
-    bounds->bottom = 0;
-    const signed char *data = (const signed char *)sprite->Data;
-    int32_t x = 0;
-    int32_t y = 0;
-    while (y < sprite->SHeight) {
-        signed char run = *data;
-        data++;
-        if (run == 0) {
-            x = 0;
-            y++;
-            continue;
-        }
-        if (run < 0) {
-            x -= run;
-            continue;
-        }
-        bounds->left = min(bounds->left, x);
-        bounds->right = max(bounds->right, x + run);
-        bounds->top = min(bounds->top, y);
-        bounds->bottom = y + 1;
-        x += run;
-        data += run;
-    }
-}
-
-static int lobby_team_icon_scale(int row_height)
-{
-    int32_t tallest_icon = 0;
-    for (int32_t team = 0; team < NET_TEAM_COUNT; team++) {
-        struct SpriteBounds bounds;
-        sprite_visible_bounds(get_panel_sprite(lobby_team_icons[team]), &bounds);
-        tallest_icon = max(tallest_icon, bounds.bottom - bounds.top);
-    }
-    return row_height * 16 / tallest_icon;
-}
-
 void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 {
     const struct TbSprite *icon = get_frontend_sprite(GFS_bullfrog_red_med);
     int height = (LOBBY_ROW_HEIGHT * lobby_menu_scale(gbtn) + 8) / 16;
     int icon_scale = height * 16 / (icon->SHeight * 13 / 8);
     int icon_width = icon->SWidth * icon_scale / 16;
-    int team_scale = lobby_team_icon_scale(height);
+    int team_scale = height * 16 / get_frontend_sprite(GFS_team_1)->SHeight;
     int text_gap = LOBBY_COLUMN_TEXT_GAP * gbtn->width / lobby_player_columns[LobbyPlayerColumn_Count];
     int column_x[LobbyPlayerColumn_Count + 1];
     for (int32_t column = 0; column <= LobbyPlayerColumn_Count; column++) {
@@ -931,13 +872,11 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         draw_lobby_text(name_x, y, column_x[LobbyPlayerColumn_Team] - name_x - text_gap, height, name_font, draw_flags, 0, name);
         draw_lobby_text(column_x[LobbyPlayerColumn_Ping], y, column_x[LobbyPlayerColumn_Count] - column_x[LobbyPlayerColumn_Ping] - text_gap, height, font, draw_flags, 0, ping);
         if (net_player_team[user] >= 0) {
-            const struct TbSprite *team_icon = get_panel_sprite(lobby_team_icons[net_player_team[user]]);
+            const struct TbSprite *team_icon = get_frontend_sprite(GFS_team_1 + net_player_team[user]);
             RendererSetDrawFlags(draw_flags);
-            struct SpriteBounds bounds;
-            sprite_visible_bounds(team_icon, &bounds);
-            int team_x = (column_x[LobbyPlayerColumn_Team] + column_x[LobbyPlayerColumn_Ping]) / 2 - text_gap - (bounds.left + bounds.right) * team_scale / 32;
-            int team_y = y + height / 2 - (bounds.top + bounds.bottom) * team_scale / 32;
-            LbSpriteDrawResizedRemap(team_x, team_y, team_scale, team_icon, lobby_panel_sprite_remap(user == user_at_mouse && column_at_mouse == LobbyPlayerColumn_Team));
+            int team_x = (column_x[LobbyPlayerColumn_Team] + column_x[LobbyPlayerColumn_Ping]) / 2 - text_gap - team_icon->SWidth * team_scale / 32;
+            int team_y = y + (height - team_icon->SHeight * team_scale / 16) / 2;
+            LbSpriteDrawResizedRemap(team_x, team_y, team_scale, team_icon, lobby_highlight_remap(user == user_at_mouse && column_at_mouse == LobbyPlayerColumn_Team));
         }
         RendererSetDrawFlags(0);
     }
