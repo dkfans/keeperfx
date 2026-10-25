@@ -66,6 +66,9 @@ MIX_Track* g_speech_track = nullptr;
 
 LPALDEFERUPDATESSOFT g_al_defer_updates = nullptr;
 LPALPROCESSUPDATESSOFT g_al_process_updates = nullptr;
+#ifdef AL_EXT_debug
+LPALDEBUGMESSAGECALLBACKEXT g_al_debug_message_callback = nullptr;
+#endif
 
 bool g_bb_king_mode = false;
 
@@ -632,6 +635,9 @@ extern "C" void FreeAudio() {
 	// Now destroy OpenAL context and device (unique_ptr handles proper cleanup)
 	g_al_defer_updates = nullptr;
 	g_al_process_updates = nullptr;
+#ifdef AL_EXT_debug
+	g_al_debug_message_callback = nullptr;
+#endif
 	g_openal_context = nullptr;
 	g_openal_device = nullptr;
 	SYNCDBG(6, "Audio cleanup complete");
@@ -973,6 +979,10 @@ extern "C" void MonitorStreamedSoundTrack() {
 	KFX_PLOT("Audio drops: tick gate", g_drops_tick_gate);
 	KFX_PLOT("Audio drops: stack cap", g_drops_stack_cap);
 	KFX_PLOT("Audio drops: no voice", g_drops_no_voice);
+	if (g_drops_tick_gate || g_drops_stack_cap || g_drops_no_voice) {
+		SYNCDBG(7, "Audio sample drops this tick: tick-gate %u, stack-cap %u, no-voice %u",
+			g_drops_tick_gate, g_drops_stack_cap, g_drops_no_voice);
+	}
 	g_drops_tick_gate = 0;
 	g_drops_stack_cap = 0;
 	g_drops_no_voice = 0;
@@ -993,6 +1003,17 @@ extern "C" void StopAllSamples() {
 		}
 	}
 }
+
+#ifdef AL_EXT_debug
+void AL_APIENTRY on_al_debug_message(ALenum source, ALenum type, ALuint id, ALenum severity, ALsizei length, const ALchar * message, void * userParam) noexcept {
+	(void)source; (void)id; (void)length; (void)userParam;
+	if (type == AL_DEBUG_TYPE_ERROR_EXT || severity == AL_DEBUG_SEVERITY_HIGH_EXT) {
+		ERRORLOG("OpenAL: %s", message);
+	} else {
+		WARNLOG("OpenAL: %s", message);
+	}
+}
+#endif
 
 extern "C" TbBool InitAudio(const SoundSettings * settings) {
 	try {
@@ -1024,6 +1045,15 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 			g_al_defer_updates = reinterpret_cast<LPALDEFERUPDATESSOFT>(alGetProcAddress("alDeferUpdatesSOFT"));
 			g_al_process_updates = reinterpret_cast<LPALPROCESSUPDATESSOFT>(alGetProcAddress("alProcessUpdatesSOFT"));
 		}
+#ifdef AL_EXT_debug
+		if (alIsExtensionPresent("AL_EXT_debug")) {
+			g_al_debug_message_callback = reinterpret_cast<LPALDEBUGMESSAGECALLBACKEXT>(alGetProcAddress("alDebugMessageCallbackEXT"));
+			if (g_al_debug_message_callback) {
+				g_al_debug_message_callback(on_al_debug_message, nullptr);
+				alEnable(AL_DEBUG_OUTPUT_EXT);
+			}
+		}
+#endif
 		g_sources.resize(settings->max_number_of_samples);
 		for (size_t i = 0; i < g_sources.size(); ++i) {
 			g_sources[i].mss_id = i + 1;
