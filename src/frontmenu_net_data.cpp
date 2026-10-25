@@ -30,6 +30,7 @@
 #include "vidmode.h"
 #include "vidfade.h"
 #include "bflib_vidraw.h"
+#include "bflib_render.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 
@@ -846,7 +847,9 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
     int32_t column_at_mouse = lobby_player_column_at_mouse(gbtn);
     int font = frontend_button_caption_font(gbtn, 0);
     unsigned char *previous_glass_map = lbDisplay.GlassMap;
+    unsigned char *previous_render_ghost = render_ghost;
     lbDisplay.GlassMap = get_frontend_lobby_glass_map();
+    render_ghost = lbDisplay.GlassMap;
     RendererSetDrawFlags(0);
     for (NetUserId user = 0; user < net_lobby_max_players; user++) {
         int y = gbtn->scr_pos_y + user * height;
@@ -881,6 +884,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         RendererSetDrawFlags(0);
     }
     lbDisplay.GlassMap = previous_glass_map;
+    render_ghost = previous_render_ghost;
 }
 
 static void select_mp_mappack(int32_t index)
