@@ -1390,7 +1390,6 @@ CrInstance get_packet_instant_instance(const struct Packet *pckt)
 void process_user_creature_control_packet_control(NetUserId user)
 {
     SYNCDBG(6,"Starting");
-    struct PlayerInfo* player = get_player(get_net_user_player_number(user));
     struct Thing* cctng = thing_get(get_user_state(user)->controlled_thing_idx);
     struct Packet* pckt = get_packet(user);
     struct CreatureControl* ccctrl = creature_control_get_from_thing(cctng);
@@ -1408,11 +1407,9 @@ void process_user_creature_control_packet_action(NetUserId user)
 {
   const PlayerNumber plyr_idx = get_net_user_player_number(user);
   struct CreatureControl *cctrl;
-  struct PlayerInfo *player;
   struct Thing *thing;
   struct Packet *pckt;
   CrInstance inst_id;
-  player = get_player(plyr_idx);
   struct UserState* ustate = get_user_state(user);
   pckt = get_packet(user);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);

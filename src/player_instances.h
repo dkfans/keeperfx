@@ -64,7 +64,7 @@ enum PlayerInstanceNum {
     PI_UnusedSlot18,
 };
 /******************************************************************************/
-#define ANY_USER -1
+#define ANY_USER -2
 
 enum UserControllingThing {
     UCT_Direct           = 0x01, /* user is possessing the creature normally */

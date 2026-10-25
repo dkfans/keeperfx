@@ -615,7 +615,6 @@ int32_t pinstfe_leave_creature(NetUserId user, int32_t *n)
 
 int32_t pinstfs_query_creature(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
     struct Thing* thing = thing_get(ustate->influenced_thing_idx);
     set_selected_creature(ustate, thing);
@@ -626,7 +625,6 @@ int32_t pinstfs_query_creature(NetUserId user, int32_t *n)
 
 int32_t pinstfs_unquery_creature(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     set_user_work_state(user, PSt_CtrlDungeon, 0);
     clear_selected_thing(get_user_state(user));
     return 0;
@@ -661,7 +659,6 @@ int32_t pinstfs_zoom_to_heart(NetUserId user, int32_t *n)
 
 int32_t pinstfm_zoom_to_heart(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct Thing* thing = thing_get(get_user_state(user)->controlled_thing_idx);
     if (thing_exists(thing))
     {
@@ -827,7 +824,6 @@ int32_t pinstfm_zoom_to_position(NetUserId user, int32_t *n)
 
 int32_t pinstfe_zoom_to_position(NetUserId user, int32_t *n)
 {
-    struct PlayerInfo *player = get_user_player(user);
     struct UserState* ustate = get_user_state(user);
     ustate->init_flags &= ~UsrIF_MouseInputDisabled;
     ustate->init_flags &= ~UsrIF_KeyboardInputDisabled;

@@ -2763,7 +2763,6 @@ static TbBool get_packet_load_demo_inputs(void)
 
 static void get_creature_control_nonaction_inputs(void)
 {
-    struct PlayerInfo* player = get_my_player();
     if ((get_local_user_state()->init_flags & UsrIF_CreaturePassengerMode) != 0)
     {
         return;

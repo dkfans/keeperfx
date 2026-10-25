@@ -505,7 +505,6 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
     short angle = thing->move_angle_xy;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     CrtrExpLevel exp_level = cctrl->exp_level;
-    struct PlayerInfo* player = NULL;
     remove_creature_score_from_owner(thing);
     delete_thing_structure(thing, 0);
     struct Thing* deadtng = create_dead_creature(&pos, crmodel, crpscondition, owner, exp_level);

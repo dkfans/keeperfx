@@ -384,7 +384,6 @@ void randomise_swipe_graphic_direction()
 
 void draw_swipe_graphic(void)
 {
-    const struct PlayerInfo *myplyr = get_displayed_player();
     struct Thing* thing = thing_get(get_user_state(get_displayed_user())->controlled_thing_idx);
     if (thing_is_creature(thing)) {
         const struct CreatureControl* cctrl = get_local_creature_control(thing);

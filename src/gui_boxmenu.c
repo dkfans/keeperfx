@@ -288,7 +288,6 @@ long gf_give_door_trap(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
 
 long gfa_can_level_up(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *tag)
 {
-    struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
 	struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
 	if (thing_is_creature(thing))
@@ -316,7 +315,6 @@ long gf_level_up(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char 
 
 long gfa_can_level_down(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *tag)
 {
-    struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
 	struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
 	if (thing_is_creature(thing))
@@ -360,7 +358,6 @@ long gf_kill_creature(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned 
 
 long gfa_is_creature(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *tag)
 {
-    struct PlayerInfo* player = get_my_player();
     //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
 	struct Thing* thing = thing_get(get_local_user_state()->controlled_thing_idx);
 	return (thing_is_creature(thing));

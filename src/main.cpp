@@ -778,8 +778,6 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
 
 void instant_instance_selected(CrInstance check_inst_id)
 {
-    struct PlayerInfo *player;
-    player = get_player(my_player_number);
     struct Thing *ctrltng;
     ctrltng = thing_get(get_local_user_state()->controlled_thing_idx);
     struct CreatureModelConfig *crconf;
