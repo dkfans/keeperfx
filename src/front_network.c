@@ -104,9 +104,6 @@ static TbClockMSec last_sent_screen_packet_time;
 }
 #endif
 /******************************************************************************/
-#define PLAYER_COLOUR_BITS 3
-#define PLAYER_TEAM_BITS 4
-#define MAX_PLAYERS_SHIFT (MAX_NET_USERS * PLAYER_COLOUR_BITS)
 #define RANDOM_TEAMS_COUNT 2
 
 struct NetPlayerSetting {
@@ -287,25 +284,6 @@ static void host_update_players(void)
         }
         if (net_lobby_user_has_team(user) && net_player_team[user] < 0) {
             net_player_team[user] = first_unused_value(net_player_team);
-        }
-    }
-}
-
-static uint16_t pack_user_values(const int8_t values[MAX_NET_USERS], int bits, int8_t offset)
-{
-    uint16_t packed = 0;
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        packed |= ((values[user] + offset) & ((1 << bits) - 1)) << (user * bits);
-    }
-    return packed;
-}
-
-static void unpack_user_values(uint16_t packed, int8_t values[MAX_NET_USERS], int bits, int8_t offset, int8_t max_value)
-{
-    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
-        values[user] = ((packed >> (user * bits)) & ((1 << bits) - 1)) - offset;
-        if (values[user] > max_value) {
-            values[user] = -1;
         }
     }
 }
@@ -727,8 +705,10 @@ static void process_frontend_packets(void)
   nspckt->networkstatus_flags &= ~NetStat_ComputerPlayersMask;
   nspckt->networkstatus_flags |= (fe_computer_players << NetStat_ComputerPlayersShift) & NetStat_ComputerPlayersMask;
   if (network_is_host()) {
-    nspckt->stored_data1 = pack_user_values(net_player_colour, PLAYER_COLOUR_BITS, 1) | (netstate.max_users << MAX_PLAYERS_SHIFT);
-    nspckt->stored_data2 = pack_user_values(net_player_team, PLAYER_TEAM_BITS, 0);
+    for (int i = 0; i < NetPlayerSetting_Count; i++) {
+      memcpy(nspckt->player_settings[i], net_player_settings[i].values, MAX_NET_USERS);
+    }
+    nspckt->max_players = netstate.max_users;
     net_lobby_max_players = netstate.max_users;
   }
   TbClockMSec now = LbTimerClock();
@@ -760,19 +740,22 @@ static void process_frontend_packets(void)
     host_update_players();
   } else {
     const struct ScreenPacket *host_packet = &net_screen_packet[SERVER_ID];
-    unpack_user_values(host_packet->stored_data1, net_player_colour, PLAYER_COLOUR_BITS, 1, NET_PLAYER_COLOUR_RANDOM);
-    unpack_user_values(host_packet->stored_data2, net_player_team, PLAYER_TEAM_BITS, 0, NET_TEAM_RANDOM);
     for (int i = 0; i < NetPlayerSetting_Count; i++) {
       struct NetPlayerSetting *setting = &net_player_settings[i];
+      for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        setting->values[user] = host_packet->player_settings[i][user];
+        if (setting->values[user] >= setting->values_count) {
+          setting->values[user] = -1;
+        }
+      }
       if (setting->values[my_player_number] == setting->requested) {
         setting->requested = -1;
       } else if (setting->requested >= 0) {
         setting->values[my_player_number] = setting->requested;
       }
     }
-    int32_t max_players = (uint16_t)host_packet->stored_data1 >> MAX_PLAYERS_SHIFT;
-    if (max_players >= MIN_NET_USERS && max_players <= MAX_NET_USERS) {
-      net_lobby_max_players = max_players;
+    if (host_packet->max_players >= MIN_NET_USERS && host_packet->max_players <= MAX_NET_USERS) {
+      net_lobby_max_players = host_packet->max_players;
     }
     clear_teamless_users();
   }
