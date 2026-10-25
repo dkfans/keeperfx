@@ -1375,10 +1375,9 @@ void LbSpriteSetScalingWidthClippedArray(int32_t * xsteps_arr, long x, long swid
     int32_t *pwidth;
     long pxpos;
     pwidth = xsteps_arr;
-    long factor = (dwidth<<16)/swidth;
-    long tmp = (factor >> 1) + (x << 16);
-    pxpos = tmp >> 16;
-    pxpos = min(pxpos, max(0, x));
+    long factor = ((dwidth << 16) + swidth - 1) / swidth;
+    long tmp = x << 16;
+    pxpos = x;
     long w = swidth;
     do {
         tmp += factor;
@@ -1409,8 +1408,8 @@ void LbSpriteSetScalingWidthSimpleArray(int32_t * xsteps_arr, long x, long swidt
     int32_t *pwidth;
     long cwidth;
     pwidth = xsteps_arr;
-    long factor = (dwidth<<16)/swidth;
-    long tmp = (factor >> 1) + (x << 16);
+    long factor = ((dwidth << 16) + swidth - 1) / swidth;
+    long tmp = x << 16;
     cwidth = tmp >> 16;
     long w = swidth;
     do {
@@ -1456,10 +1455,9 @@ void LbSpriteSetScalingHeightClippedArray(int32_t * ysteps_arr, long y, long she
     int32_t *pheight;
     long lnpos;
     pheight = ysteps_arr;
-    long factor = (dheight<<16)/sheight;
-    long tmp = (factor >> 1) + (y << 16);
-    lnpos = tmp >> 16;
-    lnpos = min(lnpos, max(0, y));
+    long factor = ((dheight << 16) + sheight - 1) / sheight;
+    long tmp = y << 16;
+    lnpos = y;
     if (lnpos < 0)
         lnpos = 0;
     if (lnpos >= gheight)
@@ -1494,8 +1492,8 @@ void LbSpriteSetScalingHeightSimpleArray(int32_t * ysteps_arr, long y, long shei
     int32_t *pheight;
     long cheight;
     pheight = ysteps_arr;
-    long factor = (dheight<<16)/sheight;
-    long tmp = (factor >> 1) + (y << 16);
+    long factor = ((dheight << 16) + sheight - 1) / sheight;
+    long tmp = y << 16;
     cheight = tmp >> 16;
     long h = sheight;
     do {
