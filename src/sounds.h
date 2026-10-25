@@ -23,8 +23,6 @@
 #include "bflib_sound.h"
 #include "globals.h"
 
-#include <SDL3_mixer/SDL_mixer.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -22,7 +22,6 @@ extern "C" {
 
 
 #include "lvl_script_lib.h"
-#include <SDL3_mixer/SDL_mixer.h>
 
 extern const struct CommandDesc command_desc[];
 extern const struct CommandDesc dk1_command_desc[];
