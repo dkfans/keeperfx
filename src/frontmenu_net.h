@@ -56,6 +56,7 @@ void frontnet_maintain_mappack_list(struct GuiButton *gbtn);
 void frontnet_mappack_list_click(struct GuiButton *gbtn);
 void frontnet_maintain_host_setting(struct GuiButton *gbtn);
 void frontnet_draw_lobby_name(struct GuiButton *gbtn);
+void frontnet_draw_lobby_tooltips(struct GuiButton *gbtn);
 void frontnet_mappack_up(struct GuiButton *gbtn);
 void frontnet_mappack_down(struct GuiButton *gbtn);
 void frontnet_mappack_up_maintain(struct GuiButton *gbtn);

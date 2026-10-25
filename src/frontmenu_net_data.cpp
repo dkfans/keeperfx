@@ -158,6 +158,7 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontnet_mappack_up,NULL,frontend_over_button,0, 604, LOBBY_MAPPACK_LIST_Y - 1, 604, LOBBY_MAPPACK_LIST_Y - 1,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {54},    0, frontnet_mappack_up_maintain },
   { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, frontnet_mappack_down,NULL,frontend_over_button,0, 604, 403, 604, 403,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {55},    0, frontnet_mappack_down_maintain },
   { LbBtnT_DraggableBtn,BID_DEFAULT, 0, 0, frontnet_mappack_scroll,NULL,  NULL,                    0, 608, 317, 608, 317,  20, 68, frontnet_draw_mappack_scroll_tab, 0, GUIStr_Empty, 0,  {40},    0, frontnet_maintain_mappack_scroll_tab },
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    LbBFeF_NoMouseOver, LOBBY_OPTION_X + LOBBY_OPTION_WIDTH / 2,  90, LOBBY_OPTION_X + LOBBY_OPTION_WIDTH / 2,  90, LOBBY_OPTION_WIDTH / 2, 26, frontnet_draw_lobby_tooltips, 0, GUIStr_Empty, 0, {0},    0, NULL },
   {-1,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,           0,  0,   {0},    0, NULL },
 };
 
@@ -228,6 +229,23 @@ static int lobby_font(struct GuiButton *gbtn, TbBool highlighted)
         return 2;
     }
     return 1;
+}
+
+static int lobby_menu_scale(struct GuiButton *gbtn)
+{
+    struct GuiMenu *gmnu = get_active_menu(gbtn->gmenu_idx);
+    return gmnu->width * 16 / gmnu->menu_init->width;
+}
+
+static TbBool mouse_is_over_lobby_area(struct GuiButton *gbtn, TbBool include_scrollbar)
+{
+    int32_t right = gbtn->scr_pos_x + gbtn->width;
+    if (include_scrollbar) {
+        right += LOBBY_SCROLLBAR_WIDTH * lobby_menu_scale(gbtn) / 16;
+    }
+    int32_t mouse_x = GetMouseX();
+    int32_t mouse_y = GetMouseY();
+    return (mouse_x >= gbtn->scr_pos_x) && (mouse_x < right) && (mouse_y >= gbtn->scr_pos_y) && (mouse_y < gbtn->scr_pos_y + gbtn->height);
 }
 
 static int32_t lobby_text_width(int height, int font, const char *text)
@@ -354,7 +372,7 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     if (index < 0 || index >= net_number_of_sessions) {
         return;
     }
-    if (GetMouseX() >= gbtn->scr_pos_x && GetMouseX() < gbtn->scr_pos_x + gbtn->width && GetMouseY() >= gbtn->scr_pos_y && GetMouseY() < gbtn->scr_pos_y + gbtn->height) {
+    if (mouse_is_over_lobby_area(gbtn, false)) {
         lobby_tooltip_index = index;
     }
     const struct TbNetworkSessionNameEntry *session = net_session[index];
@@ -432,12 +450,6 @@ static void draw_lobby_panel(int x, int y, int width, int height, int scale)
         y += row_height;
         remaining -= row_height;
     }
-}
-
-static int lobby_menu_scale(struct GuiButton *gbtn)
-{
-    struct GuiMenu *gmnu = get_active_menu(gbtn->gmenu_idx);
-    return gmnu->width * 16 / gmnu->menu_init->width;
 }
 
 void frontnet_draw_lobby_panel_without_scrollbar(struct GuiButton *gbtn)
@@ -739,17 +751,9 @@ void frontnet_draw_mappack_scroll_tab(struct GuiButton *gbtn)
     frontend_draw_scroll_tab(gbtn, net_lobby_mappack_scroll_offset, 0, lobby_mappack_list_layout().max_scroll_offset + 1);
 }
 
-static TbBool mouse_is_over_scroll_section(struct GuiButton *gbtn)
-{
-    int32_t right = gbtn->scr_pos_x + gbtn->width + LOBBY_SCROLLBAR_WIDTH * lobby_menu_scale(gbtn) / 16;
-    int32_t mouse_x = GetMouseX();
-    int32_t mouse_y = GetMouseY();
-    return (mouse_x >= gbtn->scr_pos_x) && (mouse_x < right) && (mouse_y >= gbtn->scr_pos_y) && (mouse_y < gbtn->scr_pos_y + gbtn->height);
-}
-
 static void scroll_section_with_wheel(struct GuiButton *gbtn, Gf_Btn_Callback scroll_up, Gf_Btn_Callback scroll_down)
 {
-    if (!mouse_is_over_scroll_section(gbtn)) {
+    if (!mouse_is_over_lobby_area(gbtn, true)) {
         return;
     }
     if (wheel_scrolled_up) {
@@ -993,17 +997,63 @@ void frontnet_maintain_mappack_list(struct GuiButton *gbtn)
     }
 }
 
-void frontnet_draw_mappack_list(struct GuiButton *gbtn)
+static struct GuiButton lobby_mappack_list_row(struct GuiButton *gbtn)
 {
-    struct GuiButton panel = lobby_mappack_list_panel(gbtn);
     struct GuiMenu *gmnu = get_active_menu(gbtn->gmenu_idx);
     int scale = lobby_menu_scale(gbtn);
-    frontnet_draw_lobby_panel(&panel);
-    int32_t hovered = lobby_mappack_list_item_at_mouse(&panel);
     struct GuiButton row = *gbtn;
     row.scr_pos_x = gmnu->pos_x + LOBBY_OPTION_X * scale / 16;
     row.width = LOBBY_OPTION_WIDTH * scale / 16;
     row.height = (LOBBY_ROW_HEIGHT * scale + 8) / 16;
+    return row;
+}
+
+static void draw_lobby_tooltip(struct GuiButton *text_area, const char *text)
+{
+    int32_t text_width = lobby_text_width(text_area->height, 1, text);
+    if (text_width <= text_area->width) {
+        return;
+    }
+    int scale = lobby_menu_scale(text_area);
+    int padding = 7 * scale / 16;
+    int width = min(text_width + padding * 2, (int)lbDisplay.GraphicsScreenWidth);
+    int height = text_area->height + padding * 2;
+    int x = max(0, min(GetMouseX() + padding, (int)lbDisplay.GraphicsScreenWidth - width));
+    int y = max(0, GetMouseY() - height - padding);
+    draw_lobby_panel(x, y, width, height, scale);
+    draw_lobby_text(x + padding, y + padding, width - padding * 2, text_area->height, 1, 0, 0, text);
+}
+
+void frontnet_draw_lobby_tooltips(struct GuiButton *gbtn)
+{
+    if (input_button != NULL) {
+        return;
+    }
+    if (net_lobby_mappack_list_open) {
+        struct GuiButton panel = lobby_mappack_list_panel(gbtn);
+        int32_t hovered = lobby_mappack_list_item_at_mouse(&panel);
+        if (hovered >= 0) {
+            struct GuiButton row = lobby_mappack_list_row(gbtn);
+            draw_lobby_tooltip(&row, mp_mappacks_list.items[hovered].display_name);
+        }
+        return;
+    }
+    if (mouse_is_over_lobby_area(gbtn, false)) {
+        draw_lobby_tooltip(gbtn, net_lobby_settings.net_lobby_name);
+    }
+    if ((mappack_selector_button != NULL) && mouse_is_over_lobby_area(mappack_selector_button, false)) {
+        struct GuiButton text_area = mappack_selector_text_area(mappack_selector_button);
+        draw_lobby_tooltip(&text_area, campaign.display_name);
+    }
+}
+
+void frontnet_draw_mappack_list(struct GuiButton *gbtn)
+{
+    struct GuiButton panel = lobby_mappack_list_panel(gbtn);
+    int scale = lobby_menu_scale(gbtn);
+    frontnet_draw_lobby_panel(&panel);
+    int32_t hovered = lobby_mappack_list_item_at_mouse(&panel);
+    struct GuiButton row = lobby_mappack_list_row(gbtn);
     int32_t rows = lobby_mappack_list_layout().rows;
     for (int32_t i = 0; i < rows; i++) {
         int32_t index = net_lobby_mappack_scroll_offset + i;
@@ -1024,7 +1074,7 @@ void frontnet_mappack_list_click(struct GuiButton *gbtn)
     if (index >= 0) {
         select_mp_mappack(index);
     }
-    if ((index >= 0) || !mouse_is_over_scroll_section(&panel)) {
+    if ((index >= 0) || !mouse_is_over_lobby_area(&panel, true)) {
         net_lobby_mappack_list_open = false;
     }
 }
