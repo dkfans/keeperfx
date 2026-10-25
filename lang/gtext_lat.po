@@ -7507,7 +7507,7 @@ msgstr "Oneratio"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Show spectator chat"
-msgstr "Colloquia spectatorum ostendere"
+msgstr "Sermo spectatorum"
 
 #: guitext:1146
 #, fuzzy
@@ -7614,4 +7614,4 @@ msgstr "Ping"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Add computer players"
-msgstr "Adde ludios computarios"
+msgstr "Adde computaria"

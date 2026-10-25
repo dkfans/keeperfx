@@ -7708,7 +7708,7 @@ msgstr "A carregar"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Show spectator chat"
-msgstr "Mostrar chat dos espectadores"
+msgstr "Chat de espectadores"
 
 #: guitext:1146
 #, fuzzy
@@ -7815,4 +7815,4 @@ msgstr "Ping"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Add computer players"
-msgstr "Adicionar jogadores de computador"
+msgstr "Adicionar computador"

@@ -7732,7 +7732,7 @@ msgstr "Chargement"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Show spectator chat"
-msgstr "Afficher le chat des spectateurs"
+msgstr "Afficher chat spectateurs"
 
 #: guitext:1146
 #, fuzzy
@@ -7839,4 +7839,4 @@ msgstr "Ping"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Add computer players"
-msgstr "Ajouter des joueurs ordinateur"
+msgstr "Ajouter des joueurs IA"

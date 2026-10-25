@@ -7701,4 +7701,4 @@ msgstr "Ping"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Add computer players"
-msgstr "Dodaj graczy komputerowych"
+msgstr "Dodaj komputery"

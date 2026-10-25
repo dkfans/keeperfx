@@ -7715,7 +7715,7 @@ msgstr "El anfitrión usa otra versión del juego."
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Lobby Name"
-msgstr "Nombre de sala"
+msgstr "Nombre sala"
 
 #: guitext:1142
 #, fuzzy, c-format
@@ -7739,7 +7739,7 @@ msgstr "Cargando"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Show spectator chat"
-msgstr "Mostrar chat de espectadores"
+msgstr "Chat de espectadores"
 
 #: guitext:1146
 #, fuzzy
@@ -7846,4 +7846,4 @@ msgstr "Ping"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Add computer players"
-msgstr "Añadir jugadores por ordenador"
+msgstr "Añadir ordenadores"

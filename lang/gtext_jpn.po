@@ -7442,7 +7442,7 @@ msgstr "読み込み中"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Show spectator chat"
-msgstr "観戦者のチャットを表示"
+msgstr "観戦チャットを表示"
 
 #: guitext:1146
 #, fuzzy
@@ -7549,4 +7549,4 @@ msgstr "Ping"
 #, fuzzy
 msgctxt "Network game interface"
 msgid "Add computer players"
-msgstr "コンピュータプレーヤーを追加"
+msgstr "コンピュータを追加"

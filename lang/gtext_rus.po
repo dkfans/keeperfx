@@ -6828,9 +6828,10 @@ msgid "The host is using a different game version."
 msgstr "У хоста другая версия игры."
 
 #: guitext:1141
+#, fuzzy
 msgctxt "Network game interface"
 msgid "Lobby Name"
-msgstr "Название лобби"
+msgstr "Имя лобби"
 
 #: guitext:1142
 msgctxt "In-game message"
