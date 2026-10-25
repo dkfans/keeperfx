@@ -276,6 +276,8 @@
     <ClCompile Include="src\ftests\tests\ftest_bug_pathing_stair_treasury.c" />
     <ClCompile Include="src\ftests\tests\ftest_template.c" />
     <ClCompile Include="src\gui_vscroll.c" />
+    <ClCompile Include="src\kfx\audio\AudioCallback.cpp" />
+    <ClCompile Include="src\kfx\audio\VoiceMirror.cpp" />
     <ClCompile Include="src\kfx\platform\GLContextSDL.cpp" />
     <ClCompile Include="src\kfx\platform\FileSystemLb.cpp" />
     <ClCompile Include="src\kfx\platform\PlatformLinux.cpp" />
@@ -619,6 +621,11 @@
     <ClInclude Include="src\ftests\tests\ftest_bug_pathing_stair_treasury.h" />
     <ClInclude Include="src\ftests\tests\ftest_template.h" />
     <ClInclude Include="src\gui_vscroll.h" />
+    <ClInclude Include="src\kfx\audio\AudioCallback.h" />
+    <ClInclude Include="src\kfx\audio\AudioLog.h" />
+    <ClInclude Include="src\kfx\audio\Commands.h" />
+    <ClInclude Include="src\kfx\audio\SpscRing.h" />
+    <ClInclude Include="src\kfx\audio\VoiceMirror.h" />
     <ClInclude Include="src\kfx\platform\FileFind.h" />
     <ClInclude Include="src\kfx\platform\GLContextSDL.h" />
     <ClInclude Include="src\kfx\platform\IGLContext.h" />

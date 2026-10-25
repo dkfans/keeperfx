@@ -882,7 +882,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     volume = (volume * loudness) / 256;
     if (smpl_idx < 0)
         return 0;
-    SoundMilesID mss_id = play_sample(get_emitter_id(emit), smptbl_id, volume, pan, smpitch, fild1D, ctype);
+    SoundMilesID mss_id = play_sample(get_emitter_id(emit), smptbl_id, volume, pan, smpitch, fild1D, ctype, priority);
     if (mss_id <= 0) {
         return 0;
     }

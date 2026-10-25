@@ -147,7 +147,7 @@ void play_non_3d_sample(SoundSmplTblID);
 void play_non_3d_sample_no_overlap(SoundSmplTblID);
 void play_atmos_sound(SoundSmplTblID);
 short sound_emitter_in_use(SoundEmitterID);
-SoundMilesID play_sample(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, char repeats, unsigned char ctype);
+SoundMilesID play_sample(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, char repeats, unsigned char ctype, long priority);
 void stop_sample(SoundEmitterID, SoundSmplTblID);
 long speech_sample_playing(void);
 long play_speech_sample(SoundSmplTblID);

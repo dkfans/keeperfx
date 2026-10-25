@@ -7,6 +7,9 @@
 #include "bflib_sound.h"
 #include "bflib_fileio.h"
 #include "kfx/profiling/KfxProfiling.h"
+#include "kfx/audio/AudioCallback.h"
+#include "kfx/audio/AudioLog.h"
+#include "kfx/audio/VoiceMirror.h"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
@@ -38,43 +41,26 @@
 
 namespace {
 
-struct device_deleter {
-	void operator()(ALCdevice * device) {
-		alcCloseDevice(device);
-	}
-};
-
-struct context_deleter {
-	void operator()(ALCcontext * context) {
-		alcMakeContextCurrent(nullptr);
-		alcDestroyContext(context);
-	}
-};
-
-using ALCdevice_ptr = std::unique_ptr<ALCdevice, device_deleter>;
-using ALCcontext_ptr = std::unique_ptr<ALCcontext, context_deleter>;
-
 SoundVolume g_master_volume = 0;
 SoundVolume g_music_volume = 0;
-ALCdevice_ptr g_openal_device;
-ALCcontext_ptr g_openal_context;
+// Sound effects: game-thread voice bookkeeping and the audio-thread OpenAL renderer.
+kfx::audio::VoiceMirror g_voice_mirror;
+kfx::audio::AudioCallback g_audio_callback;
+kfx::audio::CommandRing g_command_ring;
+kfx::audio::EventRing g_event_ring;
+// InitAudio holds its own reference on the SDL audio subsystem for the SDL3 stream.
+bool g_sdl_audio_subsystem_held = false;
 // SDL3_mixer replaces the SDL2 Mix_Music/Mix_Chunk + channel model with a
 // mixer + per-purpose tracks. Music and speech each get their own track.
 MIX_Mixer* g_mixer = nullptr;
 MIX_Track* g_music_track = nullptr;
 MIX_Track* g_speech_track = nullptr;
 
-LPALDEFERUPDATESSOFT g_al_defer_updates = nullptr;
-LPALPROCESSUPDATESSOFT g_al_process_updates = nullptr;
 #ifdef AL_EXT_debug
 LPALDEBUGMESSAGECALLBACKEXT g_al_debug_message_callback = nullptr;
 #endif
 
 bool g_bb_king_mode = false;
-
-enum source_flags {
-	bb_king_mode = 1,
-};
 
 const char * alErrorStr(ALenum code) {
 	switch (code) {
@@ -121,123 +107,6 @@ public:
 
 	inline openal_buffer & operator=(openal_buffer && other) {
 		id = std::exchange(other.id, 0);
-		return *this;
-	}
-};
-
-class openal_source {
-public:
-	ALuint id = 0;
-	SoundMilesID mss_id = 0;
-	SoundEmitterID emit_id = 0;
-	SoundSmplTblID smptbl_id = 0;
-	int flags = 0;
-	SoundVolume base_gain = 0; // requested (un-ducked) volume; used to recompute duck-scaled gain
-
-	openal_source() {
-		ALuint sources[1];
-		alGenSources(1, sources);
-		const auto errcode = alGetError();
-		if (errcode != AL_NO_ERROR) {
-			throw openal_error("Cannot create source", errcode);
-		}
-		id = sources[0];
-	}
-
-	inline ~openal_source() noexcept {
-		alDeleteSources(1, &id);
-	}
-
-	void play(const openal_buffer & buffer) {
-		alSourcei(id, AL_BUFFER, buffer.id);
-		auto errcode = alGetError();
-		if (errcode != AL_NO_ERROR) {
-			throw openal_error("Cannot attach buffer", errcode);
-		}
-		alSourcePlay(id);
-		errcode = alGetError();
-		if (errcode != AL_NO_ERROR) {
-			throw openal_error("Cannot play source", errcode);
-		}
-	}
-
-	void stop() {
-		alSourceStop(id);
-		const auto errcode = alGetError();
-		if (errcode != AL_NO_ERROR) {
-			throw openal_error("Cannot stop source", errcode);
-		}
-	}
-
-	void gain(SoundVolume volume) {
-		alSourcef(id, AL_GAIN, float(volume) / FULL_LOUDNESS);
-		const auto errcode = alGetError();
-		if (errcode != AL_NO_ERROR) {
-			throw openal_error("Cannot set volume", errcode);
-		}
-	}
-
-	void gain_scaled(SoundVolume volume, float scale) {
-		alSourcef(id, AL_GAIN, (float(volume) / FULL_LOUDNESS) * scale);
-		const auto errcode = alGetError();
-		if (errcode != AL_NO_ERROR) {
-			throw openal_error("Cannot set volume", errcode);
-		}
-	}
-
-	void pitch(SoundPitch pitch) {
-		alSourcef(id, AL_PITCH, float(pitch) / NORMAL_PITCH);
-		const auto errcode = alGetError();
-		if (errcode != AL_NO_ERROR) {
-			throw openal_error("Cannot set pitch", errcode);
-		}
-	}
-
-	void pan(SoundPan pan) {
-		// convert 0..128 (where 64 is center) to -1.0..1.0 and then reduce stereo separation by 50%
-		const auto x = (-(float(64 - pan) / 64.0f)) * 0.5f;
-		const auto z = -1.0f; // in front of listener
-		alSource3f(id, AL_POSITION, x, 0, z);
-		const auto errcode = alGetError();
-		if (errcode != AL_NO_ERROR) {
-			throw openal_error("Cannot set position", errcode);
-		}
-	}
-
-	void repeat(bool value) {
-		alSourcei(id, AL_LOOPING, value ? AL_TRUE : AL_FALSE);
-		const auto errcode = alGetError();
-		if (errcode != AL_NO_ERROR) {
-			throw openal_error("Cannot toggle looping", errcode);
-		}
-	}
-
-	bool is_playing() const {
-		ALint state = 0;
-		alGetSourcei(id, AL_SOURCE_STATE, &state);
-		const auto errcode = alGetError();
-		if (errcode != AL_NO_ERROR) {
-			throw openal_error("Cannot get source state", errcode);
-		}
-		return state == AL_PLAYING;
-	}
-
-	openal_source(const openal_source &) = delete;
-	openal_source & operator=(const openal_source &) = delete;
-
-	inline openal_source(openal_source && other)
-	: id(std::exchange(other.id, 0))
-	, mss_id(std::exchange(other.mss_id, 0))
-	, emit_id(std::exchange(other.emit_id, 0))
-	, smptbl_id(std::exchange(other.smptbl_id, 0))
-	, base_gain(std::exchange(other.base_gain, 0)){}
-
-	inline openal_source & operator=(openal_source && other) {
-		id = std::exchange(other.id, 0);
-		mss_id = std::exchange(other.mss_id, 0);
-		emit_id = std::exchange(other.emit_id, 0);
-		smptbl_id = std::exchange(other.smptbl_id, 0);
-		base_gain = std::exchange(other.base_gain, 0);
 		return *this;
 	}
 };
@@ -390,7 +259,7 @@ struct sound_sample {
 				return;
 			}
 		}
-		WARNLOG("Cannot decode MS-ADPCM sample %s, using silence", name.c_str());
+		AUDIOWARN("Cannot decode MS-ADPCM sample %s, using silence", name.c_str());
 		const int16_t silence = 0;
 		alBufferData(buffer.id, AL_FORMAT_MONO16, &silence, sizeof(silence), wav.samplerate());
 	}
@@ -471,7 +340,6 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 	return buffers;
 }
 
-std::vector<openal_source> g_sources;
 std::array<std::vector<sound_sample>, 2> g_banks;
 std::vector<sound_sample> g_custom_bank;  // Third bank for custom sounds loaded at runtime
 SoundSmplTblID g_speech_offset = 0;  // Unified ID start of speech bank
@@ -485,47 +353,48 @@ struct SoundStackPolicy {
 };
 static std::unordered_map<SoundSmplTblID, SoundStackPolicy> g_stack_policies;
 
-// Tick-scoped gate reproducing the pre-Custom-Sounds behaviour exactly: a sample ID with
-// no explicit STACK= policy may only start once per "tick", regardless of which emitter
-// triggers it.
-static unsigned long g_audio_tick_counter = 0; // tick != turn; ticks continue while navigating the frontend/main menu
-static std::unordered_map<SoundSmplTblID, unsigned long> g_tick_samples_last_tick;
-
-// Per-tick counts of samples play_sample() refused, plotted in MonitorStreamedSoundTrack().
-static uint32_t g_drops_tick_gate = 0;
-static uint32_t g_drops_stack_cap = 0;
-static uint32_t g_drops_no_voice = 0;
-
-static SoundStackPolicy get_stack_policy(SoundSmplTblID smptbl_id) {
+// Feeds g_stack_policies to the VoiceMirror, which can't see this file's tables.
+bool lookup_stack_policy(SoundSmplTblID smptbl_id, kfx::audio::StackPolicy & out) {
 	const auto it = g_stack_policies.find(smptbl_id);
-	if (it != g_stack_policies.end()) {
-		return it->second;
+	if (it == g_stack_policies.end()) {
+		return false;
 	}
-	return SoundStackPolicy{}; // default: Limit, max 1
+	out.mode = it->second.mode;
+	out.max_instances = it->second.max_instances;
+	return true;
 }
 
-// Recompute duck-scaled gain for every currently active instance of a sample.
-// Called after a new instance starts, and after MonitorStreamedSoundTrack() prunes a
-// finished one, so remaining instances' volume rises back up as concurrency drops.
-static void apply_duck_gain(SoundSmplTblID smptbl_id) {
-	int count = 0;
-	for (const auto & source : g_sources) {
-		if (source.emit_id != 0 && source.smptbl_id == smptbl_id) {
-			++count;
-		}
+// Stops and flushes every voice using samples >= first_smptbl_id; false means don't delete the buffers.
+bool stop_voices_using_samples_from(SoundSmplTblID first_smptbl_id) {
+	if (!g_audio_callback.initialized()) {
+		return true;
 	}
-	if (count == 0) {
-		return;
+	if (!g_audio_callback.flush()) { // empties the ring so every Stop below fits
+		return false;
 	}
-	const float scale = 1.0f / std::sqrt(float(count));
-	for (auto & source : g_sources) {
-		if (source.emit_id != 0 && source.smptbl_id == smptbl_id) {
-			try {
-				source.gain_scaled(source.base_gain, scale);
-			} catch (const std::exception & e) {
-				ERRORLOG("%s", e.what());
-			}
-		}
+	g_voice_mirror.stop_samples_from(first_smptbl_id, g_command_ring);
+	return g_audio_callback.flush();
+}
+
+// For when buffers can't be deleted safely: a later InitAudio must not delete reused ids.
+void forget_bank_buffers(std::vector<sound_sample> & bank) {
+	for (auto & sample : bank) {
+		sample.buffer.id = 0;
+	}
+	bank.clear();
+}
+
+// Closes the SDL3 stream and the loopback device, then drops InitAudio's SDL audio reference.
+void release_audio_output() {
+	g_audio_callback.shutdown();
+	kfx::audio::Command command;
+	while (g_command_ring.pop(command)) {} // the callback is gone, so nothing else consumes these
+	kfx::audio::VoiceFinishedEvent event;
+	while (g_event_ring.pop(event)) {} // would otherwise match generations after a re-init
+	g_voice_mirror.init(0);
+	if (g_sdl_audio_subsystem_held) {
+		SDL_QuitSubSystem(SDL_INIT_AUDIO);
+		g_sdl_audio_subsystem_held = false;
 	}
 }
 
@@ -545,7 +414,7 @@ void load_sound_banks() {
 	}
 	g_banks[0] = load_sound_bank(snd_fname);
 	g_banks[1] = load_sound_bank(spc_fname);
-	LbJustLog("Loaded %s (%d samples), %s (%d samples)\n",
+	AUDIOLOG("Loaded %s (%d samples), %s (%d samples)",
 		snd_fname, (int)g_banks[0].size(), spc_fname, (int)g_banks[1].size());
 	g_speech_offset = (SoundSmplTblID)g_banks[0].size();
 	g_custom_offset = g_speech_offset + (SoundSmplTblID)g_banks[1].size();
@@ -553,34 +422,25 @@ void load_sound_banks() {
 
 void print_device_info() {
 	const char * devices;
-	const char * default_device;
 	if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATE_ALL_EXT")) {
 		devices = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
-		default_device = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
 	} else if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT")) {
 		devices = alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
-		default_device = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
 	} else {
 		return;
 	}
 	if (devices == nullptr || devices[0] == 0) {
-		LbJustLog("Audio devices: none\n");
+		AUDIOLOG("Audio devices: none");
 		return;
 	}
-	if (default_device == nullptr) {
-		default_device = "";
-	}
-	LbJustLog("Audio devices:");
+	std::string list = "Audio devices:";
 	const char * separator = " ";
 	for (auto device = devices; device[0] != 0; device += strlen(device) + 1) {
-		const char * suffix = "";
-		if (strcmp(device, default_device) == 0) {
-			suffix = " (default)";
-		}
-		LbJustLog("%s%s%s", separator, device, suffix);
+		list += separator;
+		list += device;
 		separator = ", ";
 	}
-	LbJustLog("\n");
+	AUDIOLOG("%s", list.c_str());
 }
 
 const char * output_mode_str(ALCint mode) {
@@ -609,21 +469,21 @@ const char * hrtf_status_str(ALCint status) {
 }
 
 void log_openal_status(ALCdevice * device) {
-	LbJustLog("OpenAL version: %s, vendor: %s, renderer: %s\n",
+	AUDIOLOG("OpenAL version: %s, vendor: %s, renderer: %s",
 		alGetString(AL_VERSION), alGetString(AL_VENDOR), alGetString(AL_RENDERER));
 	const char * device_name = alcIsExtensionPresent(device, "ALC_ENUMERATE_ALL_EXT")
 		? alcGetString(device, ALC_ALL_DEVICES_SPECIFIER)
 		: alcGetString(device, ALC_DEVICE_SPECIFIER);
-	LbJustLog("OpenAL device in use: %s\n", (device_name != nullptr) ? device_name : "unknown");
+	AUDIOLOG("OpenAL device in use: %s", (device_name != nullptr) ? device_name : "unknown");
 	if (alcIsExtensionPresent(device, "ALC_SOFT_output_mode")) {
 		ALCint mode = 0;
 		alcGetIntegerv(device, ALC_OUTPUT_MODE_SOFT, 1, &mode);
-		LbJustLog("OpenAL output mode: %s\n", output_mode_str(mode));
+		AUDIOLOG("OpenAL output mode: %s", output_mode_str(mode));
 	}
 	if (alcIsExtensionPresent(device, "ALC_SOFT_HRTF")) {
 		ALCint status = 0;
 		alcGetIntegerv(device, ALC_HRTF_STATUS_SOFT, 1, &status);
-		LbJustLog("OpenAL HRTF status: %s\n", hrtf_status_str(status));
+		AUDIOLOG("OpenAL HRTF status: %s", hrtf_status_str(status));
 	}
 }
 
@@ -666,32 +526,47 @@ extern "C" void FreeAudio() {
 	ShutDownSDLAudio();
 	SYNCDBG(7, "SDL_mixer shutdown complete");
 
-	// Clear OpenAL sources and buffers while context is still current
-	g_sources.clear();
-	g_banks[0].clear();
-	g_banks[1].clear();
-	g_custom_bank.clear();  // Clear custom sounds when cleaning up audio
+	// Stop every voice so no source holds a buffer, then delete while the loopback context is current.
+	bool buffers_safe = true;
+	if (g_audio_callback.initialized()) {
+		buffers_safe = g_audio_callback.flush();
+		if (buffers_safe) {
+			g_voice_mirror.stop_all(g_command_ring);
+			buffers_safe = g_audio_callback.flush();
+		}
+	}
+	if (buffers_safe) {
+		g_banks[0].clear();
+		g_banks[1].clear();
+		g_custom_bank.clear();  // Clear custom sounds when cleaning up audio
+	} else {
+		AUDIOERR("Audio flush failed, leaving sound buffers to the device close");
+		forget_bank_buffers(g_banks[0]);
+		forget_bank_buffers(g_banks[1]);
+		forget_bank_buffers(g_custom_bank);
+	}
 	g_id_redirects.clear(); // Clear raw-ID redirects alongside custom bank
 	g_stack_policies.clear(); // Clear stacking policies alongside custom bank
-	g_tick_samples_last_tick.clear(); // Clear per-tick stacking gate alongside custom bank
-	SYNCDBG(7, "Cleared OpenAL sources and sound banks");
+	g_voice_mirror.clear_tick_gate(); // Clear per-tick stacking gate alongside custom bank
+	SYNCDBG(7, "Stopped voices and cleared sound banks");
 
-	// Now destroy OpenAL context and device (unique_ptr handles proper cleanup)
-	g_al_defer_updates = nullptr;
-	g_al_process_updates = nullptr;
+	// Now destroy the SDL3 stream, the sources and the loopback context/device
 #ifdef AL_EXT_debug
 	g_al_debug_message_callback = nullptr;
 #endif
-	g_openal_context = nullptr;
-	g_openal_device = nullptr;
+	release_audio_output();
 	SYNCDBG(6, "Audio cleanup complete");
 }
 
 extern "C" void custom_sound_bank_clear() {
-	g_custom_bank.clear();
+	if (stop_voices_using_samples_from(g_custom_offset)) {
+		g_custom_bank.clear();
+	} else {
+		AUDIOERR("Audio flush failed, leaving custom sound buffers undeleted");
+	}
 	g_id_redirects.clear();
 	g_stack_policies.clear();
-	g_tick_samples_last_tick.clear();
+	g_voice_mirror.clear_tick_gate();
 }
 
 extern "C" void sound_register_id_redirect(SoundSmplTblID from_id, SoundSmplTblID to_id) {
@@ -733,7 +608,11 @@ extern "C" void sound_restore_id_redirect_snapshot(void) {
 	if (g_custom_bank.size() > g_custom_bank_watermark) {
 		SYNCDBG(7, "Trimming custom bank from %" PRIuSIZE " to %" PRIuSIZE " entries",
 			SZCAST(g_custom_bank.size()), SZCAST(g_custom_bank_watermark));
-		g_custom_bank.erase(g_custom_bank.begin() + (ptrdiff_t)g_custom_bank_watermark, g_custom_bank.end());
+		if (stop_voices_using_samples_from(g_custom_offset + (SoundSmplTblID)g_custom_bank_watermark)) {
+			g_custom_bank.erase(g_custom_bank.begin() + (ptrdiff_t)g_custom_bank_watermark, g_custom_bank.end());
+		} else {
+			AUDIOERR("Audio flush failed, leaving custom sound buffers undeleted");
+		}
 	}
 	SYNCDBG(7, "Restored sound snapshot: %" PRIuSIZE " redirects, %" PRIuSIZE " stack policies",
 		SZCAST(g_id_redirects.size()), SZCAST(g_stack_policies.size()));
@@ -749,7 +628,7 @@ extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 		}
 		g_master_volume = volume;
 	} catch (const std::exception & e) {
-		ERRORLOG("%s", e.what());
+		AUDIOERR("%s", e.what());
 	}
 }
 
@@ -781,11 +660,11 @@ extern "C" TbBool play_music(const char * fname) {
 	// On failure the stream is closed and the current music keeps playing.
 	SDL_IOStream* io = SDL_IOFromFile(game.music_fname, "rb");
 	if (!io || !MIX_SetTrackIOStream(g_music_track, io, true)) {
-		WARNLOG("Cannot load music from %s: %s", game.music_fname, SDL_GetError());
+		AUDIOWARN("Cannot load music from %s: %s", game.music_fname, SDL_GetError());
 		return false;
 	}
 	if (!MIX_PlayTrack(g_music_track, 0)) {
-		WARNLOG("Cannot play music from %s: %s", game.music_fname, SDL_GetError());
+		AUDIOWARN("Cannot play music from %s: %s", game.music_fname, SDL_GetError());
 		return false;
 	}
 	MIX_SetTrackLoops(g_music_track, -1); // loop forever (was Mix_PlayMusic(music, -1))
@@ -933,10 +812,10 @@ extern "C" TbBool play_music_track(int track) {
 		// already the one actually playing (e.g. reloading a save for the same level).
 		char fpath[2048];
 		if (!resolve_track_music_path(track, fpath, sizeof(fpath))) {
-			WARNLOG("No music file found for track %d in the music folder", track);
+			AUDIOWARN("No music file found for track %d in the music folder", track);
 			return false;
 		}
-		LbJustLog("Playing track %d: %s\n", track, fpath);
+		AUDIOLOG("Playing track %d: %s", track, fpath);
 		return play_music(fpath);
 	} else {
 		if (track == g_current_music_track) {
@@ -948,7 +827,7 @@ extern "C" TbBool play_music_track(int track) {
 			g_current_music_fname.clear();
 			return true;
 		} else {
-			WARNLOG("Cannot play track %d", game.music_track);
+			AUDIOWARN("Cannot play track %d", game.music_track);
 			return false;
 		}
 	}
@@ -991,52 +870,42 @@ extern "C" void stop_music(TbBool fade_out) {
 }
 
 extern "C" TbBool GetSoundInstalled() {
-	return g_openal_device && g_openal_context;
+	return g_audio_callback.initialized();
 }
 
 // This function gets called every tick, both during active gameplay and while navigating
 // the frontend/main menu, this should probably be buffer based and not tick based..
 extern "C" void MonitorStreamedSoundTrack() {
 	KFX_ZONE_COLOR("MonitorStreamedSoundTrack", KFX_COLOR_AUDIO);
-	++g_audio_tick_counter;
-	[[maybe_unused]] int active_voices = 0;
-	for (auto & source : g_sources) {
-		try {
-			if (source.emit_id > 0 && !source.is_playing()) {
-				const SoundSmplTblID finished_smptbl_id = source.smptbl_id;
-				source.emit_id = 0;
-				source.smptbl_id = 0;
-				// If this sample uses Duck-mode stacking, the remaining active instances
-				// (if any) should return to a louder gain now that one has ended.
-				if (get_stack_policy(finished_smptbl_id).mode == SStack_Duck) {
-					apply_duck_gain(finished_smptbl_id);
-				}
-			}
-		} catch (const std::exception & e) {
-			ERRORLOG("%s", e.what());
-		}
-		if (source.emit_id > 0) {
-			++active_voices;
-		}
-	}
+	g_voice_mirror.advance_tick(); // must precede process_events(): its gates compare against the new tick
+	g_voice_mirror.process_events(g_event_ring, g_command_ring);
+	[[maybe_unused]] const size_t active_voices = g_voice_mirror.active_count();
+	const uint32_t voices_stolen = g_voice_mirror.take_voices_stolen();
+	const uint32_t drops_tick_gate = g_voice_mirror.take_drops_tick_gate();
+	const uint32_t drops_stack_cap = g_voice_mirror.take_drops_stack_cap();
+	const uint32_t drops_no_voice = g_voice_mirror.take_drops_no_voice();
+	const uint32_t commands_dropped = g_voice_mirror.take_commands_dropped();
+	const bool events_overflowed = g_audio_callback.take_event_ring_overflowed();
 	KFX_PLOT("Audio voices", active_voices);
-	KFX_PLOT("Audio drops: tick gate", g_drops_tick_gate);
-	KFX_PLOT("Audio drops: stack cap", g_drops_stack_cap);
-	KFX_PLOT("Audio drops: no voice", g_drops_no_voice);
+	KFX_PLOT("Audio voices stolen", voices_stolen);
+	KFX_PLOT("Audio drops: tick gate", drops_tick_gate);
+	KFX_PLOT("Audio drops: stack cap", drops_stack_cap);
+	KFX_PLOT("Audio drops: no voice", drops_no_voice);
+	KFX_PLOT("Audio drops: command ring full", commands_dropped);
+	KFX_PLOT("Audio event ring overflowed", events_overflowed ? 1 : 0);
 	KFX_PLOT("Audio drops: S3D priority", S3DDropsPriority);
 	KFX_PLOT("Audio drops: S3D eviction", S3DDropsEviction);
 	KFX_PLOT("Audio drops: S3D volume zero", S3DDropsVolumeZero);
 	KFX_PLOT("Audio drops: S3D out of range", S3DDropsOutOfRange);
-	if (g_drops_tick_gate || g_drops_stack_cap || g_drops_no_voice
+	if (voices_stolen || drops_tick_gate || drops_stack_cap || drops_no_voice || commands_dropped || events_overflowed
 	 || S3DDropsPriority || S3DDropsEviction || S3DDropsVolumeZero || S3DDropsOutOfRange) {
-		SYNCDBG(7, "Audio sample drops this tick: tick-gate %u, stack-cap %u, no-voice %u, "
+		SYNCDBG(7, "Audio sample drops this tick: stolen %u, tick-gate %u, stack-cap %u, no-voice %u, "
+			"command-ring-full %u, event-ring-overflow %d, "
 			"S3D priority %lu, S3D eviction %lu, S3D volume-zero %lu, S3D out-of-range %lu",
-			g_drops_tick_gate, g_drops_stack_cap, g_drops_no_voice,
+			voices_stolen, drops_tick_gate, drops_stack_cap, drops_no_voice,
+			commands_dropped, events_overflowed ? 1 : 0,
 			S3DDropsPriority, S3DDropsEviction, S3DDropsVolumeZero, S3DDropsOutOfRange);
 	}
-	g_drops_tick_gate = 0;
-	g_drops_stack_cap = 0;
-	g_drops_no_voice = 0;
 	S3DDropsPriority = 0;
 	S3DDropsEviction = 0;
 	S3DDropsVolumeZero = 0;
@@ -1050,22 +919,16 @@ extern "C" void * GetSoundDriver() {
 }
 
 extern "C" void StopAllSamples() {
-	for (auto & source : g_sources) {
-		try {
-			source.stop();
-		} catch (const std::exception & e) {
-			ERRORLOG("%s", e.what());
-		}
-	}
+	g_voice_mirror.stop_all(g_command_ring);
 }
 
 #ifdef AL_EXT_debug
 void AL_APIENTRY on_al_debug_message(ALenum source, ALenum type, ALuint id, ALenum severity, ALsizei length, const ALchar * message, void * userParam) noexcept {
 	(void)source; (void)id; (void)length; (void)userParam;
 	if (type == AL_DEBUG_TYPE_ERROR_EXT || severity == AL_DEBUG_SEVERITY_HIGH_EXT) {
-		ERRORLOG("OpenAL: %s", message);
+		AUDIOERR("OpenAL: %s", message);
 	} else {
-		WARNLOG("OpenAL: %s", message);
+		AUDIOWARN("OpenAL: %s", message);
 	}
 }
 #endif
@@ -1078,29 +941,27 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 			g_bb_king_mode |= ((date.Day == 1) && (date.Month == 2));
 		}
 		if (SoundDisabled) {
-			WARNLOG("Sound is disabled, skipping OpenAL initialization");
+			AUDIOWARN("Sound is disabled, skipping OpenAL initialization");
 			return false;
 		}
-		if (g_openal_device || g_openal_context) {
-			WARNLOG("OpenAL already initialized");
+		if (GetSoundInstalled()) {
+			AUDIOWARN("OpenAL already initialized");
 			return true;
 		}
 		print_device_info();
-		ALCdevice_ptr device(alcOpenDevice(nullptr));
-		if (!device) {
-			throw openal_error("Cannot open default audio device");
+		// sounds.c calls InitAudio before InitialiseSDLAudio, so take our own SDL audio reference.
+		if (!SDL_InitSubSystem(SDL_INIT_AUDIO)) {
+			throw std::runtime_error(std::string("Cannot initialise SDL audio subsystem: ") + SDL_GetError());
 		}
-		ALCcontext_ptr context(alcCreateContext(device.get(), nullptr));
-		if (!context) {
-			throw openal_error("Cannot create context");
-		} else if (!alcMakeContextCurrent(context.get())) {
-			throw openal_error("Cannot make context current");
+		g_sdl_audio_subsystem_held = true;
+		// Makes the loopback context process-current; nothing else may change it.
+		if (!g_audio_callback.init(settings->max_number_of_samples, g_command_ring, g_event_ring)) {
+			throw std::runtime_error("Cannot open audio output");
 		}
-		log_openal_status(device.get());
-		if (alIsExtensionPresent("AL_SOFT_deferred_updates")) {
-			g_al_defer_updates = reinterpret_cast<LPALDEFERUPDATESSOFT>(alGetProcAddress("alDeferUpdatesSOFT"));
-			g_al_process_updates = reinterpret_cast<LPALPROCESSUPDATESSOFT>(alGetProcAddress("alProcessUpdatesSOFT"));
-		}
+		AUDIOLOG("OpenAL renders into a loopback device, played through an SDL3 audio stream");
+		const char * output_device = g_audio_callback.physical_device_name();
+		AUDIOLOG("SDL3 audio output device: %s", (output_device != nullptr) ? output_device : "unknown");
+		log_openal_status(g_audio_callback.loopback_device());
 #ifdef AL_EXT_debug
 		if (alIsExtensionPresent("AL_EXT_debug")) {
 			g_al_debug_message_callback = reinterpret_cast<LPALDEBUGMESSAGECALLBACKEXT>(alGetProcAddress("alDebugMessageCallbackEXT"));
@@ -1110,32 +971,28 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 			}
 		}
 #endif
-		g_sources.resize(settings->max_number_of_samples);
-		for (size_t i = 0; i < g_sources.size(); ++i) {
-			g_sources[i].mss_id = i + 1;
-		}
+		g_voice_mirror.init(settings->max_number_of_samples);
+		g_voice_mirror.set_stack_policy_lookup(lookup_stack_policy);
+		g_voice_mirror.set_bb_king_mode(g_bb_king_mode);
+		// Must run after g_audio_callback.init(): buffers must live on the loopback context.
 		load_sound_banks();
-		g_openal_device = std::move(device);
-		g_openal_context = std::move(context);
 		return true;
 	} catch (const std::exception & e) {
-		ERRORLOG("%s", e.what());
+		AUDIOERR("%s", e.what());
 	}
+	// No voice has played yet, so the partly loaded banks hold no attached buffers.
+	g_banks[0].clear();
+	g_banks[1].clear();
+#ifdef AL_EXT_debug
+	g_al_debug_message_callback = nullptr;
+#endif
+	release_audio_output();
 	SoundDisabled = true;
 	return false;
 }
 
 extern "C" TbBool IsSamplePlaying(SoundMilesID mss_id) {
-	try {
-		for (const auto & source : g_sources) {
-			if (source.mss_id == mss_id) {
-				return source.is_playing();
-			}
-		}
-	} catch (const std::exception & e) {
-		ERRORLOG("%s", e.what());
-	}
-	return false;
+	return g_voice_mirror.is_playing(mss_id);
 }
 
 extern "C" SoundVolume GetCurrentSoundMasterVolume() {
@@ -1143,55 +1000,22 @@ extern "C" SoundVolume GetCurrentSoundMasterVolume() {
 }
 
 extern "C" void SetSampleVolume(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundVolume volume) {
-	for (auto & source : g_sources) {
-		if (source.emit_id == emit_id && source.smptbl_id == smptbl_id) {
-			try {
-				source.gain(volume);
-			} catch (const std::exception & e) {
-				ERRORLOG("%s", e.what());
-			}
-		}
-	}
+	g_voice_mirror.set_volume(emit_id, smptbl_id, volume, g_command_ring);
 }
 
 extern "C" void SetSamplePan(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPan pan) {
-	for (auto & source : g_sources) {
-		if (source.emit_id == emit_id && source.smptbl_id == smptbl_id) {
-			try {
-				source.pan(pan);
-			} catch (const std::exception & e) {
-				ERRORLOG("%s", e.what());
-			}
-		}
-	}
+	g_voice_mirror.set_pan(emit_id, smptbl_id, pan, g_command_ring);
 }
 
 extern "C" void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPitch pitch) {
-	for (auto & source : g_sources) {
-		if (source.emit_id == emit_id && source.smptbl_id == smptbl_id) {
-			try {
-				if (source.flags & bb_king_mode) {
-					continue; // ben enjoyed dofi's stream so much I made random pitch an easter egg
-				} else {
-					source.pitch(pitch);
-				}
-			} catch (const std::exception & e) {
-				ERRORLOG("%s", e.what());
-			}
-		}
-	}
+	g_voice_mirror.set_pitch(emit_id, smptbl_id, pitch, g_command_ring);
 }
 
+// No-ops: updates are queued for the audio thread.
 extern "C" void begin_sample_updates() {
-	if (g_al_defer_updates && g_al_process_updates && GetSoundInstalled()) {
-		g_al_defer_updates();
-	}
 }
 
 extern "C" void end_sample_updates() {
-	if (g_al_defer_updates && g_al_process_updates && GetSoundInstalled()) {
-		g_al_process_updates();
-	}
 }
 
 extern "C" SoundMilesID play_sample(
@@ -1201,12 +1025,15 @@ extern "C" SoundMilesID play_sample(
 	SoundPan pan,
 	SoundPitch pitch,
 	char repeats, // possible values: -1, 0
-	unsigned char ctype // possible values: 2, 3
+	unsigned char ctype, // possible values: 2, 3
+	long priority // higher = more important; matches bflib_sound.c's find_slot() convention
 ) {
 	if (emit_id <= 0) {
-		ERRORLOG("Can't play sample %d, invalid emitter ID", smptbl_id);
+		AUDIOERR("Can't play sample %d, invalid emitter ID", smptbl_id);
 		return 0;
 	}
+	// Only positional (S3D) emitters are spatialised, not ambient loops or speech.
+	const bool is_positional = (emit_id != Non3DEmitter) && (emit_id != SpeechEmitter);
 	// Apply raw-ID redirect before bank dispatch (only for effect-bank IDs)
 	if (smptbl_id > 0 && smptbl_id < g_speech_offset) {
 		auto redir = g_id_redirects.find(smptbl_id);
@@ -1219,138 +1046,37 @@ extern "C" SoundMilesID play_sample(
 	if (smptbl_id >= g_custom_offset) {
 		const SoundSmplTblID idx = smptbl_id - g_custom_offset;
 		if (idx < 0 || idx >= (SoundSmplTblID)g_custom_bank.size()) {
-			ERRORLOG("Can't play custom sample %d, out of range", smptbl_id);
+			AUDIOERR("Can't play custom sample %d, out of range", smptbl_id);
 			return 0;
 		}
 		buf = &g_custom_bank[idx].buffer;
 	} else if (smptbl_id >= g_speech_offset) {
 		const SoundSmplTblID idx = smptbl_id - g_speech_offset;
 		if (idx <= 0 || idx >= (SoundSmplTblID)g_banks[1].size()) {
-			ERRORLOG("Can't play speech sample %d, out of range", smptbl_id);
+			AUDIOERR("Can't play speech sample %d, out of range", smptbl_id);
 			return 0;
 		}
 		buf = &g_banks[1][idx].buffer;
 	} else {
 		if (smptbl_id <= 0 || smptbl_id >= (SoundSmplTblID)g_banks[0].size()) {
 			if (smptbl_id != 0) {
-				ERRORLOG("Can't play effect sample %d, out of range", smptbl_id);
+				AUDIOERR("Can't play effect sample %d, out of range", smptbl_id);
 			}
 			return 0;
 		}
 		buf = &g_banks[0][smptbl_id].buffer;
 	}
 	try {
-		// Look up the stacking policy once — used by both the restart-in-place path below
-		// and the new-voice-allocation path further down.
-		const auto stack_policy_it = g_stack_policies.find(smptbl_id);
-		const bool has_explicit_stack_policy = (stack_policy_it != g_stack_policies.end());
-		SoundStackPolicy stack_policy{};
-		if (has_explicit_stack_policy) {
-			stack_policy = stack_policy_it->second;
-		}
-
-		// ctype 2/3: if this emitter is already playing the same sample, restart it in-place
-		// rather than allocating a new source (mirrors MSS single-voice-per-slot behaviour and
-		// prevents sounds from stacking — e.g. hailstorm projectiles all hitting the same target).
-		if (ctype == 2 || ctype == 3) {
-			for (auto & source : g_sources) {
-				if (source.emit_id == emit_id && source.smptbl_id == smptbl_id) {
-					source.stop();
-					source.base_gain = volume;
-					source.gain(volume);
-					source.pan(pan);
-					source.repeat(repeats == -1);
-					source.pitch(pitch);
-					source.play(*buf);
-					if (has_explicit_stack_policy && stack_policy.mode == SStack_Duck) {
-						// This source may be part of a Duck-mode group with other concurrently
-						// playing instances (from other emitters) — rescale it (and them) back
-						// down instead of leaving it at the full, un-ducked volume just set above.
-						apply_duck_gain(smptbl_id);
-					}
-					return source.mss_id;
-				}
-			}
-		}
-		// Cross-emitter stacking policy: caps how many different emitters may play the
-		// same sample concurrently (or ducks their combined volume). Only applies when
-		// allocating a genuinely new voice, not on the same-emitter restart-in-place above.
-		if (!has_explicit_stack_policy) {
-			// No explicit STACK= policy: reproduce the OG behaviour exactly — this sample may
-			// only start once per tick, regardless of which emitter triggers it.
-			const auto tick_it = g_tick_samples_last_tick.find(smptbl_id);
-			if (tick_it != g_tick_samples_last_tick.end() && tick_it->second == g_audio_tick_counter) {
-				++g_drops_tick_gate;
-				return 0; // dropped: already triggered this tick
-			}
-		} else {
-			if (stack_policy.max_instances > 0) {
-				int active_count = 0;
-				for (const auto & source : g_sources) {
-					if (source.emit_id != 0 && source.smptbl_id == smptbl_id) {
-						++active_count;
-					}
-				}
-				if (active_count >= stack_policy.max_instances) {
-					++g_drops_stack_cap;
-					return 0; // dropped: at this sample's concurrency cap
-				}
-			}
-		}
-		for (auto & source : g_sources) {
-			if (source.emit_id == 0) {
-				source.base_gain = volume;
-				source.gain(volume);
-				source.pan(pan);
-				source.repeat(repeats == -1);
-				if (g_bb_king_mode) {
-					// ben enjoyed dofi's stream so much I made random pitch an easter egg
-                    if (SOUND_RANDOM(10000) <= 3) { // ~0.03% of the time
-						source.flags |= bb_king_mode;
-						source.pitch((NORMAL_PITCH / 2) + SOUND_RANDOM(NORMAL_PITCH));
-					} else {
-						source.flags &= ~bb_king_mode;
-						source.pitch(pitch);
-					}
-				} else {
-					source.pitch(pitch);
-				}
-				source.play(*buf);
-				source.emit_id = emit_id;
-				source.smptbl_id = smptbl_id;
-				if (!has_explicit_stack_policy) {
-					// Mark the tick only once a voice is secured, so a failed start doesn't block retries.
-					g_tick_samples_last_tick[smptbl_id] = g_audio_tick_counter;
-				}
-				if (has_explicit_stack_policy && stack_policy.mode == SStack_Duck) {
-					apply_duck_gain(smptbl_id);
-				}
-				return source.mss_id;
-			}
-		}
-		++g_drops_no_voice;
-		if (local_state.fast_forward < 2) {
-			ERRORLOG("Can't play sample %d, too many samples playing at once", smptbl_id);
-		}
-		return 0;
+		return g_voice_mirror.allocate(emit_id, buf->id, smptbl_id, volume, pan, pitch, repeats, ctype,
+		                               priority, is_positional, g_command_ring);
 	} catch (const std::exception & e) {
-		ERRORLOG("%s", e.what());
+		AUDIOERR("%s", e.what());
 	}
 	return 0;
 }
 
 extern "C" void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id) {
-	for (auto & source : g_sources) {
-		if (emit_id == source.emit_id && smptbl_id == source.smptbl_id) {
-			try {
-				source.stop();
-				source.emit_id = 0;
-				source.smptbl_id = 0;
-			} catch (const std::exception & e) {
-				ERRORLOG("%s", e.what());
-			}
-		}
-	}
+	g_voice_mirror.stop(emit_id, smptbl_id, g_command_ring);
 }
 
 extern "C" SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id) {
@@ -1372,13 +1098,13 @@ extern "C" SoundSmplTblID get_custom_offset(void) { return g_custom_offset; }
 extern "C" int InitialiseSDLAudio()
 {
 	if (!SDL_Init(SDL_INIT_AUDIO)) {
-		ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
+		AUDIOERR("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
 		return 0;
 	}
 	// SDL3_mixer: MIX_Init() is reference-counted and takes no format flags
 	// (decoders are discovered automatically).
 	if (!MIX_Init()) {
-		ERRORLOG("Could not initialise SDL3_mixer: %s", SDL_GetError());
+		AUDIOERR("Could not initialise SDL3_mixer: %s", SDL_GetError());
 		return 0;
 	}
 	SDL_AudioSpec spec;
@@ -1387,7 +1113,7 @@ extern "C" int InitialiseSDLAudio()
 	spec.freq     = 44100;
 	g_mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
 	if (!g_mixer) {
-		ERRORLOG("Could not open audio device for SDL mixer: %s", SDL_GetError());
+		AUDIOERR("Could not open audio device for SDL mixer: %s", SDL_GetError());
 		MIX_Quit();
 		return 0;
 	}
@@ -1396,7 +1122,7 @@ extern "C" int InitialiseSDLAudio()
 	g_music_track = MIX_CreateTrack(g_mixer);
 	g_speech_track = MIX_CreateTrack(g_mixer);
 	if (!g_music_track || !g_speech_track) {
-		ERRORLOG("Could not create SDL mixer tracks: %s", SDL_GetError());
+		AUDIOERR("Could not create SDL mixer tracks: %s", SDL_GetError());
 		MIX_DestroyMixer(g_mixer);
 		g_mixer = nullptr;
 		g_music_track = nullptr;
@@ -1430,7 +1156,7 @@ extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)
 	// No predecode: decoding happens on the mixer thread, only the file read stays here.
 	MIX_Audio* sample = MIX_LoadAudio(g_mixer, fname, false);
 	if (sample == nullptr) {
-		ERRORLOG("Cannot load \"%s\": %s", fname, SDL_GetError());
+		AUDIOERR("Cannot load \"%s\": %s", fname, SDL_GetError());
 		return false;
 	}
 	MIX_SetTrackAudio(g_speech_track, sample);
@@ -1438,7 +1164,7 @@ extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)
 	MIX_SetTrackGain(g_speech_track, float(volume) / FULL_LOUDNESS);
 	if (!MIX_PlayTrack(g_speech_track, 0)) {
 		MIX_DestroyAudio(sample);
-		ERRORLOG("Cannot play \"%s\": %s", fname, SDL_GetError());
+		AUDIOERR("Cannot play \"%s\": %s", fname, SDL_GetError());
 		return false;
 	}
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
@@ -1472,6 +1198,7 @@ extern "C" TbBool is_streamed_sample_playing(void) {
 
 extern "C" void toggle_bbking_mode() {
 	g_bb_king_mode = !g_bb_king_mode;
+	g_voice_mirror.set_bb_king_mode(g_bb_king_mode);
 }
 
 // Bridge functions for custom sound loading from C++ sound_manager
@@ -1490,7 +1217,7 @@ static TbBool decode_mp3_and_store(const char* filepath, int sample_id,
 		data, size, &cfg, &frame_count, nullptr);
 	if (!mp3_pcm || frame_count == 0) {
 		if (mp3_pcm) drmp3_free(mp3_pcm, nullptr);
-		ERRORLOG("Cannot decode MP3 data from %s", filepath);
+		AUDIOERR("Cannot decode MP3 data from %s", filepath);
 		return false;
 	}
 
@@ -1552,7 +1279,7 @@ static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample
 			g_custom_bank.emplace_back(logical_name, sample_id, wave_file(stream));
 			return true;
 		} catch (const std::exception & e) {
-			ERRORLOG("Cannot parse WAV audio %s: %s", logical_name, e.what());
+			AUDIOERR("Cannot parse WAV audio %s: %s", logical_name, e.what());
 			return false;
 		}
 	}
@@ -1564,14 +1291,14 @@ static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample
 	// and hand that PCM to OpenAL. This keeps OGG/FLAC custom-sound support.
 	SDL_IOStream* io = SDL_IOFromConstMem(data, size);
 	if (!io) {
-		ERRORLOG("Cannot create IOStream for %s: %s", logical_name, SDL_GetError());
+		AUDIOERR("Cannot create IOStream for %s: %s", logical_name, SDL_GetError());
 		return false;
 	}
 
 	// closeio=true: the decoder takes ownership of the stream.
 	MIX_AudioDecoder* decoder = MIX_CreateAudioDecoder_IO(io, true, 0);
 	if (!decoder) {
-		ERRORLOG("Cannot decode audio file %s: %s", logical_name, SDL_GetError());
+		AUDIOERR("Cannot decode audio file %s: %s", logical_name, SDL_GetError());
 		return false;
 	}
 
@@ -1579,7 +1306,7 @@ static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample
 	// the sound, and upmixing mono makes it louder. More than two channels is downmixed.
 	SDL_AudioSpec src_spec;
 	if (!MIX_GetAudioDecoderFormat(decoder, &src_spec)) {
-		ERRORLOG("Cannot read audio format of %s: %s", logical_name, SDL_GetError());
+		AUDIOERR("Cannot read audio format of %s: %s", logical_name, SDL_GetError());
 		MIX_DestroyAudioDecoder(decoder);
 		return false;
 	}
@@ -1596,14 +1323,14 @@ static TbBool decode_audio_buffer_and_store(const char* logical_name, int sample
 		}
 	} catch (...) {
 		MIX_DestroyAudioDecoder(decoder);
-		ERRORLOG("Out of memory buffering audio %s", logical_name);
+		AUDIOERR("Out of memory buffering audio %s", logical_name);
 		return false;
 	}
 	MIX_DestroyAudioDecoder(decoder);
 	try {
 		g_custom_bank.emplace_back(logical_name, sample_id, pcm, al_fmt, out_spec.freq);
 	} catch (const std::exception & e) {
-		ERRORLOG("Cannot store audio %s: %s", logical_name, e.what());
+		AUDIOERR("Cannot store audio %s: %s", logical_name, e.what());
 		return false;
 	}
 	return true;
@@ -1629,18 +1356,18 @@ extern "C" TbBool custom_sound_load_wav(const char* filepath, int sample_id)
 	{
 		std::ifstream f(abs_buf, std::ios::binary | std::ios::ate);
 		if (!f) {
-			ERRORLOG("Cannot open audio file %s", filepath);
+			AUDIOERR("Cannot open audio file %s", filepath);
 			return false;
 		}
 		const auto sz = f.tellg();
 		if (sz <= 0) {
-			ERRORLOG("Empty audio file %s", filepath);
+			AUDIOERR("Empty audio file %s", filepath);
 			return false;
 		}
 		file_data.resize((size_t)sz);
 		f.seekg(0);
 		if (!f.read(reinterpret_cast<char*>(file_data.data()), sz)) {
-			ERRORLOG("Cannot read audio file %s", filepath);
+			AUDIOERR("Cannot read audio file %s", filepath);
 			return false;
 		}
 	}
@@ -1654,7 +1381,7 @@ extern "C" TbBool custom_sound_load_wav_mem(const unsigned char* data, size_t si
 	const char* logical_name, int sample_id)
 {
 	if (data == nullptr || size == 0) {
-		ERRORLOG("Empty audio buffer for %s", logical_name);
+		AUDIOERR("Empty audio buffer for %s", logical_name);
 		return false;
 	}
 	return decode_audio_buffer_and_store(logical_name, sample_id, data, size);

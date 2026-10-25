@@ -51,6 +51,8 @@
     <ClCompile Include="src\config_translation.c" />
     <ClCompile Include="src\game_update.cpp" />
     <ClCompile Include="src\gui_vscroll.c" />
+    <ClCompile Include="src\kfx\audio\AudioCallback.cpp" />
+    <ClCompile Include="src\kfx\audio\VoiceMirror.cpp" />
     <ClCompile Include="src\kfx\platform\FileSystemLb.cpp" />
     <ClCompile Include="src\kfx\platform\PlatformLinux.cpp" />
     <ClCompile Include="src\kfx\platform\PlatformManager.cpp" />
@@ -414,6 +416,11 @@
     <ClInclude Include="src\config_sounds.h" />
     <ClInclude Include="src\config_translation.h" />
     <ClInclude Include="src\gui_vscroll.h" />
+    <ClInclude Include="src\kfx\audio\AudioCallback.h" />
+    <ClInclude Include="src\kfx\audio\AudioLog.h" />
+    <ClInclude Include="src\kfx\audio\Commands.h" />
+    <ClInclude Include="src\kfx\audio\SpscRing.h" />
+    <ClInclude Include="src\kfx\audio\VoiceMirror.h" />
     <ClInclude Include="src\kfx\platform\FileFind.h" />
     <ClInclude Include="src\kfx\platform\FileSystemLb.h" />
     <ClInclude Include="src\kfx\platform\IFileSystem.h" />
