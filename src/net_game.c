@@ -154,6 +154,7 @@ static const unsigned char user_preference_flags[UPref_Count] = {
     [UPref_StartingFrontviewZoom] = 0,
     [UPref_StartingTendencies]    = 0,
     [UPref_MinimapZoom]           = UPF_ApplyOnLoad,
+    [UPref_StartingComputerAssistantKind] = UPF_ApplyOnLoad,
 };
 
 void build_local_user_preferences(UserPreferences prefs)
@@ -180,6 +181,7 @@ void build_local_user_preferences(UserPreferences prefs)
     if (FLEE_BUTTON_DEFAULT)
         prefs[UPref_StartingTendencies] |= CrTend_Flee;
     prefs[UPref_MinimapZoom] = settings.minimap_zoom;
+    prefs[UPref_StartingComputerAssistantKind] = settings.computer_assistant_kind;
 }
 
 static void apply_user_starting_preferences(struct UserState *ustate, unsigned char flags)

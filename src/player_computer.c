@@ -101,9 +101,16 @@ GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
     return get_dungeon_money_less_cost(comp->dungeon);
 }
 
+int32_t get_computer_assist_model(uint8_t aptype)
+{
+    if (aptype >= 1 && aptype <= COMPUTER_ASSIST_TYPES_COUNT)
+        return comp_player_conf.computer_assist_types[aptype-1];
+    return comp_player_conf.player_assist_default;
+}
+
 long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
 {
-    setup_a_computer_player(plyr_idx, comp_player_conf.computer_assist_types[aptype-1]);
+    setup_a_computer_player(plyr_idx, get_computer_assist_model(aptype));
     return 1;
 }
 
@@ -1604,16 +1611,17 @@ void setup_computer_players2(void)
         int maxSkirmishAI = comp_player_conf.skirmish_last;
 
         int skirmish_AI_type = GAME_RANDOM(maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
-        if (i == game.local_plyr_idx)
+        const struct UserState *ustate = get_player_user_state(player);
+        if (!user_state_invalid(ustate))
         {
-            skirmish_AI_type = comp_player_conf.player_assist_default;
+            skirmish_AI_type = get_computer_assist_model(ustate->prefs[UPref_StartingComputerAssistantKind]);
         }
         setup_a_computer_player(i, skirmish_AI_type);
         if ((game.computer_chat_flags & CChat_TasksScarce) != 0)
         {
             message_add_fmt(MsgType_Player, i, "Ai model %d", skirmish_AI_type);
         }
-        if (i != game.local_plyr_idx)
+        if (user_state_invalid(ustate))
         {
             JUSTMSG("No model defined for Player %d, assigned computer model %d", i, skirmish_AI_type);
         }
