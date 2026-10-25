@@ -964,7 +964,7 @@ void frontnet_start_setup(void)
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;
     net_lobby_mappack_scroll_offset = 0;
-    net_lobby_mappack_dropdown_open = false;
+    net_lobby_mappack_list_open = false;
     net_message_scroll_offset = 0;
     //net_old_number_of_players = 0;
     local_state.mp_message_text[0] = '\0';
