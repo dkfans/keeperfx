@@ -104,10 +104,10 @@ static TbClockMSec last_sent_screen_packet_time;
 }
 #endif
 /******************************************************************************/
-#define PLAYER_COLOUR_BITS 4
-#define PLAYER_TEAM_BITS 3
-#define MAX_PLAYERS_BITS 4
-#define MAX_PLAYERS_MASK 0xF
+#define PLAYER_COLOUR_BITS 3
+#define PLAYER_TEAM_BITS 4
+#define MAX_PLAYERS_SHIFT (MAX_NET_USERS * PLAYER_COLOUR_BITS)
+#define RANDOM_TEAMS_COUNT 2
 
 struct NetPlayerSetting {
     int8_t *values;
@@ -117,7 +117,7 @@ struct NetPlayerSetting {
 
 static struct NetPlayerSetting net_player_settings[NetPlayerSetting_Count] = {
     [NetPlayerSetting_Colour] = {net_player_colour, NET_PLAYER_COLOUR_RANDOM + 1, -1},
-    [NetPlayerSetting_Team] = {net_player_team, NET_TEAM_COUNT, -1},
+    [NetPlayerSetting_Team] = {net_player_team, NET_TEAM_RANDOM + 1, -1},
 };
 
 static TbBool check_frontend_version_mismatch(void);
@@ -171,6 +171,49 @@ void frontnet_cycle_player_setting(enum NetPlayerSettingKind kind, NetUserId use
     nspck->action_par2 = kind;
 }
 
+static void shuffle_values(int8_t values[MAX_NET_USERS], int32_t count)
+{
+    for (int32_t i = count - 1; i > 0; i--) {
+        int32_t k = SDL_rand(i + 1);
+        int8_t swapped = values[i];
+        values[i] = values[k];
+        values[k] = swapped;
+    }
+}
+
+static char alliances_from_teams(const int8_t teams[MAX_NET_USERS])
+{
+    char alliances = 0;
+    for (NetUserId user1 = 0; user1 < MAX_NET_USERS; user1++) {
+        for (NetUserId user2 = user1 + 1; user2 < MAX_NET_USERS; user2++) {
+            if (teams[user1] >= 0 && teams[user1] < NET_TEAM_RANDOM && teams[user1] == teams[user2]) {
+                alliances |= alliance_grid[user1][user2];
+            }
+        }
+    }
+    return alliances;
+}
+
+static void resolve_random_teams(int8_t teams[MAX_NET_USERS])
+{
+    int8_t random_slots[MAX_NET_USERS];
+    int32_t random_count = 0;
+    for (PlayerNumber slot = 0; slot < MAX_NET_USERS; slot++) {
+        if (teams[slot] == NET_TEAM_RANDOM) {
+            random_slots[random_count] = slot;
+            random_count++;
+        }
+    }
+    shuffle_values(random_slots, random_count);
+    for (int32_t i = 0; i < random_count; i++) {
+        if (i < RANDOM_TEAMS_COUNT) {
+            teams[random_slots[i]] = first_unused_value(teams);
+        } else {
+            teams[random_slots[i]] = teams[random_slots[i - RANDOM_TEAMS_COUNT]];
+        }
+    }
+}
+
 void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colours[MAX_NET_USERS], char *alliances)
 {
     PlayerNumber free_colours[MAX_NET_USERS];
@@ -181,12 +224,7 @@ void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colour
             free_count++;
         }
     }
-    for (PlayerNumber i = free_count - 1; i > 0; i--) {
-        PlayerNumber k = SDL_rand(i + 1);
-        PlayerNumber swapped = free_colours[i];
-        free_colours[i] = free_colours[k];
-        free_colours[k] = swapped;
-    }
+    shuffle_values(free_colours, free_count);
     PlayerNumber next_free = 0;
     for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
         player_colours[user] = net_player_colour[user];
@@ -205,14 +243,15 @@ void net_resolve_player_colours(PlayerNumber colours_count, int8_t player_colour
             next_free++;
         }
     }
-    *alliances = 0;
-    for (NetUserId user1 = 0; user1 < MAX_NET_USERS; user1++) {
-        for (NetUserId user2 = user1 + 1; user2 < MAX_NET_USERS; user2++) {
-            if (player_colours[user1] >= 0 && player_colours[user2] >= 0 && frontend_is_player_allied(user1, user2)) {
-                *alliances |= alliance_grid[player_colours[user1]][player_colours[user2]];
-            }
+    int8_t slot_teams[MAX_NET_USERS];
+    memset(slot_teams, -1, sizeof(slot_teams));
+    for (NetUserId user = 0; user < MAX_NET_USERS; user++) {
+        if (player_colours[user] >= 0) {
+            slot_teams[player_colours[user]] = net_player_team[user];
         }
     }
+    resolve_random_teams(slot_teams);
+    *alliances = alliances_from_teams(slot_teams);
 }
 
 TbBool net_lobby_computer_player(NetUserId user)
@@ -269,19 +308,6 @@ static void unpack_user_values(uint16_t packed, int8_t values[MAX_NET_USERS], in
             values[user] = -1;
         }
     }
-}
-
-static char alliances_from_teams(void)
-{
-    char alliances = 0;
-    for (NetUserId user1 = 0; user1 < MAX_NET_USERS; user1++) {
-        for (NetUserId user2 = user1 + 1; user2 < MAX_NET_USERS; user2++) {
-            if (net_player_team[user1] >= 0 && net_player_team[user1] == net_player_team[user2]) {
-                alliances |= alliance_grid[user1][user2];
-            }
-        }
-    }
-    return alliances;
 }
 
 static TbBool try_starting_level_from_chat(const char *message, NetUserId user_id)
@@ -701,8 +727,8 @@ static void process_frontend_packets(void)
   nspckt->networkstatus_flags &= ~NetStat_ComputerPlayersMask;
   nspckt->networkstatus_flags |= (fe_computer_players << NetStat_ComputerPlayersShift) & NetStat_ComputerPlayersMask;
   if (network_is_host()) {
-    nspckt->stored_data1 = pack_user_values(net_player_colour, PLAYER_COLOUR_BITS, 1);
-    nspckt->stored_data2 = netstate.max_users | (pack_user_values(net_player_team, PLAYER_TEAM_BITS, 0) << MAX_PLAYERS_BITS);
+    nspckt->stored_data1 = pack_user_values(net_player_colour, PLAYER_COLOUR_BITS, 1) | (netstate.max_users << MAX_PLAYERS_SHIFT);
+    nspckt->stored_data2 = pack_user_values(net_player_team, PLAYER_TEAM_BITS, 0);
     net_lobby_max_players = netstate.max_users;
   }
   TbClockMSec now = LbTimerClock();
@@ -735,7 +761,7 @@ static void process_frontend_packets(void)
   } else {
     const struct ScreenPacket *host_packet = &net_screen_packet[SERVER_ID];
     unpack_user_values(host_packet->stored_data1, net_player_colour, PLAYER_COLOUR_BITS, 1, NET_PLAYER_COLOUR_RANDOM);
-    unpack_user_values((uint16_t)host_packet->stored_data2 >> MAX_PLAYERS_BITS, net_player_team, PLAYER_TEAM_BITS, 0, NET_TEAM_COUNT - 1);
+    unpack_user_values(host_packet->stored_data2, net_player_team, PLAYER_TEAM_BITS, 0, NET_TEAM_RANDOM);
     for (int i = 0; i < NetPlayerSetting_Count; i++) {
       struct NetPlayerSetting *setting = &net_player_settings[i];
       if (setting->values[my_player_number] == setting->requested) {
@@ -744,14 +770,14 @@ static void process_frontend_packets(void)
         setting->values[my_player_number] = setting->requested;
       }
     }
-    int32_t max_players = host_packet->stored_data2 & MAX_PLAYERS_MASK;
+    int32_t max_players = (uint16_t)host_packet->stored_data1 >> MAX_PLAYERS_SHIFT;
     if (max_players >= MIN_NET_USERS && max_players <= MAX_NET_USERS) {
       net_lobby_max_players = max_players;
     }
     clear_teamless_users();
   }
   if ((frontend_alliances != -1) || network_is_host() || is_connected_screen_packet(&net_screen_packet[SERVER_ID])) {
-    frontend_alliances = alliances_from_teams();
+    frontend_alliances = alliances_from_teams(net_player_team);
   }
   for (NetUserId i = 0; i < MAX_NET_USERS; i++) {
     if (!network_user_active(i)) {
