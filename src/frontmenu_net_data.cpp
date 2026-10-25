@@ -59,6 +59,7 @@ extern "C" {
 #define LOBBY_HEADER_INSET 6
 #define LOBBY_PANEL_TILE_COUNT 4
 #define LOBBY_COLUMN_TAB_PADDING 19
+#define LOBBY_PLAYER_ROW_INSET 7
 #define LOBBY_COLUMN_TEXT_GAP 12
 #define LOBBY_LEFT_WIDTH 324
 #define LOBBY_RIGHT_X 362
@@ -881,6 +882,7 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
     for (int32_t column = 0; column <= LobbyPlayerColumn_Count; column++) {
         column_x[column] = gbtn->scr_pos_x + lobby_player_columns[column] * gbtn->width / lobby_player_columns[LobbyPlayerColumn_Count];
     }
+    column_x[LobbyPlayerColumn_Name] = gbtn->scr_pos_x + LOBBY_PLAYER_ROW_INSET * gbtn->width / lobby_player_columns[LobbyPlayerColumn_Count];
     NetUserId user_at_mouse = lobby_editable_player_at_mouse(gbtn);
     int32_t column_at_mouse = lobby_player_column_at_mouse(gbtn);
     int font = frontend_button_caption_font(gbtn, 0);
