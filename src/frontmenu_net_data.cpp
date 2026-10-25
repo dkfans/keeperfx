@@ -208,17 +208,13 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
     }
 }
 
-static void draw_lobby_text(int x, int y, int width, int height, int font, unsigned short draw_flags, const char *text)
+static void draw_lobby_text(int x, int y, int width, int height, int font, unsigned short draw_flags, int32_t text_x, const char *text)
 {
     LbTextSetFont(frontend_font[font]);
     RendererSetDrawFlags(draw_flags);
     int scale = height * 16 / LbTextLineHeight();
-    int32_t text_width = LbTextStringWidth(text);
-    if (text_width > 0) {
-        scale = min(scale, width * 16 / text_width);
-    }
     LbTextSetWindow(x, y, width, min(height, (int)(lbDisplay.GraphicsWindowY + lbDisplay.GraphicsWindowHeight - y)));
-    LbTextDrawResized(0, (height - LbTextLineHeight() * scale / 16) / 2, scale, text);
+    LbTextDrawResized(text_x, (height - LbTextLineHeight() * scale / 16) / 2, scale, text);
 }
 
 static int lobby_font(struct GuiButton *gbtn, TbBool highlighted)
@@ -233,12 +229,22 @@ static int lobby_font(struct GuiButton *gbtn, TbBool highlighted)
     return 1;
 }
 
-static int32_t draw_lobby_text_right_aligned(int right, int y, int max_width, int height, int font, const char *text)
+static int32_t lobby_text_width(int height, int font, const char *text)
 {
     LbTextSetFont(frontend_font[font]);
     int scale = height * 16 / LbTextLineHeight();
-    int32_t width = min((LbTextStringWidth(text) * scale + 15) / 16, max_width);
-    draw_lobby_text(right - width, y, width, height, font, 0, text);
+    return LbTextStringPartWidthM(text, INT_MAX, scale);
+}
+
+static int32_t draw_lobby_text_right_aligned(int right, int y, int max_width, int height, int font, TbBool show_end, const char *text)
+{
+    int32_t text_width = lobby_text_width(height, font, text);
+    int32_t width = min(text_width, max_width);
+    int32_t text_x = 0;
+    if (show_end) {
+        text_x = width - text_width;
+    }
+    draw_lobby_text(right - width, y, width, height, font, 0, text_x, text);
     return width;
 }
 
@@ -302,7 +308,7 @@ static void draw_lobby_columns(struct GuiButton *gbtn, int font, const char *con
     for (int i = 0; i < 4; i++) {
         int x = gbtn->scr_pos_x + lobby_columns[i] * gbtn->width / lobby_columns[4];
         int width = (lobby_columns[i + 1] - lobby_columns[i] - LOBBY_COLUMN_TEXT_GAP) * gbtn->width / lobby_columns[4];
-        draw_lobby_text(x, y, width, height, font, 0, text[i]);
+        draw_lobby_text(x, y, width, height, font, 0, 0, text[i]);
     }
     draw_lobby_separator(separator_x, separator_y, separator_width, thickness);
 }
@@ -330,7 +336,7 @@ static void draw_lobby_column_tabs(struct GuiButton *gbtn, const int *columns, i
         LbSpriteDrawResized(tab_x, gbtn->scr_pos_y, scale, left);
         LbSpriteDrawScaled(tab_x + left_width, gbtn->scr_pos_y, middle, tab_width - left_width - right_width, gbtn->height);
         LbSpriteDrawResized(tab_x + tab_width - right_width, gbtn->scr_pos_y, scale, right);
-        draw_lobby_text(x, gbtn->scr_pos_y + scale / 16, width - LOBBY_COLUMN_TEXT_GAP * gbtn->width / columns[count], gbtn->height, 2, 0, text[i]);
+        draw_lobby_text(x, gbtn->scr_pos_y + scale / 16, width - LOBBY_COLUMN_TEXT_GAP * gbtn->width / columns[count], gbtn->height, 2, 0, 0, text[i]);
     }
 }
 
@@ -486,16 +492,12 @@ void frontnet_draw_lobby_tooltip(struct GuiButton *gbtn)
     int scale = gbtn->width * 16 / lobby_columns[4];
     int line_height = 26 * gbtn->width / lobby_columns[4];
     int padding = 7 * scale / 16;
-    LbTextSetFont(frontend_font[2]);
-    int text_scale = line_height * 16 / LbTextLineHeight();
-    int width = LbTextStringWidth(get_string(GUIStr_MnuPlayers)) * text_scale / 16;
-    LbTextSetFont(frontend_font[1]);
-    text_scale = line_height * 16 / LbTextLineHeight();
+    int width = lobby_text_width(line_height, 2, get_string(GUIStr_MnuPlayers));
     if (!session->roster_known) {
-        width = max(width, LbTextStringWidth(get_string(GUIStr_NetPlayerListUnavailable)) * text_scale / 16);
+        width = max(width, (int)lobby_text_width(line_height, 1, get_string(GUIStr_NetPlayerListUnavailable)));
     }
     for (int i = 0; i < session->player_count && session->roster_known; i++) {
-        width = max(width, LbTextStringWidth(session->players[i]) * text_scale / 16);
+        width = max(width, (int)lobby_text_width(line_height, 1, session->players[i]));
     }
     width = min(width + padding * 2, (int)lbDisplay.GraphicsScreenWidth - padding * 2);
     int height = lines * line_height + padding * 2;
@@ -504,12 +506,12 @@ void frontnet_draw_lobby_tooltip(struct GuiButton *gbtn)
     x = max(0, x);
     y = max(0, y);
     draw_lobby_panel(x, y, width, height, scale);
-    draw_lobby_text(x + padding, y + padding, width - padding * 2, line_height, 2, 0, get_string(GUIStr_MnuPlayers));
+    draw_lobby_text(x + padding, y + padding, width - padding * 2, line_height, 2, 0, 0, get_string(GUIStr_MnuPlayers));
     if (!session->roster_known) {
-        draw_lobby_text(x + padding, y + padding + line_height, width - padding * 2, line_height, 1, 0, get_string(GUIStr_NetPlayerListUnavailable));
+        draw_lobby_text(x + padding, y + padding + line_height, width - padding * 2, line_height, 1, 0, 0, get_string(GUIStr_NetPlayerListUnavailable));
     }
     for (int i = 0; i < session->player_count && session->roster_known; i++) {
-        draw_lobby_text(x + padding, y + padding + (i + 1) * line_height, width - padding * 2, line_height, 1, 0, session->players[i]);
+        draw_lobby_text(x + padding, y + padding + (i + 1) * line_height, width - padding * 2, line_height, 1, 0, 0, session->players[i]);
     }
 }
 
@@ -595,7 +597,7 @@ static void draw_lobby_section_header(struct GuiButton *gbtn, const char *text)
     int scale = lobby_menu_scale(gbtn);
     int indent = LOBBY_SECTION_TEXT_INDENT * scale / 16;
     frontnet_draw_tab_bar(gbtn);
-    draw_lobby_text(gbtn->scr_pos_x + indent, gbtn->scr_pos_y + scale / 16, gbtn->width - 2 * indent, gbtn->height, 2, 0, text);
+    draw_lobby_text(gbtn->scr_pos_x + indent, gbtn->scr_pos_y + scale / 16, gbtn->width - 2 * indent, gbtn->height, 2, 0, 0, text);
 }
 
 void frontnet_draw_lobby_section_header(struct GuiButton *gbtn)
@@ -627,7 +629,7 @@ void frontnet_draw_lobby_name(struct GuiButton *gbtn)
     }
     char text[sizeof(net_lobby_settings.net_lobby_name) + 1];
     snprintf(text, sizeof(text), "%s%s", gbtn->content.str, cursor);
-    draw_lobby_text_right_aligned(gbtn->scr_pos_x + gbtn->width, gbtn->scr_pos_y, gbtn->width, gbtn->height, font_index, text);
+    draw_lobby_text_right_aligned(gbtn->scr_pos_x + gbtn->width, gbtn->scr_pos_y, gbtn->width, gbtn->height, font_index, gbtn == input_button, text);
 }
 
 static const unsigned char *lobby_panel_sprite_remap(TbBool highlighted)
@@ -653,7 +655,7 @@ static void draw_mappack_selector(struct GuiButton *gbtn)
     RendererSetDrawFlags(0);
     frontnet_draw_scroll_selection_box(gbtn, 0, NULL);
     int font_index = lobby_font(gbtn, net_lobby_mappack_list_open || (frontend_mouse_over_button == gbtn->content.lval));
-    draw_lobby_text(gbtn->scr_pos_x + indent, gbtn->scr_pos_y, gbtn->width - 2 * indent, gbtn->height, font_index, 0, campaign.display_name);
+    draw_lobby_text(gbtn->scr_pos_x + indent, gbtn->scr_pos_y, gbtn->width - 2 * indent, gbtn->height, font_index, 0, 0, campaign.display_name);
 }
 
 static struct GuiButton *mappack_selector_button;
@@ -679,10 +681,10 @@ void frontnet_draw_lobby_option(struct GuiButton *gbtn)
     const char *value = lobby_option_value(gbtn->btype_value, value_text, sizeof(value_text));
     int32_t value_width = gbtn->width / 2;
     if (value != NULL) {
-        value_width = draw_lobby_text_right_aligned(gbtn->scr_pos_x + gbtn->width, gbtn->scr_pos_y, gbtn->width / 2, gbtn->height, font_index, value);
+        value_width = draw_lobby_text_right_aligned(gbtn->scr_pos_x + gbtn->width, gbtn->scr_pos_y, gbtn->width / 2, gbtn->height, font_index, false, value);
     }
     int32_t label_width = gbtn->width - value_width - LOBBY_OPTION_TEXT_GAP * lobby_menu_scale(gbtn) / 16;
-    draw_lobby_text(gbtn->scr_pos_x, gbtn->scr_pos_y, label_width, gbtn->height, font_index, 0, get_string(lobby_option_labels[gbtn->btype_value]));
+    draw_lobby_text(gbtn->scr_pos_x, gbtn->scr_pos_y, label_width, gbtn->height, font_index, 0, 0, get_string(lobby_option_labels[gbtn->btype_value]));
 }
 
 void frontnet_mappack_up(struct GuiButton *gbtn)
@@ -913,8 +915,8 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
             name_font = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
         }
         int name_x = column_x[LobbyPlayerColumn_Name] + icon_width;
-        draw_lobby_text(name_x, y, column_x[LobbyPlayerColumn_Team] - name_x - text_gap, height, name_font, draw_flags, name);
-        draw_lobby_text(column_x[LobbyPlayerColumn_Ping], y, column_x[LobbyPlayerColumn_Count] - column_x[LobbyPlayerColumn_Ping] - text_gap, height, font, draw_flags, ping);
+        draw_lobby_text(name_x, y, column_x[LobbyPlayerColumn_Team] - name_x - text_gap, height, name_font, draw_flags, 0, name);
+        draw_lobby_text(column_x[LobbyPlayerColumn_Ping], y, column_x[LobbyPlayerColumn_Count] - column_x[LobbyPlayerColumn_Ping] - text_gap, height, font, draw_flags, 0, ping);
         if (net_player_team[user] >= 0) {
             const struct TbSprite *team_icon = get_panel_sprite(lobby_team_icons[net_player_team[user]]);
             RendererSetDrawFlags(draw_flags);
@@ -1002,7 +1004,7 @@ void frontnet_draw_mappack_list(struct GuiButton *gbtn)
             font_index = 2;
         }
         row.scr_pos_y = panel.scr_pos_y + ((LOBBY_PANEL_PADDING + i * LOBBY_ROW_HEIGHT) * scale + 8) / 16;
-        draw_lobby_text(row.scr_pos_x, row.scr_pos_y, row.width, row.height, font_index, 0, mappack->display_name);
+        draw_lobby_text(row.scr_pos_x, row.scr_pos_y, row.width, row.height, font_index, 0, 0, mappack->display_name);
     }
 }
 
