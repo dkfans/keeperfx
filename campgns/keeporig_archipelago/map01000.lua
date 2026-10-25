@@ -161,12 +161,12 @@ function ItemStatus()
     --Creatures
     for itemid=1, 100 do
         if ChecksTable[itemid] then
-            local item_subtile_x = 85 + 12*(itemid)
+            local item_subtile_x = 88 + 9*(itemid)
             local item_subtile_y = 88
-            if itemid > 16  then
-                item_subtile_x = 169 + 12*(itemid-16)
-                item_subtile_y = 112
-            end
+            --if itemid > 16  then
+            --    item_subtile_x = 169 + 12*(itemid-16)
+            --    item_subtile_y = 112
+            --end
             local item_pos = {stl_x = item_subtile_x, stl_y = item_subtile_y}
             RunDKScriptCommand("SET_CREATURE_CONFIGURATION(" .. ChecksTable[itemid].internal_name .. ",HungerRate,0)")
             AddCreatureToLevel("PLAYER6",ChecksTable[itemid].internal_name,item_pos,1,0,"INITIALIZE")
